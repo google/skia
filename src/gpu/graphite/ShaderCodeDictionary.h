@@ -231,13 +231,16 @@ public:
 
     const skia_private::TArray<uint32_t>& data() const { return fData; }
 
+    // Determines numTexturesAndSamplersUsed, hasPaintUniforms, hasGradientBuffer, and if a valid
+    // SamplerDesc ptr is passed in, any immutable sampler SamplerDescs.
     std::string toSkSL(const Caps* caps,
                        const RenderStep* step,
                        bool useStorageBuffers,
-                       int* numTexturesAndSamplersUsed,
-                       bool* hasPaintUniforms,
-                       bool* hasGradientBuffer,
-                       Swizzle writeSwizzle);
+                       Swizzle writeSwizzle,
+                       int* outNumTexturesAndSamplersUsed,
+                       bool* outHasPaintUniforms,
+                       bool* outHasGradientBuffer,
+                       skia_private::TArray<SamplerDesc>* outDescs = nullptr);
 
 private:
     // Recursive method which traverses ShaderNodes in a depth-first manner to aggregate all

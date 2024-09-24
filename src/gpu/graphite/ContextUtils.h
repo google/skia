@@ -112,15 +112,29 @@ VertSkSLInfo BuildVertexSkSL(const ResourceBindingRequirements&,
                              bool defineShadingSsboIndexVarying,
                              bool defineLocalCoordsVarying);
 
-// TODO(b/347072931): Refactor to return std::unique_ptr<ShaderInfo> instead such that snippet
-// data can remain tied to its snippet ID.
+// Accepts a real or, by default, an invalid/nullptr pointer to a container of SamplerDescs.
+// Backend implementations which may utilize static / immutable samplers should pass in a real
+// pointer to indicate that shader node data must be analyzed to determine whether
+// immutable samplers are used, and if so, ascertain SamplerDescs for them.
+// TODO(b/366220690): Actually perform this analysis.
+
+// If provided a valid container ptr, this function will delegate the addition of SamplerDescs for
+// each sampler the nodes utilize (dynamic and immutable). This way, a SamplerDesc's index within
+// the container can inform its binding order. Each SamplerDesc will be either:
+// 1) a default-constructed SamplerDesc, indicating the use of a "regular" dynamic sampler which
+//    requires no special handling OR
+// 2) a real SamplerDesc describing an immutable sampler. Backend pipelines can then use the desc to
+//    obtain a real immutable sampler pointer (which typically must be included in pipeline layouts)
+
+// TODO(b/347072931): Streamline to return std::unique_ptr<ShaderInfo> instead.
 FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
                                const ShaderCodeDictionary*,
                                const RuntimeEffectDictionary*,
                                const RenderStep* renderStep,
                                UniquePaintParamsID paintID,
                                bool useStorageBuffers,
-                               skgpu::Swizzle writeSwizzle);
+                               skgpu::Swizzle writeSwizzle,
+                               skia_private::TArray<SamplerDesc>* outDescs = nullptr);
 
 std::string GetPipelineLabel(const ShaderCodeDictionary*,
                              const RenderPassDesc& renderPassDesc,
@@ -151,7 +165,8 @@ std::string EmitStorageBufferAccess(const char* bufferNamePrefix,
                                     const char* uniformName);
 std::string EmitTexturesAndSamplers(const ResourceBindingRequirements&,
                                     SkSpan<const ShaderNode*> nodes,
-                                    int* binding);
+                                    int* binding,
+                                    skia_private::TArray<SamplerDesc>* outDescs);
 std::string EmitSamplerLayout(const ResourceBindingRequirements&, int* binding);
 std::string EmitVaryings(const RenderStep* step,
                          const char* direction,

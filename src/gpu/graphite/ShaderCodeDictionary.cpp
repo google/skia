@@ -424,10 +424,11 @@ void append_color_output(std::string* mainBody,
 std::string ShaderInfo::toSkSL(const Caps* caps,
                                const RenderStep* step,
                                bool useStorageBuffers,
-                               int* numTexturesAndSamplersUsed,
-                               bool* hasPaintUniforms,
-                               bool* hasGradientBuffer,
-                               Swizzle writeSwizzle) {
+                               Swizzle writeSwizzle,
+                               int* outNumTexturesAndSamplersUsed,
+                               bool* outHasPaintUniforms,
+                               bool* outHasGradientBuffer,
+                               skia_private::TArray<SamplerDesc>* outDescs) {
     // If we're doing analytic coverage, we must also be doing shading.
     SkASSERT(step->coverage() == Coverage::kNone || step->performsShading());
     const bool hasStepUniforms = step->numUniforms() > 0 && step->coverage() != Coverage::kNone;
@@ -460,14 +461,14 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     if (useShadingStorageBuffer) {
         preamble += EmitPaintParamsStorageBuffer(bindingReqs.fPaintParamsBufferBinding,
                                                  fRootNodes,
-                                                 hasPaintUniforms,
+                                                 outHasPaintUniforms,
                                                  &wrotePaintColor);
         SkSL::String::appendf(&preamble, "uint %s;\n", this->ssboIndex());
     } else {
         preamble += EmitPaintParamsUniforms(bindingReqs.fPaintParamsBufferBinding,
                                             bindingReqs.fUniformBufferLayout,
                                             fRootNodes,
-                                            hasPaintUniforms,
+                                            outHasPaintUniforms,
                                             &wrotePaintColor);
     }
 
@@ -478,19 +479,19 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
                               "};\n",
                               bindingReqs.fGradientBufferBinding,
                               kGradientBufferName);
-        *hasGradientBuffer = true;
+        *outHasGradientBuffer = true;
     }
 
     {
         int binding = 0;
-        preamble += EmitTexturesAndSamplers(bindingReqs, fRootNodes, &binding);
+        preamble += EmitTexturesAndSamplers(bindingReqs, fRootNodes, &binding, outDescs);
         if (step->hasTextures()) {
             preamble += step->texturesAndSamplersSkSL(bindingReqs, &binding);
         }
 
         // Report back to the caller how many textures and samplers are used.
-        if (numTexturesAndSamplersUsed) {
-            *numTexturesAndSamplersUsed = binding;
+        if (outNumTexturesAndSamplersUsed) {
+            *outNumTexturesAndSamplersUsed = binding;
         }
     }
 

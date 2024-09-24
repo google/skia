@@ -256,13 +256,16 @@ std::string get_node_ssbo_fields(const ShaderNode* node, bool* wrotePaintColor) 
 
 std::string get_node_texture_samplers(const ResourceBindingRequirements& bindingReqs,
                                       const ShaderNode* node,
-                                      int* binding) {
+                                      int* binding,
+                                      skia_private::TArray<SamplerDesc>* outDescs) {
     std::string result;
     SkSpan<const TextureAndSampler> samplers = node->entry()->fTexturesAndSamplers;
 
     if (!samplers.empty()) {
         SkSL::String::appendf(&result, "// %d - %s samplers\n",
                               node->keyIndex(), node->entry()->fName);
+
+        // TODO(b/898301): If outDescs is a valid ptr, populate it appropriately.
 
         for (const TextureAndSampler& t : samplers) {
             result += EmitSamplerLayout(bindingReqs, binding);
@@ -272,7 +275,7 @@ std::string get_node_texture_samplers(const ResourceBindingRequirements& binding
     }
 
     for (const ShaderNode* child : node->children()) {
-        result += get_node_texture_samplers(bindingReqs, child, binding);
+        result += get_node_texture_samplers(bindingReqs, child, binding, outDescs);
     }
     return result;
 }
@@ -439,10 +442,11 @@ std::string EmitStorageBufferAccess(const char* bufferNamePrefix,
 
 std::string EmitTexturesAndSamplers(const ResourceBindingRequirements& bindingReqs,
                                     SkSpan<const ShaderNode*> nodes,
-                                    int* binding) {
+                                    int* binding,
+                                    skia_private::TArray<SamplerDesc>* outDescs) {
     std::string result;
     for (const ShaderNode* n : nodes) {
-        result += get_node_texture_samplers(bindingReqs, n, binding);
+        result += get_node_texture_samplers(bindingReqs, n, binding, outDescs);
     }
     return result;
 }
@@ -626,7 +630,8 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
                                const RenderStep* step,
                                UniquePaintParamsID paintID,
                                bool useStorageBuffers,
-                               skgpu::Swizzle writeSwizzle) {
+                               skgpu::Swizzle writeSwizzle,
+                               skia_private::TArray<SamplerDesc>* outDescs) {
     FragSkSLInfo result;
     if (!paintID.isValid()) {
         // Depth-only draw so no fragment shader to compile
@@ -640,10 +645,11 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
     result.fSkSL = shaderInfo.toSkSL(caps,
                                      step,
                                      useStorageBuffers,
+                                     writeSwizzle,
                                      &result.fNumTexturesAndSamplers,
                                      &result.fHasPaintUniforms,
                                      &result.fHasGradientBuffer,
-                                     writeSwizzle);
+                                     outDescs);
 
     // Extract blend info after integrating the RenderStep into the final fragment shader in case
     // that changes the HW blending choice to handle analytic coverage.
