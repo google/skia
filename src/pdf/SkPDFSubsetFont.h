@@ -10,10 +10,7 @@ class SkPDFGlyphUse;
 class SkTypeface;
 
 /** Subset the typeface's data to only include the glyphs used.
- *
  *  The glyph ids will remain the same.
- *
- *  If the font data contains a CFF table, only the (possibly subset) CFF table will be returned.
  *
  *  @return The subset font data, or nullptr if it cannot be subset.
  */
