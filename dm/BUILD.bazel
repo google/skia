@@ -10,8 +10,9 @@ skia_cc_binary(
     name = "dm",
     testonly = True,
     srcs = [
+        "//tools/flags:common_flags_config",
+
         "DM.cpp",
-        # "DMGpuTestProcs.cpp",
         "DMJsonWriter.cpp",
         "DMJsonWriter.h",
         "DMSrcSink.cpp",
@@ -46,7 +47,6 @@ skia_cc_binary(
         "//tools:url_data_manager",
         "//tools/debugger",
         "//tools/flags:common_flags",
-        "//tools/flags:common_flags_config",
         "//tools/flags:ganesh_flags",
         "//tools/gpu:ganesh_gl_utils",
         "//tools/trace",

@@ -61,25 +61,17 @@ skia_cc_library(
     ],
 )
 
-skia_cc_library(
+# This is a filegroup because CommonFlagsConfig.cpp mixes functionality from all backends,
+# and is difficult to untangle in a reasonable manner.
+skia_filegroup(
     name = "common_flags_config",
     testonly = True,
     srcs = [
         "CommonFlagsConfig.cpp",
         "CommonFlagsConfig.h",
     ],
-    hdrs = [
-        "CommonFlagsConfig.h",
-    ],
     visibility = [
         "//dm:__pkg__",
-    ],
-    deps = [
-        ":common_flags",
-        "//:core",
-        # CommonFlagsConfig currently depends on GL.
-        # TODO(fmalita): refactor as a file group to avoid hard coding the dependency at this level.
-        "//tools/gpu:ganesh_gl_utils",
     ],
 )
 
