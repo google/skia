@@ -385,14 +385,6 @@ public:
                      pattern.weight(), pattern.width(), pattern.slant(),
                      name.c_str(), fontStyle.weight(), fontStyle.width(), fontStyle.slant(),
                      amatch->fPathName.c_str(), amatch->fIndex, axes.c_str());
-
-            if (name.equals("Arial") && pattern.weight() == 400 && fontStyle.weight() == 500) {
-                for (auto&& style : fStyles) {
-                    fontStyle = style->fontStyle();
-                    SkDebugf("SKIA: Style [%d, %d, %d]",
-                             fontStyle.weight(), fontStyle.width(), fontStyle.slant());
-                }
-            }
         }
         return match;
     }
