@@ -203,7 +203,7 @@ var (
 			Path: "mac_toolchain",
 			// When this is updated, also update
 			// https://skia.googlesource.com/skcms.git/+/f1e2b45d18facbae2dece3aca673fe1603077846/infra/bots/gen_tasks.go#56
-			Version: "git_revision:e018acef6f136ec8bbf378a026a910b40ba3a7a9",
+			Version: "git_revision:e6f45bde6c5ee56924b1f905159b6a1a48ef25dd",
 		},
 	}
 
