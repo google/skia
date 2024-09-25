@@ -68,9 +68,10 @@ static const std::unordered_map<int, skui::InputState> ANDROID_TO_WINDOW_STATEMA
     {AMOTION_EVENT_ACTION_CANCEL,       skui::InputState::kUp   },
 });
 
-SkiaAndroidApp::SkiaAndroidApp(JNIEnv* env, jobject androidApp) {
+SkiaAndroidApp::SkiaAndroidApp(JNIEnv* env, jobject androidApp, jobjectArray args) {
     env->GetJavaVM(&fJavaVM);
     fAndroidApp = env->NewGlobalRef(androidApp);
+    fArgs = static_cast<jobjectArray>(env->NewGlobalRef(args));
     jclass cls = env->GetObjectClass(fAndroidApp);
     fSetTitleMethodID = env->GetMethodID(cls, "setTitle", "(Ljava/lang/String;)V");
     fSetStateMethodID = env->GetMethodID(cls, "setState", "(Ljava/lang/String;)V");
@@ -80,6 +81,7 @@ SkiaAndroidApp::SkiaAndroidApp(JNIEnv* env, jobject androidApp) {
 
 SkiaAndroidApp::~SkiaAndroidApp() {
     fPThreadEnv->DeleteGlobalRef(fAndroidApp);
+    fPThreadEnv->DeleteGlobalRef(fArgs);
     if (fWindow) {
         fWindow->detach();
     }
@@ -200,21 +202,24 @@ void* SkiaAndroidApp::pthread_main(void* arg) {
 
     // Because JNIEnv is thread sensitive, we need AttachCurrentThread to set our fPThreadEnv
     skiaAndroidApp->fJavaVM->AttachCurrentThread(&(skiaAndroidApp->fPThreadEnv), nullptr);
+    JNIEnv* env = skiaAndroidApp->fPThreadEnv;
 
     ALooper* looper = ALooper_prepare(ALOOPER_PREPARE_ALLOW_NON_CALLBACKS);
     pipe(skiaAndroidApp->fPipes);
     ALooper_addFd(looper, skiaAndroidApp->fPipes[0], LOOPER_ID_MESSAGEPIPE, ALOOPER_EVENT_INPUT,
                   message_callback, skiaAndroidApp);
 
-    static const char* gCmdLine[] = {
-        "viewer",
-        // TODO: figure out how to use am start with extra params to pass in additional arguments at
-        // runtime. Or better yet make an in app switch to enable
-        // "--atrace",
-    };
+    jsize argc = env->GetArrayLength(skiaAndroidApp->fArgs);
+    std::unique_ptr<const char*[]> argv = std::unique_ptr<const char*[]>(new const char*[argc+1]);
+    argv[0] = "viewer";
+    for (jsize i = 0; i < argc; ++i) {
+        jobject argBuffer = env->GetObjectArrayElement(skiaAndroidApp->fArgs, i);
+        void* argBytes = env->GetDirectBufferAddress(argBuffer);
+        argv[i+1] = static_cast<const char*>(argBytes);
+    }
 
-    skiaAndroidApp->fApp = Application::Create(std::size(gCmdLine),
-                                               const_cast<char**>(gCmdLine),
+    skiaAndroidApp->fApp = Application::Create(argc+1,
+                                               const_cast<char**>(argv.get()),
                                                skiaAndroidApp);
 
     while (true) {
@@ -235,9 +240,10 @@ extern "C"  // extern "C" is needed for JNI (although the method itself is in C+
     JNIEXPORT jlong JNICALL
     Java_org_skia_viewer_ViewerApplication_createNativeApp(JNIEnv* env,
                                                            jobject application,
-                                                           jobject assetManager) {
+                                                           jobject assetManager,
+                                                           jobjectArray args) {
     config_resource_mgr(env, assetManager);
-    SkiaAndroidApp* skiaAndroidApp = new SkiaAndroidApp(env, application);
+    SkiaAndroidApp* skiaAndroidApp = new SkiaAndroidApp(env, application, args);
     return (jlong)((size_t)skiaAndroidApp);
 }
 

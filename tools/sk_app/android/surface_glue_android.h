@@ -49,8 +49,9 @@ struct SkiaAndroidApp {
     Application* fApp;
     Window* fWindow;
     jobject fAndroidApp;
+    jobjectArray fArgs;
 
-    SkiaAndroidApp(JNIEnv* env, jobject androidApp);
+    SkiaAndroidApp(JNIEnv* env, jobject androidApp, jobjectArray args);
 
     void postMessage(const Message& message) const;
     void readMessage(Message* message) const;

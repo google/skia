@@ -74,6 +74,10 @@ where `<out_dir>` is the ninja out directory (e.g., `out/arm64`)
 that you created. Upon completion of the script the APK
 can be found at `<out_dir>/viewer.apk`. Install it with `adb install`.
 
+It is possible to pass additional command line flags like
+
+    adb shell am start -a android.intent.action.MAIN -n org.skia.viewer/org.skia.viewer.ViewerActivity --es args '"--androidndkfonts"'
+
 ### How to Use the App
 
 Most app functions (except touch gestures and arrow buttons) are placed in the **left drawer**.
