@@ -144,7 +144,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/vulkan-deps": {
 		Id:      "chromium.googlesource.com/vulkan-deps",
-		Version: "683d4c5faa300d8ee5f81270fcf3cc3bfd3a31d1",
+		Version: "13d1d0b93ffd149932ec26f8ecb14fac66133bd3",
 		Path:    "third_party/externals/vulkan-deps",
 	},
 	"chromium.googlesource.com/webm/libwebp": {
@@ -194,12 +194,12 @@ var deps = deps_parser.DepsEntries{
 	},
 	"skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers": {
 		Id:      "skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers",
-		Version: "2a9b6f951c7d6b04b6c21fe1bf3f475b68b84801",
+		Version: "ec59c77a3bb5c747a369931ef101ac7c14823f2f",
 		Path:    "third_party/externals/spirv-headers",
 	},
 	"skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools": {
 		Id:      "skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools",
-		Version: "362ce7c60d040ed927464ed4f29c688dbc541886",
+		Version: "44936c4a9d42f1c67e34babb5792adf5bce7f76b",
 		Path:    "third_party/externals/spirv-tools",
 	},
 	"skia.googlesource.com/external/github.com/abseil/abseil-cpp": {
