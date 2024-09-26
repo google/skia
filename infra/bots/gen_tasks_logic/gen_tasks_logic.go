@@ -844,6 +844,7 @@ var androidDeviceInfos = map[string][]string{
 	"Pixel5":          {"redfin", "RD1A.200810.022.A4"},
 	"Pixel6":          {"oriole", "SD1A.210817.037"},
 	"Pixel7":          {"cheetah", "TD1A.221105.002"},
+	"Pixel9":          {"tokay", "AD1A.240905.004"},
 	"TecnoSpark3Pro":  {"TECNO-KB8", "PPR1.180610.011"},
 	"Wembley":         {"wembley", "SP2A.220505.008"},
 }

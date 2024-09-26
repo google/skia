@@ -46,6 +46,22 @@ class AndroidFlavor(default.DefaultFlavor):
                       'P30', 'Pixel4','Pixel4XL', 'Pixel5', 'TecnoSpark3Pro', 'JioNext',
                       'GalaxyS24']
 
+    self.use_performance_governor_for_dm = [
+      'Pixel3a',
+      'Pixel4',
+      'Pixel4a',
+      'Wembley',
+      'Pixel6',
+      'Pixel7',
+      'Pixel9',
+    ]
+
+    self.use_powersave_governor_for_nanobench = [
+      'Pixel6',
+      'Pixel7',
+      'Pixel9',
+    ]
+
     # Maps device type -> CPU ids that should be scaled for nanobench.
     # Many devices have two (or more) different CPUs (e.g. big.LITTLE
     # on Nexus5x). The CPUs listed are the biggest cpus on the device.
@@ -73,6 +89,7 @@ class AndroidFlavor(default.DefaultFlavor):
       'Pixel2XL': range(0, 4),
       'Pixel6': range(4,8), # Only use the 4 small cores.
       'Pixel7': range(4,8),
+      'Pixel9': range(4,8),
     }
 
     self.gpu_scaling = {
@@ -167,7 +184,7 @@ class AndroidFlavor(default.DefaultFlavor):
       # AndroidOne doesn't support ondemand governor. hotplug is similar.
       if device == 'AndroidOne':
         self._set_governor(i, 'hotplug')
-      elif device in ['Pixel3a', 'Pixel4', 'Pixel4a', 'Wembley', 'Pixel6', 'Pixel7']:
+      elif device in self.use_performance_governor_for_dm:
         # Pixel3a/4/4a have userspace powersave performance schedutil.
         # performance seems like a reasonable choice.
         self._set_governor(i, 'performance')
@@ -180,9 +197,8 @@ class AndroidFlavor(default.DefaultFlavor):
       self.m.vars.internal_hardware_label):
       return
 
-    # Set to 'powersave' for Pixel6 and Pixel7.
     for i in self.cpus_to_scale.get(device, [0]):
-      if device in ['Pixel6', 'Pixel7']:
+      if device in self.use_powersave_governor_for_nanobench:
         self._set_governor(i, 'powersave')
       elif device not in self.cant_root:
         self._set_governor(i, 'userspace')
