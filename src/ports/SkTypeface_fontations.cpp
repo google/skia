@@ -473,12 +473,14 @@ protected:
     GlyphMetrics generateMetrics(const SkGlyph& glyph, SkArenaAlloc*) override {
         GlyphMetrics mx(glyph.maskFormat());
 
-        bool has_colrv1_glyph =
-                fontations_ffi::has_colrv1_glyph(fBridgeFontRef, glyph.getGlyphID());
-        bool has_colrv0_glyph =
-                fontations_ffi::has_colrv0_glyph(fBridgeFontRef, glyph.getGlyphID());
-        bool has_bitmap_glyph =
-                fontations_ffi::has_bitmap_glyph(fBridgeFontRef, glyph.getGlyphID());
+        bool has_colrv1_glyph = false;
+        bool has_colrv0_glyph = false;
+        bool has_bitmap_glyph = false;
+        if (fontations_ffi::has_any_color_table(fBridgeFontRef)) {
+            has_colrv1_glyph = fontations_ffi::has_colrv1_glyph(fBridgeFontRef, glyph.getGlyphID());
+            has_colrv0_glyph = fontations_ffi::has_colrv0_glyph(fBridgeFontRef, glyph.getGlyphID());
+            has_bitmap_glyph = fontations_ffi::has_bitmap_glyph(fBridgeFontRef, glyph.getGlyphID());
+        }
 
         // Local overrides for color fonts etc. may alter the request for linear metrics.
         bool doLinearMetrics = fDoLinearMetrics;

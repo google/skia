@@ -901,11 +901,30 @@ fn make_font_ref_internal<'a>(font_data: &'a [u8], index: u32) -> Result<FontRef
 }
 
 fn make_font_ref<'a>(font_data: &'a [u8], index: u32) -> Box<BridgeFontRef<'a>> {
-    Box::new(BridgeFontRef(make_font_ref_internal(font_data, index).ok()))
+    let font = make_font_ref_internal(font_data, index).ok();
+    let has_any_color = font
+        .as_ref()
+        .map(|f| {
+            f.cbdt().is_ok() ||
+            f.sbix().is_ok() ||
+            // ColorGlyphCollection::get_with_format() first thing checks for presence of colr(),
+            // so we do the same:
+            f.colr().is_ok()
+        })
+        .unwrap_or_default();
+
+    Box::new(BridgeFontRef {
+        font,
+        has_any_color,
+    })
 }
 
 fn font_ref_is_valid(bridge_font_ref: &BridgeFontRef) -> bool {
-    bridge_font_ref.0.is_some()
+    bridge_font_ref.font.is_some()
+}
+
+fn has_any_color_table(bridge_font_ref: &BridgeFontRef) -> bool {
+    bridge_font_ref.has_any_color
 }
 
 fn get_outline_collection<'a>(font_ref: &'a BridgeFontRef<'a>) -> Box<BridgeOutlineCollection<'a>> {
@@ -1154,11 +1173,14 @@ fn italic_angle(font_ref: &BridgeFontRef) -> i32 {
         .unwrap_or_default()
 }
 
-pub struct BridgeFontRef<'a>(Option<FontRef<'a>>);
+pub struct BridgeFontRef<'a> {
+    font: Option<FontRef<'a>>,
+    has_any_color: bool,
+}
 
 impl<'a> BridgeFontRef<'a> {
     fn with_font<T>(&'a self, f: impl FnOnce(&'a FontRef) -> Option<T>) -> Option<T> {
-        f(self.0.as_ref()?)
+        f(self.font.as_ref()?)
     }
 }
 
@@ -1301,9 +1323,9 @@ mod bitmap {
     }
 
     pub fn has_bitmap_glyph(font_ref: &BridgeFontRef, glyph_id: u16) -> bool {
-        let glyph_id = GlyphId::from(glyph_id);
         font_ref
             .with_font(|font| {
+                let glyph_id = GlyphId::from(glyph_id);
                 let has_sbix = sbix_glyph(font, glyph_id, None).is_some();
                 let has_cblc = cblc_glyph(font, glyph_id, None).is_some();
                 Some(has_sbix || has_cblc)
@@ -1537,6 +1559,9 @@ mod ffi {
         // FontRef instantiation succeeded and a table directory was
         // accessible.
         fn font_ref_is_valid(bridge_font_ref: &BridgeFontRef) -> bool;
+
+        // Optimization to quickly rule out that the font has any color tables.
+        fn has_any_color_table(bridge_font_ref: &BridgeFontRef) -> bool;
 
         type BridgeOutlineCollection<'a>;
         unsafe fn get_outline_collection<'a>(
