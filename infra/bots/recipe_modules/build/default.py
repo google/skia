@@ -402,7 +402,8 @@ def copy_build_products(api, src, dst):
             'Xcode.app', 'Contents', 'Developer', 'Toolchains',
             'XcodeDefault.xctoolchain', 'usr', 'lib', 'clang'),
         test_data=['11.0.0'])
-    assert len(xcode_clang_ver_dirs) == 1 or len(xcode_clang_ver_dirs) == 2
+    # Allow both clang/16 and clang/16.0.0, so long as they are equivalent.
+    assert len({api.path.realpath(d) for d in xcode_clang_ver_dirs}) == 1
     dylib_dir = xcode_clang_ver_dirs[0].joinpath('lib', 'darwin')
     dylibs = api.file.glob_paths('find xSAN dylibs', dylib_dir,
                                  'libclang_rt.*san_osx_dynamic.dylib',
