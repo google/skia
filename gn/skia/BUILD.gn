@@ -366,6 +366,10 @@ config("default") {
       "-fno-sanitize-recover=$sanitizers",
       "-fsanitize-blacklist=$_suppressions",
     ]
+    if (is_mac) {
+      # https://github.com/llvm/llvm-project/issues/109074
+      cflags += [ "-fno-sanitize=function" ]
+    }
 
     if (is_win) {
       cflags += [
