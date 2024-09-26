@@ -190,7 +190,7 @@ def c_plus_plus_deps(ws = "@skia"):
 
     git_repository(
         name = "spirv_tools",
-        commit = "44936c4a9d42f1c67e34babb5792adf5bce7f76b",
+        commit = "b1ad37b175940db03ee4e1fee9a14cc349281ec1",
         remote = "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git",
     )
 
