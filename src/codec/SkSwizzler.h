@@ -54,8 +54,10 @@ public:
      *                 initialized.
      *  @return A new SkSwizzler or nullptr on failure.
      */
-    static std::unique_ptr<SkSwizzler> MakeSimple(int srcBPP, const SkImageInfo& dstInfo,
-                                                  const SkCodec::Options&);
+    static std::unique_ptr<SkSwizzler> MakeSimple(int srcBPP,
+                                                  const SkImageInfo& dstInfo,
+                                                  const SkCodec::Options&,
+                                                  const SkIRect* frame = nullptr);
 
     /**
      *  Swizzle a line. Generally this will be called height times, once

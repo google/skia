@@ -789,8 +789,10 @@ void SkSwizzler::SkipLeading8888ZerosThen(
     proc(dst32, (const uint8_t*)src32, dstWidth, bpp, deltaSrc, 0, ctable);
 }
 
-std::unique_ptr<SkSwizzler> SkSwizzler::MakeSimple(int srcBPP, const SkImageInfo& dstInfo,
-                                                   const SkCodec::Options& options) {
+std::unique_ptr<SkSwizzler> SkSwizzler::MakeSimple(int srcBPP,
+                                                   const SkImageInfo& dstInfo,
+                                                   const SkCodec::Options& options,
+                                                   const SkIRect* frame) {
     RowProc proc = nullptr;
     switch (srcBPP) {
         case 1:     // kGray_8_SkColorType
@@ -814,8 +816,14 @@ std::unique_ptr<SkSwizzler> SkSwizzler::MakeSimple(int srcBPP, const SkImageInfo
             return nullptr;
     }
 
-    return Make(dstInfo, &copy, proc, nullptr /*ctable*/, srcBPP,
-                dstInfo.bytesPerPixel(), options, nullptr /*frame*/);
+    return Make(dstInfo,
+                &copy,
+                proc,
+                nullptr /*ctable*/,
+                srcBPP,
+                dstInfo.bytesPerPixel(),
+                options,
+                frame);
 }
 
 std::unique_ptr<SkSwizzler> SkSwizzler::Make(const SkEncodedInfo& encodedInfo,

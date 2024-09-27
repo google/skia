@@ -919,7 +919,11 @@ SkCodec::Result SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const O
     }
     png_read_update_info(fPng_ptr, fInfo_ptr);
 
-    return SkPngCodecBase::initializeXforms(dstInfo, options);
+    // `SkPngCodec` doesn't support APNG - the `frameWidth` is always the same
+    // as the full image width.
+    int frameWidth = dstInfo.width();
+
+    return SkPngCodecBase::initializeXforms(dstInfo, options, frameWidth);
 }
 
 bool SkPngCodec::onRewind() {

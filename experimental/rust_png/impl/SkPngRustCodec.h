@@ -35,9 +35,21 @@ public:
 
 private:
     struct DecodingState {
+        // `dst` is based on `pixels` passed to `onGetPixels` or
+        // `onStartIncrementalDecode`.  For interlaced and non-interlaced
+        // images, `startDecoding` initializes `dst` to start at the (0,0)
+        // (top-left) pixel of the current frame (which may be offset from
+        // `pixels` if the current frame is a sub-rect of the full image).
+        // After decoding a non-interlaced row this moves (by `dstRowSize`) to
+        // the next row.
         SkSpan<uint8_t> dst;
-        size_t dstRowSize;  // in bytes.
-        size_t bytesPerPixel;
+
+        // Size of a row (in bytes) in the full image.  Based on `rowBytes`
+        // passed to `onGetPixels` or `onStartIncrementalDecode`.
+        size_t dstRowSize = 0;
+
+        // Stashed `dstInfo.bytesPerPixel()`
+        size_t bytesPerPixel = 0;
     };
 
     // Helper for validating parameters of `onGetPixels` and/or
