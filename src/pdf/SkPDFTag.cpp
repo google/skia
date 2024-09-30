@@ -254,6 +254,8 @@ auto SkPDFTagTree::createMarkIdForNodeId(int nodeId, unsigned pageIndex, SkPoint
     }
     TArray<SkPDFTagNode*>& pageMarks = fMarksPerPage[pageIndex];
     int markId = pageMarks.size();
+    SkASSERT(tag->fMarkedContent.empty() ||
+             tag->fMarkedContent.back().fLocation.fPageIndex <= pageIndex);
     tag->fMarkedContent.push_back({{point, pageIndex}, markId});
     pageMarks.push_back(tag);
     return Mark(tag, tag->fMarkedContent.size() - 1);
@@ -281,29 +283,8 @@ int SkPDFTagTree::createStructParentKeyForNodeId(int nodeId, unsigned pageIndex)
 SkPDFIndirectReference SkPDFTagTree::PrepareTagTreeToEmit(SkPDFIndirectReference parent,
                                                           SkPDFTagNode* node,
                                                           SkPDFDocument* doc) {
-    SkPDFIndirectReference ref = doc->reserveRef();
-    std::unique_ptr<SkPDFArray> kids = SkPDFMakeArray();
-    SkPDFTagNode* children = node->fChildren;
-    size_t childCount = node->fChildCount;
-    for (size_t i = 0; i < childCount; ++i) {
-        SkPDFTagNode* child = &children[i];
-        if (child->fUsed) {
-            kids->appendRef(PrepareTagTreeToEmit(ref, child, doc));
-        }
-    }
-    for (const SkPDFTagNode::MarkedContentInfo& info : node->fMarkedContent) {
-        std::unique_ptr<SkPDFDict> mcr = SkPDFMakeDict("MCR");
-        mcr->insertRef("Pg", doc->getPage(info.fLocation.fPageIndex));
-        mcr->insertInt("MCID", info.fMarkId);
-        kids->appendObject(std::move(mcr));
-    }
-    for (const SkPDFTagNode::AnnotationInfo& annotationInfo : node->fAnnotations) {
-        std::unique_ptr<SkPDFDict> annotationDict = SkPDFMakeDict("OBJR");
-        annotationDict->insertRef("Obj", annotationInfo.fAnnotationRef);
-        annotationDict->insertRef("Pg", doc->getPage(annotationInfo.fPageIndex));
-        kids->appendObject(std::move(annotationDict));
-    }
-    node->fRef = ref;
+    node->fRef = doc->reserveRef();
+
     SkPDFDict dict("StructElem");
     dict.insertName("S", node->fTypeString.isEmpty() ? "NonStruct" : node->fTypeString.c_str());
     if (!node->fAlt.isEmpty()) {
@@ -313,7 +294,59 @@ SkPDFIndirectReference SkPDFTagTree::PrepareTagTreeToEmit(SkPDFIndirectReference
         dict.insertTextString("Lang", node->fLang);
     }
     dict.insertRef("P", parent);
-    dict.insertObject("K", std::move(kids));
+
+    { // K
+        std::unique_ptr<SkPDFArray> kids = SkPDFMakeArray();
+        SkPDFTagNode* children = node->fChildren;
+        size_t childCount = node->fChildCount;
+        for (size_t i = 0; i < childCount; ++i) {
+            SkPDFTagNode* child = &children[i];
+            if (child->fUsed) {
+                kids->appendRef(PrepareTagTreeToEmit(node->fRef, child, doc));
+            }
+        }
+        if (!node->fMarkedContent.empty()) {
+            // Use the mode page as /Pg and use integer markId for marks on that page.
+            // SkPDFTagNode::fMarkedContent is already sorted by page, since it is append only in
+            // createMarkIdForNodeId where pageIndex is the monotonically increasing current page.
+            size_t longestRun = 0;
+            unsigned longestPage = 0;
+            size_t currentRun = 0;
+            unsigned currentPage = 0;
+            for (const SkPDFTagNode::MarkedContentInfo& info : node->fMarkedContent) {
+                unsigned thisPage = info.fLocation.fPageIndex;
+                if (currentPage != thisPage) {
+                    SkASSERT(currentPage < thisPage);
+                    currentPage = thisPage;
+                    currentRun = 0;
+                }
+                ++currentRun;
+                if (longestRun < currentRun) {
+                    longestRun = currentRun;
+                    longestPage = currentPage;
+                }
+            }
+            for (const SkPDFTagNode::MarkedContentInfo& info : node->fMarkedContent) {
+                if (info.fLocation.fPageIndex == longestPage) {
+                    kids->appendInt(info.fMarkId);
+                } else {
+                    std::unique_ptr<SkPDFDict> mcr = SkPDFMakeDict("MCR");
+                    mcr->insertRef("Pg", doc->getPage(info.fLocation.fPageIndex));
+                    mcr->insertInt("MCID", info.fMarkId);
+                    kids->appendObject(std::move(mcr));
+                }
+            }
+            dict.insertRef("Pg", doc->getPage(longestPage));
+        }
+        for (const SkPDFTagNode::AnnotationInfo& annotationInfo : node->fAnnotations) {
+            std::unique_ptr<SkPDFDict> annotationDict = SkPDFMakeDict("OBJR");
+            annotationDict->insertRef("Obj", annotationInfo.fAnnotationRef);
+            annotationDict->insertRef("Pg", doc->getPage(annotationInfo.fPageIndex));
+            kids->appendObject(std::move(annotationDict));
+        }
+        dict.insertObject("K", std::move(kids));
+    }
+
     if (node->fAttributes) {
         dict.insertObject("A", std::move(node->fAttributes));
     }
@@ -321,11 +354,11 @@ SkPDFIndirectReference SkPDFTagTree::PrepareTagTreeToEmit(SkPDFIndirectReference
     // If this StructElem ID was referenced, emit it and add it to the IDTree.
     if (node->fUsedInIDTree) {
         dict.insertByteString("ID", SkPDFTagNode::nodeIdToString(node->fNodeId));
-        IDTreeEntry idTreeEntry = {node->fNodeId, ref};
+        IDTreeEntry idTreeEntry = {node->fNodeId, node->fRef};
         fIdTreeEntries.push_back(idTreeEntry);
     }
 
-    return doc->emit(dict, ref);
+    return doc->emit(dict, node->fRef);
 }
 
 void SkPDFTagTree::addNodeAnnotation(int nodeId, SkPDFIndirectReference annotationRef, unsigned pageIndex) {
