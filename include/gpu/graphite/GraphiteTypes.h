@@ -150,7 +150,10 @@ enum DrawTypeFlags : uint16_t {
     //    TessellateCurvesRenderStep[*] for [even-odd], [winding]
     //    MiddleOutFanRenderStep[*] for [even-odd], [winding]
     kNonSimpleShape   = 0b10000000,
+
+    kLast = kNonSimpleShape,
 };
+static constexpr int kDrawTypeFlagsCnt = static_cast<int>(DrawTypeFlags::kLast) + 1;
 
 } // namespace skgpu::graphite
 

@@ -1785,6 +1785,7 @@ void simple_draws(SkCanvas* canvas, const SkPaint& paint) {
     canvas->drawRRect(SkRRect::MakeOval({0, 0, 16, 16}), paint);
     canvas->drawRRect(SkRRect::MakeRectXY({0, 0, 16, 16}, 4, 4), paint);
 
+    // TODO: add a case that uses the SkCanvas::experimental_DrawEdgeAAImageSet entry point
     if (!paint.getShader() &&
         !paint.getColorFilter() &&
         !paint.getImageFilter() &&
