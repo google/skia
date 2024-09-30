@@ -11,7 +11,6 @@
 #include "include/core/SkVertices.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/InternalDrawTypeFlags.h"
 #include "src/gpu/graphite/render/AnalyticBlurRenderStep.h"
 #include "src/gpu/graphite/render/AnalyticRRectRenderStep.h"
 #include "src/gpu/graphite/render/BitmapTextRenderStep.h"
@@ -75,8 +74,7 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
             std::make_unique<TessellateStrokesRenderStep>(infinitySupport),
             DrawTypeFlags::kNonSimpleShape);
     fCoverageMask = makeFromStep(std::make_unique<CoverageMaskRenderStep>(),
-                                 static_cast<DrawTypeFlags>(DrawTypeFlags::kNonSimpleShape|
-                                                            InternalDrawTypeFlags::kCoverageMask));
+                                 DrawTypeFlags::kNonSimpleShape);
 
     static constexpr struct {
         skgpu::MaskFormat fFormat;
@@ -99,10 +97,8 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                             : makeFromStep(std::make_unique<SDFTextRenderStep>(),
                                            DrawTypeFlags::kSDFText);
     }
-    fAnalyticRRect =
-            makeFromStep(std::make_unique<AnalyticRRectRenderStep>(bufferManager),
-                         static_cast<DrawTypeFlags>(DrawTypeFlags::kSimpleShape |
-                                                    InternalDrawTypeFlags::kAnalyticRRect));
+    fAnalyticRRect = makeFromStep(std::make_unique<AnalyticRRectRenderStep>(bufferManager),
+                                  DrawTypeFlags::kSimpleShape);
     fPerEdgeAAQuad = makeFromStep(std::make_unique<PerEdgeAAQuadRenderStep>(bufferManager),
                                   DrawTypeFlags::kSimpleShape);
     fNonAABoundsFill = makeFromStep(std::make_unique<CoverBoundsRenderStep>(

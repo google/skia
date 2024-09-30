@@ -88,7 +88,6 @@ skia_graphite_sources = [
   "$_src/Image_Graphite.h",
   "$_src/Image_YUVA_Graphite.cpp",
   "$_src/Image_YUVA_Graphite.h",
-  "$_src/InternalDrawTypeFlags.h",
   "$_src/KeyContext.cpp",
   "$_src/KeyContext.h",
   "$_src/KeyHelpers.cpp",
