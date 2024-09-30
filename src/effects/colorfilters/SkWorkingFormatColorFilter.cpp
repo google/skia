@@ -28,6 +28,7 @@ SkWorkingFormatColorFilter::SkWorkingFormatColorFilter(sk_sp<SkColorFilter> chil
                                                        const skcms_TransferFunction* tf,
                                                        const skcms_Matrix3x3* gamut,
                                                        const SkAlphaType* at) {
+    SkASSERT(child);
     fChild = std::move(child);
     if (tf) {
         fTF = *tf;
@@ -171,6 +172,13 @@ sk_sp<SkColorFilter> SkColorFilterPriv::WithWorkingFormat(sk_sp<SkColorFilter> c
                                                           const skcms_TransferFunction* tf,
                                                           const skcms_Matrix3x3* gamut,
                                                           const SkAlphaType* at) {
+    if (!child) {
+        // This color filter applies a conversion from the 'dst' color space to the working format,
+        // invokes the child, and then converts back to 'dst'. If `child` is null, it is the
+        // identity color filter, so the conversion from 'dst' to working format and back to 'dst'
+        // is also the identity.
+        return nullptr;
+    }
     return sk_make_sp<SkWorkingFormatColorFilter>(std::move(child), tf, gamut, at);
 }
 
