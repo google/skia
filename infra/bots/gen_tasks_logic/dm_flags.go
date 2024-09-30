@@ -438,7 +438,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				// https://skbug.com/14105
 				skip(ALL, "test", ALL, "BackendTextureTest")
 
-				if b.matchOs("Win10") || b.matchGpu("Adreno620", "MaliG715", "MaliG78", "QuadroP400") {
+				if b.matchOs("Win10") || b.matchGpu("Adreno620", "MaliG78", "QuadroP400") {
 					// The Dawn Win10 and some Android/Linux device jobs OOMs (skbug.com/14410, b/318725123)
 					skip(ALL, "test", ALL, "BigImageTest_Graphite")
 				}
@@ -501,6 +501,10 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 					// This GM is larger than Dawn compat's max texture size.
 					skip(ALL, "gm", ALL, "wacky_yuv_formats_domain")
+
+					// This test creates texture that are larger than Dawn
+					// compat's max texture size.
+					skip(ALL, "test", ALL, "BigImageTest_Graphite")
 				}
 
 			} else if b.extraConfig("Native") {

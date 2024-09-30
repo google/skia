@@ -351,6 +351,11 @@ void tiling_comparison_test(GrDirectContext* dContext,
                     }
 #endif
 
+                    if (!surface) {
+                        ERRORF(reporter, "Failed to create surface");
+                        return;
+                    }
+
                     for (auto sampling : kSamplingOptions) {
                         for (auto constraint : { SkCanvas::kStrict_SrcRectConstraint,
                                                  SkCanvas::kFast_SrcRectConstraint }) {
