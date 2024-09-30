@@ -446,6 +446,8 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
 
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     const ResourceBindingRequirements& bindingReqs = caps->resourceBindingRequirements();
+    preamble += EmitIntrinsicUniforms(bindingReqs.fIntrinsicBufferBinding,
+                                      bindingReqs.fUniformBufferLayout);
     if (hasStepUniforms) {
         if (useStepStorageBuffer) {
             preamble += EmitRenderStepStorageBuffer(bindingReqs.fRenderStepBufferBinding,
@@ -567,11 +569,13 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
         mainBody += step->fragmentCoverageSkSL();
 
         if (clipBlockNode) {
-            // The clip block node is invoked with fragment coords, not local coords like the main
-            // shading root node.
+            // The clip block node is invoked with device coords, not local coords like the main
+            // shading root node. However sk_FragCoord includes any replay translation and we
+            // need to recover the original device coordinate.
+            mainBody += "float2 devCoord = sk_FragCoord.xy - viewport.xy;";
             // TODO: The actual clipBlockNode can go away once we can enforce that a PaintParamsKey
             // has only 1-2 roots and the 2nd root is always the clip node.
-            args.fFragCoord = "sk_FragCoord.xy";
+            args.fFragCoord = "devCoord";
             std::string clipBlockOutput =
                     invoke_and_assign_node(*this, clipBlockNode->child(0), args, &mainBody);
             SkSL::String::appendf(&mainBody, "outputCoverage *= %s.a;", clipBlockOutput.c_str());

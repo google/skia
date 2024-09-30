@@ -283,19 +283,6 @@ std::string get_node_texture_samplers(const ResourceBindingRequirements& binding
 static constexpr Uniform kIntrinsicUniforms[] = { {"viewport",      SkSLType::kFloat4},
                                                   {"dstCopyBounds", SkSLType::kFloat4} };
 
-std::string emit_intrinsic_uniforms(int bufferID, Layout layout) {
-    auto offsetter = UniformOffsetCalculator::ForTopLevel(layout);
-
-    std::string result = get_uniform_header(bufferID, "Intrinsic");
-    result += get_uniforms(&offsetter, kIntrinsicUniforms, -1, /* wrotePaintColor= */ nullptr);
-    result.append("};\n\n");
-
-    SkASSERTF(result.find('[') == std::string::npos,
-              "Arrays are not supported in intrinsic uniforms");
-
-    return result;
-}
-
 }  // anonymous namespace
 
 void CollectIntrinsicUniforms(const Caps* caps,
@@ -335,6 +322,19 @@ void CollectIntrinsicUniforms(const Caps* caps,
     }
 
     SkDEBUGCODE(uniforms->doneWithExpectedUniforms());
+}
+
+std::string EmitIntrinsicUniforms(int bufferID, Layout layout) {
+    auto offsetter = UniformOffsetCalculator::ForTopLevel(layout);
+
+    std::string result = get_uniform_header(bufferID, "Intrinsic");
+    result += get_uniforms(&offsetter, kIntrinsicUniforms, -1, /* wrotePaintColor= */ nullptr);
+    result.append("};\n\n");
+
+    SkASSERTF(result.find('[') == std::string::npos,
+              "Arrays are not supported in intrinsic uniforms");
+
+    return result;
 }
 
 std::string EmitPaintParamsUniforms(int bufferID,
@@ -550,8 +550,8 @@ VertSkSLInfo BuildVertexSkSL(const ResourceBindingRequirements& bindingReqs,
     const bool useShadingStorageBuffer = useStorageBuffers && step->performsShading();
 
     // Fixed program header (intrinsics are always declared as an uniform interface block)
-    std::string sksl = emit_intrinsic_uniforms(bindingReqs.fIntrinsicBufferBinding,
-                                               bindingReqs.fUniformBufferLayout);
+    std::string sksl = EmitIntrinsicUniforms(bindingReqs.fIntrinsicBufferBinding,
+                                             bindingReqs.fUniformBufferLayout);
 
     if (step->numVertexAttributes() > 0 || step->numInstanceAttributes() > 0) {
         sksl += emit_attributes(step->vertexAttributes(), step->instanceAttributes());
