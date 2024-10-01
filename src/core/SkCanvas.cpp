@@ -708,6 +708,7 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
                                             DeviceCompatibleWithFilter compat,
                                             const SkColorInfo& filterColorInfo,
                                             SkScalar scaleFactor,
+                                            SkTileMode srcTileMode,
                                             bool srcIsCoverageLayer) {
     // The dst is always required, the src can be null if 'filter' is non-null and does not require
     // a source image. For regular filters, 'src' is the layer and 'dst' is the parent device. For
@@ -799,7 +800,7 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
         ctx.markNewSurface();
 
         auto availSrc = skif::LayerSpace<SkIRect>(src->size()).relevantSubset(
-                srcSubset, SkTileMode::kClamp);
+                srcSubset, srcTileMode);
 
         if (SkMatrix(srcToLayer).isScaleTranslate()) {
             // Apply the srcToLayer transformation directly while snapping an image from the src
@@ -831,7 +832,7 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
         } else if (source) {
             // A backdrop filter that succeeded in snapSpecial() or snapSpecialScaled(), but since
             // the 'src' device wasn't prepared with 'requiredInput' in mind, add clamping.
-            source = source.applyCrop(ctx, source.layerBounds(), SkTileMode::kClamp);
+            source = source.applyCrop(ctx, source.layerBounds(), srcTileMode);
         } else if (!requiredInput.isEmpty()) {
             // Otherwise snapSpecialScaled() failed or the transform was complex, so snap the source
             // image at its original resolution and then apply srcToLayer to map to the effective
@@ -839,11 +840,11 @@ void SkCanvas::internalDrawDeviceWithFilter(SkDevice* src,
             source = {src->snapSpecial(SkIRect(availSrc)), availSrc.topLeft()};
             // We adjust the desired output of the applyCrop() because ctx was original set to
             // fulfill 'requiredInput', which is valid *after* we apply srcToLayer. Use the original
-            // 'srcSubset' for the desired output so that the kClamp applied to the available subset
-            // is not discarded as a no-op.
+            // 'srcSubset' for the desired output so that the tilemode applied to the available
+            // subset is not discarded as a no-op.
             source = source.applyCrop(ctx.withNewDesiredOutput(srcSubset),
                                       source.layerBounds(),
-                                      SkTileMode::kClamp)
+                                      srcTileMode)
                            .applyTransform(ctx, srcToLayer, SkFilterMode::kLinear);
         }
     } // else leave 'source' as the empty image
@@ -1086,7 +1087,8 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
                                            backdropPaint,
                                            compat,
                                            newDevice->imageInfo().colorInfo(),
-                                           rec.fExperimentalBackdropScale);
+                                           rec.fExperimentalBackdropScale,
+                                           rec.fBackdropTileMode);
     }
 
     fMCRec->newLayer(std::move(newDevice), filters, restorePaint, coverageOnly, paddedLayer);
@@ -1190,6 +1192,7 @@ void SkCanvas::internalRestore() {
                                                    compat,
                                                    layer->fDevice->imageInfo().colorInfo(),
                                                    /*scaleFactor=*/1.0f,
+                                                   /*srcTileMode=*/SkTileMode::kDecal,
                                                    layer->fIsCoverage);
             } else {
                 // NOTE: We don't just call internalDrawDeviceWithFilter with a null filter

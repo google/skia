@@ -351,6 +351,7 @@ SkCanvas::SaveLayerStrategy SkRecorder::getSaveLayerStrategy(const SaveLayerRec&
                                        sk_ref_sp(rec.fBackdrop),
                                        rec.fSaveLayerFlags,
                                        SkCanvasPriv::GetBackdropScaleFactor(rec),
+                                       rec.fBackdropTileMode,
                                        std::move(filters));
     return SkCanvas::kNoLayer_SaveLayerStrategy;
 }

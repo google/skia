@@ -24,6 +24,7 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkTArray.h"
@@ -712,6 +713,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                     filters[i] = paint.refImageFilter();
                 }
                 rec.fFilters = filters;
+            }
+            if (!reader->isVersionLT(SkPicturePriv::Version::kSaveLayerBackdropTileMode) &&
+                (flatFlags & SAVELAYERREC_HAS_BACKDROP_TILEMODE)) {
+                rec.fBackdropTileMode = reader->read32LE(SkTileMode::kLastTileMode);
             }
             BREAK_ON_READ_ERROR(reader);
 

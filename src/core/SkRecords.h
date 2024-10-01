@@ -38,6 +38,7 @@
 
 enum class SkBlendMode;
 enum class SkClipOp;
+enum class SkTileMode;
 struct SkPoint;
 struct SkRSXform;
 
@@ -191,6 +192,7 @@ RECORD(SaveLayer, kHasPaint_Tag,
        sk_sp<const SkImageFilter> backdrop;
        SkCanvas::SaveLayerFlags saveLayerFlags;
        SkScalar backdropScale;
+       SkTileMode backdropTileMode;
        skia_private::AutoTArray<sk_sp<SkImageFilter>> filters)
 
 RECORD(SaveBehind, 0,

@@ -122,3 +122,33 @@ DEF_SIMPLE_GM(backdrop_imagefilter_croprect_nested, canvas, 600, 500) {
     draw_backdrop_filter_gm(canvas, 0.f, 0.f, make_invert_filter);
     canvas->restore();
 }
+
+DEF_SIMPLE_GM(backdrop_layer_tilemode, canvas, 512, 128) {
+    auto drawBackdropTileMode = [canvas](SkTileMode backdropTileMode) {
+        canvas->save();
+            // Restrict the canvas before starting a new layer to control its size.
+            canvas->clipRect(SkRect::MakeIWH(128, 128));
+            // This layer will be the backdrop content, but without any additional effects, its size
+            // will match the clip (128x128).
+            canvas->saveLayer(nullptr, nullptr);
+                // Fill the layer with high frequency content (stripes of red and white)
+                for (int y = 0; y < 128; y += 8) {
+                    SkPaint fill;
+                    fill.setColor(y % 16 ? SK_ColorRED : SK_ColorWHITE);
+                    canvas->drawRect(SkRect::MakeXYWH(0, y, 128, 8), fill);
+                }
+                // Perform a backdrop blur layer with the specified backdrop tile mode
+                sk_sp<SkImageFilter> blur = SkImageFilters::Blur(32.f, 32.f, nullptr);
+                canvas->saveLayer({nullptr, nullptr, blur.get(), backdropTileMode, nullptr, 0});
+                canvas->restore();
+            canvas->restore();
+        canvas->restore();
+
+        canvas->translate(128, 0);
+    };
+
+    drawBackdropTileMode(SkTileMode::kClamp);
+    drawBackdropTileMode(SkTileMode::kDecal);
+    drawBackdropTileMode(SkTileMode::kRepeat);
+    drawBackdropTileMode(SkTileMode::kMirror);
+}

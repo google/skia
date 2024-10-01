@@ -97,13 +97,14 @@ DRAW(Restore, restore())
 DRAW(Save, save())
 DRAW(SaveLayer,
      saveLayer(SkCanvasPriv::ScaledBackdropLayer(
-             r.bounds,
-             r.paint,
-             r.backdrop.get(),
-             r.backdropScale,
-             r.saveLayerFlags,
-             SkCanvas::FilterSpan{const_cast<sk_sp<SkImageFilter>*>(r.filters.data()),
-                                  r.filters.size()})))
+               r.bounds,
+               r.paint,
+               r.backdrop.get(),
+               r.backdropScale,
+               r.backdropTileMode,
+               r.saveLayerFlags,
+               SkCanvas::FilterSpan{const_cast<sk_sp<SkImageFilter>*>(r.filters.data()),
+                                    r.filters.size()})))
 
 template <> void Draw::draw(const SaveBehind& r) {
     SkCanvasPriv::SaveBehind(fCanvas, r.subset);

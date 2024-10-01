@@ -2036,7 +2036,8 @@ SaveLayerCommand::SaveLayerCommand(const SkCanvas::SaveLayerRec& rec)
         , fPaint(rec.fPaint)
         , fBackdrop(SkSafeRef(rec.fBackdrop))
         , fSaveLayerFlags(rec.fSaveLayerFlags)
-        , fBackdropScale(SkCanvasPriv::GetBackdropScaleFactor(rec)) {}
+        , fBackdropScale(SkCanvasPriv::GetBackdropScaleFactor(rec))
+        , fBackdropTileMode(rec.fBackdropTileMode) {}
 
 void SaveLayerCommand::execute(SkCanvas* canvas) const {
     // In the common case fBackdropScale == 1.f and then this is no different than a regular Rec
@@ -2044,6 +2045,7 @@ void SaveLayerCommand::execute(SkCanvas* canvas) const {
                                                         fPaint.getMaybeNull(),
                                                         fBackdrop.get(),
                                                         fBackdropScale,
+                                                        fBackdropTileMode,
                                                         fSaveLayerFlags));
 }
 

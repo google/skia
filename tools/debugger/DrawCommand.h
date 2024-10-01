@@ -658,6 +658,7 @@ private:
     sk_sp<const SkImageFilter> fBackdrop;
     uint32_t                   fSaveLayerFlags;
     SkScalar                   fBackdropScale;
+    SkTileMode                 fBackdropTileMode;
 
     using INHERITED = DrawCommand;
 };
