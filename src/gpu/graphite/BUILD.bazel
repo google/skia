@@ -72,6 +72,7 @@ GRAPHITE_FILES = [
     "Image_Graphite.h",
     "Image_YUVA_Graphite.cpp",
     "Image_YUVA_Graphite.h",
+    "InternalDrawTypeFlags.h",
     "KeyContext.cpp",
     "KeyContext.h",
     "KeyHelpers.cpp",

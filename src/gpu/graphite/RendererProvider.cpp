@@ -11,6 +11,7 @@
 #include "include/core/SkVertices.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/InternalDrawTypeFlags.h"
 #include "src/gpu/graphite/render/AnalyticBlurRenderStep.h"
 #include "src/gpu/graphite/render/AnalyticRRectRenderStep.h"
 #include "src/gpu/graphite/render/BitmapTextRenderStep.h"
@@ -73,8 +74,10 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     fTessellatedStrokes = makeFromStep(
             std::make_unique<TessellateStrokesRenderStep>(infinitySupport),
             DrawTypeFlags::kNonSimpleShape);
-    fCoverageMask = makeFromStep(std::make_unique<CoverageMaskRenderStep>(),
-                                 DrawTypeFlags::kNonSimpleShape);
+    fCoverageMask = makeFromStep(
+            std::make_unique<CoverageMaskRenderStep>(),
+            static_cast<DrawTypeFlags>(static_cast<int>(DrawTypeFlags::kNonSimpleShape) |
+                                       static_cast<int>(InternalDrawTypeFlags::kCoverageMask)));
 
     static constexpr struct {
         skgpu::MaskFormat fFormat;
@@ -97,8 +100,10 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                             : makeFromStep(std::make_unique<SDFTextRenderStep>(),
                                            DrawTypeFlags::kSDFText);
     }
-    fAnalyticRRect = makeFromStep(std::make_unique<AnalyticRRectRenderStep>(bufferManager),
-                                  DrawTypeFlags::kSimpleShape);
+    fAnalyticRRect = makeFromStep(
+            std::make_unique<AnalyticRRectRenderStep>(bufferManager),
+            static_cast<DrawTypeFlags>(static_cast<int>(DrawTypeFlags::kSimpleShape) |
+                                       static_cast<int>(InternalDrawTypeFlags::kAnalyticRRect)));
     fPerEdgeAAQuad = makeFromStep(std::make_unique<PerEdgeAAQuadRenderStep>(bufferManager),
                                   DrawTypeFlags::kSimpleShape);
     fNonAABoundsFill = makeFromStep(std::make_unique<CoverBoundsRenderStep>(
