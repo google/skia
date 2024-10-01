@@ -8,6 +8,7 @@
 #ifndef SkJpegEncoderImpl_DEFINED
 #define SkJpegEncoderImpl_DEFINED
 
+#include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkYUVAPixmaps.h"
@@ -51,6 +52,9 @@ void AppendICC(SegmentList& segmentList,
 
 // Include a standard (as opposed to extended) XMP metadata segment.
 void AppendXMPStandard(SegmentList& segmentList, const SkData* xmpMetadata);
+
+// Include an origin as part of an Exif metadata segment.
+void AppendOrigin(SegmentList& segmentList, SkEncodedOrigin origin);
 
 }  // namespace SkJpegMetadataEncoder
 

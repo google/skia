@@ -9,6 +9,7 @@
 #define SkExif_DEFINED
 
 #include "include/codec/SkEncodedOrigin.h"
+#include "include/core/SkRefCnt.h"
 #include "include/private/base/SkAPI.h"
 
 #include <cstdint>
@@ -49,6 +50,15 @@ struct Metadata {
  * unrecoverable error (allow truncated input).
  */
 void SK_API Parse(Metadata& metadata, const SkData* data);
+
+/*
+ * Write exif data that includes the values in |metadata| and returns it as SkData
+ * untruncated. Return nullptr if a write to the data stream fails or if
+ * |metadata.fHdrHeadroom| has value.
+ * This function cannot write an IFD entry based on the HdrHeadroom value because
+ * the information of maker33 and maker48 are lost in decoding.
+ */
+sk_sp<SkData> WriteExif(Metadata& metadata);
 
 }  // namespace SkExif
 

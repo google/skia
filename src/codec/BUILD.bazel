@@ -52,6 +52,7 @@ skia_cc_library(
     features = ["layering_check"],
     local_defines = ["SK_DISABLE_LEGACY_INIT_DECODERS"],
     visibility = [
+        "//src/encode:__pkg__",
         "//src/ports:__pkg__",
     ],
     deps = [

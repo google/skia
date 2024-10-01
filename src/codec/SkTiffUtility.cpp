@@ -15,10 +15,6 @@
 
 namespace SkTiff {
 
-constexpr size_t kSizeEntry = 12;
-constexpr size_t kSizeShort = 2;
-constexpr size_t kSizeLong = 4;
-
 bool ImageFileDirectory::IsValidType(uint16_t type) { return type >= 1 && type <= 12; }
 
 size_t ImageFileDirectory::BytesForType(uint16_t type) {

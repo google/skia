@@ -87,6 +87,7 @@ skia_cc_library(
         "//:core",
         "//modules/skcms",
         "//src/base",
+        "//src/codec:any_decoder",
         "//src/core:core_priv",
     ],
 )

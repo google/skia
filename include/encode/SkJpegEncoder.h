@@ -8,10 +8,12 @@
 #ifndef SkJpegEncoder_DEFINED
 #define SkJpegEncoder_DEFINED
 
+#include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkAPI.h"
 
 #include <memory>
+#include <optional>
 
 class SkColorSpace;
 class SkData;
@@ -86,6 +88,8 @@ struct Options {
      */
     const skcms_ICCProfile* fICCProfile = nullptr;
     const char* fICCProfileDescription = nullptr;
+
+    std::optional<SkEncodedOrigin> fOrigin;
 };
 
 /**

@@ -36,6 +36,10 @@ inline constexpr uint16_t kTypeSignedRational = 10;
 inline constexpr uint16_t kTypeSingleFloat = 11;
 inline constexpr uint16_t kTypeDoubleFloat = 12;
 
+inline constexpr size_t kSizeEntry = 12;
+inline constexpr size_t kSizeShort = 2;
+inline constexpr size_t kSizeLong = 4;
+
 /*
  * Helper function for parsing a Tiff Image File Directory (IFD) structure. This structure is used
  * by EXIF tags, multi-picture, and maker note metadata.
