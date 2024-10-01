@@ -17,6 +17,7 @@
 #include "include/core/SkStream.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/pathops/SkPathOps.h"
+#include "src/base/SkScopeExit.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
 #include "src/ports/SkTypeface_fontations_priv.h"
@@ -392,23 +393,24 @@ public:
             const fontations_ffi::BridgeHintingInstance& hintingInstance) {
         fontations_ffi::BridgeScalerMetrics scalerMetrics;
 
-        rust::Vec<uint8_t> verbs;
-        rust::Vec<fontations_ffi::FfiPoint> points;
+        // Keep allocations in check. The rust side pre-allocates a fixed amount,
+        // and afer leaving this function, we shrink to the same amount.
+        SK_AT_SCOPE_EXIT(fontations_ffi::shrink_verbs_points_if_needed(fPathVerbs, fPathPoints));
 
         if (!fontations_ffi::get_path_verbs_points(fOutlines,
                                                    glyphId,
                                                    yScale,
                                                    fBridgeNormalizedCoords,
                                                    hintingInstance,
-                                                   verbs,
-                                                   points,
+                                                   fPathVerbs,
+                                                   fPathPoints,
                                                    scalerMetrics)) {
             return false;
         }
-        *path = SkPath::Make(reinterpret_cast<const SkPoint*>(points.data()),
-                             points.size(),
-                             verbs.data(),
-                             verbs.size(),
+        *path = SkPath::Make(reinterpret_cast<const SkPoint*>(fPathPoints.data()),
+                             fPathPoints.size(),
+                             fPathVerbs.data(),
+                             fPathVerbs.size(),
                              nullptr,
                              0,
                              SkPathFillType::kWinding);
@@ -835,6 +837,10 @@ private:
     const SkSpan<const SkColor> fPalette;
     rust::Box<fontations_ffi::BridgeHintingInstance> fHintingInstance;
     bool fDoLinearMetrics = false;
+    // Keeping the path extraction target buffers around significantly avoids
+    // allocation churn.
+    rust::Vec<uint8_t> fPathVerbs;
+    rust::Vec<fontations_ffi::FfiPoint> fPathPoints;
 
     friend class sk_fontations::ColorPainter;
 };
