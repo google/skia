@@ -14,7 +14,8 @@ use skrifa::{
     instance::{Location, Size},
     metrics::{GlyphMetrics, Metrics},
     outline::{
-        DrawSettings, Engine, HintingInstance, HintingOptions, OutlinePen, SmoothMode, Target,
+        pen::NullPen, DrawSettings, Engine, HintingInstance, HintingOptions, OutlinePen,
+        SmoothMode, Target,
     },
     setting::VariationSetting,
     string::{LocalizedStrings, StringId},
@@ -167,20 +168,6 @@ impl<'a> OutlinePen for PathWrapperPen<'a> {
     fn close(&mut self) {
         self.path_wrapper.as_mut().close();
     }
-}
-
-struct NoOpPen {}
-
-impl<'a> OutlinePen for NoOpPen {
-    fn move_to(&mut self, _x: f32, _y: f32) {}
-
-    fn line_to(&mut self, _x: f32, _y: f32) {}
-
-    fn quad_to(&mut self, _cx0: f32, _cy0: f32, _x: f32, _y: f32) {}
-
-    fn curve_to(&mut self, _cx0: f32, _cy0: f32, _cx1: f32, _cy1: f32, _x: f32, _y: f32) {}
-
-    fn close(&mut self) {}
 }
 
 struct ColorPainterImpl<'a> {
@@ -529,8 +516,8 @@ fn scaler_hinted_advance_width(
 
             let outlines = outlines.0.as_ref()?;
             let glyph = outlines.get(GlyphId::from(glyph_id))?;
-            let mut pen_dump = NoOpPen {};
-            let adjusted_metrics = glyph.draw(draw_settings, &mut pen_dump).ok()?;
+            let mut null_pen = NullPen {};
+            let adjusted_metrics = glyph.draw(draw_settings, &mut null_pen).ok()?;
             adjusted_metrics.advance_width.map(|adjusted_advance| {
                 *out_advance_width = adjusted_advance;
                 ()
