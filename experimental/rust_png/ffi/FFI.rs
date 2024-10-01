@@ -261,10 +261,6 @@ impl Reader {
     /// If the decoded PNG image contained a `cHRM` chunk then `try_get_chrm`
     /// returns `true` and populates the out parameters (`wx`, `wy`, `rx`,
     /// etc.).  Otherwise, returns `false`.
-    ///
-    /// C++/FFI safety: The caller has to guarantee that all the outputs /
-    /// `&mut` values have been initialized (unlike in C++, where such
-    /// guarantees are typically not needed for output parameters).
     fn try_get_chrm(
         &self,
         wx: &mut f32,
@@ -296,10 +292,6 @@ impl Reader {
     /// If the decoded PNG image contained a `gAMA` chunk then `try_get_gama`
     /// returns `true` and populates the `gamma` out parameter.  Otherwise,
     /// returns `false`.
-    ///
-    /// C++/FFI safety: The caller has to guarantee that all the outputs /
-    /// `&mut` values have been initialized (unlike in C++, where such
-    /// guarantees are typically not needed for output parameters).
     fn try_get_gama(&self, gamma: &mut f32) -> bool {
         match self.reader.info().gama_chunk.as_ref() {
             None => false,
@@ -360,10 +352,6 @@ impl Reader {
     /// Returns `png::FrameControl` information.
     ///
     /// Panics if no `fcTL` chunk hasn't been parsed yet.
-    ///
-    /// C++/FFI safety: The caller has to guarantee that all the outputs /
-    /// `&mut` values have been initialized (unlike in C++, where such
-    /// guarantees are typically not needed for output parameters).
     fn get_fctl_info(
         self: &Reader,
         width: &mut u32,
@@ -424,10 +412,6 @@ impl Reader {
 
     /// Expands the last decoded interlaced row - see
     /// https://docs.rs/png/latest/png/fn.expand_interlaced_row
-    ///
-    /// C++/FFI safety: The caller has to guarantee that `img` doesn't
-    /// contain uninitialized memory (this is a bit different from C++,
-    /// where a write-only access may not need such guarantees).
     fn expand_last_interlaced_row(
         &self,
         img: &mut [u8],
