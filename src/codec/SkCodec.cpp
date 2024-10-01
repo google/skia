@@ -79,6 +79,10 @@
 #endif
 #endif // !defined(SK_DISABLE_LEGACY_INIT_DECODERS)
 
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+#include "cutils/properties.h"
+#endif // defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+
 namespace SkCodecs {
 // A static variable inside a function avoids a static initializer.
 // https://chromium.googlesource.com/chromium/src/+/HEAD/docs/static_initializers.md#removing-static-initializers
@@ -110,7 +114,18 @@ static std::vector<Decoder>* get_decoders_for_editing() {
             decoders->push_back(SkWbmpDecoder::Decoder());
 #endif
 #if defined(SK_CODEC_DECODES_AVIF)
-            decoders->push_back(SkAvifDecoder::Decoder());
+#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK)
+            // Register CrabbyAvif based SkAvifDecoder on the Android framework
+            // if it is allowed. Otherwise Android framework will use
+            // SkHeifDecoder for decoding AVIF.
+            // TODO: Codec registration for the Android framework has to be
+            // moved outside of skia and this logic has to be moved there.
+            if (property_get_int32("media.avif.crabbyavif", 0) != 0) {
+                decoders->push_back(SkAvifDecoder::CrabbyAvif::Decoder());
+            }
+#else
+            decoders->push_back(SkAvifDecoder::LibAvif::Decoder());
+#endif
 #endif
 #if defined(SK_CODEC_DECODES_JPEGXL)
             decoders->push_back(SkJpegxlDecoder::Decoder());

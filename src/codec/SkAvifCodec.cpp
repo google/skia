@@ -242,6 +242,8 @@ SkCodec::Result SkAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
 }
 
 namespace SkAvifDecoder {
+namespace LibAvif {
+
 bool IsAvif(const void* data, size_t len) {
     return SkAvifCodec::IsAvif(data, len);
 }
@@ -267,4 +269,6 @@ std::unique_ptr<SkCodec> Decode(sk_sp<SkData> data,
     }
     return Decode(SkMemoryStream::Make(std::move(data)), outResult, nullptr);
 }
+
+}  // namespace LibAvif
 }  // namespace SkAvifDecoder
