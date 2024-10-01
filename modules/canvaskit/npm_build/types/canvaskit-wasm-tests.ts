@@ -150,6 +150,7 @@ function canvasTests(CK: CanvasKit, canvas?: Canvas, paint?: Paint, path?: Path,
     canvas.drawVertices(verts, CK.BlendMode.DstOut, paint);
     const irect = canvas.getDeviceClipBounds(); // $ExpectType Int32Array
     const irect2 = canvas.getDeviceClipBounds(irect); // $ExpectType Int32Array
+    const isCulled = canvas.quickReject(someRect); // $ExpectType boolean
     const matrTwo = canvas.getLocalToDevice(); // $ExpectType Float32Array
     const sc = canvas.getSaveCount(); // $ExpectType number
     const matrThree = canvas.getTotalMatrix(); // $ExpectType number[]

@@ -760,6 +760,23 @@ describe('Canvas Behavior', () => {
             0       ,  0       , 0,  1       ], matr);
     });
 
+    it('can quickly tell if a rect is in the current clip region', () => {
+      const canvas = new CanvasKit.Canvas(200, 200);
+
+      canvas.save();
+      const rejectWithNoClip = canvas.quickReject(CanvasKit.LTRBRect(10, 10, 20, 20));
+      expect(rejectWithNoClip).toBeFalse();
+      canvas.restore();
+
+      canvas.save();
+      canvas.clipRect(CanvasKit.LTRBRect(10, 10, 20, 20), CanvasKit.ClipOp.Intersect, false);
+      const rejectPartiallyInsideClip = canvas.quickReject(CanvasKit.LTRBRect(15, 15, 25, 25));
+      expect(rejectPartiallyInsideClip).toBeFalse();
+      const rejectEntirelyOutsideClip = canvas.quickReject(CanvasKit.LTRBRect(30, 30, 50, 50));
+      expect(rejectEntirelyOutsideClip).toBeTrue();
+      canvas.restore();
+    });
+
     it('can accept a 3x2 matrix', () => {
         const canvas = new CanvasKit.Canvas();
 

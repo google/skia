@@ -779,6 +779,11 @@ CanvasKit.onRuntimeInitialized = function() {
     return copyIRectFromWasm(_scratchIRect, outputRect);
   };
 
+  CanvasKit.Canvas.prototype.quickReject = function(rect) {
+    var rPtr = copyRectToWasm(rect);
+    return this._quickReject(rPtr);
+  };
+
   // getLocalToDevice returns a 4x4 matrix.
   CanvasKit.Canvas.prototype.getLocalToDevice = function() {
     // _getLocalToDevice will copy the values into the pointer.

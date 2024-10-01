@@ -1730,6 +1730,12 @@ export interface Canvas extends EmbindObject<"Canvas"> {
     getDeviceClipBounds(output?: IRect): IRect;
 
     /**
+     * Returns true if the given rect, transformed by the current canvas
+     * transform, can be quickly determined to fall entirely outside the clip.
+     */
+    quickReject(rect: InputRect): boolean;
+
+    /**
      * Returns the current transform from local coordinates to the 'device', which for most
      * purposes means pixels.
      */
