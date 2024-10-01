@@ -60,6 +60,28 @@ SkEncodedInfo::Alpha ToAlpha(rust_png::ColorType colorType) {
     SK_ABORT("Unexpected `rust_png::ColorType`: %d", static_cast<int>(colorType));
 }
 
+SkCodecAnimation::DisposalMethod ToDisposalMethod(rust_png::DisposeOp op) {
+    switch (op) {
+        case rust_png::DisposeOp::None:
+            return SkCodecAnimation::DisposalMethod::kKeep;
+        case rust_png::DisposeOp::Background:
+            return SkCodecAnimation::DisposalMethod::kRestoreBGColor;
+        case rust_png::DisposeOp::Previous:
+            return SkCodecAnimation::DisposalMethod::kRestorePrevious;
+    }
+    SK_ABORT("Unexpected `rust_png::DisposeOp`: %d", static_cast<int>(op));
+}
+
+SkCodecAnimation::Blend ToBlend(rust_png::BlendOp op) {
+    switch (op) {
+        case rust_png::BlendOp::Source:
+            return SkCodecAnimation::Blend::kSrc;
+        case rust_png::BlendOp::Over:
+            return SkCodecAnimation::Blend::kSrcOver;
+    }
+    SK_ABORT("Unexpected `rust_png::BlendOp`: %d", static_cast<int>(op));
+}
+
 std::unique_ptr<SkEncodedInfo::ICCProfile> CreateColorProfile(const rust_png::Reader& reader) {
     // NOTE: This method is based on `read_color_profile` in
     // `src/codec/SkPngCodec.cpp` but has been refactored to use Rust inputs
@@ -463,11 +485,38 @@ void SkPngRustCodec::FrameHolder::appendNewFrame(const rust_png::Reader& reader,
     fFrames.emplace_back(id, info.alpha());
     SkFrame& frame = fFrames.back();
 
+    if (reader.has_fctl_chunk()) {
+        this->setLastFrameInfoFromCurrentFctlChunk(reader);
+        return;
+    }
+
     // Basic frame info can be populated without an `fcTL` chunk.
     //
     // TODO(https://crbug.com/356922876): Don't call `setAlphaAndRequiredFrame`
     // if we still need to skip `IDAT` to get to the `fcTL` for the first
     // animation frame.
     frame.setXYWH(0, 0, info.width(), info.height());
+    this->setAlphaAndRequiredFrame(&frame);
+}
+
+void SkPngRustCodec::FrameHolder::setLastFrameInfoFromCurrentFctlChunk(
+        const rust_png::Reader& reader) {
+    SkASSERT(reader.has_fctl_chunk());  // Caller should guarantee this
+    SkASSERT(!fFrames.empty());         // SkPngRustCodec's invariant (see constructor)
+    SkFrame& frame = fFrames.back();
+
+    uint32_t width = 0;
+    uint32_t height = 0;
+    uint32_t x_offset = 0;
+    uint32_t y_offset = 0;
+    auto dispose_op = rust_png::DisposeOp::None;
+    auto blend_op = rust_png::BlendOp::Source;
+    uint32_t duration_ms = 0;
+    reader.get_fctl_info(width, height, x_offset, y_offset, dispose_op, blend_op, duration_ms);
+    frame.setXYWH(x_offset, y_offset, width, height);
+    frame.setDisposalMethod(ToDisposalMethod(dispose_op));
+    frame.setBlend(ToBlend(blend_op));
+    frame.setDuration(duration_ms);
+
     this->setAlphaAndRequiredFrame(&frame);
 }

@@ -35,10 +35,23 @@ mod ffi {
         /// std::io::ErrorKind::UnexpectedEof.into())`.  It is named after
         /// `SkCodec::Result::kIncompleteInput`.
         ///
-        /// `ReadTrait` is infallible and therefore we provide no generic equivalent of the
-        /// `png::DecodingError::IoError` variant (other than the special case of
-        /// `IncompleteInput`).
+        /// `ReadTrait` is infallible and therefore we provide no generic
+        /// equivalent of the `png::DecodingError::IoError` variant
+        /// (other than the special case of `IncompleteInput`).
         IncompleteInput,
+    }
+
+    /// FFI-friendly equivalent of `png::DisposeOp`.
+    enum DisposeOp {
+        None,
+        Background,
+        Previous,
+    }
+
+    /// FFI-friendly equivalent of `png::BlendOp`.
+    enum BlendOp {
+        Source,
+        Over,
     }
 
     unsafe extern "C++" {
@@ -80,6 +93,17 @@ mod ffi {
         fn has_actl_chunk(self: &Reader) -> bool;
         fn get_actl_num_frames(self: &Reader) -> u32;
         fn get_actl_num_plays(self: &Reader) -> u32;
+        fn has_fctl_chunk(self: &Reader) -> bool;
+        fn get_fctl_info(
+            self: &Reader,
+            width: &mut u32,
+            height: &mut u32,
+            x_offset: &mut u32,
+            y_offset: &mut u32,
+            dispose_op: &mut DisposeOp,
+            blend_op: &mut BlendOp,
+            duration_ms: &mut u32,
+        );
         fn output_buffer_size(self: &Reader) -> usize;
         fn output_color_type(self: &Reader) -> ColorType;
         fn output_bits_per_component(self: &Reader) -> u8;
@@ -105,6 +129,25 @@ impl From<png::ColorType> for ffi::ColorType {
             png::ColorType::Indexed => Self::Indexed,
             png::ColorType::GrayscaleAlpha => Self::GrayscaleAlpha,
             png::ColorType::Rgba => Self::Rgba,
+        }
+    }
+}
+
+impl From<png::DisposeOp> for ffi::DisposeOp {
+    fn from(value: png::DisposeOp) -> Self {
+        match value {
+            png::DisposeOp::None => Self::None,
+            png::DisposeOp::Background => Self::Background,
+            png::DisposeOp::Previous => Self::Previous,
+        }
+    }
+}
+
+impl From<png::BlendOp> for ffi::BlendOp {
+    fn from(value: png::BlendOp) -> Self {
+        match value {
+            png::BlendOp::Source => Self::Source,
+            png::BlendOp::Over => Self::Over,
         }
     }
 }
@@ -280,16 +323,16 @@ impl Reader {
         }
     }
 
-    /// Returns whether the `aCTL` chunk exists.
+    /// Returns whether the `acTL` chunk exists.
     fn has_actl_chunk(&self) -> bool {
         self.reader.info().animation_control.is_some()
     }
 
-    /// Returns `num_frames` from the `aCTL` chunk.  Panics if there is no
-    /// `aCTL` chunk.
+    /// Returns `num_frames` from the `acTL` chunk.  Panics if there is no
+    /// `acTL` chunk.
     ///
     /// The returned value is equal the number of `fcTL` chunks.  (Note that it
-    /// doesn't count `IDAT` nor `fDAT` chunks.  In particular, if an `fCTL`
+    /// doesn't count `IDAT` nor `fdAT` chunks.  In particular, if an `fcTL`
     /// chunk doesn't appear before an `IDAT` chunk then `IDAT` is not part
     /// of the animation.)
     ///
@@ -299,13 +342,58 @@ impl Reader {
         self.reader.info().animation_control.as_ref().unwrap().num_frames
     }
 
-    /// Returns `num_plays` from the `aCTL` chunk.  Panics if there is no `aCTL`
+    /// Returns `num_plays` from the `acTL` chunk.  Panics if there is no `acTL`
     /// chunk.
     ///
     /// `0` indicates that the animation should play indefinitely. See
     /// <https://wiki.mozilla.org/APNG_Specification#.60acTL.60:_The_Animation_Control_Chunk>.
     fn get_actl_num_plays(&self) -> u32 {
         self.reader.info().animation_control.as_ref().unwrap().num_plays
+    }
+
+    /// Returns whether a `fcTL` chunk has been parsed (and can be read using
+    /// `get_fctl_info`).
+    fn has_fctl_chunk(&self) -> bool {
+        self.reader.info().frame_control.is_some()
+    }
+
+    /// Returns `png::FrameControl` information.
+    ///
+    /// Panics if no `fcTL` chunk hasn't been parsed yet.
+    ///
+    /// C++/FFI safety: The caller has to guarantee that all the outputs /
+    /// `&mut` values have been initialized (unlike in C++, where such
+    /// guarantees are typically not needed for output parameters).
+    fn get_fctl_info(
+        self: &Reader,
+        width: &mut u32,
+        height: &mut u32,
+        x_offset: &mut u32,
+        y_offset: &mut u32,
+        dispose_op: &mut ffi::DisposeOp,
+        blend_op: &mut ffi::BlendOp,
+        duration_ms: &mut u32,
+    ) {
+        let frame_control = self.reader.info().frame_control.as_ref().unwrap();
+        *width = frame_control.width;
+        *height = frame_control.height;
+        *x_offset = frame_control.x_offset;
+        *y_offset = frame_control.y_offset;
+        *dispose_op = frame_control.dispose_op.into();
+        *blend_op = frame_control.blend_op.into();
+
+        // https://wiki.mozilla.org/APNG_Specification#.60fcTL.60:_The_Frame_Control_Chunk
+        // says:
+        //
+        // > "The `delay_num` and `delay_den` parameters together specify a fraction
+        // > indicating the time to display the current frame, in seconds. If the
+        // > denominator is 0, it is to be treated as if it were 100 (that is,
+        // > `delay_num` then specifies 1/100ths of a second).
+        *duration_ms = if frame_control.delay_den == 0 {
+            10 * frame_control.delay_num as u32
+        } else {
+            1000 * frame_control.delay_num as u32 / frame_control.delay_den as u32
+        };
     }
 
     fn output_buffer_size(&self) -> usize {

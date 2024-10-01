@@ -106,6 +106,7 @@ private:
 
     private:
         const SkFrame* onGetFrame(int i) const override;
+        void setLastFrameInfoFromCurrentFctlChunk(const rust_png::Reader& reader);
 
         class PngFrame;
         std::vector<PngFrame> fFrames;
