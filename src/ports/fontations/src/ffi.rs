@@ -27,8 +27,10 @@ use crate::bitmap::{bitmap_glyph, bitmap_metrics, has_bitmap_glyph, png_data, Br
 
 use crate::ffi::{
     AxisWrapper, BridgeFontStyle, BridgeLocalizedName, BridgeScalerMetrics, ClipBox,
-    ColorPainterWrapper, ColorStop, PaletteOverride, PathWrapper, SkiaDesignCoordinate,
+    ColorPainterWrapper, ColorStop, FfiPoint, PaletteOverride, SkiaDesignCoordinate,
 };
+
+const PATH_EXTRACTION_RESERVE : usize = 150;
 
 fn make_mapping_index<'a>(font_ref: &'a BridgeFontRef) -> Box<BridgeMappingIndex> {
     font_ref
@@ -139,34 +141,108 @@ fn fill_glyph_to_unicode_map(font_ref: &BridgeFontRef, map: &mut [u32]) {
     });
 }
 
-struct PathWrapperPen<'a> {
-    path_wrapper: Pin<&'a mut ffi::PathWrapper>,
+struct VerbsPointsPen<'a> {
+    verbs: &'a mut Vec<u8>,
+    points: &'a mut Vec<FfiPoint>,
+    started: bool,
+    current: FfiPoint,
 }
 
-// We need to wrap ffi::PathWrapper in PathWrapperPen and forward the path
-// recording calls to the path wrapper as we can't define trait implementations
-// inside the cxx::bridge section.
-impl<'a> OutlinePen for PathWrapperPen<'a> {
+impl FfiPoint {
+    fn new(x: f32, y: f32) -> Self {
+        Self { x, y }
+    }
+}
+
+// Values need to match SkPathVerb.
+#[repr(u8)]
+enum PathVerb {
+    MoveTo = 0,
+    LineTo = 1,
+    QuadTo = 2,
+    CubicTo = 4,
+    Close = 5,
+}
+
+impl<'a> VerbsPointsPen<'a> {
+    fn new(verbs: &'a mut Vec<u8>, points: &'a mut Vec<FfiPoint>) -> Self {
+        verbs.reserve(PATH_EXTRACTION_RESERVE);
+        points.reserve(PATH_EXTRACTION_RESERVE);
+        Self {
+            verbs,
+            points,
+            started: false,
+            current: FfiPoint::default(),
+        }
+    }
+
+    fn going_to(&mut self, point: &FfiPoint) {
+        if !self.started {
+            self.started = true;
+            self.verbs.push(PathVerb::MoveTo as u8);
+            self.points.push(self.current);
+        }
+        self.current = *point;
+    }
+
+    fn current_is_not(&self, point: &FfiPoint) -> bool {
+        self.current != *point
+    }
+}
+
+impl<'a> OutlinePen for VerbsPointsPen<'a> {
     fn move_to(&mut self, x: f32, y: f32) {
-        self.path_wrapper.as_mut().move_to(x, -y);
+        let pt0 = FfiPoint::new(x, -y);
+        if self.started {
+            self.close();
+            self.started = false;
+        }
+        self.current = pt0;
     }
 
     fn line_to(&mut self, x: f32, y: f32) {
-        self.path_wrapper.as_mut().line_to(x, -y);
+        let pt0 = FfiPoint::new(x, -y);
+        if self.current_is_not(&pt0) {
+            self.going_to(&pt0);
+            self.verbs.push(PathVerb::LineTo as u8);
+            self.points.push(pt0);
+        }
     }
 
     fn quad_to(&mut self, cx0: f32, cy0: f32, x: f32, y: f32) {
-        self.path_wrapper.as_mut().quad_to(cx0, -cy0, x, -y);
+        let pt0 = FfiPoint::new(cx0, -cy0);
+        let pt1 = FfiPoint::new(x, -y);
+        if self.current_is_not(&pt0) || self.current_is_not(&pt1) {
+            self.going_to(&pt1);
+            self.verbs.push(PathVerb::QuadTo as u8);
+            self.points.push(pt0);
+            self.points.push(pt1);
+        }
     }
 
     fn curve_to(&mut self, cx0: f32, cy0: f32, cx1: f32, cy1: f32, x: f32, y: f32) {
-        self.path_wrapper
-            .as_mut()
-            .curve_to(cx0, -cy0, cx1, -cy1, x, -y);
+        let pt0 = FfiPoint::new(cx0, -cy0);
+        let pt1 = FfiPoint::new(cx1, -cy1);
+        let pt2 = FfiPoint::new(x, -y);
+        if self.current_is_not(&pt0) || self.current_is_not(&pt1) || self.current_is_not(&pt2) {
+            self.going_to(&pt2);
+            self.verbs.push(PathVerb::CubicTo as u8);
+            self.points.push(pt0);
+            self.points.push(pt1);
+            self.points.push(pt2);
+        }
     }
 
     fn close(&mut self) {
-        self.path_wrapper.as_mut().close();
+        if let Some(verb) = self.verbs.last().cloned() {
+            if verb == PathVerb::QuadTo as u8
+                || verb == PathVerb::CubicTo as u8
+                || verb == PathVerb::LineTo as u8
+                || verb == PathVerb::MoveTo as u8
+            {
+                self.verbs.push(PathVerb::Close as u8);
+            }
+        }
     }
 }
 
@@ -456,13 +532,14 @@ impl<'a> ColorPainter for ColorPainterImpl<'a> {
     }
 }
 
-fn get_path(
+fn get_path_verbs_points(
     outlines: &BridgeOutlineCollection,
     glyph_id: u16,
     size: f32,
     coords: &BridgeNormalizedCoords,
     hinting_instance: &BridgeHintingInstance,
-    path_wrapper: Pin<&mut PathWrapper>,
+    verbs: &mut Vec<u8>,
+    points: &mut Vec<FfiPoint>,
     scaler_metrics: &mut BridgeScalerMetrics,
 ) -> bool {
     outlines
@@ -476,8 +553,8 @@ fn get_path(
                 _ => DrawSettings::unhinted(Size::new(size), &coords.normalized_coords),
             };
 
-            let mut pen_dump = PathWrapperPen { path_wrapper };
-            match glyph.draw(draw_settings, &mut pen_dump) {
+            let mut verbs_points_pen = VerbsPointsPen::new(verbs, points);
+            match glyph.draw(draw_settings, &mut verbs_points_pen) {
                 Err(_) => None,
                 Ok(metrics) => {
                     scaler_metrics.has_overlaps = metrics.has_overlaps;
@@ -1445,6 +1522,12 @@ mod ffi {
         strikeout_thickness: f32,
     }
 
+    #[derive(Clone, Copy, Default, PartialEq)]
+    struct FfiPoint {
+        x: f32,
+        y: f32,
+    }
+
     struct BridgeLocalizedName {
         string: String,
         language: String,
@@ -1588,15 +1671,17 @@ mod ffi {
             codepoint: u32,
         ) -> u16;
 
-        fn get_path(
+        fn get_path_verbs_points(
             outlines: &BridgeOutlineCollection,
             glyph_id: u16,
             size: f32,
             coords: &BridgeNormalizedCoords,
             hinting_instance: &BridgeHintingInstance,
-            path_wrapper: Pin<&mut PathWrapper>,
+            verbs: &mut Vec<u8>,
+            points: &mut Vec<FfiPoint>,
             scaler_metrics: &mut BridgeScalerMetrics,
         ) -> bool;
+
         fn unhinted_advance_width_or_zero(
             font_ref: &BridgeFontRef,
             size: f32,
@@ -1724,27 +1809,6 @@ mod ffi {
     unsafe extern "C++" {
 
         include!("src/ports/fontations/src/skpath_bridge.h");
-
-        type PathWrapper;
-
-        #[allow(dead_code)]
-        fn move_to(self: Pin<&mut PathWrapper>, x: f32, y: f32);
-        #[allow(dead_code)]
-        fn line_to(self: Pin<&mut PathWrapper>, x: f32, y: f32);
-        #[allow(dead_code)]
-        fn quad_to(self: Pin<&mut PathWrapper>, cx0: f32, cy0: f32, x: f32, y: f32);
-        #[allow(dead_code)]
-        fn curve_to(
-            self: Pin<&mut PathWrapper>,
-            cx0: f32,
-            cy0: f32,
-            cx1: f32,
-            cy1: f32,
-            x: f32,
-            y: f32,
-        );
-        #[allow(dead_code)]
-        fn close(self: Pin<&mut PathWrapper>);
 
         type AxisWrapper;
 

@@ -189,55 +189,6 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
 
 namespace sk_fontations {
 
-// Path sanitization ported from SkFTGeometrySink.
-void PathGeometrySink::going_to(SkPoint point) {
-    if (!fStarted) {
-        fStarted = true;
-        fPath.moveTo(fCurrent);
-    }
-    fCurrent = point;
-}
-
-bool PathGeometrySink::current_is_not(SkPoint point) { return fCurrent != point; }
-
-void PathGeometrySink::move_to(float x, float y) {
-    if (fStarted) {
-        fPath.close();
-        fStarted = false;
-    }
-    fCurrent = SkPoint::Make(SkFloatToScalar(x), SkFloatToScalar(y));
-}
-
-void PathGeometrySink::line_to(float x, float y) {
-    SkPoint pt0 = SkPoint::Make(SkFloatToScalar(x), SkFloatToScalar(y));
-    if (current_is_not(pt0)) {
-        going_to(pt0);
-        fPath.lineTo(pt0);
-    }
-}
-
-void PathGeometrySink::quad_to(float cx0, float cy0, float x, float y) {
-    SkPoint pt0 = SkPoint::Make(SkFloatToScalar(cx0), SkFloatToScalar(cy0));
-    SkPoint pt1 = SkPoint::Make(SkFloatToScalar(x), SkFloatToScalar(y));
-    if (current_is_not(pt0) || current_is_not(pt1)) {
-        going_to(pt1);
-        fPath.quadTo(pt0, pt1);
-    }
-}
-void PathGeometrySink::curve_to(float cx0, float cy0, float cx1, float cy1, float x, float y) {
-    SkPoint pt0 = SkPoint::Make(SkFloatToScalar(cx0), SkFloatToScalar(cy0));
-    SkPoint pt1 = SkPoint::Make(SkFloatToScalar(cx1), SkFloatToScalar(cy1));
-    SkPoint pt2 = SkPoint::Make(SkFloatToScalar(x), SkFloatToScalar(y));
-    if (current_is_not(pt0) || current_is_not(pt1) || current_is_not(pt2)) {
-        going_to(pt2);
-        fPath.cubicTo(pt0, pt1, pt2);
-    }
-}
-
-void PathGeometrySink::close() { fPath.close(); }
-
-SkPath PathGeometrySink::into_inner() && { return std::move(fPath); }
-
 AxisWrapper::AxisWrapper(SkFontParameters::Variation::Axis axisArray[], size_t axisCount)
         : fAxisArray(axisArray), fAxisCount(axisCount) {}
 
@@ -439,19 +390,28 @@ public:
             SkPath* path,
             float yScale,
             const fontations_ffi::BridgeHintingInstance& hintingInstance) {
-        sk_fontations::PathGeometrySink pathWrapper;
         fontations_ffi::BridgeScalerMetrics scalerMetrics;
 
-        if (!fontations_ffi::get_path(fOutlines,
-                                      glyphId,
-                                      yScale,
-                                      fBridgeNormalizedCoords,
-                                      hintingInstance,
-                                      pathWrapper,
-                                      scalerMetrics)) {
+        rust::Vec<uint8_t> verbs;
+        rust::Vec<fontations_ffi::FfiPoint> points;
+
+        if (!fontations_ffi::get_path_verbs_points(fOutlines,
+                                                   glyphId,
+                                                   yScale,
+                                                   fBridgeNormalizedCoords,
+                                                   hintingInstance,
+                                                   verbs,
+                                                   points,
+                                                   scalerMetrics)) {
             return false;
         }
-        *path = std::move(pathWrapper).into_inner();
+        *path = SkPath::Make(reinterpret_cast<const SkPoint*>(points.data()),
+                             points.size(),
+                             verbs.data(),
+                             verbs.size(),
+                             nullptr,
+                             0,
+                             SkPathFillType::kWinding);
 
         // See https://issues.skia.org/345178242 for details:
         // The FreeType backend performs a path simplification here based on the
