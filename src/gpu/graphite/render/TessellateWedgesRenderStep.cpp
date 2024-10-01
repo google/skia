@@ -48,7 +48,7 @@ static constexpr Attribute kBaseAttributes[] = {
         {"p23", VertexAttribType::kFloat4, SkSLType::kFloat4},
         {"fanPointAttrib", VertexAttribType::kFloat2, SkSLType::kFloat2},
         {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-        {"ssboIndices", VertexAttribType::kUShort2, SkSLType::kUShort2}};
+        {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}};
 
 static constexpr Attribute kAttributesWithCurveType[] = {
         {"p01", VertexAttribType::kFloat4, SkSLType::kFloat4},
@@ -56,7 +56,7 @@ static constexpr Attribute kAttributesWithCurveType[] = {
         {"fanPointAttrib", VertexAttribType::kFloat2, SkSLType::kFloat2},
         {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
         {"curveType", VertexAttribType::kFloat, SkSLType::kFloat},
-        {"ssboIndices", VertexAttribType::kUShort2, SkSLType::kUShort2}};
+        {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}};
 
 static constexpr SkSpan<const Attribute> kAttributes[2] = {kAttributesWithCurveType,
                                                            kBaseAttributes};
@@ -124,7 +124,7 @@ std::string TessellateWedgesRenderStep::vertexSkSL() const {
 
 void TessellateWedgesRenderStep::writeVertices(DrawWriter* dw,
                                                const DrawParams& params,
-                                               skvx::ushort2 ssboIndices) const {
+                                               skvx::uint2 ssboIndices) const {
     SkPath path = params.geometry().shape().asPath(); // TODO: Iterate the Shape directly
 
     int patchReserveCount = FixedCountWedges::PreallocCount(path.countVerbs());

@@ -30,7 +30,7 @@ AnalyticBlurRenderStep::AnalyticBlurRenderStep()
                      kDirectDepthGreaterPass,
                      /*vertexAttrs=*/
                      {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                      {"ssboIndices", VertexAttribType::kUShort2, SkSLType::kUShort2}},
+                      {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}},
                      /*instanceAttrs=*/{},
                      /*varyings=*/
                      // scaledShapeCoords are the fragment coordinates in local shape space, where
@@ -60,7 +60,7 @@ const char* AnalyticBlurRenderStep::fragmentCoverageSkSL() const {
 
 void AnalyticBlurRenderStep::writeVertices(DrawWriter* writer,
                                            const DrawParams& params,
-                                           skvx::ushort2 ssboIndices) const {
+                                           skvx::uint2 ssboIndices) const {
     const Rect& r = params.geometry().analyticBlurMask().drawBounds();
     DrawWriter::Vertices verts{*writer};
     verts.append(6) << skvx::float2(r.left(), r.top()) << ssboIndices

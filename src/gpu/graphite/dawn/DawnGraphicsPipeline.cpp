@@ -55,6 +55,8 @@ inline wgpu::VertexFormat attribute_type_to_dawn(VertexAttribType type) {
             return wgpu::VertexFormat::Sint32x3;
         case VertexAttribType::kInt4:
             return wgpu::VertexFormat::Sint32x4;
+        case VertexAttribType::kUInt2:
+            return wgpu::VertexFormat::Uint32x2;
         case VertexAttribType::kByte2:
             return wgpu::VertexFormat::Sint8x2;
         case VertexAttribType::kByte4:

@@ -53,6 +53,8 @@ inline MTLVertexFormat attribute_type_to_mtlformat(VertexAttribType type) {
             return MTLVertexFormatInt3;
         case VertexAttribType::kInt4:
             return MTLVertexFormatInt4;
+        case VertexAttribType::kUInt2:
+            return MTLVertexFormatUInt2;
         case VertexAttribType::kByte:
             if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
                 return MTLVertexFormatChar;

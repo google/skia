@@ -97,7 +97,7 @@ public:
     void fillInstanceData(skgpu::graphite::DrawWriter* dw,
                           int offset, int count,
                           unsigned short flags,
-                          skvx::ushort2 ssboIndex,
+                          skvx::uint2 ssboIndex,
                           SkSpan<const Glyph*> glyphs,
                           SkScalar depth) const;
 

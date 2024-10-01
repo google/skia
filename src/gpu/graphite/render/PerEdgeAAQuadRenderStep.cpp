@@ -194,7 +194,7 @@ PerEdgeAAQuadRenderStep::PerEdgeAAQuadRenderStep(StaticBufferManager* bufferMana
                              // TODO: pack depth and ssbo index into one 32-bit attribute, if we can
                              // go without needing both render step and paint ssbo index attributes.
                              {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                             {"ssboIndices", VertexAttribType::kUShort2, SkSLType::kUShort2},
+                             {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2},
 
                              {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
@@ -237,7 +237,7 @@ const char* PerEdgeAAQuadRenderStep::fragmentCoverageSkSL() const {
 
 void PerEdgeAAQuadRenderStep::writeVertices(DrawWriter* writer,
                                            const DrawParams& params,
-                                           skvx::ushort2 ssboIndices) const {
+                                           skvx::uint2 ssboIndices) const {
     SkASSERT(params.geometry().isEdgeAAQuad());
     const EdgeAAQuad& quad = params.geometry().edgeAAQuad();
 

@@ -42,6 +42,7 @@ enum class VertexAttribType : uint8_t {
     kInt2,   // vector of 2 32-bit ints
     kInt3,   // vector of 3 32-bit ints
     kInt4,   // vector of 4 32-bit ints
+    kUInt2,  // vector of 2 32-bit unsigned ints
 
     kByte,  // signed byte
     kByte2, // vector of 2 8-bit signed bytes
@@ -96,6 +97,8 @@ static constexpr inline size_t VertexAttribTypeSize(VertexAttribType type) {
             return 3 * sizeof(int32_t);
         case VertexAttribType::kInt4:
             return 4 * sizeof(int32_t);
+        case VertexAttribType::kUInt2:
+            return 2 * sizeof(uint32_t);
         case VertexAttribType::kByte:
             return 1 * sizeof(char);
         case VertexAttribType::kByte2:

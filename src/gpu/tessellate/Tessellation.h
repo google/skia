@@ -109,7 +109,7 @@ constexpr size_t PatchAttribsStride(PatchAttribs attribs) {
                                                                    : sizeof(uint8_t)) * 4 : 0) +
            (attribs & PatchAttribs::kPaintDepth ? sizeof(float) : 0) +
            (attribs & PatchAttribs::kExplicitCurveType ? sizeof(float) : 0) +
-           (attribs & PatchAttribs::kSsboIndex ? (sizeof(int)) : 0);
+           (attribs & PatchAttribs::kSsboIndex ? (sizeof(uint32_t) * 2) : 0);
 }
 constexpr size_t PatchStride(PatchAttribs attribs) {
     return 4*sizeof(SkPoint) + PatchAttribsStride(attribs);

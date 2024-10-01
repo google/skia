@@ -525,7 +525,7 @@ std::string EmitVaryings(const RenderStep* step,
     };
 
     if (emitSsboIndicesVarying) {
-        appendVarying({RenderStep::ssboIndicesVarying(), SkSLType::kUShort2});
+        appendVarying({RenderStep::ssboIndicesVarying(), SkSLType::kUInt2});
     }
 
     if (emitLocalCoordsVarying) {

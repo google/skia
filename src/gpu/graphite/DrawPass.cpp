@@ -674,7 +674,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                 (key.shadingUniformIndex() == UniformCache::kInvalidIndex)
                         ? 0
                         : key.shadingUniformIndex();
-        skvx::ushort2 ssboIndices = {SkToU16(geometrySsboIndex), SkToU16(shadingSsboIndex)};
+        skvx::uint2 ssboIndices = {geometrySsboIndex, shadingSsboIndex};
         renderStep.writeVertices(&drawWriter, draw.fDrawParams, ssboIndices);
 
         if (bufferMgr->hasMappingFailed()) {

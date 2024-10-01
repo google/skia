@@ -57,7 +57,7 @@ CoverageMaskRenderStep::CoverageMaskRenderStep()
                       // Remaining translation extracted from actual 'maskToDevice' transform.
                       {"deviceOrigin", VertexAttribType::kFloat2, SkSLType::kFloat2},
                       {"depth"     , VertexAttribType::kFloat, SkSLType::kFloat},
-                      {"ssboIndices", VertexAttribType::kUShort2, SkSLType::kUShort2},
+                      {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2},
                       // deviceToLocal matrix for producing local coords for shader evaluation
                       {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                       {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
@@ -97,7 +97,7 @@ const char* CoverageMaskRenderStep::fragmentCoverageSkSL() const {
 
 void CoverageMaskRenderStep::writeVertices(DrawWriter* dw,
                                            const DrawParams& params,
-                                           skvx::ushort2 ssboIndices) const {
+                                           skvx::uint2 ssboIndices) const {
     const CoverageMaskShape& coverageMask = params.geometry().coverageMaskShape();
     const TextureProxy* proxy = coverageMask.textureProxy();
     SkASSERT(proxy);

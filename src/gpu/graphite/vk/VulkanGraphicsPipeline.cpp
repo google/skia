@@ -54,6 +54,8 @@ static inline VkFormat attrib_type_to_vkformat(VertexAttribType type) {
             return VK_FORMAT_R32G32B32_SINT;
         case VertexAttribType::kInt4:
             return VK_FORMAT_R32G32B32A32_SINT;
+        case VertexAttribType::kUInt2:
+            return VK_FORMAT_R32G32_UINT;
         case VertexAttribType::kByte:
             return VK_FORMAT_R8_SINT;
         case VertexAttribType::kByte2:

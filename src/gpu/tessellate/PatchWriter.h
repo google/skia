@@ -242,7 +242,7 @@ class PatchWriter {
     DEF_ATTRIB_TYPE(ColorAttrib,     PatchAttribs::kColor,             Color);
     DEF_ATTRIB_TYPE(DepthAttrib,     PatchAttribs::kPaintDepth,        float);
     DEF_ATTRIB_TYPE(CurveTypeAttrib, PatchAttribs::kExplicitCurveType, float);
-    DEF_ATTRIB_TYPE(SsboIndexAttrib, PatchAttribs::kSsboIndex,         skvx::ushort2);
+    DEF_ATTRIB_TYPE(SsboIndexAttrib, PatchAttribs::kSsboIndex,         skvx::uint2);
 #undef DEF_ATTRIB_TYPE
 
     static constexpr size_t kMaxStride = 4 * sizeof(SkPoint) + // control points
@@ -252,7 +252,7 @@ class PatchWriter {
             (ColorAttrib::kEnabled     ? std::min(sizeof(Color), sizeof(SkPMColor4f)) : 0) +
             (DepthAttrib::kEnabled     ? sizeof(float)                                : 0) +
             (CurveTypeAttrib::kEnabled ? sizeof(float)                                : 0) +
-            (SsboIndexAttrib::kEnabled ? sizeof(int)                                  : 0);
+            (SsboIndexAttrib::kEnabled ? 2 * sizeof(uint32_t)                         : 0);
 
     // Types that vary depending on the activated features, but do not define the patch data.
     using DeferredPatch = std::conditional_t<kTrackJoinControlPoints,
@@ -379,7 +379,7 @@ public:
 
     // Updates the storage buffer index used to access uniforms.
     ENABLE_IF(SsboIndexAttrib::kEnabled)
-    updateSsboIndexAttrib(skvx::ushort2 ssboIndex) {
+    updateSsboIndexAttrib(skvx::uint2 ssboIndex) {
         SkASSERT(fAttribs & PatchAttribs::kSsboIndex);
         fSsboIndex = ssboIndex;
     }

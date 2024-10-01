@@ -27,7 +27,7 @@ static constexpr Attribute kTexCoordAttr =
 static constexpr Attribute kColorAttr =
         {"vertColor", VertexAttribType::kUByte4_norm, SkSLType::kHalf4};
 static constexpr Attribute kSsboIndexAttr =
-        {"ssboIndices", VertexAttribType::kUShort2, SkSLType::kUShort2};
+        {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2};
 
 static constexpr Attribute kAttributePositionOnly[] =
         {kPositionAttr, kSsboIndexAttr};
@@ -124,7 +124,7 @@ const char* VerticesRenderStep::fragmentColorSkSL() const {
 
 void VerticesRenderStep::writeVertices(DrawWriter* writer,
                                        const DrawParams& params,
-                                       skvx::ushort2 ssboIndices) const {
+                                       skvx::uint2 ssboIndices) const {
     SkVerticesPriv info(params.geometry().vertices()->priv());
     const int vertexCount = info.vertexCount();
     const int indexCount = info.indexCount();
