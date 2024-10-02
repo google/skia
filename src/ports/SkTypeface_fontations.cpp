@@ -318,12 +318,8 @@ public:
             , fOutlines(static_cast<SkTypeface_Fontations*>(this->getTypeface())->getOutlines())
             , fPalette(static_cast<SkTypeface_Fontations*>(this->getTypeface())->getPalette())
             , fHintingInstance(fontations_ffi::no_hinting_instance()) {
-        fRec.getSingleMatrix(&fMatrix);
-
-        SkVector scale;
-        SkMatrix remainingMatrix;
         fRec.computeMatrices(
-                SkScalerContextRec::PreMatrixScale::kVertical, &scale, &remainingMatrix);
+                SkScalerContextRec::PreMatrixScale::kVertical, &fScale, &fRemainingMatrix);
 
         fDoLinearMetrics = this->isLinearMetrics();
         bool forceAutohinting = SkToBool(fRec.fFlags & kForceAutohinting_Flag);
@@ -334,7 +330,7 @@ public:
                 fDoLinearMetrics = true;
             } else {
                 fHintingInstance = fontations_ffi::make_mono_hinting_instance(
-                        fOutlines, scale.fY, fBridgeNormalizedCoords);
+                        fOutlines, fScale.y(), fBridgeNormalizedCoords);
                 fDoLinearMetrics = false;
             }
         } else {
@@ -347,7 +343,7 @@ public:
                     // Unhinted metrics.
                     fHintingInstance = fontations_ffi::make_hinting_instance(
                             fOutlines,
-                            scale.fY,
+                            fScale.y(),
                             fBridgeNormalizedCoords,
                             true /* do_light_hinting */,
                             false /* do_lcd_antialiasing */,
@@ -359,7 +355,7 @@ public:
                     // No hinting to subpixel coordinates.
                     fHintingInstance = fontations_ffi::make_hinting_instance(
                             fOutlines,
-                            scale.fY,
+                            fScale.y(),
                             fBridgeNormalizedCoords,
                             false /* do_light_hinting */,
                             false /* do_lcd_antialiasing */,
@@ -370,7 +366,7 @@ public:
                     // Attempt to make use of hinting to subpixel coordinates.
                     fHintingInstance = fontations_ffi::make_hinting_instance(
                             fOutlines,
-                            scale.fY,
+                            fScale.y(),
                             fBridgeNormalizedCoords,
                             false /* do_light_hinting */,
                             isLCD(fRec) /* do_lcd_antialiasing */,
@@ -457,15 +453,9 @@ protected:
             doLinearMetrics = true;
         }
 
-        SkVector scale;
-        SkMatrix remainingMatrix;
-        if (!fRec.computeMatrices(
-                    SkScalerContextRec::PreMatrixScale::kVertical, &scale, &remainingMatrix)) {
-            return mx;
-        }
         float x_advance = 0.0f;
         x_advance = fontations_ffi::unhinted_advance_width_or_zero(
-                fBridgeFontRef, scale.y(), fBridgeNormalizedCoords, glyph.getGlyphID());
+                fBridgeFontRef, fScale.y(), fBridgeNormalizedCoords, glyph.getGlyphID());
         if (!doLinearMetrics) {
             float hinted_advance = 0;
             fontations_ffi::scaler_hinted_advance_width(
@@ -483,7 +473,7 @@ protected:
                 x_advance = hinted_advance;
             }
         }
-        mx.advance = remainingMatrix.mapXY(x_advance, SkFloatToScalar(0.f));
+        mx.advance = fRemainingMatrix.mapXY(x_advance, SkFloatToScalar(0.f));
 
         if (has_colrv1_glyph || has_colrv0_glyph) {
             mx.extraBits = has_colrv1_glyph ? ScalerContextBits::COLRv1 : ScalerContextBits::COLRv0;
@@ -494,15 +484,15 @@ protected:
             if (has_colrv1_glyph && fontations_ffi::get_colrv1_clip_box(fBridgeFontRef,
                                                                         fBridgeNormalizedCoords,
                                                                         glyph.getGlyphID(),
-                                                                        scale.y(),
+                                                                        fScale.y(),
                                                                         clipBox)) {
                 // Flip y.
                 SkRect boundsRect = SkRect::MakeLTRB(
                         clipBox.x_min, -clipBox.y_max, clipBox.x_max, -clipBox.y_min);
 
-                if (!remainingMatrix.isIdentity()) {
+                if (!fRemainingMatrix.isIdentity()) {
                     SkPath boundsPath = SkPath::Rect(boundsRect);
-                    boundsPath.transform(remainingMatrix);
+                    boundsPath.transform(fRemainingMatrix);
                     boundsRect = boundsPath.getBounds();
                 }
 
@@ -535,7 +525,7 @@ protected:
             mx.extraBits = ScalerContextBits::BITMAP;
 
             rust::cxxbridge1::Box<fontations_ffi::BridgeBitmapGlyph> bitmap_glyph =
-                    fontations_ffi::bitmap_glyph(fBridgeFontRef, glyph.getGlyphID(), scale.fY);
+                    fontations_ffi::bitmap_glyph(fBridgeFontRef, glyph.getGlyphID(), fScale.y());
             rust::cxxbridge1::Slice<const uint8_t> png_data =
                     fontations_ffi::png_data(*bitmap_glyph);
 
@@ -555,14 +545,14 @@ protected:
             SkImageInfo info = codec->getInfo();
 
             SkRect bounds = SkRect::Make(info.bounds());
-            SkMatrix matrix = remainingMatrix;
+            SkMatrix matrix = fRemainingMatrix;
 
             // We deal with two scale factors here: Scaling from font units to
             // device pixels, and scaling the embedded PNG from its number of
             // rows to a specific size, depending on the ppem values in the
             // bitmap glyph information.
-            SkScalar imageToSize = scale.fY / bitmapMetrics.ppem_y;
-            float fontUnitsToSize = scale.fY / fontations_ffi::units_per_em_or_zero(fBridgeFontRef);
+            SkScalar imageToSize = fScale.y() / bitmapMetrics.ppem_y;
+            float fontUnitsToSize = fScale.y() / fontations_ffi::units_per_em_or_zero(fBridgeFontRef);
 
             // The offset from origin is given in font units, so requires a
             // different scale factor than the scaling of the image.
@@ -607,15 +597,8 @@ protected:
 
         canvas.translate(-glyph.left(), -glyph.top());
 
-        SkVector scale;
-        SkMatrix remainingMatrix;
-        if (!fRec.computeMatrices(
-                    SkScalerContextRec::PreMatrixScale::kVertical, &scale, &remainingMatrix)) {
-            return;
-        }
-
         rust::cxxbridge1::Box<fontations_ffi::BridgeBitmapGlyph> bitmap_glyph =
-                fontations_ffi::bitmap_glyph(fBridgeFontRef, glyph.getGlyphID(), scale.fY);
+                fontations_ffi::bitmap_glyph(fBridgeFontRef, glyph.getGlyphID(), fScale.y());
         rust::cxxbridge1::Slice<const uint8_t> png_data = fontations_ffi::png_data(*bitmap_glyph);
         SkASSERT(png_data.size());
 
@@ -632,7 +615,7 @@ protected:
         }
 
         canvas.clear(SK_ColorTRANSPARENT);
-        canvas.concat(remainingMatrix);
+        canvas.concat(fRemainingMatrix);
 
         if (this->isSubpixel()) {
             canvas.translate(SkFixedToScalar(glyph.getSubXFixed()),
@@ -643,9 +626,9 @@ protected:
 
         // We need two different scale factors here, one for font units to size,
         // one for scaling the embedded PNG, see generateMetrics() for details.
-        SkScalar imageScaleFactor = scale.fY / bitmapMetrics.ppem_y;
+        SkScalar imageScaleFactor = fScale.y() / bitmapMetrics.ppem_y;
 
-        float fontUnitsToSize = scale.fY / fontations_ffi::units_per_em_or_zero(fBridgeFontRef);
+        float fontUnitsToSize = fScale.y() / fontations_ffi::units_per_em_or_zero(fBridgeFontRef);
         canvas.translate( bitmapMetrics.bearing_x * fontUnitsToSize,
                          -bitmapMetrics.bearing_y * fontUnitsToSize);
         canvas.scale(imageScaleFactor, imageScaleFactor);
@@ -708,21 +691,15 @@ protected:
     bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override {
         SkASSERT(glyph.extraBits() == ScalerContextBits::PATH);
 
-        SkVector scale;
-        SkMatrix remainingMatrix;
-        if (!fRec.computeMatrices(
-                    SkScalerContextRec::PreMatrixScale::kVertical, &scale, &remainingMatrix)) {
-            return false;
-        }
         bool result = generateYScalePathForGlyphId(
-                glyph.getGlyphID(), path, scale.y(), *fHintingInstance);
+                glyph.getGlyphID(), path, fScale.y(), *fHintingInstance);
         if (!result) {
             return false;
         }
 
-        *path = path->makeTransform(remainingMatrix);
+        *path = path->makeTransform(fRemainingMatrix);
 
-        if (scale.y() != 1.0f || !remainingMatrix.isIdentity()) {
+        if (fScale.y() != 1.0f || !fRemainingMatrix.isIdentity()) {
             *modified = true;
         }
         return true;
@@ -783,12 +760,8 @@ protected:
     }
 
     void generateFontMetrics(SkFontMetrics* out_metrics) override {
-        SkVector scale;
-        SkMatrix remainingMatrix;
-        fRec.computeMatrices(
-                SkScalerContextRec::PreMatrixScale::kVertical, &scale, &remainingMatrix);
         fontations_ffi::Metrics metrics =
-                fontations_ffi::get_skia_metrics(fBridgeFontRef, scale.fY, fBridgeNormalizedCoords);
+                fontations_ffi::get_skia_metrics(fBridgeFontRef, fScale.y(), fBridgeNormalizedCoords);
         out_metrics->fTop = -metrics.top;
         out_metrics->fAscent = -metrics.ascent;
         out_metrics->fDescent = -metrics.descent;
@@ -829,7 +802,8 @@ protected:
     }
 
 private:
-    SkMatrix fMatrix;
+    SkVector fScale;
+    SkMatrix fRemainingMatrix;
     sk_sp<SkData> fFontData = nullptr;
     const fontations_ffi::BridgeFontRef& fBridgeFontRef;
     const fontations_ffi::BridgeNormalizedCoords& fBridgeNormalizedCoords;
