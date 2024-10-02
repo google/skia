@@ -200,10 +200,10 @@ private:
     SkUUID fUUID;
     SkPDFIndirectReference fInfoDict;
     SkPDFIndirectReference fXMP;
-    SkPDF::Metadata fMetadata;
-    SkScalar fRasterScale = 1;
-    SkScalar fInverseRasterScale = 1;
-    SkExecutor* fExecutor = nullptr;
+    const SkPDF::Metadata fMetadata;
+    const SkScalar fRasterScale;
+    const SkScalar fInverseRasterScale;
+    SkExecutor *const fExecutor;
 
     // For tagged PDFs.
     SkPDFTagTree fTagTree;

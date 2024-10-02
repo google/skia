@@ -230,20 +230,14 @@ static void reset_object(T* dst, Args&&... args) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFDocument::SkPDFDocument(SkWStream* stream,
-                             SkPDF::Metadata metadata)
+SkPDFDocument::SkPDFDocument(SkWStream* stream, SkPDF::Metadata metadata)
     : SkDocument(stream)
-    , fMetadata(std::move(metadata)) {
-    constexpr float kDpiForRasterScaleOne = 72.0f;
-    if (fMetadata.fRasterDPI != kDpiForRasterScaleOne) {
-        fInverseRasterScale = kDpiForRasterScaleOne / fMetadata.fRasterDPI;
-        fRasterScale        = fMetadata.fRasterDPI / kDpiForRasterScaleOne;
-    }
-    if (fMetadata.fStructureElementTreeRoot) {
-        fTagTree.init(fMetadata.fStructureElementTreeRoot, fMetadata.fOutline);
-    }
-    fExecutor = fMetadata.fExecutor;
-}
+    , fMetadata(std::move(metadata))
+    , fRasterScale(fMetadata.fRasterDPI / SK_ScalarDefaultRasterDPI)
+    , fInverseRasterScale(SK_ScalarDefaultRasterDPI / fMetadata.fRasterDPI)
+    , fExecutor(fMetadata.fExecutor)
+    , fTagTree(fMetadata.fStructureElementTreeRoot, fMetadata.fOutline)
+{}
 
 SkPDFDocument::~SkPDFDocument() {
     // subclasses of SkDocument must call close() in their destructors.

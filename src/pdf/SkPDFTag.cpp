@@ -184,12 +184,20 @@ void SkPDF::AttributeList::appendNodeIdArray(
     fAttrs->appendObject(std::move(attrDict));
 }
 
-SkPDFTagTree::SkPDFTagTree() : fArena(4 * sizeof(SkPDFTagNode)) {}
+SkPDFTagTree::SkPDFTagTree(SkPDF::StructureElementNode* node, SkPDF::Metadata::Outline outline)
+    : fArena(4 * sizeof(SkPDFTagNode))
+{
+    if (node) {
+        fRoot = fArena.make<SkPDFTagNode>();
+        fOutline = outline;
+        Move(*node, fRoot, &fArena, &fNodeMap, false);
+    }
+}
 
 SkPDFTagTree::~SkPDFTagTree() = default;
 
 // static
-void SkPDFTagTree::Copy(SkPDF::StructureElementNode& node,
+void SkPDFTagTree::Move(SkPDF::StructureElementNode& node,
                         SkPDFTagNode* dst,
                         SkArenaAlloc* arena,
                         THashMap<int, SkPDFTagNode*>* nodeMap,
@@ -213,19 +221,11 @@ void SkPDFTagTree::Copy(SkPDF::StructureElementNode& node,
     dst->fChildren = children;
     for (size_t i = 0; i < childCount; ++i) {
         children[i].fParent = dst;
-        Copy(*node.fChildVector[i], &children[i], arena, nodeMap, wantTitle);
+        Move(*node.fChildVector[i], &children[i], arena, nodeMap, wantTitle);
     }
 
     dst->fAttributes = std::move(node.fAttributes.fAttrs);
     dst->fAttributeNodeIds = std::move(node.fAttributes.fNodeIds);
-}
-
-void SkPDFTagTree::init(SkPDF::StructureElementNode* node, SkPDF::Metadata::Outline outline) {
-    if (node) {
-        fRoot = fArena.make<SkPDFTagNode>();
-        fOutline = outline;
-        Copy(*node, fRoot, &fArena, &fNodeMap, false);
-    }
 }
 
 int SkPDFTagTree::Mark::id() {
