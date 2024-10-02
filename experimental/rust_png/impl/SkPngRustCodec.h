@@ -51,6 +51,9 @@ private:
 
         // Stashed `dstInfo.bytesPerPixel()`
         size_t fBytesPerPixel = 0;
+
+        // Index (in `fFrameHolder`) of the frame being currently decoded.
+        size_t fFrameIndex = 0;
     };
 
     // Helper for validating parameters of `onGetPixels` and/or
@@ -103,6 +106,8 @@ private:
         size_t size() const;
 
         void appendNewFrame(const rust_png::Reader& reader, const SkEncodedInfo& info);
+        void markFrameAsFullyReceived(size_t index);
+        bool getFrameInfo(int index, FrameInfo* info) const;
 
     private:
         const SkFrame* onGetFrame(int i) const override;
@@ -112,8 +117,6 @@ private:
         std::vector<PngFrame> fFrames;
     };
     FrameHolder fFrameHolder;
-
-    size_t fNumOfFullyReceivedFrames = 0;
 };
 
 #endif  // SkPngRustCodec_DEFINED

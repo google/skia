@@ -284,6 +284,7 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
     decodingState->fDst = SkSpan(static_cast<uint8_t*>(pixels), rowBytes * dstInfo.height())
                                   .subspan(decodingState->fBytesPerPixel * frame->xOffset())
                                   .subspan(decodingState->fDstRowSize * frame->yOffset());
+    decodingState->fFrameIndex = options.fFrameIndex;
     return kSuccess;
 }
 
@@ -311,8 +312,8 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
         }
 
         if (decodedRow.empty()) {  // This is how FFI layer says "no more rows".
+            fFrameHolder.markFrameAsFullyReceived(decodingState.fFrameIndex);
             fIncrementalDecodingState.reset();
-            fNumOfFullyReceivedFrames++;
             return kSuccess;
         }
 
@@ -390,11 +391,7 @@ int SkPngRustCodec::onGetFrameCount() {
 }
 
 bool SkPngRustCodec::onGetFrameInfo(int index, FrameInfo* info) const {
-    const SkFrame* frame = fFrameHolder.getFrame(index);
-    if (frame && info) {
-        frame->fillIn(info, fNumOfFullyReceivedFrames > index);
-    }
-    return !!frame;
+    return fFrameHolder.getFrameInfo(index, info);
 }
 
 int SkPngRustCodec::onGetRepetitionCount() {
@@ -453,10 +450,14 @@ class SkPngRustCodec::FrameHolder::PngFrame final : public SkFrame {
 public:
     PngFrame(int id, SkEncodedInfo::Alpha alpha) : SkFrame(id), fReportedAlpha(alpha) {}
 
+    bool isFullyReceived() const { return fFullyReceived; }
+    void markAsFullyReceived() { fFullyReceived = true; }
+
 private:
     SkEncodedInfo::Alpha onReportedAlpha() const override { return fReportedAlpha; };
 
     const SkEncodedInfo::Alpha fReportedAlpha;
+    bool fFullyReceived = false;
 };
 
 SkPngRustCodec::FrameHolder::FrameHolder(int width, int height) : SkFrameHolder() {
@@ -476,6 +477,20 @@ const SkFrame* SkPngRustCodec::FrameHolder::onGetFrame(int i) const {
 }
 
 size_t SkPngRustCodec::FrameHolder::size() const { return fFrames.size(); }
+
+void SkPngRustCodec::FrameHolder::markFrameAsFullyReceived(size_t index) {
+    SkASSERT(index < fFrames.size());
+    fFrames[index].markAsFullyReceived();
+}
+
+bool SkPngRustCodec::FrameHolder::getFrameInfo(int index, FrameInfo* info) const {
+    const SkFrame* frame = this->getFrame(index);
+    if (frame && info) {
+        bool isFullyReceived = static_cast<const PngFrame*>(frame)->isFullyReceived();
+        frame->fillIn(info, isFullyReceived);
+    }
+    return !!frame;
+}
 
 void SkPngRustCodec::FrameHolder::appendNewFrame(const rust_png::Reader& reader,
                                                  const SkEncodedInfo& info) {
