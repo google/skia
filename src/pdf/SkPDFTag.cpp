@@ -11,6 +11,7 @@
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
+#include "src/base/SkZip.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
 
 #include <algorithm>
@@ -70,8 +71,7 @@ struct SkPDFTagNode {
     }
 
     SkPDFTagNode* fParent = nullptr;
-    SkPDFTagNode* fChildren = nullptr;
-    size_t fChildCount = 0;
+    SkSpan<SkPDFTagNode> fChildren;
     struct MarkedContentInfo {
         Location fLocation;
         int fMarkId;
@@ -197,35 +197,33 @@ SkPDFTagTree::SkPDFTagTree(SkPDF::StructureElementNode* node, SkPDF::Metadata::O
 SkPDFTagTree::~SkPDFTagTree() = default;
 
 // static
-void SkPDFTagTree::Move(SkPDF::StructureElementNode& node,
-                        SkPDFTagNode* dst,
+void SkPDFTagTree::Move(SkPDF::StructureElementNode& srcNode,
+                        SkPDFTagNode* dstNode,
                         SkArenaAlloc* arena,
                         THashMap<int, SkPDFTagNode*>* nodeMap,
                         bool wantTitle) {
-    nodeMap->set(node.fNodeId, dst);
-    dst->fNodeId = node.fNodeId;
+    dstNode->fNodeId = srcNode.fNodeId;
+    nodeMap->set(dstNode->fNodeId, dstNode);
 
     // Accumulate title text, need to be in sync with create_outline_from_headers
-    const char* type = node.fTypeString.c_str();
+    const char* type = srcNode.fTypeString.c_str();
     wantTitle |= fOutline == SkPDF::Metadata::Outline::StructureElementHeaders &&
                  type[0] == 'H' && '1' <= type[1] && type[1] <= '6';
-    dst->fWantTitle = wantTitle;
+    dstNode->fWantTitle = wantTitle;
 
-    dst->fTypeString = node.fTypeString;
-    dst->fAlt = node.fAlt;
-    dst->fLang = node.fLang;
+    dstNode->fTypeString = srcNode.fTypeString;
+    dstNode->fAlt = srcNode.fAlt;
+    dstNode->fLang = srcNode.fLang;
 
-    size_t childCount = node.fChildVector.size();
-    SkPDFTagNode* children = arena->makeArray<SkPDFTagNode>(childCount);
-    dst->fChildCount = childCount;
-    dst->fChildren = children;
-    for (size_t i = 0; i < childCount; ++i) {
-        children[i].fParent = dst;
-        Move(*node.fChildVector[i], &children[i], arena, nodeMap, wantTitle);
+    size_t childCount = srcNode.fChildVector.size();
+    dstNode->fChildren = SkSpan(arena->makeArray<SkPDFTagNode>(childCount), childCount);
+    for (auto&& [nodeChild, dstChild] : SkMakeZip(srcNode.fChildVector, dstNode->fChildren)) {
+        dstChild.fParent = dstNode;
+        Move(*nodeChild, &dstChild, arena, nodeMap, wantTitle);
     }
 
-    dst->fAttributes = std::move(node.fAttributes.fAttrs);
-    dst->fAttributeNodeIds = std::move(node.fAttributes.fNodeIds);
+    dstNode->fAttributes = std::move(srcNode.fAttributes.fAttrs);
+    dstNode->fAttributeNodeIds = std::move(srcNode.fAttributes.fNodeIds);
 }
 
 int SkPDFTagTree::Mark::id() {
@@ -297,12 +295,9 @@ SkPDFIndirectReference SkPDFTagTree::PrepareTagTreeToEmit(SkPDFIndirectReference
 
     { // K
         std::unique_ptr<SkPDFArray> kids = SkPDFMakeArray();
-        SkPDFTagNode* children = node->fChildren;
-        size_t childCount = node->fChildCount;
-        for (size_t i = 0; i < childCount; ++i) {
-            SkPDFTagNode* child = &children[i];
-            if (child->fUsed) {
-                kids->appendRef(PrepareTagTreeToEmit(node->fRef, child, doc));
+        for (auto&& child : node->fChildren) {
+            if (child.fUsed) {
+                kids->appendRef(PrepareTagTreeToEmit(node->fRef, &child, doc));
             }
         }
         if (!node->fMarkedContent.empty()) {
@@ -554,12 +549,10 @@ OutlineEntry::Content create_outline_entry_content(SkPDFTagNode* const node) {
     OutlineEntry::Content content{std::move(text), std::move(markPoint)};
 
     // Accumulate children
-    SkSpan<SkPDFTagNode> children(node->fChildren, node->fChildCount);
-    for (auto&& child : children) {
-        if (!child.fUsed) {
-            continue;
+    for (auto&& child : node->fChildren) {
+        if (child.fUsed) {
+            content.accumulate(create_outline_entry_content(&child));
         }
-        content.accumulate(create_outline_entry_content(&child));
     }
     return content;
 }
@@ -579,12 +572,10 @@ void create_outline_from_headers(SkPDFDocument* const doc, SkPDFTagNode* const n
         }
     }
 
-    SkSpan<SkPDFTagNode> children(node->fChildren, node->fChildCount);
-    for (auto&& child : children) {
-        if (!child.fUsed) {
-            continue;
+    for (auto&& child : node->fChildren) {
+        if (child.fUsed) {
+            create_outline_from_headers(doc, &child, stack);
         }
-        create_outline_from_headers(doc, &child, stack);
     }
 }
 
