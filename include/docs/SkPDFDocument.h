@@ -61,7 +61,6 @@ struct StructureElementNode {
     SkString fTypeString;
     std::vector<std::unique_ptr<StructureElementNode>> fChildVector;
     int fNodeId = 0;
-    std::vector<int> fAdditionalNodeIds;
     AttributeList fAttributes;
     SkString fAlt;
     SkString fLang;

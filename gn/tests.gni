@@ -174,7 +174,6 @@ tests_sources = [
   "$_tests/PDFOpaqueSrcModeToSrcOverTest.cpp",
   "$_tests/PDFPrimitivesTest.cpp",
   "$_tests/PDFTaggedLinkTest.cpp",
-  "$_tests/PDFTaggedPruningTest.cpp",
   "$_tests/PDFTaggedTableTest.cpp",
   "$_tests/PDFTaggedTest.cpp",
   "$_tests/PaintTest.cpp",

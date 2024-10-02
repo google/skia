@@ -195,10 +195,6 @@ void SkPDFTagTree::Copy(SkPDF::StructureElementNode& node,
                         THashMap<int, SkPDFTagNode*>* nodeMap,
                         bool wantTitle) {
     nodeMap->set(node.fNodeId, dst);
-    for (int nodeId : node.fAdditionalNodeIds) {
-        SkASSERT(!nodeMap->find(nodeId));
-        nodeMap->set(nodeId, dst);
-    }
     dst->fNodeId = node.fNodeId;
 
     // Accumulate title text, need to be in sync with create_outline_from_headers
