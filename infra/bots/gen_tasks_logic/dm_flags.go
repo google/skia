@@ -501,10 +501,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 					// This GM is larger than Dawn compat's max texture size.
 					skip(ALL, "gm", ALL, "wacky_yuv_formats_domain")
-
-					// This test creates texture that are larger than Dawn
-					// compat's max texture size.
-					skip(ALL, "test", ALL, "BigImageTest_Graphite")
 				}
 
 			} else if b.extraConfig("Native") {

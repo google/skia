@@ -269,8 +269,11 @@ void tiling_comparison_test(GrDirectContext* dContext,
     static const int kImageSize = 4096 - 4 * 2 * kBicubicFilterTexelPad;
     static const int kOverrideMaxTextureSize = 1024;
 
+    // Max size of created images accounting for 45 degree rotation.
+    static const int kMaxRotatedImageSize = std::ceil(kImageSize * std::sqrt(2.0));
+
 #if defined(SK_GANESH)
-    if (dContext && dContext->maxTextureSize() < kImageSize) {
+    if (dContext && dContext->maxTextureSize() < kMaxRotatedImageSize) {
         // For the expected images we need to be able to draw w/o tiling
         return;
     }
@@ -279,7 +282,7 @@ void tiling_comparison_test(GrDirectContext* dContext,
 #if defined(SK_GRAPHITE)
     if (recorder) {
         const skgpu::graphite::Caps* caps = recorder->priv().caps();
-        if (caps->maxTextureSize() < kImageSize) {
+        if (caps->maxTextureSize() < kMaxRotatedImageSize) {
             return;
         }
     }
