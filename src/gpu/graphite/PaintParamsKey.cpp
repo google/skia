@@ -88,25 +88,17 @@ const ShaderNode* PaintParamsKey::createNode(const ShaderCodeDictionary* dict,
 
     SkSpan<const uint32_t> dataSpan = {};
     if (entry->storesData()) {
-        // Gather any additional data that should be passed into ShaderNode creation. If the next
-        // entry is 0, that simply indicates there is no embedded data to store. Iterate
-        // currentIndex past the stored data length entry.
+        // If a snippet stores data, then the subsequent paint key index signifies the length of
+        // its data. Determine this data length and iterate currentIndex past it.
         const int storedDataLengthIdx = (*currentIndex)++;
         SkASSERT(storedDataLengthIdx < SkTo<int>(fData.size()));
         const int dataLength = fData[storedDataLengthIdx];
         SkASSERT(storedDataLengthIdx + dataLength < SkTo<int>(fData.size()));
 
-        // Append either the data contents (length can now be inferred by the consumers of the data)
-        // OR the data length of "0" to explicitly indicate the absence of material data.
-        // TODO(b/366220690): Once snippet IDs can be tied to their respective data, we can simply
-        // leave the span empty.
-        if (dataLength == 0) {
-            dataSpan = fData.subspan(storedDataLengthIdx, 1);
-        } else {
-            dataSpan = fData.subspan(storedDataLengthIdx + 1, dataLength);
-            // Iterate past the length of data
-            *currentIndex += dataLength;
-        }
+        // Gather the data contents (length can now be inferred by the consumers of the data) to
+        // pass into ShaderNode creation. Iterate the paint key index past the data indices.
+        dataSpan = fData.subspan(storedDataLengthIdx + 1, dataLength);
+        *currentIndex += dataLength;
     }
 
     const ShaderNode** childArray = arena->makeArray<const ShaderNode*>(entry->fNumChildren);
@@ -184,9 +176,10 @@ static int key_to_string(SkString* str,
         const int dataLength = keyData[currentIndex++];
         SkASSERT(currentIndex + dataLength < SkTo<int>(keyData.size()));
 
-        if (dataLength == 0) {
-            // No data is the common case, so include a minimal representation to keep the length
-            // as short as possible
+        // Define a compact representation for the common case of shader snippets using just one
+        // dynamic sampler. Immutable samplers require a data length > 1 to be represented while a
+        // dynamic sampler is represented with just one, so we can simply consult the data length.
+        if (dataLength == 1) {
             str->append("(0)");
         } else {
             str->append("(");

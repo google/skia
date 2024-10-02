@@ -671,9 +671,9 @@ void add_sampler_data_to_key(PaintParamsKeyBuilder* builder, const SamplerDesc& 
     if (samplerDesc.isImmutable()) {
         builder->addData({samplerDesc.asSpan()});
     } else {
-        // Means we have a regular dynamic sampler for which no data needs to be appended. Call
-        // addData() regardless w/ an empty span such that a data length of '0' is added.
-        builder->addData({});
+        // Means we have a regular dynamic sampler. Append a default SamplerDesc to convey this,
+        // allowing the key to maintain and convey sampler binding order.
+        builder->addData({{}});
     }
 }
 
