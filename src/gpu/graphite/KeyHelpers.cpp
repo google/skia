@@ -1855,18 +1855,31 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
 
     SkColorSpaceXformSteps steps;
     SkASSERT(steps.flags.mask() == 0);   // By default, the colorspace should have no effect
-    // Output color from the YUV image shaders is always unpremul, so we ignore the image alphaType
+
+    // The actual output from the YUV image shader for non-opaque images is unpremul so
+    // we need to correct for the fact that the Image_YUVA_Graphite's alpha type is premul.
+    SkAlphaType srcAT = imageToDraw->alphaType() == kPremul_SkAlphaType
+                                ? kUnpremul_SkAlphaType
+                                : imageToDraw->alphaType();
     if (origShader->isRaw()) {
-        // We need to at least do premul alpha conversion
+        // Because we've avoided the premul alpha step in the YUV shader, we need to make sure
+        // it happens when drawing unpremul (i.e., non-opaque) images.
         steps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
-                                       kUnpremul_SkAlphaType,
+                                       srcAT,
                                        imageToDraw->colorSpace(),
-                                       kPremul_SkAlphaType);
+                                       imageToDraw->alphaType());
     } else {
+        SkAlphaType dstAT = keyContext.dstColorInfo().alphaType();
+        // Setting the dst alphaType up this way is necessary because otherwise the constructor
+        // for SkColorSpaceXformSteps will set dstAT = srcAT when dstAT == kOpaque, and the
+        // premul step needed for non-opaque images won't occur.
+        if (dstAT == kOpaque_SkAlphaType && srcAT == kUnpremul_SkAlphaType) {
+            dstAT = kPremul_SkAlphaType;
+        }
         steps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),
-                                       kUnpremul_SkAlphaType,
+                                       srcAT,
                                        keyContext.dstColorInfo().colorSpace(),
-                                       keyContext.dstColorInfo().alphaType());
+                                       dstAT);
     }
     ColorSpaceTransformBlock::ColorSpaceTransformData data(steps);
 
