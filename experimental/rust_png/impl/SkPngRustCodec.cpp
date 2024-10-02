@@ -279,11 +279,11 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
         return result;
     }
 
-    decodingState->dstRowSize = rowBytes;
-    decodingState->bytesPerPixel = dstInfo.bytesPerPixel();
-    decodingState->dst = SkSpan(static_cast<uint8_t*>(pixels), rowBytes * dstInfo.height())
-                                 .subspan(decodingState->bytesPerPixel * frame->xOffset())
-                                 .subspan(decodingState->dstRowSize * frame->yOffset());
+    decodingState->fDstRowSize = rowBytes;
+    decodingState->fBytesPerPixel = dstInfo.bytesPerPixel();
+    decodingState->fDst = SkSpan(static_cast<uint8_t*>(pixels), rowBytes * dstInfo.height())
+                                  .subspan(decodingState->fBytesPerPixel * frame->xOffset())
+                                  .subspan(decodingState->fDstRowSize * frame->yOffset());
     return kSuccess;
 }
 
@@ -329,21 +329,21 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
             SkASSERT(decodedInterlacedFullWidthRow.size() >= decodedRow.size());
             memcpy(decodedInterlacedFullWidthRow.data(), decodedRow.data(), decodedRow.size());
 
-            xformedInterlacedRow.resize(decodingState.dstRowSize, 0x00);
+            xformedInterlacedRow.resize(decodingState.fDstRowSize, 0x00);
             this->applyXformRow(xformedInterlacedRow, decodedInterlacedFullWidthRow);
 
-            fReader->expand_last_interlaced_row(rust::Slice<uint8_t>(decodingState.dst),
-                                                decodingState.dstRowSize,
+            fReader->expand_last_interlaced_row(rust::Slice<uint8_t>(decodingState.fDst),
+                                                decodingState.fDstRowSize,
                                                 rust::Slice<const uint8_t>(xformedInterlacedRow),
-                                                decodingState.bytesPerPixel * 8);
+                                                decodingState.fBytesPerPixel * 8);
             // `rowsDecoded` is not incremented, because full, contiguous rows
             // are not decoded until pass 6 (or 7 depending on how you look) of
             // Adam7 interlacing scheme.
         } else {
-            this->applyXformRow(decodingState.dst, decodedRow);
+            this->applyXformRow(decodingState.fDst, decodedRow);
 
-            decodingState.dst = decodingState.dst.subspan(
-                    std::min(decodingState.dstRowSize, decodingState.dst.size()));
+            decodingState.fDst = decodingState.fDst.subspan(
+                    std::min(decodingState.fDstRowSize, decodingState.fDst.size()));
             rowsDecoded++;
         }
     }
