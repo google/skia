@@ -27,15 +27,17 @@ namespace skgpu::graphite {
 namespace {
 
 // TODO: Tune these values on real world data
-static constexpr uint32_t kVertexBufferSize = 16 << 10; // 16 KB
-static constexpr uint32_t kIndexBufferSize   = 2 << 10; //  2 KB
-static constexpr uint32_t kUniformBufferSize = 2 << 10; //  2 KB
+static constexpr uint32_t kVertexBufferMinSize = 16 << 10; // 16 KB
+static constexpr uint32_t kVertexBufferMaxSize =  1 << 20; //  1 MB
+static constexpr uint32_t kIndexBufferSize   = 2 << 10; // 2 KB
+static constexpr uint32_t kUniformBufferSize = 2 << 10; // 2 KB
 static constexpr uint32_t kStorageBufferMinSize = 2 << 10; // 2 KB
 static constexpr uint32_t kStorageBufferMaxSize = 1 << 20; // 1 MB
 
 // Make sure the buffer size constants are all powers of two, so we can align to them efficiently
 // when dynamically sizing buffers.
-static_assert(SkIsPow2(kVertexBufferSize));
+static_assert(SkIsPow2(kVertexBufferMinSize));
+static_assert(SkIsPow2(kVertexBufferMaxSize));
 static_assert(SkIsPow2(kIndexBufferSize));
 static_assert(SkIsPow2(kUniformBufferSize));
 static_assert(SkIsPow2(kStorageBufferMinSize));
@@ -154,7 +156,7 @@ DrawBufferManager::DrawBufferManager(ResourceProvider* resourceProvider,
         , fCaps(caps)
         , fUploadManager(uploadManager)
         , fCurrentBuffers{{
-            { BufferType::kVertex,        kVertexBufferSize,     kVertexBufferSize,     caps },
+            { BufferType::kVertex,        kVertexBufferMinSize,  kVertexBufferMaxSize,  caps },
             { BufferType::kIndex,         kIndexBufferSize,      kIndexBufferSize,      caps },
             { BufferType::kUniform,       kUniformBufferSize,    kUniformBufferSize,    caps },
 
@@ -163,7 +165,7 @@ DrawBufferManager::DrawBufferManager(ResourceProvider* resourceProvider,
             // GPU-only storage
             { BufferType::kStorage,       kStorageBufferMinSize, kStorageBufferMinSize, caps },
 
-            { BufferType::kVertexStorage, kVertexBufferSize,     kVertexBufferSize,     caps },
+            { BufferType::kVertexStorage, kVertexBufferMinSize,  kVertexBufferMinSize,  caps },
             { BufferType::kIndexStorage,  kIndexBufferSize,      kIndexBufferSize,      caps },
             { BufferType::kIndirect,      kStorageBufferMinSize, kStorageBufferMinSize, caps } }} {}
 
