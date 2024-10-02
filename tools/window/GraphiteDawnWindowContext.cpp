@@ -145,7 +145,6 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
     wgpu::Adapter adapter = adapters[0].Get();
 
     std::vector<wgpu::FeatureName> features;
-    features.push_back(wgpu::FeatureName::SurfaceCapabilities);
     if (adapter.HasFeature(wgpu::FeatureName::MSAARenderToSingleSampled)) {
         features.push_back(wgpu::FeatureName::MSAARenderToSingleSampled);
     }
