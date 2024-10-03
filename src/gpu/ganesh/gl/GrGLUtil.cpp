@@ -611,6 +611,11 @@ static std::tuple<GrGLANGLEBackend, SkString> get_angle_backend(const char* rend
         } else if (strstr(rendererString, "OpenGL")) {
             return {GrGLANGLEBackend::kOpenGL, std::move(innerString)};
         }
+#if !defined(SK_IGNORE_ANGLE_VULKAN)
+        else if (strstr(rendererString, "Vulkan")) {
+            return {GrGLANGLEBackend::kVulkan, std::move(innerString)};
+        }
+#endif
     }
     return {GrGLANGLEBackend::kUnknown, {}};
 }
@@ -649,6 +654,14 @@ get_angle_gl_vendor_and_renderer(
 static GrGLVendor get_angle_metal_vendor(const char* innerString) {
     if (strstr(innerString, "Intel")) {
         return GrGLVendor::kIntel;
+    }
+
+    return GrGLVendor::kOther;
+}
+
+static GrGLVendor get_angle_vulkan_vendor(const char* innerString) {
+    if (strstr(innerString, "ARM")) {
+        return GrGLVendor::kARM;
     }
 
     return GrGLVendor::kOther;
@@ -785,6 +798,8 @@ GrGLDriverInfo GrGLGetDriverInfo(const GrGLInterface* interface) {
                                                  interface->fExtensions);
     } else if (info.fANGLEBackend == GrGLANGLEBackend::kMetal) {
         info.fANGLEVendor = get_angle_metal_vendor(innerAngleRendererString.c_str());
+    } else if (info.fANGLEBackend == GrGLANGLEBackend::kVulkan) {
+        info.fANGLEVendor = get_angle_vulkan_vendor(innerAngleRendererString.c_str());
     }
 
     if (info.fRenderer == GrGLRenderer::kWebGL) {
