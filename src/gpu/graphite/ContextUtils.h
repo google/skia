@@ -69,25 +69,16 @@ struct FragSkSLInfo {
     skia_private::TArray<uint32_t> fData = {};
 };
 
-std::tuple<UniquePaintParamsID, UniformDataBlock, TextureDataBlock> ExtractPaintData(
-        Recorder*,
-        PipelineDataGatherer* gatherer,
-        PaintParamsKeyBuilder* builder,
-        const Layout layout,
-        const SkM44& local2Dev,
-        const PaintParams&,
-        const Geometry& geometry,
-        sk_sp<TextureProxy> dstTexture,
-        SkIPoint dstOffset,
-        const SkColorInfo& targetColorInfo);
-
-std::tuple<UniformDataBlock, TextureDataBlock> ExtractRenderStepData(
-        UniformDataCache* uniformDataCache,
-        TextureDataCache* textureDataCache,
-        PipelineDataGatherer* gatherer,
-        const Layout layout,
-        const RenderStep* step,
-        const DrawParams& params);
+UniquePaintParamsID ExtractPaintData(Recorder*,
+                                     PipelineDataGatherer* gatherer,
+                                     PaintParamsKeyBuilder* builder,
+                                     const Layout layout,
+                                     const SkM44& local2Dev,
+                                     const PaintParams&,
+                                     const Geometry& geometry,
+                                     sk_sp<TextureProxy> dstTexture,
+                                     SkIPoint dstOffset,
+                                     const SkColorInfo& targetColorInfo);
 
 // `viewport` should hold the actual viewport set as backend state (defining the NDC -> pixel
 // transform). The viewport's dimensions are used to define the SkDevice->NDC transform applied in

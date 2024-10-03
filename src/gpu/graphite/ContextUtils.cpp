@@ -29,17 +29,16 @@
 
 namespace skgpu::graphite {
 
-std::tuple<UniquePaintParamsID, UniformDataBlock, TextureDataBlock> ExtractPaintData(
-        Recorder* recorder,
-        PipelineDataGatherer* gatherer,
-        PaintParamsKeyBuilder* builder,
-        const Layout layout,
-        const SkM44& local2Dev,
-        const PaintParams& p,
-        const Geometry& geometry,
-        sk_sp<TextureProxy> dstTexture,
-        SkIPoint dstOffset,
-        const SkColorInfo& targetColorInfo) {
+UniquePaintParamsID ExtractPaintData(Recorder* recorder,
+                                     PipelineDataGatherer* gatherer,
+                                     PaintParamsKeyBuilder* builder,
+                                     const Layout layout,
+                                     const SkM44& local2Dev,
+                                     const PaintParams& p,
+                                     const Geometry& geometry,
+                                     sk_sp<TextureProxy> dstTexture,
+                                     SkIPoint dstOffset,
+                                     const SkColorInfo& targetColorInfo) {
     SkDEBUGCODE(builder->checkReset());
 
     gatherer->resetWithNewLayout(layout);
@@ -55,41 +54,7 @@ std::tuple<UniquePaintParamsID, UniformDataBlock, TextureDataBlock> ExtractPaint
                           dstOffset);
     p.toKey(keyContext, builder, gatherer);
 
-    UniquePaintParamsID paintID = recorder->priv().shaderCodeDictionary()->findOrCreate(builder);
-    UniformDataBlock uniforms;
-    TextureDataBlock textures;
-    if (paintID.isValid()) {
-        if (gatherer->hasUniforms()) {
-            UniformDataCache* uniformDataCache = recorder->priv().uniformDataCache();
-            uniforms = uniformDataCache->insert(gatherer->finishUniformDataBlock());
-        }
-        if (gatherer->hasTextures()) {
-            TextureDataCache* textureDataCache = recorder->priv().textureDataCache();
-            textures = textureDataCache->insert(gatherer->textureDataBlock());
-        }
-    }
-
-    return { paintID, uniforms, textures };
-}
-
-std::tuple<UniformDataBlock, TextureDataBlock> ExtractRenderStepData(
-        UniformDataCache* uniformDataCache,
-        TextureDataCache* textureDataCache,
-        PipelineDataGatherer* gatherer,
-        const Layout layout,
-        const RenderStep* step,
-        const DrawParams& params) {
-    gatherer->resetWithNewLayout(layout);
-    step->writeUniformsAndTextures(params, gatherer);
-
-    UniformDataBlock uniforms =
-            gatherer->hasUniforms() ? uniformDataCache->insert(gatherer->finishUniformDataBlock())
-                                    : UniformDataBlock();
-    TextureDataBlock textures =
-            gatherer->hasTextures() ? textureDataCache->insert(gatherer->textureDataBlock())
-                                    : TextureDataBlock();
-
-    return { uniforms, textures };
+    return recorder->priv().shaderCodeDictionary()->findOrCreate(builder);
 }
 
 DstReadRequirement GetDstReadRequirement(const Caps* caps,

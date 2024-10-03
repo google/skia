@@ -29,10 +29,10 @@ namespace {
 // TODO: Tune these values on real world data
 static constexpr uint32_t kVertexBufferMinSize = 16 << 10; // 16 KB
 static constexpr uint32_t kVertexBufferMaxSize =  1 << 20; //  1 MB
-static constexpr uint32_t kIndexBufferSize   = 2 << 10; // 2 KB
-static constexpr uint32_t kUniformBufferSize = 2 << 10; // 2 KB
-static constexpr uint32_t kStorageBufferMinSize = 2 << 10; // 2 KB
-static constexpr uint32_t kStorageBufferMaxSize = 1 << 20; // 1 MB
+static constexpr uint32_t kIndexBufferSize   =  2 << 10; //  2 KB
+static constexpr uint32_t kUniformBufferSize = 16 << 10; // 16 KB
+static constexpr uint32_t kStorageBufferMinSize = 16 << 10; // 16 KB
+static constexpr uint32_t kStorageBufferMaxSize =  1 << 20; //  1 MB
 
 // Make sure the buffer size constants are all powers of two, so we can align to them efficiently
 // when dynamically sizing buffers.
@@ -192,7 +192,7 @@ std::pair<VertexWriter, BindBufferInfo> DrawBufferManager::getVertexWriter(size_
     }
 
     auto& info = fCurrentBuffers[kVertexBufferIndex];
-    auto [ptr, bindInfo] = this->prepareMappedBindBuffer(&info, requiredBytes, "VertexBuffer");
+    auto [ptr, bindInfo] = this->prepareMappedBindBuffer(&info, "VertexBuffer", requiredBytes);
     return {VertexWriter(ptr, requiredBytes), bindInfo};
 }
 
@@ -214,7 +214,7 @@ std::pair<IndexWriter, BindBufferInfo> DrawBufferManager::getIndexWriter(size_t 
     }
 
     auto& info = fCurrentBuffers[kIndexBufferIndex];
-    auto [ptr, bindInfo] = this->prepareMappedBindBuffer(&info, requiredBytes, "IndexBuffer");
+    auto [ptr, bindInfo] = this->prepareMappedBindBuffer(&info, "IndexBuffer", requiredBytes);
     return {IndexWriter(ptr, requiredBytes), bindInfo};
 }
 
@@ -226,20 +226,34 @@ std::pair<UniformWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(siz
     }
 
     auto& info = fCurrentBuffers[kUniformBufferIndex];
-    auto [ptr, bindInfo] = this->prepareMappedBindBuffer(&info, requiredBytes, "UniformBuffer");
+    auto [ptr, bindInfo] = this->prepareMappedBindBuffer(&info, "UniformBuffer", requiredBytes);
     return {UniformWriter(ptr, requiredBytes), bindInfo};
 }
 
 std::pair<UniformWriter, BindBufferInfo> DrawBufferManager::getSsboWriter(size_t count,
-                                                                          size_t stride) {
+                                                                          size_t stride,
+                                                                          size_t alignment) {
     uint32_t requiredBytes = validate_count_and_stride(count, stride);
     if (!requiredBytes) {
         return {};
     }
 
     auto& info = fCurrentBuffers[kStorageBufferIndex];
-    auto [ptr, bindInfo] = this->prepareMappedBindBuffer(&info, requiredBytes, "StorageBuffer");
+    auto [ptr, bindInfo] =
+            this->prepareMappedBindBuffer(&info, "StorageBuffer", requiredBytes, alignment);
     return {UniformWriter(ptr, requiredBytes), bindInfo};
+}
+
+std::pair<UniformWriter, BindBufferInfo> DrawBufferManager::getSsboWriter(size_t count,
+                                                                          size_t stride) {
+    // By setting alignment=0, use the default buffer alignment requirement for storage buffers.
+    return this->getSsboWriter(count, stride, /*alignment=*/0);
+}
+
+std::pair<UniformWriter, BindBufferInfo> DrawBufferManager::getAlignedSsboWriter(size_t count,
+                                                                                 size_t stride) {
+    // Align to the provided element stride.
+    return this->getSsboWriter(count, stride, stride);
 }
 
 std::pair<void* /*mappedPtr*/, BindBufferInfo> DrawBufferManager::getUniformPointer(
@@ -250,7 +264,7 @@ std::pair<void* /*mappedPtr*/, BindBufferInfo> DrawBufferManager::getUniformPoin
     }
 
     auto& info = fCurrentBuffers[kUniformBufferIndex];
-    return this->prepareMappedBindBuffer(&info, requiredBytes32, "UniformBuffer");
+    return this->prepareMappedBindBuffer(&info, "UniformBuffer", requiredBytes32);
 }
 
 std::pair<void* /*mappedPtr*/, BindBufferInfo> DrawBufferManager::getStoragePointer(
@@ -261,7 +275,7 @@ std::pair<void* /*mappedPtr*/, BindBufferInfo> DrawBufferManager::getStoragePoin
     }
 
     auto& info = fCurrentBuffers[kStorageBufferIndex];
-    return this->prepareMappedBindBuffer(&info, requiredBytes32, "StorageBuffer");
+    return this->prepareMappedBindBuffer(&info, "StorageBuffer", requiredBytes32);
 }
 
 BindBufferInfo DrawBufferManager::getStorage(size_t requiredBytes, ClearBuffer cleared) {
@@ -272,8 +286,9 @@ BindBufferInfo DrawBufferManager::getStorage(size_t requiredBytes, ClearBuffer c
 
     auto& info = fCurrentBuffers[kGpuOnlyStorageBufferIndex];
     return this->prepareBindBuffer(&info,
-                                   requiredBytes32,
                                    "StorageBuffer",
+                                   requiredBytes32,
+                                   /*requiredAlignment=*/0,
                                    /*supportCpuUpload=*/false,
                                    cleared);
 }
@@ -285,7 +300,7 @@ BindBufferInfo DrawBufferManager::getVertexStorage(size_t requiredBytes) {
     }
 
     auto& info = fCurrentBuffers[kVertexStorageBufferIndex];
-    return this->prepareBindBuffer(&info, requiredBytes32, "VertexStorageBuffer");
+    return this->prepareBindBuffer(&info, "VertexStorageBuffer", requiredBytes32);
 }
 
 BindBufferInfo DrawBufferManager::getIndexStorage(size_t requiredBytes) {
@@ -295,7 +310,7 @@ BindBufferInfo DrawBufferManager::getIndexStorage(size_t requiredBytes) {
     }
 
     auto& info = fCurrentBuffers[kIndexStorageBufferIndex];
-    return this->prepareBindBuffer(&info, requiredBytes32, "IndexStorageBuffer");
+    return this->prepareBindBuffer(&info, "IndexStorageBuffer", requiredBytes32);
 }
 
 BindBufferInfo DrawBufferManager::getIndirectStorage(size_t requiredBytes, ClearBuffer cleared) {
@@ -306,8 +321,9 @@ BindBufferInfo DrawBufferManager::getIndirectStorage(size_t requiredBytes, Clear
 
     auto& info = fCurrentBuffers[kIndirectStorageBufferIndex];
     return this->prepareBindBuffer(&info,
-                                   requiredBytes32,
                                    "IndirectStorageBuffer",
+                                   requiredBytes32,
+                                   /*requiredAlignment=*/0,
                                    /*supportCpuUpload=*/false,
                                    cleared);
 }
@@ -441,11 +457,13 @@ bool DrawBufferManager::transferToRecording(Recording* recording) {
 
 std::pair<void*, BindBufferInfo> DrawBufferManager::prepareMappedBindBuffer(
         BufferInfo* info,
+        std::string_view label,
         uint32_t requiredBytes,
-        std::string_view label) {
+        uint32_t requiredAlignment) {
     BindBufferInfo bindInfo = this->prepareBindBuffer(info,
-                                                      requiredBytes,
                                                       std::move(label),
+                                                      requiredBytes,
+                                                      requiredAlignment,
                                                       /*supportCpuUpload=*/true);
     if (!bindInfo) {
         // prepareBindBuffer() already called onFailedBuffer()
@@ -467,8 +485,9 @@ std::pair<void*, BindBufferInfo> DrawBufferManager::prepareMappedBindBuffer(
 }
 
 BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
-                                                    uint32_t requiredBytes,
                                                     std::string_view label,
+                                                    uint32_t requiredBytes,
+                                                    uint32_t requiredAlignment,
                                                     bool supportCpuUpload,
                                                     ClearBuffer cleared) {
     SkASSERT(info);
@@ -481,10 +500,30 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
     // A transfer buffer is not necessary if the caller does not intend to upload CPU data to it.
     bool useTransferBuffer = supportCpuUpload && !fCaps->drawBufferCanBeMapped();
 
-    const bool overflowedBuffer = info->fBuffer && !can_fit(requiredBytes,
-                                                            SkTo<uint32_t>(info->fBuffer->size()),
-                                                            info->fOffset,
-                                                            info->fStartAlignment);
+    if (requiredAlignment == 0) {
+        // If explicitly required alignment is not provided, use the default buffer alignment.
+        requiredAlignment = info->fStartAlignment;
+
+    } else {
+        // If an explicitly required alignment is provided, use that instead of the default buffer
+        // alignment. This is useful when the offset is used as an index into a storage buffer
+        // rather than an offset for an actual binding.
+        // We can't simply use SkAlignTo here, because that can only align to powers of two.
+        const uint32_t misalignment = info->fOffset % requiredAlignment;
+        if (misalignment > 0) {
+            info->fOffset += requiredAlignment - misalignment;
+        }
+
+        // Don't align the offset any further.
+        requiredAlignment = 1;
+    }
+
+    const bool overflowedBuffer =
+            info->fBuffer && (info->fOffset >= SkTo<uint32_t>(info->fBuffer->size()) ||
+                              !can_fit(requiredBytes,
+                                       SkTo<uint32_t>(info->fBuffer->size()),
+                                       info->fOffset,
+                                       requiredAlignment));
     if (overflowedBuffer) {
         fUsedBuffers.emplace_back(std::move(info->fBuffer), info->fTransferBuffer);
         info->fTransferBuffer = {};
@@ -532,7 +571,7 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
         SkASSERT(info->fTransferMapPtr);
     }
 
-    info->fOffset = SkAlignTo(info->fOffset, info->fStartAlignment);
+    info->fOffset = SkAlignTo(info->fOffset, requiredAlignment);
     BindBufferInfo bindInfo{info->fBuffer.get(), info->fOffset, requiredBytes};
     info->fOffset += requiredBytes;
 
@@ -540,6 +579,7 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
         fClearList.push_back(bindInfo);
     }
 
+    SkASSERT(info->fOffset <= info->fBuffer->size());
     return bindInfo;
 }
 

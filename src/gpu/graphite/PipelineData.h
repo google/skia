@@ -19,6 +19,7 @@
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/DrawList.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
@@ -195,14 +196,65 @@ private:
     SkArenaAlloc fArena{0};
 };
 
-// A UniformDataCache only lives for a single Recording. It's used to deduplicate uniform data
-// blocks uploaded to uniform/storage buffers for a DrawPass pipeline.
-using UniformDataCache = PipelineDataCache<UniformDataBlock>;
-
 // A TextureDataCache only lives for a single Recording. When a Recording is snapped it is pulled
 // off of the Recorder and goes with the Recording as a record of the required Textures and
 // Samplers.
 using TextureDataCache = PipelineDataCache<TextureDataBlock>;
+
+// A UniformDataCache is used to deduplicate uniform data blocks uploaded to uniform / storage
+// buffers for a DrawPass pipeline.
+// TODO: This is just a combination of PipelineDataCache and DrawPass's DenseBiMap, ideally we can
+// merge those two classes rather than defining this new class.
+class UniformDataCache {
+public:
+    using Index = uint32_t;
+    static constexpr Index kInvalidIndex{1 << SkNextLog2_portable(DrawList::kMaxRenderSteps)};
+
+    // Tracks uniform data on the CPU and then its transition to storage in a GPU buffer (UBO or
+    // SSBO).
+    struct Entry {
+        UniformDataBlock fCpuData;
+        BindBufferInfo fBufferBinding;
+
+        // Can only be initialized with CPU data.
+        Entry(UniformDataBlock cpuData) : fCpuData(cpuData) {}
+    };
+
+    UniformDataCache() = default;
+
+    Index insert(const UniformDataBlock& dataBlock) {
+        Index* index = fDataToIndex.find(dataBlock);
+        if (!index) {
+            // Need to make a copy of dataBlock into the arena
+            UniformDataBlock copy = UniformDataBlock::Make(dataBlock, &fArena);
+            SkASSERT(SkToU32(fIndexToData.size()) < kInvalidIndex);
+            index = fDataToIndex.set(copy, static_cast<Index>(fIndexToData.size()));
+            fIndexToData.push_back(Entry{copy});
+        }
+        return *index;
+    }
+
+    const Entry& lookup(Index index) const {
+        SkASSERT(index < kInvalidIndex);
+        return fIndexToData[index];
+    }
+
+    Entry& lookup(Index index) {
+        SkASSERT(index < kInvalidIndex);
+        return fIndexToData[index];
+    }
+
+#if defined(GPU_TEST_UTILS)
+    int count() { return fIndexToData.size(); }
+#endif
+
+private:
+    skia_private::THashMap<UniformDataBlock, Index, UniformDataBlock::Hash> fDataToIndex;
+    skia_private::TArray<Entry> fIndexToData;
+
+    // Holds the de-duplicated data.
+    SkArenaAlloc fArena{0};
+};
 
 // The PipelineDataGatherer is just used to collect information for a given PaintParams object.
 //   The UniformData is added to a cache and uniquified. Only that unique ID is passed around.
