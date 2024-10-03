@@ -184,13 +184,13 @@ def c_plus_plus_deps(ws = "@skia"):
 
     git_repository(
         name = "spirv_headers",
-        commit = "ec59c77a3bb5c747a369931ef101ac7c14823f2f",
+        commit = "a62b032007b2e7a69f24a195cbfbd0cf22d31bb0",
         remote = "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Headers.git",
     )
 
     git_repository(
         name = "spirv_tools",
-        commit = "d9c1aee6a609c6d6ec1caab4def80720c44bd08d",
+        commit = "c173df736cb89ba4daba0beec039317292f22e0d",
         remote = "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git",
     )
 
