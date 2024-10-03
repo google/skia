@@ -277,7 +277,7 @@ std::string get_node_texture_samplers(const ResourceBindingRequirements& binding
                 append_sampler_descs(node->data(), *outDescs);
             } else {
                 // Add default SamplerDescs for any dynamic samplers to outDescs.
-                outDescs->push_back_n(samplers.size(), {});
+                outDescs->push_back_n(samplers.size());
             }
         }
 

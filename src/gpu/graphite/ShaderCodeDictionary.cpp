@@ -499,7 +499,7 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
                         : binding - paintTextureCount;
                 // Add default SamplerDescs for all the dynamic samplers used by the render step so
                 // the size of outDescs will be equivalent to the total number of samplers.
-                outDescs->push_back_n(renderStepSamplerCount, {});
+                outDescs->push_back_n(renderStepSamplerCount);
             }
         }
 
