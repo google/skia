@@ -1954,6 +1954,7 @@ void check_draw(skiatest::Reporter* reporter,
         dump_keys(context, precompileKeys, drawKeys, "precompile", "draw");
     }
 #endif // SK_DEBUG
+
 }
 
 KeyContext create_key_context(Context* context, RuntimeEffectDictionary* rtDict) {

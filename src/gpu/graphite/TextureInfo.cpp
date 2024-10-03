@@ -83,6 +83,10 @@ bool TextureInfo::isCompatible(const TextureInfo& that) const {
 }
 
 SkString TextureInfo::toString() const {
+    if (!fValid) {
+        return SkString("{}");
+    }
+
     SkString ret;
     switch (fBackend) {
         case BackendApi::kDawn:
@@ -93,8 +97,8 @@ SkString TextureInfo::toString() const {
         case BackendApi::kMock:
             ret += "Mock(";
             break;
-        default:
-            ret += "Invalid(";
+        case BackendApi::kUnsupported:
+            ret += "Unsupported(";
             break;
     }
     ret.appendf("bytesPerPixel=%zu,sampleCount=%u,mipmapped=%d,protected=%d)",
@@ -106,6 +110,10 @@ SkString TextureInfo::toString() const {
 }
 
 SkString TextureInfo::toRPAttachmentString() const {
+    if (!fValid) {
+        return SkString("{}");
+    }
+
     // For renderpass attachments, the string will contain the view format and sample count only
     switch (fBackend) {
         case BackendApi::kDawn:
@@ -114,9 +122,10 @@ SkString TextureInfo::toRPAttachmentString() const {
             return fTextureInfoData->toRPAttachmentString(fSampleCount);
         case BackendApi::kMock:
             return SkStringPrintf("Mock(s=%u)", fSampleCount);
-        default:
-            return SkString("Invalid");
+        case BackendApi::kUnsupported:
+            return SkString("Unsupported");
     }
+    SkUNREACHABLE;
 }
 
 size_t TextureInfo::bytesPerPixel() const {

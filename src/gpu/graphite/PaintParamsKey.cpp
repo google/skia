@@ -217,6 +217,8 @@ static int key_to_string(SkString* str,
 
     if (!multiline) {
         str->append(" ");
+    } else if (entry->fNumChildren == 0) {
+        str->append("\n");
     }
     return currentIndex;
 }
