@@ -29,10 +29,10 @@ namespace {
 // TODO: Tune these values on real world data
 static constexpr uint32_t kVertexBufferMinSize = 16 << 10; // 16 KB
 static constexpr uint32_t kVertexBufferMaxSize =  1 << 20; //  1 MB
-static constexpr uint32_t kIndexBufferSize   =  2 << 10; //  2 KB
-static constexpr uint32_t kUniformBufferSize = 16 << 10; // 16 KB
-static constexpr uint32_t kStorageBufferMinSize = 16 << 10; // 16 KB
-static constexpr uint32_t kStorageBufferMaxSize =  1 << 20; //  1 MB
+static constexpr uint32_t kIndexBufferSize   = 2 << 10; // 2 KB
+static constexpr uint32_t kUniformBufferSize = 2 << 10; // 2 KB
+static constexpr uint32_t kStorageBufferMinSize = 2 << 10; // 2 KB
+static constexpr uint32_t kStorageBufferMaxSize = 1 << 20; // 1 MB
 
 // Make sure the buffer size constants are all powers of two, so we can align to them efficiently
 // when dynamically sizing buffers.
