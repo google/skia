@@ -55,7 +55,6 @@
 #include <algorithm>
 #include <climits>
 #include <cstdint>
-#include <initializer_list>
 #include <new>
 #include <optional>
 #include <vector>

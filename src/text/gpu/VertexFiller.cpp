@@ -27,8 +27,6 @@
 #include "src/base/SkZip.h"
 #include "src/gpu/ganesh/ops/AtlasTextOp.h"
 #include "src/text/gpu/Glyph.h"
-
-#include <initializer_list>
 #endif
 
 using MaskFormat = skgpu::MaskFormat;

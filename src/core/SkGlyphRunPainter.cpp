@@ -33,7 +33,6 @@
 #include "src/text/GlyphRun.h"
 
 #include <algorithm>
-#include <initializer_list>
 #include <tuple>
 #include <vector>
 

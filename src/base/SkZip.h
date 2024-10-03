@@ -32,8 +32,8 @@ class SkZip {
         using pointer = value_type*;
         using reference = value_type;
         using iterator_category = std::input_iterator_tag;
-        constexpr Iterator(const SkZip* zip, size_t index) : fZip{zip}, fIndex{index} { }
-        constexpr Iterator(const Iterator& that) : Iterator{ that.fZip, that.fIndex } { }
+        constexpr Iterator(const SkZip* zip, size_t index) : fZip(zip), fIndex(index) {}
+        constexpr Iterator(const Iterator& that) : Iterator(that.fZip, that.fIndex) {}
         constexpr Iterator& operator++() { ++fIndex; return *this; }
         constexpr Iterator operator++(int) { Iterator tmp(*this); operator++(); return tmp; }
         constexpr bool operator==(const Iterator& rhs) const { return fIndex == rhs.fIndex; }
@@ -52,11 +52,9 @@ class SkZip {
     inline static constexpr T* nullify = nullptr;
 
 public:
-    constexpr SkZip() : fPointers{nullify<Ts>...}, fSize{0} {}
+    constexpr SkZip() : fPointers(nullify<Ts>...), fSize(0) {}
     constexpr SkZip(size_t) = delete;
-    constexpr SkZip(size_t size, Ts*... ts)
-            : fPointers{ts...}
-            , fSize{size} {}
+    constexpr SkZip(size_t size, Ts*... ts) : fPointers(ts...), fSize(size) {}
     constexpr SkZip(const SkZip& that) = default;
     constexpr SkZip& operator=(const SkZip &that) = default;
 
@@ -68,17 +66,15 @@ public:
     // Allow SkZip<const T> to be constructed from SkZip<T>.
     template<typename... Us,
             typename = std::enable_if<std::conjunction<CanConvertToConst<Us, Ts>...>::value>>
-    constexpr SkZip(const SkZip<Us...>& that)
-        : fPointers(that.data())
-        , fSize{that.size()} { }
+    constexpr SkZip(const SkZip<Us...>& that) : fPointers(that.data()), fSize(that.size()) {}
 
     constexpr ReturnTuple operator[](size_t i) const { return this->index(i);}
     constexpr size_t size() const { return fSize; }
     constexpr bool empty() const { return this->size() == 0; }
     constexpr ReturnTuple front() const { return this->index(0); }
     constexpr ReturnTuple back() const { return this->index(this->size() - 1); }
-    constexpr Iterator begin() const { return Iterator{this, 0}; }
-    constexpr Iterator end() const { return Iterator{this, this->size()}; }
+    constexpr Iterator begin() const { return Iterator(this, 0); }
+    constexpr Iterator end() const { return Iterator(this, this->size()); }
     template<size_t I> constexpr auto get() const {
         return SkSpan(std::get<I>(fPointers), fSize);
     }
@@ -86,12 +82,12 @@ public:
     constexpr SkZip first(size_t n) const {
         SkASSERT(n <= this->size());
         if (n == 0) { return SkZip(); }
-        return SkZip{n, fPointers};
+        return SkZip(n, fPointers);
     }
     constexpr SkZip last(size_t n) const {
         SkASSERT(n <= this->size());
         if (n == 0) { return SkZip(); }
-        return SkZip{n, this->pointersAt(fSize - n)};
+        return SkZip(n, this->pointersAt(fSize - n));
     }
     constexpr SkZip subspan(size_t offset, size_t count) const {
         SkASSERT(offset < this->size());
@@ -101,14 +97,12 @@ public:
     }
 
 private:
-    constexpr SkZip(size_t n, const std::tuple<Ts*...>& pointers)
-        : fPointers{pointers}
-        , fSize{n} {}
+    constexpr SkZip(size_t n, const std::tuple<Ts*...>& pointers) : fPointers(pointers), fSize(n) {}
 
     constexpr ReturnTuple index(size_t i) const {
         SkASSERT(this->size() > 0);
         SkASSERT(i < this->size());
-        return indexDetail(i, std::make_index_sequence<sizeof...(Ts)>{});
+        return indexDetail(i, std::make_index_sequence<sizeof...(Ts)>());
     }
 
     template<std::size_t... Is>
@@ -119,12 +113,12 @@ private:
     std::tuple<Ts*...> pointersAt(size_t i) const {
         SkASSERT(this->size() > 0);
         SkASSERT(i < this->size());
-        return pointersAtDetail(i, std::make_index_sequence<sizeof...(Ts)>{});
+        return pointersAtDetail(i, std::make_index_sequence<sizeof...(Ts)>());
     }
 
     template<std::size_t... Is>
     constexpr std::tuple<Ts*...> pointersAtDetail(size_t i, std::index_sequence<Is...>) const {
-        return std::tuple<Ts*...>{&(std::get<Is>(fPointers))[i]...};
+        return std::tuple<Ts*...>(&(std::get<Is>(fPointers))[i]...);
     }
 
     std::tuple<Ts*...> fPointers;
@@ -138,7 +132,7 @@ class SkMakeZipDetail {
     };
     template<typename T> using DecayPointerT = typename DecayPointer<T>::type;
 
-    template<typename C> struct ContiguousMemory { };
+    template<typename C> struct ContiguousMemory {};
     template<typename T> struct ContiguousMemory<T*> {
         using value_type = T;
         static constexpr value_type* Data(T* t) { return t; }
@@ -165,7 +159,7 @@ class SkMakeZipDetail {
     template<typename C> using Span = ContiguousMemory<DecayPointerT<C>>;
     template<typename C> using ValueType = typename Span<C>::value_type;
 
-    template<typename C, typename... Ts> struct PickOneSize { };
+    template<typename C, typename... Ts> struct PickOneSize {};
     template <typename T, typename... Ts> struct PickOneSize<T*, Ts...> {
         static constexpr size_t Size(T* t, Ts... ts) {
             return PickOneSize<Ts...>::Size(std::forward<Ts>(ts)...);
@@ -192,7 +186,8 @@ public:
         // Check that all sizes are the same.
         size_t minSize = SIZE_MAX;
         size_t maxSize = 0;
-        for (size_t s : {Span<Ts>::Size(std::forward<Ts>(ts))...}) {
+        size_t sizes[sizeof...(Ts)] = {Span<Ts>::Size(std::forward<Ts>(ts))...};
+        for (size_t s : sizes) {
             if (s != SIZE_MAX) {
                 minSize = std::min(minSize, s);
                 maxSize = std::max(maxSize, s);
@@ -201,7 +196,7 @@ public:
         SkASSERT(minSize == maxSize);
 #endif
 
-        return SkZip<ValueType<Ts>...>{size, Span<Ts>::Data(std::forward<Ts>(ts))...};
+        return SkZip<ValueType<Ts>...>(size, Span<Ts>::Data(std::forward<Ts>(ts))...);
     }
 };
 

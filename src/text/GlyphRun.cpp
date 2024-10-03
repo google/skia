@@ -18,7 +18,6 @@
 #include "src/core/SkTextBlobPriv.h"
 
 #include <cstring>
-#include <initializer_list>
 
 class SkPaint;
 
