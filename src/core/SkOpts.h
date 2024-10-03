@@ -9,11 +9,12 @@
 #define SkOpts_DEFINED
 
 #include "include/private/base/SkSpan_impl.h"
-#include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
 
 #include <cstddef>
 #include <cstdint>
+
+struct SkRasterPipeline_MemoryCtxPatch;
 
 /**
  * SkOpts (short for SkOptimizations) is a mechanism where we can ship with multiple implementations

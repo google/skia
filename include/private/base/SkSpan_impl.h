@@ -69,7 +69,7 @@ public:
     template <typename Integer, std::enable_if_t<std::is_integral_v<Integer>, bool> = true>
     constexpr SkSpan(T* ptr, Integer size) : fPtr{ptr}, fSize{SkToSizeT(size)} {
         SkASSERT(ptr || fSize == 0);  // disallow nullptr + a nonzero size
-        SkASSERT(fSize < kMaxSize);
+        SkASSERT(fSize < (std::numeric_limits<size_t>::max() / sizeof(T)));
     }
     template <typename U, typename = std::enable_if_t<std::is_same_v<const U, T>>>
     constexpr SkSpan(const SkSpan<U>& that) : fPtr(std::data(that)), fSize(std::size(that)) {}
@@ -118,8 +118,6 @@ public:
     }
 
 private:
-    static constexpr size_t kMaxSize = std::numeric_limits<size_t>::max() / sizeof(T);
-
     T* fPtr;
     size_t fSize;
 };
