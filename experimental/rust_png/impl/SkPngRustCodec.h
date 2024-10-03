@@ -84,12 +84,14 @@ private:
     bool onGetFrameInfo(int, FrameInfo*) const override;
     int onGetRepetitionCount() override;
     const SkFrameHolder* getFrameHolder() const override;
+    std::unique_ptr<SkStream> getEncodedData() const override;
 
     // SkPngCodecBase overrides:
     std::optional<SkSpan<const PaletteColorEntry>> onTryGetPlteChunk() override;
     std::optional<SkSpan<const uint8_t>> onTryGetTrnsChunk() override;
 
     rust::Box<rust_png::Reader> fReader;
+    const std::unique_ptr<SkStream> fPrivStream;
 
     std::optional<DecodingState> fIncrementalDecodingState;
 
