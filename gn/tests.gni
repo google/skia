@@ -130,6 +130,7 @@ tests_sources = [
   "$_tests/ImageFilterCacheTest.cpp",
   "$_tests/ImageFilterTest.cpp",
   "$_tests/ImageFrom565Bitmap.cpp",
+  "$_tests/ImageGeneratorOrientationTest.cpp",
   "$_tests/ImageGeneratorTest.cpp",
   "$_tests/ImageIsOpaqueTest.cpp",
   "$_tests/ImageNewShaderTest.cpp",
