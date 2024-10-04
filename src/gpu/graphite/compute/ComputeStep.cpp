@@ -7,7 +7,11 @@
 
 #include "src/gpu/graphite/compute/ComputeStep.h"
 
+#include "include/core/SkColorType.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTileMode.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 
 #include <atomic>
 #include <unordered_set>

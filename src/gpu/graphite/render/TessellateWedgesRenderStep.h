@@ -8,13 +8,21 @@
 #ifndef skgpu_graphite_render_TessellateWedgesRenderStep_DEFINED
 #define skgpu_graphite_render_TessellateWedgesRenderStep_DEFINED
 
+#include "src/base/SkVx.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ResourceTypes.h"
-#include "src/gpu/tessellate/Tessellation.h"
+
+#include <string>
+#include <string_view>
+#include <utility>
 
 namespace skgpu::graphite {
 
+class DrawParams;
+class DrawWriter;
+class PipelineDataGatherer;
 class StaticBufferManager;
+struct DepthStencilSettings;
 
 class TessellateWedgesRenderStep final : public RenderStep {
 public:

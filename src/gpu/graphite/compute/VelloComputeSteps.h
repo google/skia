@@ -8,10 +8,13 @@
 #ifndef skgpu_graphite_compute_VelloComputeSteps_DEFINED
 #define skgpu_graphite_compute_VelloComputeSteps_DEFINED
 
+#include "include/core/SkColorType.h"
+#include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/ComputeTypes.h"
 #include "src/gpu/graphite/compute/ComputeStep.h"
+
 #include "third_party/vello/cpp/vello.h"
 
 #include <string_view>

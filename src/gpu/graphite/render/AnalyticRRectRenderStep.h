@@ -8,10 +8,17 @@
 #ifndef skgpu_graphite_render_AnalyticRRectRenderStep_DEFINED
 #define skgpu_graphite_render_AnalyticRRectRenderStep_DEFINED
 
+#include "src/base/SkVx.h"
 #include "src/gpu/graphite/Renderer.h"
+#include "src/gpu/graphite/ResourceTypes.h"
+
+#include <string>
 
 namespace skgpu::graphite {
 
+class DrawParams;
+class DrawWriter;
+class PipelineDataGatherer;
 class StaticBufferManager;
 
 class AnalyticRRectRenderStep final : public RenderStep {

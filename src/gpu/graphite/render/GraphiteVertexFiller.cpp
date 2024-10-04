@@ -4,16 +4,23 @@
 * Use of this source code is governed by a BSD-style license that can be
 * found in the LICENSE file.
 */
-#include "src/gpu/AtlasTypes.h"
-#include "src/text/gpu/VertexFiller.h"
-#include "src/gpu/graphite/Device.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkMatrix.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
+#include "src/base/SkVx.h"
 #include "src/base/SkZip.h"
+#include "src/gpu/AtlasTypes.h"
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/DrawWriter.h"
-#include "src/gpu/graphite/Renderer.h"
-#include "src/gpu/graphite/RendererProvider.h"
+#include "src/gpu/graphite/geom/Rect.h"
+#include "src/gpu/graphite/geom/Transform_graphite.h"
 #include "src/text/gpu/Glyph.h"
-#include "src/text/gpu/SubRunAllocator.h"
-#include "src/text/gpu/SubRunContainer.h"
+#include "src/text/gpu/VertexFiller.h"
+
+#include <cstdint>
+#include <tuple>
 
 namespace sktext::gpu {
 

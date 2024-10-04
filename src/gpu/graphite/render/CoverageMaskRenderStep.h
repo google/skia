@@ -8,9 +8,17 @@
 #ifndef skgpu_graphite_render_CoverageMaskRenderStep_DEFINED
 #define skgpu_graphite_render_CoverageMaskRenderStep_DEFINED
 
+#include "src/base/SkVx.h"
 #include "src/gpu/graphite/Renderer.h"
 
+#include <string>
+
 namespace skgpu::graphite {
+
+class DrawParams;
+class DrawWriter;
+class PipelineDataGatherer;
+struct ResourceBindingRequirements;
 
 class CoverageMaskRenderStep final : public RenderStep {
 public:

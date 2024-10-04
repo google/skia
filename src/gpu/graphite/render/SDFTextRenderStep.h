@@ -8,11 +8,17 @@
 #ifndef skgpu_graphite_render_SDFTextRenderStep_DEFINED
 #define skgpu_graphite_render_SDFTextRenderStep_DEFINED
 
+#include "src/base/SkVx.h"
 #include "src/gpu/graphite/Renderer.h"
 
-namespace skgpu { enum class MaskFormat; }
+#include <string>
 
 namespace skgpu::graphite {
+
+class DrawParams;
+class DrawWriter;
+class PipelineDataGatherer;
+struct ResourceBindingRequirements;
 
 class SDFTextRenderStep final : public RenderStep {
 public:

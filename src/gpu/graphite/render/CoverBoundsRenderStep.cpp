@@ -7,10 +7,22 @@
 
 #include "src/gpu/graphite/render/CoverBoundsRenderStep.h"
 
+#include "include/core/SkM44.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkSLTypeShared.h"
+#include "src/gpu/BufferWriter.h"
+#include "src/gpu/graphite/Attribute.h"
+#include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/DrawParams.h"
+#include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
-#include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
+#include "src/gpu/graphite/geom/Geometry.h"
+#include "src/gpu/graphite/geom/Rect.h"
+#include "src/gpu/graphite/geom/Shape.h"
+#include "src/gpu/graphite/geom/Transform_graphite.h"
+
+#include <string_view>
 
 namespace skgpu::graphite {
 
