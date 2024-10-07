@@ -1086,9 +1086,9 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 
 			// Dodge Raspberry Pis.
 			d["cpu"] = "x86-64"
-			// Target the RTX3060 Intel machines, as they are beefy and we have
-			// 20 of them, and they are setup to compile.
-			d["gpu"] = "10de:2489"
+			// Target the AMDRyzen 5 4500U machines, as they are beefy and we have
+			// 19 of them, and they are setup to compile.
+			d["gpu"] = "1002:1636"
 		} else {
 			d["gpu"] = "none"
 		}
