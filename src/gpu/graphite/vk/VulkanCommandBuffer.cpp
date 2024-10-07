@@ -1180,7 +1180,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
                     drawPass->getSampler(command->fSamplerIndices[i]));
 
             const Sampler* immutableSampler = (sampler && sampler->ycbcrConversion()) ? sampler
-                                                                                    : nullptr;
+                                                                                      : nullptr;
             descriptors.push_back({DescriptorType::kCombinedTextureSampler,
                                    /*count=*/1,
                                    /*bindingIdx=*/i,

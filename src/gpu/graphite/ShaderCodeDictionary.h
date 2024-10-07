@@ -43,6 +43,7 @@ class Swizzle;
 namespace skgpu::graphite {
 
 class Caps;
+enum class DstReadRequirement;
 class RenderStep;
 class RuntimeEffectDictionary;
 
@@ -64,10 +65,9 @@ enum class SnippetRequirementFlags : uint32_t {
     kPriorStageOutput = 0x2,  // AKA the "input" color, or the "src" argument for a blender
     kBlenderDstColor  = 0x4,  // The "dst" argument for a blender
     // Special values and/or behaviors required for the snippet
-    kSurfaceColor     = 0x8,
-    kPrimitiveColor   = 0x10,
-    kGradientBuffer   = 0x20,
-    kStoresData       = 0x40, // Indicates that the node stores numerical data
+    kPrimitiveColor   = 0x8,
+    kGradientBuffer   = 0x10,
+    kStoresData       = 0x20, // Indicates that the node stores numerical data
 };
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags)
 
@@ -217,16 +217,14 @@ public:
                const char* ssboIndex);
 
     bool needsLocalCoords() const {
-        return SkToBool(fSnippetRequirementFlags & SnippetRequirementFlags::kLocalCoords);
-    }
-    bool needsSurfaceColor() const {
-        return SkToBool(fSnippetRequirementFlags & SnippetRequirementFlags::kSurfaceColor);
+        return SkToBool(fRootNodes[0]->requiredFlags() & SnippetRequirementFlags::kLocalCoords);
     }
     const RuntimeEffectDictionary* runtimeEffectDictionary() const {
         return fRuntimeEffectDictionary;
     }
     const char* ssboIndex() const { return fSsboIndex; }
 
+    DstReadRequirement dstReadRequirement() const { return fDstReadRequirement; }
     const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 
     const skia_private::TArray<uint32_t>& data() const { return fData; }
@@ -255,15 +253,15 @@ private:
     const RuntimeEffectDictionary* fRuntimeEffectDictionary;
     const char* fSsboIndex;
 
-    // De-compressed shader tree from a PaintParamsKey with accumulated blend info and requirements.
-    // The blendInfo doesn't contribute to the program's SkSL but contains the fixed-function state
-    // required to function correctly, which the program's caller is responsible for configuring.
-    // TODO: There should really only be one root node representing the final blend, which has a
-    // child defining how the src color is calculated.
+    // De-compressed shader tree from a PaintParamsKey. There can be 1 or 2 root nodes, the first
+    // being the paint effects (rooted with a BlendCompose for the final paint blend) and the
+    // optional second being any analytic clip effect (geometric or shader treated as coverage).
     SkSpan<const ShaderNode*> fRootNodes;
-    SkBlendMode fBlendMode = SkBlendMode::kClear;
+    // The blendInfo represents the actual GPU blend operations, which may or may not completely
+    // implement the paint and coverage blending defined by the root nodes.
     skgpu::BlendInfo fBlendInfo;
-    SkEnumBitMask<SnippetRequirementFlags> fSnippetRequirementFlags;
+    DstReadRequirement fDstReadRequirement;
+
     skia_private::TArray<uint32_t> fData;
 };
 

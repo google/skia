@@ -65,15 +65,6 @@ enum class BuiltInCodeSnippetID : int32_t {
     // Emits special variable holding the primitiveColor emitted by a RenderStep
     kPrimitiveColor,
 
-    // Dest Read code snippets
-    kDstReadSample,
-    kDstReadFetch,
-
-    // Clip block snippet
-    // Used for clip shaders and analytic clips
-    // TODO(b/238763003): Avoid incorporating clip shaders into the actual shader code.
-    kClip,
-
     // Analytic clip for circular roundrect and AA rect shapes
     kCircularRRectClip,
 

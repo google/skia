@@ -665,9 +665,8 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
                                      &result.fHasGradientBuffer,
                                      outDescs);
 
-    // Extract blend info after integrating the RenderStep into the final fragment shader in case
-    // that changes the HW blending choice to handle analytic coverage.
     result.fBlendInfo = shaderInfo.blendInfo();
+    result.fDstReadReq = shaderInfo.dstReadRequirement();
     result.fRequiresLocalCoords = shaderInfo.needsLocalCoords();
     result.fData = {shaderInfo.data()};
     result.fLabel = writeSwizzle.asString().c_str();

@@ -30,14 +30,41 @@ class ShaderNode;
 class TextureProxy;
 class UniquePaintParamsID;
 
-// This class is a compact representation of the shader needed to implement a given
-// PaintParams. Its structure is a series of nodes where each node consists of:
-//   4 bytes: code-snippet ID
-//   N child nodes, where N is the constant number of children defined by the ShaderCodeDictionary
-//     for the node's snippet ID.
-//
-// All children of a child node are stored in the key before the next child is encoded in the key,
-// e.g. iterating the data in a key is a depth-first traversal of the node tree.
+/**
+ * This class is a compact representation of the shader needed to implement a given
+ * PaintParams. Its structure is a series of nodes where each node consists of:
+ *   4 bytes: code-snippet ID
+ *   N child nodes, where N is the constant number of children defined by the ShaderCodeDictionary
+ *     for the node's snippet ID.
+ *
+ * Some snippet definitions support embedding data into the PaintParamsKey, used when something
+ * external to the generated SkSL needs produce unique pipelines (e.g. immutable samplers). For
+ * snippets that store data, the data is stored immediately after the ID as:
+ *   4 bytes: code-snippet ID
+ *   4 bytes: data length
+ *   0-M: variable length data
+ *   N child nodes
+ *
+ * All children of a child node are stored in the key before the next child is encoded in the key,
+ * e.g. iterating the data in a key is a depth-first traversal of the node tree.
+ *
+ * The PaintParamsKey stores multiple root nodes, with each root representing an effect tree that
+ * affects different parts of the shading pipeline. The key is can only hold 2 or 3 roots:
+ *  1. Color root node: produces the "src" color used in final blending with the "dst" color.
+ *  2. Final blend node: defines the blend function combining src and dst colors. If this is a
+ *     FixedBlend snippet the final pipeline may be able to lift it to HW blending.
+ *  3. Clipping: optional, produces analytic coverage from a clip shader or shape.
+ *
+ * Logically the root effects produce a src color and the src coverage (augmenting any other
+ * coverage coming from the RenderStep). A single src shading node could be used instead of the
+ * two for color and blending, but its structure would always be:
+ *
+ *    [ BlendCompose [ [ color-root-node ] surface-color [ final-blend ] ] ]
+ *
+ * where "surface-color" would be a special snippet that produces the current dst color value.
+ * To keep PaintParamsKeys memory cost lower, the BlendCompose and "surface-color" nodes are implied
+ * when generating the SkSL and pipeline.
+ */
 class PaintParamsKey {
 public:
     // PaintParamsKey can only be created by using a PaintParamsKeyBuilder or by cloning the key
@@ -58,9 +85,11 @@ public:
     // Converts the key into a forest of ShaderNode trees. If the key is valid this will return at
     // least one root node. If the key contains unknown shader snippet IDs, returns an empty span.
     // All shader nodes, and the returned span's backing data, are owned by the provided arena.
-    // TODO: Strengthen PaintParams key generation so we can assume there's only ever one root node
-    // representing the final blend (either a shader blend (with 2 children: main effect & dst) or
-    // a fixed function blend (with 1 child being the main effect)).
+    //
+    // A valid key will produce either 2 or 3 root nodes. The first root node represents how the
+    // source color is computed. The second node defines the final blender between the calculated
+    // source color and the current pixel's dst color. If provided, the third node calculates an
+    // additional analytic coverage value to combine with the geometry's coverage.
     SkSpan<const ShaderNode*> getRootNodes(const ShaderCodeDictionary*, SkArenaAlloc*) const;
 
     // Converts the key to a structured list of snippet information for debugging or labeling

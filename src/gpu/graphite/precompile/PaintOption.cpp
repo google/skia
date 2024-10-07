@@ -25,26 +25,31 @@ namespace skgpu::graphite {
 void PaintOption::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* keyBuilder,
                         PipelineDataGatherer* gatherer) const {
-    this->handleDstRead(keyContext, keyBuilder, gatherer);
+    // Root Node 0 is the source color, which is the output of all effects post dithering
+    this->handleDithering(keyContext, keyBuilder, gatherer);
 
+    // Root Node 1 is the final blender
     std::optional<SkBlendMode> finalBlendMode = this->finalBlender()
                                                         ? this->finalBlender()->priv().asBlendMode()
                                                         : SkBlendMode::kSrcOver;
-    if (fDstReadReq != DstReadRequirement::kNone) {
-        // In this case the blend will have been handled by shader-based blending with the dstRead.
-        finalBlendMode = SkBlendMode::kSrc;
+    if (finalBlendMode) {
+        if (fDstReadReq == DstReadRequirement::kNone) {
+            AddFixedBlendMode(keyContext, keyBuilder, gatherer, *finalBlendMode);
+        } else {
+            AddBlendMode(keyContext, keyBuilder, gatherer, *finalBlendMode);
+        }
+    } else {
+        SkASSERT(this->finalBlender());
+        fFinalBlender.first->priv().addToKey(keyContext, keyBuilder, gatherer,
+                                             fFinalBlender.second);
     }
 
+    // Optional Root Node 2 is the clip
+    // TODO(b/372221436): Also include analytic clippiing in this node.
     if (fClipShader.first) {
-        ClipBlock::BeginBlock(keyContext, keyBuilder, gatherer);
-            fClipShader.first->priv().addToKey(keyContext, keyBuilder, gatherer,
-                                               fClipShader.second);
-        keyBuilder->endBlock();
+        fClipShader.first->priv().addToKey(keyContext, keyBuilder, gatherer,
+                                           fClipShader.second);
     }
-
-    // Set the hardware blend mode.
-    SkASSERT(finalBlendMode);
-    AddFixedBlendMode(keyContext, keyBuilder, gatherer, *finalBlendMode);
 }
 
 void PaintOption::addPaintColorToKey(const KeyContext& keyContext,
@@ -161,30 +166,6 @@ void PaintOption::handleDithering(const KeyContext& keyContext,
 #endif
     {
         this->handleColorFilter(keyContext, builder, gatherer);
-    }
-}
-
-void PaintOption::handleDstRead(const KeyContext& keyContext,
-                                PaintParamsKeyBuilder* builder,
-                                PipelineDataGatherer* gatherer) const {
-    if (fDstReadReq != DstReadRequirement::kNone) {
-        Blend(keyContext, builder, gatherer,
-                /* addBlendToKey= */ [&] () -> void {
-                    if (fFinalBlender.first) {
-                        fFinalBlender.first->priv().addToKey(keyContext, builder, gatherer,
-                                                             fFinalBlender.second);
-                    } else {
-                        AddFixedBlendMode(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
-                    }
-                },
-                /* addSrcToKey= */ [&]() -> void {
-                    this->handleDithering(keyContext, builder, gatherer);
-                },
-                /* addDstToKey= */ [&]() -> void {
-                    AddDstReadBlock(keyContext, builder, gatherer, fDstReadReq);
-                });
-    } else {
-        this->handleDithering(keyContext, builder, gatherer);
     }
 }
 

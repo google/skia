@@ -181,37 +181,6 @@ void AlphaOnlyPaintColorBlock::AddBlock(const KeyContext& keyContext,
 
 namespace {
 
-void add_dst_read_sample_uniform_data(const ShaderCodeDictionary* dict,
-                                      PipelineDataGatherer* gatherer,
-                                      sk_sp<TextureProxy> dstTexture,
-                                      SkIPoint dstOffset) {
-    gatherer->add(dstTexture, SamplerDesc{SkFilterMode::kNearest, SkTileMode::kClamp});
-
-    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kDstReadSample)
-
-    SkV4 coords{static_cast<float>(dstOffset.x()),
-                static_cast<float>(dstOffset.y()),
-                dstTexture ? 1.0f / dstTexture->dimensions().width()  : 1.0f,
-                dstTexture ? 1.0f / dstTexture->dimensions().height() : 1.0f };
-    gatherer->write(coords);
-}
-
-} // anonymous namespace
-
-void DstReadSampleBlock::AddBlock(const KeyContext& keyContext,
-                                  PaintParamsKeyBuilder* builder,
-                                  PipelineDataGatherer* gatherer,
-                                  sk_sp<TextureProxy> dstTexture,
-                                  SkIPoint dstOffset) {
-    add_dst_read_sample_uniform_data(keyContext.dict(), gatherer, std::move(dstTexture), dstOffset);
-
-    builder->addBlock(BuiltInCodeSnippetID::kDstReadSample);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-namespace {
-
 void add_gradient_preamble(const GradientShaderBlocks::GradientData& gradData,
                            PipelineDataGatherer* gatherer) {
     constexpr int kInternalStopLimit = GradientShaderBlocks::GradientData::kNumInternalStorageStops;
@@ -1007,16 +976,6 @@ void HSLCBlenderBlock::AddBlock(const KeyContext& keyContext,
     gatherer->writeHalf(SkV2{coeffs[0], coeffs[1]});
 
     builder->addBlock(BuiltInCodeSnippetID::kHSLCBlender);
-}
-
-//--------------------------------------------------------------------------------------------------
-
-void ClipBlock::BeginBlock(const KeyContext& keyContext,
-                           PaintParamsKeyBuilder* builder,
-                           PipelineDataGatherer* gatherer) {
-    BEGIN_WRITE_UNIFORMS(gatherer, keyContext.dict(), BuiltInCodeSnippetID::kClip)
-
-    builder->beginBlock(BuiltInCodeSnippetID::kClip);
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -57,14 +57,6 @@ enum class DstColorType {
  * as parent-child relationships.
  */
 
-struct DstReadSampleBlock {
-    static void AddBlock(const KeyContext&,
-                         PaintParamsKeyBuilder*,
-                         PipelineDataGatherer*,
-                         sk_sp<TextureProxy> dst,
-                         SkIPoint dstOffset);
-};
-
 struct SolidColorShaderBlock {
     static void AddBlock(const KeyContext&,
                          PaintParamsKeyBuilder*,
@@ -301,12 +293,6 @@ struct HSLCBlenderBlock {
                          PaintParamsKeyBuilder*,
                          PipelineDataGatherer*,
                          SkSpan<const float> coeffs);
-};
-
-struct ClipBlock {
-    static void BeginBlock(const KeyContext&,
-                           PaintParamsKeyBuilder*,
-                           PipelineDataGatherer*);
 };
 
 struct ComposeBlock {

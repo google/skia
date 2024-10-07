@@ -9,8 +9,11 @@
 
 
 #include "src/base/SkArenaAlloc.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 
 using namespace skgpu::graphite;
@@ -100,23 +103,39 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
 
     for (int bm = 0; bm <= (int) SkBlendMode::kLastCoeffMode; ++bm) {
         PaintParamsKeyBuilder builder(dict);
+        // Use a solid color as the 1st root node; the 2nd root node represents the final blend.
+        add_block(&builder, (int) BuiltInCodeSnippetID::kSolidColorShader);
         add_block(&builder, bm + kFixedBlendIDOffset);
         UniquePaintParamsID paintID = dict->findOrCreate(&builder);
 
-        ShaderInfo shaderInfo{paintID, dict, /*rteDict=*/nullptr, /*ssboIndex=*/""};
+        const RenderStep* renderStep = &context->priv().rendererProvider()->nonAABounds()->step(0);
+        FragSkSLInfo shaderInfo = BuildFragmentSkSL(context->priv().caps(),
+                                                    dict,
+                                                    /*rteDict=*/nullptr,
+                                                    renderStep,
+                                                    paintID,
+                                                    /*useStorageBuffers=*/false,
+                                                    skgpu::Swizzle::RGBA());
 
+        SkBlendMode expectedBM = static_cast<SkBlendMode>(bm);
+        if (expectedBM == SkBlendMode::kPlus) {
+            // The kPlus "coefficient" blend mode always triggers shader blending to add a clamping
+            // step that was originally elided in Porter-Duff due to automatic saturation to 8-bit
+            // color values. Shader-based blending always uses kSrc HW blending.
+            expectedBM = SkBlendMode::kSrc;
+        }
         SkBlendModeCoeff expectedSrc, expectedDst;
-        REPORTER_ASSERT(reporter, SkBlendMode_AsCoeff(static_cast<SkBlendMode>(bm),
-                                                      &expectedSrc, &expectedDst));
-        REPORTER_ASSERT(reporter, coeff_equal(expectedSrc, shaderInfo.blendInfo().fSrcBlend));
-        REPORTER_ASSERT(reporter, coeff_equal(expectedDst, shaderInfo.blendInfo().fDstBlend));
-        REPORTER_ASSERT(reporter, shaderInfo.blendInfo().fEquation == skgpu::BlendEquation::kAdd);
-        REPORTER_ASSERT(reporter, shaderInfo.blendInfo().fBlendConstant == SK_PMColor4fTRANSPARENT);
+        REPORTER_ASSERT(reporter, SkBlendMode_AsCoeff(expectedBM, &expectedSrc, &expectedDst));
+        REPORTER_ASSERT(reporter, coeff_equal(expectedSrc, shaderInfo.fBlendInfo.fSrcBlend));
+        REPORTER_ASSERT(reporter, coeff_equal(expectedDst, shaderInfo.fBlendInfo.fDstBlend));
+
+        REPORTER_ASSERT(reporter, shaderInfo.fBlendInfo.fEquation == skgpu::BlendEquation::kAdd);
+        REPORTER_ASSERT(reporter, shaderInfo.fBlendInfo.fBlendConstant == SK_PMColor4fTRANSPARENT);
 
         bool expectedWriteColor = BlendModifiesDst(skgpu::BlendEquation::kAdd,
-                                                   shaderInfo.blendInfo().fSrcBlend,
-                                                   shaderInfo.blendInfo().fDstBlend);
-        REPORTER_ASSERT(reporter, shaderInfo.blendInfo().fWritesColor == expectedWriteColor);
+                                                   shaderInfo.fBlendInfo.fSrcBlend,
+                                                   shaderInfo.fBlendInfo.fDstBlend);
+        REPORTER_ASSERT(reporter, shaderInfo.fBlendInfo.fWritesColor == expectedWriteColor);
     }
 }
 

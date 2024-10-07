@@ -111,10 +111,6 @@ void AddFixedBlendMode(const KeyContext&,
                        SkBlendMode);
 // Add a blend mode node for an SkBlendMode that can vary
 void AddBlendMode(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*, SkBlendMode);
-void AddDstReadBlock(const KeyContext&,
-                     PaintParamsKeyBuilder*,
-                     PipelineDataGatherer*,
-                     DstReadRequirement);
 void AddDitherBlock(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*, SkColorType);
 
 } // namespace skgpu::graphite
