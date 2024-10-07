@@ -57,6 +57,10 @@ void SK_API Parse(Metadata& metadata, const SkData* data);
  * |metadata.fHdrHeadroom| has value.
  * This function cannot write an IFD entry based on the HdrHeadroom value because
  * the information of maker33 and maker48 are lost in decoding.
+ * For metadata that belongs in a subIFD the function will write it to one and
+ * store it after the root IFD.
+ * Data that does not fit within kSizeEntry, is appended to the end of the data,
+ * after the subIFD if it exists.
  */
 sk_sp<SkData> WriteExif(Metadata& metadata);
 

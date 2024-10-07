@@ -220,6 +220,11 @@ bool write_entry(uint16_t tag, uint16_t type, uint32_t count, uint32_t value,
         success &= SkWStreamWriteU32BE(buffer, value); // Numerator
         success &= SkWStreamWriteU32BE(buffer, 1); // Denominator
         return success;
+      case kSubIFDOffsetTag:
+        // This does not write the subIFD itself, just the IFD0 entry that points
+        // to where it is located.
+        success &= SkWStreamWriteU32BE(stream, value);
+        return success;
       default:
         return false;
     }
@@ -236,6 +241,9 @@ sk_sp<SkData> WriteExif(Metadata& metadata) {
     }
 
     SkDynamicMemoryWStream stream;
+    // If there exists metadata that belongs in a subIFD, we will write that to a
+    // separate stream and append it to the end of the data, before |bufferForLargerValues|.
+    bool subIFDExists = false;
     // This buffer will hold the values that are more than 4 bytes and will be
     // appended to the end of the data after going through all available fields.
     SkDynamicMemoryWStream bufferForLargerValues;
@@ -251,19 +259,33 @@ sk_sp<SkData> WriteExif(Metadata& metadata) {
     }
     // Count the number of valid metadata entries.
     uint16_t numTags = 0;
+    uint16_t numSubIFDTags = 0;
     if (metadata.fOrigin.has_value()) numTags++;
     if (metadata.fResolutionUnit.has_value()) numTags++;
     if (metadata.fXResolution.has_value()) numTags++;
     if (metadata.fYResolution.has_value()) numTags++;
-    if (metadata.fPixelXDimension.has_value()) numTags++;
-    if (metadata.fPixelYDimension.has_value()) numTags++;
+    if (metadata.fPixelXDimension.has_value()) numSubIFDTags++;
+    if (metadata.fPixelYDimension.has_value()) numSubIFDTags++;
+    if (numSubIFDTags > 0) {
+      subIFDExists = true;
+      numTags++;
+    }
 
-    // Write the number of tags in the IFD.
-    SkWStreamWriteU16BE(&stream, numTags);
+    // Offset that represents where data will be appended.
     uint32_t endOfData = kOffset
                         + SkTiff::kSizeShort  // Number of tags
                         + (SkTiff::kSizeEntry * numTags) // Entries
                         + SkTiff::kSizeLong; // Next IFD offset
+    // Offset that represents where the subIFD will start if it exists.
+    const uint32_t kSubIfdOffset = endOfData;
+    if (subIFDExists) {
+      endOfData += SkTiff::kSizeShort  // Number of subIFD tags
+                  + (SkTiff::kSizeEntry * numSubIFDTags) // SubIFD entries
+                  + SkTiff::kSizeLong; // SubIFD next offset;
+    }
+
+    // Write the number of tags in the IFD.
+    SkWStreamWriteU16BE(&stream, numTags);
 
     // Write the IFD entries.
     if (metadata.fOrigin.has_value()
@@ -294,17 +316,8 @@ sk_sp<SkData> WriteExif(Metadata& metadata) {
           return nullptr;
         }
 
-    if (metadata.fPixelXDimension.has_value()
-        && !write_entry(kPixelXDimensionTag, SkTiff::kTypeUnsignedLong, 1,
-                        metadata.fPixelXDimension.value(), &endOfData, &stream,
-                        &bufferForLargerValues)) {
-          return nullptr;
-        }
-
-    if (metadata.fPixelYDimension.has_value()
-        && !write_entry(kPixelYDimensionTag, SkTiff::kTypeUnsignedLong, 1,
-                        metadata.fPixelYDimension.value(), &endOfData, &stream,
-                        &bufferForLargerValues)) {
+    if (subIFDExists && !write_entry(kSubIFDOffsetTag, SkTiff::kTypeUnsignedLong, 1,
+                      kSubIfdOffset, &endOfData, &stream, &bufferForLargerValues)) {
           return nullptr;
         }
 
@@ -312,10 +325,39 @@ sk_sp<SkData> WriteExif(Metadata& metadata) {
     if (!SkWStreamWriteU32BE(&stream, 0)) {
         return nullptr;
     }
-    // Add the data buffer to the end of the stream.
+
+    // After all IFD0 data has been written, then write the SubIFD (ExifIFD).
+    if (subIFDExists) {
+      // Write the number of tags in the subIFD.
+      if (!SkWStreamWriteU16BE(&stream, numSubIFDTags)) {
+        return nullptr;
+      }
+
+      if (metadata.fPixelXDimension.has_value()
+          && !write_entry(kPixelXDimensionTag, SkTiff::kTypeUnsignedLong, 1,
+                          metadata.fPixelXDimension.value(), &endOfData, &stream,
+                          &bufferForLargerValues)) {
+            return nullptr;
+          }
+
+      if (metadata.fPixelYDimension.has_value()
+          && !write_entry(kPixelYDimensionTag, SkTiff::kTypeUnsignedLong, 1,
+                          metadata.fPixelYDimension.value(), &endOfData, &stream,
+                          &bufferForLargerValues)) {
+            return nullptr;
+          }
+
+      // Write the SubIFD next offset (0).
+      if (!SkWStreamWriteU32BE(&stream, 0)) {
+        return nullptr;
+      }
+    }
+
+    // Append the data buffer to the end of the stream.
     if (!bufferForLargerValues.writeToStream(&stream)) {
         return nullptr;
     }
+
     return stream.detachAsData();
 }
 
