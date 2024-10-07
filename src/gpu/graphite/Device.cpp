@@ -1290,7 +1290,8 @@ void Device::drawGeometry(const Transform& localToDevice,
                         sk_ref_sp(clip.shader()),
                         dstReadReq,
                         skipColorXform};
-    const bool dependsOnDst = paint_depends_on_dst(shading);
+    const bool dependsOnDst = paint_depends_on_dst(shading) ||
+                              clip.shader() || !clip.analyticClip().isEmpty();
 
     // Some shapes and styles combine multiple draws so the total render step count is split between
     // the main renderer and possibly a secondaryRenderer.
