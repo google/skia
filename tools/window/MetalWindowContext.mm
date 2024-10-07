@@ -31,7 +31,12 @@ MetalWindowContext::MetalWindowContext(const DisplayParams& params)
         : WindowContext(params)
         , fValid(false)
         , fDrawableHandle(nil) {
-    fDisplayParams.fMSAASampleCount = GrNextPow2(fDisplayParams.fMSAASampleCount);
+    // SkNextPow2 is undefined for 0, so handle that ourselves.
+    if (fDisplayParams.fMSAASampleCount <= 1) {
+        fDisplayParams.fMSAASampleCount = 1;
+    } else {
+        fDisplayParams.fMSAASampleCount = SkNextPow2(fDisplayParams.fMSAASampleCount);
+    }
 }
 
 void MetalWindowContext::initializeContext() {

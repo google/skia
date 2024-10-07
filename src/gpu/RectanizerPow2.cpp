@@ -17,10 +17,16 @@ bool RectanizerPow2::addRect(int width, int height, SkIPoint16* loc) {
 
     int32_t area = width * height; // computed here since height will be modified
 
-    height = GrNextPow2(height);
+    // SkNextPow2 is undefined for inputs <= 0. If small values happen
+    // to creep in here, round them all up to the minimum power of 2.
+    static_assert(kMIN_HEIGHT_POW2 > 0);
+    static_assert(kMIN_HEIGHT_POW2 == SkNextPow2_portable(kMIN_HEIGHT_POW2));
     if (height < kMIN_HEIGHT_POW2) {
         height = kMIN_HEIGHT_POW2;
+    } else {
+        height = SkNextPow2(height);
     }
+
 
     Row* row = &fRows[HeightToRowIndex(height)];
     SkASSERT(row->fRowHeight == 0 || row->fRowHeight == height);

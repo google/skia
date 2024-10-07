@@ -26,7 +26,12 @@ GLWindowContext::GLWindowContext(const DisplayParams& params)
         : WindowContext(params)
         , fBackendContext(nullptr)
         , fSurface(nullptr) {
-    fDisplayParams.fMSAASampleCount = GrNextPow2(fDisplayParams.fMSAASampleCount);
+    // SkNextPow2 is undefined for 0, so handle that ourselves.
+    if (fDisplayParams.fMSAASampleCount <= 1) {
+        fDisplayParams.fMSAASampleCount = 1;
+    } else {
+        fDisplayParams.fMSAASampleCount = SkNextPow2(fDisplayParams.fMSAASampleCount);
+    }
 }
 
 void GLWindowContext::initializeContext() {

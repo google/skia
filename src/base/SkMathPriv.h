@@ -301,16 +301,9 @@ constexpr int SkPrevPow2_portable(int value) {
 ///////////////////////////////////////////////////////////////////////////////
 
 /**
- *  Return the smallest power-of-2 >= n.
- */
-static inline uint32_t GrNextPow2(uint32_t n) {
-    return n ? (1 << (32 - SkCLZ(n - 1))) : 1;
-}
-
-/**
  * Returns the next power of 2 >= n or n if the next power of 2 can't be represented by size_t.
  */
-static inline size_t GrNextSizePow2(size_t n) {
+constexpr size_t SkNextSizePow2(size_t n) {
     constexpr int kNumSizeTBits = 8 * sizeof(size_t);
     constexpr size_t kHighBitSet = size_t(1) << (kNumSizeTBits - 1);
 

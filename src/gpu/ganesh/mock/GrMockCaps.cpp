@@ -21,7 +21,7 @@ int GrMockCaps::getRenderTargetSampleCount(int requestCount, GrColorType ct) con
         case GrMockOptions::ConfigOptions::Renderability::kNonMSAA:
             return requestCount > 1 ? 0 : 1;
         case GrMockOptions::ConfigOptions::Renderability::kMSAA:
-            return requestCount > kMaxSampleCnt ? 0 : GrNextPow2(requestCount);
+            return requestCount > kMaxSampleCnt ? 0 : SkNextPow2(requestCount);
     }
     return 0;
 }

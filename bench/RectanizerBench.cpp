@@ -95,8 +95,8 @@ protected:
                 size = SkISize::Make(rand.nextRangeU(1, kWidth / 2),
                                      rand.nextRangeU(1, kHeight / 2));
             } else if (kRandPow2_RectType == fRectType) {
-                size = SkISize::Make(GrNextPow2(rand.nextRangeU(1, kWidth / 2)),
-                                     GrNextPow2(rand.nextRangeU(1, kHeight / 2)));
+                size = SkISize::Make(SkNextPow2(rand.nextRangeU(1, kWidth / 2)),
+                                     SkNextPow2(rand.nextRangeU(1, kHeight / 2)));
             } else {
                 SkASSERT(kSmallPow2_RectType == fRectType);
                 size = SkISize::Make(128, 128);
