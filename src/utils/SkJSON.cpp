@@ -889,48 +889,85 @@ private:
 };
 
 void Write(const Value& v, SkWStream* stream) {
-    switch (v.getType()) {
-    case Value::Type::kNull:
-        stream->writeText("null");
-        break;
-    case Value::Type::kBool:
-        stream->writeText(*v.as<BoolValue>() ? "true" : "false");
-        break;
-    case Value::Type::kNumber:
-        stream->writeScalarAsText(*v.as<NumberValue>());
-        break;
-    case Value::Type::kString:
-        stream->writeText("\"");
-        stream->writeText(v.as<StringValue>().begin());
-        stream->writeText("\"");
-        break;
-    case Value::Type::kArray: {
-        const auto& array = v.as<ArrayValue>();
-        stream->writeText("[");
-        bool first_value = true;
-        for (const auto& entry : array) {
-            if (!first_value) stream->writeText(",");
-            Write(entry, stream);
-            first_value = false;
+    // We use the address of these as special tags in the pending list.
+    static const NullValue kArrayCloseTag,    // ]
+                           kObjectCloseTag,   // }
+                           kListSeparatorTag, // ,
+                           kKeySeparatorTag;  // :
+
+    std::vector<const Value*> pending{&v};
+
+    do {
+        const Value* val = pending.back();
+        pending.pop_back();
+
+        if (val == &kArrayCloseTag) {
+            stream->writeText("]");
+            continue;
         }
-        stream->writeText("]");
-        break;
-    }
-    case Value::Type::kObject:
-        const auto& object = v.as<ObjectValue>();
-        stream->writeText("{");
-        bool first_member = true;
-        for (const auto& member : object) {
-            SkASSERT(member.fKey.getType() == Value::Type::kString);
-            if (!first_member) stream->writeText(",");
-            Write(member.fKey, stream);
+
+        if (val == &kObjectCloseTag) {
+            stream->writeText("}");
+            continue;
+        }
+
+        if (val == &kListSeparatorTag) {
+            stream->writeText(",");
+            continue;
+        }
+
+        if (val == &kKeySeparatorTag) {
             stream->writeText(":");
-            Write(member.fValue, stream);
-            first_member = false;
+            continue;
         }
-        stream->writeText("}");
-        break;
-    }
+
+        switch (val->getType()) {
+        case Value::Type::kNull:
+            stream->writeText("null");
+            break;
+        case Value::Type::kBool:
+            stream->writeText(*val->as<BoolValue>() ? "true" : "false");
+            break;
+        case Value::Type::kNumber:
+            stream->writeScalarAsText(*val->as<NumberValue>());
+            break;
+        case Value::Type::kString:
+            stream->writeText("\"");
+            stream->writeText(val->as<StringValue>().begin());
+            stream->writeText("\"");
+            break;
+        case Value::Type::kArray: {
+            const auto& array = val->as<ArrayValue>();
+            stream->writeText("[");
+            // "val, val, .. ]" in reverse order
+            pending.push_back(&kArrayCloseTag);
+            if (array.size() > 0) {
+                bool last_value = true;
+                for (const Value* it = array.end() - 1; it >= array.begin(); --it) {
+                    if (!last_value) pending.push_back(&kListSeparatorTag);
+                    pending.push_back(it);
+                    last_value = false;
+                }
+            }
+        } break;
+        case Value::Type::kObject: {
+            const auto& object = val->as<ObjectValue>();
+            stream->writeText("{");
+            // "key: val, key: val, .. }" in reverse order
+            pending.push_back(&kObjectCloseTag);
+            if (object.size() > 0) {
+                bool last_member = true;
+                for (const Member* it = object.end() - 1; it >= object.begin(); --it) {
+                    if (!last_member) pending.push_back(&kListSeparatorTag);
+                    pending.push_back(&it->fValue);
+                    pending.push_back(&kKeySeparatorTag);
+                    pending.push_back(&it->fKey);
+                    last_member = false;
+                }
+            }
+        } break;
+        }
+    } while (!pending.empty());
 }
 
 } // namespace
