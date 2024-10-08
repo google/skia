@@ -649,56 +649,41 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         return nullptr;
     }
 
+    skia_private::TArray<SamplerDesc> descContainer {};
     FragSkSLInfo fsSkSLInfo = BuildFragmentSkSL(sharedContext->caps(),
                                                 sharedContext->shaderCodeDictionary(),
                                                 runtimeDict,
                                                 step,
                                                 pipelineDesc.paintParamsID(),
                                                 useStorageBuffers,
-                                                renderPassDesc.fWriteSwizzle);
+                                                renderPassDesc.fWriteSwizzle,
+                                                &descContainer);
     std::string& fsSkSL = fsSkSLInfo.fSkSL;
     const bool localCoordsNeeded = fsSkSLInfo.fRequiresLocalCoords;
 
-    SkASSERT(rsrcProvider);
-    // Populate an array of immutable samplers where their index within the array indicates their
-    // binding index within the descriptor set. Nullptr indicates a "regular", dynamic sampler at
-    // that index.
+    // Populate an array of sampler ptrs where a sampler's index within the array indicates their
+    // binding index within the descriptor set. Initialize all values to nullptr, which represents a
+    // "regular", dynamic sampler at that index.
     skia_private::TArray<sk_sp<VulkanSampler>> immutableSamplers;
     immutableSamplers.push_back_n(fsSkSLInfo.fNumTexturesAndSamplers);
-    size_t dataIdx = 0, samplerIdx = 0;
-    const SkSpan<uint32_t> dataSpan = {fsSkSLInfo.fData};
-    while (dataIdx < dataSpan.size()) {
-        // Any legitimate immutable sampler will have a sampler description != 0.
-        if (fsSkSLInfo.fData[dataIdx] == 0) {
-            dataIdx++;
-            samplerIdx++;
-            continue;
+    SkASSERT(rsrcProvider);
+    // This logic relies upon Vulkan using combined texture/sampler bindings, which is necessary for
+    // ycbcr samplers per the Vulkan spec.
+    SkASSERT(!sharedContext->caps()->resourceBindingRequirements().fSeparateTextureAndSamplerBinding
+             && fsSkSLInfo.fNumTexturesAndSamplers == descContainer.size());
+    for (int i = 0; i < descContainer.size(); i++) {
+        // If a SamplerDesc is not equivalent to the default-initialized SamplerDesc, that indicates
+        // the usage of an immutable sampler. That sampler desc should then be used to obtain an
+        // actual immutable sampler from the resource provider and added at the proper index within
+        // immutableSamplers for inclusion in the pipeline layout.
+        if (descContainer.at(i) != SamplerDesc()) {
+            sk_sp<Sampler> immutableSampler =
+                    rsrcProvider->findOrCreateCompatibleSampler(descContainer.at(i));
+            sk_sp<VulkanSampler> vulkanSampler =
+                    sk_ref_sp<VulkanSampler>(static_cast<VulkanSampler*>(immutableSampler.get()));
+            SkASSERT(vulkanSampler);
+            immutableSamplers[i] = std::move(vulkanSampler);
         }
-
-        // Check whether the immutable sampler uses a known or external format to determine
-        // key stride.
-        uint32_t immutableSamplerInfo =
-                dataSpan[dataIdx] >> SamplerDesc::kImmutableSamplerInfoShift;
-        SkASSERT(immutableSamplerInfo != 0);
-        bool usesExternalFormat = static_cast<bool>(
-                ((immutableSamplerInfo & ycbcrPackaging::kUseExternalFormatMask) >>
-                        ycbcrPackaging::kUsesExternalFormatShift));
-        const int keyStride = usesExternalFormat ? SamplerDesc::kInt32sNeededExternalFormat
-                                                 : SamplerDesc::kInt32sNeededKnownFormat;
-
-        // Request a suitable immutable sampler from the resource provider
-        SamplerDesc samplerDesc;
-        memcpy(&samplerDesc,
-               &dataSpan.subspan(dataIdx, keyStride).front(),
-               sizeof(uint32_t) * keyStride);
-
-        sk_sp<Sampler> immutableSampler = rsrcProvider->findOrCreateCompatibleSampler(samplerDesc);
-        sk_sp<VulkanSampler> vulkanSampler =
-                sk_ref_sp<VulkanSampler>(static_cast<VulkanSampler*>(immutableSampler.get()));
-        SkASSERT(vulkanSampler);
-        immutableSamplers[samplerIdx++] = std::move(vulkanSampler);
-
-        dataIdx += keyStride;
     }
 
     bool hasFragmentSkSL = !fsSkSL.empty();
