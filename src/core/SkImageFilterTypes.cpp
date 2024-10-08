@@ -787,8 +787,7 @@ SkEnumBitMask<FilterResult::BoundsAnalysis> FilterResult::analyzeBounds(
 
     if (scope == BoundsScope::kDeferred) {
         return analysis; // skip sampling analysis
-    } else if ((scope == BoundsScope::kCanDrawDirectly ||
-                scope == BoundsScope::kRescale) &&
+    } else if (scope == BoundsScope::kCanDrawDirectly &&
                !(analysis & BoundsAnalysis::kHasLayerFillingEffect)) {
         // When drawing the image directly, the geometry is limited to the image. If the texels
         // are pixel aligned, then it is safe to skip shader-based tiling.
@@ -1288,61 +1287,44 @@ void FilterResult::draw(const Context& ctx,
         paint.setShader(this->getAnalyzedShaderView(ctx, sampling, analysis));
         device->drawPaint(paint);
     } else {
+        SkPaint paint;
+        paint.setBlender(sk_ref_sp(blender));
+        paint.setColorFilter(fColorFilter);
+
+        // src's origin is embedded in fTransform. For historical reasons, drawSpecial() does
+        // not automatically use the device's current local-to-device matrix, but that's what preps
+        // it to match the expected layer coordinate system.
+        SkMatrix netTransform = SkMatrix::Concat(device->localToDevice(), SkMatrix(fTransform));
+
+        // Check fSamplingOptions for linear filtering, not 'sampling' since it may have been
+        // reduced to nearest neighbor.
+        if (this->canClampToTransparentBoundary(analysis) && fSamplingOptions == kDefaultSampling) {
+            SkASSERT(!(analysis & BoundsAnalysis::kRequiresShaderTiling));
+            // Draw non-AA with a 1px outset image so that the transparent boundary filtering is
+            // not multiplied with the AA (which creates a harsher AA transition).
+            if (!preserveDeviceState && !blender) {
+                // Since this is a non-AA draw, kSrc can be more efficient if we are the default
+                // blend mode and can assume the prior dst pixels were transparent black.
 #if !defined(SK_USE_SRCOVER_FOR_FILTERS)
-        if (preserveDeviceState && !blender) {
-            // Explicitly pass in a non-null blender when cannot let drawAnalyzedImage() convert the
-            // default blender to kSrc.
-            blender = SkBlender::Mode(SkBlendMode::kSrcOver).get();
-        }
+                paint.setBlendMode(SkBlendMode::kSrc);
 #endif
-        this->drawAnalyzedImage(ctx, device, sampling, analysis, blender);
+            }
+            netTransform.preTranslate(-1.f, -1.f);
+            device->drawSpecial(fImage->makePixelOutset().get(), netTransform, sampling, paint,
+                                SkCanvas::kFast_SrcRectConstraint);
+        } else {
+            paint.setAntiAlias(true);
+            SkCanvas::SrcRectConstraint constraint = SkCanvas::kFast_SrcRectConstraint;
+            if (analysis & BoundsAnalysis::kRequiresShaderTiling) {
+                constraint = SkCanvas::kStrict_SrcRectConstraint;
+                ctx.markShaderBasedTilingRequired(SkTileMode::kClamp);
+            }
+            device->drawSpecial(fImage.get(), netTransform, sampling, paint, constraint);
+        }
     }
 
     if (preserveDeviceState && (analysis & BoundsAnalysis::kRequiresLayerCrop)) {
         device->popClipStack();
-    }
-}
-
-void FilterResult::drawAnalyzedImage(const Context& ctx,
-                                     SkDevice* device,
-                                     const SkSamplingOptions& finalSampling,
-                                     SkEnumBitMask<BoundsAnalysis> analysis,
-                                     const SkBlender* blender) const {
-    SkASSERT(!(analysis & BoundsAnalysis::kHasLayerFillingEffect));
-
-    SkPaint paint;
-    paint.setBlender(sk_ref_sp(blender));
-    paint.setColorFilter(fColorFilter);
-
-    // src's origin is embedded in fTransform. For historical reasons, drawSpecial() does
-    // not automatically use the device's current local-to-device matrix, but that's what preps
-    // it to match the expected layer coordinate system.
-    SkMatrix netTransform = SkMatrix::Concat(device->localToDevice(), SkMatrix(fTransform));
-
-    // Check fSamplingOptions for linear filtering, not 'finalSampling' since it may have been
-    // reduced to nearest neighbor.
-    if (this->canClampToTransparentBoundary(analysis) && fSamplingOptions == kDefaultSampling) {
-        SkASSERT(!(analysis & BoundsAnalysis::kRequiresShaderTiling));
-        // Draw non-AA with a 1px outset image so that the transparent boundary filtering is
-        // not multiplied with the AA (which creates a harsher AA transition).
-        if (!blender) {
-            // Since this is a non-AA draw, kSrc can be more efficient if we are the default blend
-            // mode and can assume the prior dst pixels were transparent black.
-#if !defined(SK_USE_SRCOVER_FOR_FILTERS)
-            paint.setBlendMode(SkBlendMode::kSrc);
-#endif
-        }
-        netTransform.preTranslate(-1.f, -1.f);
-        device->drawSpecial(fImage->makePixelOutset().get(), netTransform, finalSampling, paint,
-                            SkCanvas::kFast_SrcRectConstraint);
-    } else {
-        paint.setAntiAlias(true);
-        SkCanvas::SrcRectConstraint constraint = SkCanvas::kFast_SrcRectConstraint;
-        if (analysis & BoundsAnalysis::kRequiresShaderTiling) {
-            constraint = SkCanvas::kStrict_SrcRectConstraint;
-            ctx.markShaderBasedTilingRequired(SkTileMode::kClamp);
-        }
-        device->drawSpecial(fImage.get(), netTransform, finalSampling, paint, constraint);
     }
 }
 
@@ -1833,43 +1815,36 @@ FilterResult FilterResult::rescale(const Context& ctx,
                                            SkIRect(sampleBounds),
                                            BoundsScope::kRescale);
 
-            if (tileMode == SkTileMode::kDecal &&
-                !(analysis & BoundsAnalysis::kHasLayerFillingEffect)) {
-                // Draw directly to avoid decal shader-based tiling
-                surface->concat(SkMatrix(scaleXform));
-                image.drawAnalyzedImage(ctx, surface.device(), image.sampling(), analysis);
-            } else {
-                // Primary fill that will cover all of 'sampleBounds'
-                SkPaint paint;
-                paint.setShader(image.getAnalyzedShaderView(ctx, image.sampling(), analysis));
+            // Primary fill that will cover all of 'sampleBounds'
+            SkPaint paint;
+            paint.setShader(image.getAnalyzedShaderView(ctx, image.sampling(), analysis));
 #if !defined(SK_USE_SRCOVER_FOR_FILTERS)
-                paint.setBlendMode(SkBlendMode::kSrc);
+            paint.setBlendMode(SkBlendMode::kSrc);
 #endif
 
-                PixelSpace<SkRect> srcSampled;
-                SkAssertResult(scaleXform.inverseMapRect(PixelSpace<SkRect>(sampleBounds),
-                                                         &srcSampled));
+            PixelSpace<SkRect> srcSampled;
+            SkAssertResult(scaleXform.inverseMapRect(PixelSpace<SkRect>(sampleBounds),
+                                                     &srcSampled));
 
-                surface->save();
-                    surface->concat(SkMatrix(scaleXform));
-                    surface->drawRect(SkRect(srcSampled), paint);
-                surface->restore();
+            surface->save();
+                surface->concat(SkMatrix(scaleXform));
+                surface->drawRect(SkRect(srcSampled), paint);
+            surface->restore();
 
-                if (cfBorder) {
-                    // Fill in the border with the transparency-affecting color filter, which is
-                    // what the image shader's tile mode would have produced anyways but this avoids
-                    // triggering shader-based tiling.
-                    SkASSERT(fColorFilter && as_CFB(fColorFilter)->affectsTransparentBlack());
-                    SkASSERT(tileMode == SkTileMode::kClamp);
+            if (cfBorder) {
+                // Fill in the border with the transparency-affecting color filter, which is
+                // what the image shader's tile mode would have produced anyways but this avoids
+                // triggering shader-based tiling.
+                SkASSERT(fColorFilter && as_CFB(fColorFilter)->affectsTransparentBlack());
+                SkASSERT(tileMode == SkTileMode::kClamp);
 
-                    draw_color_filtered_border(surface.canvas(), dstPixelBounds, fColorFilter);
-                    // Clamping logic will preserve its values on subsequent rescale steps.
-                    cfBorder = false;
-                } else if (tileMode != SkTileMode::kDecal) {
-                    // Draw the edges of the shader into the padded border, respecting the tile mode
-                    draw_tiled_border(surface.canvas(), tileMode, paint, scaleXform,
-                                      stepPixelBounds, PixelSpace<SkRect>(dstPixelBounds));
-                }
+                draw_color_filtered_border(surface.canvas(), dstPixelBounds, fColorFilter);
+                // Clamping logic will preserve its values on subsequent rescale steps.
+                cfBorder = false;
+            } else if (tileMode != SkTileMode::kDecal) {
+                // Draw the edges of the shader into the padded border, respecting the tile mode
+                draw_tiled_border(surface.canvas(), tileMode, paint, scaleXform,
+                                  stepPixelBounds, PixelSpace<SkRect>(dstPixelBounds));
             }
         } else {
             // Rescaling can't complete, no sense in downscaling non-existent data

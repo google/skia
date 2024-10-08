@@ -137,46 +137,40 @@ public:
         }
     }
 
-    static bool IsShaderTilingExpected(const skif::Context& ctx,
-                                       const skif::FilterResult& image) {
-        if (image.tileMode() == SkTileMode::kClamp) {
-            return false;
-        }
-        if (image.tileMode() == SkTileMode::kDecal &&
-            image.fBoundary == FilterResult::PixelBoundary::kTransparent) {
-            return false;
+    enum class ShaderSampleMode {
+        kFast,
+        kShaderClamp,
+        kShaderTile
+    };
+    static ShaderSampleMode GetExpectedShaderSampleMode(const skif::Context& ctx,
+                                                        const skif::FilterResult& image,
+                                                        bool actionSupportsDirectDrawing) {
+        if (!image) {
+            return ShaderSampleMode::kFast;
         }
         auto analysis = image.analyzeBounds(ctx.desiredOutput());
-        if (!(analysis & BoundsAnalysis::kHasLayerFillingEffect)) {
-            return false;
-        }
-
-        // If we got here, it's either a mirror/repeat tile mode that's visible so a shader has to
-        // be used if the image isn't HW tileable; OR it's a decal tile mode without transparent
-        // padding that can't be drawn directly (in this case hasLayerFillingEffect implies a
-        // color filter that has to evaluate the decal'ed sampling).
-        return true;
-    }
-
-    static bool IsShaderClampingExpected(const skif::Context& ctx,
-                                         const skif::FilterResult& image) {
-        auto analysis = image.analyzeBounds(ctx.desiredOutput());
-        if (analysis & BoundsAnalysis::kHasLayerFillingEffect) {
+        bool mustFillDecal = image.tileMode() == SkTileMode::kDecal &&
+                             (analysis & BoundsAnalysis::kDstBoundsNotCovered) &&
+                             !actionSupportsDirectDrawing;
+        if ((analysis & BoundsAnalysis::kHasLayerFillingEffect) || mustFillDecal) {
             // The image won't be drawn directly so some form of shader is needed. The faster clamp
             // can be used when clamping explicitly or decal-with-transparent-padding.
             if (image.tileMode() == SkTileMode::kClamp ||
                 (image.tileMode() == SkTileMode::kDecal &&
                  image.fBoundary == FilterResult::PixelBoundary::kTransparent)) {
-                return true;
+                return ShaderSampleMode::kShaderClamp;
             } else {
                 // These cases should be covered by the more expensive shader tiling.
-                SkASSERT(IsShaderTilingExpected(ctx, image));
-                return false;
+                return ShaderSampleMode::kShaderTile;
             }
         }
         // If we got here, it will be drawn directly but a clamp can be needed if the data outside
         // the image is unknown and sampling might pull those values in accidentally.
-        return image.fBoundary == FilterResult::PixelBoundary::kUnknown;
+        if (image.fBoundary == FilterResult::PixelBoundary::kUnknown) {
+            return ShaderSampleMode::kShaderClamp;
+        } else {
+            return ShaderSampleMode::kFast;
+        }
     }
 };
 
@@ -363,6 +357,22 @@ public:
         } else {
             return {1};
         }
+    }
+
+    FilterResultTestAccess::ShaderSampleMode expectedSampleMode(const Context& ctx,
+                                                                const FilterResult& source) const {
+        bool actionSupportsDirectDrawing = true;
+        if (std::holds_alternative<RescaleParams>(fAction)) {
+            // rescale() normally does not draw directly; the exception is if the source image has
+            // a scale factor that requires a pre-resolve. If that happens 'source' is not really
+            // the source of the rescale steps, and `source` can be drawn directly by the resolve.
+            auto scales = FilterResultTestAccess::DeferredScaleFactors(source);
+            if (!scales || scales->first > 0.5f) {
+                actionSupportsDirectDrawing = false; // no pre-resolve
+            }
+        }
+        return FilterResultTestAccess::GetExpectedShaderSampleMode(
+                ctx, source, actionSupportsDirectDrawing);
     }
 
     LayerSpace<SkIRect> expectedBounds(const LayerSpace<SkIRect>& inputBounds) const {
@@ -1193,10 +1203,13 @@ public:
                             "expected %d+%d <= %d",
                             stats.fNumShaderBasedTilingDraws, stats.fNumShaderClampedDraws,
                             expectedShaderTiledDraws);
+
+            using ShaderSampleMode = FilterResultTestAccess::ShaderSampleMode;
+            auto expectedSampleMode = fActions[i].expectedSampleMode(ctx, source);
             REPORTER_ASSERT(fRunner, stats.fNumShaderBasedTilingDraws == 0 ||
-                                     FilterResultTestAccess::IsShaderTilingExpected(ctx, source));
+                                     expectedSampleMode == ShaderSampleMode::kShaderTile);
             REPORTER_ASSERT(fRunner, stats.fNumShaderClampedDraws == 0 ||
-                                     FilterResultTestAccess::IsShaderClampingExpected(ctx, source));
+                                     expectedSampleMode == ShaderSampleMode::kShaderClamp);
 
             // Validate layer bounds and sampling when we expect a new or deferred image
             if (output.image()) {
@@ -2415,7 +2428,7 @@ DEF_TEST_SUITE(RescaleWithTileMode, r,
                 .rescale({1.f, 0.25f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
         TestCase(r, "1-step X axis, 2-step Y axis preserves tile mode",
-                 /*allowedPercentImageDiff=*/periodic ? 23.2f : 17.22f,
+                 /*allowedPercentImageDiff=*/periodic ? 23.2f : 17.6f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 5 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
@@ -2444,7 +2457,7 @@ DEF_TEST_SUITE(RescaleWithTileMode, r,
                 .rescale({0.25f, 1.f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
         TestCase(r, "2-step X axis, 1-step Y axis preserves tile mode",
-                 /*allowedPercentImageDiff=*/periodic ? 14.9f : 13.61f,
+                 /*allowedPercentImageDiff=*/periodic ? 14.9f : 14.1f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 5 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
