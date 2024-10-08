@@ -284,6 +284,9 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest,
         if (direct->colorTypeSupportedAsSurface(colorType)) {
             GrBackendRenderTarget backendRT = gpu->createTestingOnlyBackendRenderTarget(
                     {kWidthHeight, kWidthHeight}, grColorType, /* sampleCount= */ 1, isProtected);
+            if (!backendRT.isValid()) {
+                continue;
+            }
             sk_sp<GrSurfaceProxy> sProxy(
                     proxyProvider->wrapBackendRenderTarget(backendRT, nullptr));
             check_surface(reporter, sProxy.get(), kWidthHeight, kWidthHeight, Budgeted::kNo);

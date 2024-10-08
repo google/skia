@@ -706,7 +706,7 @@ sk_sp<SkSurface> WrapBackendRenderTarget(GrRecordingContext* rContext,
                                          ReleaseContext releaseContext) {
     auto releaseHelper = skgpu::RefCntedCallback::Make(relProc, releaseContext);
 
-    if (!rContext) {
+    if (!rContext || !rt.isValid()) {
         return nullptr;
     }
 

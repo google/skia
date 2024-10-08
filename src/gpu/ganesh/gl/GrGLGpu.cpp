@@ -1764,6 +1764,10 @@ bool GrGLGpu::onUpdateCompressedBackendTexture(const GrBackendTexture& backendTe
 }
 
 int GrGLGpu::getCompatibleStencilIndex(GrGLFormat format) {
+    if (this->glCaps().avoidStencilBuffers()) {
+        return -1;
+    }
+
     static const int kSize = 16;
     SkASSERT(this->glCaps().canFormatBeFBOColorAttachment(format));
 
@@ -4096,9 +4100,14 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(SkISize dime
         }
         useTexture = true;
     }
-    int sFormatIdx = this->getCompatibleStencilIndex(format);
-    if (sFormatIdx < 0) {
-        return {};
+
+    bool avoidStencil = this->glCaps().avoidStencilBuffers();
+    int sFormatIdx = -1;
+    if (!avoidStencil) {
+        sFormatIdx = this->getCompatibleStencilIndex(format);
+        if (sFormatIdx < 0) {
+            return {};
+        }
     }
     GrGLuint colorID = 0;
     GrGLuint stencilID = 0;
@@ -4129,10 +4138,17 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(SkISize dime
     } else {
         GL_CALL(GenRenderbuffers(1, &colorID));
     }
-    GL_CALL(GenRenderbuffers(1, &stencilID));
-    if (!stencilID || !colorID) {
+    if (!colorID) {
         deleteIDs();
         return {};
+    }
+
+    if (!avoidStencil) {
+        GL_CALL(GenRenderbuffers(1, &stencilID));
+        if (!stencilID) {
+            deleteIDs();
+            return {};
+        }
     }
 
     GL_CALL(GenFramebuffers(1, &info.fFBOID));
@@ -4178,24 +4194,28 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(SkISize dime
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_RENDERBUFFER, colorID));
     }
-    GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, stencilID));
-    auto stencilBufferFormat = this->glCaps().stencilFormats()[sFormatIdx];
-    if (sampleCnt == 1) {
-        GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, GrGLFormatToEnum(stencilBufferFormat),
-                                    dimensions.width(), dimensions.height()));
-    } else {
-        if (!this->renderbufferStorageMSAA(this->glContext(), sampleCnt,
-                                           GrGLFormatToEnum(stencilBufferFormat),
-                                           dimensions.width(), dimensions.height())) {
-            deleteIDs();
-            return {};
+    if (!avoidStencil) {
+        GL_CALL(BindRenderbuffer(GR_GL_RENDERBUFFER, stencilID));
+        auto stencilBufferFormat = this->glCaps().stencilFormats()[sFormatIdx];
+        if (sampleCnt == 1) {
+            GL_CALL(RenderbufferStorage(GR_GL_RENDERBUFFER, GrGLFormatToEnum(stencilBufferFormat),
+                                        dimensions.width(), dimensions.height()));
+        } else {
+            if (!this->renderbufferStorageMSAA(this->glContext(), sampleCnt,
+                                               GrGLFormatToEnum(stencilBufferFormat),
+                                               dimensions.width(), dimensions.height())) {
+                deleteIDs();
+                return {};
+                                               }
         }
-    }
-    GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_STENCIL_ATTACHMENT, GR_GL_RENDERBUFFER,
-                                    stencilID));
-    if (GrGLFormatIsPackedDepthStencil(this->glCaps().stencilFormats()[sFormatIdx])) {
-        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_DEPTH_ATTACHMENT,
-                                        GR_GL_RENDERBUFFER, stencilID));
+        GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER,
+                                        GR_GL_STENCIL_ATTACHMENT,
+                                        GR_GL_RENDERBUFFER,
+                                        stencilID));
+        if (GrGLFormatIsPackedDepthStencil(this->glCaps().stencilFormats()[sFormatIdx])) {
+            GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_DEPTH_ATTACHMENT,
+                                            GR_GL_RENDERBUFFER, stencilID));
+        }
     }
 
     // We don't want to have to recover the renderbuffer/texture IDs later to delete them. OpenGL
@@ -4213,7 +4233,10 @@ GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(SkISize dime
         return {};
     }
 
-    auto stencilBits = SkToInt(GrGLFormatStencilBits(this->glCaps().stencilFormats()[sFormatIdx]));
+    int stencilBits = 0;
+    if (!avoidStencil) {
+        stencilBits = SkToInt(GrGLFormatStencilBits(this->glCaps().stencilFormats()[sFormatIdx]));
+    }
 
     GrBackendRenderTarget beRT = GrBackendRenderTargets::MakeGL(
             dimensions.width(), dimensions.height(), sampleCnt, stencilBits, info);
