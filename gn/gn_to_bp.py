@@ -277,9 +277,6 @@ cc_defaults {
         shared_libs: [
             "libheif",
         ],
-        static_libs: [
-            "libcrabbyavif_ffi",
-        ],
       },
       darwin: {
         host_ldlibs: [
@@ -497,11 +494,9 @@ def generate_args(target_os, enable_gpu, renderengine = False):
 
   if target_os == '"android"' and not renderengine:
     d['skia_use_libheif']  = 'true'
-    d['skia_use_crabbyavif'] = 'true'
     d['skia_use_jpeg_gainmaps'] = 'true'
   else:
     d['skia_use_libheif']  = 'false'
-    d['skia_use_crabbyavif'] = 'false'
 
   if renderengine:
     d['skia_use_libpng_decode'] = 'false'
