@@ -393,6 +393,10 @@ void SkPDFDocument::onEndPage() {
     // The StructParents unique identifier for each page is just its
     // 0-based page index.
     page->insertInt("StructParents", SkToInt(this->currentPageIndex()));
+
+    // Tabs is PDF 1.5, but setting it checks an accessibility box.
+    page->insertName("Tabs", "S");
+
     fPages.emplace_back(std::move(page));
 }
 
