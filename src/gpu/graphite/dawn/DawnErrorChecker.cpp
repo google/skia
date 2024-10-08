@@ -52,17 +52,29 @@ SkEnumBitMask<DawnErrorType> DawnErrorChecker::popErrorScopes() {
                 , fWait(sharedContext) {}
     } errorState(fSharedContext);
 
+#if defined(WGPU_BREAKING_CHANGE_STRING_VIEW_CALLBACKS)
+    wgpu::ErrorCallback errorCallback =
+            [](WGPUErrorType status, WGPUStringView msg, void* userData) {
+#else   // defined(WGPU_BREAKING_CHANGE_STRING_VIEW_CALLBACKS)
     wgpu::ErrorCallback errorCallback = [](WGPUErrorType status, const char* msg, void* userData) {
-        ErrorState* errorState = static_cast<ErrorState*>(userData);
-        if (status != WGPUErrorType_NoError) {
-            SkASSERT(errorState->fScopeIdx >= 0);
-            const char* errorScopeName = kErrorScopeNames[errorState->fScopeIdx];
+#endif  // defined(WGPU_BREAKING_CHANGE_STRING_VIEW_CALLBACKS)
+                ErrorState* errorState = static_cast<ErrorState*>(userData);
+                if (status != WGPUErrorType_NoError) {
+                    SkASSERT(errorState->fScopeIdx >= 0);
+                    const char* errorScopeName = kErrorScopeNames[errorState->fScopeIdx];
+#if defined(WGPU_BREAKING_CHANGE_STRING_VIEW_CALLBACKS)
+                    SKGPU_LOG_E("Failed in error scope (%s): %.*s",
+                                errorScopeName,
+                                static_cast<int>(msg.length),
+                                msg.data);
+#else   // defined(WGPU_BREAKING_CHANGE_STRING_VIEW_CALLBACKS)
             SKGPU_LOG_E("Failed in error scope (%s): %s", errorScopeName, msg);
-            errorState->fError |= kErrorScopeTypes[errorState->fScopeIdx];
-        }
-        errorState->fScopeIdx--;
-        errorState->fWait.signal();
-    };
+#endif  // defined(WGPU_BREAKING_CHANGE_STRING_VIEW_CALLBACKS)
+                    errorState->fError |= kErrorScopeTypes[errorState->fScopeIdx];
+                }
+                errorState->fScopeIdx--;
+                errorState->fWait.signal();
+            };
 
     // Pop all three error scopes:
     // Internal
