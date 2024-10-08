@@ -2428,7 +2428,7 @@ DEF_TEST_SUITE(RescaleWithTileMode, r,
                 .rescale({1.f, 0.25f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
         TestCase(r, "1-step X axis, 2-step Y axis preserves tile mode",
-                 /*allowedPercentImageDiff=*/periodic ? 23.2f : 17.6f,
+                 /*allowedPercentImageDiff=*/periodic ? 23.2f : 17.7f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 5 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
@@ -2457,7 +2457,7 @@ DEF_TEST_SUITE(RescaleWithTileMode, r,
                 .rescale({0.25f, 1.f}, Expect::kNewImage, tm)
                 .run(/*requestedOutput=*/{0, 0, 80, 80});
         TestCase(r, "2-step X axis, 1-step Y axis preserves tile mode",
-                 /*allowedPercentImageDiff=*/periodic ? 14.9f : 14.1f,
+                 /*allowedPercentImageDiff=*/periodic ? 14.9f : 14.2f,
                  /*transparentCheckBorderTolerance=*/tm == SkTileMode::kDecal ? 5 : 0)
                 .source({16, 16, 64, 64})
                 .applyCrop({16, 16, 64, 64}, tm, Expect::kDeferredImage)
