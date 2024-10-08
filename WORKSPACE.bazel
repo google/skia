@@ -661,7 +661,7 @@ container_pull(
 # Pulls the gcr.io/skia-public/jsfiddle-base container.
 container_pull(
     name = "jsfiddle-base",
-    digest = "sha256:38bd0b71717fb84ac1bb6badeeb37d284d604c4d0cfc6731f1357750a2e9f59c",
+    digest = "sha256:034839b9814bde95bfe002eb6e3f5a9bcf8a88ca2a7cfce8a348cc4e86854463",
     registry = "gcr.io",
     repository = "skia-public/jsfiddle-base",
 )
