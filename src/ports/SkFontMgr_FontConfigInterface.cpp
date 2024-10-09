@@ -17,7 +17,6 @@
 #include "src/core/SkTypefaceCache.h"
 #include "src/ports/SkFontConfigTypeface.h"
 #include "src/ports/SkTypeface_FreeType.h"
-
 #include <new>
 
 using namespace skia_private;

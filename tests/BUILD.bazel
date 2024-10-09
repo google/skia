@@ -70,11 +70,7 @@ skia_cc_library(
         "//src/core:core_priv",
     ] + select({
         "@platforms//os:android": ["//:fontmgr_android_freetype"],
-        "@platforms//os:linux": [
-            "//src/ports:fontations_support",
-            "//src/ports:freetype_support",
-            "@skia//:fontmgr_fontconfig_freetype",
-        ],
+        "@platforms//os:linux": ["//:fontmgr_fontconfig_freetype"],
         # TODO(kjlubick) mac, windows
         "//conditions:default": ["//:fontmgr_empty"],
     }),

@@ -20,9 +20,8 @@
 #include "include/core/SkStream.h"
 #include "include/docs/SkPDFDocument.h"
 
-#if defined(SK_TYPEFACE_FACTORY_FREETYPE)
+#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
 #include "include/ports/SkFontMgr_fontconfig.h"
-#include "include/ports/SkFontScanner_FreeType.h"
 #endif
 
 #if defined(SK_FONTMGR_CORETEXT_AVAILABLE)
@@ -51,8 +50,8 @@ int main(int argc, char** argv) {
     sk_sp<SkDocument> pdf = SkPDF::MakeDocument(&output, metadata);
     SkCanvas* canvas = pdf->beginPage(100, 50);
 
-#if defined(SK_TYPEFACE_FACTORY_FREETYPE)
-    sk_sp<SkFontMgr> mgr = SkFontMgr_New_FontConfig(nullptr, SkFontScanner_Make_FreeType());
+#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
+    sk_sp<SkFontMgr> mgr = SkFontMgr_New_FontConfig(nullptr);
 #endif
 #if defined(SK_FONTMGR_CORETEXT_AVAILABLE)
     sk_sp<SkFontMgr> mgr = SkFontMgr_New_CoreText(nullptr);
