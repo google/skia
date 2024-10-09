@@ -174,18 +174,15 @@ enum class GrSyncCpu : bool {
     kYes = true,
 };
 
-// TODO: Add the ability to mark frame boundaries during submit
-/**
 enum class GrMarkFrameBoundary : bool {
     kNo = false,
     kYes = true,
 };
-*/
 
 struct GrSubmitInfo {
     GrSyncCpu fSync = GrSyncCpu::kNo;
-    // TODO: Add this functionality
-    // GrMarkFrameBoundary fSync = GrMarkFrameBoundary::kNo;
+    GrMarkFrameBoundary fMarkBoundary = GrMarkFrameBoundary::kNo;
+    uint64_t fFrameID = 0;
 };
 
 #endif

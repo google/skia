@@ -479,9 +479,18 @@ public:
      * If it returns false, then those same semaphores will not have been submitted and we will not
      * try to submit them again. The caller is free to delete the semaphores at any time.
      *
-     * If sync flag is GrSyncCpu::kYes, this function will return once the gpu has finished with all
-     * submitted work.
+     * If GrSubmitInfo::fSync flag is GrSyncCpu::kYes, this function will return once the gpu has
+     * finished with all submitted work.
+     *
+     * If GrSubmitInfo::fMarkBoundary flag is GrMarkFrameBoundary::kYes and the GPU supports a way
+     * to be notified about frame boundaries, then we will notify the GPU during/after the
+     * submission of work to the GPU. GrSubmitInfo::fFrameID is a frame ID that is passed to the
+     * GPU when marking a boundary. Ideally this value should be unique for each frame. Currently
+     * marking frame boundaries is only supported with the Vulkan backend and only if the
+     * VK_EXT_frame_boudnary extenstion is available.
      */
+    bool submit(const GrSubmitInfo&);
+
     bool submit(GrSyncCpu sync = GrSyncCpu::kNo) {
         GrSubmitInfo info;
         info.fSync = sync;
@@ -489,7 +498,6 @@ public:
         return this->submit(info);
     }
 
-    bool submit(const GrSubmitInfo&);
 
     /**
      * Checks whether any asynchronous work is complete and if so calls related callbacks.

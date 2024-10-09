@@ -556,19 +556,36 @@ static VkResult submit_to_queue(GrVkGpu* gpu,
                                 const VkCommandBuffer* commandBuffers,
                                 uint32_t signalCount,
                                 const VkSemaphore* signalSemaphores,
-                                GrProtected protectedContext) {
+                                GrProtected protectedContext,
+                                const GrSubmitInfo& info) {
+    void* pNext = nullptr;
+
     VkProtectedSubmitInfo protectedSubmitInfo;
     if (protectedContext == GrProtected::kYes) {
         memset(&protectedSubmitInfo, 0, sizeof(VkProtectedSubmitInfo));
         protectedSubmitInfo.sType = VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO;
-        protectedSubmitInfo.pNext = nullptr;
+        protectedSubmitInfo.pNext = pNext;
         protectedSubmitInfo.protectedSubmit = VK_TRUE;
+
+        pNext = &protectedSubmitInfo;
+    }
+
+    VkFrameBoundaryEXT frameBoundary;
+    if (info.fMarkBoundary == GrMarkFrameBoundary::kYes &&
+        gpu->vkCaps().supportsFrameBoundary()) {
+        memset(&frameBoundary, 0, sizeof(VkFrameBoundaryEXT));
+        frameBoundary.sType = VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT;
+        frameBoundary.pNext = pNext;
+        frameBoundary.flags = VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT;
+        frameBoundary.frameID = info.fFrameID;
+
+        pNext = &frameBoundary;
     }
 
     VkSubmitInfo submitInfo;
     memset(&submitInfo, 0, sizeof(VkSubmitInfo));
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.pNext = protectedContext == GrProtected::kYes ? &protectedSubmitInfo : nullptr;
+    submitInfo.pNext = pNext;
     submitInfo.waitSemaphoreCount = waitCount;
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
@@ -585,7 +602,8 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
         GrVkGpu* gpu,
         VkQueue queue,
         TArray<GrVkSemaphore::Resource*>& signalSemaphores,
-        TArray<GrVkSemaphore::Resource*>& waitSemaphores) {
+        TArray<GrVkSemaphore::Resource*>& waitSemaphores,
+        const GrSubmitInfo& submitInfo) {
     SkASSERT(!fIsActive);
 
     VkResult err;
@@ -615,7 +633,7 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
         // queue with no worries.
         submitResult = submit_to_queue(
                 gpu, queue, fSubmitFence, 0, nullptr, nullptr, 1, &fCmdBuffer, 0, nullptr,
-                GrProtected(gpu->protectedContext()));
+                GrProtected(gpu->protectedContext()), submitInfo);
     } else {
         TArray<VkSemaphore> vkSignalSems(signalCount);
         for (int i = 0; i < signalCount; ++i) {
@@ -642,7 +660,7 @@ bool GrVkPrimaryCommandBuffer::submitToQueue(
         submitResult = submit_to_queue(gpu, queue, fSubmitFence, vkWaitSems.size(),
                                        vkWaitSems.begin(), vkWaitStages.begin(), 1, &fCmdBuffer,
                                        vkSignalSems.size(), vkSignalSems.begin(),
-                                       GrProtected(gpu->protectedContext()));
+                                       GrProtected(gpu->protectedContext()), submitInfo);
         if (submitResult == VK_SUCCESS) {
             for (int i = 0; i < signalCount; ++i) {
                 signalSemaphores[i]->markAsSignaled();

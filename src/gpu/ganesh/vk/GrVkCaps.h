@@ -197,6 +197,8 @@ public:
 
     bool supportsDeviceFaultInfo() const { return fSupportsDeviceFaultInfo; }
 
+    bool supportsFrameBoundary() const { return fSupportsFrameBoundary; }
+
     // Returns whether we prefer to record draws directly into a primary command buffer.
     bool preferPrimaryOverSecondaryCommandBuffers() const {
         return fPreferPrimaryOverSecondaryCommandBuffers;
@@ -484,6 +486,8 @@ private:
     bool fSupportsDRMFormatModifiers = false;
 
     bool fSupportsDeviceFaultInfo = false;
+
+    bool fSupportsFrameBoundary = false;
 
     bool fPreferPrimaryOverSecondaryCommandBuffers = true;
     bool fMustInvalidatePrimaryCmdBufferStateAfterClearAttachments = false;

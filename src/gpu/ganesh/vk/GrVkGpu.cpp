@@ -363,14 +363,14 @@ GrOpsRenderPass* GrVkGpu::onGetOpsRenderPass(
     return fCachedOpsRenderPass.get();
 }
 
-bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
+bool GrVkGpu::submitCommandBuffer(const GrSubmitInfo& submitInfo) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     if (!this->currentCommandBuffer()) {
         return false;
     }
     SkASSERT(!fCachedOpsRenderPass || !fCachedOpsRenderPass->isActive());
 
-    if (!this->currentCommandBuffer()->hasWork() && kForce_SyncQueue != sync &&
+    if (!this->currentCommandBuffer()->hasWork() && submitInfo.fSync == GrSyncCpu::kNo &&
         fSemaphoresToSignal.empty() && fSemaphoresToWaitOn.empty()) {
         // We may have added finished procs during the flush call. Since there is no actual work
         // we are not submitting the command buffer and may never come back around to submit it.
@@ -386,9 +386,9 @@ bool GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     SkASSERT(fMainCmdPool);
     fMainCmdPool->close();
     bool didSubmit = fMainCmdBuffer->submitToQueue(this, fQueue, fSemaphoresToSignal,
-                                                   fSemaphoresToWaitOn);
+                                                   fSemaphoresToWaitOn, submitInfo);
 
-    if (didSubmit && sync == kForce_SyncQueue) {
+    if (didSubmit && submitInfo.fSync == GrSyncCpu::kYes) {
         fMainCmdBuffer->forceSync(this);
     }
 
@@ -492,7 +492,9 @@ bool GrVkGpu::onWritePixels(GrSurface* surface,
                                      VK_ACCESS_HOST_WRITE_BIT,
                                      VK_PIPELINE_STAGE_HOST_BIT,
                                      false);
-            if (!this->submitCommandBuffer(kForce_SyncQueue)) {
+            GrSubmitInfo submitInfo;
+            submitInfo.fSync = GrSyncCpu::kYes;
+            if (!this->submitCommandBuffer(submitInfo)) {
                 return false;
             }
         }
@@ -2100,7 +2102,9 @@ void GrVkGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& 
     GrVkImageInfo info;
     if (GrBackendRenderTargets::GetVkImageInfo(rt, &info)) {
         // something in the command buffer may still be using this, so force submit
-        SkAssertResult(this->submitCommandBuffer(kForce_SyncQueue));
+        GrSubmitInfo submitInfo;
+        submitInfo.fSync = GrSyncCpu::kYes;
+        SkAssertResult(this->submitCommandBuffer(submitInfo));
         GrVkImage::DestroyImageInfo(this, const_cast<GrVkImageInfo*>(&info));
     }
 }
@@ -2221,11 +2225,7 @@ void GrVkGpu::takeOwnershipOfBuffer(sk_sp<GrGpuBuffer> buffer) {
 }
 
 bool GrVkGpu::onSubmitToGpu(const GrSubmitInfo& info) {
-    if (info.fSync == GrSyncCpu::kYes) {
-        return this->submitCommandBuffer(kForce_SyncQueue);
-    } else {
-        return this->submitCommandBuffer(kSkip_SyncQueue);
-    }
+    return this->submitCommandBuffer(info);
 }
 
 void GrVkGpu::finishOutstandingGpuWork() {
@@ -2588,7 +2588,9 @@ bool GrVkGpu::onReadPixels(GrSurface* surface,
 
     // We need to submit the current command buffer to the Queue and make sure it finishes before
     // we can copy the data out of the buffer.
-    if (!this->submitCommandBuffer(kForce_SyncQueue)) {
+    GrSubmitInfo submitInfo;
+    submitInfo.fSync = GrSyncCpu::kYes;
+    if (!this->submitCommandBuffer(submitInfo)) {
         return false;
     }
     void* mappedMemory = transferBuffer->map();

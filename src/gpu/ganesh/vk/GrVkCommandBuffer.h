@@ -33,6 +33,7 @@ class GrVkGpu;
 class GrVkImage;
 class GrVkPipeline;
 class GrVkRenderPass;
+struct GrSubmitInfo;
 struct SkIRect;
 
 class GrVkCommandBuffer {
@@ -324,9 +325,11 @@ public:
                       uint32_t regionCount,
                       const VkImageResolve* regions);
 
-    bool submitToQueue(GrVkGpu* gpu, VkQueue queue,
+    bool submitToQueue(GrVkGpu* gpu,
+                       VkQueue queue,
                        skia_private::TArray<GrVkSemaphore::Resource*>& signalSemaphores,
-                       skia_private::TArray<GrVkSemaphore::Resource*>& waitSemaphores);
+                       skia_private::TArray<GrVkSemaphore::Resource*>& waitSemaphores,
+                       const GrSubmitInfo&);
 
     void forceSync(GrVkGpu* gpu);
 

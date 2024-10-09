@@ -414,6 +414,10 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
         fSupportsDeviceFaultInfo = true;
     }
 
+    if (extensions.hasExtension(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME, 1)) {
+        fSupportsFrameBoundary = true;
+    }
+
     fMaxInputAttachmentDescriptors = properties.limits.maxDescriptorSetInputAttachments;
 
     fMaxSamplerAnisotropy = properties.limits.maxSamplerAnisotropy;

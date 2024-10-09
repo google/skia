@@ -242,11 +242,6 @@ public:
     bool checkVkResult(VkResult);
 
 private:
-    enum SyncQueue {
-        kForce_SyncQueue,
-        kSkip_SyncQueue
-    };
-
     GrVkGpu(GrDirectContext*,
             const skgpu::VulkanBackendContext&,
             const sk_sp<GrVkCaps> caps,
@@ -385,12 +380,15 @@ private:
     void onReportSubmitHistograms() override;
 
     // Ends and submits the current command buffer to the queue and then creates a new command
-    // buffer and begins it. If sync is set to kForce_SyncQueue, the function will wait for all
-    // work in the queue to finish before returning. If this GrVkGpu object has any semaphores in
-    // fSemaphoreToSignal, we will add those signal semaphores to the submission of this command
-    // buffer. If this GrVkGpu object has any semaphores in fSemaphoresToWaitOn, we will add those
-    // wait semaphores to the submission of this command buffer.
-    bool submitCommandBuffer(SyncQueue sync);
+    // buffer and begins it. If fSync in the submitInfo is set to GrSyncCpu::kYes, the function will
+    // wait for all work in the queue to finish before returning. If this GrVkGpu object has any
+    // semaphores in fSemaphoreToSignal, we will add those signal semaphores to the submission of
+    // this command buffer. If this GrVkGpu object has any semaphores in fSemaphoresToWaitOn, we
+    // will add those wait semaphores to the submission of this command buffer.
+    //
+    // If fMarkBoundary in submitInfo is GrMarkFrameBoundary::kYes, then we will mark the end of a
+    // frame if the VK_EXT_frame_boundary extension is available.
+    bool submitCommandBuffer(const GrSubmitInfo& submitInfo);
 
     void copySurfaceAsCopyImage(GrSurface* dst,
                                 GrSurface* src,
