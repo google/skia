@@ -1,6 +1,7 @@
 Name: Skia
 URL: https://skia.org/
-Version: unknown
+Version: N/A
+Revision: DEPS
 Security Critical: yes
 Shipped: yes
 License: BSD
