@@ -163,6 +163,7 @@ struct Metadata {
     enum class Outline : int {
         None = 0,
         StructureElementHeaders = 1,
+        StructureElements = 2,
     } fOutline = Outline::None;
 
     /** Executor to handle threaded work within PDF Backend. If this is nullptr,

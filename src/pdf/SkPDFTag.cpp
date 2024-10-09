@@ -487,8 +487,9 @@ SkPDFIndirectReference SkPDFStructTree::emitStructTreeRoot(SkPDFDocument* doc) c
     return doc->emit(structTreeRoot, structTreeRootRef);
 }
 
+namespace header_outline {
 namespace {
-struct OutlineEntry {
+struct Entry {
     struct Content {
         SkString fText;
         Location fLocation;
@@ -502,7 +503,7 @@ struct OutlineEntry {
     int fHeaderLevel;
     SkPDFIndirectReference fRef;
     SkPDFIndirectReference fStructureRef;
-    std::vector<OutlineEntry> fChildren = {};
+    std::vector<Entry> fChildren = {};
     size_t fDescendentsEmitted = 0;
 
     void emitDescendents(SkPDFDocument* const doc) {
@@ -543,7 +544,7 @@ struct OutlineEntry {
     }
 };
 
-OutlineEntry::Content create_outline_entry_content(SkPDFStructElem* const structElem) {
+Entry::Content create_header_content(SkPDFStructElem* const structElem) {
     SkString text;
     if (!structElem->fTitle.isEmpty()) {
         text = structElem->fTitle;
@@ -557,27 +558,27 @@ OutlineEntry::Content create_outline_entry_content(SkPDFStructElem* const struct
         structElemLocation.accumulate(mark.fLocation);
     }
 
-    OutlineEntry::Content content{std::move(text), std::move(structElemLocation)};
+    Entry::Content content{std::move(text), std::move(structElemLocation)};
 
     // Accumulate children
     for (auto&& child : structElem->fChildren) {
         if (child.fUsed) {
-            content.accumulate(create_outline_entry_content(&child));
+            content.accumulate(create_header_content(&child));
         }
     }
     return content;
 }
-void create_outline_from_headers(SkPDFDocument* const doc, SkPDFStructElem* const structElem,
-                                 STArray<7, OutlineEntry*>& stack) {
+
+void make(SkPDFDocument* const doc, SkPDFStructElem* const structElem, STArray<7, Entry*>& stack) {
     const SkString& type = structElem->fStructType;
     if (type.size() == 2 && type[0] == 'H' && '1' <= type[1] && type[1] <= '6') {
         int level = type[1] - '0';
         while (level <= stack.back()->fHeaderLevel) {
             stack.pop_back();
         }
-        OutlineEntry::Content content = create_outline_entry_content(structElem);
+        Entry::Content content = create_header_content(structElem);
         if (!content.fText.isEmpty()) {
-            OutlineEntry e{std::move(content), level, doc->reserveRef(), structElem->fRef};
+            Entry e{std::move(content), level, doc->reserveRef(), structElem->fRef};
             stack.push_back(&stack.back()->fChildren.emplace_back(std::move(e)));
             return;
         }
@@ -585,33 +586,139 @@ void create_outline_from_headers(SkPDFDocument* const doc, SkPDFStructElem* cons
 
     for (auto&& child : structElem->fChildren) {
         if (child.fUsed) {
-            create_outline_from_headers(doc, &child, stack);
+            make(doc, &child, stack);
         }
     }
 }
-
 } // namespace
+} // namespace header_outline
+
+namespace structelem_outline {
+namespace {
+struct Entry {
+    size_t fDescendantCount = 0;
+    Location fLocation;
+    void accumulate(Entry const& child) {
+        fDescendantCount += child.fDescendantCount;
+        fLocation.accumulate(child.fLocation);
+    }
+};
+Entry emit(SkPDFDocument* const doc,
+           SkPDFStructElem* const structElem,
+           SkPDFIndirectReference const parentRef,
+           SkPDFIndirectReference const prevSiblingRef,
+           SkPDFIndirectReference const selfRef,
+           SkPDFIndirectReference const nextSiblingRef) {
+    Entry self;
+
+    // Emit any child entries.
+    STArray<20, SkPDFIndirectReference> childRefs;
+    for (auto&& child : structElem->fChildren) {
+        if (!child.fUsed) {
+            continue;
+        }
+        childRefs.emplace_back(doc->reserveRef());
+    }
+    int childRefsIndex = 0;
+    SkPDFIndirectReference prevChildRef; // Starts out as "none".
+    childRefs.emplace_back(); // Put an extra "none" on the end for the last "next".
+    for (auto&& child : structElem->fChildren) {
+        if (!child.fUsed) {
+            continue;
+        }
+        SkPDFIndirectReference currChildRef = childRefs[childRefsIndex];
+        SkPDFIndirectReference nextChildRef = childRefs[childRefsIndex+1];
+        self.accumulate(emit(doc, &child, selfRef, prevChildRef, currChildRef, nextChildRef));
+        prevChildRef = currChildRef;
+        ++childRefsIndex;
+    }
+    childRefs.pop_back(); // Remove the "none" on the end.
+
+    // Emit self entry.
+    SkPDFDict entry;
+    if (!structElem->fTitle.isEmpty()) {
+        entry.insertTextString("Title", structElem->fTitle);
+    } else if (!structElem->fAlt.isEmpty()) {
+        entry.insertTextString("Title", structElem->fAlt);
+    } else {
+        entry.insertTextString("Title", structElem->fStructType);
+    }
+
+    // The uppermost/leftmost point on the earliest page of this structure element's marks.
+    Location structElemLocation;
+    for (auto&& mark : structElem->fMarkedContent) {
+        structElemLocation.accumulate(mark.fLocation);
+    }
+    if (structElemLocation.fPoint.isFinite()) {
+        auto destination = SkPDFMakeArray();
+        destination->appendRef(doc->getPage(structElemLocation.fPageIndex));
+        destination->appendName("XYZ");
+        destination->appendScalar(structElemLocation.fPoint.x());
+        destination->appendScalar(structElemLocation.fPoint.y());
+        destination->appendInt(0);
+        entry.insertObject("Dest", std::move(destination));
+
+        self.fLocation.accumulate(structElemLocation);
+    } else if (self.fLocation.fPoint.isFinite()) {
+        // The uppermost/leftmost point on the earliest page of any child.
+        auto destination = SkPDFMakeArray();
+        destination->appendRef(doc->getPage(self.fLocation.fPageIndex));
+        destination->appendName("XYZ");
+        destination->appendScalar(self.fLocation.fPoint.x());
+        destination->appendScalar(self.fLocation.fPoint.y());
+        destination->appendInt(0);
+        entry.insertObject("Dest", std::move(destination));
+    }
+    if (structElem->fRef) {
+        entry.insertRef("SE", structElem->fRef);
+    }
+    entry.insertRef("Parent", parentRef);
+    if (prevSiblingRef) {
+        entry.insertRef("Prev", prevSiblingRef);
+    }
+    if (nextSiblingRef) {
+        entry.insertRef("Next", nextSiblingRef);
+    }
+    if (!childRefs.empty()) {
+        entry.insertRef("First", childRefs.front());
+        entry.insertRef("Last", childRefs.back());
+        entry.insertInt("Count", self.fDescendantCount);
+    }
+    doc->emit(entry, selfRef);
+    ++self.fDescendantCount;
+    return self;
+}
+} // namespace
+} // namespace structelem_outline
 
 SkPDFIndirectReference SkPDFStructTree::makeOutline(SkPDFDocument* doc) const {
-    if (!fRoot || !fRoot->fUsed ||
-        fOutline != SkPDF::Metadata::Outline::StructureElementHeaders)
-    {
+    if (!fRoot || !fRoot->fUsed || fOutline == SkPDF::Metadata::Outline::None) {
         return SkPDFIndirectReference();
     }
 
     SkPDFIndirectReference outlineRef = doc->reserveRef();
-    STArray<7, OutlineEntry*> stack;
-    OutlineEntry top{{SkString(), Location()}, 0, outlineRef, {}};
-    stack.push_back(&top);
-    create_outline_from_headers(doc, fRoot, stack);
-    if (top.fChildren.empty()) {
-        return SkPDFIndirectReference();
-    }
-    top.emitDescendents(doc);
     SkPDFDict outline("Outlines");
-    outline.insertRef("First", top.fChildren.front().fRef);
-    outline.insertRef("Last", top.fChildren.back().fRef);
-    outline.insertInt("Count", top.fDescendentsEmitted);
+    if (fOutline == SkPDF::Metadata::Outline::StructureElements) {
+        SkPDFIndirectReference entryRef = doc->reserveRef();
+        SkPDFIndirectReference none;
+        structelem_outline::Entry entry = structelem_outline::emit(doc, fRoot, outlineRef,
+                                                                   none, entryRef, none);
+        outline.insertRef("First", entryRef);
+        outline.insertRef("Last", entryRef);
+        outline.insertInt("Count", entry.fDescendantCount);
+    } else {
+        STArray<7, header_outline::Entry*> stack;
+        header_outline::Entry top{{SkString(), Location()}, 0, outlineRef, {}};
+        stack.push_back(&top);
+        header_outline::make(doc, fRoot, stack);
+        if (top.fChildren.empty()) {
+            return SkPDFIndirectReference();
+        }
+        top.emitDescendents(doc);
+        outline.insertRef("First", top.fChildren.front().fRef);
+        outline.insertRef("Last", top.fChildren.back().fRef);
+        outline.insertInt("Count", top.fDescendentsEmitted);
+    }
 
     return doc->emit(outline, outlineRef);
 }

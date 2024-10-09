@@ -31,24 +31,13 @@
 
 using PDFTag = SkPDF::StructureElementNode;
 
-// Test building a tagged PDF.
-// Add this to args.gn to output the PDF to a file:
-//   extra_cflags = [ "-DSK_PDF_TEST_TAGS_OUTPUT_PATH=\"/tmp/foo.pdf\"" ]
-DEF_TEST(SkPDF_tagged_doc, r) {
-    REQUIRE_PDF_DOCUMENT(SkPDF_tagged_doc, r);
-
-#ifdef SK_PDF_TEST_TAGS_OUTPUT_PATH
-    SkFILEWStream outputStream(SK_PDF_TEST_TAGS_OUTPUT_PATH);
-#else
-    SkDynamicMemoryWStream outputStream;
-#endif
-
+static void write_structured_document(SkWStream& outputStream, SkPDF::Metadata::Outline outline) {
     SkSize pageSize = SkSize::Make(612, 792);  // U.S. Letter
 
     SkPDF::Metadata metadata;
     metadata.fTitle = "Example Tagged PDF";
     metadata.fCreator = "Skia";
-    metadata.fOutline = SkPDF::Metadata::Outline::StructureElementHeaders;
+    metadata.fOutline = outline;
     SkPDF::DateTime now;
     SkPDFUtils::GetDateTime(&now);
     metadata.fCreation = now;
@@ -121,16 +110,13 @@ DEF_TEST(SkPDF_tagged_doc, r) {
     root->fChildVector.push_back(std::move(img));
 
     metadata.fStructureElementTreeRoot = root.get();
-    sk_sp<SkDocument> document = SkPDF::MakeDocument(
-        &outputStream, metadata);
+    sk_sp<SkDocument> document = SkPDF::MakeDocument(&outputStream, metadata);
 
     SkPaint paint;
     paint.setColor(SK_ColorBLACK);
 
     // First page.
-    SkCanvas* canvas =
-            document->beginPage(pageSize.width(),
-                                pageSize.height());
+    SkCanvas* canvas = document->beginPage(pageSize.width(), pageSize.height());
     SkPDF::SetNodeId(canvas, 2);
     SkFont font(ToolUtils::DefaultTypeface(), 36);
     const char* message = "This is the title";
@@ -172,8 +158,7 @@ DEF_TEST(SkPDF_tagged_doc, r) {
     document->endPage();
 
     // Second page.
-    canvas = document->beginPage(pageSize.width(),
-                                 pageSize.height());
+    canvas = document->beginPage(pageSize.width(), pageSize.height());
     SkPaint bgPaint;
     bgPaint.setColor(SK_ColorLTGRAY);
     SkPDF::SetNodeId(canvas, SkPDF::NodeID::BackgroundArtifact);
@@ -203,5 +188,30 @@ DEF_TEST(SkPDF_tagged_doc, r) {
     document->close();
 
     outputStream.flush();
+}
+
+// Test building a tagged PDF.
+// Add this to args.gn to output the PDF to a file:
+//   extra_cflags = [ "-DSK_PDF_TEST_HEADER_OUTLINE_PATH=\"/tmp/foo.pdf\"" ]
+DEF_TEST(SkPDF_structelem_header_outline_doc, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_structelem_header_outline_doc, r);
+#ifdef SK_PDF_TEST_HEADER_OUTLINE_PATH
+    SkFILEWStream outputStream(SK_PDF_TEST_HEADER_OUTLINE_PATH);
+#else
+    SkDynamicMemoryWStream outputStream;
+#endif
+
+    write_structured_document(outputStream, SkPDF::Metadata::Outline::StructureElementHeaders);
+}
+
+DEF_TEST(SkPDF_structelem_outline_doc, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_structelem_outline_doc, r);
+#ifdef SK_PDF_TEST_STRUCTELEM_OUTLINE_PATH
+    SkFILEWStream outputStream(SK_PDF_TEST_STRUCTELEM_OUTLINE_PATH);
+#else
+    SkDynamicMemoryWStream outputStream;
+#endif
+
+    write_structured_document(outputStream, SkPDF::Metadata::Outline::StructureElements);
 }
 #endif
