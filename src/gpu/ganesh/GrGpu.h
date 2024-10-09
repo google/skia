@@ -412,7 +412,10 @@ public:
     // Called before render tasks are executed during a flush.
     virtual void willExecute() {}
 
-    bool submitToGpu(GrSyncCpu sync);
+    bool submitToGpu() {
+        return this->submitToGpu(GrSubmitInfo());
+    }
+    bool submitToGpu(const GrSubmitInfo& info);
 
     virtual void submit(GrOpsRenderPass*) = 0;
 
@@ -843,7 +846,7 @@ private:
             SkSurfaces::BackendSurfaceAccess access,
             const skgpu::MutableTextureState* newState) {}
 
-    virtual bool onSubmitToGpu(GrSyncCpu sync) = 0;
+    virtual bool onSubmitToGpu(const GrSubmitInfo& info) = 0;
 
     void reportSubmitHistograms();
     virtual void onReportSubmitHistograms() {}

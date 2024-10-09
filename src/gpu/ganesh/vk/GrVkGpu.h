@@ -380,7 +380,7 @@ private:
             SkSurfaces::BackendSurfaceAccess access,
             const skgpu::MutableTextureState* newState) override;
 
-    bool onSubmitToGpu(GrSyncCpu sync) override;
+    bool onSubmitToGpu(const GrSubmitInfo& info) override;
 
     void onReportSubmitHistograms() override;
 

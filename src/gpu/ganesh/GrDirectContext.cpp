@@ -445,7 +445,7 @@ GrSemaphoresSubmitted GrDirectContext::flush(const GrFlushInfo& info) {
             {}, SkSurfaces::BackendSurfaceAccess::kNoAccess, info, nullptr);
 }
 
-bool GrDirectContext::submit(GrSyncCpu sync) {
+bool GrDirectContext::submit(const GrSubmitInfo& info) {
     ASSERT_SINGLE_OWNER
     if (this->abandoned()) {
         return false;
@@ -455,7 +455,7 @@ bool GrDirectContext::submit(GrSyncCpu sync) {
         return false;
     }
 
-    return fGpu->submitToGpu(sync);
+    return fGpu->submitToGpu(info);
 }
 
 GrSemaphoresSubmitted GrDirectContext::flush(const sk_sp<const SkImage>& image,

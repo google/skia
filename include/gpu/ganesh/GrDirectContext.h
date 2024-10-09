@@ -482,7 +482,14 @@ public:
      * If sync flag is GrSyncCpu::kYes, this function will return once the gpu has finished with all
      * submitted work.
      */
-    bool submit(GrSyncCpu sync = GrSyncCpu::kNo);
+    bool submit(GrSyncCpu sync = GrSyncCpu::kNo) {
+        GrSubmitInfo info;
+        info.fSync = sync;
+
+        return this->submit(info);
+    }
+
+    bool submit(const GrSubmitInfo&);
 
     /**
      * Checks whether any asynchronous work is complete and if so calls related callbacks.

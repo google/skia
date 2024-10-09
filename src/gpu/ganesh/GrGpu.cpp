@@ -746,7 +746,7 @@ GrOpsRenderPass* GrGpu::getOpsRenderPass(
                                     colorInfo, stencilInfo, sampledProxies, renderPassXferBarriers);
 }
 
-bool GrGpu::submitToGpu(GrSyncCpu sync) {
+bool GrGpu::submitToGpu(const GrSubmitInfo& info) {
     this->stats()->incNumSubmitToGpus();
 
     if (auto manager = this->stagingBufferManager()) {
@@ -757,7 +757,7 @@ bool GrGpu::submitToGpu(GrSyncCpu sync) {
         uniformsBuffer->startSubmit(this);
     }
 
-    bool submitted = this->onSubmitToGpu(sync);
+    bool submitted = this->onSubmitToGpu(info);
 
     this->callSubmittedProcs(submitted);
 

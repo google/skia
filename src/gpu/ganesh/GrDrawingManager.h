@@ -46,7 +46,6 @@ class SkData;
 enum GrSurfaceOrigin : int;
 enum class GrColorType;
 enum class GrSemaphoresSubmitted : bool;
-enum class GrSyncCpu : bool;
 struct GrFlushInfo;
 struct GrMipLevel;
 struct SkIRect;
@@ -231,7 +230,7 @@ private:
     GrRenderTask* appendTask(sk_sp<GrRenderTask>);
     GrRenderTask* insertTaskBeforeLast(sk_sp<GrRenderTask>);
 
-    bool submitToGpu(GrSyncCpu sync);
+    bool submitToGpu();
 
     SkDEBUGCODE(void validate() const;)
 
