@@ -307,26 +307,7 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
                                  SkColorSpace::MakeSRGB());
 
     std::unique_ptr<RuntimeEffectDictionary> rtDict = std::make_unique<RuntimeEffectDictionary>();
-    KeyContext precompileKeyContext(recorder->priv().caps(),
-                                    dict,
-                                    rtDict.get(),
-                                    ci,
-                                    /* dstTexture= */ nullptr,
-                                    /* dstOffset= */ {0, 0});
-
-    auto dstTexInfo = recorder->priv().caps()->getDefaultSampledTextureInfo(kRGBA_8888_SkColorType,
-                                                                            skgpu::Mipmapped::kNo,
-                                                                            skgpu::Protected::kNo,
-                                                                            skgpu::Renderable::kNo);
-    // Use Budgeted::kYes to avoid immediately instantiating the TextureProxy. This test doesn't
-    // require full resources.
-    sk_sp<TextureProxy> fakeDstTexture = TextureProxy::Make(recorder->priv().caps(),
-                                                            recorder->priv().resourceProvider(),
-                                                            SkISize::Make(1, 1),
-                                                            dstTexInfo,
-                                                            "FuzzPrecompileFakeDstTexture",
-                                                            skgpu::Budgeted::kYes);
-    constexpr SkIPoint fakeDstOffset = SkIPoint::Make(0, 0);
+    KeyContext precompileKeyContext(recorder->priv().caps(), dict, rtDict.get(), ci);
 
     DrawTypeFlags kDrawType = DrawTypeFlags::kSimpleShape;
     SkPath path = make_path();
@@ -352,9 +333,6 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
                                            blender->asBlendMode(),
                                            coverage);
     }
-    bool needsDstSample = dstReadReq == DstReadRequirement::kTextureCopy ||
-                          dstReadReq == DstReadRequirement::kTextureSample;
-    sk_sp<TextureProxy> curDst = needsDstSample ? fakeDstTexture : nullptr;
 
     UniquePaintParamsID paintID = ExtractPaintData(recorder.get(),
                                                    &gatherer,
@@ -368,8 +346,6 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
                                                                dstReadReq,
                                                                /* skipColorXform= */ false),
                                                    {},
-                                                   curDst,
-                                                   fakeDstOffset,
                                                    ci);
 
     RenderPassDesc unusedRenderPassDesc;

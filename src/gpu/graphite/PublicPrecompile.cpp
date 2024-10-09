@@ -142,9 +142,7 @@ void Precompile(Context* context, const PaintOptions& options, DrawTypeFlags dra
                                          writeSwizzle);
 
             SkColorInfo ci(rpp.fDstCT, kPremul_SkAlphaType, nullptr);
-            KeyContext keyContext(caps, dict, rtEffectDict.get(), ci,
-                                  /* dstTexture= */ nullptr,
-                                  /* dstOffset= */ {0, 0});
+            KeyContext keyContext(caps, dict, rtEffectDict.get(), ci);
 
             for (Coverage coverage : { Coverage::kNone, Coverage::kSingleChannel }) {
                 PrecompileCombinations(

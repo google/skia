@@ -76,8 +76,6 @@ UniquePaintParamsID ExtractPaintData(Recorder*,
                                      const SkM44& local2Dev,
                                      const PaintParams&,
                                      const Geometry& geometry,
-                                     sk_sp<TextureProxy> dstTexture,
-                                     SkIPoint dstOffset,
                                      const SkColorInfo& targetColorInfo);
 
 // `viewport` should hold the actual viewport set as backend state (defining the NDC -> pixel

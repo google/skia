@@ -36,8 +36,6 @@ UniquePaintParamsID ExtractPaintData(Recorder* recorder,
                                      const SkM44& local2Dev,
                                      const PaintParams& p,
                                      const Geometry& geometry,
-                                     sk_sp<TextureProxy> dstTexture,
-                                     SkIPoint dstOffset,
                                      const SkColorInfo& targetColorInfo) {
     SkDEBUGCODE(builder->checkReset());
 
@@ -49,9 +47,7 @@ UniquePaintParamsID ExtractPaintData(Recorder* recorder,
                           geometry.isShape() || geometry.isEdgeAAQuad()
                                   ? KeyContext::OptimizeSampling::kYes
                                   : KeyContext::OptimizeSampling::kNo,
-                          p.color(),
-                          std::move(dstTexture),
-                          dstOffset);
+                          p.color());
     p.toKey(keyContext, builder, gatherer);
 
     return recorder->priv().shaderCodeDictionary()->findOrCreate(builder);

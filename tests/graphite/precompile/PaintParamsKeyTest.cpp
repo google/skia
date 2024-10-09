@@ -1962,28 +1962,10 @@ KeyContext create_key_context(Context* context, RuntimeEffectDictionary* rtDict)
 
     SkColorInfo destColorInfo = SkColorInfo(kRGBA_8888_SkColorType, kPremul_SkAlphaType,
                                             SkColorSpace::MakeSRGB());
-
-    auto dstTexInfo = context->priv().caps()->getDefaultSampledTextureInfo(
-            kRGBA_8888_SkColorType,
-            skgpu::Mipmapped::kNo,
-            skgpu::Protected::kNo,
-            skgpu::Renderable::kNo);
-    // Use Budgeted::kYes to avoid instantiating the proxy immediately; this test doesn't need
-    // a full resource.
-    sk_sp<TextureProxy> fakeDstTexture = TextureProxy::Make(context->priv().caps(),
-                                                            context->priv().resourceProvider(),
-                                                            SkISize::Make(1, 1),
-                                                            dstTexInfo,
-                                                            "PaintParamsKeyTestFakeDstTexture",
-                                                            skgpu::Budgeted::kYes);
-    constexpr SkIPoint kFakeDstOffset = SkIPoint::Make(0, 0);
-
     return KeyContext(context->priv().caps(),
                       dict,
                       rtDict,
-                      destColorInfo,
-                      fakeDstTexture,
-                      kFakeDstOffset);
+                      destColorInfo);
 }
 
 // This subtest compares the output of ExtractPaintData (applied to an SkPaint) and
@@ -2040,10 +2022,6 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
                                                blender->asBlendMode(),
                                                coverage);
         }
-        bool needsDstSample = dstReadReq == DstReadRequirement::kTextureCopy ||
-                              dstReadReq == DstReadRequirement::kTextureSample;
-        sk_sp<TextureProxy> curDst = needsDstSample ? precompileKeyContext.dstTexture()
-                                                    : nullptr;
 
         // In the normal API this modification happens in SkDevice::clipShader()
         // All clipShaders get wrapped in a CTMShader
@@ -2069,8 +2047,6 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
                                              dstReadReq,
                                              /* skipColorXform= */ false),
                                  {},
-                                 curDst,
-                                 precompileKeyContext.dstOffset(),
                                  precompileKeyContext.dstColorInfo());
 
         RenderPassDesc unusedRenderPassDesc;

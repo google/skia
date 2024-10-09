@@ -416,9 +416,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                          sk_sp<TextureProxy> target,
                                          const SkImageInfo& targetInfo,
                                          std::pair<LoadOp, StoreOp> ops,
-                                         std::array<float, 4> clearColor,
-                                         sk_sp<TextureProxy> dstCopy,
-                                         SkIPoint dstCopyOffset) {
+                                         std::array<float, 4> clearColor) {
     // NOTE: This assert is here to ensure SortKey is as tightly packed as possible. Any change to
     // its size should be done with care and good reason. The performance of sorting the keys is
     // heavily tied to the total size.
@@ -450,11 +448,6 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     DrawBufferManager* bufferMgr = recorder->priv().drawBufferManager();
     if (bufferMgr->hasMappingFailed()) {
         SKGPU_LOG_W("Buffer mapping has already failed; dropping draw pass!");
-        return nullptr;
-    }
-    // Ensure there's a destination copy if required
-    if (!draws->dstCopyBounds().isEmptyNegativeOrNaN() && !dstCopy) {
-        SKGPU_LOG_W("Failed to copy destination for reading. Dropping draw pass!");
         return nullptr;
     }
 
@@ -489,11 +482,6 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         TextureDataBlock paintTextures;
 
         if (draw.fPaintParams.has_value()) {
-            sk_sp<TextureProxy> curDst =
-                    draw.fPaintParams->dstReadRequirement() == DstReadRequirement::kTextureCopy
-                            ? dstCopy
-                            : nullptr;
-
             shaderID = ExtractPaintData(recorder,
                                         &gatherer,
                                         &builder,
@@ -501,8 +489,6 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                         draw.fDrawParams.transform(),
                                         draw.fPaintParams.value(),
                                         draw.fDrawParams.geometry(),
-                                        curDst,
-                                        dstCopyOffset,
                                         targetInfo.colorInfo());
 
             if (shaderID.isValid()) {

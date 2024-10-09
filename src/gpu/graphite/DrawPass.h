@@ -55,17 +55,13 @@ public:
     ~DrawPass();
 
     // Create a DrawPass that renders the DrawList into `target` with the given load/store ops and
-    // clear color. If the DrawList has draws that required a dst readback texture copy to sample
-    // from in the shader, it must be provided in `dstCopy` and a copy task must be executed before
-    // the DrawPass is executed.
+    // clear color.
     static std::unique_ptr<DrawPass> Make(Recorder*,
                                           std::unique_ptr<DrawList>,
                                           sk_sp<TextureProxy> target,
                                           const SkImageInfo& targetInfo,
                                           std::pair<LoadOp, StoreOp>,
-                                          std::array<float, 4> clearColor,
-                                          sk_sp<TextureProxy> dstCopy,
-                                          SkIPoint dstCopyOffset);
+                                          std::array<float, 4> clearColor);
 
     // Defined relative to the top-left corner of the surface the DrawPass renders to, and is
     // contained within its dimensions.

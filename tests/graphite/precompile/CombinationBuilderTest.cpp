@@ -603,12 +603,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context,
     auto rtEffectDict = std::make_unique<RuntimeEffectDictionary>();
 
     SkColorInfo ci(kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
-    KeyContext keyContext(context->priv().caps(),
-                          dict,
-                          rtEffectDict.get(),
-                          ci,
-                          /* dstTexture= */ nullptr,
-                          /* dstOffset= */ {0, 0});
+    KeyContext keyContext(context->priv().caps(), dict, rtEffectDict.get(), ci);
 
     PipelineDataGatherer gatherer(Layout::kMetal);
 

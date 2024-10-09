@@ -226,43 +226,18 @@ void DrawContext::flush(Recorder* recorder) {
     }
 
     // Convert the pending draws and load/store ops into a DrawPass that will be executed after
-    // the collected uploads and compute dispatches. If there's a dst readback copy required it
-    // inserts a CopyTextureToTexture task before the RenderPassTask.
+    // the collected uploads and compute dispatches. Save the bounds required for a dst copy to
+    // insert a copy task of sufficient size.
     // TODO: At this point, there's only ever one DrawPass in a RenderPassTask to a target. When
     // subpasses are implemented, they will either be collected alongside fPendingDraws or added
     // to the RenderPassTask separately.
-    // TODO(b/280802448): Once dstCopy and dstCopyPixelBounds do not need to be passed to DrawPass,
-    // this copy task logic can go after the pass has been completed successfully, with the creation
-    // of the RenderPassTask.
-    sk_sp<TextureProxy> dstCopy;
-    SkIRect dstCopyPixelBounds = SkIRect::MakeEmpty();
-    if (!fPendingDraws->dstCopyBounds().isEmptyNegativeOrNaN()) {
-        TRACE_EVENT_INSTANT0("skia.gpu", "DrawPass requires dst copy", TRACE_EVENT_SCOPE_THREAD);
-
-        dstCopyPixelBounds = fPendingDraws->dstCopyBounds().makeRoundOut().asSkIRect();
-
-        // TODO: Right now this assert is ensuring that the dstCopy will be texturable since it
-        // uses the same texture info as fTarget. Ideally, if fTarget were not texturable but
-        // still readable, we would perform a fallback to a compatible texturable info. We also
-        // should decide whether or not a copy-as-draw fallback is necessary here too. All of
-        // this is handled inside Image::Copy() except we would need it to expose the task in
-        // order to link it correctly.
-        SkASSERT(recorder->priv().caps()->isTexturable(fTarget->textureInfo()));
-        dstCopy = TextureProxy::Make(recorder->priv().caps(),
-                                     recorder->priv().resourceProvider(),
-                                     dstCopyPixelBounds.size(),
-                                     fTarget->textureInfo(),
-                                     "DstCopyTexture",
-                                     skgpu::Budgeted::kYes);
-    }
+    SkIRect dstCopyPixelBounds = fPendingDraws->dstCopyBounds().asSkIRect();
     std::unique_ptr<DrawPass> pass = DrawPass::Make(recorder,
                                                     std::move(fPendingDraws),
                                                     fTarget,
                                                     this->imageInfo(),
                                                     std::make_pair(fPendingLoadOp, fPendingStoreOp),
-                                                    fPendingClearColor,
-                                                    dstCopy,
-                                                    dstCopyPixelBounds.topLeft());
+                                                    fPendingClearColor);
     fPendingDraws = std::make_unique<DrawList>();
     // Now that there is content drawn to the target, that content must be loaded on any subsequent
     // render pass.
@@ -272,7 +247,26 @@ void DrawContext::flush(Recorder* recorder) {
     if (pass) {
         SkASSERT(fTarget.get() == pass->target());
 
-        if (dstCopy) {
+        sk_sp<TextureProxy> dstCopy;
+        if (!dstCopyPixelBounds.isEmpty()) {
+            TRACE_EVENT_INSTANT0("skia.gpu", "DrawPass requires dst copy",
+                                 TRACE_EVENT_SCOPE_THREAD);
+
+            // TODO: Right now this assert is ensuring that the dstCopy will be texturable since it
+            // uses the same texture info as fTarget. Ideally, if fTarget were not texturable but
+            // still readable, we would perform a fallback to a compatible texturable info. We also
+            // should decide whether or not a copy-as-draw fallback is necessary here too. All of
+            // this is handled inside Image::Copy() except we would need it to expose the task in
+            // order to link it correctly.
+            SkASSERT(recorder->priv().caps()->isTexturable(fTarget->textureInfo()));
+            dstCopy = TextureProxy::Make(recorder->priv().caps(),
+                                         recorder->priv().resourceProvider(),
+                                         dstCopyPixelBounds.size(),
+                                         fTarget->textureInfo(),
+                                         "DstCopyTexture",
+                                         skgpu::Budgeted::kYes);
+            SkASSERT(dstCopy);
+
             // Add the copy task to initialize dstCopy before the render pass task.
             fCurrentDrawTask->addTask(CopyTextureToTextureTask::Make(
                     fTarget, dstCopyPixelBounds, dstCopy, /*dstPoint=*/{0, 0}));
