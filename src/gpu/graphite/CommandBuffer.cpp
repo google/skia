@@ -38,6 +38,10 @@ void CommandBuffer::releaseResources() {
 void CommandBuffer::resetCommandBuffer() {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
+    // The dst copy texture and sampler are kept alive by the tracked resources, so reset these
+    // before we release their refs. Assuming we don't go idle and free lots of resources, we'll
+    // get the same cached sampler the next time we need a dst copy.
+    fDstCopy = {nullptr, nullptr};
     this->releaseResources();
     this->onResetCommandBuffer();
     fBuffersToAsyncMap.clear();
