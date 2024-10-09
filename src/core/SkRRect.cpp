@@ -639,8 +639,8 @@ bool SkRRectPriv::ReadFromBuffer(SkRBuffer* buffer, SkRRect* rr) {
 SkString SkRRect::dumpToString(bool asHex) const {
     SkScalarAsStringType asType = asHex ? kHex_SkScalarAsStringType : kDec_SkScalarAsStringType;
 
-    fRect.dump(asHex);
-    SkString line("const SkPoint corners[] = {\n");
+    SkString line = fRect.dumpToString(asHex);
+    line.appendf("\nconst SkPoint corners[] = {\n");
     for (int i = 0; i < 4; ++i) {
         SkString strX, strY;
         SkAppendScalar(&strX, fRadii[i].x(), asType);

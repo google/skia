@@ -149,7 +149,7 @@ static const char* set_scalar(SkString* storage, float value, SkScalarAsStringTy
     return storage->c_str();
 }
 
-void SkRect::dump(bool asHex) const {
+SkString SkRect::dumpToString(bool asHex) const {
     SkScalarAsStringType asType = asHex ? kHex_SkScalarAsStringType : kDec_SkScalarAsStringType;
 
     SkString line;
@@ -168,7 +168,11 @@ void SkRect::dump(bool asHex) const {
         line.printf("SkRect::MakeLTRB(%s, %s, %s, %s);",
                     strL.c_str(), strT.c_str(), strR.c_str(), strB.c_str());
     }
-    SkDebugf("%s\n", line.c_str());
+    return line;
+}
+
+void SkRect::dump(bool asHex) const {
+    SkDebugf("%s\n", this->dumpToString(asHex).c_str());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

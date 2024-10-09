@@ -21,6 +21,7 @@
 #include <cstring>
 
 struct SkRect;
+class SkString;
 
 /** \struct SkIRect
     SkIRect holds four 32-bit integer coordinates describing the upper and
@@ -1347,6 +1348,7 @@ public:
         example: https://fiddle.skia.org/c/@Rect_dump
     */
     void dump(bool asHex) const;
+    SkString dumpToString(bool asHex) const;
 
     /** Writes text representation of SkRect to standard output. The representation may be
         directly compiled as C++ code. Floating point values are written
