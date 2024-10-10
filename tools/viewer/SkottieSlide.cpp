@@ -545,13 +545,14 @@ void SkottieSlide::init() {
     fAnimationStats = builder.getStats();
     fTimeBase       = 0; // force a time reset
 
-    if (!fSlotManagerInterface) {
-        fSlotManagerInterface = std::make_unique<SlotManagerInterface>(builder.getSlotManager(), resource_provider);
-    }
-
-    fSlotManagerInterface->initializeSlotManagerUI();
-
     if (fAnimation) {
+        if (!fSlotManagerInterface) {
+            fSlotManagerInterface =
+                std::make_unique<SlotManagerInterface>(builder.getSlotManager(), resource_provider);
+        }
+
+        fSlotManagerInterface->initializeSlotManagerUI();
+
         fAnimation->seek(0);
         fFrameTimes.resize(SkScalarCeilToInt(fAnimation->duration() * fAnimation->fps()));
         SkDebugf("Loaded Bodymovin animation v: %s, size: [%f %f]\n",
