@@ -32,27 +32,29 @@ public:
     ~SkPDFStructTree();
 
     class Mark {
-        SkPDFStructElem *const fStructElem;
-        size_t const fMarkIndex;
+        SkPDFStructElem* fStructElem;
+        size_t fMarkIndex;
     public:
         Mark(SkPDFStructElem* structElem, size_t markIndex)
             : fStructElem(structElem), fMarkIndex(markIndex) {}
         Mark() : Mark(nullptr, 0) {}
-        Mark(const Mark&) = delete;
-        Mark& operator=(const Mark&) = delete;
+        Mark(const Mark&) = default;
+        Mark& operator=(const Mark&) = default;
         Mark(Mark&&) = default;
-        Mark& operator=(Mark&&) = delete;
+        Mark& operator=(Mark&&) = default;
 
         explicit operator bool() const { return fStructElem; }
-        int id();
-        SkPoint& point();
+        int mcid() const; // mcid < 0 means no active mark, if bool(this) always >= 0
+        int elemId() const; // 0 elemId means no active structure element
+        void accumulate(SkPoint); // only call when bool(this)
     };
+
     // Create a new marked-content identifier (MCID) to be used with a marked-content sequence
     // parented by the structure element (StructElem) with the given element identifier (elemId).
     // The StructTreeRoot::ParentTree[Page::StructParent][mcid] will refer to the structure element.
     // The structure element will add this MCID as its next child (in StructElem::K).
     // Returns a false Mark if if elemId does not refer to a StructElem.
-    SkPDFStructTree::Mark createMarkForElemId(int elemId, unsigned pageIndex, SkPoint);
+    SkPDFStructTree::Mark createMarkForElemId(int elemId, unsigned pageIndex);
 
     // Create a key to use with /StructParent in a content item (usually an annotation) which refers
     // to the structure element (StructElem) with the given element identifier (elemId).

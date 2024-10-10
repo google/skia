@@ -228,15 +228,20 @@ void SkPDFStructTree::move(SkPDF::StructureElementNode& node,
     structElem->fAttributeElemIds = std::move(node.fAttributes.fElemIds);
 }
 
-int SkPDFStructTree::Mark::id() {
+int SkPDFStructTree::Mark::elemId() const {
+    return fStructElem ? fStructElem->fElemId : 0;
+}
+
+int SkPDFStructTree::Mark::mcid() const {
     return fStructElem ? fStructElem->fMarkedContent[fMarkIndex].fMcid : -1;
 }
 
-SkPoint& SkPDFStructTree::Mark::point() {
-    return fStructElem->fMarkedContent[fMarkIndex].fLocation.fPoint;
+void SkPDFStructTree::Mark::accumulate(SkPoint point) {
+    Location& location = fStructElem->fMarkedContent[fMarkIndex].fLocation;
+    return location.accumulate({{point}, location.fPageIndex});
 }
 
-auto SkPDFStructTree::createMarkForElemId(int elemId, unsigned pageIndex, SkPoint point) -> Mark {
+auto SkPDFStructTree::createMarkForElemId(int elemId, unsigned pageIndex) -> Mark {
     if (!fRoot) {
         return Mark();
     }
@@ -256,7 +261,7 @@ auto SkPDFStructTree::createMarkForElemId(int elemId, unsigned pageIndex, SkPoin
     int mcid = structElemForMcid.size();
     SkASSERT(structElem->fMarkedContent.empty() ||
              structElem->fMarkedContent.back().fLocation.fPageIndex <= pageIndex);
-    structElem->fMarkedContent.push_back({{point, pageIndex}, mcid});
+    structElem->fMarkedContent.push_back({{{SK_ScalarNaN, SK_ScalarNaN}, pageIndex}, mcid});
     structElemForMcid.push_back(structElem);
     return Mark(structElem, structElem->fMarkedContent.size() - 1);
 }

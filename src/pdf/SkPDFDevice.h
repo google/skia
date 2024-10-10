@@ -19,6 +19,7 @@
 #include "src/core/SkTHash.h"
 #include "src/pdf/SkKeyedImage.h"
 #include "src/pdf/SkPDFGraphicStackState.h"
+#include "src/pdf/SkPDFTag.h"
 #include "src/pdf/SkPDFTypes.h"
 
 #include <cstddef>
@@ -138,7 +139,44 @@ private:
     skia_private::THashSet<SkPDFIndirectReference> fXObjectResources;
     skia_private::THashSet<SkPDFIndirectReference> fShaderResources;
     skia_private::THashSet<SkPDFIndirectReference> fFontResources;
-    int fElemId;
+
+    class MarkedContentManager {
+    public:
+        MarkedContentManager(SkPDFDocument* document, SkDynamicMemoryWStream* out);
+        ~MarkedContentManager();
+
+        // Sets the current element identifier. Associate future draws with the structure element
+        // with the given element identifier. Element identifier 0 is reserved to mean no structure
+        // element.
+        void setNextMarksElemId(int nextMarksElemId);
+
+        // The current element identifier.
+        int elemId() const;
+
+        // Starts a marked-content sequence for a content item for the structure element with the
+        // current element identifier. If there is an active marked-content sequence associated with
+        // a different element identifier the active marked-content sequence will first be closed.
+        // If there is no structure element with the current element identifier then the
+        // marked-content sequence will not be started.
+        void beginMark();
+
+        // Tests if there is an active marked-content sequence.
+        bool hasActiveMark() const;
+
+        // Accumulates an upper left location for the active mark. The point is in PDF page space
+        // and so is y-up. Only use if this.hasActiveMark()
+        void accumulate(const SkPoint& p);
+
+        // Tests if this marked content manager made any marks.
+        bool madeMarks() const { return fMadeMarks; }
+
+    private:
+        SkPDFDocument* fDoc;
+        SkDynamicMemoryWStream* fOut;
+        SkPDFStructTree::Mark fCurrentlyActiveMark;
+        int fNextMarksElemId;
+        bool fMadeMarks;
+    } fMarkManager;
 
     SkDynamicMemoryWStream fContent;
     SkDynamicMemoryWStream fContentBuffer;

@@ -551,13 +551,13 @@ const SkMatrix& SkPDFDocument::currentPageTransform() const {
     return fPageDevice->initialTransform();
 }
 
-SkPDFStructTree::Mark SkPDFDocument::createMarkForElemId(int elemId, SkPoint p) {
+SkPDFStructTree::Mark SkPDFDocument::createMarkForElemId(int elemId) {
     // If the mark isn't on a page (like when emitting a Type3 glyph)
     // return a temporary mark not attached to the page or a structure element.
     if (!this->hasCurrentPage()) {
         return SkPDFStructTree::Mark();
     }
-    return fStructTree.createMarkForElemId(elemId, SkToUInt(this->currentPageIndex()), p);
+    return fStructTree.createMarkForElemId(elemId, SkToUInt(this->currentPageIndex()));
 }
 
 void SkPDFDocument::addStructElemTitle(int elemId, SkSpan<const char> title) {
