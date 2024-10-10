@@ -69,6 +69,12 @@ private:
     // `onIncrementalDecode`.
     Result incrementalDecode(DecodingState& decodingState, int* rowsDecoded);
 
+    // Helper for seeking to the start of image data for the given frame.
+    Result seekToStartOfFrame(size_t index);
+
+    // Helper for reading until the start of the next `fdAT` sequence.
+    Result readToStartOfNextFrame();
+
     // SkCodec overrides:
     Result onGetPixels(const SkImageInfo& dstInfo,
                        void* pixels,
@@ -91,6 +97,9 @@ private:
     std::optional<SkSpan<const uint8_t>> onTryGetTrnsChunk() override;
 
     rust::Box<rust_png::Reader> fReader;
+
+    // `-1` means that `IDAT` is not part of animation and wasn't skipped yet.
+    int fFrameAtCurrentStreamPosition = -1;
     const std::unique_ptr<SkStream> fPrivStream;
 
     std::optional<DecodingState> fIncrementalDecodingState;
@@ -109,6 +118,7 @@ private:
 
         void appendNewFrame(const rust_png::Reader& reader, const SkEncodedInfo& info);
         void markFrameAsFullyReceived(size_t index);
+        bool isLastFrameFullyReceived() const;
         bool getFrameInfo(int index, FrameInfo* info) const;
 
     private:

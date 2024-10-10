@@ -150,18 +150,18 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> CreateColorProfile(const rust_png::Re
 }
 
 SkEncodedInfo CreateEncodedInfo(const rust_png::Reader& reader) {
-    rust_png::ColorType rust_color = reader.output_color_type();
-    SkEncodedInfo::Color sk_color = ToColor(rust_color);
+    rust_png::ColorType rustColor = reader.output_color_type();
+    SkEncodedInfo::Color skColor = ToColor(rustColor);
 
     std::unique_ptr<SkEncodedInfo::ICCProfile> profile = CreateColorProfile(reader);
-    if (!SkPngCodecBase::isCompatibleColorProfileAndType(profile.get(), sk_color)) {
+    if (!SkPngCodecBase::isCompatibleColorProfileAndType(profile.get(), skColor)) {
         profile = nullptr;
     }
 
     return SkEncodedInfo::Make(reader.width(),
                                reader.height(),
-                               sk_color,
-                               ToAlpha(rust_color),
+                               skColor,
+                               ToAlpha(rustColor),
                                reader.output_bits_per_component(),
                                std::move(profile));
 }
@@ -251,36 +251,84 @@ SkPngRustCodec::SkPngRustCodec(SkEncodedInfo&& encodedInfo,
         , fPrivStream(std::move(stream))
         , fFrameHolder(encodedInfo.width(), encodedInfo.height()) {
     SkASSERT(fPrivStream);
-    fFrameHolder.appendNewFrame(*fReader, this->getEncodedInfo());
+
+    bool idatIsNotPartOfAnimation = fReader->has_actl_chunk() && !fReader->has_fctl_chunk();
+    fFrameAtCurrentStreamPosition = idatIsNotPartOfAnimation ? -1 : 0;
+    if (!idatIsNotPartOfAnimation) {
+        fFrameHolder.appendNewFrame(*fReader, this->getEncodedInfo());
+    }
 }
 
 SkPngRustCodec::~SkPngRustCodec() = default;
+
+SkCodec::Result SkPngRustCodec::readToStartOfNextFrame() {
+    Result result = ToSkCodecResult(fReader->next_frame_info());
+    if (result == kSuccess) {
+        fFrameAtCurrentStreamPosition++;
+        if (fFrameAtCurrentStreamPosition == fFrameHolder.size()) {
+            fFrameHolder.appendNewFrame(*fReader, this->getEncodedInfo());
+        }
+    }
+    return result;
+}
+
+SkCodec::Result SkPngRustCodec::seekToStartOfFrame(size_t index) {
+    if (index < 0 || index >= fFrameHolder.size()) {
+        return kInvalidParameters;
+    }
+
+    // TODO(https://crbug.com/371060427): Improve runtime performance by seeking
+    // directly to the right offset in the stream, rather than calling `rewind`
+    // here and moving one-frame-at-a-time via `readToStartOfNextFrame` below.
+    if (index < fFrameAtCurrentStreamPosition) {
+        if (!fPrivStream->rewind()) {
+            return kCouldNotRewind;
+        }
+
+        auto readTraitAdapter = std::make_unique<ReadTraitAdapterForSkStream>(fPrivStream.get());
+        rust::Box<rust_png::ResultOfReader> resultOfReader =
+                rust_png::new_reader(std::move(readTraitAdapter));
+
+        // `SkPngRustCodec` constructor must have run before, and the
+        // constructor got a successfully created reader - we therefore also
+        // expect success here.
+        SkASSERT(kSuccess == ToSkCodecResult(resultOfReader->err()));
+        fReader = resultOfReader->unwrap();
+
+        bool idatIsNotPartOfAnimation = fReader->has_actl_chunk() && !fReader->has_fctl_chunk();
+        fFrameAtCurrentStreamPosition = idatIsNotPartOfAnimation ? -1 : 0;
+    }
+    while (fFrameAtCurrentStreamPosition < index) {
+        Result result = this->readToStartOfNextFrame();
+        if (result != kSuccess) {
+            return result;
+        }
+    }
+
+    return kSuccess;
+}
 
 SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
                                               void* pixels,
                                               size_t rowBytes,
                                               const Options& options,
                                               DecodingState* decodingState) {
-    if (options.fFrameIndex < 0 || options.fFrameIndex >= fFrameHolder.size()) {
-        return kInvalidParameters;
+    Result result = this->seekToStartOfFrame(options.fFrameIndex);
+    if (result != kSuccess) {
+        return result;
     }
-    if (options.fFrameIndex != (fFrameHolder.size() - 1)) {
-        // Currently `fFrameHolder.size()` is always `1`, so this is unreachable.
-        //
-        // TODO(https://crbug.com/356922876): Support rewinding and/or seeking
-        // to earlier frames.  See also
-        // https://github.com/image-rs/image-png/issues/510
-        SkUNREACHABLE;
-    }
-    const SkFrame* frame = fFrameHolder.getFrame(options.fFrameIndex);
 
-    // TODO(https://crbug.com/362830091): Consider handling `fSubset` (if not
-    // for `onGetPixels` then at least for `onStartIncrementalDecode`).
+    // `options.fFrameIndex` is validated by `seekToStartOfFrame` and therefore
+    // we can assert/guarantee that we get a valid `frame` from `fFrameHolder`.
+    const SkFrame* frame = fFrameHolder.getFrame(options.fFrameIndex);
+    SkASSERT(frame);
+
+    // TODO(https://crbug.com/362830091): Consider handling `fSubset`.
     if (options.fSubset) {
         return kUnimplemented;
     }
 
-    Result result = this->initializeXforms(dstInfo, options, frame->width());
+    result = this->initializeXforms(dstInfo, options, frame->width());
     if (result != kSuccess) {
         return result;
     }
@@ -391,8 +439,20 @@ SkCodec::Result SkPngRustCodec::onIncrementalDecode(int* rowsDecoded) {
 }
 
 int SkPngRustCodec::onGetFrameCount() {
-    // TODO(https://crbug.com/356922876): If done decoding previous frames, then
-    // parse the next `fcTL` chunk and add the new frame info to `fFrameHolder`.
+    bool arePreviousFramesFullyDecoded =
+            !fIncrementalDecodingState.has_value() && fFrameHolder.isLastFrameFullyReceived();
+    if (arePreviousFramesFullyDecoded) {
+        bool areThereMoreFrames =
+                fReader->has_actl_chunk() && fReader->get_actl_num_frames() > fFrameHolder.size();
+        if (areThereMoreFrames) {
+            // Ignore the result - it's fine if we do nothing (e.g. leaving `fFrameHolder`
+            // unchanged) after recoverable errors (e.g. `kIncompleteInput`) or other errors (the
+            // latter allows to decode the initial, error-free frames).  See
+            // https://crbug.com/371592786 for additional notes.
+            std::ignore = this->readToStartOfNextFrame();
+        }
+    }
+
     return fFrameHolder.size();
 }
 
@@ -405,17 +465,17 @@ int SkPngRustCodec::onGetRepetitionCount() {
         return 0;
     }
 
-    uint32_t num_frames = fReader->get_actl_num_frames();
-    if (num_frames <= 1) {
+    uint32_t numFrames = fReader->get_actl_num_frames();
+    if (numFrames <= 1) {
         return 0;
     }
 
     // APNG spec says that "`num_plays` indicates the number of times that this
     // animation should play; if it is 0, the animation should play
     // indefinitely."
-    uint32_t num_plays = fReader->get_actl_num_plays();
+    uint32_t numPlays = fReader->get_actl_num_plays();
     constexpr unsigned int kMaxInt = static_cast<unsigned int>(std::numeric_limits<int>::max());
-    if ((num_plays == 0) || (num_plays > kMaxInt)) {
+    if ((numPlays == 0) || (numPlays > kMaxInt)) {
         return kRepetitionCountInfinite;
     }
 
@@ -423,7 +483,7 @@ int SkPngRustCodec::onGetRepetitionCount() {
     // that "This number does not include the first play through of each frame.
     // For example, a repetition count of 4 means that each frame is played 5
     // times and then the animation stops."
-    return num_plays - 1;
+    return numPlays - 1;
 }
 
 std::optional<SkSpan<const SkPngCodecBase::PaletteColorEntry>> SkPngRustCodec::onTryGetPlteChunk() {
@@ -499,6 +559,13 @@ void SkPngRustCodec::FrameHolder::markFrameAsFullyReceived(size_t index) {
     fFrames[index].markAsFullyReceived();
 }
 
+bool SkPngRustCodec::FrameHolder::isLastFrameFullyReceived() const {
+    if (fFrames.empty()) {
+        return true;
+    }
+    return fFrames.back().isFullyReceived();
+}
+
 bool SkPngRustCodec::FrameHolder::getFrameInfo(int index, FrameInfo* info) const {
     const SkFrame* frame = this->getFrame(index);
     if (frame && info) {
@@ -510,8 +577,6 @@ bool SkPngRustCodec::FrameHolder::getFrameInfo(int index, FrameInfo* info) const
 
 void SkPngRustCodec::FrameHolder::appendNewFrame(const rust_png::Reader& reader,
                                                  const SkEncodedInfo& info) {
-    // TODO(https://crbug.com/356922876): Populate additional frame info from
-    // `fcTL` chunks (e.g. frame duration, disposal method, etc.).
     int id = fFrames.size();
     fFrames.emplace_back(id, info.alpha());
     SkFrame& frame = fFrames.back();
@@ -521,11 +586,8 @@ void SkPngRustCodec::FrameHolder::appendNewFrame(const rust_png::Reader& reader,
         return;
     }
 
-    // Basic frame info can be populated without an `fcTL` chunk.
-    //
-    // TODO(https://crbug.com/356922876): Don't call `setAlphaAndRequiredFrame`
-    // if we still need to skip `IDAT` to get to the `fcTL` for the first
-    // animation frame.
+    SkASSERT(!reader.has_actl_chunk());
+    SkASSERT(id == 0);
     frame.setXYWH(0, 0, info.width(), info.height());
     this->setAlphaAndRequiredFrame(&frame);
 }
@@ -538,16 +600,16 @@ void SkPngRustCodec::FrameHolder::setLastFrameInfoFromCurrentFctlChunk(
 
     uint32_t width = 0;
     uint32_t height = 0;
-    uint32_t x_offset = 0;
-    uint32_t y_offset = 0;
-    auto dispose_op = rust_png::DisposeOp::None;
-    auto blend_op = rust_png::BlendOp::Source;
-    uint32_t duration_ms = 0;
-    reader.get_fctl_info(width, height, x_offset, y_offset, dispose_op, blend_op, duration_ms);
-    frame.setXYWH(x_offset, y_offset, width, height);
-    frame.setDisposalMethod(ToDisposalMethod(dispose_op));
-    frame.setBlend(ToBlend(blend_op));
-    frame.setDuration(duration_ms);
+    uint32_t xOffset = 0;
+    uint32_t yOffset = 0;
+    auto disposeOp = rust_png::DisposeOp::None;
+    auto blendOp = rust_png::BlendOp::Source;
+    uint32_t durationMs = 0;
+    reader.get_fctl_info(width, height, xOffset, yOffset, disposeOp, blendOp, durationMs);
+    frame.setXYWH(xOffset, yOffset, width, height);
+    frame.setDisposalMethod(ToDisposalMethod(disposeOp));
+    frame.setBlend(ToBlend(blendOp));
+    frame.setDuration(durationMs);
 
     this->setAlphaAndRequiredFrame(&frame);
 }

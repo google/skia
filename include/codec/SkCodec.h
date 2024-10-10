@@ -637,6 +637,12 @@ public:
      *  Return the number of frames in the image.
      *
      *  May require reading through the stream.
+     *
+     *  Note that some codecs may be initially unable to gather `FrameInfo` for
+     *  all frames.  For such codecs `getFrameCount` may  initially report a low
+     *  frame count - the count returned by `getFrameCount` will progressively
+     *  increment as the input stream is processed further (e.g. by decoding
+     *  known frames and/or calling `getFrameCount` again).
      */
     int getFrameCount() {
         return this->onGetFrameCount();

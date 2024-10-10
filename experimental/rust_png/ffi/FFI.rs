@@ -107,6 +107,7 @@ mod ffi {
         fn output_buffer_size(self: &Reader) -> usize;
         fn output_color_type(self: &Reader) -> ColorType;
         fn output_bits_per_component(self: &Reader) -> u8;
+        fn next_frame_info(self: &mut Reader) -> DecodingResult;
         unsafe fn next_interlaced_row<'a>(
             self: &'a mut Reader,
             row: &mut &'a [u8],
@@ -394,6 +395,10 @@ impl Reader {
 
     fn output_bits_per_component(&self) -> u8 {
         self.reader.output_color_type().1 as u8
+    }
+
+    fn next_frame_info(&mut self) -> ffi::DecodingResult {
+        self.reader.next_frame_info().as_ref().err().into()
     }
 
     /// Decodes the next row - see
