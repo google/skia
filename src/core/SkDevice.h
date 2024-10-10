@@ -275,7 +275,7 @@ public:
     // dedicated fast-paths for blurs on [r]rects and text).
     virtual bool useDrawCoverageMaskForMaskFilters() const { return false; }
 
-    // SkCanvas uses NoPixelsDevice when onCreateDevice fails; but then it needs to be able to
+    // SkCanvas uses NoPixelsDevice when createDevice fails; but then it needs to be able to
     // inspect a layer's device to know if calling drawDevice() later is allowed.
     virtual bool isNoPixelsDevice() const { return false; }
 
@@ -428,7 +428,7 @@ public:
 
     /**
      * The SkDevice passed will be an SkDevice which was returned by a call to
-     * onCreateDevice on this device with kNeverTile_TileExpectation.
+     * createDevice on this device with kNeverTile_TileExpectation.
      *
      * The default implementation calls snapSpecial() and drawSpecial() with the relative transform
      * from the input device to this device. The provided SkPaint cannot have a mask filter or

@@ -287,7 +287,7 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
     // By scaling the page at the device level, we will create bitmap layer
     // devices at the rasterized scale, not the 72dpi scale.  Bitmap layer
     // devices are created when saveLayer is called with an ImageFilter;  see
-    // SkPDFDevice::onCreateDevice().
+    // SkPDFDevice::createDevice().
     SkISize pageSize = (SkSize{width, height} * fRasterScale).toRound();
     SkMatrix initialTransform;
     // Skia uses the top left as the origin but PDF natively has the origin at the

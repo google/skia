@@ -1760,16 +1760,16 @@ void SkPDFDevice::drawDevice(SkDevice* device, const SkSamplingOptions& sampling
     SkASSERT(!paint.getImageFilter());
     SkASSERT(!paint.getMaskFilter());
 
-    // Check if the source device is really a bitmapdevice (because that's what we returned
-    // from createDevice (an image filter would go through drawSpecial, but createDevice uses
-    // a raster device to apply color filters, too).
+    // Check if SkPDFDevice::createDevice returned an SkBitmapDevice.
+    // SkPDFDevice::createDevice creates SkBitmapDevice for color filters.
+    // Image filters generally go through makeSpecial and drawSpecial.
     SkPixmap pmap;
     if (device->peekPixels(&pmap)) {
         this->SkClipStackDevice::drawDevice(device, sampling, paint);
         return;
     }
 
-    // our onCreateCompatibleDevice() always creates SkPDFDevice subclasses.
+    // Otherwise SkPDFDevice::createDevice() creates SkPDFDevice subclasses.
     SkPDFDevice* pdfDevice = static_cast<SkPDFDevice*>(device);
 
     if (pdfDevice->isContentEmpty()) {
