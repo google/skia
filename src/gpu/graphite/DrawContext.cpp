@@ -231,7 +231,7 @@ void DrawContext::flush(Recorder* recorder) {
     // TODO: At this point, there's only ever one DrawPass in a RenderPassTask to a target. When
     // subpasses are implemented, they will either be collected alongside fPendingDraws or added
     // to the RenderPassTask separately.
-    SkIRect dstCopyPixelBounds = fPendingDraws->dstCopyBounds().asSkIRect();
+    SkIRect dstCopyPixelBounds = fPendingDraws->dstCopyBounds().makeRoundOut().asSkIRect();
     std::unique_ptr<DrawPass> pass = DrawPass::Make(recorder,
                                                     std::move(fPendingDraws),
                                                     fTarget,
