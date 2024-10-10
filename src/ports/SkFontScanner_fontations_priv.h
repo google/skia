@@ -5,19 +5,13 @@
 * found in the LICENSE file.
 */
 
-#ifndef SKFONTSCANNER_FONTATIONS_H_
-#define SKFONTSCANNER_FONTATIONS_H_
+#ifndef SKFONTSCANNER_FONTATIONS_PRIV_H_
+#define SKFONTSCANNER_FONTATIONS_PRIV_H_
 
+#include "include/core/SkFontScanner.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkMutex.h"
-#include "include/private/base/SkTArray.h"
-#include "src/base/SkSharedMutex.h"
-#include "src/core/SkFontScanner.h"
-#include "src/core/SkGlyph.h"
-#include "src/core/SkScalerContext.h"
-#include "src/utils/SkCharToGlyphCache.h"
 
 struct SkAdvancedTypefaceMetrics;
 class SkFontDescriptor;
@@ -37,7 +31,10 @@ public:
                       SkFontStyle* style,
                       bool* isFixedPitch,
                       AxisDefinitions* axes) const override;
+    sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
+                                     const SkFontArguments& args) const override;
+    SkFourByteTag getFactoryId() const override;
 private:
 };
 
-#endif // SKFONTSCANNER_FONTATIONS_H_
+#endif // SKFONTSCANNER_FONTATIONS_PRIV_H_

@@ -213,6 +213,10 @@ protected:
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override;
     std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects& effects,
                                                            const SkDescriptor* desc) const override;
+    std::unique_ptr<SkScalerContext> onCreateScalerContextAsProxyTypeface(
+            const SkScalerContextEffects&,
+            const SkDescriptor*,
+            sk_sp<SkTypeface>) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
