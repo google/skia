@@ -89,17 +89,17 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers": {
 		Id:      "chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers",
-		Version: "14345dab231912ee9601136e96ca67a6e1f632e7",
+		Version: "d91597a82f881d473887b560a03a7edf2720b72c",
 		Path:    "third_party/externals/vulkan-headers",
 	},
 	"chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools": {
 		Id:      "chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools",
-		Version: "c9a5acda16dc2759457dc856b5d7df00ac5bf4a2",
+		Version: "eb9b6043be165f06c7ec78fadbb1ff773c5fc19c",
 		Path:    "third_party/externals/vulkan-tools",
 	},
 	"chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Utility-Libraries": {
 		Id:      "chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Utility-Libraries",
-		Version: "8c907ea21fe0147f791d79051b18e21bc8c4ede0",
+		Version: "bfd85956e1b4c1c79842ce857fc7fb15adb8a573",
 		Path:    "third_party/externals/vulkan-utility-libraries",
 	},
 	"chromium.googlesource.com/external/github.com/google/highway": {
@@ -144,7 +144,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/vulkan-deps": {
 		Id:      "chromium.googlesource.com/vulkan-deps",
-		Version: "73fd75175922012f21557239b7743a152ea7f1fd",
+		Version: "ab901eb0f984f064dee645111853be94f5594072",
 		Path:    "third_party/externals/vulkan-deps",
 	},
 	"chromium.googlesource.com/webm/libwebp": {
