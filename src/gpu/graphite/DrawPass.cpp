@@ -565,6 +565,11 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     UniformTracker geometryUniformTracker(useStorageBuffers);
     UniformTracker shadingUniformTracker(useStorageBuffers);
 
+    // TODO(b/372953722): Remove this forced binding command behavior once dst copies are always
+    // bound separately from the rest of the textures.
+    const bool rebindTexturesOnPipelineChange =
+            recorder->priv().caps()->getDstReadRequirement() == DstReadRequirement::kTextureCopy;
+
     for (const SortKey& key : keys) {
         const DrawList::Draw& draw = key.draw();
         const RenderStep& renderStep = key.renderStep();
@@ -576,8 +581,17 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         const bool shadingBindingChange = shadingUniformTracker.writeUniforms(
                 shadingUniformDataCache, bufferMgr, key.shadingUniformIndex());
 
+        // TODO(b/372953722): The Dawn and Vulkan CommandBuffer implementations currently append any
+        // dst copy to the texture bind group/descriptor set automatically when processing a
+        // BindTexturesAndSamplers call because they use a single group to contain all textures.
+        // However, from the DrawPass POV, we can run into the scenario where two pipelines have the
+        // same textures+samplers except one requires a dst-copy and the other does not. In this
+        // case we wouldn't necessarily insert a new command when the pipeline changed and then
+        // end up with layout validation errors.
         const bool textureBindingsChange = textureBindingTracker.setCurrentTextureBindings(
-                key.textureBindingIndex());
+                key.textureBindingIndex()) ||
+                (rebindTexturesOnPipelineChange && pipelineChange &&
+                 key.textureBindingIndex() != TextureBindingCache::kInvalidIndex);
         const SkIRect* newScissor        = draw.fDrawParams.clip().scissor() != lastScissor ?
                 &draw.fDrawParams.clip().scissor() : nullptr;
 
