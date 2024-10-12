@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_geom_Shape_DEFINED
 #define skgpu_graphite_geom_Shape_DEFINED
 
+#include "include/core/SkArc.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
@@ -32,7 +33,7 @@ namespace skgpu::graphite {
 class Shape {
 public:
     enum class Type : uint8_t {
-        kEmpty, kLine, kRect, kRRect, kPath
+        kEmpty, kLine, kRect, kRRect, kArc, kPath
     };
     inline static constexpr int kTypeCount = static_cast<int>(Type::kPath) + 1;
 
@@ -46,6 +47,7 @@ public:
     explicit Shape(const Rect& rect)        { this->setRect(rect);   }
     explicit Shape(const SkRect& rect)      { this->setRect(rect);   }
     explicit Shape(const SkRRect& rrect)    { this->setRRect(rrect); }
+    explicit Shape(const SkArc& arc)        { this->setArc(arc);     }
     explicit Shape(const SkPath& path)      { this->setPath(path);   }
 
     ~Shape() { this->reset(); }
@@ -64,6 +66,7 @@ public:
     bool isLine()  const { return fType == Type::kLine;  }
     bool isRect()  const { return fType == Type::kRect;  }
     bool isRRect() const { return fType == Type::kRRect; }
+    bool isArc()   const { return fType == Type::kArc;   }
     bool isPath()  const { return fType == Type::kPath;  }
 
     bool inverted() const {
@@ -108,6 +111,7 @@ public:
     skvx::float4   line()  const { SkASSERT(this->isLine());  return fRect.ltrb();     }
     const Rect&    rect()  const { SkASSERT(this->isRect());  return fRect;            }
     const SkRRect& rrect() const { SkASSERT(this->isRRect()); return fRRect;           }
+    const SkArc&   arc()   const { SkASSERT(this->isArc());   return fArc;             }
     const SkPath&  path()  const { SkASSERT(this->isPath());  return fPath;            }
 
     // Update the geometry stored in the Shape and update its associated type to match. This
@@ -135,6 +139,11 @@ public:
     void setRRect(const SkRRect& rrect) {
         this->setType(Type::kRRect);
         fRRect = rrect;
+        fInverted = false;
+    }
+    void setArc(const SkArc& arc) {
+        this->setType(Type::kArc);
+        fArc = arc;
         fInverted = false;
     }
     void setPath(const SkPath& path) {
@@ -189,6 +198,7 @@ private:
     union {
         Rect    fRect; // p0 = top-left, p1 = bot-right if type is kLine (may be unsorted)
         SkRRect fRRect;
+        SkArc   fArc;
         SkPath  fPath;
     };
 

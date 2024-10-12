@@ -890,6 +890,18 @@ void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
     }
 }
 
+void Device::drawArc(const SkArc& arc, const SkPaint& paint) {
+    // Simple fills with large sweeps are ovals. Culling these here simplifies the
+    // path processing in Shape.
+    if (paint.getStyle() == SkPaint::kFill_Style && !paint.getPathEffect() &&
+        SkScalarAbs(arc.sweepAngle()) >= 360.f) {
+        this->drawRRect(SkRRect::MakeOval(arc.oval()), paint);
+    } else {
+        this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(arc)),
+                           paint, SkStrokeRec(paint));
+    }
+}
+
 void Device::drawRRect(const SkRRect& rr, const SkPaint& paint) {
     Shape rrectToDraw;
     SkStrokeRec style(paint);

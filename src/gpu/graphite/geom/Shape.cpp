@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/geom/Shape.h"
 
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkDebug.h"
@@ -32,6 +33,7 @@ Shape& Shape::operator=(const Shape& shape) {
         case Type::kLine:  this->setLine(shape.p0(), shape.p1()); break;
         case Type::kRect:  this->setRect(shape.rect());           break;
         case Type::kRRect: this->setRRect(shape.rrect());         break;
+        case Type::kArc:   this->setArc(shape.arc());             break;
         case Type::kPath:  this->setPath(shape.path());           break;
     }
 
@@ -46,6 +48,12 @@ bool Shape::conservativeContains(const Rect& rect) const {
         case Type::kRect:  return fRect.contains(rect);
         case Type::kRRect: return fRRect.contains(rect.asSkRect());
         case Type::kPath:  return fPath.conservativelyContainsRect(rect.asSkRect());
+        case Type::kArc:   if (fArc.fType == SkArc::Type::kWedge) {
+                               SkPath arc = this->asPath();
+                               return arc.conservativelyContainsRect(rect.asSkRect());
+                           } else {
+                               return false;
+                           }
     }
     SkUNREACHABLE;
 }
@@ -57,6 +65,7 @@ bool Shape::conservativeContains(skvx::float2 point) const {
         case Type::kRect:  return fRect.contains(Rect::Point(point));
         case Type::kRRect: return SkRRectPriv::ContainsPoint(fRRect, {point.x(), point.y()});
         case Type::kPath:  return fPath.contains(point.x(), point.y());
+        case Type::kArc:   return false;
     }
     SkUNREACHABLE;
 }
@@ -65,6 +74,8 @@ bool Shape::convex(bool simpleFill) const {
     if (this->isPath()) {
         // SkPath.isConvex() really means "is this path convex were it to be closed".
         return (simpleFill || fPath.isLastContourClosed()) && fPath.isConvex();
+    } else if (this->isArc()) {
+        return SkPathPriv::DrawArcIsConvex(fArc.sweepAngle(), fArc.fType, simpleFill);
     } else {
         // Every other shape type is convex by construction.
         return true;
@@ -77,6 +88,7 @@ Rect Shape::bounds() const {
         case Type::kLine:  return fRect.makeSorted(); // sorting corners computes bbox of segment
         case Type::kRect:  return fRect; // assuming it's sorted
         case Type::kRRect: return fRRect.getBounds();
+        case Type::kArc:   return fArc.oval();
         case Type::kPath:  return fPath.getBounds();
     }
     SkUNREACHABLE;
@@ -87,6 +99,18 @@ SkPath Shape::asPath() const {
         return fPath;
     }
 
+    if (fType == Type::kArc) {
+        SkPath out;
+        // Filled ovals are already culled out so we assume no simple fills
+        SkPathPriv::CreateDrawArcPath(&out, fArc, /*isFillNoPathEffect=*/false);
+        // CreateDrawArcPath resets the output path and configures its fill
+        // type, so we just have to ensure invertedness is correct.
+        if (fInverted) {
+            out.toggleInverseFillType();
+        }
+        return out;
+    }
+
     SkPathBuilder builder(this->fillType());
     switch (fType) {
         case Type::kEmpty: /* do nothing */                            break;
@@ -94,7 +118,8 @@ SkPath Shape::asPath() const {
                                   .lineTo(fRect.right(), fRect.bot()); break;
         case Type::kRect:  builder.addRect(fRect.asSkRect());          break;
         case Type::kRRect: builder.addRRect(fRRect);                   break;
-        case Type::kPath:  SkUNREACHABLE;
+        case Type::kPath:
+        case Type::kArc:   SkUNREACHABLE;
     }
     return builder.detach();
 }
@@ -157,6 +182,10 @@ int Shape::keySize() const {
             static_assert(0 == SkRRect::kSizeInMemory % sizeof(uint32_t));
             count += SkRRect::kSizeInMemory / sizeof(uint32_t);
             break;
+        case Type::kArc:
+            static_assert(0 == sizeof(SkArc) % sizeof(uint32_t));
+            count += sizeof(SkArc) / sizeof(uint32_t);
+            break;
         case Type::kPath: {
             if (this->path().isVolatile()) {
                 return -1; // volatile, so won't be keyed
@@ -211,6 +240,14 @@ void Shape::writeKey(uint32_t* key, bool includeInverted) const {
             this->rrect().writeToMemory(key);
             key += SkRRect::kSizeInMemory / sizeof(uint32_t);
             break;
+        case Type::kArc: {
+            // Write dense floats first
+            memcpy(key, &fArc, sizeof(SkRect) + 2 * sizeof(float));
+            key += (sizeof(SkArc) / sizeof(uint32_t) - 1);
+            // Then write the final bool as an int, to make sure upper bits are set
+            *key++ = fArc.isWedge() ? 1 : 0;
+            break;
+        }
         case Type::kLine: {
             skvx::float4 line = this->line();
             memcpy(key, &line, sizeof(skvx::float4));

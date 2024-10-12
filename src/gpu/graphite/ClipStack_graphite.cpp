@@ -618,6 +618,7 @@ ClipStack::ClipState ClipStack::RawElement::clipType() const {
                    fLocalToDevice.type() == Transform::Type::kIdentity
                         ? ClipState::kDeviceRRect : ClipState::kComplex;
 
+        case Shape::Type::kArc:
         case Shape::Type::kLine:
             // These types should never become RawElements, but call them kComplex in release builds
             SkASSERT(false);
