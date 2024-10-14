@@ -58,14 +58,14 @@ def _JsonChecks(input_api, output_api):
     if is_json or is_metadata:
       try:
         input_api.json.load(open(affected_file_path, 'r'))
-      except ValueError:
-        failing_files.append(affected_file_path)
+      except ValueError as ve:
+        failing_files.append(f'{affected_file_path}\t\t{ve}')
 
   results = []
   if failing_files:
     results.append(
         output_api.PresubmitError(
-            'The following files contain invalid json:\n%s\n\n' %
+            'The following files contain invalid json:\n%s\n' %
                 '\n'.join(failing_files)))
   return results
 
