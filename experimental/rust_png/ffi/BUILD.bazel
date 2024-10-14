@@ -1,3 +1,5 @@
+load("@rules_rust//rust:defs.bzl", "rust_static_library")
+load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load(
     "//bazel:skia_rules.bzl",
     "skia_cc_library",
@@ -17,4 +19,30 @@ skia_filegroup(
 skia_cc_library(
     name = "ffi_cpp",
     hdrs = ["FFI.h"],
+    features = ["layering_check"],
+    visibility = [
+        "//experimental/rust_png:__subpackages__",
+    ],
+)
+
+rust_cxx_bridge(
+    name = "cxx_bridge",
+    src = "FFI.rs",
+    visibility = [
+        "//experimental/rust_png:__pkg__",
+    ],
+    deps = [":ffi_cpp"],
+)
+
+rust_static_library(
+    name = "ffi_rs",
+    srcs = [":rs_srcs"],
+    visibility = [
+        "//experimental/rust_png:__pkg__",
+    ],
+    deps = [
+        ":ffi_cpp",
+        "@cxx",
+        "@rust_png//:png",
+    ],
 )

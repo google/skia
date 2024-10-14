@@ -570,6 +570,9 @@ func GenTasks(cfg *Config) {
 			"skia/include/config", // There's a WORKSPACE.bazel in here
 			"skia/requirements.txt",
 			"skia/toolchain",
+			// TODO(kjlubick, lukasza) remove after rust's png crate is updated
+			// and we don't need the patches anymore
+			"skia/experimental/rust_png",
 			// Actually needed to build the task drivers
 			"skia/infra/bots/BUILD.bazel",
 			"skia/infra/bots/build_task_drivers.sh",

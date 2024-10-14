@@ -4,7 +4,6 @@ rust_binary(
     name = "cxxbridge",
     srcs = glob(["src/**/*.rs"]),
     data = ["src/gen/include/cxx.h"],
-    edition = "2018",
     deps = [
         "@cxxbridge_cmd_deps//:clap",
         "@cxxbridge_cmd_deps//:codespan-reporting",

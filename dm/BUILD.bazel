@@ -10,13 +10,12 @@ skia_cc_binary(
     name = "dm",
     testonly = True,
     srcs = [
-        "//tools/flags:common_flags_config",
-
         "DM.cpp",
         "DMJsonWriter.cpp",
         "DMJsonWriter.h",
         "DMSrcSink.cpp",
         "DMSrcSink.h",
+        "//tools/flags:common_flags_config",
     ],
     data = [
         "//resources",

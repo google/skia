@@ -310,17 +310,17 @@ crate_universe_dependencies()
 http_archive(
     name = "cxxbridge_cmd",
     build_file = "//bazel/external/cxxbridge_cmd:BUILD.bazel.skia",
-    sha256 = "b20c2a31fb5a2e2aeebced19e35d78a974301171391b39e36d5ebb00bea2aa93",
-    strip_prefix = "cxxbridge-cmd-1.0.94",
+    sha256 = "1e3d98437a33d422ba30975d549f754d50300404096f17f5037abce2d91e3cfa",
+    strip_prefix = "cxxbridge-cmd-1.0.128",
     type = "tar.gz",
     urls = gcs_mirror_url(
         ext = ".tar.gz",
-        sha256 = "b20c2a31fb5a2e2aeebced19e35d78a974301171391b39e36d5ebb00bea2aa93",
-        url = "https://crates.io/api/v1/crates/cxxbridge-cmd/1.0.94/download",
+        sha256 = "1e3d98437a33d422ba30975d549f754d50300404096f17f5037abce2d91e3cfa",
+        url = "https://crates.io/api/v1/crates/cxxbridge-cmd/1.0.128/download",
     ),
 )
 
-load("@rules_rust//crate_universe:defs.bzl", "crates_repository")
+load("@rules_rust//crate_universe:defs.bzl", "crate", "crates_repository")
 
 # This finds all the dependencies needed to build cxxbridge_cmd...
 crates_repository(
@@ -340,13 +340,13 @@ cxxbridge_cmd_deps()
 http_archive(
     name = "cxx",
     build_file = "//bazel/external/cxx:BUILD.bazel.skia",
-    sha256 = "f61f1b6389c3fe1c316bf8a4dccc90a38208354b330925bce1f74a6c4756eb93",
-    strip_prefix = "cxx-1.0.94",
+    sha256 = "54ccead7d199d584d139148b04b4a368d1ec7556a1d9ea2548febb1b9d49f9a4",
+    strip_prefix = "cxx-1.0.128",
     type = "tar.gz",
     urls = gcs_mirror_url(
         ext = ".tar.gz",
-        sha256 = "f61f1b6389c3fe1c316bf8a4dccc90a38208354b330925bce1f74a6c4756eb93",
-        url = "https://crates.io/api/v1/crates/cxx/1.0.94/download",
+        sha256 = "54ccead7d199d584d139148b04b4a368d1ec7556a1d9ea2548febb1b9d49f9a4",
+        url = "https://crates.io/api/v1/crates/cxx/1.0.128/download",
     ),
 )
 
@@ -391,6 +391,44 @@ crates_repository(
 load("@icu4x_deps//:defs.bzl", icu4x_deps = "crate_repositories")
 
 icu4x_deps()
+
+# The repository of third-party crates (currently just the `png` crate)
+# to support `//experimental/rust_png` code.
+crates_repository(
+    name = "rust_png",
+    annotations = {
+        "png": [crate.annotation(
+            patch_args = ["-p6"],
+            # Patches from https://crrev.com/c/5922033:
+            # New public API for `png` crate: `fn next_frame_info`.
+            #
+            # TODO(lukasza, kjlubick): Remove this whole annotation once a new
+            # version of `png` is released on crates.io (presumably including
+            # the already merged PRs).
+            patches = [
+                "@//experimental/rust_png/patches:0101-Add-test-coverage-for-PolledAfterEndOfImage-error.patch",
+                "@//experimental/rust_png/patches:0102-Add-test-showing-next_frame-after-next_row-is-tempor.patch",
+                "@//experimental/rust_png/patches:0103-Call-finish_decoding-after-last-next_row.patch",
+                "@//experimental/rust_png/patches:0104-Simplify-how-Reader-tracks-how-many-frames-remain-to.patch",
+                "@//experimental/rust_png/patches:0105-Fix-a-subset-of-issues-identified-by-cargo-clippy.patch",
+                "@//experimental/rust_png/patches:0106-Avoid-infinite-loop-when-retrying-after-earlier-fata.patch",
+                "@//experimental/rust_png/patches:0107-New-API-Reader.next_frame_control-for-advancing-to-t.patch",
+            ],
+        )],
+    },
+    cargo_lockfile = "//experimental/rust_png/ffi:Cargo.lock",
+    packages = {
+        "png": crate.spec(
+            # Note: for additional performance gains `features = ["unstable"]`
+            # can be enabled, but this requires the nightly, unstable `rustc`.
+            version = "0.17",
+        ),
+    },
+)
+
+load("@rust_png//:defs.bzl", rust_png_crates = "crate_repositories")
+
+rust_png_crates()
 
 # Skia uses crates from the vello repository that are under development and have not been published
 # to crates.io. Normally we could fetch them directly from the git mirror in the Cargo.lock file as

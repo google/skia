@@ -70,7 +70,7 @@ private:
     Result incrementalDecode(DecodingState& decodingState, int* rowsDecoded);
 
     // Helper for seeking to the start of image data for the given frame.
-    Result seekToStartOfFrame(size_t index);
+    Result seekToStartOfFrame(int index);
 
     // Helper for reading until the start of the next `fdAT` sequence.
     Result readToStartOfNextFrame();

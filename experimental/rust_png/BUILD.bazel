@@ -1,5 +1,6 @@
 load(
     "//bazel:skia_rules.bzl",
+    "skia_cc_library",
     "skia_filegroup",
 )
 
@@ -16,5 +17,22 @@ skia_filegroup(
         "SkPngRustDecoder.cpp",
         "impl/SkPngRustCodec.cpp",
         "impl/SkPngRustCodec.h",
+    ],
+)
+
+skia_cc_library(
+    name = "rust_png",
+    srcs = [":srcs"],
+    hdrs = [":hdrs"],
+    features = ["layering_check"],
+    deps = [
+        "//:core",
+        "//experimental/rust_png/ffi:cxx_bridge",
+        "//experimental/rust_png/ffi:ffi_cpp",
+        "//modules/skcms",
+        "//src/base",
+        "//src/codec:any_decoder",
+        "//src/codec:png_decode",
+        "@cxx//:core-lib",
     ],
 )

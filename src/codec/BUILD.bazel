@@ -52,6 +52,7 @@ skia_cc_library(
     features = ["layering_check"],
     local_defines = ["SK_DISABLE_LEGACY_INIT_DECODERS"],
     visibility = [
+        "//experimental/rust_png:__pkg__",
         "//src/encode:__pkg__",
         "//src/ports:__pkg__",
     ],
@@ -289,6 +290,7 @@ skia_cc_library(
         ":common_png_srcs",
     ],
     hdrs = [
+        "SkPngCodecBase.h",
         "//include/codec:any_codec_hdrs",
         "//include/codec:png_public_hdrs",
     ],

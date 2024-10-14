@@ -8,7 +8,6 @@ rust_library(
         "alloc",
         "std",
     ],
-    edition = "2018",
     proc_macro_deps = [
         "@cxx_deps//:cxxbridge-macro",
     ],
@@ -35,4 +34,10 @@ cc_library(
         },
     ),
     hdrs = ["include/cxx.h"],
+    visibility = ["//visibility:public"],
+
+    # Allow using the same include path as in Chromium:
+    # `#include "third_party/rust/cxx/v1/cxx.h"`.
+    strip_include_prefix = "include/",
+    include_prefix = "third_party/rust/cxx/v1/",
 )
