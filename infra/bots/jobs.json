@@ -26,12 +26,8 @@
     "cq_config": {}
   },
   {"name": "BazelBuild-viewer-release-linux_x64"},
-  {"name": "BazelTest-gm-cpu_gms-cpu_only_debug_rbe-linux_x64-NUC9i7QN_Debian11",
-    "cq_config": {}
-  },
-  {"name": "BazelTest-benchmark-cpu_8888_benchmark_test-linux_rbe-linux_x64-NUC9i7QN_Debian11",
-    "cq_config": {"experimental": true}
-  },
+  {"name": "BazelTest-gm-cpu_gms-cpu_only_debug_rbe-linux_x64-NUC9i7QN_Debian11"},
+  {"name": "BazelTest-benchmark-cpu_8888_benchmark_test-linux_rbe-linux_x64-NUC9i7QN_Debian11"},
   {"name": "BazelTest-cpu_tests-all_go_tests-linux_rbe-linux_x64"},
   {"name": "BazelTest-external_client-decode_everything-default-linux_x64"},
   {"name": "BazelTest-external_client-path_combiner-default-linux_x64"},
@@ -662,9 +658,7 @@
    "cq_config": {"location_regexes": ["modules/canvaskit/.*"]}
    },
   {"name": "Test-Debian11-Clang-NUC9i7QN-GPU-RTX3060-x86_64-Debug-All"},
-  {"name": "Test-Debian11-Clang-NUC9i7QN-GPU-RTX3060-x86_64-Debug-All-ASAN",
-   "cq_config": {}
-   },
+  {"name": "Test-Debian11-Clang-NUC9i7QN-GPU-RTX3060-x86_64-Debug-All-ASAN"},
   {"name": "Test-Debian11-Clang-NUC11TZi5-CPU-AVX2-x86_64-Release-All"},
   {"name": "Test-Debian11-Clang-NUC9i7QN-GPU-RTX3060-x86_64-Debug-All-DDL1"},
   {"name": "Test-Debian11-Clang-NUC9i7QN-GPU-RTX3060-x86_64-Debug-All-DDL1_Vulkan"},
