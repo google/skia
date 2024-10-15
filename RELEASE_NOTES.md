@@ -2,6 +2,16 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 131
+-------------
+  * `SkCanvas::SaveLayerRec` can optionally specify a tilemode to apply to backdrop
+    content when the new layer's effects would sample outside of the previous
+    layer's image.
+  * GrContextOptions::fSharpenMipmappedTextures has been restored. It is now enabled
+    by default but allows clients to disable this feature if desired.
+
+* * *
+
 Milestone 130
 -------------
   * Add version of `SkAndroidCodec::getGainmapAndroidCodec` which returns an `SkAndroidCodec` instead
