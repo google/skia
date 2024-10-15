@@ -69,6 +69,10 @@
   #define SK_CPU_LOONGARCH 1
 #endif
 
+#if defined(__powerpc__) || defined (__powerpc64__)
+  #define SK_CPU_PPC 1
+#endif
+
 /**
  *  SK_CPU_SSE_LEVEL
  *

@@ -27,7 +27,8 @@ struct SkImageInfo;
 struct skcms_TransferFunction;
 
 #if __has_cpp_attribute(clang::musttail) && !defined(__EMSCRIPTEN__) && !defined(SK_CPU_ARM32) && \
-        !defined(SK_CPU_LOONGARCH) && !(defined(_WIN32) && defined(SK_BUILD_FOR_ANDROID_FRAMEWORK))
+        !defined(SK_CPU_LOONGARCH) && !defined(SK_CPU_PPC) && \
+        !(defined(_WIN32) && defined(SK_BUILD_FOR_ANDROID_FRAMEWORK))
     // [[clang::musttail]] is disabled for the Android version of Skia running on Windows as it
     // causes crashes (This is probably related to http://crbug.com/1505442).
     #define SK_HAS_MUSTTAIL 1
