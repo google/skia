@@ -125,9 +125,9 @@ $pure half4 sk_color_space_transform(half4 halfColor,
     return halfColor;
 }
 
-$pure half4 sk_circular_rrect_clip(float4 rect,
-                                   float2 radiusPlusHalf,
-                                   half4 edgeSelect) {
+$pure half4 sk_circular_rrect_clip_legacy(float4 rect,
+                                          float2 radiusPlusHalf,
+                                          half4 edgeSelect) {
     float2 fragCoord = sk_FragCoord.xy;
 
     // Negative x indicates inverse fill
@@ -142,6 +142,30 @@ $pure half4 sk_circular_rrect_clip(float4 rect,
     float2 rectEdgeAlphas = rectEdgeDists.xy + rectEdgeDists.zw - 1;
 
     half alpha = half(circleCornerAlpha * rectEdgeAlphas.x * rectEdgeAlphas.y);
+    // Check for inverse fill
+    alpha = radiusPlusHalf.x < 0 ? (1-alpha) : alpha;
+
+    return half4(alpha);
+}
+
+$pure half4 sk_circular_rrect_clip(float4 rect,
+                                   float2 radiusPlusHalf,
+                                   half4 edgeSelect) {
+    float2 fragCoord = sk_FragCoord.xy;
+
+    // Negative x indicates inverse fill
+    float2 radius = float2(abs(radiusPlusHalf.x));
+    float2 dxy0 = edgeSelect.LT*((rect.LT + radius) - fragCoord);
+    float2 dxy1 = edgeSelect.RB*(fragCoord - (rect.RB - radius));
+    float2 dxy = max(max(dxy0, dxy1), 0.0);
+    // Use more complex length calculation to manage precision issues
+    half circleCornerAlpha = half(saturate(radius.x*(1.0 - length(dxy*radiusPlusHalf.y))));
+
+    half4 rectEdgeAlphas = saturate(half4(fragCoord - rect.LT, rect.RB - fragCoord));
+    rectEdgeAlphas = mix(rectEdgeAlphas, half4(1), edgeSelect);
+
+    half alpha = circleCornerAlpha * rectEdgeAlphas.x * rectEdgeAlphas.y *
+                 rectEdgeAlphas.z * rectEdgeAlphas.w;
     // Check for inverse fill
     alpha = radiusPlusHalf.x < 0 ? (1-alpha) : alpha;
 

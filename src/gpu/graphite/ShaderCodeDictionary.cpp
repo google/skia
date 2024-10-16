@@ -1595,7 +1595,11 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCircularRRectClip] = {
             /*name=*/"CircularRRectClip",
+#if defined(SK_USE_LEGACY_CLIP_GRAPHITE)
+            /*staticFn=*/"sk_circular_rrect_clip_legacy",
+#else
             /*staticFn=*/"sk_circular_rrect_clip",
+#endif
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "rect",           SkSLType::kFloat4 },
                            { "radiusPlusHalf", SkSLType::kFloat2 },
