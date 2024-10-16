@@ -94,6 +94,9 @@ protected:
             for (int i = 0; i < numPlanes; ++i) {
                 auto info = SkImageInfo::Make(dimensions[i], colorTypes[i], kPremul_SkAlphaType);
                 auto surf = SkSurfaces::RenderTarget(recorder, info, skgpu::Mipmapped::kYes);
+                if (!surf) {
+                    continue;
+                }
 
                 float matrix[20] {
                     1, 0, 0, 0, 0,
@@ -122,11 +125,15 @@ protected:
                                                              yuvaInfo,
                                                              planes,
                                                              /*imageColorSpace=*/nullptr);
-            auto dstRect = SkRect::MakeWH(yuvaImage->width() / 16.f, yuvaImage->height() / 16.f);
-            canvas->drawImageRect(yuvaImage.get(),
-                                  dstRect,
-                                  SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear));
-            canvas->translate(std::ceil(dstRect.width()), 0);
+            if (yuvaImage) {
+                auto dstRect = SkRect::MakeWH(yuvaImage->width() / 16.f,
+                                              yuvaImage->height() / 16.f);
+                canvas->drawImageRect(yuvaImage.get(),
+                                      dstRect,
+                                      SkSamplingOptions(SkFilterMode::kLinear,
+                                                        SkMipmapMode::kLinear));
+            }
+            canvas->translate(std::ceil(yuvaInfo.width()/16.f), 0);
         }
         return DrawResult::kOk;
     }
