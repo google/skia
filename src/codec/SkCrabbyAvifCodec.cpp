@@ -110,8 +110,22 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromStream(std::unique_ptr<SkStr
         color = SkEncodedInfo::kRGB_Color;
         alpha = SkEncodedInfo::kOpaque_Alpha;
     }
-    SkEncodedInfo info = SkEncodedInfo::Make(avifDecoder->image->width,
-                                             avifDecoder->image->height,
+    auto width = avifDecoder->image->width;
+    auto height = avifDecoder->image->height;
+    if (avifDecoder->image->transformFlags & crabbyavif::AVIF_TRANSFORM_CLAP) {
+        crabbyavif::avifCropRect rect;
+        if (crabbyavif::crabby_avifCropRectConvertCleanApertureBox(&rect,
+                                                                   &avifDecoder->image->clap,
+                                                                   width,
+                                                                   height,
+                                                                   avifDecoder->image->yuvFormat,
+                                                                   nullptr)) {
+            width = rect.width;
+            height = rect.height;
+        }
+    }
+    SkEncodedInfo info = SkEncodedInfo::Make(width,
+                                             height,
                                              color,
                                              alpha,
                                              bitsPerComponent,
@@ -231,8 +245,27 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
         }
     }
 
+    using AvifImagePtr =
+            std::unique_ptr<crabbyavif::avifImage, decltype(&crabbyavif::crabby_avifImageDestroy)>;
+    // cropped_image is a view into the underlying image. It can be safely deleted once the pixels
+    // are converted into RGB (or when it goes out of scope in one of the error paths).
+    AvifImagePtr cropped_image{nullptr, crabbyavif::crabby_avifImageDestroy};
+    crabbyavif::avifImage* image = fAvifDecoder->image;
+    if (image->transformFlags & crabbyavif::AVIF_TRANSFORM_CLAP) {
+        crabbyavif::avifCropRect rect;
+        if (crabbyavif::crabby_avifCropRectConvertCleanApertureBox(
+                    &rect, &image->clap, image->width, image->height, image->yuvFormat, nullptr)) {
+            cropped_image.reset(crabbyavif::crabby_avifImageCreateEmpty());
+            result = crabbyavif::crabby_avifImageSetViewRect(cropped_image.get(), image, &rect);
+            if (result != crabbyavif::AVIF_RESULT_OK) {
+                return kInvalidInput;
+            }
+            image = cropped_image.get();
+        }
+    }
+
     crabbyavif::avifRGBImage rgbImage;
-    crabbyavif::avifRGBImageSetDefaults(&rgbImage, fAvifDecoder->image);
+    crabbyavif::avifRGBImageSetDefaults(&rgbImage, image);
 
     switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
@@ -257,12 +290,12 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
     rgbImage.rowBytes = dstRowBytes;
     rgbImage.chromaUpsampling = crabbyavif::AVIF_CHROMA_UPSAMPLING_FASTEST;
 
-    result = crabbyavif::avifImageYUVToRGB(fAvifDecoder->image, &rgbImage);
+    result = crabbyavif::avifImageYUVToRGB(image, &rgbImage);
     if (result != crabbyavif::AVIF_RESULT_OK) {
         return kInvalidInput;
     }
 
-    *rowsDecoded = fAvifDecoder->image->height;
+    *rowsDecoded = image->height;
     return kSuccess;
 }
 
