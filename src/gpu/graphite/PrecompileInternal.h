@@ -20,7 +20,8 @@ struct RenderPassDesc;
 
 // Create the Pipelines specified by the paint options by combining the shading portion w/ the
 // specified 'drawTypes' and RenderPassDesc.
-void PrecompileCombinations(Context*,
+void PrecompileCombinations(const RendererProvider*,
+                            ResourceProvider*,
                             const PaintOptions&,
                             const KeyContext&,
                             DrawTypeFlags,
