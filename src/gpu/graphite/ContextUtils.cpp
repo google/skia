@@ -669,7 +669,7 @@ FragSkSLInfo BuildFragmentSkSL(const Caps* caps,
     result.fLabel += " + ";
     result.fLabel = step->name();
     result.fLabel += " + ";
-    result.fLabel += dict->idToString(paintID).c_str();
+    result.fLabel += shaderInfo.label();
 
     return result;
 }

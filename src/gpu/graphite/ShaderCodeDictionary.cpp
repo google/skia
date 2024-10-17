@@ -331,6 +331,7 @@ ShaderInfo::ShaderInfo(UniquePaintParamsID id,
     PaintParamsKey key = dict->lookup(id);
     SkASSERT(key.isValid()); // invalid keys should have been caught by invalid paint ID earlier
 
+    fLabel = key.toString(dict, /*includeData=*/false).c_str();
     fRootNodes = key.getRootNodes(dict, &fShaderNodeAlloc);
 
     // TODO(b/366220690): aggregateSnippetData() goes away entirely once the VulkanGraphicsPipeline
@@ -433,8 +434,18 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
     // The RenderStep should be performing shading since otherwise there's no need to generate a
     // fragment shader program at all.
     SkASSERT(step->performsShading());
+    // TODO(b/372912880): Release assert debugging for illegal instruction occurring in the wild.
+    SkASSERTF_RELEASE(step->performsShading(),
+                      "render step: %s, label: %s",
+                      step->name(),
+                      fLabel.c_str());
 
     // Extract the root nodes for clarity
+    // TODO(b/372912880): Release assert debugging for illegal instruction occurring in the wild.
+    SkASSERTF_RELEASE(fRootNodes.size() == 2 || fRootNodes.size() == 3,
+                      "root node size = %zu, label = %s",
+                      fRootNodes.size(),
+                      fLabel.c_str());
     const ShaderNode* const srcColorRoot = fRootNodes[0];
     const ShaderNode* const finalBlendRoot = fRootNodes[1];
     const ShaderNode* const clipRoot = fRootNodes.size() > 2 ? fRootNodes[2] : nullptr;
@@ -457,6 +468,14 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
         }
     }
     fDstReadRequirement = GetDstReadRequirement(caps, finalBlendMode, finalCoverage);
+    // TODO(b/372912880): Release assert debugging for illegal instruction occurring in the wild.
+    SkASSERTF_RELEASE(finalBlendMode.has_value() ||
+                      fDstReadRequirement != DstReadRequirement::kNone,
+                      "blend mode: %d, dst read: %d, coverage: %d, label = %s",
+                      finalBlendMode.has_value() ? (int)*finalBlendMode : -1,
+                      (int) fDstReadRequirement,
+                      (int) finalCoverage,
+                      fLabel.c_str());
 
     const bool hasStepUniforms = step->numUniforms() > 0 && step->coverage() != Coverage::kNone;
     const bool useStepStorageBuffer = useStorageBuffers && hasStepUniforms;
@@ -615,6 +634,13 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
         // Either direct HW blending or a dst-read w/o any extra coverage. In both cases we just
         // need to assign directly to sk_FragCoord and update the HW blend info to finalBlendMode.
         SkASSERT(finalBlendMode.has_value());
+        // TODO(b/372912880): Release assert debugging for illegal instruction occurring in the wild
+        SkASSERTF_RELEASE(finalBlendMode.has_value(),
+                          "blend mode: %d, dst read: %d, label = %s",
+                          finalBlendMode.has_value() ? (int)*finalBlendMode : -1,
+                          (int) fDstReadRequirement,
+                          fLabel.c_str());
+
         fBlendInfo = gBlendTable[static_cast<int>(*finalBlendMode)];
         SkSL::String::appendf(&mainBody, "sk_FragColor = %s;", args.fPriorStageOutput.c_str());
     } else {
@@ -677,6 +703,13 @@ std::string ShaderInfo::toSkSL(const Caps* caps,
             // Adjust the shader output(s) to incorporate the coverage so that HW blending produces
             // the correct output.
             // TODO: Determine whether draw is opaque and pass that to GetBlendFormula.
+            // TODO(b/372912880): Release assert debugging for illegal instruction
+            SkASSERTF_RELEASE(finalBlendMode.has_value(),
+                              "blend mode: %d, dst read: %d, coverage: %d, label = %s",
+                              finalBlendMode.has_value() ? (int)*finalBlendMode : -1,
+                              (int) fDstReadRequirement,
+                              (int) finalCoverage,
+                              fLabel.c_str());
             BlendFormula coverageBlendFormula = finalCoverage == Coverage::kLCD
                     ? skgpu::GetLCDBlendFormula(*finalBlendMode)
                     : skgpu::GetBlendFormula(

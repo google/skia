@@ -240,6 +240,8 @@ public:
                        bool* outHasGradientBuffer,
                        skia_private::TArray<SamplerDesc>* outDescs = nullptr);
 
+    const char* label() const { return fLabel.c_str(); }
+
 private:
     // Recursive method which traverses ShaderNodes in a depth-first manner to aggregate all
     // ShaderNode data (not owned by ShaderNode) into ShaderInfo's owned fData.
@@ -263,6 +265,8 @@ private:
     DstReadRequirement fDstReadRequirement;
 
     skia_private::TArray<uint32_t> fData;
+
+    std::string fLabel; // Cached output of PaintParamsKey::toString()
 };
 
 // ShaderCodeDictionary is a thread-safe dictionary of ShaderSnippets to code IDs for use with
