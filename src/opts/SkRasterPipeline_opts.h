@@ -943,22 +943,22 @@ namespace SK_OPTS_NS {
     SI F   abs_  (F v)          { return (F)__lasx_xvand_v((I32)v, (I32)(0-v));     }
     SI I32 abs_(I32 v)          { return max(v, -v);                     }
     SI F   rcp_approx(F v)      { return __lasx_xvfrecip_s(v);           }
-    SI F   rcp_precise (F v)    { F e = rcp_approx(v); return e * nmad(v, e, 2.0f); }
+    SI F   rcp_precise (F v)    { F e = rcp_approx(v); return e * nmad(v, e, F() + 2.0f); }
     SI F   rsqrt_approx (F v)   { return __lasx_xvfrsqrt_s(v);           }
     SI F    sqrt_(F v)          { return __lasx_xvfsqrt_s(v);            }
 
     SI U32 iround(F v) {
-        F t = F(0.5);
+        F t = F() + 0.5f;
         return __lasx_xvftintrz_w_s(v + t);
     }
 
     SI U32 round(F v) {
-        F t = F(0.5);
+        F t = F() + 0.5f;
         return __lasx_xvftintrz_w_s(v + t);
     }
 
     SI U32 round(F v, F scale) {
-        F t = F(0.5);
+        F t = F() + 0.5f;
         return __lasx_xvftintrz_w_s(mad(v, scale, t));
     }
 
@@ -993,8 +993,8 @@ namespace SK_OPTS_NS {
 
     template <typename T>
     SI V<T> gather(const T* p, U32 ix) {
-        return { p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
-                 p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]], };
+        return V<T>{ p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
+                     p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]], };
     }
 
     template <typename V, typename S>
@@ -1147,20 +1147,20 @@ namespace SK_OPTS_NS {
     SI F   abs_(F v)            { return (F)__lsx_vand_v((I32)v, (I32)(0-v));       }
     SI I32 abs_(I32 v)          { return max(v, -v);                     }
     SI F   rcp_approx (F v)     { return __lsx_vfrecip_s(v);             }
-    SI F   rcp_precise (F v)    { F e = rcp_approx(v); return e * nmad(v, e, 2.0f); }
+    SI F   rcp_precise (F v)    { F e = rcp_approx(v); return e * nmad(v, e, F() + 2.0f); }
     SI F   rsqrt_approx (F v)   { return __lsx_vfrsqrt_s(v);             }
     SI F    sqrt_(F v)          { return __lsx_vfsqrt_s (v);             }
 
     SI U32 iround(F v) {
-        F t = F(0.5);
+        F t = F() + 0.5f;
         return __lsx_vftintrz_w_s(v + t); }
 
     SI U32 round(F v) {
-        F t = F(0.5);
+        F t = F() + 0.5f;
         return __lsx_vftintrz_w_s(v + t); }
 
     SI U32 round(F v, F scale) {
-        F t = F(0.5);
+        F t = F() + 0.5f;
         return __lsx_vftintrz_w_s(mad(v, scale, t)); }
 
     SI U16 pack(U32 v) {
@@ -1196,15 +1196,15 @@ namespace SK_OPTS_NS {
 
     template <typename T>
     SI V<T> gather(const T* p, U32 ix) {
-        return {p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
+        return V<T>{p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
     }
     // Using 'int*' prevents data from passing through floating-point registers.
     SI F   gather(const int*    p, int ix0, int ix1, int ix2, int ix3) {
        F ret = {0.0};
-       ret = __lsx_vinsgr2vr_w(ret, p[ix0], 0);
-       ret = __lsx_vinsgr2vr_w(ret, p[ix1], 1);
-       ret = __lsx_vinsgr2vr_w(ret, p[ix2], 2);
-       ret = __lsx_vinsgr2vr_w(ret, p[ix3], 3);
+       ret = (F)__lsx_vinsgr2vr_w(ret, p[ix0], 0);
+       ret = (F)__lsx_vinsgr2vr_w(ret, p[ix1], 1);
+       ret = (F)__lsx_vinsgr2vr_w(ret, p[ix2], 2);
+       ret = (F)__lsx_vinsgr2vr_w(ret, p[ix3], 3);
        return ret;
     }
 
