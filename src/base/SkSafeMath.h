@@ -56,11 +56,11 @@ public:
         return add(x, alignment - 1) & ~(alignment - 1);
     }
 
-    template <typename T> T castTo(size_t value) {
-        if (!SkTFitsIn<T>(value)) {
+    template <typename TDst, typename TSrc> TDst castTo(TSrc value) {
+        if (!SkTFitsIn<TDst, TSrc>(value)) {
             fOK = false;
         }
-        return static_cast<T>(value);
+        return static_cast<TDst>(value);
     }
 
     // These saturate to their results
