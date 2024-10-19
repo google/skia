@@ -138,7 +138,7 @@ private:
     skia_private::THashSet<SkPDFIndirectReference> fXObjectResources;
     skia_private::THashSet<SkPDFIndirectReference> fShaderResources;
     skia_private::THashSet<SkPDFIndirectReference> fFontResources;
-    int fNodeId;
+    int fElemId;
 
     SkDynamicMemoryWStream fContent;
     SkDynamicMemoryWStream fContentBuffer;

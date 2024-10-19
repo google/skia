@@ -18,7 +18,7 @@
 class SkCanvas;
 class SkExecutor;
 class SkPDFArray;
-class SkPDFTagTree;
+class SkPDFStructTree;
 class SkWStream;
 
 #define SKPDF_STRING(X) SKPDF_STRING_IMPL(X)
@@ -46,10 +46,10 @@ public:
                            const std::vector<int>& nodeIds);
 
 private:
-    friend class ::SkPDFTagTree;
+    friend class ::SkPDFStructTree;
 
     std::unique_ptr<SkPDFArray> fAttrs;
-    std::vector<int> fNodeIds; // nodeIds referenced by fAttrs
+    std::vector<int> fElemIds; // element identifiers referenced by fAttrs
 };
 
 /** A node in a PDF structure tree, giving a semantic representation

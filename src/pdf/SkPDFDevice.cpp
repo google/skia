@@ -103,15 +103,15 @@ using namespace skia_private;
 
 namespace {
 
-// If nodeId is not zero, outputs the tags to begin a marked-content sequence
-// for the given node ID, and then closes those tags when this object goes
-// out of scope.
-class ScopedOutputMarkedContentTags {
+// If elemId can be resolved to a StructElem, outputs the start of a marked-content sequence with
+// the next MCID for the current page, setting the StructElem as the parent of this mark. When the
+// object goes out of scope the marked-content sequence is ended.
+class ScopedMarkedContent {
 public:
-    ScopedOutputMarkedContentTags(int nodeId, SkPoint point, SkPDFDocument* document,
-                                  SkDynamicMemoryWStream* out)
+    ScopedMarkedContent(int elemId, SkPoint point, SkPDFDocument* document,
+                        SkDynamicMemoryWStream* out)
         : fOut(out)
-        , fMark(nodeId ? document->createMarkIdForNodeId(nodeId, point) : SkPDFTagTree::Mark())
+        , fMark(elemId ? document->createMarkForElemId(elemId, point) : SkPDFStructTree::Mark())
     {
         if (fMark) {
             fOut->writeText("/P <</MCID ");
@@ -124,7 +124,7 @@ public:
 
     SkPoint& point() { return SkASSERT(fMark), fMark.point(); }
 
-    ~ScopedOutputMarkedContentTags() {
+    ~ScopedMarkedContent() {
         if (fMark) {
             fOut->writeText("EMC\n");
         }
@@ -132,7 +132,7 @@ public:
 
 private:
     SkDynamicMemoryWStream* fOut;
-    SkPDFTagTree::Mark fMark;
+    SkPDFStructTree::Mark fMark;
 };
 
 }  // namespace
@@ -356,7 +356,7 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc, const SkMatrix& t
         : SkClipStackDevice(SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()),
                             SkSurfaceProps())
         , fInitialTransform(transform)
-        , fNodeId(0)
+        , fElemId(0)
         , fDocument(doc) {
     SkASSERT(!pageSize.isEmpty());
 }
@@ -381,11 +381,11 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     SkMatrix pageXform = this->deviceToGlobal().asM33();
     pageXform.postConcat(fDocument->currentPageTransform());
     if (rect.isEmpty()) {
-        if (!strcmp(key, SkPDFGetNodeIdKey())) {
-            int nodeID;
-            if (value->size() != sizeof(nodeID)) { return; }
-            memcpy(&nodeID, value->data(), sizeof(nodeID));
-            fNodeId = nodeID;
+        if (!strcmp(key, SkPDFGetElemIdKey())) {
+            int elemId;
+            if (value->size() != sizeof(elemId)) { return; }
+            memcpy(&elemId, value->data(), sizeof(elemId));
+            fElemId = elemId;
             return;
         }
         if (!strcmp(SkAnnotationKeys::Define_Named_Dest_Key(), key)) {
@@ -416,7 +416,7 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
 
     if (linkType != SkPDFLink::Type::kNone) {
         std::unique_ptr<SkPDFLink> link = std::make_unique<SkPDFLink>(
-            linkType, value, transformedRect, fNodeId);
+            linkType, value, transformedRect, fElemId);
         fDocument->fCurrentPageLinks.push_back(std::move(link));
     }
 }
@@ -922,9 +922,9 @@ void SkPDFDevice::internalDrawGlyphRun(
     SkMatrix pageXform = this->deviceToGlobal().asM33();
     pageXform.postConcat(fDocument->currentPageTransform());
 
-    ScopedOutputMarkedContentTags mark(fNodeId, {SK_ScalarNaN, SK_ScalarNaN}, fDocument, out);
+    ScopedMarkedContent mark(fElemId, {SK_ScalarNaN, SK_ScalarNaN}, fDocument, out);
     if (!glyphRun.text().empty()) {
-        fDocument->addNodeTitle(fNodeId, glyphRun.text());
+        fDocument->addStructElemTitle(fElemId, glyphRun.text());
     }
 
     const int numGlyphs = typeface.countGlyphs();
@@ -1053,7 +1053,7 @@ void SkPDFDevice::drawFormXObject(SkPDFIndirectReference xObject, SkDynamicMemor
         pageXform.mapRect(&shapeBounds);
         point = SkPoint{shapeBounds.fLeft, shapeBounds.fBottom};
     }
-    ScopedOutputMarkedContentTags mark(fNodeId, point, fDocument, content);
+    ScopedMarkedContent mark(fElemId, point, fDocument, content);
 
     SkASSERT(xObject);
     SkPDFWriteResourceName(content, SkPDFResourceType::kXObject,
