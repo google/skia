@@ -387,6 +387,7 @@ precompile_tests_sources = [
   "$_tests/graphite/precompile/ChromePrecompileTest.cpp",
   "$_tests/graphite/precompile/CombinationBuilderTest.cpp",
   "$_tests/graphite/precompile/PaintParamsKeyTest.cpp",
+  "$_tests/graphite/precompile/ThreadedPrecompileTest.cpp",
 ]
 
 graphite_dawn_tests_sources = [ "$_tests/graphite/DawnBackendTextureTest.cpp" ]

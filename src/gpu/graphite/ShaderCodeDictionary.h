@@ -298,7 +298,7 @@ public:
         return &fBuiltInCodeSnippets[SkTo<int>(codeSnippetID)];
     }
 
-    int findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect* effect);
+    int findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect* effect) SK_EXCLUDES(fSpinLock);
 
 private:
     const char* addTextToArena(std::string_view text);
