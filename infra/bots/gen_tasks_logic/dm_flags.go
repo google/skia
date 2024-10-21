@@ -536,9 +536,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 						skip(ALL, "test", ALL, "ImageAsyncReadPixelsGraphite")
 						skip(ALL, "test", ALL, "SurfaceAsyncReadPixelsGraphite")
 					}
-
-					// b/373932392 - Precompile isn't thread-safe on Native Vulkan
-					skip(ALL, "test", ALL, "ThreadedPrecompileTest")
 				}
 			}
 		}

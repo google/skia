@@ -2184,6 +2184,7 @@ if (skia_enable_tools) {
       "tools/TestFontDataProvider.h",
       "tools/ToolUtils.cpp",
       "tools/ToolUtils.h",
+      "tools/TsanSuppressions.cpp",
       "tools/UrlDataManager.cpp",
       "tools/UrlDataManager.h",
       "tools/debugger/DebugCanvas.cpp",

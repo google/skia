@@ -72,7 +72,8 @@ DawnSharedContext::~DawnSharedContext() {
 std::unique_ptr<ResourceProvider> DawnSharedContext::makeResourceProvider(
         SingleOwner* singleOwner,
         uint32_t recorderID,
-        size_t resourceBudget) {
+        size_t resourceBudget,
+        bool /* avoidBufferAlloc */) {
     return std::unique_ptr<ResourceProvider>(new DawnResourceProvider(this,
                                                                       singleOwner,
                                                                       recorderID,

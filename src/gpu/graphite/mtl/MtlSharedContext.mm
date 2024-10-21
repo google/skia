@@ -61,9 +61,11 @@ MtlSharedContext::~MtlSharedContext() {
     this->globalCache()->deleteResources();
 }
 
-std::unique_ptr<ResourceProvider> MtlSharedContext::makeResourceProvider(SingleOwner* singleOwner,
-                                                                         uint32_t recorderID,
-                                                                         size_t resourceBudget) {
+std::unique_ptr<ResourceProvider> MtlSharedContext::makeResourceProvider(
+        SingleOwner* singleOwner,
+        uint32_t recorderID,
+        size_t resourceBudget,
+        bool /* avoidBufferAlloc */) {
     return std::unique_ptr<ResourceProvider>(new MtlResourceProvider(this,
                                                                      singleOwner,
                                                                      recorderID,

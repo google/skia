@@ -116,9 +116,11 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
         fOwnedResourceProvider = nullptr;
         fResourceProvider = context->priv().resourceProvider();
     } else {
-        fOwnedResourceProvider = fSharedContext->makeResourceProvider(this->singleOwner(),
-                                                                      fUniqueID,
-                                                                      options.fGpuBudgetInBytes);
+        fOwnedResourceProvider = fSharedContext->makeResourceProvider(
+                this->singleOwner(),
+                fUniqueID,
+                options.fGpuBudgetInBytes,
+                /* avoidBufferAlloc= */ false);
         fResourceProvider = fOwnedResourceProvider.get();
     }
     fUploadBufferManager = std::make_unique<UploadBufferManager>(fResourceProvider,

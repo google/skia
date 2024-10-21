@@ -37,7 +37,8 @@ public:
 
     std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*,
                                                            uint32_t recorderID,
-                                                           size_t resourceBudget) override;
+                                                           size_t resourceBudget,
+                                                           bool avoidBufferAlloc) override;
 
 private:
 
