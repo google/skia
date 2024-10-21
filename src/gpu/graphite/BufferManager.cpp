@@ -692,7 +692,11 @@ bool StaticBufferManager::BufferInfo::createAndUpdateBindings(
                 data.fSource.fBuffer, data.fSource.fOffset,
                 sk_ref_sp(data.fTarget->fBuffer), data.fTarget->fOffset,
                 size);
-        if (!queueManager->addTask(copyTask.get(), context)) {
+        // For static buffers, we want them all to be optimized as GPU only buffers. If we are in
+        // a protected context, this means the buffers must be non-protected since they will be
+        // read in the vertex shader which doesn't allow protected memory access. Thus all the
+        // uploads to these buffers must be done as non-protected commands.
+        if (!queueManager->addTask(copyTask.get(), context, Protected::kNo)) {
             SKGPU_LOG_E("Failed to copy data to static buffer.\n");
             return false;
         }

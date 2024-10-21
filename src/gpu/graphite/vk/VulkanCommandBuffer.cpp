@@ -38,10 +38,11 @@ class VulkanDescriptorSet;
 
 std::unique_ptr<VulkanCommandBuffer> VulkanCommandBuffer::Make(
         const VulkanSharedContext* sharedContext,
-        VulkanResourceProvider* resourceProvider) {
+        VulkanResourceProvider* resourceProvider,
+        Protected isProtected) {
     // Create VkCommandPool
     VkCommandPoolCreateFlags cmdPoolCreateFlags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
-    if (sharedContext->isProtected() == Protected::kYes) {
+    if (isProtected == Protected::kYes) {
         cmdPoolCreateFlags |= VK_COMMAND_POOL_CREATE_PROTECTED_BIT;
     }
 
@@ -82,14 +83,17 @@ std::unique_ptr<VulkanCommandBuffer> VulkanCommandBuffer::Make(
     return std::unique_ptr<VulkanCommandBuffer>(new VulkanCommandBuffer(pool,
                                                                         primaryCmdBuffer,
                                                                         sharedContext,
-                                                                        resourceProvider));
+                                                                        resourceProvider,
+                                                                        isProtected));
 }
 
 VulkanCommandBuffer::VulkanCommandBuffer(VkCommandPool pool,
                                          VkCommandBuffer primaryCommandBuffer,
                                          const VulkanSharedContext* sharedContext,
-                                         VulkanResourceProvider* resourceProvider)
-        : fPool(pool)
+                                         VulkanResourceProvider* resourceProvider,
+                                         Protected isProtected)
+        : CommandBuffer(isProtected)
+        , fPool(pool)
         , fPrimaryCommandBuffer(primaryCommandBuffer)
         , fSharedContext(sharedContext)
         , fResourceProvider(resourceProvider) {
@@ -306,7 +310,7 @@ bool VulkanCommandBuffer::submit(VkQueue queue) {
                                             &fPrimaryCommandBuffer,
                                             fSignalSemaphores.size(),
                                             fSignalSemaphores.data(),
-                                            fSharedContext->isProtected());
+                                            this->isProtected());
     fWaitSemaphores.clear();
     fSignalSemaphores.clear();
     if (submitResult != VK_SUCCESS) {
@@ -1067,6 +1071,13 @@ void VulkanCommandBuffer::bindUniformBuffers() {
         int descriptorBindingIndex = descriptors[i].fBindingIndex;
         SkASSERT(static_cast<unsigned long>(descriptorBindingIndex) < fUniformBuffersToBind.size());
         const auto& bindInfo = fUniformBuffersToBind[descriptorBindingIndex];
+#ifdef SK_DEBUG
+        if (descriptors[i].fPipelineStageFlags & PipelineStageFlags::kVertexShader) {
+            // TODO (b/356874190): Renable once we fix the intrinsic uniform buffer to not be
+            // protected.
+            //SkASSERT(bindInfo.fBuffer->isProtected() == Protected::kNo);
+        }
+#endif
         dynamicOffsets[i] = bindInfo.fOffset;
     }
 
@@ -1107,6 +1118,7 @@ void VulkanCommandBuffer::bindVertexBuffers(const Buffer* vertexBuffer,
 void VulkanCommandBuffer::bindInputBuffer(const Buffer* buffer, VkDeviceSize offset,
                                           uint32_t binding) {
     if (buffer) {
+        SkASSERT(buffer->isProtected() == Protected::kNo);
         VkBuffer vkBuffer = static_cast<const VulkanBuffer*>(buffer)->vkBuffer();
         SkASSERT(vkBuffer != VK_NULL_HANDLE);
         if (vkBuffer != fBoundInputBuffers[binding] ||
@@ -1126,6 +1138,7 @@ void VulkanCommandBuffer::bindInputBuffer(const Buffer* buffer, VkDeviceSize off
 
 void VulkanCommandBuffer::bindIndexBuffer(const Buffer* indexBuffer, size_t offset) {
     if (indexBuffer) {
+        SkASSERT(indexBuffer->isProtected() == Protected::kNo);
         VkBuffer vkBuffer = static_cast<const VulkanBuffer*>(indexBuffer)->vkBuffer();
         SkASSERT(vkBuffer != VK_NULL_HANDLE);
         if (vkBuffer != fBoundIndexBuffer || offset != fBoundIndexBufferOffset) {
@@ -1146,6 +1159,7 @@ void VulkanCommandBuffer::bindIndexBuffer(const Buffer* indexBuffer, size_t offs
 void VulkanCommandBuffer::bindIndirectBuffer(const Buffer* indirectBuffer, size_t offset) {
     // Indirect buffers are not bound via the command buffer, but specified in the draw cmd.
     if (indirectBuffer) {
+        SkASSERT(indirectBuffer->isProtected() == Protected::kNo);
         fBoundIndirectBuffer = static_cast<const VulkanBuffer*>(indirectBuffer)->vkBuffer();
         fBoundIndirectBufferOffset = offset;
         this->trackResource(sk_ref_sp(indirectBuffer));

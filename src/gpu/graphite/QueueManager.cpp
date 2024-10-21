@@ -43,18 +43,35 @@ QueueManager::~QueueManager() {
     }
 }
 
-bool QueueManager::setupCommandBuffer(ResourceProvider* resourceProvider) {
+std::vector<std::unique_ptr<CommandBuffer>>*
+QueueManager::getAvailableCommandBufferList(Protected isProtected) {
+    return isProtected == Protected::kNo ? &fAvailableCommandBuffers
+                                         : &fAvailableProtectedCommandBuffers;
+}
+
+
+bool QueueManager::setupCommandBuffer(ResourceProvider* resourceProvider, Protected isProtected) {
     if (!fCurrentCommandBuffer) {
-        if (!fAvailableCommandBuffers.empty()) {
-            fCurrentCommandBuffer = std::move(fAvailableCommandBuffers.back());
-            fAvailableCommandBuffers.pop_back();
+        std::vector<std::unique_ptr<CommandBuffer>>* bufferList =
+                this->getAvailableCommandBufferList(isProtected);
+        if (!bufferList->empty()) {
+            fCurrentCommandBuffer = std::move(bufferList->back());
+            bufferList->pop_back();
             if (!fCurrentCommandBuffer->setNewCommandBufferResources()) {
                 fCurrentCommandBuffer.reset();
             }
         }
+    } else {
+        if (fCurrentCommandBuffer->isProtected() != isProtected) {
+            // If we're doing things where we are switching between using protected and unprotected
+            // command buffers, it is our job to make sure previous work was submitted.
+            SKGPU_LOG_E("Trying to use a CommandBuffer with protectedness that differs from our "
+                        "current active command buffer.");
+            return false;
+        }
     }
     if (!fCurrentCommandBuffer) {
-        fCurrentCommandBuffer = this->getNewCommandBuffer(resourceProvider);
+        fCurrentCommandBuffer = this->getNewCommandBuffer(resourceProvider, isProtected);
     }
     if (!fCurrentCommandBuffer) {
         return false;
@@ -80,7 +97,7 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
         return false;
     }
 
-    if (this->fSharedContext->caps()->requireOrderedRecordings()) {
+    if (fSharedContext->caps()->requireOrderedRecordings()) {
         uint32_t* recordingID = fLastAddedRecordingIDs.find(info.fRecording->priv().recorderID());
         if (recordingID &&
             info.fRecording->priv().uniqueID() != *recordingID+1) {
@@ -107,7 +124,7 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
     }
 
     auto resourceProvider = context->priv().resourceProvider();
-    if (!this->setupCommandBuffer(resourceProvider)) {
+    if (!this->setupCommandBuffer(resourceProvider, fSharedContext->isProtected())) {
         if (callback) {
             callback->setFailureResult();
         }
@@ -168,14 +185,15 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
 }
 
 bool QueueManager::addTask(Task* task,
-                           Context* context) {
+                           Context* context,
+                           Protected isProtected) {
     SkASSERT(task);
     if (!task) {
         SKGPU_LOG_E("No valid Task passed into addTask call");
         return false;
     }
 
-    if (!this->setupCommandBuffer(context->priv().resourceProvider())) {
+    if (!this->setupCommandBuffer(context->priv().resourceProvider(), isProtected)) {
         SKGPU_LOG_E("CommandBuffer creation failed");
         return false;
     }
@@ -196,7 +214,7 @@ bool QueueManager::addFinishInfo(const InsertFinishInfo& info,
         callback = RefCntedCallback::Make(info.fFinishedProc, info.fFinishedContext);
     }
 
-    if (!this->setupCommandBuffer(resourceProvider)) {
+    if (!this->setupCommandBuffer(resourceProvider, fSharedContext->isProtected())) {
         if (callback) {
             callback->setFailureResult();
         }
@@ -270,7 +288,9 @@ void QueueManager::checkForFinishedWork(SyncToCpu sync) {
 }
 
 void QueueManager::returnCommandBuffer(std::unique_ptr<CommandBuffer> commandBuffer) {
-    fAvailableCommandBuffers.push_back(std::move(commandBuffer));
+    std::vector<std::unique_ptr<CommandBuffer>>* bufferList =
+            this->getAvailableCommandBufferList(commandBuffer->isProtected());
+    bufferList->push_back(std::move(commandBuffer));
 }
 
 void QueueManager::addUploadBufferManagerRefs(UploadBufferManager* uploadManager) {

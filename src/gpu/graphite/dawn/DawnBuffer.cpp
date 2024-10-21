@@ -175,6 +175,7 @@ DawnBuffer::DawnBuffer(const DawnSharedContext* sharedContext,
                        void* mappedAtCreationPtr)
         : Buffer(sharedContext,
                  size,
+                 Protected::kNo, // Dawn doesn't support protected memory
                  /*commandBufferRefsAsUsageRefs=*/buffer.GetUsage() & wgpu::BufferUsage::MapWrite)
         , fBuffer(std::move(buffer)) {
     fMapPtr = mappedAtCreationPtr;

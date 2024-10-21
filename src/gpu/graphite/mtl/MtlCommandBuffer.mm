@@ -47,7 +47,8 @@ std::unique_ptr<MtlCommandBuffer> MtlCommandBuffer::Make(id<MTLCommandQueue> que
 MtlCommandBuffer::MtlCommandBuffer(id<MTLCommandQueue> queue,
                                    const MtlSharedContext* sharedContext,
                                    MtlResourceProvider* resourceProvider)
-        : fQueue(queue)
+        : CommandBuffer(Protected::kNo)  // Metal doesn't support protected memory
+        , fQueue(queue)
         , fSharedContext(sharedContext)
         , fResourceProvider(resourceProvider) {}
 

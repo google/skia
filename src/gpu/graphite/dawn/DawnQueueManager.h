@@ -29,7 +29,7 @@ public:
 private:
     const DawnSharedContext* dawnSharedContext() const;
 
-    std::unique_ptr<CommandBuffer> getNewCommandBuffer(ResourceProvider*) override;
+    std::unique_ptr<CommandBuffer> getNewCommandBuffer(ResourceProvider*, Protected) override;
     OutstandingSubmission onSubmitToGpu() override;
 
 #if defined(GPU_TEST_UTILS)

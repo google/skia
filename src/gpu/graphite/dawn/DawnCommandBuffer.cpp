@@ -116,7 +116,8 @@ std::unique_ptr<DawnCommandBuffer> DawnCommandBuffer::Make(const DawnSharedConte
 
 DawnCommandBuffer::DawnCommandBuffer(const DawnSharedContext* sharedContext,
                                      DawnResourceProvider* resourceProvider)
-        : fSharedContext(sharedContext)
+        : CommandBuffer(Protected::kNo)  // Dawn doesn't support protected memory
+        , fSharedContext(sharedContext)
         , fResourceProvider(resourceProvider) {}
 
 DawnCommandBuffer::~DawnCommandBuffer() {}

@@ -122,8 +122,10 @@ public:
     void setReplayTranslation(SkIVector translation) { fReplayTranslation = translation; }
     void clearReplayTranslation() { fReplayTranslation = {0, 0}; }
 
+    Protected isProtected() const { return fIsProtected; }
+
 protected:
-    CommandBuffer();
+    CommandBuffer(Protected);
 
     SkISize fColorAttachmentSize;
     // This is also the origin of the logical viewport relative to the target texture's (0,0) pixel
@@ -136,6 +138,8 @@ protected:
     // Already includes replay translation and respects final color attachment bounds, but with
     // dimensions that equal fDstCopy's width and height.
     SkIRect fDstCopyBounds;
+
+    Protected fIsProtected;
 
 private:
     // Release all tracked Resources

@@ -26,7 +26,7 @@ const MtlSharedContext* MtlQueueManager::mtlSharedContext() const {
 }
 
 std::unique_ptr<CommandBuffer> MtlQueueManager::getNewCommandBuffer(
-        ResourceProvider* resourceProvider) {
+        ResourceProvider* resourceProvider, Protected) {
     MtlResourceProvider* mtlResourceProvider = static_cast<MtlResourceProvider*>(resourceProvider);
     auto cmdBuffer = MtlCommandBuffer::Make(fQueue.get(),
                                             this->mtlSharedContext(),

@@ -34,7 +34,8 @@ private:
                  AccessPattern,
                  VkBuffer,
                  const skgpu::VulkanAlloc&,
-                 VkBufferUsageFlags);
+                 VkBufferUsageFlags,
+                 Protected isProtected);
 
     void onMap() override;
     void onUnmap() override;
