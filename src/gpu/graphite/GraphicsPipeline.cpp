@@ -9,6 +9,7 @@
 
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/Renderer.h"
+#include "src/gpu/graphite/ShaderInfo.h"
 #include "src/utils/SkShaderUtils.h"
 
 namespace skgpu::graphite {
@@ -23,17 +24,16 @@ GraphicsPipeline::GraphicsPipeline(const SharedContext* sharedContext,
 
 GraphicsPipeline::~GraphicsPipeline() = default;
 
-GraphicsPipeline::PipelineInfo::PipelineInfo(const VertSkSLInfo& vsInfo,
-                                             const FragSkSLInfo& fsInfo)
-        : fDstReadReq(fsInfo.fDstReadReq)
-        , fNumFragTexturesAndSamplers(fsInfo.fNumTexturesAndSamplers)
-        , fHasPaintUniforms(fsInfo.fHasPaintUniforms)
-        , fHasStepUniforms(vsInfo.fHasStepUniforms)
-        , fHasGradientBuffer(fsInfo.fHasGradientBuffer) {
+GraphicsPipeline::PipelineInfo::PipelineInfo(const ShaderInfo& shaderInfo)
+        : fDstReadReq(shaderInfo.dstReadRequirement())
+        , fNumFragTexturesAndSamplers(shaderInfo.numFragmentTexturesAndSamplers())
+        , fHasPaintUniforms(shaderInfo.hasPaintUniforms())
+        , fHasStepUniforms(shaderInfo.hasStepUniforms())
+        , fHasGradientBuffer(shaderInfo.hasGradientBuffer()) {
 #if defined(GPU_TEST_UTILS)
-    fSkSLVertexShader = SkShaderUtils::PrettyPrint(vsInfo.fSkSL);
-    fSkSLFragmentShader = SkShaderUtils::PrettyPrint(fsInfo.fSkSL);
-    fLabel = fsInfo.fLabel;
+    fSkSLVertexShader = SkShaderUtils::PrettyPrint(shaderInfo.vertexSkSL());
+    fSkSLFragmentShader = SkShaderUtils::PrettyPrint(shaderInfo.fragmentSkSL());
+    fLabel = shaderInfo.fsLabel();
 #endif
 }
 

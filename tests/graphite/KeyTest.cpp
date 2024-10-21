@@ -7,7 +7,7 @@
 
 #include "tests/Test.h"
 
-
+#include "include/core/SkBlendMode.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/ContextPriv.h"
@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
+#include "src/gpu/graphite/ShaderInfo.h"
 
 using namespace skgpu::graphite;
 
@@ -109,13 +110,13 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
         UniquePaintParamsID paintID = dict->findOrCreate(&builder);
 
         const RenderStep* renderStep = &context->priv().rendererProvider()->nonAABounds()->step(0);
-        FragSkSLInfo shaderInfo = BuildFragmentSkSL(context->priv().caps(),
-                                                    dict,
-                                                    /*rteDict=*/nullptr,
-                                                    renderStep,
-                                                    paintID,
-                                                    /*useStorageBuffers=*/false,
-                                                    skgpu::Swizzle::RGBA());
+        std::unique_ptr<ShaderInfo> shaderInfo = ShaderInfo::Make(context->priv().caps(),
+                                                                  dict,
+                                                                  /*rteDict=*/nullptr,
+                                                                  renderStep,
+                                                                  paintID,
+                                                                  /*useStorageBuffers=*/false,
+                                                                  skgpu::Swizzle::RGBA());
 
         SkBlendMode expectedBM = static_cast<SkBlendMode>(bm);
         if (expectedBM == SkBlendMode::kPlus) {
@@ -126,16 +127,17 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
         }
         SkBlendModeCoeff expectedSrc, expectedDst;
         REPORTER_ASSERT(reporter, SkBlendMode_AsCoeff(expectedBM, &expectedSrc, &expectedDst));
-        REPORTER_ASSERT(reporter, coeff_equal(expectedSrc, shaderInfo.fBlendInfo.fSrcBlend));
-        REPORTER_ASSERT(reporter, coeff_equal(expectedDst, shaderInfo.fBlendInfo.fDstBlend));
+        REPORTER_ASSERT(reporter, coeff_equal(expectedSrc, shaderInfo->blendInfo().fSrcBlend));
+        REPORTER_ASSERT(reporter, coeff_equal(expectedDst, shaderInfo->blendInfo().fDstBlend));
 
-        REPORTER_ASSERT(reporter, shaderInfo.fBlendInfo.fEquation == skgpu::BlendEquation::kAdd);
-        REPORTER_ASSERT(reporter, shaderInfo.fBlendInfo.fBlendConstant == SK_PMColor4fTRANSPARENT);
+        REPORTER_ASSERT(reporter, shaderInfo->blendInfo().fEquation == skgpu::BlendEquation::kAdd);
+        REPORTER_ASSERT(reporter,
+                        shaderInfo->blendInfo().fBlendConstant == SK_PMColor4fTRANSPARENT);
 
         bool expectedWriteColor = BlendModifiesDst(skgpu::BlendEquation::kAdd,
-                                                   shaderInfo.fBlendInfo.fSrcBlend,
-                                                   shaderInfo.fBlendInfo.fDstBlend);
-        REPORTER_ASSERT(reporter, shaderInfo.fBlendInfo.fWritesColor == expectedWriteColor);
+                                                   shaderInfo->blendInfo().fSrcBlend,
+                                                   shaderInfo->blendInfo().fDstBlend);
+        REPORTER_ASSERT(reporter, shaderInfo->blendInfo().fWritesColor == expectedWriteColor);
     }
 }
 

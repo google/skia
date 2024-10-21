@@ -119,6 +119,8 @@ GRAPHITE_FILES = [
     "ScratchResourceManager.h",
     "ShaderCodeDictionary.cpp",
     "ShaderCodeDictionary.h",
+    "ShaderInfo.cpp",
+    "ShaderInfo.h",
     "SharedContext.cpp",
     "SharedContext.h",
     "SpecialImage_Graphite.cpp",

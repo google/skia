@@ -14,8 +14,7 @@
 
 namespace skgpu::graphite {
 
-struct FragSkSLInfo;
-struct VertSkSLInfo;
+class ShaderInfo;
 class RenderStep;
 
 enum class PipelineCreationFlags : uint8_t {
@@ -52,7 +51,7 @@ public:
         PipelineInfo() = default;
 
         // NOTE: Subclasses must manually fill in native shader code in GPU_TEST_UTILS builds.
-        PipelineInfo(const VertSkSLInfo&, const FragSkSLInfo&);
+        PipelineInfo(const ShaderInfo&);
 
         DstReadRequirement fDstReadReq = DstReadRequirement::kNone;
         int  fNumFragTexturesAndSamplers = 0;

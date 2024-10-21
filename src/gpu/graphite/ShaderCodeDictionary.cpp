@@ -7,27 +7,20 @@
 
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 
-#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkTileMode.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/gpu/graphite/Context.h"
-#include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRuntimeEffectPriv.h"
-#include "src/core/SkSLTypeShared.h"
 #include "src/gpu/BlendFormula.h"
-#include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/ReadSwizzle.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
+#include "src/gpu/graphite/ShaderInfo.h"
 #include "src/sksl/SkSLString.h"
-#include "src/sksl/SkSLUtil.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"
-
-#include <new>
 
 using namespace skia_private;
 using namespace SkKnownRuntimeEffects;
@@ -52,6 +45,12 @@ const char* get_known_rte_name(StableKey key) {
     SkUNREACHABLE;
 }
 
+std::string get_storage_buffer_access(const char* bufferNamePrefix,
+                                      const char* ssboIndex,
+                                      const char* uniformName) {
+    return SkSL::String::printf("%sUniformData[%s].%s", bufferNamePrefix, ssboIndex, uniformName);
+}
+
 std::string get_mangled_name(const std::string& baseName, int manglingSuffix) {
     return baseName + "_" + std::to_string(manglingSuffix);
 }
@@ -68,7 +67,7 @@ std::string get_mangled_uniform_name(const ShaderInfo& shaderInfo,
         result = uniform.name() + std::string("_") + std::to_string(manglingSuffix);
     }
     if (shaderInfo.ssboIndex()) {
-        result = EmitStorageBufferAccess("fs", shaderInfo.ssboIndex(), result.c_str());
+        result = get_storage_buffer_access("fs", shaderInfo.ssboIndex(), result.c_str());
     }
     return result;
 }
@@ -82,7 +81,7 @@ std::string get_mangled_struct_reference(const ShaderInfo& shaderInfo,
     SkASSERT(node->entry()->fUniformStructName);
     std::string result = "node_" + std::to_string(node->keyIndex()); // Field holding the struct
     if (shaderInfo.ssboIndex()) {
-        result = EmitStorageBufferAccess("fs", shaderInfo.ssboIndex(), result.c_str());
+        result = get_storage_buffer_access("fs", shaderInfo.ssboIndex(), result.c_str());
     }
     return result;
 }
@@ -98,8 +97,6 @@ std::string stitch_csv(SkSpan<const std::string> args) {
 
     return code;
 }
-
-static const ShaderSnippet::Args kDefaultArgs{"inColor", "destColor", "pos"};
 
 // If 'args' is null, the generated list is assumed to be for parameter declarations. If it's non
 // null, it is assumed to be the expressions to invoke the default signature.
@@ -124,8 +121,6 @@ void append_defaults(TArray<std::string>* list,
         list->push_back(args ? "primitiveColor" : "half4 primitiveColor");
     }
 }
-
-static const char* kGradientBufferName = "fsGradientBuffer";
 
 void append_uniforms(TArray<std::string>* list,
                      const ShaderInfo& shaderInfo,
@@ -153,7 +148,7 @@ void append_uniforms(TArray<std::string>* list,
 
     // Append gradient buffer.
     if (node->requiredFlags() & SnippetRequirementFlags::kGradientBuffer) {
-        list->push_back(kGradientBufferName);
+        list->push_back(ShaderInfo::kGradientBufferName);
     }
 
     // Append child output names.
@@ -190,29 +185,10 @@ std::string invoke_node(const ShaderInfo& shaderInfo,
     return SkSL::String::printf("%s(%s)", fnName.c_str(), stitch_csv(params).c_str());
 }
 
-// Emit the glue code needed to invoke a single static helper isolated within its own scope.
-// Glue code will assign the resulting color into a variable `half4 outColor%d`, where the %d is
-// filled in with 'node->keyIndex()'.
-std::string invoke_and_assign_node(const ShaderInfo& shaderInfo,
-                                   const ShaderNode* node,
-                                   const ShaderSnippet::Args& args,
-                                   std::string* funcBody) {
-    std::string expr = invoke_node(shaderInfo, node, args);
-    std::string outputVar = get_mangled_name("outColor", node->keyIndex());
-    SkSL::String::appendf(funcBody,
-                          "// [%d] %s\n"
-                          "half4 %s = %s;",
-                          node->keyIndex(),
-                          node->entry()->fName,
-                          outputVar.c_str(),
-                          expr.c_str());
-    return outputVar;
-}
-
 // Emit a declaration for a helper function that represents the ShaderNode (named using the node's
 // mangled name). The dynamic parameters are declared to match kDefaultArgs. The returned string
 // can either be followed by a "{ body }" to fully define it or a ";" for a forward declaration.
-std::string emit_helper_declaration(const ShaderInfo& shaderInfo, const ShaderNode* node) {
+std::string emit_helper_declaration(const ShaderNode* node) {
     const ShaderSnippet* entry = node->entry();
     std::string helperFnName = get_mangled_name(entry->fName, node->keyIndex());
 
@@ -222,6 +198,16 @@ std::string emit_helper_declaration(const ShaderInfo& shaderInfo, const ShaderNo
     return SkSL::String::printf("half4 %s(%s)", helperFnName.c_str(), stitch_csv(params).c_str());
 }
 
+} // anonymous namespace
+
+//--------------------------------------------------------------------------------------------------
+// ShaderSnippet
+
+const ShaderSnippet::Args ShaderSnippet::kDefaultArgs = {"inColor", "destColor", "pos"};
+
+//--------------------------------------------------------------------------------------------------
+// ShaderNode
+
 // If we have no children, we don't need to add anything into the preamble.
 // If we have child entries, we create a function in the preamble with a signature of:
 //     half4 SnippetName_N(/* required variable inputs (e.g. float2 pos) */) { ... }
@@ -230,518 +216,52 @@ std::string emit_helper_declaration(const ShaderInfo& shaderInfo, const ShaderNo
 //     half4 BuiltinFunctionName(/* required variable inputs (e.g. float2 pos) */,
 //                               /* all uniforms as parameters */,
 //                               /* all child output variable names as parameters */);
-std::string generate_default_preamble(const ShaderInfo& shaderInfo,
-                                      const ShaderNode* node) {
-    if (node->numChildren() == 0) {
+std::string ShaderNode::generateDefaultPreamble(const ShaderInfo& shaderInfo) const {
+    if (this->numChildren() == 0) {
         // We don't need a helper function to wrap the snippet's static function
         return "";
     }
 
-    std::string code = emit_helper_declaration(shaderInfo, node) + " {";
+    std::string code = emit_helper_declaration(this) + " {";
 
     // Invoke each child with unmodified input values and collect in a list of local variables
     STArray<2, std::string> childOutputVarNames;
-    for (const ShaderNode* child : node->children()) {
+    for (const ShaderNode* child : this->children()) {
         // Emit glue code into our helper function body (i.e. lifting the child execution up front
         // so their outputs can be passed to the static module function for the node's snippet).
         childOutputVarNames.push_back(
-                invoke_and_assign_node(shaderInfo, child, kDefaultArgs, &code));
+                child->invokeAndAssign(shaderInfo, ShaderSnippet::kDefaultArgs, &code));
     }
 
     // Finally, invoke the snippet from the helper function, passing uniforms and child outputs.
     STArray<3, std::string> params;
-    append_defaults(&params, node, &kDefaultArgs);
-    append_uniforms(&params, shaderInfo, node, childOutputVarNames);
+    append_defaults(&params, this, &ShaderSnippet::kDefaultArgs);
+    append_uniforms(&params, shaderInfo, this, childOutputVarNames);
 
     SkSL::String::appendf(&code,
                               "return %s(%s);"
                           "}",
-                          node->entry()->fStaticFunctionName,
+                          this->entry()->fStaticFunctionName,
                           stitch_csv(params).c_str());
     return code;
 }
 
-// Walk the node tree and generate all preambles, accumulating into 'preamble'.
-void emit_preambles(const ShaderInfo& shaderInfo,
-                    SkSpan<const ShaderNode*> nodes,
-                    std::string treeLabel,
-                    std::string* preamble) {
-    for (int i = 0; i < SkTo<int>(nodes.size()); ++i) {
-        const ShaderNode* node = nodes[i];
-        std::string nodeLabel = std::to_string(i);
-        std::string nextLabel = treeLabel.empty() ? nodeLabel
-                                                  : (treeLabel + "<-" + nodeLabel);
-
-        if (node->numChildren() > 0) {
-            emit_preambles(shaderInfo, node->children(), nextLabel, preamble);
-        }
-
-        std::string nodePreamble = node->entry()->fPreambleGenerator
-                ? node->entry()->fPreambleGenerator(shaderInfo, node)
-                : generate_default_preamble(shaderInfo, node);
-        if (!nodePreamble.empty()) {
-            SkSL::String::appendf(preamble,
-                                "// [%d]   %s: %s\n"
-                                "%s\n",
-                                node->keyIndex(), nextLabel.c_str(), node->entry()->fName,
-                                nodePreamble.c_str());
-        }
-    }
-}
-
-constexpr skgpu::BlendInfo make_simple_blendInfo(skgpu::BlendCoeff srcCoeff,
-                                                 skgpu::BlendCoeff dstCoeff) {
-    return { skgpu::BlendEquation::kAdd,
-             srcCoeff,
-             dstCoeff,
-             SK_PMColor4fTRANSPARENT,
-             skgpu::BlendModifiesDst(skgpu::BlendEquation::kAdd, srcCoeff, dstCoeff) };
-}
-
-static constexpr int kNumCoeffModes = (int)SkBlendMode::kLastCoeffMode + 1;
-static constexpr skgpu::BlendInfo gBlendTable[kNumCoeffModes] = {
-        /* clear */      make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kZero),
-        /* src */        make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kZero),
-        /* dst */        make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kOne),
-        /* src-over */   make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISA),
-        /* dst-over */   make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kOne),
-        /* src-in */     make_simple_blendInfo(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kZero),
-        /* dst-in */     make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kSA),
-        /* src-out */    make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kZero),
-        /* dst-out */    make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kISA),
-        /* src-atop */   make_simple_blendInfo(skgpu::BlendCoeff::kDA,   skgpu::BlendCoeff::kISA),
-        /* dst-atop */   make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kSA),
-        /* xor */        make_simple_blendInfo(skgpu::BlendCoeff::kIDA,  skgpu::BlendCoeff::kISA),
-        /* plus */       make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kOne),
-        /* modulate */   make_simple_blendInfo(skgpu::BlendCoeff::kZero, skgpu::BlendCoeff::kSC),
-        /* screen */     make_simple_blendInfo(skgpu::BlendCoeff::kOne,  skgpu::BlendCoeff::kISC)
-};
-
-} // anonymous namespace
-
-//--------------------------------------------------------------------------------------------------
-// ShaderInfo
-
-ShaderInfo::ShaderInfo(UniquePaintParamsID id,
-                       const ShaderCodeDictionary* dict,
-                       const RuntimeEffectDictionary* rteDict,
-                       const char* ssboIndex)
-        : fRuntimeEffectDictionary(rteDict)
-        , fSsboIndex(ssboIndex) {
-    PaintParamsKey key = dict->lookup(id);
-    SkASSERT(key.isValid()); // invalid keys should have been caught by invalid paint ID earlier
-
-    fLabel = key.toString(dict, /*includeData=*/false).c_str();
-    fRootNodes = key.getRootNodes(dict, &fShaderNodeAlloc);
-
-    // TODO(b/366220690): aggregateSnippetData() goes away entirely once the VulkanGraphicsPipeline
-    // is updated to use the extracted SamplerDescs directly.
-    for (const ShaderNode* root : fRootNodes) {
-        this->aggregateSnippetData(root);
-    }
-
-#if defined(SK_DEBUG)
-    // Validate the root node structure of the key.
-    SkASSERT(fRootNodes.size() == 2 || fRootNodes.size() == 3);
-    // First node produces the source color (all snippets return a half4), so we just require that
-    // its signature takes no extra args or just local coords.
-    const ShaderSnippet* srcSnippet = dict->getEntry(fRootNodes[0]->codeSnippetId());
-    // TODO(b/349997190): Once SkEmptyShader doesn't use the passthrough snippet, we can assert
-    // that srcSnippet->needsPriorStageOutput() is false.
-    SkASSERT(!srcSnippet->needsBlenderDstColor());
-    // Second node is the final blender, so it must take both the src color and dst color, and not
-    // any local coordinate.
-    const ShaderSnippet* blendSnippet = dict->getEntry(fRootNodes[1]->codeSnippetId());
-    SkASSERT(blendSnippet->needsPriorStageOutput() && blendSnippet->needsBlenderDstColor());
-    SkASSERT(!blendSnippet->needsLocalCoords());
-
-    const ShaderSnippet* clipSnippet =
-            fRootNodes.size() > 2 ? dict->getEntry(fRootNodes[2]->codeSnippetId()) : nullptr;
-    SkASSERT(!clipSnippet ||
-             (!clipSnippet->needsPriorStageOutput() && !clipSnippet->needsBlenderDstColor()));
-#endif
-
-    // TODO(b/366191138): Everything of interest happens in toSkSL(). We should just have a
-    // ShaderInfo factory that does everything when it creates a std::unique_ptr<ShaderInfo>.
-}
-
-void ShaderInfo::aggregateSnippetData(const ShaderNode* node) {
-    if (!node) {
-        return;
-    }
-
-    // Accumulate data of children first.
-    for (const ShaderNode* child : node->children()) {
-        this->aggregateSnippetData(child);
-    }
-
-    if (node->requiredFlags() & SnippetRequirementFlags::kStoresData && !node->data().empty()) {
-        fData.push_back_n(node->data().size(), node->data().data());
-    }
-}
-
-void append_color_output(std::string* mainBody,
-                         BlendFormula::OutputType outputType,
-                         const char* outColor,
-                         const char* inColor) {
-    switch (outputType) {
-        case BlendFormula::kNone_OutputType:
-            SkSL::String::appendf(mainBody, "%s = half4(0.0);", outColor);
-            break;
-        case BlendFormula::kCoverage_OutputType:
-            SkSL::String::appendf(mainBody, "%s = outputCoverage;", outColor);
-            break;
-        case BlendFormula::kModulate_OutputType:
-            SkSL::String::appendf(mainBody, "%s = %s * outputCoverage;", outColor, inColor);
-            break;
-        case BlendFormula::kSAModulate_OutputType:
-            SkSL::String::appendf(mainBody, "%s = %s.a * outputCoverage;", outColor, inColor);
-            break;
-        case BlendFormula::kISAModulate_OutputType:
-            SkSL::String::appendf(
-                    mainBody, "%s = (1.0 - %s.a) * outputCoverage;", outColor, inColor);
-            break;
-        case BlendFormula::kISCModulate_OutputType:
-            SkSL::String::appendf(
-                    mainBody, "%s = (half4(1.0) - %s) * outputCoverage;", outColor, inColor);
-            break;
-        default:
-            SkUNREACHABLE;
-            break;
-    }
-}
-
-// The current, incomplete, model for shader construction is:
-//   - Static code snippets (which can have an arbitrary signature) live in the Graphite
-//     pre-compiled modules, which are located at `src/sksl/sksl_graphite_frag.sksl` and
-//     `src/sksl/sksl_graphite_frag_es2.sksl`.
-//   - Glue code is generated in a `main` method which calls these static code snippets.
-//     The glue code is responsible for:
-//            1) gathering the correct (mangled) uniforms
-//            2) passing the uniforms and any other parameters to the helper method
-//   - The result of the final code snippet is then copied into "sk_FragColor".
-//   Note: each entry's 'fStaticFunctionName' field is expected to match the name of a function
-//   in the Graphite pre-compiled module, or be null if the preamble and expression generators are
-//   overridden to not use a static function.
-std::string ShaderInfo::toSkSL(const Caps* caps,
-                               const RenderStep* step,
-                               bool useStorageBuffers,
-                               Swizzle writeSwizzle,
-                               int* outNumTexturesAndSamplersUsed,
-                               bool* outHasPaintUniforms,
-                               bool* outHasGradientBuffer,
-                               skia_private::TArray<SamplerDesc>* outDescs) {
-    // The RenderStep should be performing shading since otherwise there's no need to generate a
-    // fragment shader program at all.
-    SkASSERT(step->performsShading());
-    // TODO(b/372912880): Release assert debugging for illegal instruction occurring in the wild.
-    SkASSERTF_RELEASE(step->performsShading(),
-                      "render step: %s, label: %s",
-                      step->name(),
-                      fLabel.c_str());
-
-    // Extract the root nodes for clarity
-    // TODO(b/372912880): Release assert debugging for illegal instruction occurring in the wild.
-    SkASSERTF_RELEASE(fRootNodes.size() == 2 || fRootNodes.size() == 3,
-                      "root node size = %zu, label = %s",
-                      fRootNodes.size(),
-                      fLabel.c_str());
-    const ShaderNode* const srcColorRoot = fRootNodes[0];
-    const ShaderNode* const finalBlendRoot = fRootNodes[1];
-    const ShaderNode* const clipRoot = fRootNodes.size() > 2 ? fRootNodes[2] : nullptr;
-
-    // Determine the algorithm for final blending: direct HW blending, coverage-modified HW
-    // blending (w/ or w/o dual-source blending) or via dst-read requirement.
-    Coverage finalCoverage = step->coverage();
-    if (finalCoverage == Coverage::kNone && SkToBool(clipRoot)) {
-        finalCoverage = Coverage::kSingleChannel;
-    }
-    std::optional<SkBlendMode> finalBlendMode;
-    if (finalBlendRoot->codeSnippetId() < kBuiltInCodeSnippetIDCount &&
-        finalBlendRoot->codeSnippetId() >= kFixedBlendIDOffset) {
-        finalBlendMode =
-                static_cast<SkBlendMode>(finalBlendRoot->codeSnippetId() - kFixedBlendIDOffset);
-        if (*finalBlendMode > SkBlendMode::kLastCoeffMode) {
-            // TODO(b/239726010): When we support advanced blend modes in HW, these modes could
-            // still be handled by fBlendInfo instead of SkSL
-            finalBlendMode.reset();
-        }
-    }
-    fDstReadRequirement = GetDstReadRequirement(caps, finalBlendMode, finalCoverage);
-    // TODO(b/372912880): Release assert debugging for illegal instruction occurring in the wild.
-    SkASSERTF_RELEASE(finalBlendMode.has_value() ||
-                      fDstReadRequirement != DstReadRequirement::kNone,
-                      "blend mode: %d, dst read: %d, coverage: %d, label = %s",
-                      finalBlendMode.has_value() ? (int)*finalBlendMode : -1,
-                      (int) fDstReadRequirement,
-                      (int) finalCoverage,
-                      fLabel.c_str());
-
-    const bool hasStepUniforms = step->numUniforms() > 0 && step->coverage() != Coverage::kNone;
-    const bool useStepStorageBuffer = useStorageBuffers && hasStepUniforms;
-    const bool useShadingStorageBuffer = useStorageBuffers && step->performsShading();
-
-    auto allReqFlags = srcColorRoot->requiredFlags() | finalBlendRoot->requiredFlags();
-    if (clipRoot) {
-        allReqFlags |= clipRoot->requiredFlags();
-    }
-    const bool useGradientStorageBuffer = caps->gradientBufferSupport() &&
-                                          (allReqFlags & SnippetRequirementFlags::kGradientBuffer);
-    const bool useDstSampler = fDstReadRequirement == DstReadRequirement::kTextureCopy ||
-                               fDstReadRequirement == DstReadRequirement::kTextureSample;
-
-    const bool defineLocalCoordsVarying = this->needsLocalCoords();
-    std::string preamble = EmitVaryings(step,
-                                        /*direction=*/"in",
-                                        /*emitSsboIndicesVarying=*/useShadingStorageBuffer,
-                                        defineLocalCoordsVarying);
-
-    // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
-    const ResourceBindingRequirements& bindingReqs = caps->resourceBindingRequirements();
-    preamble += EmitIntrinsicUniforms(bindingReqs.fIntrinsicBufferBinding,
-                                      bindingReqs.fUniformBufferLayout);
-    if (hasStepUniforms) {
-        if (useStepStorageBuffer) {
-            preamble += EmitRenderStepStorageBuffer(bindingReqs.fRenderStepBufferBinding,
-                                                    step->uniforms());
-        } else {
-            preamble += EmitRenderStepUniforms(bindingReqs.fRenderStepBufferBinding,
-                                               bindingReqs.fUniformBufferLayout,
-                                               step->uniforms());
-        }
-    }
-
-    bool wrotePaintColor = false;
-    if (useShadingStorageBuffer) {
-        preamble += EmitPaintParamsStorageBuffer(bindingReqs.fPaintParamsBufferBinding,
-                                                 fRootNodes,
-                                                 outHasPaintUniforms,
-                                                 &wrotePaintColor);
-        SkSL::String::appendf(&preamble, "uint %s;\n", this->ssboIndex());
-    } else {
-        preamble += EmitPaintParamsUniforms(bindingReqs.fPaintParamsBufferBinding,
-                                            bindingReqs.fUniformBufferLayout,
-                                            fRootNodes,
-                                            outHasPaintUniforms,
-                                            &wrotePaintColor);
-    }
-
-    if (useGradientStorageBuffer) {
-        SkSL::String::appendf(&preamble,
-                              "layout (binding=%d) readonly buffer FSGradientBuffer {\n"
-                              "    float %s[];\n"
-                              "};\n",
-                              bindingReqs.fGradientBufferBinding,
-                              kGradientBufferName);
-        *outHasGradientBuffer = true;
-    }
-
-    {
-        int binding = 0;
-        preamble += EmitTexturesAndSamplers(bindingReqs, fRootNodes, &binding, outDescs);
-        int paintTextureCount = binding;
-        if (step->hasTextures()) {
-            preamble += step->texturesAndSamplersSkSL(bindingReqs, &binding);
-            if (outDescs) {
-                // Determine how many render step samplers were used by comparing the binding value
-                // against paintTextureCount, taking into account the binding requirements. We
-                // assume and do not anticipate the render steps to use immutable samplers.
-                int renderStepSamplerCount =  bindingReqs.fSeparateTextureAndSamplerBinding
-                        ? (binding - paintTextureCount) / 2
-                        : binding - paintTextureCount;
-                // Add default SamplerDescs for all the dynamic samplers used by the render step so
-                // the size of outDescs will be equivalent to the total number of samplers.
-                outDescs->push_back_n(renderStepSamplerCount);
-            }
-        }
-        if (useDstSampler) {
-            preamble += EmitSamplerLayout(bindingReqs, &binding);
-            preamble += " sampler2D dstSampler;";
-            // Add default SamplerDesc for the intrinsic dstSampler to stay consistent with
-            // `outNumTexturesAndSamplersUsed`.
-            if (outDescs) {
-                outDescs->push_back({});
-            }
-        }
-
-        // Report back to the caller how many textures and samplers are used.
-        if (outNumTexturesAndSamplersUsed) {
-            *outNumTexturesAndSamplersUsed = binding;
-        }
-    }
-
-    // Emit preamble declarations and helper functions required for snippets. In the default case
-    // this adds functions that bind a node's specific mangled uniforms to the snippet's
-    // implementation in the SkSL modules.
-    emit_preambles(*this, fRootNodes, /*treeLabel=*/"", &preamble);
-
-    std::string mainBody = "void main() {";
-
-    if (useShadingStorageBuffer) {
-        SkSL::String::appendf(&mainBody,
-                              "%s = %s.y;\n",
-                              this->ssboIndex(),
-                              RenderStep::ssboIndicesVarying());
-    }
-
-    if (step->emitsPrimitiveColor()) {
-        mainBody += "half4 primitiveColor;";
-        mainBody += step->fragmentColorSkSL();
-    } else {
-        SkASSERT(!(fRootNodes[0]->requiredFlags() & SnippetRequirementFlags::kPrimitiveColor));
-    }
-
-    // Using kDefaultArgs as the initial value means it will refer to undefined variables, but the
-    // root nodes should--at most--be depending on the coordinate when "needsLocalCoords" is true.
-    // If the PaintParamsKey violates that structure, this will produce SkSL compile errors.
-    ShaderSnippet::Args args = kDefaultArgs;
-    args.fFragCoord = "localCoordsVar"; // the varying added in EmitVaryings()
-    // TODO(b/349997190): The paint root node should not depend on any prior stage's output, but
-    // it can happen with how SkEmptyShader is currently mapped to `sk_passthrough`. In this case
-    // it requires that prior stage color to be transparent black. When SkEmptyShader can instead
-    // cause the draw to be skipped, this can go away.
-    args.fPriorStageOutput = "half4(0)";
-
-    // Calculate the src color and stash its output variable in `args`
-    args.fPriorStageOutput = invoke_and_assign_node(*this, srcColorRoot, args, &mainBody);
-
-    if (fDstReadRequirement != DstReadRequirement::kNone) {
-        // Get the current dst color into a local variable, it may be used later on for coverage
-        // blending as well as the final blend.
-        mainBody += "half4 dstColor;";
-        if (useDstSampler) {
-            // dstCopyBounds is in frag coords and already includes the replay translation. The
-            // reciprocol of the dstCopy dimensions are in ZW.
-            mainBody += "dstColor = sample(dstSampler,"
-                                          "dstCopyBounds.zw*(sk_FragCoord.xy - dstCopyBounds.xy));";
-        } else {
-            SkASSERT(fDstReadRequirement == DstReadRequirement::kFramebufferFetch);
-            mainBody += "dstColor = sk_LastFragColor;";
-        }
-
-        args.fBlenderDstColor = "dstColor";
-        args.fPriorStageOutput = invoke_and_assign_node(*this, finalBlendRoot, args, &mainBody);
-        finalBlendMode = SkBlendMode::kSrc;
-    }
-
-    if (writeSwizzle != Swizzle::RGBA()) {
-        SkSL::String::appendf(&mainBody, "%s = %s.%s;", args.fPriorStageOutput.c_str(),
-                                                        args.fPriorStageOutput.c_str(),
-                                                        writeSwizzle.asString().c_str());
-    }
-
-    if (finalCoverage == Coverage::kNone) {
-        // Either direct HW blending or a dst-read w/o any extra coverage. In both cases we just
-        // need to assign directly to sk_FragCoord and update the HW blend info to finalBlendMode.
-        SkASSERT(finalBlendMode.has_value());
-        // TODO(b/372912880): Release assert debugging for illegal instruction occurring in the wild
-        SkASSERTF_RELEASE(finalBlendMode.has_value(),
-                          "blend mode: %d, dst read: %d, label = %s",
-                          finalBlendMode.has_value() ? (int)*finalBlendMode : -1,
-                          (int) fDstReadRequirement,
-                          fLabel.c_str());
-
-        fBlendInfo = gBlendTable[static_cast<int>(*finalBlendMode)];
-        SkSL::String::appendf(&mainBody, "sk_FragColor = %s;", args.fPriorStageOutput.c_str());
-    } else {
-        // Accumulate the output coverage. This will either modify the src color and secondary
-        // outputs for dual-source blending, or be combined directly with the in-shader blended
-        // final color if a dst-readback was required.
-        if (useStepStorageBuffer) {
-            SkSL::String::appendf(&mainBody,
-                                  "uint stepSsboIndex = %s.x;\n",
-                                  RenderStep::ssboIndicesVarying());
-            mainBody += EmitUniformsFromStorageBuffer("step", "stepSsboIndex", step->uniforms());
-        }
-
-        mainBody += "half4 outputCoverage = half4(1);";
-        mainBody += step->fragmentCoverageSkSL();
-
-        if (clipRoot) {
-            // The clip block node is invoked with device coords, not local coords like the main
-            // shading root node. However sk_FragCoord includes any replay translation and we
-            // need to recover the original device coordinate.
-            mainBody += "float2 devCoord = sk_FragCoord.xy - viewport.xy;";
-            args.fFragCoord = "devCoord";
-            std::string clipBlockOutput = invoke_and_assign_node(*this, clipRoot, args, &mainBody);
-            SkSL::String::appendf(&mainBody, "outputCoverage *= %s.a;", clipBlockOutput.c_str());
-        }
-
-        const char* outColor = args.fPriorStageOutput.c_str();
-        if (fDstReadRequirement != DstReadRequirement::kNone) {
-            // If this draw uses a non-coherent dst read, we want to keep the existing dst color (or
-            // whatever has been previously drawn) when there's no coverage. This helps for batching
-            // text draws that need to read from a dst copy for blends. However, this only helps the
-            // case where the outer bounding boxes of each letter overlap and not two actual parts
-            // of the text.
-            if (useDstSampler) {
-                // We don't think any shaders actually output negative coverage, but just as a
-                // safety check for floating point precision errors, we compare with <= here. We
-                // just check the RGB values of the coverage, since the alpha may not have been set
-                // when using LCD. If we are using single-channel coverage, alpha will be equal to
-                // RGB anyway.
-                mainBody +=
-                    "if (all(lessThanEqual(outputCoverage.rgb, half3(0)))) {"
-                        "discard;"
-                    "}";
-            }
-
-            // Use kSrc HW BlendInfo and do the coverage blend with dst in the shader.
-            fBlendInfo = gBlendTable[static_cast<int>(SkBlendMode::kSrc)];
-            SkSL::String::appendf(
-                    &mainBody,
-                    "sk_FragColor = %s * outputCoverage + dstColor * (1.0 - outputCoverage);",
-                    outColor);
-            if (finalCoverage == Coverage::kLCD) {
-                SkSL::String::appendf(
-                        &mainBody,
-                        "half3 lerpRGB = mix(dstColor.aaa, %s.aaa, outputCoverage.rgb);"
-                        "sk_FragColor.a = max(max(lerpRGB.r, lerpRGB.g), lerpRGB.b);",
-                        outColor);
-            }
-        } else {
-            // Adjust the shader output(s) to incorporate the coverage so that HW blending produces
-            // the correct output.
-            // TODO: Determine whether draw is opaque and pass that to GetBlendFormula.
-            // TODO(b/372912880): Release assert debugging for illegal instruction
-            SkASSERTF_RELEASE(finalBlendMode.has_value(),
-                              "blend mode: %d, dst read: %d, coverage: %d, label = %s",
-                              finalBlendMode.has_value() ? (int)*finalBlendMode : -1,
-                              (int) fDstReadRequirement,
-                              (int) finalCoverage,
-                              fLabel.c_str());
-            BlendFormula coverageBlendFormula = finalCoverage == Coverage::kLCD
-                    ? skgpu::GetLCDBlendFormula(*finalBlendMode)
-                    : skgpu::GetBlendFormula(
-                              /*isOpaque=*/false, /*hasCoverage=*/true, *finalBlendMode);
-            fBlendInfo = {coverageBlendFormula.equation(),
-                          coverageBlendFormula.srcCoeff(),
-                          coverageBlendFormula.dstCoeff(),
-                          SK_PMColor4fTRANSPARENT,
-                          coverageBlendFormula.modifiesDst()};
-
-            if (finalCoverage == Coverage::kLCD) {
-                mainBody += "outputCoverage.a = max(max(outputCoverage.r, "
-                                                       "outputCoverage.g), "
-                                                   "outputCoverage.b);";
-            }
-
-            append_color_output(&mainBody,
-                                coverageBlendFormula.primaryOutput(),
-                                "sk_FragColor",
-                                outColor);
-            if (coverageBlendFormula.hasSecondaryOutput()) {
-                SkASSERT(caps->shaderCaps()->fDualSourceBlendingSupport);
-                append_color_output(&mainBody,
-                                    coverageBlendFormula.secondaryOutput(),
-                                    "sk_SecondaryFragColor",
-                                    outColor);
-            }
-        }
-    }
-    mainBody += "}\n";
-
-    return preamble + "\n" + mainBody;
+// Emit the glue code needed to invoke a single static helper isolated within its own scope.
+// Glue code will assign the resulting color into a variable `half4 outColor%d`, where the %d is
+// filled in with 'node->keyIndex()'.
+std::string ShaderNode::invokeAndAssign(const ShaderInfo& shaderInfo,
+                                        const ShaderSnippet::Args& args,
+                                        std::string* funcBody) const {
+    std::string expr = invoke_node(shaderInfo, this, args);
+    std::string outputVar = get_mangled_name("outColor", this->keyIndex());
+    SkSL::String::appendf(funcBody,
+                          "// [%d] %s\n"
+                          "half4 %s = %s;",
+                          this->keyIndex(),
+                          this->entry()->fName,
+                          outputVar.c_str(),
+                          expr.c_str());
+    return outputVar;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -829,7 +349,8 @@ std::string GenerateCoordManipulationPreamble(const ShaderInfo& shaderInfo,
 
     std::string perspectiveStatement;
 
-    ShaderSnippet::Args localArgs = kDefaultArgs;
+    const ShaderSnippet::Args& defaultArgs = ShaderSnippet::kDefaultArgs;
+    ShaderSnippet::Args localArgs = ShaderSnippet::kDefaultArgs;
     if (node->child(0)->requiredFlags() & SnippetRequirementFlags::kLocalCoords) {
         std::string controlUni =
                 get_mangled_uniform_name(shaderInfo, node->entry()->fUniforms[0], node->keyIndex());
@@ -837,21 +358,21 @@ std::string GenerateCoordManipulationPreamble(const ShaderInfo& shaderInfo,
         if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kLocalMatrixShader) {
             localArgs.fFragCoord = SkSL::String::printf("(%s * %s.xy01).xy",
                                                         controlUni.c_str(),
-                                                        kDefaultArgs.fFragCoord.c_str());
+                                                        defaultArgs.fFragCoord.c_str());
         } else if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kLocalMatrixShaderPersp) {
             perspectiveStatement = SkSL::String::printf("float4 perspCoord = %s * %s.xy01;",
                                                         controlUni.c_str(),
-                                                        kDefaultArgs.fFragCoord.c_str());
+                                                        defaultArgs.fFragCoord.c_str());
             localArgs.fFragCoord = "perspCoord.xy / perspCoord.w";
         } else {
             SkASSERT(node->codeSnippetId() == (int) BuiltInCodeSnippetID::kCoordClampShader);
             localArgs.fFragCoord = SkSL::String::printf("clamp(%s, %s.LT, %s.RB)",
-                                                        kDefaultArgs.fFragCoord.c_str(),
+                                                        defaultArgs.fFragCoord.c_str(),
                                                         controlUni.c_str(), controlUni.c_str());
         }
     } // else this is a no-op
 
-    std::string decl = emit_helper_declaration(shaderInfo, node);
+    std::string decl = emit_helper_declaration(node);
     std::string invokeChild = invoke_node(shaderInfo, node->child(0), localArgs);
     return SkSL::String::printf("%s { %s return %s; }",
                                 decl.c_str(),
@@ -876,19 +397,20 @@ std::string GenerateComposePreamble(const ShaderInfo& shaderInfo, const ShaderNo
     SkASSERT(node->numChildren() == numOuterParameters + 1);
 #endif
 
-    ShaderSnippet::Args outerArgs = kDefaultArgs;
+    const ShaderSnippet::Args& defaultArgs = ShaderSnippet::kDefaultArgs;
+    ShaderSnippet::Args outerArgs = ShaderSnippet::kDefaultArgs;
     int child = 0;
     if (outer->requiredFlags() & SnippetRequirementFlags::kLocalCoords) {
-        outerArgs.fFragCoord = invoke_node(shaderInfo, node->child(child++), kDefaultArgs);
+        outerArgs.fFragCoord = invoke_node(shaderInfo, node->child(child++), defaultArgs);
     }
     if (outer->requiredFlags() & SnippetRequirementFlags::kPriorStageOutput) {
-        outerArgs.fPriorStageOutput = invoke_node(shaderInfo, node->child(child++), kDefaultArgs);
+        outerArgs.fPriorStageOutput = invoke_node(shaderInfo, node->child(child++), defaultArgs);
     }
     if (outer->requiredFlags() & SnippetRequirementFlags::kBlenderDstColor) {
-        outerArgs.fBlenderDstColor = invoke_node(shaderInfo, node->child(child++), kDefaultArgs);
+        outerArgs.fBlenderDstColor = invoke_node(shaderInfo, node->child(child++), defaultArgs);
     }
 
-    std::string decl = emit_helper_declaration(shaderInfo, node);
+    std::string decl = emit_helper_declaration(node);
     std::string invokeOuter = invoke_node(shaderInfo, outer, outerArgs);
     return SkSL::String::printf("%s { return %s; }", decl.c_str(), invokeOuter.c_str());
 }
@@ -909,7 +431,7 @@ public:
     std::string declareUniform(const SkSL::VarDeclaration* decl) override {
         std::string result = get_mangled_name(std::string(decl->var()->name()), fNode->keyIndex());
         if (fShaderInfo.ssboIndex()) {
-            result = EmitStorageBufferAccess("fs", fShaderInfo.ssboIndex(), result.c_str());
+            result = get_storage_buffer_access("fs", fShaderInfo.ssboIndex(), result.c_str());
         }
         return result;
     }
@@ -919,7 +441,7 @@ public:
             SkSL::String::appendf(
                     fPreamble,
                     "%s { %s }",
-                    emit_helper_declaration(fShaderInfo, fNode).c_str(),
+                    emit_helper_declaration(fNode).c_str(),
                     body);
         } else {
             SkSL::String::appendf(fPreamble, "%s {%s}\n", decl, body);
@@ -939,19 +461,19 @@ public:
     }
 
     std::string sampleShader(int index, std::string coords) override {
-        ShaderSnippet::Args args = kDefaultArgs;
+        ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
         args.fFragCoord = coords;
         return invoke_node(fShaderInfo, fNode->child(index), args);
     }
 
     std::string sampleColorFilter(int index, std::string color) override {
-        ShaderSnippet::Args args = kDefaultArgs;
+        ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
         args.fPriorStageOutput = color;
         return invoke_node(fShaderInfo, fNode->child(index), args);
     }
 
     std::string sampleBlender(int index, std::string src, std::string dst) override {
-        ShaderSnippet::Args args = kDefaultArgs;
+        ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
         args.fPriorStageOutput = src;
         args.fBlenderDstColor = dst;
         return invoke_node(fShaderInfo, fNode->child(index), args);
@@ -967,7 +489,7 @@ public:
         SkASSERT(toLinearSrgbNode->codeSnippetId() ==
                         (int) BuiltInCodeSnippetID::kColorSpaceXformColorFilter);
 
-        ShaderSnippet::Args args = kDefaultArgs;
+        ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
         args.fPriorStageOutput = SkSL::String::printf("(%s).rgb1", color.c_str());
         std::string xformedColor = invoke_node(fShaderInfo, toLinearSrgbNode, args);
         return SkSL::String::printf("(%s).rgb", xformedColor.c_str());
@@ -984,7 +506,7 @@ public:
         SkASSERT(fromLinearSrgbNode->codeSnippetId() ==
                         (int) BuiltInCodeSnippetID::kColorSpaceXformColorFilter);
 
-        ShaderSnippet::Args args = kDefaultArgs;
+        ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
         args.fPriorStageOutput = SkSL::String::printf("(%s).rgb1", color.c_str());
         std::string xformedColor = invoke_node(fShaderInfo, fromLinearSrgbNode, args);
         return SkSL::String::printf("(%s).rgb", xformedColor.c_str());
@@ -1015,12 +537,13 @@ std::string GenerateRuntimeShaderPreamble(const ShaderInfo& shaderInfo,
     SkASSERT(effect);
 
     const SkSL::Program& program = SkRuntimeEffectPriv::Program(*effect);
+    const ShaderSnippet::Args& args = ShaderSnippet::kDefaultArgs;
     std::string preamble;
     GraphitePipelineCallbacks callbacks{shaderInfo, node, &preamble, effect};
     SkSL::PipelineStage::ConvertProgram(program,
-                                        kDefaultArgs.fFragCoord.c_str(),
-                                        kDefaultArgs.fPriorStageOutput.c_str(),
-                                        kDefaultArgs.fBlenderDstColor.c_str(),
+                                        args.fFragCoord.c_str(),
+                                        args.fPriorStageOutput.c_str(),
+                                        args.fBlenderDstColor.c_str(),
                                         &callbacks);
     return preamble;
 }
