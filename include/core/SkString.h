@@ -132,6 +132,8 @@ public:
     const char* data() const { return fRec->data(); }
     const char* c_str() const { return fRec->data(); }
     char operator[](size_t n) const { return this->c_str()[n]; }
+    const char* begin() const { return data(); }
+    const char* end() const { return data() + size(); }
 
     bool equals(const SkString&) const;
     bool equals(const char text[]) const;
@@ -177,6 +179,8 @@ public:
 
     char* data();
     char& operator[](size_t n) { return this->data()[n]; }
+    char* begin() { return data(); }
+    char* end() { return data() + size(); }
 
     void reset();
     /** String contents are preserved on resize. (For destructive resize, `set(nullptr, length)`.)
