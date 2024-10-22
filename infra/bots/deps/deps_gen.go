@@ -44,7 +44,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/chromium/src/base/allocator/partition_allocator": {
 		Id:      "chromium.googlesource.com/chromium/src/base/allocator/partition_allocator",
-		Version: "ca4487e127c2e071da5d4a36a9f71fd7b65b1434",
+		Version: "ce13777cb731e0a60c606d1741091fd11a0574d7",
 		Path:    "third_party/externals/partition_alloc",
 	},
 	"chromium.googlesource.com/chromium/src/buildtools": {
