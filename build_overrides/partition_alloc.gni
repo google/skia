@@ -43,7 +43,7 @@ _supported_platform =
 
 # Sanitizers replace the allocator, don't replace it ourselves with
 # partition_alloc.
-_is_using_sanitizers = sanitize != ""
+_is_using_sanitizers = sanitize == ""
 
 _supported = _supported_compiler && _supported_build_type &&
              _supported_platform && !_is_using_sanitizers
