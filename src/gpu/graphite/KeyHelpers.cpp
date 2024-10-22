@@ -1333,6 +1333,11 @@ void AddToKey(const KeyContext& keyContext,
               PipelineDataGatherer* gatherer,
               const SkBlender* blender) {
     if (!blender) {
+        // Calling code assumes a block will be appended. Add a fixed block to preserve shader
+        // and PaintParamsKey structure in release builds but assert since this should either not
+        // happen or should be changing high-level logic within PaintParams::toKey().
+        SkASSERT(false);
+        AddFixedBlendMode(keyContext, builder, gatherer, SkBlendMode::kSrcOver);
         return;
     }
     switch (as_BB(blender)->type()) {
@@ -1515,6 +1520,11 @@ void AddToKey(const KeyContext& keyContext,
               PipelineDataGatherer* gatherer,
               const SkColorFilter* filter) {
     if (!filter) {
+        // Calling code assumes a block will be appended. Add a fixed block to preserve shader
+        // and PaintParamsKey structure in release builds but assert since this should either not
+        // happen or should be changing high-level logic within PaintParams::toKey().
+        SkASSERT(false);
+        builder->addBlock(BuiltInCodeSnippetID::kPriorOutput);
         return;
     }
     switch (as_CFB(filter)->type()) {
@@ -2560,6 +2570,11 @@ void AddToKey(const KeyContext& keyContext,
               PipelineDataGatherer* gatherer,
               const SkShader* shader) {
     if (!shader) {
+        // Calling code assumes a block will be appended. Add a fixed block to preserve shader
+        // and PaintParamsKey structure in release builds but assert since this should either not
+        // happen or should be changing high-level logic within PaintParams::toKey().
+        SkASSERT(false);
+        SolidColorShaderBlock::AddBlock(keyContext, builder, gatherer, SK_PMColor4fTRANSPARENT);
         return;
     }
     switch (as_SB(shader)->type()) {
