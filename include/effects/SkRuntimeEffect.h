@@ -162,6 +162,7 @@ public:
 
     // Color filter SkSL requires an entry point that looks like:
     //     vec4 main(vec4 inColor) { ... }
+    //     https://fiddle.skia.org/c/@runtimeeffect_colorfilter_grid
     static Result MakeForColorFilter(SkString sksl, const Options&);
     static Result MakeForColorFilter(SkString sksl) {
         return MakeForColorFilter(std::move(sksl), Options{});
