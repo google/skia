@@ -3,6 +3,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("gn/codec.gni")
 import("gn/fuchsia_defines.gni")
 import("gn/shared_sources.gni")
 import("gn/skia.gni")
@@ -202,9 +203,6 @@ template("optional") {
       if (defined(invoker.public_configs)) {
         configs = invoker.public_configs
       }
-      if (defined(invoker.public_include_dirs)) {
-        include_dirs = invoker.public_include_dirs
-      }
     }
     skia_source_set(target_name) {
       visibility = [ ":*" ]
@@ -249,7 +247,10 @@ template("optional") {
         if (!defined(deps)) {
           deps = []
         }
-        deps += [ ":test" ]
+        deps += [
+          ":test",
+          ":" + target_name,
+        ]
         all_dependent_configs = [ ":" + target_name + "_public" ]
       }
     }
@@ -1295,20 +1296,21 @@ optional("typeface_freetype") {
   sources = skia_ports_freetype_sources
 }
 
+bazel_args = []
+if (is_mac && target_cpu == "arm64") {
+  # TODO: Normally the target toolchain would be specified with `--platforms` but that doesn't
+  # work. When building and running on an arm64 mac, setting `--host_platform` seems to do the
+  # right thing but may not be the right build configuration in the long run.
+  bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
+}
+if (is_debug) {
+  bazel_args += [ "--compilation_mode=dbg" ]
+} else {
+  bazel_args += [ "--compilation_mode=opt" ]
+}
+
 if (skia_use_fontations) {
-  action("fontations_rust_side") {
-    bazel_args = []
-    if (is_mac && target_cpu == "arm64") {
-      # TODO: Normally the target toolchain would be specified with `--platforms` but that doesn't
-      # work. When building and running on an arm64 mac, setting `--host_platform` seems to do the
-      # right thing but may not be the right build configuration in the long run.
-      bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
-    }
-    if (is_debug) {
-      bazel_args += [ "--compilation_mode=dbg" ]
-    } else {
-      bazel_args += [ "--compilation_mode=opt" ]
-    }
+  action("fontations_rust_side_bazel_build") {
     script = "gn/bazel_build.py"
     sources = [
       "src/ports/fontations/BUILD.bazel",
@@ -1323,67 +1325,165 @@ if (skia_use_fontations) {
         ] + bazel_args
   }
 
-  action("fontations_ffi") {
-    bazel_args = []
-    if (is_mac && target_cpu == "arm64") {
-      # TODO: Normally the target toolchain would be specified with `--platforms` but that doesn't
-      # work. When building and running on an arm64 mac, setting `--host_platform` seems to do the
-      # right thing but may not be the right build configuration in the long run.
-      bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
-    }
-    if (is_debug) {
-      bazel_args += [ "--compilation_mode=dbg" ]
-    } else {
-      bazel_args += [ "--compilation_mode=opt" ]
-    }
+  # We only use Bazel to get the generated `.cc` and `.h` file and then compile
+  # them on GN/ninja side using `skia_source_set` below.  This ensures that the
+  # same C++ stdlib and compiler is used throughout the build (in some scenarios
+  # Bazel may end up using different ones).
+  action("fontations_ffi_bazel_build") {
     script = "gn/bazel_build.py"
     sources = [
       "src/ports/fontations/BUILD.bazel",
       "src/ports/fontations/src/ffi.rs",
     ]
     outputs = [
-      "$root_out_dir/libfontations_ffi.a",
       "$root_out_dir/src/ports/fontations/src/ffi.rs.h",
+      "$root_out_dir/src/ports/fontations/src/ffi.rs.cc",
     ]
     args = [
              "//src/ports/fontations:fontations_ffi",
-             rebase_path("//bazel-bin/src/ports/fontations/libfontations_ffi.a",
-                         root_build_dir),
 
              # we want the header to not simply be copied into the output directory,
              # but in the same path as the Bazel build uses.
              rebase_path("//bazel-bin/src/ports/fontations/src/ffi.rs.h",
                          root_build_dir) + "=src/ports/fontations/src/ffi.rs.h",
+             rebase_path("//bazel-bin/src/ports/fontations/src/ffi.rs.cc",
+                         root_build_dir) +
+                 "=src/ports/fontations/src/ffi.rs.cc",
            ] + bazel_args
+  }
+  config("fontations_ffi_public_config") {
+    include_dirs = [
+      # This is where `src/ports/fontations/src/ffi.rs.h` was put by Bazel
+      "$root_out_dir",
+    ]
+  }
+  config("fontations_ffi_private_config") {
+    include_dirs = [
+      # This entry is needed so that `ffi.rs.cc` can resolve
+      # `#include "src/ports/fontations/src/ffi.rs.h"`
+      ".",
+    ]
+  }
+  skia_source_set("fontations_ffi") {
+    deps = [
+      ":fontations_ffi_bazel_build",
+      ":fontations_rust_side_bazel_build",
+    ]
+    public = [ "${root_out_dir}/src/ports/fontations/src/ffi.rs.h" ]
+    sources = [ "${root_out_dir}/src/ports/fontations/src/ffi.rs.cc" ]
+    libs = [ "$root_out_dir/libbridge_rust_side.a" ]
+    public_configs = [ ":fontations_ffi_public_config" ]
+    configs = [ ":fontations_ffi_private_config" ]
   }
 }
 
 optional("typeface_fontations") {
   public_defines = [ "SK_TYPEFACE_FACTORY_FONTATIONS" ]
   enabled = skia_use_fontations
-  if (enabled) {
-    # this is where src/ports/fontations/src/ffi.rs.h was generated and exists.
-    public_include_dirs = [ "$root_out_dir" ]
-  }
-
-  deps = [
-    ":fontations_ffi",
-    ":fontations_rust_side",
-  ]
-
-  libs = [
-    "$root_out_dir/libfontations_ffi.a",
-    "$root_out_dir/libbridge_rust_side.a",
-  ]
+  public_deps = [ ":fontations_ffi" ]
   sources = skia_ports_typeface_fontations_sources + [
               "src/ports/SkFontScanner_fontations.cpp",
               "src/ports/SkFontScanner_fontations.h",
             ]
-
   sources_for_tests = [
     "tests/FontationsTest.cpp",
     "tests/FontationsFtCompTest.cpp",
   ]
+}
+
+if (skia_use_rust_png) {
+  # We only use Bazel to get the generated `.cc` and `.h` file and then compile
+  # them on GN/ninja side using `skia_source_set` below.  This ensures that the
+  # same C++ stdlib and compiler is used throughout the build (in some scenarios
+  # Bazel may end up using different ones).
+  action("rust_png_ffi_bazel_build") {
+    script = "gn/bazel_build.py"
+    sources = [
+      "experimental/rust_png/ffi/BUILD.bazel",
+      "experimental/rust_png/ffi/FFI.h",
+      "experimental/rust_png/ffi/FFI.rs",
+    ]
+    outputs = [
+      "$root_out_dir/librust_png_ffi_rs.a",
+      "$root_out_dir/experimental/rust_png/ffi/FFI.rs.h",
+      "$root_out_dir/experimental/rust_png/ffi/FFI.rs.cc",
+    ]
+    args =
+        [
+          "//experimental/rust_png/ffi:*",
+
+          rebase_path("//bazel-bin/experimental/rust_png/ffi/libffi_rs.a",
+                      root_build_dir) + "=librust_png_ffi_rs.a",
+
+          # we want the `cxx`-generated headers to not simply be copied into
+          # the output directory, but in the same path as the Bazel build
+          # uses.
+          rebase_path("//bazel-bin/experimental/rust_png/ffi/FFI.rs.h",
+                      root_build_dir) + "=experimental/rust_png/ffi/FFI.rs.h",
+          rebase_path("//bazel-bin/experimental/rust_png/ffi/FFI.rs.cc",
+                      root_build_dir) + "=experimental/rust_png/ffi/FFI.rs.cc",
+        ] + bazel_args
+  }
+  action("rust_png_cxx_core_bazel_build") {
+    script = "gn/bazel_build.py"
+    sources = [
+      "WORKSPACE.bazel",
+      "bazel/external/cxx/BUILD.bazel",
+      "bazel/external/cxx/BUILD.bazel.skia",
+    ]
+    outputs = [
+      "$root_out_dir/librust_png_cxx_core_lib.a",
+      "$root_out_dir/third_party/rust/cxx/v1/cxx.h",
+    ]
+    args = [
+             "@cxx//:core-lib",
+
+             rebase_path("//bazel-bin/external/cxx/libcore-lib.a",
+                         root_build_dir) + "=librust_png_cxx_core_lib.a",
+
+             # we want the `cxx.h` header to not simply be copied into the
+             # output directory, but in the same path as the Bazel build uses.
+             rebase_path(
+                     "//bazel-bin/external/cxx/_virtual_includes/core-lib/third_party/rust/cxx/v1/cxx.h",
+                     root_build_dir) + "=third_party/rust/cxx/v1/cxx.h",
+           ] + bazel_args
+  }
+  config("rust_png_cxx_bridge_public_config") {
+    include_dirs = [
+      # This is where `experimental/rust_png/ffi/FFI.rs.h` and
+      # `third_party/rust/cxx/v1/cxx.h` were put by Bazel
+      "$root_out_dir",
+    ]
+  }
+  config("rust_png_cxx_bridge_private_config") {
+    include_dirs = [
+      # This entry is needed so that `FFI.rs.cc` can resolve
+      # `#include "experimental/rust_png/ffi/FFI.h"`
+      ".",
+    ]
+  }
+  skia_source_set("rust_png_cxx_bridge") {
+    deps = [ ":rust_png_ffi_bazel_build" ]
+    public = [ "${root_out_dir}/experimental/rust_png/ffi/FFI.rs.h" ]
+    sources = [ "${root_out_dir}/experimental/rust_png/ffi/FFI.rs.cc" ]
+    libs = [ "$root_out_dir/librust_png_ffi_rs.a" ]
+    public_configs = [ ":rust_png_cxx_bridge_public_config" ]
+    configs = [ ":rust_png_cxx_bridge_private_config" ]
+  }
+}
+
+optional("rust_png") {
+  public_defines = [ "SK_USE_RUST_PNG" ]
+  enabled = skia_use_rust_png
+  public = skia_codec_rust_png_public  # From `gn/codec.gni`
+  sources = skia_codec_rust_png  # From `gn/codec.gni`
+  sources_for_tests = [ "tests/SkPngRustDecoderTest.cpp" ]
+
+  deps = [
+    ":rust_png_cxx_bridge",
+    ":rust_png_cxx_core_bazel_build",
+  ]
+  libs = [ "$root_out_dir/librust_png_cxx_core_lib.a" ]
 }
 
 optional("webp_decode") {
@@ -2348,6 +2448,7 @@ if (skia_enable_tools) {
       ":fontmgr_android_tests",
       ":fontmgr_fontconfig_tests",
       ":fontmgr_mac_ct_tests",
+      ":rust_png_tests",
       ":skia",
       ":test",
       ":tool_utils",
