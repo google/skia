@@ -275,6 +275,7 @@ SkPngRustCodec::SkPngRustCodec(SkEncodedInfo&& encodedInfo,
 SkPngRustCodec::~SkPngRustCodec() = default;
 
 SkCodec::Result SkPngRustCodec::readToStartOfNextFrame() {
+    SkASSERT(fFrameAtCurrentStreamPosition < this->getRawFrameCount());
     Result result = ToSkCodecResult(fReader->next_frame_info());
     if (result != kSuccess) {
         return result;
@@ -289,9 +290,12 @@ SkCodec::Result SkPngRustCodec::readToStartOfNextFrame() {
 }
 
 SkCodec::Result SkPngRustCodec::seekToStartOfFrame(int index) {
-    if (index < 0 || index >= fFrameHolder.size()) {
-        return kInvalidParameters;
-    }
+    // Callers of this `private` method should provide a valid `index`.
+    //
+    // `index == fFrameHolder.size()` means that we are seeking to the next
+    // frame (i.e. to the first frame for which an `fcTL` chunk wasn't parsed
+    // yet).
+    SkASSERT((0 <= index) && (index <= fFrameHolder.size()));
 
     // TODO(https://crbug.com/371060427): Improve runtime performance by seeking
     // directly to the right offset in the stream, rather than calling `rewind`
@@ -334,20 +338,34 @@ int SkPngRustCodec::getRawFrameCount() const {
     return Sk64_pin_to_s32(num_frames);
 }
 
+SkCodec::Result SkPngRustCodec::parseAdditionalFrameInfos() {
+    while (fFrameHolder.size() < this->getRawFrameCount()) {
+        int oldFrameCount = fFrameHolder.size();
+
+        Result result = this->seekToStartOfFrame(fFrameHolder.size());
+        if (result != kSuccess) {
+            return result;
+        }
+        SkASSERT(fFrameHolder.size() == (oldFrameCount + 1));
+    }
+    return kSuccess;
+}
+
 SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
                                               void* pixels,
                                               size_t rowBytes,
                                               const Options& options,
                                               DecodingState* decodingState) {
+    if (options.fFrameIndex < 0 || options.fFrameIndex >= fFrameHolder.size()) {
+        return kInvalidParameters;
+    }
+    const SkFrame* frame = fFrameHolder.getFrame(options.fFrameIndex);
+    SkASSERT(frame);
+
     Result result = this->seekToStartOfFrame(options.fFrameIndex);
     if (result != kSuccess) {
         return result;
     }
-
-    // `options.fFrameIndex` is validated by `seekToStartOfFrame` and therefore
-    // we can assert/guarantee that we get a valid `frame` from `fFrameHolder`.
-    const SkFrame* frame = fFrameHolder.getFrame(options.fFrameIndex);
-    SkASSERT(frame);
 
     // TODO(https://crbug.com/362830091): Consider handling `fSubset`.
     if (options.fSubset) {
@@ -487,16 +505,18 @@ SkCodec::Result SkPngRustCodec::onIncrementalDecode(int* rowsDecoded) {
 }
 
 int SkPngRustCodec::onGetFrameCount() {
-    bool arePreviousFramesFullyDecoded =
-            !fIncrementalDecodingState.has_value() && fFrameHolder.isLastFrameFullyReceived();
-    if (arePreviousFramesFullyDecoded) {
-        bool areThereMoreFrames = this->getRawFrameCount() > fFrameHolder.size();
-        if (areThereMoreFrames) {
-            // Ignore the result - it's fine if we do nothing (e.g. leaving `fFrameHolder`
-            // unchanged) after recoverable errors (e.g. `kIncompleteInput`) or other errors (the
-            // latter allows to decode the initial, error-free frames).  See
-            // https://crbug.com/371592786 for additional notes.
-            std::ignore = this->readToStartOfNextFrame();
+    if (fCanParseAdditionalFrameInfos) {
+        switch (this->parseAdditionalFrameInfos()) {
+            case kIncompleteInput:
+                fCanParseAdditionalFrameInfos = true;
+                break;
+            case kSuccess:
+                SkASSERT(fFrameHolder.size() == this->getRawFrameCount());
+                fCanParseAdditionalFrameInfos = false;
+                break;
+            default:
+                fCanParseAdditionalFrameInfos = false;
+                break;
         }
     }
 
@@ -610,13 +630,6 @@ int SkPngRustCodec::FrameHolder::size() const {
 void SkPngRustCodec::FrameHolder::markFrameAsFullyReceived(size_t index) {
     SkASSERT(index < fFrames.size());
     fFrames[index].markAsFullyReceived();
-}
-
-bool SkPngRustCodec::FrameHolder::isLastFrameFullyReceived() const {
-    if (fFrames.empty()) {
-        return true;
-    }
-    return fFrames.back().isFullyReceived();
 }
 
 bool SkPngRustCodec::FrameHolder::getFrameInfo(int index, FrameInfo* info) const {

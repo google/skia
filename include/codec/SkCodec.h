@@ -638,11 +638,11 @@ public:
      *
      *  May require reading through the stream.
      *
-     *  Note that some codecs may be initially unable to gather `FrameInfo` for
-     *  all frames.  For such codecs `getFrameCount` may  initially report a low
-     *  frame count - the count returned by `getFrameCount` will progressively
-     *  increment as the input stream is processed further (e.g. by decoding
-     *  known frames and/or calling `getFrameCount` again).
+     *  Note that some codecs may be unable to gather `FrameInfo` for all frames
+     *  in case of `kIncompleteInput`.  For such codecs `getFrameCount` may
+     *  initially report a low frame count.  After the underlying `SkStream`
+     *  provides additional data, then calling `getFrameCount` again may return
+     *  an updated, increased frame count.
      */
     int getFrameCount() {
         return this->onGetFrameCount();
