@@ -1004,7 +1004,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"RadeonR9M470X": "1002:6646-26.20.13031.18002",
 					"QuadroP400":    "10de:1cb3-31.0.15.5222",
 					"RadeonVega6":   "1002:1636-31.0.14057.5006",
-					"RTX3060":       "10de:2489-31.0.15.3699",
+					"RTX3060":       "10de:2489-32.0.15.6094",
 				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in Win GPU mapping.", b.parts["cpu_or_gpu_value"])
