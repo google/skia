@@ -18,6 +18,13 @@ struct FragSkSLInfo;
 struct VertSkSLInfo;
 class RenderStep;
 
+enum class PipelineCreationFlags : uint8_t {
+    kNone             = 0b000,
+    // This flag is Dawn specific. It overrides the DawnCaps::fUseAsyncPipelineCreation
+    // parameter and forces Synchronous Pipeline creation (for Precompilation).
+    kForceSynchronous = 0b001,
+};
+
 /**
  * GraphicsPipeline corresponds to a backend specific pipeline used for rendering (vs. compute),
  * e.g. MTLRenderPipelineState (Metal),

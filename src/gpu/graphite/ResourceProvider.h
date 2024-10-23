@@ -13,6 +13,7 @@
 #include "src/core/SkLRUCache.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/graphite/CommandBuffer.h"
+#include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/ResourceCache.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
@@ -36,7 +37,6 @@ class Caps;
 class ComputePipeline;
 class ComputePipelineDesc;
 class GlobalCache;
-class GraphicsPipeline;
 class GraphicsPipelineDesc;
 class GraphiteResourceKey;
 class ResourceCache;
@@ -53,9 +53,11 @@ public:
 
     // The runtime effect dictionary provides a link between SkCodeSnippetIds referenced in the
     // paint key and the current SkRuntimeEffect that provides the SkSL for that id.
-    sk_sp<GraphicsPipeline> findOrCreateGraphicsPipeline(const RuntimeEffectDictionary*,
-                                                         const GraphicsPipelineDesc&,
-                                                         const RenderPassDesc&);
+    sk_sp<GraphicsPipeline> findOrCreateGraphicsPipeline(
+            const RuntimeEffectDictionary*,
+            const GraphicsPipelineDesc&,
+            const RenderPassDesc&,
+            SkEnumBitMask<PipelineCreationFlags> = PipelineCreationFlags::kNone);
 
     sk_sp<ComputePipeline> findOrCreateComputePipeline(const ComputePipelineDesc&);
 
@@ -124,9 +126,11 @@ protected:
     sk_sp<ResourceCache> fResourceCache;
 
 private:
-    virtual sk_sp<GraphicsPipeline> createGraphicsPipeline(const RuntimeEffectDictionary*,
-                                                           const GraphicsPipelineDesc&,
-                                                           const RenderPassDesc&) = 0;
+    virtual sk_sp<GraphicsPipeline> createGraphicsPipeline(
+            const RuntimeEffectDictionary*,
+            const GraphicsPipelineDesc&,
+            const RenderPassDesc&,
+            SkEnumBitMask<PipelineCreationFlags>) = 0;
     virtual sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize,
                                          const TextureInfo&,

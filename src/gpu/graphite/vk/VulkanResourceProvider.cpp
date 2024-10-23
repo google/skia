@@ -114,7 +114,8 @@ const Buffer* VulkanResourceProvider::loadMSAAVertexBuffer() const {
 sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(
         const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
-        const RenderPassDesc& renderPassDesc) {
+        const RenderPassDesc& renderPassDesc,
+        SkEnumBitMask<PipelineCreationFlags> /* pipelineCreationFlags */) {
     return VulkanGraphicsPipeline::Make(this,
                                         runtimeDict,
                                         pipelineDesc,

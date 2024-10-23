@@ -66,7 +66,8 @@ void compile(const RendererProvider* rendererProvider,
             sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
                     keyContext.rtEffectDict(),
                     pipelineDesc,
-                    renderPassDesc);
+                    renderPassDesc,
+                    PipelineCreationFlags::kForceSynchronous);
             if (!pipeline) {
                 SKGPU_LOG_W("Failed to create GraphicsPipeline in precompile!");
                 return;
@@ -88,7 +89,8 @@ bool Precompile(Context* context,
     sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
             rteDict,
             pipelineDesc,
-            renderPassDesc);
+            renderPassDesc,
+            PipelineCreationFlags::kForceSynchronous);
     if (!pipeline) {
         SKGPU_LOG_W("Failed to create GraphicsPipeline in precompile!");
         return false;

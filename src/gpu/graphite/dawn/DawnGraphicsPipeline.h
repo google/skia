@@ -59,7 +59,8 @@ public:
                                             DawnResourceProvider* resourceProvider,
                                             const RuntimeEffectDictionary* runtimeDict,
                                             const GraphicsPipelineDesc& pipelineDesc,
-                                            const RenderPassDesc& renderPassDesc);
+                                            const RenderPassDesc& renderPassDesc,
+                                            SkEnumBitMask<PipelineCreationFlags>);
 
     ~DawnGraphicsPipeline() override;
 

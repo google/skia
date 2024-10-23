@@ -261,11 +261,13 @@ struct DawnGraphicsPipeline::AsyncPipelineCreation : public AsyncPipelineCreatio
 #endif
 
 // static
-sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* sharedContext,
-                                                       DawnResourceProvider* resourceProvider,
-                                                       const RuntimeEffectDictionary* runtimeDict,
-                                                       const GraphicsPipelineDesc& pipelineDesc,
-                                                       const RenderPassDesc& renderPassDesc) {
+sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
+        const DawnSharedContext* sharedContext,
+        DawnResourceProvider* resourceProvider,
+        const RuntimeEffectDictionary* runtimeDict,
+        const GraphicsPipelineDesc& pipelineDesc,
+        const RenderPassDesc& renderPassDesc,
+        SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags) {
     const DawnCaps& caps = *static_cast<const DawnCaps*>(sharedContext->caps());
     const auto& device = sharedContext->device();
 
@@ -599,7 +601,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(const DawnSharedContext* 
 
     auto asyncCreation = std::make_unique<AsyncPipelineCreation>();
 
-    if (caps.useAsyncPipelineCreation()) {
+    if (caps.useAsyncPipelineCreation() &&
+        !(pipelineCreationFlags & PipelineCreationFlags::kForceSynchronous)) {
 #if defined(__EMSCRIPTEN__)
         // We shouldn't use CreateRenderPipelineAsync in wasm.
         SKGPU_LOG_F("CreateRenderPipelineAsync shouldn't be used in WASM");
