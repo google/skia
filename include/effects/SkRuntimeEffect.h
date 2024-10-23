@@ -353,7 +353,7 @@ private:
  * Note that SkRuntimeEffectBuilder is built entirely on the public API of SkRuntimeEffect,
  * so can be used as-is or serve as inspiration for other interfaces or binding techniques.
  */
-class SkRuntimeEffectBuilder {
+class SK_API SkRuntimeEffectBuilder {
 public:
     explicit SkRuntimeEffectBuilder(sk_sp<SkRuntimeEffect> effect)
             : fEffect(std::move(effect))
