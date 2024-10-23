@@ -6,6 +6,7 @@
  */
 
 #include "experimental/rust_png/SkPngRustDecoder.h"
+#include "include/codec/SkCodecAnimation.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
@@ -140,16 +141,40 @@ DEF_TEST(Codec_apng_dispose_op_none_basic, r) {
     REPORTER_ASSERT(r, codec->getFrameCount() == 3);
     REPORTER_ASSERT(r, codec->getRepetitionCount() == 0);
 
+    // We should have `FrameInfo` for all 3 frames.
+    SkCodec::FrameInfo info[3];
+    REPORTER_ASSERT(r, codec->getFrameInfo(0, &info[0]));
+    REPORTER_ASSERT(r, codec->getFrameInfo(1, &info[1]));
+    REPORTER_ASSERT(r, codec->getFrameInfo(2, &info[2]));
+
+    // The codec should realize that the `SkStream` contains all the data of the
+    // first 2 frames.  Currently `SkPngRustCodec::onGetFrameCount` stops after
+    // parsing the final, 3rd `fcTL` chunk and therefore it can't tell if the
+    // subsequent `fdAT` chunk has been fully received or not.
+    REPORTER_ASSERT(r, info[0].fFullyReceived);
+    REPORTER_ASSERT(r, info[1].fFullyReceived);
+    REPORTER_ASSERT(r, !info[2].fFullyReceived);
+
+    // Spot-check frame metadata.
+    REPORTER_ASSERT(r, info[1].fAlphaType == kUnpremul_SkAlphaType);
+    REPORTER_ASSERT(r, info[1].fBlend == SkCodecAnimation::Blend::kSrcOver);
+    REPORTER_ASSERT(r, info[1].fDisposalMethod == SkCodecAnimation::DisposalMethod::kKeep);
+    REPORTER_ASSERT(r, info[1].fDuration == 100, "dur = %d", info[1].fDuration);
+    REPORTER_ASSERT(r, info[1].fFrameRect == SkIRect::MakeWH(128, 64));
+    REPORTER_ASSERT(r, info[1].fHasAlphaWithinBounds);
+    REPORTER_ASSERT(r, info[1].fRequiredFrame == 0);
+
+    // Validate contents of the first frame.
     auto [image, result] = codec->getImage();
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
-
     REPORTER_ASSERT(r, image);
     REPORTER_ASSERT(r, image->width() == 128, "width %d != 128", image->width());
     REPORTER_ASSERT(r, image->height() == 64, "height %d != 64", image->height());
     AssertRedPixel(r, *image, 0, 0, "Frame #0 should be red");
 
-    // TODO(https://crbug.com/356922876): Add frame1 and frame2 assertions after
-    // implementing blending support in `SkPngRustCodec`.
+    // TODO(https://crbug.com/356922876): Assert that frame1 and frame2 have
+    // green pixels.  (Need to first implement blending support in
+    // `SkPngRustCodec`.)
 }
 
 // Test based on

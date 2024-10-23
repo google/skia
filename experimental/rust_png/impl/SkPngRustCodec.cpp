@@ -672,6 +672,13 @@ SkCodec::Result SkPngRustCodec::FrameHolder::appendNewFrame(const rust_png::Read
     int id = static_cast<int>(fFrames.size());
 
     if (reader.has_fctl_chunk()) {
+        if (!fFrames.empty()) {
+            // Having `fcTL` for a new frame means that the previous frame has been
+            // fully received (since all of the previous frame's `fdAT` / `IDAT`
+            // chunks must have come before the new frame's `fcTL` chunk).
+            fFrames.back().markAsFullyReceived();
+        }
+
         PngFrame frame(id, info.alpha());
         SkCodec::Result result = this->setFrameInfoFromCurrentFctlChunk(reader, &frame);
         if (result == SkCodec::kSuccess) {
