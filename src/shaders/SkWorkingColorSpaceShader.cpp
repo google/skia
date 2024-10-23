@@ -69,7 +69,7 @@ sk_sp<SkFlattenable> SkWorkingColorSpaceShader::CreateProc(SkReadBuffer& buffer)
     if (!buffer.validate(workingSpace != nullptr)) {
         return nullptr;
     }
-    return sk_make_sp<SkWorkingColorSpaceShader>(std::move(shader), std::move(workingSpace));
+    return Make(std::move(shader), std::move(workingSpace));
 }
 
 void SkRegisterWorkingColorSpaceShaderFlattenable() {
