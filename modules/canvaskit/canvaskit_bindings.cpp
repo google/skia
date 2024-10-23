@@ -1471,9 +1471,10 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("rotate", select_overload<void (SkScalar, SkScalar, SkScalar)>(&SkCanvas::rotate))
         .function("save", &SkCanvas::save)
         .function("_saveLayer", optional_override([](SkCanvas& self, const SkPaint* p, WASMPointerF32 fPtr,
-                                                     const SkImageFilter* backdrop, SkCanvas::SaveLayerFlags flags)->int {
+                                                     const SkImageFilter* backdrop, SkCanvas::SaveLayerFlags flags,
+                                                     SkTileMode backdropFilterTileMode)->int {
             SkRect* bounds = reinterpret_cast<SkRect*>(fPtr);
-            return self.saveLayer(SkCanvas::SaveLayerRec(bounds, p, backdrop, flags));
+            return self.saveLayer(SkCanvas::SaveLayerRec(bounds, p, backdrop, backdropFilterTileMode, nullptr, flags));
         }), allow_raw_pointers())
         .function("saveLayerPaint", optional_override([](SkCanvas& self, const SkPaint p)->int {
             return self.saveLayer(SkCanvas::SaveLayerRec(nullptr, &p, 0));

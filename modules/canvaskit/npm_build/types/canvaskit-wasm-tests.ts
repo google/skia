@@ -179,6 +179,7 @@ function canvasTests(CK: CanvasKit, canvas?: Canvas, paint?: Paint, path?: Path,
     const h4 = canvas.saveLayer(paint, someRect);
     const h5 = canvas.saveLayer(paint, someRect, imgFilter, CK.SaveLayerF16ColorType);
     const h6 = canvas.saveLayer(paint, someRect, null, CK.SaveLayerInitWithPrevious);
+    const h7 = canvas.saveLayer(paint, someRect, imgFilter, CK.SaveLayerInitWithPrevious, CK.TileMode.Decal);
     canvas.scale(5, 10);
     canvas.skew(10, 5);
     canvas.translate(20, 30);
