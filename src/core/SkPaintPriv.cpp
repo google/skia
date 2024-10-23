@@ -163,9 +163,9 @@ void SkPaintPriv::RemoveColorFilter(SkPaint* p, SkColorSpace* dstCS) {
         if (SkShader* shader = p->getShader()) {
             // SkColorFilterShader will modulate the shader color by paint alpha
             // before applying the filter, so we'll reset it to opaque.
-            p->setShader(sk_make_sp<SkColorFilterShader>(sk_ref_sp(shader),
-                                                         p->getAlphaf(),
-                                                         sk_ref_sp(filter)));
+            p->setShader(SkColorFilterShader::Make(sk_ref_sp(shader),
+                                                   p->getAlphaf(),
+                                                   sk_ref_sp(filter)));
             p->setAlphaf(1.0f);
         } else {
             p->setColor(filter->filterColor4f(p->getColor4f(), sk_srgb_singleton(), dstCS), dstCS);
