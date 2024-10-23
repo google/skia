@@ -20,7 +20,7 @@
 class SK_API SkSVGFeLightSource : public SkSVGHiddenContainer {
 public:
     void appendChild(sk_sp<SkSVGNode>) final {
-        SkDebugf("cannot append child nodes to an SVG light source.\n");
+        SkDEBUGF("cannot append child nodes to an SVG light source.\n");
     }
 
 protected:

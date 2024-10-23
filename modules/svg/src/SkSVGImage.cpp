@@ -54,7 +54,7 @@ static sk_sp<SkImage> LoadImage(const sk_sp<skresources::ResourceProvider>& rp,
             break;
         }
         default:
-            SkDebugf("error loading image: unhandled iri type %d\n", (int)href.type());
+            SkDEBUGF("error loading image: unhandled iri type %d\n", (int)href.type());
             return nullptr;
     }
 
@@ -90,7 +90,7 @@ void SkSVGImage::onRender(const SkSVGRenderContext& ctx) const {
 
     const auto imgInfo = LoadImage(ctx.resourceProvider(), fHref, viewPort, fPreserveAspectRatio);
     if (!imgInfo.fImage) {
-        SkDebugf("can't render image: load image failed\n");
+        SkDEBUGF("can't render image: load image failed\n");
         return;
     }
 

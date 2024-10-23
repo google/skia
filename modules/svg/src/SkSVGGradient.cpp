@@ -64,7 +64,7 @@ SkColor4f SkSVGGradient::resolveStopColor(const SkSVGRenderContext& ctx,
     const auto& stopOpacity = stop.getStopOpacity();
     // Uninherited presentation attrs should have a concrete value at this point.
     if (!stopColor.isValue() || !stopOpacity.isValue()) {
-        SkDebugf("unhandled: stop-color or stop-opacity has no value\n");
+        SkDEBUGF("unhandled: stop-color or stop-opacity has no value\n");
         return SkColors::kBlack;
     }
 

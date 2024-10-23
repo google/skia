@@ -21,7 +21,7 @@ SkColor SkSVGFeFlood::resolveFloodColor(const SkSVGRenderContext& ctx) const {
     const auto floodOpacity = this->getFloodOpacity();
     // Uninherited presentation attributes should have a concrete value by now.
     if (!floodColor.isValue() || !floodOpacity.isValue()) {
-        SkDebugf("unhandled: flood-color or flood-opacity has no value\n");
+        SkDEBUGF("unhandled: flood-color or flood-opacity has no value\n");
         return SK_ColorBLACK;
     }
 

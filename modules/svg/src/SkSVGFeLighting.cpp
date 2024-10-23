@@ -58,7 +58,7 @@ sk_sp<SkImageFilter> SkSVGFeLighting::onMakeImageFilter(const SkSVGRenderContext
         }
     }
 
-    SkDebugf("lighting filter effect needs exactly one light source\n");
+    SkDEBUGF("lighting filter effect needs exactly one light source\n");
     return nullptr;
 }
 
@@ -66,7 +66,7 @@ SkColor SkSVGFeLighting::resolveLightingColor(const SkSVGRenderContext& ctx) con
     const auto color = this->getLightingColor();
     if (!color.isValue()) {
         // Uninherited presentation attributes should have a concrete value by now.
-        SkDebugf("unhandled: lighting-color has no value\n");
+        SkDEBUGF("unhandled: lighting-color has no value\n");
         return SK_ColorWHITE;
     }
 

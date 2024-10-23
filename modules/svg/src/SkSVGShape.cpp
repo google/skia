@@ -36,5 +36,5 @@ void SkSVGShape::onRender(const SkSVGRenderContext& ctx) const {
 }
 
 void SkSVGShape::appendChild(sk_sp<SkSVGNode>) {
-    SkDebugf("cannot append child nodes to an SVG shape.\n");
+    SkDEBUGF("cannot append child nodes to an SVG shape.\n");
 }

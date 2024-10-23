@@ -31,7 +31,7 @@ public:
     }
 
     void appendChild(sk_sp<SkSVGNode>) override {
-        SkDebugf("cannot append child nodes to this element.\n");
+        SkDEBUGF("cannot append child nodes to this element.\n");
     }
 
     bool onPrepareToRender(SkSVGRenderContext*) const override;

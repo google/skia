@@ -16,7 +16,7 @@
 SkSVGUse::SkSVGUse() : INHERITED(SkSVGTag::kUse) {}
 
 void SkSVGUse::appendChild(sk_sp<SkSVGNode>) {
-    SkDebugf("cannot append child nodes to this element.\n");
+    SkDEBUGF("cannot append child nodes to this element.\n");
 }
 
 bool SkSVGUse::parseAndSetAttribute(const char* n, const char* v) {
