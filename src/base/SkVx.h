@@ -41,8 +41,12 @@
 #endif
 
 #if SKVX_USE_SIMD
-    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+    #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
         #include <immintrin.h>
+    #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
+        #include <smmintrin.h>
+    #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE1
+        #include <xmmintrin.h>
     #elif defined(SK_ARM_HAS_NEON)
         #include <arm_neon.h>
     #elif defined(__wasm_simd128__)
