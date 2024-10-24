@@ -704,17 +704,14 @@ bool GrGLInterface::validate() const {
         }
     }
 
-    if (GR_IS_GR_GL(fStandard)) {
-        if (!fFunctions.fGetQueryObjectiv) {
-            RETURN_FALSE_INTERFACE;
-        }
-    }
-
     if (GR_IS_GR_GL(fStandard) ||
        (GR_IS_GR_GL_ES(fStandard) && (
           (glVer >= GR_GL_VER(3,0)) ||
-          fExtensions.has("GL_EXT_occlusion_query_boolean")))) {
-#if defined(GPU_TEST_UTILS)
+          fExtensions.has("GL_EXT_disjoint_timer_query"))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          (glVer >= GR_GL_VER(2,0)) ||
+          fExtensions.has("GL_EXT_disjoint_timer_query") ||
+          fExtensions.has("EXT_disjoint_timer_query")))) {
         if (!fFunctions.fBeginQuery ||
             !fFunctions.fDeleteQueries ||
             !fFunctions.fEndQuery ||
@@ -723,24 +720,36 @@ bool GrGLInterface::validate() const {
             !fFunctions.fGetQueryiv) {
             RETURN_FALSE_INTERFACE;
         }
-#endif
-        // all functions were marked optional or test_only
     }
 
     if ((GR_IS_GR_GL(fStandard) && (
           (glVer >= GR_GL_VER(3,3)) ||
-          fExtensions.has("GL_ARB_timer_query") ||
-          fExtensions.has("GL_EXT_timer_query")))) {
-        if (!fFunctions.fGetQueryObjecti64v ||
-            !fFunctions.fGetQueryObjectui64v) {
+          fExtensions.has("GL_ARB_timer_query"))) ||
+       (GR_IS_GR_GL_ES(fStandard) && (
+          fExtensions.has("GL_EXT_disjoint_timer_query"))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          fExtensions.has("GL_EXT_disjoint_timer_query") ||
+          fExtensions.has("EXT_disjoint_timer_query") ||
+          fExtensions.has("GL_EXT_disjoint_timer_query_webgl2") ||
+          fExtensions.has("EXT_disjoint_timer_query_webgl2")))) {
+        if (!fFunctions.fQueryCounter) {
             RETURN_FALSE_INTERFACE;
         }
     }
 
     if ((GR_IS_GR_GL(fStandard) && (
           (glVer >= GR_GL_VER(3,3)) ||
-          fExtensions.has("GL_ARB_timer_query")))) {
-        if (!fFunctions.fQueryCounter) {
+          fExtensions.has("GL_ARB_timer_query") ||
+          fExtensions.has("GL_EXT_timer_query"))) ||
+       (GR_IS_GR_GL_ES(fStandard) && (
+          fExtensions.has("GL_EXT_disjoint_timer_query"))) ||
+       (GR_IS_GR_WEBGL(fStandard) && (
+          fExtensions.has("GL_EXT_disjoint_timer_query") ||
+          fExtensions.has("EXT_disjoint_timer_query") ||
+          fExtensions.has("GL_EXT_disjoint_timer_query_webgl2") ||
+          fExtensions.has("EXT_disjoint_timer_query_webgl2")))) {
+        if (!fFunctions.fGetQueryObjecti64v ||
+            !fFunctions.fGetQueryObjectui64v) {
             RETURN_FALSE_INTERFACE;
         }
     }
