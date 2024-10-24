@@ -44,14 +44,13 @@ SkEncodedInfo::Color ToColor(rust_png::ColorType colorType) {
             return SkEncodedInfo::kGrayAlpha_Color;
         case rust_png::ColorType::Rgba:
             return SkEncodedInfo::kRGBA_Color;
-        // `Indexed` is impossible, because of `png::Transformations::EXPAND`.
         case rust_png::ColorType::Indexed:
-            break;
+            return SkEncodedInfo::kPalette_Color;
     }
     SK_ABORT("Unexpected `rust_png::ColorType`: %d", static_cast<int>(colorType));
 }
 
-SkEncodedInfo::Alpha ToAlpha(rust_png::ColorType colorType) {
+SkEncodedInfo::Alpha ToAlpha(rust_png::ColorType colorType, const rust_png::Reader& reader) {
     switch (colorType) {
         case rust_png::ColorType::Grayscale:
         case rust_png::ColorType::Rgb:
@@ -59,9 +58,12 @@ SkEncodedInfo::Alpha ToAlpha(rust_png::ColorType colorType) {
         case rust_png::ColorType::GrayscaleAlpha:
         case rust_png::ColorType::Rgba:
             return SkEncodedInfo::kUnpremul_Alpha;
-        // `Indexed` is impossible, because of `png::Transformations::EXPAND`.
         case rust_png::ColorType::Indexed:
-            break;
+            if (reader.has_trns_chunk()) {
+                return SkEncodedInfo::kUnpremul_Alpha;
+            } else {
+                return SkEncodedInfo::kOpaque_Alpha;
+            }
     }
     SK_ABORT("Unexpected `rust_png::ColorType`: %d", static_cast<int>(colorType));
 }
@@ -93,8 +95,8 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> CreateColorProfile(const rust_png::Re
     // `src/codec/SkPngCodec.cpp` but has been refactored to use Rust inputs
     // instead of `libpng`.
 
-    rust::Slice<const uint8_t> iccp;
-    if (reader.try_get_iccp(iccp)) {
+    if (reader.has_iccp_chunk()) {
+        rust::Slice<const uint8_t> iccp = reader.get_iccp_chunk();
         skcms_ICCProfile profile;
         skcms_Init(&profile);
         if (skcms_Parse(iccp.data(), iccp.size(), &profile)) {
@@ -168,7 +170,7 @@ SkEncodedInfo CreateEncodedInfo(const rust_png::Reader& reader) {
     return SkEncodedInfo::Make(Sk64_pin_to_s32(reader.width()),
                                Sk64_pin_to_s32(reader.height()),
                                skColor,
-                               ToAlpha(rustColor),
+                               ToAlpha(rustColor, reader),
                                reader.output_bits_per_component(),
                                std::move(profile));
 }
@@ -187,6 +189,16 @@ SkCodec::Result ToSkCodecResult(rust_png::DecodingResult rustResult) {
             return SkCodec::kIncompleteInput;
     }
     SK_ABORT("Unexpected `rust_png::DecodingResult`: %d", static_cast<int>(rustResult));
+}
+
+template <typename T> SkSpan<T> ToSkSpan(rust::Slice<T> slice) {
+    // Avoiding operating on `buffer.data()` if the slice is empty helps to avoid
+    // UB risk described at https://davidben.net/2024/01/15/empty-slices.html.
+    if (slice.empty()) {
+        return SkSpan<T>();
+    }
+
+    return SkSpan<T>(slice.data(), slice.size());
 }
 
 // This helper class adapts `SkStream` to expose the API required by Rust FFI
@@ -212,13 +224,8 @@ public:
     // https://doc.rust-lang.org/nightly/std/io/trait.Read.html#tymethod.read
     // for guidance on the desired implementation and behavior of this method.
     size_t read(rust::Slice<uint8_t> buffer) override {
-        // Avoiding operating on `buffer.data()` if the slice is empty helps to avoid
-        // UB risk described at https://davidben.net/2024/01/15/empty-slices.html.
-        if (buffer.empty()) {
-            return 0;
-        }
-
-        return fStream->read(buffer.data(), buffer.size());
+        SkSpan<uint8_t> span = ToSkSpan(buffer);
+        return fStream->read(span.data(), span.size());
     }
 
 private:
@@ -558,12 +565,27 @@ std::optional<SkSpan<const SkPngCodecBase::PaletteColorEntry>> SkPngRustCodec::o
         return std::nullopt;
     }
 
-    // We shouldn't get here because we always use
-    // `png::Transformations::EXPAND`.
-    //
-    // TODO(https://crbug.com/356882657): Handle pLTE and tRNS inside
-    // `SkPngRustCodec` rather than via `png::Transformations::EXPAND`.
-    SkUNREACHABLE;
+    // No need for `has_plte_chunk` check here (and no such API provided by
+    // `FFI.rs`) because the Rust decoder will return an error if an `Indexed`
+    // image has no `pLTE` chunk before the `IDAT` chunk.
+    SkSpan<const uint8_t> bytes = ToSkSpan(fReader->get_plte_chunk());
+
+    // Make sure that `bytes.size()` is a multiple of
+    // `sizeof(PaletteColorEntry)`.
+    constexpr size_t kEntrySize = sizeof(PaletteColorEntry);
+    bytes = bytes.first((bytes.size() / kEntrySize) * kEntrySize);
+
+    // Alignment of `PaletteColorEntry` is 1, because its size is 3, and size
+    // has to be a multiple of alignment (every element of an array has to be
+    // aligned) + alignment is always a power of 2.  And this means that
+    // `bytes.data()` is already aligned.
+    static_assert(kEntrySize == 3, "");
+    static_assert(std::alignment_of<PaletteColorEntry>::value == 1, "");
+    static_assert(std::alignment_of<uint8_t>::value == 1, "");
+    SkSpan<const PaletteColorEntry> palette = SkSpan(
+            reinterpret_cast<const PaletteColorEntry*>(bytes.data()), bytes.size() / kEntrySize);
+
+    return palette;
 }
 
 std::optional<SkSpan<const uint8_t>> SkPngRustCodec::onTryGetTrnsChunk() {
@@ -571,12 +593,11 @@ std::optional<SkSpan<const uint8_t>> SkPngRustCodec::onTryGetTrnsChunk() {
         return std::nullopt;
     }
 
-    // We shouldn't get here because we always use
-    // `png::Transformations::EXPAND`.
-    //
-    // TODO(https://crbug.com/356882657): Handle pLTE and tRNS inside
-    // `SkPngRustCodec` rather than via `png::Transformations::EXPAND`.
-    SkUNREACHABLE;
+    if (!fReader->has_trns_chunk()) {
+        return std::nullopt;
+    }
+
+    return ToSkSpan(fReader->get_trns_chunk());
 }
 
 class SkPngRustCodec::FrameHolder::PngFrame final : public SkFrame {

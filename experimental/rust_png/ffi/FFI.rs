@@ -89,7 +89,11 @@ mod ffi {
             by: &mut f32,
         ) -> bool;
         fn try_get_gama(self: &Reader, gamma: &mut f32) -> bool;
-        unsafe fn try_get_iccp<'a>(self: &'a Reader, iccp: &mut &'a [u8]) -> bool;
+        fn has_iccp_chunk(self: &Reader) -> bool;
+        fn get_iccp_chunk(self: &Reader) -> &[u8];
+        fn has_trns_chunk(self: &Reader) -> bool;
+        fn get_trns_chunk(self: &Reader) -> &[u8];
+        fn get_plte_chunk(self: &Reader) -> &[u8];
         fn has_actl_chunk(self: &Reader) -> bool;
         fn get_actl_num_frames(self: &Reader) -> u32;
         fn get_actl_num_plays(self: &Reader) -> u32;
@@ -200,6 +204,47 @@ impl ResultOfReader {
     }
 }
 
+fn compute_transformations(info: &png::Info) -> png::Transformations {
+    // There are 2 scenarios where `EXPAND` transformation may be needed:
+    //
+    // * `SkSwizzler` can handle low-bit-depth `ColorType::Indexed`, but it may not
+    //   support other inputs with low bit depth (e.g. `kGray_Color` with bpp=4). We
+    //   use `EXPAND` to ask the `png` crate to expand such low-bpp images to at
+    //   least 8 bits.
+    // * We may need to inject an alpha channel from the `tRNS` chunk if present.
+    //   Note that we can't check `info.trns.is_some()` because at this point we
+    //   have not yet read beyond the `IHDR` chunk.
+    //
+    // We avoid using `EXPAND` for `ColorType::Indexed` because this results in some
+    // performance gains - see https://crbug.com/356882657 for more details.
+    let mut result = match info.color_type {
+        // Work around bpp<8 limitations of `SkSwizzler`
+        png::ColorType::Rgba | png::ColorType::GrayscaleAlpha if (info.bit_depth as u8) < 8 => {
+            png::Transformations::EXPAND
+        }
+
+        // Handle `tRNS` expansion + work around bpp<8 limitations of `SkSwizzler`
+        png::ColorType::Rgb | png::ColorType::Grayscale => png::Transformations::EXPAND,
+
+        // Otherwise there is no need to `EXPAND`.
+        png::ColorType::Indexed | png::ColorType::Rgba | png::ColorType::GrayscaleAlpha => {
+            png::Transformations::IDENTITY
+        }
+    };
+
+    // We mimic how the `libpng`-based `SkPngCodec` handles G16 and GA16.
+    //
+    // TODO(https://crbug.com/359245096): Avoid stripping least signinficant 8 bits in G16 and
+    // GA16 images.
+    if info.bit_depth == png::BitDepth::Sixteen {
+        if matches!(info.color_type, png::ColorType::Grayscale | png::ColorType::GrayscaleAlpha) {
+            result = result | png::Transformations::STRIP_16;
+        }
+    }
+
+    result
+}
+
 /// FFI-friendly wrapper around `png::Reader<R>` (`cxx` can't handle arbitrary
 /// generics, so we manually monomorphize here, but still expose a minimal,
 /// somewhat tweaked API of the original type).
@@ -214,30 +259,10 @@ impl Reader {
         // that, we can use `png::Decoder::new_with_limits`.
         let mut decoder = png::Decoder::new(input);
 
-        // `EXPAND` will:
-        // * Expand bit depth to at least 8 bits
-        // * Translate palette indices into RGB or RGBA
-        //
-        // TODO(https://crbug.com/356882657): Consider handling palette expansion
-        // via `SkSwizzler` instead of relying on `EXPAND` for this use case.
-        let mut transformations = png::Transformations::EXPAND;
-
-        // TODO(https://crbug.com/359245096): Avoid stripping least signinficant 8 bits in G16 and
-        // GA16 images.
         let info = decoder.read_header_info()?;
-        if info.bit_depth == png::BitDepth::Sixteen {
-            match info.color_type {
-                png::ColorType::Grayscale | png::ColorType::GrayscaleAlpha => {
-                    transformations = transformations | png::Transformations::STRIP_16;
-                }
-                png::ColorType::Rgb | png::ColorType::Rgba => (),
-                // PNG says that the only allowed bit depths for color type 3 (indexed)
-                // are 1,2,4,8.
-                png::ColorType::Indexed => unreachable!(),
-            }
-        }
-
+        let transformations = compute_transformations(info);
         decoder.set_transformations(transformations);
+
         Ok(Self { reader: decoder.read_info()?, last_interlace_info: None })
     }
 
@@ -303,17 +328,32 @@ impl Reader {
         }
     }
 
-    /// If the decoded PNG image contained an `iCCP` chunk then `try_get_iccp`
-    /// returns `true` and sets `iccp` to the `rust::Slice`.  Otherwise,
-    /// returns `false`.
-    fn try_get_iccp<'a>(&'a self, iccp: &mut &'a [u8]) -> bool {
-        match self.reader.info().icc_profile.as_ref().map(|cow| cow.as_ref()) {
-            None => false,
-            Some(value) => {
-                *iccp = value;
-                true
-            }
-        }
+    /// Returns whether the `iCCP` chunk exists.
+    fn has_iccp_chunk(&self) -> bool {
+        self.reader.info().icc_profile.is_some()
+    }
+
+    /// Returns contents of the `iCCP` chunk.  Panics if there is no `iCCP`
+    /// chunk.
+    fn get_iccp_chunk(&self) -> &[u8] {
+        self.reader.info().icc_profile.as_ref().unwrap().as_ref()
+    }
+
+    /// Returns whether the `tRNS` chunk exists.
+    fn has_trns_chunk(&self) -> bool {
+        self.reader.info().trns.is_some()
+    }
+
+    /// Returns contents of the `tRNS` chunk.  Panics if there is no `tRNS`
+    /// chunk.
+    fn get_trns_chunk(&self) -> &[u8] {
+        self.reader.info().trns.as_ref().unwrap().as_ref()
+    }
+
+    /// Returns contents of the `PLTE` chunk.  Panics if there is no `PLTE`
+    /// chunk.
+    fn get_plte_chunk(&self) -> &[u8] {
+        self.reader.info().palette.as_ref().unwrap().as_ref()
     }
 
     /// Returns whether the `acTL` chunk exists.
