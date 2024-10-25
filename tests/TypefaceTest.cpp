@@ -8,6 +8,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkFontArguments.h"
+#include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkFontParameters.h"
 #include "include/core/SkFontStyle.h"
@@ -20,6 +21,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFixed.h"
 #include "include/private/base/SkTemplates.h"
+#include "include/utils/SkCustomTypeface.h"
 #include "src/base/SkEndian.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkFontDescriptor.h"
@@ -709,4 +711,21 @@ DEF_TEST(LegacyMakeTypeface, reporter) {
         REPORTER_ASSERT(reporter, typeface3->isItalic());
         REPORTER_ASSERT(reporter, typeface3->isBold());
     }
+}
+
+DEF_TEST(CustomTypeface_invalid_glyphid, reporter) {
+    SkPath glyph_path;
+    glyph_path.addRect({10, 20, 30, 40});
+
+    SkCustomTypefaceBuilder builder;
+    builder.setGlyph(0, 42, glyph_path);
+
+    SkFont custom_font(builder.detach(), 1);
+
+    SkGlyphID glyph_ids[] = {0, 1};
+    SkRect bounds[2];
+    custom_font.getBounds(glyph_ids, 2, bounds, nullptr);
+
+    REPORTER_ASSERT(reporter, bounds[0] == SkRect::MakeLTRB(10, 20, 30, 40));
+    REPORTER_ASSERT(reporter, bounds[1] == SkRect::MakeLTRB(0, 0, 0, 0));
 }

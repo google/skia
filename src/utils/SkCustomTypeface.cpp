@@ -259,9 +259,15 @@ protected:
         GlyphMetrics mx(glyph.maskFormat());
 
         const SkUserTypeface* tf = this->userTF();
-        mx.advance = fMatrix.mapXY(tf->fGlyphRecs[glyph.getGlyphID()].fAdvance, 0);
+        const SkGlyphID gid = glyph.getGlyphID();
+        if (gid >= tf->fGlyphRecs.size()) {
+            mx.neverRequestPath = true;
+            return mx;
+        }
 
-        const auto& rec = tf->fGlyphRecs[glyph.getGlyphID()];
+        const auto& rec = tf->fGlyphRecs[gid];
+        mx.advance = fMatrix.mapXY(rec.fAdvance, 0);
+
         if (rec.isDrawable()) {
             mx.maskFormat = SkMask::kARGB32_Format;
 
