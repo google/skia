@@ -77,10 +77,10 @@ private:
     SkSampler* getSampler(bool createIfNecessary) final;
 
     void allocateStorage(const SkImageInfo& dstInfo);
-    void initializeSwizzler(const SkImageInfo& dstInfo,
-                            const Options& options,
-                            bool skipFormatConversion,
-                            int frameWidth);
+    Result initializeSwizzler(const SkImageInfo& dstInfo,
+                              const Options& options,
+                              bool skipFormatConversion,
+                              int frameWidth);
     bool createColorTable(const SkImageInfo& dstInfo);
 
     enum XformMode {

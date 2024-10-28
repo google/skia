@@ -8,8 +8,10 @@
 #include "src/codec/SkPngCodecBase.h"
 
 #include <cstddef>
+#include <tuple>
 #include <utility>
 
+#include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedImageFormat.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColor.h"
@@ -131,17 +133,20 @@ SkCodec::Result SkPngCodecBase::initializeXforms(const SkImageInfo& dstInfo,
 
     if (skipFormatConversion && !options.fSubset) {
         fXformMode = kColorOnly_XformMode;
-        goto Success;
-    }
+    } else {
+        if (SkEncodedInfo::kPalette_Color == this->getEncodedInfo().color()) {
+            if (!this->createColorTable(dstInfo)) {
+                return kInvalidInput;
+            }
+        }
 
-    if (SkEncodedInfo::kPalette_Color == this->getEncodedInfo().color()) {
-        if (!this->createColorTable(dstInfo)) {
-            return kInvalidInput;
+        Result result =
+                this->initializeSwizzler(dstInfo, options, skipFormatConversion, frameWidth);
+        if (result != kSuccess) {
+            return result;
         }
     }
 
-    this->initializeSwizzler(dstInfo, options, skipFormatConversion, frameWidth);
-Success:
     this->allocateStorage(dstInfo);
 
     // We can't call `initializeXformParams` here, because `swizzleWidth` may
@@ -179,10 +184,10 @@ void SkPngCodecBase::allocateStorage(const SkImageInfo& dstInfo) {
     }
 }
 
-void SkPngCodecBase::initializeSwizzler(const SkImageInfo& dstInfo,
-                                        const Options& options,
-                                        bool skipFormatConversion,
-                                        int frameWidth) {
+SkCodec::Result SkPngCodecBase::initializeSwizzler(const SkImageInfo& dstInfo,
+                                                   const Options& options,
+                                                   bool skipFormatConversion,
+                                                   int frameWidth) {
     SkImageInfo swizzlerInfo = dstInfo;
     Options swizzlerOptions = options;
     fXformMode = kSwizzleOnly_XformMode;
@@ -237,7 +242,8 @@ void SkPngCodecBase::initializeSwizzler(const SkImageInfo& dstInfo,
         fSwizzler = SkSwizzler::Make(
                 this->getEncodedInfo(), colors, swizzlerInfo, swizzlerOptions, frameRectPtr);
     }
-    SkASSERT(fSwizzler);
+
+    return !!fSwizzler ? kSuccess : kUnimplemented;
 }
 
 SkSampler* SkPngCodecBase::getSampler(bool createIfNecessary) {
@@ -245,7 +251,12 @@ SkSampler* SkPngCodecBase::getSampler(bool createIfNecessary) {
         return fSwizzler.get();
     }
 
-    this->initializeSwizzler(this->dstInfo(), this->options(), true, this->dstInfo().width());
+    // Ok to ignore `initializeSwizzler`'s result, because if it fails, then
+    // `fSwizzler` will be `nullptr` and we want to return `nullptr` upon
+    // failure.
+    std::ignore = this->initializeSwizzler(
+            this->dstInfo(), this->options(), true, this->dstInfo().width());
+
     return fSwizzler.get();
 }
 

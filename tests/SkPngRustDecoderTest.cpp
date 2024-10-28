@@ -6,10 +6,12 @@
  */
 
 #include "experimental/rust_png/SkPngRustDecoder.h"
+#include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
@@ -250,4 +252,24 @@ DEF_TEST(Codec_apng_invalid_num_frames_outside_valid_range, r) {
     // of successfully parsed `fcTL` chunks (1 chunk in the test input) rather
     // than returning the raw `acTL.num_frames`.
     REPORTER_ASSERT(r, codec->getFrameCount() == 1);
+}
+
+DEF_TEST(Codec_png_swizzling_target_unimplemented, r) {
+    std::unique_ptr<SkCodec> codec =
+            SkPngRustDecoderDecode(r, "images/apng-test-suite--basic--ignoring-default-image.png");
+    if (!codec) {
+        return;
+    }
+    REPORTER_ASSERT(r, codec->getFrameCount() == 1);
+
+    // Ask to decode into an esoteric `SkColorType`:
+    //
+    // * Unsupported by `SkSwizzler`.
+    // * Supported by `SkCodec::conversionSupported`.
+    SkImageInfo dstInfo = SkImageInfo::Make(
+            codec->dimensions(), kBGRA_10101010_XR_SkColorType, kPremul_SkAlphaType);
+
+    auto [image, result] = codec->getImage(dstInfo);
+    REPORTER_ASSERT(r, result == SkCodec::kUnimplemented);
+    REPORTER_ASSERT(r, !image);
 }
