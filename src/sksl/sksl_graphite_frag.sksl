@@ -1568,6 +1568,25 @@ $pure half4 per_edge_aa_quad_coverage_fn(float4 coords,
     return half4(saturate(c));
 }
 
+$pure half4 circular_arc_coverage_fn(float4 circleEdge,
+                                     float3 clipPlane,
+                                     float3 isectPlane,
+                                     float3 unionPlane) {
+    float d = length(circleEdge.xy);
+    half distanceToOuterEdge = half(circleEdge.z * (1.0 - d));
+    half edgeAlpha = saturate(distanceToOuterEdge);
+    half distanceToInnerEdge = half(circleEdge.z * (d - circleEdge.w));
+    half innerAlpha = saturate(distanceToInnerEdge);
+    edgeAlpha *= innerAlpha;
+
+    half clip = half(saturate(circleEdge.z * dot(circleEdge.xy, clipPlane.xy) + clipPlane.z));
+    clip *= half(saturate(circleEdge.z * dot(circleEdge.xy, isectPlane.xy) + isectPlane.z));
+    clip = saturate(clip +
+                   half(saturate(circleEdge.z * dot(circleEdge.xy, unionPlane.xy) + unionPlane.z)));
+
+    return half4(clip*edgeAlpha);
+}
+
 $pure half4 $rect_blur_coverage_fn(float2 coords,
                                    float4 rect,
                                    half isFast,

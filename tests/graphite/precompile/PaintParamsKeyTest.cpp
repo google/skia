@@ -1784,6 +1784,10 @@ void simple_draws(SkCanvas* canvas, const SkPaint& paint) {
     canvas->drawRect(SkRect::MakeWH(16, 16), paint);
     canvas->drawRRect(SkRRect::MakeOval({0, 0, 16, 16}), paint);
     canvas->drawRRect(SkRRect::MakeRectXY({0, 0, 16, 16}, 4, 4), paint);
+    canvas->drawArc({0, 0, 16, 16}, 0, 90, /* useCenter= */ false, paint);
+    if (paint.getStyle() == SkPaint::kFill_Style) {
+        canvas->drawArc({0, 0, 16, 16}, 0, 90, /* useCenter= */ true, paint);
+    }
 
     // TODO: add a case that uses the SkCanvas::experimental_DrawEdgeAAImageSet entry point
     if (!paint.getShader() &&
@@ -1804,6 +1808,9 @@ void non_simple_draws(SkCanvas* canvas, const SkPaint& paint, const DrawData& dr
     // TODO: add strokeAndFill draws here as well as a stroked non-circular rrect draw
     canvas->drawPath(drawData.fPath, paint);
     canvas->drawTextBlob(drawData.fPathBlob, 0, 16, paint);
+    if (paint.getStyle() == SkPaint::kStroke_Style) {
+        canvas->drawArc({0, 0, 16, 16}, 0, 90, /* useCenter= */ true, paint);
+    }
 }
 
 #ifdef SK_DEBUG

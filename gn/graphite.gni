@@ -181,6 +181,8 @@ skia_graphite_sources = [
   "$_src/render/AnalyticRRectRenderStep.h",
   "$_src/render/BitmapTextRenderStep.cpp",
   "$_src/render/BitmapTextRenderStep.h",
+  "$_src/render/CircularArcRenderStep.cpp",
+  "$_src/render/CircularArcRenderStep.h",
   "$_src/render/CommonDepthStencilSettings.h",
   "$_src/render/CoverBoundsRenderStep.cpp",
   "$_src/render/CoverBoundsRenderStep.h",

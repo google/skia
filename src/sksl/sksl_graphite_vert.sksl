@@ -968,6 +968,69 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
     return float4(devPos.xy, devPos.z*depth, devPos.z);
 }
 
+float4 circular_arc_vertex_fn(float3 position,
+                              // Instance Attributes
+                              float4 centerScales,
+                              float2 radii,
+                              float3 geoClipPlane,
+                              float3 inClipPlane,
+                              float3 inIsectPlane,
+                              float3 inUnionPlane,
+                              float depth,
+                              float3x3 localToDevice,
+                              // Varyings
+                              out float4 circleEdge,
+                              out float3 clipPlane,
+                              out float3 isectPlane,
+                              out float3 unionPlane,
+                              // Render Step
+                              out float2 stepLocalCoords) {
+    // TODO: clip offset against clip planes
+    float2 localCenter = centerScales.xy;
+    float2 localPos = localCenter;
+    // do geometric clip in normalized space
+    float dist = min(dot(position.xy, geoClipPlane.xy) + geoClipPlane.z, 0);
+    position.xy -= geoClipPlane.xy * dist;
+    // Get the new length to use below for scaling the offset
+    // (origLength is the initial length of position.xy).
+    float offsetScale = length(position.xy);
+
+    // scale and translate to local space
+    if (position.z > 0) {
+        localPos += position.xy * centerScales.z;
+    } else {
+        localPos += position.xy * centerScales.w;
+    }
+
+    float3 devPos = localToDevice * localPos.xy1;
+    float3 devCenter = localToDevice * localCenter.xy1;
+    float2 offset = devPos.xy - devCenter.xy;
+    // offset for AA and correct length of offset
+    if (offset != float2(0)) {
+        offset = normalize(offset);
+        devPos.xy += position.z*offset;
+        if (position.z > 0) {
+            // Scale using distance from center of unit octagon to the vertex
+            // Because of geometry clipping we need to scale by 1.0823922*newLength/origLength
+            // But the original length is 1.0823922 so the offsetScale is just newLength
+            offset *= offsetScale;
+        } else {
+            // Because of geometry clipping we need to scale by innerRadius*newLength/origLength
+            // But the original length is 1 so this is just innerRadius*newLength
+            offset *= offsetScale*radii.y;
+        }
+    }
+
+    circleEdge = float4(offset, radii);
+    clipPlane = inClipPlane;
+    isectPlane = inIsectPlane;
+    unionPlane = inUnionPlane;
+    stepLocalCoords = localPos;
+
+    // We assume no perspective
+    return float4(devPos.xy, depth, 1);
+}
+
 float4 text_vertex_fn(float2 baseCoords,
                       // Uniforms
                       float4x4 subRunDeviceMatrix,
