@@ -174,6 +174,7 @@ public:
         GrGLFunction<GrGLGetProgramInfoLogFn> fGetProgramInfoLog;
         GrGLFunction<GrGLGetProgramivFn> fGetProgramiv;
         GrGLFunction<GrGLGetQueryObjecti64vFn> fGetQueryObjecti64v;
+        GrGLFunction<GrGLGetQueryObjectivFn> fGetQueryObjectiv;
         GrGLFunction<GrGLGetQueryObjectui64vFn> fGetQueryObjectui64v;
         GrGLFunction<GrGLGetQueryObjectuivFn> fGetQueryObjectuiv;
         GrGLFunction<GrGLGetQueryivFn> fGetQueryiv;

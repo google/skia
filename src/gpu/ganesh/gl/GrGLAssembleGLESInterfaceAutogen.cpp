@@ -438,28 +438,23 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     }
 
     if (glVer >= GR_GL_VER(3,0)) {
+#if defined(GPU_TEST_UTILS)
         GET_PROC(BeginQuery);
         GET_PROC(DeleteQueries);
         GET_PROC(EndQuery);
         GET_PROC(GenQueries);
         GET_PROC(GetQueryObjectuiv);
         GET_PROC(GetQueryiv);
-    } else if (extensions.has("GL_EXT_disjoint_timer_query")) {
+#endif
+    } else if (extensions.has("GL_EXT_occlusion_query_boolean")) {
+#if defined(GPU_TEST_UTILS)
         GET_PROC_SUFFIX(BeginQuery, EXT);
         GET_PROC_SUFFIX(DeleteQueries, EXT);
         GET_PROC_SUFFIX(EndQuery, EXT);
         GET_PROC_SUFFIX(GenQueries, EXT);
         GET_PROC_SUFFIX(GetQueryObjectuiv, EXT);
         GET_PROC_SUFFIX(GetQueryiv, EXT);
-    }
-
-    if (extensions.has("GL_EXT_disjoint_timer_query")) {
-        GET_PROC_SUFFIX(QueryCounter, EXT);
-    }
-
-    if (extensions.has("GL_EXT_disjoint_timer_query")) {
-        GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
-        GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
+#endif
     }
 
     if (extensions.has("GL_ARB_invalidate_subdata")) {

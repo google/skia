@@ -237,53 +237,6 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
     }
 
     if (glVer >= GR_GL_VER(2,0)) {
-        GET_PROC(BeginQuery);
-        GET_PROC(DeleteQueries);
-        GET_PROC(EndQuery);
-        GET_PROC(GenQueries);
-        GET_PROC(GetQueryObjectuiv);
-        GET_PROC(GetQueryiv);
-    } else if (extensions.has("GL_EXT_disjoint_timer_query")) {
-        GET_PROC_SUFFIX(BeginQuery, EXT);
-        GET_PROC_SUFFIX(DeleteQueries, EXT);
-        GET_PROC_SUFFIX(EndQuery, EXT);
-        GET_PROC_SUFFIX(GenQueries, EXT);
-        GET_PROC_SUFFIX(GetQueryObjectuiv, EXT);
-        GET_PROC_SUFFIX(GetQueryiv, EXT);
-    } else if (extensions.has("EXT_disjoint_timer_query")) {
-        GET_PROC_SUFFIX(BeginQuery, EXT);
-        GET_PROC_SUFFIX(DeleteQueries, EXT);
-        GET_PROC_SUFFIX(EndQuery, EXT);
-        GET_PROC_SUFFIX(GenQueries, EXT);
-        GET_PROC_SUFFIX(GetQueryObjectuiv, EXT);
-        GET_PROC_SUFFIX(GetQueryiv, EXT);
-    }
-
-    if (extensions.has("GL_EXT_disjoint_timer_query")) {
-        GET_PROC_SUFFIX(QueryCounter, EXT);
-    } else if (extensions.has("EXT_disjoint_timer_query")) {
-        GET_PROC_SUFFIX(QueryCounter, EXT);
-    } else if (extensions.has("GL_EXT_disjoint_timer_query_webgl2")) {
-        GET_PROC_SUFFIX(QueryCounter, EXT);
-    } else if (extensions.has("EXT_disjoint_timer_query_webgl2")) {
-        GET_PROC_SUFFIX(QueryCounter, EXT);
-    }
-
-    if (extensions.has("GL_EXT_disjoint_timer_query")) {
-        GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
-        GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
-    } else if (extensions.has("EXT_disjoint_timer_query")) {
-        GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
-        GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
-    } else if (extensions.has("GL_EXT_disjoint_timer_query_webgl2")) {
-        GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
-        GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
-    } else if (extensions.has("EXT_disjoint_timer_query_webgl2")) {
-        GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
-        GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
-    }
-
-    if (glVer >= GR_GL_VER(2,0)) {
         GET_PROC(InvalidateFramebuffer);
         GET_PROC(InvalidateSubFramebuffer);
     }

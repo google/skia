@@ -442,18 +442,16 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
         GET_PROC(SamplerParameteriv);
     }
 
+    GET_PROC(GetQueryObjectiv);
+
+#if defined(GPU_TEST_UTILS)
     GET_PROC(BeginQuery);
     GET_PROC(DeleteQueries);
     GET_PROC(EndQuery);
     GET_PROC(GenQueries);
     GET_PROC(GetQueryObjectuiv);
     GET_PROC(GetQueryiv);
-
-    if (glVer >= GR_GL_VER(3,3)) {
-        GET_PROC(QueryCounter);
-    } else if (extensions.has("GL_ARB_timer_query")) {
-        GET_PROC(QueryCounter);
-    }
+#endif
 
     if (glVer >= GR_GL_VER(3,3)) {
         GET_PROC(GetQueryObjecti64v);
@@ -464,6 +462,12 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLInterface(void *ctx, GrGLGetProc g
     } else if (extensions.has("GL_EXT_timer_query")) {
         GET_PROC_SUFFIX(GetQueryObjecti64v, EXT);
         GET_PROC_SUFFIX(GetQueryObjectui64v, EXT);
+    }
+
+    if (glVer >= GR_GL_VER(3,3)) {
+        GET_PROC(QueryCounter);
+    } else if (extensions.has("GL_ARB_timer_query")) {
+        GET_PROC(QueryCounter);
     }
 
     if (glVer >= GR_GL_VER(4,3)) {
