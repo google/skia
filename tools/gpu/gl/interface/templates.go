@@ -183,14 +183,14 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetPro
 #include "include/gpu/ganesh/gl/GrGLAssembleHelpers.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 
-// Located https://github.com/emscripten-core/emscripten/tree/7ba7700902c46734987585409502f3c63beb650f/system/include/GLES3
-#define GL_GLEXT_PROTOTYPES
-#include <GLES3/gl32.h>
-#include <GLES3/gl2ext.h>
+// Located https://github.com/emscripten-core/emscripten/tree/7ba7700902c46734987585409502f3c63beb650f/system/include/webgl
+#include <webgl/webgl1.h>
+#include <webgl/webgl1_ext.h>
+#include <webgl/webgl2.h>
 #include <webgl/webgl2_ext.h>
 
-#define GET_PROC(F) functions->f##F = gl##F
-#define GET_PROC_SUFFIX(F, S) functions->f##F = gl##F##S
+#define GET_PROC(F) functions->f##F = emscripten_gl##F
+#define GET_PROC_SUFFIX(F, S) functions->f##F = emscripten_gl##F##S
 
 sk_sp<const GrGLInterface> GrGLMakeAssembledWebGLInterface(void *ctx, GrGLGetProc get) {
     const char* verStr = reinterpret_cast<const char*>(glGetString(GR_GL_VERSION));

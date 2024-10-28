@@ -22,19 +22,19 @@ void GrGLFinishCallbacks::add(GrGpuFinishedProc finishedProc,
     FinishCallback callback;
     callback.fCallback = finishedProc;
     callback.fContext = finishedContext;
-    callback.fFence = fGpu->insertFence();
+    callback.fSync = fGpu->insertSync();
     fCallbacks.push_back(callback);
 }
 
 void GrGLFinishCallbacks::check() {
     // Bail after the first unfinished sync since we expect they signal in the order inserted.
-    while (!fCallbacks.empty() && fGpu->waitFence(fCallbacks.front().fFence)) {
+    while (!fCallbacks.empty() && fGpu->testSync(fCallbacks.front().fSync)) {
         // While we are processing a proc we need to make sure to remove it from the callback list
         // before calling it. This is because the client could trigger a call (e.g. calling
         // flushAndSubmit(/*sync=*/true)) that has us process the finished callbacks. We also must
-        // process deleting the fence before a client may abandon the context.
+        // process deleting the sync before a client may abandon the context.
         auto finishCallback = fCallbacks.front();
-        fGpu->deleteFence(finishCallback.fFence);
+        fGpu->deleteSync(finishCallback.fSync);
         fCallbacks.pop_front();
         finishCallback.fCallback(finishCallback.fContext);
     }
@@ -45,10 +45,10 @@ void GrGLFinishCallbacks::callAll(bool doDelete) {
         // While we are processing a proc we need to make sure to remove it from the callback list
         // before calling it. This is because the client could trigger a call (e.g. calling
         // flushAndSubmit(/*sync=*/true)) that has us process the finished callbacks. We also must
-        // process deleting the fence before a client may abandon the context.
+        // process deleting the sync before a client may abandon the context.
         auto finishCallback = fCallbacks.front();
         if (doDelete) {
-            fGpu->deleteFence(finishCallback.fFence);
+            fGpu->deleteSync(finishCallback.fSync);
         }
         fCallbacks.pop_front();
         finishCallback.fCallback(finishCallback.fContext);

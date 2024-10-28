@@ -241,9 +241,9 @@ public:
 
     void submit(GrOpsRenderPass* renderPass) override;
 
-    [[nodiscard]] GrGLsync insertFence();
-    bool waitFence(GrGLsync);
-    void deleteFence(GrGLsync);
+    [[nodiscard]] GrGLsync insertSync();
+    bool testSync(GrGLsync);
+    void deleteSync(GrGLsync);
 
     [[nodiscard]] std::unique_ptr<GrSemaphore> makeSemaphore(bool isOwned) override;
     std::unique_ptr<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore&,
@@ -261,8 +261,6 @@ public:
     GrGLenum getErrorAndCheckForOOM();
 
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
-
-    void deleteSync(GrGLsync);
 
     void bindFramebuffer(GrGLenum fboTarget, GrGLuint fboid);
     void deleteFramebuffer(GrGLuint fboid);
@@ -452,8 +450,6 @@ private:
             GrXferBarrierFlags renderPassXferBarriers) override;
 
     bool onSubmitToGpu(const GrSubmitInfo& info) override;
-
-    bool waitSync(GrGLsync, uint64_t timeout, bool flush);
 
     bool copySurfaceAsDraw(GrSurface* dst, bool drawToMultisampleFBO, GrSurface* src,
                            const SkIRect& srcRect, const SkIRect& dstRect, GrSamplerState::Filter);

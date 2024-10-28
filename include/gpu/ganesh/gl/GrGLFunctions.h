@@ -218,8 +218,13 @@ using GrGLMultiDrawElementsInstancedBaseVertexBaseInstanceFn = GrGLvoid GR_GL_FU
 /* ARB_sync */
 using GrGLFenceSyncFn = GrGLsync GR_GL_FUNCTION_TYPE(GrGLenum condition, GrGLbitfield flags);
 using GrGLIsSyncFn = GrGLboolean GR_GL_FUNCTION_TYPE(GrGLsync sync);
+#if defined(__EMSCRIPTEN__)
+using GrGLClientWaitSyncFn = GrGLenum GR_GL_FUNCTION_TYPE(GrGLsync sync, GrGLbitfield flags, GrGLint timeoutLo, GrGLint timeoutHi);
+using GrGLWaitSyncFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsync sync, GrGLbitfield flags, GrGLuint timeoutLo, GrGLuint timeoutHi);
+#else
 using GrGLClientWaitSyncFn = GrGLenum GR_GL_FUNCTION_TYPE(GrGLsync sync, GrGLbitfield flags, GrGLuint64 timeout);
 using GrGLWaitSyncFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsync sync, GrGLbitfield flags, GrGLuint64 timeout);
+#endif
 using GrGLDeleteSyncFn = GrGLvoid GR_GL_FUNCTION_TYPE(GrGLsync sync);
 
 /* ARB_internalformat_query */
