@@ -87,6 +87,56 @@ void AssertRedPixel(skiatest::Reporter* r,
     AssertPixelColor(r, image, x, y, SkColorSetRGB(0xFF, 0x00, 0x00), description);
 }
 
+void AssertSingleGreenFrame(skiatest::Reporter* r,
+                            int expectedWidth,
+                            int expectedHeight,
+                            const char* resourcePath) {
+    std::unique_ptr<SkCodec> codec = SkPngRustDecoderDecode(r, resourcePath);
+    if (!codec) {
+        return;
+    }
+
+    REPORTER_ASSERT(r, codec->getFrameCount() == 1);
+    REPORTER_ASSERT(r, codec->getRepetitionCount() == 0);
+
+    SkCodec::FrameInfo info;
+    REPORTER_ASSERT(r, codec->getFrameInfo(0, &info));
+    REPORTER_ASSERT(r, info.fBlend == SkCodecAnimation::Blend::kSrc);
+    REPORTER_ASSERT(r, info.fDisposalMethod == SkCodecAnimation::DisposalMethod::kKeep);
+    REPORTER_ASSERT(r, info.fFrameRect == SkIRect::MakeWH(expectedWidth, expectedHeight));
+    REPORTER_ASSERT(r, info.fRequiredFrame == SkCodec::kNoFrame);
+
+    auto [image, result] = codec->getImage();
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+
+    REPORTER_ASSERT(r, image);
+    REPORTER_ASSERT(r,
+                    image->width() == expectedWidth,
+                    "actualWidth=%d != expectedWidth=%d",
+                    image->width(),
+                    expectedWidth);
+    REPORTER_ASSERT(r,
+                    image->height() == expectedHeight,
+                    "actualHeight=%d != expectedHeight=%d",
+                    image->height(),
+                    expectedHeight);
+
+    AssertGreenPixel(r, *image, 0, 0);
+    AssertGreenPixel(r, *image, expectedWidth / 2, expectedHeight / 2);
+}
+
+// Test based on
+// https://philip.html5.org/tests/apng/tests.html#trivial-static-image
+DEF_TEST(Codec_apng_basic_trivial_static_image, r) {
+    AssertSingleGreenFrame(r, 128, 64, "images/apng-test-suite--basic--trivial-static-image.png");
+}
+
+// Test based on
+// https://philip.html5.org/tests/apng/tests.html#trivial-animated-image-one-frame-using-default-image
+DEF_TEST(Codec_apng_basic_using_default_image, r) {
+    AssertSingleGreenFrame(r, 128, 64, "images/apng-test-suite--basic--using-default-image.png");
+}
+
 // Test based on
 // https://philip.html5.org/tests/apng/tests.html#trivial-animated-image-one-frame-ignoring-default-image
 //
@@ -97,22 +147,7 @@ void AssertRedPixel(skiatest::Reporter* r,
 // with non-APNG-aware decoders (e.g. with `SkPngCodec`), because the `IDAT`
 // chunk represents a red image (the `fdAT` chunk represents a green image).
 DEF_TEST(Codec_apng_basic_ignoring_default_image, r) {
-    std::unique_ptr<SkCodec> codec =
-            SkPngRustDecoderDecode(r, "images/apng-test-suite--basic--ignoring-default-image.png");
-    if (!codec) {
-        return;
-    }
-
-    REPORTER_ASSERT(r, codec->getFrameCount() == 1);
-    REPORTER_ASSERT(r, codec->getRepetitionCount() == 0);
-
-    auto [image, result] = codec->getImage();
-    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
-
-    REPORTER_ASSERT(r, image);
-    REPORTER_ASSERT(r, image->width() == 128, "width %d != 128", image->width());
-    REPORTER_ASSERT(r, image->height() == 64, "height %d != 64", image->height());
-    AssertGreenPixel(r, *image, 0, 0);
+    AssertSingleGreenFrame(r, 128, 64, "images/apng-test-suite--basic--ignoring-default-image.png");
 }
 
 // Test based on
@@ -172,9 +207,22 @@ DEF_TEST(Codec_apng_dispose_op_none_basic, r) {
     REPORTER_ASSERT(r, image->height() == 64, "height %d != 64", image->height());
     AssertRedPixel(r, *image, 0, 0, "Frame #0 should be red");
 
-    // TODO(https://crbug.com/356922876): Assert that frame1 and frame2 have
-    // green pixels.  (Need to first implement blending support in
-    // `SkPngRustCodec`.)
+    // Validate contents of the second frame.
+    SkPixmap pixmap;
+    REPORTER_ASSERT(r, image->peekPixels(&pixmap));
+    SkCodec::Options options;
+    options.fZeroInitialized = SkCodec::kNo_ZeroInitialized;
+    options.fSubset = nullptr;
+    options.fFrameIndex = 1;  // We want to decode the second frame.
+    options.fPriorFrame = 0;  // `pixmap` contains the first frame before `getPixels` call.
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(pixmap, &options));
+    AssertGreenPixel(r, *image, 0, 0, "Frame #1 should be green");
+
+    // Validate contents of the third frame.
+    options.fFrameIndex = 2;  // We want to decode the second frame.
+    options.fPriorFrame = 1;  // `pixmap` contains the second frame before `getPixels` call.
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(pixmap, &options));
+    AssertGreenPixel(r, *image, 0, 0, "Frame #2 should be green");
 }
 
 // Test based on

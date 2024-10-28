@@ -41,19 +41,30 @@ private:
         // images, `startDecoding` initializes `fDst` to start at the (0,0)
         // (top-left) pixel of the current frame (which may be offset from
         // `pixels` if the current frame is a sub-rect of the full image).
-        // After decoding a non-interlaced row this moves (by `fDstRowSize`) to
-        // the next row.
+        // After decoding a non-interlaced row this moves (by `fDstRowStride`)
+        // to the next row.
         SkSpan<uint8_t> fDst;
 
         // Size of a row (in bytes) in the full image.  Based on `rowBytes`
         // passed to `onGetPixels` or `onStartIncrementalDecode`.
+        size_t fDstRowStride = 0;
+
+        // Size of a row (in bytes) in the current frame.
         size_t fDstRowSize = 0;
 
         // Index (in `fFrameHolder`) of the frame being currently decoded.
         size_t fFrameIndex = 0;
 
-        // Stashed `dstInfo.bytesPerPixel()`
-        uint8_t fBytesPerPixel = 0;
+        // Intermediate buffer that holds color-transformed pixels that are
+        // ready to be blended with the destination.  Used only when this frame
+        // uses `SkCodecAnimation::Blend::kSrcOver`.  For interlaced images this
+        // buffer holds the whole frame; otherwise it holds only a single row.
+        std::vector<uint8_t> fPreblendBuffer;
+
+        // Stashed subset of `dstInfo`.
+        SkColorType fDstColor = kUnknown_SkColorType;
+        SkAlphaType fDstAlpha = kUnknown_SkAlphaType;
+        uint8_t fDstBytesPerPixel = 0;
     };
 
     // Helper for validating parameters of `onGetPixels` and/or
@@ -64,6 +75,12 @@ private:
                          size_t rowBytes,
                          const Options& options,
                          DecodingState* decodingState);
+
+    // Helper for taking a decoded interlaced `srcRow`, applying color
+    // transformations, and then expanding it into the `frame`.
+    void expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
+                                    SkSpan<const uint8_t> srcRow,
+                                    const DecodingState& decodingState);
 
     // Helper for row-by-row decoding which is used from `onGetPixels` and/or
     // `onIncrementalDecode`.
