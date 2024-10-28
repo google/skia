@@ -615,44 +615,41 @@
 
   {
     "GL":    [{"ext": "<core>"}],
-    "GLES":  null, // not in ES
-    "WebGL": null,
-
-    "functions": [
-      "GetQueryObjectiv",
-    ],
-  },
-  {
-    "GL":    [{"ext": "<core>"}],
     "GLES":  [{"min_version": [3, 0], "ext": "<core>"},
-              {/*    else if      */  "ext": "GL_EXT_occlusion_query_boolean"}],
-    "WebGL": null,
-
-    // We only use these in our test tools
-    "test_functions": [
+              {/*    else if      */  "ext": "GL_EXT_disjoint_timer_query"}],
+    "WebGL": [{"min_version": [2, 0], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_EXT_disjoint_timer_query"},
+              {/*    else if      */  "ext": "EXT_disjoint_timer_query"}],
+    "functions": [
       "GenQueries", "DeleteQueries", "BeginQuery", "EndQuery",
       "GetQueryObjectuiv", "GetQueryiv",
     ]
   },
   {
     "GL":    [{"min_version": [3, 3], "ext": "<core>"},
-              {/*    else if      */  "ext": "GL_ARB_timer_query"},
-              {/*    else if      */  "ext": "GL_EXT_timer_query"}],
-    "GLES":  null,
-    "WebGL": null,
-
-    "functions": [
-      "GetQueryObjecti64v", "GetQueryObjectui64v",
-    ],
-  },
-  {
-    "GL":    [{"min_version": [3, 3], "ext": "<core>"},
               {/*    else if      */  "ext": "GL_ARB_timer_query"}],
-    "GLES":  null,
-    "WebGL": null,
+    "GLES":  [{"ext": "GL_EXT_disjoint_timer_query"}],
+    "WebGL": [{"ext": "GL_EXT_disjoint_timer_query"},
+              {/*    else if      */  "ext": "EXT_disjoint_timer_query"},
+              {/*    else if      */  "ext": "GL_EXT_disjoint_timer_query_webgl2"},
+              {/*    else if      */  "ext": "EXT_disjoint_timer_query_webgl2"}],
 
     "functions": [
       "QueryCounter",
+    ],
+  },
+
+  {
+    "GL":    [{"min_version": [3, 3], "ext": "<core>"},
+              {/*    else if      */  "ext": "GL_ARB_timer_query"},
+              {/*    else if      */  "ext": "GL_EXT_timer_query"}],
+    "GLES":  [{"ext": "GL_EXT_disjoint_timer_query"},],
+    "WebGL": [{"ext": "GL_EXT_disjoint_timer_query"},
+              {/*    else if      */  "ext": "EXT_disjoint_timer_query"},
+              {/*    else if      */  "ext": "GL_EXT_disjoint_timer_query_webgl2"},
+              {/*    else if      */  "ext": "EXT_disjoint_timer_query_webgl2"}],
+    "functions": [
+      "GetQueryObjecti64v", "GetQueryObjectui64v",
     ],
   },
 
