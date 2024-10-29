@@ -129,6 +129,7 @@ private:
 
     // `-1` means that `IDAT` is not part of animation and wasn't skipped yet.
     int fFrameAtCurrentStreamPosition = -1;
+    bool fStreamIsPositionedAtStartOfFrameData = false;
     const std::unique_ptr<SkStream> fPrivStream;
 
     std::optional<DecodingState> fIncrementalDecodingState;

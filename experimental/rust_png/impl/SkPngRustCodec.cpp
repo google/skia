@@ -319,6 +319,7 @@ SkPngRustCodec::SkPngRustCodec(SkEncodedInfo&& encodedInfo,
 
     bool idatIsNotPartOfAnimation = fReader->has_actl_chunk() && !fReader->has_fctl_chunk();
     fFrameAtCurrentStreamPosition = idatIsNotPartOfAnimation ? -1 : 0;
+    fStreamIsPositionedAtStartOfFrameData = true;
     if (!idatIsNotPartOfAnimation) {
         // This `appendNewFrame` call should always succeed because:
         // * `fFrameHolder.size()` is 0 at this point
@@ -336,9 +337,11 @@ SkCodec::Result SkPngRustCodec::readToStartOfNextFrame() {
     SkASSERT(fFrameAtCurrentStreamPosition < this->getRawFrameCount());
     Result result = ToSkCodecResult(fReader->next_frame_info());
     if (result != kSuccess) {
+        fStreamIsPositionedAtStartOfFrameData = false;
         return result;
     }
 
+    fStreamIsPositionedAtStartOfFrameData = true;
     fFrameAtCurrentStreamPosition++;
     if (fFrameAtCurrentStreamPosition == fFrameHolder.size()) {
         result = fFrameHolder.appendNewFrame(*fReader, this->getEncodedInfo());
@@ -358,7 +361,8 @@ SkCodec::Result SkPngRustCodec::seekToStartOfFrame(int index) {
     // TODO(https://crbug.com/371060427): Improve runtime performance by seeking
     // directly to the right offset in the stream, rather than calling `rewind`
     // here and moving one-frame-at-a-time via `readToStartOfNextFrame` below.
-    if (index < fFrameAtCurrentStreamPosition) {
+    if ((index < fFrameAtCurrentStreamPosition) ||
+        (index == fFrameAtCurrentStreamPosition && !fStreamIsPositionedAtStartOfFrameData)) {
         if (!fPrivStream->rewind()) {
             return kCouldNotRewind;
         }
@@ -375,6 +379,7 @@ SkCodec::Result SkPngRustCodec::seekToStartOfFrame(int index) {
 
         bool idatIsNotPartOfAnimation = fReader->has_actl_chunk() && !fReader->has_fctl_chunk();
         fFrameAtCurrentStreamPosition = idatIsNotPartOfAnimation ? -1 : 0;
+        fStreamIsPositionedAtStartOfFrameData = true;
     }
     while (fFrameAtCurrentStreamPosition < index) {
         Result result = this->readToStartOfNextFrame();
@@ -456,6 +461,8 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
 
         size_t frameWidth = safe.castTo<size_t>(frame->width());
         size_t rowSize = safe.mul(decodingState->fDstBytesPerPixel, frameWidth);
+        size_t frameHeight = safe.castTo<size_t>(frame->height());
+        size_t frameHeightTimesRowStride = safe.mul(frameHeight, rowBytes);
         decodingState->fDstRowSize = rowSize;
 
         if (!safe.ok()) {
@@ -465,6 +472,9 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
         decodingState->fDst = SkSpan(static_cast<uint8_t*>(pixels), imageSize)
                                       .subspan(xByteOffset)
                                       .subspan(yByteOffset);
+        if (frameHeightTimesRowStride < decodingState->fDst.size()) {
+            decodingState->fDst = decodingState->fDst.first(frameHeightTimesRowStride);
+        }
 
         if (frame->getBlend() == SkCodecAnimation::Blend::kSrcOver) {
             if (fReader->interlaced()) {
@@ -523,6 +533,7 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
         // similar enough to `dstInfo`).
         rust::Slice<const uint8_t> decodedRow;
 
+        fStreamIsPositionedAtStartOfFrameData = false;
         Result result = ToSkCodecResult(fReader->next_interlaced_row(decodedRow));
         if (result != kSuccess) {
             if (result == kIncompleteInput && rowsDecodedPtr) {
@@ -539,6 +550,10 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
                              decodingState.fDstRowStride,
                              decodingState.fDstColor,
                              decodingState.fDstAlpha);
+            }
+            if (!interlaced) {
+                // All of the original `fDst` should be filled out at this point.
+                SkASSERT(decodingState.fDst.empty());
             }
             fFrameHolder.markFrameAsFullyReceived(decodingState.fFrameIndex);
             fIncrementalDecodingState.reset();

@@ -8,6 +8,7 @@
 #include "experimental/rust_png/SkPngRustDecoder.h"
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
@@ -15,6 +16,7 @@
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
+#include "tests/FakeStreams.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
@@ -225,6 +227,63 @@ DEF_TEST(Codec_apng_dispose_op_none_basic, r) {
     options.fPriorFrame = 1;  // `pixmap` contains the second frame before `getPixels` call.
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, codec->getPixels(pixmap, &options));
     AssertGreenPixel(r, *image, 0, 0, "Frame #2 should be green");
+}
+
+// This test covers an incomplete input scenario:
+//
+// * Only half of 1st frame is available during `onGetFrameCount`.
+//   In this situation `onGetFrameCount` may consume the whole input in a
+//   (futile in this case) attempt to discover `fcTL` chunks for 2nd and 3rd
+//   frame.  This will mean that the input stream is in the middle of the 1st
+//   frame - no longer positioned correctly for decoding the 1st frame.
+// * Full input is available when subsequently decoding 1st frame.
+DEF_TEST(Codec_apng_dispose_op_none_basic_incomplete_input, r) {
+    const char* path = "images/apng-test-suite--dispose-ops--none-basic.png";
+    sk_sp<SkData> data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "Missing resource: %s", path);
+        return;
+    }
+    size_t fullLength = data->size();
+
+    // Initially expose roughly middle of `IDAT` chunk (in this image `fcTL` is
+    // present before the `IDAT` chunk and therefore the `IDAT` chunk is part of
+    // the animated image).
+    constexpr size_t kInitialBytes = 0xAD;
+    auto streamForCodec = std::make_unique<HaltingStream>(std::move(data), kInitialBytes);
+    HaltingStream* retainedStream = streamForCodec.get();
+
+    SkCodec::Result result;
+    std::unique_ptr<SkCodec> codec = SkPngRustDecoder::Decode(std::move(streamForCodec), &result);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    if (!codec) {
+        return;
+    }
+
+    SkBitmap bitmap;
+    if (!bitmap.tryAllocN32Pixels(codec->dimensions().width(), codec->dimensions().height())) {
+        ERRORF(r, "Failed to allocate SkBitmap");
+        return;
+    }
+
+    // Try to provoke the codec to consume the currently-available part of the
+    // input stream.
+    int frameCount = codec->getFrameCount();
+
+    // At this point only the metadata for the first frame is available.
+    REPORTER_ASSERT(r, frameCount == 1);
+
+    // Make the rest of the input available to the codec.
+    retainedStream->addNewData(fullLength);
+
+    // Try to decode the first frame and check its contents.
+    sk_sp<SkImage> image;
+    std::tie(image, result) = codec->getImage();
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    REPORTER_ASSERT(r, image);
+    REPORTER_ASSERT(r, image->width() == 128, "width %d != 128", image->width());
+    REPORTER_ASSERT(r, image->height() == 64, "height %d != 64", image->height());
+    AssertRedPixel(r, *image, 0, 0, "Frame #0 should be red");
 }
 
 // Test based on
