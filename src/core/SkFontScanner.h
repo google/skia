@@ -9,7 +9,6 @@
 #define SKFONTSCANNER_H_
 
 #include "include/core/SkFontArguments.h"
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFixed.h"
 #include "include/private/base/SkNoncopyable.h"
@@ -17,7 +16,6 @@
 class SkFontStyle;
 class SkStreamAsset;
 class SkString;
-class SkTypeface;
 
 class SkFontScanner : public SkNoncopyable {
 public:
@@ -40,9 +38,6 @@ public:
                               SkFontStyle* style,
                               bool* isFixedPitch,
                               AxisDefinitions* axes) const = 0;
-    virtual sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
-                                             const SkFontArguments& args) const = 0;
-    virtual SkFourByteTag getFactoryId() const = 0;
 };
 
 #endif // SKFONTSCANNER_H_

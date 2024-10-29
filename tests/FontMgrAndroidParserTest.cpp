@@ -33,11 +33,9 @@
 #include "tools/flags/CommandLineFlags.h"
 
 #ifdef SK_TYPEFACE_FACTORY_FONTATIONS
-#include "include/ports/SkFontScanner_Fontations.h"
+#include "src/ports/SkFontScanner_fontations.h"
 #endif
-#ifdef SK_TYPEFACE_FACTORY_FREETYPE
-#include "include/ports/SkFontScanner_FreeType.h"
-#endif
+#include "src/ports/SkTypeface_FreeType.h"
 
 #include <algorithm>
 #include <climits>
@@ -200,14 +198,14 @@ static void test_parse_fixed(skiatest::Reporter* reporter) {
 
 #ifdef SK_TYPEFACE_FACTORY_FONTATIONS
 #define DEF_TEST_FONTATIONS(name, reporter) \
-    DEF_TEST(name##Fontations, reporter) { name(reporter, SkFontScanner_Make_Fontations()); }
+    DEF_TEST(name##Fontations, reporter) { name(reporter, std::make_unique<SkFontScanner_Fontations>()); }
 #else
 #define DEF_TEST_FONTATIONS(name, reporter)
 #endif
 
 #define DEF_TEST_SCANNERS(name, reporter) \
     static void name(skiatest::Reporter*, std::unique_ptr<SkFontScanner>);                     \
-    DEF_TEST(name, reporter) { name(reporter, SkFontScanner_Make_FreeType()); }                \
+    DEF_TEST(name, reporter) { name(reporter, std::make_unique<SkFontScanner_FreeType>()); }   \
     DEF_TEST_FONTATIONS(name, reporter)                                                        \
     void name(skiatest::Reporter* reporter, std::unique_ptr<SkFontScanner> fs)
 

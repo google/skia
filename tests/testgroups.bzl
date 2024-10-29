@@ -48,6 +48,7 @@ CORE_TESTS = [
     "Float16Test.cpp",
     "FloatingPointTest.cpp",
     "FontTest.cpp",
+    "FontScanner.cpp",
     "FrontBufferedStreamTest.cpp",
     "GeometryTest.cpp",
     "HSVRoundTripTest.cpp",

@@ -13,7 +13,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/ports/SkFontScanner_FreeType.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkFontDescriptor.h"
@@ -128,7 +127,7 @@ SkString SkFontStyleSet_Custom::getFamilyName() { return fFamilyName; }
 
 SkFontMgr_Custom::SkFontMgr_Custom(const SystemFontLoader& loader)
         : fDefaultFamily(nullptr)
-        , fScanner(SkFontScanner_Make_FreeType()) {
+        , fScanner(std::make_unique<SkFontScanner_FreeType>()) {
 
     loader.loadSystemFonts(fScanner.get(), &fFamilies);
 

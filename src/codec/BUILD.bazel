@@ -88,7 +88,6 @@ skia_cc_library(
     ] + PRIVATE_CODEC_HEADERS,
     visibility = [
         "//modules/skottie:__pkg__",
-        "//modules/skottie/src:__pkg__",
         "//modules/skresources:__pkg__",
         "//src/android:__pkg__",
         "//tools:__pkg__",

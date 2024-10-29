@@ -15,9 +15,8 @@
 
 #include "modules/skplaintexteditor/include/editor.h"
 
-#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE) && defined(SK_TYPEFACE_FACTORY_FREETYPE)
+#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
 #include "include/ports/SkFontMgr_fontconfig.h"
-#include "include/ports/SkFontScanner_FreeType.h"
 #endif
 
 #if defined(SK_FONTMGR_CORETEXT_AVAILABLE)
@@ -104,8 +103,8 @@ sk_sp<SkFontMgr> fontMgr() {
     static bool init = false;
     static sk_sp<SkFontMgr> fontMgr = nullptr;
     if (!init) {
-#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE) && defined(SK_TYPEFACE_FACTORY_FREETYPE)
-        fontMgr = SkFontMgr_New_FontConfig(nullptr, SkFontScanner_Make_FreeType());
+#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
+        fontMgr = SkFontMgr_New_FontConfig(nullptr);
 #elif defined(SK_FONTMGR_CORETEXT_AVAILABLE)
         fontMgr = SkFontMgr_New_CoreText(nullptr);
 #elif defined(SK_FONTMGR_DIRECTWRITE_AVAILABLE)

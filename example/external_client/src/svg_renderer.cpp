@@ -19,9 +19,8 @@
 #include "modules/svg/include/SkSVGDOM.h"
 #include "modules/skshaper/utils/FactoryHelpers.h"
 
-#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE) && defined(SK_TYPEFACE_FACTORY_FREETYPE)
+#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
 #include "include/ports/SkFontMgr_fontconfig.h"
-#include "include/ports/SkFontScanner_FreeType.h"
 #endif
 
 #if defined(SK_FONTMGR_CORETEXT_AVAILABLE)
@@ -56,8 +55,8 @@ int main(int argc, char** argv) {
 
     // If necessary, clients should use a font manager that would load fonts from the system.
     sk_sp<SkFontMgr> fontMgr;
-#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE) && defined(SK_TYPEFACE_FACTORY_FREETYPE)
-    fontMgr = SkFontMgr_New_FontConfig(nullptr, SkFontScanner_Make_FreeType());
+#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
+    fontMgr = SkFontMgr_New_FontConfig(nullptr);
 #elif defined(SK_FONTMGR_CORETEXT_AVAILABLE)
     fontMgr = SkFontMgr_New_CoreText(nullptr);
 #endif
