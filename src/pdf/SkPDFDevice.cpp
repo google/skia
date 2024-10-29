@@ -72,6 +72,7 @@
 #include "src/pdf/SkPDFShader.h"
 #include "src/pdf/SkPDFTag.h"
 #include "src/pdf/SkPDFTypes.h"
+#include "src/pdf/SkPDFUnion.h"
 #include "src/pdf/SkPDFUtils.h"
 #include "src/shaders/SkColorShader.h"
 #include "src/shaders/SkShaderBase.h"
@@ -122,7 +123,8 @@ void SkPDFDevice::MarkedContentManager::beginMark() {
         fCurrentlyActiveMark = fDoc->createMarkForElemId(fNextMarksElemId);
         if (fCurrentlyActiveMark) {
             // Begin this mark
-            fOut->writeText("/P <</MCID ");
+            SkPDFUnion::Name(fCurrentlyActiveMark.structType()).emitObject(fOut);
+            fOut->writeText(" <</MCID ");
             fOut->writeDecAsText(fCurrentlyActiveMark.mcid());
             fOut->writeText(" >>BDC\n");
             fMadeMarks = true;

@@ -81,7 +81,7 @@ struct SkPDFStructElem {
     bool fWantTitle = false;
     bool fUsed = false;
     bool fUsedInIDTree = false;
-    SkString fTypeString;
+    SkString fStructType;
     SkString fTitle;
     SkString fAlt;
     SkString fLang;
@@ -213,7 +213,8 @@ void SkPDFStructTree::move(SkPDF::StructureElementNode& node,
                  type.size() == 2 && type[0] == 'H' && '1' <= type[1] && type[1] <= '6';
     structElem->fWantTitle = wantTitle;
 
-    structElem->fTypeString = std::move(node.fTypeString);
+    static SkString nonStruct("NonStruct");
+    structElem->fStructType = node.fTypeString.isEmpty() ? nonStruct : std::move(node.fTypeString);
     structElem->fAlt = std::move(node.fAlt);
     structElem->fLang = std::move(node.fLang);
 
@@ -232,11 +233,17 @@ int SkPDFStructTree::Mark::elemId() const {
     return fStructElem ? fStructElem->fElemId : 0;
 }
 
+SkString SkPDFStructTree::Mark::structType() const {
+    SkASSERT(bool(*this));
+    return fStructElem->fStructType;
+}
+
 int SkPDFStructTree::Mark::mcid() const {
     return fStructElem ? fStructElem->fMarkedContent[fMarkIndex].fMcid : -1;
 }
 
 void SkPDFStructTree::Mark::accumulate(SkPoint point) {
+    SkASSERT(bool(*this));
     Location& location = fStructElem->fMarkedContent[fMarkIndex].fLocation;
     return location.accumulate({{point}, location.fPageIndex});
 }
@@ -297,11 +304,7 @@ SkPDFIndirectReference SkPDFStructElem::emitStructElem(
     fRef = doc->reserveRef();
 
     SkPDFDict dict("StructElem");
-    if (fTypeString.isEmpty()) {
-        dict.insertName("S", "NonStruct");
-    } else {
-        dict.insertName("S", fTypeString);
-    }
+    dict.insertName("S", fStructType);
 
     if (!fAlt.isEmpty()) {
         dict.insertTextString("Alt", fAlt);
@@ -556,7 +559,7 @@ OutlineEntry::Content create_outline_entry_content(SkPDFStructElem* const struct
 }
 void create_outline_from_headers(SkPDFDocument* const doc, SkPDFStructElem* const structElem,
                                  STArray<7, OutlineEntry*>& stack) {
-    const SkString& type = structElem->fTypeString;
+    const SkString& type = structElem->fStructType;
     if (type.size() == 2 && type[0] == 'H' && '1' <= type[1] && type[1] <= '6') {
         int level = type[1] - '0';
         while (level <= stack.back()->fHeaderLevel) {

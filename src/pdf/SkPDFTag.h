@@ -46,6 +46,7 @@ public:
         explicit operator bool() const { return fStructElem; }
         int mcid() const; // mcid < 0 means no active mark, if bool(this) always >= 0
         int elemId() const; // 0 elemId means no active structure element
+        SkString structType() const; // only call when bool(this)
         void accumulate(SkPoint); // only call when bool(this)
     };
 
