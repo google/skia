@@ -623,7 +623,28 @@ SkCodec::Result SkPngRustCodec::onIncrementalDecode(int* rowsDecoded) {
 }
 
 int SkPngRustCodec::onGetFrameCount() {
-    if (fCanParseAdditionalFrameInfos && !fIncrementalDecodingState.has_value()) {
+    do {
+        if (!fCanParseAdditionalFrameInfos || fIncrementalDecodingState.has_value()) {
+            break;
+        }
+
+        if (fPrivStream->hasLength()) {
+            size_t currentLength = fPrivStream->getLength();
+            if (fStreamLengthDuringLastCallToParseAdditionalFrameInfos.has_value()) {
+                size_t oldLength = *fStreamLengthDuringLastCallToParseAdditionalFrameInfos;
+                if (oldLength == currentLength) {
+                    // Don't retry `parseAdditionalFrameInfos` if the input
+                    // didn't change.
+                    break;
+                }
+                // We expect the input stream's length to be monotonically
+                // increasing (even though the code may not yet rely on that
+                // expectation).
+                SkASSERT(currentLength > oldLength);
+            }
+            fStreamLengthDuringLastCallToParseAdditionalFrameInfos = currentLength;
+        }
+
         switch (this->parseAdditionalFrameInfos()) {
             case kIncompleteInput:
                 fCanParseAdditionalFrameInfos = true;
@@ -636,7 +657,7 @@ int SkPngRustCodec::onGetFrameCount() {
                 fCanParseAdditionalFrameInfos = false;
                 break;
         }
-    }
+    } while (false);
 
     return fFrameHolder.size();
 }
