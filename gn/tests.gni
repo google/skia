@@ -91,7 +91,6 @@ tests_sources = [
   "$_tests/FontMgrFlags.cpp",
   "$_tests/FontMgrTest.cpp",
   "$_tests/FontNamesTest.cpp",
-  "$_tests/FontScanner.cpp",
   "$_tests/FontTest.cpp",
   "$_tests/FrontBufferedStreamTest.cpp",
   "$_tests/GLBackendSurfaceTest.cpp",

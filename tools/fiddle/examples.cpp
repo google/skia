@@ -5,6 +5,7 @@
 
 #if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
 #include "include/ports/SkFontMgr_fontconfig.h"
+#include "include/ports/SkFontScanner_FreeType.h"
 #endif
 
 #if defined(SK_FONTMGR_CORETEXT_AVAILABLE)
@@ -41,7 +42,7 @@ int main() {
         SkAssertResult(images[i] && images[i]->asLegacyBitmap(&bitmaps[i]));
     }
 #if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
-    fontMgr = SkFontMgr_New_FontConfig(nullptr);
+    fontMgr = SkFontMgr_New_FontConfig(nullptr, SkFontScanner_Make_FreeType());
 #elif defined(SK_FONTMGR_CORETEXT_AVAILABLE)
     fontMgr = SkFontMgr_New_CoreText(nullptr);
 #elif defined(SK_FONTMGR_DIRECTWRITE_AVAILABLE)

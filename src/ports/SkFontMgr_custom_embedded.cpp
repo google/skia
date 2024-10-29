@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkFontScanner.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/ports/SkFontMgr_data.h"
 #include "src/core/SkFontDescriptor.h"
-#include "src/core/SkFontScanner.h"
 #include "src/ports/SkFontMgr_custom.h"
 
 struct SkEmbeddedResource { const uint8_t* data; size_t size; };

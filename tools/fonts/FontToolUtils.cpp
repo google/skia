@@ -33,12 +33,12 @@
 
 #if defined(SK_BUILD_FOR_ANDROID) && defined(SK_FONTMGR_ANDROID_AVAILABLE)
 #include "include/ports/SkFontMgr_android.h"
-#include "src/ports/SkTypeface_FreeType.h"
+#include "include/ports/SkFontScanner_FreeType.h"
 #endif
 
 #if defined(SK_BUILD_FOR_ANDROID) && defined(SK_FONTMGR_ANDROID_NDK_AVAILABLE)
 #include "include/ports/SkFontMgr_android_ndk.h"
-#include "src/ports/SkTypeface_FreeType.h"
+#include "include/ports/SkFontScanner_FreeType.h"
 #endif
 
 #if defined(SK_FONTMGR_CORETEXT_AVAILABLE) && (defined(SK_BUILD_FOR_IOS) || \
@@ -50,8 +50,9 @@
 #include "include/ports/SkFontMgr_Fontations.h"
 #endif
 
-#if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
+#if defined(SK_BUILD_FOR_UNIX) && defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
 #include "include/ports/SkFontMgr_fontconfig.h"
+#include "include/ports/SkFontScanner_FreeType.h"
 #endif
 
 #if defined(SK_FONTMGR_FREETYPE_DIRECTORY_AVAILABLE)
@@ -269,21 +270,21 @@ sk_sp<SkFontMgr> TestFontMgr() {
             mgr = SkFontMgr_New_Fontations_Empty();
         }
 #endif
-#if defined(SK_BUILD_FOR_ANDROID) && defined(SK_FONTMGR_ANDROID_NDK_AVAILABLE)
+#if defined(SK_BUILD_FOR_ANDROID) && defined(SK_FONTMGR_ANDROID_NDK_AVAILABLE) && defined(SK_TYPEFACE_FACTORY_FREETYPE)
         else if (FLAGS_androidndkfonts) {
-            mgr = SkFontMgr_New_AndroidNDK(false, std::make_unique<SkFontScanner_FreeType>());
+            mgr = SkFontMgr_New_AndroidNDK(false, SkFontScanner_Make_FreeType());
         }
 #endif
         else {
-#if defined(SK_BUILD_FOR_ANDROID) && defined(SK_FONTMGR_ANDROID_AVAILABLE)
-            mgr = SkFontMgr_New_Android(nullptr, std::make_unique<SkFontScanner_FreeType>());
+#if defined(SK_BUILD_FOR_ANDROID) && defined(SK_FONTMGR_ANDROID_AVAILABLE) && defined(SK_TYPEFACE_FACTORY_FREETYPE)
+            mgr = SkFontMgr_New_Android(nullptr, SkFontScanner_Make_FreeType());
 #elif defined(SK_BUILD_FOR_WIN) && defined(SK_FONTMGR_DIRECTWRITE_AVAILABLE)
             mgr = SkFontMgr_New_DirectWrite();
 #elif defined(SK_FONTMGR_CORETEXT_AVAILABLE) && (defined(SK_BUILD_FOR_IOS) || \
                                                 defined(SK_BUILD_FOR_MAC))
             mgr = SkFontMgr_New_CoreText(nullptr);
-#elif defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
-            mgr = SkFontMgr_New_FontConfig(nullptr);
+#elif defined(SK_FONTMGR_FONTCONFIG_AVAILABLE) && defined(SK_TYPEFACE_FACTORY_FREETYPE)
+            mgr = SkFontMgr_New_FontConfig(nullptr, SkFontScanner_Make_FreeType());
 #elif defined(SK_FONTMGR_FREETYPE_DIRECTORY_AVAILABLE)
             // In particular, this is used on ChromeOS, which is Linux-like but doesn't have
             // FontConfig.

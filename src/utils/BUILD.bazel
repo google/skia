@@ -84,15 +84,6 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "char_to_glyphcache",
-    srcs = [
-        "SkCharToGlyphCache.cpp",
-        "SkCharToGlyphCache.h",
-    ],
-    visibility = ["//src/ports:__pkg__"],
-)
-
-skia_filegroup(
     name = "canvas_state_utils",
     srcs = [
         "SkCanvasStateUtils.cpp",
@@ -180,4 +171,14 @@ skia_cc_library(
         "//src/core:__pkg__",
         "//tools/sksl-minify:__pkg__",
     ],
+)
+
+skia_cc_library(
+    name = "char_to_glyphcache",
+    srcs = ["SkCharToGlyphCache.cpp"],
+    hdrs = ["SkCharToGlyphCache.h"],
+    visibility = [
+        "//src/ports:__pkg__",
+    ],
+    deps = ["//:core"],
 )
