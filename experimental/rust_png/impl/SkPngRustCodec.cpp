@@ -623,7 +623,7 @@ SkCodec::Result SkPngRustCodec::onIncrementalDecode(int* rowsDecoded) {
 }
 
 int SkPngRustCodec::onGetFrameCount() {
-    if (fCanParseAdditionalFrameInfos) {
+    if (fCanParseAdditionalFrameInfos && !fIncrementalDecodingState.has_value()) {
         switch (this->parseAdditionalFrameInfos()) {
             case kIncompleteInput:
                 fCanParseAdditionalFrameInfos = true;
