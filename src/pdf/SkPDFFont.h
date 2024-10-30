@@ -124,6 +124,8 @@ public:
 
     static const std::vector<SkUnichar>& GetUnicodeMap(const SkTypeface& typeface,
                                                        SkPDFDocument* canon);
+    static skia_private::THashMap<SkGlyphID, SkString>& GetUnicodeMapEx(
+            const SkTypeface& typeface, SkPDFDocument* canon);
 
     static void PopulateCommonFontDescriptor(SkPDFDict* descriptor,
                                              const SkAdvancedTypefaceMetrics&,

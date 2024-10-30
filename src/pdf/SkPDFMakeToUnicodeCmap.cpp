@@ -8,6 +8,7 @@
 #include "src/pdf/SkPDFMakeToUnicodeCmap.h"
 
 #include "include/core/SkStream.h"
+#include "include/core/SkString.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkUTF.h"
 #include "src/pdf/SkPDFGlyphUse.h"
@@ -16,6 +17,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <vector>
+
+using namespace skia_private;
 
 static void append_tounicode_header(SkDynamicMemoryWStream* cmap,
                                     bool multibyte) {
@@ -107,6 +110,52 @@ static void append_bfchar_section(const std::vector<BFChar>& bfchar,
     }
 }
 
+static void append_bfchar_section_ex(const THashMap<SkGlyphID, SkString>& glyphToUnicodeEx,
+                                     bool multiByte, SkGlyphID firstGlyphID, SkGlyphID lastGlyphID,
+                                     SkDynamicMemoryWStream* cmap) {
+    size_t glyphCount = 0;
+    glyphToUnicodeEx.foreach([&](const SkGlyphID& glyphId, const SkString& a) {
+        if (glyphId < firstGlyphID || lastGlyphID < glyphId) {
+            return;
+        }
+        ++glyphCount;
+    });
+
+    int glyphOffset = 0;
+    if (!multiByte) {
+        glyphOffset = firstGlyphID - 1;
+    }
+    // PDF spec defines that every bf* list can have at most 100 entries.
+    size_t i = 0;
+    glyphToUnicodeEx.foreach([&](const SkGlyphID& glyphId, const SkString& a) {
+        if (glyphId < firstGlyphID || lastGlyphID < glyphId) {
+            return;
+        }
+        if (i % 100 == 0) {
+            size_t count = glyphCount - i;
+            count = std::min(count, SkToSizeT(100));
+            cmap->writeDecAsText(count);
+            cmap->writeText(" beginbfchar\n");
+        }
+
+        cmap->writeText("<");
+        write_glyph(cmap, multiByte, glyphId - glyphOffset);
+        cmap->writeText("> <");
+        const char* textPtr = a.begin();
+        const char* textEnd = a.end();
+        while (textPtr < textEnd) {
+            SkUnichar unichar = SkUTF::NextUTF8(&textPtr, textEnd);
+            SkPDFUtils::WriteUTF16beHex(cmap, unichar);
+        }
+        cmap->writeText(">\n");
+
+        if (i % 100 == 99 || i == glyphCount - 1) {
+            cmap->writeText("endbfchar\n");
+        }
+        ++i;
+    });
+}
+
 static void append_bfrange_section(const std::vector<BFRange>& bfrange,
                                    bool multiByte,
                                    SkDynamicMemoryWStream* cmap) {
@@ -156,6 +205,7 @@ static void append_bfrange_section(const std::vector<BFRange>& bfrange,
 // one of them), the possible savings by aggressive optimization is 416KB
 // pre-compressed and does not provide enough motivation for implementation.
 void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
+                             const THashMap<SkGlyphID, SkString>& glyphToUnicodeEx,
                              const SkPDFGlyphUse* subset,
                              SkDynamicMemoryWStream* cmap,
                              bool multiByteGlyphs,
@@ -208,18 +258,20 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
     // The spec requires all bfchar entries for a font must come before bfrange
     // entries.
     append_bfchar_section(bfcharEntries, multiByteGlyphs, cmap);
+    append_bfchar_section_ex(glyphToUnicodeEx, multiByteGlyphs, firstGlyphID, lastGlyphID, cmap);
     append_bfrange_section(bfrangeEntries, multiByteGlyphs, cmap);
 }
 
 std::unique_ptr<SkStreamAsset> SkPDFMakeToUnicodeCmap(
         const SkUnichar* glyphToUnicode,
+        const THashMap<SkGlyphID, SkString>& glyphToUnicodeEx,
         const SkPDFGlyphUse* subset,
         bool multiByteGlyphs,
         SkGlyphID firstGlyphID,
         SkGlyphID lastGlyphID) {
     SkDynamicMemoryWStream cmap;
     append_tounicode_header(&cmap, multiByteGlyphs);
-    SkPDFAppendCmapSections(glyphToUnicode, subset, &cmap, multiByteGlyphs,
+    SkPDFAppendCmapSections(glyphToUnicode, glyphToUnicodeEx, subset, &cmap, multiByteGlyphs,
                             firstGlyphID, lastGlyphID);
     append_cmap_footer(&cmap);
     return cmap.detachAsStream();

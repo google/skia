@@ -33,6 +33,7 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
+#include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkSurfaceProps.h"
@@ -919,6 +920,7 @@ void SkPDFDevice::internalDrawGlyphRun(
     }
 
     const std::vector<SkUnichar>& glyphToUnicode = SkPDFFont::GetUnicodeMap(typeface, fDocument);
+    THashMap<SkGlyphID, SkString>& glyphToUnicodeEx=SkPDFFont::GetUnicodeMapEx(typeface, fDocument);
 
     // TODO: FontType should probably be on SkPDFStrike?
     SkAdvancedTypefaceMetrics::FontType initialFontType = SkPDFFont::FontType(*pdfStrike, *metrics);
@@ -983,24 +985,39 @@ void SkPDFDevice::internalDrawGlyphRun(
                              glyphPositioner.flush();
                              out->writeText("EMC\n");
                          });
-        if (c.fUtf8Text) {  // real cluster
-            // Check if `/ActualText` needed.
+        if (c.fUtf8Text) {
             const char* textPtr = c.fUtf8Text;
             const char* textEnd = c.fUtf8Text + c.fTextByteLength;
             SkUnichar unichar = SkUTF::NextUTF8(&textPtr, textEnd);
-            if (unichar < 0) {
-                return;
-            }
-            if (textPtr < textEnd ||                                    // >1 code points in cluster
-                c.fGlyphCount > 1 ||                                    // >1 glyphs in cluster
-                unichar != map_glyph(glyphToUnicode, glyphIDs[index]))  // 1:1 but wrong mapping
-            {
-                glyphPositioner.flush();
-                out->writeText("/Span<</ActualText ");
-                SkPDFWriteTextString(out, c.fUtf8Text, c.fTextByteLength);
-                out->writeText(" >> BDC\n");  // begin marked-content sequence
-                                               // with an associated property list.
-                actualText = true;
+            if (unichar >= 0) {
+                SkGlyphID gid = glyphIDs[index];
+
+                // The regular cmap can handle this if there is one glyph in the cluster, one code
+                // point in the cluster, and the glyph maps to the code point.
+                bool toUnicode = c.fGlyphCount == 1 && textPtr == textEnd &&
+                                 unichar == map_glyph(glyphToUnicode, gid);
+
+                // The extended cmap can handle this if there is one glyph in the cluster, less than
+                // 512 bytes in the UTF-16, and the mapping matches or can be added.
+                // UTF-16 uses at most 2x space of UTF-8, so at minimum 64 code points seems enough.
+                if (!toUnicode && c.fGlyphCount == 1 && c.fTextByteLength < 256) {
+                    SkString* unicodes = glyphToUnicodeEx.find(gid);
+                    if (!unicodes) {
+                        glyphToUnicodeEx.set(gid, SkString(c.fUtf8Text, c.fTextByteLength));
+                        toUnicode = true;
+                    } else if (unicodes->equals(c.fUtf8Text, c.fTextByteLength)) {
+                        toUnicode = true;
+                    }
+                }
+
+                if (!toUnicode) {
+                    glyphPositioner.flush();
+                    // Begin marked-content sequence with associated property list.
+                    out->writeText("/Span<</ActualText ");
+                    SkPDFWriteTextString(out, c.fUtf8Text, c.fTextByteLength);
+                    out->writeText(" >> BDC\n");
+                    actualText = true;
+                }
             }
         }
         for (; index < glyphLimit; ++index) {
