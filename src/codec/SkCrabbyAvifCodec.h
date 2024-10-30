@@ -27,6 +27,8 @@ struct avifDecoder;
 class SkCodec;
 class SkStream;
 struct SkImageInfo;
+struct SkGainmapInfo;
+
 struct AvifDecoderDeleter {
     void operator()(crabbyavif::avifDecoder* decoder) const;
 };
@@ -42,7 +44,9 @@ public:
     /*
      * Assumes IsAvif() was called and it returned true.
      */
-    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*);
+    static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>,
+                                                   Result*,
+                                                   bool gainmapOnly = false);
 
 protected:
     Result onGetPixels(const SkImageInfo& dstInfo,
@@ -58,6 +62,7 @@ protected:
     int onGetRepetitionCount() override;
     const SkFrameHolder* getFrameHolder() const override { return &fFrameHolder; }
     bool conversionSupported(const SkImageInfo&, bool, bool) override;
+    bool onGetGainmapCodec(SkGainmapInfo* info, std::unique_ptr<SkCodec>* gainmapCodec) override;
 
 private:
     SkCrabbyAvifCodec(SkEncodedInfo&&,
@@ -65,7 +70,13 @@ private:
                       sk_sp<SkData>,
                       AvifDecoder,
                       SkEncodedOrigin,
+                      bool,
                       bool);
+
+    static std::unique_ptr<SkCodec> MakeFromData(std::unique_ptr<SkStream>,
+                                                 sk_sp<SkData>,
+                                                 Result*,
+                                                 bool gainmapOnly);
 
     // fAvifDecoder has a pointer to this data. This should not be freed until
     // the decode is completed. To ensure that, we declare this before
@@ -74,6 +85,7 @@ private:
 
     AvifDecoder fAvifDecoder;
     bool fUseAnimation;
+    bool fGainmapOnly;
 
     class Frame : public SkFrame {
     public:
