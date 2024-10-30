@@ -15,8 +15,6 @@
 
 #include "src/core/SkFontDescriptor.h"
 #include "src/ports/SkFontMgr_custom.h"
-#include "src/ports/SkFontScanner_FreeType_priv.h"
-#include "src/ports/SkTypeface_FreeType.h"
 
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkStream.h"

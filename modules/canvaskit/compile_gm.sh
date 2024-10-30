@@ -178,7 +178,6 @@ GLOBIGNORE+="tests/CodecTest.cpp:"\
 "tests/FontMgrFontConfigTest.cpp:"\
 "tests/FontationsTest.cpp:"\
 "tests/FontationsFtCompTest.cpp:"\
-"tests/FontScanner.cpp:"\
 "tests/FCITest.cpp:"\
 "tests/JpegGainmapTest.cpp:"\
 "tests/SkPngRustDecoderTest.cpp:"\

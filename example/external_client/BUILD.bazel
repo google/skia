@@ -68,12 +68,8 @@ cc_binary(
         "@skia//:core",
         "@skia//:png_encode_codec",
     ] + select({
-        "@platforms//os:linux": [
-            "@skia//:fontmgr_fontconfig_freetype",
-            "@skia//:freetype_support",
-        ],
+        "@platforms//os:linux": ["@skia//:fontmgr_fontconfig_freetype"],
         "@platforms//os:macos": ["@skia//:fontmgr_coretext"],
-        "//conditions:default": ["@skia//:fontmgr_empty_freetype"],
     }),
 )
 

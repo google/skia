@@ -74,18 +74,7 @@ skia_filegroup(
 
 skia_filegroup(
     name = "typeface_fontations_hdrs",
-    srcs = [
-        "SkFontScanner_Fontations.h",
-        "SkTypeface_fontations.h",
-    ],
-    visibility = ["//src/ports:__pkg__"],
-)
-
-skia_filegroup(
-    name = "typeface_freetype_hdrs",
-    srcs = [
-        "SkFontScanner_FreeType.h",
-    ],
+    srcs = ["SkTypeface_fontations.h"],
     visibility = ["//src/ports:__pkg__"],
 )
 

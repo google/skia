@@ -75,6 +75,7 @@ skia_filegroup(
         "SkFontDescriptor.h",
         "SkFontMetricsPriv.h",
         "SkFontPriv.h",
+        "SkFontScanner.h",
         "SkFontStream.h",
         "SkGeometry.h",
         "SkGlyph.h",

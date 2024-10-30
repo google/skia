@@ -4,17 +4,24 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "include/core/SkFontScanner.h"
+
 #include "src/base/SkAutoMalloc.h"
+#include "src/core/SkFontScanner.h"
 #include "src/core/SkTHash.h"
 #include "src/core/SkWriteBuffer.h"
-
-#include "tests/FontScanner.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 #include "tools/fonts/FontToolUtils.h"
 
-void FontScanner_VariableFont(skiatest::Reporter* reporter,
+#ifdef SK_TYPEFACE_FACTORY_FREETYPE
+#include "src/ports/SkTypeface_FreeType.h"
+#endif
+#ifdef SK_TYPEFACE_FACTORY_FONTATIONS
+#include "src/ports/SkFontScanner_fontations.h"
+#endif
+
+[[maybe_unused]]
+static void FontScanner_VariableFont(skiatest::Reporter* reporter,
                                      SkFontScanner* scanner) {
     SkString name = GetResourcePath("fonts/Variable.ttf");
 
@@ -74,7 +81,8 @@ void FontScanner_VariableFont(skiatest::Reporter* reporter,
     }
 }
 
-void FontScanner_NamedInstances1(skiatest::Reporter* reporter, SkFontScanner* scanner) {
+[[maybe_unused]]
+static void FontScanner_NamedInstances1(skiatest::Reporter* reporter, SkFontScanner* scanner) {
     SkString name = GetResourcePath("fonts/Variable.ttf");
 
     std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(name.c_str());
@@ -146,7 +154,8 @@ void FontScanner_NamedInstances1(skiatest::Reporter* reporter, SkFontScanner* sc
     }
 }
 
-void FontScanner_NamedInstances2(skiatest::Reporter* reporter, SkFontScanner* scanner) {
+[[maybe_unused]]
+static void FontScanner_NamedInstances2(skiatest::Reporter* reporter, SkFontScanner* scanner) {
     SkString name = GetResourcePath("fonts/VaryAlongQuads.ttf");
 
     std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(name.c_str());
@@ -203,9 +212,11 @@ void FontScanner_NamedInstances2(skiatest::Reporter* reporter, SkFontScanner* sc
     }
 }
 
-void FontScanner_FontCollection(skiatest::Reporter* reporter, SkFontScanner* scanner) {
-    SkString name = SkString("fonts/test.ttc");
-    std::unique_ptr<SkStreamAsset> stream = GetResourceAsStream(name.c_str());
+[[maybe_unused]]
+static void FontScanner_FontCollection(skiatest::Reporter* reporter, SkFontScanner* scanner) {
+    SkString name = GetResourcePath("fonts/test.ttc");
+
+    std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(name.c_str());
     if (!stream) {
         REPORTER_ASSERT(reporter, false, "Cannot open the font file %s\n", name.c_str());
     }
@@ -247,3 +258,48 @@ void FontScanner_FontCollection(skiatest::Reporter* reporter, SkFontScanner* sca
         REPORTER_ASSERT(reporter, (faceIndex != 1) || (style.weight() == 700.0f));
     }
 }
+
+
+#ifdef SK_TYPEFACE_FACTORY_FREETYPE
+DEF_TEST(FontScanner_FreeType_VariableFont, reporter) {
+    SkFontScanner_FreeType free_type;
+    FontScanner_VariableFont(reporter, &free_type);
+}
+
+DEF_TEST(FontScanner_FreeType__NamedInstances1, reporter) {
+    SkFontScanner_FreeType free_type;
+    FontScanner_NamedInstances1(reporter, &free_type);
+}
+
+DEF_TEST(FontScanner_FreeType__NamedInstances2, reporter) {
+    SkFontScanner_FreeType free_type;
+    FontScanner_NamedInstances2(reporter, &free_type);
+}
+
+DEF_TEST(FontScanner_FreeType_FontCollection, reporter) {
+    SkFontScanner_FreeType free_type;
+    FontScanner_FontCollection(reporter, &free_type);
+}
+#endif
+
+#ifdef SK_TYPEFACE_FACTORY_FONTATIONS
+DEF_TEST(FontScanner_Fontations_VariableFont, reporter) {
+    SkFontScanner_Fontations fontations;
+    FontScanner_VariableFont(reporter, &fontations);
+}
+
+DEF_TEST(FontScanner_Fontations_NamedInstances1, reporter) {
+    SkFontScanner_Fontations fontations;
+    FontScanner_NamedInstances1(reporter, &fontations);
+}
+
+DEF_TEST(FontScanner_Fontations_NamedInstances2, reporter) {
+    SkFontScanner_Fontations fontations;
+    FontScanner_NamedInstances2(reporter, &fontations);
+}
+
+DEF_TEST(FontScanner_Fontations_FontCollection, reporter) {
+    SkFontScanner_Fontations fontations;
+    FontScanner_FontCollection(reporter, &fontations);
+}
+#endif

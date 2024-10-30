@@ -23,7 +23,6 @@ skia_ports_freetype_sources = [
   "$_src/ports/SkFontHost_FreeType.cpp",
   "$_src/ports/SkFontHost_FreeType_common.cpp",
   "$_src/ports/SkFontHost_FreeType_common.h",
-  "$_src/ports/SkFontScanner_FreeType_priv.h",
   "$_src/ports/SkTypeface_FreeType.h",
 ]
 
@@ -118,8 +117,6 @@ skia_ports_fontmgr_fuchsia_sources = [ "$_src/ports/SkFontMgr_fuchsia.cpp" ]
 #  //src/ports:typeface_fontations_hdrs
 #  //src/ports:typeface_fontations_srcs
 skia_ports_typeface_fontations_sources = [
-  "$_src/ports/SkFontScanner_fontations.cpp",
-  "$_src/ports/SkFontScanner_fontations_priv.h",
   "$_src/ports/SkTypeface_fontations.cpp",
   "$_src/ports/SkTypeface_fontations_priv.h",
 ]
