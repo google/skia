@@ -198,8 +198,20 @@ alias(
 )
 
 alias(
+    name = "freetype_support",
+    actual = "//src/ports:freetype_support",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "fontmgr_fontconfig_freetype",
     actual = "//src/ports:fontmgr_fontconfig_freetype",
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "fontmgr_fontconfig_fontations",
+    actual = "//src/ports:fontmgr_fontconfig_fontations",
     visibility = ["//visibility:public"],
 )
 

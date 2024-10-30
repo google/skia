@@ -38,6 +38,7 @@ static DEFINE_double(frame, 1.0,
 
 #if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
 #include "include/ports/SkFontMgr_fontconfig.h"
+#include "include/ports/SkFontScanner_FreeType.h"
 #endif
 
 using namespace skia_private;
@@ -253,7 +254,7 @@ int main(int argc, char** argv) {
         options.skp = false;
     }
 #if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
-    fontMgr = SkFontMgr_New_FontConfig(nullptr);
+    fontMgr = SkFontMgr_New_FontConfig(nullptr, SkFontScanner_Make_FreeType());
 #else
     fontMgr = SkFontMgr::RefEmpty();
 #endif

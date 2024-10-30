@@ -9,6 +9,7 @@
 #ifndef SkTypeface_Freetype_DEFINED
 #define SkTypeface_Freetype_DEFINED
 
+#include "include/core/SkFontScanner.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
@@ -17,7 +18,6 @@
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkSharedMutex.h"
-#include "src/core/SkFontScanner.h"
 #include "src/utils/SkCharToGlyphCache.h"
 
 class SkFontData;
@@ -109,34 +109,6 @@ protected:
 private:
     const SkString fFamilyName;
     const std::unique_ptr<const SkFontData> fData;
-};
-
-class SkFontScanner_FreeType : public SkFontScanner {
-public:
-    SkFontScanner_FreeType();
-    ~SkFontScanner_FreeType() override;
-
-    bool scanFile(SkStreamAsset* stream, int* numFaces) const override;
-    bool scanFace(SkStreamAsset* stream, int faceIndex, int* numInstances) const override;
-    bool scanInstance(SkStreamAsset* stream,
-                      int faceIndex,
-                      int instanceIndex,
-                      SkString* name,
-                      SkFontStyle* style,
-                      bool* isFixedPitch,
-                      AxisDefinitions* axes) const override;
-    static void computeAxisValues(
-            AxisDefinitions axisDefinitions,
-            const SkFontArguments::VariationPosition position,
-            SkFixed* axisValues,
-            const SkString& name,
-            SkFontStyle* style,
-            const SkFontArguments::VariationPosition::Coordinate* currentPosition = nullptr);
-    static bool GetAxes(FT_Face face, AxisDefinitions* axes);
-private:
-    FT_Face openFace(SkStreamAsset* stream, int ttcIndex, FT_Stream ftStream) const;
-    FT_Library fLibrary;
-    mutable SkMutex fLibraryMutex;
 };
 
 #endif // SkTypeface_Freetype_DEFINED

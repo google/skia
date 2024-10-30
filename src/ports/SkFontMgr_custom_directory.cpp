@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkFontScanner.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/ports/SkFontMgr_directory.h"
-#include "src/core/SkFontScanner.h"
 #include "src/core/SkOSFile.h"
 #include "src/ports/SkFontMgr_custom.h"
 #include "src/ports/SkTypeface_FreeType.h"
