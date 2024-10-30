@@ -1612,10 +1612,10 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
                     return {renderers->circularArc(), nullptr};
                 case SkStrokeRec::kStroke_Style:
                 case SkStrokeRec::kHairline_Style:
-                    // Strokes that don't use the center point are supported with butt caps.
+                    // Strokes that don't use the center point are supported with butt & round caps.
                     bool isWedge = shape.arc().isWedge();
-                    bool isButtCap = style.getCap() == SkPaint::kButt_Cap;
-                    if (!isWedge && isButtCap) {
+                    bool isSquareCap = style.getCap() == SkPaint::kSquare_Cap;
+                    if (!isWedge && !isSquareCap) {
                         return {renderers->circularArc(), nullptr};
                     }
                     break;

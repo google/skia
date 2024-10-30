@@ -9,6 +9,7 @@
 
 #include "include/core/SkArc.h"
 #include "include/core/SkM44.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAssert.h"
@@ -48,19 +49,31 @@
 //    We can tell whether a vertex is an outer or inner vertex by looking at the sign
 //    of its z component. This z value is also used to compute half-pixel anti-aliasing offsets
 //    once the vertex data is transformed into device space.
-// float2 radii - in the fragment shader we will pass an offset in unit circle space to determine
-//    the circle edge and for use for clipping. The .x value here is outerRadius+0.5 and will be
-//    compared against the unit circle radius (i.e., 1.0) to compute the outer edge. The .y value
-//    is innerRadius-0.5/outerRadius+0.5 and will be used as the comparison point for the inner
-//    edge.
+// float3 radiiAndFlags - in the fragment shader we will pass an offset in unit circle space to
+//    determine the circle edge and for use for clipping. The .x value here is outerRadius+0.5 and
+//    will be compared against the unit circle radius (i.e., 1.0) to compute the outer edge. The .y
+//    value is innerRadius-0.5/outerRadius+0.5 and will be used as the comparison point for the
+//    inner edge. The .z value is a flag which indicates whether fragClipPlane1 is for intersection
+//    (+) or for union (-), and whether to set up rounded caps (-2/+2).
+// float3 geoClipPlane - For very thin acute arcs, because of the 1/2 pixel boundary we can get
+//    non-clipped artifacts beyond the center of the circle. To solve this, we clip the geometry
+//    so any rendering doesn't cross that point.
 
-// In addition, these 2D clip planes will be passed to the fragment shader:
+// In addition, these values will be passed to the fragment shader:
 //
-// float3 inClipPlane - the arc will always be clipped against this half plane
-// float3 inIsectPlane - for convex/acute arcs, we clip against this and multiply its
-//    value by the inClipPlane clip result.
-// float3 inUnionPlane - for concave/obtuse arcs, we clip against this and add its
-//    value to the inClipPlane clip result.
+// float3 fragClipPlane0 - the arc will always be clipped against this half plane, and passed as
+//    the varying clipPlane.
+// float3 fragClipPlane1 - for convex/acute arcs, we pass this via the varying isectPlane to clip
+//    against this and multiply its value by the ClipPlane clip result. For concave/obtuse arcs,
+//    we pass this via the varying unionPlane which will clip against this and add its value to the
+//    ClipPlane clip result. This is controlled by the flag value in radiiAndFlags: if the
+//    flag is > 0, it's passed as isectClip, if it's < 0 it's passed as unionClip. We set default
+//    values for the alternative clip plane that end up being a null clip.
+// float  roundCapRadius - this is computed in the vertex shader. If we're using round caps (i.e.,
+//    if abs(flags) > 1), this will be half the distance between the outer and inner radii.
+//    Otherwise it will be 0 which will end up zeroing out any round cap calculation.
+// float4 inRoundCapPos - locations of the centers of the round caps in normalized space. This
+//    will be all zeroes if not needed.
 
 namespace skgpu::graphite {
 
@@ -125,12 +138,16 @@ CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
                              // Center plus radii, used to transform to local position
                              {"centerScales", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              // Outer (device space) and inner (normalized) radii
-                             {"radii", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                             // Half-planes used to clip to arc shape.
+                             // + flags for determining clipping and roundcaps
+                             {"radiiAndFlags", VertexAttribType::kFloat3, SkSLType::kFloat3},
+                             // Clips the geometry for acute arcs
                              {"geoClipPlane", VertexAttribType::kFloat3, SkSLType::kFloat3},
-                             {"inClipPlane", VertexAttribType::kFloat3, SkSLType::kFloat3},
-                             {"inIsectPlane", VertexAttribType::kFloat3, SkSLType::kFloat3},
-                             {"inUnionPlane", VertexAttribType::kFloat3, SkSLType::kFloat3},
+                             // Clip planes sent to the fragment shader for arc extents
+                             {"fragClipPlane0", VertexAttribType::kFloat3, SkSLType::kFloat3},
+                             {"fragClipPlane1", VertexAttribType::kFloat3, SkSLType::kFloat3},
+                             // Roundcap positions, if needed
+                             {"inRoundCapPos", VertexAttribType::kFloat4, SkSLType::kFloat4},
+
                              {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
                              {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2},
 
@@ -145,6 +162,9 @@ CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
                              {"clipPlane", SkSLType::kFloat3},
                              {"isectPlane", SkSLType::kFloat3},
                              {"unionPlane", SkSLType::kFloat3},
+                             // Roundcap data
+                             {"roundCapRadius", SkSLType::kFloat},
+                             {"roundCapPos", SkSLType::kFloat4},
                      }) {
     // Initialize the static buffer we'll use when recording draw calls.
     // NOTE: Each instance of this RenderStep gets its own copy of the data. Since there should only
@@ -162,10 +182,11 @@ std::string CircularArcRenderStep::vertexSkSL() const {
                    // Vertex Attributes
                    "position, "
                    // Instance Attributes
-                   "centerScales, radii, geoClipPlane, inClipPlane, inIsectPlane, inUnionPlane, "
-                   "depth, float3x3(mat0, mat1, mat2), "
+                   "centerScales, radiiAndFlags, geoClipPlane, fragClipPlane0, fragClipPlane1, "
+                   "inRoundCapPos, depth, float3x3(mat0, mat1, mat2), "
                    // Varyings
                    "circleEdge, clipPlane, isectPlane, unionPlane, "
+                   "roundCapRadius, roundCapPos, "
                    // Render Step
                    "stepLocalCoords);\n";
 }
@@ -176,7 +197,9 @@ const char* CircularArcRenderStep::fragmentCoverageSkSL() const {
     return "outputCoverage = circular_arc_coverage_fn(circleEdge, "
                                                      "clipPlane, "
                                                      "isectPlane, "
-                                                     "unionPlane);";
+                                                     "unionPlane, "
+                                                     "roundCapRadius, "
+                                                     "roundCapPos);";
 }
 
 void CircularArcRenderStep::writeVertices(DrawWriter* writer,
@@ -224,8 +247,6 @@ void CircularArcRenderStep::writeVertices(DrawWriter* writer,
     // rendered and the outset ensures the box will cover all partially covered by the circle.
     outerRadius += SK_ScalarHalf;
     innerRadius -= SK_ScalarHalf;
-    // The inner radius in the vertex data must be specified in normalized space.
-    innerRadius = innerRadius / outerRadius;
 
     // The shader operates in a space where the circle is translated to be centered at the
     // origin. Here we compute points on the unit circle at the starting and ending angles.
@@ -270,10 +291,27 @@ void CircularArcRenderStep::writeVertices(DrawWriter* writer,
 
     // This makes every point fully inside the plane.
     SkV3 geoClipPlane = {0.f, 0.f, 1.f};
-    SkV3 clipPlane = {0.f, 0.f, 1.f};
-    SkV3 isectPlane = {0.f, 0.f, 1.f};
-    // This makes every point fully outside the plane.
-    SkV3 unionPlane = {0.f, 0.f, 0.f};
+    SkV3 clipPlane0;
+    SkV3 clipPlane1;
+    SkV2 roundCapPos0 = {0, 0};
+    SkV2 roundCapPos1 = {0, 0};
+    static constexpr float kIntersection_NoRoundCaps = 1;
+    static constexpr float kIntersection_RoundCaps = 2;
+
+    // Default to intersection and no round caps.
+    float flags = kIntersection_NoRoundCaps;
+    // Determine if we need round caps.
+    if (isStroke && innerRadius > -SK_ScalarHalf &&
+        params.strokeStyle().halfWidth() > 0 &&
+        params.strokeStyle().cap() == SkPaint::kRound_Cap) {
+        // Compute the cap center points in the normalized space.
+        float midRadius = (innerRadius + outerRadius) / (2 * outerRadius);
+        roundCapPos0 = startPoint * midRadius;
+        roundCapPos1 = stopPoint * midRadius;
+        flags = kIntersection_RoundCaps;
+    }
+
+    // Determine clip planes.
     if (useCenter) {
         SkV2 norm0 = {startPoint.y, -startPoint.x};
         SkV2 norm1 = {stopPoint.y, -stopPoint.x};
@@ -282,12 +320,13 @@ void CircularArcRenderStep::writeVertices(DrawWriter* writer,
             std::swap(norm0, norm1);
         }
         norm0 = -norm0;
+        clipPlane0 = {norm0.x, norm0.y, 0.5f};
+        clipPlane1 = {norm1.x, norm1.y, 0.5f};
         if (absSweep > SK_ScalarPI) {
-            clipPlane = {norm0.x, norm0.y, 0.5f};
-            unionPlane = {norm1.x, norm1.y, 0.5f};
+            // Union
+            flags = -flags;
         } else {
-            clipPlane = {norm0.x, norm0.y, 0.5f};
-            isectPlane = {norm1.x, norm1.y, 0.5f};
+            // Intersection
             // Highly acute arc. We need to clip the vertices to the perpendicular half-plane.
             if (!isStroke && absSweep < 0.5f*SK_ScalarPI) {
                 // We do this clipping in normalized space so use our original local points.
@@ -308,7 +347,7 @@ void CircularArcRenderStep::writeVertices(DrawWriter* writer,
             }
         }
     } else {
-        // We clip to a secant of the original circle.
+        // We clip to a secant of the original circle, only one clip plane
         startPoint *= radius;
         stopPoint *= radius;
         SkV2 norm = {startPoint.y - stopPoint.y, stopPoint.x - startPoint.x};
@@ -317,12 +356,17 @@ void CircularArcRenderStep::writeVertices(DrawWriter* writer,
             norm = -norm;
         }
         float d = -norm.dot(startPoint) + 0.5f;
-        clipPlane = {norm.x, norm.y, d};
+        clipPlane0 = {norm.x, norm.y, d};
+        clipPlane1 = {0.f, 0.f, 1.f}; // no clipping
     }
 
+    // The inner radius in the vertex data must be specified in normalized space.
+    innerRadius = innerRadius / outerRadius;
+
     vw << localCenter << localOuterRadius << localInnerRadius
-       << outerRadius << innerRadius
-       << geoClipPlane << clipPlane << isectPlane << unionPlane
+       << outerRadius << innerRadius << flags
+       << geoClipPlane << clipPlane0 << clipPlane1
+       << roundCapPos0 << roundCapPos1
        << params.order().depthAsFloat()
        << ssboIndices
        << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)  // mat0

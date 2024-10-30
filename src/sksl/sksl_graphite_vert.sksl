@@ -971,11 +971,11 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
 float4 circular_arc_vertex_fn(float3 position,
                               // Instance Attributes
                               float4 centerScales,
-                              float2 radii,
+                              float3 radiiAndFlags,
                               float3 geoClipPlane,
-                              float3 inClipPlane,
-                              float3 inIsectPlane,
-                              float3 inUnionPlane,
+                              float3 fragClipPlane0,
+                              float3 fragClipPlane1,
+                              float4 inRoundCapPos,
                               float depth,
                               float3x3 localToDevice,
                               // Varyings
@@ -983,6 +983,8 @@ float4 circular_arc_vertex_fn(float3 position,
                               out float3 clipPlane,
                               out float3 isectPlane,
                               out float3 unionPlane,
+                              out float  roundCapRadius,
+                              out float4 roundCapPos,
                               // Render Step
                               out float2 stepLocalCoords) {
     // TODO: clip offset against clip planes
@@ -1017,14 +1019,28 @@ float4 circular_arc_vertex_fn(float3 position,
         } else {
             // Because of geometry clipping we need to scale by innerRadius*newLength/origLength
             // But the original length is 1 so this is just innerRadius*newLength
-            offset *= offsetScale*radii.y;
+            offset *= offsetScale*radiiAndFlags.y;
         }
     }
 
-    circleEdge = float4(offset, radii);
-    clipPlane = inClipPlane;
-    isectPlane = inIsectPlane;
-    unionPlane = inUnionPlane;
+    circleEdge = float4(offset, radiiAndFlags.xy);
+    if (radiiAndFlags.z > 0) {
+        clipPlane = fragClipPlane0;
+        isectPlane = fragClipPlane1;
+        unionPlane = float3(0, 0, 0);
+    } else {
+        clipPlane = fragClipPlane0;
+        isectPlane = float3(0, 0, 1);
+        unionPlane = fragClipPlane1;
+    }
+    if (abs(radiiAndFlags.z) > 1) {
+        // This is the cap radius in normalized space where the outer radius is 1 and
+        // radii.y is the normalized inner radius.
+        roundCapRadius = (1.0 - radiiAndFlags.y) / 2.0;
+    } else {
+        roundCapRadius = 0;
+    }
+    roundCapPos = inRoundCapPos;
     stepLocalCoords = localPos;
 
     // We assume no perspective
