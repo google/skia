@@ -1512,7 +1512,7 @@ BoundsPainter::BoundsPainter(SkFontationsScalerContext& scaler_context,
                              SkMatrix initialTransfom,
                              uint16_t upem)
         : fScalerContext(scaler_context)
-        , fCurrentTransform(initialTransfom)
+        , fMatrixStack({initialTransfom})
         , fUpem(upem)
         , fBounds(SkRect::MakeEmpty()) {}
 
@@ -1520,35 +1520,25 @@ SkRect BoundsPainter::getBoundingBox() { return fBounds; }
 
 // fontations_ffi::ColorPainter interface.
 void BoundsPainter::push_transform(const fontations_ffi::Transform& transform_arg) {
-    SkMatrix transform = SkMatrix::MakeAll(transform_arg.xx,
-                                           -transform_arg.xy,
-                                           transform_arg.dx,
-                                           -transform_arg.yx,
-                                           transform_arg.yy,
-                                           -transform_arg.dy,
-                                           0.f,
-                                           0.f,
-                                           1.0f);
-    fCurrentTransform.preConcat(transform);
-    bool invertResult = transform.invert(&fStackTopTransformInverse);
-    SkASSERT(invertResult);
+    SkMatrix newTop(fMatrixStack.back());
+    newTop.preConcat(SkMatrixFromFontationsTransform(transform_arg));
+    fMatrixStack.push_back(newTop);
 }
 void BoundsPainter::pop_transform() {
-    fCurrentTransform.preConcat(fStackTopTransformInverse);
-    fStackTopTransformInverse = SkMatrix();
+    fMatrixStack.pop_back();
 }
 
 void BoundsPainter::push_clip_glyph(uint16_t glyph_id) {
     SkPath path;
     fScalerContext.generateYScalePathForGlyphId(glyph_id, &path, fUpem, *fontations_ffi::no_hinting_instance());
-    path.transform(fCurrentTransform);
+    path.transform(fMatrixStack.back());
     fBounds.join(path.getBounds());
 }
 
 void BoundsPainter::push_clip_rectangle(float x_min, float y_min, float x_max, float y_max) {
     SkRect clipRect = SkRect::MakeLTRB(x_min, -y_min, x_max, -y_max);
     SkPath rectPath = SkPath::Rect(clipRect);
-    rectPath.transform(fCurrentTransform);
+    rectPath.transform(fMatrixStack.back());
     fBounds.join(rectPath.getBounds());
 }
 
