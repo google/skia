@@ -332,6 +332,9 @@ skia_cc_library(
     name = "typeface_proxy",
     srcs = [":typeface_proxy_srcs"],
     hdrs = [":typeface_proxy_hdrs"],
+    deps = [
+        "//:core",
+    ],
 )
 
 skia_cc_library(
@@ -349,6 +352,7 @@ skia_cc_library(
     ],
     deps = [
         ":freetype_support",
+        ":typeface_proxy",
         "//:core",
         "//bazel/external/fontconfig",
         "//src/base",

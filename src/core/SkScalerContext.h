@@ -450,7 +450,7 @@ private:
     friend class PathText;  // For debug purposes
     friend class PathTextBench;  // For debug purposes
     friend class RandomScalerContext;  // For debug purposes
-    friend class SkScalerContext_fontconfig;
+    friend class SkScalerContext_proxy;
 
     static SkScalerContextRec PreprocessRec(const SkTypeface&,
                                             const SkScalerContextEffects&,
