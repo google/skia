@@ -82,9 +82,9 @@ int main(int argc, char** argv) {
     // If necessary, clients should use a font manager that would load fonts from the system.
 #if defined(SK_BUILD_FOR_MAC) && defined(SK_FONTMGR_CORETEXT_AVAILABLE)
     sk_sp<SkFontMgr> fontMgr = SkFontMgr_New_CoreText(nullptr);
-#elif defined(SK_BUILD_FOR_ANDROID) && defined(SK_FONTMGR_ANDROID_AVAILABLE)
+#elif defined(SK_BUILD_FOR_ANDROID) && defined(SK_FONTMGR_ANDROID_AVAILABLE) && defined(SK_TYPEFACE_FACTORY_FREETYPE)
     sk_sp<SkFontMgr> fontMgr = SkFontMgr_New_Android(nullptr, SkFontScanner_Make_FreeType());
-#elif defined(SK_BUILD_FOR_UNIX) && defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
+#elif defined(SK_BUILD_FOR_UNIX) && defined(SK_FONTMGR_FONTCONFIG_AVAILABLE) && defined(SK_TYPEFACE_FACTORY_FREETYPE)
     sk_sp<SkFontMgr> fontMgr = SkFontMgr_New_FontConfig(nullptr, SkFontScanner_Make_FreeType());
 #else
     sk_sp<SkFontMgr> fontMgr = SkFontMgr_New_Custom_Empty();
