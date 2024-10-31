@@ -13,14 +13,11 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkTo.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPathMeasurePriv.h"
 #include "src/core/SkPathPriv.h"
 
 #include <algorithm>
-#include <array>
-#include <cstddef>
 #include <utility>
 
 #define kMaxTValue  0x3FFFFFFF
@@ -700,33 +697,4 @@ bool SkContourMeasure::getSegment(SkScalar startD, SkScalar stopD, SkPath* dst,
     }
 
     return true;
-}
-
-SkContourMeasure::VerbMeasure SkContourMeasure::VerbIterator::operator*() const {
-    static constexpr size_t seg_pt_count[] = {
-        2, // kLine  (current_pt, 1 line pt)
-        3, // kQuad  (current_pt, 2 quad pts)
-        4, // kCubic (current_pt, 3 cubic pts)
-        4, // kConic (current_pt, {weight, 0}, 2 conic pts)
-    };
-    static constexpr SkPathVerb seg_verb[] = {
-        SkPathVerb::kLine,
-        SkPathVerb::kQuad,
-        SkPathVerb::kCubic,
-        SkPathVerb::kConic,
-    };
-    static_assert(std::size(seg_pt_count) == std::size(seg_verb));
-    static_assert(static_cast<size_t>(kLine_SegType)  < std::size(seg_pt_count));
-    static_assert(static_cast<size_t>(kQuad_SegType)  < std::size(seg_pt_count));
-    static_assert(static_cast<size_t>(kCubic_SegType) < std::size(seg_pt_count));
-    static_assert(static_cast<size_t>(kConic_SegType) < std::size(seg_pt_count));
-
-    SkASSERT(SkToSizeT(fSegment->fType) < std::size(seg_pt_count));
-    SkASSERT(fSegment->fPtIndex + seg_pt_count[fSegment->fType] <= fPts.size());
-
-    return {
-        fSegment->fDistance,
-        seg_verb[fSegment->fType],
-        SkSpan(fPts.data() + fSegment->fPtIndex, seg_pt_count[fSegment->fType]),
-    };
 }
