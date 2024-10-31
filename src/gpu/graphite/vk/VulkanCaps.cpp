@@ -210,6 +210,18 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropert
     if (kARM_VkVendor == properties.vendorID && androidAPIVersion <= 28) {
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
+
+    // On Qualcomm the gpu resolves an area larger than the render pass bounds when using
+    // discardable msaa attachments. This causes the resolve to resolve uninitialized data from the
+    // msaa image into the resolve image. This was reproed on a Pixel4 using the DstReadShuffle GM
+    // where the top half of the GM would drop out. In Ganesh we had also seen this on Arm devices,
+    // but the issue hasn't appeared yet in Graphite. It may just have occured on older Arm drivers
+    // that we don't even test any more. This also occurs on swiftshader: b/303705884 in Ganesh, but
+    // we aren't currently testing that in Graphite yet so leaving that off the workaround for now
+    // until we run into it.
+    if (kQualcomm_VkVendor == properties.vendorID) {
+        fMustLoadFullImageForMSAA = true;
+    }
 }
 
 // These are all the valid VkFormats that we support in Skia. They are roughly ordered from most

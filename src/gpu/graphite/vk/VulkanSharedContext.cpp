@@ -126,7 +126,6 @@ std::unique_ptr<ResourceProvider> VulkanSharedContext::makeResourceProvider(
         bool avoidBufferAlloc) {
 
     sk_sp<Buffer> intrinsicConstantBuffer;
-    sk_sp<Buffer> loadMSAAVertexBuffer;
 
     if (!avoidBufferAlloc) {
         // Establish a uniform buffer that can be updated across multiple render passes and
@@ -143,21 +142,6 @@ std::unique_ptr<ResourceProvider> VulkanSharedContext::makeResourceProvider(
         SkASSERT(static_cast<VulkanBuffer*>(intrinsicConstantBuffer.get())->bufferUsageFlags()
                  & VK_BUFFER_USAGE_TRANSFER_DST_BIT);
         intrinsicConstantBuffer->setLabel("IntrinsicConstantBuffer");
-
-        // Establish a vertex buffer that can be updated across multiple render passes and
-        // cmd buffers for loading MSAA from resolve
-        loadMSAAVertexBuffer =
-                VulkanBuffer::Make(this,
-                                   VulkanResourceProvider::kLoadMSAAVertexBufferSize,
-                                   BufferType::kVertex,
-                                   AccessPattern::kGpuOnly);
-        if (!loadMSAAVertexBuffer) {
-            SKGPU_LOG_E("Failed to create vertex buffer for loading MSAA from resolve");
-            return nullptr;
-        }
-        SkASSERT(static_cast<VulkanBuffer*>(loadMSAAVertexBuffer.get())->bufferUsageFlags()
-                 & VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-        loadMSAAVertexBuffer->setLabel("LoadMSAAVertexBuffer");
     }
 
     return std::unique_ptr<ResourceProvider>(
@@ -165,8 +149,7 @@ std::unique_ptr<ResourceProvider> VulkanSharedContext::makeResourceProvider(
                                        singleOwner,
                                        recorderID,
                                        resourceBudget,
-                                       std::move(intrinsicConstantBuffer),
-                                       std::move(loadMSAAVertexBuffer)));
+                                       std::move(intrinsicConstantBuffer)));
 }
 
 bool VulkanSharedContext::checkVkResult(VkResult result) const {

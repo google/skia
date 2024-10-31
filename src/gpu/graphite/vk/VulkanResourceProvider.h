@@ -43,14 +43,11 @@ public:
                            SingleOwner*,
                            uint32_t recorderID,
                            size_t resourceBudget,
-                           sk_sp<Buffer> intrinsicConstantUniformBuffer,
-                           sk_sp<Buffer> loadMSAAVertexBuffer);
+                           sk_sp<Buffer> intrinsicConstantUniformBuffer);
 
     ~VulkanResourceProvider() override;
 
     sk_sp<Buffer> refIntrinsicConstantBuffer() const;
-
-    const Buffer* loadMSAAVertexBuffer() const;
 
     sk_sp<VulkanYcbcrConversion> findOrCreateCompatibleYcbcrConversion(
             const VulkanYcbcrConversionInfo& ycbcrInfo) const;
@@ -115,9 +112,6 @@ private:
     // resource provider creation. This way, render passes across all command buffers can simply
     // update the value within this buffer as needed.
     sk_sp<Buffer> fIntrinsicUniformBuffer;
-    // Similary, use a shared buffer b/w all renderpasses to store vertices for loading MSAA from
-    // resolve.
-    sk_sp<Buffer> fLoadMSAAVertexBuffer;
 
     // The first value of the pair is a renderpass key. Graphics pipeline keys contain extra
     // information that we do not need for identifying unique pipelines.

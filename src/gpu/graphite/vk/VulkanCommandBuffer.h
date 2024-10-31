@@ -150,6 +150,11 @@ private:
                                 SkIPoint dstPoint,
                                 int mipLevel) override;
 
+    bool pushConstants(VkShaderStageFlags stageFlags,
+                       uint32_t offset,
+                       uint32_t size,
+                       const void* values);
+
     bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) override;
     bool onClearBuffer(const Buffer*, size_t offset, size_t size) override;
 
@@ -169,10 +174,10 @@ private:
     // The resource provider is responsible for finding a suitable buffer and managing its lifetime.
     bool updateIntrinsicUniforms(SkIRect viewport);
 
-    bool updateLoadMSAAVertexBuffer();
     bool loadMSAAFromResolve(const RenderPassDesc&,
                              VulkanTexture& resolveTexture,
-                             SkISize dstDimensions);
+                             SkISize dstDimensions,
+                             SkIRect nativeBounds);
     bool updateAndBindLoadMSAAInputAttachment(const VulkanTexture& resolveTexture);
     void updateBuffer(const VulkanBuffer* buffer,
                       const void* data,

@@ -46,11 +46,9 @@ VulkanResourceProvider::VulkanResourceProvider(SharedContext* sharedContext,
                                                SingleOwner* singleOwner,
                                                uint32_t recorderID,
                                                size_t resourceBudget,
-                                               sk_sp<Buffer> intrinsicConstantUniformBuffer,
-                                               sk_sp<Buffer> loadMSAAVertexBuffer)
+                                               sk_sp<Buffer> intrinsicConstantUniformBuffer)
         : ResourceProvider(sharedContext, singleOwner, recorderID, resourceBudget)
         , fIntrinsicUniformBuffer(std::move(intrinsicConstantUniformBuffer))
-        , fLoadMSAAVertexBuffer(std::move(loadMSAAVertexBuffer))
         , fUniformBufferDescSetCache(kMaxNumberOfCachedBufferDescSets) {}
 
 VulkanResourceProvider::~VulkanResourceProvider() {
@@ -105,10 +103,6 @@ sk_sp<Texture> VulkanResourceProvider::onCreateWrappedTexture(const BackendTextu
 
 sk_sp<Buffer> VulkanResourceProvider::refIntrinsicConstantBuffer() const {
     return fIntrinsicUniformBuffer;
-}
-
-const Buffer* VulkanResourceProvider::loadMSAAVertexBuffer() const {
-    return fLoadMSAAVertexBuffer.get();
 }
 
 sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(

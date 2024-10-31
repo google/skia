@@ -475,12 +475,15 @@ static void destroy_desc_set_layouts(const VulkanSharedContext* sharedContext,
 
 static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedContext,
                                               bool usesIntrinsicConstantUbo,
+                                              bool useMSAALoadPushConstant,
                                               bool hasStepUniforms,
                                               bool hasPaintUniforms,
                                               bool hasGradientBuffer,
                                               int numTextureSamplers,
                                               int numInputAttachments,
                                               SkSpan<sk_sp<VulkanSampler>> immutableSamplers) {
+    SkASSERT(!useMSAALoadPushConstant ||
+             (!usesIntrinsicConstantUbo && !hasStepUniforms && !hasPaintUniforms));
     // Determine descriptor set layouts for this pipeline based upon render pass information.
     skia_private::STArray<3, VkDescriptorSetLayout> setLayouts;
 
@@ -573,6 +576,13 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
         setLayouts.push_back(textureSamplerDescSetLayout);
     }
 
+    VkPushConstantRange pushConstantRange;
+    if (useMSAALoadPushConstant) {
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = 32;
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+    }
+
     // Generate a pipeline layout using the now-populated descriptor set layout array
     VkPipelineLayoutCreateInfo layoutCreateInfo;
     memset(&layoutCreateInfo, 0, sizeof(VkPipelineLayoutCreateFlags));
@@ -582,8 +592,8 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
     layoutCreateInfo.setLayoutCount = setLayouts.size();
     layoutCreateInfo.pSetLayouts = setLayouts.begin();
     // TODO: Add support for push constants.
-    layoutCreateInfo.pushConstantRangeCount = 0;
-    layoutCreateInfo.pPushConstantRanges = nullptr;
+    layoutCreateInfo.pushConstantRangeCount = useMSAALoadPushConstant ? 1 : 0;
+    layoutCreateInfo.pPushConstantRanges = useMSAALoadPushConstant ? &pushConstantRange : nullptr;
 
     VkResult result;
     VkPipelineLayout layout;
@@ -772,6 +782,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     VkPipelineLayout pipelineLayout =
             setup_pipeline_layout(sharedContext,
                                   /*usesIntrinsicConstantUbo=*/true,
+                                  /*useMSAALoadPushConstant=*/false,
                                   !step->uniforms().empty(),
                                   shaderInfo->hasPaintUniforms(),
                                   shaderInfo->hasGradientBuffer(),
@@ -866,11 +877,14 @@ bool VulkanGraphicsPipeline::InitializeMSAALoadPipelineStructs(
 
     std::string vertShaderText;
     vertShaderText.append(
-            "// MSAA Load Program VS\n"
-            "layout(vulkan, location=0) in float2 ndc_position;"
+            "layout(vulkan,  push_constant) uniform vertexUniformBuffer {"
+            "half4 uPosXform;"
+            "};"
 
+            "// MSAA Load Program VS\n"
             "void main() {"
-            "sk_Position.xy = ndc_position;"
+            "float2 position = float2(sk_VertexID >> 1, sk_VertexID & 1);"
+            "sk_Position.xy = position * uPosXform.xy + uPosXform.zw;"
             "sk_Position.zw = half2(0, 1);"
             "}");
 
@@ -930,6 +944,7 @@ bool VulkanGraphicsPipeline::InitializeMSAALoadPipelineStructs(
     // TODO: Do we need to consider the potential usage of immutable YCbCr samplers here?
     *outPipelineLayout = setup_pipeline_layout(sharedContext,
                                                /*usesIntrinsicConstantUbo=*/false,
+                                               /*useMSAALoadPushConstant=*/true,
                                                /*hasStepUniforms=*/false,
                                                /*hasPaintUniforms=*/false,
                                                /*hasGradientBuffer=*/false,
@@ -957,8 +972,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
     int numSamples = dstColorAttachmentTexInfo.numSamples();
 
     // Create vertex attribute list
-    Attribute vertexAttrib[1] = {{"ndc_position", VertexAttribType::kFloat2, SkSLType::kFloat2}};
-    SkSpan<const Attribute> loadMSAAVertexAttribs = {vertexAttrib};
+    SkSpan<const Attribute> loadMSAAVertexAttribs = {};
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     skia_private::STArray<2, VkVertexInputBindingDescription, true> bindingDescs;
