@@ -9,6 +9,7 @@
 #define skgpu_graphite_GraphiteTypes_DEFINED
 
 #include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 
@@ -44,6 +45,9 @@ using GpuFinishedProc = void (*)(GpuFinishedContext finishedContext, CallbackRes
  *
  * fTargetTranslation is an additional translation applied to draws targeting fTargetSurface.
  *
+ * fTargetClip is an additional clip applied to draws targeting fTargetSurface. It is defined in the
+ * local replay space, that is, with fTargetTranslation applied. An empty clip will not be applied.
+ *
  * The client may pass in two arrays of initialized BackendSemaphores to be included in the
  * command stream. At some time before issuing commands in the Recording, the fWaitSemaphores will
  * be waited on by the gpu. We only guarantee these wait semaphores block transfer and fragment
@@ -62,6 +66,7 @@ struct InsertRecordingInfo {
 
     SkSurface* fTargetSurface = nullptr;
     SkIVector fTargetTranslation = {0, 0};
+    SkIRect fTargetClip = {0, 0, 0, 0};
     MutableTextureState* fTargetTextureState = nullptr;
 
     size_t fNumWaitSemaphores = 0;

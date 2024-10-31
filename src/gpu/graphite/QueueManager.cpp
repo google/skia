@@ -160,7 +160,8 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
     if (!info.fRecording->priv().addCommands(context,
                                              fCurrentCommandBuffer.get(),
                                              static_cast<Surface*>(info.fTargetSurface),
-                                             info.fTargetTranslation)) {
+                                             info.fTargetTranslation,
+                                             info.fTargetClip)) {
         if (callback) {
             callback->setFailureResult();
         }

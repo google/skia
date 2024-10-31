@@ -9,6 +9,7 @@
 #define skgpu_graphite_task_Task_DEFINED
 
 #include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 
 namespace skgpu::graphite {
@@ -26,6 +27,7 @@ public:
     struct ReplayTargetData {
         const Texture* fTarget;
         SkIVector fTranslation;
+        SkIRect fClip;
     };
 
     enum class Status {

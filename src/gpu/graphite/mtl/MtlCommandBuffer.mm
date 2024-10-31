@@ -588,7 +588,8 @@ void MtlCommandBuffer::setScissor(unsigned int left, unsigned int top,
     SkASSERT(fActiveRenderCommandEncoder);
     SkIRect scissor = SkIRect::MakeXYWH(
             left + fReplayTranslation.x(), top + fReplayTranslation.y(), width, height);
-    fDrawIsOffscreen = !scissor.intersect(SkIRect::MakeSize(fColorAttachmentSize));
+    fDrawIsOffscreen = !scissor.intersect(SkIRect::MakeSize(fColorAttachmentSize)) ||
+                       (!fReplayClip.isEmpty() && !scissor.intersect(fReplayClip));
     if (fDrawIsOffscreen) {
         scissor.setEmpty();
     }

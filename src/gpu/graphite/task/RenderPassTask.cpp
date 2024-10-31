@@ -103,9 +103,9 @@ Task::Status RenderPassTask::addCommands(Context* context,
     SkASSERT(!fDstCopy || fDstCopy->isInstantiated());
 
     if (fTarget->texture() == replayData.fTarget) {
-        commandBuffer->setReplayTranslation(replayData.fTranslation);
+        commandBuffer->setReplayTranslationAndClip(replayData.fTranslation, replayData.fClip);
     } else {
-        commandBuffer->clearReplayTranslation();
+        commandBuffer->clearReplayTranslationAndClip();
     }
 
     // We don't instantiate the MSAA or DS attachments in prepareResources because we want to use

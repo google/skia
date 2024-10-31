@@ -124,7 +124,8 @@ void RecordingPriv::setFailureResultForFinishedProcs() {
 bool RecordingPriv::addCommands(Context* context,
                                 CommandBuffer* commandBuffer,
                                 Surface* targetSurface,
-                                SkIVector targetTranslation) {
+                                SkIVector targetTranslation,
+                                SkIRect targetClip) {
     AutoDeinstantiateTextureProxy autoDeinstantiateTargetProxy(
             fRecording->fTargetProxyData ? fRecording->fTargetProxyData->lazyProxy() : nullptr);
 
@@ -157,7 +158,8 @@ bool RecordingPriv::addCommands(Context* context,
     // is discarded, the Recording will automatically be a no-op on replay while still correctly
     // notifying any finish procs the client may have added.
     if (fRecording->fRootTaskList->addCommands(
-                context, commandBuffer, {replayTarget, targetTranslation}) == Task::Status::kFail) {
+                context, commandBuffer, {replayTarget, targetTranslation, targetClip}) ==
+        Task::Status::kFail) {
         return false;
     }
     for (int i = 0; i < fRecording->fFinishedProcs.size(); ++i) {
