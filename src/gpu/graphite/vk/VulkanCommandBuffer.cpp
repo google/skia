@@ -91,7 +91,7 @@ public:
         uint32_t offset = (fSlotsUsed++) * stride;
         mapPtr = SkTAddOffset<void>(mapPtr, static_cast<ptrdiff_t>(offset));
         memcpy(mapPtr, intrinsicValues.data(), intrinsicValues.size());
-
+        fCurrentBuffer->unmap();
         BindBufferInfo binding{
                 fCurrentBuffer.get(), offset, SkTo<uint32_t>(intrinsicValues.size())};
         fCachedIntrinsicValues.set(UniformDataBlock::Make(intrinsicValues, &fUniformData), binding);
