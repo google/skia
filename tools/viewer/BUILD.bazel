@@ -47,6 +47,7 @@ skia_cc_binary(
         "ManyRectsSlide.cpp",
         "MaterialShadowsSlide.cpp",
         "MegaStrokeSlide.cpp",
+        "MeshGradientSlide.cpp",
         "MeshSlide.cpp",
         "MixerSlide.cpp",
         "PathClipSlide.cpp",
