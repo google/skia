@@ -312,15 +312,15 @@ config("default") {
     } else {
       asmflags += [
         "-target",
-        "x86_64-apple-macos10.13",
+        "x86_64-apple-macos10.15",
       ]
       cflags += [
         "-target",
-        "x86_64-apple-macos10.13",
+        "x86_64-apple-macos10.15",
       ]
       ldflags += [
         "-target",
-        "x86_64-apple-macos10.13",
+        "x86_64-apple-macos10.15",
       ]
     }
   }
