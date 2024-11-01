@@ -249,6 +249,12 @@ func (b *taskBuilder) usesCCache() {
 	b.cache(CACHES_CCACHE...)
 }
 
+// shellsOutToBazel returns true if this task normally uses GN but some step
+// shells out to Bazel to build stuff, e.g. rust code.
+func (b *taskBuilder) shellsOutToBazel() bool {
+	return b.extraConfig("Vello", "Fontations", "RustPNG")
+}
+
 // usesGit adds attributes to tasks which use git.
 func (b *taskBuilder) usesGit() {
 	b.cache(CACHES_GIT...)

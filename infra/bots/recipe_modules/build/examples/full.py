@@ -59,6 +59,7 @@ TEST_BUILDERS = [
   'Build-Debian10-Clang-x86_64-Release-CMake',
   'Build-Debian10-Clang-x86_64-Release-Fast',
   'Build-Debian10-Clang-x86_64-Release-NoDEPS',
+  'Build-Debian10-Clang-x86_64-Release-RustPNG',
   'Build-Debian10-Clang-x86_64-Release-Static',
   'Build-Debian10-Clang-x86_64-Release-SwiftShader',
   'Build-Debian10-Clang-x86_64-Release-Vulkan',
