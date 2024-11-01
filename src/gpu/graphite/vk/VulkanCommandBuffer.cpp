@@ -490,8 +490,16 @@ bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
                                           VK_ACCESS_SHADER_READ_BIT,
                                           VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                                           false);
-            this->submitPipelineBarriers();
         }
+    }
+    if (fDstCopy.first) {
+        VulkanTexture* vulkanTexture =
+                const_cast<VulkanTexture*>(static_cast<const VulkanTexture*>(fDstCopy.first));
+        vulkanTexture->setImageLayout(this,
+                                      VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                                      VK_ACCESS_SHADER_READ_BIT,
+                                      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+                                      false);
     }
 
     if (!this->updateIntrinsicUniforms(viewport)) {

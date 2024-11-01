@@ -169,6 +169,7 @@ static bool should_include_extension(const char* extensionName) {
             // single merged layer
             VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME,
             VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME,
+            VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
             VK_EXT_DEVICE_FAULT_EXTENSION_NAME,
             VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME,
             VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
