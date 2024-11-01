@@ -34,7 +34,9 @@ void GrGLFinishCallbacks::check() {
         // flushAndSubmit(/*sync=*/true)) that has us process the finished callbacks. We also must
         // process deleting the sync before a client may abandon the context.
         auto finishCallback = fCallbacks.front();
-        fGpu->deleteSync(finishCallback.fSync);
+        if (finishCallback.fSync) {
+            fGpu->deleteSync(finishCallback.fSync);
+        }
         fCallbacks.pop_front();
         finishCallback.fCallback(finishCallback.fContext);
     }
@@ -47,7 +49,7 @@ void GrGLFinishCallbacks::callAll(bool doDelete) {
         // flushAndSubmit(/*sync=*/true)) that has us process the finished callbacks. We also must
         // process deleting the sync before a client may abandon the context.
         auto finishCallback = fCallbacks.front();
-        if (doDelete) {
+        if (doDelete && finishCallback.fSync) {
             fGpu->deleteSync(finishCallback.fSync);
         }
         fCallbacks.pop_front();
