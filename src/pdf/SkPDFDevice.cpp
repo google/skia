@@ -809,10 +809,6 @@ private:
 };
 }  // namespace
 
-static SkUnichar map_glyph(const std::vector<SkUnichar>& glyphToUnicode, SkGlyphID glyph) {
-    return glyph < glyphToUnicode.size() ? glyphToUnicode[SkToInt(glyph)] : -1;
-}
-
 namespace {
 struct PositionedGlyph {
     SkPoint fPos;
@@ -977,8 +973,8 @@ void SkPDFDevice::internalDrawGlyphRun(
     auto glyphs = paths.glyphs(glyphRun.glyphsIDs());
 
     while (SkClusterator::Cluster c = clusterator.next()) {
-        int index = c.fGlyphIndex;
-        int glyphLimit = index + c.fGlyphCount;
+        int glyphIndex = c.fGlyphIndex;
+        int glyphLimit = glyphIndex + c.fGlyphCount;
 
         bool actualText = false;
         SK_AT_SCOPE_EXIT(if (actualText) {
@@ -986,21 +982,25 @@ void SkPDFDevice::internalDrawGlyphRun(
                              out->writeText("EMC\n");
                          });
         if (c.fUtf8Text) {
+            bool toUnicode = false;
             const char* textPtr = c.fUtf8Text;
             const char* textEnd = c.fUtf8Text + c.fTextByteLength;
-            SkUnichar unichar = SkUTF::NextUTF8(&textPtr, textEnd);
-            if (unichar >= 0) {
-                SkGlyphID gid = glyphIDs[index];
+            SkUnichar clusterUnichar = SkUTF::NextUTF8(&textPtr, textEnd);
+            // ToUnicode can only handle one glyph in a cluster.
+            if (clusterUnichar >= 0 && c.fGlyphCount == 1) {
+                SkGlyphID gid = glyphIDs[glyphIndex];
+                SkUnichar fontUnichar = gid < glyphToUnicode.size() ? glyphToUnicode[gid] : 0;
 
-                // The regular cmap can handle this if there is one glyph in the cluster, one code
-                // point in the cluster, and the glyph maps to the code point.
-                bool toUnicode = c.fGlyphCount == 1 && textPtr == textEnd &&
-                                 unichar == map_glyph(glyphToUnicode, gid);
+                // The regular cmap can handle this if there is one glyph in the cluster,
+                // one code point in the cluster, and the glyph maps to the code point.
+                toUnicode = textPtr == textEnd && clusterUnichar == fontUnichar;
 
-                // The extended cmap can handle this if there is one glyph in the cluster, less than
-                // 512 bytes in the UTF-16, and the mapping matches or can be added.
-                // UTF-16 uses at most 2x space of UTF-8, so at minimum 64 code points seems enough.
-                if (!toUnicode && c.fGlyphCount == 1 && c.fTextByteLength < 256) {
+                // The extended cmap can handle this if there is one glyph in the cluster,
+                // the font has no code point for the glyph,
+                // there are less than 512 bytes in the UTF-16,
+                // and the mapping matches or can be added.
+                // UTF-16 uses at most 2x space of UTF-8; 64 code points seems enough.
+                if (!toUnicode && fontUnichar <= 0 && c.fTextByteLength < 256) {
                     SkString* unicodes = glyphToUnicodeEx.find(gid);
                     if (!unicodes) {
                         glyphToUnicodeEx.set(gid, SkString(c.fUtf8Text, c.fTextByteLength));
@@ -1009,26 +1009,25 @@ void SkPDFDevice::internalDrawGlyphRun(
                         toUnicode = true;
                     }
                 }
-
-                if (!toUnicode) {
-                    glyphPositioner.flush();
-                    // Begin marked-content sequence with associated property list.
-                    out->writeText("/Span<</ActualText ");
-                    SkPDFWriteTextString(out, c.fUtf8Text, c.fTextByteLength);
-                    out->writeText(" >> BDC\n");
-                    actualText = true;
-                }
+            }
+            if (!toUnicode) {
+                glyphPositioner.flush();
+                // Begin marked-content sequence with associated property list.
+                out->writeText("/Span<</ActualText ");
+                SkPDFWriteTextString(out, c.fUtf8Text, c.fTextByteLength);
+                out->writeText(" >> BDC\n");
+                actualText = true;
             }
         }
-        for (; index < glyphLimit; ++index) {
-            SkGlyphID gid = glyphIDs[index];
+        for (; glyphIndex < glyphLimit; ++glyphIndex) {
+            SkGlyphID gid = glyphIDs[glyphIndex];
             if (numGlyphs <= gid) {
                 continue;
             }
-            SkPoint xy = glyphRun.positions()[index];
+            SkPoint xy = glyphRun.positions()[glyphIndex];
             // Do a glyph-by-glyph bounds-reject if positions are absolute.
             SkRect glyphBounds = get_glyph_bounds_device_space(
-                    glyphs[index], textScaleX, textScaleY,
+                    glyphs[glyphIndex], textScaleX, textScaleY,
                     xy + offset, this->localToDevice());
             if (glyphBounds.isEmpty()) {
                 if (!contains(clipStackBounds, {glyphBounds.x(), glyphBounds.y()})) {
@@ -1039,9 +1038,9 @@ void SkPDFDevice::internalDrawGlyphRun(
                     continue;  // reject glyphs as out of bounds
                 }
             }
-            if (needs_new_font(font, glyphs[index], initialFontType)) {
+            if (needs_new_font(font, glyphs[glyphIndex], initialFontType)) {
                 // Not yet specified font or need to switch font.
-                font = pdfStrike->getFontResource(glyphs[index]);
+                font = pdfStrike->getFontResource(glyphs[glyphIndex]);
                 SkASSERT(font);  // All preconditions for SkPDFFont::GetFontResource are met.
                 glyphPositioner.setFont(font);
                 SkPDFWriteResourceName(out, SkPDFResourceType::kFont,
@@ -1053,7 +1052,7 @@ void SkPDFDevice::internalDrawGlyphRun(
             }
             font->noteGlyphUsage(gid);
             SkGlyphID encodedGlyph = font->glyphToPDFFontEncoding(gid);
-            SkScalar advance = advanceScale * glyphs[index]->advanceX();
+            SkScalar advance = advanceScale * glyphs[glyphIndex]->advanceX();
             if (fMarkManager.hasActiveMark()) {
                 SkRect pageGlyphBounds = pageXform.mapRect(glyphBounds);
                 fMarkManager.accumulate({pageGlyphBounds.fLeft, pageGlyphBounds.fBottom}); // y-up
