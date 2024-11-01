@@ -466,7 +466,7 @@ func setupMockGit(t *testing.T, repoState types.RepoState) (*gerrit_testutils.Mo
 
 	// Mock a Gitiles client.
 	urlMock := mockhttpclient.NewURLMock()
-	mockRepo := gitiles_testutils.NewMockRepo(t, gitBuilder.RepoUrl(), git.GitDir(gitBuilder.Dir()), urlMock)
+	mockRepo := gitiles_testutils.NewMockRepo(t, gitBuilder.RepoUrl(), git.CheckoutDir(gitBuilder.Dir()), urlMock)
 	mockRepo.MockGetCommit(ctx, repoState.Revision)
 	mockGitiles := gitiles.NewRepo(gitBuilder.RepoUrl(), urlMock.Client())
 	return mockGerrit, mockGitiles, repoState
