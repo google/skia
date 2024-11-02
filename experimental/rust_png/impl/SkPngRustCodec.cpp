@@ -856,7 +856,6 @@ SkCodec::Result SkPngRustCodec::FrameHolder::setFrameInfoFromCurrentFctlChunk(
     }
 
     frame->setDisposalMethod(ToDisposalMethod(disposeOp));
-    this->setAlphaAndRequiredFrame(frame);
 
     // https://wiki.mozilla.org/APNG_Specification#.60fcTL.60:_The_Frame_Control_Chunk
     // points out that "for the first frame the two blend modes are functionally
@@ -867,5 +866,8 @@ SkCodec::Result SkPngRustCodec::FrameHolder::setFrameInfoFromCurrentFctlChunk(
     }
     frame->setBlend(ToBlend(blendOp));
 
+    // Note: `setAlphaAndRequiredFrame` needs to be called last, because it
+    // depends on the other properties set above.
+    this->setAlphaAndRequiredFrame(frame);
     return kSuccess;
 }
