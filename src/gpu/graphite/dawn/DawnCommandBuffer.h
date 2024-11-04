@@ -37,6 +37,12 @@ public:
 
     wgpu::CommandBuffer finishEncoding();
 
+#if defined(SK_DEBUG)
+    bool hasActivePassEncoder() const {
+        return fActiveRenderPassEncoder || fActiveComputePassEncoder;
+    }
+#endif
+
 private:
     DawnCommandBuffer(const DawnSharedContext* sharedContext,
                       DawnResourceProvider* resourceProvider);
@@ -146,9 +152,6 @@ private:
     bool fBoundUniformBuffersDirty = false;
 
     std::array<BindBufferInfo, DawnGraphicsPipeline::kNumUniformBuffers> fBoundUniforms;
-
-    class IntrinsicConstantsManager;
-    std::unique_ptr<IntrinsicConstantsManager> fIntrinsicConstants;
 
     wgpu::CommandEncoder fCommandEncoder;
     wgpu::RenderPassEncoder fActiveRenderPassEncoder;

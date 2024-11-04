@@ -308,6 +308,8 @@ void ResourceProvider::deleteBackendTexture(const BackendTexture& texture) {
 }
 
 void ResourceProvider::freeGpuResources() {
+    this->onFreeGpuResources();
+
     // TODO: Are there Resources that are ref'd by the ResourceProvider or its subclasses that need
     // be released? If we ever find that we're holding things directly on the ResourceProviders we
     // call down into the subclasses to allow them to release things.
@@ -316,6 +318,7 @@ void ResourceProvider::freeGpuResources() {
 }
 
 void ResourceProvider::purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime) {
+    this->onPurgeResourcesNotUsedSince(purgeTime);
     fResourceCache->purgeResourcesNotUsedSince(purgeTime);
 }
 

@@ -27,81 +27,6 @@
 
 namespace skgpu::graphite {
 
-// DawnCommandBuffer::IntrinsicConstantsManager
-// ----------------------------------------------------------------------------
-
-/**
- * Since Dawn does not currently provide push constants, this helper class manages rotating through
- * buffers and writing each new occurrence of a set of intrinsic uniforms into the current buffer.
- */
-class DawnCommandBuffer::IntrinsicConstantsManager {
-public:
-
-    BindBufferInfo add(DawnCommandBuffer* cb, UniformDataBlock intrinsicValues) {
-        static constexpr int kNumSlots = 8;
-
-        BindBufferInfo* existing = fCachedIntrinsicValues.find(intrinsicValues);
-        if (existing) {
-            return *existing;
-        }
-
-        // TODO: https://b.corp.google.com/issues/259267703
-        // Make updating intrinsic constants faster. Metal has setVertexBytes method
-        // to quickly send intrinsic constants to vertex shader without any buffer. But Dawn
-        // doesn't have similar capability. So we have to use WriteBuffer(), and this method is not
-        // allowed to be called when there is an active render pass.
-        SkASSERT(!cb->fActiveRenderPassEncoder);
-        SkASSERT(!cb->fActiveComputePassEncoder);
-
-        const Caps* caps = cb->fSharedContext->caps();
-        const uint32_t stride = SkAlignTo(intrinsicValues.size(),
-                                          caps->requiredUniformBufferAlignment());
-        if (!fCurrentBuffer || fSlotsUsed == kNumSlots) {
-            // We can just replace the current buffer; any prior buffer was already tracked on the
-            // CommandBuffer and the intrinsic constants were written directly to the Dawn queue.
-            DawnResourceProvider* resourceProvider = cb->fResourceProvider;
-            fCurrentBuffer = resourceProvider->findOrCreateDawnBuffer(stride * kNumSlots,
-                                                                      BufferType::kUniform,
-                                                                      AccessPattern::kGpuOnly,
-                                                                      "IntrinsicConstantBuffer");
-            fSlotsUsed = 0;
-
-            if (!fCurrentBuffer) {
-                // If we failed to create a GPU buffer to hold the intrinsic uniforms, we will fail
-                // the Recording being inserted, so return an empty bind info.
-                return {};
-            }
-            cb->trackResource(fCurrentBuffer);
-        }
-
-        SkASSERT(fCurrentBuffer && fSlotsUsed < kNumSlots);
-        uint32_t offset = (fSlotsUsed++) * stride;
-        cb->fSharedContext->queue().WriteBuffer(fCurrentBuffer->dawnBuffer(),
-                                                offset,
-                                                intrinsicValues.data(),
-                                                intrinsicValues.size());
-
-        BindBufferInfo binding{fCurrentBuffer.get(),
-                               offset,
-                               SkTo<uint32_t>(intrinsicValues.size())};
-        fCachedIntrinsicValues.set(UniformDataBlock::Make(intrinsicValues, &fUniformData), binding);
-        return binding;
-    }
-
-private:
-    // The current buffer being filled up, as well as the how much of it has been written to.
-    sk_sp<DawnBuffer> fCurrentBuffer;
-    int fSlotsUsed = 0; // in multiples of the intrinsic uniform size and UBO binding requirement
-
-    // All uploaded intrinsic uniform sets and where they are on the GPU. All uniform sets are
-    // cached for the duration of a CommandBuffer since the maximum number of elements in this
-    // collection will equal the number of render passes and the intrinsic constants aren't that
-    // large. This maximizes the chance for reuse between passes.
-    skia_private::THashMap<UniformDataBlock, BindBufferInfo, UniformDataBlock::Hash>
-            fCachedIntrinsicValues;
-    SkArenaAlloc fUniformData{0};
-};
-
 // DawnCommandBuffer
 // ----------------------------------------------------------------------------
 std::unique_ptr<DawnCommandBuffer> DawnCommandBuffer::Make(const DawnSharedContext* sharedContext,
@@ -132,8 +57,6 @@ wgpu::CommandBuffer DawnCommandBuffer::finishEncoding() {
 }
 
 void DawnCommandBuffer::onResetCommandBuffer() {
-    fIntrinsicConstants = nullptr;
-
     fActiveGraphicsPipeline = nullptr;
     fActiveRenderPassEncoder = nullptr;
     fActiveComputePassEncoder = nullptr;
@@ -150,7 +73,6 @@ bool DawnCommandBuffer::setNewCommandBufferResources() {
     fCommandEncoder = fSharedContext->device().CreateCommandEncoder();
     SkASSERT(fCommandEncoder);
 
-    fIntrinsicConstants = std::make_unique<IntrinsicConstantsManager>();
     return true;
 }
 
@@ -826,8 +748,8 @@ bool DawnCommandBuffer::updateIntrinsicUniforms(SkIRect viewport) {
     UniformManager intrinsicValues{Layout::kStd140};
     CollectIntrinsicUniforms(fSharedContext->caps(), viewport, fDstCopyBounds, &intrinsicValues);
 
-    BindBufferInfo binding =
-            fIntrinsicConstants->add(this, UniformDataBlock::Wrap(&intrinsicValues));
+    BindBufferInfo binding = fResourceProvider->findOrCreateIntrinsicBindBufferInfo(
+            this, UniformDataBlock::Wrap(&intrinsicValues));
     if (!binding) {
         return false;
     } else if (binding == fBoundUniforms[DawnGraphicsPipeline::kIntrinsicUniformBufferIndex]) {

@@ -155,6 +155,9 @@ private:
                                                   bool fromAndroidWindow) const;
 #endif
     virtual void onDeleteBackendTexture(const BackendTexture&) = 0;
+
+    virtual void onFreeGpuResources() {}
+    virtual void onPurgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime) {}
 };
 
 } // namespace skgpu::graphite
