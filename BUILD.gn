@@ -3088,6 +3088,7 @@ if (skia_enable_tools) {
         "tools/viewer/PatchSlide.cpp",
         "tools/viewer/PathClipSlide.cpp",
         "tools/viewer/PathEffectsSlide.cpp",
+        "tools/viewer/PathLerpSlide.cpp",
         "tools/viewer/PathOverstrokeSlide.cpp",
         "tools/viewer/PathSlide.cpp",
         "tools/viewer/PathTessellatorsSlide.cpp",
