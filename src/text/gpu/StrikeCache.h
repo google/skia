@@ -32,6 +32,7 @@ struct SkPackedGlyphID;
 namespace sktext::gpu {
 
 class Glyph;
+class StrikeCache;
 
 // The TextStrike manages an SkArenaAlloc for Glyphs. The SkStrike is what actually creates
 // the mask. The TextStrike may outlive the generating SkStrike. However, it retains a copy
@@ -39,13 +40,16 @@ class Glyph;
 // created by and owned by a StrikeCache.
 class TextStrike : public SkNVRefCnt<TextStrike> {
 public:
-    TextStrike(const SkStrikeSpec& strikeSpec);
+    TextStrike(StrikeCache* strikeCache,
+               const SkStrikeSpec& strikeSpec);
 
     Glyph* getGlyph(SkPackedGlyphID);
     const SkStrikeSpec& strikeSpec() const { return fStrikeSpec; }
     const SkDescriptor& getDescriptor() const { return fStrikeSpec.descriptor(); }
 
 private:
+    StrikeCache* const fStrikeCache;
+
     // Key for retrieving the SkStrike for creating new atlas data.
     const SkStrikeSpec fStrikeSpec;
 
@@ -79,6 +83,7 @@ public:
     void freeAll();
 
 private:
+    friend class TextStrike;  // for TextStrike::getGlyph
     sk_sp<TextStrike> internalFindStrikeOrNull(const SkDescriptor& desc);
     sk_sp<TextStrike> generateStrike(const SkStrikeSpec& strikeSpec);
 

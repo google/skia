@@ -69,7 +69,7 @@ sk_sp<TextStrike> StrikeCache::internalFindStrikeOrNull(const SkDescriptor& desc
 }
 
 sk_sp<TextStrike> StrikeCache::generateStrike(const SkStrikeSpec& strikeSpec) {
-    sk_sp<TextStrike> strike = sk_make_sp<TextStrike>(strikeSpec);
+    sk_sp<TextStrike> strike = sk_make_sp<TextStrike>(this, strikeSpec);
     this->internalAttachToHead(strike);
     return strike;
 }
@@ -199,13 +199,19 @@ uint32_t StrikeCache::HashTraits::Hash(const SkDescriptor& descriptor) {
     return descriptor.getChecksum();
 }
 
-TextStrike::TextStrike(const SkStrikeSpec& strikeSpec) : fStrikeSpec{strikeSpec} {}
+TextStrike::TextStrike(StrikeCache* strikeCache, const SkStrikeSpec& strikeSpec)
+        : fStrikeCache(strikeCache)
+        , fStrikeSpec{strikeSpec} {}
 
 Glyph* TextStrike::getGlyph(SkPackedGlyphID packedGlyphID) {
     Glyph* glyph = fCache.findOrNull(packedGlyphID);
     if (glyph == nullptr) {
         glyph = fAlloc.make<Glyph>(packedGlyphID);
         fCache.set(glyph);
+        fMemoryUsed += sizeof(Glyph);
+        if (!fRemoved) {
+            fStrikeCache->fTotalMemoryUsed += sizeof(Glyph);
+        }
     }
     return glyph;
 }
