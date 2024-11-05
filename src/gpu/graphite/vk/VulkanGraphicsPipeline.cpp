@@ -640,7 +640,8 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         VulkanResourceProvider* rsrcProvider,
         const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
-        const RenderPassDesc& renderPassDesc) {
+        const RenderPassDesc& renderPassDesc,
+        SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags) {
     SkASSERT(rsrcProvider);
     SkSL::Program::Interface vsInterface, fsInterface;
 
@@ -852,6 +853,12 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
 #if defined(GPU_TEST_UTILS)
     pipelineInfo.fNativeVertexShader   = "SPIR-V disassembly not available";
     pipelineInfo.fNativeFragmentShader = "SPIR-V disassmebly not available";
+#endif
+#if SK_HISTOGRAMS_ENABLED
+    const bool forceSynchronous =
+            SkToBool(pipelineCreationFlags & PipelineCreationFlags::kForceSynchronous);
+
+    pipelineInfo.fFromPrecompile = forceSynchronous;
 #endif
 
     return sk_sp<VulkanGraphicsPipeline>(

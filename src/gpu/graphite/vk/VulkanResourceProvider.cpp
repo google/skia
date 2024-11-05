@@ -109,11 +109,12 @@ sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(
         const RuntimeEffectDictionary* runtimeDict,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc,
-        SkEnumBitMask<PipelineCreationFlags> /* pipelineCreationFlags */) {
+        SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags) {
     return VulkanGraphicsPipeline::Make(this,
                                         runtimeDict,
                                         pipelineDesc,
-                                        renderPassDesc);
+                                        renderPassDesc,
+                                        pipelineCreationFlags);
 }
 
 sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const ComputePipelineDesc&) {

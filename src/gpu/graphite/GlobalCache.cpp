@@ -44,6 +44,27 @@ sk_sp<GraphicsPipeline> GlobalCache::findGraphicsPipeline(const UniqueKey& key) 
     return entry ? *entry : nullptr;
 }
 
+#if SK_HISTOGRAMS_ENABLED
+// These values are persisted to logs. Entries should not be renumbered and
+// numeric values should never be reused.
+//
+// LINT.IfChange(PipelineCreationRace)
+enum class PipelineCreationRace {
+    // The <First>Over<Second> enum names mean the first type of compilation won a compilation race
+    // over the second type of compilation and ended up in the cache.
+    kNormalOverNormal                 = 0, // can happen w/ multiple Recorders on different threads
+    kNormalOverPrecompilation         = 1,
+    kPrecompilationOverNormal         = 2,
+    kPrecompilationOverPrecompilation = 3, // can happen with multiple threaded precompilation calls
+
+    kMaxValue = kPrecompilationOverPrecompilation,
+};
+// LINT.ThenChange(//tools/metrics/histograms/enums.xml:SkiaPipelineCreationRace)
+
+static constexpr int kPipelineCreationRaceCount =
+        static_cast<int>(PipelineCreationRace::kMaxValue) + 1;
+#endif // SK_HISTOGRAMS_ENABLED
+
 sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
                                                          sk_sp<GraphicsPipeline> pipeline) {
     SkAutoSpinlock lock{fSpinLock};
@@ -57,14 +78,19 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
         ++fStats.fGraphicsCacheAdditions;
 #endif
         entry = fGraphicsPipelineCache.insert(key, std::move(pipeline));
-    }
+    } else {
 #if defined(GPU_TEST_UTILS)
-    else {
         // else there was a race creating the same pipeline and this thread lost, so return
         // the winner
         ++fStats.fGraphicsRaces;
-    }
 #endif
+#if SK_HISTOGRAMS_ENABLED
+        int race = (*entry)->fromPrecompile() * 2 + pipeline->fromPrecompile();
+        SK_HISTOGRAM_ENUMERATION("Graphite.PipelineCreationRace",
+                                 race,
+                                 kPipelineCreationRaceCount);
+#endif
+    }
     return *entry;
 }
 

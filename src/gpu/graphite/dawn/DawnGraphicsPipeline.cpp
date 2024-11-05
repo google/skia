@@ -597,10 +597,12 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     descriptor.multisample.mask = 0xFFFFFFFF;
     descriptor.multisample.alphaToCoverageEnabled = false;
 
+    const bool forceSynchronous =
+            SkToBool(pipelineCreationFlags & PipelineCreationFlags::kForceSynchronous);
+
     auto asyncCreation = std::make_unique<AsyncPipelineCreation>();
 
-    if (caps.useAsyncPipelineCreation() &&
-        !(pipelineCreationFlags & PipelineCreationFlags::kForceSynchronous)) {
+    if (caps.useAsyncPipelineCreation() && !forceSynchronous) {
 #if defined(__EMSCRIPTEN__)
         // We shouldn't use CreateRenderPipelineAsync in wasm.
         SKGPU_LOG_F("CreateRenderPipelineAsync shouldn't be used in WASM");
@@ -642,6 +644,9 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
 #if defined(GPU_TEST_UTILS)
     pipelineInfo.fNativeVertexShader = std::move(vsCode);
     pipelineInfo.fNativeFragmentShader = std::move(fsCode);
+#endif
+#if SK_HISTOGRAMS_ENABLED
+    pipelineInfo.fFromPrecompile = forceSynchronous;
 #endif
     return sk_sp<DawnGraphicsPipeline>(
             new DawnGraphicsPipeline(sharedContext,

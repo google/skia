@@ -70,12 +70,18 @@ public:
         std::string fNativeVertexShader;
         std::string fNativeFragmentShader;
 #endif
+#if SK_HISTOGRAMS_ENABLED
+        bool fFromPrecompile = false;
+#endif
     };
 
 #if defined(GPU_TEST_UTILS)
     const PipelineInfo& getPipelineInfo() const {
         return fPipelineInfo;
     }
+#endif
+#if SK_HISTOGRAMS_ENABLED
+    bool fromPrecompile() const { return fPipelineInfo.fFromPrecompile; }
 #endif
 
 protected:
