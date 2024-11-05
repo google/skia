@@ -287,9 +287,15 @@ private:
 
     // The bounds of these ops must be calculated when we hit the Restore
     // from the bounds of the ops in the same Save block.
-    void trackBounds(const Save&)          { this->pushSaveBlock(nullptr); }
-    void trackBounds(const SaveLayer& op)  { this->pushSaveBlock(op.paint); }
-    void trackBounds(const SaveBehind&)    { this->pushSaveBlock(nullptr); }
+    void trackBounds(const Save&) {
+        this->pushSaveBlock(nullptr, /*hasBackdropFilter=*/false);
+    }
+    void trackBounds(const SaveLayer& op) {
+        this->pushSaveBlock(op.paint, /*hasBackdropFilter=*/op.backdrop != nullptr);
+    }
+    void trackBounds(const SaveBehind&) {
+        this->pushSaveBlock(nullptr, /*hasBackdropFilter=*/false);
+    }
     void trackBounds(const Restore&) {
         const bool isSaveLayer = fSaveStack.back().paint != nullptr;
         fBounds[fCurrentOp] = this->popSaveBlock();
@@ -317,14 +323,15 @@ private:
         this->updateSaveBounds(fBounds[fCurrentOp]);
     }
 
-    void pushSaveBlock(const SkPaint* paint) {
+    void pushSaveBlock(const SkPaint* paint, bool hasBackdropFilter) {
         // Starting a new Save block.  Push a new entry to represent that.
         SaveBounds sb;
         sb.controlOps = 0;
-        // If the paint affects transparent black,
+
+        // If the paint affects transparent black, or we have a backdrop filter,
         // the bound shouldn't be smaller than the cull.
-        sb.bounds =
-            PaintMayAffectTransparentBlack(paint) ? fCullRect : Bounds::MakeEmpty();
+        bool affectsFullCullRect = hasBackdropFilter || PaintMayAffectTransparentBlack(paint);
+        sb.bounds = affectsFullCullRect ? fCullRect : Bounds::MakeEmpty();
         sb.paint = paint;
         sb.ctm = this->fCTM;
 

@@ -200,6 +200,32 @@ DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
     REPORTER_ASSERT(r, sloppy_rect_eq(bounds[3], SkRect::MakeLTRB(0, 0, 40, 40)));
 }
 
+// A regression test for https://g-issues.skia.org/issues/362552959.
+DEF_TEST(RecordDraw_EmptySaveLayerWithBackdropFilterAffectsCullRect, r) {
+    SkRecord record;
+    SkRecorder recorder(&record, 50, 50);
+
+    auto blurFilter = SkImageFilters::Blur(5.0, 5.0, SkTileMode::kDecal, nullptr);
+
+    recorder.save();
+        recorder.clipRect(SkRect::MakeWH(40, 40));
+        recorder.saveLayer(SkCanvas::SaveLayerRec(nullptr, nullptr, blurFilter.get(),
+                           SkTileMode::kDecal, nullptr, 0));
+        recorder.restore();
+    recorder.restore();
+
+    // Even though there is nothing drawn inside the saveLayer, the bounds should still fill the
+    // the clip region due to it affecting the backdrop.
+    AutoTArray<SkRect> bounds(record.count());
+    AutoTMalloc<SkBBoxHierarchy::Metadata> meta(record.count());
+    SkRecordFillBounds(SkRect::MakeWH(50, 50), record, bounds.data(), meta);
+    REPORTER_ASSERT(r, sloppy_rect_eq(bounds[0], SkRect::MakeLTRB(0, 0, 40, 40)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bounds[1], SkRect::MakeLTRB(0, 0, 40, 40)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bounds[2], SkRect::MakeLTRB(0, 0, 40, 40)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bounds[3], SkRect::MakeLTRB(0, 0, 40, 40)));
+    REPORTER_ASSERT(r, sloppy_rect_eq(bounds[4], SkRect::MakeLTRB(0, 0, 40, 40)));
+}
+
 DEF_TEST(RecordDraw_Metadata, r) {
     SkRecord record;
     SkRecorder recorder(&record, 50, 50);
