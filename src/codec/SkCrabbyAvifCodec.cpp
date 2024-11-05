@@ -86,14 +86,7 @@ void AvifDecoderDeleter::operator()(crabbyavif::avifDecoder* decoder) const {
 
 bool SkCrabbyAvifCodec::IsAvif(const void* buffer, size_t bytesRead) {
     crabbyavif::avifROData avifData = {static_cast<const uint8_t*>(buffer), bytesRead};
-    if (crabbyavif::avifPeekCompatibleFileType(&avifData) == crabbyavif::CRABBY_AVIF_TRUE) {
-        return true;
-    }
-    // Peeking sometimes fails if the ftyp box is too large. Check the signature
-    // just to be sure.
-    const char* bytes = static_cast<const char*>(buffer);
-    return bytesRead >= 12 && !memcmp(&bytes[4], "ftyp", 4) &&
-           (!memcmp(&bytes[8], "avif", 4) || !memcmp(&bytes[8], "avis", 4));
+    return crabbyavif::avifPeekCompatibleFileType(&avifData) == crabbyavif::CRABBY_AVIF_TRUE;
 }
 
 std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
