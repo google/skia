@@ -891,9 +891,6 @@ void Device::drawOval(const SkRect& oval, const SkPaint& paint) {
 }
 
 void Device::drawArc(const SkArc& arc, const SkPaint& paint) {
-#if defined(SK_USE_LEGACY_ARCS_GRAPHITE)
-    SkDevice::drawArc(arc, paint);
-#else
     // For sweeps >= 360°, simple fills and simple strokes without the center point or square caps
     // are ovals. Culling these here simplifies the path processing in Shape.
     if (!paint.getPathEffect() &&
@@ -909,7 +906,6 @@ void Device::drawArc(const SkArc& arc, const SkPaint& paint) {
         this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(arc)),
                            paint, SkStrokeRec(paint));
     }
-#endif
 }
 
 void Device::drawRRect(const SkRRect& rr, const SkPaint& paint) {
