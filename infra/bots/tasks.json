@@ -89585,26 +89585,6 @@
         "src/sksl/generated/.*"
       ]
     },
-    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan": {},
-    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Native_Vulkan": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*",
-        "dm/.+",
-        "DEPS"
-      ]
-    },
-    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan": {},
-    "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All": {},
-    "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D": {},
-    "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D12": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*",
-        "dm/.+",
-        "DEPS"
-      ]
-    },
     "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All": {}
   }
 }
