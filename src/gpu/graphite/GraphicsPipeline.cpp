@@ -24,7 +24,9 @@ GraphicsPipeline::GraphicsPipeline(const SharedContext* sharedContext,
 
 GraphicsPipeline::~GraphicsPipeline() = default;
 
-GraphicsPipeline::PipelineInfo::PipelineInfo(const ShaderInfo& shaderInfo)
+GraphicsPipeline::PipelineInfo::PipelineInfo(
+            const ShaderInfo& shaderInfo,
+            SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags)
         : fDstReadReq(shaderInfo.dstReadRequirement())
         , fNumFragTexturesAndSamplers(shaderInfo.numFragmentTexturesAndSamplers())
         , fHasPaintUniforms(shaderInfo.hasPaintUniforms())
@@ -34,6 +36,10 @@ GraphicsPipeline::PipelineInfo::PipelineInfo(const ShaderInfo& shaderInfo)
     fSkSLVertexShader = SkShaderUtils::PrettyPrint(shaderInfo.vertexSkSL());
     fSkSLFragmentShader = SkShaderUtils::PrettyPrint(shaderInfo.fragmentSkSL());
     fLabel = shaderInfo.fsLabel();
+#endif
+#if SK_HISTOGRAMS_ENABLED
+    fFromPrecompile =
+            SkToBool(pipelineCreationFlags & PipelineCreationFlags::kForPrecompilation);
 #endif
 }
 

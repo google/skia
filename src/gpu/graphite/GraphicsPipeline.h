@@ -51,7 +51,7 @@ public:
         PipelineInfo() = default;
 
         // NOTE: Subclasses must manually fill in native shader code in GPU_TEST_UTILS builds.
-        PipelineInfo(const ShaderInfo&);
+        PipelineInfo(const ShaderInfo&, SkEnumBitMask<PipelineCreationFlags>);
 
         DstReadRequirement fDstReadReq = DstReadRequirement::kNone;
         int  fNumFragTexturesAndSamplers = 0;

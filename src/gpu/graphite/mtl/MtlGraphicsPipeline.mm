@@ -326,14 +326,10 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
     sk_cfp<id<MTLDepthStencilState>> dss =
             resourceProvider->findOrCreateCompatibleDepthStencilState(step->depthStencilSettings());
 
-    PipelineInfo pipelineInfo{*shaderInfo};
+    PipelineInfo pipelineInfo{*shaderInfo, pipelineCreationFlags};
 #if defined(GPU_TEST_UTILS)
     pipelineInfo.fNativeVertexShader = std::move(vsMSL);
     pipelineInfo.fNativeFragmentShader = std::move(fsMSL);
-#endif
-#if SK_HISTOGRAMS_ENABLED
-    pipelineInfo.fFromPrecompile =
-            SkToBool(pipelineCreationFlags & PipelineCreationFlags::kForPrecompilation);
 #endif
 
     std::string pipelineLabel =

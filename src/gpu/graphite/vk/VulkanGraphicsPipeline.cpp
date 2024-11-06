@@ -849,14 +849,10 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     // After creating the pipeline object, we can clean up the VkShaderModule(s).
     destroy_shader_modules(sharedContext, vsModule, fsModule);
 
-    PipelineInfo pipelineInfo{*shaderInfo};
+    PipelineInfo pipelineInfo{*shaderInfo, pipelineCreationFlags};
 #if defined(GPU_TEST_UTILS)
     pipelineInfo.fNativeVertexShader   = "SPIR-V disassembly not available";
     pipelineInfo.fNativeFragmentShader = "SPIR-V disassmebly not available";
-#endif
-#if SK_HISTOGRAMS_ENABLED
-    pipelineInfo.fFromPrecompile =
-            SkToBool(pipelineCreationFlags & PipelineCreationFlags::kForPrecompilation);
 #endif
 
     return sk_sp<VulkanGraphicsPipeline>(
