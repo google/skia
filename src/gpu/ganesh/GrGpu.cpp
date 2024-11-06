@@ -771,7 +771,7 @@ void GrGpu::reportSubmitHistograms() {
     // The max allowed value for SK_HISTOGRAM_EXACT_LINEAR is 100. If we want to support higher
     // values we can add SK_HISTOGRAM_CUSTOM_COUNTS but this has a number of buckets that is less
     // than the number of actual values
-    static constexpr int kMaxRenderPassBucketValue = 100;
+    [[maybe_unused]] static constexpr int kMaxRenderPassBucketValue = 100;
     SK_HISTOGRAM_EXACT_LINEAR("SubmitRenderPasses",
                               std::min(fCurrentSubmitRenderPassCount, kMaxRenderPassBucketValue),
                               kMaxRenderPassBucketValue);

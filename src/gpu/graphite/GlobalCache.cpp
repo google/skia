@@ -61,7 +61,7 @@ enum class PipelineCreationRace {
 };
 // LINT.ThenChange(//tools/metrics/histograms/enums.xml:SkiaPipelineCreationRace)
 
-static constexpr int kPipelineCreationRaceCount =
+[[maybe_unused]] static constexpr int kPipelineCreationRaceCount =
         static_cast<int>(PipelineCreationRace::kMaxValue) + 1;
 #endif // SK_HISTOGRAMS_ENABLED
 
@@ -85,7 +85,7 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
         ++fStats.fGraphicsRaces;
 #endif
 #if SK_HISTOGRAMS_ENABLED
-        int race = (*entry)->fromPrecompile() * 2 + pipeline->fromPrecompile();
+        [[maybe_unused]] int race = (*entry)->fromPrecompile() * 2 + pipeline->fromPrecompile();
         SK_HISTOGRAM_ENUMERATION("Graphite.PipelineCreationRace",
                                  race,
                                  kPipelineCreationRaceCount);

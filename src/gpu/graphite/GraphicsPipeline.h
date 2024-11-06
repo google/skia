@@ -19,9 +19,9 @@ class RenderStep;
 
 enum class PipelineCreationFlags : uint8_t {
     kNone             = 0b000,
-    // This flag is Dawn specific. It overrides the DawnCaps::fUseAsyncPipelineCreation
-    // parameter and forces Synchronous Pipeline creation (for Precompilation).
-    kForceSynchronous = 0b001,
+    // For Dawn, this flag overrides the DawnCaps::fUseAsyncPipelineCreation
+    // parameter and forces Synchronous Pipeline creation.
+    kForPrecompilation = 0b001,
 };
 
 /**
