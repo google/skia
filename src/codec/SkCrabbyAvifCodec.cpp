@@ -36,7 +36,27 @@ float FractionToFloat(NumeratorType numerator, uint32_t denominator) {
     return static_cast<double>(numerator) / denominator;
 }
 
-bool PopulateGainmapInfo(const crabbyavif::avifGainMap& gain_map, SkGainmapInfo* info) {
+sk_sp<SkColorSpace> AltImageColorSpace(const crabbyavif::avifGainMap& gain_map,
+                                       const crabbyavif::avifImage& image) {
+    sk_sp<SkColorSpace> color_space = nullptr;
+    if (!gain_map.altICC.size) {
+        return nullptr;
+    }
+    if (image.icc.size == gain_map.altICC.size &&
+        memcmp(gain_map.altICC.data, image.icc.data, gain_map.altICC.size) == 0) {
+        // Same ICC as the base image, no need to specify it.
+        return nullptr;
+    }
+    skcms_ICCProfile icc_profile;
+    if (!skcms_Parse(gain_map.altICC.data, gain_map.altICC.size, &icc_profile)) {
+        return nullptr;
+    }
+    return SkColorSpace::Make(icc_profile);
+}
+
+bool PopulateGainmapInfo(const crabbyavif::avifGainMap& gain_map,
+                         const crabbyavif::avifImage& image,
+                         SkGainmapInfo* info) {
     if (gain_map.baseHdrHeadroom.d == 0 || gain_map.alternateHdrHeadroom.d == 0) {
         return false;
     }
@@ -68,10 +88,9 @@ bool PopulateGainmapInfo(const crabbyavif::avifGainMap& gain_map, SkGainmapInfo*
                 FractionToFloat(gain_map.alternateOffset[i].n, gain_map.alternateOffset[i].d);
         info->fEpsilonSdr[i] = base_is_hdr ? alternate_offset : base_offset;
         info->fEpsilonHdr[i] = base_is_hdr ? base_offset : alternate_offset;
-
-        if (!gain_map.useBaseColorSpace) {
-            // TODO(vigneshv): Compute fGainmapMathColorSpace.
-        }
+    }
+    if (!gain_map.useBaseColorSpace) {
+        info->fGainmapMathColorSpace = AltImageColorSpace(gain_map, image);
     }
     return true;
 }
@@ -364,7 +383,7 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
 bool SkCrabbyAvifCodec::onGetGainmapCodec(SkGainmapInfo* info,
                                           std::unique_ptr<SkCodec>* gainmapCodec) {
     if (!gainmapCodec || !info || !fAvifDecoder->image || !fAvifDecoder->image->gainMap ||
-        !PopulateGainmapInfo(*fAvifDecoder->image->gainMap, info)) {
+        !PopulateGainmapInfo(*fAvifDecoder->image->gainMap, *fAvifDecoder->image, info)) {
         return false;
     }
     Result result;
