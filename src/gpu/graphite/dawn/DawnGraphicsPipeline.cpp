@@ -248,7 +248,57 @@ static wgpu::BlendOperation blend_equation_to_dawn_blend_op(skgpu::BlendEquation
 struct AsyncPipelineCreationBase {
     wgpu::RenderPipeline fRenderPipeline;
     bool fFinished = false;
+#if SK_HISTOGRAMS_ENABLED
+    // We need these three for the Graphite.PipelineCreationTimes.* histograms (cf.
+    // log_pipeline_creation)
+    skgpu::StdSteadyClock::time_point fStartTime;
+    bool fFromPrecompile;
+    bool fAsynchronous = false;
+#endif
 };
+
+void log_pipeline_creation(const AsyncPipelineCreationBase* apcb) {
+#if SK_HISTOGRAMS_ENABLED
+    [[maybe_unused]] static constexpr int kBucketCount = 100;
+    [[maybe_unused]] static constexpr int kOneSecInUS = 1000000;
+
+    SkASSERT(apcb->fFinished);
+
+    if (!apcb->fRenderPipeline) {
+        // A null fRenderPipeline means Pipeline creation failed
+        return; // TODO: log failures to their own UMA stat
+    }
+
+    [[maybe_unused]] auto micros_since = [](skgpu::StdSteadyClock::time_point start) {
+        skgpu::StdSteadyClock::duration elapsed = skgpu::StdSteadyClock::now() - start;
+        return std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count();
+    };
+
+    if (apcb->fFromPrecompile) {
+        SkASSERT(!apcb->fAsynchronous);     // precompile is done synchronously on a thread
+        SK_HISTOGRAM_CUSTOM_MICROSECONDS_TIMES(
+            "Graphite.PipelineCreationTimes.Precompile",
+            micros_since(apcb->fStartTime),
+            /* minUSec= */ 1,
+            /* maxUSec= */ kOneSecInUS,
+            kBucketCount);
+    } else if (apcb->fAsynchronous) {
+        SK_HISTOGRAM_CUSTOM_MICROSECONDS_TIMES(
+            "Graphite.PipelineCreationTimes.Asynchronous",
+            micros_since(apcb->fStartTime),
+            /* minUSec= */ 1,
+            /* maxUSec= */ kOneSecInUS,
+            kBucketCount);
+    } else {
+        SK_HISTOGRAM_CUSTOM_MICROSECONDS_TIMES(
+            "Graphite.PipelineCreationTimes.Synchronous",
+            micros_since(apcb->fStartTime),
+            /* minUSec= */ 1,
+            /* maxUSec= */ kOneSecInUS,
+            kBucketCount);
+    }
+#endif // SK_HISTOGRAMS_ENABLED
+}
 
 } // anonymous namespace
 
@@ -599,11 +649,17 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
 
     const bool forPrecompilation =
             SkToBool(pipelineCreationFlags & PipelineCreationFlags::kForPrecompilation);
+    // For Dawn, we want Precompilation to happen synchronously
+    const bool useAsync = caps.useAsyncPipelineCreation() && !forPrecompilation;
 
     auto asyncCreation = std::make_unique<AsyncPipelineCreation>();
+#if SK_HISTOGRAMS_ENABLED
+    asyncCreation->fStartTime = skgpu::StdSteadyClock::now();
+    asyncCreation->fFromPrecompile = forPrecompilation;
+    asyncCreation->fAsynchronous = useAsync;
+#endif
 
-    // For Dawn, we want Precompilation to happen synchronously
-    if (caps.useAsyncPipelineCreation() && !forPrecompilation) {
+    if (useAsync) {
 #if defined(__EMSCRIPTEN__)
         // We shouldn't use CreateRenderPipelineAsync in wasm.
         SKGPU_LOG_F("CreateRenderPipelineAsync shouldn't be used in WASM");
@@ -626,6 +682,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
                     }
 
                     asyncCreationPtr->fFinished = true;
+
+                    log_pipeline_creation(asyncCreationPtr);
                 });
 #endif
     } else {
@@ -639,6 +697,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
         if (errorChecker.has_value() && errorChecker->popErrorScopes() != DawnErrorType::kNoError) {
             asyncCreation->fRenderPipeline = nullptr;
         }
+
+        log_pipeline_creation(asyncCreation.get());
     }
 
     PipelineInfo pipelineInfo{*shaderInfo};
