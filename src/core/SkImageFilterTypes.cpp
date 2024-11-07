@@ -1696,9 +1696,17 @@ FilterResult FilterResult::rescale(const Context& ctx,
     }
 
     srcRect = srcRect.relevantSubset(ctx.desiredOutput(), tileMode);
-    if (srcRect.isEmpty()) {
+    // To avoid incurring error from rounding up the dimensions at every step, the logical size of
+    // the image is tracked in floats through the whole process; rounding to integers is only done
+    // to produce a conservative pixel buffer and clamp-tiling is used so that partially covered
+    // pixels are filled with the un-weighted color.
+    PixelSpace<SkRect> stepBoundsF{srcRect};
+    if (stepBoundsF.isEmpty()) {
         return {};
     }
+    // stepPixelBounds holds integer pixel values (as floats) and includes any padded outsetting
+    // that was rendered by the previous step, while stepBoundsF does not have any padding.
+    PixelSpace<SkRect> stepPixelBounds{srcRect};
 
     // If we made it here, at least one iteration is required, even if xSteps and ySteps are 0.
     FilterResult image = *this;
@@ -1731,15 +1739,6 @@ FilterResult FilterResult::rescale(const Context& ctx,
             } // else leave it as kDecal when cfBorder is true
         }
     }
-
-    // To avoid incurring error from rounding up the dimensions at every step, the logical size of
-    // the image is tracked in floats through the whole process; rounding to integers is only done
-    // to produce a conservative pixel buffer and clamp-tiling is used so that partially covered
-    // pixels are filled with the un-weighted color.
-    PixelSpace<SkRect> stepBoundsF{srcRect};
-    // stepPixelBounds holds integer pixel values (as floats) and includes any padded outsetting
-    // that was rendered by the previous step, while stepBoundsF does not have any padding.
-    PixelSpace<SkRect> stepPixelBounds{srcRect};
 
     // For now, if we are deferring periodic tiling, we need to ensure that the low-res image bounds
     // are pixel aligned. This is because the tiling is applied at the pixel level in SkImageShader,
