@@ -77,6 +77,9 @@ private:
 sk_sp<SkImageFilter> SkImageFilters::MatrixTransform(const SkMatrix& transform,
                                                      const SkSamplingOptions& sampling,
                                                      sk_sp<SkImageFilter> input) {
+    if (!transform.invert(/*inverse=*/nullptr)) {
+        return nullptr;
+    }
     return sk_sp<SkImageFilter>(new SkMatrixTransformImageFilter(transform,
                                                                  sampling,
                                                                  std::move(input)));
