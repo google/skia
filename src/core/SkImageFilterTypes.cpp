@@ -41,6 +41,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace skif {
 
@@ -1705,9 +1706,13 @@ FilterResult FilterResult::rescale(const Context& ctx,
         // If the source image has a deferred transform with a downscaling factor, we don't want to
         // necessarily compose the first rescale step's transform with it because we will then be
         // missing pixels in the bilinear filtering and create sampling artifacts during animations.
+        // NOTE: Force nextSteps counts to the max integer value when the accumulated scale factor
+        // is not finite, to force the input image to be resolved.
         LayerSpace<SkSize> netScale = image.fTransform.mapSize(scale);
-        int nextXSteps = downscale_step_count(netScale.width());
-        int nextYSteps = downscale_step_count(netScale.height());
+        int nextXSteps = std::isfinite(netScale.width()) ? downscale_step_count(netScale.width())
+                                                         : std::numeric_limits<int>::max();
+        int nextYSteps = std::isfinite(netScale.height()) ? downscale_step_count(netScale.height())
+                                                          : std::numeric_limits<int>::max();
         // We only need to resolve the deferred transform if the rescaling along an axis is not
         // near identity (steps > 0). If it's near identity, there's no real difference in sampling
         // between resolving here and deferring it to the first rescale iteration.
