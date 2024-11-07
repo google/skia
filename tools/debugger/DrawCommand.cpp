@@ -35,7 +35,6 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTo.h"
-#include "include/private/gpu/ganesh/GrImageContext.h"
 #include "include/utils/SkShadowUtils.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkCanvasPriv.h"
@@ -59,6 +58,7 @@ class GrDirectContext;
 
 #if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrRecordingContext.h"
+#include "include/private/gpu/ganesh/GrImageContext.h"
 #endif
 
 #define DEBUGCANVAS_ATTRIBUTE_DUMP "dump"

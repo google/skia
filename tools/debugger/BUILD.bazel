@@ -8,7 +8,6 @@ licenses(["notice"])
 
 skia_cc_library(
     name = "debugger",
-    testonly = True,
     srcs = [
         "DebugCanvas.cpp",
         "DebugLayerManager.cpp",
@@ -29,7 +28,6 @@ skia_cc_library(
     deps = [
         "//:core",
         "//src/core:core_priv",
-        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
         "//src/utils:multi_picture_document",
         "//tools:sk_sharing_proc",
         "//tools:url_data_manager",
