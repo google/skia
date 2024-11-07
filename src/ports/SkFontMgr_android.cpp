@@ -36,28 +36,7 @@ using namespace skia_private;
 class SkData;
 
 namespace {
-
-class SkTypeface_Android : public SkTypeface_FreeType {
-public:
-    SkTypeface_Android(const SkFontStyle& style,
-                       bool isFixedPitch,
-                       const SkString& familyName)
-        : INHERITED(style, isFixedPitch)
-        , fFamilyName(familyName)
-        { }
-
-protected:
-    void onGetFamilyName(SkString* familyName) const override {
-        *familyName = fFamilyName;
-    }
-
-    SkString fFamilyName;
-
-private:
-    using INHERITED = SkTypeface_FreeType;
-};
-
-class SkTypeface_AndroidSystem : public SkTypeface_Android {
+class SkTypeface_AndroidSystem : public SkTypeface_FreeType {
 public:
     SkTypeface_AndroidSystem(const SkString& pathName,
                              const bool cacheFontFiles,
@@ -68,8 +47,9 @@ public:
                              const SkString& familyName,
                              const TArray<SkLanguage, true>& lang,
                              FontVariant variantStyle)
-        : INHERITED(style, isFixedPitch, familyName)
+        : INHERITED(style, isFixedPitch)
         , fPathName(pathName)
+        , fFamilyName(familyName)
         , fIndex(index)
         , fAxes(axes, axesCount)
         , fLang(lang)
@@ -86,6 +66,10 @@ public:
             return data ? std::make_unique<SkMemoryStream>(std::move(data)) : nullptr;
         }
         return SkStream::MakeFromFile(fPathName.c_str());
+    }
+
+    void onGetFamilyName(SkString* familyName) const override {
+        *familyName = fFamilyName;
     }
 
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
@@ -123,13 +107,14 @@ public:
     }
 
     const SkString fPathName;
+    const SkString fFamilyName;
     int fIndex;
     const STArray<4, SkFixed, true> fAxes;
     const STArray<4, SkLanguage, true> fLang;
     const FontVariant fVariantStyle;
     SkAutoTCallVProc<FILE, sk_fclose> fFile;
 
-    using INHERITED = SkTypeface_Android;
+    using INHERITED = SkTypeface_FreeType;
 };
 
 template <typename D, typename S> sk_sp<D> sk_sp_static_cast(sk_sp<S>&& s) {
