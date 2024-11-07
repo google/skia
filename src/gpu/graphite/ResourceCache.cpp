@@ -307,6 +307,7 @@ void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef rem
             SkASSERT(fResourceMap.find(resource->key()));
         } else {
             SkDEBUGCODE(resource->fNonShareableInCache = true;)
+            resource->setLabel("Scratch");
             fResourceMap.insert(resource->key(), resource);
             if (resource->budgeted() == skgpu::Budgeted::kNo) {
                 resource->makeBudgeted();
