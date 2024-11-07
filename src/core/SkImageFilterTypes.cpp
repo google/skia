@@ -2209,6 +2209,9 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
         lowResImage.canClampToTransparentBoundary(BoundsAnalysis::kSimple)) {
         // Have to manage this manually since the BlurEngine isn't aware of the known pixel padding.
         lowResBlur = lowResBlur->makePixelOutset();
+        // This offset() is intentional; `blurOutputBounds` already includes an outset from an
+        // earlier modification of `srcRelativeOutput`. This offset is to align the SkBlurAlgorithm
+        // output bounds with the adjusted source image.
         blurOutputBounds.offset(1, 1);
         tileMode = SkTileMode::kClamp;
     }
@@ -2218,6 +2221,12 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
                                  SkIRect::MakeSize(lowResBlur->dimensions()),
                                  tileMode,
                                  blurOutputBounds);
+    if (!lowResBlur) {
+        // The blur output bounds may exceed max texture size even if the source image did not.
+        // TODO(b/377932106): Can we handle this more gracefully by rendering a smaller image and
+        // then transforming it to fill the large space?
+        return {};
+    }
 
     FilterResult result{std::move(lowResBlur), srcRelativeOutput.topLeft()};
     if (lowResImage.tileMode() == SkTileMode::kClamp ||
