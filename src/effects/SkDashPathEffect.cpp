@@ -20,6 +20,7 @@
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/effects/SkDashImpl.h"
@@ -372,7 +373,7 @@ bool SkDashImpl::onAsPoints(PointData* results, const SkPath& src, const SkStrok
     return true;
 }
 
-SkPathEffect::DashType SkDashImpl::onAsADash(DashInfo* info) const {
+SkPathEffectBase::DashType SkDashImpl::asADash(DashInfo* info) const {
     if (info) {
         if (info->fCount >= fCount && info->fIntervals) {
             memcpy(info->fIntervals, fIntervals, fCount * sizeof(SkScalar));
@@ -380,7 +381,7 @@ SkPathEffect::DashType SkDashImpl::onAsADash(DashInfo* info) const {
         info->fCount = fCount;
         info->fPhase = fPhase;
     }
-    return kDash_DashType;
+    return DashType::kDash;
 }
 
 void SkDashImpl::flatten(SkWriteBuffer& buffer) const {

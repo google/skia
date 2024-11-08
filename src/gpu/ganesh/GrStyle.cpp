@@ -107,20 +107,20 @@ void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply, SkScala
 
 void GrStyle::initPathEffect(sk_sp<SkPathEffect> pe) {
     SkASSERT(!fPathEffect);
-    SkASSERT(SkPathEffect::kNone_DashType == fDashInfo.fType);
+    SkASSERT(SkPathEffectBase::DashType::kNone == fDashInfo.fType);
     SkASSERT(0 == fDashInfo.fIntervals.count());
     if (!pe) {
         return;
     }
-    SkPathEffect::DashInfo info;
-    if (SkPathEffect::kDash_DashType == pe->asADash(&info)) {
+    SkPathEffectBase::DashInfo info;
+    if (SkPathEffectBase::DashType::kDash == as_PEB(pe)->asADash(&info)) {
         SkStrokeRec::Style recStyle = fStrokeRec.getStyle();
         if (recStyle != SkStrokeRec::kFill_Style && recStyle != SkStrokeRec::kStrokeAndFill_Style) {
-            fDashInfo.fType = SkPathEffect::kDash_DashType;
+            fDashInfo.fType = SkPathEffectBase::DashType::kDash;
             fDashInfo.fIntervals.reset(info.fCount);
             fDashInfo.fPhase = info.fPhase;
             info.fIntervals = fDashInfo.fIntervals.get();
-            pe->asADash(&info);
+            as_PEB(pe)->asADash(&info);
             fPathEffect = std::move(pe);
         }
     } else {
@@ -136,7 +136,7 @@ bool GrStyle::applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath&
     // TODO: [skbug.com/11957] Plumb CTM callers and pass it to filterPath().
     SkASSERT(!fPathEffect->needsCTM());
 
-    if (SkPathEffect::kDash_DashType == fDashInfo.fType) {
+    if (SkPathEffectBase::DashType::kDash == fDashInfo.fType) {
         // We apply the dash ourselves here rather than using the path effect. This is so that
         // we can control whether the dasher applies the strokeRec for special cases. Our keying
         // depends on the strokeRec being applied separately.

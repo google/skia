@@ -41,6 +41,7 @@
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkPaintDefaults.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkTextBlobPriv.h"
 #include "src/core/SkWriteBuffer.h"
@@ -874,11 +875,11 @@ static void apply_paint_patheffect(const SkPaint&  paint,
                                    UrlDataManager& urlDataManager) {
     SkPathEffect* pathEffect = paint.getPathEffect();
     if (pathEffect != nullptr) {
-        SkPathEffect::DashInfo dashInfo;
-        SkPathEffect::DashType dashType = pathEffect->asADash(&dashInfo);
-        if (dashType == SkPathEffect::kDash_DashType) {
+        SkPathEffectBase::DashInfo dashInfo;
+        SkPathEffectBase::DashType dashType = as_PEB(pathEffect)->asADash(&dashInfo);
+        if (dashType == SkPathEffectBase::DashType::kDash) {
             dashInfo.fIntervals = (SkScalar*)sk_malloc_throw(dashInfo.fCount * sizeof(SkScalar));
-            pathEffect->asADash(&dashInfo);
+            as_PEB(pathEffect)->asADash(&dashInfo);
             writer.beginObject(DEBUGCANVAS_ATTRIBUTE_DASHING);
             writer.beginArray(DEBUGCANVAS_ATTRIBUTE_INTERVALS, false);
             for (int32_t i = 0; i < dashInfo.fCount; i++) {

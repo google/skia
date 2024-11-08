@@ -11,16 +11,17 @@
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/core/SkPathEffectBase.h"
 #include "tests/Test.h"
 
 using namespace skia_private;
 
 DEF_TEST(AsADashTest_noneDash, reporter) {
     sk_sp<SkPathEffect> pe(SkCornerPathEffect::Make(1.0));
-    SkPathEffect::DashInfo info;
+    SkPathEffectBase::DashInfo info;
 
-    SkPathEffect::DashType dashType = pe->asADash(&info);
-    REPORTER_ASSERT(reporter, SkPathEffect::kNone_DashType == dashType);
+    SkPathEffectBase::DashType dashType = as_PEB(pe)->asADash(&info);
+    REPORTER_ASSERT(reporter, SkPathEffectBase::DashType::kNone == dashType);
 }
 
 DEF_TEST(AsADashTest_nullInfo, reporter) {
@@ -28,8 +29,8 @@ DEF_TEST(AsADashTest_nullInfo, reporter) {
     const SkScalar phase = 2.0;
     sk_sp<SkPathEffect> pe(SkDashPathEffect::Make(inIntervals, 4, phase));
 
-    SkPathEffect::DashType dashType = pe->asADash(nullptr);
-    REPORTER_ASSERT(reporter, SkPathEffect::kDash_DashType == dashType);
+    SkPathEffectBase::DashType dashType = as_PEB(pe)->asADash(nullptr);
+    REPORTER_ASSERT(reporter, SkPathEffectBase::DashType::kDash == dashType);
 }
 
 DEF_TEST(AsADashTest_usingDash, reporter) {
@@ -39,17 +40,17 @@ DEF_TEST(AsADashTest_usingDash, reporter) {
 
     sk_sp<SkPathEffect> pe(SkDashPathEffect::Make(inIntervals, 4, phase));
 
-    SkPathEffect::DashInfo info;
+    SkPathEffectBase::DashInfo info;
 
-    SkPathEffect::DashType dashType = pe->asADash(&info);
-    REPORTER_ASSERT(reporter, SkPathEffect::kDash_DashType == dashType);
+    SkPathEffectBase::DashType dashType = as_PEB(pe)->asADash(&info);
+    REPORTER_ASSERT(reporter, SkPathEffectBase::DashType::kDash == dashType);
     REPORTER_ASSERT(reporter, 4 == info.fCount);
     REPORTER_ASSERT(reporter, SkScalarMod(phase, totalIntSum) == info.fPhase);
 
     // Since it is a kDash_DashType, allocate space for the intervals and recall asADash
     AutoTArray<SkScalar> intervals(info.fCount);
     info.fIntervals = intervals.get();
-    pe->asADash(&info);
+    as_PEB(pe)->asADash(&info);
     REPORTER_ASSERT(reporter, inIntervals[0] == info.fIntervals[0]);
     REPORTER_ASSERT(reporter, inIntervals[1] == info.fIntervals[1]);
     REPORTER_ASSERT(reporter, inIntervals[2] == info.fIntervals[2]);

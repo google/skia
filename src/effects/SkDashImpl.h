@@ -23,7 +23,7 @@ protected:
     bool onAsPoints(PointData* results, const SkPath& src, const SkStrokeRec&, const SkMatrix&,
                     const SkRect*) const override;
 
-    DashType onAsADash(DashInfo* info) const override;
+    DashType asADash(DashInfo* info) const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkDashImpl)

@@ -23,7 +23,6 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkPathEffect.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -122,7 +121,7 @@ static bool scale_paint(SkPaint& paint, SkScalar fontToEMScale) {
     if (SkPathEffectBase* peb = as_PEB(paint.getPathEffect())) {
         AutoSTMalloc<4, SkScalar> intervals;
         SkPathEffectBase::DashInfo dashInfo(intervals, 4, 0);
-        if (peb->asADash(&dashInfo) == SkPathEffect::kDash_DashType) {
+        if (peb->asADash(&dashInfo) == SkPathEffectBase::DashType::kDash) {
             if (dashInfo.fCount > 4) {
                 intervals.realloc(dashInfo.fCount);
                 peb->asADash(&dashInfo);

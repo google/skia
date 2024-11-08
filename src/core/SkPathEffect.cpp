@@ -49,10 +49,6 @@ bool SkPathEffectBase::asPoints(PointData* results, const SkPath& src,
     return this->onAsPoints(results, src, rec, mx, rect);
 }
 
-SkPathEffect::DashType SkPathEffect::asADash(DashInfo* info) const {
-    return as_PEB(this)->onAsADash(info);
-}
-
 bool SkPathEffect::needsCTM() const {
     return as_PEB(this)->onNeedsCTM();
 }

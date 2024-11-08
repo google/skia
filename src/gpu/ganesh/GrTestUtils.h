@@ -88,7 +88,7 @@ public:
 protected:
     bool onFilterPath(SkPath* dst, const SkPath&, SkStrokeRec* , const SkRect*,
                       const SkMatrix&) const override;
-    DashType onAsADash(DashInfo* info) const override;
+    DashType asADash(DashInfo* info) const override;
 
 private:
     TestDashPathEffect(const SkScalar* intervals, int count, SkScalar phase);

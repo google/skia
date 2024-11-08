@@ -135,7 +135,7 @@ public:
 
     bool hasNonDashPathEffect() const { return fPathEffect.get() && !this->isDashed(); }
 
-    bool isDashed() const { return SkPathEffect::kDash_DashType == fDashInfo.fType; }
+    bool isDashed() const { return SkPathEffectBase::DashType::kDash == fDashInfo.fType; }
     SkScalar dashPhase() const {
         SkASSERT(this->isDashed());
         return fDashInfo.fPhase;
@@ -200,7 +200,7 @@ private:
     void initPathEffect(sk_sp<SkPathEffect> pe);
 
     struct DashInfo {
-        DashInfo() : fType(SkPathEffectBase::kNone_DashType) {}
+        DashInfo() : fType(SkPathEffectBase::DashType::kNone) {}
         DashInfo(const DashInfo& that) { *this = that; }
         DashInfo& operator=(const DashInfo& that) {
             fType = that.fType;
@@ -211,10 +211,10 @@ private:
             return *this;
         }
         void reset() {
-            fType = SkPathEffect::kNone_DashType;
+            fType = SkPathEffectBase::DashType::kNone;
             fIntervals.reset(0);
         }
-        SkPathEffect::DashType      fType;
+        SkPathEffectBase::DashType      fType;
         SkScalar                    fPhase{0};
         skia_private::AutoSTArray<4, SkScalar>  fIntervals;
     };

@@ -8,7 +8,6 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
-#include "include/core/SkPathEffect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
@@ -23,6 +22,7 @@
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkMatrixPriv.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPointPriv.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/BufferWriter.h"
@@ -756,7 +756,7 @@ private:
  */
 class DashingCircleEffect : public GrGeometryProcessor {
 public:
-    typedef SkPathEffect::DashInfo DashInfo;
+    typedef SkPathEffectBase::DashInfo DashInfo;
 
     static GrGeometryProcessor* Make(SkArenaAlloc* arena,
                                      const SkPMColor4f&,
@@ -943,7 +943,7 @@ GrGeometryProcessor* DashingCircleEffect::TestCreate(GrProcessorTestData* d) {
  */
 class DashingLineEffect : public GrGeometryProcessor {
 public:
-    typedef SkPathEffect::DashInfo DashInfo;
+    typedef SkPathEffectBase::DashInfo DashInfo;
 
     static GrGeometryProcessor* Make(SkArenaAlloc* arena,
                                      const SkPMColor4f&,

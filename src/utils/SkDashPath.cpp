@@ -9,7 +9,6 @@
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkPathEffect.h"
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -19,6 +18,7 @@
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTo.h"
+#include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
@@ -456,7 +456,7 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
 }
 
 bool SkDashPath::FilterDashPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                                const SkRect* cullRect, const SkPathEffect::DashInfo& info) {
+                                const SkRect* cullRect, const SkPathEffectBase::DashInfo& info) {
     if (!ValidDashPath(info.fPhase, info.fIntervals, info.fCount)) {
         return false;
     }
