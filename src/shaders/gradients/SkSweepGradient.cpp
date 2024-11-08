@@ -46,6 +46,8 @@ SkShaderBase::GradientType SkSweepGradient::asGradient(GradientInfo* info,
     if (info) {
         commonAsAGradient(info);
         info->fPoint[0] = fCenter;
+        info->fPoint[1].fX = fTScale;
+        info->fPoint[1].fY = fTBias;
     }
     if (localMatrix) {
         *localMatrix = SkMatrix::I();

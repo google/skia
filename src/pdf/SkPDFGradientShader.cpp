@@ -619,8 +619,17 @@ static void twoPointConicalCode(const SkShaderBase::GradientInfo& info,
 static void sweepCode(const SkShaderBase::GradientInfo& info,
                       const SkMatrix& perspectiveRemover,
                       SkDynamicMemoryWStream* function) {
-    // TODO: Correctly draw tilemode_gradient, requires access to the "bias" and "scale"
     function->writeText("{exch atan 360 div\n");
+    const SkScalar bias = info.fPoint[1].y();
+    if (bias != 0.0f) {
+        SkPDFUtils::AppendScalar(bias, function);
+        function->writeText(" add\n");
+    }
+    const SkScalar scale = info.fPoint[1].x();
+    if (scale != 1.0f) {
+        SkPDFUtils::AppendScalar(scale, function);
+        function->writeText(" mul\n");
+    }
     tileModeCode((SkTileMode)info.fTileMode, function);
     gradient_function_code(info, function);
     function->writeText("}");
