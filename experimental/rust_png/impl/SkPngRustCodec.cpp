@@ -98,11 +98,14 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> CreateColorProfile(const rust_png::Re
     // instead of `libpng`.
 
     if (reader.has_iccp_chunk()) {
-        rust::Slice<const uint8_t> iccp = reader.get_iccp_chunk();
-        skcms_ICCProfile profile;
-        skcms_Init(&profile);
-        if (skcms_Parse(iccp.data(), iccp.size(), &profile)) {
-            return SkEncodedInfo::ICCProfile::Make(profile);
+        // `SkData::MakeWithCopy` is resilient against 0-sized inputs, so
+        // no need to check `rust_slice.empty()` here.
+        rust::Slice<const uint8_t> rust_slice = reader.get_iccp_chunk();
+        sk_sp<SkData> owned_data = SkData::MakeWithCopy(rust_slice.data(), rust_slice.size());
+        std::unique_ptr<SkEncodedInfo::ICCProfile> parsed_data =
+                SkEncodedInfo::ICCProfile::Make(std::move(owned_data));
+        if (parsed_data) {
+            return parsed_data;
         }
     }
 
