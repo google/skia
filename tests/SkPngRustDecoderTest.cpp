@@ -606,3 +606,22 @@ DEF_TEST(Codec_png_swizzling_target_unimplemented, r) {
     REPORTER_ASSERT(r, result == SkCodec::kUnimplemented);
     REPORTER_ASSERT(r, !image);
 }
+
+DEF_TEST(Codec_png_was_encoded_with_16_bits_or_more_per_component, r) {
+    struct Test {
+        const char* fFilename;
+        bool fEncodedWith16bits;
+    };
+    const std::array<Test, 4> kTests = {
+            Test{"images/pngsuite/basn0g04.png", false},  // 4 bit (16 level) grayscale
+            Test{"images/pngsuite/basn2c08.png", false},  // 3x8 bits rgb color
+            Test{"images/pngsuite/basn2c16.png", true},   // 3x16 bits rgb color
+            Test{"images/pngsuite/basn3p01.png", false}   // 1 bit (2 color) paletted
+    };
+    for (const auto& test : kTests) {
+        std::unique_ptr<SkCodec> codec = SkPngRustDecoderDecode(r, test.fFilename);
+        if (codec) {
+            REPORTER_ASSERT(r, codec->hasHighBitDepthEncodedData() == test.fEncodedWith16bits);
+        }
+    }
+}
