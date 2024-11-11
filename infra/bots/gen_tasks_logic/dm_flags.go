@@ -453,7 +453,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					skip(ALL, "gm", ALL, "persptext")
 					skip(ALL, "gm", ALL, "persptext_minimal")
 					skip(ALL, "gm", ALL, "pictureshader_persp")
-					skip(ALL, "gm", ALL, "tall_stretched_bitmaps")
 					skip(ALL, "gm", ALL, "wacky_yuv_formats_frompixmaps")
 
 					// This GM is larger than Dawn compat's max texture size.
