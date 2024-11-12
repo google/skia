@@ -446,7 +446,6 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
     {
         SkSafeMath safe;
         decodingState->fDstRowStride = rowBytes;
-        decodingState->fFrameIndex = safe.castTo<size_t>(options.fFrameIndex);
 
         uint8_t dstBytesPerPixel = safe.castTo<uint8_t>(dstInfo.bytesPerPixel());
         if (dstBytesPerPixel >= 32u) {
@@ -558,7 +557,9 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
                 // All of the original `fDst` should be filled out at this point.
                 SkASSERT(decodingState.fDst.empty());
             }
-            fFrameHolder.markFrameAsFullyReceived(decodingState.fFrameIndex);
+
+            // `static_cast` is ok, because `startDecoding` already validated `fFrameIndex`.
+            fFrameHolder.markFrameAsFullyReceived(static_cast<size_t>(this->options().fFrameIndex));
             fIncrementalDecodingState.reset();
             return kSuccess;
         }
