@@ -309,6 +309,7 @@ optional("fontmgr_android") {
 
   deps = [
     ":typeface_freetype",
+    ":typeface_proxy",
     "//third_party/expat",
   ]
   public_defines = [ "SK_FONTMGR_ANDROID_AVAILABLE" ]

@@ -174,6 +174,7 @@ GLOBIGNORE+="tests/CodecTest.cpp:"\
 "tests/ColorSpaceTest.cpp:"\
 "tests/DrawOpAtlasTest.cpp:"\
 "tests/EncodeTest.cpp:"\
+"tests/FontMgrAndroidTest.cpp:"\
 "tests/FontMgrAndroidParserTest.cpp:"\
 "tests/FontMgrFontConfigTest.cpp:"\
 "tests/FontationsTest.cpp:"\

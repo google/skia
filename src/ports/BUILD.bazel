@@ -170,6 +170,7 @@ skia_cc_library(
     visibility = ["//:__pkg__"],
     deps = [
         ":freetype_support",
+        ":typeface_proxy",
         "//:core",
         "//src/base",
         "//src/core:core_priv",

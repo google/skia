@@ -306,17 +306,18 @@ DEF_TEST_SCANNERS(FontMgrAndroidLegacyMakeTypeface, reporter) {
     REPORTER_ASSERT(reporter, nullptr == t);
 }
 
-static bool bitmap_compare(const SkBitmap& ref, const SkBitmap& test) {
+static int bitmap_compare(const SkBitmap& ref, const SkBitmap& test) {
+    int count = 0;
     for (int y = 0; y < test.height(); ++y) {
         for (int x = 0; x < test.width(); ++x) {
             SkColor testColor = test.getColor(x, y);
             SkColor refColor = ref.getColor(x, y);
             if (refColor != testColor) {
-                return false;
+                ++count;
             }
         }
     }
-    return true;
+    return count;
 }
 
 DEF_TEST_SCANNERS(FontMgrAndroidSystemVariableTypeface, reporter) {
@@ -391,8 +392,8 @@ DEF_TEST_SCANNERS(FontMgrAndroidSystemVariableTypeface, reporter) {
         canvasClone.drawColor(SK_ColorWHITE);
         canvasClone.drawString(text, point.fX, point.fY, fontClone, paint);
 
-        bool success = bitmap_compare(bitmapStream, bitmapClone);
-        REPORTER_ASSERT(reporter, success);
+        auto count = bitmap_compare(bitmapStream, bitmapClone);
+        REPORTER_ASSERT(reporter, count == 0);
     }
 }
 
