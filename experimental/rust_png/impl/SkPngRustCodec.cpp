@@ -448,8 +448,8 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
         decodingState->fDstRowStride = rowBytes;
         decodingState->fFrameIndex = safe.castTo<size_t>(options.fFrameIndex);
 
-        decodingState->fDstBytesPerPixel = safe.castTo<uint8_t>(dstInfo.bytesPerPixel());
-        if (decodingState->fDstBytesPerPixel >= 32u) {
+        uint8_t dstBytesPerPixel = safe.castTo<uint8_t>(dstInfo.bytesPerPixel());
+        if (dstBytesPerPixel >= 32u) {
             return kInvalidParameters;
         }
 
@@ -457,13 +457,13 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
         size_t imageSize = safe.mul(rowBytes, imageHeight);
 
         size_t xPixelOffset = safe.castTo<size_t>(frame->xOffset());
-        size_t xByteOffset = safe.mul(decodingState->fDstBytesPerPixel, xPixelOffset);
+        size_t xByteOffset = safe.mul(dstBytesPerPixel, xPixelOffset);
 
         size_t yPixelOffset = safe.castTo<size_t>(frame->yOffset());
         size_t yByteOffset = safe.mul(rowBytes, yPixelOffset);
 
         size_t frameWidth = safe.castTo<size_t>(frame->width());
-        size_t rowSize = safe.mul(decodingState->fDstBytesPerPixel, frameWidth);
+        size_t rowSize = safe.mul(dstBytesPerPixel, frameWidth);
         size_t frameHeight = safe.castTo<size_t>(frame->height());
         size_t frameHeightTimesRowStride = safe.mul(frameHeight, rowBytes);
         decodingState->fDstRowSize = rowSize;
@@ -487,9 +487,6 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
             }
         }
     }
-
-    decodingState->fDstColor = dstInfo.colorType();
-    decodingState->fDstAlpha = dstInfo.alphaType();
 
     return kSuccess;
 }
@@ -516,11 +513,14 @@ void SkPngRustCodec::expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
     xformedInterlacedRow.resize(decodingState.fDstRowSize, 0x00);
     this->applyXformRow(xformedInterlacedRow, decodedInterlacedFullWidthRow);
 
-    SkASSERT(decodingState.fDstBytesPerPixel < 32u);  // Checked in `startDecoding`.
+    SkSafeMath safe;
+    uint8_t dstBytesPerPixel = safe.castTo<uint8_t>(this->dstInfo().bytesPerPixel());
+    SkASSERT(safe.ok());               // Checked in `startDecoding`.
+    SkASSERT(dstBytesPerPixel < 32u);  // Checked in `startDecoding`.
     fReader->expand_last_interlaced_row(rust::Slice<uint8_t>(dstFrame),
                                         decodingState.fDstRowStride,
                                         rust::Slice<const uint8_t>(xformedInterlacedRow),
-                                        decodingState.fDstBytesPerPixel * 8u);
+                                        dstBytesPerPixel * 8u);
 }
 
 SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
@@ -551,8 +551,8 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
                              decodingState.fPreblendBuffer,
                              decodingState.fDstRowSize,
                              decodingState.fDstRowStride,
-                             decodingState.fDstColor,
-                             decodingState.fDstAlpha);
+                             this->dstInfo().colorType(),
+                             this->dstInfo().alphaType());
             }
             if (!interlaced) {
                 // All of the original `fDst` should be filled out at this point.
@@ -580,8 +580,8 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
                 this->applyXformRow(decodingState.fPreblendBuffer, decodedRow);
                 blendRow(decodingState.fDst,
                          decodingState.fPreblendBuffer,
-                         decodingState.fDstColor,
-                         decodingState.fDstAlpha);
+                         this->dstInfo().colorType(),
+                         this->dstInfo().alphaType());
             }
 
             decodingState.fDst = decodingState.fDst.subspan(

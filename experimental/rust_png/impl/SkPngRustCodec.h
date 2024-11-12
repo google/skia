@@ -60,11 +60,6 @@ private:
         // uses `SkCodecAnimation::Blend::kSrcOver`.  For interlaced images this
         // buffer holds the whole frame; otherwise it holds only a single row.
         std::vector<uint8_t> fPreblendBuffer;
-
-        // Stashed subset of `dstInfo`.
-        SkColorType fDstColor = kUnknown_SkColorType;
-        SkAlphaType fDstAlpha = kUnknown_SkAlphaType;
-        uint8_t fDstBytesPerPixel = 0;
     };
 
     // Helper for validating parameters of `onGetPixels` and/or
