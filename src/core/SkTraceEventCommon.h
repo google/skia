@@ -184,8 +184,6 @@ public:
         gUsePerfettoTrackEvents = usePerfettoTrackEvents;
         return true;
 #else // !SK_ANDROID_FRAMEWORK_USE_PERFETTO
-        // Note: please reach out to skia-android@google.com if you encounter this unexpectedly.
-        SkDebugf("Tracing Skia with Perfetto is not supported in this environment (host build?)");
         return false;
 #endif // SK_ANDROID_FRAMEWORK_USE_PERFETTO
     }
