@@ -2,6 +2,19 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 132
+-------------
+  * A new `SkCodec` method has been added: `hasHighBitDepthEncodedData`.
+  * `GrGLInterface` completeness requirements are modified to support using timer queries when available in the GL context.
+    The interface must have relevant functions initialized on OpenGL 3.3 or with GL_EXT_timer_query or GL_ARB_timerquery, on OpenGL ES with
+    GL_EXT_disjoint_timer_query, and on WebGL with GL_EXT_disjoint_timer_query or GL_EXT_disjoint_timer_query_webgl2.
+  * `GrGLInterface` now expects functions that take two `GLuints` instead of one `GLuint64` for `glWaitSync` and `glClientWaitSync`
+    when building with Emscripten. `GrGLMakeAssembledWebGLInterface` binds directly to the `emscipten_gl*` functions declared in the `<webgl/*>` headers rather than the functions declared
+    in `GLES3/gl32.h` and `GLES3/gl2ext.h`.
+  * `SkPathEffect::DashType`, `SkPathEffect::DashInfo` and `SkPathEffect::asADash` have been removed from the public API.
+
+* * *
+
 Milestone 131
 -------------
   * `SkCanvas::SaveLayerRec` can optionally specify a tilemode to apply to backdrop
