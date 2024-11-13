@@ -100,10 +100,10 @@ SkIPoint SkDevice::getOrigin() const {
                           SkScalarFloorToInt(fDeviceToGlobal.rc(1, 3)));
 }
 
-SkMatrix SkDevice::getRelativeTransform(const SkDevice& dstDevice) const {
+SkM44 SkDevice::getRelativeTransform(const SkDevice& dstDevice) const {
     // To get the transform from this space to the other device's, transform from our space to
     // global and then from global to the other device.
-    return (dstDevice.fGlobalToDevice * fDeviceToGlobal).asM33();
+    return dstDevice.fGlobalToDevice * fDeviceToGlobal;
 }
 
 static inline bool is_int(float x) {
@@ -333,7 +333,7 @@ void SkDevice::drawDevice(SkDevice* device,
     if (deviceImage) {
         // SkCanvas only calls drawDevice() when there are no filters (so the transform is pixel
         // aligned). As such it can be drawn without clamping.
-        SkMatrix relativeTransform = device->getRelativeTransform(*this);
+        SkMatrix relativeTransform = device->getRelativeTransform(*this).asM33();
         const bool strict = sampling != SkFilterMode::kNearest ||
                             !relativeTransform.isTranslate() ||
                             !SkScalarIsInt(relativeTransform.getTranslateX()) ||
@@ -372,7 +372,7 @@ void SkDevice::drawFilteredImage(const skif::Mapping& mapping,
     sk_sp<SkSpecialImage> result = as_IFB(filter)->filterImage(ctx).imageAndOffset(ctx, &offset);
     stats.reportStats();
     if (result) {
-        SkMatrix deviceMatrixWithOffset = mapping.layerToDevice();
+        SkMatrix deviceMatrixWithOffset = mapping.layerToDevice().asM33();
         deviceMatrixWithOffset.preTranslate(offset.fX, offset.fY);
         this->drawSpecial(result.get(), deviceMatrixWithOffset, sampling, paint);
     }

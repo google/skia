@@ -1959,7 +1959,7 @@ void SkXPSDevice::drawDevice(SkDevice* dev, const SkSamplingOptions&, const SkPa
     SkASSERT(that->fTopTypefaces == this->fTopTypefaces);
 
     SkTScopedComPtr<IXpsOMMatrixTransform> xpsTransform;
-    HRVM(this->createXpsTransform(dev->getRelativeTransform(*this), &xpsTransform),
+    HRVM(this->createXpsTransform(dev->getRelativeTransform(*this).asM33(), &xpsTransform),
          "Could not create layer transform.");
     HRVM(that->fCurrentXpsCanvas->SetTransformLocal(xpsTransform.get()),
          "Could not set layer transform.");

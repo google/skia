@@ -98,7 +98,7 @@ static constexpr GrSurfaceOrigin kTestSurfaceOrigin = kTopLeft_GrSurfaceOrigin;
 
 class MatrixTestImageFilter : public SkImageFilter_Base {
 public:
-    MatrixTestImageFilter(skiatest::Reporter* reporter, const SkMatrix& expectedMatrix)
+    MatrixTestImageFilter(skiatest::Reporter* reporter, const SkM44& expectedMatrix)
             : SkImageFilter_Base(nullptr, 0)
             , fReporter(reporter)
             , fExpectedMatrix(expectedMatrix) {
@@ -132,7 +132,7 @@ private:
     }
 
     skiatest::Reporter* fReporter;
-    SkMatrix fExpectedMatrix;
+    SkM44 fExpectedMatrix;
 };
 
 void draw_gradient_circle(SkCanvas* canvas, int width, int height) {
@@ -305,7 +305,7 @@ static skif::Context make_context(const SkIRect& out, const SkSpecialImage* src)
     }
 
     return skif::Context{std::move(backend),
-                         skif::Mapping{SkMatrix::I()},
+                         skif::Mapping{SkM44()},
                          skif::LayerSpace<SkIRect>{out},
                          skif::FilterResult{sk_ref_sp(src)},
                          src->getColorSpace(),
@@ -575,8 +575,7 @@ static void test_negative_blur_sigma(skiatest::Reporter* reporter,
             as_IFB(positiveFilter)->filterImage(ctx).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, positiveResult);
 
-    SkMatrix negativeScale;
-    negativeScale.setScale(-SK_Scalar1, SK_Scalar1);
+    const SkM44 negativeScale = SkM44::Scale(-SK_Scalar1, SK_Scalar1);
     skif::Context negativeCTX = ctx.withNewMapping(skif::Mapping(negativeScale));
 
     sk_sp<SkSpecialImage> negativeResult(
@@ -647,8 +646,7 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
             as_IFB(filter)->filterImage(ctx).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, normalResult);
 
-    SkMatrix mirrorX;
-    mirrorX.setTranslate(0, SkIntToScalar(32));
+    SkM44 mirrorX = SkM44::Translate(0, 32);
     mirrorX.preScale(SK_Scalar1, -SK_Scalar1);
     skif::Context mirrorXCTX = ctx.withNewMapping(skif::Mapping(mirrorX));
 
@@ -656,8 +654,7 @@ static void test_morphology_radius_with_mirror_ctm(skiatest::Reporter* reporter,
             as_IFB(filter)->filterImage(mirrorXCTX).imageAndOffset(ctx, &offset));
     REPORTER_ASSERT(reporter, mirrorXResult);
 
-    SkMatrix mirrorY;
-    mirrorY.setTranslate(SkIntToScalar(32), 0);
+    SkM44 mirrorY = SkM44::Translate(32, 0);
     mirrorY.preScale(-SK_Scalar1, SK_Scalar1);
     skif::Context mirrorYCTX = ctx.withNewMapping(skif::Mapping(mirrorY));
 
@@ -1281,7 +1278,7 @@ DEF_TEST(ImageFilterMatrix, reporter) {
     SkCanvas canvas(temp);
     canvas.scale(SkIntToScalar(2), SkIntToScalar(2));
 
-    SkMatrix expectedMatrix = canvas.getTotalMatrix();
+    const SkM44 expectedMatrix = canvas.getLocalToDevice();
 
     SkRTreeFactory factory;
     SkPictureRecorder recorder;

@@ -856,7 +856,7 @@ void SkPDFDevice::drawGlyphRunAsPath(
     transparent.setColor(SK_ColorTRANSPARENT);
 
     if (this->localToDevice().hasPerspective()) {
-        SkAutoDeviceTransformRestore adr(this, SkMatrix::I());
+        SkAutoDeviceTransformRestore adr(this, SkM44());
         this->internalDrawGlyphRun(tmpGlyphRun, offset, transparent);
     } else {
         this->internalDrawGlyphRun(tmpGlyphRun, offset, transparent);
@@ -1820,7 +1820,7 @@ void SkPDFDevice::drawDevice(SkDevice* device, const SkSamplingOptions& sampling
         return;
     }
 
-    SkMatrix matrix = device->getRelativeTransform(*this);
+    SkMatrix matrix = device->getRelativeTransform(*this).asM33();
     ScopedContentEntry content(this, &this->cs(), matrix, paint);
     if (!content) {
         return;

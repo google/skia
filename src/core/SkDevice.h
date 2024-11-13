@@ -206,7 +206,7 @@ public:
      * that device is drawn to the root device, the net effect will be that this device's contents
      * have been transformed by the global CTM.
      */
-    SkMatrix getRelativeTransform(const SkDevice&) const;
+    SkM44 getRelativeTransform(const SkDevice&) const;
 
     void setLocalToDevice(const SkM44& localToDevice) {
         fLocalToDevice = localToDevice;
@@ -643,11 +643,11 @@ private:
 
 class SkAutoDeviceTransformRestore : SkNoncopyable {
 public:
-    SkAutoDeviceTransformRestore(SkDevice* device, const SkMatrix& localToDevice)
+    SkAutoDeviceTransformRestore(SkDevice* device, const SkM44& localToDevice)
         : fDevice(device)
         , fPrevLocalToDevice(device->localToDevice())
     {
-        fDevice->setLocalToDevice(SkM44(localToDevice));
+        fDevice->setLocalToDevice(localToDevice);
     }
     ~SkAutoDeviceTransformRestore() {
         fDevice->setLocalToDevice(fPrevLocalToDevice);

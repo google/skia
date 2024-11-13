@@ -139,7 +139,7 @@ static void draw_scale_factors(SkCanvas* canvas, const skif::Mapping& mapping, c
     rect.toQuad(testPoints + 1);
     for (int i = 0; i < 5; ++i) {
         float scale = SkMatrixPriv::DifferentialAreaScale(
-                mapping.layerToDevice(),
+                mapping.layerToDevice().asM33(),
                 SkPoint(mapping.paramToLayer(skif::ParameterSpace<SkPoint>(testPoints[i]))));
         SkColor4f color = {0.f, 0.f, 0.f, 1.f};
 
@@ -186,7 +186,7 @@ public:
     void draw(SkCanvas* canvas) override {
         // The local content, e.g. what would be submitted to drawRect or the bounds to saveLayer
         const SkRect localContentRect = SkRect::MakeLTRB(100.f, 20.f, 180.f, 140.f);
-        SkMatrix ctm = canvas->getLocalToDeviceAs3x3();
+        SkM44 ctm = canvas->getLocalToDevice();
 
         // Base rendering of a filter
         SkPaint blurPaint;
@@ -198,7 +198,7 @@ public:
         canvas->restore();
 
         // Now visualize the underlying bounds calculations used to determine the layer for the blur
-        SkIRect target = ctm.mapRect(localContentRect).roundOut();
+        SkIRect target = SkMatrixPriv::MapRect(ctm, localContentRect).roundOut();
         if (!target.intersect(SkIRect::MakeWH(canvas->imageInfo().width(),
                                               canvas->imageInfo().height()))) {
             return;
@@ -224,7 +224,7 @@ public:
         // before the draw or saveLayer, representing what the filter must cover if it affects
         // transparent black or doesn't have a local content hint.
         canvas->setMatrix(SkMatrix::I());
-        canvas->drawRect(ctm.mapRect(localContentRect), line_paint(SK_ColorDKGRAY));
+        canvas->drawRect(SkMatrixPriv::MapRect(ctm, localContentRect), line_paint(SK_ColorDKGRAY));
 
         // Layer bounds for the filter, in the layer space compatible with the filter's matrix
         // type requirements.

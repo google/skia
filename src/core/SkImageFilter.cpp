@@ -10,7 +10,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
-#include "include/core/SkMatrix.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
@@ -63,7 +63,7 @@ SkIRect SkImageFilter::filterBounds(const SkIRect& src, const SkMatrix& ctm,
     // The old filterBounds() function uses SkIRects that are defined in layer space so, while
     // we still are supporting it, bypass SkIF_B's new public filter bounds functions and go right
     // to the internal layer-space calculations.
-    skif::Mapping mapping{ctm};
+    skif::Mapping mapping{SkM44(ctm)};
     if (kReverse_MapDirection == direction) {
         skif::LayerSpace<SkIRect> targetOutput(src);
         std::optional<skif::LayerSpace<SkIRect>> content;
@@ -245,7 +245,7 @@ skif::FilterResult SkImageFilter_Base::filterImage(const skif::Context& context)
     const SkIRect srcSubset = srcInKey ? context.source().image()->subset() : SkIRect::MakeWH(0, 0);
 
     SkImageFilterCacheKey key(fUniqueID,
-                              context.mapping().layerMatrix(),
+                              context.mapping().layerMatrix().asM33(),
                               SkIRect(context.desiredOutput()),
                               srcGenID, srcSubset);
     if (context.backend()->cache() && context.backend()->cache()->get(key, &result)) {
@@ -279,7 +279,7 @@ sk_sp<SkImage> SkImageFilter_Base::makeImageWithFilter(sk_sp<skif::Backend> back
 
     skif::Stats stats;
     const skif::Context context{std::move(backend),
-                                skif::Mapping(SkMatrix::I()),
+                                skif::Mapping(SkM44()),
                                 skif::LayerSpace<SkIRect>(clipBounds),
                                 skif::FilterResult(std::move(srcSpecialImage),
                                                    skif::LayerSpace<SkIPoint>(subset.topLeft())),

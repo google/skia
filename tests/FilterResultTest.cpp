@@ -1115,7 +1115,7 @@ public:
         }
 
         Context baseContext{fRunner.refBackend(),
-                            skif::Mapping{SkMatrix::I()},
+                            skif::Mapping{SkM44()},
                             skif::LayerSpace<SkIRect>::Empty(),
                             source,
                             colorSpace.get(),

@@ -99,7 +99,7 @@ void decompose_transform(const SkMatrix& transform, SkPoint representativePoint,
     } else {
         // Perspective, which has a non-uniform scaling effect on the filter. Pick a single scale
         // factor that best matches where the filter will be evaluated.
-        SkScalar approxScale = SkMatrixPriv::DifferentialAreaScale(transform, representativePoint);
+        float approxScale = SkMatrixPriv::DifferentialAreaScale(transform, representativePoint);
         if (SkIsFinite(approxScale) && !SkScalarNearlyZero(approxScale)) {
             // Now take the sqrt to go from an area scale factor to a scaling per X and Y
             approxScale = SkScalarSqrt(approxScale);
@@ -107,8 +107,11 @@ void decompose_transform(const SkMatrix& transform, SkPoint representativePoint,
             // The point was behind the W = 0 plane, so don't factor out any scale.
             approxScale = 1.f;
         }
-        *postScaling = transform;
-        postScaling->preScale(SkScalarInvert(approxScale), SkScalarInvert(approxScale));
+        if (postScaling) {
+            *postScaling = transform;
+            float invScale = SkScalarInvert(approxScale);
+            postScaling->preScale(invScale, invScale);
+        }
         *scaling = SkMatrix::Scale(approxScale, approxScale);
     }
 }
@@ -266,25 +269,33 @@ SkIRect RoundOut(SkRect r) { return r.makeInset(kRoundEpsilon, kRoundEpsilon).ro
 
 SkIRect RoundIn(SkRect r) { return r.makeOutset(kRoundEpsilon, kRoundEpsilon).roundIn(); }
 
-bool Mapping::decomposeCTM(const SkMatrix& ctm, MatrixCapability capability,
+bool Mapping::decomposeCTM(const SkM44& ctm, MatrixCapability capability,
                            const skif::ParameterSpace<SkPoint>& representativePt) {
-    SkMatrix remainder, layer;
+    SkM44 remainder{SkM44::kUninitialized_Constructor};
+    SkM44 layer{SkM44::kUninitialized_Constructor};
     if (capability == MatrixCapability::kTranslate) {
         // Apply the entire CTM post-filtering
         remainder = ctm;
-        layer = SkMatrix::I();
-    } else if (ctm.isScaleTranslate() || capability == MatrixCapability::kComplex) {
+        layer = SkM44();
+    } else if (SkMatrixPriv::IsScaleTranslateAsM33(ctm) ||
+               capability == MatrixCapability::kComplex) {
         // Either layer space can be anything (kComplex) - or - it can be scale+translate, and the
         // ctm is. In both cases, the layer space can be equivalent to device space.
-        remainder = SkMatrix::I();
+        remainder = SkM44();
         layer = ctm;
     } else {
         // This case implies some amount of sampling post-filtering, either due to skew or rotation
         // in the original matrix. As such, keep the layer matrix as simple as possible.
-        decompose_transform(ctm, SkPoint(representativePt), &remainder, &layer);
+        SkMatrix layer33;
+        decompose_transform(ctm.asM33(), SkPoint(representativePt),
+                            /*postScaling=*/nullptr, &layer33);
+        layer = SkM44(layer33);
+        // Reconstruct full 4x4 remainder matrix so the mapping doesn't lose the 3rd row/column.
+        remainder = ctm;
+        remainder.preScale(1.f / layer.rc(0,0), 1.f / layer.rc(1,1));
     }
 
-    SkMatrix invRemainder;
+    SkM44 invRemainder;
     if (!remainder.invert(&invRemainder)) {
         // Under floating point arithmetic, it's possible to decompose an invertible matrix into
         // a scaling matrix and a remainder and have the remainder be non-invertible. Generally
@@ -299,7 +310,7 @@ bool Mapping::decomposeCTM(const SkMatrix& ctm, MatrixCapability capability,
     }
 }
 
-bool Mapping::decomposeCTM(const SkMatrix& ctm,
+bool Mapping::decomposeCTM(const SkM44& ctm,
                            const SkImageFilter* filter,
                            const skif::ParameterSpace<SkPoint>& representativePt) {
     return this->decomposeCTM(
@@ -308,8 +319,8 @@ bool Mapping::decomposeCTM(const SkMatrix& ctm,
             representativePt);
 }
 
-bool Mapping::adjustLayerSpace(const SkMatrix& layer) {
-    SkMatrix invLayer;
+bool Mapping::adjustLayerSpace(const SkM44& layer) {
+    SkM44 invLayer;
     if (!layer.invert(&invLayer)) {
         return false;
     }
@@ -592,7 +603,7 @@ public:
         }
 
         if (renderInParameterSpace) {
-            fCanvas->concat(SkMatrix(ctx.mapping().layerMatrix()));
+            fCanvas->concat(ctx.mapping().layerMatrix());
         }
     }
 
@@ -1978,9 +1989,8 @@ FilterResult FilterResult::MakeFromImage(const Context& ctx,
         // client could be doing their own external approximate-fit texturing.
         skif::FilterResult subset{std::move(specialImage),
                                   skif::LayerSpace<SkIPoint>(srcSubset.topLeft())};
-        SkMatrix transform = SkMatrix::Concat(ctx.mapping().layerMatrix(),
-                                              SkMatrix::RectToRect(srcRect, SkRect(dstRect)));
-        return subset.applyTransform(ctx, skif::LayerSpace<SkMatrix>(transform), sampling);
+        SkM44 transform = ctx.mapping().layerMatrix() * SkM44::RectToRect(srcRect, SkRect(dstRect));
+        return subset.applyTransform(ctx, skif::LayerSpace<SkMatrix>(transform.asM33()), sampling);
     }
 
     // For now, draw the src->dst subset of image into a new image.
@@ -2016,7 +2026,7 @@ SkSpan<sk_sp<SkShader>> FilterResult::Builder::createInputShaders(
         // into is being sampled in parameter space. Add the inverse of the layerMatrix() (i.e.
         // layer to parameter space) as a local matrix to convert from the parameter-space coords
         // of the outer shader to the layer-space coords of the FilterResult).
-        SkAssertResult(fContext.mapping().layerMatrix().invert(&layerToParam));
+        SkAssertResult(fContext.mapping().layerMatrix().asM33().invert(&layerToParam));
         // Automatically add nonTrivial sampling if the layer-to-parameter space mapping isn't
         // also pixel aligned.
         if (!is_nearly_integer_translation(LayerSpace<SkMatrix>(layerToParam))) {

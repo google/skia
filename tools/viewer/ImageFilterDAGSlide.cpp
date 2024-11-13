@@ -21,6 +21,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkImageFilters.h"
 #include "src/core/SkImageFilter_Base.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkSpecialImage.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -104,9 +105,9 @@ private:
     void computeInputBounds() {
         // As a proxy for what the base device had, use the content rect mapped to device space
         // (e.g. clipRect() was called with the same coords prior to the draw).
-        skif::DeviceSpace<SkIRect> targetOutput(fMapping.totalMatrix()
-                                                        .mapRect(SkRect(fContent))
-                                                        .roundOut());
+        skif::DeviceSpace<SkIRect> targetOutput(SkMatrixPriv::MapRect(fMapping.totalMatrix(),
+                                                                      SkRect(fContent))
+                                                             .roundOut());
 
         if (fFilter) {
             fHintedLayerBounds = as_IFB(fFilter)->getInputBounds(fMapping, targetOutput, fContent);
@@ -120,7 +121,7 @@ private:
 
 } // anonymous namespace
 
-static FilterNode build_dag(const SkMatrix& ctm, const SkRect& rect,
+static FilterNode build_dag(const SkM44& ctm, const SkRect& rect,
                             const SkImageFilter* rootFilter) {
     // Emulate SkCanvas::internalSaveLayer's decomposition of the CTM.
     skif::ParameterSpace<SkRect> content(rect);
@@ -222,11 +223,16 @@ static float print_info(SkCanvas* canvas, const FilterNode& node) {
         y += kLineHeight;
         if (node.fDepth == 0) {
             // The mapping is the same for all nodes, so only print at the root
-            y = print_matrix(canvas, "Param->Layer", node.fMapping.layerMatrix(),
-                        kLineInset, y, font, text);
+            y = print_matrix(canvas,
+                             "Param->Layer",
+                             node.fMapping.layerMatrix().asM33(),
+                             kLineInset,
+                             y,
+                             font,
+                             text);
             y = print_matrix(canvas,
                              "Layer->Device",
-                             node.fMapping.layerToDevice(),
+                             node.fMapping.layerToDevice().asM33(),
                              kLineInset,
                              y,
                              font,
@@ -294,7 +300,7 @@ static void draw_dag(SkCanvas* canvas, SkImageFilter* filter,
                      const SkRect& rect, const SkISize& surfaceSize) {
     // Get the current CTM, which includes all the viewer's UI modifications, which we want to
     // pass into our mock canvases for each DAG node.
-    SkMatrix ctm = canvas->getTotalMatrix();
+    SkM44 ctm = canvas->getLocalToDevice();
 
     canvas->save();
     // Reset the matrix so that the DAG layout and instructional text is fixed to the window.
