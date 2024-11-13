@@ -92,7 +92,7 @@ private:
     void bindTextureAndSamplers(const DrawPass& drawPass,
                                 const DrawPassCommands::BindTexturesAndSamplers& command);
 
-    void setScissor(unsigned int left, unsigned int top, unsigned int width, unsigned int height);
+    void setScissor(const Scissor&);
     bool updateIntrinsicUniforms(SkIRect viewport);
     void setViewport(SkIRect viewport);
 

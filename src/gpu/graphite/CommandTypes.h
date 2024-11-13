@@ -21,6 +21,24 @@ struct BufferTextureCopyData {
     unsigned int fMipLevel;
 };
 
+// Specifies a scissor, which can only be subsequently queried given a translation and clip which
+// are assumed to be applied to all commands in the render pass in which the scissor is set.
+class Scissor {
+public:
+    explicit Scissor(const SkIRect& rect) : fRect(rect) {}
+
+    SkIRect getRect(const SkIVector& replayTranslation, const SkIRect& replayClip) const {
+        SkIRect rect = fRect.makeOffset(replayTranslation);
+        if (!rect.intersect(replayClip)) {
+            rect.setEmpty();
+        }
+        return rect;
+    }
+
+private:
+    const SkIRect fRect;
+};
+
 };  // namespace skgpu::graphite
 
 #endif // skgpu_graphite_DrawTypes_DEFINED

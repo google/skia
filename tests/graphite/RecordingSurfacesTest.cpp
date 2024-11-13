@@ -205,26 +205,47 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestWritePixelsOffscreen, re
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestDrawWithClip, reporter, context,
                                    CtsEnforcement::kNextRelease) {
     SkISize surfaceSize = SkISize::Make(8, 4);
-    SkISize recordingSize = SkISize::Make(4, 4);
-    SkIVector replayOffset = SkIVector::Make(4, 0);
-    SkIRect replayClip = SkIRect::MakeXYWH(0, 0, 2, 4);
+    SkISize recordingSize = SkISize::Make(8, 4);
 
     auto draw = [](SkCanvas* canvas) {
-        canvas->drawIRect(SkIRect::MakeWH(4, 4), SkPaint(SkColors::kRed));
+        canvas->drawIRect(SkIRect::MakeXYWH(0, 0, 4, 4), SkPaint(SkColors::kRed));
+        canvas->drawIRect(SkIRect::MakeXYWH(4, 0, 4, 4), SkPaint(SkColors::kGreen));
     };
 
-    std::vector<Expectation> expectations = {{0, 0, SkColors::kTransparent},
-                                             {4, 0, SkColors::kRed},
-                                             {6, 0, SkColors::kTransparent}};
+    {
+        // Test that the clip applies in translated space.
+        SkIVector replayOffset = SkIVector::Make(4, 0);
+        SkIRect replayClip = SkIRect::MakeXYWH(0, 0, 2, 4);
 
-    run_test(reporter,
-             context,
-             surfaceSize,
-             recordingSize,
-             replayOffset,
-             replayClip,
-             draw,
-             expectations);
+        std::vector<Expectation> expectations = {{0, 0, SkColors::kTransparent},
+                                                 {4, 0, SkColors::kRed},
+                                                 {6, 0, SkColors::kTransparent}};
+
+        run_test(reporter,
+                 context,
+                 surfaceSize,
+                 recordingSize,
+                 replayOffset,
+                 replayClip,
+                 draw,
+                 expectations);
+    }
+
+    {
+        // Test that the draw is not translated by the clip.
+        SkIRect replayClip = SkIRect::MakeXYWH(4, 0, 2, 4);
+
+        std::vector<Expectation> expectations = {{4, 0, SkColors::kGreen}};
+
+        run_test(reporter,
+                 context,
+                 surfaceSize,
+                 recordingSize,
+                 kNoOffset,
+                 replayClip,
+                 draw,
+                 expectations);
+    }
 }
 
 // Tests that the result of writePixels is cropped correctly with a provided clip on replay.

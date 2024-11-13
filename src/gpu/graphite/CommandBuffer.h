@@ -123,10 +123,6 @@ public:
         fReplayTranslation = translation;
         fReplayClip = clip.makeOffset(translation);
     }
-    void clearReplayTranslationAndClip() {
-        fReplayTranslation = {0, 0};
-        fReplayClip = SkIRect::MakeEmpty();
-    }
 
     Protected isProtected() const { return fIsProtected; }
 
