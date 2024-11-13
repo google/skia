@@ -422,20 +422,28 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
                                               size_t rowBytes,
                                               const Options& options,
                                               DecodingState* decodingState) {
+    // TODO(https://crbug.com/362830091): Consider handling `fSubset`.
+    if (options.fSubset) {
+        return kUnimplemented;
+    }
+
     if (options.fFrameIndex < 0 || options.fFrameIndex >= fFrameHolder.size()) {
         return kInvalidParameters;
     }
     const SkFrame* frame = fFrameHolder.getFrame(options.fFrameIndex);
     SkASSERT(frame);
 
+    // https://www.w3.org/TR/png-3/#11PLTE says that for color type 3
+    // (indexed-color), the PLTE chunk is required.  OTOH, `Codec_InvalidImages`
+    // expects that we will succeed in this case and produce *some* output.
+    if (this->getEncodedInfo().color() == SkEncodedInfo::kPalette_Color &&
+        !fReader->has_plte_chunk()) {
+        return kInvalidInput;
+    }
+
     Result result = this->seekToStartOfFrame(options.fFrameIndex);
     if (result != kSuccess) {
         return result;
-    }
-
-    // TODO(https://crbug.com/362830091): Consider handling `fSubset`.
-    if (options.fSubset) {
-        return kUnimplemented;
     }
 
     result = this->initializeXforms(dstInfo, options, frame->width());
@@ -701,9 +709,7 @@ std::optional<SkSpan<const SkPngCodecBase::PaletteColorEntry>> SkPngRustCodec::o
         return std::nullopt;
     }
 
-    // No need for `has_plte_chunk` check here (and no such API provided by
-    // `FFI.rs`) because the Rust decoder will return an error if an `Indexed`
-    // image has no `pLTE` chunk before the `IDAT` chunk.
+    SkASSERT(fReader->has_plte_chunk());  // Checked in `startDecoding`.
     SkSpan<const uint8_t> bytes = ToSkSpan(fReader->get_plte_chunk());
 
     // Make sure that `bytes.size()` is a multiple of

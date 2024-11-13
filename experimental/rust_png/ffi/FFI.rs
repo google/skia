@@ -93,6 +93,7 @@ mod ffi {
         fn get_iccp_chunk(self: &Reader) -> &[u8];
         fn has_trns_chunk(self: &Reader) -> bool;
         fn get_trns_chunk(self: &Reader) -> &[u8];
+        fn has_plte_chunk(self: &Reader) -> bool;
         fn get_plte_chunk(self: &Reader) -> &[u8];
         fn has_actl_chunk(self: &Reader) -> bool;
         fn get_actl_num_frames(self: &Reader) -> u32;
@@ -348,6 +349,11 @@ impl Reader {
     /// chunk.
     fn get_trns_chunk(&self) -> &[u8] {
         self.reader.info().trns.as_ref().unwrap().as_ref()
+    }
+
+    /// Returns whether the `PLTE` chunk exists.
+    fn has_plte_chunk(&self) -> bool {
+        self.reader.info().palette.is_some()
     }
 
     /// Returns contents of the `PLTE` chunk.  Panics if there is no `PLTE`
