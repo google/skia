@@ -1065,7 +1065,7 @@ static bool compatible_sampling(const SkSamplingOptions& currentSampling,
 }
 
 FilterResult FilterResult::applyTransform(const Context& ctx,
-                                          const LayerSpace<SkMatrix> &transform,
+                                          const LayerSpace<SkMatrix>& transform,
                                           const SkSamplingOptions &sampling) const {
     if (!fImage || ctx.desiredOutput().isEmpty()) {
         // Transformed transparent black remains transparent black.
@@ -2165,14 +2165,13 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
              !algorithm->supportsOnlyDecalTiling());
 
     // Map 'sigma' into the low-res image's pixel space to determine the low-res blur params to pass
-    // into the blur engine.
-    PixelSpace<SkMatrix> layerToLowRes;
-    SkAssertResult(lowResImage.fTransform.invert(&layerToLowRes));
-    PixelSpace<SkSize> lowResSigma = layerToLowRes.mapSize(sigma);
-    // The layerToLowRes mapped size should be <= maxSigma, but clamp it just in case floating point
-    // error made it slightly higher.
-    lowResSigma = PixelSpace<SkSize>{{std::min(algorithm->maxSigma(), lowResSigma.width()),
-                                      std::min(algorithm->maxSigma(), lowResSigma.height())}};
+    // into the blur engine. This relies on rescale() producing an image with a scale+translate
+    // transform, so it's possible to derive the inverse scale factors directly. We also clamp to
+    // be <= maxSigma just in case floating point error made it slightly higher.
+    const float invScaleX = sk_ieee_float_divide(1.f, lowResImage.fTransform.rc(0,0));
+    const float invScaleY = sk_ieee_float_divide(1.f, lowResImage.fTransform.rc(1,1));
+    PixelSpace<SkSize> lowResSigma{{std::min(sigma.width() * invScaleX, algorithm->maxSigma()),
+                                    std::min(sigma.height()* invScaleY, algorithm->maxSigma())}};
     PixelSpace<SkIRect> lowResMaxOutput{SkISize{lowResImage.fImage->width(),
                                                 lowResImage.fImage->height()}};
 
@@ -2185,7 +2184,7 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
     } else {
         // For decal and clamp tiling, the blurred image stops being interesting outside the radii
         // outset, so redo the max output analysis with the 'outputBounds' mapped into pixel space.
-        srcRelativeOutput = layerToLowRes.mapRect(outputBounds);
+        SkAssertResult(lowResImage.fTransform.inverseMapRect(outputBounds, &srcRelativeOutput));
 
         // NOTE: Since 'lowResMaxOutput' is based on the actual image and deferred tiling, this can
         // be smaller than the pessimistic filling for a clamp-tiled blur.
