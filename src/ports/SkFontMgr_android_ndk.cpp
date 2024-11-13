@@ -17,8 +17,7 @@
 #include "src/base/SkUTF.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkOSFile.h"
-#include "src/ports/SkFontScanner_FreeType_priv.h"
-#include "src/ports/SkTypeface_FreeType.h"
+#include "src/ports/SkTypeface_proxy.h"
 
 #include <android/api-level.h>
 
@@ -252,35 +251,46 @@ private:
     static_assert(::sk_is_trivially_relocatable<decltype(fTag)>::value);
 };
 
-class SkTypeface_AndroidNDK : public SkTypeface_FreeType {
+class SkTypeface_AndroidNDK : public SkTypeface_proxy {
 public:
-    SkTypeface_AndroidNDK(std::unique_ptr<SkStreamAsset> file,
+    SkTypeface_AndroidNDK(sk_sp<SkTypeface> proxy,
                           const SkString& pathName,
                           const bool cacheFontFiles,
                           int index,
-                          const SkFixed* axes, int axesCount,
                           const SkFontStyle& style,
                           bool isFixedPitch,
                           const SkString& familyName,
                           TArray<SkLanguage>&& lang)
-        : SkTypeface_FreeType(style, isFixedPitch)
+        : SkTypeface_proxy(style, isFixedPitch)
         , fFamilyName(familyName)
         , fPathName(pathName)
         , fIndex(index)
-        , fAxes(axes, axesCount)
         , fLang(std::move(lang))
-        , fFile((cacheFontFiles &&  file) ? std::move(file)
-               :(cacheFontFiles && !file) ? SkStream::MakeFromFile(fPathName.c_str())
-               : nullptr)
+        , fFile(cacheFontFiles ? SkStream::MakeFromFile(fPathName.c_str()) : nullptr)
         , fCacheFontFiles(cacheFontFiles)
     {
         if (cacheFontFiles) {
             SkASSERT(fFile);
         }
+        SkTypeface_proxy::setProxy(proxy);
     }
 
-    void onGetFamilyName(SkString* familyName) const override {
-        *familyName = fFamilyName;
+    static sk_sp<SkTypeface_AndroidNDK> Make(sk_sp<SkTypeface> proxy,
+                                             const SkString& pathName,
+                                             const bool cacheFontFiles,
+                                             int index,
+                                             const SkFontStyle& style,
+                                             bool isFixedPitch,
+                                             const SkString& familyName,
+                                             TArray<SkLanguage>&& lang) {
+        return sk_sp<SkTypeface_AndroidNDK>(new SkTypeface_AndroidNDK(std::move(proxy),
+                                                                      pathName,
+                                                                      cacheFontFiles,
+                                                                      index,
+                                                                      style,
+                                                                      isFixedPitch,
+                                                                      familyName,
+                                                                      std::move(lang)));
     }
 
     std::unique_ptr<SkStreamAsset> makeStream() const {
@@ -290,50 +300,46 @@ public:
         return SkStream::MakeFromFile(fPathName.c_str());
     }
 
+    void onGetFamilyName(SkString* familyName) const override {
+        *familyName = fFamilyName;
+    }
+
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
         SkASSERT(desc);
         SkASSERT(serialize);
+        SkTypeface_proxy::onGetFontDescriptor(desc, serialize);
         desc->setFamilyName(fFamilyName.c_str());
         desc->setStyle(this->fontStyle());
-        desc->setFactoryId(SkTypeface_FreeType::FactoryId);
         *serialize = false;
     }
+
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override {
         *ttcIndex = fIndex;
         return this->makeStream();
     }
-    std::unique_ptr<SkFontData> onMakeFontData() const override {
-        return std::make_unique<SkFontData>(
-                this->makeStream(), fIndex, 0, fAxes.begin(), fAxes.size(), nullptr, 0);
-    }
+
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
-        SkFontStyle newStyle = this->fontStyle();
-        std::unique_ptr<SkFontData> data = this->cloneFontData(args, &newStyle);
-        if (!data) {
+        auto proxy = SkTypeface_proxy::onMakeClone(args);
+        if (proxy == nullptr) {
             return nullptr;
         }
-        return sk_sp(new SkTypeface_AndroidNDK(fFile ? fFile->duplicate() : nullptr,
-                                               fPathName,
-                                               fCacheFontFiles,
-                                               fIndex,
-                                               data->getAxis(),
-                                               data->getAxisCount(),
-                                               newStyle,
-                                               this->isFixedPitch(),
-                                               fFamilyName,
-                                               TArray<SkLanguage>()));
+        return SkTypeface_AndroidNDK::Make(
+                std::move(proxy),
+                fPathName,
+                fCacheFontFiles,
+                fIndex,
+                this->fontStyle(),
+                this->isFixedPitch(),
+                fFamilyName,
+                TArray<SkLanguage>());
     }
 
-    sk_sp<SkTypeface_AndroidNDK> makeNamedClone(const SkString& name) const {
-        return sk_sp(new SkTypeface_AndroidNDK(fFile ? fFile->duplicate() : nullptr,
-                                               fPathName,
-                                               fCacheFontFiles,
-                                               fIndex,
-                                               fAxes.data(), fAxes.size(),
-                                               this->fontStyle(),
-                                               this->isFixedPitch(),
-                                               name,
-                                               STArray<4, SkLanguage>(fLang)));
+    SkFontStyle onGetFontStyle() const override {
+        return SkTypeface::onGetFontStyle();
+    }
+
+    bool onGetFixedPitch() const override {
+        return SkTypeface::onGetFixedPitch();
     }
 
     const SkString fFamilyName;
@@ -534,33 +540,8 @@ protected:
             if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: Collection index invalid!"); }
             return nullptr;
         }
-        const int ttcIndex = SkTo<int>(collectionIndex);
 
-        SkString familyName;
-        SkFontStyle style;
-        bool isFixedWidth;
-        SkFontScanner::AxisDefinitions axisDefinitions;
-        SkFontScanner::VariationPosition current;
-        if (!fScanner->scanInstance(stream.get(), ttcIndex, 0,
-                                    &familyName, &style, &isFixedWidth, &axisDefinitions, &current))
-        {
-            if constexpr (kSkFontMgrVerbose) {
-                SkDebugf("SKIA: Font file %s exists, but is not a valid font.\n", filePath);
-            }
-            return nullptr;
-        }
-
-        int weight = SkTo<int>(font.getWeight());
-        SkFontStyle::Slant slant = style.slant();
-        if (font.isItalic()) {
-            slant = SkFontStyle::kItalic_Slant;
-        }
-        int width = style.width();
         constexpr SkFourByteTag wdth = SkSetFourByteTag('w','d','t','h');
-
-        // The family name(s) are not reported.
-        // This would be very helpful for aliases, like "sans-serif", "Arial", etc.
-
         size_t requestAxisCount = font.getAxisCount();
         if (!SkTFitsIn<int>(requestAxisCount)) {
             if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: Axis count unreasonable!"); }
@@ -568,23 +549,43 @@ protected:
         }
         using Coordinate = SkFontArguments::VariationPosition::Coordinate;
         AutoSTMalloc<4, Coordinate> requestAxisValues(requestAxisCount);
+        std::optional<int> requestedWidth;
         for (size_t i = 0; i < requestAxisCount; ++i) {
             uint32_t tag = font.getAxisTag(i);
             float value = font.getAxisValue(i);
             requestAxisValues[i] = { tag, value };
             if (tag == wdth) {
                 // Set the width based on the requested `wdth` axis value.
-                width = SkFontDescriptor::SkFontStyleWidthForWidthAxisValue(value);
+                requestedWidth = SkFontDescriptor::SkFontStyleWidthForWidthAxisValue(value);
             }
         }
-
-        AutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
-        SkFontArguments::VariationPosition requestedPos = {
-            requestAxisValues.get(), SkTo<int>(requestAxisCount)
+        SkFontArguments::VariationPosition requestedPosition = {
+                requestAxisValues.get(), SkTo<int>(requestAxisCount)
         };
-        const SkFontArguments::VariationPosition currentPos{current.data(), current.size()};
-        SkFontScanner_FreeType::computeAxisValues(axisDefinitions, currentPos, requestedPos,
-                                                  axisValues, familyName, nullptr);
+        auto proxy = fScanner->MakeFromStream(
+                std::move(stream),
+                SkFontArguments()
+                        .setCollectionIndex(collectionIndex)
+                        .setVariationDesignPosition(requestedPosition));
+        if (!proxy) {
+            if constexpr (kSkFontMgrVerbose) {
+                SkDebugf("SKIA: Font file %s exists, but is not a valid font.\n", filePath);
+            }
+            return nullptr;
+        }
+        SkFontStyle style = proxy->fontStyle();
+        int weight = SkTo<int>(font.getWeight());
+        SkFontStyle::Slant slant = style.slant();
+        if (font.isItalic()) {
+            slant = SkFontStyle::kItalic_Slant;
+        }
+        int width = requestedWidth.value_or(style.width());
+        style = SkFontStyle(weight, width, slant);
+
+        // The family name(s) are not reported.
+        // This would be very helpful for aliases, like "sans-serif", "Arial", etc.
+        SkString familyName;
+        proxy->getFamilyName(&familyName);
 
         STArray<4, SkLanguage> skLangs;
         const char* aLangs = font.getLocale();
@@ -616,14 +617,14 @@ protected:
             }
         }
 
-        style = SkFontStyle(weight, width, slant);
         if constexpr (kSkFontMgrVerbose) {
-            SkDebugf("SKIA: New typeface %s [%d %d %d]\n", familyName.c_str(), weight,width,slant);
+            SkDebugf("SKIA: New typeface %s [%d %d %d]\n", familyName.c_str(), style.weight(),
+                     style.width(), style.slant());
         }
-        return sk_sp<SkTypeface_AndroidNDK>(new SkTypeface_AndroidNDK(
-                std::move(stream), SkString(filePath), cacheFontFiles, ttcIndex,
-                axisValues.get(), axisDefinitions.size(),
-                style, isFixedWidth, familyName, std::move(skLangs)));
+
+        return SkTypeface_AndroidNDK::Make(
+                proxy, SkString(filePath), cacheFontFiles, SkTo<int>(collectionIndex),
+                style, proxy->isFixedPitch(), familyName, std::move(skLangs));
     }
 
 
@@ -758,7 +759,7 @@ protected:
 
     sk_sp<SkTypeface> onMakeFromStreamArgs(std::unique_ptr<SkStreamAsset> stream,
                                            const SkFontArguments& args) const override {
-        return SkTypeface_FreeType::MakeFromStream(std::move(stream), args);
+        return fScanner->MakeFromStream(std::move(stream), args);
     }
 
     sk_sp<SkTypeface> onLegacyMakeTypeface(const char name[], SkFontStyle style) const override {

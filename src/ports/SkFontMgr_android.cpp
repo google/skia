@@ -21,7 +21,6 @@
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkTSearch.h"
-#include "src/core/SkAdvancedTypefaceMetrics.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTypefaceCache.h"
@@ -98,8 +97,12 @@ protected:
     }
 
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
+        auto proxy = SkTypeface_proxy::onMakeClone(args);
+        if (proxy == nullptr) {
+            return nullptr;
+        }
         return SkTypeface_AndroidSystem::Make(
-                SkTypeface_proxy::onMakeClone(args),
+                std::move(proxy),
                 fPathName,
                 fFile,
                 fIndex,

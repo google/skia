@@ -323,7 +323,10 @@ optional("fontmgr_android") {
 optional("fontmgr_android_ndk") {
   enabled = skia_enable_fontmgr_android_ndk
 
-  deps = [ ":typeface_freetype" ]
+  deps = [
+    ":typeface_freetype",
+    ":typeface_proxy",
+  ]
   libs = [ "android" ]
   public_defines = [ "SK_FONTMGR_ANDROID_NDK_AVAILABLE" ]
   public = skia_ports_fontmgr_android_ndk_public
