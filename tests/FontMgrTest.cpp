@@ -117,7 +117,7 @@ DEF_TEST(FontMgr_Iter, reporter) {
             set->getStyle(j, &fs, &sname);
 
             if (FLAGS_verboseFontMgr) {
-                SkDebugf("\t[%d] %s [%3d %d %d]\n", j, sname.c_str(),
+                SkDebugf("\t[%d] %s [%3d %d %d]", j, sname.c_str(),
                          fs.weight(), fs.width(), fs.slant());
             }
 
@@ -129,6 +129,12 @@ DEF_TEST(FontMgr_Iter, reporter) {
             SkString name1;
             face1->getFamilyName(&name1);
             SkFontStyle s1 = face1->fontStyle();
+
+            SkString resource1;
+            face1->getResourceName(&resource1);
+            if (FLAGS_verboseFontMgr) {
+                SkDebugf(" \"%s\" \"%s\"\n", name1.c_str(), resource1.c_str());
+            }
 
             // Note that fs != s1 is fine, though probably rare.
 

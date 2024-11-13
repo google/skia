@@ -288,6 +288,20 @@ public:
     bool getPostScriptName(SkString* name) const;
 
     /**
+     *  If the primary resource backing this typeface has a name (like a file
+     *  path or URL) representable by unicode code points, the `resourceName`
+     *  will be set. The primary purpose is as a user facing indication about
+     *  where the data was obtained (which font file was used).
+     *
+     *  Returns the number of resources backing this typeface.
+     *
+     *  For local font collections resource name will often be a file path. The
+     *  file path may or may not exist. If it does exist, using it to create an
+     *  SkTypeface may or may not create a similar SkTypeface to this one.
+     */
+    int getResourceName(SkString* resourceName) const;
+
+    /**
      *  Return a stream for the contents of the font data, or NULL on failure.
      *  If ttcIndex is not null, it is set to the TrueTypeCollection index
      *  of this typeface within the stream, or 0 if the stream is not a
@@ -398,6 +412,7 @@ protected:
      */
     virtual void onGetFamilyName(SkString* familyName) const = 0;
     virtual bool onGetPostScriptName(SkString*) const = 0;
+    virtual int onGetResourceName(SkString* resourceName) const; // TODO: = 0;
 
     /** Returns an iterator over the family names in the font. */
     virtual LocalizedStrings* onCreateFamilyNameIterator() const = 0;

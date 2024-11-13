@@ -257,6 +257,50 @@ bool DWriteFontTypeface::onGetPostScriptName(SkString* skPostScriptName) const {
     return true;
 }
 
+int DWriteFontTypeface::onGetResourceName(SkString* resourceName) const {
+    UINT32 numFiles = 0;
+    HRZM(fDWriteFontFace->GetFiles(&numFiles, nullptr),
+         "Could not get number of font files.");
+    if (numFiles < 1 || !resourceName) {
+        return numFiles;
+    }
+
+    auto fontFiles = std::make_unique<SkTScopedComPtr<IDWriteFontFile>[]>(numFiles);
+    HR_GENERAL(fDWriteFontFace->GetFiles(&numFiles, &fontFiles[0]),
+               "Could not get font files.", numFiles);
+
+    IDWriteFontFile* fontFile = fontFiles[0].get();
+    const void* fontFileKey;
+    UINT32 fontFileKeySize;
+    HR_GENERAL(fontFile->GetReferenceKey(&fontFileKey, &fontFileKeySize),
+               "Could not get font file reference key.", numFiles);
+
+    SkTScopedComPtr<IDWriteFontFileLoader> fontFileLoader;
+    HR_GENERAL(fontFile->GetLoader(&fontFileLoader),
+               "Could not get font file loader.", numFiles);
+
+    SkTScopedComPtr<IDWriteLocalFontFileLoader> localFontFileLoader;
+    HR_GENERAL(fontFileLoader->QueryInterface(&localFontFileLoader),
+               nullptr, numFiles);
+
+    UINT32 fontFilePathLen;
+    HR_GENERAL(localFontFileLoader->GetFilePathLengthFromKey(fontFileKey, fontFileKeySize,
+                                                             &fontFilePathLen),
+               "Could not get file path length.", numFiles);
+
+    SkSMallocWCHAR fontFilePath(static_cast<size_t>(fontFilePathLen)+1);
+    HR_GENERAL(localFontFileLoader->GetFilePathFromKey(fontFileKey, fontFileKeySize,
+                                                       fontFilePath, fontFilePathLen+1),
+               "Could not get file path.", numFiles);
+
+    SkString localResourceName;
+    HR_GENERAL(sk_wchar_to_skstring(fontFilePath.get(), fontFilePathLen, &localResourceName),
+               nullptr, numFiles);
+    *resourceName = std::move(localResourceName);
+
+    return numFiles;
+}
+
 void DWriteFontTypeface::onGetFontDescriptor(SkFontDescriptor* desc,
                                              bool* serialize) const {
     // Get the family name.
