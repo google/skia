@@ -394,9 +394,21 @@ func (b *taskBuilder) cipdPlatform() string {
 
 // usesPython adds attributes to tasks which use python.
 func (b *taskBuilder) usesPython() {
-	pythonPkgs, ok := cipd.PkgsPython[b.cipdPlatform()]
+	// This is sort of a hack to work around the fact that the upstream CIPD
+	// package definitions separate out the platforms for some packages, which
+	// causes some complications when we don't know which platform we're going
+	// to run on, for example Android tasks which may run on RPI in our lab or
+	// on a Linux server elsewhere. Just grab an arbitrary set of Python
+	// packages and then replace the fixed platform with the `${platform}`
+	// placeholder. This does introduce the possibility of failure in cases
+	// where the package does not exist at a given tag for a given platform.
+	fakePlatform := cipd.PlatformLinuxAmd64
+	pythonPkgs, ok := cipd.PkgsPython[fakePlatform]
 	if !ok {
-		panic("No Python packages for platform " + b.cipdPlatform())
+		panic("No Python packages for platform " + fakePlatform)
+	}
+	for _, pkg := range pythonPkgs {
+		pkg.Name = strings.Replace(pkg.Name, fakePlatform, "${platform}", 1)
 	}
 	b.cipd(pythonPkgs...)
 	b.addToPATH(
@@ -462,6 +474,8 @@ func (b *taskBuilder) goPlatform() (string, string) {
 		arch = "amd64"
 	} else if b.matchArch("Arm64") || b.matchBazelHost("on_rpi") || b.matchOs("Android", "ChromeOS", "iOS") {
 		// Tests on Android/ChromeOS/iOS are hosted on RPI.
+		// WARNING: This assumption is not necessarily true with Android devices
+		// hosted in other environments.
 		arch = "arm64"
 	} else if b.isLinux() || b.isMac() || b.isWindows() {
 		arch = "amd64"
