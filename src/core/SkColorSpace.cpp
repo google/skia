@@ -15,6 +15,106 @@
 #include <cmath>
 #include <cstring>
 
+namespace SkNamedPrimaries {
+
+bool GetCicp(CicpId primaries, SkColorSpacePrimaries& sk_primaries) {
+    // Rec. ITU-T H.273, Table 2.
+    switch (primaries) {
+        case CicpId::kRec709:
+            sk_primaries = kRec709;
+            return true;
+        case CicpId::kRec470SystemM:
+            sk_primaries = kRec470SystemM;
+            return true;
+        case CicpId::kRec470SystemBG:
+            sk_primaries = kRec470SystemBG;
+            return true;
+        case CicpId::kRec601:
+            sk_primaries = kRec601;
+            return true;
+        case CicpId::kSMPTE_ST_240:
+            sk_primaries = kSMPTE_ST_240;
+            return true;
+        case CicpId::kGenericFilm:
+            sk_primaries = kGenericFilm;
+            return true;
+        case CicpId::kRec2020:
+            sk_primaries = kRec2020;
+            return true;
+        case CicpId::kSMPTE_ST_428_1:
+            sk_primaries = kSMPTE_ST_428_1;
+            return true;
+        case CicpId::kSMPTE_RP_431_2:
+            sk_primaries = kSMPTE_RP_431_2;
+            return true;
+        case CicpId::kSMPTE_EG_432_1:
+            sk_primaries = kSMPTE_EG_432_1;
+            return true;
+        case CicpId::kITU_T_H273_Value22:
+            sk_primaries = kITU_T_H273_Value22;
+            return true;
+        default:
+            // Reserved or unimplemented.
+            break;
+    }
+    return false;
+}
+
+}  // namespace SkNamedPrimaries
+
+namespace SkNamedTransferFn {
+
+bool GetCicp(SkNamedTransferFn::CicpId transfer_characteristics, skcms_TransferFunction& trfn) {
+    // Rec. ITU-T H.273, Table 3.
+    switch (transfer_characteristics) {
+        case SkNamedTransferFn::CicpId::kRec709:
+            trfn = kRec709;
+            return true;
+        case SkNamedTransferFn::CicpId::kRec470SystemM:
+            trfn = kRec470SystemM;
+            return true;
+        case SkNamedTransferFn::CicpId::kRec470SystemBG:
+            trfn = kRec470SystemBG;
+            return true;
+        case SkNamedTransferFn::CicpId::kRec601:
+            trfn = kRec601;
+            return true;
+        case SkNamedTransferFn::CicpId::kSMPTE_ST_240:
+            trfn = kSMPTE_ST_240;
+            return true;
+        case SkNamedTransferFn::CicpId::kLinear:
+            trfn = SkNamedTransferFn::kLinear;
+            return true;
+        case SkNamedTransferFn::CicpId::kIEC61966_2_4:
+            trfn = kIEC61966_2_4;
+            break;
+        case SkNamedTransferFn::CicpId::kIEC61966_2_1:
+            trfn = SkNamedTransferFn::kIEC61966_2_1;
+            return true;
+        case SkNamedTransferFn::CicpId::kRec2020_10bit:
+            trfn = kRec2020_10bit;
+            return true;
+        case SkNamedTransferFn::CicpId::kRec2020_12bit:
+            trfn = kRec2020_12bit;
+            return true;
+        case SkNamedTransferFn::CicpId::kPQ:
+            trfn = SkNamedTransferFn::kPQ;
+            return true;
+        case SkNamedTransferFn::CicpId::kSMPTE_ST_428_1:
+            trfn = kSMPTE_ST_428_1;
+            return true;
+        case SkNamedTransferFn::CicpId::kHLG:
+            trfn = SkNamedTransferFn::kHLG;
+            return true;
+        default:
+            // Reserved or unimplemented.
+            break;
+    }
+    return false;
+}
+
+}  // namespace SkNamedTransferFn
+
 bool SkColorSpacePrimaries::toXYZD50(skcms_Matrix3x3* toXYZ_D50) const {
     return skcms_PrimariesToXYZD50(fRX, fRY, fGX, fGY, fBX, fBY, fWX, fWY, toXYZ_D50);
 }
@@ -62,6 +162,26 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const skcms_TransferFunction& transfer
     }
 
     return sk_sp<SkColorSpace>(new SkColorSpace(*tf, toXYZ));
+}
+
+sk_sp<SkColorSpace> SkColorSpace::MakeCICP(SkNamedPrimaries::CicpId color_primaries,
+                                           SkNamedTransferFn::CicpId transfer_characteristics) {
+    skcms_TransferFunction trfn;
+    if (!SkNamedTransferFn::GetCicp(transfer_characteristics, trfn)) {
+        return nullptr;
+    }
+
+    SkColorSpacePrimaries primaries;
+    if (!SkNamedPrimaries::GetCicp(color_primaries, primaries)) {
+        return nullptr;
+    }
+
+    skcms_Matrix3x3 primaries_matrix;
+    if (!primaries.toXYZD50(&primaries_matrix)) {
+        return nullptr;
+    }
+
+    return SkColorSpace::MakeRGB(trfn, primaries_matrix);
 }
 
 class SkColorSpaceSingletonFactory {
