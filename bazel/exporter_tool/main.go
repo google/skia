@@ -273,6 +273,11 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/ports:typeface_fontations_hdrs",
 				"//src/ports:typeface_fontations_srcs",
 			}},
+		{Var: "skia_ports_typeface_proxy_sources",
+			Rules: []string{
+				"//src/ports:typeface_proxy_hdrs",
+				"//src/ports:typeface_proxy_srcs",
+			}},
 		{Var: "skia_ports_windows_sources",
 			Rules: []string{
 				"//src/ports:osfile_win",

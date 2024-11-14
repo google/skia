@@ -329,6 +329,12 @@ skia_cc_library(
 )
 
 skia_cc_library(
+    name = "typeface_proxy",
+    srcs = [":typeface_proxy_srcs"],
+    hdrs = [":typeface_proxy_hdrs"],
+)
+
+skia_cc_library(
     name = "fontmgr_fontconfig_freetype",
     srcs = [
         "SkFontMgr_fontconfig.cpp",
@@ -385,6 +391,16 @@ skia_filegroup(
         "SkScalerContext_mac_ct.h",
         "SkTypeface_mac_ct.cpp",
     ],
+)
+
+skia_filegroup(
+    name = "typeface_proxy_hdrs",
+    srcs = ["SkTypeface_proxy.h"],
+)
+
+skia_filegroup(
+    name = "typeface_proxy_srcs",
+    srcs = ["SkTypeface_proxy.cpp"],
 )
 
 skia_objc_library(
