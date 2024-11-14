@@ -815,41 +815,53 @@ bool SkMatrix::invertNonIdentity(SkMatrix* inv) const {
 
     TypeMask mask = this->getType();
 
+    // Optimized invert for only scale and/or translation matrices.
     if (0 == (mask & ~(kScale_Mask | kTranslate_Mask))) {
-        bool invertible = true;
-        if (inv) {
-            if (mask & kScale_Mask) {
-                SkScalar invX = sk_ieee_float_divide(1.f, fMat[kMScaleX]);
-                SkScalar invY = sk_ieee_float_divide(1.f, fMat[kMScaleY]);
-                // Denormalized (non-zero) scale factors will overflow when inverted, in which case
-                // the inverse matrix would not be finite, so return false.
-                if (!SkIsFinite(invX, invY)) {
-                    return false;
-                }
+        if (mask & kScale_Mask) {
+            // Scale + (optional) Translate
+            SkScalar invSX = sk_ieee_float_divide(1.f, fMat[kMScaleX]);
+            SkScalar invSY = sk_ieee_float_divide(1.f, fMat[kMScaleY]);
+            // Denormalized (non-zero) scale factors will overflow when inverted, in which case
+            // the inverse matrix would not be finite, so return false.
+            if (!SkIsFinite(invSX, invSY)) {
+                return false;
+            }
+            SkScalar invTX = -fMat[kMTransX] * invSX;
+            SkScalar invTY = -fMat[kMTransY] * invSY;
+            // Make sure inverse translation didn't overflow/underflow after dividing by scale.
+            // Also catches cases where the original matrix's translation values are not finite.
+            if (!SkIsFinite(invTX, invTY)) {
+                return false;
+            }
 
-                // Must be careful when writing to inv, since it may be the
-                // same memory as this.
-
+            // Must be careful when writing to inv, since it may be the
+            // same memory as this.
+            if (inv) {
                 inv->fMat[kMSkewX] = inv->fMat[kMSkewY] =
                 inv->fMat[kMPersp0] = inv->fMat[kMPersp1] = 0;
 
-                inv->fMat[kMScaleX] = invX;
-                inv->fMat[kMScaleY] = invY;
+                inv->fMat[kMScaleX] = invSX;
+                inv->fMat[kMScaleY] = invSY;
                 inv->fMat[kMPersp2] = 1;
-                inv->fMat[kMTransX] = -fMat[kMTransX] * invX;
-                inv->fMat[kMTransY] = -fMat[kMTransY] * invY;
+                inv->fMat[kMTransX] = invTX;
+                inv->fMat[kMTransY] = invTY;
 
                 inv->setTypeMask(mask | kRectStaysRect_Mask);
-            } else {
-                // translate only
-                inv->setTranslate(-fMat[kMTransX], -fMat[kMTransY]);
             }
-        } else {    // inv is nullptr, just check if we're invertible
-            if (!fMat[kMScaleX] || !fMat[kMScaleY]) {
-                invertible = false;
-            }
+
+            return true;
         }
-        return invertible;
+
+        // Translate-only
+        if (!SkIsFinite(fMat[kMTransX], fMat[kMTransY])) {
+            // Translation components aren't finite, so inverse isn't possible
+            return false;
+        }
+
+        if (inv) {
+            inv->setTranslate(-fMat[kMTransX], -fMat[kMTransY]);
+        }
+        return true;
     }
 
     int    isPersp = mask & kPerspective_Mask;

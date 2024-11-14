@@ -898,6 +898,41 @@ DEF_TEST(Matrix, reporter) {
     REPORTER_ASSERT(reporter, !mat.invert(nullptr));
     REPORTER_ASSERT(reporter, !mat.invert(&inverse));
 
+    // Inverting this matrix results in a non-finite matrix (1/scale overflows to infinity)
+    // b/378231198: Previously this would pass invert() if a null inverse pointer was passed in.
+    mat.setAll(std::numeric_limits<float>::denorm_min(), 0.f, 0.f,
+               0.f, 1.f, 0.f,
+               0.f, 0.f, 1.f);
+    REPORTER_ASSERT(reporter, mat.isScaleTranslate());
+    REPORTER_ASSERT(reporter, !mat.invert(nullptr));
+    REPORTER_ASSERT(reporter, !mat.invert(&inverse));
+
+    // b/378231198: This matrix shouldn't be invertible, but previously the translation wasn't being
+    // validated when taking the optimized scale+translate paths.
+    mat.setAll(2.f, 0.f, std::numeric_limits<float>::quiet_NaN(),
+               0.f, 2.f, 0.f,
+               0.f, 0.f, 1.f);
+    REPORTER_ASSERT(reporter, mat.isScaleTranslate());
+    REPORTER_ASSERT(reporter, !mat.invert(nullptr));
+    REPORTER_ASSERT(reporter, !mat.invert(&inverse));
+    // Variant that tests the translate-only optimized invert()
+    mat.setAll(1.f, 0.f, std::numeric_limits<float>::quiet_NaN(),
+               0.f, 1.f, 0.f,
+               0.f, 0.f, 1.f);
+    REPORTER_ASSERT(reporter, mat.isTranslate());
+    REPORTER_ASSERT(reporter, !mat.invert(nullptr));
+    REPORTER_ASSERT(reporter, !mat.invert(&inverse));
+
+    // A finite scale+translate matrix whose inverse can't be calculated because trans/scale
+    // becomes non-finite.
+    mat.setAll(std::numeric_limits<float>::min(), 0.f, std::numeric_limits<float>::max(),
+               0.f, 1.f, 0.f,
+               0.f, 0.f, 1.f);
+    REPORTER_ASSERT(reporter, mat.isScaleTranslate());
+    REPORTER_ASSERT(reporter, mat.isFinite());
+    REPORTER_ASSERT(reporter, !mat.invert(nullptr));
+    REPORTER_ASSERT(reporter, !mat.invert(&inverse));
+
     // rectStaysRect test
     {
         static const struct {
