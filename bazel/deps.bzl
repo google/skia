@@ -30,7 +30,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "dawn",
         build_file = ws + "//bazel/external/dawn:BUILD.bazel",
-        commit = "bac50766d19e8e5331c37cc0408bb89e88081bc5",
+        commit = "205e5feeda017727280d08e7eec09fb88fbef40b",
         remote = "https://dawn.googlesource.com/dawn.git",
     )
 
