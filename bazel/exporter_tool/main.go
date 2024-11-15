@@ -330,14 +330,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/sksl:sksl_hdrs",
 				"//src/sksl:sksl_srcs",
 			}},
-		// TODO(kjlubick) remove this group after clients are migrated
-		// onto core and/or graphite
-		{Var: "skia_sksl_default_module_sources",
-			Rules: []string{
-				"//src/sksl:sksl_default_module_srcs",
-				"//src/sksl:sksl_graphite_modules_hdrs",
-				"//src/sksl:sksl_graphite_modules_srcs",
-			}},
 		{Var: "skia_sksl_core_module_sources",
 			Rules: []string{
 				"//src/sksl:sksl_default_module_srcs",
@@ -708,14 +700,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 	{GNI: "modules/skcms/skcms.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skcms_public_headers",
 			Rules: []string{"//modules/skcms:public_hdrs"}},
-
-		// TODO(b/310927123): Replace external dependencies on skcms_sources with the more fine-
-		// grained dependencies (skcms_public + skcms_Transform*) below, and remove skcms_sources.
-		{Var: "skcms_sources",
-			Rules: []string{
-				"//modules/skcms:srcs",
-				"//modules/skcms:textual_hdrs",
-			}},
 		{Var: "skcms_public",
 			Rules: []string{
 				"//modules/skcms:skcms_public",
