@@ -870,7 +870,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient_fp(const SkConicalGrad
             static const SkRuntimeEffect* kEffect =
                 SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
                         "uniform half r0_2;"
-                        "half4 main(float2 p) {"
+                        "float4 main(float2 p) {"
                             // validation flag, set to negative to discard fragment later.
                             "half v = 1;"
                             "float t = r0_2 - p.y * p.y;"
@@ -879,7 +879,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient_fp(const SkConicalGrad
                             "} else {"
                                 "v = -1;"
                             "}"
-                            "return half4(half(t), v, 0, 0);"
+                            "return float4(t, v, 0, 0);"
                         "}"
                     );
             float r0 = shader->getStartRadius() / shader->getCenterX1();
@@ -896,11 +896,11 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient_fp(const SkConicalGrad
                 SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
                         "uniform half r0;"
                         "uniform half lengthScale;"
-                        "half4 main(float2 p) {"
+                        "float4 main(float2 p) {"
                             // validation flag, set to negative to discard fragment later
                             "half v = 1;"
                             "float t = length(p) * lengthScale - r0;"
-                            "return half4(half(t), v, 0, 0);"
+                            "return float4(t, v, 0, 0);"
                         "}"
                     );
             float dr = shader->getDiffRadius();
@@ -938,7 +938,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient_fp(const SkConicalGrad
                         "uniform half invR1;"  // 1/r1
                         "uniform half fx;"     // focalX = r0/(r0-r1)
 
-                        "half4 main(float2 p) {"
+                        "float4 main(float2 p) {"
                             "float t = -1;"
                             "half v = 1;" // validation flag,set to negative to discard fragment later
 
@@ -995,7 +995,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient_fp(const SkConicalGrad
                                 "t = 1 - t;"
                             "}"
 
-                            "return half4(half(t), v, 0, 0);"
+                            "return float4(t, v, 0, 0);"
                         "}"
                     );
 
@@ -1031,8 +1031,8 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient_fp(const SkRadialGradi
                                                              const SkShaders::MatrixRec& mRec) {
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(
             SkRuntimeEffect::MakeForShader,
-            "half4 main(float2 coord) {"
-                "return half4(half(length(coord)), 1, 0, 0);"  // y = 1 for always valid
+            "float4 main(float2 coord) {"
+                "return float4(length(coord), 1, 0, 0);"  // y = 1 for always valid
             "}");
     // The radial gradient never rejects a pixel so it doesn't change opacity
     auto fp = GrSkSLFP::Make(

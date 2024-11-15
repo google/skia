@@ -19,6 +19,9 @@
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkSamplingPriv.h"
 #include "src/image/SkImage_Base.h"
+#include "src/image/SkImage_Picture.h"
+
+#include <functional>
 
 //////////////////////////////////////////////////////////////////////////////
 //  Helper functions for tiling a large SkBitmap
@@ -82,23 +85,24 @@ SkIRect determine_clipped_src_rect(SkIRect clippedSrcIRect,
     return clippedSrcIRect;
 }
 
-int draw_tiled_bitmap(SkCanvas* canvas,
-                      const SkBitmap& bitmap,
-                      int tileSize,
-                      const SkMatrix& srcToDst,
-                      const SkRect& srcRect,
-                      const SkIRect& clippedSrcIRect,
-                      const SkPaint* paint,
-                      SkCanvas::QuadAAFlags origAAFlags,
-                      SkCanvas::SrcRectConstraint constraint,
-                      SkSamplingOptions sampling) {
+int draw_tiled_image(SkCanvas* canvas,
+                     std::function<sk_sp<SkImage>(SkIRect)> imageProc,
+                     SkISize originalSize,
+                     int tileSize,
+                     const SkMatrix& srcToDst,
+                     const SkRect& srcRect,
+                     const SkIRect& clippedSrcIRect,
+                     const SkPaint* paint,
+                     SkCanvas::QuadAAFlags origAAFlags,
+                     SkCanvas::SrcRectConstraint constraint,
+                     SkSamplingOptions sampling) {
     if (sampling.isAniso()) {
         sampling = SkSamplingPriv::AnisoFallback(/* imageIsMipped= */ false);
     }
     SkRect clippedSrcRect = SkRect::Make(clippedSrcIRect);
 
-    int nx = bitmap.width() / tileSize;
-    int ny = bitmap.height() / tileSize;
+    int nx = originalSize.width() / tileSize;
+    int ny = originalSize.height() / tileSize;
 
     int numTilesDrawn = 0;
 
@@ -133,7 +137,7 @@ int draw_tiled_bitmap(SkCanvas* canvas,
                 if (SkCanvas::kFast_SrcRectConstraint == constraint) {
                     // In bleed mode we want to always expand the tile on all edges
                     // but stay within the bitmap bounds
-                    iClampRect = SkIRect::MakeWH(bitmap.width(), bitmap.height());
+                    iClampRect = SkIRect::MakeWH(originalSize.width(), originalSize.height());
                 } else {
                     // In texture-domain/clamp mode we only want to expand the
                     // tile on edges interior to "srcRect" (i.e., we want to
@@ -145,45 +149,39 @@ int draw_tiled_bitmap(SkCanvas* canvas,
                                                                   iClampRect);
             }
 
-            // We must subset as a bitmap and then turn it into an SkImage if we want caching to
-            // work. Image subsets always make a copy of the pixels and lose the association with
-            // the original's SkPixelRef.
-            if (SkBitmap subsetBmp; bitmap.extractSubset(&subsetBmp, iTileR)) {
-                sk_sp<SkImage> image = SkMakeImageFromRasterBitmap(subsetBmp,
-                                                                   kNever_SkCopyPixelsMode);
-                if (!image) {
-                    continue;
-                }
-
-                unsigned aaFlags = SkCanvas::kNone_QuadAAFlags;
-                // Preserve the original edge AA flags for the exterior tile edges.
-                if (tileR.fLeft <= srcRect.fLeft && (origAAFlags & SkCanvas::kLeft_QuadAAFlag)) {
-                    aaFlags |= SkCanvas::kLeft_QuadAAFlag;
-                }
-                if (tileR.fRight >= srcRect.fRight && (origAAFlags & SkCanvas::kRight_QuadAAFlag)) {
-                    aaFlags |= SkCanvas::kRight_QuadAAFlag;
-                }
-                if (tileR.fTop <= srcRect.fTop && (origAAFlags & SkCanvas::kTop_QuadAAFlag)) {
-                    aaFlags |= SkCanvas::kTop_QuadAAFlag;
-                }
-                if (tileR.fBottom >= srcRect.fBottom &&
-                    (origAAFlags & SkCanvas::kBottom_QuadAAFlag)) {
-                    aaFlags |= SkCanvas::kBottom_QuadAAFlag;
-                }
-
-                // Offset the source rect to make it "local" to our tmp bitmap
-                tileR.offset(-offset.fX, -offset.fY);
-
-                imgSet.push_back(SkCanvas::ImageSetEntry(std::move(image),
-                                                         tileR,
-                                                         rectToDraw,
-                                                         /* matrixIndex= */ -1,
-                                                         /* alpha= */ 1.0f,
-                                                         aaFlags,
-                                                         /* hasClip= */ false));
-
-                numTilesDrawn += 1;
+            sk_sp<SkImage> image = imageProc(iTileR);
+            if (!image) {
+                continue;
             }
+
+            unsigned aaFlags = SkCanvas::kNone_QuadAAFlags;
+            // Preserve the original edge AA flags for the exterior tile edges.
+            if (tileR.fLeft <= srcRect.fLeft && (origAAFlags & SkCanvas::kLeft_QuadAAFlag)) {
+                aaFlags |= SkCanvas::kLeft_QuadAAFlag;
+            }
+            if (tileR.fRight >= srcRect.fRight && (origAAFlags & SkCanvas::kRight_QuadAAFlag)) {
+                aaFlags |= SkCanvas::kRight_QuadAAFlag;
+            }
+            if (tileR.fTop <= srcRect.fTop && (origAAFlags & SkCanvas::kTop_QuadAAFlag)) {
+                aaFlags |= SkCanvas::kTop_QuadAAFlag;
+            }
+            if (tileR.fBottom >= srcRect.fBottom &&
+                (origAAFlags & SkCanvas::kBottom_QuadAAFlag)) {
+                aaFlags |= SkCanvas::kBottom_QuadAAFlag;
+            }
+
+            // Offset the source rect to make it "local" to our tmp bitmap
+            tileR.offset(-offset.fX, -offset.fY);
+
+            imgSet.push_back(SkCanvas::ImageSetEntry(std::move(image),
+                                                     tileR,
+                                                     rectToDraw,
+                                                     /* matrixIndex= */ -1,
+                                                     /* alpha= */ 1.0f,
+                                                     aaFlags,
+                                                     /* hasClip= */ false));
+
+            numTilesDrawn += 1;
         }
     }
 
@@ -422,19 +420,52 @@ std::tuple<bool, size_t> TiledTextureUtils::DrawAsTiledImageRect(
                             cacheSize,
                             &tileSize,
                             &clippedSubset)) {
+            // If it's a Picture-backed image we should subset the SkPicture directly rather than
+            // converting to a Bitmap and then subsetting. Rendering to a bitmap will use a Raster
+            // surface, and the SkPicture could have GPU data.
+            if (as_IB(image)->type() == SkImage_Base::Type::kLazyPicture) {
+                auto imageProc = [&](SkIRect iTileR) {
+                    return image->makeSubset(nullptr, iTileR);
+                };
+
+                size_t tiles = draw_tiled_image(canvas,
+                                                imageProc,
+                                                image->dimensions(),
+                                                tileSize,
+                                                srcToDst,
+                                                src,
+                                                clippedSubset,
+                                                paint,
+                                                aaFlags,
+                                                constraint,
+                                                sampling);
+                return {true, tiles};
+            }
+
             // Extract pixels on the CPU, since we have to split into separate textures before
             // sending to the GPU if tiling.
             if (SkBitmap bm; as_IB(image)->getROPixels(nullptr, &bm)) {
-                size_t tiles = draw_tiled_bitmap(canvas,
-                                                 bm,
-                                                 tileSize,
-                                                 srcToDst,
-                                                 src,
-                                                 clippedSubset,
-                                                 paint,
-                                                 aaFlags,
-                                                 constraint,
-                                                 sampling);
+                auto imageProc = [&](SkIRect iTileR) {
+                    // We must subset as a bitmap and then turn it into an SkImage if we want
+                    // caching to work. Image subsets always make a copy of the pixels and lose
+                    // the association with the original's SkPixelRef.
+                    if (SkBitmap subsetBmp; bm.extractSubset(&subsetBmp, iTileR)) {
+                        return SkMakeImageFromRasterBitmap(subsetBmp, kNever_SkCopyPixelsMode);
+                    }
+                    return sk_sp<SkImage>(nullptr);
+                };
+
+                size_t tiles = draw_tiled_image(canvas,
+                                                imageProc,
+                                                bm.dimensions(),
+                                                tileSize,
+                                                srcToDst,
+                                                src,
+                                                clippedSubset,
+                                                paint,
+                                                aaFlags,
+                                                constraint,
+                                                sampling);
                 return {true, tiles};
             }
         }

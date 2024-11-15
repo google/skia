@@ -22,6 +22,7 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
+#include "src/image/SkImage_Base.h"
 #include "tests/TestUtils.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
@@ -407,12 +408,18 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Make_TextureImage_Subset_Test, reporter
                 i = orig->makeSubset(nullptr, kTrueSubset, {mipmapped});
                 REPORTER_ASSERT(reporter, !i->isTextureBacked());
                 REPORTER_ASSERT(reporter, i->dimensions() == kTrueSubset.size());
-                REPORTER_ASSERT(reporter, i->hasMipmaps() == mipmapped);
+                // Picture-backed images don't support mipmaps but check the other types.
+                if (as_IB(i)->type() != SkImage_Base::Type::kLazyPicture) {
+                    REPORTER_ASSERT(reporter, i->hasMipmaps() == mipmapped);
+                }
 
                 i = orig->makeSubset(nullptr, kFakeSubset, {mipmapped});
                 REPORTER_ASSERT(reporter, !i->isTextureBacked());
                 REPORTER_ASSERT(reporter, i->dimensions() == kFakeSubset.size());
-                REPORTER_ASSERT(reporter, i->hasMipmaps() == mipmapped);
+                // Picture-backed images don't support mipmaps but check the other types.
+                if (as_IB(i)->type() != SkImage_Base::Type::kLazyPicture) {
+                    REPORTER_ASSERT(reporter, i->hasMipmaps() == mipmapped);
+                }
             }
         }
     }
