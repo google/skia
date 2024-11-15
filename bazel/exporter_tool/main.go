@@ -315,7 +315,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 	{GNI: "gn/sksl.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_sksl_core_sources",
 			Rules: []string{
-				"//include/private:sksl_private_hdrs",
 				"//include/sksl:core_hdrs",
 				"//src/sksl/analysis:analysis_hdrs",
 				"//src/sksl/analysis:analysis_srcs",
