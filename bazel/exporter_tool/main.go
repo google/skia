@@ -360,6 +360,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_sksl_codegen_sources",
 			Rules: []string{
+				"//src/sksl/codegen:codegen_shared_exported",
+				"//src/sksl/codegen:codegen_shared_priv",
 				"//src/sksl/codegen:glsl",
 				"//src/sksl/codegen:metal",
 				"//src/sksl/codegen:spirv",

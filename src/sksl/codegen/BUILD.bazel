@@ -24,6 +24,20 @@ skia_filegroup(
     visibility = ["//src/core:__pkg__"],
 )
 
+skia_filegroup(
+    name = "codegen_shared_priv",
+    srcs = [
+        "SkSLCodeGenerator.h",
+    ],
+)
+
+skia_filegroup(
+    name = "codegen_shared_exported",
+    srcs = [
+        "SkSLCodeGenTypes.h",
+    ],
+)
+
 skia_cc_library(
     name = "gpu",
     srcs = [
@@ -49,12 +63,12 @@ skia_cc_library(
 skia_cc_library(
     name = "glsl",
     srcs = [
-        "SkSLCodeGenerator.h",
         "SkSLGLSLCodeGenerator.cpp",
+        ":codegen_shared_priv",
     ],
     hdrs = [
-        "SkSLCodeGenTypes.h",
         "SkSLGLSLCodeGenerator.h",
+        ":codegen_shared_exported",
     ],
     features = ["layering_check"],
     visibility = [
@@ -71,14 +85,14 @@ skia_cc_library(
 skia_cc_library(
     name = "hlsl",
     srcs = [
-        "SkSLCodeGenerator.h",
         "SkSLHLSLCodeGenerator.cpp",
         "SkSLSPIRVtoHLSL.cpp",
         "SkSLSPIRVtoHLSL.h",
+        ":codegen_shared_priv",
     ],
     hdrs = [
-        "SkSLCodeGenTypes.h",
         "SkSLHLSLCodeGenerator.h",
+        ":codegen_shared_exported",
     ],
     features = ["layering_check"],
     visibility = [
@@ -96,12 +110,12 @@ skia_cc_library(
 skia_cc_library(
     name = "metal",
     srcs = [
-        "SkSLCodeGenerator.h",
         "SkSLMetalCodeGenerator.cpp",
+        ":codegen_shared_priv",
     ],
     hdrs = [
-        "SkSLCodeGenTypes.h",
         "SkSLMetalCodeGenerator.h",
+        ":codegen_shared_exported",
     ],
     features = ["layering_check"],
     visibility = [
@@ -119,13 +133,13 @@ skia_cc_library(
 skia_cc_library(
     name = "spirv",
     srcs = [
-        "SkSLCodeGenerator.h",
         "SkSLSPIRVCodeGenerator.cpp",
+        ":codegen_shared_priv",
         "//src/sksl:gpu_hdrs",
     ],
     hdrs = [
-        "SkSLCodeGenTypes.h",
         "SkSLSPIRVCodeGenerator.h",
+        ":codegen_shared_exported",
     ],
     features = ["layering_check"],
     visibility = [
@@ -161,12 +175,12 @@ skia_cc_library(
 skia_cc_library(
     name = "wgsl",
     srcs = [
-        "SkSLCodeGenerator.h",
         "SkSLWGSLCodeGenerator.cpp",
+        ":codegen_shared_priv",
     ],
     hdrs = [
-        "SkSLCodeGenTypes.h",
         "SkSLWGSLCodeGenerator.h",
+        ":codegen_shared_exported",
     ],
     features = ["layering_check"],
     visibility = [
