@@ -1810,9 +1810,6 @@ void Viewer::drawSlide(SkSurface* surface) {
         }
     } else {
         slideCanvas->concat(this->computeMatrix());
-        if (kPerspective_Real == fPerspectiveMode) {
-            slideCanvas->clipRect(SkRect::MakeWH(fWindow->width(), fWindow->height()));
-        }
         if (fPaintOverrides.overridesSomething() || fFontOverrides.overridesSomething()) {
             OveridePaintFilterCanvas filterCanvas(slideCanvas,
                                                   &fPaint, &fPaintOverrides,
@@ -3060,8 +3057,13 @@ void Viewer::drawImGui() {
                              avail.y * 0.5f / zoomFactor - y - 0.5f);
                 c->drawImage(lastImage, 0, 0);
 
+                // Draw a pixel outline around the pixel whose color and coordinate are displayed
+                // in the text of the widget. The paint is configured to ensure contrast on any
+                // background color.
                 SkPaint outline;
+                outline.setColor(SK_ColorWHITE);
                 outline.setStyle(SkPaint::kStroke_Style);
+                outline.setBlendMode(SkBlendMode::kExclusion);
                 c->drawRect(SkRect::MakeXYWH(x, y, 1, 1), outline);
             });
         }
