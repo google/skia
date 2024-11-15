@@ -249,7 +249,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"swiftshader.googlesource.com/SwiftShader": {
 		Id:      "swiftshader.googlesource.com/SwiftShader",
-		Version: "d5c4284774115bb1e32c012a2be1b5fbeb1ab1f9",
+		Version: "4d3a7b64279f06ee5778b872b1b1125617743b5d",
 		Path:    "third_party/externals/swiftshader",
 	},
 }
