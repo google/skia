@@ -720,20 +720,12 @@
   {"name": "Test-Mac13-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn_Metal_FakeWGPU"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan"},
-  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan",
-   "cq_config": {}
-   },
+  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_Vulkan"},
-  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Native_Vulkan",
-   "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "src/sksl/generated/.*", "dm/.+", "DEPS"]}
-  },
+  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Native_Vulkan"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-PreAbandonGpuContext"},
-  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan",
-   "cq_config": {}
-   },
-  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
-   "cq_config": {}
-   },
+  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"},
+  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"},
   {"name": "Build-Debian10-Clang-x86_64-Release-SK_USE_PADDED_BLUR_UPSCALE"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-SK_USE_PADDED_BLUR_UPSCALE"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN"},
@@ -817,15 +809,11 @@
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Direct3D"},
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan"},
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All"},
-  {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D",
-   "cq_config": {}
-   },
+  {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D"},
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_D3D11"},
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_D3D12"},
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D11"},
-  {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D12",
-   "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "src/sksl/generated/.*", "dm/.+", "DEPS"]}
-  },
+  {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D12"},
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_Vulkan"},
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_Vulkan"},
   {"name": "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan"},
