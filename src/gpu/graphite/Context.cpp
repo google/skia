@@ -12,6 +12,7 @@
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/BackendTexture.h"
+#include "include/gpu/graphite/PrecompileContext.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/gpu/graphite/Surface.h"
@@ -144,6 +145,12 @@ std::unique_ptr<Recorder> Context::makeRecorder(const RecorderOptions& options) 
     }
 #endif
     return recorder;
+}
+
+std::unique_ptr<PrecompileContext> Context::makePrecompileContext() {
+    ASSERT_SINGLE_OWNER
+
+    return std::unique_ptr<PrecompileContext>(new PrecompileContext(fSharedContext));
 }
 
 std::unique_ptr<Recorder> Context::makeInternalRecorder() const {

@@ -9,6 +9,7 @@
 
 #if defined(SK_GRAPHITE)
 
+#include "include/gpu/graphite/PrecompileContext.h"
 #include "include/gpu/graphite/precompile/PaintOptions.h"
 #include "include/gpu/graphite/precompile/Precompile.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
@@ -49,7 +50,7 @@ PaintOptions conical() {
     return paintOptions;
 }
 
-void precompile_gradients(Context* context,
+void precompile_gradients(std::unique_ptr<PrecompileContext> precompileContext,
                           skiatest::Reporter* reporter,
                           int threadID) {
     constexpr RenderPassProperties kProps = { DepthStencilFlags::kDepth,
@@ -58,11 +59,13 @@ void precompile_gradients(Context* context,
 
     for (auto createOptionsMtd : { linear, radial, sweep, conical }) {
         PaintOptions paintOptions = createOptionsMtd();
-        Precompile(context,
+        Precompile(precompileContext.get(),
                    paintOptions,
                    DrawTypeFlags::kBitmapText_Mask,
                    { &kProps, 1 });
     }
+
+    precompileContext.reset();
 }
 
 } // anonymous namespace
@@ -75,11 +78,12 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ThreadedPrecompileTest,
                                    CtsEnforcement::kNever) {
     constexpr int kNumThreads = 4;
 
+
     std::thread threads[kNumThreads];
     for (int i = 0; i < kNumThreads; ++i) {
-        threads[i] = std::thread([context, reporter, i]() {
-            precompile_gradients(context, reporter, i);
-        });
+        std::unique_ptr<PrecompileContext> precompileContext = context->makePrecompileContext();
+
+        threads[i] = std::thread(precompile_gradients, std::move(precompileContext), reporter, i);
     }
 
     for (auto& thread : threads) {

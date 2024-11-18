@@ -16,6 +16,7 @@ skia_filegroup(
         "GraphiteTypes.h",
         "Image.h",
         "ImageProvider.h",
+        "PrecompileContext.h",
         "Recorder.h",
         "Recording.h",
         "Surface.h",

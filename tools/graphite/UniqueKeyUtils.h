@@ -20,6 +20,7 @@ namespace skgpu::graphite {
     class Context;
     class GlobalCache;
     class GraphicsPipelineDesc;
+    class PrecompileContext;
     struct RenderPassDesc;
     class RendererProvider;
     class ShaderCodeDictionary;
@@ -27,12 +28,11 @@ namespace skgpu::graphite {
 
 namespace UniqueKeyUtils {
 
-void FetchUniqueKeys(skgpu::graphite::GlobalCache* globalCache,
+void FetchUniqueKeys(skgpu::graphite::PrecompileContext*,
                      std::vector<skgpu::UniqueKey>* keys);
 
 #ifdef SK_DEBUG
-void DumpDescs(const skgpu::graphite::RendererProvider*,
-               const skgpu::graphite::ShaderCodeDictionary*,
+void DumpDescs(skgpu::graphite::PrecompileContext*,
                const skgpu::graphite::GraphicsPipelineDesc&,
                const skgpu::graphite::RenderPassDesc&);
 #endif
@@ -40,7 +40,7 @@ void DumpDescs(const skgpu::graphite::RendererProvider*,
 // This helper breaks a UniqueKey down into its GraphicsPipelineDesc
 // and a RenderPassDesc and checks that the reassembled pieces match the
 // original.
-bool ExtractKeyDescs(skgpu::graphite::Context*,
+bool ExtractKeyDescs(skgpu::graphite::PrecompileContext*,
                      const skgpu::UniqueKey&,
                      skgpu::graphite::GraphicsPipelineDesc*,
                      skgpu::graphite::RenderPassDesc*);

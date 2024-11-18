@@ -33,7 +33,7 @@ class Context;
 class ContextPriv;
 class GlobalCache;
 class PaintOptions;
-class PlotUploadTracker;
+class PrecompileContext;
 class QueueManager;
 class Recording;
 class ResourceProvider;
@@ -52,6 +52,11 @@ public:
     BackendApi backend() const;
 
     std::unique_ptr<Recorder> makeRecorder(const RecorderOptions& = {});
+
+    /** Creates a helper object that can be moved to a different thread and used
+     *  for precompilation.
+     */
+    std::unique_ptr<PrecompileContext> makePrecompileContext();
 
     bool insertRecording(const InsertRecordingInfo&);
     bool submit(SyncToCpu = SyncToCpu::kNo);

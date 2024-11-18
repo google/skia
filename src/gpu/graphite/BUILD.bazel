@@ -136,6 +136,8 @@ GRAPHITE_FILES = [
     "TextureProxyView.h",
     "TextureUtils.cpp",
     "TextureUtils.h",
+    "PrecompileContext.cpp",
+    "PrecompileContextPriv.h",
     "Uniform.h",
     "UniformManager.cpp",
     "UniformManager.h",
@@ -155,7 +157,7 @@ PRECOMPILE_FILES = [
     "FactoryFunctions.h",
     "PrecompileInternal.h",
     "PublicPrecompile.cpp",
-    "PublicPrecompile.h",
+    "AndroidSpecificPrecompile.h",
 ]
 
 split_srcs_and_hdrs(

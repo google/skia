@@ -37,12 +37,14 @@ public:
     ShaderCodeDictionary* shaderCodeDictionary() {
         return fContext->fSharedContext->shaderCodeDictionary();
     }
+#if defined(GPU_TEST_UTILS)
     const GlobalCache* globalCache() const {
         return fContext->fSharedContext->globalCache();
     }
     GlobalCache* globalCache() {
         return fContext->fSharedContext->globalCache();
     }
+#endif
     const RendererProvider* rendererProvider() const {
         return fContext->fSharedContext->rendererProvider();
     }

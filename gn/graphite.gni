@@ -16,6 +16,7 @@ skia_graphite_public = [
   "$_include/GraphiteTypes.h",
   "$_include/Image.h",
   "$_include/ImageProvider.h",
+  "$_include/PrecompileContext.h",
   "$_include/Recorder.h",
   "$_include/Recording.h",
   "$_include/Surface.h",
@@ -101,6 +102,8 @@ skia_graphite_sources = [
   "$_src/PathAtlas.cpp",
   "$_src/PathAtlas.h",
   "$_src/PipelineData.h",
+  "$_src/PrecompileContext.cpp",
+  "$_src/PrecompileContextPriv.h",
   "$_src/ProxyCache.cpp",
   "$_src/ProxyCache.h",
   "$_src/QueueManager.cpp",
@@ -378,9 +381,9 @@ skia_graphite_precompile_public = [
 ]
 
 skia_graphite_precompile_sources = [
+  "$_src/AndroidSpecificPrecompile.h",
   "$_src/PrecompileInternal.h",
   "$_src/PublicPrecompile.cpp",
-  "$_src/PublicPrecompile.h",
   "$_src/precompile/PaintOption.cpp",
   "$_src/precompile/PaintOption.h",
   "$_src/precompile/PaintOptions.cpp",

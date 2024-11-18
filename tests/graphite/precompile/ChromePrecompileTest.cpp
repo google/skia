@@ -10,6 +10,7 @@
 #if defined(SK_GRAPHITE)
 
 #include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/PrecompileContext.h"
 #include "include/gpu/graphite/precompile/PaintOptions.h"
 #include "include/gpu/graphite/precompile/Precompile.h"
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
@@ -17,6 +18,7 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/PrecompileContextPriv.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "tools/graphite/UniqueKeyUtils.h"
@@ -102,7 +104,7 @@ RenderPassProperties bgra_4_depth_stencil() {
 // the expected string is in the generated set.
 // Additionally, verify that overgeneration is within expected tolerances.
 // If you add an additional RenderStep you may need to increase the tolerance values.
-void run_test(Context* context,
+void run_test(PrecompileContext* precompileContext,
               skiatest::Reporter* reporter,
               const char* expectedString, size_t caseID,
               const PaintOptions& paintOptions,
@@ -110,24 +112,24 @@ void run_test(Context* context,
               const RenderPassProperties& renderPassSettings,
               unsigned int allowedOvergeneration) {
 
-    context->priv().globalCache()->resetGraphicsPipelines();
+    precompileContext->priv().globalCache()->resetGraphicsPipelines();
 
-    Precompile(context, paintOptions, drawType, { &renderPassSettings, 1 });
+    Precompile(precompileContext, paintOptions, drawType, { &renderPassSettings, 1 });
 
     std::vector<std::string> generated;
 
     {
-        const RendererProvider* rendererProvider = context->priv().rendererProvider();
-        const ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+        const RendererProvider* rendererProvider = precompileContext->priv().rendererProvider();
+        const ShaderCodeDictionary* dict = precompileContext->priv().shaderCodeDictionary();
 
         std::vector<skgpu::UniqueKey> generatedKeys;
 
-        UniqueKeyUtils::FetchUniqueKeys(context->priv().globalCache(), &generatedKeys);
+        UniqueKeyUtils::FetchUniqueKeys(precompileContext, &generatedKeys);
 
         for (const skgpu::UniqueKey& key : generatedKeys) {
             GraphicsPipelineDesc pipelineDesc;
             RenderPassDesc renderPassDesc;
-            UniqueKeyUtils::ExtractKeyDescs(context, key, &pipelineDesc, &renderPassDesc);
+            UniqueKeyUtils::ExtractKeyDescs(precompileContext, key, &pipelineDesc, &renderPassDesc);
 
             const RenderStep* renderStep = rendererProvider->lookup(pipelineDesc.renderStepID());
             generated.push_back(GetPipelineLabel(dict, renderPassDesc, renderStep,
@@ -181,7 +183,8 @@ bool is_dawn_metal_context_type(skgpu::ContextType type) {
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
                                reporter, context, /* testContext */, CtsEnforcement::kNever) {
 
-    const Caps* caps = context->priv().caps();
+    std::unique_ptr<PrecompileContext> precompileContext = context->makePrecompileContext();
+    const skgpu::graphite::Caps* caps = precompileContext->priv().caps();
 
     TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(kBGRA_8888_SkColorType,
                                                                  skgpu::Mipmapped::kNo,
@@ -382,7 +385,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
             allowedOvergeneration *= 2; // due to ExpandResolveTextureLoadOp
         }
 
-        run_test(context, reporter,
+        run_test(precompileContext.get(), reporter,
                  kCases[i], i,
                  paintOptions, drawTypeFlags, renderPassSettings, allowedOvergeneration);
     }

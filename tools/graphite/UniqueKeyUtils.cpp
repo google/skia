@@ -11,6 +11,7 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/PrecompileContextPriv.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 
@@ -20,8 +21,10 @@ using namespace skgpu;
 
 namespace UniqueKeyUtils {
 
-void FetchUniqueKeys(GlobalCache* globalCache,
+void FetchUniqueKeys(PrecompileContext* precompileContext,
                      std::vector<UniqueKey>* keys) {
+    GlobalCache* globalCache = precompileContext->priv().globalCache();
+
     keys->reserve(globalCache->numGraphicsPipelines());
     globalCache->forEachGraphicsPipeline([keys](const UniqueKey& key,
                                                 const GraphicsPipeline* pipeline) {
@@ -30,10 +33,12 @@ void FetchUniqueKeys(GlobalCache* globalCache,
 }
 
 #ifdef SK_DEBUG
-void DumpDescs(const RendererProvider* rendererProvider,
-               const ShaderCodeDictionary* dict,
+void DumpDescs(PrecompileContext* precompileContext,
                const GraphicsPipelineDesc& pipelineDesc,
                const RenderPassDesc& rpd) {
+    const RendererProvider* rendererProvider = precompileContext->priv().rendererProvider();
+    const ShaderCodeDictionary* dict = precompileContext->priv().shaderCodeDictionary();
+
     const RenderStep* rs = rendererProvider->lookup(pipelineDesc.renderStepID());
     SkDebugf("GraphicsPipelineDesc: %u %s\n", pipelineDesc.paintParamsID().asUInt(), rs->name());
 
@@ -57,12 +62,12 @@ void DumpDescs(const RendererProvider* rendererProvider,
 }
 #endif // SK_DEBUG
 
-bool ExtractKeyDescs(Context* context,
+bool ExtractKeyDescs(PrecompileContext* precompileContext,
                      const UniqueKey& origKey,
                      GraphicsPipelineDesc* pipelineDesc,
                      RenderPassDesc* renderPassDesc) {
-    const Caps* caps = context->priv().caps();
-    const RendererProvider* rendererProvider = context->priv().rendererProvider();
+    const skgpu::graphite::Caps* caps = precompileContext->priv().caps();
+    const RendererProvider* rendererProvider = precompileContext->priv().rendererProvider();
 
     bool extracted = caps->extractGraphicsDescs(origKey, pipelineDesc, renderPassDesc,
                                                 rendererProvider);
@@ -72,14 +77,12 @@ bool ExtractKeyDescs(Context* context,
     }
 
 #ifdef SK_DEBUG
-    const ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
-
     UniqueKey newKey = caps->makeGraphicsPipelineKey(*pipelineDesc, *renderPassDesc);
     if (origKey != newKey) {
         SkDebugf("------- The UniqueKey didn't round trip!\n");
         origKey.dump("original key:");
         newKey.dump("reassembled key:");
-        DumpDescs(rendererProvider, dict, *pipelineDesc, *renderPassDesc);
+        DumpDescs(precompileContext, *pipelineDesc, *renderPassDesc);
         SkDebugf("------------------------\n");
     }
     SkASSERT(origKey == newKey);
