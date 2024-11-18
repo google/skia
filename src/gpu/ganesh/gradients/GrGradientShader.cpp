@@ -612,7 +612,7 @@ static std::unique_ptr<GrFragmentProcessor> make_clamped_gradient(
         "uniform int layoutPreservesOpacity;"  // specialized
 
         "half4 main(float2 coord) {"
-            "float4 t = gradLayout.eval(coord);"
+            "half4 t = gradLayout.eval(coord);"
             "half4 outColor;"
 
             // If t.x is below 0, use the left border color without invoking the child processor.
