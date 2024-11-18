@@ -297,7 +297,8 @@ bool SkCrabbyAvifCodec::conversionSupported(const SkImageInfo& dstInfo,
                                             bool needsColorXform) {
     return dstInfo.colorType() == kRGBA_8888_SkColorType ||
            dstInfo.colorType() == kRGBA_1010102_SkColorType ||
-           dstInfo.colorType() == kRGBA_F16_SkColorType;
+           dstInfo.colorType() == kRGBA_F16_SkColorType ||
+           dstInfo.colorType() == kRGB_565_SkColorType;
 }
 
 SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
@@ -359,6 +360,10 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
         case kRGBA_1010102_SkColorType:
             rgbImage.depth = 10;
             rgbImage.format = crabbyavif::AVIF_RGB_FORMAT_RGBA1010102;
+            break;
+        case kRGB_565_SkColorType:
+            rgbImage.depth = 8;
+            rgbImage.format = crabbyavif::AVIF_RGB_FORMAT_RGB565;
             break;
         default:
             // TODO(vigneshv): Check if more color types need to be supported.
