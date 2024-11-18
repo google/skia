@@ -58,10 +58,8 @@ struct Bounder {
 };
 
 class SkDrawTiler {
-    enum {
-        // 8K is 1 too big, since 8K << supersample == 32768 which is too big for SkFixed
-        kMaxDim = 8192 - 1
-    };
+    // 8K is 1 too big, since 8K << supersample == 32768 which is too big for SkFixed
+    static constexpr int kMaxDim = 8192 - 1;
 
     SkBitmapDevice* fDevice;
     SkPixmap        fRootPixmap;
