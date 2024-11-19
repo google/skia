@@ -7,18 +7,43 @@ https://docs.google.com/document/d/1glx5ue5JDlCld5WzWgTOGK3wsMErQFnkY5N5Dsbi91Y/
 
 ## Chromium build instructions
 
-To use and test the code from this directory from Chromium:
+To build and test the code from this directory from Chromium:
 
-1. Ensure that https://crrev.com/c/4723145 and https://crrev.com/c/5747366 have
-   landed or have been cherry-picked to the local repo
 1. `gn args out/...` and set `enable_rust_png = true`
-1. `autoninja -C out/... gfx_unittests`
+1. `autoninja -C out/... gfx_unittests blink_platform_unittests chrome`
 1. `out/.../gfx_unittests --gtest_filter=RustEnabled*`
+1. `out/.../blink_platform_unittests --gtest_filter=RustEnabled*`
+1. `out/.../chrome --enable-features=RustyPng`
 
 ## Skia build instructions
 
-TODO(https://crbug.com/356875275): Code in this directory is not yet covered by
-Skia standalone builds.
+### Bazel
+
+To build the code from this directory from Skia (testing via Bazel is not
+supported yet):
+
+```
+$ cd skia-repo-root
+$ bazelisk build experimental/rust_png
+```
+
+### gn / ninja
+
+To build the code from this directory from Skia:
+
+1. `gn args out/RustPng` and set `enable_rust_png = true`
+1. `gn gen out/RustPng`
+1. `autoninja -C out/RustPng dm`
+```
+
+To test the code (via `tests/SkPngRustDecoderTest.cpp`):
+
+```
+$ out/RustPng/dm --src tests --nogpu --match Codec_apng
+```
+
+TODO(https://crbug.com/356875275): Add support for running older tests
+(e.g. ones from `tests/CodecTest.cpp`) against `SkPngRustCodec`.
 
 ## Differences between `SkPngCodec` and `SkRustPngCodec`
 
