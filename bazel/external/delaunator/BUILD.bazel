@@ -1,0 +1,9 @@
+# This file will be copied into //third_party/externals/delaunator via the new_git_repository
+# rule in WORKSPACE.bazel, so all files should be relative to that path.
+
+cc_library(
+    name = "delaunator",
+    hdrs = ["include/delaunator.hpp"],
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)

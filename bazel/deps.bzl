@@ -41,6 +41,13 @@ def c_plus_plus_deps(ws = "@skia"):
     )
 
     new_git_repository(
+        name = "delaunator",
+        build_file = ws + "//bazel/external/delaunator:BUILD.bazel",
+        commit = "98305ef6c4e862f7d48df9cc647b690d796fec68",
+        remote = "https://github.com/skia-dev/delaunator-cpp",
+    )
+
+    new_git_repository(
         name = "dng_sdk",
         build_file = ws + "//bazel/external/dng_sdk:BUILD.bazel",
         commit = "c8d0c9b1d16bfda56f15165d39e0ffa360a11123",

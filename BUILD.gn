@@ -3165,6 +3165,7 @@ if (skia_enable_tools) {
         "modules/skshaper:skshaper",
         "modules/skunicode",
         "modules/svg",
+        "//third_party/delaunator",
         "//third_party/imgui",
       ]
       if (skia_use_vulkan) {

@@ -129,6 +129,7 @@ skia_cc_binary(
         "//tools/skui",
         "//tools/timer",
         "//tools/trace",
+        "@delaunator",
         "@imgui",
     ] + select({
         "@platforms//os:linux": ["@spirv_tools"],

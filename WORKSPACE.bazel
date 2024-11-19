@@ -482,6 +482,7 @@ local_repository(
 # @spirv_tools - https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git
 #
 # @dawn - //bazel/external/dawn:BUILD.bazel
+# @delaunator - //bazel/external/delaunator:BUILD.bazel
 # @dng_sdk - //bazel/external/dng_sdk:BUILD.bazel
 # @expat - //bazel/external/expat:BUILD.bazel
 # @freetype - //bazel/external/freetype:BUILD.bazel

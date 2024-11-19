@@ -34,11 +34,12 @@ var deps = map[string]depConfig{
 	// This name is important because spirv_tools expects @spirv_headers to exist by that name.
 	"spirv-headers": {bazelNameOverride: "spirv_headers"},
 
-	"dawn":     {needsBazelFile: true},
-	"dng_sdk":  {needsBazelFile: true},
-	"expat":    {needsBazelFile: true},
-	"freetype": {needsBazelFile: true},
-	"harfbuzz": {needsBazelFile: true},
+	"dawn":           {needsBazelFile: true},
+	"delaunator-cpp": {bazelNameOverride: "delaunator", needsBazelFile: true},
+	"dng_sdk":        {needsBazelFile: true},
+	"expat":          {needsBazelFile: true},
+	"freetype":       {needsBazelFile: true},
+	"harfbuzz":       {needsBazelFile: true},
 	"icu": {
 		needsBazelFile: true,
 		patchCmds: []string{
@@ -136,8 +137,8 @@ This is done automatically via:
 		fmt.Printf("Buildifier error %s\n", err)
 		os.Exit(1)
 	}
-	if err := os.Rename(outputFile, *genBzlFile); err != nil {
-		fmt.Printf("Could not write from %s to %s: %s\n", outputFile, *depsFile, err)
+	if err := moveWithCopyBackup(outputFile, *genBzlFile); err != nil {
+		fmt.Printf("Could not write comments in workspace file: %s\n", err)
 		os.Exit(1)
 	}
 	fmt.Printf("Wrote %d deps\n", count)
@@ -200,26 +201,8 @@ func parseDEPSFile(contents []string, workspaceFile string) (string, int, error)
 		fmt.Printf("Could not parse workspace file %s: %s\n", workspaceFile, err)
 		os.Exit(1)
 	} else {
-		// Atomically rename temp file to workspace. This should minimize the chance of corruption
-		// or writing a partial file if there is an error or the program is interrupted.
-		if err := os.Rename(newWorkspaceFile, workspaceFile); err != nil {
-			// Errors can happen if the temporary file is on a different partition than the Skia
-			// codebase. In that case, do a manual read/write to copy the data. See
-			// https://github.com/jenkins-x/jx/issues/449 for a similar issue
-			if strings.Contains(err.Error(), "invalid cross-device link") {
-				bytes, err := os.ReadFile(newWorkspaceFile)
-				if err != nil {
-					fmt.Printf("Could not do backup read from %s: %s\n", newWorkspaceFile, err)
-					os.Exit(1)
-				}
-				if err := os.WriteFile(workspaceFile, bytes, 0644); err != nil {
-					fmt.Printf("Could not do backup write of %d bytes to %s: %s\n", len(bytes), workspaceFile, err)
-					os.Exit(1)
-				}
-				// Backup "move" successful
-				return outputFile.Name(), count, nil
-			}
-			fmt.Printf("Could not write comments in workspace file %s -> %s: %s\n", newWorkspaceFile, workspaceFile, err)
+		if err := moveWithCopyBackup(newWorkspaceFile, workspaceFile); err != nil {
+			fmt.Printf("Could not write comments in workspace file: %s\n", err)
 			os.Exit(1)
 		}
 	}
@@ -420,4 +403,27 @@ func writeGitRepositoryRule(w io.StringWriter, bazelName, repo, rev string) erro
     )
 `, bazelName, rev, repo))
 	return err
+}
+
+func moveWithCopyBackup(src, dst string) error {
+	// Atomically rename temp file to workspace. This should minimize the chance of corruption
+	// or writing a partial file if there is an error or the program is interrupted.
+	if err := os.Rename(src, dst); err != nil {
+		// Errors can happen if the temporary file is on a different partition than the Skia
+		// codebase. In that case, do a manual read/write to copy the data. See
+		// https://github.com/jenkins-x/jx/issues/449 for a similar issue
+		if strings.Contains(err.Error(), "invalid cross-device link") {
+			bytes, err := os.ReadFile(src)
+			if err != nil {
+				return fmt.Errorf("Could not do backup read from %s: %s\n", src, err)
+			}
+			if err := os.WriteFile(dst, bytes, 0644); err != nil {
+				return fmt.Errorf("Could not do backup write of %d bytes to %s: %s\n", len(bytes), dst, err)
+			}
+			// Backup "move" successful
+			return nil
+		}
+		return fmt.Errorf("Could not write %s -> %s: %s\n", src, dst, err)
+	}
+	return nil
 }
