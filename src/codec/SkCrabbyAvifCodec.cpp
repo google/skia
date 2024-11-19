@@ -310,6 +310,21 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
         return kUnimplemented;
     }
 
+    switch (dstInfo.colorType()) {
+        case kRGBA_8888_SkColorType:
+        case kRGB_565_SkColorType:
+            fAvifDecoder->androidMediaCodecOutputColorFormat =
+                    crabbyavif::ANDROID_MEDIA_CODEC_OUTPUT_COLOR_FORMAT_YUV420_FLEXIBLE;
+            break;
+        case kRGBA_F16_SkColorType:
+        case kRGBA_1010102_SkColorType:
+            fAvifDecoder->androidMediaCodecOutputColorFormat =
+                    crabbyavif::ANDROID_MEDIA_CODEC_OUTPUT_COLOR_FORMAT_P010;
+            break;
+        default:
+            return kUnimplemented;
+    }
+
     crabbyavif::avifResult result =
             crabbyavif::avifDecoderNthImage(fAvifDecoder.get(), options.fFrameIndex);
     if (result != crabbyavif::AVIF_RESULT_OK) {
