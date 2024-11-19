@@ -95,7 +95,6 @@ skia_cc_binary(
         "VariableWidthStrokerSlide.cpp",
         "Viewer.cpp",
         "Viewer.h",
-        "delaunator.hpp",
         "//bench:gpu_tools",
         "//gm:gm_subset",
         "//tools/fonts:test_font_manager_srcs",
