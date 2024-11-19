@@ -49,6 +49,6 @@ TODO(https://crbug.com/356875275): Add support for running older tests
 
 * `SkPngCodec`:
     - No APNG support.
-* `SkPngRustCodec`:
-    - No support to decode a `fSubset` of pixels (https://crbug.com/362830091).
-    - `sBIT` chunk is ignored (https://crbug.com/359279096)
+    - No CICP support.
+* `SkPngRustCodec` differences - see
+  https://issues.chromium.org/issues?q=parentid:362829876%2B):

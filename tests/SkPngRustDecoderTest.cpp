@@ -625,3 +625,18 @@ DEF_TEST(Codec_png_was_encoded_with_16_bits_or_more_per_component, r) {
         }
     }
 }
+
+DEF_TEST(Codec_png_cicp, r) {
+    std::unique_ptr<SkCodec> codec = SkPngRustDecoderDecode(r, "images/cicp_pq.png");
+    if (!codec) {
+        return;
+    }
+
+    const skcms_ICCProfile* profile = codec->getICCProfile();
+    REPORTER_ASSERT(r, profile);
+    if (!profile) {
+        return;
+    }
+
+    REPORTER_ASSERT(r, skcms_TransferFunction_isPQish(&profile->trc[0].parametric));
+}

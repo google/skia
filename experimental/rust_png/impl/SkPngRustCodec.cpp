@@ -12,6 +12,7 @@
 #include <utility>
 
 #include "experimental/rust_png/ffi/FFI.rs.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/base/SkAssert.h"
@@ -96,6 +97,33 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> CreateColorProfile(const rust_png::Re
     // NOTE: This method is based on `read_color_profile` in
     // `src/codec/SkPngCodec.cpp` but has been refactored to use Rust inputs
     // instead of `libpng`.
+
+    // Considering the `cICP` chunk first, because the spec at
+    // https://www.w3.org/TR/png-3/#cICP-chunk says: "This chunk, if understood
+    // by the decoder, is the highest-precedence color chunk."
+    uint8_t cicpPrimariesId = 0;
+    uint8_t cicpTransferId = 0;
+    uint8_t cicpMatrixId = 0;
+    bool cicpIsFullRange = false;
+    if (reader.try_get_cicp_chunk(cicpPrimariesId, cicpTransferId, cicpMatrixId, cicpIsFullRange)) {
+        // https://www.w3.org/TR/png-3/#cICP-chunk says "RGB is currently the
+        // only supported color model in PNG, and as such Matrix Coefficients
+        // shall be set to 0."
+        //
+        // According to SkColorSpace::MakeCICP narrow range images are rare and
+        // therefore not supported.
+        if (cicpMatrixId == 0 && cicpIsFullRange) {
+            sk_sp<SkColorSpace> colorSpace =
+                    SkColorSpace::MakeCICP(static_cast<SkNamedPrimaries::CicpId>(cicpPrimariesId),
+                                           static_cast<SkNamedTransferFn::CicpId>(cicpTransferId));
+            if (colorSpace) {
+                skcms_ICCProfile colorProfile;
+                skcms_Init(&colorProfile);
+                colorSpace->toProfile(&colorProfile);
+                return SkEncodedInfo::ICCProfile::Make(colorProfile);
+            }
+        }
+    }
 
     if (reader.has_iccp_chunk()) {
         // `SkData::MakeWithCopy` is resilient against 0-sized inputs, so
