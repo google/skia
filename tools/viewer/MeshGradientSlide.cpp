@@ -70,25 +70,24 @@ public:
 
 private:
     void buildEffect(size_t vert_count) {
-        static constexpr char gAEGradientSkSL[] = R"(
-            uniform half4  u_vertcolors[%zu];
-            uniform float2 u_vertpos[%zu];
+        static constexpr char gAEGradientSkSL[] =
+            "uniform half4  u_vertcolors[%zu];"
+            "uniform float2 u_vertpos[%zu];"
 
-            half4 main(float2 xy) {
-                half4 c = half4(0);
-                float w_acc = 0;
+            "half4 main(float2 xy) {"
+                "half4 c = half4(0);"
+                "float w_acc = 0;"
 
-                for (int i = 0; i < %zu; ++i) {
-                    float d = distance(xy, u_vertpos[i]);
-                    float w = 1 / (d * d);
+                "for (int i = 0; i < %zu; ++i) {"
+                    "float d = distance(xy, u_vertpos[i]);"
+                    "float w = 1 / (d * d);"
 
-                    c += u_vertcolors[i] * w;
-                    w_acc += w;
-                }
+                    "c += u_vertcolors[i] * w;"
+                    "w_acc += w;"
+                "}"
 
-                return c / w_acc;
-            }
-        )";
+                "return c / w_acc;"
+            "}";
 
         const auto res = SkRuntimeEffect::MakeForShader(
                             SkStringPrintf(gAEGradientSkSL, vert_count, vert_count, vert_count));
