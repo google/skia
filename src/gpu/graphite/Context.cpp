@@ -103,7 +103,7 @@ Context::Context(sk_sp<SharedContext> sharedContext,
 
 Context::~Context() {
 #if defined(GPU_TEST_UTILS)
-    ASSERT_SINGLE_OWNER
+    SkAutoMutexExclusive lock(fTestingLock);
     for (auto& recorder : fTrackedRecorders) {
         recorder->priv().setContext(nullptr);
     }
@@ -828,6 +828,18 @@ bool Context::supportsProtectedContent() const {
 ///////////////////////////////////////////////////////////////////////////////////
 
 #if defined(GPU_TEST_UTILS)
+void Context::deregisterRecorder(const Recorder* recorder) {
+    SkAutoMutexExclusive lock(fTestingLock);
+    for (auto it = fTrackedRecorders.begin();
+         it != fTrackedRecorders.end();
+         it++) {
+        if (*it == recorder) {
+            fTrackedRecorders.erase(it);
+            return;
+        }
+    }
+}
+
 bool ContextPriv::readPixels(const SkPixmap& pm,
                              const TextureProxy* textureProxy,
                              const SkImageInfo& srcImageInfo,
@@ -889,18 +901,6 @@ bool ContextPriv::readPixels(const SkPixmap& pm,
     return true;
 }
 
-void ContextPriv::deregisterRecorder(const Recorder* recorder) {
-    SKGPU_ASSERT_SINGLE_OWNER(fContext->singleOwner())
-    for (auto it = fContext->fTrackedRecorders.begin();
-         it != fContext->fTrackedRecorders.end();
-         it++) {
-        if (*it == recorder) {
-            fContext->fTrackedRecorders.erase(it);
-            return;
-        }
-    }
-}
-
 bool ContextPriv::supportsPathRendererStrategy(PathRendererStrategy strategy) {
     AtlasProvider::PathAtlasFlagsBitMask pathAtlasFlags =
             AtlasProvider::QueryPathAtlasSupport(this->caps());
@@ -920,7 +920,7 @@ bool ContextPriv::supportsPathRendererStrategy(PathRendererStrategy strategy) {
     return false;
 }
 
-#endif
+#endif // GPU_TEST_UTILS
 
 ///////////////////////////////////////////////////////////////////////////////////
 
