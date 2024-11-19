@@ -607,7 +607,7 @@ static void compute_alpha_above_line(SkAlpha* alphas,
         SkFixed alpha16 = firstH + (dY >> 1);              // rectangle plus triangle
         for (int i = 1; i < R - 1; ++i) {
             alphas[i] = alpha16 >> 8;
-            alpha16 += dY;
+            alpha16 = SkFixedSatAdd(alpha16, dY);
         }
         alphas[R - 1] = fullAlpha - partial_triangle_to_alpha(last, dY);
     }
@@ -634,7 +634,7 @@ static void compute_alpha_below_line(SkAlpha* alphas,
         SkFixed alpha16 = lastH + (dY >> 1);             // rectangle plus triangle
         for (int i = R - 2; i > 0; i--) {
             alphas[i] = (alpha16 >> 8) & 0xFF;
-            alpha16 += dY;
+            alpha16 = SkFixedSatAdd(alpha16, dY);
         }
         alphas[0] = fullAlpha - partial_triangle_to_alpha(first, dY);
     }
