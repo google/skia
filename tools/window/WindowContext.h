@@ -46,8 +46,11 @@ public:
 #if defined(SK_GRAPHITE)
     skgpu::graphite::Context* graphiteContext() const { return fGraphiteContext.get(); }
     skgpu::graphite::Recorder* graphiteRecorder() const { return fGraphiteRecorder.get(); }
-    void snapRecordingAndSubmit();
 #endif
+
+    using GpuTimerCallback = std::function<void(uint64_t ns)>;
+    void submitToGpu(GpuTimerCallback = {});
+    bool supportsGpuTimer() const;
 
     int width() const { return fWidth; }
     int height() const { return fHeight; }

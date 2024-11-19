@@ -152,6 +152,7 @@ private:
     void initSlides();
     void updateTitle();
     void setBackend(sk_app::Window::BackendType);
+    void initGpuTimer();
     void setColorMode(ColorMode);
     int startupSlide() const;
     void setCurrentSlide(int);

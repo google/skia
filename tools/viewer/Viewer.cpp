@@ -893,6 +893,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     fImGuiGamutPaint.setColor(SK_ColorWHITE);
 
     fWindow->attach(backend_type_for_window(fBackendType));
+    this->initGpuTimer();
     this->setCurrentSlide(this->startupSlide());
 }
 
@@ -1496,6 +1497,17 @@ void Viewer::setBackend(sk_app::Window::BackendType backendType) {
 #endif
 
     fWindow->attach(backend_type_for_window(fBackendType));
+    this->initGpuTimer();
+}
+
+void Viewer::initGpuTimer() {
+    // The explicit raster backend check is here because raster may be presented via a GPU window
+    // context which does support GPU timers.
+    if (fBackendType == Window::kRaster_BackendType || !fWindow->supportsGpuTimer()) {
+        fStatsLayer.disableGpuTimer();
+        return;
+    }
+    fStatsLayer.enableGpuTimer(SK_ColorYELLOW);
 }
 
 void Viewer::setColorMode(ColorMode colorMode) {
@@ -1712,7 +1724,7 @@ void Viewer::drawSlide(SkSurface* surface) {
     SkAutoCanvasRestore autorestore(surface->getCanvas(), false);
 
     // By default, we render directly into the window's surface/canvas
-    SkSurface* slideSurface = surface;
+    [[maybe_unused]] SkSurface* slideSurface = surface;
     SkCanvas* slideCanvas = surface->getCanvas();
     fLastImage.reset();
 
@@ -1834,14 +1846,9 @@ void Viewer::drawSlide(SkSurface* surface) {
         slideCanvas->drawPicture(SkPicture::MakeFromData(data.get()));
     }
 
-    // Force a flush so we can time that, too
+    // Force a flush so we can time that and add a gpu timer.
     fStatsLayer.beginTiming(fFlushTimer);
-#if defined(SK_GANESH)
-    skgpu::ganesh::FlushAndSubmit(slideSurface);
-#endif
-#if defined(SK_GRAPHITE)
-    fWindow->snapRecordingAndSubmit();
-#endif
+    fWindow->submitToGpu(fStatsLayer.issueGpuTimer());
     fStatsLayer.endTiming(fFlushTimer);
 
     // If we rendered offscreen, snap an image and push the results to the window's canvas
@@ -3309,12 +3316,7 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
             auto backendType = kSupportedBackends[i];
             if (stateValue.equals(get_backend_string(backendType))) {
                 if (fBackendType != i) {
-                    fBackendType = backendType;
-                    for(auto& slide : fSlides) {
-                        slide->gpuTeardown();
-                    }
-                    fWindow->detach();
-                    fWindow->attach(backend_type_for_window(fBackendType));
+                    this->setBackend(backendType);
                 }
                 break;
             }

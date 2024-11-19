@@ -112,7 +112,7 @@ sk_sp<SkSurface> GraphiteMetalWindowContext::getBackbufferSurface() {
 }
 
 void GraphiteMetalWindowContext::onSwapBuffers() {
-    this->snapRecordingAndSubmit();
+    this->submitToGpu();
 
     id<CAMetalDrawable> currentDrawable = (id<CAMetalDrawable>)fDrawableHandle;
 

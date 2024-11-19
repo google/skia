@@ -103,7 +103,7 @@ sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
 }
 
 void GraphiteDawnWindowContext::onSwapBuffers() {
-    this->snapRecordingAndSubmit();
+    this->submitToGpu();
     fSurface.Present();
 }
 

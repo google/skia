@@ -139,8 +139,14 @@ public:
     skgpu::graphite::Context* graphiteContext() const;
     skgpu::graphite::Recorder* graphiteRecorder() const;
 
-    // Will snap a Recording and submit to the Context if using Graphite
-    void snapRecordingAndSubmit();
+    using GpuTimerCallback = std::function<void(uint64_t ns)>;
+
+    // Does the backend of this window support GPU timers (for use with submitToGpu)?
+    bool supportsGpuTimer() const;
+
+    // Will snap a Recording and submit to the Context if using Graphite or flush and submit
+    // if using Ganesh.
+    void submitToGpu(GpuTimerCallback = {});
 
 protected:
     Window();

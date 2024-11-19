@@ -26,6 +26,11 @@ public:
     void beginTiming(Timer);
     void endTiming(Timer);
 
+    void enableGpuTimer(SkColor color);
+    void disableGpuTimer();
+    bool isGpuTimerEnabled() const { return fGpuTimerEnabled; }
+    std::function<void(uint64_t ns)> issueGpuTimer();
+
     void onPrePaint() override;
     void onPaint(SkSurface*) override;
 
@@ -41,6 +46,10 @@ private:
     };
     skia_private::TArray<TimerData> fTimers;
     double fTotalTimes[kMeasurementCount];
+
+    TimerData fGpuTimer;
+    bool fGpuTimerEnabled = false;
+
     int fCurrentMeasurement;
     double fLastTotalBegin;
     double fCumulativeMeasurementTime;

@@ -68,6 +68,26 @@ void StatsLayer::endTiming(Timer timer) {
     }
 }
 
+void StatsLayer::enableGpuTimer(SkColor color) {
+    fGpuTimer.fColor = color;
+    std::fill_n(fGpuTimer.fTimes, std::size(fGpuTimer.fTimes), 0);
+    fGpuTimerEnabled = true;
+}
+
+void StatsLayer::disableGpuTimer() { fGpuTimerEnabled = false; }
+
+std::function<void(uint64_t ns)> StatsLayer::issueGpuTimer() {
+    if (fCurrentMeasurement < 0 || !fGpuTimerEnabled) {
+        return {};
+    }
+    // The -1 indicates to the rendering code that we are still awaiting the result. Unlike the CPU
+    // timers, there may be a multi-frame latency.
+    fGpuTimer.fTimes[fCurrentMeasurement] = -1;
+    return [index = fCurrentMeasurement, layer = this](uint64_t ns) {
+        layer->fGpuTimer.fTimes[index] = static_cast<double>(ns) / 1000000.0;
+    };
+}
+
 void StatsLayer::onPrePaint() {
     if (fCurrentMeasurement >= 0) {
         fTotalTimes[fCurrentMeasurement] = SkTime::GetMSecs() - fLastTotalBegin;
@@ -93,22 +113,30 @@ void StatsLayer::onPaint(SkSurface* surface) {
 #endif
 
     // Now draw everything
+
+    // Vertical height corresponding to 1 ms in the graph
     static const float kPixelPerMS = 2.0f;
-    static const int kDisplayWidth = 192;
+    // Horizontal spacing between measurements
+    static const int kPixelPerMeasurement = 3;
+    // We add one extra spacing on the left, hence the + 1
+    static const int kDisplayWidth = (kMeasurementCount + 1) * kPixelPerMeasurement;
     static const int kGraphHeight = 100;
     static const int kTextHeight = 60;
-    static const int kDisplayHeight = kGraphHeight + kTextHeight;
+    // The GPU graph is only shown if supported by the backend.
+    const int gpuGraphHeight = fGpuTimerEnabled ? kGraphHeight : 0;
+    const int displayHeight = gpuGraphHeight + kGraphHeight + kTextHeight;
+    // Padding between the graph and top/right edges of the canvas.
     static const int kDisplayPadding = 10;
-    static const int kGraphPadding = 3;
-    static const SkScalar kBaseMS = 1000.f / 60.f;  // ms/frame to hit 60 fps
+    // ms/frame to hit 60 fps
+    static const SkScalar kBaseMS = 1000.f / 60.f;
 
     auto canvas = surface->getCanvas();
     SkISize canvasSize = canvas->getBaseLayerSize();
     SkRect rect = SkRect::MakeXYWH(SkIntToScalar(canvasSize.fWidth-kDisplayWidth-kDisplayPadding),
                                    SkIntToScalar(kDisplayPadding),
-                                   SkIntToScalar(kDisplayWidth), SkIntToScalar(kDisplayHeight));
+                                   SkIntToScalar(kDisplayWidth), SkIntToScalar(displayHeight));
     SkPaint paint;
-    canvas->save();
+    SkAutoCanvasRestore acr(canvas, /*doSave=*/true);
 
     // Scale the canvas while keeping the right edge in place.
     canvas->concat(SkMatrix::RectToRect(SkRect::Make(canvasSize),
@@ -119,17 +147,19 @@ void StatsLayer::onPaint(SkSurface* surface) {
 
     paint.setColor(SK_ColorBLACK);
     canvas->drawRect(rect, paint);
+
+    float cpuGraphBottom = rect.fBottom - gpuGraphHeight;
+
     // draw the 16ms line
     paint.setColor(SK_ColorLTGRAY);
-    canvas->drawLine(rect.fLeft, rect.fBottom - kBaseMS*kPixelPerMS,
-                     rect.fRight, rect.fBottom - kBaseMS*kPixelPerMS, paint);
+    canvas->drawLine(rect.fLeft, cpuGraphBottom - kBaseMS*kPixelPerMS,
+                     rect.fRight, cpuGraphBottom - kBaseMS*kPixelPerMS, paint);
     paint.setColor(SK_ColorRED);
     paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawRect(rect, paint);
+    canvas->drawRect(SkRect::MakeLTRB(rect.fLeft, rect.fTop, rect.fRight, cpuGraphBottom), paint);
     paint.setStyle(SkPaint::kFill_Style);
 
-    int x = SkScalarTruncToInt(rect.fLeft) + kGraphPadding;
-    const int xStep = 3;
+    int x = SkScalarTruncToInt(rect.fLeft) + kPixelPerMeasurement;
     int i = nextMeasurement;
     SkTDArray<double> sumTimes;
     sumTimes.resize(fTimers.size());
@@ -138,7 +168,7 @@ void StatsLayer::onPaint(SkSurface* surface) {
     double totalTime = 0;
     int totalCount = 0;
     do {
-        int startY = SkScalarTruncToInt(rect.fBottom);
+        int startY = SkScalarTruncToInt(cpuGraphBottom);
         double inc = 0;
         for (int timer = 0; timer < fTimers.size(); ++timer) {
             int height = (int)(fTimers[timer].fTimes[i] * kPixelPerMS + 0.5);
@@ -152,7 +182,7 @@ void StatsLayer::onPaint(SkSurface* surface) {
         }
 
         int height = (int)(fTotalTimes[i] * kPixelPerMS + 0.5);
-        height = std::max(0, height - (SkScalarTruncToInt(rect.fBottom) - startY));
+        height = std::max(0, height - (SkScalarTruncToInt(cpuGraphBottom) - startY));
         int endY = std::max(startY - height, kDisplayPadding + kTextHeight);
         paint.setColor(SK_ColorWHITE);
         canvas->drawLine(SkIntToScalar(x), SkIntToScalar(startY),
@@ -168,14 +198,14 @@ void StatsLayer::onPaint(SkSurface* surface) {
 
         i++;
         i &= (kMeasurementCount - 1);  // fast mod
-        x += xStep;
+        x += kPixelPerMeasurement;
     } while (i != nextMeasurement);
 
-    SkFont font(ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle()), 16);
+    SkFont font(ToolUtils::CreatePortableTypeface("sans-serif", SkFontStyle()), 14);
     paint.setColor(SK_ColorWHITE);
     double time = totalTime / std::max(1, totalCount);
     double measure = fCumulativeMeasurementTime / std::max(1, fCumulativeMeasurementCount);
-    canvas->drawString(SkStringPrintf("%4.3f ms -> %4.3f ms", time, measure),
+    canvas->drawString(SkStringPrintf("C: %4.3f ms -> %4.3f ms", time, measure),
                        rect.fLeft + 3, rect.fTop + 14, font, paint);
 
     for (int timer = 0; timer < fTimers.size(); ++timer) {
@@ -185,5 +215,53 @@ void StatsLayer::onPaint(SkSurface* surface) {
                            rect.fLeft + 3, rect.fTop + 28 + (14 * timer), font, paint);
     }
 
-    canvas->restore();
+    if (!fGpuTimerEnabled) {
+        return;
+    }
+
+    float gpuGraphBottom = rect.bottom();
+    // draw the 16ms line
+    paint.setColor(SK_ColorLTGRAY);
+    canvas->drawLine(rect.fLeft, gpuGraphBottom - kBaseMS*kPixelPerMS,
+                     rect.fRight, gpuGraphBottom - kBaseMS*kPixelPerMS,
+                     paint);
+    paint.setColor(SK_ColorRED);
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawRect(SkRect::MakeLTRB(rect.fLeft, cpuGraphBottom, rect.fRight, gpuGraphBottom),
+                     paint);
+    paint.setStyle(SkPaint::kFill_Style);
+
+    x = SkScalarTruncToInt(rect.fLeft) + kPixelPerMeasurement;
+    i = nextMeasurement;
+    totalCount = 0;
+    totalTime = 0;
+    do {
+        int endY;
+        if (fGpuTimer.fTimes[i] < 0) {
+            // Draw a full height line with the color inverted to indicate a measurement
+            // that is still pending.
+            auto alpha = SkColorSetARGB(SkColorGetA(fGpuTimer.fColor), 0, 0, 0);
+            auto inv = (0x00FFFFF & ~fGpuTimer.fColor);
+            paint.setColor(alpha | inv);
+            endY = cpuGraphBottom;
+        } else {
+            paint.setColor(fGpuTimer.fColor);
+            ++totalCount;
+            totalTime += fGpuTimer.fTimes[i];
+            float height = fGpuTimer.fTimes[i] * kPixelPerMS + 0.5f;
+            endY = std::max(gpuGraphBottom - height, cpuGraphBottom);
+        }
+        canvas->drawLine(x, gpuGraphBottom, x, endY, paint);
+
+        i++;
+        i &= (kMeasurementCount - 1);  // fast mod
+        x += kPixelPerMeasurement;
+    } while (i != nextMeasurement);
+    paint.setColor(SK_ColorWHITE);
+    time = totalTime / std::max(1, totalCount);
+    canvas->drawString(SkStringPrintf("G: %4.3f ms", time),
+                       rect.fLeft + 3,
+                       cpuGraphBottom + 14,
+                       font,
+                       paint);
 }

@@ -181,12 +181,16 @@ skgpu::graphite::Recorder* Window::graphiteRecorder() const {
 #endif
 }
 
-void Window::snapRecordingAndSubmit() {
-#if defined(SK_GRAPHITE)
+bool Window::supportsGpuTimer() const { return fWindowContext->supportsGpuTimer(); }
+
+void Window::submitToGpu(GpuTimerCallback callback) {
     if (fWindowContext) {
-        fWindowContext->snapRecordingAndSubmit();
+        fWindowContext->submitToGpu(std::move(callback));
+        return;
     }
-#endif
+    if (callback) {
+        callback(0);
+    }
 }
 
 void Window::inval() {
