@@ -15,10 +15,12 @@
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/vk/GrVkBackendSurface.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
+#include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrOpsRenderPass.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
@@ -33,7 +35,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <string_view>
+#include <utility>
 
 class GrAttachment;
 class GrBackendSemaphore;
@@ -73,7 +77,6 @@ enum class BackendSurfaceAccess;
 
 namespace skgpu {
 class MutableTextureState;
-class RefCntedCallback;
 class VulkanMemoryAllocator;
 struct VulkanBackendContext;
 struct VulkanInterface;
@@ -211,7 +214,7 @@ public:
     // command buffer to the gpu.
     void addDrawable(std::unique_ptr<SkDrawable::GpuDrawHandler> drawable);
 
-    void checkFinishProcs() override { fResourceProvider.checkCommandBuffers(); }
+    void checkFinishedCallbacks() override { fResourceProvider.checkCommandBuffers(); }
     void finishOutstandingGpuWork() override;
 
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
@@ -355,8 +358,11 @@ private:
                        GrSurface* src, const SkIRect& srcRect,
                        GrSamplerState::Filter) override;
 
-    void addFinishedProc(GrGpuFinishedProc finishedProc,
-                         GrGpuFinishedContext finishedContext) override;
+    void addFinishedCallback(skgpu::AutoCallback callback,
+                             std::optional<GrTimerQuery> timerQuery) override {
+        SkASSERT(!timerQuery);
+        this->addFinishedCallback(skgpu::RefCntedCallback::Make(std::move(callback)));
+    }
 
     void addFinishedCallback(sk_sp<skgpu::RefCntedCallback> finishedCallback);
 

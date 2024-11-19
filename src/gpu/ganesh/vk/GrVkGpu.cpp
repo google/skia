@@ -2209,12 +2209,6 @@ void GrVkGpu::prepareSurfacesForBackendAccessAndStateUpdates(
     }
 }
 
-void GrVkGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
-                              GrGpuFinishedContext finishedContext) {
-    SkASSERT(finishedProc);
-    this->addFinishedCallback(skgpu::RefCntedCallback::Make(finishedProc, finishedContext));
-}
-
 void GrVkGpu::addFinishedCallback(sk_sp<skgpu::RefCntedCallback> finishedCallback) {
     SkASSERT(finishedCallback);
     fResourceProvider.addFinishedProcToActiveCommandBuffers(std::move(finishedCallback));

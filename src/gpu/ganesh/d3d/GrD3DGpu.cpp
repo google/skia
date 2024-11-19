@@ -242,12 +242,6 @@ void GrD3DGpu::endRenderPass(GrRenderTarget* target, GrSurfaceOrigin origin,
     this->didWriteToSurface(target, origin, &bounds);
 }
 
-void GrD3DGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
-                               GrGpuFinishedContext finishedContext) {
-    SkASSERT(finishedProc);
-    this->addFinishedCallback(skgpu::RefCntedCallback::Make(finishedProc, finishedContext));
-}
-
 void GrD3DGpu::addFinishedCallback(sk_sp<skgpu::RefCntedCallback> finishedCallback) {
     SkASSERT(finishedCallback);
     // Besides the current command list, we also add the finishedCallback to the newest outstanding

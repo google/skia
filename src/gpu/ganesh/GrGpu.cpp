@@ -683,6 +683,7 @@ void GrGpu::didWriteToSurface(GrSurface* surface, GrSurfaceOrigin origin, const 
 void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
                              SkSurfaces::BackendSurfaceAccess access,
                              const GrFlushInfo& info,
+                             std::optional<GrTimerQuery> timerQuery,
                              const skgpu::MutableTextureState* newState) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
@@ -712,8 +713,18 @@ void GrGpu::executeFlushInfo(SkSpan<GrSurfaceProxy*> proxies,
         }
     }
 
-    if (info.fFinishedProc) {
-        this->addFinishedProc(info.fFinishedProc, info.fFinishedContext);
+    if (timerQuery) {
+        this->endTimerQuery(*timerQuery);
+    }
+
+    skgpu::AutoCallback callback;
+    if (info.fFinishedWithStatsProc) {
+        callback = skgpu::AutoCallback(info.fFinishedWithStatsProc, info.fFinishedContext);
+    } else {
+        callback = skgpu::AutoCallback(info.fFinishedProc, info.fFinishedContext);
+    }
+    if (callback) {
+        this->addFinishedCallback(std::move(callback), std::move(timerQuery));
     }
 
     if (info.fSubmittedProc) {

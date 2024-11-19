@@ -97,7 +97,7 @@ public:
                                                       GrWrapOwnership) override;
     void insertSemaphore(GrSemaphore* semaphore) override;
     void waitSemaphore(GrSemaphore* semaphore) override;
-    void checkFinishProcs() override { this->checkForFinishedCommandBuffers(); }
+    void checkFinishedCallbacks() override { this->checkForFinishedCommandBuffers(); }
     void finishOutstandingGpuWork() override;
     std::unique_ptr<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override;
 
@@ -224,8 +224,12 @@ private:
 
     void resolve(GrMtlAttachment* resolveAttachment, GrMtlAttachment* msaaAttachment);
 
-    void addFinishedProc(GrGpuFinishedProc finishedProc,
-                         GrGpuFinishedContext finishedContext) override;
+    void addFinishedCallback(skgpu::AutoCallback callback,
+                             std::optional<GrTimerQuery> timerQuery) override {
+        SkASSERT(!timerQuery);
+        this->addFinishedCallback(skgpu::RefCntedCallback::Make(std::move(callback)));
+    }
+
     void addFinishedCallback(sk_sp<skgpu::RefCntedCallback> finishedCallback);
 
     GrOpsRenderPass* onGetOpsRenderPass(

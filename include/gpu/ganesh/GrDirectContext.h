@@ -271,6 +271,11 @@ public:
      */
     void purgeUnlockedResources(GrPurgeResourceOptions opts);
 
+    /*
+     * Gets the types of GPU stats supported by this Context.
+     */
+    skgpu::GpuStatsFlags supportedGpuStats() const;
+
     /**
      * Gets the maximum supported texture size.
      */

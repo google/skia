@@ -9,16 +9,12 @@
 #define GrTypes_DEFINED
 
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkTo.h" // IWYU pragma: keep
 
 #include <cstddef>
 #include <cstdint>
 class GrBackendSemaphore;
-
-namespace skgpu {
-enum class Protected : bool;
-enum class Renderable : bool;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -110,6 +106,8 @@ static const uint32_t kAll_GrBackendState = 0xffffffff;
 
 typedef void* GrGpuFinishedContext;
 typedef void (*GrGpuFinishedProc)(GrGpuFinishedContext finishedContext);
+typedef void (*GrGpuFinishedWithStatsProc)(GrGpuFinishedContext finishedContext,
+                                           const skgpu::GpuStats&);
 
 typedef void* GrGpuSubmittedContext;
 typedef void (*GrGpuSubmittedProc)(GrGpuSubmittedContext submittedContext, bool success);
@@ -131,10 +129,15 @@ typedef void (*GrDirectContextDestroyedProc)(GrDirectContextDestroyedContext des
  * and returned in initialized GrBackendSemaphore objects. The GrBackendSemaphore objects
  * themselves can be deleted as soon as this function returns.
  *
- * If a finishedProc is provided, the finishedProc will be called when all work submitted to the gpu
- * from this flush call and all previous flush calls has finished on the GPU. If the flush call
- * fails due to an error and nothing ends up getting sent to the GPU, the finished proc is called
- * immediately.
+ * If a finishedProc or finishedWithStatsProc is provided, the proc will be called when all work
+ * submitted to the gpu from this flush call and all previous flush calls has finished on the GPU.
+ * If the flush call fails due to an error and nothing ends up getting sent to the GPU, the finished
+ * proc is called immediately. If both types of proc are provided then finishedWithStatsProc is
+ * preferred.
+ *
+ * When finishedWithStatsProc is called the GpuStats passed will contain valid values for stats
+ * by requested by gpuStatsFlags, assuming the stats are supported by the underlying backend GPU
+ * context and the GPU work completed successfully.
  *
  * If a submittedProc is provided, the submittedProc will be called when all work from this flush
  * call is submitted to the GPU. If the flush call fails due to an error and nothing will get sent
@@ -148,8 +151,10 @@ typedef void (*GrDirectContextDestroyedProc)(GrDirectContextDestroyedContext des
  */
 struct GrFlushInfo {
     size_t fNumSemaphores = 0;
+    skgpu::GpuStatsFlags fGpuStatsFlags = skgpu::GpuStatsFlags::kNone;
     GrBackendSemaphore* fSignalSemaphores = nullptr;
     GrGpuFinishedProc fFinishedProc = nullptr;
+    GrGpuFinishedWithStatsProc fFinishedWithStatsProc = nullptr;
     GrGpuFinishedContext fFinishedContext = nullptr;
     GrGpuSubmittedProc fSubmittedProc = nullptr;
     GrGpuSubmittedContext fSubmittedContext = nullptr;

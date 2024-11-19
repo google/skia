@@ -136,6 +136,12 @@ public:
         kBasePlusSync
     };
 
+    enum class TimerQueryType {
+        kNone,
+        kRegular,
+        kDisjoint,
+    };
+
     /**
      * Initializes the GrGLCaps to the set of features supported in the current
      * OpenGL context accessible via ctxInfo.
@@ -333,6 +339,9 @@ public:
 
     /// How is GrGLsync implemented?
     FenceType fenceType() const { return fFenceType; }
+
+    /// What type of timer queries are supported
+    TimerQueryType timerQueryType() const { return fTimerQueryType; }
 
     /// How are multi draws implemented (if at all)?
     MultiDrawType multiDrawType() const { return fMultiDrawType; }
@@ -604,6 +613,7 @@ private:
     MapBufferType        fMapBufferType        = kNone_MapBufferType;
     TransferBufferType   fTransferBufferType   = TransferBufferType::kNone;
     FenceType            fFenceType            = FenceType::kNone;
+    TimerQueryType       fTimerQueryType       = TimerQueryType::kNone;
     MultiDrawType        fMultiDrawType        = MultiDrawType::kNone;
     RegenerateMipmapType fRegenerateMipmapType = RegenerateMipmapType::kBaseLevel;
 

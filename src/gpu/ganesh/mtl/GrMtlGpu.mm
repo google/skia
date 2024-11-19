@@ -268,12 +268,6 @@ void GrMtlGpu::finishOutstandingGpuWork() {
     }
 }
 
-void GrMtlGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
-                               GrGpuFinishedContext finishedContext) {
-    SkASSERT(finishedProc);
-    this->addFinishedCallback(skgpu::RefCntedCallback::Make(finishedProc, finishedContext));
-}
-
 void GrMtlGpu::addFinishedCallback(sk_sp<skgpu::RefCntedCallback> finishedCallback) {
     SkASSERT(finishedCallback);
     // Besides the current commandbuffer, we also add the finishedCallback to the newest outstanding

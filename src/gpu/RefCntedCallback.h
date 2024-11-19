@@ -13,39 +13,54 @@
 
 namespace skgpu {
 /**
- * Ref-counted object that calls a callback from its destructor.
+ * Move-only type that calls a callback from its destructor.
  */
-class RefCntedCallback : public SkNVRefCnt<RefCntedCallback> {
+class AutoCallback {
 public:
-    using Context = void*;
-    using Callback = void (*)(Context);
-    using ResultCallback = void (*)(Context, CallbackResult);
+    using Context           = void*;
+    using Callback          = void (*)(Context);
+    using CallbackWithStats = void (*)(Context, const GpuStats&);
+    using ResultCallback    = void (*)(Context, CallbackResult);
 
-    static sk_sp<RefCntedCallback> Make(Callback proc, Context ctx) {
-        if (!proc) {
-            return nullptr;
-        }
-        return sk_sp<RefCntedCallback>(new RefCntedCallback(proc, ctx));
-    }
+    AutoCallback() = default;
+    AutoCallback(const AutoCallback&) = delete;
+    AutoCallback(AutoCallback&& that) { *this = std::move(that); }
 
-    static sk_sp<RefCntedCallback> Make(ResultCallback proc, Context ctx) {
-        if (!proc) {
-            return nullptr;
-        }
-        return sk_sp<RefCntedCallback>(new RefCntedCallback(proc, ctx));
-    }
+    AutoCallback(Callback proc, Context ctx) : fReleaseProc(proc), fReleaseCtx(ctx) {}
+    AutoCallback(CallbackWithStats proc, Context ctx)
+            : fReleaseWithStatsProc(proc), fReleaseCtx(ctx) {}
+    AutoCallback(ResultCallback proc, Context ctx) : fResultReleaseProc(proc), fReleaseCtx(ctx) {}
 
-    ~RefCntedCallback() {
-        if (fReleaseProc) {
-            SkASSERT(!fResultReleaseProc);
-            fReleaseProc(fReleaseCtx);
-        } else {
-            SkASSERT(fResultReleaseProc);
+    ~AutoCallback() {
+        SkASSERT(this->operator bool() || true);  // run assert in the operator
+
+        if (fReleaseWithStatsProc) {
+            fReleaseWithStatsProc(fReleaseCtx, fGpuStats);
+        } else if (fResultReleaseProc) {
             fResultReleaseProc(fReleaseCtx, fResult);
+        } else if (fReleaseProc) {
+            fReleaseProc(fReleaseCtx);
         }
+    }
+
+    AutoCallback& operator=(const AutoCallback&) = delete;
+    AutoCallback& operator=(AutoCallback&& that) {
+        fReleaseCtx           = that.fReleaseCtx;
+        fReleaseProc          = that.fReleaseProc;
+        fReleaseWithStatsProc = that.fReleaseWithStatsProc;
+        fResultReleaseProc    = that.fResultReleaseProc;
+        fResult               = that.fResult;
+        fGpuStats             = that.fGpuStats;
+
+        that.fReleaseProc          = nullptr;
+        that.fReleaseWithStatsProc = nullptr;
+        that.fResultReleaseProc    = nullptr;
+        return *this;
     }
 
     Context context() const { return fReleaseCtx; }
+
+    bool receivesGpuStats() const { return fReleaseWithStatsProc; }
 
     void setFailureResult() {
         SkASSERT(fResultReleaseProc);
@@ -54,19 +69,75 @@ public:
         fResult = CallbackResult::kFailed;
     }
 
-private:
-    RefCntedCallback(Callback proc, Context ctx) : fReleaseProc(proc), fReleaseCtx(ctx) {}
-    RefCntedCallback(ResultCallback proc, Context ctx)
-            : fResultReleaseProc(proc), fReleaseCtx(ctx) {}
-    RefCntedCallback(const RefCntedCallback&) = delete;
-    RefCntedCallback(RefCntedCallback&&) = delete;
-    RefCntedCallback& operator=(const RefCntedCallback&) = delete;
-    RefCntedCallback& operator=(RefCntedCallback&&) = delete;
+    void setStats(const GpuStats& stats) {
+        SkASSERT(this->receivesGpuStats());
+        fGpuStats = stats;
+    }
 
-    Callback fReleaseProc = nullptr;
-    ResultCallback fResultReleaseProc = nullptr;
-    Context fReleaseCtx;
-    CallbackResult fResult = CallbackResult::kSuccess;
+    explicit operator bool() const {
+        auto toInt = [](auto p) { return p ? 1U : 0U; };
+        auto total = toInt(fReleaseProc) + toInt(fReleaseWithStatsProc) + toInt(fResultReleaseProc);
+        SkASSERT(total <= 1);
+        return total == 1;
+    }
+
+private:
+    Callback          fReleaseProc          = nullptr;
+    CallbackWithStats fReleaseWithStatsProc = nullptr;
+    ResultCallback    fResultReleaseProc    = nullptr;
+
+    Context        fReleaseCtx = nullptr;
+    CallbackResult fResult     = CallbackResult::kSuccess;
+    GpuStats       fGpuStats   = {};
+};
+
+/**
+ * Ref-counted object that calls a callback from its destructor.
+ */
+class RefCntedCallback : public SkNVRefCnt<RefCntedCallback> {
+public:
+    using Context           = AutoCallback::Context;
+    using Callback          = AutoCallback::Callback;
+    using CallbackWithStats = AutoCallback::CallbackWithStats;
+    using ResultCallback    = AutoCallback::ResultCallback;
+
+    static sk_sp<RefCntedCallback> Make(Callback proc, Context ctx) { return MakeImpl(proc, ctx); }
+
+    static sk_sp<RefCntedCallback> Make(CallbackWithStats proc, Context ctx) {
+        return MakeImpl(proc, ctx);
+    }
+
+    static sk_sp<RefCntedCallback> Make(ResultCallback proc, Context ctx) {
+        return MakeImpl(proc, ctx);
+    }
+
+    static sk_sp<RefCntedCallback> Make(AutoCallback&& callback) {
+        if (!callback) {
+            return nullptr;
+        }
+        return sk_sp<RefCntedCallback>(new RefCntedCallback(std::move(callback)));
+    }
+
+    Context context() const { return fCallback.context(); }
+
+    bool receivesGpuStats() const { return fCallback.receivesGpuStats(); }
+
+    void setFailureResult() { fCallback.setFailureResult(); }
+
+    void setStats(const GpuStats& stats) { fCallback.setStats(stats); }
+
+private:
+    template <typename R, typename... Args>
+    static sk_sp<RefCntedCallback> MakeImpl(R proc(Args...), Context ctx) {
+        if (!proc) {
+            return nullptr;
+        }
+        return sk_sp<RefCntedCallback>(new RefCntedCallback({proc, ctx}));
+    }
+
+    RefCntedCallback(AutoCallback callback) : fCallback(std::move(callback)) {}
+
+    AutoCallback fCallback;
 };
 
 } // namespace skgpu

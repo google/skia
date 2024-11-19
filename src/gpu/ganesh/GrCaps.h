@@ -11,6 +11,7 @@
 #include "include/core/SkCapabilities.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrDriverBugWorkarounds.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/base/SkMacros.h"
@@ -46,7 +47,6 @@ struct SkISize;
 
 namespace skgpu {
     class KeyBuilder;
-    enum class Mipmapped : bool;
 }
 namespace GrTest {
     struct TestFormatColorTypeCombination;
@@ -498,6 +498,8 @@ public:
 
     virtual uint64_t computeFormatKey(const GrBackendFormat&) const = 0;
 
+    skgpu::GpuStatsFlags supportedGpuStats() const { return fSupportedGpuStats; }
+
     const GrDriverBugWorkarounds& workarounds() const { return fDriverBugWorkarounds; }
 
     /**
@@ -665,6 +667,8 @@ protected:
     size_t fTransferBufferRowBytesAlignment = 1;
     size_t fTransferFromBufferToBufferAlignment = 1;
     size_t fBufferUpdateDataPreserveAlignment = 1;
+
+    skgpu::GpuStatsFlags fSupportedGpuStats = skgpu::GpuStatsFlags::kNone;
 
     GrDriverBugWorkarounds fDriverBugWorkarounds;
 

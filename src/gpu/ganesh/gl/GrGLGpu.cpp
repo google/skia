@@ -34,6 +34,7 @@
 #include "src/core/SkMipmap.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/SkRenderEngineAbortf.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrAttachment.h"
@@ -4290,9 +4291,10 @@ GrGLAttribArrayState* GrGLGpu::HWVertexArrayState::bindInternalVertexArray(GrGLG
     return attribState;
 }
 
-void GrGLGpu::addFinishedProc(GrGpuFinishedProc finishedProc,
-                              GrGpuFinishedContext finishedContext) {
-    fFinishCallbacks.add(finishedProc, finishedContext);
+void GrGLGpu::addFinishedCallback(skgpu::AutoCallback callback,
+                                  std::optional<GrTimerQuery> timerQuery) {
+    GrGLint glQuery = timerQuery ? static_cast<GrGLint>(timerQuery->query) : 0;
+    fFinishCallbacks.add(std::move(callback), glQuery);
 }
 
 void GrGLGpu::flush(FlushType flushType) {
@@ -4429,7 +4431,64 @@ void GrGLGpu::waitSemaphore(GrSemaphore* semaphore) {
 #endif
 }
 
-void GrGLGpu::checkFinishProcs() {
+std::optional<GrTimerQuery> GrGLGpu::startTimerQuery() {
+    if (glCaps().timerQueryType() == GrGLCaps::TimerQueryType::kNone) {
+        return {};
+    }
+    GrGLuint glQuery;
+    GL_CALL(GenQueries(1, &glQuery));
+    if (!glQuery) {
+        return {};
+    }
+    if (glCaps().timerQueryType() == GrGLCaps::TimerQueryType::kDisjoint) {
+        // Clear the disjoint state
+        GrGLint _;
+        GR_GL_GetIntegerv(this->glInterface(), GR_GL_GPU_DISJOINT, &_);
+    }
+    GL_CALL(BeginQuery(GR_GL_TIME_ELAPSED, glQuery));
+    return GrTimerQuery{glQuery};
+}
+
+void GrGLGpu::endTimerQuery(const GrTimerQuery& timerQuery) {
+    SkASSERT(glCaps().timerQueryType() != GrGLCaps::TimerQueryType::kNone);
+    SkASSERT(SkToUInt(timerQuery.query));
+    // Since only one query of a particular type can be active at once, glEndQuery doesn't take a
+    // query parameter.
+    GL_CALL(EndQuery(GR_GL_TIME_ELAPSED));
+}
+
+uint64_t GrGLGpu::getTimerQueryResult(GrGLuint query) {
+    SkASSERT(glCaps().timerQueryType() != GrGLCaps::TimerQueryType::kNone);
+    SkASSERT(query);
+
+    // Because we only call this after a sync completes the query *should* be available.
+    GrGLuint available;
+    GL_CALL(GetQueryObjectuiv(query, GR_GL_QUERY_RESULT_AVAILABLE, &available));
+    bool getResult = true;
+    if (!available) {
+        SkDebugf("GL timer query is not available.\n");
+        getResult = false;
+    }
+
+    if (glCaps().timerQueryType() == GrGLCaps::TimerQueryType::kDisjoint) {
+        // Clear the disjoint state
+        GrGLint disjoint;
+        GR_GL_GetIntegerv(this->glInterface(), GR_GL_GPU_DISJOINT, &disjoint);
+        if (disjoint) {
+            SkDebugf("GL timer query ignored because of disjoint event.\n");
+            getResult = false;
+        }
+    }
+
+    uint64_t result = 0;
+    if (getResult) {
+        GR_GL_GetQueryObjectui64v(this->glInterface(), query, GR_GL_QUERY_RESULT, &result);
+    }
+    GL_CALL(DeleteQueries(1, &query));
+    return result;
+}
+
+void GrGLGpu::checkFinishedCallbacks() {
     fFinishCallbacks.check();
 }
 

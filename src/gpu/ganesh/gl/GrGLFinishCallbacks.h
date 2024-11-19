@@ -8,8 +8,8 @@
 #ifndef GrGLFinishCallbacks_DEFINED
 #define GrGLFinishCallbacks_DEFINED
 
-#include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/gl/GrGLTypes.h"
+#include "src/gpu/RefCntedCallback.h"
 
 #include <list>
 
@@ -36,8 +36,9 @@ public:
      *
      * @param finishedProc    The function to call when GPU work is complete.
      * @param finishedContext The context object to pass back to the callback.
+     * @param timerQuery      A timer query to get the result from when finished.
      */
-    void add(GrGpuFinishedProc finishedProc, GrGpuFinishedContext finishedContext);
+    void add(skgpu::AutoCallback, GrGLint timerQeury = 0);
 
     /**
      * Check if any GPU work is complete, and call the associated callbacks.
@@ -52,9 +53,9 @@ public:
 
 private:
     struct FinishCallback {
-        GrGpuFinishedProc     fCallback;
-        GrGpuFinishedContext  fContext;
-        GrGLsync              fSync;
+        skgpu::AutoCallback fCallback;
+        GrGLsync            fSync;
+        GrGLint             fTimerQuery;
     };
 
     GrGLGpu*                  fGpu;

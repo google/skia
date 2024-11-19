@@ -254,6 +254,12 @@ enum class GrGLANGLEBackend {
         GR_GL_CALL(gl, GetIntegerv(e, p));                                     \
     } while (0)
 
+#define GR_GL_GetQueryObjectui64v(gl, id, pname, params)                       \
+    do {                                                                       \
+        *(params) = GR_GL_INIT_ZERO;                                           \
+        GR_GL_CALL(gl, GetQueryObjectui64v(id, pname, params));                \
+    } while (0)
+
 #define GR_GL_GetFloatv(gl, e, p)                                              \
     do {                                                                       \
         *(p) = GR_GL_INIT_ZERO;                                                \

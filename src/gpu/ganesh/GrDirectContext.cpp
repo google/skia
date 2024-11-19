@@ -429,6 +429,10 @@ skgpu::ganesh::SmallPathAtlasMgr* GrDirectContext::onGetSmallPathAtlasMgr() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+skgpu::GpuStatsFlags GrDirectContext::supportedGpuStats() const {
+    return this->caps()->supportedGpuStats();
+}
+
 GrSemaphoresSubmitted GrDirectContext::flush(const GrFlushInfo& info) {
     ASSERT_SINGLE_OWNER
     if (this->abandoned()) {
@@ -530,7 +534,7 @@ void GrDirectContext::flush(SkSurface* surface) {
 
 void GrDirectContext::checkAsyncWorkCompletion() {
     if (fGpu) {
-        fGpu->checkFinishProcs();
+        fGpu->checkFinishedCallbacks();
     }
 }
 

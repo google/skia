@@ -9,6 +9,7 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "src/gpu/ganesh/GrResourceProvider.h"
@@ -106,7 +107,7 @@ void GrRingBuffer::startSubmit(GrGpu* gpu) {
         submitData->fOwner = this;
         submitData->fLastHead = fHead;
         submitData->fGenID = fGenID;
-        gpu->addFinishedProc(FinishSubmit, submitData);
+        gpu->addFinishedCallback(skgpu::AutoCallback(FinishSubmit, submitData));
         fNewAllocation = false;
     }
 }

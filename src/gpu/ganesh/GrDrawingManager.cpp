@@ -21,6 +21,7 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"
 #include "src/gpu/ganesh/GrBufferTransferRenderTask.h"
 #include "src/gpu/ganesh/GrBufferUpdateRenderTask.h"
@@ -55,6 +56,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <optional>
 #include <utility>
 
 using namespace skia_private;
@@ -160,6 +162,10 @@ bool GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> proxies,
 
     GrOpFlushState flushState(gpu, resourceProvider, &fTokenTracker, fCpuBufferCache);
 
+    std::optional<GrTimerQuery> timerQuery;
+    if (info.fFinishedWithStatsProc && (info.fGpuStatsFlags & skgpu::GpuStatsFlags::kElapsedTime)) {
+        timerQuery = gpu->startTimerQuery();
+    }
     GrOnFlushResourceProvider onFlushProvider(this);
 
     // Prepare any onFlush op lists (e.g. atlases).
@@ -204,7 +210,7 @@ bool GrDrawingManager::flush(SkSpan<GrSurfaceProxy*> proxies,
     }
     this->removeRenderTasks();
 
-    gpu->executeFlushInfo(proxies, access, info, newState);
+    gpu->executeFlushInfo(proxies, access, info, std::move(timerQuery), newState);
 
     // Give the cache a chance to purge resources that become purgeable due to flushing.
     if (cachePurgeNeeded) {

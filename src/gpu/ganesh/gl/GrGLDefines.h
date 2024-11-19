@@ -891,6 +891,7 @@
 #define GR_GL_ANY_SAMPLES_PASSED             0x8C2F
 #define GR_GL_TIME_ELAPSED                   0x88BF
 #define GR_GL_TIMESTAMP                      0x8E28
+#define GR_GL_GPU_DISJOINT                   0x8FBB
 #define GR_GL_PRIMITIVES_GENERATED           0x8C87
 #define GR_GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN 0x8C88
 

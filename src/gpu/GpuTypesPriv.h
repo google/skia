@@ -12,6 +12,7 @@
 #include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMacros.h"
 
 #include <chrono>
 
@@ -64,6 +65,8 @@ static constexpr const char* BackendApiToStr(BackendApi backend) {
     }
     SkUNREACHABLE;
 }
+
+SK_MAKE_BITFIELD_CLASS_OPS(GpuStatsFlags)
 
 } // namespace skgpu
 

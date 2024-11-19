@@ -79,6 +79,15 @@ enum class Origin : unsigned {
     kBottomLeft,
 };
 
+enum class GpuStatsFlags : uint32_t {
+    kNone = 0b00,
+    kElapsedTime = 0b01,
+};
+
+struct GpuStats {
+    uint64_t elapsedTime = 0;
+};
+
 } // namespace skgpu
 
 
