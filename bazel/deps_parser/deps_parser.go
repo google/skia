@@ -203,6 +203,22 @@ func parseDEPSFile(contents []string, workspaceFile string) (string, int, error)
 		// Atomically rename temp file to workspace. This should minimize the chance of corruption
 		// or writing a partial file if there is an error or the program is interrupted.
 		if err := os.Rename(newWorkspaceFile, workspaceFile); err != nil {
+			// Errors can happen if the temporary file is on a different partition than the Skia
+			// codebase. In that case, do a manual read/write to copy the data. See
+			// https://github.com/jenkins-x/jx/issues/449 for a similar issue
+			if strings.Contains(err.Error(), "invalid cross-device link") {
+				bytes, err := os.ReadFile(newWorkspaceFile)
+				if err != nil {
+					fmt.Printf("Could not do backup read from %s: %s\n", newWorkspaceFile, err)
+					os.Exit(1)
+				}
+				if err := os.WriteFile(workspaceFile, bytes, 0644); err != nil {
+					fmt.Printf("Could not do backup write of %d bytes to %s: %s\n", len(bytes), workspaceFile, err)
+					os.Exit(1)
+				}
+				// Backup "move" successful
+				return outputFile.Name(), count, nil
+			}
 			fmt.Printf("Could not write comments in workspace file %s -> %s: %s\n", newWorkspaceFile, workspaceFile, err)
 			os.Exit(1)
 		}
