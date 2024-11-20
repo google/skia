@@ -463,6 +463,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				// or Dawn Vulkan
 				skip(ALL, "test", ALL, "ThreadedPrecompileTest")
 
+				if b.extraConfig("ASAN") {
+					if b.extraConfig("Metal") {
+						// b/380039123 getting ASAN failure for Mac/ASAN job
+						skip(ALL, "test", ALL, "ThreadedCompilePrecompileTest")
+					}
+				}
+
 				if b.extraConfig("Vulkan") {
 					if b.extraConfig("TSAN") {
 						// The TSAN_Graphite_Dawn_Vulkan job goes off into space on this test
@@ -492,6 +499,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 						skip(ALL, "test", ALL, "ImageAsyncReadPixelsGraphite")
 						skip(ALL, "test", ALL, "SurfaceAsyncReadPixelsGraphite")
 					}
+
+					// b/380049954 Graphite Native Vulkan has a thread race issue
+					skip(ALL, "test", ALL, "ThreadedCompilePrecompileTest")
 				}
 			}
 		}
