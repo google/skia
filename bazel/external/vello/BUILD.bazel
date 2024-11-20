@@ -77,6 +77,11 @@ cargo_build_script(
     name = "vello_shaders_build_script",
     srcs = [
         "vello_shaders/build.rs",
+        "vello_shaders/src/compile/mod.rs",
+        "vello_shaders/src/compile/msl.rs",
+        "vello_shaders/src/compile/permutations.rs",
+        "vello_shaders/src/compile/preprocess.rs",
+        "vello_shaders/src/types.rs",
     ],
     build_script_env = {
         "UNSTABLE_BAZEL_VELLO_SHADERS_CRATE_MANIFEST_PATH": "$(execpath vello_shaders/Cargo.toml)",
@@ -88,16 +93,13 @@ cargo_build_script(
         ":wgsl_shaders": ["wgsl"],
         "//conditions:default": [],
     }),
-    data = glob(
+    crate_root = "vello_shaders/build.rs",
+    data = [
+        # This is needed to define BAZEL_CRATE_MANIFEST_PATH above.
+        "vello_shaders/Cargo.toml",
+        "vello_shaders/shader/permutations",
+    ] + glob(
         include = [
-            # This is needed to define BAZEL_CRATE_MANIFEST_PATH above.
-            "vello_shaders/Cargo.toml",
-            "vello_shaders/src/compile/mod.rs",
-            "vello_shaders/src/compile/msl.rs",
-            "vello_shaders/src/compile/permutations.rs",
-            "vello_shaders/src/compile/preprocess.rs",
-            "vello_shaders/src/types.rs",
-            "vello_shaders/shader/permutations",
             "vello_shaders/shader/**/*.wgsl",
         ],
         allow_empty = False,
