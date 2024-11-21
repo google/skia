@@ -462,13 +462,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				// b/373845830 - Precompile isn't thread-safe on either Dawn Metal
 				// or Dawn Vulkan
 				skip(ALL, "test", ALL, "ThreadedPrecompileTest")
-
-				if b.extraConfig("ASAN") {
-					if b.extraConfig("Metal") {
-						// b/380039123 getting ASAN failure for Mac/ASAN job
-						skip(ALL, "test", ALL, "ThreadedCompilePrecompileTest")
-					}
-				}
+				// b/380039123 getting both ASAN and TSAN failures for this test on Dawn
+				skip(ALL, "test", ALL, "ThreadedCompilePrecompileTest")
 
 				if b.extraConfig("Vulkan") {
 					if b.extraConfig("TSAN") {
