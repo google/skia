@@ -53,18 +53,20 @@ typedef uint32_t SkFontTableTag;
 class SK_API SkTypeface : public SkWeakRefCnt {
 public:
     /** Returns the typeface's intrinsic style attributes. */
-    SkFontStyle fontStyle() const;
+    SkFontStyle fontStyle() const {
+        return fStyle;
+    }
 
     /** Returns true if style() has the kBold bit set. */
-    bool isBold() const;
+    bool isBold() const { return fStyle.weight() >= SkFontStyle::kSemiBold_Weight; }
 
     /** Returns true if style() has the kItalic bit set. */
-    bool isItalic() const;
+    bool isItalic() const { return fStyle.slant() != SkFontStyle::kUpright_Slant; }
 
     /** Returns true if the typeface claims to be fixed-pitch.
      *  This is a style bit, advance widths may vary even if this returns true.
      */
-    bool isFixedPitch() const;
+    bool isFixedPitch() const { return fIsFixedPitch; }
 
     /** Copy into 'coordinates' (allocated by the caller) the design variation coordinates.
      *
@@ -360,10 +362,6 @@ protected:
     void setIsFixedPitch(bool isFixedPitch) { fIsFixedPitch = isFixedPitch; }
     /** Sets the font style. If used, must be called in the constructor. */
     void setFontStyle(SkFontStyle style) { fStyle = style; }
-
-    virtual SkFontStyle onGetFontStyle() const; // TODO: = 0;
-
-    virtual bool onGetFixedPitch() const; // TODO: = 0;
 
     // Must return a valid scaler context. It can not return nullptr.
     virtual std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects&,
