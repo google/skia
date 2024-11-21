@@ -44,12 +44,6 @@ void SK_API Precompile(PrecompileContext* precompileContext,
                        DrawTypeFlags drawTypes,
                        SkSpan<const RenderPassProperties> renderPassProperties);
 
-// Deprecated. Please use PrecompileContext version.
-void SK_API Precompile(Context* context,
-                       const PaintOptions& paintOptions,
-                       DrawTypeFlags drawTypes,
-                       SkSpan<const RenderPassProperties> renderPassProperties);
-
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_precompile_Precompile_DEFINED

@@ -100,16 +100,6 @@ bool AndroidSpecificPrecompile(PrecompileContext* precompileContext,
     return true;
 }
 
-/* Deprecated */
-void Precompile(Context* context,
-                const PaintOptions& options,
-                DrawTypeFlags drawTypes,
-                SkSpan<const RenderPassProperties> renderPassProperties) {
-    std::unique_ptr<PrecompileContext> precompileContext = context->makePrecompileContext();
-
-    Precompile(precompileContext.get(), options, drawTypes, renderPassProperties);
-}
-
 void Precompile(PrecompileContext* precompileContext,
                 const PaintOptions& options,
                 DrawTypeFlags drawTypes,
