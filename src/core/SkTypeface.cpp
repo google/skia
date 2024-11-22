@@ -480,6 +480,30 @@ int SkTypeface::onGetResourceName(SkString* resourceName) const {
     return 0;
 }
 
+SkFontStyle SkTypeface::fontStyle() const {
+    return this->onGetFontStyle();
+}
+
+SkFontStyle SkTypeface::onGetFontStyle() const {
+    return fStyle;
+}
+
+bool SkTypeface::isBold() const {
+    return this->onGetFontStyle().weight() >= SkFontStyle::kSemiBold_Weight;
+}
+
+bool SkTypeface::isItalic() const {
+    return this->onGetFontStyle().slant() != SkFontStyle::kUpright_Slant;
+}
+
+bool SkTypeface::isFixedPitch() const {
+    return this->onGetFixedPitch();
+}
+
+bool SkTypeface::onGetFixedPitch() const {
+    return fIsFixedPitch;
+}
+
 void SkTypeface::getGlyphToUnicodeMap(SkUnichar* dst) const {
     sk_bzero(dst, sizeof(SkUnichar) * this->countGlyphs());
 }

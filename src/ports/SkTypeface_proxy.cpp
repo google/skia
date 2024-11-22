@@ -35,6 +35,14 @@ int SkTypeface_proxy::onGetVariationDesignParameters(SkFontParameters::Variation
     return fProxy->onGetVariationDesignParameters(parameters, parameterCount);
 }
 
+SkFontStyle SkTypeface_proxy::onGetFontStyle() const {
+    return fProxy->onGetFontStyle();
+}
+
+bool SkTypeface_proxy::onGetFixedPitch() const {
+    return fProxy->onGetFixedPitch();
+}
+
 void SkTypeface_proxy::onGetFamilyName(SkString* familyName) const {
     fProxy->onGetFamilyName(familyName);
 }

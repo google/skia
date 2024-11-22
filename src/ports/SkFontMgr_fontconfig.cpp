@@ -427,6 +427,10 @@ protected:
         *familyName = get_string(fPattern, FC_FAMILY);
     }
 
+    SkFontStyle onGetFontStyle() const override {
+        return SkTypeface::onGetFontStyle();
+    }
+
     void onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const override {
         // TODO: need to serialize FC_MATRIX and FC_EMBOLDEN
         FCLocker lock;
