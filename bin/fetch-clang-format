@@ -10,6 +10,7 @@ import os
 import shutil
 import stat
 import sys
+import platform
 
 if sys.version_info[0] < 3:
   from urllib2 import urlopen
@@ -19,34 +20,59 @@ else:
 os.chdir(os.path.join(os.path.dirname(__file__), os.pardir))
 
 def fetch(target):
-  target_path = 'buildtools/linux64/' + target if 'linux'  in sys.platform else \
-                'buildtools/mac/' + target     if 'darwin' in sys.platform else \
-                'buildtools/win/'+ target + '.exe'
-
-  sha1_path = target_path + '.sha1'
-  if not os.path.exists(sha1_path):
-    print(sha1_path, 'is missing. Did you run `tools/git-sync-deps`?')
+  deps_path = 'buildtools/DEPS'
+  try:
+    with open(deps_path, 'r') as contents:
+      deps_globals = {}
+      exec(contents.read(), deps_globals)
+      deps = deps_globals['deps']
+  except:
+    print(deps_path, 'could not be read/parsed. Did you run `tools/git-sync-deps`?')
     exit(1)
-  sha1 = open(sha1_path).read().strip()
 
-  def sha1_of_file(path):
-    h = hashlib.sha1()
+  if 'arm' in platform.processor():
+      if 'darwin' in sys.platform:
+        obj = 'mac_arm64-format'
+        target_path = 'buildtools/mac_arm64/'
+      else:
+        print('unsupported platform')
+        exit(1)
+  else:
+      if 'linux' in sys.platform:
+        obj = 'linux64-format'
+        target_path = 'buildtools/linux64/'
+      elif 'darwin' in sys.platform:
+        obj = 'mac-format'
+        target_path = 'buildtools/mac/clang-format'
+      else:
+        obj = 'win-format'
+        target_path = 'buildtools\\win\\'
+
+  sha256sum = deps[obj]['objects'][0]['sha256sum']
+  object_name = deps[obj]['objects'][0]['object_name']
+  output_file = os.path.join('bin', deps[obj]['objects'][0]['output_file'])
+  target_path = os.path.join(target_path, deps[obj]['objects'][0]['output_file'])
+
+  def sha256_of_file(path):
+    h = hashlib.sha256()
     if os.path.isfile(path):
       with open(path, 'rb') as f:
         h.update(f.read())
     return h.hexdigest()
 
-  if sha1_of_file(target_path) != sha1:
-    with open(target_path, 'wb') as f:
-      url = 'https://chromium-%s.storage-download.googleapis.com/%s' % (target, sha1)
+  if sha256_of_file(output_file) != sha256sum:
+    with open(output_file, 'wb') as f:
+      url = 'https://chromium-%s.storage-download.googleapis.com/%s' % (target, object_name)
       f.write(urlopen(url).read())
 
-    os.chmod(target_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+    os.chmod(output_file, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
                           stat.S_IRGRP                | stat.S_IXGRP |
                           stat.S_IROTH                | stat.S_IXOTH )
+    if sha256_of_file(output_file) != sha256sum:
+      print(output_file, 'was corrupted during download. Please try again.')
+      exit(1)
 
-  target_copy_path = os.path.join('bin', os.path.basename(target_path))
-  if sha1_of_file(target_copy_path) != sha1:
-    shutil.copy(target_path, target_copy_path)
+  if sha256_of_file(target_path) != sha256sum:
+    shutil.copy(output_file, target_path)
 
 fetch('clang-format')

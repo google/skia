@@ -16,7 +16,7 @@
 # - bin/clang-format: clang-format 11
 # - brew:             clang-format 14
 #
-# [1] https://raw.githubusercontent.com/llvm-mirror/clang/master/tools/clang-format/git-clang-format
+# [1] https://source.chromium.org/chromium/chromium/src/+/HEAD:third_party/clang-format/script/git-clang-format
 #
 # IF YOU UPDATE THE CPP SECTION ALSO UPDATE THE OBJECTIVE-C SECTION. IF YOU
 # KNOW HOW TO SHARE SETTINGS BETWEEN THE TWO YOU'RE A TRUE HERO.
