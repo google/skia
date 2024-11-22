@@ -116,12 +116,6 @@ std::optional<SkGlyph> SkGlyph::MakeFromBuffer(SkReadBuffer& buffer) {
     return glyph;
 }
 
-SkGlyph::SkGlyph(const SkGlyph&) = default;
-SkGlyph& SkGlyph::operator=(const SkGlyph&) = default;
-SkGlyph::SkGlyph(SkGlyph&&) = default;
-SkGlyph& SkGlyph::operator=(SkGlyph&&) = default;
-SkGlyph::~SkGlyph() = default;
-
 SkMask SkGlyph::mask() const {
     SkIRect bounds = SkIRect::MakeXYWH(fLeft, fTop, fWidth, fHeight);
     return SkMask(static_cast<const uint8_t*>(fImage), bounds, this->rowBytes(), fMaskFormat);

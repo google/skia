@@ -415,11 +415,11 @@ public:
     static std::optional<SkGlyph> MakeFromBuffer(SkReadBuffer&);
     // SkGlyph() is used for testing.
     constexpr SkGlyph() : SkGlyph{SkPackedGlyphID()} { }
-    SkGlyph(const SkGlyph&);
-    SkGlyph& operator=(const SkGlyph&);
-    SkGlyph(SkGlyph&&);
-    SkGlyph& operator=(SkGlyph&&);
-    ~SkGlyph();
+    SkGlyph(const SkGlyph&) = default;
+    SkGlyph& operator=(const SkGlyph&) = default;
+    SkGlyph(SkGlyph&&) = default;
+    SkGlyph& operator=(SkGlyph&&) = default;
+    ~SkGlyph() = default;
     constexpr explicit SkGlyph(SkPackedGlyphID id) : fID{id} { }
 
     SkVector advanceVector() const { return SkVector{fAdvanceX, fAdvanceY}; }
