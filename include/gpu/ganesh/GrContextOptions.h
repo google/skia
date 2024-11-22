@@ -75,8 +75,55 @@ struct SK_API GrContextOptions {
 
     GrContextOptions() {}
 
-    // Suppress prints for the GrContext.
-    bool fSuppressPrints = false;
+    /**
+     * If Skia is creating a default VMA allocator for the Vulkan backend this value will be used
+     * for the preferredLargeHeapBlockSize. If the value is not set, then Skia will use an
+     * inernally defined default size.
+     *
+     * However, it is highly discouraged to have Skia make a default allocator (and support for
+     * doing so will be removed soon,  b/321962001). Instead clients should create their own
+     * allocator to pass into Skia where they can fine tune this value themeselves.
+     */
+    std::optional<uint64_t> fVulkanVMALargeHeapBlockSize;
+
+    /**
+     * Optional callback that can be passed into the GrDirectContext which will be called when the
+     * GrDirectContext is about to be destroyed. When this call is made, it will be safe for the
+     * client to delete the GPU backend context that is backing the GrDirectContext. The
+     * GrDirectContextDestroyedContext will be passed back to the client in the callback.
+     */
+    GrDirectContextDestroyedContext fContextDeleteContext = nullptr;
+    GrDirectContextDestroyedProc fContextDeleteProc = nullptr;
+
+    /**
+     * Executor to handle threaded work within Ganesh. If this is nullptr, then all work will be
+     * done serially on the main thread. To have worker threads assist with various tasks, set this
+     * to a valid SkExecutor instance. Currently, used for software path rendering, but may be used
+     * for other tasks.
+     */
+    SkExecutor* fExecutor = nullptr;
+
+    /**
+     * Cache in which to store compiled shader binaries between runs.
+     */
+    PersistentCache* fPersistentCache = nullptr;
+
+    /**
+     * If present, use this object to report shader compilation failures. If not, report failures
+     * via SkDebugf and assert.
+     */
+    ShaderErrorHandler* fShaderErrorHandler = nullptr;
+
+    /** Default minimum size to use when allocating buffers for uploading data to textures. The
+        larger the value the more uploads can be packed into one buffer, but at the cost of
+        more gpu memory allocated that may not be used. Uploads larger than the minimum will still
+        work by allocating a dedicated buffer. */
+    size_t fMinimumStagingBufferSize = 64 * 1024;
+
+    /**
+     * The maximum size of cache textures used for Skia's Glyph cache.
+     */
+    size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
 
     /**
      * Controls whether we check for GL errors after functions that allocate resources (e.g.
@@ -85,6 +132,33 @@ struct SK_API GrContextOptions {
      * option. Ignored on backends other than GL.
      */
     Enable fSkipGLErrorChecks = Enable::kDefault;
+
+    /**
+     * Can the glyph atlas use multiple textures. If allowed, the each texture's size is bound by
+     * fGlypheCacheTextureMaximumBytes.
+     */
+    Enable fAllowMultipleGlyphCacheTextures = Enable::kDefault;
+
+    /**
+     * Enables driver workaround to use draws instead of HW clears, e.g. glClear on the GL backend.
+     */
+    Enable fUseDrawInsteadOfClear = Enable::kDefault;
+
+    /**
+     * Allow Ganesh to more aggressively reorder operations to reduce the number of render passes.
+     * Offscreen draws will be done upfront instead of interrupting the main render pass when
+     * possible. May increase VRAM usage, but still observes the resource cache limit.
+     * Enabled by default.
+     */
+    Enable fReduceOpsTaskSplitting = Enable::kDefault;
+
+    /**
+     * This affects the usage of the PersistentCache. We can cache SkSL, backend source (GLSL), or
+     * backend binaries (GL program binaries). By default we cache binaries, but if the driver's
+     * binary loading/storing is believed to have bugs, this can be limited to caching GLSL.
+     * Caching GLSL strings still saves CPU work when a GL program is created.
+     */
+    ShaderCacheStrategy fShaderCacheStrategy = ShaderCacheStrategy::kBackendBinary;
 
     /** Overrides: These options override feature detection using backend API queries. These
         overrides can only reduce the feature set or limits, never increase them beyond the
@@ -97,19 +171,48 @@ struct SK_API GrContextOptions {
         deduce the optimal value for this platform. */
     int  fBufferMapThreshold = -1;
 
-    /** Default minimum size to use when allocating buffers for uploading data to textures. The
-        larger the value the more uploads can be packed into one buffer, but at the cost of
-        more gpu memory allocated that may not be used. Uploads larger than the minimum will still
-        work by allocating a dedicated buffer. */
-    size_t fMinimumStagingBufferSize = 64 * 1024;
+    /**
+     * Maximum number of GPU programs or pipelines to keep active in the runtime cache.
+     */
+    int fRuntimeProgramCacheSize = 256;
 
     /**
-     * Executor to handle threaded work within Ganesh. If this is nullptr, then all work will be
-     * done serially on the main thread. To have worker threads assist with various tasks, set this
-     * to a valid SkExecutor instance. Currently, used for software path rendering, but may be used
-     * for other tasks.
+     * Specifies the number of samples Ganesh should use when performing internal draws with MSAA
+     * (hardware capabilities permitting).
+     *
+     * If 0, Ganesh will disable internal code paths that use multisampling.
      */
-    SkExecutor* fExecutor = nullptr;
+    int  fInternalMultisampleCount = 4;
+
+    /**
+     * In Skia's vulkan backend a single GrContext submit equates to the submission of a single
+     * primary command buffer to the VkQueue. This value specifies how many vulkan secondary command
+     * buffers we will cache for reuse on a given primary command buffer. A single submit may use
+     * more than this many secondary command buffers, but after the primary command buffer is
+     * finished on the GPU it will only hold on to this many secondary command buffers for reuse.
+     *
+     * A value of -1 means we will pick a limit value internally.
+     */
+    int fMaxCachedVulkanSecondaryCommandBuffers = -1;
+
+    /**
+     * Below this threshold size in device space distance field fonts won't be used. Distance field
+     * fonts don't support hinting which is more important at smaller sizes.
+     */
+    float fMinDistanceFieldFontSize = 18;
+
+    /**
+     * Above this threshold size in device space glyphs are drawn as individual paths.
+     */
+#if defined(SK_BUILD_FOR_ANDROID)
+    float fGlyphsAsPathsFontSize = 384;
+#elif defined(SK_BUILD_FOR_MAC)
+    float fGlyphsAsPathsFontSize = 256;
+#else
+    float fGlyphsAsPathsFontSize = 324;
+#endif
+
+    GrDriverBugWorkarounds fDriverBugWorkarounds;
 
     /** Construct mipmaps manually, via repeated downsampling draw-calls. This is used when
         the driver's implementation (glGenerateMipmap) contains bugs. This requires mipmap
@@ -143,34 +246,6 @@ struct SK_API GrContextOptions {
     bool fDisableGpuYUVConversion = false;
 
     /**
-     * The maximum size of cache textures used for Skia's Glyph cache.
-     */
-    size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
-
-    /**
-     * Below this threshold size in device space distance field fonts won't be used. Distance field
-     * fonts don't support hinting which is more important at smaller sizes.
-     */
-    float fMinDistanceFieldFontSize = 18;
-
-    /**
-     * Above this threshold size in device space glyphs are drawn as individual paths.
-     */
-#if defined(SK_BUILD_FOR_ANDROID)
-    float fGlyphsAsPathsFontSize = 384;
-#elif defined(SK_BUILD_FOR_MAC)
-    float fGlyphsAsPathsFontSize = 256;
-#else
-    float fGlyphsAsPathsFontSize = 324;
-#endif
-
-    /**
-     * Can the glyph atlas use multiple textures. If allowed, the each texture's size is bound by
-     * fGlypheCacheTextureMaximumBytes.
-     */
-    Enable fAllowMultipleGlyphCacheTextures = Enable::kDefault;
-
-    /**
      * Bugs on certain drivers cause stencil buffers to leak. This flag causes Skia to avoid
      * allocating stencil buffers and use alternate rasterization paths, avoiding the leak.
      */
@@ -182,19 +257,6 @@ struct SK_API GrContextOptions {
      * performance impact.
      */
     bool fSharpenMipmappedTextures = true;
-
-    /**
-     * Enables driver workaround to use draws instead of HW clears, e.g. glClear on the GL backend.
-     */
-    Enable fUseDrawInsteadOfClear = Enable::kDefault;
-
-    /**
-     * Allow Ganesh to more aggressively reorder operations to reduce the number of render passes.
-     * Offscreen draws will be done upfront instead of interrupting the main render pass when
-     * possible. May increase VRAM usage, but still observes the resource cache limit.
-     * Enabled by default.
-     */
-    Enable fReduceOpsTaskSplitting = Enable::kDefault;
 
     /**
      * Some ES3 contexts report the ES2 external image extension, but not the ES3 version.
@@ -209,60 +271,6 @@ struct SK_API GrContextOptions {
      * override other GrContextOption settings.
      */
     bool fDisableDriverCorrectnessWorkarounds = false;
-
-    /**
-     * Maximum number of GPU programs or pipelines to keep active in the runtime cache.
-     */
-    int fRuntimeProgramCacheSize = 256;
-
-    /**
-     * Cache in which to store compiled shader binaries between runs.
-     */
-    PersistentCache* fPersistentCache = nullptr;
-
-    /**
-     * This affects the usage of the PersistentCache. We can cache SkSL, backend source (GLSL), or
-     * backend binaries (GL program binaries). By default we cache binaries, but if the driver's
-     * binary loading/storing is believed to have bugs, this can be limited to caching GLSL.
-     * Caching GLSL strings still saves CPU work when a GL program is created.
-     */
-    ShaderCacheStrategy fShaderCacheStrategy = ShaderCacheStrategy::kBackendBinary;
-
-    /**
-     * If present, use this object to report shader compilation failures. If not, report failures
-     * via SkDebugf and assert.
-     */
-    ShaderErrorHandler* fShaderErrorHandler = nullptr;
-
-    /**
-     * Specifies the number of samples Ganesh should use when performing internal draws with MSAA
-     * (hardware capabilities permitting).
-     *
-     * If 0, Ganesh will disable internal code paths that use multisampling.
-     */
-    int  fInternalMultisampleCount = 4;
-
-    /**
-     * In Skia's vulkan backend a single GrContext submit equates to the submission of a single
-     * primary command buffer to the VkQueue. This value specifies how many vulkan secondary command
-     * buffers we will cache for reuse on a given primary command buffer. A single submit may use
-     * more than this many secondary command buffers, but after the primary command buffer is
-     * finished on the GPU it will only hold on to this many secondary command buffers for reuse.
-     *
-     * A value of -1 means we will pick a limit value internally.
-     */
-    int fMaxCachedVulkanSecondaryCommandBuffers = -1;
-
-    /**
-     * If Skia is creating a default VMA allocator for the Vulkan backend this value will be used
-     * for the preferredLargeHeapBlockSize. If the value is not set, then Skia will use an
-     * inernally defined default size.
-     *
-     * However, it is highly discouraged to have Skia make a default allocator (and support for
-     * doing so will be removed soon,  b/321962001). Instead clients should create their own
-     * allocator to pass into Skia where they can fine tune this value themeselves.
-     */
-    std::optional<uint64_t> fVulkanVMALargeHeapBlockSize;
 
     /**
      * If true, the caps will never support mipmaps.
@@ -307,19 +315,31 @@ struct SK_API GrContextOptions {
      */
     bool fAlwaysUseTexStorageWhenAvailable = false;
 
-    /**
-     * Optional callback that can be passed into the GrDirectContext which will be called when the
-     * GrDirectContext is about to be destroyed. When this call is made, it will be safe for the
-     * client to delete the GPU backend context that is backing the GrDirectContext. The
-     * GrDirectContextDestroyedContext will be passed back to the client in the callback.
-     */
-    GrDirectContextDestroyedContext fContextDeleteContext = nullptr;
-    GrDirectContextDestroyedProc fContextDeleteProc = nullptr;
+    // Suppress prints for the GrContext.
+    bool fSuppressPrints = false;
 
 #if defined(GPU_TEST_UTILS)
     /**
      * Private options that are only meant for testing within Skia's tools.
      */
+
+    /**
+     * Include or exclude specific GPU path renderers.
+     */
+    GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kDefault;
+
+    /**
+     * Specify the GPU resource cache limit. Equivalent to calling `setResourceCacheLimit` on the
+     * context at construction time.
+     *
+     * A value of -1 means use the default limit value.
+     */
+    int fResourceCacheLimitOverride = -1;
+
+    /**
+     * Maximum width and height of internal texture atlases.
+     */
+    int  fMaxTextureAtlasSize = 2048;
 
     /**
      * Testing-only mode to exercise allocation failures in the flush-time callback objects.
@@ -368,26 +388,8 @@ struct SK_API GrContextOptions {
      */
     bool fDisallowWriteAndTransferPixelRowBytes = false;
 
-    /**
-     * Include or exclude specific GPU path renderers.
-     */
-    GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kDefault;
-
-    /**
-     * Specify the GPU resource cache limit. Equivalent to calling `setResourceCacheLimit` on the
-     * context at construction time.
-     *
-     * A value of -1 means use the default limit value.
-     */
-    int fResourceCacheLimitOverride = -1;
-
-    /**
-     * Maximum width and height of internal texture atlases.
-     */
-    int  fMaxTextureAtlasSize = 2048;
 #endif
 
-    GrDriverBugWorkarounds fDriverBugWorkarounds;
 };
 
 #endif
