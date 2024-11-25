@@ -5,6 +5,7 @@
 // https://bugs.skia.org/9020
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkData.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkSurface.h"
 #include "src/base/SkTime.h"

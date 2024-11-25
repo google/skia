@@ -27,13 +27,11 @@ public:
 
     bool isValid() override { return fDevice != VK_NULL_HANDLE; }
 
-    void resize(int w, int h) override {
-        this->createSwapchain(w, h, fDisplayParams);
-    }
+    void resize(int w, int h) override { this->createSwapchain(w, h); }
 
-    void setDisplayParams(const DisplayParams& params) override {
+    void setDisplayParams(std::unique_ptr<const DisplayParams> params) override {
         this->destroyContext();
-        fDisplayParams = params;
+        fDisplayParams = std::move(params);
         this->initializeContext();
     }
 
@@ -42,7 +40,9 @@ public:
     /** Platform specific function that determines whether presentation will succeed. */
     using CanPresentFn = sk_gpu_test::CanPresentFn;
 
-    VulkanWindowContext(const DisplayParams&, CreateVkSurfaceFn, CanPresentFn,
+    VulkanWindowContext(std::unique_ptr<const DisplayParams>,
+                        CreateVkSurfaceFn,
+                        CanPresentFn,
                         PFN_vkGetInstanceProcAddr);
 
 private:
@@ -55,7 +55,7 @@ private:
     };
 
     BackbufferInfo* getAvailableBackbuffer();
-    bool createSwapchain(int width, int height, const DisplayParams& params);
+    bool createSwapchain(int width, int height);
     bool createBuffers(VkFormat format, VkImageUsageFlags, SkColorType colorType, VkSharingMode);
     void destroyBuffers();
     void onSwapBuffers() override;

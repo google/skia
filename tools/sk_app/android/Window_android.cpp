@@ -6,8 +6,12 @@
 */
 
 #include "tools/sk_app/android/Window_android.h"
+
+#include "tools/window/DisplayParams.h"
 #include "tools/window/WindowContext.h"
 #include "tools/window/android/WindowContextFactory_android.h"
+
+using skwindow::DisplayParams;
 
 namespace sk_app {
 
@@ -50,22 +54,24 @@ void Window_android::initDisplay(ANativeWindow* window) {
 #ifdef SK_GL
         case kNativeGL_BackendType:
         default:
-            fWindowContext = skwindow::MakeGLForAndroid(window, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeGLForAndroid(window, fRequestedDisplayParams->clone());
             break;
 #else
         default:
 #endif
         case kRaster_BackendType:
-            fWindowContext = skwindow::MakeRasterForAndroid(window, fRequestedDisplayParams);
+            fWindowContext =
+                    skwindow::MakeRasterForAndroid(window, fRequestedDisplayParams->clone());
             break;
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
-            fWindowContext = skwindow::MakeVulkanForAndroid(window, fRequestedDisplayParams);
+            fWindowContext =
+                    skwindow::MakeVulkanForAndroid(window, fRequestedDisplayParams->clone());
             break;
 #if defined(SK_GRAPHITE)
         case kGraphiteVulkan_BackendType:
-            fWindowContext = skwindow::MakeGraphiteVulkanForAndroid(window,
-                                                                    fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeGraphiteVulkanForAndroid(
+                    window, fRequestedDisplayParams->clone());
             break;
 #endif
 #endif

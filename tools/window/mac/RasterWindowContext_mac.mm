@@ -31,7 +31,7 @@ namespace {
 
 class RasterWindowContext_mac : public GLWindowContext {
 public:
-    RasterWindowContext_mac(const MacWindowInfo&, const DisplayParams&);
+    RasterWindowContext_mac(const MacWindowInfo&, std::unique_ptr<const DisplayParams>);
 
     ~RasterWindowContext_mac() override;
 
@@ -52,11 +52,8 @@ private:
 };
 
 RasterWindowContext_mac::RasterWindowContext_mac(const MacWindowInfo& info,
-                                                 const DisplayParams& params)
-        : GLWindowContext(params)
-        , fMainView(info.fMainView)
-        , fGLContext(nil) {
-
+                                                 std::unique_ptr<const DisplayParams> params)
+        : GLWindowContext(std::move(params)), fMainView(info.fMainView), fGLContext(nil) {
     // any config code here (particularly for msaa)?
 
     this->initializeContext();
@@ -91,11 +88,11 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
         attributes[numAttributes++] = 0;
         attributes[numAttributes++] = NSOpenGLPFAStencilSize;
         attributes[numAttributes++] = 8;
-        if (fDisplayParams.fMSAASampleCount > 1) {
+        if (fDisplayParams->msaaSampleCount() > 1) {
             attributes[numAttributes++] = NSOpenGLPFASampleBuffers;
             attributes[numAttributes++] = 1;
             attributes[numAttributes++] = NSOpenGLPFASamples;
-            attributes[numAttributes++] = fDisplayParams.fMSAASampleCount;
+            attributes[numAttributes++] = fDisplayParams->msaaSampleCount();
         } else {
             attributes[numAttributes++] = NSOpenGLPFASampleBuffers;
             attributes[numAttributes++] = 0;
@@ -119,7 +116,7 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
         [fMainView setWantsBestResolutionOpenGLSurface:YES];
         [fGLContext setView:fMainView];
 
-        GLint swapInterval = fDisplayParams.fDisableVsync ? 0 : 1;
+        GLint swapInterval = fDisplayParams->disableVsync() ? 0 : 1;
         [fGLContext setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
     }
 
@@ -145,8 +142,11 @@ sk_sp<const GrGLInterface> RasterWindowContext_mac::onInitializeContext() {
     glViewport(0, 0, fWidth, fHeight);
 
     // make the offscreen image
-    SkImageInfo info = SkImageInfo::Make(fWidth, fHeight, fDisplayParams.fColorType,
-                                         kPremul_SkAlphaType, fDisplayParams.fColorSpace);
+    SkImageInfo info = SkImageInfo::Make(fWidth,
+                                         fHeight,
+                                         fDisplayParams->colorType(),
+                                         kPremul_SkAlphaType,
+                                         fDisplayParams->colorSpace());
     fBackbufferSurface = SkSurfaces::Raster(info);
     return GrGLInterfaces::MakeMac();
 }
@@ -179,8 +179,8 @@ void RasterWindowContext_mac::resize(int w, int h) {
 namespace skwindow {
 
 std::unique_ptr<WindowContext> MakeRasterForMac(const MacWindowInfo& info,
-                                                const DisplayParams& params) {
-    std::unique_ptr<WindowContext> ctx(new RasterWindowContext_mac(info, params));
+                                                std::unique_ptr<const DisplayParams> params) {
+    std::unique_ptr<WindowContext> ctx(new RasterWindowContext_mac(info, std::move(params)));
     if (!ctx->isValid()) {
         return nullptr;
     }

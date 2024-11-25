@@ -22,7 +22,7 @@ namespace {
 
 class MetalWindowContext_mac : public MetalWindowContext {
 public:
-    MetalWindowContext_mac(const MacWindowInfo&, const DisplayParams&);
+    MetalWindowContext_mac(const MacWindowInfo&, std::unique_ptr<const DisplayParams>);
 
     ~MetalWindowContext_mac() override;
 
@@ -36,8 +36,8 @@ private:
 };
 
 MetalWindowContext_mac::MetalWindowContext_mac(const MacWindowInfo& info,
-                                               const DisplayParams& params)
-        : MetalWindowContext(params), fMainView(info.fMainView) {
+                                               std::unique_ptr<const DisplayParams> params)
+        : MetalWindowContext(std::move(params)), fMainView(info.fMainView) {
     // any config code here (particularly for msaa)?
 
     this->initializeContext();
@@ -55,7 +55,7 @@ bool MetalWindowContext_mac::onInitializeContext() {
     // resize ignores the passed values and uses the fMainView directly.
     this->resize(0, 0);
 
-    BOOL useVsync = fDisplayParams.fDisableVsync ? NO : YES;
+    BOOL useVsync = fDisplayParams->disableVsync() ? NO : YES;
     fMetalLayer.displaySyncEnabled = useVsync;  // TODO: need solution for 10.12 or lower
     fMetalLayer.layoutManager = [CAConstraintLayoutManager layoutManager];
     fMetalLayer.autoresizingMask = kCALayerHeightSizable | kCALayerWidthSizable;
@@ -90,8 +90,8 @@ void MetalWindowContext_mac::resize(int w, int h) {
 namespace skwindow {
 
 std::unique_ptr<WindowContext> MakeGaneshMetalForMac(const MacWindowInfo& info,
-                                                     const DisplayParams& params) {
-    std::unique_ptr<WindowContext> ctx(new MetalWindowContext_mac(info, params));
+                                                     std::unique_ptr<const DisplayParams> params) {
+    std::unique_ptr<WindowContext> ctx(new MetalWindowContext_mac(info, std::move(params)));
     if (!ctx->isValid()) {
         return nullptr;
     }

@@ -19,7 +19,7 @@ namespace {
 
 class ANGLEWindowContext_mac : public ANGLEWindowContext {
 public:
-    ANGLEWindowContext_mac(const MacWindowInfo&, const DisplayParams&);
+    ANGLEWindowContext_mac(const MacWindowInfo&, std::unique_ptr<const DisplayParams>);
 
 protected:
     EGLDisplay onGetEGLDisplay(
@@ -33,8 +33,8 @@ private:
 };
 
 ANGLEWindowContext_mac::ANGLEWindowContext_mac(const MacWindowInfo& info,
-                                               const DisplayParams& params)
-        : ANGLEWindowContext(params), fMainView(info.fMainView) {
+                                               std::unique_ptr<const DisplayParams> params)
+        : ANGLEWindowContext(std::move(params)), fMainView(info.fMainView) {
     this->initializeContext();
 }
 
@@ -53,7 +53,8 @@ NativeWindowType ANGLEWindowContext_mac::onGetNativeWindow() const {
 
 int ANGLEWindowContext_mac::onGetStencilBits() const {
     GLint stencilBits;
-    NSOpenGLPixelFormat* pixelFormat = skwindow::GetGLPixelFormat(fDisplayParams.fMSAASampleCount);
+    NSOpenGLPixelFormat* pixelFormat =
+            skwindow::GetGLPixelFormat(fDisplayParams->msaaSampleCount());
     [pixelFormat getValues:&stencilBits forAttribute:NSOpenGLPFAStencilSize forVirtualScreen:0];
     return stencilBits;
 }
@@ -69,8 +70,8 @@ SkISize ANGLEWindowContext_mac::onGetSize() const {
 namespace skwindow {
 
 std::unique_ptr<WindowContext> MakeGaneshANGLEForMac(const MacWindowInfo& info,
-                                                     const DisplayParams& params) {
-    std::unique_ptr<WindowContext> ctx(new ANGLEWindowContext_mac(info, params));
+                                                     std::unique_ptr<const DisplayParams> params) {
+    std::unique_ptr<WindowContext> ctx(new ANGLEWindowContext_mac(info, std::move(params)));
     if (!ctx->isValid()) {
         return nullptr;
     }

@@ -19,12 +19,13 @@ namespace {
 
 class RasterWindowContext_xlib : public RasterWindowContext {
 public:
-    RasterWindowContext_xlib(Display*, XWindow, int width, int height, const DisplayParams&);
+    RasterWindowContext_xlib(
+            Display*, XWindow, int width, int height, std::unique_ptr<const DisplayParams>);
 
     sk_sp<SkSurface> getBackbufferSurface() override;
     bool isValid() override { return SkToBool(fWindow); }
     void resize(int  w, int h) override;
-    void setDisplayParams(const DisplayParams& params) override;
+    void setDisplayParams(std::unique_ptr<const DisplayParams> params) override;
 
 protected:
     void onSwapBuffers() override;
@@ -35,28 +36,29 @@ protected:
     GC       fGC;
 };
 
-RasterWindowContext_xlib::RasterWindowContext_xlib(Display* display, XWindow window, int width,
-                                                   int height, const DisplayParams& params)
-        : RasterWindowContext(params)
-        , fDisplay(display)
-        , fWindow(window) {
+RasterWindowContext_xlib::RasterWindowContext_xlib(Display* display,
+                                                   XWindow window,
+                                                   int width,
+                                                   int height,
+                                                   std::unique_ptr<const DisplayParams> params)
+        : RasterWindowContext(std::move(params)), fDisplay(display), fWindow(window) {
     fGC = XCreateGC(fDisplay, fWindow, 0, nullptr);
     this->resize(width, height);
     fWidth = width;
     fHeight = height;
 }
 
-void RasterWindowContext_xlib::setDisplayParams(const DisplayParams& params) {
-    fDisplayParams = params;
+void RasterWindowContext_xlib::setDisplayParams(std::unique_ptr<const DisplayParams> params) {
+    fDisplayParams = std::move(params);
     XWindowAttributes attrs;
     XGetWindowAttributes(fDisplay, fWindow, &attrs);
     this->resize(attrs.width, attrs.height);
 }
 
 void RasterWindowContext_xlib::resize(int  w, int h) {
-    SkImageInfo info = SkImageInfo::Make(w, h, fDisplayParams.fColorType, kPremul_SkAlphaType,
-                                         fDisplayParams.fColorSpace);
-    fBackbufferSurface = SkSurfaces::Raster(info, &fDisplayParams.fSurfaceProps);
+    SkImageInfo info = SkImageInfo::Make(
+            w, h, fDisplayParams->colorType(), kPremul_SkAlphaType, fDisplayParams->colorSpace());
+    fBackbufferSurface = SkSurfaces::Raster(info, &fDisplayParams->surfaceProps());
 }
 
 sk_sp<SkSurface> RasterWindowContext_xlib::getBackbufferSurface() { return fBackbufferSurface; }
@@ -91,9 +93,9 @@ void RasterWindowContext_xlib::onSwapBuffers() {
 namespace skwindow {
 
 std::unique_ptr<WindowContext> MakeRasterForXlib(const XlibWindowInfo& info,
-                                                 const DisplayParams& params) {
+                                                 std::unique_ptr<const DisplayParams> params) {
     std::unique_ptr<WindowContext> ctx(new RasterWindowContext_xlib(
-            info.fDisplay, info.fWindow, info.fWidth, info.fHeight, params));
+            info.fDisplay, info.fWindow, info.fWidth, info.fHeight, std::move(params)));
     if (!ctx->isValid()) {
         ctx = nullptr;
     }

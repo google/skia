@@ -11,11 +11,15 @@
 #include "include/core/SkSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
+#include "tools/window/DisplayParams.h"
 #include "tools/window/WindowContext.h"
+
+using skwindow::DisplayParams;
 
 namespace sk_app {
 
-Window::Window() {}
+// Use the default DisplayParams
+Window::Window() : fRequestedDisplayParams(std::make_unique<DisplayParams>()) {}
 
 Window::~Window() {}
 
@@ -131,10 +135,11 @@ int Window::height() const {
     return fWindowContext->height();
 }
 
-void Window::setRequestedDisplayParams(const DisplayParams& params, bool /* allowReattach */) {
-    fRequestedDisplayParams = params;
+void Window::setRequestedDisplayParams(std::unique_ptr<const DisplayParams> params,
+                                       bool /* allowReattach */) {
+    fRequestedDisplayParams = std::move(params);
     if (fWindowContext) {
-        fWindowContext->setDisplayParams(fRequestedDisplayParams);
+        fWindowContext->setDisplayParams(fRequestedDisplayParams->clone());
     }
 }
 

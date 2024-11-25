@@ -15,7 +15,7 @@ namespace {
 
 class ANGLEWindowContext_win : public ANGLEWindowContext {
 public:
-    ANGLEWindowContext_win(HWND, const DisplayParams&);
+    ANGLEWindowContext_win(HWND, std::unique_ptr<const DisplayParams>);
 
 protected:
     EGLDisplay onGetEGLDisplay(
@@ -29,8 +29,9 @@ private:
     HDC fHDC;
 };
 
-ANGLEWindowContext_win::ANGLEWindowContext_win(HWND wnd, const DisplayParams& params)
-        : ANGLEWindowContext(params), fHWND(wnd), fHDC(GetDC(fHWND)) {
+ANGLEWindowContext_win::ANGLEWindowContext_win(HWND wnd,
+                                               std::unique_ptr<const DisplayParams> params)
+        : ANGLEWindowContext(std::move(params)), fHWND(wnd), fHDC(GetDC(fHWND)) {
     this->initializeContext();
 }
 
@@ -62,8 +63,9 @@ SkISize ANGLEWindowContext_win::onGetSize() const {
 
 namespace skwindow {
 
-std::unique_ptr<WindowContext> MakeANGLEForWin(HWND wnd, const DisplayParams& params) {
-    std::unique_ptr<WindowContext> ctx(new ANGLEWindowContext_win(wnd, params));
+std::unique_ptr<WindowContext> MakeANGLEForWin(HWND wnd,
+                                               std::unique_ptr<const DisplayParams> params) {
+    std::unique_ptr<WindowContext> ctx(new ANGLEWindowContext_win(wnd, std::move(params)));
     if (!ctx->isValid()) {
         return nullptr;
     }

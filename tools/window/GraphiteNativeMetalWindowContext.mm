@@ -26,15 +26,10 @@ using skwindow::internal::GraphiteMetalWindowContext;
 
 namespace skwindow::internal {
 
-GraphiteMetalWindowContext::GraphiteMetalWindowContext(const DisplayParams& params)
-        : WindowContext(params), fValid(false), fDrawableHandle(nil) {
-    // SkNextPow2 is undefined for 0, so handle that ourselves.
-    if (fDisplayParams.fMSAASampleCount <= 1) {
-        fDisplayParams.fMSAASampleCount = 1;
-    } else {
-        fDisplayParams.fMSAASampleCount = SkNextPow2(fDisplayParams.fMSAASampleCount);
-    }
-}
+GraphiteMetalWindowContext::GraphiteMetalWindowContext(std::unique_ptr<const DisplayParams> params)
+        : WindowContext(DisplayParamsBuilder::Make(params.get())->roundUpMSAA()->build())
+        , fValid(false)
+        , fDrawableHandle(nil) {}
 
 void GraphiteMetalWindowContext::initializeContext() {
     SkASSERT(!fContext);
@@ -43,16 +38,16 @@ void GraphiteMetalWindowContext::initializeContext() {
     fDevice.reset(MTLCreateSystemDefaultDevice());
     fQueue.reset([*fDevice newCommandQueue]);
 
-    if (fDisplayParams.fMSAASampleCount > 1) {
+    if (fDisplayParams->msaaSampleCount() > 1) {
         if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
-            if (![*fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {
+            if (![*fDevice supportsTextureSampleCount:fDisplayParams->msaaSampleCount()]) {
                 return;
             }
         } else {
             return;
         }
     }
-    fSampleCount = fDisplayParams.fMSAASampleCount;
+    fSampleCount = fDisplayParams->msaaSampleCount();
     fStencilBits = 8;
 
     fValid = this->onInitializeContext();
@@ -61,16 +56,20 @@ void GraphiteMetalWindowContext::initializeContext() {
     backendContext.fDevice.retain((CFTypeRef)fDevice.get());
     backendContext.fQueue.retain((CFTypeRef)fQueue.get());
 
-    fDisplayParams.fGraphiteTestOptions.fTestOptions.fContextOptions.fDisableCachedGlyphUploads =
-            true;
+    skwindow::GraphiteTestOptions opts = fDisplayParams->graphiteTestOptions();
+
+    opts.fTestOptions.fContextOptions.fDisableCachedGlyphUploads = true;
     // Needed to make synchronous readPixels work:
-    fDisplayParams.fGraphiteTestOptions.fPriv.fStoreContextRefInRecorder = true;
+    opts.fPriv.fStoreContextRefInRecorder = true;
+    fDisplayParams = DisplayParamsBuilder::Make(fDisplayParams.get())
+                             ->graphiteTestOptions(opts)
+                             ->build();
     fGraphiteContext = skgpu::graphite::ContextFactory::MakeMetal(
-            backendContext, fDisplayParams.fGraphiteTestOptions.fTestOptions.fContextOptions);
+            backendContext, fDisplayParams->graphiteTestOptions().fTestOptions.fContextOptions);
     fGraphiteRecorder = fGraphiteContext->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
     // TODO
-    //    if (!fGraphiteContext && fDisplayParams.fMSAASampleCount > 1) {
-    //        fDisplayParams.fMSAASampleCount /= 2;
+    //    if (!fGraphiteContext && fDisplayParams->msaaSampleCount() > 1) {
+    //        fDisplayParams->msaaSampleCount() /= 2;
     //        this->initializeContext();
     //        return;
     //    }
@@ -104,8 +103,8 @@ sk_sp<SkSurface> GraphiteMetalWindowContext::getBackbufferSurface() {
     surface = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                              backendTex,
                                              kBGRA_8888_SkColorType,
-                                             fDisplayParams.fColorSpace,
-                                             &fDisplayParams.fSurfaceProps);
+                                             fDisplayParams->colorSpace(),
+                                             &fDisplayParams->surfaceProps());
     fDrawableHandle = CFRetain((CFTypeRef)currentDrawable);
 
     return surface;
@@ -126,9 +125,9 @@ void GraphiteMetalWindowContext::onSwapBuffers() {
     fDrawableHandle = nil;
 }
 
-void GraphiteMetalWindowContext::setDisplayParams(const DisplayParams& params) {
+void GraphiteMetalWindowContext::setDisplayParams(std::unique_ptr<const DisplayParams> params) {
     this->destroyContext();
-    fDisplayParams = params;
+    fDisplayParams = std::move(params);
     this->initializeContext();
 }
 

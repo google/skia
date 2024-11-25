@@ -25,10 +25,10 @@ public:
 
     bool isValid() override { return fValid; }
 
-    void setDisplayParams(const DisplayParams& params) override;
+    void setDisplayParams(std::unique_ptr<const DisplayParams> params) override;
 
 protected:
-    MetalWindowContext(const DisplayParams&);
+    MetalWindowContext(std::unique_ptr<const DisplayParams>);
     // This should be called by subclass constructor. It is also called when window/display
     // parameters change. This will in turn call onInitializeContext().
     void initializeContext();

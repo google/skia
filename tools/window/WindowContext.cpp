@@ -15,8 +15,8 @@
 
 namespace skwindow {
 
-WindowContext::WindowContext(const DisplayParams& params)
-        : fDisplayParams(params) {}
+WindowContext::WindowContext(std::unique_ptr<const DisplayParams> params)
+        : fDisplayParams(std::move(params)) {}
 
 WindowContext::~WindowContext() {}
 

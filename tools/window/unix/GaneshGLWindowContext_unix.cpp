@@ -30,7 +30,7 @@ static int ctxErrorHandler(Display* dpy, XErrorEvent* ev) {
 
 class GLWindowContext_xlib : public GLWindowContext {
 public:
-    GLWindowContext_xlib(const XlibWindowInfo&, const DisplayParams&);
+    GLWindowContext_xlib(const XlibWindowInfo&, std::unique_ptr<const DisplayParams>);
     ~GLWindowContext_xlib() override;
 
     void onDestroyContext() override;
@@ -40,7 +40,7 @@ protected:
     void onSwapBuffers() override;
 
 private:
-    GLWindowContext_xlib(void*, const DisplayParams&);
+    GLWindowContext_xlib(void*, std::unique_ptr<const DisplayParams>);
 
     Display* fDisplay;
     XWindow fWindow;
@@ -50,8 +50,8 @@ private:
 };
 
 GLWindowContext_xlib::GLWindowContext_xlib(const XlibWindowInfo& winInfo,
-                                           const DisplayParams& params)
-        : GLWindowContext(params)
+                                           std::unique_ptr<const DisplayParams> params)
+        : GLWindowContext(std::move(params))
         , fDisplay(winInfo.fDisplay)
         , fWindow(winInfo.fWindow)
         , fFBConfig(winInfo.fFBConfig)
@@ -141,7 +141,7 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
             PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT =
                     (PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddressARB(
                             (const GLubyte*)"glXSwapIntervalEXT");
-            glXSwapIntervalEXT(fDisplay, fWindow, fDisplayParams.fDisableVsync ? 0 : 1);
+            glXSwapIntervalEXT(fDisplay, fWindow, fDisplayParams->disableVsync() ? 0 : 1);
         }
     }
 
@@ -193,8 +193,8 @@ void GLWindowContext_xlib::onSwapBuffers() {
 namespace skwindow {
 
 std::unique_ptr<WindowContext> MakeGaneshGLForXlib(const XlibWindowInfo& winInfo,
-                                                   const DisplayParams& params) {
-    std::unique_ptr<WindowContext> ctx(new GLWindowContext_xlib(winInfo, params));
+                                                   std::unique_ptr<const DisplayParams> params) {
+    std::unique_ptr<WindowContext> ctx(new GLWindowContext_xlib(winInfo, std::move(params)));
     if (!ctx->isValid()) {
         return nullptr;
     }

@@ -15,7 +15,7 @@ namespace {
 
 class GraphiteDawnD3D12WindowContext_win : public GraphiteDawnWindowContext {
 public:
-    GraphiteDawnD3D12WindowContext_win(HWND hwnd, const DisplayParams& params);
+    GraphiteDawnD3D12WindowContext_win(HWND hwnd, std::unique_ptr<const DisplayParams> params);
 
     ~GraphiteDawnD3D12WindowContext_win() override;
 
@@ -27,9 +27,10 @@ private:
     HWND fWindow;
 };
 
-GraphiteDawnD3D12WindowContext_win::GraphiteDawnD3D12WindowContext_win(HWND hwnd,
-                                                                       const DisplayParams& params)
-        : GraphiteDawnWindowContext(params, wgpu::TextureFormat::BGRA8Unorm), fWindow(hwnd) {
+GraphiteDawnD3D12WindowContext_win::GraphiteDawnD3D12WindowContext_win(
+        HWND hwnd, std::unique_ptr<const DisplayParams> params)
+        : GraphiteDawnWindowContext(std::move(params), wgpu::TextureFormat::BGRA8Unorm)
+        , fWindow(hwnd) {
     RECT rect;
     GetClientRect(hwnd, &rect);
     this->initializeContext(rect.right - rect.left, rect.bottom - rect.top);
@@ -77,8 +78,10 @@ void GraphiteDawnD3D12WindowContext_win::resize(int w, int h) {
 
 namespace skwindow {
 
-std::unique_ptr<WindowContext> MakeGraphiteDawnD3D12ForWin(HWND hwnd, const DisplayParams& params) {
-    std::unique_ptr<WindowContext> ctx(new GraphiteDawnD3D12WindowContext_win(hwnd, params));
+std::unique_ptr<WindowContext> MakeGraphiteDawnD3D12ForWin(
+        HWND hwnd, std::unique_ptr<const DisplayParams> params) {
+    std::unique_ptr<WindowContext> ctx(
+            new GraphiteDawnD3D12WindowContext_win(hwnd, std::move(params)));
     if (!ctx->isValid()) {
         return nullptr;
     }

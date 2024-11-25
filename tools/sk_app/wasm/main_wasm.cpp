@@ -10,5 +10,5 @@
 
 int main(int argc, char**argv) {
     printf("Hello world\n");
-    // TODO(bsalomon, kjlubick) Make this draw to a Canvas2D, WebGL Canvas, or WebGPU Canvas
+    // TODO(kjlubick) Make this draw to a Canvas2D, WebGL Canvas, or WebGPU Canvas
 }
