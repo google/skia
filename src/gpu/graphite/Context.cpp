@@ -825,6 +825,10 @@ bool Context::supportsProtectedContent() const {
     return fSharedContext->isProtected() == Protected::kYes;
 }
 
+GpuStatsFlags Context::supportedGpuStats() const {
+    return fSharedContext->caps()->supportedGpuStats();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////
 
 #if defined(GPU_TEST_UTILS)

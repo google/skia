@@ -9,6 +9,7 @@
 
 #include "include/gpu/graphite/Recording.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
@@ -83,8 +84,16 @@ bool QueueManager::setupCommandBuffer(ResourceProvider* resourceProvider, Protec
 bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* context) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
+    bool addTimerQuery = false;
     sk_sp<RefCntedCallback> callback;
-    if (info.fFinishedProc) {
+    if (info.fFinishedWithStatsProc) {
+        addTimerQuery = info.fGpuStatsFlags & GpuStatsFlags::kElapsedTime;
+        if (addTimerQuery && !(context->supportedGpuStats() & GpuStatsFlags::kElapsedTime)) {
+            addTimerQuery = false;
+            SKGPU_LOG_W("Requested elapsed time reporting but not supported by Context.");
+        }
+        callback = RefCntedCallback::Make(info.fFinishedWithStatsProc, info.fFinishedContext);
+    } else if (info.fFinishedProc) {
         callback = RefCntedCallback::Make(info.fFinishedProc, info.fFinishedContext);
     }
 
@@ -156,6 +165,9 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
         }
     }
 
+    if (addTimerQuery) {
+        fCurrentCommandBuffer->startTimerQuery();
+    }
     fCurrentCommandBuffer->addWaitSemaphores(info.fNumWaitSemaphores, info.fWaitSemaphores);
     if (!info.fRecording->priv().addCommands(context,
                                              fCurrentCommandBuffer.get(),
@@ -174,6 +186,9 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
     if (info.fTargetTextureState) {
         fCurrentCommandBuffer->prepareSurfaceForStateUpdate(info.fTargetSurface,
                                                             info.fTargetTextureState);
+    }
+    if (addTimerQuery) {
+        fCurrentCommandBuffer->endTimerQuery();
     }
 
     if (callback) {

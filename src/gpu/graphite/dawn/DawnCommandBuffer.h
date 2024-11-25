@@ -43,6 +43,10 @@ public:
     }
 #endif
 
+    bool startTimerQuery() override;
+    void endTimerQuery() override;
+    std::optional<GpuStats> gpuStats() override;
+
 private:
     DawnCommandBuffer(const DawnSharedContext* sharedContext,
                       DawnResourceProvider* resourceProvider);
@@ -159,6 +163,11 @@ private:
 
     wgpu::Buffer fCurrentIndirectBuffer;
     size_t fCurrentIndirectBufferOffset = 0;
+
+    bool fWroteFirstPassTimestamps = false;
+    wgpu::QuerySet fTimestampQuerySet;
+    sk_sp<DawnBuffer> fTimestampQueryBuffer;
+    sk_sp<DawnBuffer> fTimestampQueryXferBuffer;
 
     const DawnGraphicsPipeline* fActiveGraphicsPipeline = nullptr;
     const DawnComputePipeline* fActiveComputePipeline = nullptr;

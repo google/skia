@@ -58,6 +58,7 @@ enum class BufferType : int {
     kXferGpuToCpu,
     kUniform,
     kStorage,
+    kQuery,
 
     // GPU-only buffer types
     kIndirect,

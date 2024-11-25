@@ -28,6 +28,10 @@
 #include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
 #include "src/sksl/SkSLUtil.h"
 
+#if defined(__EMSCRIPTEN__)
+#include <emscripten/version.h>
+#endif
+
 namespace {
 
 skgpu::UniqueKey::Domain get_pipeline_domain() {
@@ -500,6 +504,24 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     fSupportsPartialLoadResolve =
             backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnPartialLoadResolveTexture);
 #endif
+
+    if (backendContext.fDevice.HasFeature(wgpu::FeatureName::TimestampQuery)) {
+        // Native Dawn has an API for writing timestamps on command buffers. WebGPU only supports
+        // begin and end timestamps on render and compute passes.
+#if !defined(__EMSCRIPTEN__)
+        fSupportsCommandBufferTimestamps = true;
+#endif
+
+        // The emscripten C/C++ interface before 3.1.48 for timestamp query writes on render and
+        // compute passes is different than on current emsdk. The older API isn't correctly
+        // translated to the current JS WebGPU API in emsdk. So we require 3.1.48+.
+#if !defined(__EMSCRIPTEN__)                                                                   \
+        || (__EMSCRIPTEN_major__ > 3)                                                          \
+        || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ > 1)                             \
+        || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ >= 48)
+        fSupportedGpuStats |= GpuStatsFlags::kElapsedTime;
+#endif
+    }
 
     if (!backendContext.fTick) {
         fAllowCpuSync = false;

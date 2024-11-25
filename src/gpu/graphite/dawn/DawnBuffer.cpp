@@ -125,6 +125,9 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
             usage = wgpu::BufferUsage::Storage | wgpu::BufferUsage::CopyDst |
                     wgpu::BufferUsage::CopySrc;
             break;
+        case BufferType::kQuery:
+            usage = wgpu::BufferUsage::QueryResolve | wgpu::BufferUsage::CopySrc;
+            break;
         case BufferType::kIndirect:
             usage = wgpu::BufferUsage::Indirect | wgpu::BufferUsage::Storage |
                     wgpu::BufferUsage::CopyDst;
@@ -138,13 +141,18 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
     }
 
     if (sharedContext->caps()->drawBufferCanBeMapped() &&
-        accessPattern == AccessPattern::kHostVisible &&
-        type != BufferType::kXferGpuToCpu) {
-        // If the buffer is intended to be mappabe, add MapWrite usage and remove
-        // CopyDst.
-        // We don't want to allow both CPU and GPU to write to the same buffer.
-        usage |= wgpu::BufferUsage::MapWrite;
-        usage &= ~wgpu::BufferUsage::CopyDst;
+        accessPattern == AccessPattern::kHostVisible && type != BufferType::kXferGpuToCpu) {
+        if (type == BufferType::kQuery) {
+            // We can map the query buffer to get the results directly rather than having to copy to
+            // a transfer buffer.
+            usage |= wgpu::BufferUsage::MapRead;
+        } else {
+            // If the buffer is intended to be mappable, add MapWrite usage and remove
+            // CopyDst.
+            // We don't want to allow both CPU and GPU to write to the same buffer.
+            usage |= wgpu::BufferUsage::MapWrite;
+            usage &= ~wgpu::BufferUsage::CopyDst;
+        }
     }
 
     wgpu::BufferDescriptor desc;

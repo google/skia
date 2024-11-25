@@ -74,6 +74,8 @@ public:
                             GraphiteResourceKey*) const override;
     uint32_t getRenderPassDescKeyForPipeline(const RenderPassDesc& renderPassDesc) const;
 
+    bool supportsCommandBufferTimestamps() const { return fSupportsCommandBufferTimestamps; }
+
 private:
     const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override;
     bool onIsTexturable(const TextureInfo&) const override;
@@ -151,6 +153,8 @@ private:
 
     bool fUseAsyncPipelineCreation = true;
     bool fAllowScopedErrorChecks = true;
+
+    bool fSupportsCommandBufferTimestamps = false;
 };
 
 } // namespace skgpu::graphite

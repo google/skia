@@ -249,6 +249,11 @@ public:
      */
     bool supportsProtectedContent() const;
 
+    /*
+     * Gets the types of GPU stats supported by this Context.
+     */
+    GpuStatsFlags supportedGpuStats() const;
+
     // Provides access to functions that aren't part of the public API.
     ContextPriv priv();
     const ContextPriv priv() const;  // NOLINT(readability-const-return-type)

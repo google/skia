@@ -322,6 +322,8 @@ public:
 
     bool setBackendLabels() const { return fSetBackendLabels; }
 
+    GpuStatsFlags supportedGpuStats() const { return fSupportedGpuStats; }
+
 protected:
     Caps();
 
@@ -407,6 +409,8 @@ protected:
 #endif
 
     ResourceBindingRequirements fResourceBindingReqs;
+
+    GpuStatsFlags fSupportedGpuStats = GpuStatsFlags::kNone;
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // Client-provided Caps

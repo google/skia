@@ -25,7 +25,23 @@
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 #include "src/gpu/graphite/dawn/DawnTexture.h"
 
+#if defined(__EMSCRIPTEN__)
+#include <emscripten/version.h>
+#endif
+
 namespace skgpu::graphite {
+
+// On emsdk before 3.1.48 the API for RenderPass and ComputePass timestamps was different
+// and does not map to current webgpu. We check this in DawnCaps but we also must avoid
+// naming the types from the new API because they aren't defined.
+#if defined(__EMSCRIPTEN__)                                                                  \
+        && ((__EMSCRIPTEN_major__ < 3)                                                       \
+         || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ < 1)                          \
+         || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ < 48))
+    #define WGPU_TIMESTAMP_WRITES_DEFINED 0
+#else
+    #define WGPU_TIMESTAMP_WRITES_DEFINED 1
+#endif
 
 // DawnCommandBuffer
 // ----------------------------------------------------------------------------
@@ -47,6 +63,115 @@ DawnCommandBuffer::DawnCommandBuffer(const DawnSharedContext* sharedContext,
 
 DawnCommandBuffer::~DawnCommandBuffer() {}
 
+bool DawnCommandBuffer::startTimerQuery() {
+    wgpu::QuerySet querySet = std::move(fTimestampQuerySet);
+
+    auto buffer = fResourceProvider->findOrCreateDawnBuffer(2 * sizeof(uint64_t),
+                                                            BufferType::kQuery,
+                                                            AccessPattern::kHostVisible,
+                                                            "TimerQuery");
+    if (!buffer) {
+        SKGPU_LOG_W("Failed to create buffer for resolving results, timer query will "
+                    "not be reported.");
+        return false;
+    }
+    sk_sp<DawnBuffer> xferBuffer;
+    if (!fSharedContext->caps()->drawBufferCanBeMapped()) {
+        xferBuffer = fResourceProvider->findOrCreateDawnBuffer(2 * sizeof(uint64_t),
+                                                               BufferType::kXferGpuToCpu,
+                                                               AccessPattern::kHostVisible,
+                                                               "TimerQueryXfer");
+        if (!xferBuffer) {
+            SKGPU_LOG_W("Failed to create buffer for transferring timestamp results, timer "
+                        "query will not be reported.");
+            return false;
+        }
+    }
+    if (!querySet) {
+        wgpu::QuerySetDescriptor descriptor;
+        descriptor.count = 2;
+        descriptor.label = "Command Buffer Timer Query";
+        descriptor.type = wgpu::QueryType::Timestamp;
+        descriptor.nextInChain = nullptr;
+        querySet = fSharedContext->device().CreateQuerySet(&descriptor);
+        if (!querySet) {
+            SKGPU_LOG_W("Failed to create query set, timer query will not be reported.");
+            return false;
+        }
+    }
+
+    fTimestampQuerySet = std::move(querySet);
+    fTimestampQueryBuffer = std::move(buffer);
+    fTimestampQueryXferBuffer = std::move(xferBuffer);
+
+    if (fSharedContext->dawnCaps()->supportsCommandBufferTimestamps()) {
+        // In native Dawn we use the writeTimeStamp method on CommandBuffer to bracket
+        // the whole command buffer.
+        fCommandEncoder.WriteTimestamp(fTimestampQuerySet, 0);
+    } else {
+        // On WebGPU the best we can do is add timestamps to each render/compute pass as we record
+        // them. Since we don't know a priori how many passes there will be we write a begin
+        // timestamp on the first pass and an end on every pass, overwriting the second query in the
+        // set.
+        fWroteFirstPassTimestamps = false;
+    }
+
+    return true;
+}
+
+void DawnCommandBuffer::endTimerQuery() {
+    SkASSERT(fTimestampQuerySet);
+    SkASSERT(fTimestampQueryBuffer);
+    if (fSharedContext->dawnCaps()->supportsCommandBufferTimestamps()) {
+        fCommandEncoder.WriteTimestamp(fTimestampQuerySet, 1);
+    } else if (!fWroteFirstPassTimestamps) {
+        // If we didn't have any passes then we can't report anything.
+        fTimestampQueryBuffer = nullptr;
+        fTimestampQueryXferBuffer = nullptr;
+        return;
+    }
+    // This resolve covers both timestamp code paths (command encoder and render/compute pass).
+    fCommandEncoder.ResolveQuerySet(
+            fTimestampQuerySet, 0, 2, fTimestampQueryBuffer->dawnBuffer(), 0);
+    if (fTimestampQueryXferBuffer) {
+        SkASSERT(fTimestampQueryBuffer->size() == fTimestampQueryBuffer->size());
+        fCommandEncoder.CopyBufferToBuffer(fTimestampQueryBuffer->dawnBuffer(),
+                                           /*sourceOffset=*/0,
+                                           fTimestampQueryXferBuffer->dawnBuffer(),
+                                           /*destinationOffset=*/0,
+                                           /*size=*/fTimestampQueryBuffer->size());
+        fTimestampQueryBuffer.reset();
+    }
+    if (fSharedContext->caps()->bufferMapsAreAsync()) {
+        sk_sp<Buffer> buffer =
+                fTimestampQueryXferBuffer ? fTimestampQueryXferBuffer : fTimestampQueryBuffer;
+        this->addBuffersToAsyncMapOnSubmit({&buffer, 1});
+    }
+}
+
+std::optional<GpuStats> DawnCommandBuffer::gpuStats() {
+    auto& buffer = fTimestampQueryXferBuffer ? fTimestampQueryXferBuffer : fTimestampQueryBuffer;
+    if (!buffer) {
+        return {};
+    }
+    if (fSharedContext->caps()->bufferMapsAreAsync()) {
+        if (!buffer->isMapped()) {
+            return {};
+        }
+    }
+    uint64_t* results = static_cast<uint64_t*>(buffer->map());
+    if (!results) {
+        SKGPU_LOG_W("Failed to get timer query results because buffer couldn't be mapped.");
+        return {};
+    }
+    if (results[1] < results[0]) {
+        return {};
+    }
+    GpuStats stats;
+    stats.elapsedTime = results[1] - results[0];
+    return stats;
+}
+
 wgpu::CommandBuffer DawnCommandBuffer::finishEncoding() {
     SkASSERT(fCommandEncoder);
     wgpu::CommandBuffer cmdBuffer = fCommandEncoder.Finish();
@@ -66,6 +191,15 @@ void DawnCommandBuffer::onResetCommandBuffer() {
         bufferSlot = {};
     }
     fBoundUniformBuffersDirty = true;
+    if (fTimestampQueryBuffer && fTimestampQueryBuffer->isUnmappable()) {
+        fTimestampQueryBuffer->unmap();
+    }
+    if (fTimestampQueryXferBuffer && fTimestampQueryXferBuffer->isUnmappable()) {
+        fTimestampQueryXferBuffer->unmap();
+    }
+    fTimestampQueryBuffer = {};
+    fTimestampQueryXferBuffer = {};
+    fWroteFirstPassTimestamps = false;
 }
 
 bool DawnCommandBuffer::setNewCommandBufferResources() {
@@ -177,6 +311,22 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
 #if !defined(__EMSCRIPTEN__)
     wgpu::DawnRenderPassColorAttachmentRenderToSingleSampled mssaRenderToSingleSampledDesc;
     wgpu::RenderPassDescriptorExpandResolveRect wgpuPartialRect = {};
+#endif
+
+#if WGPU_TIMESTAMP_WRITES_DEFINED
+    wgpu::RenderPassTimestampWrites wgpuTimestampWrites;
+    if (!fSharedContext->dawnCaps()->supportsCommandBufferTimestamps() && fTimestampQueryBuffer) {
+        SkASSERT(fTimestampQuerySet);
+        wgpuTimestampWrites.querySet = fTimestampQuerySet;
+        if (!fWroteFirstPassTimestamps) {
+            wgpuTimestampWrites.beginningOfPassWriteIndex = 0;
+            fWroteFirstPassTimestamps = true;
+        }
+        wgpuTimestampWrites.endOfPassWriteIndex = 1;
+        wgpuRenderPass.timestampWrites = &wgpuTimestampWrites;
+    }
+#else
+    SkASSERT(!fTimestampQueryBuffer);
 #endif
 
     auto& colorInfo = renderPassDesc.fColorAttachment;
@@ -840,7 +990,23 @@ void DawnCommandBuffer::drawIndexedIndirect(PrimitiveType type) {
 void DawnCommandBuffer::beginComputePass() {
     SkASSERT(!fActiveRenderPassEncoder);
     SkASSERT(!fActiveComputePassEncoder);
-    fActiveComputePassEncoder = fCommandEncoder.BeginComputePass();
+    wgpu::ComputePassDescriptor wgpuComputePassDescriptor = {};
+#if WGPU_TIMESTAMP_WRITES_DEFINED
+    wgpu::ComputePassTimestampWrites wgpuTimestampWrites;
+    if (!fSharedContext->dawnCaps()->supportsCommandBufferTimestamps() && fTimestampQueryBuffer) {
+        SkASSERT(fTimestampQuerySet);
+        wgpuTimestampWrites.querySet = fTimestampQuerySet;
+        if (!fWroteFirstPassTimestamps) {
+            wgpuTimestampWrites.beginningOfPassWriteIndex = 0;
+            fWroteFirstPassTimestamps = true;
+        }
+        wgpuTimestampWrites.endOfPassWriteIndex = 1;
+        wgpuComputePassDescriptor.timestampWrites = &wgpuTimestampWrites;
+    }
+#else
+    SkASSERT(!fTimestampQueryBuffer);
+#endif
+    fActiveComputePassEncoder = fCommandEncoder.BeginComputePass(&wgpuComputePassDescriptor);
 }
 
 void DawnCommandBuffer::bindComputePipeline(const ComputePipeline* computePipeline) {

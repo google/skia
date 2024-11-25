@@ -75,6 +75,9 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
         case BufferType::kStorage:
             bufInfo.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
             break;
+        case BufferType::kQuery:
+            SK_ABORT("Query buffers not supported on Vulkan");
+            break;
         case BufferType::kIndirect:
             bufInfo.usage =
                     VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;

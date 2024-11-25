@@ -17,10 +17,11 @@ namespace skgpu {
  */
 class AutoCallback {
 public:
-    using Context           = void*;
-    using Callback          = void (*)(Context);
-    using CallbackWithStats = void (*)(Context, const GpuStats&);
-    using ResultCallback    = void (*)(Context, CallbackResult);
+    using Context                 = void*;
+    using Callback                = void (*)(Context);
+    using CallbackWithStats       = void (*)(Context, const GpuStats&);
+    using ResultCallback          = void (*)(Context, CallbackResult);
+    using ResultCallbackWithStats = void (*)(Context, CallbackResult, const GpuStats&);
 
     AutoCallback() = default;
     AutoCallback(const AutoCallback&) = delete;
@@ -30,11 +31,15 @@ public:
     AutoCallback(CallbackWithStats proc, Context ctx)
             : fReleaseWithStatsProc(proc), fReleaseCtx(ctx) {}
     AutoCallback(ResultCallback proc, Context ctx) : fResultReleaseProc(proc), fReleaseCtx(ctx) {}
+    AutoCallback(ResultCallbackWithStats proc, Context ctx)
+            : fResultReleaseWithStatsProc(proc), fReleaseCtx(ctx) {}
 
     ~AutoCallback() {
         SkASSERT(this->operator bool() || true);  // run assert in the operator
 
-        if (fReleaseWithStatsProc) {
+        if (fResultReleaseWithStatsProc) {
+            fResultReleaseWithStatsProc(fReleaseCtx, fResult, fGpuStats);
+        } else if (fReleaseWithStatsProc) {
             fReleaseWithStatsProc(fReleaseCtx, fGpuStats);
         } else if (fResultReleaseProc) {
             fResultReleaseProc(fReleaseCtx, fResult);
@@ -45,25 +50,27 @@ public:
 
     AutoCallback& operator=(const AutoCallback&) = delete;
     AutoCallback& operator=(AutoCallback&& that) {
-        fReleaseCtx           = that.fReleaseCtx;
-        fReleaseProc          = that.fReleaseProc;
-        fReleaseWithStatsProc = that.fReleaseWithStatsProc;
-        fResultReleaseProc    = that.fResultReleaseProc;
-        fResult               = that.fResult;
-        fGpuStats             = that.fGpuStats;
+        fReleaseCtx                 = that.fReleaseCtx;
+        fReleaseProc                = that.fReleaseProc;
+        fReleaseWithStatsProc       = that.fReleaseWithStatsProc;
+        fResultReleaseProc          = that.fResultReleaseProc;
+        fResultReleaseWithStatsProc = that.fResultReleaseWithStatsProc;
+        fResult                     = that.fResult;
+        fGpuStats                   = that.fGpuStats;
 
-        that.fReleaseProc          = nullptr;
-        that.fReleaseWithStatsProc = nullptr;
-        that.fResultReleaseProc    = nullptr;
+        that.fReleaseProc                = nullptr;
+        that.fReleaseWithStatsProc       = nullptr;
+        that.fResultReleaseProc          = nullptr;
+        that.fResultReleaseWithStatsProc = nullptr;
         return *this;
     }
 
     Context context() const { return fReleaseCtx; }
 
-    bool receivesGpuStats() const { return fReleaseWithStatsProc; }
+    bool receivesGpuStats() const { return fReleaseWithStatsProc || fResultReleaseWithStatsProc; }
 
     void setFailureResult() {
-        SkASSERT(fResultReleaseProc);
+        SkASSERT(fResultReleaseProc || fResultReleaseWithStatsProc);
         // Shouldn't really be calling this multiple times.
         SkASSERT(fResult == CallbackResult::kSuccess);
         fResult = CallbackResult::kFailed;
@@ -82,9 +89,10 @@ public:
     }
 
 private:
-    Callback          fReleaseProc          = nullptr;
-    CallbackWithStats fReleaseWithStatsProc = nullptr;
-    ResultCallback    fResultReleaseProc    = nullptr;
+    Callback                fReleaseProc                = nullptr;
+    CallbackWithStats       fReleaseWithStatsProc       = nullptr;
+    ResultCallback          fResultReleaseProc          = nullptr;
+    ResultCallbackWithStats fResultReleaseWithStatsProc = nullptr;
 
     Context        fReleaseCtx = nullptr;
     CallbackResult fResult     = CallbackResult::kSuccess;
@@ -96,10 +104,11 @@ private:
  */
 class RefCntedCallback : public SkNVRefCnt<RefCntedCallback> {
 public:
-    using Context           = AutoCallback::Context;
-    using Callback          = AutoCallback::Callback;
-    using CallbackWithStats = AutoCallback::CallbackWithStats;
-    using ResultCallback    = AutoCallback::ResultCallback;
+    using Context                 = AutoCallback::Context;
+    using Callback                = AutoCallback::Callback;
+    using CallbackWithStats       = AutoCallback::CallbackWithStats;
+    using ResultCallback          = AutoCallback::ResultCallback;
+    using ResultCallbackWithStats = AutoCallback::ResultCallbackWithStats;
 
     static sk_sp<RefCntedCallback> Make(Callback proc, Context ctx) { return MakeImpl(proc, ctx); }
 
@@ -108,6 +117,10 @@ public:
     }
 
     static sk_sp<RefCntedCallback> Make(ResultCallback proc, Context ctx) {
+        return MakeImpl(proc, ctx);
+    }
+
+    static sk_sp<RefCntedCallback> Make(ResultCallbackWithStats proc, Context ctx) {
         return MakeImpl(proc, ctx);
     }
 

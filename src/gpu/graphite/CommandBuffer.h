@@ -18,6 +18,8 @@
 #include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/Resource.h"
 
+#include <optional>
+
 namespace skgpu {
 class RefCntedCallback;
 class MutableTextureState;
@@ -60,6 +62,10 @@ public:
 
     // If any work is needed to create new resources for a fresh command buffer do that here.
     virtual bool setNewCommandBufferResources() = 0;
+
+    virtual bool startTimerQuery() { SK_ABORT("Timer query unsupported."); }
+    virtual void endTimerQuery() { SK_ABORT("Timer query unsupported."); }
+    virtual std::optional<GpuStats> gpuStats() { return {}; }
 
     void addFinishedProc(sk_sp<RefCntedCallback> finishedProc);
     void callFinishedProcs(bool success);
