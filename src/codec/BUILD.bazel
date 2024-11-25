@@ -52,7 +52,7 @@ skia_cc_library(
     features = ["layering_check"],
     local_defines = ["SK_DISABLE_LEGACY_INIT_DECODERS"],
     visibility = [
-        "//experimental/rust_png:__pkg__",
+        "//experimental/rust_png/decoder:__pkg__",
         "//src/encode:__pkg__",
         "//src/ports:__pkg__",
     ],

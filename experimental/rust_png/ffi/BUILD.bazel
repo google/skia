@@ -29,7 +29,7 @@ rust_cxx_bridge(
     name = "cxx_bridge",
     src = "FFI.rs",
     visibility = [
-        "//experimental/rust_png:__pkg__",
+        "//experimental/rust_png:__subpackages__",
     ],
     deps = [":ffi_cpp"],
 )
@@ -38,7 +38,7 @@ rust_static_library(
     name = "ffi_rs",
     srcs = [":rs_srcs"],
     visibility = [
-        "//experimental/rust_png:__pkg__",
+        "//experimental/rust_png:__subpackages__",
     ],
     deps = [
         ":ffi_cpp",

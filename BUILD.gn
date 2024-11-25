@@ -1408,7 +1408,7 @@ optional("typeface_fontations") {
   ]
 }
 
-if (skia_use_rust_png) {
+if (skia_use_rust_png_decode) {
   # We only use Bazel to get the generated `.cc` and `.h` file and then compile
   # them on GN/ninja side using `skia_source_set` below.  This ensures that the
   # same C++ stdlib and compiler is used throughout the build (in some scenarios
@@ -1489,9 +1489,9 @@ if (skia_use_rust_png) {
   }
 }
 
-optional("rust_png") {
-  public_defines = [ "SK_USE_RUST_PNG" ]
-  enabled = skia_use_rust_png
+optional("rust_png_decode") {
+  public_defines = [ "SK_USE_RUST_PNG_DECODE" ]
+  enabled = skia_use_rust_png_decode
   public = skia_codec_rust_png_public  # From `gn/codec.gni`
   sources = skia_codec_rust_png  # From `gn/codec.gni`
   sources_for_tests = [ "tests/SkPngRustDecoderTest.cpp" ]
@@ -2466,7 +2466,7 @@ if (skia_enable_tools) {
       ":fontmgr_fontconfig_tests",
       ":fontmgr_mac_ct_tests",
       ":fontscanner_tests",
-      ":rust_png_tests",
+      ":rust_png_decode_tests",
       ":skia",
       ":test",
       ":tool_utils",

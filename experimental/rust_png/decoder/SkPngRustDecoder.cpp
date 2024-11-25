@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/rust_png/SkPngRustDecoder.h"
+#include "experimental/rust_png/decoder/SkPngRustDecoder.h"
 
 #include <utility>
 
-#include "experimental/rust_png/impl/SkPngRustCodec.h"
+#include "experimental/rust_png/decoder/impl/SkPngRustCodec.h"
 #include "include/core/SkStream.h"
 
 namespace SkPngRustDecoder {

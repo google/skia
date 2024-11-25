@@ -24,14 +24,14 @@ supported yet):
 
 ```
 $ cd skia-repo-root
-$ bazelisk build experimental/rust_png
+$ bazelisk build experimental/rust_png/decoder
 ```
 
 ### gn / ninja
 
 To build the code from this directory from Skia:
 
-1. `gn args out/RustPng` and set `enable_rust_png = true`
+1. `gn args out/RustPng` and set `enable_rust_png_decode = true`
 1. `gn gen out/RustPng`
 1. `autoninja -C out/RustPng dm`
 ```

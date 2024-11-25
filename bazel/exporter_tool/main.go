@@ -56,12 +56,19 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		},
 		{Var: "skia_codec_rust_png_public",
 			Rules: []string{
+				// TODO(https://crbug.com/379312510): Delete
+				// the `rust_png:hdrs` line once Chromium is
+				// modified to use the header from the new
+				// location.  See also
+				// http://review.skia.org/924317 and
+				// https://crrev.com/c/6050534.
 				"//experimental/rust_png:hdrs",
+				"//experimental/rust_png/decoder:hdrs",
 			},
 		},
 		{Var: "skia_codec_rust_png",
 			Rules: []string{
-				"//experimental/rust_png:srcs",
+				"//experimental/rust_png/decoder:srcs",
 			},
 		},
 		{Var: "skia_codec_rust_png_ffi_rs_srcs",
