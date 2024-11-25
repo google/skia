@@ -12,7 +12,10 @@ rust_library(
         "@cxx_deps//:cxxbridge-macro",
     ],
     visibility = ["//visibility:public"],
-    deps = [":core-lib"],
+    deps = [
+      ":core-lib",
+      "@cxx_deps//:foldhash",
+    ],
 )
 
 config_setting(
