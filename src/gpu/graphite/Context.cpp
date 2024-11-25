@@ -517,7 +517,7 @@ void Context::asyncReadPixelsYUV420(std::unique_ptr<Recorder> recorder,
 
     float baseM[20];
     SkColorMatrix_RGB2YUV(yuvColorSpace, baseM);
-    SkMatrix texMatrix = SkMatrix::Translate(params.fSrcRect.fLeft, params.fSrcRect.fTop);
+    SkMatrix texMatrix = SkMatrix::Translate(-params.fSrcRect.fLeft, -params.fSrcRect.fTop);
 
     // This matrix generates (r,g,b,a) = (0, 0, 0, y)
     float yM[20];
@@ -539,7 +539,7 @@ void Context::asyncReadPixelsYUV420(std::unique_ptr<Recorder> recorder,
     }
 
     // The UV planes are at half resolution compared to Y and A in 4:2:0
-    texMatrix.preScale(0.5f, 0.5f);
+    texMatrix.postScale(0.5f, 0.5f);
 
     // This matrix generates (r,g,b,a) = (0, 0, 0, u)
     float uM[20];
