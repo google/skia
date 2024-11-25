@@ -181,6 +181,7 @@ default_configs = [
   "//gn/skia:default",
   "//gn/skia:no_exceptions",
   "//gn/skia:no_rtti",
+  "//gn/skia:strict_aliasing",
 ]
 if (!is_debug) {
   default_configs += [

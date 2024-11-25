@@ -143,7 +143,6 @@ config("default") {
     ]
   } else {
     cflags += [
-      "-fstrict-aliasing",
       "-fPIC",
       "-fvisibility=hidden",
     ]
@@ -750,6 +749,23 @@ config("NDEBUG") {
 config("trivial_abi") {
   if (is_clang) {
     defines = [ "SK_TRIVIAL_ABI=[[clang::trivial_abi]]" ]
+  }
+}
+
+# PartitionAlloc, Chrome, and many other C++ projects are written assuming
+# different types may freely point to the same location in memory. This is
+# undefined behavior in C/C++. With `-fstrict-aliasing`, some compiler will
+# optimize code in a way that would crash those projects.
+#
+# As of 2024, only GCC is aggressive about strict aliasing. Clang isn't.
+config("strict_aliasing") {
+  if (!is_win) {
+    cflags = [ "-fstrict-aliasing" ]
+  }
+}
+config("no_strict_aliasing") {
+  if (!is_win) {
+    cflags = [ "-fno-strict-aliasing" ]
   }
 }
 
