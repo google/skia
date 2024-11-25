@@ -604,10 +604,10 @@ static void compute_alpha_above_line(SkAlpha* alphas,
         SkFixed last    = r - ((R - 1) << 16);  // horizontal edge length of the right-most triangle
         SkFixed firstH  = SkFixedMul(first, dY);  // vertical edge of the left-most triangle
         alphas[0]       = SkFixedMul(first, firstH) >> 9;  // triangle alpha
-        SkFixed alpha16 = firstH + (dY >> 1);              // rectangle plus triangle
+        SkFixed alpha16 = Sk32_sat_add(firstH, dY >> 1);                // rectangle plus triangle
         for (int i = 1; i < R - 1; ++i) {
             alphas[i] = alpha16 >> 8;
-            alpha16 = SkFixedSatAdd(alpha16, dY);
+            alpha16 = Sk32_sat_add(alpha16, dY);
         }
         alphas[R - 1] = fullAlpha - partial_triangle_to_alpha(last, dY);
     }
@@ -631,10 +631,10 @@ static void compute_alpha_below_line(SkAlpha* alphas,
         SkFixed last    = r - ((R - 1) << 16);  // horizontal edge length of the right-most triangle
         SkFixed lastH   = SkFixedMul(last, dY);          // vertical edge of the right-most triangle
         alphas[R - 1]   = SkFixedMul(last, lastH) >> 9;  // triangle alpha
-        SkFixed alpha16 = lastH + (dY >> 1);             // rectangle plus triangle
+        SkFixed alpha16 = Sk32_sat_add(lastH, dY >> 1);             // rectangle plus triangle
         for (int i = R - 2; i > 0; i--) {
             alphas[i] = (alpha16 >> 8) & 0xFF;
-            alpha16 = SkFixedSatAdd(alpha16, dY);
+            alpha16 = Sk32_sat_add(alpha16, dY);
         }
         alphas[0] = fullAlpha - partial_triangle_to_alpha(first, dY);
     }
@@ -1008,8 +1008,9 @@ static bool is_smooth_enough(SkAnalyticEdge* thisEdge, SkAnalyticEdge* nextEdge,
                // current Dy is (fQDy - fQDDy) >> shift
                (qEdge.fQDy - qEdge.fQDDy) >> qEdge.fCurveShift >= SK_Fixed1;
     }
-    return SkAbs32(nextEdge->fDX - thisEdge->fDX) <= SK_Fixed1 &&  // DDx should be small
-           nextEdge->fLowerY - nextEdge->fUpperY >= SK_Fixed1;     // Dy should be large
+    // DDx should be small and Dy should be large
+    return SkAbs32(Sk32_sat_sub(nextEdge->fDX, thisEdge->fDX)) <= SK_Fixed1 &&
+           nextEdge->fLowerY - nextEdge->fUpperY >= SK_Fixed1;
 }
 
 // Check if the leftE and riteE are changing smoothly in terms of fDX.

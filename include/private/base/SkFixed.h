@@ -97,11 +97,6 @@ static inline SkFixed SkFixedMul(SkFixed a, SkFixed b) {
     return (SkFixed)((int64_t)a * b >> 16);
 }
 
-static inline SkFixed SkFixedSatAdd(SkFixed a, SkFixed b) {
-    int64_t sum = (int64_t)a + b;
-    return (SkFixed)(SkTPin<int64_t>(sum, SK_FixedMin, SK_FixedMax));
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // Platform-specific alternatives to our portable versions.
 
