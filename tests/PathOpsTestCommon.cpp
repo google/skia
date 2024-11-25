@@ -277,7 +277,7 @@ bool ValidConic(const SkDConic& conic) {
             return false;
         }
     }
-    if (SkDoubleIsNaN(conic.fWeight)) {
+    if (SkIsNaN(conic.fWeight)) {
         return false;
     }
     return true;
@@ -302,10 +302,10 @@ bool ValidLine(const SkDLine& line) {
 }
 
 bool ValidPoint(const SkDPoint& pt) {
-    if (SkDoubleIsNaN(pt.fX)) {
+    if (SkIsNaN(pt.fX)) {
         return false;
     }
-    return !SkDoubleIsNaN(pt.fY);
+    return !SkIsNaN(pt.fY);
 }
 
 bool ValidPoints(const SkPoint* pts, int count) {
@@ -330,8 +330,8 @@ bool ValidQuad(const SkDQuad& quad) {
 }
 
 bool ValidVector(const SkDVector& v) {
-    if (SkDoubleIsNaN(v.fX)) {
+    if (SkIsNaN(v.fX)) {
         return false;
     }
-    return !SkDoubleIsNaN(v.fY);
+    return !SkIsNaN(v.fY);
 }

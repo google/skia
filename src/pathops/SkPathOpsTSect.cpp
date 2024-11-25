@@ -7,6 +7,7 @@
 
 #include "src/pathops/SkPathOpsTSect.h"
 
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkTSort.h"
@@ -234,7 +235,7 @@ void SkTSpan::init(const SkTCurve& c) {
 }
 
 bool SkTSpan::initBounds(const SkTCurve& c) {
-    if (SkDoubleIsNaN(fStartT) || SkDoubleIsNaN(fEndT)) {
+    if (SkIsNaN(fStartT) || SkIsNaN(fEndT)) {
         return false;
     }
     c.subDivide(fStartT, fEndT, fPart);

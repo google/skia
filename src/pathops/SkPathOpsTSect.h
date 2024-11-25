@@ -30,10 +30,6 @@ typedef uint8_t SkOpDebugBool;
 typedef bool SkOpDebugBool;
 #endif
 
-static inline bool SkDoubleIsNaN(double x) {
-    return x != x;
-}
-
 class SkTCoincident {
 public:
     SkTCoincident() {
