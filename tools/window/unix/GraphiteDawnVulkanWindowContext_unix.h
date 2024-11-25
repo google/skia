@@ -12,11 +12,11 @@
 
 namespace skwindow {
 class WindowContext;
-class DisplayParams;
+struct DisplayParams;
 struct XlibWindowInfo;
 
 std::unique_ptr<WindowContext> MakeGraphiteDawnVulkanForXlib(const XlibWindowInfo&,
-                                                             std::unique_ptr<const DisplayParams>);
+                                                             const DisplayParams&);
 }  // namespace skwindow
 
 #endif

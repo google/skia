@@ -12,12 +12,9 @@
 #include <windowsx.h>
 
 #include "src/base/SkUTF.h"
-#include "tools/skui/ModifierKey.h"
-#include "tools/window/DisplayParams.h"
 #include "tools/window/WindowContext.h"
 #include "tools/window/win/WindowContextFactory_win.h"
-
-using skwindow::DisplayParams;
+#include "tools/skui/ModifierKey.h"
 
 namespace sk_app {
 
@@ -353,39 +350,37 @@ bool Window_win::attach(BackendType attachType) {
     switch (attachType) {
 #ifdef SK_GL
         case kNativeGL_BackendType:
-            fWindowContext = skwindow::MakeGLForWin(fHWnd, fRequestedDisplayParams->clone());
+            fWindowContext = skwindow::MakeGLForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
 #if SK_ANGLE
         case kANGLE_BackendType:
-            fWindowContext = skwindow::MakeANGLEForWin(fHWnd, fRequestedDisplayParams->clone());
+            fWindowContext = skwindow::MakeANGLEForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
 #ifdef SK_DAWN
 #if defined(SK_GRAPHITE)
         case kGraphiteDawn_BackendType:
-            fWindowContext =
-                    skwindow::MakeGraphiteDawnD3D12ForWin(fHWnd, fRequestedDisplayParams->clone());
+            fWindowContext = skwindow::MakeGraphiteDawnD3D12ForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
 #endif
         case kRaster_BackendType:
-            fWindowContext = skwindow::MakeRasterForWin(fHWnd, fRequestedDisplayParams->clone());
+            fWindowContext = skwindow::MakeRasterForWin(fHWnd, fRequestedDisplayParams);
             break;
 #ifdef SK_VULKAN
         case kVulkan_BackendType:
-            fWindowContext = skwindow::MakeVulkanForWin(fHWnd, fRequestedDisplayParams->clone());
+            fWindowContext = skwindow::MakeVulkanForWin(fHWnd, fRequestedDisplayParams);
             break;
 #if defined(SK_GRAPHITE)
         case kGraphiteVulkan_BackendType:
-            fWindowContext =
-                    skwindow::MakeGraphiteVulkanForWin(fHWnd, fRequestedDisplayParams->clone());
+            fWindowContext = skwindow::MakeGraphiteVulkanForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
 #endif
 #ifdef SK_DIRECT3D
         case kDirect3D_BackendType:
-            fWindowContext = skwindow::MakeD3D12ForWin(fHWnd, fRequestedDisplayParams->clone());
+            fWindowContext = skwindow::MakeD3D12ForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
         default:
@@ -400,13 +395,12 @@ void Window_win::onInval() {
     InvalidateRect(fHWnd, nullptr, false);
 }
 
-void Window_win::setRequestedDisplayParams(std::unique_ptr<const DisplayParams> params,
-                                           bool allowReattach) {
+void Window_win::setRequestedDisplayParams(const DisplayParams& params, bool allowReattach) {
     // GL on Windows doesn't let us change MSAA after the window is created
-    if (params->msaaSampleCount() != this->getRequestedDisplayParams()->msaaSampleCount() &&
-        allowReattach) {
+    if (params.fMSAASampleCount != this->getRequestedDisplayParams().fMSAASampleCount
+            && allowReattach) {
         // Need to change these early, so attach() creates the window context correctly
-        fRequestedDisplayParams = params->clone();
+        fRequestedDisplayParams = params;
 
         fWindowContext = nullptr;
         this->closeWindow();
@@ -416,7 +410,7 @@ void Window_win::setRequestedDisplayParams(std::unique_ptr<const DisplayParams> 
         }
     }
 
-    Window::setRequestedDisplayParams(std::move(params), allowReattach);
+    Window::setRequestedDisplayParams(params, allowReattach);
 }
 
 }   // namespace sk_app

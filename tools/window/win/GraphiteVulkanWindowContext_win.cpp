@@ -16,8 +16,7 @@
 
 namespace skwindow {
 
-std::unique_ptr<WindowContext> MakeGraphiteVulkanForWin(
-        HWND hwnd, std::unique_ptr<const DisplayParams> params) {
+std::unique_ptr<WindowContext> MakeGraphiteVulkanForWin(HWND hwnd, const DisplayParams& params) {
     PFN_vkGetInstanceProcAddr instProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc)) {
         return nullptr;
@@ -62,8 +61,9 @@ std::unique_ptr<WindowContext> MakeGraphiteVulkanForWin(
         return (VK_FALSE != check);
     };
 
-    std::unique_ptr<WindowContext> ctx(new internal::GraphiteVulkanWindowContext(
-            std::move(params), createVkSurface, canPresent, instProc));
+    std::unique_ptr<WindowContext> ctx(
+            new internal::GraphiteVulkanWindowContext(params, createVkSurface,
+                                                      canPresent, instProc));
     if (!ctx->isValid()) {
         return nullptr;
     }

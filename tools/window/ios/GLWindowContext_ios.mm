@@ -31,7 +31,7 @@ namespace {
 
 class GLWindowContext_ios : public GLWindowContext {
 public:
-    GLWindowContext_ios(const IOSWindowInfo&, std::unique_ptr<const DisplayParams>);
+    GLWindowContext_ios(const IOSWindowInfo&, const DisplayParams&);
 
     ~GLWindowContext_ios() override;
 
@@ -51,12 +51,12 @@ private:
     GLuint               fRenderbuffer;
 };
 
-GLWindowContext_ios::GLWindowContext_ios(const IOSWindowInfo& info,
-                                         std::unique_ptr<const DisplayParams> params)
-        : GLWindowContext(std::move(params))
+GLWindowContext_ios::GLWindowContext_ios(const IOSWindowInfo& info, const DisplayParams& params)
+        : GLWindowContext(params)
         , fWindow(info.fWindow)
         , fViewController(info.fViewController)
         , fGLContext(nil) {
+
     // iOS test apps currently ignore MSAA settings.
 
     this->initializeContext();
@@ -153,8 +153,8 @@ void GLWindowContext_ios::resize(int w, int h) {
 namespace skwindow {
 
 std::unique_ptr<WindowContext> MakeGLForIOS(const IOSWindowInfo& info,
-                                            std::unique_ptr<const DisplayParams> params) {
-    std::unique_ptr<WindowContext> ctx(new GLWindowContext_ios(info, std::move(params)));
+                                            const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new GLWindowContext_ios(info, params));
     if (!ctx->isValid()) {
         return nullptr;
     }

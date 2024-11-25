@@ -25,7 +25,7 @@ namespace skwindow {
 
 class WindowContext {
 public:
-    WindowContext(std::unique_ptr<const DisplayParams>);
+    WindowContext(const DisplayParams&);
 
     virtual ~WindowContext();
 
@@ -39,8 +39,8 @@ public:
 
     virtual void activate(bool isActive) {}
 
-    const DisplayParams* getDisplayParams() { return fDisplayParams.get(); }
-    virtual void setDisplayParams(std::unique_ptr<const DisplayParams>) = 0;
+    const DisplayParams& getDisplayParams() { return fDisplayParams; }
+    virtual void setDisplayParams(const DisplayParams& params) = 0;
 
     GrDirectContext* directContext() const { return fContext.get(); }
 #if defined(SK_GRAPHITE)
@@ -69,9 +69,9 @@ protected:
     std::unique_ptr<skgpu::graphite::Recorder> fGraphiteRecorder;
 #endif
 
-    int fWidth;
-    int fHeight;
-    std::unique_ptr<const DisplayParams> fDisplayParams;
+    int               fWidth;
+    int               fHeight;
+    DisplayParams     fDisplayParams;
 
     // parameters obtained from the native window
     // Note that the platform .cpp file is responsible for

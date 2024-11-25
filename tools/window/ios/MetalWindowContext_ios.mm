@@ -28,7 +28,7 @@ namespace {
 
 class MetalWindowContext_ios : public MetalWindowContext {
 public:
-    MetalWindowContext_ios(const IOSWindowInfo&, std::unique_ptr<const DisplayParams>);
+    MetalWindowContext_ios(const IOSWindowInfo&, const DisplayParams&);
 
     ~MetalWindowContext_ios() override;
 
@@ -44,10 +44,11 @@ private:
 };
 
 MetalWindowContext_ios::MetalWindowContext_ios(const IOSWindowInfo& info,
-                                               std::unique_ptr<const DisplayParams> params)
-        : MetalWindowContext(std::move(params))
-        , fWindow(info.fWindow)
-        , fViewController(info.fViewController) {
+                                               const DisplayParams& params)
+    : MetalWindowContext(params)
+    , fWindow(info.fWindow)
+    , fViewController(info.fViewController) {
+
     // iOS test apps currently ignore MSAA settings.
 
     this->initializeContext();
@@ -95,8 +96,8 @@ void MetalWindowContext_ios::resize(int w, int h) {
 namespace skwindow {
 
 std::unique_ptr<WindowContext> MakeMetalForIOS(const IOSWindowInfo& info,
-                                               std::unique_ptr<const DisplayParams> params) {
-    std::unique_ptr<WindowContext> ctx(new MetalWindowContext_ios(info, std::move(params)));
+                                               const DisplayParams& params) {
+    std::unique_ptr<WindowContext> ctx(new MetalWindowContext_ios(info, params));
     if (!ctx->isValid()) {
         return nullptr;
     }

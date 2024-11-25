@@ -26,9 +26,10 @@
 
 namespace skwindow::internal {
 
-GraphiteDawnWindowContext::GraphiteDawnWindowContext(std::unique_ptr<const DisplayParams> params,
+GraphiteDawnWindowContext::GraphiteDawnWindowContext(const DisplayParams& params,
                                                      wgpu::TextureFormat surfaceFormat)
-        : WindowContext(std::move(params)), fSurfaceFormat(surfaceFormat) {
+    : WindowContext(params)
+    , fSurfaceFormat(surfaceFormat) {
     WGPUInstanceDescriptor desc{};
     // need for WaitAny with timeout > 0
     desc.features.timedWaitAnyEnable = true;
@@ -51,16 +52,10 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
     backendContext.fInstance = wgpu::Instance(fInstance->Get());
     backendContext.fDevice = fDevice;
     backendContext.fQueue = fDevice.GetQueue();
-
-    auto opts = fDisplayParams->graphiteTestOptions();
     // Needed to make synchronous readPixels work:
-    opts.fPriv.fStoreContextRefInRecorder = true;
-    fDisplayParams = DisplayParamsBuilder::Make(fDisplayParams.get())
-                             ->graphiteTestOptions(opts)
-                             ->build();
-
-    fGraphiteContext = skgpu::graphite::ContextFactory::MakeDawn(backendContext,
-                                                                 opts.fTestOptions.fContextOptions);
+    fDisplayParams.fGraphiteTestOptions.fPriv.fStoreContextRefInRecorder = true;
+    fGraphiteContext = skgpu::graphite::ContextFactory::MakeDawn(
+            backendContext, fDisplayParams.fGraphiteTestOptions.fTestOptions.fContextOptions);
     if (!fGraphiteContext) {
         SkASSERT(false);
         return;
@@ -101,8 +96,8 @@ sk_sp<SkSurface> GraphiteDawnWindowContext::getBackbufferSurface() {
     auto surface = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                                   backendTex,
                                                   kBGRA_8888_SkColorType,
-                                                  fDisplayParams->colorSpace(),
-                                                  &fDisplayParams->surfaceProps());
+                                                  fDisplayParams.fColorSpace,
+                                                  &fDisplayParams.fSurfaceProps);
     SkASSERT(surface);
     return surface;
 }
@@ -112,9 +107,9 @@ void GraphiteDawnWindowContext::onSwapBuffers() {
     fSurface.Present();
 }
 
-void GraphiteDawnWindowContext::setDisplayParams(std::unique_ptr<const DisplayParams> params) {
+void GraphiteDawnWindowContext::setDisplayParams(const DisplayParams& params) {
     this->destroyContext();
-    fDisplayParams = std::move(params);
+    fDisplayParams = params;
     this->initializeContext(fWidth, fHeight);
 }
 
@@ -132,9 +127,8 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
         "use_tint_ir",
     };
     wgpu::DawnTogglesDescriptor togglesDesc;
-    togglesDesc.enabledToggleCount =
-            std::size(kToggles) -
-            (fDisplayParams->graphiteTestOptions().fTestOptions.fUseTintIR ? 0 : 1);
+    togglesDesc.enabledToggleCount  = std::size(kToggles) -
+        (fDisplayParams.fGraphiteTestOptions.fTestOptions.fUseTintIR ? 0 : 1);
     togglesDesc.enabledToggles      = kToggles;
 
     wgpu::RequestAdapterOptions adapterOptions;
@@ -205,7 +199,7 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
 
     wgpu::DawnTogglesDescriptor deviceTogglesDesc;
 
-    if (fDisplayParams->graphiteTestOptions().fTestOptions.fDisableTintSymbolRenaming) {
+    if (fDisplayParams.fGraphiteTestOptions.fTestOptions.fDisableTintSymbolRenaming) {
         static constexpr const char* kOptionalDeviceToggles[] = {
             "disable_symbol_renaming",
         };
@@ -240,7 +234,7 @@ void GraphiteDawnWindowContext::configureSurface() {
     surfaceConfig.width = fWidth;
     surfaceConfig.height = fHeight;
     surfaceConfig.presentMode =
-            fDisplayParams->disableVsync() ? wgpu::PresentMode::Immediate : wgpu::PresentMode::Fifo;
+            fDisplayParams.fDisableVsync ? wgpu::PresentMode::Immediate : wgpu::PresentMode::Fifo;
     fSurface.Configure(&surfaceConfig);
 }
 

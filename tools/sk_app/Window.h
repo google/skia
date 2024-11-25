@@ -14,9 +14,9 @@
 #include "tools/skui/InputState.h"
 #include "tools/skui/Key.h"
 #include "tools/skui/ModifierKey.h"
+#include "tools/window/DisplayParams.h"
 
 #include <functional>
-#include <memory>
 
 class GrDirectContext;
 class SkCanvas;
@@ -29,8 +29,9 @@ class Context;
 class Recorder;
 }
 
+using skwindow::DisplayParams;
+
 namespace skwindow {
-class DisplayParams;
 class WindowContext;
 }
 
@@ -126,11 +127,8 @@ public:
     int height() const;
     virtual float scaleFactor() const { return 1.0f; }
 
-    const skwindow::DisplayParams* getRequestedDisplayParams() {
-        return fRequestedDisplayParams.get();
-    }
-    virtual void setRequestedDisplayParams(std::unique_ptr<const skwindow::DisplayParams>,
-                                           bool allowReattach = true);
+    virtual const DisplayParams& getRequestedDisplayParams() { return fRequestedDisplayParams; }
+    virtual void setRequestedDisplayParams(const DisplayParams&, bool allowReattach = true);
 
     // Actual parameters in effect, obtained from the native window.
     int sampleCount() const;
@@ -153,9 +151,9 @@ public:
 protected:
     Window();
 
-    SkTDArray<Layer*> fLayers;
-    std::unique_ptr<const skwindow::DisplayParams> fRequestedDisplayParams;
-    bool fIsActive = true;
+    SkTDArray<Layer*>      fLayers;
+    DisplayParams          fRequestedDisplayParams;
+    bool                   fIsActive = true;
 
     std::unique_ptr<skwindow::WindowContext> fWindowContext;
 

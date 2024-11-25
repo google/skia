@@ -254,7 +254,7 @@ private:
 
     // fDisplay contains default values (fWindow.fRequestedDisplayParams contains the overrides),
     // fDisplayOverrides controls if overrides are applied.
-    std::unique_ptr<skwindow::DisplayParams> fDisplay;
+    skwindow::DisplayParams fDisplay;
     DisplayFields fDisplayOverrides;
 
     struct CachedShader {

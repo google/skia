@@ -10,15 +10,16 @@
 
 #include "tools/sk_app/win/Window_win.h"
 #include "tools/window/VulkanWindowContext.h"
+
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
+
 #include "tools/gpu/vk/VkTestUtils.h"
 
 #include <Windows.h>
 
 namespace skwindow {
 
-std::unique_ptr<WindowContext> MakeVulkanForWin(HWND hwnd,
-                                                std::unique_ptr<const DisplayParams> params) {
+std::unique_ptr<WindowContext> MakeVulkanForWin(HWND hwnd, const DisplayParams& params) {
     PFN_vkGetInstanceProcAddr instProc;
     if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc)) {
         return nullptr;
@@ -63,8 +64,8 @@ std::unique_ptr<WindowContext> MakeVulkanForWin(HWND hwnd,
         return (VK_FALSE != check);
     };
 
-    std::unique_ptr<WindowContext> ctx(new internal::VulkanWindowContext(
-            std::move(params), createVkSurface, canPresent, instProc));
+    std::unique_ptr<WindowContext> ctx(
+            new internal::VulkanWindowContext(params, createVkSurface, canPresent, instProc));
     if (!ctx->isValid()) {
         return nullptr;
     }

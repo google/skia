@@ -12,11 +12,10 @@
 
 namespace skwindow {
 class WindowContext;
-class DisplayParams;
+struct DisplayParams;
 struct XlibWindowInfo;
 
-std::unique_ptr<WindowContext> MakeGaneshVulkanForXlib(const XlibWindowInfo&,
-                                                       std::unique_ptr<const DisplayParams>);
+std::unique_ptr<WindowContext> MakeGaneshVulkanForXlib(const XlibWindowInfo&, const DisplayParams&);
 }  // namespace skwindow
 
 #endif

@@ -27,10 +27,17 @@ using skwindow::internal::MetalWindowContext;
 
 namespace skwindow::internal {
 
-MetalWindowContext::MetalWindowContext(std::unique_ptr<const DisplayParams> params)
-        : WindowContext(DisplayParamsBuilder::Make(params.get())->roundUpMSAA()->build())
+MetalWindowContext::MetalWindowContext(const DisplayParams& params)
+        : WindowContext(params)
         , fValid(false)
-        , fDrawableHandle(nil) {}
+        , fDrawableHandle(nil) {
+    // SkNextPow2 is undefined for 0, so handle that ourselves.
+    if (fDisplayParams.fMSAASampleCount <= 1) {
+        fDisplayParams.fMSAASampleCount = 1;
+    } else {
+        fDisplayParams.fMSAASampleCount = SkNextPow2(fDisplayParams.fMSAASampleCount);
+    }
+}
 
 void MetalWindowContext::initializeContext() {
     SkASSERT(!fContext);
@@ -38,16 +45,16 @@ void MetalWindowContext::initializeContext() {
     fDevice.reset(MTLCreateSystemDefaultDevice());
     fQueue.reset([*fDevice newCommandQueue]);
 
-    if (fDisplayParams->msaaSampleCount() > 1) {
+    if (fDisplayParams.fMSAASampleCount > 1) {
         if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
-            if (![*fDevice supportsTextureSampleCount:fDisplayParams->msaaSampleCount()]) {
+            if (![*fDevice supportsTextureSampleCount:fDisplayParams.fMSAASampleCount]) {
                 return;
             }
         } else {
             return;
         }
     }
-    fSampleCount = fDisplayParams->msaaSampleCount();
+    fSampleCount = fDisplayParams.fMSAASampleCount;
     fStencilBits = 8;
 
     fValid = this->onInitializeContext();
@@ -55,13 +62,9 @@ void MetalWindowContext::initializeContext() {
     GrMtlBackendContext backendContext = {};
     backendContext.fDevice.retain((GrMTLHandle)fDevice.get());
     backendContext.fQueue.retain((GrMTLHandle)fQueue.get());
-    fContext = GrDirectContexts::MakeMetal(backendContext, fDisplayParams->grContextOptions());
-    if (!fContext && fDisplayParams->msaaSampleCount() > 1) {
-        auto newParams = DisplayParamsBuilder::Make(fDisplayParams.get());
-        newParams->msaaSampleCount(fDisplayParams->msaaSampleCount() / 2);
-        // Don't call this->setDisplayParams because that also calls
-        // destroyContext() and initializeContext().
-        fDisplayParams = newParams->build();
+    fContext = GrDirectContexts::MakeMetal(backendContext, fDisplayParams.fGrContextOptions);
+    if (!fContext && fDisplayParams.fMSAASampleCount > 1) {
+        fDisplayParams.fMSAASampleCount /= 2;
         this->initializeContext();
         return;
     }
@@ -86,14 +89,14 @@ void MetalWindowContext::destroyContext() {
 sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
     sk_sp<SkSurface> surface;
     if (fContext) {
-        if (fDisplayParams->delayDrawableAcquisition()) {
+        if (fDisplayParams.fDelayDrawableAcquisition) {
             surface = SkSurfaces::WrapCAMetalLayer(fContext.get(),
                                                    (__bridge GrMTLHandle)fMetalLayer,
                                                    kTopLeft_GrSurfaceOrigin,
                                                    fSampleCount,
                                                    kBGRA_8888_SkColorType,
-                                                   fDisplayParams->colorSpace(),
-                                                   &fDisplayParams->surfaceProps(),
+                                                   fDisplayParams.fColorSpace,
+                                                   &fDisplayParams.fSurfaceProps,
                                                    &fDrawableHandle);
         } else {
             id<CAMetalDrawable> currentDrawable = [fMetalLayer nextDrawable];
@@ -111,8 +114,8 @@ sk_sp<SkSurface> MetalWindowContext::getBackbufferSurface() {
                                                           backendRT,
                                                           kTopLeft_GrSurfaceOrigin,
                                                           kBGRA_8888_SkColorType,
-                                                          fDisplayParams->colorSpace(),
-                                                          &fDisplayParams->surfaceProps());
+                                                          fDisplayParams.fColorSpace,
+                                                          &fDisplayParams.fSurfaceProps);
 
             fDrawableHandle = CFRetain((GrMTLHandle) currentDrawable);
         }
@@ -134,9 +137,9 @@ void MetalWindowContext::onSwapBuffers() {
     fDrawableHandle = nil;
 }
 
-void MetalWindowContext::setDisplayParams(std::unique_ptr<const DisplayParams> params) {
+void MetalWindowContext::setDisplayParams(const DisplayParams& params) {
     this->destroyContext();
-    fDisplayParams = std::move(params);
+    fDisplayParams = params;
     this->initializeContext();
 }
 

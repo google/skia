@@ -25,10 +25,10 @@ public:
 
     void resize(int w, int h) override;
 
-    void setDisplayParams(std::unique_ptr<const DisplayParams> params) override;
+    void setDisplayParams(const DisplayParams& params) override;
 
 protected:
-    GLWindowContext(std::unique_ptr<const DisplayParams>);
+    GLWindowContext(const DisplayParams&);
     // This should be called by subclass constructor. It is also called when window/display
     // parameters change. This will in turn call onInitializeContext().
     void initializeContext();

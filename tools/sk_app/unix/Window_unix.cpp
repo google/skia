@@ -36,8 +36,6 @@ extern "C" {
 #include "tools/window/unix/GraphiteDawnVulkanWindowContext_unix.h"
 #endif
 
-using skwindow::DisplayParams;
-
 namespace sk_app {
 
 SkTDynamicHash<Window_unix, XWindow> Window_unix::gWindowMap;
@@ -60,8 +58,7 @@ const long kEventMask = ExposureMask | StructureNotifyMask |
                         PointerMotionMask | ButtonPressMask | ButtonReleaseMask;
 
 bool Window_unix::initWindow(Display* display) {
-    SkASSERT(fRequestedDisplayParams);
-    if (fRequestedDisplayParams->msaaSampleCount() != fMSAASampleCount) {
+    if (fRequestedDisplayParams.fMSAASampleCount != fMSAASampleCount) {
         this->closeWindow();
     }
     // we already have a window
@@ -92,7 +89,7 @@ bool Window_unix::initWindow(Display* display) {
         None
     };
     SkASSERT(nullptr == fVisualInfo);
-    if (fRequestedDisplayParams->msaaSampleCount() > 1) {
+    if (fRequestedDisplayParams.fMSAASampleCount > 1) {
         static const GLint kChooseFBConifgAttCnt = std::size(kChooseFBConfigAtt);
         GLint msaaChooseFBConfigAtt[kChooseFBConifgAttCnt + 4];
         memcpy(msaaChooseFBConfigAtt, kChooseFBConfigAtt, sizeof(kChooseFBConfigAtt));
@@ -100,8 +97,7 @@ bool Window_unix::initWindow(Display* display) {
         msaaChooseFBConfigAtt[kChooseFBConifgAttCnt - 1] = GLX_SAMPLE_BUFFERS_ARB;
         msaaChooseFBConfigAtt[kChooseFBConifgAttCnt + 0] = 1;
         msaaChooseFBConfigAtt[kChooseFBConifgAttCnt + 1] = GLX_SAMPLES_ARB;
-        msaaChooseFBConfigAtt[kChooseFBConifgAttCnt + 2] =
-                fRequestedDisplayParams->msaaSampleCount();
+        msaaChooseFBConfigAtt[kChooseFBConifgAttCnt + 2] = fRequestedDisplayParams.fMSAASampleCount;
         msaaChooseFBConfigAtt[kChooseFBConifgAttCnt + 3] = None;
         int n;
         fFBConfig = glXChooseFBConfig(fDisplay, DefaultScreen(fDisplay), msaaChooseFBConfigAtt, &n);
@@ -116,7 +112,7 @@ bool Window_unix::initWindow(Display* display) {
             msaaChooseFBConfigAtt[kChooseVisualAttCnt + 0] = 1;
             msaaChooseFBConfigAtt[kChooseVisualAttCnt + 1] = GLX_SAMPLES_ARB;
             msaaChooseFBConfigAtt[kChooseVisualAttCnt + 2] =
-                    fRequestedDisplayParams->msaaSampleCount();
+                    fRequestedDisplayParams.fMSAASampleCount;
             msaaChooseFBConfigAtt[kChooseVisualAttCnt + 3] = None;
             fVisualInfo = glXChooseVisual(display, DefaultScreen(display), msaaChooseVisualAtt);
             fFBConfig = nullptr;
@@ -169,7 +165,7 @@ bool Window_unix::initWindow(Display* display) {
         return false;
     }
 
-    fMSAASampleCount = fRequestedDisplayParams->msaaSampleCount();
+    fMSAASampleCount = fRequestedDisplayParams.fMSAASampleCount;
 
     // set up to catch window delete message
     fWmDeleteMessage = XInternAtom(display, "WM_DELETE_WINDOW", False);
@@ -417,30 +413,28 @@ bool Window_unix::attach(BackendType attachType) {
     switch (attachType) {
 #if defined(SK_GRAPHITE) && defined(SK_DAWN)
         case kGraphiteDawn_BackendType:
-            fWindowContext = skwindow::MakeGraphiteDawnVulkanForXlib(
-                    winInfo, fRequestedDisplayParams->clone());
+            fWindowContext = skwindow::MakeGraphiteDawnVulkanForXlib(winInfo,
+                                                                     fRequestedDisplayParams);
             break;
 #endif
 #if defined(SK_GANESH) && defined(SK_VULKAN)
         case kVulkan_BackendType:
-            fWindowContext =
-                    skwindow::MakeGaneshVulkanForXlib(winInfo, fRequestedDisplayParams->clone());
+            fWindowContext = skwindow::MakeGaneshVulkanForXlib(winInfo, fRequestedDisplayParams);
             break;
 #endif
 #if defined(SK_GRAPHITE) && defined(SK_VULKAN)
         case kGraphiteVulkan_BackendType:
-            fWindowContext = skwindow::MakeGraphiteNativeVulkanForXlib(
-                    winInfo, fRequestedDisplayParams->clone());
+            fWindowContext =
+                    skwindow::MakeGraphiteNativeVulkanForXlib(winInfo, fRequestedDisplayParams);
             break;
 #endif
 #if defined(SK_GANESH) && defined(SK_GL)
         case kNativeGL_BackendType:
-            fWindowContext =
-                    skwindow::MakeGaneshGLForXlib(winInfo, fRequestedDisplayParams->clone());
+            fWindowContext = skwindow::MakeGaneshGLForXlib(winInfo, fRequestedDisplayParams);
             break;
 #endif
         case kRaster_BackendType:
-            fWindowContext = skwindow::MakeRasterForXlib(winInfo, fRequestedDisplayParams->clone());
+            fWindowContext = skwindow::MakeRasterForXlib(winInfo, fRequestedDisplayParams);
             break;
         default:
             SK_ABORT("Unknown backend");
@@ -465,14 +459,13 @@ void Window_unix::onInval() {
     XSendEvent(fDisplay, fWindow, False, 0, &event);
 }
 
-void Window_unix::setRequestedDisplayParams(std::unique_ptr<const DisplayParams> params,
-                                            bool allowReattach) {
+void Window_unix::setRequestedDisplayParams(const DisplayParams& params, bool allowReattach) {
 #if defined(SK_VULKAN)
     // Vulkan on unix crashes if we try to reinitialize the vulkan context without remaking the
     // window.
     if (fBackend == kVulkan_BackendType && allowReattach) {
         // Need to change these early, so attach() creates the window context correctly
-        fRequestedDisplayParams = std::move(params);
+        fRequestedDisplayParams = params;
 
         this->detach();
         this->attach(fBackend);
@@ -480,7 +473,7 @@ void Window_unix::setRequestedDisplayParams(std::unique_ptr<const DisplayParams>
     }
 #endif
 
-    Window::setRequestedDisplayParams(std::move(params), allowReattach);
+    Window::setRequestedDisplayParams(params, allowReattach);
 }
 
 const char* Window_unix::getClipboardText() {

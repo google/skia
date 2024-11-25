@@ -40,12 +40,11 @@
 
 namespace skwindow::internal {
 
-GraphiteVulkanWindowContext::GraphiteVulkanWindowContext(
-        std::unique_ptr<const DisplayParams> params,
-        CreateVkSurfaceFn createVkSurface,
-        CanPresentFn canPresent,
-        PFN_vkGetInstanceProcAddr instProc)
-        : WindowContext(std::move(params))
+GraphiteVulkanWindowContext::GraphiteVulkanWindowContext(const DisplayParams& params,
+                                                         CreateVkSurfaceFn createVkSurface,
+                                                         CanPresentFn canPresent,
+                                                         PFN_vkGetInstanceProcAddr instProc)
+        : WindowContext(params)
         , fCreateVkSurfaceFn(std::move(createVkSurface))
         , fCanPresentFn(std::move(canPresent))
         , fSurface(VK_NULL_HANDLE)
@@ -73,7 +72,7 @@ void GraphiteVulkanWindowContext::initializeContext() {
                                              &fDebugCallback,
                                              &fPresentQueueIndex,
                                              fCanPresentFn,
-                                             fDisplayParams->createProtectedNativeBackend())) {
+                                             fDisplayParams.fCreateProtectedNativeBackend)) {
         sk_gpu_test::FreeVulkanFeaturesStructs(&features);
         return;
     }
@@ -151,7 +150,7 @@ void GraphiteVulkanWindowContext::initializeContext() {
         return;
     }
 
-    if (!this->createSwapchain(-1, -1)) {
+    if (!this->createSwapchain(-1, -1, fDisplayParams)) {
         this->destroyContext();
         sk_gpu_test::FreeVulkanFeaturesStructs(&features);
         return;
@@ -162,7 +161,9 @@ void GraphiteVulkanWindowContext::initializeContext() {
     sk_gpu_test::FreeVulkanFeaturesStructs(&features);
 }
 
-bool GraphiteVulkanWindowContext::createSwapchain(int width, int height) {
+bool GraphiteVulkanWindowContext::createSwapchain(int width,
+                                                  int height,
+                                                  const DisplayParams& params) {
     // check for capabilities
     VkSurfaceCapabilitiesKHR caps;
     VkResult res = fGetPhysicalDeviceSurfaceCapabilitiesKHR(fPhysicalDevice, fSurface, &caps);
@@ -258,7 +259,8 @@ bool GraphiteVulkanWindowContext::createSwapchain(int width, int height) {
             break;
         }
     }
-    fSampleCount = std::max(1, fDisplayParams->msaaSampleCount());
+    fDisplayParams = params;
+    fSampleCount = std::max(1, params.fMSAASampleCount);
     fStencilBits = 8;
 
     if (VK_FORMAT_UNDEFINED == surfaceFormat) {
@@ -291,14 +293,14 @@ bool GraphiteVulkanWindowContext::createSwapchain(int width, int height) {
             hasImmediate = true;
         }
     }
-    if (fDisplayParams->disableVsync() && hasImmediate) {
+    if (params.fDisableVsync && hasImmediate) {
         mode = VK_PRESENT_MODE_IMMEDIATE_KHR;
     }
 
     VkSwapchainCreateInfoKHR swapchainCreateInfo;
     memset(&swapchainCreateInfo, 0, sizeof(VkSwapchainCreateInfoKHR));
     swapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    swapchainCreateInfo.flags = fDisplayParams->createProtectedNativeBackend()
+    swapchainCreateInfo.flags = fDisplayParams.fCreateProtectedNativeBackend
                                         ? VK_SWAPCHAIN_CREATE_PROTECTED_BIT_KHR
                                         : 0;
     swapchainCreateInfo.surface = fSurface;
@@ -377,7 +379,7 @@ bool GraphiteVulkanWindowContext::createBuffers(VkFormat format,
         info.fImageUsageFlags = usageFlags;
         info.fSharingMode = sharingMode;
         info.fFlags =
-                fDisplayParams->createProtectedNativeBackend() ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
+                fDisplayParams.fCreateProtectedNativeBackend ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
 
         auto backendTex = skgpu::graphite::BackendTextures::MakeVulkan(this->dimensions(),
                                                                        info,
@@ -389,8 +391,8 @@ bool GraphiteVulkanWindowContext::createBuffers(VkFormat format,
         fSurfaces[i] = SkSurfaces::WrapBackendTexture(this->graphiteRecorder(),
                                                       backendTex,
                                                       colorType,
-                                                      fDisplayParams->colorSpace(),
-                                                      &fDisplayParams->surfaceProps());
+                                                      fDisplayParams.fColorSpace,
+                                                      &fDisplayParams.fSurfaceProps);
 
         if (!fSurfaces[i]) {
             return false;
@@ -532,7 +534,7 @@ sk_sp<SkSurface> GraphiteVulkanWindowContext::getBackbufferSurface() {
     }
     if (VK_ERROR_OUT_OF_DATE_KHR == res) {
         // tear swapchain down and try again
-        if (!this->createSwapchain(-1, -1)) {
+        if (!this->createSwapchain(-1, -1, fDisplayParams)) {
             VULKAN_CALL(fInterface, DestroySemaphore(fDevice, fWaitSemaphore, nullptr));
             return nullptr;
         }

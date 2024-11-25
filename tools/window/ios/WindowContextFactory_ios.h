@@ -19,7 +19,7 @@
 
 namespace skwindow {
 
-class DisplayParams;
+struct DisplayParams;
 
 struct IOSWindowInfo {
     sk_app::Window_ios* fWindow;
@@ -27,27 +27,22 @@ struct IOSWindowInfo {
 };
 
 #ifdef SK_VULKAN
-inline std::unique_ptr<WindowContext> MakeVulkanForIOS(const IOSWindowInfo&,
-                                                       std::unique_ptr<const DisplayParams>) {
+inline std::unique_ptr<WindowContext> MakeVulkanForIOS(const IOSWindowInfo&, const DisplayParams&) {
     // No Vulkan support on iOS yet.
     return nullptr;
 }
 #endif
 
 #ifdef SK_METAL
-std::unique_ptr<WindowContext> MakeMetalForIOS(const IOSWindowInfo&,
-                                               std::unique_ptr<const DisplayParams>);
+std::unique_ptr<WindowContext> MakeMetalForIOS(const IOSWindowInfo&, const DisplayParams&);
 #if defined(SK_GRAPHITE)
-std::unique_ptr<WindowContext> MakeGraphiteMetalForIOS(const IOSWindowInfo&,
-                                                       std::unique_ptr<const DisplayParams>);
+std::unique_ptr<WindowContext> MakeGraphiteMetalForIOS(const IOSWindowInfo&, const DisplayParams&);
 #endif
 #endif
 
 #ifdef SK_GL
-std::unique_ptr<WindowContext> MakeGLForIOS(const IOSWindowInfo&,
-                                            std::unique_ptr<const DisplayParams>);
-std::unique_ptr<WindowContext> MakeRasterForIOS(const IOSWindowInfo&,
-                                                std::unique_ptr<const DisplayParams>);
+std::unique_ptr<WindowContext> MakeGLForIOS(const IOSWindowInfo&, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeRasterForIOS(const IOSWindowInfo&, const DisplayParams&);
 #endif
 
 }  // namespace skwindow

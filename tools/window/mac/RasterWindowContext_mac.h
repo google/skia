@@ -12,11 +12,10 @@
 
 namespace skwindow {
 class WindowContext;
-class DisplayParams;
+struct DisplayParams;
 struct MacWindowInfo;
 
-std::unique_ptr<WindowContext> MakeRasterForMac(const MacWindowInfo&,
-                                                std::unique_ptr<const DisplayParams>);
+std::unique_ptr<WindowContext> MakeRasterForMac(const MacWindowInfo&, const DisplayParams&);
 }  // namespace skwindow
 
 #endif

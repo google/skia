@@ -14,8 +14,7 @@ namespace skwindow::internal {
 
 class RasterWindowContext : public WindowContext {
 public:
-    RasterWindowContext(std::unique_ptr<const DisplayParams> params)
-            : WindowContext(std::move(params)) {}
+    RasterWindowContext(const DisplayParams& params) : WindowContext(params) {}
 
 protected:
     bool isGpuContext() override { return false; }
