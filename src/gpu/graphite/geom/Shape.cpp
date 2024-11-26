@@ -47,9 +47,19 @@ bool Shape::conservativeContains(const Rect& rect) const {
         case Type::kLine:  return false;
         case Type::kRect:  return fRect.contains(rect);
         case Type::kRRect: return fRRect.contains(rect.asSkRect());
-        case Type::kPath:  return fPath.conservativelyContainsRect(rect.asSkRect());
+        case Type::kPath:  // We need to ensure the path is non-inverted.
+                           if (this->inverted()) {
+                               SkPath nonInverted(fPath);
+                               nonInverted.toggleInverseFillType();
+                               return nonInverted.conservativelyContainsRect(rect.asSkRect());
+                           } else {
+                               return fPath.conservativelyContainsRect(rect.asSkRect());
+                           }
         case Type::kArc:   if (fArc.fType == SkArc::Type::kWedge) {
                                SkPath arc = this->asPath();
+                               if (this->inverted()) {
+                                   arc.toggleInverseFillType();
+                               }
                                return arc.conservativelyContainsRect(rect.asSkRect());
                            } else {
                                return false;
@@ -64,7 +74,14 @@ bool Shape::conservativeContains(skvx::float2 point) const {
         case Type::kLine:  return false;
         case Type::kRect:  return fRect.contains(Rect::Point(point));
         case Type::kRRect: return SkRRectPriv::ContainsPoint(fRRect, {point.x(), point.y()});
-        case Type::kPath:  return fPath.contains(point.x(), point.y());
+        case Type::kPath:  // We need to ensure the path is non-inverted.
+                           if (this->inverted()) {
+                               SkPath nonInverted(fPath);
+                               nonInverted.toggleInverseFillType();
+                               return nonInverted.contains(point.x(), point.y());
+                           } else {
+                               return fPath.contains(point.x(), point.y());
+                           }
         case Type::kArc:   return false;
     }
     SkUNREACHABLE;
