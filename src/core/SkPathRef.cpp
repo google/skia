@@ -13,6 +13,7 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkOnce.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkPathPriv.h"
 
 #include <cstring>
 #include <utility>
@@ -679,7 +680,7 @@ void SkPathRef::reset() {
 }
 
 bool SkPathRef::dataMatchesVerbs() const {
-    const auto info = sk_path_analyze_verbs(fVerbs.begin(), fVerbs.size());
+    const auto info = SkPathPriv::AnalyzeVerbs(fVerbs.begin(), fVerbs.size());
     return info.valid                          &&
            info.segmentMask == fSegmentMask    &&
            info.points      == fPoints.size()  &&

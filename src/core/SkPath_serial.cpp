@@ -249,7 +249,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
         verbs = tmpVerbs;
     }
 
-    SkPathVerbAnalysis analysis = sk_path_analyze_verbs(verbs, counts.vbs);
+    SkPathVerbAnalysis analysis = SkPathPriv::AnalyzeVerbs(verbs, counts.vbs);
     if (!analysis.valid || analysis.points != counts.pts || analysis.weights != counts.cnx) {
         return 0;
     }

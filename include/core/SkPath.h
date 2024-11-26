@@ -1909,7 +1909,7 @@ private:
     void shrinkToFit();
 
     // Creates a new Path after the supplied arguments have been validated by
-    // sk_path_analyze_verbs().
+    // SkPathPriv::AnalyzeVerbs().
     static SkPath MakeInternal(const SkPathVerbAnalysis& analsis,
                                const SkPoint points[],
                                const uint8_t verbs[],

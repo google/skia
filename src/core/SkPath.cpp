@@ -3459,7 +3459,7 @@ bool SkPath::IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkPathVerbAnalysis sk_path_analyze_verbs(const uint8_t vbs[], int verbCount) {
+SkPathVerbAnalysis SkPathPriv::AnalyzeVerbs(const uint8_t vbs[], int verbCount) {
     SkPathVerbAnalysis info = {false, 0, 0, 0};
     bool needMove = true;
     bool invalid = false;
@@ -3521,7 +3521,7 @@ SkPath SkPath::Make(const SkPoint pts[], int pointCount,
         return SkPath();
     }
 
-    const auto info = sk_path_analyze_verbs(vbs, verbCount);
+    const auto info = SkPathPriv::AnalyzeVerbs(vbs, verbCount);
     if (!info.valid || info.points > pointCount || info.weights > wCount) {
         SkDEBUGFAIL("invalid verbs and number of points/weights");
         return SkPath();

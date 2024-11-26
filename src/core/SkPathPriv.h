@@ -34,8 +34,17 @@ static_assert(1 == static_cast<int>(SkPathFillType::kEvenOdd), "fill_type_mismat
 static_assert(2 == static_cast<int>(SkPathFillType::kInverseWinding), "fill_type_mismatch");
 static_assert(3 == static_cast<int>(SkPathFillType::kInverseEvenOdd), "fill_type_mismatch");
 
+// These are computed from a stream of verbs
+struct SkPathVerbAnalysis {
+    int      points, weights;
+    unsigned segmentMask;
+    bool     valid;
+};
+
 class SkPathPriv {
 public:
+    static SkPathVerbAnalysis AnalyzeVerbs(const uint8_t verbs[], int count);
+
     // skbug.com/9906: Not a perfect solution for W plane clipping, but 1/16384 is a
     // reasonable limit (roughly 5e-5)
     inline static constexpr SkScalar kW0PlaneDistance = 1.f / (1 << 14);
