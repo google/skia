@@ -21,7 +21,7 @@ namespace {
 
 class GraphiteDawnMetalWindowContext_mac : public GraphiteDawnWindowContext {
 public:
-    GraphiteDawnMetalWindowContext_mac(const MacWindowInfo&, const DisplayParams&);
+    GraphiteDawnMetalWindowContext_mac(const MacWindowInfo&, std::unique_ptr<const DisplayParams>);
 
     ~GraphiteDawnMetalWindowContext_mac() override;
 
@@ -36,11 +36,10 @@ private:
     CAMetalLayer*        fMetalLayer;
 };
 
-GraphiteDawnMetalWindowContext_mac::GraphiteDawnMetalWindowContext_mac(const MacWindowInfo& info,
-                                                                       const DisplayParams& params)
-    : GraphiteDawnWindowContext(params, wgpu::TextureFormat::BGRA8Unorm)
-    , fMainView(info.fMainView) {
-
+GraphiteDawnMetalWindowContext_mac::GraphiteDawnMetalWindowContext_mac(
+        const MacWindowInfo& info, std::unique_ptr<const DisplayParams> params)
+        : GraphiteDawnWindowContext(std::move(params), wgpu::TextureFormat::BGRA8Unorm)
+        , fMainView(info.fMainView) {
     CGFloat backingScaleFactor = skwindow::GetBackingScaleFactor(fMainView);
     CGSize backingSize = fMainView.bounds.size;
     this->initializeContext(backingSize.width * backingScaleFactor,
@@ -63,7 +62,7 @@ bool GraphiteDawnMetalWindowContext_mac::onInitializeContext() {
     // Create a CAMetalLayer that covers the whole window that will be passed to
     // CreateSurface.
     fMetalLayer = [CAMetalLayer layer];
-    BOOL useVsync = fDisplayParams.fDisableVsync ? NO : YES;
+    BOOL useVsync = fDisplayParams->disableVsync() ? NO : YES;
     fMetalLayer.displaySyncEnabled = useVsync;
     fMainView.wantsLayer = YES;
     fMainView.layer = fMetalLayer;
@@ -121,9 +120,10 @@ bool GraphiteDawnMetalWindowContext_mac::resizeInternal() {
 
 namespace skwindow {
 
-std::unique_ptr<WindowContext> MakeGraphiteDawnMetalForMac(const MacWindowInfo& info,
-                                                           const DisplayParams& params) {
-    std::unique_ptr<WindowContext> ctx(new GraphiteDawnMetalWindowContext_mac(info, params));
+std::unique_ptr<WindowContext> MakeGraphiteDawnMetalForMac(
+        const MacWindowInfo& info, std::unique_ptr<const DisplayParams> params) {
+    std::unique_ptr<WindowContext> ctx(
+            new GraphiteDawnMetalWindowContext_mac(info, std::move(params)));
     if (!ctx->isValid()) {
         return nullptr;
     }

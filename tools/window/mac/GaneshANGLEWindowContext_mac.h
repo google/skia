@@ -12,10 +12,11 @@
 
 namespace skwindow {
 class WindowContext;
-struct DisplayParams;
+class DisplayParams;
 struct MacWindowInfo;
 
-std::unique_ptr<WindowContext> MakeGaneshANGLEForMac(const MacWindowInfo&, const DisplayParams&);
+std::unique_ptr<WindowContext> MakeGaneshANGLEForMac(const MacWindowInfo&,
+                                                     std::unique_ptr<const DisplayParams>);
 }  // namespace skwindow
 
 #endif

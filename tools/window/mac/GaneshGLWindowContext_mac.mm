@@ -24,7 +24,7 @@ namespace {
 
 class GLWindowContext_mac : public GLWindowContext {
 public:
-    GLWindowContext_mac(const MacWindowInfo&, const DisplayParams&);
+    GLWindowContext_mac(const MacWindowInfo&, std::unique_ptr<const DisplayParams>);
 
     ~GLWindowContext_mac() override;
 
@@ -42,8 +42,9 @@ private:
     NSOpenGLPixelFormat* fPixelFormat;
 };
 
-GLWindowContext_mac::GLWindowContext_mac(const MacWindowInfo& info, const DisplayParams& params)
-        : GLWindowContext(params), fMainView(info.fMainView), fGLContext(nil) {
+GLWindowContext_mac::GLWindowContext_mac(const MacWindowInfo& info,
+                                         std::unique_ptr<const DisplayParams> params)
+        : GLWindowContext(std::move(params)), fMainView(info.fMainView), fGLContext(nil) {
     // any config code here (particularly for msaa)?
 
     this->initializeContext();
@@ -63,7 +64,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     SkASSERT(nil != fMainView);
 
     if (!fGLContext) {
-        fPixelFormat = skwindow::GetGLPixelFormat(fDisplayParams.fMSAASampleCount);
+        fPixelFormat = skwindow::GetGLPixelFormat(fDisplayParams->msaaSampleCount());
         if (nil == fPixelFormat) {
             return nullptr;
         }
@@ -80,7 +81,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
         [fGLContext setView:fMainView];
     }
 
-    GLint swapInterval = fDisplayParams.fDisableVsync ? 0 : 1;
+    GLint swapInterval = fDisplayParams->disableVsync() ? 0 : 1;
     [fGLContext setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
 
     // make context current
@@ -109,7 +110,7 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
 
 void GLWindowContext_mac::onDestroyContext() {
     // We only need to tear down the GLContext if we've changed the sample count.
-    if (fGLContext && fSampleCount != fDisplayParams.fMSAASampleCount) {
+    if (fGLContext && fSampleCount != fDisplayParams->msaaSampleCount()) {
         teardownContext();
     }
 }
@@ -128,8 +129,8 @@ void GLWindowContext_mac::resize(int w, int h) {
 namespace skwindow {
 
 std::unique_ptr<WindowContext> MakeGaneshGLForMac(const MacWindowInfo& info,
-                                                  const DisplayParams& params) {
-    std::unique_ptr<WindowContext> ctx(new GLWindowContext_mac(info, params));
+                                                  std::unique_ptr<const DisplayParams> params) {
+    std::unique_ptr<WindowContext> ctx(new GLWindowContext_mac(info, std::move(params)));
     if (!ctx->isValid()) {
         return nullptr;
     }

@@ -22,7 +22,8 @@ namespace {
 
 class GraphiteDawnVulkanWindowContext_unix : public GraphiteDawnWindowContext {
 public:
-    GraphiteDawnVulkanWindowContext_unix(const XlibWindowInfo& info, const DisplayParams& params);
+    GraphiteDawnVulkanWindowContext_unix(const XlibWindowInfo& info,
+                                         std::unique_ptr<const DisplayParams> params);
 
     ~GraphiteDawnVulkanWindowContext_unix() override;
 
@@ -36,11 +37,10 @@ private:
 };
 
 GraphiteDawnVulkanWindowContext_unix::GraphiteDawnVulkanWindowContext_unix(
-    const XlibWindowInfo& info,
-    const DisplayParams& params)
-        : GraphiteDawnWindowContext(params, wgpu::TextureFormat::BGRA8Unorm)
+        const XlibWindowInfo& info, std::unique_ptr<const DisplayParams> params)
+        : GraphiteDawnWindowContext(std::move(params), wgpu::TextureFormat::BGRA8Unorm)
         , fDisplay(info.fDisplay)
-        , fWindow(info.fWindow)  {
+        , fWindow(info.fWindow) {
     XWindow root;
     int x, y;
     unsigned int border_width, depth;
@@ -92,9 +92,10 @@ void GraphiteDawnVulkanWindowContext_unix::resize(int w, int h) {
 
 namespace skwindow {
 
-std::unique_ptr<WindowContext> MakeGraphiteDawnVulkanForXlib(const XlibWindowInfo& info,
-                                                             const DisplayParams& params) {
-    std::unique_ptr<WindowContext> ctx(new GraphiteDawnVulkanWindowContext_unix(info, params));
+std::unique_ptr<WindowContext> MakeGraphiteDawnVulkanForXlib(
+        const XlibWindowInfo& info, std::unique_ptr<const DisplayParams> params) {
+    std::unique_ptr<WindowContext> ctx(
+            new GraphiteDawnVulkanWindowContext_unix(info, std::move(params)));
     if (!ctx->isValid()) {
         return nullptr;
     }

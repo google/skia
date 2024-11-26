@@ -15,11 +15,12 @@ namespace skwindow::internal {
 
 class GraphiteDawnWindowContext : public WindowContext {
 public:
-    GraphiteDawnWindowContext(const DisplayParams&, wgpu::TextureFormat surfaceFormat);
+    GraphiteDawnWindowContext(std::unique_ptr<const DisplayParams>,
+                              wgpu::TextureFormat surfaceFormat);
     ~GraphiteDawnWindowContext() override;
     sk_sp<SkSurface> getBackbufferSurface() override;
     bool isValid() override { return SkToBool(fDevice.Get()); }
-    void setDisplayParams(const DisplayParams& params) override;
+    void setDisplayParams(std::unique_ptr<const DisplayParams> params) override;
 
 protected:
     bool isGpuContext() override { return true; }

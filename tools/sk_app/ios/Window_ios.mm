@@ -6,6 +6,8 @@
 */
 
 #include "tools/sk_app/ios/Window_ios.h"
+
+#include "tools/window/DisplayParams.h"
 #include "tools/window/ios/WindowContextFactory_ios.h"
 
 #if __has_feature(objc_arc)
@@ -21,6 +23,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 using sk_app::Window;
+using skwindow::DisplayParams;
 
 namespace sk_app {
 
@@ -86,20 +89,20 @@ bool Window_ios::attach(BackendType attachType) {
     switch (attachType) {
 #ifdef SK_METAL
         case kMetal_BackendType:
-            fWindowContext = skwindow::MakeMetalForIOS(info, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeMetalForIOS(info, fRequestedDisplayParams->clone());
             break;
 #if defined(SK_GRAPHITE)
         case kGraphiteMetal_BackendType:
-            fWindowContext = MakeGraphiteMetalForIOS(info, fRequestedDisplayParams);
+            fWindowContext = MakeGraphiteMetalForIOS(info, fRequestedDisplayParams->clone());
             break;
 #endif
 #endif
 #ifdef SK_GL
         case kNativeGL_BackendType:
-            fWindowContext = skwindow::MakeGLForIOS(info, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeGLForIOS(info, fRequestedDisplayParams->clone());
             break;
         case kRaster_BackendType:
-            fWindowContext = skwindow::MakeRasterForIOS(info, fRequestedDisplayParams);
+            fWindowContext = skwindow::MakeRasterForIOS(info, fRequestedDisplayParams->clone());
             break;
 #endif
         default:

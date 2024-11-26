@@ -28,7 +28,8 @@ public:
 
     void onInval() override;
 
-    void setRequestedDisplayParams(const DisplayParams&, bool allowReattach) override;
+    void setRequestedDisplayParams(std::unique_ptr<const skwindow::DisplayParams>,
+                                   bool allowReattach) override;
 
 private:
     void closeWindow();

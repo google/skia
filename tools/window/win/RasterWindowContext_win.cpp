@@ -19,12 +19,12 @@ namespace {
 
 class RasterWindowContext_win : public RasterWindowContext {
 public:
-    RasterWindowContext_win(HWND, const DisplayParams&);
+    RasterWindowContext_win(HWND, std::unique_ptr<const DisplayParams>);
 
     sk_sp<SkSurface> getBackbufferSurface() override;
     bool isValid() override { return SkToBool(fWnd); }
     void resize(int w, int h) override;
-    void setDisplayParams(const DisplayParams& params) override;
+    void setDisplayParams(std::unique_ptr<const DisplayParams> params) override;
 
 protected:
     void onSwapBuffers() override;
@@ -34,16 +34,16 @@ protected:
     HWND fWnd;
 };
 
-RasterWindowContext_win::RasterWindowContext_win(HWND wnd, const DisplayParams& params)
-    : RasterWindowContext(params)
-    , fWnd(wnd) {
+RasterWindowContext_win::RasterWindowContext_win(HWND wnd,
+                                                 std::unique_ptr<const DisplayParams> params)
+        : RasterWindowContext(std::move(params)), fWnd(wnd) {
     RECT rect;
     GetClientRect(wnd, &rect);
     this->resize(rect.right - rect.left, rect.bottom - rect.top);
 }
 
-void RasterWindowContext_win::setDisplayParams(const DisplayParams& params) {
-    fDisplayParams = params;
+void RasterWindowContext_win::setDisplayParams(std::unique_ptr<const DisplayParams> params) {
+    fDisplayParams = std::move(params);
     RECT rect;
     GetClientRect(fWnd, &rect);
     this->resize(rect.right - rect.left, rect.bottom - rect.top);
@@ -65,8 +65,8 @@ void RasterWindowContext_win::resize(int w, int h) {
     bmpInfo->bmiHeader.biCompression = BI_RGB;
     void* pixels = bmpInfo->bmiColors;
 
-    SkImageInfo info = SkImageInfo::Make(w, h, fDisplayParams.fColorType, kPremul_SkAlphaType,
-                                         fDisplayParams.fColorSpace);
+    SkImageInfo info = SkImageInfo::Make(
+            w, h, fDisplayParams->colorType(), kPremul_SkAlphaType, fDisplayParams->colorSpace());
     fBackbufferSurface = SkSurfaces::WrapPixels(info, pixels, sizeof(uint32_t) * w);
 }
 
@@ -84,8 +84,9 @@ void RasterWindowContext_win::onSwapBuffers() {
 
 namespace skwindow {
 
-std::unique_ptr<WindowContext> MakeRasterForWin(HWND wnd, const DisplayParams& params) {
-    std::unique_ptr<WindowContext> ctx(new RasterWindowContext_win(wnd, params));
+std::unique_ptr<WindowContext> MakeRasterForWin(HWND wnd,
+                                                std::unique_ptr<const DisplayParams> params) {
+    std::unique_ptr<WindowContext> ctx(new RasterWindowContext_win(wnd, std::move(params)));
     if (!ctx->isValid()) {
         ctx = nullptr;
     }

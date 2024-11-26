@@ -40,8 +40,8 @@ int SurfaceThread::message_callback(int /* fd */, int /* events */, void* data) 
 
     switch (message.fType) {
         case kInitialize: {
-            skwindow::DisplayParams params;
-            auto winctx = skwindow::MakeGLForAndroid(message.fNativeWindow, params);
+            auto params = skwindow::DisplayParamsBuilder::Make()->build();
+            auto winctx = skwindow::MakeGLForAndroid(message.fNativeWindow, std::move(params));
             if (!winctx) {
                 break;
             }

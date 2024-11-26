@@ -12,11 +12,11 @@
 
 namespace skwindow {
 class WindowContext;
-struct DisplayParams;
+class DisplayParams;
 struct MacWindowInfo;
 
 std::unique_ptr<WindowContext> MakeGraphiteDawnMetalForMac(const MacWindowInfo&,
-                                                           const DisplayParams&);
+                                                           std::unique_ptr<const DisplayParams>);
 }  // namespace skwindow
 
 #endif
