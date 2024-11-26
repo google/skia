@@ -2291,7 +2291,6 @@ if (skia_enable_tools) {
       "tools/DecodeUtils.h",
       "tools/EncodeUtils.cpp",
       "tools/EncodeUtils.h",
-      "tools/GpuToolUtils.cpp",
       "tools/GpuToolUtils.h",
       "tools/LsanSuppressions.cpp",
       "tools/MSKPPlayer.cpp",

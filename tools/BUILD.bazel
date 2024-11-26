@@ -241,13 +241,8 @@ skia_cc_library(
 skia_cc_library(
     name = "gpu_tool_utils",
     testonly = True,
-    srcs = [
-        "GpuToolUtils.cpp",
-        "GpuToolUtils.h",
-    ],
     hdrs = ["GpuToolUtils.h"],
     visibility = [
-        "//dm:__pkg__",
         "//tools:__subpackages__",
     ],
     deps = [

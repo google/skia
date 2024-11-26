@@ -11,9 +11,10 @@
 #include "include/core/SkTileMode.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Surface.h"
+#include "include/gpu/graphite/Image.h"
+#include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/shaders/SkImageShader.h"
-#include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 
 namespace skgpu::graphite {
@@ -38,6 +39,7 @@ void test_draw(skiatest::Reporter* reporter,
                SkSamplingOptions samplingOptions,
                std::vector<Expectation> expectations) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    REPORTER_ASSERT(reporter, recorder);
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(
             recorder.get(),
             SkImageInfo::Make(canvasSize, kRGBA_8888_SkColorType, kPremul_SkAlphaType));
@@ -48,7 +50,8 @@ void test_draw(skiatest::Reporter* reporter,
                        0);
     bitmap.eraseColor(kRectColor);
     bitmap.setImmutable();
-    sk_sp<SkImage> image = ToolUtils::MakeTextureImage(canvas, bitmap.asImage());
+    sk_sp<SkImage> image = SkImages::TextureFromImage(recorder.get(), bitmap.asImage(),
+                                                      {/*fMipmapped=*/false});
 
     SkPaint p;
     SkMatrix srcToDst = SkMatrix::RectToRect(srcRect, dstRect);
