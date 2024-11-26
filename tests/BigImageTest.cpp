@@ -53,7 +53,7 @@ struct GrContextOptions;
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Texture.h"
-#include "tools/GpuToolUtils.h"
+#include "tools/graphite/GraphiteToolUtils.h"
 #else
 namespace skgpu { namespace graphite { class Recorder; } }
 #endif

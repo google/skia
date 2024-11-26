@@ -15,8 +15,8 @@
 #include "include/gpu/graphite/ImageProvider.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "tests/Test.h"
-#include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/graphite/GraphiteToolUtils.h"
 
 using namespace skgpu::graphite;
 

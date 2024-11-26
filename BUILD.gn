@@ -2191,24 +2191,34 @@ if (skia_enable_tools) {
       ]
     }
     if (skia_enable_graphite) {
-      sources += [ "tools/graphite/ContextFactory.h" ]
-      sources += [ "tools/graphite/ContextFactory.cpp" ]
-      sources += [ "tools/graphite/GraphiteTestContext.h" ]
-      sources += [ "tools/graphite/GraphiteTestContext.cpp" ]
-      sources += [ "tools/graphite/ProtectedUtils_Graphite.cpp" ]
-      sources += [ "tools/graphite/UniqueKeyUtils.cpp" ]
-      sources += [ "tools/graphite/UniqueKeyUtils.h" ]
+      sources += [
+        "tools/graphite/ContextFactory.cpp",
+        "tools/graphite/ContextFactory.h",
+        "tools/graphite/GraphiteTestContext.cpp",
+        "tools/graphite/GraphiteTestContext.h",
+        "tools/graphite/GraphiteToolUtils.cpp",
+        "tools/graphite/GraphiteToolUtils.h",
+        "tools/graphite/ProtectedUtils_Graphite.cpp",
+        "tools/graphite/UniqueKeyUtils.cpp",
+        "tools/graphite/UniqueKeyUtils.h",
+      ]
       if (skia_use_dawn) {
-        sources += [ "tools/graphite/dawn/GraphiteDawnTestContext.cpp" ]
-        sources += [ "tools/graphite/dawn/GraphiteDawnTestContext.h" ]
+        sources += [
+          "tools/graphite/dawn/GraphiteDawnTestContext.cpp",
+          "tools/graphite/dawn/GraphiteDawnTestContext.h",
+        ]
       }
       if (skia_use_metal) {
-        sources += [ "tools/graphite/mtl/GraphiteMtlTestContext.h" ]
-        sources += [ "tools/graphite/mtl/GraphiteMtlTestContext.mm" ]
+        sources += [
+          "tools/graphite/mtl/GraphiteMtlTestContext.h",
+          "tools/graphite/mtl/GraphiteMtlTestContext.mm",
+        ]
       }
       if (skia_use_vulkan) {
-        sources += [ "tools/graphite/vk/GraphiteVulkanTestContext.cpp" ]
-        sources += [ "tools/graphite/vk/GraphiteVulkanTestContext.h" ]
+        sources += [
+          "tools/graphite/vk/GraphiteVulkanTestContext.cpp",
+          "tools/graphite/vk/GraphiteVulkanTestContext.h",
+        ]
       }
     }
 

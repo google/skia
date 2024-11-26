@@ -11,7 +11,6 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkGradientShader.h"
 #include "tools/DecodeUtils.h"
-#include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
@@ -22,6 +21,7 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
+#include "tools/graphite/GraphiteToolUtils.h"
 #endif
 
 namespace skiagm {

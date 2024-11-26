@@ -55,7 +55,6 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/EncodeUtils.h"
-#include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -76,6 +75,7 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Surface.h"
+#include "tools/graphite/GraphiteToolUtils.h"
 #endif
 
 #include <algorithm>

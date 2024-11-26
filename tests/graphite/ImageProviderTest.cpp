@@ -24,8 +24,8 @@
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/image/SkImage_Base.h"
 #include "tests/TestUtils.h"
-#include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/graphite/GraphiteToolUtils.h"
 
 using namespace skgpu::graphite;
 using Mipmapped = skgpu::Mipmapped;
