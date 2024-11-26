@@ -267,12 +267,38 @@ skia_cc_library(
 )
 
 skia_filegroup(
+    name = "png_codec_base_srcs",
+    srcs = ["SkPngCodecBase.cpp"],
+)
+
+skia_filegroup(
+    name = "png_codec_base_hdrs",
+    srcs = ["SkPngCodecBase.h"],
+)
+
+skia_cc_library(
+    name = "png_codec_base",
+    srcs = [":png_codec_base_srcs"],
+    hdrs = [
+        ":png_codec_base_hdrs",
+        "//include/codec:any_codec_hdrs",
+    ],
+    features = ["layering_check"],
+    visibility = ["//experimental/rust_png/decoder:__pkg__"],
+    deps = [
+        ":any_decoder",
+        "//modules/skcms",
+        "//src/base",
+        "//src/core",
+        "//src/core:core_priv",
+    ],
+)
+
+skia_filegroup(
     name = "buffet_png_srcs",
     srcs = [
         "SkPngCodec.cpp",
         "SkPngCodec.h",
-        "SkPngCodecBase.cpp",
-        "SkPngCodecBase.h",
     ],
 )
 
@@ -291,7 +317,6 @@ skia_cc_library(
         ":common_png_srcs",
     ],
     hdrs = [
-        "SkPngCodecBase.h",
         "//include/codec:any_codec_hdrs",
         "//include/codec:png_public_hdrs",
     ],
@@ -300,6 +325,7 @@ skia_cc_library(
     visibility = ["//:__subpackages__"],
     deps = [
         ":any_decoder",
+        ":png_codec_base",
         "//modules/skcms",
         "//src/base",
         "//src/core",
