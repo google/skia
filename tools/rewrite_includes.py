@@ -53,11 +53,6 @@ ignorelist = [
 
   # Transitional
   'tools/window',
-
-  # TODO(https://crbug.com/379312510): Delete this exemption once Chromium is
-  # modified to use the header from the new location.  See also
-  # http://review.skia.org/924317 and https://crrev.com/c/6050534.
-  'SkPngRustDecoder.h',
 ]
 
 assert '/' in [os.sep, os.altsep]
