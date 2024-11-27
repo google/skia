@@ -617,7 +617,7 @@ private:
     // unpredictable location in memory. Of course, TArray won't actually use fItemArray in this
     // way, and we don't want to construct a T before the user requests one. There's no real risk
     // here, so disable CFI when doing these casts.
-    SK_CLANG_NO_SANITIZE("cfi")
+    SK_NO_SANITIZE("cfi")
     static T* TCast(void* buffer) {
         return (T*)buffer;
     }
