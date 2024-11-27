@@ -26,7 +26,8 @@ third_party("libmicrohttpd") {
 
   defines = [ "DAUTH_SUPPORT=1" ]
   libs = []
-  if (is_clang) {
+  _is_msvc = is_win && !is_clang
+  if (!_is_msvc) {
     cflags = [ "-Wno-implicit-function-declaration" ]
   }
 
