@@ -1678,9 +1678,9 @@ std::optional<Program::SlotData> Program::allocateSlotData(SkArenaAlloc* alloc) 
 
     // Store the temp stack immediately after the values, and immutable data after the stack.
     SlotData s;
-    s.values    = SkSpan{slotPtr,        N * fNumValueSlots};
-    s.stack     = SkSpan{s.values.end(), N * fNumTempStackSlots};
-    s.immutable = SkSpan{s.stack.end(),  1 * fNumImmutableSlots};
+    s.values    = SkSpan<float>{slotPtr,        N * fNumValueSlots};
+    s.stack     = SkSpan<float>{s.values.end(), N * fNumTempStackSlots};
+    s.immutable = SkSpan<float>{s.stack.end(),  1 * fNumImmutableSlots};
     return s;
 }
 
