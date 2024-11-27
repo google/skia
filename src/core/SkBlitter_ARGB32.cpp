@@ -13,6 +13,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkColorData.h"
+#include "include/private/base/SkAlign.h"
 #include "include/private/base/SkCPUTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMalloc.h"
@@ -352,8 +353,8 @@ static inline SkPMColor blend_lcd16_opaque(int srcR, int srcG, int srcB,
         srcA = SkAlpha255To256(srcA);
 
         if (width >= 4) {
-            SkASSERT(((size_t)dst & 0x03) == 0);
-            while (((size_t)dst & 0x0F) != 0) {
+            SkASSERT(SkIsAlign4((uintptr_t) dst));
+            while (!SkIsAlign16((uintptr_t) dst)) {
                 *dst = blend_lcd16(srcA, srcR, srcG, srcB, *dst, *mask);
                 mask++;
                 dst++;
@@ -372,7 +373,8 @@ static inline SkPMColor blend_lcd16_opaque(int srcR, int srcG, int srcB,
                 // Load four destination pixels into dst_sse.
                 __m128i dst_sse = _mm_load_si128(d);
                 // Load four 16-bit masks into lower half of mask_sse.
-                __m128i mask_sse = _mm_loadu_si64(mask);
+                // mask does *not* actually need to be 16 byte alligned to use this command
+                __m128i mask_sse = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(mask));
 
                 // Check whether masks are equal to 0 and get the highest bit
                 // of each byte of result, if masks are all zero, we will get
@@ -410,7 +412,7 @@ static inline SkPMColor blend_lcd16_opaque(int srcR, int srcG, int srcB,
     }
 
     void blit_row_lcd16_opaque(SkPMColor dst[], const uint16_t mask[],
-                                   SkColor src, int width, SkPMColor opaqueDst) {
+                               SkColor src, int width, SkPMColor opaqueDst) {
         if (width <= 0) {
             return;
         }
@@ -420,8 +422,8 @@ static inline SkPMColor blend_lcd16_opaque(int srcR, int srcG, int srcB,
         int srcB = SkColorGetB(src);
 
         if (width >= 4) {
-            SkASSERT(((size_t)dst & 0x03) == 0);
-            while (((size_t)dst & 0x0F) != 0) {
+            SkASSERT(SkIsAlign4((uintptr_t) dst));
+            while (!SkIsAlign16((uintptr_t) dst)) {
                 *dst = blend_lcd16_opaque(srcR, srcG, srcB, *dst, *mask, opaqueDst);
                 mask++;
                 dst++;
@@ -438,7 +440,8 @@ static inline SkPMColor blend_lcd16_opaque(int srcR, int srcG, int srcB,
                 // Load four destination pixels into dst_sse.
                 __m128i dst_sse = _mm_load_si128(d);
                 // Load four 16-bit masks into lower half of mask_sse.
-                __m128i mask_sse = _mm_loadu_si64(mask);
+                // mask does *not* actually need to be 16 byte alligned to use this command
+                __m128i mask_sse = _mm_loadl_epi64(reinterpret_cast<const __m128i*>(mask));
 
                 // Check whether masks are equal to 0 and get the highest bit
                 // of each byte of result, if masks are all zero, we will get
@@ -874,8 +877,8 @@ static inline SkPMColor blend_lcd16_opaque(int srcR, int srcG, int srcB,
 
         srcA = SkAlpha255To256(srcA);
         if (width >= 8) {
-            SkASSERT(((size_t)dst & 0x03) == 0);
-            while (((size_t)dst & 0x0F) != 0) {
+            SkASSERT(SkIsAlign4((uintptr_t) dst));
+            while (!SkIsAlign16((uintptr_t) dst)) {
                 *dst = blend_lcd16(srcA, srcR, srcG, srcB, *dst, *mask);
                 mask++;
                 dst++;
@@ -941,8 +944,8 @@ static inline SkPMColor blend_lcd16_opaque(int srcR, int srcG, int srcB,
         __m256i xv_zero = __lasx_xvldi(0);
 
         if (width >= 8) {
-            SkASSERT(((size_t)dst & 0x03) == 0);
-            while (((size_t)dst & 0x0F) != 0) {
+            SkASSERT(SkIsAlign4((uintptr_t) dst));
+            while (!SkIsAlign16((uintptr_t) dst)) {
                 *dst = blend_lcd16_opaque(srcR, srcG, srcB, *dst, *mask, opaqueDst);
                 mask++;
                 dst++;
@@ -1231,8 +1234,8 @@ static inline SkPMColor blend_lcd16_opaque(int srcR, int srcG, int srcB,
 
         srcA = SkAlpha255To256(srcA);
         if (width >= 4) {
-            SkASSERT(((size_t)dst & 0x03) == 0);
-            while (((size_t)dst & 0x0F) != 0) {
+            SkASSERT(SkIsAlign4((uintptr_t) dst));
+            while (!SkIsAlign16((uintptr_t) dst)) {
                 *dst = blend_lcd16(srcA, srcR, srcG, srcB, *dst, *mask);
                 mask++;
                 dst++;
@@ -1297,8 +1300,8 @@ static inline SkPMColor blend_lcd16_opaque(int srcR, int srcG, int srcB,
         __m128i v_zero = __lsx_vldi(0);
 
         if (width >= 4) {
-            SkASSERT(((size_t)dst & 0x03) == 0);
-            while (((size_t)dst & 0x0F) != 0) {
+            SkASSERT(SkIsAlign4((uintptr_t) dst));
+            while (!SkIsAlign16((uintptr_t) dst)) {
                 *dst = blend_lcd16_opaque(srcR, srcG, srcB, *dst, *mask, opaqueDst);
                 mask++;
                 dst++;
