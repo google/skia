@@ -29,6 +29,7 @@
 #include "src/gpu/ganesh/vk/GrVkRenderTarget.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 
+#include <algorithm>
 #include <cstring>
 
 class GrProgramInfo;
@@ -555,7 +556,7 @@ void GrVkResourceProvider::releaseUnlockedBackendObjects() {
     fAvailableCommandPools.clear();
 }
 
-void GrVkResourceProvider::storePipelineCacheData() {
+void GrVkResourceProvider::storePipelineCacheData(size_t maxSize) {
     if (this->pipelineCache() == VK_NULL_HANDLE) {
         return;
     }
@@ -567,11 +568,18 @@ void GrVkResourceProvider::storePipelineCacheData() {
         return;
     }
 
+    dataSize = std::min(dataSize, maxSize);
+
     std::unique_ptr<uint8_t[]> data(new uint8_t[dataSize]);
 
-    GR_VK_CALL_RESULT(fGpu, result, GetPipelineCacheData(fGpu->device(), this->pipelineCache(),
-                                                         &dataSize, (void*)data.get()));
-    if (result != VK_SUCCESS) {
+    GR_VK_CALL_RESULT_NOCHECK(
+            fGpu,
+            result,
+            GetPipelineCacheData(
+                    fGpu->device(), this->pipelineCache(), &dataSize, (void*)data.get()));
+    fGpu->checkVkResult(result);
+    if ((result != VK_SUCCESS) && (result != VK_INCOMPLETE)) {
+        SkDebugf("%s: vkGetPipelineCacheData: failed vulkan call (%d)", __func__, result);
         return;
     }
 

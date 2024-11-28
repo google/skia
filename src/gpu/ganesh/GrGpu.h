@@ -695,7 +695,7 @@ public:
         }
     }
 
-    virtual void storeVkPipelineCacheData() {}
+    virtual void storeVkPipelineCacheData(size_t maxSize) {}
 
     // Called before certain draws in order to guarantee coherent results from dst reads.
     virtual void xferBarrier(GrRenderTarget*, GrXferBarrierType) = 0;

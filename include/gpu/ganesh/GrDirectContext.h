@@ -516,6 +516,7 @@ public:
     bool supportsDistanceFieldText() const;
 
     void storeVkPipelineCacheData();
+    void storeVkPipelineCacheData(size_t maxSize);
 
     /**
      * Retrieve the default GrBackendFormat for a given SkColorType and renderability.

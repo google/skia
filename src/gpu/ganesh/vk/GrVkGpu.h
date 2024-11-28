@@ -229,7 +229,7 @@ public:
         kPipelineCache_PersistentCacheKeyType = 1,
     };
 
-    void storeVkPipelineCacheData() override;
+    void storeVkPipelineCacheData(size_t maxSize) override;
 
     bool beginRenderPass(const GrVkRenderPass*,
                          sk_sp<const GrVkFramebuffer>,

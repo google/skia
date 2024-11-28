@@ -548,8 +548,12 @@ void GrDirectContext::syncAllOutstandingGpuWork(bool shouldExecuteWhileAbandoned
 ////////////////////////////////////////////////////////////////////////////////
 
 void GrDirectContext::storeVkPipelineCacheData() {
+    this->storeVkPipelineCacheData(SIZE_MAX);
+}
+
+void GrDirectContext::storeVkPipelineCacheData(size_t maxSize) {
     if (fGpu) {
-        fGpu->storeVkPipelineCacheData();
+        fGpu->storeVkPipelineCacheData(maxSize);
     }
 }
 
