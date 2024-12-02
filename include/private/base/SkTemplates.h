@@ -256,17 +256,17 @@ private:
 #if defined(SK_BUILD_FOR_GOOGLE3)
     // Stack frame size is limited for SK_BUILD_FOR_GOOGLE3. 4k is less than the actual max,
     // but some functions have multiple large stack allocations.
-    static constexpr int kMaxBytes = 4 * 1024;
-    static constexpr int kCount = kCountRequested * sizeof(T) > kMaxBytes
+    static const int kMaxBytes = 4 * 1024;
+    static const int kCount = kCountRequested * sizeof(T) > kMaxBytes
         ? kMaxBytes / sizeof(T)
         : kCountRequested;
 #else
-    static constexpr int kCount = kCountRequested;
+    static const int kCount = kCountRequested;
 #endif
 
-    T* fArray;
     int fCount;
-    alignas(T) std::byte fStorage[kCount * sizeof(T)];
+    T* fArray;
+    alignas(T) char fStorage[kCount * sizeof(T)];
 };
 
 /** Manages an array of T elements, freeing the array in the destructor.
@@ -409,16 +409,16 @@ public:
 
 private:
     // Since we use uint32_t storage, we might be able to get more elements for free.
-    static constexpr size_t kCountWithPadding = SkAlign4(kCountRequested*sizeof(T)) / sizeof(T);
+    static const size_t kCountWithPadding = SkAlign4(kCountRequested*sizeof(T)) / sizeof(T);
 #if defined(SK_BUILD_FOR_GOOGLE3)
     // Stack frame size is limited for SK_BUILD_FOR_GOOGLE3. 4k is less than the actual max, but some functions
     // have multiple large stack allocations.
-    static constexpr size_t kMaxBytes = 4 * 1024;
-    static constexpr size_t kCount = kCountRequested * sizeof(T) > kMaxBytes
+    static const size_t kMaxBytes = 4 * 1024;
+    static const size_t kCount = kCountRequested * sizeof(T) > kMaxBytes
         ? kMaxBytes / sizeof(T)
         : kCountWithPadding;
 #else
-    static constexpr size_t kCount = kCountWithPadding;
+    static const size_t kCount = kCountWithPadding;
 #endif
 
     T*          fPtr;
