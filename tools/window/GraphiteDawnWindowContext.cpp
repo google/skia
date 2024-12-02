@@ -21,6 +21,8 @@
 #include "src/gpu/graphite/ContextOptionsPriv.h"
 #include "tools/ToolUtils.h"
 #include "tools/graphite/GraphiteToolUtils.h"
+#include "tools/graphite/TestOptions.h"
+#include "tools/window/GraphiteDisplayParams.h"
 
 #include "dawn/dawn_proc.h"
 
@@ -52,12 +54,13 @@ void GraphiteDawnWindowContext::initializeContext(int width, int height) {
     backendContext.fDevice = fDevice;
     backendContext.fQueue = fDevice.GetQueue();
 
-    auto opts = fDisplayParams->graphiteTestOptions();
+    SkASSERT(fDisplayParams->graphiteTestOptions());
+    skwindow::GraphiteTestOptions opts = *fDisplayParams->graphiteTestOptions();
+
     // Needed to make synchronous readPixels work:
     opts.fPriv.fStoreContextRefInRecorder = true;
-    fDisplayParams = DisplayParamsBuilder::Make(fDisplayParams.get())
-                             ->graphiteTestOptions(opts)
-                             ->build();
+    fDisplayParams =
+            GraphiteDisplayParamsBuilder(fDisplayParams.get()).graphiteTestOptions(opts).build();
 
     fGraphiteContext = skgpu::graphite::ContextFactory::MakeDawn(backendContext,
                                                                  opts.fTestOptions.fContextOptions);
@@ -134,7 +137,7 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
     wgpu::DawnTogglesDescriptor togglesDesc;
     togglesDesc.enabledToggleCount =
             std::size(kToggles) -
-            (fDisplayParams->graphiteTestOptions().fTestOptions.fUseTintIR ? 0 : 1);
+            (fDisplayParams->graphiteTestOptions()->fTestOptions.fUseTintIR ? 0 : 1);
     togglesDesc.enabledToggles      = kToggles;
 
     wgpu::RequestAdapterOptions adapterOptions;
@@ -205,7 +208,7 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
 
     wgpu::DawnTogglesDescriptor deviceTogglesDesc;
 
-    if (fDisplayParams->graphiteTestOptions().fTestOptions.fDisableTintSymbolRenaming) {
+    if (fDisplayParams->graphiteTestOptions()->fTestOptions.fDisableTintSymbolRenaming) {
         static constexpr const char* kOptionalDeviceToggles[] = {
             "disable_symbol_renaming",
         };

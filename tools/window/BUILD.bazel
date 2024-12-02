@@ -243,3 +243,17 @@ skia_objc_library(
         "//tools/skui",
     ],
 )
+
+# TODO(kjlubick): fold this into window above for the backends which depend on graphite
+skia_cc_library(
+    name = "window_graphite",
+    testonly = True,
+    hdrs = [
+        "GraphiteDisplayParams.h",
+    ],
+    visibility = ["//tools:__subpackages__"],
+    deps = [
+        ":window",
+        "//tools/graphite:graphite_utils",
+    ],
+)

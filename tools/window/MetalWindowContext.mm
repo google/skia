@@ -28,7 +28,7 @@ using skwindow::internal::MetalWindowContext;
 namespace skwindow::internal {
 
 MetalWindowContext::MetalWindowContext(std::unique_ptr<const DisplayParams> params)
-        : WindowContext(DisplayParamsBuilder::Make(params.get())->roundUpMSAA()->build())
+        : WindowContext(DisplayParamsBuilder(params.get()).roundUpMSAA().build())
         , fValid(false)
         , fDrawableHandle(nil) {}
 
@@ -57,11 +57,11 @@ void MetalWindowContext::initializeContext() {
     backendContext.fQueue.retain((GrMTLHandle)fQueue.get());
     fContext = GrDirectContexts::MakeMetal(backendContext, fDisplayParams->grContextOptions());
     if (!fContext && fDisplayParams->msaaSampleCount() > 1) {
-        auto newParams = DisplayParamsBuilder::Make(fDisplayParams.get());
-        newParams->msaaSampleCount(fDisplayParams->msaaSampleCount() / 2);
+        auto newParams = DisplayParamsBuilder(fDisplayParams.get());
+        newParams.msaaSampleCount(fDisplayParams->msaaSampleCount() / 2);
         // Don't call this->setDisplayParams because that also calls
         // destroyContext() and initializeContext().
-        fDisplayParams = newParams->build();
+        fDisplayParams = newParams.build();
         this->initializeContext();
         return;
     }
