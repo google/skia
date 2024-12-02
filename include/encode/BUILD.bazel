@@ -11,7 +11,10 @@ skia_filegroup(
     srcs = [
         "SkEncoder.h",
     ],
-    visibility = ["//src/encode:__pkg__"],
+    visibility = [
+        "//experimental/rust_png/encoder:__pkg__",
+        "//src/encode:__pkg__",
+    ],
 )
 
 skia_filegroup(

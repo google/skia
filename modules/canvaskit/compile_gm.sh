@@ -183,6 +183,7 @@ GLOBIGNORE+="tests/CodecTest.cpp:"\
 "tests/FCITest.cpp:"\
 "tests/JpegGainmapTest.cpp:"\
 "tests/SkPngRustDecoderTest.cpp:"\
+"tests/SkPngRustEncoderTest.cpp:"\
 "tests/TypefaceMacTest.cpp:"
 
 # These tests do complex things with TestContexts, which is not easily supported for the WASM

@@ -1,0 +1,40 @@
+load(
+    "//bazel:skia_rules.bzl",
+    "skia_cc_library",
+    "skia_filegroup",
+)
+
+skia_filegroup(
+    name = "hdrs",
+    srcs = [
+        "SkPngRustEncoder.h",
+    ],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "SkPngRustEncoder.cpp",
+        "impl/SkPngRustEncoderImpl.cpp",
+        "impl/SkPngRustEncoderImpl.h",
+    ],
+)
+
+skia_cc_library(
+    name = "encoder",
+    srcs = [":srcs"],
+    hdrs = [
+        ":hdrs",
+        "//include/encode:encode_hdrs",
+    ],
+    features = ["layering_check"],
+    deps = [
+        "//:core",
+        "//src/encode:encoder_common",
+        # TODO(https://crbug.com/379312510): Land http://review.skia.org/923337
+        # and add dependencies on the Rust crate and FFI APIs from:
+        # "//experimental/rust_png/ffi:cxx_bridge",
+        # "//experimental/rust_png/ffi:ffi_cpp",
+        # "@cxx//:core-lib",
+    ],
+)

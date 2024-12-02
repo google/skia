@@ -82,6 +82,7 @@ skia_cc_library(
         "SkImageEncoderPriv.h",
     ],
     features = ["layering_check"],
+    visibility = ["//experimental/rust_png/encoder:__subpackages__"],
     deps = [
         ":icc_support",
         "//:core",

@@ -1,8 +1,11 @@
 # Rust PNG decoder
 
-This directory contains experimental code for providing `SkCodec` API
-for decoding PNG images using Rust `png` crate.  See the following
-document for more details:
+This directory contains experimental code for
+
+* Providing `SkCodec` API for decoding PNG images using Rust `png` crate.
+* Providing `SkEncoder` API for encoding PNG images using Rust `png` crate.
+
+See the following document for more details:
 https://docs.google.com/document/d/1glx5ue5JDlCld5WzWgTOGK3wsMErQFnkY5N5Dsbi91Y/edit?usp=sharing
 
 ## Chromium build instructions
@@ -24,22 +27,27 @@ supported yet):
 
 ```
 $ cd skia-repo-root
-$ bazelisk build experimental/rust_png/decoder
+$ bazelisk build experimental/rust_png/...
 ```
 
 ### gn / ninja
 
 To build the code from this directory from Skia:
 
-1. `gn args out/RustPng` and set `enable_rust_png_decode = true`
+1. `gn args out/RustPng` and set `skia_use_rust_png_decode = true`
+   as well as `skia_use_rust_png_encode = true`
 1. `gn gen out/RustPng`
 1. `autoninja -C out/RustPng dm`
 ```
 
-To test the code (via `tests/SkPngRustDecoderTest.cpp`):
+To test the code (via `tests/SkPngRustDecoderTest.cpp` and
+`tests/SkPngRustEncoderTest.cpp`):
 
 ```
-$ out/RustPng/dm --src tests --nogpu --match Codec_apng
+$ out/RustPng/dm --src tests --nogpu \
+    --match Codec_apng \
+    --match Codec_png \
+    --match Encode_png
 ```
 
 TODO(https://crbug.com/356875275): Add support for running older tests
