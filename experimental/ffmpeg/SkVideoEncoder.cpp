@@ -82,7 +82,7 @@ static bool check_err(int err, const int silentList[] = nullptr) {
     return true;
 }
 
-static int sk_write_packet(void* ctx, uint8_t* buffer, int size) {
+static int sk_write_packet(void* ctx, const uint8_t* buffer, int size) {
     SkRandomAccessWStream* stream = (SkRandomAccessWStream*)ctx;
     stream->write(buffer, size);
     return size;
