@@ -87182,6 +87182,7 @@
     },
     "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {},
     "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs": {},
+    "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNG": {},
     "Test-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit": {
       "location_regexes": [
         "modules/canvaskit/.*"

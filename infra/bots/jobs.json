@@ -599,7 +599,9 @@
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts_Fontations"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts_FreeType"},
-  {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNG"},
+  {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNG",
+   "cq_config": {}
+   },
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack"},
   {"name": "Test-Debian10-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Wuffs"},
