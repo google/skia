@@ -83,8 +83,9 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
             });
 
     for (const auto& adapter : adapters) {
+        wgpu::Adapter wgpuAdapter = adapter.Get();
         wgpu::AdapterInfo props;
-        adapter.GetInfo(&props);
+        wgpuAdapter.GetInfo(&props);
         if (backend == props.backendType) {
             matchedAdaptor = adapter;
             break;
