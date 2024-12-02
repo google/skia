@@ -22,6 +22,7 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkMatrixPriv.h"
@@ -61,6 +62,7 @@
 
 #include <algorithm>
 #include <array>
+#include <climits>
 #include <cstdint>
 #include <memory>
 #include <utility>
@@ -2831,8 +2833,11 @@ private:
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
         CircularRRectOp* that = t->cast<CircularRRectOp>();
 
-        // can only represent 65535 unique vertices with 16-bit indices
-        if (fVertCount + that->fVertCount > 65536) {
+        // Cannot combine if the net number of indices would overflow int32, or if the net number
+        // of vertices would overflow uint16 (since the index values are 16-bit that point into
+        // the vertex buffer).
+        if ((fIndexCount > INT32_MAX - that->fIndexCount) ||
+            (fVertCount > SkToInt(UINT16_MAX) - that->fVertCount)) {
             return CombineResult::kCannotCombine;
         }
 

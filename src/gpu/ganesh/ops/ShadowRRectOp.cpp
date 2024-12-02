@@ -51,6 +51,7 @@
 
 #include <algorithm>
 #include <array>
+#include <climits>
 #include <cstddef>
 #include <cstdint>
 #include <tuple>
@@ -648,7 +649,8 @@ private:
         }
 
         fMesh = target->allocMesh();
-        fMesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0, fVertCount - 1,
+        fMesh->setIndexed(std::move(indexBuffer), fIndexCount, firstIndex, 0,
+                          SkTo<uint16_t>(fVertCount - 1),
                           GrPrimitiveRestart::kNo, std::move(vertexBuffer), firstVertex);
     }
 
@@ -669,6 +671,15 @@ private:
 
     CombineResult onCombineIfPossible(GrOp* t, SkArenaAlloc*, const GrCaps& caps) override {
         ShadowCircularRRectOp* that = t->cast<ShadowCircularRRectOp>();
+
+        // Cannot combine if the net number of indices would overflow int32, or if the net number
+        // of vertices would overflow uint16 (since the index values are 16-bit that point into
+        // the vertex buffer).
+        if ((fIndexCount > INT32_MAX - that->fIndexCount) ||
+            (fVertCount > SkToInt(UINT16_MAX) - that->fVertCount)) {
+            return CombineResult::kCannotCombine;
+        }
+
         fGeoData.push_back_n(that->fGeoData.size(), that->fGeoData.begin());
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
