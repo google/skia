@@ -13,22 +13,21 @@
 #include "include/core/SkStream.h"
 #include "include/ports/SkFontConfigInterface.h"
 #include "src/core/SkFontDescriptor.h"
-#include "src/ports/SkTypeface_FreeType.h"
+#include "src/ports/SkTypeface_proxy.h"
 
 class SkFontDescriptor;
 
-class SkTypeface_FCI : public SkTypeface_FreeType {
-    sk_sp<SkFontConfigInterface> fFCI;
-    SkFontConfigInterface::FontIdentity fIdentity;
-    SkString fFamilyName;
-
+class SkTypeface_FCI : public SkTypeface_proxy {
 public:
-    static SkTypeface_FCI* Create(sk_sp<SkFontConfigInterface> fci,
+    static SkTypeface_FCI* Create(sk_sp<SkTypeface> proxy,
+                                  sk_sp<SkFontConfigInterface> fci,
                                   const SkFontConfigInterface::FontIdentity& fi,
                                   SkString familyName,
-                                  const SkFontStyle& style)
+                                  const SkFontStyle& style,
+                                  const bool isFixedPitch)
     {
-        return new SkTypeface_FCI(std::move(fci), fi, std::move(familyName), style);
+        return new SkTypeface_FCI(
+                std::move(proxy), std::move(fci), fi, std::move(familyName), style, isFixedPitch);
     }
 
     const SkFontConfigInterface::FontIdentity& getIdentity() const {
@@ -36,32 +35,47 @@ public:
     }
 
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
-        SkFontStyle style = this->fontStyle();
-        std::unique_ptr<SkFontData> data = this->cloneFontData(args, &style);
-        if (!data) {
-            return nullptr;
-        }
-        return sk_sp<SkTypeface>(new SkTypeface_FreeTypeStream(
-            std::move(data), fFamilyName, style, this->isFixedPitch()));
+        return sk_sp<SkTypeface>(SkTypeface_FCI::Create(
+                SkTypeface_proxy::onMakeClone(args),
+                fFCI,
+                fIdentity,
+                fFamilyName,
+                this->fontStyle(),
+                this->isFixedPitch()));
     }
 
 protected:
-    SkTypeface_FCI(sk_sp<SkFontConfigInterface> fci,
+    SkTypeface_FCI(sk_sp<SkTypeface> proxy,
+                   sk_sp<SkFontConfigInterface> fci,
                    const SkFontConfigInterface::FontIdentity& fi,
                    SkString familyName,
-                   const SkFontStyle& style)
-            : INHERITED(style, false)
+                   const SkFontStyle& style,
+                   bool isFixedPitch)
+            : SkTypeface_proxy(style, isFixedPitch)
             , fFCI(std::move(fci))
             , fIdentity(fi)
-            , fFamilyName(std::move(familyName)) {}
+            , fFamilyName(std::move(familyName)) {
+        SkTypeface_proxy::setProxy(proxy);
+    }
 
-    void onGetFamilyName(SkString* familyName) const override { *familyName = fFamilyName; }
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override;
     std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const override;
-    std::unique_ptr<SkFontData> onMakeFontData() const override;
 
+    void onGetFamilyName(SkString* familyName) const override {
+        *familyName = fFamilyName;
+    }
+
+    SkFontStyle onGetFontStyle() const override {
+        return SkTypeface::onGetFontStyle();
+    }
+
+    bool onGetFixedPitch() const override {
+        return SkTypeface::onGetFixedPitch();
+    }
 private:
-    using INHERITED = SkTypeface_FreeType;
+    sk_sp<SkFontConfigInterface> fFCI;
+    SkFontConfigInterface::FontIdentity fIdentity;
+    SkString fFamilyName;
 };
 
 #endif  // SkFontConfigTypeface_DEFINED

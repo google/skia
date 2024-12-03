@@ -7,6 +7,7 @@
 
 #include "include/core/SkFontArguments.h"
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkFontScanner.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
@@ -14,6 +15,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/ports/SkFontConfigInterface.h"
+#include "include/ports/SkFontMgr_FontConfigInterface.h"
 #include "src/ports/SkFontConfigInterface_direct.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -101,9 +103,12 @@ DEF_TEST(FontConfigInterface_MatchStyleNamedInstance, reporter) {
             // Intentionally go through manually creating the typeface so that SkFontStyle is
             // derived from data inside the font, not from the FcPattern that is the FontConfig
             // match result, see https://crbug.com/skia/12881
-            sk_sp<SkTypeface> typeface(fciDirect->makeTypeface(resultIdentity,
-                                                               ToolUtils::TestFontMgr()).release());
+            std::unique_ptr<SkFontScanner> scanner = ToolUtils::TestFontScanner();
+            REPORTER_ASSERT(reporter, scanner != nullptr, "Could not create a font scanner.");
+            auto mgr = SkFontMgr_New_FCI(fciDirect, std::move(scanner));
+            REPORTER_ASSERT(reporter, mgr != nullptr, "Could not create a fci manager.");
 
+            sk_sp<SkTypeface> typeface(fciDirect->makeTypeface(resultIdentity, mgr));
             if (!typeface) {
                 ERRORF(reporter, "Could not instantiate typeface, FcVersion: %d", FcGetVersion());
                 return;

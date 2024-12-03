@@ -18,6 +18,7 @@ class SkBitmap;
 class SkImage;
 class SkFont;
 class SkFontMgr;
+class SkFontScanner;
 
 namespace ToolUtils {
 /**
@@ -66,6 +67,9 @@ sk_sp<SkImage> CreateStringImage(int w, int h, SkColor c, int x, int y, int text
 
 // This returns the SkFontMgr that has been compiled in and configured (e.g. via CLI flag)
 sk_sp<SkFontMgr> TestFontMgr();
+
+// this returns the SkFontScanner that has been compiled in and configured (e.g. via CLI flag)
+std::unique_ptr<SkFontScanner> TestFontScanner();
 
 // Must be called before the first call to TestFontMgr to have any effect.
 void UsePortableFontMgr();

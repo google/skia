@@ -407,7 +407,7 @@ skia_source_set("fontscanner_tests") {
 
 optional("fontmgr_FontConfigInterface") {
   enabled = skia_enable_fontmgr_FontConfigInterface
-
+  public_defines = [ "SK_FONTMGR_FCI_AVAILABLE" ]
   deps = [
     ":typeface_freetype",
     "//third_party:fontconfig",
