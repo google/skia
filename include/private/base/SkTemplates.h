@@ -15,6 +15,7 @@
 #include "include/private/base/SkTLogic.h"
 #include "include/private/base/SkTo.h"
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -94,7 +95,8 @@ public:
 
 
 namespace skia_private {
-/** Allocate an array of T elements, and free the array in the destructor
+/** Allocate an array of T elements on the heap. Once this goes out of scope, the
+ *  elements will be cleaned up "auto"matically.
  */
 template <typename T> class AutoTArray  {
 public:
@@ -164,7 +166,10 @@ private:
     size_t fSize = 0;
 };
 
-/** Wraps AutoTArray, with room for kCountRequested elements preallocated.
+/** Like AutoTArray with room for kCountRequested elements preallocated on
+ *  the Stack. If count exceeds the space of the preallocation, the elements
+ *  will live on the heap. Once this goes out of scope, the elements will be
+ *  cleaned up "auto"matically.
  */
 template <int kCountRequested, typename T> class AutoSTArray {
 public:
@@ -256,17 +261,25 @@ private:
 #if defined(SK_BUILD_FOR_GOOGLE3)
     // Stack frame size is limited for SK_BUILD_FOR_GOOGLE3. 4k is less than the actual max,
     // but some functions have multiple large stack allocations.
-    static const int kMaxBytes = 4 * 1024;
-    static const int kCount = kCountRequested * sizeof(T) > kMaxBytes
+    static constexpr int kMaxBytes = 4 * 1024;
+    static constexpr int kMinCount = kCountRequested * sizeof(T) > kMaxBytes
         ? kMaxBytes / sizeof(T)
         : kCountRequested;
 #else
-    static const int kCount = kCountRequested;
+    static constexpr int kMinCount = kCountRequested;
 #endif
 
-    int fCount;
+    // Because we are also storing an int, there is a tiny bit of padding that
+    // the C++ compiler adds after fStorage if sizeof(T) <= alignof(T*).
+    // Thus, we can expand how many elements are stored on the stack to make use of this
+    // (e.g. 1 extra element for 4 byte T if kCountRequested was even).
+    static_assert(alignof(int) <= alignof(T*) || alignof(int) <= alignof(T));
+    static constexpr int kCount =
+            SkAlignTo(kMinCount*sizeof(T) + sizeof(int), std::max(alignof(T*), alignof(T))) / sizeof(T);
+
     T* fArray;
-    alignas(T) char fStorage[kCount * sizeof(T)];
+    alignas(T) std::byte fStorage[kCount * sizeof(T)];
+    int fCount;
 };
 
 /** Manages an array of T elements, freeing the array in the destructor.
@@ -409,16 +422,16 @@ public:
 
 private:
     // Since we use uint32_t storage, we might be able to get more elements for free.
-    static const size_t kCountWithPadding = SkAlign4(kCountRequested*sizeof(T)) / sizeof(T);
+    static constexpr size_t kCountWithPadding = SkAlign4(kCountRequested*sizeof(T)) / sizeof(T);
 #if defined(SK_BUILD_FOR_GOOGLE3)
     // Stack frame size is limited for SK_BUILD_FOR_GOOGLE3. 4k is less than the actual max, but some functions
     // have multiple large stack allocations.
-    static const size_t kMaxBytes = 4 * 1024;
-    static const size_t kCount = kCountRequested * sizeof(T) > kMaxBytes
+    static constexpr size_t kMaxBytes = 4 * 1024;
+    static constexpr size_t kCount = kCountRequested * sizeof(T) > kMaxBytes
         ? kMaxBytes / sizeof(T)
         : kCountWithPadding;
 #else
-    static const size_t kCount = kCountWithPadding;
+    static constexpr size_t kCount = kCountWithPadding;
 #endif
 
     T*          fPtr;
