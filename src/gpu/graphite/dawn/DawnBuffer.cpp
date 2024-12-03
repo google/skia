@@ -15,7 +15,7 @@
 
 namespace skgpu::graphite {
 namespace {
-[[maybe_unused]]
+#if defined(__EMSCRIPTEN__)
 bool is_map_succeeded(WGPUBufferMapAsyncStatus status) {
     return status == WGPUBufferMapAsyncStatus_Success;
 }
@@ -31,11 +31,6 @@ void log_map_error(WGPUBufferMapAsyncStatus status, const char*) {
         case WGPUBufferMapAsyncStatus_Unknown:
             statusStr = "Unknown";
             break;
-#if !defined(__EMSCRIPTEN__)
-        case WGPUBufferMapAsyncStatus_InstanceDropped:
-            statusStr = "InstanceDropped";
-            break;
-#endif
         case WGPUBufferMapAsyncStatus_DeviceLost:
             statusStr = "DeviceLost";
             break;
@@ -63,12 +58,13 @@ void log_map_error(WGPUBufferMapAsyncStatus status, const char*) {
     SKGPU_LOG(priority, "Buffer async map failed with status %s.", statusStr);
 }
 
-#if !defined(__EMSCRIPTEN__)
+#else
+
 bool is_map_succeeded(wgpu::MapAsyncStatus status) {
     return status == wgpu::MapAsyncStatus::Success;
 }
 
-void log_map_error(wgpu::MapAsyncStatus status, const char* message) {
+void log_map_error(wgpu::MapAsyncStatus status, wgpu::StringView message) {
     const char* statusStr;
     switch (status) {
         case wgpu::MapAsyncStatus::InstanceDropped:
@@ -88,11 +84,12 @@ void log_map_error(wgpu::MapAsyncStatus status, const char* message) {
             break;
     }
     SKGPU_LOG(LogPriority::kError,
-              "Buffer async map failed with status %s, message '%s'.",
+              "Buffer async map failed with status %s, message '%.*s'.",
               statusStr,
-              message);
+              static_cast<int>(message.length),
+              message.data);
 }
-#endif // #if !defined(__EMSCRIPTEN__)
+#endif  // defined(__EMSCRIPTEN__)
 }  // namespace
 
 sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
@@ -254,12 +251,13 @@ void DawnBuffer::onAsyncMap(GpuFinishedProc proc, GpuFinishedContext ctx) {
             buffer.release());
 }
 
-#endif // defined(__EMSCRIPTEN__)
+void DawnBuffer::onMap() {
+    SKGPU_LOG_W("Synchronous buffer mapping not supported in Dawn. Failing map request.");
+}
+
+#else
 
 void DawnBuffer::onMap() {
-#if defined(__EMSCRIPTEN__)
-    SKGPU_LOG_W("Synchronous buffer mapping not supported in Dawn. Failing map request.");
-#else
     SkASSERT(!this->sharedContext()->caps()->bufferMapsAreAsync());
     SkASSERT(fBuffer);
     SkASSERT((fBuffer.GetUsage() & wgpu::BufferUsage::MapRead) ||
@@ -271,14 +269,12 @@ void DawnBuffer::onMap() {
     // the buffer is free of any GPU use at this point.
     wgpu::FutureWaitInfo mapWaitInfo{};
 
-    mapWaitInfo.future =
-            fBuffer.MapAsync(isWrite ? wgpu::MapMode::Write : wgpu::MapMode::Read,
-                             0,
-                             fBuffer.GetSize(),
-                             wgpu::CallbackMode::WaitAnyOnly,
-                             [this](wgpu::MapAsyncStatus s, const char* m) {
-                                 this->mapCallback(s, m);
-                             });
+    mapWaitInfo.future = fBuffer.MapAsync(
+            isWrite ? wgpu::MapMode::Write : wgpu::MapMode::Read,
+            0,
+            fBuffer.GetSize(),
+            wgpu::CallbackMode::WaitAnyOnly,
+            [this](wgpu::MapAsyncStatus s, wgpu::StringView m) { this->mapCallback(s, m); });
 
     wgpu::Device device = static_cast<const DawnSharedContext*>(sharedContext())->device();
     wgpu::Instance instance = device.GetAdapter().GetInstance();
@@ -308,8 +304,8 @@ void DawnBuffer::onMap() {
 
     SkASSERT(status == wgpu::WaitStatus::Success);
     SkASSERT(mapWaitInfo.completed);
-#endif  // defined(__EMSCRIPTEN__)
 }
+#endif  // defined(__EMSCRIPTEN__)
 
 void DawnBuffer::onUnmap() {
     SkASSERT(fBuffer);
@@ -319,8 +315,8 @@ void DawnBuffer::onUnmap() {
     fBuffer.Unmap();
 }
 
-template <typename StatusT>
-void DawnBuffer::mapCallback(StatusT status, const char* message) {
+template <typename StatusT, typename MessageT>
+void DawnBuffer::mapCallback(StatusT status, MessageT message) {
     SkAutoMutexExclusive em(this->fAsyncMutex);
     if (is_map_succeeded(status)) {
         if (this->fBuffer.GetUsage() & wgpu::BufferUsage::MapWrite) {

@@ -41,8 +41,8 @@ private:
     void onMap() override;
     void onUnmap() override;
 
-    template <typename StatusT>
-    void mapCallback(StatusT status, const char* message);
+    template <typename StatusT, typename MessageT>
+    void mapCallback(StatusT status, MessageT message);
 
     void freeGpuData() override;
 
