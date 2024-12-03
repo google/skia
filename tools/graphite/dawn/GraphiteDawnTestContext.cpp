@@ -137,6 +137,9 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
     if (adapter.HasFeature(wgpu::FeatureName::DawnPartialLoadResolveTexture)) {
         features.push_back(wgpu::FeatureName::DawnPartialLoadResolveTexture);
     }
+    if (adapter.HasFeature(wgpu::FeatureName::TimestampQuery)) {
+        features.push_back(wgpu::FeatureName::TimestampQuery);
+    }
 
     wgpu::DeviceDescriptor desc;
     desc.requiredFeatureCount  = features.size();

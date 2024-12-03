@@ -26,6 +26,11 @@ void WindowContext::swapBuffers() {
 
 bool WindowContext::supportsGpuTimer() const {
     auto flags = skgpu::GpuStatsFlags::kNone;
+#if defined(SK_GRAPHITE)
+    if (fGraphiteContext) {
+        flags = fGraphiteContext->supportedGpuStats();
+    } else
+#endif
     if (fContext) {
         flags = fContext->supportedGpuStats();
     }
@@ -40,7 +45,18 @@ void WindowContext::submitToGpu(GpuTimerCallback statsCallback) {
         std::unique_ptr<skgpu::graphite::Recording> recording = fGraphiteRecorder->snap();
         if (recording) {
             skgpu::graphite::InsertRecordingInfo info;
-            SkASSERT(!statsCallback);
+            if (statsCallback) {
+                auto callback = std::make_unique<GpuTimerCallback>(std::move(statsCallback));
+                info.fFinishedContext = callback.release();
+                info.fFinishedWithStatsProc = [](skgpu::graphite::GpuFinishedContext context,
+                                                 skgpu::CallbackResult,
+                                                 const skgpu::GpuStats& stats) {
+                    std::unique_ptr<GpuTimerCallback> callback{
+                        static_cast<GpuTimerCallback*>(context)};
+                    (*callback)(stats.elapsedTime);
+                };
+                info.fGpuStatsFlags = skgpu::GpuStatsFlags::kElapsedTime;
+            }
             info.fRecording = recording.get();
             fGraphiteContext->insertRecording(info);
             fGraphiteContext->submit(skgpu::graphite::SyncToCpu::kNo);
