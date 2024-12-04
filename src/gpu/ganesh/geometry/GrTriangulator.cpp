@@ -1443,11 +1443,17 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
     TESS_LOG("simplifying complex polygons\n");
 
     int initialNumEdges = fNumEdges;
+    int initialNumVertices = 0;
+    for (Vertex* v = mesh->fHead; v != nullptr; v = v->fNext) {
+        ++initialNumVertices;
+    }
     int numSelfIntersections = 0;
 
     EdgeList activeEdges;
     auto result = SimplifyResult::kAlreadySimple;
+    int numVisitedVertices = 0;
     for (Vertex* v = mesh->fHead; v != nullptr; v = v->fNext) {
+        ++numVisitedVertices;
         if (!v->isConnected()) {
             continue;
         }
@@ -1459,9 +1465,7 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
             return SimplifyResult::kFailed;
         }
 
-        // In pathological cases, a path can intersect itself millions of times. After 500,000
-        // self-intersections are found, reject the path.
-        if (numSelfIntersections > 500000) {
+        if (numVisitedVertices > 170*initialNumVertices) {
             return SimplifyResult::kFailed;
         }
 
@@ -1511,6 +1515,12 @@ GrTriangulator::SimplifyResult GrTriangulator::simplify(VertexList* mesh,
                     restartChecks = true;
                     ++numSelfIntersections;
                 }
+            }
+
+            // In pathological cases, a path can intersect itself millions of times. After 500,000
+            // self-intersections are found, reject the path.
+            if (numSelfIntersections > 500000) {
+                return SimplifyResult::kFailed;
             }
         } while (restartChecks);
 #ifdef SK_DEBUG
