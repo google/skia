@@ -554,13 +554,13 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
         swap(dst->fRadii[kUpperRight_Corner], dst->fRadii[kLowerRight_Corner]);
     }
 
+    dst->scaleRadii();
+
     if (!AreRectAndRadiiValid(dst->fRect, dst->fRadii)) {
         return false;
     }
 
-    dst->scaleRadii();
-    dst->isValid();  // TODO: is this meant to be SkASSERT(dst->isValid())?
-
+    SkASSERT(dst->isValid());
     return true;
 }
 
