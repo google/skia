@@ -366,7 +366,8 @@ Task::Status UploadInstance::addCommand(Context* context,
         }
     } else {
         // Here we assume that multiple copies in a single UploadInstance are always used for
-        // mipmaps of a single image, and that we won't ever copy to a replay target with mipmaps.
+        // mipmaps of a single image, and that we won't ever upload to a replay target's mipmaps
+        // directly.
         SkASSERT(fCopyData.size() == 1);
         const BufferTextureCopyData& copyData = fCopyData[0];
         SkIRect dstRect = copyData.fRect;

@@ -232,19 +232,14 @@ std::unique_ptr<Recording> Recorder::snap() {
 
 SkCanvas* Recorder::makeDeferredCanvas(const SkImageInfo& imageInfo,
                                        const TextureInfo& textureInfo) {
-    // Mipmaps can't reasonably be kept valid on a deferred surface with no actual texture.
-    if (textureInfo.mipmapped() == Mipmapped::kYes) {
-        SKGPU_LOG_W("Requested a deferred canvas with mipmapping; this is not supported");
-        return nullptr;
-    }
-
     if (fTargetProxyCanvas) {
         // Require snapping before requesting another canvas.
         SKGPU_LOG_W("Requested a new deferred canvas before snapping the previous one");
         return nullptr;
     }
 
-    fTargetProxyData = std::make_unique<Recording::LazyProxyData>(textureInfo);
+    fTargetProxyData = std::make_unique<Recording::LazyProxyData>(
+            this->priv().caps(), imageInfo.dimensions(), textureInfo);
     // Use kLoad for the initial load op since the purpose of a deferred canvas is to draw on top
     // of an existing, late-bound texture.
     fTargetProxyDevice = Device::Make(this,

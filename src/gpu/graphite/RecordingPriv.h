@@ -18,6 +18,12 @@ class Surface;
 
 class RecordingPriv {
 public:
+    TextureProxy* deferredTargetProxy();
+    const Texture* setupDeferredTarget(ResourceProvider*,
+                                       Surface* targetSurface,
+                                       SkIVector targetTranslation,
+                                       SkIRect targetClip);
+
     bool hasVolatileLazyProxies() const;
     bool instantiateVolatileLazyProxies(ResourceProvider*);
     void deinstantiateVolatileLazyProxies();
@@ -29,7 +35,7 @@ public:
 
     bool addCommands(Context*,
                      CommandBuffer*,
-                     Surface* targetSurface,
+                     const Texture* replayTarget,
                      SkIVector targetTranslation,
                      SkIRect targetClip);
     // This will eventually lead to adding a Usage Ref on the CommandBuffer. For now that is fine

@@ -9,6 +9,7 @@
 #define skgpu_graphite_Recording_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/private/base/SkTArray.h"
 
 #include <memory>
@@ -21,6 +22,7 @@ class RefCntedCallback;
 
 namespace skgpu::graphite {
 
+class Caps;
 class CommandBuffer;
 class RecordingPriv;
 class Resource;
@@ -44,7 +46,7 @@ private:
     // replay, and it handles the target proxy's instantiation with the provided target.
     class LazyProxyData {
     public:
-        LazyProxyData(const TextureInfo&);
+        LazyProxyData(const Caps*, SkISize dimensions, const TextureInfo&);
 
         TextureProxy* lazyProxy();
         sk_sp<TextureProxy> refLazyProxy();
