@@ -147,10 +147,10 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
     // We must also make sure the lazy proxies are instantiated successfully before we make any
     // modifications to the current command buffer, so we can't just do all this work in
     // Recording::addCommands below.
-    AutoDeinstantiateTextureProxy autoDeinstantiateTargetProxy(
-            info.fRecording->priv().deferredTargetProxy());
+    TextureProxy* deferredTargetProxy = info.fRecording->priv().deferredTargetProxy();
+    AutoDeinstantiateTextureProxy autoDeinstantiateTargetProxy(deferredTargetProxy);
     const Texture* replayTarget = nullptr;
-    if (info.fTargetSurface) {
+    if (deferredTargetProxy && info.fTargetSurface) {
         replayTarget = info.fRecording->priv().setupDeferredTarget(
                 resourceProvider,
                 static_cast<Surface*>(info.fTargetSurface),
@@ -160,6 +160,10 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
             SKGPU_LOG_E("Failed to set up deferred replay target");
             return false;
         }
+
+    } else if (deferredTargetProxy && !info.fTargetSurface) {
+        SKGPU_LOG_E("No surface provided to instantiate deferred replay target.");
+        return false;
     }
 
     if (info.fRecording->priv().hasNonVolatileLazyProxies()) {

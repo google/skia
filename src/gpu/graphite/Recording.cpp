@@ -145,15 +145,7 @@ const Texture* RecordingPriv::setupDeferredTarget(ResourceProvider* resourceProv
                                                   Surface* targetSurface,
                                                   SkIVector targetTranslation,
                                                   SkIRect targetClip) {
-    if (!targetSurface) {
-        SKGPU_LOG_E("No surface provided to instantiate target texture proxy.");
-        return nullptr;
-    }
-
-    if (!fRecording->fTargetProxyData) {
-        SKGPU_LOG_E("Surface provided for replay of draws to non-deferred canvas.");
-        return nullptr;
-    }
+    SkASSERT(targetSurface && fRecording->fTargetProxyData);
 
     TextureProxy* surfaceTexture = targetSurface->backingTextureProxy();
     SkASSERT(surfaceTexture->isInstantiated());
