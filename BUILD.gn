@@ -1508,7 +1508,8 @@ optional("rust_png_encode") {
   public_defines = [ "SK_USE_RUST_PNG_ENCODE" ]
   enabled = skia_use_rust_png_encode
   public = skia_encode_rust_png_public  # From `gn/core.gni`
-  sources = skia_encode_rust_png_srcs  # From `gn/core.gni`
+  sources =
+      skia_encode_rust_png_srcs + skia_encode_png_base  # From `gn/core.gni`
   sources_for_tests = [ "tests/SkPngRustEncoderTest.cpp" ]
 
   # TODO(https://crbug.com/379312510): Add dependencies on the Rust crate and

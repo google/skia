@@ -29,6 +29,16 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "png_encode_base_hdrs",
+    srcs = ["SkPngEncoderBase.h"],
+)
+
+skia_filegroup(
+    name = "png_encode_base_srcs",
+    srcs = ["SkPngEncoderBase.cpp"],
+)
+
+skia_filegroup(
     name = "png_encode_hdrs",
     srcs = ["SkPngEncoderImpl.h"],
 )
@@ -105,6 +115,20 @@ skia_cc_library(
 )
 
 skia_cc_library(
+    name = "png_encode_base",
+    srcs = [":png_encode_base_srcs"],
+    hdrs = [":png_encode_base_hdrs"],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        ":encoder_common",
+        "//:core",
+        "//src/base",
+        "//src/codec:any_decoder",
+    ],
+)
+
+skia_cc_library(
     name = "png_encode",
     srcs = [
         ":png_encode_hdrs",
@@ -119,9 +143,11 @@ skia_cc_library(
     visibility = ["//:__pkg__"],
     deps = [
         ":encoder_common",
+        ":png_encode_base",
         "//:core",
         "//modules/skcms",
         "//src/base",
+        "//src/codec:any_decoder",
         "//src/core:core_priv",
         "@libpng",
     ],

@@ -336,9 +336,8 @@ DEF_TEST(Encode_png_roundtrip_for_different_source_formats, r) {
     // more details.
     test_png_encoding_roundtrip_from_specific_source_format(
             r, kRGBA_F16_SkColorType, kOpaque_SkAlphaType, 0);
-    // TODO(lukasza): Uncomment when landing http://review.skia.org/922676.
-    // test_png_encoding_roundtrip_from_specific_source_format(
-    //        r, kRGBA_F32_SkColorType, kOpaque_SkAlphaType, 0);
+    test_png_encoding_roundtrip_from_specific_source_format(
+            r, kRGBA_F32_SkColorType, kOpaque_SkAlphaType, 0);
 }
 
 DEF_TEST(Encode_JPG, r) {
