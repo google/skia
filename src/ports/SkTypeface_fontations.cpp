@@ -118,7 +118,7 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromStream(std::unique_ptr<SkStream
 
 sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
                                                       const SkFontArguments& args) {
-    uint32_t ttcIndex = args.getCollectionIndex();
+    uint32_t ttcIndex = args.getCollectionIndex() & 0xFFFF;
     rust::Box<fontations_ffi::BridgeFontRef> bridgeFontRef = make_bridge_font_ref(data, ttcIndex);
     if (!fontations_ffi::font_ref_is_valid(*bridgeFontRef)) {
         return nullptr;

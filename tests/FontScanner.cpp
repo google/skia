@@ -43,13 +43,9 @@ void FontScanner_VariableFont(skiatest::Reporter* reporter,
             bool isFixedPitch;
             SkString realName;
             SkFontStyle style = SkFontStyle(); // avoid uninitialized warning
-            if (!scanner->scanInstance(stream.get(),
-                                       faceIndex,
-                                       instanceIndex,
-                                       &realName,
-                                       &style,
-                                       &isFixedPitch,
-                                       nullptr)) {
+            if (!scanner->scanInstance(stream.get(), faceIndex, instanceIndex,
+                                       &realName, &style, &isFixedPitch,
+                                       nullptr, nullptr)) {
                 REPORTER_ASSERT(reporter,
                                 false,
                                 "Cannot scanInstance %s %d\n",
@@ -102,13 +98,9 @@ void FontScanner_NamedInstances1(skiatest::Reporter* reporter, SkFontScanner* sc
             SkString realName;
             SkFontStyle style = SkFontStyle(); // avoid uninitialized warning
             SkFontScanner::AxisDefinitions axes;
-            if (!scanner->scanInstance(stream.get(),
-                                       faceIndex,
-                                       instanceIndex,
-                                       &realName,
-                                       &style,
-                                       &isFixedPitch,
-                                       &axes)) {
+            if (!scanner->scanInstance(stream.get(), faceIndex, instanceIndex,
+                                       &realName, &style, &isFixedPitch,
+                                       &axes, nullptr)) {
                 REPORTER_ASSERT(reporter,
                                 false,
                                 "Cannot scanInstance %s %d\n",
@@ -122,14 +114,14 @@ void FontScanner_NamedInstances1(skiatest::Reporter* reporter, SkFontScanner* sc
                     if (instanceIndex == 5) {
                         SkFourByteTag weight = SkSetFourByteTag('w', 'g', 'h', 't');
                         SkFourByteTag width = SkSetFourByteTag('w', 'd', 't', 'h');
-                        REPORTER_ASSERT(reporter, axes[0].fTag == weight);
-                        REPORTER_ASSERT(reporter, axes[0].fDefault == 400.0f);
-                        REPORTER_ASSERT(reporter, axes[0].fMinimum == 100.0f);
-                        REPORTER_ASSERT(reporter, axes[0].fMaximum == 900.0f);
-                        REPORTER_ASSERT(reporter, axes[1].fTag == width);
-                        REPORTER_ASSERT(reporter, axes[1].fDefault == 100.0f);
-                        REPORTER_ASSERT(reporter, axes[1].fMinimum == 050.0f);
-                        REPORTER_ASSERT(reporter, axes[1].fMaximum == 200.0f);
+                        REPORTER_ASSERT(reporter, axes[0].tag == weight);
+                        REPORTER_ASSERT(reporter, axes[0].def == 400.0f);
+                        REPORTER_ASSERT(reporter, axes[0].min == 100.0f);
+                        REPORTER_ASSERT(reporter, axes[0].max == 900.0f);
+                        REPORTER_ASSERT(reporter, axes[1].tag == width);
+                        REPORTER_ASSERT(reporter, axes[1].def == 100.0f);
+                        REPORTER_ASSERT(reporter, axes[1].min == 050.0f);
+                        REPORTER_ASSERT(reporter, axes[1].max == 200.0f);
                     }
                 } else {
                     REPORTER_ASSERT(reporter,
@@ -173,13 +165,9 @@ void FontScanner_NamedInstances2(skiatest::Reporter* reporter, SkFontScanner* sc
             SkString realName;
             SkFontStyle style = SkFontStyle(); // avoid uninitialized warning
             SkFontScanner::AxisDefinitions axes;
-            if (!scanner->scanInstance(stream.get(),
-                                       faceIndex,
-                                       instanceIndex,
-                                       &realName,
-                                       &style,
-                                       &isFixedPitch,
-                                       &axes)) {
+            if (!scanner->scanInstance(stream.get(), faceIndex, instanceIndex,
+                                       &realName, &style, &isFixedPitch,
+                                       &axes, nullptr)) {
                 REPORTER_ASSERT(reporter,
                                 false,
                                 "Cannot scanInstance %s %d\n",
@@ -194,10 +182,10 @@ void FontScanner_NamedInstances2(skiatest::Reporter* reporter, SkFontScanner* sc
                 REPORTER_ASSERT(reporter, (instanceIndex != 1) || (style.weight() == 100.0f));
                 REPORTER_ASSERT(reporter, (instanceIndex != 2) || (style.weight() == 400.0f));
                 REPORTER_ASSERT(reporter, (instanceIndex != 3) || (style.weight() == 900.0f));
-                REPORTER_ASSERT(reporter, axis.fTag == weight);
-                REPORTER_ASSERT(reporter, axis.fDefault == 400.0f);
-                REPORTER_ASSERT(reporter, axis.fMinimum == 100.0f);
-                REPORTER_ASSERT(reporter, axis.fMaximum == 900.0f);
+                REPORTER_ASSERT(reporter, axis.tag == weight);
+                REPORTER_ASSERT(reporter, axis.def == 400.0f);
+                REPORTER_ASSERT(reporter, axis.min == 100.0f);
+                REPORTER_ASSERT(reporter, axis.max == 900.0f);
             }
         }
     }
@@ -228,13 +216,9 @@ void FontScanner_FontCollection(skiatest::Reporter* reporter, SkFontScanner* sca
         SkString realName;
         SkFontStyle style = SkFontStyle(); // avoid uninitialized warning
         SkFontScanner::AxisDefinitions axes;
-        if (!scanner->scanInstance(stream.get(),
-                                   faceIndex,
-                                   defaultInstance,
-                                   &realName,
-                                   &style,
-                                   &isFixedPitch,
-                                   &axes)) {
+        if (!scanner->scanInstance(stream.get(), faceIndex, defaultInstance,
+                                   &realName, &style, &isFixedPitch,
+                                   &axes, nullptr)) {
             REPORTER_ASSERT(reporter,
                             false,
                             "Cannot scanInstance %s %d\n",

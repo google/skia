@@ -540,8 +540,9 @@ protected:
         SkFontStyle style;
         bool isFixedWidth;
         SkFontScanner::AxisDefinitions axisDefinitions;
+        SkFontScanner::VariationPosition current;
         if (!fScanner->scanInstance(stream.get(), ttcIndex, 0,
-                                    &familyName, &style, &isFixedWidth, &axisDefinitions))
+                                    &familyName, &style, &isFixedWidth, &axisDefinitions, &current))
         {
             if constexpr (kSkFontMgrVerbose) {
                 SkDebugf("SKIA: Font file %s exists, but is not a valid font.\n", filePath);
@@ -578,10 +579,11 @@ protected:
         }
 
         AutoSTMalloc<4, SkFixed> axisValues(axisDefinitions.size());
-        SkFontArguments::VariationPosition position = {
+        SkFontArguments::VariationPosition requestedPos = {
             requestAxisValues.get(), SkTo<int>(requestAxisCount)
         };
-        SkFontScanner_FreeType::computeAxisValues(axisDefinitions, position,
+        const SkFontArguments::VariationPosition currentPos{current.data(), current.size()};
+        SkFontScanner_FreeType::computeAxisValues(axisDefinitions, currentPos, requestedPos,
                                                   axisValues, familyName, nullptr);
 
         STArray<4, SkLanguage> skLangs;

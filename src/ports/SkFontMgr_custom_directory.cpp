@@ -82,7 +82,7 @@ private:
                                                &realname,
                                                &style,
                                                &isFixedPitch,
-                                               nullptr)) {
+                                               nullptr, nullptr)) {
                         // SkDebugf("---- failed to open <%s> <%d> as a font\n",
                         //          filename.c_str(), faceIndex);
                         continue;

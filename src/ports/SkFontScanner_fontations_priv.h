@@ -30,7 +30,8 @@ public:
                       SkString* name,
                       SkFontStyle* style,
                       bool* isFixedPitch,
-                      AxisDefinitions* axes) const override;
+                      AxisDefinitions* axes,
+                      VariationPosition* position) const override;
     sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
                                      const SkFontArguments& args) const override;
     SkFourByteTag getFactoryId() const override;

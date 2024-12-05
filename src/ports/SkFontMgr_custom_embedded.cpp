@@ -102,7 +102,7 @@ static void load_font_from_data(const SkFontScanner* scanner,
                                       &realname,
                                       &style,
                                       &isFixedPitch,
-                                      nullptr)) {
+                                      nullptr, nullptr)) {
                 SkDebugf("---- failed to open <%d> <%d> <%d> as an instance\n",
                          index,
                          faceIndex,

@@ -9,6 +9,7 @@
 #define SKFONTSCANNER_H_
 
 #include "include/core/SkFontArguments.h"
+#include "include/core/SkFontParameters.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFixed.h"
@@ -22,13 +23,8 @@ class SkTypeface;
 class SkFontScanner : public SkNoncopyable {
 public:
     virtual ~SkFontScanner() = default;
-    struct AxisDefinition {
-        SkFourByteTag fTag;
-        SkScalar fMinimum;
-        SkScalar fDefault;
-        SkScalar fMaximum;
-    };
-    typedef skia_private::STArray<4, AxisDefinition, true> AxisDefinitions;
+    using AxisDefinitions = skia_private::STArray<4, SkFontParameters::Variation::Axis, true>;
+    using VariationPosition = skia_private::STArray<4, SkFontArguments::VariationPosition::Coordinate, true>;
 
     virtual bool scanFile(SkStreamAsset* stream, int* numFaces) const = 0;
     virtual bool scanFace(SkStreamAsset* stream, int faceIndex, int* numInstances) const = 0;
@@ -39,7 +35,8 @@ public:
                               SkString* name,
                               SkFontStyle* style,
                               bool* isFixedPitch,
-                              AxisDefinitions* axes) const = 0;
+                              AxisDefinitions* axes,
+                              VariationPosition* position) const = 0;
     virtual sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
                                              const SkFontArguments& args) const = 0;
     virtual SkFourByteTag getFactoryId() const = 0;
