@@ -59,10 +59,6 @@ void run_test(skiatest::Reporter* reporter,
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     SkCanvas* canvas = recorder->makeDeferredCanvas(recordingImageInfo, textureInfo);
     draw(canvas);
-
-    // Can't make another canvas before snapping.
-    REPORTER_ASSERT(reporter,
-                    recorder->makeDeferredCanvas(recordingImageInfo, textureInfo) == nullptr);
     std::unique_ptr<Recording> recording = recorder->snap();
 
     // Play back recording. If the mipmap settings don't match, we have to create a new surface.
@@ -438,6 +434,39 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestMipmappedWritePixels, re
              skgpu::Mipmapped::kYes,
              draw,
              expectations);
+}
+
+// Tests that you can't create two deferred canvases before snapping the first.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestTwoCanvases, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
+    const SkImageInfo kImageInfo = SkImageInfo::Make(SkISize::Make(1, 1),
+                                                     SkColorType::kRGBA_8888_SkColorType,
+                                                     SkAlphaType::kPremul_SkAlphaType);
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    sk_sp<SkSurface> surface =
+            SkSurfaces::RenderTarget(recorder.get(), kImageInfo, skgpu::Mipmapped::kNo);
+    const TextureInfo& textureInfo =
+            static_cast<Surface*>(surface.get())->backingTextureProxy()->textureInfo();
+
+    // First canvas is created successfully.
+    REPORTER_ASSERT(reporter, recorder->makeDeferredCanvas(kImageInfo, textureInfo) != nullptr);
+    // Second canvas fails to be created.
+    REPORTER_ASSERT(reporter, recorder->makeDeferredCanvas(kImageInfo, textureInfo) == nullptr);
+}
+
+// Tests that inserting a recording with a surface does not crash even if no draws to a deferred
+// canvas were recorded.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestUnnecessarySurface, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
+    const SkImageInfo kImageInfo = SkImageInfo::Make(SkISize::Make(1, 1),
+                                                     SkColorType::kRGBA_8888_SkColorType,
+                                                     SkAlphaType::kPremul_SkAlphaType);
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+
+    sk_sp<SkSurface> surface =
+            SkSurfaces::RenderTarget(recorder.get(), kImageInfo, skgpu::Mipmapped::kNo);
+    std::unique_ptr<Recording> recording = recorder->snap();
+    REPORTER_ASSERT(reporter, context->insertRecording({recording.get(), surface.get()}));
 }
 
 }  // namespace skgpu::graphite
