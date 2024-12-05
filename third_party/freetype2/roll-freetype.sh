@@ -36,6 +36,12 @@ rollbazel() {
   git add bazel/deps.bzl
 }
 
+rolldepsgen() {
+  STEP="roll-depsgen" &&
+  sed -i'' -e "s!Version: \"${FT_PREVIOUS_REV}\",!Version: \"${FT_NEXT_REV}\",!" infra/bots/deps/deps_gen.go &&
+  git add infra/bots/deps/deps_gen.go
+}
+
 mergeinclude() {
   SKIA_INCLUDE="include/$1/$2" &&
   STEP="merge ${SKIA_INCLUDE}: check for merge conflicts" &&
@@ -64,6 +70,7 @@ previousrev &&
 nextrev &&
 rolldeps "$@" &&
 rollbazel &&
+rolldepsgen &&
 mergeinclude freetype-android freetype/config/ftoption.h &&
 mergeinclude freetype-android freetype/config/ftmodule.h &&
 mergeinclude freetype-no-type1 freetype/config/ftoption.h &&

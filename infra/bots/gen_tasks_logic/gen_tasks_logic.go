@@ -736,7 +736,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 				"SkottieTracing", "SkottieWASM", "GpuTess", "DMSAAStats", "Docker", "PDF",
 				"Puppeteer", "SkottieFrames", "RenderSKP", "CanvasPerf", "AllPathsVolatile",
 				"WebGL2", "i5", "OldestSupportedSkpVersion", "FakeWGPU", "TintIR", "Protected",
-				"AndroidNDKFonts"}
+				"AndroidNDKFonts", "Upload"}
 			keep := make([]string, 0, len(ec))
 			for _, part := range ec {
 				if !In(part, ignore) {
@@ -1626,6 +1626,9 @@ func (b *jobBuilder) codesize() {
 
 // doUpload indicates whether the given Job should upload its results.
 func (b *jobBuilder) doUpload() bool {
+	if b.extraConfig("Upload") {
+		return true
+	}
 	for _, s := range b.cfg.NoUpload {
 		m, err := regexp.MatchString(s, b.Name)
 		if err != nil {
