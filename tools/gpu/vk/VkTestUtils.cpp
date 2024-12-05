@@ -188,6 +188,7 @@ static bool should_include_extension(const char* extensionName) {
             VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,
             VK_KHR_SURFACE_EXTENSION_NAME,
             VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+            VK_EXT_PIPELINE_CREATION_CACHE_CONTROL_EXTENSION_NAME,
             // Below are all platform specific extensions. The name macros like we use above are
             // all defined in platform specific vulkan headers. We currently don't include these
             // headers as they are a little bit of a pain (e.g. windows headers requires including
@@ -491,6 +492,20 @@ static bool setup_features(const skgpu::VulkanGetProc& getProc, VkInstance inst,
         ycbcrFeature->samplerYcbcrConversion = VK_TRUE;
         *tailPNext = ycbcrFeature;
         tailPNext = &ycbcrFeature->pNext;
+    }
+
+    VkPhysicalDevicePipelineCreationCacheControlFeatures* cacheControlFeatures = nullptr;
+    if (physDeviceVersion >= VK_MAKE_VERSION(1, 3, 0) ||
+        extensions->hasExtension(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL_EXTENSION_NAME, 1)) {
+        cacheControlFeatures =
+                (VkPhysicalDevicePipelineCreationCacheControlFeatures*)sk_malloc_throw(
+                        sizeof(VkPhysicalDevicePipelineCreationCacheControlFeatures));
+        cacheControlFeatures->sType =
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES;
+        cacheControlFeatures->pNext = nullptr;
+        cacheControlFeatures->pipelineCreationCacheControl = VK_TRUE;
+        *tailPNext = cacheControlFeatures;
+        tailPNext = &cacheControlFeatures->pNext;
     }
 
     if (physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {

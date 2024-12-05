@@ -515,6 +515,28 @@ public:
 
     bool supportsDistanceFieldText() const;
 
+    /**
+     * Returns true if the underlying Vulkan implementation can accurately detect when the data in
+     * the pipeline cache changes. Returns false on non-Vulkan implementations.
+     *
+     * When this is false, the return value of `hasNewVkPipelineCacheData` will occasionally issue a
+     * false positive.
+     */
+    bool canDetectNewVkPipelineCacheData() const;
+    /**
+     * For Vulkan implementations, returns true if the data in the pipeline cache could have changed
+     * since the last call to `storeVkPipelineCacheData`. Always returns true on non-Vulkan
+     * implementations.
+     *
+     * Pipeline cache changes are detected when creating new pipelines, however this will
+     * occasionally result in a false positive. When VK_EXT_pipeline_creation_cache_control is
+     * enabled, we additionally know when a pipeline creation does not change the cache, thus
+     * eliminating false-positives.
+     *
+     * Check `canDetectNewVkPipelineCacheData` to see whether VK_EXT_pipeline_creation_cache_control
+     * is available and enabled.
+     */
+    bool hasNewVkPipelineCacheData() const;
     void storeVkPipelineCacheData();
     void storeVkPipelineCacheData(size_t maxSize);
 

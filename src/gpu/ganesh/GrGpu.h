@@ -695,6 +695,8 @@ public:
         }
     }
 
+    virtual bool canDetectNewVkPipelineCacheData() const { return false; }
+    virtual bool hasNewVkPipelineCacheData() const { return true; }
     virtual void storeVkPipelineCacheData(size_t maxSize) {}
 
     // Called before certain draws in order to guarantee coherent results from dst reads.

@@ -559,17 +559,47 @@ sk_sp<GrVkPipeline> GrVkPipeline::Make(GrVkGpu* gpu,
     pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineCreateInfo.basePipelineIndex = -1;
 
-    VkPipeline vkPipeline;
-    VkResult err;
+    VkPipeline vkPipeline = VK_NULL_HANDLE;
+    VkResult err = VK_PIPELINE_COMPILE_REQUIRED;
     {
         TRACE_EVENT0_ALWAYS("skia.shaders", "CreateGraphicsPipeline");
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
         // skia:8712
         __lsan::ScopedDisabler lsanDisabler;
 #endif
-        GR_VK_CALL_RESULT(gpu, err, CreateGraphicsPipelines(gpu->device(), cache, 1,
-                                                            &pipelineCreateInfo, nullptr,
-                                                            &vkPipeline));
+
+        if (gpu->vkCaps().supportsPipelineCreationCacheControl()) {
+            TRACE_EVENT0_ALWAYS("skia.shaders", "CreateGraphicsPipeline-CacheLookup");
+
+            pipelineCreateInfo.flags |=
+                    VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT_EXT;
+            GR_VK_CALL_RESULT_NOCHECK(
+                    gpu,
+                    err,
+                    CreateGraphicsPipelines(
+                            gpu->device(), cache, 1, &pipelineCreateInfo, nullptr, &vkPipeline));
+            gpu->checkVkResult(err);
+        }
+
+        if (err == VK_PIPELINE_COMPILE_REQUIRED) {
+            TRACE_EVENT0_ALWAYS(
+                    "skia.shaders",
+                    TRACE_STR_STATIC(gpu->vkCaps().supportsPipelineCreationCacheControl()
+                                             ? "CreateGraphicsPipeline-CompileAfterCacheMiss"
+                                             : "CreateGraphicsPipeline-CacheLookupOrCompile"));
+
+            pipelineCreateInfo.flags &=
+                    ~VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT_EXT;
+            GR_VK_CALL_RESULT(
+                    gpu,
+                    err,
+                    CreateGraphicsPipelines(
+                            gpu->device(), cache, 1, &pipelineCreateInfo, nullptr, &vkPipeline));
+
+            if (err == VK_SUCCESS) {
+                gpu->pipelineCompileWasRequired();
+            }
+        }
     }
     if (err) {
         SkDebugf("Failed to create pipeline. Error: %d\n", err);

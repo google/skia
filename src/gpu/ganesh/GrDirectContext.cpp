@@ -547,6 +547,22 @@ void GrDirectContext::syncAllOutstandingGpuWork(bool shouldExecuteWhileAbandoned
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool GrDirectContext::canDetectNewVkPipelineCacheData() const {
+    if (!fGpu) {
+        return false;
+    }
+
+    return fGpu->canDetectNewVkPipelineCacheData();
+}
+
+bool GrDirectContext::hasNewVkPipelineCacheData() const {
+    if (!fGpu) {
+        return false;
+    }
+
+    return fGpu->hasNewVkPipelineCacheData();
+}
+
 void GrDirectContext::storeVkPipelineCacheData() {
     this->storeVkPipelineCacheData(SIZE_MAX);
 }

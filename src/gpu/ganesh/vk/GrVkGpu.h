@@ -229,6 +229,9 @@ public:
         kPipelineCache_PersistentCacheKeyType = 1,
     };
 
+    void pipelineCompileWasRequired();
+    bool canDetectNewVkPipelineCacheData() const override;
+    bool hasNewVkPipelineCacheData() const override;
     void storeVkPipelineCacheData(size_t maxSize) override;
 
     bool beginRenderPass(const GrVkRenderPass*,
@@ -475,6 +478,8 @@ private:
     // We need a bool to track whether or not we've already disconnected all the gpu resources from
     // vulkan context.
     bool                                                  fDisconnected;
+
+    bool                                                  fHasNewVkPipelineCacheData;
 
     skgpu::Protected                                      fProtectedContext;
 
