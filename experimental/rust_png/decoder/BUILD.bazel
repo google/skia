@@ -29,6 +29,7 @@ skia_cc_library(
         "//:core",
         "//experimental/rust_png/ffi:cxx_bridge",
         "//experimental/rust_png/ffi:ffi_cpp",
+        "//experimental/rust_png/ffi:utils",
         "//modules/skcms",
         "//src/base",
         "//src/codec:any_decoder",

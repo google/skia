@@ -12,6 +12,7 @@
 #include "include/core/SkStream.h"
 #include "tests/Test.h"
 #include "tools/DecodeUtils.h"
+#include "tools/ToolUtils.h"
 
 DEF_TEST(Encode_png_Rust_smoke_test, r) {
     SkBitmap bitmap;
@@ -29,9 +30,18 @@ DEF_TEST(Encode_png_Rust_smoke_test, r) {
 
     SkDynamicMemoryWStream dst;
     success = SkPngRustEncoder::Encode(&dst, src);
+    REPORTER_ASSERT(r, success);
+    if (!success) {
+        return;
+    }
 
-    // TODO(https://crbug.com/379312510): Expect success once encoding via Rust
-    // `png` crate actually works.  See also
-    // http://review.skia.org/923337/8/tests/SkPngRustEncoderTest.cpp
-    REPORTER_ASSERT(r, !success);
+    SkBitmap roundtrip;
+    success = ToolUtils::DecodeDataToBitmap(dst.detachAsData(), &roundtrip);
+    REPORTER_ASSERT(r, success);
+    if (!success) {
+        return;
+    }
+
+    success = ToolUtils::equal_pixels(bitmap, roundtrip);
+    REPORTER_ASSERT(r, success);
 }

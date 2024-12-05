@@ -86,6 +86,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_codec_rust_png_ffi_cpp_hdrs",
 			Rules: []string{
 				"//experimental/rust_png/ffi:ffi_cpp",
+				"//experimental/rust_png/ffi:utils",
 			},
 		},
 	}},

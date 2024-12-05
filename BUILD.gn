@@ -1511,14 +1511,11 @@ optional("rust_png_encode") {
   sources =
       skia_encode_rust_png_srcs + skia_encode_png_base  # From `gn/core.gni`
   sources_for_tests = [ "tests/SkPngRustEncoderTest.cpp" ]
-
-  # TODO(https://crbug.com/379312510): Add dependencies on the Rust crate and
-  # FFI APIs (see http://review.skia.org/923337/8/BUILD.gn):
-  # deps = [
-  #  ":rust_png_cxx_bridge",
-  #  ":rust_png_cxx_core_bazel_build",
-  # ]
-  # libs = [ "$root_out_dir/librust_png_cxx_core_lib.a" ]
+  deps = [
+    ":rust_png_cxx_bridge",
+    ":rust_png_cxx_core_bazel_build",
+  ]
+  libs = [ "$root_out_dir/librust_png_cxx_core_lib.a" ]
 }
 
 optional("webp_decode") {

@@ -30,11 +30,13 @@ skia_cc_library(
     features = ["layering_check"],
     deps = [
         "//:core",
+        "//experimental/rust_png/ffi:cxx_bridge",
+        "//experimental/rust_png/ffi:ffi_cpp",
+        "//experimental/rust_png/ffi:utils",
+        "//src/base",
+        "//src/codec:any_decoder",
         "//src/encode:encoder_common",
-        # TODO(https://crbug.com/379312510): Land http://review.skia.org/923337
-        # and add dependencies on the Rust crate and FFI APIs from:
-        # "//experimental/rust_png/ffi:cxx_bridge",
-        # "//experimental/rust_png/ffi:ffi_cpp",
-        # "@cxx//:core-lib",
+        "//src/encode:png_encode_base",
+        "@cxx//:core-lib",
     ],
 )

@@ -12,6 +12,7 @@
 #include <utility>
 
 #include "experimental/rust_png/ffi/FFI.rs.h"
+#include "experimental/rust_png/ffi/UtilsForFFI.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkEncodedInfo.h"
@@ -224,23 +225,13 @@ SkCodec::Result ToSkCodecResult(rust_png::DecodingResult rustResult) {
     SK_ABORT("Unexpected `rust_png::DecodingResult`: %d", static_cast<int>(rustResult));
 }
 
-template <typename T> SkSpan<T> ToSkSpan(rust::Slice<T> slice) {
-    // Avoiding operating on `buffer.data()` if the slice is empty helps to avoid
-    // UB risk described at https://davidben.net/2024/01/15/empty-slices.html.
-    if (slice.empty()) {
-        return SkSpan<T>();
-    }
-
-    return SkSpan<T>(slice.data(), slice.size());
-}
-
 // This helper class adapts `SkStream` to expose the API required by Rust FFI
 // (i.e. the `ReadTrait` API).
 class ReadTraitAdapterForSkStream final : public rust_png::ReadTrait {
 public:
     // SAFETY: The caller needs to guarantee that `stream` will be alive for
     // as long as `ReadTraitAdapterForSkStream`.
-    explicit ReadTraitAdapterForSkStream(SkStream* stream) : fStream(stream) {}
+    explicit ReadTraitAdapterForSkStream(SkStream* stream) : fStream(stream) { SkASSERT(fStream); }
 
     ~ReadTraitAdapterForSkStream() override = default;
 

@@ -7,7 +7,7 @@
 //! The public API of this crate is the C++ API declared by the `#[cxx::bridge]`
 //! macro below and exposed through the auto-generated `FFI.rs.h` header.
 
-use std::io::{ErrorKind, Read};
+use std::io::{ErrorKind, Read, Write};
 use std::pin::Pin;
 
 // No `use png::...` nor `use ffi::...` because we want the code to explicitly
@@ -54,10 +54,24 @@ mod ffi {
         Over,
     }
 
+    /// FFI-friendly simplification of `Option<png::EncodingError>`.
+    enum EncodingResult {
+        Success,
+        IoError,
+        FormatError,
+        ParameterError,
+        LimitsExceededError,
+    }
+
     unsafe extern "C++" {
         include!("experimental/rust_png/ffi/FFI.h");
+
         type ReadTrait;
         fn read(self: Pin<&mut ReadTrait>, buffer: &mut [u8]) -> usize;
+
+        type WriteTrait;
+        fn write(self: Pin<&mut WriteTrait>, buffer: &[u8]) -> bool;
+        fn flush(self: Pin<&mut WriteTrait>);
     }
 
     // Rust functions, types, and methods that are exposed through FFI.
@@ -131,6 +145,22 @@ mod ffi {
             row: &[u8],
             bits_per_pixel: u8,
         );
+
+        fn new_stream_writer(
+            output: UniquePtr<WriteTrait>,
+            width: u32,
+            height: u32,
+            color: ColorType,
+            bits_per_component: u8,
+        ) -> Box<ResultOfStreamWriter>;
+
+        type ResultOfStreamWriter;
+        fn err(self: &ResultOfStreamWriter) -> EncodingResult;
+        fn unwrap(self: &mut ResultOfStreamWriter) -> Box<StreamWriter>;
+
+        type StreamWriter;
+        fn write(self: &mut StreamWriter, data: &[u8]) -> EncodingResult;
+        fn finish_encoding(stream_writer: Box<StreamWriter>) -> EncodingResult;
     }
 }
 
@@ -142,6 +172,20 @@ impl From<png::ColorType> for ffi::ColorType {
             png::ColorType::Indexed => Self::Indexed,
             png::ColorType::GrayscaleAlpha => Self::GrayscaleAlpha,
             png::ColorType::Rgba => Self::Rgba,
+        }
+    }
+}
+
+impl Into<png::ColorType> for ffi::ColorType {
+    fn into(self) -> png::ColorType {
+        match self {
+            Self::Grayscale => png::ColorType::Grayscale,
+            Self::Rgb => png::ColorType::Rgb,
+            Self::GrayscaleAlpha => png::ColorType::GrayscaleAlpha,
+            Self::Rgba => png::ColorType::Rgba,
+
+            // `SkPngRustEncoderImpl` only uses the color types above.
+            _ => unreachable!(),
         }
     }
 }
@@ -187,9 +231,38 @@ impl From<Option<&png::DecodingError>> for ffi::DecodingResult {
     }
 }
 
+impl From<Option<&png::EncodingError>> for ffi::EncodingResult {
+    fn from(option: Option<&png::EncodingError>) -> Self {
+        match option {
+            None => Self::Success,
+            Some(encoding_error) => match encoding_error {
+                png::EncodingError::IoError(_) => Self::IoError,
+                png::EncodingError::Format(_) => Self::FormatError,
+                png::EncodingError::Parameter(_) => Self::ParameterError,
+                png::EncodingError::LimitsExceeded => Self::LimitsExceededError,
+            },
+        }
+    }
+}
+
 impl<'a> Read for Pin<&'a mut ffi::ReadTrait> {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
         Ok(self.as_mut().read(buf))
+    }
+}
+
+impl<'a> Write for Pin<&'a mut ffi::WriteTrait> {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        if self.as_mut().write(buf) {
+            Ok(buf.len())
+        } else {
+            Err(ErrorKind::Other.into())
+        }
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        self.as_mut().flush();
+        Ok(())
     }
 }
 
@@ -429,7 +502,7 @@ impl Reader {
     ///
     /// Panics if no `fcTL` chunk hasn't been parsed yet.
     fn get_fctl_info(
-        self: &Reader,
+        &self,
         width: &mut u32,
         height: &mut u32,
         x_offset: &mut u32,
@@ -510,4 +583,86 @@ impl Reader {
 /// This provides a public C++ API for decoding a PNG image.
 fn new_reader(input: cxx::UniquePtr<ffi::ReadTrait>) -> Box<ResultOfReader> {
     Box::new(ResultOfReader(Reader::new(input)))
+}
+
+/// FFI-friendly wrapper around `Result<T, E>` (`cxx` can't handle arbitrary
+/// generics, so we manually monomorphize here, but still expose a minimal,
+/// somewhat tweaked API of the original type).
+struct ResultOfStreamWriter(Result<StreamWriter, png::EncodingError>);
+
+impl ResultOfStreamWriter {
+    fn err(&self) -> ffi::EncodingResult {
+        self.0.as_ref().err().into()
+    }
+
+    fn unwrap(&mut self) -> Box<StreamWriter> {
+        // Leaving `self` in a C++-friendly "moved-away" state.
+        let mut result = Err(png::EncodingError::LimitsExceeded);
+        std::mem::swap(&mut self.0, &mut result);
+
+        Box::new(result.unwrap())
+    }
+}
+
+/// FFI-friendly wrapper around `png::StreamWriter` (`cxx` can't handle
+/// arbitrary generics, so we manually monomorphize here, but still expose a
+/// minimal, somewhat tweaked API of the original type).
+struct StreamWriter(png::StreamWriter<'static, cxx::UniquePtr<ffi::WriteTrait>>);
+
+impl StreamWriter {
+    fn new(
+        output: cxx::UniquePtr<ffi::WriteTrait>,
+        width: u32,
+        height: u32,
+        color: ffi::ColorType,
+        bits_per_component: u8,
+    ) -> Result<Self, png::EncodingError> {
+        let mut encoder = png::Encoder::new(output, width, height);
+        encoder.set_color(color.into());
+        encoder.set_depth(match bits_per_component {
+            8 => png::BitDepth::Eight,
+            16 => png::BitDepth::Sixteen,
+
+            // `SkPngRustEncoderImpl` only encodes 8-bit or 16-bit images.
+            _ => unreachable!(),
+        });
+
+        let writer = encoder.write_header()?;
+        let stream_writer = writer.into_stream_writer()?;
+        Ok(Self(stream_writer))
+    }
+
+    /// FFI-friendly wrapper around `Write::write` implementation of
+    /// `png::StreamWriter`.
+    ///
+    /// See also https://docs.rs/png/latest/png/struct.StreamWriter.html#method.write
+    pub fn write(&mut self, data: &[u8]) -> ffi::EncodingResult {
+        let io_result = self.0.write(data);
+        let encoding_result = io_result.map_err(|err| png::EncodingError::IoError(err));
+        encoding_result.as_ref().err().into()
+    }
+}
+
+/// This provides a public C++ API for encoding a PNG image.
+fn new_stream_writer(
+    output: cxx::UniquePtr<ffi::WriteTrait>,
+    width: u32,
+    height: u32,
+    color: ffi::ColorType,
+    bits_per_component: u8,
+) -> Box<ResultOfStreamWriter> {
+    Box::new(ResultOfStreamWriter(StreamWriter::new(
+        output,
+        width,
+        height,
+        color,
+        bits_per_component,
+    )))
+}
+
+/// FFI-friendly wrapper around `png::StreamWriter::finish`.
+///
+/// See also https://docs.rs/png/latest/png/struct.StreamWriter.html#method.finish
+fn finish_encoding(stream_writer: Box<StreamWriter>) -> ffi::EncodingResult {
+    stream_writer.0.finish().as_ref().err().into()
 }

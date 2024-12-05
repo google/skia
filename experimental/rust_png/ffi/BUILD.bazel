@@ -17,6 +17,14 @@ skia_filegroup(
 )
 
 skia_cc_library(
+    name = "utils",
+    hdrs = ["UtilsForFFI.h"],
+    features = ["layering_check"],
+    visibility = ["//experimental/rust_png:__subpackages__"],
+    deps = ["//:core"],
+)
+
+skia_cc_library(
     name = "ffi_cpp",
     hdrs = ["FFI.h"],
     features = ["layering_check"],
