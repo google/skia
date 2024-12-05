@@ -812,6 +812,7 @@ protected:
     }
 
     virtual bool onGetGainmapCodec(SkGainmapInfo*, std::unique_ptr<SkCodec>*) { return false; }
+    virtual bool onGetGainmapInfo(SkGainmapInfo*) { return false; }
 
     // TODO(issues.skia.org/363544350): This API only works for JPEG images. Remove this API once
     // it is no longer used.
@@ -1053,6 +1054,7 @@ private:
     friend class PNGCodecGM;    // for fillIncompleteImage
     friend class SkSampledCodec;
     friend class SkIcoCodec;
+    friend class SkPngCodec;     // for onGetGainmapCodec
     friend class SkAndroidCodec; // for fEncodedInfo
     friend class SkPDFBitmap; // for fEncodedInfo
 };

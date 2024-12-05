@@ -23,6 +23,7 @@
 #include "include/encode/SkEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/private/SkEncodedInfo.h"
+#include "include/private/SkGainmapInfo.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkNoncopyable.h"
@@ -34,6 +35,7 @@
 #include "src/image/SkImage_Base.h"
 
 #include <algorithm>
+#include <array>
 #include <csetjmp>
 #include <cstdint>
 #include <cstring>
@@ -83,6 +85,7 @@ public:
                    const SkImageInfo& srcInfo,
                    const SkPngEncoder::Options& options);
     bool setColorSpace(const SkImageInfo& info, const SkPngEncoder::Options& options);
+    bool setV0Gainmap(const SkPngEncoder::Options& options);
     bool writeInfo(const SkImageInfo& srcInfo);
 
     png_structp pngPtr() { return fPngPtr; }
@@ -293,6 +296,70 @@ bool SkPngEncoderMgr::setColorSpace(const SkImageInfo& info, const SkPngEncoder:
     return true;
 }
 
+bool SkPngEncoderMgr::setV0Gainmap(const SkPngEncoder::Options& options) {
+#ifdef PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED
+    if (setjmp(png_jmpbuf(fPngPtr))) {
+        return false;
+    }
+
+    // We require some gainmap information.
+    if (!options.fGainmapInfo) {
+        return false;
+    }
+
+    if (options.fGainmap) {
+        sk_sp<SkData> gainmapVersion = SkGainmapInfo::SerializeVersion();
+        SkDynamicMemoryWStream gainmapStream;
+
+        // When we encode the gainmap, we need to remove the gainmap from its
+        // own encoding options, so that we don't recurse.
+        auto modifiedOptions = options;
+        modifiedOptions.fGainmap = nullptr;
+
+        bool result = SkPngEncoder::Encode(&gainmapStream, *(options.fGainmap), modifiedOptions);
+        if (!result) {
+            return false;
+        }
+
+        sk_sp<SkData> gainmapData = gainmapStream.detachAsData();
+
+        // The base image contains chunks for both the gainmap versioning (for possible
+        // forward-compat, and as a cheap way to check a gainmap might exist) as
+        // well as the gainmap data.
+        std::array<png_unknown_chunk, 2> chunks;
+        auto& gmapChunk = chunks.at(0);
+        std::strcpy(reinterpret_cast<char*>(gmapChunk.name), "gmAP\0");
+        gmapChunk.data = reinterpret_cast<png_byte*>(gainmapVersion->writable_data());
+        gmapChunk.size = gainmapVersion->size();
+        gmapChunk.location = PNG_HAVE_IHDR;
+
+        auto& gdatChunk = chunks.at(1);
+        std::strcpy(reinterpret_cast<char*>(gdatChunk.name), "gdAT\0");
+        gdatChunk.data = reinterpret_cast<png_byte*>(gainmapData->writable_data());
+        gdatChunk.size = gainmapData->size();
+        gdatChunk.location = PNG_HAVE_IHDR;
+
+        png_set_keep_unknown_chunks(fPngPtr, PNG_HANDLE_CHUNK_ALWAYS,
+                                    (png_const_bytep)"gmAP\0gdAT\0", chunks.size());
+        png_set_unknown_chunks(fPngPtr, fInfoPtr, chunks.data(), chunks.size());
+    } else {
+        // If there is no gainmap provided for encoding, but we have info, then
+        // we're currently encoding the gainmap pixels, so we need to encode the
+        // gainmap metadata to interpret those pixels.
+        sk_sp<SkData> data = options.fGainmapInfo->serialize();
+        png_unknown_chunk chunk;
+        std::strcpy(reinterpret_cast<char*>(chunk.name), "gmAP\0");
+        chunk.data = reinterpret_cast<png_byte*>(data->writable_data());
+        chunk.size = data->size();
+        chunk.location = PNG_HAVE_IHDR;
+        png_set_keep_unknown_chunks(fPngPtr, PNG_HANDLE_CHUNK_ALWAYS,
+                                    (png_const_bytep)"gmAP\0", 1);
+        png_set_unknown_chunks(fPngPtr, fInfoPtr, &chunk, 1);
+    }
+#endif
+    return true;
+}
+
 bool SkPngEncoderMgr::writeInfo(const SkImageInfo& srcInfo) {
     if (setjmp(png_jmpbuf(fPngPtr))) {
         return false;
@@ -352,6 +419,10 @@ std::unique_ptr<SkEncoder> Make(SkWStream* dst, const SkPixmap& src, const Optio
     }
 
     if (!encoderMgr->setColorSpace(src.info(), options)) {
+        return nullptr;
+    }
+
+    if (options.fGainmapInfo && !encoderMgr->setV0Gainmap(options)) {
         return nullptr;
     }
 

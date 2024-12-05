@@ -21,6 +21,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
 #include "src/codec/SkCodecPriv.h"
+#include "src/codec/SkPngCompositeChunkReader.h"
 #include "src/codec/SkPngPriv.h"
 #include "src/codec/SkSwizzler.h"
 
@@ -86,14 +87,15 @@ public:
      *  SkCodec (pointed to by *codecPtr) which will own/ref them, as well as
      *  the png_ptr and info_ptr.
      */
-    AutoCleanPng(png_structp png_ptr, SkStream* stream, SkPngChunkReader* reader,
-            SkCodec** codecPtr)
-        : fPng_ptr(png_ptr)
-        , fInfo_ptr(nullptr)
-        , fStream(stream)
-        , fChunkReader(reader)
-        , fOutCodec(codecPtr)
-    {}
+    AutoCleanPng(png_structp png_ptr,
+                 SkStream* stream,
+                 SkPngCompositeChunkReader* reader,
+                 SkCodec** codecPtr)
+            : fPng_ptr(png_ptr)
+            , fInfo_ptr(nullptr)
+            , fStream(stream)
+            , fChunkReader(reader)
+            , fOutCodec(codecPtr) {}
 
     ~AutoCleanPng() {
         // fInfo_ptr will never be non-nullptr unless fPng_ptr is.
@@ -126,7 +128,7 @@ private:
     png_structp         fPng_ptr;
     png_infop           fInfo_ptr;
     SkStream*           fStream;
-    SkPngChunkReader*   fChunkReader;
+    SkPngCompositeChunkReader* fChunkReader;
     SkCodec**           fOutCodec;
 
     void infoCallback(size_t idatLength);
@@ -398,8 +400,16 @@ public:
                        std::unique_ptr<SkStream> stream,
                        SkPngChunkReader* reader,
                        png_structp png_ptr,
-                       png_infop info_ptr)
-            : SkPngCodec(std::move(info), std::move(stream), reader, png_ptr, info_ptr)
+                       png_infop info_ptr,
+                       std::unique_ptr<SkStream> gainmapStream,
+                       std::optional<SkGainmapInfo> gainmapInfo)
+            : SkPngCodec(std::move(info),
+                         std::move(stream),
+                         reader,
+                         png_ptr,
+                         info_ptr,
+                         std::move(gainmapStream),
+                         gainmapInfo)
             , fRowsWrittenToOutput(0)
             , fDst(nullptr)
             , fRowBytes(0)
@@ -515,8 +525,16 @@ public:
                            SkPngChunkReader* reader,
                            png_structp png_ptr,
                            png_infop info_ptr,
-                           int numberPasses)
-            : SkPngCodec(std::move(info), std::move(stream), reader, png_ptr, info_ptr)
+                           int numberPasses,
+                           std::unique_ptr<SkStream> gainmapStream,
+                           std::optional<SkGainmapInfo> gainmapInfo)
+            : SkPngCodec(std::move(info),
+                         std::move(stream),
+                         reader,
+                         png_ptr,
+                         info_ptr,
+                         std::move(gainmapStream),
+                         gainmapInfo)
             , fNumberPasses(numberPasses)
             , fFirstRow(0)
             , fLastRow(0)
@@ -694,7 +712,9 @@ static SkCodec::Result read_header(SkStream* stream, SkPngChunkReader* chunkRead
     png_set_option(png_ptr, PNG_MAXIMUM_INFLATE_WINDOW, PNG_OPTION_ON);
 #endif
 
-    AutoCleanPng autoClean(png_ptr, stream, chunkReader, outCodec);
+    auto compositeReader = sk_make_sp<SkPngCompositeChunkReader>(chunkReader);
+
+    AutoCleanPng autoClean(png_ptr, stream, compositeReader.get(), outCodec);
 
     png_infop info_ptr = png_create_info_struct(png_ptr);
     if (info_ptr == nullptr) {
@@ -713,7 +733,7 @@ static SkCodec::Result read_header(SkStream* stream, SkPngChunkReader* chunkRead
     // chunks in the header.
     if (chunkReader) {
         png_set_keep_unknown_chunks(png_ptr, PNG_HANDLE_CHUNK_ALWAYS, (png_const_bytep)"", 0);
-        png_set_read_user_chunk_fn(png_ptr, (png_voidp) chunkReader, sk_read_user_chunk);
+        png_set_read_user_chunk_fn(png_ptr, (png_voidp)compositeReader.get(), sk_read_user_chunk);
     }
 #endif
 
@@ -865,14 +885,18 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
                                                 std::unique_ptr<SkStream>(fStream),
                                                 fChunkReader,
                                                 fPng_ptr,
-                                                fInfo_ptr);
+                                                fInfo_ptr,
+                                                fChunkReader->takeGaimapStream(),
+                                                fChunkReader->getGainmapInfo());
         } else {
             *fOutCodec = new SkPngInterlacedDecoder(std::move(encodedInfo),
                                                     std::unique_ptr<SkStream>(fStream),
                                                     fChunkReader,
                                                     fPng_ptr,
                                                     fInfo_ptr,
-                                                    numberPasses);
+                                                    numberPasses,
+                                                    fChunkReader->takeGaimapStream(),
+                                                    fChunkReader->getGainmapInfo());
         }
         static_cast<SkPngCodec*>(*fOutCodec)->setIdatLength(idatLength);
     }
@@ -886,13 +910,17 @@ SkPngCodec::SkPngCodec(SkEncodedInfo&& encodedInfo,
                        std::unique_ptr<SkStream> stream,
                        SkPngChunkReader* chunkReader,
                        void* png_ptr,
-                       void* info_ptr)
+                       void* info_ptr,
+                       std::unique_ptr<SkStream> gainmapStream,
+                       std::optional<SkGainmapInfo> gainmapInfo)
         : SkPngCodecBase(std::move(encodedInfo), std::move(stream))
         , fPngChunkReader(SkSafeRef(chunkReader))
         , fPng_ptr(png_ptr)
         , fInfo_ptr(info_ptr)
         , fIdatLength(0)
-        , fDecodedIdat(false) {}
+        , fDecodedIdat(false)
+        , fGainmapStream(std::move(gainmapStream))
+        , fGainmapInfo(gainmapInfo) {}
 
 SkPngCodec::~SkPngCodec() {
     this->destroyReadStruct();
@@ -1004,6 +1032,50 @@ std::unique_ptr<SkCodec> SkPngCodec::MakeFromStream(std::unique_ptr<SkStream> st
         stream.release();
     }
     return std::unique_ptr<SkCodec>(outCodec);
+}
+
+bool SkPngCodec::onGetGainmapCodec(SkGainmapInfo* info, std::unique_ptr<SkCodec>* gainmapCodec) {
+    if (!fGainmapStream) {
+        return false;
+    }
+
+    sk_sp<SkData> data = fGainmapStream->getData();
+    if (!data) {
+        return false;
+    }
+
+    if (!SkPngDecoder::IsPng(data->bytes(), data->size())) {
+        return false;
+    }
+
+    // The gainmap information lives on the gainmap image itself, so we need to
+    // create the gainmap codec first, then check if it has a metadata chunk.
+    SkCodec::Result result;
+    std::unique_ptr<SkCodec> codec =
+            SkPngCodec::MakeFromStream(fGainmapStream->duplicate(), &result, fPngChunkReader.get());
+
+    if (result != SkCodec::Result::kSuccess) {
+        return false;
+    }
+
+    bool hasInfo = codec->onGetGainmapInfo(info);
+
+    if (hasInfo && gainmapCodec) {
+        *gainmapCodec = std::move(codec);
+    }
+
+    return hasInfo;
+}
+
+bool SkPngCodec::onGetGainmapInfo(SkGainmapInfo* info) {
+    if (fGainmapInfo) {
+        if (info) {
+            *info = *fGainmapInfo;
+        }
+        return true;
+    }
+
+    return false;
 }
 
 namespace SkPngDecoder {

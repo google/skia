@@ -299,6 +299,8 @@ skia_filegroup(
     srcs = [
         "SkPngCodec.cpp",
         "SkPngCodec.h",
+        "SkPngCompositeChunkReader.cpp",
+        "SkPngCompositeChunkReader.h",
     ],
 )
 

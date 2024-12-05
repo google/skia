@@ -23,6 +23,7 @@ class SkImage;
 class SkPixmap;
 class SkWStream;
 struct skcms_ICCProfile;
+struct SkGainmapInfo;
 
 namespace SkPngEncoder {
 
@@ -80,6 +81,19 @@ struct Options {
      */
     const skcms_ICCProfile* fICCProfile = nullptr;
     const char* fICCProfileDescription = nullptr;
+
+    /**
+     * If non-null, then a gainmap and its metadata will be encoded as png chunks.
+     * The gainmap will be encoded in a gmAP chunk as a full PNG container. The
+     * gainmap info will be encoded in a gdAT chunk inside of the gmAP chunk.
+     * This effectively is Option B proposed in this discussion for adding gainmaps
+     * into PNG: https://github.com/w3c/png/issues/380#issuecomment-2325163149.
+     *
+     * Note that if fGainmapInfo is null, then fGainmap will fail to encode, as the
+     * gainmap metadata is required to correctly interpret the encoded gainmap.
+     */
+    const SkPixmap* fGainmap = nullptr;
+    const SkGainmapInfo* fGainmapInfo = nullptr;
 };
 
 /**
