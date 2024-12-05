@@ -10,6 +10,7 @@
 #include "include/core/SkString.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/src/Camera.h"
 #include "modules/skottie/src/SkottieJson.h"
@@ -17,7 +18,6 @@
 #include "modules/sksg/include/SkSGGroup.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGTransform.h"
-#include "src/utils/SkJSON.h"
 
 #include <algorithm>
 #include <utility>

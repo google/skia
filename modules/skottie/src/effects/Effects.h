@@ -12,10 +12,10 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/private/base/SkNoncopyable.h"
+#include "modules/jsonreader/SkJSONReader.h"  // IWYU pragma: keep
 #include "modules/skottie/src/Composition.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
-#include "src/utils/SkJSON.h"  // IWYU pragma: keep
 
 #include <cstddef>
 

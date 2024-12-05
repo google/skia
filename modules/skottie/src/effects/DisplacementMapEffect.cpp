@@ -22,6 +22,7 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/Layer.h"
 #include "modules/skottie/src/SkottieJson.h"
@@ -30,7 +31,6 @@
 #include "modules/skottie/src/effects/Effects.h"
 #include "modules/sksg/include/SkSGNode.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
-#include "src/utils/SkJSON.h"
 
 #include <algorithm>
 #include <cmath>

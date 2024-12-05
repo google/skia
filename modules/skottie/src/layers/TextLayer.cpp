@@ -11,6 +11,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
@@ -21,7 +22,6 @@
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "src/base/SkTSearch.h"
 #include "src/core/SkTHash.h"
-#include "src/utils/SkJSON.h"
 
 #include <string.h>
 #include <memory>

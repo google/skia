@@ -379,6 +379,7 @@ skia_cc_library(
         "//:wbmp_decode_codec",
         "//:webp_decode_codec",
         "//:webp_encode_codec",
+        "//modules/jsonreader",
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
         "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
         "//src/gpu/graphite/vk:graphite_native_vulkan_TEST_UTIL",

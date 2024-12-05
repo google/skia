@@ -8,6 +8,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/effects/SkTrimPathEffect.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
@@ -16,7 +17,6 @@
 #include "modules/sksg/include/SkSGGeometryEffect.h"
 #include "modules/sksg/include/SkSGGeometryNode.h"
 #include "modules/sksg/include/SkSGMerge.h"
-#include "src/utils/SkJSON.h"
 
 #include <algorithm>
 #include <cstddef>

@@ -12,8 +12,8 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkTo.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/SkottieValue.h"
-#include "src/utils/SkJSON.h"
 
 #include <cstddef>
 #include <limits>

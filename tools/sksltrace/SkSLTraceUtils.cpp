@@ -9,10 +9,10 @@
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "src/core/SkStreamPriv.h"
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
-#include "src/utils/SkJSON.h"
 #include "src/utils/SkJSONWriter.h"
 
 #include <cstdint>

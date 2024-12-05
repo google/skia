@@ -6,7 +6,7 @@
  */
 
 #include "include/core/SkStream.h"
-#include "src/utils/SkJSON.h"
+#include "modules/jsonreader/SkJSONReader.h"
 
 void FuzzJSON(const uint8_t *data, size_t size) {
     skjson::DOM dom(reinterpret_cast<const char*>(data), size);

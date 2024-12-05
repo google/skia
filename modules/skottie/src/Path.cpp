@@ -7,11 +7,11 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkRefCnt.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/sksg/include/SkSGPath.h"
-#include "src/utils/SkJSON.h"
 
 #include <utility>
 

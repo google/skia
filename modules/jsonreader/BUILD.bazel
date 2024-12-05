@@ -7,21 +7,20 @@ package(
 licenses(["notice"])
 
 skia_cc_library(
-    name = "sksltraceutils",
+    name = "jsonreader",
     srcs = [
-        "SkSLTraceUtils.cpp",
+        "SkJSONReader.cpp",
     ],
     hdrs = [
-        "SkSLTraceUtils.h",
+        "SkJSONReader.h",
     ],
     visibility = [
-        "//modules/canvaskit:__pkg__",
+        "//modules/skottie:__pkg__",
         "//tools:__pkg__",
-        "//tools/viewer:__pkg__",
+        "//tools/sksltrace:__pkg__",
     ],
     deps = [
         "//:core",
-        "//modules/jsonreader",
         "//src/core:core_priv",
     ],
 )

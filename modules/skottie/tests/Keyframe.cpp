@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/include/ExternalLayer.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
-#include "src/utils/SkJSON.h"
 #include "tests/Test.h"
 
 #include <cmath>

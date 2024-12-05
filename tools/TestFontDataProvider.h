@@ -9,7 +9,7 @@
 #define RasterTestData_DEFINED
 
 #include "include/core/SkString.h"
-#include "src/utils/SkJSON.h"
+#include "modules/jsonreader/SkJSONReader.h"
 
 #include <regex>
 #include <string>
