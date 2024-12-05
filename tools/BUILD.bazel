@@ -382,5 +382,6 @@ skia_cc_library(
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
         "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
         "//src/gpu/graphite/vk:graphite_native_vulkan_TEST_UTIL",
+        "//tools/sksltrace:sksltraceutils",
     ],
 )
