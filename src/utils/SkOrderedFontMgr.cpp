@@ -86,7 +86,7 @@ sk_sp<SkTypeface> SkOrderedFontMgr::onMatchFamilyStyleCharacter(
     return nullptr;
 }
 
-sk_sp<SkTypeface> SkOrderedFontMgr::onLegacyMakeTypeface(const char family[], SkFontStyle) const {
+sk_sp<SkTypeface> SkOrderedFontMgr::onLegacyMakeTypeface(const char family[], SkFontStyle style) const {
     for (const auto& fm : fList) {
         if (auto tf = fm->matchFamilyStyle(family, style)) {
             return fm->legacyMakeTypeface(family, style);
