@@ -439,6 +439,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     // noop fragment shader, if fragment shader is null.
     fragment.module = hasFragmentSkSL ? std::move(fsModule) : sharedContext->noopFragment();
     fragment.entryPoint = "main";
+    fragment.constantCount = 0;
+    fragment.constants = nullptr;
     fragment.targetCount = 1;
     fragment.targets = &colorTarget;
     descriptor.fragment = &fragment;

@@ -72,6 +72,8 @@ wgpu::RenderPipeline create_blit_render_pipeline(const DawnSharedContext* shared
     wgpu::FragmentState fragment;
     fragment.module = std::move(fsModule);
     fragment.entryPoint = "main";
+    fragment.constantCount = 0;
+    fragment.constants = nullptr;
     fragment.targetCount = 1;
     fragment.targets = &colorTarget;
     descriptor.fragment = &fragment;
