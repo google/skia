@@ -323,9 +323,6 @@ cc_binary(
             "//:ganesh_webgl_factory",
         ],
         "//conditions:default": [],
-    }) + select({
-        ":enable_runtime_effect_true": ["//tools/sksltrace:sksltraceutils"],
-        ":enable_runtime_effect_false": [],
     }),
 )
 

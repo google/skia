@@ -147,9 +147,6 @@ skia_wasm_lib("canvaskit") {
       "$root_out_dir/modules/canvaskit/fonts/NotoMono-Regular.ttf.ninja.cpp",
     ]
   }
-  if (skia_canvaskit_enable_rt_shader) {
-    sources += [ "../../tools/sksltrace/SkSLTraceUtils.cpp" ]
-  }
 
   ldflags = []
   if (is_debug) {

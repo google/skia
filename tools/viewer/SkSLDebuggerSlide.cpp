@@ -13,7 +13,6 @@
 #include "include/core/SkString.h"
 #include "include/private/base/SkAssert.h"
 #include "tools/sk_app/Application.h"
-#include "tools/sksltrace/SkSLTraceUtils.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -49,17 +48,14 @@ void SkSLDebuggerSlide::showLoadTraceGUI() {
         SkFILEStream file(fTraceFile);
         if (!file.isValid()) {
             ImGui::OpenPopup("Can't Open Trace");
+        } else if (!fTrace->readTrace(&file)) {
+            ImGui::OpenPopup("Invalid Trace");
         } else {
-            fTrace = SkSLTraceUtils::ReadTrace(&file);
-            if (!fTrace) {
-                ImGui::OpenPopup("Invalid Trace");
-            } else {
-                // Trace loaded successfully. On the next refresh, the user will see the debug UI.
-                fPlayer.reset(fTrace);
-                fPlayer.step();
-                fRefresh = true;
-                return;
-            }
+            // Trace loaded successfully. On the next refresh, the user will see the debug UI.
+            fPlayer.reset(fTrace);
+            fPlayer.step();
+            fRefresh = true;
+            return;
         }
     }
 

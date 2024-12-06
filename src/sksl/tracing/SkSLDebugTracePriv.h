@@ -19,6 +19,7 @@
 #include <string>
 #include <vector>
 
+class SkStream;
 class SkWStream;
 
 namespace SkSL {
@@ -67,6 +68,10 @@ public:
 
     /** Attaches the SkSL source to be debugged. */
     void setSource(const std::string& source);
+
+    /** Serializes a debug trace to JSON which can be parsed by our debugger. */
+    bool readTrace(SkStream* r);
+    void writeTrace(SkWStream* w) const override;
 
     /** Generates a human-readable dump of the debug trace. */
     void dump(SkWStream* o) const override;

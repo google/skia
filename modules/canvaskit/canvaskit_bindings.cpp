@@ -66,6 +66,7 @@
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkResourceCache.h"
 #include "src/image/SkImage_Base.h"
+#include "src/sksl/SkSLCompiler.h"
 
 #include "modules/canvaskit/WasmCommon.h"
 #include <emscripten.h>
@@ -124,9 +125,6 @@
 
 #if defined(CK_INCLUDE_RUNTIME_EFFECT)
 #include "include/sksl/SkSLDebugTrace.h"
-#include "src/sksl/SkSLCompiler.h"
-#include "src/sksl/tracing/SkSLDebugTracePriv.h"
-#include "tools/sksltrace/SkSLTraceUtils.h"
 #endif
 
 #ifndef CK_NO_FONTS
@@ -2224,12 +2222,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
 #ifdef CK_INCLUDE_RUNTIME_EFFECT
     class_<SkSL::DebugTrace>("DebugTrace")
         .smart_ptr<sk_sp<SkSL::DebugTrace>>("sk_sp<DebugTrace>")
-        .function("writeTrace", optional_override([](const SkSL::DebugTrace* self) -> std::string {
+        .function("writeTrace", optional_override([](SkSL::DebugTrace& self) -> std::string {
             SkDynamicMemoryWStream wstream;
-            SkSLTraceUtils::WriteTrace(static_cast<const SkSL::DebugTracePriv&>(*self), &wstream);
+            self.writeTrace(&wstream);
             sk_sp<SkData> trace = wstream.detachAsData();
             return std::string(reinterpret_cast<const char*>(trace->bytes()), trace->size());
-        }), allow_raw_pointers());
+        }));
 
     value_object<SkRuntimeEffect::TracedShader>("TracedShader")
         .field("shader",     &SkRuntimeEffect::TracedShader::shader)
