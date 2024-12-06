@@ -63,6 +63,7 @@ supported_files_or_dirs=(
   "tests/"
   "tools/debugger/"
   "tools/viewer/"
+  "tools/sksltrace/"
   "src/gpu/A"
   "src/gpu/B"
   "src/gpu/C"

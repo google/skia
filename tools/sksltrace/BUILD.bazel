@@ -1,0 +1,26 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_cc_library(
+    name = "sksltraceutils",
+    srcs = [
+        "SkSLTraceUtils.cpp",
+    ],
+    hdrs = [
+        "SkSLTraceUtils.h",
+    ],
+    visibility = [
+        "//modules/canvaskit:__pkg__",
+        "//tools:__pkg__",
+        "//tools/viewer:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//src/core:core_priv",
+    ],
+)

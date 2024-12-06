@@ -147,6 +147,9 @@ skia_wasm_lib("canvaskit") {
       "$root_out_dir/modules/canvaskit/fonts/NotoMono-Regular.ttf.ninja.cpp",
     ]
   }
+  if (skia_canvaskit_enable_rt_shader) {
+    sources += [ "../../tools/sksltrace/SkSLTraceUtils.cpp" ]
+  }
 
   ldflags = []
   if (is_debug) {
@@ -375,7 +378,10 @@ skia_wasm_lib("canvaskit") {
     defines += [ "CK_INCLUDE_PATHOPS" ]
   }
   if (skia_canvaskit_enable_rt_shader) {
-    defines += [ "CK_INCLUDE_RUNTIME_EFFECT" ]
+    defines += [
+      "CK_INCLUDE_RUNTIME_EFFECT",
+      "CK_DEBUG_TRACE_JSON",
+    ]
   }
   if (!skia_canvaskit_enable_alias_font) {
     defines += [ "CK_NO_ALIAS_FONT" ]

@@ -12,6 +12,7 @@
 #include "src/sksl/ir/SkSLType.h"
 #include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "tests/Test.h"
+#include "tools/sksltrace/SkSLTraceUtils.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -64,7 +65,7 @@ DEF_TEST(DebugTracePrivWrite, r) {
         {SkSL::TraceInfo::Op::kExit,  {20, 0}},
     };
     SkDynamicMemoryWStream wstream;
-    i.writeTrace(&wstream);
+    SkSLTraceUtils::WriteTrace(i, &wstream);
     sk_sp<SkData> trace = wstream.detachAsData();
 
     static constexpr char kExpected[] =
@@ -90,53 +91,53 @@ DEF_TEST(DebugTracePrivRead, r) {
             R"(e":[[2],[0,5],[1,10,15],[3,20]]})";
 
     SkMemoryStream stream(kJSONTrace.data(), kJSONTrace.size(), /*copyData=*/false);
-    SkSL::DebugTracePriv i;
-    REPORTER_ASSERT(r, i.readTrace(&stream));
+    sk_sp<SkSL::DebugTracePriv> trace = SkSLTraceUtils::ReadTrace(&stream);
+    REPORTER_ASSERT(r, trace);
 
-    REPORTER_ASSERT(r, i.fSource.size() == 3);
-    REPORTER_ASSERT(r, i.fSlotInfo.size() == 2);
-    REPORTER_ASSERT(r, i.fFuncInfo.size() == 1);
-    REPORTER_ASSERT(r, i.fTraceInfo.size() == 4);
+    REPORTER_ASSERT(r, trace->fSource.size() == 3);
+    REPORTER_ASSERT(r, trace->fSlotInfo.size() == 2);
+    REPORTER_ASSERT(r, trace->fFuncInfo.size() == 1);
+    REPORTER_ASSERT(r, trace->fTraceInfo.size() == 4);
 
-    REPORTER_ASSERT(r, i.fSource[0] == "\t// first line");
-    REPORTER_ASSERT(r, i.fSource[1] == "// \"second line\"");
-    REPORTER_ASSERT(r, i.fSource[2] == "//\\\\//\\\\ third line");
+    REPORTER_ASSERT(r, trace->fSource[0] == "\t// first line");
+    REPORTER_ASSERT(r, trace->fSource[1] == "// \"second line\"");
+    REPORTER_ASSERT(r, trace->fSource[2] == "//\\\\//\\\\ third line");
 
-    REPORTER_ASSERT(r, i.fSlotInfo[0].name == "SkSL_DebugTrace");
-    REPORTER_ASSERT(r, i.fSlotInfo[0].columns == 1);
-    REPORTER_ASSERT(r, i.fSlotInfo[0].rows == 2);
-    REPORTER_ASSERT(r, i.fSlotInfo[0].componentIndex == 3);
-    REPORTER_ASSERT(r, i.fSlotInfo[0].groupIndex == 4);
-    REPORTER_ASSERT(r, i.fSlotInfo[0].numberKind == (SkSL::Type::NumberKind)5);
-    REPORTER_ASSERT(r, i.fSlotInfo[0].line == 6);
-    REPORTER_ASSERT(r, i.fSlotInfo[0].fnReturnValue == -1);
+    REPORTER_ASSERT(r, trace->fSlotInfo[0].name == "SkSL_DebugTrace");
+    REPORTER_ASSERT(r, trace->fSlotInfo[0].columns == 1);
+    REPORTER_ASSERT(r, trace->fSlotInfo[0].rows == 2);
+    REPORTER_ASSERT(r, trace->fSlotInfo[0].componentIndex == 3);
+    REPORTER_ASSERT(r, trace->fSlotInfo[0].groupIndex == 4);
+    REPORTER_ASSERT(r, trace->fSlotInfo[0].numberKind == (SkSL::Type::NumberKind)5);
+    REPORTER_ASSERT(r, trace->fSlotInfo[0].line == 6);
+    REPORTER_ASSERT(r, trace->fSlotInfo[0].fnReturnValue == -1);
 
-    REPORTER_ASSERT(r, i.fSlotInfo[1].name == "Unit_Test");
-    REPORTER_ASSERT(r, i.fSlotInfo[1].columns == 6);
-    REPORTER_ASSERT(r, i.fSlotInfo[1].rows == 7);
-    REPORTER_ASSERT(r, i.fSlotInfo[1].componentIndex == 8);
-    REPORTER_ASSERT(r, i.fSlotInfo[1].groupIndex == 8);
-    REPORTER_ASSERT(r, i.fSlotInfo[1].numberKind == (SkSL::Type::NumberKind)10);
-    REPORTER_ASSERT(r, i.fSlotInfo[1].line == 11);
-    REPORTER_ASSERT(r, i.fSlotInfo[1].fnReturnValue == 12);
+    REPORTER_ASSERT(r, trace->fSlotInfo[1].name == "Unit_Test");
+    REPORTER_ASSERT(r, trace->fSlotInfo[1].columns == 6);
+    REPORTER_ASSERT(r, trace->fSlotInfo[1].rows == 7);
+    REPORTER_ASSERT(r, trace->fSlotInfo[1].componentIndex == 8);
+    REPORTER_ASSERT(r, trace->fSlotInfo[1].groupIndex == 8);
+    REPORTER_ASSERT(r, trace->fSlotInfo[1].numberKind == (SkSL::Type::NumberKind)10);
+    REPORTER_ASSERT(r, trace->fSlotInfo[1].line == 11);
+    REPORTER_ASSERT(r, trace->fSlotInfo[1].fnReturnValue == 12);
 
-    REPORTER_ASSERT(r, i.fFuncInfo[0].name == "void testFunc();");
+    REPORTER_ASSERT(r, trace->fFuncInfo[0].name == "void testFunc();");
 
-    REPORTER_ASSERT(r, i.fTraceInfo[0].op == SkSL::TraceInfo::Op::kEnter);
-    REPORTER_ASSERT(r, i.fTraceInfo[0].data[0] == 0);
-    REPORTER_ASSERT(r, i.fTraceInfo[0].data[1] == 0);
+    REPORTER_ASSERT(r, trace->fTraceInfo[0].op == SkSL::TraceInfo::Op::kEnter);
+    REPORTER_ASSERT(r, trace->fTraceInfo[0].data[0] == 0);
+    REPORTER_ASSERT(r, trace->fTraceInfo[0].data[1] == 0);
 
-    REPORTER_ASSERT(r, i.fTraceInfo[1].op == SkSL::TraceInfo::Op::kLine);
-    REPORTER_ASSERT(r, i.fTraceInfo[1].data[0] == 5);
-    REPORTER_ASSERT(r, i.fTraceInfo[1].data[1] == 0);
+    REPORTER_ASSERT(r, trace->fTraceInfo[1].op == SkSL::TraceInfo::Op::kLine);
+    REPORTER_ASSERT(r, trace->fTraceInfo[1].data[0] == 5);
+    REPORTER_ASSERT(r, trace->fTraceInfo[1].data[1] == 0);
 
-    REPORTER_ASSERT(r, i.fTraceInfo[2].op == SkSL::TraceInfo::Op::kVar);
-    REPORTER_ASSERT(r, i.fTraceInfo[2].data[0] == 10);
-    REPORTER_ASSERT(r, i.fTraceInfo[2].data[1] == 15);
+    REPORTER_ASSERT(r, trace->fTraceInfo[2].op == SkSL::TraceInfo::Op::kVar);
+    REPORTER_ASSERT(r, trace->fTraceInfo[2].data[0] == 10);
+    REPORTER_ASSERT(r, trace->fTraceInfo[2].data[1] == 15);
 
-    REPORTER_ASSERT(r, i.fTraceInfo[3].op == SkSL::TraceInfo::Op::kExit);
-    REPORTER_ASSERT(r, i.fTraceInfo[3].data[0] == 20);
-    REPORTER_ASSERT(r, i.fTraceInfo[3].data[1] == 0);
+    REPORTER_ASSERT(r, trace->fTraceInfo[3].op == SkSL::TraceInfo::Op::kExit);
+    REPORTER_ASSERT(r, trace->fTraceInfo[3].data[0] == 20);
+    REPORTER_ASSERT(r, trace->fTraceInfo[3].data[1] == 0);
 }
 
 DEF_TEST(DebugTracePrivGetSlotComponentSuffix, r) {

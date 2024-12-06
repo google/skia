@@ -24,10 +24,12 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "include/sksl/SkSLDebugTrace.h"
+#include "src/sksl/tracing/SkSLDebugTracePriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/sk_app/Application.h"
+#include "tools/sksltrace/SkSLTraceUtils.h"
 #include "tools/viewer/Viewer.h"
 
 #include <algorithm>
@@ -339,7 +341,7 @@ void SkSLSlide::draw(SkCanvas* canvas) {
 
     if (debugTrace && writeTrace) {
         SkFILEWStream traceFile("SkSLDebugTrace.json");
-        debugTrace->writeTrace(&traceFile);
+        SkSLTraceUtils::WriteTrace(static_cast<const SkSL::DebugTracePriv&>(*debugTrace), &traceFile);
     }
     if (debugTrace && writeDump) {
         SkFILEWStream dumpFile("SkSLDebugTrace.dump.txt");

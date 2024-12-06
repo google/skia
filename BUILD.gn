@@ -2347,6 +2347,8 @@ if (skia_enable_tools) {
       "tools/fonts/TestSVGTypeface.h",
       "tools/fonts/TestTypeface.cpp",
       "tools/fonts/TestTypeface.h",
+      "tools/sksltrace/SkSLTraceUtils.cpp",
+      "tools/sksltrace/SkSLTraceUtils.h",
       "tools/text/SkTextBlobTrace.cpp",
       "tools/text/SkTextBlobTrace.h",
       "tools/timer/TimeUtils.h",

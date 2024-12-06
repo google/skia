@@ -83,7 +83,10 @@ CK_DEFINES = [
     ":enable_skp_serialization_true": ["CK_SERIALIZE_SKP=1"],
     ":enable_skp_serialization_false": [],
 }) + select({
-    ":enable_runtime_effect_true": ["CK_INCLUDE_RUNTIME_EFFECT=1"],
+    ":enable_runtime_effect_true": [
+        "CK_INCLUDE_RUNTIME_EFFECT=1",
+        "CK_DEBUG_TRACE_JSON=1",
+    ],
     ":enable_runtime_effect_false": [],
 }) + select({
     ":enable_webgl_true": ["CK_ENABLE_WEBGL"],
@@ -323,6 +326,9 @@ cc_binary(
             "//:ganesh_webgl_factory",
         ],
         "//conditions:default": [],
+    }) + select({
+        ":enable_runtime_effect_true": ["//tools/sksltrace:sksltraceutils"],
+        ":enable_runtime_effect_false": [],
     }),
 )
 
