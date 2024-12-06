@@ -23,7 +23,6 @@
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "include/utils/SkTextUtils.h"
-#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/SkottieJson.h"
@@ -41,6 +40,7 @@
 #include "modules/sksg/include/SkSGTransform.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
 #include "modules/skshaper/include/SkShaper_factory.h"
+#include "src/utils/SkJSON.h"
 
 #include <algorithm>
 #include <cmath>

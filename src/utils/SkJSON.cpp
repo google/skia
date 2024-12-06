@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "modules/jsonreader/SkJSONReader.h"
+#include "src/utils/SkJSON.h"
 
 #include "include/core/SkData.h"
 #include "include/core/SkRefCnt.h"
@@ -196,10 +196,10 @@ private:
     }
 };
 
-}  // namespace
+} // namespace
 
 StringValue::StringValue(const char* src, SkArenaAlloc& alloc)
-        : StringValue(src, strlen(src), alloc) {}
+    : StringValue(src, strlen(src), alloc) {}
 
 StringValue::StringValue(const char* src, size_t size, SkArenaAlloc& alloc) {
     new (this) FastString(src, size, src, alloc);
@@ -209,6 +209,7 @@ ObjectValue::ObjectValue(const Member* src, size_t size, SkArenaAlloc& alloc) {
     this->init_tagged_pointer(Tag::kObject, MakeVector<Member>(size, src, alloc));
     SkASSERT(this->getTag() == Tag::kObject);
 }
+
 
 // Boring public Value glue.
 
@@ -254,6 +255,7 @@ Value& ObjectValue::writable(const char* key, SkArenaAlloc& alloc) const {
         writable_member->fValue = NullValue();
     }
 
+
     return writable_member->fValue;
 }
 
@@ -264,6 +266,7 @@ namespace {
 // [1] https://github.com/Tencent/rapidjson/
 // [2] https://github.com/chadaustin/sajson
 // [3] https://pastebin.com/hnhSTL3h
+
 
 // bit 0 (0x01) - plain ASCII string character
 // bit 1 (0x02) - whitespace
@@ -324,7 +327,8 @@ static inline float pow10(int32_t exp) {
 
 class DOMParser {
 public:
-    explicit DOMParser(SkArenaAlloc& alloc) : fAlloc(alloc) {
+    explicit DOMParser(SkArenaAlloc& alloc)
+        : fAlloc(alloc) {
         fValueStack.reserve(kValueStackReserve);
         fUnescapeBuffer.reserve(kUnescapeBufferReserve);
     }
@@ -348,12 +352,12 @@ public:
         p = skip_ws(p);
 
         switch (*p) {
-            case '{':
-                goto match_object;
-            case '[':
-                goto match_array;
-            default:
-                return this->error(NullValue(), p, "invalid top-level value");
+        case '{':
+            goto match_object;
+        case '[':
+            goto match_array;
+        default:
+            return this->error(NullValue(), p, "invalid top-level value");
         }
 
     match_object:
@@ -384,30 +388,29 @@ public:
         p = skip_ws(p);
 
         switch (*p) {
-            case '\0':
-                return this->error(NullValue(), p, "unexpected input end");
-            case '"':
-                p = this->matchString(
-                        p, p_stop, [this](const char* str, size_t size, const char* eos) {
-                            this->pushString(str, size, eos);
-                        });
-                break;
-            case '[':
-                goto match_array;
-            case 'f':
-                p = this->matchFalse(p);
-                break;
-            case 'n':
-                p = this->matchNull(p);
-                break;
-            case 't':
-                p = this->matchTrue(p);
-                break;
-            case '{':
-                goto match_object;
-            default:
-                p = this->matchNumber(p);
-                break;
+        case '\0':
+            return this->error(NullValue(), p, "unexpected input end");
+        case '"':
+            p = this->matchString(p, p_stop, [this](const char* str, size_t size, const char* eos) {
+                this->pushString(str, size, eos);
+            });
+            break;
+        case '[':
+            goto match_array;
+        case 'f':
+            p = this->matchFalse(p);
+            break;
+        case 'n':
+            p = this->matchNull(p);
+            break;
+        case 't':
+            p = this->matchTrue(p);
+            break;
+        case '{':
+            goto match_object;
+        default:
+            p = this->matchNumber(p);
+            break;
         }
 
         if (!p) return NullValue();
@@ -418,20 +421,20 @@ public:
 
         p = skip_ws(p);
         switch (*p) {
-            case ',':
-                ++p;
-                if (this->inObjectScope()) {
-                    goto match_object_key;
-                } else {
-                    SkASSERT(this->inArrayScope());
-                    goto match_value;
-                }
-            case ']':
-                goto pop_array;
-            case '}':
-                goto pop_object;
-            default:
-                return this->error(NullValue(), p - 1, "unexpected value-trailing token");
+        case ',':
+            ++p;
+            if (this->inObjectScope()) {
+                goto match_object_key;
+            } else {
+                SkASSERT(this->inArrayScope());
+                goto match_value;
+            }
+        case ']':
+            goto pop_array;
+        case '}':
+            goto pop_object;
+        default:
+            return this->error(NullValue(), p - 1, "unexpected value-trailing token");
         }
 
         // unreachable
@@ -454,8 +457,9 @@ public:
             SkASSERT(fValueStack.size() == 1);
 
             // Success condition: parsed the top level element and reached the stop token.
-            return p == p_stop ? fValueStack.front()
-                               : this->error(NullValue(), p + 1, "trailing root garbage");
+            return p == p_stop
+                ? fValueStack.front()
+                : this->error(NullValue(), p + 1, "trailing root garbage");
         }
 
         if (p == p_stop) {
@@ -530,7 +534,7 @@ private:
             *this->cast<T>() = v;
         }
 
-        T operator*() const { return *this->cast<T>(); }
+        T operator *() const { return *this->cast<T>(); }
     };
 
     template <typename VectorT>
@@ -544,7 +548,7 @@ private:
         static_assert(alignof(T) == alignof(Value), "");
 
         const auto scope_count = fValueStack.size() - scope_start,
-                   count = scope_count / (sizeof(T) / sizeof(Value));
+                         count = scope_count / (sizeof(T) / sizeof(Value));
         SkASSERT(scope_count % (sizeof(T) / sizeof(Value)) == 0);
 
         const auto* begin = reinterpret_cast<const T*>(fValueStack.data() + scope_start);
@@ -605,19 +609,29 @@ private:
         this->pushString(key, size, eos);
     }
 
-    void pushTrue() { fValueStack.push_back(BoolValue(true)); }
+    void pushTrue() {
+        fValueStack.push_back(BoolValue(true));
+    }
 
-    void pushFalse() { fValueStack.push_back(BoolValue(false)); }
+    void pushFalse() {
+        fValueStack.push_back(BoolValue(false));
+    }
 
-    void pushNull() { fValueStack.push_back(NullValue()); }
+    void pushNull() {
+        fValueStack.push_back(NullValue());
+    }
 
     void pushString(const char* s, size_t size, const char* eos) {
         fValueStack.push_back(FastString(s, size, eos, fAlloc));
     }
 
-    void pushInt32(int32_t i) { fValueStack.push_back(NumberValue(i)); }
+    void pushInt32(int32_t i) {
+        fValueStack.push_back(NumberValue(i));
+    }
 
-    void pushFloat(float f) { fValueStack.push_back(NumberValue(f)); }
+    void pushFloat(float f) {
+        fValueStack.push_back(NumberValue(f));
+    }
 
     template <typename T>
     T error(T&& ret_val, const char* p, const char* msg) {
@@ -688,20 +702,19 @@ private:
                     return nullptr;
                 }
 
-                    uint32_t hexed;
-                    const char hex_str[] = {p[1], p[2], p[3], p[4], '\0'};
-                    const auto* eos = SkParse::FindHex(hex_str, &hexed);
-                    if (!eos || *eos) {
-                        return nullptr;
-                    }
-
-                    char utf8[SkUTF::kMaxBytesInUTF8Sequence];
-                    const auto utf8_len = SkUTF::ToUTF8(SkTo<SkUnichar>(hexed), utf8);
-                    fUnescapeBuffer.insert(fUnescapeBuffer.end(), utf8, utf8 + utf8_len);
-                    p += 4;
-                } break;
-                default:
+                uint32_t hexed;
+                const char hex_str[] = {p[1], p[2], p[3], p[4], '\0'};
+                const auto* eos = SkParse::FindHex(hex_str, &hexed);
+                if (!eos || *eos) {
                     return nullptr;
+                }
+
+                char utf8[SkUTF::kMaxBytesInUTF8Sequence];
+                const auto utf8_len = SkUTF::ToUTF8(SkTo<SkUnichar>(hexed), utf8);
+                fUnescapeBuffer.insert(fUnescapeBuffer.end(), utf8, utf8 + utf8_len);
+                p += 4;
+            } break;
+            default: return nullptr;
             }
         }
 
@@ -909,55 +922,55 @@ void Write(const Value& v, SkWStream* stream) {
         }
 
         switch (val->getType()) {
-            case Value::Type::kNull:
-                stream->writeText("null");
-                break;
-            case Value::Type::kBool:
-                stream->writeText(*val->as<BoolValue>() ? "true" : "false");
-                break;
-            case Value::Type::kNumber:
-                stream->writeScalarAsText(*val->as<NumberValue>());
-                break;
-            case Value::Type::kString:
-                stream->writeText("\"");
-                stream->writeText(val->as<StringValue>().begin());
-                stream->writeText("\"");
-                break;
-            case Value::Type::kArray: {
-                const auto& array = val->as<ArrayValue>();
-                stream->writeText("[");
-                // "val, val, .. ]" in reverse order
-                pending.push_back(&kArrayCloseTag);
-                if (array.size() > 0) {
-                    bool last_value = true;
-                    for (const Value* it = array.end() - 1; it >= array.begin(); --it) {
-                        if (!last_value) pending.push_back(&kListSeparatorTag);
-                        pending.push_back(it);
-                        last_value = false;
-                    }
+        case Value::Type::kNull:
+            stream->writeText("null");
+            break;
+        case Value::Type::kBool:
+            stream->writeText(*val->as<BoolValue>() ? "true" : "false");
+            break;
+        case Value::Type::kNumber:
+            stream->writeScalarAsText(*val->as<NumberValue>());
+            break;
+        case Value::Type::kString:
+            stream->writeText("\"");
+            stream->writeText(val->as<StringValue>().begin());
+            stream->writeText("\"");
+            break;
+        case Value::Type::kArray: {
+            const auto& array = val->as<ArrayValue>();
+            stream->writeText("[");
+            // "val, val, .. ]" in reverse order
+            pending.push_back(&kArrayCloseTag);
+            if (array.size() > 0) {
+                bool last_value = true;
+                for (const Value* it = array.end() - 1; it >= array.begin(); --it) {
+                    if (!last_value) pending.push_back(&kListSeparatorTag);
+                    pending.push_back(it);
+                    last_value = false;
                 }
-            } break;
-            case Value::Type::kObject: {
-                const auto& object = val->as<ObjectValue>();
-                stream->writeText("{");
-                // "key: val, key: val, .. }" in reverse order
-                pending.push_back(&kObjectCloseTag);
-                if (object.size() > 0) {
-                    bool last_member = true;
-                    for (const Member* it = object.end() - 1; it >= object.begin(); --it) {
-                        if (!last_member) pending.push_back(&kListSeparatorTag);
-                        pending.push_back(&it->fValue);
-                        pending.push_back(&kKeySeparatorTag);
-                        pending.push_back(&it->fKey);
-                        last_member = false;
-                    }
+            }
+        } break;
+        case Value::Type::kObject: {
+            const auto& object = val->as<ObjectValue>();
+            stream->writeText("{");
+            // "key: val, key: val, .. }" in reverse order
+            pending.push_back(&kObjectCloseTag);
+            if (object.size() > 0) {
+                bool last_member = true;
+                for (const Member* it = object.end() - 1; it >= object.begin(); --it) {
+                    if (!last_member) pending.push_back(&kListSeparatorTag);
+                    pending.push_back(&it->fValue);
+                    pending.push_back(&kKeySeparatorTag);
+                    pending.push_back(&it->fKey);
+                    last_member = false;
                 }
-            } break;
+            }
+        } break;
         }
     } while (!pending.empty());
 }
 
-}  // namespace
+} // namespace
 
 SkString Value::toString() const {
     SkDynamicMemoryWStream wstream;
@@ -969,12 +982,15 @@ SkString Value::toString() const {
 
 static constexpr size_t kMinChunkSize = 4096;
 
-DOM::DOM(const char* data, size_t size) : fAlloc(kMinChunkSize) {
+DOM::DOM(const char* data, size_t size)
+    : fAlloc(kMinChunkSize) {
     DOMParser parser(fAlloc);
 
     fRoot = parser.parse(data, size);
 }
 
-void DOM::write(SkWStream* stream) const { Write(fRoot, stream); }
+void DOM::write(SkWStream* stream) const {
+    Write(fRoot, stream);
+}
 
-}  // namespace skjson
+} // namespace skjson

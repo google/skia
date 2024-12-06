@@ -2386,10 +2386,7 @@ if (skia_enable_tools) {
     if (skia_enable_svg) {
       deps += [ "modules/svg" ]
     }
-    public_deps = [
-      ":gpu_tool_utils",
-      "modules/jsonreader",
-    ]
+    public_deps = [ ":gpu_tool_utils" ]
   }
 
   test_lib("etc1") {
@@ -2841,7 +2838,6 @@ if (skia_enable_tools) {
       ":flags",
       ":gpu_tool_utils",
       ":skia",
-      "modules/jsonreader",
       "modules/skottie:fuzz",
       "modules/skparagraph",
       "modules/svg",
@@ -3490,7 +3486,6 @@ if (skia_enable_tools) {
     libfuzzer_app("skottie_json") {
       sources = [ "modules/skottie/fuzz/FuzzSkottieJSON.cpp" ]
       deps = [
-        "modules/jsonreader",
         "modules/skottie:skottie",
         "modules/svg",
       ]
@@ -3498,7 +3493,7 @@ if (skia_enable_tools) {
 
     libfuzzer_app("skjson") {
       sources = [ "fuzz/oss_fuzz/FuzzJSON.cpp" ]
-      deps = [ "modules/jsonreader" ]
+      deps = []
     }
 
     libfuzzer_app("api_polyutils") {

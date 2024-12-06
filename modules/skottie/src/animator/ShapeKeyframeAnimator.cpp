@@ -10,11 +10,11 @@
 #include "include/core/SkPoint.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
-#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/animator/VectorKeyframeAnimator.h"
+#include "src/utils/SkJSON.h"
 
 #include <cstddef>
 #include <vector>

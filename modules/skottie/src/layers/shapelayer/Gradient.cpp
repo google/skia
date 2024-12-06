@@ -15,7 +15,6 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
-#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottieValue.h"
 #include "modules/skottie/src/animator/Animator.h"
@@ -23,6 +22,7 @@
 #include "modules/sksg/include/SkSGGradient.h"
 #include "modules/sksg/include/SkSGPaint.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
+#include "src/utils/SkJSON.h"
 
 #include <algorithm>
 #include <cstddef>

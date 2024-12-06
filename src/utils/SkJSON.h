@@ -230,7 +230,7 @@ public:
 
     explicit BoolValue(bool);
 
-    bool operator*() const {
+    bool operator *() const {
         SkASSERT(this->getTag() == Tag::kBool);
         return *this->cast<bool>();
     }
@@ -243,11 +243,13 @@ public:
     explicit NumberValue(int32_t);
     explicit NumberValue(float);
 
-    double operator*() const {
-        SkASSERT(this->getTag() == Tag::kInt || this->getTag() == Tag::kFloat);
+    double operator *() const {
+        SkASSERT(this->getTag() == Tag::kInt ||
+                 this->getTag() == Tag::kFloat);
 
-        return this->getTag() == Tag::kInt ? static_cast<double>(*this->cast<int32_t>())
-                                           : static_cast<double>(*this->cast<float>());
+        return this->getTag() == Tag::kInt
+            ? static_cast<double>(*this->cast<int32_t>())
+            : static_cast<double>(*this->cast<float>());
     }
 };
 
@@ -297,37 +299,39 @@ public:
 
     size_t size() const {
         switch (this->getTag()) {
-            case Tag::kShortString:
-                // We don't bother storing a length for short strings on the assumption
-                // that strlen is fast in this case.  If this becomes problematic, we
-                // can either go back to storing (7-len) in the tag byte or write a fast
-                // short_strlen.
-                return strlen(this->cast<char>());
-            case Tag::kString:
-                return this->cast<VectorValue<char, Value::Type::kString>>()->size();
-            default:
-                return 0;
+        case Tag::kShortString:
+            // We don't bother storing a length for short strings on the assumption
+            // that strlen is fast in this case.  If this becomes problematic, we
+            // can either go back to storing (7-len) in the tag byte or write a fast
+            // short_strlen.
+            return strlen(this->cast<char>());
+        case Tag::kString:
+            return this->cast<VectorValue<char, Value::Type::kString>>()->size();
+        default:
+            return 0;
         }
     }
 
     const char* begin() const {
         return this->getTag() == Tag::kShortString
-                       ? this->cast<char>()
-                       : this->cast<VectorValue<char, Value::Type::kString>>()->begin();
+            ? this->cast<char>()
+            : this->cast<VectorValue<char, Value::Type::kString>>()->begin();
     }
 
     const char* end() const {
         return this->getTag() == Tag::kShortString
-                       ? strchr(this->cast<char>(), '\0')
-                       : this->cast<VectorValue<char, Value::Type::kString>>()->end();
+            ? strchr(this->cast<char>(), '\0')
+            : this->cast<VectorValue<char, Value::Type::kString>>()->end();
     }
 
-    std::string_view str() const { return std::string_view(this->begin(), this->size()); }
+    std::string_view str() const {
+        return std::string_view(this->begin(), this->size());
+    }
 };
 
 struct Member {
     StringValue fKey;
-    Value       fValue;
+          Value fValue;
 };
 
 class ObjectValue final : public VectorValue<Member, Value::Type::kObject> {
@@ -338,7 +342,9 @@ public:
         static const Value gNullValue = NullValue();
 
         const auto* member = this->find(key);
-        return member ? member->fValue : gNullValue;
+        return member
+            ? member->fValue
+            : gNullValue;
     }
 
     // Writable access to the value associated with the given key.
@@ -374,16 +380,18 @@ inline Value::Type Value::getType() const {
     case Tag::kObject:      return Type::kObject;
     }
 
-    SkASSERT(false);  // unreachable
+    SkASSERT(false); // unreachable
     return Type::kNull;
 }
 
 inline const Value& Value::operator[](const char* key) const {
     static const Value gNullValue = NullValue();
 
-    return this->is<ObjectValue>() ? this->as<ObjectValue>()[key] : gNullValue;
+    return this->is<ObjectValue>()
+        ? this->as<ObjectValue>()[key]
+        : gNullValue;
 }
 
-}  // namespace skjson
+} // namespace skjson
 
-#endif  // SkJSON_DEFINED
+#endif // SkJSON_DEFINED

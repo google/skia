@@ -87,8 +87,8 @@ skia_cc_binary(
         "//tools/flags:cmd_flags",
     ] + select({
         "@platforms//os:linux": [
-            "@skia//:fontmgr_fontconfig_freetype",
             "@skia//:freetype_support",
+            "@skia//:fontmgr_fontconfig_freetype",
         ],
         "@platforms//os:macos": ["//:fontmgr_coretext"],
         "//conditions:default": ["//:fontmgr_empty_freetype"],
@@ -114,7 +114,6 @@ skia_cc_library(
     deps = [
         ":textshaper",
         "//:core",
-        "//modules/jsonreader",
         "//modules/skresources",
         "//modules/sksg",
         "//modules/sksg:sksg_priv",

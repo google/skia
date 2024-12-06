@@ -10,8 +10,8 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
-#include "modules/jsonreader/SkJSONReader.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/utils/SkJSON.h"
 #include "tests/Test.h"
 
 #include <cstring>

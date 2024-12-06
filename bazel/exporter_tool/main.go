@@ -405,6 +405,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/sksl:sksl_skslc_module_srcs",
 				"//src/utils:utils_skslc_hdrs",
 				"//src/utils:utils_skslc_srcs",
+				"//src/utils:json_srcs",
 			}}},
 	},
 	{GNI: "gn/sksl_tests.gni", Vars: []exporter.GNIFileListExportDesc{
@@ -444,6 +445,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/utils:core_srcs",
 				"//src/utils:char_to_glyphcache",
 				"//src/utils:canvas_state_utils",
+				"//src/utils:json_hdrs",
+				"//src/utils:json_srcs",
 				"//src/utils:multi_picture_document",
 				"//src/utils:clip_stack_utils",
 				"//src/utils:float_to_decimal",

@@ -16,7 +16,6 @@
 #include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
-#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SlotManager.h"
 #include "modules/skottie/src/SkottieJson.h"
@@ -25,6 +24,7 @@
 #include "modules/skottie/src/animator/Animator.h"
 #include "src/base/SkSafeMath.h"
 #include "src/base/SkVx.h"
+#include "src/utils/SkJSON.h"
 
 #include <algorithm>
 #include <cstdint>
