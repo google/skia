@@ -10,6 +10,7 @@
 #include <memory>
 #include <utility>
 
+#include "experimental/rust_png/encoder/SkPngRustEncoder.h"
 #include "experimental/rust_png/ffi/FFI.rs.h"
 #include "experimental/rust_png/ffi/UtilsForFFI.h"
 #include "include/core/SkSpan.h"
@@ -39,6 +40,18 @@ rust_png::ColorType ToColorType(SkEncodedInfo::Color color) {
         default:
             SkUNREACHABLE;
     }
+}
+
+rust_png::Compression ToCompression(SkPngRustEncoder::CompressionLevel level) {
+    switch (level) {
+        case SkPngRustEncoder::CompressionLevel::kLow:
+            return rust_png::Compression::Fast;
+        case SkPngRustEncoder::CompressionLevel::kMedium:
+            return rust_png::Compression::Default;
+        case SkPngRustEncoder::CompressionLevel::kHigh:
+            return rust_png::Compression::Best;
+    }
+    SkUNREACHABLE;
 }
 
 // This helper class adapts `SkWStream` to expose the API required by Rust FFI
@@ -77,7 +90,9 @@ private:
 }  // namespace
 
 // static
-std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst, const SkPixmap& src) {
+std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst,
+                                                      const SkPixmap& src,
+                                                      const SkPngRustEncoder::Options& options) {
     if (!SkPixmapIsValid(src)) {
         return nullptr;
     }
@@ -101,7 +116,8 @@ std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst, const SkPi
                                         width,
                                         height,
                                         ToColorType(dstInfo.color()),
-                                        dstInfo.bitsPerComponent());
+                                        dstInfo.bitsPerComponent(),
+                                        ToCompression(options.fCompressionLevel));
     if (resultOfStreamWriter->err() != rust_png::EncodingResult::Success) {
         return nullptr;
     }

@@ -19,6 +19,10 @@ class SkPixmap;
 class SkPngEncoderMgr;
 template <typename T> class SkSpan;
 
+namespace SkPngRustEncoder {
+struct Options;
+}  // namespace SkPngRustEncoder
+
 // This class provides the Skia image encoding API (`SkEncoder`) on top of the
 // third-party `png` crate (PNG compression and encoding implemented in Rust).
 //
@@ -26,7 +30,9 @@ template <typename T> class SkSpan;
 // http://review.skia.org/923336 and http://review.skia.org/922676).
 class SkPngRustEncoderImpl final : public SkPngEncoderBase {
 public:
-    static std::unique_ptr<SkEncoder> Make(SkWStream*, const SkPixmap&);
+    static std::unique_ptr<SkEncoder> Make(SkWStream*,
+                                           const SkPixmap&,
+                                           const SkPngRustEncoder::Options& options);
 
     // `public` to support `std::make_unique<SkPngRustEncoderImpl>(...)`.
     SkPngRustEncoderImpl(TargetInfo targetInfo,

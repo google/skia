@@ -54,6 +54,13 @@ mod ffi {
         Over,
     }
 
+    /// FFI-friendly simplification of `png::CompressionLevel`.
+    enum Compression {
+        Default,
+        Fast,
+        Best,
+    }
+
     /// FFI-friendly simplification of `Option<png::EncodingError>`.
     enum EncodingResult {
         Success,
@@ -152,6 +159,7 @@ mod ffi {
             height: u32,
             color: ColorType,
             bits_per_component: u8,
+            compression: Compression,
         ) -> Box<ResultOfStreamWriter>;
 
         type ResultOfStreamWriter;
@@ -227,6 +235,17 @@ impl From<Option<&png::DecodingError>> for ffi::DecodingResult {
                 png::DecodingError::Parameter(_) => Self::ParameterError,
                 png::DecodingError::LimitsExceeded => Self::LimitsExceededError,
             },
+        }
+    }
+}
+
+impl Into<png::Compression> for ffi::Compression {
+    fn into(self) -> png::Compression {
+        match self {
+            Self::Default => png::Compression::Default,
+            Self::Fast => png::Compression::Fast,
+            Self::Best => png::Compression::Best,
+            _ => unreachable!(),
         }
     }
 }
@@ -616,6 +635,7 @@ impl StreamWriter {
         height: u32,
         color: ffi::ColorType,
         bits_per_component: u8,
+        compression: ffi::Compression,
     ) -> Result<Self, png::EncodingError> {
         let mut encoder = png::Encoder::new(output, width, height);
         encoder.set_color(color.into());
@@ -624,6 +644,12 @@ impl StreamWriter {
             16 => png::BitDepth::Sixteen,
 
             // `SkPngRustEncoderImpl` only encodes 8-bit or 16-bit images.
+            _ => unreachable!(),
+        });
+        encoder.set_compression(compression.into());
+        encoder.set_adaptive_filter(match compression {
+            ffi::Compression::Fast => png::AdaptiveFilterType::NonAdaptive,
+            ffi::Compression::Default | ffi::Compression::Best => png::AdaptiveFilterType::Adaptive,
             _ => unreachable!(),
         });
 
@@ -650,6 +676,7 @@ fn new_stream_writer(
     height: u32,
     color: ffi::ColorType,
     bits_per_component: u8,
+    compression: ffi::Compression,
 ) -> Box<ResultOfStreamWriter> {
     Box::new(ResultOfStreamWriter(StreamWriter::new(
         output,
@@ -657,6 +684,7 @@ fn new_stream_writer(
         height,
         color,
         bits_per_component,
+        compression,
     )))
 }
 

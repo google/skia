@@ -29,7 +29,8 @@ DEF_TEST(RustEncodePng_smoke_test, r) {
     }
 
     SkDynamicMemoryWStream dst;
-    success = SkPngRustEncoder::Encode(&dst, src);
+    SkPngRustEncoder::Options options;
+    success = SkPngRustEncoder::Encode(&dst, src, options);
     REPORTER_ASSERT(r, success);
     if (!success) {
         return;
