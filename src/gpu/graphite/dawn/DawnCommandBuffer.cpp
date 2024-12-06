@@ -1116,9 +1116,6 @@ bool DawnCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
     wgpu::ImageCopyBuffer dst;
     dst.buffer = wgpuBuffer;
     dst.layout.offset = bufferOffset;
-    // Dawn requires buffer's alignment to be multiples of 256.
-    // https://b.corp.google.com/issues/259264489
-    SkASSERT((bufferRowBytes & 0xFF) == 0);
     dst.layout.bytesPerRow = bufferRowBytes;
 
     wgpu::Extent3D copySize = {
@@ -1146,9 +1143,6 @@ bool DawnCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
 
     for (int i = 0; i < count; ++i) {
         src.layout.offset = copyData[i].fBufferOffset;
-        // Dawn requires buffer's alignment to be multiples of 256.
-        // https://b.corp.google.com/issues/259264489
-        SkASSERT((copyData[i].fBufferRowBytes & 0xFF) == 0);
         src.layout.bytesPerRow = copyData[i].fBufferRowBytes;
 
         dst.origin.x = copyData[i].fRect.x();
