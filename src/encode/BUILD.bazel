@@ -85,11 +85,11 @@ skia_cc_library(
     name = "encoder_common",
     srcs = [
         "SkEncoder.cpp",
-        "//include/encode:encode_hdrs",
     ],
     hdrs = [
         "SkImageEncoderFns.h",
         "SkImageEncoderPriv.h",
+        "//include/encode:encode_hdrs",
     ],
     features = ["layering_check"],
     visibility = ["//experimental/rust_png/encoder:__subpackages__"],
