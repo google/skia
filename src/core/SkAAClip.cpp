@@ -1412,7 +1412,11 @@ bool SkAAClip::setPath(const SkPath& path, const SkIRect& clip, bool doAA) {
         ibounds = clip;
     } else {
         path.getBounds().roundOut(&ibounds);
-        if (ibounds.isEmpty() || !ibounds.intersect(clip)) {
+        // It's possible the bounds of our path might exceed SK_MaxS32 in width
+        // but since our clip is within that width (otherwise isEmpty() above
+        // would catch it), we can use isEmpty64() safely here. blitPath will
+        // interesect the two bounds before drawing.
+        if (ibounds.isEmpty64() || !ibounds.intersect(clip)) {
             return this->setEmpty();
         }
     }

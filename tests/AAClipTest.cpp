@@ -30,6 +30,7 @@
 #include <cstdint>
 #include <cstring>
 #include <initializer_list>
+#include <limits>
 #include <string>
 
 static bool operator==(const SkMask& a, const SkMask& b) {
@@ -431,7 +432,7 @@ DEF_TEST(AAClip_crbug_422693_AvoidOverflow, reporter) {
     SkRasterClip rc(SkIRect::MakeLTRB(-25000, -25000, 25000, 25000));
     SkPath path;
     path.addCircle(50, 50, 50);
-    rc.op(path, SkMatrix::I(), SkClipOp::kIntersect, true);
+    REPORTER_ASSERT(reporter, rc.op(path, SkMatrix::I(), SkClipOp::kIntersect, true));
 }
 
 DEF_TEST(AAClip_setRect_HugeRect_ReturnsFalse, reporter) {
@@ -441,4 +442,31 @@ DEF_TEST(AAClip_setRect_HugeRect_ReturnsFalse, reporter) {
     SkASSERT(r.width() < 0 && r.height() < 0);
 
     REPORTER_ASSERT(reporter, !clip.setRect(r));
+}
+
+DEF_TEST(AAClip_setPath_LargePathSmallClip_StillBlits, reporter) {
+    // This test verifies the root cause of https://bugzilla.mozilla.org/show_bug.cgi?id=1909796
+    // does not regress.
+    SkAAClip clip;
+
+    // Be advised that 2^31 will get turned into a float...
+    SkPath largePath = SkPath::Rect(SkRect::MakeLTRB(-1000, 10,
+         std::numeric_limits<int32_t>::max(), 20));
+    SkIRect bounds;
+    // ... and then back into an integer, so it won't be 2^31 any more
+    // (e.g. 2147483520). Therefore, we pick the left to be big enough
+    // to make the bounds exceed 31 bits again.
+    largePath.getBounds().roundOut(&bounds);
+    // SkIRect expects to work with 32 bit integers. If the width
+    // or height exceeds 32 bits, isEmpty() returns •true•
+    SkASSERT(bounds.isEmpty());
+    // But the 64 bit version works fine.
+    SkASSERT(!bounds.isEmpty64());
+
+    // Make sure the clip overlaps a little bit
+    SkIRect smallClip = SkIRect::MakeLTRB(5, 5, 15, 15);
+    SkASSERT(bounds.intersect(smallClip));
+
+    REPORTER_ASSERT(reporter, clip.setPath(largePath, smallClip, true));
+    REPORTER_ASSERT(reporter, clip.setPath(largePath, smallClip, false));
 }
