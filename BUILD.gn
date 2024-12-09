@@ -537,6 +537,9 @@ if (skia_lex) {
       # confused due to the same file being named by two different paths
     ]
     sksllex_path = "$root_out_dir/"
+    if (host_toolchain != default_toolchain_name) {
+      sksllex_path += "$host_toolchain/"
+    }
     sksllex_path += "sksllex"
     if (host_os == "win") {
       sksllex_path += ".exe"
