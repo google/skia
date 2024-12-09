@@ -7,6 +7,7 @@
 
 #include "experimental/rust_png/encoder/impl/SkPngRustEncoderImpl.h"
 
+#include <limits>
 #include <memory>
 #include <utility>
 
@@ -52,6 +53,39 @@ rust_png::Compression ToCompression(SkPngRustEncoder::CompressionLevel level) {
             return rust_png::Compression::Best;
     }
     SkUNREACHABLE;
+}
+
+rust::Slice<const uint8_t> getDataTableEntry(const SkDataTable& table, int index) {
+    SkASSERT((0 <= index) && (index < table.count()));
+
+    size_t size = 0;
+    const uint8_t* entry = table.atT<uint8_t>(index, &size);
+    while (size > 0 && entry[size - 1] == 0) {
+        // Ignore trailing NUL characters - these are *not* part of Rust `&str`.
+        size--;
+    }
+
+    return rust::Slice<const uint8_t>(entry, size);
+}
+
+rust_png::EncodingResult EncodeComments(rust_png::Writer& writer,
+                                        const sk_sp<SkDataTable>& comments) {
+    if (comments != nullptr) {
+        if (comments->count() % 2 != 0) {
+            return rust_png::EncodingResult::ParameterError;
+        }
+
+        for (int i = 0; i < comments->count() / 2; ++i) {
+            rust::Slice<const uint8_t> keyword = getDataTableEntry(*comments, 2 * i);
+            rust::Slice<const uint8_t> text = getDataTableEntry(*comments, 2 * i + 1);
+            rust_png::EncodingResult result = writer.write_text_chunk(keyword, text);
+            if (result != rust_png::EncodingResult::Success) {
+                return result;
+            }
+        }
+    }
+
+    return rust_png::EncodingResult::Success;
 }
 
 // This helper class adapts `SkWStream` to expose the API required by Rust FFI
@@ -111,13 +145,24 @@ std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst,
     }
 
     auto writeTraitAdapter = std::make_unique<WriteTraitAdapterForSkWStream>(dst);
+    rust::Box<rust_png::ResultOfWriter> resultOfWriter =
+            rust_png::new_writer(std::move(writeTraitAdapter),
+                                 width,
+                                 height,
+                                 ToColorType(dstInfo.color()),
+                                 dstInfo.bitsPerComponent(),
+                                 ToCompression(options.fCompressionLevel));
+    if (resultOfWriter->err() != rust_png::EncodingResult::Success) {
+        return nullptr;
+    }
+    rust::Box<rust_png::Writer> writer = resultOfWriter->unwrap();
+
+    if (EncodeComments(*writer, options.fComments) != rust_png::EncodingResult::Success) {
+        return nullptr;
+    }
+
     rust::Box<rust_png::ResultOfStreamWriter> resultOfStreamWriter =
-            rust_png::new_stream_writer(std::move(writeTraitAdapter),
-                                        width,
-                                        height,
-                                        ToColorType(dstInfo.color()),
-                                        dstInfo.bitsPerComponent(),
-                                        ToCompression(options.fCompressionLevel));
+            rust_png::convert_writer_into_stream_writer(std::move(writer));
     if (resultOfStreamWriter->err() != rust_png::EncodingResult::Success) {
         return nullptr;
     }

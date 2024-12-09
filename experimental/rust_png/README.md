@@ -58,4 +58,9 @@ TODO(https://crbug.com/356875275): Add support for running older tests
     - No APNG support.
     - No CICP support.
 * `SkPngRustCodec` differences - see
-  https://issues.chromium.org/issues?q=parentid:362829876%2B):
+  https://issues.chromium.org/issues?q=parentid:362829876%2B
+
+## Differences between `SkPngEncoder` and `SkPngRustEncoder`
+
+* `SkPngRustEncoder` differences - see
+  https://issues.chromium.org/issues?q=parentid:381140294%2B

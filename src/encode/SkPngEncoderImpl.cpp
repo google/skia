@@ -234,6 +234,10 @@ bool SkPngEncoderMgr::setHeader(const SkEncodedInfo& dstInfo,
     // Set comments in tEXt chunk
     const sk_sp<SkDataTable>& comments = options.fComments;
     if (comments != nullptr) {
+        if (comments->count() % 2 != 0) {
+            return false;
+        }
+
         std::vector<png_text> png_texts(comments->count());
         std::vector<SkString> clippedKeys;
         for (int i = 0; i < comments->count() / 2; ++i) {

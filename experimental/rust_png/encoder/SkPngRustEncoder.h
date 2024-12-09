@@ -10,6 +10,8 @@
 #include <cstdint>
 #include <memory>
 
+#include "include/core/SkDataTable.h"
+#include "include/core/SkRefCnt.h"
 #include "include/private/base/SkAPI.h"
 
 class SkEncoder;
@@ -42,6 +44,22 @@ enum class CompressionLevel : uint8_t {
  */
 struct Options {
     CompressionLevel fCompressionLevel = CompressionLevel::kMedium;
+
+    /**
+     *  Represents comments to be written into tEXt chunks of the png.
+     *
+     *  The 2i-th entry is the keyword for the i-th comment,
+     *  and the (2i + 1)-th entry is the text for the i-th comment.
+     *
+     *  All entries are treated as strings encoded as Latin-1 (i.e.
+     *  ISO-8859-1).  The strings may, but don't have to be NUL-terminated
+     *  (trailing NUL characters will be stripped).  Encoding will fail if
+     *  keyword or text don't meet the requirements of the PNG spec - text may
+     *  have any length and contain any of the 191 Latin-1 characters (and/or
+     *  the linefeed character), but keyword's length is restricted to at most
+     *  79 characters and it can't contain a non-breaking space character.
+     */
+    sk_sp<SkDataTable> fComments;
 };
 
 /**
