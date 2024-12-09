@@ -23,6 +23,7 @@ if (skia_enable_skottie) {
     configs = [ "../../:skia_private" ]
     deps = [
       "../..:skia",
+      "../jsonreader",
       "../skresources",
       "../sksg",
       "../skshaper",

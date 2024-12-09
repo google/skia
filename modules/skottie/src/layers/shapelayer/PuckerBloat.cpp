@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAssert.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/Adapter.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
@@ -19,7 +20,6 @@
 #include "modules/sksg/include/SkSGGeometryNode.h"
 #include "modules/sksg/include/SkSGNode.h"
 #include "src/core/SkGeometry.h"
-#include "src/utils/SkJSON.h"
 
 #include <utility>
 #include <vector>

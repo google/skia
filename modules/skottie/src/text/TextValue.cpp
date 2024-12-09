@@ -15,12 +15,12 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkTextUtils.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/TextShaper.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
-#include "src/utils/SkJSON.h"
 
 #include <algorithm>
 #include <array>

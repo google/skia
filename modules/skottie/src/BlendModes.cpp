@@ -10,12 +10,12 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
-#include "src/utils/SkJSON.h"
 
 #include <array>
 #include <cstddef>

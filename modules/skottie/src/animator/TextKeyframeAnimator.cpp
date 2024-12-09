@@ -10,12 +10,12 @@
 #include "include/core/SkString.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skottie/src/animator/KeyframeAnimator.h"
 #include "modules/skottie/src/text/TextValue.h"
-#include "src/utils/SkJSON.h"
 
 #include <utility>
 #include <vector>

@@ -323,7 +323,6 @@ skia_sksl_validate_wgsl_sources = [
 #  //src/sksl:sksl_skslc_module_srcs
 #  //src/utils:utils_skslc_hdrs
 #  //src/utils:utils_skslc_srcs
-#  //src/utils:json_srcs
 skslc_deps = [
   "$_src/base/SkArenaAlloc.cpp",
   "$_src/base/SkBlockAllocator.cpp",
@@ -352,8 +351,6 @@ skslc_deps = [
   "$_src/ports/SkMemory_malloc.cpp",
   "$_src/ports/SkOSFile_stdio.cpp",
   "$_src/sksl/SkSLModuleDataFile.cpp",
-  "$_src/utils/SkJSON.cpp",
-  "$_src/utils/SkJSONWriter.cpp",
   "$_src/utils/SkOSPath.cpp",
   "$_src/utils/SkOSPath.h",
   "$_src/utils/SkParse.cpp",

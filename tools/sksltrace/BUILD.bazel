@@ -21,6 +21,7 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
+        "//modules/jsonreader",
         "//src/core:core_priv",
     ],
 )

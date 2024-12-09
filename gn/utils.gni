@@ -47,8 +47,6 @@ skia_utils_chromium = [ "$_include/docs/SkMultiPictureDocument.h" ]
 #  //src/utils:core_srcs
 #  //src/utils:char_to_glyphcache
 #  //src/utils:canvas_state_utils
-#  //src/utils:json_hdrs
-#  //src/utils:json_srcs
 #  //src/utils:multi_picture_document
 #  //src/utils:clip_stack_utils
 #  //src/utils:float_to_decimal
@@ -72,8 +70,6 @@ skia_utils_private = [
   "$_src/utils/SkFloatToDecimal.cpp",
   "$_src/utils/SkFloatToDecimal.h",
   "$_src/utils/SkFloatUtils.h",
-  "$_src/utils/SkJSON.cpp",
-  "$_src/utils/SkJSON.h",
   "$_src/utils/SkJSONWriter.cpp",
   "$_src/utils/SkJSONWriter.h",
   "$_src/utils/SkMatrix22.cpp",

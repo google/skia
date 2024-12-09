@@ -14,12 +14,12 @@
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTo.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/sksg/include/SkSGPath.h"
 #include "modules/sksg/include/SkSGTransform.h"
 #include "src/base/SkUTF.h"
-#include "src/utils/SkJSON.h"
 
 namespace skottie::internal {
 

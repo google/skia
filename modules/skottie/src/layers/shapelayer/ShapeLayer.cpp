@@ -9,6 +9,7 @@
 
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/src/SkottieJson.h"
@@ -23,7 +24,6 @@
 #include "modules/sksg/include/SkSGPath.h"  // IWYU pragma: keep
 #include "modules/sksg/include/SkSGRenderNode.h"
 #include "modules/sksg/include/SkSGTransform.h"
-#include "src/utils/SkJSON.h"
 
 #include <string.h>
 #include <algorithm>

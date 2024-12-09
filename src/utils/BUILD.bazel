@@ -21,29 +21,12 @@ split_srcs_and_hdrs(
 )
 
 skia_filegroup(
-    name = "json_hdrs",
-    srcs = [
-        "SkJSON.h",
-        "SkJSONWriter.h",
-    ],
-)
-
-skia_filegroup(
-    name = "json_srcs",
-    srcs = [
-        "SkJSON.cpp",
-        "SkJSONWriter.cpp",
-    ],
-)
-
-skia_filegroup(
     name = "core_priv_hdrs",
     srcs = [
         "SkBitSet.h",
         "SkCallableTraits.h",
         "SkCanvasStack.h",
         "SkDashPathPriv.h",
-        "SkJSON.h",
         "SkJSONWriter.h",
         "SkMatrix22.h",
         "SkOSPath.h",
@@ -62,7 +45,6 @@ skia_filegroup(
         "SkDashPath.cpp",
         "SkEventTracer.cpp",
         "SkFloatUtils.h",
-        "SkJSON.cpp",
         "SkJSONWriter.cpp",
         "SkMatrix22.cpp",
         "SkNWayCanvas.cpp",

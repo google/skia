@@ -7,11 +7,11 @@
 
 #include "modules/skottie/src/animator/Animator.h"
 
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/animator/KeyframeAnimator.h"
-#include "src/utils/SkJSON.h"
 
 #include <utility>
 

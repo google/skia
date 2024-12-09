@@ -6,12 +6,12 @@
  */
 
 #include "include/core/SkRefCnt.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/skresources/include/SkResources.h"
 #include "modules/sksg/include/SkSGRenderNode.h"
-#include "src/utils/SkJSON.h"
 
 #include <utility>
 

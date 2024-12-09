@@ -6,11 +6,11 @@
  */
 
 #include "include/core/SkRefCnt.h"
+#include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/layers/shapelayer/ShapeLayer.h"
 #include "modules/sksg/include/SkSGGeometryNode.h"
 #include "modules/sksg/include/SkSGMerge.h"
-#include "src/utils/SkJSON.h"
 
 #include <algorithm>
 #include <cstddef>

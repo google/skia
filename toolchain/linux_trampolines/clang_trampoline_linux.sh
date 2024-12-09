@@ -33,6 +33,7 @@ supported_files_or_dirs=(
   "include/gpu/vk/gen/"
   "include/private/"
   "modules/bentleyottmann/"
+  "modules/jsonreader/"
   "modules/skottie/"
   "modules/sksg/"
   "modules/skshaper/"
