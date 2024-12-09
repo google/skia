@@ -486,6 +486,7 @@ static void check(skiatest::Reporter* r,
                   bool supportsSubsetDecoding,
                   bool supportsIncomplete,
                   bool supportsNewScanlineDecoding = false) {
+    skiatest::ReporterContext context(r, path);
     // If we're testing incomplete decodes, let's run the same test on full decodes.
     if (supportsIncomplete) {
         check(r, path, size, supportsScanlineDecoding, supportsSubsetDecoding,
@@ -541,6 +542,7 @@ DEF_TEST(Codec_bmp, r) {
     check(r, "images/rle.bmp", SkISize::Make(320, 240), true, false, true);
 }
 
+#if defined(SK_CODEC_DECODES_ICO)
 DEF_TEST(Codec_ico, r) {
     // FIXME: We are not ready to test incomplete ICOs
     // These two tests examine interestingly different behavior:
@@ -549,6 +551,7 @@ DEF_TEST(Codec_ico, r) {
     // Decodes an embedded PNG image
     check(r, "images/google_chrome.ico", SkISize::Make(256, 256), false, false, false, true);
 }
+#endif
 
 DEF_TEST(Codec_gif, r) {
     check(r, "images/box.gif", SkISize::Make(200, 55), false, false, true, true);
@@ -587,7 +590,7 @@ DEF_TEST(Codec_png, r) {
 }
 
 // Disable RAW tests for Win32.
-#if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
+#if defined(SK_CODEC_DECODES_RAW) && !defined(_WIN32)
 DEF_TEST(Codec_raw, r) {
     check(r, "images/sample_1mp.dng", SkISize::Make(600, 338), false, false, false);
     check(r, "images/sample_1mp_rotated.dng", SkISize::Make(600, 338), false, false, false);
@@ -694,7 +697,7 @@ DEF_TEST(Codec_Dimensions, r) {
 
     // RAW
 // Disable RAW tests for Win32.
-#if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
+#if defined(SK_CODEC_DECODES_RAW) && !defined(_WIN32)
     test_dimensions(r, "images/sample_1mp.dng");
     test_dimensions(r, "images/sample_1mp_rotated.dng");
     test_dimensions(r, "images/dng_with_preview.dng");
@@ -926,7 +929,7 @@ private:
 };
 
 // Disable RAW tests for Win32.
-#if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
+#if defined(SK_CODEC_DECODES_RAW) && !defined(_WIN32)
 // Test that the RawCodec works also for not asset stream. This will test the code path using
 // SkRawBufferedStream instead of SkRawAssetStream.
 DEF_TEST(Codec_raw_notseekable, r) {
@@ -1344,11 +1347,13 @@ DEF_TEST(Codec_fallBack, r) {
 
     // Formats that currently do not support incremental decoding
     auto files = {
-            "images/CMYK.jpg",
-            "images/color_wheel.ico",
-            "images/mandrill.wbmp",
-            "images/randPixels.bmp",
-            };
+        "images/CMYK.jpg",
+        "images/mandrill.wbmp",
+        "images/randPixels.bmp",
+#if defined(SK_CODEC_DECODES_ICO)
+        "images/color_wheel.ico",
+#endif
+    };
     for (auto file : files) {
         auto stream = LimitedRewindingStream::Make(file, SkCodec::MinBufferedBytesNeeded());
         if (!stream) {
@@ -1526,7 +1531,9 @@ static void test_invalid_header(skiatest::Reporter* r, const char* path) {
 }
 
 DEF_TEST(Codec_InvalidHeader, r) {
+#if defined(SK_CODEC_DECODES_ICO)
     test_invalid_header(r, "invalid_images/int_overflow.ico");
+#endif
 
     // These files report values that have caused problems with SkFILEStreams.
     // They are invalid, and should not create SkCodecs.

@@ -1164,6 +1164,7 @@ optional("jpeg_decode") {
 
 optional("jpeg_encode") {
   enabled = skia_use_libjpeg_turbo_encode && !skia_use_ndk_images
+  public_defines = [ "SK_CODEC_ENCODES_JPEG" ]
 
   deps = [ "//third_party/libjpeg-turbo:libjpeg" ]
   public = skia_encode_jpeg_public
@@ -1271,21 +1272,27 @@ optional("xps") {
   sources = skia_xps_sources
 }
 
-optional("png_decode") {
+optional("png_decode_libpng") {
   enabled = skia_use_libpng_decode
   public_defines = [
     "SK_CODEC_DECODES_ICO",
     "SK_CODEC_DECODES_PNG",
+    "SK_CODEC_DECODES_PNG_WITH_LIBPNG",
   ]
 
   deps = [ "//third_party/libpng" ]
-  sources = [ "src/codec/SkIcoCodec.cpp" ] + skia_codec_png
+  sources = [ "src/codec/SkIcoCodec.cpp" ] + skia_codec_png_base +
+            skia_codec_libpng_srcs
 }
 
 optional("png_encode") {
   enabled = skia_use_libpng_encode && !skia_use_ndk_images
-  public = skia_encode_png_public
+  public_defines = [
+    "SK_CODEC_ENCODES_PNG",
+    "SK_CODEC_ENCODES_PNG_WITH_LIBPNG",
+  ]
 
+  public = skia_encode_png_public
   deps = [ "//third_party/libpng" ]
   sources = skia_encode_png_srcs
 }
@@ -1490,11 +1497,11 @@ if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
   }
 }
 
-optional("rust_png_decode") {
-  public_defines = [ "SK_USE_RUST_PNG_DECODE" ]
+optional("png_decode_rust") {
+  public_defines = [ "SK_CODEC_DECODES_PNG_WITH_RUST" ]
   enabled = skia_use_rust_png_decode
-  public = skia_codec_rust_png_public  # From `gn/codec.gni`
-  sources = skia_codec_rust_png  # From `gn/codec.gni`
+  public = skia_codec_rust_png_public
+  sources = skia_codec_rust_png + skia_codec_png_base
   sources_for_tests = [ "tests/SkPngRustDecoderTest.cpp" ]
 
   deps = [
@@ -1504,8 +1511,8 @@ optional("rust_png_decode") {
   libs = [ "$root_out_dir/librust_png_cxx_core_lib.a" ]
 }
 
-optional("rust_png_encode") {
-  public_defines = [ "SK_USE_RUST_PNG_ENCODE" ]
+optional("png_encode_rust") {
+  public_defines = [ "SK_CODEC_ENCODES_PNG_WITH_RUST" ]
   enabled = skia_use_rust_png_encode
   public = skia_encode_rust_png_public  # From `gn/core.gni`
   sources =
@@ -1528,6 +1535,7 @@ optional("webp_decode") {
 
 optional("webp_encode") {
   enabled = skia_use_libwebp_encode && !skia_use_ndk_images
+  public_defines = [ "SK_CODEC_ENCODES_WEBP" ]
   public = skia_encode_webp_public
 
   deps = [ "//third_party/libwebp" ]
@@ -1619,7 +1627,8 @@ skia_component("skia") {
     ":lasx",
     ":minify_sksl",
     ":ndk_images",
-    ":png_decode",
+    ":png_decode_libpng",
+    ":png_decode_rust",
     ":raw",
     ":skx",
     ":typeface_fontations",
@@ -2308,8 +2317,6 @@ if (skia_enable_tools) {
       "tools/EncodeUtils.h",
       "tools/GpuToolUtils.h",
       "tools/LsanSuppressions.cpp",
-      "tools/MSKPPlayer.cpp",
-      "tools/MSKPPlayer.h",
       "tools/ProcStats.cpp",
       "tools/ProcStats.h",
       "tools/Resources.cpp",
@@ -2318,8 +2325,6 @@ if (skia_enable_tools) {
       "tools/RuntimeBlendUtils.h",
       "tools/SkMetaData.cpp",
       "tools/SkMetaData.h",
-      "tools/SkSharingProc.cpp",
-      "tools/SkSharingProc.h",
       "tools/Stats.h",
       "tools/TestFontDataProvider.cpp",
       "tools/TestFontDataProvider.h",
@@ -2361,6 +2366,15 @@ if (skia_enable_tools) {
         "tools/SvgPathExtractor.h",
       ]
     }
+    if (skia_use_libpng_decode) {
+      sources += [
+        "tools/MSKPPlayer.cpp",
+        "tools/MSKPPlayer.h",
+        "tools/SkSharingProc.cpp",
+        "tools/SkSharingProc.h",
+      ]
+    }
+
     if (target_cpu != "wasm") {
       sources += [ "tools/CrashHandler.cpp" ]
     }
@@ -2492,8 +2506,8 @@ if (skia_enable_tools) {
       ":fontmgr_fontconfig_tests",
       ":fontmgr_mac_ct_tests",
       ":fontscanner_tests",
-      ":rust_png_decode_tests",
-      ":rust_png_encode_tests",
+      ":png_decode_rust_tests",
+      ":png_encode_rust_tests",
       ":skia",
       ":test",
       ":tool_utils",
@@ -2605,8 +2619,10 @@ if (skia_enable_tools) {
         "modules/skottie:utils",
         "modules/skshaper",
         "modules/skunicode",
-        "modules/svg",
       ]
+      if (skia_use_libpng_decode) {
+        deps += [ "modules/svg" ]
+      }
     }
     test_app("filterfuzz") {
       sources = [ "experimental/filterfuzz/filterfuzz.cpp" ]
@@ -2640,28 +2656,30 @@ if (skia_enable_tools) {
     }
   }
 
-  test_app("nanobench") {
-    sources = [
-      "bench/nanobench.cpp",
-      "bench/nanobench.h",
-    ]
-    deps = [
-      ":bench",
-      ":common_flags_config",
-      ":common_flags_gpu",
-      ":common_flags_graphite",
-      ":common_flags_images",
-      ":flags",
-      ":gm",
-      ":gpu_tool_utils",
-      ":skia",
-      ":tool_utils",
-      ":trace",
-      "modules/skparagraph",
-      "modules/skshaper",
-      "modules/skunicode",
-      "modules/svg",
-    ]
+  if (skia_use_libpng_decode) {
+    test_app("nanobench") {
+      sources = [
+        "bench/nanobench.cpp",
+        "bench/nanobench.h",
+      ]
+      deps = [
+        ":bench",
+        ":common_flags_config",
+        ":common_flags_gpu",
+        ":common_flags_graphite",
+        ":common_flags_images",
+        ":flags",
+        ":gm",
+        ":gpu_tool_utils",
+        ":skia",
+        ":tool_utils",
+        ":trace",
+        "modules/skparagraph",
+        "modules/skshaper",
+        "modules/skunicode",
+        "modules/svg",
+      ]
+    }
   }
 
   test_app("skpinfo") {
@@ -2687,19 +2705,21 @@ if (skia_enable_tools) {
     }
   }
 
-  test_app("skpbench") {
-    sources = [
-      "bench/BigPath.cpp",
-      "tools/skpbench/skpbench.cpp",
-    ]
-    deps = [
-      ":common_flags_config",
-      ":common_flags_gpu",
-      ":flags",
-      ":gpu_tool_utils",
-      ":skia",
-      ":tool_utils",
-    ]
+  if (skia_use_libpng_decode) {
+    test_app("skpbench") {
+      sources = [
+        "bench/BigPath.cpp",
+        "tools/skpbench/skpbench.cpp",
+      ]
+      deps = [
+        ":common_flags_config",
+        ":common_flags_gpu",
+        ":flags",
+        ":gpu_tool_utils",
+        ":skia",
+        ":tool_utils",
+      ]
+    }
   }
 
   if (is_linux && skia_use_icu) {
@@ -2831,6 +2851,7 @@ if (skia_enable_tools) {
       "tools/debugger/JsonWriteBuffer.cpp",
       "tools/fonts/FontToolUtils.cpp",
     ]
+
     if (skia_enable_graphite && skia_enable_precompile) {
       sources += [ "fuzz/FuzzPrecompile.cpp" ]
     }
@@ -2852,22 +2873,24 @@ if (skia_enable_tools) {
     ]
   }
 
-  test_app("skdiff") {
-    sources = [
-      "tools/skdiff/skdiff.cpp",
-      "tools/skdiff/skdiff_html.cpp",
-      "tools/skdiff/skdiff_main.cpp",
-      "tools/skdiff/skdiff_utils.cpp",
-    ]
-    deps = [ ":skia" ]
-  }
+  if (skia_use_libpng_decode) {
+    test_app("skdiff") {
+      sources = [
+        "tools/skdiff/skdiff.cpp",
+        "tools/skdiff/skdiff_html.cpp",
+        "tools/skdiff/skdiff_main.cpp",
+        "tools/skdiff/skdiff_utils.cpp",
+      ]
+      deps = [ ":skia" ]
+    }
 
-  test_app("skp_parser") {
-    sources = [ "tools/skp_parser.cpp" ]
-    deps = [
-      ":skia",
-      ":tool_utils",
-    ]
+    test_app("skp_parser") {
+      sources = [ "tools/skp_parser.cpp" ]
+      deps = [
+        ":skia",
+        ":tool_utils",
+      ]
+    }
   }
 
   if (!is_win) {
@@ -2887,11 +2910,13 @@ if (skia_enable_tools) {
         ":tool_utils",
       ]
     }
-    test_app("skqp") {
-      sources = [ "tools/skqp/src/skqp_main.cpp" ]
-      include_dirs = [ "//" ]
-      lib_dirs = []
-      deps = [ ":skqp_lib" ]
+    if (skia_use_libpng_decode) {
+      test_app("skqp") {
+        sources = [ "tools/skqp/src/skqp_main.cpp" ]
+        include_dirs = [ "//" ]
+        lib_dirs = []
+        deps = [ ":skqp_lib" ]
+      }
     }
   }
   if (is_fuchsia) {
@@ -3111,8 +3136,6 @@ if (skia_enable_tools) {
         "tools/viewer/ImageSlide.cpp",
         "tools/viewer/ImageSlide.h",
         "tools/viewer/LayersSlide.cpp",
-        "tools/viewer/MSKPSlide.cpp",
-        "tools/viewer/MSKPSlide.h",
         "tools/viewer/ManyRectsSlide.cpp",
         "tools/viewer/MaterialShadowsSlide.cpp",
         "tools/viewer/MegaStrokeSlide.cpp",
@@ -3191,10 +3214,17 @@ if (skia_enable_tools) {
         "modules/sksg:slides",
         "modules/skshaper:skshaper",
         "modules/skunicode",
-        "modules/svg",
         "//third_party/delaunator",
         "//third_party/imgui",
       ]
+      if (skia_use_libpng_decode) {
+        deps += [ "modules/svg" ]
+
+        sources += [
+          "tools/viewer/MSKPSlide.cpp",
+          "tools/viewer/MSKPSlide.h",
+        ]
+      }
       if (skia_use_vulkan) {
         deps += [
           "//third_party/externals/spirv-tools:spvtools",

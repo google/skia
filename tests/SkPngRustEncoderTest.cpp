@@ -14,7 +14,7 @@
 #include "tools/DecodeUtils.h"
 #include "tools/ToolUtils.h"
 
-DEF_TEST(Encode_png_Rust_smoke_test, r) {
+DEF_TEST(RustEncodePng_smoke_test, r) {
     SkBitmap bitmap;
     bool success = ToolUtils::GetResourceAsBitmap("images/mandrill_128.png", &bitmap);
     if (!success) {

@@ -42,17 +42,17 @@ DEF_TEST(AndroidCodec_computeSampleSize, r) {
     if (GetResourcePath().isEmpty()) {
         return;
     }
-    for (const char* file : { "images/color_wheel.webp",
-                              "images/ship.png",
-                              "images/dog.jpg",
-                              "images/color_wheel.gif",
-                              "images/rle.bmp",
-                              "images/google_chrome.ico",
-                              "images/mandrill.wbmp",
-#ifdef SK_CODEC_DECODES_RAW
-                              "images/sample_1mp.dng",
+    for (const char* file : {
+             "images/color_wheel.webp", "images/ship.png", "images/dog.jpg",
+                     "images/color_wheel.gif", "images/rle.bmp",
+#if defined(SK_CODEC_DECODES_ICO)
+                     "images/google_chrome.ico",
 #endif
-                              }) {
+                     "images/mandrill.wbmp",
+#if defined(SK_CODEC_DECODES_RAW)
+                     "images/sample_1mp.dng",
+#endif
+         }) {
         auto data = GetResourceAsData(file);
         if (!data) {
             ERRORF(r, "Could not get %s", file);

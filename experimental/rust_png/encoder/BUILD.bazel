@@ -27,6 +27,7 @@ skia_cc_library(
         ":hdrs",
         "//include/encode:encode_hdrs",
     ],
+    defines = ["SK_CODEC_ENCODES_PNG_WITH_RUST"],
     features = ["layering_check"],
     deps = [
         "//:core",

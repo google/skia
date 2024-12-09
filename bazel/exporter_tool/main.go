@@ -57,10 +57,16 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		// TODO(https://crbug.com/381900683): Replace this with more granular lists.
 		{Var: "skia_codec_png",
 			Rules: []string{
-				"//src/codec:buffet_png_srcs",
-				"//src/codec:common_png_srcs",
+				"//src/codec:buffet_libpng_srcs",
+				"//src/codec:common_libpng_srcs",
 				"//src/codec:png_codec_base_hdrs",
 				"//src/codec:png_codec_base_srcs",
+			},
+		},
+		{Var: "skia_codec_libpng_srcs",
+			Rules: []string{
+				"//src/codec:buffet_libpng_srcs",
+				"//src/codec:common_libpng_srcs",
 			},
 		},
 		{Var: "skia_codec_rust_png_public",

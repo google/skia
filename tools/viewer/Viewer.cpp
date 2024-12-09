@@ -990,34 +990,48 @@ void Viewer::initSlides() {
         const CommandLineFlags::StringArray&   fFlags;
         const SlideMaker                       fFactory;
     } gExternalSlidesInfo[] = {
-        { ".mskp", "mskp-dir", FLAGS_mskps,
-          [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
-            return sk_make_sp<MSKPSlide>(name, path);}
-        },
-        { ".skp", "skp-dir", FLAGS_skps,
-            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
-                return sk_make_sp<SKPSlide>(name, path);}
-        },
-        { ".jpg", "jpg-dir", FLAGS_jpgs,
-            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
-                return sk_make_sp<ImageSlide>(name, path);}
-        },
-        { ".jxl", "jxl-dir", FLAGS_jxls,
-            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
-                return sk_make_sp<ImageSlide>(name, path);}
-        },
+#if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
+        {".mskp",
+         "mskp-dir",
+         FLAGS_mskps,
+         [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+             return sk_make_sp<MSKPSlide>(name, path);
+         }},
+#endif
+        {".skp",
+         "skp-dir",
+         FLAGS_skps,
+         [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+             return sk_make_sp<SKPSlide>(name, path);
+         }},
+        {".jpg",
+         "jpg-dir",
+         FLAGS_jpgs,
+         [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+             return sk_make_sp<ImageSlide>(name, path);
+         }},
+        {".jxl",
+         "jxl-dir",
+         FLAGS_jxls,
+         [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+             return sk_make_sp<ImageSlide>(name, path);
+         }},
 #if defined(SK_ENABLE_SKOTTIE)
-        { ".json", "skottie-dir", FLAGS_lotties,
-            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
-                return sk_make_sp<SkottieSlide>(name, path);}
-        },
+        {".json",
+         "skottie-dir",
+         FLAGS_lotties,
+         [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+             return sk_make_sp<SkottieSlide>(name, path);
+         }},
 #endif
 
 #if defined(SK_ENABLE_SVG)
-        { ".svg", "svg-dir", FLAGS_svgs,
-            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
-                return sk_make_sp<SvgSlide>(name, path);}
-        },
+        {".svg",
+         "svg-dir",
+         FLAGS_svgs,
+         [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+             return sk_make_sp<SvgSlide>(name, path);
+         }},
 #endif
     };
 

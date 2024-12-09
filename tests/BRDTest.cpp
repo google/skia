@@ -20,19 +20,22 @@ DEF_TEST(BRD_types, r) {
         const char* name;
         bool supported;
     } gRec[] = {
-        { "images/arrow.png", true },
-        { "images/box.gif", false },
-        { "images/baby_tux.webp", true },
-        { "images/brickwork-texture.jpg", true },
-        { "images/color_wheel.ico", false },
-#ifdef SK_CODEC_DECODES_RAW
-        { "images/sample_1mp.dng", false },
+        {"images/arrow.png", true},
+        {"images/box.gif", false},
+        {"images/baby_tux.webp", true},
+        {"images/brickwork-texture.jpg", true},
+#if defined(SK_CODEC_DECODES_ICO)
+        {"images/color_wheel.ico", false},
 #endif
-        { "images/mandrill.wbmp", false },
-        { "images/randPixels.bmp", false },
+#if defined(SK_CODEC_DECODES_RAW)
+        {"images/sample_1mp.dng", false},
+#endif
+        {"images/mandrill.wbmp", false},
+        {"images/randPixels.bmp", false},
     };
 
     for (const auto& rec : gRec) {
+        skiatest::ReporterContext context(r, rec.name);
         auto data = GetResourceAsData(rec.name);
         if (!data) return;
 

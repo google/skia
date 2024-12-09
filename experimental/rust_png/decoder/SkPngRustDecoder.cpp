@@ -14,7 +14,19 @@
 
 namespace SkPngRustDecoder {
 
-std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream, SkCodec::Result* result) {
+bool IsPng(const void* buff, size_t bytesRead) {
+    static constexpr unsigned char pngSignature[] = {
+            0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A};
+    if (bytesRead < sizeof(pngSignature)) {
+        return false;
+    }
+
+    return memcmp(buff, pngSignature, sizeof(pngSignature)) == 0;
+}
+
+std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
+                                SkCodec::Result* result,
+                                SkCodecs::DecodeContext) {
     return SkPngRustCodec::MakeFromStream(std::move(stream), result);
 }
 

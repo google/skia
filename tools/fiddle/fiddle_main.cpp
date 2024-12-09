@@ -24,7 +24,6 @@ static DEFINE_double(frame, 1.0,
 
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkJpegDecoder.h"
-#include "include/codec/SkPngDecoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
@@ -35,6 +34,10 @@ static DEFINE_double(frame, 1.0,
 #include "src/gpu/ganesh/GrTexture.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 #include "tools/gpu/gl/GLTestContext.h"
+
+#if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
+#include "include/codec/SkPngDecoder.h"
+#endif
 
 #if defined(SK_FONTMGR_FONTCONFIG_AVAILABLE)
 #include "include/ports/SkFontMgr_fontconfig.h"
@@ -265,9 +268,12 @@ int main(int argc, char** argv) {
             return 1;
         }
         std::unique_ptr<SkCodec> codec = nullptr;
+#if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
         if (SkPngDecoder::IsPng(data->data(), data->size())) {
             codec = SkPngDecoder::Decode(data, nullptr);
-        } else if (SkJpegDecoder::IsJpeg(data->data(), data->size())) {
+        } else
+#endif
+        if (SkJpegDecoder::IsJpeg(data->data(), data->size())) {
             codec = SkJpegDecoder::Decode(data, nullptr);
         } else {
             perror("Unsupported file format\n");

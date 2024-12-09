@@ -45,9 +45,8 @@ To test the code (via `tests/SkPngRustDecoderTest.cpp` and
 
 ```
 $ out/RustPng/dm --src tests --nogpu \
-    --match Codec_apng \
-    --match Codec_png \
-    --match Encode_png
+    --match RustPngCodec \
+            RustEncodePng
 ```
 
 TODO(https://crbug.com/356875275): Add support for running older tests

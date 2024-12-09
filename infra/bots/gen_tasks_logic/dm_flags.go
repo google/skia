@@ -1476,6 +1476,17 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "sweep_tiling")
 	}
 
+	if b.matchExtraConfig("RustPNG") {
+		// TODO(b/356875275) many PNG decoding tests still fail (e.g. those with SkAndroidCodec
+		// or some from DM's image source). For now, just opt-in the tests we know pass and
+		// eventually remove this special handling to run all image tests.
+		skipped = []string{}
+		match = []string{
+			"RustPngCodec",
+			"RustEncodePng",
+		}
+	}
+
 	if len(skipped) > 0 {
 		args = append(args, "--skip")
 		args = append(args, skipped...)

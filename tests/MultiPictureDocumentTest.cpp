@@ -30,12 +30,14 @@
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkMultiPictureDocument.h"
 #include "tests/Test.h"
-#include "tools/SkSharingProc.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
 #include <memory>
 #include <vector>
+
+#if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
+#include "tools/SkSharingProc.h"
 
 // Covers rects, ovals, paths, images, text
 static void draw_basic(SkCanvas* canvas, int seed, sk_sp<SkImage> image) {
@@ -180,7 +182,7 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
         i++;
     }
 }
-
+#endif
 
 #if defined(SK_GANESH) && defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 
