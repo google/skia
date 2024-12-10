@@ -717,6 +717,11 @@ const wgpu::BindGroup& DawnResourceProvider::findOrCreateSingleTextureSamplerBin
 
 void DawnResourceProvider::onFreeGpuResources() {
     fIntrinsicConstantsManager->freeGpuResources();
+    // The wgpu::Textures and wgpu::Buffers held by the BindGroups should be explicitly destroyed
+    // when the DawnTexture and DawnBuffer is destroyed, but removing the bind groups themselves
+    // helps reduce CPU memory periodically.
+    fSingleTextureSamplerBindGroups.reset();
+    fUniformBufferBindGroupCache.reset();
 }
 
 void DawnResourceProvider::onPurgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime) {
