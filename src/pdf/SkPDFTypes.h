@@ -189,12 +189,6 @@ static inline std::unique_ptr<SkPDFDict> SkPDFMakeDict(const char* type = nullpt
 enum class SkPDFSteamCompressionEnabled : bool {
     No = false,
     Yes = true,
-    Default =
-#ifdef SK_PDF_LESS_COMPRESSION
-        No,
-#else
-        Yes,
-#endif
 };
 
 // Exposed for unit testing.
@@ -205,5 +199,5 @@ SkPDFIndirectReference SkPDFStreamOut(
     std::unique_ptr<SkPDFDict> dict,
     std::unique_ptr<SkStreamAsset> stream,
     SkPDFDocument* doc,
-    SkPDFSteamCompressionEnabled compress = SkPDFSteamCompressionEnabled::Default);
+    SkPDFSteamCompressionEnabled compress = SkPDFSteamCompressionEnabled::Yes);
 #endif

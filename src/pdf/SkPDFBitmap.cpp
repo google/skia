@@ -114,22 +114,11 @@ void emit_image_stream(SkPDFDocument* doc,
         pdfDict.insertRef("SMask", sMask);
     }
     pdfDict.insertInt("BitsPerComponent", 8);
-    #ifdef SK_PDF_BASE85_BINARY
-    auto filters = SkPDFMakeArray();
-    filters->appendName("ASCII85Decode");
-    switch (format) {
-        case SkPDFStreamFormat::DCT: filters->appendName("DCTDecode"); break;
-        case SkPDFStreamFormat::Flate: filters->appendName("FlateDecode"); break;
-        case SkPDFStreamFormat::Uncompressed: break;
-    }
-    pdfDict.insertObject("Filter", std::move(filters));
-    #else
     switch (format) {
         case SkPDFStreamFormat::DCT: pdfDict.insertName("Filter", "DCTDecode"); break;
         case SkPDFStreamFormat::Flate: pdfDict.insertName("Filter", "FlateDecode"); break;
         case SkPDFStreamFormat::Uncompressed: break;
     }
-    #endif
     if (format == SkPDFStreamFormat::DCT) {
         pdfDict.insertInt("ColorTransform", 0);
     }
@@ -175,9 +164,6 @@ void do_deflated_alpha(const SkPixmap& pm, SkPDFDocument* doc, SkPDFIndirectRefe
         deflateWStream->finalize();
     }
 
-    #ifdef SK_PDF_BASE85_BINARY
-    SkPDFUtils::Base85Encode(buffer.detachAsStream(), &buffer);
-    #endif
     int length = SkToInt(buffer.bytesWritten());
     emit_image_stream(doc, ref, [&buffer](SkWStream* stream) { buffer.writeToAndReset(stream); },
                       pm.info().dimensions(), SkPDFUnion::Name("DeviceGray"),
@@ -288,9 +274,6 @@ void do_deflated_image(const SkPixmap& pm,
         }
     }
 
-    #ifdef SK_PDF_BASE85_BINARY
-    SkPDFUtils::Base85Encode(buffer.detachAsStream(), &buffer);
-    #endif
     int length = SkToInt(buffer.bytesWritten());
     emit_image_stream(doc, ref, [&buffer](SkWStream* stream) { buffer.writeToAndReset(stream); },
                       pm.info().dimensions(), std::move(colorSpace), sMask, length, format);
@@ -321,11 +304,6 @@ bool do_jpeg(sk_sp<SkData> data, SkColorSpace* imageColorSpace, SkPDFDocument* d
             || kTopLeft_SkEncodedOrigin != exifOrientation) {
         return false;
     }
-    #ifdef SK_PDF_BASE85_BINARY
-    SkDynamicMemoryWStream buffer;
-    SkPDFUtils::Base85Encode(SkMemoryStream::MakeDirect(data->data(), data->size()), &buffer);
-    data = buffer.detachAsData();
-    #endif
 
     int channels = yuv ? 3 : 1;
     SkPDFUnion colorSpace = yuv ? SkPDFUnion::Name("DeviceRGB") : SkPDFUnion::Name("DeviceGray");

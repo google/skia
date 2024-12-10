@@ -211,9 +211,7 @@ def checkout_worktree(checkoutable):
   return directory
 
 def build_skia(directory, executable):
-  args = ('--args=is_debug=false'
-          ' extra_cflags=["-DSK_PDF_LESS_COMPRESSION",'
-          ' "-DSK_PDF_BASE85_BINARY"] ')
+  args = ('--args=is_debug=false')
   if test_exe('ccache'):
     args += ' cc_wrapper="ccache"'
   args += EXTRA_GN_ARGS

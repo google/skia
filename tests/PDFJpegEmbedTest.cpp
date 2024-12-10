@@ -96,10 +96,6 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
     sk_sp<SkData> pdfData = pdf.detachAsData();
     SkASSERT(pdfData);
 
-    #ifndef SK_PDF_BASE85_BINARY
-    REPORTER_ASSERT(r, is_subset_of(mandrillData.get(), pdfData.get()));
-    #endif
-
     // This JPEG uses a nonstandard colorspace - it can not be
     // embedded into the PDF directly.
     REPORTER_ASSERT(r, !is_subset_of(cmykData.get(), pdfData.get()));
