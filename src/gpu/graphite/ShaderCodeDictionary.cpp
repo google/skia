@@ -961,7 +961,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kImageShader] = {
             /*name=*/"ImageShader",
             /*staticFn=*/"sk_image_shader",
-            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kStoresData,
+            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kStoresSamplerDescData,
             /*uniforms=*/{ { "invImgSize",            SkSLType::kFloat2 },
                            { "subset",                SkSLType::kFloat4 },
                            { "tilemodeX",             SkSLType::kInt },
@@ -972,7 +972,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCubicImageShader] = {
             /*name=*/"CubicImageShader",
             /*staticFn=*/"sk_cubic_image_shader",
-            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kStoresData,
+            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kStoresSamplerDescData,
             /*uniforms=*/{ { "invImgSize",            SkSLType::kFloat2 },
                            { "subset",                SkSLType::kFloat4 },
                            { "tilemodeX",             SkSLType::kInt },
@@ -983,7 +983,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kHWImageShader] = {
             /*name=*/"HardwareImageShader",
             /*staticFn=*/"sk_hw_image_shader",
-            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kStoresData,
+            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kStoresSamplerDescData,
             /*uniforms=*/{ { "invImgSize",            SkSLType::kFloat2 } },
             /*texturesAndSamplers=*/{"image"}
     };

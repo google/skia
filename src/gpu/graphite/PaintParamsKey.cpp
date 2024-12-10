@@ -45,17 +45,18 @@ void PaintParamsKeyBuilder::pushStack(int32_t codeSnippetID) {
 
 void PaintParamsKeyBuilder::validateData(size_t dataSize) {
     SkASSERT(!fStack.empty()); // addData() called within code snippet block
-
+    // Check that addData() is only called for snippets that support it and is only called once
     const ShaderSnippet* snippet = fDict->getEntry(fStack.back().fCodeSnippetID);
-    SkASSERT(snippet->storesData()); // addData() only called for ShaderSnippets that support it
-    SkASSERT(fStack.back().fDataSize < 0); // And only called once
+    SkASSERT(snippet->storesSamplerDescData());
+    SkASSERT(fStack.back().fDataSize < 0);
+
     fStack.back().fDataSize = SkTo<int>(dataSize);
 }
 
 void PaintParamsKeyBuilder::popStack() {
     SkASSERT(!fStack.empty());
     SkASSERT(fStack.back().fNumActualChildren == fStack.back().fNumExpectedChildren);
-    const bool expectsData = fDict->getEntry(fStack.back().fCodeSnippetID)->storesData();
+    const bool expectsData = fDict->getEntry(fStack.back().fCodeSnippetID)->storesSamplerDescData();
     const bool hasData = fStack.back().fDataSize >= 0;
     SkASSERT(expectsData == hasData);
     fStack.pop_back();
@@ -87,7 +88,7 @@ const ShaderNode* PaintParamsKey::createNode(const ShaderCodeDictionary* dict,
     }
 
     SkSpan<const uint32_t> dataSpan = {};
-    if (entry->storesData()) {
+    if (entry->storesSamplerDescData()) {
         // If a snippet stores data, then the subsequent paint key index signifies the length of
         // its data. Determine this data length and iterate currentIndex past it.
         const int storedDataLengthIdx = (*currentIndex)++;
@@ -171,7 +172,7 @@ static int key_to_string(SkString* str,
     }
     str->append(name);
 
-    if (entry->storesData()) {
+    if (entry->storesSamplerDescData()) {
         SkASSERT(currentIndex + 1 < SkTo<int>(keyData.size()));
         const int dataLength = keyData[currentIndex++];
         SkASSERT(currentIndex + dataLength < SkTo<int>(keyData.size()));
