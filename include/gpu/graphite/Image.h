@@ -15,6 +15,7 @@
 #include "include/gpu/GpuTypes.h"
 
 #include <string_view>
+#include <tuple>
 
 class SkYUVAInfo;
 class SkYUVAPixmaps;
