@@ -13,10 +13,9 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTo.h"
 
-#include <algorithm>
 #include <cstddef>
 #include <initializer_list>
-#include <utility>
+#include <utility>  // IWYU pragma: keep
 
 class SK_SPI SkTDStorage {
 public:

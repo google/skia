@@ -16,7 +16,6 @@
 #include <cstdint>
 #include <cstring>
 #include <new>
-#include <utility>
 
 SkTDStorage::SkTDStorage(int sizeOfT) : fSizeOfT{sizeOfT} {}
 
