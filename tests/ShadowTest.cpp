@@ -30,8 +30,8 @@ enum ExpectVerts {
     kDo_ExpectVerts
 };
 
-void check_result(skiatest::Reporter* reporter, sk_sp<SkVertices> verts,
-                  ExpectVerts expectVerts, bool expectSuccess) {
+void check_result(skiatest::Reporter* reporter, sk_sp<SkVertices> verts, ExpectVerts expectVerts) {
+    const bool expectSuccess = expectVerts == kDo_ExpectVerts;
     if (expectSuccess != SkToBool(verts)) {
         ERRORF(reporter, "Expected shadow tessellation to %s but it did not.",
                expectSuccess ? "succeed" : "fail");
@@ -46,26 +46,26 @@ void check_result(skiatest::Reporter* reporter, sk_sp<SkVertices> verts,
 }
 
 void tessellate_shadow(skiatest::Reporter* reporter, const SkPath& path, const SkMatrix& ctm,
-                       const SkPoint3& heightParams, ExpectVerts expectVerts, bool expectSuccess) {
+                       const SkPoint3& heightParams, ExpectVerts expectVerts) {
 
     auto verts = SkShadowTessellator::MakeAmbient(path, ctm, heightParams, true);
-    check_result(reporter, verts, expectVerts, expectSuccess);
+    check_result(reporter, verts, expectVerts);
 
     verts = SkShadowTessellator::MakeAmbient(path, ctm, heightParams, false);
-    check_result(reporter, verts, expectVerts, expectSuccess);
+    check_result(reporter, verts, expectVerts);
 
     verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, true, false);
-    check_result(reporter, verts, expectVerts, expectSuccess);
+    check_result(reporter, verts, expectVerts);
 
     verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, false,
                                           false);
-    check_result(reporter, verts, expectVerts, expectSuccess);
+    check_result(reporter, verts, expectVerts);
 
     verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, true, true);
-    check_result(reporter, verts, expectVerts, expectSuccess);
+    check_result(reporter, verts, expectVerts);
 
     verts = SkShadowTessellator::MakeSpot(path, ctm, heightParams, {0, 0, 128}, 128.f, false, true);
-    check_result(reporter, verts, expectVerts, expectSuccess);
+    check_result(reporter, verts, expectVerts);
 }
 
 DEF_TEST(ShadowUtils, reporter) {
@@ -73,22 +73,21 @@ DEF_TEST(ShadowUtils, reporter) {
 
     SkPath path;
     path.cubicTo(100, 50, 20, 100, 0, 0);
-    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 4}, kDo_ExpectVerts, true);
+    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 4}, kDo_ExpectVerts);
     // super high path
-    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 4.0e+37f},
-                      kDo_ExpectVerts, true);
+    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 4.0e+37f}, kDo_ExpectVerts);
 
     // This line segment has no area and no shadow.
     path.reset();
     path.lineTo(10.f, 10.f);
-    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 4}, kDont_ExpectVerts, true);
+    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 4}, kDont_ExpectVerts);
 
     // A series of collinear line segments
     path.reset();
     for (int i = 0; i < 10; ++i) {
         path.lineTo((SkScalar)i, (SkScalar)i);
     }
-    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 4}, kDont_ExpectVerts, true);
+    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 4}, kDont_ExpectVerts);
 
     // ugly degenerate path
     path.reset();
@@ -97,7 +96,7 @@ DEF_TEST(ShadowUtils, reporter) {
                  1.13631943e+22f, 2.0890786e+33f);
     path.cubicTo(1.03397626e-25f, 5.99502692e-36f, 9.18354962e-41f, 0, 4.6142745e-37f, -213558848);
     path.lineTo(-134217728, 2.2226515e+21f);
-    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 9}, kDont_ExpectVerts, true);
+    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 9}, kDont_ExpectVerts);
 
     // simple concave path (star of David)
     path.reset();
@@ -123,14 +122,14 @@ DEF_TEST(ShadowUtils, reporter) {
     path.lineTo(50, -50);
     path.lineTo(50, 50);
     path.lineTo(-50, -50);
-    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 9}, kDont_ExpectVerts, false);
+    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 9}, kDont_ExpectVerts);
 
     // multiple contour path
     path.close();
     path.moveTo(0, 0);
     path.lineTo(1, 0);
     path.lineTo(0, 1);
-    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 9}, kDont_ExpectVerts, false);
+    tessellate_shadow(reporter, path, canvas.getTotalMatrix(), {0, 0, 9}, kDont_ExpectVerts);
 }
 
 void check_xformed_bounds(skiatest::Reporter* reporter, const SkPath& path, const SkMatrix& ctm) {

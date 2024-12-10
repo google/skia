@@ -172,3 +172,42 @@ DEF_TEST(Vertices_clipping, reporter) {
         }
     }
 }
+
+DEF_TEST(Vertices_invalid, reporter) {
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(10, 10));
+
+    constexpr SkPoint    verts[] = {{0, 0}, {1, 0}, {1, 1}};
+    constexpr SkColor   colors[] = {SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE};
+    constexpr uint16_t indices[] = {0, 1, 20000};
+
+    {
+        auto vertices = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode,
+                                             0, verts, nullptr, colors);
+        REPORTER_ASSERT(reporter, !vertices);
+
+        // should not crash
+        surf->getCanvas()->drawVertices(vertices, SkBlendMode::kSrcOver, SkPaint());
+    }
+
+    {
+        auto vertices = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode,
+                                             3, verts, nullptr, colors,
+                                             1, indices);
+        // reflects current behavior
+        // TODO: should we reject invalid index counts?
+        REPORTER_ASSERT(reporter, vertices);
+
+        // should not crash
+        surf->getCanvas()->drawVertices(vertices, SkBlendMode::kSrcOver, SkPaint());
+    }
+
+    {
+        auto vertices = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode,
+                                             3, verts, nullptr, colors,
+                                             3, indices);
+        REPORTER_ASSERT(reporter, vertices);
+
+        // should not crash
+        surf->getCanvas()->drawVertices(vertices, SkBlendMode::kSrcOver, SkPaint());
+    }
+}
