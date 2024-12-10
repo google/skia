@@ -157,11 +157,6 @@ var deps = deps_parser.DepsEntries{
 		Version: "b8306de17c9a5775819a8526802fe85a860f5216",
 		Path:    "third_party/externals/dawn",
 	},
-	"github.com/skia-dev/delaunator-cpp": {
-		Id:      "github.com/skia-dev/delaunator-cpp",
-		Version: "98305ef6c4e862f7d48df9cc647b690d796fec68",
-		Path:    "third_party/externals/delaunator-cpp",
-	},
 	"infra/3pp/tools/ninja": {
 		Id:      "infra/3pp/tools/ninja",
 		Version: "version:2@1.12.1.chromium.4",
@@ -236,6 +231,11 @@ var deps = deps_parser.DepsEntries{
 		Id:      "skia.googlesource.com/external/github.com/ocornut/imgui",
 		Version: "55d35d8387c15bf0cfd71861df67af8cfbda7456",
 		Path:    "third_party/externals/imgui",
+	},
+	"skia.googlesource.com/external/github.com/skia-dev/delaunator-cpp": {
+		Id:      "skia.googlesource.com/external/github.com/skia-dev/delaunator-cpp",
+		Version: "98305ef6c4e862f7d48df9cc647b690d796fec68",
+		Path:    "third_party/externals/delaunator-cpp",
 	},
 	"skia.googlesource.com/third_party/libpng": {
 		Id:      "skia.googlesource.com/third_party/libpng",
