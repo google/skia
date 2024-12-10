@@ -15,7 +15,7 @@
 
 #include <cstddef>
 #include <initializer_list>
-#include <utility>  // IWYU pragma: keep
+#include <utility>
 
 class SK_SPI SkTDStorage {
 public:

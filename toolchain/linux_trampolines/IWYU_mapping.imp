@@ -190,8 +190,10 @@
   { include: ["<__algorithm/unwrap_range.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/upper_bound.h>", "private", "<algorithm>", "public"] },
 
-  { symbol: ["std::swap", "private", "<algorithm>", "public"] },
+  { symbol: ["std::move", "private", "<utility>", "public"] },
+
   { symbol: ["std::swap", "private", "<utility>", "public"] },
+  { symbol: ["std::swap", "private", "<algorithm>", "public"] },
   { symbol: ["std::swap", "private", "<string_view>", "public"] },
 
   { include: ["<__chrono/duration.h>", "private", "<chrono>", "public"] },
