@@ -5235,7 +5235,7 @@ void SPIRVCodeGenerator::addRTFlipUniform(Position pos) {
     std::string_view name = "sksl_synthetic_uniforms";
     const Type* intfStruct = fSynthetics.takeOwnershipOfSymbol(Type::MakeStructType(
             fContext, Position(), name, std::move(fields), /*interfaceBlock=*/true));
-    bool usePushConstants = fProgram.fConfig->fSettings.fUsePushConstants;
+    bool usePushConstants = fProgram.fConfig->fSettings.fUseVulkanPushConstantsForGaneshRTAdjust;
     int binding = -1, set = -1;
     if (!usePushConstants) {
         binding = fProgram.fConfig->fSettings.fRTFlipBinding;

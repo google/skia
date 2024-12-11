@@ -207,7 +207,7 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrProgramDesc& desc,
     settings.fSharpenTextures =
             this->gpu()->getContext()->priv().options().fSharpenMipmappedTextures;
     settings.fRTFlipOffset = fUniformHandler.getRTFlipOffset();
-    settings.fUsePushConstants = usePushConstants;
+    settings.fUseVulkanPushConstantsForGaneshRTAdjust = usePushConstants;
     if (fFS.fForceHighPrecision) {
         settings.fForceHighPrecision = true;
     }
