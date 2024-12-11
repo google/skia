@@ -14,6 +14,9 @@ use std::pin::Pin;
 // spell out if it means `ffi::ColorType` vs `png::ColorType` (or `Reader`
 // vs `png::Reader`).
 
+// TODO(https://crbug.com/383521545): Remove `allow(unused_unsafe)` if/when
+// `cxx`-generated code is clean of warnings.
+#[allow(unused_unsafe)]
 #[cxx::bridge(namespace = "rust_png")]
 mod ffi {
     /// FFI-friendly equivalent of `png::ColorType`.
