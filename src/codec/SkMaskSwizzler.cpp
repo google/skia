@@ -99,7 +99,7 @@ static void swizzle_mask16_to_rgba_premul(
         uint8_t green = masks->getGreen(p);
         uint8_t blue = masks->getBlue(p);
         uint8_t alpha = masks->getAlpha(p);
-        dstPtr[i] = premultiply_argb_as_rgba(alpha, red, green, blue);
+        dstPtr[i] = SkCodecPriv::PremultiplyARGBasRGBA(alpha, red, green, blue);
         srcPtr += sampleX;
     }
 }
@@ -117,7 +117,7 @@ static void swizzle_mask16_to_bgra_premul(
         uint8_t green = masks->getGreen(p);
         uint8_t blue = masks->getBlue(p);
         uint8_t alpha = masks->getAlpha(p);
-        dstPtr[i] = premultiply_argb_as_bgra(alpha, red, green, blue);
+        dstPtr[i] = SkCodecPriv::PremultiplyARGBasBGRA(alpha, red, green, blue);
         srcPtr += sampleX;
     }
 }
@@ -224,7 +224,7 @@ static void swizzle_mask24_to_rgba_premul(
         uint8_t green = masks->getGreen(p);
         uint8_t blue = masks->getBlue(p);
         uint8_t alpha = masks->getAlpha(p);
-        dstPtr[i] = premultiply_argb_as_rgba(alpha, red, green, blue);
+        dstPtr[i] = SkCodecPriv::PremultiplyARGBasRGBA(alpha, red, green, blue);
         srcRow += 3 * sampleX;
     }
 }
@@ -242,7 +242,7 @@ static void swizzle_mask24_to_bgra_premul(
         uint8_t green = masks->getGreen(p);
         uint8_t blue = masks->getBlue(p);
         uint8_t alpha = masks->getAlpha(p);
-        dstPtr[i] = premultiply_argb_as_bgra(alpha, red, green, blue);
+        dstPtr[i] = SkCodecPriv::PremultiplyARGBasBGRA(alpha, red, green, blue);
         srcRow += 3 * sampleX;
     }
 }
@@ -347,7 +347,7 @@ static void swizzle_mask32_to_rgba_premul(
         uint8_t green = masks->getGreen(p);
         uint8_t blue = masks->getBlue(p);
         uint8_t alpha = masks->getAlpha(p);
-        dstPtr[i] = premultiply_argb_as_rgba(alpha, red, green, blue);
+        dstPtr[i] = SkCodecPriv::PremultiplyARGBasRGBA(alpha, red, green, blue);
         srcPtr += sampleX;
     }
 }
@@ -365,7 +365,7 @@ static void swizzle_mask32_to_bgra_premul(
         uint8_t green = masks->getGreen(p);
         uint8_t blue = masks->getBlue(p);
         uint8_t alpha = masks->getAlpha(p);
-        dstPtr[i] = premultiply_argb_as_bgra(alpha, red, green, blue);
+        dstPtr[i] = SkCodecPriv::PremultiplyARGBasBGRA(alpha, red, green, blue);
         srcPtr += sampleX;
     }
 }
@@ -556,8 +556,8 @@ int SkMaskSwizzler::onSetSampleX(int sampleX) {
     SkASSERT(sampleX > 0); // Surely there is an upper limit? Should there be
                            // way to report failure?
     fSampleX = sampleX;
-    fX0 = get_start_coord(sampleX) + fSrcOffset;
-    fDstWidth = get_scaled_dimension(fSubsetWidth, sampleX);
+    fX0 = SkCodecPriv::GetStartCoord(sampleX) + fSrcOffset;
+    fDstWidth = SkCodecPriv::GetSampledDimension(fSubsetWidth, sampleX);
 
     // check that fX0 is valid
     SkASSERT(fX0 >= 0);

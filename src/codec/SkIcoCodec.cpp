@@ -77,7 +77,7 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
     }
 
     // Process the directory header
-    const uint16_t numImages = get_short(data->bytes(), 4);
+    const uint16_t numImages = SkCodecPriv::UnsafeGetShort(data->bytes(), 4);
     if (0 == numImages) {
         SkCodecPrintf("Error: No images embedded in ico.\n");
         *result = kInvalidInput;
@@ -116,12 +116,12 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
         // defer to the value in the embedded header anyway.
 
         // Specifies the size of the embedded image, including the header
-        uint32_t size = get_int(entryBuffer, 8);
+        uint32_t size = SkCodecPriv::UnsafeGetInt(entryBuffer, 8);
 
         // Specifies the offset of the embedded image from the start of file.
         // It does not indicate the start of the pixel data, but rather the
         // start of the embedded image header.
-        uint32_t offset = get_int(entryBuffer, 12);
+        uint32_t offset = SkCodecPriv::UnsafeGetInt(entryBuffer, 12);
 
         // Save the vital fields
         directoryEntries[i].offset = offset;

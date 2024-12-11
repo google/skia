@@ -39,7 +39,8 @@ SkISize SkSampledCodec::accountForNativeScaling(int* sampleSizePtr, int* nativeS
             case 8:
                 // This class does not need to do any sampling.
                 *sampleSizePtr = 1;
-                return this->codec()->getScaledDimensions(get_scale_from_sample_size(sampleSize));
+                return this->codec()->getScaledDimensions(
+                        SkCodecPriv::GetScaleFromSampleSize(sampleSize));
             default:
                 break;
         }
@@ -51,7 +52,7 @@ SkISize SkSampledCodec::accountForNativeScaling(int* sampleSizePtr, int* nativeS
             int actualSampleSize;
             SkTDivMod(sampleSize, supportedSampleSize, &actualSampleSize, &remainder);
             if (0 == remainder) {
-                float scale = get_scale_from_sample_size(supportedSampleSize);
+                float scale = SkCodecPriv::GetScaleFromSampleSize(supportedSampleSize);
 
                 // this->codec() will scale to this size.
                 preSampledSize = this->codec()->getScaledDimensions(scale);
@@ -71,8 +72,8 @@ SkISize SkSampledCodec::accountForNativeScaling(int* sampleSizePtr, int* nativeS
 
 SkISize SkSampledCodec::onGetSampledDimensions(int sampleSize) const {
     const SkISize size = this->accountForNativeScaling(&sampleSize);
-    return SkISize::Make(get_scaled_dimension(size.width(), sampleSize),
-                         get_scaled_dimension(size.height(), sampleSize));
+    return SkISize::Make(SkCodecPriv::GetSampledDimension(size.width(), sampleSize),
+                         SkCodecPriv::GetSampledDimension(size.height(), sampleSize));
 }
 
 SkCodec::Result SkSampledCodec::onGetAndroidPixels(const SkImageInfo& info, void* pixels,
@@ -185,14 +186,14 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
         // Update the subset to account for scaling done by this->codec().
         const SkIRect* subsetPtr = options.fSubset;
 
-        // Do the divide ourselves, instead of calling get_scaled_dimension. If
+        // Do the divide ourselves, instead of calling SkCodecPriv::GetSampledDimension. If
         // X and Y are 0, they should remain 0, rather than being upgraded to 1
         // due to being smaller than the sampleSize.
         const int subsetX = subsetPtr->x() / nativeSampleSize;
         subsetY = subsetPtr->y() / nativeSampleSize;
 
-        subsetWidth = get_scaled_dimension(subsetPtr->width(), nativeSampleSize);
-        subsetHeight = get_scaled_dimension(subsetPtr->height(), nativeSampleSize);
+        subsetWidth = SkCodecPriv::GetSampledDimension(subsetPtr->width(), nativeSampleSize);
+        subsetHeight = SkCodecPriv::GetSampledDimension(subsetPtr->height(), nativeSampleSize);
 
         // The scanline decoder only needs to be aware of subsetting in the x-dimension.
         subset.setXYWH(subsetX, 0, subsetWidth, nativeSize.height());
@@ -204,7 +205,7 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
     const int sampleX = subsetWidth / info.width();
     const int sampleY = subsetHeight / info.height();
 
-    const int samplingOffsetY = get_start_coord(sampleY);
+    const int samplingOffsetY = SkCodecPriv::GetStartCoord(sampleY);
     const int startY = samplingOffsetY + subsetY;
     const int dstHeight = info.height();
 
@@ -234,7 +235,7 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
             if (sampler->setSampleX(sampleX) != info.width()) {
                 return SkCodec::kInvalidScale;
             }
-            if (get_scaled_dimension(subsetHeight, sampleY) != info.height()) {
+            if (SkCodecPriv::GetSampledDimension(subsetHeight, sampleY) != info.height()) {
                 return SkCodec::kInvalidScale;
             }
 
@@ -280,7 +281,7 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
     if (sampler->setSampleX(sampleX) != info.width()) {
         return SkCodec::kInvalidScale;
     }
-    if (get_scaled_dimension(subsetHeight, sampleY) != info.height()) {
+    if (SkCodecPriv::GetSampledDimension(subsetHeight, sampleY) != info.height()) {
         return SkCodec::kInvalidScale;
     }
 
@@ -315,9 +316,9 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
             int y;
             for (y = 0; y < nativeSize.height(); y++) {
                 int srcY = this->codec()->nextScanline();
-                if (is_coord_necessary(srcY, sampleY, dstHeight)) {
-                    void* pixelPtr = SkTAddOffset<void>(pixels,
-                            rowBytes * get_dst_coord(srcY, sampleY));
+                if (SkCodecPriv::IsCoordNecessary(srcY, sampleY, dstHeight)) {
+                    void* pixelPtr = SkTAddOffset<void>(
+                            pixels, rowBytes * SkCodecPriv::GetDstCoord(srcY, sampleY));
                     if (1 != this->codec()->getScanlines(pixelPtr, 1, rowBytes)) {
                         break;
                     }
@@ -337,11 +338,12 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
             const SkImageInfo fillInfo = info.makeWH(info.width(), 1);
             for (; y < nativeSize.height(); y++) {
                 int srcY = this->codec()->outputScanline(y);
-                if (!is_coord_necessary(srcY, sampleY, dstHeight)) {
+                if (!SkCodecPriv::IsCoordNecessary(srcY, sampleY, dstHeight)) {
                     continue;
                 }
 
-                void* rowPtr = SkTAddOffset<void>(pixels, rowBytes * get_dst_coord(srcY, sampleY));
+                void* rowPtr = SkTAddOffset<void>(
+                        pixels, rowBytes * SkCodecPriv::GetDstCoord(srcY, sampleY));
                 SkSampler::Fill(fillInfo, rowPtr, rowBytes, options.fZeroInitialized);
             }
             return SkCodec::kIncompleteInput;

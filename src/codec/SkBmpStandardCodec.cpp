@@ -26,21 +26,26 @@
  * Creates an instance of the decoder
  * Called only by NewFromStream
  */
-SkBmpStandardCodec::SkBmpStandardCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
-                                       uint16_t bitsPerPixel, uint32_t numColors,
-                                       uint32_t bytesPerColor, uint32_t offset,
+SkBmpStandardCodec::SkBmpStandardCodec(SkEncodedInfo&& info,
+                                       std::unique_ptr<SkStream> stream,
+                                       uint16_t bitsPerPixel,
+                                       uint32_t numColors,
+                                       uint32_t bytesPerColor,
+                                       uint32_t offset,
                                        SkCodec::SkScanlineOrder rowOrder,
-                                       bool isOpaque, bool inIco)
-    : INHERITED(std::move(info), std::move(stream), bitsPerPixel, rowOrder)
-    , fColorTable(nullptr)
-    , fNumColors(numColors)
-    , fBytesPerColor(bytesPerColor)
-    , fOffset(offset)
-    , fSwizzler(nullptr)
-    , fIsOpaque(isOpaque)
-    , fInIco(inIco)
-    , fAndMaskRowBytes(fInIco ? SkAlign4(compute_row_bytes(this->dimensions().width(), 1)) : 0)
-{}
+                                       bool isOpaque,
+                                       bool inIco)
+        : INHERITED(std::move(info), std::move(stream), bitsPerPixel, rowOrder)
+        , fColorTable(nullptr)
+        , fNumColors(numColors)
+        , fBytesPerColor(bytesPerColor)
+        , fOffset(offset)
+        , fSwizzler(nullptr)
+        , fIsOpaque(isOpaque)
+        , fInIco(inIco)
+        , fAndMaskRowBytes(
+                  fInIco ? SkAlign4(SkCodecPriv::ComputeRowBytes(this->dimensions().width(), 1))
+                         : 0) {}
 
 /*
  * Initiates the bitmap decode
@@ -101,19 +106,20 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
 
         // Choose the proper packing function
         bool isPremul = (kPremul_SkAlphaType == packAlphaType) && !fIsOpaque;
-        PackColorProc packARGB = choose_pack_color_proc(isPremul, packColorType);
+        SkCodecPriv::PackColorProc packARGB =
+                SkCodecPriv::ChoosePackColorProc(isPremul, packColorType);
 
         // Fill in the color table
         uint32_t i = 0;
         for (; i < numColorsToRead; i++) {
-            uint8_t blue = get_byte(cBuffer.get(), i*fBytesPerColor);
-            uint8_t green = get_byte(cBuffer.get(), i*fBytesPerColor + 1);
-            uint8_t red = get_byte(cBuffer.get(), i*fBytesPerColor + 2);
+            uint8_t blue = SkCodecPriv::UnsafeGetByte(cBuffer.get(), i * fBytesPerColor);
+            uint8_t green = SkCodecPriv::UnsafeGetByte(cBuffer.get(), i * fBytesPerColor + 1);
+            uint8_t red = SkCodecPriv::UnsafeGetByte(cBuffer.get(), i * fBytesPerColor + 2);
             uint8_t alpha;
             if (fIsOpaque) {
                 alpha = 0xFF;
             } else {
-                alpha = get_byte(cBuffer.get(), i*fBytesPerColor + 3);
+                alpha = SkCodecPriv::UnsafeGetByte(cBuffer.get(), i * fBytesPerColor + 3);
             }
             colorTable[i] = packARGB(alpha, red, green, blue);
         }
@@ -187,7 +193,7 @@ void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Op
     SkEncodedInfo encodedInfo = this->swizzlerInfo();
 
     // Get a pointer to the color table if it exists
-    const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
+    const SkPMColor* colorPtr = SkCodecPriv::GetColorPtr(fColorTable.get());
 
     SkImageInfo swizzlerInfo = dstInfo;
     SkCodec::Options swizzlerOptions = opts;
@@ -312,9 +318,8 @@ void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstI
     // We do not need to worry about sampling in the y-dimension because that
     // should be handled by SkSampledCodec.
     const int sampleX = fSwizzler->sampleX();
-    const int sampledWidth = get_scaled_dimension(this->dimensions().width(), sampleX);
-    const int srcStartX = get_start_coord(sampleX);
-
+    const int sampledWidth = SkCodecPriv::GetSampledDimension(this->dimensions().width(), sampleX);
+    const int srcStartX = SkCodecPriv::GetStartCoord(sampleX);
 
     SkPMColor* dstPtr = (SkPMColor*) dst;
     for (int y = 0; y < dstInfo.height(); y++) {

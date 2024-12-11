@@ -480,7 +480,7 @@ private:
     Result decode(int* rowsDecoded) override {
         if (this->swizzler()) {
             const int sampleY = this->swizzler()->sampleY();
-            fRowsNeeded = get_scaled_dimension(fLastRow - fFirstRow + 1, sampleY);
+            fRowsNeeded = SkCodecPriv::GetSampledDimension(fLastRow - fFirstRow + 1, sampleY);
         }
 
         const bool success = this->processData();
@@ -644,14 +644,14 @@ private:
         }
 
         const int sampleY = this->swizzler() ? this->swizzler()->sampleY() : 1;
-        const int rowsNeeded = get_scaled_dimension(fLastRow - fFirstRow + 1, sampleY);
+        const int rowsNeeded = SkCodecPriv::GetSampledDimension(fLastRow - fFirstRow + 1, sampleY);
 
         // FIXME: For resuming interlace, we may swizzle a row that hasn't changed. But it
         // may be too tricky/expensive to handle that correctly.
 
-        // Offset srcRow by get_start_coord rows. We do not need to account for fFirstRow,
-        // since the first row in fInterlaceBuffer corresponds to fFirstRow.
-        int srcRow = get_start_coord(sampleY);
+        // Offset srcRow by SkCodecPriv::GetStartCoord rows. We do not need to account for
+        // fFirstRow, since the first row in fInterlaceBuffer corresponds to fFirstRow.
+        int srcRow = SkCodecPriv::GetStartCoord(sampleY);
         void* dst = fDst;
         int rowsWrittenToOutput = 0;
         while (rowsWrittenToOutput < rowsNeeded && srcRow < fLinesDecoded) {

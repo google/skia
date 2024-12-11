@@ -238,7 +238,7 @@ SkCodec::Result SkPngCodecBase::initializeSwizzler(const SkImageInfo& dstInfo,
         }
         fSwizzler = SkSwizzler::MakeSimple(srcBPP, swizzlerInfo, swizzlerOptions, frameRectPtr);
     } else {
-        const SkPMColor* colors = get_color_ptr(fColorTable.get());
+        const SkPMColor* colors = SkCodecPriv::GetColorPtr(fColorTable.get());
         fSwizzler = SkSwizzler::Make(
                 this->getEncodedInfo(), colors, swizzlerInfo, swizzlerOptions, frameRectPtr);
     }
@@ -308,7 +308,8 @@ bool SkPngCodecBase::createColorTable(const SkImageInfo& dstInfo) {
 
         // Choose which function to use to create the color table. If the final destination's
         // colortype is unpremultiplied, the color table will store unpremultiplied colors.
-        PackColorProc proc = choose_pack_color_proc(premultiply, tableColorType);
+        SkCodecPriv::PackColorProc proc =
+                SkCodecPriv::ChoosePackColorProc(premultiply, tableColorType);
 
         for (size_t i = 0; i < numColorsWithAlpha; i++) {
             // We don't have a function in SkOpts that combines a set of alphas with a set
@@ -327,7 +328,7 @@ bool SkPngCodecBase::createColorTable(const SkImageInfo& dstInfo) {
         static_assert(offsetof(PaletteColorEntry, green) == 1);
         static_assert(offsetof(PaletteColorEntry, blue) == 2);
 
-        if (is_rgba(tableColorType)) {
+        if (SkCodecPriv::IsRGBA(tableColorType)) {
             SkOpts::RGB_to_RGB1(colorTable + numColorsWithAlpha,
                                 (const uint8_t*)palette,
                                 numColors - numColorsWithAlpha);

@@ -559,11 +559,11 @@ public:
 
         // Check if the header is valid (endian info and magic number "42").
         bool littleEndian;
-        if (!is_valid_endian_marker(header, &littleEndian)) {
+        if (!SkCodecPriv::IsValidEndianMarker(header, &littleEndian)) {
             return false;
         }
 
-        return 0x2A == get_endian_short(header + 2, littleEndian);
+        return 0x2A == SkCodecPriv::GetEndianShort(header + 2, littleEndian);
     }
 
 private:
@@ -748,7 +748,7 @@ SkCodec::Result SkRawCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst,
 
     constexpr auto srcFormat = skcms_PixelFormat_RGB_888;
     skcms_PixelFormat dstFormat;
-    if (!sk_select_xform_format(dstInfo.colorType(), false, &dstFormat)) {
+    if (!SkCodecPriv::SelectXformFormat(dstInfo.colorType(), false, &dstFormat)) {
         return kInvalidConversion;
     }
 

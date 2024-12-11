@@ -31,6 +31,7 @@
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skcms/skcms.h"
+#include "src/codec/SkCodecPriv.h"
 #include "src/core/SkTHash.h"
 #include "src/pdf/SkDeflate.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
@@ -44,10 +45,6 @@
 #include <memory>
 #include <optional>
 #include <utility>
-
-/*static*/ const SkEncodedInfo& SkPDFBitmap::GetEncodedInfo(SkCodec& codec) {
-    return codec.getEncodedInfo();
-}
 
 namespace {
 
@@ -293,7 +290,7 @@ bool do_jpeg(sk_sp<SkData> data, SkColorSpace* imageColorSpace, SkPDFDocument* d
     }
 
     SkISize jpegSize = codec->dimensions();
-    const SkEncodedInfo& encodedInfo = SkPDFBitmap::GetEncodedInfo(*codec);
+    const SkEncodedInfo& encodedInfo = SkCodecPriv::GetEncodedInfo(codec.get());
     SkEncodedInfo::Color jpegColorType = encodedInfo.color();
     SkEncodedOrigin exifOrientation = codec->getOrigin();
 

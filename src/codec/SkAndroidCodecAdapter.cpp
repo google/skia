@@ -16,7 +16,7 @@ SkAndroidCodecAdapter::SkAndroidCodecAdapter(SkCodec* codec)
 {}
 
 SkISize SkAndroidCodecAdapter::onGetSampledDimensions(int sampleSize) const {
-    float scale = get_scale_from_sample_size(sampleSize);
+    float scale = SkCodecPriv::GetScaleFromSampleSize(sampleSize);
     return this->codec()->getScaledDimensions(scale);
 }
 

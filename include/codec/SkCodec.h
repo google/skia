@@ -1055,8 +1055,8 @@ private:
     friend class SkSampledCodec;
     friend class SkIcoCodec;
     friend class SkPngCodec;     // for onGetGainmapCodec
-    friend class SkAndroidCodec; // for fEncodedInfo
-    friend class SkPDFBitmap; // for fEncodedInfo
+    friend class SkAndroidCodec;  // for handleFrameIndex
+    friend class SkCodecPriv;     // for fEncodedInfo
 };
 
 namespace SkCodecs {

@@ -180,9 +180,9 @@ std::unique_ptr<SkJpegMultiPictureParameters> SkJpegMultiPictureParameters::Make
     // Parse the MP Entries data.
     for (uint32_t i = 0; i < numberOfImages; ++i) {
         const uint8_t* mpEntryData = mpEntriesData->bytes() + kMPEntrySize * i;
-        const uint32_t attribute = get_endian_int(mpEntryData + 0, littleEndian);
-        const uint32_t size = get_endian_int(mpEntryData + 4, littleEndian);
-        const uint32_t dataOffset = get_endian_int(mpEntryData + 8, littleEndian);
+        const uint32_t attribute = SkCodecPriv::GetEndianInt(mpEntryData + 0, littleEndian);
+        const uint32_t size = SkCodecPriv::GetEndianInt(mpEntryData + 4, littleEndian);
+        const uint32_t dataOffset = SkCodecPriv::GetEndianInt(mpEntryData + 8, littleEndian);
 
         const bool isPrimary =
                 (attribute & kMPEntryAttributeTypeMask) == kMPEntryAttributeTypePrimary;

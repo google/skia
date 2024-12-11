@@ -18,6 +18,7 @@
 #include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/SkEncodedInfo.h"
+#include "src/codec/SkCodecPriv.h"
 #include "src/pdf/SkPDFBitmap.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
@@ -131,7 +132,7 @@ bool SkIsJFIF(const SkData* data, SkJFIFInfo* info) {
     }
 
     SkISize jpegSize = codec->dimensions();
-    SkEncodedInfo::Color jpegColorType = SkPDFBitmap::GetEncodedInfo(*codec).color();
+    SkEncodedInfo::Color jpegColorType = SkCodecPriv::GetEncodedInfo(codec.get()).color();
     SkEncodedOrigin exifOrientation = codec->getOrigin();
 
     bool yuv = jpegColorType == SkEncodedInfo::kYUV_Color;

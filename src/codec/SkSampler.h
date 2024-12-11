@@ -46,7 +46,7 @@ public:
      *  @param row Row of the image, starting with the first row in the subset.
      */
     bool rowNeeded(int row) const {
-        return (row - get_start_coord(fSampleY)) % fSampleY == 0;
+        return (row - SkCodecPriv::GetStartCoord(fSampleY)) % fSampleY == 0;
     }
 
     /**

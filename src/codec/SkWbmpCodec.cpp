@@ -118,7 +118,7 @@ SkEncodedImageFormat SkWbmpCodec::onGetEncodedFormat() const {
 
 bool SkWbmpCodec::conversionSupported(const SkImageInfo& dst, bool srcIsOpaque,
                                       bool /*needsColorXform*/) {
-    return valid_color_type(dst) && valid_alpha(dst.alphaType(), srcIsOpaque);
+    return valid_color_type(dst) && SkCodecPriv::ValidAlpha(dst.alphaType(), srcIsOpaque);
 }
 
 SkCodec::Result SkWbmpCodec::onGetPixels(const SkImageInfo& info,
