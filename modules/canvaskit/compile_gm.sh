@@ -222,6 +222,7 @@ EMCC_DEBUG=1 ${EMCXX} \
     $GMS_TO_BUILD \
     $TESTS_TO_BUILD \
     $GM_LIB \
+    $BUILD_DIR/libjsonreader.a \
     $BUILD_DIR/libskshaper.a \
     $BUILD_DIR/libskunicode_core.a \
     $BUILD_DIR/libskunicode_icu.a \
