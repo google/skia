@@ -154,7 +154,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"dawn.googlesource.com/dawn": {
 		Id:      "dawn.googlesource.com/dawn",
-		Version: "6f3bd8a864bfd0b2156d2b37f32d69d55bbb68a2",
+		Version: "052be48b9a1a75abfc88123238439d5fd647355c",
 		Path:    "third_party/externals/dawn",
 	},
 	"github.com/skia-dev/delaunator-cpp": {
