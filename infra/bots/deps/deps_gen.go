@@ -144,7 +144,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/vulkan-deps": {
 		Id:      "chromium.googlesource.com/vulkan-deps",
-		Version: "b5e5616193ecde3f9a9f56ea19c38e082479feb3",
+		Version: "769bd5140c26bcd22bc739090513b8441d17801f",
 		Path:    "third_party/externals/vulkan-deps",
 	},
 	"chromium.googlesource.com/webm/libwebp": {
@@ -204,7 +204,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools": {
 		Id:      "skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools",
-		Version: "4d2f0b40bfe290dea6c6904dafdf7fd8328ba346",
+		Version: "1229f1ef3b82498af600965141cde29a3c928e29",
 		Path:    "third_party/externals/spirv-tools",
 	},
 	"skia.googlesource.com/external/github.com/abseil/abseil-cpp": {
