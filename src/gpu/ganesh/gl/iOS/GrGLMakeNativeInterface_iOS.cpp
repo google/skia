@@ -7,9 +7,9 @@
 #include "include/core/SkTypes.h"
 #ifdef SK_BUILD_FOR_IOS
 
-#include "include/gpu/ganesh/gl/ios/GrGLMakeIOSInterface.h"
 #include "include/gpu/ganesh/gl/GrGLAssembleInterface.h"
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/ios/GrGLMakeIOSInterface.h"
 #include "include/private/base/SkTemplates.h"
 
 #include <dlfcn.h>

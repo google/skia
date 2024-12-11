@@ -8,8 +8,8 @@
 #include "include/gpu/ganesh/GrBackendSurface.h"
 
 #include "include/core/SkTextureCompressionType.h"
-#include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/MutableTextureState.h"  // IWYU pragma: keep
+#include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/GpuTypesPriv.h"
