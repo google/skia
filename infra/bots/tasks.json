@@ -3653,6 +3653,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -3723,6 +3726,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -3796,6 +3802,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -3869,6 +3878,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -3942,6 +3954,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -4015,6 +4030,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -4081,6 +4099,9 @@
         "os:Windows-Server-17763",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -4151,6 +4172,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -4221,6 +4245,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -4294,6 +4321,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -4367,6 +4397,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -4437,6 +4470,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -4503,6 +4539,9 @@
         "os:Windows-Server-17763",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -4573,6 +4612,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -4643,6 +4685,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "cipd_bin_packages",
@@ -4683,6 +4728,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "bazelisk_linux_amd64"
@@ -4721,6 +4769,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "bazelisk_linux_amd64"
@@ -4777,6 +4828,7 @@
         "pool:Skia"
       ],
       "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -4843,6 +4895,7 @@
         "pool:Skia"
       ],
       "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -4909,6 +4962,7 @@
         "pool:Skia"
       ],
       "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -4975,6 +5029,7 @@
         "pool:Skia"
       ],
       "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -5041,6 +5096,7 @@
         "pool:Skia"
       ],
       "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -5107,6 +5163,7 @@
         "pool:Skia"
       ],
       "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -5173,6 +5230,7 @@
         "pool:Skia"
       ],
       "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -5239,6 +5297,7 @@
         "pool:Skia"
       ],
       "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -5305,6 +5364,7 @@
         "pool:Skia"
       ],
       "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -5371,6 +5431,7 @@
         "pool:Skia"
       ],
       "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -5437,6 +5498,7 @@
         "pool:Skia"
       ],
       "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -5503,6 +5565,7 @@
         "pool:Skia"
       ],
       "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -9245,6 +9308,7 @@
       ],
       "environment": {
         "RECIPES_USE_PY3": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -9579,6 +9643,7 @@
       ],
       "environment": {
         "RECIPES_USE_PY3": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -9797,6 +9862,7 @@
       ],
       "environment": {
         "RECIPES_USE_PY3": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -12178,6 +12244,7 @@
       ],
       "environment": {
         "RECIPES_USE_PY3": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -14971,6 +15038,7 @@
       ],
       "environment": {
         "RECIPES_USE_PY3": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -15762,6 +15830,7 @@
       ],
       "environment": {
         "RECIPES_USE_PY3": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -18080,6 +18149,7 @@
       ],
       "environment": {
         "RECIPES_USE_PY3": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -18496,6 +18566,7 @@
       ],
       "environment": {
         "RECIPES_USE_PY3": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -21148,6 +21219,7 @@
       ],
       "environment": {
         "RECIPES_USE_PY3": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -21395,6 +21467,7 @@
       ],
       "environment": {
         "RECIPES_USE_PY3": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -21619,6 +21692,7 @@
       ],
       "environment": {
         "RECIPES_USE_PY3": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -22154,6 +22228,7 @@
       ],
       "environment": {
         "RECIPES_USE_PY3": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -22378,6 +22453,7 @@
       ],
       "environment": {
         "RECIPES_USE_PY3": "true",
+        "USE_BAZEL_FALLBACK_VERSION": "error",
         "VPYTHON_LOG_TRACE": "1"
       },
       "env_prefixes": {
@@ -29060,6 +29136,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "bazelisk_linux_amd64"
@@ -29089,6 +29168,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "bazelisk_linux_amd64"
@@ -29118,6 +29200,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "bazelisk_linux_amd64"
@@ -29255,6 +29340,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "bazelisk_linux_amd64",
@@ -29323,6 +29411,9 @@
         "os:Debian-10.3",
         "pool:Skia"
       ],
+      "environment": {
+        "USE_BAZEL_FALLBACK_VERSION": "error"
+      },
       "env_prefixes": {
         "PATH": [
           "bazelisk_linux_amd64",

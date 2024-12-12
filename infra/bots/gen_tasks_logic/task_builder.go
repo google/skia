@@ -242,6 +242,7 @@ func (b *taskBuilder) usesBazel(hostOSArch string) {
 	}
 	b.cipd(b.MustGetCipdPackageFromAsset(pkg))
 	b.addToPATH(pkg)
+	b.env("USE_BAZEL_FALLBACK_VERSION", "error")
 }
 
 // usesCCache adds attributes to tasks which use ccache.
