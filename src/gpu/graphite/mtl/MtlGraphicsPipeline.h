@@ -42,9 +42,11 @@ public:
     static sk_sp<MtlGraphicsPipeline> Make(const MtlSharedContext*,
                                            MtlResourceProvider*,
                                            const RuntimeEffectDictionary*,
+                                           const UniqueKey&,
                                            const GraphicsPipelineDesc&,
                                            const RenderPassDesc&,
-                                           SkEnumBitMask<PipelineCreationFlags>);
+                                           SkEnumBitMask<PipelineCreationFlags>,
+                                           uint32_t compilationID);
 
     static sk_sp<MtlGraphicsPipeline> MakeLoadMSAAPipeline(const MtlSharedContext*,
                                                            MtlResourceProvider*,

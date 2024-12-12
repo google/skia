@@ -95,6 +95,11 @@
 //#define SK_HISTOGRAM_MEMORY_KB(name, sample)
 //#define SK_HISTOGRAM_CUSTOM_MICROSECONDS_TIMES(name, sampleUSec, minUSec, maxUSec, bucketCount)
 
+/*
+ * Skia can provide extensive logging of Graphite Pipeline lifetimes.
+ */
+//#define SK_PIPELINE_LIFETIME_LOGGING
+
 // To use smaller but slower mipmap builder
 //#define SK_USE_DRAWING_MIPMAP_DOWNSAMPLER
 

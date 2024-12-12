@@ -1247,6 +1247,9 @@ optional("graphite") {
     public += skia_graphite_precompile_public
     sources += skia_graphite_precompile_sources
   }
+  if (is_debug) {
+    public_defines += [ "SK_PIPELINE_LIFETIME_LOGGING" ]
+  }
 }
 
 optional("pdf") {

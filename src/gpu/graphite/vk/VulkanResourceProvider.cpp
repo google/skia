@@ -107,14 +107,18 @@ sk_sp<Buffer> VulkanResourceProvider::refIntrinsicConstantBuffer() const {
 
 sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(
         const RuntimeEffectDictionary* runtimeDict,
+        const UniqueKey& pipelineKey,
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc,
-        SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags) {
+        SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags,
+        uint32_t compilationID) {
     return VulkanGraphicsPipeline::Make(this,
                                         runtimeDict,
+                                        pipelineKey,
                                         pipelineDesc,
                                         renderPassDesc,
-                                        pipelineCreationFlags);
+                                        pipelineCreationFlags,
+                                        compilationID);
 }
 
 sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const ComputePipelineDesc&) {
