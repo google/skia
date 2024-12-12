@@ -63,8 +63,10 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
     dawn::native::Adapter matchedAdaptor;
 
     wgpu::RequestAdapterOptions options;
-    options.compatibilityMode =
-            backend == wgpu::BackendType::OpenGL || backend == wgpu::BackendType::OpenGLES;
+    options.featureLevel =
+            backend == wgpu::BackendType::OpenGL || backend == wgpu::BackendType::OpenGLES
+                    ? wgpu::FeatureLevel::Compatibility
+                    : wgpu::FeatureLevel::Core;
     options.nextInChain = &togglesDesc;
     std::vector<dawn::native::Adapter> adapters = sInstance->EnumerateAdapters(&options);
     SkASSERT(!adapters.empty());
