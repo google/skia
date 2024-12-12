@@ -23,6 +23,8 @@ GRAPHITE_FILES = [
     "Caps.h",
     "ClientMappedBufferManager.cpp",
     "ClientMappedBufferManager.h",
+    "ClipAtlasManager.cpp",
+    "ClipAtlasManager.h",
     "ClipStack_graphite.cpp",
     "ClipStack_graphite.h",
     "CommandBuffer.cpp",

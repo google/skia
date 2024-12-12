@@ -42,6 +42,8 @@ skia_graphite_sources = [
   "$_src/Caps.h",
   "$_src/ClientMappedBufferManager.cpp",
   "$_src/ClientMappedBufferManager.h",
+  "$_src/ClipAtlasManager.cpp",
+  "$_src/ClipAtlasManager.h",
   "$_src/ClipStack_graphite.cpp",
   "$_src/ClipStack_graphite.h",
   "$_src/CommandBuffer.cpp",
