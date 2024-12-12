@@ -52,29 +52,32 @@ $pure half4 sk_alpha_only(float4 colorParam) {
     return half4(0.0, 0.0, 0.0, colorParam.a);
 }
 
-$pure float $apply_xfer_fn(int kind, float x, half4 cs[2]) {
-    float G = cs[0][0], A = cs[0][1], B = cs[0][2], C = cs[0][3],
-          D = cs[1][0], E = cs[1][1], F = cs[1][2];
-    float s = sign(x);
+$pure float3 $apply_xfer_fn(int kind, float3 x, half4 coeffs0, half4 coeffs1) {
+    float G = coeffs0[0], A = coeffs0[1], B = coeffs0[2], C = coeffs0[3],
+          D = coeffs1[0], E = coeffs1[1], F = coeffs1[2];
+    float3 s = sign(x);
     x = abs(x);
     switch (kind) {
         case $kTFTypeSRGB:
-            x = (x < D) ? (C * x) + F
-                        : pow(A * x + B, G) + E;
+            x = mix(pow(A * x + B, float3(G)) + E,
+                    (C * x) + F,
+                    lessThan(x, float3(D)));
             break;
         case $kTFTypePQ:
-            float x_C = pow(x, C);
-            x = pow(max(A + B * x_C, 0) / (D + E * x_C), F);
+            float3 x_C = pow(x, float3(C));
+            x = pow(max(A + B * x_C, 0) / (D + E * x_C), float3(F));
             break;
         case $kTFTypeHLG:
-            x = (x * A <= 1) ? pow(x * A, B)
-                             : exp((x - E) * C) + D;
+            x = mix(exp((x - E) * C) + D,
+                    pow(x * A, float3(B)),
+                    lessThanEqual(x * A, float3(1)));
             x *= (F + 1);
             break;
         case $kTFTypeHLGinv:
             x /= (F + 1);
-            x = (x <= 1) ? A * pow(x, B)
-                         : C * log(x - D) + E;
+            x = mix(C * log(x - D) + E,
+                    A * pow(x, float3(B)),
+                    lessThanEqual(x, float3(1)));
             break;
     }
     return s * x;
@@ -100,23 +103,13 @@ $pure half4 sk_color_space_transform(half4 halfColor,
             color = unpremul(color);
         }
         if (bool(flags & $kColorSpaceXformFlagLinearize)) {
-            half4 srcCoeffs[2];
-            srcCoeffs[0] = coeffs[0];
-            srcCoeffs[1] = coeffs[1];
-            color.r = $apply_xfer_fn(srcKind, color.r, srcCoeffs);
-            color.g = $apply_xfer_fn(srcKind, color.g, srcCoeffs);
-            color.b = $apply_xfer_fn(srcKind, color.b, srcCoeffs);
+            color.rgb = $apply_xfer_fn(srcKind, color.rgb, coeffs[0], coeffs[1]);
         }
         if (bool(flags & $kColorSpaceXformFlagGamutTransform)) {
             color.rgb = gamutTransform * color.rgb;
         }
         if (bool(flags & $kColorSpaceXformFlagEncode)) {
-            half4 dstCoeffs[2];
-            dstCoeffs[0] = coeffs[2];
-            dstCoeffs[1] = coeffs[3];
-            color.r = $apply_xfer_fn(dstKind, color.r, dstCoeffs);
-            color.g = $apply_xfer_fn(dstKind, color.g, dstCoeffs);
-            color.b = $apply_xfer_fn(dstKind, color.b, dstCoeffs);
+            color.rgb = $apply_xfer_fn(dstKind, color.rgb, coeffs[2], coeffs[3]);
         }
 
         halfColor = bool(flags & $kColorSpaceXformFlagPremul) ? sk_premul_alpha(color)
