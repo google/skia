@@ -12,16 +12,21 @@
 #include "src/core/SkChecksum.h"
 #include "src/core/SkTHash.h"
 
+struct SkNoOpPurge {
+    template <typename K, typename V>
+    void operator()(const K& /* k */, const V* /* v */) const {}
+};
+
 /**
  * A generic LRU cache.
  */
-template <typename K, typename V, typename HashK = SkGoodHash>
+template <typename K, typename V, typename HashK = SkGoodHash, typename PurgeCB = SkNoOpPurge>
 class SkLRUCache {
 private:
     struct Entry {
         Entry(const K& key, V&& value)
-        : fKey(key)
-        , fValue(std::move(value)) {}
+            : fKey(key)
+            , fValue(std::move(value)) {}
 
         K fKey;
         V fValue;
@@ -117,6 +122,7 @@ private:
         SkASSERT(value);
         Entry* entry = *value;
         SkASSERT(key == entry->fKey);
+        PurgeCB()(key, &entry->fValue);
         fMap.remove(key);
         fLRU.remove(entry);
         delete entry;

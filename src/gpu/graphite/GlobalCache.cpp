@@ -46,6 +46,17 @@ void GlobalCache::deleteResources() {
     fStaticResource.clear();
 }
 
+void GlobalCache::LogPurge(const UniqueKey& key, sk_sp<GraphicsPipeline>* p) {
+#if defined(SK_PIPELINE_LIFETIME_LOGGING)
+    static const char* kNames[2] = { "PurgedN", "PurgedP" };
+    TRACE_EVENT_INSTANT2("skia.gpu",
+                         TRACE_STR_STATIC(kNames[(*p)->fromPrecompile()]),
+                         TRACE_EVENT_SCOPE_THREAD,
+                         "key", key.hash(),
+                         "compilationID", (*p)->getPipelineInfo().fCompilationID);
+#endif
+}
+
 sk_sp<GraphicsPipeline> GlobalCache::findGraphicsPipeline(
         const UniqueKey& key,
         SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags,

@@ -88,7 +88,12 @@ private:
         uint32_t operator()(const UniqueKey& key) const { return key.hash(); }
     };
 
-    using GraphicsPipelineCache = SkLRUCache<UniqueKey, sk_sp<GraphicsPipeline>, KeyHash>;
+    static void LogPurge(const UniqueKey& key, sk_sp<GraphicsPipeline>* p);
+    struct PurgeCB {
+        void operator()(const UniqueKey& k, sk_sp<GraphicsPipeline>* p) const { LogPurge(k, p); }
+    };
+
+    using GraphicsPipelineCache = SkLRUCache<UniqueKey, sk_sp<GraphicsPipeline>, KeyHash, PurgeCB>;
     using ComputePipelineCache  = SkLRUCache<UniqueKey, sk_sp<ComputePipeline>,  KeyHash>;
 
     // TODO: can we do something better given this should have write-seldom/read-often behavior?
