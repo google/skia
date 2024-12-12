@@ -76,12 +76,16 @@ public:
         // of the same unique key. If, for example, two versions were created due to threading.
         const uint32_t fCompilationID = 0;
         const bool fFromPrecompile = false;
+        bool fWasUsed = false;
     };
 
     const PipelineInfo& getPipelineInfo() const {
         return fPipelineInfo;
     }
     bool fromPrecompile() const { return fPipelineInfo.fFromPrecompile; }
+
+    void markUsed() { fPipelineInfo.fWasUsed = true; }
+    bool wasUsed() const { return fPipelineInfo.fWasUsed; }
 
 protected:
     GraphicsPipeline(const SharedContext*, const PipelineInfo&);

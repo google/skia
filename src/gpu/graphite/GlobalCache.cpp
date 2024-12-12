@@ -48,9 +48,13 @@ void GlobalCache::deleteResources() {
 
 void GlobalCache::LogPurge(const UniqueKey& key, sk_sp<GraphicsPipeline>* p) {
 #if defined(SK_PIPELINE_LIFETIME_LOGGING)
-    static const char* kNames[2] = { "PurgedN", "PurgedP" };
+    // A "Bad" Purge is one where the Pipeline was never retrieved from the Cache (i.e., unused
+    // overgeneration).
+    static const char* kNames[2][2] = { { "BadPurgedN", "BadPurgedP" },
+                                        { "PurgedN",    "PurgedP"} };
+
     TRACE_EVENT_INSTANT2("skia.gpu",
-                         TRACE_STR_STATIC(kNames[(*p)->fromPrecompile()]),
+                         TRACE_STR_STATIC(kNames[(*p)->wasUsed()][(*p)->fromPrecompile()]),
                          TRACE_EVENT_SCOPE_THREAD,
                          "key", key.hash(),
                          "compilationID", (*p)->getPipelineInfo().fCompilationID);
@@ -72,6 +76,8 @@ sk_sp<GraphicsPipeline> GlobalCache::findGraphicsPipeline(
 #if defined(GPU_TEST_UTILS)
         ++fStats.fGraphicsCacheHits;
 #endif
+
+        (*entry)->markUsed();
 
 #if defined(SK_PIPELINE_LIFETIME_LOGGING)
         static const char* kNames[2] = { "CacheHitForN", "CacheHitForP" };
@@ -143,6 +149,12 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
 #if defined(GPU_TEST_UTILS)
         ++fStats.fGraphicsCacheAdditions;
 #endif
+
+        // Precompile Pipelines are only marked as used when they get a cache hit in
+        // findGraphicsPipeline
+        if (!(*entry)->fromPrecompile()) {
+            (*entry)->markUsed();
+        }
 
 #if defined(SK_PIPELINE_LIFETIME_LOGGING)
         static const char* kNames[2] = { "AddedN", "AddedP" };
