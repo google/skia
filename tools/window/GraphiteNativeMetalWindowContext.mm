@@ -61,7 +61,7 @@ void GraphiteMetalWindowContext::initializeContext() {
     SkASSERT(fDisplayParams->graphiteTestOptions());
     skwindow::GraphiteTestOptions opts = *fDisplayParams->graphiteTestOptions();
 
-    opts.fTestOptions.fContextOptions.fDisableCachedGlyphUploads = true;
+    opts.fTestOptions.fContextOptions.fRequireOrderedRecordings = true;
     // Needed to make synchronous readPixels work:
     opts.fPriv.fStoreContextRefInRecorder = true;
     fDisplayParams =

@@ -360,7 +360,7 @@ struct GraphiteTarget : public Target {
     }
     bool init(SkImageInfo info, Benchmark* bench) override {
         skiatest::graphite::TestOptions testOptions = gTestOptions;
-        testOptions.fContextOptions.fDisableCachedGlyphUploads = true;
+        testOptions.fContextOptions.fRequireOrderedRecordings = true;
         bench->modifyGraphiteContextOptions(&testOptions.fContextOptions);
 
         this->factory = std::make_unique<ContextFactory>(testOptions);

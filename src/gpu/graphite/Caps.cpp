@@ -50,7 +50,7 @@ void Caps::finishInitialization(const ContextOptions& options) {
     fMaxPathAtlasTextureSize = options.fMaxPathAtlasTextureSize;
     fAllowMultipleAtlasTextures = options.fAllowMultipleAtlasTextures;
     fSupportBilerpFromGlyphAtlas = options.fSupportBilerpFromGlyphAtlas;
-    if (options.fDisableCachedGlyphUploads) {
+    if (options.fRequireOrderedRecordings || options.fDisableCachedGlyphUploads) {
         fRequireOrderedRecordings = true;
     }
     fSetBackendLabels = options.fSetBackendLabels;

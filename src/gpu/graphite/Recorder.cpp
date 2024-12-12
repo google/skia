@@ -224,7 +224,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     fProxyReadCounts = std::make_unique<ProxyReadCountMap>();
     fTextureDataCache = std::make_unique<TextureDataCache>();
     if (!this->priv().caps()->requireOrderedRecordings()) {
-        fAtlasProvider->textAtlasManager()->evictAtlases();
+        fAtlasProvider->invalidateAtlases();
     }
 
     return recording;

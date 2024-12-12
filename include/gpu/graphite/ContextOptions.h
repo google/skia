@@ -85,10 +85,22 @@ struct SK_API ContextOptions {
     bool fSupportBilerpFromGlyphAtlas = false;
 
     /**
-     * Disable caching of glyph uploads at the start of each Recording. These can add additional
-     * overhead and are only necessary if Recordings are replayed or played out of order.
+     * For the moment, if Recordings are replayed in the order they are recorded, then
+     * Graphite can make certain assumptions that allow for better performance. Otherwise
+     * we have to flush some caches at the start of each Recording to ensure that they can
+     * be played back properly.
      *
-     * Deprecated, now only used to set requireOrderedRecordings Caps.
+     * To support prior usage, the requireOrderedRecordings() Caps will be set to true if
+     * fRequiredOrderedRecordings || fDisableCachedGlyphUploads.
+     */
+    bool fRequireOrderedRecordings = false;
+
+    /**
+     * Deprecated. Disable caching of glyph uploads at the start of each Recording. These can add
+     * additional overhead and are only necessary if Recordings are replayed or played out of order.
+     *
+     * To support prior usage, the requireOrderedRecordings() Caps will be set to true if
+     * fRequiredOrderedRecordings || fDisableCachedGlyphUploads.
      */
     bool fDisableCachedGlyphUploads = false;
 
