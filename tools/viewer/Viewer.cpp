@@ -69,6 +69,7 @@
 #include "tools/skui/Key.h"
 #include "tools/skui/ModifierKey.h"
 #include "tools/trace/EventTracingPriv.h"
+#include "tools/viewer/AnimatedImageSlide.h"
 #include "tools/viewer/BisectSlide.h"
 #include "tools/viewer/GMSlide.h"
 #include "tools/viewer/ImageSlide.h"
@@ -1004,6 +1005,12 @@ void Viewer::initSlides() {
          [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
              return sk_make_sp<SKPSlide>(name, path);
          }},
+        {".gif",
+         "gif-dir",
+         FLAGS_jpgs,
+         [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+             return sk_make_sp<AnimatedImageSlide>(name, path);
+         }},
         {".jpg",
          "jpg-dir",
          FLAGS_jpgs,
@@ -1016,6 +1023,12 @@ void Viewer::initSlides() {
          [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
              return sk_make_sp<ImageSlide>(name, path);
          }},
+         {".webp",
+         "webp-dir",
+         FLAGS_jpgs,
+         [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+             return sk_make_sp<AnimatedImageSlide>(name, path);
+         }},
 #if defined(SK_ENABLE_SKOTTIE)
         {".json",
          "skottie-dir",
@@ -1024,7 +1037,6 @@ void Viewer::initSlides() {
              return sk_make_sp<SkottieSlide>(name, path);
          }},
 #endif
-
 #if defined(SK_ENABLE_SVG)
         {".svg",
          "svg-dir",

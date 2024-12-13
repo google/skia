@@ -12,6 +12,8 @@ skia_cc_binary(
     srcs = [
         "AnimBlurSlide.cpp",
         "AnimTimer.h",
+        "AnimatedImageSlide.cpp",
+        "AnimatedImageSlide.h",
         "AnimatedRectsSlide.cpp",
         "AnimatedTextSlide.cpp",
         "ArcSlide.cpp",
@@ -113,6 +115,7 @@ skia_cc_binary(
         "//modules/skottie",
         "//modules/skottie/utils:skottie_utils",
         "//modules/skottie/utils:text_editor",
+        "//modules/skresources",
         "//modules/sksg",
         "//src/sksl/tracing:player",
         "//tools:codec_utils",

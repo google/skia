@@ -108,8 +108,10 @@ public:
     static sk_sp<MultiFrameImageAsset> Make(std::unique_ptr<SkCodec>,
                                             ImageDecodeStrategy = ImageDecodeStrategy::kLazyDecode);
 
-
     bool isMultiFrame() override;
+
+    // Animation duration, in ms.
+    float duration() const;
 
     sk_sp<SkImage> getFrame(float t) override;
 
