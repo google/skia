@@ -74,7 +74,7 @@ bool SkStrEndsWith(const char string[], const char suffixStr[]) {
             !strncmp(string + strLen - suffixLen, suffixStr, suffixLen);
 }
 
-bool SkStrEndsWith(const char string[], const char suffixChar) {
+bool SkStrEndsWith(const char string[], char suffixChar) {
     SkASSERT(string);
     size_t  strLen = strlen(string);
     if (0 == strLen) {
