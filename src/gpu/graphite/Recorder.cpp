@@ -485,6 +485,11 @@ size_t Recorder::maxBudgetedBytes() const {
     return fResourceProvider->getResourceCacheLimit();
 }
 
+void Recorder::setMaxBudgetedBytes(size_t bytes) {
+    ASSERT_SINGLE_OWNER
+    return fResourceProvider->setResourceCacheLimit(bytes);
+}
+
 void Recorder::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     ASSERT_SINGLE_OWNER
     fResourceProvider->dumpMemoryStatistics(traceMemoryDump);

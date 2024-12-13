@@ -572,6 +572,12 @@ void ResourceCache::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) con
     }
 }
 
+void ResourceCache::setMaxBudget(size_t bytes) {
+    fMaxBytes = bytes;
+    this->processReturnedResources();
+    this->purgeAsNeeded();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 const GraphiteResourceKey& ResourceCache::MapTraits::GetKey(const Resource& r) {
@@ -733,12 +739,6 @@ bool ResourceCache::isInCache(const Resource* resource) const {
 
 int ResourceCache::numFindableResources() const {
     return fResourceMap.count();
-}
-
-void ResourceCache::setMaxBudget(size_t bytes) {
-    fMaxBytes = bytes;
-    this->processReturnedResources();
-    this->purgeAsNeeded();
 }
 
 Resource* ResourceCache::topOfPurgeableQueue() {

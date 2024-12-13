@@ -228,6 +228,12 @@ public:
     size_t maxBudgetedBytes() const;
 
     /**
+     * Sets the size of Context's gpu memory cache budget in bytes. If the new budget is lower than
+     * the current budget, the cache will try to free resources to get under the new budget.
+     */
+    void setMaxBudgetedBytes(size_t bytes);
+
+    /**
      * Enumerates all cached GPU resources owned by the Context and dumps their memory to
      * traceMemoryDump.
      */

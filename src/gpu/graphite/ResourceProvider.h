@@ -86,6 +86,7 @@ public:
 
     ProxyCache* proxyCache() { return fResourceCache->proxyCache(); }
 
+    void setResourceCacheLimit(size_t bytes) { return fResourceCache->setMaxBudget(bytes); }
     size_t getResourceCacheLimit() const { return fResourceCache->getMaxBudget(); }
     size_t getResourceCacheCurrentBudgetedBytes() const {
         return fResourceCache->currentBudgetedBytes();

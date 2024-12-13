@@ -79,6 +79,7 @@ public:
     void shutdown();
 
     size_t getMaxBudget() const { return fMaxBytes; }
+    void setMaxBudget(size_t bytes);
 
     size_t currentBudgetedBytes() const { return fBudgetedBytes; }
 
@@ -94,10 +95,6 @@ public:
     // Returns the numbers of Resources that can currently be found in the cache. This includes all
     // shared Resources and all non-shareable resources that have been returned to the cache.
     int numFindableResources() const;
-
-    // This will probably end up being a public function to change the current budget size, but for
-    // now just making this a testing only function.
-    void setMaxBudget(size_t bytes);
 
     Resource* topOfPurgeableQueue();
 
