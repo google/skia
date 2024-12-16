@@ -362,6 +362,9 @@ static sk_sp<SkImage> make_texture_image_from_lazy(skgpu::graphite::Recorder* re
                 SkASSERT(as_IB(newImage)->isGraphiteBacked());
                 return newImage;
             }
+            // The fallback for this would be to generate a bitmap, but some picture-backed
+            // images can only be played back on the GPU.
+            return nullptr;
         }
         // There is not an analog to GrTextureGenerator for Graphite yet, but if there was,
         // we would want to call it here.

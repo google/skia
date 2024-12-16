@@ -342,6 +342,9 @@ GrSurfaceProxyView LockTextureProxyView(GrRecordingContext* rContext,
                 installKey(view);
                 return view;
             }
+            // The fallback for this would be to generate a bitmap, but some picture-backed
+            // images can only be played back on the GPU.
+            return {};
         } else if (img->generator()->isTextureGenerator()) {
             auto sharedGenerator = img->generator();
             SkAutoMutexExclusive mutex(sharedGenerator->fMutex);
