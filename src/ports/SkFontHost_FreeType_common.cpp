@@ -1232,7 +1232,7 @@ void colrv1_transform(FT_Face face,
 
 bool colrv1_start_glyph(SkCanvas* canvas,
                         const SkSpan<SkColor>& palette,
-                        const SkColor foregroundColor,
+                        SkColor foregroundColor,
                         FT_Face face,
                         uint16_t glyphId,
                         FT_Color_Root_Transform rootTransform,
@@ -1408,7 +1408,7 @@ SkPath GetClipBoxPath(FT_Face face, uint16_t glyphId, bool untransformed) {
 
 bool colrv1_start_glyph(SkCanvas* canvas,
                         const SkSpan<SkColor>& palette,
-                        const SkColor foregroundColor,
+                        SkColor foregroundColor,
                         FT_Face face,
                         uint16_t glyphId,
                         FT_Color_Root_Transform rootTransform,

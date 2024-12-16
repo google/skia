@@ -104,8 +104,8 @@ public:
     virtual SkBlitter* getRealBlitter(bool forceRealBlitter = false) = 0;
 
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], int len) = 0;
-    virtual void blitAntiH(int x, int y, const SkAlpha alpha)                = 0;
-    virtual void blitAntiH(int x, int y, int width, const SkAlpha alpha)     = 0;
+    virtual void blitAntiH(int x, int y, SkAlpha alpha)                = 0;
+    virtual void blitAntiH(int x, int y, int width, SkAlpha alpha)     = 0;
 
     void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override {
         SkDEBUGFAIL("Please call real blitter's blitAntiH instead.");
@@ -156,8 +156,8 @@ public:
 
     // Allowing following methods are used to blit rectangles during aaa_walk_convex_edges
     // Since there aren't many rectangles, we can still bear the slow speed of virtual functions.
-    void blitAntiH(int x, int y, const SkAlpha alpha) override;
-    void blitAntiH(int x, int y, int width, const SkAlpha alpha) override;
+    void blitAntiH(int x, int y, SkAlpha alpha) override;
+    void blitAntiH(int x, int y, int width, SkAlpha alpha) override;
     void blitV(int x, int y, int height, SkAlpha alpha) override;
     void blitRect(int x, int y, int width, int height) override;
     void blitAntiRect(int x, int y, int width, int height, SkAlpha leftAlpha, SkAlpha rightAlpha)
@@ -230,12 +230,12 @@ void MaskAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha antialias[], int
     SK_ABORT("Don't use this; directly add alphas to the mask.");
 }
 
-void MaskAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha alpha) {
+void MaskAdditiveBlitter::blitAntiH(int x, int y, SkAlpha alpha) {
     SkASSERT(x >= fMask.fBounds.fLeft - 1);
     add_alpha(&this->getRow(y)[x], alpha);
 }
 
-void MaskAdditiveBlitter::blitAntiH(int x, int y, int width, const SkAlpha alpha) {
+void MaskAdditiveBlitter::blitAntiH(int x, int y, int width, SkAlpha alpha) {
     SkASSERT(x >= fMask.fBounds.fLeft - 1);
     uint8_t* row = this->getRow(y);
     for (int i = 0; i < width; ++i) {
@@ -291,8 +291,8 @@ public:
     SkBlitter* getRealBlitter(bool forceRealBlitter) override { return fRealBlitter; }
 
     void blitAntiH(int x, int y, const SkAlpha antialias[], int len) override;
-    void blitAntiH(int x, int y, const SkAlpha alpha) override;
-    void blitAntiH(int x, int y, int width, const SkAlpha alpha) override;
+    void blitAntiH(int x, int y, SkAlpha alpha) override;
+    void blitAntiH(int x, int y, int width, SkAlpha alpha) override;
 
     int getWidth() override { return fWidth; }
 
@@ -429,7 +429,7 @@ void RunBasedAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
     }
 }
 
-void RunBasedAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha alpha) {
+void RunBasedAdditiveBlitter::blitAntiH(int x, int y, SkAlpha alpha) {
     checkY(y);
     x -= fLeft;
 
@@ -442,7 +442,7 @@ void RunBasedAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha alpha) {
     }
 }
 
-void RunBasedAdditiveBlitter::blitAntiH(int x, int y, int width, const SkAlpha alpha) {
+void RunBasedAdditiveBlitter::blitAntiH(int x, int y, int width, SkAlpha alpha) {
     checkY(y);
     x -= fLeft;
 
@@ -466,8 +466,8 @@ public:
             : RunBasedAdditiveBlitter(realBlitter, ir, clipBounds, isInverse) {}
 
     void blitAntiH(int x, int y, const SkAlpha antialias[], int len) override;
-    void blitAntiH(int x, int y, const SkAlpha alpha) override;
-    void blitAntiH(int x, int y, int width, const SkAlpha alpha) override;
+    void blitAntiH(int x, int y, SkAlpha alpha) override;
+    void blitAntiH(int x, int y, int width, SkAlpha alpha) override;
 };
 
 void SafeRLEAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha antialias[], int len) {
@@ -499,7 +499,7 @@ void SafeRLEAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha antialias[], 
     }
 }
 
-void SafeRLEAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha alpha) {
+void SafeRLEAdditiveBlitter::blitAntiH(int x, int y, SkAlpha alpha) {
     checkY(y);
     x -= fLeft;
 
@@ -514,7 +514,7 @@ void SafeRLEAdditiveBlitter::blitAntiH(int x, int y, const SkAlpha alpha) {
     }
 }
 
-void SafeRLEAdditiveBlitter::blitAntiH(int x, int y, int width, const SkAlpha alpha) {
+void SafeRLEAdditiveBlitter::blitAntiH(int x, int y, int width, SkAlpha alpha) {
     checkY(y);
     x -= fLeft;
 
