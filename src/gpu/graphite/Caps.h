@@ -436,7 +436,6 @@ protected:
     bool fAllowMultipleAtlasTextures = true;
     bool fSupportBilerpFromGlyphAtlas = false;
 
-    // Set based on client options
     bool fRequireOrderedRecordings = false;
 
     bool fSetBackendLabels = false;

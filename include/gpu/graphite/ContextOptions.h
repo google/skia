@@ -89,20 +89,8 @@ struct SK_API ContextOptions {
      * Graphite can make certain assumptions that allow for better performance. Otherwise
      * we have to flush some caches at the start of each Recording to ensure that they can
      * be played back properly.
-     *
-     * To support prior usage, the requireOrderedRecordings() Caps will be set to true if
-     * fRequiredOrderedRecordings || fDisableCachedGlyphUploads.
      */
     bool fRequireOrderedRecordings = false;
-
-    /**
-     * Deprecated. Disable caching of glyph uploads at the start of each Recording. These can add
-     * additional overhead and are only necessary if Recordings are replayed or played out of order.
-     *
-     * To support prior usage, the requireOrderedRecordings() Caps will be set to true if
-     * fRequiredOrderedRecordings || fDisableCachedGlyphUploads.
-     */
-    bool fDisableCachedGlyphUploads = false;
 
     static constexpr size_t kDefaultContextBudget = 256 * (1 << 20);
     /**
