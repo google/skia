@@ -436,11 +436,6 @@ void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader
                                                           const SkPaint& paint,
                                                           Resources* resources) {
     SkASSERT(shader);
-    if (as_SB(shader)->type() == SkShaderBase::ShaderType::kColor) {
-        auto colorShader = static_cast<const SkColorShader*>(shader);
-        resources->fPaintServer = svg_color(colorShader->color());
-        return;
-    }
 
     SkShaderBase::GradientInfo grInfo;
     const auto gradient_type = as_SB(shader)->asGradient(&grInfo);
@@ -611,11 +606,14 @@ void SkSVGDevice::AutoElement::addShaderResources(const SkPaint& paint, Resource
     const SkShader* shader = paint.getShader();
     SkASSERT(shader);
 
-    auto shaderType = as_SB(shader)->type();
-    if (shaderType == SkShaderBase::ShaderType::kColor ||
-        shaderType == SkShaderBase::ShaderType::kGradientBase) {
+    if (as_SB(shader)->type() == SkShaderBase::ShaderType::kColor) {
+        auto colorShader = static_cast<const SkColorShader*>(shader);
+        resources->fPaintServer = svg_color(colorShader->color());
+    } else
+    if (as_SB(shader)->asGradient() != SkShaderBase::GradientType::kNone) {
         this->addGradientShaderResources(shader, paint, resources);
-    } else if (shader->isAImage()) {
+    } else
+    if (shader->isAImage()) {
         this->addImageShaderResources(shader, paint, resources);
     }
     // TODO: other shader types?
