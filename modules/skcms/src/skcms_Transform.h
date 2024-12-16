@@ -144,21 +144,21 @@ namespace baseline {
 
 void run_program(const Op* program, const void** contexts, ptrdiff_t programSize,
                  const char* src, char* dst, int n,
-                 const size_t src_bpp, const size_t dst_bpp);
+                size_t src_bpp, size_t dst_bpp);
 
 }
 namespace hsw {
 
 void run_program(const Op* program, const void** contexts, ptrdiff_t programSize,
                  const char* src, char* dst, int n,
-                 const size_t src_bpp, const size_t dst_bpp);
+                size_t src_bpp, size_t dst_bpp);
 
 }
 namespace skx {
 
 void run_program(const Op* program, const void** contexts, ptrdiff_t programSize,
                  const char* src, char* dst, int n,
-                 const size_t src_bpp, const size_t dst_bpp);
+                size_t src_bpp, size_t dst_bpp);
 
 }
 }  // namespace skcms_private

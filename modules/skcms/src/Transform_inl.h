@@ -1521,7 +1521,7 @@ FINAL_STAGE(store_ffff, NoCtx) {
 // NOLINTNEXTLINE(misc-definitions-in-headers)
 void run_program(const Op* program, const void** contexts, SKCMS_MAYBE_UNUSED ptrdiff_t programSize,
                  const char* src, char* dst, int n,
-                 const size_t src_bpp, const size_t dst_bpp) {
+                size_t src_bpp, size_t dst_bpp) {
 #if SKCMS_HAS_MUSTTAIL
     // Convert the program into an array of tailcall stages.
     StageFn stages[32];

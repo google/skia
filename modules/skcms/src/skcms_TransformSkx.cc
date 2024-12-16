@@ -40,7 +40,7 @@ namespace skx {
 
 void run_program(const Op* program, const void** contexts, ptrdiff_t programSize,
                  const char* src, char* dst, int n,
-                 const size_t src_bpp, const size_t dst_bpp) {
+                size_t src_bpp, size_t dst_bpp) {
     skcms_private::baseline::run_program(program, contexts, programSize,
                                          src, dst, n, src_bpp, dst_bpp);
 }
