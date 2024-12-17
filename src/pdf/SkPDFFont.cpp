@@ -7,6 +7,8 @@
 
 #include "src/pdf/SkPDFFont.h"
 
+#include "include/codec/SkCodec.h"
+#include "include/codec/SkJpegDecoder.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -24,6 +26,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -823,14 +826,20 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
                 AppendScalar(pimg.fOffset.y() * bitmapScale, &content);
                 content.writeText(" cm\n");
 
-                // Convert Gray image to jpeg if needed
+                // Convert Grey image to deferred jpeg image to emit as jpeg
                 if (pdfStrike.fHasMaskFilter) {
                     SkJpegEncoder::Options jpegOptions;
-                    jpegOptions.fQuality = 50; // SK_PDF_MASK_QUALITY
+                    jpegOptions.fQuality = SK_PDF_MASK_QUALITY;
                     SkImage* image = pimg.fImage.get();
-                    sk_sp<SkData> jpegData = SkJpegEncoder::Encode(nullptr, image, jpegOptions);
-                    if (jpegData) {
-                        sk_sp<SkImage> jpegImage = SkImages::DeferredFromEncodedData(jpegData);
+                    SkPixmap pm;
+                    SkAssertResult(image->peekPixels(&pm));
+                    SkDynamicMemoryWStream buffer;
+                    // By encoding this into jpeg, it be embedded efficiently during drawImage.
+                    if (SkJpegEncoder::Encode(&buffer, pm, jpegOptions)) {
+                        std::unique_ptr<SkCodec> codec =
+                                SkJpegDecoder::Decode(buffer.detachAsData(), nullptr);
+                        SkASSERT(codec);
+                        sk_sp<SkImage> jpegImage = SkCodecs::DeferredImage(std::move(codec));
                         SkASSERT(jpegImage);
                         if (jpegImage) {
                             pimg.fImage = jpegImage;

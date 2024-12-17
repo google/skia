@@ -23,6 +23,17 @@ class SkStreamAsset;
 class SkString;
 class SkWStream;
 
+#ifndef SK_PDF_MASK_QUALITY
+    // If MASK_QUALITY is in [0,100], will be used for JpegEncoder.
+    // Otherwise, just encode masks losslessly.
+    #define SK_PDF_MASK_QUALITY 50
+    // Since these masks are used for blurry shadows, we shouldn't need
+    // high quality.  Raise this value if your shadows have visible JPEG
+    // artifacts.
+    // If SkJpegEncoder::Encode fails, we will fall back to the lossless
+    // encoding.
+#endif
+
 struct SkPDFIndirectReference {
     int fValue = -1;
     explicit operator bool() const { return fValue != -1; }

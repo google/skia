@@ -19,7 +19,6 @@
 #include "include/docs/SkPDFDocument.h"
 #include "include/private/SkEncodedInfo.h"
 #include "src/codec/SkCodecPriv.h"
-#include "src/pdf/SkPDFBitmap.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
