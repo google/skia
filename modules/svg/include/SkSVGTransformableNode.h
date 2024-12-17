@@ -34,6 +34,10 @@ protected:
 
     void mapToParent(SkRect*) const;
 
+    SkRect onObjectBoundingBox(const SkSVGRenderContext& ) const final;
+
+    virtual SkRect onTransformableObjectBoundingBox(const SkSVGRenderContext&) const;
+
 private:
     // FIXME: should be sparse
     SkSVGTransformType fTransform;

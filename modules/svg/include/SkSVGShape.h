@@ -8,6 +8,7 @@
 #ifndef SkSVGShape_DEFINED
 #define SkSVGShape_DEFINED
 
+#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkAPI.h"
 #include "modules/svg/include/SkSVGTransformableNode.h"

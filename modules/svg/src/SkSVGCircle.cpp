@@ -53,7 +53,7 @@ SkPath SkSVGCircle::onAsPath(const SkSVGRenderContext& ctx) const {
     return path;
 }
 
-SkRect SkSVGCircle::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+SkRect SkSVGCircle::onTransformableObjectBoundingBox(const SkSVGRenderContext& ctx) const {
     const auto [pos, r] = this->resolve(ctx.lengthContext());
     return SkRect::MakeXYWH(pos.fX - r, pos.fY - r, 2 * r, 2 * r);
 }

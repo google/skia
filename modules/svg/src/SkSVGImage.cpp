@@ -101,7 +101,7 @@ void SkSVGImage::onRender(const SkSVGRenderContext& ctx) const {
 
 SkPath SkSVGImage::onAsPath(const SkSVGRenderContext&) const { return {}; }
 
-SkRect SkSVGImage::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+SkRect SkSVGImage::onTransformableObjectBoundingBox(const SkSVGRenderContext& ctx) const {
     const SkSVGLengthContext& lctx = ctx.lengthContext();
     return lctx.resolveRect(fX, fY, fWidth, fHeight);
 }

@@ -639,7 +639,7 @@ void SkSVGText::onRender(const SkSVGRenderContext& ctx) const {
     this->onShapeText(ctx, &tctx, this->getXmlSpace());
 }
 
-SkRect SkSVGText::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+SkRect SkSVGText::onTransformableObjectBoundingBox(const SkSVGRenderContext& ctx) const {
     SkRect bounds = SkRect::MakeEmpty();
 
     const SkSVGTextContext::ShapedTextCallback compute_bounds =

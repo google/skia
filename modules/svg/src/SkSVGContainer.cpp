@@ -44,7 +44,7 @@ SkPath SkSVGContainer::onAsPath(const SkSVGRenderContext& ctx) const {
     return path;
 }
 
-SkRect SkSVGContainer::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+SkRect SkSVGContainer::onTransformableObjectBoundingBox(const SkSVGRenderContext& ctx) const {
     SkRect bounds = SkRect::MakeEmpty();
 
     for (int i = 0; i < fChildren.size(); ++i) {

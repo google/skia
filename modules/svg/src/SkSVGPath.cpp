@@ -45,6 +45,6 @@ SkPath SkSVGPath::onAsPath(const SkSVGRenderContext& ctx) const {
     return path;
 }
 
-SkRect SkSVGPath::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+SkRect SkSVGPath::onTransformableObjectBoundingBox(const SkSVGRenderContext& ctx) const {
     return fPath.computeTightBounds();
 }

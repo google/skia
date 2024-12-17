@@ -50,6 +50,6 @@ SkPath SkSVGPoly::onAsPath(const SkSVGRenderContext& ctx) const {
     return path;
 }
 
-SkRect SkSVGPoly::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+SkRect SkSVGPoly::onTransformableObjectBoundingBox(const SkSVGRenderContext& ctx) const {
     return fPath.getBounds();
 }

@@ -60,7 +60,7 @@ SkPath SkSVGUse::onAsPath(const SkSVGRenderContext& ctx) const {
     return ref->asPath(ctx);
 }
 
-SkRect SkSVGUse::onObjectBoundingBox(const SkSVGRenderContext& ctx) const {
+SkRect SkSVGUse::onTransformableObjectBoundingBox(const SkSVGRenderContext& ctx) const {
     const auto ref = ctx.findNodeById(fHref);
     if (!ref) {
         return SkRect::MakeEmpty();

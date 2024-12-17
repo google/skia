@@ -171,6 +171,8 @@ public:
                           const SkSVGLength& w, const SkSVGLength& h,
                           SkSVGObjectBoundingBoxUnits) const;
 
+    const OBBScope& currentOBBScope() const { return fOBBScope; }
+
     std::unique_ptr<SkShaper> makeShaper() const {
         SkASSERT(fTextShapingFactory);
         return fTextShapingFactory->makeShaper(this->fontMgr());
