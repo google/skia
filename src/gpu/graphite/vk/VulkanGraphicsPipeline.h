@@ -41,30 +41,23 @@ public:
     inline static constexpr unsigned int kGradientBufferIndex = 3;
     inline static constexpr unsigned int kNumUniformBuffers = 4;
 
-    // For now, rigidly assign all uniform buffer descriptors to be in set 0 and all
-    // texture/samplers to be in set 1.
+    // For now, rigidly assign all uniform buffer descriptors to be in set 0, all
+    // texture/samplers to be in set 1, and any input attachments to be in set 2.
     // TODO(b/274762935): Make the bindings and descriptor set organization more flexible.
     inline static constexpr unsigned int kUniformBufferDescSetIndex = 0;
     inline static constexpr unsigned int kTextureBindDescSetIndex = 1;
-    // Currently input attachments are only used for loading MSAA from resolve, so we can use the
-    // descriptor set index normally assigned to uniform desc sets.
-    inline static constexpr unsigned int kInputAttachmentDescSetIndex = kUniformBufferDescSetIndex;
+    inline static constexpr unsigned int kInputAttachmentDescSetIndex = 2;
+    inline static constexpr unsigned int kNumDescSets = 3;
 
     inline static constexpr unsigned int kVertexBufferIndex = 0;
     inline static constexpr unsigned int kInstanceBufferIndex = 1;
     inline static constexpr unsigned int kNumInputBuffers = 2;
 
-    inline static const DescriptorData kIntrinsicUniformBufferDescriptor = {
-            DescriptorType::kUniformBuffer, /*count=*/1,
-            kIntrinsicUniformBufferIndex,
-            PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader};
-
-    // Currently we only ever have one input attachment descriptor by itself within a set, so its
-    // binding index will always be 0.
-    inline static constexpr unsigned int kInputAttachmentBindingIndex = 0;
+    // Define a static DescriptorData to represent input attachments which have the same values
+    // across all pipelines.
     inline static const DescriptorData kInputAttachmentDescriptor = {
             DescriptorType::kInputAttachment, /*count=*/1,
-            kInputAttachmentBindingIndex,
+            /*bindingIdx=*/0, // We only expect to encounter one input attachment
             PipelineStageFlags::kFragmentShader};
 
     static sk_sp<VulkanGraphicsPipeline> Make(VulkanResourceProvider*,
