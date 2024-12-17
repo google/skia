@@ -227,8 +227,6 @@ skia_core_sources = [
   "$_src/base/SkSafeMath.h",
   "$_src/base/SkScopeExit.h",
   "$_src/base/SkSemaphore.cpp",
-  "$_src/base/SkSharedMutex.cpp",
-  "$_src/base/SkSharedMutex.h",
   "$_src/base/SkSpinlock.cpp",
   "$_src/base/SkSpinlock.h",
   "$_src/base/SkStringView.h",

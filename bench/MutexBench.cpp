@@ -7,8 +7,9 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkMutex.h"
-#include "src/base/SkSharedMutex.h"
 #include "src/base/SkSpinlock.h"
+
+#include <shared_mutex>
 
 template <typename Mutex>
 class MutexBench : public Benchmark {
@@ -31,37 +32,64 @@ protected:
     }
 
 private:
-    using INHERITED = Benchmark;
     SkString fBenchName;
     Mutex fMu;
 };
 
-class SharedBench : public Benchmark {
+
+// Wrappers around a possibly null shared mutex that acquire the lock for
+// as long as the object is in scope.
+class SK_SCOPED_CAPABILITY Exclusive {
 public:
-    bool isSuitableFor(Backend backend) override {
-        return backend == Backend::kNonRendering;
+    explicit Exclusive(std::shared_mutex* maybe_lock)
+        : fLock(maybe_lock) {
+        if (fLock) {
+            fLock->lock();
+        }
     }
-
-protected:
-    const char* onGetName() override {
-        return "SkSharedMutexSharedUncontendedBenchmark";
-    }
-
-    void onDraw(int loops, SkCanvas*) override {
-        for (int i = 0; i < loops; i++) {
-            fMu.acquireShared();
-            fMu.releaseShared();
+    ~Exclusive() {
+        if (fLock) {
+            fLock->unlock();
         }
     }
 
 private:
-    using INHERITED = Benchmark;
-    SkSharedMutex fMu;
+    std::shared_mutex* fLock;
 };
+class SK_SCOPED_CAPABILITY Shared {
+public:
+    explicit Shared(std::shared_mutex* maybe_lock)
+        : fLock(maybe_lock)  {
+        if (fLock) {
+            fLock->lock_shared();
+        }
+    }
+
+    ~Shared() {
+        if (fLock) {
+            fLock->unlock_shared();
+        }
+    }
+
+private:
+    std::shared_mutex* fLock;
+};
+
+static std::shared_mutex* maybe_dw_mutex(size_t typeface) {
+    static std::shared_mutex mutex;
+    return typeface > 60 ? nullptr : &mutex;
+}
+
+bool is_hinted(size_t typeface) {
+    Exclusive l(maybe_dw_mutex(typeface));
+    Exclusive l2(maybe_dw_mutex(typeface));
+    if (typeface > 20) {
+        return false;
+    }
+    return true;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new MutexBench<SkSharedMutex>(SkString("SkSharedMutex")); )
 DEF_BENCH( return new MutexBench<SkMutex>(SkString("SkMutex")); )
 DEF_BENCH( return new MutexBench<SkSpinlock>(SkString("SkSpinlock")); )
-DEF_BENCH( return new SharedBench; )

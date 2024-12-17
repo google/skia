@@ -42,6 +42,7 @@
 #include "src/utils/SkMatrix22.h"
 
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <tuple>
 
@@ -1749,7 +1750,7 @@ void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
     int i;
     {
         // Optimistically use a shared lock.
-        SkAutoSharedMutexShared ama(fC2GCacheMutex);
+        std::shared_lock<std::shared_mutex> ama(fC2GCacheMutex);
         for (i = 0; i < count; ++i) {
             int index = fC2GCache.findGlyphIndex(uni[i]);
             if (index < 0) {
@@ -1764,7 +1765,7 @@ void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
     }
 
     // Need to add more so grab an exclusive lock.
-    SkAutoSharedMutexExclusive ama(fC2GCacheMutex);
+    std::unique_lock<std::shared_mutex> ama(fC2GCacheMutex);
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
