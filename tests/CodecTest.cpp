@@ -2088,3 +2088,20 @@ DEF_TEST(Codec_jpeg_can_return_data_from_original_stream, r) {
     REPORTER_ASSERT(r, encodedData->size() == expectedBytes);
     REPORTER_ASSERT(r, SkJpegDecoder::IsJpeg(encodedData->data(), encodedData->size()));
 }
+
+DEF_TEST(Codec_jpeg_decode_progressive_truncated_stream, r) {
+    constexpr char path[] = "images/progressive_kitten_missing_eof.jpg";
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
+    if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(stream));
+    REPORTER_ASSERT(r, codec);
+
+    SkBitmap bm;
+    SkImageInfo info = codec->getInfo();
+    REPORTER_ASSERT(r, bm.tryAllocPixels(info));
+    SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
+    REPORTER_ASSERT(r, result == SkCodec::kSuccess);
+}

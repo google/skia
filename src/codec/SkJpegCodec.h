@@ -130,7 +130,8 @@ private:
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options,
                             bool needsCMYKToRGB);
     [[nodiscard]] bool allocateStorage(const SkImageInfo& dstInfo);
-    int readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count, const Options&);
+    Result readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes, int count,
+                  const Options&, int* rowsDecoded);
 
     /*
      * Scanline decoding.
