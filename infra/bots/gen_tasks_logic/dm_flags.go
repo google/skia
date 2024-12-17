@@ -551,6 +551,18 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "test", ALL, "ProcessorCloneTest")
 		}
 
+		if b.model("MotoG73") {
+			// https://g-issues.skia.org/issues/370739986
+			skip(ALL, "test", ALL, "SkSLSwizzleIndexStore_Ganesh")
+			skip(ALL, "test", ALL, "SkSLMatrixScalarMath_Ganesh")
+			skip(ALL, "test", ALL, "SkSLMatrixOpEqualsES3_Ganesh")
+			skip(ALL, "test", ALL, "SkSLMatrixScalarNoOpFolding_Ganesh")
+
+			skip(ALL, "test", ALL, "SkSLIncrementDisambiguation_Ganesh")
+			skip(ALL, "test", ALL, "SkSLArrayFolding_Ganesh")
+			skip(ALL, "test", ALL, "SkSLIntrinsicModf_Ganesh")
+		}
+
 		if b.model("Spin513") {
 			// skbug.com/11876
 			skip(ALL, "test", ALL, "Programs")
@@ -574,7 +586,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		if b.extraConfig("Vulkan") && !b.extraConfig("Graphite") {
 			configs = []string{"vk"}
 			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926, skia:9023
-			if !b.matchGpu("Intel") {
+			// MSAA4 is not supported on the MotoG73
+			//     "Configuration 'vkmsaa4' sample count 4 is not a supported sample count."
+			if !b.matchGpu("Intel")  && !b.model("MotoG73") {
 				configs = append(configs, "vkmsaa4")
 			}
 			// Temporarily limit the machines we test dynamic MSAA on.

@@ -92,6 +92,12 @@ alias(
 ###
 
 alias(
+    name = "graphite_dawn_vulkan",
+    actual = "//src/gpu/graphite/vk:graphite_dawn_vulkan",
+    visibility = ["//visibility:public"],
+)
+
+alias(
     name = "graphite_native_metal",
     actual = "//src/gpu/graphite/mtl:graphite_native_metal",
     visibility = ["//visibility:public"],

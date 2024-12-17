@@ -44,7 +44,7 @@ class AndroidFlavor(default.DefaultFlavor):
     self.cant_root = ['GalaxyS7_G930FD', 'GalaxyS9',
                       'GalaxyS20', 'MotoG4', 'NVIDIA_Shield',
                       'P30', 'Pixel4','Pixel4XL', 'Pixel5', 'TecnoSpark3Pro', 'JioNext',
-                      'GalaxyS24']
+                      'GalaxyS24', 'MotoG73']
 
     self.use_performance_governor_for_dm = [
       'Pixel3a',
