@@ -588,7 +588,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926, skia:9023
 			// MSAA4 is not supported on the MotoG73
 			//     "Configuration 'vkmsaa4' sample count 4 is not a supported sample count."
-			if !b.matchGpu("Intel")  && !b.model("MotoG73") {
+			if !b.matchGpu("Intel") && !b.model("MotoG73") {
 				configs = append(configs, "vkmsaa4")
 			}
 			// Temporarily limit the machines we test dynamic MSAA on.
