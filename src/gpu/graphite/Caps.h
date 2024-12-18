@@ -61,6 +61,10 @@ struct ResourceBindingRequirements {
     // Whether buffer, texture, and sampler resource bindings use distinct index ranges.
     bool fDistinctIndexRanges = false;
 
+    // Whether intrinsic constant information is stored as push constants (rather than normal UBO).
+    // Currently only relevant or possibly true for Vulkan.
+    bool fUseVulkanPushConstantsForIntrinsicConstants = false;
+
     int fIntrinsicBufferBinding = -1;
     int fRenderStepBufferBinding = -1;
     int fPaintParamsBufferBinding = -1;

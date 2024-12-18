@@ -100,7 +100,15 @@ private:
     void bindUniformBuffers();
     void syncDescriptorSets();
 
+    struct PushConstantInfo {
+        uint32_t fOffset;
+        uint32_t fSize;
+        VkShaderStageFlagBits fShaderStageFlagBits;
+        const void* fValues;
+    };
     void bindGraphicsPipeline(const GraphicsPipeline*);
+    void pushConstants(const PushConstantInfo&, VkPipelineLayout compatibleLayout);
+
     void setBlendConstants(float* blendConstants);
     void bindDrawBuffers(const BindBufferInfo& vertices,
                          const BindBufferInfo& instances,
@@ -170,10 +178,6 @@ private:
                          void* barrier);
     void submitPipelineBarriers(bool forSelfDependency = false);
 
-    // Update the intrinsic constant uniform buffer and binding to reflect the updated viewport.
-    // The resource provider is responsible for finding a suitable buffer and managing its lifetime.
-    bool updateIntrinsicUniforms(SkIRect viewport);
-
     bool loadMSAAFromResolve(const RenderPassDesc&,
                              VulkanTexture& resolveTexture,
                              SkISize dstDimensions,
@@ -230,9 +234,6 @@ private:
     size_t fBoundIndirectBufferOffset = 0;
 
     float fCachedBlendConstant[4];
-
-    class IntrinsicConstantsManager;
-    std::unique_ptr<IntrinsicConstantsManager> fIntrinsicConstants;
 };
 
 } // namespace skgpu::graphite

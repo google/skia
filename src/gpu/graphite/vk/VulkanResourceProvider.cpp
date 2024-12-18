@@ -42,13 +42,42 @@ namespace skgpu::graphite {
 
 constexpr int kMaxNumberOfCachedBufferDescSets = 1024;
 
+namespace {
+VkPipelineLayout create_mock_layout(const VulkanSharedContext* sharedContext) {
+    SkASSERT(sharedContext);
+    VkPushConstantRange pushConstantRange;
+    pushConstantRange.offset = 0;
+    pushConstantRange.size = VulkanResourceProvider::kIntrinsicConstantSize;
+    pushConstantRange.stageFlags = VulkanResourceProvider::kIntrinsicConstantStageFlags;
+
+    VkPipelineLayoutCreateInfo layoutCreateInfo;
+    memset(&layoutCreateInfo, 0, sizeof(VkPipelineLayoutCreateFlags));
+    layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    layoutCreateInfo.pNext = nullptr;
+    layoutCreateInfo.flags = 0;
+    layoutCreateInfo.setLayoutCount = 0;
+    layoutCreateInfo.pSetLayouts = nullptr;
+    layoutCreateInfo.pushConstantRangeCount = 1;
+    layoutCreateInfo.pPushConstantRanges = &pushConstantRange;
+
+    VkResult result;
+    VkPipelineLayout layout;
+    VULKAN_CALL_RESULT(sharedContext,
+                       result,
+                       CreatePipelineLayout(sharedContext->device(),
+                                            &layoutCreateInfo,
+                                            /*const VkAllocationCallbacks*=*/nullptr,
+                                            &layout));
+    return layout;
+}
+} // anonymous
 VulkanResourceProvider::VulkanResourceProvider(SharedContext* sharedContext,
                                                SingleOwner* singleOwner,
                                                uint32_t recorderID,
-                                               size_t resourceBudget,
-                                               sk_sp<Buffer> intrinsicConstantUniformBuffer)
+                                               size_t resourceBudget)
         : ResourceProvider(sharedContext, singleOwner, recorderID, resourceBudget)
-        , fIntrinsicUniformBuffer(std::move(intrinsicConstantUniformBuffer))
+        , fMockPushConstantPipelineLayout(
+                create_mock_layout(static_cast<const VulkanSharedContext*>(sharedContext)))
         , fUniformBufferDescSetCache(kMaxNumberOfCachedBufferDescSets) {}
 
 VulkanResourceProvider::~VulkanResourceProvider() {
@@ -76,6 +105,12 @@ VulkanResourceProvider::~VulkanResourceProvider() {
                                           fMSAALoadPipelineLayout,
                                           nullptr));
     }
+    if (fMockPushConstantPipelineLayout) {
+        VULKAN_CALL(this->vulkanSharedContext()->interface(),
+                    DestroyPipelineLayout(this->vulkanSharedContext()->device(),
+                                          fMockPushConstantPipelineLayout,
+                                          nullptr));
+    }
 }
 
 const VulkanSharedContext* VulkanResourceProvider::vulkanSharedContext() const {
@@ -99,10 +134,6 @@ sk_sp<Texture> VulkanResourceProvider::onCreateWrappedTexture(const BackendTextu
                                       BackendTextures::GetVkImage(texture),
                                       /*alloc=*/{} /*Skia does not own wrapped texture memory*/,
                                       std::move(ycbcrConversion));
-}
-
-sk_sp<Buffer> VulkanResourceProvider::refIntrinsicConstantBuffer() const {
-    return fIntrinsicUniformBuffer;
 }
 
 sk_sp<GraphicsPipeline> VulkanResourceProvider::createGraphicsPipeline(
@@ -254,6 +285,7 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
     if (requestedDescriptors.empty()) {
         return nullptr;
     }
+
     // Search for available descriptor sets by assembling a key based upon the set's structure.
     GraphiteResourceKey key = build_desc_set_key(requestedDescriptors);
     if (auto descSet = fResourceCache->findAndRefResource(key, skgpu::Budgeted::kYes)) {

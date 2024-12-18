@@ -156,16 +156,20 @@ std::string get_node_ssbo_fields(const ShaderNode* node, bool* wrotePaintColor) 
     return result;
 }
 
-std::string emit_intrinsic_uniforms(int bufferID, Layout layout) {
-    auto offsetter = UniformOffsetCalculator::ForTopLevel(layout);
+std::string emit_intrinsic_constants(const ResourceBindingRequirements& bindingReqs) {
+    std::string result;
+    auto offsetter = UniformOffsetCalculator::ForTopLevel(bindingReqs.fUniformBufferLayout);
 
-    std::string result = get_uniform_header(bufferID, "Intrinsic");
+    if (bindingReqs.fUseVulkanPushConstantsForIntrinsicConstants) {
+        result = "layout (vulkan, push_constant) uniform IntrinsicUniforms {\n";
+    } else {
+        result = get_uniform_header(bindingReqs.fIntrinsicBufferBinding, "Intrinsic");
+    }
     result += get_uniforms(&offsetter, kIntrinsicUniforms, -1, /* wrotePaintColor= */ nullptr);
     result.append("};\n\n");
-
-    SkASSERTF(result.find('[') == std::string::npos,
+    SkASSERTF(bindingReqs.fUseVulkanPushConstantsForIntrinsicConstants ||
+              result.find('[') == std::string::npos,
               "Arrays are not supported in intrinsic uniforms");
-
     return result;
 }
 
@@ -628,8 +632,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
 
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     const ResourceBindingRequirements& bindingReqs = caps->resourceBindingRequirements();
-    preamble += emit_intrinsic_uniforms(bindingReqs.fIntrinsicBufferBinding,
-                                        bindingReqs.fUniformBufferLayout);
+    preamble += emit_intrinsic_constants(bindingReqs);
     if (hasStepUniforms) {
         if (useStepStorageBuffer) {
             preamble += emit_render_step_storage_buffer(bindingReqs.fRenderStepBufferBinding,
@@ -888,8 +891,7 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
 
     // Fixed program header (intrinsics are always declared as an uniform interface block)
     const ResourceBindingRequirements& bindingReqs = caps->resourceBindingRequirements();
-    std::string sksl = emit_intrinsic_uniforms(bindingReqs.fIntrinsicBufferBinding,
-                                               bindingReqs.fUniformBufferLayout);
+    std::string sksl = emit_intrinsic_constants(bindingReqs);
 
     if (step->numVertexAttributes() > 0 || step->numInstanceAttributes() > 0) {
         int attr = 0;

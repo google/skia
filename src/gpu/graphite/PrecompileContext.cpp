@@ -24,11 +24,8 @@ PrecompileContext::PrecompileContext(sk_sp<SharedContext> sharedContext)
     // ResourceProviders are not thread-safe. Here we create a ResourceProvider
     // specifically for the thread on which precompilation will occur.
     static constexpr size_t kEmptyBudget = 0;
-    fResourceProvider = fSharedContext->makeResourceProvider(
-            &fSingleOwner,
-            SK_InvalidGenID,
-            kEmptyBudget,
-            /* avoidBufferAlloc= */ true);
+    fResourceProvider =
+            fSharedContext->makeResourceProvider(&fSingleOwner, SK_InvalidGenID, kEmptyBudget);
 }
 
 } // namespace skgpu::graphite

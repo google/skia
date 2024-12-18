@@ -35,11 +35,10 @@ class VulkanRenderPass;
 
 class VulkanGraphicsPipeline final : public GraphicsPipeline {
 public:
-    inline static constexpr unsigned int kIntrinsicUniformBufferIndex = 0;
-    inline static constexpr unsigned int kRenderStepUniformBufferIndex = 1;
-    inline static constexpr unsigned int kPaintUniformBufferIndex = 2;
-    inline static constexpr unsigned int kGradientBufferIndex = 3;
-    inline static constexpr unsigned int kNumUniformBuffers = 4;
+    inline static constexpr unsigned int kRenderStepUniformBufferIndex = 0;
+    inline static constexpr unsigned int kPaintUniformBufferIndex = 1;
+    inline static constexpr unsigned int kGradientBufferIndex = 2;
+    inline static constexpr unsigned int kNumUniformBuffers = 3;
 
     // For now, rigidly assign all uniform buffer descriptors to be in set 0, all
     // texture/samplers to be in set 1, and any input attachments to be in set 2.

@@ -57,11 +57,10 @@ UniquePaintParamsID ExtractPaintData(Recorder*,
 static constexpr Uniform kIntrinsicUniforms[] = { {"viewport",      SkSLType::kFloat4},
                                                   {"dstCopyBounds", SkSLType::kFloat4} };
 
-void CollectIntrinsicUniforms(
-        const Caps* caps,
-        SkIRect viewport,
-        SkIRect dstCopyBounds,
-        UniformManager*);
+void CollectIntrinsicUniforms(const Caps* caps,
+                              SkIRect viewport,
+                              SkIRect dstCopyBounds,
+                              UniformManager*);
 
 DstReadRequirement GetDstReadRequirement(const Caps*, std::optional<SkBlendMode>, Coverage);
 

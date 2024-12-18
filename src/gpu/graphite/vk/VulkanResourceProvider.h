@@ -35,19 +35,24 @@ class VulkanYcbcrConversion;
 class VulkanResourceProvider final : public ResourceProvider {
 public:
     static constexpr size_t kIntrinsicConstantSize = sizeof(float) * 8; // float4 + 2xfloat2
-    static constexpr size_t kLoadMSAAVertexBufferSize = sizeof(float) * 8; // 4 points of 2 floats
+    // Intrinsic constant rtAdjust value is needed by the vertex shader. Dst copy bounds are needed
+    // in the frag shader.
+    static constexpr VkShaderStageFlagBits kIntrinsicConstantStageFlags =
+            VkShaderStageFlagBits(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
+
+    static constexpr size_t kLoadMSAAPushConstantSize = sizeof(float) * 4;
+    static constexpr VkShaderStageFlagBits kLoadMSAAPushConstantStageFlags =
+            VK_SHADER_STAGE_VERTEX_BIT;
+
 
     using UniformBindGroupKey = FixedSizeKey<2 * VulkanGraphicsPipeline::kNumUniformBuffers>;
 
     VulkanResourceProvider(SharedContext* sharedContext,
                            SingleOwner*,
                            uint32_t recorderID,
-                           size_t resourceBudget,
-                           sk_sp<Buffer> intrinsicConstantUniformBuffer);
+                           size_t resourceBudget);
 
     ~VulkanResourceProvider() override;
-
-    sk_sp<Buffer> refIntrinsicConstantBuffer() const;
 
     sk_sp<VulkanYcbcrConversion> findOrCreateCompatibleYcbcrConversion(
             const VulkanYcbcrConversionInfo& ycbcrInfo) const;
@@ -104,16 +109,17 @@ private:
             const RenderPassDesc&, bool compatibleOnly, const GraphiteResourceKey& rpKey);
 
     VkPipelineCache pipelineCache();
+    VkPipelineLayout mockPushConstantPipelineLayout() const {
+        return fMockPushConstantPipelineLayout;
+    }
 
     friend class VulkanCommandBuffer;
     friend class VulkanGraphicsPipeline;
     VkPipelineCache fPipelineCache = VK_NULL_HANDLE;
 
-    // Each render pass will need buffer space to record rtAdjust information. To minimize costly
-    // allocation calls and searching of the resource cache, we find & store a uniform buffer upon
-    // resource provider creation. This way, render passes across all command buffers can simply
-    // update the value within this buffer as needed.
-    sk_sp<Buffer> fIntrinsicUniformBuffer;
+    // Create and store a pipeline layout that has compatible push constant parameters with other
+    // real pipeline layouts that can be reused across command buffers.
+    VkPipelineLayout fMockPushConstantPipelineLayout;
 
     // The first value of the pair is a renderpass key. Graphics pipeline keys contain extra
     // information that we do not need for identifying unique pipelines.

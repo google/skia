@@ -72,7 +72,7 @@ VkShaderModule createVulkanShaderModule(const VulkanSharedContext* context,
 void DescriptorDataToVkDescSetLayout(const VulkanSharedContext* ctxt,
                                      const SkSpan<DescriptorData>& requestedDescriptors,
                                      VkDescriptorSetLayout* outLayout) {
-    // If requestedDescriptors is empty, that simply means we should create a placeholder "dummy"
+    // If requestedDescriptors is empty, that simply means we should create an empty placeholder
     // layout that doesn't actually contain any descriptors.
     skia_private::STArray<kDescriptorTypeCount, VkDescriptorSetLayoutBinding> bindingLayouts;
     for (size_t i = 0; i < requestedDescriptors.size(); i++) {
