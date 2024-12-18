@@ -12,11 +12,6 @@ var deps = deps_parser.DepsEntries{
 		Version: "c8d0c9b1d16bfda56f15165d39e0ffa360a11123",
 		Path:    "third_party/externals/dng_sdk",
 	},
-	"android.googlesource.com/platform/external/libmicrohttpd": {
-		Id:      "android.googlesource.com/platform/external/libmicrohttpd",
-		Version: "748945ec6f1c67b7efc934ab0808e1d32f2fb98d",
-		Path:    "third_party/externals/microhttpd",
-	},
 	"android.googlesource.com/platform/external/perfetto": {
 		Id:      "android.googlesource.com/platform/external/perfetto",
 		Version: "93885509be1c9240bc55fa515ceb34811e54a394",
