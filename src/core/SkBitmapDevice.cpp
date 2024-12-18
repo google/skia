@@ -353,19 +353,11 @@ void SkBitmapDevice::drawRect(const SkRect& r, const SkPaint& paint) {
 }
 
 void SkBitmapDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
-    // call the VIRTUAL version, so any subclasses who do handle drawPath aren't
-    // required to override drawOval.
     this->drawPath(SkPath::Oval(oval), paint, true);
 }
 
 void SkBitmapDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
-#ifdef SK_IGNORE_BLURRED_RRECT_OPT
-    // call the VIRTUAL version, so any subclasses who do handle drawPath aren't
-    // required to override drawRRect.
-    this->drawPath(SkPath::RRect(rrect), paint, true);
-#else
     LOOP_TILER( drawRRect(rrect, paint), Bounder(rrect.getBounds(), paint))
-#endif
 }
 
 void SkBitmapDevice::drawPath(const SkPath& path,
