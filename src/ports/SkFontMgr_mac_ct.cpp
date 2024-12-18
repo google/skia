@@ -146,7 +146,9 @@ static SkUniqueCFRef<CTFontDescriptorRef> create_descriptor(const char familyNam
     // CTFontTraits (slant)
     // macOS 15 behaves badly when kCTFontSlantTrait is set.
     if (SkGetCoreTextVersion() != kSkiaLocalCTVersionNumber10_15) {
-        CGFloat ctSlant = style.slant() == SkFontStyle::kUpright_Slant ? 0 : 1;
+        // Slope value set to 0.07 based on WebKit's implementation for better font matching
+        static const CGFloat kSystemFontItalicSlope = 0.07;
+        CGFloat ctSlant = style.slant() == SkFontStyle::kUpright_Slant ? 0 : kSystemFontItalicSlope;
         SkUniqueCFRef<CFNumberRef> cfFontSlant(
                 CFNumberCreate(kCFAllocatorDefault, kCFNumberCGFloatType, &ctSlant));
         if (cfFontSlant) {
