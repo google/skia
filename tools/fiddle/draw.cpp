@@ -9,9 +9,12 @@
 // assembled by the fiddler program to compile into a fiddle: an
 // implementation of the GetDrawOptions() and draw() functions.
 
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "skia.h"
+
+// fiddle_main.h (purposefully) pollutes the global namespace with very generic identifiers like
+// "image", "duration", "frame", and "fontMgr". As such it is something of an
+// "implementation header" and should be included last to avoid name shadowing warnings.
 #include "tools/fiddle/fiddle_main.h"
-#include "tools/gpu/ManagedBackendTexture.h"
 
 DrawOptions GetDrawOptions() {
     // path *should* be absolute.
