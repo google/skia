@@ -11,6 +11,12 @@
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "tools/MSKPPlayer.h"
 
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Recorder.h"
+#include "src/gpu/graphite/RecorderPriv.h"
+#endif
+
 MSKPBench::MSKPBench(SkString name, std::unique_ptr<MSKPPlayer> player)
         : fName(name), fPlayer(std::move(player)) {}
 
@@ -26,6 +32,21 @@ void MSKPBench::onDraw(int loops, SkCanvas* canvas) {
             if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
                 dContext->flushAndSubmit();
             }
+
+#if defined(SK_GRAPHITE)
+        skgpu::graphite::Recorder* recorder = canvas->recorder();
+        if (recorder) {
+            std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
+            if (recording) {
+                skgpu::graphite::InsertRecordingInfo info;
+                info.fRecording = recording.get();
+                skgpu::graphite::Context* context = recorder->priv().context();
+                context->insertRecording(info);
+                context->submit();
+            }
+        }
+#endif
+
         }
         // Ensure each loop replays all offscreen layer draws from scratch.
         fPlayer->rewindLayers();
