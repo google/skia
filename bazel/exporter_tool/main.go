@@ -54,7 +54,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/codec:png_codec_base_srcs",
 			},
 		},
-		// TODO(https://crbug.com/381900683): Replace this with more granular lists.
+		// TODO(https://crbug.com/381900683): Replace this with more granular lists
+		// (with `skia_codec_png_base` + `skia_codec_libpng_srcs`).
 		{Var: "skia_codec_png",
 			Rules: []string{
 				"//src/codec:buffet_libpng_srcs",
@@ -156,10 +157,16 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/encode:png_encode_base_srcs",
 				"//src/encode:png_encode_base_hdrs",
 			}},
+		{Var: "skia_encode_libpng_srcs",
+			Rules: []string{
+				"//src/encode:png_encode_srcs",
+				"//src/encode:png_encode_hdrs",
+			}},
 		// TODO(https://crbug.com/381900683): Rename this list.
 		{Var: "skia_encode_png_public",
 			Rules: []string{"//include/encode:png_hdrs"}},
-		// TODO(https://crbug.com/381900683): Replace this with more granular lists.
+		// TODO(https://crbug.com/381900683): Replace this with more granular lists
+		// (with `skia_encode_libpng_srcs` + `skia_encode_png_base`.
 		{Var: "skia_encode_png_srcs",
 			Rules: []string{
 				"//src/encode:png_encode_base_srcs",
