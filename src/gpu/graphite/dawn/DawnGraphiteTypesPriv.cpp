@@ -14,6 +14,7 @@ namespace ycbcrUtils {
 bool DawnDescriptorsAreEquivalent(const wgpu::YCbCrVkDescriptor& desc1,
                                   const wgpu::YCbCrVkDescriptor& desc2) {
     return desc1.vkFormat                    == desc2.vkFormat                    &&
+           desc1.vkYCbCrModel                == desc2.vkYCbCrModel                &&
            desc1.vkYCbCrRange                == desc2.vkYCbCrRange                &&
            desc1.vkComponentSwizzleRed       == desc2.vkComponentSwizzleRed       &&
            desc1.vkComponentSwizzleGreen     == desc2.vkComponentSwizzleGreen     &&
