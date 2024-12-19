@@ -74,6 +74,12 @@
 */
 //#define SK_R32_SHIFT    16
 
+/*  This controls how much space should be pre-allocated in an SkCanvas object
+    to store the SkMatrix and clip via calls to SkCanvas::save() (and balanced with
+    SkCanvas::restore()).
+*/
+//#define SK_CANVAS_SAVE_RESTORE_PREALLOC_COUNT 32
+
 /* Determines whether to build code that supports the Ganesh GPU backend. Some classes
    that are not GPU-specific, such as SkShader subclasses, have optional code
    that is used allows them to interact with this GPU backend. If you'd like to

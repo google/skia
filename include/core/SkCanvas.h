@@ -2503,7 +2503,11 @@ private:
         void reset(SkDevice* device);
     };
 
-    static constexpr int kMCRecCount   = 32; // common depth for save/restores
+#if defined(SK_CANVAS_SAVE_RESTORE_PREALLOC_COUNT)
+    static constexpr int kMCRecCount = SK_CANVAS_SAVE_RESTORE_PREALLOC_COUNT;
+#else
+    static constexpr int kMCRecCount = 32; // common depth for save/restores
+#endif
 
     // This stack allocation of memory will be used to house the first kMCRecCount
     // layers without need to call malloc.
