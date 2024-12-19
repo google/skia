@@ -66,6 +66,9 @@ const (
 	COMPILE_TASK_NAME_OS_LINUX_OLD = "Debian9"
 	DEFAULT_OS_MAC                 = "Mac-14.5"
 	DEFAULT_OS_WIN_GCE             = "Windows-Server-17763"
+	UBUNTU_20_04_OS                = "Ubuntu-20.04"
+	UBUNTU_22_04_OS                = "Ubuntu-22.04"
+	UBUNTU_24_04_OS                = "Ubuntu-24.04"
 
 	// Small is a 2-core machine.
 	// TODO(dogben): Would n1-standard-1 or n1-standard-2 be sufficient?
@@ -860,26 +863,29 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 	}
 	if os, ok := b.parts["os"]; ok {
 		d["os"], ok = map[string]string{
-			"Android":    "Android",
-			"Android12":  "Android",
-			"ChromeOS":   "ChromeOS",
-			"Debian9":    DEFAULT_OS_LINUX_GCE, // Runs in Deb9 Docker.
-			"Debian10":   DEFAULT_OS_LINUX_GCE,
-			"Debian11":   DEBIAN_11_OS,
-			"Mac":        DEFAULT_OS_MAC,
-			"Mac10.15.1": "Mac-10.15.1",
-			"Mac10.15.7": "Mac-10.15.7",
-			"Mac11":      "Mac-11.4",
-			"Mac12":      "Mac-12",
-			"Mac13":      "Mac-13",
-			"Mokey":      "Android",
-			"MokeyGo32":  "Android",
-			"Ubuntu18":   "Ubuntu-18.04",
-			"Win":        DEFAULT_OS_WIN_GCE,
-			"Win10":      "Windows-10-19045",
-			"Win11":      "Windows-11-26100.1742",
-			"Win2019":    DEFAULT_OS_WIN_GCE,
-			"iOS":        "iOS-13.3.1",
+			"Android":     "Android",
+			"Android12":   "Android",
+			"ChromeOS":    "ChromeOS",
+			"Debian9":     DEFAULT_OS_LINUX_GCE, // Runs in Deb9 Docker.
+			"Debian10":    DEFAULT_OS_LINUX_GCE,
+			"Debian11":    DEBIAN_11_OS,
+			"Mac":         DEFAULT_OS_MAC,
+			"Mac10.15.1":  "Mac-10.15.1",
+			"Mac10.15.7":  "Mac-10.15.7",
+			"Mac11":       "Mac-11.4",
+			"Mac12":       "Mac-12",
+			"Mac13":       "Mac-13",
+			"Mokey":       "Android",
+			"MokeyGo32":   "Android",
+			"Ubuntu18":    "Ubuntu-18.04",
+			"Ubuntu20.04": UBUNTU_20_04_OS,
+			"Ubuntu22.04": UBUNTU_22_04_OS,
+			"Ubuntu24.04": UBUNTU_24_04_OS,
+			"Win":         DEFAULT_OS_WIN_GCE,
+			"Win10":       "Windows-10-19045",
+			"Win11":       "Windows-11-26100.1742",
+			"Win2019":     DEFAULT_OS_WIN_GCE,
+			"iOS":         "iOS-13.3.1",
 		}[os]
 		if !ok {
 			log.Fatalf("Entry %q not found in OS mapping.", os)
@@ -1007,6 +1013,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"RadeonR9M470X": "1002:6646-26.20.13031.18002",
 					"QuadroP400":    "10de:1cb3-31.0.15.5222",
 					"RadeonVega6":   "1002:1636-31.0.14057.5006",
+					"RadeonVega8":   "1002:1638-31.0.21916.2",
 					"RTX3060":       "10de:2489-32.0.15.6094",
 				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
@@ -1023,9 +1030,10 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"RTX3060":      "10de:2489-470.182.03",
 					"IntelIrisXe":  "8086:9a49",
 					"RadeonVega6":  "1002:1636",
+					"RadeonVega8":  "1002:1638-23.2.1",
 				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
-					log.Fatalf("Entry %q not found in Ubuntu GPU mapping.", b.parts["cpu_or_gpu_value"])
+					log.Fatalf("Entry %q not found in Linux GPU mapping.", b.parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
 
