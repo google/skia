@@ -186,7 +186,9 @@ skgpu::graphite::Recorder* Window::graphiteRecorder() const {
 #endif
 }
 
-bool Window::supportsGpuTimer() const { return fWindowContext->supportsGpuTimer(); }
+bool Window::supportsGpuTimer() const {
+    return fWindowContext ? fWindowContext->supportsGpuTimer() : false;
+}
 
 void Window::submitToGpu(GpuTimerCallback callback) {
     if (fWindowContext) {
