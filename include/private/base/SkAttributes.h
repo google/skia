@@ -70,6 +70,15 @@
 #endif
 
 /**
+ * Used to ignore CFI sanitizer warnings, supported only by Clang at the moment.
+ */
+#if defined(__clang__)
+  #define SK_NO_SANITIZE_CFI SK_NO_SANITIZE("cfi")
+#else
+  #define SK_NO_SANITIZE_CFI
+#endif
+
+/**
  * Annotates a class' non-trivial special functions as trivial for the purposes of calls.
  * Allows a class with a non-trivial destructor to be __is_trivially_relocatable.
  * Use of this attribute on a public API breaks platform ABI.
