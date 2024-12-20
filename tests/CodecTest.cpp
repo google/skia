@@ -2105,3 +2105,21 @@ DEF_TEST(Codec_jpeg_decode_progressive_truncated_stream, r) {
     SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
     REPORTER_ASSERT(r, result == SkCodec::kSuccess);
 }
+
+DEF_TEST(Codec_jpeg_decode_progressive_stream_incomplete, r) {
+    constexpr char path[] = "images/progressive_kitten_missing_eof.jpg";
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
+    if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+    size_t length = stream->getLength();
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromData(SkData::MakeFromStream(stream.get(), 1 * length / 10));
+    REPORTER_ASSERT(r, codec);
+
+    SkBitmap bm;
+    SkImageInfo info = codec->getInfo();
+    REPORTER_ASSERT(r, bm.tryAllocPixels(info));
+    SkCodec::Result result = codec->getPixels(info, bm.getPixels(), bm.rowBytes());
+    REPORTER_ASSERT(r, result == SkCodec::kIncompleteInput);
+}
