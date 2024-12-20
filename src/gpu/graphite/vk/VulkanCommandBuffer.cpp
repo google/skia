@@ -228,6 +228,8 @@ void VulkanCommandBuffer::prepareSurfaceForStateUpdate(SkSurface* targetSurface,
         return;
     }
 
+    this->trackCommandBufferResource(sk_ref_sp(texture));
+
     texture->setImageLayoutAndQueueIndex(this,
                                          newLayout,
                                          dstAccess,
@@ -625,21 +627,6 @@ void setup_texture_layouts(VulkanCommandBuffer* cmdBuf,
     }
 }
 
-void track_attachments(VulkanCommandBuffer* cmdBuf,
-                       VulkanTexture* colorTexture,
-                       VulkanTexture* resolveTexture,
-                       VulkanTexture* depthStencilTexture) {
-    if (colorTexture) {
-        cmdBuf->trackResource(sk_ref_sp(colorTexture));
-    }
-    if (resolveTexture){
-        cmdBuf->trackResource(sk_ref_sp(resolveTexture));
-    }
-    if (depthStencilTexture) {
-        cmdBuf->trackResource(sk_ref_sp(depthStencilTexture));
-    }
-}
-
 void gather_attachment_views(skia_private::TArray<VkImageView>& attachmentViews,
                              VulkanTexture* colorTexture,
                              VulkanTexture* resolveTexture,
@@ -768,8 +755,6 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
                     "attachments must be valid.");
         return false;
     }
-
-    track_attachments(this, vulkanColorTexture, vulkanResolveTexture, vulkanDepthStencilTexture);
 
     // Before beginning a renderpass, set all textures to the appropriate image layout.
     setup_texture_layouts(this,
@@ -1136,7 +1121,6 @@ void VulkanCommandBuffer::bindInputBuffer(const Buffer* buffer, VkDeviceSize off
                                              &offset));
             fBoundInputBuffers[binding] = vkBuffer;
             fBoundInputBufferOffsets[binding] = offset;
-            this->trackResource(sk_ref_sp(buffer));
         }
     }
 }
@@ -1153,7 +1137,6 @@ void VulkanCommandBuffer::bindIndexBuffer(const Buffer* indexBuffer, size_t offs
                                                                         VK_INDEX_TYPE_UINT16));
             fBoundIndexBuffer = vkBuffer;
             fBoundIndexBufferOffset = offset;
-            this->trackResource(sk_ref_sp(indexBuffer));
         }
     } else {
         fBoundIndexBuffer = VK_NULL_HANDLE;
@@ -1167,7 +1150,6 @@ void VulkanCommandBuffer::bindIndirectBuffer(const Buffer* indirectBuffer, size_
         SkASSERT(indirectBuffer->isProtected() == Protected::kNo);
         fBoundIndirectBuffer = static_cast<const VulkanBuffer*>(indirectBuffer)->vkBuffer();
         fBoundIndirectBufferOffset = offset;
-        this->trackResource(sk_ref_sp(indirectBuffer));
     } else {
         fBoundIndirectBuffer = VK_NULL_HANDLE;
         fBoundIndirectBufferOffset = 0;
@@ -1714,9 +1696,6 @@ void VulkanCommandBuffer::pipelineBarrier(const Resource* resource,
     fSrcStageMask = fSrcStageMask | srcStageMask;
     fDstStageMask = fDstStageMask | dstStageMask;
 
-    if (resource) {
-        this->trackResource(sk_ref_sp(resource));
-    }
     if (fActiveRenderPass) {
         this->submitPipelineBarriers(true);
     }
