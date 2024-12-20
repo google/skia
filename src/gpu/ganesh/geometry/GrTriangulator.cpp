@@ -957,8 +957,15 @@ static bool bottom_collinear(Edge* left, Edge* right) {
            !left->isLeftOf(*right->fBottom) || !right->isRightOf(*left->fBottom);
 }
 
+// How deep of a stack of mergeCollinearEdges() we'll accept
+static constexpr int kMaxMergeCollinearCalls = 56;
+
 bool GrTriangulator::mergeCollinearEdges(Edge* edge, EdgeList* activeEdges, Vertex** current,
                                          const Comparator& c) const {
+    // Stack is unreasonably deep
+    if (++fMergeCollinearStackCount > kMaxMergeCollinearCalls) {
+        return false;
+    }
     for (;;) {
         if (top_collinear(edge->fPrevEdgeAbove, edge)) {
             if (!this->mergeEdgesAbove(edge->fPrevEdgeAbove, edge, activeEdges, current, c)) {
@@ -1030,6 +1037,7 @@ GrTriangulator::BoolFail GrTriangulator::splitEdge(
     Edge* newEdge = this->allocateEdge(top, bottom, winding, edge->fType);
     newEdge->insertBelow(top, c);
     newEdge->insertAbove(bottom, c);
+    fMergeCollinearStackCount = 0;
     if (!this->mergeCollinearEdges(newEdge, activeEdges, current, c)) {
         return BoolFail::kFail;
     }
@@ -1095,6 +1103,7 @@ Edge* GrTriangulator::makeConnectingEdge(Vertex* prev, Vertex* next, EdgeType ty
     edge->insertBelow(edge->fTop, c);
     edge->insertAbove(edge->fBottom, c);
     edge->fWinding *= windingScale;
+    fMergeCollinearStackCount = 0;
     this->mergeCollinearEdges(edge, nullptr, nullptr, c);
     return edge;
 }
