@@ -11,7 +11,9 @@
       android:name=".ViewerApplication"
       android:label="Viewer">
 
-    <activity android:name=".ViewerActivity">
+    <activity
+      android:name=".ViewerActivity"
+      android:exported="true">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
