@@ -520,7 +520,12 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
         // Native Dawn has an API for writing timestamps on command buffers. WebGPU only supports
         // begin and end timestamps on render and compute passes.
 #if !defined(__EMSCRIPTEN__)
-        fSupportsCommandBufferTimestamps = true;
+        // TODO(b/42240559): On Apple silicon, the timer queries don't have the correct dependencies
+        // to measure all the encoders that the start/end commands encapsulate in the commandbuffer.
+        // We would prefer to keep this API as it lets us measure our texture uploads. If either
+        // this is fixed in Dawn, we can unconditionally take this approach for dawn-native; or
+        // the WebGPU API can hopefully be extended to capture blit passes.
+        fSupportsCommandBufferTimestamps = info.backendType != wgpu::BackendType::Metal;
 #endif
 
         // The emscripten C/C++ interface before 3.1.48 for timestamp query writes on render and
