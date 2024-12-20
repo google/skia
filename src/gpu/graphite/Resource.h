@@ -234,6 +234,15 @@ private:
     void makeBudgeted() { fBudgeted = skgpu::Budgeted::kYes; }
     void makeUnbudgeted() { fBudgeted = skgpu::Budgeted::kNo; }
 
+    // If possible, queries the backend API to check the current allocation size of the gpu
+    // resource and updates the tracked value. This is specifically useful for Vulkan backends which
+    // use lazy allocated memory for "memoryless" resources. Ideally that memory should stay zero
+    // throughout its usage, but certain usage patterns can trigger the device to commit real memory
+    // to the resource. So this will allow us to have a more accurate tracking of our memory usage.
+    void updateGpuMemorySize() { fGpuMemorySize = this->onUpdateGpuMemorySize(); }
+    // Returns the current size of the Resource as seen from the backend API.
+    virtual size_t onUpdateGpuMemorySize() { return fGpuMemorySize; }
+
     // This version of ref allows adding a ref when the usage count is 0. This should only be called
     // from the ResourceCache.
     void initialUsageRef() const {

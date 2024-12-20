@@ -90,6 +90,9 @@ void ResourceCache::insertResource(Resource* resource) {
     // to update this check.
     SkASSERT(resource->ownership() == Ownership::kOwned);
 
+    // Make sure we have the most accurate memory size for "memoryless" resources.
+    resource->updateGpuMemorySize();
+
     // The reason to call processReturnedResources here is to get an accurate accounting of our
     // memory usage as some resources can go from unbudgeted to budgeted when they return. So we
     // want to have them all returned before adding the budget for the new resource in case we need
@@ -313,6 +316,15 @@ void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef rem
                 resource->makeBudgeted();
                 fBudgetedBytes += resource->gpuMemorySize();
             }
+        }
+    }
+
+    if (resource->budgeted() == skgpu::Budgeted::kYes) {
+        size_t oldSize = resource->gpuMemorySize();
+        resource->updateGpuMemorySize();
+        if (oldSize != resource->gpuMemorySize()) {
+            fBudgetedBytes -= oldSize;
+            fBudgetedBytes += resource->gpuMemorySize();
         }
     }
 
