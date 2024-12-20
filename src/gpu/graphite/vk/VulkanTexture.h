@@ -99,6 +99,8 @@ private:
 
     void freeGpuData() override;
 
+    size_t onUpdateGpuMemorySize() override;
+
     VkImage fImage;
     VulkanAlloc fMemoryAlloc;
     sk_sp<VulkanYcbcrConversion> fYcbcrConversion;
