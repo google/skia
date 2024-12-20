@@ -55,6 +55,7 @@ private:
 skgpu::UniqueKey GeneratePathMaskKey(const Shape& shape,
                                      const Transform& transform,
                                      const SkStrokeRec& strokeRec,
+                                     skvx::half2 maskOrigin,
                                      skvx::half2 maskSize);
 }  // namespace skgpu::graphite
 

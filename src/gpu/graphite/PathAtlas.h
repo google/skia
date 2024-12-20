@@ -115,6 +115,7 @@ protected:
     virtual const TextureProxy* onAddShape(const Shape&,
                                            const Transform& transform,
                                            const SkStrokeRec&,
+                                           skvx::half2 maskOrigin,
                                            skvx::half2 maskSize,
                                            skvx::half2* outPos) = 0;
 
@@ -125,6 +126,7 @@ protected:
                                               const Shape& shape,
                                               const Transform& transform,
                                               const SkStrokeRec& strokeRec,
+                                              skvx::half2 maskOrigin,
                                               skvx::half2 maskSize,
                                               skvx::half2* outPos);
         // Adds to DrawAtlas but not the cache

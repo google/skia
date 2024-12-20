@@ -55,10 +55,14 @@ std::pair<const Renderer*, std::optional<PathAtlas::MaskAndOrigin>> PathAtlas::a
     // This size does *not* include any padding that the atlas may place around the mask. This size
     // represents the area the shape can actually modify.
     maskInfo.fMaskSize = emptyMask ? skvx::half2(0) : skvx::cast<uint16_t>(maskBounds.size());
+    // We use the origin of the mask bounds to distinguish between clips of the same size.
+    Rect shapeDevBounds = localToDevice.mapRect(shape.bounds());
+    skvx::float2 shapeMaskOrigin = maskBounds.topLeft() - shapeDevBounds.topLeft();
     Transform atlasTransform = localToDevice.postTranslate(-maskBounds.left(), -maskBounds.top());
     const TextureProxy* atlasProxy = this->onAddShape(shape,
                                                       atlasTransform,
                                                       style,
+                                                      skvx::cast<uint16_t>(shapeMaskOrigin),
                                                       maskInfo.fMaskSize,
                                                       &maskInfo.fTextureOrigin);
     if (!atlasProxy) {
@@ -108,10 +112,12 @@ const TextureProxy* PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorde
                                                                const Shape& shape,
                                                                const Transform& transform,
                                                                const SkStrokeRec& strokeRec,
+                                                               skvx::half2 maskOrigin,
                                                                skvx::half2 maskSize,
                                                                skvx::half2* outPos) {
     // Shapes must have a key to use this method
-    skgpu::UniqueKey maskKey = GeneratePathMaskKey(shape, transform, strokeRec, maskSize);
+    skgpu::UniqueKey maskKey = GeneratePathMaskKey(shape, transform, strokeRec,
+                                                   maskOrigin, maskSize);
     AtlasLocator* cachedLocator = fShapeCache.find(maskKey);
     if (cachedLocator) {
         SkIPoint topLeft = cachedLocator->topLeft();

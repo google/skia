@@ -44,6 +44,7 @@ protected:
     const TextureProxy* onAddShape(const Shape&,
                                    const Transform& transform,
                                    const SkStrokeRec&,
+                                   skvx::half2 maskOrigin,
                                    skvx::half2 maskSize,
                                    skvx::half2* outPos) override;
 private:

@@ -131,6 +131,7 @@ private:
     const TextureProxy* onAddShape(const Shape&,
                                    const Transform&,
                                    const SkStrokeRec&,
+                                   skvx::half2 maskOrigin,
                                    skvx::half2 maskSize,
                                    skvx::half2* outPos) override;
     void onReset() override {
@@ -309,6 +310,7 @@ const TextureProxy* VelloComputePathAtlas::onAddShape(
         const Shape& shape,
         const Transform& transform,
         const SkStrokeRec& style,
+        skvx::half2 maskOrigin,
         skvx::half2 maskSize,
         skvx::half2* outPos) {
 
@@ -320,6 +322,7 @@ const TextureProxy* VelloComputePathAtlas::onAddShape(
                                                                       shape,
                                                                       transform,
                                                                       style,
+                                                                      maskOrigin,
                                                                       maskSize,
                                                                       outPos);
         if (proxy) {

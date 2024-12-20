@@ -43,6 +43,7 @@ void RasterPathAtlas::recordUploads(DrawContext* dc) {
 const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
                                                 const Transform& transform,
                                                 const SkStrokeRec& strokeRec,
+                                                skvx::half2 maskOrigin,
                                                 skvx::half2 maskSize,
                                                 skvx::half2* outPos) {
     skgpu::UniqueKey maskKey;
@@ -56,6 +57,7 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
                                                          shape,
                                                          transform,
                                                          strokeRec,
+                                                         maskOrigin,
                                                          maskSize,
                                                          outPos);
         }
@@ -64,6 +66,7 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
                                                       shape,
                                                       transform,
                                                       strokeRec,
+                                                      maskOrigin,
                                                       maskSize,
                                                       outPos);
         }

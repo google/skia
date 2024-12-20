@@ -69,18 +69,20 @@ void RasterMaskHelper::drawShape(const Shape& shape,
 skgpu::UniqueKey GeneratePathMaskKey(const Shape& shape,
                                      const Transform& transform,
                                      const SkStrokeRec& strokeRec,
+                                     skvx::half2 maskOrigin,
                                      skvx::half2 maskSize) {
     skgpu::UniqueKey maskKey;
     {
         static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
-        int styleKeySize = 6;
+        int styleKeySize = 7;
         if (!strokeRec.isHairlineStyle() && !strokeRec.isFillStyle()) {
             // Add space for width and miter if needed
             styleKeySize += 2;
         }
         skgpu::UniqueKey::Builder builder(&maskKey, kDomain, styleKeySize + shape.keySize(),
                                           "Raster Path Mask");
-        builder[0] = maskSize.x() | (maskSize.y() << 16);
+        builder[0] = maskOrigin.x() | (maskOrigin.y() << 16);
+        builder[1] = maskSize.x() | (maskSize.y() << 16);
 
         // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
         SkMatrix mat = transform.matrix().asM33();
@@ -101,10 +103,10 @@ skgpu::UniqueKey GeneratePathMaskKey(const Shape& shape,
         SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
         SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
 #endif
-        builder[1] = SkFloat2Bits(sx);
-        builder[2] = SkFloat2Bits(sy);
-        builder[3] = SkFloat2Bits(kx);
-        builder[4] = SkFloat2Bits(ky);
+        builder[2] = SkFloat2Bits(sx);
+        builder[3] = SkFloat2Bits(sy);
+        builder[4] = SkFloat2Bits(kx);
+        builder[5] = SkFloat2Bits(ky);
         // FracX and fracY are &ed with 0x0000ff00, so need to shift one down to fill 16 bits.
         uint32_t fracBits = fracX | (fracY >> 8);
         // Distinguish between path styles. For anything but fill, we also need to include
@@ -119,8 +121,8 @@ skgpu::UniqueKey GeneratePathMaskKey(const Shape& shape,
         }
         if (!strokeRec.isHairlineStyle() && !strokeRec.isFillStyle()) {
             styleBits |= (strokeRec.getJoin() << 4);
-            builder[5] = SkFloat2Bits(strokeRec.getWidth());
-            builder[6] = SkFloat2Bits(strokeRec.getMiter());
+            builder[6] = SkFloat2Bits(strokeRec.getWidth());
+            builder[7] = SkFloat2Bits(strokeRec.getMiter());
         }
         builder[styleKeySize-1] = fracBits | (styleBits << 16);
         shape.writeKey(&builder[styleKeySize], /*includeInverted=*/false);
