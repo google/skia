@@ -531,7 +531,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 				// anglebug.com/7245
 				skip("angle_mtl_es3", "gm", ALL, "runtime_intrinsics_common_es3")
 
-				if b.gpu("AppleM1") {
+				if b.matchGpu("AppleM") {
 					// M1 Macs fail this test for sRGB color types
 					// skbug.com/13289
 					skip(ALL, "test", ALL, "TransferPixelsToTextureTest")

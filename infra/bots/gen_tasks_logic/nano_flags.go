@@ -55,7 +55,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 			if b.os("iOS") || b.model("Nexus7", "Pixel3a", "Pixel5") {
 				sampleCount = 0
 			}
-		} else if b.matchGpu("AppleM1") {
+		} else if b.matchGpu("AppleM") {
 			sampleCount = 4
 		} else if b.matchGpu("Intel") {
 			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
@@ -91,7 +91,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 
 		if sampleCount > 0 {
 			configs = append(configs, fmt.Sprintf("%smsaa%d", glPrefix, sampleCount))
-			if b.gpu("QuadroP400", "MaliG77", "AppleM1") {
+			if b.matchGpu("QuadroP400", "MaliG77", "AppleM") {
 				configs = append(configs, fmt.Sprintf("%sdmsaa", glPrefix))
 			}
 		}
@@ -121,7 +121,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		}
 		if b.extraConfig("Metal") && !b.extraConfig("Graphite") {
 			configs = []string{"mtl"}
-			if b.os("iOS") {
+			if b.os("iOS") || b.gpu("AppleM3") {
 				configs = append(configs, "mtlmsaa4")
 			} else {
 				configs = append(configs, "mtlmsaa8")
@@ -196,9 +196,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	args = append(args, "--config")
 	args = append(args, configs...)
 
-	// Use 4 internal msaa samples on mobile and AppleM1, otherwise 8.
+	// Use 4 internal msaa samples on mobile and AppleM*, otherwise 8.
 	args = append(args, "--internalSamples")
-	if b.matchOs("Android") || b.os("iOS") || b.matchGpu("AppleM1") {
+	if b.matchOs("Android") || b.os("iOS") || b.matchGpu("AppleM") {
 		args = append(args, "4")
 	} else {
 		args = append(args, "8")

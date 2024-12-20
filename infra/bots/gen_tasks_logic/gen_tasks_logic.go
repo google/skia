@@ -957,6 +957,9 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				"AppleM1": {
 					"MacMini9.1": "arm64-64-Apple_M1",
 				},
+				"AppleM3": {
+					"MacBookPro15.3": "arm64-64-Apple_M3",
+				},
 				"AppleIntel": {
 					"MacBookPro16.2": "x86-64",
 				},
@@ -1051,6 +1054,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			} else if b.matchOs("Mac") {
 				gpu, ok := map[string]string{
 					"AppleM1":       "AppleM1",
+					"AppleM3":       "apple:m3",
 					"IntelHD6000":   "8086:1626",
 					"IntelHD615":    "8086:591e",
 					"IntelIris5100": "8086:0a2e",
