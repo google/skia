@@ -312,3 +312,16 @@ cc_binary(
         "//conditions:default": [],
     }),
 )
+
+cc_binary(
+    name = "play_skottie",
+    srcs = ["src/play_skottie.cpp"],
+    linkopts = [
+        "-lpthread",
+    ],
+    deps = [
+        "@skia//:core",
+        "@skia//:png_encode_codec",
+        "@skia//:skottie",
+    ],
+)

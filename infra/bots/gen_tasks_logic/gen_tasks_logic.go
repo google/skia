@@ -2189,6 +2189,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"use_skresources":            {"//example/external_client:use_skresources", ""},
 	"write_text_to_png":          {"//example/external_client:write_text_to_png", ""},
 	"write_to_pdf":               {"//example/external_client:write_to_pdf", ""},
+	"play_skottie":               {"//example/external_client:play_skottie", ""},
 
 	// Currently there is no way to tell Bazel "only test go_test targets", so we must group them
 	// under a test_suite.

@@ -244,6 +244,14 @@ alias(
 ###
 
 alias(
+    name = "skottie",
+    actual = "//modules/skottie:skottie",
+    visibility = ["//visibility:public"],
+)
+
+###
+
+alias(
     name = "skparagraph_harfbuzz_skunicode",
     actual = "//modules/skparagraph:skparagraph_harfbuzz_skunicode",
     visibility = ["//visibility:public"],
