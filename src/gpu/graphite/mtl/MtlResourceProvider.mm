@@ -9,6 +9,7 @@
 
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/graphite/BackendTexture.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteTypesUtils.h"
 #include "src/sksl/SkSLProgramKind.h"
 
 #include "src/core/SkSLTypeShared.h"

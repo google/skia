@@ -6,6 +6,7 @@
  */
 #include "include/core/SkString.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteTypesUtils.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/mtl/MtlGraphiteTypesPriv.h"
 #include "src/gpu/mtl/MtlUtilsPriv.h"

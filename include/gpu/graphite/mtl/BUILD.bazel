@@ -11,6 +11,7 @@ skia_filegroup(
     srcs = [
         "MtlBackendContext.h",
         "MtlGraphiteTypes.h",
+        "MtlGraphiteTypesUtils.h",
         "MtlGraphiteUtils.h",
     ],
     visibility = [

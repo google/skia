@@ -284,6 +284,7 @@ skia_graphite_dawn_sources = [
 skia_graphite_mtl_public = [
   "$_include/mtl/MtlBackendContext.h",
   "$_include/mtl/MtlGraphiteTypes.h",
+  "$_include/mtl/MtlGraphiteTypesUtils.h",
   "$_include/mtl/MtlGraphiteUtils.h",
 ]
 

@@ -9,7 +9,7 @@
 #define skgpu_graphite_MtlBuffer_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "include/ports/SkCFObject.h"
 #include "src/gpu/graphite/Buffer.h"
 
 #import <Metal/Metal.h>
