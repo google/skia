@@ -315,7 +315,7 @@ SkPDFIndirectReference SkPDFStructElem::emitStructElem(
     dict.insertRef("P", parent);
 
     { // K
-        std::unique_ptr<SkPDFArray> kids = SkPDFMakeArray();
+        std::unique_ptr<SkPDFArray> kids(new SkPDFOptionalArray());
         for (auto&& child : fChildren) {
             if (child.fUsed) {
                 kids->appendRef(child.emitStructElem(fRef, idTree, doc));

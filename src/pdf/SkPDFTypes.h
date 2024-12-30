@@ -9,6 +9,7 @@
 #define SkPDFTypes_DEFINED
 
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "src/pdf/SkPDFUnion.h"
 
@@ -80,7 +81,7 @@ private:
 
     An array object in a PDF.
 */
-class SkPDFArray final : public SkPDFObject {
+class SkPDFArray : public SkPDFObject {
 public:
     /** Create a PDF array. Maximum length is 8191.
      */
@@ -115,6 +116,9 @@ public:
     void appendObject(std::unique_ptr<SkPDFObject>&&);
     void appendRef(SkPDFIndirectReference);
 
+protected:
+    SkSpan<const SkPDFUnion> values() const { return SkSpan(fValues); }
+
 private:
     std::vector<SkPDFUnion> fValues;
     void append(SkPDFUnion&& value);
@@ -139,6 +143,15 @@ static inline std::unique_ptr<SkPDFArray> SkPDFMakeArray(Args... args) {
     SkPDFArray_Append(ret.get(), args...);
     return ret;
 }
+
+/** \class SkPDFOptionalArray
+ *
+ *  An SkPDFArray which may be emitted as a non-array if it contains a single entry.
+ *  Search the specification for "or an array" for where this can be used.
+ */
+class SkPDFOptionalArray final : public SkPDFArray {
+    void emitObject(SkWStream* stream) const override;
+};
 
 /** \class SkPDFDict
 
