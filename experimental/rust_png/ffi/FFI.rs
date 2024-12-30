@@ -407,8 +407,12 @@ impl Reader {
         by: &mut f32,
     ) -> bool {
         fn copy_channel(channel: &(png::ScaledFloat, png::ScaledFloat), x: &mut f32, y: &mut f32) {
-            *x = channel.0.into_value();
-            *y = channel.1.into_value();
+            // This uses `0.00001_f32 * (foo.into_scaled() as f32)` instead of just
+            // `foo.into_value()` for compatibility with the legacy implementation
+            // of `ReadColorProfile` in
+            // `//third_party/blink/renderer/platform/image-decoders/png/png_image_decoder.cc`.
+            *x = 0.00001_f32 * (channel.0.into_scaled() as f32);
+            *y = 0.00001_f32 * (channel.1.into_scaled() as f32);
         }
 
         match self.reader.info().chrm_chunk.as_ref() {
