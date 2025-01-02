@@ -140,6 +140,7 @@ bench_sources = [
   "$_bench/TriangulatorBench.cpp",
   "$_bench/TypefaceBench.cpp",
   "$_bench/VertBench.cpp",
+  "$_bench/WebpBlendBench.cpp",
   "$_bench/WritePixelsBench.cpp",
   "$_bench/WriterBench.cpp",
   "$_bench/gUniqueGlyphIDs.h",

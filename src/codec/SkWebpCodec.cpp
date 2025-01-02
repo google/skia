@@ -19,6 +19,7 @@
 #include "include/core/SkStream.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkMath.h"
+#include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
@@ -33,6 +34,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
+#include <optional>
 #include <utility>
 
 // A WebP decoder on top of (subset of) libwebp
@@ -334,36 +336,45 @@ static bool is_8888(SkColorType colorType) {
     }
 }
 
+namespace {
+
 // Requires that the src input be unpremultiplied (or opaque).
-static void blend_line(SkColorType dstCT, void* dst,
-                       SkColorType srcCT, const void* src,
-                       SkAlphaType dstAt,
-                       bool srcHasAlpha,
-                       int width) {
-    SkRasterPipeline_MemoryCtx dst_ctx = {                   dst,  0 },
-                               src_ctx = { const_cast<void*>(src), 0 };
+class RPBlender final : SkNoncopyable {
+public:
+    RPBlender(SkColorType dstCT, SkColorType srcCT, SkAlphaType dstAt, bool srcHasAlpha)
+    {
+        fRP.appendLoadDst(dstCT, &fDstCtx);
+        if (kUnpremul_SkAlphaType == dstAt) {
+            fRP.append(SkRasterPipelineOp::premul_dst);
+        }
 
-    SkRasterPipeline_<256> p;
+        fRP.appendLoad(srcCT, &fSrcCtx);
+        if (srcHasAlpha) {
+            fRP.append(SkRasterPipelineOp::premul);
+        }
 
-    p.appendLoadDst(dstCT, &dst_ctx);
-    if (kUnpremul_SkAlphaType == dstAt) {
-        p.append(SkRasterPipelineOp::premul_dst);
+        fRP.append(SkRasterPipelineOp::srcover);
+
+        if (kUnpremul_SkAlphaType == dstAt) {
+            fRP.append(SkRasterPipelineOp::unpremul);
+        }
+        fRP.appendStore(dstCT, &fDstCtx);
     }
 
-    p.appendLoad(srcCT, &src_ctx);
-    if (srcHasAlpha) {
-        p.append(SkRasterPipelineOp::premul);
+    void blendLine(void* dst, const void* src, int width) {
+        fDstCtx = {                    dst, 0 };
+        fSrcCtx = { const_cast<void*>(src), 0 };
+
+        fRP.run(0, 0, width, 1);
     }
 
-    p.append(SkRasterPipelineOp::srcover);
+private:
+    SkRasterPipeline_MemoryCtx fDstCtx, fSrcCtx;
 
-    if (kUnpremul_SkAlphaType == dstAt) {
-        p.append(SkRasterPipelineOp::unpremul);
-    }
-    p.appendStore(dstCT, &dst_ctx);
+    SkRasterPipeline_<256> fRP;
+};
 
-    p.run(0,0, width,1);
-}
+}  // namespace
 
 SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, size_t rowBytes,
                                          const Options& options, int* rowsDecodedPtr) {
@@ -544,11 +555,15 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             xformDst = dst;
         }
 
+        std::optional<RPBlender> blender;
+        if (blendWithPrevFrame) {
+            blender.emplace(dstCT, dstCT, dstInfo.alphaType(), frame.has_alpha);
+        }
+
         for (int y = 0; y < rowsDecoded; y++) {
             this->applyColorXform(xformDst, xformSrc, scaledWidth);
             if (blendWithPrevFrame) {
-                blend_line(dstCT, dst, dstCT, xformDst,
-                        dstInfo.alphaType(), frame.has_alpha, scaledWidth);
+                blender->blendLine(dst, xformDst, scaledWidth);
                 dst = SkTAddOffset<void>(dst, rowBytes);
             } else {
                 xformDst = SkTAddOffset<void>(xformDst, rowBytes);
@@ -556,11 +571,12 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             xformSrc = SkTAddOffset<uint32_t>(xformSrc, srcRowBytes);
         }
     } else if (blendWithPrevFrame) {
+        RPBlender blender(dstCT, webpDst.colorType(), dstInfo.alphaType(), frame.has_alpha);
+
         const uint8_t* src = config.output.u.RGBA.rgba;
 
         for (int y = 0; y < rowsDecoded; y++) {
-            blend_line(dstCT, dst, webpDst.colorType(), src,
-                    dstInfo.alphaType(), frame.has_alpha, scaledWidth);
+            blender.blendLine(dst, src, scaledWidth);
             src = SkTAddOffset<const uint8_t>(src, srcRowBytes);
             dst = SkTAddOffset<void>(dst, rowBytes);
         }
