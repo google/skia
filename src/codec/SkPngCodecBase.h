@@ -98,7 +98,7 @@ private:
     std::unique_ptr<SkSwizzler> fSwizzler;
     skia_private::AutoTMalloc<uint8_t> fStorage;
     int fXformWidth = -1;
-    sk_sp<SkColorPalette> fColorTable;  // May be unpremul.
+    sk_sp<SkColorPalette> fColorTable;
 
     size_t fEncodedRowBytes = 0;  // Size of encoded/source row in bytes.
 #if defined(SK_DEBUG)

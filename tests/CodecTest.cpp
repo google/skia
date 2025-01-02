@@ -62,6 +62,7 @@
 #include <cstring>
 #include <initializer_list>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -527,6 +528,55 @@ static void check(skiatest::Reporter* r,
     check_codec_image_generator(r, codecDigest, info, path, supportsIncomplete);
 }
 
+static sk_sp<SkImage> decodeToSkImage(skiatest::Reporter* r,
+                                      const char* resourcePath,
+                                      SkColorType dstColorType,
+                                      SkAlphaType dstAlphaType) {
+    std::unique_ptr<SkStream> stream(GetResourceAsStream(resourcePath));
+    REPORTER_ASSERT(r, !!stream);
+    if (!stream) {
+        return nullptr;
+    }
+
+    std::unique_ptr<SkCodec> codec = SkCodec::MakeFromStream(std::move(stream));
+    REPORTER_ASSERT(r, !!codec);
+    if (!codec) {
+        return nullptr;
+    }
+
+    SkImageInfo dstInfo = codec->getInfo()
+                                  .makeColorType(dstColorType)
+                                  .makeAlphaType(dstAlphaType)
+                                  .makeColorSpace(SkColorSpace::MakeSRGB());
+    sk_sp<SkImage> image;
+    SkCodec::Result result;
+    std::tie(image, result) = codec->getImage(dstInfo);
+    REPORTER_ASSERT(r, !!result == SkCodec::kSuccess);
+    REPORTER_ASSERT(r, !!image);
+    return image;
+}
+
+static std::optional<uint32_t> decodeSingleRawPixelAsUint32(skiatest::Reporter* r,
+                                                            const char* resourcePath,
+                                                            SkColorType dstColorType,
+                                                            SkAlphaType dstAlphaType,
+                                                            int x = 0,
+                                                            int y = 0) {
+    SkASSERT(dstColorType == kBGRA_8888_SkColorType || dstColorType == kRGBA_8888_SkColorType);
+    sk_sp<SkImage> image = decodeToSkImage(r, resourcePath, dstColorType, dstAlphaType);
+    if (!image) {
+        return std::nullopt;  // REPORTER_ASSERT should already fire in `decodeToSkImage`.
+    }
+
+    SkPixmap pixmap;
+    if (!image->peekPixels(&pixmap)) {
+        REPORTER_ASSERT(r, false, "peekPixels failed");
+        return std::nullopt;
+    }
+
+    return *pixmap.addr32(x, y);
+}
+
 DEF_TEST(Codec_wbmp, r) {
     check(r, "images/mandrill.wbmp", SkISize::Make(512, 512), true, false, true);
 }
@@ -587,6 +637,83 @@ DEF_TEST(Codec_png, r) {
     check(r, "images/plane_interlaced.png", SkISize::Make(250, 126), false, false, true, true);
     check(r, "images/randPixels.png", SkISize::Make(8, 8), false, false, true, true);
     check(r, "images/yellow_rose.png", SkISize::Make(400, 301), false, false, true, true);
+}
+
+static void verifyFirstFourDecodedBytes(skiatest::Reporter* r,
+                                        const char* fileName,
+                                        SkColorType dstColorType,
+                                        SkAlphaType dstAlphaType,
+                                        std::array<uint8_t, 4> expected) {
+    std::string resourcePath = "images/";
+    resourcePath += fileName;
+
+    std::optional<uint32_t> maybeColor =
+            decodeSingleRawPixelAsUint32(r, resourcePath.c_str(), dstColorType, dstAlphaType);
+    if (!maybeColor.has_value()) {
+        // `REPORTER_ASSERT` should already fire in `decodeSingleRaw...`.
+        return;
+    }
+    const uint8_t* pixel = static_cast<const uint8_t*>(static_cast<const void*>(&*maybeColor));
+
+    std::string testName = "";
+    switch (dstColorType) {
+        case kRGBA_8888_SkColorType:
+            testName += "RGBA";
+            break;
+        case kBGRA_8888_SkColorType:
+            testName += "BGRA";
+            break;
+        default:
+            SkUNREACHABLE;
+    }
+    switch (dstAlphaType) {
+        case kPremul_SkAlphaType:
+            testName += " (premul)";
+            break;
+        case kUnpremul_SkAlphaType:
+            testName += " (premul)";
+            break;
+        default:
+            SkUNREACHABLE;
+    }
+
+    for (int i = 0; i < 4; i++) {
+        REPORTER_ASSERT(r,
+                        pixel[i] == expected[i],
+                        "%s: Byte #%d: actual = %d; expected = %d",
+                        testName.c_str(),
+                        i,
+                        pixel[i],
+                        expected[i]);
+    }
+}
+
+DEF_TEST(Codec_png_plte_trns, r) {
+    auto t = verifyFirstFourDecodedBytes;  // Help with succint formatting below...
+
+    // RGB in `PLTE` chunk is: 100 (0x64), 150 (0x96), 200 (0xC8)
+    // Alpha in `tRNS` chunk is: 64 (i.e. 25% or 0x40)
+    //
+    // After alpha premultiplication by 25% we should get: R=25, G=38, B=50.
+    t(r, "plte_trns.png", kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, {100, 150, 200, 64});
+    t(r, "plte_trns.png", kBGRA_8888_SkColorType, kUnpremul_SkAlphaType, {200, 150, 100, 64});
+    t(r, "plte_trns.png", kRGBA_8888_SkColorType, kPremul_SkAlphaType, {25, 38, 50, 64});
+    t(r, "plte_trns.png", kBGRA_8888_SkColorType, kPremul_SkAlphaType, {50, 38, 25, 64});
+}
+
+DEF_TEST(Codec_png_plte_trns_gama, r) {
+    auto t = verifyFirstFourDecodedBytes;  // Help with succint formatting below...
+
+    // RGB in `PLTE` chunk is: 100 (0x64), 150 (0x96), 200 (0xC8)
+    // Alpha in `tRNS` chunk is: 64 (i.e. 25% or 0x40)
+    //
+    // After `gAMA` transformation we should get: R=161, G=197, B=227.
+    //
+    // After alpha premultiplication by 25% we should get: R=40, G=49, B=57.
+    t(r, "plte_trns_gama.png", kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, {161, 197, 227, 64});
+    t(r, "plte_trns_gama.png", kBGRA_8888_SkColorType, kUnpremul_SkAlphaType, {227, 197, 161, 64});
+    t(r, "plte_trns_gama.png", kRGBA_8888_SkColorType, kPremul_SkAlphaType, {40, 49, 57, 64});
+    t(r, "plte_trns_gama.png", kBGRA_8888_SkColorType, kPremul_SkAlphaType, {57, 49, 40, 64});
 }
 
 // Disable RAW tests for Win32.

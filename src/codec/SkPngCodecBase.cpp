@@ -303,8 +303,10 @@ bool SkPngCodecBase::createColorTable(const SkImageInfo& dstInfo) {
         numColorsWithAlpha = maybeTrnsChunk->size();
     }
 
+    bool shouldApplyColorXformToColorTable = this->colorXform() && !this->xformOnDecode();
     if (alphas) {
-        bool premultiply = needs_premul(dstInfo.alphaType(), this->getEncodedInfo().alpha());
+        bool premultiply = !shouldApplyColorXformToColorTable &&
+                           needs_premul(dstInfo.alphaType(), this->getEncodedInfo().alpha());
 
         // Choose which function to use to create the color table. If the final destination's
         // colortype is unpremultiplied, the color table will store unpremultiplied colors.
@@ -339,7 +341,7 @@ bool SkPngCodecBase::createColorTable(const SkImageInfo& dstInfo) {
         }
     }
 
-    if (this->colorXform() && !this->xformOnDecode()) {
+    if (shouldApplyColorXformToColorTable) {
         this->applyColorXform(colorTable, colorTable, numColors);
     }
 
