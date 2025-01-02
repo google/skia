@@ -13,6 +13,7 @@
 #include <optional>
 
 #include "include/codec/SkCodec.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/base/SkDebug.h"
@@ -23,7 +24,6 @@ class SkSampler;
 class SkStream;
 class SkSwizzler;
 enum class SkEncodedImageFormat;
-struct SkImageInfo;
 template <typename T> class SkSpan;
 
 // This class implements functionality shared between `SkPngCodec` and
@@ -104,6 +104,8 @@ private:
 #if defined(SK_DEBUG)
     size_t fDstRowBytes = 0;      // Size of destination row in bytes.
 #endif
+
+    std::optional<SkImageInfo> fDstInfoOfPreviousColorTableCreation;
 };
 
 #endif  // SkPngCodecBase_DEFINED

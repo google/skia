@@ -283,6 +283,13 @@ void SkPngCodecBase::applyXformRow(void* dstRow, const uint8_t* srcRow) {
 
 // Note: SkColorPalette claims to store SkPMColors, which is not necessarily the case here.
 bool SkPngCodecBase::createColorTable(const SkImageInfo& dstInfo) {
+    if (fDstInfoOfPreviousColorTableCreation.has_value() &&
+        *fDstInfoOfPreviousColorTableCreation == dstInfo) {
+        return !!fColorTable;
+    }
+    fColorTable.reset();
+    fDstInfoOfPreviousColorTableCreation = dstInfo;
+
     std::optional<SkSpan<const PaletteColorEntry>> maybePlteChunk = this->onTryGetPlteChunk();
     if (!maybePlteChunk.has_value()) {
         return false;
