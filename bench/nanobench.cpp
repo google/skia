@@ -262,7 +262,7 @@ struct GPUTarget : public Target {
     void onSetup() override {
         this->contextInfo.testContext()->makeCurrent();
     }
-    void endTiming() override {
+    void submitFrame() override {
         if (this->contextInfo.testContext()) {
             this->contextInfo.testContext()->flushAndWaitOnSync(contextInfo.directContext());
         }
@@ -330,8 +330,7 @@ struct GraphiteTarget : public Target {
         // holds a ref to the Graphite device
         surface.reset();
     }
-
-    void endTiming() override {
+    void submitFrame() override {
         if (context && recorder) {
             std::unique_ptr<skgpu::graphite::Recording> recording = this->recorder->snap();
             if (recording) {
@@ -406,9 +405,10 @@ static double time(int loops, Benchmark* bench, Target* target) {
     double start = now_ms();
     canvas = target->beginTiming(canvas);
 
-    bench->draw(loops, canvas);
+    auto submitFrame = [target]() { target->submitFrame(); };
 
-    target->endTiming();
+    bench->draw(loops, canvas, submitFrame);
+
     double elapsed = now_ms() - start;
     bench->postDraw(canvas);
     return elapsed;

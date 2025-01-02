@@ -22,31 +22,16 @@ MSKPBench::MSKPBench(SkString name, std::unique_ptr<MSKPPlayer> player)
 
 MSKPBench::~MSKPBench() = default;
 
-void MSKPBench::onDraw(int loops, SkCanvas* canvas) {
+void MSKPBench::onDrawFrame(int loops, SkCanvas* canvas, std::function<void()> submitFrame) {
     for (int i = 0; i < loops; ++i) {
         for (int f = 0; f < fPlayer->numFrames(); ++f) {
             canvas->save();
             canvas->clipIRect(SkIRect::MakeSize(fPlayer->frameDimensions(f)));
             fPlayer->playFrame(canvas, f);
             canvas->restore();
-            if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
-                dContext->flushAndSubmit();
+            if (submitFrame) {
+                submitFrame();
             }
-
-#if defined(SK_GRAPHITE)
-        skgpu::graphite::Recorder* recorder = canvas->recorder();
-        if (recorder) {
-            std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
-            if (recording) {
-                skgpu::graphite::InsertRecordingInfo info;
-                info.fRecording = recording.get();
-                skgpu::graphite::Context* context = recorder->priv().context();
-                context->insertRecording(info);
-                context->submit();
-            }
-        }
-#endif
-
         }
         // Ensure each loop replays all offscreen layer draws from scratch.
         fPlayer->rewindLayers();

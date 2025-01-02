@@ -47,9 +47,16 @@ void Benchmark::perCanvasPostDraw(SkCanvas* canvas) {
     this->onPerCanvasPostDraw(canvas);
 }
 
-void Benchmark::draw(int loops, SkCanvas* canvas) {
+void Benchmark::draw(int loops, SkCanvas* canvas, std::function<void()> submitFrame) {
     SkAutoCanvasRestore ar(canvas, true/*save now*/);
-    this->onDraw(loops, canvas);
+    if (this->submitsInternalFrames()) {
+        this->onDrawFrame(loops, canvas, std::move(submitFrame));
+    } else {
+        this->onDraw(loops, canvas);
+        if (submitFrame) {
+            submitFrame();
+        }
+    }
 }
 
 void Benchmark::setupPaint(SkPaint* paint) {

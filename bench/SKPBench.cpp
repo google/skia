@@ -117,36 +117,13 @@ SkISize SKPBench::onGetSize() {
     return SkISize::Make(fClip.width(), fClip.height());
 }
 
-void SKPBench::onDraw(int loops, SkCanvas* canvas) {
+void SKPBench::onDrawFrame(int loops, SkCanvas* canvas, std::function<void()> submitFrame) {
     SkASSERT(fDoLooping || 1 == loops);
-    while (1) {
+    for (int i = 0; i < loops; ++i) {
         this->drawPicture();
-        if (0 == --loops) {
-            break;
+        if (submitFrame) {
+            submitFrame();
         }
-
-        // Ensure the gpu backends don't combine ops/tasks across draw loops. Also submit each work
-        // to the gpu so we are measuring the cost of gpu submission and not amortizing one
-        // submission across all loops.
-        auto direct = canvas->recordingContext() ? canvas->recordingContext()->asDirectContext()
-                                                 : nullptr;
-        if (direct) {
-            direct->flushAndSubmit();
-        }
-
-#if defined(SK_GRAPHITE)
-        skgpu::graphite::Recorder* recorder = canvas->recorder();
-        if (recorder) {
-            std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
-            if (recording) {
-                skgpu::graphite::InsertRecordingInfo info;
-                info.fRecording = recording.get();
-                skgpu::graphite::Context* context = recorder->priv().context();
-                context->insertRecording(info);
-                context->submit();
-            }
-        }
-#endif
     }
 }
 

@@ -39,7 +39,8 @@ protected:
     void onPerCanvasPreDraw(SkCanvas*) override;
     void onPerCanvasPostDraw(SkCanvas*) override;
     bool isSuitableFor(Backend backend) override;
-    void onDraw(int loops, SkCanvas* canvas) override;
+    void onDraw(int loops, SkCanvas*) override { SkASSERT(false); }
+    void onDrawFrame(int loops, SkCanvas*, std::function<void()> submitFrame) override;
     SkISize onGetSize() override;
 
     virtual void drawMPDPicture();
@@ -50,6 +51,8 @@ protected:
     const SkTDArray<SkIRect>& tileRects() const { return fTileRects; }
 
 private:
+    bool submitsInternalFrames() override { return true; }
+
     sk_sp<const SkPicture> fPic;
     const SkIRect fClip;
     const SkScalar fScale;

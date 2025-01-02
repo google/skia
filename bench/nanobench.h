@@ -53,9 +53,10 @@ struct Target {
         but some may replace it. */
     virtual SkCanvas* beginTiming(SkCanvas* canvas) { return canvas; }
 
-    /** Called *after* a benchmark is drawn, but before the clock timer
-        is stopped.  */
-    virtual void endTiming() { }
+    /** Called *after* a frame of a benchmark is drawn and the frame's work should be submitted to
+        be executed. This is currently used for the GPU targets to submit their recorded work to the
+        GPU. */
+    virtual void submitFrame() { }
 
     /** Called between benchmarks (or between calibration and measured
         runs) to make sure all pending work in drivers / threads is
