@@ -1,4 +1,4 @@
-load("//bazel:macros.bzl", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
