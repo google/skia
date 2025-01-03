@@ -13,6 +13,7 @@
 #include "include/core/SkTypes.h"
 
 #include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteTypesUtils.h"
 #include "include/private/base/SkAPI.h"
 
 #import <CoreFoundation/CoreFoundation.h>
