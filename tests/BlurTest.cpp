@@ -392,7 +392,8 @@ DEF_TEST(BlurAsABlur, reporter) {
                     }
 
                     const SkRect src = {0, 0, 100, 100};
-                    const auto dst = mf->approximateFilteredBounds(src);
+                    SkRect dst;
+                    as_MFB(mf)->computeFastBounds(src, &dst);
 
                     // This is a very conservative test. With more knowledge, we could
                     // consider more stringent tests.
