@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
     }
     SkISize surfaceSize = animation->size().toCeil();
     auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(surfaceSize, nullptr));
-    if (!animation) {
+    if (!surface) {
         std::printf("Cannot allocate surface of size %d x %d\n",
                     surfaceSize.width(),
                     surfaceSize.height());
