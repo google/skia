@@ -759,7 +759,7 @@ void DawnCommandBuffer::bindTextureAndSamplers(
                 TextureInfos::GetDawnTextureSpec(
                         drawPass.getTexture(command.fTextureIndices[0])->textureInfo())
                         .fYcbcrVkDescriptor;
-        usingSingleStaticSampler = DawnDescriptorIsValid(ycbcrDesc);
+        usingSingleStaticSampler = ycbcrUtils::DawnDescriptorIsValid(ycbcrDesc);
     }
 #endif
 
@@ -799,7 +799,7 @@ void DawnCommandBuffer::bindTextureAndSamplers(
             // Only add a sampler as a bind group entry if it's a regular dynamic sampler. A valid
             // YCbCrVkDescriptor indicates the usage of a static sampler, which should not be
             // included here. They should already be fully specified in the bind group layout.
-            if (!DawnDescriptorIsValid(ycbcrDesc)) {
+            if (!ycbcrUtils::DawnDescriptorIsValid(ycbcrDesc)) {
 #endif
                 wgpu::BindGroupEntry samplerEntry;
                 samplerEntry.binding = 2 * i;

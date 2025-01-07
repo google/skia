@@ -62,6 +62,37 @@ static inline wgpu::AddressMode tile_mode_to_dawn_address_mode(SkTileMode tileMo
     SkUNREACHABLE;
 }
 
+#if !defined(__EMSCRIPTEN__)
+namespace {
+using namespace ycbcrUtils;
+wgpu::YCbCrVkDescriptor get_descriptor_from_sampler_desc(const SamplerDesc& samplerDesc) {
+    wgpu::YCbCrVkDescriptor desc;
+    if (samplerDesc.isImmutable()) {
+        uint32_t nonFormatInfo =
+                (uint32_t)(samplerDesc.desc() >> SamplerDesc::kImmutableSamplerInfoShift);
+
+        desc.vkFormat = samplerDesc.usesExternalFormat() ? 0 : samplerDesc.format();
+        desc.vkYCbCrModel = (nonFormatInfo & ycbcrUtils::kYcbcrModelMask) >> kYcbcrModelShift;
+        desc.vkYCbCrRange = (nonFormatInfo & kYcbcrRangeMask) >> kYcbcrRangeShift;
+        desc.vkComponentSwizzleRed = (nonFormatInfo & kComponentRMask) >> kComponentRShift;
+        desc.vkComponentSwizzleGreen = (nonFormatInfo & kComponentGMask) >> kComponentGShift;
+        desc.vkComponentSwizzleBlue = (nonFormatInfo & kComponentBMask) >> kComponentBShift;
+        desc.vkComponentSwizzleAlpha = (nonFormatInfo & kComponentAMask) >> kComponentAShift;
+        desc.vkXChromaOffset = (nonFormatInfo & kXChromaOffsetMask) >> kXChromaOffsetShift;
+        desc.vkYChromaOffset = (nonFormatInfo & kYChromaOffsetMask) >> kYChromaOffsetShift;
+        desc.vkChromaFilter =
+                (wgpu::FilterMode)((nonFormatInfo & kChromaFilterMask) >> kChromaFilterShift);
+        desc.forceExplicitReconstruction =
+                (nonFormatInfo & kForceExplicitReconMask) >> kForceExplicitReconShift;
+        desc.externalFormat =
+                samplerDesc.usesExternalFormat()
+                        ? (uint64_t)(samplerDesc.externalFormatMSBs()) << 32 | samplerDesc.format()
+                        : 0;
+    }
+    return desc;
+}
+}  // namespace
+#endif
 sk_sp<DawnSampler> DawnSampler::Make(const DawnSharedContext* sharedContext,
                                      const SamplerDesc& samplerDesc) {
     wgpu::SamplerDescriptor desc;
@@ -82,10 +113,8 @@ sk_sp<DawnSampler> DawnSampler::Make(const DawnSharedContext* sharedContext,
     desc.compare       = wgpu::CompareFunction::Undefined;
 
 #if !defined(__EMSCRIPTEN__)
-    wgpu::YCbCrVkDescriptor ycbcrDescriptor;
+    wgpu::YCbCrVkDescriptor ycbcrDescriptor = get_descriptor_from_sampler_desc(samplerDesc);
     if (samplerDesc.isImmutable()) {
-        ycbcrDescriptor =
-                DawnDescriptorFromImmutableSamplerInfo(samplerDesc.immutableSamplerInfo());
         desc.nextInChain = &ycbcrDescriptor;
     }
 #endif
@@ -100,10 +129,10 @@ sk_sp<DawnSampler> DawnSampler::Make(const DawnSharedContext* sharedContext,
         label.append(minMagFilterLabels[static_cast<int>(samplingOptions.filter)]);
         label.append(mipFilterLabels[static_cast<int>(samplingOptions.mipmap)]);
 #if !defined(__EMSCRIPTEN__)
-        if (DawnDescriptorIsValid(ycbcrDescriptor)) {
+        if (ycbcrUtils::DawnDescriptorIsValid(ycbcrDescriptor)) {
             label.append("YCbCr");
 
-            if (DawnDescriptorUsesExternalFormat(ycbcrDescriptor)) {
+            if (ycbcrUtils::DawnDescriptorUsesExternalFormat(ycbcrDescriptor)) {
                 label.append("ExternalFormat");
                 label.append(std::to_string(ycbcrDescriptor.externalFormat));
             } else {
@@ -147,3 +176,4 @@ void DawnSampler::freeGpuData() {
 }
 
 } // namespace skgpu::graphite
+
