@@ -61,7 +61,7 @@ protected:
             }
         } else {
             for (int i = 0; i < loops; ++i) {
-                fDraw.drawPath(fPath, fPaint);
+                fDraw.drawPath(fPath, fPaint, nullptr, false);
             }
         }
     }

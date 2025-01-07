@@ -725,7 +725,7 @@ void SkDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
             SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(blurRadius);
             bool respectCTM = false;
             paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, respectCTM));
-            this->drawPath(devSpacePath, paint);
+            this->drawPath(devSpacePath, paint, true);
         }
     }
 
@@ -844,7 +844,7 @@ void SkDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
             SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(radius);
             bool respectCTM = false;
             paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, respectCTM));
-            this->drawPath(path, paint);
+            this->drawPath(path, paint, false);
         }
     }
 }

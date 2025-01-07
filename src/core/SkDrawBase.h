@@ -41,13 +41,13 @@ class SkDrawBase : public SkGlyphRunListPainterCPU::BitmapDevicePainter {
 public:
     SkDrawBase();
 
-    void    drawPaint(const SkPaint&) const;
-    void    drawRect(const SkRect& prePaintRect, const SkPaint&, const SkMatrix* paintMatrix,
+    void drawPaint(const SkPaint&) const;
+    void drawRect(const SkRect& prePaintRect, const SkPaint&, const SkMatrix* paintMatrix,
                      const SkRect* postPaintRect) const;
-    void    drawRect(const SkRect& rect, const SkPaint& paint) const {
+    void drawRect(const SkRect& rect, const SkPaint& paint) const {
         this->drawRect(rect, paint, nullptr, nullptr);
     }
-    void    drawRRect(const SkRRect&, const SkPaint&) const;
+    void drawRRect(const SkRRect&, const SkPaint&) const;
     /**
      *  To save on mallocs, we allow a flag that tells us that srcPath is
      *  mutable, so that we don't have to make copies of it as we transform it.
@@ -57,8 +57,8 @@ public:
      *  affect the geometry/rasterization, then the pre matrix can just be
      *  pre-concated with the current matrix.
      */
-    void    drawPath(const SkPath& path, const SkPaint& paint,
-                     const SkMatrix* prePathMatrix = nullptr, bool pathIsMutable = false) const {
+    void drawPath(const SkPath& path, const SkPaint& paint,
+                  const SkMatrix* prePathMatrix, bool pathIsMutable) const {
         this->drawPath(path, paint, prePathMatrix, pathIsMutable, false);
     }
 

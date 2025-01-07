@@ -135,7 +135,7 @@ void SkDevice::drawArc(const SkArc& arc, const SkPaint& paint) {
     SkPath path;
     bool isFillNoPathEffect = SkPaint::kFill_Style == paint.getStyle() && !paint.getPathEffect();
     SkPathPriv::CreateDrawArcPath(&path, arc, isFillNoPathEffect);
-    this->drawPath(path, paint);
+    this->drawPath(path, paint, true);
 }
 
 void SkDevice::drawDRRect(const SkRRect& outer,
@@ -244,7 +244,7 @@ void SkDevice::drawEdgeAAQuad(const SkRect& r, const SkPoint clip[4], SkCanvas::
         // Draw the clip directly as a quad since it's a filled color with no local coords
         SkPath clipPath;
         clipPath.addPoly(clip, 4, true);
-        this->drawPath(clipPath, paint);
+        this->drawPath(clipPath, paint, true);
     } else {
         this->drawRect(r, paint);
     }

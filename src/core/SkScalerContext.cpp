@@ -566,7 +566,8 @@ void SkScalerContext::GenerateImageFromPath(
     draw.fDst            = dst;
     draw.fRC             = &clip;
     draw.fCTM            = &matrix;
-    draw.drawPath(*pathToUse, paint);
+    // We can save a copy if we had to use the local strokePath
+    draw.drawPath(*pathToUse, paint, nullptr, pathToUse == &strokePath);
 
     switch (dstMask.fFormat) {
         case SkMask::kBW_Format:

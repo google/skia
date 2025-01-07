@@ -358,7 +358,7 @@ public:
      */
     virtual void drawPath(const SkPath& path,
                           const SkPaint& paint,
-                          bool pathIsMutable = false) = 0;
+                          bool pathIsMutable) = 0;
 
     virtual void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                                const SkSamplingOptions&, const SkPaint&,

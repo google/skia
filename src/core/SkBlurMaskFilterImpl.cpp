@@ -187,7 +187,7 @@ static bool draw_rects_into_mask(const SkRect rects[], int count, SkMaskBuilder*
                                          .addRect(rects[1])
                                          .setFillType(SkPathFillType::kEvenOdd)
                                          .detach();
-            draw.drawPath(path, paint);
+            draw.drawPath(path, paint, nullptr, true);
         }
     });
 }

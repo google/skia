@@ -553,7 +553,7 @@ static void draw_into_mask(const SkMask& mask, const SkPath& devPath,
             break;
 
     }
-    draw.drawPath(devPath, paint);
+    draw.drawPath(devPath, paint, nullptr, false);
 }
 
 bool SkDrawBase::DrawToMask(const SkPath& devPath, const SkIRect& clipBounds,
@@ -682,17 +682,17 @@ void SkDrawBase::drawDevicePoints(SkCanvas::PointMode mode, size_t count,
 
                     if (!pointData.fFirst.isEmpty()) {
                         if (device) {
-                            device->drawPath(pointData.fFirst, newP);
+                            device->drawPath(pointData.fFirst, newP, true);
                         } else {
-                            this->drawPath(pointData.fFirst, newP);
+                            this->drawPath(pointData.fFirst, newP, nullptr, true);
                         }
                     }
 
                     if (!pointData.fLast.isEmpty()) {
                         if (device) {
-                            device->drawPath(pointData.fLast, newP);
+                            device->drawPath(pointData.fLast, newP, true);
                         } else {
-                            this->drawPath(pointData.fLast, newP);
+                            this->drawPath(pointData.fLast, newP, nullptr, true);
                         }
                     }
 
