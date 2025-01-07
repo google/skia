@@ -1,1 +1,0 @@
-`approximateFilteredBounds` has been removed from SkMaskFilter.

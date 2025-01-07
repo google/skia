@@ -2,6 +2,69 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 133
+-------------
+  * Graphite's `Context` now provides an interface to report the GPU time spent processing a recording. The client provides
+    a different finished proc of type `skgpu::graphite::GpuFinishedWithStatsProc` using
+    `skgpu::graphite::InsertRecordingInfo::fFinishedWithStatsProc` and sets the flag
+    `skgpu::graphite::InsertRecordingInfo::fGpuStatsFlag` to `skgpu::GpuStatsFlags::kElapsedTime`. The new callback takes a
+    new struct, `skgpu::GpuStats`, which has an `elapsedTime` field that will indicate the amount of GPU time used by the
+    recording. This is implemented for the Dawn backend only. In WASM on WebGPU the reported time excludes any GPU transfers
+    that occur before the first render/compute pass or after the last pass because of limitations in the WebGPU timestamp
+    query API.
+
+    `GrDirectContext` provides a similar interface to report the GPU time spent in a flush. The client uses a new callback
+    type, `GrGpuFinishedWithStatsProc` and sets the same flag on `GrFlushInfo`. This is implemented for GL
+    (including GLES and WebGL).
+  * Graphite's logging priority can now be adjusted by defining
+    `SKGPU_GRAPHITE_LOWEST_ACTIVE_LOG_PRIORITY` in `SkUserConfig.h` to a value specified by the
+    `skgpu::graphite::LogPriority` enum.
+
+    For example:
+    ```
+    #define SKGPU_GRAPHITE_LOWEST_ACTIVE_LOG_PRIORITY skgpu::graphite::LogPriority::kWarning
+    ```
+
+    Would cause Graphite to log warnings, non-fatal errors, and fatal errors. However, debug logs would
+    be omitted.
+
+    `SKGPU_GRAPHITE_LOWEST_ACTIVE_LOG_PRIORITY` will default to `kWarning` in debug builds, and `kError`
+    in release builds.
+  * Split MtlGraphiteTypes.h into two files. MtlGraphiteTypes.h defines MtlTextureInfo, which is only available in Objective-C++. MtlGraphiteTypesUtils.h declares the utility functions that are callable from C++.
+  * `SK_CANVAS_SAVE_RESTORE_PREALLOC_COUNT` has been added to SkUserConfig.h and SkCanvas.h to let clients control
+    how much space is allocated for calls to `SkCanvas::save()`. Clients that don't make many calls can reduce the RAM used by `SkCanvas` by setting this (defaults to about 3kb).
+  * New public API: `SkColorSpace::MakeCICP` to create an `SkColorSpace` from code
+    points specified in Rec. ITU-T H.273.
+  * The ability to dump a SkSL::DebugTrace to JSON has been removed from the public API.
+  * `approximateFilteredBounds` has been removed from SkMaskFilter.
+  * A new PrecompileContext object has been added to assist Precompilation. The old API of the form:\
+        bool Precompile(Context*, ...);\
+    has been deprecated and replaced with the API:\
+        bool Precompile(PrecompileContext*, ...)\
+    The new PrecompileContext object can be obtained via the Context::makePrecompileContext call.
+
+    As an example of a possible Compilation/Precompilation threading model, one could employ 4 threads:
+
+    2 for creating Recordings (\<r1\> and \<r2\>) \
+    1 for precompiling (\<p1\>) \
+    and the main thread - which owns the Context and submits Recordings.
+
+    Start up for this scenario would look like:
+
+      the main thread moves a PrecompileContext to <p1> and begins precompiling there\
+      the main thread creates two Recorders and moves them to <r1> and <r2> to create Recordings\
+      the main thread continues on - calling Context::insertRecording on the posted Recordings.
+
+    The PrecompileContext can safely outlive the Context that created it, but it will
+    effectively be shut down at that point.
+  * Graphite has a new `ContextOptions::fRequiredOrderedRecordings` flag that enables certain optimizations when the
+    client knows that recordings are played back in order. Otherwise Graphite will need to clear some caches at the
+    start of each recording to ensure proper playback, which can significantly affect performance.
+
+    This replaces the old `ContextOptions::fDisableCachedGlyphUploads` flag.
+
+* * *
+
 Milestone 132
 -------------
   * A new `SkCodec` method has been added: `hasHighBitDepthEncodedData`.
