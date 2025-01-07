@@ -407,8 +407,12 @@ impl Reader {
         by: &mut f32,
     ) -> bool {
         fn copy_channel(channel: &(png::ScaledFloat, png::ScaledFloat), x: &mut f32, y: &mut f32) {
-            *x = png_u32_into_f32(channel.0);
-            *y = png_u32_into_f32(channel.1);
+            // This uses `0.00001_f32 * (foo.into_scaled() as f32)` instead of just
+            // `foo.into_value()` for compatibility with the legacy implementation
+            // of `ReadColorProfile` in
+            // `//third_party/blink/renderer/platform/image-decoders/png/png_image_decoder.cc`.
+            *x = 0.00001_f32 * (channel.0.into_scaled() as f32);
+            *y = 0.00001_f32 * (channel.1.into_scaled() as f32);
         }
 
         match self.reader.info().chrm_chunk.as_ref() {
@@ -451,8 +455,8 @@ impl Reader {
     fn try_get_gama(&self, gamma: &mut f32) -> bool {
         match self.reader.info().gama_chunk.as_ref() {
             None => false,
-            Some(&scaled_float) => {
-                *gamma = png_u32_into_f32(scaled_float);
+            Some(scaled_float) => {
+                *gamma = scaled_float.into_value();
                 true
             }
         }
@@ -605,14 +609,6 @@ impl Reader {
         };
         png::expand_interlaced_row(img, img_row_stride, row, adam7info, bits_per_pixel);
     }
-}
-
-fn png_u32_into_f32(v: png::ScaledFloat) -> f32 {
-    // This uses `0.00001_f32 * (v.into_scaled() as f32)` instead of just
-    // `v.into_value()` for compatibility with the legacy implementation
-    // of `ReadColorProfile` in
-    // `.../blink/renderer/platform/image-decoders/png/png_image_decoder.cc`.
-    0.00001_f32 * (v.into_scaled() as f32)
 }
 
 /// This provides a public C++ API for decoding a PNG image.
