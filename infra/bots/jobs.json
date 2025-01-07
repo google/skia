@@ -196,10 +196,7 @@
   {"name": "Build-Debian10-EMCC-asmjs-Debug-PathKit"},
   {"name": "Build-Debian10-EMCC-asmjs-Release-PathKit"},
   {"name": "Build-Debian10-EMCC-wasm-Debug-CanvasKit"},
-  {
-    "name": "Build-Debian10-EMCC-wasm-Debug-CanvasKit_WebGPU",
-    "cq_config": {}
-  },
+  {"name": "Build-Debian10-EMCC-wasm-Debug-CanvasKit_WebGPU"},
   {"name": "Build-Debian10-EMCC-wasm-Debug-CanvasKit_CPU"},
   {"name": "Build-Debian10-EMCC-wasm-Debug-PathKit"},
   {"name": "Build-Debian10-EMCC-wasm-Release-CanvasKit"},
@@ -435,15 +432,7 @@
   {"name": "BuildStats-Debian10-EMCC-asmjs-Release-PathKit"},
   {"name": "BuildStats-Debian10-EMCC-wasm-Debug-CanvasKit"},
   {"name": "BuildStats-Debian10-EMCC-wasm-Debug-CanvasKit_CPU"},
-  {
-    "name": "BuildStats-Debian10-EMCC-wasm-Release-CanvasKit",
-    "cq_config": {
-      "location_regexes": [
-        "infra/canvaskit/.*",
-        "modules/canvaskit/.*"
-      ]
-    }
-  },
+  {"name": "BuildStats-Debian10-EMCC-wasm-Release-CanvasKit"},
   {"name": "BuildStats-Debian10-EMCC-wasm-Release-CanvasKit_CPU"},
   {"name": "BuildStats-Debian10-EMCC-wasm-Release-PathKit"},
   {"name": "Canary-Android"},
@@ -780,23 +769,9 @@
   {"name": "Test-Debian10-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Debug-All"},
   {"name": "Test-Debian10-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release-All"},
   {"name": "Test-Debian10-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit"},
-  {
-    "name": "Test-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit",
-    "cq_config": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
-      ]
-    }
-  },
+  {"name": "Test-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit"},
   {"name": "Test-Debian10-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit"},
-  {
-    "name": "Test-Debian10-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit",
-    "cq_config": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
-      ]
-    }
-  },
+  {"name": "Test-Debian10-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit"},
   {"name": "Test-Debian11-Clang-NUC11TZi5-CPU-AVX2-x86_64-Release-All"},
   {"name": "Test-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Debug-All"},
   {"name": "Test-Debian11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Debug-All-Vulkan"},
