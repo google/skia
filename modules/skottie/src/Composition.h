@@ -38,6 +38,8 @@ public:
 
     LayerBuilder* layerBuilder(int layer_index);
 
+    sk_sp<sksg::RenderNode> layerContent(const AnimationBuilder&, int layer_index);
+
 private:
     const sk_sp<sksg::Transform>& getCameraTransform() const { return fCameraTransform; }
 
