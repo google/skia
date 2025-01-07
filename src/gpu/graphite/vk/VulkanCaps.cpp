@@ -1529,7 +1529,6 @@ UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeli
 void VulkanCaps::buildKeyForTexture(SkISize dimensions,
                                     const TextureInfo& info,
                                     ResourceType type,
-                                    Shareable shareable,
                                     GraphiteResourceKey* key) const {
     SkASSERT(!dimensions.isEmpty());
 
@@ -1567,7 +1566,7 @@ void VulkanCaps::buildKeyForTexture(SkISize dimensions,
     const VulkanYcbcrConversionInfo& ycbcrInfo = TextureInfos::GetVulkanYcbcrConversionInfo(info);
     num32DataCnt += ycbcrInfo.isValid() ? kNum32DataCntYcbcr : 0;
 
-    GraphiteResourceKey::Builder builder(key, type, num32DataCnt, shareable);
+    GraphiteResourceKey::Builder builder(key, type, num32DataCnt);
 
     int i = 0;
     builder[i++] = dimensions.width();

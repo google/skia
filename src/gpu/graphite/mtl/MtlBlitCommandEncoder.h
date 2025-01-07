@@ -123,7 +123,6 @@ private:
                           sk_cfp<id<MTLBlitCommandEncoder>> encoder)
             : Resource(sharedContext,
                        Ownership::kOwned,
-                       skgpu::Budgeted::kYes,
                        /*gpuMemorySize=*/0)
             , fCommandEncoder(std::move(encoder)) {}
 

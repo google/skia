@@ -484,13 +484,8 @@ sk_sp<ComputePipeline> DawnResourceProvider::createComputePipeline(
     return DawnComputePipeline::Make(this->dawnSharedContext(), desc);
 }
 
-sk_sp<Texture> DawnResourceProvider::createTexture(SkISize dimensions,
-                                                   const TextureInfo& info,
-                                                   skgpu::Budgeted budgeted) {
-    return DawnTexture::Make(this->dawnSharedContext(),
-                             dimensions,
-                             info,
-                             budgeted);
+sk_sp<Texture> DawnResourceProvider::createTexture(SkISize dimensions, const TextureInfo& info) {
+    return DawnTexture::Make(this->dawnSharedContext(), dimensions, info);
 }
 
 sk_sp<Buffer> DawnResourceProvider::createBuffer(size_t size,

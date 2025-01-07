@@ -121,20 +121,21 @@ sk_sp<ComputePipeline> ResourceProvider::findOrCreateComputePipeline(
 sk_sp<Texture> ResourceProvider::findOrCreateScratchTexture(SkISize dimensions,
                                                             const TextureInfo& info,
                                                             std::string_view label,
-                                                            skgpu::Budgeted budgeted) {
+                                                            Budgeted budgeted) {
     SkASSERT(info.isValid());
 
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
     GraphiteResourceKey key;
-    // Scratch textures are not shareable
-    fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kNo, &key);
+    fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, &key);
 
+    // Scratch textures are not shareable
     return this->findOrCreateTextureWithKey(dimensions,
                                             info,
                                             key,
                                             std::move(label),
-                                            budgeted);
+                                            budgeted,
+                                            Shareable::kNo);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateDepthStencilAttachment(SkISize dimensions,
@@ -144,16 +145,17 @@ sk_sp<Texture> ResourceProvider::findOrCreateDepthStencilAttachment(SkISize dime
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
     GraphiteResourceKey key;
+    fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, &key);
+
     // We always make depth and stencil attachments shareable. Between any render pass the values
     // are reset. Thus it is safe to be used by multiple different render passes without worry of
     // stomping on each other's data.
-    fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
-
     return this->findOrCreateTextureWithKey(dimensions,
                                             info,
                                             key,
                                             "DepthStencilAttachment",
-                                            skgpu::Budgeted::kYes);
+                                            Budgeted::kYes,
+                                            Shareable::kYes);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateDiscardableMSAAAttachment(SkISize dimensions,
@@ -163,42 +165,43 @@ sk_sp<Texture> ResourceProvider::findOrCreateDiscardableMSAAAttachment(SkISize d
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
     GraphiteResourceKey key;
+    fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, &key);
+
     // We always make discardable msaa attachments shareable. Between any render pass we discard
     // the values of the MSAA texture. Thus it is safe to be used by multiple different render
     // passes without worry of stomping on each other's data. It is the callings code's
     // responsibility to populate the discardable MSAA texture with data at the start of the
     // render pass.
-    fSharedContext->caps()->buildKeyForTexture(dimensions, info, kType, Shareable::kYes, &key);
-
     return this->findOrCreateTextureWithKey(dimensions,
                                             info,
                                             key,
                                             "DiscardableMSAAAttachment",
-                                            skgpu::Budgeted::kYes);
+                                            Budgeted::kYes,
+                                            Shareable::kYes);
 }
 
 sk_sp<Texture> ResourceProvider::findOrCreateTextureWithKey(SkISize dimensions,
                                                             const TextureInfo& info,
                                                             const GraphiteResourceKey& key,
                                                             std::string_view label,
-                                                            skgpu::Budgeted budgeted) {
+                                                            Budgeted budgeted,
+                                                            Shareable shareable) {
     // If the resource is shareable it should be budgeted since it shouldn't be backing any client
     // owned object.
-    SkASSERT(key.shareable() == Shareable::kNo || budgeted == skgpu::Budgeted::kYes);
+    SkASSERT(shareable == Shareable::kNo || budgeted == Budgeted::kYes);
 
-    if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
+    if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted, shareable)) {
         resource->setLabel(std::move(label));
         return sk_sp<Texture>(static_cast<Texture*>(resource));
     }
 
-    auto tex = this->createTexture(dimensions, info, budgeted);
+    auto tex = this->createTexture(dimensions, info);
     if (!tex) {
         return nullptr;
     }
 
-    tex->setKey(key);
     tex->setLabel(std::move(label));
-    fResourceCache->insertResource(tex.get());
+    fResourceCache->insertResource(tex.get(), key, budgeted, shareable);
 
     return tex;
 }
@@ -208,11 +211,14 @@ sk_sp<Texture> ResourceProvider::createWrappedTexture(const BackendTexture& back
     sk_sp<Texture> texture = this->onCreateWrappedTexture(backendTexture);
     if (texture) {
         texture->setLabel(std::move(label));
+        SkASSERT(texture->ownership() == Ownership::kWrapped);
     }
     return texture;
 }
 
 sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SamplerDesc& samplerDesc) {
+    static constexpr Budgeted kBudgeted = Budgeted::kYes;
+    static constexpr Shareable kShareable = Shareable::kYes;
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
     GraphiteResourceKey key;
@@ -222,14 +228,14 @@ sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SamplerDesc
         // immutable sampler details into the SamplerDesc, so there is no need to delegate to Caps
         // to create a specific key.
         const SkSpan<const uint32_t>& samplerData = samplerDesc.asSpan();
-        GraphiteResourceKey::Builder builder(&key, kType, samplerData.size(), Shareable::kYes);
+        GraphiteResourceKey::Builder builder(&key, kType, samplerData.size());
 
         for (size_t i = 0; i < samplerData.size(); i++) {
             builder[i] = samplerData[i];
         }
     }
 
-    if (Resource* resource = fResourceCache->findAndRefResource(key, Budgeted::kYes)) {
+    if (Resource* resource = fResourceCache->findAndRefResource(key, kBudgeted, kShareable)) {
         return sk_sp<Sampler>(static_cast<Sampler*>(resource));
     }
 
@@ -238,8 +244,7 @@ sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SamplerDesc
         return nullptr;
     }
 
-    sampler->setKey(key);
-    fResourceCache->insertResource(sampler.get());
+    fResourceCache->insertResource(sampler.get(), key, kBudgeted, kShareable);
     return sampler;
 }
 
@@ -247,6 +252,8 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
                                                    BufferType type,
                                                    AccessPattern accessPattern,
                                                    std::string_view label) {
+    static constexpr Budgeted kBudgeted = Budgeted::kYes;
+    static constexpr Shareable kShareable = Shareable::kNo;
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
     GraphiteResourceKey key;
@@ -260,7 +267,7 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
         SkASSERT(static_cast<uint32_t>(type) < (1u << 4));
         SkASSERT(static_cast<uint32_t>(accessPattern) < (1u << 1));
 
-        GraphiteResourceKey::Builder builder(&key, kType, kKeyNum32DataCnt, Shareable::kNo);
+        GraphiteResourceKey::Builder builder(&key, kType, kKeyNum32DataCnt);
         builder[0] = (static_cast<uint32_t>(type) << 0) |
                      (static_cast<uint32_t>(accessPattern) << 4);
         size_t szKey = size;
@@ -275,8 +282,7 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
         }
     }
 
-    skgpu::Budgeted budgeted = skgpu::Budgeted::kYes;
-    if (Resource* resource = fResourceCache->findAndRefResource(key, budgeted)) {
+    if (Resource* resource = fResourceCache->findAndRefResource(key, kBudgeted, kShareable)) {
         resource->setLabel(std::move(label));
         return sk_sp<Buffer>(static_cast<Buffer*>(resource));
     }
@@ -285,9 +291,8 @@ sk_sp<Buffer> ResourceProvider::findOrCreateBuffer(size_t size,
         return nullptr;
     }
 
-    buffer->setKey(key);
     buffer->setLabel(std::move(label));
-    fResourceCache->insertResource(buffer.get());
+    fResourceCache->insertResource(buffer.get(), key, kBudgeted, kShareable);
     return buffer;
 }
 

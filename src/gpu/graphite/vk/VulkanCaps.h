@@ -66,7 +66,6 @@ public:
     void buildKeyForTexture(SkISize dimensions,
                             const TextureInfo&,
                             ResourceType,
-                            Shareable,
                             GraphiteResourceKey*) const override;
 
     bool shouldAlwaysUseDedicatedImageMemory() const {

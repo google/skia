@@ -157,8 +157,7 @@ sk_sp<ComputePipeline> VulkanResourceProvider::createComputePipeline(const Compu
 }
 
 sk_sp<Texture> VulkanResourceProvider::createTexture(SkISize size,
-                                                     const TextureInfo& info,
-                                                     skgpu::Budgeted budgeted) {
+                                                     const TextureInfo& info) {
     sk_sp<VulkanYcbcrConversion> ycbcrConversion;
     if (TextureInfos::GetVulkanYcbcrConversionInfo(info).isValid()) {
         ycbcrConversion = this->findOrCreateCompatibleYcbcrConversion(
@@ -171,7 +170,6 @@ sk_sp<Texture> VulkanResourceProvider::createTexture(SkISize size,
     return VulkanTexture::Make(this->vulkanSharedContext(),
                                size,
                                info,
-                               budgeted,
                                std::move(ycbcrConversion));
 }
 
@@ -245,7 +243,7 @@ GraphiteResourceKey build_desc_set_key(const SkSpan<DescriptorData>& requestedDe
     }
 
     GraphiteResourceKey key;
-    GraphiteResourceKey::Builder builder(&key, kType, keyData.size(), Shareable::kNo);
+    GraphiteResourceKey::Builder builder(&key, kType, keyData.size());
 
     for (int i = 0; i < keyData.size(); i++) {
         builder[i] = keyData[i];
@@ -263,8 +261,7 @@ sk_sp<VulkanDescriptorSet> add_new_desc_set_to_cache(const VulkanSharedContext* 
     if (!descSet) {
         return nullptr;
     }
-    descSet->setKey(descSetKey);
-    resourceCache->insertResource(descSet.get());
+    resourceCache->insertResource(descSet.get(), descSetKey, Budgeted::kYes, Shareable::kNo);
 
     return descSet;
 }
@@ -278,7 +275,8 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateDescriptorSet(
 
     // Search for available descriptor sets by assembling a key based upon the set's structure.
     GraphiteResourceKey key = build_desc_set_key(requestedDescriptors);
-    if (auto descSet = fResourceCache->findAndRefResource(key, skgpu::Budgeted::kYes)) {
+    if (auto descSet = fResourceCache->findAndRefResource(
+                key, skgpu::Budgeted::kYes, Shareable::kNo)) {
         // A non-null resource pointer indicates we have found an available descriptor set.
         return sk_sp<VulkanDescriptorSet>(static_cast<VulkanDescriptorSet*>(descSet));
     }
@@ -442,8 +440,10 @@ sk_sp<VulkanRenderPass> VulkanResourceProvider::findOrCreateRenderPassWithKnownK
             const RenderPassDesc& renderPassDesc,
             bool compatibleOnly,
             const GraphiteResourceKey& rpKey) {
-    if (Resource* resource =
-            fResourceCache->findAndRefResource(rpKey, skgpu::Budgeted::kYes)) {
+    static constexpr Budgeted kBudgeted = Budgeted::kYes;
+    static constexpr Shareable kShareable = Shareable::kYes;
+
+    if (Resource* resource = fResourceCache->findAndRefResource(rpKey, kBudgeted, kShareable)) {
         return sk_sp<VulkanRenderPass>(static_cast<VulkanRenderPass*>(resource));
     }
 
@@ -455,8 +455,7 @@ sk_sp<VulkanRenderPass> VulkanResourceProvider::findOrCreateRenderPassWithKnownK
         return nullptr;
     }
 
-    renderPass->setKey(rpKey);
-    fResourceCache->insertResource(renderPass.get());
+    fResourceCache->insertResource(renderPass.get(), rpKey, kBudgeted, kShareable);
 
     return renderPass;
 }
@@ -540,6 +539,8 @@ void VulkanResourceProvider::onDeleteBackendTexture(const BackendTexture& textur
 
 sk_sp<VulkanYcbcrConversion> VulkanResourceProvider::findOrCreateCompatibleYcbcrConversion(
         const VulkanYcbcrConversionInfo& ycbcrInfo) const {
+    static constexpr Budgeted kBudgeted = Budgeted::kYes;
+    static constexpr Shareable kShareable = Shareable::kYes;
     if (!ycbcrInfo.isValid()) {
         return nullptr;
     }
@@ -549,14 +550,14 @@ sk_sp<VulkanYcbcrConversion> VulkanResourceProvider::findOrCreateCompatibleYcbcr
         static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
         static constexpr int kKeySize = 3;
 
-        GraphiteResourceKey::Builder builder(&key, kType, kKeySize, Shareable::kYes);
+        GraphiteResourceKey::Builder builder(&key, kType, kKeySize);
         ImmutableSamplerInfo packedInfo = VulkanYcbcrConversion::ToImmutableSamplerInfo(ycbcrInfo);
         builder[0] = packedInfo.fNonFormatYcbcrConversionInfo;
         builder[1] = (uint32_t) packedInfo.fFormat;
         builder[2] = (uint32_t) (packedInfo.fFormat >> 32);
     }
 
-    if (Resource* resource = fResourceCache->findAndRefResource(key, Budgeted::kYes)) {
+    if (Resource* resource = fResourceCache->findAndRefResource(key, kBudgeted, kShareable)) {
         return sk_sp(static_cast<VulkanYcbcrConversion*>(resource));
     }
 
@@ -565,9 +566,7 @@ sk_sp<VulkanYcbcrConversion> VulkanResourceProvider::findOrCreateCompatibleYcbcr
         return nullptr;
     }
 
-    ycbcrConversion->setKey(key);
-    fResourceCache->insertResource(ycbcrConversion.get());
-
+    fResourceCache->insertResource(ycbcrConversion.get(), key, kBudgeted, kShareable);
     return ycbcrConversion;
 }
 

@@ -64,7 +64,7 @@ public:
     sk_sp<Texture> findOrCreateScratchTexture(SkISize,
                                               const TextureInfo&,
                                               std::string_view label,
-                                              skgpu::Budgeted);
+                                              Budgeted);
 
     sk_sp<Texture> createWrappedTexture(const BackendTexture&, std::string_view label);
 
@@ -135,9 +135,7 @@ private:
             SkEnumBitMask<PipelineCreationFlags>,
             uint32_t compilationID) = 0;
     virtual sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) = 0;
-    virtual sk_sp<Texture> createTexture(SkISize,
-                                         const TextureInfo&,
-                                         skgpu::Budgeted) = 0;
+    virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&) = 0;
     virtual sk_sp<Buffer> createBuffer(size_t size, BufferType type, AccessPattern) = 0;
     virtual sk_sp<Sampler> createSampler(const SamplerDesc&) = 0;
 
@@ -145,7 +143,8 @@ private:
                                               const TextureInfo& info,
                                               const GraphiteResourceKey& key,
                                               std::string_view label,
-                                              skgpu::Budgeted);
+                                              Budgeted,
+                                              Shareable);
 
     virtual sk_sp<Texture> onCreateWrappedTexture(const BackendTexture&) = 0;
 

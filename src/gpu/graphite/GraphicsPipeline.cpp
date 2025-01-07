@@ -19,7 +19,6 @@ GraphicsPipeline::GraphicsPipeline(const SharedContext* sharedContext,
                                    const PipelineInfo& pipelineInfo)
         : Resource(sharedContext,
                    Ownership::kOwned,
-                   skgpu::Budgeted::kYes,
                    /*gpuMemorySize=*/0)
         , fPipelineInfo(pipelineInfo) {}
 

@@ -151,7 +151,6 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
 sk_sp<Texture> VulkanTexture::Make(const VulkanSharedContext* sharedContext,
                                    SkISize dimensions,
                                    const TextureInfo& info,
-                                   skgpu::Budgeted budgeted,
                                    sk_sp<VulkanYcbcrConversion> ycbcrConversion) {
     CreatedImageInfo imageInfo;
     if (!MakeVkImage(sharedContext, dimensions, info, &imageInfo)) {
@@ -165,7 +164,6 @@ sk_sp<Texture> VulkanTexture::Make(const VulkanSharedContext* sharedContext,
                                             imageInfo.fImage,
                                             imageInfo.fMemoryAlloc,
                                             Ownership::kOwned,
-                                            budgeted,
                                             std::move(ycbcrConversion)));
 }
 
@@ -183,7 +181,6 @@ sk_sp<Texture> VulkanTexture::MakeWrapped(const VulkanSharedContext* sharedConte
                                             image,
                                             alloc,
                                             Ownership::kWrapped,
-                                            skgpu::Budgeted::kNo,
                                             std::move(ycbcrConversion)));
 }
 
@@ -312,9 +309,8 @@ VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
                              VkImage image,
                              const VulkanAlloc& alloc,
                              Ownership ownership,
-                             skgpu::Budgeted budgeted,
                              sk_sp<VulkanYcbcrConversion> ycbcrConversion)
-        : Texture(sharedContext, dimensions, info, std::move(mutableState), ownership, budgeted)
+        : Texture(sharedContext, dimensions, info, std::move(mutableState), ownership)
         , fImage(image)
         , fMemoryAlloc(alloc)
         , fYcbcrConversion(std::move(ycbcrConversion)) {}

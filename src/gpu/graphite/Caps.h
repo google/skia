@@ -149,7 +149,6 @@ public:
     virtual void buildKeyForTexture(SkISize dimensions,
                                     const TextureInfo&,
                                     ResourceType,
-                                    Shareable,
                                     GraphiteResourceKey*) const = 0;
 
     const ResourceBindingRequirements& resourceBindingRequirements() const {

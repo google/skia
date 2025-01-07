@@ -20,9 +20,8 @@ Texture::Texture(const SharedContext* sharedContext,
                  SkISize dimensions,
                  const TextureInfo& info,
                  sk_sp<MutableTextureState> mutableState,
-                 Ownership ownership,
-                 skgpu::Budgeted budgeted)
-        : Resource(sharedContext, ownership, budgeted, ComputeSize(dimensions, info))
+                 Ownership ownership)
+        : Resource(sharedContext, ownership, ComputeSize(dimensions, info))
         , fDimensions(dimensions)
         , fInfo(info)
         , fMutableState(std::move(mutableState)) {}

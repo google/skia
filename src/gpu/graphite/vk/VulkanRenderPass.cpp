@@ -202,7 +202,7 @@ GraphiteResourceKey VulkanRenderPass::MakeRenderPassKey(
 
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
     GraphiteResourceKey key;
-    GraphiteResourceKey::Builder builder(&key, kType, rpMetaData.fUint32DataCnt, Shareable::kYes);
+    GraphiteResourceKey::Builder builder(&key, kType, rpMetaData.fUint32DataCnt);
 
     int startingIdx = 0;
     populate_key(rpMetaData, builder, startingIdx, compatibleOnly);
@@ -440,7 +440,6 @@ VulkanRenderPass::VulkanRenderPass(const VulkanSharedContext* context,
                                    VkExtent2D granularity)
         : Resource(context,
                    Ownership::kOwned,
-                   skgpu::Budgeted::kYes,
                    /*gpuMemorySize=*/0)
         , fSharedContext(context)
         , fRenderPass(renderPass)

@@ -40,7 +40,6 @@ public:
     static sk_sp<Texture> Make(const VulkanSharedContext*,
                                SkISize dimensions,
                                const TextureInfo&,
-                               skgpu::Budgeted,
                                sk_sp<VulkanYcbcrConversion>);
 
     static sk_sp<Texture> MakeWrapped(const VulkanSharedContext*,
@@ -94,7 +93,6 @@ private:
                   VkImage,
                   const VulkanAlloc&,
                   Ownership,
-                  skgpu::Budgeted,
                   sk_sp<VulkanYcbcrConversion>);
 
     void freeGpuData() override;
@@ -111,4 +109,3 @@ private:
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_VulkanTexture_DEFINED
-

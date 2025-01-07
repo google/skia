@@ -68,20 +68,17 @@ MtlTexture::MtlTexture(const MtlSharedContext* sharedContext,
                        SkISize dimensions,
                        const TextureInfo& info,
                        sk_cfp<id<MTLTexture>> texture,
-                       Ownership ownership,
-                       skgpu::Budgeted budgeted)
+                       Ownership ownership)
         : Texture(sharedContext,
                   dimensions,
                   info,
                   /*mutableState=*/nullptr,
-                  ownership,
-                  budgeted)
+                  ownership)
         , fTexture(std::move(texture)) {}
 
 sk_sp<Texture> MtlTexture::Make(const MtlSharedContext* sharedContext,
                                 SkISize dimensions,
-                                const TextureInfo& info,
-                                skgpu::Budgeted budgeted) {
+                                const TextureInfo& info) {
     sk_cfp<id<MTLTexture>> texture = MakeMtlTexture(sharedContext, dimensions, info);
     if (!texture) {
         return nullptr;
@@ -90,8 +87,7 @@ sk_sp<Texture> MtlTexture::Make(const MtlSharedContext* sharedContext,
                                          dimensions,
                                          info,
                                          std::move(texture),
-                                         Ownership::kOwned,
-                                         budgeted));
+                                         Ownership::kOwned));
 }
 
 sk_sp<Texture> MtlTexture::MakeWrapped(const MtlSharedContext* sharedContext,
@@ -102,8 +98,7 @@ sk_sp<Texture> MtlTexture::MakeWrapped(const MtlSharedContext* sharedContext,
                                          dimensions,
                                          info,
                                          std::move(texture),
-                                         Ownership::kWrapped,
-                                         skgpu::Budgeted::kNo));
+                                         Ownership::kWrapped));
 }
 
 void MtlTexture::freeGpuData() {
@@ -120,4 +115,3 @@ void MtlTexture::setBackendLabel(char const* label) {
 }
 
 } // namespace skgpu::graphite
-

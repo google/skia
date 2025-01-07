@@ -69,7 +69,6 @@ public:
     void buildKeyForTexture(SkISize dimensions,
                             const TextureInfo&,
                             ResourceType,
-                            Shareable,
                             GraphiteResourceKey*) const override;
     uint32_t getRenderPassDescKeyForPipeline(const RenderPassDesc& renderPassDesc) const;
 

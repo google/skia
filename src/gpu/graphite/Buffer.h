@@ -42,7 +42,6 @@ protected:
            bool commandBufferRefsAsUsageRefs = false)
             : Resource(sharedContext,
                        Ownership::kOwned,
-                       skgpu::Budgeted::kYes,
                        size,
                        /*commandBufferRefsAsUsageRefs=*/commandBufferRefsAsUsageRefs)
             , fSize(size)

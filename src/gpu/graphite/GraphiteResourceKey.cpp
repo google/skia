@@ -21,4 +21,3 @@ ResourceType GraphiteResourceKey::GenerateResourceType() {
 }
 
 } // namespace skgpu::graphite
-
