@@ -237,6 +237,11 @@ struct SamplerDesc {
         return SkSamplingOptions(filter, mipmap);
     }
 
+    ImmutableSamplerInfo immutableSamplerInfo() const {
+        return {this->desc() >> kImmutableSamplerInfoShift,
+                ((uint64_t) this->externalFormatMSBs() << 32) | (uint64_t) this->format()};
+    }
+
     SkSpan<const uint32_t> asSpan() const {
         // Span length depends upon whether the sampler is immutable and if it uses a known format
         return {&fDesc, 1 + this->isImmutable() + this->usesExternalFormat()};

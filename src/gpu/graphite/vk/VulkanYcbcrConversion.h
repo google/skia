@@ -28,20 +28,16 @@ public:
     static sk_sp<VulkanYcbcrConversion> Make(const VulkanSharedContext*,
                                              const VulkanYcbcrConversionInfo&);
 
-    static sk_sp<VulkanYcbcrConversion> Make(const VulkanSharedContext*,
-                                             uint32_t nonFormatInfo,
-                                             uint64_t format);
-
-    static GraphiteResourceKey MakeYcbcrConversionKey(const VulkanSharedContext*,
-                                                      const VulkanYcbcrConversionInfo&);
-
-    // Return a fully-formed GraphiteResourceKey that represents a YCbCr conversion by extracting
-    // relevant information from a SamplerDesc.
-    static GraphiteResourceKey GetKeyFromSamplerDesc(const SamplerDesc& samplerDesc);
-
-    VkSamplerYcbcrConversion ycbcrConversion() const { return fYcbcrConversion; }
+    const VkSamplerYcbcrConversion& ycbcrConversion() const { return fYcbcrConversion; }
 
     const char* getResourceType() const override { return "Vulkan YCbCr Conversion"; }
+
+    // Static utilities for working with VulkanYcbcrConversionInfo and ImmutableSamplerInfo, both of
+    // which pack the necessary information to create a VulkanYcbcrConversion resource. These are
+    // not on VulkanYcbcrConversionInfo because that is a public type for use with
+    // VulkanTextureInfo.
+    static ImmutableSamplerInfo ToImmutableSamplerInfo(const VulkanYcbcrConversionInfo&);
+    static VulkanYcbcrConversionInfo FromImmutableSamplerInfo(ImmutableSamplerInfo);
 
 private:
     VulkanYcbcrConversion(const VulkanSharedContext*, VkSamplerYcbcrConversion);
@@ -53,4 +49,3 @@ private:
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_VulkanYcbcrConversion_DEFINED
-
