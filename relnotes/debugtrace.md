@@ -1,1 +1,0 @@
-The ability to dump a SkSL::DebugTrace to JSON has been removed from the public API.
