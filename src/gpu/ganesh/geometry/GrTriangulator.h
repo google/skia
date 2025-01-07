@@ -205,6 +205,8 @@ protected:
     SkArenaAlloc* const fAlloc;
     int fNumMonotonePolys = 0;
     int fNumEdges = 0;
+    // Track how deep of a stack we get from mergeCollinearEdges()
+    mutable int fMergeCollinearStackCount = 0;
 
     // Internal control knobs.
     bool fRoundVerticesToQuarterPixel = false;
