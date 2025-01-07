@@ -213,9 +213,23 @@ sk_sp<Texture> ResourceProvider::createWrappedTexture(const BackendTexture& back
 }
 
 sk_sp<Sampler> ResourceProvider::findOrCreateCompatibleSampler(const SamplerDesc& samplerDesc) {
-    GraphiteResourceKey key = fSharedContext->caps()->makeSamplerKey(samplerDesc);
+    static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
-    if (Resource* resource = fResourceCache->findAndRefResource(key, skgpu::Budgeted::kYes)) {
+    GraphiteResourceKey key;
+    {
+        // The size of the returned span accurately captures the quantity of uint32s needed whether
+        // the sampler is immutable or not. Each backend will already have encoded any specific
+        // immutable sampler details into the SamplerDesc, so there is no need to delegate to Caps
+        // to create a specific key.
+        const SkSpan<const uint32_t>& samplerData = samplerDesc.asSpan();
+        GraphiteResourceKey::Builder builder(&key, kType, samplerData.size(), Shareable::kYes);
+
+        for (size_t i = 0; i < samplerData.size(); i++) {
+            builder[i] = samplerData[i];
+        }
+    }
+
+    if (Resource* resource = fResourceCache->findAndRefResource(key, Budgeted::kYes)) {
         return sk_sp<Sampler>(static_cast<Sampler*>(resource));
     }
 

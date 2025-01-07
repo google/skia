@@ -68,18 +68,6 @@ bool Caps::isTexturable(const TextureInfo& info) const {
     return this->onIsTexturable(info);
 }
 
-GraphiteResourceKey Caps::makeSamplerKey(const SamplerDesc& samplerDesc) const {
-    GraphiteResourceKey samplerKey;
-    static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
-    GraphiteResourceKey::Builder builder(&samplerKey, kType, /*data32Count=*/1, Shareable::kYes);
-
-    // The default impl. of this method adds no additional backend information to the key.
-    builder[0] = samplerDesc.desc();
-
-    builder.finish();
-    return samplerKey;
-}
-
 bool Caps::areColorTypeAndTextureInfoCompatible(SkColorType ct, const TextureInfo& info) const {
     // TODO: add SkTextureCompressionType handling
     // (can be handled by setting up the colorTypeInfo instead?)
