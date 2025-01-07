@@ -203,7 +203,67 @@ bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
 }
 
 #if !defined(__EMSCRIPTEN__)
-namespace ycbcrUtils {
+
+namespace {
+
+static constexpr int kUsesExternalFormatBits  = 1;
+static constexpr int kYcbcrModelBits          = 3;
+static constexpr int kYcbcrRangeBits          = 1;
+static constexpr int kXChromaOffsetBits       = 1;
+static constexpr int kYChromaOffsetBits       = 1;
+// wgpu::FilterMode contains Undefined/Nearest/Linear entries (Linear is 2).
+static constexpr int kChromaFilterBits        = 2;
+static constexpr int kForceExplicitReconBits  = 1;
+static constexpr int kComponentBits           = 3;
+
+static constexpr int kUsesExternalFormatShift = 0;
+static constexpr int kYcbcrModelShift         = kUsesExternalFormatShift + kUsesExternalFormatBits;
+static constexpr int kYcbcrRangeShift         = kYcbcrModelShift         + kYcbcrModelBits;
+static constexpr int kXChromaOffsetShift      = kYcbcrRangeShift         + kYcbcrRangeBits;
+static constexpr int kYChromaOffsetShift      = kXChromaOffsetShift      + kXChromaOffsetBits;
+static constexpr int kChromaFilterShift       = kYChromaOffsetShift      + kYChromaOffsetBits;
+static constexpr int kForceExplicitReconShift = kChromaFilterShift       + kChromaFilterBits;
+static constexpr int kComponentRShift         = kForceExplicitReconShift + kForceExplicitReconBits;
+static constexpr int kComponentGShift         = kComponentRShift         + kComponentBits;
+static constexpr int kComponentBShift         = kComponentGShift         + kComponentBits;
+static constexpr int kComponentAShift         = kComponentBShift         + kComponentBits;
+
+static constexpr uint32_t kUseExternalFormatMask =
+        ((1 << kUsesExternalFormatBits) - 1) << kUsesExternalFormatShift;
+static constexpr uint32_t kYcbcrModelMask =
+        ((1 << kYcbcrModelBits) - 1) << kYcbcrModelShift;
+static constexpr uint32_t kYcbcrRangeMask =
+        ((1 << kYcbcrRangeBits) - 1) << kYcbcrRangeShift;
+static constexpr uint32_t kXChromaOffsetMask =
+        ((1 << kXChromaOffsetBits) - 1) << kXChromaOffsetShift;
+static constexpr uint32_t kYChromaOffsetMask =
+        ((1 << kYChromaOffsetBits) - 1) << kYChromaOffsetShift;
+static constexpr uint32_t kChromaFilterMask =
+        ((1 << kChromaFilterBits) - 1) << kChromaFilterShift;
+static constexpr uint32_t kForceExplicitReconMask =
+        ((1 << kForceExplicitReconBits) - 1) << kForceExplicitReconShift;
+static constexpr uint32_t kComponentRMask = ((1 << kComponentBits) - 1) << kComponentRShift;
+static constexpr uint32_t kComponentBMask = ((1 << kComponentBits) - 1) << kComponentBShift;
+static constexpr uint32_t kComponentGMask = ((1 << kComponentBits) - 1) << kComponentGShift;
+static constexpr uint32_t kComponentAMask = ((1 << kComponentBits) - 1) << kComponentAShift;
+
+} // anonymous namespace
+
+bool DawnDescriptorsAreEquivalent(const wgpu::YCbCrVkDescriptor& desc1,
+                                  const wgpu::YCbCrVkDescriptor& desc2) {
+    return desc1.vkFormat                    == desc2.vkFormat                    &&
+           desc1.vkYCbCrModel                == desc2.vkYCbCrModel                &&
+           desc1.vkYCbCrRange                == desc2.vkYCbCrRange                &&
+           desc1.vkComponentSwizzleRed       == desc2.vkComponentSwizzleRed       &&
+           desc1.vkComponentSwizzleGreen     == desc2.vkComponentSwizzleGreen     &&
+           desc1.vkComponentSwizzleBlue      == desc2.vkComponentSwizzleBlue      &&
+           desc1.vkComponentSwizzleAlpha     == desc2.vkComponentSwizzleAlpha     &&
+           desc1.vkXChromaOffset             == desc2.vkXChromaOffset             &&
+           desc1.vkYChromaOffset             == desc2.vkYChromaOffset             &&
+           desc1.vkChromaFilter              == desc2.vkChromaFilter              &&
+           desc1.forceExplicitReconstruction == desc2.forceExplicitReconstruction &&
+           desc1.externalFormat              == desc2.externalFormat;
+}
 
 bool DawnDescriptorIsValid(const wgpu::YCbCrVkDescriptor& desc) {
     static const wgpu::YCbCrVkDescriptor kDefaultYcbcrDescriptor = {};
@@ -215,7 +275,68 @@ bool DawnDescriptorUsesExternalFormat(const wgpu::YCbCrVkDescriptor& desc) {
     return desc.externalFormat != 0;
 }
 
-} // namespace ycbcrUtils
+ImmutableSamplerInfo DawnDescriptorToImmutableSamplerInfo(const wgpu::YCbCrVkDescriptor& desc) {
+    static_assert(kComponentAShift + kComponentBits <= 32);
+    SkASSERT(desc.vkYCbCrModel                          < (1u << kYcbcrModelBits    ));
+    SkASSERT(desc.vkYCbCrRange                          < (1u << kYcbcrRangeBits    ));
+    SkASSERT(desc.vkXChromaOffset                       < (1u << kXChromaOffsetBits ));
+    SkASSERT(desc.vkYChromaOffset                       < (1u << kYChromaOffsetBits ));
+    SkASSERT(static_cast<uint32_t>(desc.vkChromaFilter) < (1u << kChromaFilterBits  ));
+    SkASSERT(desc.vkComponentSwizzleRed                 < (1u << kComponentBits     ));
+    SkASSERT(desc.vkComponentSwizzleGreen               < (1u << kComponentBits     ));
+    SkASSERT(desc.vkComponentSwizzleBlue                < (1u << kComponentBits     ));
+    SkASSERT(desc.vkComponentSwizzleAlpha               < (1u << kComponentBits     ));
+    SkASSERT(static_cast<uint32_t>(desc.forceExplicitReconstruction)
+             < (1u << kForceExplicitReconBits));
+
+    const bool usesExternalFormat = DawnDescriptorUsesExternalFormat(desc);
+
+    ImmutableSamplerInfo info;
+    info.fNonFormatYcbcrConversionInfo =
+            (((uint32_t)(usesExternalFormat               ) << kUsesExternalFormatShift) |
+             ((uint32_t)(desc.vkYCbCrModel                ) << kYcbcrModelShift        ) |
+             ((uint32_t)(desc.vkYCbCrRange                ) << kYcbcrRangeShift        ) |
+             ((uint32_t)(desc.vkXChromaOffset             ) << kXChromaOffsetShift     ) |
+             ((uint32_t)(desc.vkYChromaOffset             ) << kYChromaOffsetShift     ) |
+             ((uint32_t)(desc.vkChromaFilter              ) << kChromaFilterShift      ) |
+             ((uint32_t)(desc.forceExplicitReconstruction ) << kForceExplicitReconShift) |
+             ((uint32_t)(desc.vkComponentSwizzleRed       ) << kComponentRShift        ) |
+             ((uint32_t)(desc.vkComponentSwizzleGreen     ) << kComponentGShift        ) |
+             ((uint32_t)(desc.vkComponentSwizzleBlue      ) << kComponentBShift        ) |
+             ((uint32_t)(desc.vkComponentSwizzleAlpha     ) << kComponentAShift        ));
+    info.fFormat = usesExternalFormat ? desc.externalFormat : desc.vkFormat;
+    return info;
+}
+
+wgpu::YCbCrVkDescriptor DawnDescriptorFromImmutableSamplerInfo(ImmutableSamplerInfo info) {
+    const uint32_t nonFormatInfo = info.fNonFormatYcbcrConversionInfo;
+
+    wgpu::YCbCrVkDescriptor desc;
+    const bool usesExternalFormat =
+            (nonFormatInfo >> kUsesExternalFormatShift) & kUseExternalFormatMask;
+    if (usesExternalFormat) {
+        desc.vkFormat = 0;
+        desc.externalFormat = info.fFormat;
+    } else {
+        desc.vkFormat = (uint32_t) info.fFormat;
+        desc.externalFormat = 0;
+    }
+
+    desc.vkYCbCrModel                = (nonFormatInfo & kYcbcrModelMask)    >> kYcbcrModelShift;
+    desc.vkYCbCrRange                = (nonFormatInfo & kYcbcrRangeMask)    >> kYcbcrRangeShift;
+    desc.vkComponentSwizzleRed       = (nonFormatInfo & kComponentRMask)    >> kComponentRShift;
+    desc.vkComponentSwizzleGreen     = (nonFormatInfo & kComponentGMask)    >> kComponentGShift;
+    desc.vkComponentSwizzleBlue      = (nonFormatInfo & kComponentBMask)    >> kComponentBShift;
+    desc.vkComponentSwizzleAlpha     = (nonFormatInfo & kComponentAMask)    >> kComponentAShift;
+    desc.vkXChromaOffset             = (nonFormatInfo & kXChromaOffsetMask) >> kXChromaOffsetShift;
+    desc.vkYChromaOffset             = (nonFormatInfo & kYChromaOffsetMask) >> kYChromaOffsetShift;
+    desc.vkChromaFilter              = static_cast<wgpu::FilterMode>(
+            (nonFormatInfo & kChromaFilterMask) >> kChromaFilterShift);
+    desc.forceExplicitReconstruction =
+            (nonFormatInfo & kForceExplicitReconMask) >> kForceExplicitReconShift;
+    return desc;
+}
+
 #endif // !defined(__EMSCRIPTEN__)
 
 } // namespace skgpu::graphite

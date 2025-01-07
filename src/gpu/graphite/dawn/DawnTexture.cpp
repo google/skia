@@ -49,7 +49,7 @@ wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContex
 #if !defined(__EMSCRIPTEN__)
     // If a non-default YCbCr descriptor is provided, either the vkFormat or the externalFormat must
     // be defined.
-    if (ycbcrUtils::DawnDescriptorIsValid(dawnSpec.fYcbcrVkDescriptor) &&
+    if (DawnDescriptorIsValid(dawnSpec.fYcbcrVkDescriptor) &&
         dawnSpec.fYcbcrVkDescriptor.vkFormat == 0 &&
         dawnSpec.fYcbcrVkDescriptor.externalFormat == 0) {
         return {};
@@ -113,7 +113,7 @@ std::pair<wgpu::TextureView, wgpu::TextureView> DawnTexture::CreateTextureViews(
         // Ensure that the TextureView is configured to use YCbCr sampling if the Texture is
         // doing so.
         const wgpu::YCbCrVkDescriptor& ycbcrDesc = dawnSpec.fYcbcrVkDescriptor;
-        if (ycbcrUtils::DawnDescriptorIsValid(ycbcrDesc)) {
+        if (DawnDescriptorIsValid(ycbcrDesc)) {
             viewDesc.nextInChain = &ycbcrDesc;
         }
 #endif
@@ -239,4 +239,3 @@ void DawnTexture::setBackendLabel(char const* label) {
 }
 
 } // namespace skgpu::graphite
-

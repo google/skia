@@ -12,11 +12,6 @@
 #include "include/gpu/graphite/dawn/DawnTypes.h"
 
 namespace skgpu::graphite {
-#if !defined(__EMSCRIPTEN__)
-namespace ycbcrUtils {
-bool DawnDescriptorsAreEquivalent(const wgpu::YCbCrVkDescriptor&, const wgpu::YCbCrVkDescriptor&);
-}
-#endif
 
 struct DawnTextureSpec {
     DawnTextureSpec() = default;
@@ -31,27 +26,9 @@ struct DawnTextureSpec {
             , fSlice(info.fSlice) {
     }
 
-    bool operator==(const DawnTextureSpec& that) const {
-        return fUsage == that.fUsage && fFormat == that.fFormat &&
-               fViewFormat == that.fViewFormat && fAspect == that.fAspect &&
-#if !defined(__EMSCRIPTEN__)
-               ycbcrUtils::DawnDescriptorsAreEquivalent(fYcbcrVkDescriptor,
-                                                        that.fYcbcrVkDescriptor) &&
-#endif
-               fSlice == that.fSlice;
-    }
+    bool operator==(const DawnTextureSpec& that) const;
 
-    bool isCompatible(const DawnTextureSpec& that) const {
-        // The usages may match or the usage passed in may be a superset of the usage stored within.
-        // The YCbCrInfo must be equal.
-        // The aspect should either match the plane aspect or should be All.
-        return getViewFormat() == that.getViewFormat() && (fUsage & that.fUsage) == fUsage &&
-#if !defined(__EMSCRIPTEN__)
-               ycbcrUtils::DawnDescriptorsAreEquivalent(fYcbcrVkDescriptor,
-                                                        that.fYcbcrVkDescriptor) &&
-#endif
-               (fAspect == that.fAspect || fAspect == wgpu::TextureAspect::All);
-    }
+    bool isCompatible(const DawnTextureSpec& that) const;
 
     wgpu::TextureFormat getViewFormat() const {
         return fViewFormat != wgpu::TextureFormat::Undefined ? fViewFormat : fFormat;
