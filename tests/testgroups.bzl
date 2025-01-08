@@ -125,6 +125,7 @@ CORE_TESTS = [
     "SkSLErrorTest.cpp",
     "SkSLMemoryLayoutTest.cpp",
     "SkSLTypeTest.cpp",
+    "SkSharedMutexTest.cpp",
     "SkSpanTest.cpp",
     "SkStrikeCacheTest.cpp",
     "SkStringViewTest.cpp",

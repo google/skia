@@ -28,6 +28,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkEndian.h"
 #include "src/base/SkScopeExit.h"
+#include "src/base/SkSharedMutex.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMaskGamma.h"
@@ -49,8 +50,6 @@
 #include <dwrite_1.h>
 #include <dwrite_3.h>
 
-#include <shared_mutex>
-
 namespace {
 static inline const constexpr bool kSkShowTextBlitCoverage = false;
 
@@ -59,47 +58,48 @@ static inline const constexpr bool kSkShowTextBlitCoverage = false;
  * The mutex returned from maybe_dw_mutex protects the calls that are
  * problematic.
  */
-static std::shared_mutex* maybe_dw_mutex(DWriteFontTypeface& typeface) {
-    static std::shared_mutex mutex;
+static SkSharedMutex* maybe_dw_mutex(DWriteFontTypeface& typeface) {
+    static SkSharedMutex mutex;
     return typeface.fDWriteFontFace4 ? nullptr : &mutex;
 }
 
-// Wrappers around a possibly null shared mutex that acquire the lock for
-// as long as the object is in scope.
-class Exclusive {
+class SK_SCOPED_CAPABILITY Exclusive {
 public:
-    explicit Exclusive(std::shared_mutex* maybe_lock)
+    explicit Exclusive(SkSharedMutex* maybe_lock) SK_ACQUIRE(*maybe_lock)
         : fLock(maybe_lock) {
         if (fLock) {
-            fLock->lock();
+            fLock->acquire();
         }
     }
-    ~Exclusive() {
+    ~Exclusive() SK_RELEASE_CAPABILITY() {
         if (fLock) {
-            fLock->unlock();
+            fLock->release();
         }
     }
 
 private:
-    std::shared_mutex* fLock;
+    SkSharedMutex* fLock;
 };
-class Shared {
+class SK_SCOPED_CAPABILITY Shared {
 public:
-    explicit Shared(std::shared_mutex* maybe_lock)
+    explicit Shared(SkSharedMutex* maybe_lock) SK_ACQUIRE_SHARED(*maybe_lock)
         : fLock(maybe_lock)  {
         if (fLock) {
-            fLock->lock_shared();
+            fLock->acquireShared();
         }
     }
 
-    ~Shared() {
+    // You would think this should be SK_RELEASE_SHARED_CAPABILITY, but SK_SCOPED_CAPABILITY
+    // doesn't fully understand the difference between shared and exclusive.
+    // Please review https://reviews.llvm.org/D52578 for more information.
+    ~Shared() SK_RELEASE_CAPABILITY() {
         if (fLock) {
-            fLock->unlock_shared();
+            fLock->releaseShared();
         }
     }
 
 private:
-    std::shared_mutex* fLock;
+    SkSharedMutex* fLock;
 };
 
 static bool isLCD(const SkScalerContextRec& rec) {

@@ -17,11 +17,10 @@
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTArray.h"
+#include "src/base/SkSharedMutex.h"
 #include "src/utils/SkCharToGlyphCache.h"
 
 class SkFontData;
-
-#include <shared_mutex>
 
 // These are forward declared to avoid pimpl but also hide the FreeType implementation.
 typedef struct FT_LibraryRec_* FT_Library;
@@ -85,7 +84,7 @@ private:
     mutable SkOnce fFTFaceOnce;
     mutable std::unique_ptr<FaceRec> fFaceRec;
 
-    mutable std::shared_mutex fC2GCacheMutex;
+    mutable SkSharedMutex fC2GCacheMutex;
     mutable SkCharToGlyphCache fC2GCache;
 
     mutable SkOnce fGlyphMasksMayNeedCurrentColorOnce;
