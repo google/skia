@@ -1405,7 +1405,7 @@ bool SkOpSegment::spansNearby(const SkOpSpanBase* refSpan, const SkOpSpanBase* c
         }
         const SkOpPtT* check = checkHead;
         const SkOpSegment* refSeg = ref->segment();
-        int escapeHatch = 100000;  // defend against infinite loops
+        int escapeHatch = 1000;  // defend against infinite loops
         do {
             if (check->deleted()) {
                 continue;
