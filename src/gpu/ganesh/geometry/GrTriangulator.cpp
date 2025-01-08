@@ -958,7 +958,7 @@ static bool bottom_collinear(Edge* left, Edge* right) {
 }
 
 // How deep of a stack of mergeCollinearEdges() we'll accept
-static constexpr int kMaxMergeCollinearCalls = 256;
+static constexpr int kMaxMergeCollinearCalls = 64;
 
 bool GrTriangulator::mergeCollinearEdges(Edge* edge, EdgeList* activeEdges, Vertex** current,
                                          const Comparator& c) const {
@@ -1116,10 +1116,14 @@ void GrTriangulator::mergeVertices(Vertex* src, Vertex* dst, VertexList* mesh,
     if (src->fPartner) {
         src->fPartner->fPartner = dst;
     }
+    // setBottom()/setTop() will call mergeCollinearEdges() but this can recurse,
+    // so we need to clear the stack count here.
     while (Edge* edge = src->fFirstEdgeAbove) {
+        fMergeCollinearStackCount = 0;
         std::ignore = this->setBottom(edge, dst, nullptr, nullptr, c);
     }
     while (Edge* edge = src->fFirstEdgeBelow) {
+        fMergeCollinearStackCount = 0;
         std::ignore = this->setTop(edge, dst, nullptr, nullptr, c);
     }
     mesh->remove(src);
