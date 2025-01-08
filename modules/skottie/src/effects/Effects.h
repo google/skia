@@ -13,20 +13,17 @@
 #include "include/core/SkSize.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "modules/jsonreader/SkJSONReader.h"  // IWYU pragma: keep
-#include "modules/skottie/src/Composition.h"
 #include "modules/skottie/src/animator/Animator.h"
 #include "modules/sksg/include/SkSGRenderEffect.h"
+#include "modules/sksg/include/SkSGRenderNode.h"
 
 #include <cstddef>
 
-namespace sksg {
-class RenderNode;
-} // namespace sksg
-
 namespace skottie {
 namespace internal {
+
 class AnimationBuilder;
-class LayerBuilder;
+class CompositionBuilder;
 
 class EffectBuilder final : public SkNoncopyable {
 public:
@@ -40,9 +37,11 @@ public:
 
     static const skjson::Value& GetPropValue(const skjson::ArrayValue& jprops, size_t prop_index);
 
-    LayerBuilder* getLayerBuilder(int layer_index) const {
-        return fCompBuilder->layerBuilder(layer_index);
-    }
+    struct LayerContent {
+        sk_sp<sksg::RenderNode> fContent;
+        SkSize                  fSize;
+    };
+    LayerContent getLayerContent(int layer_index) const;
 
 private:
     using EffectBuilderT = sk_sp<sksg::RenderNode>(EffectBuilder::*)(const skjson::ArrayValue&,

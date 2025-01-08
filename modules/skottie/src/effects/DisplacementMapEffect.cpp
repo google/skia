@@ -24,7 +24,6 @@
 #include "include/private/base/SkAssert.h"
 #include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/src/Adapter.h"
-#include "modules/skottie/src/Layer.h"
 #include "modules/skottie/src/SkottieJson.h"
 #include "modules/skottie/src/SkottiePriv.h"
 #include "modules/skottie/src/SkottieValue.h"
@@ -35,7 +34,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
-#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -344,18 +342,15 @@ public:
                 .bind(kExpandOutput_Index    , fExpandOutput      );
     }
 
-    static std::tuple<sk_sp<sksg::RenderNode>, SkSize> GetDisplacementSource(
+    static EffectBuilder::LayerContent GetDisplacementSource(
             const skjson::ArrayValue& jprops,
             const EffectBuilder* ebuilder) {
 
         if (const skjson::ObjectValue* jv = EffectBuilder::GetPropValue(jprops, kMapLayer_Index)) {
-            auto* map_builder = ebuilder->getLayerBuilder(ParseDefault((*jv)["k"], -1));
-            if (map_builder) {
-                return std::make_tuple(map_builder->contentTree(), map_builder->size());
-            }
+            return ebuilder->getLayerContent(ParseDefault((*jv)["k"], -1));
         }
 
-        return std::make_tuple<sk_sp<sksg::RenderNode>, SkSize>(nullptr, {0,0});
+        return { nullptr, {0,0} };
     }
 
 private:
@@ -409,9 +404,12 @@ private:
 
 sk_sp<sksg::RenderNode> EffectBuilder::attachDisplacementMapEffect(
         const skjson::ArrayValue& jprops, sk_sp<sksg::RenderNode> layer) const {
-    auto [ displ, displ_size ] = DisplacementMapAdapter::GetDisplacementSource(jprops, this);
+    const LayerContent displ = DisplacementMapAdapter::GetDisplacementSource(jprops, this);
 
-    auto displ_node = DisplacementNode::Make(layer, fLayerSize, std::move(displ), displ_size);
+    auto displ_node = DisplacementNode::Make(layer,
+                                             fLayerSize,
+                                             std::move(displ.fContent),
+                                             displ.fSize);
 
     if (!displ_node) {
         return layer;

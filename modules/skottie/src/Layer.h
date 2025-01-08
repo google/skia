@@ -47,9 +47,6 @@ public:
 
     const sk_sp<sksg::RenderNode>& getContentTree(const AnimationBuilder&, CompositionBuilder*);
 
-    // TODO: convert existing effect callers to getContentTree() and remove.
-    const sk_sp<sksg::RenderNode>& contentTree() const { return fContentTree; }
-
     const SkSize& size() const { return fInfo.fSize; }
 
 private:
