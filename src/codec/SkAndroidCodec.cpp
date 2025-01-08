@@ -347,7 +347,7 @@ sk_sp<SkColorSpace> SkAndroidCodec::computeOutputColorSpace(SkColorType outputCo
     }
 }
 
-static bool supports_any_down_scale(const SkCodec* codec) {
+static bool is_webp(const SkCodec* codec) {
     return codec->getEncodedFormat() == SkEncodedImageFormat::kWEBP;
 }
 
@@ -383,7 +383,11 @@ int SkAndroidCodec::computeSampleSize(SkISize* desiredSize) const {
                                      std::max(1, desiredSize->height()));
     }
 
-    if (supports_any_down_scale(fCodec.get())) {
+    if (is_webp(fCodec.get())) {
+        if (fCodec->getFrameCount() > 1) {
+           // Cannot downscale animated webp
+           *desiredSize = origDims;
+        }
         return 1;
     }
 

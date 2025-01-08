@@ -412,6 +412,9 @@ public:
      *  If a scanline decode is in progress, scanline mode will end, requiring the client to call
      *  startScanlineDecode() in order to return to decoding scanlines.
      *
+     *  For certain codecs, reading into a smaller bitmap than the original dimensions may not
+     *  produce correct results (e.g. animated webp).
+     *
      *  @return Result kSuccess, or another value explaining the type of failure.
      */
     Result getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options*);
