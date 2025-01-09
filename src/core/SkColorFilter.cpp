@@ -12,7 +12,6 @@
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkColorData.h"
-#include "include/private/base/SkTPin.h"
 #include "modules/skcms/skcms.h"
 #include "src/core/SkColorFilterPriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
@@ -48,10 +47,8 @@ SkColor4f SkColorFilter::filterColor4f(const SkColor4f& origSrcColor, SkColorSpa
     SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType,
                            dstCS, kPremul_SkAlphaType).apply(color.vec());
 
-    SkPMColor4f filteredColor = as_CFB(this)->onFilterColor4f(color, dstCS);
     // SkColor4f will assert if we allow alpha outside [0,1]. (SkSL color filters might do this).
-    filteredColor.fA = SkTPin(filteredColor.fA, 0.0f, 1.0f);
-    return filteredColor.unpremul();
+    return as_CFB(this)->onFilterColor4f(color, dstCS).pinAlpha().unpremul();
 }
 
 sk_sp<SkColorFilter> SkColorFilter::makeWithWorkingColorSpace(

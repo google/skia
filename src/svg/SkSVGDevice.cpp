@@ -610,7 +610,7 @@ void SkSVGDevice::AutoElement::addShaderResources(const SkPaint& paint, Resource
 
     if (as_SB(shader)->type() == SkShaderBase::ShaderType::kColor) {
         auto colorShader = static_cast<const SkColorShader*>(shader);
-        resources->fPaintServer = svg_color(colorShader->color());
+        resources->fPaintServer = svg_color(colorShader->color().toSkColor());
     } else
     // Checking the shader type is too restrictive, as it rejects local matrix wrappers.
     // Wrappers do forward asGradient() though, so we can reach nested gradients this way.

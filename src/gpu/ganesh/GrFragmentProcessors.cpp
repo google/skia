@@ -533,13 +533,7 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkColorFilterSh
 static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkColorShader* shader,
                                                            const GrFPArgs& args,
                                                            const SkShaders::MatrixRec& mRec) {
-    return GrFragmentProcessor::MakeColor(SkColorToPMColor4f(shader->color(), *args.fDstColorInfo));
-}
-
-static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkColor4Shader* shader,
-                                                           const GrFPArgs& args,
-                                                           const SkShaders::MatrixRec& mRec) {
-    SkColorSpaceXformSteps steps{shader->colorSpace().get(),
+    SkColorSpaceXformSteps steps{sk_srgb_singleton(),
                                  kUnpremul_SkAlphaType,
                                  args.fDstColorInfo->colorSpace(),
                                  kUnpremul_SkAlphaType};

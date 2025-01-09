@@ -11,12 +11,13 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFlattenable.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkShader.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkTPin.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkEffectPriv.h"
+#include "src/core/SkPicturePriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
@@ -24,88 +25,73 @@
 
 #include <utility>
 
-SkColorShader::SkColorShader(SkColor c) : fColor(c) {}
+namespace {
 
-bool SkColorShader::isOpaque() const {
-    return SkColorGetA(fColor) == 255;
+sk_sp<SkFlattenable> legacy_color4_create_proc(SkReadBuffer& buffer) {
+    if (buffer.validate(buffer.isVersionLT(SkPicturePriv::Version::kCombineColorShaders))) {
+        // Only SKPs older than this version should be referring to this create proc.
+        SkColor4f color;
+        sk_sp<SkColorSpace> colorSpace;
+        buffer.readColor4f(&color);
+        if (buffer.readBool()) {
+            sk_sp<SkData> data = buffer.readByteArrayAsData();
+            colorSpace = data ? SkColorSpace::Deserialize(data->data(), data->size()) : nullptr;
+        }
+        return SkShaders::Color(color, std::move(colorSpace));
+    }
+
+    return nullptr;
 }
 
+} // anonymous namespace
+
 sk_sp<SkFlattenable> SkColorShader::CreateProc(SkReadBuffer& buffer) {
-    return sk_make_sp<SkColorShader>(buffer.readColor());
+    if (buffer.isVersionLT(SkPicturePriv::Version::kCombineColorShaders)) {
+        // Stored an 8-bit color only.
+        return SkShaders::Color(buffer.readColor());
+    } else {
+        // Stores a floating-point color in sRGB.
+        SkColor4f color;
+        buffer.readColor4f(&color);
+        return SkShaders::Color(color, SkColorSpace::MakeSRGB());
+    }
 }
 
 void SkColorShader::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeColor(fColor);
-}
-
-SkColor4Shader::SkColor4Shader(const SkColor4f& color, sk_sp<SkColorSpace> space)
-    : fColorSpace(std::move(space))
-    , fColor({color.fR, color.fG, color.fB, SkTPin(color.fA, 0.0f, 1.0f)})
-{}
-
-sk_sp<SkFlattenable> SkColor4Shader::CreateProc(SkReadBuffer& buffer) {
-    SkColor4f color;
-    sk_sp<SkColorSpace> colorSpace;
-    buffer.readColor4f(&color);
-    if (buffer.readBool()) {
-        sk_sp<SkData> data = buffer.readByteArrayAsData();
-        colorSpace = data ? SkColorSpace::Deserialize(data->data(), data->size()) : nullptr;
-    }
-    return SkShaders::Color(color, std::move(colorSpace));
-}
-
-void SkColor4Shader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeColor4f(fColor);
-    sk_sp<SkData> colorSpaceData = fColorSpace ? fColorSpace->serialize() : nullptr;
-    if (colorSpaceData) {
-        buffer.writeBool(true);
-        buffer.writeDataAsByteArray(colorSpaceData.get());
-    } else {
-        buffer.writeBool(false);
-    }
 }
 
 bool SkColorShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec&) const {
-    SkColor4f color = SkColor4f::FromColor(fColor);
+    SkColor4f color = fColor;
     SkColorSpaceXformSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
-                           rec.fDstCS,          kUnpremul_SkAlphaType).apply(color.vec());
-    rec.fPipeline->appendConstantColor(rec.fAlloc, color.premul().vec());
-    return true;
-}
-
-bool SkColor4Shader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec&) const {
-    SkColor4f color = fColor;
-    SkColorSpaceXformSteps(fColorSpace.get(), kUnpremul_SkAlphaType,
-                           rec.fDstCS,        kUnpremul_SkAlphaType).apply(color.vec());
-    rec.fPipeline->appendConstantColor(rec.fAlloc, color.premul().vec());
-    return true;
-}
-
-bool SkColor4Shader::onAsLuminanceColor(SkColor4f* lum) const {
-    SkColor4f color = fColor;
-    SkColorSpaceXformSteps(fColorSpace.get(),   kUnpremul_SkAlphaType,
-                           sk_srgb_singleton(), kUnpremul_SkAlphaType).apply(color.vec());
-    *lum = color;
+                           rec.fDstCS,          kPremul_SkAlphaType).apply(color.vec());
+    rec.fPipeline->appendConstantColor(rec.fAlloc, color.vec());
     return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SkRegisterColor4ShaderFlattenable() {
-    SK_REGISTER_FLATTENABLE(SkColor4Shader);
-}
-
 void SkRegisterColorShaderFlattenable() {
     SK_REGISTER_FLATTENABLE(SkColorShader);
+    SkFlattenable::Register("SkColorShader4", legacy_color4_create_proc);
 }
 
 namespace SkShaders {
-sk_sp<SkShader> Color(SkColor color) { return sk_make_sp<SkColorShader>(color); }
+sk_sp<SkShader> Color(SkColor color) {
+    return Color(SkColor4f::FromColor(color), SkColorSpace::MakeSRGB());
+}
 
 sk_sp<SkShader> Color(const SkColor4f& color, sk_sp<SkColorSpace> space) {
     if (!SkIsFinite(color.vec(), 4)) {
         return nullptr;
     }
-    return sk_make_sp<SkColor4Shader>(color, std::move(space));
+
+    // Convert to sRGB to simplify what must be stored, remaining unpremul until the final dst
+    // color space is known during actual shading. Also pin the alpha to [0,1].
+    SkColor4f srgb = color.pinAlpha();
+    SkColorSpaceXformSteps(space.get(),         kUnpremul_SkAlphaType,
+                           sk_srgb_singleton(), kUnpremul_SkAlphaType).apply(srgb.vec());
+
+    return sk_make_sp<SkColorShader>(srgb);
 }
 }  // namespace SkShaders

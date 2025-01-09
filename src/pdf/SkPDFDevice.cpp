@@ -1292,8 +1292,8 @@ static void populate_graphic_state_entry_from_paint(
         if (as_SB(shader)->type() == SkShaderBase::ShaderType::kColor) {
             auto colorShader = static_cast<SkColorShader*>(shader);
             // We don't have to set a shader just for a color.
-            color = SkColor4f::FromColor(colorShader->color());
-            entry->fColor = {color.fR, color.fG, color.fB, 1};
+            color = colorShader->color();
+            entry->fColor = colorShader->color().makeOpaque();
         } else {
             // PDF positions patterns relative to the initial transform, so
             // we need to apply the current transform to the shader parameters.

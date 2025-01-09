@@ -163,7 +163,6 @@ private:
     M(Blend)              \
     M(CTM)                \
     M(Color)              \
-    M(Color4)             \
     M(ColorFilter)        \
     M(CoordClamp)         \
     M(Empty)              \
@@ -423,7 +422,6 @@ inline const SkShaderBase* as_SB(const sk_sp<SkShader>& shader) {
 }
 
 void SkRegisterBlendShaderFlattenable();
-void SkRegisterColor4ShaderFlattenable();
 void SkRegisterColorShaderFlattenable();
 void SkRegisterCoordClampShaderFlattenable();
 void SkRegisterEmptyShaderFlattenable();

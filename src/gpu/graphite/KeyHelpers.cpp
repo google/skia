@@ -1629,25 +1629,12 @@ static void add_to_key(const KeyContext& keyContext,
                        const SkColorShader* shader) {
     SkASSERT(shader);
 
-    SolidColorShaderBlock::AddBlock(keyContext, builder, gatherer,
-                                    SkColor4f::FromColor(shader->color()).premul());
-}
-static void notify_in_use(Recorder*, DrawContext*, const SkColorShader*) {
-    // No-op
-}
-
-static void add_to_key(const KeyContext& keyContext,
-                       PaintParamsKeyBuilder* builder,
-                       PipelineDataGatherer* gatherer,
-                       const SkColor4Shader* shader) {
-    SkASSERT(shader);
-
-    SkPMColor4f color = map_color(shader->color(), shader->colorSpace().get(),
+    SkPMColor4f color = map_color(shader->color(), sk_srgb_singleton(),
                                   keyContext.dstColorInfo().colorSpace());
 
     SolidColorShaderBlock::AddBlock(keyContext, builder, gatherer, color);
 }
-static void notify_in_use(Recorder*, DrawContext*, const SkColor4Shader*) {
+static void notify_in_use(Recorder*, DrawContext*, const SkColorShader*) {
     // No-op
 }
 

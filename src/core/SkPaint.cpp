@@ -123,7 +123,7 @@ void SkPaint::setColor(SkColor color) {
 void SkPaint::setColor(const SkColor4f& color, SkColorSpace* colorSpace) {
     SkColorSpaceXformSteps steps{colorSpace,          kUnpremul_SkAlphaType,
                                  sk_srgb_singleton(), kUnpremul_SkAlphaType};
-    fColor4f = {color.fR, color.fG, color.fB, SkTPin(color.fA, 0.0f, 1.0f)};
+    fColor4f = color.pinAlpha();
     steps.apply(fColor4f.vec());
 }
 

@@ -983,7 +983,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     if (shaderBase->type() == SkShaderBase::ShaderType::kColor) {
         auto colorShader = static_cast<const SkColorShader*>(shader);
         SkAlpha alpha = skPaint.getAlpha();
-        HR(this->createXpsSolidColorBrush(colorShader->color(), alpha, brush));
+        HR(this->createXpsSolidColorBrush(colorShader->color().toSkColor(), alpha, brush));
         return S_OK;
     } else if (shaderBase->type() == SkShaderBase::ShaderType::kGradientBase) {
         SkShaderBase::GradientInfo info;
