@@ -234,6 +234,9 @@ private:
         fShareable = shareable;
     }
 
+    void setAvailableForReuse(bool avail) { fAvailableForReuse = avail; }
+    bool isAvailableForReuse() const { return fAvailableForReuse; }
+
     // If possible, queries the backend API to check the current allocation size of the gpu
     // resource and updates the tracked value. This is specifically useful for Vulkan backends which
     // use lazy allocated memory for "memoryless" resources. Ideally that memory should stay zero
@@ -289,7 +292,7 @@ private:
 
 #ifdef SK_DEBUG
     bool isUsableAsScratch() const {
-        return fShareable == Shareable::kNo && !this->hasUsageRef() && fNonShareableInCache;
+        return fShareable == Shareable::kNo && !this->hasUsageRef() && fAvailableForReuse;
     }
 #endif
 
@@ -386,6 +389,10 @@ private:
     // is returned to the ResourceCache).
     DeleteASAP fDeleteASAP = DeleteASAP::kNo;
 
+    // Set to true when the resource is contained in its cache's `fResourceMap`, which allows it to
+    // be returned from findAndRefResource().
+    bool fAvailableForReuse = false;
+
     // An index into a heap when this resource is purgeable or an array when not. This is maintained
     // by the cache.
     mutable int fCacheArrayIndex = -1;
@@ -398,12 +405,6 @@ private:
 
     // String used to describe the current use of this Resource.
     std::string fLabel;
-
-    // This is only used during validation checking. Lots of the validation code depends on a
-    // resource being purgeable or not. However, purgeable itself just means having no refs. The
-    // refs can be removed before a Resource is returned to the cache (or even added to the
-    // ReturnQueue).
-    SkDEBUGCODE(mutable bool fNonShareableInCache = false;)
 };
 
 } // namespace skgpu::graphite

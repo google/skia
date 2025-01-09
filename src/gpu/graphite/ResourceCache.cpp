@@ -122,7 +122,7 @@ void ResourceCache::insertResource(Resource* resource,
     SkDEBUGCODE(fCount++;)
 
     if (resource->shareable() == Shareable::kYes) {
-        fResourceMap.insert(resource->key(), resource);
+        this->addToResourceMap(resource);
     }
 
     if (resource->budgeted() == Budgeted::kYes) {
@@ -162,12 +162,11 @@ Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key,
             // If the returned resource is no longer shareable then we remove it from the map so
             // that it isn't found again.
             SkASSERT(resource->shareable() == Shareable::kNo);
-            fResourceMap.remove(key, resource);
+            this->removeFromResourceMap(resource);
             if (budgeted == Budgeted::kNo) {
                 resource->setBudgeted(Budgeted::kNo);
                 fBudgetedBytes -= resource->gpuMemorySize();
             }
-            SkDEBUGCODE(resource->fNonShareableInCache = false;)
         } else {
             // Shareable resources should never be requested as non-budgeted
             SkASSERT(budgeted == Budgeted::kYes);
@@ -323,7 +322,9 @@ void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef rem
     if (removedRef == LastRemovedRef::kUsage) {
         if (resource->shareable() == Shareable::kYes) {
             // Shareable resources should still be in the cache.
-            SkASSERT(fResourceMap.find(resource->key()));
+            SkASSERT(fResourceMap.has(resource, resource->key()));
+            SkASSERT(resource->isAvailableForReuse());
+
             // Reset the resource's sharing mode so that any shareable request can use it (e.g. now
             // that no more usages that required it to be fully shareable are held, the underlying
             // resource can be used in a non-shareable manner the next time it's fetched from the
@@ -334,15 +335,21 @@ void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef rem
             // thread that could add an initial usage ref so it is safe to adjust its shareable type
             if (!resource->hasUsageRef()) {
                 resource->setShareable(Shareable::kNo);
-                SkDEBUGCODE(resource->fNonShareableInCache = true;)
+                resource->setLabel("Scratch");
             }
         } else {
-            SkDEBUGCODE(resource->fNonShareableInCache = true;)
-            resource->setLabel("Scratch");
-            fResourceMap.insert(resource->key(), resource);
-            if (resource->budgeted() == Budgeted::kNo) {
-                resource->setBudgeted(Budgeted::kYes);
-                fBudgetedBytes += resource->gpuMemorySize();
+            // Non-shareable resources are removed from the resource map when they are given out by
+            // the cache. A resource is returned for either becoming reusable (needs to be added to
+            // the resource map) or becoming purgeable (needs to be moved to the purgeable queue).
+            // Becoming purgeable always implies becoming reusable, so as long as a previous return
+            // hasn't put it into the resource map already, we do that now.
+            if (!resource->isAvailableForReuse()) {
+                resource->setLabel("Scratch");
+                this->addToResourceMap(resource);
+                if (resource->budgeted() == Budgeted::kNo) {
+                    resource->setBudgeted(Budgeted::kYes);
+                    fBudgetedBytes += resource->gpuMemorySize();
+                }
             }
         }
     }
@@ -387,6 +394,22 @@ void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef rem
     this->validate();
 }
 
+void ResourceCache::addToResourceMap(Resource* resource) {
+    SkASSERT(this->isInCache(resource));
+    SkASSERT(!resource->isAvailableForReuse());
+    SkASSERT(!fResourceMap.has(resource, resource->key()));
+    fResourceMap.insert(resource->key(), resource);
+    resource->setAvailableForReuse(true);
+}
+
+void ResourceCache::removeFromResourceMap(Resource* resource) {
+    SkASSERT(this->isInCache(resource));
+    SkASSERT(resource->isAvailableForReuse());
+    SkASSERT(fResourceMap.has(resource, resource->key()));
+    fResourceMap.remove(resource->key(), resource);
+    resource->setAvailableForReuse(false);
+}
+
 void ResourceCache::addToNonpurgeableArray(Resource* resource) {
     int index = fNonpurgeableResources.size();
     *fNonpurgeableResources.append() = resource;
@@ -429,7 +452,7 @@ void ResourceCache::purgeResource(Resource* resource) {
     TRACE_EVENT_INSTANT1("skia.gpu.cache", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
                          "size", resource->gpuMemorySize());
 
-    fResourceMap.remove(resource->key(), resource);
+    this->removeFromResourceMap(resource);
 
     if (resource->shouldDeleteASAP() == Resource::DeleteASAP::kNo) {
         SkASSERT(this->inPurgeableQueue(resource));
@@ -454,7 +477,7 @@ void ResourceCache::purgeAsNeeded() {
     while (this->overbudget() && fPurgeableQueue.count()) {
         Resource* resource = fPurgeableQueue.peek();
         SkASSERT(!resource->wasDestroyed());
-        SkASSERT(fResourceMap.find(resource->key()));
+        SkASSERT(fResourceMap.has(resource, resource->key()));
 
         if (resource->timestamp() == kMaxTimestamp) {
             // If we hit a resource that is at kMaxTimestamp, then we've hit the part of the

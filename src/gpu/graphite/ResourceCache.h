@@ -115,6 +115,11 @@ private:
     void removeFromNonpurgeableArray(Resource* resource);
     void removeFromPurgeableQueue(Resource* resource);
 
+    // Resources in the resource map are reusable (can be returned from findAndRef), but are not
+    // necessarily purgeable.
+    void addToResourceMap(Resource* resource);
+    void removeFromResourceMap(Resource* resource);
+
     // This will return true if any resources were actually returned to the cache
     bool processReturnedResources();
     void returnResourceToCache(Resource*, LastRemovedRef);
