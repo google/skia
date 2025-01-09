@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
+#include "src/core/SkColorSpacePriv.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParams.h"
@@ -77,7 +78,7 @@ void PaintOption::handlePrimitiveColor(const KeyContext& keyContext,
                   this->addPaintColorToKey(keyContext, keyBuilder, gatherer);
               },
               /* addDstToKey= */ [&]() -> void {
-                  PrimitiveColorBlock::AddBlock(keyContext, keyBuilder, gatherer);
+                  AddPrimitiveColor(keyContext, keyBuilder, gatherer, sk_srgb_singleton());
               });
     } else {
         this->addPaintColorToKey(keyContext, keyBuilder, gatherer);

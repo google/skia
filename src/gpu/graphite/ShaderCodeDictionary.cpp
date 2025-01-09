@@ -1139,14 +1139,9 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPrimitiveColor] = {
             /*name=*/"PrimitiveColor",
-            /*staticFn=*/"sk_color_space_transform",
+            /*staticFn=*/"sk_passthrough",
             SnippetRequirementFlags::kPrimitiveColor,
-            /*uniforms=*/{ { "csXformFlags",          SkSLType::kInt },
-                           { "csXformSrcKind",        SkSLType::kInt },
-                           { "csXformGamutTransform", SkSLType::kHalf3x3 },
-                           { "csXformDstKind",        SkSLType::kInt },
-                           { "csXformCoeffs",         SkSLType::kHalf4x4 } },
-            /*texturesAndSamplers=*/{}
+            /*uniforms=*/{}
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCircularRRectClip] = {

@@ -1088,29 +1088,22 @@ void CircularRRectClipBlock::AddBlock(const KeyContext& keyContext,
 }
 
 //--------------------------------------------------------------------------------------------------
-namespace {
 
-void add_primitive_color_uniform_data(
-        const ShaderCodeDictionary* dict,
-        const SkColorSpaceXformSteps& steps,
-        PipelineDataGatherer* gatherer) {
-
-    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kPrimitiveColor)
-    add_color_space_uniforms(steps, ReadSwizzle::kRGBA, gatherer);
-}
-
-}  // anonymous namespace
-
-void PrimitiveColorBlock::AddBlock(const KeyContext& keyContext,
-                                   PaintParamsKeyBuilder* builder,
-                                   PipelineDataGatherer* gatherer) {
-    SkColorSpaceXformSteps steps = SkColorSpaceXformSteps(SkColorSpace::MakeSRGB().get(),
-                                                          kPremul_SkAlphaType,
-                                                          keyContext.dstColorInfo().colorSpace(),
-                                                          keyContext.dstColorInfo().alphaType());
-    add_primitive_color_uniform_data(keyContext.dict(), steps, gatherer);
-
-    builder->addBlock(BuiltInCodeSnippetID::kPrimitiveColor);
+void AddPrimitiveColor(const KeyContext& keyContext,
+                       PaintParamsKeyBuilder* builder,
+                       PipelineDataGatherer* gatherer,
+                       const SkColorSpace* primitiveColorSpace) {
+    ColorSpaceTransformBlock::ColorSpaceTransformData toDst(primitiveColorSpace,
+                                                            kPremul_SkAlphaType,
+                                                            keyContext.dstColorInfo().colorSpace(),
+                                                            keyContext.dstColorInfo().alphaType());
+    Compose(keyContext, builder, gatherer,
+            /* addInnerToKey= */ [&]() -> void {
+                builder->addBlock(BuiltInCodeSnippetID::kPrimitiveColor);
+            },
+            /* addOuterToKey= */ [&]() -> void {
+                ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, toDst);
+            });
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1122,7 +1115,7 @@ void AddBlendModeColorFilter(const KeyContext& keyContext,
                              const SkPMColor4f& srcColor) {
     Blend(keyContext, builder, gatherer,
           /* addBlendToKey= */ [&] () -> void {
-            AddBlendMode(keyContext, builder, gatherer, bm);
+              AddBlendMode(keyContext, builder, gatherer, bm);
           },
           /* addSrcToKey= */ [&]() -> void {
               SolidColorShaderBlock::AddBlock(keyContext, builder, gatherer, srcColor);

@@ -379,11 +379,14 @@ struct CircularRRectClipBlock {
                          const CircularRRectClipData&);
 };
 
-struct PrimitiveColorBlock {
-    static void AddBlock(const KeyContext&,
-                         PaintParamsKeyBuilder*,
-                         PipelineDataGatherer*);
-};
+/**
+ * Adds a block that references the primitive color produced by the RenderStep and accounts for
+ * color space transformation.
+ */
+void AddPrimitiveColor(const KeyContext&,
+                       PaintParamsKeyBuilder*,
+                       PipelineDataGatherer*,
+                       const SkColorSpace* primitiveColorSpace);
 
 /**
  * Blend mode color filters blend their input (as the dst color) with some given color (supplied
