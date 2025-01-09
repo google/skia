@@ -247,6 +247,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			}
 		}
 
+		if b.matchGpu("QuadroP400") && b.compiler("Clang") {
+			// On both Ubuntu18 and Win10, these tests fail with Clang but not MSVC (b/388554039)
+			skip(ALL, "test", ALL, "DMSAA_blendmodes")
+		}
+
 		if b.extraConfig("Protected") {
 			args = append(args, "--createProtected")
 			// The Protected jobs (for now) only run the unit tests

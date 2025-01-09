@@ -42,7 +42,7 @@ public:
     static const GrStyle& SimpleFill() {
         static const GrStyle kFill(SkStrokeRec::kFill_InitStyle);
         return kFill;
-        }
+    }
 
     /**
      * A style object that represents a hairline stroke with no path effect.

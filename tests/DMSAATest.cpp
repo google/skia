@@ -39,6 +39,7 @@
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrPixmap.h"
+#include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/GrXferProcessor.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "tests/CtsEnforcement.h"
@@ -59,6 +60,8 @@ constexpr static SkPMColor4f kTransCyan = {.0f,.5f,.5f,.5f};
 constexpr static int kWidth=10, kHeight=10;
 
 }
+
+enum class DrawType { kRect, kMesh, kPath };
 
 static void draw_paint_with_aa(skgpu::ganesh::SurfaceDrawContext* sdc,
                                const SkPMColor4f& color,
@@ -86,6 +89,37 @@ static void draw_paint_with_dmsaa(skgpu::ganesh::SurfaceDrawContext* sdc,
     sdc->drawVertices(nullptr, std::move(paint), SkMatrix::I(), vertices);
 }
 
+static void draw_paint_with_dmsaa_and_path(skgpu::ganesh::SurfaceDrawContext* sdc,
+                                           const SkPMColor4f& color,
+                                           SkBlendMode blendMode) {
+
+    SkPath path;
+    path.addCircle(kWidth/2.0f, kHeight/2.0f, kWidth/2.0f+10.0f);
+    path.addCircle(kWidth, kHeight/2.0f, kWidth/2.0f+10.0f);
+
+    GrPaint paint;
+    paint.setColor4f(color);
+    paint.setXPFactory(GrXPFactory::FromBlendMode(blendMode));
+    sdc->drawPath(nullptr, std::move(paint), GrAA::kNo, SkMatrix::I(), path, GrStyle::SimpleFill());
+}
+
+static void draw(skgpu::ganesh::SurfaceDrawContext* sdc,
+                 DrawType drawType,
+                 SkBlendMode blendMode,
+                 const SkPMColor4f& color) {
+    switch(drawType) {
+        case DrawType::kRect:
+            draw_paint_with_aa(sdc, color, blendMode);
+            break;
+        case DrawType::kMesh:
+            draw_paint_with_dmsaa(sdc, color, blendMode);
+            break;
+        case DrawType::kPath:
+            draw_paint_with_dmsaa_and_path(sdc, color, blendMode);
+            break;
+    }
+}
+
 static bool fuzzy_equals(const float a[4], const SkPMColor4f& b) {
     constexpr static float kTolerance = 2.5f / 256;
     for (int i = 0; i < 4; ++i) {
@@ -96,26 +130,29 @@ static bool fuzzy_equals(const float a[4], const SkPMColor4f& b) {
     return true;
 }
 
-static void check_sdc_color(skiatest::Reporter* reporter,
+static bool check_sdc_color(skiatest::Reporter* reporter,
                             skgpu::ganesh::SurfaceDrawContext* sdc,
                             GrDirectContext* ctx,
-                            const SkPMColor4f& color) {
+                            const SkPMColor4f& expectedColor) {
     auto info = SkImageInfo::Make(kWidth, kHeight, kRGBA_F32_SkColorType, kPremul_SkAlphaType);
     GrPixmap pixmap = GrPixmap::Allocate(info);
     sdc->readPixels(ctx, pixmap, {0, 0});
     auto pix = static_cast<const float*>(pixmap.addr());
     for (int y = 0; y < kHeight; ++y) {
         for (int x = 0; x < kWidth; ++x) {
-            if (!fuzzy_equals(pix, color)) {
+            if (!fuzzy_equals(pix, expectedColor)) {
                 ERRORF(reporter, "SDC color mismatch.\n"
                                  "Got      [%0.3f, %0.3f, %0.3f, %0.3f]\n"
                                  "Expected [%0.3f, %0.3f, %0.3f, %0.3f]",
-                       pix[0], pix[1], pix[2], pix[3], color.fR, color.fG, color.fB, color.fA);
-                return;
+                       pix[0], pix[1], pix[2], pix[3],
+                       expectedColor.fR, expectedColor.fG, expectedColor.fB, expectedColor.fA);
+                return false;
             }
             pix += 4;
         }
     }
+
+    return true;
 }
 
 DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_preserve_contents,
@@ -155,6 +192,16 @@ DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_preserve_contents,
 static void require_dst_reads(GrContextOptions* options) {
     options->fSuppressAdvancedBlendEquations = true;
     options->fSuppressFramebufferFetch = true;
+}
+
+static void require_dst_reads_but_no_atlas_path_renderer(GrContextOptions* options) {
+    options->fSuppressAdvancedBlendEquations = true;
+    options->fSuppressFramebufferFetch = true;
+    options->fGpuPathRenderers &= ~GpuPathRenderers::kAtlas;
+}
+
+static void no_atlas_path_renderer(GrContextOptions* options) {
+    options->fGpuPathRenderers &= ~GpuPathRenderers::kAtlas;
 }
 
 DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_dst_read,
@@ -388,4 +435,95 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DMSAA_dual_source_blend_disable,
     context->deleteBackendTexture(sourceTexture);
     context->deleteBackendTexture(texture1);
     context->deleteBackendTexture(texture2);
+}
+
+static void blend_modes_test(GrDirectContext* dContext, skiatest::Reporter* reporter) {
+
+    constexpr static SkPMColor4f kOpaqueRed = {1,0,0,1};
+    constexpr static SkPMColor4f kOpaqueBlue = {0,0,1,1};
+    constexpr static SkPMColor4f kTransparentRed = {.5,0,0,.5};
+    constexpr static SkPMColor4f kTransparentBlue = {0,0,.5,.5};
+
+    for (int firstBM = 0; firstBM < kSkBlendModeCount; ++firstBM) {
+        for (int secondBM = 0; secondBM < kSkBlendModeCount; ++secondBM) {
+            for (auto firstDrawType : { DrawType::kRect, DrawType::kMesh, DrawType::kPath }) {
+                for (auto secondDrawType : { DrawType::kRect, DrawType::kMesh, DrawType::kPath }) {
+                    for (auto firstColor : { kOpaqueRed, kTransparentRed }) {
+                        for (auto secondColor : { kOpaqueBlue, kTransparentBlue }) {
+                            SkBlendMode firstBlendMode = (SkBlendMode) firstBM;
+                            SkBlendMode secondBlendMode = (SkBlendMode) secondBM;
+
+                            SkPMColor4f expectedColor = SK_PMColor4fWHITE;
+                            expectedColor = SkBlendMode_Apply(firstBlendMode, firstColor,
+                                                              expectedColor);
+                            expectedColor = SkBlendMode_Apply(secondBlendMode, secondColor,
+                                                              expectedColor);
+
+
+                            auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(
+                                                                           dContext,
+                                                                           GrColorType::kRGBA_8888,
+                                                                           nullptr,
+                                                                           SkBackingFit::kApprox,
+                                                                           { kWidth, kHeight },
+                                                                           kDMSAAProps,
+                                                                           /*label=*/{});
+
+                            // Initialize the texture and dmsaa attachment with transparent.
+                            draw_paint_with_dmsaa(sdc.get(), SK_PMColor4fTRANSPARENT,
+                                                  SkBlendMode::kSrc);
+
+                            sdc->clear(SK_PMColor4fWHITE);
+
+                            draw(sdc.get(), firstDrawType, firstBlendMode, firstColor);
+
+                            draw(sdc.get(), secondDrawType, secondBlendMode, secondColor);
+
+                            if (!check_sdc_color(reporter, sdc.get(), dContext, expectedColor)) {
+                                ERRORF(reporter, "For blendmodes: %s %s \n",
+                                       SkBlendMode_Name(firstBlendMode),
+                                       SkBlendMode_Name(secondBlendMode));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_blendmodes_with_DstReads_maybe_AtlasPR,
+                             skgpu::IsRenderingContext,
+                             reporter,
+                             ctxInfo,
+                             require_dst_reads,
+                             CtsEnforcement::kNextRelease) {
+    blend_modes_test(ctxInfo.directContext(), reporter);
+}
+
+DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_blendmodes_with_DstReads_no_AtlasPR,
+                             skgpu::IsRenderingContext,
+                             reporter,
+                             ctxInfo,
+                             require_dst_reads_but_no_atlas_path_renderer,
+                             CtsEnforcement::kNextRelease) {
+    blend_modes_test(ctxInfo.directContext(), reporter);
+}
+
+DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_blendmodes_maybe_with_DstReads_no_AtlasPR,
+                             skgpu::IsRenderingContext,
+                             reporter,
+                             ctxInfo,
+                             no_atlas_path_renderer,
+                             CtsEnforcement::kNextRelease) {
+    blend_modes_test(ctxInfo.directContext(), reporter);
+}
+
+DEF_GANESH_TEST_FOR_CONTEXTS(DMSAA_blendmodes_maybe_with_DstReads_maybe_AtlasPR,
+                             skgpu::IsRenderingContext,
+                             reporter,
+                             ctxInfo,
+                             nullptr,
+                             CtsEnforcement::kNextRelease) {
+    blend_modes_test(ctxInfo.directContext(), reporter);
 }

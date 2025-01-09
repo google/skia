@@ -2207,7 +2207,7 @@ BLEND_MODE(colorburn) {
 BLEND_MODE(colordodge) {
     return if_then_else(d ==  0, /* d + */ s*inv(da),
            if_then_else(s == sa,    s +    d*inv(sa),
-                                 sa*min(da, (d*sa)*rcp_fast(sa - s)) + s*inv(da) + d*inv(sa)));
+                                 sa*min(da, (d*sa)*rcp_precise(sa - s)) + s*inv(da) + d*inv(sa)));
 }
 BLEND_MODE(hardlight) {
     return s*inv(da) + d*inv(sa)
