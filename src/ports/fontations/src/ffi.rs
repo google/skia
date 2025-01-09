@@ -38,6 +38,14 @@ fn make_mapping_index<'a>(font_ref: &'a BridgeFontRef) -> Box<BridgeMappingIndex
         .unwrap()
 }
 
+unsafe fn hinting_reliant<'a>(font_ref: &'a BridgeOutlineCollection) -> bool {
+    if let Some(outlines) = &font_ref.0 {
+        outlines.require_interpreter()
+    } else {
+        false
+    }
+}
+
 unsafe fn no_hinting_instance<'a>() -> Box<BridgeHintingInstance> {
     Box::new(BridgeHintingInstance(None))
 }
@@ -1654,6 +1662,8 @@ mod ffi {
 
         type BridgeMappingIndex;
         unsafe fn make_mapping_index<'a>(font_ref: &'a BridgeFontRef) -> Box<BridgeMappingIndex>;
+
+        unsafe fn hinting_reliant<'a>(font_ref: &'a BridgeOutlineCollection) -> bool;
 
         type BridgeHintingInstance;
         unsafe fn make_hinting_instance<'a>(

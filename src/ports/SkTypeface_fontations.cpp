@@ -325,56 +325,64 @@ public:
         fDoLinearMetrics = this->isLinearMetrics();
         bool forceAutohinting = SkToBool(fRec.fFlags & kForceAutohinting_Flag);
 
-        if (SkMask::kBW_Format == fRec.fMaskFormat) {
-            if (fRec.getHinting() == SkFontHinting::kNone) {
-                fHintingInstance = fontations_ffi::no_hinting_instance();
-                fDoLinearMetrics = true;
-            } else {
-                fHintingInstance = fontations_ffi::make_mono_hinting_instance(
-                        fOutlines, fScale.y(), fBridgeNormalizedCoords);
-                fDoLinearMetrics = false;
-            }
+        // Hinting-reliant fonts exist that display incorrect contours when not executing their
+        // hinting instructions. Detect those and force-enable hinting for them.
+        if (fontations_ffi::hinting_reliant(fOutlines)) {
+            fHintingInstance = fontations_ffi::make_mono_hinting_instance(
+                    fOutlines, fScale.y(), fBridgeNormalizedCoords);
+            fDoLinearMetrics = false;
         } else {
-            switch (fRec.getHinting()) {
-                case SkFontHinting::kNone:
+            if (SkMask::kBW_Format == fRec.fMaskFormat) {
+                if (fRec.getHinting() == SkFontHinting::kNone) {
                     fHintingInstance = fontations_ffi::no_hinting_instance();
                     fDoLinearMetrics = true;
-                    break;
-                case SkFontHinting::kSlight:
-                    // Unhinted metrics.
-                    fHintingInstance = fontations_ffi::make_hinting_instance(
-                            fOutlines,
-                            fScale.y(),
-                            fBridgeNormalizedCoords,
-                            true /* do_light_hinting */,
-                            false /* do_lcd_antialiasing */,
-                            false /* lcd_orientation_vertical */,
-                            true /* force_autohinting */);
-                    fDoLinearMetrics = true;
-                    break;
-                case SkFontHinting::kNormal:
-                    // No hinting to subpixel coordinates.
-                    fHintingInstance = fontations_ffi::make_hinting_instance(
-                            fOutlines,
-                            fScale.y(),
-                            fBridgeNormalizedCoords,
-                            false /* do_light_hinting */,
-                            false /* do_lcd_antialiasing */,
-                            false /* lcd_orientation_vertical */,
-                            forceAutohinting /* force_autohinting */);
-                    break;
-                case SkFontHinting::kFull:
-                    // Attempt to make use of hinting to subpixel coordinates.
-                    fHintingInstance = fontations_ffi::make_hinting_instance(
-                            fOutlines,
-                            fScale.y(),
-                            fBridgeNormalizedCoords,
-                            false /* do_light_hinting */,
-                            isLCD(fRec) /* do_lcd_antialiasing */,
-                            SkToBool(fRec.fFlags &
-                                     SkScalerContext::
-                                             kLCD_Vertical_Flag) /* lcd_orientation_vertical */,
-                            forceAutohinting /* force_autohinting */);
+                } else {
+                    fHintingInstance = fontations_ffi::make_mono_hinting_instance(
+                            fOutlines, fScale.y(), fBridgeNormalizedCoords);
+                    fDoLinearMetrics = false;
+                }
+            } else {
+                switch (fRec.getHinting()) {
+                    case SkFontHinting::kNone:
+                        fHintingInstance = fontations_ffi::no_hinting_instance();
+                        fDoLinearMetrics = true;
+                        break;
+                    case SkFontHinting::kSlight:
+                        // Unhinted metrics.
+                        fHintingInstance = fontations_ffi::make_hinting_instance(
+                                fOutlines,
+                                fScale.y(),
+                                fBridgeNormalizedCoords,
+                                true /* do_light_hinting */,
+                                false /* do_lcd_antialiasing */,
+                                false /* lcd_orientation_vertical */,
+                                true /* force_autohinting */);
+                        fDoLinearMetrics = true;
+                        break;
+                    case SkFontHinting::kNormal:
+                        // No hinting to subpixel coordinates.
+                        fHintingInstance = fontations_ffi::make_hinting_instance(
+                                fOutlines,
+                                fScale.y(),
+                                fBridgeNormalizedCoords,
+                                false /* do_light_hinting */,
+                                false /* do_lcd_antialiasing */,
+                                false /* lcd_orientation_vertical */,
+                                forceAutohinting /* force_autohinting */);
+                        break;
+                    case SkFontHinting::kFull:
+                        // Attempt to make use of hinting to subpixel coordinates.
+                        fHintingInstance = fontations_ffi::make_hinting_instance(
+                                fOutlines,
+                                fScale.y(),
+                                fBridgeNormalizedCoords,
+                                false /* do_light_hinting */,
+                                isLCD(fRec) /* do_lcd_antialiasing */,
+                                SkToBool(fRec.fFlags &
+                                         SkScalerContext::
+                                                 kLCD_Vertical_Flag) /* lcd_orientation_vertical */,
+                                forceAutohinting /* force_autohinting */);
+                }
             }
         }
     }
