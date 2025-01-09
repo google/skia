@@ -25,6 +25,10 @@
 //
 // This lock does not obey strict queue ordering. It will always alternate between readers and
 // a single writer.
+//
+// This allows us to have a mutex without needing the one in
+// the C++ std library which does not work with all clients.
+// go/cstyle#Disallowed_Stdlib
 class SK_CAPABILITY("mutex") SkSharedMutex {
 public:
     SkSharedMutex();

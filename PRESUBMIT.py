@@ -487,6 +487,17 @@ def _CheckBannedAPIs(input_api, output_api):
     (r'std::stof\(', 'std::strtof(), which does not throw'),
     (r'std::stod\(', 'std::strtod(), which does not throw'),
     (r'std::stold\(', 'std::strtold(), which does not throw'),
+    # go/cstyle#Disallowed_Stdlib
+    (r'std::barrier', ''),
+    (r'std::condition_variable', ''),
+    (r'std::counting_semaphore', ''),
+    (r'std::future', ''),
+    (r'std::jthread', ''),
+    (r'std::latch', ''),
+    (r'std::mutex', 'SkMutex'),
+    (r'std::shared_mutex', 'SkSharedMutex'),
+    (r'std::stop_token', ''),
+    (r'std::thread', ''),
 
     # We used to have separate symbols for this, but coalesced them to make the
     # Bazel build easier.

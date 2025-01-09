@@ -14,6 +14,14 @@
 #include "include/private/base/SkThreadAnnotations.h"
 #include "include/private/base/SkThreadID.h"
 
+/**
+ * class SkMutex
+ *
+ * This allows us to have a mutex without needing the one in
+ * the C++ std library which does not work with all clients.
+ * go/cstyle#Disallowed_Stdlib
+ */
+
 class SK_CAPABILITY("mutex") SkMutex {
 public:
     constexpr SkMutex() = default;
