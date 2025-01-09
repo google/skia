@@ -208,13 +208,18 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
             width, height, color, alpha, bitsPerComponent, std::move(profile), image->depth);
     bool animation = avifDecoder->imageCount > 1;
     *result = kSuccess;
+    SkEncodedImageFormat format =
+            avifDecoder->compressionFormat == crabbyavif::COMPRESSION_FORMAT_AVIF
+                    ? SkEncodedImageFormat::kAVIF
+                    : SkEncodedImageFormat::kHEIF;
     return std::unique_ptr<SkCodec>(new SkCrabbyAvifCodec(std::move(info),
                                                           std::move(stream),
                                                           std::move(data),
                                                           std::move(avifDecoder),
                                                           kDefault_SkEncodedOrigin,
                                                           animation,
-                                                          gainmapOnly));
+                                                          gainmapOnly,
+                                                          format));
 }
 
 SkCrabbyAvifCodec::SkCrabbyAvifCodec(SkEncodedInfo&& info,
@@ -223,12 +228,14 @@ SkCrabbyAvifCodec::SkCrabbyAvifCodec(SkEncodedInfo&& info,
                                      AvifDecoder avifDecoder,
                                      SkEncodedOrigin origin,
                                      bool useAnimation,
-                                     bool gainmapOnly)
+                                     bool gainmapOnly,
+                                     SkEncodedImageFormat format)
         : SkScalingCodec(std::move(info), skcms_PixelFormat_RGBA_8888, std::move(stream), origin)
         , fData(std::move(data))
         , fAvifDecoder(std::move(avifDecoder))
         , fUseAnimation(useAnimation)
-        , fGainmapOnly(gainmapOnly) {}
+        , fGainmapOnly(gainmapOnly)
+        , fFormat(format) {}
 
 int SkCrabbyAvifCodec::onGetFrameCount() {
     if (!fUseAnimation) {
