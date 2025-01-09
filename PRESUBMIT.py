@@ -497,7 +497,7 @@ def _CheckBannedAPIs(input_api, output_api):
     (r'std::mutex', 'SkMutex'),
     (r'std::shared_mutex', 'SkSharedMutex'),
     (r'std::stop_token', ''),
-    (r'std::thread', ''),
+    (r'std::thread', '', ['tests/*']),
 
     # We used to have separate symbols for this, but coalesced them to make the
     # Bazel build easier.
