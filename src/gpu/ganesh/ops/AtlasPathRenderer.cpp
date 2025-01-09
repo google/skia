@@ -323,7 +323,7 @@ bool AtlasPathRenderer::onDrawPath(const DrawPathArgs& args) {
     const SkRect pathDevBounds = args.fViewMatrix->mapRect(args.fShape->bounds());
     SkASSERT(this->pathFitsInAtlas(pathDevBounds, args.fAAType));
 
-    if (args.fClip && !is_visible(pathDevBounds, args.fClip->getConservativeBounds())) {
+    if (!is_visible(pathDevBounds, args.fClip->getConservativeBounds())) {
         // The path is empty or outside the clip. No mask is needed.
         if (path.isInverseFillType()) {
             args.fSurfaceDrawContext->drawPaint(args.fClip, std::move(args.fPaint),
