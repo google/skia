@@ -106,17 +106,6 @@ public:
         }
     }
 
-private:
-    struct Traits {
-        static const K& GetKey(Entry* e) {
-            return e->fKey;
-        }
-
-        static uint32_t Hash(const K& k) {
-            return HashK()(k);
-        }
-    };
-
     void remove(const K& key) {
         Entry** value = fMap.find(key);
         SkASSERT(value);
@@ -127,6 +116,17 @@ private:
         fLRU.remove(entry);
         delete entry;
     }
+
+private:
+    struct Traits {
+        static const K& GetKey(Entry* e) {
+            return e->fKey;
+        }
+
+        static uint32_t Hash(const K& k) {
+            return HashK()(k);
+        }
+    };
 
     int                                         fMaxCount;
     skia_private::THashTable<Entry*, K, Traits> fMap;

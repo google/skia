@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SingleOwner.h"
 
+#include <chrono>
 #include <memory>
 
 namespace skgpu::graphite {
@@ -22,6 +23,14 @@ class ResourceProvider;
 class SK_API PrecompileContext {
 public:
     ~PrecompileContext();
+
+    /**
+     * Purge Pipelines that haven't been used in the past 'msNotUsed' milliseconds
+     * regardless of whether the pipeline cache is under budget.
+     *
+     * @param msNotUsed   Pipelines not used in these last milliseconds will be cleaned up.
+     */
+    void purgePipelinesNotUsedInMs(std::chrono::milliseconds msNotUsed);
 
     // Provides access to functions that aren't part of the public API.
     PrecompileContextPriv priv();

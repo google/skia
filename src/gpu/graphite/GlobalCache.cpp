@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/GlobalCache.h"
 
+#include "include/private/base/SkTArray.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/ContextUtils.h"
@@ -77,6 +78,7 @@ sk_sp<GraphicsPipeline> GlobalCache::findGraphicsPipeline(
         ++fStats.fGraphicsCacheHits;
 #endif
 
+        (*entry)->updateAccessTime();
         (*entry)->markUsed();
 
 #if defined(SK_PIPELINE_LIFETIME_LOGGING)
@@ -153,6 +155,7 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
         // Precompile Pipelines are only marked as used when they get a cache hit in
         // findGraphicsPipeline
         if (!(*entry)->fromPrecompile()) {
+            (*entry)->updateAccessTime();
             (*entry)->markUsed();
         }
 
@@ -195,6 +198,31 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
 #endif
     }
     return *entry;
+}
+
+
+void GlobalCache::purgePipelinesNotUsedSince(StdSteadyClock::time_point purgeTime) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    skia_private::TArray<skgpu::UniqueKey> toRemove;
+
+    // This is probably fine for now but is looping from most-recently-used to least-recently-used.
+    // It seems like a reverse loop with an early out could be more efficient.
+    fGraphicsPipelineCache.foreach([&toRemove, purgeTime](const UniqueKey* key,
+                                                          const sk_sp<GraphicsPipeline>* pipeline) {
+        if ((*pipeline)->lastAccessTime() < purgeTime) {
+            toRemove.push_back(*key);
+        }
+    });
+
+    for (const skgpu::UniqueKey& k : toRemove) {
+#if defined(GPU_TEST_UTILS)
+        ++fStats.fGraphicsPurges;
+#endif
+        fGraphicsPipelineCache.remove(k);
+    }
+
+    // TODO: add purging of Compute Pipelines (b/389073204)
 }
 
 #if defined(GPU_TEST_UTILS)
