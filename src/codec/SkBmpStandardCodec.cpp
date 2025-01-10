@@ -197,7 +197,7 @@ void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Op
 
     SkImageInfo swizzlerInfo = dstInfo;
     SkCodec::Options swizzlerOptions = opts;
-    if (this->colorXform()) {
+    if (this->xformOnDecode()) {
         swizzlerInfo = swizzlerInfo.makeColorType(kXformSrcColorType);
         if (kPremul_SkAlphaType == dstInfo.alphaType()) {
             swizzlerInfo = swizzlerInfo.makeAlphaType(kUnpremul_SkAlphaType);
