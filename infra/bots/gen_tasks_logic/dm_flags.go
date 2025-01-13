@@ -455,6 +455,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 					// This GM is larger than Dawn compat's max texture size.
 					skip(ALL, "gm", ALL, "wacky_yuv_formats_domain")
+
+					// b/389701894 - The Dawn/GLES backend is hard crashing on this test
+					skip(ALL, "test", ALL, "ThreadedPipelineCompilePurgingTest")
 				}
 
 				// b/373845830 - Precompile isn't thread-safe on either Dawn Metal
@@ -468,6 +471,13 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					if b.extraConfig("TSAN") {
 						// The TSAN_Graphite_Dawn_Vulkan job goes off into space on this test
 						skip(ALL, "test", ALL, "BigImageTest_Graphite")
+					}
+				}
+
+				if b.extraConfig("Metal") {
+					if b.extraConfig("TSAN") {
+						// b/389706939 - Dawn/Metal reports a data race for LazyClearCountForTesting w/ TSAN
+						skip(ALL, "test", ALL, "ThreadedPipelineCompilePurgingTest")
 					}
 				}
 			} else if b.extraConfig("Native") {
