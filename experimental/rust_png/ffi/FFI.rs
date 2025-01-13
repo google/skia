@@ -7,6 +7,7 @@
 //! The public API of this crate is the C++ API declared by the `#[cxx::bridge]`
 //! macro below and exposed through the auto-generated `FFI.rs.h` header.
 
+use std::borrow::Cow;
 use std::io::{ErrorKind, Read, Write};
 use std::pin::Pin;
 
@@ -160,6 +161,7 @@ mod ffi {
             color: ColorType,
             bits_per_component: u8,
             compression: Compression,
+            icc_profile: &[u8],
         ) -> Box<ResultOfWriter>;
 
         type ResultOfWriter;
@@ -652,16 +654,21 @@ impl Writer {
         color: ffi::ColorType,
         bits_per_component: u8,
         compression: ffi::Compression,
+        icc_profile: &[u8],
     ) -> Result<Self, png::EncodingError> {
-        let mut encoder = png::Encoder::new(output, width, height);
-        encoder.set_color(color.into());
-        encoder.set_depth(match bits_per_component {
+        let mut info = png::Info::with_size(width, height);
+        info.color_type = color.into();
+        info.bit_depth = match bits_per_component {
             8 => png::BitDepth::Eight,
             16 => png::BitDepth::Sixteen,
 
             // `SkPngRustEncoderImpl` only encodes 8-bit or 16-bit images.
             _ => unreachable!(),
-        });
+        };
+        if !icc_profile.is_empty() {
+            info.icc_profile = Some(Cow::Owned(icc_profile.to_owned()));
+        }
+        let mut encoder = png::Encoder::with_info(output, info)?;
         encoder.set_compression(compression.into());
         encoder.set_adaptive_filter(match compression {
             ffi::Compression::Fast => png::AdaptiveFilterType::NonAdaptive,
@@ -758,6 +765,8 @@ impl StreamWriter {
 }
 
 /// This provides a public C++ API for encoding a PNG image.
+///
+/// `icc_profile` set to an empty slice acts as null / `None`.
 fn new_writer(
     output: cxx::UniquePtr<ffi::WriteTrait>,
     width: u32,
@@ -765,6 +774,7 @@ fn new_writer(
     color: ffi::ColorType,
     bits_per_component: u8,
     compression: ffi::Compression,
+    icc_profile: &[u8],
 ) -> Box<ResultOfWriter> {
     Box::new(ResultOfWriter(Writer::new(
         output,
@@ -773,6 +783,7 @@ fn new_writer(
         color,
         bits_per_component,
         compression,
+        icc_profile,
     )))
 }
 

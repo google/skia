@@ -144,6 +144,16 @@ std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst,
         return nullptr;
     }
 
+    sk_sp<SkData> encodedProfile;
+    rust::Slice<const uint8_t> encodedProfileSlice;
+    if (const SkColorSpace* colorSpace = src.colorSpace(); colorSpace && !colorSpace->isSRGB()) {
+        encodedProfile = icc_from_color_space(colorSpace, nullptr, nullptr);
+        if (encodedProfile) {
+            encodedProfileSlice =
+                    rust::Slice<const uint8_t>(encodedProfile->bytes(), encodedProfile->size());
+        }
+    }
+
     auto writeTraitAdapter = std::make_unique<WriteTraitAdapterForSkWStream>(dst);
     rust::Box<rust_png::ResultOfWriter> resultOfWriter =
             rust_png::new_writer(std::move(writeTraitAdapter),
@@ -151,7 +161,8 @@ std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst,
                                  height,
                                  ToColorType(dstInfo.color()),
                                  dstInfo.bitsPerComponent(),
-                                 ToCompression(options.fCompressionLevel));
+                                 ToCompression(options.fCompressionLevel),
+                                 encodedProfileSlice);
     if (resultOfWriter->err() != rust_png::EncodingResult::Success) {
         return nullptr;
     }
