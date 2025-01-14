@@ -20,8 +20,8 @@ sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
 
 
-VERSION = '3.17.2'
-URL = 'https://cmake.org/files/v%s/cmake-%s-Linux-x86_64.tar.gz' % (
+VERSION = '3.31.4'
+URL = 'https://cmake.org/files/v%s/cmake-%s-linux-x86_64.tar.gz' % (
     VERSION.rsplit('.', 1)[0], VERSION)
 
 
