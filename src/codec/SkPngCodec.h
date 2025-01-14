@@ -18,6 +18,7 @@
 #include "src/codec/SkPngCodecBase.h"
 
 class SkPngChunkReader;
+class SkPngCompositeChunkReader;
 class SkStream;
 struct SkEncodedInfo;
 struct SkImageInfo;
@@ -56,7 +57,7 @@ protected:
 
     SkPngCodec(SkEncodedInfo&&,
                std::unique_ptr<SkStream>,
-               SkPngChunkReader*,
+               sk_sp<SkPngCompositeChunkReader>,
                void* png_ptr,
                void* info_ptr,
                std::unique_ptr<SkStream>,
@@ -81,9 +82,9 @@ protected:
             const SkCodec::Options&) override;
     Result onIncrementalDecode(int*) override;
 
-    sk_sp<SkPngChunkReader>     fPngChunkReader;
-    voidp                       fPng_ptr;
-    voidp                       fInfo_ptr;
+    sk_sp<SkPngCompositeChunkReader>     fPngChunkReader;
+    voidp                                fPng_ptr;
+    voidp                                fInfo_ptr;
 
 private:
     // SkPngCodecBase overrides:
