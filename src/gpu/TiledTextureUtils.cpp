@@ -111,8 +111,12 @@ int draw_tiled_image(SkCanvas* canvas,
     for (int x = 0; x <= nx; x++) {
         for (int y = 0; y <= ny; y++) {
             SkRect tileR;
-            tileR.setLTRB(SkIntToScalar(x * tileSize),       SkIntToScalar(y * tileSize),
-                          SkIntToScalar((x + 1) * tileSize), SkIntToScalar((y + 1) * tileSize));
+            // TODO: this will prevent int overflow, however at sizes > 2^24 the float can't
+            // represent all the bits in the int
+            int tileRight = (x == nx) ? originalSize.width() : (x + 1) * tileSize;
+            int tileBottom = (y == ny) ? originalSize.height() : (y + 1) * tileSize;
+            tileR.setLTRB(SkIntToScalar(x * tileSize), SkIntToScalar(y * tileSize),
+                          SkIntToScalar(tileRight),    SkIntToScalar(tileBottom));
 
             if (!SkRect::Intersects(tileR, clippedSrcRect)) {
                 continue;
