@@ -1224,9 +1224,6 @@ DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::k
 
 DEF_BENCH( return new TightBoundsBench([](const SkPath& path){ return path.computeTightBounds();},
                                        "priv"); )
-DEF_BENCH( return new TightBoundsBench([](const SkPath& path) {
-        SkRect bounds; TightBounds(path, &bounds); return bounds;
-    }, "pathops"); )
 
 // These seem to be optimized away, which is troublesome for timing.
 /*

@@ -4,12 +4,12 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
-#include "include/pathops/SkPathOps.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkPathPriv.h"
 #include "src/pathops/SkOpContour.h"
@@ -20,7 +20,7 @@
 
 #include <algorithm>
 
-bool TightBounds(const SkPath& path, SkRect* result) {
+bool ComputeTightBounds(const SkPath& path, SkRect* result) {
     SkRect moveBounds = { SK_ScalarMax, SK_ScalarMax, SK_ScalarMin, SK_ScalarMin };
     bool wellBehaved = true;
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {

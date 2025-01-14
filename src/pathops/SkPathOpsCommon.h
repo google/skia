@@ -17,6 +17,7 @@ class SkOpSegment;
 class SkOpSpan;
 class SkOpSpanBase;
 class SkPath;
+struct SkRect;
 
 template <typename T> class SkTDArray;
 
@@ -32,5 +33,7 @@ bool HandleCoincidence(SkOpContourHead* , SkOpCoincidence* );
 bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
              SkDEBUGPARAMS(bool skipAssert)
              SkDEBUGPARAMS(const char* testName));
+
+bool ComputeTightBounds(const SkPath&, SkRect*);
 
 #endif
