@@ -61,10 +61,14 @@ public:
 
     sk_sp<ComputePipeline> findOrCreateComputePipeline(const ComputePipelineDesc&);
 
+    sk_sp<Texture> findOrCreateNonShareableTexture(SkISize,
+                                                   const TextureInfo&,
+                                                   std::string_view label,
+                                                   Budgeted);
     sk_sp<Texture> findOrCreateScratchTexture(SkISize,
                                               const TextureInfo&,
                                               std::string_view label,
-                                              Budgeted);
+                                              const ResourceCache::ScratchResourceSet& unavailable);
 
     sk_sp<Texture> createWrappedTexture(const BackendTexture&, std::string_view label);
 
@@ -139,12 +143,12 @@ private:
     virtual sk_sp<Buffer> createBuffer(size_t size, BufferType type, AccessPattern) = 0;
     virtual sk_sp<Sampler> createSampler(const SamplerDesc&) = 0;
 
-    sk_sp<Texture> findOrCreateTextureWithKey(SkISize dimensions,
-                                              const TextureInfo& info,
-                                              const GraphiteResourceKey& key,
-                                              std::string_view label,
-                                              Budgeted,
-                                              Shareable);
+    sk_sp<Texture> findOrCreateTexture(SkISize dimensions,
+                                       const TextureInfo& info,
+                                       std::string_view label,
+                                       Budgeted,
+                                       Shareable,
+                                       const ResourceCache::ScratchResourceSet* = nullptr);
 
     virtual sk_sp<Texture> onCreateWrappedTexture(const BackendTexture&) = 0;
 

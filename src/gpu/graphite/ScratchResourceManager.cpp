@@ -41,7 +41,8 @@ sk_sp<Texture> ScratchResourceManager::getScratchTexture(SkISize dimensions,
     // cached resource that was freed up from a previous recording (or create a new one, if not).
     // TODO(b/339496039): Always start with a fixed label like "ScratchTexture" and then concatenate
     // the proxy label that's passed in onto the texture's label, including when reusing a texture.
-    sk_sp<Texture> newScratchTexture = fResourceProvider->findOrCreateScratchTexture(
+    // TODO(b/387504956): Track unavailable resources and call findOrCreateScratchTexture instead.
+    sk_sp<Texture> newScratchTexture = fResourceProvider->findOrCreateNonShareableTexture(
             dimensions, info, std::move(label), Budgeted::kYes);
     if (newScratchTexture) {
         fScratchTextures.push_back({newScratchTexture, /*fAvailable=*/false});

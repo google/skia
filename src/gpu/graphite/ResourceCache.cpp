@@ -121,7 +121,7 @@ void ResourceCache::insertResource(Resource* resource,
 
     SkDEBUGCODE(fCount++;)
 
-    if (resource->shareable() == Shareable::kYes) {
+    if (resource->shareable() != Shareable::kNo) {
         this->addToResourceMap(resource);
     }
 
@@ -134,16 +134,21 @@ void ResourceCache::insertResource(Resource* resource,
 
 Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key,
                                             Budgeted budgeted,
-                                            Shareable shareable) {
+                                            Shareable shareable,
+                                            const ScratchResourceSet* unavailable) {
     ASSERT_SINGLE_OWNER
 
     SkASSERT(key.isValid());
+    SkASSERT(shareable == Shareable::kNo || budgeted == Budgeted::kYes);
+    SkASSERT(shareable != Shareable::kScratch || SkToBool(unavailable));
 
-    auto shareablePredicate = [shareable](Resource* r) {
+    auto shareablePredicate = [shareable, unavailable](Resource* r) {
         // If the resource is in fResourceMap then it's available, so a non-shareable state means
         // it really has no outstanding uses and can be converted to any other shareable state.
-        // Otherwise, if it's available, it can only be reused with the same mode.
-        return r->shareable() == Shareable::kNo || r->shareable() == shareable;
+        // Otherwise, if it's available, it can only be reused with the same mode. Additionally,
+        // for kScratch resources, they cannot already be in the `unavailable` set passed in.
+        return (r->shareable() == Shareable::kNo || r->shareable() == shareable) &&
+               (shareable != Shareable::kScratch || !unavailable->contains(r));
     };
 
     Resource* resource = fResourceMap.find(key, shareablePredicate);
@@ -168,7 +173,7 @@ Resource* ResourceCache::findAndRefResource(const GraphiteResourceKey& key,
                 fBudgetedBytes -= resource->gpuMemorySize();
             }
         } else {
-            // Shareable resources should never be requested as non-budgeted
+            // Shareable and scratch resources should never be requested as non-budgeted
             SkASSERT(budgeted == Budgeted::kYes);
             resource->setShareable(shareable);
         }
@@ -320,13 +325,12 @@ void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef rem
 
     SkASSERT(this->isInCache(resource));
     if (removedRef == LastRemovedRef::kUsage) {
-        if (resource->shareable() == Shareable::kYes) {
-            // Shareable resources should still be in the cache.
+        if (resource->shareable() != Shareable::kNo) {
+            // Shareable and scratch resources should still be in the cache.
             SkASSERT(fResourceMap.has(resource, resource->key()));
             SkASSERT(resource->isAvailableForReuse());
-
             // Reset the resource's sharing mode so that any shareable request can use it (e.g. now
-            // that no more usages that required it to be fully shareable are held, the underlying
+            // that no more usages that required it to be scratch/shareable are held, the underlying
             // resource can be used in a non-shareable manner the next time it's fetched from the
             // cache). We can only change the shareable state when there are no outstanding usage
             // refs. Because this resource was shareable, it remained in fResourceMap and could have
@@ -693,14 +697,15 @@ void ResourceCache::validate() const {
             // we'll need to update this check.
             SkASSERT(resource->ownership() == Ownership::kOwned);
 
-            // We track scratch (non-shareable, no usage refs, has been returned to cache) and
-            // shareable resources here as those should be the only things in the fResourceMap. A
-            // non-shareable resources that does meet the scratch criteria will not be able to be
-            // given back out from a cache requests. After processing all the resources we assert
-            // that the fScratch + fShareable equals the count in the fResourceMap.
+            // We track scratch (non-shareable, no usage refs, has been returned to cache; or
+            // explicitly shared as scratch) and shareable resources here as those should be the
+            // only things in the fResourceMap. A non-shareable resources that does meet the scratch
+            // criteria will not be able to be given back out from a cache requests. After
+            // processing all the resources we assert that the fScratch + fShareable equals the
+            // count in the fResourceMap.
             if (resource->isUsableAsScratch()) {
-                SkASSERT(resource->shareable() == Shareable::kNo);
-                SkASSERT(!resource->hasUsageRef());
+                SkASSERT((resource->shareable() == Shareable::kNo && !resource->hasUsageRef()) ||
+                         resource->shareable() == Shareable::kScratch);
                 ++fScratch;
                 SkASSERT(fResourceMap->has(resource, key));
                 SkASSERT(resource->budgeted() == Budgeted::kYes);
@@ -809,6 +814,12 @@ Resource* ResourceCache::topOfPurgeableQueue() {
         return nullptr;
     }
     return fPurgeableQueue.peek();
+}
+
+bool ResourceCache::testingInReturnQueue(Resource* resource) {
+    SkAutoMutexExclusive locked(fReturnMutex);
+    int index = *resource->accessReturnIndex();
+    return index >= 0 && index < (int) fReturnQueue.size() && fReturnQueue[index].first == resource;
 }
 
 void ResourceCache::visitTextures(

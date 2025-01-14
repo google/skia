@@ -118,8 +118,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest,
 
     REPORTER_ASSERT(reporter, resource->budgeted() == Budgeted::kNo);
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
-    // Resource is not shareable and we have a ref on it. Thus it shouldn't ben findable in the
-    // cache.
+    // Resource is not shareable and we have a ref on it. Thus it shouldn't be findable in the cache
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 0);
 
     // When we reset our TestResource it should go back into the cache since it can be used as a
@@ -777,6 +776,104 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphitePurgeResourcesTest, reporter, context
     resource.reset();
     resourceCache->purgeResources();
     REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
+}
+
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteScratchResourcesTest, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    ResourceProvider* resourceProvider = recorder->priv().resourceProvider();
+    ResourceCache* resourceCache = resourceProvider->resourceCache();
+    const SharedContext* sharedContext = resourceProvider->sharedContext();
+
+
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 0);
+    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 0);
+
+    // Test making a non budgeted, non shareable resource.
+    sk_sp<Resource> resource = TestResource::Make(
+            sharedContext, resourceCache, Ownership::kOwned, Budgeted::kNo, Shareable::kNo);
+    if (!resource) {
+        ERRORF(reporter, "Failed to make TestResource");
+        return;
+    }
+    Resource* resourcePtr = resource.get();
+
+    REPORTER_ASSERT(reporter, resource->budgeted() == Budgeted::kNo);
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 1);
+    // Resource is not shareable and we have a ref on it. Thus it shouldn't be findable in the cache
+    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 0);
+
+    // Requesting a scratch shareable resouce will not return the non-shareable resource.
+    GraphiteResourceKey key;
+    TestResource::CreateKey(&key);
+
+    ResourceCache::ScratchResourceSet unavailable;
+
+    REPORTER_ASSERT(reporter, key == resource->key());
+    Resource* resourcePtr2 = resourceCache->findAndRefResource(
+            key, Budgeted::kYes, Shareable::kScratch, &unavailable);
+    REPORTER_ASSERT(reporter, !resourcePtr2);
+
+    // Return the non-shareable resource and verify that it can now be requested as scratch
+    resource.reset();
+    resourceCache->forceProcessReturnedResources();
+    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 1);
+
+    resource = sk_sp(resourceCache->findAndRefResource(
+            key, Budgeted::kYes, Shareable::kScratch, &unavailable));
+    REPORTER_ASSERT(reporter, resource.get() == resourcePtr);
+    REPORTER_ASSERT(reporter, resource->budgeted() == Budgeted::kYes);
+    REPORTER_ASSERT(reporter, resource->shareable() == Shareable::kScratch);
+    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 1); // still findable
+
+    // A request of the same key as non-shareable will not return the scratch resource
+    resourcePtr2 = resourceCache->findAndRefResource(key, Budgeted::kYes, Shareable::kNo);
+    REPORTER_ASSERT(reporter, !resourcePtr2);
+
+    // Similarly, a request for a fully shareable resource cannot be satisfied by a scratch resource
+    resourcePtr2 = resourceCache->findAndRefResource(key, Budgeted::kYes, Shareable::kYes);
+    REPORTER_ASSERT(reporter, !resourcePtr2);
+
+    // A request for another scratch resource can return the existing one if it hasn't been marked
+    // unavailable in the set passed to the cache.
+    resourcePtr2 = resourceCache->findAndRefResource(
+            key, Budgeted::kYes, Shareable::kScratch, &unavailable);
+    REPORTER_ASSERT(reporter, resourcePtr2 == resourcePtr);
+    resourcePtr2->unref();
+
+    // Mark the original resource as unvailable and now it shouldn't be seen by the request.
+    unavailable.add(resourcePtr);
+    resourcePtr2 = resourceCache->findAndRefResource(
+            key, Budgeted::kYes, Shareable::kScratch, &unavailable);
+    REPORTER_ASSERT(reporter, !resourcePtr2);
+
+    // Return the scratch resource, and then simulate a threading race where there's a request for
+    // the scratch resource that comes in before the return queue is processed (adding a usage ref),
+    // and then the queue is processed as part of a non-shareable request (which should then fail).
+    unavailable.reset();
+    resource.reset();
+    resource = sk_sp(resourceCache->findAndRefResource(
+            key, Budgeted::kYes, Shareable::kScratch, &unavailable));
+    REPORTER_ASSERT(reporter, resource.get() == resourcePtr);
+    // At this point, resourcePtr has a usage ref and should be in the return queue
+    REPORTER_ASSERT(reporter, resourceCache->testingInReturnQueue(resourcePtr));
+    resourceCache->forceProcessReturnedResources();
+    // Its shareable type should not have changed after being processed.
+    REPORTER_ASSERT(reporter, !resourceCache->testingInReturnQueue(resourcePtr));
+    REPORTER_ASSERT(reporter, resource->shareable() == Shareable::kScratch);
+
+    // Now actually return the resource and confirm that it can be used for non-shareable requests
+    // once all usage refs are dropped.
+    resource.reset();
+    resourceCache->forceProcessReturnedResources();
+    REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 1);
+    REPORTER_ASSERT(reporter, resourcePtr->shareable() == Shareable::kNo);
+
+    // Returning the scratch resource allows it to be changed to a different shareable type
+    resourcePtr2 = resourceCache->findAndRefResource(key, Budgeted::kYes, Shareable::kYes);
+    REPORTER_ASSERT(reporter, resourcePtr2 == resourcePtr);
+    REPORTER_ASSERT(reporter, resourcePtr2->shareable() == Shareable::kYes);
+    resourcePtr2->unref();
 }
 
 }  // namespace skgpu::graphite

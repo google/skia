@@ -93,7 +93,10 @@ bool TextureProxy::instantiate(ResourceProvider* resourceProvider) {
         return true;
     }
 
-    fTexture = resourceProvider->findOrCreateScratchTexture(fDimensions, fInfo, fLabel, fBudgeted);
+    // TODO(389908374): Once all tasks use the ScratchResourceManager, this can be updated to just
+    // finding and creating a non-shareable AND non-budgeted texture.
+    fTexture = resourceProvider->findOrCreateNonShareableTexture(
+            fDimensions, fInfo, fLabel, fBudgeted);
     if (!fTexture) {
         return false;
     }

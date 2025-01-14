@@ -55,8 +55,12 @@ public:
 
     void insertResource(Resource*, const GraphiteResourceKey&, Budgeted, Shareable);
 
-    // Find a resource that matches a key.
-    Resource* findAndRefResource(const GraphiteResourceKey& key, skgpu::Budgeted, Shareable);
+    using ScratchResourceSet = skia_private::THashSet<const Resource*>;
+    // Find a resource that matches a key. If Shareable == kScratch, then `unavailable` must be
+    // non-null and is used to filter the scratch resources that can fulfill this request.
+    Resource* findAndRefResource(const GraphiteResourceKey& key,
+                                 Budgeted, Shareable,
+                                 const ScratchResourceSet* unavailable=nullptr);
 
     // This is a thread safe call. If it fails the ResourceCache is no longer valid and the
     // Resource should clean itself up if it is the last ref.
@@ -99,6 +103,8 @@ public:
     Resource* topOfPurgeableQueue();
 
     bool testingInPurgeableQueue(Resource* resource) { return this->inPurgeableQueue(resource); }
+
+    bool testingInReturnQueue(Resource*);
 
     void visitTextures(const std::function<void(const Texture*, bool purgeable)>&) const;
 #endif
