@@ -471,6 +471,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					if b.extraConfig("TSAN") {
 						// The TSAN_Graphite_Dawn_Vulkan job goes off into space on this test
 						skip(ALL, "test", ALL, "BigImageTest_Graphite")
+						// b/389706939 - Dawn/Vulkan reports a data race for LazyClearCountForTesting w/ TSAN
+						skip(ALL, "test", ALL, "ThreadedPipelineCompilePurgingTest")
 					}
 				}
 
@@ -507,6 +509,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					// b/380049954 Graphite Native Vulkan has a thread race issue
 					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompileTest")
 					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompilePurgingTest")
+					skip(ALL, "test", ALL, "ThreadedPipelinePrecompilePurgingTest")
 				}
 			}
 		}
