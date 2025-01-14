@@ -1409,7 +1409,7 @@ func (b *jobBuilder) recreateSKPs() {
 		)
 		b.usesGo()
 		b.cache(CACHES_WORKDIR...)
-		b.timeout(6 * time.Hour)
+		b.timeout(8 * time.Hour)
 		b.usesPython()
 		b.attempts(2)
 	})
