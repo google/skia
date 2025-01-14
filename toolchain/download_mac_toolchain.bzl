@@ -26,11 +26,10 @@ clang_prefix_amd64 = "clang+llvm-15.0.1-x86_64-apple-darwin"
 clang_sha256_amd64 = "0b2f1a811e68d011344103274733b7670c15bbe08b2a3a5140ccad8e19d9311e"
 clang_url_amd64 = "https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.1/clang+llvm-15.0.1-x86_64-apple-darwin.tar.xz"
 
-def _get_system_xcode_path(ctx):
-    # https://developer.apple.com/library/archive/technotes/tn2339/_index.html
-    res = ctx.execute(["xcode-select", "--print-path"])
+def _get_system_sdk_path(ctx):
+    res = ctx.execute(["xcrun", "--sdk", "macosx", "--show-sdk-path"])
     if res.return_code != 0:
-        fail("Error Getting XCode path: " + res.stderr)
+        fail("Error Getting SDK path: " + res.stderr)
     return res.stdout.rstrip()
 
 def _delete_macos_sdk_symlinks(ctx):
@@ -38,12 +37,12 @@ def _delete_macos_sdk_symlinks(ctx):
     ctx.delete("./symlinks/xcode/MacSDK/System/Library/Frameworks")
 
 def _create_macos_sdk_symlinks(ctx):
-    system_xcode_path = _get_system_xcode_path(ctx)
+    system_sdk_path = _get_system_sdk_path(ctx)
 
     # https://bazel.build/rules/lib/actions#symlink
     ctx.symlink(
         # from =
-        system_xcode_path + "/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr",
+        system_sdk_path + "/usr",
         # to =
         "./symlinks/xcode/MacSDK/usr",
     )
@@ -55,7 +54,7 @@ def _create_macos_sdk_symlinks(ctx):
     # from breaking.
     ctx.symlink(
         # from =
-        system_xcode_path + "/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks",
+        system_sdk_path + "/System/Library/Frameworks",
         # to =
         "./symlinks/xcode/MacSDK/System/Library/Frameworks",
     )
