@@ -39,17 +39,6 @@
 #define ASSERT_SINGLE_OWNER        SKGPU_ASSERT_SINGLE_OWNER(this->singleOwner())
 #define RETURN_IF_ABANDONED        if (fContext->abandoned()) { return; }
 
-class AutoCheckFlush {
-public:
-    AutoCheckFlush(GrDrawingManager* drawingManager) : fDrawingManager(drawingManager) {
-        SkASSERT(fDrawingManager);
-    }
-    ~AutoCheckFlush() { fDrawingManager->flushIfNecessary(); }
-
-private:
-    GrDrawingManager* fDrawingManager;
-};
-
 namespace skgpu::ganesh {
 
 // In MDB mode the reffing of the 'getLastOpsTask' call's result allows in-progress
@@ -87,8 +76,6 @@ void SurfaceFillContext::discard() {
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("SurfaceFillContext", "discard", fContext);
 
-    AutoCheckFlush acf(this->drawingManager());
-
     this->getOpsTask()->discard();
 }
 
@@ -97,8 +84,6 @@ void SurfaceFillContext::resolveMSAA() {
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("SurfaceFillContext", "resolveMSAA", fContext);
-
-    AutoCheckFlush acf(this->drawingManager());
 
     this->drawingManager()->newTextureResolveRenderTask(this->asSurfaceProxyRef(),
                                                         GrSurfaceProxy::ResolveFlags::kMSAA,
@@ -111,8 +96,6 @@ void SurfaceFillContext::fillRectWithFP(const SkIRect& dstRect,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("SurfaceFillContext", "fillRectWithFP", fContext);
-
-    AutoCheckFlush acf(this->drawingManager());
 
     GrPaint paint;
     paint.setColorFragmentProcessor(std::move(fp));

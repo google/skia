@@ -171,8 +171,6 @@ public:
     // and turned on.
     PathRenderer* getTessellationPathRenderer();
 
-    void flushIfNecessary();
-
     static bool ProgramUnitTest(GrDirectContext*, int maxStages, int maxLevels);
 
     GrSemaphoresSubmitted flushSurfaces(SkSpan<GrSurfaceProxy*>,

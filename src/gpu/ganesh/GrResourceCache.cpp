@@ -302,10 +302,6 @@ void GrResourceCache::refAndMakeResourceMRU(GrGpuResource* resource) {
         fPurgeableBytes -= resource->gpuMemorySize();
         fPurgeableQueue.remove(resource);
         this->addToNonpurgeableArray(resource);
-    } else if (!resource->cacheAccess().hasRefOrCommandBufferUsage() &&
-               resource->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted) {
-        SkASSERT(fNumBudgetedResourcesFlushWillMakePurgeable > 0);
-        fNumBudgetedResourcesFlushWillMakePurgeable--;
     }
     resource->cacheAccess().ref();
 
@@ -344,11 +340,6 @@ void GrResourceCache::notifyARefCntReachedZero(GrGpuResource* resource,
 #endif
     resource->cacheAccess().setTimestamp(this->getNextTimestamp());
     SkDEBUGCODE(fNewlyPurgeableResourceForValidation = nullptr);
-
-    if (!resource->resourcePriv().isPurgeable() &&
-        resource->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted) {
-        ++fNumBudgetedResourcesFlushWillMakePurgeable;
-    }
 
     if (!resource->resourcePriv().isPurgeable()) {
         this->validate();
@@ -413,10 +404,6 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
         fBudgetedHighWaterBytes = std::max(fBudgetedBytes, fBudgetedHighWaterBytes);
         fBudgetedHighWaterCount = std::max(fBudgetedCount, fBudgetedHighWaterCount);
 #endif
-        if (!resource->resourcePriv().isPurgeable() &&
-            !resource->cacheAccess().hasRefOrCommandBufferUsage()) {
-            ++fNumBudgetedResourcesFlushWillMakePurgeable;
-        }
         if (resource->cacheAccess().isUsableAsScratch()) {
             fScratchMap.insert(resource->resourcePriv().getScratchKey(), resource);
         }
@@ -425,10 +412,6 @@ void GrResourceCache::didChangeBudgetStatus(GrGpuResource* resource) {
         SkASSERT(resource->resourcePriv().budgetedType() != GrBudgetedType::kUnbudgetedCacheable);
         --fBudgetedCount;
         fBudgetedBytes -= size;
-        if (!resource->resourcePriv().isPurgeable() &&
-            !resource->cacheAccess().hasRefOrCommandBufferUsage()) {
-            --fNumBudgetedResourcesFlushWillMakePurgeable;
-        }
         if (!resource->cacheAccess().hasRef() && !resource->getUniqueKey().isValid() &&
             resource->resourcePriv().getScratchKey().isValid()) {
             fScratchMap.remove(resource->resourcePriv().getScratchKey(), resource);
@@ -630,11 +613,6 @@ void GrResourceCache::purgeUnlockedResources(size_t bytesToPurge, bool preferScr
         this->purgeAsNeeded();
         fMaxBytes = cachedByteCount;
     }
-}
-
-bool GrResourceCache::requestsFlush() const {
-    return this->overBudget() && !fPurgeableQueue.count() &&
-           fNumBudgetedResourcesFlushWillMakePurgeable > 0;
 }
 
 void GrResourceCache::processFreedGpuResources() {
@@ -854,18 +832,12 @@ void GrResourceCache::validate() const {
 
     Stats stats(this);
     size_t purgeableBytes = 0;
-    int numBudgetedResourcesFlushWillMakePurgeable = 0;
 
     for (int i = 0; i < fNonpurgeableResources.size(); ++i) {
         SkASSERT(!fNonpurgeableResources[i]->resourcePriv().isPurgeable() ||
                  fNewlyPurgeableResourceForValidation == fNonpurgeableResources[i]);
         SkASSERT(*fNonpurgeableResources[i]->cacheAccess().accessCacheIndex() == i);
         SkASSERT(!fNonpurgeableResources[i]->wasDestroyed());
-        if (fNonpurgeableResources[i]->resourcePriv().budgetedType() == GrBudgetedType::kBudgeted &&
-            !fNonpurgeableResources[i]->cacheAccess().hasRefOrCommandBufferUsage() &&
-            fNewlyPurgeableResourceForValidation != fNonpurgeableResources[i]) {
-            ++numBudgetedResourcesFlushWillMakePurgeable;
-        }
         stats.update(fNonpurgeableResources[i]);
     }
     for (int i = 0; i < fPurgeableQueue.count(); ++i) {
@@ -880,8 +852,6 @@ void GrResourceCache::validate() const {
     SkASSERT(fBudgetedCount <= fCount);
     SkASSERT(fBudgetedBytes <= fBytes);
     SkASSERT(stats.fBytes == fBytes);
-    SkASSERT(fNumBudgetedResourcesFlushWillMakePurgeable ==
-             numBudgetedResourcesFlushWillMakePurgeable);
     SkASSERT(stats.fBudgetedBytes == fBudgetedBytes);
     SkASSERT(stats.fBudgetedCount == fBudgetedCount);
     SkASSERT(purgeableBytes == fPurgeableBytes);

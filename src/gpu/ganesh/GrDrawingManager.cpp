@@ -1066,18 +1066,3 @@ skgpu::ganesh::PathRenderer* GrDrawingManager::getTessellationPathRenderer() {
     }
     return fPathRendererChain->getTessellationPathRenderer();
 }
-
-void GrDrawingManager::flushIfNecessary() {
-    auto direct = fContext->asDirectContext();
-    if (!direct) {
-        return;
-    }
-
-    auto resourceCache = direct->priv().getResourceCache();
-    if (resourceCache && resourceCache->requestsFlush()) {
-        if (this->flush({}, SkSurfaces::BackendSurfaceAccess::kNoAccess, GrFlushInfo(), nullptr)) {
-            this->submitToGpu();
-        }
-        resourceCache->purgeAsNeeded();
-    }
-}
