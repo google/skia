@@ -27,14 +27,14 @@ Resource::Resource(const SharedContext* sharedContext,
                    Ownership ownership,
                    size_t gpuMemorySize,
                    bool commandBufferRefsAsUsageRefs)
-        : fSharedContext(sharedContext)
-        , fUsageRefCnt(1)
+        : fUsageRefCnt(1)
         , fCommandBufferRefCnt(0)
         , fCacheRefCnt(0)
         , fCommandBufferRefsAsUsageRefs(commandBufferRefsAsUsageRefs)
+        , fSharedContext(sharedContext)
         , fOwnership(ownership)
-        , fGpuMemorySize(gpuMemorySize)
-        , fUniqueID(create_unique_id()) {
+        , fUniqueID(create_unique_id())
+        , fGpuMemorySize(gpuMemorySize) {
     // At initialization time, a Resource should not be considered budgeted because it does not yet
     // belong to a ResourceCache (which manages a budget). Wrapped resources and owned-but-uncached
     // resources will never be added to a cache and can therefore depend on this default value (as
