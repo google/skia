@@ -223,8 +223,8 @@ private:
     int* accessReturnIndex()  const { return &fReturnIndex; }
     int* accessCacheIndex()  const { return &fCacheArrayIndex; }
 
-    uint32_t timestamp() const { return fTimestamp; }
-    void setTimestamp(uint32_t ts) { fTimestamp = ts; }
+    uint32_t lastUseToken() const { return fLastUseToken; }
+    void setLastUseToken(uint32_t token) { fLastUseToken = token; }
 
     // If possible, queries the backend API to check the current allocation size of the gpu
     // resource and updates the tracked value. This is specifically useful for Vulkan backends which
@@ -415,8 +415,9 @@ private:
     mutable int fCacheArrayIndex = -1;
 
     // This value reflects how recently this resource was accessed in the cache. This is maintained
-    // by the cache.
-    uint32_t fTimestamp;
+    // by the cache. It defines a total order over resources, even if their fLastAccess times are
+    // the same (i.e. returned at time points less than the system's granularity).
+    uint32_t fLastUseToken;
     skgpu::StdSteadyClock::time_point fLastAccess;
 
     // String used to describe the current use of this Resource.

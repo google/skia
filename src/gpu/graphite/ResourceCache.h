@@ -128,8 +128,8 @@ private:
     bool processReturnedResources();
     void processReturnedResource(Resource*, LastRemovedRef);
 
-    uint32_t getNextTimestamp();
-    void setResourceTimestamp(Resource*, uint32_t timestamp);
+    uint32_t getNextUseToken();
+    void setResourceUseToken(Resource*, uint32_t token);
 
     bool inPurgeableQueue(Resource*) const;
 
@@ -154,12 +154,12 @@ private:
     };
     using ResourceMap = SkTMultiMap<Resource, GraphiteResourceKey, MapTraits>;
 
-    static bool CompareTimestamp(Resource* const& a, Resource* const& b) {
-        return a->timestamp() < b->timestamp();
+    static bool CompareUseToken(Resource* const& a, Resource* const& b) {
+        return a->lastUseToken() < b->lastUseToken();
     }
     static int* AccessResourceIndex(Resource* const& res) { return res->accessCacheIndex(); }
 
-    using PurgeableQueue = SkTDPQueue<Resource*, CompareTimestamp, AccessResourceIndex>;
+    using PurgeableQueue = SkTDPQueue<Resource*, CompareUseToken, AccessResourceIndex>;
     using ResourceArray = SkTDArray<Resource*>;
 
     // NOTE: every Resource held by ResourceMap, ResourceArray, and PurgeableQueue will have a cache
@@ -175,13 +175,13 @@ private:
     size_t fBudgetedBytes = 0;
     size_t fPurgeableBytes = 0;
 
-    // Whenever a resource is added to the cache or the result of a cache lookup, fTimestamp is
-    // assigned as the resource's timestamp and then incremented. fPurgeableQueue orders the
+    // Whenever a resource is added to the cache or the result of a cache lookup, fUseToken is
+    // assigned as the resource's last use token and then incremented. fPurgeableQueue orders the
     // purgeable resources by this value, and thus is used to purge resources in LRU order.
     // Resources with a size of zero are set to have max uint32_t value. This will also put them at
     // the end of the LRU priority queue. This will allow us to not purge these resources even when
     // we are over budget.
-    uint32_t fTimestamp = 0;
+    uint32_t fUseToken = 0;
 
     bool fIsShutdown SK_GUARDED_BY(fReturnMutex);
 
