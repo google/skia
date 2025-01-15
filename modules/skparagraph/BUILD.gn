@@ -25,8 +25,8 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_enable_skunicode &&
   skia_component("skparagraph") {
     import("skparagraph.gni")
     public_configs = [ ":public_config" ]
-    public = skparagraph_public
-    sources = skparagraph_sources
+    public = skparagraph_core_public
+    sources = skparagraph_core_sources
     public_deps = [
       "../..:skia",
       "../skunicode",
@@ -74,6 +74,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_enable_skunicode &&
         sources = skparagraph_tests
         deps = [
           ":skparagraph",
+          ":utils",
           "../..:skia",
           "../..:test",
           "../skshaper",

@@ -646,14 +646,12 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 	}},
 	{GNI: "modules/skparagraph/skparagraph.gni", Vars: []exporter.GNIFileListExportDesc{
-		{Var: "skparagraph_public",
+		{Var: "skparagraph_core_public",
 			Rules: []string{
-				"//modules/skparagraph/include:hdrs",
-				"//modules/skparagraph/utils:utils_hdrs"}},
-		{Var: "skparagraph_sources",
+				"//modules/skparagraph/include:hdrs"}},
+		{Var: "skparagraph_core_sources",
 			Rules: []string{
-				"//modules/skparagraph/src:srcs",
-				"//modules/skparagraph/utils:utils_srcs"}},
+				"//modules/skparagraph/src:srcs"}},
 		{Var: "skparagraph_utils",
 			Rules: []string{
 				"//modules/skparagraph/utils:utils_hdrs",
@@ -664,6 +662,15 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//modules/skparagraph/tests:tests_hdrs",
 				"//modules/skparagraph/tests:tests_srcs",
 			}},
+		// TODO(kjlubick) remove after updating flutter
+		{Var: "skparagraph_public",
+			Rules: []string{
+				"//modules/skparagraph/include:hdrs",
+				"//modules/skparagraph/utils:utils_hdrs"}},
+		{Var: "skparagraph_sources",
+			Rules: []string{
+				"//modules/skparagraph/src:srcs",
+				"//modules/skparagraph/utils:utils_srcs"}},
 	}},
 	{GNI: "modules/skresources/skresources.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_skresources_public",
