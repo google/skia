@@ -70,7 +70,22 @@ Task::Status RenderPassTask::prepareResources(ResourceProvider* resourceProvider
                                               ScratchResourceManager* scratchManager,
                                               const RuntimeEffectDictionary* runtimeDict) {
     SkASSERT(fTarget);
-    if (!TextureProxy::InstantiateIfNotLazy(scratchManager, fTarget.get())) {
+
+    bool instantiated;
+    if (scratchManager->pendingReadCount(fTarget.get()) == 0) {
+        // TODO(b/389908339, b/338976898): If there are no pending reads on a scratch texture
+        // instantiation request, it means that the scratch Device was caught by a
+        // Recorder::flushTrackedDevices() event but hasn't actually been restored to its parent. In
+        // this case, the eventual read of the surface will be in another Recording and it can't be
+        // allocated as a true scratch resource.
+        //
+        // Without pending reads, DrawTask does not track its lifecycle to return the scratch
+        // resource, so we need to match that and instantiate with a regular non-shareable resource.
+        instantiated = TextureProxy::InstantiateIfNotLazy(resourceProvider, fTarget.get());
+    } else {
+        instantiated = TextureProxy::InstantiateIfNotLazy(scratchManager, fTarget.get());
+    }
+    if (!instantiated) {
         SKGPU_LOG_W("Failed to instantiate RenderPassTask target. Will not create renderpass!");
         SKGPU_LOG_W("Dimensions are (%d, %d).",
                     fTarget->dimensions().width(), fTarget->dimensions().height());

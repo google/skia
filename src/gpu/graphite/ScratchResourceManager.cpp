@@ -14,6 +14,16 @@
 
 namespace skgpu::graphite {
 
+#if defined(SK_DEBUG)
+bool ProxyReadCountMap::hasPendingReads() const {
+    bool hasPendingReads = false;
+    fCounts.foreach([&hasPendingReads](const TextureProxy*, int proxyReadCount) {
+        hasPendingReads |= (proxyReadCount > 0);
+    });
+    return hasPendingReads;
+}
+#endif
+
 ScratchResourceManager::ScratchResourceManager(ResourceProvider* resourceProvider,
                                                std::unique_ptr<ProxyReadCountMap> proxyCounts)
         : fResourceProvider(resourceProvider)
@@ -22,44 +32,28 @@ ScratchResourceManager::ScratchResourceManager(ResourceProvider* resourceProvide
     SkASSERT(fProxyReadCounts);
 }
 
-ScratchResourceManager::~ScratchResourceManager() = default;
+ScratchResourceManager::~ScratchResourceManager() {
+    SkASSERT(fUnavailable.empty());
+    SkASSERT(!fProxyReadCounts->hasPendingReads());
+}
 
 sk_sp<Texture> ScratchResourceManager::getScratchTexture(SkISize dimensions,
                                                          const TextureInfo& info,
                                                          std::string_view label) {
-    for (ScratchTexture& st : fScratchTextures) {
-        if (st.fAvailable &&
-            st.fTexture->dimensions() == dimensions &&
-            st.fTexture->textureInfo() == info) {
-            // An exact match, reuse it.
-            st.fAvailable = false;
-            return st.fTexture;
-        }
-    }
-
-    // No texture was available so go out to the resource provider, which will hopefully find a
-    // cached resource that was freed up from a previous recording (or create a new one, if not).
-    // TODO(b/339496039): Always start with a fixed label like "ScratchTexture" and then concatenate
-    // the proxy label that's passed in onto the texture's label, including when reusing a texture.
-    // TODO(b/387504956): Track unavailable resources and call findOrCreateScratchTexture instead.
-    sk_sp<Texture> newScratchTexture = fResourceProvider->findOrCreateNonShareableTexture(
-            dimensions, info, std::move(label), Budgeted::kYes);
-    if (newScratchTexture) {
-        fScratchTextures.push_back({newScratchTexture, /*fAvailable=*/false});
-    }
-    return newScratchTexture;
+    sk_sp<Texture> scratchTexture = fResourceProvider->findOrCreateScratchTexture(
+            dimensions, info, label, fUnavailable);
+    // Store the returned scratch texture into fUnavailable so that it is filtered from the
+    // ResourceCache when going through *this* ScratchResourceManager. But the scratch texture will
+    // remain visible to other Recorders.
+    SkASSERT(!fUnavailable.contains(scratchTexture.get()));
+    fUnavailable.add(scratchTexture.get());
+    return scratchTexture;
 }
 
 void ScratchResourceManager::returnTexture(sk_sp<Texture> texture) {
-    for (ScratchTexture& st : fScratchTextures) {
-        if (st.fTexture.get() == texture.get()) {
-            SkASSERT(!st.fAvailable);
-            st.fAvailable = true;
-            return;
-        }
-    }
-    // Trying to return a resource that didn't come from getScratchTexture().
-    SkASSERT(false);
+    // Fails if trying to return a resource that didn't come from getScratchTexture()
+    SkASSERT(fUnavailable.contains(texture.get()));
+    fUnavailable.remove(texture.get());
 }
 
 void ScratchResourceManager::pushScope() {

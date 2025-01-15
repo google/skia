@@ -51,6 +51,8 @@ public:
         return count ? *count : 0;
     }
 
+    SkDEBUGCODE(bool hasPendingReads() const;)
+
 private:
     skia_private::THashMap<const TextureProxy*, int> fCounts;
 };
@@ -171,19 +173,16 @@ public:
     }
 
 private:
-    struct ScratchTexture {
-        sk_sp<Texture> fTexture;
-        bool fAvailable;
-    };
-
-    // If there are no available resources for reuse, new or cached resources will be fetched from
-    // this ResourceProvider.
     ResourceProvider* fResourceProvider;
 
-    // ScratchResourceManager will maintain separate pools based on the type of Resource since the
-    // callers always need a specific sub-Resource and it limits the size of each search pool. It
-    // also allows for type-specific search heuristics by when selecting an available resource.
-    skia_private::TArray<ScratchTexture> fScratchTextures;
+    // ScratchResourceManager holds a pointer to each un-returned scratch resource that it's
+    // fetched from the ResourceProvider that should be considered unavailable when making
+    // additional resource requests from the cache with compatible keys. They are bare pointers
+    // because the resources are kept alive by the proxies and tasks that queried the
+    // ScratchResourceManager.
+    // NOTE: This is the same type as ResourceCache::ScratchResourceSet but cannot be forward
+    // declared because it's both a template and an inner type.
+    skia_private::THashSet<const Resource*> fUnavailable;
 
     // This single list is organized into a stack of sublists by using null pointers to mark the
     // start of a new scope.
