@@ -16,7 +16,7 @@
 
 namespace skgpu::graphite {
 
-bool RasterMaskHelper::init(SkISize pixmapSize) {
+bool RasterMaskHelper::init(SkISize pixmapSize, skvx::float2 transformedMaskOffset) {
     if (!fPixels) {
         return false;
     }
@@ -35,11 +35,12 @@ bool RasterMaskHelper::init(SkISize pixmapSize) {
     fDraw.fBlitterChooser = SkA8Blitter_Choose;
     fDraw.fDst      = *fPixels;
     fDraw.fRC       = &fRasterClip;
+    fTransformedMaskOffset = transformedMaskOffset;
     return true;
 }
 
 void RasterMaskHelper::drawShape(const Shape& shape,
-                                 const Transform& transform,
+                                 const Transform& localToDevice,
                                  const SkStrokeRec& strokeRec,
                                  const SkIRect& resultBounds) {
     fRasterClip.setRect(resultBounds);
@@ -51,11 +52,12 @@ void RasterMaskHelper::drawShape(const Shape& shape,
     paint.setColor(SK_ColorWHITE);
     strokeRec.applyToPaint(&paint);
 
-    SkMatrix translatedMatrix = SkMatrix(transform);
-    // The atlas transform of the shape is the linear-components (scale, rotation, skew) of
-    // `localToDevice` translated by the top-left offset of the resultBounds.
+    SkMatrix translatedMatrix = SkMatrix(localToDevice);
+    // The atlas transform of the shape is `localToDevice` translated by the top-left offset of the
+    // resultBounds and the inverse of the base mask transform offset for the current set of shapes.
     // We will need to translate draws so the bound's UL corner is at the origin
-    translatedMatrix.postTranslate(resultBounds.x(), resultBounds.y());
+    translatedMatrix.postTranslate(resultBounds.x() - fTransformedMaskOffset.x(),
+                                   resultBounds.y() - fTransformedMaskOffset.y());
 
     fDraw.fCTM = &translatedMatrix;
     SkPath path = shape.asPath();

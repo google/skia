@@ -38,17 +38,18 @@ class RasterMaskHelper : SkNoncopyable {
 public:
     RasterMaskHelper(SkAutoPixmapStorage* pixels) : fPixels(pixels) {}
 
-    bool init(SkISize pixmapSize);
+    bool init(SkISize pixmapSize, skvx::float2 transformedMaskOffset);
 
     // Draw a single shape into the bitmap (as a path) at location resultBounds
     void drawShape(const Shape& shape,
-                   const Transform& transform,
+                   const Transform& localToDevice,
                    const SkStrokeRec& strokeRec,
                    const SkIRect& resultBounds);
 
 private:
     SkAutoPixmapStorage* fPixels;
     SkDrawBase           fDraw;
+    skvx::float2         fTransformedMaskOffset = {0};
     SkRasterClip         fRasterClip;
 };
 

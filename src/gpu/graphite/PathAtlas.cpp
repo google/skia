@@ -55,15 +55,16 @@ std::pair<const Renderer*, std::optional<PathAtlas::MaskAndOrigin>> PathAtlas::a
     // This size does *not* include any padding that the atlas may place around the mask. This size
     // represents the area the shape can actually modify.
     maskInfo.fMaskSize = emptyMask ? skvx::half2(0) : skvx::cast<uint16_t>(maskBounds.size());
-    // We use the origin of the mask bounds to distinguish between clips of the same size.
+    // We use the origin of the clipped mask bounds relative to the full mask to distinguish
+    // between clips of the same size.
     Rect shapeDevBounds = localToDevice.mapRect(shape.bounds());
-    skvx::float2 shapeMaskOrigin = maskBounds.topLeft() - shapeDevBounds.topLeft();
-    Transform atlasTransform = localToDevice.postTranslate(-maskBounds.left(), -maskBounds.top());
+    skvx::float2 clippedMaskOrigin = maskBounds.topLeft() - shapeDevBounds.topLeft();
     const TextureProxy* atlasProxy = this->onAddShape(shape,
-                                                      atlasTransform,
+                                                      localToDevice,
                                                       style,
-                                                      skvx::cast<uint16_t>(shapeMaskOrigin),
+                                                      skvx::cast<uint16_t>(clippedMaskOrigin),
                                                       maskInfo.fMaskSize,
+                                                      maskBounds.topLeft(),
                                                       &maskInfo.fTextureOrigin);
     if (!atlasProxy) {
         return std::make_pair(nullptr, std::nullopt);
@@ -110,13 +111,14 @@ uint32_t shape_key_list_index(const PlotLocator& locator, const DrawAtlas* drawA
 
 const TextureProxy* PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorder,
                                                                const Shape& shape,
-                                                               const Transform& transform,
+                                                               const Transform& localToDevice,
                                                                const SkStrokeRec& strokeRec,
                                                                skvx::half2 maskOrigin,
                                                                skvx::half2 maskSize,
+                                                               skvx::float2 transformedMaskOffset,
                                                                skvx::half2* outPos) {
     // Shapes must have a key to use this method
-    skgpu::UniqueKey maskKey = GeneratePathMaskKey(shape, transform, strokeRec,
+    skgpu::UniqueKey maskKey = GeneratePathMaskKey(shape, localToDevice, strokeRec,
                                                    maskOrigin, maskSize);
     AtlasLocator* cachedLocator = fShapeCache.find(maskKey);
     if (cachedLocator) {
@@ -128,8 +130,8 @@ const TextureProxy* PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorde
     }
 
     AtlasLocator locator;
-    const TextureProxy* proxy = this->addToAtlas(recorder, shape, transform, strokeRec,
-                                                 maskSize, outPos, &locator);
+    const TextureProxy* proxy = this->addToAtlas(recorder, shape, localToDevice, strokeRec,
+                                                 maskSize, transformedMaskOffset, outPos, &locator);
     if (!proxy) {
         return nullptr;
     }
@@ -147,9 +149,10 @@ const TextureProxy* PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorde
 
 const TextureProxy* PathAtlas::DrawAtlasMgr::addToAtlas(Recorder* recorder,
                                                         const Shape& shape,
-                                                        const Transform& transform,
+                                                        const Transform& localToDevice,
                                                         const SkStrokeRec& strokeRec,
                                                         skvx::half2 maskSize,
+                                                        skvx::float2 transformedMaskOffset,
                                                         skvx::half2* outPos,
                                                         AtlasLocator* locator) {
     // Render mask.
@@ -177,7 +180,8 @@ const TextureProxy* PathAtlas::DrawAtlasMgr::addToAtlas(Recorder* recorder,
         return fDrawAtlas->getProxies()[locator->pageIndex()].get();
     }
 
-    if (!this->onAddToAtlas(shape, transform, strokeRec, iShapeBounds, *locator)) {
+    if (!this->onAddToAtlas(shape, localToDevice, strokeRec, iShapeBounds, transformedMaskOffset,
+                            *locator)) {
         return nullptr;
     }
 

@@ -41,10 +41,11 @@ void RasterPathAtlas::recordUploads(DrawContext* dc) {
 }
 
 const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
-                                                const Transform& transform,
+                                                const Transform& localToDevice,
                                                 const SkStrokeRec& strokeRec,
                                                 skvx::half2 maskOrigin,
                                                 skvx::half2 maskSize,
+                                                skvx::float2 transformedMaskOffset,
                                                 skvx::half2* outPos) {
     skgpu::UniqueKey maskKey;
     bool hasKey = shape.hasKey();
@@ -55,19 +56,21 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
         if (maskSize.x() <= kMaxSmallPathSize && maskSize.y() <= kMaxSmallPathSize) {
             proxy = fSmallPathAtlasMgr.findOrCreateEntry(fRecorder,
                                                          shape,
-                                                         transform,
+                                                         localToDevice,
                                                          strokeRec,
                                                          maskOrigin,
                                                          maskSize,
+                                                         transformedMaskOffset,
                                                          outPos);
         }
         if (!proxy) {
             proxy = fCachedAtlasMgr.findOrCreateEntry(fRecorder,
                                                       shape,
-                                                      transform,
+                                                      localToDevice,
                                                       strokeRec,
                                                       maskOrigin,
                                                       maskSize,
+                                                      transformedMaskOffset,
                                                       outPos);
         }
         if (proxy) {
@@ -79,9 +82,10 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
     AtlasLocator loc;
     return fUncachedAtlasMgr.addToAtlas(fRecorder,
                                         shape,
-                                        transform,
+                                        localToDevice,
                                         strokeRec,
                                         maskSize,
+                                        transformedMaskOffset,
                                         outPos,
                                         &loc);
 }
@@ -89,9 +93,10 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
 /////////////////////////////////////////////////////////////////////////////////////////
 
 bool RasterPathAtlas::RasterAtlasMgr::onAddToAtlas(const Shape& shape,
-                                                   const Transform& transform,
+                                                   const Transform& localToDevice,
                                                    const SkStrokeRec& strokeRec,
                                                    SkIRect shapeBounds,
+                                                   skvx::float2 transformedMaskOffset,
                                                    const AtlasLocator& locator) {
     // Rasterize path to backing pixmap.
     // This pixmap will be the size of the Plot that contains the given rect, not the entire atlas,
@@ -101,12 +106,12 @@ bool RasterPathAtlas::RasterAtlasMgr::onAddToAtlas(const Shape& shape,
     SkIPoint renderPos = fDrawAtlas->prepForRender(locator, &dst);
 
     RasterMaskHelper helper(&dst);
-    if (!helper.init(fDrawAtlas->plotSize())) {
+    if (!helper.init(fDrawAtlas->plotSize(), transformedMaskOffset)) {
         return false;
     }
     // Offset to plot location and draw
     shapeBounds.offset(renderPos.x()+kEntryPadding, renderPos.y()+kEntryPadding);
-    helper.drawShape(shape, transform, strokeRec, shapeBounds);
+    helper.drawShape(shape, localToDevice, strokeRec, shapeBounds);
 
     return true;
 }
