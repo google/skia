@@ -313,10 +313,6 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
                                                size_t dstRowBytes,
                                                const Options& options,
                                                int* rowsDecoded) {
-    if (options.fSubset) {
-        return kUnimplemented;
-    }
-
     switch (dstInfo.colorType()) {
         case kRGBA_8888_SkColorType:
         case kRGB_565_SkColorType:
@@ -346,7 +342,7 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
             std::unique_ptr<crabbyavif::avifImage, decltype(&crabbyavif::crabby_avifImageDestroy)>;
 
     AvifImagePtr scaled_image{nullptr, crabbyavif::crabby_avifImageDestroy};
-    if (this->dimensions() != dstInfo.dimensions()) {
+    if (this->dimensions() != dstInfo.dimensions() && !options.fSubset) {
         // |image| contains plane pointers which point to Android MediaCodec's buffers. Those
         // buffers are read-only and hence we cannot scale in place. Make a copy of the image and
         // scale the copied image.
@@ -378,6 +374,21 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
             }
             image = cropped_image.get();
         }
+    }
+
+    AvifImagePtr subset_image{nullptr, crabbyavif::crabby_avifImageDestroy};
+    if (options.fSubset) {
+        const crabbyavif::avifCropRect rect{
+                .x = static_cast<uint32_t>(options.fSubset->x()),
+                .y = static_cast<uint32_t>(options.fSubset->y()),
+                .width = static_cast<uint32_t>(options.fSubset->width()),
+                .height = static_cast<uint32_t>(options.fSubset->height())};
+        subset_image.reset(crabbyavif::crabby_avifImageCreateEmpty());
+        result = crabbyavif::crabby_avifImageSetViewRect(subset_image.get(), image, &rect);
+        if (result != crabbyavif::AVIF_RESULT_OK) {
+            return kInvalidInput;
+        }
+        image = subset_image.get();
     }
 
     crabbyavif::avifRGBImage rgbImage;
