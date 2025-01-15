@@ -23,6 +23,8 @@ namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
 
+static constexpr uint32_t kMaxTimestamp = 0xFFFFFFFF;
+
 sk_sp<ResourceCache> ResourceCache::Make(SingleOwner* singleOwner,
                                          uint32_t recorderID,
                                          size_t maxBytes) {
@@ -31,6 +33,7 @@ sk_sp<ResourceCache> ResourceCache::Make(SingleOwner* singleOwner,
 
 ResourceCache::ResourceCache(SingleOwner* singleOwner, uint32_t recorderID, size_t maxBytes)
         : fMaxBytes(maxBytes)
+        , fIsShutdown(false)
         , fSingleOwner(singleOwner) {
     if (recorderID != SK_InvalidGenID) {
         fProxyCache = std::make_unique<ProxyCache>(recorderID);
@@ -50,10 +53,9 @@ ResourceCache::~ResourceCache() {
 void ResourceCache::shutdown() {
     ASSERT_SINGLE_OWNER
 
-    SkASSERT(!fIsShutdown);
-
     {
         SkAutoMutexExclusive locked(fReturnMutex);
+        SkASSERT(!fIsShutdown);
         fIsShutdown = true;
     }
     if (fProxyCache) {
@@ -307,7 +309,7 @@ bool ResourceCache::processReturnedResources() {
         // cache, thus we have the check here. The Resource will then get deleted when we call
         // unrefCache below to remove the cache ref added from the ReturnQueue.
         if (*resource->accessCacheIndex() != -1) {
-            this->returnResourceToCache(resource, ref);
+            this->processReturnedResource(resource, ref);
         }
         // Remove cache ref held by ReturnQueue
         resource->unrefCache();
@@ -315,7 +317,7 @@ bool ResourceCache::processReturnedResources() {
     return true;
 }
 
-void ResourceCache::returnResourceToCache(Resource* resource, LastRemovedRef removedRef) {
+void ResourceCache::processReturnedResource(Resource* resource, LastRemovedRef removedRef) {
     // A resource should not have been destroyed when placed into the return queue. Also before
     // purging any resources from the cache itself, it should always empty the queue first. When the
     // cache releases/abandons all of its resources, it first invalidates the return queue so no new
@@ -646,22 +648,6 @@ void ResourceCache::setMaxBudget(size_t bytes) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-const GraphiteResourceKey& ResourceCache::MapTraits::GetKey(const Resource& r) {
-    return r.key();
-}
-
-uint32_t ResourceCache::MapTraits::Hash(const GraphiteResourceKey& key) {
-    return key.hash();
-}
-
-bool ResourceCache::CompareTimestamp(Resource* const& a, Resource* const& b) {
-    return a->timestamp() < b->timestamp();
-}
-
-int* ResourceCache::AccessResourceIndex(Resource* const& res) {
-    return res->accessCacheIndex();
-}
 
 #ifdef SK_DEBUG
 void ResourceCache::validate() const {

@@ -15,12 +15,12 @@
 #include "src/core/SkTHash.h"
 #include "src/core/SkTMultiMap.h"
 #include "src/gpu/GpuTypesPriv.h"
+#include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 
 #if defined(GPU_TEST_UTILS)
 #include <functional>
 #endif
-#include <vector>
 
 class SkTraceMemoryDump;
 
@@ -48,23 +48,12 @@ public:
     ResourceCache& operator=(const ResourceCache&) = delete;
     ResourceCache& operator=(ResourceCache&&) = delete;
 
-    // Returns the number of resources.
-    int getResourceCount() const {
-        return fPurgeableQueue.count() + fNonpurgeableResources.size();
-    }
-
-    void insertResource(Resource*, const GraphiteResourceKey&, Budgeted, Shareable);
-
     using ScratchResourceSet = skia_private::THashSet<const Resource*>;
     // Find a resource that matches a key. If Shareable == kScratch, then `unavailable` must be
     // non-null and is used to filter the scratch resources that can fulfill this request.
     Resource* findAndRefResource(const GraphiteResourceKey& key,
                                  Budgeted, Shareable,
                                  const ScratchResourceSet* unavailable=nullptr);
-
-    // This is a thread safe call. If it fails the ResourceCache is no longer valid and the
-    // Resource should clean itself up if it is the last ref.
-    bool returnResource(Resource*, LastRemovedRef);
 
     // Purge resources not used since the passed point in time. Resources that have a gpu memory
     // size of zero will not be purged.
@@ -81,6 +70,10 @@ public:
     // is called no more Resources can be returned to the ResourceCache (besides those already in
     // the return queue). Also no new Resources can be retrieved from the ResourceCache.
     void shutdown();
+
+    ProxyCache* proxyCache() { return fProxyCache.get(); }
+
+    int getResourceCount() const { return fPurgeableQueue.count() + fNonpurgeableResources.size(); }
 
     size_t getMaxBudget() const { return fMaxBytes; }
     void setMaxBudget(size_t bytes);
@@ -109,7 +102,12 @@ public:
     void visitTextures(const std::function<void(const Texture*, bool purgeable)>&) const;
 #endif
 
-    ProxyCache* proxyCache() { return fProxyCache.get(); }
+    // This is a thread safe call. If it fails the ResourceCache is no longer valid and the
+    // Resource should clean itself up if it is the last ref.
+    bool returnResource(Resource*, LastRemovedRef);
+
+    // Registers the Resource with the cache; can only be called at the time of creation.
+    void insertResource(Resource*, const GraphiteResourceKey&, Budgeted, Shareable);
 
 private:
     ResourceCache(SingleOwner*, uint32_t recorderID, size_t maxBytes);
@@ -128,7 +126,7 @@ private:
 
     // This will return true if any resources were actually returned to the cache
     bool processReturnedResources();
-    void returnResourceToCache(Resource*, LastRemovedRef);
+    void processReturnedResource(Resource*, LastRemovedRef);
 
     uint32_t getNextTimestamp();
     void setResourceTimestamp(Resource*, uint32_t timestamp);
@@ -149,18 +147,33 @@ private:
 #endif
 
     struct MapTraits {
-        static const GraphiteResourceKey& GetKey(const Resource& r);
+        static const GraphiteResourceKey& GetKey(const Resource& r) { return r.key(); }
 
-        static uint32_t Hash(const GraphiteResourceKey& key);
+        static uint32_t Hash(const GraphiteResourceKey& key) { return key.hash(); }
         static void OnFree(Resource*) {}
     };
-    typedef SkTMultiMap<Resource, GraphiteResourceKey, MapTraits> ResourceMap;
+    using ResourceMap = SkTMultiMap<Resource, GraphiteResourceKey, MapTraits>;
 
-    static bool CompareTimestamp(Resource* const& a, Resource* const& b);
-    static int* AccessResourceIndex(Resource* const& res);
+    static bool CompareTimestamp(Resource* const& a, Resource* const& b) {
+        return a->timestamp() < b->timestamp();
+    }
+    static int* AccessResourceIndex(Resource* const& res) { return res->accessCacheIndex(); }
 
     using PurgeableQueue = SkTDPQueue<Resource*, CompareTimestamp, AccessResourceIndex>;
     using ResourceArray = SkTDArray<Resource*>;
+
+    // NOTE: every Resource held by ResourceMap, ResourceArray, and PurgeableQueue will have a cache
+    // ref keeping them alive until after their pointer has been removed.
+    PurgeableQueue fPurgeableQueue;
+    ResourceArray fNonpurgeableResources;
+    ResourceMap fResourceMap;
+
+    std::unique_ptr<ProxyCache> fProxyCache;
+
+    // Our budget
+    size_t fMaxBytes;
+    size_t fBudgetedBytes = 0;
+    size_t fPurgeableBytes = 0;
 
     // Whenever a resource is added to the cache or the result of a cache lookup, fTimestamp is
     // assigned as the resource's timestamp and then incremented. fPurgeableQueue orders the
@@ -169,29 +182,15 @@ private:
     // the end of the LRU priority queue. This will allow us to not purge these resources even when
     // we are over budget.
     uint32_t fTimestamp = 0;
-    static const uint32_t kMaxTimestamp = 0xFFFFFFFF;
 
-    PurgeableQueue fPurgeableQueue;
-    ResourceArray fNonpurgeableResources;
-    std::unique_ptr<ProxyCache> fProxyCache;
-
-    SkDEBUGCODE(int fCount = 0;)
-
-    ResourceMap fResourceMap;
-
-    // Our budget
-    size_t fMaxBytes;
-    size_t fBudgetedBytes = 0;
-
-    size_t fPurgeableBytes = 0;
-
-    SingleOwner* fSingleOwner = nullptr;
-
-    bool fIsShutdown = false;
+    bool fIsShutdown SK_GUARDED_BY(fReturnMutex);
 
     SkMutex fReturnMutex;
-    using ReturnQueue = std::vector<std::pair<Resource*, LastRemovedRef>>;
+    using ReturnQueue = skia_private::TArray<std::pair<Resource*, LastRemovedRef>>;
     ReturnQueue fReturnQueue SK_GUARDED_BY(fReturnMutex);
+
+    SingleOwner* fSingleOwner = nullptr;
+    SkDEBUGCODE(int fCount = 0;)
 };
 
 } // namespace skgpu::graphite
