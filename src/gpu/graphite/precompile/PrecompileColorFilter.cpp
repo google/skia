@@ -222,15 +222,26 @@ sk_sp<PrecompileColorFilter> PrecompileColorFilters::HSLAMatrix() {
 
 //--------------------------------------------------------------------------------------------------
 class PrecompileColorSpaceXformColorFilter : public PrecompileColorFilter {
+    inline static constexpr int kNumCombinations = 2;
+    inline static constexpr int kPremul  = 1;
+    inline static constexpr int kGeneral = 0;
+
+    int numIntrinsicCombinations() const override { return kNumCombinations; }
+
     void addToKey(const KeyContext& keyContext,
                   PaintParamsKeyBuilder* builder,
                   PipelineDataGatherer* gatherer,
                   int desiredCombination) const override {
-        SkASSERT(desiredCombination == 0);
+        SkASSERT(desiredCombination < this->numCombinations());
 
-        constexpr SkAlphaType kAlphaType = kPremul_SkAlphaType;
-        ColorSpaceTransformBlock::ColorSpaceTransformData csData(sk_srgb_singleton(), kAlphaType,
-                                                                 sk_srgb_singleton(), kAlphaType);
+        ColorSpaceTransformBlock::ColorSpaceTransformData csData =
+                desiredCombination == kPremul
+                        ? ColorSpaceTransformBlock::ColorSpaceTransformData(
+                                  nullptr, kPremul_SkAlphaType,
+                                  nullptr, kUnpremul_SkAlphaType)
+                        : ColorSpaceTransformBlock::ColorSpaceTransformData(
+                                  sk_srgb_singleton(), kPremul_SkAlphaType,
+                                  sk_srgb_linear_singleton(), kPremul_SkAlphaType);
 
         ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, csData);
     }
@@ -356,17 +367,31 @@ public:
     }
 
 private:
+    inline static constexpr int kNumCombinations = 2;
+    inline static constexpr int kPremul  = 1;
+    inline static constexpr int kGeneral = 0;
+
+    int numIntrinsicCombinations() const override { return kNumCombinations; }
+
     int numChildCombinations() const override { return fNumChildCombos; }
 
     void addToKey(const KeyContext& keyContext,
                   PaintParamsKeyBuilder* builder,
                   PipelineDataGatherer* gatherer,
                   int desiredCombination) const override {
-        SkASSERT(desiredCombination < fNumChildCombos);
+        SkASSERT(desiredCombination < this->numCombinations());
 
-        constexpr SkAlphaType kAlphaType = kPremul_SkAlphaType;
-        ColorSpaceTransformBlock::ColorSpaceTransformData csData(sk_srgb_singleton(), kAlphaType,
-                                                                 sk_srgb_singleton(), kAlphaType);
+        const int colorSpaceCombo = desiredCombination / this->numChildCombinations();
+        const int childCombo = desiredCombination % this->numChildCombinations();
+
+        ColorSpaceTransformBlock::ColorSpaceTransformData csData =
+                colorSpaceCombo == kPremul
+                        ? ColorSpaceTransformBlock::ColorSpaceTransformData(
+                                  nullptr, kPremul_SkAlphaType,
+                                  nullptr, kUnpremul_SkAlphaType)
+                        : ColorSpaceTransformBlock::ColorSpaceTransformData(
+                                  sk_srgb_singleton(), kPremul_SkAlphaType,
+                                  sk_srgb_linear_singleton(), kPremul_SkAlphaType);
 
         // Use two nested compose blocks to chain (dst->working), child, and (working->dst) together
         // while appearing as one block to the parent node.
@@ -382,7 +407,7 @@ private:
                             /* addOuterToKey= */ [&]() -> void {
                                 // Middle (outer of inner compose)
                                 AddToKey<PrecompileColorFilter>(keyContext, builder, gatherer,
-                                                                fChildOptions, desiredCombination);
+                                                                fChildOptions, childCombo);
                             });
                 },
                 /* addOuterToKey= */ [&]() -> void {

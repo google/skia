@@ -487,7 +487,9 @@ public:
         // linear srgb is the last child node.)
         const ShaderNode* toLinearSrgbNode = fNode->child(fNode->numChildren() - 2);
         SkASSERT(toLinearSrgbNode->codeSnippetId() ==
-                        (int) BuiltInCodeSnippetID::kColorSpaceXformColorFilter);
+                         (int)BuiltInCodeSnippetID::kColorSpaceXformColorFilter ||
+                 toLinearSrgbNode->codeSnippetId() ==
+                         (int)BuiltInCodeSnippetID::kColorSpaceXformPremul);
 
         ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
         args.fPriorStageOutput = SkSL::String::printf("(%s).rgb1", color.c_str());
@@ -504,7 +506,9 @@ public:
         // linear srgb is the last child node.
         const ShaderNode* fromLinearSrgbNode = fNode->child(fNode->numChildren() - 1);
         SkASSERT(fromLinearSrgbNode->codeSnippetId() ==
-                        (int) BuiltInCodeSnippetID::kColorSpaceXformColorFilter);
+                         (int)BuiltInCodeSnippetID::kColorSpaceXformColorFilter ||
+                 fromLinearSrgbNode->codeSnippetId() ==
+                         (int)BuiltInCodeSnippetID::kColorSpaceXformPremul);
 
         ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
         args.fPriorStageOutput = SkSL::String::printf("(%s).rgb1", color.c_str());
@@ -1135,6 +1139,13 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*staticFn=*/"sk_premul_alpha",
             SnippetRequirementFlags::kPriorStageOutput,
             /*uniforms=*/{}
+    };
+
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kColorSpaceXformPremul] = {
+            /*name=*/"ColorSpaceTransformPremul",
+            /*staticFn=*/"sk_color_space_transform_premul",
+            SnippetRequirementFlags::kPriorStageOutput,
+            /*uniforms=*/{ { "args", SkSLType::kHalf2 } }
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPrimitiveColor] = {

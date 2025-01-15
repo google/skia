@@ -23,13 +23,25 @@ uint32_t next_compilation_id() {
     return nextId.fetch_add(1, std::memory_order_relaxed);
 }
 
+#if defined(GPU_TEST_UTILS)
+// TODO(jamesgk): get rid of this special case once we've got color space transform shader
+// specialization more under control
+constexpr int kGlobalGraphicsPipelineCacheSizeLimit = 2048;
+constexpr int kGlobalComputePipelineCacheSizeLimit = 256;
+
+#else
+// TODO: find a good value for these limits
+constexpr int kGlobalGraphicsPipelineCacheSizeLimit = 256;
+constexpr int kGlobalComputePipelineCacheSizeLimit = 256;
+#endif
+
 } // anonymous namespce
 
 namespace skgpu::graphite {
 
 GlobalCache::GlobalCache()
-        : fGraphicsPipelineCache(256)  // TODO: find a good value for these limits
-        , fComputePipelineCache(256) {}
+        : fGraphicsPipelineCache(kGlobalGraphicsPipelineCacheSizeLimit)
+        , fComputePipelineCache(kGlobalComputePipelineCacheSizeLimit) {}
 
 GlobalCache::~GlobalCache() {
     // These should have been cleared out earlier by deleteResources().

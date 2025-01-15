@@ -118,6 +118,36 @@ $pure half4 sk_color_space_transform(half4 halfColor,
     return halfColor;
 }
 
+$pure half4 sk_color_space_transform_premul(half4 color, half2 args) {
+    // This shader can either do nothing, or perform one of three actions. These four possibilities
+    // are encoded in a half2 argument as:
+    // - identity: {0, 0}
+    // - do premul: {0, 1}
+    // - do unpremul: {-1, 0}
+    // - make opaque: {1, 0}
+    if (args.x < 0) {
+        // Unpremul case (mutually exclusive with other cases, and costly).
+        color = unpremul(color);
+
+    } else {
+        // The other cases (identity, premul, make opaque) are branchless.
+        half opaque = args.x;
+        half doPremul = args.y;
+
+        // Opaque cases:
+        //  1. No-op (opaque = 0) -> max(...) = color.a -> identity function
+        //  2. Make opaque (opaque = 1) -> max(...) = 1.0 -> make opaque
+        color.a = max(color.a, opaque);
+
+        // Premul cases:
+        //  1. No-op (doPremul = 0) -> max(...) = 1.0 -> identity function
+        //  2. Premultiply (doPremul = 1) -> max(...) = color.a -> premul
+        color.rgb = color.rgb * max(color.a, 1.0 - doPremul);
+    }
+
+    return color;
+}
+
 $pure half4 sk_circular_rrect_clip(float4 rect,
                                    float2 radiusPlusHalf,
                                    half4 edgeSelect) {
