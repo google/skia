@@ -124,6 +124,9 @@ public:
     uint32_t numActivePages() const { return fNumActivePages; }
     unsigned int numPlots() const { return fNumPlots; }
     SkISize plotSize() const { return {fPlotWidth, fPlotHeight}; }
+    uint32_t getListIndex(const PlotLocator& locator) {
+        return locator.pageIndex() * fNumPlots + locator.plotIndex();
+    }
 
     bool hasID(const PlotLocator& plotLocator) {
         if (!plotLocator.isValid()) {

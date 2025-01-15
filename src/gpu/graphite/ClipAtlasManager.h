@@ -28,9 +28,14 @@ public:
     ClipAtlasManager(Recorder* recorder);
     ~ClipAtlasManager() override = default;
 
-    std::tuple<const TextureProxy*, Rect> findClip(const UniqueKey&);
-    std::tuple<const TextureProxy*, Rect> addClip(const UniqueKey&, Rect bounds,
-                                                  const ClipStack::ElementList*);
+    const TextureProxy* findOrCreateEntry(uint32_t stackRecordID,
+                                          const ClipStack::ElementList*,
+                                          const Rect& bounds,
+                                          skvx::half2* outPos);
+    const TextureProxy* addToAtlas(const ClipStack::ElementList*,
+                                   const Rect& bounds,
+                                   skvx::half2* outPos,
+                                   AtlasLocator* locator);
 
     bool recordUploads(DrawContext* dc);
     void evict(PlotLocator) override;
@@ -42,11 +47,17 @@ private:
     Recorder* fRecorder;
     std::unique_ptr<DrawAtlas> fDrawAtlas;
 
-    // Tracks whether a clip mask is already in the DrawAtlas, and its location in the atlas
+    // Tracks whether a combined clip mask is already in the DrawAtlas and its location in the atlas
+    struct MaskHashEntry {
+        Rect fBounds;
+        AtlasLocator fLocator;
+        SK_DECLARE_INTERNAL_LLIST_INTERFACE(MaskHashEntry);
+    };
+    using MaskHashArray = SkTDArray<MaskHashEntry>;
     struct UniqueKeyHash {
         uint32_t operator()(const skgpu::UniqueKey& key) const { return key.hash(); }
     };
-    using MaskCache = skia_private::THashMap<skgpu::UniqueKey, AtlasLocator, UniqueKeyHash>;
+    using MaskCache = skia_private::THashMap<skgpu::UniqueKey, MaskHashArray, UniqueKeyHash>;
     MaskCache fMaskCache;
 
     // List of stored keys per Plot, used to invalidate cache entries.
@@ -55,6 +66,7 @@ private:
     // then iterate through the list and remove entries matching those keys from the MaskCache.
     struct MaskKeyEntry {
         skgpu::UniqueKey fKey;
+        Rect fBounds;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(MaskKeyEntry);
     };
     using MaskKeyList = SkTInternalLList<MaskKeyEntry>;

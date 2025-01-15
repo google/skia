@@ -103,12 +103,6 @@ PathAtlas::DrawAtlasMgr::DrawAtlasMgr(size_t width, size_t height,
     }
 }
 
-namespace {
-uint32_t shape_key_list_index(const PlotLocator& locator, const DrawAtlas* drawAtlas) {
-    return locator.pageIndex() * drawAtlas->numPlots() + locator.plotIndex();
-}
-}  // namespace
-
 const TextureProxy* PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorder,
                                                                const Shape& shape,
                                                                const Transform& localToDevice,
@@ -139,7 +133,7 @@ const TextureProxy* PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorde
     // Add locator to ShapeCache.
     fShapeCache.set(maskKey, locator);
     // Add key to Plot's ShapeKeyList.
-    uint32_t index = shape_key_list_index(locator.plotLocator(), fDrawAtlas.get());
+    uint32_t index = fDrawAtlas->getListIndex(locator.plotLocator());
     ShapeKeyEntry* keyEntry = new ShapeKeyEntry();
     keyEntry->fKey = maskKey;
     fKeyLists[index].addToTail(keyEntry);
@@ -197,7 +191,7 @@ bool PathAtlas::DrawAtlasMgr::recordUploads(DrawContext* dc, Recorder* recorder)
 
 void PathAtlas::DrawAtlasMgr::evict(PlotLocator plotLocator) {
     // Remove all entries for this Plot from the ShapeCache
-    uint32_t index = shape_key_list_index(plotLocator, fDrawAtlas.get());
+    uint32_t index = fDrawAtlas->getListIndex(plotLocator);
     ShapeKeyList::Iter iter;
     iter.init(fKeyLists[index], ShapeKeyList::Iter::kHead_IterStart);
     ShapeKeyEntry* currEntry;
