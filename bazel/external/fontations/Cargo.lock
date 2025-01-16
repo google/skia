@@ -62,9 +62,9 @@ dependencies = [
 
 [[package]]
 name = "font-types"
-version = "0.7.2"
+version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dda6e36206148f69fc6ecb1bb6c0dedd7ee469f3db1d0dc2045beea28430ca43"
+checksum = "11c3a23a5a151afb1f74ea797f8c300dee41eff9ee3cb1bf94ed316d860c46b3"
 dependencies = [
  "bytemuck",
 ]
