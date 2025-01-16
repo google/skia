@@ -47,6 +47,7 @@ skia_filegroup(
 skia_filegroup(
     name = "common_mac_srcs",
     srcs = [
+        "mac/MacWindowInfo.h",
         "mac/RasterWindowContext_mac.mm",
     ],
 )
@@ -91,6 +92,7 @@ skia_filegroup(
     name = "mac_ganesh_gl_srcs",
     srcs = [
         "mac/GaneshGLWindowContext_mac.mm",
+        "mac/MacWindowGLUtils.h",
     ],
 )
 
@@ -217,6 +219,7 @@ skia_objc_library(
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
         "//src/gpu/ganesh/gl/mac:mac_factory_TEST_UTIL",
         "//src/gpu/ganesh/mtl:ganesh_metal_TEST_UTIL",
+        "//tools:tool_utils",
     ],
 )
 

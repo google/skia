@@ -15,16 +15,20 @@ The destination folder for these files and symlinks are:
 load(":clang_layering_check.bzl", "generate_system_module_map")
 load(":utils.bzl", "gcs_mirror_url")
 
-# From https://github.com/llvm/llvm-project/releases/tag/llvmorg-15.0.1
+# From https://github.com/llvm/llvm-project/releases/tag/llvmorg-17.0.6
 # When updating this, don't forget to use //bazel/gcs_mirror to upload a new version.
 # go run bazel/gcs_mirror/gcs_mirror.go --url [clang_url] --sha256 [clang_sha256]
-clang_prefix_arm64 = "clang+llvm-15.0.1-arm64-apple-darwin21.0"
-clang_sha256_arm64 = "858f86d96b5e4880f69f7a583daddbf97ee94e7cffce0d53aa05cba6967f13b8"
-clang_url_arm64 = "https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.1/clang+llvm-15.0.1-arm64-apple-darwin21.0.tar.xz"
+clang_prefix_arm64 = "clang+llvm-17.0.6-arm64-apple-darwin22.0"
+clang_sha256_arm64 = "1264eb3c2a4a6d5e9354c3e5dc5cb6c6481e678f6456f36d2e0e566e9400fcad"
+clang_url_arm64 = "https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/clang+llvm-17.0.6-arm64-apple-darwin22.0.tar.xz"
+clang_ver_arm64 = "17"
 
+# No x86_64-apple binaries published by llvm-project beyond 15.
+# TODO: find a different toolchain source.
 clang_prefix_amd64 = "clang+llvm-15.0.1-x86_64-apple-darwin"
 clang_sha256_amd64 = "0b2f1a811e68d011344103274733b7670c15bbe08b2a3a5140ccad8e19d9311e"
 clang_url_amd64 = "https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.1/clang+llvm-15.0.1-x86_64-apple-darwin.tar.xz"
+clang_ver_amd64 = "15.0.1"
 
 def _get_system_sdk_path(ctx):
     res = ctx.execute(["xcrun", "--sdk", "macosx", "--show-sdk-path"])
@@ -63,10 +67,12 @@ def _download_mac_toolchain_impl(ctx):
     # https://bazel.build/rules/lib/repository_ctx#os
     # https://bazel.build/rules/lib/repository_os
     if ctx.os.arch == "aarch64":
+        clang_ver = clang_ver_arm64
         clang_url = clang_url_arm64
         clang_sha256 = clang_sha256_arm64
         clang_prefix = clang_prefix_arm64
     else:
+        clang_ver = clang_ver_amd64
         clang_url = clang_url_amd64
         clang_sha256 = clang_sha256_amd64
         clang_prefix = clang_prefix_amd64
@@ -94,7 +100,7 @@ def _download_mac_toolchain_impl(ctx):
     # It is all locations that our toolchain could find a system header.
     builtin_include_directories = [
         "include/c++/v1",
-        "lib/clang/15.0.1/include",
+        "lib/clang/" + clang_ver + "/include",
         "symlinks/xcode/MacSDK/System/Library/Frameworks",
         "symlinks/xcode/MacSDK/usr/include",
     ]
@@ -154,9 +160,11 @@ FRAMEWORK_GLOB = [
     "symlinks/xcode/MacSDK/System/Library/Frameworks/IOSurface.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/Metal.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/MetalKit.Framework/**",
+    "symlinks/xcode/MacSDK/System/Library/Frameworks/ModelIO.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/OpenGL.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/QuartzCore.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/Security.Framework/**",
+    "symlinks/xcode/MacSDK/System/Library/Frameworks/Symbols.Framework/**",
 ]
 
 filegroup(
@@ -166,7 +174,7 @@ filegroup(
     ] + glob(
         include = [
             "include/c++/v1/**",
-            "lib/clang/15.0.1/include/**",
+            "lib/clang/*/include/**",
             "symlinks/xcode/MacSDK/usr/include/**",
         ] + FRAMEWORK_GLOB,
         allow_empty = False,
@@ -187,8 +195,13 @@ filegroup(
         include = [
             # libc++.tbd and libSystem.tbd live here.
             "symlinks/xcode/MacSDK/usr/lib/*",
-        ] + FRAMEWORK_GLOB,
+        ],
         allow_empty = False,
+    ) + glob(
+        # Frameworks are SDK-dependent, and can vary between releases.
+        # We attempt to capture a super-set.
+        include = FRAMEWORK_GLOB,
+        allow_empty = True,
     ),
     visibility = ["//visibility:public"],
 )
