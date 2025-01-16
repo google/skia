@@ -62,7 +62,7 @@ void compile(const RendererProvider* rendererProvider,
 
             UniquePaintParamsID paintID = s->performsShading() ? uniqueID
                                                                : UniquePaintParamsID::InvalidID();
-            GraphicsPipelineDesc pipelineDesc(s, paintID);
+            GraphicsPipelineDesc pipelineDesc(s->renderStepID(), paintID);
 
             sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
                     keyContext.rtEffectDict(),

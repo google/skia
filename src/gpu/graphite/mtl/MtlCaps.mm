@@ -925,7 +925,7 @@ UniqueKey MtlCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineD
         UniqueKey::Builder builder(&pipelineKey, get_domain(),
                                    kMtlGraphicsPipelineKeyData32Count, "MtlGraphicsPipeline");
         // add GraphicsPipelineDesc key
-        builder[0] = pipelineDesc.renderStepID();
+        builder[0] = static_cast<uint32_t>(pipelineDesc.renderStepID());
         builder[1] = pipelineDesc.paintParamsID().asUInt();
 
         // add RenderPassDesc key
@@ -946,7 +946,7 @@ bool MtlCaps::extractGraphicsDescs(const UniqueKey& key,
                                    const RendererProvider* rendererProvider) const {
     struct UnpackedKeyData {
         // From the GraphicsPipelineDesc
-        uint32_t fRenderStepID = 0;
+        RenderStep::RenderStepID fRenderStepID = RenderStep::RenderStepID::kInvalid;
         UniquePaintParamsID fPaintParamsID;
 
         // From the RenderPassDesc
@@ -964,7 +964,8 @@ bool MtlCaps::extractGraphicsDescs(const UniqueKey& key,
 
     const uint32_t* rawKeyData = key.data();
 
-    keyData.fRenderStepID = rawKeyData[0];
+    SkASSERT(RenderStep::IsValidRenderStepID(rawKeyData[0]));
+    keyData.fRenderStepID = static_cast<RenderStep::RenderStepID>(rawKeyData[0]);
     keyData.fPaintParamsID = rawKeyData[1] ? UniquePaintParamsID(rawKeyData[1])
                                            : UniquePaintParamsID::InvalidID();
 
@@ -1011,7 +1012,7 @@ bool MtlCaps::extractGraphicsDescs(const UniqueKey& key,
     UniquePaintParamsID paintID = renderStep->performsShading() ? keyData.fPaintParamsID
                                                                 : UniquePaintParamsID::InvalidID();
 
-    *pipelineDesc = GraphicsPipelineDesc(renderStep, paintID);
+    *pipelineDesc = GraphicsPipelineDesc(renderStep->renderStepID(), paintID);
 
     return true;
 }

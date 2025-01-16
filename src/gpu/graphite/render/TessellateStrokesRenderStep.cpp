@@ -36,8 +36,6 @@
 #include "src/gpu/tessellate/WangsFormula.h"
 #include "src/sksl/SkSLString.h"
 
-#include <string_view>
-
 namespace skgpu::graphite {
 
 namespace {
@@ -90,8 +88,7 @@ static constexpr SkSpan<const Attribute> kAttributes[2] = {kAttributesWithCurveT
 }  // namespace
 
 TessellateStrokesRenderStep::TessellateStrokesRenderStep(bool infinitySupport)
-        : RenderStep("TessellateStrokesRenderStep",
-                     "",
+        : RenderStep(RenderStepID::kTessellateStrokes,
                      Flags::kRequiresMSAA | Flags::kPerformsShading,
                      /*uniforms=*/{{"affineMatrix", SkSLType::kFloat4},
                                    {"translate", SkSLType::kFloat2},

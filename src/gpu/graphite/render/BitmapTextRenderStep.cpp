@@ -35,8 +35,6 @@
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/VertexFiller.h"
 
-#include <string_view>
-
 using AtlasSubRun = sktext::gpu::AtlasSubRun;
 
 namespace skgpu::graphite {
@@ -46,24 +44,20 @@ namespace {
 // We are expecting to sample from up to 4 textures
 constexpr int kNumTextAtlasTextures = 4;
 
-std::string variant_name(skgpu::MaskFormat variant) {
+RenderStep::RenderStepID variant_id(skgpu::MaskFormat variant) {
     switch (variant) {
-        case skgpu::MaskFormat::kA8:
-            return "mask";
-        case skgpu::MaskFormat::kA565:
-            return "LCD";
-        case skgpu::MaskFormat::kARGB:
-            return "color";
-        default:
-            SkUNREACHABLE;
+        case skgpu::MaskFormat::kA8:   return RenderStep::RenderStepID::kBitmapText_Mask;
+        case skgpu::MaskFormat::kA565: return RenderStep::RenderStepID::kBitmapText_LCD;
+        case skgpu::MaskFormat::kARGB: return RenderStep::RenderStepID::kBitmapText_Color;
     }
+
+    SkUNREACHABLE;
 }
 
 }  // namespace
 
 BitmapTextRenderStep::BitmapTextRenderStep(skgpu::MaskFormat variant)
-        : RenderStep("BitmapTextRenderStep",
-                     variant_name(variant),
+        : RenderStep(variant_id(variant),
                      Flags(variant),
                      /*uniforms=*/{{"subRunDeviceMatrix", SkSLType::kFloat4x4},
                                    {"deviceToLocal"     , SkSLType::kFloat4x4},

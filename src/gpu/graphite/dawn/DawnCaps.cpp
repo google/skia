@@ -1009,7 +1009,7 @@ UniqueKey DawnCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeline
         UniqueKey::Builder builder(&pipelineKey, get_pipeline_domain(),
                                    kDawnGraphicsPipelineKeyData32Count, "DawnGraphicsPipeline");
         // Add GraphicsPipelineDesc key.
-        builder[0] = pipelineDesc.renderStepID();
+        builder[0] = static_cast<uint32_t>(pipelineDesc.renderStepID());
         builder[1] = pipelineDesc.paintParamsID().asUInt();
 
         // Add RenderPassDesc key and write swizzle (which is separate from the RenderPassDescKey
@@ -1032,8 +1032,11 @@ bool DawnCaps::extractGraphicsDescs(const UniqueKey& key,
 
     const uint32_t* rawKeyData = key.data();
 
-    const RenderStep* renderStep = rendererProvider->lookup(rawKeyData[0]);
-    *pipelineDesc = GraphicsPipelineDesc(renderStep, UniquePaintParamsID(rawKeyData[1]));
+    SkASSERT(RenderStep::IsValidRenderStepID(rawKeyData[0]));
+    RenderStep::RenderStepID renderStepID = static_cast<RenderStep::RenderStepID>(rawKeyData[0]);
+
+    SkDEBUGCODE(const RenderStep* renderStep = rendererProvider->lookup(renderStepID);)
+    *pipelineDesc = GraphicsPipelineDesc(renderStepID, UniquePaintParamsID(rawKeyData[1]));
     SkASSERT(renderStep->performsShading() == pipelineDesc->paintParamsID().isValid());
 
     uint32_t renderpassDescBits = rawKeyData[2];

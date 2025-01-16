@@ -13,7 +13,6 @@
 #include "src/gpu/graphite/ResourceTypes.h"
 
 #include <string>
-#include <string_view>
 #include <utility>
 
 namespace skgpu::graphite {
@@ -28,7 +27,7 @@ class TessellateWedgesRenderStep final : public RenderStep {
 public:
     // 'vertexBuffer' and 'indexBuffer' must have been returned by CreateVertexTemplate(), but they
     // can be shared by all instances of TessellateWedgesRenderStep.
-    TessellateWedgesRenderStep(std::string_view variantName,
+    TessellateWedgesRenderStep(RenderStepID renderStepID,
                                bool infinitySupport,
                                DepthStencilSettings depthStencilSettings,
                                StaticBufferManager* bufferManager);

@@ -28,7 +28,6 @@
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 
 #include <cstdint>
-#include <string_view>
 
 // This RenderStep is specialized to draw filled rectangles with per-edge AA.
 //
@@ -193,8 +192,7 @@ static void write_vertex_buffer(VertexWriter writer) {
 }
 
 PerEdgeAAQuadRenderStep::PerEdgeAAQuadRenderStep(StaticBufferManager* bufferManager)
-        : RenderStep("PerEdgeAAQuadRenderStep",
-                     "",
+        : RenderStep(RenderStepID::kPerEdgeAAQuad,
                      Flags::kPerformsShading | Flags::kEmitsCoverage | Flags::kOutsetBoundsForAA |
                      Flags::kUseNonAAInnerFill,
                      /*uniforms=*/{},

@@ -214,16 +214,16 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
     const char* kCases[] = {
         // Wikipedia 2018 - these are reordered from the spreadsheet
         /*  0 */ "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=41,s=4), samples: 4, swizzle: rgba) + "
-                 "TessellateWedgesRenderStep[winding] + "
+                 "TessellateWedgesRenderStep[Winding] + "
                  "(empty)",
         /*  1 */ "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=41,s=4), samples: 4, swizzle: rgba) + "
-                 "TessellateWedgesRenderStep[evenodd] + "
+                 "TessellateWedgesRenderStep[EvenOdd] + "
                  "(empty)",
         /*  2 */ "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=41,s=4), samples: 4, swizzle: rgba) + "
-                 "CoverBoundsRenderStep[non-aa-fill] + "
+                 "CoverBoundsRenderStep[NonAAFill] + "
                  "SolidColor SrcOver",
         /*  3 */ "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=41,s=4), samples: 4, swizzle: rgba) + "
-                 "CoverBoundsRenderStep[non-aa-fill] + "
+                 "CoverBoundsRenderStep[NonAAFill] + "
                  "SolidColor Src",
         /*  4 */ "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=41,s=4), samples: 4, swizzle: rgba) + "
                  "PerEdgeAAQuadRenderStep + "
@@ -232,34 +232,34 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
                  "PerEdgeAAQuadRenderStep + "
                  "LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransform ] ] SrcOver",
         /*  6 */ "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=41,s=4), samples: 4, swizzle: rgba) + "
-                 "CoverBoundsRenderStep[non-aa-fill] + "
+                 "CoverBoundsRenderStep[NonAAFill] + "
                  "LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransform ] ] SrcOver",
         /*  7 */ "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=41,s=4), samples: 4, swizzle: rgba) + "
                  "AnalyticRRectRenderStep + "
                  "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransform ] ] Dither ] SrcOver",
         /*  8 */ "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=41,s=4), samples: 4, swizzle: rgba) + "
-                 "CoverBoundsRenderStep[non-aa-fill] + "
+                 "CoverBoundsRenderStep[NonAAFill] + "
                  "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransform ] ] Dither ] SrcOver",
         /*  9 */ "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=41,s=4), samples: 4, swizzle: rgba) + "
-                 "BitmapTextRenderStep[mask] + "
+                 "BitmapTextRenderStep[Mask] + "
                  "LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransform ] ] SrcOver",
         /* 10 */ "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=41,s=4), samples: 4, swizzle: rgba) + "
-                 "BitmapTextRenderStep[mask] + "
+                 "BitmapTextRenderStep[Mask] + "
                  "SolidColor SrcOver",
         /* 11 */ "RP(color: Dawn(f=23,s=1), resolve: {}, ds: Dawn(f=39,s=1), samples: 1, swizzle: rgba) + "
                  "AnalyticRRectRenderStep + "
                  "SolidColor SrcOver",
         /* 12 */ "RP(color: Dawn(f=23,s=1), resolve: {}, ds: Dawn(f=39,s=1), samples: 1, swizzle: rgba) + "
-                 "CoverBoundsRenderStep[non-aa-fill] + "
+                 "CoverBoundsRenderStep[NonAAFill] + "
                  "SolidColor SrcOver",
         /* 13 */ "RP(color: Dawn(f=23,s=1), resolve: {}, ds: Dawn(f=39,s=1), samples: 1, swizzle: rgba) + "
                  "PerEdgeAAQuadRenderStep + "
                  "LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransform ] ] Src",
         /* 14 */ "RP(color: Dawn(f=23,s=1), resolve: {}, ds: Dawn(f=39,s=1), samples: 1, swizzle: rgba) + "
-                 "CoverBoundsRenderStep[non-aa-fill] + "
+                 "CoverBoundsRenderStep[NonAAFill] + "
                  "LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransform ] ] SrcOver",
         /* 15 */ "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=39,s=4), samples: 4, swizzle: rgba) + "
-                 "TessellateWedgesRenderStep[convex] + "
+                 "TessellateWedgesRenderStep[Convex] + "
                  "SolidColor SrcOver",
         /* 16 */ "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=39,s=4), samples: 4, swizzle: rgba) + "
                  "TessellateStrokesRenderStep + "
@@ -268,10 +268,10 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
                  "AnalyticBlurRenderStep + "
                  "Compose [ SolidColor Blend [ SolidColor Passthrough BlendModeBlender ] ] SrcOver",
         /* 18 */ "RP(color: Dawn(f=23,s=1), resolve: {}, ds: Dawn(f=39,s=1), samples: 1, swizzle: rgba) + "
-                 "CoverBoundsRenderStep[non-aa-fill] + "
+                 "CoverBoundsRenderStep[NonAAFill] + "
                  "SolidColor Src",
         /* 19 */ "RP(color: Dawn(f=23,s=1), resolve: {}, ds: Dawn(f=39,s=1), samples: 1, swizzle: rgba) + "
-                 "CoverBoundsRenderStep[non-aa-fill] + "
+                 "CoverBoundsRenderStep[NonAAFill] + "
                  "Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransform ] ] Dither ] SrcOver",
     };
 

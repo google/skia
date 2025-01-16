@@ -28,7 +28,7 @@
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 
-#include <string_view>
+#include <utility>
 
 // This RenderStep is used to render filled circular arcs and stroked circular arcs that
 // don't include the center. Currently it only supports butt caps but will be extended
@@ -125,8 +125,7 @@ static void write_vertex_buffer(VertexWriter writer) {
 }
 
 CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
-        : RenderStep("CircularArcRenderStep",
-                     "",
+        : RenderStep(RenderStepID::kCircularArc,
                      Flags::kPerformsShading | Flags::kEmitsCoverage | Flags::kOutsetBoundsForAA,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,

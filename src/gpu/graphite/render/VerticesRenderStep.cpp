@@ -30,7 +30,6 @@
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 
 #include <cstdint>
-#include <string_view>
 
 namespace skgpu::graphite {
 
@@ -69,23 +68,44 @@ static constexpr SkSpan<const Varying> kVaryings[2] = {
         /*color*/ kVaryingColor
     };
 
-std::string variant_name(PrimitiveType type, bool hasColor, bool hasTexCoords) {
-    SkASSERT(type == PrimitiveType::kTriangles || type == PrimitiveType::kTriangleStrip);
-    std::string name = (type == PrimitiveType::kTriangles ? "tris" : "tristrips");
-    if (hasColor) {
-        name += "-color";
+RenderStep::RenderStepID variant_id(PrimitiveType type, bool hasColor, bool hasTexCoords) {
+    if (type == PrimitiveType::kTriangles) {
+        if (hasColor) {
+            if (hasTexCoords) {
+                return RenderStep::RenderStepID::kVertices_TrisColorTexCoords;
+            } else {
+                return RenderStep::RenderStepID::kVertices_TrisColor;
+            }
+        } else {
+            if (hasTexCoords) {
+                return RenderStep::RenderStepID::kVertices_TrisTexCoords;
+            } else {
+                return RenderStep::RenderStepID::kVertices_Tris;
+            }
+        }
+    } else {
+        SkASSERT(type == PrimitiveType::kTriangleStrip);
+
+        if (hasColor) {
+            if (hasTexCoords) {
+                return RenderStep::RenderStepID::kVertices_TristripsColorTexCoords;
+            } else {
+                return RenderStep::RenderStepID::kVertices_TristripsColor;
+            }
+        } else {
+            if (hasTexCoords) {
+                return RenderStep::RenderStepID::kVertices_TristripsTexCoords;
+            } else {
+                return RenderStep::RenderStepID::kVertices_Tristrips;
+            }
+        }
     }
-    if (hasTexCoords) {
-        name += "-texCoords";
-    }
-    return name;
 }
 
 }  // namespace
 
 VerticesRenderStep::VerticesRenderStep(PrimitiveType type, bool hasColor, bool hasTexCoords)
-        : RenderStep("VerticesRenderStep",
-                     variant_name(type, hasColor, hasTexCoords),
+        : RenderStep(variant_id(type, hasColor, hasTexCoords),
                      hasColor ? Flags::kEmitsPrimitiveColor | Flags::kPerformsShading
                               : Flags::kPerformsShading,
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4},

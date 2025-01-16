@@ -22,13 +22,11 @@
 #include "src/gpu/graphite/geom/Shape.h"
 #include "src/gpu/graphite/geom/Transform_graphite.h"
 
-#include <string_view>
-
 namespace skgpu::graphite {
 
-CoverBoundsRenderStep::CoverBoundsRenderStep(const char* tag, DepthStencilSettings dsSettings)
-        : RenderStep("CoverBoundsRenderStep",
-                     tag,
+CoverBoundsRenderStep::CoverBoundsRenderStep(RenderStep::RenderStepID renderStepID,
+                                             DepthStencilSettings dsSettings)
+        : RenderStep(renderStepID,
                      Flags::kPerformsShading,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,

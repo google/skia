@@ -64,13 +64,13 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
         std::string name = "SingleStep[";
         name += singleStep->name();
         name += "]";
-        fRenderSteps.push_back(std::move(singleStep));
-        return Renderer(name, drawTypes, fRenderSteps.back().get());
+        return Renderer(name, drawTypes, this->assumeOwnership(std::move(singleStep)));
     };
 
     fConvexTessellatedWedges =
             makeFromStep(std::make_unique<TessellateWedgesRenderStep>(
-                                 "convex", infinitySupport, kDirectDepthGreaterPass, bufferManager),
+                                 RenderStep::RenderStepID::kTessellateWedges_Convex,
+                                 infinitySupport, kDirectDepthGreaterPass, bufferManager),
                          DrawTypeFlags::kNonSimpleShape);
     fTessellatedStrokes = makeFromStep(
             std::make_unique<TessellateStrokesRenderStep>(infinitySupport),
@@ -108,7 +108,8 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     fPerEdgeAAQuad = makeFromStep(std::make_unique<PerEdgeAAQuadRenderStep>(bufferManager),
                                   DrawTypeFlags::kSimpleShape);
     fNonAABoundsFill = makeFromStep(std::make_unique<CoverBoundsRenderStep>(
-                                            "non-aa-fill", kDirectDepthGreaterPass),
+                                            RenderStep::RenderStepID::kCoverBounds_NonAAFill,
+                                            kDirectDepthGreaterPass),
                                     DrawTypeFlags::kSimpleShape);
     fCircularArc = makeFromStep(std::make_unique<CircularArcRenderStep>(bufferManager),
                                 DrawTypeFlags::kSimpleShape);
@@ -128,8 +129,10 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     }
 
     // The tessellating path renderers that use stencil can share the cover steps.
-    auto coverFill = std::make_unique<CoverBoundsRenderStep>("regular-cover", kRegularCoverPass);
-    auto coverInverse = std::make_unique<CoverBoundsRenderStep>("inverse-cover", kInverseCoverPass);
+    auto coverFill = std::make_unique<CoverBoundsRenderStep>(
+            RenderStep::RenderStepID::kCoverBounds_RegularCover, kRegularCoverPass);
+    auto coverInverse = std::make_unique<CoverBoundsRenderStep>(
+            RenderStep::RenderStepID::kCoverBounds_InverseCover, kInverseCoverPass);
 
     for (bool evenOdd : {false, true}) {
         // These steps can be shared by regular and inverse fills
@@ -138,9 +141,11 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                 evenOdd, infinitySupport, bufferManager);
         auto stencilWedge =
                 evenOdd ? std::make_unique<TessellateWedgesRenderStep>(
-                                  "evenodd", infinitySupport, kEvenOddStencilPass, bufferManager)
+                                RenderStep::RenderStepID::kTessellateWedges_EvenOdd,
+                                infinitySupport, kEvenOddStencilPass, bufferManager)
                         : std::make_unique<TessellateWedgesRenderStep>(
-                                  "winding", infinitySupport, kWindingStencilPass, bufferManager);
+                                RenderStep::RenderStepID::kTessellateWedges_Winding,
+                                infinitySupport, kWindingStencilPass, bufferManager);
 
         for (bool inverse : {false, true}) {
             static const char* kTessVariants[4] =
@@ -162,13 +167,13 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                                                         coverStep);
         }
 
-        fRenderSteps.push_back(std::move(stencilFan));
-        fRenderSteps.push_back(std::move(stencilCurve));
-        fRenderSteps.push_back(std::move(stencilWedge));
+        this->assumeOwnership(std::move(stencilFan));
+        this->assumeOwnership(std::move(stencilCurve));
+        this->assumeOwnership(std::move(stencilWedge));
     }
 
-    fRenderSteps.push_back(std::move(coverInverse));
-    fRenderSteps.push_back(std::move(coverFill));
+    this->assumeOwnership(std::move(coverInverse));
+    this->assumeOwnership(std::move(coverFill));
 
     // Fill out 'fRenderers' by iterating the "span" from fStencilTessellatedCurves to fRenderers
     // and checking if they've been skipped or not.
@@ -182,15 +187,6 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
 #ifdef SK_ENABLE_VELLO_SHADERS
     fVelloRenderer = std::make_unique<VelloRenderer>(caps);
 #endif
-}
-
-const RenderStep* RendererProvider::lookup(uint32_t uniqueID) const {
-    for (auto&& rs : fRenderSteps) {
-        if (rs->uniqueID() == uniqueID) {
-            return rs.get();
-        }
-    }
-    return nullptr;
 }
 
 } // namespace skgpu::graphite

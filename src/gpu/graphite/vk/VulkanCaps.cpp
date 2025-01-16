@@ -1513,7 +1513,7 @@ UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeli
 
         int idx = 0;
         // Add GraphicsPipelineDesc information
-        builder[idx++] = pipelineDesc.renderStepID();
+        builder[idx++] = static_cast<uint32_t>(pipelineDesc.renderStepID());
         builder[idx++] = pipelineDesc.paintParamsID().asUInt();
         // Add RenderPass info relevant for pipeline creation that's not captured in RenderPass keys
         builder[idx++] = renderPassDesc.fWriteSwizzle.asKey();

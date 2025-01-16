@@ -35,8 +35,6 @@
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/VertexFiller.h"
 
-#include <string_view>
-
 #if defined(SK_GAMMA_APPLY_TO_A8)
 #include "include/private/base/SkCPUTypes.h"
 #include "src/core/SkMaskGamma.h"
@@ -53,8 +51,7 @@ constexpr int kNumSDFAtlasTextures = 4;
 }  // namespace
 
 SDFTextRenderStep::SDFTextRenderStep()
-        : RenderStep("SDFTextRenderStep",
-                     "",
+        : RenderStep(RenderStepID::kSDFText,
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage,
                      /*uniforms=*/{{"subRunDeviceMatrix", SkSLType::kFloat4x4},
                                    {"deviceToLocal", SkSLType::kFloat4x4},

@@ -33,7 +33,6 @@
 #include "src/gpu/graphite/render/CommonDepthStencilSettings.h"
 
 #include <cstdint>
-#include <string_view>
 
 // This RenderStep is flexible and can draw filled rectangles, filled quadrilaterals with per-edge
 // AA, filled rounded rectangles with arbitrary corner radii, stroked rectangles with any join,
@@ -360,8 +359,7 @@ static void write_vertex_buffer(VertexWriter writer) {
 }
 
 AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferManager)
-        : RenderStep("AnalyticRRectRenderStep",
-                     "",
+        : RenderStep(RenderStepID::kAnalyticRRect,
                      Flags::kPerformsShading | Flags::kEmitsCoverage | Flags::kOutsetBoundsForAA |
                      Flags::kUseNonAAInnerFill,
                      /*uniforms=*/{},

@@ -38,8 +38,6 @@
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/VertexFiller.h"
 
-#include <string_view>
-
 namespace skgpu::graphite {
 
 namespace {
@@ -50,8 +48,7 @@ constexpr int kNumSDFAtlasTextures = 4;
 }  // namespace
 
 SDFTextLCDRenderStep::SDFTextLCDRenderStep()
-        : RenderStep("SDFTextLCDRenderStep",
-                     "",
+        : RenderStep(RenderStepID::kSDFTextLCD,
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage |
                      Flags::kLCDCoverage,
                      /*uniforms=*/{{"subRunDeviceMatrix", SkSLType::kFloat4x4},

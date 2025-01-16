@@ -509,7 +509,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             const bool performsShading = draw.fPaintParams.has_value() && step->performsShading();
 
             GraphicsPipelineCache::Index pipelineIndex = pipelineCache.insert(
-                    {step, performsShading ? shaderID : UniquePaintParamsID::InvalidID()});
+                    { step->renderStepID(),
+                      performsShading ? shaderID : UniquePaintParamsID::InvalidID() });
 
             gatherer.resetWithNewLayout(uniformLayout);
             step->writeUniformsAndTextures(draw.fDrawParams, &gatherer);
