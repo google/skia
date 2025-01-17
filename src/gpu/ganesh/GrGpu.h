@@ -408,6 +408,8 @@ public:
             const skia_private::TArray<GrSurfaceProxy*, true>& sampledProxies,
             GrXferBarrierFlags renderPassXferBarriers);
 
+    int getCurrentSubmitRenderPassCount() const { return fCurrentSubmitRenderPassCount; }
+
     // Called by GrDrawingManager when flushing.
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also
     // insert any numSemaphore semaphores on the gpu and set the backendSemaphores to match the
@@ -902,9 +904,7 @@ private:
 
     bool fOOMed = false;
 
-#if SK_HISTOGRAMS_ENABLED
     int fCurrentSubmitRenderPassCount = 0;
-#endif
 
     using INHERITED = SkRefCnt;
 };

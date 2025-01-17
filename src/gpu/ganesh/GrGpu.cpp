@@ -749,9 +749,7 @@ GrOpsRenderPass* GrGpu::getOpsRenderPass(
         const GrOpsRenderPass::StencilLoadAndStoreInfo& stencilInfo,
         const TArray<GrSurfaceProxy*, true>& sampledProxies,
         GrXferBarrierFlags renderPassXferBarriers) {
-#if SK_HISTOGRAMS_ENABLED
     fCurrentSubmitRenderPassCount++;
-#endif
     fStats.incRenderPasses();
     return this->onGetOpsRenderPass(renderTarget, useMSAASurface, stencil, origin, bounds,
                                     colorInfo, stencilInfo, sampledProxies, renderPassXferBarriers);
@@ -774,6 +772,8 @@ bool GrGpu::submitToGpu(const GrSubmitInfo& info) {
 
     this->reportSubmitHistograms();
 
+    fCurrentSubmitRenderPassCount = 0;
+
     return submitted;
 }
 
@@ -786,7 +786,6 @@ void GrGpu::reportSubmitHistograms() {
     SK_HISTOGRAM_EXACT_LINEAR("SubmitRenderPasses",
                               std::min(fCurrentSubmitRenderPassCount, kMaxRenderPassBucketValue),
                               kMaxRenderPassBucketValue);
-    fCurrentSubmitRenderPassCount = 0;
 #endif
 
     this->onReportSubmitHistograms();
