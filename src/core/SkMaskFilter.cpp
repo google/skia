@@ -216,7 +216,7 @@ bool SkMaskFilterBase::filterRRect(const SkRRect& devRRect, const SkMatrix& matr
     // cannot be used, return false to allow our caller to recover and perform
     // the drawing another way.
     SkTLazy<NinePatch> patch;
-    if (kTrue_FilterReturn != this->filterRRectToNine(devRRect, matrix,
+    if (FilterReturn::kTrue != this->filterRRectToNine(devRRect, matrix,
                                                       clip.getBounds(),
                                                       &patch)) {
         SkASSERT(!patch.isValid());
@@ -238,16 +238,16 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath, const SkMatrix& matrix,
         SkTLazy<NinePatch> patch;
 
         switch (this->filterRectsToNine(rects, rectCount, matrix, clip.getBounds(), &patch)) {
-            case kFalse_FilterReturn:
+            case FilterReturn::kFalse:
                 SkASSERT(!patch.isValid());
                 return false;
 
-            case kTrue_FilterReturn:
+            case FilterReturn::kTrue:
                 draw_nine(patch->fMask, patch->fOuterRect, patch->fCenter, 1 == rectCount, clip,
                           blitter);
                 return true;
 
-            case kUnimplemented_FilterReturn:
+            case FilterReturn::kUnimplemented:
                 SkASSERT(!patch.isValid());
                 // fall out
                 break;
@@ -293,13 +293,13 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath, const SkMatrix& matrix,
 SkMaskFilterBase::FilterReturn
 SkMaskFilterBase::filterRRectToNine(const SkRRect&, const SkMatrix&,
                                     const SkIRect& clipBounds, SkTLazy<NinePatch>*) const {
-    return kUnimplemented_FilterReturn;
+    return FilterReturn::kUnimplemented;
 }
 
 SkMaskFilterBase::FilterReturn
 SkMaskFilterBase::filterRectsToNine(const SkRect[], int count, const SkMatrix&,
                                     const SkIRect& clipBounds, SkTLazy<NinePatch>*) const {
-    return kUnimplemented_FilterReturn;
+    return FilterReturn::kUnimplemented;
 }
 
 void SkMaskFilterBase::computeFastBounds(const SkRect& src, SkRect* dst) const {

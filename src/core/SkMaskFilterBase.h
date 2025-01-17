@@ -116,10 +116,10 @@ public:
 protected:
     SkMaskFilterBase() {}
 
-    enum FilterReturn {
-        kFalse_FilterReturn,
-        kTrue_FilterReturn,
-        kUnimplemented_FilterReturn
+    enum class FilterReturn {
+        kFalse,
+        kTrue,
+        kUnimplemented,
     };
 
     class NinePatch : ::SkNoncopyable {
@@ -137,9 +137,9 @@ protected:
     /**
      *  Override if your subclass can filter a rect, and return the answer as
      *  a ninepatch mask to be stretched over the returned outerRect. On success
-     *  return kTrue_FilterReturn. On failure (e.g. out of memory) return
-     *  kFalse_FilterReturn. If the normal filterMask() entry-point should be
-     *  called (the default) return kUnimplemented_FilterReturn.
+     *  return FilterReturn::kTrue. On failure (e.g. out of memory) return
+     *  FilterReturn::kFalse. If the normal filterMask() entry-point should be
+     *  called (the default) return FilterReturn::kUnimplemented.
      *
      *  By convention, the caller will take the center rol/col from the returned
      *  mask as the slice it can replicate horizontally and vertically as we

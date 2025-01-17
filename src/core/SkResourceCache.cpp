@@ -463,7 +463,6 @@ void SkResourceCache::checkMessages() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkResourceCache* gResourceCache = nullptr;
 static SkMutex& resource_cache_mutex() {
     static SkMutex& mutex = *(new SkMutex);
     return mutex;
@@ -473,8 +472,9 @@ static SkMutex& resource_cache_mutex() {
 static SkResourceCache* get_cache() {
     // resource_cache_mutex() is always held when this is called, so we don't need to be fancy in here.
     resource_cache_mutex().assertHeld();
+    static SkResourceCache* gResourceCache = nullptr;
     if (nullptr == gResourceCache) {
-#ifdef SK_USE_DISCARDABLE_SCALEDIMAGECACHE
+#if defined(SK_USE_DISCARDABLE_SCALEDIMAGECACHE)
         gResourceCache = new SkResourceCache(SkDiscardableMemory::Create);
 #else
         gResourceCache = new SkResourceCache(SK_DEFAULT_IMAGE_CACHE_LIMIT);

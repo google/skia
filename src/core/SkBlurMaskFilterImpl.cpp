@@ -242,8 +242,6 @@ static SkCachedData* add_cached_rects(SkMaskBuilder* mask, SkScalar sigma, SkBlu
     return cache;
 }
 
-static const bool c_analyticBlurRRect{true};
-
 SkMaskFilterBase::FilterReturn
 SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& matrix,
                                         const SkIRect& clipBounds,
@@ -252,16 +250,16 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     switch (rrect.getType()) {
         case SkRRect::kEmpty_Type:
             // Nothing to draw.
-            return kFalse_FilterReturn;
+            return FilterReturn::kFalse;
 
         case SkRRect::kRect_Type:
             // We should have caught this earlier.
-            SkASSERT(false);
-            [[fallthrough]];
+            SkDEBUGFAIL("Should use a different special case");
+            return FilterReturn::kUnimplemented;
         case SkRRect::kOval_Type:
             // The nine patch special case does not handle ovals, and we
             // already have code for rectangles.
-            return kUnimplemented_FilterReturn;
+            return FilterReturn::kUnimplemented;
 
         // These three can take advantage of this fast path.
         case SkRRect::kSimple_Type:
@@ -273,32 +271,29 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     // TODO: report correct metrics for innerstyle, where we do not grow the
     // total bounds, but we do need an inset the size of our blur-radius
     if (kInner_SkBlurStyle == fBlurStyle) {
-        return kUnimplemented_FilterReturn;
+        return FilterReturn::kUnimplemented;
     }
 
     // TODO: take clipBounds into account to limit our coordinates up front
     // for now, just skip too-large src rects (to take the old code path).
     if (rect_exceeds(rrect.rect(), SkIntToScalar(32767))) {
-        return kUnimplemented_FilterReturn;
+        return FilterReturn::kUnimplemented;
     }
 
     SkIPoint margin;
     SkMaskBuilder srcM(nullptr, rrect.rect().roundOut(), 0, SkMask::kA8_Format), dstM;
 
-    bool filterResult = false;
-    if (c_analyticBlurRRect) {
-        // special case for fast round rect blur
-        // don't actually do the blur the first time, just compute the correct size
-        filterResult = this->filterRRectMask(&dstM, rrect, matrix, &margin,
-                                             SkMaskBuilder::kJustComputeBounds_CreateMode);
-    }
+    // special case for fast round rect blur
+    // don't actually do the blur the first time, just compute the correct size
+    bool filterResult = this->filterRRectMask(&dstM, rrect, matrix, &margin,
+                                              SkMaskBuilder::kJustComputeBounds_CreateMode);
 
     if (!filterResult) {
         filterResult = this->filterMask(&dstM, srcM, matrix, &margin);
     }
 
     if (!filterResult) {
-        return kFalse_FilterReturn;
+        return FilterReturn::kFalse;
     }
 
     // Now figure out the appropriate width and height of the smaller round rectangle
@@ -319,7 +314,7 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     const SkScalar totalSmallWidth = leftUnstretched + rightUnstretched + stretchSize;
     if (totalSmallWidth >= rrect.rect().width()) {
         // There is no valid piece to stretch.
-        return kUnimplemented_FilterReturn;
+        return FilterReturn::kUnimplemented;
     }
 
     const SkScalar topUnstretched = std::max(UL.fY, UR.fY) + SkIntToScalar(2 * margin.fY);
@@ -328,7 +323,7 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     const SkScalar totalSmallHeight = topUnstretched + bottomUnstretched + stretchSize;
     if (totalSmallHeight >= rrect.rect().height()) {
         // There is no valid piece to stretch.
-        return kUnimplemented_FilterReturn;
+        return FilterReturn::kUnimplemented;
     }
 
     SkRect smallR = SkRect::MakeWH(totalSmallWidth, totalSmallHeight);
@@ -346,21 +341,18 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     SkCachedData* cache = find_cached_rrect(&cachedMask, sigma, fBlurStyle, smallRR);
     if (!cache) {
         SkMaskBuilder filterM;
-        bool analyticBlurWorked = false;
-        if (c_analyticBlurRRect) {
-            analyticBlurWorked =
+        bool analyticBlurWorked =
                 this->filterRRectMask(&filterM, smallRR, matrix, &margin,
                                       SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode);
-        }
 
         if (!analyticBlurWorked) {
             if (!draw_rrect_into_mask(smallRR, &srcM)) {
-                return kFalse_FilterReturn;
+                return FilterReturn::kFalse;
             }
             SkAutoMaskFreeImage amf(srcM.image());
 
             if (!this->filterMask(&filterM, srcM, matrix, &margin)) {
-                return kFalse_FilterReturn;
+                return FilterReturn::kFalse;
             }
         }
         cache = add_cached_rrect(&filterM, sigma, fBlurStyle, smallRR);
@@ -374,11 +366,8 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
                 SkIPoint{SkScalarCeilToInt(leftUnstretched) + 1,
                          SkScalarCeilToInt(topUnstretched) + 1},
                 cache); // transfer ownership to patch
-    return kTrue_FilterReturn;
+    return FilterReturn::kTrue;
 }
-
-// Use the faster analytic blur approach for ninepatch rects
-static const bool c_analyticBlurNinepatch{true};
 
 SkMaskFilterBase::FilterReturn
 SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
@@ -386,26 +375,26 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
                                         const SkIRect& clipBounds,
                                         SkTLazy<NinePatch>* patch) const {
     if (count < 1 || count > 2) {
-        return kUnimplemented_FilterReturn;
+        return FilterReturn::kUnimplemented;
     }
 
     // TODO: report correct metrics for innerstyle, where we do not grow the
     // total bounds, but we do need an inset the size of our blur-radius
     if (kInner_SkBlurStyle == fBlurStyle || kOuter_SkBlurStyle == fBlurStyle) {
-        return kUnimplemented_FilterReturn;
+        return FilterReturn::kUnimplemented;
     }
 
     // TODO: take clipBounds into account to limit our coordinates up front
     // for now, just skip too-large src rects (to take the old code path).
     if (rect_exceeds(rects[0], SkIntToScalar(32767))) {
-        return kUnimplemented_FilterReturn;
+        return FilterReturn::kUnimplemented;
     }
 
     SkIPoint margin;
     SkMaskBuilder srcM(nullptr, rects[0].roundOut(), 0, SkMask::kA8_Format), dstM;
 
     bool filterResult = false;
-    if (count == 1 && c_analyticBlurNinepatch) {
+    if (count == 1) {
         // special case for fast rect blur
         // don't actually do the blur the first time, just compute the correct size
         filterResult = this->filterRectMask(&dstM, rects[0], matrix, &margin,
@@ -415,7 +404,7 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
     }
 
     if (!filterResult) {
-        return kFalse_FilterReturn;
+        return FilterReturn::kFalse;
     }
 
     /*
@@ -461,13 +450,13 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
     if (dx < 0 || dy < 0) {
         // we're too small, relative to our blur, to break into nine-patch,
         // so we ask to have our normal filterMask() be called.
-        return kUnimplemented_FilterReturn;
+        return FilterReturn::kUnimplemented;
     }
 
     smallR[0].setLTRB(rects[0].left(),       rects[0].top(),
                       rects[0].right() - dx, rects[0].bottom() - dy);
     if (smallR[0].width() < 2 || smallR[0].height() < 2) {
-        return kUnimplemented_FilterReturn;
+        return FilterReturn::kUnimplemented;
     }
     if (2 == count) {
         smallR[1].setLTRB(rects[1].left(), rects[1].top(),
@@ -480,20 +469,20 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
     SkCachedData* cache = find_cached_rects(&cachedMask, sigma, fBlurStyle, smallR, count);
     if (!cache) {
         SkMaskBuilder filterM;
-        if (count > 1 || !c_analyticBlurNinepatch) {
+        if (count > 1) {
             if (!draw_rects_into_mask(smallR, count, &srcM)) {
-                return kFalse_FilterReturn;
+                return FilterReturn::kFalse;
             }
 
             SkAutoMaskFreeImage amf(srcM.image());
 
             if (!this->filterMask(&filterM, srcM, matrix, &margin)) {
-                return kFalse_FilterReturn;
+                return FilterReturn::kFalse;
             }
         } else {
             if (!this->filterRectMask(&filterM, smallR[0], matrix, &margin,
                                       SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode)) {
-                return kFalse_FilterReturn;
+                return FilterReturn::kFalse;
             }
         }
         cache = add_cached_rects(&filterM, sigma, fBlurStyle, smallR, count);
@@ -503,7 +492,7 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
     bounds.offsetTo(0, 0);
     patch->init(SkMask{cachedMask->fImage, bounds, cachedMask->fRowBytes, cachedMask->fFormat},
                 dstM.fBounds, center, cache); // transfer ownership to patch
-    return kTrue_FilterReturn;
+    return FilterReturn::kTrue;
 }
 
 void SkBlurMaskFilterImpl::computeFastBounds(const SkRect& src,
