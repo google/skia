@@ -62,6 +62,7 @@ skia_cc_library(
         "//tools/gpu:__pkg__",
         "//tools/testrunners/benchmark:__pkg__",
     ],
+    deps = ["//src/base"],
 )
 
 skia_objc_library(
@@ -69,6 +70,7 @@ skia_objc_library(
     srcs = ["AutoreleasePool.mm"],
     hdrs = ["AutoreleasePool.h"],
     visibility = ["//tools/gpu:__pkg__"],
+    deps = ["//src/base"],
 )
 
 skia_cc_library(

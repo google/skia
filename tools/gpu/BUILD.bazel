@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_objc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -36,6 +36,12 @@ skia_cc_library(
         "//src/core:core_priv",
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
     ],
+)
+
+# OpenGL needed for CreatePlatformGLTestContext_mac.cpp (which is included as a filegroup).
+skia_objc_library(
+    name = "ganesh_gl_utils_frameworks",
+    sdk_frameworks = ["OpenGL"],
 )
 
 skia_cc_library(
@@ -91,6 +97,7 @@ skia_cc_library(
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
     ] + select({
         "@platforms//os:macos": [
+            ":ganesh_gl_utils_frameworks",
             "//src/gpu/ganesh/gl/mac:mac_factory_TEST_UTIL",
             "//tools:autorelease_pool_objc",
         ],

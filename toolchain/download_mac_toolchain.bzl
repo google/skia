@@ -140,16 +140,22 @@ filegroup(
 FRAMEWORK_GLOB = [
     "symlinks/xcode/MacSDK/System/Library/Frameworks/AppKit.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/ApplicationServices.Framework/**",
+    "symlinks/xcode/MacSDK/System/Library/Frameworks/AVFAudio.Framework/**",
+    "symlinks/xcode/MacSDK/System/Library/Frameworks/AVFoundation.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/Carbon.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/CFNetwork.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/CloudKit.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/Cocoa.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/ColorSync.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/CoreData.Framework/**",
+    "symlinks/xcode/MacSDK/System/Library/Frameworks/CoreAudio.Framework/**",
+    "symlinks/xcode/MacSDK/System/Library/Frameworks/CoreAudioTypes.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/CoreFoundation.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/CoreGraphics.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/CoreImage.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/CoreLocation.Framework/**",
+    "symlinks/xcode/MacSDK/System/Library/Frameworks/CoreMedia.Framework/**",
+    "symlinks/xcode/MacSDK/System/Library/Frameworks/CoreMIDI.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/CoreServices.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/CoreText.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/CoreVideo.Framework/**",
@@ -165,6 +171,7 @@ FRAMEWORK_GLOB = [
     "symlinks/xcode/MacSDK/System/Library/Frameworks/QuartzCore.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/Security.Framework/**",
     "symlinks/xcode/MacSDK/System/Library/Frameworks/Symbols.Framework/**",
+    "symlinks/xcode/MacSDK/System/Library/Frameworks/UniformTypeIdentifiers.framework/**",
 ]
 
 filegroup(
@@ -176,8 +183,13 @@ filegroup(
             "include/c++/v1/**",
             "lib/clang/*/include/**",
             "symlinks/xcode/MacSDK/usr/include/**",
-        ] + FRAMEWORK_GLOB,
+        ],
         allow_empty = False,
+    ) + glob(
+        # Frameworks are SDK-dependent, and can vary between releases.
+        # We attempt to capture a super-set.
+        include = FRAMEWORK_GLOB,
+        allow_empty = True,
     ),
     visibility = ["//visibility:public"],
 )

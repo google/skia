@@ -1,10 +1,19 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_objc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
+
+skia_objc_library(
+    name = "audioplayer_mac",
+    srcs = ["SkAudioPlayer_mac.mm"],
+    hdrs = ["SkAudioPlayer.h"],
+    features = ["layering_check"],
+    sdk_frameworks = ["AVFoundation"],
+    deps = ["//:core"],
+)
 
 skia_cc_library(
     name = "audioplayer",
@@ -14,11 +23,16 @@ skia_cc_library(
         # TODO(fmalita): support platform-specific audio libs
         # "@platforms//os:android": ["SkAudioPlayer_oboe.cpp"],
         # "@platforms//os:linux": ["SkAudioPlayer_sfml.cpp"],
-        "@platforms//os:macos": ["SkAudioPlayer_mac.cpp"],
+        "@platforms//os:macos": [],
         "//conditions:default": ["SkAudioPlayer_none.cpp"],
     }),
     hdrs = ["SkAudioPlayer.h"],
     features = ["layering_check"],
     visibility = ["//tools/viewer:__pkg__"],
-    deps = ["//:core"],
+    deps = [
+        "//:core",
+    ] + select({
+        "@platforms//os:macos": [":audioplayer_mac"],
+        "//conditions:default": [],
+    }),
 )
