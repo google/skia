@@ -101,7 +101,9 @@ def _download_mac_toolchain_impl(ctx):
     builtin_include_directories = [
         "include/c++/v1",
         "lib/clang/" + clang_ver + "/include",
-        "symlinks/xcode/MacSDK/System/Library/Frameworks",
+        # Frameworks is a symlink, and the trailing slash is intentional
+        # (to ensure traversal in generate_system_module_map.sh's find).
+        "symlinks/xcode/MacSDK/System/Library/Frameworks/",
         "symlinks/xcode/MacSDK/usr/include",
     ]
 

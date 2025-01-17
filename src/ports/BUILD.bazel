@@ -206,8 +206,7 @@ skia_objc_library(
         "//include/ports:coretext_fontmgr_hdrs",
     ],
     defines = ["SK_FONTMGR_CORETEXT_AVAILABLE"],
-    # TODO: frameworks are not module-mapped.
-    # features = ["layering_check"],
+    features = ["layering_check"],
     ios_frameworks = [
         "CoreText",
         "CoreGraphics",
@@ -419,8 +418,7 @@ skia_objc_library(
         ":typeface_mac_hdrs",
         "//include/ports:mac_typeface",
     ],
-    # TODO: frameworks are not module-mapped.
-    # features = ["layering_check"],
+    features = ["layering_check"],
     ios_frameworks = [
         "CoreFoundation",
         "CoreGraphics",
