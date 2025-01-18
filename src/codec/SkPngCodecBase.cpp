@@ -77,8 +77,10 @@ bool SkPngCodecBase::isCompatibleColorProfileAndType(const SkEncodedInfo::ICCPro
     return true;
 }
 
-SkPngCodecBase::SkPngCodecBase(SkEncodedInfo&& encodedInfo, std::unique_ptr<SkStream> stream)
-        : SkCodec(std::move(encodedInfo), ToPixelFormat(encodedInfo), std::move(stream)) {}
+SkPngCodecBase::SkPngCodecBase(SkEncodedInfo&& encodedInfo,
+                               std::unique_ptr<SkStream> stream,
+                               SkEncodedOrigin origin)
+        : SkCodec(std::move(encodedInfo), ToPixelFormat(encodedInfo), std::move(stream), origin) {}
 
 SkEncodedImageFormat SkPngCodecBase::onGetEncodedFormat() const {
     return SkEncodedImageFormat::kPNG;

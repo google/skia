@@ -13,6 +13,7 @@
 #include <optional>
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/SkEncodedInfo.h"
@@ -35,7 +36,7 @@ public:
     static bool isCompatibleColorProfileAndType(const SkEncodedInfo::ICCProfile* profile,
                                                 SkEncodedInfo::Color color);
 protected:
-    SkPngCodecBase(SkEncodedInfo&&, std::unique_ptr<SkStream>);
+    SkPngCodecBase(SkEncodedInfo&&, std::unique_ptr<SkStream>, SkEncodedOrigin origin);
 
     // Initialize most fields needed by `applyXformRow`.
     //

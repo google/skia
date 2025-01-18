@@ -118,6 +118,8 @@ mod ffi {
             is_full_range: &mut bool,
         ) -> bool;
         fn try_get_gama(self: &Reader, gamma: &mut f32) -> bool;
+        fn has_exif_chunk(self: &Reader) -> bool;
+        fn get_exif_chunk(self: &Reader) -> &[u8];
         fn has_iccp_chunk(self: &Reader) -> bool;
         fn get_iccp_chunk(self: &Reader) -> &[u8];
         fn has_trns_chunk(self: &Reader) -> bool;
@@ -458,6 +460,17 @@ impl Reader {
                 true
             }
         }
+    }
+
+    /// Returns whether the `eXIf` chunk exists.
+    fn has_exif_chunk(&self) -> bool {
+        self.reader.info().exif_metadata.is_some()
+    }
+
+    /// Returns contents of the `eXIf` chunk.  Panics if there is no `eXIf`
+    /// chunk.
+    fn get_exif_chunk(&self) -> &[u8] {
+        self.reader.info().exif_metadata.as_ref().unwrap().as_ref()
     }
 
     /// Returns whether the `iCCP` chunk exists.

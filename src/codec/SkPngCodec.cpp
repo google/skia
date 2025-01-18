@@ -7,6 +7,7 @@
 
 #include "src/codec/SkPngCodec.h"
 
+#include "include/codec/SkEncodedOrigin.h"
 #include "include/codec/SkPngChunkReader.h"
 #include "include/codec/SkPngDecoder.h"
 #include "include/core/SkData.h"
@@ -904,6 +905,10 @@ void AutoCleanPng::infoCallback(size_t idatLength) {
     this->releasePngPtrs();
 }
 
+// TODO(https://crbug.com/390707316): Consider adding handling of eXIF chunks
+// for parity with Blink.
+constexpr SkEncodedOrigin kDefaultEncodedOrigin = kTopLeft_SkEncodedOrigin;
+
 SkPngCodec::SkPngCodec(SkEncodedInfo&& encodedInfo,
                        std::unique_ptr<SkStream> stream,
                        sk_sp<SkPngCompositeChunkReader> chunkReader,
@@ -911,7 +916,7 @@ SkPngCodec::SkPngCodec(SkEncodedInfo&& encodedInfo,
                        void* info_ptr,
                        std::unique_ptr<SkStream> gainmapStream,
                        std::optional<SkGainmapInfo> gainmapInfo)
-        : SkPngCodecBase(std::move(encodedInfo), std::move(stream))
+        : SkPngCodecBase(std::move(encodedInfo), std::move(stream), kDefaultEncodedOrigin)
         , fPngChunkReader(std::move(chunkReader))
         , fPng_ptr(png_ptr)
         , fInfo_ptr(info_ptr)

@@ -23,6 +23,7 @@
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkSafeMath.h"
 #include "src/codec/SkFrameHolder.h"
+#include "src/codec/SkParseEncodedOrigin.h"
 #include "src/codec/SkSwizzler.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
@@ -326,6 +327,18 @@ void blendAllRows(SkSpan<uint8_t> dstFrame,
     }
 }
 
+SkEncodedOrigin GetEncodedOrigin(const rust_png::Reader& reader) {
+    if (reader.has_exif_chunk()) {
+        rust::Slice<const uint8_t> rust_slice = reader.get_exif_chunk();
+        SkEncodedOrigin origin;
+        if (SkParseEncodedOrigin(rust_slice.data(), rust_slice.size(), &origin)) {
+            return origin;
+        }
+    }
+
+    return kTopLeft_SkEncodedOrigin;
+}
+
 }  // namespace
 
 // static
@@ -354,7 +367,8 @@ SkPngRustCodec::SkPngRustCodec(SkEncodedInfo&& encodedInfo,
                          // TODO(https://crbug.com/370522089): If/when `SkCodec` can
                          // avoid unnecessary rewinding, then stop "hiding" our stream
                          // from it.
-                         /* stream = */ nullptr)
+                         /* stream = */ nullptr,
+                         GetEncodedOrigin(*reader))
         , fReader(std::move(reader))
         , fPrivStream(std::move(stream))
         , fFrameHolder(encodedInfo.width(), encodedInfo.height()) {

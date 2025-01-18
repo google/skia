@@ -660,3 +660,19 @@ DEF_TEST(RustPngCodec_green15x15, r) {
     const SkColor kExpectedColor = SkColorSetARGB(0xFF, 0x00, 0x80, 0x00);
     AssertPixelColor(r, pixmap, 0, 0, kExpectedColor, "Expecting a dark green pixel");
 }
+
+DEF_TEST(RustPngCodec_exif_orientation, r) {
+    std::unique_ptr<SkCodec> codec = SkPngRustDecoderDecode(r, "images/F-exif-chunk-early.png");
+    if (!codec) {
+        return;
+    }
+
+    // TODO(https://crbug.com/390707316): After rolling the `png` crate's
+    // version `in skia/WORKSPACE` we need to change the test expectations below
+    // to the ones that are really correct: `kRightTop_SkEncodedOrigin`.  The
+    // assertion below checks for the current, incorrect behavior
+    // (`SkPngRustCodec` plumbs the `exif_metadata` from the `png` crate,
+    // but `png` crate's decoder doesn't populate the `exit_metadata` until
+    // https://github.com/image-rs/image-png/pull/568
+    REPORTER_ASSERT(r, codec->getOrigin() == kTopLeft_SkEncodedOrigin);
+}
