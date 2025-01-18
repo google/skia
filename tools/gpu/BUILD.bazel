@@ -42,6 +42,7 @@ skia_cc_library(
 skia_objc_library(
     name = "ganesh_gl_utils_frameworks",
     sdk_frameworks = ["OpenGL"],
+    deps = [],
 )
 
 skia_cc_library(
