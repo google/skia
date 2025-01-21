@@ -95,6 +95,43 @@ bool PopulateGainmapInfo(const crabbyavif::avifGainMap& gain_map,
     return true;
 }
 
+SkEncodedOrigin ComputeSkEncodedOrigin(const crabbyavif::avifImage& image) {
+    // |angle| * 90 specifies the angle of anti-clockwise rotation in degrees.
+    // Legal values: [0-3].
+    const int angle =
+            ((image.transformFlags & crabbyavif::AVIF_TRANSFORM_IROT) && image.irot.angle <= 3)
+                    ? image.irot.angle
+                    : 0;
+    // |axis| specifies how the mirroring is performed.
+    //   -1: No mirroring.
+    //    0: The top and bottom parts of the image are exchanged.
+    //    1: The left and right parts of the image are exchanged.
+    const int axis =
+            ((image.transformFlags & crabbyavif::AVIF_TRANSFORM_IMIR) && image.imir.axis <= 1)
+                    ? image.imir.axis
+                    : -1;
+    // The first dimension is axis (with an offset of 1). The second dimension
+    // is angle.
+    const SkEncodedOrigin kAxisAngleToSkEncodedOrigin[3][4] = {
+            // No mirroring.
+            {kTopLeft_SkEncodedOrigin,
+             kLeftBottom_SkEncodedOrigin,
+             kBottomRight_SkEncodedOrigin,
+             kRightTop_SkEncodedOrigin},
+            // Top-to-bottom mirroring. Change Top<->Bottom in the first row.
+            {kBottomLeft_SkEncodedOrigin,
+             kLeftTop_SkEncodedOrigin,
+             kTopRight_SkEncodedOrigin,
+             kRightBottom_SkEncodedOrigin},
+            // Left-to-right mirroring. Change Left<->Right in the first row.
+            {kTopRight_SkEncodedOrigin,
+             kRightBottom_SkEncodedOrigin,
+             kBottomLeft_SkEncodedOrigin,
+             kLeftTop_SkEncodedOrigin},
+    };
+    return kAxisAngleToSkEncodedOrigin[axis + 1][angle];
+}
+
 }  // namespace
 
 void AvifDecoderDeleter::operator()(crabbyavif::avifDecoder* decoder) const {
@@ -212,11 +249,12 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
             avifDecoder->compressionFormat == crabbyavif::COMPRESSION_FORMAT_AVIF
                     ? SkEncodedImageFormat::kAVIF
                     : SkEncodedImageFormat::kHEIF;
+    const SkEncodedOrigin origin = ComputeSkEncodedOrigin(*image);
     return std::unique_ptr<SkCodec>(new SkCrabbyAvifCodec(std::move(info),
                                                           std::move(stream),
                                                           std::move(data),
                                                           std::move(avifDecoder),
-                                                          kDefault_SkEncodedOrigin,
+                                                          origin,
                                                           animation,
                                                           gainmapOnly,
                                                           format));
