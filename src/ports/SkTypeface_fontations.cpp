@@ -17,6 +17,7 @@
 #include "include/core/SkStream.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/pathops/SkPathOps.h"
+#include "include/private/base/SkMutex.h"
 #include "src/base/SkScopeExit.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
@@ -398,6 +399,11 @@ public:
             const fontations_ffi::BridgeHintingInstance& hintingInstance) {
         fontations_ffi::BridgeScalerMetrics scalerMetrics;
 
+        // See https://crbug.com/390889644 - while SkScalerContexts are single-thread
+        // in general, generateYScalePathForGlyphId() can be called from a COLRv1
+        // SkDrawable as well (see generateDrawable()). For this reason access to the
+        // path extraction array needs to be made thread-safe here.
+        SkAutoMutexExclusive l(fPathMutex);
         // Keep allocations in check. The rust side pre-allocates a fixed amount,
         // and afer leaving this function, we shrink to the same amount.
         SK_AT_SCOPE_EXIT(fontations_ffi::shrink_verbs_points_if_needed(fPathVerbs, fPathPoints));
@@ -822,6 +828,7 @@ private:
     bool fDoLinearMetrics = false;
     // Keeping the path extraction target buffers around significantly avoids
     // allocation churn.
+    SkMutex fPathMutex;
     rust::Vec<uint8_t> fPathVerbs;
     rust::Vec<fontations_ffi::FfiPoint> fPathPoints;
 
