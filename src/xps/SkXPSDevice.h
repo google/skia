@@ -39,7 +39,7 @@ class GlyphRunList;
 
     The drawing context for the XPS backend.
 */
-class SkXPSDevice : public SkClipStackDevice {
+class SkXPSDevice final : public SkClipStackDevice {
 public:
     SK_SPI SkXPSDevice(SkISize);
     SK_SPI ~SkXPSDevice() override;

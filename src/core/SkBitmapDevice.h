@@ -42,7 +42,7 @@ struct SkPoint;
 struct SkRSXform;
 
 ///////////////////////////////////////////////////////////////////////////////
-class SkBitmapDevice : public SkDevice {
+class SkBitmapDevice final : public SkDevice {
 public:
     /**
      *  Construct a new device with the specified bitmap as its backend. It is
