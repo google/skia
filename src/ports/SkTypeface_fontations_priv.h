@@ -199,6 +199,7 @@ public:
         return *fBridgeNormalizedCoords;
     }
     const fontations_ffi::BridgeOutlineCollection& getOutlines() { return *fOutlines; }
+    const fontations_ffi::BridgeMappingIndex& getMappingIndex() { return *fMappingIndex; }
     SkSpan<const SkColor> getPalette() const {
         return SkSpan(reinterpret_cast<const SkColor*>(fPalette.data()), fPalette.size());
     }

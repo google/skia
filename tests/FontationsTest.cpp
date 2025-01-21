@@ -5,9 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/ports/SkTypeface_fontations.h"
+#include "src/ports/SkTypeface_FreeType.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
 
@@ -16,6 +19,8 @@
 namespace {
 const char kFontResource[] = "fonts/ahem.ttf";
 const char kTtcResource[] = "fonts/test.ttc";
+const char kNoCapHeightResource[] = "fonts/DejaVuSans.subset.ttf";
+const char kNoCapHeightNoHxResource[] = "fonts/DejaVuSans.subset_noHx.ttf";
 const char kVariableResource[] = "fonts/test_glyphs-glyf_colr_1_variable.ttf";
 constexpr size_t kNumVariableAxes = 44;
 
@@ -264,4 +269,32 @@ DEF_TEST(Fontations_VariationParameters_BufferTooSmall, reporter) {
     SkFontParameters::Variation::Axis axes[kArrayTooSmall] = {};
     REPORTER_ASSERT(reporter,
                     variableTypeface->getVariationDesignParameters(axes, kArrayTooSmall) == -1);
+}
+
+DEF_TEST(Fontations_SyntheticCapHeight, reporter) {
+    sk_sp<SkTypeface> noCapHeightTypeface(SkTypeface_Make_Fontations(
+            GetResourceAsStream(kNoCapHeightResource), SkFontArguments()));
+    sk_sp<SkTypeface> noCapHeightNoHxTypeface(SkTypeface_Make_Fontations(
+            GetResourceAsStream(kNoCapHeightNoHxResource), SkFontArguments()));
+    SkASSERT_RELEASE(noCapHeightTypeface);
+    SkASSERT_RELEASE(noCapHeightNoHxTypeface);
+
+    SkFont capHeightFont(noCapHeightTypeface);
+    SkFont capHeightFontNoHx(noCapHeightNoHxTypeface);
+
+    capHeightFont.setSize(12);
+    capHeightFontNoHx.setSize(12);
+
+    SkFontMetrics metrics;
+
+    capHeightFont.getMetrics(&metrics);
+    const SkScalar kHCharHeight = 9.0;
+    REPORTER_ASSERT(reporter, metrics.fCapHeight == kHCharHeight);
+
+    capHeightFontNoHx.getMetrics(&metrics);
+    unsigned glyphId = noCapHeightNoHxTypeface->unicharToGlyph('H');
+    REPORTER_ASSERT(reporter, glyphId == 0, "Glyph lookup for H should fail, but was: %u", glyphId);
+
+    const SkScalar kExpected = 11.138672;
+    REPORTER_ASSERT(reporter, metrics.fCapHeight == kExpected, "Metrics mismatch: %f vs. %f", kExpected, metrics.fCapHeight);
 }
