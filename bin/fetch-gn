@@ -27,19 +27,18 @@ with open(gnzip, 'wb') as f:
           OS,cpu,rev)
   f.write(urlopen(url).read())
 
-gn = 'gn.exe' if 'win32' in sys.platform else 'gn'
+gn_filename = 'gn.exe' if 'win32' in sys.platform else 'gn'
 with zipfile.ZipFile(gnzip, 'r') as f:
-  f.extract(gn, 'bin')
+  f.extract(gn_filename, 'bin')
 
-gn = os.path.join('bin', gn)
+gn_path = os.path.join('bin', gn_filename)
 
-os.chmod(gn, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
-             stat.S_IRGRP                | stat.S_IXGRP |
-             stat.S_IROTH                | stat.S_IXOTH )
+os.chmod(gn_path,
+         stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+         stat.S_IRGRP                | stat.S_IXGRP |
+         stat.S_IROTH                | stat.S_IXOTH )
 
 # We'll also copy to a path that depot_tools' GN wrapper will expect to find the binary.
-copy_path = 'buildtools/linux64/gn' if 'linux'  in sys.platform else \
-            'buildtools/mac/gn'     if 'darwin' in sys.platform else \
-            'buildtools/win/gn.exe'
-if os.path.isdir(os.path.dirname(copy_path)):
-  shutil.copy(gn, copy_path)
+depot_tools_gn_dir = os.path.join('third_party', 'gn')
+os.makedirs(depot_tools_gn_dir, exist_ok=True)
+shutil.copy(gn_path, os.path.join(depot_tools_gn_dir, gn_filename))
