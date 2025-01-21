@@ -27,6 +27,7 @@
 #include "src/core/SkBlendModePriv.h"
 #include "src/core/SkBlitter_A8.h"
 #include "src/core/SkCoreBlitters.h"
+#include "src/core/SkDrawTypes.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMemset.h"
@@ -686,7 +687,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
                              const SkMatrix& ctm,
                              const SkPaint& origPaint,
                              SkArenaAlloc* alloc,
-                             bool drawCoverage,
+                             SkDrawCoverage drawCoverage,
                              sk_sp<SkShader> clipShader,
                              const SkSurfaceProps& props) {
     SkASSERT(alloc);
@@ -727,7 +728,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     }
     SkASSERT(!paint->getColorFilter());
 
-    if (drawCoverage) {
+    if (drawCoverage == SkDrawCoverage::kYes) {
         if (device.colorType() == kAlpha_8_SkColorType) {
             SkASSERT(!paint->getShader());
             SkASSERT(paint->isSrcOver());

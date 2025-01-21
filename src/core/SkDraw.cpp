@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkDraw.h"
+
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkMatrix.h"
@@ -25,7 +27,7 @@
 #include "src/base/SkTLazy.h"
 #include "src/core/SkAutoBlitterChoose.h"
 #include "src/core/SkBlitter.h"
-#include "src/core/SkDraw.h"
+#include "src/core/SkDrawTypes.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMatrixUtils.h"

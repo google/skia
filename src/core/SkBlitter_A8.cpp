@@ -15,6 +15,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/core/SkDrawTypes.h"
 #include "src/core/SkMask.h"
 
 #include <cstring>
@@ -287,7 +288,7 @@ SkBlitter* SkA8Blitter_Choose(const SkPixmap& dst,
                               const SkMatrix& ctm,
                               const SkPaint& paint,
                               SkArenaAlloc* alloc,
-                              bool drawCoverage,
+                              SkDrawCoverage drawCoverage,
                               sk_sp<SkShader> clipShader,
                               const SkSurfaceProps&) {
     if (dst.colorType() != SkColorType::kAlpha_8_SkColorType) {
@@ -300,7 +301,7 @@ SkBlitter* SkA8Blitter_Choose(const SkPixmap& dst,
         return nullptr; // would not be hard to support ...?
     }
 
-    if (drawCoverage) {
+    if (drawCoverage == SkDrawCoverage::kYes) {
         return alloc->make<SkA8_Coverage_Blitter>(dst, paint);
     } else {
         // we only support certain blendmodes...
@@ -311,4 +312,3 @@ SkBlitter* SkA8Blitter_Choose(const SkPixmap& dst,
     }
     return nullptr;
 }
-

@@ -17,6 +17,7 @@
 #include "src/core/SkAAClip.h"
 #include "src/core/SkBlitter.h"
 #include "src/core/SkDraw.h"
+#include "src/core/SkDrawTypes.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkMask.h"
@@ -50,13 +51,12 @@ static bool check_glyph_position(SkPoint position) {
 }
 
 void SkDraw::paintMasks(SkZip<const SkGlyph*, SkPoint> accepted, const SkPaint& paint) const {
-    // The size used for a typical blitter.
-    SkSTArenaAlloc<3308> alloc;
+    SkSTArenaAlloc<kSkBlitterContextSize> alloc;
     SkBlitter* blitter = SkBlitter::Choose(fDst,
                                            *fCTM,
                                            paint,
                                            &alloc,
-                                           false,
+                                           SkDrawCoverage::kNo,
                                            fRC->clipShader(),
                                            SkSurfacePropsCopyOrDefault(fProps));
 

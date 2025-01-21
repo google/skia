@@ -22,6 +22,7 @@ class SkShader;
 class SkSurfaceProps;
 struct SkIRect;
 struct SkMask;
+enum class SkDrawCoverage : bool;
 
 class SkA8_Coverage_Blitter : public SkBlitter {
 public:
@@ -40,7 +41,7 @@ SkBlitter* SkA8Blitter_Choose(const SkPixmap& dst,
                               const SkMatrix& ctm,
                               const SkPaint& paint,
                               SkArenaAlloc*,
-                              bool drawCoverage,
+                              SkDrawCoverage,
                               sk_sp<SkShader> clipShader,
                               const SkSurfaceProps&);
 

@@ -322,8 +322,11 @@ DRAW_PATH:
     this->drawPath(path, paint, nullptr, true);
 }
 
-void SkDrawBase::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawCoverage,
-                         SkBlitter* customBlitter, bool doFill) const {
+void SkDrawBase::drawDevPath(const SkPath& devPath,
+                             const SkPaint& paint,
+                             SkDrawCoverage drawCoverage,
+                             SkBlitter* customBlitter,
+                             bool doFill) const {
     if (SkPathPriv::TooBigForMath(devPath)) {
         return;
     }
@@ -381,9 +384,12 @@ void SkDrawBase::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool d
     proc(devPath, *fRC, blitter);
 }
 
-void SkDrawBase::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
-                      const SkMatrix* prePathMatrix, bool pathIsMutable,
-                      bool drawCoverage, SkBlitter* customBlitter) const {
+void SkDrawBase::drawPath(const SkPath& origSrcPath,
+                          const SkPaint& origPaint,
+                          const SkMatrix* prePathMatrix,
+                          bool pathIsMutable,
+                          SkDrawCoverage drawCoverage,
+                          SkBlitter* customBlitter) const {
     SkDEBUGCODE(this->validate();)
 
     // nothing to draw

@@ -68,6 +68,7 @@ skia_filegroup(
         "SkDrawBase.h",
         "SkDrawProcs.h",
         "SkDrawShadowInfo.h",
+        "SkDrawTypes.h",
         "SkEdgeClipper.h",
         "SkEffectPriv.h",
         "SkEnumerate.h",
