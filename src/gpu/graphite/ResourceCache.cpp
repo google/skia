@@ -341,7 +341,6 @@ void ResourceCache::processReturnedResource(Resource* resource, LastRemovedRef r
             // thread that could add an initial usage ref so it is safe to adjust its shareable type
             if (!resource->hasUsageRef()) {
                 resource->setShareable(Shareable::kNo);
-                resource->setLabel("Scratch");
             }
         } else {
             // Non-shareable resources are removed from the resource map when they are given out by
@@ -350,7 +349,6 @@ void ResourceCache::processReturnedResource(Resource* resource, LastRemovedRef r
             // Becoming purgeable always implies becoming reusable, so as long as a previous return
             // hasn't put it into the resource map already, we do that now.
             if (!resource->isAvailableForReuse()) {
-                resource->setLabel("Scratch");
                 this->addToResourceMap(resource);
                 if (resource->budgeted() == Budgeted::kNo) {
                     resource->setBudgeted(Budgeted::kYes);
