@@ -76,11 +76,11 @@ void log_map_error(wgpu::MapAsyncStatus status, wgpu::StringView message) {
         case wgpu::MapAsyncStatus::Aborted:
             statusStr = "Aborted";
             break;
-        case wgpu::MapAsyncStatus::Unknown:
-            statusStr = "Unknown";
-            break;
         case wgpu::MapAsyncStatus::Success:
             SK_ABORT("This status is not an error");
+            break;
+        default:
+            statusStr = "Unknown";
             break;
     }
     SKGPU_LOG(LogPriority::kError,
