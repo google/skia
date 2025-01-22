@@ -152,13 +152,14 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
     desc.nextInChain           = &togglesDesc;
     desc.SetDeviceLostCallback(
             wgpu::CallbackMode::AllowSpontaneous,
-            [](const wgpu::Device&, wgpu::DeviceLostReason reason, const char* message) {
+            [](const wgpu::Device&, wgpu::DeviceLostReason reason, wgpu::StringView message) {
                 if (reason != wgpu::DeviceLostReason::Destroyed) {
-                    SK_ABORT("Device lost: %s\n", message);
+                    SK_ABORT("Device lost: %.*s\n", static_cast<int>(message.length), message.data);
                 }
             });
-    desc.SetUncapturedErrorCallback([](const wgpu::Device&, wgpu::ErrorType, const char* message) {
-        SkDebugf("Device error: %s\n", message);
+    desc.SetUncapturedErrorCallback([](const wgpu::Device&, wgpu::ErrorType,
+                                       wgpu::StringView message) {
+        SkDebugf("Device error: %.*s\n", static_cast<int>(message.length), message.data);
     });
 
     wgpu::Device device = wgpu::Device::Acquire(matchedAdaptor.CreateDevice(&desc));

@@ -202,15 +202,15 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
     deviceDescriptor.nextInChain = &togglesDesc;
     deviceDescriptor.SetDeviceLostCallback(
             wgpu::CallbackMode::AllowSpontaneous,
-            [](const wgpu::Device&, wgpu::DeviceLostReason reason, const char* message) {
+            [](const wgpu::Device&, wgpu::DeviceLostReason reason, wgpu::StringView message) {
                 if (reason != wgpu::DeviceLostReason::Destroyed &&
                     reason != wgpu::DeviceLostReason::InstanceDropped) {
-                    SK_ABORT("Device lost: %s\n", message);
+                    SK_ABORT("Device lost: %.*s\n", static_cast<int>(message.length), message.data);
                 }
             });
     deviceDescriptor.SetUncapturedErrorCallback(
-            [](const wgpu::Device&, wgpu::ErrorType, const char* message) {
-                SkDebugf("Device error: %s\n", message);
+            [](const wgpu::Device&, wgpu::ErrorType, wgpu::StringView message) {
+                SkDebugf("Device error: %.*s\n", static_cast<int>(message.length), message.data);
                 SkASSERT(false);
             });
 
