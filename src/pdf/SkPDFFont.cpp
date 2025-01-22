@@ -8,7 +8,6 @@
 #include "src/pdf/SkPDFFont.h"
 
 #include "include/codec/SkCodec.h"
-#include "include/codec/SkJpegDecoder.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
@@ -35,8 +34,8 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
+#include "include/docs/SkPDFDocument.h"
 #include "include/effects/SkDashPathEffect.h"
-#include "include/encode/SkJpegEncoder.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTemplates.h"
@@ -827,21 +826,22 @@ static void emit_subset_type3(const SkPDFFont& pdfFont, SkPDFDocument* doc) {
 
                 // Convert Grey image to deferred jpeg image to emit as jpeg
                 if (pdfStrike.fHasMaskFilter) {
-                    SkJpegEncoder::Options jpegOptions;
-                    jpegOptions.fQuality = SK_PDF_MASK_QUALITY;
-                    SkImage* image = pimg.fImage.get();
-                    SkPixmap pm;
-                    SkAssertResult(image->peekPixels(&pm));
-                    SkDynamicMemoryWStream buffer;
-                    // By encoding this into jpeg, it be embedded efficiently during drawImage.
-                    if (SkJpegEncoder::Encode(&buffer, pm, jpegOptions)) {
-                        std::unique_ptr<SkCodec> codec =
-                                SkJpegDecoder::Decode(buffer.detachAsData(), nullptr);
-                        SkASSERT(codec);
-                        sk_sp<SkImage> jpegImage = SkCodecs::DeferredImage(std::move(codec));
-                        SkASSERT(jpegImage);
-                        if (jpegImage) {
-                            pimg.fImage = jpegImage;
+                    SkPDF::EncodeJpegCallback encodeJPEG = doc->metadata().jpegEncoder;
+                    SkPDF::DecodeJpegCallback decodeJPEG = doc->metadata().jpegDecoder;
+                    if (encodeJPEG && decodeJPEG) {
+                        SkImage* image = pimg.fImage.get();
+                        SkPixmap pm;
+                        SkAssertResult(image->peekPixels(&pm));
+                        SkDynamicMemoryWStream buffer;
+                        if (encodeJPEG(&buffer, pm, SK_PDF_MASK_QUALITY)) {
+                            std::unique_ptr<SkCodec> codec =
+                                    decodeJPEG(buffer.detachAsData());
+                            SkASSERT(codec);
+                            sk_sp<SkImage> jpegImage = SkCodecs::DeferredImage(std::move(codec));
+                            SkASSERT(jpegImage);
+                            if (jpegImage) {
+                                pimg.fImage = jpegImage;
+                            }
                         }
                     }
                 }

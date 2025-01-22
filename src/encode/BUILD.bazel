@@ -73,6 +73,7 @@ skia_cc_library(
         "//include/encode:icc_hdrs",
     ],
     features = ["layering_check"],
+    visibility = ["//src/pdf:__pkg__"],
     deps = [
         "//:core",
         "//modules/skcms",

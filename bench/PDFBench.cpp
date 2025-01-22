@@ -14,6 +14,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkStream.h"
+#include "include/docs/SkPDFJpegHelpers.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkRandom.h"
@@ -438,6 +439,8 @@ struct PDFBigDocBench : public Benchmark {
             #endif
             SkPDF::Metadata metadata;
             metadata.fExecutor = fExecutor.get();
+            metadata.jpegDecoder = SkPDF::JPEG::Decode;
+            metadata.jpegEncoder = SkPDF::JPEG::Encode;
             auto doc = SkPDF::MakeDocument(&wStream, metadata);
             big_pdf_test(doc.get(), fBackground);
         }

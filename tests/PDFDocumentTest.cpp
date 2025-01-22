@@ -17,6 +17,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/docs/SkPDFDocument.h"
+#include "include/docs/SkPDFJpegHelpers.h"
 #include "src/utils/SkOSPath.h"
 #include "tests/Test.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -29,7 +30,7 @@
 static void test_empty(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
 
-    auto doc = SkPDF::MakeDocument(&stream);
+    auto doc = SkPDF::MakeDocument(&stream, SkPDF::JPEG::MetadataWithCallbacks());
 
     doc->close();
 
@@ -38,7 +39,7 @@ static void test_empty(skiatest::Reporter* reporter) {
 
 static void test_abort(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
-    auto doc = SkPDF::MakeDocument(&stream);
+    auto doc = SkPDF::MakeDocument(&stream, SkPDF::JPEG::MetadataWithCallbacks());
 
     SkCanvas* canvas = doc->beginPage(100, 100);
     canvas->drawColor(SK_ColorRED);
@@ -67,7 +68,7 @@ static void test_abortWithFile(skiatest::Reporter* reporter) {
     // Make sure doc's destructor is called to flush.
     {
         SkFILEWStream stream(path.c_str());
-        auto doc = SkPDF::MakeDocument(&stream);
+        auto doc = SkPDF::MakeDocument(&stream, SkPDF::JPEG::MetadataWithCallbacks());
 
         SkCanvas* canvas = doc->beginPage(100, 100);
         canvas->drawColor(SK_ColorRED);
@@ -98,7 +99,7 @@ static void test_file(skiatest::Reporter* reporter) {
 
     {
         SkFILEWStream stream(path.c_str());
-        auto doc = SkPDF::MakeDocument(&stream);
+        auto doc = SkPDF::MakeDocument(&stream, SkPDF::JPEG::MetadataWithCallbacks());
         SkCanvas* canvas = doc->beginPage(100, 100);
 
         canvas->drawColor(SK_ColorRED);
@@ -116,7 +117,7 @@ static void test_file(skiatest::Reporter* reporter) {
 
 static void test_close(skiatest::Reporter* reporter) {
     SkDynamicMemoryWStream stream;
-    auto doc = SkPDF::MakeDocument(&stream);
+    auto doc = SkPDF::MakeDocument(&stream, SkPDF::JPEG::MetadataWithCallbacks());
 
     SkCanvas* canvas = doc->beginPage(100, 100);
     canvas->drawColor(SK_ColorRED);
@@ -139,7 +140,7 @@ DEF_TEST(SkPDF_document_tests, reporter) {
 DEF_TEST(SkPDF_document_skbug_4734, r) {
     REQUIRE_PDF_DOCUMENT(SkPDF_document_skbug_4734, r);
     SkDynamicMemoryWStream stream;
-    auto doc = SkPDF::MakeDocument(&stream);
+    auto doc = SkPDF::MakeDocument(&stream, SkPDF::JPEG::MetadataWithCallbacks());
     SkCanvas* canvas = doc->beginPage(64, 64);
     canvas->scale(10000.0f, 10000.0f);
     canvas->translate(20.0f, 10.0f);
@@ -167,6 +168,8 @@ DEF_TEST(SkPDF_pdfa_document, r) {
     pdfMetadata.fTitle = "test document";
     pdfMetadata.fCreation = {0, 1999, 12, 5, 31, 23, 59, 59};
     pdfMetadata.fPDFA = true;
+    pdfMetadata.jpegDecoder = SkPDF::JPEG::Decode;
+    pdfMetadata.jpegEncoder = SkPDF::JPEG::Encode;
 
     SkDynamicMemoryWStream buffer;
     auto doc = SkPDF::MakeDocument(&buffer, pdfMetadata);
@@ -212,6 +215,9 @@ DEF_TEST(SkPDF_unicode_metadata, r) {
     pdfMetadata.fAuthor  = "ABCDE FGHIJ"; // ASCII
     pdfMetadata.fSubject = "αβγδε ζηθικ"; // inside  basic multilingual plane
     pdfMetadata.fPDFA = true;
+    pdfMetadata.jpegDecoder = SkPDF::JPEG::Decode;
+    pdfMetadata.jpegEncoder = SkPDF::JPEG::Encode;
+
     SkDynamicMemoryWStream wStream;
     {
         auto doc = SkPDF::MakeDocument(&wStream, pdfMetadata);
@@ -244,7 +250,7 @@ DEF_TEST(SkPDF_multiple_pages, r) {
 #else
     SkDynamicMemoryWStream wStream;
 #endif
-    auto doc = SkPDF::MakeDocument(&wStream);
+    auto doc = SkPDF::MakeDocument(&wStream, SkPDF::JPEG::MetadataWithCallbacks());
     for (int i = 0; i < n; ++i) {
         doc->beginPage(612, 792)->drawColor(
                 SkColorSetARGB(0xFF, 0x00, (uint8_t)(255.0f * i / (n - 1)), 0x00));
@@ -258,7 +264,7 @@ DEF_TEST(SkPDF_abort_jobs, rep) {
     SkBitmap b;
     b.allocN32Pixels(612, 792);
     b.eraseColor(0x4F9643A0);
-    SkPDF::Metadata metadata;
+    SkPDF::Metadata metadata = SkPDF::JPEG::MetadataWithCallbacks();
     std::unique_ptr<SkExecutor> executor = SkExecutor::MakeFIFOThreadPool();
     metadata.fExecutor = executor.get();
     SkNullWStream dst;

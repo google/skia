@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -23,4 +23,17 @@ skia_filegroup(
     name = "pdf_hdrs",
     srcs = ["SkPDFDocument.h"],
     visibility = ["//src/pdf:__pkg__"],
+)
+
+skia_filegroup(
+    name = "pdf_jpeg_hdrs",
+    srcs = ["SkPDFJpegHelpers.h"],
+    visibility = ["//src/pdf:__pkg__"],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = [
+        "SkPDFJpegHelpers.h",
+    ],
 )

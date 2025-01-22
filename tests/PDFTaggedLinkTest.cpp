@@ -6,7 +6,7 @@
  */
 #include "include/core/SkTypes.h"
 
-#ifdef SK_SUPPORT_PDF
+#if defined(SK_SUPPORT_PDF)
 #include "include/core/SkAnnotation.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -22,6 +22,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
+#include "include/docs/SkPDFJpegHelpers.h"
 #include "src/pdf/SkPDFUtils.h"
 #include "tests/Test.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -52,6 +53,8 @@ DEF_TEST(SkPDF_tagged_links, r) {
     SkPDFUtils::GetDateTime(&now);
     metadata.fCreation = now;
     metadata.fModified = now;
+    metadata.jpegDecoder = SkPDF::JPEG::Decode;
+    metadata.jpegEncoder = SkPDF::JPEG::Encode;
 
     // The document tag.
     auto root = std::make_unique<PDFTag>();

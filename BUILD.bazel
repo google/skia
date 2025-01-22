@@ -241,6 +241,12 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "pdf_jpeg_helpers",
+    actual = "//src/pdf:jpeg_helpers",
+    visibility = ["//visibility:public"],
+)
+
 ###
 
 alias(

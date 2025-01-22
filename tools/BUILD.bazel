@@ -338,6 +338,7 @@ skia_cc_library(
         "//src/gpu/vk:headers_to_compile",
         "//src/gpu:headers_to_compile",
         "//src/pdf:headers_to_compile",
+        "//include/docs:headers_to_compile",
     ],
     copts = [
         # Since we are generating .cpp files for headers, some variables/functions which

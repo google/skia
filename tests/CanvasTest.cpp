@@ -57,8 +57,9 @@ class SkPicture;
 #include "include/private/SkColorData.h"
 #endif
 
-#ifdef SK_SUPPORT_PDF
+#if defined(SK_SUPPORT_PDF)
 #include "include/docs/SkPDFDocument.h"
+#include "include/docs/SkPDFJpegHelpers.h"
 #endif
 
 #if defined(SK_GANESH)
@@ -150,7 +151,7 @@ template <typename F> static void multi_canvas_driver(int w, int h, F proc) {
     proc(SkPictureRecorder().beginRecording(SkRect::MakeIWH(w, h)));
 
     SkNullWStream stream;
-    if (auto doc = SkPDF::MakeDocument(&stream)) {
+    if (auto doc = SkPDF::MakeDocument(&stream, SkPDF::JPEG::MetadataWithCallbacks())) {
         proc(doc->beginPage(SkIntToScalar(w), SkIntToScalar(h)));
     }
 
@@ -418,7 +419,7 @@ DEF_TEST(Canvas_bitmap, reporter) {
 DEF_TEST(Canvas_pdf, reporter) {
     for (const CanvasTest& test : kCanvasTests) {
         SkNullWStream outStream;
-        if (auto doc = SkPDF::MakeDocument(&outStream)) {
+        if (auto doc = SkPDF::MakeDocument(&outStream, SkPDF::JPEG::MetadataWithCallbacks())) {
             SkCanvas* canvas = doc->beginPage(SkIntToScalar(kWidth),
                                               SkIntToScalar(kHeight));
             REPORTER_ASSERT(reporter, canvas);
@@ -596,7 +597,7 @@ DEF_TEST(CanvasClipType, r) {
 #ifdef SK_SUPPORT_PDF
     // test clipstack backend
     SkDynamicMemoryWStream stream;
-    if (auto doc = SkPDF::MakeDocument(&stream)) {
+    if (auto doc = SkPDF::MakeDocument(&stream, SkPDF::JPEG::MetadataWithCallbacks())) {
         test_cliptype(doc->beginPage(100, 100), r);
     }
 #endif

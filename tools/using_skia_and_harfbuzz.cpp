@@ -21,6 +21,7 @@
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
+#include "include/docs/SkPDFJpegHelpers.h"
 #include "include/ports/SkFontMgr_empty.h"
 #include "modules/skshaper/include/SkShaper_harfbuzz.h"
 #include "modules/skshaper/include/SkShaper_skunicode.h"
@@ -239,6 +240,8 @@ static sk_sp<SkDocument> MakePDFDocument(const Config &config, SkWStream *wStrea
         pdf_info.fModified = now;
         pdf_info.fPDFA = true;
     #endif
+    pdf_info.jpegDecoder = SkPDF::JPEG::Decode;
+    pdf_info.jpegEncoder = SkPDF::JPEG::Encode;
     return SkPDF::MakeDocument(wStream, pdf_info);
 }
 
