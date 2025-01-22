@@ -683,7 +683,11 @@ protected:
     using Attribute = SkMeshSpecification::Attribute;
     using Varying = SkMeshSpecification::Varying;
 
-    SkISize getISize() override { return {270, 490}; }
+    static constexpr int kWidth = 270;
+    static constexpr int kHeight = 490;
+    static constexpr int kVerticalPadding = 10;
+
+    SkISize getISize() override { return {kWidth, kHeight}; }
 
     void onOnceBeforeDraw() override {
         static const Attribute kAttributes[]{
@@ -726,6 +730,8 @@ protected:
 
     SkString getName() const override { return SkString("mesh_updates"); }
 
+    // The top 4 rows are CPU buffers - the bottom 4 rows are GPU buffers
+    // Within each set of 4, the top 3 rows are vertex updates while the 4th row is an index update.
     DrawResult onDraw(SkCanvas* canvas, SkString* error) override {
         canvas->clear(SK_ColorBLACK);
 
@@ -743,7 +749,7 @@ protected:
         SkPaint paint;
         paint.setShader(fShader);
 
-        SkRect r = SkRect::MakeXYWH(10.f, 10.f, 50.f, 50.f);
+        const SkRect r = SkRect::MakeXYWH(10.f, 10.f, 50.f, 50.f);
 
         // We test updating CPU and GPU buffers.
         for (bool gpuBuffer : {false, true}) {
@@ -802,7 +808,7 @@ protected:
 
                 canvas->drawMesh(result.mesh, SkBlender::Mode(SkBlendMode::kDst), paint);
 
-                canvas->translate(0, r.height() + 10);
+                canvas->translate(0, r.height() + kVerticalPadding);
             }
 
             // Now test updating an IB.
@@ -867,7 +873,7 @@ protected:
 
                 canvas->drawMesh(result.mesh, SkBlender::Mode(SkBlendMode::kDst), paint);
             }
-            canvas->translate(0, r.height() + 10);
+            canvas->translate(0, r.height() + kVerticalPadding);
         }
 
         return DrawResult::kOk;
