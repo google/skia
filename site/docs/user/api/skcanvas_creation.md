@@ -31,7 +31,7 @@ canvas commands are drawn.
                 void (*draw)(SkCanvas*),
                 const char* path) {
         sk_sp<SkSurface> rasterSurface =
-                SkSurface::MakeRasterN32Premul(width, height);
+                SkSurfaces::Raster(SkImageInfo::MakeN32Premul(width, height));
         SkCanvas* rasterCanvas = rasterSurface->getCanvas();
         draw(rasterCanvas);
         sk_sp<SkImage> img(rasterSurface->makeImageSnapshot());
@@ -56,7 +56,7 @@ instead of asking Skia to manage it.
         size_t size = info.getSafeSize(rowBytes);
         std::vector<char> pixelMemory(size);  // allocate memory
         sk_sp<SkSurface> surface =
-                SkSurface::MakeRasterDirect(
+                SkSurfaces::WrapPixels(
                         info, &pixelMemory[0], rowBytes);
         SkCanvas* canvas = surface->getCanvas();
         draw(canvas);
@@ -79,7 +79,7 @@ current thread when Skia calls are made.
 
     #include "include/gpu/ganesh/GrDirectContext.h"
     #include "include/gpu/ganesh/gl/GrGLInterface.h"
-    #include "include/gpu/ganesh/gl/GrGLInterface.h"
+    #include "include/gpu/ganesh/SkSurfaceGanesh.h"
     #include "include/core/SkData.h"
     #include "include/core/SkImage.h"
     #include "include/core/SkStream.h"
@@ -95,9 +95,9 @@ current thread when Skia calls are made.
         sk_sp<GrDirectContext> context = GrDirectContexts::MakeGL(interface);
         SkImageInfo info = SkImageInfo:: MakeN32Premul(width, height);
         sk_sp<SkSurface> gpuSurface(
-                SkSurface::MakeRenderTarget(context.get(), skgpu::Budgeted::kNo, info));
+                SkSurfaces::RenderTarget(context.get(), skgpu::Budgeted::kNo, info));
         if (!gpuSurface) {
-            SkDebugf("SkSurface::MakeRenderTarget returned null\n");
+            SkDebugf("SkSurfaces::RenderTarget returned null\n");
             return;
         }
         SkCanvas* gpuCanvas = gpuSurface->getCanvas();
