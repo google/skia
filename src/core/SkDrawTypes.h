@@ -8,6 +8,8 @@
 #ifndef SkDrawTypes_DEFINED
 #define SkDrawTypes_DEFINED
 
+#include <cstddef>
+
 enum class SkDrawCoverage : bool {
     kNo = false,
     kYes = true,

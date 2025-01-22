@@ -528,6 +528,7 @@ generate_cpp_files_for_headers(
         "SkColorSpacePriv.h",
         "SkCoreBlitters.h",
         "SkDrawProcs.h",
+        "SkDrawTypes.h",
         "SkMatrixPriv.h",
         "SkPathPriv.h",
         "SkPicturePriv.h",
