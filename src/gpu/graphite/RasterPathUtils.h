@@ -32,7 +32,11 @@ class Transform;
  * The result of this process will be the mask rendered in the Pixmap,
  * at the upper left hand corner of the bounds.
  *
- * TODO: this could be extended to support clip masks, similar to GrSWMaskHelper.
+ * This can be used for clip masks as well, by doing:
+ *   helper.drawClip(...);
+ *
+ * Rasterized clip masks will include the inversion in the mask; rasterized path
+ * masks assume that the CoverageMask shader will handle the inversion.
  */
 
 class RasterMaskHelper : SkNoncopyable {
@@ -43,7 +47,9 @@ public:
 
     void clear(uint8_t alpha, const SkIRect& resultBounds) {
         SkPaint paint;
+        SkMatrix identity;
         paint.setColor(SkColorSetARGB(alpha, 0xFF, 0xFF, 0xFF));
+        fDraw.fCTM = &identity;
         fDraw.drawRect(SkRect::Make(resultBounds), paint);
     }
 
@@ -56,7 +62,7 @@ public:
     // Draw a single shape into the bitmap (as a path) at location resultBounds.
     // Variant used for clipping.
     void drawClip(const Shape& shape,
-                  const Transform& transform,
+                  const Transform& localToDevice,
                   uint8_t alpha,
                   const SkIRect& resultBounds);
 
