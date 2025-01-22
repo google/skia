@@ -113,6 +113,7 @@ skia_cc_library(
     visibility = ["//dm:__pkg__"],
     deps = [
         "//:core",
+        "//modules/jsonreader",
         "//tools/flags:cmd_flags",
     ],
 )
@@ -245,6 +246,7 @@ skia_cc_library(
     testonly = True,
     hdrs = ["GpuToolUtils.h"],
     visibility = [
+        "//dm:__pkg__",
         "//tools:__subpackages__",
     ],
     deps = [

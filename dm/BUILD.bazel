@@ -33,6 +33,7 @@ skia_cc_binary(
         "//modules/skottie",
         "//modules/skottie/utils:skottie_utils",
         "//src/codec:android_codec",
+        "//src/gpu/graphite:graphite_TEST_UTIL",
         "//src/ports:imagegenerator",
         "//src/utils:multi_picture_document",
         "//tools:autorelease_pool",
@@ -47,7 +48,9 @@ skia_cc_binary(
         "//tools/debugger",
         "//tools/flags:common_flags",
         "//tools/flags:ganesh_flags",
+        "//tools/flags:graphite_flags",
         "//tools/gpu:ganesh_gl_utils",
+        "//tools/graphite:graphite_utils",
         "//tools/trace",
     ],
 )

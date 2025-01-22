@@ -27,6 +27,7 @@ skia_cc_library(
     ],
     visibility = [
         "//bench:__subpackages__",
+        "//dm:__pkg__",
         "//modules/skottie:__pkg__",
         "//tools:__subpackages__",
     ],

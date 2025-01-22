@@ -450,6 +450,7 @@ func GenTasks(cfg *Config) {
 			"skia/tools",
 			// Needed for tests.
 			"skia/bench", // Needed to run benchmark tests with Bazel.
+			"skia/dm",    // Needed to run tests with Bazel.
 			"skia/gm",    // Needed to run GMs with Bazel.
 			"skia/gn",    // Some Python scripts still live here.
 			"skia/resources",
@@ -2173,6 +2174,7 @@ var shorthandToLabel = map[string]labelAndSavedOutputDir{
 	"core":                       {"//:core", ""},
 	"cpu_8888_benchmark_test":    {"//bench:cpu_8888_test", ""},
 	"cpu_gms":                    {"//gm:cpu_gm_tests", ""},
+	"dm":                         {"//dm", ""},
 	"full_library":               {"//tools:full_build", ""},
 	"ganesh_gl":                  {"//:ganesh_gl", ""},
 	"hello_bazel_world_test":     {"//gm:hello_bazel_world_test", ""},

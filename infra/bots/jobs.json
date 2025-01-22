@@ -26,6 +26,10 @@
     "cq_config": {}
   },
   {"name": "BazelBuild-viewer-release-linux_x64"},
+  {"name": "BazelBuild-dm-debug-linux_x64",
+    "cq_config": {}
+  },
+  {"name": "BazelBuild-dm-release-linux_x64"},
   {"name": "BazelTest-cpu_tests-all_go_tests-linux_rbe-linux_x64"},
   {"name": "BazelTest-external_client-decode_everything-default-linux_x64"},
   {"name": "BazelTest-external_client-path_combiner-default-linux_x64"},
