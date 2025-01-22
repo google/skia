@@ -372,6 +372,15 @@ public:
     static uint32_t Hash(SkPackedGlyphID packedID) {
         return packedID.hash();
     }
+    static bool ShouldGrow(int count, int capacity) {
+        // Having the 50% load factor results in performance improvements and significantly reduces
+        // the average number of probes on the Speedometer3 Editor-TipTap benchmark.
+        return 2 * count >= capacity;
+    }
+    static bool ShouldShrink(int count, int capacity) {
+        // Use 1/6 as the minimal load.
+        return 6 * count <= capacity;
+    }
 
 private:
     void setAction(skglyph::ActionType actionType, skglyph::GlyphAction action) {

@@ -27,6 +27,10 @@ namespace skia_private {
 // Traits must have:
 //   - static K GetKey(T)
 //   - static uint32_t Hash(K)
+// Traits may also define (both required if either is defined):
+//   - static bool ShouldGrow(int count, int capacity)
+//   - static bool ShouldShrink(int count, int capacity)
+// , which specify the max/min load factor of the table.
 // If the key is large and stored inside T, you may want to make K a const&.
 // Similarly, if T is large you might want it to be a pointer.
 template <typename T, typename K, typename Traits = T>
@@ -98,7 +102,13 @@ public:
     // Copy val into the hash table, returning a pointer to the copy now in the table.
     // If there already is an entry in the table with the same key, we overwrite it.
     T* set(T val) {
-        if (4 * fCount >= 3 * fCapacity) {
+        bool shouldGrow = false;
+        if constexpr (HasShouldGrow<Traits>::value) {
+            shouldGrow = Traits::ShouldGrow(fCount, fCapacity);
+        } else {
+            shouldGrow = (4 * fCount >= 3 * fCapacity);
+        }
+        if (shouldGrow) {
             this->resize(fCapacity > 0 ? fCapacity * 2 : 4);
         }
         return this->uncheckedSet(std::move(val));
@@ -143,8 +153,16 @@ public:
             }
             if (hash == s.fHash && key == Traits::GetKey(*s)) {
                 this->removeSlot(index);
-                if (4 * fCount <= fCapacity && fCapacity > 4) {
-                    this->resize(fCapacity / 2);
+                if (fCapacity > 4) {
+                    bool shouldShrink = false;
+                    if constexpr (HasShouldShrink<Traits>::value) {
+                        shouldShrink = Traits::ShouldShrink(fCount, fCapacity);
+                    } else {
+                        shouldShrink = (4 * fCount <= fCapacity);
+                    }
+                    if (shouldShrink) {
+                        this->resize(fCapacity / 2);
+                    }
                 }
                 return true;
             }
@@ -192,7 +210,14 @@ public:
     // - Hash tables grow when they exceed 3/4 capacity, not when they are full.
     void reserve(int n) {
         int newCapacity = SkNextPow2(n);
-        if (n * 4 > newCapacity * 3) {
+
+        bool shouldGrow = false;
+        if constexpr (HasShouldGrow<Traits>::value) {
+            shouldGrow = Traits::ShouldGrow(n, newCapacity);
+        } else {
+            shouldGrow = (n * 4 > newCapacity * 3);
+        }
+        if (shouldGrow) {
             newCapacity *= 2;
         }
 
@@ -274,6 +299,27 @@ public:
     };
 
 private:
+    template <typename U, typename = void> struct HasShouldGrow : std::false_type {};
+    template <typename U, typename = void> struct HasShouldShrink : std::false_type {};
+
+    template <typename U>
+    struct HasShouldGrow<
+            U,
+            std::void_t<decltype(U::ShouldGrow(std::declval<int>(), std::declval<int>()))>>
+            : std::true_type {
+        static_assert(HasShouldShrink<U>::value,
+                      "The traits class must also provide ShouldShrink() method.");
+    };
+
+    template <typename U>
+    struct HasShouldShrink<
+            U,
+            std::void_t<decltype(U::ShouldShrink(std::declval<int>(), std::declval<int>()))>>
+            : std::true_type {
+        static_assert(HasShouldGrow<U>::value,
+                      "The traits class must also provide ShouldGrow() method.");
+    };
+
     // Finds the first non-empty slot for an iterator.
     int firstPopulatedSlot() const {
         for (int i = 0; i < fCapacity; i++) {
