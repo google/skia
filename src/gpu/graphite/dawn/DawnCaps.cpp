@@ -297,9 +297,10 @@ TextureInfo DawnCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampled
 }
 
 TextureInfo DawnCaps::getDefaultDepthStencilTextureInfo(
-    SkEnumBitMask<DepthStencilFlags> depthStencilType,
-    uint32_t sampleCount,
-    Protected) const {
+        SkEnumBitMask<DepthStencilFlags> depthStencilType,
+        uint32_t sampleCount,
+        Protected,
+        Discardable discardable) const {
     DawnTextureInfo info;
     info.fSampleCount = sampleCount;
     info.fMipmapped   = Mipmapped::kNo;
@@ -307,7 +308,8 @@ TextureInfo DawnCaps::getDefaultDepthStencilTextureInfo(
     info.fViewFormat  = info.fFormat;
     info.fUsage       = wgpu::TextureUsage::RenderAttachment;
 
-    if (fSupportedTransientAttachmentUsage != wgpu::TextureUsage::None) {
+    if (discardable == Discardable::kYes &&
+        fSupportedTransientAttachmentUsage != wgpu::TextureUsage::None) {
         info.fUsage |= fSupportedTransientAttachmentUsage;
     }
 

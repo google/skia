@@ -110,9 +110,16 @@ public:
     virtual TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
                                                   Discardable discardable) const = 0;
 
+    // Currently the uses of this API always are asking for a discardable DepthStencil attachment.
+    // However, we still pass in the parameter here because we don't want the backend caps to be
+    // making decisons on if a thing should be discardable or not. This also allows us to eventual
+    // use non discardable DS attachments, but there aren't any current plans to do so. If we find
+    // out over time that we really will only ever use discardable ones, we could rename this
+    // function to be getDefaultDiscardableDepthStencilTextureInfo.
     virtual TextureInfo getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthStencilFlags>,
                                                           uint32_t sampleCount,
-                                                          Protected) const = 0;
+                                                          Protected,
+                                                          Discardable discardable) const = 0;
 
     virtual TextureInfo getDefaultStorageTextureInfo(SkColorType) const = 0;
 

@@ -46,7 +46,8 @@ public:
                                           Discardable discardable) const override;
     TextureInfo getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthStencilFlags>,
                                                   uint32_t sampleCount,
-                                                  Protected) const override;
+                                                  Protected,
+                                                  Discardable discardable) const override;
     TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
     SkISize getDepthAttachmentDimensions(const TextureInfo&,
                                          const SkISize colorAttachmentDimensions) const override;

@@ -45,7 +45,8 @@ public:
 
     TextureInfo getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthStencilFlags>,
                                                   uint32_t sampleCount,
-                                                  Protected) const override;
+                                                  Protected,
+                                                  Discardable discardable) const override;
 
     TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
 

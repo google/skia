@@ -401,7 +401,8 @@ TextureInfo VulkanCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampl
 
 TextureInfo VulkanCaps::getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthStencilFlags> flags,
                                                           uint32_t sampleCount,
-                                                          Protected isProtected) const {
+                                                          Protected isProtected,
+                                                          Discardable discardable) const {
     VkFormat format = this->getFormatFromDepthStencilFlags(flags);
     const DepthStencilFormatInfo& formatInfo = this->getDepthStencilFormatInfo(format);
     if ( (isProtected == Protected::kYes && !this->protectedSupport()) ||
@@ -417,7 +418,11 @@ TextureInfo VulkanCaps::getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthSte
     info.fFormat = format;
     info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
     // TODO: Passing in a discardable flag to this method, and if true, add the TRANSIENT bit.
-    info.fImageUsageFlags = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    if (discardable == Discardable::kYes && fSupportsMemorylessAttachments) {
+        usageFlags = usageFlags | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
+    }
+    info.fImageUsageFlags = usageFlags;
     info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     info.fAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 

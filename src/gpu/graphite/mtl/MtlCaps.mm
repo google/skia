@@ -885,13 +885,14 @@ MTLPixelFormat MtlCaps::getFormatFromDepthStencilFlags(
 TextureInfo MtlCaps::getDefaultDepthStencilTextureInfo(
             SkEnumBitMask<DepthStencilFlags> depthStencilType,
             uint32_t sampleCount,
-            Protected) const {
+            Protected,
+            Discardable discardable) const {
     MtlTextureInfo info;
     info.fSampleCount = sampleCount;
     info.fMipmapped = Mipmapped::kNo;
     info.fFormat = this->getFormatFromDepthStencilFlags(depthStencilType);
     info.fUsage = MTLTextureUsageRenderTarget;
-    info.fStorageMode = this->getDefaultMSAAStorageMode(Discardable::kYes);
+    info.fStorageMode = this->getDefaultMSAAStorageMode(discardable);
     info.fFramebufferOnly = false;
 
     return TextureInfos::MakeMetal(info);
