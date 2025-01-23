@@ -489,7 +489,9 @@ public:
         SkASSERT(toLinearSrgbNode->codeSnippetId() ==
                          (int)BuiltInCodeSnippetID::kColorSpaceXformColorFilter ||
                  toLinearSrgbNode->codeSnippetId() ==
-                         (int)BuiltInCodeSnippetID::kColorSpaceXformPremul);
+                         (int)BuiltInCodeSnippetID::kColorSpaceXformPremul ||
+                 toLinearSrgbNode->codeSnippetId() ==
+                         (int)BuiltInCodeSnippetID::kColorSpaceXformSRGB);
 
         ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
         args.fPriorStageOutput = SkSL::String::printf("(%s).rgb1", color.c_str());
@@ -508,7 +510,9 @@ public:
         SkASSERT(fromLinearSrgbNode->codeSnippetId() ==
                          (int)BuiltInCodeSnippetID::kColorSpaceXformColorFilter ||
                  fromLinearSrgbNode->codeSnippetId() ==
-                         (int)BuiltInCodeSnippetID::kColorSpaceXformPremul);
+                         (int)BuiltInCodeSnippetID::kColorSpaceXformPremul ||
+                 fromLinearSrgbNode->codeSnippetId() ==
+                         (int)BuiltInCodeSnippetID::kColorSpaceXformSRGB);
 
         ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
         args.fPriorStageOutput = SkSL::String::printf("(%s).rgb1", color.c_str());
@@ -1146,6 +1150,16 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*staticFn=*/"sk_color_space_transform_premul",
             SnippetRequirementFlags::kPriorStageOutput,
             /*uniforms=*/{ { "args", SkSLType::kHalf2 } }
+    };
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kColorSpaceXformSRGB] = {
+            /*name=*/"ColorSpaceTransformSRGB",
+            /*staticFn=*/"sk_color_space_transform_srgb",
+            SnippetRequirementFlags::kPriorStageOutput,
+            /*uniforms=*/{ { "gamut",       SkSLType::kHalf3x3 },
+                           { "srcGABC",     SkSLType::kHalf4 },
+                           { "srcDEF_args", SkSLType::kHalf4 },
+                           { "dstGABC",     SkSLType::kHalf4 },
+                           { "dstDEF_args", SkSLType::kHalf4 } }
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPrimitiveColor] = {

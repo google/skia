@@ -370,6 +370,7 @@ enum class ColorSpaceType {
     kNone,
     kSRGB,
     kSRGBLinear,
+    kSRGBSpin,
     kRGB,
 
     kLast = kRGB
@@ -391,6 +392,8 @@ sk_sp<SkColorSpace> random_colorspace(SkRandom* rand) {
             return SkColorSpace::MakeSRGB();
         case ColorSpaceType::kSRGBLinear:
             return SkColorSpace::MakeSRGBLinear();
+        case ColorSpaceType::kSRGBSpin:
+            return SkColorSpace::MakeSRGB()->makeColorSpin();
         case ColorSpaceType::kRGB:
             return SkColorSpace::MakeRGB(random_xfer_function(rand), random_gamut(rand));
     }

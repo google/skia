@@ -63,6 +63,7 @@ enum class BuiltInCodeSnippetID : int32_t {
     // Color space transform snippet and its specializations
     kColorSpaceXformColorFilter,
     kColorSpaceXformPremul,
+    kColorSpaceXformSRGB,
     // TODO(b/388849244): This seems redundant with kColorSpaceXformPremul
     kPremulAlphaColorFilter,
 

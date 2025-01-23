@@ -130,8 +130,8 @@ std::pair<SkPaint, PaintOptions> conical(int numStops) {
 
 // The 12 comes from 4 types of gradient times 3 combinations (i.e., 4,8,N) for each one.
 static constexpr int kNumDiffPipelines = 12;
-// Twice as many pipelines are precompiled, one for each color space transform shader variant.
-static constexpr int kNumDiffPrecompiledPipelines = 2 * kNumDiffPipelines;
+// Three times as many pipelines are precompiled, one for each color space transform shader variant.
+static constexpr int kNumDiffPrecompiledPipelines = 3 * kNumDiffPipelines;
 
 typedef std::pair<SkPaint, PaintOptions> (*GradientCreationFunc)(int numStops);
 
@@ -399,12 +399,12 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ThreadedPipelinePrecompileTest,
 
     const GlobalCache::PipelineStats stats = context->priv().globalCache()->getStats();
 
-    // The 96 comes from:
+    // The 144 comes from:
     //     4 gradient flavors (linear, radial, ...) *
     //     3 types of each flavor (4, 8, N) *
-    //     2 color space transform shader variations *
+    //     3 color space transform shader variations *
     //     4 precompile threads
-    REPORTER_ASSERT(reporter, stats.fGraphicsCacheHits + stats.fGraphicsCacheMisses == 96);
+    REPORTER_ASSERT(reporter, stats.fGraphicsCacheHits + stats.fGraphicsCacheMisses == 144);
     REPORTER_ASSERT(reporter, stats.fGraphicsCacheAdditions == kNumDiffPrecompiledPipelines);
     REPORTER_ASSERT(reporter, stats.fGraphicsRaces > 0);
     REPORTER_ASSERT(reporter, stats.fGraphicsPurges == 0);
@@ -430,11 +430,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ThreadedPipelinePrecompileCompileTest,
 
     const GlobalCache::PipelineStats stats = context->priv().globalCache()->getStats();
 
-    // The 72 comes from:
+    // The 96 comes from:
     //     4 gradient flavors (linear, radial, ...) *
     //     3 types of each flavor (4, 8, N) *
-    //     (2 normal-compile threads + 2 pre-compile threads * 2 color space shader variations)
-    REPORTER_ASSERT(reporter, stats.fGraphicsCacheHits + stats.fGraphicsCacheMisses == 72);
+    //     (2 normal-compile threads + 2 pre-compile threads * 3 color space shader variations)
+    REPORTER_ASSERT(reporter, stats.fGraphicsCacheHits + stats.fGraphicsCacheMisses == 96);
     REPORTER_ASSERT(reporter, stats.fGraphicsCacheAdditions == kNumDiffPrecompiledPipelines);
     REPORTER_ASSERT(reporter, stats.fGraphicsRaces > 0);
     REPORTER_ASSERT(reporter, stats.fGraphicsPurges == 0);
@@ -546,11 +546,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ThreadedPipelinePrecompileCompilePurgingTest,
 
     GlobalCache::PipelineStats stats = context->priv().globalCache()->getStats();
 
-    // The 72 comes from:
+    // The 96 comes from:
     //     4 gradient flavors (linear, radial, ...) *
     //     3 types of each flavor (4, 8, N) *
-    //     (2 normal-compile threads + 2 pre-compile threads * 2 color space shader variations)
-    REPORTER_ASSERT(reporter, stats.fGraphicsCacheHits + stats.fGraphicsCacheMisses == 72);
+    //     (2 normal-compile threads + 2 pre-compile threads * 3 color space shader variations)
+    REPORTER_ASSERT(reporter, stats.fGraphicsCacheHits + stats.fGraphicsCacheMisses == 96);
     REPORTER_ASSERT(reporter, stats.fGraphicsCacheMisses == stats.fGraphicsCacheAdditions +
                                                             stats.fGraphicsRaces);
     // Purges can force recreation of a Pipeline

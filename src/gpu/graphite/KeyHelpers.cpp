@@ -1062,16 +1062,79 @@ void add_color_space_xform_premul_uniform_data(
 
     // This shader can either do nothing, or perform one of three actions. These four possibilities
     // are encoded in a half2 argument as:
-    // - identity: {0, 0}
-    // - do premul: {0, 1}
-    // - do unpremul: {-1, 0}
-    // - make opaque: {1, 0}
+    // - identity: {0, 1}
+    // - do unpremul: {-1, 1}
+    // - do premul: {0, 0}
+    // - make opaque: {1, 1}
     const bool opaque = data.fReadSwizzle == ReadSwizzle::kRGB1;
     const float x = data.fSteps.flags.unpremul ? -1.f :
                     opaque ? 1.f
                            : 0.f;
-    const float y = data.fSteps.flags.premul ? 1.f : 0.f;
+    const float y = data.fSteps.flags.premul ? 0.f : 1.f;
     gatherer->writeHalf(SkV2{x, y});
+}
+
+void add_color_space_xform_srgb_uniform_data(
+        const ShaderCodeDictionary* dict,
+        const ColorSpaceTransformBlock::ColorSpaceTransformData& data,
+        PipelineDataGatherer* gatherer) {
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kColorSpaceXformSRGB)
+
+    SkMatrix gamutTransform;
+    const float identity[] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+    // TODO: it seems odd to copy this into an SkMatrix just to write it to the gatherer
+    // src_to_dst_matrix is column-major, SkMatrix is row-major.
+    const float* m = data.fSteps.flags.gamut_transform ? data.fSteps.src_to_dst_matrix : identity;
+    if (data.fReadSwizzle == ReadSwizzle::kRRR1) {
+        gamutTransform.setAll(m[0] + m[3] + m[6], 0, 0,
+                              m[1] + m[4] + m[7], 0, 0,
+                              m[2] + m[5] + m[8], 0, 0);
+    } else if (data.fReadSwizzle == ReadSwizzle::kBGRA) {
+        gamutTransform.setAll(m[6], m[3], m[0],
+                              m[7], m[4], m[1],
+                              m[8], m[5], m[2]);
+    } else if (data.fReadSwizzle == ReadSwizzle::k000R) {
+        gamutTransform.setAll(0, 0, 0,
+                              0, 0, 0,
+                              0, 0, 0);
+    } else if (data.fSteps.flags.gamut_transform) {
+        gamutTransform.setAll(m[0], m[3], m[6],
+                              m[1], m[4], m[7],
+                              m[2], m[5], m[8]);
+    }
+    gatherer->writeHalf(gamutTransform);
+
+    // To encode whether to do premul/unpremul or make the output opaque, we use
+    // srcDEF_args.w and dstDEF_args.w:
+    // - identity: {0, 1}
+    // - do unpremul: {-1, 1}
+    // - do premul: {0, 0}
+    // - do both: {-1, 0}
+    // - alpha swizzle 1: {1, 1}
+    // - alpha swizzle r: {1, 0}
+    const bool alphaSwizzleR = data.fReadSwizzle == ReadSwizzle::k000R;
+    const bool alphaSwizzle1 = data.fReadSwizzle == ReadSwizzle::kRGB1 ||
+                               data.fReadSwizzle == ReadSwizzle::kRRR1;
+
+    // It doesn't make sense to unpremul/premul in opaque cases, but we might get a request to
+    // anyways, which we can just ignore.
+    const bool unpremul = alphaSwizzle1 ? false : data.fSteps.flags.unpremul;
+    const bool premul = alphaSwizzle1 ? false : data.fSteps.flags.premul;
+
+    const float srcW = unpremul ? -1.f :
+                       (alphaSwizzleR || alphaSwizzle1) ? 1.f :
+                                                          0.f;
+    const float dstW = (premul || alphaSwizzleR) ? 0.f : 1.f;
+
+    gatherer->writeHalf(SkV4{data.fSteps.srcTF.g, data.fSteps.srcTF.a,
+                             data.fSteps.srcTF.b, data.fSteps.srcTF.c});
+    gatherer->writeHalf(SkV4{data.fSteps.srcTF.d, data.fSteps.srcTF.e,
+                             data.fSteps.srcTF.f, srcW});
+
+    gatherer->writeHalf(SkV4{data.fSteps.dstTFInv.g, data.fSteps.dstTFInv.a,
+                             data.fSteps.dstTFInv.b, data.fSteps.dstTFInv.c});
+    gatherer->writeHalf(SkV4{data.fSteps.dstTFInv.d, data.fSteps.dstTFInv.e,
+                             data.fSteps.dstTFInv.f, dstW});
 }
 
 }  // anonymous namespace
@@ -1091,10 +1154,19 @@ void ColorSpaceTransformBlock::AddBlock(const KeyContext& keyContext,
     const bool swizzleNeedsGamutTransform = !(data.fReadSwizzle == ReadSwizzle::kRGBA ||
                                               data.fReadSwizzle == ReadSwizzle::kRGB1);
 
+    // Use a specialized shader if we don't need transfer function or gamut transforms.
     if (!(xformNeedsGamutOrXferFn || swizzleNeedsGamutTransform)) {
-        // Use a specialized shader if we don't need transfer function or gamut transforms.
         add_color_space_xform_premul_uniform_data(keyContext.dict(), data, gatherer);
         builder->addBlock(BuiltInCodeSnippetID::kColorSpaceXformPremul);
+        return;
+    }
+
+    // Use a specialized shader if we're transferring to and from sRGB-ish color spaces.
+    if (data.fSteps.flags.linearize && data.fSteps.flags.encode &&
+        skcms_TransferFunction_isSRGBish(&data.fSteps.srcTF) &&
+        skcms_TransferFunction_isSRGBish(&data.fSteps.dstTFInv)) {
+        add_color_space_xform_srgb_uniform_data(keyContext.dict(), data, gatherer);
+        builder->addBlock(BuiltInCodeSnippetID::kColorSpaceXformSRGB);
         return;
     }
 

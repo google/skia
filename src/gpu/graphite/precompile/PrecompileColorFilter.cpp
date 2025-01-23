@@ -222,8 +222,9 @@ sk_sp<PrecompileColorFilter> PrecompileColorFilters::HSLAMatrix() {
 
 //--------------------------------------------------------------------------------------------------
 class PrecompileColorSpaceXformColorFilter : public PrecompileColorFilter {
-    inline static constexpr int kNumCombinations = 2;
-    inline static constexpr int kPremul  = 1;
+    inline static constexpr int kNumCombinations = 3;
+    inline static constexpr int kPremul  = 2;
+    inline static constexpr int kSRGB    = 1;
     inline static constexpr int kGeneral = 0;
 
     int numIntrinsicCombinations() const override { return kNumCombinations; }
@@ -234,11 +235,16 @@ class PrecompileColorSpaceXformColorFilter : public PrecompileColorFilter {
                   int desiredCombination) const override {
         SkASSERT(desiredCombination < this->numCombinations());
 
+        static sk_sp<SkColorSpace> srgbSpinColorSpace = sk_srgb_singleton()->makeColorSpin();
         ColorSpaceTransformBlock::ColorSpaceTransformData csData =
                 desiredCombination == kPremul
                         ? ColorSpaceTransformBlock::ColorSpaceTransformData(
                                   nullptr, kPremul_SkAlphaType,
-                                  nullptr, kUnpremul_SkAlphaType)
+                                  nullptr, kUnpremul_SkAlphaType) :
+                desiredCombination == kSRGB
+                        ? ColorSpaceTransformBlock::ColorSpaceTransformData(
+                                  sk_srgb_singleton(), kPremul_SkAlphaType,
+                                  srgbSpinColorSpace.get(), kPremul_SkAlphaType)
                         : ColorSpaceTransformBlock::ColorSpaceTransformData(
                                   sk_srgb_singleton(), kPremul_SkAlphaType,
                                   sk_srgb_linear_singleton(), kPremul_SkAlphaType);
@@ -367,8 +373,9 @@ public:
     }
 
 private:
-    inline static constexpr int kNumCombinations = 2;
-    inline static constexpr int kPremul  = 1;
+    inline static constexpr int kNumCombinations = 3;
+    inline static constexpr int kPremul  = 2;
+    inline static constexpr int kSRGB    = 1;
     inline static constexpr int kGeneral = 0;
 
     int numIntrinsicCombinations() const override { return kNumCombinations; }
@@ -384,11 +391,16 @@ private:
         const int colorSpaceCombo = desiredCombination / this->numChildCombinations();
         const int childCombo = desiredCombination % this->numChildCombinations();
 
+        static sk_sp<SkColorSpace> srgbSpinColorSpace = sk_srgb_singleton()->makeColorSpin();
         ColorSpaceTransformBlock::ColorSpaceTransformData csData =
                 colorSpaceCombo == kPremul
                         ? ColorSpaceTransformBlock::ColorSpaceTransformData(
                                   nullptr, kPremul_SkAlphaType,
-                                  nullptr, kUnpremul_SkAlphaType)
+                                  nullptr, kUnpremul_SkAlphaType) :
+                colorSpaceCombo == kSRGB
+                        ? ColorSpaceTransformBlock::ColorSpaceTransformData(
+                                  sk_srgb_singleton(), kPremul_SkAlphaType,
+                                  srgbSpinColorSpace.get(), kPremul_SkAlphaType)
                         : ColorSpaceTransformBlock::ColorSpaceTransformData(
                                   sk_srgb_singleton(), kPremul_SkAlphaType,
                                   sk_srgb_linear_singleton(), kPremul_SkAlphaType);

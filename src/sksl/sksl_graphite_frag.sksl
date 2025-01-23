@@ -52,31 +52,33 @@ $pure half4 sk_alpha_only(float4 colorParam) {
     return half4(0.0, 0.0, 0.0, colorParam.a);
 }
 
-$pure float3 $apply_xfer_fn(int kind, float3 x, half4 coeffs0, half4 coeffs1) {
-    float G = coeffs0[0], A = coeffs0[1], B = coeffs0[2], C = coeffs0[3],
-          D = coeffs1[0], E = coeffs1[1], F = coeffs1[2];
+$pure float3 $apply_srgb_xfer_fn(float3 x, half4 gabc, half3 def) {
+    return mix(pow(gabc[1] * x + gabc[2], float3(gabc[0])) + def[1],
+               (gabc[3] * x) + def[2],
+               lessThan(x, float3(def[0])));
+}
+
+$pure float3 $apply_xfer_fn(int kind, float3 x, half4 gabc, half3 def) {
     float3 s = sign(x);
     x = abs(x);
     switch (kind) {
         case $kTFTypeSRGB:
-            x = mix(pow(A * x + B, float3(G)) + E,
-                    (C * x) + F,
-                    lessThan(x, float3(D)));
+            x = $apply_srgb_xfer_fn(x, gabc, def);
             break;
         case $kTFTypePQ:
-            float3 x_C = pow(x, float3(C));
-            x = pow(max(A + B * x_C, 0) / (D + E * x_C), float3(F));
+            float3 x_C = pow(x, float3(gabc[3]));
+            x = pow(max(gabc[1] + gabc[2] * x_C, 0) / (def[0] + def[1] * x_C), float3(def[2]));
             break;
         case $kTFTypeHLG:
-            x = mix(exp((x - E) * C) + D,
-                    pow(x * A, float3(B)),
-                    lessThanEqual(x * A, float3(1)));
-            x *= (F + 1);
+            x = mix(exp((x - def[1]) * gabc[3]) + def[0],
+                    pow(x * gabc[1], float3(gabc[2])),
+                    lessThanEqual(x * gabc[1], float3(1)));
+            x *= (def[2] + 1);
             break;
         case $kTFTypeHLGinv:
-            x /= (F + 1);
-            x = mix(C * log(x - D) + E,
-                    A * pow(x, float3(B)),
+            x /= (def[2] + 1);
+            x = mix(gabc[3] * log(x - def[0]) + def[1],
+                    gabc[1] * pow(x, float3(gabc[2])),
                     lessThanEqual(x, float3(1)));
             break;
     }
@@ -103,13 +105,13 @@ $pure half4 sk_color_space_transform(half4 halfColor,
             color = unpremul(color);
         }
         if (bool(flags & $kColorSpaceXformFlagLinearize)) {
-            color.rgb = $apply_xfer_fn(srcKind, color.rgb, coeffs[0], coeffs[1]);
+            color.rgb = $apply_xfer_fn(srcKind, color.rgb, coeffs[0], coeffs[1].xyz);
         }
         if (bool(flags & $kColorSpaceXformFlagGamutTransform)) {
             color.rgb = gamutTransform * color.rgb;
         }
         if (bool(flags & $kColorSpaceXformFlagEncode)) {
-            color.rgb = $apply_xfer_fn(dstKind, color.rgb, coeffs[2], coeffs[3]);
+            color.rgb = $apply_xfer_fn(dstKind, color.rgb, coeffs[2], coeffs[3].xyz);
         }
 
         halfColor = bool(flags & $kColorSpaceXformFlagPremul) ? sk_premul_alpha(color)
@@ -121,10 +123,10 @@ $pure half4 sk_color_space_transform(half4 halfColor,
 $pure half4 sk_color_space_transform_premul(half4 color, half2 args) {
     // This shader can either do nothing, or perform one of three actions. These four possibilities
     // are encoded in a half2 argument as:
-    // - identity: {0, 0}
-    // - do premul: {0, 1}
-    // - do unpremul: {-1, 0}
-    // - make opaque: {1, 0}
+    // - identity: {0, 1}
+    // - do unpremul: {-1, 1}
+    // - do premul: {0, 0}
+    // - make opaque: {1, 1}
     if (args.x < 0) {
         // Unpremul case (mutually exclusive with other cases, and costly).
         color = unpremul(color);
@@ -132,7 +134,7 @@ $pure half4 sk_color_space_transform_premul(half4 color, half2 args) {
     } else {
         // The other cases (identity, premul, make opaque) are branchless.
         half opaque = args.x;
-        half doPremul = args.y;
+        half noPremul = args.y;
 
         // Opaque cases:
         //  1. No-op (opaque = 0) -> max(...) = color.a -> identity function
@@ -140,10 +142,63 @@ $pure half4 sk_color_space_transform_premul(half4 color, half2 args) {
         color.a = max(color.a, opaque);
 
         // Premul cases:
-        //  1. No-op (doPremul = 0) -> max(...) = 1.0 -> identity function
-        //  2. Premultiply (doPremul = 1) -> max(...) = color.a -> premul
-        color.rgb = color.rgb * max(color.a, 1.0 - doPremul);
+        //  1. No-op (noPremul = 1) -> max(...) = 1.0 -> identity function
+        //  2. Premultiply (noPremul = 0) -> max(...) = color.a -> premul
+        color.rgb = color.rgb * max(color.a, noPremul);
     }
+
+    return color;
+}
+
+$pure half4 sk_color_space_transform_srgb(half4 color,
+                                          half3x3 gamut,
+                                          half4 srcGABC,
+                                          half4 srcDEF_args,
+                                          half4 dstGABC,
+                                          half4 dstDEF_args) {
+    // To encode whether to do premul/unpremul or make the output opaque, we use
+    // srcDEF_args.w and dstDEF_args.w:
+    // - identity: {0, 1}
+    // - do unpremul: {-1, 1}
+    // - do premul: {0, 0}
+    // - do both: {-1, 0}
+    // - alpha swizzle 1: {1, 1}
+    // - alpha swizzle r: {1, 0}
+    //
+    // This depends on the assumption that if we're doing an alpha swizzle, we're not premultiplying
+    // or unpremultiplying, so the alpha swizzle cases are mutually exclusive with the premul cases.
+
+    if (srcDEF_args.w < 0) {
+        color = unpremul(color);
+
+    } else {
+        // Alpha swizzle cases; we set alpha = {a, r, 1} . {1 - x, x - x * y, x * y}.
+        // Given the encoded inputs described above, and ignoring the do unpremul cases, we have:
+        //  1. No-op ({x, y} = {0, 1} or {0, 0}) -> {a, r, 1} . {1, 0, 0} = a
+        //  2. Use R ({x, y} = {1, 0})           -> {a, r, 1} . {0, 1, 0} = r
+        //  3. Use 1 ({x, y} = {1, 1})           -> {a, r, 1} . {0, 0, 1} = 1
+        half alphaSwizzleA = 1.0 - srcDEF_args.w;
+        half alphaSwizzle1 = srcDEF_args.w * dstDEF_args.w;
+        half alphaSwizzleR = srcDEF_args.w - alphaSwizzle1;
+        color.a = dot(color.ar1, half3(alphaSwizzleA, alphaSwizzleR, alphaSwizzle1));
+    }
+
+    float3 colorF = float3(color.rgb);
+    colorF = sign(colorF) * $apply_srgb_xfer_fn(abs(colorF), srcGABC, srcDEF_args.xyz);
+
+    colorF = gamut * colorF;
+
+    colorF = sign(colorF) * $apply_srgb_xfer_fn(abs(colorF), dstGABC, dstDEF_args.xyz);
+
+    // Premul cases:
+    //  1. No-op (noPremul = 1) -> max(...) = 1.0 -> identity function
+    //  2. Premultiply (noPremul = 0) -> max(...) = color.a -> premul
+    //
+    // "noPremul" is 0 in the premul case, but also in the alpha-swizzle-r case, but the only time
+    // we swizzle r to alpha is for a read swizzle of 000R, in which case the RGB channels are zero
+    // and it doesn't matter what we multiply them by here.
+    half noPremul = dstDEF_args.w;
+    color.rgb = half3(colorF.rgb) * max(color.a, noPremul);
 
     return color;
 }
