@@ -49,6 +49,7 @@ bin/clang-format.exe
 bin/sk
 bin/sk.exe
 bin/sk.version
+third_party/gn
 third_party/ninja
 bin/ninja
 bin/ninja.exe
