@@ -17,6 +17,11 @@ bool SkPngCompositeChunkReader::readChunk(const char tag[], const void* data, si
         return false;
     }
 
+    // If we found a chunk but there's no data, then just skip it!
+    if (data == nullptr || length == 0) {
+        return true;
+    }
+
     if (strcmp("gmAP", tag) == 0) {
         SkMemoryStream stream(data, length);
         sk_sp<SkData> streamData = stream.getData();
