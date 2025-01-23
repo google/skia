@@ -601,13 +601,18 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
             finalBlendMode.reset();
         }
     }
-    fDstReadRequirement = GetDstReadRequirement(caps, finalBlendMode, finalCoverage);
+
+    bool dstReadRequired = IsDstReadRequired(caps, finalBlendMode, finalCoverage);
+    // TODO(b/390457657): Consult a DstReadStrategy attribute rather than querying Caps. The method
+    // used to do so will eventually require target texture information which is not accessible here
+    fDstReadStrategy =
+            dstReadRequired ? caps->getDstReadStrategy() : DstReadStrategy::kNoneRequired;
+
     // TODO(b/372912880): Release assert debugging for illegal instruction occurring in the wild.
-    SkASSERTF_RELEASE(finalBlendMode.has_value() ||
-                      fDstReadRequirement != DstReadRequirement::kNone,
+    SkASSERTF_RELEASE(finalBlendMode.has_value() || dstReadRequired,
                       "blend mode: %d, dst read: %d, coverage: %d, label = %s",
                       finalBlendMode.has_value() ? (int)*finalBlendMode : -1,
-                      (int) fDstReadRequirement,
+                      (int) fDstReadStrategy,
                       (int) finalCoverage,
                       label.c_str());
 
@@ -621,8 +626,9 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     }
     const bool useGradientStorageBuffer = caps->gradientBufferSupport() &&
                                           (allReqFlags & SnippetRequirementFlags::kGradientBuffer);
-    const bool useDstSampler = fDstReadRequirement == DstReadRequirement::kTextureCopy ||
-                               fDstReadRequirement == DstReadRequirement::kTextureSample;
+
+    const bool useDstSampler = fDstReadStrategy == DstReadStrategy::kTextureCopy ||
+                               fDstReadStrategy == DstReadStrategy::kTextureSample;
 
     const bool defineLocalCoordsVarying = this->needsLocalCoords();
     std::string preamble = emit_varyings(step,
@@ -736,17 +742,17 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     // Calculate the src color and stash its output variable in `args`
     args.fPriorStageOutput = srcColorRoot->invokeAndAssign(*this, args, &mainBody);
 
-    if (fDstReadRequirement != DstReadRequirement::kNone) {
+    if (dstReadRequired) {
         // Get the current dst color into a local variable, it may be used later on for coverage
         // blending as well as the final blend.
         mainBody += "half4 dstColor;";
         if (useDstSampler) {
-            // dstCopyBounds is in frag coords and already includes the replay translation. The
+            // dstReadBounds is in frag coords and already includes the replay translation. The
             // reciprocol of the dstCopy dimensions are in ZW.
             mainBody += "dstColor = sample(dstSampler,"
-                                          "dstCopyBounds.zw*(sk_FragCoord.xy - dstCopyBounds.xy));";
+                                          "dstReadBounds.zw*(sk_FragCoord.xy - dstReadBounds.xy));";
         } else {
-            SkASSERT(fDstReadRequirement == DstReadRequirement::kFramebufferFetch);
+            SkASSERT(fDstReadStrategy == DstReadStrategy::kFramebufferFetch);
             mainBody += "dstColor = sk_LastFragColor;";
         }
 
@@ -769,7 +775,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
         SkASSERTF_RELEASE(finalBlendMode.has_value(),
                           "blend mode: %d, dst read: %d, label = %s",
                           finalBlendMode.has_value() ? (int)*finalBlendMode : -1,
-                          (int) fDstReadRequirement,
+                          (int) fDstReadStrategy,
                           label.c_str());
 
         fBlendInfo = gBlendTable[static_cast<int>(*finalBlendMode)];
@@ -800,7 +806,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
         }
 
         const char* outColor = args.fPriorStageOutput.c_str();
-        if (fDstReadRequirement != DstReadRequirement::kNone) {
+        if (dstReadRequired) {
             // If this draw uses a non-coherent dst read, we want to keep the existing dst color (or
             // whatever has been previously drawn) when there's no coverage. This helps for batching
             // text draws that need to read from a dst copy for blends. However, this only helps the
@@ -839,7 +845,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
             SkASSERTF_RELEASE(finalBlendMode.has_value(),
                               "blend mode: %d, dst read: %d, coverage: %d, label = %s",
                               finalBlendMode.has_value() ? (int)*finalBlendMode : -1,
-                              (int) fDstReadRequirement,
+                              (int) fDstReadStrategy,
                               (int) finalCoverage,
                               label.c_str());
             BlendFormula coverageBlendFormula =

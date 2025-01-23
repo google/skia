@@ -40,7 +40,7 @@ public:
 
     const char* getResourceType() const override { return "Graphics Pipeline"; }
 
-    DstReadRequirement dstReadRequirement() const { return fPipelineInfo.fDstReadReq; }
+    DstReadStrategy dstReadStrategy() const { return fPipelineInfo.fDstReadStrategy; }
 
     int  numFragTexturesAndSamplers() const { return fPipelineInfo.fNumFragTexturesAndSamplers; }
     bool hasPaintUniforms()           const { return fPipelineInfo.fHasPaintUniforms;           }
@@ -54,7 +54,7 @@ public:
         PipelineInfo(const ShaderInfo&, SkEnumBitMask<PipelineCreationFlags>,
                      uint32_t uniqueKeyHash, uint32_t compilationID);
 
-        DstReadRequirement fDstReadReq = DstReadRequirement::kNone;
+        DstReadStrategy fDstReadStrategy = DstReadStrategy::kNoneRequired;
         int  fNumFragTexturesAndSamplers = 0;
         bool fHasPaintUniforms  = false;
         bool fHasStepUniforms   = false;

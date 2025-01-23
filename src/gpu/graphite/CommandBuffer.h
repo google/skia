@@ -81,7 +81,7 @@ public:
     SkSpan<const sk_sp<Buffer>> buffersToAsyncMapOnSubmit() const;
 
     // If any recorded draw requires a dst texture copy for blending, that texture must be provided
-    // in `dstCopy`; otherwise it should be null. The `dstCopyBounds` are in the same coordinate
+    // in `dstCopy`; otherwise it should be null. The `dstReadBounds` are in the same coordinate
     // space of the logical viewport *before* any replay translation is applied.
     //
     // The logical viewport is always (0,0,viewportDims) and matches the "device" coordinate space
@@ -92,7 +92,7 @@ public:
                        sk_sp<Texture> resolveTexture,
                        sk_sp<Texture> depthStencilTexture,
                        const Texture* dstCopy,
-                       SkIRect dstCopyBounds,
+                       SkIRect dstReadBounds,
                        SkISize viewportDims,
                        const DrawPassList& drawPasses);
 
@@ -141,13 +141,13 @@ protected:
     // This is in target texture space, having been transformed by the replay translation.
     SkIRect fReplayClip;
 
-    // The texture to use for implementing DstReadRequirement::kTextureCopy for the current render
+    // The texture to use for implementing DstReadStrategy::kTextureCopy for the current render
     // pass. This is a bare pointer since the CopyTask that initializes the texture's contents
     // will have tracked the resource on the CommandBuffer already.
     std::pair<const Texture*, const Sampler*> fDstCopy;
     // Already includes replay translation and respects final color attachment bounds, but with
     // dimensions that equal fDstCopy's width and height.
-    SkIRect fDstCopyBounds;
+    SkIRect fDstReadBounds;
 
     Protected fIsProtected;
 

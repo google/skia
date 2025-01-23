@@ -34,7 +34,7 @@ public:
     // pointer to indicate that shader node data must be analyzed to determine whether
     // immutable samplers are used, and if so, ascertain SamplerDescs for them.
     // TODO(b/366220690): Actually perform this analysis.
-
+    //
     // If provided a valid container ptr, this function will delegate the addition of SamplerDescs
     // for each sampler the nodes utilize (dynamic and immutable). This way, a SamplerDesc's index
     // within the container can inform its binding order. Each SamplerDesc will be either:
@@ -43,6 +43,9 @@ public:
     // 2) a real SamplerDesc describing an immutable sampler. Backend pipelines can then use the
     //    desc to obtain a real immutable sampler pointer (which typically must be included in
     //    pipeline layouts)
+    // TODO(b/390457657): Add DstReadStrategy param to this method rather than determining it within
+    // generateFragmentSkSL. The Caps query used will eventually take in target texture information,
+    // which this class does not have access to.
     static std::unique_ptr<ShaderInfo> Make(const Caps*,
                                             const ShaderCodeDictionary*,
                                             const RuntimeEffectDictionary*,
@@ -57,7 +60,7 @@ public:
     }
     const char* ssboIndex() const { return fSsboIndex; }
 
-    DstReadRequirement dstReadRequirement() const { return fDstReadRequirement; }
+    DstReadStrategy dstReadStrategy() const { return fDstReadStrategy; }
     const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
 
     const skia_private::TArray<uint32_t>& data() const { return fData; }
@@ -113,7 +116,7 @@ private:
     // The blendInfo represents the actual GPU blend operations, which may or may not completely
     // implement the paint and coverage blending defined by the root nodes.
     skgpu::BlendInfo fBlendInfo;
-    DstReadRequirement fDstReadRequirement = DstReadRequirement::kNone;
+    DstReadStrategy fDstReadStrategy = DstReadStrategy::kNoneRequired;
 
     // Note that fData is currently only used to store SamplerDesc information for shaders that have
     // the option of using immutable samplers. However, other snippets could leverage this field to

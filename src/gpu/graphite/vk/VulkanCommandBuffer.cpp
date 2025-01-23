@@ -440,7 +440,7 @@ bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
         // TODO(b/374997389): Somehow convey & enforce Layout::kStd430 for push constants.
         UniformManager intrinsicValues{Layout::kStd140};
         CollectIntrinsicUniforms(
-                fSharedContext->caps(), viewport, fDstCopyBounds, &intrinsicValues);
+                fSharedContext->caps(), viewport, fDstReadBounds, &intrinsicValues);
         SkSpan<const char> bytes = intrinsicValues.finish();
         SkASSERT(bytes.size_bytes() == VulkanResourceProvider::kIntrinsicConstantSize);
 
@@ -959,7 +959,7 @@ void VulkanCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsP
     // descriptor sets with any new bindGraphicsPipeline DrawPassCommand.
     fBindUniformBuffers = true;
 
-    if (graphicsPipeline->dstReadRequirement() == DstReadRequirement::kTextureCopy &&
+    if (graphicsPipeline->dstReadStrategy() == DstReadStrategy::kTextureCopy &&
         graphicsPipeline->numFragTexturesAndSamplers() == 1) {
         // The only texture-sampler that the pipeline declares must be the dstCopy, which means
         // there are no other textures that will trigger BindTextureAndSampler commands in a
@@ -1162,7 +1162,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
     SkASSERT(fActiveGraphicsPipeline);
     // Add one extra texture for dst copies, which is not included in the command itself.
     int numTexSamplers = command ? command->fNumTexSamplers : 0;
-    if (fActiveGraphicsPipeline->dstReadRequirement() == DstReadRequirement::kTextureCopy) {
+    if (fActiveGraphicsPipeline->dstReadStrategy() == DstReadStrategy::kTextureCopy) {
         numTexSamplers++;
     }
 
@@ -1190,7 +1190,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
         }
     }
     // If required the dst copy texture+sampler is the last one in the descriptor set
-    if (fActiveGraphicsPipeline->dstReadRequirement() == DstReadRequirement::kTextureCopy) {
+    if (fActiveGraphicsPipeline->dstReadStrategy() == DstReadStrategy::kTextureCopy) {
         descriptors.push_back({DescriptorType::kCombinedTextureSampler,
                                /*count=*/1,
                                /*bindingIdx=*/numTexSamplers-1,
@@ -1256,7 +1256,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
             }
         }
     }
-    if (fActiveGraphicsPipeline->dstReadRequirement() == DstReadRequirement::kTextureCopy) {
+    if (fActiveGraphicsPipeline->dstReadStrategy() == DstReadStrategy::kTextureCopy) {
         auto texture = static_cast<const VulkanTexture*>(fDstCopy.first);
         auto sampler = static_cast<const VulkanSampler*>(fDstCopy.second);
         if (!appendTextureSampler(texture, sampler)) {

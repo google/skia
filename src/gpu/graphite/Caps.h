@@ -71,8 +71,8 @@ struct ResourceBindingRequirements {
     int fGradientBufferBinding = -1;
 };
 
-enum class DstReadRequirement {
-    kNone,
+enum class DstReadStrategy {
+    kNoneRequired,
     kTextureCopy,
     kTextureSample,
     kFramebufferFetch,
@@ -294,8 +294,10 @@ public:
 
     skgpu::ShaderErrorHandler* shaderErrorHandler() const { return fShaderErrorHandler; }
 
-    // Returns what method of dst read is required for a draw using the dst color.
-    DstReadRequirement getDstReadRequirement() const;
+    // Returns what method of dst read a draw should use for obtaining the dst color.
+    // TODO(b/390457657): This method should take in target texture information to better inform dst
+    // read strategy selection.
+    DstReadStrategy getDstReadStrategy() const;
 
     float minDistanceFieldFontSize() const { return fMinDistanceFieldFontSize; }
     float glyphsAsPathsFontSize() const { return fGlyphsAsPathsFontSize; }

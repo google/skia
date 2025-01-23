@@ -483,7 +483,7 @@ void MtlCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsPipe
     uint32_t stencilRefValue = mtlPipeline->stencilReferenceValue();
     fActiveRenderCommandEncoder->setStencilReferenceValue(stencilRefValue);
 
-    if (graphicsPipeline->dstReadRequirement() == DstReadRequirement::kTextureCopy) {
+    if (graphicsPipeline->dstReadStrategy() == DstReadStrategy::kTextureCopy) {
         // The last texture binding is reserved for the dstCopy texture, which is not included in
         // the list on each BindTexturesAndSamplers command. We can set it once now and any
         // subsequent BindTexturesAndSamplers commands in a DrawPass will set the other N-1.
@@ -610,7 +610,7 @@ void MtlCommandBuffer::setViewport(float x, float y, float width, float height,
 
 void MtlCommandBuffer::updateIntrinsicUniforms(SkIRect viewport) {
     UniformManager intrinsicValues{Layout::kMetal};
-    CollectIntrinsicUniforms(fSharedContext->caps(), viewport, fDstCopyBounds, &intrinsicValues);
+    CollectIntrinsicUniforms(fSharedContext->caps(), viewport, fDstReadBounds, &intrinsicValues);
     SkSpan<const char> bytes = intrinsicValues.finish();
     fActiveRenderCommandEncoder->setVertexBytes(
             bytes.data(), bytes.size_bytes(), MtlGraphicsPipeline::kIntrinsicUniformBufferIndex);

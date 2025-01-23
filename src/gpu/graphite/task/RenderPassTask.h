@@ -28,14 +28,14 @@ public:
     using DrawPassList = skia_private::STArray<1, std::unique_ptr<DrawPass>>;
 
     // dstCopy should only be provided if the draw passes require a texture copy
-    // for dst reads and must cover the union of all `DrawPass::dstCopyBounds()` values in the
+    // for dst reads and must cover the union of all `DrawPass::dstReadBounds()` values in the
     // render pass. It is assumed that the copy's (0,0) texel matches the top-left corner of the
     // pass's dst copy bounds. The copy can be larger than the required bounds.
     static sk_sp<RenderPassTask> Make(DrawPassList,
                                       const RenderPassDesc&,
                                       sk_sp<TextureProxy> target,
                                       sk_sp<TextureProxy> dstCopy,
-                                      SkIRect dstCopyBounds);
+                                      SkIRect dstReadBounds);
 
     ~RenderPassTask() override;
 
@@ -50,14 +50,14 @@ private:
                    const RenderPassDesc&,
                    sk_sp<TextureProxy> target,
                    sk_sp<TextureProxy> dstCopy,
-                   SkIRect dstCopyBounds);
+                   SkIRect dstReadBounds);
 
     DrawPassList fDrawPasses;
     RenderPassDesc fRenderPassDesc;
     sk_sp<TextureProxy> fTarget;
 
     sk_sp<TextureProxy> fDstCopy;
-    SkIRect fDstCopyBounds;
+    SkIRect fDstReadBounds;
 };
 
 } // namespace skgpu::graphite

@@ -29,7 +29,7 @@ class BoundsManager;
 class Clip;
 class Context;
 class DrawContext;
-enum class DstReadRequirement;
+enum class DstReadStrategy;
 class Geometry;
 class Image;
 enum class LoadOp : uint8_t;
@@ -280,7 +280,7 @@ private:
                                                           const SkStrokeRec&,
                                                           bool requireMSAA) const;
 
-    bool needsFlushBeforeDraw(int numNewRenderSteps, DstReadRequirement) const;
+    bool needsFlushBeforeDraw(int numNewRenderSteps, DstReadStrategy) const;
 
     // Flush internal work, such as pending clip draws and atlas uploads, into the Device's DrawTask
     void internalFlush();

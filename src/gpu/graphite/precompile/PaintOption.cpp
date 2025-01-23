@@ -30,11 +30,11 @@ void PaintOption::toKey(const KeyContext& keyContext,
     this->handleDithering(keyContext, keyBuilder, gatherer);
 
     // Root Node 1 is the final blender
-    std::optional<SkBlendMode> finalBlendMode = this->finalBlender()
-                                                        ? this->finalBlender()->priv().asBlendMode()
-                                                        : SkBlendMode::kSrcOver;
+    std::optional<SkBlendMode> finalBlendMode =
+            this->finalBlender() ? this->finalBlender()->priv().asBlendMode()
+                                 : SkBlendMode::kSrcOver;
     if (finalBlendMode) {
-        if (fDstReadReq == DstReadRequirement::kNone) {
+        if (!fDstReadRequired) {
             AddFixedBlendMode(keyContext, keyBuilder, gatherer, *finalBlendMode);
         } else {
             AddBlendMode(keyContext, keyBuilder, gatherer, *finalBlendMode);

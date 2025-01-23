@@ -328,14 +328,11 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
     fuzz->next(&temp);
     Coverage coverage = coverageOptions[temp % 3];
 
-    DstReadRequirement dstReadReq = DstReadRequirement::kNone;
     const SkBlenderBase* blender = as_BB(paint.getBlender());
-    if (blender) {
-        dstReadReq = GetDstReadRequirement(recorder->priv().caps(),
-                                           blender->asBlendMode(),
-                                           coverage);
-    }
-
+    bool dstReadRequired = blender ? IsDstReadRequired(recorder->priv().caps(),
+                                                       blender->asBlendMode(),
+                                                       coverage)
+                                   : false;
     UniquePaintParamsID paintID = ExtractPaintData(recorder.get(),
                                                    &gatherer,
                                                    &builder,
@@ -345,7 +342,7 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
                                                                /* primitiveBlender= */ nullptr,
                                                                /* analyticClip= */ {},
                                                                /* clipShader= */ nullptr,
-                                                               dstReadReq,
+                                                               dstReadRequired,
                                                                /* skipColorXform= */ false),
                                                    {},
                                                    ci);

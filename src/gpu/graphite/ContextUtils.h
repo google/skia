@@ -20,7 +20,7 @@ namespace skgpu::graphite {
 
 class ComputeStep;
 enum class Coverage;
-enum class DstReadRequirement;
+enum class DstReadStrategy;
 class Geometry;
 class PaintParams;
 class PipelineDataGatherer;
@@ -51,18 +51,18 @@ UniquePaintParamsID ExtractPaintData(Recorder*,
 // the logical fragment coordinate from the target's current frag coord (which are not relative to
 // active viewport).
 //
-// It is assumed that `dstCopyBounds` is in the same coordinate space as the `viewport` (e.g.
+// It is assumed that `dstReadBounds` is in the same coordinate space as the `viewport` (e.g.
 // final backing target's pixel coords) and that its width and height match the dimensions of the
 // texture to be sampled for dst reads.
 static constexpr Uniform kIntrinsicUniforms[] = { {"viewport",      SkSLType::kFloat4},
-                                                  {"dstCopyBounds", SkSLType::kFloat4} };
+                                                  {"dstReadBounds", SkSLType::kFloat4} };
 
 void CollectIntrinsicUniforms(const Caps* caps,
                               SkIRect viewport,
-                              SkIRect dstCopyBounds,
+                              SkIRect dstReadBounds,
                               UniformManager*);
 
-DstReadRequirement GetDstReadRequirement(const Caps*, std::optional<SkBlendMode>, Coverage);
+bool IsDstReadRequired(const Caps*, std::optional<SkBlendMode>, Coverage);
 
 std::string GetPipelineLabel(const ShaderCodeDictionary*,
                              const RenderPassDesc& renderPassDesc,

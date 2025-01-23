@@ -18,7 +18,7 @@
 namespace skgpu::graphite {
 
 class Caps;
-enum class DstReadRequirement;
+enum class DstReadStrategy;
 class Recorder;
 class RuntimeEffectDictionary;
 class ShaderCodeDictionary;

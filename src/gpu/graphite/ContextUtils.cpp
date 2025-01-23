@@ -50,9 +50,7 @@ UniquePaintParamsID ExtractPaintData(Recorder* recorder,
     return recorder->priv().shaderCodeDictionary()->findOrCreate(builder);
 }
 
-DstReadRequirement GetDstReadRequirement(const Caps* caps,
-                                         std::optional<SkBlendMode> blendMode,
-                                         Coverage coverage) {
+bool IsDstReadRequired(const Caps* caps, std::optional<SkBlendMode> blendMode, Coverage coverage) {
     // If the blend mode is absent, this is assumed to be for a runtime blender, for which we always
     // do a dst read.
     // If the blend mode is plus, always do in-shader blending since we may be drawing to an
@@ -61,7 +59,7 @@ DstReadRequirement GetDstReadRequirement(const Caps* caps,
     // when necessary, but we can't detect that during shader precompilation.
     if (!blendMode || *blendMode > SkBlendMode::kLastCoeffMode ||
         *blendMode == SkBlendMode::kPlus) {
-        return caps->getDstReadRequirement();
+        return true;
     }
 
     const bool isLCD = coverage == Coverage::kLCD;
@@ -70,15 +68,15 @@ DstReadRequirement GetDstReadRequirement(const Caps* caps,
                                       : skgpu::GetBlendFormula(false, hasCoverage, *blendMode);
     if ((blendFormula.hasSecondaryOutput() && !caps->shaderCaps()->fDualSourceBlendingSupport) ||
         (coverage == Coverage::kLCD && blendMode != SkBlendMode::kSrcOver)) {
-        return caps->getDstReadRequirement();
+        return true;
     }
 
-    return DstReadRequirement::kNone;
+    return false;
 }
 
 void CollectIntrinsicUniforms(const Caps* caps,
                               SkIRect viewport,
-                              SkIRect dstCopyBounds,
+                              SkIRect dstReadBounds,
                               UniformManager* uniforms) {
     SkDEBUGCODE(uniforms->setExpectedUniforms(kIntrinsicUniforms, /*isSubstruct=*/false);)
 
@@ -101,14 +99,14 @@ void CollectIntrinsicUniforms(const Caps* caps,
         uniforms->write(SkV4{(float) viewport.left(), (float) viewport.top(), invTwoW, invTwoH});
     }
 
-    // dstCopyBounds
+    // dstReadBounds
     {
-        // Unlike viewport, dstCopyBounds can be empty so check for 0 dimensions and set the
+        // Unlike viewport, dstReadBounds can be empty so check for 0 dimensions and set the
         // reciprocal to 0. It is also not doubled since its purpose is to normalize texture coords
         // to 0 to 1, and not -1 to 1.
-        int width = dstCopyBounds.width();
-        int height = dstCopyBounds.height();
-        uniforms->write(SkV4{(float) dstCopyBounds.left(), (float) dstCopyBounds.top(),
+        int width = dstReadBounds.width();
+        int height = dstReadBounds.height();
+        uniforms->write(SkV4{(float) dstReadBounds.left(), (float) dstReadBounds.top(),
                              width ? 1.f / width : 0.f, height ? 1.f / height : 0.f});
     }
 
