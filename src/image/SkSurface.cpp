@@ -105,6 +105,10 @@ sk_sp<SkImage> SkSurface::makeImageSnapshot(const SkIRect& srcBounds) {
     }
 }
 
+sk_sp<SkImage> SkSurface::makeTemporaryImage() {
+    return asSB(this)->onMakeTemporaryImage();
+}
+
 sk_sp<SkSurface> SkSurface::makeSurface(const SkImageInfo& info) {
     return asSB(this)->onNewSurface(info);
 }

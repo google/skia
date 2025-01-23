@@ -330,6 +330,20 @@ public:
      */
     sk_sp<SkImage> makeImageSnapshot(const SkIRect& bounds);
 
+    /** Returns an SkImage capturing the current SkSurface contents. However, the contents of the
+        SkImage are only valid as long as no other writes to the SkSurface occur. If writes to the
+        original SkSurface happen then contents of the SkImage are undefined. However, continued use
+        of the SkImage should not cause crashes or similar fatal behavior.
+
+        This API is useful for cases where the client either immediately destroys the SkSurface
+        after the SkImage is created or knows they will destroy the SkImage before writing to the
+        SkSurface again.
+
+        This API can be more performant than makeImageSnapshot as it never does an internal copy
+        of the data assuming the user frees either the SkImage or SkSurface as described above.
+     */
+    sk_sp<SkImage> makeTemporaryImage();
+
     /** Draws SkSurface contents to canvas, with its top-left corner at (x, y).
 
         If SkPaint paint is not nullptr, apply SkColorFilter, alpha, SkImageFilter, and SkBlendMode.

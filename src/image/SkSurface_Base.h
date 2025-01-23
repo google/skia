@@ -93,6 +93,8 @@ public:
      */
     virtual sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset = nullptr) { return nullptr; }
 
+    virtual sk_sp<SkImage> onMakeTemporaryImage() { return this->makeImageSnapshot(); }
+
     virtual void onWritePixels(const SkPixmap&, int x, int y) = 0;
 
     /**

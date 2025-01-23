@@ -65,6 +65,14 @@ sk_sp<Image> Surface::asImage() const {
     return fImageView;
 }
 
+sk_sp<SkImage> Surface::onMakeTemporaryImage() {
+    if (this->hasCachedImage()) {
+        SKGPU_LOG_W("Intermingling makeImageSnapshot and makeTemporaryImage calls may produce "
+                    "unexpected results. Please use either the old _or_ new API.");
+    }
+    return this->asImage();
+}
+
 sk_sp<Image> Surface::makeImageCopy(const SkIRect* subset, Mipmapped mipmapped) const {
     if (this->hasCachedImage()) {
         SKGPU_LOG_W("Intermingling makeImageSnapshot and asImage calls may produce "
