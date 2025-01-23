@@ -1199,6 +1199,29 @@ void CircularRRectClipBlock::AddBlock(const KeyContext& keyContext,
 }
 
 //--------------------------------------------------------------------------------------------------
+namespace {
+
+void add_atlas_clip_data(
+        const ShaderCodeDictionary* dict,
+        const AtlasClipBlock::AtlasClipData& data,
+        PipelineDataGatherer* gatherer) {
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kAtlasClip)
+    gatherer->writeHalf(data.fTexCoordOffset);
+    gatherer->writeHalf(data.fMaskBounds);
+    gatherer->write(SkSize::Make(1.f/data.fAtlasSize.width(), 1.f/data.fAtlasSize.height()));
+}
+
+}  // anonymous namespace
+
+void AtlasClipBlock::AddBlock(const KeyContext& keyContext,
+                              PaintParamsKeyBuilder* builder,
+                              PipelineDataGatherer* gatherer,
+                              const AtlasClipData& data) {
+    add_atlas_clip_data(keyContext.dict(), data, gatherer);
+    builder->addBlock(BuiltInCodeSnippetID::kAtlasClip);
+}
+
+//--------------------------------------------------------------------------------------------------
 
 void AddPrimitiveColor(const KeyContext& keyContext,
                        PaintParamsKeyBuilder* builder,

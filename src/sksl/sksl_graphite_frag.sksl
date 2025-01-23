@@ -203,20 +203,19 @@ $pure half4 sk_color_space_transform_srgb(half4 color,
     return color;
 }
 
-$pure half4 sk_circular_rrect_clip(float4 rect,
+$pure half4 sk_circular_rrect_clip(float2 coords,
+                                   float4 rect,
                                    float2 radiusPlusHalf,
                                    half4 edgeSelect) {
-    float2 fragCoord = sk_FragCoord.xy;
-
     // Negative x indicates inverse fill
     float2 radius = float2(abs(radiusPlusHalf.x));
-    float2 dxy0 = edgeSelect.LT*((rect.LT + radius) - fragCoord);
-    float2 dxy1 = edgeSelect.RB*(fragCoord - (rect.RB - radius));
+    float2 dxy0 = edgeSelect.LT*((rect.LT + radius) - coords);
+    float2 dxy1 = edgeSelect.RB*(coords - (rect.RB - radius));
     float2 dxy = max(max(dxy0, dxy1), 0.0);
     // Use more complex length calculation to manage precision issues
     half circleCornerAlpha = half(saturate(radius.x*(1.0 - length(dxy*radiusPlusHalf.y))));
 
-    half4 rectEdgeAlphas = saturate(half4(fragCoord - rect.LT, rect.RB - fragCoord));
+    half4 rectEdgeAlphas = saturate(half4(coords - rect.LT, rect.RB - coords));
     rectEdgeAlphas = mix(rectEdgeAlphas, half4(1), edgeSelect);
 
     half alpha = circleCornerAlpha * rectEdgeAlphas.x * rectEdgeAlphas.y *
@@ -225,6 +224,17 @@ $pure half4 sk_circular_rrect_clip(float4 rect,
     alpha = radiusPlusHalf.x < 0 ? (1-alpha) : alpha;
 
     return half4(alpha);
+}
+
+$pure half4 sk_atlas_clip(float2 coords,
+                          half2 texCoordOffset,
+                          half4 maskBounds,
+                          float2 invAtlasSize,
+                          sampler2D clipAtlas) {
+    float2 texCoord = coords + texCoordOffset;
+    float2 clampedTexCoord = clamp(texCoord, maskBounds.LT, maskBounds.RB);
+
+    return half4(sample(clipAtlas, clampedTexCoord * invAtlasSize).r);
 }
 
 $pure float $tile(int tileMode, float f, float low, float high) {

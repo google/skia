@@ -1172,10 +1172,19 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCircularRRectClip] = {
             /*name=*/"CircularRRectClip",
             /*staticFn=*/"sk_circular_rrect_clip",
-            SnippetRequirementFlags::kNone,
+            SnippetRequirementFlags::kLocalCoords,
             /*uniforms=*/{ { "rect",           SkSLType::kFloat4 },
                            { "radiusPlusHalf", SkSLType::kFloat2 },
                            { "edgeSelect",     SkSLType::kHalf4 } }
+    };
+
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kAtlasClip] = {
+            /*name=*/"AtlasClip",
+            /*staticFn=*/"sk_atlas_clip",
+            SnippetRequirementFlags::kLocalCoords,
+            /*uniforms=*/{ { "texCoordOffset", SkSLType::kHalf2 },
+                           { "maskBounds",     SkSLType::kHalf4 },
+                           { "invAtlasSize",   SkSLType::kFloat2 } }
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCompose] = {

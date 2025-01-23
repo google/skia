@@ -363,10 +363,10 @@ struct CircularRRectClipBlock {
     struct CircularRRectClipData {
         CircularRRectClipData(SkRect rect,
                               SkPoint radiusPlusHalf,
-                              SkRect edgeSelect) :
-            fRect(rect),
-            fRadiusPlusHalf(radiusPlusHalf),
-            fEdgeSelect(edgeSelect) {}
+                              SkRect edgeSelect)
+                : fRect(rect)
+                , fRadiusPlusHalf(radiusPlusHalf)
+                , fEdgeSelect(edgeSelect) {}
         SkRect  fRect;            // bounds, outset by 0.5
         SkPoint fRadiusPlusHalf;  // abs() of .x is radius+0.5, if < 0 indicates inverse fill
                                   // .y is 1/(radius+0.5)
@@ -377,6 +377,25 @@ struct CircularRRectClipBlock {
                          PaintParamsKeyBuilder*,
                          PipelineDataGatherer*,
                          const CircularRRectClipData&);
+};
+
+struct AtlasClipBlock {
+    struct AtlasClipData {
+        AtlasClipData(SkPoint texCoordOffset,
+                      SkRect maskBounds,
+                      SkISize atlasSize)
+                : fTexCoordOffset(texCoordOffset)
+                , fMaskBounds(maskBounds)
+                , fAtlasSize(atlasSize) {}
+        SkPoint fTexCoordOffset;  // translation from fragCoords to unnormalized texel coords
+        SkRect  fMaskBounds;      // bounds of mask area, in unnormalized texel coords
+        SkISize fAtlasSize;       // size of atlas texture
+    };
+
+    static void AddBlock(const KeyContext&,
+                         PaintParamsKeyBuilder*,
+                         PipelineDataGatherer*,
+                         const AtlasClipData&);
 };
 
 /**
