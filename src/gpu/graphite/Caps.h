@@ -123,11 +123,6 @@ public:
                                               const RenderPassDesc&) const = 0;
     virtual UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const = 0;
 
-    // Backends can optionally override this method to return meaningful sampler conversion info.
-    // By default, simply return a default ImmutableSamplerInfo.
-    virtual ImmutableSamplerInfo getImmutableSamplerInfo(const TextureProxy*) const {
-        return {};
-    }
 
     virtual bool extractGraphicsDescs(const UniqueKey&,
                                       GraphicsPipelineDesc*,
@@ -169,6 +164,12 @@ public:
     // Returns the aligned rowBytes when transfering to or from a Texture
     size_t getAlignedTextureDataRowBytes(size_t rowBytes) const {
         return SkAlignTo(rowBytes, fTextureDataRowBytesAlignment);
+    }
+
+    // Backends can optionally override this method to return meaningful sampler conversion info.
+    // By default, simply return a default ImmutableSamplerInfo (e.g. no immutable sampler).
+    virtual ImmutableSamplerInfo getImmutableSamplerInfo(const TextureInfo&) const {
+        return {};
     }
 
     /**

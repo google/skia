@@ -49,7 +49,7 @@ public:
 
     TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
 
-    ImmutableSamplerInfo getImmutableSamplerInfo(const TextureProxy* proxy) const override;
+    ImmutableSamplerInfo getImmutableSamplerInfo(const TextureInfo&) const override;
 
     UniqueKey makeGraphicsPipelineKey(const GraphicsPipelineDesc&,
                                       const RenderPassDesc&) const override;

@@ -1130,20 +1130,17 @@ UniqueKey DawnCaps::makeComputePipelineKey(const ComputePipelineDesc& pipelineDe
     return pipelineKey;
 }
 
-ImmutableSamplerInfo DawnCaps::getImmutableSamplerInfo(const TextureProxy* proxy) const {
+ImmutableSamplerInfo DawnCaps::getImmutableSamplerInfo(const TextureInfo& textureInfo) const {
 #if !defined(__EMSCRIPTEN__)
-    if (proxy) {
-        const wgpu::YCbCrVkDescriptor& ycbcrConversionInfo =
-                TextureInfos::GetDawnTextureSpec(proxy->textureInfo()).fYcbcrVkDescriptor;
+    const wgpu::YCbCrVkDescriptor& ycbcrConversionInfo =
+            TextureInfos::GetDawnTextureSpec(textureInfo).fYcbcrVkDescriptor;
 
-        if (DawnDescriptorIsValid(ycbcrConversionInfo)) {
-            return DawnDescriptorToImmutableSamplerInfo(ycbcrConversionInfo);
-        }
+    if (DawnDescriptorIsValid(ycbcrConversionInfo)) {
+        return DawnDescriptorToImmutableSamplerInfo(ycbcrConversionInfo);
     }
 #endif
 
-    // If the proxy is null or the YCbCr conversion for that proxy is invalid, then return a
-    // default ImmutableSamplerInfo struct.
+    // If the YCbCr conversion for is invalid, then return a default ImmutableSamplerInfo struct.
     return {};
 }
 

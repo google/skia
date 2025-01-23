@@ -1603,18 +1603,16 @@ void VulkanCaps::buildKeyForTexture(SkISize dimensions,
     SkASSERT(i == num32DataCnt);
 }
 
-ImmutableSamplerInfo VulkanCaps::getImmutableSamplerInfo(const TextureProxy* proxy) const {
-    if (proxy) {
-        const skgpu::VulkanYcbcrConversionInfo& ycbcrConversionInfo =
-                TextureInfos::GetVulkanYcbcrConversionInfo(proxy->textureInfo());
+ImmutableSamplerInfo VulkanCaps::getImmutableSamplerInfo(const TextureInfo& textureInfo) const {
+    const skgpu::VulkanYcbcrConversionInfo& ycbcrConversionInfo =
+            TextureInfos::GetVulkanYcbcrConversionInfo(textureInfo);
 
-        if (ycbcrConversionInfo.isValid()) {
-            return VulkanYcbcrConversion::ToImmutableSamplerInfo(ycbcrConversionInfo);
-        }
+    if (ycbcrConversionInfo.isValid()) {
+        return VulkanYcbcrConversion::ToImmutableSamplerInfo(ycbcrConversionInfo);
     }
 
-    // If the proxy is null or the YCbCr conversion for that proxy is invalid, then return a
-    // default ImmutableSamplerInfo struct.
+    // If the YCbCr conversion for the TextureInfo is invalid, then return a default
+    // ImmutableSamplerInfo struct.
     return {};
 }
 

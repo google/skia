@@ -688,7 +688,11 @@ void ImageShaderBlock::AddBlock(const KeyContext& keyContext,
 
     // Image shaders must append immutable sampler data (or '0' in the more common case where
     // regular samplers are used).
-    ImmutableSamplerInfo info = caps->getImmutableSamplerInfo(imgData.fTextureProxy.get());
+    // TODO(b/392623124): In precompile mode (fTextureProxy == null), we still have a need for
+    // immutable samplers, which must be passed in somehow.
+    ImmutableSamplerInfo info = imgData.fTextureProxy
+            ? caps->getImmutableSamplerInfo(imgData.fTextureProxy->textureInfo())
+            : ImmutableSamplerInfo{};
     SamplerDesc samplerDesc {imgData.fSampling,
                              doTilingInHw ? imgData.fTileModes : kDefaultTileModes,
                              info};
