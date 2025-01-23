@@ -461,6 +461,10 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
 
     std::fill_n(fColorTypeToFormatTable, kSkColorTypeCnt, VK_FORMAT_UNDEFINED);
 
+    // NOTE: VkFormat's naming convention orders channels from low address to high address when
+    // interpreting unpacked formats. For packed formats, the channels are ordered most significant
+    // to least significant (making them opposite of the unpacked).
+
     // Go through all the formats and init their support surface and data ColorTypes.
     // Format: VK_FORMAT_R8G8B8A8_UNORM
     {
@@ -722,6 +726,11 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
                 ctInfo.fColorType = ct;
                 ctInfo.fTransferColorType = ct;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+                // The color type is misnamed and really stores ABGR data, but there is no
+                // SkColorType that matches this actual ARGB VkFormat data. Swapping R and B when
+                // rendering into it has it match the reported transfer color type, but we have to
+                // swap R and B when sampling as well. This only works so long as we don't present
+                // textures of this format to a screen that would not know about this swap.
                 ctInfo.fReadSwizzle = skgpu::Swizzle::BGRA();
                 ctInfo.fWriteSwizzle = skgpu::Swizzle::BGRA();
             }

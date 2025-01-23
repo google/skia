@@ -582,6 +582,8 @@ void DawnCaps::initShaderCaps(const wgpu::Device& device) {
 }
 
 void DawnCaps::initFormatTable(const wgpu::Device& device) {
+    // NOTE: wgpu::TextureFormat's naming convention orders channels from least significant to most,
+    // matching the data address ordering of a little endian system.
     FormatInfo* info;
     // Format: RGBA8Unorm
     {

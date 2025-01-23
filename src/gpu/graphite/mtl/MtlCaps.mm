@@ -292,6 +292,9 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
         }
     }
 
+    // NOTE: MTLPixelFormat's naming convention orders channels from least significant to most,
+    // matching the data address ordering of a little endian system.
+
     // Format: RGBA8Unorm
     {
         info = &fFormatTable[GetFormatIndex(MTLPixelFormatRGBA8Unorm)];
@@ -391,7 +394,7 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
                 info->fColorTypeInfos =
                         std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
                 int ctIdx = 0;
-                // Format: B5G6R5Unorm, Surface: kBGR_565
+                // Format: B5G6R5Unorm, Surface: kRGB_565; misnamed SkColorType is really BGR data
                 {
                     auto& ctInfo = info->fColorTypeInfos[ctIdx++];
                     ctInfo.fColorType = kRGB_565_SkColorType;
@@ -409,7 +412,7 @@ void MtlCaps::initFormatTable(const id<MTLDevice> device) {
                 info->fColorTypeInfos =
                         std::make_unique<ColorTypeInfo[]>(info->fColorTypeInfoCount);
                 int ctIdx = 0;
-                // Format: ABGR4Unorm, Surface: kABGR_4444
+                // Format: ABGR4Unorm, Surface: kARGB_4444; misnamed SkColorType is really ABGR data
                 {
                     auto& ctInfo = info->fColorTypeInfos[ctIdx++];
                     ctInfo.fColorType = kARGB_4444_SkColorType;
