@@ -1248,4 +1248,67 @@ describe('Paragraph Behavior', function() {
         builder.delete();
     });
 
+    gm('paragraph_getShapedLines', (canvas) => {
+        const paint = new CanvasKit.Paint();
+
+        paint.setColor(CanvasKit.RED);
+        paint.setStyle(CanvasKit.PaintStyle.Stroke);
+
+        const fontMgr = CanvasKit.FontMgr.FromData([robotoFontBuffer, notoSerifFontBuffer]);
+
+        const wrapTo = 200;
+
+        const roboto = new CanvasKit.TextStyle({
+            fontStyle: {
+                fontFamilies: ['Roboto'],
+                color: CanvasKit.RED,
+                fontSize: 30,
+            }
+        });
+        const normal = new CanvasKit.TextStyle({
+            fontFamilies: ['Noto Serif'],
+            fontSize: 20,
+            fontStyle: { weight: CanvasKit.FontWeight.Normal, }
+        });
+        const paraStyle = new CanvasKit.ParagraphStyle({textStyle: { } });
+
+        const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+        builder.pushStyle(normal);
+        builder.addText('The quick brown fox ate a ');
+        builder.pop();
+        builder.pushStyle(roboto);
+        builder.addText('hamburgerfons');
+        builder.pop();
+        builder.pushStyle(normal);
+        builder.addText(' and got sick.');
+        builder.pop();
+        const paragraph = builder.build();
+
+        paragraph.layout(wrapTo);
+
+        canvas.drawRect(CanvasKit.LTRBRect(10, 10, wrapTo+10, wrapTo+10), paint);
+        canvas.drawParagraph(paragraph, 10, 10);
+
+        const lines = paragraph.getShapedLines();
+        var lineIndex = 0;
+        var runIndex = 0;
+        for (const line of lines) {
+            for (const run of line.runs) {
+                const familyName = run.typeface.getFamilyName();
+                if (lineIndex == 1 && runIndex == 2) {
+                    expect(familyName).toEqual('Roboto');
+                } else {
+                    expect(familyName).toEqual('Noto Serif');
+                }
+                runIndex += 1;
+            }
+            lineIndex += 1;
+        }
+
+        paint.delete();
+        paragraph.delete();
+        builder.delete();
+        fontMgr.delete();
+    });
+
 });

@@ -3117,6 +3117,11 @@ export interface Typeface extends EmbindObject<"Typeface"> {
      */
     getGlyphIDs(str: string, numCodePoints?: number,
                 output?: GlyphIDArray): GlyphIDArray;
+
+    /**
+     * Return the typeface family name.
+     */
+    getFamilyName(): string;
 }
 
 /**

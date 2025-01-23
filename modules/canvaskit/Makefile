@@ -120,6 +120,10 @@ local-example:
 	echo "Go check out http://localhost:8000/npm_build/example.html"
 	python3 ../../tools/serve_wasm.py
 
+local-extra:
+	echo "Go check out http://localhost:8000/npm_build/extra.html"
+	python3 ../../tools/serve_wasm.py
+
 test-continuous:
 	echo "Assuming npm ci has been run by user"
 	echo "Also assuming make debug or release has also been run by a user (if needed)"

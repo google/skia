@@ -806,6 +806,7 @@ var CanvasKit = {
     MakeTypefaceFromData: function() {},
     prototype: {
       getGlyphIDs: function() {},
+      getFamilyName: function() {},
     },
     _MakeTypefaceFromData: function() {},
     _getGlyphIDs: function() {},

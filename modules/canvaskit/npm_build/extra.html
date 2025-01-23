@@ -31,6 +31,8 @@
 <canvas id=para1 width=600 height=600></canvas>
 <canvas id=para2 width=600 height=600 tabindex='-1'></canvas>
 <canvas id=para3 width=600 height=600 tabindex='-1'></canvas>
+<canvas id=para4 width=600 height=600 tabindex='-1'></canvas>
+
 ``
 <h2> CanvasKit can serialize/deserialize .skp files</h2>
 <canvas id=skp width=500 height=500></canvas>
@@ -95,6 +97,7 @@
   });
 
   Promise.all([ckLoaded, loadFont]).then((results) => {
+    ParagraphExtended(...results);
     ParagraphAPI1(...results);
     ParagraphAPI2(...results);
     ParagraphAPI3(...results);
@@ -411,6 +414,113 @@
     document.getElementById('para1').addEventListener('pointermove', interact);
 
     return surface;
+  }
+
+  function ParagraphExtended(CanvasKit, fontData) {
+      if (!CanvasKit || !fontData) {
+          return;
+      }
+
+      const surface = CanvasKit.MakeCanvasSurface('para4');
+      if (!surface) {
+          console.error('Could not make surface');
+          return;
+      }
+
+      const fontMgr = CanvasKit.FontMgr.FromData([fontData]);
+
+      const paraStyle = new CanvasKit.ParagraphStyle({
+          textStyle: {
+              color: CanvasKit.BLACK,
+              fontFamilies: ['Roboto'],
+              fontSize: 50,
+          },
+          textAlign: CanvasKit.TextAlign.Left,
+          maxLines: 5,
+      });
+
+      const builder = CanvasKit.ParagraphBuilder.Make(paraStyle, fontMgr);
+      builder.addText('The quick brown fox ate a hamburgerfons and got sick.');
+
+      // The code below works for English-only text assuming
+      // that each character is a glyph (cluster), spaces are breaks between words,
+      // new lines are breaks between lines and the entire text is LTR.
+
+      // In case the paragraph text was constructed in a set of calls we need the text
+      const text = builder.getText();
+
+      // Pass the entire text as one word. It's only used for the method getWords
+      const words = [0, text.length];
+
+      // Pass each character as a separate grapheme
+      const graphemes = [];
+      for (let i = 0; i <= text.length; i++) {
+          graphemes.push(i);
+      }
+
+      // Pass each space as a "soft" break and each new line as a "hard" break
+      const SOFT = 0;
+      const HARD = 1;
+      const lineBreaks = [0, SOFT];
+      for (let i = 0; i < text.length; ++i) {
+          if (text[i] === ' ') {
+              lineBreaks.push(i + 1, SOFT);
+          }
+          if (text[i] === '\n') {
+              lineBreaks.push(i + 1, HARD);
+          }
+      }
+      lineBreaks.push(text.length, SOFT);
+
+      builder.setWordsUtf16(words);
+      builder.setGraphemeBreaksUtf16(graphemes);
+      builder.setLineBreaksUtf16(lineBreaks);
+      const paragraph = builder.build();
+
+      paragraph.layout(600);
+
+      let wrapTo = 0;
+
+      let X = 100;
+      let Y = 100;
+
+      const roboto = CanvasKit.Typeface.MakeTypefaceFromData(fontData);
+      const textFont = new CanvasKit.Font(roboto, 20);
+      const fontPaint = new CanvasKit.Paint();
+      fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
+      fontPaint.setAntiAlias(true);
+
+      function drawFrame(canvas) {
+          canvas.clear(CanvasKit.WHITE);
+          wrapTo = 350 + 150 * Math.sin(Date.now() / 2000);
+          paragraph.layout(wrapTo);
+          canvas.drawParagraph(paragraph, 0, 0);
+          canvas.drawLine(wrapTo, 0, wrapTo, 400, fontPaint);
+
+          const lines = paragraph.getShapedLines();
+          var fonts = '';
+          var sep = '';
+          for (const line of lines) {
+              for (const run of line.runs) {
+                  fonts += sep;
+                  fonts += run.typeface.getFamilyName();
+                  sep = ', ';
+              }
+          }
+          canvas.drawText(fonts, wrapTo + 10, 200, fontPaint, textFont);
+
+          surface.requestAnimationFrame(drawFrame);
+      }
+      surface.requestAnimationFrame(drawFrame);
+
+      let interact = (e) => {
+          X = e.offsetX*2; // multiply by 2 because the canvas is 300 css pixels wide,
+          Y = e.offsetY*2; // but the canvas itself is 600px wide
+      };
+
+      document.getElementById('para1').addEventListener('pointermove', interact);
+
+      return surface;
   }
 
   function RTShaderAPI1(CanvasKit) {

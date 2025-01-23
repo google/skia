@@ -2493,6 +2493,11 @@ EMSCRIPTEN_BINDINGS(Skia) {
             stream->setMemoryOwned(font, flen);
             return SkTypeface_FreeType::MakeFromStream(std::move(stream), SkFontArguments());
         }), allow_raw_pointers())
+        .function("getFamilyName", optional_override([](SkTypeface& self)->JSString {
+            SkString s;
+            self.getFamilyName(&s);
+            return emscripten::val(s.c_str());
+        }))
         .function("_getGlyphIDs", optional_override([](SkTypeface& self, WASMPointerU8 sptr,
                                                    size_t strLen, size_t expectedCodePoints,
                                                    WASMPointerU16 iPtr) -> int {
