@@ -141,16 +141,6 @@ enum class Shareable : uint8_t {
     kYes,     // The resource is always visible in the ResourceCache
 };
 
-/**
- * This enum is used to notify the ResourceCache which type of ref just dropped to zero on a
- * Resource.
- */
-enum class LastRemovedRef : uint8_t {
-    kUsage,
-    kCommandBuffer,
-    kCache,
-};
-
 /*
  * Struct that can be passed into bind buffer calls on the CommandBuffer. The ownership of the
  * buffer and its usage in command submission must be tracked by the caller (e.g. as with

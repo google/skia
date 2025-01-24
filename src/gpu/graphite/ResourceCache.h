@@ -32,7 +32,6 @@ namespace skgpu::graphite {
 
 class GraphiteResourceKey;
 class ProxyCache;
-class Resource;
 
 #if defined(GPU_TEST_UTILS)
 class Texture;
@@ -97,14 +96,15 @@ public:
 
     bool testingInPurgeableQueue(Resource* resource) { return this->inPurgeableQueue(resource); }
 
-    bool testingInReturnQueue(Resource*);
+    bool testingInReturnQueue(Resource* resource);
 
     void visitTextures(const std::function<void(const Texture*, bool purgeable)>&) const;
 #endif
 
-    // This is a thread safe call. If it fails the ResourceCache is no longer valid and the
-    // Resource should clean itself up if it is the last ref.
-    bool returnResource(Resource*, LastRemovedRef);
+    // This is a thread safe call and is a no-op if the cache has been shut down already. This
+    // should only be called by Resource. Returns true if the resource was successfully added to
+    // the return queue.
+    bool returnResource(Resource*);
 
     // Registers the Resource with the cache; can only be called at the time of creation.
     void insertResource(Resource*, const GraphiteResourceKey&, Budgeted, Shareable);
@@ -118,7 +118,6 @@ private:
     void addToNonpurgeableArray(Resource* resource);
     void removeFromNonpurgeableArray(Resource* resource);
     void removeFromPurgeableQueue(Resource* resource);
-
     // Resources in the resource map are reusable (can be returned from findAndRef), but are not
     // necessarily purgeable.
     void addToResourceMap(Resource* resource);
@@ -126,12 +125,11 @@ private:
 
     // This will return true if any resources were actually returned to the cache
     bool processReturnedResources();
-    void processReturnedResource(Resource*, LastRemovedRef);
+    void processReturnedResource(Resource*);
 
     uint32_t getNextUseToken();
     void setResourceUseToken(Resource*, uint32_t token);
 
-    bool inPurgeableQueue(Resource*) const;
 
     bool overbudget() const { return fBudgetedBytes > fMaxBytes; }
     void purgeAsNeeded();
@@ -139,9 +137,14 @@ private:
     // Passing in a nullptr for purgeTime will trigger us to try and free all unlocked resources.
     void purgeResources(const StdSteadyClock::time_point* purgeTime);
 
+    bool inPurgeableQueue(const Resource*) const;
+
 #ifdef SK_DEBUG
     bool isInCache(const Resource* r) const;
     void validate() const;
+
+    bool inNonpurgeableArray(const Resource*) const;
+    bool inReturnQueue(Resource*);
 #else
     void validate() const {}
 #endif
@@ -186,8 +189,7 @@ private:
     bool fIsShutdown SK_GUARDED_BY(fReturnMutex);
 
     SkMutex fReturnMutex;
-    using ReturnQueue = skia_private::TArray<std::pair<Resource*, LastRemovedRef>>;
-    ReturnQueue fReturnQueue SK_GUARDED_BY(fReturnMutex);
+    ResourceArray fReturnQueue SK_GUARDED_BY(fReturnMutex);
 
     SingleOwner* fSingleOwner = nullptr;
     SkDEBUGCODE(int fCount = 0;)

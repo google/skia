@@ -198,13 +198,6 @@ void VulkanBuffer::freeGpuData() {
 void VulkanBuffer::internalMap(size_t readOffset, size_t readSize) {
     SkASSERT(!fMapPtr);
     if (this->isMappable()) {
-        // Not every buffer will use command buffer usage refs. Instead, the command buffer just
-        // holds normal refs. Systems higher up in Graphite should be making sure not to reuse a
-        // buffer that currently has a ref held by something else. However, we do need to make sure
-        // there isn't a buffer with just a command buffer usage that is trying to be mapped.
-#ifdef SK_DEBUG
-        SkASSERT(!this->debugHasCommandBufferRef());
-#endif
         SkASSERT(fAlloc.fSize > 0);
         SkASSERT(fAlloc.fSize >= readOffset + readSize);
 
