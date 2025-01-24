@@ -21,6 +21,7 @@
 #include "include/private/SkColorData.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/ReadSwizzle.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/shaders/SkShaderBase.h"
@@ -481,6 +482,39 @@ void AddToKey(const KeyContext& keyContext,
 void NotifyImagesInUse(Recorder*, DrawContext*, const SkBlender*);
 void NotifyImagesInUse(Recorder*, DrawContext*, const SkColorFilter*);
 void NotifyImagesInUse(Recorder*, DrawContext*, const SkShader*);
+
+template <typename AddBlendToKeyT, typename AddSrcToKeyT, typename AddDstToKeyT>
+void Blend(const KeyContext& keyContext,
+           PaintParamsKeyBuilder* keyBuilder,
+           PipelineDataGatherer* gatherer,
+           AddBlendToKeyT addBlendToKey,
+           AddSrcToKeyT addSrcToKey,
+           AddDstToKeyT addDstToKey) {
+    BlendComposeBlock::BeginBlock(keyContext, keyBuilder, gatherer);
+
+        addSrcToKey();
+
+        addDstToKey();
+
+        addBlendToKey();
+
+    keyBuilder->endBlock();  // BlendComposeBlock
+}
+
+template <typename AddInnerToKeyT, typename AddOuterToKeyT>
+void Compose(const KeyContext& keyContext,
+             PaintParamsKeyBuilder* keyBuilder,
+             PipelineDataGatherer* gatherer,
+             AddInnerToKeyT addInnerToKey,
+             AddOuterToKeyT addOuterToKey) {
+    ComposeBlock::BeginBlock(keyContext, keyBuilder, gatherer);
+
+        addInnerToKey();
+
+        addOuterToKey();
+
+    keyBuilder->endBlock();  // ComposeBlock
+}
 
 } // namespace skgpu::graphite
 

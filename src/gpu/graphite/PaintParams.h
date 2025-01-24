@@ -12,7 +12,6 @@
 #include "include/core/SkPaint.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/geom/AnalyticClip.h"
-#include <functional>  // std::function
 
 class SkColorInfo;
 class SkShader;
@@ -98,12 +97,6 @@ private:
     bool                 fDither;
 };
 
-using AddToKeyFn = std::function<void()>;
-
-void Blend(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*,
-           AddToKeyFn addBlendToKey, AddToKeyFn addSrcToKey, AddToKeyFn addDstToKey);
-void Compose(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*,
-             AddToKeyFn addInnerToKey, AddToKeyFn addOuterToKey);
 // Add a fixed blend mode node for a specific SkBlendMode.
 void AddFixedBlendMode(const KeyContext&,
                        PaintParamsKeyBuilder*,
