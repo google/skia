@@ -560,8 +560,8 @@ private:
                 SkASSERT((origRefs & RefMask(RefType::kReturnQueue)) ==
                          (nextRefs & RefMask(RefType::kReturnQueue)) || needsReturn);
             } while (!fRefs.compare_exchange_weak(origRefs, nextRefs,
-                                                  std::memory_order::memory_order_release,
-                                                  std::memory_order::memory_order_relaxed));
+                                                  std::memory_order_release,
+                                                  std::memory_order_relaxed));
             // NOTE: because RefMask(RefType::kReturnQueue) was included in the `needsReturn` check,
             // we know that it was unset in `origRefs`, and was added to `nextRefs`. The CAS ensures
             // that this was the thread that added the return queue ref if `needsReturn` is true
