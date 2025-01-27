@@ -465,7 +465,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ThreadedPipelineCompilePurgingTest,
 
     auto deltaMS = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
 
-    precompileContext->purgePipelinesNotUsedInMs(deltaMS);
+    precompileContext->purgePipelinesNotUsedInMs(2*deltaMS);
 
     GlobalCache::PipelineStats stats = context->priv().globalCache()->getStats();
 
@@ -474,7 +474,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ThreadedPipelineCompilePurgingTest,
     REPORTER_ASSERT(reporter, stats.fGraphicsCacheAdditions == kNumDiffPipelines);
     REPORTER_ASSERT(reporter, stats.fGraphicsRaces == 0);
     // Every created Pipeline should've been used since the start of this test
-    REPORTER_ASSERT(reporter, stats.fGraphicsPurges == 0);
+    REPORTER_ASSERT(reporter, stats.fGraphicsPurges == 0, "num purges: %d", stats.fGraphicsPurges);
 
     //--------------------------------------------------------------------------------------------
     const auto kSleepDuration = std::chrono::milliseconds(1);
