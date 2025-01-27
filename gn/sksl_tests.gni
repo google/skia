@@ -689,6 +689,7 @@ sksl_shared_tests = [
   "shared/Ossfuzz37466.sksl",
   "shared/Ossfuzz37677.sksl",
   "shared/Ossfuzz37900.sksl",
+  "shared/Ossfuzz38831.sksl",
   "shared/Ossfuzz41000.sksl",
   "shared/Ossfuzz50636.sksl",
   "shared/Ossfuzz58483.sksl",

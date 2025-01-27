@@ -1,0 +1,7 @@
+bool r() {
+   switch(0) {
+       case 0: short[] x;
+               int[] a = x;
+              }
+       return true;
+}
