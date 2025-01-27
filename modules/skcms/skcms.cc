@@ -2830,25 +2830,26 @@ bool skcms_Transform(const void*             src,
     }
     switch (dstFmt >> 1) {
         default: return false;
-        case skcms_PixelFormat_A_8             >> 1: add_op(Op::store_a8);         break;
-        case skcms_PixelFormat_G_8             >> 1: add_op(Op::store_g8);         break;
-        case skcms_PixelFormat_GA_88           >> 1: add_op(Op::store_ga88);       break;
-        case skcms_PixelFormat_ABGR_4444       >> 1: add_op(Op::store_4444);       break;
-        case skcms_PixelFormat_RGB_565         >> 1: add_op(Op::store_565);        break;
-        case skcms_PixelFormat_RGB_888         >> 1: add_op(Op::store_888);        break;
-        case skcms_PixelFormat_RGBA_8888       >> 1: add_op(Op::store_8888);       break;
-        case skcms_PixelFormat_RGBA_1010102    >> 1: add_op(Op::store_1010102);    break;
-        case skcms_PixelFormat_RGB_161616LE    >> 1: add_op(Op::store_161616LE);   break;
-        case skcms_PixelFormat_RGBA_16161616LE >> 1: add_op(Op::store_16161616LE); break;
-        case skcms_PixelFormat_RGB_161616BE    >> 1: add_op(Op::store_161616BE);   break;
-        case skcms_PixelFormat_RGBA_16161616BE >> 1: add_op(Op::store_16161616BE); break;
-        case skcms_PixelFormat_RGB_hhh_Norm    >> 1: add_op(Op::store_hhh);        break;
-        case skcms_PixelFormat_RGBA_hhhh_Norm  >> 1: add_op(Op::store_hhhh);       break;
-        case skcms_PixelFormat_RGB_101010x_XR  >> 1: add_op(Op::store_101010x_XR); break;
-        case skcms_PixelFormat_RGB_hhh         >> 1: add_op(Op::store_hhh);        break;
-        case skcms_PixelFormat_RGBA_hhhh       >> 1: add_op(Op::store_hhhh);       break;
-        case skcms_PixelFormat_RGB_fff         >> 1: add_op(Op::store_fff);        break;
-        case skcms_PixelFormat_RGBA_ffff       >> 1: add_op(Op::store_ffff);       break;
+        case skcms_PixelFormat_A_8              >> 1: add_op(Op::store_a8);          break;
+        case skcms_PixelFormat_G_8              >> 1: add_op(Op::store_g8);          break;
+        case skcms_PixelFormat_GA_88            >> 1: add_op(Op::store_ga88);        break;
+        case skcms_PixelFormat_ABGR_4444        >> 1: add_op(Op::store_4444);        break;
+        case skcms_PixelFormat_RGB_565          >> 1: add_op(Op::store_565);         break;
+        case skcms_PixelFormat_RGB_888          >> 1: add_op(Op::store_888);         break;
+        case skcms_PixelFormat_RGBA_8888        >> 1: add_op(Op::store_8888);        break;
+        case skcms_PixelFormat_RGBA_1010102     >> 1: add_op(Op::store_1010102);     break;
+        case skcms_PixelFormat_RGB_161616LE     >> 1: add_op(Op::store_161616LE);    break;
+        case skcms_PixelFormat_RGBA_16161616LE  >> 1: add_op(Op::store_16161616LE);  break;
+        case skcms_PixelFormat_RGB_161616BE     >> 1: add_op(Op::store_161616BE);    break;
+        case skcms_PixelFormat_RGBA_16161616BE  >> 1: add_op(Op::store_16161616BE);  break;
+        case skcms_PixelFormat_RGB_hhh_Norm     >> 1: add_op(Op::store_hhh);         break;
+        case skcms_PixelFormat_RGBA_hhhh_Norm   >> 1: add_op(Op::store_hhhh);        break;
+        case skcms_PixelFormat_RGB_101010x_XR   >> 1: add_op(Op::store_101010x_XR);  break;
+        case skcms_PixelFormat_RGBA_10101010_XR >> 1: add_op(Op::store_10101010_XR); break;
+        case skcms_PixelFormat_RGB_hhh          >> 1: add_op(Op::store_hhh);         break;
+        case skcms_PixelFormat_RGBA_hhhh        >> 1: add_op(Op::store_hhhh);        break;
+        case skcms_PixelFormat_RGB_fff          >> 1: add_op(Op::store_fff);         break;
+        case skcms_PixelFormat_RGBA_ffff        >> 1: add_op(Op::store_ffff);        break;
 
         case skcms_PixelFormat_RGBA_8888_sRGB >> 1:
             add_op_ctx(Op::tf_rgb, skcms_sRGB_Inverse_TransferFunction());

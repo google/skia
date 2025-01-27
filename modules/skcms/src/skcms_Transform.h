@@ -101,6 +101,7 @@ namespace skcms_private {
     M(store_161616BE)      \
     M(store_16161616BE)    \
     M(store_101010x_XR)    \
+    M(store_10101010_XR)   \
     M(store_hhh)           \
     M(store_hhhh)          \
     M(store_fff)           \
