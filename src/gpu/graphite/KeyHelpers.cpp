@@ -507,39 +507,9 @@ void LocalMatrixShaderBlock::BeginBlock(const KeyContext& keyContext,
 
 namespace {
 
-static constexpr int kColorSpaceXformFlagAlphaSwizzle = 0x20;
-
 void add_color_space_uniforms(const SkColorSpaceXformSteps& steps,
                               ReadSwizzle readSwizzle,
                               PipelineDataGatherer* gatherer) {
-    // We have 7 source coefficients and 7 destination coefficients. We pass them via a 4x4 matrix;
-    // the first two columns hold the source values, and the second two hold the destination.
-    // (The final value of each 8-element group is ignored.)
-    // In std140, this arrangement is much more efficient than a simple array of scalars.
-    SkM44 coeffs;
-
-    int colorXformFlags = SkTo<int>(steps.flags.mask());
-    if (readSwizzle != ReadSwizzle::kRGBA) {
-        // Ensure that we do the gamut step
-        SkColorSpaceXformSteps gamutSteps;
-        gamutSteps.flags.gamut_transform = true;
-        colorXformFlags |= SkTo<int>(gamutSteps.flags.mask());
-        if (readSwizzle != ReadSwizzle::kBGRA) {
-            // TODO: Maybe add a fullMask() method to XformSteps?
-            SkASSERT(colorXformFlags < kColorSpaceXformFlagAlphaSwizzle);
-            colorXformFlags |= kColorSpaceXformFlagAlphaSwizzle;
-        }
-    }
-    gatherer->write(colorXformFlags);
-
-    if (steps.flags.linearize) {
-        gatherer->write(SkTo<int>(skcms_TransferFunction_getType(&steps.srcTF)));
-        coeffs.setCol(0, {steps.srcTF.g, steps.srcTF.a, steps.srcTF.b, steps.srcTF.c});
-        coeffs.setCol(1, {steps.srcTF.d, steps.srcTF.e, steps.srcTF.f, 0.0f});
-    } else {
-        gatherer->write(SkTo<int>(skcms_TFType::skcms_TFType_Invalid));
-    }
-
     SkMatrix gamutTransform;
     const float identity[] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
     // TODO: it seems odd to copy this into an SkMatrix just to write it to the gatherer
@@ -564,32 +534,58 @@ void add_color_space_uniforms(const SkColorSpaceXformSteps& steps,
     }
     gatherer->writeHalf(gamutTransform);
 
-    if (steps.flags.encode) {
-        gatherer->write(SkTo<int>(skcms_TransferFunction_getType(&steps.dstTFInv)));
-        coeffs.setCol(2, {steps.dstTFInv.g, steps.dstTFInv.a, steps.dstTFInv.b, steps.dstTFInv.c});
-        coeffs.setCol(3, {steps.dstTFInv.d, steps.dstTFInv.e, steps.dstTFInv.f, 0.0f});
+    // To encode whether to do premul/unpremul or make the output opaque, we use
+    // srcDEF_args.w and dstDEF_args.w:
+    // - identity: {0, 1}
+    // - do unpremul: {-1, 1}
+    // - do premul: {0, 0}
+    // - do both: {-1, 0}
+    // - alpha swizzle 1: {1, 1}
+    // - alpha swizzle r: {1, 0}
+    const bool alphaSwizzleR = readSwizzle == ReadSwizzle::k000R;
+    const bool alphaSwizzle1 = readSwizzle == ReadSwizzle::kRGB1 ||
+                               readSwizzle == ReadSwizzle::kRRR1;
+
+    // It doesn't make sense to unpremul/premul in opaque cases, but we might get a request to
+    // anyways, which we can just ignore.
+    const bool unpremul = alphaSwizzle1 ? false : steps.flags.unpremul;
+    const bool premul = alphaSwizzle1 ? false : steps.flags.premul;
+
+    const float srcW = unpremul ? -1.f :
+                       (alphaSwizzleR || alphaSwizzle1) ? 1.f :
+                                                          0.f;
+    const float dstW = (premul || alphaSwizzleR) ? 0.f : 1.f;
+
+    // To encode which transfer function to apply, we use the src and dst gamma values:
+    // - identity: 0
+    // - sRGB: g > 0
+    // - PQ: -2
+    // - HLG: -1
+    if (steps.flags.linearize) {
+        const skcms_TFType type = skcms_TransferFunction_getType(&steps.srcTF);
+        const float srcG = type == skcms_TFType_sRGBish ? steps.srcTF.g :
+                           type == skcms_TFType_PQish ? -2.f :
+                           type == skcms_TFType_HLGish ? -1.f :
+                                                         0.f;
+        gatherer->writeHalf(SkV4{srcG, steps.srcTF.a, steps.srcTF.b, steps.srcTF.c});
+        gatherer->writeHalf(SkV4{steps.srcTF.d, steps.srcTF.e, steps.srcTF.f, srcW});
     } else {
-        gatherer->write(SkTo<int>(skcms_TFType::skcms_TFType_Invalid));
+        gatherer->writeHalf(SkV4{0.f, 0.f, 0.f, 0.f});
+        gatherer->writeHalf(SkV4{0.f, 0.f, 0.f, srcW});
     }
 
-    // Pack alpha swizzle in the unused coeff entries.
-    switch (readSwizzle) {
-        case ReadSwizzle::k000R:
-            coeffs.setRC(3, 1, 1.f);
-            coeffs.setRC(3, 3, 0.f);
-            break;
-        case ReadSwizzle::kRGB1:
-        case ReadSwizzle::kRRR1:
-            coeffs.setRC(3, 1, 0.f);
-            coeffs.setRC(3, 3, 1.f);
-            break;
-        default:
-            coeffs.setRC(3, 1, 0.f);
-            coeffs.setRC(3, 3, 0.f);
-            break;
+    if (steps.flags.encode) {
+        const skcms_TFType type = skcms_TransferFunction_getType(&steps.dstTFInv);
+        const float dstG = type == skcms_TFType_sRGBish ? steps.dstTFInv.g :
+                           type == skcms_TFType_PQish ? -2.f :
+                           type == skcms_TFType_HLGinvish ? -1.f :
+                                                            0.f;
+        gatherer->writeHalf(SkV4{dstG, steps.dstTFInv.a, steps.dstTFInv.b, steps.dstTFInv.c});
+        gatherer->writeHalf(SkV4{steps.dstTFInv.d, steps.dstTFInv.e, steps.dstTFInv.f, dstW});
+    } else {
+        gatherer->writeHalf(SkV4{0.f, 0.f, 0.f, 0.f});
+        gatherer->writeHalf(SkV4{0.f, 0.f, 0.f, dstW});
     }
-
-    gatherer->writeHalf(coeffs);
 }
 
 void add_image_uniform_data(const ShaderCodeDictionary* dict,
@@ -1083,62 +1079,7 @@ void add_color_space_xform_srgb_uniform_data(
         const ColorSpaceTransformBlock::ColorSpaceTransformData& data,
         PipelineDataGatherer* gatherer) {
     BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kColorSpaceXformSRGB)
-
-    SkMatrix gamutTransform;
-    const float identity[] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
-    // TODO: it seems odd to copy this into an SkMatrix just to write it to the gatherer
-    // src_to_dst_matrix is column-major, SkMatrix is row-major.
-    const float* m = data.fSteps.flags.gamut_transform ? data.fSteps.src_to_dst_matrix : identity;
-    if (data.fReadSwizzle == ReadSwizzle::kRRR1) {
-        gamutTransform.setAll(m[0] + m[3] + m[6], 0, 0,
-                              m[1] + m[4] + m[7], 0, 0,
-                              m[2] + m[5] + m[8], 0, 0);
-    } else if (data.fReadSwizzle == ReadSwizzle::kBGRA) {
-        gamutTransform.setAll(m[6], m[3], m[0],
-                              m[7], m[4], m[1],
-                              m[8], m[5], m[2]);
-    } else if (data.fReadSwizzle == ReadSwizzle::k000R) {
-        gamutTransform.setAll(0, 0, 0,
-                              0, 0, 0,
-                              0, 0, 0);
-    } else if (data.fSteps.flags.gamut_transform) {
-        gamutTransform.setAll(m[0], m[3], m[6],
-                              m[1], m[4], m[7],
-                              m[2], m[5], m[8]);
-    }
-    gatherer->writeHalf(gamutTransform);
-
-    // To encode whether to do premul/unpremul or make the output opaque, we use
-    // srcDEF_args.w and dstDEF_args.w:
-    // - identity: {0, 1}
-    // - do unpremul: {-1, 1}
-    // - do premul: {0, 0}
-    // - do both: {-1, 0}
-    // - alpha swizzle 1: {1, 1}
-    // - alpha swizzle r: {1, 0}
-    const bool alphaSwizzleR = data.fReadSwizzle == ReadSwizzle::k000R;
-    const bool alphaSwizzle1 = data.fReadSwizzle == ReadSwizzle::kRGB1 ||
-                               data.fReadSwizzle == ReadSwizzle::kRRR1;
-
-    // It doesn't make sense to unpremul/premul in opaque cases, but we might get a request to
-    // anyways, which we can just ignore.
-    const bool unpremul = alphaSwizzle1 ? false : data.fSteps.flags.unpremul;
-    const bool premul = alphaSwizzle1 ? false : data.fSteps.flags.premul;
-
-    const float srcW = unpremul ? -1.f :
-                       (alphaSwizzleR || alphaSwizzle1) ? 1.f :
-                                                          0.f;
-    const float dstW = (premul || alphaSwizzleR) ? 0.f : 1.f;
-
-    gatherer->writeHalf(SkV4{data.fSteps.srcTF.g, data.fSteps.srcTF.a,
-                             data.fSteps.srcTF.b, data.fSteps.srcTF.c});
-    gatherer->writeHalf(SkV4{data.fSteps.srcTF.d, data.fSteps.srcTF.e,
-                             data.fSteps.srcTF.f, srcW});
-
-    gatherer->writeHalf(SkV4{data.fSteps.dstTFInv.g, data.fSteps.dstTFInv.a,
-                             data.fSteps.dstTFInv.b, data.fSteps.dstTFInv.c});
-    gatherer->writeHalf(SkV4{data.fSteps.dstTFInv.d, data.fSteps.dstTFInv.e,
-                             data.fSteps.dstTFInv.f, dstW});
+    add_color_space_uniforms(data.fSteps, data.fReadSwizzle, gatherer);
 }
 
 }  // anonymous namespace

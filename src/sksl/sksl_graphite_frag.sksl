@@ -8,18 +8,6 @@ const int $kTileModeDecal  = 3;
 const int $kFilterModeNearest = 0;
 const int $kFilterModeLinear  = 1;
 
-const int $kTFTypeSRGB = 1;
-const int $kTFTypePQ = 2;
-const int $kTFTypeHLG = 3;
-const int $kTFTypeHLGinv = 4;
-
-const int $kColorSpaceXformFlagUnpremul = 0x1;
-const int $kColorSpaceXformFlagLinearize = 0x2;
-const int $kColorSpaceXformFlagGamutTransform = 0x4;
-const int $kColorSpaceXformFlagEncode = 0x8;
-const int $kColorSpaceXformFlagPremul = 0x10;
-const int $kColorSpaceXformFlagAlphaSwizzle = 0x20;
-
 const int $kMaskFormatA8   = 0;
 const int $kMaskFormatA565 = 1;
 const int $kMaskFormatARGB = 2;
@@ -58,66 +46,96 @@ $pure float3 $apply_srgb_xfer_fn(float3 x, half4 gabc, half3 def) {
                lessThan(x, float3(def[0])));
 }
 
-$pure float3 $apply_xfer_fn(int kind, float3 x, half4 gabc, half3 def) {
-    float3 s = sign(x);
-    x = abs(x);
-    switch (kind) {
-        case $kTFTypeSRGB:
-            x = $apply_srgb_xfer_fn(x, gabc, def);
-            break;
-        case $kTFTypePQ:
-            float3 x_C = pow(x, float3(gabc[3]));
-            x = pow(max(gabc[1] + gabc[2] * x_C, 0) / (def[0] + def[1] * x_C), float3(def[2]));
-            break;
-        case $kTFTypeHLG:
-            x = mix(exp((x - def[1]) * gabc[3]) + def[0],
-                    pow(x * gabc[1], float3(gabc[2])),
-                    lessThanEqual(x * gabc[1], float3(1)));
-            x *= (def[2] + 1);
-            break;
-        case $kTFTypeHLGinv:
-            x /= (def[2] + 1);
-            x = mix(gabc[3] * log(x - def[0]) + def[1],
-                    gabc[1] * pow(x, float3(gabc[2])),
-                    lessThanEqual(x, float3(1)));
-            break;
-    }
-    return s * x;
+$pure float3 $apply_pq_xfer_fn(float3 x, half3 abc, half3 def) {
+    float3 x_C = pow(x, float3(abc[2]));
+    return pow(max(abc[0] + abc[1] * x_C, 0) / (def[0] + def[1] * x_C), float3(def[2]));
+}
+
+$pure float3 $apply_hlg_xfer_fn(float3 x, half3 abc, half3 def) {
+    return (def[2] + 1) * mix(exp((x - def[1]) * abc[2]) + def[0],
+                              pow(x * abc[0], float3(abc[1])),
+                              lessThanEqual(x * abc[0], float3(1)));
+}
+
+$pure float3 $apply_hlg_inv_xfer_fn(float3 x, half3 abc, half3 def) {
+    x /= (def[2] + 1);
+    return mix(abc[2] * log(x - def[0]) + def[1],
+               abc[0] * pow(x, float3(abc[1])),
+               lessThanEqual(x, float3(1)));
 }
 
 $pure half4 sk_premul_alpha(float4 color) {
     return half4(color.rgb*color.a, color.a);
 }
 
-$pure half4 sk_color_space_transform(half4 halfColor,
-                                     int flags,
-                                     int srcKind,
-                                     half3x3 gamutTransform,
-                                     int dstKind,
-                                     half4x4 coeffs) {
-    if (flags != 0) {
-        float4 color = float4(halfColor);
+$pure half4 sk_color_space_transform(half4 color,
+                                     half3x3 gamut,
+                                     half4 srcGABC,
+                                     half4 srcDEF_args,
+                                     half4 dstGABC,
+                                     half4 dstDEF_args) {
+    // To encode whether to do premul/unpremul or make the output opaque, we use
+    // srcDEF_args.w and dstDEF_args.w:
+    // - identity: {0, 1}
+    // - do unpremul: {-1, 1}
+    // - do premul: {0, 0}
+    // - do both: {-1, 0}
+    // - alpha swizzle 1: {1, 1}
+    // - alpha swizzle r: {1, 0}
+    //
+    // This depends on the assumption that if we're doing an alpha swizzle, we're not premultiplying
+    // or unpremultiplying, so the alpha swizzle cases are mutually exclusive with the premul cases.
 
-        if (bool(flags & $kColorSpaceXformFlagAlphaSwizzle)) {
-            color.a = dot(color.r1, float2(coeffs[1][3], coeffs[3][3]));
-        }
-        if (bool(flags & $kColorSpaceXformFlagUnpremul)) {
-            color = unpremul(color);
-        }
-        if (bool(flags & $kColorSpaceXformFlagLinearize)) {
-            color.rgb = $apply_xfer_fn(srcKind, color.rgb, coeffs[0], coeffs[1].xyz);
-        }
-        if (bool(flags & $kColorSpaceXformFlagGamutTransform)) {
-            color.rgb = gamutTransform * color.rgb;
-        }
-        if (bool(flags & $kColorSpaceXformFlagEncode)) {
-            color.rgb = $apply_xfer_fn(dstKind, color.rgb, coeffs[2], coeffs[3].xyz);
-        }
+    if (srcDEF_args.w < 0) {
+        color = unpremul(color);
 
-        halfColor = bool(flags & $kColorSpaceXformFlagPremul) ? sk_premul_alpha(color)
-                                                              : half4(color);
+    } else {
+        // Alpha swizzle cases; we set alpha = {a, r, 1} . {1 - x, x - x * y, x * y}.
+        // Given the encoded inputs described above, and ignoring the do unpremul case, we have:
+        //  1. No-op ({x, y} = {0, 1} or {0, 0}) -> {a, r, 1} . {1, 0, 0} = a
+        //  2. Use R ({x, y} = {1, 0})           -> {a, r, 1} . {0, 1, 0} = r
+        //  3. Use 1 ({x, y} = {1, 1})           -> {a, r, 1} . {0, 0, 1} = 1
+        half alphaSwizzleA = 1.0 - srcDEF_args.w;
+        half alphaSwizzle1 = srcDEF_args.w * dstDEF_args.w;
+        half alphaSwizzleR = srcDEF_args.w - alphaSwizzle1;
+        color.a = dot(color.ar1, half3(alphaSwizzleA, alphaSwizzleR, alphaSwizzle1));
     }
-    return halfColor;
+
+    // To encode which transfer function to apply, we use the src and dst gamma values:
+    // - identity: 0
+    // - sRGB: g > 0
+    // - PQ: -2
+    // - HLG: -1
+    float3 colorF = float3(color.rgb);
+    if (srcGABC.x > 0) {
+        colorF = sign(colorF) * $apply_srgb_xfer_fn(abs(colorF), srcGABC, srcDEF_args.xyz);
+    } else if (srcGABC.x < -1 ) {
+        colorF = sign(colorF) * $apply_pq_xfer_fn(abs(colorF), srcGABC.yzw, srcDEF_args.xyz);
+    } else if (srcGABC.x < 0) {
+        colorF = sign(colorF) * $apply_hlg_xfer_fn(abs(colorF), srcGABC.yzw, srcDEF_args.xyz);
+    }
+
+    colorF = gamut * colorF;
+
+    if (dstGABC.x > 0) {
+        colorF = sign(colorF) * $apply_srgb_xfer_fn(abs(colorF), dstGABC, dstDEF_args.xyz);
+    } else if (dstGABC.x < -1 ) {
+        colorF = sign(colorF) * $apply_pq_xfer_fn(abs(colorF), dstGABC.yzw, dstDEF_args.xyz);
+    } else if (dstGABC.x < 0) {
+        colorF = sign(colorF) * $apply_hlg_inv_xfer_fn(abs(colorF), dstGABC.yzw, dstDEF_args.xyz);
+    }
+
+    // Premul cases:
+    //  1. No-op (noPremul = 1) -> max(...) = 1.0 -> identity function
+    //  2. Premultiply (noPremul = 0) -> max(...) = color.a -> premul
+    //
+    // "noPremul" is 0 in the premul case, but also in the alpha-swizzle-r case, but the only time
+    // we swizzle r to alpha is for a read swizzle of 000R, in which case the RGB channels are zero
+    // and it doesn't matter what we multiply them by here.
+    half noPremul = dstDEF_args.w;
+    color.rgb = half3(colorF.rgb) * max(color.a, noPremul);
+
+    return color;
 }
 
 $pure half4 sk_color_space_transform_premul(half4 color, half2 args) {

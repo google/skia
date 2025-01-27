@@ -1132,11 +1132,11 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*name=*/"ColorSpaceTransform",
             /*staticFn=*/"sk_color_space_transform",
             SnippetRequirementFlags::kPriorStageOutput,
-            /*uniforms=*/{ { "flags",          SkSLType::kInt },
-                           { "srcKind",        SkSLType::kInt },
-                           { "gamutTransform", SkSLType::kHalf3x3 },
-                           { "dstKind",        SkSLType::kInt },
-                           { "csXformCoeffs",  SkSLType::kHalf4x4 } }
+            /*uniforms=*/{ { "gamut",       SkSLType::kHalf3x3 },
+                           { "srcGABC",     SkSLType::kHalf4 },
+                           { "srcDEF_args", SkSLType::kHalf4 },
+                           { "dstGABC",     SkSLType::kHalf4 },
+                           { "dstDEF_args", SkSLType::kHalf4 } }
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPremulAlphaColorFilter] = {
             /*name=*/"PremulAlpha",
@@ -1280,20 +1280,6 @@ static_assert((int)SkBlendMode::kHue        == (int)BuiltInCodeSnippetID::kFixed
 static_assert((int)SkBlendMode::kSaturation == (int)BuiltInCodeSnippetID::kFixedBlend_Saturation - kFixedBlendIDOffset);
 static_assert((int)SkBlendMode::kColor      == (int)BuiltInCodeSnippetID::kFixedBlend_Color      - kFixedBlendIDOffset);
 static_assert((int)SkBlendMode::kLuminosity == (int)BuiltInCodeSnippetID::kFixedBlend_Luminosity - kFixedBlendIDOffset);
-
-// Verify enum constants match values expected by static module SkSL functions
-static_assert(0 == static_cast<int>(skcms_TFType_Invalid),   "ColorSpaceTransform code depends on skcms_TFType");
-static_assert(1 == static_cast<int>(skcms_TFType_sRGBish),   "ColorSpaceTransform code depends on skcms_TFType");
-static_assert(2 == static_cast<int>(skcms_TFType_PQish),     "ColorSpaceTransform code depends on skcms_TFType");
-static_assert(3 == static_cast<int>(skcms_TFType_HLGish),    "ColorSpaceTransform code depends on skcms_TFType");
-static_assert(4 == static_cast<int>(skcms_TFType_HLGinvish), "ColorSpaceTransform code depends on skcms_TFType");
-
-// TODO: We can meaningfully check these when we can use C++20 features.
-// static_assert(0x1  == SkColorSpaceXformSteps::Flags{.unpremul = true}.mask(),        "ColorSpaceTransform code depends on SkColorSpaceXformSteps::Flags");
-// static_assert(0x2  == SkColorSpaceXformSteps::Flags{.linearize = true}.mask(),       "ColorSpaceTransform code depends on SkColorSpaceXformSteps::Flags");
-// static_assert(0x4  == SkColorSpaceXformSteps::Flags{.gamut_transform = true}.mask(), "ColorSpaceTransform code depends on SkColorSpaceXformSteps::Flags");
-// static_assert(0x8  == SkColorSpaceXformSteps::Flags{.encode = true}.mask(),          "ColorSpaceTransform code depends on SkColorSpaceXformSteps::Flags");
-// static_assert(0x10 == SkColorSpaceXformSteps::Flags{.premul = true}.mask(),          "ColorSpaceTransform code depends on SkColorSpaceXformSteps::Flags");
 
 static_assert(0 == static_cast<int>(SkTileMode::kClamp),  "ImageShader code depends on SkTileMode");
 static_assert(1 == static_cast<int>(SkTileMode::kRepeat), "ImageShader code depends on SkTileMode");
