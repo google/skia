@@ -351,6 +351,8 @@ void ResourceCache::processReturnedResource(Resource* resource) {
 
         SkASSERT(fResourceMap.has(resource, resource->key()));
         SkASSERT(resource->isAvailableForReuse());
+        // Since the resource should be non-shareable available as scratch, there are no outstanding
+        // refs that would make this assert not thread safe.
         SkASSERT(resource->isUsableAsScratch());
     } else {
         // This was a stale entry in the return queue, which can arise when a Resource becomes
@@ -361,7 +363,10 @@ void ResourceCache::processReturnedResource(Resource* resource) {
         // is neither purgeable nor reusable.
         SkASSERT(!fResourceMap.has(resource, resource->key()));
         SkASSERT(!resource->isAvailableForReuse());
-        SkASSERT(!resource->isUsableAsScratch());
+        // At an instanteous moment, this resource should not be considered usable as scratch, but
+        // we cannot assert !isUsableAsScratch() because the other threads that are holding the
+        // extra refs described above can just as easily drop them between this assert and the last
+        // call to unrefReturnQueue() that put us into this branch.
     }
 
     // Update GPU budget now that the budget policy is up to date. Some GPU resources may have their
