@@ -1284,7 +1284,7 @@ void Device::drawGeometry(const Transform& localToDevice,
                                                          : SkBlendMode::kSrcOver;
     Coverage rendererCoverage = renderer ? renderer->coverage()
                                          : Coverage::kSingleChannel;
-    if ((clip.shader() || !clip.analyticClip().isEmpty()) && rendererCoverage == Coverage::kNone) {
+    if ((clip.shader() || !clip.nonMSAAClip().isEmpty()) && rendererCoverage == Coverage::kNone) {
         // Must upgrade to single channel coverage if there is a clip shader or analytic clip;
         // but preserve LCD coverage if the Renderer uses that.
         rendererCoverage = Coverage::kSingleChannel;
@@ -1302,12 +1302,12 @@ void Device::drawGeometry(const Transform& localToDevice,
 
     PaintParams shading{paint,
                         std::move(primitiveBlender),
-                        clip.analyticClip(),
+                        clip.nonMSAAClip(),
                         sk_ref_sp(clip.shader()),
                         dstReadRequired,
                         skipColorXform};
     const bool dependsOnDst = paint_depends_on_dst(shading) ||
-                              clip.shader() || !clip.analyticClip().isEmpty();
+                              clip.shader() || !clip.nonMSAAClip().isEmpty();
 
     // Some shapes and styles combine multiple draws so the total render step count is split between
     // the main renderer and possibly a secondaryRenderer.

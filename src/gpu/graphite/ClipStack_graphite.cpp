@@ -384,7 +384,7 @@ void ClipStack::RawElement::drawClip(Device* device) {
         device->drawClipShape(fLocalToDevice,
                               fShape,
                               Clip{drawBounds, drawBounds, scissor.asSkIRect(),
-                                   /* analyticClip= */ {}, /* shader= */ nullptr},
+                                   /* nonMSAAClip= */ {}, /* shader= */ nullptr},
                               order);
     }
 
@@ -1193,7 +1193,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                                       ClipStack::ElementList* outEffectiveElements) const {
     static const Clip kClippedOut = {
             Rect::InfiniteInverted(), Rect::InfiniteInverted(), SkIRect::MakeEmpty(),
-            /* analyticClip= */ {}, /* shader= */ nullptr};
+            /* nonMSAAClip= */ {}, /* shader= */ nullptr};
 
     const SaveRecord& cs = this->currentSaveRecord();
     if (cs.state() == ClipState::kEmpty) {
@@ -1327,7 +1327,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     SkASSERT(outEffectiveElements);
     SkASSERT(outEffectiveElements->empty());
     int i = fElements.count();
-    CircularRRectClip analyticClip;
+    NonMSAAClip nonMSAAClip;
     for (const RawElement& e : fElements.ritems()) {
         --i;
         if (i < cs.oldestElementIndex()) {
@@ -1342,9 +1342,9 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
             return kClippedOut;
         }
         if (influence == RawElement::DrawInfluence::kIntersect) {
-            if (analyticClip.isEmpty()) {
-                analyticClip = can_apply_analytic_clip(e.shape(), e.localToDevice());
-                if (!analyticClip.isEmpty()) {
+            if (nonMSAAClip.fAnalyticClip.isEmpty()) {
+                nonMSAAClip.fAnalyticClip = can_apply_analytic_clip(e.shape(), e.localToDevice());
+                if (!nonMSAAClip.fAnalyticClip.isEmpty()) {
                     continue;
                 }
             }
@@ -1352,7 +1352,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         }
     }
 
-    return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), analyticClip, cs.shader());
+    return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), nonMSAAClip, cs.shader());
 }
 
 CompressedPaintersOrder ClipStack::updateClipStateForDraw(const Clip& clip,

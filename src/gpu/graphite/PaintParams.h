@@ -11,7 +11,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/geom/AnalyticClip.h"
+#include "src/gpu/graphite/geom/NonMSAAClip.h"
 
 class SkColorInfo;
 class SkShader;
@@ -35,7 +35,7 @@ class PaintParams {
 public:
     explicit PaintParams(const SkPaint&,
                          sk_sp<SkBlender> primitiveBlender,
-                         const CircularRRectClip& analyticClip,
+                         const NonMSAAClip& nonMSAAClip,
                          sk_sp<SkShader> clipShader,
                          bool dstReadRequired,
                          bool skipColorXform);
@@ -90,7 +90,7 @@ private:
     // In the case where there is primitive blending, the primitive color is the source color and
     // the dest is the paint's color (or the paint's shader's computed color).
     sk_sp<SkBlender>     fPrimitiveBlender;
-    CircularRRectClip    fAnalyticClip;
+    NonMSAAClip          fNonMSAAClip;
     sk_sp<SkShader>      fClipShader;
     bool                 fDstReadRequired;
     bool                 fSkipColorXform;

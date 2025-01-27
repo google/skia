@@ -340,7 +340,7 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
                                                    {},
                                                    PaintParams(paint,
                                                                /* primitiveBlender= */ nullptr,
-                                                               /* analyticClip= */ {},
+                                                               /* nonMSAAClip= */ {},
                                                                /* clipShader= */ nullptr,
                                                                dstReadRequired,
                                                                /* skipColorXform= */ false),

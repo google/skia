@@ -52,7 +52,7 @@ bool should_dither(const PaintParams& p, SkColorType dstCT) {
 
 PaintParams::PaintParams(const SkPaint& paint,
                          sk_sp<SkBlender> primitiveBlender,
-                         const CircularRRectClip& analyticClip,
+                         const NonMSAAClip& nonMSAAClip,
                          sk_sp<SkShader> clipShader,
                          bool dstReadRequired,
                          bool skipColorXform)
@@ -61,7 +61,7 @@ PaintParams::PaintParams(const SkPaint& paint,
         , fShader(paint.refShader())
         , fColorFilter(paint.refColorFilter())
         , fPrimitiveBlender(std::move(primitiveBlender))
-        , fAnalyticClip(analyticClip)
+        , fNonMSAAClip(nonMSAAClip)
         , fClipShader(std::move(clipShader))
         , fDstReadRequired(dstReadRequired)
         , fSkipColorXform(skipColorXform)
@@ -256,16 +256,17 @@ void PaintParams::handleDithering(const KeyContext& keyContext,
 void PaintParams::handleClipping(const KeyContext& keyContext,
                                  PaintParamsKeyBuilder* builder,
                                  PipelineDataGatherer* gatherer) const {
-    if (!fAnalyticClip.isEmpty()) {
-        float radius = fAnalyticClip.fRadius + 0.5f;
+    if (!fNonMSAAClip.isEmpty() && !fNonMSAAClip.fAnalyticClip.isEmpty()) {
+        const CircularRRectClip& analyticClip = fNonMSAAClip.fAnalyticClip;
+        float radius = analyticClip.fRadius + 0.5f;
         // N.B.: Because the clip data is normally used with depth-based clipping,
         // the shape is inverted from its usual state. We re-invert here to
         // match what the shader snippet expects.
-        SkPoint radiusPair = {(fAnalyticClip.fInverted) ? radius : -radius, 1.0f/radius};
+        SkPoint radiusPair = {(analyticClip.fInverted) ? radius : -radius, 1.0f/radius};
         CircularRRectClipBlock::CircularRRectClipData data(
-                fAnalyticClip.fBounds.makeOutset(0.5f).asSkRect(),
+                analyticClip.fBounds.makeOutset(0.5f).asSkRect(),
                 radiusPair,
-                fAnalyticClip.edgeSelectRect());
+                analyticClip.edgeSelectRect());
         if (fClipShader) {
             // For both an analytic clip and clip shader, we need to compose them together into
             // a single clipping root node.

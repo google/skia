@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_geom_AnalyticClip_DEFINED
-#define skgpu_graphite_geom_AnalyticClip_DEFINED
+#ifndef skgpu_graphite_geom_NonMSAAClip_DEFINED
+#define skgpu_graphite_geom_NonMSAAClip_DEFINED
 
 #include "src/gpu/graphite/geom/Rect.h"
 
@@ -40,6 +40,27 @@ struct CircularRRectClip {
     }
 };
 
+/**
+ * Represents a clip that uses a mask in an atlas
+ */
+struct AtlasClip {
+    Rect                fMaskBounds;
+    skvx::half2         fOutPos;
+    sk_sp<TextureProxy> fAtlasTexture;
+
+    bool isEmpty() const { return !SkToBool(fAtlasTexture.get()); }
+};
+
+/**
+ * Combined non-MSAA clip structure
+ */
+struct NonMSAAClip {
+    CircularRRectClip fAnalyticClip;
+    AtlasClip         fAtlasClip;
+
+    bool isEmpty() const { return fAnalyticClip.isEmpty() && fAtlasClip.isEmpty(); }
+};
+
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_geom_AnalyticClip_DEFINED
+#endif // skgpu_graphite_geom_NonMSAAClip_DEFINED
