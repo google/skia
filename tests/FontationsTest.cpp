@@ -298,3 +298,36 @@ DEF_TEST(Fontations_SyntheticCapHeight, reporter) {
     const SkScalar kExpected = 11.138672;
     REPORTER_ASSERT(reporter, metrics.fCapHeight == kExpected, "Metrics mismatch: %f vs. %f", kExpected, metrics.fCapHeight);
 }
+
+DEF_TEST(Fontations_SyntheticXHeight, reporter) {
+    sk_sp<SkTypeface> noXHeightTypeface(SkTypeface_Make_Fontations(
+            GetResourceAsStream(kNoCapHeightResource), SkFontArguments()));
+    sk_sp<SkTypeface> noXHeightNoHxTypeface(SkTypeface_Make_Fontations(
+            GetResourceAsStream(kNoCapHeightNoHxResource), SkFontArguments()));
+    SkASSERT_RELEASE(noXHeightTypeface);
+    SkASSERT_RELEASE(noXHeightNoHxTypeface);
+
+    SkFont xHeightFont(noXHeightTypeface);
+    SkFont xHeightFontNoHx(noXHeightNoHxTypeface);
+
+    xHeightFont.setSize(12);
+    xHeightFontNoHx.setSize(12);
+
+    SkFontMetrics metrics;
+
+    xHeightFont.getMetrics(&metrics);
+    const SkScalar kXCharHeight = 7.0;
+    REPORTER_ASSERT(reporter,
+                    metrics.fXHeight == kXCharHeight,
+                    "Expected: %f vs actual: %f\n",
+                    kXCharHeight,
+                    metrics.fXHeight);
+
+    xHeightFontNoHx.getMetrics(&metrics);
+    unsigned glyphId = noXHeightNoHxTypeface->unicharToGlyph('x');
+    REPORTER_ASSERT(reporter, glyphId == 0, "Glyph lookup for x should fail, but was: %u", glyphId);
+
+    // xHeight falls back to ascent as well.
+    const SkScalar kExpected = 11.138672;
+    REPORTER_ASSERT(reporter, metrics.fXHeight == kExpected, "Metrics mismatch: %f vs. %f", kExpected, metrics.fXHeight);
+}

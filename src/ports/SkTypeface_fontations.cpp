@@ -816,6 +816,15 @@ protected:
             }
         }
 
+        if (!out_metrics->fXHeight) {
+            SkScalar xHeight;
+            if (getContourHeightForLetter('x', xHeight)) {
+                out_metrics->fXHeight = xHeight;
+            } else {
+                out_metrics->fXHeight = metrics.ascent;
+            }
+        }
+
         if (fontations_ffi::table_data(fBridgeFontRef,
                                        SkSetFourByteTag('f', 'v', 'a', 'r'),
                                        0,
