@@ -32,18 +32,19 @@ public:
                                           const ClipStack::ElementList*,
                                           const Rect& bounds,
                                           skvx::half2* outPos);
-    const TextureProxy* addToAtlas(const ClipStack::ElementList*,
-                                   const Rect& bounds,
-                                   skvx::half2* outPos,
-                                   AtlasLocator* locator);
 
     bool recordUploads(DrawContext* dc);
     void evict(PlotLocator) override;
     void compact(bool forceCompact);
 
-    void evictAll();
+    void evictAtlases();
 
 private:
+    const TextureProxy* addToAtlas(const ClipStack::ElementList*,
+                                   const Rect& bounds,
+                                   skvx::half2* outPos,
+                                   AtlasLocator* locator);
+
     Recorder* fRecorder;
     std::unique_ptr<DrawAtlas> fDrawAtlas;
 

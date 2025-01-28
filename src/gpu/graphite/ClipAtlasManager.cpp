@@ -8,6 +8,8 @@
 #include "src/gpu/graphite/ClipAtlasManager.h"
 
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/base/SkFixed.h"
+#include "src/base/SkFloatBits.h"
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/RasterPathUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -225,7 +227,7 @@ void ClipAtlasManager::evict(PlotLocator plotLocator) {
     }
 }
 
-void ClipAtlasManager::evictAll() {
+void ClipAtlasManager::evictAtlases() {
     fDrawAtlas->evictAllPlots();
     SkASSERT(fMaskCache.empty());
 }
