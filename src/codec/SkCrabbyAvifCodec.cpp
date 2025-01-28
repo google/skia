@@ -335,7 +335,10 @@ bool SkCrabbyAvifCodec::onGetFrameInfo(int i, FrameInfo* frameInfo) const {
     return true;
 }
 
-int SkCrabbyAvifCodec::onGetRepetitionCount() { return kRepetitionCountInfinite; }
+int SkCrabbyAvifCodec::onGetRepetitionCount() {
+    return (fAvifDecoder->repetitionCount < 0) ? kRepetitionCountInfinite
+                                               : fAvifDecoder->repetitionCount;
+}
 
 bool SkCrabbyAvifCodec::conversionSupported(const SkImageInfo& dstInfo,
                                             bool srcIsOpaque,
