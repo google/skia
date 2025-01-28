@@ -191,8 +191,9 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
     // issues.
     avifDecoder->strictFlags = crabbyavif::AVIF_STRICT_DISABLED;
 
-    // TODO(vigneshv): Enable threading based on number of CPU cores available.
-    avifDecoder->maxThreads = 1;
+    // Android uses MediaCodec for decoding the underlying image. So there is no
+    // need to set maxThreads since MediaCodec doesn't allow explicit setting
+    // of threads.
 
     if (gainmapOnly) {
         avifDecoder->imageContentToDecode = crabbyavif::AVIF_IMAGE_CONTENT_GAIN_MAP;
@@ -212,7 +213,6 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
     }
 
     std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
-    // TODO(vigneshv): Get ICC Profile from the avif decoder.
 
     // CrabbyAvif uses MediaCodec, which always sets bitsPerComponent to 8.
     const int bitsPerComponent = 8;
@@ -427,7 +427,7 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
         // scale the copied image.
         scaled_image.reset(crabbyavif::crabby_avifImageCreateEmpty());
         result = crabbyavif::crabby_avifImageCopy(
-            scaled_image.get(), image, crabbyavif::AVIF_PLANES_ALL);
+                scaled_image.get(), image, crabbyavif::AVIF_PLANES_ALL);
         if (result != crabbyavif::AVIF_RESULT_OK) {
             return kInvalidInput;
         }
@@ -459,9 +459,7 @@ SkCodec::Result SkCrabbyAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
             rgbImage.format = crabbyavif::AVIF_RGB_FORMAT_RGB565;
             break;
         default:
-            // TODO(vigneshv): Check if more color types need to be supported.
-            // Currently android supports at least RGB565 and BGRA8888 which is
-            // not supported here.
+            // Not reached because of the checks in conversionSupported().
             return kUnimplemented;
     }
 
