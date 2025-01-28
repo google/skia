@@ -335,6 +335,7 @@ skia_filegroup(
         "SkMaskBlurFilter.cpp",
         "SkMaskCache.cpp",
         "SkMaskFilter.cpp",
+        "SkMaskFilterBase.cpp",
         "SkMaskGamma.cpp",
         "SkMatrix.cpp",
         "SkMatrixInvert.cpp",
