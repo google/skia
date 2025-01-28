@@ -112,6 +112,10 @@ enum class CicpId : uint8_t {
     // Values 23-255 are reserved.
 };
 
+// https://www.w3.org/TR/css-color-4/#predefined-prophoto-rgb
+static constexpr SkColorSpacePrimaries kProPhotoRGB = {
+        0.7347f, 0.2653f, 0.1596f, 0.8404f, 0.0366f, 0.0001f, 0.34567f, 0.35850f};
+
 }  // namespace SkNamedPrimaries
 
 namespace SkNamedTransferFn {
@@ -207,6 +211,13 @@ enum class CicpId : uint8_t {
     kHLG = 18,
     // Values 19-255 are reserved.
 };
+
+// https://w3.org/TR/css-color-4/#valdef-color-prophoto-rgb
+// "The transfer curve is a gamma function with a value of 1/1.8"
+static constexpr skcms_TransferFunction kProPhotoRGB = {1.8f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+
+// https://www.w3.org/TR/css-color-4/#predefined-a98-rgb
+static constexpr skcms_TransferFunction kA98RGB = k2Dot2;
 
 }  // namespace SkNamedTransferFn
 
