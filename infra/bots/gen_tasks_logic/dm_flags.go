@@ -1415,11 +1415,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~^WritePixelsMSAA_Gpu$")
 	}
 
-	if b.extraConfig("Vulkan") && b.gpu("GTX660") && b.matchOs("Win") {
-		// skbug.com/8047
-		match = append(match, "~FloatingPointTextureTest$")
-	}
-
 	if b.extraConfig("Metal") && !b.extraConfig("Graphite") && b.gpu("RadeonHD8870M") && b.matchOs("Mac") {
 		// skia:9255
 		match = append(match, "~WritePixelsNonTextureMSAA_Gpu")

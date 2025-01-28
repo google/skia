@@ -41,8 +41,8 @@ class AndroidFlavor(default.DefaultFlavor):
 
     # A list of devices we can't root.  If rooting fails and a device is not
     # on the list, we fail the task to avoid perf inconsistencies.
-    self.cant_root = ['GalaxyS7_G930FD', 'GalaxyS9',
-                      'GalaxyS20', 'MotoG4', 'NVIDIA_Shield',
+    self.cant_root = ['GalaxyS7_G930FD',
+                      'GalaxyS20', 'MotoG4',
                       'P30', 'Pixel4','Pixel4XL', 'Pixel5', 'TecnoSpark3Pro', 'JioNext',
                       'GalaxyS24', 'MotoG73']
 
@@ -74,7 +74,6 @@ class AndroidFlavor(default.DefaultFlavor):
     self.cpus_to_scale = {
       'Nexus5x': [4],
       'Pixel': [2],
-      'Pixel2XL': [4]
     }
 
     # Maps device type -> CPU ids that should be turned off when running
@@ -86,7 +85,6 @@ class AndroidFlavor(default.DefaultFlavor):
     self.disable_for_nanobench = {
       'Nexus5x': range(0, 4),
       'Pixel': range(0, 2),
-      'Pixel2XL': range(0, 4),
       'Pixel6': range(4,8), # Only use the 4 small cores.
       'Pixel7': range(4,8),
       'Pixel9': range(4,8),
@@ -277,7 +275,7 @@ class AndroidFlavor(default.DefaultFlavor):
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
-    if self.m.vars.builder_cfg.get('model') in ['GalaxyS20', 'GalaxyS9']:
+    if self.m.vars.builder_cfg.get('model') == 'GalaxyS20':
       # See skia:10184, should be moot once upgraded to Android 11?
       self._adb('cp libGLES_mali.so to ' + self.device_dirs.bin_dir,
                  'shell', 'cp',

@@ -59,7 +59,7 @@ Multiple lines are allowed:
 Here are some real world examples:
 
     Cq-Include-Trybots: master.tryserver.chromium.linux:linux_chromium_asan_rel_ng
-    Cq-Include-Trybots: skia.primary:Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE
+    Cq-Include-Trybots: skia.primary:Test-Mac12-Clang-MacBookPro16.2-GPU-IntelIrisPlus-x86_64-Debug-All-ANGLE
     Cq-Include-Trybots: luci.skia.skia.primary:Build-Debian9-Clang-x86-devrel-Android_SKQP
 
     FIXME: what bucket are skia bots in now?

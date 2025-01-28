@@ -60,7 +60,7 @@ From a Skia checkout:
 
 You can also search using regular expressions:
 
-    bin/try "Test.*GTX660.*Release"
+    bin/try "Test.*Pixel.*Release"
 
 
 Status View

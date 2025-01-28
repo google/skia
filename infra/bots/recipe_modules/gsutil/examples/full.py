@@ -35,7 +35,7 @@ def GenTests(api):
 
   yield (
       api.test('gsutil_win_tests') +
-      api.properties(buildername='Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-All',
+      api.properties(buildername='Test-Win11-Clang-Dell3930-GPU-GTX1660-x86_64-Debug-All',
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',

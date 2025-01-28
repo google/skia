@@ -104,12 +104,7 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 
 		if b.extraConfig("Vulkan") {
 			configs = []string{"vk"}
-			if b.matchOs("Android") {
-				// skbug.com/9274
-				if !b.model("Pixel2XL") {
-					configs = append(configs, "vkmsaa4")
-				}
-			} else {
+			if !b.matchOs("Android") {
 				// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926, skia:9023
 				if !b.matchGpu("Intel") {
 					configs = append(configs, "vkmsaa8")
@@ -269,10 +264,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 		// skbug.com/338376730
 		match = append(match, "~GM_matrixconvolution_bigger")
 		match = append(match, "~GM_matrixconvolution_biggest")
-	}
-	if b.extraConfig("Vulkan") && b.gpu("GTX660") {
-		// skia:8523 skia:9271
-		match = append(match, "~compositing_images")
 	}
 	if b.extraConfig("ASAN") && b.cpu() {
 		// floor2int_undef benches undefined behavior, so ASAN correctly complains.

@@ -126,7 +126,7 @@ jobs. From a Skia checkout:
 
 You can also search using regular expressions:
 
-    bin/try "Test.*GTX660.*Release"
+    bin/try "Test.*Pixel.*Release"
 
 For more information about testing, see
 [testing infrastructure](/docs/dev/testing/automated_testing).
