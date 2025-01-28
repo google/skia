@@ -144,7 +144,6 @@ namespace SK_OPTS_NS {
 
     SI I32 iround(F v)          { return (I32)(v + 0.5f); }
     SI U32 round(F v)           { return (U32)(v + 0.5f); }
-    SI U32 round(F v, F scale)  { return (U32)(v*scale + 0.5f); }
     SI U16 pack(U32 v)          { return (U16)v; }
     SI U8  pack(U16 v)          { return  (U8)v; }
 
@@ -235,7 +234,6 @@ namespace SK_OPTS_NS {
         SI F   sqrt_(F v)           { return vsqrtq_f32(v); }
         SI I32 iround(F v)          { return vcvtnq_s32_f32(v); }
         SI U32 round(F v)           { return vcvtnq_u32_f32(v); }
-        SI U32 round(F v, F scale)  { return vcvtnq_u32_f32(v*scale); }
     #else
         SI bool any(I32 c) { return c[0] | c[1] | c[2] | c[3]; }
         SI bool all(I32 c) { return c[0] & c[1] & c[2] & c[3]; }
@@ -266,10 +264,6 @@ namespace SK_OPTS_NS {
 
         SI U32 round(F v) {
             return vcvtq_u32_f32(v + 0.5f);
-        }
-
-        SI U32 round(F v, F scale) {
-            return vcvtq_u32_f32(mad(v, scale, F() + 0.5f));
         }
     #endif
 
@@ -345,7 +339,6 @@ namespace SK_OPTS_NS {
     }
     SI I32 iround(F v)         { return (I32)_mm512_cvtps_epi32(v); }
     SI U32 round(F v)          { return (U32)_mm512_cvtps_epi32(v); }
-    SI U32 round(F v, F scale) { return (U32)_mm512_cvtps_epi32(v*scale); }
     SI U16 pack(U32 v) {
         __m256i rst = _mm256_packus_epi32(_mm512_castsi512_si256((__m512i)v),
                                           _mm512_extracti64x4_epi64((__m512i)v, 1));
@@ -592,7 +585,6 @@ namespace SK_OPTS_NS {
 
     SI I32 iround(F v)         { return (I32)_mm256_cvtps_epi32(v); }
     SI U32 round(F v)          { return (U32)_mm256_cvtps_epi32(v); }
-    SI U32 round(F v, F scale) { return (U32)_mm256_cvtps_epi32(v*scale); }
     SI U16 pack(U32 v) {
         return (U16)_mm_packus_epi32(_mm256_extractf128_si256((__m256i)v, 0),
                                      _mm256_extractf128_si256((__m256i)v, 1));
@@ -786,7 +778,6 @@ namespace SK_OPTS_NS {
 
     SI I32 iround(F v)         { return (I32)_mm_cvtps_epi32(v); }
     SI U32 round(F v)          { return (U32)_mm_cvtps_epi32(v); }
-    SI U32 round(F v, F scale) { return (U32)_mm_cvtps_epi32(v*scale); }
 
     SI U16 pack(U32 v) {
     #if defined(SKRP_CPU_SSE41) || defined(SKRP_CPU_AVX)
@@ -955,11 +946,6 @@ namespace SK_OPTS_NS {
     SI U32 round(F v) {
         F t = F() + 0.5f;
         return __lasx_xvftintrz_w_s(v + t);
-    }
-
-    SI U32 round(F v, F scale) {
-        F t = F() + 0.5f;
-        return __lasx_xvftintrz_w_s(mad(v, scale, t));
     }
 
     SI U16 pack(U32 v) {
@@ -1158,10 +1144,6 @@ namespace SK_OPTS_NS {
     SI U32 round(F v) {
         F t = F() + 0.5f;
         return __lsx_vftintrz_w_s(v + t); }
-
-    SI U32 round(F v, F scale) {
-        F t = F() + 0.5f;
-        return __lsx_vftintrz_w_s(mad(v, scale, t)); }
 
     SI U16 pack(U32 v) {
         __m128i tmp = __lsx_vsat_wu(v, 15);
@@ -1779,25 +1761,28 @@ SI void from_1010102(U32 rgba, F* r, F* g, F* b, F* a) {
     *a = cast((rgba >> 30)        ) * (1/   3.0f);
 }
 SI void from_1010102_xr(U32 rgba, F* r, F* g, F* b, F* a) {
-    static constexpr float min = -0.752941f;
-    static constexpr float max = 1.25098f;
-    static constexpr float range = max - min;
-    *r = cast((rgba      ) & 0x3ff) * (1/1023.0f) * range + min;
-    *g = cast((rgba >> 10) & 0x3ff) * (1/1023.0f) * range + min;
-    *b = cast((rgba >> 20) & 0x3ff) * (1/1023.0f) * range + min;
-    *a = cast((rgba >> 30)        ) * (1/   3.0f);
+    // Match https://developer.apple.com/documentation/metal/mtlpixelformat/bgr10_xr?language=objc
+    // i.e. "float = (xr10_value - 384) / 510.0f", but with the modification that we store 2 bits
+    // of alpha with a regular unorm encoding.
+    *r = (cast((rgba      ) & 0x3ff) - 384.f) * (1/510.f);
+    *g = (cast((rgba >> 10) & 0x3ff) - 384.f) * (1/510.f);
+    *b = (cast((rgba >> 20) & 0x3ff) - 384.f) * (1/510.f);
+    *a = (cast((rgba >> 30)        )        ) * (1/3.f); // A in 1010102_xr is *not* extended range
 }
 SI void from_10101010_xr(U64 _10x6, F* r, F* g, F* b, F* a) {
-    *r = (cast64((_10x6 >>  6) & 0x3ff) - 384.f) / 510.f;
-    *g = (cast64((_10x6 >> 22) & 0x3ff) - 384.f) / 510.f;
-    *b = (cast64((_10x6 >> 38) & 0x3ff) - 384.f) / 510.f;
-    *a = (cast64((_10x6 >> 54) & 0x3ff) - 384.f) / 510.f;
+    // From https://developer.apple.com/documentation/metal/mtlpixelformat/bgra10_xr?language=objc
+    // the linear transformation is the same as 1010102_xr, except the integer encoding is shifted
+    // to have 6 low bits of padding.
+    *r = (cast64((_10x6 >> ( 0+6)) & 0x3ff) - 384.f) * (1/510.f);
+    *g = (cast64((_10x6 >> (16+6)) & 0x3ff) - 384.f) * (1/510.f);
+    *b = (cast64((_10x6 >> (32+6)) & 0x3ff) - 384.f) * (1/510.f);
+    *a = (cast64((_10x6 >> (48+6)) & 0x3ff) - 384.f) * (1/510.f);
 }
 SI void from_10x6(U64 _10x6, F* r, F* g, F* b, F* a) {
-    *r = cast64((_10x6 >>  6) & 0x3ff) * (1/1023.0f);
-    *g = cast64((_10x6 >> 22) & 0x3ff) * (1/1023.0f);
-    *b = cast64((_10x6 >> 38) & 0x3ff) * (1/1023.0f);
-    *a = cast64((_10x6 >> 54) & 0x3ff) * (1/1023.0f);
+    *r = cast64((_10x6 >> ( 0+6)) & 0x3ff) * (1/1023.0f);
+    *g = cast64((_10x6 >> (16+6)) & 0x3ff) * (1/1023.0f);
+    *b = cast64((_10x6 >> (32+6)) & 0x3ff) * (1/1023.0f);
+    *a = cast64((_10x6 >> (48+6)) & 0x3ff) * (1/1023.0f);
 }
 SI void from_1616(U32 _1616, F* r, F* g) {
     *r = cast((_1616      ) & 0xffff) * (1/65535.0f);
@@ -1991,15 +1976,22 @@ SI U32 ix_and_ptr(T** ptr, const SkRasterPipeline_GatherCtx* ctx, F x, F y) {
 }
 
 // We often have a nominally [0,1] float value we need to scale and convert to an integer,
-// whether for a table lookup or to pack back down into bytes for storage.
+// whether for a table lookup or to pack back down into bytes for storage. The floating point
+// value is mapped to an integer using the equation "v * scale + bias".
 //
 // In practice, especially when dealing with interesting color spaces, that notionally
-// [0,1] float may be out of [0,1] range.  Unorms cannot represent that, so we must clamp.
+// [0,1] float may be out of [0,1] range.  Unorms cannot represent that, so we must clamp to
+// [0,maxI] after the bias and scale has been applied to `v`. This allows callers that explicitly
+// support negative float values (extended range) to still pack to a unorm.
 //
-// You can adjust the expected input to [0,bias] by tweaking that parameter.
-SI U32 to_unorm(F v, float scale, float bias = 1.0f) {
+// In most cases bias is 0 and the max value equals `scale`, but you can adjust the expected input
+// by tweaking `maxI` relative to `scale`.
+SI U32 to_unorm(F v, float scale, float bias, int maxI) {
     // Any time we use round() we probably want to use to_unorm().
-    return round(min(max(0.0f, v), bias), F_(scale));
+    return round(min(max(0.0f, mad(v, scale, bias)), (float) maxI));
+}
+SI U32 to_unorm(F v, int scale) {
+    return to_unorm(v, (float) scale, /*bias=*/0.f, /*maxI=*/scale);
 }
 
 SI I32 cond_to_mask(I32 cond) {
@@ -2355,11 +2347,11 @@ STAGE(srcover_rgba_8888, const SkRasterPipeline_MemoryCtx* ctx) {
     a = mad(da, inv(a), a*255.0f);
     // { r, g, b, a} are now in [0,255]  (but may be out of gamut)
 
-    // to_unorm() clamps back to gamut.  Scaling by 1 since we're already 255-biased.
-    dst = to_unorm(r, 1, 255)
-        | to_unorm(g, 1, 255) <<  8
-        | to_unorm(b, 1, 255) << 16
-        | to_unorm(a, 1, 255) << 24;
+    // to_unorm() clamps back to gamut.  Scaling by 1 since we're already 255-based.
+    dst = to_unorm(r, /*scale=*/1, /*bias=*/0.f, /*maxI=*/255)
+        | to_unorm(g, /*scale=*/1, /*bias=*/0.f, /*maxI=*/255) <<  8
+        | to_unorm(b, /*scale=*/1, /*bias=*/0.f, /*maxI=*/255) << 16
+        | to_unorm(a, /*scale=*/1, /*bias=*/0.f, /*maxI=*/255) << 24;
     store(ptr, dst);
 }
 
@@ -3072,15 +3064,13 @@ STAGE(load_10101010_xr_dst, const SkRasterPipeline_MemoryCtx* ctx) {
     from_10101010_xr(load<U64>(ptr), &dr, &dg, &db, &da);
 }
 STAGE(store_10101010_xr, const SkRasterPipeline_MemoryCtx* ctx) {
-    static constexpr float min = -0.752941f;
-    static constexpr float max = 1.25098f;
-    static constexpr float range = max - min;
     auto ptr = ptr_at_xy<uint16_t>(ctx, 4*dx,4*dy);
 
-    U16 R = pack(to_unorm((r - min) / range, 1023)) << 6,
-        G = pack(to_unorm((g - min) / range, 1023)) << 6,
-        B = pack(to_unorm((b - min) / range, 1023)) << 6,
-        A = pack(to_unorm((a - min) / range, 1023)) << 6;
+    // This is the inverse of from_10101010_xr, e.g. (v * 510 + 384)
+    U16 R = pack(to_unorm(r, /*scale=*/510, /*bias=*/384, /*maxI=*/1023)) << 6,
+        G = pack(to_unorm(g, /*scale=*/510, /*bias=*/384, /*maxI=*/1023)) << 6,
+        B = pack(to_unorm(b, /*scale=*/510, /*bias=*/384, /*maxI=*/1023)) << 6,
+        A = pack(to_unorm(a, /*scale=*/510, /*bias=*/384, /*maxI=*/1023)) << 6;
 
     store4(ptr, R,G,B,A);
 }
@@ -3095,13 +3085,12 @@ STAGE(store_1010102, const SkRasterPipeline_MemoryCtx* ctx) {
 }
 STAGE(store_1010102_xr, const SkRasterPipeline_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
-    static constexpr float min = -0.752941f;
-    static constexpr float max = 1.25098f;
-    static constexpr float range = max - min;
-    U32 px = to_unorm((r - min) / range, 1023)
-           | to_unorm((g - min) / range, 1023) << 10
-           | to_unorm((b - min) / range, 1023) << 20
-           | to_unorm(a,    3) << 30;
+
+    // This is the inverse of from_1010102_xr, e.g. (v * 510 + 384)
+    U32 px = to_unorm(r, /*scale=*/510, /*bias=*/384, /*maxI=*/1023)
+           | to_unorm(g, /*scale=*/510, /*bias=*/384, /*maxI=*/1023) << 10
+           | to_unorm(b, /*scale=*/510, /*bias=*/384, /*maxI=*/1023) << 10
+           | to_unorm(a, /*scale=*/3) << 30;
     store(ptr, px);
 }
 
