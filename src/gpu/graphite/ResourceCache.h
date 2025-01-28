@@ -83,9 +83,9 @@ public:
 
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
 
-#if defined(GPU_TEST_UTILS)
-    void forceProcessReturnedResources() { this->processReturnedResources(); }
+    void forceProcessReturnedResources();
 
+#if defined(GPU_TEST_UTILS)
     void forcePurgeAsNeeded() { this->purgeAsNeeded(); }
 
     // Returns the numbers of Resources that can currently be found in the cache. This includes all

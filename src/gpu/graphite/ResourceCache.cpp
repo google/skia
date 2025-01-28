@@ -215,6 +215,11 @@ void ResourceCache::refAndMakeResourceMRU(Resource* resource) {
     this->validate();
 }
 
+void ResourceCache::forceProcessReturnedResources() {
+    ASSERT_SINGLE_OWNER
+    this->processReturnedResources();
+}
+
 bool ResourceCache::returnResource(Resource* resource) {
     SkASSERT(resource && resource->cache() == this);
     // We only allow one instance of a Resource to be in the return queue at a time but it should

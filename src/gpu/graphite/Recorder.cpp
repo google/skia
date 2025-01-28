@@ -219,6 +219,10 @@ std::unique_ptr<Recording> Recorder::snap() {
         fAtlasProvider->invalidateAtlases();
     }
 
+    // Process the return queue at least once to keep it from growing too large, as otherwise
+    // it's only processed during an explicit cleanup or a cache miss.
+    fResourceProvider->forceProcessReturnedResources();
+
     // Remaining cleanup that must always happen regardless of success or failure
     fRuntimeEffectDict->reset();
     fProxyReadCounts = std::make_unique<ProxyReadCountMap>();

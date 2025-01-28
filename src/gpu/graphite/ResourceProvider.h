@@ -105,6 +105,7 @@ public:
 
     void freeGpuResources();
     void purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime);
+    void forceProcessReturnedResources() { fResourceCache->forceProcessReturnedResources(); }
 
 #if defined(GPU_TEST_UTILS)
     ResourceCache* resourceCache() { return fResourceCache.get(); }

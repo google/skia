@@ -758,6 +758,8 @@ void Context::checkForFinishedWork(SyncToCpu syncToCpu) {
 
     fQueueManager->checkForFinishedWork(syncToCpu);
     fMappedBufferManager->process();
+    // Process the return queue periodically to make sure it doesn't get too big
+    fResourceProvider->forceProcessReturnedResources();
 }
 
 void Context::checkAsyncWorkCompletion() {
