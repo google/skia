@@ -1138,12 +1138,6 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
                            { "dstGABC",     SkSLType::kHalf4 },
                            { "dstDEF_args", SkSLType::kHalf4 } }
     };
-    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kPremulAlphaColorFilter] = {
-            /*name=*/"PremulAlpha",
-            /*staticFn=*/"sk_premul_alpha",
-            SnippetRequirementFlags::kPriorStageOutput,
-            /*uniforms=*/{}
-    };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kColorSpaceXformPremul] = {
             /*name=*/"ColorSpaceTransformPremul",

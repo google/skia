@@ -64,10 +64,6 @@ $pure float3 $apply_hlg_inv_xfer_fn(float3 x, half3 abc, half3 def) {
                lessThanEqual(x, float3(1)));
 }
 
-$pure half4 sk_premul_alpha(float4 color) {
-    return half4(color.rgb*color.a, color.a);
-}
-
 $pure half4 sk_color_space_transform(half4 color,
                                      half3x3 gamut,
                                      half4 srcGABC,
@@ -1281,7 +1277,7 @@ $pure half4 sk_perlin_noise_shader(float2 coords,
     color = saturate(color);
 
     // Pre-multiply the result
-    return sk_premul_alpha(color);
+    return half4(color.rgb * color.a, color.a);
 }
 
 $pure half4 sk_porter_duff_blend(half4 src, half4 dst, half4 coeffs) {
