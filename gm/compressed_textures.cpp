@@ -266,10 +266,20 @@ protected:
             return DrawResult::kSkip;
         }
 
-        if (dContext &&
-            dContext->backend() == GrBackendApi::kDirect3D && fType == Type::kNonMultipleOfFour) {
-            // skbug.com/10541 - Are non-multiple-of-four BC1 textures supported in D3D?
-            return DrawResult::kSkip;
+        if (fType == Type::kNonMultipleOfFour) {
+            if (dContext && dContext->backend() == GrBackendApi::kDirect3D) {
+                // skbug.com/10541 - Are non-multiple-of-four BC1 textures supported in D3D?
+                return DrawResult::kSkip;
+            }
+#if defined(SK_GRAPHITE)
+            skgpu::graphite::Recorder* recorder = canvas->recorder();
+            if (recorder && recorder->backend() == skgpu::BackendApi::kDawn) {
+                // Dawn does not support non-multiple-of-four textures at all. For the same reason
+                // we can't support it on older D3D devices above, neither can Dawn. However, Dawn
+                // disables support for all devices to keep functionality uniform.
+                return DrawResult::kSkip;
+            }
+#endif
         }
 
         fOpaqueETC2Image = make_compressed_image(canvas, fImgDimensions,
