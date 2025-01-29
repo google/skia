@@ -41,7 +41,7 @@
       "cp",
       "-Z",
       "[START_DIR]/[SWARM_OUT_DIR]/dm.json",
-      "gs://skia-infra-gm/trybot/dm-json-v1/2012/05/14/12/1234_7/Test-Android-Clang-Pixel2XL-Some-GPU-arm64-Debug-All/1337000001/dm.json"
+      "gs://skia-infra-gm/trybot/dm-json-v1/2012/05/14/12/1234_7/Test-Android12-Clang-Pixel5-GPU-Adreno620-arm64-Release-All-Android_Vulkan/1337000001/dm.json"
     ],
     "name": "upload dm.json"
   },

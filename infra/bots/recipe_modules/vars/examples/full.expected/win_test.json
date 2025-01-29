@@ -20,7 +20,7 @@
     "name": "show",
     "~followup_annotations": [
       "@@@SET_BUILD_PROPERTY@build_dir@\"[START_DIR]\\\\build\"@@@",
-      "@@@SET_BUILD_PROPERTY@builder_name@\"Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-All\"@@@",
+      "@@@SET_BUILD_PROPERTY@builder_name@\"Test-Win11-Clang-Dell3930-GPU-GTX1660-x86_64-Debug-All\"@@@",
       "@@@SET_BUILD_PROPERTY@cache_dir@\"[START_DIR]\\\\cache\"@@@",
       "@@@SET_BUILD_PROPERTY@extra_tokens@\"[]\"@@@",
       "@@@SET_BUILD_PROPERTY@internal_hardware_label@\"None\"@@@",

@@ -59,7 +59,7 @@ def GenTests(api):
                        swarm_out_dir='[SWARM_OUT_DIR]')
     )
 
-  buildername = 'Test-Win10-MSVC-ShuttleA-GPU-GTX660-x86_64-Debug-All'
+  buildername = 'Test-Win11-Clang-Dell3930-GPU-GTX1660-x86_64-Debug-All'
   yield (
       api.test('win_test') +
       api.properties(buildername=buildername,

@@ -349,7 +349,6 @@ func scaleDeviceForBenchmark(ctx context.Context, model string) error {
 func doesNotAllowADBRoot(model string) bool {
 	return map[string]bool{
 		"GalaxyS7_G930FD": true,
-		"GalaxyS9":        true,
 		"GalaxyS20":       true,
 		"P30":             true,
 		"Pixel4":          true,
@@ -380,9 +379,8 @@ func getBiggestKindCPU(model string) int {
 	// We return 0 if the model is not in the below map, meaning that we assume 0 is the ID of a core
 	// of the biggest kind.
 	return map[string]int{
-		"Nexus5x":  4,
-		"Pixel":    2,
-		"Pixel2XL": 4,
+		"Nexus5x": 4,
+		"Pixel":   2,
 	}[model]
 }
 
@@ -398,11 +396,10 @@ func getBiggestKindCPU(model string) int {
 func getCPUsToDisableForBenchmarkTests(model string) []int {
 	// We return an empty slice if the model is not in the below map.
 	return map[string][]int{
-		"Nexus5x":  {0, 1, 2, 3},
-		"Pixel":    {0, 1},
-		"Pixel2XL": {0, 1, 2, 3},
-		"Pixel6":   {4, 5, 6, 7}, // Only use the 4 small cores.
-		"Pixel7":   {4, 5, 6, 7},
+		"Nexus5x": {0, 1, 2, 3},
+		"Pixel":   {0, 1},
+		"Pixel6":  {4, 5, 6, 7}, // Only use the 4 small cores.
+		"Pixel7":  {4, 5, 6, 7},
 	}[model]
 }
 
