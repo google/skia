@@ -1102,8 +1102,8 @@ void ClipStack::clipShape(const Transform& localToDevice,
 // rrects are supported. We assume these have been pre-transformed by the RawElement
 // constructor, so only identity transforms are allowed.
 namespace {
-CircularRRectClip can_apply_analytic_clip(const Shape& shape,
-                                          const Transform& localToDevice) {
+AnalyticClip can_apply_analytic_clip(const Shape& shape,
+                                     const Transform& localToDevice) {
     if (localToDevice.type() != Transform::Type::kIdentity) {
         return {};
     }
@@ -1113,7 +1113,7 @@ CircularRRectClip can_apply_analytic_clip(const Shape& shape,
 
     // Can handle Rect directly.
     if (shape.isRect()) {
-        return {shape.rect(), kRadiusMin, CircularRRectClip::kNone_EdgeFlag, shape.inverted()};
+        return {shape.rect(), kRadiusMin, AnalyticClip::kNone_EdgeFlag, shape.inverted()};
     }
 
     // Otherwise we only handle certain kinds of RRects.
@@ -1127,10 +1127,10 @@ CircularRRectClip can_apply_analytic_clip(const Shape& shape,
         if (radii.fX < kRadiusMin || radii.fY < kRadiusMin) {
             // In this case the corners are extremely close to rectangular and we collapse the
             // clip to a rectangular clip.
-            return {rrect.rect(), kRadiusMin, CircularRRectClip::kNone_EdgeFlag, shape.inverted()};
+            return {rrect.rect(), kRadiusMin, AnalyticClip::kNone_EdgeFlag, shape.inverted()};
         }
         if (SkScalarNearlyEqual(radii.fX, radii.fY)) {
-            return {rrect.rect(), radii.fX, CircularRRectClip::kAll_EdgeFlag, shape.inverted()};
+            return {rrect.rect(), radii.fX, AnalyticClip::kAll_EdgeFlag, shape.inverted()};
         } else {
             return {};
         }
@@ -1139,10 +1139,10 @@ CircularRRectClip can_apply_analytic_clip(const Shape& shape,
     if (rrect.isComplex() || rrect.isNinePatch()) {
         // Check for the "tab" cases - two adjacent circular corners and two square corners.
         constexpr uint32_t kCornerFlags[4] = {
-            CircularRRectClip::kTop_EdgeFlag | CircularRRectClip::kLeft_EdgeFlag,
-            CircularRRectClip::kTop_EdgeFlag | CircularRRectClip::kRight_EdgeFlag,
-            CircularRRectClip::kBottom_EdgeFlag | CircularRRectClip::kRight_EdgeFlag,
-            CircularRRectClip::kBottom_EdgeFlag | CircularRRectClip::kLeft_EdgeFlag,
+            AnalyticClip::kTop_EdgeFlag | AnalyticClip::kLeft_EdgeFlag,
+            AnalyticClip::kTop_EdgeFlag | AnalyticClip::kRight_EdgeFlag,
+            AnalyticClip::kBottom_EdgeFlag | AnalyticClip::kRight_EdgeFlag,
+            AnalyticClip::kBottom_EdgeFlag | AnalyticClip::kLeft_EdgeFlag,
         };
         SkScalar circularRadius = 0;
         uint32_t edgeFlags = 0;
@@ -1167,13 +1167,13 @@ CircularRRectClip can_apply_analytic_clip(const Shape& shape,
             edgeFlags |= kCornerFlags[corner];
         }
 
-        if (edgeFlags == CircularRRectClip::kNone_EdgeFlag) {
+        if (edgeFlags == AnalyticClip::kNone_EdgeFlag) {
             // It's a rect
             return {rrect.rect(), kRadiusMin, edgeFlags, shape.inverted()};
         } else {
             // If any rounded corner pairs are non-adjacent or if there are three rounded
             // corners all edge flags will be set, which is not valid.
-            if (edgeFlags == CircularRRectClip::kAll_EdgeFlag) {
+            if (edgeFlags == AnalyticClip::kAll_EdgeFlag) {
                 return {};
             // At least one corner is rounded, or two adjacent corners are rounded.
             } else {

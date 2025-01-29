@@ -15,7 +15,7 @@ namespace skgpu::graphite {
 /**
  * Represents a rect or rrect clip with any non-rect corners having the same circular radii.
  */
-struct CircularRRectClip {
+struct AnalyticClip {
     // Indicate which edges are adjacent to circular corners.
     enum EdgeFlags {
         kLeft_EdgeFlag   = 0b0001,
@@ -26,10 +26,11 @@ struct CircularRRectClip {
         kNone_EdgeFlag   = 0b0000,
         kAll_EdgeFlag    = 0b1111,
     };
-    Rect     fBounds;           // Bounds of clip
-    float    fRadius = 0;       // Circular radius, if any
+    // These defaults will produce no clip
+    Rect     fBounds = { 0, 0, 0, 0 }; // Bounds of clip
+    float    fRadius = 0;              // Circular radius, if any
     uint32_t fEdgeFlags = kNone_EdgeFlag;
-    bool     fInverted = false;
+    bool     fInverted = true;
 
     bool isEmpty() const { return fBounds.isEmptyNegativeOrNaN(); }
     SkRect edgeSelectRect() const {
@@ -55,8 +56,8 @@ struct AtlasClip {
  * Combined non-MSAA clip structure
  */
 struct NonMSAAClip {
-    CircularRRectClip fAnalyticClip;
-    AtlasClip         fAtlasClip;
+    AnalyticClip fAnalyticClip;
+    AtlasClip    fAtlasClip;
 
     bool isEmpty() const { return fAnalyticClip.isEmpty() && fAtlasClip.isEmpty(); }
 };

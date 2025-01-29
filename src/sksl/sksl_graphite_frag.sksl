@@ -217,10 +217,10 @@ $pure half4 sk_color_space_transform_srgb(half4 color,
     return color;
 }
 
-$pure half4 sk_circular_rrect_clip(float2 coords,
-                                   float4 rect,
-                                   float2 radiusPlusHalf,
-                                   half4 edgeSelect) {
+$pure half4 sk_analytic_clip(float2 coords,
+                             float4 rect,
+                             float2 radiusPlusHalf,
+                             half4 edgeSelect) {
     // Negative x indicates inverse fill
     float2 radius = float2(abs(radiusPlusHalf.x));
     float2 dxy0 = edgeSelect.LT*((rect.LT + radius) - coords);
@@ -240,15 +240,22 @@ $pure half4 sk_circular_rrect_clip(float2 coords,
     return half4(alpha);
 }
 
-$pure half4 sk_atlas_clip(float2 coords,
-                          half2 texCoordOffset,
-                          half4 maskBounds,
-                          float2 invAtlasSize,
-                          sampler2D clipAtlas) {
+$pure half4 sk_analytic_and_atlas_clip(float2 coords,
+                                       float4 rect,
+                                       float2 radiusPlusHalf,
+                                       half4 edgeSelect,
+                                       half2 texCoordOffset,
+                                       half4 maskBounds,
+                                       float2 invAtlasSize,
+                                       sampler2D atlasSampler) {
+    half4 analyticClip = sk_analytic_clip(coords, rect, radiusPlusHalf, edgeSelect);
+
     float2 texCoord = coords + texCoordOffset;
     float2 clampedTexCoord = clamp(texCoord, maskBounds.LT, maskBounds.RB);
 
-    return half4(sample(clipAtlas, clampedTexCoord * invAtlasSize).r);
+    half atlasClip = sample(atlasSampler, clampedTexCoord * invAtlasSize).r;
+
+    return analyticClip * atlasClip;
 }
 
 $pure float $tile(int tileMode, float f, float low, float high) {

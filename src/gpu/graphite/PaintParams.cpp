@@ -256,17 +256,28 @@ void PaintParams::handleDithering(const KeyContext& keyContext,
 void PaintParams::handleClipping(const KeyContext& keyContext,
                                  PaintParamsKeyBuilder* builder,
                                  PipelineDataGatherer* gatherer) const {
-    if (!fNonMSAAClip.isEmpty() && !fNonMSAAClip.fAnalyticClip.isEmpty()) {
-        const CircularRRectClip& analyticClip = fNonMSAAClip.fAnalyticClip;
+    if (!fNonMSAAClip.isEmpty()) {
+        const AnalyticClip& analyticClip = fNonMSAAClip.fAnalyticClip;
         float radius = analyticClip.fRadius + 0.5f;
         // N.B.: Because the clip data is normally used with depth-based clipping,
         // the shape is inverted from its usual state. We re-invert here to
         // match what the shader snippet expects.
         SkPoint radiusPair = {(analyticClip.fInverted) ? radius : -radius, 1.0f/radius};
-        CircularRRectClipBlock::CircularRRectClipData data(
+
+        const AtlasClip& atlasClip = fNonMSAAClip.fAtlasClip;
+        skvx::float2 maskSize = atlasClip.fMaskBounds.size();
+        SkRect texMaskBounds = SkRect::MakeXYWH(atlasClip.fOutPos.x(), atlasClip.fOutPos.y(),
+                                                maskSize.x(), maskSize.y());
+        SkPoint texCoordOffset = {atlasClip.fOutPos.x() - atlasClip.fMaskBounds.left(),
+                                  atlasClip.fOutPos.y() - atlasClip.fMaskBounds.top()};
+
+        NonMSAAClipBlock::NonMSAAClipData data(
                 analyticClip.fBounds.makeOutset(0.5f).asSkRect(),
                 radiusPair,
-                analyticClip.edgeSelectRect());
+                analyticClip.edgeSelectRect(),
+                texCoordOffset,
+                texMaskBounds,
+                atlasClip.fAtlasTexture);
         if (fClipShader) {
             // For both an analytic clip and clip shader, we need to compose them together into
             // a single clipping root node.
@@ -275,14 +286,14 @@ void PaintParams::handleClipping(const KeyContext& keyContext,
                       AddFixedBlendMode(keyContext, builder, gatherer, SkBlendMode::kModulate);
                   },
                   /* addSrcToKey= */ [&]() -> void {
-                      CircularRRectClipBlock::AddBlock(keyContext, builder, gatherer, data);
+                      NonMSAAClipBlock::AddBlock(keyContext, builder, gatherer, data);
                   },
                   /* addDstToKey= */ [&]() -> void {
                       AddToKey(keyContext, builder, gatherer, fClipShader.get());
                   });
         } else {
             // Without a clip shader, the analytic clip can be the clipping root node.
-            CircularRRectClipBlock::AddBlock(keyContext, builder, gatherer, data);
+            NonMSAAClipBlock::AddBlock(keyContext, builder, gatherer, data);
         }
     } else if (fClipShader) {
         // Since there's no analytic clip, the clipping root node can be fClipShader directly.
