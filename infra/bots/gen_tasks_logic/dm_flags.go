@@ -480,6 +480,8 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					if b.extraConfig("TSAN") {
 						// b/389706939 - Dawn/Metal reports a data race for LazyClearCountForTesting w/ TSAN
 						skip(ALL, "test", ALL, "ThreadedPipelineCompilePurgingTest")
+						// The TSAN_Graphite_Dawn_Metal job seems to consistently get stuck on this unit test
+						skip(ALL, "test", ALL, "BigImageTest_Graphite")
 					}
 				}
 			} else if b.extraConfig("Native") {
