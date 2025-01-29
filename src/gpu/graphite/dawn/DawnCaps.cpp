@@ -392,19 +392,32 @@ std::pair<SkColorType, bool /*isRGBFormat*/> DawnCaps::supportedWritePixelsColor
         SkColorType dstColorType,
         const TextureInfo& dstTextureInfo,
         SkColorType srcColorType) const {
-    return {dstColorType, false};
+    const auto viewFormat = TextureInfos::GetDawnViewFormat(dstTextureInfo);
+    const FormatInfo& info = this->getFormatInfo(viewFormat);
+    for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
+        const auto& ctInfo = info.fColorTypeInfos[i];
+        if (ctInfo.fColorType == dstColorType) {
+            return {ctInfo.fTransferColorType, false};
+        }
+    }
+    return {kUnknown_SkColorType, false};
 }
 
 std::pair<SkColorType, bool /*isRGBFormat*/> DawnCaps::supportedReadPixelsColorType(
         SkColorType srcColorType,
         const TextureInfo& srcTextureInfo,
         SkColorType dstColorType) const {
-    auto dawnFormat = getFormatFromColorType(srcColorType);
-    const FormatInfo& info = this->getFormatInfo(dawnFormat);
+    const auto viewFormat = TextureInfos::GetDawnViewFormat(srcTextureInfo);
+
+    if (DawnFormatToCompressionType(viewFormat) != SkTextureCompressionType::kNone) {
+        return {kUnknown_SkColorType, false};
+    }
+
+    const FormatInfo& info = this->getFormatInfo(viewFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {
         const auto& ctInfo = info.fColorTypeInfos[i];
         if (ctInfo.fColorType == srcColorType) {
-            return {srcColorType, false};
+            return {ctInfo.fTransferColorType, false};
         }
     }
     return {kUnknown_SkColorType, false};
@@ -789,7 +802,7 @@ void DawnCaps::initFormatTable(const wgpu::Device& device) {
         {
             auto& ctInfo = info->fColorTypeInfos[ctIdx++];
             ctInfo.fColorType = kRGBA_1010102_SkColorType;
-            ctInfo.fColorType = kRGBA_1010102_SkColorType;
+            ctInfo.fTransferColorType = kRGBA_1010102_SkColorType;
             ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
         }
         // Format: RGB10A2Unorm, Surface: kRGB_101010x
