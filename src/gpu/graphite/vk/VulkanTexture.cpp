@@ -12,8 +12,10 @@
 #include "include/gpu/vk/VulkanMutableTextureState.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/vk/VulkanCaps.h"
 #include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
+#include "src/gpu/graphite/vk/VulkanDescriptorSet.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteTypesPriv.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 #include "src/gpu/graphite/vk/VulkanResourceProvider.h"
@@ -183,6 +185,8 @@ sk_sp<Texture> VulkanTexture::MakeWrapped(const VulkanSharedContext* sharedConte
                                             Ownership::kWrapped,
                                             std::move(ycbcrConversion)));
 }
+
+VulkanTexture::~VulkanTexture() {}
 
 VkImageAspectFlags vk_format_to_aspect_flags(VkFormat format) {
     switch (format) {
@@ -435,6 +439,24 @@ size_t VulkanTexture::onUpdateGpuMemorySize() {
                                           fMemoryAlloc.fMemory,
                                           &committedMemory));
     return committedMemory;
+}
+
+sk_sp<VulkanDescriptorSet> VulkanTexture::getCachedSingleTextureDescriptorSet(
+        const Sampler* sampler) const {
+    SkASSERT(sampler);
+    for (auto& cachedSet : fCachedSingleTextureDescSets) {
+        if (cachedSet.first->uniqueID() == sampler->uniqueID()) {
+            return cachedSet.second;
+        }
+    }
+    return nullptr;
+}
+
+void VulkanTexture::addCachedSingleTextureDescriptorSet(sk_sp<VulkanDescriptorSet> set,
+                                                        sk_sp<const Sampler> sampler) const {
+    SkASSERT(set);
+    SkASSERT(sampler);
+    fCachedSingleTextureDescSets.push_back(std::make_pair(std::move(sampler), std::move(set)));
 }
 
 } // namespace skgpu::graphite
