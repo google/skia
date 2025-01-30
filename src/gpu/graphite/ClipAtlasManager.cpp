@@ -186,7 +186,7 @@ const TextureProxy* ClipAtlasManager::addToAtlas(const ClipStack::ElementList* e
     // Offset to plot location and draw
     iShapeBounds.offset(renderPos.x() + kEntryPadding, renderPos.y() + kEntryPadding);
 
-    SkASSERT(elementsForMask->size() > 0);
+    SkASSERT(!elementsForMask->empty());
     for (int i = 0; i < elementsForMask->size(); ++i) {
         draw_to_sw_mask(&helper, *(*elementsForMask)[i], i == 0, iShapeBounds);
     }
@@ -219,7 +219,7 @@ void ClipAtlasManager::evict(PlotLocator plotLocator) {
             }
         }
         // If we removed the last one, remove the hash entry
-        if (cachedArray->size() == 0) {
+        if (cachedArray->empty()) {
             fMaskCache.remove(currEntry->fKey);
         }
         fKeyLists[index].remove(currEntry);
