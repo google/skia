@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/ResourceCache.h"
 
 #include "include/private/base/SingleOwner.h"
+#include "src/base/SkNoDestructor.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkTMultiMap.h"
 #include "src/core/SkTraceEvent.h"
@@ -23,7 +24,33 @@ namespace skgpu::graphite {
 
 #define ASSERT_SINGLE_OWNER SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
 
+namespace {
+
 static constexpr uint32_t kMaxUseToken = 0xFFFFFFFF;
+
+// Singleton Resource subclass that provides a fixed address used to track the end of the return
+// queue and when the resource cache is shutdown.
+class Sentinel : public Resource {
+public:
+    static Resource* Get() {
+        static SkNoDestructor<Sentinel> kSentinel{};
+        return kSentinel.get();
+    }
+
+private:
+    template <typename T>
+    friend class ::SkNoDestructor;
+
+    // We can pass in a null shared context here because the only instance that is ever created is
+    // wrapped in SkNoDestructor, and we never actually use it as a Resource.
+    Sentinel() : Resource(/*sharedContext=*/nullptr, Ownership::kOwned, /*gpuMemorySize=*/0) {}
+
+    const char* getResourceType() const override { return "Sentinel"; }
+
+    void freeGpuData() override {}
+};
+
+}  // anonymous namespace
 
 sk_sp<ResourceCache> ResourceCache::Make(SingleOwner* singleOwner,
                                          uint32_t recorderID,
@@ -33,36 +60,35 @@ sk_sp<ResourceCache> ResourceCache::Make(SingleOwner* singleOwner,
 
 ResourceCache::ResourceCache(SingleOwner* singleOwner, uint32_t recorderID, size_t maxBytes)
         : fMaxBytes(maxBytes)
-        , fIsShutdown(false)
         , fSingleOwner(singleOwner) {
     if (recorderID != SK_InvalidGenID) {
         fProxyCache = std::make_unique<ProxyCache>(recorderID);
     }
     // TODO: Maybe when things start using ResourceCache, then like Ganesh the compiler won't
     // complain about not using fSingleOwner in Release builds and we can delete this.
-#ifndef SK_DEBUG
+#if !defined(SK_DEBUG)
     (void)fSingleOwner;
 #endif
 }
 
 ResourceCache::~ResourceCache() {
     // The ResourceCache must have been shutdown by the ResourceProvider before it is destroyed.
-    SkASSERT(fIsShutdown);
+    SkASSERT(fReturnQueue.load(std::memory_order_acquire) == Sentinel::Get());
 }
 
 void ResourceCache::shutdown() {
     ASSERT_SINGLE_OWNER
 
-    {
-        SkAutoMutexExclusive locked(fReturnMutex);
-        SkASSERT(!fIsShutdown);
-        fIsShutdown = true;
-    }
+    // At this point no more changes will happen to fReturnQueue or the resources within that
+    // linked list. We do need to finish processing them for a graceful shutdown.
+    this->processReturnedResources(Sentinel::Get());
+
     if (fProxyCache) {
         fProxyCache->purgeAll();
+        // NOTE: any resources that would become purgeable or reusable from purging the proxy cache
+        // are not added to the return queue and remain in the nonpurgeable array. Below their
+        // cache ref will be removed, causing them to be deleted immediately.
     }
-
-    this->processReturnedResources();
 
     while (!fNonpurgeableResources.empty()) {
         Resource* back = *(fNonpurgeableResources.end() - 1);
@@ -224,10 +250,12 @@ bool ResourceCache::returnResource(Resource* resource) {
     SkASSERT(resource && resource->cache() == this);
     // We only allow one instance of a Resource to be in the return queue at a time but it should
     // have already added a return queue ref.
-    SkASSERT(!this->inReturnQueue(resource) && resource->hasReturnQueueRef());
+    SkASSERT(!resource->inReturnQueue() && resource->hasReturnQueueRef());
 
-    SkAutoMutexExclusive locked(fReturnMutex);
-    if (fIsShutdown) {
+    // Check once with a relaxed load to try and minimize the amount of wasted preparation work if
+    // the cache is already shutdown.
+    Resource* oldHeadPtr = fReturnQueue.load(std::memory_order_relaxed);
+    if (oldHeadPtr == Sentinel::Get()) {
         return false;
     }
 
@@ -251,8 +279,20 @@ bool ResourceCache::returnResource(Resource* resource) {
                 // By immediately unreffing the return queue ref before the resource can be exposed
                 // to another thread, the resource will always be able to be re-returned when the
                 // async work completes.
-                resource->unrefReturnQueue();
+                //
+                // Since prepareForReturnToCache() can only be used with resources that require
+                // purgeability for reusability, and it is non-shareable, the only ref that can
+                // change off thread is the resource's cache ref if the cache is simultaneously
+                // shutdown.
+                //
+                // Adding the usage ref first ensures the resource won't be disposed of early. When
+                // the resource is prepared, it will come through returnResource() again but should
+                // return false from prepareForReturnToCache() so that cache shutdown is detected.
+                // This can add unnecessary preparation work for resources that won't ever be used,
+                // but keeps the preparation logic relatively simple w/o needing a mutex.
                 resource->initialUsageRef();
+                resource->unrefReturnQueue();
+
                 SkDEBUGCODE(takeRefActuallyCalled = true;
             )});
 
@@ -265,53 +305,56 @@ bool ResourceCache::returnResource(Resource* resource) {
         }
     }
 
-    fReturnQueue.push_back(resource);
-    SkDEBUGCODE(resource->fReturnIndex = fReturnQueue.size() - 1;)
-
-    return true;
-}
-
-bool ResourceCache::processReturnedResources() {
-    // We need to move the returned Resources off of the ReturnQueue before we start processing them
-    // so that we can drop the fReturnMutex. When we process a Resource we may need to grab its
-    // UnrefMutex. This could cause a deadlock if on another thread the Resource has the UnrefMutex
-    // and is waiting on the ReturnMutex to be free.
-    SkTDArray<Resource*> tempQueue;
-    {
-        SkAutoMutexExclusive locked(fReturnMutex);
-        // TODO: Instead of doing a copy of the vector, we may be able to improve the performance
-        // here by storing some form of linked list, then just move the pointer the first element
-        // and reset the ReturnQueue's top element to nullptr.
-        tempQueue = fReturnQueue;
-        fReturnQueue.clear();
-#if defined(SK_DEBUG)
-        for (Resource* nextResource : tempQueue) {
-            SkASSERT(nextResource->fReturnIndex >= 0 && nextResource->hasReturnQueueRef());
-            nextResource->fReturnIndex = -1;
-            // NOTE: the return queue ref is still held on each reference in the old queue. They
-            // will be released after fReturnMutex is unlocked.
+    // Set the newly returned resource to be the head of the list, with its next pointer holding
+    // the old head. If the head has changed between the assignment of the next pointer, we repeat
+    // because it means there was a simultaneous return or the cache was shutdown.
+    do {
+        oldHeadPtr = fReturnQueue.load(std::memory_order_acquire);
+        if (oldHeadPtr == Sentinel::Get()) {
+            // Once the cache is shutdown, it can never be re-opened and we don't want to actually
+            // return this resource.
+            resource->setNextInReturnQueue(nullptr);
+            return false;
+        } else {
+            // If oldHeadPtr is null, this resource will be the tail of the return queue as it grows
+            // so set it's next pointer to the sentinel so that nullity can be used to test for
+            // being in the queue or not.
+            resource->setNextInReturnQueue(oldHeadPtr ? oldHeadPtr : Sentinel::Get());
         }
-#endif
-    }
+    } while(!fReturnQueue.compare_exchange_weak(oldHeadPtr, resource,
+                                                std::memory_order_release,
+                                                std::memory_order_relaxed));
 
-    if (tempQueue.empty()) {
-        return false;
-    }
-
-    // Trace after the lock has been released so we can simply record the tempQueue size.
-    TRACE_EVENT1("skia.gpu.cache", TRACE_FUNC, "count", tempQueue.size());
-
-    for (Resource* nextResource : tempQueue) {
-        this->processReturnedResource(nextResource);
-        // nextResource will have its return queue ref dropped inside processReturnedResource(), and
-        // if the resource was flagged as being deleted ASAP, the cache ref will also be removed
-        // (possibly then the last ref keeping it alive). In that case, nextResource will have been
-        // destroyed so we should not read from it.
-    }
+    // Once we've got here, it means that `resource` has been atomically included in the return
+    // queue. At this point, fReturnQueue's head value may or may not be `resource`, depending on if
+    // another thread has added another resource or processed the return queue, but in either event,
+    // `resource` will be visible to that thread.
     return true;
 }
 
-void ResourceCache::processReturnedResource(Resource* resource) {
+bool ResourceCache::processReturnedResources(Resource* queueHead) {
+    SkASSERT(queueHead == nullptr || queueHead == Sentinel::Get());
+    // We need to move the returned Resources off of the ReturnQueue before we start processing them
+    // so that we can manipulate the resources without blocking subsequent returns on other threads.
+    Resource* oldQueue = fReturnQueue.exchange(queueHead, std::memory_order_acq_rel);
+
+    // Can't un-shutdown the cache
+    SkASSERT(oldQueue != Sentinel::Get() || queueHead == Sentinel::Get());
+
+    int returnCount = 0;
+    // Stop if we encounter null or the sentinel address (either the list is empty, the cache is
+    // shutdown, or we reached the tail returned resource that had next set to the sentinel).
+    while (oldQueue && oldQueue != Sentinel::Get()) {
+        returnCount++;
+        oldQueue = this->processReturnedResource(oldQueue);
+    }
+
+    TRACE_EVENT_INSTANT1("skia.gpu.cache", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
+                         "count", returnCount);
+    return returnCount > 0;
+}
+
+Resource* ResourceCache::processReturnedResource(Resource* resource) {
     // A resource should not have been destroyed when placed into the return queue. Also before
     // purging any resources from the cache itself, it should always empty the queue first. When the
     // cache releases/abandons all of its resources, it first invalidates the return queue so no new
@@ -320,7 +363,7 @@ void ResourceCache::processReturnedResource(Resource* resource) {
     SkASSERT(!resource->wasDestroyed());
     SkASSERT(this->isInCache(resource));
 
-    const auto [isReusable, isPurgeable] = resource->unrefReturnQueue();
+    const auto [isReusable, isPurgeable, next] = resource->unrefReturnQueue();
 
     if (resource->shareable() != Shareable::kNo) {
         // Shareable resources should still be discoverable in the resource map
@@ -395,7 +438,7 @@ void ResourceCache::processReturnedResource(Resource* resource) {
     SkASSERT(this->inNonpurgeableArray(resource));
     if (!isPurgeable) {
         this->validate();
-        return;
+        return next;
     }
 
     // Since the resource is purgeable, there are no external refs that can add new refs to make
@@ -416,6 +459,8 @@ void ResourceCache::processReturnedResource(Resource* resource) {
         fPurgeableBytes += resource->gpuMemorySize();
     }
     this->validate();
+
+    return next;
 }
 
 void ResourceCache::addToResourceMap(Resource* resource) {
@@ -473,18 +518,12 @@ bool ResourceCache::inPurgeableQueue(const Resource* resource) const {
            fPurgeableQueue.at(index) == resource;
 }
 
-#ifdef SK_DEBUG
+#if defined(SK_DEBUG)
 
 bool ResourceCache::inNonpurgeableArray(const Resource* resource) const {
     int index = *resource->accessCacheIndex();
     return index >= 0 && index < fNonpurgeableResources.size() &&
            fNonpurgeableResources[index] == resource;
-}
-
-bool ResourceCache::inReturnQueue(Resource* resource) {
-    SkAutoMutexExclusive locked(fReturnMutex);
-    int index = resource->fReturnIndex;
-    return index >= 0 && index < (int) fReturnQueue.size() && fReturnQueue[index] == resource;
 }
 
 bool ResourceCache::isInCache(const Resource* resource) const {
@@ -697,7 +736,7 @@ void ResourceCache::setMaxBudget(size_t bytes) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_DEBUG
+#if defined(SK_DEBUG)
 void ResourceCache::validate() const {
     // Reduce the frequency of validations for large resource counts.
     static SkRandom gRandom;
@@ -830,14 +869,6 @@ Resource* ResourceCache::topOfPurgeableQueue() {
         return nullptr;
     }
     return fPurgeableQueue.peek();
-}
-
-bool ResourceCache::testingInReturnQueue(Resource* resource) {
-#if defined(SK_DEBUG)
-    return this->inReturnQueue(resource);
-#else
-    return resource->hasReturnQueueRef();
-#endif
 }
 
 void ResourceCache::visitTextures(

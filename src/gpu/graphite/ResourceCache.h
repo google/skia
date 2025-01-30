@@ -96,7 +96,7 @@ public:
 
     bool testingInPurgeableQueue(Resource* resource) { return this->inPurgeableQueue(resource); }
 
-    bool testingInReturnQueue(Resource* resource);
+    bool testingInReturnQueue(Resource* resource) { return resource->inReturnQueue(); }
 
     void visitTextures(const std::function<void(const Texture*, bool purgeable)>&) const;
 #endif
@@ -124,8 +124,9 @@ private:
     void removeFromResourceMap(Resource* resource);
 
     // This will return true if any resources were actually returned to the cache
-    bool processReturnedResources();
-    void processReturnedResource(Resource*);
+    bool processReturnedResources(Resource* queueHead=nullptr);
+    // Returns the next resource in the linked list of the return queue
+    Resource* processReturnedResource(Resource*);
 
     uint32_t getNextUseToken();
     void setResourceUseToken(Resource*, uint32_t token);
@@ -139,12 +140,11 @@ private:
 
     bool inPurgeableQueue(const Resource*) const;
 
-#ifdef SK_DEBUG
+#if defined(SK_DEBUG)
     bool isInCache(const Resource* r) const;
     void validate() const;
 
     bool inNonpurgeableArray(const Resource*) const;
-    bool inReturnQueue(Resource*);
 #else
     void validate() const {}
 #endif
@@ -186,10 +186,10 @@ private:
     // we are over budget.
     uint32_t fUseToken = 0;
 
-    bool fIsShutdown SK_GUARDED_BY(fReturnMutex);
-
-    SkMutex fReturnMutex;
-    ResourceArray fReturnQueue SK_GUARDED_BY(fReturnMutex);
+    // The head of the return queue if the pointer is non-null, or null if there are no returned
+    // resources to process. A special sentinel address is used to encode when the cache is shut
+    // down. Once set to that address, this will never change value.
+    std::atomic<Resource*> fReturnQueue = nullptr;
 
     SingleOwner* fSingleOwner = nullptr;
     SkDEBUGCODE(int fCount = 0;)
