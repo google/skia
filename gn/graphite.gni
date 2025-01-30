@@ -406,4 +406,6 @@ skia_graphite_precompile_sources = [
   "$_src/precompile/PrecompileShader.cpp",
   "$_src/precompile/PrecompileShaderPriv.h",
   "$_src/precompile/PrecompileShadersPriv.h",
+  "$_src/precompile/SerializationUtils.cpp",
+  "$_src/precompile/SerializationUtils.h",
 ]

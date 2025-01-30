@@ -15,6 +15,8 @@
 
 #import <Metal/Metal.h>
 
+class SkStream;
+
 namespace skgpu::graphite {
 
 class MtlTextureInfoData final : public TextureInfoData {
@@ -74,6 +76,11 @@ private:
             return fMtlSpec.isCompatible(otherMtl->fMtlSpec);
         }
         return false;
+    }
+
+    // c.f. MtlCaps::deserializeTextureInfo
+    bool serialize(SkWStream* stream) const override {
+        return fMtlSpec.serialize(stream);
     }
 };
 

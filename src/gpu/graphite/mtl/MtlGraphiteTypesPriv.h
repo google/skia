@@ -13,6 +13,9 @@
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 
+class SkStream;
+class SkWStream;
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <TargetConditionals.h>
@@ -74,6 +77,9 @@ struct MtlTextureSpec {
                               (uint32_t)fStorageMode,
                               fFramebufferOnly);
     }
+
+    bool serialize(SkWStream*) const;
+    static bool Deserialize(SkStream*, MtlTextureSpec* out);
 
     MTLPixelFormat fFormat;
     MTLTextureUsage fUsage;

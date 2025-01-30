@@ -71,6 +71,8 @@ public:
     // data from a Builder-owned key, but they can be passed around by value after that.
     constexpr PaintParamsKey(const PaintParamsKey&) = default;
 
+    constexpr PaintParamsKey(SkSpan<const uint32_t> span) : fData(span) {}
+
     ~PaintParamsKey() = default;
     PaintParamsKey& operator=(const PaintParamsKey&) = default;
 
@@ -112,10 +114,10 @@ public:
         }
     };
 
+    SkSpan<const uint32_t> data() const { return fData; }
+
 private:
     friend class PaintParamsKeyBuilder;   // for the parented-data ctor
-
-    constexpr PaintParamsKey(SkSpan<const uint32_t> span) : fData(span) {}
 
     // Returns null if the node or any of its children have an invalid snippet ID. Recursively
     // creates a node and all of its children, incrementing 'currentIndex' by the total number of

@@ -205,6 +205,8 @@ class ShaderCodeDictionary {
 public:
     ShaderCodeDictionary(Layout layout);
 
+    UniquePaintParamsID findOrCreate(const PaintParamsKey&);
+
     UniquePaintParamsID findOrCreate(PaintParamsKeyBuilder*) SK_EXCLUDES(fSpinLock);
 
     PaintParamsKey lookup(UniquePaintParamsID) const SK_EXCLUDES(fSpinLock);

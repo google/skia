@@ -129,6 +129,13 @@ public:
                                       RenderPassDesc*,
                                       const RendererProvider*) const { return false; }
 
+    virtual bool deserializeTextureInfo(SkStream*,
+                                        BackendApi,
+                                        Mipmapped,
+                                        Protected,
+                                        uint32_t sampleCount,
+                                        TextureInfo* out) const { return false; }
+
     bool areColorTypeAndTextureInfoCompatible(SkColorType, const TextureInfo&) const;
     virtual uint32_t channelMask(const TextureInfo&) const = 0;
 

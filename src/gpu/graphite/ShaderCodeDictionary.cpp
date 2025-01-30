@@ -269,20 +269,25 @@ std::string ShaderNode::invokeAndAssign(const ShaderInfo& shaderInfo,
 
 UniquePaintParamsID ShaderCodeDictionary::findOrCreate(PaintParamsKeyBuilder* builder) {
     AutoLockBuilderAsKey keyView{builder};
-    if (!keyView->isValid()) {
+
+    return this->findOrCreate(*keyView);
+}
+
+UniquePaintParamsID ShaderCodeDictionary::findOrCreate(const PaintParamsKey& ppk) {
+    if (!ppk.isValid()) {
         return UniquePaintParamsID::InvalidID();
     }
 
     SkAutoSpinlock lock{fSpinLock};
 
-    UniquePaintParamsID* existingEntry = fPaintKeyToID.find(*keyView);
+    UniquePaintParamsID* existingEntry = fPaintKeyToID.find(ppk);
     if (existingEntry) {
-        SkASSERT(fIDToPaintKey[(*existingEntry).asUInt()] == *keyView);
+        SkASSERT(fIDToPaintKey[(*existingEntry).asUInt()] == ppk);
         return *existingEntry;
     }
 
     // Detach from the builder and copy into the arena
-    PaintParamsKey key = keyView->clone(&fArena);
+    PaintParamsKey key = ppk.clone(&fArena);
     UniquePaintParamsID newID{SkTo<uint32_t>(fIDToPaintKey.size())};
 
     fPaintKeyToID.set(key, newID);
