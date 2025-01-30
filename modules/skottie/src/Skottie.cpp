@@ -402,13 +402,13 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
                outPoint = std::max(ParseDefault<float>(json["op"], SK_ScalarMax), inPoint),
                duration = sk_ieee_float_divide(outPoint - inPoint, fps);
 
-    if (size.isEmpty() || version.isEmpty() || fps <= 0 ||
+    if (size.isEmpty() || fps <= 0 ||
         !SkIsFinite(inPoint, outPoint, duration)) {
         if (fLogger) {
             const auto msg = SkStringPrintf(
-                         "Invalid animation params (version: %s, size: [%f %f], frame rate: %f, "
+                         "Invalid animation params (size: [%f %f], frame rate: %f, "
                          "in-point: %f, out-point: %f)\n",
-                         version.c_str(), size.width(), size.height(), fps, inPoint, outPoint);
+                         size.width(), size.height(), fps, inPoint, outPoint);
             fLogger->log(Logger::Level::kError, msg.c_str());
         }
         return nullptr;
