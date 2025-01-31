@@ -8,7 +8,6 @@
 #include "modules/skottie/src/Composition.h"
 
 #include "include/core/SkString.h"
-#include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 #include "modules/jsonreader/SkJSONReader.h"
 #include "modules/skottie/include/Skottie.h"
@@ -53,17 +52,8 @@ AnimationBuilder::ScopedAssetRef::ScopedAssetRef(const AnimationBuilder* abuilde
 CompositionBuilder::CompositionBuilder(const AnimationBuilder& abuilder,
                                        const SkSize& size,
                                        const skjson::ObjectValue& jcomp)
-    : fSize(size) {
-
-    // Optional motion blur params.
-    if (const skjson::ObjectValue* jmb = jcomp["mb"]) {
-        static constexpr size_t kMaxSamplesPerFrame = 64;
-        fMotionBlurSamples = std::min(ParseDefault<size_t>((*jmb)["spf"], 1ul),
-                                      kMaxSamplesPerFrame);
-        fMotionBlurAngle = SkTPin(ParseDefault((*jmb)["sa"], 0.0f),    0.0f, 720.0f);
-        fMotionBlurPhase = SkTPin(ParseDefault((*jmb)["sp"], 0.0f), -360.0f, 360.0f);
-    }
-
+    : fSize(size)
+{
     int camera_builder_index = -1;
 
     // Prepare layer builders.

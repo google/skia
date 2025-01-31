@@ -64,8 +64,6 @@ private:
 
     bool is3D() const { return fFlags & Flags::kIs3D; }
 
-    bool hasMotionBlur(const CompositionBuilder*) const;
-
     // Attaches the layer content (excluding motion blur, layer controller, and mattes).
     // Can be called transitively, but only once per layer (via getContentTree, which caches
     // the result).

@@ -51,10 +51,6 @@ private:
     skia_private::THashMap<int, size_t>   fLayerIndexMap; // Maps layer "ind" to layer builder index.
 
     sk_sp<sksg::Transform>    fCameraTransform;
-
-    size_t                    fMotionBlurSamples = 1;
-    float                     fMotionBlurAngle   = 0,
-                              fMotionBlurPhase   = 0;
 };
 
 } // namespace internal

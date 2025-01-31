@@ -28,8 +28,6 @@ skia_filegroup(
         "InvertEffect.cpp",
         "LevelsEffect.cpp",
         "LinearWipeEffect.cpp",
-        "MotionBlurEffect.cpp",
-        "MotionBlurEffect.h",
         "MotionTileEffect.cpp",
         "RadialWipeEffect.cpp",
         "ShadowStyles.cpp",
