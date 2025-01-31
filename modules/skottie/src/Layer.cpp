@@ -546,10 +546,6 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
                                                       int prev_layer_index) {
     sk_sp<sksg::RenderNode> layer = this->getContentTree(abuilder, cbuilder);
 
-    if (ParseDefault<bool>(fJlayer["hd"], false)) {
-        layer = nullptr;
-    }
-
     const auto has_animators    = !abuilder.fCurrentAnimatorScope->empty();
     const auto force_seek_count = fBuilderInfo.fFlags & kForceSeek
             ? fLayerScope.size()
@@ -574,8 +570,18 @@ sk_sp<sksg::RenderNode> LayerBuilder::buildRenderTree(const AnimationBuilder& ab
 
     abuilder.fCurrentAnimatorScope->push_back(std::move(controller));
 
-    if (ParseDefault<bool>(fJlayer["td"], false)) {
-        // |layer| is a track matte.  We apply it as a mask to the next layer.
+    const auto& is_hidden = [this]() {
+        // If present, the 'hd' property controls visibility.
+        if (const skjson::BoolValue* jhidden = fJlayer["hd"]) {
+            return **jhidden;
+        }
+
+        // Legacy track matte flag, not supported in Lottie >= 1.0.
+        // We only observe this in the absence of an explicit `hd` property.
+        return ParseDefault<bool>(fJlayer["td"], false);
+    };
+
+    if (is_hidden()) {
         return nullptr;
     }
 
