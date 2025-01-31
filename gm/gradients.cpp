@@ -1115,7 +1115,7 @@ DEF_SIMPLE_GM(gradients_interesting, canvas, 640, 1300) {
 }
 
 // TODO(skia:13774): Still need to test degenerate gradients in strange color spaces
-DEF_SIMPLE_GM_BG(gradients_color_space, canvas, 265, 255, SK_ColorGRAY) {
+DEF_SIMPLE_GM_BG(gradients_color_space, canvas, 265, 355, SK_ColorGRAY) {
     using CS = SkGradientShader::Interpolation::ColorSpace;
 
     struct Config {
