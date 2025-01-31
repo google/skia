@@ -689,11 +689,12 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
                 wgpu::CallbackMode::WaitAnyOnly,
                 [asyncCreationPtr = asyncCreation.get()](wgpu::CreatePipelineAsyncStatus status,
                                                          wgpu::RenderPipeline pipeline,
-                                                         char const* message) {
+                                                         wgpu::StringView message) {
                     if (status != wgpu::CreatePipelineAsyncStatus::Success) {
-                        SKGPU_LOG_E("Failed to create render pipeline (%d): %s",
+                        SKGPU_LOG_E("Failed to create render pipeline (%d): %.*s",
                                     static_cast<int>(status),
-                                    message);
+                                    static_cast<int>(message.length),
+                                    message.data);
                         // invalidate AsyncPipelineCreation pointer to signal that this pipeline has
                         // failed.
                         asyncCreationPtr->fRenderPipeline = nullptr;
