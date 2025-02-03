@@ -455,9 +455,9 @@ private:
     using INHERITED = GPUSink;
 };
 
-class GPUPrecompileTestingSink : public GPUSink {
+class GaneshPrecompileTestingSink : public GPUSink {
 public:
-    GPUPrecompileTestingSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
+    GaneshPrecompileTestingSink(const SkCommandLineConfigGpu*, const GrContextOptions&);
 
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
 

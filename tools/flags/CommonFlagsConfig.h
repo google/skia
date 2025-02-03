@@ -66,7 +66,7 @@ public:
                            SkAlphaType               alphaType,
                            bool                      useStencilBuffers,
                            int                       testPersistentCache,
-                           bool                      testPrecompile,
+                           bool                      testPrecompileGanesh,
                            bool                      useDDLSink,
                            bool                      slug,
                            bool                      serializedSlug,
@@ -82,7 +82,7 @@ public:
     SkColorType   getColorType() const { return fColorType; }
     SkAlphaType   getAlphaType() const { return fAlphaType; }
     int           getTestPersistentCache() const { return fTestPersistentCache; }
-    bool          getTestPrecompile() const { return fTestPrecompile; }
+    bool          getTestPrecompileGanesh() const { return fTestPrecompileGanesh; }
     bool          getUseDDLSink() const { return fUseDDLSink; }
     bool          getSlug() const { return fSlug; }
     bool          getSerializedSlug() const { return fSerializeSlug; }
@@ -98,7 +98,7 @@ private:
     SkColorType         fColorType;
     SkAlphaType         fAlphaType;
     int                 fTestPersistentCache;
-    bool                fTestPrecompile;
+    bool                fTestPrecompileGanesh;
     bool                fUseDDLSink;
     bool                fSlug;
     bool                fSerializeSlug;
@@ -120,25 +120,25 @@ public:
                                 ContextType contextType,
                                 SkColorType colorType,
                                 SkAlphaType alphaType,
-                                bool testPrecompile)
+                                bool testPrecompileGraphite)
             : SkCommandLineConfig(tag, SkString("graphite"), viaParts)
             , fContextType(contextType)
             , fColorType(colorType)
             , fAlphaType(alphaType)
-            , fTestPrecompile(testPrecompile) {
+            , fTestPrecompileGraphite(testPrecompileGraphite) {
     }
     const SkCommandLineConfigGraphite* asConfigGraphite() const override { return this; }
 
     ContextType getContextType() const { return fContextType; }
     SkColorType getColorType() const { return fColorType; }
     SkAlphaType getAlphaType() const { return fAlphaType; }
-    bool        getTestPrecompile() const { return fTestPrecompile; }
+    bool        getTestPrecompileGraphite() const { return fTestPrecompileGraphite; }
 
 private:
     ContextType                     fContextType;
     SkColorType                     fColorType;
     SkAlphaType                     fAlphaType;
-    bool                            fTestPrecompile;
+    bool                            fTestPrecompileGraphite;
 };
 
 #endif // SK_GRAPHITE

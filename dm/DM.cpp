@@ -988,8 +988,8 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions,
             }
             if (gpuConfig->getTestPersistentCache()) {
                 return new GPUPersistentCacheTestingSink(gpuConfig, grCtxOptions);
-            } else if (gpuConfig->getTestPrecompile()) {
-                return new GPUPrecompileTestingSink(gpuConfig, grCtxOptions);
+            } else if (gpuConfig->getTestPrecompileGanesh()) {
+                return new GaneshPrecompileTestingSink(gpuConfig, grCtxOptions);
             } else if (gpuConfig->getUseDDLSink()) {
                 return new GPUDDLSink(gpuConfig, grCtxOptions);
             } else if (gpuConfig->getSlug()) {
@@ -1007,7 +1007,7 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions,
     if (FLAGS_graphite) {
         if (const SkCommandLineConfigGraphite *graphiteConfig = config->asConfigGraphite()) {
 #if defined(SK_ENABLE_PRECOMPILE)
-            if (graphiteConfig->getTestPrecompile()) {
+            if (graphiteConfig->getTestPrecompileGraphite()) {
                 return new GraphitePrecompileTestingSink(graphiteConfig, graphiteOptions);
             } else
 #endif // SK_ENABLE_PRECOMPILE
