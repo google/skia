@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_ContextOptions_DEFINED
 #define skgpu_graphite_ContextOptions_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/private/base/SkAPI.h"
 #include "include/private/base/SkMath.h"
 
