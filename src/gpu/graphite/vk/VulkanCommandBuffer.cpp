@@ -1444,6 +1444,10 @@ bool VulkanCommandBuffer::onCopyBufferToBuffer(const Buffer* srcBuffer,
     SkASSERT(vkSrcBuffer->bufferUsageFlags() & VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
     SkASSERT(vkDstBuffer->bufferUsageFlags() & VK_BUFFER_USAGE_TRANSFER_DST_BIT);
 
+    vkSrcBuffer->setBufferAccess(this, VK_ACCESS_TRANSFER_READ_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+    vkDstBuffer->setBufferAccess(
+        this, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+
     VkBufferCopy region;
     memset(&region, 0, sizeof(VkBufferCopy));
     region.srcOffset = srcOffset;
@@ -1458,6 +1462,26 @@ bool VulkanCommandBuffer::onCopyBufferToBuffer(const Buffer* srcBuffer,
                               vkDstBuffer->vkBuffer(),
                               /*regionCount=*/1,
                               &region));
+
+    // TODO (b/394121386): We don't currently have a list of tracked buffers that are used on a
+    // RenderPass in order to put in any needed barriers (like we do for textures). If we did have
+    // one, then we would add the needed barriers for the buffers at the start of a render pass.
+    // Until we have such a system, we need to do some hackyness here to put in a barrier with the
+    // assumption that the buffer will be read after this write from the copy. The only buffer types
+    // we allow to be used as the dst of a transfer are vertex and index buffers. So we check the
+    // buffers usages for either of those and then set the corresponding access flag.
+    VkAccessFlags dstAccess = 0;
+    VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+    VkBufferUsageFlags bufferUsageFlags = vkDstBuffer->bufferUsageFlags();
+    if (bufferUsageFlags & VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) {
+        dstAccess = VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+    } else if (bufferUsageFlags & VK_BUFFER_USAGE_INDEX_BUFFER_BIT) {
+        dstAccess = VK_ACCESS_INDEX_READ_BIT;
+    } else {
+        SkDEBUGFAIL("Trying to copy to non vertex or index buffer\n");
+        return false;
+    }
+    vkDstBuffer->setBufferAccess(this, dstAccess, dstStageMask);
 
     return true;
 }
@@ -1762,31 +1786,6 @@ void VulkanCommandBuffer::submitPipelineBarriers(bool forSelfDependency) {
     SkASSERT(!fBarriersByRegion);
     SkASSERT(!fSrcStageMask);
     SkASSERT(!fDstStageMask);
-}
-
-void VulkanCommandBuffer::updateBuffer(const VulkanBuffer* buffer,
-                                       const void* data,
-                                       size_t dataSize,
-                                       size_t dstOffset) {
-    // vkCmdUpdateBuffer can only be called outside of a render pass.
-    SkASSERT(fActive && !fActiveRenderPass);
-    if (!buffer || buffer->vkBuffer() == VK_NULL_HANDLE) {
-        SKGPU_LOG_W("VulkanCommandBuffer::updateBuffer requires a valid VulkanBuffer pointer backed"
-                    "by a valid VkBuffer handle");
-        return;
-    }
-
-    // Per the spec, vkCmdUpdateBuffer is treated as a “transfer" operation for the purposes of
-    // synchronization barriers. Ensure this write operation occurs after any previous read
-    // operations and without clobbering any other write operations on the same memory in the cache.
-    buffer->setBufferAccess(this, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
-    this->submitPipelineBarriers();
-
-    VULKAN_CALL(fSharedContext->interface(), CmdUpdateBuffer(fPrimaryCommandBuffer,
-                                                             buffer->vkBuffer(),
-                                                             dstOffset,
-                                                             dataSize,
-                                                             data));
 }
 
 void VulkanCommandBuffer::nextSubpass() {

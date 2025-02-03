@@ -183,10 +183,6 @@ private:
                              SkISize dstDimensions,
                              SkIRect nativeBounds);
     bool updateAndBindLoadMSAAInputAttachment(const VulkanTexture& resolveTexture);
-    void updateBuffer(const VulkanBuffer* buffer,
-                      const void* data,
-                      size_t dataSize,
-                      size_t dstOffset = 0);
     void nextSubpass();
     void setViewport(SkIRect viewport);
 
