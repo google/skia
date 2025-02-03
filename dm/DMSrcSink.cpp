@@ -2247,19 +2247,10 @@ GraphitePrecompileTestingSink::~GraphitePrecompileTestingSink() {}
 Result GraphitePrecompileTestingSink::drawSrc(
         const Src& src,
         skgpu::graphite::Context* context,
-        skiatest::graphite::GraphiteTestContext* testContext) const {
-    if (!fRecorder) {
-        fRecorder = context->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
-        if (!fRecorder) {
-            return Result::Fatal("Could not create a recorder.");
-        }
-    }
+        skiatest::graphite::GraphiteTestContext* testContext,
+        skgpu::graphite::Recorder* recorder) const {
 
-    if (!fPrecompileContext) {
-        fPrecompileContext = context->makePrecompileContext();
-    }
-
-    sk_sp<SkSurface> surface = this->makeSurface(fRecorder.get(), src.size());
+    sk_sp<SkSurface> surface = this->makeSurface(recorder, src.size());
     if (!surface) {
         return Result::Fatal("Could not create a surface.");
     }
@@ -2268,7 +2259,7 @@ Result GraphitePrecompileTestingSink::drawSrc(
         return result;
     }
 
-    std::unique_ptr<skgpu::graphite::Recording> recording = fRecorder->snap();
+    std::unique_ptr<skgpu::graphite::Recording> recording = recorder->snap();
     if (!recording) {
         return Result::Fatal("Could not create a recording.");
     }
@@ -2285,40 +2276,53 @@ Result GraphitePrecompileTestingSink::drawSrc(
     return Result::Ok();
 }
 
-Result GraphitePrecompileTestingSink::resetAndRecreatePipelines() const {
+Result GraphitePrecompileTestingSink::resetAndRecreatePipelines(
+        PipelineCallBackHandler* handler,
+        skgpu::graphite::PrecompileContext* precompileContext) const {
     using namespace skgpu::graphite;
 
-    SkASSERT(fRecorder && fPrecompileContext);
-
-    GlobalCache* globalCache = fPrecompileContext->priv().globalCache();
-
-    RuntimeEffectDictionary* rteDict = fRecorder->priv().runtimeEffectDictionary();
+    SkDEBUGCODE(GlobalCache* globalCache = precompileContext->priv().globalCache();)
 
     std::vector<skgpu::UniqueKey> origKeys;
 
-    UniqueKeyUtils::FetchUniqueKeys(fPrecompileContext.get(), &origKeys);
+    UniqueKeyUtils::FetchUniqueKeys(precompileContext, &origKeys);
+
+    std::vector<sk_sp<SkData>> androidStyleKeys;
+
+    handler->retrieve(&androidStyleKeys);
+    handler->reset();
+
+    SkASSERTF(origKeys.size() == androidStyleKeys.size(),
+              "orig %zu != new %zu", origKeys.size(), androidStyleKeys.size());
 
     SkDEBUGCODE(int numBeforeReset = globalCache->numGraphicsPipelines();)
     SkASSERT(numBeforeReset == (int) origKeys.size());
 
-    fPrecompileContext->priv().globalCache()->resetGraphicsPipelines();
+    precompileContext->priv().globalCache()->resetGraphicsPipelines();
 
     SkASSERT(globalCache->numGraphicsPipelines() == 0);
 
+#if 0
+    for (sk_sp<SkData>& d : androidStyleKeys) {
+        bool result = precompileContext->androidSpecificPrecompile(d);
+        SkAssertResult(result);
+    }
+#else
     for (const skgpu::UniqueKey& k : origKeys) {
         // TODO: add a separate path that decomposes the keys into PaintOptions
         //  and uses them to Precompile
         GraphicsPipelineDesc pipelineDesc;
         RenderPassDesc renderPassDesc;
 
-        if (!UniqueKeyUtils::ExtractKeyDescs(fPrecompileContext.get(), k,
+        if (!UniqueKeyUtils::ExtractKeyDescs(precompileContext, k,
                                              &pipelineDesc, &renderPassDesc)) {
             continue;
         }
 
-        AndroidSpecificPrecompile(fPrecompileContext.get(), rteDict,
+        AndroidSpecificPrecompile(precompileContext, nullptr,
                                   pipelineDesc, renderPassDesc);
     }
+#endif
 
     SkDEBUGCODE(int postRecreate = globalCache->numGraphicsPipelines();)
 
@@ -2327,104 +2331,173 @@ Result GraphitePrecompileTestingSink::resetAndRecreatePipelines() const {
     {
         std::vector<skgpu::UniqueKey> recreatedKeys;
 
-        UniqueKeyUtils::FetchUniqueKeys(fPrecompileContext.get(), &recreatedKeys);
-
-        for (const skgpu::UniqueKey& origKey : origKeys) {
-            if(std::find(recreatedKeys.begin(), recreatedKeys.end(), origKey) ==
-                         recreatedKeys.end()) {
-                sk_sp<GraphicsPipeline> pipeline = globalCache->findGraphicsPipeline(origKey);
-                SkASSERT(!pipeline);
+        UniqueKeyUtils::FetchUniqueKeys(precompileContext, &recreatedKeys);
 
 #ifdef SK_DEBUG
-                {
-                    GraphicsPipelineDesc originalPipelineDesc;
-                    RenderPassDesc originalRenderPassDesc;
-                    UniqueKeyUtils::ExtractKeyDescs(fPrecompileContext.get(), origKey,
-                                                    &originalPipelineDesc,
-                                                    &originalRenderPassDesc);
-
-                    SkDebugf("------- Missing key from rebuilt keys:\n");
-                    origKey.dump("original key:");
-                    UniqueKeyUtils::DumpDescs(fPrecompileContext.get(),
-                                              originalPipelineDesc,
-                                              originalRenderPassDesc);
-                }
-
-                SkDebugf("Have %d recreated keys -----------------\n", (int) recreatedKeys.size());
-                int count = 0;
-                for (const skgpu::UniqueKey& recreatedKey : recreatedKeys) {
-
-                    GraphicsPipelineDesc recreatedPipelineDesc;
-                    RenderPassDesc recreatedRenderPassDesc;
-                    UniqueKeyUtils::ExtractKeyDescs(fPrecompileContext.get(), recreatedKey,
-                                                    &recreatedPipelineDesc,
-                                                    &recreatedRenderPassDesc);
-
-                    SkDebugf("%d ----\n", count++);
-                    recreatedKey.dump("recreated key:");
-                    UniqueKeyUtils::DumpDescs(fPrecompileContext.get(),
-                                              recreatedPipelineDesc,
-                                              recreatedRenderPassDesc);
-                }
+        CompareKeys(precompileContext,
+                    origKeys, "original",
+                    recreatedKeys, "recreated");
 #endif
-
-                SK_ABORT("missing");
-            }
-        }
     }
 
     return Result::Ok();
+}
+
+
+#ifdef SK_DEBUG
+void GraphitePrecompileTestingSink::LogMissingKey(
+        skgpu::graphite::PrecompileContext* precompileContext,
+        const skgpu::UniqueKey& missingKey,
+        const char* missingKeyName,
+        const std::vector<skgpu::UniqueKey>& pool,
+        const char* poolName) {
+    using namespace skgpu::graphite;
+
+    {
+        GraphicsPipelineDesc originalPipelineDesc;
+        RenderPassDesc originalRenderPassDesc;
+        UniqueKeyUtils::ExtractKeyDescs(precompileContext, missingKey,
+                                        &originalPipelineDesc,
+                                        &originalRenderPassDesc);
+
+        SkDebugf("------- Key missing from %s keys:\n", poolName);
+        missingKey.dump(missingKeyName);
+        UniqueKeyUtils::DumpDescs(precompileContext,
+                                  originalPipelineDesc,
+                                  originalRenderPassDesc);
+    }
+
+    SkDebugf("Have %d %s keys -----------------\n", (int) pool.size(), poolName);
+    int count = 0;
+    for (const skgpu::UniqueKey& b : pool) {
+
+        GraphicsPipelineDesc recreatedPipelineDesc;
+        RenderPassDesc recreatedRenderPassDesc;
+        UniqueKeyUtils::ExtractKeyDescs(precompileContext, b,
+                                        &recreatedPipelineDesc,
+                                        &recreatedRenderPassDesc);
+
+        SkDebugf("%d: ----\n", count++);
+        b.dump("recreated key:");
+        UniqueKeyUtils::DumpDescs(precompileContext,
+                                  recreatedPipelineDesc,
+                                  recreatedRenderPassDesc);
+    }
+}
+#endif
+
+void GraphitePrecompileTestingSink::CompareKeys(
+        skgpu::graphite::PrecompileContext* precompileContext,
+        const std::vector<skgpu::UniqueKey>& vA,
+        const char* aName,
+        const std::vector<skgpu::UniqueKey>& vB,
+        const char* bName) {
+
+    for (const skgpu::UniqueKey& a : vA) {
+        if (std::find(vB.begin(), vB.end(), a) == vB.end()) {
+#ifdef SK_DEBUG
+            LogMissingKey(precompileContext, a, aName, vB, bName);
+#endif
+
+            SK_ABORT("missing");
+        }
+    }
+}
+
+void GraphitePrecompileTestingSink::PipelineCallBackHandler::add(sk_sp<SkData> payload) {
+    SkAutoSpinlock lock{ fSpinLock };
+
+    const sk_sp<SkData>* data = fMap.find({ payload.get() });
+    if (!data) {
+        fMap.set(std::move(payload));
+    }
+}
+
+void GraphitePrecompileTestingSink::PipelineCallBackHandler::retrieve(
+        std::vector<sk_sp<SkData>>* result) {
+    SkAutoSpinlock lock{ fSpinLock };
+
+    result->reserve(fMap.count());
+
+    fMap.foreach([result](sk_sp<SkData>* data) {
+        result->push_back(*data);
+    });
+}
+
+void GraphitePrecompileTestingSink::PipelineCallBackHandler::reset() {
+    SkAutoSpinlock lock{ fSpinLock };
+
+    fMap.reset();
 }
 
 Result GraphitePrecompileTestingSink::draw(const Src& src,
                                            SkBitmap* dst,
                                            SkWStream* dstStream,
                                            SkString* log) const {
-    skiatest::graphite::TestOptions options = fOptions;
-    // If we've copied context options from an external source we can't trust that the
-    // priv pointer is still in scope, so assume it should be NULL and set our own up.
-    SkASSERT(!options.fContextOptions.fOptionsPriv);
-    skgpu::graphite::ContextOptionsPriv optionsPriv;
-    options.fContextOptions.fOptionsPriv = &optionsPriv;
+    using namespace skgpu::graphite;
+    using namespace skiatest::graphite;
 
-    src.modifyGraphiteContextOptions(&options.fContextOptions);
+    std::unique_ptr<PipelineCallBackHandler> pipelineHandler(new PipelineCallBackHandler);
 
-    skiatest::graphite::ContextFactory factory(options);
-    skiatest::graphite::ContextInfo ctxInfo = factory.getContextInfo(fContextType);
-    skgpu::graphite::Context* context = ctxInfo.fContext;
-    if (!context) {
-        return Result::Fatal("Could not create a context.");
+    {
+        TestOptions options = fOptions;
+        // If we've copied context options from an external source we can't trust that the
+        // priv pointer is still in scope, so assume it should be NULL and set our own up.
+        SkASSERT(!options.fContextOptions.fOptionsPriv);
+        ContextOptionsPriv optionsPriv;
+        options.fContextOptions.fOptionsPriv = &optionsPriv;
+
+        SkASSERT(!options.fContextOptions.fPipelineCallbackContext);
+        SkASSERT(!options.fContextOptions.fPipelineCallback);
+        options.fContextOptions.fPipelineCallbackContext = pipelineHandler.get();
+        options.fContextOptions.fPipelineCallback = PipelineCallBackHandler::CallBack;
+
+        src.modifyGraphiteContextOptions(&options.fContextOptions);
+
+        ContextFactory factory(options);
+        skiatest::graphite::ContextInfo ctxInfo = factory.getContextInfo(fContextType);
+        Context* context = ctxInfo.fContext;
+        if (!context) {
+            return Result::Fatal("Could not create a context.");
+        }
+
+        std::unique_ptr<skgpu::graphite::Recorder> recorder =
+                context->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
+        if (!recorder) {
+            return Result::Fatal("Could not create a recorder.");
+        }
+        std::unique_ptr<PrecompileContext> precompileContext = context->makePrecompileContext();
+
+        // First, clear out any miscellaneous Pipelines that might be cluttering up the global
+        // cache.
+        context->priv().globalCache()->resetGraphicsPipelines();
+
+        // Draw the Src for the first time, populating the global pipeline cache.
+        Result result = this->drawSrc(src, context, ctxInfo.fTestContext, recorder.get());
+        if (!result.isOk()) {
+            return result;
+        }
+
+        // Call resetAndRecreatePipelines to clear out all the Pipelines in the global cache and
+        // then regenerate them using the Precompilation system.
+        result = this->resetAndRecreatePipelines(pipelineHandler.get(), precompileContext.get());
+        if (!result.isOk()) {
+            return result;
+        }
+
+        SkDEBUGCODE(GlobalCache* globalCache = precompileContext->priv().globalCache();)
+        SkDEBUGCODE(int numBeforeSecondDraw = globalCache->numGraphicsPipelines();)
+
+        // Draw the Src for the second time. This shouldn't create any new Pipelines since the ones
+        // generated via Precompilation should be sufficient.
+        result = this->drawSrc(src, context, ctxInfo.fTestContext, recorder.get());
+        if (!result.isOk()) {
+            return result;
+        }
+
+        SkASSERT(numBeforeSecondDraw == globalCache->numGraphicsPipelines());
     }
 
-    // First, clear out any miscellaneous Pipelines that might be cluttering up the global cache.
-    context->priv().globalCache()->resetGraphicsPipelines();
-
-    // Draw the Src for the first time, populating the global pipeline cache.
-    Result result = this->drawSrc(src, context, ctxInfo.fTestContext);
-    if (!result.isOk()) {
-        fRecorder.reset();
-        return result;
-    }
-
-    // Call resetAndRecreatePipelines to clear out all the Pipelines in the global cache and then
-    // regenerate them using the Precompilation system.
-    result = this->resetAndRecreatePipelines();
-    if (!result.isOk()) {
-        fRecorder.reset();
-        return result;
-    }
-
-    // Draw the Src for the second time. This shouldn't create any new Pipelines since the ones
-    // generated via Precompilation should be sufficient.
-    result = this->drawSrc(src, context, ctxInfo.fTestContext);
-    if (!result.isOk()) {
-        fRecorder.reset();
-        return result;
-    }
-
-    fRecorder.reset();
-
-    // TODO: verify that no additional pipelines were created during the second 'drawSrc' call
     return Result::Ok();
 }
 #endif // SK_ENABLE_PRECOMPILE

@@ -51,6 +51,13 @@ GlobalCache::~GlobalCache() {
     SkASSERT(fStaticResource.empty());
 }
 
+void GlobalCache::setPipelineCallback(PipelineCallback callback, PipelineCallbackContext context) {
+    SkAutoSpinlock lock{ fSpinLock };
+
+    fPipelineCallback = callback;
+    fPipelineCallbackContext = context;
+}
+
 void GlobalCache::deleteResources() {
     SkAutoSpinlock lock{ fSpinLock };
 

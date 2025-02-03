@@ -13,6 +13,7 @@
 
 #include <optional>
 
+class SkData;
 namespace skgpu { class ShaderErrorHandler; }
 
 namespace skgpu::graphite {
@@ -117,6 +118,22 @@ struct SK_API ContextOptions {
      * allocator to pass into Skia where they can fine tune this value themeselves.
      */
     std::optional<uint64_t> fVulkanVMALargeHeapBlockSize;
+
+    /** Client-provided context that is passed to client-provided PipelineCallback. */
+    using PipelineCallbackContext = void*;
+    /**  Client-provided callback that is called whenever Graphite encounters a new Pipeline. */
+    using PipelineCallback = void (*)(PipelineCallbackContext context, sk_sp<SkData> pipelineData);
+
+    /**
+     *  These two members allow a client to register a callback that will be invoked
+     *  whenever Graphite encounters a new Pipeline. The callback will be passed an
+     *  sk_sp<SkData> that a client can take ownership of and serialize. The SkData
+     *  contains all the information Graphite requires to recreate the Pipeline at
+     *  a later date. The SkData is versioned however, so must be regenerated and
+     *  re-serialized when it becomes out of date.
+     */
+    PipelineCallbackContext fPipelineCallbackContext = nullptr;
+    PipelineCallback fPipelineCallback = nullptr;
 
     /**
      * Private options that are only meant for testing within Skia's tools.

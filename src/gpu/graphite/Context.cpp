@@ -98,6 +98,9 @@ Context::Context(sk_sp<SharedContext> sharedContext,
         fStoreContextRefInRecorder = options.fOptionsPriv->fStoreContextRefInRecorder;
     }
 #endif
+
+    fSharedContext->globalCache()->setPipelineCallback(options.fPipelineCallback,
+                                                       options.fPipelineCallbackContext);
 }
 
 Context::~Context() {
