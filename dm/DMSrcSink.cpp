@@ -2302,9 +2302,9 @@ Result GraphitePrecompileTestingSink::resetAndRecreatePipelines(
 
     SkASSERT(globalCache->numGraphicsPipelines() == 0);
 
-#if 0
+#if 1
     for (sk_sp<SkData>& d : androidStyleKeys) {
-        bool result = precompileContext->androidSpecificPrecompile(d);
+        bool result = precompileContext->precompile(d);
         SkAssertResult(result);
     }
 #else

@@ -7,8 +7,16 @@
 
 #include "include/gpu/graphite/PrecompileContext.h"
 
+#include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/SharedContext.h"
+
+#if defined(SK_ENABLE_PRECOMPILE)
+#include "src/gpu/graphite/precompile/SerializationUtils.h"
+#endif
 
 namespace skgpu::graphite {
 
@@ -36,5 +44,36 @@ void PrecompileContext::purgePipelinesNotUsedInMs(std::chrono::milliseconds msNo
     fSharedContext->globalCache()->purgePipelinesNotUsedSince(purgeTime);
 }
 
+
+bool PrecompileContext::precompile(sk_sp<SkData> serializedPipelineKey) {
+#if defined(SK_ENABLE_PRECOMPILE)
+    auto rtEffectDict = std::make_unique<RuntimeEffectDictionary>();
+
+    GraphicsPipelineDesc pipelineDesc;
+    RenderPassDesc renderPassDesc;
+
+    if (!DataToPipelineDesc(fSharedContext->caps(),
+                            fSharedContext->shaderCodeDictionary(),
+                            serializedPipelineKey.get(),
+                            &pipelineDesc,
+                            &renderPassDesc)) {
+        return false;
+    }
+
+    sk_sp<GraphicsPipeline> pipeline = fResourceProvider->findOrCreateGraphicsPipeline(
+            rtEffectDict.get(),
+            pipelineDesc,
+            renderPassDesc,
+            PipelineCreationFlags::kForPrecompilation);
+    if (!pipeline) {
+        SKGPU_LOG_W("Failed to create GraphicsPipeline in precompile!");
+        return false;
+    }
+
+    return true;
+#else
+    return false;
+#endif
+}
 
 } // namespace skgpu::graphite

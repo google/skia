@@ -1,0 +1,1 @@
+The `PrecompileContext` now allows clients to precompile previously serialized Pipelines via the `PrecompileContext::precompile` entry point. Serialized keys can be obtained by implementing a `ContextOptions::PipelineCallback` handler. 

@@ -91,6 +91,9 @@ public:
     using PipelineCallback = void (*)(PipelineCallbackContext context, sk_sp<SkData> pipelineData);
     void setPipelineCallback(PipelineCallback, PipelineCallbackContext) SK_EXCLUDES(fSpinLock);
 
+    void invokePipelineCallback(SharedContext*,
+                                const GraphicsPipelineDesc&,
+                                const RenderPassDesc&);
 private:
     struct KeyHash {
         uint32_t operator()(const UniqueKey& key) const { return key.hash(); }

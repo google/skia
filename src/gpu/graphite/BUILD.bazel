@@ -160,6 +160,8 @@ PRECOMPILE_FILES = [
     "PrecompileInternal.h",
     "PublicPrecompile.cpp",
     "AndroidSpecificPrecompile.h",
+    "SerializationUtils.cpp",
+    "SerializationUtils.h",
 ]
 
 split_srcs_and_hdrs(

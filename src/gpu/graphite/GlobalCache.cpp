@@ -12,7 +12,14 @@
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
+#include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Resource.h"
+#include "src/gpu/graphite/SharedContext.h"
+
+#if defined(SK_ENABLE_PRECOMPILE)
+#include "src/gpu/graphite/precompile/SerializationUtils.h"
+#endif
 
 namespace {
 
@@ -52,10 +59,37 @@ GlobalCache::~GlobalCache() {
 }
 
 void GlobalCache::setPipelineCallback(PipelineCallback callback, PipelineCallbackContext context) {
-    SkAutoSpinlock lock{ fSpinLock };
+    SkAutoSpinlock lock{fSpinLock};
 
     fPipelineCallback = callback;
     fPipelineCallbackContext = context;
+}
+
+void GlobalCache::invokePipelineCallback(SharedContext* sharedContext,
+                                         const GraphicsPipelineDesc& pipelineDesc,
+                                         const RenderPassDesc& renderPassDesc) {
+#if defined(SK_ENABLE_PRECOMPILE)
+    PipelineCallback tmpCB = nullptr;
+    PipelineCallbackContext tmpContext = nullptr;
+
+    {
+        // We want to get a consistent callback/context pair but not invoke the callback
+        // w/in our lock.
+        SkAutoSpinlock lock{fSpinLock};
+
+        tmpCB = fPipelineCallback;
+        tmpContext = fPipelineCallbackContext;
+    }
+
+    if (tmpCB) {
+        sk_sp<SkData> data = PipelineDescToData(sharedContext->shaderCodeDictionary(),
+                                                pipelineDesc,
+                                                renderPassDesc);
+        if (data) {
+            tmpCB(tmpContext, std::move(data));
+        }
+    }
+#endif
 }
 
 void GlobalCache::deleteResources() {
