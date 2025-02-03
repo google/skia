@@ -43,7 +43,6 @@
 
 #include <limits.h>
 #include <algorithm>
-#include <array>
 #include <cstring>
 #include <memory>
 
@@ -2097,48 +2096,43 @@ VkShaderStageFlags GrVkCaps::getPushConstantStageFlags() const {
     return stageFlags;
 }
 
-template <size_t N>
-static bool intel_deviceID_present(const std::array<uint32_t, N>& array, uint32_t deviceID) {
-    return std::find(array.begin(), array.end(), deviceID) != array.end();
-}
-
-
 GrVkCaps::IntelGPUType GrVkCaps::GetIntelGPUType(uint32_t deviceID) {
-    // Some common Intel GPU models, currently we cover SKL/ICL/RKL/TGL/ADL
-    // Referenced from the following Mesa source files:
-    // https://github.com/mesa3d/mesa/blob/master/include/pci_ids/i965_pci_ids.h
-    // https://github.com/mesa3d/mesa/blob/master/include/pci_ids/iris_pci_ids.h
-    static constexpr std::array<uint32_t, 25> kSkyLakeIDs = {
-        {0x1902, 0x1906, 0x190A, 0x190B, 0x190E, 0x1912, 0x1913,
-         0x1915, 0x1916, 0x1917, 0x191A, 0x191B, 0x191D, 0x191E,
-         0x1921, 0x1923, 0x1926, 0x1927, 0x192A, 0x192B, 0x192D,
-         0x1932, 0x193A, 0x193B, 0x193D}};
-    static constexpr std::array<uint32_t, 14> kIceLakeIDs = {
-        {0x8A50, 0x8A51, 0x8A52, 0x8A53, 0x8A54, 0x8A56, 0x8A57,
-         0x8A58, 0x8A59, 0x8A5A, 0x8A5B, 0x8A5C, 0x8A5D, 0x8A71}};
-    static constexpr  std::array<uint32_t, 5> kRocketLakeIDs = {
-        {0x4c8a, 0x4c8b, 0x4c8c, 0x4c90, 0x4c9a}};
-    static constexpr  std::array<uint32_t, 11> kTigerLakeIDs = {
-        {0x9A40, 0x9A49, 0x9A59, 0x9A60, 0x9A68, 0x9A70,
-         0x9A78, 0x9AC0, 0x9AC9, 0x9AD9, 0x9AF8}};
-    static constexpr  std::array<uint32_t, 10> kAlderLakeIDs = {
-        {0x4680, 0x4681, 0x4682, 0x4683, 0x4690,
-         0x4691, 0x4692, 0x4693, 0x4698, 0x4699}};
-
-    if (intel_deviceID_present(kSkyLakeIDs, deviceID)) {
-        return IntelGPUType::kSkyLake;
-    }
-    if (intel_deviceID_present(kIceLakeIDs, deviceID)) {
-        return IntelGPUType::kIceLake;
-    }
-    if (intel_deviceID_present(kRocketLakeIDs, deviceID)) {
-        return IntelGPUType::kRocketLake;
-    }
-    if (intel_deviceID_present(kTigerLakeIDs, deviceID)) {
-        return IntelGPUType::kTigerLake;
-    }
-    if (intel_deviceID_present(kAlderLakeIDs, deviceID)) {
-        return IntelGPUType::kAlderLake;
+    // Some common Intel GPU models, currently we cover SKL, ICL, JSL, and Gen12+ up to PTL.
+    // Referenced from the following Mesa source file:
+    // https://gitlab.freedesktop.org/mesa/mesa/-/blob/main/include/pci_ids/iris_pci_ids.h
+    //
+    // Generally, only the top two bytes define the GPU type. MTL/ARL are an uncommon exception.
+    switch (deviceID & 0xFF00) {
+        case 0x1900:
+            return IntelGPUType::kSkyLake;
+        case 0x8A00:
+            return IntelGPUType::kIceLake;
+        case 0x4E00:
+            return IntelGPUType::kJasperLake;
+        case 0x4C00:
+            return IntelGPUType::kRocketLake;
+        case 0x9A00:
+            return IntelGPUType::kTigerLake;
+        case 0x4600:
+            return IntelGPUType::kAlderLake;
+        case 0xA700:
+            return IntelGPUType::kRaptorLake;
+        case 0xB600:
+            return IntelGPUType::kArrowLake;
+        case 0x5600:
+            return IntelGPUType::kAlchemist;
+        case 0x6400:
+            return IntelGPUType::kLunarLake;
+        case 0xE200:
+            return IntelGPUType::kBattlemage;
+        case 0xB000:
+            return IntelGPUType::kPantherLake;
+        case 0x7D00:
+            if (deviceID == 0x7D41 || deviceID == 0x7D51 || deviceID == 0x7D67 ||
+                deviceID == 0x7DD1) {
+                return IntelGPUType::kArrowLake;
+            }
+            return IntelGPUType::kMeteorLake;
     }
     return IntelGPUType::kOther;
 }
