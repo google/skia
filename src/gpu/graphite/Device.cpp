@@ -1272,7 +1272,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     ClipStack::ElementList clipElements;
     const Clip clip =
             fClip.visitClipStackForDraw(localToDevice, geometry, style, outsetBoundsForAA,
-                                        &clipElements);
+                                        fMSAASupported, &clipElements);
     if (clip.isClippedOut()) {
         // Clipped out, so don't record anything.
         return;
@@ -1284,8 +1284,8 @@ void Device::drawGeometry(const Transform& localToDevice,
                                                          : SkBlendMode::kSrcOver;
     Coverage rendererCoverage = renderer ? renderer->coverage()
                                          : Coverage::kSingleChannel;
-    if ((clip.shader() || !clip.nonMSAAClip().isEmpty()) && rendererCoverage == Coverage::kNone) {
-        // Must upgrade to single channel coverage if there is a clip shader or analytic clip;
+    if (clip.needsCoverage() && rendererCoverage == Coverage::kNone) {
+        // Must upgrade to single channel coverage if the clip requires coverage;
         // but preserve LCD coverage if the Renderer uses that.
         rendererCoverage = Coverage::kSingleChannel;
     }

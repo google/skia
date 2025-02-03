@@ -39,11 +39,15 @@ bool RasterMaskHelper::init(SkISize pixmapSize, skvx::float2 transformedMaskOffs
     return true;
 }
 
+void RasterMaskHelper::clear(uint8_t alpha, const SkIRect& shapeBounds) {
+    fPixels->erase(SkColorSetARGB(alpha, 0xFF, 0xFF, 0xFF), shapeBounds);
+}
+
 void RasterMaskHelper::drawShape(const Shape& shape,
                                  const Transform& localToDevice,
                                  const SkStrokeRec& strokeRec,
-                                 const SkIRect& resultBounds) {
-    fRasterClip.setRect(resultBounds);
+                                 const SkIRect& shapeBounds) {
+    fRasterClip.setRect(shapeBounds);
 
     SkPaint paint;
     paint.setBlendMode(SkBlendMode::kSrc);  // "Replace" mode
@@ -56,8 +60,8 @@ void RasterMaskHelper::drawShape(const Shape& shape,
     // The atlas transform of the shape is `localToDevice` translated by the top-left offset of the
     // resultBounds and the inverse of the base mask transform offset for the current set of shapes.
     // We will need to translate draws so the bound's UL corner is at the origin
-    translatedMatrix.postTranslate(resultBounds.x() - fTransformedMaskOffset.x(),
-                                   resultBounds.y() - fTransformedMaskOffset.y());
+    translatedMatrix.postTranslate(shapeBounds.x() - fTransformedMaskOffset.x(),
+                                   shapeBounds.y() - fTransformedMaskOffset.y());
 
     fDraw.fCTM = &translatedMatrix;
     // TODO: use drawRect, drawRRect, drawArc

@@ -45,13 +45,7 @@ public:
 
     bool init(SkISize pixmapSize, skvx::float2 transformedMaskOffset);
 
-    void clear(uint8_t alpha, const SkIRect& resultBounds) {
-        SkPaint paint;
-        SkMatrix identity;
-        paint.setColor(SkColorSetARGB(alpha, 0xFF, 0xFF, 0xFF));
-        fDraw.fCTM = &identity;
-        fDraw.drawRect(SkRect::Make(resultBounds), paint);
-    }
+    void clear(uint8_t alpha, const SkIRect& resultBounds);
 
     // Draw a single shape into the bitmap (as a path) at location resultBounds.
     void drawShape(const Shape& shape,

@@ -97,6 +97,7 @@ public:
                                const Geometry&,
                                const SkStrokeRec&,
                                bool outsetBoundsForAA,
+                               bool msaaSupported,
                                ElementList* outEffectiveElements) const;
 
     // Update the per-clip element state for later rendering using pre-computed clip state data for
@@ -273,6 +274,7 @@ private:
         const Rect&     innerBounds() const { return fInnerBounds;  }
         SkClipOp        op()          const { return fStackOp;      }
         ClipState       state()       const;
+        uint32_t        genID()       const;
 
         int  firstActiveElementIndex() const { return fStartingElementIndex;     }
         int  oldestElementIndex()      const { return fOldestValidIndex;         }
@@ -329,6 +331,7 @@ private:
         // because if kDifference then there is an implicit extra outer bounds at the device edges.
         SkClipOp  fStackOp;
         ClipState fState;
+        uint32_t  fGenID;
     };
 
     Rect deviceBounds() const;

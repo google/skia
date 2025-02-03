@@ -10,12 +10,16 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkStrokeRec.h"
+#include "include/gpu/graphite/Recorder.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRectPriv.h"
+#include "src/gpu/graphite/AtlasProvider.h"
+#include "src/gpu/graphite/ClipAtlasManager.h"
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/DrawParams.h"
+#include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 
@@ -33,6 +37,22 @@ Rect subtract(const Rect& a, const Rect& b, bool exact) {
         // For our purposes, we want the original A when A-B cannot be exactly represented
         return a;
     }
+}
+
+static constexpr uint32_t kInvalidGenID  = 0;
+static constexpr uint32_t kEmptyGenID    = 1;
+static constexpr uint32_t kWideOpenGenID = 2;
+
+uint32_t next_gen_id() {
+    // 0-2 are reserved for invalid, empty & wide-open
+    static const uint32_t kFirstUnreservedGenID = 3;
+    static std::atomic<uint32_t> nextID{kFirstUnreservedGenID};
+
+    uint32_t id;
+    do {
+        id = nextID.fetch_add(1, std::memory_order_relaxed);
+    } while (id < kFirstUnreservedGenID);
+    return id;
 }
 
 bool oriented_bbox_intersection(const Rect& a, const Transform& aXform,
@@ -641,7 +661,8 @@ ClipStack::SaveRecord::SaveRecord(const Rect& deviceBounds)
         , fOldestValidIndex(0)
         , fDeferredSaveCount(0)
         , fStackOp(SkClipOp::kIntersect)
-        , fState(ClipState::kWideOpen)  {}
+        , fState(ClipState::kWideOpen)
+        , fGenID(kInvalidGenID) {}
 
 ClipStack::SaveRecord::SaveRecord(const SaveRecord& prior,
                                   int startingElementIndex)
@@ -652,10 +673,24 @@ ClipStack::SaveRecord::SaveRecord(const SaveRecord& prior,
         , fOldestValidIndex(prior.fOldestValidIndex)
         , fDeferredSaveCount(0)
         , fStackOp(prior.fStackOp)
-        , fState(prior.fState) {
+        , fState(prior.fState)
+        , fGenID(kInvalidGenID) {
     // If the prior record added an element, this one will insert into the same index
     // (that's okay since we'll remove it when this record is popped off the stack).
     SkASSERT(startingElementIndex >= prior.fStartingElementIndex);
+}
+
+uint32_t ClipStack::SaveRecord::genID() const {
+    if (fState == ClipState::kEmpty) {
+        return kEmptyGenID;
+    } else if (fState == ClipState::kWideOpen) {
+        return kWideOpenGenID;
+    } else {
+        // The gen ID shouldn't be empty or wide open, since they are reserved for the above
+        // if-cases. It may be kInvalid if the record hasn't had any elements added to it yet.
+        SkASSERT(fGenID != kEmptyGenID && fGenID != kWideOpenGenID);
+        return fGenID;
+    }
 }
 
 ClipStack::ClipState ClipStack::SaveRecord::state() const {
@@ -932,6 +967,8 @@ bool ClipStack::SaveRecord::appendElement(RawElement&& toAdd,
         elements->back() = std::move(toAdd);
     }
 
+    // Changing this will prompt ClipStack to invalidate any masks associated with this record.
+    fGenID = next_gen_id();
     return true;
 }
 
@@ -961,6 +998,7 @@ void ClipStack::SaveRecord::replaceWithElement(RawElement&& toAdd,
 
     // This invalidates all older elements that are owned by save records lower in the clip stack.
     fOldestValidIndex = fStartingElementIndex;
+    fGenID = next_gen_id();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1190,6 +1228,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                                       const Geometry& geometry,
                                       const SkStrokeRec& style,
                                       bool outsetBoundsForAA,
+                                      bool msaaSupported,
                                       ClipStack::ElementList* outEffectiveElements) const {
     static const Clip kClippedOut = {
             Rect::InfiniteInverted(), Rect::InfiniteInverted(), SkIRect::MakeEmpty(),
@@ -1351,6 +1390,31 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
             outEffectiveElements->push_back(&e);
         }
     }
+
+#if defined(SK_GRAPHITE_ENABLE_CLIP_ATLAS)
+    // If there is no MSAA supported, rasterize any remaining elements by flattening them
+    // into a single mask and storing in an atlas. Otherwise these will be handled by
+    // Device::drawClip().
+    AtlasProvider* atlasProvider = fDevice->recorder()->priv().atlasProvider();
+    if (!msaaSupported && !outEffectiveElements->empty()) {
+        ClipAtlasManager* clipAtlas = atlasProvider->getClipAtlasManager();
+        SkASSERT(clipAtlas);
+        AtlasClip* atlasClip = &nonMSAAClip.fAtlasClip;
+
+        const TextureProxy* proxy = clipAtlas->findOrCreateEntry(cs.genID(),
+                                                                 outEffectiveElements,
+                                                                 cs.outerBounds(),
+                                                                 &atlasClip->fOutPos);
+        if (proxy) {
+            // Add to Clip
+            atlasClip->fMaskBounds = scissor;
+            atlasClip->fAtlasTexture = sk_ref_sp(proxy);
+
+            // Elements are represented in the clip atlas, discard.
+            outEffectiveElements->clear();
+        }
+    }
+#endif
 
     return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), nonMSAAClip, cs.shader());
 }
