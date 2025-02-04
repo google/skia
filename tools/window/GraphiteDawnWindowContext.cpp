@@ -31,9 +31,9 @@ namespace skwindow::internal {
 GraphiteDawnWindowContext::GraphiteDawnWindowContext(std::unique_ptr<const DisplayParams> params,
                                                      wgpu::TextureFormat surfaceFormat)
         : WindowContext(std::move(params)), fSurfaceFormat(surfaceFormat) {
-    WGPUInstanceDescriptor desc{};
+    wgpu::InstanceDescriptor desc{};
     // need for WaitAny with timeout > 0
-    desc.features.timedWaitAnyEnable = true;
+    desc.capabilities.timedWaitAnyEnable = true;
     fInstance = std::make_unique<dawn::native::Instance>(&desc);
 }
 
