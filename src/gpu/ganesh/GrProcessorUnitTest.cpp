@@ -118,7 +118,7 @@ GrXPFactoryTestFactory::GrXPFactoryTestFactory(GetFn* getProc) : fGetProc(getPro
 
 const GrXPFactory* GrXPFactoryTestFactory::Get(GrProcessorTestData* data) {
     VerifyFactoryCount();
-    if (GetFactories()->size() == 0) {
+    if (GetFactories()->empty()) {
         return nullptr;
     }
     uint32_t idx = data->fRandom->nextRangeU(0, GetFactories()->size() - 1);
