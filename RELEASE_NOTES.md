@@ -2,6 +2,18 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 134
+-------------
+  * `SkShaders::Color(SkColor4f, sk_sp<SkColorSpace>)` now always applies the color
+    space to the color, even if rendering to a legacy `SkSurface` that is not
+    color managed. In this case, the target color space is assumed to be sRGB.
+  * The A98 RGB, ProPhoto RGB, Display P3 and Rec2020 color spaces can now be used
+    for gradient interpolation.
+  * The `PrecompileContext` now allows client timed-based purging of Pipelines via
+    the new `PrecompileContext::purgePipelinesNotUsedInMs` call.
+
+* * *
+
 Milestone 133
 -------------
   * Graphite's `Context` now provides an interface to report the GPU time spent processing a recording. The client provides
