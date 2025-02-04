@@ -304,6 +304,7 @@ skia_graphite_mtl_sources = [
   "$_src/mtl/MtlGraphicsPipeline.h",
   "$_src/mtl/MtlGraphicsPipeline.mm",
   "$_src/mtl/MtlGraphiteTypes.mm",
+  "$_src/mtl/MtlGraphiteTypesPriv.h",
   "$_src/mtl/MtlGraphiteUtils.mm",
   "$_src/mtl/MtlGraphiteUtilsPriv.h",
   "$_src/mtl/MtlQueueManager.h",

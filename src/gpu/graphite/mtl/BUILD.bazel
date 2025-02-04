@@ -22,6 +22,7 @@ METAL_FILES = [
     "MtlComputePipeline.mm",
     "MtlGraphicsPipeline.h",
     "MtlGraphicsPipeline.mm",
+    "MtlGraphiteTypesPriv.h",
     "MtlGraphiteTypes.mm",
     "MtlGraphiteUtils.mm",
     "MtlGraphiteUtilsPriv.h",
