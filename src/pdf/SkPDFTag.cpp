@@ -10,6 +10,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkZip.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
@@ -204,6 +205,15 @@ SkPDFStructTree::~SkPDFStructTree() = default;
 void SkPDFStructTree::move(SkPDF::StructureElementNode& node,
                            SkPDFStructElem* structElem,
                            bool wantTitle) {
+    constexpr bool kDumpStructureTree = false;
+    if constexpr (kDumpStructureTree) {
+        int indent = 0;
+        for (SkPDFStructElem* parent = structElem->fParent; parent; parent = parent->fParent) {
+            ++indent;
+        }
+        SkDebugf("%.*s %d %s\n", indent, "            ", node.fNodeId, node.fTypeString.c_str());
+    }
+
     structElem->fElemId = node.fNodeId;
     fStructElemForElemId.set(structElem->fElemId, structElem);
 
