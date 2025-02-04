@@ -141,7 +141,6 @@ static bool scale_paint(SkPaint& paint, SkScalar fontToEMScale) {
     }
 
     if (paint.getStyle() != SkPaint::kFill_Style && paint.getStrokeWidth() > 0) {
-        paint.setStrokeMiter(paint.getStrokeMiter() * fontToEMScale);
         paint.setStrokeWidth(paint.getStrokeWidth() * fontToEMScale);
     }
 
