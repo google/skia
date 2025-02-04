@@ -14,6 +14,8 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 
+#include <optional>
+
 class SkImageFilter;
 class SkMatrix;
 class SkRRect;
@@ -23,7 +25,6 @@ enum SkBlurStyle : int;
 struct SkIPoint;
 struct SkIRect;
 struct SkRect;
-template<typename T> class SkTLazy;
 
 class SkBlurMaskFilterImpl : public SkMaskFilterBase {
 public:
@@ -46,18 +47,21 @@ public:
     bool ignoreXform() const { return !fRespectCTM; }
 
 private:
-    FilterReturn filterRectsToNine(const SkRect[], int count, const SkMatrix&,
+    FilterReturn filterRectsToNine(const SkRect[],
+                                   int count,
+                                   const SkMatrix&,
                                    const SkIRect& clipBounds,
-                                   SkTLazy<NinePatch>*) const override;
+                                   std::optional<NinePatch>*) const override;
 
-    FilterReturn filterRRectToNine(const SkRRect&, const SkMatrix&,
-                                   const SkIRect& clipBounds,
-                                   SkTLazy<NinePatch>*) const override;
+    std::optional<NinePatch> filterRRectToNine(const SkRRect&,
+                                               const SkMatrix&,
+                                               const SkIRect& clipBounds) const override;
 
-    bool filterRectMask(SkMaskBuilder* dstM, const SkRect& r, const SkMatrix& matrix,
-                        SkIPoint* margin, SkMaskBuilder::CreateMode createMode) const;
-    bool filterRRectMask(SkMaskBuilder* dstM, const SkRRect& r, const SkMatrix& matrix,
-                        SkIPoint* margin, SkMaskBuilder::CreateMode createMode) const;
+    bool filterRectMask(SkMaskBuilder* dstM,
+                        const SkRect& r,
+                        const SkMatrix& matrix,
+                        SkIPoint* margin,
+                        SkMaskBuilder::CreateMode createMode) const;
 
     SK_FLATTENABLE_HOOKS(SkBlurMaskFilterImpl)
 

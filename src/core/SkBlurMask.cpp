@@ -23,8 +23,6 @@
 #include <cstring>
 #include <utility>
 
-class SkRRect;
-
 using namespace skia_private;
 
 // This constant approximates the scaling done in the software path's
@@ -499,15 +497,6 @@ bool SkBlurMask::BlurRect(SkScalar sigma, SkMaskBuilder *dst,
     // need to handle solid specially.
 
     return true;
-}
-
-bool SkBlurMask::BlurRRect(SkScalar sigma, SkMaskBuilder *dst,
-                           const SkRRect &src, SkBlurStyle style,
-                           SkIPoint *margin, SkMaskBuilder::CreateMode createMode) {
-    // Temporary for now -- always fail, should cause caller to fall back
-    // to old path.  Plumbing just to land API and parallelize effort.
-
-    return false;
 }
 
 // The "simple" blur is a direct implementation of separable convolution with a discrete
