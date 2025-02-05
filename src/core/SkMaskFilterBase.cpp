@@ -233,7 +233,8 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath, const SkMatrix& matrix,
     if (rectCount > 0) {
         std::optional<NinePatch> patch;
 
-        switch (this->filterRectsToNine(rects, rectCount, matrix, clip.getBounds(), &patch)) {
+        switch (this->filterRectsToNine(
+                SkSpan(rects, rectCount), matrix, clip.getBounds(), &patch)) {
             case FilterReturn::kFalse:
                 SkASSERT(!patch.has_value());
                 return false;
@@ -287,15 +288,14 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath, const SkMatrix& matrix,
 }
 
 std::optional<SkMaskFilterBase::NinePatch> SkMaskFilterBase::filterRRectToNine(
-        const SkRRect&, const SkMatrix&, const SkIRect& clipBounds) const {
+        const SkRRect&, const SkMatrix&, const SkIRect&) const {
     return std::nullopt;
 }
 
 SkMaskFilterBase::FilterReturn SkMaskFilterBase::filterRectsToNine(
-        const SkRect[],
-        int count,
+        SkSpan<const SkRect>,
         const SkMatrix&,
-        const SkIRect& clipBounds,
+        const SkIRect&,
         std::optional<NinePatch>*) const {
     return FilterReturn::kUnimplemented;
 }

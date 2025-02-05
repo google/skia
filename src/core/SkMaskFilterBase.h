@@ -14,6 +14,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "src/core/SkMask.h"
@@ -137,8 +138,7 @@ protected:
      *  the caller will call mask.fBounds.centerX() and centerY() to find the
      *  strips that will be replicated.
      */
-    virtual FilterReturn filterRectsToNine(const SkRect[],
-                                           int count,
+    virtual FilterReturn filterRectsToNine(SkSpan<const SkRect>,
                                            const SkMatrix&,
                                            const SkIRect& clipBounds,
                                            std::optional<NinePatch>*) const;

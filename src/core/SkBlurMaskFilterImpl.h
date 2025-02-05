@@ -11,6 +11,7 @@
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 
@@ -47,8 +48,7 @@ public:
     bool ignoreXform() const { return !fRespectCTM; }
 
 private:
-    FilterReturn filterRectsToNine(const SkRect[],
-                                   int count,
+    FilterReturn filterRectsToNine(SkSpan<const SkRect>,
                                    const SkMatrix&,
                                    const SkIRect& clipBounds,
                                    std::optional<NinePatch>*) const override;
