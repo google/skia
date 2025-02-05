@@ -85,6 +85,31 @@ void GlobalCache::invokePipelineCallback(SharedContext* sharedContext,
         sk_sp<SkData> data = PipelineDescToData(sharedContext->shaderCodeDictionary(),
                                                 pipelineDesc,
                                                 renderPassDesc);
+
+        // Enable this to thoroughly test Pipeline serialization
+#if 0
+        {
+            // Check that the PipelineDesc round trips through serialization
+            GraphicsPipelineDesc readBackPipelineDesc;
+            RenderPassDesc readBackRenderPassDesc;
+
+            SkAssertResult(DataToPipelineDesc(sharedContext->caps(),
+                                              sharedContext->shaderCodeDictionary(),
+                                              data.get(),
+                                              &readBackPipelineDesc,
+                                              &readBackRenderPassDesc));
+
+            DumpPipelineDesc("invokeCallback - original", sharedContext->shaderCodeDictionary(),
+                             pipelineDesc, renderPassDesc);
+
+            DumpPipelineDesc("invokeCallback - readback", sharedContext->shaderCodeDictionary(),
+                  readBackPipelineDesc, readBackRenderPassDesc);
+
+            SkASSERT(ComparePipelineDescs(pipelineDesc, renderPassDesc,
+                                          readBackPipelineDesc, readBackRenderPassDesc));
+        }
+#endif
+
         if (data) {
             tmpCB(tmpContext, std::move(data));
         }

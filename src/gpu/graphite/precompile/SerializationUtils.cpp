@@ -318,4 +318,19 @@ bool DataToPipelineDesc(const Caps* caps,
     return true;
 }
 
+#if defined(GPU_TEST_UTILS)
+void DumpPipelineDesc(const char* label, ShaderCodeDictionary* shaderCodeDictionary,
+                      const GraphicsPipelineDesc& pipelineDesc,
+                      const RenderPassDesc& renderPassDesc) {
+    SkString pipelineStr = pipelineDesc.toString(shaderCodeDictionary);
+    SkString renderPassStr = renderPassDesc.toPipelineLabel();
+    SkDebugf("%s: %s - %s\n", label, pipelineStr.c_str(), renderPassStr.c_str());
+}
+
+bool ComparePipelineDescs(const GraphicsPipelineDesc& a1, const RenderPassDesc& b1,
+                          const GraphicsPipelineDesc& a2, const RenderPassDesc& b2) {
+    return (a1 == a2) && (b1 == b2);
+}
+#endif
+
 } // namespace skgpu::graphite

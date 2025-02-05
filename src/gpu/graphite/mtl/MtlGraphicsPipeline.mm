@@ -283,8 +283,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
     SkSL::Compiler skslCompiler;
     ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
 
-    const RenderStep* step =
-            sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
+    const RenderStep* step = sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
     const bool useStorageBuffers = sharedContext->caps()->storageBufferSupport();
 
     UniquePaintParamsID paintID = pipelineDesc.paintParamsID();

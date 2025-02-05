@@ -13,6 +13,8 @@
 
 namespace skgpu::graphite {
 
+class ShaderCodeDictionary;
+
 /**
  * GraphicsPipelineDesc represents the state needed to create a backend specific GraphicsPipeline,
  * minus the target-specific properties that can be inferred from the DrawPass and RenderPassTask.
@@ -24,10 +26,6 @@ public:
     GraphicsPipelineDesc(RenderStep::RenderStepID renderStepID, UniquePaintParamsID paintID)
         : fRenderStepID(renderStepID)
         , fPaintID(paintID) {}
-    bool isValid() const {
-        return fRenderStepID != RenderStep::RenderStepID::kInvalid &&
-               fPaintID != UniquePaintParamsID::InvalidID();
-    }
 
     bool operator==(const GraphicsPipelineDesc& that) const {
         return fRenderStepID == that.fRenderStepID && fPaintID == that.fPaintID;
@@ -42,6 +40,10 @@ public:
     RenderStep::RenderStepID renderStepID() const { return fRenderStepID; }
     // UniqueID of the required PaintParams
     UniquePaintParamsID paintParamsID() const { return fPaintID; }
+
+#if defined(GPU_TEST_UTILS)
+    SkString toString(ShaderCodeDictionary* dict) const;
+#endif
 
 private:
     // Each RenderStep defines a fixed set of attributes and rasterization state, as well as the

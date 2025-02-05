@@ -159,7 +159,6 @@ PRECOMPILE_FILES = [
     "FactoryFunctions.h",
     "PrecompileInternal.h",
     "PublicPrecompile.cpp",
-    "AndroidSpecificPrecompile.h",
     "SerializationUtils.cpp",
     "SerializationUtils.h",
 ]

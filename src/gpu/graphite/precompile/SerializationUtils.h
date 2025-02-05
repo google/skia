@@ -31,6 +31,16 @@ class ShaderCodeDictionary;
                                       GraphicsPipelineDesc* pipelineDesc,
                                       RenderPassDesc* renderPassDesc);
 
+#if defined(GPU_TEST_UTILS)
+void DumpPipelineDesc(const char* label,
+                      ShaderCodeDictionary*,
+                      const GraphicsPipelineDesc&,
+                      const RenderPassDesc&);
+
+[[nodiscard]] bool ComparePipelineDescs(const GraphicsPipelineDesc& a1, const RenderPassDesc& b1,
+                                        const GraphicsPipelineDesc& a2, const RenderPassDesc& b2);
+#endif
+
 } // skgpu::graphite
 
 #endif // skgpu_graphite_precompile_SerializationUtils_DEFINED

@@ -25,6 +25,16 @@ struct AttachmentDesc {
     LoadOp fLoadOp;
     StoreOp fStoreOp;
 
+    bool operator==(const AttachmentDesc& other) const {
+        if (!fTextureInfo.isValid() && !other.fTextureInfo.isValid()) {
+            return true;
+        }
+
+        return fTextureInfo == other.fTextureInfo &&
+               fLoadOp == other.fLoadOp &&
+               fStoreOp == other.fStoreOp;
+    }
+
     SkString toString() const;
 };
 
@@ -37,6 +47,20 @@ struct RenderPassDesc {
                                const std::array<float, 4>& clearColor,
                                bool requiresMSAA,
                                Swizzle writeSwizzle);
+
+    bool operator==(const RenderPassDesc& other) const {
+        return (fSampleCount == other.fSampleCount &&
+                fWriteSwizzle == other.fWriteSwizzle &&
+                fClearDepth == other.fClearDepth &&
+                fClearColor == other.fClearColor &&
+                fColorAttachment == other.fColorAttachment &&
+                fColorResolveAttachment == other.fColorResolveAttachment &&
+                fDepthStencilAttachment == other.fDepthStencilAttachment);
+    }
+
+    bool operator!=(const RenderPassDesc& other) const {
+        return !(*this == other);
+    }
 
     AttachmentDesc fColorAttachment;
     std::array<float, 4> fClearColor;

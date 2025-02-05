@@ -10,7 +10,6 @@
 #include "include/gpu/graphite/PrecompileContext.h"
 #include "include/gpu/graphite/precompile/Precompile.h"
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
-#include "src/gpu/graphite/AndroidSpecificPrecompile.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
@@ -80,25 +79,6 @@ void compile(const RendererProvider* rendererProvider,
 } // anonymous namespace
 
 namespace skgpu::graphite {
-
-bool AndroidSpecificPrecompile(PrecompileContext* precompileContext,
-                               RuntimeEffectDictionary* rteDict,
-                               const GraphicsPipelineDesc& pipelineDesc,
-                               const RenderPassDesc& renderPassDesc) {
-    ResourceProvider* resourceProvider = precompileContext->priv().resourceProvider();
-
-    sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
-            rteDict,
-            pipelineDesc,
-            renderPassDesc,
-            PipelineCreationFlags::kForPrecompilation);
-    if (!pipeline) {
-        SKGPU_LOG_W("Failed to create GraphicsPipeline in precompile!");
-        return false;
-    }
-
-    return true;
-}
 
 void Precompile(PrecompileContext* precompileContext,
                 const PaintOptions& options,

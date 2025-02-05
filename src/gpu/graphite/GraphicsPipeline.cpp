@@ -9,7 +9,10 @@
 
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/ContextUtils.h"
+#include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/Renderer.h"
+#include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/ShaderInfo.h"
 #include "src/utils/SkShaderUtils.h"
 
@@ -52,5 +55,20 @@ GraphicsPipeline::PipelineInfo::PipelineInfo(
     fLabel = shaderInfo.fsLabel();
 #endif
 }
+
+#if defined(GPU_TEST_UTILS)
+SkString GraphicsPipelineDesc::toString(ShaderCodeDictionary* dict) const {
+    SkString tmp;
+
+    tmp.append(RenderStep::RenderStepName(fRenderStepID));
+    tmp.append(" - ");
+
+    PaintParamsKey key = dict->lookup(fPaintID);
+
+    tmp.append(key.toString(dict, true));
+
+    return tmp;
+}
+#endif
 
 }  // namespace skgpu::graphite

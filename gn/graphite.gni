@@ -386,7 +386,6 @@ skia_graphite_precompile_public = [
 ]
 
 skia_graphite_precompile_sources = [
-  "$_src/AndroidSpecificPrecompile.h",
   "$_src/PrecompileInternal.h",
   "$_src/PublicPrecompile.cpp",
   "$_src/precompile/PaintOption.cpp",
