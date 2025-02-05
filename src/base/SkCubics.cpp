@@ -15,8 +15,6 @@
 #include <algorithm>
 #include <cmath>
 
-static constexpr double PI = 3.141592653589793;
-
 static bool nearly_equal(double x, double y) {
     if (sk_double_nearly_zero(x)) {
         return sk_double_nearly_zero(y);
@@ -92,11 +90,11 @@ int SkCubics::RootsReal(double A, double B, double C, double D, double solution[
         r = neg2RootQ * cos(theta / 3) - adiv3;
         *roots++ = r;
 
-        r = neg2RootQ * cos((theta + 2 * PI) / 3) - adiv3;
+        r = neg2RootQ * cos((theta + 2 * SK_DoublePI) / 3) - adiv3;
         if (!nearly_equal(solution[0], r)) {
             *roots++ = r;
         }
-        r = neg2RootQ * cos((theta - 2 * PI) / 3) - adiv3;
+        r = neg2RootQ * cos((theta - 2 * SK_DoublePI) / 3) - adiv3;
         if (!nearly_equal(solution[0], r) &&
             (roots - solution == 1 || !nearly_equal(solution[1], r))) {
             *roots++ = r;
