@@ -21,8 +21,8 @@
 class SkTypeface_proxy;
 class SkScalerContext_proxy : public SkScalerContext {
 public:
-    SkScalerContext_proxy(std::unique_ptr<SkScalerContext> proxy,
-                          sk_sp<SkTypeface_proxy> typeface,
+    SkScalerContext_proxy(std::unique_ptr<SkScalerContext> realScalerContext,
+                          sk_sp<SkTypeface_proxy> proxyTypeface,
                           const SkScalerContextEffects& effects,
                           const SkDescriptor* desc);
 
@@ -30,20 +30,19 @@ public:
 protected:
     SkScalerContext::GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc* alloc) override;
     void generateImage(const SkGlyph& glyph, void* imageBuffer) override;
-    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override ;
+    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override;
     sk_sp<SkDrawable> generateDrawable(const SkGlyph& glyph) override;
-    void generateFontMetrics(SkFontMetrics* metrics) override ;
+    void generateFontMetrics(SkFontMetrics* metrics) override;
 private:
-    std::unique_ptr<SkScalerContext> fProxy;
+    std::unique_ptr<SkScalerContext> fRealScalerContext;
 };
 
 class SkTypeface_proxy : public SkTypeface {
 public:
-    SkTypeface_proxy(const SkFontStyle& style, bool isFixedPitch = false)
+    SkTypeface_proxy(sk_sp<SkTypeface> realTypeface,
+                     const SkFontStyle& style, bool isFixedPitch = false)
         : SkTypeface(style, isFixedPitch)
-        , fProxy(nullptr) { }
-
-    void setProxy(sk_sp<SkTypeface> proxy) { fProxy = std::move(proxy); }
+        , fRealTypeface(std::move(realTypeface)) { }
 
 protected:
     int onGetUPEM() const override;
@@ -76,7 +75,7 @@ protected:
                                      int count,
                                      int32_t adjustments[]) const override;
 private:
-    sk_sp<SkTypeface> fProxy;
+    sk_sp<SkTypeface> fRealTypeface;
 };
 
 #endif // SkTypeface_proxy_DEFINED

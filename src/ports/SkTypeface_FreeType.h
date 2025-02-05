@@ -47,12 +47,13 @@ protected:
     ~SkTypeface_FreeType() override;
 
     std::unique_ptr<SkFontData> cloneFontData(const SkFontArguments&, SkFontStyle* style) const;
-    std::unique_ptr<SkScalerContext> onCreateScalerContext(const SkScalerContextEffects&,
-                                                           const SkDescriptor*) const override;
+    std::unique_ptr<SkScalerContext> onCreateScalerContext(
+            const SkScalerContextEffects&,
+            const SkDescriptor*) const override;
     std::unique_ptr<SkScalerContext> onCreateScalerContextAsProxyTypeface(
-                                                           const SkScalerContextEffects&,
-                                                           const SkDescriptor*,
-                                                           sk_sp<SkTypeface>) const override;
+            const SkScalerContextEffects&,
+            const SkDescriptor*,
+            sk_sp<SkTypeface> proxyTypeface) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     void getGlyphToUnicodeMap(SkUnichar*) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;

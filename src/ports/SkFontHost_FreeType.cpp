@@ -458,10 +458,10 @@ private:
 
 class SkScalerContext_FreeType : public SkScalerContext {
 public:
-    SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType>,
+    SkScalerContext_FreeType(const SkTypeface_FreeType& realTypeface,
                              const SkScalerContextEffects&,
                              const SkDescriptor* desc,
-                             sk_sp<SkTypeface>);
+                             sk_sp<SkTypeface> proxyTypeface);
     ~SkScalerContext_FreeType() override;
 
     bool success() const {
@@ -717,14 +717,14 @@ std::unique_ptr<SkScalerContext> SkTypeface_FreeType::onCreateScalerContext(
 std::unique_ptr<SkScalerContext> SkTypeface_FreeType::onCreateScalerContextAsProxyTypeface(
         const SkScalerContextEffects& effects,
         const SkDescriptor* desc,
-        sk_sp<SkTypeface> realTypeface) const {
-    auto c = std::make_unique<SkScalerContext_FreeType>(
-            sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)),
+        sk_sp<SkTypeface> proxyTypeface) const {
+    std::unique_ptr<SkScalerContext_FreeType> scalerContext(new SkScalerContext_FreeType(
+            *this,
             effects,
             desc,
-            realTypeface ? realTypeface : sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)));
-    if (c->success()) {
-        return c;
+            proxyTypeface ? proxyTypeface : sk_ref_sp(const_cast<SkTypeface_FreeType*>(this))));
+    if (scalerContext->success()) {
+        return scalerContext;
     }
     return SkScalerContext::MakeEmpty(
             sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)), effects, desc);
@@ -917,17 +917,17 @@ static FT_Int chooseBitmapStrike(FT_Face face, FT_F26Dot6 scaleY) {
     return chosenStrikeIndex;
 }
 
-SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface_FreeType> proxyTypeface,
+SkScalerContext_FreeType::SkScalerContext_FreeType(const SkTypeface_FreeType& realTypeface,
                                                    const SkScalerContextEffects& effects,
                                                    const SkDescriptor* desc,
-                                                   sk_sp<SkTypeface> realTypeface)
-    : SkScalerContext(realTypeface, effects, desc)
+                                                   sk_sp<SkTypeface> proxyTypeface)
+    : SkScalerContext(proxyTypeface, effects, desc)
     , fFace(nullptr)
     , fFTSize(nullptr)
     , fStrikeIndex(-1)
 {
     SkAutoMutexExclusive  ac(f_t_mutex());
-    fFaceRec = proxyTypeface->getFaceRec();
+    fFaceRec = realTypeface.getFaceRec();  // The proxyTypeface owns the realTypeface.
 
     // load the font file
     if (nullptr == fFaceRec) {

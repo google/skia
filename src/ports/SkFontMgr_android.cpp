@@ -37,7 +37,7 @@ class SkData;
 namespace {
 class SkTypeface_AndroidSystem : public SkTypeface_proxy {
 public:
-    SkTypeface_AndroidSystem(sk_sp<SkTypeface> proxy,
+    SkTypeface_AndroidSystem(sk_sp<SkTypeface> realTypeface,
                              const SkString& pathName,
                              const bool cacheFontFiles,
                              int index,
@@ -46,16 +46,15 @@ public:
                              const SkString& familyName,
                              const TArray<SkLanguage, true>& lang,
                              FontVariant variantStyle)
-            : SkTypeface_proxy(style, isFixedPitch)
+            : SkTypeface_proxy(std::move(realTypeface), style, isFixedPitch)
             , fPathName(pathName)
             , fFamilyName(familyName)
             , fIndex(index)
             , fLang(lang)
             , fVariantStyle(variantStyle)
-            , fFile(cacheFontFiles ? sk_fopen(fPathName.c_str(), kRead_SkFILE_Flag) : nullptr) {
-        SkTypeface_proxy::setProxy(proxy);
-    }
-    static sk_sp<SkTypeface_AndroidSystem> Make(sk_sp<SkTypeface> proxy,
+            , fFile(cacheFontFiles ? sk_fopen(fPathName.c_str(), kRead_SkFILE_Flag) : nullptr)
+    {}
+    static sk_sp<SkTypeface_AndroidSystem> Make(sk_sp<SkTypeface> realTypeface,
                                                 const SkString& pathName,
                                                 const bool cacheFontFiles,
                                                 int index,
@@ -64,7 +63,7 @@ public:
                                                 const SkString& familyName,
                                                 const TArray<SkLanguage, true>& lang,
                                                 FontVariant variantStyle) {
-        return sk_sp<SkTypeface_AndroidSystem>(new SkTypeface_AndroidSystem(std::move(proxy),
+        return sk_sp<SkTypeface_AndroidSystem>(new SkTypeface_AndroidSystem(std::move(realTypeface),
                                                                             pathName,
                                                                             cacheFontFiles,
                                                                             index,

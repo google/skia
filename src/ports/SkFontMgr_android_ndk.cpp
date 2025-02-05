@@ -253,7 +253,7 @@ private:
 
 class SkTypeface_AndroidNDK : public SkTypeface_proxy {
 public:
-    SkTypeface_AndroidNDK(sk_sp<SkTypeface> proxy,
+    SkTypeface_AndroidNDK(sk_sp<SkTypeface> realTypeface,
                           const SkString& pathName,
                           const bool cacheFontFiles,
                           int index,
@@ -261,7 +261,7 @@ public:
                           bool isFixedPitch,
                           const SkString& familyName,
                           TArray<SkLanguage>&& lang)
-        : SkTypeface_proxy(style, isFixedPitch)
+        : SkTypeface_proxy(std::move(realTypeface), style, isFixedPitch)
         , fFamilyName(familyName)
         , fPathName(pathName)
         , fIndex(index)
@@ -272,10 +272,9 @@ public:
         if (cacheFontFiles) {
             SkASSERT(fFile);
         }
-        SkTypeface_proxy::setProxy(proxy);
     }
 
-    static sk_sp<SkTypeface_AndroidNDK> Make(sk_sp<SkTypeface> proxy,
+    static sk_sp<SkTypeface_AndroidNDK> Make(sk_sp<SkTypeface> realTypeface,
                                              const SkString& pathName,
                                              const bool cacheFontFiles,
                                              int index,
@@ -283,7 +282,7 @@ public:
                                              bool isFixedPitch,
                                              const SkString& familyName,
                                              TArray<SkLanguage>&& lang) {
-        return sk_sp<SkTypeface_AndroidNDK>(new SkTypeface_AndroidNDK(std::move(proxy),
+        return sk_sp<SkTypeface_AndroidNDK>(new SkTypeface_AndroidNDK(std::move(realTypeface),
                                                                       pathName,
                                                                       cacheFontFiles,
                                                                       index,

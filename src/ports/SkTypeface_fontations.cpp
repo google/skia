@@ -308,19 +308,16 @@ SkTypeface::LocalizedStrings* SkTypeface_Fontations::onCreateFamilyNameIterator(
 
 class SkFontationsScalerContext : public SkScalerContext {
 public:
-    SkFontationsScalerContext(sk_sp<SkTypeface_Fontations> proxyTypeface,
+    SkFontationsScalerContext(const SkTypeface_Fontations& realTypeface,
                               const SkScalerContextEffects& effects,
                               const SkDescriptor* desc,
-                              sk_sp<SkTypeface> realTypeface)
-            : SkScalerContext(realTypeface, effects, desc)
-            , fBridgeFontRef(
-                      static_cast<SkTypeface_Fontations*>(proxyTypeface.get())->getBridgeFontRef())
-            , fBridgeNormalizedCoords(static_cast<SkTypeface_Fontations*>(proxyTypeface.get())
-                                              ->getBridgeNormalizedCoords())
-            , fOutlines(static_cast<SkTypeface_Fontations*>(proxyTypeface.get())->getOutlines())
-            , fMappingIndex(
-                      static_cast<SkTypeface_Fontations*>(proxyTypeface.get())->getMappingIndex())
-            , fPalette(static_cast<SkTypeface_Fontations*>(proxyTypeface.get())->getPalette())
+                              sk_sp<SkTypeface> proxyTypeface)
+            : SkScalerContext(proxyTypeface, effects, desc) // proxyTypeface owns the realTypeface
+            , fBridgeFontRef(realTypeface.getBridgeFontRef())
+            , fBridgeNormalizedCoords(realTypeface.getBridgeNormalizedCoords())
+            , fOutlines(realTypeface.getOutlines())
+            , fMappingIndex(realTypeface.getMappingIndex())
+            , fPalette(realTypeface.getPalette())
             , fHintingInstance(fontations_ffi::no_hinting_instance()) {
         fRec.computeMatrices(
                 SkScalerContextRec::PreMatrixScale::kVertical, &fScale, &fRemainingMatrix);
@@ -936,12 +933,12 @@ std::unique_ptr<SkScalerContext> SkTypeface_Fontations::onCreateScalerContext(
 std::unique_ptr<SkScalerContext> SkTypeface_Fontations::onCreateScalerContextAsProxyTypeface(
                                     const SkScalerContextEffects& effects,
                                     const SkDescriptor* desc,
-                                    sk_sp<SkTypeface> realTypeface) const {
+                                    sk_sp<SkTypeface> proxyTypeface) const {
     return std::make_unique<SkFontationsScalerContext>(
-            sk_ref_sp(const_cast<SkTypeface_Fontations*>(this)),
+            *this,
             effects,
             desc,
-            realTypeface ? realTypeface : sk_ref_sp(const_cast<SkTypeface_Fontations*>(this)));
+            proxyTypeface ? proxyTypeface : sk_ref_sp(const_cast<SkTypeface_Fontations*>(this)));
 }
 
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Fontations::onGetAdvancedMetrics() const {

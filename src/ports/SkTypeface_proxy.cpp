@@ -11,130 +11,128 @@
 #include <memory>
 #include <utility>
 
-int SkTypeface_proxy::onGetUPEM() const { return fProxy->getUnitsPerEm(); }
+int SkTypeface_proxy::onGetUPEM() const { return fRealTypeface->getUnitsPerEm(); }
 
 std::unique_ptr<SkStreamAsset> SkTypeface_proxy::onOpenStream(int* ttcIndex) const {
-    return fProxy->onOpenStream(ttcIndex);
+    return fRealTypeface->onOpenStream(ttcIndex);
 }
 
 sk_sp<SkTypeface> SkTypeface_proxy::onMakeClone(const SkFontArguments& args) const {
-    return fProxy->onMakeClone(args);
+    return fRealTypeface->onMakeClone(args);
 }
 
 bool SkTypeface_proxy::onGlyphMaskNeedsCurrentColor() const {
-    return fProxy->glyphMaskNeedsCurrentColor();
+    return fRealTypeface->glyphMaskNeedsCurrentColor();
 }
 
 int SkTypeface_proxy::onGetVariationDesignPosition(
         SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const {
-    return fProxy->onGetVariationDesignPosition(coordinates, coordinateCount);
+    return fRealTypeface->onGetVariationDesignPosition(coordinates, coordinateCount);
 }
 
 int SkTypeface_proxy::onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
                                                      int parameterCount) const {
-    return fProxy->onGetVariationDesignParameters(parameters, parameterCount);
+    return fRealTypeface->onGetVariationDesignParameters(parameters, parameterCount);
 }
 
 SkFontStyle SkTypeface_proxy::onGetFontStyle() const {
-    return fProxy->onGetFontStyle();
+    return fRealTypeface->onGetFontStyle();
 }
 
 bool SkTypeface_proxy::onGetFixedPitch() const {
-    return fProxy->onGetFixedPitch();
+    return fRealTypeface->onGetFixedPitch();
 }
 
 void SkTypeface_proxy::onGetFamilyName(SkString* familyName) const {
-    fProxy->onGetFamilyName(familyName);
+    fRealTypeface->onGetFamilyName(familyName);
 }
 
 bool SkTypeface_proxy::onGetPostScriptName(SkString* postScriptName) const {
-    return fProxy->getPostScriptName(postScriptName);
+    return fRealTypeface->getPostScriptName(postScriptName);
 }
 
 int SkTypeface_proxy::onGetResourceName(SkString* resourceName) const {
-    return fProxy->getResourceName(resourceName);
+    return fRealTypeface->getResourceName(resourceName);
 }
 
 SkTypeface::LocalizedStrings* SkTypeface_proxy::onCreateFamilyNameIterator() const {
-    return fProxy->createFamilyNameIterator();
+    return fRealTypeface->createFamilyNameIterator();
 }
 
 int SkTypeface_proxy::onGetTableTags(SkFontTableTag tags[]) const {
-    return fProxy->getTableTags(tags);
+    return fRealTypeface->getTableTags(tags);
 }
 
 size_t SkTypeface_proxy::onGetTableData(SkFontTableTag tag, size_t offset, size_t length, void* data) const {
-    return fProxy->getTableData(tag, offset, length, data);
+    return fRealTypeface->getTableData(tag, offset, length, data);
 }
 
 std::unique_ptr<SkScalerContext> SkTypeface_proxy::onCreateScalerContext(
         const SkScalerContextEffects& effects, const SkDescriptor* desc) const {
-    auto proxyScaler = fProxy->onCreateScalerContextAsProxyTypeface(effects, desc, sk_ref_sp(this));
-    auto scaler = std::make_unique<SkScalerContext_proxy>(
-            std::move(proxyScaler),
+    return std::make_unique<SkScalerContext_proxy>(
+            fRealTypeface->onCreateScalerContextAsProxyTypeface(effects, desc, sk_ref_sp(this)),
             sk_ref_sp(const_cast<SkTypeface_proxy*>(this)),
             effects,
             desc);
-    return scaler;
 }
 
 void SkTypeface_proxy::onFilterRec(SkScalerContextRec* rec) const {
-    fProxy->onFilterRec(rec);
+    fRealTypeface->onFilterRec(rec);
 }
 
 void SkTypeface_proxy::onGetFontDescriptor(SkFontDescriptor* desc, bool* serialize) const {
-    fProxy->onGetFontDescriptor(desc, serialize);
+    fRealTypeface->onGetFontDescriptor(desc, serialize);
 }
 
 void SkTypeface_proxy::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
-    fProxy->getGlyphToUnicodeMap(glyphToUnicode);
+    fRealTypeface->getGlyphToUnicodeMap(glyphToUnicode);
 }
 
 void SkTypeface_proxy::getPostScriptGlyphNames(SkString* names) const {
-    return fProxy->getPostScriptGlyphNames(names);
+    return fRealTypeface->getPostScriptGlyphNames(names);
 }
 
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_proxy::onGetAdvancedMetrics() const {
-    return fProxy->onGetAdvancedMetrics();
+    return fRealTypeface->onGetAdvancedMetrics();
 }
 
 void SkTypeface_proxy::onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const {
-    fProxy->unicharsToGlyphs(chars, count, glyphs);
+    fRealTypeface->unicharsToGlyphs(chars, count, glyphs);
 }
 
-int SkTypeface_proxy::onCountGlyphs() const { return fProxy->countGlyphs(); }
+int SkTypeface_proxy::onCountGlyphs() const { return fRealTypeface->countGlyphs(); }
 
-void* SkTypeface_proxy::onGetCTFontRef() const { return fProxy->onGetCTFontRef(); }
+void* SkTypeface_proxy::onGetCTFontRef() const { return fRealTypeface->onGetCTFontRef(); }
 
 bool SkTypeface_proxy::onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
                                                    int32_t adjustments[]) const  {
-    return fProxy->onGetKerningPairAdjustments(glyphs, count, adjustments);
+    return fRealTypeface->onGetKerningPairAdjustments(glyphs, count, adjustments);
 }
 
-SkScalerContext_proxy::SkScalerContext_proxy(std::unique_ptr<SkScalerContext> proxy,
-                           sk_sp<SkTypeface_proxy> typeface,
-                           const SkScalerContextEffects& effects,
-                           const SkDescriptor* desc)
-        : SkScalerContext(std::move(typeface), effects, desc)
-        , fProxy(std::move(proxy))
+SkScalerContext_proxy::SkScalerContext_proxy(std::unique_ptr<SkScalerContext> realScalerContext,
+                                             sk_sp<SkTypeface_proxy> proxyTypeface,
+                                             const SkScalerContextEffects& effects,
+                                             const SkDescriptor* desc)
+        : SkScalerContext(std::move(proxyTypeface), effects, desc)
+        , fRealScalerContext(std::move(realScalerContext))
 { }
 
 SkScalerContext::GlyphMetrics SkScalerContext_proxy::generateMetrics(const SkGlyph& glyph, SkArenaAlloc* alloc) {
-    return fProxy->generateMetrics(glyph, alloc);
+    return fRealScalerContext->generateMetrics(glyph, alloc);
 }
 
 void SkScalerContext_proxy::generateImage(const SkGlyph& glyph, void* imageBuffer) {
-    fProxy->generateImage(glyph, imageBuffer);
+    fRealScalerContext->generateImage(glyph, imageBuffer);
 }
 
 bool SkScalerContext_proxy::generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) {
-    return fProxy->generatePath(glyph, path, modified);
+    return fRealScalerContext->generatePath(glyph, path, modified);
 }
 
 sk_sp<SkDrawable> SkScalerContext_proxy::generateDrawable(const SkGlyph& glyph) {
-    return fProxy->generateDrawable(glyph);
+    return fRealScalerContext->generateDrawable(glyph);
 }
 
 void SkScalerContext_proxy::generateFontMetrics(SkFontMetrics* metrics) {
-    fProxy->generateFontMetrics(metrics);
+    fRealScalerContext->generateFontMetrics(metrics);
 }

@@ -194,12 +194,12 @@ private:
                           rust::Vec<uint32_t>&& palette);
 
 public:
-    const fontations_ffi::BridgeFontRef& getBridgeFontRef() { return *fBridgeFontRef; }
-    const fontations_ffi::BridgeNormalizedCoords& getBridgeNormalizedCoords() {
+    const fontations_ffi::BridgeFontRef& getBridgeFontRef() const { return *fBridgeFontRef; }
+    const fontations_ffi::BridgeNormalizedCoords& getBridgeNormalizedCoords() const {
         return *fBridgeNormalizedCoords;
     }
-    const fontations_ffi::BridgeOutlineCollection& getOutlines() { return *fOutlines; }
-    const fontations_ffi::BridgeMappingIndex& getMappingIndex() { return *fMappingIndex; }
+    const fontations_ffi::BridgeOutlineCollection& getOutlines() const { return *fOutlines; }
+    const fontations_ffi::BridgeMappingIndex& getMappingIndex() const { return *fMappingIndex; }
     SkSpan<const SkColor> getPalette() const {
         return SkSpan(reinterpret_cast<const SkColor*>(fPalette.data()), fPalette.size());
     }
