@@ -30,7 +30,7 @@ public:
 
     const TextureProxy* findOrCreateEntry(uint32_t stackRecordID,
                                           const ClipStack::ElementList*,
-                                          const Rect& bounds,
+                                          const Rect& iBounds,
                                           skvx::half2* outPos);
 
     bool recordUploads(DrawContext* dc);
@@ -41,7 +41,7 @@ public:
 
 private:
     const TextureProxy* addToAtlas(const ClipStack::ElementList*,
-                                   const Rect& bounds,
+                                   const Rect& iBounds,
                                    skvx::half2* outPos,
                                    AtlasLocator* locator);
 

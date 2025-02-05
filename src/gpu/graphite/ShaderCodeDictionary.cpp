@@ -1184,8 +1184,8 @@ ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
             /*uniforms=*/{ { "rect",           SkSLType::kFloat4 },
                            { "radiusPlusHalf", SkSLType::kFloat2 },
                            { "edgeSelect",     SkSLType::kHalf4 },
-                           { "texCoordOffset", SkSLType::kHalf2 },
-                           { "maskBounds",     SkSLType::kHalf4 },
+                           { "texCoordOffset", SkSLType::kFloat2 },
+                           { "maskBounds",     SkSLType::kFloat4 },
                            { "invAtlasSize",   SkSLType::kFloat2 } },
             /*texturesAndSamplers=*/{"atlasSampler"}
     };

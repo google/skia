@@ -1141,8 +1141,8 @@ void add_analytic_and_atlas_clip_data(
     gatherer->write(data.fRect);
     gatherer->write(data.fRadiusPlusHalf);
     gatherer->writeHalf(data.fEdgeSelect);
-    gatherer->writeHalf(data.fTexCoordOffset);
-    gatherer->writeHalf(data.fMaskBounds);
+    gatherer->write(data.fTexCoordOffset);
+    gatherer->write(data.fMaskBounds);
     if (data.fAtlasTexture) {
         gatherer->write(SkSize::Make(1.f/data.fAtlasTexture->dimensions().width(),
                                      1.f/data.fAtlasTexture->dimensions().height()));

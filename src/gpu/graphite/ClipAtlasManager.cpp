@@ -48,7 +48,7 @@ constexpr int kEntryPadding = 1;
 
 const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
                                                         const ClipStack::ElementList* elementList,
-                                                        const Rect& bounds,
+                                                        const Rect& iBounds,
                                                         skvx::half2* outPos) {
     skgpu::UniqueKey maskKey = GenerateClipMaskKey(stackRecordID, elementList);
 
@@ -57,10 +57,10 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
         for (int i = 0; i < cachedArray->size(); ++i) {
             MaskHashEntry& entry = (*cachedArray)[i];
             // We can reuse a clip mask if has the same key and our bounds is contained in it
-            if (entry.fBounds.contains(bounds)) {
+            if (entry.fBounds.contains(iBounds)) {
                 SkIPoint topLeft = entry.fLocator.topLeft();
                 // We need to adjust the returned outPos to reflect the subset we're using
-                skvx::float2 subsetRelativePos = bounds.topLeft() - entry.fBounds.topLeft();
+                skvx::float2 subsetRelativePos = iBounds.topLeft() - entry.fBounds.topLeft();
                 *outPos = skvx::half2(topLeft.x() + kEntryPadding + subsetRelativePos.x(),
                                       topLeft.y() + kEntryPadding + subsetRelativePos.y());
                 fDrawAtlas->setLastUseToken(entry.fLocator,
@@ -71,24 +71,24 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
     }
 
     AtlasLocator locator;
-    const TextureProxy* proxy = this->addToAtlas(elementList, bounds, outPos, &locator);
+    const TextureProxy* proxy = this->addToAtlas(elementList, iBounds, outPos, &locator);
     if (!proxy) {
         return nullptr;
     }
 
     // Add locator and bounds to MaskCache.
     if (cachedArray) {
-        cachedArray->push_back({bounds, locator});
+        cachedArray->push_back({iBounds, locator});
     } else {
         MaskHashArray initialArray;
-        initialArray.push_back({bounds, locator});
+        initialArray.push_back({iBounds, locator});
         fMaskCache.set(maskKey, initialArray);
     }
     // Add key to Plot's MaskKeyList.
     uint32_t index = fDrawAtlas->getListIndex(locator.plotLocator());
     MaskKeyEntry* keyEntry = new MaskKeyEntry();
     keyEntry->fKey = maskKey;
-    keyEntry->fBounds = bounds;
+    keyEntry->fBounds = iBounds;
     fKeyLists[index].addToTail(keyEntry);
 
     return proxy;
@@ -140,23 +140,25 @@ void draw_to_sw_mask(RasterMaskHelper* helper,
 }
 
 const TextureProxy* ClipAtlasManager::addToAtlas(const ClipStack::ElementList* elementsForMask,
-                                                 const Rect& bounds,
+                                                 const Rect& iBounds,
                                                  skvx::half2* outPos,
                                                  AtlasLocator* locator) {
     // Render mask.
-    skvx::float2 maskSize = bounds.size();
+    skvx::float2 maskSize = iBounds.size();
     if (!all(maskSize)) {
         return nullptr;
     }
 
-    SkIRect iShapeBounds = SkIRect::MakeXYWH(0, 0, maskSize.x(), maskSize.y());
-    // Outset to take padding into account
-    SkIRect iAtlasBounds = iShapeBounds.makeOutset(kEntryPadding, kEntryPadding);
+    // Bounds relative to the AtlasLocator
+    // Expanded to include padding as well (so we clear correctly for inverse clip)
+    SkIRect iShapeBounds = SkIRect::MakeXYWH(0, 0,
+                                             maskSize.x() + 2*kEntryPadding,
+                                             maskSize.y() + 2*kEntryPadding);
 
-    // Request space in DrawAtlas.
+    // Request space in DrawAtlas, including padding
     DrawAtlas::ErrorCode errorCode = fDrawAtlas->addRect(fRecorder,
-                                                         iAtlasBounds.width(),
-                                                         iAtlasBounds.height(),
+                                                         iShapeBounds.width(),
+                                                         iShapeBounds.height(),
                                                          locator);
     if (errorCode != DrawAtlas::ErrorCode::kSucceeded) {
         return nullptr;
@@ -171,15 +173,15 @@ const TextureProxy* ClipAtlasManager::addToAtlas(const ClipStack::ElementList* e
     SkAutoPixmapStorage dst;
     SkIPoint renderPos = fDrawAtlas->prepForRender(*locator, &dst);
 
-    // This will remove the base integer translation from each element's transform
-    Rect iBounds = bounds.makeRoundOut();
+    // The shape bounds are expanded by kEntryPadding so we need to take that into account here.
+    skvx::float2 transformedMaskOffset = iBounds.topLeft() - skvx::float2(kEntryPadding);
     RasterMaskHelper helper(&dst);
-    if (!helper.init(fDrawAtlas->plotSize(), iBounds.topLeft())) {
+    if (!helper.init(fDrawAtlas->plotSize(), transformedMaskOffset)) {
         return nullptr;
     }
 
-    // Offset to plot location and draw
-    iShapeBounds.offset(renderPos.x() + kEntryPadding, renderPos.y() + kEntryPadding);
+    // Offset bounds to plot location for draw
+    iShapeBounds.offset(renderPos.x(), renderPos.y());
 
     SkASSERT(!elementsForMask->empty());
     for (int i = 0; i < elementsForMask->size(); ++i) {

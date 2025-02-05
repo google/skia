@@ -1391,7 +1391,6 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         }
     }
 
-#if defined(SK_GRAPHITE_ENABLE_CLIP_ATLAS)
     // If there is no MSAA supported, rasterize any remaining elements by flattening them
     // into a single mask and storing in an atlas. Otherwise these will be handled by
     // Device::drawClip().
@@ -1401,20 +1400,21 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         SkASSERT(clipAtlas);
         AtlasClip* atlasClip = &nonMSAAClip.fAtlasClip;
 
+        Rect maskBounds = cs.outerBounds();
+        maskBounds.roundOut();
         const TextureProxy* proxy = clipAtlas->findOrCreateEntry(cs.genID(),
                                                                  outEffectiveElements,
-                                                                 cs.outerBounds(),
+                                                                 maskBounds,
                                                                  &atlasClip->fOutPos);
         if (proxy) {
             // Add to Clip
-            atlasClip->fMaskBounds = scissor;
+            atlasClip->fMaskBounds = maskBounds;
             atlasClip->fAtlasTexture = sk_ref_sp(proxy);
 
             // Elements are represented in the clip atlas, discard.
             outEffectiveElements->clear();
         }
     }
-#endif
 
     return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), nonMSAAClip, cs.shader());
 }
