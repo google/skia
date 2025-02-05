@@ -2338,15 +2338,17 @@ void GraphitePrecompileTestingSink::LogMissingKey(
     {
         GraphicsPipelineDesc originalPipelineDesc;
         RenderPassDesc originalRenderPassDesc;
-        UniqueKeyUtils::ExtractKeyDescs(precompileContext, missingKey,
-                                        &originalPipelineDesc,
-                                        &originalRenderPassDesc);
+        bool extracted = UniqueKeyUtils::ExtractKeyDescs(precompileContext, missingKey,
+                                                         &originalPipelineDesc,
+                                                         &originalRenderPassDesc);
 
         SkDebugf("------- Key missing from %s keys:\n", poolName);
         missingKey.dump(missingKeyName);
-        UniqueKeyUtils::DumpDescs(precompileContext,
-                                  originalPipelineDesc,
-                                  originalRenderPassDesc);
+        if (extracted) {
+            UniqueKeyUtils::DumpDescs(precompileContext,
+                                      originalPipelineDesc,
+                                      originalRenderPassDesc);
+        }
     }
 
     SkDebugf("Have %d %s keys -----------------\n", (int) pool.size(), poolName);
@@ -2355,15 +2357,17 @@ void GraphitePrecompileTestingSink::LogMissingKey(
 
         GraphicsPipelineDesc recreatedPipelineDesc;
         RenderPassDesc recreatedRenderPassDesc;
-        UniqueKeyUtils::ExtractKeyDescs(precompileContext, b,
-                                        &recreatedPipelineDesc,
-                                        &recreatedRenderPassDesc);
+        bool extracted = UniqueKeyUtils::ExtractKeyDescs(precompileContext, b,
+                                                         &recreatedPipelineDesc,
+                                                         &recreatedRenderPassDesc);
 
         SkDebugf("%d: ----\n", count++);
         b.dump("recreated key:");
-        UniqueKeyUtils::DumpDescs(precompileContext,
-                                  recreatedPipelineDesc,
-                                  recreatedRenderPassDesc);
+        if (extracted) {
+            UniqueKeyUtils::DumpDescs(precompileContext,
+                                      recreatedPipelineDesc,
+                                      recreatedRenderPassDesc);
+        }
     }
 }
 #endif

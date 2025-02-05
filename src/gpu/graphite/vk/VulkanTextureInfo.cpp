@@ -68,6 +68,11 @@ private:
         }
         return false;
     }
+
+    // c.f. VulkanCaps::deserializeTextureInfo
+    bool serialize(SkWStream* stream) const override {
+        return fVkSpec.serialize(stream);
+    }
 };
 
 static const VulkanTextureInfoData* get_and_cast_data(const TextureInfo& info) {

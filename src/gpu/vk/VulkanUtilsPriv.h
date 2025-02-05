@@ -25,6 +25,9 @@
 #include <string>
 #include <cstddef>
 
+class SkStream;
+class SkWStream;
+
 namespace SkSL {
 
 enum class ProgramKind : int8_t;
@@ -276,6 +279,9 @@ static constexpr const char* VkFormatToStr(VkFormat vkFormat) {
         default:                                 return "Unknown";
     }
 }
+
+[[nodiscard]] bool SerializeVkYCbCrInfo(SkWStream*, const VulkanYcbcrConversionInfo&);
+[[nodiscard]] bool DeserializeVkYCbCrInfo(SkStream*, VulkanYcbcrConversionInfo* out);
 
 #ifdef SK_BUILD_FOR_ANDROID
 /**

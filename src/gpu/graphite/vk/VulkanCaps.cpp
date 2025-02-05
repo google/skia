@@ -1535,6 +1535,35 @@ UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeli
     return pipelineKey;
 }
 
+// c.f. VulkanTextureInfoData::serialize
+bool VulkanCaps::deserializeTextureInfo(SkStream* stream,
+                                        BackendApi backendAPI,
+                                        Mipmapped mipmapped,
+                                        Protected isProtected,
+                                        uint32_t sampleCount,
+                                        TextureInfo* out) const {
+    SkASSERT(backendAPI == BackendApi::kVulkan);
+
+    VulkanTextureSpec spec;
+    if (!VulkanTextureSpec::Deserialize(stream, &spec)) {
+        return false;
+    }
+
+    SkASSERT((isProtected == Protected::kYes) ==
+             SkToBool(spec.fFlags & VK_IMAGE_CREATE_PROTECTED_BIT));
+
+    *out = TextureInfos::MakeVulkan(VulkanTextureInfo(sampleCount,
+                                                      mipmapped,
+                                                      spec.fFlags,
+                                                      spec.fFormat,
+                                                      spec.fImageTiling,
+                                                      spec.fImageUsageFlags,
+                                                      spec.fSharingMode,
+                                                      spec.fAspectMask,
+                                                      spec.fYcbcrConversionInfo));
+    return true;
+}
+
 void VulkanCaps::buildKeyForTexture(SkISize dimensions,
                                     const TextureInfo& info,
                                     ResourceType type,

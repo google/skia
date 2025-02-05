@@ -79,10 +79,12 @@ public:
     [[nodiscard]] bool readS8(int8_t*);
     [[nodiscard]] bool readS16(int16_t*);
     [[nodiscard]] bool readS32(int32_t*);
+    [[nodiscard]] bool readS64(int64_t*);
 
-    [[nodiscard]] bool readU8(uint8_t* i) { return this->readS8((int8_t*)i); }
+    [[nodiscard]] bool readU8(uint8_t* i)   { return this->readS8((int8_t*)i); }
     [[nodiscard]] bool readU16(uint16_t* i) { return this->readS16((int16_t*)i); }
     [[nodiscard]] bool readU32(uint32_t* i) { return this->readS32((int32_t*)i); }
+    [[nodiscard]] bool readU64(uint64_t* i) { return this->readS64((int64_t*)i); }
 
     [[nodiscard]] bool readBool(bool* b) {
         uint8_t i;
@@ -240,8 +242,11 @@ public:
         uint16_t v = SkToU16(value);
         return this->write(&v, 2);
     }
-    bool write32(uint32_t v) {
-        return this->write(&v, 4);
+    bool write32(uint32_t value) {
+        return this->write(&value, 4);
+    }
+    bool write64(uint64_t value) {
+        return this->write(&value, 8);
     }
 
     bool writeText(const char text[]) {

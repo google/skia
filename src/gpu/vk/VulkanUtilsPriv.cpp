@@ -7,8 +7,11 @@
 
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 
+#include "include/core/SkStream.h"
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTFitsIn.h"
+#include "include/private/base/SkTo.h"
 #include "src/gpu/vk/VulkanInterface.h"
 
 #include <algorithm>
@@ -74,6 +77,94 @@ void SetupSamplerYcbcrConversionInfo(VkSamplerYcbcrConversionCreateInfo* outInfo
     outInfo->yChromaOffset = conversionInfo.fYChromaOffset;
     outInfo->chromaFilter = chromaFilter;
     outInfo->forceExplicitReconstruction = conversionInfo.fForceExplicitReconstruction;
+}
+
+bool SerializeVkYCbCrInfo(SkWStream* stream, const VulkanYcbcrConversionInfo& info) {
+    SkASSERT(SkTFitsIn<uint64_t>(info.fFormat));
+    // fExternalFormat is already a uint64_t
+    SkASSERT(SkTFitsIn<uint8_t>(info.fYcbcrModel));
+    SkASSERT(SkTFitsIn<uint8_t>(info.fYcbcrRange));
+    SkASSERT(SkTFitsIn<uint8_t>(info.fXChromaOffset));
+    SkASSERT(SkTFitsIn<uint8_t>(info.fYChromaOffset));
+    SkASSERT(SkTFitsIn<uint64_t>(info.fChromaFilter));
+    SkASSERT(SkTFitsIn<uint64_t>(info.fFormatFeatures));
+    SkASSERT(SkTFitsIn<uint8_t>(info.fComponents.r));
+    SkASSERT(SkTFitsIn<uint8_t>(info.fComponents.g));
+    SkASSERT(SkTFitsIn<uint8_t>(info.fComponents.b));
+    SkASSERT(SkTFitsIn<uint8_t>(info.fComponents.a));
+    // fForceExplicitReconstruction is a VkBool32
+
+    // TODO(robertphillips): this isn't as densely packed as possible
+    if (!stream->write64(static_cast<uint64_t>(info.fFormat)))           { return false; }
+    if (!stream->write64(info.fExternalFormat))                          { return false; }
+    if (!stream->write8(static_cast<uint8_t>(info.fYcbcrModel)))         { return false; }
+    if (!info.isValid()) {
+        return true;
+    }
+
+    if (!stream->write8(static_cast<uint8_t>(info.fYcbcrRange)))         { return false; }
+    if (!stream->write8(static_cast<uint8_t>(info.fXChromaOffset)))      { return false; }
+    if (!stream->write8(static_cast<uint8_t>(info.fYChromaOffset)))      { return false; }
+    if (!stream->write64(static_cast<uint64_t>(info.fChromaFilter)))     { return false; }
+    if (!stream->write64(static_cast<uint64_t>(info.fFormatFeatures)))   { return false; }
+    if (!stream->write8(static_cast<uint8_t>(info.fComponents.r)))       { return false; }
+    if (!stream->write8(static_cast<uint8_t>(info.fComponents.g)))       { return false; }
+    if (!stream->write8(static_cast<uint8_t>(info.fComponents.b)))       { return false; }
+    if (!stream->write8(static_cast<uint8_t>(info.fComponents.a)))       { return false; }
+    if (!stream->writeBool(SkToBool(info.fForceExplicitReconstruction))) { return false;}
+
+    return true;
+}
+
+bool DeserializeVkYCbCrInfo(SkStream* stream, VulkanYcbcrConversionInfo* out) {
+    uint64_t tmp64;
+    uint8_t tmp8;
+
+    if (!stream->readU64(&tmp64)) { return false; }
+    out->fFormat = static_cast<VkFormat>(tmp64);
+
+    if (!stream->readU64(&tmp64)) { return false; }
+    out->fExternalFormat = tmp64;
+
+    if (!stream->readU8(&tmp8)) { return false; }
+    out->fYcbcrModel = static_cast<VkSamplerYcbcrModelConversion>(tmp8);
+
+    if (!out->isValid()) {
+        return true;
+    }
+
+    if (!stream->readU8(&tmp8)) { return false; }
+    out->fYcbcrRange = static_cast<VkSamplerYcbcrRange>(tmp8);
+
+    if (!stream->readU8(&tmp8)) { return false; }
+    out->fXChromaOffset = static_cast<VkChromaLocation>(tmp8);
+
+    if (!stream->readU8(&tmp8)) { return false; }
+    out->fYChromaOffset = static_cast<VkChromaLocation>(tmp8);
+
+    if (!stream->readU64(&tmp64)) { return false; }
+    out->fChromaFilter = static_cast<VkFilter>(tmp64);
+
+    if (!stream->readU64(&tmp64)) { return false; }
+    out->fFormatFeatures = static_cast<VkFormatFeatureFlags>(tmp64);
+
+    if (!stream->readU8(&tmp8)) { return false; }
+    out->fComponents.r = static_cast<VkComponentSwizzle>(tmp8);
+
+    if (!stream->readU8(&tmp8)) { return false; }
+    out->fComponents.g = static_cast<VkComponentSwizzle>(tmp8);
+
+    if (!stream->readU8(&tmp8)) { return false; }
+    out->fComponents.b = static_cast<VkComponentSwizzle>(tmp8);
+
+    if (!stream->readU8(&tmp8)) { return false; }
+    out->fComponents.a = static_cast<VkComponentSwizzle>(tmp8);
+
+    bool tmpBool;
+    if (!stream->readBool(&tmpBool)) { return false; }
+    out->fForceExplicitReconstruction = tmpBool;
+
+    return false;
 }
 
 #ifdef SK_BUILD_FOR_ANDROID

@@ -41,6 +41,10 @@ bool SkStream::readS32(int32_t* i) {
     return this->read(i, sizeof(*i)) == sizeof(*i);
 }
 
+bool SkStream::readS64(int64_t* i) {
+    return this->read(i, sizeof(*i)) == sizeof(*i);
+}
+
 bool SkStream::readScalar(SkScalar* i) {
     return this->read(i, sizeof(*i)) == sizeof(*i);
 }

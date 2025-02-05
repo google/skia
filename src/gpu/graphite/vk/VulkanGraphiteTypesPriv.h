@@ -13,6 +13,9 @@
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 
+class SkStream;
+class SkWStream;
+
 namespace skgpu::graphite {
 
 struct VulkanTextureSpec {
@@ -65,6 +68,9 @@ struct VulkanTextureSpec {
                 fSharingMode,
                 fAspectMask);
     }
+
+    bool serialize(SkWStream*) const;
+    static bool Deserialize(SkStream*, VulkanTextureSpec* out);
 
     VkImageCreateFlags         fFlags;
     VkFormat                   fFormat;
