@@ -32,7 +32,7 @@
 
 #include <android/hardware_buffer.h>
 
-std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
+std::unique_ptr<GrAHardwareBufferImageGenerator> GrAHardwareBufferImageGenerator::Make(
         AHardwareBuffer* graphicBuffer, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace,
         GrSurfaceOrigin surfaceOrigin) {
     AHardwareBuffer_Desc bufferDesc;
@@ -44,7 +44,7 @@ std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
                                          alphaType, std::move(colorSpace));
 
     bool createProtectedImage = 0 != (bufferDesc.usage & AHARDWAREBUFFER_USAGE_PROTECTED_CONTENT);
-    return std::unique_ptr<SkImageGenerator>(new GrAHardwareBufferImageGenerator(
+    return std::unique_ptr<GrAHardwareBufferImageGenerator>(new GrAHardwareBufferImageGenerator(
             info, graphicBuffer, alphaType, createProtectedImage,
             bufferDesc.format, surfaceOrigin));
 }
