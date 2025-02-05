@@ -170,12 +170,12 @@ void draw_image_with_shader(sk_sp<SkImage> image,
 
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageOriginTest_drawImage_Graphite, reporter, context,
-                                         CtsEnforcement::kApiLevel_V) {
+                                         CtsEnforcement::kApiLevel_202404) {
     test_draw_fn(reporter, context, draw_image);
 }
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageOriginTest_imageShader_Graphite, reporter, context,
-                                         CtsEnforcement::kApiLevel_V) {
+                                         CtsEnforcement::kApiLevel_202404) {
     test_draw_fn(reporter, context, draw_image_with_shader);
 }
 

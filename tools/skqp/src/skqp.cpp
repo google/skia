@@ -138,6 +138,7 @@ void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
     }
 #endif
 
+    SkDebugf("Gathering tests enforced for ro.vendor.api_level: %d", fEnforcedAndroidAPILevel);
     fUnitTests = get_unit_tests(fEnforcedAndroidAPILevel);
     fSkSLErrorTests = get_sksl_error_tests(assetManager, fEnforcedAndroidAPILevel);
 

@@ -525,7 +525,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixelsGraphit
                                                      context,
                                                      testContext,
                                                      true,
-                                                     CtsEnforcement::kApiLevel_V) {
+                                                     CtsEnforcement::kApiLevel_202404) {
     using Image = sk_sp<SkImage>;
     using Renderable = skgpu::Renderable;
     using TextureInfo = skgpu::graphite::TextureInfo;
@@ -606,7 +606,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixelsGraph
                                                      context,
                                                      testContext,
                                                      true,
-                                                     CtsEnforcement::kApiLevel_V) {
+                                                     CtsEnforcement::kApiLevel_202404) {
     using Surface = sk_sp<SkSurface>;
 
     auto reader = std::function<GraphiteReadSrcFn<Surface>>([context, testContext](

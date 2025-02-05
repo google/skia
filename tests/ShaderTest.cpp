@@ -186,7 +186,7 @@ DEF_TEST(ShaderTestNestedBlendsCpu, reporter) {
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ShaderTestNestedBlendsGanesh,
                                        reporter,
                                        contextInfo,
-                                       CtsEnforcement::kApiLevel_V) {
+                                       CtsEnforcement::kApiLevel_202404) {
     SkImageInfo ii = SkImageInfo::Make(SkISize::Make(1, 1),
                                        SkColorType::kRGBA_8888_SkColorType,
                                        SkAlphaType::kPremul_SkAlphaType);
@@ -198,7 +198,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ShaderTestNestedBlendsGanesh,
 
 #if defined(SK_GRAPHITE)
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(ShaderTestNestedBlendsGraphite, reporter, context,
-                                         CtsEnforcement::kApiLevel_V) {
+                                         CtsEnforcement::kApiLevel_202404) {
     using namespace skgpu::graphite;
 
     SkImageInfo ii = SkImageInfo::Make(SkISize::Make(1, 1),

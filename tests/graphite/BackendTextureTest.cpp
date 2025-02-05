@@ -203,7 +203,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageBackendTextureTest, reporter, context,
 
 #ifdef SK_VULKAN
 DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanBackendTextureMutableStateTest, reporter, context,
-                                     CtsEnforcement::kApiLevel_V) {
+                                     CtsEnforcement::kApiLevel_202404) {
     VulkanTextureInfo info(/*sampleCount=*/1,
                            /*mipmapped=*/Mipmapped::kNo,
                            /*flags=*/0,

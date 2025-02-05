@@ -77,7 +77,7 @@ void run_test(skiatest::Reporter* reporter, bool testMipmaps,
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageSizeTest_Ganesh,
                                  reporter,
                                  ctxInfo,
-                                 CtsEnforcement::kApiLevel_V) {
+                                 CtsEnforcement::kApiLevel_202404) {
     auto dContext = ctxInfo.directContext();
 
     bool testMipmaps = dContext->priv().caps()->mipmapSupport();
@@ -93,7 +93,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageSizeTest_Ganesh,
 #if defined(SK_GRAPHITE)
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageSizeTest_Graphite, reporter, context,
-                                   CtsEnforcement::kApiLevel_V) {
+                                   CtsEnforcement::kApiLevel_202404) {
     using namespace skgpu::graphite;
 
     std::unique_ptr<Recorder> recorder = context->makeRecorder();

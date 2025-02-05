@@ -19,7 +19,7 @@ namespace skgpu::graphite {
 
 // Tests that vertex transparency will affect draw order.
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(DeviceTestVertexTransparency, reporter, context,
-                                   CtsEnforcement::kApiLevel_V) {
+                                   CtsEnforcement::kApiLevel_202404) {
     // Set up transparent vertices, in a 5px wide by 10px tall rectangle.
     static constexpr int kVertexCount = 5;
     SkPoint positions[kVertexCount];

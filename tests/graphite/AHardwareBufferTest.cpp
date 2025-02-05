@@ -169,7 +169,7 @@ void delete_buffer(void* context) {
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(Graphite_AHardwareBuffer_ImportAsSurface,
                                          reporter,
                                          context,
-                                         CtsEnforcement::kApiLevel_V) {
+                                         CtsEnforcement::kApiLevel_202404) {
     if (!context->priv().caps()->supportsAHardwareBufferImages()) {
         return;
     }

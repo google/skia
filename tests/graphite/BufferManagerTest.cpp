@@ -27,7 +27,7 @@ static bool is_offset_aligned(size_t offset, size_t alignment) {
 }  // namespace
 
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BufferManagerGpuOnlyBufferTest, reporter, context,
-                                         CtsEnforcement::kApiLevel_V) {
+                                         CtsEnforcement::kApiLevel_202404) {
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     DrawBufferManager* mgr = recorder->priv().drawBufferManager();
 

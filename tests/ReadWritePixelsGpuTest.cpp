@@ -671,7 +671,7 @@ static void async_callback(void* c, std::unique_ptr<const SkImage::AsyncReadResu
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SurfaceAsyncReadPixels,
                                        reporter,
                                        ctxInfo,
-                                       CtsEnforcement::kApiLevel_V) {
+                                       CtsEnforcement::kApiLevel_202404) {
     using Surface = sk_sp<SkSurface>;
     auto reader = std::function<GpuReadSrcFn<Surface>>(
             [](const Surface& surface, const SkIPoint& offset, const SkPixmap& pixels) {
@@ -800,7 +800,7 @@ static void image_async_read_pixels(GrRenderable renderable,
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels_NonRenderable_TopLeft,
                                        reporter,
                                        ctxInfo,
-                                       CtsEnforcement::kApiLevel_V) {
+                                       CtsEnforcement::kApiLevel_202404) {
     image_async_read_pixels(GrRenderable::kNo, GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
                             reporter, ctxInfo);
 }
@@ -808,7 +808,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels_NonRenderable_TopLef
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels_NonRenderable_BottomLeft,
                                        reporter,
                                        ctxInfo,
-                                       CtsEnforcement::kApiLevel_V) {
+                                       CtsEnforcement::kApiLevel_202404) {
     image_async_read_pixels(GrRenderable::kNo, GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
                             reporter, ctxInfo);
 }
@@ -816,7 +816,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels_NonRenderable_Bottom
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels_Renderable_TopLeft,
                                        reporter,
                                        ctxInfo,
-                                       CtsEnforcement::kApiLevel_V) {
+                                       CtsEnforcement::kApiLevel_202404) {
     image_async_read_pixels(GrRenderable::kYes, GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
                             reporter, ctxInfo);
 }
@@ -824,7 +824,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels_Renderable_TopLeft,
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(ImageAsyncReadPixels_Renderable_BottomLeft,
                                        reporter,
                                        ctxInfo,
-                                       CtsEnforcement::kApiLevel_V) {
+                                       CtsEnforcement::kApiLevel_202404) {
     image_async_read_pixels(GrRenderable::kYes, GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin,
                             reporter, ctxInfo);
 }

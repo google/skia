@@ -194,7 +194,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(ES2BlendWithNoTexture,
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BlendRequiringDstReadWithLargeCoordinates,
                                        reporter,
                                        contextInfo,
-                                       CtsEnforcement::kApiLevel_V) {
+                                       CtsEnforcement::kApiLevel_202404) {
     static constexpr SkColorType kColorType = kRGBA_8888_SkColorType;
 
     GrDirectContext* context = contextInfo.directContext();

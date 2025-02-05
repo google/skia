@@ -27,7 +27,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ImageWrapTextureMipmapsTest,
                                                context,
                                                testContext,
                                                true,
-                                               CtsEnforcement::kApiLevel_V) {
+                                               CtsEnforcement::kApiLevel_202404) {
     auto recorder = context->makeRecorder();
     if (!recorder) {
         ERRORF(reporter, "Could not make recorder");
