@@ -98,7 +98,7 @@ private:
     void destroyReadStruct();
 
     virtual Result decodeAllRows(void* dst, size_t rowBytes, int* rowsDecoded) = 0;
-    virtual void setRange(int firstRow, int lastRow, void* dst, size_t rowBytes) = 0;
+    virtual Result setRange(int firstRow, int lastRow, void* dst, size_t rowBytes) = 0;
     virtual Result decode(int* rowsDecoded) = 0;
 
     size_t                         fIdatLength;
