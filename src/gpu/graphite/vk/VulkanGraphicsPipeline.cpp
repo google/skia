@@ -685,14 +685,16 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     }
 
     skia_private::TArray<SamplerDesc> descContainer {};
-    std::unique_ptr<ShaderInfo> shaderInfo = ShaderInfo::Make(sharedContext->caps(),
-                                                              sharedContext->shaderCodeDictionary(),
-                                                              runtimeDict,
-                                                              step,
-                                                              pipelineDesc.paintParamsID(),
-                                                              useStorageBuffers,
-                                                              renderPassDesc.fWriteSwizzle,
-                                                              &descContainer);
+    std::unique_ptr<ShaderInfo> shaderInfo =
+            ShaderInfo::Make(sharedContext->caps(),
+                             sharedContext->shaderCodeDictionary(),
+                             runtimeDict,
+                             step,
+                             pipelineDesc.paintParamsID(),
+                             useStorageBuffers,
+                             renderPassDesc.fWriteSwizzle,
+                             renderPassDesc.fDstReadStrategyIfRequired,
+                             &descContainer);
 
     // Populate an array of sampler ptrs where a sampler's index within the array indicates their
     // binding index within the descriptor set. Initialize all values to nullptr, which represents a

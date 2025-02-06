@@ -102,6 +102,19 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
                                    CtsEnforcement::kApiLevel_202404) {
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
+    // For determining the DstReadStrategy, pass in reasonable render target texture properties.
+    const Caps* caps = context->priv().caps();
+
+    // Use reasonable render target texture information to query Caps for the DstReadStrategy to use
+    // should a dst read be required by any of the paints encountered.
+    // TODO(b/390458117): Once the TextureInfo argument is removed from getDstReadStrategy, this is
+    // no longer necessary.
+    DstReadStrategy dstReadStrategy = caps->getDstReadStrategy(
+            caps->getDefaultSampledTextureInfo(SkColorType::kRGBA_8888_SkColorType,
+                                               skgpu::Mipmapped::kNo,
+                                               skgpu::Protected::kNo,
+                                               skgpu::Renderable::kYes));
+
     for (int bm = 0; bm <= (int) SkBlendMode::kLastCoeffMode; ++bm) {
         PaintParamsKeyBuilder builder(dict);
         // Use a solid color as the 1st root node; the 2nd root node represents the final blend.
@@ -110,13 +123,22 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
         UniquePaintParamsID paintID = dict->findOrCreate(&builder);
 
         const RenderStep* renderStep = &context->priv().rendererProvider()->nonAABounds()->step(0);
-        std::unique_ptr<ShaderInfo> shaderInfo = ShaderInfo::Make(context->priv().caps(),
-                                                                  dict,
-                                                                  /*rteDict=*/nullptr,
-                                                                  renderStep,
-                                                                  paintID,
-                                                                  /*useStorageBuffers=*/false,
-                                                                  skgpu::Swizzle::RGBA());
+        bool dstReadRequired =
+                IsDstReadRequired(caps, static_cast<SkBlendMode>(bm), renderStep->coverage());
+
+        // ShaderInfo expects to receive a concrete determination of dstReadStrategy based upon
+        // whether a dst read is needed. Therefore, we need to decide whether to pass in the
+        // dstReadStrategy reported by caps OR DstReadStrategy::kNoneRequired.
+        std::unique_ptr<ShaderInfo> shaderInfo =
+                ShaderInfo::Make(caps,
+                                 dict,
+                                 /*rteDict=*/nullptr,
+                                 renderStep,
+                                 paintID,
+                                 /*useStorageBuffers=*/false,
+                                 skgpu::Swizzle::RGBA(),
+                                 dstReadRequired ? dstReadStrategy
+                                                 : DstReadStrategy::kNoneRequired);
 
         SkBlendMode expectedBM = static_cast<SkBlendMode>(bm);
         if (expectedBM == SkBlendMode::kPlus) {

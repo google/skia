@@ -356,14 +356,16 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     samplerDescArrPtr = &samplerDescArr;
 #endif
 
-    std::unique_ptr<ShaderInfo> shaderInfo = ShaderInfo::Make(&caps,
-                                                              sharedContext->shaderCodeDictionary(),
-                                                              runtimeDict,
-                                                              step,
-                                                              paintID,
-                                                              useStorageBuffers,
-                                                              renderPassDesc.fWriteSwizzle,
-                                                              samplerDescArrPtr);
+    std::unique_ptr<ShaderInfo> shaderInfo =
+            ShaderInfo::Make(&caps,
+                             sharedContext->shaderCodeDictionary(),
+                             runtimeDict,
+                             step,
+                             paintID,
+                             useStorageBuffers,
+                             renderPassDesc.fWriteSwizzle,
+                             renderPassDesc.fDstReadStrategyIfRequired,
+                             samplerDescArrPtr);
 
     const std::string& fsSkSL = shaderInfo->fragmentSkSL();
     const BlendInfo& blendInfo = shaderInfo->blendInfo();

@@ -288,13 +288,15 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
 
     UniquePaintParamsID paintID = pipelineDesc.paintParamsID();
 
-    std::unique_ptr<ShaderInfo> shaderInfo = ShaderInfo::Make(sharedContext->caps(),
-                                                              sharedContext->shaderCodeDictionary(),
-                                                              runtimeDict,
-                                                              step,
-                                                              paintID,
-                                                              useStorageBuffers,
-                                                              renderPassDesc.fWriteSwizzle);
+    std::unique_ptr<ShaderInfo> shaderInfo =
+            ShaderInfo::Make(sharedContext->caps(),
+                             sharedContext->shaderCodeDictionary(),
+                             runtimeDict,
+                             step,
+                             paintID,
+                             useStorageBuffers,
+                             renderPassDesc.fWriteSwizzle,
+                             renderPassDesc.fDstReadStrategyIfRequired);
 
     const std::string& fsSkSL = shaderInfo->fragmentSkSL();
     const BlendInfo& blendInfo = shaderInfo->blendInfo();

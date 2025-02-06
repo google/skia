@@ -1113,15 +1113,16 @@ bool DawnCaps::extractGraphicsDescs(const UniqueKey& key,
     }
 
     Swizzle writeSwizzle = SwizzleCtorAccessor::Make(rawKeyData[3]);
-
+    TextureInfo targetTexInfo = TextureInfos::MakeDawn(dawnInfo);
     *renderPassDesc = RenderPassDesc::Make(this,
-                                           TextureInfos::MakeDawn(dawnInfo),
+                                           targetTexInfo,
                                            loadOp,
                                            StoreOp::kStore,
                                            dsFlags,
                                            /* clearColor= */ { .0f, .0f, .0f, .0f },
                                            requiresMSAA,
-                                           writeSwizzle);
+                                           writeSwizzle,
+                                           this->getDstReadStrategy(targetTexInfo));
 
     return true;
 }

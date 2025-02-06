@@ -75,6 +75,7 @@ enum class DstReadStrategy {
     kNoneRequired,
     kTextureCopy,
     kTextureSample,
+    kReadFromInput,
     kFramebufferFetch,
 };
 
@@ -302,10 +303,14 @@ public:
 
     skgpu::ShaderErrorHandler* shaderErrorHandler() const { return fShaderErrorHandler; }
 
-    // Returns what method of dst read a draw should use for obtaining the dst color.
-    // TODO(b/390457657): This method should take in target texture information to better inform dst
-    // read strategy selection.
-    DstReadStrategy getDstReadStrategy() const;
+    // Returns what method of dst read a draw should use for obtaining the dst color. Backends can
+    // use the default implementation or override this method as needed.
+    // TODO(b/390458117): Once the Vulkan backend supports DstReadStrategy::kReadFromInput for
+    // MSAA textures (and if we are comfortable assuming by this point that all render targets, at
+    // least on Android, support input attachment usage) then the TextureInfo argument can be
+    // removed and backend Caps implementations can report kReadFromInput support some other way
+    // (such as a simple member attribute bool). For now, we must check each render target's info.
+    virtual DstReadStrategy getDstReadStrategy(const TextureInfo&) const;
 
     float minDistanceFieldFontSize() const { return fMinDistanceFieldFontSize; }
     float glyphsAsPathsFontSize() const { return fGlyphsAsPathsFontSize; }

@@ -124,7 +124,8 @@ void Precompile(PrecompileContext* precompileContext,
                                          rpp.fDSFlags,
                                          /* clearColor= */ { .0f, .0f, .0f, .0f },
                                          rpp.fRequiresMSAA,
-                                         writeSwizzle);
+                                         writeSwizzle,
+                                         caps->getDstReadStrategy(info));
 
             SkColorInfo ci(rpp.fDstCT, kPremul_SkAlphaType, nullptr);
             KeyContext keyContext(caps, dict, rtEffectDict.get(), ci);

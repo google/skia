@@ -95,7 +95,7 @@ DrawContext::DrawContext(const Caps* caps,
         : fTarget(std::move(target))
         , fImageInfo(ii)
         , fSurfaceProps(props)
-        , fDstReadStrategy(caps->getDstReadStrategy())
+        , fDstReadStrategy(caps->getDstReadStrategy(fTarget->textureInfo()))
         , fCurrentDrawTask(sk_make_sp<DrawTask>(fTarget))
         , fPendingDraws(std::make_unique<DrawList>())
         , fPendingUploads(std::make_unique<UploadList>()) {
@@ -284,7 +284,8 @@ void DrawContext::flush(Recorder* recorder) {
                                                    pass->depthStencilFlags(),
                                                    pass->clearColor(),
                                                    pass->requiresMSAA(),
-                                                   writeSwizzle);
+                                                   writeSwizzle,
+                                                   fDstReadStrategy);
 
         RenderPassTask::DrawPassList passes;
         passes.emplace_back(std::move(pass));

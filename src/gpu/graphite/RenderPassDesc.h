@@ -19,6 +19,7 @@
 namespace skgpu::graphite {
 
 class Caps;
+enum class DstReadStrategy;
 
 struct AttachmentDesc {
     TextureInfo fTextureInfo;
@@ -46,7 +47,8 @@ struct RenderPassDesc {
                                SkEnumBitMask<DepthStencilFlags> depthStencilFlags,
                                const std::array<float, 4>& clearColor,
                                bool requiresMSAA,
-                               Swizzle writeSwizzle);
+                               Swizzle writeSwizzle,
+                               const DstReadStrategy targetReadStrategy);
 
     bool operator==(const RenderPassDesc& other) const {
         return (fSampleCount == other.fSampleCount &&
@@ -55,7 +57,8 @@ struct RenderPassDesc {
                 fClearColor == other.fClearColor &&
                 fColorAttachment == other.fColorAttachment &&
                 fColorResolveAttachment == other.fColorResolveAttachment &&
-                fDepthStencilAttachment == other.fDepthStencilAttachment);
+                fDepthStencilAttachment == other.fDepthStencilAttachment &&
+                fDstReadStrategyIfRequired == other.fDstReadStrategyIfRequired);
     }
 
     bool operator!=(const RenderPassDesc& other) const {
@@ -76,6 +79,11 @@ struct RenderPassDesc {
     // count. The only exceptional case is when multisampled render to single sampled is used. In
     // that case, the fColorAttachment's samples count will be 1 and fSampleCount will be > 1.
     uint32_t fSampleCount;
+
+    // Each shader/pipeline will need to independently determine whether a dst read is required.
+    // If so, it can consult RenderPassDesc's fDstReadStrategyIfRequired which is determined by
+    // the dst texture's information.
+    DstReadStrategy fDstReadStrategyIfRequired;
 
     SkString toString() const;
     // Only includes fixed state relevant to pipeline creation

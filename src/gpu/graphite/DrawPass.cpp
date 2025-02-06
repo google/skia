@@ -454,9 +454,9 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     GraphicsPipelineCache pipelineCache;
 
     // Geometry uniforms are currently always UBO-backed.
-    const bool useStorageBuffers = recorder->priv().caps()->storageBufferSupport();
-    const ResourceBindingRequirements& bindingReqs =
-            recorder->priv().caps()->resourceBindingRequirements();
+    const Caps* caps = recorder->priv().caps();
+    const bool useStorageBuffers = caps->storageBufferSupport();
+    const ResourceBindingRequirements& bindingReqs = caps->resourceBindingRequirements();
     Layout uniformLayout =
             useStorageBuffers ? bindingReqs.fStorageBufferLayout : bindingReqs.fUniformBufferLayout;
 
@@ -569,7 +569,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // TODO(b/372953722): Remove this forced binding command behavior once dst copies are always
     // bound separately from the rest of the textures.
     const bool rebindTexturesOnPipelineChange =
-            recorder->priv().caps()->getDstReadStrategy() == DstReadStrategy::kTextureCopy;
+            caps->getDstReadStrategy(target->textureInfo()) == DstReadStrategy::kTextureCopy;
 
     for (const SortKey& key : keys) {
         const DrawList::Draw& draw = key.draw();

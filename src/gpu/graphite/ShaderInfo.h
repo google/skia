@@ -43,9 +43,6 @@ public:
     // 2) a real SamplerDesc describing an immutable sampler. Backend pipelines can then use the
     //    desc to obtain a real immutable sampler pointer (which typically must be included in
     //    pipeline layouts)
-    // TODO(b/390457657): Add DstReadStrategy param to this method rather than determining it within
-    // generateFragmentSkSL. The Caps query used will eventually take in target texture information,
-    // which this class does not have access to.
     static std::unique_ptr<ShaderInfo> Make(const Caps*,
                                             const ShaderCodeDictionary*,
                                             const RuntimeEffectDictionary*,
@@ -53,6 +50,7 @@ public:
                                             UniquePaintParamsID,
                                             bool useStorageBuffers,
                                             skgpu::Swizzle writeSwizzle,
+                                            DstReadStrategy dstReadStrategyIfRequired,
                                             skia_private::TArray<SamplerDesc>* outDescs = nullptr);
 
     const RuntimeEffectDictionary* runtimeEffectDictionary() const {
@@ -79,7 +77,7 @@ public:
     static constexpr char kGradientBufferName[] = "fsGradientBuffer";
 
 private:
-    ShaderInfo(const RuntimeEffectDictionary*, const char* ssboIndex);
+    ShaderInfo(const RuntimeEffectDictionary*, const char* ssboIndex, DstReadStrategy);
 
     void generateVertexSkSL(const Caps*,
                             const RenderStep*,
