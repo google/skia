@@ -434,12 +434,14 @@ public:
         if (!realTypeface) {
             return nullptr;
         }
+
+        SkFontStyle proxyStyle = skfontstyle_from_fcpattern(pattern);
         return sk_sp(new SkTypeface_fontconfig(std::move(realTypeface), std::move(pattern),
-                                               std::move(sysroot), scanner));
+                                               proxyStyle, nullptr));
     }
 
     mutable SkAutoFcPattern fPattern;  // Mutable for passing to FontConfig API.
-    const SkString fSysroot;
+    SkFontStyle fOriginalRealStyle;
 
 protected:
     void onGetFamilyName(SkString* familyName) const override {
@@ -507,17 +509,36 @@ protected:
     }
 
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
-        // TODO: need to clone FC_MATRIX and FC_EMBOLDEN by wrapping this
-        return SkTypeface_proxy::onMakeClone(args);
+        sk_sp<SkTypeface> realTypeface = SkTypeface_proxy::onMakeClone(args);
+        SkAutoFcPattern pattern;
+        {
+            FCLocker lock;
+            FcPatternReference(fPattern);
+            pattern.reset(fPattern.get());
+        }
+
+        SkFontStyle newRealStyle = realTypeface->fontStyle();
+        SkFontStyle originalProxyStyle = skfontstyle_from_fcpattern(pattern);
+        SkFontStyle newProxyStyle(
+            // keep consistent weight and width offsets (though they will be clamped)
+            originalProxyStyle.weight() + (newRealStyle.weight() - fOriginalRealStyle.weight()),
+            originalProxyStyle.width() + (newRealStyle.width() - fOriginalRealStyle.width()),
+            // the originalProxyStyle's slant is an override for the originalRealStyle's slant
+            newRealStyle.slant() == fOriginalRealStyle.slant() ? originalProxyStyle.slant()
+                                                               : newRealStyle.slant());
+
+        return sk_sp(new SkTypeface_fontconfig(std::move(realTypeface), std::move(pattern),
+                                               newProxyStyle, &fOriginalRealStyle));
     }
 
 private:
-    SkTypeface_fontconfig(sk_sp<SkTypeface> realTypeface, SkAutoFcPattern pattern, SkString sysroot,
-                          SkFontScanner* fontScanner)
-        : SkTypeface_proxy(realTypeface, skfontstyle_from_fcpattern(pattern),
+    SkTypeface_fontconfig(sk_sp<SkTypeface> realTypeface, SkAutoFcPattern pattern,
+                          const SkFontStyle& proxyStyle, const SkFontStyle* originalRealStyle)
+        : SkTypeface_proxy(realTypeface, proxyStyle,
                            FC_PROPORTIONAL != get_int(pattern, FC_SPACING, FC_PROPORTIONAL))
         , fPattern(std::move(pattern))
-        , fSysroot(std::move(sysroot))
+        , fOriginalRealStyle(originalRealStyle ? *originalRealStyle
+                                               : SkTypeface_proxy::onGetFontStyle())
     {}
 };
 
