@@ -22,17 +22,13 @@ namespace {
         uint32_t originalId = img->uniqueID();
         sk_sp<SkImage>* imageInMap = context->fNonTexMap.find(originalId);
         if (!imageInMap) {
-            context->fNonTexMap[originalId] = img->makeRasterImage(context->fDirectContext);
+            context->fNonTexMap[originalId] = img->makeNonTextureImage();
         }
 
         // This function implements a proc that is more generally for serialization, but
         // we really only want to build our map. The output of this function is ignored.
         return SkData::MakeEmpty();
     }
-}
-
-void SkSharingSerialContext::setDirectContext(GrDirectContext* ctx) {
-    fDirectContext = ctx;
 }
 
 void SkSharingSerialContext::collectNonTextureImagesFromPicture(
