@@ -27,6 +27,11 @@
 
 #if defined(__EMSCRIPTEN__)
 #include <emscripten/version.h>
+
+namespace wgpu {
+using TexelCopyBufferInfo = ImageCopyBuffer;
+using TexelCopyTextureInfo = ImageCopyTexture;
+}  // namespace wgpu
 #endif
 
 namespace skgpu::graphite {
@@ -1115,13 +1120,13 @@ bool DawnCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
     const auto* wgpuTexture = static_cast<const DawnTexture*>(texture);
     auto& wgpuBuffer = static_cast<const DawnBuffer*>(buffer)->dawnBuffer();
 
-    wgpu::ImageCopyTexture src;
+    wgpu::TexelCopyTextureInfo src;
     src.texture = wgpuTexture->dawnTexture();
     src.origin.x = srcRect.x();
     src.origin.y = srcRect.y();
     src.aspect = TextureInfos::GetDawnAspect(wgpuTexture->textureInfo());
 
-    wgpu::ImageCopyBuffer dst;
+    wgpu::TexelCopyBufferInfo dst;
     dst.buffer = wgpuBuffer;
     dst.layout.offset = bufferOffset;
     dst.layout.bytesPerRow = bufferRowBytes;
@@ -1143,10 +1148,10 @@ bool DawnCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
     auto& wgpuTexture = static_cast<const DawnTexture*>(texture)->dawnTexture();
     auto& wgpuBuffer = static_cast<const DawnBuffer*>(buffer)->dawnBuffer();
 
-    wgpu::ImageCopyBuffer src;
+    wgpu::TexelCopyBufferInfo src;
     src.buffer = wgpuBuffer;
 
-    wgpu::ImageCopyTexture dst;
+    wgpu::TexelCopyTextureInfo dst;
     dst.texture = wgpuTexture;
 
     for (int i = 0; i < count; ++i) {
@@ -1177,12 +1182,12 @@ bool DawnCommandBuffer::onCopyTextureToTexture(const Texture* src,
     auto& wgpuTextureSrc = static_cast<const DawnTexture*>(src)->dawnTexture();
     auto& wgpuTextureDst = static_cast<const DawnTexture*>(dst)->dawnTexture();
 
-    wgpu::ImageCopyTexture srcArgs;
+    wgpu::TexelCopyTextureInfo srcArgs;
     srcArgs.texture = wgpuTextureSrc;
     srcArgs.origin.x = srcRect.fLeft;
     srcArgs.origin.y = srcRect.fTop;
 
-    wgpu::ImageCopyTexture dstArgs;
+    wgpu::TexelCopyTextureInfo dstArgs;
     dstArgs.texture = wgpuTextureDst;
     dstArgs.origin.x = dstPoint.fX;
     dstArgs.origin.y = dstPoint.fY;
