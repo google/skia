@@ -13,7 +13,6 @@
 #include <string_view>
 #include <vector>
 
-#include "src/core/SkIPoint16.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/AtlasTypes.h"
 

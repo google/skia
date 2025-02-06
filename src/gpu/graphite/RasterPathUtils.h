@@ -43,7 +43,7 @@ class RasterMaskHelper : SkNoncopyable {
 public:
     RasterMaskHelper(SkAutoPixmapStorage* pixels) : fPixels(pixels) {}
 
-    bool init(SkISize pixmapSize, skvx::float2 transformedMaskOffset);
+    bool init(SkISize pixmapSize, SkIVector transformedMaskOffset);
 
     void clear(uint8_t alpha, const SkIRect& resultBounds);
 
@@ -63,7 +63,7 @@ public:
 private:
     SkAutoPixmapStorage* fPixels;
     SkDrawBase           fDraw;
-    skvx::float2         fTransformedMaskOffset = {0};
+    SkIVector            fTransformedMaskOffset = {0, 0};
     SkRasterClip         fRasterClip;
 };
 

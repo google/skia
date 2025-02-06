@@ -46,7 +46,7 @@ protected:
                                    const SkStrokeRec&,
                                    skvx::half2 maskOrigin,
                                    skvx::half2 maskSize,
-                                   skvx::float2 transformedMaskOffset,
+                                   SkIVector transformedMaskOffset,
                                    skvx::half2* outPos) override;
 private:
     class RasterAtlasMgr : public PathAtlas::DrawAtlasMgr {
@@ -63,7 +63,7 @@ private:
                           const Transform& localToDevice,
                           const SkStrokeRec&,
                           SkIRect shapeBounds,
-                          skvx::float2 transformedMaskOffset,
+                          SkIVector transformedMaskOffset,
                           const AtlasLocator&) override;
     };
 

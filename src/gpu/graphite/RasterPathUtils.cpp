@@ -16,7 +16,7 @@
 
 namespace skgpu::graphite {
 
-bool RasterMaskHelper::init(SkISize pixmapSize, skvx::float2 transformedMaskOffset) {
+bool RasterMaskHelper::init(SkISize pixmapSize, SkIVector transformedMaskOffset) {
     if (!fPixels) {
         return false;
     }
@@ -33,8 +33,8 @@ bool RasterMaskHelper::init(SkISize pixmapSize, skvx::float2 transformedMaskOffs
     }
 
     fDraw.fBlitterChooser = SkA8Blitter_Choose;
-    fDraw.fDst      = *fPixels;
-    fDraw.fRC       = &fRasterClip;
+    fDraw.fDst = *fPixels;
+    fDraw.fRC = &fRasterClip;
     fTransformedMaskOffset = transformedMaskOffset;
     return true;
 }

@@ -48,8 +48,8 @@ constexpr int kEntryPadding = 1;
 
 const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
                                                         const ClipStack::ElementList* elementList,
-                                                        const Rect& iBounds,
-                                                        skvx::half2* outPos) {
+                                                        SkIRect iBounds,
+                                                        SkIPoint* outPos) {
     skgpu::UniqueKey maskKey = GenerateClipMaskKey(stackRecordID, elementList);
 
     MaskHashArray* cachedArray = fMaskCache.find(maskKey);
@@ -60,9 +60,9 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
             if (entry.fBounds.contains(iBounds)) {
                 SkIPoint topLeft = entry.fLocator.topLeft();
                 // We need to adjust the returned outPos to reflect the subset we're using
-                skvx::float2 subsetRelativePos = iBounds.topLeft() - entry.fBounds.topLeft();
-                *outPos = skvx::half2(topLeft.x() + kEntryPadding + subsetRelativePos.x(),
-                                      topLeft.y() + kEntryPadding + subsetRelativePos.y());
+                SkIPoint subsetRelativePos = iBounds.topLeft() - entry.fBounds.topLeft();
+                *outPos = SkIPoint::Make(topLeft.x() + kEntryPadding + subsetRelativePos.x(),
+                                         topLeft.y() + kEntryPadding + subsetRelativePos.y());
                 fDrawAtlas->setLastUseToken(entry.fLocator,
                                             fRecorder->priv().tokenTracker()->nextFlushToken());
                 return fDrawAtlas->getProxies()[entry.fLocator.pageIndex()].get();
@@ -140,20 +140,20 @@ void draw_to_sw_mask(RasterMaskHelper* helper,
 }
 
 const TextureProxy* ClipAtlasManager::addToAtlas(const ClipStack::ElementList* elementsForMask,
-                                                 const Rect& iBounds,
-                                                 skvx::half2* outPos,
+                                                 SkIRect iBounds,
+                                                 SkIPoint* outPos,
                                                  AtlasLocator* locator) {
     // Render mask.
-    skvx::float2 maskSize = iBounds.size();
-    if (!all(maskSize)) {
+    SkISize maskSize = iBounds.size();
+    if (maskSize.isEmpty()) {
         return nullptr;
     }
 
     // Bounds relative to the AtlasLocator
     // Expanded to include padding as well (so we clear correctly for inverse clip)
     SkIRect iShapeBounds = SkIRect::MakeXYWH(0, 0,
-                                             maskSize.x() + 2*kEntryPadding,
-                                             maskSize.y() + 2*kEntryPadding);
+                                             maskSize.width() + 2*kEntryPadding,
+                                             maskSize.height() + 2*kEntryPadding);
 
     // Request space in DrawAtlas, including padding
     DrawAtlas::ErrorCode errorCode = fDrawAtlas->addRect(fRecorder,
@@ -164,7 +164,7 @@ const TextureProxy* ClipAtlasManager::addToAtlas(const ClipStack::ElementList* e
         return nullptr;
     }
     SkIPoint topLeft = locator->topLeft();
-    *outPos = skvx::half2(topLeft.x() + kEntryPadding, topLeft.y() + kEntryPadding);
+    *outPos = SkIPoint::Make(topLeft.x() + kEntryPadding, topLeft.y() + kEntryPadding);
 
     // Rasterize path to backing pixmap.
     // This pixmap will be the size of the Plot that contains the given rect, not the entire atlas,
@@ -174,7 +174,8 @@ const TextureProxy* ClipAtlasManager::addToAtlas(const ClipStack::ElementList* e
     SkIPoint renderPos = fDrawAtlas->prepForRender(*locator, &dst);
 
     // The shape bounds are expanded by kEntryPadding so we need to take that into account here.
-    skvx::float2 transformedMaskOffset = iBounds.topLeft() - skvx::float2(kEntryPadding);
+    SkIVector transformedMaskOffset = {iBounds.left() - kEntryPadding,
+                                       iBounds.top() - kEntryPadding};
     RasterMaskHelper helper(&dst);
     if (!helper.init(fDrawAtlas->plotSize(), transformedMaskOffset)) {
         return nullptr;

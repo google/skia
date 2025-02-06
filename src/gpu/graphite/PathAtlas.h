@@ -117,7 +117,7 @@ protected:
                                            const SkStrokeRec&,
                                            skvx::half2 maskOrigin,
                                            skvx::half2 maskSize,
-                                           skvx::float2 transformedMaskOffset,
+                                           SkIVector transformedMaskOffset,
                                            skvx::half2* outPos) = 0;
 
     // Wrapper class to manage DrawAtlas and associated caching operations
@@ -129,7 +129,7 @@ protected:
                                               const SkStrokeRec&,
                                               skvx::half2 maskOrigin,
                                               skvx::half2 maskSize,
-                                              skvx::float2 transformedMaskOffset,
+                                              SkIVector transformedMaskOffset,
                                               skvx::half2* outPos);
         // Adds to DrawAtlas but not the cache
         const TextureProxy* addToAtlas(Recorder* recorder,
@@ -137,7 +137,7 @@ protected:
                                        const Transform& localToDevice,
                                        const SkStrokeRec&,
                                        skvx::half2 maskSize,
-                                       skvx::float2 transformedMaskOffset,
+                                       SkIVector transformedMaskOffset,
                                        skvx::half2* outPos,
                                        AtlasLocator* locator);
         bool recordUploads(DrawContext*, Recorder*);
@@ -156,7 +156,7 @@ protected:
                                   const Transform& localToDevice,
                                   const SkStrokeRec&,
                                   SkIRect shapeBounds,
-                                  skvx::float2 transformedMaskOffset,
+                                  SkIVector transformedMaskOffset,
                                   const AtlasLocator&) = 0;
 
         std::unique_ptr<DrawAtlas> fDrawAtlas;

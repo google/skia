@@ -9,7 +9,6 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "src/core/SkIPoint16.h"
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/Log.h"
@@ -45,7 +44,7 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
                                                 const SkStrokeRec& strokeRec,
                                                 skvx::half2 maskOrigin,
                                                 skvx::half2 maskSize,
-                                                skvx::float2 transformedMaskOffset,
+                                                SkIVector transformedMaskOffset,
                                                 skvx::half2* outPos) {
     skgpu::UniqueKey maskKey;
     bool hasKey = shape.hasKey();
@@ -96,7 +95,7 @@ bool RasterPathAtlas::RasterAtlasMgr::onAddToAtlas(const Shape& shape,
                                                    const Transform& localToDevice,
                                                    const SkStrokeRec& strokeRec,
                                                    SkIRect shapeBounds,
-                                                   skvx::float2 transformedMaskOffset,
+                                                   SkIVector transformedMaskOffset,
                                                    const AtlasLocator& locator) {
     // Rasterize path to backing pixmap.
     // This pixmap will be the size of the Plot that contains the given rect, not the entire atlas,

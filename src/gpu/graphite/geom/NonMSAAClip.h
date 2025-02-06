@@ -45,8 +45,8 @@ struct AnalyticClip {
  * Represents a clip that uses a mask in an atlas
  */
 struct AtlasClip {
-    Rect                fMaskBounds;
-    skvx::half2         fOutPos;
+    SkIRect             fMaskBounds;
+    SkIPoint            fOutPos;
     sk_sp<TextureProxy> fAtlasTexture;
 
     bool isEmpty() const { return !SkToBool(fAtlasTexture.get()); }

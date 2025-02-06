@@ -30,8 +30,8 @@ public:
 
     const TextureProxy* findOrCreateEntry(uint32_t stackRecordID,
                                           const ClipStack::ElementList*,
-                                          const Rect& iBounds,
-                                          skvx::half2* outPos);
+                                          SkIRect iBounds,
+                                          SkIPoint* outPos);
 
     bool recordUploads(DrawContext* dc);
     void evict(PlotLocator) override;
@@ -41,8 +41,8 @@ public:
 
 private:
     const TextureProxy* addToAtlas(const ClipStack::ElementList*,
-                                   const Rect& iBounds,
-                                   skvx::half2* outPos,
+                                   SkIRect iBounds,
+                                   SkIPoint* outPos,
                                    AtlasLocator* locator);
 
     Recorder* fRecorder;
@@ -50,7 +50,7 @@ private:
 
     // Tracks whether a combined clip mask is already in the DrawAtlas and its location in the atlas
     struct MaskHashEntry {
-        Rect fBounds;
+        SkIRect fBounds;
         AtlasLocator fLocator;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(MaskHashEntry);
     };
@@ -67,7 +67,7 @@ private:
     // then iterate through the list and remove entries matching those keys from the MaskCache.
     struct MaskKeyEntry {
         skgpu::UniqueKey fKey;
-        Rect fBounds;
+        SkIRect fBounds;
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(MaskKeyEntry);
     };
     using MaskKeyList = SkTInternalLList<MaskKeyEntry>;
