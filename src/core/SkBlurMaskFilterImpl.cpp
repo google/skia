@@ -183,7 +183,7 @@ static bool draw_rects_into_mask(const SkRect rects[], int count, SkMaskBuilder*
     });
 }
 
-static bool draw_rrect_into_mask(const SkRRect rrect, SkMaskBuilder* mask) {
+static bool draw_rrect_into_mask(const SkRRect& rrect, SkMaskBuilder* mask) {
     return draw_into_mask(mask, rrect.rect(), [&](SkDrawBase& draw, const SkPaint& paint) {
         draw.drawRRect(rrect, paint);
     });
@@ -269,7 +269,7 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
         return std::nullopt;
     }
 
-    SkIPoint margin;
+    SkIVector margin;
     SkMaskBuilder srcM(nullptr, rrect.rect().roundOut(), 0, SkMask::kA8_Format), dstM;
 
     if (!this->filterMask(&dstM, srcM, matrix, &margin)) {
@@ -284,23 +284,23 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     const SkVector& LR = rrect.radii(SkRRect::kLowerRight_Corner);
     const SkVector& LL = rrect.radii(SkRRect::kLowerLeft_Corner);
 
-    const SkScalar leftUnstretched = std::max(UL.fX, LL.fX) + SkIntToScalar(2 * margin.fX);
-    const SkScalar rightUnstretched = std::max(UR.fX, LR.fX) + SkIntToScalar(2 * margin.fX);
+    const float leftUnstretched = std::max(UL.fX, LL.fX) + 2 * margin.fX;
+    const float rightUnstretched = std::max(UR.fX, LR.fX) + 2 * margin.fX;
 
     // Extra space in the middle to ensure an unchanging piece for stretching. Use 3 to cover
     // any fractional space on either side plus 1 for the part to stretch.
-    const SkScalar stretchSize = SkIntToScalar(3);
+    const float stretchSize = 3.f;
 
-    const SkScalar totalSmallWidth = leftUnstretched + rightUnstretched + stretchSize;
+    const float totalSmallWidth = leftUnstretched + rightUnstretched + stretchSize;
     if (totalSmallWidth >= rrect.rect().width()) {
         // There is no valid piece to stretch.
         return std::nullopt;
     }
 
-    const SkScalar topUnstretched = std::max(UL.fY, UR.fY) + SkIntToScalar(2 * margin.fY);
-    const SkScalar bottomUnstretched = std::max(LL.fY, LR.fY) + SkIntToScalar(2 * margin.fY);
+    const float topUnstretched = std::max(UL.fY, UR.fY) + SkIntToScalar(2 * margin.fY);
+    const float bottomUnstretched = std::max(LL.fY, LR.fY) + SkIntToScalar(2 * margin.fY);
 
-    const SkScalar totalSmallHeight = topUnstretched + bottomUnstretched + stretchSize;
+    const float totalSmallHeight = topUnstretched + bottomUnstretched + stretchSize;
     if (totalSmallHeight >= rrect.rect().height()) {
         // There is no valid piece to stretch.
         return std::nullopt;
@@ -316,7 +316,7 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
     radii[SkRRect::kLowerLeft_Corner] = LL;
     smallRR.setRectRadii(smallR, radii);
 
-    const SkScalar sigma = this->computeXformedSigma(matrix);
+    const float sigma = this->computeXformedSigma(matrix);
     SkTLazy<SkMask> cachedMask;
     SkCachedData* cache = find_cached_rrect(&cachedMask, sigma, fBlurStyle, smallRR);
     if (!cache) {

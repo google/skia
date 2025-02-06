@@ -15,8 +15,8 @@
 #include "tools/fonts/FontToolUtils.h"
 
 // GM to check the behavior from chrome bug:745290
-DEF_SIMPLE_GM(blurSmallRadii, canvas, 100, 100) {
-    double sigmas[] = {0.5, 0.75, 1.0, 1.5, 2.5};
+DEF_SIMPLE_GM(blurSmallRadii, canvas, 100, 150) {
+    double sigmas[] = {0.25, 0.5, 0.75, 1.0, 1.5, 2.5};
     SkPaint paint;
     SkFont font = ToolUtils::DefaultPortableFont();
 
