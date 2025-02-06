@@ -46,21 +46,7 @@ bool gSkForceRasterPipelineBlitter{false};
 
 SkBlitter::~SkBlitter() {}
 
-bool SkBlitter::isNullBlitter() const { return false; }
-
-/*
-void SkBlitter::blitH(int x, int y, int width) {
-    SkDEBUGFAIL("unimplemented");
-}
-
-
-void SkBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
-                          const int16_t runs[]) {
-    SkDEBUGFAIL("unimplemented");
-}
- */
-
-inline static SkAlpha ScalarToAlpha(SkScalar a) {
+inline static SkAlpha scalar_to_alpha(SkScalar a) {
     SkAlpha alpha = (SkAlpha)(a * 255);
     return alpha > 247 ? 0xFF : alpha < 8 ? 0 : alpha;
 }
@@ -99,20 +85,20 @@ void SkBlitter::blitFatAntiRect(const SkRect& rect) {
         partialT = rect.fBottom - rect.fTop;
     }
 
-    alphas[0] = ScalarToAlpha(partialL * partialT);
-    alphas[1] = ScalarToAlpha(partialT);
-    alphas[bounds.width() - 1] = ScalarToAlpha(partialR * partialT);
+    alphas[0] = scalar_to_alpha(partialL * partialT);
+    alphas[1] = scalar_to_alpha(partialT);
+    alphas[bounds.width() - 1] = scalar_to_alpha(partialR * partialT);
     this->blitAntiH(bounds.fLeft, bounds.fTop, alphas, runs);
 
     if (bounds.height() > 2) {
         this->blitAntiRect(bounds.fLeft, bounds.fTop + 1, bounds.width() - 2, bounds.height() - 2,
-                           ScalarToAlpha(partialL), ScalarToAlpha(partialR));
+                           scalar_to_alpha(partialL), scalar_to_alpha(partialR));
     }
 
     if (bounds.height() > 1) {
-        alphas[0] = ScalarToAlpha(partialL * partialB);
-        alphas[1] = ScalarToAlpha(partialB);
-        alphas[bounds.width() - 1] = ScalarToAlpha(partialR * partialB);
+        alphas[0] = scalar_to_alpha(partialL * partialB);
+        alphas[1] = scalar_to_alpha(partialB);
+        alphas[bounds.width() - 1] = scalar_to_alpha(partialR * partialB);
         this->blitAntiH(bounds.fLeft, bounds.fBottom - 1, alphas, runs);
     }
 }
@@ -313,21 +299,6 @@ void SkBlitter::blitRegion(const SkRegion& clip) {
         this->blitRect(r.left(), r.top(), r.width(), r.height());
     });
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-void SkNullBlitter::blitH(int x, int y, int width) {}
-
-void SkNullBlitter::blitAntiH(int x, int y, const SkAlpha antialias[],
-                              const int16_t runs[]) {}
-
-void SkNullBlitter::blitV(int x, int y, int height, SkAlpha alpha) {}
-
-void SkNullBlitter::blitRect(int x, int y, int width, int height) {}
-
-void SkNullBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {}
-
-bool SkNullBlitter::isNullBlitter() const { return true; }
 
 ///////////////////////////////////////////////////////////////////////////////
 
