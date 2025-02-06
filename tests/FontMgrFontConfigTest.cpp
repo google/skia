@@ -236,7 +236,7 @@ DEF_TEST(FontMgrFontConfig_FreeType_AllBold, reporter) {
 DEF_TEST(FontMgrFontConfig_Fontations_AllBold, reporter) {
 
     FcConfig* config = build_fontconfig_from_resources();
-    sk_sp<SkFontMgr> fontMgr(SkFontMgr_New_FontConfig(config, SkFontScanner_Make_FreeType()));
+    sk_sp<SkFontMgr> fontMgr(SkFontMgr_New_FontConfig(config, SkFontScanner_Make_Fontations()));
 
     testAllBold(fontMgr, reporter);
 }
