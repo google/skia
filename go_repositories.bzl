@@ -1122,6 +1122,12 @@ def go_repositories():
         sum = "h1:lDH9UUVJtmYCjyT0CI4q8xvlXPxeZ0gYCVvWbmPlp88=",
         version = "v0.0.0-20160315200505-970db520ece7",
     )
+    go_repository(
+        name = "com_github_opentracing_opentracing_go",
+        importpath = "github.com/opentracing/opentracing-go",
+        sum = "h1:uEJPy/1a5RIPAJ0Ov+OIO8OxWu77jEv+1B0VhjKrZUs=",
+        version = "v1.2.0",
+    )
 
     go_repository(
         name = "com_github_otiai10_copy",
@@ -2506,6 +2512,12 @@ def go_repositories():
         sum = "h1:Cqyujbnt831agvkiFrJwZHVWT52kAUy4m2XyUsQpjZE=",
         version = "v1.25.2-0.20240108215803-6244097c5aca",
     )
+    go_repository(
+        name = "io_temporal_go_sdk_contrib_opentracing",
+        importpath = "go.temporal.io/sdk/contrib/opentracing",
+        sum = "h1:cREEjlvg+dJX+tgiSr1NvnE8QADSX6zWQqXKfb9oh2w=",
+        version = "v0.2.0",
+    )
 
     go_repository(
         name = "net_howett_plist",
@@ -2685,8 +2697,8 @@ def go_repositories():
     go_repository(
         name = "org_skia_go_infra",
         importpath = "go.skia.org/infra",
-        sum = "h1:NmH8sRLImfIGtb0dNfnNY6jqZKLxzMLJ3hJ5jAdl8u0=",
-        version = "v0.0.0-20250206004435-ecff3b887f5d",
+        sum = "h1:EDYrf24ZySKbldpKDGaoxj6LVBK8z/z2+zJ0tiMBcmI=",
+        version = "v0.0.0-20250207000636-fe735af98e27",
     )
     go_repository(
         name = "org_uber_go_atomic",
