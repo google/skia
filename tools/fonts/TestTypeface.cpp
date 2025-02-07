@@ -247,10 +247,10 @@ SkTypeface::LocalizedStrings* TestTypeface::onCreateFamilyNameIterator() const {
 
 class SkTestScalerContext : public SkScalerContext {
 public:
-    SkTestScalerContext(sk_sp<TestTypeface>           face,
+    SkTestScalerContext(TestTypeface& face,
                         const SkScalerContextEffects& effects,
-                        const SkDescriptor*           desc)
-            : SkScalerContext(std::move(face), effects, desc) {
+                        const SkDescriptor* desc)
+            : SkScalerContext(face, effects, desc) {
         fRec.getSingleMatrix(&fMatrix);
         this->forceGenerateImageFromPath();
     }
@@ -292,6 +292,5 @@ private:
 std::unique_ptr<SkScalerContext> TestTypeface::onCreateScalerContext(
     const SkScalerContextEffects& effects, const SkDescriptor* desc) const
 {
-    return std::make_unique<SkTestScalerContext>(
-            sk_ref_sp(const_cast<TestTypeface*>(this)), effects, desc);
+    return std::make_unique<SkTestScalerContext>(*const_cast<TestTypeface*>(this), effects, desc);
 }

@@ -265,10 +265,10 @@ static bool is_axis_aligned(const SkScalerContextRec& rec) {
 
 }  //namespace
 
-SkScalerContext_DW::SkScalerContext_DW(sk_sp<DWriteFontTypeface> typefaceRef,
+SkScalerContext_DW::SkScalerContext_DW(DWriteFontTypeface& typefaceRef,
                                        const SkScalerContextEffects& effects,
                                        const SkDescriptor* desc)
-        : SkScalerContext(std::move(typefaceRef), effects, desc)
+        : SkScalerContext(typefaceRef, effects, desc)
 {
     DWriteFontTypeface* typeface = this->getDWriteTypeface();
     fGlyphCount = typeface->fDWriteFontFace->GetGlyphCount();

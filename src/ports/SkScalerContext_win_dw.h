@@ -26,7 +26,7 @@ struct DWRITE_PAINT_ELEMENT;
 
 class SkScalerContext_DW : public SkScalerContext {
 public:
-    SkScalerContext_DW(sk_sp<DWriteFontTypeface>,
+    SkScalerContext_DW(DWriteFontTypeface&,
                        const SkScalerContextEffects&,
                        const SkDescriptor*);
     ~SkScalerContext_DW() override;

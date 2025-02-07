@@ -562,7 +562,7 @@ void* HDCOffscreen::draw(const SkGlyph& glyph, bool isBW, size_t* srcRBPtr) {
 
 class SkScalerContext_GDI : public SkScalerContext {
 public:
-    SkScalerContext_GDI(sk_sp<LogFontTypeface>,
+    SkScalerContext_GDI(LogFontTypeface&,
                         const SkScalerContextEffects&,
                         const SkDescriptor* desc);
     ~SkScalerContext_GDI() override;
@@ -638,10 +638,10 @@ static BYTE compute_quality(const SkScalerContextRec& rec) {
     }
 }
 
-SkScalerContext_GDI::SkScalerContext_GDI(sk_sp<LogFontTypeface> rawTypeface,
+SkScalerContext_GDI::SkScalerContext_GDI(LogFontTypeface& rawTypeface,
                                          const SkScalerContextEffects& effects,
                                          const SkDescriptor* desc)
-        : SkScalerContext(std::move(rawTypeface), effects, desc)
+        : SkScalerContext(rawTypeface, effects, desc)
         , fDDC(nullptr)
         , fSavefont(nullptr)
         , fFont(nullptr)
@@ -2074,7 +2074,7 @@ std::unique_ptr<SkScalerContext> LogFontTypeface::onCreateScalerContext(
     const SkScalerContextEffects& effects, const SkDescriptor* desc) const
 {
     auto ctx = std::make_unique<SkScalerContext_GDI>(
-            sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
+            *const_cast<LogFontTypeface*>(this), effects, desc);
     if (ctx->isValid()) {
         return std::move(ctx);
     }
@@ -2082,13 +2082,13 @@ std::unique_ptr<SkScalerContext> LogFontTypeface::onCreateScalerContext(
     ctx.reset();
     SkStrikeCache::PurgeAll();
     ctx = std::make_unique<SkScalerContext_GDI>(
-            sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
+            *const_cast<LogFontTypeface*>(this), effects, desc);
     if (ctx->isValid()) {
         return std::move(ctx);
     }
 
     return SkScalerContext::MakeEmpty(
-            sk_ref_sp(const_cast<LogFontTypeface*>(this)), effects, desc);
+            *const_cast<LogFontTypeface*>(this), effects, desc);
 }
 
 void LogFontTypeface::onFilterRec(SkScalerContextRec* rec) const {

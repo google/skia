@@ -22,7 +22,7 @@ class SkTypeface_proxy;
 class SkScalerContext_proxy : public SkScalerContext {
 public:
     SkScalerContext_proxy(std::unique_ptr<SkScalerContext> realScalerContext,
-                          sk_sp<SkTypeface_proxy> proxyTypeface,
+                          SkTypeface_proxy& proxyTypeface,
                           const SkScalerContextEffects& effects,
                           const SkDescriptor* desc);
 

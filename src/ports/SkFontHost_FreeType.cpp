@@ -461,7 +461,7 @@ public:
     SkScalerContext_FreeType(const SkTypeface_FreeType& realTypeface,
                              const SkScalerContextEffects&,
                              const SkDescriptor* desc,
-                             sk_sp<SkTypeface> proxyTypeface);
+                             SkTypeface& proxyTypeface);
     ~SkScalerContext_FreeType() override;
 
     bool success() const {
@@ -717,17 +717,16 @@ std::unique_ptr<SkScalerContext> SkTypeface_FreeType::onCreateScalerContext(
 std::unique_ptr<SkScalerContext> SkTypeface_FreeType::onCreateScalerContextAsProxyTypeface(
         const SkScalerContextEffects& effects,
         const SkDescriptor* desc,
-        sk_sp<SkTypeface> proxyTypeface) const {
+        SkTypeface* proxyTypeface) const {
     std::unique_ptr<SkScalerContext_FreeType> scalerContext(new SkScalerContext_FreeType(
             *this,
             effects,
             desc,
-            proxyTypeface ? proxyTypeface : sk_ref_sp(const_cast<SkTypeface_FreeType*>(this))));
+            proxyTypeface ? *proxyTypeface : *const_cast<SkTypeface_FreeType*>(this)));
     if (scalerContext->success()) {
         return scalerContext;
     }
-    return SkScalerContext::MakeEmpty(
-            sk_ref_sp(const_cast<SkTypeface_FreeType*>(this)), effects, desc);
+    return SkScalerContext::MakeEmpty(*const_cast<SkTypeface_FreeType*>(this), effects, desc);
 }
 
 /** Copy the design variation coordinates into 'coordinates'.
@@ -920,7 +919,7 @@ static FT_Int chooseBitmapStrike(FT_Face face, FT_F26Dot6 scaleY) {
 SkScalerContext_FreeType::SkScalerContext_FreeType(const SkTypeface_FreeType& realTypeface,
                                                    const SkScalerContextEffects& effects,
                                                    const SkDescriptor* desc,
-                                                   sk_sp<SkTypeface> proxyTypeface)
+                                                   SkTypeface& proxyTypeface)
     : SkScalerContext(proxyTypeface, effects, desc)
     , fFace(nullptr)
     , fFTSize(nullptr)

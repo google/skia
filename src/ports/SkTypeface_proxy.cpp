@@ -70,8 +70,8 @@ size_t SkTypeface_proxy::onGetTableData(SkFontTableTag tag, size_t offset, size_
 std::unique_ptr<SkScalerContext> SkTypeface_proxy::onCreateScalerContext(
         const SkScalerContextEffects& effects, const SkDescriptor* desc) const {
     return std::make_unique<SkScalerContext_proxy>(
-            fRealTypeface->onCreateScalerContextAsProxyTypeface(effects, desc, sk_ref_sp(this)),
-            sk_ref_sp(const_cast<SkTypeface_proxy*>(this)),
+            fRealTypeface->onCreateScalerContextAsProxyTypeface(effects, desc, const_cast<SkTypeface_proxy*>(this)),
+            *const_cast<SkTypeface_proxy*>(this),
             effects,
             desc);
 }
@@ -110,10 +110,10 @@ bool SkTypeface_proxy::onGetKerningPairAdjustments(const uint16_t glyphs[], int 
 }
 
 SkScalerContext_proxy::SkScalerContext_proxy(std::unique_ptr<SkScalerContext> realScalerContext,
-                                             sk_sp<SkTypeface_proxy> proxyTypeface,
+                                             SkTypeface_proxy& proxyTypeface,
                                              const SkScalerContextEffects& effects,
                                              const SkDescriptor* desc)
-        : SkScalerContext(std::move(proxyTypeface), effects, desc)
+        : SkScalerContext(proxyTypeface, effects, desc)
         , fRealScalerContext(std::move(realScalerContext))
 { }
 

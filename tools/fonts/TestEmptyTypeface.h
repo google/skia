@@ -27,8 +27,7 @@ protected:
     std::unique_ptr<SkScalerContext> onCreateScalerContext(
         const SkScalerContextEffects& effects, const SkDescriptor* desc) const override
     {
-        return SkScalerContext::MakeEmpty(
-                sk_ref_sp(const_cast<TestEmptyTypeface*>(this)), effects, desc);
+        return SkScalerContext::MakeEmpty(*const_cast<TestEmptyTypeface*>(this), effects, desc);
     }
     void onFilterRec(SkScalerContextRec*) const override {}
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {

@@ -116,10 +116,10 @@ static CGAffineTransform MatrixToCGAffineTransform(const SkMatrix& matrix) {
                                   SkScalarToCGFloat(matrix[SkMatrix::kMTransY]));
 }
 
-SkScalerContext_Mac::SkScalerContext_Mac(sk_sp<SkTypeface_Mac> typeface,
+SkScalerContext_Mac::SkScalerContext_Mac(SkTypeface_Mac& typeface,
                                          const SkScalerContextEffects& effects,
                                          const SkDescriptor* desc)
-        : INHERITED(std::move(typeface), effects, desc)
+        : INHERITED(typeface, effects, desc)
         , fOffscreen(fRec.fForegroundColor)
         , fDoSubPosition(SkToBool(fRec.fFlags & kSubpixelPositioning_Flag))
 

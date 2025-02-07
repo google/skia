@@ -38,7 +38,7 @@ struct SkFontMetrics;
 
 class SkScalerContextProxy : public SkScalerContext {
 public:
-    SkScalerContextProxy(sk_sp<SkTypeface> tf,
+    SkScalerContextProxy(SkTypeface& tf,
                          const SkScalerContextEffects& effects,
                          const SkDescriptor* desc,
                          sk_sp<SkStrikeClient::DiscardableHandleManager> manager);
@@ -146,7 +146,7 @@ protected:
         const SkScalerContextEffects& effects, const SkDescriptor* desc) const override
     {
         return std::make_unique<SkScalerContextProxy>(
-                sk_ref_sp(const_cast<SkTypefaceProxy*>(this)), effects, desc, fDiscardableManager);
+                *const_cast<SkTypefaceProxy*>(this), effects, desc, fDiscardableManager);
     }
     void onFilterRec(SkScalerContextRec* rec) const override {
         // The rec filtering is already applied by the server when generating

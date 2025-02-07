@@ -175,10 +175,10 @@ SkTypeface::LocalizedStrings* TestSVGTypeface::onCreateFamilyNameIterator() cons
 
 class SkTestSVGScalerContext : public SkScalerContext {
 public:
-    SkTestSVGScalerContext(sk_sp<TestSVGTypeface>        face,
+    SkTestSVGScalerContext(TestSVGTypeface& face,
                            const SkScalerContextEffects& effects,
-                           const SkDescriptor*           desc)
-            : SkScalerContext(std::move(face), effects, desc) {
+                           const SkDescriptor* desc)
+            : SkScalerContext(face, effects, desc) {
         fRec.getSingleMatrix(&fMatrix);
         SkScalar upem = this->getTestSVGTypeface()->fUpem;
         fMatrix.preScale(1.f / upem, 1.f / upem);
@@ -288,8 +288,7 @@ private:
 std::unique_ptr<SkScalerContext> TestSVGTypeface::onCreateScalerContext(
     const SkScalerContextEffects& e, const SkDescriptor* desc) const
 {
-    return std::make_unique<SkTestSVGScalerContext>(
-            sk_ref_sp(const_cast<TestSVGTypeface*>(this)), e, desc);
+    return std::make_unique<SkTestSVGScalerContext>(*const_cast<TestSVGTypeface*>(this), e, desc);
 }
 
 class DefaultTypeface : public TestSVGTypeface {

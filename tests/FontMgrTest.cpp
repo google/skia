@@ -194,8 +194,7 @@ DEF_TEST(FontMgr_MatchStyleCSS3, reporter) {
         std::unique_ptr<SkScalerContext> onCreateScalerContext(
             const SkScalerContextEffects& effects, const SkDescriptor* desc) const override
         {
-            return SkScalerContext::MakeEmpty(
-                    sk_ref_sp(const_cast<TestTypeface*>(this)), effects, desc);
+            return SkScalerContext::MakeEmpty(*const_cast<TestTypeface*>(this), effects, desc);
         }
         void onFilterRec(SkScalerContextRec*) const override { }
         std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {

@@ -311,7 +311,7 @@ public:
     SkFontationsScalerContext(const SkTypeface_Fontations& realTypeface,
                               const SkScalerContextEffects& effects,
                               const SkDescriptor* desc,
-                              sk_sp<SkTypeface> proxyTypeface)
+                              SkTypeface& proxyTypeface)
             : SkScalerContext(proxyTypeface, effects, desc) // proxyTypeface owns the realTypeface
             , fBridgeFontRef(realTypeface.getBridgeFontRef())
             , fBridgeNormalizedCoords(realTypeface.getBridgeNormalizedCoords())
@@ -933,12 +933,12 @@ std::unique_ptr<SkScalerContext> SkTypeface_Fontations::onCreateScalerContext(
 std::unique_ptr<SkScalerContext> SkTypeface_Fontations::onCreateScalerContextAsProxyTypeface(
                                     const SkScalerContextEffects& effects,
                                     const SkDescriptor* desc,
-                                    sk_sp<SkTypeface> proxyTypeface) const {
+                                    SkTypeface* proxyTypeface) const {
     return std::make_unique<SkFontationsScalerContext>(
             *this,
             effects,
             desc,
-            proxyTypeface ? proxyTypeface : sk_ref_sp(const_cast<SkTypeface_Fontations*>(this)));
+            proxyTypeface ? *proxyTypeface : *const_cast<SkTypeface_Fontations*>(this));
 }
 
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Fontations::onGetAdvancedMetrics() const {

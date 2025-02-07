@@ -23,7 +23,7 @@ class SkDescriptor;
 
 class RandomScalerContext : public SkScalerContext {
 public:
-    RandomScalerContext(sk_sp<SkRandomTypeface>,
+    RandomScalerContext(SkRandomTypeface&,
                         const SkScalerContextEffects&,
                         const SkDescriptor*,
                         bool fFakeIt);
@@ -46,11 +46,11 @@ private:
     bool                               fFakeIt;
 };
 
-RandomScalerContext::RandomScalerContext(sk_sp<SkRandomTypeface>       face,
+RandomScalerContext::RandomScalerContext(SkRandomTypeface& face,
                                          const SkScalerContextEffects& effects,
-                                         const SkDescriptor*           desc,
-                                         bool                          fakeIt)
-        : SkScalerContext(std::move(face), effects, desc)
+                                         const SkDescriptor* desc,
+                                         bool fakeIt)
+        : SkScalerContext(face, effects, desc)
         , fProxy(getRandomTypeface()->proxy()->createScalerContext(SkScalerContextEffects(), desc))
         , fFakeIt(fakeIt) {
     fProxy->forceGenerateImageFromPath();
@@ -172,7 +172,7 @@ std::unique_ptr<SkScalerContext> SkRandomTypeface::onCreateScalerContext(
     const SkScalerContextEffects& effects, const SkDescriptor* desc) const
 {
     return std::make_unique<RandomScalerContext>(
-            sk_ref_sp(const_cast<SkRandomTypeface*>(this)), effects, desc, fFakeIt);
+            *const_cast<SkRandomTypeface*>(this), effects, desc, fFakeIt);
 }
 
 void SkRandomTypeface::onFilterRec(SkScalerContextRec* rec) const {

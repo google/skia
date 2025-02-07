@@ -53,7 +53,7 @@ protected:
     std::unique_ptr<SkScalerContext> onCreateScalerContextAsProxyTypeface(
             const SkScalerContextEffects&,
             const SkDescriptor*,
-            sk_sp<SkTypeface> proxyTypeface) const override;
+            SkTypeface* proxyTypeface) const override;
     void onFilterRec(SkScalerContextRec*) const override;
     void getGlyphToUnicodeMap(SkUnichar*) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;

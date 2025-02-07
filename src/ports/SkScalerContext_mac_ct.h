@@ -41,7 +41,7 @@ typedef uint32_t CGRGBPixel;
 
 class SkScalerContext_Mac : public SkScalerContext {
 public:
-    SkScalerContext_Mac(sk_sp<SkTypeface_Mac>, const SkScalerContextEffects&, const SkDescriptor*);
+    SkScalerContext_Mac(SkTypeface_Mac&, const SkScalerContextEffects&, const SkDescriptor*);
 
 protected:
     GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc*) override;

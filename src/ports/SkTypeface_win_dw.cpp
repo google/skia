@@ -647,7 +647,7 @@ std::unique_ptr<SkScalerContext> DWriteFontTypeface::onCreateScalerContext(
     const SkScalerContextEffects& effects, const SkDescriptor* desc) const
 {
     return std::make_unique<SkScalerContext_DW>(
-            sk_ref_sp(const_cast<DWriteFontTypeface*>(this)), effects, desc);
+            *const_cast<DWriteFontTypeface*>(this), effects, desc);
 }
 
 void DWriteFontTypeface::onFilterRec(SkScalerContextRec* rec) const {

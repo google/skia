@@ -890,8 +890,7 @@ sk_sp<SkData> SkTypeface_Mac::onCopyTableData(SkFontTableTag tag) const {
 std::unique_ptr<SkScalerContext> SkTypeface_Mac::onCreateScalerContext(
     const SkScalerContextEffects& effects, const SkDescriptor* desc) const
 {
-    return std::make_unique<SkScalerContext_Mac>(
-            sk_ref_sp(const_cast<SkTypeface_Mac*>(this)), effects, desc);
+    return std::make_unique<SkScalerContext_Mac>(*const_cast<SkTypeface_Mac*>(this), effects, desc);
 }
 
 void SkTypeface_Mac::onFilterRec(SkScalerContextRec* rec) const {

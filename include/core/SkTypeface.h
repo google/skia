@@ -369,7 +369,7 @@ protected:
     virtual std::unique_ptr<SkScalerContext> onCreateScalerContext(
         const SkScalerContextEffects&, const SkDescriptor*) const = 0;
     virtual std::unique_ptr<SkScalerContext> onCreateScalerContextAsProxyTypeface
-        (const SkScalerContextEffects&, const SkDescriptor*, sk_sp<SkTypeface> proxyTypeface) const;
+        (const SkScalerContextEffects&, const SkDescriptor*, SkTypeface* proxyTypeface) const;
     virtual void onFilterRec(SkScalerContextRec*) const = 0;
     friend class SkScalerContext;  // onFilterRec
 

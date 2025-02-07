@@ -242,10 +242,10 @@ SkTypeface::LocalizedStrings* SkUserTypeface::onCreateFamilyNameIterator() const
 
 class SkUserScalerContext : public SkScalerContext {
 public:
-    SkUserScalerContext(sk_sp<SkUserTypeface>           face,
+    SkUserScalerContext(SkUserTypeface& face,
                         const SkScalerContextEffects& effects,
-                        const SkDescriptor*           desc)
-            : SkScalerContext(std::move(face), effects, desc) {
+                        const SkDescriptor* desc)
+            : SkScalerContext(face, effects, desc) {
         fRec.getSingleMatrix(&fMatrix);
         this->forceGenerateImageFromPath();
     }
@@ -360,8 +360,7 @@ private:
 std::unique_ptr<SkScalerContext> SkUserTypeface::onCreateScalerContext(
     const SkScalerContextEffects& effects, const SkDescriptor* desc) const
 {
-    return std::make_unique<SkUserScalerContext>(
-            sk_ref_sp(const_cast<SkUserTypeface*>(this)), effects, desc);
+    return std::make_unique<SkUserScalerContext>(*const_cast<SkUserTypeface*>(this), effects, desc);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

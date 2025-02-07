@@ -24,11 +24,11 @@ class SkArenaAlloc;
 class SkDescriptor;
 class SkPath;
 
-SkScalerContextProxy::SkScalerContextProxy(sk_sp<SkTypeface> tf,
+SkScalerContextProxy::SkScalerContextProxy(SkTypeface& tf,
                                            const SkScalerContextEffects& effects,
                                            const SkDescriptor* desc,
                                            sk_sp<SkStrikeClient::DiscardableHandleManager> manager)
-        : SkScalerContext{std::move(tf), effects, desc}
+        : SkScalerContext{tf, effects, desc}
         , fDiscardableManager{std::move(manager)} {}
 
 SkScalerContext::GlyphMetrics SkScalerContextProxy::generateMetrics(const SkGlyph& glyph,
