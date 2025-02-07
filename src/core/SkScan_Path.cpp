@@ -139,7 +139,7 @@ static void walk_edges(SkEdge* prevHead, SkPathFillType fillType,
                 left = x;
             }
 
-            w += currE->fWinding;
+            w += static_cast<int>(currE->fWinding);
 
             if ((w & windingMask) == 0) { // we finished an interval
                 int width = x - left;
@@ -375,20 +375,16 @@ static void PrePostInverseBlitterProc(SkBlitter* blitter, int y, bool isStart) {
 #pragma warning ( pop )
 #endif
 
-static bool operator<(const SkEdge& a, const SkEdge& b) {
-    int valuea = a.fFirstY;
-    int valueb = b.fFirstY;
-
-    if (valuea == valueb) {
-        valuea = a.fX;
-        valueb = b.fX;
+static bool compare_edges(const SkEdge* a, const SkEdge* b) {
+    if (a->fFirstY != b->fFirstY) {
+        return a->fFirstY < b->fFirstY;
     }
 
-    return valuea < valueb;
+    return a->fX < b->fX;
 }
 
 static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
-    SkTQSort(list, list + count);
+    SkTQSort(list, list + count, compare_edges);
 
     // now make the edges linked in sorted order
     for (int i = 1; i < count; i++) {

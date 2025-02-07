@@ -946,25 +946,20 @@ static void blit_trapezoid_row(AdditiveBlitter* blitter,
     }
 }
 
-static bool operator<(const SkAnalyticEdge& a, const SkAnalyticEdge& b) {
-    int valuea = a.fUpperY;
-    int valueb = b.fUpperY;
-
-    if (valuea == valueb) {
-        valuea = a.fX;
-        valueb = b.fX;
+static bool compare_edges(const SkAnalyticEdge* a, const SkAnalyticEdge* b) {
+    if (a->fUpperY != b->fUpperY) {
+        return a->fUpperY < b->fUpperY;
     }
 
-    if (valuea == valueb) {
-        valuea = a.fDX;
-        valueb = b.fDX;
+    if (a->fX != b->fX) {
+        return a->fX < b->fX;
     }
 
-    return valuea < valueb;
+    return a->fDX < b->fDX;
 }
 
 static SkAnalyticEdge* sort_edges(SkAnalyticEdge* list[], int count, SkAnalyticEdge** last) {
-    SkTQSort(list, list + count);
+    SkTQSort(list, list + count, compare_edges);
 
     // now make the edges linked in sorted order
     for (int i = 1; i < count; ++i) {
@@ -1496,7 +1491,7 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
             SkASSERT(currE->fLowerY >= nextY);
             SkASSERT(currE->fY == y);
 
-            w += currE->fWinding;
+            w += static_cast<int>(currE->fWinding);
             bool prev_in_interval = in_interval;
             in_interval           = !(w & windingMask) == isInverse;
 

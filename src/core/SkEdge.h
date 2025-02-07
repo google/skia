@@ -14,8 +14,6 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFixed.h"
 #include "include/private/base/SkMath.h"
-#include "include/private/base/SkSafe32.h"
-#include "include/private/base/SkTo.h"
 #include "src/core/SkFDot6.h"
 
 #include <cstdint>
@@ -25,10 +23,14 @@
 #define SkEdge_Compute_DY(top, y0)  (SkLeftShift(top, 6) + 32 - (y0))
 
 struct SkEdge {
-    enum Type {
-        kLine_Type,
-        kQuad_Type,
-        kCubic_Type
+    enum class Type : int8_t {
+        kLine,
+        kQuad,
+        kCubic,
+    };
+    enum class Winding : int8_t {
+        kCW = 1,    // clockwise
+        kCCW = -1,  // counter clockwise
     };
 
     SkEdge* fNext;
@@ -42,7 +44,7 @@ struct SkEdge {
     int8_t  fCurveCount;    // only used by kQuad(+) and kCubic(-)
     uint8_t fCurveShift;    // appled to all Dx/DDx/DDDx except for fCubicDShift exception
     uint8_t fCubicDShift;   // applied to fCDx and fCDy only in cubic
-    int8_t  fWinding;       // 1 or -1
+    Winding fWinding;
 
     int setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip, int shiftUp);
     // call this version if you know you don't have a clip
@@ -63,7 +65,7 @@ struct SkEdge {
         SkASSERT(fNext->fPrev == this);
 
         SkASSERT(fFirstY <= fLastY);
-        SkASSERT(SkAbs32(fWinding) == 1);
+        SkASSERT(fWinding == Winding::kCW || fWinding == Winding::kCCW);
     }
 #endif
 };
@@ -109,13 +111,13 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, int shift) {
 #endif
     }
 
-    int winding = 1;
+    Winding winding = Winding::kCW;
 
     if (y0 > y1) {
         using std::swap;
         swap(x0, x1);
         swap(y0, y1);
-        winding = -1;
+        winding = Winding::kCCW;
     }
 
     int top = SkFDot6Round(y0);
@@ -133,9 +135,9 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, int shift) {
     fDX         = slope;
     fFirstY     = top;
     fLastY      = bot - 1;
-    fEdgeType   = kLine_Type;
+    fEdgeType   = Type::kLine;
     fCurveCount = 0;
-    fWinding    = SkToS8(winding);
+    fWinding    = winding;
     fCurveShift = 0;
     return 1;
 }
