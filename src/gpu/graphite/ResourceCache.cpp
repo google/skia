@@ -428,6 +428,8 @@ Resource* ResourceCache::processReturnedResource(Resource* resource) {
         }
     }
 
+    this->setResourceUseToken(resource, this->getNextUseToken());
+
     // If the resource was not purgeable at the time the return queue ref was released, the
     // resource should still be in the non-purgeable array from when it was originally given
     // out. Another thread may have already removed the last refs keeping it non-purgeable by
@@ -445,8 +447,6 @@ Resource* ResourceCache::processReturnedResource(Resource* resource) {
     // it non-purgeable at this point. Only the current cache thread has that ability so we can
     // safely continue moving the resource from non-purgeable to purgeable without worrying about
     // another state change.
-    this->setResourceUseToken(resource, this->getNextUseToken());
-
     this->removeFromNonpurgeableArray(resource);
 
     if (resource->shouldDeleteASAP() == Resource::DeleteASAP::kYes) {
