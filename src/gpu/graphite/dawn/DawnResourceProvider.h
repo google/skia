@@ -110,6 +110,8 @@ private:
     class IntrinsicBuffer;
     class IntrinsicConstantsManager;
     std::unique_ptr<IntrinsicConstantsManager> fIntrinsicConstantsManager;
+
+    SingleOwner* fSingleOwner = nullptr;
 };
 
 }  // namespace skgpu::graphite

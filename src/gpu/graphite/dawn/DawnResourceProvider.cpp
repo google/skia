@@ -10,6 +10,7 @@
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/dawn/DawnTypes.h"
+#include "include/private/base/SingleOwner.h"
 #include "include/private/base/SkAlign.h"
 #include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
@@ -349,15 +350,18 @@ template <typename T> void DawnResourceProvider::IntrinsicConstantsManager::purg
 // DawnResourceProvider::IntrinsicConstantsManager
 // ----------------------------------------------------------------------------
 
-
 DawnResourceProvider::DawnResourceProvider(SharedContext* sharedContext,
                                            SingleOwner* singleOwner,
                                            uint32_t recorderID,
                                            size_t resourceBudget)
         : ResourceProvider(sharedContext, singleOwner, recorderID, resourceBudget)
         , fUniformBufferBindGroupCache(kMaxNumberOfCachedBufferBindGroups)
-        , fSingleTextureSamplerBindGroups(kMaxNumberOfCachedTextureBindGroups) {
+        , fSingleTextureSamplerBindGroups(kMaxNumberOfCachedTextureBindGroups)
+        , fSingleOwner(singleOwner) {
     fIntrinsicConstantsManager = std::make_unique<IntrinsicConstantsManager>(this);
+
+    // Only used for debug asserts so this avoids compile errors.
+    (void)fSingleOwner;
 }
 
 DawnResourceProvider::~DawnResourceProvider() = default;
@@ -541,6 +545,8 @@ sk_sp<DawnBuffer> DawnResourceProvider::findOrCreateDawnBuffer(size_t size,
 }
 
 const wgpu::BindGroupLayout& DawnResourceProvider::getOrCreateUniformBuffersBindGroupLayout() {
+    SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
+
     if (fUniformBuffersBindGroupLayout) {
         return fUniformBuffersBindGroupLayout;
     }
@@ -594,6 +600,8 @@ const wgpu::BindGroupLayout& DawnResourceProvider::getOrCreateUniformBuffersBind
 
 const wgpu::BindGroupLayout&
 DawnResourceProvider::getOrCreateSingleTextureSamplerBindGroupLayout() {
+    SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
+
     if (fSingleTextureSamplerBindGroupLayout) {
         return fSingleTextureSamplerBindGroupLayout;
     }
@@ -644,6 +652,8 @@ const wgpu::Buffer& DawnResourceProvider::getOrCreateNullBuffer() {
 const wgpu::BindGroup& DawnResourceProvider::findOrCreateUniformBuffersBindGroup(
         const std::array<std::pair<const DawnBuffer*, uint32_t>, kNumUniformEntries>&
                 boundBuffersAndSizes) {
+    SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
+
     auto key = make_ubo_bind_group_key(boundBuffersAndSizes);
     auto* existingBindGroup = fUniformBufferBindGroupCache.find(key);
     if (existingBindGroup) {
@@ -689,6 +699,8 @@ const wgpu::BindGroup& DawnResourceProvider::findOrCreateUniformBuffersBindGroup
 
 const wgpu::BindGroup& DawnResourceProvider::findOrCreateSingleTextureSamplerBindGroup(
         const DawnSampler* sampler, const DawnTexture* texture) {
+    SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
+
     auto key = make_texture_bind_group_key(sampler, texture);
     auto* existingBindGroup = fSingleTextureSamplerBindGroups.find(key);
     if (existingBindGroup) {
@@ -715,6 +727,8 @@ const wgpu::BindGroup& DawnResourceProvider::findOrCreateSingleTextureSamplerBin
 }
 
 void DawnResourceProvider::onFreeGpuResources() {
+    SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
+
     fIntrinsicConstantsManager->freeGpuResources();
     // The wgpu::Textures and wgpu::Buffers held by the BindGroups should be explicitly destroyed
     // when the DawnTexture and DawnBuffer is destroyed, but removing the bind groups themselves
