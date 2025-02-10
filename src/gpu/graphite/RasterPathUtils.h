@@ -14,7 +14,7 @@
 #include "src/core/SkDrawBase.h"
 #include "src/core/SkRasterClip.h"
 #include "src/gpu/ResourceKey.h"
-#include "src/gpu/graphite/ClipStack_graphite.h"
+#include "src/gpu/graphite/ClipStack.h"
 
 namespace skgpu::graphite {
 

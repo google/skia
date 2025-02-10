@@ -9,12 +9,12 @@
 
 #if __ANDROID_API__ >= 26
 
+#include "include/android/AHardwareBufferUtils.h"
 #include "include/android/graphite/SurfaceAndroid.h"
 #include "include/core/SkColorSpace.h"
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
-#include "include/android/AHardwareBufferUtils.h"
 
 #include <android/hardware_buffer.h>
 

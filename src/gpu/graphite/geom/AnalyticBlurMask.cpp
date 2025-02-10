@@ -26,7 +26,7 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/geom/Transform_graphite.h"
+#include "src/gpu/graphite/geom/Transform.h"
 #include "src/sksl/SkSLUtil.h"
 
 #include <algorithm>

@@ -21,7 +21,7 @@ CORE_FILES = [
     "Shape.h",
     "SubRunData.h",
     "Transform.cpp",
-    "Transform_graphite.h",
+    "Transform.h",
 ]
 
 split_srcs_and_hdrs(
@@ -50,6 +50,6 @@ generate_cpp_files_for_headers(
         "Geometry.h",
         "Rect.h",
         "SubRunData.h",
-        "Transform_graphite.h",
+        "Transform.h",
     ],
 )

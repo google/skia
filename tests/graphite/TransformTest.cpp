@@ -7,7 +7,7 @@
 
 #include "tests/Test.h"
 
-#include "src/gpu/graphite/geom/Transform_graphite.h"
+#include "src/gpu/graphite/geom/Transform.h"
 
 DEF_GRAPHITE_TEST(TransformTest, reporter, CtsEnforcement::kNextRelease) {
     // TODO: Michael takes this over

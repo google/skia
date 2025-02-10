@@ -12,7 +12,7 @@
 #include "src/base/SkFloatBits.h"
 #include "src/core/SkBlitter_A8.h"
 #include "src/gpu/graphite/geom/Shape.h"
-#include "src/gpu/graphite/geom/Transform_graphite.h"
+#include "src/gpu/graphite/geom/Transform.h"
 
 namespace skgpu::graphite {
 

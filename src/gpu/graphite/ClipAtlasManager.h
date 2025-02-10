@@ -12,7 +12,7 @@
 #include "src/base/SkTInternalLList.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ResourceKey.h"
-#include "src/gpu/graphite/ClipStack_graphite.h"
+#include "src/gpu/graphite/ClipStack.h"
 #include "src/gpu/graphite/DrawAtlas.h"
 #include "src/gpu/graphite/geom/Rect.h"
 

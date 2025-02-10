@@ -46,31 +46,24 @@ ignorelist = [
   'node_modules',
   'include/third_party/skcms',
   'src/gpu/vk/vulkanmemoryallocator',
-  # Used by Jetski and Graphite
-  'Surface.h',
-  # Used by Ganesh and Graphite
-  'Device.h',
-
-  # Transitional
-  'tools/window',
 ]
 
 assert '/' in [os.sep, os.altsep]
 def fix_path(p):
   return p.replace(os.sep, os.altsep) if os.altsep else p
 
-# Map short name -> absolute path for all Skia headers.
+# Map short name -> absolute path for all Skia headers. Duplicate short names are allowed, the
+# stored value will hold a list of absolute paths. If a short name is found in source code and the
+# absolute path is ambiguous, an error message is reported.
 headers = {}
 for root in roots:
   for path, _, files in os.walk(root):
     if not any(snippet in fix_path(path) for snippet in ignorelist):
       for file_name in files:
         if file_name.endswith('.h') and not file_name in ignorelist:
-          if file_name in headers:
-            message = ('Header filename is used more than once!\n- ' + path + '/' + file_name +
-                       '\n- ' + headers[file_name])
-            assert file_name not in headers, message
-          headers[file_name] = os.path.abspath(os.path.join(path, file_name))
+          full_name = os.path.abspath(os.path.join(path, file_name))
+          include_path = fix_path(os.path.relpath(full_name, '.'))
+          headers.setdefault(file_name, []).append(include_path)
 
 def to_rewrite():
   if args.sources:
@@ -84,6 +77,7 @@ def to_rewrite():
 
 # Rewrite any #includes relative to Skia's top-level directory.
 need_rewriting = []
+rewrite_is_automatic = True
 for file_path in to_rewrite():
   if ('/generated/' in file_path or
       'tests/sksl/' in file_path or
@@ -117,7 +111,21 @@ for file_path in to_rewrite():
           and '#' in parts[0]
           and 'include' in parts[0]
           and os.path.basename(parts[1]) in headers):
-        header = fix_path(os.path.relpath(headers[os.path.basename(parts[1])], '.'))
+        include_paths = headers[os.path.basename(parts[1])]
+        if (len(include_paths) == 1):
+          header = include_paths[0]
+        else:
+          # This either represents a valid include path in include_paths, or it preserves the
+          # original ambiguous include that has to be manually fixed.
+          header = parts[1]
+          if not (parts[1] in include_paths):
+            need_rewriting.append(file_path)
+            rewrite_is_automatic = False
+            print('File has an ambiguous relative include: ' + file_path)
+            print('Replace "' + parts[1] + '" with one of:')
+            for opt in include_paths:
+              print('\t' + opt)
+
         includes.append(parts[0] + '"%s"' % header + parts[2])
       else:
         # deduplicate includes in this block. If a file needs to be included
@@ -132,13 +140,16 @@ for file_path in to_rewrite():
       output.write(inc.strip('\n') + '\n')
     if args.dry_run and output.getvalue() != open(file_path).read():
       need_rewriting.append(file_path)
-      rc = 1
     output.close()
 
 if need_rewriting:
   print('Some files need rewritten #includes:')
   for path in need_rewriting:
     print('\t' + path)
-  print('To do this automatically, run')
-  print('python3 tools/rewrite_includes.py ' + ' '.join(need_rewriting))
+
+  if rewrite_is_automatic:
+    print('To do this automatically, run')
+    print('python3 tools/rewrite_includes.py ' + ' '.join(need_rewriting))
+  else:
+    print('Automatic rewritting of includes not possible.')
   sys.exit(1)
