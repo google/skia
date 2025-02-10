@@ -730,6 +730,14 @@ int ShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect
     return newCodeSnippetID;
 }
 
+#if defined(GPU_TEST_UTILS)
+int ShaderCodeDictionary::numUserDefinedRuntimeEffects() const {
+    SkAutoSpinlock lock{fSpinLock};
+
+    return fUserDefinedCodeSnippets.size();
+}
+#endif
+
 ShaderCodeDictionary::ShaderCodeDictionary(Layout layout)
         : fLayout(layout) {
     // The 0th index is reserved as invalid

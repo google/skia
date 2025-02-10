@@ -2451,15 +2451,19 @@ Result GraphitePrecompileTestingSink::draw(const Src& src,
             return Result::Fatal("Could not create a recorder.");
         }
         std::unique_ptr<PrecompileContext> precompileContext = context->makePrecompileContext();
+        ShaderCodeDictionary* shaderCodeDictionary = context->priv().shaderCodeDictionary();
 
-        // First, clear out any miscellaneous Pipelines that might be cluttering up the global
-        // cache.
-        context->priv().globalCache()->resetGraphicsPipelines();
+        SkASSERT_RELEASE(!context->priv().globalCache()->numGraphicsPipelines());
+        SkASSERT_RELEASE(!shaderCodeDictionary->numUserDefinedRuntimeEffects());
 
         // Draw the Src for the first time, populating the global pipeline cache.
         Result result = this->drawSrc(src, context, ctxInfo.fTestContext, recorder.get());
         if (!result.isOk()) {
             return result;
+        }
+
+        if (shaderCodeDictionary->numUserDefinedRuntimeEffects()) {
+            return Result::Skip("User-defined runtime effects cannot be serialized");
         }
 
         // Call resetAndRecreatePipelines to clear out all the Pipelines in the global cache and

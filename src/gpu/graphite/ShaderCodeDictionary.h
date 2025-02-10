@@ -230,6 +230,10 @@ public:
 
     int findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect* effect) SK_EXCLUDES(fSpinLock);
 
+#if defined(GPU_TEST_UTILS)
+    int numUserDefinedRuntimeEffects() const SK_EXCLUDES(fSpinLock);
+#endif
+
 private:
     const char* addTextToArena(std::string_view text);
 

@@ -50,9 +50,9 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
     return true;
 }
 
-[[nodiscard]]  bool serialize_graphics_pipeline_desc(ShaderCodeDictionary* shaderCodeDictionary,
-                                                     SkWStream* stream,
-                                                     const GraphicsPipelineDesc& pipelineDesc) {
+[[nodiscard]] bool serialize_graphics_pipeline_desc(ShaderCodeDictionary* shaderCodeDictionary,
+                                                    SkWStream* stream,
+                                                    const GraphicsPipelineDesc& pipelineDesc) {
     PaintParamsKey key = shaderCodeDictionary->lookup(pipelineDesc.paintParamsID());
 
     if (!stream->write32(static_cast<uint32_t>(pipelineDesc.renderStepID()))) {
@@ -68,6 +68,11 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
     }
 
     const SkSpan<const uint32_t> keySpan = key.data();
+
+    if (!key.isSerializable(shaderCodeDictionary)) {
+        return false;
+    }
+
     if (!stream->write32(SkToU32(keySpan.size()))) {
         return false;
     }
@@ -94,7 +99,7 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
         return false;
     }
 
-    UniquePaintParamsID paintParamsID;
+    UniquePaintParamsID paintParamsID = UniquePaintParamsID::InvalidID();
     if (tmp) {
         SkAutoMalloc storage(4 * tmp);
         if (stream->read(storage.get(), 4 * tmp) != 4 * tmp) {
@@ -102,6 +107,10 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
         }
 
         PaintParamsKey ppk = PaintParamsKey(SkSpan<uint32_t>((uint32_t*) storage.get(), tmp));
+
+        if (!ppk.isSerializable(shaderCodeDictionary)) {
+            return false;
+        }
 
         paintParamsID = shaderCodeDictionary->findOrCreate(ppk);
     }

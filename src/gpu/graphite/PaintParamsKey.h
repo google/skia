@@ -116,6 +116,11 @@ public:
 
     SkSpan<const uint32_t> data() const { return fData; }
 
+    // Checks that a given key is viable for serialization and, also, that a deserialized
+    // key is, at least, correctly formed. Other than that all the sizes make sense, this method
+    // also checks that only Skia-internal shader code snippets appear in the key.
+    [[nodiscard]] bool isSerializable(const ShaderCodeDictionary*) const;
+
 private:
     friend class PaintParamsKeyBuilder;   // for the parented-data ctor
 

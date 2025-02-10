@@ -252,4 +252,65 @@ void PaintParamsKey::dump(const ShaderCodeDictionary* dict, UniquePaintParamsID 
 
 #endif // SK_DEBUG
 
+namespace {
+
+// check a single block and, recursively, all its children
+[[nodiscard]] bool is_block_valid(const ShaderCodeDictionary* dict,
+                                  SkSpan<const uint32_t> keyData,
+                                  int* currentIndex) {
+    if (*currentIndex >= SkTo<int>(keyData.size())) {
+        return false;
+    }
+
+    uint32_t id = keyData[(*currentIndex)++];
+    if (id >= kBuiltInCodeSnippetIDCount && !SkKnownRuntimeEffects::IsSkiaKnownRuntimeEffect(id)) {
+        return false;
+    }
+
+    auto entry = dict->getEntry(id);
+    if (!entry) {
+        return false;
+    }
+
+    if (entry->storesSamplerDescData()) {
+        if (*currentIndex + 1 >= SkTo<int>(keyData.size())) {
+            return false;
+        }
+
+        const int dataLength = keyData[(*currentIndex)++];
+
+        if (*currentIndex + dataLength >= SkTo<int>(keyData.size())) {
+            return false;
+        }
+
+        *currentIndex += dataLength;
+    }
+
+    if (entry->fNumChildren > 0) {
+        for (int i = 0; i < entry->fNumChildren; ++i) {
+            if (!is_block_valid(dict, keyData, currentIndex)) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+} // anonymous namespace
+
+
+bool PaintParamsKey::isSerializable(const ShaderCodeDictionary* dict) const {
+    const int keySize = SkTo<int>(fData.size());
+
+    int currentIndex = 0;
+    while (currentIndex < keySize) {
+        if (!is_block_valid(dict, fData, &currentIndex)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 } // namespace skgpu::graphite
