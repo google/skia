@@ -9,7 +9,7 @@
 
 #include "include/core/SkSamplingOptions.h"
 #include "src/gpu/graphite/vk/VulkanCaps.h"
-#include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
+#include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 
 namespace skgpu::graphite {
 
@@ -123,4 +123,3 @@ void VulkanSampler::freeGpuData() {
 }
 
 } // namespace skgpu::graphite
-

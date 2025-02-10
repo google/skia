@@ -78,7 +78,6 @@ namespace BackendSemaphores {
 SK_API BackendSemaphore MakeVulkan(VkSemaphore);
 
 SK_API VkSemaphore GetVkSemaphore(const BackendSemaphore&);
-
 }  // namespace BackendSemaphores
 
 }  // namespace skgpu::graphite

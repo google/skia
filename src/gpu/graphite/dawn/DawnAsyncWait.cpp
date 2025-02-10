@@ -9,7 +9,6 @@
 
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
-#include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
 
 namespace skgpu::graphite {
 

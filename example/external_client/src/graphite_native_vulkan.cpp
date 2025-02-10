@@ -19,7 +19,7 @@
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/gpu/graphite/Surface.h"
 #include "include/gpu/vk/VulkanExtensions.h"
-#include "include/gpu/graphite/vk/VulkanGraphiteUtils.h"
+#include "include/gpu/graphite/vk/VulkanGraphiteContext.h"
 
 #define WIDTH 200
 #define HEIGHT 400

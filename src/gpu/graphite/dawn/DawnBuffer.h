@@ -11,7 +11,6 @@
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/graphite/dawn/DawnTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Buffer.h"

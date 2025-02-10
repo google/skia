@@ -10,8 +10,8 @@
 
 #include "src/gpu/graphite/Resource.h"
 
+#include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/graphite/DescriptorData.h"
-#include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 
 namespace skgpu::graphite {
 

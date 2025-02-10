@@ -24,7 +24,7 @@
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
-#include "include/gpu/graphite/vk/VulkanGraphiteUtils.h"
+#include "include/gpu/graphite/vk/VulkanGraphiteContext.h"
 #include "src/gpu/graphite/ContextOptionsPriv.h"
 #endif
 

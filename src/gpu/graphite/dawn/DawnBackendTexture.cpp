@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkString.h"
-#include "include/gpu/graphite/dawn/DawnTypes.h"
+#include "include/gpu/graphite/dawn/DawnGraphiteTypes.h"
 #include "src/gpu/graphite/BackendTexturePriv.h"
-#include "src/gpu/graphite/dawn/DawnGraphiteTypesPriv.h"
-#include "src/gpu/graphite/dawn/DawnUtilsPriv.h"
+#include "src/gpu/graphite/dawn/DawnGraphiteUtils.h"
 
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 

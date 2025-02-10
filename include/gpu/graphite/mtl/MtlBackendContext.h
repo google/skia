@@ -23,6 +23,10 @@ struct SK_API MtlBackendContext {
     sk_cfp<CFTypeRef> fQueue;
 };
 
+namespace ContextFactory {
+SK_API std::unique_ptr<Context> MakeMetal(const MtlBackendContext&, const ContextOptions&);
+} // namespace ContextFactory
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_MtlBackendContext_DEFINED

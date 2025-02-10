@@ -8,9 +8,8 @@
 #ifndef skgpu_graphite_VulkanFramebuffer_DEFINED
 #define skgpu_graphite_VulkanFramebuffer_DEFINED
 
+#include "include/gpu/vk/VulkanTypes.h"
 #include "src/gpu/graphite/Resource.h"
-
-#include "src/gpu/graphite/vk/VulkanGraphiteUtilsPriv.h"
 
 namespace skgpu::graphite {
 

@@ -5,24 +5,5 @@
  * found in the LICENSE file.
  */
 
-#ifndef skgpu_graphite_DawnUtils_DEFINED
-#define skgpu_graphite_DawnUtils_DEFINED
-
-#include <memory>
-
-#include "include/private/base/SkAPI.h"
-
-namespace skgpu::graphite {
-
-class Context;
-struct ContextOptions;
-struct DawnBackendContext;
-
-namespace ContextFactory {
-SK_API std::unique_ptr<Context> MakeDawn(const DawnBackendContext&, const ContextOptions&);
-} // namespace ContextFactory
-
-} // namespace skgpu::graphite
-
-
-#endif // skgpu_graphite_DawnUtils_DEFINED
+// DEPRECRATED: DawnUtils.h will be removed in the future, please include DawnBackendContext.h
+#include "include/gpu/graphite/dawn/DawnBackendContext.h"

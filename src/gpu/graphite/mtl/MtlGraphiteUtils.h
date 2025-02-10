@@ -12,6 +12,7 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+#include "include/ports/SkCFObject.h"
 
 class SkStream;
 class SkWStream;
@@ -45,7 +46,18 @@ class SkWStream;
 
 #import <Metal/Metal.h>
 
+namespace skgpu {
+class ShaderErrorHandler;
+}
+
 namespace skgpu::graphite {
+
+class MtlSharedContext;
+
+sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedContext,
+                                               std::string_view label,
+                                               std::string_view msl,
+                                               ShaderErrorHandler* errorHandler);
 
 struct MtlTextureSpec {
     MtlTextureSpec()

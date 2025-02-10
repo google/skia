@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "include/gpu/graphite/dawn/DawnUtils.h"
-#include "src/gpu/graphite/dawn/DawnGraphiteUtilsPriv.h"
+#include "src/gpu/graphite/dawn/DawnGraphiteUtils.h"
 
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/graphite/Context.h"
@@ -38,6 +37,132 @@ std::unique_ptr<Context> MakeDawn(const DawnBackendContext& backendContext,
     return context;
 }
 } // namespace ContextFactory
+
+bool DawnTextureSpec::operator==(const DawnTextureSpec& that) const {
+    return fUsage == that.fUsage && fFormat == that.fFormat &&
+           fViewFormat == that.fViewFormat && fAspect == that.fAspect &&
+#if !defined(__EMSCRIPTEN__)
+           DawnDescriptorsAreEquivalent(fYcbcrVkDescriptor, that.fYcbcrVkDescriptor) &&
+#endif
+           fSlice == that.fSlice;
+}
+
+bool DawnTextureSpec::isCompatible(const DawnTextureSpec& that) const {
+    // The usages may match or the usage passed in may be a superset of the usage stored within.
+    // The YCbCrInfo must be equal.
+    // The aspect should either match the plane aspect or should be All.
+    return this->getViewFormat() == that.getViewFormat() &&
+            (fUsage & that.fUsage) == fUsage &&
+#if !defined(__EMSCRIPTEN__)
+            DawnDescriptorsAreEquivalent(fYcbcrVkDescriptor, that.fYcbcrVkDescriptor) &&
+#endif
+            (fAspect == that.fAspect || fAspect == wgpu::TextureAspect::All);
+}
+
+SkString DawnTextureSpec::toString() const {
+    return SkStringPrintf("format=%u,viewFormat=%u,usage=0x%08X,aspect=0x%08X,slice=%u",
+                          static_cast<unsigned int>(fFormat),
+                          static_cast<unsigned int>(fViewFormat),
+                          static_cast<unsigned int>(fUsage),
+                          static_cast<unsigned int>(fAspect),
+                          fSlice);
+}
+
+DawnTextureInfo DawnTextureInfoFromWGPUTexture(WGPUTexture texture) {
+    SkASSERT(texture);
+    return DawnTextureInfo(
+            wgpuTextureGetSampleCount(texture),
+            wgpuTextureGetMipLevelCount(texture) > 1 ? Mipmapped::kYes : Mipmapped::kNo,
+            /*format=*/static_cast<wgpu::TextureFormat>(wgpuTextureGetFormat(texture)),
+            /*viewFormat=*/static_cast<wgpu::TextureFormat>(wgpuTextureGetFormat(texture)),
+            static_cast<wgpu::TextureUsage>(wgpuTextureGetUsage(texture)),
+            wgpu::TextureAspect::All,
+            /*slice=*/0);
+}
+
+DawnTextureInfo DawnTextureSpecToTextureInfo(const DawnTextureSpec& dawnSpec,
+                                             uint32_t sampleCount,
+                                             Mipmapped mipmapped) {
+    DawnTextureInfo info;
+    // Shared info
+    info.fSampleCount = sampleCount;
+    info.fMipmapped = mipmapped;
+
+    // Dawn info
+    info.fFormat = dawnSpec.fFormat;
+    info.fViewFormat = dawnSpec.fViewFormat;
+    info.fUsage = dawnSpec.fUsage;
+    info.fAspect = dawnSpec.fAspect;
+#if !defined(__EMSCRIPTEN__)
+    info.fYcbcrVkDescriptor = dawnSpec.fYcbcrVkDescriptor;
+#endif
+
+    return info;
+}
+
+// TODO: A lot of these values are not correct
+size_t DawnFormatBytesPerBlock(wgpu::TextureFormat format) {
+    switch (format) {
+        case wgpu::TextureFormat::RGBA8Unorm:            return 4;
+        case wgpu::TextureFormat::BGRA8Unorm:            return 4;
+        case wgpu::TextureFormat::R8Unorm:               return 1;
+        case wgpu::TextureFormat::RGBA16Float:           return 8;
+        case wgpu::TextureFormat::R16Float:              return 2;
+        case wgpu::TextureFormat::RG8Unorm:              return 2;
+        case wgpu::TextureFormat::RGB10A2Unorm:          return 4;
+        case wgpu::TextureFormat::RG16Float:             return 4;
+        // The depth stencil values are not neccessarily correct in Dawn since Dawn is allowed to
+        // implement Stencil8 as a real stencil8 or depth24stencil8 format. Similarly the depth in
+        // Depth24PlusStencil8 can either be a 24 bit value or Depth32Float value. There is also
+        // currently no way to query this in WebGPU so we just use the highest values here.
+        case wgpu::TextureFormat::Stencil8:              return 4; // could be backed by d24s8
+        case wgpu::TextureFormat::Depth16Unorm:          return 2;
+        case wgpu::TextureFormat::Depth32Float:          return 4;
+        case wgpu::TextureFormat::Depth32FloatStencil8:  return 5;
+        case wgpu::TextureFormat::Depth24PlusStencil8:   return 5; // could be backed by d32s8
+
+#if !defined(__EMSCRIPTEN__)
+        case wgpu::TextureFormat::R16Unorm:              return 2;
+        case wgpu::TextureFormat::RG16Unorm:             return 4;
+        // Note: We don't actually know the size of external formats, so this
+        // is an arbitrary value. We will see external formats only in wrapped
+        // SkImages, so this won't impact Skia's internal budgeting.
+        case wgpu::TextureFormat::External:
+            return 4;
+#endif
+        default:
+            SkUNREACHABLE;
+    }
+}
+
+SkTextureCompressionType DawnFormatToCompressionType(wgpu::TextureFormat format) {
+    switch (format) {
+        case wgpu::TextureFormat::ETC2RGB8Unorm: return SkTextureCompressionType::kETC2_RGB8_UNORM;
+        case wgpu::TextureFormat::BC1RGBAUnorm:  return SkTextureCompressionType::kBC1_RGBA8_UNORM;
+        default:                                 return SkTextureCompressionType::kNone;
+    }
+}
+
+uint32_t DawnFormatChannels(wgpu::TextureFormat format) {
+    switch (format) {
+        case wgpu::TextureFormat::RGBA8Unorm:   return kRGBA_SkColorChannelFlags;
+        case wgpu::TextureFormat::BGRA8Unorm:   return kRGBA_SkColorChannelFlags;
+        case wgpu::TextureFormat::R8Unorm:      return kRed_SkColorChannelFlag;
+        case wgpu::TextureFormat::RGBA16Float:  return kRGBA_SkColorChannelFlags;
+        case wgpu::TextureFormat::R16Float:     return kRed_SkColorChannelFlag;
+        case wgpu::TextureFormat::RG8Unorm:     return kRG_SkColorChannelFlags;
+        case wgpu::TextureFormat::RGB10A2Unorm: return kRGBA_SkColorChannelFlags;
+        case wgpu::TextureFormat::RG16Float:    return kRG_SkColorChannelFlags;
+
+#if !defined(__EMSCRIPTEN__)
+        case wgpu::TextureFormat::R16Unorm:     return kRed_SkColorChannelFlag;
+        case wgpu::TextureFormat::RG16Unorm:    return kRG_SkColorChannelFlags;
+#endif
+
+        default:                                return 0;
+    }
+    SkUNREACHABLE;
+}
 
 bool DawnFormatIsDepthOrStencil(wgpu::TextureFormat format) {
     switch (format) {

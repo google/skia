@@ -7,8 +7,8 @@
 
 #include "src/gpu/graphite/vk/VulkanFramebuffer.h"
 
+#include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
-
 namespace skgpu::graphite {
 
 sk_sp<VulkanFramebuffer> VulkanFramebuffer::Make(const VulkanSharedContext* context,

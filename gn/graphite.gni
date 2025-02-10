@@ -242,6 +242,7 @@ skia_graphite_android_private = [
 
 skia_graphite_dawn_public = [
   "$_include/dawn/DawnBackendContext.h",
+  "$_include/dawn/DawnGraphiteTypes.h",
   "$_include/dawn/DawnTypes.h",
   "$_include/dawn/DawnUtils.h",
 ]
@@ -262,10 +263,8 @@ skia_graphite_dawn_sources = [
   "$_src/dawn/DawnErrorChecker.h",
   "$_src/dawn/DawnGraphicsPipeline.cpp",
   "$_src/dawn/DawnGraphicsPipeline.h",
-  "$_src/dawn/DawnGraphiteTypesPriv.cpp",
-  "$_src/dawn/DawnGraphiteTypesPriv.h",
   "$_src/dawn/DawnGraphiteUtils.cpp",
-  "$_src/dawn/DawnGraphiteUtilsPriv.h",
+  "$_src/dawn/DawnGraphiteUtils.h",
   "$_src/dawn/DawnQueueManager.cpp",
   "$_src/dawn/DawnQueueManager.h",
   "$_src/dawn/DawnResourceProvider.cpp",
@@ -277,13 +276,12 @@ skia_graphite_dawn_sources = [
   "$_src/dawn/DawnTexture.cpp",
   "$_src/dawn/DawnTexture.h",
   "$_src/dawn/DawnTextureInfo.cpp",
-  "$_src/dawn/DawnUtils.cpp",
-  "$_src/dawn/DawnUtilsPriv.h",
 ]
 
 skia_graphite_mtl_public = [
   "$_include/mtl/MtlBackendContext.h",
   "$_include/mtl/MtlGraphiteTypes.h",
+  "$_include/mtl/MtlGraphiteTypes_cpp.h",
   "$_include/mtl/MtlGraphiteTypesUtils.h",
   "$_include/mtl/MtlGraphiteUtils.h",
 ]
@@ -303,10 +301,8 @@ skia_graphite_mtl_sources = [
   "$_src/mtl/MtlComputePipeline.mm",
   "$_src/mtl/MtlGraphicsPipeline.h",
   "$_src/mtl/MtlGraphicsPipeline.mm",
-  "$_src/mtl/MtlGraphiteTypes.mm",
-  "$_src/mtl/MtlGraphiteTypesPriv.h",
+  "$_src/mtl/MtlGraphiteUtils.h",
   "$_src/mtl/MtlGraphiteUtils.mm",
-  "$_src/mtl/MtlGraphiteUtilsPriv.h",
   "$_src/mtl/MtlQueueManager.h",
   "$_src/mtl/MtlQueueManager.mm",
   "$_src/mtl/MtlRenderCommandEncoder.h",
@@ -322,6 +318,7 @@ skia_graphite_mtl_sources = [
 ]
 
 skia_graphite_vk_public = [
+  "$_include/vk/VulkanGraphiteContext.h",
   "$_include/vk/VulkanGraphiteTypes.h",
   "$_include/vk/VulkanGraphiteUtils.h",
 ]
@@ -343,10 +340,8 @@ skia_graphite_vk_sources = [
   "$_src/vk/VulkanFramebuffer.h",
   "$_src/vk/VulkanGraphicsPipeline.cpp",
   "$_src/vk/VulkanGraphicsPipeline.h",
-  "$_src/vk/VulkanGraphiteTypes.cpp",
-  "$_src/vk/VulkanGraphiteTypesPriv.h",
   "$_src/vk/VulkanGraphiteUtils.cpp",
-  "$_src/vk/VulkanGraphiteUtilsPriv.h",
+  "$_src/vk/VulkanGraphiteUtils.h",
   "$_src/vk/VulkanImageView.cpp",
   "$_src/vk/VulkanImageView.h",
   "$_src/vk/VulkanQueueManager.cpp",

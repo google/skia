@@ -13,7 +13,7 @@
 #include "include/core/SkTypes.h"
 
 #include "include/gpu/graphite/GraphiteTypes.h"
-#include "include/gpu/graphite/mtl/MtlGraphiteTypesUtils.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteTypes_cpp.h"
 #include "include/private/base/SkAPI.h"
 
 #import <CoreFoundation/CoreFoundation.h>
@@ -21,6 +21,7 @@
 #import <TargetConditionals.h>
 
 namespace skgpu::graphite {
+
 struct SK_API MtlTextureInfo {
     uint32_t fSampleCount = 1;
     skgpu::Mipmapped fMipmapped = skgpu::Mipmapped::kNo;
@@ -45,6 +46,7 @@ struct SK_API MtlTextureInfo {
             , fStorageMode(storageMode)
             , fFramebufferOnly(framebufferOnly) {}
 };
+
 }  // namespace skgpu::graphite
 
 #endif  // __OBJC__

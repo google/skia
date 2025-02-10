@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/vk/VulkanDescriptorSet.h"
 
 #include "src/gpu/graphite/vk/VulkanDescriptorPool.h"
+#include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 
 namespace skgpu::graphite {
