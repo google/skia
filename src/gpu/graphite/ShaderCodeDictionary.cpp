@@ -694,8 +694,9 @@ int ShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect
      SkAutoSpinlock lock{fSpinLock};
 
     if (int stableKey = SkRuntimeEffectPriv::StableKey(*effect)) {
-        SkASSERT(stableKey >= kSkiaKnownRuntimeEffectsStart &&
-                 stableKey < kSkiaKnownRuntimeEffectsStart + kStableKeyCnt);
+        // TODO(robertphillips): This assert will need to be loosened when first party stable
+        // keys are allowed (and the following code updated too).
+        SkASSERT(IsSkiaKnownRuntimeEffect(stableKey));
 
         int index = stableKey - kSkiaKnownRuntimeEffectsStart;
 

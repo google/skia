@@ -2603,7 +2603,7 @@ Result ViaSerialization::draw(
     SkPictureRecorder recorder;
     Result result = src.draw(recorder.beginRecording(SkIntToScalar(size.width()),
                                                      SkIntToScalar(size.height())),
-                             /*GraphiteTestContext=*/nullptr);
+                                                     /*GraphiteTestContext=*/nullptr);
     if (!result.isOk()) {
         return result;
     }

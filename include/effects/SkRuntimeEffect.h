@@ -317,7 +317,8 @@ private:
     friend class SkRuntimeEffectPriv;
 
     uint32_t fHash;
-    uint32_t fStableKey;
+    // When not 0, this field holds a StableKey value (or, in the future, a first party stable key)
+    uint32_t fStableKey = 0;
 
     std::unique_ptr<SkSL::Program> fBaseProgram;
     std::unique_ptr<SkSL::RP::Program> fRPProgram;

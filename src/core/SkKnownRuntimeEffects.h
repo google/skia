@@ -8,7 +8,7 @@
 #ifndef SkKnownRuntimeEffects_DEFINED
 #define SkKnownRuntimeEffects_DEFINED
 
-#include "include/core/SkTypes.h"
+#include "include/core/SkRefCnt.h"
 #include <cstdint>
 
 class SkRuntimeEffect;
@@ -105,7 +105,17 @@ enum class StableKey : uint32_t {
 static const int kStableKeyCnt = static_cast<int>(StableKey::kLast) -
                                  static_cast<int>(StableKey::kStart) + 1;
 
+// kStart cannot be allowed to be zero since that is used as the not-a-stable-key value in the
+// serialized runtime effects (c.f., SkRuntimeShader::flatten)
+static_assert(static_cast<uint32_t>(StableKey::kStart) != 0);
+
 static_assert(static_cast<int>(StableKey::kLast) < kSkiaKnownRuntimeEffectsEnd);
+
+// Is 'candidate' a viable StableKey value. Note that this includes the kInvalid value.
+bool IsSkiaKnownRuntimeEffect(uint32_t candidate);
+
+// Validate 'candidate' before calling GetKnownRuntimeEffect
+sk_sp<SkRuntimeEffect> MaybeGetKnownRuntimeEffect(uint32_t candidate);
 
 const SkRuntimeEffect* GetKnownRuntimeEffect(StableKey);
 

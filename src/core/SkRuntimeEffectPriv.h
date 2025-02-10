@@ -18,6 +18,7 @@
 #include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
 #include "src/core/SkEffectPriv.h"
+#include "src/core/SkKnownRuntimeEffects.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 
 #include <cstddef>
@@ -98,6 +99,9 @@ public:
     }
 
     static void SetStableKey(SkRuntimeEffect::Options* options, uint32_t stableKey) {
+        // TODO(robertphillips): This assert will need to be loosened when first party
+        // stable keys are allowed.
+        SkASSERT(SkKnownRuntimeEffects::IsSkiaKnownRuntimeEffect(stableKey));
         options->fStableKey = stableKey;
     }
 
