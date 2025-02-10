@@ -1287,12 +1287,11 @@ static void populate_graphic_state_entry_from_paint(
     // PDF treats a shader as a color, so we only set one or the other.
     SkShader* shader = paint.getShader();
     if (shader) {
-        // note: we always present the alpha as 1 for the shader, knowing that it will be
-        //       accounted for when we create our newGraphicsState (below)
         if (as_SB(shader)->type() == SkShaderBase::ShaderType::kColor) {
             auto colorShader = static_cast<SkColorShader*>(shader);
             // We don't have to set a shader just for a color.
             color = colorShader->color();
+            color.fA *= paint.getAlphaf();
             entry->fColor = colorShader->color().makeOpaque();
         } else {
             // PDF positions patterns relative to the initial transform, so
@@ -1311,6 +1310,7 @@ static void populate_graphic_state_entry_from_paint(
             SkIRect bounds;
             clipStackBounds.roundOut(&bounds);
 
+            // Use alpha 1 for the shader, the paint alpha is applied with newGraphicsState (below)
             auto c = paint.getColor4f();
             SkPDFIndirectReference pdfShader = SkPDFMakeShader(doc, shader, transform, bounds,
                                                                {c.fR, c.fG, c.fB, 1.0f});
