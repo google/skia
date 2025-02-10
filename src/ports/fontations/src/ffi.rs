@@ -1208,7 +1208,7 @@ fn is_fixed_pitch(font_ref: &BridgeFontRef) -> bool {
             // Compare DWriteFontTypeface::onGetAdvancedMetrics().
             Some(
                 f.post().ok()?.is_fixed_pitch() != 0
-                    || f.hhea().ok()?.number_of_h_metrics() == 1,
+                    || f.hhea().ok()?.number_of_long_metrics() == 1,
             )
         })
         .unwrap_or_default()
