@@ -2280,7 +2280,7 @@ Result GraphitePrecompileTestingSink::resetAndRecreatePipelines(
         skgpu::graphite::PrecompileContext* precompileContext) const {
     using namespace skgpu::graphite;
 
-    SkDEBUGCODE(GlobalCache* globalCache = precompileContext->priv().globalCache();)
+    GlobalCache* globalCache = precompileContext->priv().globalCache();
 
     std::vector<skgpu::UniqueKey> origKeys;
 
@@ -2291,26 +2291,25 @@ Result GraphitePrecompileTestingSink::resetAndRecreatePipelines(
     handler->retrieve(&androidStyleKeys);
     handler->reset();
 
-    SkASSERTF(origKeys.size() == androidStyleKeys.size(),
-              "orig %zu != new %zu", origKeys.size(), androidStyleKeys.size());
+    SkASSERTF_RELEASE(origKeys.size() == androidStyleKeys.size(),
+                      "orig %zu != new %zu", origKeys.size(), androidStyleKeys.size());
 
-    SkDEBUGCODE(int numBeforeReset = globalCache->numGraphicsPipelines();)
-    SkASSERT(numBeforeReset == (int) origKeys.size());
+    int numBeforeReset = globalCache->numGraphicsPipelines();
+    SkASSERT_RELEASE(numBeforeReset == (int) origKeys.size());
 
     precompileContext->priv().globalCache()->resetGraphicsPipelines();
 
-    SkASSERT(globalCache->numGraphicsPipelines() == 0);
+    SkASSERT_RELEASE(globalCache->numGraphicsPipelines() == 0);
 
     for (sk_sp<SkData>& d : androidStyleKeys) {
         bool result = precompileContext->precompile(d);
         SkAssertResult(result);
     }
 
-    SkDEBUGCODE(int postRecreate = globalCache->numGraphicsPipelines();)
+    int postRecreate = globalCache->numGraphicsPipelines();
 
-    SkASSERT(numBeforeReset == postRecreate);
+    SkASSERT_RELEASE(numBeforeReset == postRecreate);
 
-#ifdef SK_DEBUG
     {
         std::vector<skgpu::UniqueKey> recreatedKeys;
 
@@ -2320,7 +2319,6 @@ Result GraphitePrecompileTestingSink::resetAndRecreatePipelines(
                     origKeys, "original",
                     recreatedKeys, "recreated");
     }
-#endif
 
     return Result::Ok();
 }
@@ -2471,8 +2469,8 @@ Result GraphitePrecompileTestingSink::draw(const Src& src,
             return result;
         }
 
-        SkDEBUGCODE(GlobalCache* globalCache = precompileContext->priv().globalCache();)
-        SkDEBUGCODE(int numBeforeSecondDraw = globalCache->numGraphicsPipelines();)
+        GlobalCache* globalCache = precompileContext->priv().globalCache();
+        int numBeforeSecondDraw = globalCache->numGraphicsPipelines();
 
         // Draw the Src for the second time. This shouldn't create any new Pipelines since the ones
         // generated via Precompilation should be sufficient.
@@ -2481,7 +2479,7 @@ Result GraphitePrecompileTestingSink::draw(const Src& src,
             return result;
         }
 
-        SkASSERT(numBeforeSecondDraw == globalCache->numGraphicsPipelines());
+        SkASSERT_RELEASE(numBeforeSecondDraw == globalCache->numGraphicsPipelines());
     }
 
     return Result::Ok();
