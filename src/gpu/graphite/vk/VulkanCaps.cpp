@@ -1098,10 +1098,6 @@ void VulkanCaps::SupportedSampleCounts::initSampleCounts(const skgpu::VulkanInte
     if (flags & VK_SAMPLE_COUNT_1_BIT) {
         fSampleCounts.push_back(1);
     }
-    if (kImagination_VkVendor == physProps.vendorID) {
-        // MSAA does not work on imagination
-        return;
-    }
     if (kIntel_VkVendor == physProps.vendorID) {
         // MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
         return;
