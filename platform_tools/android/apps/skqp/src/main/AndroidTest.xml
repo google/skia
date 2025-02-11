@@ -10,6 +10,7 @@ found in the LICENSE file.
 <option name="config-descriptor:metadata" key="parameter" value="not_instant_app" />
 <option name="config-descriptor:metadata" key="parameter" value="multi_abi" />
 <option name="config-descriptor:metadata" key="parameter" value="secondary_user" />
+<option name="config-descriptor:metadata" key="parameter" value="secondary_user_on_secondary_display" />
 <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
 <option name="cleanup-apks" value="true" />
 <option name="test-file-name" value="CtsSkQPTestCases.apk" />
