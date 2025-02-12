@@ -59,11 +59,6 @@ skia_filegroup(
         allow_empty = False,
     ) + glob(
         [
-            "rivs/**",
-        ],
-        allow_empty = False,
-    ) + glob(
-        [
             "skottie/**",
         ],
         allow_empty = False,

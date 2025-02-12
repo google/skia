@@ -273,8 +273,6 @@ static DEFINE_string(lotties, PATH_PREFIX "lotties", "Directory to read (Bodymov
 
 static DEFINE_string(svgs, "", "Directory to read SVGs from, or a single SVG file.");
 
-static DEFINE_string(rives, "", "Directory to read RIVs from, or a single .riv file.");
-
 static DEFINE_int_2(threads, j, -1,
                "Run threadsafe tests on a threadpool with this many extra threads, "
                "defaulting to one extra thread per core.");
