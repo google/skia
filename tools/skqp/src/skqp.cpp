@@ -15,6 +15,7 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
+#include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestHarness.h"
 #include "tools/Resources.h"
@@ -125,6 +126,12 @@ void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
     ToolUtils::UsePortableFontMgr();
 
 #ifdef SK_BUILD_FOR_ANDROID
+// This is defined by the AllSkQPTestCases test module in the Android framework, which runs all
+// tests that are included in SkQP, regardless of the device's actual vendor API level (excluding
+// those marked with kNever). This is used for ensuring testing coverage, and isn't enforced in CTS.
+#ifdef SKQP_ENFORCE_ALL_INCLUDED_TESTS
+    fEnforcedAndroidAPILevel = CtsEnforcement::kNextRelease;
+#else
     // ro.vendor.api_level contains the minAPI level based on the order defined in
     // docs.partner.android.com/gms/building/integrating/extending-os-upgrade-support-windows
     //  1. board's current api level (for boards that have been upgraded by the SoC vendor)
@@ -136,7 +143,8 @@ void SkQP::init(SkQPAssetManager* assetManager, const char* reportDirectory) {
     if (strLength != 0) {
         fEnforcedAndroidAPILevel = atoi(minAPIVersionStr);
     }
-#endif
+#endif // SKQP_ENFORCE_ALL_INCLUDED_TESTS
+#endif // SK_BUILD_FOR_ANDROID
 
     SkDebugf("Gathering tests enforced for ro.vendor.api_level: %d", fEnforcedAndroidAPILevel);
     fUnitTests = get_unit_tests(fEnforcedAndroidAPILevel);

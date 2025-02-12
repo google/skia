@@ -354,8 +354,8 @@ cc_defaults {
     ],
 }
 
-cc_library_shared {
-    name: "libskqp_jni",
+cc_defaults {
+    name: "skqp_jni_defaults",
     sdk_version: "$skqp_sdk_version",
     stl: "libc++_static",
     compile_multilib: "both",
@@ -406,18 +406,41 @@ cc_library_shared {
           "libwuffs_mirror_release_c",
     ]
 }
+''')
+
+# This template is separate from the general bp template so that multiple SkQP
+# variants can be generated.
+# Note: override_android_test doesn't support the fields we would need to
+# override, so we have to live with some duplication between multiple instances
+# of android_test.
+skqp_instance_bp = string.Template('''cc_library_shared {
+    // Note: this must be included in the list of libraries that SkQP attempts
+    // to load in
+    // platform_tools/android/apps/skqp/src/main/java/org/skia/skqp/SkQP.java
+    name: "$skqp_jni_lib_name",
+    defaults: ["skqp_jni_defaults"],
+    // Appended to the list of cflags set in skqp_jni_defaults
+    cflags: [
+        $skqp_extra_cflags
+    ],
+}
 
 android_test {
-    name: "CtsSkQPTestCases",
+    // Module (and APK) name
+    name: "$skqp_name",
     team: "trendy_team_android_core_graphics_stack",
     defaults: ["cts_defaults"],
     test_suites: [
-        "general-tests",
-        "cts",
+        $skqp_test_suites
     ],
 
+    // These both override the package names set in AndroidManifest.xml (which
+    // remain there to allow building/running SkQP outside of Android framework)
+    package_name: "$skqp_package_name",
+    instrumentation_target_package: "$skqp_package_name",
+
     libs: ["android.test.runner.stubs"],
-    jni_libs: ["libskqp_jni"],
+    jni_libs: ["$skqp_jni_lib_name"],
     compile_multilib: "both",
 
     static_libs: [
@@ -425,14 +448,13 @@ android_test {
         "ctstestrunner-axt",
     ],
     manifest: "platform_tools/android/apps/skqp/src/main/AndroidManifest.xml",
-    test_config: "platform_tools/android/apps/skqp/src/main/AndroidTest.xml",
+    test_config_template: "platform_tools/android/apps/skqp/src/main/AndroidTestTemplate.xml",
 
     asset_dirs: ["platform_tools/android/apps/skqp/src/main/assets", "resources"],
     resource_dirs: ["platform_tools/android/apps/skqp/src/main/res"],
     srcs: ["platform_tools/android/apps/skqp/src/main/java/**/*.java"],
 
     sdk_version: "test_current",
-
 }
 ''')
 
@@ -783,4 +805,26 @@ with open('Android.bp', 'w') as Android_bp:
     'win_srcs':      bpfmt(10, win_srcs),
 
     'renderengine_srcs': bpfmt(8, renderengine_srcs),
+  }), file=Android_bp)
+
+  print(skqp_instance_bp.substitute({
+    'skqp_name':         'CtsSkQPTestCases',
+    'skqp_package_name': 'org.skia.skqp',
+    'skqp_jni_lib_name': 'libskqp_jni',
+    'skqp_test_suites':  bpfmt(8, ['general-tests', 'cts'], False),
+    'skqp_extra_cflags': '',
+  }), file=Android_bp)
+
+  # This duplicated SkQP test module runs all tests that are included in SkQP,
+  # regardless of the device's actual vendor API level (excluding those marked
+  # with kNever). This is used for ensuring coverage, and isn't enforced in CTS.
+  #
+  # This build is currently only maintained for soong / blueprint builds of SkQP
+  # in the Android framework itself due to staffing constraints.
+  print(skqp_instance_bp.substitute({
+    'skqp_name':         'AllSkQPTestCases',
+    'skqp_package_name': 'org.skia.skqp_alltests',
+    'skqp_jni_lib_name': 'libskqp_jni_alltests',
+    'skqp_test_suites':  bpfmt(8, ['general-tests'], False),
+    'skqp_extra_cflags': bpfmt(8, ['-DSKQP_ENFORCE_ALL_INCLUDED_TESTS'], False),
   }), file=Android_bp)
