@@ -56,7 +56,7 @@ static_assert(PNG_FILTER_AVG   == (int)SkPngEncoder::FilterFlag::kAvg,   "Skia l
 static_assert(PNG_FILTER_PAETH == (int)SkPngEncoder::FilterFlag::kPaeth, "Skia libpng filter err.");
 static_assert(PNG_ALL_FILTERS  == (int)SkPngEncoder::FilterFlag::kAll,   "Skia libpng filter err.");
 
-static constexpr bool kSuppressPngEncodeWarnings = true;
+static constexpr bool kSuppressPngEncodeWarnings = false;
 
 static void sk_error_fn(png_structp png_ptr, png_const_charp msg) {
     if (!kSuppressPngEncodeWarnings) {
@@ -320,7 +320,25 @@ bool SkPngEncoderMgr::setV0Gainmap(const SkPngEncoder::Options& options) {
         auto modifiedOptions = options;
         modifiedOptions.fGainmap = nullptr;
 
-        bool result = SkPngEncoder::Encode(&gainmapStream, *(options.fGainmap), modifiedOptions);
+        auto gainmapInfo = *(options.fGainmapInfo);
+        auto gainmapPixels = *(options.fGainmap);
+        auto targetInfo = SkPngEncoderBase::getTargetInfo(gainmapPixels.info());
+
+        if (targetInfo && targetInfo->fDstInfo.color() != SkEncodedInfo::kGray_Color &&
+            targetInfo->fDstInfo.color() != SkEncodedInfo::kGrayAlpha_Color) {
+            // Encode the alternate image colorspace directly in the gainmap profile,
+            // since the ISO gainmap payload does not contain the actual alternative
+            // image primaries.
+            const auto& gainmapColorSpace = options.fGainmapInfo->fGainmapMathColorSpace;
+            gainmapPixels.setColorSpace(gainmapColorSpace);
+        } else {
+            // Scrub the gainmap colorspace, since grayscale PNGs don't support
+            // RGB ICC profiles
+            gainmapInfo.fGainmapMathColorSpace = nullptr;
+            modifiedOptions.fGainmapInfo = &gainmapInfo;
+        }
+
+        bool result = SkPngEncoder::Encode(&gainmapStream, gainmapPixels, modifiedOptions);
         if (!result) {
             return false;
         }
