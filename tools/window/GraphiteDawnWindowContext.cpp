@@ -134,8 +134,10 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
         // Robustness impacts performance and is always disabled when running Graphite in Chrome,
         // so this keeps Skia's tests operating closer to real-use behavior.
         "disable_robustness",
+        "disable_lazy_clear_for_mapped_at_creation_buffer",
         // Must be last to correctly respond to `fUseTintIR` option.
         "use_tint_ir",
+        // DONT ADD TOGGLE AFTER TINT_IR
     };
     wgpu::DawnTogglesDescriptor togglesDesc;
     togglesDesc.enabledToggleCount =
