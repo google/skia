@@ -55,7 +55,7 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
     MaskHashArray* cachedArray = fMaskCache.find(maskKey);
     if (cachedArray) {
         for (int i = 0; i < cachedArray->size(); ++i) {
-            const MaskHashEntry& entry = (*cachedArray)[i];
+            MaskHashEntry& entry = (*cachedArray)[i];
             // We can reuse a clip mask if has the same key and our bounds is contained in it
             if (entry.fBounds.contains(iBounds)) {
                 SkIPoint topLeft = entry.fLocator.topLeft();
@@ -82,11 +82,7 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
     } else {
         MaskHashArray initialArray;
         initialArray.push_back({iBounds, locator});
-        MaskHashArray* entry = fMaskCache.set(maskKey, initialArray);
-        // Validate that we actually added an entry
-        SkASSERT_RELEASE(SkToBool(entry));
-        SkASSERT_RELEASE((*entry)[0].fBounds == iBounds &&
-                         (*entry)[0].fLocator.plotLocator() == locator.plotLocator());
+        fMaskCache.set(maskKey, initialArray);
     }
     // Add key to Plot's MaskKeyList.
     uint32_t index = fDrawAtlas->getListIndex(locator.plotLocator());
@@ -209,41 +205,20 @@ void ClipAtlasManager::evict(PlotLocator plotLocator) {
     MaskKeyList::Iter iter;
     iter.init(fKeyLists[index], MaskKeyList::Iter::kHead_IterStart);
     MaskKeyEntry* currEntry;
-    // Go through each key/bounds pair for this Plot
     while ((currEntry = iter.get())) {
         iter.next();
-        // Find the array of bounds from the list entry's key
         MaskHashArray* cachedArray = fMaskCache.find(currEntry->fKey);
-        if (cachedArray) {
-            // Remove this entry from the hashed array
-            for (int i = cachedArray->size()-1; i >=0 ; --i) {
-                const MaskHashEntry& entry = (*cachedArray)[i];
-                // Find the bounds corresponding to the list entry's bounds, and remove
-                if (entry.fBounds == currEntry->fBounds) {
-                    // Validate that this entry is for this plot
-                    SkASSERT_RELEASE(
-                            index == fDrawAtlas->getListIndex(entry.fLocator.plotLocator()));
-                    // Remove
-                    (*cachedArray).removeShuffle(i);
-                    break;
-                }
+        // Remove this entry from the hashed array
+        for (int i = cachedArray->size()-1; i >=0 ; --i) {
+            MaskHashEntry& entry = (*cachedArray)[i];
+            if (entry.fBounds == currEntry->fBounds) {
+                (*cachedArray).removeShuffle(i);
+                break;
             }
-            // If we removed the last one, remove the hash entry
-            if (cachedArray->empty()) {
-                // Validate that this hash entry is in no other list
-                for (int i = 0; i < fKeyLists.size(); ++i) {
-                    if ((uint32_t)i != index) {
-                        MaskKeyList::Iter validateIter;
-                        validateIter.init(fKeyLists[i], MaskKeyList::Iter::kHead_IterStart);
-                        MaskKeyEntry* currValidateEntry;
-                        while ((currValidateEntry = validateIter.get())) {
-                            SkASSERT_RELEASE(currValidateEntry->fKey != currEntry->fKey);
-                        }
-                    }
-                }
-                // Remove
-                fMaskCache.remove(currEntry->fKey);
-            }
+        }
+        // If we removed the last one, remove the hash entry
+        if (cachedArray->empty()) {
+            fMaskCache.remove(currEntry->fKey);
         }
         fKeyLists[index].remove(currEntry);
         delete currEntry;
