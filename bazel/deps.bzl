@@ -50,7 +50,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "dng_sdk",
         build_file = ws + "//bazel/external/dng_sdk:BUILD.bazel",
-        commit = "c8d0c9b1d16bfda56f15165d39e0ffa360a11123",
+        commit = "dbe0a676450d9b8c71bf00688bb306409b779e90",
         remote = "https://android.googlesource.com/platform/external/dng_sdk.git",
     )
 
