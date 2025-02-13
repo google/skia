@@ -16,6 +16,7 @@
 #include "src/gpu/graphite/vk/VulkanCaps.h"
 #include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
 #include "src/gpu/graphite/vk/VulkanDescriptorSet.h"
+#include "src/gpu/graphite/vk/VulkanFramebuffer.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "src/gpu/graphite/vk/VulkanResourceProvider.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
@@ -456,6 +457,23 @@ void VulkanTexture::addCachedSingleTextureDescriptorSet(sk_sp<VulkanDescriptorSe
     SkASSERT(set);
     SkASSERT(sampler);
     fCachedSingleTextureDescSets.push_back(std::make_pair(std::move(sampler), std::move(set)));
+}
+
+sk_sp<VulkanFramebuffer> VulkanTexture::getCachedFramebuffer(
+        const RenderPassDesc& renderPassDesc,
+        const VulkanTexture* msaaTexture,
+        const VulkanTexture* depthStencilTexture) const {
+    for (auto& cachedFB : fCachedFramebuffers) {
+        if (cachedFB->compatible(renderPassDesc, msaaTexture, depthStencilTexture)) {
+            return cachedFB;
+        }
+    }
+    return nullptr;
+}
+
+void VulkanTexture::addCachedFramebuffer(sk_sp<VulkanFramebuffer> fb) {
+    SkASSERT(fb);
+    fCachedFramebuffers.push_back(std::move(fb));
 }
 
 } // namespace skgpu::graphite

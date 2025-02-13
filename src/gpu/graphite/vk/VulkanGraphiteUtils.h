@@ -54,6 +54,7 @@ class SkWStream;
 namespace skgpu::graphite {
 
 class VulkanSharedContext;
+struct RenderPassDesc;
 
 VkShaderModule createVulkanShaderModule(const VulkanSharedContext*,
                                         const std::string& spirv,
@@ -67,6 +68,8 @@ void DescriptorDataToVkDescSetLayout(const VulkanSharedContext*,
 bool vkFormatIsSupported(VkFormat);
 
 VkShaderStageFlags PipelineStageFlagsToVkShaderStageFlags(SkEnumBitMask<PipelineStageFlags>);
+
+bool RenderPassDescWillLoadMSAAFromResolve(const RenderPassDesc& renderPassDesc);
 
 struct VulkanTextureSpec {
     VulkanTextureSpec()

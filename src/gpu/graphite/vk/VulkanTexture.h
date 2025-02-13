@@ -24,7 +24,9 @@ class Sampler;
 class VulkanSharedContext;
 class VulkanCommandBuffer;
 class VulkanDescriptorSet;
+class VulkanFramebuffer;
 class VulkanResourceProvider;
+struct RenderPassDesc;
 
 class VulkanTexture : public Texture {
 public:
@@ -91,6 +93,11 @@ public:
     void addCachedSingleTextureDescriptorSet(sk_sp<VulkanDescriptorSet>,
                                             sk_sp<const Sampler>) const;
 
+    sk_sp<VulkanFramebuffer> getCachedFramebuffer(const RenderPassDesc& renderPassDesc,
+                                                  const VulkanTexture* msaaTexture,
+                                                  const VulkanTexture* depthStencilTexture) const;
+    void addCachedFramebuffer(sk_sp<VulkanFramebuffer>);
+
 private:
     VulkanTexture(const VulkanSharedContext* sharedContext,
                   SkISize dimensions,
@@ -113,6 +120,8 @@ private:
 
     using CachedTextureDescSet = std::pair<sk_sp<const Sampler>, sk_sp<VulkanDescriptorSet>>;
     mutable skia_private::STArray<3, CachedTextureDescSet> fCachedSingleTextureDescSets;
+
+    skia_private::STArray<3, sk_sp<VulkanFramebuffer>> fCachedFramebuffers;
 };
 
 } // namespace skgpu::graphite

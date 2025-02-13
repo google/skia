@@ -30,6 +30,7 @@ class VulkanFramebuffer;
 class VulkanGraphicsPipeline;
 class VulkanRenderPass;
 class VulkanSharedContext;
+class VulkanTexture;
 class VulkanYcbcrConversion;
 
 class VulkanResourceProvider final : public ResourceProvider {
@@ -75,7 +76,10 @@ private:
 
     sk_sp<VulkanFramebuffer> createFramebuffer(
             const VulkanSharedContext*,
-            const skia_private::TArray<VkImageView>& attachmentViews,
+            VulkanTexture* colorTexture,
+            VulkanTexture* resolveTexture,
+            VulkanTexture* depthStencilTexture,
+            const RenderPassDesc& renderPassDesc,
             const VulkanRenderPass&,
             const int width,
             const int height);

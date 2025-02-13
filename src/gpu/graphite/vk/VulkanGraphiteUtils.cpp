@@ -13,6 +13,7 @@
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/vk/VulkanQueueManager.h"
 #include "src/gpu/graphite/vk/VulkanSampler.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
@@ -177,6 +178,11 @@ VkShaderStageFlags PipelineStageFlagsToVkShaderStageFlags(
         vkStageFlags |= VK_SHADER_STAGE_COMPUTE_BIT;
     }
     return vkStageFlags;
+}
+
+bool RenderPassDescWillLoadMSAAFromResolve(const RenderPassDesc& renderPassDesc) {
+    return renderPassDesc.fColorResolveAttachment.fTextureInfo.isValid() &&
+    renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad;
 }
 
 VulkanTextureInfo VulkanTextureSpecToTextureInfo(const VulkanTextureSpec& vkSpec,
