@@ -14,6 +14,7 @@
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/core/SkStrikeSpec.h"
+#include "src/core/SkTraceEvent.h"
 #include "src/text/StrikeForGPU.h"
 #include "src/text/gpu/Glyph.h"
 
@@ -96,6 +97,9 @@ size_t StrikeCache::internalPurge(size_t minBytesNeeded) {
     if (!countNeeded && !bytesNeeded) {
         return 0;
     }
+
+    TRACE_EVENT2_ALWAYS("skia.gpu.cache", "StrikeCache::internalPurge",
+                        "totalMemoryUsed", fTotalMemoryUsed, "cacheCount", fCacheCount);
 
     size_t  bytesFreed = 0;
     int     countFreed = 0;
