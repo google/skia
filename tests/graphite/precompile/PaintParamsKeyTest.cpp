@@ -71,6 +71,7 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/graphite/GraphiteTestContext.h"
 #include "tools/graphite/UniqueKeyUtils.h"
+#include "tools/graphite/precompile/PrecompileEffectFactories.h"
 
 // Set this to 1 for more expansive (aka far slower) local testing
 #define EXPANDED_SET 0
@@ -83,6 +84,7 @@ bool gNeedSKPPaintOption = false;
 constexpr uint32_t kDefaultSeed = 0;
 
 using namespace skgpu::graphite;
+using namespace skiatest::graphite;
 
 namespace {
 
@@ -663,28 +665,6 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_picture_shader(SkRand
     return { s, o };
 }
 
-std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_runtime_shader(SkRandom* /* rand */) {
-    static SkRuntimeEffect* sEffect = SkMakeRuntimeEffect(
-            SkRuntimeEffect::MakeForShader,
-            // draw a circle centered at "center" w/ inner and outer radii in "radii"
-            "uniform float2 center;"
-            "uniform float2 radii;"
-            "half4 main(float2 xy) {"
-                "float len = length(xy - center);"
-                "half value = len < radii.x ? 0.0 : (len > radii.y ? 0.0 : 1.0);"
-                "return half4(value);"
-            "}"
-    );
-
-    static const float kUniforms[4] = { 50.0f, 50.0f, 40.0f, 50.0f };
-
-    sk_sp<SkData> uniforms = SkData::MakeWithCopy(kUniforms, sizeof(kUniforms));
-
-    sk_sp<SkShader> s = sEffect->makeShader(std::move(uniforms), /* children= */ {});
-    sk_sp<PrecompileShader> o = PrecompileRuntimeEffects::MakePrecompileShader(sk_ref_sp(sEffect));
-    return { std::move(s), std::move(o) };
-}
-
 std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_solid_shader(
         SkRandom* rand,
         ColorConstraint constraint = ColorConstraint::kNone) {
@@ -950,7 +930,7 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>>  create_shader(SkRandom* ran
         case ShaderType::kRadialGradient:
             return create_gradient_shader(rand, SkShaderBase::GradientType::kRadial);
         case ShaderType::kRuntime:
-            return create_runtime_shader(rand);
+            return PrecompileFactories::CreateAnnulusRuntimeShader();
         case ShaderType::kSolidColor:
             return create_solid_shader(rand);
         case ShaderType::kSweepGradient:
@@ -989,62 +969,6 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_clip_shader(SkRandom*
     SkUNREACHABLE;
 }
 
-//--------------------------------------------------------------------------------------------------
-std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> src_blender() {
-    static SkRuntimeEffect* sSrcEffect = SkMakeRuntimeEffect(
-            SkRuntimeEffect::MakeForBlender,
-            "half4 main(half4 src, half4 dst) {"
-                "return src;"
-            "}"
-    );
-
-    sk_sp<SkBlender> b = sSrcEffect->makeBlender(/* uniforms= */ nullptr);
-    sk_sp<PrecompileBlender> o =
-            PrecompileRuntimeEffects::MakePrecompileBlender(sk_ref_sp(sSrcEffect));
-    return { std::move(b) , std::move(o) };
-}
-
-std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> dest_blender() {
-    static SkRuntimeEffect* sDestEffect = SkMakeRuntimeEffect(
-            SkRuntimeEffect::MakeForBlender,
-            "half4 main(half4 src, half4 dst) {"
-                "return dst;"
-            "}"
-    );
-
-    sk_sp<SkBlender> b = sDestEffect->makeBlender(/* uniforms= */ nullptr);
-    sk_sp<PrecompileBlender> o =
-            PrecompileRuntimeEffects::MakePrecompileBlender(sk_ref_sp(sDestEffect));
-    return { std::move(b) , std::move(o) };
-}
-
-
-std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> combo_blender() {
-    static SkRuntimeEffect* sComboEffect = SkMakeRuntimeEffect(
-            SkRuntimeEffect::MakeForBlender,
-            "uniform float blendFrac;"
-            "uniform blender a;"
-            "uniform blender b;"
-            "half4 main(half4 src, half4 dst) {"
-                "return (blendFrac * a.eval(src, dst)) + ((1 - blendFrac) * b.eval(src, dst));"
-            "}"
-    );
-
-    auto [src, srcO] = src_blender();
-    auto [dst, dstO] = dest_blender();
-
-    SkRuntimeEffect::ChildPtr children[] = { src, dst };
-
-    const float kUniforms[] = { 1.0f };
-
-    sk_sp<SkData> uniforms = SkData::MakeWithCopy(kUniforms, sizeof(kUniforms));
-    sk_sp<SkBlender> b = sComboEffect->makeBlender(std::move(uniforms), children);
-    sk_sp<PrecompileBlender> o = PrecompileRuntimeEffects::MakePrecompileBlender(
-            sk_ref_sp(sComboEffect),
-            { { srcO }, { dstO } });
-    return { std::move(b) , std::move(o) };
-}
-
 std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> create_bm_blender(SkRandom* rand,
                                                                         SkBlendMode bm) {
     return { SkBlender::Mode(bm), PrecompileBlenders::Mode(bm) };
@@ -1065,9 +989,9 @@ std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> create_rt_blender(SkRandom
     int option = rand->nextULessThan(3);
 
     switch (option) {
-        case 0: return src_blender();
-        case 1: return dest_blender();
-        case 2: return combo_blender();
+        case 0: return PrecompileFactories::CreateSrcRuntimeBlender();
+        case 1: return PrecompileFactories::CreateDstRuntimeBlender();
+        case 2: return PrecompileFactories::CreateComboRuntimeBlender();
     }
 
     return { nullptr, nullptr };
@@ -1097,64 +1021,16 @@ std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> create_random_blender(SkRa
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
-std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> double_colorfilter() {
-    static SkRuntimeEffect* sSrcEffect = SkMakeRuntimeEffect(
-            SkRuntimeEffect::MakeForColorFilter,
-            "half4 main(half4 c) {"
-                "return 2*c;"
-            "}"
-    );
 
-    return { sSrcEffect->makeColorFilter(/* uniforms= */ nullptr),
-             PrecompileRuntimeEffects::MakePrecompileColorFilter(sk_ref_sp(sSrcEffect)) };
-}
-
-std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> half_colorfilter() {
-    static SkRuntimeEffect* sDestEffect = SkMakeRuntimeEffect(
-            SkRuntimeEffect::MakeForColorFilter,
-            "half4 main(half4 c) {"
-                "return 0.5*c;"
-            "}"
-    );
-
-    return { sDestEffect->makeColorFilter(/* uniforms= */ nullptr),
-             PrecompileRuntimeEffects::MakePrecompileColorFilter(sk_ref_sp(sDestEffect)) };
-}
-
-std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> combo_colorfilter() {
-    static SkRuntimeEffect* sComboEffect = SkMakeRuntimeEffect(
-            SkRuntimeEffect::MakeForColorFilter,
-            "uniform float blendFrac;"
-            "uniform colorFilter a;"
-            "uniform colorFilter b;"
-            "half4 main(half4 c) {"
-                "return (blendFrac * a.eval(c)) + ((1 - blendFrac) * b.eval(c));"
-            "}"
-    );
-
-    auto [src, srcO] = double_colorfilter();
-    auto [dst, dstO] = half_colorfilter();
-
-    SkRuntimeEffect::ChildPtr children[] = { src, dst };
-
-    const float kUniforms[] = { 0.5f };
-
-    sk_sp<SkData> uniforms = SkData::MakeWithCopy(kUniforms, sizeof(kUniforms));
-    sk_sp<SkColorFilter> cf = sComboEffect->makeColorFilter(std::move(uniforms), children);
-    sk_sp<PrecompileColorFilter> o =
-            PrecompileRuntimeEffects::MakePrecompileColorFilter(sk_ref_sp(sComboEffect),
-                                                                { { srcO }, { dstO } });
-    return { std::move(cf) , std::move(o) };
-}
 
 std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> create_rt_colorfilter(
         SkRandom* rand) {
     int option = rand->nextULessThan(3);
 
     switch (option) {
-        case 0: return double_colorfilter();
-        case 1: return half_colorfilter();
-        case 2: return combo_colorfilter();
+        case 0: return PrecompileFactories::CreateDoubleRuntimeColorFilter();
+        case 1: return PrecompileFactories::CreateHalfRuntimeColorFilter();
+        case 2: return PrecompileFactories::CreateComboRuntimeColorFilter();
     }
 
     return { nullptr, nullptr };
