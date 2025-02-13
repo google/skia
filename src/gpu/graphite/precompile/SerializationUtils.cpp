@@ -188,6 +188,10 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
         return false;
     }
 
+    if (!stream->write8(static_cast<uint8_t>(renderPassDesc.fDstReadStrategyIfRequired))) {
+        return false;
+    }
+
     return true;
 }
 
@@ -235,6 +239,13 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
     if (!stream->readU32(&renderPassDesc->fSampleCount)) {
         return false;
     }
+
+    uint8_t tmp8;
+    if (!stream->readU8(&tmp8)) {
+        return false;
+    }
+
+    renderPassDesc->fDstReadStrategyIfRequired = static_cast<DstReadStrategy>(tmp8);
 
     return true;
 }
