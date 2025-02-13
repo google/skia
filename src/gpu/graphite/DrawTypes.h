@@ -175,6 +175,13 @@ enum class StencilOp : uint8_t {
 };
 static constexpr int kStencilOpCount = 1 + (int)StencilOp::kDecClamp;
 
+// These barrier types are not utilized by all backends, but we define them at this level anyhow
+// since it impacts the logic used to group & sort draws.
+enum class BarrierType : uint8_t {
+    kAdvancedNoncoherentBlend,
+    kReadDstFromInput,
+};
+
 struct DepthStencilSettings {
     // Per-face settings for stencil
     struct Face {

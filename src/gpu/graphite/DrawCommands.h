@@ -39,7 +39,8 @@ namespace DrawPassCommands {
     M(DrawInstanced)                     \
     M(DrawIndexedInstanced)              \
     M(DrawIndirect)                      \
-    M(DrawIndexedIndirect)
+    M(DrawIndexedIndirect)               \
+    M(AddBarrier)
 
 // Defines DrawPassCommands::Type, an enum of all draw command types.
 #define ENUM(T) k##T,
@@ -116,6 +117,8 @@ COMMAND(DrawIndirect,
             PrimitiveType fType);
 COMMAND(DrawIndexedIndirect,
             PrimitiveType fType);
+COMMAND(AddBarrier,
+            BarrierType fType);
 
 #undef COMMAND
 
@@ -198,6 +201,10 @@ public:
 
     void drawIndexedIndirect(PrimitiveType type) {
         this->add<DrawIndexedIndirect>(type);
+    }
+
+    void addBarrier(BarrierType type) {
+        this->add<AddBarrier>(type);
     }
 
     using Command = std::pair<Type, void*>;

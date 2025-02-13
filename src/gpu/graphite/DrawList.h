@@ -102,6 +102,10 @@ private:
                 : fRenderer(renderer)
                 , fDrawParams(transform, geometry, clip, order, stroke)
                 , fPaintParams(paint ? std::optional<PaintParams>(*paint) : std::nullopt) {}
+
+        bool readsFromDst() const {
+            return fPaintParams.has_value() ? fPaintParams.value().dstReadRequired() : false;
+        }
     };
 
     // The returned Transform reference remains valid for the lifetime of the DrawList.

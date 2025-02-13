@@ -17,11 +17,11 @@
 
 namespace skgpu::graphite {
 
+class Buffer;
 class VulkanBuffer;
 class VulkanDescriptorSet;
 class VulkanSharedContext;
 class VulkanTexture;
-class Buffer;
 
 class VulkanCommandBuffer final : public CommandBuffer {
 public:
@@ -133,6 +133,7 @@ private:
                               unsigned int baseInstance, unsigned int instanceCount);
     void drawIndirect(PrimitiveType type);
     void drawIndexedIndirect(PrimitiveType type);
+    void addBarrier(BarrierType type);
 
     // TODO: The virtuals in this class have not yet been implemented as we still haven't
     // implemented the objects they use.
@@ -166,7 +167,7 @@ private:
     bool onSynchronizeBufferToCpu(const Buffer*, bool* outDidResultInWork) override;
     bool onClearBuffer(const Buffer*, size_t offset, size_t size) override;
 
-    enum BarrierType {
+    enum PipelineBarrierType {
         kBufferMemory_BarrierType,
         kImageMemory_BarrierType
     };
@@ -174,7 +175,7 @@ private:
                          VkPipelineStageFlags srcStageMask,
                          VkPipelineStageFlags dstStageMask,
                          bool byRegion,
-                         BarrierType barrierType,
+                         PipelineBarrierType barrierType,
                          void* barrier);
     void submitPipelineBarriers(bool forSelfDependency = false);
 

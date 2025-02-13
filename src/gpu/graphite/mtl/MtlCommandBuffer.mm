@@ -444,6 +444,10 @@ void MtlCommandBuffer::addDrawPass(const DrawPass* drawPass) {
                 this->drawIndexedIndirect(draw->fType);
                 break;
             }
+            case DrawPassCommands::Type::kAddBarrier: {
+                SKGPU_LOG_E("MtlCommandBuffer does not support the addition of barriers.");
+                break;
+            }
         }
     }
 }
