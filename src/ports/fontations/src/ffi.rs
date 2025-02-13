@@ -1202,16 +1202,13 @@ fn is_subsettable(font_ref: &BridgeFontRef) -> bool {
         .unwrap_or(true)
 }
 
-// TODO(drott): Remove this once rolled to Skrifa > 0.27 and using
-// number_of_h_metrics().
-#[allow(deprecated)]
 fn is_fixed_pitch(font_ref: &BridgeFontRef) -> bool {
     font_ref
         .with_font(|f| {
             // Compare DWriteFontTypeface::onGetAdvancedMetrics().
             Some(
                 f.post().ok()?.is_fixed_pitch() != 0
-                    || f.hhea().ok()?.number_of_long_metrics() == 1,
+                    || f.hhea().ok()?.number_of_h_metrics() == 1,
             )
         })
         .unwrap_or_default()
