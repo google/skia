@@ -434,30 +434,38 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
 #endif
 #endif // defined(__EMSCRIPTEN__)
 
-    wgpu::SupportedLimits limits;
 #if defined(__EMSCRIPTEN__)
-    // TODO(crbug.com/42241199): Update Emscripten path with when webgpu.h in Emscripten is updated.
-    [[maybe_unused]] bool limitsSucceeded = backendContext.fDevice.GetLimits(&limits);
-#if (__EMSCRIPTEN_major__ > 3 || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ > 1) || \
-     (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ > 50))
-    // In Emscripten this always "fails" until
-    // https://github.com/emscripten-core/emscripten/pull/20808, which was first included in 3.1.51.
+    wgpu::SupportedLimits supportedLimits;
+    // TODO(crbug.com/42241199): Update to use wgpu::Status when webgpu.h in Emscripten is updated.
+    [[maybe_unused]] bool limitsSucceeded = backendContext.fDevice.GetLimits(&supportedLimits);
     SkASSERT(limitsSucceeded);
-#endif
+    wgpu::Limits& limits = supportedLimits.limits;
 #else
+#ifdef WGPU_BREAKING_CHANGE_FLATTEN_LIMITS
+    wgpu::Limits limits;
     wgpu::DawnTexelCopyBufferRowAlignmentLimits alignmentLimits{};
     if (backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnTexelCopyBufferRowAlignment)) {
         limits.nextInChain = &alignmentLimits;
     }
     [[maybe_unused]] wgpu::Status status = backendContext.fDevice.GetLimits(&limits);
     SkASSERT(status == wgpu::Status::Success);
-#endif
+#else
+    wgpu::SupportedLimits supportedLimits;
+    wgpu::DawnTexelCopyBufferRowAlignmentLimits alignmentLimits{};
+    if (backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnTexelCopyBufferRowAlignment)) {
+        supportedLimits.nextInChain = &alignmentLimits;
+    }
+    [[maybe_unused]] wgpu::Status status = backendContext.fDevice.GetLimits(&supportedLimits);
+    SkASSERT(status == wgpu::Status::Success);
+    wgpu::Limits& limits = supportedLimits.limits;
+#endif  // WGPU_BREAKING_CHANGE_FLATTEN_LIMITS
+#endif  // defined(__EMSCRIPTEN__)
 
-    fMaxTextureSize = limits.limits.maxTextureDimension2D;
+    fMaxTextureSize = limits.maxTextureDimension2D;
 
     fRequiredTransferBufferAlignment = 4;
-    fRequiredUniformBufferAlignment = limits.limits.minUniformBufferOffsetAlignment;
-    fRequiredStorageBufferAlignment = limits.limits.minStorageBufferOffsetAlignment;
+    fRequiredUniformBufferAlignment = limits.minUniformBufferOffsetAlignment;
+    fRequiredStorageBufferAlignment = limits.minStorageBufferOffsetAlignment;
 
     // Dawn requires 256 bytes per row alignment for buffer texture copies.
     fTextureDataRowBytesAlignment = 256;
