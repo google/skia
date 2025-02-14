@@ -325,7 +325,7 @@ SkBlurMaskFilterImpl::filterRRectToNine(const SkRRect& rrect, const SkMatrix& ma
         }
         SkAutoMaskFreeImage amf(srcM.image());
         SkMaskBuilder filterM;
-        if (!this->filterMask(&filterM, srcM, matrix, &margin)) {
+        if (!this->filterMask(&filterM, srcM, matrix, nullptr)) {
             return std::nullopt;
         }
         cache = add_cached_rrect(&filterM, sigma, fBlurStyle, smallRR);
@@ -450,11 +450,11 @@ SkBlurMaskFilterImpl::filterRectsToNine(const SkRect rects[], int count,
 
             SkAutoMaskFreeImage amf(srcM.image());
 
-            if (!this->filterMask(&filterM, srcM, matrix, &margin)) {
+            if (!this->filterMask(&filterM, srcM, matrix, nullptr)) {
                 return FilterReturn::kFalse;
             }
         } else {
-            if (!this->filterRectMask(&filterM, smallR[0], matrix, &margin,
+            if (!this->filterRectMask(&filterM, smallR[0], matrix, nullptr,
                                       SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode)) {
                 return FilterReturn::kFalse;
             }
