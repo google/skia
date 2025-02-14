@@ -2327,3 +2327,55 @@ DEF_TEST(DropShadowImageFilter_Huge, reporter) {
     surf->getCanvas()->saveLayer(nullptr, &paint);
     surf->getCanvas()->restore();
 }
+
+DEF_TEST(DisplacementImageFilter_InvalidInputs_ReturnsNullptr, reporter) {
+    sk_sp<SkImageFilter> valid(SkImageFilters::Shader(SkShaders::Color(SK_ColorGREEN)));
+    REPORTER_ASSERT(reporter, valid != nullptr);
+
+    REPORTER_ASSERT(
+            reporter,
+            nullptr == SkImageFilters::DisplacementMap(SkColorChannel::kR,
+                                                       SkColorChannel::kB,
+                                                       std::numeric_limits<float>::infinity(),
+                                                       valid,
+                                                       valid));
+
+    REPORTER_ASSERT(reporter,
+                    nullptr == SkImageFilters::DisplacementMap(static_cast<SkColorChannel>(22),
+                                                               SkColorChannel::kB,
+                                                               5.f,
+                                                               valid,
+                                                               valid));
+}
+
+DEF_TEST(ImageFilter_DrawExtremeMatrixTransform_DoesNotAssert, reporter) {
+    // Found by fuzzing
+    SkPaint p;
+    p.setDither(true);
+    p.setColor(SkColorSetARGB(255, 1, 255, 255));
+    p.setStyle(SkPaint::Style::kFill_Style);
+
+    SkRRect rr = SkRRect::MakeRectXY({5, 10, 15, 20}, 2, 2);
+
+    sk_sp<SkImageFilter> ifs[4];
+    ifs[0] = nullptr;
+    ifs[1] = SkImageFilters::Blur(SkBits2Float(0xe0e0e0e), SkBits2Float(0x10108000), nullptr);
+    SkSamplingOptions sampling(SkFilterMode::kLinear, SkMipmapMode::kLinear);
+    SkMatrix matrix = SkMatrix::MakeAll(SkBits2Float(0xfdfe0200),
+                                        SkBits2Float(0xfdfdfdfd),
+                                        SkBits2Float(0x2a0202fe),
+                                        SkBits2Float(0x2020202),
+                                        SkBits2Float(0x2020202),
+                                        SkBits2Float(0x20200202),
+                                        SkBits2Float(0x2fab0024),
+                                        SkBits2Float(0x8),
+                                        SkBits2Float(0x0));
+    ifs[2] = SkImageFilters::MatrixTransform(matrix, sampling, nullptr);
+    ifs[3] = SkImageFilters::Shader(nullptr);
+    auto merged = SkImageFilters::Merge(ifs, 4, nullptr);
+    p.setImageFilter(merged);
+
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(128, 160));
+    surface->getCanvas()->clear(SK_ColorWHITE);
+    surface->getCanvas()->drawRRect(rr, p);
+}
