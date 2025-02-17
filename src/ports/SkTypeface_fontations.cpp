@@ -684,7 +684,11 @@ protected:
             SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
             const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
             const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
-            const bool a8LCD = SkToBool(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag);
+            // See https://issues.skia.org/issues/396360753
+            // We would like Fontations anti-aliasing on a surface with unknown pixel geometry to
+            // look like the FreeType backend in order to avoid perceived regressions
+            // in sharpness, so we ignore SkScalerContext::kGenA8FromLCD_Flag in fRec.fFlags.
+            const bool a8LCD = false;
             const bool hairline = glyph.pathIsHairline();
 
             // Path offseting for subpixel positioning is not needed here,
