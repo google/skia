@@ -32,12 +32,6 @@ namespace {
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(BackendTextureTest, reporter, context,
                                    CtsEnforcement::kNextRelease) {
-    // TODO: Remove this check once Vulkan supports creating default TexutreInfo from caps and we
-    // implement createBackendTexture.
-    if (context->backend() == BackendApi::kVulkan) {
-        return;
-    }
-
     auto caps = context->priv().caps();
     auto recorder = context->makeRecorder();
 
