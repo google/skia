@@ -2264,6 +2264,8 @@ if (skia_enable_tools) {
       }
       if (skia_enable_precompile) {
         sources += [
+          "tools/graphite/precompile/PipelineCallbackHandler.cpp",
+          "tools/graphite/precompile/PipelineCallbackHandler.h",
           "tools/graphite/precompile/PrecompileEffectFactories.cpp",
           "tools/graphite/precompile/PrecompileEffectFactories.h",
         ]
