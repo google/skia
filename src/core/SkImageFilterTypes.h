@@ -523,7 +523,7 @@ public:
     }
 
     bool invert(LayerSpace<SkMatrix>* inverse) const {
-        return fData.invert(&inverse->fData);
+        return fData.invert(inverse ? &inverse->fData : nullptr);
     }
 
     // Transforms 'r' by the inverse of this matrix if it is invertible and stores it in 'out'.

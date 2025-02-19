@@ -20,6 +20,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
@@ -42,12 +43,16 @@ class SkDisplacementMapImageFilter final : public SkImageFilter_Base {
     static constexpr SkSamplingOptions kDisplacementSampling{SkFilterMode::kNearest};
 
 public:
-    SkDisplacementMapImageFilter(SkColorChannel xChannel, SkColorChannel yChannel,
-                                 SkScalar scale, sk_sp<SkImageFilter> inputs[2])
+    SkDisplacementMapImageFilter(SkColorChannel xChannel,
+                                 SkColorChannel yChannel,
+                                 SkScalar scale,
+                                 sk_sp<SkImageFilter> inputs[2])
             : SkImageFilter_Base(inputs, 2)
             , fXChannel(xChannel)
             , fYChannel(yChannel)
-            , fScale(scale) {}
+            , fScale(scale) {
+        SkASSERT(SkIsFinite(fScale));
+    }
 
     SkRect computeFastBounds(const SkRect& src) const override;
 
@@ -146,6 +151,9 @@ sk_sp<SkImageFilter> SkImageFilters::DisplacementMap(
         sk_sp<SkImageFilter> displacement, sk_sp<SkImageFilter> color, const CropRect& cropRect) {
     if (!channel_selector_type_is_valid(xChannelSelector) ||
         !channel_selector_type_is_valid(yChannelSelector)) {
+        return nullptr;
+    }
+    if (!SkIsFinite(scale)) {
         return nullptr;
     }
 
