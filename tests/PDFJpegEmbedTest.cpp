@@ -17,7 +17,6 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
-#include "include/docs/SkPDFJpegHelpers.h"
 #include "include/private/SkEncodedInfo.h"
 #include "src/codec/SkCodecPriv.h"
 #include "tests/Test.h"
@@ -72,7 +71,7 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
     }
     ////////////////////////////////////////////////////////////////////////////
     SkDynamicMemoryWStream pdf;
-    auto document = SkPDF::MakeDocument(&pdf, SkPDF::JPEG::MetadataWithCallbacks());
+    auto document = SkPDF::MakeDocument(&pdf);
     SkCanvas* canvas = document->beginPage(642, 2048);
 
     canvas->clear(SK_ColorLTGRAY);

@@ -6,14 +6,13 @@
  */
 #include "include/core/SkTypes.h"
 
-#if defined(SK_SUPPORT_PDF)
+#ifdef SK_SUPPORT_PDF
 #include "include/core/SkData.h"
 #include "include/core/SkDocument.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/docs/SkPDFDocument.h"
-#include "include/docs/SkPDFJpegHelpers.h"
 #include "src/pdf/SkPDFUtils.h"
 #include "tests/Test.h"
 
@@ -32,8 +31,6 @@ DEF_TEST(SkPDF_Metadata, r) {
     metadata.fCreator = "A5";
     metadata.fCreation = now;
     metadata.fModified = now;
-    metadata.jpegDecoder = SkPDF::JPEG::Decode;
-    metadata.jpegEncoder = SkPDF::JPEG::Encode;
 
     SkDynamicMemoryWStream pdf;
     auto doc = SkPDF::MakeDocument(&pdf, metadata);

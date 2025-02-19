@@ -8,6 +8,7 @@
 #include "src/pdf/SkPDFDevice.h"
 
 #include "include/codec/SkCodec.h"
+#include "include/codec/SkJpegDecoder.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
@@ -41,6 +42,7 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
+#include "include/encode/SkJpegEncoder.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTemplates.h"
@@ -141,26 +143,24 @@ void SkPDFDevice::MarkedContentManager::accumulate(const SkPoint& p) {
 }
 
 // This function destroys the mask and either frees or takes the pixels.
-sk_sp<SkImage> mask_to_greyscale_image(SkMaskBuilder* mask, SkPDFDocument* doc) {
+sk_sp<SkImage> mask_to_greyscale_image(SkMaskBuilder* mask) {
     sk_sp<SkImage> img;
     SkPixmap pm(SkImageInfo::Make(mask->fBounds.width(), mask->fBounds.height(),
                                   kGray_8_SkColorType, kOpaque_SkAlphaType),
                 mask->fImage, mask->fRowBytes);
-    constexpr int imgQuality = SK_PDF_MASK_QUALITY;
-    if constexpr (imgQuality <= 100 && imgQuality >= 0) {
-        SkPDF::EncodeJpegCallback encodeJPEG = doc->metadata().jpegEncoder;
-        SkPDF::DecodeJpegCallback decodeJPEG = doc->metadata().jpegDecoder;
-        if (encodeJPEG && decodeJPEG) {
-            SkDynamicMemoryWStream buffer;
-            // By encoding this into jpeg, it be embedded efficiently during drawImage.
-            if (encodeJPEG(&buffer, pm, imgQuality)) {
-                std::unique_ptr<SkCodec> codec = decodeJPEG(buffer.detachAsData());
-                SkASSERT(codec);
-                img = SkCodecs::DeferredImage(std::move(codec));
-                SkASSERT(img);
-                if (img) {
-                    SkMaskBuilder::FreeImage(mask->image());
-                }
+    const int imgQuality = SK_PDF_MASK_QUALITY;
+    if (imgQuality <= 100 && imgQuality >= 0) {
+        SkDynamicMemoryWStream buffer;
+        SkJpegEncoder::Options jpegOptions;
+        jpegOptions.fQuality = imgQuality;
+        // By encoding this into jpeg, it be embedded efficiently during drawImage.
+        if (SkJpegEncoder::Encode(&buffer, pm, jpegOptions)) {
+            std::unique_ptr<SkCodec> codec = SkJpegDecoder::Decode(buffer.detachAsData(), nullptr);
+            SkASSERT(codec);
+            img = SkCodecs::DeferredImage(std::move(codec));
+            SkASSERT(img);
+            if (img) {
+                SkMaskBuilder::FreeImage(mask->image());
             }
         }
     }
@@ -580,7 +580,7 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
         return;
     }
     SkIRect dstMaskBounds = dstMask.fBounds;
-    sk_sp<SkImage> mask = mask_to_greyscale_image(&dstMask, fDocument);
+    sk_sp<SkImage> mask = mask_to_greyscale_image(&dstMask);
     // PDF doesn't seem to allow masking vector graphics with an Image XObject.
     // Must mask with a Form XObject.
     sk_sp<SkPDFDevice> maskDevice = this->makeCongruentDevice();

@@ -24,7 +24,6 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkVertices.h"
 #include "include/docs/SkPDFDocument.h"
-#include "include/docs/SkPDFJpegHelpers.h"
 #include "include/effects/Sk1DPathEffect.h"
 #include "include/effects/Sk2DPathEffect.h"
 #include "include/effects/SkCornerPathEffect.h"
@@ -1674,7 +1673,7 @@ DEF_FUZZ(NativeGLCanvas, fuzz) {
 
 DEF_FUZZ(PDFCanvas, fuzz) {
     SkNullWStream stream;
-    auto doc = SkPDF::MakeDocument(&stream, SkPDF::JPEG::MetadataWithCallbacks());
+    auto doc = SkPDF::MakeDocument(&stream);
     fuzz_canvas(fuzz, doc->beginPage(SkIntToScalar(kCanvasSize.width()),
                                      SkIntToScalar(kCanvasSize.height())));
 }

@@ -28,7 +28,6 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
-#include "include/docs/SkPDFJpegHelpers.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/effects/SkPerlinNoiseShader.h"
 #include "include/private/base/SkDebug.h"
@@ -105,7 +104,7 @@ static void assert_emit_eq(skiatest::Reporter* reporter,
 // and there is no assert on input data in Debug mode.
 static void test_issue1083() {
     SkDynamicMemoryWStream outStream;
-    auto doc = SkPDF::MakeDocument(&outStream, SkPDF::JPEG::MetadataWithCallbacks());
+    auto doc = SkPDF::MakeDocument(&outStream);
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
 
     uint16_t glyphID = 65000;
@@ -316,7 +315,7 @@ private:
 DEF_TEST(SkPDF_ImageFilter, reporter) {
     REQUIRE_PDF_DOCUMENT(SkPDF_ImageFilter, reporter);
     SkDynamicMemoryWStream stream;
-    auto doc = SkPDF::MakeDocument(&stream, SkPDF::JPEG::MetadataWithCallbacks());
+    auto doc = SkPDF::MakeDocument(&stream);
     SkCanvas* canvas = doc->beginPage(100.0f, 100.0f);
 
     sk_sp<TestImageFilter> filter(new TestImageFilter());
@@ -472,7 +471,7 @@ DEF_TEST(SkPDF_Clusterator, reporter) {
 
 DEF_TEST(fuzz875632f0, reporter) {
     SkNullWStream stream;
-    auto doc = SkPDF::MakeDocument(&stream, SkPDF::JPEG::MetadataWithCallbacks());
+    auto doc = SkPDF::MakeDocument(&stream);
     REPORTER_ASSERT(reporter, doc);
     SkCanvas* canvas = doc->beginPage(128, 160);
 

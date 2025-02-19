@@ -350,8 +350,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/pdf:_pdf_hdrs",
 				"//src/pdf:_pdf_srcs",
 			}},
-		{Var: "skia_pdf_jpeg_public",
-			Rules: []string{"//include/docs:pdf_jpeg_hdrs"}},
 	}},
 	{GNI: "gn/sksl.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_sksl_core_sources",
