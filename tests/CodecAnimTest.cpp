@@ -345,6 +345,16 @@ DEF_TEST(Codec_frames, r) {
                           rec.fName, rec.fRepetitionCount, repetitionCount);
             }
 
+            // When decoding the full, non-partial input, `isAnimated()` will
+            // just be a proxy for "is there just a single frame?".
+            const SkCodec::IsAnimated expectedIsAnimated =
+                    rec.fFrameCount == 1 ? SkCodec::IsAnimated::kNo : SkCodec::IsAnimated::kYes;
+            const SkCodec::IsAnimated actualIsAnimated = codec->isAnimated();
+            if (expectedIsAnimated != actualIsAnimated) {
+                ERRORF(r, "%s isAnimated does not match! expected: %i\tactual: %i", rec.fName,
+                       static_cast<int>(expectedIsAnimated), static_cast<int>(actualIsAnimated));
+            }
+
             // From here on, we are only concerned with animated images.
             if (1 == frameCount) {
                 continue;

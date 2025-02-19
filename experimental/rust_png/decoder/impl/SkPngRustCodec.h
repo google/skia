@@ -110,6 +110,7 @@ private:
     int onGetFrameCount() override;
     bool onGetFrameInfo(int, FrameInfo*) const override;
     int onGetRepetitionCount() override;
+    IsAnimated onIsAnimated() override;
     const SkFrameHolder* getFrameHolder() const override;
     std::unique_ptr<SkStream> getEncodedData() const override;
 

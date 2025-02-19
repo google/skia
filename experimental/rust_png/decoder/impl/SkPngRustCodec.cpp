@@ -758,6 +758,13 @@ int SkPngRustCodec::onGetRepetitionCount() {
     return numPlays - 1;
 }
 
+SkCodec::IsAnimated SkPngRustCodec::onIsAnimated() {
+    if (fReader->has_actl_chunk() && fReader->get_actl_num_frames() > 1) {
+        return IsAnimated::kYes;
+    }
+    return IsAnimated::kNo;
+}
+
 std::optional<SkSpan<const SkPngCodecBase::PaletteColorEntry>> SkPngRustCodec::onTryGetPlteChunk() {
     if (fReader->output_color_type() != rust_png::ColorType::Indexed) {
         return std::nullopt;

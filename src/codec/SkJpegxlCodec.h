@@ -75,6 +75,7 @@ protected:
     bool onGetFrameInfo(int, FrameInfo*) const override;
 
     int onGetRepetitionCount() override;
+    IsAnimated onIsAnimated() override;
 
 private:
     const SkFrameHolder* getFrameHolder() const override;

@@ -441,6 +441,11 @@ int SkJpegxlCodec::onGetRepetitionCount() {
     return std::numeric_limits<int>::max();
 }
 
+SkCodec::IsAnimated SkJpegxlCodec::onIsAnimated() {
+    JxlBasicInfo& info = fCodec->fInfo;
+    return info.have_animation ? IsAnimated::kYes : IsAnimated::kNo;
+}
+
 const SkFrameHolder* SkJpegxlCodec::getFrameHolder() const {
     return fCodec.get();
 }
