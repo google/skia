@@ -9,7 +9,6 @@
 
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkEncodedOrigin.h"
-#include "include/codec/SkJpegDecoder.h"
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
@@ -25,7 +24,6 @@
 #include "include/core/SkStream.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/encode/SkICC.h"
-#include "include/encode/SkJpegEncoder.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkMutex.h"
@@ -281,7 +279,11 @@ void do_deflated_image(const SkPixmap& pm,
 
 bool do_jpeg(sk_sp<SkData> data, SkColorSpace* imageColorSpace, SkPDFDocument* doc, SkISize size,
              SkPDFIndirectReference ref) {
-    std::unique_ptr<SkCodec> codec = SkJpegDecoder::Decode(data, nullptr);
+    SkPDF::DecodeJpegCallback decodeJPEG = doc->metadata().jpegDecoder;
+    if (!decodeJPEG) {
+        return false;
+    }
+    std::unique_ptr<SkCodec> codec = decodeJPEG(data);
     if (!codec) {
         return false;
     }
@@ -368,12 +370,12 @@ void serialize_image(const SkImage* img,
     }
     SkBitmap bm = to_pixels(img);
     const SkPixmap& pm = bm.pixmap();
+    SkPDF::EncodeJpegCallback encodeJPEG = doc->metadata().jpegEncoder;
+
     bool isOpaque = pm.isOpaque() || pm.computeIsOpaque();
-    if (encodingQuality <= 100 && isOpaque) {
-        SkJpegEncoder::Options jOpts;
-        jOpts.fQuality = encodingQuality;
+    if (encodeJPEG && encodingQuality <= 100 && isOpaque) {
         SkDynamicMemoryWStream stream;
-        if (SkJpegEncoder::Encode(&stream, pm, jOpts)) {
+        if (encodeJPEG(&stream, pm, encodingQuality)) {
             if (do_jpeg(stream.detachAsData(), pm.colorSpace(), doc, dimensions, ref)) {
                 return;
             }

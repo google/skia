@@ -15,11 +15,12 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
+#include "include/docs/SkPDFJpegHelpers.h"
 #include "include/private/base/SkCPUTypes.h"
 #include "tests/Test.h"
 
 static void run_test(SkWStream* out, SkBlendMode mode, U8CPU alpha) {
-    auto pdfDoc = SkPDF::MakeDocument(out);
+    auto pdfDoc = SkPDF::MakeDocument(out, SkPDF::JPEG::MetadataWithCallbacks());
     SkCanvas* c = pdfDoc->beginPage(612.0f, 792.0f);
     SkPaint black;
     SkPaint background;

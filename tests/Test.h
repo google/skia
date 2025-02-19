@@ -483,14 +483,14 @@ using skiatest::Test;
                                  nullptr,                              \
                                  CtsEnforcement::kNever)
 
-#define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                          \
-    do {                                                                   \
-        SkNullWStream testStream;                                          \
-        auto testDoc = SkPDF::MakeDocument(&testStream);                   \
-        if (!testDoc) {                                                    \
-            INFOF(REPORTER, "PDF disabled; %s test skipped.", #TEST_NAME); \
-            return;                                                        \
-        }                                                                  \
+#define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                                               \
+    do {                                                                                        \
+        SkNullWStream testStream;                                                               \
+        auto testDoc = SkPDF::MakeDocument(&testStream, SkPDF::JPEG::MetadataWithCallbacks());  \
+        if (!testDoc) {                                                                         \
+            INFOF(REPORTER, "PDF disabled; %s test skipped.", #TEST_NAME);                      \
+            return;                                                                             \
+        }                                                                                       \
     } while (false)
 
 #endif

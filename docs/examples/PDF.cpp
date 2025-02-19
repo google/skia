@@ -15,6 +15,9 @@ void WritePDF(SkWStream* outputStream,
     metadata.fCreator = "Example WritePDF() Function";
     metadata.fCreation = {0, 2019, 1, 4, 31, 12, 34, 56};
     metadata.fModified = {0, 2019, 1, 4, 31, 12, 34, 56};
+    // See also SkPDF::JPEG::MetadataWithCallbacks()
+    metadata.jpegDecoder = SkPDF::JPEG::Decode;
+    metadata.jpegEncoder = SkPDF::JPEG::Encode;
     auto pdfDocument = SkPDF::MakeDocument(outputStream, metadata);
     SkASSERT(pdfDocument);
     for (int page = 0; page < numberOfPages; ++page) {

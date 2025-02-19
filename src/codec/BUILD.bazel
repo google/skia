@@ -54,6 +54,7 @@ skia_cc_library(
     visibility = [
         "//experimental/rust_png:__subpackages__",
         "//src/encode:__pkg__",
+        "//src/pdf:__pkg__",
         "//src/ports:__pkg__",
     ],
     deps = [
@@ -91,6 +92,7 @@ skia_cc_library(
         "//modules/skottie/src:__pkg__",
         "//modules/skresources:__pkg__",
         "//src/android:__pkg__",
+        "//src/pdf:__pkg__",
         "//tools:__pkg__",
     ],
     deps = [

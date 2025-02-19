@@ -16,9 +16,12 @@
 #include <vector>
 
 class SkCanvas;
+class SkCodec;
+class SkData;
 class SkExecutor;
 class SkPDFArray;
 class SkPDFStructTree;
+class SkPixmap;
 class SkWStream;
 
 #define SKPDF_STRING(X) SKPDF_STRING_IMPL(X)
@@ -79,6 +82,9 @@ struct DateTime {
 
     void toISO8601(SkString* dst) const;
 };
+
+using DecodeJpegCallback = std::unique_ptr<SkCodec> (*)(sk_sp<SkData>);
+using EncodeJpegCallback = bool (*)(SkWStream* dst, const SkPixmap& src, int quality);
 
 /** Optional metadata to be passed into the PDF factory function.
 */
@@ -186,6 +192,30 @@ struct Metadata {
     enum Subsetter {
         kHarfbuzz_Subsetter,
     } fSubsetter = kHarfbuzz_Subsetter;
+
+    /** Clients can provide a way to decode jpeg. To use Skia's JPEG decoder, pass in
+        SkJpegDecoder::Decode. If not supplied, all images will need to be re-encoded
+        as jpegs or deflated images before embedding. If supplied, Skia may be able to
+        skip the re-encoding step.
+        Skia's JPEG decoder can be used here.
+    */
+    SkPDF::DecodeJpegCallback jpegDecoder = nullptr;
+
+    /** Clients can provide a way to encode jpeg. If not supplied, images will be embedded
+        as a deflated image, potentially making them much larger. If clients provide
+        their own implementation, JPEGs should be encoded to RGB (not YUV) otherwise they
+        will have the wrong surrounding metadata provided by Skia.
+        Skia's JPEG encoder can be used here.
+    */
+    SkPDF::EncodeJpegCallback jpegEncoder = nullptr;
+
+    // Skia's PDF support depends on having both a jpeg encoder and decoder for writing
+    // compact PDFs. It will technically work, but produce larger than optimal PDFs
+    // if either the decoder or encoder are left as nullptr. If clients will be creating
+    // PDFs that don't use images or otherwise want to incur this cost (with the upside
+    // of not having a jpeg library), they should set this to true to avoid an internal
+    // assert from firing.
+    bool allowNoJpegs = false;
 };
 
 /** Associate a node ID with subsequent drawing commands in an
@@ -207,15 +237,17 @@ SK_API void SetNodeId(SkCanvas* dst, int nodeID);
     @param stream A PDF document will be written to this stream.  The document may write
            to the stream at anytime during its lifetime, until either close() is
            called or the document is deleted.
-    @param metadata a PDFmetadata object.  Any fields may be left empty.
+    @param metadata a PDFmetadata object. Some fields may be left empty.
 
     @returns NULL if there is an error, otherwise a newly created PDF-backed SkDocument.
 */
 SK_API sk_sp<SkDocument> MakeDocument(SkWStream* stream, const Metadata& metadata);
 
+#if !defined(SK_DISABLE_LEGACY_PDF_JPEG)
 static inline sk_sp<SkDocument> MakeDocument(SkWStream* stream) {
     return MakeDocument(stream, Metadata());
 }
+#endif
 
 }  // namespace SkPDF
 

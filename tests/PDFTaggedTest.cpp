@@ -20,6 +20,7 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/docs/SkPDFDocument.h"
+#include "include/docs/SkPDFJpegHelpers.h"
 #include "src/pdf/SkPDFUtils.h"
 #include "tests/Test.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -51,6 +52,8 @@ DEF_TEST(SkPDF_tagged_doc, r) {
     SkPDFUtils::GetDateTime(&now);
     metadata.fCreation = now;
     metadata.fModified = now;
+    metadata.jpegDecoder = SkPDF::JPEG::Decode;
+    metadata.jpegEncoder = SkPDF::JPEG::Encode;
 
     // The document tag.
     auto root = std::make_unique<PDFTag>();

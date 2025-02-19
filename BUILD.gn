@@ -1268,10 +1268,17 @@ optional("pdf") {
     deps += [ "//third_party/harfbuzz" ]
     defines = [ "SK_PDF_USE_HARFBUZZ_SUBSET" ]
   }
-  deps += [
+}
+
+optional("pdf_jpeg_helpers") {
+  enabled = skia_use_zlib && skia_enable_pdf && skia_use_libjpeg_turbo_decode &&
+            skia_use_libjpeg_turbo_encode
+  deps = [
     ":jpeg_decode",
     ":jpeg_encode",
+    ":pdf",
   ]
+  public = skia_pdf_jpeg_public
 }
 
 optional("xps") {
@@ -1621,6 +1628,7 @@ skia_component("skia") {
     ":graphite",
     ":jpeg_encode",
     ":pdf",
+    ":pdf_jpeg_helpers",
     ":png_encode",
     ":webp_encode",
     ":xps",
