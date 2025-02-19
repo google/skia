@@ -68,6 +68,9 @@ public:
     static constexpr int kMaxRenderSteps = 4096;
     static_assert(kMaxRenderSteps <= std::numeric_limits<uint16_t>::max());
 
+    // Add a construtor to prevent default zero initialization of SkTBlockList members' storage.
+    DrawList() {}
+
     // DrawList requires that all Transforms be valid and asserts as much; invalid transforms should
     // be detected at the Device level or similar. The provided Renderer must be compatible with the
     // 'shape' and 'stroke' parameters. If the renderer uses coverage AA, 'ordering' must have a
