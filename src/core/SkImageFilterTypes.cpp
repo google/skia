@@ -1073,10 +1073,6 @@ FilterResult FilterResult::applyTransform(const Context& ctx,
         return {};
     }
 
-    if (!transform.invert(nullptr)) {
-        return {};
-    }
-
     // Extract the sampling options that matter based on the current and next transforms.
     // We make sure the new sampling is bilerp (default) if the new transform doesn't matter
     // (and assert that the current is bilerp if its transform didn't matter). Bilerp can be
