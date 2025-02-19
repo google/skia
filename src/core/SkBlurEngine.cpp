@@ -769,9 +769,12 @@ public:
 
         PassMaker* makerX = makeMaker(sigma.width());
         PassMaker* makerY = makeMaker(sigma.height());
+
+#if !defined(SK_AVOID_SLOW_RASTER_PIPELINE_BLURS)
         // A blur with a sigma smaller than the successive box-blurs accuracy should have been
         // routed to the shader-based algorithm.
         SkASSERT(makerX->window() > 1 || makerY->window() > 1);
+#endif
 
         SkIRect srcBounds = originalSrcBounds;
         SkIRect dstBounds = originalDstBounds;
@@ -860,6 +863,15 @@ public:
             }
         }
 
+#if defined(SK_AVOID_SLOW_RASTER_PIPELINE_BLURS)
+        // When avoiding the shader-based algorithm, handle the box identity case.
+        if (makerX->window() == 1 && makerY->window() == 1) {
+            dst.writePixels(src.pixmap(),
+                            srcBounds.left() - dstBounds.left(),
+                            srcBounds.top()  - dstBounds.top());
+        }
+#endif
+
         dstBounds = originalDstBounds.makeOffset(-dstOrigin); // Make relative to dst's pixels
         return SkSpecialImages::MakeFromRaster(dstBounds, dst, SkSurfaceProps{});
     }
@@ -879,11 +891,17 @@ public:
 class RasterBlurEngine : public SkBlurEngine {
 public:
     const Algorithm* findAlgorithm(SkSize sigma,  SkColorType colorType) const override {
+#if defined(SK_AVOID_SLOW_RASTER_PIPELINE_BLURS)
+        // For large source images, the shader-based blur can be prohibitively slow so setting this
+        // to zero means it'll never be used for 8888 color types.
+        static constexpr float kBoxBlurMinSigma = 0.f;
+#else
         static constexpr float kBoxBlurMinSigma = 2.f;
 
         // If the sigma is larger than kBoxBlurMinSigma, we should assume that we won't encounter
         // an identity window assertion later on.
         SkASSERT(SkBlurEngine::BoxBlurWindow(kBoxBlurMinSigma) > 1);
+#endif
 
         // Using the shader-based blur for small blur sigmas only happens if both axes require a
         // small blur. It's assumed that any inaccuracy along one axis is hidden by the large enough
