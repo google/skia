@@ -897,6 +897,9 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			// ChOps-owned machines have Windows 10 22H2.
 			d["os"] = "Windows-10-19045"
 		}
+		if strings.Contains(os, "iOS") {
+			d["pool"] = "SkiaIOS"
+		}
 		if b.parts["model"] == "iPadPro" {
 			d["os"] = "iOS-13.6"
 		}
