@@ -430,10 +430,17 @@ struct RuntimeEffectBlock {
         sk_sp<const SkData>          fUniforms;
     };
 
-    static void BeginBlock(const KeyContext&,
+    // On a false return, no block has been started
+    static bool BeginBlock(const KeyContext&,
                            PaintParamsKeyBuilder*,
                            PipelineDataGatherer*,
                            const ShaderData&);
+
+    // Add a no-op placeholder for an incorrect runtime effect
+    static void AddNoOpEffect(const KeyContext&,
+                              PaintParamsKeyBuilder*,
+                              PipelineDataGatherer*,
+                              SkRuntimeEffect*);
 };
 
 void AddToKey(const KeyContext&,

@@ -121,7 +121,10 @@ private:
 
         SkSpan<const SkRuntimeEffect::Child> childInfo = fEffect->children();
 
-        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { fEffect });
+        if (!RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { fEffect })) {
+            RuntimeEffectBlock::AddNoOpEffect(keyContext, builder, gatherer, fEffect.get());
+            return;
+        }
 
         KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
 
