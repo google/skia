@@ -70,6 +70,8 @@ bool PrecompileContext::precompile(sk_sp<SkData> serializedPipelineKey) {
         return false;
     }
 
+    SkASSERT(rtEffectDict->empty());
+
     return true;
 #else
     return false;

@@ -125,10 +125,12 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
         return false;
     }
 
-    if (!stream->write32(SkSetFourByteTag(static_cast<uint8_t>(attachmentDesc.fStoreOp),
-                                          static_cast<uint8_t>(attachmentDesc.fLoadOp),
-                                          0, 0))) {
-        return false;
+    if (attachmentDesc.fTextureInfo.isValid()) {
+        if (!stream->write32(SkSetFourByteTag(static_cast<uint8_t>(attachmentDesc.fStoreOp),
+                                              static_cast<uint8_t>(attachmentDesc.fLoadOp),
+                                              0, 0))) {
+            return false;
+        }
     }
 
     return true;
@@ -141,13 +143,16 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
         return false;
     }
 
-    uint32_t tag;
-    if (!stream->readU32(&tag)) {
-        return false;
+    if (attachmentDesc->fTextureInfo.isValid()) {
+        uint32_t tag;
+        if (!stream->readU32(&tag)) {
+            return false;
+        }
+
+        attachmentDesc->fStoreOp = static_cast<StoreOp>(0xF & (tag >> 24));
+        attachmentDesc->fLoadOp  = static_cast<LoadOp> (0xF & (tag >> 16));
     }
 
-    attachmentDesc->fStoreOp = static_cast<StoreOp>(0xF & (tag >> 24));
-    attachmentDesc->fLoadOp  = static_cast<LoadOp> (0xF & (tag >> 16));
     return true;
 }
 

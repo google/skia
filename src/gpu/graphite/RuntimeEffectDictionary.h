@@ -30,6 +30,8 @@ public:
 
     void reset() { fDict.reset(); }
 
+    bool empty() const { return fDict.empty(); }
+
 private:
     skia_private::THashMap<int, sk_sp<const SkRuntimeEffect>> fDict;
 };
