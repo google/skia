@@ -19,10 +19,14 @@ namespace PrecompileColorFiltersPriv {
     // These three factories match those in src/core/SkColorFilterPriv.h
     sk_sp<PrecompileColorFilter> Gaussian();
 
-    sk_sp<PrecompileColorFilter> ColorSpaceXform();
+    sk_sp<PrecompileColorFilter> ColorSpaceXform(SkSpan<const sk_sp<SkColorSpace>> src,
+                                                 SkSpan<const sk_sp<SkColorSpace>> dst);
 
     sk_sp<PrecompileColorFilter> WithWorkingFormat(
-            SkSpan<const sk_sp<PrecompileColorFilter>> childOptions);
+            SkSpan<const sk_sp<PrecompileColorFilter>> childOptions,
+            const skcms_TransferFunction* tf,
+            const skcms_Matrix3x3* gamut,
+            const SkAlphaType* at);
 
 } // namespace PrecompileColorFiltersPriv
 

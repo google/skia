@@ -23,9 +23,10 @@ class PrecompileContext;
  *  a pipeline.
  */
 struct SK_API RenderPassProperties {
-    DepthStencilFlags fDSFlags      = DepthStencilFlags::kNone;
-    SkColorType       fDstCT        = kRGBA_8888_SkColorType;
-    bool              fRequiresMSAA = false;
+    DepthStencilFlags   fDSFlags      = DepthStencilFlags::kNone;
+    SkColorType         fDstCT        = kRGBA_8888_SkColorType;
+    sk_sp<SkColorSpace> fDstCS        = nullptr;
+    bool                fRequiresMSAA = false;
 };
 
 /**
