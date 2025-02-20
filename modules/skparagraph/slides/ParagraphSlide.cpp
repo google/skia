@@ -4362,6 +4362,46 @@ public:
     }
 };
 
+class ParagraphHangingWhitespaces : public ParagraphSlide_Base {
+public:
+    ParagraphHangingWhitespaces() { fName = "ParagraphHangingWhitespaces"; }
+    void draw(SkCanvas* canvas) override {
+
+        SkPaint cursor;
+        cursor.setColor(SK_ColorRED);
+        cursor.setStyle(SkPaint::kStroke_Style);
+        cursor.setAntiAlias(true);
+        cursor.setStrokeWidth(2);
+
+        canvas->drawColor(SK_ColorWHITE);
+        auto fontCollection = sk_make_sp<FontCollection>();
+        fontCollection->setDefaultFontManager(ToolUtils::TestFontMgr(), std::vector<SkString>());
+        fontCollection->enableFontFallback();
+        TextStyle text_style;
+        text_style.setFontFamilies({SkString("Roboto")});
+        text_style.setFontSize(20);
+        text_style.setColor(SK_ColorBLACK);
+        text_style.setBackgroundColor(SkPaint(SkColors::kLtGray));
+        ParagraphStyle paragraph_style;
+        paragraph_style.setTextStyle(text_style);
+
+        ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+        builder.pushStyle(text_style);
+        builder.addText("Text with 3 'hanging' whitespaces at the end.   ");
+        auto paragraph = builder.Build();
+        paragraph->layout(this->size().width());
+        paragraph->paint(canvas, 0, 0);
+        canvas->drawLine(paragraph->getLongestLine(), 0, paragraph->getLongestLine(), paragraph->getHeight(), cursor);
+
+        canvas->translate(0, paragraph->getHeight() + 50);
+
+        auto impl = static_cast<ParagraphImpl*>(paragraph.get());
+        auto extraWidth = impl->widthWithTrailingSpaces() - paragraph->getLongestLine();
+        paragraph->paint(canvas, 0, 0);
+        canvas->drawLine(paragraph->getLongestLine() + extraWidth, 0, paragraph->getLongestLine() + extraWidth, paragraph->getHeight(), cursor);
+    }
+};
+
 class ParagraphSlideLast : public ParagraphSlide_Base {
 public:
     ParagraphSlideLast() { fName = "ParagraphSlideLast"; }
@@ -4479,4 +4519,5 @@ DEF_SLIDE(return new ParagraphSlideGlyphs();)
 DEF_SLIDE(return new ParagraphSlideEllipsisInRTL();)
 DEF_SLIDE(return new ParagraphSlideEmojiSequence();)
 DEF_SLIDE(return new ParagraphSlideWordSpacing();)
+DEF_SLIDE(return new ParagraphHangingWhitespaces();)
 DEF_SLIDE(return new ParagraphSlideLast();)
