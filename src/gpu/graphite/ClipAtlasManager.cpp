@@ -51,23 +51,22 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
                                                         SkIRect iBounds,
                                                         SkIPoint* outPos) {
     skgpu::UniqueKey maskKey = GenerateClipMaskKey(stackRecordID, elementList);
-
-    MaskHashArray* cachedArray = fMaskCache.find(maskKey);
-    if (cachedArray) {
-        for (int i = 0; i < cachedArray->size(); ++i) {
-            MaskHashEntry& entry = (*cachedArray)[i];
-            // We can reuse a clip mask if has the same key and our bounds is contained in it
-            if (entry.fBounds.contains(iBounds)) {
-                SkIPoint topLeft = entry.fLocator.topLeft();
+    MaskHashEntry* entryList = fMaskCache.find(maskKey);
+    if (entryList) {
+        MaskHashEntry* entry = entryList;
+        do {
+            if (entry->fBounds.contains(iBounds)) {
+                SkIPoint topLeft = entry->fLocator.topLeft();
                 // We need to adjust the returned outPos to reflect the subset we're using
-                SkIPoint subsetRelativePos = iBounds.topLeft() - entry.fBounds.topLeft();
+                SkIPoint subsetRelativePos = iBounds.topLeft() - entry->fBounds.topLeft();
                 *outPos = SkIPoint::Make(topLeft.x() + kEntryPadding + subsetRelativePos.x(),
                                          topLeft.y() + kEntryPadding + subsetRelativePos.y());
-                fDrawAtlas->setLastUseToken(entry.fLocator,
+                fDrawAtlas->setLastUseToken(entry->fLocator,
                                             fRecorder->priv().tokenTracker()->nextFlushToken());
-                return fDrawAtlas->getProxies()[entry.fLocator.pageIndex()].get();
+                return fDrawAtlas->getProxies()[entry->fLocator.pageIndex()].get();
             }
-        }
+            entry = entry->fNext;
+        } while (entry);
     }
 
     AtlasLocator locator;
@@ -77,18 +76,18 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
     }
 
     // Add locator and bounds to MaskCache.
-    if (cachedArray) {
-        cachedArray->push_back({iBounds, locator});
+    if (entryList) {
+        MaskHashEntry* newEntry = new MaskHashEntry{iBounds, locator, nullptr};
+        newEntry->fNext = entryList->fNext;
+        entryList->fNext = newEntry;
     } else {
-        MaskHashArray initialArray;
-        initialArray.push_back({iBounds, locator});
-        fMaskCache.set(maskKey, initialArray);
+        MaskHashEntry newEntry{iBounds, locator, nullptr};
+        fMaskCache.set(maskKey, newEntry);
     }
+
     // Add key to Plot's MaskKeyList.
     uint32_t index = fDrawAtlas->getListIndex(locator.plotLocator());
-    MaskKeyEntry* keyEntry = new MaskKeyEntry();
-    keyEntry->fKey = maskKey;
-    keyEntry->fBounds = iBounds;
+    MaskKeyEntry* keyEntry = new MaskKeyEntry{maskKey, iBounds};
     fKeyLists[index].addToTail(keyEntry);
 
     return proxy;
@@ -204,24 +203,36 @@ void ClipAtlasManager::evict(PlotLocator plotLocator) {
     uint32_t index = fDrawAtlas->getListIndex(plotLocator);
     MaskKeyList::Iter iter;
     iter.init(fKeyLists[index], MaskKeyList::Iter::kHead_IterStart);
-    MaskKeyEntry* currEntry;
-    while ((currEntry = iter.get())) {
+    MaskKeyEntry* currKeyEntry;
+    while ((currKeyEntry = iter.get())) {
         iter.next();
-        MaskHashArray* cachedArray = fMaskCache.find(currEntry->fKey);
-        // Remove this entry from the hashed array
-        for (int i = cachedArray->size()-1; i >=0 ; --i) {
-            MaskHashEntry& entry = (*cachedArray)[i];
-            if (entry.fBounds == currEntry->fBounds) {
-                (*cachedArray).removeShuffle(i);
+        MaskHashEntry* currHashEntry = fMaskCache.find(currKeyEntry->fKey);
+        MaskHashEntry* prevHashEntry = nullptr;
+        do {
+            SkASSERT(currHashEntry);
+            if (currHashEntry->fBounds == currKeyEntry->fBounds) {
+                // Remove entry from hash list
+                if (prevHashEntry) {
+                    prevHashEntry->fNext = currHashEntry->fNext;
+                    delete currHashEntry;
+                } else if (currHashEntry->fNext) {
+                    MaskHashEntry* next = currHashEntry->fNext;
+                    currHashEntry->fBounds = next->fBounds;
+                    currHashEntry->fLocator = next->fLocator;
+                    currHashEntry->fNext = next->fNext;
+                    delete next;
+                } else {
+                    // Remove hash entry itself
+                    fMaskCache.remove(currKeyEntry->fKey);
+                }
                 break;
             }
-        }
-        // If we removed the last one, remove the hash entry
-        if (cachedArray->empty()) {
-            fMaskCache.remove(currEntry->fKey);
-        }
-        fKeyLists[index].remove(currEntry);
-        delete currEntry;
+            prevHashEntry = currHashEntry;
+            currHashEntry = currHashEntry->fNext;
+        } while (currHashEntry);
+
+        fKeyLists[index].remove(currKeyEntry);
+        delete currKeyEntry;
     }
 }
 

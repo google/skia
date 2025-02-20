@@ -1391,7 +1391,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         }
     }
 
-#ifdef SK_ENABLE_CLIP_ATLAS_MANAGER
+#if !defined(SK_DISABLE_GRAPHITE_CLIP_ATLAS)
     // If there is no MSAA supported, rasterize any remaining elements by flattening them
     // into a single mask and storing in an atlas. Otherwise these will be handled by
     // Device::drawClip().
@@ -1416,7 +1416,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
             outEffectiveElements->clear();
         }
     }
-#endif // SK_ENABLE_CLIP_ATLAS_MANAGER
+#endif
 
     return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), nonMSAAClip, cs.shader());
 }

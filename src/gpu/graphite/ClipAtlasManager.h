@@ -52,13 +52,12 @@ private:
     struct MaskHashEntry {
         SkIRect fBounds;
         AtlasLocator fLocator;
-        SK_DECLARE_INTERNAL_LLIST_INTERFACE(MaskHashEntry);
+        MaskHashEntry* fNext = nullptr;
     };
-    using MaskHashArray = SkTDArray<MaskHashEntry>;
     struct UniqueKeyHash {
         uint32_t operator()(const skgpu::UniqueKey& key) const { return key.hash(); }
     };
-    using MaskCache = skia_private::THashMap<skgpu::UniqueKey, MaskHashArray, UniqueKeyHash>;
+    using MaskCache = skia_private::THashMap<skgpu::UniqueKey, MaskHashEntry, UniqueKeyHash>;
     MaskCache fMaskCache;
 
     // List of stored keys per Plot, used to invalidate cache entries.
