@@ -207,6 +207,11 @@ bool IsSkiaKnownRuntimeEffect(uint32_t candidate) {
             candidate <= static_cast<uint32_t>(StableKey::kLast));
 }
 
+bool IsViableUserDefinedKnownRuntimeEffect(uint32_t candidate) {
+    return candidate >= kUserDefinedKnownRuntimeEffectsStart &&
+           candidate < kUserDefinedKnownRuntimeEffectsEnd;
+}
+
 sk_sp<SkRuntimeEffect> MaybeGetKnownRuntimeEffect(uint32_t candidate) {
     if (IsSkiaKnownRuntimeEffect(candidate)) {
         SkKnownRuntimeEffects::StableKey stableKey =
