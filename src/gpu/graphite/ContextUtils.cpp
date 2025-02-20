@@ -7,9 +7,11 @@
 
 #include "src/gpu/graphite/ContextUtils.h"
 
+#include "include/gpu/GpuTypes.h"
 #include "src/gpu/BlendFormula.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/KeyContext.h"
+#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
@@ -116,22 +118,17 @@ void CollectIntrinsicUniforms(const Caps* caps,
 std::string EmitSamplerLayout(const ResourceBindingRequirements& bindingReqs, int* binding) {
     std::string result;
 
-    // If fDistinctIndexRanges is false, then texture and sampler indices may clash with other
-    // resource indices. Graphite assumes that they will be placed in descriptor set (Vulkan) and
-    // bind group (Dawn) index 1.
-    const char* distinctIndexRange = bindingReqs.fDistinctIndexRanges ? "" : "set=1, ";
-
     if (bindingReqs.fSeparateTextureAndSamplerBinding) {
         int samplerIndex = (*binding)++;
         int textureIndex = (*binding)++;
-        result = SkSL::String::printf("layout(webgpu, %ssampler=%d, texture=%d)",
-                                      distinctIndexRange,
+        result = SkSL::String::printf("layout(webgpu, set=%d, sampler=%d, texture=%d)",
+                                      bindingReqs.fTextureSamplerSetIdx,
                                       samplerIndex,
                                       textureIndex);
     } else {
         int samplerIndex = (*binding)++;
-        result = SkSL::String::printf("layout(%sbinding=%d)",
-                                      distinctIndexRange,
+        result = SkSL::String::printf("layout(set=%d, binding=%d)",
+                                      bindingReqs.fTextureSamplerSetIdx,
                                       samplerIndex);
     }
     return result;
@@ -149,7 +146,7 @@ std::string GetPipelineLabel(const ShaderCodeDictionary* dict,
     return label;
 }
 
-std::string BuildComputeSkSL(const Caps* caps, const ComputeStep* step) {
+std::string BuildComputeSkSL(const Caps* caps, const ComputeStep* step, BackendApi backend) {
     std::string sksl =
             SkSL::String::printf("layout(local_size_x=%u, local_size_y=%u, local_size_z=%u) in;\n",
                                  step->localDispatchSize().fWidth,
@@ -157,17 +154,14 @@ std::string BuildComputeSkSL(const Caps* caps, const ComputeStep* step) {
                                  step->localDispatchSize().fDepth);
 
     const auto& bindingReqs = caps->resourceBindingRequirements();
-    bool distinctRanges = bindingReqs.fDistinctIndexRanges;
-    bool separateSampler = bindingReqs.fSeparateTextureAndSamplerBinding;
-
+    const bool texturesUseDistinctIdxRanges = bindingReqs.fComputeUsesDistinctIdxRangesForTextures;
     int index = 0;
-    int texIdx = 0;
     // NOTE: SkSL Metal codegen always assigns the same binding index to a texture and its sampler.
     // TODO: This could cause sampler indices to not be tightly packed if the sampler2D declaration
     // comes after 1 or more storage texture declarations (which don't have samplers). An optional
     // "layout(msl, sampler=T, texture=T)" syntax to count them separately (like we do for WGSL)
     // could come in handy here but it's not supported in MSL codegen yet.
-
+    int texIdx = 0;
     for (const ComputeStep::ResourceDesc& r : step->resources()) {
         using Type = ComputeStep::ResourceType;
         switch (r.fType) {
@@ -186,22 +180,37 @@ std::string BuildComputeSkSL(const Caps* caps, const ComputeStep* step) {
                 break;
             case Type::kWriteOnlyStorageTexture:
                 SkSL::String::appendf(&sksl, "layout(binding=%d, rgba8) writeonly texture2D ",
-                                      distinctRanges ? texIdx++ : index++);
+                                      texturesUseDistinctIdxRanges ? texIdx++ : index++);
                 sksl += r.fSkSL;
                 break;
             case Type::kReadOnlyTexture:
                 SkSL::String::appendf(&sksl, "layout(binding=%d, rgba8) readonly texture2D ",
-                                      distinctRanges ? texIdx++ : index++);
+                                      texturesUseDistinctIdxRanges ? texIdx++ : index++);
                 sksl += r.fSkSL;
                 break;
             case Type::kSampledTexture:
-                if (distinctRanges) {
-                    SkSL::String::appendf(&sksl, "layout(metal, binding=%d) ", texIdx++);
-                } else if (separateSampler) {
+                // The following SkSL expects specific backends to have certain resource binding
+                // requirements. Before appending the SkSL, assert that these assumptions hold true.
+                // TODO(b/396420770): Have this method be more backend-agnostic.
+                if (backend == BackendApi::kMetal) {
+                     // Metal is expected to use combined texture/samplers.
+                    SkASSERT(!bindingReqs.fSeparateTextureAndSamplerBinding);
+                    SkSL::String::appendf(&sksl,
+                                          "layout(metal, binding=%d) ",
+                                          texturesUseDistinctIdxRanges ? texIdx++ : index++);
+                } else if (backend == BackendApi::kDawn) {
+                    // Dawn is expected to use separate texture/samplers and not use distinct
+                    // index ranges for texture resources.
+                    SkASSERT(bindingReqs.fSeparateTextureAndSamplerBinding &&
+                             !texturesUseDistinctIdxRanges);
                     SkSL::String::appendf(
-                            &sksl, "layout(webgpu, sampler=%d, texture=%d) ", index, index + 1);
+                        &sksl, "layout(webgpu, sampler=%d, texture=%d) ", index, index + 1);
                     index += 2;
                 } else {
+                    // This SkSL depends upon the assumption that we are using combined texture/
+                    // samplers and that we are not using separate resource indices for textures.
+                    SkASSERT(!bindingReqs.fSeparateTextureAndSamplerBinding &&
+                             !texturesUseDistinctIdxRanges);
                     SkSL::String::appendf(&sksl, "layout(binding=%d) ", index++);
                 }
                 sksl += "sampler2D ";

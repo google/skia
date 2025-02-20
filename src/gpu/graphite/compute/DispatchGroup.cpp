@@ -138,8 +138,13 @@ bool Builder::appendStepInternal(
     // index ranges. On Dawn/Vulkan buffers and textures/samplers are allocated from separate bind
     // groups/descriptor sets but texture and sampler indices need to not overlap.
     const auto& bindingReqs = fRecorder->priv().caps()->resourceBindingRequirements();
-    bool distinctRanges = bindingReqs.fDistinctIndexRanges;
-    bool separateSampler = bindingReqs.fSeparateTextureAndSamplerBinding;
+    const bool separateSampler = bindingReqs.fSeparateTextureAndSamplerBinding;
+    const bool texturesUseDistinctIdxRanges = bindingReqs.fComputeUsesDistinctIdxRangesForTextures;
+    // Some binding index determination logic relies upon the fact that we do not expect to
+    // encounter a backend that both uses separate sampler bindings AND requires separate index
+    // ranges for textures.
+    SkASSERT(!(separateSampler && texturesUseDistinctIdxRanges));
+
     int bufferOrGlobalIndex = 0;
     int texIndex = 0;
     // NOTE: SkSL Metal codegen always assigns the same binding index to a texture and its sampler.
@@ -205,9 +210,9 @@ bool Builder::appendStepInternal(
                         const SamplerIndex* samplerIdx =
                                 std::get_if<SamplerIndex>(&samplerResource);
                         SkASSERT(samplerIdx);
-                        int bindingIndex = distinctRanges    ? texIndex
-                                           : separateSampler ? bufferOrGlobalIndex++
-                                                             : bufferOrGlobalIndex;
+                        int bindingIndex = texturesUseDistinctIdxRanges ? texIndex :
+                                                        separateSampler ? bufferOrGlobalIndex++
+                                                                        : bufferOrGlobalIndex;
                         dispatch.fBindings.push_back(
                                 {static_cast<BindingIndex>(bindingIndex), *samplerIdx});
                     }
@@ -223,7 +228,7 @@ bool Builder::appendStepInternal(
             bindingIndex = bufferOrGlobalIndex++;
         } else if (const TextureIndex* texIdx = std::get_if<TextureIndex>(&maybeResource)) {
             dispatchResource = *texIdx;
-            bindingIndex = distinctRanges ? texIndex++ : bufferOrGlobalIndex++;
+            bindingIndex = texturesUseDistinctIdxRanges ? texIndex++ : bufferOrGlobalIndex++;
         } else {
             SKGPU_LOG_W("Failed to allocate resource for compute dispatch");
             return false;
