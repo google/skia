@@ -82,7 +82,8 @@ void GlobalCache::invokePipelineCallback(SharedContext* sharedContext,
     }
 
     if (tmpCB) {
-        sk_sp<SkData> data = PipelineDescToData(sharedContext->shaderCodeDictionary(),
+        sk_sp<SkData> data = PipelineDescToData(sharedContext->caps(),
+                                                sharedContext->shaderCodeDictionary(),
                                                 pipelineDesc,
                                                 renderPassDesc);
 

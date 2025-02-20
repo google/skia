@@ -10,6 +10,7 @@
 #include "include/core/SkFourByteTag.h"
 #include "include/core/SkStream.h"
 #include "src/base/SkAutoMalloc.h"
+#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
@@ -119,9 +120,10 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
     return true;
 }
 
-[[nodiscard]] bool serialize_attachment_desc(SkWStream* stream,
+[[nodiscard]] bool serialize_attachment_desc(const Caps* caps,
+                                             SkWStream* stream,
                                              const AttachmentDesc& attachmentDesc) {
-    if (!TextureInfoPriv::Serialize(stream, attachmentDesc.fTextureInfo)) {
+    if (!caps->serializeTextureInfo(attachmentDesc.fTextureInfo, stream)) {
         return false;
     }
 
@@ -139,7 +141,7 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
 [[nodiscard]] bool deserialize_attachment_desc(const Caps* caps,
                                                SkStream* stream,
                                                AttachmentDesc* attachmentDesc) {
-    if (!TextureInfoPriv::Deserialize(caps, stream, &attachmentDesc->fTextureInfo)) {
+    if (!caps->deserializeTextureInfo(stream, &attachmentDesc->fTextureInfo)) {
         return false;
     }
 
@@ -156,9 +158,10 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
     return true;
 }
 
-[[nodiscard]] bool serialize_render_pass_desc(SkWStream* stream,
+[[nodiscard]] bool serialize_render_pass_desc(const Caps* caps,
+                                              SkWStream* stream,
                                               const RenderPassDesc& renderPassDesc) {
-    if (!serialize_attachment_desc(stream, renderPassDesc.fColorAttachment)) {
+    if (!serialize_attachment_desc(caps, stream, renderPassDesc.fColorAttachment)) {
         return false;
     }
 
@@ -168,10 +171,10 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
         }
     }
 
-    if (!serialize_attachment_desc(stream, renderPassDesc.fColorResolveAttachment)) {
+    if (!serialize_attachment_desc(caps, stream, renderPassDesc.fColorResolveAttachment)) {
         return false;
     }
-    if (!serialize_attachment_desc(stream, renderPassDesc.fDepthStencilAttachment)) {
+    if (!serialize_attachment_desc(caps, stream, renderPassDesc.fDepthStencilAttachment)) {
         return false;
     }
 
@@ -257,7 +260,8 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
 
 #define SK_BLOB_END_TAG SkSetFourByteTag('e', 'n', 'd', ' ')
 
-bool SerializePipelineDesc(ShaderCodeDictionary* shaderCodeDictionary,
+bool SerializePipelineDesc(const Caps* caps,
+                           ShaderCodeDictionary* shaderCodeDictionary,
                            SkWStream* stream,
                            const GraphicsPipelineDesc& pipelineDesc,
                            const RenderPassDesc& renderPassDesc) {
@@ -269,7 +273,7 @@ bool SerializePipelineDesc(ShaderCodeDictionary* shaderCodeDictionary,
         return false;
     }
 
-    if (!serialize_render_pass_desc(stream, renderPassDesc)) {
+    if (!serialize_render_pass_desc(caps, stream, renderPassDesc)) {
         return false;
     }
 
@@ -310,12 +314,14 @@ bool DeserializePipelineDesc(const Caps* caps,
 
 } // anonymous namespace
 
-sk_sp<SkData> PipelineDescToData(ShaderCodeDictionary* shaderCodeDictionary,
+sk_sp<SkData> PipelineDescToData(const Caps* caps,
+                                 ShaderCodeDictionary* shaderCodeDictionary,
                                  const GraphicsPipelineDesc& pipelineDesc,
                                  const RenderPassDesc& renderPassDesc) {
     SkDynamicMemoryWStream stream;
 
-    if (!SerializePipelineDesc(shaderCodeDictionary,
+    if (!SerializePipelineDesc(caps,
+                               shaderCodeDictionary,
                                &stream,
                                pipelineDesc, renderPassDesc)) {
         return nullptr;
