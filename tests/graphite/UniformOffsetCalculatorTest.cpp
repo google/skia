@@ -206,7 +206,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalArrayTest, r, CtsEnforcement::kApi
     EXPECT_ARRAY(SkSLType::kHalf4x4,  /*alignment=*/8,  /*stride=*/32, /*size=*/96);
 }
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalStructTest, r, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorMetalStructTest, r, CtsEnforcement::kNever) {
     constexpr Layout kLayout = Layout::kMetal;
     constexpr int    kCount  = 3;
 
@@ -308,7 +308,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430ArrayTest, r, CtsEnforcement::kAp
     EXPECT_ARRAY(SkSLType::kHalf4x4,  /*alignment=*/16, /*stride=*/64, /*size=*/192);
 }
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430StructTest, r, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd430StructTest, r, CtsEnforcement::kNever) {
     constexpr Layout kLayout = Layout::kStd430;
     constexpr int    kCount  = 3;
 
@@ -410,7 +410,7 @@ DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140ArrayTest, r, CtsEnforcement::kAp
     EXPECT_ARRAY(SkSLType::kHalf4x4,  /*alignment=*/16, /*stride=*/64, /*size=*/192);
 }
 
-DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140StructTest, r, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(UniformOffsetCalculatorStd140StructTest, r, CtsEnforcement::kNever) {
     constexpr Layout kLayout = Layout::kStd140;
     constexpr int    kCount  = 3;
 

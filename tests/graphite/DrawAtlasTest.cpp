@@ -62,7 +62,7 @@ bool fill_plot(DrawAtlas* atlas,
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
                                          reporter,
                                          context,
-                                         CtsEnforcement::kNextRelease) {
+                                         CtsEnforcement::kNever) {
     auto recorder = context->makeRecorder();
 
     SkColorType atlasColorType = kAlpha_8_SkColorType;
@@ -144,7 +144,7 @@ void test_draw_atlas_config(skiatest::Reporter* reporter, int maxTextureSize, si
 }
 }  // anonymous namespace
 
-DEF_GRAPHITE_TEST(DrawAtlasConfig_Basic, reporter, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(DrawAtlasConfig_Basic, reporter, CtsEnforcement::kNever) {
     // 1/4 MB
     test_draw_atlas_config(reporter, 65536, 256 * 1024, MaskFormat::kARGB,
                            { 256, 256 }, { 256, 256 });

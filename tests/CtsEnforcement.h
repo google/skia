@@ -36,12 +36,13 @@ public:
          * See https://source.android.com/docs/core/architecture/api-flags for more information.
          */
         kApiLevel_202404 = 202404,
+        kApiLevel_202504 = 202504,
         /* kNextRelease is a placeholder value that all new unit tests should use.  It implies that
          * this test will be enforced in the next Android release.  At the time of the release a
          * new kApiLevel_* value will be added and all current kNextRelease values will be replaced
          * with that new value.
          */
-        kNextRelease = 202504
+        kNextRelease = 202604
     };
 
     /**

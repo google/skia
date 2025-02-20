@@ -31,7 +31,7 @@ namespace {
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(BackendTextureTest, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_202504) {
     auto caps = context->priv().caps();
     auto recorder = context->makeRecorder();
 

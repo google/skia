@@ -150,7 +150,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(PathTest_CrBug1232834,
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(StrokeCircle_Bug356182429,
                                        reporter,
                                        ctxInfo,
-                                       CtsEnforcement::kNextRelease) {
+                                       CtsEnforcement::kNever) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(256, 256);
     auto dContext = ctxInfo.directContext();
     auto surface(SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kNo, info));

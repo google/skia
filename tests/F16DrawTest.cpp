@@ -98,7 +98,7 @@ void test_f16(skiatest::Reporter* reporter,
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(F16DrawTest_Ganesh,
                                        reporter,
                                        contextInfo,
-                                       CtsEnforcement::kNextRelease) {
+                                       CtsEnforcement::kApiLevel_202504) {
     GrRecordingContext* context = contextInfo.directContext();
     test_f16(reporter, [context](const SkImageInfo& imageInfo) {
         return SkSurfaces::RenderTarget(context, skgpu::Budgeted::kNo, imageInfo);
@@ -110,7 +110,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(F16DrawTest_Ganesh,
 DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(F16DrawTest_Graphite,
                                          reporter,
                                          context,
-                                         CtsEnforcement::kNextRelease) {
+                                         CtsEnforcement::kApiLevel_202504) {
     std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder();
     skgpu::graphite::Recorder* recorderPtr = recorder.get();
     test_f16(reporter, [recorderPtr](const SkImageInfo& imageInfo) {

@@ -237,7 +237,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(UpdateBackendTextureFinishedProcT
                                                context,
                                                testContext,
                                                true,
-                                               CtsEnforcement::kNextRelease) {
+                                               CtsEnforcement::kApiLevel_202504) {
     const Caps* caps = context->priv().caps();
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
 

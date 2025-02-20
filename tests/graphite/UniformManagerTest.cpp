@@ -888,7 +888,7 @@ DEF_GRAPHITE_TEST(UniformManagerStd430MatrixLayoutContents, r, CtsEnforcement::k
 }
 
 // These tests validate that substructs are written and aligned appropriately.
-DEF_GRAPHITE_TEST(UniformManagerStructLayout, r, CtsEnforcement::kNextRelease) {
+DEF_GRAPHITE_TEST(UniformManagerStructLayout, r, CtsEnforcement::kNever) {
     static constexpr uint32_t _ = 0; // 0s will only be written as padding
     static const struct TestCase {
         // For convenience, these should only have kFloat[2,3,4] as their types. However the values

@@ -127,7 +127,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestClear, reporter, context
 
 // Tests that a draw is translated correctly when replayed with an offset.
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestDraw, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_202504) {
     SkISize surfaceSize = SkISize::Make(8, 4);
     SkISize recordingSize = SkISize::Make(4, 4);
     SkIVector replayOffset = SkIVector::Make(4, 0);
@@ -217,7 +217,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestWritePixelsOffscreen, re
 
 // Tests that the result of a draw is cropped correctly with a provided clip on replay.
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestDrawWithClip, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_202504) {
     SkISize surfaceSize = SkISize::Make(8, 4);
     SkISize recordingSize = SkISize::Make(8, 4);
 
@@ -268,7 +268,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestDrawWithClip, reporter, 
 
 // Tests that the result of writePixels is cropped correctly with a provided clip on replay.
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestWritePixelsWithClip, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_202504) {
     SkBitmap bitmap;
     bitmap.allocN32Pixels(4, 4, true);
     SkCanvas bitmapCanvas(bitmap);
@@ -300,7 +300,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestWritePixelsWithClip, rep
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestMipmapped, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_202504) {
     SkISize recordingSize = SkISize::Make(1, 1);
 
     auto draw = [](SkCanvas* canvas) { canvas->clear(SkColors::kRed); };
@@ -409,7 +409,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestMipmapped, reporter, con
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestMipmappedWritePixels, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_202504) {
     SkBitmap bitmap;
     bitmap.allocN32Pixels(1, 1, true);
     SkCanvas bitmapCanvas(bitmap);
@@ -438,7 +438,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestMipmappedWritePixels, re
 
 // Tests that you can't create two deferred canvases before snapping the first.
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestTwoCanvases, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_202504) {
     const SkImageInfo kImageInfo = SkImageInfo::Make(SkISize::Make(1, 1),
                                                      SkColorType::kRGBA_8888_SkColorType,
                                                      SkAlphaType::kPremul_SkAlphaType);
@@ -457,7 +457,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestTwoCanvases, reporter, c
 // Tests that inserting a recording with a surface does not crash even if no draws to a deferred
 // canvas were recorded.
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestUnnecessarySurface, reporter, context,
-                                   CtsEnforcement::kNextRelease) {
+                                   CtsEnforcement::kApiLevel_202504) {
     const SkImageInfo kImageInfo = SkImageInfo::Make(SkISize::Make(1, 1),
                                                      SkColorType::kRGBA_8888_SkColorType,
                                                      SkAlphaType::kPremul_SkAlphaType);
