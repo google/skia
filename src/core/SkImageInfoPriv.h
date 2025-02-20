@@ -45,6 +45,23 @@ static inline uint32_t SkColorTypeChannelFlags(SkColorType ct) {
     SkUNREACHABLE;
 }
 
+static inline int SkColorTypeNumChannels(SkColorType ct) {
+    switch (SkColorTypeChannelFlags(ct)) {
+        case kRed_SkColorChannelFlag        : return 1;
+        case kAlpha_SkColorChannelFlag      : return 1;
+        case kGray_SkColorChannelFlag       : return 1;
+        case kGrayAlpha_SkColorChannelFlags : return 2;
+        case kRG_SkColorChannelFlags        : return 2;
+        case kRGB_SkColorChannelFlags       : return 3;
+        case kRGBA_SkColorChannelFlags      : return 4;
+        case 0                              : return 0;
+        default:
+           SkDEBUGFAIL("unexpected color channel flags");
+           return 0;
+    }
+    SkUNREACHABLE;
+}
+
 static inline bool SkColorTypeIsAlphaOnly(SkColorType ct) {
     return SkColorTypeChannelFlags(ct) == kAlpha_SkColorChannelFlag;
 }
