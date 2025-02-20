@@ -2036,10 +2036,10 @@ void precompile_vs_real_draws_subtest(skiatest::Reporter* reporter,
     Precompile(precompileContext, paintOptions, dt,
                dt == kNonSimpleShape ? SkSpan(pathProperties, 1) : SkSpan(&kDepth_1, 1));
     if (gNeedSKPPaintOption) {
-        // The skp draws a rect w/ a default SkPaint
+        // The skp draws a rect w/ a default SkPaint and RGBA dst color type
         PaintOptions skpPaintOptions;
         Precompile(precompileContext, skpPaintOptions, DrawTypeFlags::kSimpleShape,
-                   { kDepth_1 });
+                   { { kDepth_1.fDSFlags, kRGBA_8888_SkColorType, kDepth_1.fRequiresMSAA } });
     }
     int after = globalCache->numGraphicsPipelines();
 
