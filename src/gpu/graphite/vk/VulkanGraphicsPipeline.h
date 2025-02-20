@@ -40,20 +40,20 @@ public:
     inline static constexpr unsigned int kGradientBufferIndex = 2;
     inline static constexpr unsigned int kNumUniformBuffers = 3;
 
-    // For now, rigidly assign all uniform buffer descriptors to be in set 0, all
-    // texture/samplers to be in set 1, and any input attachments to be in set 2.
+    // For now, rigidly assign all descriptor types to be at statically-defined set indices.
     // TODO(b/274762935): Make the bindings and descriptor set organization more flexible.
-    inline static constexpr unsigned int kUniformBufferDescSetIndex = 0;
-    inline static constexpr unsigned int kTextureBindDescSetIndex = 1;
-    inline static constexpr unsigned int kInputAttachmentDescSetIndex = 2;
-    inline static constexpr unsigned int kNumDescSets = 3;
+    inline static constexpr unsigned int kDstAsInputDescSetIndex = 0;
+    inline static constexpr unsigned int kUniformBufferDescSetIndex = 1;
+    inline static constexpr unsigned int kTextureBindDescSetIndex = 2;
+    inline static constexpr unsigned int kLoadMsaaFromResolveInputDescSetIndex = 3;
+    inline static constexpr unsigned int kMaxNumDescSets = 4;
 
     inline static constexpr unsigned int kVertexBufferIndex = 0;
     inline static constexpr unsigned int kInstanceBufferIndex = 1;
     inline static constexpr unsigned int kNumInputBuffers = 2;
 
     // Define a static DescriptorData to represent input attachments which have the same values
-    // across all pipelines.
+    // across all pipelines (we currently only ever use one input attachment within a set).
     inline static const DescriptorData kInputAttachmentDescriptor = {
             DescriptorType::kInputAttachment, /*count=*/1,
             /*bindingIdx=*/0, // We only expect to encounter one input attachment

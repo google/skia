@@ -447,8 +447,8 @@ static void setup_shader_stage_info(VkShaderStageFlagBits stage,
     shaderStageInfo->pSpecializationInfo = nullptr;
 }
 
-static VkDescriptorSetLayout descriptor_data_to_layout(const VulkanSharedContext* sharedContext,
-        const SkSpan<DescriptorData>& descriptorData) {
+static VkDescriptorSetLayout descriptor_data_to_layout(
+        const VulkanSharedContext* sharedContext, const SkSpan<DescriptorData>& descriptorData) {
     // descriptorData can be empty to indicate that we should create a mock placeholder layout
     // with no descriptors.
     VkDescriptorSetLayout setLayout;
@@ -470,6 +470,21 @@ static void destroy_desc_set_layouts(const VulkanSharedContext* sharedContext,
                                        nullptr));
         }
     }
+}
+
+static bool input_attachment_desc_set_layout(VkDescriptorSetLayout& outLayout,
+                                             const VulkanSharedContext* sharedContext,
+                                             bool mockOnly) {
+    skia_private::STArray<1, DescriptorData> inputAttachmentDesc;
+
+    if (!mockOnly) {
+        inputAttachmentDesc.push_back(VulkanGraphicsPipeline::kInputAttachmentDescriptor);
+    }
+
+    // If mockOnly is true (meaning no input attachment descriptor is actually needed), then still
+    // request a mock VkDescriptorSetLayout handle by passing in the unpopulated span.
+    outLayout = descriptor_data_to_layout(sharedContext, {inputAttachmentDesc});
+    return outLayout != VK_NULL_HANDLE;
 }
 
 static bool uniform_desc_set_layout(VkDescriptorSetLayout& outLayout,
@@ -541,23 +556,6 @@ static bool texture_sampler_desc_set_layout(VkDescriptorSetLayout& outLayout,
     return outLayout != VK_NULL_HANDLE;
 }
 
-static bool input_attachment_desc_set_layout(VkDescriptorSetLayout& outLayout,
-                                             const VulkanSharedContext* sharedContext,
-                                             int numInputAttachments) {
-    // For now, we expect to have either 0 or 1 input attachment (used to load MSAA from resolve).
-    SkASSERT(numInputAttachments == 0 || numInputAttachments == 1);
-
-    skia_private::TArray<DescriptorData> inputAttachmentDescs(numInputAttachments);
-    if (numInputAttachments == 1) {
-        inputAttachmentDescs.push_back(VulkanGraphicsPipeline::kInputAttachmentDescriptor);
-    }
-
-    // If no input attachments are used, still request a mock VkDescriptorSetLayout handle by
-    // passing in the unpopulated span of inputAttachmentDescs to descriptor set layout creation.
-    outLayout = descriptor_data_to_layout(sharedContext, {inputAttachmentDescs});
-    return outLayout != VK_NULL_HANDLE;
-}
-
 static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedContext,
                                               uint32_t pushConstantSize,
                                               VkShaderStageFlagBits pushConstantPipelineStageFlags,
@@ -565,13 +563,13 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
                                               bool hasPaintUniforms,
                                               bool hasGradientBuffer,
                                               int numTextureSamplers,
-                                              int numInputAttachments,
+                                              bool loadMsaaFromResolve,
                                               SkSpan<sk_sp<VulkanSampler>> immutableSamplers) {
-    // Create a container with the anticipated amount (kNumDescSets) of VkDescriptorSetLayout
+    // Create a container with the max anticipated amount (kMaxNumDescSets) of VkDescriptorSetLayout
     // handles which will be used to create the pipeline layout.
     skia_private::STArray<
-            VulkanGraphicsPipeline::kNumDescSets, VkDescriptorSetLayout> setLayouts;
-    setLayouts.push_back_n(VulkanGraphicsPipeline::kNumDescSets, VkDescriptorSetLayout());
+            VulkanGraphicsPipeline::kMaxNumDescSets, VkDescriptorSetLayout> setLayouts;
+    setLayouts.push_back_n(VulkanGraphicsPipeline::kMaxNumDescSets, VkDescriptorSetLayout());
 
     // Populate the container with actual descriptor set layout handles. Each index should contain
     // either a valid/real or a mock/placehodler layout handle. Mock VkDescriptorSetLayouts do not
@@ -581,7 +579,11 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
     // the case for all targeted devices (see
     // VUID-VkPipelineLayoutCreateInfo-graphicsPipelineLibrary-06753). If any of the helpers
     // encounter an error (i.e., return false), return a null VkPipelineLayout.
-    if (!uniform_desc_set_layout(
+    if (!input_attachment_desc_set_layout(
+                setLayouts[VulkanGraphicsPipeline::kDstAsInputDescSetIndex],
+                sharedContext,
+                /*mockOnly=*/false) || // We always add an input attachment descriptor
+        !uniform_desc_set_layout(
                 setLayouts[VulkanGraphicsPipeline::kUniformBufferDescSetIndex],
                 sharedContext,
                 hasStepUniforms,
@@ -593,9 +595,9 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
                 numTextureSamplers,
                 immutableSamplers) ||
         !input_attachment_desc_set_layout(
-                setLayouts[VulkanGraphicsPipeline::kInputAttachmentDescSetIndex],
+                setLayouts[VulkanGraphicsPipeline::kLoadMsaaFromResolveInputDescSetIndex],
                 sharedContext,
-                numInputAttachments)) {
+                /*mockOnly=*/!loadMsaaFromResolve)) { // Actual descriptor needed iff loading MSAA
         destroy_desc_set_layouts(sharedContext, setLayouts);
         return VK_NULL_HANDLE;
     }
@@ -813,7 +815,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                                   shaderInfo->hasPaintUniforms(),
                                   shaderInfo->hasGradientBuffer(),
                                   shaderInfo->numFragmentTexturesAndSamplers(),
-                                  /*numInputAttachments=*/0,
+                                  /*loadMsaaFromResolve=*/false,
                                   SkSpan<sk_sp<VulkanSampler>>(immutableSamplers));
     if (pipelineLayout == VK_NULL_HANDLE) {
         destroy_shader_modules(sharedContext, vsModule, fsModule);
@@ -916,7 +918,7 @@ bool VulkanGraphicsPipeline::InitializeMSAALoadPipelineStructs(
     std::string fragShaderText;
     fragShaderText.append(
             "layout(vulkan, input_attachment_index=0, set=" +
-            std::to_string(VulkanGraphicsPipeline::kInputAttachmentDescSetIndex) +
+            std::to_string(VulkanGraphicsPipeline::kLoadMsaaFromResolveInputDescSetIndex) +
             ", binding=0) subpassInput uInput;"
 
             "// MSAA Load Program FS\n"
@@ -977,7 +979,7 @@ bool VulkanGraphicsPipeline::InitializeMSAALoadPipelineStructs(
                                                /*hasPaintUniforms=*/false,
                                                /*hasGradientBuffer=*/false,
                                                /*numTextureSamplers=*/0,
-                                               /*numInputAttachments=*/1,
+                                               /*loadMsaaFromResolve=*/true,
                                                /*immutableSamplers=*/{});
 
     if (*outPipelineLayout == VK_NULL_HANDLE) {

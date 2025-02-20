@@ -46,6 +46,38 @@ VulkanCaps::VulkanCaps(const ContextOptions& contextOptions,
 
 VulkanCaps::~VulkanCaps() {}
 
+namespace {
+void populate_resource_binding_reqs(ResourceBindingRequirements& reqs) {
+    // We can enable std430 and ensure no array stride mismatch in functions because all bound
+    // buffers will either be a UBO or SSBO, depending on if storage buffers are enabled or not.
+    // Although intrinsic uniforms always use uniform buffers, they do not contain any arrays.
+    reqs.fStorageBufferLayout = Layout::kStd430;
+
+    // TODO(b/374997389): Somehow convey & enforce Layout::kStd430 for push constants.
+    reqs.fUniformBufferLayout = Layout::kStd140;
+    reqs.fSeparateTextureAndSamplerBinding = false;
+
+    // Vulkan uses push constants instead of an intrinsic UBO, so we do not need to assign
+    // reqs.fIntrinsicBufferBinding.
+    reqs.fUseVulkanPushConstantsForIntrinsicConstants = true;
+
+    // Assign uniform buffer binding values for shader generation
+    reqs.fRenderStepBufferBinding =
+            VulkanGraphicsPipeline::kRenderStepUniformBufferIndex;
+    reqs.fPaintParamsBufferBinding =  VulkanGraphicsPipeline::kPaintUniformBufferIndex;
+    reqs.fGradientBufferBinding = VulkanGraphicsPipeline::kGradientBufferIndex;
+
+    // Assign descriptor set indices for shader generation
+    reqs.fUniformsSetIdx = VulkanGraphicsPipeline::kUniformBufferDescSetIndex;
+    reqs.fTextureSamplerSetIdx = VulkanGraphicsPipeline::kTextureBindDescSetIndex;
+    // Note: We use kDstAsInputDescSetIndex as opposed to kLoadMsaaFromResolveInputDescSetIndex
+    // because the former is what is needed for SkSL generation purposes at the graphite level. The
+    // latter is simply internally referenced when defining bespoke SkSL for loading MSAA from
+    // resolve.
+    reqs.fInputAttachmentSetIdx = VulkanGraphicsPipeline::kDstAsInputDescSetIndex;
+}
+} // anonymous
+
 void VulkanCaps::init(const ContextOptions& contextOptions,
                       const skgpu::VulkanInterface* vkInterface,
                       VkPhysicalDevice physDev,
@@ -88,25 +120,7 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     // Y-down coordinate space of the viewport.
     fNDCYAxisPointsDown = true;
 
-    // We can enable std430 and ensure no array stride mismatch in functions because all bound
-    // buffers will either be a UBO or SSBO, depending on if storage buffers are enabled or not.
-    // Although intrinsic uniforms always use uniform buffers, they do not contain any arrays.
-    fResourceBindingReqs.fStorageBufferLayout = Layout::kStd430;
-
-    // TODO(b/374997389): Somehow convey & enforce Layout::kStd430 for push constants.
-    fResourceBindingReqs.fUniformBufferLayout = Layout::kStd140;
-    fResourceBindingReqs.fSeparateTextureAndSamplerBinding = false;
-
-    // Vulkan uses push constants instead of an intrinsic UBO, so we do not need to assign
-    // fResourceBindingReqs.fIntrinsicBufferBinding.
-    fResourceBindingReqs.fUseVulkanPushConstantsForIntrinsicConstants = true;
-    fResourceBindingReqs.fRenderStepBufferBinding =
-            VulkanGraphicsPipeline::kRenderStepUniformBufferIndex;
-    fResourceBindingReqs.fPaintParamsBufferBinding =
-            VulkanGraphicsPipeline::kPaintUniformBufferIndex;
-    fResourceBindingReqs.fGradientBufferBinding = VulkanGraphicsPipeline::kGradientBufferIndex;
-    fResourceBindingReqs.fUniformsSetIdx = VulkanGraphicsPipeline::kUniformBufferDescSetIndex;
-    fResourceBindingReqs.fTextureSamplerSetIdx = VulkanGraphicsPipeline::kTextureBindDescSetIndex;
+    populate_resource_binding_reqs(fResourceBindingReqs);
 
     // TODO(b/353983969): Enable storage buffers once perf regressions are addressed.
     fStorageBufferSupport = false;

@@ -70,6 +70,7 @@ struct ResourceBindingRequirements {
     static constexpr int kUnassigned = -1;
     int fUniformsSetIdx              = kUnassigned;
     int fTextureSamplerSetIdx        = kUnassigned;
+    int fInputAttachmentSetIdx       = kUnassigned;
     // Define uniform buffer bindings
     int fIntrinsicBufferBinding      = kUnassigned;
     int fRenderStepBufferBinding     = kUnassigned;
