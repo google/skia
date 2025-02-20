@@ -22,6 +22,25 @@ enum SkAlphaType : int;
 enum class SkBlendMode;
 struct SkStageRec;
 
+class SkWorkingFormatCalculator {
+public:
+    SkWorkingFormatCalculator(const skcms_TransferFunction* tf,
+                              const skcms_Matrix3x3* gamut,
+                              const SkAlphaType* at);
+
+    sk_sp<SkColorSpace> workingFormat(const sk_sp<SkColorSpace>& dstCS, SkAlphaType* outAT) const;
+
+    void flatten(SkWriteBuffer& buffer) const;
+
+private:
+    skcms_TransferFunction fTF;
+    bool fUseDstTF = true;
+    skcms_Matrix3x3 fGamut;
+    bool fUseDstGamut = true;
+    SkAlphaType fAT;
+    bool fUseDstAT = true;
+};
+
 class SkWorkingFormatColorFilter final : public SkColorFilterBase {
 public:
     SkWorkingFormatColorFilter(sk_sp<SkColorFilter> child,
@@ -29,7 +48,7 @@ public:
                                const skcms_Matrix3x3* gamut,
                                const SkAlphaType* at);
 
-    sk_sp<SkColorSpace> workingFormat(const sk_sp<SkColorSpace>& dstCS, SkAlphaType* at) const;
+    sk_sp<SkColorSpace> workingFormat(const sk_sp<SkColorSpace>& dstCS, SkAlphaType* outAT) const;
 
     SkColorFilterBase::Type type() const override {
         return SkColorFilterBase::Type::kWorkingFormat;
@@ -57,12 +76,7 @@ private:
     bool onAsAColorMatrix(float[20]) const override;
 
     sk_sp<SkColorFilter> fChild;
-    skcms_TransferFunction fTF;
-    bool fUseDstTF = true;
-    skcms_Matrix3x3 fGamut;
-    bool fUseDstGamut = true;
-    SkAlphaType fAT;
-    bool fUseDstAT = true;
+    SkWorkingFormatCalculator fWorkingFormatCalculator;
 };
 
 #endif
