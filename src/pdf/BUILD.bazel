@@ -112,7 +112,9 @@ skia_cc_library(
     features = ["layering_check"],
     visibility = ["//:__pkg__"],
     deps = [
+        "//:core",
         "//:jpeg_decode_codec",
         "//:jpeg_encode_codec",
+        "//src/base",
     ],
 )
