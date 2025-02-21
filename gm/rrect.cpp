@@ -250,7 +250,6 @@ protected:
                            abs((int)(SkColorGetR(leftColor) - SkColorGetR(rightColor))) +
                            abs((int)(SkColorGetG(leftColor) - SkColorGetG(rightColor))) +
                            abs((int)(SkColorGetB(leftColor) - SkColorGetB(rightColor)));
-                diff *= kDiffMaginification;
                 SkASSERT(diff >= 0);
                 const U8CPU grey = std::min(diff * kDiffMaginification, 255);
                 if (grey > 0) {
