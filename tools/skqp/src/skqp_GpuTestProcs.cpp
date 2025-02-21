@@ -144,7 +144,7 @@ void RunWithGraphiteTestContexts(GraphiteTestFn* test,
         }
 
         ReporterContext ctx(reporter, SkString(skgpu::ContextTypeName(contextType)));
-        (*test)(reporter, ctxInfo.fContext, ctxInfo.fTestContext);
+        (*test)(reporter, ctxInfo.fContext, ctxInfo.fTestContext, options);
     }
 }
 

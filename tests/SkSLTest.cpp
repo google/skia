@@ -989,6 +989,7 @@ static bool is_native_context_or_dawn(skgpu::ContextType type) {
                                                r,                         \
                                                context,                   \
                                                testContext,               \
+                                               /* anonymous options */,   \
                                                /*opt_filter=*/nullptr,    \
                                                is_gpu(flags),             \
                                                ctsEnforcement) {          \
