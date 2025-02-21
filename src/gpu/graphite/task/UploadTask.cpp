@@ -22,7 +22,6 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
-#include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
 
@@ -246,7 +245,7 @@ UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
     const Caps* caps = recorder->priv().caps();
     SkASSERT(caps->isTexturable(texInfo));
 
-    SkTextureCompressionType compression = TextureInfoPriv::CompressionType(texInfo);
+    SkTextureCompressionType compression = texInfo.compressionType();
     if (compression == SkTextureCompressionType::kNone) {
         return Invalid();
     }

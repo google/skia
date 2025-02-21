@@ -4,7 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
@@ -19,99 +18,129 @@ class SkStream;
 
 namespace skgpu::graphite {
 
-MtlTextureInfo::MtlTextureInfo(CFTypeRef texture) {
-    SkASSERT(texture);
-    id<MTLTexture> mtlTex = (id<MTLTexture>)texture;
+class MtlTextureInfoData final : public TextureInfoData {
+public:
+    MtlTextureInfoData(MtlTextureSpec m) : fMtlSpec(m) {}
 
-    fSampleCount = mtlTex.sampleCount;
-    fMipmapped = mtlTex.mipmapLevelCount > 1 ? Mipmapped::kYes : Mipmapped::kNo;
+#if defined(SK_DEBUG)
+    skgpu::BackendApi type() const override { return skgpu::BackendApi::kMetal; }
+#endif
 
-    fFormat = mtlTex.pixelFormat;
-    fUsage = mtlTex.usage;
-    fStorageMode = mtlTex.storageMode;
-    fFramebufferOnly = mtlTex.framebufferOnly;
-}
+    MtlTextureSpec spec() const { return fMtlSpec; }
 
-size_t MtlTextureInfo::bytesPerPixel() const {
-    return MtlFormatBytesPerBlock(fFormat);
-}
+private:
+    MtlTextureSpec fMtlSpec;
 
-SkTextureCompressionType MtlTextureInfo::compressionType() const {
-    return MtlFormatToCompressionType(fFormat);
-}
+    size_t bytesPerPixel() const override {
+        return MtlFormatBytesPerBlock(fMtlSpec.fFormat);
+    }
 
-SkString MtlTextureInfo::toBackendString() const {
-    return SkStringPrintf("format=%u,usage=0x%04X,storageMode=%u,framebufferOnly=%d",
-                          (uint32_t)fFormat,
-                          (uint32_t)fUsage,
-                          (uint32_t)fStorageMode,
-                          fFramebufferOnly);
-}
+    SkTextureCompressionType compressionType() const override {
+        return MtlFormatToCompressionType(fMtlSpec.fFormat);
+    }
 
-bool MtlTextureInfo::isCompatible(const TextureInfo& that, bool requireExact) const {
-    const auto& mt = TextureInfoPriv::Get<MtlTextureInfo>(that);
-    // The usages may match or the usage passed in may be a superset of the usage stored within.
-    const auto usageMask = requireExact ? mt.fUsage : fUsage;
-    return fFormat == mt.fFormat &&
-           fStorageMode == mt.fStorageMode &&
-           fFramebufferOnly == mt.fFramebufferOnly &&
-           (usageMask & mt.fUsage) == fUsage;
-}
-
-bool MtlTextureInfo::serialize(SkWStream* stream) const {
-    SkASSERT(fFormat                                    < (1u << 24));
-    SkASSERT(fUsage                                     < (1u << 5));
-    SkASSERT(fStorageMode                               < (1u << 2));
-    SkASSERT(static_cast<uint32_t>(fFramebufferOnly)    < (1u << 1));
-
-    // TODO(robertphillips): not densely packed (see above asserts)
-    if (!stream->write32(static_cast<uint32_t>(fFormat)))        { return false; }
-    if (!stream->write16(static_cast<uint16_t>(fUsage)))         { return false; }
-    if (!stream->write8(static_cast<uint8_t>(fStorageMode)))     { return false; }
-    if (!stream->write8(static_cast<uint8_t>(fFramebufferOnly))) { return false; }
-    return true;
-}
-
-bool MtlTextureInfo::deserialize(SkStream* stream) {
-    uint32_t tmp32;
-
-    if (!stream->readU32(&tmp32)) {
+    bool isMemoryless() const override {
+        if (@available(macOS 11.0, iOS 10.0, tvOS 10.0, *)) {
+            return fMtlSpec.fStorageMode == MTLStorageModeMemoryless;
+        }
         return false;
     }
-    // TODO(robertphillips): add validity checks to deserialized values
-    fFormat = static_cast<MTLPixelFormat>(tmp32);
 
-    uint16_t tmp16;
-    if (!stream->readU16(&tmp16)) {
+    SkString toString() const override {
+        return SkStringPrintf("Metal(%s,", fMtlSpec.toString().c_str());
+    }
+
+    SkString toRPAttachmentString(uint32_t sampleCount) const override {
+        return SkStringPrintf(
+                "Metal(f=%u,s=%u)", static_cast<unsigned int>(fMtlSpec.fFormat), sampleCount);
+    }
+
+    void copyTo(AnyTextureInfoData& dstData) const override {
+        // Don't assert that dstData is a metal type because it could be
+        // uninitialized and that assert would fail.
+        dstData.emplace<MtlTextureInfoData>(fMtlSpec);
+    }
+
+    bool equal(const TextureInfoData* that) const override {
+        SkASSERT(!that || that->type() == skgpu::BackendApi::kMetal);
+        if (auto otherMtl = static_cast<const MtlTextureInfoData*>(that)) {
+            return fMtlSpec == otherMtl->fMtlSpec;
+        }
         return false;
     }
-    fUsage = static_cast<MTLTextureUsage>(tmp16);
 
-    uint8_t tmp8;
-    if (!stream->readU8(&tmp8)) {
+    bool isCompatible(const TextureInfoData* that) const override {
+        SkASSERT(!that || that->type() == skgpu::BackendApi::kMetal);
+        if (auto otherMtl = static_cast<const MtlTextureInfoData*>(that)) {
+            return fMtlSpec.isCompatible(otherMtl->fMtlSpec);
+        }
         return false;
     }
-    fStorageMode = static_cast<MTLStorageMode>(tmp8);
 
-    if (!stream->readU8(&tmp8)) {
-        return false;
+    // c.f. MtlCaps::deserializeTextureInfo
+    bool serialize(SkWStream* stream) const override {
+        return fMtlSpec.serialize(stream);
     }
-    fFramebufferOnly = SkToBool(tmp8);
-    return true;
+};
+
+static const MtlTextureInfoData* get_and_cast_data(const TextureInfo& info) {
+    auto data = TextureInfoPriv::GetData(info);
+    SkASSERT(!data || data->type() == skgpu::BackendApi::kMetal);
+    return static_cast<const MtlTextureInfoData*>(data);
 }
 
 namespace TextureInfos {
-
 skgpu::graphite::TextureInfo MakeMetal(CFTypeRef mtlTexture) {
     return MakeMetal(MtlTextureInfo(mtlTexture));
 }
 
 skgpu::graphite::TextureInfo MakeMetal(const MtlTextureInfo& mtlInfo) {
-    return TextureInfoPriv::Make(mtlInfo);
+    return TextureInfoPriv::Make(skgpu::BackendApi::kMetal,
+                                 mtlInfo.fSampleCount,
+                                 mtlInfo.fMipmapped,
+                                 Protected::kNo,
+                                 MtlTextureInfoData(mtlInfo));
 }
 
 bool GetMtlTextureInfo(const TextureInfo& info, MtlTextureInfo* out) {
-    return TextureInfoPriv::Copy(info, out);
+    if (!info.isValid() || info.backend() != skgpu::BackendApi::kMetal) {
+        return false;
+    }
+    SkASSERT(out);
+    const MtlTextureInfoData* mtlData = get_and_cast_data(info);
+    SkASSERT(mtlData);
+    *out = MtlTextureSpecToTextureInfo(mtlData->spec(), info.numSamples(), info.mipmapped());
+    return true;
+}
+
+// This cannot return a const reference or we get a warning about returning
+// a reference to a temporary local variable.
+MtlTextureSpec GetMtlTextureSpec(const TextureInfo& info) {
+    SkASSERT(info.isValid() && info.backend() == skgpu::BackendApi::kMetal);
+    const MtlTextureInfoData* mtlData = get_and_cast_data(info);
+    SkASSERT(mtlData);
+    return mtlData->spec();
+}
+
+MTLPixelFormat GetMTLPixelFormat(const TextureInfo& info) {
+    SkASSERT(info.isValid() && info.backend() == skgpu::BackendApi::kMetal);
+    const MtlTextureInfoData* mtlData = get_and_cast_data(info);
+    SkASSERT(mtlData);
+    return mtlData->spec().fFormat;
+}
+
+MTLTextureUsage GetMTLTextureUsage(const TextureInfo& info) {
+    SkASSERT(info.isValid() && info.backend() == skgpu::BackendApi::kMetal);
+    const MtlTextureInfoData* mtlData = get_and_cast_data(info);
+    SkASSERT(mtlData);
+    return mtlData->spec().fUsage;
+}
+
+bool GetMtlFramebufferOnly(const TextureInfo& info) {
+    SkASSERT(info.isValid() && info.backend() == skgpu::BackendApi::kMetal);
+    const MtlTextureInfoData* mtlData = get_and_cast_data(info);
+    SkASSERT(mtlData);
+    return mtlData->spec().fFramebufferOnly;
 }
 
 }  // namespace TextureInfos

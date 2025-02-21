@@ -226,7 +226,7 @@ sk_sp<TextureProxy> TextureProxy::Wrap(sk_sp<Texture> texture) {
 #ifdef SK_DEBUG
 void TextureProxy::validateTexture(const Texture* texture) {
     SkASSERT(this->isFullyLazy() || fDimensions == texture->dimensions());
-    SkASSERTF(fInfo.canBeFulfilledBy(texture->textureInfo()),
+    SkASSERTF(fInfo.isCompatible(texture->textureInfo()),
               "proxy->fInfo[%s] incompatible with texture->fInfo[%s]",
               fInfo.toString().c_str(),
               texture->textureInfo().toString().c_str());

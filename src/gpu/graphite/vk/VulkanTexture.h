@@ -9,11 +9,9 @@
 #define skgpu_graphite_VulkanTexture_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/Texture.h"
-#include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/vk/VulkanImageView.h"
 
 #include <utility>
@@ -58,9 +56,6 @@ public:
 
     ~VulkanTexture() override;
 
-    const VulkanTextureInfo& vulkanTextureInfo() const {
-        return TextureInfoPriv::Get<VulkanTextureInfo>(this->textureInfo());
-    }
     VkImage vkImage() const { return fImage; }
 
     void setImageLayout(VulkanCommandBuffer* buffer,

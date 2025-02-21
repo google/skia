@@ -30,8 +30,6 @@
 enum class SkBlendMode;
 enum class SkTextureCompressionType;
 class SkCapabilities;
-class SkStream;
-class SkWStream;
 
 namespace SkSL { struct ShaderCaps; }
 
@@ -146,8 +144,12 @@ public:
                                       RenderPassDesc*,
                                       const RendererProvider*) const { return false; }
 
-    virtual bool serializeTextureInfo(const TextureInfo&, SkWStream*) const { return false; }
-    virtual bool deserializeTextureInfo(SkStream*, TextureInfo*) const { return false; }
+    virtual bool deserializeTextureInfo(SkStream*,
+                                        BackendApi,
+                                        Mipmapped,
+                                        Protected,
+                                        uint32_t sampleCount,
+                                        TextureInfo* out) const { return false; }
 
     bool areColorTypeAndTextureInfoCompatible(SkColorType, const TextureInfo&) const;
     virtual uint32_t channelMask(const TextureInfo&) const = 0;

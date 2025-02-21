@@ -63,7 +63,6 @@ sk_sp<SkImage> MakeFromBitmap(Recorder*,
                               SkImage::RequiredProperties,
                               std::string_view label);
 
-// NOTE: This estimates a GPU size assuming the texture is not actually memoryless.
 size_t ComputeSize(SkISize dimensions, const TextureInfo&);
 
 sk_sp<Image> CopyAsDraw(Recorder*,

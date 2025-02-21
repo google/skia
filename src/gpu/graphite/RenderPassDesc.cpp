@@ -8,7 +8,6 @@
 #include "src/gpu/graphite/RenderPassDesc.h"
 
 #include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/TextureInfoPriv.h"
 
 namespace skgpu::graphite {
 
@@ -136,17 +135,13 @@ SkString RenderPassDesc::toPipelineLabel() const {
         (fColorResolveAttachment.fTextureInfo.isValid() || fSampleCount > 1)) {
         colorLoadStr = " w/ msaa load";
     }
-
-    const auto& colorTexInfo = fColorAttachment.fTextureInfo;
-    const auto& resolveTexInfo = fColorResolveAttachment.fTextureInfo;
-    const auto& dsTexInfo = fDepthStencilAttachment.fTextureInfo;
     // TODO: Remove `fSampleCount` in label when the Dawn backend manages its MSAA color attachments
     // directly instead of relying on msaaRenderToSingleSampledSupport().
     return SkStringPrintf("RP(color: %s%s, resolve: %s, ds: %s, samples: %u, swizzle: %s)",
-                          TextureInfoPriv::GetAttachmentLabel(colorTexInfo).c_str(),
+                          fColorAttachment.fTextureInfo.toRPAttachmentString().c_str(),
                           colorLoadStr,
-                          TextureInfoPriv::GetAttachmentLabel(resolveTexInfo).c_str(),
-                          TextureInfoPriv::GetAttachmentLabel(dsTexInfo).c_str(),
+                          fColorResolveAttachment.fTextureInfo.toRPAttachmentString().c_str(),
+                          fDepthStencilAttachment.fTextureInfo.toRPAttachmentString().c_str(),
                           fSampleCount,
                           fWriteSwizzle.asString().c_str());
 }

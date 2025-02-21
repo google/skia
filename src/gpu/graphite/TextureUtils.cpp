@@ -323,6 +323,10 @@ sk_sp<SkImage> MakeFromBitmap(Recorder* recorder,
 }
 
 size_t ComputeSize(SkISize dimensions, const TextureInfo& info) {
+    if (info.isMemoryless()) {
+        return 0;
+    }
+
     SkTextureCompressionType compression = info.compressionType();
 
     size_t colorSize = 0;
