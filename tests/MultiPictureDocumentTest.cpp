@@ -347,6 +347,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkMultiPictureDocument_AHardwarebuffer,
 
     // Create the image sharing proc.
     SkSharingSerialContext ctx;
+    ctx.setDirectContext(context);
     SkSerialProcs procs;
     procs.fImageProc = SkSharingSerialContext::serializeImage;
     procs.fImageCtx = &ctx;

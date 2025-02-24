@@ -40,12 +40,14 @@ struct SkSharingSerialContext {
     // A map from uniqueID of images referenced by commands to non-texture images
     // collected at the end of each frame.
     skia_private::THashMap<uint32_t, sk_sp<SkImage>> fNonTexMap;
+    GrDirectContext* fDirectContext;
 
     // Collects any non-texture images referenced by the picture and stores non-texture copies
     // in the fNonTexMap of the provided SkSharingContext
     static void collectNonTextureImagesFromPicture(
         const SkPicture* pic, SkSharingSerialContext* sharingCtx);
 
+    void setDirectContext(GrDirectContext* ctx);
 
     // --- Data and serialization function for regular use --- //
 
