@@ -263,7 +263,9 @@ namespace {
     }
 
     uint32_t id = keyData[(*currentIndex)++];
-    if (id >= kBuiltInCodeSnippetIDCount && !SkKnownRuntimeEffects::IsSkiaKnownRuntimeEffect(id)) {
+    if (id >= kBuiltInCodeSnippetIDCount &&
+        !SkKnownRuntimeEffects::IsSkiaKnownRuntimeEffect(id) &&
+        !dict->isUserDefinedKnownRuntimeEffect(id)) {
         return false;
     }
 

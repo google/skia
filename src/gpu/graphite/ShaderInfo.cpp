@@ -501,7 +501,7 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
     // generally occurs while generating the frag shader, but if we do not use one, then we know we
     // do not need to read the dst texture and can assign the DstReadStrategy to kNoneRequired.
     auto result = std::unique_ptr<ShaderInfo>(
-            new ShaderInfo(rteDict,
+            new ShaderInfo(dict, rteDict,
                            shadingSsboIndex,
                            hasFragShader ? dstReadStrategyIfRequired
                                          : DstReadStrategy::kNoneRequired));
@@ -525,10 +525,12 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
     return result;
 }
 
-ShaderInfo::ShaderInfo(const RuntimeEffectDictionary* rteDict,
+ShaderInfo::ShaderInfo(const ShaderCodeDictionary* shaderCodeDictionary,
+                       const RuntimeEffectDictionary* rteDict,
                        const char* ssboIndex,
                        DstReadStrategy dstReadStrategy)
-        : fRuntimeEffectDictionary(rteDict)
+        : fShaderCodeDictionary(shaderCodeDictionary)
+        , fRuntimeEffectDictionary(rteDict)
         , fSsboIndex(ssboIndex)
         , fDstReadStrategy(dstReadStrategy) {}
 
