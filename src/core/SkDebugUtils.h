@@ -8,14 +8,12 @@
 #ifndef SkDebugUtils_DEFINED
 #define SkDebugUtils_DEFINED
 
-#include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
-#include "include/private/base/SkTPin.h"
 
+#include <array>
 #include <cstdint>
-#include <string>
 
 static constexpr const char* SkTileModeToStr(SkTileMode tm) {
     switch (tm) {
@@ -28,20 +26,25 @@ static constexpr const char* SkTileModeToStr(SkTileMode tm) {
 }
 
 #if defined(SK_DEBUG)
-inline void SkDumpBuffer(uint8_t const* const buffer, int w, int h, int rowBytes) {
+inline void SkDumpBuffer(uint8_t const* const buffer, int w, int h, int rowBytes,
+                         bool dumpActualValues = false) {
     SkASSERT(buffer);
 
-    const std::string shades = " .:-=+*%#@";
+    static constexpr char shades[] = {'0', '1', '2', '3', '4', '5', '6', '7',
+                                      '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
     for (int y = 0; y < h; ++y) {
-        SkString line;
         for (int x = 0; x < w; ++x) {
             uint8_t pixelValue = buffer[y * rowBytes + x];
-            int idx = static_cast<int>(pixelValue * shades.length() / 256);
-            idx = SkTPin(idx, 0, (int)shades.length() - 1);
-            line += shades[idx];
+            if (dumpActualValues) {
+                SkDebugf("%u\t", pixelValue);
+            } else {
+                int idx = static_cast<int>(pixelValue * std::size(shades) / 256);
+                SkASSERT(idx >= 0 && idx < (int)std::size(shades));
+                SkDebugf("%c", shades[idx]);
+            }
         }
-        SkDebugf("%s\n", line.c_str());
+        SkDebugf("\n");
     }
 }
 #else

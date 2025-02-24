@@ -109,6 +109,7 @@ bool SkBlurMask::BoxBlur(SkMaskBuilder* dst,
                          SkScalar sigma,
                          SkBlurStyle style,
                          SkIVector* margin) {
+    SkASSERT(dst);
     if (src.fFormat != SkMask::kBW_Format &&
         src.fFormat != SkMask::kA8_Format &&
         src.fFormat != SkMask::kARGB32_Format &&
