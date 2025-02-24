@@ -205,7 +205,7 @@ private:
 class ShaderCodeDictionary {
 public:
     ShaderCodeDictionary(Layout layout,
-                         SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects = {});
+                         SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
 
     UniquePaintParamsID findOrCreate(const PaintParamsKey&);
 

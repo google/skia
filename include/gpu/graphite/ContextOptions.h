@@ -9,12 +9,14 @@
 #define skgpu_graphite_ContextOptions_DEFINED
 
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/private/base/SkAPI.h"
 #include "include/private/base/SkMath.h"
 
 #include <optional>
 
 class SkData;
+class SkRuntimeEffect;
 namespace skgpu { class ShaderErrorHandler; }
 
 namespace skgpu::graphite {
@@ -135,6 +137,21 @@ struct SK_API ContextOptions {
      */
     PipelineCallbackContext fPipelineCallbackContext = nullptr;
     PipelineCallback fPipelineCallback = nullptr;
+
+    /**
+     * The runtime effects provided here will be registered as user-defined *known* runtime
+     * effects and will be given a stable key. Such runtime effects can then be used in
+     * serialized pipeline keys (c.f. PrecompileContext::precompile).
+     *
+     * Graphite will take a ref on the provided runtime effects and they will persist for as long
+     * as the Context exists. Rather than recreating new SkRuntimeEffects using the same SkSL,
+     * clients should use the existing SkRuntimeEffects provided here.
+     *
+     * Warning: Registering runtime effects here does obligate users to clear out their caches
+     * of serialized pipeline keys if the provided runtime effects ever change in a meaningful way.
+     * This includes adding, removing or reordering the effects provided here.
+     */
+    SkSpan<sk_sp<SkRuntimeEffect>> fUserDefinedKnownRuntimeEffects;
 
     /**
      * Private options that are only meant for testing within Skia's tools.

@@ -98,14 +98,17 @@ sk_sp<SharedContext> VulkanSharedContext::Make(const VulkanBackendContext& conte
     return sk_sp<SharedContext>(new VulkanSharedContext(context,
                                                         std::move(interface),
                                                         std::move(memoryAllocator),
-                                                        std::move(caps)));
+                                                        std::move(caps),
+                                                        options.fUserDefinedKnownRuntimeEffects));
 }
 
-VulkanSharedContext::VulkanSharedContext(const VulkanBackendContext& backendContext,
-                                         sk_sp<const skgpu::VulkanInterface> interface,
-                                         sk_sp<skgpu::VulkanMemoryAllocator> memoryAllocator,
-                                         std::unique_ptr<const VulkanCaps> caps)
-        : skgpu::graphite::SharedContext(std::move(caps), BackendApi::kVulkan)
+VulkanSharedContext::VulkanSharedContext(
+                const VulkanBackendContext& backendContext,
+                sk_sp<const skgpu::VulkanInterface> interface,
+                sk_sp<skgpu::VulkanMemoryAllocator> memoryAllocator,
+                std::unique_ptr<const VulkanCaps> caps,
+                SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects)
+        : SharedContext(std::move(caps), BackendApi::kVulkan, userDefinedKnownRuntimeEffects)
         , fInterface(std::move(interface))
         , fMemoryAllocator(std::move(memoryAllocator))
         , fPhysDevice(backendContext.fPhysicalDevice)

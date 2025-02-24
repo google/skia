@@ -61,7 +61,9 @@ public:
     virtual void deviceTick(Context*) {}
 
 protected:
-    SharedContext(std::unique_ptr<const Caps>, BackendApi);
+    SharedContext(std::unique_ptr<const Caps>,
+                  BackendApi,
+                  SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
 
 private:
     friend class Context; // for setRendererProvider()
