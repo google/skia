@@ -26,8 +26,6 @@
 #include "src/base/SkMSAN.h"
 #include "src/codec/SkJpegConstants.h"
 #include "src/codec/SkJpegPriv.h"
-#include "src/core/SkConvertPixels.h"
-#include "src/core/SkImageInfoPriv.h"
 #include "src/encode/SkImageEncoderFns.h"
 #include "src/encode/SkImageEncoderPriv.h"
 #include "src/encode/SkJPEGWriteUtility.h"
@@ -68,13 +66,12 @@ public:
 
     skjpeg_error_mgr* errorMgr() { return &fErrMgr; }
 
-    bool shouldUseColorXform() { return fUseColorXform; }
-    bool colorTransformProc(void* dst, const void* src, int width);
+    transform_scanline_proc proc() const { return fProc; }
 
     ~SkJpegEncoderMgr() { jpeg_destroy_compress(&fCInfo); }
 
 private:
-    SkJpegEncoderMgr(SkWStream* stream) : fDstMgr(stream) {
+    SkJpegEncoderMgr(SkWStream* stream) : fDstMgr(stream), fProc(nullptr) {
         fCInfo.err = jpeg_std_error(&fErrMgr);
         fErrMgr.error_exit = skjpeg_error_exit;
         jpeg_create_compress(&fCInfo);
@@ -85,80 +82,65 @@ private:
     jpeg_compress_struct fCInfo;
     skjpeg_error_mgr fErrMgr;
     skjpeg_destination_mgr fDstMgr;
-
-    std::optional<SkImageInfo> fSrcInfo;
-    std::optional<SkImageInfo> fDstInfo;
-    bool fUseColorXform = false;
+    transform_scanline_proc fProc;
 };
-
-// This function should only be called if fUseColorXform is true and thus fSrcInfo
-// and fDstInfo have value. fSrcInfo, fDstInfo, and width must all have the same width.
-bool SkJpegEncoderMgr::colorTransformProc(void* dst, const void* src, const int width) {
-   SkASSERT(fUseColorXform);
-   SkASSERT(fSrcInfo && fDstInfo);
-   SkASSERT(width == fSrcInfo->width());
-   return SkConvertPixels(fDstInfo.value(), dst, fDstInfo->minRowBytes(),
-                          fSrcInfo.value(), src, fSrcInfo->minRowBytes());
-}
 
 bool SkJpegEncoderMgr::initializeRGB(const SkImageInfo& srcInfo,
                                      const SkJpegEncoder::Options& options,
                                      const SkJpegMetadataEncoder::SegmentList& metadataSegments) {
+    auto chooseProc8888 = [&]() {
+        if (kUnpremul_SkAlphaType == srcInfo.alphaType() &&
+            options.fAlphaOption == SkJpegEncoder::AlphaOption::kBlendOnBlack) {
+            return transform_scanline_to_premul_legacy;
+        }
+        return (transform_scanline_proc) nullptr;
+    };
+
     J_COLOR_SPACE jpegColorType = JCS_EXT_RGBA;
     int numComponents = 0;
-    SkImageInfo dstInfo;
-    fUseColorXform = false;
+    switch (srcInfo.colorType()) {
+        case kRGBA_8888_SkColorType:
+            fProc = chooseProc8888();
+            jpegColorType = JCS_EXT_RGBA;
+            numComponents = 4;
+            break;
+        case kBGRA_8888_SkColorType:
+            fProc = chooseProc8888();
+            jpegColorType = JCS_EXT_BGRA;
+            numComponents = 4;
+            break;
+        case kRGB_565_SkColorType:
+            fProc = transform_scanline_565;
+            jpegColorType = JCS_RGB;
+            numComponents = 3;
+            break;
+        case kARGB_4444_SkColorType:
+            if (SkJpegEncoder::AlphaOption::kBlendOnBlack == options.fAlphaOption) {
+                return false;
+            }
 
-    SkColorType srcCT = srcInfo.colorType();
-    const bool premul = srcInfo.alphaType() == kPremul_SkAlphaType;
-    if (srcCT == kRGB_888x_SkColorType) {
-       jpegColorType = JCS_EXT_RGBX;
-       numComponents = 4;
-    } else if (!premul && srcCT == kRGBA_8888_SkColorType){
-       jpegColorType = JCS_EXT_RGBA;
-       numComponents = 4;
-    } else if (!premul && srcCT == kBGRA_8888_SkColorType) {
-       jpegColorType = JCS_EXT_BGRA;
-       numComponents = 4;
-    } else {
-      // Color type conversion is needed.
-      switch(SkColorTypeNumChannels(srcCT)) {
-        case 1:
-          // We support encoding kAlpha_8_SkColorType pixmaps as JCS_GRAYSCALE as
-          // this come up often. Otherwise we have no sensible way to encode alpha
-          // images.
-          if (SkColorTypeIsAlphaOnly(srcCT) && srcCT != kAlpha_8_SkColorType) {
-            return false;
-          }
-          jpegColorType = JCS_GRAYSCALE;
-          numComponents = 1;
-          break;
-        case 3:
-          jpegColorType = JCS_EXT_RGBX;
-          numComponents = 4;
-          dstInfo = SkImageInfo::Make(srcInfo.width(), 1, kRGB_888x_SkColorType, kUnpremul_SkAlphaType);
-          fUseColorXform = true;
-          break;
-        case 4: {
-            SkAlphaType dstAT = kUnpremul_SkAlphaType;
-            if (premul && SkJpegEncoder::AlphaOption::kBlendOnBlack == options.fAlphaOption) {
-              dstAT = kPremul_SkAlphaType;
+            fProc = transform_scanline_444;
+            jpegColorType = JCS_RGB;
+            numComponents = 3;
+            break;
+        case kGray_8_SkColorType:
+        case kAlpha_8_SkColorType:
+        case kR8_unorm_SkColorType:
+            jpegColorType = JCS_GRAYSCALE;
+            numComponents = 1;
+            break;
+        case kRGBA_F16_SkColorType:
+            if (kUnpremul_SkAlphaType == srcInfo.alphaType() &&
+                options.fAlphaOption == SkJpegEncoder::AlphaOption::kBlendOnBlack) {
+                fProc = transform_scanline_F16_to_premul_8888;
+            } else {
+                fProc = transform_scanline_F16_to_8888;
             }
             jpegColorType = JCS_EXT_RGBA;
             numComponents = 4;
-            dstInfo = SkImageInfo::Make(srcInfo.width(), 1, kRGBA_8888_SkColorType, dstAT);
-            fUseColorXform = true;
             break;
-        }
         default:
             return false;
-      }
-    }
-    SkASSERT(numComponents != 0);
-
-    if (fUseColorXform) {
-       fSrcInfo = srcInfo.makeWH(srcInfo.width(), 1).makeAlphaType(kUnpremul_SkAlphaType);
-       fDstInfo = dstInfo;
     }
 
     fCInfo.image_width = srcInfo.width();
@@ -343,7 +325,7 @@ std::unique_ptr<SkEncoder> SkJpegEncoderImpl::MakeRGB(
 SkJpegEncoderImpl::SkJpegEncoderImpl(std::unique_ptr<SkJpegEncoderMgr> encoderMgr,
                                      const SkPixmap& src)
         : SkEncoder(src,
-                    encoderMgr->shouldUseColorXform() ? encoderMgr->cinfo()->input_components * src.width() : 0)
+                    encoderMgr->proc() ? encoderMgr->cinfo()->input_components * src.width() : 0)
         , fEncoderMgr(std::move(encoderMgr)) {}
 
 SkJpegEncoderImpl::SkJpegEncoderImpl(std::unique_ptr<SkJpegEncoderMgr> encoderMgr,
@@ -373,11 +355,12 @@ bool SkJpegEncoderImpl::onEncodeRows(int numRows) {
         const void* srcRow = fSrc.addr(0, fCurrRow);
         for (int i = 0; i < numRows; i++) {
             JSAMPLE* jpegSrcRow = (JSAMPLE*)(const_cast<void*>(srcRow));
-            if (fEncoderMgr->shouldUseColorXform()) {
+            if (fEncoderMgr->proc()) {
                 sk_msan_assert_initialized(srcRow, SkTAddOffset<const void>(srcRow, srcBytes));
-                if (!fEncoderMgr->colorTransformProc((void*)fStorage.get(), srcRow, fSrc.width())) {
-                    return false;
-                }
+                fEncoderMgr->proc()((char*)fStorage.get(),
+                                    (const char*)srcRow,
+                                    fSrc.width(),
+                                    fEncoderMgr->cinfo()->input_components);
                 jpegSrcRow = fStorage.get();
                 sk_msan_assert_initialized(jpegSrcRow,
                                            SkTAddOffset<const void>(jpegSrcRow, jpegSrcBytes));
