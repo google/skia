@@ -80,15 +80,27 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
         MaskHashEntry* newEntry = new MaskHashEntry{iBounds, locator, nullptr};
         newEntry->fNext = entryList->fNext;
         entryList->fNext = newEntry;
+        ++fHashEntryCount;
     } else {
         MaskHashEntry newEntry{iBounds, locator, nullptr};
-        fMaskCache.set(maskKey, newEntry);
+        MaskHashEntry* pEntry = fMaskCache.set(maskKey, newEntry);
+        // Validate that we actually added an entry
+        SkASSERTF_RELEASE(pEntry, "=ClipAtlas=: Didn't actually add an entry.");
+        SkASSERTF_RELEASE(pEntry->fBounds == iBounds &&
+                          pEntry->fLocator.plotLocator() == locator.plotLocator(),
+                          "=ClipAtlas=: Entry contents are wrong!");
+        ++fHashEntryCount;
     }
 
     // Add key to Plot's MaskKeyList.
     uint32_t index = fDrawAtlas->getListIndex(locator.plotLocator());
     MaskKeyEntry* keyEntry = new MaskKeyEntry{maskKey, iBounds};
     fKeyLists[index].addToTail(keyEntry);
+    ++fListEntryCount;
+
+    SkASSERTF_RELEASE(fHashEntryCount == fListEntryCount,
+                      "=ClipAtlas=: Entry counts don't match after add: %d %d",
+                      fHashEntryCount, fListEntryCount);
 
     return proxy;
 }
@@ -208,31 +220,56 @@ void ClipAtlasManager::evict(PlotLocator plotLocator) {
         iter.next();
         MaskHashEntry* currHashEntry = fMaskCache.find(currKeyEntry->fKey);
         MaskHashEntry* prevHashEntry = nullptr;
-        do {
-            SkASSERT(currHashEntry);
+        bool found = false;
+        while (currHashEntry && !found) {
             if (currHashEntry->fBounds == currKeyEntry->fBounds) {
+                found = true;
+                // Validate that this entry is for this plot
+                uint32_t entryIndex =
+                        fDrawAtlas->getListIndex(currHashEntry->fLocator.plotLocator());
+                SkASSERTF_RELEASE(entryIndex == index,
+                                  "#ClipAtlas#: Hash entry has wrong index! plot %d\n", entryIndex);
                 // Remove entry from hash list
                 if (prevHashEntry) {
                     prevHashEntry->fNext = currHashEntry->fNext;
                     delete currHashEntry;
+                    --fHashEntryCount;
                 } else if (currHashEntry->fNext) {
                     MaskHashEntry* next = currHashEntry->fNext;
                     currHashEntry->fBounds = next->fBounds;
                     currHashEntry->fLocator = next->fLocator;
                     currHashEntry->fNext = next->fNext;
                     delete next;
+                    --fHashEntryCount;
                 } else {
+                    // Validate that this hash entry is in no other list
+                    for (int i = 0; i < fKeyLists.size(); ++i) {
+                        if ((uint32_t)i != index) {
+                            MaskKeyList::Iter validateIter;
+                            validateIter.init(fKeyLists[i], MaskKeyList::Iter::kHead_IterStart);
+                            MaskKeyEntry* currValidateEntry;
+                            while ((currValidateEntry = validateIter.get())) {
+                                validateIter.next();
+                                SkASSERTF_RELEASE(currValidateEntry->fKey != currKeyEntry->fKey,
+                                                  "=ClipAtlas=: Extra plotlist entry: plot %d", i);
+                            }
+                        }
+                    }
                     // Remove hash entry itself
                     fMaskCache.remove(currKeyEntry->fKey);
+                    --fHashEntryCount;
                 }
-                break;
             }
             prevHashEntry = currHashEntry;
             currHashEntry = currHashEntry->fNext;
-        } while (currHashEntry);
+        }
 
         fKeyLists[index].remove(currKeyEntry);
         delete currKeyEntry;
+        --fListEntryCount;
+        SkASSERTF_RELEASE(fHashEntryCount == fListEntryCount,
+                          "=ClipAtlas=: Entry counts don't match after delete: %d %d",
+                          fHashEntryCount, fListEntryCount);
     }
 }
 
