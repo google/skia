@@ -17,7 +17,6 @@
 namespace skgpu::graphite {
 
 class BackendTextureData;
-struct VulkanTextureInfo;
 
 class SK_API BackendTexture {
 public:
@@ -61,4 +60,3 @@ private:
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_BackendTexture_DEFINED
-

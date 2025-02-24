@@ -51,8 +51,8 @@ void add_attachment_description_info_to_key(ResourceKey::Builder& builder,
                                             int& builderIdx,
                                             LoadOp loadOp,
                                             StoreOp storeOp) {
-    VulkanTextureInfo vkTexInfo;
-    if (textureInfo.isValid() && TextureInfos::GetVulkanTextureInfo(textureInfo, &vkTexInfo)) {
+    if (textureInfo.isValid()) {
+        const auto& vkTexInfo = TextureInfoPriv::Get<VulkanTextureInfo>(textureInfo);
         builder[builderIdx++] = vkTexInfo.fFormat;
         builder[builderIdx++] = vkTexInfo.fSampleCount;
         SkASSERT(sizeof(loadOp)  < (1u << 8));
@@ -287,9 +287,8 @@ sk_sp<VulkanRenderPass> VulkanRenderPass::MakeRenderPass(const VulkanSharedConte
 
     bool loadMSAAFromResolve = false;
     if (hasColorAttachment) {
-        VulkanTextureInfo colorAttachTexInfo;
-        SkAssertResult(TextureInfos::GetVulkanTextureInfo(colorAttachmentTextureInfo,
-                                                          &colorAttachTexInfo));
+        const auto& vkColorAttachInfo =
+                TextureInfoPriv::Get<VulkanTextureInfo>(colorAttachmentTextureInfo);
         auto& colorAttachDesc = renderPassDesc.fColorAttachment;
 
         colorRef.attachment = attachmentDescs.size();
@@ -297,7 +296,7 @@ sk_sp<VulkanRenderPass> VulkanRenderPass::MakeRenderPass(const VulkanSharedConte
         memset(&vkColorAttachDesc, 0, sizeof(VkAttachmentDescription));
         setup_vk_attachment_description(
                 &vkColorAttachDesc,
-                colorAttachTexInfo,
+                vkColorAttachInfo,
                 colorAttachDesc,
                 compatibleOnly ? LoadOp::kDiscard  : colorAttachDesc.fLoadOp,
                 compatibleOnly ? StoreOp::kDiscard : colorAttachDesc.fStoreOp,
@@ -308,9 +307,8 @@ sk_sp<VulkanRenderPass> VulkanRenderPass::MakeRenderPass(const VulkanSharedConte
         if (hasColorResolveAttachment) {
             loadMSAAFromResolve = renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad;
             SkASSERT(renderPassDesc.fColorResolveAttachment.fStoreOp == StoreOp::kStore);
-            VulkanTextureInfo resolveAttachTexInfo;
-            SkAssertResult(TextureInfos::GetVulkanTextureInfo(colorResolveAttachmentTextureInfo,
-                                                              &resolveAttachTexInfo));
+            const auto& vkResolveAttachInfo =
+                    TextureInfoPriv::Get<VulkanTextureInfo>(colorResolveAttachmentTextureInfo);
             auto& resolveAttachDesc = renderPassDesc.fColorResolveAttachment;
 
             resolveRef.attachment = attachmentDescs.size();
@@ -318,7 +316,7 @@ sk_sp<VulkanRenderPass> VulkanRenderPass::MakeRenderPass(const VulkanSharedConte
             memset(&vkResolveAttachDesc, 0, sizeof(VkAttachmentDescription));
             setup_vk_attachment_description(
                     &vkResolveAttachDesc,
-                    resolveAttachTexInfo,
+                    vkResolveAttachInfo,
                     resolveAttachDesc,
                     compatibleOnly ? LoadOp::kDiscard  : resolveAttachDesc.fLoadOp,
                     compatibleOnly ? StoreOp::kDiscard : resolveAttachDesc.fStoreOp,
@@ -339,16 +337,15 @@ sk_sp<VulkanRenderPass> VulkanRenderPass::MakeRenderPass(const VulkanSharedConte
     }
 
     if (hasDepthStencilAttachment) {
-        VulkanTextureInfo depthStencilTexInfo;
-        SkAssertResult(TextureInfos::GetVulkanTextureInfo(depthStencilAttachmentTextureInfo,
-                                                          &depthStencilTexInfo));
+        const auto& vkDepthStencilInfo =
+                TextureInfoPriv::Get<VulkanTextureInfo>(depthStencilAttachmentTextureInfo);
         auto& depthStencilAttachDesc = renderPassDesc.fDepthStencilAttachment;
 
         depthStencilRef.attachment = attachmentDescs.size();
         VkAttachmentDescription& vkDepthStencilAttachDesc = attachmentDescs.push_back();
         setup_vk_attachment_description(
                 &vkDepthStencilAttachDesc,
-                depthStencilTexInfo,
+                vkDepthStencilInfo,
                 depthStencilAttachDesc,
                 compatibleOnly ? LoadOp::kDiscard   : depthStencilAttachDesc.fLoadOp,
                 compatibleOnly ? StoreOp::kDiscard  : depthStencilAttachDesc.fStoreOp,

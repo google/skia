@@ -43,6 +43,7 @@ inline bool SkSLToWGSL(const SkSL::ShaderCaps* caps,
     return SkSLToBackend(caps, &SkSL::ToWGSL, "WGSL",
                          sksl, programKind, settings, wgsl, outInterface, errorHandler);
 }
+
 }  // namespace skgpu
 
 namespace skgpu::graphite {
@@ -54,41 +55,6 @@ bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
                                  const std::string& wgsl,
                                  wgpu::ShaderModule* module,
                                  ShaderErrorHandler*);
-
-struct DawnTextureSpec {
-    DawnTextureSpec() = default;
-    DawnTextureSpec(const DawnTextureInfo& info)
-            : fFormat(info.fFormat)
-            , fViewFormat(info.fViewFormat)
-            , fUsage(info.fUsage)
-            , fAspect(info.fAspect)
-#if !defined(__EMSCRIPTEN__)
-            , fYcbcrVkDescriptor(info.fYcbcrVkDescriptor)
-#endif
-            , fSlice(info.fSlice) {
-    }
-
-    bool operator==(const DawnTextureSpec& that) const;
-
-    bool isCompatible(const DawnTextureSpec& that) const;
-
-    wgpu::TextureFormat getViewFormat() const {
-        return fViewFormat != wgpu::TextureFormat::Undefined ? fViewFormat : fFormat;
-    }
-
-    SkString toString() const;
-
-    wgpu::TextureFormat fFormat = wgpu::TextureFormat::Undefined;
-    // `fViewFormat` is always single plane format or plane view format for a multiplanar
-    // wgpu::Texture.
-    wgpu::TextureFormat fViewFormat = wgpu::TextureFormat::Undefined;
-    wgpu::TextureUsage fUsage = wgpu::TextureUsage::None;
-    wgpu::TextureAspect fAspect = wgpu::TextureAspect::All;
-#if !defined(__EMSCRIPTEN__)
-    wgpu::YCbCrVkDescriptor fYcbcrVkDescriptor = {};
-#endif
-    uint32_t fSlice = 0;
-};
 
 #if !defined(__EMSCRIPTEN__)
 
@@ -115,22 +81,11 @@ bool DawnFormatIsStencil(wgpu::TextureFormat);
 
 wgpu::TextureFormat DawnDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags>);
 
-DawnTextureInfo DawnTextureSpecToTextureInfo(const DawnTextureSpec& dawnSpec,
-                                             uint32_t sampleCount,
-                                             Mipmapped mipmapped);
-
-DawnTextureInfo DawnTextureInfoFromWGPUTexture(WGPUTexture texture);
-
-namespace TextureInfos {
-DawnTextureSpec GetDawnTextureSpec(const TextureInfo& dawnInfo);
-
-wgpu::TextureFormat GetDawnViewFormat(const TextureInfo& dawnInfo);
-wgpu::TextureAspect GetDawnAspect(const TextureInfo& dawnInfo);
-}  // namespace TextureInfos
-
 namespace BackendTextures {
+
 WGPUTexture GetDawnTexturePtr(const BackendTexture&);
 WGPUTextureView GetDawnTextureViewPtr(const BackendTexture&);
+
 }  // namespace BackendTextures
 
 }  // namespace skgpu::graphite
