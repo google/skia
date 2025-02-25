@@ -2009,9 +2009,15 @@ void precompile_vs_real_draws_subtest(skiatest::Reporter* reporter,
 
     static const RenderPassProperties kDepth_Stencil_4 { DepthStencilFlags::kDepthStencil,
                                                          kColorType,
+#if !defined(SK_IGNORE_RENDER_PASS_PROPERTIES_COLOR_SPACE)
+                                                         /* dstColorSpace= */ nullptr,
+#endif
                                                          /* requiresMSAA= */ true };
     static const RenderPassProperties kDepth_1 { DepthStencilFlags::kDepth,
                                                  kColorType,
+#if !defined(SK_IGNORE_RENDER_PASS_PROPERTIES_COLOR_SPACE)
+                                                 /* dstColorSpace= */ nullptr,
+#endif
                                                  /* requiresMSAA= */ false };
 
     TextureInfo textureInfo = caps->getDefaultSampledTextureInfo(kColorType,
@@ -2039,7 +2045,11 @@ void precompile_vs_real_draws_subtest(skiatest::Reporter* reporter,
         // The skp draws a rect w/ a default SkPaint and RGBA dst color type
         PaintOptions skpPaintOptions;
         Precompile(precompileContext, skpPaintOptions, DrawTypeFlags::kSimpleShape,
-                   { { kDepth_1.fDSFlags, kRGBA_8888_SkColorType, kDepth_1.fRequiresMSAA } });
+                   { { kDepth_1.fDSFlags, kRGBA_8888_SkColorType,
+#if !defined(SK_IGNORE_RENDER_PASS_PROPERTIES_COLOR_SPACE)
+                       kDepth_1.fDstCS,
+#endif
+                       kDepth_1.fRequiresMSAA } });
     }
     int after = globalCache->numGraphicsPipelines();
 

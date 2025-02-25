@@ -85,19 +85,34 @@ PaintOptions lineargrad_srcover_dithered() {
 // "RP(color: Dawn(f=23,s=1), resolve: {}, ds: Dawn(f=39,s=1), samples: 1, swizzle: rgba)"
 // Single sampled BGRA w/ just depth
 RenderPassProperties bgra_1_depth() {
-    return { DepthStencilFlags::kDepth, kBGRA_8888_SkColorType, /* requiresMSAA= */ false };
+    return { DepthStencilFlags::kDepth,
+             kBGRA_8888_SkColorType,
+#if !defined(SK_IGNORE_RENDER_PASS_PROPERTIES_COLOR_SPACE)
+             /* dstColorSpace= */ nullptr,
+#endif
+             /* requiresMSAA= */ false };
 }
 
 // "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=39,s=4), samples: 4, swizzle: rgba)"
 // MSAA BGRA w/ just depth
 RenderPassProperties bgra_4_depth() {
-    return { DepthStencilFlags::kDepth, kBGRA_8888_SkColorType, /* requiresMSAA= */ true };
+    return { DepthStencilFlags::kDepth,
+             kBGRA_8888_SkColorType,
+#if !defined(SK_IGNORE_RENDER_PASS_PROPERTIES_COLOR_SPACE)
+             /* dstColorSpace= */ nullptr,
+#endif
+             /* requiresMSAA= */ true };
 }
 
 // "RP(color: Dawn(f=23,s=4), resolve: Dawn(f=23,s=1), ds: Dawn(f=41,s=4), samples: 4, swizzle: rgba)"
 // MSAA BGRA w/ depth and stencil
 RenderPassProperties bgra_4_depth_stencil() {
-    return { DepthStencilFlags::kDepthStencil, kBGRA_8888_SkColorType, /* requiresMSAA= */ true };
+    return { DepthStencilFlags::kDepthStencil,
+             kBGRA_8888_SkColorType,
+#if !defined(SK_IGNORE_RENDER_PASS_PROPERTIES_COLOR_SPACE)
+             /* dstColorSpace= */ nullptr,
+#endif
+             /* requiresMSAA= */ true };
 }
 
 // Precompile with the provided paintOptions, drawType, and RenderPassSettings then verify that
