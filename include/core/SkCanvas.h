@@ -54,6 +54,7 @@ class GrRecordingContext;
 
 class SkBitmap;
 class SkBlender;
+class SkBlurMaskFilterImpl;
 class SkColorSpace;
 class SkData;
 class SkDevice;
@@ -2679,11 +2680,14 @@ private:
     // into the canvas' global space.
     SkRect computeDeviceClipBounds(bool outsetForAA=true) const;
 
-    // Attempt to draw a rrect with an analytic blur. If the paint does not contain a blur, or the
-    // geometry can't be drawn with an analytic blur by the device, a layer is returned for a
-    // regular draw. If the draw succeeds or predrawNotify fails, nullopt is returned indicating
-    // that nothing further should be drawn.
+    // Returns the paint's mask filter if it can be used to draw an rrect with an analytic blur, and
+    // returns null otherwise.
+    const SkBlurMaskFilterImpl* canAttemptBlurredRRectDraw(const SkPaint&) const;
+
+    // Attempt to draw a rrect with an analytic blur. If the draw succeeds or predrawNotify fails,
+    // nullopt is returned indicating that nothing further should be drawn.
     std::optional<AutoLayerForImageFilter> attemptBlurredRRectDraw(const SkRRect&,
+                                                                   const SkBlurMaskFilterImpl*,
                                                                    const SkPaint&,
                                                                    SkEnumBitMask<PredrawFlags>);
 
