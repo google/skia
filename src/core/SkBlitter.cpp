@@ -759,11 +759,10 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkShaderBlitter::SkShaderBlitter(const SkPixmap& device, const SkPaint& paint,
+SkShaderBlitter::SkShaderBlitter(const SkPixmap& device,
+                                 const SkPaint& paint,
                                  SkShaderBase::Context* shaderContext)
-        : INHERITED(device)
-        , fShader(paint.refShader())
-        , fShaderContext(shaderContext) {
+        : SkRasterBlitter(device), fShader(paint.refShader()), fShaderContext(shaderContext) {
     SkASSERT(fShader);
     SkASSERT(fShaderContext);
 }

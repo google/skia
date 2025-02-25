@@ -548,8 +548,7 @@ SkBlitRow::Proc32 SkBlitRow::Factory32(unsigned flags) {
     SkASSERT(flags < std::size(kProcs));
     flags &= std::size(kProcs) - 1;  // just to be safe
 
-    return flags == 2 ? SkOpts::blit_row_s32a_opaque
-                      : kProcs[flags];
+    return flags == Flags32::kSrcPixelAlpha_Flag32 ? SkOpts::blit_row_s32a_opaque : kProcs[flags];
 }
 
 void SkBlitRow::Color32(SkPMColor dst[], int count, SkPMColor color) {

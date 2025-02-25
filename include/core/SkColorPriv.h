@@ -112,14 +112,6 @@ static inline SkPMColor SkPackARGB32(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
            (g << SK_G32_SHIFT) | (b << SK_B32_SHIFT);
 }
 
-/**
- *  Legacy "NoCheck" version of SkPackARGB32. Remove this once all callers are updated.
- */
-static inline SkPMColor SkPackARGB32NoCheck(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
-    return (a << SK_A32_SHIFT) | (r << SK_R32_SHIFT) |
-           (g << SK_G32_SHIFT) | (b << SK_B32_SHIFT);
-}
-
 static inline
 SkPMColor SkPremultiplyARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
     SkA32Assert(a);
@@ -138,22 +130,22 @@ SkPMColor SkPremultiplyARGBInline(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
 // When Android is compiled optimizing for size, SkAlphaMulQ doesn't get
 // inlined; forcing inlining significantly improves performance.
 static SK_ALWAYS_INLINE uint32_t SkAlphaMulQ(uint32_t c, unsigned scale) {
-    uint32_t mask = 0xFF00FF;
+    static constexpr uint32_t kMask = 0x00FF00FF;
 
-    uint32_t rb = ((c & mask) * scale) >> 8;
-    uint32_t ag = ((c >> 8) & mask) * scale;
-    return (rb & mask) | (ag & ~mask);
+    uint32_t rb = ((c & kMask) * scale) >> 8;
+    uint32_t ag = ((c >> 8) & kMask) * scale;
+    return (rb & kMask) | (ag & ~kMask);
 }
 
 static inline SkPMColor SkPMSrcOver(SkPMColor src, SkPMColor dst) {
     uint32_t scale = SkAlpha255To256(255 - SkGetPackedA32(src));
 
-    uint32_t mask = 0xFF00FF;
-    uint32_t rb = (((dst & mask) * scale) >> 8) & mask;
-    uint32_t ag = (((dst >> 8) & mask) * scale) & ~mask;
+    static constexpr uint32_t kMask = 0x00FF00FF;
+    uint32_t rb = (((dst & kMask) * scale) >> 8) & kMask;
+    uint32_t ag = (((dst >> 8) & kMask) * scale) & ~kMask;
 
-    rb += (src &  mask);
-    ag += (src & ~mask);
+    rb += (src &  kMask);
+    ag += (src & ~kMask);
 
     // Color channels (but not alpha) can overflow, so we have to saturate to 0xFF in each lane.
     return std::min(rb & 0x000001FF, 0x000000FFU) |

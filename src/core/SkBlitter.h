@@ -39,6 +39,11 @@ enum class SkDrawCoverage : bool;
 class SkBlitter {
 public:
     virtual ~SkBlitter();
+    SkBlitter() = default;
+    SkBlitter(const SkBlitter&) = delete;
+    SkBlitter(SkBlitter&&) = delete;
+    SkBlitter& operator=(const SkBlitter&) = delete;
+    SkBlitter& operator=(SkBlitter&&) = delete;
 
     /// Blit a horizontal run of one or more pixels.
     virtual void blitH(int x, int y, int width) = 0;
