@@ -75,6 +75,9 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
         return nullptr;
     }
 
+    // Look up again (in case this entry got purged)
+    entryList = fMaskCache.find(maskKey);
+
     // Add locator and bounds to MaskCache.
     if (entryList) {
         MaskHashEntry* newEntry = new MaskHashEntry{iBounds, locator, nullptr};
@@ -228,7 +231,7 @@ void ClipAtlasManager::evict(PlotLocator plotLocator) {
                 uint32_t entryIndex =
                         fDrawAtlas->getListIndex(currHashEntry->fLocator.plotLocator());
                 SkASSERTF_RELEASE(entryIndex == index,
-                                  "#ClipAtlas#: Hash entry has wrong index! plot %d\n", entryIndex);
+                                  "=ClipAtlas=: Hash entry has wrong index! plot %d\n", entryIndex);
                 // Remove entry from hash list
                 if (prevHashEntry) {
                     prevHashEntry->fNext = currHashEntry->fNext;
@@ -251,7 +254,7 @@ void ClipAtlasManager::evict(PlotLocator plotLocator) {
                             while ((currValidateEntry = validateIter.get())) {
                                 validateIter.next();
                                 SkASSERTF_RELEASE(currValidateEntry->fKey != currKeyEntry->fKey,
-                                                  "=ClipAtlas=: Extra plotlist entry: plot %d", i);
+                                        "=ClipAtlas=: Extra plotlist entry: %d %d", i, index);
                             }
                         }
                     }
