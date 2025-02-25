@@ -53,8 +53,12 @@ public:
                               RenderPassDesc*,
                               const RendererProvider*) const override;
 
-    bool serializeTextureInfo(const TextureInfo&, SkWStream*) const override;
-    bool deserializeTextureInfo(SkStream*, TextureInfo* out) const override;
+    bool deserializeTextureInfo(SkStream*,
+                                BackendApi,
+                                Mipmapped,
+                                Protected,
+                                uint32_t sampleCount,
+                                TextureInfo* out) const override;
 
     // Get a sufficiently unique bit representation for the RenderPassDesc to be embedded in other
     // UniqueKeys (e.g. makeGraphicsPipelineKey).

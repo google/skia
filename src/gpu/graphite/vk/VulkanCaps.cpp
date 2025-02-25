@@ -19,7 +19,6 @@
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
-#include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "src/gpu/graphite/vk/VulkanRenderPass.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
@@ -319,14 +318,16 @@ TextureInfo VulkanCaps::getDefaultSampledTextureInfo(SkColorType ct,
 TextureInfo VulkanCaps::getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
                                                      Mipmapped mipmapped) const {
     VulkanTextureInfo info;
+    if (!TextureInfos::GetVulkanTextureInfo(textureInfo, &info)) {
+        return {};
+    }
+
     info.fSampleCount = 1;
     info.fMipmapped = mipmapped;
-    info.fFormat = TextureInfoPriv::Get<VulkanTextureInfo>(textureInfo).fFormat;
-    info.fFlags = (textureInfo.isProtected() == Protected::kYes) ?
-            VK_IMAGE_CREATE_PROTECTED_BIT : 0;
+    info.fFlags =
+            (textureInfo.isProtected() == Protected::kYes) ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
     info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-    info.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
-                            VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+    info.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                             VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -380,8 +381,7 @@ TextureInfo VulkanCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampl
         return {};
     }
 
-    const VkFormat singleSpecFormat =
-            TextureInfoPriv::Get<VulkanTextureInfo>(singleSampledInfo).fFormat;
+    const VkFormat singleSpecFormat = TextureInfos::GetVkFormat(singleSampledInfo);
     const FormatInfo& formatInfo = this->getFormatInfo(singleSpecFormat);
     if ((singleSampledInfo.isProtected() == Protected::kYes && !this->protectedSupport()) ||
         !formatInfo.isRenderable(VK_IMAGE_TILING_OPTIMAL, fDefaultMSAASamples)) {
@@ -392,7 +392,7 @@ TextureInfo VulkanCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampl
     info.fSampleCount = fDefaultMSAASamples;
     info.fMipmapped = Mipmapped::kNo;
     info.fFlags = (singleSampledInfo.isProtected() == Protected::kYes) ?
-            VK_IMAGE_CREATE_PROTECTED_BIT : 0;
+        VK_IMAGE_CREATE_PROTECTED_BIT : 0;
     info.fFormat = singleSpecFormat;
     info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
 
@@ -468,7 +468,7 @@ TextureInfo VulkanCaps::getDefaultStorageTextureInfo(SkColorType colorType) cons
 }
 
 uint32_t VulkanCaps::channelMask(const TextureInfo& textureInfo) const {
-    return skgpu::VkFormatChannels(TextureInfoPriv::Get<VulkanTextureInfo>(textureInfo).fFormat);
+    return skgpu::VkFormatChannels(TextureInfos::GetVkFormat(textureInfo));
 }
 
 void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
@@ -1332,13 +1332,14 @@ const VulkanCaps::DepthStencilFormatInfo& VulkanCaps::getDepthStencilFormatInfo(
 
 const Caps::ColorTypeInfo* VulkanCaps::getColorTypeInfo(SkColorType ct,
                                                         const TextureInfo& textureInfo) const {
-    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(textureInfo);
-    VkFormat vkFormat = vkInfo.fFormat;
+    VkFormat vkFormat = TextureInfos::GetVkFormat(textureInfo);
     if (vkFormat == VK_FORMAT_UNDEFINED) {
         // If VkFormat is undefined but there is a valid YCbCr conversion associated with the
         // texture, then we know we are using an external format and can return color type
         // info representative of external format color information.
-        return vkInfo.fYcbcrConversionInfo.isValid() ? &fExternalFormatColorTypeInfo : nullptr;
+        return TextureInfos::GetVulkanYcbcrConversionInfo(textureInfo).isValid()
+                       ? &fExternalFormatColorTypeInfo
+                       : nullptr;
     }
 
     const FormatInfo& info = this->getFormatInfo(vkFormat);
@@ -1353,8 +1354,11 @@ const Caps::ColorTypeInfo* VulkanCaps::getColorTypeInfo(SkColorType ct,
 }
 
 bool VulkanCaps::onIsTexturable(const TextureInfo& texInfo) const {
-    return texInfo.isValid() &&
-           this->isTexturable(TextureInfoPriv::Get<VulkanTextureInfo>(texInfo));
+    VulkanTextureInfo vkInfo;
+    if (!TextureInfos::GetVulkanTextureInfo(texInfo, &vkInfo)) {
+        return false;
+    }
+    return this->isTexturable(vkInfo);
 }
 
 bool VulkanCaps::isTexturable(const VulkanTextureInfo& vkInfo) const {
@@ -1370,8 +1374,11 @@ bool VulkanCaps::isTexturable(const VulkanTextureInfo& vkInfo) const {
 }
 
 bool VulkanCaps::isRenderable(const TextureInfo& texInfo) const {
-    return texInfo.isValid() &&
-           this->isRenderable(TextureInfoPriv::Get<VulkanTextureInfo>(texInfo));
+    VulkanTextureInfo vkInfo;
+    if (!TextureInfos::GetVulkanTextureInfo(texInfo, &vkInfo)) {
+        return false;
+    }
+    return this->isRenderable(vkInfo);
 }
 
 bool VulkanCaps::isRenderable(const VulkanTextureInfo& vkInfo) const {
@@ -1380,10 +1387,10 @@ bool VulkanCaps::isRenderable(const VulkanTextureInfo& vkInfo) const {
 }
 
 bool VulkanCaps::isStorage(const TextureInfo& texInfo) const {
-    if (!texInfo.isValid()) {
+    VulkanTextureInfo vkInfo;
+    if (!TextureInfos::GetVulkanTextureInfo(texInfo, &vkInfo)) {
         return false;
     }
-    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(texInfo);
 
     const FormatInfo& info = this->getFormatInfo(vkInfo.fFormat);
     return info.isStorage(vkInfo.fImageTiling);
@@ -1400,7 +1407,10 @@ bool VulkanCaps::isTransferDst(const VulkanTextureInfo& vkInfo) const {
 }
 
 bool VulkanCaps::supportsWritePixels(const TextureInfo& texInfo) const {
-    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(texInfo);
+    VulkanTextureInfo vkInfo;
+    if (!TextureInfos::GetVulkanTextureInfo(texInfo, &vkInfo)) {
+        return false;
+    }
 
     // Can't write if it needs a YCbCr sampler
     if (VkFormatNeedsYcbcrSampler(vkInfo.fFormat)) {
@@ -1423,7 +1433,10 @@ bool VulkanCaps::supportsReadPixels(const TextureInfo& texInfo) const {
         return false;
     }
 
-    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(texInfo);
+    VulkanTextureInfo vkInfo;
+    if (!TextureInfos::GetVulkanTextureInfo(texInfo, &vkInfo)) {
+        return false;
+    }
 
     // Can't read if it needs a YCbCr sampler
     if (VkFormatNeedsYcbcrSampler(vkInfo.fFormat)) {
@@ -1449,10 +1462,10 @@ std::pair<SkColorType, bool /*isRGBFormat*/> VulkanCaps::supportedWritePixelsCol
         SkColorType dstColorType,
         const TextureInfo& dstTextureInfo,
         SkColorType srcColorType) const {
-    if (!dstTextureInfo.isValid()) {
+    VulkanTextureInfo vkInfo;
+    if (!TextureInfos::GetVulkanTextureInfo(dstTextureInfo, &vkInfo)) {
         return {kUnknown_SkColorType, false};
     }
-    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(dstTextureInfo);
 
     // Can't write to YCbCr formats
     // TODO: Can't write to external formats, either
@@ -1475,10 +1488,10 @@ std::pair<SkColorType, bool /*isRGBFormat*/> VulkanCaps::supportedReadPixelsColo
         SkColorType srcColorType,
         const TextureInfo& srcTextureInfo,
         SkColorType dstColorType) const {
-    if (!srcTextureInfo.isValid()) {
+    VulkanTextureInfo vkInfo;
+    if (!TextureInfos::GetVulkanTextureInfo(srcTextureInfo, &vkInfo)) {
         return {kUnknown_SkColorType, false};
     }
-    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(srcTextureInfo);
 
     // Can't read from YCbCr formats
     // TODO: external formats?
@@ -1536,12 +1549,33 @@ UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeli
     return pipelineKey;
 }
 
-bool VulkanCaps::serializeTextureInfo(const TextureInfo& info, SkWStream* out) const {
-    return TextureInfoPriv::Serialize<VulkanTextureInfo>(info, out);
-}
+// c.f. VulkanTextureInfoData::serialize
+bool VulkanCaps::deserializeTextureInfo(SkStream* stream,
+                                        BackendApi backendAPI,
+                                        Mipmapped mipmapped,
+                                        Protected isProtected,
+                                        uint32_t sampleCount,
+                                        TextureInfo* out) const {
+    SkASSERT(backendAPI == BackendApi::kVulkan);
 
-bool VulkanCaps::deserializeTextureInfo(SkStream* stream, TextureInfo* out) const {
-    return TextureInfoPriv::Deserialize<VulkanTextureInfo>(stream, out);
+    VulkanTextureSpec spec;
+    if (!VulkanTextureSpec::Deserialize(stream, &spec)) {
+        return false;
+    }
+
+    SkASSERT((isProtected == Protected::kYes) ==
+             SkToBool(spec.fFlags & VK_IMAGE_CREATE_PROTECTED_BIT));
+
+    *out = TextureInfos::MakeVulkan(VulkanTextureInfo(sampleCount,
+                                                      mipmapped,
+                                                      spec.fFlags,
+                                                      spec.fFormat,
+                                                      spec.fImageTiling,
+                                                      spec.fImageUsageFlags,
+                                                      spec.fSharingMode,
+                                                      spec.fAspectMask,
+                                                      spec.fYcbcrConversionInfo));
+    return true;
 }
 
 void VulkanCaps::buildKeyForTexture(SkISize dimensions,
@@ -1550,13 +1584,13 @@ void VulkanCaps::buildKeyForTexture(SkISize dimensions,
                                     GraphiteResourceKey* key) const {
     SkASSERT(!dimensions.isEmpty());
 
-    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(info);
+    const VulkanTextureSpec vkSpec = TextureInfos::GetVulkanTextureSpec(info);
     // We expect that the VkFormat enum is at most a 32-bit value.
     static_assert(VK_FORMAT_MAX_ENUM == 0x7FFFFFFF);
     // We should either be using a known VkFormat or have a valid ycbcr conversion.
-    SkASSERT(vkInfo.fFormat != VK_FORMAT_UNDEFINED || vkInfo.fYcbcrConversionInfo.isValid());
+    SkASSERT(vkSpec.fFormat != VK_FORMAT_UNDEFINED || vkSpec.fYcbcrConversionInfo.isValid());
 
-    uint32_t format = static_cast<uint32_t>(vkInfo.fFormat);
+    uint32_t format = static_cast<uint32_t>(vkSpec.fFormat);
     uint32_t samples = SamplesToKey(info.numSamples());
     // We don't have to key the number of mip levels because it is inherit in the combination of
     // isMipped and dimensions.
@@ -1564,15 +1598,15 @@ void VulkanCaps::buildKeyForTexture(SkISize dimensions,
     Protected isProtected = info.isProtected();
 
     // Confirm all the below parts of the key can fit in a single uint32_t. The sum of the shift
-    // amounts in the asserts must be less than or equal to 32. vkInfo.fFlags will go into its
+    // amounts in the asserts must be less than or equal to 32. vkSpec.fFlags will go into its
     // own 32-bit block.
     SkASSERT(samples                            < (1u << 3));  // sample key is first 3 bits
     SkASSERT(static_cast<uint32_t>(isMipped)    < (1u << 1));  // isMapped is 4th bit
     SkASSERT(static_cast<uint32_t>(isProtected) < (1u << 1));  // isProtected is 5th bit
-    SkASSERT(vkInfo.fImageTiling                < (1u << 1));  // imageTiling is 6th bit
-    SkASSERT(vkInfo.fSharingMode                < (1u << 1));  // sharingMode is 7th bit
-    SkASSERT(vkInfo.fAspectMask                 < (1u << 11)); // aspectMask is bits 8 - 19
-    SkASSERT(vkInfo.fImageUsageFlags            < (1u << 12)); // imageUsageFlags are bits 20-32
+    SkASSERT(vkSpec.fImageTiling                < (1u << 1));  // imageTiling is 6th bit
+    SkASSERT(vkSpec.fSharingMode                < (1u << 1));  // sharingMode is 7th bit
+    SkASSERT(vkSpec.fAspectMask                 < (1u << 11)); // aspectMask is bits 8 - 19
+    SkASSERT(vkSpec.fImageUsageFlags            < (1u << 12)); // imageUsageFlags are bits 20-32
 
     // We need two uint32_ts for dimensions, 1 for format, and 2 for the rest of the information.
     static constexpr int kNum32DataCntNoYcbcr =  2 + 1 + 2;
@@ -1581,8 +1615,8 @@ void VulkanCaps::buildKeyForTexture(SkISize dimensions,
     int num32DataCnt = kNum32DataCntNoYcbcr;
 
     // If a texture w/ an external format is being used, that information must also be appended.
-    const VulkanYcbcrConversionInfo& ycbcrInfo = vkInfo.fYcbcrConversionInfo;
-    num32DataCnt += vkInfo.fYcbcrConversionInfo.isValid() ? kNum32DataCntYcbcr : 0;
+    const VulkanYcbcrConversionInfo& ycbcrInfo = TextureInfos::GetVulkanYcbcrConversionInfo(info);
+    num32DataCnt += ycbcrInfo.isValid() ? kNum32DataCntYcbcr : 0;
 
     GraphiteResourceKey::Builder builder(key, type, num32DataCnt);
 
@@ -1601,14 +1635,14 @@ void VulkanCaps::buildKeyForTexture(SkISize dimensions,
         builder[i++] = format;
     }
 
-    builder[i++] = (static_cast<uint32_t>(vkInfo.fFlags));
+    builder[i++] = (static_cast<uint32_t>(vkSpec.fFlags));
     builder[i++] = (samples                                            << 0 ) |
                    (static_cast<uint32_t>(isMipped)                    << 3 ) |
                    (static_cast<uint32_t>(isProtected)                 << 4 ) |
-                   (static_cast<uint32_t>(vkInfo.fImageTiling)         << 5 ) |
-                   (static_cast<uint32_t>(vkInfo.fSharingMode)         << 6 ) |
-                   (static_cast<uint32_t>(vkInfo.fAspectMask)          << 7 ) |
-                   (static_cast<uint32_t>(vkInfo.fImageUsageFlags)     << 19);
+                   (static_cast<uint32_t>(vkSpec.fImageTiling)         << 5 ) |
+                   (static_cast<uint32_t>(vkSpec.fSharingMode)         << 6 ) |
+                   (static_cast<uint32_t>(vkSpec.fAspectMask)          << 7 ) |
+                   (static_cast<uint32_t>(vkSpec.fImageUsageFlags)     << 19);
     SkASSERT(i == num32DataCnt);
 }
 
@@ -1637,7 +1671,7 @@ DstReadStrategy VulkanCaps::getDstReadStrategy(const TextureInfo& info) const {
 
 ImmutableSamplerInfo VulkanCaps::getImmutableSamplerInfo(const TextureInfo& textureInfo) const {
     const skgpu::VulkanYcbcrConversionInfo& ycbcrConversionInfo =
-            TextureInfoPriv::Get<VulkanTextureInfo>(textureInfo).fYcbcrConversionInfo;
+            TextureInfos::GetVulkanYcbcrConversionInfo(textureInfo);
 
     if (ycbcrConversionInfo.isValid()) {
         return VulkanYcbcrConversion::ToImmutableSamplerInfo(ycbcrConversionInfo);

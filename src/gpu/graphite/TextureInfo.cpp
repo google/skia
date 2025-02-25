@@ -9,21 +9,33 @@
 
 #include "include/core/SkFourByteTag.h"
 #include "include/core/SkStream.h"
-#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 
 namespace skgpu::graphite {
 
+TextureInfo::TextureInfo(){};
+TextureInfo::~TextureInfo() = default;
+
+static inline void assert_is_supported_backend(const BackendApi& backend) {
+    SkASSERT(backend == BackendApi::kDawn ||
+             backend == BackendApi::kMetal ||
+             backend == BackendApi::kVulkan);
+}
+
 TextureInfo::TextureInfo(const TextureInfo& that)
         : fBackend(that.fBackend)
+        , fValid(that.fValid)
+        , fSampleCount(that.fSampleCount)
+        , fMipmapped(that.fMipmapped)
         , fProtected(that.fProtected) {
-    if (!that.fData.has_value()) {
-        SkASSERT(!fData.has_value());
+    if (!fValid) {
         return;
     }
 
-    that.fData->copyTo(fData);
+    assert_is_supported_backend(fBackend);
+    fTextureInfoData.reset();
+    that.fTextureInfoData->copyTo(fTextureInfoData);
 }
 
 TextureInfo& TextureInfo::operator=(const TextureInfo& that) {
@@ -34,80 +46,185 @@ TextureInfo& TextureInfo::operator=(const TextureInfo& that) {
     return *this;
 }
 
-bool TextureInfo::isCompatible(const TextureInfo& that, bool requireExact) const {
+bool TextureInfo::operator==(const TextureInfo& that) const {
+    if (!this->isValid() && !that.isValid()) {
+        return true;
+    }
+    if (!this->isValid() || !that.isValid()) {
+        return false;
+    }
+
     if (fBackend != that.fBackend) {
         return false;
-    } else if (fBackend == skgpu::BackendApi::kUnsupported) {
-        SkASSERT(!fData.has_value() && !that.fData.has_value());
-        return true;
-    } else {
-        SkASSERT(fData.has_value() && that.fData.has_value());
-        return fData->fSampleCount == that.fData->fSampleCount &&
-               fData->fMipmapped == that.fData->fMipmapped &&
-               fData->isCompatible(that, requireExact);
     }
+
+    if (fSampleCount != that.fSampleCount ||
+        fMipmapped != that.fMipmapped ||
+        fProtected != that.fProtected) {
+        return false;
+    }
+    assert_is_supported_backend(fBackend);
+    return fTextureInfoData->equal(that.fTextureInfoData.get());
+}
+
+bool TextureInfo::isCompatible(const TextureInfo& that) const {
+    if (!this->isValid() || !that.isValid()) {
+        return false;
+    }
+
+    if (fSampleCount != that.fSampleCount ||
+        fMipmapped != that.fMipmapped ||
+        fProtected != that.fProtected) {
+        return false;
+    }
+
+    if (fBackend != that.fBackend) {
+        return false;
+    }
+    assert_is_supported_backend(fBackend);
+    return fTextureInfoData->isCompatible(that.fTextureInfoData.get());
 }
 
 SkString TextureInfo::toString() const {
-    if (!this->isValid()) {
+    if (!fValid) {
         return SkString("{}");
     }
 
-    // Strip the leading "k" from the enum name when creating the TextureInfo string.
-    SkASSERT(BackendApiToStr(fBackend)[0] == 'k');
-    const char* backendName = BackendApiToStr(fBackend) + 1;
-
-    return SkStringPrintf("%s(%s,bpp=%zu,sampleCount=%u,mipmapped=%d,protected=%d)",
-                          backendName,
-                          fData->toBackendString().c_str(),
-                          this->bytesPerPixel(),
-                          fData->fSampleCount,
-                          static_cast<int>(fData->fMipmapped),
-                          static_cast<int>(fProtected));
+    SkString ret;
+    switch (fBackend) {
+        case BackendApi::kDawn:
+        case BackendApi::kMetal:
+        case BackendApi::kVulkan:
+            ret = fTextureInfoData->toString();
+            break;
+        case BackendApi::kMock:
+            ret += "Mock(";
+            break;
+        case BackendApi::kUnsupported:
+            ret += "Unsupported(";
+            break;
+    }
+    ret.appendf("bytesPerPixel=%zu,sampleCount=%u,mipmapped=%d,protected=%d)",
+                this->bytesPerPixel(),
+                fSampleCount,
+                static_cast<int>(fMipmapped),
+                static_cast<int>(fProtected));
+    return ret;
 }
 
-SkString TextureInfoPriv::GetAttachmentLabel(const TextureInfo& info) {
-    if (!info.isValid()) {
+SkString TextureInfo::toRPAttachmentString() const {
+    if (!fValid) {
         return SkString("{}");
     }
 
-    // Strip the leading "k" from the enum name when creating the TextureInfo string.
-    SkASSERT(BackendApiToStr(info.backend())[0] == 'k');
-    const char* backendName = BackendApiToStr(info.backend()) + 1;
     // For renderpass attachments, the string will contain the view format and sample count only
-    return SkStringPrintf("%s(f=%u,s=%u)",
-                          backendName,
-                          info.fData->viewFormat(),
-                          info.fData->fSampleCount);
+    switch (fBackend) {
+        case BackendApi::kDawn:
+        case BackendApi::kMetal:
+        case BackendApi::kVulkan:
+            return fTextureInfoData->toRPAttachmentString(fSampleCount);
+        case BackendApi::kMock:
+            return SkStringPrintf("Mock(s=%u)", fSampleCount);
+        case BackendApi::kUnsupported:
+            return SkString("Unsupported");
+    }
+    SkUNREACHABLE;
 }
 
-static constexpr uint8_t kInfoSentinel = 0xFF;
+size_t TextureInfo::bytesPerPixel() const {
+    if (!this->isValid()) {
+        return 0;
+    }
 
-uint32_t TextureInfoPriv::GetInfoTag(const TextureInfo& info) {
-    SkASSERT(info.isValid());
-    return (kInfoSentinel                    << 24) | // force value to be non-zero
-           (SkTo<uint8_t>(info.backend())    << 16) |
-           (SkTo<uint8_t>(info.mipmapped())  <<  8) |
-           (SkTo<uint8_t>(info.numSamples()) <<  0);
+    switch (fBackend) {
+        case BackendApi::kDawn:
+        case BackendApi::kMetal:
+        case BackendApi::kVulkan:
+            return fTextureInfoData->bytesPerPixel();
+        default:
+            return 0;
+    }
 }
 
-std::tuple<BackendApi, Mipmapped, int> TextureInfoPriv::ParseInfoTag(uint32_t tag) {
-    static constexpr std::tuple<BackendApi, Mipmapped, int> kInvalid =
-            {BackendApi::kUnsupported, Mipmapped::kNo, 0};
+SkTextureCompressionType TextureInfo::compressionType() const {
+    if (!this->isValid()) {
+        return SkTextureCompressionType::kNone;
+    }
 
-    uint8_t sentinel  = 0xFF & (tag >> 24);
-    uint8_t backend   = 0xFF & (tag >> 16);
-    uint8_t mipmapped = 0xFF & (tag >>  8);
-    uint8_t samples   = 0xFF & (tag >>  0);
-    if (sentinel != kInfoSentinel) {
-        return kInvalid;
+    switch (fBackend) {
+        case BackendApi::kDawn:
+        case BackendApi::kMetal:
+        case BackendApi::kVulkan:
+            return fTextureInfoData->compressionType();
+        default:
+            return SkTextureCompressionType::kNone;
     }
-    if (backend >= SkTo<uint8_t>(BackendApi::kUnsupported)) {
-        return kInvalid;
+}
+
+bool TextureInfo::isMemoryless() const {
+    if (!this->isValid()) {
+        return false;
     }
-    return {static_cast<BackendApi>(backend),
-            mipmapped ? Mipmapped::kYes : Mipmapped::kNo,
-            static_cast<int>(samples)};
+
+    switch (fBackend) {
+        case BackendApi::kDawn:
+        case BackendApi::kMetal:
+        case BackendApi::kVulkan:
+            return fTextureInfoData->isMemoryless();
+        default:
+            return false;
+    }
+}
+
+TextureInfoData::~TextureInfoData(){};
+
+bool TextureInfoPriv::Serialize(SkWStream* stream,
+                                const TextureInfo& textureInfo) {
+    if (!stream->write32(
+            SkSetFourByteTag(static_cast<uint8_t>(textureInfo.backend()),
+                             static_cast<uint8_t>(textureInfo.isValid()),
+                             static_cast<uint8_t>(textureInfo.mipmapped()),
+                             static_cast<uint8_t>(textureInfo.isProtected())))) {
+        return false;
+    }
+
+    if (!stream->write32(textureInfo.numSamples())) {
+        return false;
+    }
+
+    if (!textureInfo.isValid()) {
+        // We don't bother serializing the textureInfoData is it isn't valid
+        return true;
+    }
+
+    return textureInfo.fTextureInfoData.get()->serialize(stream);
+}
+
+bool TextureInfoPriv::Deserialize(const Caps* caps,
+                                  SkStream* stream,
+                                  TextureInfo* textureInfo) {
+    uint32_t tag;
+    if (!stream->readU32(&tag)) {
+        return false;
+    }
+
+    BackendApi backendAPI = static_cast<BackendApi>(0xF & (tag >> 24));
+    bool isValid = SkToBool(0xF & (tag >> 16));
+    Mipmapped mipmapped = static_cast<Mipmapped>(0xF & (tag >> 8));
+    Protected isProtected = static_cast<Protected>(0xF & tag);
+
+    uint32_t sampleCount;
+    if (!stream->readU32(&sampleCount)) {
+        return false;
+    }
+
+    if (!isValid) {
+        // It is okay to have a serialized, invalid TextureInfo
+        return true;
+    }
+
+    return caps->deserializeTextureInfo(stream, backendAPI, mipmapped, isProtected,
+                                        sampleCount, textureInfo);
 }
 
 } // namespace skgpu::graphite

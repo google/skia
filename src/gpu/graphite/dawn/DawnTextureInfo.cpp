@@ -13,54 +13,114 @@
 
 namespace skgpu::graphite {
 
-DawnTextureInfo::DawnTextureInfo(WGPUTexture texture)
-        : DawnTextureInfo(
-                wgpuTextureGetSampleCount(texture),
-                wgpuTextureGetMipLevelCount(texture) > 1 ? Mipmapped::kYes : Mipmapped::kNo,
-                /*format=*/static_cast<wgpu::TextureFormat>(wgpuTextureGetFormat(texture)),
-                /*viewFormat=*/static_cast<wgpu::TextureFormat>(wgpuTextureGetFormat(texture)),
-                static_cast<wgpu::TextureUsage>(wgpuTextureGetUsage(texture)),
-                wgpu::TextureAspect::All,
-                /*slice=*/0) {}
+class DawnTextureInfoData final : public TextureInfoData {
+public:
+    DawnTextureInfoData(DawnTextureSpec v) : fDawnSpec(v) {}
 
-size_t DawnTextureInfo::bytesPerPixel() const {
-    return DawnFormatBytesPerBlock(this->getViewFormat());
-}
-
-SkTextureCompressionType DawnTextureInfo::compressionType() const {
-    return DawnFormatToCompressionType(this->getViewFormat());
-}
-
-SkString DawnTextureInfo::toBackendString() const {
-    return SkStringPrintf("format=%u,viewFormat=%u,usage=0x%08X,aspect=0x%08X,slice=%u",
-                          static_cast<unsigned int>(fFormat),
-                          static_cast<unsigned int>(fViewFormat),
-                          static_cast<unsigned int>(fUsage),
-                          static_cast<unsigned int>(fAspect),
-                          fSlice);
-}
-
-bool DawnTextureInfo::isCompatible(const TextureInfo& that, bool requireExact) const {
-    const auto& dt = TextureInfoPriv::Get<DawnTextureInfo>(that);
-
-    // The usages may match or the usage passed in may be a superset of the usage stored within. The
-    // YCbCrInfo must be equal. The aspect should either match the plane aspect or should be All.
-    return this->getViewFormat() == dt.getViewFormat() &&
-            (fUsage & dt.fUsage) == fUsage &&
-#if !defined(__EMSCRIPTEN__)
-            DawnDescriptorsAreEquivalent(fYcbcrVkDescriptor, dt.fYcbcrVkDescriptor) &&
+#if defined(SK_DEBUG)
+    skgpu::BackendApi type() const override { return skgpu::BackendApi::kDawn; }
 #endif
-            (fAspect == dt.fAspect || (!requireExact && fAspect == wgpu::TextureAspect::All));
+
+    DawnTextureSpec spec() const { return fDawnSpec; }
+
+private:
+    DawnTextureSpec fDawnSpec;
+
+    size_t bytesPerPixel() const override {
+        return DawnFormatBytesPerBlock(fDawnSpec.getViewFormat());
+    }
+
+    SkTextureCompressionType compressionType() const override {
+        return DawnFormatToCompressionType(fDawnSpec.getViewFormat());
+    }
+
+    bool isMemoryless() const override {
+#if !defined(__EMSCRIPTEN__)
+        return fDawnSpec.fUsage & wgpu::TextureUsage::TransientAttachment;
+#else
+        return false;
+#endif
+    }
+
+    SkString toString() const override {
+        return SkStringPrintf("Dawn(%s,", fDawnSpec.toString().c_str());
+    }
+
+    SkString toRPAttachmentString(uint32_t sampleCount) const override {
+        return SkStringPrintf(
+                "Dawn(f=%u,s=%u)", static_cast<unsigned int>(fDawnSpec.fFormat), sampleCount);
+    }
+
+    void copyTo(AnyTextureInfoData& dstData) const override {
+        // Don't assert that dstData has a Dawn type() because it could be
+        // uninitialized and that assert would fail.
+        dstData.emplace<DawnTextureInfoData>(fDawnSpec);
+    }
+
+    bool equal(const TextureInfoData* that) const override {
+        SkASSERT(!that || that->type() == skgpu::BackendApi::kDawn);
+        if (auto otherDawn = static_cast<const DawnTextureInfoData*>(that)) {
+            return fDawnSpec == otherDawn->fDawnSpec;
+        }
+        return false;
+    }
+
+    bool isCompatible(const TextureInfoData* that) const override {
+        SkASSERT(!that || that->type() == skgpu::BackendApi::kDawn);
+        if (auto otherDawn = static_cast<const DawnTextureInfoData*>(that)) {
+            return fDawnSpec.isCompatible(otherDawn->fDawnSpec);
+        }
+        return false;
+    }
+};
+
+static const DawnTextureInfoData* get_and_cast_data(const TextureInfo& info) {
+    auto data = TextureInfoPriv::GetData(info);
+    SkASSERT(!data || data->type() == skgpu::BackendApi::kDawn);
+    return static_cast<const DawnTextureInfoData*>(data);
 }
 
 namespace TextureInfos {
-
 TextureInfo MakeDawn(const DawnTextureInfo& dawnInfo) {
-    return TextureInfoPriv::Make(dawnInfo);
+    return TextureInfoPriv::Make(skgpu::BackendApi::kDawn,
+                                 dawnInfo.fSampleCount,
+                                 dawnInfo.fMipmapped,
+                                 Protected::kNo,
+                                 DawnTextureInfoData(dawnInfo));
 }
 
 bool GetDawnTextureInfo(const TextureInfo& info, DawnTextureInfo* out) {
-    return TextureInfoPriv::Copy(info, out);
+    if (!info.isValid() || info.backend() != skgpu::BackendApi::kDawn) {
+        return false;
+    }
+    SkASSERT(out);
+    const DawnTextureInfoData* dawnData = get_and_cast_data(info);
+    SkASSERT(dawnData);
+    *out = DawnTextureSpecToTextureInfo(dawnData->spec(), info.numSamples(), info.mipmapped());
+    return true;
+}
+
+// This cannot return a const reference or we get a warning about returning
+// a reference to a temporary local variable.
+DawnTextureSpec GetDawnTextureSpec(const TextureInfo& info) {
+    SkASSERT(info.isValid() && info.backend() == skgpu::BackendApi::kDawn);
+    const DawnTextureInfoData* dawnData = get_and_cast_data(info);
+    SkASSERT(dawnData);
+    return dawnData->spec();
+}
+
+wgpu::TextureFormat GetDawnViewFormat(const TextureInfo& info) {
+    SkASSERT(info.isValid() && info.backend() == skgpu::BackendApi::kDawn);
+    const DawnTextureInfoData* dawnData = get_and_cast_data(info);
+    SkASSERT(dawnData);
+    return dawnData->spec().getViewFormat();
+}
+
+wgpu::TextureAspect GetDawnAspect(const TextureInfo& info) {
+    SkASSERT(info.isValid() && info.backend() == skgpu::BackendApi::kDawn);
+    const DawnTextureInfoData* dawnData = get_and_cast_data(info);
+    SkASSERT(dawnData);
+    return dawnData->spec().fAspect;
 }
 
 }  // namespace TextureInfos

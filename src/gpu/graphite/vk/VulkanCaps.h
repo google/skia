@@ -15,7 +15,7 @@
 
 namespace skgpu::graphite {
 struct ContextOptions;
-class VulkanTextureInfo;
+struct VulkanTextureInfo;
 
 class VulkanCaps final : public Caps {
 public:
@@ -59,8 +59,12 @@ public:
                                       const RenderPassDesc&) const override;
     UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const override { return {}; }
 
-    bool serializeTextureInfo(const TextureInfo&, SkWStream*) const override;
-    bool deserializeTextureInfo(SkStream*, TextureInfo* out) const override;
+    bool deserializeTextureInfo(SkStream*,
+                                BackendApi,
+                                Mipmapped,
+                                Protected,
+                                uint32_t sampleCount,
+                                TextureInfo* out) const override;
 
     uint32_t channelMask(const TextureInfo&) const override;
 

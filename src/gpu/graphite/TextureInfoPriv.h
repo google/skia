@@ -7,95 +7,65 @@
 #ifndef skgpu_graphite_TextureInfoPriv_DEFINED
 #define skgpu_graphite_TextureInfoPriv_DEFINED
 
-#include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/gpu/graphite/TextureInfo.h"
 
 #include <cstdint>
 
+class SkStream;
+class SkWStream;
+
 namespace skgpu::graphite {
 
 class Caps;
 
-// NOTE: This is a class so that it can be friended by TextureInfo and the backend info classes.
-class TextureInfoPriv {
+class TextureInfoData {
 public:
-    // TODO(397666606): With a general skgpu::TextureFormat, these functions can go away.
-    static SkString GetAttachmentLabel(const TextureInfo&);
+    virtual ~TextureInfoData();
 
-    static SkTextureCompressionType CompressionType(const TextureInfo& info) {
-        return info.compressionType();
-    }
+#if defined(SK_DEBUG)
+    virtual skgpu::BackendApi type() const = 0;
+#endif
+protected:
+    TextureInfoData() = default;
+    TextureInfoData(const TextureInfoData&) = default;
 
-    template <typename BackendTextureInfo>
-    static TextureInfo Make(const BackendTextureInfo& data) {
-        return TextureInfo(data);
-    }
-
-    template <typename BackendTextureInfo>
-    static const BackendTextureInfo& Get(const TextureInfo& info) {
-        SkASSERT(info.isValid() && info.backend() == BackendTextureInfo::kBackend);
-        return *(static_cast<const BackendTextureInfo*>(info.fData.get()));
-    }
-
-    template <typename BackendTextureInfo>
-    static bool Copy(const TextureInfo& info, BackendTextureInfo* out) {
-        if (!info.isValid() || info.backend() != BackendTextureInfo::kBackend) {
-            return false;
-        }
-
-        SkASSERT(out);
-        *out = Get<BackendTextureInfo>(info);
-        return true;
-    }
-
-    template <typename BackendTextureInfo>
-    static bool Serialize(const TextureInfo& info, SkWStream* out) {
-        if (info.isValid()) {
-            if (!out->write32(GetInfoTag(info))) {
-                return false;
-            }
-            return Get<BackendTextureInfo>(info).serialize(out);
-        } else {
-            // Write a 0 to signal an empty TextureInfo
-            return out->write32(0);
-        }
-    }
-
-    template <typename BackendTextureInfo>
-    static bool Deserialize(SkStream* in, TextureInfo* out) {
-        uint32_t tag;
-        if (!in->readU32(&tag)) {
-            return false;
-        }
-        if (tag == 0) {
-            // Allow deserializing an empty info
-            *out = TextureInfo();
-            return true;
-        }
-
-        auto [backend, mipmapped, sampleCount] = ParseInfoTag(tag);
-        if (backend != BackendTextureInfo::kBackend) {
-            return false;
-        }
-
-        BackendTextureInfo info;
-        info.fMipmapped = mipmapped;
-        info.fSampleCount = sampleCount;
-        if (info.deserialize(in)) {
-            *out = Make(info);
-            return true;
-        }
-
-        return false;
-    }
+    using AnyTextureInfoData = TextureInfo::AnyTextureInfoData;
 
 private:
-    TextureInfoPriv() = delete;
-    TextureInfoPriv(const TextureInfoPriv&) = delete;
+    friend class TextureInfo;
+    friend class TextureInfoPriv; // for serialize
 
-    static uint32_t GetInfoTag(const TextureInfo&);
-    static std::tuple<BackendApi, Mipmapped, int> ParseInfoTag(uint32_t);
+    virtual size_t bytesPerPixel() const = 0;
+    virtual SkTextureCompressionType compressionType() const = 0;
+    virtual bool isMemoryless() const = 0;
+    virtual SkString toString() const = 0;
+    virtual SkString toRPAttachmentString(uint32_t sampleCount) const = 0;
+
+    virtual void copyTo(AnyTextureInfoData&) const = 0;
+    virtual bool equal(const TextureInfoData* that) const = 0;
+    virtual bool isCompatible(const TextureInfoData* that) const = 0;
+
+    virtual bool serialize(SkWStream*) const { return false; }
+};
+
+class TextureInfoPriv {
+public:
+    template <typename SomeTextureInfoData>
+    static TextureInfo Make(BackendApi backend,
+                            uint32_t sampleCount,
+                            skgpu::Mipmapped mipped,
+                            skgpu::Protected p,
+                            const SomeTextureInfoData& data) {
+        return TextureInfo(backend, sampleCount, mipped, p, data);
+    }
+
+    static const TextureInfoData* GetData(const TextureInfo& info) {
+        return info.fTextureInfoData.get();
+    }
+
+    static bool Serialize(SkWStream*, const TextureInfo&);
+    static bool Deserialize(const Caps*, SkStream*, TextureInfo* out);
 };
 
 }  // namespace skgpu::graphite

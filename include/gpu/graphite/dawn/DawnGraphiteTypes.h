@@ -10,20 +10,18 @@
 
 #include "include/core/SkSize.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
-#include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/base/SkAPI.h"
 
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
 namespace skgpu::graphite {
 class BackendTexture;
+class TextureInfo;
 
-#if defined(SK_DAWN_TEXTURE_INFO_IS_STRUCT)
-struct SK_API DawnTextureInfo final : public TextureInfo::Data {
-#else
-class SK_API DawnTextureInfo final : public TextureInfo::Data {
-#endif
-public:
+struct DawnTextureInfo {
+    uint32_t fSampleCount = 1;
+    Mipmapped fMipmapped = Mipmapped::kNo;
+
     // wgpu::TextureDescriptor properties
     wgpu::TextureFormat fFormat = wgpu::TextureFormat::Undefined;
     // `fViewFormat` for multiplanar formats corresponds to the plane TextureView's format.
@@ -47,8 +45,6 @@ public:
 
     DawnTextureInfo() = default;
 
-    DawnTextureInfo(WGPUTexture texture);
-
     DawnTextureInfo(uint32_t sampleCount,
                     Mipmapped mipmapped,
                     wgpu::TextureFormat format,
@@ -69,7 +65,8 @@ public:
                     wgpu::TextureUsage usage,
                     wgpu::TextureAspect aspect,
                     uint32_t slice)
-            : Data(sampleCount, mipmapped)
+            : fSampleCount(sampleCount)
+            , fMipmapped(mipmapped)
             , fFormat(format)
             , fViewFormat(viewFormat)
             , fUsage(usage)
@@ -85,7 +82,8 @@ public:
                     wgpu::TextureAspect aspect,
                     uint32_t slice,
                     wgpu::YCbCrVkDescriptor ycbcrVkDescriptor)
-            : Data(sampleCount, mipmapped)
+            : fSampleCount(sampleCount)
+            , fMipmapped(mipmapped)
             , fFormat(format)
             , fViewFormat(viewFormat)
             , fUsage(usage)
@@ -93,27 +91,6 @@ public:
             , fSlice(slice)
             , fYcbcrVkDescriptor(ycbcrVkDescriptor) {}
 #endif
-
-private:
-    friend class TextureInfo;
-    friend class TextureInfoPriv;
-
-    // Non-virtual template API for TextureInfo::Data accessed directly when backend type is known.
-    static constexpr skgpu::BackendApi kBackend = skgpu::BackendApi::kDawn;
-
-    Protected isProtected() const { return Protected::kNo; }
-
-    // Virtual API when the specific backend type is not available.
-    uint32_t viewFormat() const override { return (uint32_t) this->getViewFormat(); }
-
-    size_t bytesPerPixel() const override;
-    SkTextureCompressionType compressionType() const override;
-    SkString toBackendString() const override;
-
-    void copyTo(TextureInfo::AnyTextureInfoData& dstData) const override {
-        dstData.emplace<DawnTextureInfo>(*this);
-    }
-    bool isCompatible(const TextureInfo& that, bool requireExact) const override;
 };
 
 namespace TextureInfos {
@@ -160,6 +137,7 @@ SK_API BackendTexture MakeDawn(SkISize planeDimensions, const DawnTextureInfo&, 
 SK_API BackendTexture MakeDawn(SkISize dimensions,
                                const DawnTextureInfo& info,
                                WGPUTextureView textureView);
+
 }  // namespace BackendTextures
 
 }  // namespace skgpu::graphite

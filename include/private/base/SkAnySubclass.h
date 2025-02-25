@@ -52,9 +52,6 @@ public:
         fValid = false;
     }
 
-    bool has_value() const { return fValid; }
-    explicit operator bool() const { return this->has_value(); }
-
     const Base* get() const {
         SkASSERT(fValid);
         return std::launder(reinterpret_cast<const Base*>(fData));
@@ -67,9 +64,6 @@ public:
 
     Base* operator->() { return this->get(); }
     const Base* operator->() const { return this->get(); }
-
-    Base& operator*() { return *this->get(); }
-    const Base& operator*() const { return *this->get(); }
 
 private:
     alignas(8) std::byte fData[Size];
