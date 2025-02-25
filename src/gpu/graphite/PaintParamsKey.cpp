@@ -166,11 +166,7 @@ static int key_to_string(SkString* str,
         return currentIndex;
     }
 
-    std::string_view name = entry->fName;
-    if (skstd::ends_with(name, "Shader")) {
-        name.remove_suffix(6);
-    }
-    str->append(name);
+    str->append(entry->fName);
 
     if (entry->storesSamplerDescData()) {
         SkASSERT(currentIndex + 1 < SkTo<int>(keyData.size()));
