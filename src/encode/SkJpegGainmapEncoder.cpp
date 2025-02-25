@@ -337,23 +337,11 @@ static size_t mp_segment_offset(const SkData* image) {
     }
     const auto& segments = scan.getSegments();
 
-    // Search for the Exif segment and place the MP parameters immediately after. See 5.1.
-    // Basic MP File Structure, which indicates "The MP Extensions are specified in the APP2
-    // marker segment which follows immediately after the Exif Attributes in the APP1 marker
-    // segment except as specified in section 7".
-    for (size_t segmentIndex = 0; segmentIndex < segments.size() - 1; ++segmentIndex) {
-        const auto& segment = segments[segmentIndex];
-        if (segment.marker != kExifMarker) {
-            continue;
-        }
-        auto params = SkJpegSegmentScanner::GetParameters(image, segment);
-        if (params->size() < sizeof(kExifSig) ||
-            memcmp(params->data(), kExifSig, sizeof(kExifSig)) != 0) {
-            continue;
-        }
-        // Insert the MPF segment at the offset of the next segment.
-        return segments[segmentIndex + 1].offset;
-    }
+    // According to CIPA DC-007 section 5.1, "Basic MP File Structure", "The MP Extensions are
+    // specified in the APP2 marker segment which follows immediately after the Exif Attributes in
+    // the APP1 marker segment except as specified in section 7". In practice, this is rarely
+    // obeyed, and further, makes the file dangerous for use by less robust editors (see
+    // b/355642172). Instead, place the MP segment just before the StartOfScan marker.
 
     // If there is no Exif segment, then insert the MPF segment just before the StartOfScan.
     return segments.back().offset;
