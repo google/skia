@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/mtl/MtlGraphicsPipeline.h"
 
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 #include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
@@ -15,6 +16,7 @@
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ShaderInfo.h"
+#include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/mtl/MtlGraphiteUtils.h"
 #include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
@@ -435,16 +437,17 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
     // TODO: I *think* this gets cleaned up by the pipelineDescriptor?
     (*psoDescriptor).vertexDescriptor = create_vertex_descriptor(vertexAttrs, instanceAttrs);
 
-    MTLPixelFormat pixelFormat =
-            TextureInfos::GetMTLPixelFormat(renderPassDesc.fColorAttachment.fTextureInfo);
+    const TextureInfo& colorAttachmentInfo = renderPassDesc.fColorAttachment.fTextureInfo;
+    const TextureInfo& dsAttachmentInfo = renderPassDesc.fDepthStencilAttachment.fTextureInfo;
+
+    MTLPixelFormat pixelFormat = TextureInfoPriv::Get<MtlTextureInfo>(colorAttachmentInfo).fFormat;
     auto mtlColorAttachment = create_color_attachment(pixelFormat, blendInfo);
     (*psoDescriptor).colorAttachments[0] = mtlColorAttachment;
 
-    (*psoDescriptor).rasterSampleCount =
-            renderPassDesc.fColorAttachment.fTextureInfo.numSamples();
+    (*psoDescriptor).rasterSampleCount = colorAttachmentInfo.numSamples();
 
     MTLPixelFormat depthStencilFormat =
-            TextureInfos::GetMTLPixelFormat(renderPassDesc.fDepthStencilAttachment.fTextureInfo);
+            TextureInfoPriv::Get<MtlTextureInfo>(dsAttachmentInfo).fFormat;
     if (MtlFormatIsStencil(depthStencilFormat)) {
         (*psoDescriptor).stencilAttachmentPixelFormat = depthStencilFormat;
     } else {

@@ -8,6 +8,7 @@
 #include "src/gpu/graphite/dawn/DawnGraphicsPipeline.h"
 
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/gpu/graphite/dawn/DawnGraphiteTypes.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/SkSLToBackend.h"
@@ -19,6 +20,7 @@
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ShaderInfo.h"
+#include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/dawn/DawnCaps.h"
 #include "src/gpu/graphite/dawn/DawnErrorChecker.h"
@@ -424,8 +426,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     }
 
     wgpu::ColorTargetState colorTarget;
-    colorTarget.format =
-            TextureInfos::GetDawnViewFormat(renderPassDesc.fColorAttachment.fTextureInfo);
+    colorTarget.format = TextureInfoPriv::Get<DawnTextureInfo>(
+            renderPassDesc.fColorAttachment.fTextureInfo).getViewFormat();
     colorTarget.blend = blendOn ? &blend : nullptr;
     colorTarget.writeMask = blendInfo.fWritesColor && hasFragmentSkSL ? wgpu::ColorWriteMask::All
                                                                       : wgpu::ColorWriteMask::None;
@@ -461,8 +463,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
              depthStencilSettings.fDepthCompareOp == CompareOp::kAlways);
     wgpu::DepthStencilState depthStencil;
     if (renderPassDesc.fDepthStencilAttachment.fTextureInfo.isValid()) {
-        wgpu::TextureFormat dsFormat = TextureInfos::GetDawnViewFormat(
-                renderPassDesc.fDepthStencilAttachment.fTextureInfo);
+        wgpu::TextureFormat dsFormat = TextureInfoPriv::Get<DawnTextureInfo>(
+                renderPassDesc.fDepthStencilAttachment.fTextureInfo).getViewFormat();
         depthStencil.format =
                 DawnFormatIsDepthOrStencil(dsFormat) ? dsFormat : wgpu::TextureFormat::Undefined;
         if (depthStencilSettings.fDepthTestEnabled) {

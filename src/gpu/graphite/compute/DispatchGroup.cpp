@@ -195,7 +195,7 @@ bool Builder::appendStepInternal(
                         const TextureProxy* t = fObj->fTextures[texIdx->fValue].get();
                         SkASSERT(t);
                         auto [_, colorType] = step->calculateTextureParameters(index, r);
-                        SkASSERT(t->textureInfo().isCompatible(
+                        SkASSERT(t->textureInfo().canBeFulfilledBy(
                                 fRecorder->priv().caps()->getDefaultStorageTextureInfo(colorType)));
                     }
 #endif  // SK_DEBUG

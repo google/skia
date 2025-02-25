@@ -49,15 +49,15 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
         return false;
     }
 
-    const VulkanTextureSpec spec = TextureInfos::GetVulkanTextureSpec(info);
+    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(info);
 
-    bool isLinear = spec.fImageTiling == VK_IMAGE_TILING_LINEAR;
+    bool isLinear = vkInfo.fImageTiling == VK_IMAGE_TILING_LINEAR;
     VkImageLayout initialLayout = isLinear ? VK_IMAGE_LAYOUT_PREINITIALIZED
                                            : VK_IMAGE_LAYOUT_UNDEFINED;
 
     // Create Image
     VkSampleCountFlagBits vkSamples;
-    if (!SampleCountToVkSampleCount(info.numSamples(), &vkSamples)) {
+    if (!SampleCountToVkSampleCount(vkInfo.fSampleCount, &vkSamples)) {
         SKGPU_LOG_E("Failed creating VkImage because we could not covert the number of samples: "
                     "%u to a VkSampleCountFlagBits.", info.numSamples());
         return false;
@@ -71,7 +71,7 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
     }
 
     uint32_t numMipLevels = 1;
-    if (info.mipmapped() == Mipmapped::kYes) {
+    if (vkInfo.fMipmapped == Mipmapped::kYes) {
         numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
     }
 
@@ -83,14 +83,14 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
         nullptr,                             // pNext
         createflags,                         // VkImageCreateFlags
         VK_IMAGE_TYPE_2D,                    // VkImageType
-        spec.fFormat,                        // VkFormat
+        vkInfo.fFormat,                      // VkFormat
         { width, height, 1 },                // VkExtent3D
         numMipLevels,                        // mipLevels
         1,                                   // arrayLayers
         vkSamples,                           // samples
-        spec.fImageTiling,                   // VkImageTiling
-        spec.fImageUsageFlags,               // VkImageUsageFlags
-        spec.fSharingMode,                   // VkSharingMode
+        vkInfo.fImageTiling,                 // VkImageTiling
+        vkInfo.fImageUsageFlags,             // VkImageUsageFlags
+        vkInfo.fSharingMode,                 // VkSharingMode
         0,                                   // queueFamilyCount
         nullptr,                             // pQueueFamilyIndices
         initialLayout                        // initialLayout
@@ -110,7 +110,7 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
     auto allocator = sharedContext->memoryAllocator();
     bool forceDedicatedMemory = caps.shouldAlwaysUseDedicatedImageMemory();
     bool useLazyAllocation =
-            SkToBool(spec.fImageUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT);
+            SkToBool(vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT);
 
     auto checkResult = [sharedContext](VkResult result) {
         return sharedContext->checkVkResult(result);
@@ -218,8 +218,7 @@ void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
     VkImageLayout currentLayout = this->currentLayout();
     uint32_t currentQueueIndex = this->currentQueueFamilyIndex();
 
-    VulkanTextureInfo textureInfo;
-    SkAssertResult(TextureInfos::GetVulkanTextureInfo(this->textureInfo(), &textureInfo));
+    const auto& textureInfo = this->vulkanTextureInfo();
     auto sharedContext = static_cast<const VulkanSharedContext*>(this->sharedContext());
 
     // Enable the following block on new devices to test that their lazy images stay at 0 memory use
@@ -306,6 +305,11 @@ void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
     skgpu::MutableTextureStates::SetVkQueueFamilyIndex(this->mutableState(), newQueueFamilyIndex);
 }
 
+static bool has_transient_usage(const TextureInfo& info) {
+    const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(info);
+    return vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
+}
+
 VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
                              SkISize dimensions,
                              const TextureInfo& info,
@@ -314,7 +318,12 @@ VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
                              const VulkanAlloc& alloc,
                              Ownership ownership,
                              sk_sp<VulkanYcbcrConversion> ycbcrConversion)
-        : Texture(sharedContext, dimensions, info, std::move(mutableState), ownership)
+        : Texture(sharedContext,
+                  dimensions,
+                  info,
+                  has_transient_usage(info),
+                  std::move(mutableState),
+                  ownership)
         , fImage(image)
         , fMemoryAlloc(alloc)
         , fYcbcrConversion(std::move(ycbcrConversion)) {}
@@ -407,9 +416,8 @@ const VulkanImageView* VulkanTexture::getImageView(VulkanImageView::Usage usage)
     }
 
     auto sharedContext = static_cast<const VulkanSharedContext*>(this->sharedContext());
-    VulkanTextureInfo vkTexInfo;
-    SkAssertResult(TextureInfos::GetVulkanTextureInfo(this->textureInfo(), &vkTexInfo));
-    int miplevels = this->textureInfo().mipmapped() == Mipmapped::kYes
+    const auto& vkTexInfo = this->vulkanTextureInfo();
+    int miplevels = vkTexInfo.fMipmapped == Mipmapped::kYes
                     ? SkMipmap::ComputeLevelCount(this->dimensions().width(),
                                                   this->dimensions().height()) + 1
                     : 1;
@@ -423,12 +431,12 @@ const VulkanImageView* VulkanTexture::getImageView(VulkanImageView::Usage usage)
 }
 
 bool VulkanTexture::supportsInputAttachmentUsage() const {
-    return (TextureInfos::GetVkUsageFlags(this->textureInfo()) &
-            VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT);
+    return (this->vulkanTextureInfo().fImageUsageFlags & VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT);
 }
 
 size_t VulkanTexture::onUpdateGpuMemorySize() {
-    if (!this->textureInfo().isMemoryless()) {
+    if (!has_transient_usage(this->textureInfo())) {
+        // We don't expect non-transient textures to change their size over time.
         return this->gpuMemorySize();
     }
 

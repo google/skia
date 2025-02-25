@@ -9,7 +9,6 @@
 
 #include "include/core/SkTraceMemoryDump.h"
 #include "include/gpu/MutableTextureState.h"
-#include "include/gpu/graphite/dawn/DawnGraphiteTypes.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/TextureUtils.h"
@@ -30,27 +29,27 @@ wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContex
         return {};
     }
 
-    const DawnTextureSpec dawnSpec = TextureInfos::GetDawnTextureSpec(info);
+    const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(info);
 
-    if (dawnSpec.fUsage & wgpu::TextureUsage::TextureBinding && !caps->isTexturable(info)) {
+    if (dawnInfo.fUsage & wgpu::TextureUsage::TextureBinding && !caps->isTexturable(info)) {
         return {};
     }
 
-    if (dawnSpec.fUsage & wgpu::TextureUsage::RenderAttachment &&
-        !(caps->isRenderable(info) || DawnFormatIsDepthOrStencil(dawnSpec.fFormat))) {
+    if (dawnInfo.fUsage & wgpu::TextureUsage::RenderAttachment &&
+        !(caps->isRenderable(info) || DawnFormatIsDepthOrStencil(dawnInfo.fFormat))) {
         return {};
     }
 
-    if (dawnSpec.fUsage & wgpu::TextureUsage::StorageBinding && !caps->isStorage(info)) {
+    if (dawnInfo.fUsage & wgpu::TextureUsage::StorageBinding && !caps->isStorage(info)) {
         return {};
     }
 
 #if !defined(__EMSCRIPTEN__)
     // If a non-default YCbCr descriptor is provided, either the vkFormat or the externalFormat must
     // be defined.
-    if (DawnDescriptorIsValid(dawnSpec.fYcbcrVkDescriptor) &&
-        dawnSpec.fYcbcrVkDescriptor.vkFormat == 0 &&
-        dawnSpec.fYcbcrVkDescriptor.externalFormat == 0) {
+    if (DawnDescriptorIsValid(dawnInfo.fYcbcrVkDescriptor) &&
+    dawnInfo.fYcbcrVkDescriptor.vkFormat == 0 &&
+    dawnInfo.fYcbcrVkDescriptor.externalFormat == 0) {
         return {};
     }
 #endif
@@ -61,12 +60,12 @@ wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContex
     }
 
     wgpu::TextureDescriptor desc;
-    desc.usage                      = dawnSpec.fUsage;
+    desc.usage                      = dawnInfo.fUsage;
     desc.dimension                  = wgpu::TextureDimension::e2D;
     desc.size.width                 = dimensions.width();
     desc.size.height                = dimensions.height();
     desc.size.depthOrArrayLayers    = 1;
-    desc.format                     = dawnSpec.fFormat;
+    desc.format                     = dawnInfo.fFormat;
     desc.mipLevelCount              = numMipLevels;
     desc.sampleCount                = info.numSamples();
     desc.viewFormatCount            = 0;
@@ -80,6 +79,15 @@ wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContex
     return texture;
 }
 
+static bool has_transient_usage(const TextureInfo& info) {
+#if !defined(__EMSCRIPTEN__)
+    const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(info);
+    return dawnInfo.fUsage & wgpu::TextureUsage::TransientAttachment;
+#else
+    return false;
+#endif
+}
+
 DawnTexture::DawnTexture(const DawnSharedContext* sharedContext,
                          SkISize dimensions,
                          const TextureInfo& info,
@@ -90,6 +98,7 @@ DawnTexture::DawnTexture(const DawnSharedContext* sharedContext,
         : Texture(sharedContext,
                   dimensions,
                   info,
+                  has_transient_usage(info),
                   /*mutableState=*/nullptr,
                   ownership)
         , fTexture(std::move(texture))
@@ -99,17 +108,17 @@ DawnTexture::DawnTexture(const DawnSharedContext* sharedContext,
 // static
 std::pair<wgpu::TextureView, wgpu::TextureView> DawnTexture::CreateTextureViews(
         const wgpu::Texture& texture, const TextureInfo& info) {
-    const DawnTextureSpec dawnSpec = TextureInfos::GetDawnTextureSpec(info);
-    const auto aspect = dawnSpec.fAspect;
+    const auto& dawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(info);
+    const auto aspect = dawnInfo.fAspect;
     if (aspect == wgpu::TextureAspect::All) {
         wgpu::TextureViewDescriptor viewDesc = {};
         viewDesc.dimension = wgpu::TextureViewDimension::e2D;
-        viewDesc.baseArrayLayer = dawnSpec.fSlice;
+        viewDesc.baseArrayLayer = dawnInfo.fSlice;
         viewDesc.arrayLayerCount = 1;
 #if !defined(__EMSCRIPTEN__)
         // Ensure that the TextureView is configured to use YCbCr sampling if the Texture is
         // doing so.
-        const wgpu::YCbCrVkDescriptor& ycbcrDesc = dawnSpec.fYcbcrVkDescriptor;
+        const wgpu::YCbCrVkDescriptor& ycbcrDesc = dawnInfo.fYcbcrVkDescriptor;
         if (DawnDescriptorIsValid(ycbcrDesc)) {
             viewDesc.nextInChain = &ycbcrDesc;
         }
@@ -136,10 +145,10 @@ std::pair<wgpu::TextureView, wgpu::TextureView> DawnTexture::CreateTextureViews(
     wgpu::TextureView planeTextureView;
     wgpu::TextureViewDescriptor planeViewDesc = {};
 
-    planeViewDesc.format = dawnSpec.fViewFormat;
+    planeViewDesc.format = dawnInfo.fViewFormat;
     planeViewDesc.dimension = wgpu::TextureViewDimension::e2D;
     planeViewDesc.aspect = aspect;
-    planeViewDesc.baseArrayLayer = dawnSpec.fSlice;
+    planeViewDesc.baseArrayLayer = dawnInfo.fSlice;
     planeViewDesc.arrayLayerCount = 1;
     planeTextureView = texture.CreateView(&planeViewDesc);
     return {planeTextureView, planeTextureView};
