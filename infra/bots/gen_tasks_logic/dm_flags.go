@@ -373,6 +373,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "test", ALL, "ProcessorOptimizationValidationTest")
 			skip(ALL, "test", ALL, "TextBlobAbnormal")
 			skip(ALL, "test", ALL, "TextBlobStressAbnormal")
+
+			// b/399342221
+			skip(ALL, "test", ALL, "UserDefinedStableKeyTest")
 		}
 
 		// The Tegra3 doesn't support MSAA
