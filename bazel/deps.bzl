@@ -197,7 +197,7 @@ def c_plus_plus_deps(ws = "@skia"):
 
     git_repository(
         name = "spirv_tools",
-        commit = "d5b6f2de791deb73357a797d5db7aa24ce45194c",
+        commit = "f289d047f49fb60488301ec62bafab85573668cc",
         remote = "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git",
     )
 
@@ -218,14 +218,14 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "vulkan_tools",
         build_file = ws + "//bazel/external/vulkan_tools:BUILD.bazel",
-        commit = "176fef0bccaba8bdf51de54ab4eed8d5d9aaac77",
+        commit = "fb8f5a5d69f4590ff1f5ecacb5e3957b6d11daee",
         remote = "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools",
     )
 
     new_git_repository(
         name = "vulkan_utility_libraries",
         build_file = ws + "//bazel/external/vulkan_utility_libraries:BUILD.bazel",
-        commit = "6be00ca9f51c714780cc1d6f537f8bc5650b6204",
+        commit = "2d8f273ebd4b843c402d9ee881616895b854e42f",
         remote = "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Utility-Libraries",
     )
 
