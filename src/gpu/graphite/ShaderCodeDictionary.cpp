@@ -336,7 +336,7 @@ const ShaderSnippet* ShaderCodeDictionary::getEntry(int codeSnippetID) const {
         return &fUserDefinedKnownCodeSnippets[index];
     }
 
-    if (codeSnippetID >= kUnknownRuntimeEffectIDStart) {
+    if (IsUserDefinedRuntimeEffect(codeSnippetID)) {
         int userDefinedCodeSnippetID = codeSnippetID - kUnknownRuntimeEffectIDStart;
         if (userDefinedCodeSnippetID < SkTo<int>(fUserDefinedCodeSnippets.size())) {
             return &fUserDefinedCodeSnippets[userDefinedCodeSnippetID];
@@ -576,7 +576,7 @@ std::string GenerateRuntimeShaderPreamble(const ShaderInfo& shaderInfo,
         effect = shaderInfo.shaderCodeDictionary()->getUserDefinedKnownRuntimeEffect(
                 node->codeSnippetId());
     } else {
-        SkASSERT(node->codeSnippetId() >= kUnknownRuntimeEffectIDStart);
+        SkASSERT(IsUserDefinedRuntimeEffect(node->codeSnippetId()));
         effect = shaderInfo.runtimeEffectDictionary()->find(node->codeSnippetId());
     }
     // This should always be true given the circumstances in which we call convertRuntimeEffect
@@ -615,7 +615,7 @@ bool ShaderCodeDictionary::isValidID(int snippetID) const {
 
     SkAutoSpinlock lock{fSpinLock};
 
-    if (snippetID >= kUnknownRuntimeEffectIDStart) {
+    if (IsUserDefinedRuntimeEffect(snippetID)) {
         int userDefinedCodeSnippetID = snippetID - kUnknownRuntimeEffectIDStart;
         return userDefinedCodeSnippetID < SkTo<int>(fUserDefinedCodeSnippets.size());
     }

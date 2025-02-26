@@ -202,12 +202,16 @@ SkRuntimeEffect* make_matrix_conv_effect(MatrixConvolutionImpl impl,
 
 } // anonymous namespace
 
-bool IsSkiaKnownRuntimeEffect(uint32_t candidate) {
-    return (candidate >= static_cast<uint32_t>(StableKey::kStart) &&
-            candidate <= static_cast<uint32_t>(StableKey::kLast));
+bool IsSkiaKnownRuntimeEffect(int candidate) {
+    return (candidate >= static_cast<int>(StableKey::kStart) &&
+            candidate <= static_cast<int>(StableKey::kLast));
 }
 
-bool IsViableUserDefinedKnownRuntimeEffect(uint32_t candidate) {
+bool IsUserDefinedRuntimeEffect(int candidate) {
+    return candidate >= kUnknownRuntimeEffectIDStart;
+}
+
+bool IsViableUserDefinedKnownRuntimeEffect(int candidate) {
     return candidate >= kUserDefinedKnownRuntimeEffectsStart &&
            candidate < kUserDefinedKnownRuntimeEffectsEnd;
 }
