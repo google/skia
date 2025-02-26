@@ -225,7 +225,7 @@ sk_sp<SkRuntimeEffect> MaybeGetKnownRuntimeEffect(uint32_t candidate) {
 
 const SkRuntimeEffect* GetKnownRuntimeEffect(StableKey stableKey) {
     SkRuntimeEffect::Options options;
-    SkRuntimeEffectPriv::SetStableKey(&options, static_cast<uint32_t>(stableKey));
+    SkRuntimeEffectPriv::SetStableKeyOnOptions(&options, static_cast<uint32_t>(stableKey));
     SkRuntimeEffectPriv::AllowPrivateAccess(&options);
 
     switch (stableKey) {

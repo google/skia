@@ -767,7 +767,11 @@ int ShaderCodeDictionary::findOrCreateRuntimeEffectSnippet(const SkRuntimeEffect
     // TODO: the memory for user-defined entries could go in the dictionary's arena but that
     // would have to be a thread safe allocation since the arena also stores entries for
     // 'fHash' and 'fEntryVector'
-    fUserDefinedCodeSnippets.push_back(this->convertRuntimeEffect(effect, "RuntimeEffect"));
+    static const char* kDefaultName = "RuntimeEffect";
+    fUserDefinedCodeSnippets.push_back(this->convertRuntimeEffect(
+                effect,
+                SkRuntimeEffectPriv::HasName(*effect) ? SkRuntimeEffectPriv::GetName(*effect)
+                                                      : kDefaultName));
     int newCodeSnippetID = kUnknownRuntimeEffectIDStart + fUserDefinedCodeSnippets.size() - 1;
 
     fRuntimeEffectMap.set(key, newCodeSnippetID);
@@ -803,8 +807,11 @@ void ShaderCodeDictionary::registerUserDefinedKnownRuntimeEffects(
             continue;           // This is a duplicate
         }
 
-        const char* kName = "UserDefinedKnownRuntimeEffect";
-        fUserDefinedKnownCodeSnippets.push_back(this->convertRuntimeEffect(u.get(), kName));
+        static const char* kDefaultName = "UserDefinedKnownRuntimeEffect";
+        fUserDefinedKnownCodeSnippets.push_back(this->convertRuntimeEffect(
+                    u.get(),
+                    SkRuntimeEffectPriv::HasName(*u) ? SkRuntimeEffectPriv::GetName(*u)
+                                                     : kDefaultName));
         int stableID = kUserDefinedKnownRuntimeEffectsStart +
                        fUserDefinedKnownCodeSnippets.size() - 1;
 

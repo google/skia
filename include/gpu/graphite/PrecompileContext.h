@@ -43,6 +43,14 @@ public:
      */
     bool precompile(sk_sp<SkData> serializedPipelineKey);
 
+    /**
+     * Get a human-readable version of a serialized pipeline key.
+     *
+     * @param serializedPipelineKey   serialized Pipeline key.
+     * @return                        A human-readable version of the provided key; "" on failure.
+     */
+    std::string getPipelineLabel(sk_sp<SkData> serializedPipelineKey);
+
     // Provides access to functions that aren't part of the public API.
     PrecompileContextPriv priv();
     const PrecompileContextPriv priv() const;  // NOLINT(readability-const-return-type)

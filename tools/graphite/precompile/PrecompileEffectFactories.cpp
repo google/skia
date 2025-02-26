@@ -36,8 +36,12 @@ const char* GetAnnulusShaderCode() {
 }
 
 SkRuntimeEffect* GetAnnulusShaderEffect() {
+    SkRuntimeEffect::Options options;
+    options.fName = "AnnulusShader";
+
     static SkRuntimeEffect* sEffect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-                                                          GetAnnulusShaderCode());
+                                                          GetAnnulusShaderCode(),
+                                                          options);
 
     return sEffect;
 }
@@ -56,11 +60,15 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> CreateAnnulusRuntimeShader()
 
 //--------------------------------------------------------------------------------------------------
 SkRuntimeEffect* GetSrcBlenderEffect() {
+    SkRuntimeEffect::Options options;
+    options.fName = "SrcBlender";
+
     static SkRuntimeEffect* sEffect = SkMakeRuntimeEffect(
         SkRuntimeEffect::MakeForBlender,
         "half4 main(half4 src, half4 dst) {"
             "return src;"
-        "}");
+        "}",
+        options);
 
     return sEffect;
 }
@@ -75,11 +83,15 @@ std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> CreateSrcRuntimeBlender() 
 }
 
 SkRuntimeEffect* GetDstBlenderEffect() {
+    SkRuntimeEffect::Options options;
+    options.fName = "DstBlender";
+
     static SkRuntimeEffect* sEffect = SkMakeRuntimeEffect(
         SkRuntimeEffect::MakeForBlender,
         "half4 main(half4 src, half4 dst) {"
             "return dst;"
-        "}");
+        "}",
+        options);
 
     return sEffect;
 }
@@ -94,6 +106,9 @@ std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> CreateDstRuntimeBlender() 
 }
 
 SkRuntimeEffect* GetComboBlenderEffect() {
+    SkRuntimeEffect::Options options;
+    options.fName = "ComboBlender";
+
     static SkRuntimeEffect* sEffect = SkMakeRuntimeEffect(
         SkRuntimeEffect::MakeForBlender,
         "uniform float blendFrac;"
@@ -101,7 +116,8 @@ SkRuntimeEffect* GetComboBlenderEffect() {
         "uniform blender b;"
         "half4 main(half4 src, half4 dst) {"
             "return (blendFrac * a.eval(src, dst)) + ((1 - blendFrac) * b.eval(src, dst));"
-        "}");
+        "}",
+        options);
 
     return sEffect;
 }
@@ -126,11 +142,15 @@ std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> CreateComboRuntimeBlender(
 
 //--------------------------------------------------------------------------------------------------
 SkRuntimeEffect* GetDoubleColorFilterEffect() {
+    SkRuntimeEffect::Options options;
+    options.fName = "DoubleColorFilter";
+
     static SkRuntimeEffect* sEffect = SkMakeRuntimeEffect(
         SkRuntimeEffect::MakeForColorFilter,
         "half4 main(half4 c) {"
             "return 2*c;"
-        "}");
+        "}",
+        options);
 
     return sEffect;
 }
@@ -143,11 +163,16 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> CreateDoubleRuntim
 }
 
 SkRuntimeEffect* GetHalfColorFilterEffect() {
+    SkRuntimeEffect::Options options;
+    // We withhold this name to test out the default name case
+    //options.fName = "HalfColorFilter";
+
     static SkRuntimeEffect* sEffect = SkMakeRuntimeEffect(
         SkRuntimeEffect::MakeForColorFilter,
         "half4 main(half4 c) {"
             "return 0.5*c;"
-        "}");
+        "}",
+        options);
 
     return sEffect;
 }
@@ -160,6 +185,9 @@ std::pair<sk_sp<SkColorFilter>, sk_sp<PrecompileColorFilter>> CreateHalfRuntimeC
 }
 
 SkRuntimeEffect* GetComboColorFilterEffect() {
+    SkRuntimeEffect::Options options;
+    options.fName = "ComboColorFilter";
+
     static SkRuntimeEffect* sEffect = SkMakeRuntimeEffect(
         SkRuntimeEffect::MakeForColorFilter,
         "uniform float blendFrac;"
@@ -167,7 +195,8 @@ SkRuntimeEffect* GetComboColorFilterEffect() {
         "uniform colorFilter b;"
         "half4 main(half4 c) {"
             "return (blendFrac * a.eval(c)) + ((1 - blendFrac) * b.eval(c));"
-        "}");
+        "}",
+        options);
 
     return sEffect;
 }

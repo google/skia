@@ -7,9 +7,11 @@
 
 #include "include/gpu/graphite/PrecompileContext.h"
 
+#include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
+#include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/SharedContext.h"
@@ -77,5 +79,35 @@ bool PrecompileContext::precompile(sk_sp<SkData> serializedPipelineKey) {
     return false;
 #endif
 }
+
+std::string PrecompileContext::getPipelineLabel(sk_sp<SkData> serializedPipelineKey) {
+#if defined(SK_ENABLE_PRECOMPILE)
+    GraphicsPipelineDesc pipelineDesc;
+    RenderPassDesc renderPassDesc;
+
+    if (!DataToPipelineDesc(fSharedContext->caps(),
+                            fSharedContext->shaderCodeDictionary(),
+                            serializedPipelineKey.get(),
+                            &pipelineDesc,
+                            &renderPassDesc)) {
+        return "";
+    }
+
+    const RendererProvider* rendererProvider = fSharedContext->rendererProvider();
+
+    const RenderStep* renderStep = rendererProvider->lookup(pipelineDesc.renderStepID());
+    if (!renderStep) {
+        return "";
+    }
+
+    return GetPipelineLabel(fSharedContext->shaderCodeDictionary(),
+                            renderPassDesc,
+                            renderStep,
+                            pipelineDesc.paintParamsID());
+#else
+    return "";
+#endif
+}
+
 
 } // namespace skgpu::graphite

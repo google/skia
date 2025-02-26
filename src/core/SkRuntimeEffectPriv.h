@@ -80,17 +80,33 @@ public:
         return effect.hash();
     }
 
+    static bool HasName(const SkRuntimeEffect& effect) {
+        return !effect.fName.isEmpty();
+    }
+
+    static const char* GetName(const SkRuntimeEffect& effect) {
+        return effect.fName.c_str();
+    }
+
     static uint32_t StableKey(const SkRuntimeEffect& effect) {
         return effect.fStableKey;
     }
 
+    // This method is only used on user-defined known runtime effects
     static void SetStableKey(SkRuntimeEffect* effect, uint32_t stableKey) {
         SkASSERT(!effect->fStableKey);
         SkASSERT(SkKnownRuntimeEffects::IsViableUserDefinedKnownRuntimeEffect(stableKey));
         effect->fStableKey = stableKey;
     }
 
-    static void ResetStableKey(SkRuntimeEffect* effect, uint32_t stableKey) {
+    // This method is only used for Skia-internal known runtime effects
+    static void SetStableKeyOnOptions(SkRuntimeEffect::Options* options, uint32_t stableKey) {
+        SkASSERT(!options->fStableKey);
+        SkASSERT(SkKnownRuntimeEffects::IsSkiaKnownRuntimeEffect(stableKey));
+        options->fStableKey = stableKey;
+    }
+
+    static void ResetStableKey(SkRuntimeEffect* effect) {
         effect->fStableKey = 0;
     }
 
@@ -106,13 +122,6 @@ public:
 
     static void AllowPrivateAccess(SkRuntimeEffect::Options* options) {
         options->allowPrivateAccess = true;
-    }
-
-    static void SetStableKey(SkRuntimeEffect::Options* options, uint32_t stableKey) {
-        // TODO(robertphillips): This assert will need to be loosened when first party
-        // stable keys are allowed.
-        SkASSERT(SkKnownRuntimeEffects::IsSkiaKnownRuntimeEffect(stableKey));
-        options->fStableKey = stableKey;
     }
 
     static SkRuntimeEffect::Uniform VarAsUniform(const SkSL::Variable&,

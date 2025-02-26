@@ -303,6 +303,39 @@ void test_sksl_reuse(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, serializedKeys[0]->equals(recreatedSerializedKeys[0].get()));
 }
 
+void test_get_pipeline_label_api(skiatest::Reporter* reporter,
+                                 Context* context,
+                                 Recorder* recorder,
+                                 PrecompileContext* precompileContext,
+                                 PipelineCallBackHandler* handler) {
+    auto [paint, paintOptions] = create_paint_and_options(/* addBlenders= */ true);
+
+    draw_with_normal_api(context, recorder, paint);
+
+    std::vector<skgpu::UniqueKey> origKeys;
+    std::vector<sk_sp<SkData>> androidStyleKeys;
+
+    fetch_keys_and_reset(reporter, handler, precompileContext,
+                         &origKeys, &androidStyleKeys, /* reset= */ true);
+
+    // Given 'draw_with_normal_api' we expect one serialized key - full of user-defined stable keys
+    REPORTER_ASSERT(reporter, origKeys.size() == 1);
+    REPORTER_ASSERT(reporter, androidStyleKeys.size() == 1);
+
+    std::string label = precompileContext->getPipelineLabel(androidStyleKeys[0]);
+
+    REPORTER_ASSERT(reporter, std::string::npos != label.find("AnnulusShader"));
+    REPORTER_ASSERT(reporter, std::string::npos != label.find("SrcBlender"));
+    REPORTER_ASSERT(reporter, std::string::npos != label.find("DstBlender"));
+    REPORTER_ASSERT(reporter, std::string::npos != label.find("ComboBlender"));
+    REPORTER_ASSERT(reporter, std::string::npos != label.find("DoubleColorFilter"));
+    REPORTER_ASSERT(reporter, std::string::npos != label.find("ComboColorFilter"));
+    // We withheld the HalfColorFilter name to test the default name case
+    REPORTER_ASSERT(reporter, std::string::npos == label.find("HalfColorFilter"));
+    REPORTER_ASSERT(reporter, std::string::npos != label.find("UserDefinedKnownRuntimeEffect"));
+}
+
+
 } // anonymous namespace
 
 // This test adds some user-defined stably-keyed runtime effects and then verifies that
@@ -353,7 +386,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest,
     for (const sk_sp<SkRuntimeEffect>& e: userDefinedKnownRuntimeEffects) {
         // The PrecompileFactories runtime effects are static so prior runs may have already
         // set their StableKeys. Reset the StableKeys so all our expectations/asserts will be met.
-        SkRuntimeEffectPriv::ResetStableKey(e.get(), 0);
+        SkRuntimeEffectPriv::ResetStableKey(e.get());
     }
 
     newOptions.fContextOptions.fUserDefinedKnownRuntimeEffects = { userDefinedKnownRuntimeEffects };
@@ -400,6 +433,16 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest,
                     recorder.get(),
                     precompileContext.get(),
                     pipelineHandler.get());
+
+    globalCache->resetGraphicsPipelines();
+    pipelineHandler->reset();
+
+    // Extra little test to check on the getPipelineLabel API
+    test_get_pipeline_label_api(reporter,
+                                newContext,
+                                recorder.get(),
+                                precompileContext.get(),
+                                pipelineHandler.get());
 }
 
 // Test that the ShaderCodeDictionary can deduplicate the user-defined known runtime effect list
@@ -432,7 +475,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest_Duplicates,
     for (const sk_sp<SkRuntimeEffect>& e: userDefinedKnownRuntimeEffects) {
         // The PrecompileFactories runtime effects are static so prior runs may have already
         // set their StableKeys. Reset the StableKeys so all our expectations/asserts will be met.
-        SkRuntimeEffectPriv::ResetStableKey(e.get(), 0);
+        SkRuntimeEffectPriv::ResetStableKey(e.get());
     }
 
     newOptions.fContextOptions.fUserDefinedKnownRuntimeEffects = { userDefinedKnownRuntimeEffects };
@@ -478,7 +521,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest_Nullptrs,
         // The PrecompileFactories runtime effects are static so prior runs may have already
         // set their StableKeys. Reset the StableKeys so all our expectations/asserts will be met.
         if (e) {
-            SkRuntimeEffectPriv::ResetStableKey(e.get(), 0);
+            SkRuntimeEffectPriv::ResetStableKey(e.get());
         }
     }
 
