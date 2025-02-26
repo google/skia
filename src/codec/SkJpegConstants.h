@@ -65,4 +65,8 @@ static constexpr uint8_t kISOGainmapSig[] = {'u', 'r', 'n', ':', 'i', 's', 'o', 
                                              'd', ':', 'i', 's', 'o', ':', 't', 's', ':', '2',
                                              '1', '4', '9', '6', ':', '-', '1', '\0'};
 
+// ISO 19566-5 JUMBF marker and signature
+static constexpr uint32_t kJumbfMarker = kJpegMarkerAPP0 + 11;
+static constexpr uint8_t kJumbfSig[] = {'J', 'P'};
+
 #endif

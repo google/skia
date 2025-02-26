@@ -86,6 +86,13 @@ public:
     virtual bool findGainmapImage(sk_sp<SkData> baseImageData,
                                   sk_sp<SkData>& outGainmapImagedata,
                                   SkGainmapInfo& outGainmapInfo) = 0;
+
+     /**
+      * Return the first JUMBF superbox, if any, and nullptr otherwise. If |copyData| is false,
+      * then the returned SkData may directly reference the data provided when this object was
+      * created.
+      */
+    virtual sk_sp<SkData> getJUMBFMetadata(bool copyData) const = 0;
 };
 
 #endif

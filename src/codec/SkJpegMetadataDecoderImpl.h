@@ -45,6 +45,7 @@ public:
     bool findGainmapImage(sk_sp<SkData> baseImageData,
                           sk_sp<SkData>& outGainmapImageData,
                           SkGainmapInfo& outGainmapInfo) override;
+    sk_sp<SkData> getJUMBFMetadata(bool copyData) const override;
 
 private:
     SkJpegMarkerList fMarkerList;
