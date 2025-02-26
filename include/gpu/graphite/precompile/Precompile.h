@@ -25,9 +25,7 @@ class PrecompileContext;
 struct SK_API RenderPassProperties {
     DepthStencilFlags   fDSFlags      = DepthStencilFlags::kNone;
     SkColorType         fDstCT        = kRGBA_8888_SkColorType;
-#if !defined(SK_IGNORE_RENDER_PASS_PROPERTIES_COLOR_SPACE)
     sk_sp<SkColorSpace> fDstCS        = nullptr;
-#endif
     bool                fRequiresMSAA = false;
 };
 

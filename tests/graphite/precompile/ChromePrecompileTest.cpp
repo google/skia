@@ -87,9 +87,7 @@ PaintOptions lineargrad_srcover_dithered() {
 RenderPassProperties bgra_1_depth() {
     return { DepthStencilFlags::kDepth,
              kBGRA_8888_SkColorType,
-#if !defined(SK_IGNORE_RENDER_PASS_PROPERTIES_COLOR_SPACE)
              /* dstColorSpace= */ nullptr,
-#endif
              /* requiresMSAA= */ false };
 }
 
@@ -98,9 +96,7 @@ RenderPassProperties bgra_1_depth() {
 RenderPassProperties bgra_4_depth() {
     return { DepthStencilFlags::kDepth,
              kBGRA_8888_SkColorType,
-#if !defined(SK_IGNORE_RENDER_PASS_PROPERTIES_COLOR_SPACE)
              /* dstColorSpace= */ nullptr,
-#endif
              /* requiresMSAA= */ true };
 }
 
@@ -109,9 +105,7 @@ RenderPassProperties bgra_4_depth() {
 RenderPassProperties bgra_4_depth_stencil() {
     return { DepthStencilFlags::kDepthStencil,
              kBGRA_8888_SkColorType,
-#if !defined(SK_IGNORE_RENDER_PASS_PROPERTIES_COLOR_SPACE)
              /* dstColorSpace= */ nullptr,
-#endif
              /* requiresMSAA= */ true };
 }
 
