@@ -86,12 +86,7 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
         ++fHashEntryCount;
     } else {
         MaskHashEntry newEntry{iBounds, locator, nullptr};
-        MaskHashEntry* pEntry = fMaskCache.set(maskKey, newEntry);
-        // Validate that we actually added an entry
-        SkASSERTF_RELEASE(pEntry, "=ClipAtlas=: Didn't actually add an entry.");
-        SkASSERTF_RELEASE(pEntry->fBounds == iBounds &&
-                          pEntry->fLocator.plotLocator() == locator.plotLocator(),
-                          "=ClipAtlas=: Entry contents are wrong!");
+        fMaskCache.set(maskKey, newEntry);
         ++fHashEntryCount;
     }
 
@@ -222,16 +217,12 @@ void ClipAtlasManager::evict(PlotLocator plotLocator) {
     while ((currKeyEntry = iter.get())) {
         iter.next();
         MaskHashEntry* currHashEntry = fMaskCache.find(currKeyEntry->fKey);
+        SkASSERT(currHashEntry);
         MaskHashEntry* prevHashEntry = nullptr;
         bool found = false;
         while (currHashEntry && !found) {
             if (currHashEntry->fBounds == currKeyEntry->fBounds) {
                 found = true;
-                // Validate that this entry is for this plot
-                uint32_t entryIndex =
-                        fDrawAtlas->getListIndex(currHashEntry->fLocator.plotLocator());
-                SkASSERTF_RELEASE(entryIndex == index,
-                                  "=ClipAtlas=: Hash entry has wrong index! plot %d\n", entryIndex);
                 // Remove entry from hash list
                 if (prevHashEntry) {
                     prevHashEntry->fNext = currHashEntry->fNext;
@@ -245,19 +236,6 @@ void ClipAtlasManager::evict(PlotLocator plotLocator) {
                     delete next;
                     --fHashEntryCount;
                 } else {
-                    // Validate that this hash entry is in no other list
-                    for (int i = 0; i < fKeyLists.size(); ++i) {
-                        if ((uint32_t)i != index) {
-                            MaskKeyList::Iter validateIter;
-                            validateIter.init(fKeyLists[i], MaskKeyList::Iter::kHead_IterStart);
-                            MaskKeyEntry* currValidateEntry;
-                            while ((currValidateEntry = validateIter.get())) {
-                                validateIter.next();
-                                SkASSERTF_RELEASE(currValidateEntry->fKey != currKeyEntry->fKey,
-                                        "=ClipAtlas=: Extra plotlist entry: %d %d", i, index);
-                            }
-                        }
-                    }
                     // Remove hash entry itself
                     fMaskCache.remove(currKeyEntry->fKey);
                     --fHashEntryCount;
