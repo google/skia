@@ -17,10 +17,19 @@ namespace SkKnownRuntimeEffects {
 
 namespace {
 
+SkRuntimeEffect::Options get_options(StableKey stableKey) {
+    SkRuntimeEffect::Options options;
+    SkRuntimeEffectPriv::SetStableKeyOnOptions(&options, static_cast<uint32_t>(stableKey));
+    SkRuntimeEffectPriv::AllowPrivateAccess(&options);
+    return options;
+}
+
 // This must be kept in sync w/ the version in BlurUtils.h
 static constexpr int kMaxBlurSamples = 28;
 
-SkRuntimeEffect* make_blur_1D_effect(int kernelWidth, const SkRuntimeEffect::Options& options) {
+SkRuntimeEffect* make_blur_1D_shader(int kernelWidth, StableKey stableKey) {
+    SkRuntimeEffect::Options options = get_options(stableKey);
+
     SkASSERT(kernelWidth <= kMaxBlurSamples);
     // The SkSL structure performs two kernel taps; if the kernel has an odd width the last
     // sample will be skipped with the current loop limit calculation.
@@ -52,7 +61,9 @@ SkRuntimeEffect* make_blur_1D_effect(int kernelWidth, const SkRuntimeEffect::Opt
                     options);
 }
 
-SkRuntimeEffect* make_blur_2D_effect(int maxKernelSize, const SkRuntimeEffect::Options& options) {
+SkRuntimeEffect* make_blur_2D_shader(int maxKernelSize, StableKey stableKey) {
+    SkRuntimeEffect::Options options = get_options(stableKey);
+
     SkASSERT(maxKernelSize % 4 == 0);
     return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
             SkStringPrintf(
@@ -89,6 +100,38 @@ SkRuntimeEffect* make_blur_2D_effect(int maxKernelSize, const SkRuntimeEffect::O
                     options);
 }
 
+SkRuntimeEffect* make_blend_shader() {
+    SkRuntimeEffect::Options options = get_options(StableKey::kBlend);
+
+    static constexpr char kBlendShaderCode[] =
+        "uniform shader s, d;"
+        "uniform blender b;"
+        "half4 main(float2 xy) {"
+            "return b.eval(s.eval(xy), d.eval(xy));"
+        "}";
+
+    return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                               kBlendShaderCode,
+                               options);
+}
+
+SkRuntimeEffect* make_lerp_shader() {
+    SkRuntimeEffect::Options options = get_options(StableKey::kLerp);
+
+    static constexpr char kLerpFilterCode[] =
+        "uniform colorFilter cf0;"
+        "uniform colorFilter cf1;"
+        "uniform half weight;"
+
+        "half4 main(half4 color) {"
+            "return mix(cf0.eval(color), cf1.eval(color), weight);"
+        "}";
+
+    return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+                               kLerpFilterCode,
+                               options);
+}
+
 enum class MatrixConvolutionImpl {
     kUniformBased,
     kTextureBasedSm,
@@ -99,8 +142,9 @@ enum class MatrixConvolutionImpl {
 //    a smaller kernel version that stores the matrix in uniforms and iterates in 1D
 //    a larger kernel version that stores the matrix in a 1D texture. The texture version has small
 //    and large variants w/ the actual kernel size uploaded as a uniform.
-SkRuntimeEffect* make_matrix_conv_effect(MatrixConvolutionImpl impl,
-                                         const SkRuntimeEffect::Options& options) {
+SkRuntimeEffect* make_matrix_conv_shader(MatrixConvolutionImpl impl, StableKey stableKey) {
+    SkRuntimeEffect::Options options = get_options(stableKey);
+
     // While the uniforms and kernel access are different, pieces of the algorithm are common and
     // defined statically for re-use in the two shaders:
     static const char* kHeaderAndBeginLoopSkSL =
@@ -200,6 +244,206 @@ SkRuntimeEffect* make_matrix_conv_effect(MatrixConvolutionImpl impl,
     SkUNREACHABLE;
 }
 
+SkRuntimeEffect* make_decal_shader() {
+    SkRuntimeEffect::Options options = get_options(StableKey::kDecal);
+
+    static constexpr char kDecalShaderCode[] =
+        "uniform shader image;"
+        "uniform float4 decalBounds;"
+
+        "half4 main(float2 coord) {"
+            "return sk_decal(image, coord, decalBounds);"
+        "}";
+
+    return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                               kDecalShaderCode,
+                               options);
+}
+
+SkRuntimeEffect* make_displacement_shader() {
+    SkRuntimeEffect::Options options = get_options(StableKey::kDisplacement);
+
+    // NOTE: This uses dot product selection to work on all GLES2 hardware (enforced by
+    // public runtime effect restrictions). Otherwise, this would use a "uniform ivec2"
+    // and component indexing to convert the displacement color into a vector.
+    static constexpr char kDisplacementShaderCode[] =
+        "uniform shader displMap;"
+        "uniform shader colorMap;"
+        "uniform half2 scale;"
+        "uniform half4 xSelect;" // Only one of RGBA will be 1, the rest are 0
+        "uniform half4 ySelect;"
+
+        "half4 main(float2 coord) {"
+            "return sk_displacement(displMap, colorMap, coord, scale, xSelect, ySelect);"
+        "}";
+
+    return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                               kDisplacementShaderCode,
+                               options);
+}
+
+SkRuntimeEffect* make_lighting_shader() {
+    SkRuntimeEffect::Options options = get_options(StableKey::kLighting);
+
+   static constexpr char kLightingShaderCode[] =
+        "uniform shader normalMap;"
+
+        // Packs surface depth, shininess, material type (0 == diffuse) and light type
+        // (< 0 = distant, 0 = point, > 0 = spot)
+        "uniform half4 materialAndLightType;"
+
+        "uniform half4 lightPosAndSpotFalloff;" // (x,y,z) are lightPos, w is spot falloff
+                                                // exponent
+        "uniform half4 lightDirAndSpotCutoff;" // (x,y,z) are lightDir,
+                                               // w is spot cos(cutoffAngle)
+        "uniform half3 lightColor;" // Material's k has already been multiplied in
+
+        "half4 main(float2 coord) {"
+            "return sk_lighting(normalMap, coord,"
+                                /*depth=*/"materialAndLightType.x,"
+                                /*shininess=*/"materialAndLightType.y,"
+                                /*materialType=*/"materialAndLightType.z,"
+                                /*lightType=*/"materialAndLightType.w,"
+                                /*lightPos=*/"lightPosAndSpotFalloff.xyz,"
+                                /*spotFalloff=*/"lightPosAndSpotFalloff.w,"
+                                /*lightDir=*/"lightDirAndSpotCutoff.xyz,"
+                                /*cosCutoffAngle=*/"lightDirAndSpotCutoff.w,"
+                                "lightColor);"
+        "}";
+
+   return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                              kLightingShaderCode,
+                              options);
+}
+
+SkRuntimeEffect* make_linear_morphology_shader() {
+    SkRuntimeEffect::Options options = get_options(StableKey::kLinearMorphology);
+
+    static constexpr char kLinearMorphologyShaderCode[] =
+        "uniform shader child;"
+        "uniform half2 offset;"
+        "uniform half flip;" // -1 converts the max() calls to min()
+        "uniform int radius;"
+
+        "half4 main(float2 coord) {"
+            "return sk_linear_morphology(child, coord, offset, flip, radius);"
+        "}";
+
+    return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                               kLinearMorphologyShaderCode,
+                               options);
+}
+
+SkRuntimeEffect* make_magnifier_shader() {
+    SkRuntimeEffect::Options options = get_options(StableKey::kMagnifier);
+
+    static constexpr char kMagnifierShaderCode[] =
+        "uniform shader src;"
+        "uniform float4 lensBounds;"
+        "uniform float4 zoomXform;"
+        "uniform float2 invInset;"
+
+        "half4 main(float2 coord) {"
+            "return sk_magnifier(src, coord, lensBounds, zoomXform, invInset);"
+        "}";
+
+    return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                               kMagnifierShaderCode,
+                               options);
+}
+
+SkRuntimeEffect* make_normal_shader() {
+    SkRuntimeEffect::Options options = get_options(StableKey::kNormal);
+
+    static constexpr char kNormalShaderCode[] =
+        "uniform shader alphaMap;"
+        "uniform float4 edgeBounds;"
+        "uniform half negSurfaceDepth;"
+
+        "half4 main(float2 coord) {"
+           "return sk_normal(alphaMap, coord, edgeBounds, negSurfaceDepth);"
+        "}";
+
+    return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                               kNormalShaderCode,
+                               options);
+}
+
+SkRuntimeEffect* make_sparse_morphology_shader() {
+    SkRuntimeEffect::Options options = get_options(StableKey::kSparseMorphology);
+
+    static constexpr char kSparseMorphologyShaderCode[] =
+        "uniform shader child;"
+        "uniform half2 offset;"
+        "uniform half flip;"
+
+        "half4 main(float2 coord) {"
+            "return sk_sparse_morphology(child, coord, offset, flip);"
+        "}";
+
+    return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
+                               kSparseMorphologyShaderCode,
+                               options);
+}
+
+SkRuntimeEffect* make_arithmetic_blender() {
+    SkRuntimeEffect::Options options = get_options(StableKey::kArithmetic);
+
+    static constexpr char kArithmeticBlenderCode[] =
+        "uniform half4 k;"
+        "uniform half pmClamp;"
+
+        "half4 main(half4 src, half4 dst) {"
+            "return sk_arithmetic_blend(src, dst, k, pmClamp);"
+        "}";
+
+    return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForBlender,
+                               kArithmeticBlenderCode,
+                               options);
+}
+
+SkRuntimeEffect* make_high_contrast_color_filter() {
+    SkRuntimeEffect::Options options = get_options(StableKey::kHighContrast);
+
+    static constexpr char kHighContrastFilterCode[] =
+        "uniform half grayscale, invertStyle, contrast;"
+        "half4 main(half4 color) {"
+            "return half4(sk_high_contrast(color.rgb, grayscale, invertStyle, contrast), color.a);"
+        "}";
+
+    return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+                               kHighContrastFilterCode,
+                               options);
+}
+
+SkRuntimeEffect* make_luma_color_filter() {
+    SkRuntimeEffect::Options options = get_options(StableKey::kLuma);
+
+    static constexpr char kLumaFilterCode[] =
+        "half4 main(half4 color) {"
+            "return sk_luma(color.rgb);"
+        "}";
+
+    return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+                               kLumaFilterCode,
+                               options);
+}
+
+SkRuntimeEffect* make_overdraw_color_filter() {
+    SkRuntimeEffect::Options options = get_options(StableKey::kOverdraw);
+
+    static constexpr char kOverdrawFilterCode[] =
+        "uniform half4 color0, color1, color2, color3, color4, color5;"
+
+        "half4 main(half4 color) {"
+            "return sk_overdraw(color.a, color0, color1, color2, color3, color4, color5);"
+        "}";
+
+    return SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
+                               kOverdrawFilterCode,
+                               options);
+}
+
 } // anonymous namespace
 
 bool IsSkiaKnownRuntimeEffect(int candidate) {
@@ -228,305 +472,128 @@ sk_sp<SkRuntimeEffect> MaybeGetKnownRuntimeEffect(uint32_t candidate) {
 }
 
 const SkRuntimeEffect* GetKnownRuntimeEffect(StableKey stableKey) {
-    SkRuntimeEffect::Options options;
-    SkRuntimeEffectPriv::SetStableKeyOnOptions(&options, static_cast<uint32_t>(stableKey));
-    SkRuntimeEffectPriv::AllowPrivateAccess(&options);
-
     switch (stableKey) {
         case StableKey::kInvalid:
             return nullptr;
 
         // Shaders
         case StableKey::k1DBlur4: {
-            static SkRuntimeEffect* s1DBlurEffect = make_blur_1D_effect(4, options);
+            static SkRuntimeEffect* s1DBlurEffect = make_blur_1D_shader(4, stableKey);
             return s1DBlurEffect;
         }
         case StableKey::k1DBlur8: {
-            static SkRuntimeEffect* s1DBlurEffect = make_blur_1D_effect(8, options);
+            static SkRuntimeEffect* s1DBlurEffect = make_blur_1D_shader(8, stableKey);
             return s1DBlurEffect;
         }
         case StableKey::k1DBlur12: {
-            static SkRuntimeEffect* s1DBlurEffect = make_blur_1D_effect(12, options);
+            static SkRuntimeEffect* s1DBlurEffect = make_blur_1D_shader(12, stableKey);
             return s1DBlurEffect;
         }
         case StableKey::k1DBlur16: {
-            static SkRuntimeEffect* s1DBlurEffect = make_blur_1D_effect(16, options);
+            static SkRuntimeEffect* s1DBlurEffect = make_blur_1D_shader(16, stableKey);
             return s1DBlurEffect;
         }
         case StableKey::k1DBlur20: {
-            static SkRuntimeEffect* s1DBlurEffect = make_blur_1D_effect(20, options);
+            static SkRuntimeEffect* s1DBlurEffect = make_blur_1D_shader(20, stableKey);
             return s1DBlurEffect;
         }
         case StableKey::k1DBlur28: {
-            static SkRuntimeEffect* s1DBlurEffect = make_blur_1D_effect(28, options);
+            static SkRuntimeEffect* s1DBlurEffect = make_blur_1D_shader(28, stableKey);
             return s1DBlurEffect;
         }
         case StableKey::k2DBlur4: {
-            static SkRuntimeEffect* s2DBlurEffect = make_blur_2D_effect(4, options);
+            static SkRuntimeEffect* s2DBlurEffect = make_blur_2D_shader(4, stableKey);
             return s2DBlurEffect;
         }
         case StableKey::k2DBlur8: {
-            static SkRuntimeEffect* s2DBlurEffect = make_blur_2D_effect(8, options);
+            static SkRuntimeEffect* s2DBlurEffect = make_blur_2D_shader(8, stableKey);
             return s2DBlurEffect;
         }
         case StableKey::k2DBlur12: {
-            static SkRuntimeEffect* s2DBlurEffect = make_blur_2D_effect(12, options);
+            static SkRuntimeEffect* s2DBlurEffect = make_blur_2D_shader(12, stableKey);
             return s2DBlurEffect;
         }
         case StableKey::k2DBlur16: {
-            static SkRuntimeEffect* s2DBlurEffect = make_blur_2D_effect(16, options);
+            static SkRuntimeEffect* s2DBlurEffect = make_blur_2D_shader(16, stableKey);
             return s2DBlurEffect;
         }
         case StableKey::k2DBlur20: {
-            static SkRuntimeEffect* s2DBlurEffect = make_blur_2D_effect(20, options);
+            static SkRuntimeEffect* s2DBlurEffect = make_blur_2D_shader(20, stableKey);
             return s2DBlurEffect;
         }
         case StableKey::k2DBlur28: {
-            static SkRuntimeEffect* s2DBlurEffect = make_blur_2D_effect(28, options);
+            static SkRuntimeEffect* s2DBlurEffect = make_blur_2D_shader(28, stableKey);
             return s2DBlurEffect;
         }
         case StableKey::kBlend: {
-            static constexpr char kBlendShaderCode[] =
-                "uniform shader s, d;"
-                "uniform blender b;"
-                "half4 main(float2 xy) {"
-                    "return b.eval(s.eval(xy), d.eval(xy));"
-                "}";
-
-            static const SkRuntimeEffect* sBlendEffect =
-                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-                                        kBlendShaderCode,
-                                        options);
+            static const SkRuntimeEffect* sBlendEffect = make_blend_shader();
             return sBlendEffect;
         }
         case StableKey::kLerp: {
-            static constexpr char kLerpFilterCode[] =
-                "uniform colorFilter cf0;"
-                "uniform colorFilter cf1;"
-                "uniform half weight;"
-
-                "half4 main(half4 color) {"
-                    "return mix(cf0.eval(color), cf1.eval(color), weight);"
-                "}";
-
-            static const SkRuntimeEffect* sLerpEffect =
-                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
-                                        kLerpFilterCode,
-                                        options);
+            static const SkRuntimeEffect* sLerpEffect = make_lerp_shader();
             return sLerpEffect;
         }
         case StableKey::kMatrixConvUniforms: {
             static const SkRuntimeEffect* sMatrixConvUniformsEffect =
-                    make_matrix_conv_effect(MatrixConvolutionImpl::kUniformBased, options);
+                    make_matrix_conv_shader(MatrixConvolutionImpl::kUniformBased, stableKey);
             return sMatrixConvUniformsEffect;
         }
-
         case StableKey::kMatrixConvTexSm: {
             static const SkRuntimeEffect* sMatrixConvTexSmEffect =
-                    make_matrix_conv_effect(MatrixConvolutionImpl::kTextureBasedSm, options);
+                    make_matrix_conv_shader(MatrixConvolutionImpl::kTextureBasedSm, stableKey);
             return sMatrixConvTexSmEffect;
         }
-
         case StableKey::kMatrixConvTexLg: {
             static const SkRuntimeEffect* sMatrixConvTexMaxEffect =
-                    make_matrix_conv_effect(MatrixConvolutionImpl::kTextureBasedLg, options);
+                    make_matrix_conv_shader(MatrixConvolutionImpl::kTextureBasedLg, stableKey);
             return sMatrixConvTexMaxEffect;
         }
         case StableKey::kDecal: {
-            static constexpr char kDecalShaderCode[] =
-                "uniform shader image;"
-                "uniform float4 decalBounds;"
-
-                "half4 main(float2 coord) {"
-                    "return sk_decal(image, coord, decalBounds);"
-                "}";
-
-            static const SkRuntimeEffect* sDecalEffect =
-                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-                                        kDecalShaderCode,
-                                        options);
+            static const SkRuntimeEffect* sDecalEffect = make_decal_shader();
             return sDecalEffect;
         }
         case StableKey::kDisplacement: {
-            // NOTE: This uses dot product selection to work on all GLES2 hardware (enforced by
-            // public runtime effect restrictions). Otherwise, this would use a "uniform ivec2"
-            // and component indexing to convert the displacement color into a vector.
-            static constexpr char kDisplacementShaderCode[] =
-                "uniform shader displMap;"
-                "uniform shader colorMap;"
-                "uniform half2 scale;"
-                "uniform half4 xSelect;" // Only one of RGBA will be 1, the rest are 0
-                "uniform half4 ySelect;"
-
-                "half4 main(float2 coord) {"
-                    "return sk_displacement(displMap, colorMap, coord, scale, xSelect, ySelect);"
-                "}";
-
-            static const SkRuntimeEffect* sDisplacementEffect =
-                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-                                        kDisplacementShaderCode,
-                                        options);
+            static const SkRuntimeEffect* sDisplacementEffect = make_displacement_shader();
             return sDisplacementEffect;
         }
         case StableKey::kLighting: {
-            static constexpr char kLightingShaderCode[] =
-                "uniform shader normalMap;"
-
-                // Packs surface depth, shininess, material type (0 == diffuse) and light type
-                // (< 0 = distant, 0 = point, > 0 = spot)
-                "uniform half4 materialAndLightType;"
-
-                "uniform half4 lightPosAndSpotFalloff;" // (x,y,z) are lightPos, w is spot falloff
-                                                        // exponent
-                "uniform half4 lightDirAndSpotCutoff;" // (x,y,z) are lightDir,
-                                                       // w is spot cos(cutoffAngle)
-                "uniform half3 lightColor;" // Material's k has already been multiplied in
-
-                "half4 main(float2 coord) {"
-                    "return sk_lighting(normalMap, coord,"
-                                        /*depth=*/"materialAndLightType.x,"
-                                        /*shininess=*/"materialAndLightType.y,"
-                                        /*materialType=*/"materialAndLightType.z,"
-                                        /*lightType=*/"materialAndLightType.w,"
-                                        /*lightPos=*/"lightPosAndSpotFalloff.xyz,"
-                                        /*spotFalloff=*/"lightPosAndSpotFalloff.w,"
-                                        /*lightDir=*/"lightDirAndSpotCutoff.xyz,"
-                                        /*cosCutoffAngle=*/"lightDirAndSpotCutoff.w,"
-                                        "lightColor);"
-                "}";
-
-            static const SkRuntimeEffect* sLightingEffect =
-                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-                                        kLightingShaderCode,
-                                        options);
+            static const SkRuntimeEffect* sLightingEffect = make_lighting_shader();
             return sLightingEffect;
         }
         case StableKey::kLinearMorphology: {
-            static constexpr char kLinearMorphologyShaderCode[] =
-                "uniform shader child;"
-                "uniform half2 offset;"
-                "uniform half flip;" // -1 converts the max() calls to min()
-                "uniform int radius;"
-
-                "half4 main(float2 coord) {"
-                    "return sk_linear_morphology(child, coord, offset, flip, radius);"
-                "}";
-
-            static const SkRuntimeEffect* sLinearMorphologyEffect =
-                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-                                        kLinearMorphologyShaderCode,
-                                        options);
+            static const SkRuntimeEffect* sLinearMorphologyEffect = make_linear_morphology_shader();
             return sLinearMorphologyEffect;
         }
-
         case StableKey::kMagnifier: {
-            static constexpr char kMagnifierShaderCode[] =
-                "uniform shader src;"
-                "uniform float4 lensBounds;"
-                "uniform float4 zoomXform;"
-                "uniform float2 invInset;"
-
-                "half4 main(float2 coord) {"
-                    "return sk_magnifier(src, coord, lensBounds, zoomXform, invInset);"
-                "}";
-
-            static const SkRuntimeEffect* sMagnifierEffect =
-                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-                                        kMagnifierShaderCode,
-                                        options);
+            static const SkRuntimeEffect* sMagnifierEffect = make_magnifier_shader();
             return sMagnifierEffect;
         }
         case StableKey::kNormal: {
-            static constexpr char kNormalShaderCode[] =
-                "uniform shader alphaMap;"
-                "uniform float4 edgeBounds;"
-                "uniform half negSurfaceDepth;"
-
-                "half4 main(float2 coord) {"
-                   "return sk_normal(alphaMap, coord, edgeBounds, negSurfaceDepth);"
-                "}";
-
-            static const SkRuntimeEffect* sNormalEffect =
-                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-                                        kNormalShaderCode,
-                                        options);
+            static const SkRuntimeEffect* sNormalEffect = make_normal_shader();
             return sNormalEffect;
         }
         case StableKey::kSparseMorphology: {
-            static constexpr char kSparseMorphologyShaderCode[] =
-                "uniform shader child;"
-                "uniform half2 offset;"
-                "uniform half flip;"
-
-                "half4 main(float2 coord) {"
-                    "return sk_sparse_morphology(child, coord, offset, flip);"
-                "}";
-
-            static const SkRuntimeEffect* sSparseMorphologyEffect =
-                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
-                                        kSparseMorphologyShaderCode,
-                                        options);
+            static const SkRuntimeEffect* sSparseMorphologyEffect = make_sparse_morphology_shader();
             return sSparseMorphologyEffect;
         }
 
         // Blenders
         case StableKey::kArithmetic: {
-            static constexpr char kArithmeticBlenderCode[] =
-                "uniform half4 k;"
-                "uniform half pmClamp;"
-
-                "half4 main(half4 src, half4 dst) {"
-                    "return sk_arithmetic_blend(src, dst, k, pmClamp);"
-                "}";
-
-            static const SkRuntimeEffect* sArithmeticEffect =
-                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForBlender,
-                                        kArithmeticBlenderCode,
-                                        options);
+            static const SkRuntimeEffect* sArithmeticEffect = make_arithmetic_blender();
             return sArithmeticEffect;
         }
 
         // Color Filters
         case StableKey::kHighContrast: {
-            static constexpr char kHighContrastFilterCode[] =
-                "uniform half grayscale, invertStyle, contrast;"
-                "half4 main(half4 color) {"
-                    "return half4(sk_high_contrast(color.rgb, grayscale, invertStyle, contrast),"
-                                 "color.a);"
-                "}";
-
-            static const SkRuntimeEffect* sHighContrastEffect =
-                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
-                                        kHighContrastFilterCode,
-                                        options);
+            static const SkRuntimeEffect* sHighContrastEffect = make_high_contrast_color_filter();
             return sHighContrastEffect;
         }
-
         case StableKey::kLuma: {
-            static constexpr char kLumaFilterCode[] =
-                "half4 main(half4 color) {"
-                    "return sk_luma(color.rgb);"
-                "}";
-
-            static const SkRuntimeEffect* sLumaEffect =
-                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
-                                        kLumaFilterCode,
-                                        options);
+            static const SkRuntimeEffect* sLumaEffect = make_luma_color_filter();
             return sLumaEffect;
         }
-
         case StableKey::kOverdraw: {
-            static constexpr char kOverdrawFilterCode[] =
-                "uniform half4 color0, color1, color2, color3, color4, color5;"
-
-                "half4 main(half4 color) {"
-                    "return sk_overdraw(color.a, color0, color1, color2, color3, color4, color5);"
-                "}";
-
-            static const SkRuntimeEffect* sOverdrawEffect =
-                    SkMakeRuntimeEffect(SkRuntimeEffect::MakeForColorFilter,
-                                        kOverdrawFilterCode,
-                                        options);
+            static const SkRuntimeEffect* sOverdrawEffect = make_overdraw_color_filter();
             return sOverdrawEffect;
         }
     }
