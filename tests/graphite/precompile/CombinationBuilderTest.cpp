@@ -32,8 +32,8 @@ namespace {
 
 // colorfilters
 static constexpr int kExpectedBlendCFCombos = 15;
-static constexpr int kExpectedColorSpaceCFCombos = 3;
-static constexpr int kExpectedHighContrastCFCombos = 3;
+static constexpr int kExpectedColorSpaceCFCombos = 1;
+static constexpr int kExpectedHighContrastCFCombos = 1;
 static constexpr int kExpectedLightingCFCombos = 1;
 static constexpr int kExpectedLumaCFCombos = 1;
 static constexpr int kExpectedMatrixCFCombos = 1;
