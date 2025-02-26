@@ -351,7 +351,7 @@ void VulkanBuffer::setBufferAccess(VulkanCommandBuffer* cmdBuffer,
 
     // When the buffer was last used on the host, we don't need to add any barrier as writes on the
     // CPU host are implicitly synchronized what you submit new commands.
-    if (srcStageMask != VK_PIPELINE_STAGE_HOST_BIT) {
+    if (srcStageMask == VK_PIPELINE_STAGE_HOST_BIT) {
         needsBarrier = false;
     }
 
