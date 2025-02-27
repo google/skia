@@ -981,6 +981,14 @@ void DawnCaps::setColorType(SkColorType colorType,
     }
 }
 
+bool DawnCaps::serializeTextureInfo(const TextureInfo& info, SkWStream* out) const {
+    return TextureInfoPriv::Serialize<DawnTextureInfo>(info, out);
+}
+
+bool DawnCaps::deserializeTextureInfo(SkStream* stream, TextureInfo* out) const {
+    return TextureInfoPriv::Deserialize<DawnTextureInfo>(stream, out);
+}
+
 // Make sure the format table indices will fit into the packed bits, with room to spare for
 // representing an unused attachment.
 static constexpr int kFormatBits = 11; // x2 attachments (color & depthStencil formats)

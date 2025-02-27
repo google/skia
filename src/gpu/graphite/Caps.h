@@ -146,8 +146,8 @@ public:
                                       RenderPassDesc*,
                                       const RendererProvider*) const { return false; }
 
-    virtual bool serializeTextureInfo(const TextureInfo&, SkWStream*) const { return false; }
-    virtual bool deserializeTextureInfo(SkStream*, TextureInfo*) const { return false; }
+    virtual bool serializeTextureInfo(const TextureInfo&, SkWStream*) const = 0;
+    virtual bool deserializeTextureInfo(SkStream*, TextureInfo*) const = 0;
 
     bool areColorTypeAndTextureInfoCompatible(SkColorType, const TextureInfo&) const;
     virtual uint32_t channelMask(const TextureInfo&) const = 0;

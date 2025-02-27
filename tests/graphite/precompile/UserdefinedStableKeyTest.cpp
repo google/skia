@@ -356,11 +356,6 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest,
                                            /* optionsProc= */ nullptr,
                                            /* condition= */ true,
                                            CtsEnforcement::kNever) {
-    if (origContext->backend() != skgpu::BackendApi::kMetal &&
-        origContext->backend() != skgpu::BackendApi::kVulkan) {
-        // Only Native Metal and Vulkan configs currently support Pipeline key serialization
-        return;
-    }
 
     std::unique_ptr<PipelineCallBackHandler> pipelineHandler(new PipelineCallBackHandler);
 
@@ -455,11 +450,6 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest_Duplicates,
                                            /* optionsProc= */ nullptr,
                                            /* condition= */ true,
                                            CtsEnforcement::kNever) {
-    if (context->backend() != skgpu::BackendApi::kMetal &&
-        context->backend() != skgpu::BackendApi::kVulkan) {
-        // Only Native Metal and Vulkan configs currently support Pipeline key serialization
-        return;
-    }
 
     std::unique_ptr<PipelineCallBackHandler> pipelineHandler(new PipelineCallBackHandler);
 
@@ -499,11 +489,6 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest_Nullptrs,
                                            /* optionsProc= */ nullptr,
                                            /* condition= */ true,
                                            CtsEnforcement::kNever) {
-    if (context->backend() != skgpu::BackendApi::kMetal &&
-        context->backend() != skgpu::BackendApi::kVulkan) {
-        // Only Native Metal and Vulkan configs currently support Pipeline key serialization
-        return;
-    }
 
     std::unique_ptr<PipelineCallBackHandler> pipelineHandler(new PipelineCallBackHandler);
 
@@ -545,11 +530,6 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(UserDefinedStableKeyTest_Overflow,
                                            /* optionsProc= */ nullptr,
                                            /* condition= */ true,
                                            CtsEnforcement::kNever) {
-    if (context->backend() != skgpu::BackendApi::kMetal &&
-        context->backend() != skgpu::BackendApi::kVulkan) {
-        // Only Native Metal and Vulkan configs currently support Pipeline key serialization
-        return;
-    }
 
     std::unique_ptr<PipelineCallBackHandler> pipelineHandler(new PipelineCallBackHandler);
 

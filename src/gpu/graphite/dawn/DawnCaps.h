@@ -67,11 +67,14 @@ public:
         return fSupportedResolveTextureLoadOp.has_value();
     }
 
+    bool serializeTextureInfo(const TextureInfo&, SkWStream*) const override;
+    bool deserializeTextureInfo(SkStream*, TextureInfo* out) const override;
+
     void buildKeyForTexture(SkISize dimensions,
                             const TextureInfo&,
                             ResourceType,
                             GraphiteResourceKey*) const override;
-    uint32_t getRenderPassDescKeyForPipeline(const RenderPassDesc& renderPassDesc) const;
+    uint32_t getRenderPassDescKeyForPipeline(const RenderPassDesc&) const;
 
     bool supportsCommandBufferTimestamps() const { return fSupportsCommandBufferTimestamps; }
 

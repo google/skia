@@ -15,6 +15,9 @@
 
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
+class SkStream;
+class SkWStream;
+
 namespace skgpu::graphite {
 class BackendTexture;
 
@@ -102,6 +105,8 @@ private:
     static constexpr skgpu::BackendApi kBackend = skgpu::BackendApi::kDawn;
 
     Protected isProtected() const { return Protected::kNo; }
+    bool serialize(SkWStream*) const;
+    bool deserialize(SkStream*);
 
     // Virtual API when the specific backend type is not available.
     uint32_t viewFormat() const override { return (uint32_t) this->getViewFormat(); }
