@@ -12,10 +12,10 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/encode/SkICC.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTo.h"
 #include "include/utils/mac/SkCGUtils.h"
+#include "src/core/SkColorData.h"
 #include "src/utils/mac/SkUniqueCFRef.h"
 
 #include <climits>

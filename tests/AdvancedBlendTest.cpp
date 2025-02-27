@@ -7,8 +7,8 @@
 
 #include "include/core/SkBlendMode.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"

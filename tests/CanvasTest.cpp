@@ -54,7 +54,7 @@ class SkPicture;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 #include "include/core/SkColorSpace.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 #endif
 
 #if defined(SK_SUPPORT_PDF)

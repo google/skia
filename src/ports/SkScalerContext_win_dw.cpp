@@ -1907,7 +1907,7 @@ void SkScalerContext_DW::generateFontMetrics(SkFontMetrics* metrics) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 
 void SkScalerContext_DW::BilevelToBW(const uint8_t* SK_RESTRICT src,
                                      const SkGlyph& glyph, void* imageBuffer) {

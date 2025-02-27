@@ -8,8 +8,8 @@
 #ifndef GrDefaultGeoProcFactory_DEFINED
 #define GrDefaultGeoProcFactory_DEFINED
 
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
+#include "src/core/SkColorData.h"
 
 #include <cstdint>
 

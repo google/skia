@@ -11,7 +11,6 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkCPUTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMacros.h"
@@ -20,6 +19,7 @@
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkBlitter.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkScan.h"
 

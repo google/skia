@@ -10,10 +10,10 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorAnalysis.h"

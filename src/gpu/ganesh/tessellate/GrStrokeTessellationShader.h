@@ -8,8 +8,8 @@
 #define GrStrokeTessellationShader_DEFINED
 
 #include "include/core/SkStrokeRec.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkTArray.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/tessellate/GrTessellationShader.h"
 #include "src/gpu/tessellate/Tessellation.h"
 

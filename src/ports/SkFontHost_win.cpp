@@ -15,7 +15,6 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/ports/SkTypeface_win.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTDArray.h"
@@ -25,6 +24,7 @@
 #include "src/base/SkLeanWindows.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkAdvancedTypefaceMetrics.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkDescriptor.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkGlyph.h"
@@ -1022,7 +1022,7 @@ static const uint8_t* getInverseGammaTableClearType() {
     return gTableClearType;
 }
 
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 
 //Cannot assume that the input rgb is gray due to possible setting of kGenA8FromLCD_Flag.
 template<bool APPLY_PREBLEND>

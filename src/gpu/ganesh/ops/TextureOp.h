@@ -9,7 +9,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 

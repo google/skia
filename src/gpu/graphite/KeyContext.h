@@ -11,7 +11,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/gpu/graphite/TextureProxy.h"
 

@@ -35,9 +35,9 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypeface.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkCPUTypes.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkFontPriv.h"
 #include "tools/SkMetaData.h"
 

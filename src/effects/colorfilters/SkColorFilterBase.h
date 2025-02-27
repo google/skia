@@ -12,7 +12,7 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 
 #include <cstddef>
 

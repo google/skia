@@ -8,7 +8,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 #include "tests/Test.h"
 
 #include <cstdint>

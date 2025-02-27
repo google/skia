@@ -9,7 +9,7 @@
 #define GrSimpleMeshDrawOpHelperWithStencil_DEFINED
 
 #include "include/core/SkString.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/GrProcessorSet.h"

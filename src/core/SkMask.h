@@ -10,9 +10,9 @@
 
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkRect.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/core/SkColorData.h"
 
 #include <cstddef>
 #include <cstdint>

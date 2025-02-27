@@ -10,12 +10,12 @@
 
 #include "include/core/SkRefCnt.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "src/base/SkVx.h" // IWYU pragma: keep
+#include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/glsl/GrGLSLProgramDataManager.h"

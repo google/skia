@@ -12,8 +12,8 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkStream.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkTPin.h"
+#include "src/core/SkColorData.h"
 
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkTraceEvent.h"

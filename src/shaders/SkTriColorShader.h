@@ -9,7 +9,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 #include "src/shaders/SkShaderBase.h"
 
 struct SkPoint;

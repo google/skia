@@ -11,7 +11,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStrokeRec.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrGpuBuffer.h"
 #include "src/gpu/ganesh/GrVertexChunkArray.h"
 #include "src/gpu/tessellate/Tessellation.h"

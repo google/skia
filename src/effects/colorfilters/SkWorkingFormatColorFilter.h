@@ -11,8 +11,8 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkColorData.h"
 #include "modules/skcms/skcms.h"
+#include "src/core/SkColorData.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 
 class SkColorSpace;

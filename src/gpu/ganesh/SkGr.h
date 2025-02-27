@@ -16,7 +16,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/ganesh/GrColor.h"

@@ -12,8 +12,8 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
-#include "include/private/SkColorData.h"
 #include "src/codec/SkCodecPriv.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkMasks.h"
 
 static void swizzle_mask16_to_rgba_opaque(

@@ -9,7 +9,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkPixmap.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"

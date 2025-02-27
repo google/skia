@@ -9,11 +9,11 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "src/base/SkBlockAllocator.h"
 #include "src/base/SkTBlockList.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDynamicAtlas.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"

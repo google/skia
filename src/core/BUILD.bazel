@@ -54,6 +54,7 @@ skia_filegroup(
         "SkChecksum.h",
         "SkClipStack.h",
         "SkClipStackDevice.h",
+        "SkColorData.h",
         "SkColorFilterPriv.h",
         "SkColorSpacePriv.h",
         "SkColorSpaceXformSteps.h",
@@ -178,6 +179,7 @@ skia_filegroup(
     name = "opts_srcs",
     srcs = [
         "Sk4px.h",
+        "SkColorData.h",
         "SkOpts.h",
         "SkOptsTargets.h",
         "SkRasterPipeline.h",
@@ -526,6 +528,7 @@ generate_cpp_files_for_headers(
         # just with a .cpp suffix so Bazel will try to compile it.
         # This allows us to run IWYU on these files.
         "SkAdvancedTypefaceMetrics.h",
+        "SkColorData.h",
         "SkColorSpacePriv.h",
         "SkCoreBlitters.h",
         "SkDebugUtils.h",

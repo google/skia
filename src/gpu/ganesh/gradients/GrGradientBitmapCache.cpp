@@ -6,7 +6,6 @@
  */
 #include "src/gpu/ganesh/gradients/GrGradientBitmapCache.h"
 
-#include "include/core/SkAlphaType.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageInfo.h"

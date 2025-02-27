@@ -9,11 +9,11 @@
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkColor.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkRandom.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/BlendFormula.h"

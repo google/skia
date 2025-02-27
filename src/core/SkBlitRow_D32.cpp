@@ -8,9 +8,9 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorPriv.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkCPUTypes.h"
 #include "src/core/SkBlitRow.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkMemset.h"
 
 #include <cstring>

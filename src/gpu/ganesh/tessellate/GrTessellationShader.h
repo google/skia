@@ -8,8 +8,8 @@
 #define GrTessellationShader_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "include/private/SkColorData.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrProgramInfo.h"
 

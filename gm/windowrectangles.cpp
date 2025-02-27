@@ -20,9 +20,9 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkColorData.h"
 #include "src/core/SkCanvasPriv.h"
 #include "src/core/SkClipStack.h"
+#include "src/core/SkColorData.h"
 #include "tools/ToolUtils.h"
 
 #include <utility>

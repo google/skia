@@ -15,10 +15,10 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTemplates.h"
+#include "src/core/SkColorData.h"
 #include "src/shaders/SkShaderBase.h"
 
 #include <cstddef>

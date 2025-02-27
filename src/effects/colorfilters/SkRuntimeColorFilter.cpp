@@ -4,10 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/effects/colorfilters/SkRuntimeColorFilter.h"
 
-#include "include/core/SkAlphaType.h"
 #include "include/core/SkCapabilities.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkColorFilter.h"
@@ -17,11 +15,11 @@
 #include "include/effects/SkLumaColorFilter.h"
 #include "include/effects/SkOverdrawColorFilter.h"
 #include "include/effects/SkRuntimeEffect.h"
-#include "include/private/SkColorData.h"
 #include "include/private/SkSLSampleUsage.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTArray.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkKnownRuntimeEffects.h"
 #include "src/core/SkPicturePriv.h"

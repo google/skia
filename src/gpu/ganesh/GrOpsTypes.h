@@ -10,7 +10,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRect.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 
 enum SkAlphaType : int;

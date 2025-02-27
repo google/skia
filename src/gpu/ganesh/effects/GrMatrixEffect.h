@@ -10,8 +10,8 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkColorData.h"
 #include "include/private/SkSLSampleUsage.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 

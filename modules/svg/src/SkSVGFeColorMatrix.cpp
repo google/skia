@@ -10,10 +10,10 @@
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkScalar.h"
 #include "include/effects/SkImageFilters.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGFilterContext.h"
+#include "src/core/SkColorData.h"
 
 #include <tuple>
 

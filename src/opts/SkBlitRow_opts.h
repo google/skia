@@ -8,9 +8,9 @@
 #ifndef SkBlitRow_opts_DEFINED
 #define SkBlitRow_opts_DEFINED
 
-#include "include/private/SkColorData.h"
 #include "src/base/SkMSAN.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkColorData.h"
 
 // Helpers for blit_row_s32a_opaque(),
 // then blit_row_s32a_opaque() itself,

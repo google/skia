@@ -12,9 +12,9 @@
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkColorData.h"
 #include "include/private/SkEncodedInfo.h"
 #include "src/codec/SkColorPalette.h"
+#include "src/core/SkColorData.h"
 
 #include <string_view>
 

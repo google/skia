@@ -14,12 +14,12 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
-#include "include/private/SkColorData.h"
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/codec/SkCodecPriv.h"
+#include "src/core/SkColorData.h"
 
 #include <algorithm>
 #include <cstring>

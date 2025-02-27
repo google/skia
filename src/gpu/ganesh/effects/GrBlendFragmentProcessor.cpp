@@ -9,9 +9,9 @@
 
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkString.h"
-#include "include/private/SkColorData.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkBlendModePriv.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/KeyBuilder.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"

@@ -13,7 +13,7 @@
 #include "include/core/SkSize.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrTypes.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 
 class GrDirectContext;
 class SkSurface;

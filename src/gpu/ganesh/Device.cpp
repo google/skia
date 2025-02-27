@@ -45,7 +45,6 @@
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SingleOwner.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
@@ -54,6 +53,7 @@
 #include "include/private/chromium/Slug.h"  // IWYU pragma: keep
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkTLazy.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkDrawBase.h"
 #include "src/core/SkImageFilterTypes.h"  // IWYU pragma: keep

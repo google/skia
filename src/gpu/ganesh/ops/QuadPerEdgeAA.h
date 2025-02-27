@@ -9,10 +9,10 @@
 #define QuadPerEdgeAA_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/geometry/GrQuad.h"

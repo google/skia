@@ -8,8 +8,8 @@
 #define GrPathTessellationShader_DEFINED
 
 #include "include/core/SkString.h"
-#include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"
 #include "src/gpu/ganesh/GrPipeline.h"
 #include "src/gpu/ganesh/GrUserStencilSettings.h"

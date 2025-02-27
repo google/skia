@@ -144,7 +144,6 @@ skia_core_public = [
 #  //src/text:text_hdrs
 #  //src/text:text_srcs
 skia_core_sources = [
-  "$_include/private/SkColorData.h",
   "$_include/private/SkGainmapInfo.h",
   "$_include/private/SkGainmapShader.h",
   "$_include/private/SkIDChangeListener.h",
@@ -318,6 +317,7 @@ skia_core_sources = [
   "$_src/core/SkClipStackDevice.cpp",
   "$_src/core/SkClipStackDevice.h",
   "$_src/core/SkColor.cpp",
+  "$_src/core/SkColorData.h",
   "$_src/core/SkColorFilter.cpp",
   "$_src/core/SkColorFilterPriv.h",
   "$_src/core/SkColorSpace.cpp",

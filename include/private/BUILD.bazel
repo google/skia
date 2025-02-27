@@ -18,7 +18,6 @@ skia_filegroup(
     name = "core_priv_hdrs",
     srcs = [
         # Files listed here will be available to Skia internals via the core_priv target.
-        "SkColorData.h",
         "SkIDChangeListener.h",
         "SkSLSampleUsage.h",
         "SkGainmapShader.h",
@@ -53,14 +52,6 @@ skia_filegroup(
         "SkJpegMetadataDecoder.h",
     ],
     visibility = ["//src/codec:__pkg__"],
-)
-
-skia_filegroup(
-    name = "opts_srcs",
-    srcs = [
-        "SkColorData.h",
-    ],
-    visibility = ["//src/opts:__pkg__"],
 )
 
 generate_cpp_files_for_headers(

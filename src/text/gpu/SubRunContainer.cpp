@@ -62,8 +62,8 @@
 
 #if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 #include "include/core/SkRRect.h"
-#include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkPaintPriv.h"
 #include "src/gpu/ganesh/GrClip.h"
 #include "src/gpu/ganesh/GrColorInfo.h"

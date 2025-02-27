@@ -9,9 +9,9 @@
 
 #ifndef SK_USE_DRAWING_MIPMAP_DOWNSAMPLER
 
-#include "include/private/SkColorData.h"
 #include "src/base/SkHalf.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkMipmap.h"
 
 namespace {

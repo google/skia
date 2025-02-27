@@ -9,9 +9,9 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
-#include "include/private/SkColorData.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkBlendModePriv.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"

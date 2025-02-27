@@ -9,9 +9,9 @@
 #define GrBezierEffect_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "include/private/SkColorData.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrGeometryProcessor.h"

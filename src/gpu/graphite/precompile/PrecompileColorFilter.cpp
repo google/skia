@@ -9,7 +9,7 @@
 
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/graphite/precompile/PrecompileRuntimeEffect.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkKnownRuntimeEffects.h"
 #include "src/effects/colorfilters/SkWorkingFormatColorFilter.h"

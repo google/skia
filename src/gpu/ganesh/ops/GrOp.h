@@ -12,11 +12,11 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTo.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 

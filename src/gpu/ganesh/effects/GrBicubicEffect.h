@@ -9,7 +9,7 @@
 #define GrBicubicTextureEffect_DEFINED
 
 #include "include/core/SkSamplingOptions.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrProcessorUnitTest.h"
 #include "src/gpu/ganesh/GrSamplerState.h"

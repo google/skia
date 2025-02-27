@@ -10,9 +10,9 @@
 #include "include/core/SkColorSpace.h" // IWYU pragma: keep
 #include "include/core/SkColorType.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/private/SkColorData.h"
 #include "include/private/base/SkAssert.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"

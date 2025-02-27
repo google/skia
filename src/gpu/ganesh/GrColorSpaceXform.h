@@ -10,7 +10,7 @@
 
 #include "include/core/SkColor.h"
 #include "include/core/SkRefCnt.h"
-#include "include/private/SkColorData.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 
