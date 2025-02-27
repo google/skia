@@ -189,9 +189,9 @@ static inline SkPMColor SkFourByteInterp(SkPMColor src, SkPMColor dst, U8CPU src
  * 0xAARRGGBB -> 0x00AA00GG, 0x00RR00BB
  */
 static inline void SkSplay(uint32_t color, uint32_t* ag, uint32_t* rb) {
-    const uint32_t mask = 0x00FF00FF;
-    *ag = (color >> 8) & mask;
-    *rb = color & mask;
+    static constexpr uint32_t kMask = 0x00FF00FF;
+    *ag = (color >> 8) & kMask;
+    *rb = color & kMask;
 }
 
 /**
@@ -199,10 +199,10 @@ static inline void SkSplay(uint32_t color, uint32_t* ag, uint32_t* rb) {
  * (note, ARGB -> AGRB)
  */
 static inline uint64_t SkSplay(uint32_t color) {
-    const uint32_t mask = 0x00FF00FF;
-    uint64_t agrb = (color >> 8) & mask;  // 0x0000000000AA00GG
-    agrb <<= 32;                          // 0x00AA00GG00000000
-    agrb |= color & mask;                 // 0x00AA00GG00RR00BB
+    static constexpr uint32_t kMask = 0x00FF00FF;
+    uint64_t agrb = (color >> 8) & kMask;  // 0x0000000000AA00GG
+    agrb <<= 32;                           // 0x00AA00GG00000000
+    agrb |= color & kMask;                 // 0x00AA00GG00RR00BB
     return agrb;
 }
 
@@ -210,8 +210,8 @@ static inline uint64_t SkSplay(uint32_t color) {
  * 0xAAxxGGxx, 0xRRxxBBxx-> 0xAARRGGBB
  */
 static inline uint32_t SkUnsplay(uint32_t ag, uint32_t rb) {
-    const uint32_t mask = 0xFF00FF00;
-    return (ag & mask) | ((rb & mask) >> 8);
+    static constexpr uint32_t kMask = 0xFF00FF00;
+    return (ag & kMask) | ((rb & kMask) >> 8);
 }
 
 /**
@@ -219,10 +219,10 @@ static inline uint32_t SkUnsplay(uint32_t ag, uint32_t rb) {
  * (note, AGRB -> ARGB)
  */
 static inline uint32_t SkUnsplay(uint64_t agrb) {
-    const uint32_t mask = 0xFF00FF00;
+    static constexpr uint32_t kMask = 0xFF00FF00;
     return SkPMColor(
-        ((agrb & mask) >> 8) |   // 0x00RR00BB
-        ((agrb >> 32) & mask));  // 0xAARRGGBB
+        ((agrb & kMask) >> 8) |   // 0x00RR00BB
+        ((agrb >> 32) & kMask));  // 0xAARRGGBB
 }
 
 static inline SkPMColor SkFastFourByteInterp256_32(SkPMColor src, SkPMColor dst, unsigned scale) {
@@ -283,15 +283,15 @@ static inline SkPMColor SkBlendARGB32(SkPMColor src, SkPMColor dst, U8CPU aa) {
     unsigned src_scale = SkAlpha255To256(aa);
     unsigned dst_scale = SkAlphaMulInv256(SkGetPackedA32(src), src_scale);
 
-    const uint32_t mask = 0xFF00FF;
+    static constexpr uint32_t kMask = 0x00FF00FF;
 
-    uint32_t src_rb = (src & mask) * src_scale;
-    uint32_t src_ag = ((src >> 8) & mask) * src_scale;
+    uint32_t src_rb = (src & kMask) * src_scale;
+    uint32_t src_ag = ((src >> 8) & kMask) * src_scale;
 
-    uint32_t dst_rb = (dst & mask) * dst_scale;
-    uint32_t dst_ag = ((dst >> 8) & mask) * dst_scale;
+    uint32_t dst_rb = (dst & kMask) * dst_scale;
+    uint32_t dst_ag = ((dst >> 8) & kMask) * dst_scale;
 
-    return (((src_rb + dst_rb) >> 8) & mask) | ((src_ag + dst_ag) & ~mask);
+    return (((src_rb + dst_rb) >> 8) & kMask) | ((src_ag + dst_ag) & ~kMask);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
