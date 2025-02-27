@@ -42,7 +42,7 @@ ClipAtlasManager::ClipAtlasManager(Recorder* recorder) : fRecorder(recorder) {
 }
 
 namespace {
-// TODO: is this necessary for clips?
+// Needed to ensure that we have surrounding context, e.g. for inverse clips this would be solid.
 constexpr int kEntryPadding = 1;
 }  // namespace
 
@@ -55,6 +55,7 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
     if (entryList) {
         MaskHashEntry* entry = entryList;
         do {
+            // If this entry is large enough to contain the clip, use it
             if (entry->fBounds.contains(iBounds)) {
                 SkIPoint topLeft = entry->fLocator.topLeft();
                 // We need to adjust the returned outPos to reflect the subset we're using
@@ -80,9 +81,16 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
 
     // Add locator and bounds to MaskCache.
     if (entryList) {
-        MaskHashEntry* newEntry = new MaskHashEntry{iBounds, locator, nullptr};
-        newEntry->fNext = entryList->fNext;
-        entryList->fNext = newEntry;
+        // Add new list entry to the end. This will sort them from smallest bounds to largest,
+        // so that when we search above we'll pick the one with the smallest bounds that contains
+        // the clip.
+        MaskHashEntry* entry = entryList;
+        while (entry->fNext) {
+            entry = entry->fNext;
+        }
+        SkASSERT(entry);
+        SkASSERT(entry->fNext == nullptr); // Should be at the end
+        entry->fNext = new MaskHashEntry{iBounds, locator, nullptr};
         ++fHashEntryCount;
     } else {
         MaskHashEntry newEntry{iBounds, locator, nullptr};
