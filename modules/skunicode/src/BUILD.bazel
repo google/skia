@@ -87,6 +87,14 @@ skia_filegroup(
 )
 
 skia_filegroup(
+    name = "bidi_srcs",
+    srcs = [
+        "SkUnicode_bidi.cpp",
+    ],
+    visibility = ["//modules/skunicode:__pkg__"],
+)
+
+skia_filegroup(
     name = "libgrapheme_srcs",
     srcs = [
         "SkUnicode_libgrapheme.cpp",

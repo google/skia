@@ -573,6 +573,9 @@ export interface CanvasKit {
     readonly UnderlineDecoration: number;
     readonly OverlineDecoration: number;
     readonly LineThroughDecoration: number;
+
+    // Unicode enums
+    readonly CodeUnitFlags: CodeUnitFlagsEnumValues;
 }
 
 export interface Camera {
@@ -4564,6 +4567,7 @@ export type TextBaseline = EmbindEnumEntity;
 export type TextDirection = EmbindEnumEntity;
 export type LineBreakType = EmbindEnumEntity;
 export type TextHeightBehavior = EmbindEnumEntity;
+export type CodeUnitFlags = EmbindEnumEntity;
 
 export interface AffinityEnumValues extends EmbindEnum {
     Upstream: Affinity;
@@ -4769,6 +4773,14 @@ export interface PlaceholderAlignmentEnumValues extends EmbindEnum {
     Top: PlaceholderAlignment;
     Bottom: PlaceholderAlignment;
     Middle: PlaceholderAlignment;
+}
+
+export interface CodeUnitFlagsEnumValues extends EmbindEnum {
+    NoCodeUnitFlag: CodeUnitFlags;
+    Whitespace: CodeUnitFlags;
+    Space: CodeUnitFlags;
+    Control: CodeUnitFlags;
+    Ideographic: CodeUnitFlags;
 }
 
 export interface PointModeEnumValues extends EmbindEnum {

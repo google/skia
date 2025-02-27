@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<title>CanvasKit Bidi</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  canvas {
+    border: 1px dashed #AAA;
+  }
+  #sampleText {
+    width: 400px;
+    height: 200px;
+  }
+</style>
+
+<canvas id="getBidiRegions" width=900 height=800></canvas>
+<canvas id="reorderVisuals" width=900 height=800></canvas>
+<canvas id="getCodeUnitFlags" width=900 height=800></canvas>
+
+<script type="text/javascript" src="/build/canvaskit.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+    var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
+
+    const ckLoaded = CanvasKitInit({locateFile: (file) => '/build/'+file});
+    const loadRoboto = fetch(cdn + 'Roboto-Regular.ttf').then((response) => response.arrayBuffer());
+    const loadEmoji = fetch(cdn + 'NotoEmoji.v26.ttf').then((response) => response.arrayBuffer());
+    const loadArabic = fetch(cdn + 'NotoSansArabic.v18.ttf').then((response) => response.arrayBuffer());
+
+    var mallocedLevels;
+
+    Promise.all([ckLoaded, loadRoboto]).then(([ck, roboto]) => {
+        GetBidiRegions(ck, roboto);
+        ReorderVisuals(ck, roboto);
+        GetCodeUnitFlags(ck, roboto);
+    });
+    function GetBidiRegions(CanvasKit, robotoData) {
+        if (!robotoData || !CanvasKit) {
+            return;
+        }
+        const surface = CanvasKit.MakeCanvasSurface('getBidiRegions');
+        if (!surface) {
+            console.error('Could not make surface');
+            return;
+        }
+        const sampleText = 'left1 يَهْدِيْكُمُ left2 اللَّه left3 ُ وَيُصْلِحُ left4 بَالَكُم';
+        const roboto = CanvasKit.Typeface.MakeTypefaceFromData(robotoData);
+        const textPaint = new CanvasKit.Paint();
+        textPaint.setColor(CanvasKit.RED);
+        textPaint.setAntiAlias(true);
+        const dataPaint = new CanvasKit.Paint();
+        dataPaint.setColor(CanvasKit.BLACK);
+        dataPaint.setAntiAlias(true);
+        const textFont = new CanvasKit.Font(roboto, 30);
+        const dataFont = new CanvasKit.Font(roboto, 20);
+
+        function drawFrame(canvas) {
+            let height = 40;
+            canvas.drawText(sampleText, 100, height, textPaint, textFont);
+            height += 80;
+
+            const regions = CanvasKit.Bidi.getBidiRegions(sampleText, CanvasKit.TextDirection.LTR);
+
+            mallocedLevels = CanvasKit.Malloc(Uint8Array, regions.length);
+            for (let i = 0; i < regions.length; ++i) {
+                const region = regions[i];
+                let result = '[' + region.start + ':' + region.end + '): ';
+                result +=  (region.level.value % 2 === 0 ? 'LTR ' : 'RTL ') + region.level;
+                canvas.drawText(result, 100, height, dataPaint, dataFont);
+                height += 40;
+                mallocedLevels[i] = region.level;
+            }
+        }
+        surface.requestAnimationFrame(drawFrame);
+        return surface;
+    }
+
+    function ReorderVisuals(CanvasKit, robotoData) {
+        if (!robotoData || !CanvasKit) {
+            return;
+        }
+        const surface = CanvasKit.MakeCanvasSurface('reorderVisuals');
+        if (!surface) {
+            console.error('Could not make surface');
+            return;
+        }
+        const roboto = CanvasKit.Typeface.MakeTypefaceFromData(robotoData);
+        const textPaint = new CanvasKit.Paint();
+        textPaint.setColor(CanvasKit.RED);
+        textPaint.setAntiAlias(true);
+        const dataPaint = new CanvasKit.Paint();
+        dataPaint.setColor(CanvasKit.BLACK);
+        dataPaint.setAntiAlias(true);
+        const textFont = new CanvasKit.Font(roboto, 30);
+        const dataFont = new CanvasKit.Font(roboto, 20);
+
+        function drawCase(canvas, height, input, output) {
+            let result = '[';
+            for (let i = 0; i < input.length; ++i) {
+                const logical = input[i];
+                result += (i === 0 ? '' : ', ') + logical;
+            }
+            result += '] produced: ';
+
+            const logicals = CanvasKit.Bidi.reorderVisual(input);
+
+            result += '[';
+            for (let i = 0; i < logicals.length; ++i) {
+                const logical = logicals[i];
+                result += (i === 0 ? '' : ', ') + logical;
+            }
+            result += '] expected: ' + output;
+
+            canvas.drawText(result, 100, height, dataPaint, dataFont);
+        }
+
+        function drawFrame(canvas) {
+            let height = 40;
+
+            drawCase(canvas, height, [], '[]');
+            height += 40;
+            drawCase(canvas, height, [0], '[0]');
+            height += 40;
+            drawCase(canvas, height, [1], '[0]');
+            height += 40;
+            drawCase(canvas, height, [0, 1, 0, 1], '[0, 1, 2, 3]');
+            height += 40;
+        }
+        surface.requestAnimationFrame(drawFrame);
+        return surface;
+    }
+
+    function GetCodeUnitFlags(CanvasKit, robotoData) {
+        if (!robotoData || !CanvasKit) {
+            return;
+        }
+        const surface = CanvasKit.MakeCanvasSurface('getCodeUnitFlags');
+        if (!surface) {
+            console.error('Could not make surface');
+            return;
+        }
+        const flagsText = '   |\u{a0}\u{a0}\u{a0}|\u{0a}\u{0a}\u{0a}|満毎行|';
+        const roboto = CanvasKit.Typeface.MakeTypefaceFromData(robotoData);
+        const textPaint = new CanvasKit.Paint();
+        textPaint.setColor(CanvasKit.RED);
+        textPaint.setAntiAlias(true);
+        const dataPaint = new CanvasKit.Paint();
+        dataPaint.setColor(CanvasKit.BLACK);
+        dataPaint.setAntiAlias(true);
+        const textFont = new CanvasKit.Font(roboto, 30);
+        const dataFont = new CanvasKit.Font(roboto, 20);
+
+        function drawFrame(canvas) {
+            let height = 40;
+            canvas.drawText(flagsText, 100, height, textPaint, textFont);
+            height += 80;
+
+            const flags = CanvasKit.CodeUnits.compute(flagsText);
+
+            let result = '0: ';
+            for (let i = 0; i < flags.length; ++i) {
+                const flag = flags[i];
+                if (flagsText[i] === '|') {
+                    canvas.drawText(result, 100, height, dataPaint, dataFont);
+                    height += 40;
+                    result = '' + (i + 1) + ': ';
+                } else if (flag === 0) {
+                    result += flagsText[i];
+                } else {
+                    result += '{';
+                    result += (flag & CanvasKit.CodeUnitFlags.Ideographic.value) !== 0 ? 'I' : '';
+                    result += (flag & CanvasKit.CodeUnitFlags.Whitespace.value) !== 0 ? 'S' : '';
+                    result += (flag & CanvasKit.CodeUnitFlags.Space.value) !== 0 ? 'W' : '';
+                    result += (flag & CanvasKit.CodeUnitFlags.Control.value) !== 0 ? 'C' : '';
+                    result += '}';
+                }
+            }
+        }
+        surface.requestAnimationFrame(drawFrame);
+        return surface;
+    }
+</script>

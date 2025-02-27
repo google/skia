@@ -15,6 +15,7 @@ declare_args() {
   skia_canvaskit_enable_skp_serialization = true
   skia_canvaskit_enable_sksl_trace = true
   skia_canvaskit_enable_paragraph = true
+  skia_canvaskit_enable_bidi = false
   skia_canvaskit_include_viewer = false
   skia_canvaskit_force_tracing = false
   skia_canvaskit_profile_build = false

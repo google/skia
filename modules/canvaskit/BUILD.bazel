@@ -136,6 +136,12 @@ CK_LINKOPTS = BASE_LINKOPTS + [
     ],
     ":enable_fonts_false": [],
 }) + select({
+    ":enable_bidi_true": [
+        "--pre-js",
+        "modules/canvaskit/bidi.js",
+    ],
+    ":enable_bidi_false": [],
+}) + select({
     ":enable_canvas_polyfill_true": [
         "--pre-js",
         "modules/canvaskit/htmlcanvas/preamble.js",
@@ -213,6 +219,7 @@ CK_LINKOPTS = BASE_LINKOPTS + [
 # All JS files that could possibly be included via --pre-js or --post-js.
 # Whether they actually will be or not will be controlled above in the construction of CK_LINKOPTS.
 JS_INTERFACE_FILES = [
+    "bidi.js",
     "color.js",
     "cpu.js",
     "debug.js",
@@ -265,6 +272,12 @@ CK_SRCS = [
 }) + select({
     ":enable_skottie_true": ["skottie_bindings.cpp"],
     ":enable_skottie_false": [],
+}) + select({
+    ":enable_bidi_true": [
+        "bidi_bindings.cpp",
+        "bidi_bindings_gen.cpp",
+    ],
+    ":enable_bidi_false": [],
 }) + select({
     ":build_for_debugger_true": ["debugger_bindings.cpp"],
     ":build_for_debugger_false": [],
@@ -343,6 +356,11 @@ wasm_cc_binary(
         "//infra/shaders:__pkg__",
         "//infra/skottie:__pkg__",
     ],
+)
+
+bool_flag(
+    name = "enable_bidi",
+    default = False,
 )
 
 bool_flag(

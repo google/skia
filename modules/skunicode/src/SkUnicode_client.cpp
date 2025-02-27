@@ -147,6 +147,9 @@ public:
                 if (this->isControl(unichar)) {
                     results->at(i) |= SkUnicode::kControl;
                 }
+                if (this->isIdeographic(unichar)) {
+                    results->at(i) |= SkUnicode::kIdeographic;
+                }
             }
         }
         return true;
@@ -164,6 +167,21 @@ public:
         }
         for (auto& grapheme : fData->fGraphemeBreaks) {
             (*results)[grapheme] |= CodeUnitFlags::kGraphemeStart;
+        }
+        for (auto i = 0; i < utf16Units; ++i) {
+            auto unichar = utf16[i];
+            if (this->isSpace(unichar)) {
+                results->at(i) |= SkUnicode::kPartOfIntraWordBreak;
+            }
+            if (this->isWhitespace(unichar)) {
+                results->at(i) |= SkUnicode::kPartOfWhiteSpaceBreak;
+            }
+            if (this->isControl(unichar)) {
+                results->at(i) |= SkUnicode::kControl;
+            }
+            if (this->isIdeographic(unichar)) {
+                results->at(i) |= SkUnicode::kIdeographic;
+            }
         }
         return true;
     }
@@ -257,7 +275,7 @@ sk_sp<SkUnicode> Make(
                                         std::move(words),
                                         std::move(graphemeBreaks),
                                         std::move(lineBreaks));
-}
+    }
 }
 
 

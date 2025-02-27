@@ -102,6 +102,9 @@ skia_wasm_lib("canvaskit") {
       "../../modules/skunicode:skunicode",
     ]
   }
+  if (skia_canvaskit_enable_bidi) {
+    deps += [ "../../modules/skunicode:skunicode" ]
+  }
   if (skia_enable_skottie) {
     deps += [
       "../../modules/skottie:skottie",
@@ -124,6 +127,12 @@ skia_wasm_lib("canvaskit") {
     sources += [
       "paragraph_bindings.cpp",
       "paragraph_bindings_gen.cpp",
+    ]
+  }
+  if (skia_canvaskit_enable_bidi) {
+    sources += [
+      "bidi_bindings.cpp",
+      "bidi_bindings_gen.cpp",
     ]
   }
   if (skia_enable_skottie) {
@@ -237,10 +246,19 @@ skia_wasm_lib("canvaskit") {
     ]
   }
 
-  ldflags += [
-    "--pre-js",
-    rebase_path("paragraph.js"),
-  ]
+  if (skia_canvaskit_enable_paragraph) {
+    ldflags += [
+      "--pre-js",
+      rebase_path("paragraph.js"),
+    ]
+  }
+
+  if (skia_canvaskit_enable_bidi) {
+    ldflags += [
+      "--pre-js",
+      rebase_path("bidi.js"),
+    ]
+  }
 
   if (skia_enable_skottie) {
     ldflags += [
@@ -357,6 +375,9 @@ skia_wasm_lib("canvaskit") {
   }
   if (skia_canvaskit_enable_paragraph) {
     defines += [ "CK_INCLUDE_PARAGRAPH" ]
+  }
+  if (skia_canvaskit_enable_bidi) {
+    defines += [ "CK_ENABLE_BIDI" ]
   }
   if (skia_canvaskit_enable_skp_serialization) {
     defines += [ "CK_SERIALIZE_SKP" ]

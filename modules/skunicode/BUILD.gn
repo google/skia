@@ -13,7 +13,7 @@ declare_args() {
 }
 
 if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
-    skia_use_icu4x) {
+    skia_use_bidi || skia_use_icu4x) {
   config("public_config") {
     defines = [ "SK_UNICODE_AVAILABLE" ]
     if (skia_use_icu) {
@@ -27,6 +27,9 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
     }
     if (skia_use_icu4x) {
       defines += [ "SK_UNICODE_ICU4X_IMPLEMENTATION" ]
+    }
+    if (skia_use_bidi) {
+      defines += [ "SK_UNICODE_BIDI_IMPLEMENTATION" ]
     }
   }
 
@@ -125,6 +128,39 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
     }
   }
 
+  if (skia_use_bidi) {
+    component("skunicode_bidi") {
+      check_includes = false
+      deps = [
+        ":skunicode_core",
+        "../..:skia",
+      ]
+      configs += [
+        ":module",
+        "../../:skia_private",
+        "../../third_party/icu/config:no_cxx",
+      ]
+      defines = [
+        # In order to use the bidi_subset at the same time as "full ICU", we must have
+        # compiled icu with the given defines also being set. This is to make sure the functions
+        # we call are given a suffix of "_skia" to prevent ODR violations if this "subset of ICU"
+        # is compiled alongside a full ICU build also.
+        # See https://chromium.googlesource.com/chromium/deps/icu.git/+/d94ab131bc8fef3bc17f356a628d8e4cd44d65d9/source/common/unicode/uversion.h
+        # for how these are used.
+        "U_DISABLE_RENAMING=0",
+        "U_USING_ICU_NAMESPACE=0",
+        "U_LIB_SUFFIX_C_NAME=_skia",
+        "U_HAVE_LIB_SUFFIX=1",
+        "U_DISABLE_VERSION_SUFFIX=1",
+      ]
+
+      sources = skia_unicode_icu_bidi_sources
+      sources += skia_unicode_bidi_subset_sources
+      sources += skia_unicode_bidi_sources
+      deps += [ skia_icu_bidi_third_party_dir ]
+    }
+  }
+
   if (skia_use_libgrapheme) {
     component("skunicode_libgrapheme") {
       check_includes = false
@@ -186,6 +222,9 @@ if (skia_use_icu || skia_use_client_icu || skia_use_libgrapheme ||
     }
     if (skia_use_client_icu) {
       public_deps += [ ":skunicode_client_icu" ]
+    }
+    if (skia_use_bidi) {
+      public_deps += [ ":skunicode_bidi" ]
     }
     if (skia_use_libgrapheme) {
       public_deps += [ ":skunicode_libgrapheme" ]

@@ -148,7 +148,14 @@ fi
 
 if [[ $@ == *client_unicode* ]] ; then
   echo "Using the client-provided skunicode data and harfbuz instead of the icu-provided data"
-  GN_SHAPER="skia_use_icu=false skia_use_client_icu=true skia_use_libgrapheme=false skia_use_icu4x=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
+  GN_SHAPER="skia_use_icu=false skia_use_client_icu=true skia_use_bidi=false skia_use_libgrapheme=false skia_use_icu4x=false skia_use_harfbuzz=true skia_use_system_harfbuzz=false"
+fi
+
+ENABLE_BIDI="false"
+if [[ $@ == *client_bidi* ]] ; then
+  echo "Using the bidi skunicode data only"
+  GN_SHAPER="skia_use_icu=false skia_use_client_icu=false skia_use_bidi=true skia_use_libgrapheme=false skia_use_icu4x=false skia_use_harfbuzz=false"
+  ENABLE_BIDI="true"
 fi
 
 ENABLE_PARAGRAPH="true"
@@ -260,6 +267,7 @@ echo "Compiling"
   skia_canvaskit_legacy_draw_vertices_blend_mode=${LEGACY_DRAW_VERTICES} \
   skia_canvaskit_enable_debugger=${DEBUGGER_ENABLED} \
   skia_canvaskit_enable_paragraph=${ENABLE_PARAGRAPH} \
+  skia_canvaskit_enable_bidi=${ENABLE_BIDI} \
   skia_canvaskit_enable_webgl=${ENABLE_WEBGL} \
   skia_canvaskit_enable_webgpu=${ENABLE_WEBGPU}"
 

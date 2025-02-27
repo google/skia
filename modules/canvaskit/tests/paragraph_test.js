@@ -53,6 +53,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_basic', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const paint = new CanvasKit.Paint();
 
         paint.setColor(CanvasKit.RED);
@@ -173,6 +177,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_foreground_and_background_color', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
@@ -203,6 +211,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_foreground_stroke_paint', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
@@ -243,6 +255,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_letter_word_spacing', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
@@ -273,6 +289,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_shadows', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
@@ -302,6 +322,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_strut_style', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(robotoFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Roboto');
@@ -373,6 +397,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_font_features', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(robotoFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Roboto');
@@ -399,6 +427,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_font_variations', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(robotoVariableFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Roboto Slab');
@@ -440,6 +472,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_placeholders', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(robotoFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Roboto');
@@ -493,6 +529,10 @@ describe('Paragraph Behavior', function() {
 
     // loosely based on SkParagraph_GetRectsForRangeParagraph test in c++ code.
     gm('paragraph_rects', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
 
         const wrapTo = 550;
@@ -581,6 +621,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_emoji', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData([notoSerifFontBuffer, emojiFontBuffer]);
         expect(fontMgr.countFamilies()).toEqual(2);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
@@ -631,6 +675,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_hits', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData([notoSerifFontBuffer]);
 
         const wrapTo = 300;
@@ -687,6 +735,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_styles', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const paint = new CanvasKit.Paint();
 
         paint.setColor(CanvasKit.RED);
@@ -739,6 +791,10 @@ describe('Paragraph Behavior', function() {
     });
 
     it('paragraph_rounding_hack', () => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const paraStyleDefault = new CanvasKit.ParagraphStyle({
             textStyle: {
                 fontFamilies: ['Noto Serif'],
@@ -768,6 +824,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_font_provider', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const paint = new CanvasKit.Paint();
 
         paint.setColor(CanvasKit.RED);
@@ -823,6 +883,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_font_collection', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const paint = new CanvasKit.Paint();
 
         paint.setColor(CanvasKit.RED);
@@ -859,6 +923,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_text_styles', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const paint = new CanvasKit.Paint();
 
         paint.setColor(CanvasKit.GREEN);
@@ -928,6 +996,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_text_styles_mixed_leading_distribution', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
@@ -968,6 +1040,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_mixed_text_height_behavior', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer);
         expect(fontMgr.countFamilies()).toEqual(1);
         expect(fontMgr.getFamilyName(0)).toEqual('Noto Serif');
@@ -1002,6 +1078,10 @@ describe('Paragraph Behavior', function() {
     });
 
     it('should not crash if we omit font family on pushed textStyle', () => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const surface = CanvasKit.MakeCanvasSurface('test');
         expect(surface).toBeTruthy('Could not make surface');
 
@@ -1052,6 +1132,10 @@ describe('Paragraph Behavior', function() {
     });
 
     it('should not crash if we omit font family on paragraph style', () => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const surface = CanvasKit.MakeCanvasSurface('test');
         expect(surface).toBeTruthy('Could not make surface');
 
@@ -1101,6 +1185,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_builder_with_reset', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
 
         const wrapTo = 250;
@@ -1147,6 +1235,10 @@ describe('Paragraph Behavior', function() {
 
     // This helped find and resolve skbug.com/13247
     gm('paragraph_saved_to_skpicture', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
 
         const wrapTo = 250;
@@ -1187,6 +1279,10 @@ describe('Paragraph Behavior', function() {
     });
 
     it('should replace tab characters', () => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(notoSerifFontBuffer, notoSerifBoldItalicFontBuffer);
         const wrapTo = 250;
 
@@ -1221,6 +1317,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_fontSize_and_heightMultiplier_0', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const fontMgr = CanvasKit.FontMgr.FromData(robotoFontBuffer);
         const wrapTo = 250;
         const paraStyle = new CanvasKit.ParagraphStyle({
@@ -1249,6 +1349,10 @@ describe('Paragraph Behavior', function() {
     });
 
     gm('paragraph_getShapedLines', (canvas) => {
+        if (!CanvasKit.Paragraph) {
+            console.warn('Skipping test because not compiled with paragraph');
+            return;
+        }
         const paint = new CanvasKit.Paint();
 
         paint.setColor(CanvasKit.RED);

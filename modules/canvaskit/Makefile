@@ -12,6 +12,14 @@ release:
 	cp ../../out/canvaskit_wasm/canvaskit.js   ./build/
 	cp ../../out/canvaskit_wasm/canvaskit.wasm ./build/
 
+release_bidi:
+	# Does an incremental build where possible.
+	./compile.sh client_bidi no_paragraph no_skottie
+	- rm -rf build/
+	mkdir build
+	cp ../../out/canvaskit_wasm/canvaskit.js   ./build/
+	cp ../../out/canvaskit_wasm/canvaskit.wasm ./build/
+
 release_cpu:
 	# Does an incremental build where possible.
 	./compile.sh cpu_only
@@ -122,6 +130,10 @@ local-example:
 
 local-extra:
 	echo "Go check out http://localhost:8000/npm_build/extra.html"
+	python3 ../../tools/serve_wasm.py
+
+local-bidi:
+	echo "Go check out http://localhost:8000/npm_build/bidi.html"
 	python3 ../../tools/serve_wasm.py
 
 test-continuous:

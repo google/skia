@@ -31,6 +31,7 @@ using SkPathOrNull = emscripten::val;
 using TypedArray = emscripten::val;
 using Uint8Array = emscripten::val;
 using Uint16Array = emscripten::val;
+using Int32Array = emscripten::val;
 using Uint32Array = emscripten::val;
 using Float32Array = emscripten::val;
 
