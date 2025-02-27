@@ -15,4 +15,5 @@ DEPS = [
   'recipe_engine/step',
   'run',
   'vars',
+  'xcode',
 ]

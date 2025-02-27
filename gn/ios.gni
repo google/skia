@@ -120,6 +120,7 @@ if (is_ios) {
               "    <key>CFBundlePackageType</key> <string>APPL</string>",
               "    <key>LSRequiresIPhoneOS</key> <true/>",
               "    <key>UILaunchStoryboardName</key> <string>LaunchScreen</string>",
+              "    <key>UIFileSharingEnabled</key> <true/>",
               "  </dict>",
               "</plist>",
             ])
