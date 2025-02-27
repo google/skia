@@ -690,16 +690,16 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_gradient_shader(
     // TODO: fuzz more of the gradient parameters
 
     static constexpr int kMaxNumStops = 9;
-    SkColor colors[kMaxNumStops] = {
-            random_color(rand, constraint),
-            random_color(rand, constraint),
-            random_color(rand, constraint),
-            random_color(rand, constraint),
-            random_color(rand, constraint),
-            random_color(rand, constraint),
-            random_color(rand, constraint),
-            random_color(rand, constraint),
-            random_color(rand, constraint)
+    SkColor4f colors[kMaxNumStops] = {
+            random_color4f(rand, constraint),
+            random_color4f(rand, constraint),
+            random_color4f(rand, constraint),
+            random_color4f(rand, constraint),
+            random_color4f(rand, constraint),
+            random_color4f(rand, constraint),
+            random_color4f(rand, constraint),
+            random_color4f(rand, constraint),
+            random_color4f(rand, constraint)
     };
     static const SkPoint kPts[kMaxNumStops] = {
             { -100.0f, -100.0f },
@@ -727,7 +727,13 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_gradient_shader(
     SkMatrix lmStorage;
     SkMatrix* lmPtr = random_local_matrix(rand, &lmStorage);
 
-    uint32_t flags = rand->nextBool() ? 0x0 : SkGradientShader::kInterpolateColorsInPremul_Flag;
+    const SkGradientShader::Interpolation::InPremul inPremul =
+            rand->nextBool() ? SkGradientShader::Interpolation::InPremul::kYes
+                             : SkGradientShader::Interpolation::InPremul::kNo;
+    const SkGradientShader::Interpolation::ColorSpace colorSpace =
+            static_cast<SkGradientShader::Interpolation::ColorSpace>(
+                    rand->nextULessThan(SkGradientShader::Interpolation::kColorSpaceCount));
+    SkGradientShader::Interpolation interpolation = {inPremul, colorSpace};
 
     sk_sp<SkShader> s;
     sk_sp<PrecompileShader> o;
@@ -737,28 +743,32 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_gradient_shader(
     switch (type) {
         case SkShaderBase::GradientType::kLinear:
             s = SkGradientShader::MakeLinear(kPts,
-                                             colors, kOffsets, numStops, tm, flags, lmPtr);
-            o = PrecompileShaders::LinearGradient();
+                                             colors, /* colorSpace= */ nullptr, kOffsets, numStops,
+                                             tm, interpolation, lmPtr);
+            o = PrecompileShaders::LinearGradient(interpolation);
             break;
         case SkShaderBase::GradientType::kRadial:
             s = SkGradientShader::MakeRadial(/* center= */ {0, 0}, /* radius= */ 100,
-                                             colors, kOffsets, numStops, tm, flags, lmPtr);
-            o = PrecompileShaders::RadialGradient();
+                                             colors, /* colorSpace= */ nullptr, kOffsets, numStops,
+                                             tm, interpolation, lmPtr);
+            o = PrecompileShaders::RadialGradient(interpolation);
             break;
         case SkShaderBase::GradientType::kSweep:
             s = SkGradientShader::MakeSweep(/* cx= */ 0, /* cy= */ 0,
-                                            colors, kOffsets, numStops, tm,
-                                            /* startAngle= */ 0, /* endAngle= */ 359,
-                                            flags, lmPtr);
-            o = PrecompileShaders::SweepGradient();
+                                            colors, /* colorSpace= */ nullptr, kOffsets, numStops,
+                                            tm, /* startAngle= */ 0, /* endAngle= */ 359,
+                                            interpolation, lmPtr);
+            o = PrecompileShaders::SweepGradient(interpolation);
             break;
         case SkShaderBase::GradientType::kConical:
             s = SkGradientShader::MakeTwoPointConical(/* start= */ {100, 100},
                                                       /* startRadius= */ 100,
                                                       /* end= */ {-100, -100},
                                                       /* endRadius= */ 100,
-                                                      colors, kOffsets, numStops, tm, flags, lmPtr);
-            o = PrecompileShaders::TwoPointConicalGradient();
+                                                      colors,
+                                                      /* colorSpace= */ nullptr,
+                                                      kOffsets, numStops, tm, interpolation, lmPtr);
+            o = PrecompileShaders::TwoPointConicalGradient(interpolation);
             break;
         case SkShaderBase::GradientType::kNone:
             SkDEBUGFAIL("Gradient shader says its type is none");

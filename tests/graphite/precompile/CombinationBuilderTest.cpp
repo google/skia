@@ -41,7 +41,7 @@ static constexpr int kExpectedOverdrawCFCombos = 1;
 static constexpr int kExpectedTableCFCombos = 1;
 
 // shaders
-static constexpr int kExpectedGradientCombos = 9;
+static constexpr int kExpectedGradientCombos = 3;
 static constexpr int kExpectedImageCombos = 18;
 static constexpr int kExpectedPerlinNoiseCombos = 1;
 static constexpr int kExpectedPictureCombos = 36;
@@ -112,17 +112,17 @@ void big_test(const KeyContext& keyContext,
               const RenderPassDesc& renderPassDesc,
               skiatest::Reporter* reporter) {
 
-    static constexpr int kNumExpected = 7596;
-    // paintOptions (7596 = 4*1899)
-    //  |- (1899 = 9+1890) sweepGrad_0 (9) |
-    //  |                  blendShader_0 (1890 = 1*10*189)
-    //  |                   |- 0: (1)         kSrc (1)
-    //  |                   |- 1: (10=9+1)    (dsts) linearGrad_0 (9) | solid_0 (1)
-    //  |                   |- 2: (189=9+180) (srcs) linearGrad_1 (9) |
-    //  |                                            blendShader_1 (180=1*10*18)
-    //  |                                             |- 0: (1) kDst (1)
-    //  |                                             |- 1: (10=9+1) (dsts) radGrad_0 (9) | solid_1 (1)
-    //  |                                             |- 2: (18) (srcs) imageShader_0 (18)
+    static constexpr int kNumExpected = 1212;
+    // paintOptions (1212 = 4*303)
+    //  |- (303 = 3+300) sweepGrad_0 (3) |
+    //  |                blendShader_0 (300 = 1*4*75)
+    //  |                 |- 0: (1)       kSrc (1)
+    //  |                 |- 1: (4=3+1)   (dsts) linearGrad_0 (3) | solid_0 (1)
+    //  |                 |- 2: (75=3+72) (srcs) linearGrad_1 (3) |
+    //  |                                          blendShader_1 (72=1*4*18)
+    //  |                                           |- 0: (1) kDst (1)
+    //  |                                           |- 1: (4=3+1) (dsts) radGrad_0 (3) | solid_1 (1)
+    //  |                                           |- 2: (18) (srcs) imageShader_0 (18)
     //  |
     //  |- (4) 4-built-in-blend-modes
 
@@ -469,7 +469,7 @@ void shader_subtest(const KeyContext& keyContext,
                  /* expectedNumOptions= */ kExpectedPerlinNoiseCombos + kExpectedPerlinNoiseCombos);
     }
 
-    // Each gradient shader generates 9 combinations (3 stop options x 3 color space xform)
+    // Each gradient shader generates 3 combinations
     {
         PaintOptions paintOptions;
         paintOptions.setShaders({ PrecompileShaders::LinearGradient(),

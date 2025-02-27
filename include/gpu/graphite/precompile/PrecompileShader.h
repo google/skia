@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/precompile/PrecompileBase.h"
 
 #include "include/core/SkBlendMode.h"
+#include "include/effects/SkGradientShader.h"
 
 class SkColorSpace;
 
@@ -126,10 +127,14 @@ namespace PrecompileShaders {
     SK_API sk_sp<PrecompileShader> MakeTurbulence();
 
     // --- This block of four matches all the factories in SkGradientShader (SkGradientShader.h)
-    SK_API sk_sp<PrecompileShader> LinearGradient();
-    SK_API sk_sp<PrecompileShader> RadialGradient();
-    SK_API sk_sp<PrecompileShader> TwoPointConicalGradient();
-    SK_API sk_sp<PrecompileShader> SweepGradient();
+    SK_API sk_sp<PrecompileShader> LinearGradient(
+            SkGradientShader::Interpolation = SkGradientShader::Interpolation());
+    SK_API sk_sp<PrecompileShader> RadialGradient(
+            SkGradientShader::Interpolation = SkGradientShader::Interpolation());
+    SK_API sk_sp<PrecompileShader> TwoPointConicalGradient(
+            SkGradientShader::Interpolation = SkGradientShader::Interpolation());
+    SK_API sk_sp<PrecompileShader> SweepGradient(
+            SkGradientShader::Interpolation = SkGradientShader::Interpolation());
 
     // Normally, SkPicture shaders are only created via SkPicture::makeShader. Since the
     // SkPicture to be drawn, most likely, won't be available at precompilation time, this
