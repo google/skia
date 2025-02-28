@@ -276,6 +276,8 @@ impl From<Option<&png::EncodingError>> for ffi::EncodingResult {
     }
 }
 
+// TODO(https://crbug.com/399894620): Consider implementing `BufRead`.
+// TODO(https://crbug.com/399898452): Need to also implement `Seek`.
 impl<'a> Read for Pin<&'a mut ffi::ReadTrait> {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
         Ok(self.as_mut().read(buf))
@@ -594,8 +596,7 @@ impl Reader {
     /// Decodes the next row - see
     /// https://docs.rs/png/latest/png/struct.Reader.html#method.next_interlaced_row
     ///
-    /// TODO(https://crbug.com/357876243): Consider using `read_row` to avoid an extra copy.
-    /// See also https://github.com/image-rs/image-png/pull/493
+    /// TODO(https://crbug.com/399891492): Consider using `read_row` to avoid an extra copy.
     fn next_interlaced_row<'a>(&'a mut self, row: &mut &'a [u8]) -> ffi::DecodingResult {
         let result = self.reader.next_interlaced_row();
         if let Ok(maybe_row) = result.as_ref() {
