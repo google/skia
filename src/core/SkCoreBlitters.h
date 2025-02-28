@@ -66,11 +66,9 @@ public:
     void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override;
 
 protected:
-    SkColor                fColor;
-    SkPMColor              fPMColor;
-
-private:
-    unsigned fSrcA, fSrcR, fSrcG, fSrcB;
+    SkColor   fColor;
+    SkPMColor fPMColor;
+    SkAlpha   fSrcA;
 };
 
 class SkARGB32_Opaque_Blitter : public SkARGB32_Blitter {
@@ -80,6 +78,7 @@ public:
         SkASSERT(paint.getAlpha() == 0xFF);
     }
     void blitMask(const SkMask&, const SkIRect&) override;
+    void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override;
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override;
     void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override;
 };
@@ -87,7 +86,9 @@ public:
 class SkARGB32_Black_Blitter : public SkARGB32_Opaque_Blitter {
 public:
     SkARGB32_Black_Blitter(const SkPixmap& device, const SkPaint& paint)
-            : SkARGB32_Opaque_Blitter(device, paint) {}
+            : SkARGB32_Opaque_Blitter(device, paint) {
+        SkASSERT(paint.getColor() == SK_ColorBLACK);
+    }
     void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override;
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override;
     void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override;

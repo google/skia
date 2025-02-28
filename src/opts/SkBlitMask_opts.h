@@ -19,7 +19,7 @@ namespace SK_OPTS_NS {
 
 #if defined(SK_ARM_HAS_NEON)
     // The Sk4px versions below will work fine with NEON, but we have had many indications
-    // that it doesn't perform as well as this NEON-specific code.  TODO(mtklein): why?
+    // that it doesn't perform as well as this NEON-specific code.
 
     #define NEON_A (SK_A32_SHIFT / 8)
     #define NEON_R (SK_R32_SHIFT / 8)
@@ -46,11 +46,12 @@ namespace SK_OPTS_NS {
     }
 
 
-    template <bool isColor>
-    static void D32_A8_Opaque_Color_neon(void* SK_RESTRICT dst, size_t dstRB,
-                                         const void* SK_RESTRICT maskPtr, size_t maskRB,
-                                         SkColor color, int width, int height) {
-        SkPMColor pmc = SkPreMultiplyColor(color);
+    template <bool isTranslucent>
+    static void blit_mask_d32_a8_neon(void* SK_RESTRICT dst, size_t dstRB,
+                                      const void* SK_RESTRICT maskPtr, size_t maskRB,
+                                      SkColor color, int width, int height) {
+        const SkPMColor pmc = SkPreMultiplyColor(color);
+        const U8CPU colorAlpha = SkGetPackedA32(pmc);
         SkPMColor* SK_RESTRICT device = (SkPMColor*)dst;
         const uint8_t* SK_RESTRICT mask = (const uint8_t*)maskPtr;
         uint8x8x4_t vpmc;
@@ -60,7 +61,7 @@ namespace SK_OPTS_NS {
         dstRB -= (width << 2);
 
         if (width >= 8) {
-            vpmc.val[NEON_A] = vdup_n_u8(SkGetPackedA32(pmc));
+            vpmc.val[NEON_A] = vdup_n_u8(colorAlpha);
             vpmc.val[NEON_R] = vdup_n_u8(SkGetPackedR32(pmc));
             vpmc.val[NEON_G] = vdup_n_u8(SkGetPackedG32(pmc));
             vpmc.val[NEON_B] = vdup_n_u8(SkGetPackedB32(pmc));
@@ -69,8 +70,9 @@ namespace SK_OPTS_NS {
             int w = width;
             while (w >= 8) {
                 uint8x8_t vmask = vld1_u8(mask);
-                uint16x8_t vscale, vmask256 = SkAlpha255To256_neon8(vmask);
-                if constexpr (isColor) {
+                uint16x8_t vmask256 = SkAlpha255To256_neon8(vmask);
+                uint16x8_t vscale;
+                if constexpr (isTranslucent) {
                     vscale = vsubw_u8(vdupq_n_u16(256),
                             SkAlphaMul_neon8(vpmc.val[NEON_A], vmask256));
                 } else {
@@ -78,13 +80,13 @@ namespace SK_OPTS_NS {
                 }
                 uint8x8x4_t vdev = vld4_u8((uint8_t*)device);
 
-                vdev.val[NEON_A] =   SkAlphaMul_neon8(vpmc.val[NEON_A], vmask256)
+                vdev.val[NEON_A] = SkAlphaMul_neon8(vpmc.val[NEON_A], vmask256)
                     + SkAlphaMul_neon8(vdev.val[NEON_A], vscale);
-                vdev.val[NEON_R] =   SkAlphaMul_neon8(vpmc.val[NEON_R], vmask256)
+                vdev.val[NEON_R] = SkAlphaMul_neon8(vpmc.val[NEON_R], vmask256)
                     + SkAlphaMul_neon8(vdev.val[NEON_R], vscale);
-                vdev.val[NEON_G] =   SkAlphaMul_neon8(vpmc.val[NEON_G], vmask256)
+                vdev.val[NEON_G] = SkAlphaMul_neon8(vpmc.val[NEON_G], vmask256)
                     + SkAlphaMul_neon8(vdev.val[NEON_G], vscale);
-                vdev.val[NEON_B] =   SkAlphaMul_neon8(vpmc.val[NEON_B], vmask256)
+                vdev.val[NEON_B] = SkAlphaMul_neon8(vpmc.val[NEON_B], vmask256)
                     + SkAlphaMul_neon8(vdev.val[NEON_B], vscale);
 
                 vst4_u8((uint8_t*)device, vdev);
@@ -96,7 +98,7 @@ namespace SK_OPTS_NS {
 
             while (w--) {
                 unsigned aa = *mask++;
-                if constexpr (isColor) {
+                if constexpr (isTranslucent) {
                     *device = SkBlendARGB32(pmc, *device, aa);
                 } else {
                     *device = SkAlphaMulQ(pmc, SkAlpha255To256(aa))
@@ -114,14 +116,14 @@ namespace SK_OPTS_NS {
     static void blit_mask_d32_a8_general(SkPMColor* dst, size_t dstRB,
                                          const SkAlpha* mask, size_t maskRB,
                                          SkColor color, int w, int h) {
-        D32_A8_Opaque_Color_neon<true>(dst, dstRB, mask, maskRB, color, w, h);
+        blit_mask_d32_a8_neon<true>(dst, dstRB, mask, maskRB, color, w, h);
     }
 
     // As above, but made slightly simpler by requiring that color is opaque.
     static void blit_mask_d32_a8_opaque(SkPMColor* dst, size_t dstRB,
                                         const SkAlpha* mask, size_t maskRB,
                                         SkColor color, int w, int h) {
-        D32_A8_Opaque_Color_neon<false>(dst, dstRB, mask, maskRB, color, w, h);
+        blit_mask_d32_a8_neon<false>(dst, dstRB, mask, maskRB, color, w, h);
     }
 
     // Same as _opaque, but assumes color == SK_ColorBLACK, a very common and even simpler case.
@@ -151,9 +153,12 @@ namespace SK_OPTS_NS {
                 w -= 8;
             }
             while (w-- > 0) {
-                unsigned aa = *mask++;
-                *device = (aa << SK_A32_SHIFT)
-                            + SkAlphaMulQ(*device, SkAlpha255To256(255 - aa));
+                // These variables aren't actually vectors, but the names are consistent with
+                // the above to make it easier to compare the operations.
+                const U8CPU vmask = *mask++;
+                const U16CPU vscale = 256 - vmask;
+                *device = SkAlphaMulQ(*device, vscale) +
+                         (vmask << SK_A32_SHIFT);
                 device += 1;
             }
             device = (uint32_t*)((char*)device + dstRB);
