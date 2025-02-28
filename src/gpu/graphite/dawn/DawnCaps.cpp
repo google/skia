@@ -441,7 +441,6 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     SkASSERT(limitsSucceeded);
     wgpu::Limits& limits = supportedLimits.limits;
 #else
-#ifdef WGPU_BREAKING_CHANGE_FLATTEN_LIMITS
     wgpu::Limits limits;
     wgpu::DawnTexelCopyBufferRowAlignmentLimits alignmentLimits{};
     if (backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnTexelCopyBufferRowAlignment)) {
@@ -449,16 +448,6 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     }
     [[maybe_unused]] wgpu::Status status = backendContext.fDevice.GetLimits(&limits);
     SkASSERT(status == wgpu::Status::Success);
-#else
-    wgpu::SupportedLimits supportedLimits;
-    wgpu::DawnTexelCopyBufferRowAlignmentLimits alignmentLimits{};
-    if (backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnTexelCopyBufferRowAlignment)) {
-        supportedLimits.nextInChain = &alignmentLimits;
-    }
-    [[maybe_unused]] wgpu::Status status = backendContext.fDevice.GetLimits(&supportedLimits);
-    SkASSERT(status == wgpu::Status::Success);
-    wgpu::Limits& limits = supportedLimits.limits;
-#endif  // WGPU_BREAKING_CHANGE_FLATTEN_LIMITS
 #endif  // defined(__EMSCRIPTEN__)
 
     fMaxTextureSize = limits.maxTextureDimension2D;
