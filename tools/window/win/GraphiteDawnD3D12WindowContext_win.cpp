@@ -49,7 +49,7 @@ bool GraphiteDawnD3D12WindowContext_win::onInitializeContext() {
         return false;
     }
 
-    wgpu::SurfaceDescriptorFromWindowsHWND surfaceChainedDesc;
+    wgpu::SurfaceSourceWindowsHWND surfaceChainedDesc;
     surfaceChainedDesc.hwnd = fWindow;
     surfaceChainedDesc.hinstance = GetModuleHandle(nullptr);
     wgpu::SurfaceDescriptor surfaceDesc;

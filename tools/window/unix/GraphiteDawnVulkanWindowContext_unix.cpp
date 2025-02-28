@@ -62,7 +62,7 @@ bool GraphiteDawnVulkanWindowContext_unix::onInitializeContext() {
         return false;
     }
 
-    wgpu::SurfaceDescriptorFromXlibWindow surfaceChainedDesc;
+    wgpu::SurfaceSourceXlibWindow surfaceChainedDesc;
     surfaceChainedDesc.display = fDisplay;
     surfaceChainedDesc.window = fWindow;
 

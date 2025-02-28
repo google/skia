@@ -70,7 +70,7 @@ bool GraphiteDawnMetalWindowContext_mac::onInitializeContext() {
     // Adjust fMetalLayer size based on window size.
     this->resizeInternal();
 
-    wgpu::SurfaceDescriptorFromMetalLayer surfaceChainedDesc;
+    wgpu::SurfaceSourceMetalLayer surfaceChainedDesc;
     surfaceChainedDesc.layer = fMetalLayer;
     wgpu::SurfaceDescriptor surfaceDesc;
     surfaceDesc.nextInChain = &surfaceChainedDesc;
