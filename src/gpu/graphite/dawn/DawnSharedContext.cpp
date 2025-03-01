@@ -19,10 +19,10 @@ namespace skgpu::graphite {
 namespace {
 
 wgpu::ShaderModule CreateNoopFragment(const wgpu::Device& device) {
-#ifdef WGPU_BREAKING_CHANGE_DROP_DESCRIPTOR
-    wgpu::ShaderSourceWGSL wgslDesc;
-#else
+#if defined(__EMSCRIPTEN__)
     wgpu::ShaderModuleWGSLDescriptor wgslDesc;
+#else
+    wgpu::ShaderSourceWGSL wgslDesc;
 #endif
     wgslDesc.code =
             "@fragment\n"

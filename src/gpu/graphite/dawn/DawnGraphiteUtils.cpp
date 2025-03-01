@@ -247,10 +247,10 @@ bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
                                  const std::string& wgsl,
                                  wgpu::ShaderModule* module,
                                  ShaderErrorHandler* errorHandler) {
-#ifdef WGPU_BREAKING_CHANGE_DROP_DESCRIPTOR
-    wgpu::ShaderSourceWGSL wgslDesc;
-#else
+#if defined(__EMSCRIPTEN__)
     wgpu::ShaderModuleWGSLDescriptor wgslDesc;
+#else
+    wgpu::ShaderSourceWGSL wgslDesc;
 #endif
     wgslDesc.code = wgsl.c_str();
 
