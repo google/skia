@@ -48,9 +48,9 @@ rust_png::Compression ToCompression(SkPngRustEncoder::CompressionLevel level) {
         case SkPngRustEncoder::CompressionLevel::kLow:
             return rust_png::Compression::Fast;
         case SkPngRustEncoder::CompressionLevel::kMedium:
-            return rust_png::Compression::Default;
+            return rust_png::Compression::Balanced;
         case SkPngRustEncoder::CompressionLevel::kHigh:
-            return rust_png::Compression::Best;
+            return rust_png::Compression::High;
     }
     SkUNREACHABLE;
 }

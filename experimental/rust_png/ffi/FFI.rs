@@ -8,7 +8,7 @@
 //! macro below and exposed through the auto-generated `FFI.rs.h` header.
 
 use std::borrow::Cow;
-use std::io::{ErrorKind, Read, Write};
+use std::io::{BufReader, ErrorKind, Read, Seek, SeekFrom, Write};
 use std::pin::Pin;
 
 // No `use png::...` nor `use ffi::...` because we want the code to explicitly
@@ -35,11 +35,8 @@ mod ffi {
         /// `IncompleteInput` is equivalent to `png::DecodingError::IoError(
         /// std::io::ErrorKind::UnexpectedEof.into())`.  It is named after
         /// `SkCodec::Result::kIncompleteInput`.
-        ///
-        /// `ReadTrait` is infallible and therefore we provide no generic
-        /// equivalent of the `png::DecodingError::IoError` variant
-        /// (other than the special case of `IncompleteInput`).
         IncompleteInput,
+        OtherIoError,
     }
 
     /// FFI-friendly equivalent of `png::DisposeOp`.
@@ -55,11 +52,11 @@ mod ffi {
         Over,
     }
 
-    /// FFI-friendly simplification of `png::CompressionLevel`.
+    /// FFI-friendly simplification of `png::Compression`.
     enum Compression {
-        Default,
         Fast,
-        Best,
+        Balanced,
+        High,
     }
 
     /// FFI-friendly simplification of `Option<png::EncodingError>`.
@@ -74,8 +71,23 @@ mod ffi {
     unsafe extern "C++" {
         include!("experimental/rust_png/ffi/FFI.h");
 
-        type ReadTrait;
-        fn read(self: Pin<&mut ReadTrait>, buffer: &mut [u8]) -> usize;
+        type ReadAndSeekTraits;
+        fn read(self: Pin<&mut ReadAndSeekTraits>, buffer: &mut [u8]) -> usize;
+        fn seek_from_start(
+            self: Pin<&mut ReadAndSeekTraits>,
+            requested_pos: u64,
+            final_pos: &mut u64,
+        ) -> bool;
+        fn seek_from_end(
+            self: Pin<&mut ReadAndSeekTraits>,
+            requested_offset: i64,
+            final_pos: &mut u64,
+        ) -> bool;
+        fn seek_relative(
+            self: Pin<&mut ReadAndSeekTraits>,
+            requested_offset: i64,
+            final_pos: &mut u64,
+        ) -> bool;
 
         type WriteTrait;
         fn write(self: Pin<&mut WriteTrait>, buffer: &[u8]) -> bool;
@@ -88,7 +100,7 @@ mod ffi {
     // section. The doc comments of these items can instead be found in the
     // actual Rust code, outside of the `#[cxx::bridge]` manifest.
     extern "Rust" {
-        fn new_reader(input: UniquePtr<ReadTrait>) -> Box<ResultOfReader>;
+        fn new_reader(input: UniquePtr<ReadAndSeekTraits>) -> Box<ResultOfReader>;
 
         type ResultOfReader;
         fn err(self: &ResultOfReader) -> DecodingResult;
@@ -238,9 +250,7 @@ impl From<Option<&png::DecodingError>> for ffi::DecodingResult {
                     if e.kind() == ErrorKind::UnexpectedEof {
                         Self::IncompleteInput
                     } else {
-                        // `ReadTrait` is infallible => we expect no other kind of
-                        // `png::DecodingError::IoError`.
-                        unreachable!()
+                        Self::OtherIoError
                     }
                 }
                 png::DecodingError::Format(_) => Self::FormatError,
@@ -251,12 +261,35 @@ impl From<Option<&png::DecodingError>> for ffi::DecodingResult {
     }
 }
 
-impl Into<png::Compression> for ffi::Compression {
-    fn into(self) -> png::Compression {
+impl ffi::Compression {
+    // TODO(https://crbug.com/400455848): Remove this implementation once both Skia and Chromium
+    // roll to `png` version 0.18.0-rc or beyond.
+    #[cfg(not(feature = "png_0_18"))]
+    fn apply<'a, W: Write>(&self, encoder: &mut png::Encoder<'a, W>) {
         match self {
-            Self::Default => png::Compression::Default,
-            Self::Fast => png::Compression::Fast,
-            Self::Best => png::Compression::Best,
+            &Self::Fast => {
+                encoder.set_compression(png::Compression::Fast);
+                encoder.set_adaptive_filter(png::AdaptiveFilterType::NonAdaptive);
+            }
+            &Self::Balanced => {
+                encoder.set_compression(png::Compression::Default);
+                encoder.set_adaptive_filter(png::AdaptiveFilterType::Adaptive);
+            }
+            &Self::High => {
+                encoder.set_compression(png::Compression::Best);
+                encoder.set_adaptive_filter(png::AdaptiveFilterType::Adaptive);
+            }
+            _ => unreachable!(),
+        }
+    }
+    // TODO(https://crbug.com/400455848): Stop guarding this implementation with `cfg` (once both
+    // Skia and Chromium roll to `png` version 0.18.0-rc or beyond).
+    #[cfg(feature = "png_0_18")]
+    fn apply<'a, W: Write>(&self, encoder: &mut png::Encoder<'a, W>) {
+        match self {
+            &Self::Fast => encoder.set_compression(png::Compression::Fast),
+            &Self::Balanced => encoder.set_compression(png::Compression::Balanced),
+            &Self::High => encoder.set_compression(png::Compression::High),
             _ => unreachable!(),
         }
     }
@@ -276,11 +309,25 @@ impl From<Option<&png::EncodingError>> for ffi::EncodingResult {
     }
 }
 
-// TODO(https://crbug.com/399894620): Consider implementing `BufRead`.
-// TODO(https://crbug.com/399898452): Need to also implement `Seek`.
-impl<'a> Read for Pin<&'a mut ffi::ReadTrait> {
+impl<'a> Read for Pin<&'a mut ffi::ReadAndSeekTraits> {
     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
         Ok(self.as_mut().read(buf))
+    }
+}
+
+impl<'a> Seek for Pin<&'a mut ffi::ReadAndSeekTraits> {
+    fn seek(&mut self, pos: SeekFrom) -> std::io::Result<u64> {
+        let mut new_pos = 0;
+        let success = match pos {
+            SeekFrom::Start(pos) => self.as_mut().seek_from_start(pos, &mut new_pos),
+            SeekFrom::End(offset) => self.as_mut().seek_from_end(offset, &mut new_pos),
+            SeekFrom::Current(offset) => self.as_mut().seek_relative(offset, &mut new_pos),
+        };
+        if success {
+            Ok(new_pos)
+        } else {
+            Err(ErrorKind::Other.into())
+        }
     }
 }
 
@@ -363,12 +410,22 @@ fn compute_transformations(info: &png::Info) -> png::Transformations {
 /// generics, so we manually monomorphize here, but still expose a minimal,
 /// somewhat tweaked API of the original type).
 struct Reader {
-    reader: png::Reader<cxx::UniquePtr<ffi::ReadTrait>>,
+    reader: png::Reader<BufReader<cxx::UniquePtr<ffi::ReadAndSeekTraits>>>,
     last_interlace_info: Option<png::InterlaceInfo>,
 }
 
 impl Reader {
-    fn new(input: cxx::UniquePtr<ffi::ReadTrait>) -> Result<Self, png::DecodingError> {
+    fn new(input: cxx::UniquePtr<ffi::ReadAndSeekTraits>) -> Result<Self, png::DecodingError> {
+        // The magic value of `BUF_CAPACITY` is based on `CHUNK_BUFFER_SIZE` which was
+        // used in `BufReader::with_capacity` calls by `png` crate up to version
+        // 0.17.16 - see: https://github.com/image-rs/image-png/pull/558/files#diff-c28833b65510e37441203b4256b74068f191d29ea34b6e753442e644d3a316b8L28
+        // and
+        // https://github.com/image-rs/image-png/blob/eb9b5d7f371b88f15aaca6a8d21c58b86c400d76/src/decoder/stream.rs#L21
+        const BUF_CAPACITY: usize = 32 * 1024;
+        // TODO(https://crbug.com/399894620): Consider instead implementing `BufRead` on top of
+        // `SkStream` API when/if possible in the future.
+        let input = BufReader::with_capacity(BUF_CAPACITY, input);
+
         // By default, the decoder is limited to using 64 Mib. If we ever need to change
         // that, we can use `png::Decoder::new_with_limits`.
         let mut decoder = png::Decoder::new(input);
@@ -632,7 +689,7 @@ fn png_u32_into_f32(v: png::ScaledFloat) -> f32 {
 }
 
 /// This provides a public C++ API for decoding a PNG image.
-fn new_reader(input: cxx::UniquePtr<ffi::ReadTrait>) -> Box<ResultOfReader> {
+fn new_reader(input: cxx::UniquePtr<ffi::ReadAndSeekTraits>) -> Box<ResultOfReader> {
     Box::new(ResultOfReader(Reader::new(input)))
 }
 
@@ -683,12 +740,7 @@ impl Writer {
             info.icc_profile = Some(Cow::Owned(icc_profile.to_owned()));
         }
         let mut encoder = png::Encoder::with_info(output, info)?;
-        encoder.set_compression(compression.into());
-        encoder.set_adaptive_filter(match compression {
-            ffi::Compression::Fast => png::AdaptiveFilterType::NonAdaptive,
-            ffi::Compression::Default | ffi::Compression::Best => png::AdaptiveFilterType::Adaptive,
-            _ => unreachable!(),
-        });
+        compression.apply(&mut encoder);
 
         let writer = encoder.write_header()?;
         Ok(Self(writer))
