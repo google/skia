@@ -96,6 +96,23 @@ namespace SK_OPTS_NS {
                 w -= 8;
             }
 
+#if !defined(SK_USE_LEGACY_MISMATCHED_BLIT)
+            while (w-- > 0) {
+                // These variables aren't actually vectors, but the names are consistent with
+                // the above to make it easier to compare the operations.
+                const U8CPU vmask = *mask++;
+                const U16CPU vmask256 = SkAlpha255To256(vmask);
+                U16CPU vscale;
+                if constexpr (isTranslucent) {
+                    vscale = 256 - SkAlphaMulQ(colorAlpha, vmask256);
+                } else {
+                    vscale = 256 - vmask;
+                }
+                *device = SkAlphaMulQ(pmc, vmask256)
+                        + SkAlphaMulQ(*device, vscale);
+                device += 1;
+            }
+#else
             while (w--) {
                 unsigned aa = *mask++;
                 if constexpr (isTranslucent) {
@@ -106,6 +123,7 @@ namespace SK_OPTS_NS {
                 }
                 device += 1;
             }
+#endif
 
             device = (uint32_t*)((char*)device + dstRB);
             mask += mask_adjust;
