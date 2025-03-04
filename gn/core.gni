@@ -186,6 +186,7 @@ skia_core_sources = [
   "$_include/private/base/SkTypeTraits.h",
   "$_include/private/chromium/SkChromeRemoteGlyphCache.h",
   "$_include/private/chromium/SkDiscardableMemory.h",
+  "$_include/private/chromium/SkPMColor.h",
   "$_include/private/chromium/Slug.h",
   "$_src/base/SkArenaAlloc.cpp",
   "$_src/base/SkArenaAlloc.h",

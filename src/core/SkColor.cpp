@@ -8,6 +8,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkColorPriv.h"
 #include "include/private/base/SkTPin.h"
+#include "include/private/chromium/SkPMColor.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkSwizzlePriv.h"
@@ -21,6 +22,26 @@ SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
 SkPMColor SkPreMultiplyColor(SkColor c) {
     return SkPremultiplyARGBInline(SkColorGetA(c), SkColorGetR(c),
                                    SkColorGetG(c), SkColorGetB(c));
+}
+
+SkPMColor SkPMColorSetARGB(uint8_t a, uint8_t r, uint8_t g, uint8_t b) {
+    return SkPackARGB32(a, r, g, b);
+}
+
+SkAlpha SkPMColorGetA(SkPMColor c) {
+    return SkGetPackedA32(c);
+}
+
+uint8_t SkPMColorGetR(SkPMColor c) {
+    return SkGetPackedR32(c);
+}
+
+uint8_t SkPMColorGetG(SkPMColor c) {
+    return SkGetPackedG32(c);
+}
+
+uint8_t SkPMColorGetB(SkPMColor c) {
+    return SkGetPackedB32(c);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

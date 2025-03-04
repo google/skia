@@ -48,6 +48,7 @@ skia_filegroup(
     srcs = [
         "SkChromeRemoteGlyphCache.h",
         "SkDiscardableMemory.h",
+        "SkPMColor.h",
         "Slug.h",
     ],
     visibility = ["//src/core:__pkg__"],
