@@ -399,9 +399,7 @@ crates_repository(
     cargo_lockfile = "//experimental/rust_png/ffi:Cargo.lock",
     packages = {
         "png": crate.spec(
-            # Note: for additional performance gains `features = ["unstable"]`
-            # can be enabled, but this requires the nightly, unstable `rustc`.
-            version = "0.17.15",
+            version = "0.18.0-rc",
         ),
     },
 )

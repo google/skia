@@ -667,12 +667,5 @@ DEF_TEST(RustPngCodec_exif_orientation, r) {
         return;
     }
 
-    // TODO(https://crbug.com/390707316): After rolling the `png` crate's
-    // version `in skia/WORKSPACE` we need to change the test expectations below
-    // to the ones that are really correct: `kRightTop_SkEncodedOrigin`.  The
-    // assertion below checks for the current, incorrect behavior
-    // (`SkPngRustCodec` plumbs the `exif_metadata` from the `png` crate,
-    // but `png` crate's decoder doesn't populate the `exit_metadata` until
-    // https://github.com/image-rs/image-png/pull/568
-    REPORTER_ASSERT(r, codec->getOrigin() == kTopLeft_SkEncodedOrigin);
+    REPORTER_ASSERT(r, codec->getOrigin() == kRightTop_SkEncodedOrigin);
 }
