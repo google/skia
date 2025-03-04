@@ -101,15 +101,17 @@ def compile_fn(api, checkout_root, out_dir):
 
     extra_cflags.append(
         '-DREBUILD_IF_CHANGED_xcode_build_version=%s' % api.xcode.version)
-    if 'iOS' in extra_tokens:
-      if 'iOS12' in extra_tokens:
-        # Ganesh has a lower minimum iOS version than Graphite but there are dedicated jobs that
-        # test with the lower SDK.
-        env['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
-        args['ios_min_target'] = '"12.0"'
-      else:
-        env['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
-        args['ios_min_target'] = '"13.0"'
+    if 'iOS12' in extra_tokens:
+      # Ganesh has a lower minimum iOS version than Graphite but there are dedicated jobs that
+      # test with the lower SDK.
+      env['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+      args['ios_min_target'] = '"12.0"'
+    elif 'iOS18' in extra_tokens:
+      env['IPHONEOS_DEPLOYMENT_TARGET'] = '18.2'
+      args['ios_min_target'] = '"18.0"'
+    elif 'iOS' in extra_tokens:
+      env['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      args['ios_min_target'] = '"13.0"'
     else:
       # We have some machines on 10.15.
       env['MACOSX_DEPLOYMENT_TARGET'] = '10.15'
@@ -293,7 +295,7 @@ def compile_fn(api, checkout_root, out_dir):
   if 'Metal' in extra_tokens and not 'Dawn' in extra_tokens:
     args['skia_use_metal'] = 'true'
     args['skia_use_gl'] = 'false'
-  if 'iOS' in extra_tokens:
+  if 'iOS' in extra_tokens or 'iOS18' in extra_tokens:
     # Bots use Chromium signing cert.
     args['skia_ios_identity'] = '".*83FNP.*"'
     # Get mobileprovision via the CIPD package.
@@ -327,7 +329,7 @@ def compile_fn(api, checkout_root, out_dir):
     'cxx': cxx,
     'sanitize': sanitize,
     'target_cpu': target_arch,
-    'target_os': 'ios' if 'iOS' in extra_tokens else '',
+    'target_os': 'ios' if ('iOS' in extra_tokens or 'iOS18' in extra_tokens) else '',
     'win_sdk': win_toolchain + '/win_sdk' if 'Win' in os else '',
     'win_vc': win_toolchain + '/VC' if 'Win' in os else '',
     'skia_dwritecore_sdk': dwritecore if 'DWriteCore' in extra_tokens else '',

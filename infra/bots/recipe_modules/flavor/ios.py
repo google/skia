@@ -51,6 +51,11 @@ class iOSFlavor(default.DefaultFlavor):
   def _install(self):
     # We assume a single device is connected.
 
+    # Kill usbmuxd.  This tends to help with connection problems.
+    if self.m.platform.is_mac:
+      self.m.step('killall usbmuxd', ['sudo', '/usr/bin/killall', '-v', 'usbmuxd'])
+      self.m.step('sleep 10', ['sleep', '10'])
+
     # Pair the device.
     try:
       self.m.run(self.m.step, 'check if device is paired',

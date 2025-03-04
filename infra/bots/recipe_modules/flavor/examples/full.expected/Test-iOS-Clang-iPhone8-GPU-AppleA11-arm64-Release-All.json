@@ -100,6 +100,30 @@
   },
   {
     "cmd": [
+      "sudo",
+      "/usr/bin/killall",
+      "-v",
+      "usbmuxd"
+    ],
+    "env": {
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
+    },
+    "name": "killall usbmuxd"
+  },
+  {
+    "cmd": [
+      "sleep",
+      "10"
+    ],
+    "env": {
+      "IOS_BUNDLE_ID": "com.google.dm",
+      "IOS_MOUNT_POINT": "[START_DIR]/mnt_iosdevice"
+    },
+    "name": "sleep 10"
+  },
+  {
+    "cmd": [
       "idevicepair",
       "validate"
     ],

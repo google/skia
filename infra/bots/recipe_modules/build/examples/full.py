@@ -88,6 +88,7 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-arm64-Debug-iOS_iOS12',
   'Build-Mac-Clang-x86_64-Debug-ASAN',
   'Build-Mac-Clang-x86_64-Debug-Metal',
+  'Build-Mac-Clang-arm64-Release-iOS18_Metal',
   'Build-Win-Clang-arm64-Release-Android',
   'Build-Win-Clang-x86-Debug-Exceptions',
   'Build-Win-Clang-x86_64-Debug-ANGLE',

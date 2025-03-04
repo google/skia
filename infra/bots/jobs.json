@@ -250,8 +250,6 @@
   {"name": "Build-Mac-Clang-x86_64-Release-Metal"},
   {"name": "Build-Mac-Clang-x86_64-Release-TSAN"},
   {"name": "Build-Mac-Clang-x86_64-Release-TSAN_Metal"},
-  {"name": "Build-Win-Clang-arm64-Debug"},
-  {"name": "Build-Win-Clang-arm64-Debug-ANGLE"},
   {"name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal"},
   {"name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGpu"},
   {"name": "Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoPrecompile"},
@@ -279,6 +277,12 @@
   {"name": "Build-Mac-Clang-arm64-Release-iOS_Graphite_Native_Metal",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "src/sksl/generated/.*"]}
   },
+  {"name": "Build-Mac-Clang-arm64-Debug-iOS18"},
+  {"name": "Build-Mac-Clang-arm64-Debug-iOS18_Metal"},
+  {"name": "Build-Mac-Clang-arm64-Release-iOS18"},
+  {"name": "Build-Mac-Clang-arm64-Release-iOS18_Metal"},
+  {"name": "Build-Win-Clang-arm64-Debug"},
+  {"name": "Build-Win-Clang-arm64-Debug-ANGLE"},
   {"name": "Build-Win-Clang-arm64-Release-Android"},
   {"name": "Build-Win-Clang-x86-Debug",
    "cq_config": {}
@@ -521,6 +525,8 @@
   {"name": "Perf-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-Metal"},
   {"name": "Perf-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-iOS12"},
   {"name": "Perf-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-iOS12_Metal"},
+  {"name": "Perf-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Release-All"},
+  {"name": "Perf-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Release-All-Metal"},
   {"name": "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-All-Android"},
   {"name": "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android"},
   {"name": "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android"},
@@ -865,7 +871,7 @@
   {"name": "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN_BonusConfigs"},
   {"name": "Test-Win2019-Clang-GCE-CPU-AVX2-x86_64-Release-All",
    "cq_config": {}
-   },
+  },
   {"name": "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Debug-All"},
   {"name": "Test-Win2019-MSVC-GCE-CPU-AVX2-x86-Release-All"},
   {"name": "Test-Win2019-MSVC-GCE-CPU-AVX2-x86_64-Debug-All"},
@@ -885,5 +891,9 @@
   {"name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Debug-All-iOS12"},
   {"name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Debug-All-iOS12_Metal"},
   {"name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-iOS12"},
-  {"name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-iOS12_Metal"}
+  {"name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-iOS12_Metal"},
+  {"name": "Test-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Debug-All"},
+  {"name": "Test-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Debug-All-Metal"},
+  {"name": "Test-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Release-All"},
+  {"name": "Test-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Release-All-Metal"}
 ]
