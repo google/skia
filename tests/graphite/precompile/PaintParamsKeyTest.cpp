@@ -825,17 +825,21 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_image_shader(SkRandom
     // TODO: the combination system accounts for cubic vs. non-cubic sampling and HW vs. non-HW
     // tiling. We should test those combinations in the fuzzer.
     if (rand->nextBool()) {
-        s = SkShaders::Image(make_image(rand, recorder),
+        sk_sp<SkImage> image = make_image(rand, recorder);
+        SkColorInfo colorInfo = image->imageInfo().colorInfo();
+        s = SkShaders::Image(std::move(image),
                              tmX, tmY,
                              SkSamplingOptions(),
                              lmPtr);
-        o = PrecompileShaders::Image();
+        o = PrecompileShaders::Image({ colorInfo });
     } else {
-        s = SkShaders::RawImage(make_image(rand, recorder),
+        sk_sp<SkImage> image = make_image(rand, recorder);
+        SkColorInfo colorInfo = image->imageInfo().colorInfo();
+        s = SkShaders::RawImage(std::move(image),
                                 tmX, tmY,
                                 SkSamplingOptions(),
                                 lmPtr);
-        o = PrecompileShaders::RawImage();
+        o = PrecompileShaders::RawImage({ colorInfo });
     }
 
     return { s, o };

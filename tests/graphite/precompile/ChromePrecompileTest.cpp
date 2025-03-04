@@ -316,7 +316,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
                 paintOptions = image_srcover();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
                 renderPassSettings = bgra_4_depth_stencil();
-                allowedOvergeneration = 90;
+                allowedOvergeneration = 60;
                 break;
             case 7: // 7 & 8 are combined pair
             case 8:
@@ -349,14 +349,14 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
                 renderPassSettings = bgra_1_depth();
                 // This is a lot for a kSrc image draw:
-                allowedOvergeneration = 90; // 9x of this are the paint combos,
+                allowedOvergeneration = 60; // 6x of this are the paint combos,
                                             // the rest are the RenderSteps!!
                 break;
             case 14:
                 paintOptions = image_srcover();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
                 renderPassSettings = bgra_1_depth();
-                allowedOvergeneration = 90; // !!!! - a lot for just a non-aa image rect draw
+                allowedOvergeneration = 60; // !!!! - a lot for just a non-aa image rect draw
                 break;
             case 15:
             case 16:

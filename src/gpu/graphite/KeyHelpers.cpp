@@ -1956,24 +1956,6 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
             });
 }
 
-static skgpu::graphite::ReadSwizzle swizzle_class_to_read_enum(const skgpu::Swizzle& swizzle) {
-    if (swizzle == skgpu::Swizzle::RGBA()) {
-        return skgpu::graphite::ReadSwizzle::kRGBA;
-    } else if (swizzle == skgpu::Swizzle::RGB1()) {
-        return skgpu::graphite::ReadSwizzle::kRGB1;
-    } else if (swizzle == skgpu::Swizzle("rrr1")) {
-        return skgpu::graphite::ReadSwizzle::kRRR1;
-    } else if (swizzle == skgpu::Swizzle::BGRA()) {
-        return skgpu::graphite::ReadSwizzle::kBGRA;
-    } else if (swizzle == skgpu::Swizzle("000r")) {
-        return skgpu::graphite::ReadSwizzle::k000R;
-    } else {
-        SKGPU_LOG_W("%s is an unsupported read swizzle. Defaulting to RGBA.\n",
-                    swizzle.asString().data());
-        return skgpu::graphite::ReadSwizzle::kRGBA;
-    }
-}
-
 static void add_to_key(const KeyContext& keyContext,
                        PaintParamsKeyBuilder* builder,
                        PipelineDataGatherer* gatherer,
@@ -2050,7 +2032,7 @@ static void add_to_key(const KeyContext& keyContext,
         readSwizzle = skgpu::Swizzle::Concat(readSwizzle, skgpu::Swizzle("000a"));
     }
     ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData(
-            swizzle_class_to_read_enum(readSwizzle));
+            SwizzleClassToReadEnum(readSwizzle));
 
     if (!shader->isRaw()) {
         colorXformData.fSteps = SkColorSpaceXformSteps(imageToDraw->colorSpace(),

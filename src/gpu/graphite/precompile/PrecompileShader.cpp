@@ -12,6 +12,7 @@
 #include "include/gpu/graphite/precompile/PrecompileBlender.h"
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkKnownRuntimeEffects.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/graphite/BuiltInCodeSnippetID.h"
@@ -21,6 +22,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PrecompileInternal.h"
 #include "src/gpu/graphite/ReadSwizzle.h"
+#include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/precompile/PrecompileBaseComplete.h"
 #include "src/gpu/graphite/precompile/PrecompileBasePriv.h"
 #include "src/gpu/graphite/precompile/PrecompileBlenderPriv.h"
@@ -232,13 +234,20 @@ sk_sp<PrecompileShader> PrecompileShaders::CoordClamp(SkSpan<const sk_sp<Precomp
 //--------------------------------------------------------------------------------------------------
 class PrecompileImageShader final : public PrecompileShader {
 public:
-    PrecompileImageShader(SkEnumBitMask<PrecompileImageShaderFlags> flags)
+    PrecompileImageShader(SkEnumBitMask<PrecompileImageShaderFlags> flags,
+                          SkSpan<const SkColorInfo> colorInfos,
+                          bool raw)
             : fNumSamplingTilingCombos((flags & PrecompileImageShaderFlags::kExcludeCubic)
                                                ? 2
                                                : kNumSamplingTilingCombos)
-            , fNumAlphaCombinations((flags & PrecompileImageShaderFlags::kExcludeAlpha)
-                                            ? 1
-                                            : kNumAlphaCombinations) {}
+            , fColorInfos(!colorInfos.empty()
+                            ? std::vector<SkColorInfo>(colorInfos.begin(), colorInfos.end())
+                            : raw ? kRawImageDefaultColorInfos
+                                  : (flags & PrecompileImageShaderFlags::kExcludeAlpha)
+                                             ? kNonAlphaOnlyDefaultColorInfos
+                                             : kDefaultColorInfos)
+            , fUseDstColorSpace(!colorInfos.empty())
+            , fRaw(raw) {}
 
 private:
     // The ImageShader has 3 potential sampling/tiling variants: hardware-tiled, shader-tiled and
@@ -248,23 +257,46 @@ private:
     inline static constexpr int kHWTiled      = 1;
     inline static constexpr int kShaderTiled  = 0;
 
-    // There are also 2 potential alpha combinations: alpha-only and not-alpha-only
-    inline static constexpr int kNumAlphaCombinations = 2;
-    inline static constexpr int kAlphaOnly    = 1;
-    inline static constexpr int kNonAlphaOnly = 0;
+    // Most specialized color space transform shader, no actual color space handling.
+    static const SkColorInfo kDefaultColorInfoPremul;
+    // sRGB-to-sRGB specialized color space transform shader.
+    static const SkColorInfo kDefaultColorInfoSRGB;
+    // Most general color space transform shader.
+    static const SkColorInfo kDefaultColorInfoGeneral;
+    // Alpha-only, most general color space transform shader.
+    static const SkColorInfo kDefaultColorInfoAlphaOnly;
 
-    // There are 3 potential color space transform combinations: premul/alpha-swizzle only,
-    // srgb-to-srgb, and a more general shader.
-    inline static constexpr int kNumColorSpaceCombos = 3;
-    inline static constexpr int kColorSpacePremul  = 2;
-    inline static constexpr int kColorSpaceSRGB  = 1;
-    inline static constexpr int kColorSpaceGeneral = 0;
+    // A fixed list of SkColorInfos that will trigger each possible combination of alpha-only
+    // handling and color space transform variants, when drawn to an sRGB destination.
+    static const std::vector<SkColorInfo> kDefaultColorInfos;
+
+    // A fixed list of SkColorInfos that will trigger each color space transform shader variant when
+    // drawn to an sRGB destination.
+    static const std::vector<SkColorInfo> kNonAlphaOnlyDefaultColorInfos;
+
+    // A fixed list of SkColorInfos that will trigger each color space transform shader variant
+    // possible from a raw image draw. The general shader is still required if the image is
+    // alpha-only, because the read swizzle is implemented as a gamut transformation.
+    static const std::vector<SkColorInfo> kRawImageDefaultColorInfos;
 
     const int fNumSamplingTilingCombos;
-    const int fNumAlphaCombinations;
+
+    const std::vector<SkColorInfo> fColorInfos;
+
+    // If true, use the destination color space from the KeyContext provided to addToKey.
+    // This is true if and only if the client has provided a list of color infos. Otherwise, we
+    // always use an sRGB destination per the default SkColorInfo lists declared above.
+    const bool fUseDstColorSpace;
+
+    // Whether this precompiles raw image shaders.
+    const bool fRaw;
 
     int numIntrinsicCombinations() const override {
-        return fNumSamplingTilingCombos * fNumAlphaCombinations * kNumColorSpaceCombos;
+        // TODO(b/400682634) If color infos were provided by the client, and we're using the
+        // destination color space to determine what color space transform shaders to use, we can
+        // end up generating duplicate shaders, and the actual number of unique shaders generated
+        // will be less than the number calculated here.
+        return fNumSamplingTilingCombos * fColorInfos.size();
     }
 
     void addToKey(const KeyContext& keyContext,
@@ -274,14 +306,11 @@ private:
         SkASSERT(this->numChildCombinations() == 1);
         SkASSERT(desiredCombination < this->numIntrinsicCombinations());
 
-        const int desiredAlphaCombo = desiredCombination % fNumAlphaCombinations;
-        desiredCombination /= fNumAlphaCombinations;
-
         const int desiredSamplingTilingCombo = desiredCombination % fNumSamplingTilingCombos;
         desiredCombination /= fNumSamplingTilingCombos;
 
-        const int desiredColorSpaceCombo = desiredCombination;
-        SkASSERT(desiredCombination < kNumColorSpaceCombos);
+        const int desiredColorInfo = desiredCombination;
+        SkASSERT(desiredColorInfo < static_cast<int>(fColorInfos.size()));
 
         static constexpr SkSamplingOptions kDefaultCubicSampling(SkCubicResampler::Mitchell());
         static constexpr SkSamplingOptions kDefaultSampling;
@@ -300,74 +329,109 @@ private:
                 desiredSamplingTilingCombo == kHWTiled ? kHWTileableSize : kShaderTileableSize,
                 kSubset);
 
-        static sk_sp<SkColorSpace> srgbSpinColorSpace = sk_srgb_singleton()->makeColorSpin();
-        ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData =
-                desiredColorSpaceCombo == kColorSpacePremul
-                        ? ColorSpaceTransformBlock::ColorSpaceTransformData(
-                                  nullptr, kPremul_SkAlphaType,
-                                  nullptr, kUnpremul_SkAlphaType) :
-                desiredColorSpaceCombo == kColorSpaceSRGB
-                        ? ColorSpaceTransformBlock::ColorSpaceTransformData(
-                                  sk_srgb_singleton(), kPremul_SkAlphaType,
-                                  srgbSpinColorSpace.get(), kPremul_SkAlphaType)
-                        : ColorSpaceTransformBlock::ColorSpaceTransformData(
-                                  sk_srgb_singleton(), kPremul_SkAlphaType,
-                                  sk_srgb_linear_singleton(), kPremul_SkAlphaType);
+        const SkColorInfo& colorInfo = fColorInfos[desiredColorInfo];
+        const bool alphaOnly = SkColorTypeIsAlphaOnly(colorInfo.colorType());
 
-        if (desiredAlphaCombo == kAlphaOnly) {
-            Blend(keyContext, builder, gatherer,
-                  /* addBlendToKey= */ [&] () -> void {
-                      AddFixedBlendMode(keyContext, builder, gatherer, SkBlendMode::kDstIn);
-                  },
-                  /* addSrcToKey= */ [&] () -> void {
-                      Compose(keyContext, builder, gatherer,
-                              /* addInnerToKey= */ [&]() -> void {
-                                  ImageShaderBlock::AddBlock(keyContext, builder, gatherer,
-                                                             imgData);
-                              },
-                              /* addOuterToKey= */ [&]() -> void {
-                                  ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer,
-                                                                     colorXformData);
-                              });
-                  },
-                  /* addDstToKey= */ [&]() -> void {
-                      RGBPaintColorBlock::AddBlock(keyContext, builder, gatherer);
-                  });
-        } else {
-            Compose(keyContext, builder, gatherer,
-                    /* addInnerToKey= */ [&]() -> void {
-                        ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
-                    },
-                    /* addOuterToKey= */ [&]() -> void {
-                        ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer,
-                                                           colorXformData);
-                    });
+        const Caps* caps = keyContext.caps();
+        Swizzle readSwizzle = caps->getReadSwizzle(
+                colorInfo.colorType(),
+                caps->getDefaultSampledTextureInfo(
+                        colorInfo.colorType(), Mipmapped::kNo, Protected::kNo, Renderable::kNo));
+        if (alphaOnly) {
+            readSwizzle = Swizzle::Concat(readSwizzle, Swizzle("000a"));
         }
+
+        ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData(
+                SwizzleClassToReadEnum(readSwizzle));
+
+        if (!fRaw) {
+            const SkColorSpace* dstColorSpace = fUseDstColorSpace
+                                                        ? keyContext.dstColorInfo().colorSpace()
+                                                        : sk_srgb_singleton();
+            colorXformData.fSteps = SkColorSpaceXformSteps(
+                    colorInfo.colorSpace(), colorInfo.alphaType(),
+                    dstColorSpace, colorInfo.alphaType());
+
+            if (alphaOnly) {
+                Blend(keyContext, builder, gatherer,
+                      /* addBlendToKey= */ [&] () -> void {
+                          AddFixedBlendMode(keyContext, builder, gatherer, SkBlendMode::kDstIn);
+                      },
+                      /* addSrcToKey= */ [&] () -> void {
+                          Compose(keyContext, builder, gatherer,
+                                  /* addInnerToKey= */ [&]() -> void {
+                                      ImageShaderBlock::AddBlock(keyContext, builder, gatherer,
+                                                                 imgData);
+                                  },
+                                  /* addOuterToKey= */ [&]() -> void {
+                                      ColorSpaceTransformBlock::AddBlock(keyContext, builder,
+                                                                         gatherer, colorXformData);
+                                  });
+                      },
+                      /* addDstToKey= */ [&]() -> void {
+                          RGBPaintColorBlock::AddBlock(keyContext, builder, gatherer);
+                      });
+                return;
+            }
+        }
+
+        Compose(keyContext, builder, gatherer,
+                /* addInnerToKey= */ [&]() -> void {
+                    ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+                },
+                /* addOuterToKey= */ [&]() -> void {
+                    ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer,
+                                                       colorXformData);
+                });
     }
 };
 
-sk_sp<PrecompileShader> PrecompileShaders::Image() {
+// These color info objects are defined assuming an sRGB destination.
+const SkColorInfo PrecompileImageShader::kDefaultColorInfoPremul = {
+        kRGBA_8888_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGB()};
+const SkColorInfo PrecompileImageShader::kDefaultColorInfoSRGB = {
+        kRGBA_8888_SkColorType, kPremul_SkAlphaType, sk_srgb_singleton()->makeColorSpin()};
+const SkColorInfo PrecompileImageShader::kDefaultColorInfoGeneral = {
+        kRGBA_8888_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGBLinear()};
+const SkColorInfo PrecompileImageShader::kDefaultColorInfoAlphaOnly = {
+        kAlpha_8_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGBLinear()};
+
+const std::vector<SkColorInfo> PrecompileImageShader::kDefaultColorInfos = {
+        kDefaultColorInfoPremul, kDefaultColorInfoSRGB, kDefaultColorInfoGeneral,
+        kDefaultColorInfoAlphaOnly};
+const std::vector<SkColorInfo> PrecompileImageShader::kNonAlphaOnlyDefaultColorInfos = {
+        kDefaultColorInfoPremul, kDefaultColorInfoSRGB, kDefaultColorInfoGeneral};
+const std::vector<SkColorInfo> PrecompileImageShader::kRawImageDefaultColorInfos = {
+        kDefaultColorInfoPremul, kDefaultColorInfoAlphaOnly};
+
+sk_sp<PrecompileShader> PrecompileShaders::Image(SkSpan<const SkColorInfo> colorInfos) {
     return PrecompileShaders::LocalMatrix(
-            { sk_make_sp<PrecompileImageShader>(PrecompileImageShaderFlags::kNone) });
+            { sk_make_sp<PrecompileImageShader>(PrecompileImageShaderFlags::kNone,
+                                                colorInfos,
+                                                /* raw= */false) });
 }
 
-sk_sp<PrecompileShader> PrecompileShaders::RawImage() {
-    // Raw images do not perform color space conversion, but in Graphite, this is represented as
-    // an identity color space xform, not as a distinct shader
+sk_sp<PrecompileShader> PrecompileShaders::RawImage(SkSpan<const SkColorInfo> colorInfos) {
     return PrecompileShaders::LocalMatrix(
-            { sk_make_sp<PrecompileImageShader>(PrecompileImageShaderFlags::kExcludeAlpha) });
+            { sk_make_sp<PrecompileImageShader>(PrecompileImageShaderFlags::kExcludeCubic,
+                                                colorInfos,
+                                                /* raw= */true) });
 }
 
 sk_sp<PrecompileShader> PrecompileShadersPriv::Image(
         SkEnumBitMask<PrecompileImageShaderFlags> flags) {
-    return PrecompileShaders::LocalMatrix({ sk_make_sp<PrecompileImageShader>(flags) });
+    return PrecompileShaders::LocalMatrix(
+            { sk_make_sp<PrecompileImageShader>(flags,
+                                                SkSpan<const SkColorInfo>(),
+                                                /* raw= */ false) });
 }
 
 sk_sp<PrecompileShader> PrecompileShadersPriv::RawImage(
         SkEnumBitMask<PrecompileImageShaderFlags> flags) {
     return PrecompileShaders::LocalMatrix(
-            { sk_make_sp<PrecompileImageShader>(flags |
-                                                PrecompileImageShaderFlags::kExcludeAlpha) });
+            { sk_make_sp<PrecompileImageShader>(flags | PrecompileImageShaderFlags::kExcludeCubic,
+                                                SkSpan<const SkColorInfo>(),
+                                                /* raw= */ true) });
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -597,8 +661,8 @@ sk_sp<PrecompileShader> PrecompileShaders::TwoPointConicalGradient(
 //--------------------------------------------------------------------------------------------------
 // The PictureShader ultimately turns into an SkImageShader optionally wrapped in a
 // LocalMatrixShader.
-// Note that this means each precompile PictureShader will add 12 combinations:
-//    2 (pictureshader LM) x 6 (imageShader variations)
+// Note that this means each precompile PictureShader will add 24 combinations:
+//    2 (pictureshader LM) x 12 (imageShader variations)
 sk_sp<PrecompileShader> PrecompileShaders::Picture() {
     // Note: We don't need to consider the PrecompileYUVImageShader since the image
     // being drawn was created internally by Skia (as non-YUV).
