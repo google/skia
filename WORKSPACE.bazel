@@ -310,13 +310,13 @@ crate_universe_dependencies()
 http_archive(
     name = "cxxbridge_cmd",
     build_file = "//bazel/external/cxxbridge_cmd:BUILD.bazel.skia",
-    sha256 = "4717c9c806a9e07fdcb34c84965a414ea40fafe57667187052cf1eb7f5e8a8a9",
-    strip_prefix = "cxxbridge-cmd-1.0.135",
+    sha256 = "19c3062da294104183e1c34ea9887941d4d8c74f6195ce9fbb430ac4b5290ede",
+    strip_prefix = "cxxbridge-cmd-1.0.143",
     type = "tar.gz",
     urls = gcs_mirror_url(
         ext = ".tar.gz",
-        sha256 = "4717c9c806a9e07fdcb34c84965a414ea40fafe57667187052cf1eb7f5e8a8a9",
-        url = "https://crates.io/api/v1/crates/cxxbridge-cmd/1.0.135/download",
+        sha256 = "19c3062da294104183e1c34ea9887941d4d8c74f6195ce9fbb430ac4b5290ede",
+        url = "https://crates.io/api/v1/crates/cxxbridge-cmd/1.0.143/download",
     ),
 )
 
@@ -340,13 +340,13 @@ cxxbridge_cmd_deps()
 http_archive(
     name = "cxx",
     build_file = "//bazel/external/cxx:BUILD.bazel.skia",
-    sha256 = "4d44ff199ff93242c3afe480ab588d544dd08d72e92885e152ffebc670f076ad",
-    strip_prefix = "cxx-1.0.135",
+    sha256 = "050906babad73f9b32a91cecc3063ff1e2235226dd2367dd839fd6fbc941c68a",
+    strip_prefix = "cxx-1.0.143",
     type = "tar.gz",
     urls = gcs_mirror_url(
         ext = ".tar.gz",
-        sha256 = "4d44ff199ff93242c3afe480ab588d544dd08d72e92885e152ffebc670f076ad",
-        url = "https://crates.io/api/v1/crates/cxx/1.0.135/download",
+        sha256 = "050906babad73f9b32a91cecc3063ff1e2235226dd2367dd839fd6fbc941c68a",
+        url = "https://crates.io/api/v1/crates/cxx/1.0.143/download",
     ),
 )
 
