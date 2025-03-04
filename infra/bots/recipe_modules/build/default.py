@@ -299,7 +299,7 @@ def compile_fn(api, checkout_root, out_dir):
     # Get mobileprovision via the CIPD package.
     args['skia_ios_profile'] = '"%s"' % api.vars.workdir.joinpath(
         'provisioning_profile_ios',
-        'Upstream_Testing_Provisioning_Profile.mobileprovision')
+        'Upstream_Com_Testing_Provisioning_Profile.mobileprovision')
   if compiler == 'Clang' and 'Win' in os:
     args['clang_win'] = '"%s"' % api.vars.workdir.joinpath('clang_win')
     extra_cflags.append('-DPLACEHOLDER_clang_win_version=%s' %
