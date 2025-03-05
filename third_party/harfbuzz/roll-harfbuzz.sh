@@ -29,6 +29,12 @@ rollbazel() {
   git add bazel/deps.bzl
 }
 
+rolldepsgen() {
+  STEP="roll-depsgen" &&
+  sed -i'' -e "s!Version: \"${HB_PREVIOUS_REV}\",!Version: \"${HB_NEXT_REV}\",!" infra/bots/deps/deps_gen.go &&
+  git add infra/bots/deps/deps_gen.go
+}
+
 check_all_files_are_categorized() {
   #for each file name in ${HB_GIT_DIR}/src/hb-*.{cc,h,hh}
   #  if the file name is not present in BUILD.gn
@@ -94,6 +100,7 @@ previousrev &&
 nextrev &&
 rolldeps "$@" &&
 rollbazel &&
+rolldepsgen &&
 check_all_files_are_categorized &&
 commit &&
 true || { echo "Failed step ${STEP}"; exit 1; }
