@@ -110,7 +110,7 @@ protected:
         kUnimplemented,
     };
 
-    class NinePatch : ::SkNoncopyable {
+    class NinePatch final : ::SkNoncopyable {
     public:
         NinePatch(const SkMask& mask, SkIRect outerRect, SkIPoint center, SkCachedData* cache)
             : fMask(mask), fOuterRect(outerRect), fCenter(center), fCache(cache) {}

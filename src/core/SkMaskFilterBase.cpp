@@ -49,7 +49,7 @@ sk_sp<SkImageFilter> SkMaskFilterBase::asImageFilter(const SkMatrix& ctm) const 
     return nullptr;
 }
 
-static SkMask extractMaskSubset(const SkMask& src, SkIRect bounds, int32_t newX, int32_t newY) {
+static SkMask extract_mask_subset(const SkMask& src, SkIRect bounds, int32_t newX, int32_t newY) {
     SkASSERT(src.fBounds.contains(bounds));
 
     const int dx = bounds.left() - src.fBounds.left();
@@ -61,7 +61,7 @@ static SkMask extractMaskSubset(const SkMask& src, SkIRect bounds, int32_t newX,
                   src.fFormat);
 }
 
-static void blitClippedMask(SkBlitter* blitter, const SkMask& mask,
+static void blit_clipped_mask(SkBlitter* blitter, const SkMask& mask,
                             const SkIRect& bounds, const SkIRect& clipR) {
     SkIRect r;
     if (r.intersect(bounds, clipR)) {
@@ -69,7 +69,7 @@ static void blitClippedMask(SkBlitter* blitter, const SkMask& mask,
     }
 }
 
-static void blitClippedRect(SkBlitter* blitter, const SkIRect& rect, const SkIRect& clipR) {
+static void blit_clipped_rect(SkBlitter* blitter, const SkIRect& rect, const SkIRect& clipR) {
     SkIRect r;
     if (r.intersect(rect, clipR)) {
         blitter->blitRect(r.left(), r.top(), r.width(), r.height());
@@ -79,8 +79,8 @@ static void blitClippedRect(SkBlitter* blitter, const SkIRect& rect, const SkIRe
 static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
                               const SkIPoint& center, bool fillCenter,
                               const SkIRect& clipR, SkBlitter* blitter) {
-    int cx = center.x();
-    int cy = center.y();
+    const int cx = center.x();
+    const int cy = center.y();
     SkIRect bounds;
 
     // top-left
@@ -88,8 +88,8 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     bounds.fRight = cx;
     bounds.fBottom = cy;
     if (bounds.width() > 0 && bounds.height() > 0) {
-        SkMask m = extractMaskSubset(mask, bounds, outerR.left(), outerR.top());
-        blitClippedMask(blitter, m, m.fBounds, clipR);
+        SkMask m = extract_mask_subset(mask, bounds, outerR.left(), outerR.top());
+        blit_clipped_mask(blitter, m, m.fBounds, clipR);
     }
 
     // top-right
@@ -97,8 +97,8 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     bounds.fLeft = cx + 1;
     bounds.fBottom = cy;
     if (bounds.width() > 0 && bounds.height() > 0) {
-        SkMask m = extractMaskSubset(mask, bounds, outerR.right() - bounds.width(), outerR.top());
-        blitClippedMask(blitter, m, m.fBounds, clipR);
+        SkMask m = extract_mask_subset(mask, bounds, outerR.right() - bounds.width(), outerR.top());
+        blit_clipped_mask(blitter, m, m.fBounds, clipR);
     }
 
     // bottom-left
@@ -106,8 +106,8 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     bounds.fRight = cx;
     bounds.fTop = cy + 1;
     if (bounds.width() > 0 && bounds.height() > 0) {
-        SkMask m = extractMaskSubset(mask, bounds, outerR.left(), outerR.bottom() - bounds.height());
-        blitClippedMask(blitter, m, m.fBounds, clipR);
+        SkMask m = extract_mask_subset(mask, bounds, outerR.left(), outerR.bottom() - bounds.height());
+        blit_clipped_mask(blitter, m, m.fBounds, clipR);
     }
 
     // bottom-right
@@ -115,9 +115,9 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     bounds.fLeft = cx + 1;
     bounds.fTop = cy + 1;
     if (bounds.width() > 0 && bounds.height() > 0) {
-        SkMask m = extractMaskSubset(mask, bounds, outerR.right() - bounds.width(),
+        SkMask m = extract_mask_subset(mask, bounds, outerR.right() - bounds.width(),
                                                    outerR.bottom() - bounds.height());
-        blitClippedMask(blitter, m, m.fBounds, clipR);
+        blit_clipped_mask(blitter, m, m.fBounds, clipR);
     }
 
     SkIRect innerR;
@@ -126,7 +126,7 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
                    outerR.right() + (cx + 1 - mask.fBounds.right()),
                    outerR.bottom() + (cy + 1 - mask.fBounds.bottom()));
     if (fillCenter) {
-        blitClippedRect(blitter, innerR, clipR);
+        blit_clipped_rect(blitter, innerR, clipR);
     }
 
     const int innerW = innerR.width();
@@ -139,12 +139,12 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     // top
     r.setLTRB(innerR.left(), outerR.top(), innerR.right(), innerR.top());
     if (r.intersect(clipR)) {
-        int startY = std::max(0, r.top() - outerR.top());
-        int stopY = startY + r.height();
-        int width = r.width();
+        const int startY = std::max(0, r.top() - outerR.top());
+        const int stopY = startY + r.height();
+        const int width = r.width();
+        runs[0] = width;
+        runs[width] = 0;
         for (int y = startY; y < stopY; ++y) {
-            runs[0] = width;
-            runs[width] = 0;
             alpha[0] = *mask.getAddr8(cx, mask.fBounds.top() + y);
             blitter->blitAntiH(r.left(), outerR.top() + y, alpha, runs);
         }
@@ -152,12 +152,12 @@ static void draw_nine_clipped(const SkMask& mask, const SkIRect& outerR,
     // bottom
     r.setLTRB(innerR.left(), innerR.bottom(), innerR.right(), outerR.bottom());
     if (r.intersect(clipR)) {
-        int startY = outerR.bottom() - r.bottom();
-        int stopY = startY + r.height();
-        int width = r.width();
+        const int startY = outerR.bottom() - r.bottom();
+        const int stopY = startY + r.height();
+        const int width = r.width();
+        runs[0] = width;
+        runs[width] = 0;
         for (int y = startY; y < stopY; ++y) {
-            runs[0] = width;
-            runs[width] = 0;
             alpha[0] = *mask.getAddr8(cx, mask.fBounds.bottom() - y - 1);
             blitter->blitAntiH(r.left(), outerR.bottom() - y - 1, alpha, runs);
         }

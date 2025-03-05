@@ -37,6 +37,7 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScan.h"
+
 #include <algorithm>
 #include <cstddef>
 #include <optional>
@@ -497,21 +498,19 @@ void SkDrawBase::validate() const {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool SkDrawBase::ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect& clipBounds,
-                               const SkMaskFilter* filter, const SkMatrix* filterMatrix,
-                               SkIRect* bounds) {
+static bool compute_mask_bounds(const SkRect& devPathBounds, const SkIRect& clipBounds,
+                                const SkMaskFilter* filter, const SkMatrix* filterMatrix,
+                                SkIRect* bounds) {
+    SkASSERT(filter);
+    SkASSERT(filterMatrix);
     //  init our bounds from the path
     *bounds = devPathBounds.makeOutset(SK_ScalarHalf, SK_ScalarHalf).roundOut();
 
-    SkIPoint margin = SkIPoint::Make(0, 0);
-    if (filter) {
-        SkASSERT(filterMatrix);
-
-        SkMask srcM(nullptr, *bounds, 0, SkMask::kA8_Format);
-        SkMaskBuilder dstM;
-        if (!as_MFB(filter)->filterMask(&dstM, srcM, *filterMatrix, &margin)) {
-            return false;
-        }
+    SkIVector margin = SkIPoint::Make(0, 0);
+    SkMask srcM(nullptr, *bounds, 0, SkMask::kA8_Format);
+    SkMaskBuilder dstM;
+    if (!as_MFB(filter)->filterMask(&dstM, srcM, *filterMatrix, &margin)) {
+        return false;
     }
 
     // trim the bounds to reflect the clip (plus whatever slop the filter needs)
@@ -566,20 +565,22 @@ bool SkDrawBase::DrawToMask(const SkPath& devPath, const SkIRect& clipBounds,
                         const SkMaskFilter* filter, const SkMatrix* filterMatrix,
                         SkMaskBuilder* dst, SkMaskBuilder::CreateMode mode,
                         SkStrokeRec::InitStyle style) {
+    SkASSERT(filter);
     if (devPath.isEmpty()) {
         return false;
     }
 
     if (SkMaskBuilder::kJustRenderImage_CreateMode != mode) {
-        // By using infinite bounds for inverse fills, ComputeMaskBounds is able to clip it to
+        // By using infinite bounds for inverse fills, compute_mask_bounds is able to clip it to
         // 'clipBounds' outset by whatever extra margin the mask filter requires.
         static const SkRect kInverseBounds = { SK_ScalarNegativeInfinity, SK_ScalarNegativeInfinity,
                                                SK_ScalarInfinity, SK_ScalarInfinity};
         SkRect pathBounds = devPath.isInverseFillType() ? kInverseBounds
                                                         : devPath.getBounds();
-        if (!ComputeMaskBounds(pathBounds, clipBounds, filter,
-                               filterMatrix, &dst->bounds()))
+        if (!compute_mask_bounds(pathBounds, clipBounds, filter,
+                               filterMatrix, &dst->bounds())) {
             return false;
+        }
     }
 
     if (SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode == mode) {
@@ -596,7 +597,6 @@ bool SkDrawBase::DrawToMask(const SkPath& devPath, const SkIRect& clipBounds,
     if (SkMaskBuilder::kJustComputeBounds_CreateMode != mode) {
         draw_into_mask(*dst, devPath, style);
     }
-
     return true;
 }
 

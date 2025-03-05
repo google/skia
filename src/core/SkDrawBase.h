@@ -84,11 +84,7 @@ public:
     void drawDevicePoints(SkCanvas::PointMode, size_t count, const SkPoint[], const SkPaint&,
                           SkDevice*) const;
 
-    static bool ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect& clipBounds,
-                                  const SkMaskFilter* filter, const SkMatrix* filterMatrix,
-                                  SkIRect* bounds);
-
-    /** Helper function that creates a mask from a path and an optional maskfilter.
+    /** Helper function that creates a mask from a path and a required maskfilter.
         Note however, that the resulting mask will not have been actually filtered,
         that must be done afterwards (by calling filterMask). The maskfilter is provided
         solely to assist in computing the mask's bounds (if the mode requests that).
