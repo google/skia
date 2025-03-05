@@ -80,16 +80,6 @@
 */
 //#define SK_CANVAS_SAVE_RESTORE_PREALLOC_COUNT 32
 
-/* Determines whether to build code that supports the Ganesh GPU backend. Some classes
-   that are not GPU-specific, such as SkShader subclasses, have optional code
-   that is used allows them to interact with this GPU backend. If you'd like to
-   include this code, include -DSK_GANESH in your cflags or uncomment below.
-   Defaults to not set (No Ganesh GPU backend).
-   This define affects the ABI of Skia, so make sure it matches the client which uses
-   the compiled version of Skia.
-*/
-//#define SK_GANESH
-
 /* Skia makes use of histogram logging macros to trace the frequency of
    events. By default, Skia provides no-op versions of these macros.
    Skia consumers can provide their own definitions of these macros to
