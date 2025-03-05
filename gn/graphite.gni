@@ -150,6 +150,8 @@ skia_graphite_sources = [
   "$_src/Surface_Graphite.h",
   "$_src/Texture.cpp",
   "$_src/Texture.h",
+  "$_src/TextureFormat.cpp",
+  "$_src/TextureFormat.h",
   "$_src/TextureInfo.cpp",
   "$_src/TextureInfoPriv.h",
   "$_src/TextureProxy.cpp",

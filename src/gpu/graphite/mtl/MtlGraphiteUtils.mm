@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/mtl/MtlBackendContext.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/mtl/MtlGraphiteUtils.h"
 #include "src/gpu/graphite/mtl/MtlQueueManager.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
@@ -90,6 +91,44 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
                                                  freeWhenDone:NO];
     compiledLibrary.get().label = nsLabel;
     return compiledLibrary;
+}
+
+TextureFormat MTLPixelFormatToTextureFormat(MTLPixelFormat format) {
+    switch (format) {
+        case MTLPixelFormatR8Unorm:               return TextureFormat::kR8;
+        case MTLPixelFormatR16Unorm:              return TextureFormat::kR16;
+        case MTLPixelFormatR16Float:              return TextureFormat::kR16F;
+        case MTLPixelFormatR32Float:              return TextureFormat::kR32F;
+        case MTLPixelFormatA8Unorm:               return TextureFormat::kA8;
+        case MTLPixelFormatRG8Unorm:              return TextureFormat::kRG8;
+        case MTLPixelFormatRG16Unorm:             return TextureFormat::kRG16;
+        case MTLPixelFormatRG16Float:             return TextureFormat::kRG16F;
+        case MTLPixelFormatRG32Float:             return TextureFormat::kRG32F;
+        case MTLPixelFormatB5G6R5Unorm:           return TextureFormat::kB5_G6_R5;
+        case MTLPixelFormatBGR10_XR:              return TextureFormat::kBGR10_XR;
+        case MTLPixelFormatRGBA8Unorm:            return TextureFormat::kRGBA8;
+        case MTLPixelFormatRGBA16Unorm:           return TextureFormat::kRGBA16;
+        case MTLPixelFormatRGBA32Float:           return TextureFormat::kRGBA32F;
+        case MTLPixelFormatRGB10A2Unorm:          return TextureFormat::kRGB10_A2;
+        case MTLPixelFormatRGBA8Unorm_sRGB:       return TextureFormat::kRGBA8_sRGB;
+        case MTLPixelFormatBGRA8Unorm:            return TextureFormat::kBGRA8;
+        case MTLPixelFormatBGR10A2Unorm:          return TextureFormat::kBGR10_A2;
+        case MTLPixelFormatBGRA8Unorm_sRGB:       return TextureFormat::kBGRA8_sRGB;
+        case MTLPixelFormatABGR4Unorm:            return TextureFormat::kABGR4;
+        case MTLPixelFormatBGRA10_XR:             return TextureFormat::kBGRA10x6_XR;
+        case MTLPixelFormatETC2_RGB8:             return TextureFormat::kRGB8_ETC2;
+        case MTLPixelFormatETC2_RGB8_sRGB:        return TextureFormat::kRGB8_ETC2_sRGB;
+        case MTLPixelFormatStencil8:              return TextureFormat::kS8;
+        case MTLPixelFormatDepth16Unorm:          return TextureFormat::kD16;
+        case MTLPixelFormatDepth32Float:          return TextureFormat::kD32F;
+        case MTLPixelFormatDepth32Float_Stencil8: return TextureFormat::kD32F_S8;
+#if defined(SK_BUILD_FOR_MAC)
+        case MTLPixelFormatDepth24Unorm_Stencil8: return TextureFormat::kD24_S8;
+        case MTLPixelFormatBC1_RGBA:              return TextureFormat::kRGBA8_BC1;
+        case MTLPixelFormatBC1_RGBA_sRGB:         return TextureFormat::kRGBA8_BC1_sRGB;
+#endif
+        default:                                  return TextureFormat::kUnsupported;
+    }
 }
 
 }  // namespace skgpu::graphite

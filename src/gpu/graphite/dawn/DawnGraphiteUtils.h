@@ -49,6 +49,7 @@ inline bool SkSLToWGSL(const SkSL::ShaderCaps* caps,
 namespace skgpu::graphite {
 
 class DawnSharedContext;
+enum class TextureFormat : uint8_t;
 
 bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
                                  const char* label,
@@ -69,17 +70,15 @@ wgpu::YCbCrVkDescriptor DawnDescriptorFromImmutableSamplerInfo(ImmutableSamplerI
 
 #endif // !defined(__EMSCRIPTEN__)
 
-size_t DawnFormatBytesPerBlock(wgpu::TextureFormat format);
-
 SkTextureCompressionType DawnFormatToCompressionType(wgpu::TextureFormat format);
-
-uint32_t DawnFormatChannels(wgpu::TextureFormat format);
 
 bool DawnFormatIsDepthOrStencil(wgpu::TextureFormat);
 bool DawnFormatIsDepth(wgpu::TextureFormat);
 bool DawnFormatIsStencil(wgpu::TextureFormat);
 
 wgpu::TextureFormat DawnDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags>);
+
+TextureFormat DawnFormatToTextureFormat(wgpu::TextureFormat);
 
 namespace BackendTextures {
 

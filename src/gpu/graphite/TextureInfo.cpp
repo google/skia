@@ -11,12 +11,14 @@
 #include "include/core/SkStream.h"
 #include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 
 namespace skgpu::graphite {
 
 TextureInfo::TextureInfo(const TextureInfo& that)
         : fBackend(that.fBackend)
+        , fViewFormat(that.fViewFormat)
         , fProtected(that.fProtected) {
     if (!that.fData.has_value()) {
         SkASSERT(!fData.has_value());
@@ -57,10 +59,11 @@ SkString TextureInfo::toString() const {
     SkASSERT(BackendApiToStr(fBackend)[0] == 'k');
     const char* backendName = BackendApiToStr(fBackend) + 1;
 
-    return SkStringPrintf("%s(%s,bpp=%zu,sampleCount=%u,mipmapped=%d,protected=%d)",
+    return SkStringPrintf("%s(viewFormat=%s,%s,bpp=%zu,sampleCount=%u,mipmapped=%d,protected=%d)",
                           backendName,
+                          TextureFormatName(fViewFormat),
                           fData->toBackendString().c_str(),
-                          this->bytesPerPixel(),
+                          TextureFormatBytesPerBlock(fViewFormat),
                           fData->fSampleCount,
                           static_cast<int>(fData->fMipmapped),
                           static_cast<int>(fProtected));
@@ -75,9 +78,9 @@ SkString TextureInfoPriv::GetAttachmentLabel(const TextureInfo& info) {
     SkASSERT(BackendApiToStr(info.backend())[0] == 'k');
     const char* backendName = BackendApiToStr(info.backend()) + 1;
     // For renderpass attachments, the string will contain the view format and sample count only
-    return SkStringPrintf("%s(f=%u,s=%u)",
+    return SkStringPrintf("%s(f=%s,s=%u)",
                           backendName,
-                          info.fData->viewFormat(),
+                          TextureFormatName(ViewFormat(info)),
                           info.fData->fSampleCount);
 }
 

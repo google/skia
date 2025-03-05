@@ -24,18 +24,18 @@ DawnTextureInfo::DawnTextureInfo(WGPUTexture texture)
                 wgpu::TextureAspect::All,
                 /*slice=*/0) {}
 
-size_t DawnTextureInfo::bytesPerPixel() const {
-    return DawnFormatBytesPerBlock(this->getViewFormat());
-}
-
-SkTextureCompressionType DawnTextureInfo::compressionType() const {
-    return DawnFormatToCompressionType(this->getViewFormat());
+TextureFormat DawnTextureInfo::viewFormat() const {
+#if !defined(__EMSCRIPTEN__)
+    if (fYcbcrVkDescriptor.externalFormat != 0) {
+        return TextureFormat::kExternal;
+    }
+#endif
+    return DawnFormatToTextureFormat(this->getViewFormat());
 }
 
 SkString DawnTextureInfo::toBackendString() const {
-    return SkStringPrintf("format=%u,viewFormat=%u,usage=0x%08X,aspect=0x%08X,slice=%u",
+    return SkStringPrintf("wgpuFormat=%u,usage=0x%08X,aspect=0x%08X,slice=%u",
                           static_cast<unsigned int>(fFormat),
-                          static_cast<unsigned int>(fViewFormat),
                           static_cast<unsigned int>(fUsage),
                           static_cast<unsigned int>(fAspect),
                           fSlice);

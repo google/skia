@@ -50,11 +50,14 @@ class ShaderErrorHandler;
 namespace skgpu::graphite {
 
 class MtlSharedContext;
+enum class TextureFormat : uint8_t;
 
 sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedContext,
                                                std::string_view label,
                                                std::string_view msl,
                                                ShaderErrorHandler* errorHandler);
+
+TextureFormat MTLPixelFormatToTextureFormat(MTLPixelFormat);
 
 }  // namespace skgpu::graphite
 

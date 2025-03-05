@@ -46,6 +46,7 @@
 #include "src/gpu/graphite/SpecialImage_Graphite.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/task/CopyTask.h"
 #include "src/gpu/graphite/task/SynchronizeToCpuTask.h"
 #include "src/gpu/graphite/task/UploadTask.h"
@@ -323,7 +324,8 @@ sk_sp<SkImage> MakeFromBitmap(Recorder* recorder,
 }
 
 size_t ComputeSize(SkISize dimensions, const TextureInfo& info) {
-    SkTextureCompressionType compression = info.compressionType();
+    TextureFormat format = TextureInfoPriv::ViewFormat(info);
+    SkTextureCompressionType compression = TextureFormatCompressionType(format);
 
     size_t colorSize = 0;
 
@@ -332,9 +334,8 @@ size_t ComputeSize(SkISize dimensions, const TextureInfo& info) {
                                                 dimensions,
                                                 info.mipmapped() == Mipmapped::kYes);
     } else {
-        // TODO: Should we make sure the backends return zero here if the TextureInfo is for a
-        // memoryless texture?
-        size_t bytesPerPixel = info.bytesPerPixel();
+        // TODO(b/401016699): Add logic to handle multiplanar formats
+        size_t bytesPerPixel = TextureFormatBytesPerBlock(format);
 
         colorSize = (size_t)dimensions.width() * dimensions.height() * bytesPerPixel;
     }

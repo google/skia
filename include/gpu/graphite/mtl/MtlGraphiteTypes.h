@@ -55,14 +55,12 @@ private:
     static constexpr skgpu::BackendApi kBackend = skgpu::BackendApi::kMetal;
 
     Protected isProtected() const { return Protected::kNo; }
+    TextureFormat viewFormat() const;
+
     bool serialize(SkWStream*) const;
     bool deserialize(SkStream*);
 
     // Virtual API when the specific backend type is not available.
-    uint32_t viewFormat() const override { return (uint32_t) fFormat; }
-
-    size_t bytesPerPixel() const override;
-    SkTextureCompressionType compressionType() const override;
     SkString toBackendString() const override;
 
     void copyTo(TextureInfo::AnyTextureInfoData& dstData) const override {

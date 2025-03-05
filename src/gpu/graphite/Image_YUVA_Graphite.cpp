@@ -23,6 +23,7 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/TextureUtils.h"
@@ -105,7 +106,7 @@ sk_sp<Image_YUVA> Image_YUVA::Make(const Caps* caps,
         if (planes[i].dimensions() != planeDimensions[i]) {
             return nullptr;
         }
-        pixmapChannelmasks[i] = caps->channelMask(planes[i].proxy()->textureInfo());
+        pixmapChannelmasks[i] = TextureInfoPriv::ChannelMask(planes[i].proxy()->textureInfo());
     }
 
     // Re-arrange the proxies from planes to channels

@@ -10,6 +10,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "src/gpu/graphite/TextureFormat.h"
 
 #include <cstdint>
 
@@ -20,12 +21,14 @@ class Caps;
 // NOTE: This is a class so that it can be friended by TextureInfo and the backend info classes.
 class TextureInfoPriv {
 public:
-    // TODO(397666606): With a general skgpu::TextureFormat, these functions can go away.
-    static SkString GetAttachmentLabel(const TextureInfo&);
-
-    static SkTextureCompressionType CompressionType(const TextureInfo& info) {
-        return info.compressionType();
+    static TextureFormat ViewFormat(const TextureInfo& info) {
+        return info.fViewFormat;
     }
+    static uint32_t ChannelMask(const TextureInfo& info) {
+        return TextureFormatChannelMask(ViewFormat(info));
+    }
+
+    static SkString GetAttachmentLabel(const TextureInfo&);
 
     template <typename BackendTextureInfo>
     static TextureInfo Make(const BackendTextureInfo& data) {

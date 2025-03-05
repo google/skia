@@ -16,24 +16,27 @@
 
 namespace skgpu::graphite {
 
-size_t VulkanTextureInfo::bytesPerPixel() const {
-    return VkFormatBytesPerBlock(fFormat);
-}
-
-SkTextureCompressionType VulkanTextureInfo::compressionType() const {
-    return VkFormatToCompressionType(fFormat);
-}
-
 SkString VulkanTextureInfo::toBackendString() const {
     return SkStringPrintf(
-            "flags=0x%08X,format=%d,imageTiling=%d,imageUsageFlags=0x%08X,sharingMode=%d,"
+            "flags=0x%08X,imageTiling=%d,imageUsageFlags=0x%08X,sharingMode=%d,"
             "aspectMask=%u",
             fFlags,
-            fFormat,
             fImageTiling,
             fImageUsageFlags,
             fSharingMode,
             fAspectMask);
+}
+
+TextureFormat VulkanTextureInfo::viewFormat() const {
+    if (fYcbcrConversionInfo.isValid()) {
+        if (fYcbcrConversionInfo.fFormat == VK_FORMAT_UNDEFINED) {
+            return TextureFormat::kExternal;
+        } else {
+            return VkFormatToTextureFormat(fYcbcrConversionInfo.fFormat);
+        }
+    } else {
+        return VkFormatToTextureFormat(fFormat);
+    }
 }
 
 bool VulkanTextureInfo::isCompatible(const TextureInfo& that, bool requireExact) const {

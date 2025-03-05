@@ -246,7 +246,8 @@ UploadInstance UploadInstance::MakeCompressed(Recorder* recorder,
     const Caps* caps = recorder->priv().caps();
     SkASSERT(caps->isTexturable(texInfo));
 
-    SkTextureCompressionType compression = TextureInfoPriv::CompressionType(texInfo);
+    SkTextureCompressionType compression =
+            TextureFormatCompressionType(TextureInfoPriv::ViewFormat(texInfo));
     if (compression == SkTextureCompressionType::kNone) {
         return Invalid();
     }

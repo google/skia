@@ -37,10 +37,15 @@ public:
      * by Mipmapped. This will produce an invalid result (return false from isValid()) if the
      * passed formats' channels don't agree with SkYUVAInfo.
      */
-    YUVABackendTextureInfo(const Recorder*,
-                           const SkYUVAInfo&,
+    YUVABackendTextureInfo(const SkYUVAInfo&,
                            SkSpan<const TextureInfo>,
                            Mipmapped);
+    // DEPRECATED: No more need for a Recorder to construct YUVABackendTextureInfo
+    YUVABackendTextureInfo(Recorder*,
+                           const SkYUVAInfo& yuvaInfo,
+                           SkSpan<const TextureInfo> textures,
+                           Mipmapped mipmapped)
+            : YUVABackendTextureInfo(yuvaInfo, textures, mipmapped) {}
 
     bool operator==(const YUVABackendTextureInfo&) const;
     bool operator!=(const YUVABackendTextureInfo& that) const { return !(*this == that); }
@@ -95,9 +100,13 @@ public:
      * indicated by the SkYUVAInfo. This will produce an invalid result (return false from
      * isValid()) if the passed texture formats' channels don't agree with SkYUVAInfo.
      */
-    YUVABackendTextures(const Recorder*,
-                        const SkYUVAInfo&,
+    YUVABackendTextures(const SkYUVAInfo&,
                         SkSpan<const BackendTexture>);
+    // DEPRECATED: No more need for a Recorder to construct YUVABackendTextureInfo
+    YUVABackendTextures(Recorder*,
+                        const SkYUVAInfo& yuvaInfo,
+                        SkSpan<const BackendTexture> textures)
+            : YUVABackendTextures(yuvaInfo, textures) {}
 
     SkSpan<const BackendTexture> planeTextures() const {
         return SkSpan<const BackendTexture>(fPlaneTextures);

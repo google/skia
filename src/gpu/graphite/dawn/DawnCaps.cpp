@@ -98,10 +98,6 @@ DawnCaps::DawnCaps(const DawnBackendContext& backendContext, const ContextOption
 
 DawnCaps::~DawnCaps() = default;
 
-uint32_t DawnCaps::channelMask(const TextureInfo& info) const {
-    return DawnFormatChannels(TextureInfoPriv::Get<DawnTextureInfo>(info).getViewFormat());
-}
-
 bool DawnCaps::onIsTexturable(const TextureInfo& info) const {
     if (!info.isValid()) {
         return false;

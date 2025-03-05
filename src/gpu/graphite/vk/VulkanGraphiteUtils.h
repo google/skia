@@ -55,6 +55,7 @@ namespace skgpu::graphite {
 
 class VulkanSharedContext;
 struct RenderPassDesc;
+enum class TextureFormat : uint8_t;
 
 VkShaderModule createVulkanShaderModule(const VulkanSharedContext*,
                                         const std::string& spirv,
@@ -65,7 +66,7 @@ void DescriptorDataToVkDescSetLayout(const VulkanSharedContext*,
                                      const SkSpan<DescriptorData>&,
                                      VkDescriptorSetLayout*);
 
-bool vkFormatIsSupported(VkFormat);
+TextureFormat VkFormatToTextureFormat(VkFormat);
 
 VkShaderStageFlags PipelineStageFlagsToVkShaderStageFlags(SkEnumBitMask<PipelineStageFlags>);
 

@@ -253,8 +253,7 @@ void setup_test_context(Context* context,
                         SkYUVAInfo::PlaneConfig::kY_U_V_A,
                         SkYUVAInfo::Subsampling::k444,
                         kJPEG_Full_SkYUVColorSpace);
-    YUVABackendTextureInfo yuvaBackendInfo(testCtx->fRecorder.get(),
-                                           yuvaInfo,
+    YUVABackendTextureInfo yuvaBackendInfo(yuvaInfo,
                                            textureInfo,
                                            skgpu::Mipmapped::kNo);
 

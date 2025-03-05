@@ -131,6 +131,8 @@ GRAPHITE_FILES = [
     "Surface_Graphite.h",
     "Texture.cpp",
     "Texture.h",
+    "TextureFormat.cpp",
+    "TextureFormat.h",
     "TextureInfo.cpp",
     "TextureInfoPriv.h",
     "TextureProxy.cpp",

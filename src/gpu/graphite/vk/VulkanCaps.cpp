@@ -467,10 +467,6 @@ TextureInfo VulkanCaps::getDefaultStorageTextureInfo(SkColorType colorType) cons
     return TextureInfos::MakeVulkan(info);
 }
 
-uint32_t VulkanCaps::channelMask(const TextureInfo& textureInfo) const {
-    return skgpu::VkFormatChannels(TextureInfoPriv::Get<VulkanTextureInfo>(textureInfo).fFormat);
-}
-
 void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
                                  VkPhysicalDevice physDev,
                                  const VkPhysicalDeviceProperties& properties) {

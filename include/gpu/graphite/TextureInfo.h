@@ -18,6 +18,8 @@ struct SkISize;
 
 namespace skgpu::graphite {
 
+enum class TextureFormat : uint8_t;
+
 /**
  * TextureInfo is a backend-agnostic wrapper around the properties of a texture, sans dimensions.
  * It is designed this way to be compilable w/o bringing in a specific backend's build files, and
@@ -44,6 +46,7 @@ private:
     // Each backend subclass must expose to TextureInfo[Priv]:
     //   static constexpr BackendApi kBackend;
     //   Protected isProtected() const;
+    //   TextureFormat viewFormat() const;
     //   bool serialize(SkWStream*) const;
     //   bool deserialize(SkStream*);
     class Data {
@@ -66,12 +69,6 @@ private:
     private:
         friend class TextureInfo;
         friend class TextureInfoPriv;
-
-        // TODO(397666606): These will be consolidated into a single function returning
-        // skgpu::TextureFormat
-        virtual size_t bytesPerPixel() const = 0;
-        virtual SkTextureCompressionType compressionType() const = 0;
-        virtual uint32_t viewFormat() const = 0;
 
         virtual SkString toBackendString() const = 0;
 
@@ -119,27 +116,21 @@ private:
               std::enable_if_t<std::is_base_of_v<Data, BackendTextureData>, bool> = true>
     explicit TextureInfo(const BackendTextureData& data)
             : fBackend(BackendTextureData::kBackend)
+            , fViewFormat(data.viewFormat())
             , fProtected(data.isProtected()) {
         fData.emplace<BackendTextureData>(data);
     }
 
     bool isCompatible(const TextureInfo& that, bool requireExact) const;
 
-    // TODO(397666606): Once TextureInfo stores a unified skgpu::TextureFormat, these can be
-    // removed.
-    friend size_t ComputeSize(SkISize dimensions, const TextureInfo&);  // for bytesPerPixel
-    size_t bytesPerPixel() const { return fData.has_value() ? fData->bytesPerPixel() : 0; }
-    SkTextureCompressionType compressionType() const {
-        return fData.has_value() ? fData->compressionType() : SkTextureCompressionType::kNone;
-    }
-
     skgpu::BackendApi  fBackend = BackendApi::kUnsupported;
     AnyTextureInfoData fData;
 
     // Derived properties from the backend data, cached to avoid a virtual function call
+    TextureFormat fViewFormat;
     Protected fProtected = Protected::kNo;
 };
 
-}  // namespace skgpu::graphite
+} // namespace skgpu::graphite
 
-#endif  //skgpu_graphite_TextureInfo_DEFINED
+#endif // skgpu_graphite_TextureInfo_DEFINED

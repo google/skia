@@ -402,9 +402,7 @@ bool LazyYUVImage::ensureYUVImage(Recorder* recorder, Type type) {
                     return false;
                 }
             }
-            YUVABackendTextures yuvaTextures(recorder,
-                                             fPixmaps.yuvaInfo(),
-                                             textures);
+            YUVABackendTextures yuvaTextures(fPixmaps.yuvaInfo(), textures);
             if (!yuvaTextures.isValid()) {
                 return false;
             }

@@ -24,6 +24,7 @@
 #include "include/gpu/vk/VulkanTypes.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/gpu/graphite/ContextOptionsPriv.h"
+#include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "src/gpu/vk/VulkanInterface.h"
 #include "src/gpu/vk/vulkanmemoryallocator/VulkanAMDMemoryAllocator.h"
@@ -252,7 +253,8 @@ bool GraphiteVulkanWindowContext::createSwapchain(int width, int height) {
     VkColorSpaceKHR colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
     for (uint32_t i = 0; i < surfaceFormatCount; ++i) {
         VkFormat localFormat = surfaceFormats[i].format;
-        if (skgpu::graphite::vkFormatIsSupported(localFormat)) {
+        if (skgpu::graphite::VkFormatToTextureFormat(localFormat)
+                    != skgpu::graphite::TextureFormat::kUnsupported) {
             surfaceFormat = localFormat;
             colorSpace = surfaceFormats[i].colorSpace;
             break;

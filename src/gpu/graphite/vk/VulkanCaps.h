@@ -62,8 +62,6 @@ public:
     bool serializeTextureInfo(const TextureInfo&, SkWStream*) const override;
     bool deserializeTextureInfo(SkStream*, TextureInfo* out) const override;
 
-    uint32_t channelMask(const TextureInfo&) const override;
-
     bool isTexturable(const VulkanTextureInfo&) const;
 
     bool isRenderable(const TextureInfo&) const override;

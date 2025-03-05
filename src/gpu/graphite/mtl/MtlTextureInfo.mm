@@ -32,17 +32,12 @@ MtlTextureInfo::MtlTextureInfo(CFTypeRef texture) {
     fFramebufferOnly = mtlTex.framebufferOnly;
 }
 
-size_t MtlTextureInfo::bytesPerPixel() const {
-    return MtlFormatBytesPerBlock(fFormat);
-}
-
-SkTextureCompressionType MtlTextureInfo::compressionType() const {
-    return MtlFormatToCompressionType(fFormat);
+TextureFormat MtlTextureInfo::viewFormat() const {
+    return MTLPixelFormatToTextureFormat(fFormat);
 }
 
 SkString MtlTextureInfo::toBackendString() const {
-    return SkStringPrintf("format=%u,usage=0x%04X,storageMode=%u,framebufferOnly=%d",
-                          (uint32_t)fFormat,
+    return SkStringPrintf("usage=0x%04X,storageMode=%u,framebufferOnly=%d",
                           (uint32_t)fUsage,
                           (uint32_t)fStorageMode,
                           fFramebufferOnly);
