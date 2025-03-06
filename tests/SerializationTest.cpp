@@ -382,7 +382,7 @@ static sk_sp<SkData> serialize_typeface_proc(SkTypeface* typeface, void* ctx) {
     // Write out typeface ID followed by entire typeface.
     SkDynamicMemoryWStream stream;
     sk_sp<SkData> data(typeface->serialize(SkTypeface::SerializeBehavior::kDoIncludeData));
-    uint32_t typeface_id = typeface->uniqueID();
+    SkTypefaceID typeface_id = typeface->uniqueID();
     stream.write(&typeface_id, sizeof(typeface_id));
     stream.write(data->data(), data->size());
     return stream.detachAsData();

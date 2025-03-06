@@ -14,6 +14,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
+#include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkPoint_impl.h"
