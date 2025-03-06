@@ -32,7 +32,7 @@ struct Rec {
 typedef void (*TypefaceProc)(const Rec& r);
 
 static void textToGlyphs_proc(const Rec& r) {
-    uint16_t glyphs[NGLYPHS];
+    SkGlyphID glyphs[NGLYPHS];
     SkASSERT(r.fCount <= NGLYPHS);
 
     for (int i = 0; i < r.fLoops; ++i) {
@@ -41,7 +41,7 @@ static void textToGlyphs_proc(const Rec& r) {
 }
 
 static void charsToGlyphs_proc(const Rec& r) {
-    uint16_t glyphs[NGLYPHS];
+    SkGlyphID glyphs[NGLYPHS];
     SkASSERT(r.fCount <= NGLYPHS);
 
     SkTypeface* face = r.fFont.getTypeface();

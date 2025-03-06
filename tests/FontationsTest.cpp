@@ -292,7 +292,7 @@ DEF_TEST(Fontations_SyntheticCapHeight, reporter) {
     REPORTER_ASSERT(reporter, metrics.fCapHeight == kHCharHeight);
 
     capHeightFontNoHx.getMetrics(&metrics);
-    unsigned glyphId = noCapHeightNoHxTypeface->unicharToGlyph('H');
+    SkGlyphID glyphId = noCapHeightNoHxTypeface->unicharToGlyph('H');
     REPORTER_ASSERT(reporter, glyphId == 0, "Glyph lookup for H should fail, but was: %u", glyphId);
 
     const SkScalar kExpected = 11.138672;
@@ -324,7 +324,7 @@ DEF_TEST(Fontations_SyntheticXHeight, reporter) {
                     metrics.fXHeight);
 
     xHeightFontNoHx.getMetrics(&metrics);
-    unsigned glyphId = noXHeightNoHxTypeface->unicharToGlyph('x');
+    SkGlyphID glyphId = noXHeightNoHxTypeface->unicharToGlyph('x');
     REPORTER_ASSERT(reporter, glyphId == 0, "Glyph lookup for x should fail, but was: %u", glyphId);
 
     // xHeight falls back to ascent as well.

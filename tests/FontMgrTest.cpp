@@ -43,7 +43,7 @@ DEF_TEST(FontMgr_Font, reporter) {
     REPORTER_ASSERT(reporter, 1 == font.getScaleX());
     REPORTER_ASSERT(reporter, 0 == font.getSkewX());
 
-    uint16_t glyphs[5];
+    SkGlyphID glyphs[5];
     sk_bzero(glyphs, sizeof(glyphs));
 
     // Check that no glyphs are copied with insufficient storage.

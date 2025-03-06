@@ -208,8 +208,8 @@ DEF_TEST(Font_getpos, r) {
     SkFont font = ToolUtils::DefaultFont();
     const char text[] = "Hamburgefons!@#!#23425,./;'[]";
     int count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
-    AutoTArray<uint16_t> glyphStorage(count);
-    uint16_t* glyphs = glyphStorage.get();
+    AutoTArray<SkGlyphID> glyphStorage(count);
+    SkGlyphID* glyphs = glyphStorage.get();
     (void)font.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, glyphs, count);
 
     AutoTArray<SkScalar> widthStorage(count);

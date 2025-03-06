@@ -281,7 +281,7 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface& typefac
             // This probably isn't very good with an italic font.
             int16_t stemV = SHRT_MAX;
             for (char c : {'i', 'I', '!', '1'}) {
-                uint16_t g = font.unicharToGlyph(c);
+                SkGlyphID g = font.unicharToGlyph(c);
                 SkRect bounds;
                 font.getBounds(&g, 1, &bounds, nullptr);
                 stemV = std::min(stemV, SkToS16(SkScalarRoundToInt(bounds.width())));
@@ -292,7 +292,7 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface& typefac
             // Figure out a good guess for CapHeight: average the height of M and X.
             SkScalar capHeight = 0;
             for (char c : {'M', 'X'}) {
-                uint16_t g = font.unicharToGlyph(c);
+                SkGlyphID g = font.unicharToGlyph(c);
                 SkRect bounds;
                 font.getBounds(&g, 1, &bounds, nullptr);
                 capHeight += bounds.height();

@@ -27,8 +27,8 @@ public:
         if (fFirstNonZero == 1) {
             return fBitSet.forEachSetIndex(std::move(f));
         }
-        uint16_t offset = fFirstNonZero - 1;
-        fBitSet.forEachSetIndex([&f, offset](unsigned v) { f(v == 0 ? v : v + offset); });
+        size_t offset = fFirstNonZero - 1;
+        fBitSet.forEachSetIndex([&f, offset](size_t v) { f(v == 0 ? v : v + offset); });
     }
 
 private:
@@ -36,7 +36,7 @@ private:
     SkGlyphID fFirstNonZero = 0;
     SkGlyphID fLastGlyph = 0;
 
-    uint16_t toCode(SkGlyphID gid) const {
+    size_t toCode(SkGlyphID gid) const {
         if (gid == 0 || fFirstNonZero == 1) {
             return gid;
         }

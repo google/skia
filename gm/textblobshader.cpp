@@ -111,7 +111,7 @@ private:
         }
     }
 
-    SkTDArray<uint16_t> fGlyphs;
+    SkTDArray<SkGlyphID> fGlyphs;
     sk_sp<SkTextBlob>   fBlob;
     sk_sp<SkShader>     fShader;
 

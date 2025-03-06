@@ -60,7 +60,7 @@ protected:
     void getPostScriptGlyphNames(SkString* dstArray) const override;
     bool onGetPostScriptName(SkString*) const override;
     int onGetUPEM() const override;
-    bool onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
+    bool onGetKerningPairAdjustments(const SkGlyphID glyphs[], int count,
                                      int32_t adjustments[]) const override;
     void onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const override;
     int onCountGlyphs() const override;

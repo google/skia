@@ -864,7 +864,7 @@ int SkTypeface_FreeType::onGetUPEM() const {
     return GetUnitsPerEm(face);
 }
 
-bool SkTypeface_FreeType::onGetKerningPairAdjustments(const uint16_t glyphs[],
+bool SkTypeface_FreeType::onGetKerningPairAdjustments(const SkGlyphID glyphs[],
                                       int count, int32_t adjustments[]) const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
@@ -1754,7 +1754,7 @@ void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
             if (index < 0) {
                 break;
             }
-            glyphs[i] = SkToU16(index);
+            glyphs[i] = SkTo<SkGlyphID>(index);
         }
         if (i == count) {
             // we're done, no need to access the freetype objects
@@ -1775,9 +1775,9 @@ void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
         SkUnichar c = uni[i];
         int index = fC2GCache.findGlyphIndex(c);
         if (index >= 0) {
-            glyphs[i] = SkToU16(index);
+            glyphs[i] = SkTo<SkGlyphID>(index);
         } else {
-            glyphs[i] = SkToU16(FT_Get_Char_Index(face, c));
+            glyphs[i] = SkTo<SkGlyphID>(FT_Get_Char_Index(face, c));
             fC2GCache.insertCharAndGlyph(~index, c, glyphs[i]);
         }
     }

@@ -43,7 +43,7 @@ static bool stream_equals(const SkDynamicMemoryWStream& stream, const char* buff
 DEF_TEST(SkPDF_ToUnicode, reporter) {
     SkTDArray<SkUnichar> glyphToUnicode;
     THashMap<SkGlyphID, SkString> glyphToUnicodeEx;
-    SkTDArray<uint16_t> glyphsInSubset;
+    SkTDArray<SkGlyphID> glyphsInSubset;
     SkPDFGlyphUse subset(1, kMaximumGlyphIndex);
 
     glyphToUnicode.push_back(0);  // 0
@@ -88,7 +88,7 @@ DEF_TEST(SkPDF_ToUnicode, reporter) {
     SkGlyphID lastGlyphID = SkToU16(glyphToUnicode.size() - 1);
 
     SkDynamicMemoryWStream buffer;
-    for (uint16_t v : glyphsInSubset) {
+    for (SkGlyphID v : glyphsInSubset) {
         subset.set(v);
     }
     SkPDFAppendCmapSections(glyphToUnicode.data(), glyphToUnicodeEx, &subset, &buffer, true, 0,
@@ -190,7 +190,7 @@ endbfrange\n";
     glyphsInSubset.push_back(0x57);
 
     SkDynamicMemoryWStream buffer2;
-    for (uint16_t v : glyphsInSubset) {
+    for (SkGlyphID v : glyphsInSubset) {
         subset2.set(v);
     }
     SkPDFAppendCmapSections(glyphToUnicode.data(), glyphToUnicodeEx, &subset2, &buffer2, true, 0,

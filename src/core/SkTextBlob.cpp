@@ -52,7 +52,7 @@ size_t SkTextBlob::RunRecord::StorageSize(uint32_t glyphCount, uint32_t textSize
                                           SkSafeMath* safe) {
     static_assert(SkIsAlign4(sizeof(SkScalar)), "SkScalar size alignment");
 
-    auto glyphSize = safe->mul(glyphCount, sizeof(uint16_t)),
+    auto glyphSize = safe->mul(glyphCount, sizeof(SkGlyphID)),
             posSize = safe->mul(PosCount(glyphCount, positioning, safe), sizeof(SkScalar));
 
     // RunRecord object + (aligned) glyph buffer + position buffer
@@ -93,7 +93,7 @@ void SkTextBlob::RunRecord::validate(const uint8_t* storageTop) const {
     SkASSERT(kRunRecordMagic == fMagic);
     SkASSERT((const uint8_t*)NextUnchecked(this) <= storageTop);
 
-    SkASSERT(glyphBuffer() + fCount <= (uint16_t*)posBuffer());
+    SkASSERT(glyphBuffer() + fCount <= (SkGlyphID*)posBuffer());
     SkASSERT(posBuffer() + fCount * ScalarsPerGlyph(positioning())
              <= (const SkScalar*)NextUnchecked(this));
     if (isExtended()) {
@@ -281,7 +281,7 @@ SkRect SkTextBlobBuilder::TightRunBounds(const SkTextBlob::RunRecord& run) {
     SkRect bounds;
 
     if (SkTextBlob::kDefault_Positioning == run.positioning()) {
-        font.measureText(run.glyphBuffer(), run.glyphCount() * sizeof(uint16_t),
+        font.measureText(run.glyphBuffer(), run.glyphCount() * sizeof(SkGlyphID),
                          SkTextEncoding::kGlyphID, &bounds);
         return bounds.makeOffset(run.offset().x(), run.offset().y());
     }
@@ -685,7 +685,7 @@ void SkTextBlobPriv::Flatten(const SkTextBlob& blob, SkWriteBuffer& buffer) {
 
         SkFontPriv::Flatten(it.font(), buffer);
 
-        buffer.writeByteArray(it.glyphs(), it.glyphCount() * sizeof(uint16_t));
+        buffer.writeByteArray(it.glyphs(), it.glyphCount() * sizeof(SkGlyphID));
         buffer.writeByteArray(it.pos(),
                               it.glyphCount() * sizeof(SkScalar) *
                               SkTextBlob::ScalarsPerGlyph(
@@ -733,7 +733,7 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
 
         // Compute the expected size of the buffer and ensure we have enough to deserialize
         // a run before allocating it.
-        const size_t glyphSize = safe.mul(glyphCount, sizeof(uint16_t)),
+        const size_t glyphSize = safe.mul(glyphCount, sizeof(SkGlyphID)),
                      posSize =
                              safe.mul(glyphCount, safe.mul(sizeof(SkScalar),
                              SkTextBlob::ScalarsPerGlyph(pos))),

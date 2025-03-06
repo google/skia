@@ -14,14 +14,14 @@ SkCharToGlyphCache::SkCharToGlyphCache() {
 SkCharToGlyphCache::~SkCharToGlyphCache() {}
 
 void SkCharToGlyphCache::reset() {
-    fK32.reset();
-    fV16.reset();
+    fKUnichar.reset();
+    fVGlyph.reset();
 
     // Add sentinels so we can always rely on these to stop linear searches (in either direction)
     // Neither is a legal unichar, so we don't care what glyphID we use.
     //
-    *fK32.append() = 0x80000000;    *fV16.append() = 0;
-    *fK32.append() = 0x7FFFFFFF;    *fV16.append() = 0;
+    *fKUnichar.append() = 0x80000000;    *fVGlyph.append() = 0;
+    *fKUnichar.append() = 0x7FFFFFFF;    *fVGlyph.append() = 0;
 
     fDenom = 0;
 }
@@ -93,37 +93,37 @@ static int find_with_slope(const SkUnichar base[], int count, SkUnichar value, d
 }
 
 int SkCharToGlyphCache::findGlyphIndex(SkUnichar unichar) const {
-    const int count = fK32.size();
+    const int count = fKUnichar.size();
     int index;
     if (count <= kSmallCountLimit) {
-        index = find_simple(fK32.begin(), count, unichar);
+        index = find_simple(fKUnichar.begin(), count, unichar);
     } else {
-        index = find_with_slope(fK32.begin(), count, unichar, fDenom);
+        index = find_with_slope(fKUnichar.begin(), count, unichar, fDenom);
     }
     if (index >= 0) {
-        return fV16[index];
+        return fVGlyph[index];
     }
     return index;
 }
 
 void SkCharToGlyphCache::insertCharAndGlyph(int index, SkUnichar unichar, SkGlyphID glyph) {
-    SkASSERT(fK32.size() == fV16.size());
-    SkASSERT(index < fK32.size());
-    SkASSERT(unichar < fK32[index]);
+    SkASSERT(fKUnichar.size() == fVGlyph.size());
+    SkASSERT(index < fKUnichar.size());
+    SkASSERT(unichar < fKUnichar[index]);
 
-    *fK32.insert(index) = unichar;
-    *fV16.insert(index) = glyph;
+    *fKUnichar.insert(index) = unichar;
+    *fVGlyph.insert(index) = glyph;
 
     // if we've changed the first [1] or last [count-2] entry, recompute our slope
-    const int count = fK32.size();
+    const int count = fKUnichar.size();
     if (count >= kMinCountForSlope && (index == 1 || index == count - 2)) {
         SkASSERT(index >= 1 && index <= count - 2);
-        fDenom = 1.0 / ((double)fK32[count - 2] - fK32[1]);
+        fDenom = 1.0 / ((double)fKUnichar[count - 2] - fKUnichar[1]);
     }
 
 #ifdef SK_DEBUG
-    for (int i = 1; i < fK32.size(); ++i) {
-        SkASSERT(fK32[i-1] < fK32[i]);
+    for (int i = 1; i < fKUnichar.size(); ++i) {
+        SkASSERT(fKUnichar[i-1] < fKUnichar[i]);
     }
 #endif
 }

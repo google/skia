@@ -1234,7 +1234,7 @@ bool colrv1_start_glyph(SkCanvas* canvas,
                         const SkSpan<SkColor>& palette,
                         SkColor foregroundColor,
                         FT_Face face,
-                        uint16_t glyphId,
+                        SkGlyphID glyphId,
                         FT_Color_Root_Transform rootTransform,
                         VisitedSet* activePaints);
 
@@ -1343,7 +1343,7 @@ bool colrv1_traverse_paint(SkCanvas* canvas,
     SkUNREACHABLE;
 }
 
-SkPath GetClipBoxPath(FT_Face face, uint16_t glyphId, bool untransformed) {
+SkPath GetClipBoxPath(FT_Face face, SkGlyphID glyphId, bool untransformed) {
     SkPath resultPath;
     SkUniqueFTSize unscaledFtSize = nullptr;
     FT_Size oldSize = face->size;
@@ -1435,7 +1435,7 @@ bool colrv1_start_glyph(SkCanvas* canvas,
 bool colrv1_start_glyph_bounds(SkMatrix *ctm,
                                SkRect* bounds,
                                FT_Face face,
-                               uint16_t glyphId,
+                               SkGlyphID glyphId,
                                FT_Color_Root_Transform rootTransform,
                                VisitedSet* activePaints);
 

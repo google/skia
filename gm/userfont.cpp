@@ -56,7 +56,7 @@ static sk_sp<SkTypeface> make_tf() {
     builder.setFontStyle(font.getTypeface()->fontStyle());
 
     // Steal the first 128 chars from the default font
-    for (SkGlyphID index = 0; index <= 127; ++index) {
+    for (SkUnichar index = 0; index <= 127; ++index) {
         SkGlyphID glyph = font.unicharToGlyph(index);
 
         SkScalar width;

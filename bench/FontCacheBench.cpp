@@ -150,7 +150,7 @@ DEF_BENCH( return new FontCacheBench(); )
 
 class FontPathBench : public Benchmark {
     SkFont fFont;
-    uint16_t fGlyphs[100];
+    SkGlyphID fGlyphs[100];
     SkString fName;
     const bool fOneAtATime;
 

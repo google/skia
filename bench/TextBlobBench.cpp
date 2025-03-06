@@ -51,7 +51,7 @@ public:
 private:
     SkTextBlobBuilder   fBuilder;
     SkFont              fFont;
-    SkTDArray<uint16_t> fGlyphs;
+    SkTDArray<SkGlyphID> fGlyphs;
     SkTDArray<SkScalar> fXPos;
 
     using INHERITED = Benchmark;

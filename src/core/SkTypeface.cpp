@@ -444,7 +444,7 @@ int SkTypeface::getUnitsPerEm() const {
     return this->onGetUPEM();
 }
 
-bool SkTypeface::getKerningPairAdjustments(const uint16_t glyphs[], int count,
+bool SkTypeface::getKerningPairAdjustments(const SkGlyphID glyphs[], int count,
                                            int32_t adjustments[]) const {
     SkASSERT(count >= 0);
     // check for the only legal way to pass a nullptr.. everything is 0
@@ -531,7 +531,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::getAdvancedMetrics() cons
     return result;
 }
 
-bool SkTypeface::onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
+bool SkTypeface::onGetKerningPairAdjustments(const SkGlyphID glyphs[], int count,
                                              int32_t adjustments[]) const {
     return false;
 }

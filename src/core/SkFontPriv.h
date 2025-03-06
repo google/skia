@@ -82,7 +82,7 @@ public:
     // Returns the number of elements (characters or glyphs) in the array.
     static int CountTextElements(const void* text, size_t byteLength, SkTextEncoding);
 
-    static void GlyphsToUnichars(const SkFont&, const uint16_t glyphs[], int count, SkUnichar[]);
+    static void GlyphsToUnichars(const SkFont&, const SkGlyphID glyphs[], int count, SkUnichar[]);
 
     static void Flatten(const SkFont&, SkWriteBuffer& buffer);
     static bool Unflatten(SkFont*, SkReadBuffer& buffer);
@@ -108,11 +108,11 @@ public:
     }
 
     int count() const { return fCount; }
-    const uint16_t* glyphs() const { return fGlyphs; }
+    const SkGlyphID* glyphs() const { return fGlyphs; }
 
 private:
-    skia_private::AutoSTArray<32, uint16_t> fStorage;
-    const uint16_t* fGlyphs;
+    skia_private::AutoSTArray<32, SkGlyphID> fStorage;
+    const SkGlyphID* fGlyphs;
     int             fCount;
 };
 

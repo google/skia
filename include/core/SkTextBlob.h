@@ -209,13 +209,13 @@ public:
     class SK_API Iter {
     public:
         struct Run {
-            SkTypeface*     fTypeface;
-            int             fGlyphCount;
-            const uint16_t* fGlyphIndices;
+            SkTypeface* fTypeface;
+            int fGlyphCount;
+            const SkGlyphID* fGlyphIndices;
 #ifdef SK_UNTIL_CRBUG_1187654_IS_FIXED
             const uint32_t* fClusterIndex_forTest;
-            int             fUtf8Size_forTest;
-            const char*     fUtf8_forTest;
+            int fUtf8Size_forTest;
+            const char* fUtf8_forTest;
 #endif
         };
 
@@ -229,10 +229,10 @@ public:
 
         // Experimental, DO NO USE, will change/go-away
         struct ExperimentalRun {
-            SkFont          font;
-            int             count;
-            const uint16_t* glyphs;
-            const SkPoint*  positions;
+            SkFont font;
+            int count;
+            const SkGlyphID* glyphs;
+            const SkPoint* positions;
         };
         bool experimentalNext(ExperimentalRun*);
 

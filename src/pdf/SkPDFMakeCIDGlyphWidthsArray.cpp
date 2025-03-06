@@ -98,7 +98,7 @@ std::unique_ptr<SkPDFArray> SkPDFMakeCIDGlyphWidthsArray(const SkPDFStrikeSpec& 
 
     std::vector<SkGlyphID> glyphIDs;
     subset.getSetValues([&](unsigned index) {
-        glyphIDs.push_back(SkToU16(index));
+        glyphIDs.push_back(SkTo<SkGlyphID>(index));
     });
     auto glyphs = paths.glyphs(SkSpan(glyphIDs));
 

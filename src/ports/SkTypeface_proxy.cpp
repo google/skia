@@ -104,7 +104,7 @@ int SkTypeface_proxy::onCountGlyphs() const { return fRealTypeface->countGlyphs(
 
 void* SkTypeface_proxy::onGetCTFontRef() const { return fRealTypeface->onGetCTFontRef(); }
 
-bool SkTypeface_proxy::onGetKerningPairAdjustments(const uint16_t glyphs[], int count,
+bool SkTypeface_proxy::onGetKerningPairAdjustments(const SkGlyphID glyphs[], int count,
                                                    int32_t adjustments[]) const  {
     return fRealTypeface->onGetKerningPairAdjustments(glyphs, count, adjustments);
 }

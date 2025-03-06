@@ -748,7 +748,7 @@ public:
         bool thousandEM = fPDFFont->strike().fPath.fUnitsPerEM == 1000;
         fViewersAgreeOnAdvancesInFont = thousandEM || !convertedToType3;
     }
-    void writeGlyph(uint16_t glyph, SkScalar advanceWidth, SkPoint xy) {
+    void writeGlyph(SkGlyphID glyph, SkScalar advanceWidth, SkPoint xy) {
         SkASSERT(fPDFFont);
         if (!fInitialized) {
             // Flip the text about the x-axis to account for origin swap and include

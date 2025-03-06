@@ -88,7 +88,7 @@ public:
         SkPoint         origin;
         SkScalar        advanceX;
         int             count;
-        const uint16_t* glyphs;     // count values
+        const SkGlyphID* glyphs;     // count values
         const SkPoint*  positions;  // count values
         const uint32_t* utf8Starts; // count+1 values
         unsigned        flags;
@@ -103,7 +103,7 @@ public:
         SkPoint         origin;
         SkSize          advance;
         int             count;
-        const uint16_t* glyphs;     // count values
+        const SkGlyphID* glyphs;     // count values
         SkPoint*        positions;  // count values
         const SkRect*   bounds;     // count values
         const uint32_t* utf8Starts; // count+1 values

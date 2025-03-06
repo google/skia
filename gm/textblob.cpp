@@ -191,7 +191,7 @@ private:
         return builder.make();
     }
 
-    SkTDArray<uint16_t> fGlyphs;
+    SkTDArray<SkGlyphID> fGlyphs;
     sk_sp<SkTypeface>   fTypeface;
     const char*         fText;
     using INHERITED = skiagm::GM;

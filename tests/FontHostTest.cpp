@@ -131,7 +131,7 @@ static void test_symbolfont(skiatest::Reporter* reporter) {
     auto tf = ToolUtils::CreateTypefaceFromResource("fonts/SpiderSymbol.ttf");
     if (tf) {
         SkUnichar c = 0xf021;
-        uint16_t g = SkFont(tf).unicharToGlyph(c);
+        SkGlyphID g = SkFont(tf).unicharToGlyph(c);
         REPORTER_ASSERT(reporter, g == 3);
     } else {
         // not all platforms support data fonts, so we just note that failure

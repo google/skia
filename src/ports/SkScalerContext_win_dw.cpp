@@ -1476,7 +1476,7 @@ bool SkScalerContext_DW::drawColorV1Image(const SkGlyph&, SkCanvas&) { return fa
 
 bool SkScalerContext_DW::setAdvance(const SkGlyph& glyph, SkVector* advance) {
     *advance = {0, 0};
-    uint16_t glyphId = glyph.getGlyphID();
+    UINT16 glyphId = glyph.getGlyphID();
     DWriteFontTypeface* typeface = this->getDWriteTypeface();
 
     // DirectWrite treats all out of bounds glyph ids as having the same data as glyph 0.

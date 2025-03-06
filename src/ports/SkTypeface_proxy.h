@@ -71,7 +71,7 @@ protected:
     void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override;
     int onCountGlyphs() const override;
     void* onGetCTFontRef() const override;
-    bool onGetKerningPairAdjustments(const uint16_t glyphs[],
+    bool onGetKerningPairAdjustments(const SkGlyphID glyphs[],
                                      int count,
                                      int32_t adjustments[]) const override;
 private:

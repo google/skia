@@ -31,7 +31,7 @@
 
 using namespace skia_private;
 
-static void getGlyphPositions(const SkFont& font, const uint16_t glyphs[],
+static void getGlyphPositions(const SkFont& font, const SkGlyphID glyphs[],
                              int count, SkScalar x, SkScalar y, SkPoint pos[]) {
     AutoSTMalloc<128, SkScalar> widthStorage(count);
     SkScalar* widths = widthStorage.get();
@@ -62,8 +62,8 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
         return;
     }
 
-    AutoSTMalloc<128, uint16_t> glyphStorage(len);
-    uint16_t* glyphs = glyphStorage.get();
+    AutoSTMalloc<128, SkGlyphID> glyphStorage(len);
+    SkGlyphID* glyphs = glyphStorage.get();
     int glyphCount = font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs, len);
     if (glyphCount < 1) {
         return;
@@ -411,7 +411,7 @@ DEF_SIMPLE_GM(typeface_styling, canvas, 710, 360) {
     SkFont font(face, 100);
     font.setEdging(SkFont::Edging::kAntiAlias);
 
-    uint16_t glyphs[1] = { font.unicharToGlyph('A') };
+    SkGlyphID glyphs[1] = { font.unicharToGlyph('A') };
     SkPoint pos[1] = { {0, 0} };
 
     auto draw = [&](SkPaint::Style style, float width) {

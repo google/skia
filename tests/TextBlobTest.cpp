@@ -338,7 +338,7 @@ DEF_TEST(TextBlob_extended, reporter) {
     const char text2[] = "Bar";
 
     int glyphCount = font.countText(text1, strlen(text1), SkTextEncoding::kUTF8);
-    AutoTMalloc<uint16_t> glyphs(glyphCount);
+    AutoTMalloc<SkGlyphID> glyphs(glyphCount);
     (void)font.textToGlyphs(text1, strlen(text1), SkTextEncoding::kUTF8, glyphs.get(), glyphCount);
 
     auto run = textBlobBuilder.allocRunText(font, glyphCount, 0, 0, SkToInt(strlen(text2)));
