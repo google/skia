@@ -816,30 +816,41 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_image_shader(SkRandom
     SkTileMode tmX = random_tilemode(rand);
     SkTileMode tmY = random_tilemode(rand);
 
+    std::vector<SkTileMode> precompileTileModes =
+            (tmX == tmY) ? std::vector<SkTileMode>{tmX} : std::vector<SkTileMode>{};
+
     SkMatrix lmStorage;
     SkMatrix* lmPtr = random_local_matrix(rand, &lmStorage);
 
     sk_sp<SkShader> s;
     sk_sp<PrecompileShader> o;
 
-    // TODO: the combination system accounts for cubic vs. non-cubic sampling and HW vs. non-HW
-    // tiling. We should test those combinations in the fuzzer.
-    if (rand->nextBool()) {
-        sk_sp<SkImage> image = make_image(rand, recorder);
-        SkColorInfo colorInfo = image->imageInfo().colorInfo();
-        s = SkShaders::Image(std::move(image),
-                             tmX, tmY,
-                             SkSamplingOptions(),
-                             lmPtr);
-        o = PrecompileShaders::Image({ colorInfo });
-    } else {
-        sk_sp<SkImage> image = make_image(rand, recorder);
-        SkColorInfo colorInfo = image->imageInfo().colorInfo();
-        s = SkShaders::RawImage(std::move(image),
-                                tmX, tmY,
-                                SkSamplingOptions(),
-                                lmPtr);
-        o = PrecompileShaders::RawImage({ colorInfo });
+    sk_sp<SkImage> image = make_image(rand, recorder);
+    SkColorInfo colorInfo = image->imageInfo().colorInfo();
+
+    switch (rand->nextULessThan(4)) {
+        case 0: {
+            // Non-subset image.
+            s = SkShaders::Image(std::move(image), tmX, tmY, SkSamplingOptions(), lmPtr);
+            o = PrecompileShaders::Image({ colorInfo }, precompileTileModes);
+        } break;
+        case 1: {
+            // Subset image.
+            const SkRect subset = SkRect::MakeWH(image->width() / 2, image->height() / 2);
+            s = SkImageShader::MakeSubset(
+                    std::move(image), subset, tmX, tmY, SkSamplingOptions(), lmPtr);
+            o = PrecompileShaders::Image({ colorInfo }, precompileTileModes);
+        } break;
+        case 2: {
+            // Cubic-sampled image.
+            s = SkShaders::Image(std::move(image), tmX, tmY, SkCubicResampler::Mitchell(), lmPtr);
+            o = PrecompileShaders::Image({ colorInfo }, precompileTileModes);
+        } break;
+        default: {
+            // Raw image draw.
+            s = SkShaders::RawImage(std::move(image), tmX, tmY, SkSamplingOptions(), lmPtr);
+            o = PrecompileShaders::RawImage({ colorInfo }, precompileTileModes);
+        } break;
     }
 
     return { s, o };

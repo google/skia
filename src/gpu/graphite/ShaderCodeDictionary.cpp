@@ -1128,6 +1128,15 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             /*texturesAndSamplers=*/{"image"}
     };
 
+    fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kImageShaderClamp] = {
+            /*name=*/"ImageShaderClamp",
+            /*staticFn=*/"sk_image_shader_clamp",
+            SnippetRequirementFlags::kLocalCoords | SnippetRequirementFlags::kStoresSamplerDescData,
+            /*uniforms=*/{ { "invImgSize",            SkSLType::kFloat2 },
+                           { "subsetInsetClamp",      SkSLType::kFloat4 } },
+            /*texturesAndSamplers=*/{"image"}
+    };
+
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kYUVImageShader] = {
             /*name=*/"YUVImage",
             /*staticFn=*/"sk_yuv_image_shader",

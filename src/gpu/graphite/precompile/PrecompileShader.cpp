@@ -236,26 +236,30 @@ class PrecompileImageShader final : public PrecompileShader {
 public:
     PrecompileImageShader(SkEnumBitMask<PrecompileImageShaderFlags> flags,
                           SkSpan<const SkColorInfo> colorInfos,
+                          SkSpan<const SkTileMode> tileModes,
                           bool raw)
-            : fNumSamplingTilingCombos((flags & PrecompileImageShaderFlags::kExcludeCubic)
-                                               ? 2
-                                               : kNumSamplingTilingCombos)
+            : fNumExtraSamplingTilingCombos((flags & PrecompileImageShaderFlags::kExcludeCubic)
+                                                    ? 1  // Just kHWTiled
+                                                    : kExtraNumSamplingTilingCombos)
             , fColorInfos(!colorInfos.empty()
                             ? std::vector<SkColorInfo>(colorInfos.begin(), colorInfos.end())
                             : raw ? RawImageDefaultColorInfos()
                                   : (flags & PrecompileImageShaderFlags::kExcludeAlpha)
                                              ? NonAlphaOnlyDefaultColorInfos()
                                              : DefaultColorInfos())
+            , fTileModes(!tileModes.empty()
+                            ? std::vector<SkTileMode>(tileModes.begin(), tileModes.end())
+                            : DefaultTileModes())
             , fUseDstColorSpace(!colorInfos.empty())
             , fRaw(raw) {}
 
 private:
-    // The ImageShader has 3 potential sampling/tiling variants: hardware-tiled, shader-tiled and
-    // cubic sampling (which always uses shader-tiling)
-    inline static constexpr int kNumSamplingTilingCombos = 3;
-    inline static constexpr int kCubicSampled = 2;
-    inline static constexpr int kHWTiled      = 1;
-    inline static constexpr int kShaderTiled  = 0;
+    // In addition to the tile mode options provided by the client, we can precompile two additional
+    // sampling/tiling variants: hardware-tiled and cubic sampling (which always uses the most
+    // generic tiling shader).
+    inline static constexpr int kExtraNumSamplingTilingCombos = 2;
+    inline static constexpr int kCubicSampled = 1;
+    inline static constexpr int kHWTiled      = 0;
 
     // These color info objects are defined assuming an sRGB destination.
     // Most specialized color space transform shader, no actual color space handling.
@@ -294,9 +298,15 @@ private:
         return { DefaultColorInfoPremul(), DefaultColorInfoAlphaOnly() };
     }
 
-    const int fNumSamplingTilingCombos;
+    // A fixed list of SkTileModes that will trigger each tiling shader variant.
+    static std::vector<SkTileMode> DefaultTileModes() {
+        return { SkTileMode::kClamp, SkTileMode::kRepeat };
+    }
+
+    const int fNumExtraSamplingTilingCombos;
 
     const std::vector<SkColorInfo> fColorInfos;
+    const std::vector<SkTileMode> fTileModes;
 
     // If true, use the destination color space from the KeyContext provided to addToKey.
     // This is true if and only if the client has provided a list of color infos. Otherwise, we
@@ -311,7 +321,7 @@ private:
         // destination color space to determine what color space transform shaders to use, we can
         // end up generating duplicate shaders, and the actual number of unique shaders generated
         // will be less than the number calculated here.
-        return fNumSamplingTilingCombos * fColorInfos.size();
+        return fColorInfos.size() * (fTileModes.size() + fNumExtraSamplingTilingCombos);
     }
 
     void addToKey(const KeyContext& keyContext,
@@ -321,8 +331,9 @@ private:
         SkASSERT(this->numChildCombinations() == 1);
         SkASSERT(desiredCombination < this->numIntrinsicCombinations());
 
-        const int desiredSamplingTilingCombo = desiredCombination % fNumSamplingTilingCombos;
-        desiredCombination /= fNumSamplingTilingCombos;
+        const int numSamplingTilingCombos = fTileModes.size() + fNumExtraSamplingTilingCombos;
+        const int desiredSamplingTilingCombo = desiredCombination % numSamplingTilingCombos;
+        desiredCombination /= numSamplingTilingCombos;
 
         const int desiredColorInfo = desiredCombination;
         SkASSERT(desiredColorInfo < static_cast<int>(fColorInfos.size()));
@@ -337,12 +348,21 @@ private:
         static constexpr SkISize kHWTileableSize = SkISize::Make(1, 1);
         static constexpr SkISize kShaderTileableSize = SkISize::Make(2, 2);
 
-        ImageShaderBlock::ImageData imgData(
-                desiredSamplingTilingCombo == kCubicSampled ? kDefaultCubicSampling
-                                                            : kDefaultSampling,
-                SkTileMode::kClamp, SkTileMode::kClamp,
-                desiredSamplingTilingCombo == kHWTiled ? kHWTileableSize : kShaderTileableSize,
-                kSubset);
+        const int numTileModes = fTileModes.size();
+        const SkTileMode tileMode = (desiredSamplingTilingCombo < numTileModes)
+                                            ? fTileModes[desiredSamplingTilingCombo]
+                                            : SkTileMode::kClamp;
+        const SkISize imgSize = (desiredSamplingTilingCombo >= numTileModes &&
+                                 desiredSamplingTilingCombo - numTileModes == kHWTiled)
+                                        ? kHWTileableSize
+                                        : kShaderTileableSize;
+        const SkSamplingOptions sampling =
+                (desiredSamplingTilingCombo >= numTileModes &&
+                 desiredSamplingTilingCombo - numTileModes == kCubicSampled)
+                        ? kDefaultCubicSampling
+                        : kDefaultSampling;
+
+        const ImageShaderBlock::ImageData imgData(sampling, tileMode, tileMode, imgSize, kSubset);
 
         const SkColorInfo& colorInfo = fColorInfos[desiredColorInfo];
         const bool alphaOnly = SkColorTypeIsAlphaOnly(colorInfo.colorType());
@@ -401,17 +421,19 @@ private:
     }
 };
 
-sk_sp<PrecompileShader> PrecompileShaders::Image(SkSpan<const SkColorInfo> colorInfos) {
+sk_sp<PrecompileShader> PrecompileShaders::Image(SkSpan<const SkColorInfo> colorInfos,
+                                                 SkSpan<const SkTileMode> tileModes) {
     return PrecompileShaders::LocalMatrix(
             { sk_make_sp<PrecompileImageShader>(PrecompileImageShaderFlags::kNone,
-                                                colorInfos,
+                                                colorInfos, tileModes,
                                                 /* raw= */false) });
 }
 
-sk_sp<PrecompileShader> PrecompileShaders::RawImage(SkSpan<const SkColorInfo> colorInfos) {
+sk_sp<PrecompileShader> PrecompileShaders::RawImage(SkSpan<const SkColorInfo> colorInfos,
+                                                    SkSpan<const SkTileMode> tileModes) {
     return PrecompileShaders::LocalMatrix(
             { sk_make_sp<PrecompileImageShader>(PrecompileImageShaderFlags::kExcludeCubic,
-                                                colorInfos,
+                                                colorInfos, tileModes,
                                                 /* raw= */true) });
 }
 
@@ -420,6 +442,7 @@ sk_sp<PrecompileShader> PrecompileShadersPriv::Image(
     return PrecompileShaders::LocalMatrix(
             { sk_make_sp<PrecompileImageShader>(flags,
                                                 SkSpan<const SkColorInfo>(),
+                                                SkSpan<const SkTileMode>(),
                                                 /* raw= */ false) });
 }
 
@@ -428,6 +451,7 @@ sk_sp<PrecompileShader> PrecompileShadersPriv::RawImage(
     return PrecompileShaders::LocalMatrix(
             { sk_make_sp<PrecompileImageShader>(flags | PrecompileImageShaderFlags::kExcludeCubic,
                                                 SkSpan<const SkColorInfo>(),
+                                                SkSpan<const SkTileMode>(),
                                                 /* raw= */ true) });
 }
 

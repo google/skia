@@ -416,6 +416,13 @@ $pure half4 sk_image_shader(float2 coords,
                                 filterMode, float2($kLinearInset), s);
 }
 
+$pure half4 sk_image_shader_clamp(float2 coords,
+                                  float2 invImgSize,
+                                  float4 subsetInsetClamp,
+                                  sampler2D s) {
+    return $sample_image(clamp(coords, subsetInsetClamp.xy, subsetInsetClamp.zw), invImgSize, s);
+}
+
 $pure half4 sk_cubic_image_shader(float2 coords,
                                   float2 invImgSize,
                                   float4 subset,

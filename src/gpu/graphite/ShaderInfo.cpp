@@ -326,6 +326,7 @@ std::string get_node_texture_samplers(const ResourceBindingRequirements& binding
             // snippet requirement flag that we can check here to decrease fragility.
             if (!node->data().empty() &&
                 (snippetId == static_cast<int32_t>(BuiltInCodeSnippetID::kImageShader) ||
+                 snippetId == static_cast<int32_t>(BuiltInCodeSnippetID::kImageShaderClamp) ||
                  snippetId == static_cast<int32_t>(BuiltInCodeSnippetID::kCubicImageShader) ||
                  snippetId == static_cast<int32_t>(BuiltInCodeSnippetID::kHWImageShader))) {
                 append_sampler_descs(node->data(), *outDescs);

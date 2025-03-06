@@ -42,10 +42,10 @@ static constexpr int kExpectedTableCFCombos = 1;
 
 // shaders
 static constexpr int kExpectedGradientCombos = 3;
-static constexpr int kExpectedImageCombos = 12;
+static constexpr int kExpectedImageCombos = 16;
 static constexpr int kExpectedPerlinNoiseCombos = 1;
-static constexpr int kExpectedPictureCombos = 24;
-static constexpr int kExpectedRawImageCombos = 4;
+static constexpr int kExpectedPictureCombos = 32;
+static constexpr int kExpectedRawImageCombos = 6;
 static constexpr int kExpectedSolidColorCombos = 1;
 
 
@@ -112,17 +112,17 @@ void big_test(const KeyContext& keyContext,
               const RenderPassDesc& renderPassDesc,
               skiatest::Reporter* reporter) {
 
-    static constexpr int kNumExpected = 828;
-    // paintOptions (828 = 4*207)
-    //  |- (207 = 3+204) sweepGrad_0 (3) |
-    //  |                blendShader_0 (204 = 1*4*51)
+    static constexpr int kNumExpected = 1084;
+    // paintOptions (1084 = 4*271)
+    //  |- (271 = 3+268) sweepGrad_0 (3) |
+    //  |                blendShader_0 (268 = 1*4*67)
     //  |                 |- 0: (1)       kSrc (1)
     //  |                 |- 1: (4=3+1)   (dsts) linearGrad_0 (3) | solid_0 (1)
-    //  |                 |- 2: (51=3+48) (srcs) linearGrad_1 (3) |
-    //  |                                        blendShader_1 (48=1*4*12)
+    //  |                 |- 2: (67=3+64) (srcs) linearGrad_1 (3) |
+    //  |                                        blendShader_1 (64=1*4*16)
     //  |                                         |- 0: (1) kDst (1)
     //  |                                         |- 1: (4=3+1) (dsts) radGrad_0 (3) | solid_1 (1)
-    //  |                                         |- 2: (12) (srcs) imageShader_0 (12)
+    //  |                                         |- 2: (16) (srcs) imageShader_0 (16)
     //  |
     //  |- (4) 4-built-in-blend-modes
 
@@ -439,8 +439,8 @@ void shader_subtest(const KeyContext& keyContext,
                                            kExpectedPerlinNoiseCombos);
     }
 
-    // The ImageShaders have 12 combinations
-    // (3 sampling/tiling x 4 color space xform)
+    // The ImageShaders have 16 combinations
+    // (4 sampling/tiling x 4 color space xform)
     // The CoordClamp shader doesn't add any additional combinations to its wrapped shader.
     {
         PaintOptions paintOptions;
@@ -450,7 +450,7 @@ void shader_subtest(const KeyContext& keyContext,
                  /* expectedNumOptions= */ kExpectedImageCombos);
     }
 
-    // RawImageShaders only have 4 combinations since they never do cubic filtering and only have
+    // RawImageShaders only have 6 combinations since they never do cubic filtering and only have
     // two possible color space xform variants.
     {
         PaintOptions paintOptions;
@@ -483,8 +483,8 @@ void shader_subtest(const KeyContext& keyContext,
                                            kExpectedGradientCombos + kExpectedGradientCombos);
     }
 
-    // Each picture shader generates 12 combinations:
-    //    2 (pictureShader LM) x 12 (imageShader variations)
+    // Each picture shader generates 32 combinations:
+    //    2 (pictureShader LM) x 16 (imageShader variations)
     {
         PaintOptions paintOptions;
         paintOptions.setShaders({ PrecompileShaders::Picture() });
