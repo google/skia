@@ -29,11 +29,7 @@ class SK_API TextureInfo {
 private:
     class Data;
     friend class MtlTextureInfo;
-#if defined(SK_DAWN_TEXTURE_INFO_IS_STRUCT)
-    friend struct DawnTextureInfo;
-#else
     friend class DawnTextureInfo;
-#endif
     friend class VulkanTextureInfo;
 
     // Size is the largest of the Data subclasses assuming a 64-bit compiler.

@@ -21,11 +21,7 @@ class SkWStream;
 namespace skgpu::graphite {
 class BackendTexture;
 
-#if defined(SK_DAWN_TEXTURE_INFO_IS_STRUCT)
-struct SK_API DawnTextureInfo final : public TextureInfo::Data {
-#else
 class SK_API DawnTextureInfo final : public TextureInfo::Data {
-#endif
 public:
     // wgpu::TextureDescriptor properties
     wgpu::TextureFormat fFormat = wgpu::TextureFormat::Undefined;
