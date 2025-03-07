@@ -617,7 +617,17 @@ public:
 
     template<typename T>
     LayerSpace<T> deviceToLayer(const DeviceSpace<T>& devGeometry) const {
-        return LayerSpace<T>(map(static_cast<const T&>(devGeometry), fDevToLayerMatrix.asM33()));
+        // For inverse mapping back to layer space, we may be undoing perspective projection.
+        // Using fDevToLayerMatrix for this would require knowing the device-space Z values,
+        // which are discarded. fDevToLayerMatrix.asM33() would operate as if all those
+        // Z values were 0 (this is true for local 2D geometry, not device space). Instead,
+        // derive the 3x3 inverse of the flattened layer-to-device matrix, returning empty
+        // if numerical stability meant its 4x4 was invertible but somehow the 3x3 wasn't.
+        SkMatrix devToLayer33;
+        if (!fLayerToDevMatrix.asM33().invert(&devToLayer33)) {
+            return LayerSpace<T>::Empty();
+        }
+        return LayerSpace<T>(map(static_cast<const T&>(devGeometry), devToLayer33));
     }
 
     template<typename T>
@@ -636,7 +646,8 @@ private:
     SkM44 fLayerToDevMatrix;
     SkM44 fParamToLayerMatrix;
 
-    // Cached inverse of fLayerToDevMatrix
+    // Cached inverse of fLayerToDevMatrix. We keep this as 4x4 so that conversion between different
+    // SkDevice coordinate spaces and coord space reconstruction is lossless.
     SkM44 fDevToLayerMatrix;
 
     // Actual geometric mapping operations that work on coordinates and matrices w/o the type

@@ -14,6 +14,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -118,4 +119,51 @@ DEF_SIMPLE_GM(dropshadowimagefilter, canvas, 400, 656) {
         canvas->restore();
         canvas->translate(DX, 0);
     }
+}
+
+DEF_SIMPLE_GM(dropshadow_pseudopersp, canvas, 155, 155) {
+    canvas->clear(SK_ColorLTGRAY);
+    canvas->concat(SkM44{0.5f, 0.f,  0.f, -75.f,
+                         0.f,  0.5f, 0.f, -30.f,
+                         0.f,  0.f,  1.f,  0.f,
+                         0.f,  0.f,  0.f,  1.f});
+    // This 4x4 matrtix technically has perspective, but it only impacts the Z values and the
+    // projection doesn't appear to have any distortion. However, the projected coordinates have
+    // Z values very different from 0. When inversing the device bounds with an assumed Z=0, the
+    // layer bounds end up empty. This GM ensures layer mapping calculations don't discard it.
+    canvas->concat(SkM44{1360.f, 0.f,     275.4f,  294100.f,
+                         0.f,    1360.f,  489.6f,  98344.f,
+                         0.f,    0.f,    -0.51f,  -2180.67f,
+                         0.f,    0.f,     0.51f,   2181.67f});
+
+    SkRect layerBounds{42.5f, 42.5f, 457.5f, 457.5f};
+    SkPaint layerPaint;
+    layerPaint.setImageFilter(SkImageFilters::DropShadow(
+            /*dx=*/30.f, /*dy=*/30.f,
+            /*sigmaX=*/12.f, /*sigmaY=*/12.f,
+            /*color=*/{0.14902f, 0.215686f, 0.329412f, 0.666667f},
+            /*colorSpace=*/nullptr,
+            /*input=*/nullptr));
+    canvas->saveLayer(&layerBounds, &layerPaint);
+
+    SkRRect rrect = SkRRect::MakeRectXY({-250.f, -250.f, 250.f, 250.f}, 45.f, 45.f);
+    SkPaint rrectPaint;
+    rrectPaint.setColor4f(SkColors::kWhite);
+    rrectPaint.setAntiAlias(true);
+
+    canvas->concat(SkM44{0.83f, 0.f,   0.f, 250.f,
+                         0.f,   0.83f, 0.f, 250.f,
+                         0.f,   0.f,   1.f, 0.f,
+                         0.f,   0.f,   0.f, 1.f});
+    canvas->drawRRect(rrect, rrectPaint);
+    canvas->restore();
+
+    canvas->concat(SkM44{0.83f, 0.f,   0.f, 250.f,
+                         0.f,   0.83f, 0.f, 250.f,
+                         0.f,   0.f,   1.f, 0.f,
+                         0.f,   0.f,   0.f, 1.f});
+
+    rrectPaint.setColor4f(SkColors::kBlack);
+    rrectPaint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawRRect(rrect, rrectPaint);
 }
