@@ -5,89 +5,90 @@ linkTitle: "Blink layout tests"
 
 ---
 
-
 How to land Skia changes that change Blink layout test results.
+See https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_tests.md for more
+detail on running the Blink layout tests.
 
-Changes that affect a small number of layout test results
----------------------------------------------------------
-Changes affecting fewer than ~20 layout tests can be rebaselined without
-special coordination with the Blink gardener using these steps:
+General tips about layout tests
+-------------------------------
+* Layout tests come in two flavors: "compare 2 html pages" and "compare html page and .png file"
+  When rebaselining, most of the effort comes from regenerating the .png files for the second
+  kind. The first kind will be something like `third_party/blink/web_tests/.../something.html`
+  and have a companion file `.../something-expected.html` as a sibling file.
+  ([example](https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/fast/forms/text/input-appearance-autocomplete-very-long-value.html;drc=f68d6358bed8ebfc88a0198d6cda50256620c71d);
+  [companion html](https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/fast/forms/text/input-appearance-autocomplete-very-long-value-expected.html;drc=f68d6358bed8ebfc88a0198d6cda50256620c71d))
+  The second type won't have the companion html file, but might have a companion .png file, or
+  multiple .png files in other directories when the html should render differently
+  on other platforms or settings.
+  ([example](https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/dark-mode/images/opt-out-svg-gradient.html;drc=44ad10338113aab1779d81df359aca34da89daf3);
+  [expected png](https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/virtual/dark-mode-default/dark-mode/images/opt-out-svg-gradient-expected.png;l=1;drc=ec59d7b96e81ccc0e3dc497697e23304d7259b09))
+  For this second type, using <https://cs.chromium.org> is a good way to find these if you need to
+  look at rebaselining history or something
 
-1. Prepare your Skia change, taking note of which layout tests will turn red
-   \(see http://www.chromium.org/developers/testing/webkit-layout-tests for more
-   detail on running the Blink layout tests\).
-2. Check in your code to the Skia repo.
-3. Ahead of the Skia auto roll including your change, manually push a change to the
-   Blink LayoutTests/TestExpectations [file](https://chromium.googlesource.com/chromium/src/+/main/third_party/blink/web_tests/TestExpectations), flagging tests expected to fail as a result of your change as follows:
-   foo/bar/test-name.html [ Failure Pass ]  # Needs rebaseline
+* Layout tests (of both kinds) can be given fuzzy matching by adding a meta HTML tag to the test
+  file.
+  `<meta name="fuzzy" content="maxDifference=0-4; totalPixels=0-100" />`
 
-4. Wait for the Skia roll to land successfully.
-5. Check in another change to the Blink TestExpectations file removing all the
-  skipped test expectations you add earlier, an run `git cl rebaseline` which will prompt the automatic rebaseline.
+* Some non-layout tests (also called pixel tests) will fail as a result of rendering changes because
+  they have their own checked-in images. Look at the logs of failing tests, as these will hopefully
+  output base64 encoded pngs of the expected and actual image. Open up a browser tab, use Dev Tools
+  to create an `<img src="[base64]" />` with the actual base64 data and right-click to save the
+  image as the new expected data.
+  ([example](https://source.chromium.org/chromium/chromium/src/+/main:chrome/browser/ui/views/accessibility/accessibility_focus_highlight_browsertest.cc;l=238;drc=a48632411d7e7263e8fd4d273d24a80f668b73ec);
+   [expected png](https://source.chromium.org/chromium/chromium/src/+/main:chrome/test/data/accessibility/focus_highlight_appearance.png;l=1;drc=1e2dbf6a77e2f7264da0097a3cd4158c249a75b8))
 
+* Some tests compare [Skia and PyCairo](https://source.chromium.org/chromium/chromium/src/+/main:third_party/blink/web_tests/external/wpt/html/canvas/tools/README.md).
+  Since Skia makes different choices to Cairo, it's best to increase fuzzy tolerance for these. Look
+  for a `fuzzy` entry in the .yaml file that generates the tests and then regenerate things (or just
+  use find and replace 🫣).
 
+* Failing CQ tests usually have a "Show Reproduction Instructions" for running locally. This can help verify
+  fuzzy tolerances. Be sure to use [--gtest_filter](https://github.com/google/googletest/blob/main/docs/advanced.md#running-a-subset-of-the-tests)
+  to limit what you are testing for faster iteration time.
 
 Changes that affect a large number of test results
 --------------------------------------------------
-Where a 'large number' or 'many' means more than about 20.
-Follow the instructions below:
+Where a 'large number' or 'many' means more than about 20, it's a bit of a process to get
+things rebaselined in Chromium.
 
-In the following the term 'code suppression' means a build flag \(a\.k\.a\. define\).
-Such code suppressions should be given a name with the form SK\_IGNORE\_xxx\_FIX.
+1. Add a staging define to the Skia code that allows a client to (at compile time) opt-in to
+   the old code path. If only Chromium needs rebaselining, it's probably easier to set it up
+   like `if !defined(SK_USE_LEGACY_xxx)`. If this needs to be staged across multiple clients,
+   `if defined(SK_USE_NEW_xxx)` is better to let clients "opt-in" one at a time.
+   ([example CL](https://crrev.com/c/6316987))
+2. Tell Chromium to use the old code path using a staging define in their `SkUserConfig.h`
+   (or their `//skia/BUILD.gn` if it impacts only specific builds).
+   ([example CL](https://crrev.com/c/6316987))
+3. Land and wait for the autoroller to roll Skia into Chromium.
+   ([example CL](http://review.skia.org/953516) [autoroll CL](https://crrev.com/c/6324680))
+4. Create Chromium CL to use the new code path (by removing the define) and update expectations.
+   Follow [the rebaselining steps](https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md#How-to-rebaseline) to update layout tests that use a reference image.
+   For other types of tests (including the .html and -expected.html type), observe the above tips
+   to manually update them. To update the images, you may have to repeat the flow of "sync",
+   "run tryjobs" and "rebaseline images from them" a few times due to other simultaneous changes or
+   flaky tests. Feel free to add some `<meta name="fuzzy"` tags to any of the flaky tests.
 
-Updating the version of Skia in Chromium is called a 'roll'.
-The Auto Roll Bot performs this roll multiple times per day, and can also be done manually.
-See https://chromium.googlesource.com/chromium/src/+log/main/DEPS and search for skia\-deps\-roller.
+   ([example CL](https://crrev.com/c/6328778))
+5. Remove staging define from Skia.
+   ([example CL](http://review.skia.org/960516))
 
-### Setup
-#### Code suppression does not yet exist \- Direct method
-1. Make a change in Skia which will change many Blink layout tests.
-2. Put the change behind a code suppression.
-3. Check in the change to the Skia repository.
-4. Manually roll Skia or append the autoroll with the code suppression to
-   Chromium's 'skia/chromium\_skia\_defines\.gypi'
+Changes that affect a small number of layout test results
+---------------------------------------------------------
+Changes affecting fewer than ~20 layout tests can be rebaselined without a staging define using
+these steps:
 
-#### Code suppression does not yet exist \- Alternate method
-1. Add code suppression to Chromium's 'skia/chromium\_skia\_defines\.gypi' before making code
-   changes in Skia.
-2. Make a change in Skia which will change many Blink layout tests.
-3. Put the change behind a code suppression.
-4. Check in the change to the Skia repository.
-5. Wait for Skia roll into Chromium.
-
-#### Code suppression exists in header
-1. Remove code suppression from header file in Chromium and add code suppression to
-   Chromium's 'skia/chromium\_skia\_defines\.gypi'.
-   The code suppression cannot be in a header file and a defined in a gyp file at the
-   same time or a multiple definition warning will be treated as an error and break
-   the Chromium build.
-
-### Rebaseline
-1. Choose a time when the Blink tree is likely to be quiet. Avoid PST afternoons in
-   particular. The bigger the change, the more important this is. Regardless,
-   determine who the Blink gardener is and notify them. You will be making the
-   Chromium\.WebKit tree very red for an extended period, and the gardener needs to
-   know that they are not expected to fix it.
-2. Create a CL removing the code suppression from Chromium's
-   skia/chromium\_skia\_defines\.gypi while simultaneously adding [ NeedsRebaseline ]
-   lines to Blink's LayoutTests/TestExpectations [file](https://chromium.googlesource.com/chromium/src/+/main/third_party/blink/web_tests/TestExpectations).
-   Then the auto rebaseline bot will take care of the work of actually checking in the
-   new images. This is generally acceptable for up to 600 or so rebaselined images.
-   Above that you might still use [ NeedsRebaseline ], but it's best to coordinate with
-   the gardener. This should go through the CQ cleanly.
-3. Be careful with tests that are already failing or flakey. These may or may not need
-   to be rebaselined and flakey tests should not be removed from TestExpectations
-   regardless. In such cases revert the TestExpectations changes before committing.
-4. If you are not the one handling the cleanup step, please open a Skia Issue of the
-   form
-   Title: "Remove code suppression SK\_IGNORE\_xxx\_FIX\."
-   Comment: "Code suppression SK\_IGNORE\_xxx\_FIX rebaselined with Blink revision
-   123456\." and assign it to the individual responsible for the cleanup step.
-
-### Cleanup
-1. Remove the now unused old code from Skia and any defines which were introduced
-   to suppress the new code.
-2. Check in the cleanup change to the Skia repository.
-3. Wait for Skia roll into Chromium.
-
-
+1. Prepare your Skia change. Run the `Chromium-Canary` tryjob and take note of which layout tests
+   will turn red.
+2. Ahead of the Skia auto roll including your change, manually push a change to the
+   Blink LayoutTests/TestExpectations [file](https://chromium.googlesource.com/chromium/src/+/main/third_party/blink/web_tests/TestExpectations), flagging tests expected to fail as a result of your change as
+   follows:
+   ```
+   foo/bar/test-name.html [ Failure Pass ]  # Needs rebaseline
+   ```
+   There's a section `Skia roll test suppressions` to use (to avoid conflicts with other changes).
+3. Check in your code to the Skia repo.
+4. Wait for the Skia roll to land successfully.
+5. In your Chromium checkout, create a new branch
+  (e.g. `git co main && gclient sync -D && git cl new-branch update-expectations`).
+  Follow [the rebaselining steps](https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_test_expectations.md#How-to-rebaseline)
+  and remove the suppressions from `TestExpectations`.
