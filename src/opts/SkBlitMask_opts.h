@@ -96,7 +96,6 @@ namespace SK_OPTS_NS {
                 w -= 8;
             }
 
-#if !defined(SK_USE_LEGACY_MISMATCHED_BLIT)
             while (w-- > 0) {
                 // These variables aren't actually vectors, but the names are consistent with
                 // the above to make it easier to compare the operations.
@@ -112,18 +111,6 @@ namespace SK_OPTS_NS {
                         + SkAlphaMulQ(*device, vscale);
                 device += 1;
             }
-#else
-            while (w--) {
-                unsigned aa = *mask++;
-                if constexpr (isTranslucent) {
-                    *device = SkBlendARGB32(pmc, *device, aa);
-                } else {
-                    *device = SkAlphaMulQ(pmc, SkAlpha255To256(aa))
-                        + SkAlphaMulQ(*device, SkAlpha255To256(255 - aa));
-                }
-                device += 1;
-            }
-#endif
 
             device = (uint32_t*)((char*)device + dstRB);
             mask += mask_adjust;
