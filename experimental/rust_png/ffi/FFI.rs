@@ -262,29 +262,6 @@ impl From<Option<&png::DecodingError>> for ffi::DecodingResult {
 }
 
 impl ffi::Compression {
-    // TODO(https://crbug.com/400455848): Remove this implementation once both Skia and Chromium
-    // roll to `png` version 0.18.0-rc or beyond.
-    #[cfg(not(feature = "png_0_18"))]
-    fn apply<'a, W: Write>(&self, encoder: &mut png::Encoder<'a, W>) {
-        match self {
-            &Self::Fast => {
-                encoder.set_compression(png::Compression::Fast);
-                encoder.set_adaptive_filter(png::AdaptiveFilterType::NonAdaptive);
-            }
-            &Self::Balanced => {
-                encoder.set_compression(png::Compression::Default);
-                encoder.set_adaptive_filter(png::AdaptiveFilterType::Adaptive);
-            }
-            &Self::High => {
-                encoder.set_compression(png::Compression::Best);
-                encoder.set_adaptive_filter(png::AdaptiveFilterType::Adaptive);
-            }
-            _ => unreachable!(),
-        }
-    }
-    // TODO(https://crbug.com/400455848): Stop guarding this implementation with `cfg` (once both
-    // Skia and Chromium roll to `png` version 0.18.0-rc or beyond).
-    #[cfg(feature = "png_0_18")]
     fn apply<'a, W: Write>(&self, encoder: &mut png::Encoder<'a, W>) {
         match self {
             &Self::Fast => encoder.set_compression(png::Compression::Fast),

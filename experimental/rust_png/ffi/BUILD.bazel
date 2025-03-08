@@ -49,7 +49,6 @@ rust_cxx_bridge(
 rust_static_library(
     name = "ffi_rs",
     srcs = [":rs_srcs"],
-    crate_features = ["png_0_18"],
     rustc_flags = ["-Dwarnings"],
     visibility = [
         "//experimental/rust_png:__subpackages__",
