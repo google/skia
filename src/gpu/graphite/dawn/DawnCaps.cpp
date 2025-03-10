@@ -486,10 +486,11 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     // this case. There is a bug in D3D11's backend where it sets number of SSBOs in vertex shader
     // to non-zero in compat mode. Once that bug is fixed, and a new limit is used for readonly
     // SSBOs, we can enable this again.
-    fStorageBufferSupport = info.backendType != wgpu::BackendType::OpenGL &&
-                            info.backendType != wgpu::BackendType::OpenGLES &&
-                            info.backendType != wgpu::BackendType::Vulkan &&
-                            info.compatibilityMode == false;
+    fStorageBufferSupport =
+            info.backendType != wgpu::BackendType::OpenGL &&
+            info.backendType != wgpu::BackendType::OpenGLES &&
+            info.backendType != wgpu::BackendType::Vulkan &&
+            backendContext.fDevice.HasFeature(wgpu::FeatureName::CoreFeaturesAndLimits);
 #else
     // WASM doesn't provide a way to query the backend, so can't tell if we are on a backend that
     // needs to have SSBOs disabled. Pessimistically assume we could be. Once the above conditions
