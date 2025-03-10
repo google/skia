@@ -109,10 +109,29 @@ inline sk_sp<GrSurfaceProxy> SkImage_Ganesh::ProxyChooser::makeVolatileProxyStab
     return fStableProxy;
 }
 
-inline bool SkImage_Ganesh::ProxyChooser::surfaceMustCopyOnWrite(
-        GrSurfaceProxy* surfaceProxy) const {
+inline bool SkImage_Ganesh::ProxyChooser::surfaceMustCopyOnWrite(GrSurfaceProxy* surfaceProxy) {
     SkAutoSpinlock hold(fLock);
-    return surfaceProxy->underlyingUniqueID() == fStableProxy->underlyingUniqueID();
+
+    auto surfaceID = surfaceProxy->underlyingUniqueID();
+
+    // If we still have an fVolatileProxy and that proxy matches the surface we are are drawing
+    // into, then we will need to do a copy since we can't sample and draw into the same texture.
+    // In this case we want to use the ProxyChoosers internal mechanisms for handling the copy
+    // instead of the generic copy on write systems in Skia. Otherwise, we can end up in a bad
+    // situation where we later on try to make a copy using the internal system after already doing
+    // one else where in Skia.
+    // Note: We can't depend on chooseProxy to trigger the copy for us since we may try to get the
+    // proxy view before we've actually recorded a new RenderTask to the surface. Thus we won't
+    // notice the proxy that chooseProxy returns is drawing into itself and needs a copy.
+    if (fVolatileProxy && surfaceID == fVolatileProxy->underlyingUniqueID()) {
+        fVolatileProxy.reset();
+        fVolatileToStableCopyTask.reset();
+        return false;
+    }
+
+    // If the surface we are trying to draw into matches our stable proxy, we have option but to use
+    // Skia's general copy on write system.
+    return surfaceID == fStableProxy->underlyingUniqueID();
 }
 
 inline size_t SkImage_Ganesh::ProxyChooser::gpuMemorySize() const {
