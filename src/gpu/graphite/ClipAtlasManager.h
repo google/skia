@@ -36,6 +36,7 @@ public:
     bool recordUploads(DrawContext* dc);
     void evict(PlotLocator) override;
     void compact(bool forceCompact);
+    void freeGpuResources();
 
     void evictAtlases();
 

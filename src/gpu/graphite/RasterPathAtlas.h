@@ -34,6 +34,12 @@ public:
         fUncachedAtlasMgr.compact(fRecorder, forceCompact);
     }
 
+    void freeGpuResources() {
+        fCachedAtlasMgr.freeGpuResources(fRecorder);
+        fSmallPathAtlasMgr.freeGpuResources(fRecorder);
+        fUncachedAtlasMgr.freeGpuResources(fRecorder);
+    }
+
     void evictAtlases() {
         fCachedAtlasMgr.evictAll();
         fSmallPathAtlasMgr.evictAll();

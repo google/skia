@@ -45,7 +45,7 @@ public:
         return nullptr;
     }
 
-    void freeAll();
+    void freeGpuResources();
 
     bool hasGlyph(MaskFormat, sktext::gpu::Glyph*);
 
