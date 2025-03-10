@@ -36,6 +36,8 @@ LOTTIE_WEB_EXCLUDE = [
   # Times out.
   'lottiefiles.com - Nudge.json',
   'lottiefiles.com - Retweet.json',
+  'regress-perspective-blur-01.json',
+  'regress-perspective-blur-02.json',
   # Trace file has majority main_frame_aborted terminations in it and < 25
   # occurrences of submitted_frame + missed_frame.
   # Static scenes (nothing animating)
