@@ -143,7 +143,6 @@ protected:
         bool recordUploads(DrawContext*, Recorder*);
         void evict(PlotLocator) override;
         void compact(Recorder*, bool forceCompact);
-        void freeGpuResources(Recorder*);
 
         void evictAll();
 

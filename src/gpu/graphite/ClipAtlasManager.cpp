@@ -270,10 +270,4 @@ void ClipAtlasManager::compact(bool forceCompact) {
     }
 }
 
-void ClipAtlasManager::freeGpuResources() {
-    if (fDrawAtlas) {
-        fDrawAtlas->freeGpuResources(fRecorder->priv().tokenTracker()->nextFlushToken());
-    }
-}
-
 }  // namespace skgpu::graphite

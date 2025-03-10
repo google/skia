@@ -42,12 +42,9 @@ TextAtlasManager::TextAtlasManager(Recorder* recorder)
 
 TextAtlasManager::~TextAtlasManager() = default;
 
-void TextAtlasManager::freeGpuResources() {
-    auto tokenTracker = fRecorder->priv().tokenTracker();
+void TextAtlasManager::freeAll() {
     for (int i = 0; i < kMaskFormatCount; ++i) {
-        if (fAtlases[i]) {
-            fAtlases[i]->freeGpuResources(tokenTracker->nextFlushToken());
-        }
+        fAtlases[i] = nullptr;
     }
 }
 

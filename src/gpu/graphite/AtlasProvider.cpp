@@ -90,16 +90,10 @@ sk_sp<TextureProxy> AtlasProvider::getAtlasTexture(Recorder* recorder,
 }
 
 void AtlasProvider::freeGpuResources() {
-    // Clear out any pages not in use or needed for any pending work on the Recorder.
-    // In the event this is called right after a snap(), all pages would be eligible
-    // for cleanup anyways.
-    fTextAtlasManager->freeGpuResources();
-    if (fRasterPathAtlas) {
-        fRasterPathAtlas->freeGpuResources();
-    }
-    if (fClipAtlasManager) {
-        fClipAtlasManager->freeGpuResources();
-    }
+    // Only compact the atlases, not fully free the atlases. freeGpuResources() can be called while
+    // there is pending work on the Recorder that refers to pages. In the event this is called right
+    // after a snap(), all pages would eligible for cleanup during compaction anyways.
+    this->compact(/*forceCompact=*/true);
     // Release any textures held directly by the provider. These textures are used by transient
     // ComputePathAtlases that are reset every time a DrawContext snaps a DrawTask so there is no
     // need to reset those atlases explicitly here. Since the AtlasProvider gives out refs to the
