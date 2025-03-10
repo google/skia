@@ -53,9 +53,7 @@ public:
         sk_sp<SkShapers::Factory>                    fTextShapingFactory;
     };
 
-    static sk_sp<SkSVGDOM> MakeFromStream(SkStream& str) {
-        return Builder().make(str);
-    }
+    static sk_sp<SkSVGDOM> MakeFromStream(SkStream& str);
 
     /**
      * Returns the root (outermost) SVG element.

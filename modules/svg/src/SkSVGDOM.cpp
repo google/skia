@@ -465,6 +465,8 @@ SkSVGDOM::SkSVGDOM(sk_sp<SkSVGSVG> root,
     SkASSERT(fTextShapingFactory);
 }
 
+sk_sp<SkSVGDOM> SkSVGDOM::MakeFromStream(SkStream& str) { return Builder().make(str); }
+
 void SkSVGDOM::render(SkCanvas* canvas) const {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (fRoot) {
