@@ -156,10 +156,14 @@ class AndroidFlavor(default.DefaultFlavor):
 
     with self.m.context(cwd=self.m.path.start_dir.joinpath('skia')):
       with self.m.env({'ADB_VENDOR_KEYS': self.ADB_PUB_KEY}):
-        return self.m.run.with_retry(self.m.step, title, attempts,
-                                     cmd=[self.ADB_BINARY]+list(cmd),
-                                     between_attempts_fn=wait_for_device,
-                                     **kwargs)
+        if attempts == 1:
+          return self.m.run(self.m.step, title,
+                            cmd=[self.ADB_BINARY]+list(cmd), **kwargs)
+        else:
+          return self.m.run.with_retry(self.m.step, title, attempts,
+                                       cmd=[self.ADB_BINARY]+list(cmd),
+                                       between_attempts_fn=wait_for_device,
+                                       **kwargs)
 
   def _scale_for_dm(self):
     device = self.m.vars.builder_cfg.get('model')
@@ -385,11 +389,12 @@ class AndroidFlavor(default.DefaultFlavor):
     self._adb('push %s %s' % (host, device), 'push', host, device)
 
   def copy_directory_contents_to_device(self, host, device):
-    contents = self.m.file.glob_paths('ls %s/*' % host,
-                                      host, '*',
-                                      test_data=['foo.png', 'bar.jpg'])
-    args = contents + [device]
-    self._adb('push %s/* %s' % (host, device), 'push', *args)
+    with self.m.step.nest('copy %s %s' % (host, device)):
+      contents = self.m.file.glob_paths('ls %s/*' % host,
+                                        host, '*',
+                                        test_data=['foo.png', 'bar.jpg'])
+      for file in contents:
+        self._adb('push %s %s' % (file, device), 'push', file, device)
 
   def copy_directory_contents_to_host(self, device, host):
     # TODO(borenet): When all of our devices are on Android 6.0 and up, we can
