@@ -6056,3 +6056,22 @@ DEF_TEST(path_walk_simple_edges_1154864, r) {
     paint.setAntiAlias(true);
     surface->getCanvas()->drawPath(path, paint);
 }
+
+// crbug.com/398075927
+DEF_TEST(path_walk_edges_concave_large_dx, r) {
+    // The large surface size is necessary to reproduce the bug because we need
+    // changes in y to be large enough but then also changes in x need to be much greater
+    // while also ensuring we are blitting the interesting edge. Also the larger numbers
+    // more easily capture the numerical instability with the algorithm.
+    auto surface = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(900, 700));
+
+    SkPath path;
+    path.lineTo(100, 400);
+    path.lineTo(90, 600);
+    path.quadTo(35000, 200, 35000, 200);
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kFill_Style);
+    surface->getCanvas()->drawPath(path, paint);
+}
