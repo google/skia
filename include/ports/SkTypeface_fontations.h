@@ -18,4 +18,7 @@
 SK_API sk_sp<SkTypeface> SkTypeface_Make_Fontations(std::unique_ptr<SkStreamAsset> fontData,
                                                     const SkFontArguments& args);
 
+SK_API sk_sp<SkTypeface> SkTypeface_Make_Fontations(sk_sp<SkData> fontData,
+                                                    const SkFontArguments& args);
+
 #endif
