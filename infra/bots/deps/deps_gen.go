@@ -24,7 +24,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/angle/angle": {
 		Id:      "chromium.googlesource.com/angle/angle",
-		Version: "6c2737be88ac40f63a258c30e6a68d29feca0b1f",
+		Version: "f38a081cdea49a85c592a7261fcb3e754c039418",
 		Path:    "third_party/externals/angle2",
 	},
 	"chromium.googlesource.com/chromium/deps/icu": {
