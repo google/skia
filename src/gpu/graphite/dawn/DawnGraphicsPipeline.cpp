@@ -439,7 +439,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     // Special case: a render pass loading resolve texture requires additional settings for the
     // pipeline to make it compatible.
     wgpu::ColorTargetStateExpandResolveTextureDawn pipelineMSAALoadResolveTextureDesc;
-    if (loadMsaaFromResolve && sharedContext->dawnCaps()->resolveTextureLoadOp().has_value()) {
+    if (loadMsaaFromResolve && sharedContext->dawnCaps()->loadOpAffectsMSAAPipelines()) {
         SkASSERT(device.HasFeature(wgpu::FeatureName::DawnLoadResolveTexture));
         colorTarget.nextInChain = &pipelineMSAALoadResolveTextureDesc;
         pipelineMSAALoadResolveTextureDesc.enabled = true;

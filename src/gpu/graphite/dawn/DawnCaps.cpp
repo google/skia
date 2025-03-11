@@ -1016,7 +1016,7 @@ uint32_t DawnCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderP
     // So we need to include a bit flag to differentiate the two kinds of pipelines.
     // Also avoid returning a cached pipeline that is not compatible with the render pass using
     // ExpandResolveTexture load op and vice versa.
-    const bool shouldIncludeLoadResolveAttachmentBit = this->resolveTextureLoadOp().has_value();
+    const bool shouldIncludeLoadResolveAttachmentBit = this->loadOpAffectsMSAAPipelines();
     uint32_t loadResolveAttachmentKey = 0;
     if (shouldIncludeLoadResolveAttachmentBit &&
         renderPassDesc.fColorResolveAttachment.fTextureInfo.isValid() &&
@@ -1111,7 +1111,7 @@ bool DawnCaps::extractGraphicsDescs(const UniqueKey& key,
     LoadOp loadOp = LoadOp::kClear;
     if (renderpassDescBits & kResolveMask) {
         // This bit should only be set if Dawn supports ExpandResolveTexture load op
-        SkASSERT(this->resolveTextureLoadOp().has_value());
+        SkASSERT(this->loadOpAffectsMSAAPipelines());
         loadOp = LoadOp::kLoad;
     }
 
