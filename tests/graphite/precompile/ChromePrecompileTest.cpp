@@ -82,32 +82,128 @@ PaintOptions lineargrad_srcover_dithered() {
     return paintOptions;
 }
 
+// "RP(color: Dawn(f=R8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: a000)",
+// Single sampled R w/ just depth
+static const RenderPassProperties kR_1_Depth { DepthStencilFlags::kDepth,
+                                               kAlpha_8_SkColorType,
+                                               /* fDstCS= */ nullptr,
+                                               /* fRequiresMSAA= */ false };
+
+// "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000)",
+// MSAA R w/ depth and stencil
+static const RenderPassProperties kR_4_DepthStencil { DepthStencilFlags::kDepthStencil,
+                                                      kAlpha_8_SkColorType,
+                                                      /* fDstCS= */ nullptr,
+                                                      /* fRequiresMSAA= */ true };
+
 // "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba)"
 // Single sampled BGRA w/ just depth
-RenderPassProperties bgra_1_depth() {
-    return { DepthStencilFlags::kDepth,
-             kBGRA_8888_SkColorType,
-             /* dstColorSpace= */ nullptr,
-             /* requiresMSAA= */ false };
-}
+static const RenderPassProperties kBGRA_1_Depth { DepthStencilFlags::kDepth,
+                                                  kBGRA_8888_SkColorType,
+                                                  /* fDstCS= */ nullptr,
+                                                  /* fRequiresMSAA= */ false };
 
 // "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba)"
 // MSAA BGRA w/ just depth
-RenderPassProperties bgra_4_depth() {
-    return { DepthStencilFlags::kDepth,
-             kBGRA_8888_SkColorType,
-             /* dstColorSpace= */ nullptr,
-             /* requiresMSAA= */ true };
-}
+static const RenderPassProperties kBGRA_4_Depth { DepthStencilFlags::kDepth,
+                                                  kBGRA_8888_SkColorType,
+                                                  /* fDstCS= */ nullptr,
+                                                  /* fRequiresMSAA= */ true };
 
 // "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba)"
 // MSAA BGRA w/ depth and stencil
-RenderPassProperties bgra_4_depth_stencil() {
-    return { DepthStencilFlags::kDepthStencil,
-             kBGRA_8888_SkColorType,
-             /* dstColorSpace= */ nullptr,
-             /* requiresMSAA= */ true };
+static const RenderPassProperties kBGRA_4_DepthStencil { DepthStencilFlags::kDepthStencil,
+                                                         kBGRA_8888_SkColorType,
+                                                         /* fDstCS= */ nullptr,
+                                                         /* fRequiresMSAA= */ true };
+
+
+// This helper maps from the RenderPass string in the Pipeline label to the
+// RenderPassProperties needed by the Precompile system
+// TODO(robertphillips): converting this to a more piecemeal approach might better illuminate
+// the mapping between the string and the RenderPassProperties
+RenderPassProperties get_render_pass_properties(const char* str) {
+    static const struct {
+        const char* fStr;
+        RenderPassProperties fRenderPassProperties;
+    } kRenderPassPropertiesMapping[] = {
+        { "RP(color: Dawn(f=R8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: a000)",
+          kR_1_Depth },
+        { "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000)",
+          kR_4_DepthStencil},
+        { "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba)",
+          kBGRA_1_Depth },
+        { "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba)",
+          kBGRA_4_Depth },
+        { "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba)",
+           kBGRA_4_DepthStencil },
+    };
+
+    for (const auto& rppm : kRenderPassPropertiesMapping) {
+        if (strstr(str, rppm.fStr)) {
+            return rppm.fRenderPassProperties;
+        }
+    }
+
+    SkAssertResult(0);
+    return {};
 }
+
+// This helper maps from the RenderStep's name in the Pipeline label to the DrawTypeFlag that
+// resulted in its use.
+DrawTypeFlags get_draw_type_flags(const char* str) {
+    static const struct {
+        const char* fStr;
+        DrawTypeFlags fFlags;
+    } kDrawTypeFlagsMapping[] = {
+        { "BitmapTextRenderStep[Mask]",                  DrawTypeFlags::kBitmapText_Mask },
+        { "BitmapTextRenderStep[LCD]",                   DrawTypeFlags::kBitmapText_LCD },
+        { "BitmapTextRenderStep[Color]",                 DrawTypeFlags::kBitmapText_Color },
+
+        { "SDFTextRenderStep",                           DrawTypeFlags::kSDFText },
+        { "SDFTextLCDRenderStep",                        DrawTypeFlags::kSDFText_LCD },
+
+        { "VerticesRenderStep[Tris]",                    DrawTypeFlags::kDrawVertices },
+        { "VerticesRenderStep[TrisTexCoords]",           DrawTypeFlags::kDrawVertices },
+        { "VerticesRenderStep[TrisColor]",               DrawTypeFlags::kDrawVertices },
+        { "VerticesRenderStep[TrisColorTexCoords]",      DrawTypeFlags::kDrawVertices },
+        { "VerticesRenderStep[Tristrips]",               DrawTypeFlags::kDrawVertices },
+        { "VerticesRenderStep[TristripsTexCoords]",      DrawTypeFlags::kDrawVertices },
+        { "VerticesRenderStep[TristripsColor]",          DrawTypeFlags::kDrawVertices },
+        { "VerticesRenderStep[TristripsColorTexCoords]", DrawTypeFlags::kDrawVertices },
+
+        // TODO: AnalyticBlurRenderStep and CircularArcRenderStep should be split out into their
+        // own DrawTypeFlags (e.g., kAnalyticBlur and kCircularArc)
+        { "AnalyticBlurRenderStep",                      DrawTypeFlags::kSimpleShape },
+        { "AnalyticRRectRenderStep",                     DrawTypeFlags::kSimpleShape },
+        { "CircularArcRenderStep",                       DrawTypeFlags::kSimpleShape },
+        { "CoverBoundsRenderStep[NonAAFill]",            DrawTypeFlags::kSimpleShape },
+        { "PerEdgeAAQuadRenderStep",                     DrawTypeFlags::kSimpleShape },
+
+        { "CoverageMaskRenderStep",                      DrawTypeFlags::kNonSimpleShape },
+        { "CoverBoundsRenderStep[RegularCover]",         DrawTypeFlags::kNonSimpleShape },
+        { "CoverBoundsRenderStep[InverseCover]",         DrawTypeFlags::kNonSimpleShape },
+        { "MiddleOutFanRenderStep[EvenOdd]",             DrawTypeFlags::kNonSimpleShape },
+        { "MiddleOutFanRenderStep[Winding]",             DrawTypeFlags::kNonSimpleShape },
+        { "TessellateCurvesRenderStep[EvenOdd]",         DrawTypeFlags::kNonSimpleShape },
+        { "TessellateCurvesRenderStep[Winding]",         DrawTypeFlags::kNonSimpleShape },
+        { "TessellateStrokesRenderStep",                 DrawTypeFlags::kNonSimpleShape },
+        { "TessellateWedgesRenderStep[Convex]",          DrawTypeFlags::kNonSimpleShape },
+        { "TessellateWedgesRenderStep[EvenOdd]",         DrawTypeFlags::kNonSimpleShape },
+        { "TessellateWedgesRenderStep[Winding]",         DrawTypeFlags::kNonSimpleShape },
+    };
+
+    for (const auto& dtfm : kDrawTypeFlagsMapping) {
+        if (strstr(str, dtfm.fStr)) {
+            SkAssertResult(dtfm.fFlags != DrawTypeFlags::kNone);
+            return dtfm.fFlags;
+        }
+    }
+
+    SkAssertResult(0);
+    return DrawTypeFlags::kNone;
+}
+
 
 // Precompile with the provided paintOptions, drawType, and RenderPassSettings then verify that
 // the expected string is in the generated set.
@@ -115,11 +211,13 @@ RenderPassProperties bgra_4_depth_stencil() {
 // If you add an additional RenderStep you may need to increase the tolerance values.
 void run_test(PrecompileContext* precompileContext,
               skiatest::Reporter* reporter,
-              const char* expectedString, size_t caseID,
+              SkSpan<const char*> cases,
+              size_t caseID,
               const PaintOptions& paintOptions,
               DrawTypeFlags drawType,
               const RenderPassProperties& renderPassSettings,
               unsigned int allowedOvergeneration) {
+    const char* expectedString = cases[caseID];
 
     precompileContext->priv().globalCache()->resetGraphicsPipelines();
 
@@ -280,84 +378,89 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
 
     for (size_t i = 0; i < std::size(kCases); ++i) {
         PaintOptions paintOptions;
-        DrawTypeFlags drawTypeFlags = DrawTypeFlags::kSimpleShape;
         RenderPassProperties renderPassSettings;
-        unsigned int allowedOvergeneration = 0;
+        DrawTypeFlags drawTypeFlags = DrawTypeFlags::kNone;
+
+        // TODO(robertphillips): splitting kCases[i] into substrings (based on a " + " separator)
+        //  before passing to the helpers would make this prettier
+        RenderPassProperties expectedRenderPassSettings = get_render_pass_properties(kCases[i]);
+        DrawTypeFlags expectedDrawTypeFlags = get_draw_type_flags(kCases[i]);
+        unsigned int expectedNumPipelines = 0;
 
         switch (i) {
             case 0:            [[fallthrough]];
             case 1:
                 paintOptions = solid_srcover();
                 drawTypeFlags = DrawTypeFlags::kNonSimpleShape;
-                renderPassSettings = bgra_4_depth_stencil();
-                allowedOvergeneration = 11;
+                renderPassSettings = kBGRA_4_DepthStencil;
+                expectedNumPipelines = 11;
                 break;
             case 2:
                 paintOptions = solid_srcover();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
-                renderPassSettings = bgra_4_depth_stencil();
-                allowedOvergeneration = 5;
+                renderPassSettings = kBGRA_4_DepthStencil;
+                expectedNumPipelines = 5;
                 break;
             case 3: // only differs from 18 by MSAA and depth vs depth-stencil
                 paintOptions = solid_src();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
-                renderPassSettings = bgra_4_depth_stencil();
-                allowedOvergeneration = 5; // a lot for a rectangle clear - all RenderSteps
+                renderPassSettings = kBGRA_4_DepthStencil;
+                expectedNumPipelines = 5; // a lot for a rectangle clear - all RenderSteps
                 break;
             case 4: // 4 is part of an AA image rect draw that can't use HW tiling
             case 5: // 5 & 6 together make up an AA image rect draw w/ a filled center
             case 6:
                 paintOptions = image_srcover();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
-                renderPassSettings = bgra_4_depth_stencil();
-                allowedOvergeneration = 80;
+                renderPassSettings = kBGRA_4_DepthStencil;
+                expectedNumPipelines = 80;
                 break;
             case 7: // 7 & 8 are combined pair
             case 8:
                 paintOptions = lineargrad_srcover_dithered();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
-                renderPassSettings = bgra_4_depth_stencil();
-                allowedOvergeneration = 15; // 3x from gradient, 12x from RenderSteps
+                renderPassSettings = kBGRA_4_DepthStencil;
+                expectedNumPipelines = 15; // 3x from gradient, 12x from RenderSteps
                 break;
             case 9:
                 paintOptions = lineargrad_srcover();
                 drawTypeFlags = DrawTypeFlags::kBitmapText_Mask;
-                renderPassSettings = bgra_4_depth_stencil();
-                allowedOvergeneration = 3; // from the 3 internal gradient alternatives
+                renderPassSettings = kBGRA_4_DepthStencil;
+                expectedNumPipelines = 3; // from the 3 internal gradient alternatives
                 break;
             case 10:
                 paintOptions = solid_srcover();
                 drawTypeFlags = DrawTypeFlags::kBitmapText_Mask;
-                renderPassSettings = bgra_4_depth_stencil();
-                allowedOvergeneration = 1;
+                renderPassSettings = kBGRA_4_DepthStencil;
+                expectedNumPipelines = 1;
                 break;
             case 11: // 11 & 12 are a pair - an RRect draw w/ a non-aa-fill center
             case 12:
                 paintOptions = solid_srcover();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
-                renderPassSettings = bgra_1_depth();
-                allowedOvergeneration = 5;  // all from RenderSteps
+                renderPassSettings = kBGRA_1_Depth;
+                expectedNumPipelines = 5;  // all from RenderSteps
                 break;
             case 13:
                 paintOptions = image_src();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
-                renderPassSettings = bgra_1_depth();
+                renderPassSettings = kBGRA_1_Depth;
                 // This is a lot for a kSrc image draw:
-                allowedOvergeneration = 80; // 8x of this are the paint combos,
-                                            // the rest are the RenderSteps!!
+                expectedNumPipelines = 80; // 8x of this are the paint combos,
+                                           // the rest are the RenderSteps!!
                 break;
             case 14:
                 paintOptions = image_srcover();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
-                renderPassSettings = bgra_1_depth();
-                allowedOvergeneration = 80; // !!!! - a lot for just a non-aa image rect draw
+                renderPassSettings = kBGRA_1_Depth;
+                expectedNumPipelines = 80; // !!!! - a lot for just a non-aa image rect draw
                 break;
             case 15:
             case 16:
                 paintOptions = solid_srcover();
                 drawTypeFlags = DrawTypeFlags::kNonSimpleShape;
-                renderPassSettings = bgra_4_depth();
-                allowedOvergeneration = 11;
+                renderPassSettings = kBGRA_4_Depth;
+                expectedNumPipelines = 11;
                 break;
             case 17:
                 // After https://skia-review.googlesource.com/c/skia/+/887476 ([graphite] Split up
@@ -371,26 +474,29 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
             case 18: // only differs from 3 by MSAA and depth vs depth-stencil
                 paintOptions = solid_src();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
-                renderPassSettings = bgra_1_depth();
-                allowedOvergeneration = 5; // a lot for a rectangle clear - all RenderSteps
+                renderPassSettings = kBGRA_1_Depth;
+                expectedNumPipelines = 5; // a lot for a rectangle clear - all RenderSteps
                 break;
             case 19:
                 paintOptions = lineargrad_srcover_dithered();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
-                renderPassSettings = bgra_1_depth();
-                allowedOvergeneration = 15; // 3x from gradient, rest from RenderSteps
+                renderPassSettings = kBGRA_1_Depth;
+                expectedNumPipelines = 15; // 3x from gradient, rest from RenderSteps
                 break;
             default:
                 continue;
         }
 
+        SkAssertResult(renderPassSettings == expectedRenderPassSettings);
+        SkAssertResult(drawTypeFlags == expectedDrawTypeFlags);
+
         if (renderPassSettings.fRequiresMSAA && caps->loadOpAffectsMSAAPipelines()) {
-            allowedOvergeneration *= 2; // due to ExpandResolveTextureLoadOp
+            expectedNumPipelines *= 2; // due to wgpu::LoadOp::ExpandResolveTexture
         }
 
         run_test(precompileContext.get(), reporter,
-                 kCases[i], i,
-                 paintOptions, drawTypeFlags, renderPassSettings, allowedOvergeneration);
+                 { kCases, std::size(kCases) }, i,
+                 paintOptions, drawTypeFlags, renderPassSettings, expectedNumPipelines);
     }
 }
 
