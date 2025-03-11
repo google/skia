@@ -17,11 +17,7 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
-
-float4 float4_from_float2x2(float2x2 x) {
-    return float4(x[0].xy, x[1].xy);
-}
-bool test_bifffff22(Uniforms _uniforms, int op, float m11, float m12, float m21, float m22, float2x2 expected) {
+float4 float4_from_float2x2(float2x2 x) {return float4(x[0].xy, x[1].xy);}bool test_bifffff22(Uniforms _uniforms, int op, float m11, float m12, float m21, float m22, float2x2 expected) {
     float one = float(_uniforms.colorRed.x);
     float2x2 m2 = float2x2(float2(m11 * one, m12 * one), float2(m21 * one, m22 * one));
     switch (op) {

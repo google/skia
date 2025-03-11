@@ -732,71 +732,68 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     }
 }
 
-static constexpr char kInverse2x2[] = R"(
-template <typename T>
-matrix<T, 2, 2> mat2_inverse(matrix<T, 2, 2> m) {
-return matrix<T, 2, 2>(m[1].y, -m[0].y, -m[1].x, m[0].x) * (1/determinant(m));
-}
-)";
+static constexpr char kInverse2x2[] =
+"template <typename T>"
+"matrix<T, 2, 2> mat2_inverse(matrix<T, 2, 2> m) {"
+  "return matrix<T, 2, 2>(m[1].y, -m[0].y, -m[1].x, m[0].x) * (1/determinant(m));"
+"}";
 
-static constexpr char kInverse3x3[] = R"(
-template <typename T>
-matrix<T, 3, 3> mat3_inverse(matrix<T, 3, 3> m) {
-T
- a00 = m[0].x, a01 = m[0].y, a02 = m[0].z,
- a10 = m[1].x, a11 = m[1].y, a12 = m[1].z,
- a20 = m[2].x, a21 = m[2].y, a22 = m[2].z,
- b01 =  a22*a11 - a12*a21,
- b11 = -a22*a10 + a12*a20,
- b21 =  a21*a10 - a11*a20,
- det = a00*b01 + a01*b11 + a02*b21;
-return matrix<T, 3, 3>(
- b01, (-a22*a01 + a02*a21), ( a12*a01 - a02*a11),
- b11, ( a22*a00 - a02*a20), (-a12*a00 + a02*a10),
- b21, (-a21*a00 + a01*a20), ( a11*a00 - a01*a10)) * (1/det);
-}
-)";
+static constexpr char kInverse3x3[] =
+"template <typename T>"
+"matrix<T, 3, 3> mat3_inverse(matrix<T, 3, 3> m) {"
+  "T "
+    "a00 = m[0].x, a01 = m[0].y, a02 = m[0].z,"
+    "a10 = m[1].x, a11 = m[1].y, a12 = m[1].z,"
+    "a20 = m[2].x, a21 = m[2].y, a22 = m[2].z,"
+    "b01 =  a22*a11 - a12*a21,"
+    "b11 = -a22*a10 + a12*a20,"
+    "b21 =  a21*a10 - a11*a20,"
+    "det = a00*b01 + a01*b11 + a02*b21;"
+  "return matrix<T, 3, 3>("
+    "b01, (-a22*a01 + a02*a21), ( a12*a01 - a02*a11),"
+    "b11, ( a22*a00 - a02*a20), (-a12*a00 + a02*a10),"
+    "b21, (-a21*a00 + a01*a20), ( a11*a00 - a01*a10)) * (1/det);"
+"}";
 
-static constexpr char kInverse4x4[] = R"(
-template <typename T>
-matrix<T, 4, 4> mat4_inverse(matrix<T, 4, 4> m) {
-T
- a00 = m[0].x, a01 = m[0].y, a02 = m[0].z, a03 = m[0].w,
- a10 = m[1].x, a11 = m[1].y, a12 = m[1].z, a13 = m[1].w,
- a20 = m[2].x, a21 = m[2].y, a22 = m[2].z, a23 = m[2].w,
- a30 = m[3].x, a31 = m[3].y, a32 = m[3].z, a33 = m[3].w,
- b00 = a00*a11 - a01*a10,
- b01 = a00*a12 - a02*a10,
- b02 = a00*a13 - a03*a10,
- b03 = a01*a12 - a02*a11,
- b04 = a01*a13 - a03*a11,
- b05 = a02*a13 - a03*a12,
- b06 = a20*a31 - a21*a30,
- b07 = a20*a32 - a22*a30,
- b08 = a20*a33 - a23*a30,
- b09 = a21*a32 - a22*a31,
- b10 = a21*a33 - a23*a31,
- b11 = a22*a33 - a23*a32,
- det = b00*b11 - b01*b10 + b02*b09 + b03*b08 - b04*b07 + b05*b06;
-return matrix<T, 4, 4>(
- a11*b11 - a12*b10 + a13*b09,
- a02*b10 - a01*b11 - a03*b09,
- a31*b05 - a32*b04 + a33*b03,
- a22*b04 - a21*b05 - a23*b03,
- a12*b08 - a10*b11 - a13*b07,
- a00*b11 - a02*b08 + a03*b07,
- a32*b02 - a30*b05 - a33*b01,
- a20*b05 - a22*b02 + a23*b01,
- a10*b10 - a11*b08 + a13*b06,
- a01*b08 - a00*b10 - a03*b06,
- a30*b04 - a31*b02 + a33*b00,
- a21*b02 - a20*b04 - a23*b00,
- a11*b07 - a10*b09 - a12*b06,
- a00*b09 - a01*b07 + a02*b06,
- a31*b01 - a30*b03 - a32*b00,
- a20*b03 - a21*b01 + a22*b00) * (1/det);
-}
-)";
+static constexpr char kInverse4x4[] =
+"template <typename T>"
+"matrix<T, 4, 4> mat4_inverse(matrix<T, 4, 4> m) {"
+  "T "
+    "a00 = m[0].x, a01 = m[0].y, a02 = m[0].z, a03 = m[0].w,"
+    "a10 = m[1].x, a11 = m[1].y, a12 = m[1].z, a13 = m[1].w,"
+    "a20 = m[2].x, a21 = m[2].y, a22 = m[2].z, a23 = m[2].w,"
+    "a30 = m[3].x, a31 = m[3].y, a32 = m[3].z, a33 = m[3].w,"
+    "b00 = a00*a11 - a01*a10,"
+    "b01 = a00*a12 - a02*a10,"
+    "b02 = a00*a13 - a03*a10,"
+    "b03 = a01*a12 - a02*a11,"
+    "b04 = a01*a13 - a03*a11,"
+    "b05 = a02*a13 - a03*a12,"
+    "b06 = a20*a31 - a21*a30,"
+    "b07 = a20*a32 - a22*a30,"
+    "b08 = a20*a33 - a23*a30,"
+    "b09 = a21*a32 - a22*a31,"
+    "b10 = a21*a33 - a23*a31,"
+    "b11 = a22*a33 - a23*a32,"
+    "det = b00*b11 - b01*b10 + b02*b09 + b03*b08 - b04*b07 + b05*b06;"
+  "return matrix<T, 4, 4>("
+    "a11*b11 - a12*b10 + a13*b09,"
+    "a02*b10 - a01*b11 - a03*b09,"
+    "a31*b05 - a32*b04 + a33*b03,"
+    "a22*b04 - a21*b05 - a23*b03,"
+    "a12*b08 - a10*b11 - a13*b07,"
+    "a00*b11 - a02*b08 + a03*b07,"
+    "a32*b02 - a30*b05 - a33*b01,"
+    "a20*b05 - a22*b02 + a23*b01,"
+    "a10*b10 - a11*b08 + a13*b06,"
+    "a01*b08 - a00*b10 - a03*b06,"
+    "a30*b04 - a31*b02 + a33*b00,"
+    "a21*b02 - a20*b04 - a23*b00,"
+    "a11*b07 - a10*b09 - a12*b06,"
+    "a00*b09 - a01*b07 + a02*b06,"
+    "a31*b01 - a30*b03 - a32*b00,"
+    "a20*b03 - a21*b01 + a22*b00) * (1/det);"
+"}";
 
 std::string MetalCodeGenerator::getInversePolyfill(const ExpressionArray& arguments) {
     // Only use polyfills for a function taking a single-argument square matrix.
@@ -829,13 +826,12 @@ std::string MetalCodeGenerator::getInversePolyfill(const ExpressionArray& argume
 }
 
 void MetalCodeGenerator::writeMatrixCompMult() {
-    static constexpr char kMatrixCompMult[] = R"(
-template <typename T, int C, int R>
-matrix<T, C, R> matrixCompMult(matrix<T, C, R> a, const matrix<T, C, R> b) {
- for (int c = 0; c < C; ++c) { a[c] *= b[c]; }
- return a;
-}
-)";
+    static constexpr char kMatrixCompMult[] =
+"template <typename T, int C, int R>"
+"matrix<T, C, R> matrixCompMult(matrix<T, C, R> a, const matrix<T, C, R> b) {"
+  "for (int c = 0; c < C; ++c) { a[c] *= b[c]; }"
+  "return a;"
+"}";
     if (!fWrittenMatrixCompMult) {
         fWrittenMatrixCompMult = true;
         fExtraFunctions.writeText(kMatrixCompMult);
@@ -843,14 +839,13 @@ matrix<T, C, R> matrixCompMult(matrix<T, C, R> a, const matrix<T, C, R> b) {
 }
 
 void MetalCodeGenerator::writeOuterProduct() {
-    static constexpr char kOuterProduct[] = R"(
-template <typename T, int C, int R>
-matrix<T, C, R> outerProduct(const vec<T, R> a, const vec<T, C> b) {
- matrix<T, C, R> m;
- for (int c = 0; c < C; ++c) { m[c] = a * b[c]; }
- return m;
-}
-)";
+    static constexpr char kOuterProduct[] =
+"template <typename T, int C, int R>"
+"matrix<T, C, R> outerProduct(const vec<T, R> a, const vec<T, C> b) {"
+  "matrix<T, C, R> m;"
+  "for (int c = 0; c < C; ++c) { m[c] = a * b[c]; }"
+  "return m;"
+"}";
     if (!fWrittenOuterProduct) {
         fWrittenOuterProduct = true;
         fExtraFunctions.writeText(kOuterProduct);
@@ -1569,16 +1564,15 @@ void MetalCodeGenerator::writeConstructorArrayCast(const ConstructorArrayCast& c
     std::string name = "array_of_" + outTypeName + "_from_" + inTypeName;
     if (!fHelpers.contains(name)) {
         fHelpers.add(name);
-        fExtraFunctions.printf(R"(
-template <size_t N>
-array<%s, N> %s(thread const array<%s, N>& x) {
-    array<%s, N> result;
-    for (int i = 0; i < N; ++i) {
-        result[i] = %s(x[i]);
-    }
-    return result;
-}
-)",
+        fExtraFunctions.printf(
+"template <size_t N>"
+"array<%s, N> %s(thread const array<%s, N>& x) {"
+    "array<%s, N> result;"
+    "for (int i = 0; i < N; ++i) {"
+        "result[i] = %s(x[i]);"
+    "}"
+    "return result;"
+"}",
                                outTypeName.c_str(), name.c_str(), inTypeName.c_str(),
                                outTypeName.c_str(),
                                outTypeName.c_str());
@@ -1600,11 +1594,10 @@ std::string MetalCodeGenerator::getVectorFromMat2x2ConstructorHelper(const Type&
     if (!fHelpers.contains(name)) {
         fHelpers.add(name);
 
-        fExtraFunctions.printf(R"(
-%s4 %s(%s2x2 x) {
-    return %s4(x[0].xy, x[1].xy);
-}
-)", baseType.c_str(), name.c_str(), baseType.c_str(), baseType.c_str());
+        fExtraFunctions.printf(
+"%s4 %s(%s2x2 x) {"
+    "return %s4(x[0].xy, x[1].xy);"
+"}", baseType.c_str(), name.c_str(), baseType.c_str(), baseType.c_str());
     }
 
     return name;
@@ -1941,32 +1934,31 @@ void MetalCodeGenerator::writeMatrixEqualityHelpers(const Type& left, const Type
 
     if (!fHelpers.contains(key)) {
         fHelpers.add(key);
-        fExtraFunctionPrototypes.printf(R"(
-thread bool operator==(const %s left, const %s right);
-thread bool operator!=(const %s left, const %s right);
-)",
+        fExtraFunctionPrototypes.printf(
+"thread bool operator==(const %s left, const %s right);"
+"thread bool operator!=(const %s left, const %s right);",
                                         this->typeName(left).c_str(),
                                         this->typeName(right).c_str(),
                                         this->typeName(left).c_str(),
                                         this->typeName(right).c_str());
 
         fExtraFunctions.printf(
-                "thread bool operator==(const %s left, const %s right) {\n"
-                "    return ",
+                "thread bool operator==(const %s left, const %s right) {"
+                  "return ",
                 this->typeName(left).c_str(), this->typeName(right).c_str());
 
         const char* separator = "";
         for (int index=0; index<left.columns(); ++index) {
             fExtraFunctions.printf("%sall(left[%d] == right[%d])", separator, index, index);
-            separator = " &&\n           ";
+            separator = " && ";
         }
 
         fExtraFunctions.printf(
-                ";\n"
-                "}\n"
-                "thread bool operator!=(const %s left, const %s right) {\n"
-                "    return !(left == right);\n"
-                "}\n",
+                ";"
+                "}"
+                "thread bool operator!=(const %s left, const %s right) {"
+                  "return !(left == right);"
+                "}",
                 this->typeName(left).c_str(), this->typeName(right).c_str());
     }
 }
@@ -2010,31 +2002,29 @@ void MetalCodeGenerator::writeArrayEqualityHelpers(const Type& type) {
     std::string key = "ArrayEquality []";
     if (!fHelpers.contains(key)) {
         fHelpers.add(key);
-        fExtraFunctionPrototypes.writeText(R"(
-template <typename T1, typename T2>
-bool operator==(const array_ref<T1> left, const array_ref<T2> right);
-template <typename T1, typename T2>
-bool operator!=(const array_ref<T1> left, const array_ref<T2> right);
-)");
-        fExtraFunctions.writeText(R"(
-template <typename T1, typename T2>
-bool operator==(const array_ref<T1> left, const array_ref<T2> right) {
-    if (left.size() != right.size()) {
-        return false;
-    }
-    for (size_t index = 0; index < left.size(); ++index) {
-        if (!all(left[index] == right[index])) {
-            return false;
-        }
-    }
-    return true;
-}
+        fExtraFunctionPrototypes.writeText(
+"template <typename T1, typename T2>"
+"bool operator==(const array_ref<T1> left, const array_ref<T2> right);"
+"template <typename T1, typename T2>"
+"bool operator!=(const array_ref<T1> left, const array_ref<T2> right);");
+        fExtraFunctions.writeText(
+"template <typename T1, typename T2>"
+"bool operator==(const array_ref<T1> left, const array_ref<T2> right) {"
+    "if (left.size() != right.size()) {"
+        "return false;"
+    "}"
+    "for (size_t index = 0; index < left.size(); ++index) {"
+        "if (!all(left[index] == right[index])) {"
+            "return false;"
+        "}"
+    "}"
+    "return true;"
+"}"
 
-template <typename T1, typename T2>
-bool operator!=(const array_ref<T1> left, const array_ref<T2> right) {
-    return !(left == right);
-}
-)");
+"template <typename T1, typename T2>"
+"bool operator!=(const array_ref<T1> left, const array_ref<T2> right) {"
+    "return !(left == right);"
+"}");
     }
 }
 
@@ -2051,18 +2041,17 @@ void MetalCodeGenerator::writeStructEqualityHelpers(const Type& type) {
 
         // Write operator== and operator!= for this struct, since those are assumed to exist in SkSL
         // and GLSL but do not exist by default in Metal.
-        fExtraFunctionPrototypes.printf(R"(
-thread bool operator==(thread const %s& left, thread const %s& right);
-thread bool operator!=(thread const %s& left, thread const %s& right);
-)",
+        fExtraFunctionPrototypes.printf(
+"thread bool operator==(thread const %s& left, thread const %s& right);"
+"thread bool operator!=(thread const %s& left, thread const %s& right);",
                                         this->typeName(type).c_str(),
                                         this->typeName(type).c_str(),
                                         this->typeName(type).c_str(),
                                         this->typeName(type).c_str());
 
         fExtraFunctions.printf(
-                "thread bool operator==(thread const %s& left, thread const %s& right) {\n"
-                "    return ",
+                "thread bool operator==(thread const %s& left, thread const %s& right) {"
+                  "return ",
                 this->typeName(type).c_str(),
                 this->typeName(type).c_str());
 
@@ -2080,14 +2069,14 @@ thread bool operator!=(thread const %s& left, thread const %s& right);
                                        (int)field.fName.size(), field.fName.data(),
                                        (int)field.fName.size(), field.fName.data());
             }
-            separator = " &&\n           ";
+            separator = " && ";
         }
         fExtraFunctions.printf(
-                ";\n"
-                "}\n"
-                "thread bool operator!=(thread const %s& left, thread const %s& right) {\n"
-                "    return !(left == right);\n"
-                "}\n",
+                ";"
+                "}"
+                "thread bool operator!=(thread const %s& left, thread const %s& right) {"
+                  "return !(left == right);"
+                "}",
                 this->typeName(type).c_str(),
                 this->typeName(type).c_str());
     }
@@ -3058,22 +3047,20 @@ void MetalCodeGenerator::writeSampler2DPolyfill() {
             }
             fWrotePolyfill = true;
 
-            std::string polyfill = SkSL::String::printf(R"(
-struct sampler2D {
-    texture2d<half> tex;
-    sampler smp;
-};
-half4 sample(sampler2D i, float2 p, float b=%g) { return i.tex.sample(i.smp, p, bias(b)); }
-half4 sample(sampler2D i, float3 p, float b=%g) { return i.tex.sample(i.smp, p.xy / p.z, bias(b)); }
-half4 sampleLod(sampler2D i, float2 p, float lod) { return i.tex.sample(i.smp, p, level(lod)); }
-half4 sampleLod(sampler2D i, float3 p, float lod) {
-    return i.tex.sample(i.smp, p.xy / p.z, level(lod));
-}
-half4 sampleGrad(sampler2D i, float2 p, float2 dPdx, float2 dPdy) {
-    return i.tex.sample(i.smp, p, gradient2d(dPdx, dPdy));
-}
-
-)",
+            std::string polyfill = SkSL::String::printf(
+"struct sampler2D {"
+    "texture2d<half> tex;"
+    "sampler smp;"
+"};"
+"half4 sample(sampler2D i, float2 p, float b=%g) { return i.tex.sample(i.smp, p, bias(b)); }"
+"half4 sample(sampler2D i, float3 p, float b=%g) { return i.tex.sample(i.smp, p.xy / p.z, bias(b)); }"
+"half4 sampleLod(sampler2D i, float2 p, float lod) { return i.tex.sample(i.smp, p, level(lod)); }"
+"half4 sampleLod(sampler2D i, float3 p, float lod) {"
+    "return i.tex.sample(i.smp, p.xy / p.z, level(lod));"
+"}"
+"half4 sampleGrad(sampler2D i, float2 p, float2 dPdx, float2 dPdy) {"
+    "return i.tex.sample(i.smp, p, gradient2d(dPdx, dPdy));"
+"}",
                                                         fTextureBias,
                                                         fTextureBias);
             fCodeGen->write(polyfill.c_str());
@@ -3244,9 +3231,9 @@ void MetalCodeGenerator::writeInterfaceBlocks() {
     }
     if (!wroteInterfaceBlock &&
         fProgram.fInterface.fRTFlipUniform != Program::Interface::kRTFlip_None) {
-        this->writeLine("struct sksl_synthetic_uniforms {");
-        this->writeLine("    float2 " SKSL_RTFLIP_NAME ";");
-        this->writeLine("};");
+        this->writeLine("struct sksl_synthetic_uniforms {"
+                        "float2 " SKSL_RTFLIP_NAME ";"
+                        "};");
     }
 }
 

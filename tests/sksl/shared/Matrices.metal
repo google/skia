@@ -13,70 +13,15 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
-
-thread bool operator==(const half2x2 left, const half2x2 right);
-thread bool operator!=(const half2x2 left, const half2x2 right);
-
-thread bool operator==(const half3x3 left, const half3x3 right);
-thread bool operator!=(const half3x3 left, const half3x3 right);
-
-thread bool operator==(const half4x4 left, const half4x4 right);
-thread bool operator!=(const half4x4 left, const half4x4 right);
-
-thread bool operator==(const float2x2 left, const float2x2 right);
-thread bool operator!=(const float2x2 left, const float2x2 right);
-
-thread bool operator==(const float4x4 left, const float4x4 right);
-thread bool operator!=(const float4x4 left, const float4x4 right);
-thread bool operator==(const half2x2 left, const half2x2 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]);
-}
-thread bool operator!=(const half2x2 left, const half2x2 right) {
-    return !(left == right);
-}
-thread half2x2& operator*=(thread half2x2& left, thread const half2x2& right) {
+thread bool operator==(const half2x2 left, const half2x2 right);thread bool operator!=(const half2x2 left, const half2x2 right);thread bool operator==(const half3x3 left, const half3x3 right);thread bool operator!=(const half3x3 left, const half3x3 right);thread bool operator==(const half4x4 left, const half4x4 right);thread bool operator!=(const half4x4 left, const half4x4 right);thread bool operator==(const float2x2 left, const float2x2 right);thread bool operator!=(const float2x2 left, const float2x2 right);thread bool operator==(const float4x4 left, const float4x4 right);thread bool operator!=(const float4x4 left, const float4x4 right);thread bool operator==(const half2x2 left, const half2x2 right) {return all(left[0] == right[0]) && all(left[1] == right[1]);}thread bool operator!=(const half2x2 left, const half2x2 right) {return !(left == right);}thread half2x2& operator*=(thread half2x2& left, thread const half2x2& right) {
     left = left * right;
     return left;
 }
-thread bool operator==(const half3x3 left, const half3x3 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]);
-}
-thread bool operator!=(const half3x3 left, const half3x3 right) {
-    return !(left == right);
-}
-thread bool operator==(const half4x4 left, const half4x4 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]) &&
-           all(left[3] == right[3]);
-}
-thread bool operator!=(const half4x4 left, const half4x4 right) {
-    return !(left == right);
-}
-thread bool operator==(const float2x2 left, const float2x2 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]);
-}
-thread bool operator!=(const float2x2 left, const float2x2 right) {
-    return !(left == right);
-}
-thread float2x2& operator*=(thread float2x2& left, thread const float2x2& right) {
+thread bool operator==(const half3x3 left, const half3x3 right) {return all(left[0] == right[0]) && all(left[1] == right[1]) && all(left[2] == right[2]);}thread bool operator!=(const half3x3 left, const half3x3 right) {return !(left == right);}thread bool operator==(const half4x4 left, const half4x4 right) {return all(left[0] == right[0]) && all(left[1] == right[1]) && all(left[2] == right[2]) && all(left[3] == right[3]);}thread bool operator!=(const half4x4 left, const half4x4 right) {return !(left == right);}thread bool operator==(const float2x2 left, const float2x2 right) {return all(left[0] == right[0]) && all(left[1] == right[1]);}thread bool operator!=(const float2x2 left, const float2x2 right) {return !(left == right);}thread float2x2& operator*=(thread float2x2& left, thread const float2x2& right) {
     left = left * right;
     return left;
 }
-thread bool operator==(const float4x4 left, const float4x4 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]) &&
-           all(left[3] == right[3]);
-}
-thread bool operator!=(const float4x4 left, const float4x4 right) {
-    return !(left == right);
-}
-bool test_half_b() {
+thread bool operator==(const float4x4 left, const float4x4 right) {return all(left[0] == right[0]) && all(left[1] == right[1]) && all(left[2] == right[2]) && all(left[3] == right[3]);}thread bool operator!=(const float4x4 left, const float4x4 right) {return !(left == right);}bool test_half_b() {
     bool ok = true;
     half2x2 m1 = half2x2(half2(1.0h, 2.0h), half2(3.0h, 4.0h));
     ok = ok && m1 == half2x2(half2(1.0h, 2.0h), half2(3.0h, 4.0h));

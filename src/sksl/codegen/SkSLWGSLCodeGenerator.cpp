@@ -2285,7 +2285,9 @@ void WGSLCodeGenerator::writeEmulatedSwitchFallthroughCases(SkSpan<const SwitchC
                 this->write(fallthroughVar);
                 this->write(" = true;  ");
             }
+#if defined(SK_DEBUG)
             this->writeLine("// fallthrough");
+#endif
 
             fIndentation--;
             this->writeLine("}");

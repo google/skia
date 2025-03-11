@@ -116,18 +116,18 @@ private:
         if (args.fShaderCaps->fVertexIDSupport) {
             // If we don't have sk_VertexID support then "unitCoord" already came in as a vertex
             // attrib.
-            args.fVertBuilder->codeAppendf(R"(
-            float2 unitCoord = float2(sk_VertexID & 1, sk_VertexID >> 1);)");
+            args.fVertBuilder->codeAppendf(
+                "float2 unitCoord = float2(sk_VertexID & 1, sk_VertexID >> 1);");
         }
 
-        args.fVertBuilder->codeAppendf(R"(
-        float2 devCoord = mix(fillBounds.xy, fillBounds.zw, unitCoord);)");
+        args.fVertBuilder->codeAppendf(
+            "float2 devCoord = mix(fillBounds.xy, fillBounds.zw, unitCoord);");
         gpArgs->fPositionVar.set(SkSLType::kFloat2, "devCoord");
 
         if (shader.fUsesLocalCoords) {
-            args.fVertBuilder->codeAppendf(R"(
-            float2x2 M = float2x2(affineMatrix.xy, affineMatrix.zw);
-            float2 localCoord = inverse(M) * (devCoord - translate);)");
+            args.fVertBuilder->codeAppendf(
+            "float2x2 M = float2x2(affineMatrix.xy, affineMatrix.zw);"
+            "float2 localCoord = inverse(M) * (devCoord - translate);");
             gpArgs->fLocalCoordVar.set(SkSLType::kFloat2, "localCoord");
         }
 

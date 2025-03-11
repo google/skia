@@ -51,11 +51,10 @@ AnalyticBlurRenderStep::AnalyticBlurRenderStep()
                      {{"scaledShapeCoords", SkSLType::kFloat2}}) {}
 
 std::string AnalyticBlurRenderStep::vertexSkSL() const {
-    return R"(
-        float4 devPosition = localToDevice * float4(position, depth, 1.0);
-        stepLocalCoords = position;
-        scaledShapeCoords = (deviceToScaledShape * devPosition.xy1).xy;
-    )";
+    return
+        "float4 devPosition = localToDevice * float4(position, depth, 1.0);\n"
+        "stepLocalCoords = position;\n"
+        "scaledShapeCoords = (deviceToScaledShape * devPosition.xy1).xy;\n";
 }
 
 std::string AnalyticBlurRenderStep::texturesAndSamplersSkSL(

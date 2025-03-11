@@ -3016,7 +3016,7 @@ static int debug_paths_draw_the_same(const SkPath& one, const SkPath& two, SkBit
 }
 
 void ReportOpFail(const SkPath& one, const SkPath& two, SkPathOp op) {
-    SkDebugf("// Op did not expect failure\n");
+    SkDEBUGF("// Op did not expect failure\n");
     DumpOp(stderr, one, two, op, "opTest");
     fflush(stderr);
 }
@@ -3056,7 +3056,7 @@ void VerifyOp(const SkPath& one, const SkPath& two, SkPathOp op,
 }
 
 void ReportSimplifyFail(const SkPath& path) {
-    SkDebugf("// Simplify did not expect failure\n");
+    SkDEBUGF("// Simplify did not expect failure\n");
     DumpSimplify(stderr, path, "simplifyTest");
     fflush(stderr);
 }

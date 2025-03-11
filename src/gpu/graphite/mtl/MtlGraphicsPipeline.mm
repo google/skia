@@ -356,29 +356,28 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::MakeLoadMSAAPipeline(
         const MtlSharedContext* sharedContext,
         MtlResourceProvider* resourceProvider,
         const RenderPassDesc& renderPassDesc) {
-    static const char* kLoadMSAAShaderText = R"(
-            #include <metal_stdlib>
-            #include <simd/simd.h>
-            using namespace metal;
+    static const char* kLoadMSAAShaderText =
+            "#include <metal_stdlib>\n"
+            "#include <simd/simd.h>\n"
+            "using namespace metal;"
 
-            typedef struct {
-                float4 position [[position]];
-            } VertexOutput;
+            "typedef struct {"
+                "float4 position [[position]];"
+            "} VertexOutput;"
 
-            vertex VertexOutput vertexMain(uint vertexID [[vertex_id]]) {
-                VertexOutput out;
-                float2 position = float2(float(vertexID >> 1), float(vertexID & 1));
-                out.position = float4(2.0 * position - 1.0, 0.0, 1.0);
-                return out;
-            }
+            "vertex VertexOutput vertexMain(uint vertexID [[vertex_id]]) {"
+                "VertexOutput out;"
+                "float2 position = float2(float(vertexID >> 1), float(vertexID & 1));"
+                "out.position = float4(2.0 * position - 1.0, 0.0, 1.0);"
+                "return out;"
+            "}"
 
-            fragment float4 fragmentMain(VertexOutput in [[stage_in]],
-                                            texture2d<half> colorMap [[texture(0)]]) {
-                uint2 coords = uint2(in.position.x, in.position.y);
-                half4 colorSample   = colorMap.read(coords);
-                return float4(colorSample);
-            }
-    )";
+            "fragment float4 fragmentMain(VertexOutput in [[stage_in]],"
+                                            "texture2d<half> colorMap [[texture(0)]]) {"
+                "uint2 coords = uint2(in.position.x, in.position.y);"
+                "half4 colorSample   = colorMap.read(coords);"
+                "return float4(colorSample);"
+            "}";
 
     auto mtlLibrary = MtlCompileShaderLibrary(sharedContext,
                                               "LoadMSAAFromResolve",

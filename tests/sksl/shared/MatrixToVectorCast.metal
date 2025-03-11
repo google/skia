@@ -14,11 +14,7 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
-
-half4 half4_from_half2x2(half2x2 x) {
-    return half4(x[0].xy, x[1].xy);
-}
-fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
+half4 half4_from_half2x2(half2x2 x) {return half4(x[0].xy, x[1].xy);}fragment Outputs fragmentMain(Inputs _in [[stage_in]], constant Uniforms& _uniforms [[buffer(0)]], bool _frontFacing [[front_facing]], float4 _fragCoord [[position]]) {
     Outputs _out;
     (void)_out;
     bool ok = true;

@@ -122,31 +122,27 @@ VerticesRenderStep::~VerticesRenderStep() {}
 
 std::string VerticesRenderStep::vertexSkSL() const {
     if (fHasColor && fHasTexCoords) {
-        return R"(
-            color = half4(vertColor.bgr * vertColor.a, vertColor.a);
-            float4 devPosition = localToDevice * float4(position, 0.0, 1.0);
-            devPosition.z = depth;
-            stepLocalCoords = texCoords;
-        )";
+        return
+            "color = half4(vertColor.bgr * vertColor.a, vertColor.a);\n"
+            "float4 devPosition = localToDevice * float4(position, 0.0, 1.0);\n"
+            "devPosition.z = depth;\n"
+            "stepLocalCoords = texCoords;\n";
     } else if (fHasTexCoords) {
-        return R"(
-            float4 devPosition = localToDevice * float4(position, 0.0, 1.0);
-            devPosition.z = depth;
-            stepLocalCoords = texCoords;
-        )";
+        return
+            "float4 devPosition = localToDevice * float4(position, 0.0, 1.0);\n"
+            "devPosition.z = depth;\n"
+            "stepLocalCoords = texCoords;\n";
     } else if (fHasColor) {
-        return R"(
-            color = half4(vertColor.bgr * vertColor.a, vertColor.a);
-            float4 devPosition = localToDevice * float4(position, 0.0, 1.0);
-            devPosition.z = depth;
-            stepLocalCoords = position;
-        )";
+        return
+            "color = half4(vertColor.bgr * vertColor.a, vertColor.a);\n"
+            "float4 devPosition = localToDevice * float4(position, 0.0, 1.0);\n"
+            "devPosition.z = depth;\n"
+            "stepLocalCoords = position;\n";
     } else {
-        return R"(
-            float4 devPosition = localToDevice * float4(position, 0.0, 1.0);
-            devPosition.z = depth;
-            stepLocalCoords = position;
-        )";
+        return
+            "float4 devPosition = localToDevice * float4(position, 0.0, 1.0);\n"
+            "devPosition.z = depth;\n"
+            "stepLocalCoords = position;\n";
     }
 }
 

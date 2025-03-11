@@ -83,18 +83,22 @@ bool GrGLCheckLinkStatus(const GrGLGpu* gpu,
     GR_GL_CALL(gli, GetProgramiv(programID, GR_GL_LINK_STATUS, &linked));
     if (!linked && errorHandler) {
         std::string allShaders;
+#if defined(SK_DEBUG)
+        #define SKSL_FORMAT "// Vertex SKSL\n%s\n// Fragment SKSL\n%s\n"
+#else
+        #define SKSL_FORMAT "%s\n%s\n"
+#endif
         if (sksl) {
-            SkSL::String::appendf(&allShaders, "// Vertex SKSL\n%s\n"
-                                               "// Fragment SKSL\n%s\n",
+            SkSL::String::appendf(&allShaders, SKSL_FORMAT,
                                                sksl[kVertex_GrShaderType]->c_str(),
                                                sksl[kFragment_GrShaderType]->c_str());
         }
         if (glsl) {
-            SkSL::String::appendf(&allShaders, "// Vertex GLSL\n%s\n"
-                                               "// Fragment GLSL\n%s\n",
+            SkSL::String::appendf(&allShaders, SKSL_FORMAT,
                                                glsl[kVertex_GrShaderType].c_str(),
                                                glsl[kFragment_GrShaderType].c_str());
         }
+#undef SKSL_FORMAT
         GrGLint infoLen = GR_GL_INIT_ZERO;
         GR_GL_CALL(gli, GetProgramiv(programID, GR_GL_INFO_LOG_LENGTH, &infoLen));
         SkAutoMalloc log(infoLen+1);

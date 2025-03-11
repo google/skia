@@ -25,37 +25,7 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
-
-thread bool operator==(thread const S& left, thread const S& right);
-thread bool operator!=(thread const S& left, thread const S& right);
-
-thread bool operator==(thread const Nested& left, thread const Nested& right);
-thread bool operator!=(thread const Nested& left, thread const Nested& right);
-
-thread bool operator==(thread const Compound& left, thread const Compound& right);
-thread bool operator!=(thread const Compound& left, thread const Compound& right);
-thread bool operator==(thread const S& left, thread const S& right) {
-    return all(left.x == right.x) &&
-           all(left.y == right.y);
-}
-thread bool operator!=(thread const S& left, thread const S& right) {
-    return !(left == right);
-}
-thread bool operator==(thread const Nested& left, thread const Nested& right) {
-    return all(left.a == right.a) &&
-           all(left.b == right.b);
-}
-thread bool operator!=(thread const Nested& left, thread const Nested& right) {
-    return !(left == right);
-}
-thread bool operator==(thread const Compound& left, thread const Compound& right) {
-    return all(left.f4 == right.f4) &&
-           all(left.i3 == right.i3);
-}
-thread bool operator!=(thread const Compound& left, thread const Compound& right) {
-    return !(left == right);
-}
-S returns_a_struct_S() {
+thread bool operator==(thread const S& left, thread const S& right);thread bool operator!=(thread const S& left, thread const S& right);thread bool operator==(thread const Nested& left, thread const Nested& right);thread bool operator!=(thread const Nested& left, thread const Nested& right);thread bool operator==(thread const Compound& left, thread const Compound& right);thread bool operator!=(thread const Compound& left, thread const Compound& right);thread bool operator==(thread const S& left, thread const S& right) {return all(left.x == right.x) && all(left.y == right.y);}thread bool operator!=(thread const S& left, thread const S& right) {return !(left == right);}thread bool operator==(thread const Nested& left, thread const Nested& right) {return all(left.a == right.a) && all(left.b == right.b);}thread bool operator!=(thread const Nested& left, thread const Nested& right) {return !(left == right);}thread bool operator==(thread const Compound& left, thread const Compound& right) {return all(left.f4 == right.f4) && all(left.i3 == right.i3);}thread bool operator!=(thread const Compound& left, thread const Compound& right) {return !(left == right);}S returns_a_struct_S() {
     S s;
     s.x = 1.0;
     s.y = 2;

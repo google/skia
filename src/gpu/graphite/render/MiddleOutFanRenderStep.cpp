@@ -44,11 +44,10 @@ MiddleOutFanRenderStep::MiddleOutFanRenderStep(bool evenOdd)
 MiddleOutFanRenderStep::~MiddleOutFanRenderStep() {}
 
 std::string MiddleOutFanRenderStep::vertexSkSL() const {
-    return R"(
-        float4 devPosition = localToDevice * float4(position, 0.0, 1.0);
-        devPosition.z = depth;
-        stepLocalCoords = position;
-    )";
+    return
+        "float4 devPosition = localToDevice * float4(position, 0.0, 1.0);\n"
+        "devPosition.z = depth;\n"
+        "stepLocalCoords = position;\n";
 }
 
 void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer,

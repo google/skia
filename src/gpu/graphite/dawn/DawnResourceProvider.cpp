@@ -372,25 +372,23 @@ wgpu::RenderPipeline DawnResourceProvider::findOrCreateBlitWithDrawPipeline(
             this->dawnSharedContext()->dawnCaps()->getRenderPassDescKeyForPipeline(renderPassDesc);
     wgpu::RenderPipeline pipeline = fBlitWithDrawPipelines[renderPassKey];
     if (!pipeline) {
-        static constexpr char kVertexShaderText[] = R"(
-            var<private> fullscreenTriPositions : array<vec2<f32>, 3> = array<vec2<f32>, 3>(
-                vec2(-1.0, -1.0), vec2(-1.0, 3.0), vec2(3.0, -1.0));
+        static constexpr char kVertexShaderText[] =
+            "var<private> fullscreenTriPositions : array<vec2<f32>, 3> = array<vec2<f32>, 3>("
+                "vec2(-1.0, -1.0), vec2(-1.0, 3.0), vec2(3.0, -1.0));"
 
-            @vertex
-            fn main(@builtin(vertex_index) vertexIndex : u32) -> @builtin(position) vec4<f32> {
-                return vec4(fullscreenTriPositions[vertexIndex], 1.0, 1.0);
-            }
-        )";
+            "@vertex "
+            "fn main(@builtin(vertex_index) vertexIndex : u32) -> @builtin(position) vec4<f32> {"
+                "return vec4(fullscreenTriPositions[vertexIndex], 1.0, 1.0);"
+            "}";
 
-        static constexpr char kFragmentShaderText[] = R"(
-            @group(0) @binding(0) var colorMap: texture_2d<f32>;
+        static constexpr char kFragmentShaderText[] =
+            "@group(0) @binding(0) var colorMap: texture_2d<f32>;"
 
-            @fragment
-            fn main(@builtin(position) fragPosition : vec4<f32>) -> @location(0) vec4<f32> {
-                var coords : vec2<i32> = vec2<i32>(i32(fragPosition.x), i32(fragPosition.y));
-                return textureLoad(colorMap, coords, 0);
-            }
-        )";
+            "@fragment "
+            "fn main(@builtin(position) fragPosition : vec4<f32>) -> @location(0) vec4<f32> {"
+                "var coords : vec2<i32> = vec2<i32>(i32(fragPosition.x), i32(fragPosition.y));"
+                "return textureLoad(colorMap, coords, 0);"
+            "}";
 
         auto vsModule = create_shader_module(dawnSharedContext()->device(), kVertexShaderText);
         auto fsModule = create_shader_module(dawnSharedContext()->device(), kFragmentShaderText);

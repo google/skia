@@ -17,73 +17,7 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
-
-thread bool operator==(const float2x2 left, const float2x2 right);
-thread bool operator!=(const float2x2 left, const float2x2 right);
-
-thread bool operator==(const float3x3 left, const float3x3 right);
-thread bool operator!=(const float3x3 left, const float3x3 right);
-
-thread bool operator==(const float4x4 left, const float4x4 right);
-thread bool operator!=(const float4x4 left, const float4x4 right);
-
-thread bool operator==(const half2x2 left, const half2x2 right);
-thread bool operator!=(const half2x2 left, const half2x2 right);
-
-thread bool operator==(const half3x3 left, const half3x3 right);
-thread bool operator!=(const half3x3 left, const half3x3 right);
-
-thread bool operator==(const half4x4 left, const half4x4 right);
-thread bool operator!=(const half4x4 left, const half4x4 right);
-thread bool operator==(const float2x2 left, const float2x2 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]);
-}
-thread bool operator!=(const float2x2 left, const float2x2 right) {
-    return !(left == right);
-}
-thread bool operator==(const float3x3 left, const float3x3 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]);
-}
-thread bool operator!=(const float3x3 left, const float3x3 right) {
-    return !(left == right);
-}
-thread bool operator==(const float4x4 left, const float4x4 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]) &&
-           all(left[3] == right[3]);
-}
-thread bool operator!=(const float4x4 left, const float4x4 right) {
-    return !(left == right);
-}
-thread bool operator==(const half2x2 left, const half2x2 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]);
-}
-thread bool operator!=(const half2x2 left, const half2x2 right) {
-    return !(left == right);
-}
-thread bool operator==(const half3x3 left, const half3x3 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]);
-}
-thread bool operator!=(const half3x3 left, const half3x3 right) {
-    return !(left == right);
-}
-thread bool operator==(const half4x4 left, const half4x4 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]) &&
-           all(left[3] == right[3]);
-}
-thread bool operator!=(const half4x4 left, const half4x4 right) {
-    return !(left == right);
-}
-bool test_iscalar_b(Uniforms _uniforms) {
+thread bool operator==(const float2x2 left, const float2x2 right);thread bool operator!=(const float2x2 left, const float2x2 right);thread bool operator==(const float3x3 left, const float3x3 right);thread bool operator!=(const float3x3 left, const float3x3 right);thread bool operator==(const float4x4 left, const float4x4 right);thread bool operator!=(const float4x4 left, const float4x4 right);thread bool operator==(const half2x2 left, const half2x2 right);thread bool operator!=(const half2x2 left, const half2x2 right);thread bool operator==(const half3x3 left, const half3x3 right);thread bool operator!=(const half3x3 left, const half3x3 right);thread bool operator==(const half4x4 left, const half4x4 right);thread bool operator!=(const half4x4 left, const half4x4 right);thread bool operator==(const float2x2 left, const float2x2 right) {return all(left[0] == right[0]) && all(left[1] == right[1]);}thread bool operator!=(const float2x2 left, const float2x2 right) {return !(left == right);}thread bool operator==(const float3x3 left, const float3x3 right) {return all(left[0] == right[0]) && all(left[1] == right[1]) && all(left[2] == right[2]);}thread bool operator!=(const float3x3 left, const float3x3 right) {return !(left == right);}thread bool operator==(const float4x4 left, const float4x4 right) {return all(left[0] == right[0]) && all(left[1] == right[1]) && all(left[2] == right[2]) && all(left[3] == right[3]);}thread bool operator!=(const float4x4 left, const float4x4 right) {return !(left == right);}thread bool operator==(const half2x2 left, const half2x2 right) {return all(left[0] == right[0]) && all(left[1] == right[1]);}thread bool operator!=(const half2x2 left, const half2x2 right) {return !(left == right);}thread bool operator==(const half3x3 left, const half3x3 right) {return all(left[0] == right[0]) && all(left[1] == right[1]) && all(left[2] == right[2]);}thread bool operator!=(const half3x3 left, const half3x3 right) {return !(left == right);}thread bool operator==(const half4x4 left, const half4x4 right) {return all(left[0] == right[0]) && all(left[1] == right[1]) && all(left[2] == right[2]) && all(left[3] == right[3]);}thread bool operator!=(const half4x4 left, const half4x4 right) {return !(left == right);}bool test_iscalar_b(Uniforms _uniforms) {
     int x = int(_uniforms.colorWhite.x);
     x = -x;
     return x == -1;

@@ -15,30 +15,7 @@ struct Inputs {
 struct Outputs {
     half4 sk_FragColor [[color(0)]];
 };
-
-thread bool operator==(const float4x4 left, const float4x4 right);
-thread bool operator!=(const float4x4 left, const float4x4 right);
-
-thread bool operator==(const float3x3 left, const float3x3 right);
-thread bool operator!=(const float3x3 left, const float3x3 right);
-thread bool operator==(const float4x4 left, const float4x4 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]) &&
-           all(left[3] == right[3]);
-}
-thread bool operator!=(const float4x4 left, const float4x4 right) {
-    return !(left == right);
-}
-thread bool operator==(const float3x3 left, const float3x3 right) {
-    return all(left[0] == right[0]) &&
-           all(left[1] == right[1]) &&
-           all(left[2] == right[2]);
-}
-thread bool operator!=(const float3x3 left, const float3x3 right) {
-    return !(left == right);
-}
-bool test4x4_b(Uniforms _uniforms) {
+thread bool operator==(const float4x4 left, const float4x4 right);thread bool operator!=(const float4x4 left, const float4x4 right);thread bool operator==(const float3x3 left, const float3x3 right);thread bool operator!=(const float3x3 left, const float3x3 right);thread bool operator==(const float4x4 left, const float4x4 right) {return all(left[0] == right[0]) && all(left[1] == right[1]) && all(left[2] == right[2]) && all(left[3] == right[3]);}thread bool operator!=(const float4x4 left, const float4x4 right) {return !(left == right);}thread bool operator==(const float3x3 left, const float3x3 right) {return all(left[0] == right[0]) && all(left[1] == right[1]) && all(left[2] == right[2]);}thread bool operator!=(const float3x3 left, const float3x3 right) {return !(left == right);}bool test4x4_b(Uniforms _uniforms) {
     float4x4 matrix;
     float4 values = float4(4.0, 3.0, 2.0, 1.0);
     for (int index = 0;index < 4; ++index) {

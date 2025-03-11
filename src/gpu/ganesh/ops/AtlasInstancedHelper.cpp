@@ -77,10 +77,11 @@ void AtlasInstancedHelper::injectShaderCode(
         GrGLSLVarying atlasBounds(SkSLType::kFloat4);
         args.fVaryingHandler->addVarying("atlasbounds", &atlasBounds,
                                          GrGLSLVaryingHandler::Interpolation::kCanBeFlat);
-        args.fVertBuilder->codeAppendf(R"(
-        float4 atlasBounds = atlasTopLeft.xyxy + (transposed ? sizeInAtlas.00yx
-                                                             : sizeInAtlas.00xy);
-        %s = atlasBounds * %s.xyxy;)", atlasBounds.vsOut(), atlasAdjustName);
+        args.fVertBuilder->codeAppendf(
+        "float4 atlasBounds = atlasTopLeft.xyxy + (transposed ? sizeInAtlas.00yx"
+                                                             ": sizeInAtlas.00xy);"
+        "%s = atlasBounds * %s.xyxy;",
+        atlasBounds.vsOut(), atlasAdjustName);
 
         args.fFragBuilder->codeAppendf(
         "half atlasCoverage = 0;"
@@ -90,8 +91,9 @@ void AtlasInstancedHelper::injectShaderCode(
             "all(lessThan(atlasCoord, atlasBounds.zw))) {"
             "atlasCoverage = ", atlasCoord.fsIn(), atlasBounds.fsIn());
         args.fFragBuilder->appendTextureLookup(args.fTexSamplers[0], "atlasCoord");
-        args.fFragBuilder->codeAppendf(R"(.a;
-        })");
+        args.fFragBuilder->codeAppendf(
+            ".a;"
+        "}");
     } else {
         args.fFragBuilder->codeAppendf("half atlasCoverage = ");
         args.fFragBuilder->appendTextureLookup(args.fTexSamplers[0], atlasCoord.fsIn());

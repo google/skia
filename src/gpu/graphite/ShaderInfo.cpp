@@ -88,8 +88,10 @@ std::string get_node_uniforms(UniformOffsetCalculator* offsetter,
                                   node->entry()->fUniformStructName,
                                   node->keyIndex());
         } else {
+#if defined(SK_DEBUG)
             SkSL::String::appendf(&result, "// %d - %s uniforms\n",
                                   node->keyIndex(), node->entry()->fName);
+#endif
             result += get_uniforms(offsetter, uniforms, node->keyIndex(), wrotePaintColor);
         }
     }
@@ -111,7 +113,9 @@ std::string get_ssbo_fields(SkSpan<const Uniform> uniforms,
 
         if (u.isPaintColor() && wrotePaintColor) {
             if (*wrotePaintColor) {
+#if defined(SK_DEBUG)
                 SkSL::String::appendf(&result, "    // deduplicated %s\n", u.name());
+#endif
                 continue;
             }
 
@@ -142,9 +146,10 @@ std::string get_node_ssbo_fields(const ShaderNode* node, bool* wrotePaintColor) 
             SkSL::String::appendf(&result, "%s node_%d;",
                                   node->entry()->fUniformStructName, node->keyIndex());
         } else {
+#if defined(SK_DEBUG)
             SkSL::String::appendf(&result, "// %d - %s uniforms\n",
                                   node->keyIndex(), node->entry()->fName);
-
+#endif
             result += get_ssbo_fields(uniforms, node->keyIndex(), wrotePaintColor);
         }
     }
@@ -310,8 +315,10 @@ std::string get_node_texture_samplers(const ResourceBindingRequirements& binding
     SkSpan<const TextureAndSampler> samplers = node->entry()->fTexturesAndSamplers;
 
     if (!samplers.empty()) {
+#if defined(SK_DEBUG)
         SkSL::String::appendf(&result, "// %d - %s samplers\n",
                               node->keyIndex(), node->entry()->fName);
+#endif
 
         // Determine whether we need to analyze & interpret a ShaderNode's data as immutable
         // SamplerDescs based upon whether:
@@ -963,11 +970,15 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
             }
         };
         if (step->numVertexAttributes() > 0) {
+#if defined(SK_DEBUG)
             sksl.append("// vertex attrs\n");
+#endif
             add_attrs(step->vertexAttributes());
         }
         if (step->numInstanceAttributes() > 0) {
+#if defined(SK_DEBUG)
             sksl.append("// instance attrs\n");
+#endif
             add_attrs(step->instanceAttributes());
         }
     }

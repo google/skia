@@ -92,8 +92,10 @@ bool GrGLSLProgramBuilder::emitAndInstallPrimProc(SkString* outputColor, SkStrin
     fUniformHandles.fRTAdjustmentUni = this->uniformHandler()->addUniform(
             nullptr, kVertex_GrShaderFlag, SkSLType::kFloat4, SkSL::Compiler::RTADJUST_NAME);
 
+#if defined(SK_DEBUG)
     fFS.codeAppendf("// Stage %d, %s\n", fStageIndex, geomProc.name());
     fVS.codeAppendf("// Primitive Processor %s\n", geomProc.name());
+#endif
 
     SkASSERT(!fGPImpl);
     fGPImpl = geomProc.makeProgramImpl(*this->shaderCaps());
@@ -351,7 +353,9 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
                 SkSLType::kHalf4,
                 "DstTextureCoords",
                 &dstTextureCoordsName);
+#if defined(SK_DEBUG)
         fFS.codeAppend("// Read color from copy of the destination\n");
+#endif
         if (dstTextureProxy->textureType() == GrTextureType::k2D) {
             fFS.codeAppendf("float2 _dstTexCoord = (sk_FragCoord.xy - %s.xy) * %s.zw;\n",
                     dstTextureCoordsName, dstTextureCoordsName);
@@ -384,7 +388,9 @@ bool GrGLSLProgramBuilder::emitAndInstallDstTexture() {
 
         // Populate the _dstColor variable by loading from the input attachment at the top of the
         // fragment shader.
+#if defined(SK_DEBUG)
         fFS.codeAppend("// Read color from input attachment\n");
+#endif
         const char* dstColor = fFS.dstColor();
         SkString dstColorDecl = SkStringPrintf("half4 %s;", dstColor);
         fFS.definitionAppend(dstColorDecl.c_str());
@@ -411,7 +417,11 @@ bool GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     }
 
     SkString openBrace;
+#if defined(SK_DEBUG)
     openBrace.printf("{ // Xfer Processor: %s\n", xp.name());
+#else
+    openBrace.printf("{\n");
+#endif
     fFS.codeAppend(openBrace.c_str());
 
     SkString finalInColor = colorIn.size() ? colorIn : SkString("float4(1)");
