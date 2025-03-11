@@ -129,7 +129,7 @@ def c_plus_plus_deps(ws = "@skia"):
     new_git_repository(
         name = "libjpeg_turbo",
         build_file = ws + "//bazel/external/libjpeg_turbo:BUILD.bazel",
-        commit = "ccfbe1c82a3b6dbe8647ceb36a3f9ee711fba3cf",
+        commit = "e14cbfaa85529d47f9f55b0f104a579c1061f9ad",
         remote = "https://chromium.googlesource.com/chromium/deps/libjpeg_turbo.git",
     )
 

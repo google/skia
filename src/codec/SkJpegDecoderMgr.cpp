@@ -15,6 +15,7 @@
     #include "include/android/SkAndroidFrameworkUtils.h"
 #endif
 
+#include <jpeglib.h>
 #include <cstddef>
 #include <utility>
 
