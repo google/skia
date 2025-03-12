@@ -88,7 +88,7 @@ public:
             fText[i] = rand.nextU() & 0xFFFF;
             fCache.addCharAndGlyph(fText[i], i);
         }
-        fFont.setTypeface(ToolUtils::DefaultPortableTypeface());
+        fFont.setTypeface(ToolUtils::DefaultTypeface());
     }
 
     bool isSuitableFor(Backend backend) override {
