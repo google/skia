@@ -256,11 +256,11 @@ bool SkTypeface_Fontations::onGlyphMaskNeedsCurrentColor() const {
 void SkTypeface_Fontations::onCharsToGlyphs(const SkUnichar* chars,
                                             int count,
                                             SkGlyphID glyphs[]) const {
-    sk_bzero(glyphs, count * sizeof(glyphs[0]));
-
-    for (int i = 0; i < count; ++i) {
-        glyphs[i] = fontations_ffi::lookup_glyph_or_zero(*fBridgeFontRef, *fMappingIndex, chars[i]);
-    }
+    size_t realCount = SkToSizeT(count);
+    rust::Slice<const uint32_t> codepointSlice{reinterpret_cast<const uint32_t*>(chars), realCount};
+    rust::Slice<uint16_t> glyphSlice{reinterpret_cast<uint16_t*>(glyphs), realCount};
+    fontations_ffi::lookup_glyph_or_zero(*fBridgeFontRef, *fMappingIndex,
+                                         codepointSlice, glyphSlice);
 }
 int SkTypeface_Fontations::onCountGlyphs() const {
     return fontations_ffi::num_glyphs(*fBridgeFontRef);
@@ -399,9 +399,12 @@ public:
         }
     }
 
-    bool getContourHeightForLetter(char letter, SkScalar& height) {
-        uint16_t glyphId =
-                fontations_ffi::lookup_glyph_or_zero(fBridgeFontRef, fMappingIndex, letter);
+    bool getContourHeightForLetter(SkUnichar letter, SkScalar& height) {
+        SkGlyphID glyphId;
+        rust::Slice<const uint32_t> codepointSlice{reinterpret_cast<const uint32_t*>(&letter), 1};
+        rust::Slice<uint16_t> glyphSlice{reinterpret_cast<uint16_t*>(&glyphId), 1};
+        fontations_ffi::lookup_glyph_or_zero(fBridgeFontRef, fMappingIndex,
+                                             codepointSlice, glyphSlice);
         if (!glyphId) {
             return false;
         }

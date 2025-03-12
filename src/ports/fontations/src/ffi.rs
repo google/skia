@@ -119,15 +119,23 @@ unsafe fn make_mono_hinting_instance<'a>(
     Box::new(BridgeHintingInstance(hinting_instance))
 }
 
-fn lookup_glyph_or_zero(font_ref: &BridgeFontRef, map: &BridgeMappingIndex, codepoint: u32) -> u16 {
-    font_ref
-        .with_font(|f| {
-            let glyph_id = map.0.charmap(f).map(codepoint)?.to_u32();
-            // Remove conversion and change return type to u32 when
-            // implementing large glyph id support in Skia.
-            glyph_id.try_into().ok()
-        })
-        .unwrap_or_default()
+fn lookup_glyph_or_zero(
+    font_ref: &BridgeFontRef,
+    map: &BridgeMappingIndex,
+    codepoints: &[u32],
+    glyphs: &mut [u16],
+) {
+    glyphs.fill(0);
+    font_ref.with_font(|f| {
+        let mappings = map.0.charmap(f);
+        for it in codepoints.iter().zip(glyphs.iter_mut()) {
+            let (codepoint, glyph) = it;
+            // Remove u16 conversion when implementing large glyph id support in Skia.
+            *glyph = u16::try_from(mappings.map(*codepoint).unwrap_or_default().to_u32())
+                .unwrap_or_default();
+        }
+        Some(())
+    });
 }
 
 fn num_glyphs(font_ref: &BridgeFontRef) -> u16 {
@@ -1685,8 +1693,9 @@ mod ffi {
         fn lookup_glyph_or_zero(
             font_ref: &BridgeFontRef,
             map: &BridgeMappingIndex,
-            codepoint: u32,
-        ) -> u16;
+            codepoint: &[u32],
+            glyphs: &mut [u16],
+        );
 
         fn get_path_verbs_points(
             outlines: &BridgeOutlineCollection,
