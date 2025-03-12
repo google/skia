@@ -8,7 +8,6 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathUtils.h"
@@ -18,6 +17,7 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkRandom.h"
+#include "src/core/SkColorPriv.h"
 
 #include "src/core/SkDraw.h"
 #include "src/core/SkMatrixPriv.h"

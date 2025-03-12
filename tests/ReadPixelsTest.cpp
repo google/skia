@@ -11,7 +11,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
@@ -31,6 +30,7 @@
 #include "src/base/SkHalf.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkColorPriv.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "tests/Test.h"
 

@@ -10,7 +10,6 @@
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
@@ -27,6 +26,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkTLazy.h"
+#include "src/core/SkColorPriv.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 

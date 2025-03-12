@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
@@ -18,6 +17,7 @@
 #include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkBlitter.h"
+#include "src/core/SkColorPriv.h"
 #include "src/core/SkFDot6.h"
 #include "src/core/SkLineClipper.h"
 #include "src/core/SkRasterClip.h"

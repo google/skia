@@ -10,9 +10,9 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
+#include "src/core/SkColorPriv.h"
 
 #if defined(SK_BUILD_FOR_WIN)
     #define PATH_DIV_STR "\\"

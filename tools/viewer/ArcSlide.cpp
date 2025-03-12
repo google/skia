@@ -7,7 +7,6 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkDrawable.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkPath.h"
@@ -23,6 +22,7 @@
 #include "include/utils/SkTextUtils.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkUTF.h"
+#include "src/core/SkColorPriv.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 

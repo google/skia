@@ -11,7 +11,6 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkFont.h"
@@ -38,6 +37,7 @@
 #include "include/private/base/SkCPUTypes.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkColorPriv.h"
 #include "src/core/SkFontPriv.h"
 #include "tools/SkMetaData.h"
 

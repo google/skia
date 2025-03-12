@@ -20,7 +20,6 @@
 #endif
 
 #include "include/core/SkColor.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkMatrix.h"
@@ -36,6 +35,7 @@
 #include "src/base/SkEndian.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkColorPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskGamma.h"

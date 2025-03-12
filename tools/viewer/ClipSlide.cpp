@@ -6,13 +6,13 @@
  */
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkShader.h"
 #include "src/base/SkRandom.h"
+#include "src/core/SkColorPriv.h"
 #include "src/core/SkPathPriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"

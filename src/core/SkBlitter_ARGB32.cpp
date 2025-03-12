@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkColor.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
@@ -22,6 +21,7 @@
 #include "src/core/SkBlitMask.h"
 #include "src/core/SkBlitRow.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkColorPriv.h"
 #include "src/core/SkCoreBlitters.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMemset.h"

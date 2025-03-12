@@ -8,10 +8,10 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkColorPriv.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkRasterClip.h"
 

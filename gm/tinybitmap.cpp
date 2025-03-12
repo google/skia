@@ -8,12 +8,12 @@
 #include "gm/gm.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
+#include "src/core/SkColorPriv.h"
 
 namespace {
 class TinyBitmapGM : public skiagm::GM {

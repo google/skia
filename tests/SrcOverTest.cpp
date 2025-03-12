@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkColorPriv.h"
 #include "include/private/base/SkMath.h"
+#include "src/core/SkColorPriv.h"
 #include "tests/Test.h"
 
 #include <algorithm>

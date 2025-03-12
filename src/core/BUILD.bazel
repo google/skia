@@ -56,6 +56,7 @@ skia_filegroup(
         "SkClipStackDevice.h",
         "SkColorData.h",
         "SkColorFilterPriv.h",
+        "SkColorPriv.h",
         "SkColorSpacePriv.h",
         "SkColorSpaceXformSteps.h",
         "SkCompressedDataUtils.h",
@@ -180,6 +181,7 @@ skia_filegroup(
     srcs = [
         "Sk4px.h",
         "SkColorData.h",
+        "SkColorPriv.h",
         "SkOpts.h",
         "SkOptsTargets.h",
         "SkRasterPipeline.h",
@@ -529,6 +531,7 @@ generate_cpp_files_for_headers(
         # This allows us to run IWYU on these files.
         "SkAdvancedTypefaceMetrics.h",
         "SkColorData.h",
+        "SkColorPriv.h",
         "SkColorSpacePriv.h",
         "SkCoreBlitters.h",
         "SkDebugUtils.h",

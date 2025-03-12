@@ -7,9 +7,9 @@
 
 #include "include/core/SkBlurTypes.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkMaskFilter.h"
 #include "src/base/SkRandom.h"
+#include "src/core/SkColorPriv.h"
 #include "tools/viewer/Slide.h"
 
 #include <iterator>

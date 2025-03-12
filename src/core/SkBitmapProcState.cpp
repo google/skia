@@ -8,12 +8,12 @@
 #include "src/core/SkBitmapProcState.h"
 
 #include "include/core/SkAlphaType.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkTileMode.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTPin.h"
+#include "src/core/SkColorPriv.h"
 #include "src/core/SkMemset.h"
 #include "src/core/SkMipmapAccessor.h"
 

@@ -7,7 +7,6 @@
 
 #include "src/core/SkMaskBlurFilter.h"
 
-#include "include/core/SkColorPriv.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTPin.h"
@@ -15,6 +14,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkVx.h"
+#include "src/core/SkColorPriv.h"
 #include "src/core/SkGaussFilter.h"
 
 #include <cmath>

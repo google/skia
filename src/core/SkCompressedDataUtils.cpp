@@ -9,7 +9,6 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkData.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -17,6 +16,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkColorPriv.h"
 #include "src/core/SkMipmap.h"
 
 #include <algorithm>

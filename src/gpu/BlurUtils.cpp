@@ -7,7 +7,6 @@
 #include "src/gpu/BlurUtils.h"
 
 #include "include/core/SkBitmap.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
@@ -20,6 +19,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkMathPriv.h"
+#include "src/core/SkColorPriv.h"
 
 #include <algorithm>
 #include <cmath>

@@ -9,7 +9,6 @@
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSize.h"
@@ -18,6 +17,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkMathPriv.h"
 #include "src/codec/SkCodecPriv.h"
+#include "src/core/SkColorPriv.h"
 
 #include <algorithm>
 #include <utility>

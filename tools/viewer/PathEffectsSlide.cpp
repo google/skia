@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPathMeasure.h"
@@ -17,6 +16,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "src/base/SkRandom.h"
 #include "src/base/SkUTF.h"
+#include "src/core/SkColorPriv.h"
 #include "tools/timer/TimeUtils.h"
 #include "tools/viewer/Slide.h"
 

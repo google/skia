@@ -8,12 +8,12 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkRandom.h"
+#include "src/core/SkColorPriv.h"
 
 
 class LineBench : public Benchmark {

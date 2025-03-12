@@ -8,7 +8,6 @@
 #include "src/codec/SkSwizzler.h"
 
 #include "include/core/SkAlphaType.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRect.h"
@@ -20,6 +19,7 @@
 #include "src/base/SkHalf.h"
 #include "src/codec/SkCodecPriv.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkColorPriv.h"
 #include "src/core/SkSwizzlePriv.h"
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK

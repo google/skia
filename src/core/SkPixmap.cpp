@@ -8,7 +8,6 @@
 #include "include/core/SkPixmap.h"
 
 #include "include/core/SkAlphaType.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkUnPreMultiply.h"
@@ -17,6 +16,7 @@
 #include "src/base/SkHalf.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkColorPriv.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkMask.h"

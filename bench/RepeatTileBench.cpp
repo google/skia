@@ -7,11 +7,11 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTileMode.h"
+#include "src/core/SkColorPriv.h"
 #include "tools/ToolUtils.h"
 
 static void draw_into_bitmap(const SkBitmap& bm) {

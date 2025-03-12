@@ -6,9 +6,9 @@
  */
 
 #include "include/core/SkColor.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkColorData.h"
+#include "src/core/SkColorPriv.h"
 #include "tests/Test.h"
 
 #include <cstdint>

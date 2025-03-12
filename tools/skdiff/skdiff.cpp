@@ -7,8 +7,8 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkTypes.h"
+#include "src/core/SkColorPriv.h"
 #include "tools/skdiff/skdiff.h"
 
 /*static*/ char const * const DiffRecord::ResultNames[DiffRecord::kResultCount] = {

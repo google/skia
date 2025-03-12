@@ -9,11 +9,15 @@
 #define SkColorPriv_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkTypes.h"
+#include "include/private/base/SkCPUTypes.h"
 #include "include/private/base/SkMath.h"
 #include "include/private/base/SkTPin.h"
 #include "include/private/base/SkTo.h"
 
 #include <algorithm>
+#include <cstdint>
 
 /** Turn 0..255 into 0..256 by adding 1 at the half-way point. Used to turn a
     byte into a scale value, so that we can say scale * value >> 8 instead of

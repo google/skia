@@ -8,7 +8,6 @@
 #include "src/core/SkDevice.h"
 
 #include "include/core/SkAlphaType.h"
-#include "include/core/SkColorPriv.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkDrawable.h"
@@ -27,6 +26,7 @@
 #include "include/core/SkVertices.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/chromium/Slug.h"  // IWYU pragma: keep
+#include "src/core/SkColorPriv.h"
 #include "src/core/SkEnumerate.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
