@@ -523,7 +523,7 @@ struct OutlineEntry {
             destination->appendInt(0);
             entry.insertObject("Dest", std::move(destination));
 
-            entry.insertRef("Parent", child.fRef);
+            entry.insertRef("Parent", fRef);
             if (child.fStructureRef) {
                 entry.insertRef("SE", child.fStructureRef);
             }
@@ -599,15 +599,15 @@ SkPDFIndirectReference SkPDFStructTree::makeOutline(SkPDFDocument* doc) const {
         return SkPDFIndirectReference();
     }
 
+    SkPDFIndirectReference outlineRef = doc->reserveRef();
     STArray<7, OutlineEntry*> stack;
-    OutlineEntry top{{SkString(), Location()}, 0, {}, {}};
+    OutlineEntry top{{SkString(), Location()}, 0, outlineRef, {}};
     stack.push_back(&top);
     create_outline_from_headers(doc, fRoot, stack);
     if (top.fChildren.empty()) {
         return SkPDFIndirectReference();
     }
     top.emitDescendents(doc);
-    SkPDFIndirectReference outlineRef = doc->reserveRef();
     SkPDFDict outline("Outlines");
     outline.insertRef("First", top.fChildren.front().fRef);
     outline.insertRef("Last", top.fChildren.back().fRef);
