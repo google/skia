@@ -157,6 +157,7 @@ private:
     int startupSlide() const;
     void setCurrentSlide(int);
     void setupCurrentSlide();
+    void resizeCurrentSlide(int width, int height);
     SkISize currentSlideSize() const;
     void listNames() const;
     void dumpShadersToResources();

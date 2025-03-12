@@ -1969,7 +1969,7 @@ void Viewer::onPaint(SkSurface* surface) {
     }
 }
 
-void Viewer::onResize(int width, int height) {
+void Viewer::resizeCurrentSlide(int width, int height) {
     if (fCurrentSlide >= 0) {
         // Resizing can reset the context on some backends so just tear it all down.
         // We'll rebuild these resources on the next draw.
@@ -1981,7 +1981,10 @@ void Viewer::onResize(int width, int height) {
         }
         fSlides[fCurrentSlide]->resize(width / scaleFactor, height / scaleFactor);
     }
+}
 
+void Viewer::onResize(int width, int height) {
+    this->resizeCurrentSlide(width, height);
     fImGuiLayer.setScaleFactor(fWindow->scaleFactor());
     fStatsLayer.setDisplayScale((fZoomUI ? 2.0f : 1.0f) * fWindow->scaleFactor());
 }
@@ -2412,7 +2415,10 @@ void Viewer::drawImGui() {
             if (ImGui::CollapsingHeader("Transform")) {
                 if (ImGui::Checkbox("Apply Backing Scale", &fApplyBackingScale)) {
                     this->updateGestureTransLimit();
-                    this->onResize(fWindow->width(), fWindow->height());
+                    // NOTE: Do not call onResize() as we are in the middle of ImgGui processing,
+                    // and onResize() modifies ImgGui state that is otherwise locked. The backing
+                    // scale factor only affects the slide itself, so adjust that directly.
+                    this->resizeCurrentSlide(fWindow->width(), fWindow->height());
                     // This changes how we manipulate the canvas transform, it's not changing the
                     // window's actual parameters.
                     uiParamsChanged = true;
