@@ -322,16 +322,14 @@ static int write_color_and_offset_bufdata(int numStops,
         // Writes all offset data, then color data. This way when binary searching through the
         // offsets, there is better cache locality.
         for (int i = 0, colorIdx = numStops; i < numStops; i++, colorIdx+=4) {
-            SkColor4f unpremulColor = colors[i].unpremul();
-
             float offset = offsets ? offsets[i] : SkIntToFloat(i) / (numStops - 1);
             SkASSERT(offset >= 0.0f && offset <= 1.0f);
 
             dstData[i] = offset;
-            dstData[colorIdx + 0] = unpremulColor.fR;
-            dstData[colorIdx + 1] = unpremulColor.fG;
-            dstData[colorIdx + 2] = unpremulColor.fB;
-            dstData[colorIdx + 3] = unpremulColor.fA;
+            dstData[colorIdx + 0] = colors[i].fR;
+            dstData[colorIdx + 1] = colors[i].fG;
+            dstData[colorIdx + 2] = colors[i].fB;
+            dstData[colorIdx + 3] = colors[i].fA;
         }
     }
 
