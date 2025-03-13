@@ -1018,10 +1018,15 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"QuadroP400":    "10de:1cb3-31.0.15.5222",
 					"RadeonVega6":   "1002:1636-31.0.14057.5006",
 					"RadeonVega8":   "1002:1638-31.0.21916.2",
-					"RTX3060":       "10de:2489-32.0.15.6094",
+					"RTX3060":       "10de:2489-32.0.15.7270",
 				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in Win GPU mapping.", b.parts["cpu_or_gpu_value"])
+				}
+				// TODO(borenet): Remove this block once these machines are all
+				// migrated.
+				if b.os("Win10") && b.parts["cpu_or_gpu_value"] == "RTX3060" {
+					gpu = "10de:2489-32.0.15.6094"
 				}
 				d["gpu"] = gpu
 			} else if b.isLinux() {
