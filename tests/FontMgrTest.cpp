@@ -123,7 +123,8 @@ DEF_TEST(FontMgr_Iter, reporter) {
 
             sk_sp<SkTypeface> face1(set->createTypeface(j));
             if (!face1) {
-                REPORTER_ASSERT(reporter, face1.get());
+                REPORTER_ASSERT(reporter, face1.get(),
+                                "Could not create %s %s.", fname.c_str(), sname.c_str());
                 continue;
             }
             SkString name1;

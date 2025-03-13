@@ -44,7 +44,9 @@ bool SkFontScanner_Fontations::scanFile(SkStreamAsset* stream, int* numFaces) co
     if (!fontations_ffi::font_or_collection(slice, num_fonts)) {
         return false;
     }
-    *numFaces = num_fonts == 0 ? 1 : num_fonts;
+    if (numFaces) {
+        *numFaces = num_fonts == 0 ? 1 : num_fonts;
+    }
     return true;
 }
 

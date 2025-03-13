@@ -2105,8 +2105,9 @@ bool SkFontScanner_FreeType::scanFile(SkStreamAsset* stream, int* numFaces) cons
     if (!face) {
         return false;
     }
-
-    *numFaces = face->num_faces;
+    if (numFaces) {
+        *numFaces = face->num_faces;
+    }
     return true;
 }
 
@@ -2120,8 +2121,9 @@ bool SkFontScanner_FreeType::scanFace(SkStreamAsset* stream,
     if (!face) {
         return false;
     }
-
-    *numInstances = face->style_flags >> 16;
+    if (numInstances) {
+        *numInstances = face->style_flags >> 16;
+    }
     return true;
 }
 

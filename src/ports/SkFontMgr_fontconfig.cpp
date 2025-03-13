@@ -793,10 +793,15 @@ protected:
             resolvedFilename = fSysroot;
             resolvedFilename += filename;
             if (sk_exists(resolvedFilename.c_str(), kRead_SkFILE_Flag)) {
-                return true;
+                auto&& file(SkData::MakeFromFileName(resolvedFilename.c_str()));
+                return file && fScanner->scanFile(SkMemoryStream::Make(file).get(), nullptr);
             }
         }
-        return sk_exists(filename, kRead_SkFILE_Flag);
+        if (sk_exists(filename, kRead_SkFILE_Flag)) {
+            auto&& file(SkData::MakeFromFileName(filename));
+            return file && fScanner->scanFile(SkMemoryStream::Make(file).get(), nullptr);
+        }
+        return false;
     }
 
     static bool FontFamilyNameMatches(FcPattern* font, FcPattern* pattern) {
@@ -856,7 +861,7 @@ protected:
 
             for (int fontIndex = 0; fontIndex < allFonts->nfont; ++fontIndex) {
                 FcPattern* font = allFonts->fonts[fontIndex];
-                if (FontAccessible(font) && FontFamilyNameMatches(font, matchPattern)) {
+                if (FontFamilyNameMatches(font, matchPattern) && FontAccessible(font)) {
                     FcFontSetAdd(matches, FcFontRenderPrepare(fFC, pattern, font));
                 }
             }
@@ -897,7 +902,7 @@ protected:
 
             FcResult result;
             SkAutoFcPattern font(FcFontMatch(fFC, pattern, &result));
-            if (!font || !FontAccessible(font) || !FontFamilyNameMatches(font, matchPattern)) {
+            if (!font || !FontFamilyNameMatches(font, matchPattern) || !FontAccessible(font)) {
                 font.reset();
             }
             return font;
@@ -941,7 +946,7 @@ protected:
 
             FcResult result;
             SkAutoFcPattern font(FcFontMatch(fFC, pattern, &result));
-            if (!font || !FontAccessible(font) || !FontContainsCharacter(font, character)) {
+            if (!font || !FontContainsCharacter(font, character) || !FontAccessible(font)) {
                 font.reset();
             }
             return font;

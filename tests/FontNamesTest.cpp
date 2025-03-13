@@ -162,6 +162,9 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
     SkASSERT_RELEASE(fm);
     int count = std::min(fm->countFamilies(), MAX_FAMILIES);
     for (int i = 0; i < count; ++i) {
+        SkString fname;
+        fm->getFamilyName(i, &fname);
+
         sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
         for (int j = 0; j < set->count(); ++j) {
             SkString sname;
@@ -169,6 +172,11 @@ static void test_systemfonts(skiatest::Reporter* reporter, bool verbose) {
             set->getStyle(j, &fs, &sname);
 
             sk_sp<SkTypeface> typeface(set->createTypeface(j));
+            if (!typeface) {
+                REPORTER_ASSERT(reporter, typeface.get(),
+                                "Could not create %s %s.", fname.c_str(), sname.c_str());
+                continue;
+            }
 
             SkString familyName;
             typeface->getFamilyName(&familyName);
