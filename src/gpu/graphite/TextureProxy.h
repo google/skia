@@ -42,7 +42,8 @@ public:
     bool isLazy() const;
     bool isFullyLazy() const;
     bool isVolatile() const;
-    bool isProtected() const;
+
+    Protected isProtected() const { return fInfo.isProtected(); }
 
     size_t uninstantiatedGpuMemorySize() const;
 

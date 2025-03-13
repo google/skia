@@ -71,7 +71,7 @@ Image_YUVA::Image_YUVA(const YUVAProxies& proxies,
         if (fProxies[i].proxy()->mipmapped() == Mipmapped::kNo) {
             fMipmapped = Mipmapped::kNo;
         }
-        if (fProxies[i].proxy()->isProtected()) {
+        if (fProxies[i].proxy()->isProtected() == Protected::kYes) {
             fProtected = Protected::kYes;
         }
     }

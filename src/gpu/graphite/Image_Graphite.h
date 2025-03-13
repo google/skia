@@ -51,7 +51,7 @@ public:
     }
 
     bool onIsProtected() const override {
-        return fTextureProxyView.proxy()->isProtected();
+        return fTextureProxyView.proxy()->isProtected() == Protected::kYes;
     }
 
     size_t textureSize() const override;
