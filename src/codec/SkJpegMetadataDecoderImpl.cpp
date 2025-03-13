@@ -120,14 +120,24 @@ static bool extract_gainmap(SkJpegSourceMgr* decoderSource,
     if (baseImageHasIsoVersion) {
         didPopulateInfo = SkGainmapInfo::Parse(
                 metadataDecoder.getISOGainmapMetadata(/*copyData=*/false).get(), info);
-        if (didPopulateInfo && info.fGainmapMathColorSpace) {
-            auto iccData = metadataDecoder.getICCProfileData(/*copyData=*/false);
-            skcms_ICCProfile iccProfile;
-            if (iccData && skcms_Parse(iccData->data(), iccData->size(), &iccProfile)) {
-                auto iccProfileSpace = SkColorSpace::Make(iccProfile);
-                if (iccProfileSpace) {
-                    info.fGainmapMathColorSpace = std::move(iccProfileSpace);
+        if (didPopulateInfo) {
+            // SkGainmapInfo::Parse will set fGainmapMathColorSpace to a non-nullptr value if we are
+            // to use the alternate image's color space primaries (which are stored in the ICC
+            // profile of the gain map image) for the gain map application color space.
+            // the gain map image.
+            if (info.fGainmapMathColorSpace) {
+                sk_sp<SkColorSpace> imageColorSpace;
+                auto iccData = metadataDecoder.getICCProfileData(/*copyData=*/false);
+                skcms_ICCProfile iccProfile;
+                if (iccData && skcms_Parse(iccData->data(), iccData->size(), &iccProfile)) {
+                    imageColorSpace = SkColorSpace::Make(iccProfile);
                 }
+                // Set fGainmapMathColorSpace to the gain map image's ICC profile's color space. If
+                // it is nullptr (because there was no ICC profile, or because it failed to parse),
+                // then leave fGainmapMathColorSpace to nullptr, indicating to use the base image's
+                // color space primaries for the gain map application color space.
+                // https://crbug.com/402033761
+                info.fGainmapMathColorSpace = std::move(imageColorSpace);
             }
         }
     }
