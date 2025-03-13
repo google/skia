@@ -112,9 +112,9 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                                             kDirectDepthGreaterPass),
                                     DrawTypeFlags::kSimpleShape);
     fCircularArc = makeFromStep(std::make_unique<CircularArcRenderStep>(bufferManager),
-                                DrawTypeFlags::kSimpleShape);
+                                DrawTypeFlags::kCircularArc);
     fAnalyticBlur = makeFromStep(std::make_unique<AnalyticBlurRenderStep>(),
-                                 DrawTypeFlags::kSimpleShape);
+                                 static_cast<DrawTypeFlags>(InternalDrawTypeFlags::kAnalyticBlur));
 
     // vertices
     for (PrimitiveType primType : {PrimitiveType::kTriangles, PrimitiveType::kTriangleStrip}) {

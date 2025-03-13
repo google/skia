@@ -157,12 +157,12 @@ DrawTypeFlags get_draw_type_flags(const char* str) {
         const char* fStr;
         DrawTypeFlags fFlags;
     } kDrawTypeFlagsMapping[] = {
-        { "BitmapTextRenderStep[Mask]",                  DrawTypeFlags::kBitmapText_Mask },
-        { "BitmapTextRenderStep[LCD]",                   DrawTypeFlags::kBitmapText_LCD },
+        { "BitmapTextRenderStep[Mask]",                  DrawTypeFlags::kBitmapText_Mask  },
+        { "BitmapTextRenderStep[LCD]",                   DrawTypeFlags::kBitmapText_LCD   },
         { "BitmapTextRenderStep[Color]",                 DrawTypeFlags::kBitmapText_Color },
 
-        { "SDFTextRenderStep",                           DrawTypeFlags::kSDFText },
-        { "SDFTextLCDRenderStep",                        DrawTypeFlags::kSDFText_LCD },
+        { "SDFTextRenderStep",                           DrawTypeFlags::kSDFText      },
+        { "SDFTextLCDRenderStep",                        DrawTypeFlags::kSDFText_LCD  },
 
         { "VerticesRenderStep[Tris]",                    DrawTypeFlags::kDrawVertices },
         { "VerticesRenderStep[TrisTexCoords]",           DrawTypeFlags::kDrawVertices },
@@ -173,13 +173,11 @@ DrawTypeFlags get_draw_type_flags(const char* str) {
         { "VerticesRenderStep[TristripsColor]",          DrawTypeFlags::kDrawVertices },
         { "VerticesRenderStep[TristripsColorTexCoords]", DrawTypeFlags::kDrawVertices },
 
-        // TODO: AnalyticBlurRenderStep and CircularArcRenderStep should be split out into their
-        // own DrawTypeFlags (e.g., kAnalyticBlur and kCircularArc)
-        { "AnalyticBlurRenderStep",                      DrawTypeFlags::kSimpleShape },
-        { "AnalyticRRectRenderStep",                     DrawTypeFlags::kSimpleShape },
-        { "CircularArcRenderStep",                       DrawTypeFlags::kSimpleShape },
-        { "CoverBoundsRenderStep[NonAAFill]",            DrawTypeFlags::kSimpleShape },
-        { "PerEdgeAAQuadRenderStep",                     DrawTypeFlags::kSimpleShape },
+        { "CircularArcRenderStep",                       DrawTypeFlags::kCircularArc  },
+
+        { "AnalyticRRectRenderStep",                     DrawTypeFlags::kSimpleShape  },
+        { "CoverBoundsRenderStep[NonAAFill]",            DrawTypeFlags::kSimpleShape  },
+        { "PerEdgeAAQuadRenderStep",                     DrawTypeFlags::kSimpleShape  },
 
         { "CoverageMaskRenderStep",                      DrawTypeFlags::kNonSimpleShape },
         { "CoverBoundsRenderStep[RegularCover]",         DrawTypeFlags::kNonSimpleShape },
@@ -610,9 +608,9 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
         RenderPassProperties renderPassSettings;
         DrawTypeFlags drawTypeFlags = DrawTypeFlags::kNone;
 
-        // TODO: split kCases[i] into substrings before passing to helpers
+        // TODO(robertphillips): splitting kCases[i] into substrings (based on a " + " separator)
+        // before passing to the helpers would make this prettier
         RenderPassProperties expectedRenderPassSettings = get_render_pass_properties(kCases[i]);
-        DrawTypeFlags expectedDrawTypeFlags = get_draw_type_flags(kCases[i]);
         unsigned int expectedNumPipelines = 0;
 
         switch (i) {
@@ -638,12 +636,16 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
 
             // 4 and 13 share the same paintOptions
             case 4:  // AnalyticBlurRenderStep
-                // this case could be reduced to 1 Pipeline if AnalyticBlurRenderStep were split out
+#if 0
+                // We need to handle AnalyticBlurs differently (b/403264070)
                 renderPassSettings = kBGRA_1_Depth;
-                drawTypeFlags = DrawTypeFlags::kSimpleShape;
+                drawTypeFlags = DrawTypeFlags::kAnalyticBlur;
                 paintOptions = blend_porter_duff_color_filter_srcover();
-                expectedNumPipelines = 5; // This is pretty bad for just 1 Pipeline
+                expectedNumPipelines = 1;
                 break;
+#else
+                continue;
+#endif
 
             case 13: // CoverageMaskRenderStep
                 // this case could be greatly reduced if CoverageMaskRenderStep were split out
@@ -725,30 +727,32 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
                 renderPassSettings = kBGRA_1_Depth;
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
                 paintOptions = solid_clear_src_srcover();
-                // This is 5 each for kClear, kSrc and kSrcOver:
-                //     AnalyticBlurRenderStep              -- split out
+                // This is 3 each for kClear, kSrc and kSrcOver:
                 //     AnalyticRRectRenderStep
-                //     CircularArcRenderStep               -- split out
                 //     CoverBoundsRenderStep[NonAAFill]
                 //     PerEdgeAAQuadRenderStep
-                expectedNumPipelines = 15; // This is pretty bad for 5 pipelines
+                expectedNumPipelines = 9; // This is pretty bad for 5 pipelines
+                break;
+
+            case 26: // kSrcOver - CircularArcRenderStep
+                renderPassSettings = kBGRA_4_DepthStencil;
+                drawTypeFlags = DrawTypeFlags::kCircularArc;
+                paintOptions = solid_srcover();
+                expectedNumPipelines = 1;
                 break;
 
             case 23: // kSrcOver - AnalyticRRectRenderStep
-            case 26: // kSrcOver - CircularArcRenderStep
             case 30: // kSrcOver - CoverBoundsRenderStep[NonAAFill]
             case 31: // kClear   - CoverBoundsRenderStep[NonAAFill]
             case 53: // kSrc     - CoverBoundsRenderStep[NonAAFill]
                 renderPassSettings = kBGRA_4_DepthStencil;
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
                 paintOptions = solid_clear_src_srcover();
-                // This is 5 each for kClear, kSrc and kSrcOver:
-                //     AnalyticBlurRenderStep              -- split out
+                // This is 3 each for kClear, kSrc and kSrcOver:
                 //     AnalyticRRectRenderStep
-                //     CircularArcRenderStep               -- split out
                 //     CoverBoundsRenderStep[NonAAFill]
                 //     PerEdgeAAQuadRenderStep
-                expectedNumPipelines = 15; // This is pretty bad for 5 pipelines
+                expectedNumPipelines = 9; // This is pretty bad for 4 pipelines
                 break;
 
             // For all the image paintOptions we could add the option to exclude cubics to
@@ -761,7 +765,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
                 renderPassSettings = kBGRA_1_Depth;
                 paintOptions = image_premul_src_srcover();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
-                expectedNumPipelines = 40; // a bad deal for 5 pipelines
+                expectedNumPipelines = 24; // a bad deal for 5 pipelines
                 break;
 
             // same as except 16 except it has ColorSpaceTransformSRGB
@@ -771,7 +775,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
                 renderPassSettings.fDstCS = SkColorSpace::MakeSRGB();
                 paintOptions = image_srgb_src();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
-                expectedNumPipelines = 20;  // a bad deal for 1 pipeline
+                expectedNumPipelines = 12;  // a bad deal for 1 pipeline
                 break;
 
             case 32: // CoverBoundsRenderStep[NonAAFill] + HardwareImage(0) + kSrcOver
@@ -780,13 +784,15 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
                 renderPassSettings = kBGRA_4_DepthStencil;
                 paintOptions = image_premul_srcover();
                 drawTypeFlags = DrawTypeFlags::kSimpleShape;
-                expectedNumPipelines = 20; // a bad deal for 3 pipelines
+                expectedNumPipelines = 12; // a bad deal for 3 pipelines
                 break;
             default:
                 continue;
         }
 
         SkAssertResult(renderPassSettings == expectedRenderPassSettings);
+
+        DrawTypeFlags expectedDrawTypeFlags = get_draw_type_flags(kCases[i]);
         SkAssertResult(drawTypeFlags == expectedDrawTypeFlags);
 
         if (renderPassSettings.fRequiresMSAA && caps->loadOpAffectsMSAAPipelines()) {

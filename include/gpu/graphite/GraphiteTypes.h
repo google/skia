@@ -140,44 +140,47 @@ enum class DepthStencilFlags : int {
  */
 enum DrawTypeFlags : uint16_t {
 
-    kNone             = 0b000000000,
+    kNone             = 0,
 
     // kBitmapText_Mask should be used for the BitmapTextRenderStep[mask] RenderStep
-    kBitmapText_Mask  = 0b00000001,
+    kBitmapText_Mask  = 1 << 0,
     // kBitmapText_LCD should be used for the BitmapTextRenderStep[LCD] RenderStep
-    kBitmapText_LCD   = 0b00000010,
+    kBitmapText_LCD   = 1 << 1,
     // kBitmapText_Color should be used for the BitmapTextRenderStep[color] RenderStep
-    kBitmapText_Color = 0b00000100,
+    kBitmapText_Color = 1 << 2,
     // kSDFText should be used for the SDFTextRenderStep RenderStep
-    kSDFText          = 0b00001000,
+    kSDFText          = 1 << 3,
     // kSDFText_LCD should be used for the SDFTextLCDRenderStep RenderStep
-    kSDFText_LCD      = 0b00010000,
+    kSDFText_LCD      = 1 << 4,
 
     // kDrawVertices should be used to generate Pipelines that use the following RenderSteps:
     //    VerticesRenderStep[*] for:
-    //        [tris], [tris-texCoords], [tris-color], [tris-color-texCoords],
-    //        [tristrips], [tristrips-texCoords], [tristrips-color], [tristrips-color-texCoords]
-    kDrawVertices     = 0b00100000,
+    //        [Tris], [TrisTexCoords], [TrisColor], [TrisColorTexCoords],
+    //        [Tristrips], [TristripsTexCoords], [TristripsColor], [TristripsColorTexCoords]
+    kDrawVertices     = 1 << 5,
+
+    // kCircularArc renders filled circular arcs, with or without the center included, and
+    // stroked circular arcs with butt or round caps that don't include the center point.
+    // It corresponds to the CircularArcRenderStep.
+    kCircularArc      = 1 << 6,
 
     // kSimpleShape should be used to generate Pipelines that use the following RenderSteps:
-    //    AnalyticBlurRenderStep
     //    AnalyticRRectRenderStep
     //    PerEdgeAAQuadRenderStep
-    //    CoverBoundsRenderStep[non-aa-fill]
-    kSimpleShape      = 0b01000000,
+    //    CoverBoundsRenderStep[NonAAFill]
+    kSimpleShape      = 1 << 7,
 
     // kNonSimpleShape should be used to generate Pipelines that use the following RenderSteps:
     //    CoverageMaskRenderStep
-    //    CoverBoundsRenderStep[*] for [inverse-cover], [regular-cover]
+    //    CoverBoundsRenderStep[*] for [InverseCover], [RegularCover]
     //    TessellateStrokeRenderStep
-    //    TessellateWedgesRenderStep[*] for [convex], [evenodd], [winding]
-    //    TessellateCurvesRenderStep[*] for [even-odd], [winding]
-    //    MiddleOutFanRenderStep[*] for [even-odd], [winding]
-    kNonSimpleShape   = 0b10000000,
+    //    TessellateWedgesRenderStep[*] for [Convex], [EvenOdd], [Winding]
+    //    TessellateCurvesRenderStep[*] for [EvenOdd], [Winding]
+    //    MiddleOutFanRenderStep[*] for [EvenOdd], [Winding]
+    kNonSimpleShape   = 1 << 8,
 
     kLast = kNonSimpleShape,
 };
-static constexpr int kDrawTypeFlagsCnt = static_cast<int>(DrawTypeFlags::kLast) + 1;
 
 } // namespace skgpu::graphite
 

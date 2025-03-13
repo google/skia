@@ -304,6 +304,7 @@ const char* to_str(DrawTypeFlags dt) {
         case DrawTypeFlags::kSDFText:          return "DrawTypeFlags::kSDFText";
         case DrawTypeFlags::kSDFText_LCD:      return "DrawTypeFlags::kSDFText_LCD";
         case DrawTypeFlags::kDrawVertices:     return "DrawTypeFlags::kDrawVertices";
+        case DrawTypeFlags::kCircularArc:      return "DrawTypeFlags::kCircularArc";
         case DrawTypeFlags::kSimpleShape:      return "DrawTypeFlags::kSimpleShape";
         case DrawTypeFlags::kNonSimpleShape:   return "DrawTypeFlags::kNonSimpleShape";
         default:                               SkASSERT(0); return "DrawTypeFlags::kNone";
@@ -490,7 +491,7 @@ ImageFilterType random_imagefiltertype(SkRandom* rand) {
 }
 
 [[maybe_unused]] DrawTypeFlags random_drawtype(SkRandom* rand) {
-    uint32_t index = rand->nextULessThan(8);
+    uint32_t index = rand->nextULessThan(9);
 
     switch (index) {
         case 0: return DrawTypeFlags::kBitmapText_Mask;
@@ -499,8 +500,9 @@ ImageFilterType random_imagefiltertype(SkRandom* rand) {
         case 3: return DrawTypeFlags::kSDFText;
         case 4: return DrawTypeFlags::kSDFText_LCD;
         case 5: return DrawTypeFlags::kDrawVertices;
-        case 6: return DrawTypeFlags::kSimpleShape;
-        case 7: return DrawTypeFlags::kNonSimpleShape;
+        case 6: return DrawTypeFlags::kCircularArc;
+        case 7: return DrawTypeFlags::kSimpleShape;
+        case 8: return DrawTypeFlags::kNonSimpleShape;
     }
 
     SkASSERT(0);
@@ -1692,10 +1694,6 @@ void simple_draws(SkCanvas* canvas, const SkPaint& paint) {
     canvas->drawRect(SkRect::MakeWH(16, 16), paint);
     canvas->drawRRect(SkRRect::MakeOval({0, 0, 16, 16}), paint);
     canvas->drawRRect(SkRRect::MakeRectXY({0, 0, 16, 16}, 4, 4), paint);
-    canvas->drawArc({0, 0, 16, 16}, 0, 90, /* useCenter= */ false, paint);
-    if (paint.getStyle() == SkPaint::kFill_Style) {
-        canvas->drawArc({0, 0, 16, 16}, 0, 90, /* useCenter= */ true, paint);
-    }
 
     // TODO: add a case that uses the SkCanvas::experimental_DrawEdgeAAImageSet entry point
     if (!paint.getShader() &&
@@ -1829,6 +1827,12 @@ void check_draw(skiatest::Reporter* reporter,
             case DrawTypeFlags::kDrawVertices:
                 canvas->drawVertices(kDrawData.fVertsWithColors, SkBlendMode::kDst, paint);
                 canvas->drawVertices(kDrawData.fVertsWithOutColors, SkBlendMode::kDst, paint);
+                break;
+            case DrawTypeFlags::kCircularArc:
+                canvas->drawArc({0, 0, 16, 16}, 0, 90, /* useCenter= */ false, paint);
+                if (paint.getStyle() == SkPaint::kFill_Style) {
+                    canvas->drawArc({0, 0, 16, 16}, 0, 90, /* useCenter= */ true, paint);
+                }
                 break;
             case DrawTypeFlags::kSimpleShape:
                 simple_draws(canvas, paint);
@@ -2295,6 +2299,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             DrawTypeFlags::kSDFText,
             DrawTypeFlags::kSDFText_LCD,
             DrawTypeFlags::kDrawVertices,
+            DrawTypeFlags::kCircularArc,
             DrawTypeFlags::kSimpleShape,
             DrawTypeFlags::kNonSimpleShape,
     };
