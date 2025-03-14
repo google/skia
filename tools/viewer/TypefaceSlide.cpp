@@ -11,13 +11,13 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
 #include "include/utils/SkNoDrawCanvas.h"
 #include "src/base/SkRandom.h"
 #include "tools/SkMetaData.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
-#include "tools/timer/TimeUtils.h"
 #include "tools/viewer/Slide.h"
 
 namespace {
@@ -75,12 +75,15 @@ public:
     }
 
     void draw(SkCanvas* canvas) override {
+        SkPaint notationPaint;
+        notationPaint.setColor(SK_ColorRED);
+        SkFont notationFont(ToolUtils::DefaultTypeface(), 8.0);
+
         SkPaint paint;
         if (fOutline) {
             paint.setStroke(true);
             paint.setStrokeWidth(0);
         }
-
         if (fCurrentTypefaceDirty) {
             this->updateCurrentTypeface();
         }
@@ -93,10 +96,10 @@ public:
         SkRect drawBounds = SkRect::MakeXYWH(0, 0, 1, 1);
         struct Line {
             SkRect bounds;
-            SkGlyphID firstGlyph = 0; // inclusive
-            SkGlyphID lastGlyph = 0; // inclusive
-            int number = 0;
-        } line;
+            SkGlyphID firstGlyph; // inclusive
+            SkGlyphID lastGlyph; // inclusive
+            int number;
+        } line{{}, fCurrentGlyphID, fCurrentGlyphID, 0};
 
         int numGlyphs = fCurrentTypeface->countGlyphs();
         if (numGlyphs == 0) {
@@ -104,7 +107,7 @@ public:
             return;
         }
         SkGlyphID lastGlyph = numGlyphs - 1;
-        for (SkGlyphID glyph = 0; true; ++glyph) {
+        for (SkGlyphID glyph = line.firstGlyph; line.number < 2; ++glyph) {
             // measure a line
             SkRect beginLineGlyphBounds;
             {
@@ -162,11 +165,18 @@ public:
 
                 canvas->drawGlyphs(1, &gid, &position, origin, font, paint);
 
+                if (fGlyphNumbers) {
+                    SkString gidStr;
+                    gidStr.appendS32(gid);
+                    canvas->drawSimpleText(gidStr.c_str(), gidStr.size(), SkTextEncoding::kUTF8,
+                                           position.x(), position.y(), notationFont, notationPaint);
+                }
                 // TODO: also handle drawable by using a paint override canvas?
                 SkPath glyphPath;
                 if (fOutline && font.getPath(gid, &glyphPath)) {
                     SkContourMeasureIter iter(glyphPath, false);
                     sk_sp<SkContourMeasure> contour;
+                    int contourIndex = 0;
                     while ((contour = iter.next())) {
                         SkPoint contourStart;
                         SkVector tangent;
@@ -177,7 +187,18 @@ public:
                             matrix.setSinCos(tangent.y(), tangent.x(), 0, 0);
                             matrix.postTranslate(contourStart.x(), contourStart.y());
                             canvas->concat(matrix);
-                            canvas->drawPath(fPathDirectionIndicator, fPathDirectionIndicatorPaint);
+
+                            if (fOutlineContourNumbers) {
+                                SkString contourStr;
+                                contourStr.appendS32(contourIndex);
+                                canvas->drawSimpleText(contourStr.c_str(), contourStr.size(),
+                                                       SkTextEncoding::kUTF8, 0, 0,
+                                                       notationFont, notationPaint);
+                            } else {
+                                canvas->drawPath(fPathDirectionIndicator, fPathDirectionIndicatorPaint);
+                            }
+
+                            ++contourIndex;
                         }
                     }
                 }
@@ -204,8 +225,11 @@ public:
         SkScalar size[3] = {fFontSize, 0, 256};
         controls->setScalars("Size", 3, size);
 
-        // TODO: toggle glyph numbers on top?
-        // TODO: limit number of glyphs and set first glyph
+        // the first glyph on the first line
+        SkScalar glyph[3] = {SkScalar(fCurrentGlyphID), 0, SkScalar(this->fCurrentTypeface->countGlyphs())};
+        controls->setScalars("Glyph", 3, glyph);
+
+        // TODO: limit number of glyphs
         // TODO: choose typeface factory
         // TODO: choose between typefaces
         // TODO: font metrics like underline, strikeout, x-height, cap-height, etc.
@@ -213,8 +237,14 @@ public:
         // show glyph metrics like advances and bounds
         controls->setBool("Glyph Metrics", fDrawGlyphMetrics);
 
+        // Show glyph numbers at origin
+        controls->setBool("Glyph numbers", fGlyphNumbers);
+
         // hairline contours with initial direction mark
         controls->setBool("Outline", fOutline);
+
+        // draw contour numbers instead of initial contour direction mark
+        controls->setBool("Outline contour numbers", fOutlineContourNumbers);
 
         return fVariationSliders.writeControls(controls);
     }
@@ -229,8 +259,19 @@ public:
             fDrawArea.setEmpty();
         }
 
+        SkScalar glyph[3] = {0};
+        numReturnedScalars = 0;
+        SkASSERT_RELEASE(controls.findScalars("Glyph", &numReturnedScalars, glyph));
+        SkASSERT_RELEASE(numReturnedScalars == 3);
+        if (fCurrentGlyphID != SkScalarRoundToInt(glyph[0])) {
+            fCurrentGlyphID = SkScalarRoundToInt(glyph[0]);
+            fDrawArea.setEmpty();
+        }
+
         controls.findBool("Glyph Metrics", &fDrawGlyphMetrics);
+        controls.findBool("Glyph numbers", &fGlyphNumbers);
         controls.findBool("Outline", &fOutline);
+        controls.findBool("Outline contour numbers", &fOutlineContourNumbers);
 
         fVariationSliders.readControls(controls, &fCurrentTypefaceDirty);
     }
@@ -243,9 +284,12 @@ private:
     SkFontArguments::VariationPosition fVariationPosition;
     ToolUtils::VariationSliders fVariationSliders;
     bool fCurrentTypefaceDirty = true;
-    SkScalar fFontSize = 12;
+    SkScalar fFontSize = 80;
     bool fOutline = false;
+    bool fOutlineContourNumbers = false;
+    bool fGlyphNumbers = false;
     bool fDrawGlyphMetrics = false;
+    SkGlyphID fCurrentGlyphID = 0;
 
     SkSize fWindowSize;
     SkISize fDrawArea;
