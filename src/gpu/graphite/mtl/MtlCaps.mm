@@ -996,7 +996,7 @@ bool MtlCaps::extractGraphicsDescs(const UniqueKey& key,
     SkASSERT(RenderStep::IsValidRenderStepID(rawKeyData[0]));
     keyData.fRenderStepID = static_cast<RenderStep::RenderStepID>(rawKeyData[0]);
     keyData.fPaintParamsID = rawKeyData[1] ? UniquePaintParamsID(rawKeyData[1])
-                                           : UniquePaintParamsID::InvalidID();
+                                           : UniquePaintParamsID::Invalid();
 
     keyData.fDSFormat = static_cast<MTLPixelFormat>((rawKeyData[2] >> 16) & 0xFFFF);
     keyData.fDSSampleCount = rawKeyData[2] & 0xFFFF;
@@ -1040,7 +1040,7 @@ bool MtlCaps::extractGraphicsDescs(const UniqueKey& key,
     const RenderStep* renderStep = rendererProvider->lookup(keyData.fRenderStepID);
 
     UniquePaintParamsID paintID = renderStep->performsShading() ? keyData.fPaintParamsID
-                                                                : UniquePaintParamsID::InvalidID();
+                                                                : UniquePaintParamsID::Invalid();
 
     *pipelineDesc = GraphicsPipelineDesc(renderStep->renderStepID(), paintID);
 

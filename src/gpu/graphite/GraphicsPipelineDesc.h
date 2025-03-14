@@ -22,7 +22,7 @@ class ShaderCodeDictionary;
 class GraphicsPipelineDesc {
 public:
     GraphicsPipelineDesc() : fRenderStepID(RenderStep::RenderStepID::kInvalid)
-                           , fPaintID(UniquePaintParamsID::InvalidID()) {}
+                           , fPaintID(UniquePaintParamsID::Invalid()) {}
     GraphicsPipelineDesc(RenderStep::RenderStepID renderStepID, UniquePaintParamsID paintID)
         : fRenderStepID(renderStepID)
         , fPaintID(paintID) {}

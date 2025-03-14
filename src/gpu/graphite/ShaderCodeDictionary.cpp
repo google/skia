@@ -283,7 +283,7 @@ UniquePaintParamsID ShaderCodeDictionary::findOrCreate(PaintParamsKeyBuilder* bu
 
 UniquePaintParamsID ShaderCodeDictionary::findOrCreate(const PaintParamsKey& ppk) {
     if (!ppk.isValid()) {
-        return UniquePaintParamsID::InvalidID();
+        return UniquePaintParamsID::Invalid();
     }
 
     SkAutoSpinlock lock{fSpinLock};

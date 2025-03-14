@@ -100,7 +100,7 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
         return false;
     }
 
-    UniquePaintParamsID paintParamsID = UniquePaintParamsID::InvalidID();
+    UniquePaintParamsID paintParamsID = UniquePaintParamsID::Invalid();
     if (tmp) {
         SkAutoMalloc storage(4 * tmp);
         if (stream->read(storage.get(), 4 * tmp) != 4 * tmp) {

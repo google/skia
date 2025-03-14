@@ -16,11 +16,11 @@ namespace skgpu::graphite {
 // key derived from a PaintParams.
 class UniquePaintParamsID {
 public:
-    explicit UniquePaintParamsID(uint32_t id) : fID(id) {}
+    explicit constexpr UniquePaintParamsID(uint32_t id) : fID(id) {}
 
-    static UniquePaintParamsID InvalidID() { return UniquePaintParamsID(); }
+    constexpr UniquePaintParamsID() : fID(SK_InvalidUniqueID) {}
 
-    UniquePaintParamsID() : fID(SK_InvalidUniqueID) {}
+    static constexpr UniquePaintParamsID Invalid() { return UniquePaintParamsID(); }
 
     bool operator==(const UniquePaintParamsID &that) const { return fID == that.fID; }
     bool operator!=(const UniquePaintParamsID &that) const { return !(*this == that); }
