@@ -970,6 +970,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				},
 				"AVX2": {
 					"GCE":            "x86-64-Haswell_GCE",
+					"Golo":           "x86-64-E3-1230_v5",
 					"MacBookAir7.2":  "x86-64-i5-5350U",
 					"MacBookPro11.5": "x86-64-i7-4870HQ",
 					"MacMini7.1":     "x86-64-i5-4278U",
@@ -1105,18 +1106,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			}
 		}
 	} else {
-		if d["os"] == DEBIAN_11_OS {
-			// The Debian11 compile machines in the skolo have
-			// GPUs, but we still use them for compiles also.
-
-			// Dodge Raspberry Pis.
-			d["cpu"] = "x86-64"
-			// Target the AMDRyzen 5 4500U machines, as they are beefy and we have
-			// 19 of them, and they are setup to compile.
-			d["gpu"] = "1002:1636"
-		} else {
-			d["gpu"] = "none"
-		}
+		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_LINUX_GCE {
 			if b.extraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.role("BuildStats", "CodeSize") {
 				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
