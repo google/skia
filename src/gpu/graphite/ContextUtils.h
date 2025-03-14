@@ -22,7 +22,7 @@ enum class BackendApi : unsigned int;
 namespace graphite {
 class ComputeStep;
 enum class Coverage;
-enum class DstReadStrategy;
+enum class DstReadStrategy : uint8_t;
 class Geometry;
 class PaintParams;
 class PipelineDataGatherer;

@@ -29,7 +29,7 @@ class BoundsManager;
 class Clip;
 class Context;
 class DrawContext;
-enum class DstReadStrategy;
+enum class DstReadStrategy : uint8_t;
 class Geometry;
 class Image;
 enum class LoadOp : uint8_t;

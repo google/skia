@@ -19,7 +19,6 @@
 namespace skgpu::graphite {
 
 class Caps;
-enum class DstReadStrategy;
 
 struct AttachmentDesc {
     TextureInfo fTextureInfo;

@@ -26,7 +26,21 @@ class Buffer;
 SK_MAKE_BITMASK_OPS(DepthStencilFlags)
 
 /**
- * This enum is used to specify the load operation to be used when a RenderPass begins execution
+ * The strategy that a renderpass and/or pipeline use to access the current dst pixel when blending.
+ */
+enum class DstReadStrategy : uint8_t {
+    kNoneRequired,
+    kTextureCopy,
+    kTextureSample,
+    kReadFromInput,
+    kFramebufferFetch,
+
+    kLast = kFramebufferFetch
+};
+inline static constexpr int kDstReadStrategyCount = (int)(DstReadStrategy::kLast) + 1;
+
+/**
+ * This enum is used to specify the load operation to be used when a RenderPass begins execution.
  */
 enum class LoadOp : uint8_t {
     kLoad,

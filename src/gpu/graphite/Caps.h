@@ -80,14 +80,6 @@ struct ResourceBindingRequirements {
     int fGradientBufferBinding       = kUnassigned;
 };
 
-enum class DstReadStrategy {
-    kNoneRequired,
-    kTextureCopy,
-    kTextureSample,
-    kReadFromInput,
-    kFramebufferFetch,
-};
-
 class Caps {
 public:
     virtual ~Caps();
