@@ -214,4 +214,8 @@ void PathAtlas::DrawAtlasMgr::compact(Recorder* recorder, bool forceCompact) {
     fDrawAtlas->compact(recorder->priv().tokenTracker()->nextFlushToken(), forceCompact);
 }
 
+void PathAtlas::DrawAtlasMgr::freeGpuResources(Recorder* recorder) {
+    fDrawAtlas->freeGpuResources(recorder->priv().tokenTracker()->nextFlushToken());
+}
+
 }  // namespace skgpu::graphite

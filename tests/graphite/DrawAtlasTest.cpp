@@ -104,14 +104,14 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
         recorder->priv().issueFlushToken();
         atlas->compact(recorder->priv().tokenTracker()->nextFlushToken(), /*forceCompact=*/false);
     }
-    check(reporter, atlas.get(), 1, 0);
+    check(reporter, atlas.get(), 1, 1);
 
     // Simulate a lot of non-atlas draws. We should end up with no textures.
     for (int i = 0; i < 512; ++i) {
         recorder->priv().issueFlushToken();
         atlas->compact(recorder->priv().tokenTracker()->nextFlushToken(), /*forceCompact=*/false);
     }
-    check(reporter, atlas.get(), 0, 1);
+    check(reporter, atlas.get(), 0, 5);
 
     // Fill the atlas all the way up.
     gEvictCount = 0;

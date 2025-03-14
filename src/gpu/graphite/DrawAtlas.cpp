@@ -494,7 +494,7 @@ inline void DrawAtlas::deactivateLastPage() {
             uint32_t plotIndex = r * numPlotsX + c;
 
             Plot* currPlot = fPages[lastPageIndex].fPlotArray[plotIndex].get();
-            currPlot->resetRects();
+            this->processEvictionAndResetRects(currPlot);
             currPlot->resetFlushesSinceLastUsed();
 
             // rebuild the LRU list
@@ -515,6 +515,29 @@ void DrawAtlas::markUsedPlotsAsFull() {
         while (Plot* plot = plotIter.get()) {
             plot->markFullIfUsed();
             plotIter.next();
+        }
+    }
+}
+
+void DrawAtlas::freeGpuResources(AtlasToken token) {
+    PlotList::Iter plotIter;
+    bool canDeactivatePages = true;
+    for (int pageIndex = (int)(fNumActivePages)-1; pageIndex >= 0; --pageIndex) {
+        const Page& currPage = fPages[pageIndex];
+        bool hasPendingUploads = false;
+        bool hasPendingDraws = false;
+        plotIter.init(currPage.fPlotList, PlotList::Iter::kHead_IterStart);
+        while (Plot* plot = plotIter.get()) {
+            // TODO: use hasPendingUploads to decide whether to remove plot backing data
+            hasPendingUploads = hasPendingUploads || plot->needsUpload();
+            hasPendingDraws = hasPendingDraws ||
+                              plot->lastUseToken().inInterval(fPrevFlushToken, token);
+            plotIter.next();
+        }
+        canDeactivatePages = canDeactivatePages &&
+                             !(hasPendingDraws || hasPendingUploads);
+        if (canDeactivatePages) {
+            this->deactivateLastPage();
         }
     }
 }

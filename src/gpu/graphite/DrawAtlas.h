@@ -165,6 +165,10 @@ public:
     // new renders to a texture without a clear.
     void markUsedPlotsAsFull();
 
+    // Will try to clear out any GPU resources that aren't needed for any pending uploads or draws.
+    // TODO: Delete backing data for Plots that don't have pending uploads.
+    void freeGpuResources(AtlasToken token);
+
     void evictAllPlots();
 
     uint32_t maxPages() const {
@@ -216,7 +220,9 @@ private:
 
     void processEviction(PlotLocator);
     inline void processEvictionAndResetRects(Plot* plot) {
-        this->processEviction(plot->plotLocator());
+        if (!plot->isEmpty()) {
+            this->processEviction(plot->plotLocator());
+        }
         plot->resetRects();
     }
 
