@@ -877,6 +877,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Mac12":       "Mac-12",
 			"Mac13":       "Mac-13",
 			"Mac14":       "Mac-14.7", // Builds run on 14.5, tests on 14.7.
+			"Mac15":       "Mac-15.3",
 			"Mokey":       "Android",
 			"MokeyGo32":   "Android",
 			"Ubuntu18":    "Ubuntu-18.04",
@@ -963,6 +964,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"MacBookPro15.3": "arm64-64-Apple_M3",
 				},
 				"AppleIntel": {
+					"MacBookPro15.1": "x86-64",
 					"MacBookPro16.2": "x86-64",
 				},
 				"AVX": {
@@ -1103,6 +1105,40 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				d["release_version"] = version
 			} else {
 				log.Fatalf("Unknown GPU mapping for OS %q.", b.parts["os"])
+			}
+		}
+		if b.matchOs("Mac") {
+			// TODO(borenet): Remove empty and nested entries after all Macs
+			// are migrated to the new lab.
+			if macModel, ok := map[string]interface{}{
+				"MacBookAir7.2":  "",
+				"MacBookPro11.5": "MacBookPro11,5",
+				"MacBookPro15.1": "MacBookPro15,1",
+				"MacBookPro15.3": "Mac15,3",
+				"MacBookPro16.2": "",
+				"MacMini7.1":     "",
+				"MacMini8.1":     "Macmini8,1",
+				"MacMini9.1": map[string]string{
+					"Mac11": "",
+					"Mac12": "",
+					"Mac13": "",
+					"Mac14": "Macmini9,1",
+				},
+				// TODO(borenet): This is currently resolving to multiple
+				// different actual device types.
+				"VMware7.1": "",
+			}[b.parts["model"]]; ok {
+				if macModel != "" {
+					macModelDim, ok := macModel.(string)
+					if !ok {
+						macModelDim = macModel.(map[string]string)[b.parts["os"]]
+					}
+					if macModelDim != "" {
+						d["mac_model"] = macModelDim
+					}
+				}
+			} else {
+				log.Fatalf("No mac_model found for %q", b.parts["model"])
 			}
 		}
 	} else {
