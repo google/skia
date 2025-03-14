@@ -9,6 +9,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImageGenerator.h"
 #include "include/core/SkImageInfo.h"
@@ -24,6 +25,14 @@ bool DecodeDataToBitmap(sk_sp<SkData> data, SkBitmap* dst) {
     return gen && dst->tryAllocPixels(gen->getInfo()) &&
            gen->getPixels(
                    gen->getInfo().makeColorSpace(nullptr), dst->getPixels(), dst->rowBytes());
+}
+
+bool DecodeDataToBitmapWithColorType(sk_sp<SkData> data, SkBitmap* dst, SkColorType dstCT) {
+  std::unique_ptr<SkImageGenerator> gen(SkImageGenerators::MakeFromEncoded(std::move(data)));
+  return gen && dst->tryAllocPixels(gen->getInfo().makeColorType(dstCT)) &&
+         gen->getPixels(
+                 gen->getInfo().makeColorSpace(nullptr).makeColorType(dstCT),
+                 dst->getPixels(), dst->rowBytes());
 }
 
 }  // namespace ToolUtils

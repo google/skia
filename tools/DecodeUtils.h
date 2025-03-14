@@ -14,12 +14,18 @@
 
 class SkBitmap;
 class SkData;
+enum SkColorType : int;
 
 namespace ToolUtils {
 bool DecodeDataToBitmap(sk_sp<SkData> data, SkBitmap* dst);
+bool DecodeDataToBitmapWithColorType(sk_sp<SkData> data, SkBitmap* dst, SkColorType dstCT);
 
 inline bool GetResourceAsBitmap(const char* resource, SkBitmap* dst) {
     return DecodeDataToBitmap(GetResourceAsData(resource), dst);
+}
+
+inline bool GetResourceAsBitmapWithColortype(const char* resource, SkBitmap* dst, SkColorType dstCT) {
+    return DecodeDataToBitmapWithColorType(GetResourceAsData(resource), dst, dstCT);
 }
 
 inline sk_sp<SkImage> GetResourceAsImage(const char* resource) {
