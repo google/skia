@@ -46,11 +46,11 @@ struct SkColorSpaceXformSteps {
     void apply(float rgba[4]) const;
     void apply(SkRasterPipeline*) const;
 
-    Flags flags;
+    Flags fFlags;
 
-    skcms_TransferFunction srcTF,     // Apply for linearize.
-                           dstTFInv;  // Apply for encode.
-    float src_to_dst_matrix[9];       // Apply this 3x3 column-major matrix for gamut_transform.
+    skcms_TransferFunction fSrcTF,     // Apply for linearize.
+                           fDstTFInv;  // Apply for encode.
+    float fSrcToDstMatrix[9];          // Apply this 3x3 *column*-major matrix for gamut_transform.
 };
 
 #endif//SkColorSpaceXformSteps_DEFINED

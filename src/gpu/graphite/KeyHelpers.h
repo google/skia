@@ -348,7 +348,7 @@ struct ColorSpaceTransformBlock {
                                 SkAlphaType dstAT);
         ColorSpaceTransformData(const SkColorSpaceXformSteps& steps) { fSteps = steps; }
         ColorSpaceTransformData(ReadSwizzle swizzle) : fReadSwizzle(swizzle) {
-            SkASSERT(fSteps.flags.mask() == 0);  // By default, the colorspace should have no effect
+            SkASSERT(fSteps.fFlags.mask() == 0);  // By default, the colorspace should have no effect
         }
         SkColorSpaceXformSteps fSteps;
         ReadSwizzle            fReadSwizzle = ReadSwizzle::kRGBA;

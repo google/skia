@@ -188,7 +188,7 @@ sk_sp<const SkData> SkRuntimeEffectPriv::TransformUniforms(
     for (const auto& u : uniforms) {
         if (u.flags & Flags::kColor_Flag) {
             SkASSERT(u.type == Type::kFloat3 || u.type == Type::kFloat4);
-            if (steps.flags.mask()) {
+            if (steps.fFlags.mask()) {
                 float* color = SkTAddOffset<float>(writableData(), u.offset);
                 if (u.type == Type::kFloat4) {
                     // RGBA, easy case
@@ -324,7 +324,7 @@ void RuntimeEffectRPCallbacks::toLinearSrgb(const void* color) {
     if (fStage.fDstCS) {
         SkColorSpaceXformSteps xform{fStage.fDstCS,              kUnpremul_SkAlphaType,
                                      sk_srgb_linear_singleton(), kUnpremul_SkAlphaType};
-        if (xform.flags.mask()) {
+        if (xform.fFlags.mask()) {
             // We have a non-identity colorspace transform; apply it.
             this->applyColorSpaceXform(xform, color);
         }
@@ -335,7 +335,7 @@ void RuntimeEffectRPCallbacks::fromLinearSrgb(const void* color) {
     if (fStage.fDstCS) {
         SkColorSpaceXformSteps xform{sk_srgb_linear_singleton(), kUnpremul_SkAlphaType,
                                      fStage.fDstCS,              kUnpremul_SkAlphaType};
-        if (xform.flags.mask()) {
+        if (xform.fFlags.mask()) {
             // We have a non-identity colorspace transform; apply it.
             this->applyColorSpaceXform(xform, color);
         }

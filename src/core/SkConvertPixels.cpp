@@ -33,7 +33,7 @@ static bool rect_memcpy(const SkImageInfo& dstInfo,       void* dstPixels, size_
         return false;
     }
     if (dstInfo.colorType() != kAlpha_8_SkColorType
-            && steps.flags.mask() != 0b00000) {
+            && steps.fFlags.mask() != 0b00000) {
         return false;
     }
 
@@ -50,12 +50,12 @@ static bool swizzle_or_premul(const SkImageInfo& dstInfo,       void* dstPixels,
     };
     if (!is_8888(dstInfo.colorType()) ||
         !is_8888(srcInfo.colorType()) ||
-        steps.flags.linearize         ||
-        steps.flags.gamut_transform   ||
+        steps.fFlags.linearize         ||
+        steps.fFlags.gamut_transform   ||
 #if !defined(SK_ARM_HAS_NEON)
-        steps.flags.unpremul          ||
+        steps.fFlags.unpremul          ||
 #endif
-        steps.flags.encode) {
+        steps.fFlags.encode) {
         return false;
     }
 
@@ -63,10 +63,10 @@ static bool swizzle_or_premul(const SkImageInfo& dstInfo,       void* dstPixels,
 
     void (*fn)(uint32_t*, const uint32_t*, int) = nullptr;
 
-    if (steps.flags.premul) {
+    if (steps.fFlags.premul) {
         fn = swapRB ? SkOpts::RGBA_to_bgrA
                     : SkOpts::RGBA_to_rgbA;
-    } else if (steps.flags.unpremul) {
+    } else if (steps.fFlags.unpremul) {
         fn = swapRB ? SkOpts::rgbA_to_BGRA
                     : SkOpts::rgbA_to_RGBA;
     } else {

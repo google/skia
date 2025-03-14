@@ -25,7 +25,7 @@ struct GrShaderCaps;
 sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkAlphaType srcAT,
                                                  SkColorSpace* dst, SkAlphaType dstAT) {
     SkColorSpaceXformSteps steps(src, srcAT, dst, dstAT);
-    return steps.flags.mask() == 0 ? nullptr  /* Noop transform */
+    return steps.fFlags.mask() == 0 ? nullptr  /* Noop transform */
                                    : sk_make_sp<GrColorSpaceXform>(steps);
 }
 
@@ -41,12 +41,12 @@ uint32_t GrColorSpaceXform::XformKey(const GrColorSpaceXform* xform) {
     if (!xform) { return 0; }
 
     const SkColorSpaceXformSteps& steps(xform->fSteps);
-    uint32_t key = steps.flags.mask();
-    if (steps.flags.linearize) {
-        key |= skcms_TransferFunction_getType(&steps.srcTF)    << 8;
+    uint32_t key = steps.fFlags.mask();
+    if (steps.fFlags.linearize) {
+        key |= skcms_TransferFunction_getType(&steps.fSrcTF)    << 8;
     }
-    if (steps.flags.encode) {
-        key |= skcms_TransferFunction_getType(&steps.dstTFInv) << 16;
+    if (steps.fFlags.encode) {
+        key |= skcms_TransferFunction_getType(&steps.fDstTFInv) << 16;
     }
     return key;
 }
@@ -56,23 +56,23 @@ bool GrColorSpaceXform::Equals(const GrColorSpaceXform* a, const GrColorSpaceXfo
         return true;
     }
 
-    if (!a || !b || a->fSteps.flags.mask() != b->fSteps.flags.mask()) {
+    if (!a || !b || a->fSteps.fFlags.mask() != b->fSteps.fFlags.mask()) {
         return false;
     }
 
-    if (a->fSteps.flags.linearize &&
-        0 != memcmp(&a->fSteps.srcTF, &b->fSteps.srcTF, sizeof(a->fSteps.srcTF))) {
+    if (a->fSteps.fFlags.linearize &&
+        0 != memcmp(&a->fSteps.fSrcTF, &b->fSteps.fSrcTF, sizeof(a->fSteps.fSrcTF))) {
         return false;
     }
 
-    if (a->fSteps.flags.gamut_transform &&
-        0 != memcmp(&a->fSteps.src_to_dst_matrix, &b->fSteps.src_to_dst_matrix,
-                    sizeof(a->fSteps.src_to_dst_matrix))) {
+    if (a->fSteps.fFlags.gamut_transform &&
+        0 != memcmp(&a->fSteps.fSrcToDstMatrix, &b->fSteps.fSrcToDstMatrix,
+                    sizeof(a->fSteps.fSrcToDstMatrix))) {
         return false;
     }
 
-    if (a->fSteps.flags.encode &&
-        0 != memcmp(&a->fSteps.dstTFInv, &b->fSteps.dstTFInv, sizeof(a->fSteps.dstTFInv))) {
+    if (a->fSteps.fFlags.encode &&
+        0 != memcmp(&a->fSteps.fDstTFInv, &b->fSteps.fDstTFInv, sizeof(a->fSteps.fDstTFInv))) {
         return false;
     }
 

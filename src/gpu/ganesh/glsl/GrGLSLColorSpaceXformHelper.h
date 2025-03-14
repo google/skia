@@ -27,11 +27,11 @@ public:
                   uint32_t visibility = kFragment_GrShaderFlag) {
         SkASSERT(uniformHandler);
         if (colorSpaceXform) {
-            fFlags = colorSpaceXform->fSteps.flags;
+            fFlags = colorSpaceXform->fSteps.fFlags;
             if (this->applySrcTF()) {
                 fSrcTFVar = uniformHandler->addUniformArray(nullptr, visibility, SkSLType::kFloat,
                                                             "SrcTF", kNumTransferFnCoeffs);
-                fSrcTFType = skcms_TransferFunction_getType(&colorSpaceXform->fSteps.srcTF);
+                fSrcTFType = skcms_TransferFunction_getType(&colorSpaceXform->fSteps.fSrcTF);
             }
             if (this->applyGamutXform()) {
                 fGamutXformVar = uniformHandler->addUniform(nullptr, visibility, SkSLType::kFloat3x3,
@@ -40,20 +40,20 @@ public:
             if (this->applyDstTF()) {
                 fDstTFVar = uniformHandler->addUniformArray(nullptr, visibility, SkSLType::kFloat,
                                                             "DstTF", kNumTransferFnCoeffs);
-                fDstTFType = skcms_TransferFunction_getType(&colorSpaceXform->fSteps.dstTFInv);
+                fDstTFType = skcms_TransferFunction_getType(&colorSpaceXform->fSteps.fDstTFInv);
             }
         }
     }
 
     void setData(const GrGLSLProgramDataManager& pdman, const GrColorSpaceXform* colorSpaceXform) {
         if (this->applySrcTF()) {
-            pdman.set1fv(fSrcTFVar, kNumTransferFnCoeffs, &colorSpaceXform->fSteps.srcTF.g);
+            pdman.set1fv(fSrcTFVar, kNumTransferFnCoeffs, &colorSpaceXform->fSteps.fSrcTF.g);
         }
         if (this->applyGamutXform()) {
-            pdman.setMatrix3f(fGamutXformVar, colorSpaceXform->fSteps.src_to_dst_matrix);
+            pdman.setMatrix3f(fGamutXformVar, colorSpaceXform->fSteps.fSrcToDstMatrix);
         }
         if (this->applyDstTF()) {
-            pdman.set1fv(fDstTFVar, kNumTransferFnCoeffs, &colorSpaceXform->fSteps.dstTFInv.g);
+            pdman.set1fv(fDstTFVar, kNumTransferFnCoeffs, &colorSpaceXform->fSteps.fDstTFInv.g);
         }
     }
 

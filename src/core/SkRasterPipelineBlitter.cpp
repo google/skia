@@ -73,7 +73,6 @@ public:
     void blitV     (int x, int y, int height, SkAlpha alpha)        override;
 
 private:
-    void blitRectWithTrace(int x, int y, int w, int h, bool trace);
     void appendLoadDst      (SkRasterPipeline*) const;
     void appendStore        (SkRasterPipeline*) const;
 
@@ -146,7 +145,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     bool is_opaque    = shader->isOpaque() && dstPaintColor.fA == 1.0f;
     bool is_constant  = shader->isConstant();
 
-    if (shader->appendRootStages({&shaderPipeline, alloc, dstCT, dstCS, dstPaintColor, props},
+    if (shader->appendRootStages(SkStageRec{&shaderPipeline, alloc, dstCT, dstCS, dstPaintColor, props},
                                  ctm)) {
         if (dstPaintColor.fA != 1.0f) {
             shaderPipeline.append(SkRasterPipelineOp::scale_1_float,
@@ -390,10 +389,6 @@ void SkRasterPipelineBlitter::blitH(int x, int y, int w) {
 }
 
 void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
-    this->blitRectWithTrace(x, y, w, h, true);
-}
-
-void SkRasterPipelineBlitter::blitRectWithTrace(int x, int y, int w, int h, bool trace) {
     if (fMemset2D) {
         fMemset2D(&fDst, x,y, w,h, fMemsetColor);
         return;
@@ -455,8 +450,8 @@ void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const 
 
     for (int16_t run = *runs; run > 0; run = *runs) {
         switch (*aa) {
-            case 0x00:                                break;
-            case 0xff:this->blitRectWithTrace(x,y,run, 1, false); break;
+            case 0x00:                             break;
+            case 0xff: this->blitRect(x,y,run, 1); break;
             default:
                 fCurrentCoverage = *aa * (1/255.0f);
                 fBlitAntiH(x,y,run,1);

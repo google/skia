@@ -511,8 +511,8 @@ void add_color_space_uniforms(const SkColorSpaceXformSteps& steps,
     SkMatrix gamutTransform;
     const float identity[] = { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
     // TODO: it seems odd to copy this into an SkMatrix just to write it to the gatherer
-    // src_to_dst_matrix is column-major, SkMatrix is row-major.
-    const float* m = steps.flags.gamut_transform ? steps.src_to_dst_matrix : identity;
+    // fSrcToDstMatrix is column-major, SkMatrix is row-major.
+    const float* m = steps.fFlags.gamut_transform ? steps.fSrcToDstMatrix : identity;
     if (readSwizzle == ReadSwizzle::kRRR1) {
         gamutTransform.setAll(m[0] + m[3] + m[6], 0, 0,
                               m[1] + m[4] + m[7], 0, 0,
@@ -525,7 +525,7 @@ void add_color_space_uniforms(const SkColorSpaceXformSteps& steps,
         gamutTransform.setAll(0, 0, 0,
                               0, 0, 0,
                               0, 0, 0);
-    } else if (steps.flags.gamut_transform) {
+    } else if (steps.fFlags.gamut_transform) {
         gamutTransform.setAll(m[0], m[3], m[6],
                               m[1], m[4], m[7],
                               m[2], m[5], m[8]);
@@ -546,8 +546,8 @@ void add_color_space_uniforms(const SkColorSpaceXformSteps& steps,
 
     // It doesn't make sense to unpremul/premul in opaque cases, but we might get a request to
     // anyways, which we can just ignore.
-    const bool unpremul = alphaSwizzle1 ? false : steps.flags.unpremul;
-    const bool premul = alphaSwizzle1 ? false : steps.flags.premul;
+    const bool unpremul = alphaSwizzle1 ? false : steps.fFlags.unpremul;
+    const bool premul = alphaSwizzle1 ? false : steps.fFlags.premul;
 
     const float srcW = unpremul ? -1.f :
                        (alphaSwizzleR || alphaSwizzle1) ? 1.f :
@@ -559,27 +559,27 @@ void add_color_space_uniforms(const SkColorSpaceXformSteps& steps,
     // - sRGB: g > 0
     // - PQ: -2
     // - HLG: -1
-    if (steps.flags.linearize) {
-        const skcms_TFType type = skcms_TransferFunction_getType(&steps.srcTF);
-        const float srcG = type == skcms_TFType_sRGBish ? steps.srcTF.g :
+    if (steps.fFlags.linearize) {
+        const skcms_TFType type = skcms_TransferFunction_getType(&steps.fSrcTF);
+        const float srcG = type == skcms_TFType_sRGBish ? steps.fSrcTF.g :
                            type == skcms_TFType_PQish ? -2.f :
                            type == skcms_TFType_HLGish ? -1.f :
                                                          0.f;
-        gatherer->writeHalf(SkV4{srcG, steps.srcTF.a, steps.srcTF.b, steps.srcTF.c});
-        gatherer->writeHalf(SkV4{steps.srcTF.d, steps.srcTF.e, steps.srcTF.f, srcW});
+        gatherer->writeHalf(SkV4{srcG, steps.fSrcTF.a, steps.fSrcTF.b, steps.fSrcTF.c});
+        gatherer->writeHalf(SkV4{steps.fSrcTF.d, steps.fSrcTF.e, steps.fSrcTF.f, srcW});
     } else {
         gatherer->writeHalf(SkV4{0.f, 0.f, 0.f, 0.f});
         gatherer->writeHalf(SkV4{0.f, 0.f, 0.f, srcW});
     }
 
-    if (steps.flags.encode) {
-        const skcms_TFType type = skcms_TransferFunction_getType(&steps.dstTFInv);
-        const float dstG = type == skcms_TFType_sRGBish ? steps.dstTFInv.g :
+    if (steps.fFlags.encode) {
+        const skcms_TFType type = skcms_TransferFunction_getType(&steps.fDstTFInv);
+        const float dstG = type == skcms_TFType_sRGBish ? steps.fDstTFInv.g :
                            type == skcms_TFType_PQish ? -2.f :
                            type == skcms_TFType_HLGinvish ? -1.f :
                                                             0.f;
-        gatherer->writeHalf(SkV4{dstG, steps.dstTFInv.a, steps.dstTFInv.b, steps.dstTFInv.c});
-        gatherer->writeHalf(SkV4{steps.dstTFInv.d, steps.dstTFInv.e, steps.dstTFInv.f, dstW});
+        gatherer->writeHalf(SkV4{dstG, steps.fDstTFInv.a, steps.fDstTFInv.b, steps.fDstTFInv.c});
+        gatherer->writeHalf(SkV4{steps.fDstTFInv.d, steps.fDstTFInv.e, steps.fDstTFInv.f, dstW});
     } else {
         gatherer->writeHalf(SkV4{0.f, 0.f, 0.f, 0.f});
         gatherer->writeHalf(SkV4{0.f, 0.f, 0.f, dstW});
@@ -1082,7 +1082,7 @@ void add_color_space_xform_premul_uniform_data(
     // the given transform.
     SkASSERT(data.fReadSwizzle == ReadSwizzle::kRGBA || data.fReadSwizzle == ReadSwizzle::kRGB1);
     // If these are both true, that implies there's a color space transfer or gamut transform.
-    SkASSERT(!(data.fSteps.flags.unpremul && data.fSteps.flags.premul));
+    SkASSERT(!(data.fSteps.fFlags.unpremul && data.fSteps.fFlags.premul));
 
     // This shader can either do nothing, or perform one of three actions. These four possibilities
     // are encoded in a half2 argument as:
@@ -1091,10 +1091,10 @@ void add_color_space_xform_premul_uniform_data(
     // - do premul: {0, 0}
     // - make opaque: {1, 1}
     const bool opaque = data.fReadSwizzle == ReadSwizzle::kRGB1;
-    const float x = data.fSteps.flags.unpremul ? -1.f :
+    const float x = data.fSteps.fFlags.unpremul ? -1.f :
                     opaque ? 1.f
                            : 0.f;
-    const float y = data.fSteps.flags.premul ? 0.f : 1.f;
+    const float y = data.fSteps.fFlags.premul ? 0.f : 1.f;
     gatherer->writeHalf(SkV2{x, y});
 }
 
@@ -1118,8 +1118,8 @@ void ColorSpaceTransformBlock::AddBlock(const KeyContext& keyContext,
                                         PaintParamsKeyBuilder* builder,
                                         PipelineDataGatherer* gatherer,
                                         const ColorSpaceTransformData& data) {
-    const bool xformNeedsGamutOrXferFn = data.fSteps.flags.linearize || data.fSteps.flags.encode ||
-                                         data.fSteps.flags.gamut_transform;
+    const bool xformNeedsGamutOrXferFn = data.fSteps.fFlags.linearize || data.fSteps.fFlags.encode ||
+                                         data.fSteps.fFlags.gamut_transform;
     const bool swizzleNeedsGamutTransform = !(data.fReadSwizzle == ReadSwizzle::kRGBA ||
                                               data.fReadSwizzle == ReadSwizzle::kRGB1);
 
@@ -1131,9 +1131,9 @@ void ColorSpaceTransformBlock::AddBlock(const KeyContext& keyContext,
     }
 
     // Use a specialized shader if we're transferring to and from sRGB-ish color spaces.
-    if (data.fSteps.flags.linearize && data.fSteps.flags.encode &&
-        skcms_TransferFunction_isSRGBish(&data.fSteps.srcTF) &&
-        skcms_TransferFunction_isSRGBish(&data.fSteps.dstTFInv)) {
+    if (data.fSteps.fFlags.linearize && data.fSteps.fFlags.encode &&
+        skcms_TransferFunction_isSRGBish(&data.fSteps.fSrcTF) &&
+        skcms_TransferFunction_isSRGBish(&data.fSteps.fDstTFInv)) {
         add_color_space_xform_srgb_uniform_data(keyContext.dict(), data, gatherer);
         builder->addBlock(BuiltInCodeSnippetID::kColorSpaceXformSRGB);
         return;
@@ -1942,7 +1942,7 @@ static void add_yuv_image_to_key(const KeyContext& keyContext,
     imgData.fYUVtoRGBTranslate = {yuvM[4], yuvM[9], yuvM[14]};
 
     SkColorSpaceXformSteps steps;
-    SkASSERT(steps.flags.mask() == 0);   // By default, the colorspace should have no effect
+    SkASSERT(steps.fFlags.mask() == 0);   // By default, the colorspace should have no effect
 
     // The actual output from the YUV image shader for non-opaque images is unpremul so
     // we need to correct for the fact that the Image_YUVA_Graphite's alpha type is premul.
