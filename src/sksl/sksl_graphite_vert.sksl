@@ -641,6 +641,12 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
     // the +X/+Y normalized vertex template for each corner.
     float4 dx = xs - xs.wxyz;
     float4 dy = ys - ys.wxyz;
+    // This is a specialized application of `robust_normalized_diff` for a quad, with an extra
+    // max against 1.0 to not scale small edges. This is to avoid overflows for extremely large
+    // coordinates when squaring dx or dy.
+    float4 invMag = 1.0 / max(abs(dx), max(abs(dy), float4(1.0)));
+    dx *= invMag;
+    dy *= invMag;
     float4 edgeSquaredLen = dx*dx + dy*dy;
 
     float4 edgeMask = sign(edgeSquaredLen); // 0 for zero-length edge, 1 for non-zero edge.
@@ -857,6 +863,12 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
     // the +X/+Y normalized vertex template for each corner.
     float4 dx = xs - xs.wxyz;
     float4 dy = ys - ys.wxyz;
+    // This is a specialized application of `robust_normalized_diff` for a quad, with an extra
+    // max against 1.0 to not scale small edges. This is to avoid overflows for extremely large
+    // coordinates when squaring dx or dy.
+    float4 invMag = 1.0 / max(abs(dx), max(abs(dy), float4(1.0)));
+    dx *= invMag;
+    dy *= invMag;
     float4 edgeSquaredLen = dx*dx + dy*dy;
 
     float4 edgeMask = sign(edgeSquaredLen); // 0 for zero-length edge, 1 for non-zero edge.
