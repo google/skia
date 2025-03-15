@@ -93,7 +93,8 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
                     (weight ==    4 && newStyle.weight() == 350) ||  // GDI weirdness
                     (weight ==    5 && newStyle.weight() == 400) ||  // GDI weirdness
                     (weight ==    0 && newStyle.weight() ==   1) ||  // DW weirdness
-                    (weight == 1000 && newStyle.weight() == 999)     // DW weirdness
+                    (weight == 1000 && newStyle.weight() == 999),    // DW weirdness
+                    "newStyle.weight(): %d weight: %" PRIu16, newStyle.weight(), weight
     );
 
     // Some back-ends (GDI) don't support width, ensure these always report 'normal'.

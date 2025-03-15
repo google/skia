@@ -350,9 +350,17 @@ SkCTFontWeightMapping& SkCTFontGetDataFontWeightMapping() {
         SkOTTableOS2_V0* os2Table = SkTAddOffset<SkOTTableOS2_V0>(data->writable_data(),
                                                                   os2TableOffset);
 
+        // On macOS 15.0 and later, CoreText will pin a usWeightClass of 0 to 1.
+        // Instead, get the value at 11 and then when finished project back to 0.
+        // Cannot use 1-10 as CoreText considers these as 100-1000 as in OS/2 version A.
+        constexpr int kLowestUsefulWeightClassValue = 11;
         CGFloat previousWeight = -CGFLOAT_MAX;
         for (int i = 0; i < 11; ++i) {
-            os2Table->usWeightClass.value = SkEndian_SwapBE16(i * 100);
+            if (i == 0) {
+                os2Table->usWeightClass.value = SkEndian_SwapBE16(kLowestUsefulWeightClassValue);
+            } else {
+                os2Table->usWeightClass.value = SkEndian_SwapBE16(i * 100);
+            }
 
             // On macOS 10.14 and earlier it appears that the CFDataGetBytePtr is used somehow in
             // font caching. Creating a slightly modified font with data at the same address seems
@@ -417,6 +425,9 @@ SkCTFontWeightMapping& SkCTFontGetDataFontWeightMapping() {
             previousWeight = weight;
             dataFontWeights[i] = weight;
         }
+        CGFloat slope = (dataFontWeights[1] - dataFontWeights[0]) /
+                        (100 - kLowestUsefulWeightClassValue);
+        dataFontWeights[0] = dataFontWeights[1] - (slope * (100 - 0));
         selectedDataFontWeights = &dataFontWeights;
     });
     return *selectedDataFontWeights;
