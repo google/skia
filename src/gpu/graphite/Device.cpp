@@ -940,11 +940,6 @@ void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutab
     // Alternatively, we could move this analysis to SkCanvas. Also, we could consider applying the
     // path effect, being careful about starting point and direction.
     if (!paint.getPathEffect() && !path.isInverseFillType()) {
-        SkPoint linePts[2];
-        if (path.isLine(linePts)) {
-            this->drawPoints(SkCanvas::kLines_PointMode, 2, linePts, paint);
-            return;
-        }
         if (SkRect oval; path.isOval(&oval)) {
             this->drawOval(oval, paint);
             return;
