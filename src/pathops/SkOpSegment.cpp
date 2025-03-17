@@ -31,13 +31,13 @@ intersection tests cannot.
 #define F (false)      // discard the edge
 #define T (true)       // keep the edge
 
-static const bool gUnaryActiveEdge[2][2] = {
+static constexpr bool kUnaryActiveEdge[2][2] = {
 //  from=0  from=1
 //  to=0,1  to=0,1
     {F, T}, {T, F},
 };
 
-static const bool gActiveEdge[kXOR_SkPathOp + 1][2][2][2][2] = {
+static constexpr bool kActiveEdge[kXOR_SkPathOp + 1][2][2][2][2] = {
 //                 miFrom=0                              miFrom=1
 //         miTo=0             miTo=1             miTo=0             miTo=1
 //     suFrom=0    1      suFrom=0    1      suFrom=0    1      suFrom=0    1
@@ -146,7 +146,7 @@ bool SkOpSegment::activeOp(int xorMiMask, int xorSuMask, SkOpSpanBase* start, Sk
         suFrom = (oppMaxWinding & xorSuMask) != 0;
         suTo = (oppSumWinding & xorSuMask) != 0;
     }
-    bool result = gActiveEdge[op][miFrom][miTo][suFrom][suTo];
+    bool result = kActiveEdge[op][miFrom][miTo][suFrom][suTo];
 #if DEBUG_ACTIVE_OP
     SkDebugf("%s id=%d t=%1.9g tEnd=%1.9g op=%s miFrom=%d miTo=%d suFrom=%d suTo=%d result=%d\n",
             __FUNCTION__, debugID(), start->t(), end->t(),
@@ -165,7 +165,7 @@ bool SkOpSegment::activeWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* sum
     setUpWinding(start, end, &maxWinding, sumWinding);
     bool from = maxWinding != 0;
     bool to = *sumWinding  != 0;
-    bool result = gUnaryActiveEdge[from][to];
+    bool result = kUnaryActiveEdge[from][to];
     return result;
 }
 
@@ -870,7 +870,7 @@ void SkOpSegment::markAllDone() {
     SkOpSegment* other = this;
     SkOpSpan* priorDone = nullptr;
     SkOpSpan* lastDone = nullptr;
-    int safetyNet = 100000;
+    int safetyNet = 1000;
     while ((other = other->nextChase(&start, &step, &minSpan, &last))) {
         if (!--safetyNet) {
             return false;
@@ -902,7 +902,7 @@ bool SkOpSegment::markAndChaseWinding(SkOpSpanBase* start, SkOpSpanBase* end, in
     bool success = markWinding(spanStart, winding);
     SkOpSpanBase* last = nullptr;
     SkOpSegment* other = this;
-    int safetyNet = 100000;
+    int safetyNet = 1000;
     while ((other = other->nextChase(&start, &step, &spanStart, &last))) {
         if (!--safetyNet) {
             return false;
@@ -927,7 +927,7 @@ bool SkOpSegment::markAndChaseWinding(SkOpSpanBase* start, SkOpSpanBase* end,
     bool success = markWinding(spanStart, winding, oppWinding);
     SkOpSpanBase* last = nullptr;
     SkOpSegment* other = this;
-    int safetyNet = 100000;
+    int safetyNet = 1000;
     while ((other = other->nextChase(&start, &step, &spanStart, &last))) {
         if (!--safetyNet) {
             return false;
@@ -1165,7 +1165,7 @@ bool SkOpSegment::missingCoincidence() {
     SkOpSpan* prior = nullptr;
     SkOpSpanBase* spanBase = &fHead;
     bool result = false;
-    int safetyNet = 100000;
+    int safetyNet = 1000;
     do {
         SkOpPtT* ptT = spanBase->ptT(), * spanStopPtT = ptT;
         SkOPASSERT(ptT->span() == spanBase);
@@ -1279,7 +1279,7 @@ bool SkOpSegment::moveMultiples() {
         }
         SkOpPtT* startPtT = test->ptT();
         SkOpPtT* testPtT = startPtT;
-        int safetyHatch = 1000000;
+        int safetyHatch = 1000;
         do {  // iterate through all spans associated with start
             if (!--safetyHatch) {
                 return false;
@@ -1569,7 +1569,7 @@ bool SkOpSegment::sortAngles() {
             baseAngle = toAngle;
         }
         SkOpPtT* ptT = span->ptT(), * stopPtT = ptT;
-        int safetyNet = 1000000;
+        int safetyNet = 1000;
         do {
             if (!--safetyNet) {
                 return false;
