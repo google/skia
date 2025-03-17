@@ -81,16 +81,15 @@ public:
      */
     static std::unique_ptr<SkPngEncoderMgr> Make(SkWStream* stream);
 
-    bool setHeader(const SkEncodedInfo& dstInfo,
+    bool setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
                    const SkImageInfo& srcInfo,
                    const SkPngEncoder::Options& options);
     bool setColorSpace(const SkImageInfo& info, const SkPngEncoder::Options& options);
     bool setV0Gainmap(const SkPngEncoder::Options& options);
-    bool writeInfo(const SkImageInfo& srcInfo);
+    bool writeInfo(const SkImageInfo& srcInfo,const SkPngEncoderBase::TargetInfo& targetInfo);
 
     png_structp pngPtr() { return fPngPtr; }
     png_infop infoPtr() { return fInfoPtr; }
-    transform_scanline_proc proc() const { return fProc; }
 
     ~SkPngEncoderMgr() { png_destroy_write_struct(&fPngPtr, &fInfoPtr); }
 
@@ -99,7 +98,6 @@ private:
 
     png_structp fPngPtr;
     png_infop fInfoPtr;
-    transform_scanline_proc fProc = nullptr;
 };
 
 std::unique_ptr<SkPngEncoderMgr> SkPngEncoderMgr::Make(SkWStream* stream) {
@@ -119,12 +117,15 @@ std::unique_ptr<SkPngEncoderMgr> SkPngEncoderMgr::Make(SkWStream* stream) {
     return std::unique_ptr<SkPngEncoderMgr>(new SkPngEncoderMgr(pngPtr, infoPtr));
 }
 
-bool SkPngEncoderMgr::setHeader(const SkEncodedInfo& dstInfo,
+bool SkPngEncoderMgr::setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
                                 const SkImageInfo& srcInfo,
                                 const SkPngEncoder::Options& options) {
     if (setjmp(png_jmpbuf(fPngPtr))) {
         return false;
     }
+
+    const SkEncodedInfo& dstInfo = targetInfo.fDstInfo;
+    const std::optional<SkImageInfo>& dstRowInfo = targetInfo.fDstRowInfo;
 
     int pngColorType;
     switch (dstInfo.color()) {
@@ -132,7 +133,9 @@ bool SkPngEncoderMgr::setHeader(const SkEncodedInfo& dstInfo,
             pngColorType = PNG_COLOR_TYPE_RGB;
             break;
         case SkEncodedInfo::kRGBA_Color:
-            pngColorType = PNG_COLOR_TYPE_RGB_ALPHA;
+            SkASSERT(dstRowInfo);
+            pngColorType = dstRowInfo->isOpaque() ? PNG_COLOR_TYPE_RGB
+                                                  : PNG_COLOR_TYPE_RGB_ALPHA;
             break;
         case SkEncodedInfo::kGray_Color:
             pngColorType = PNG_COLOR_TYPE_GRAY;
@@ -162,13 +165,6 @@ bool SkPngEncoderMgr::setHeader(const SkEncodedInfo& dstInfo,
             break;
         case kGray_8_SkColorType:
             sigBit.gray = 8;
-            break;
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            sigBit.red = 8;
-            sigBit.green = 8;
-            sigBit.blue = 8;
-            sigBit.alpha = 8;
             break;
         case kRGB_888x_SkColorType:
             sigBit.red = 8;
@@ -208,8 +204,14 @@ bool SkPngEncoderMgr::setHeader(const SkEncodedInfo& dstInfo,
             sigBit.blue = 10;
             sigBit.alpha = 10;
             break;
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
         default:
-            return false;
+            sigBit.red = 8;
+            sigBit.green = 8;
+            sigBit.blue = 8;
+            sigBit.alpha = 8;
+            break;
     }
 
     png_set_IHDR(fPngPtr,
@@ -382,12 +384,22 @@ bool SkPngEncoderMgr::setV0Gainmap(const SkPngEncoder::Options& options) {
     return true;
 }
 
-bool SkPngEncoderMgr::writeInfo(const SkImageInfo& srcInfo) {
+bool SkPngEncoderMgr::writeInfo(const SkImageInfo& srcInfo, const SkPngEncoderBase::TargetInfo& targetInfo) {
     if (setjmp(png_jmpbuf(fPngPtr))) {
         return false;
     }
-
     png_write_info(fPngPtr, fInfoPtr);
+
+    const SkEncodedInfo& dstInfo = targetInfo.fDstInfo;
+    const std::optional<SkImageInfo>& dstRowInfo = targetInfo.fDstRowInfo;
+
+    // Strip input data that has 4 or 8 bytes per pixel down to 3 or 6 bytes if we don't want alpha.
+    if (dstInfo.color() == SkEncodedInfo::kRGBA_Color) {
+        SkASSERT(dstRowInfo);
+        if (dstRowInfo->isOpaque()) {
+          png_set_filler(fPngPtr, 0, PNG_FILLER_AFTER);
+        }
+    }
     return true;
 }
 
@@ -405,7 +417,6 @@ bool SkPngEncoderImpl::onEncodeRow(SkSpan<const uint8_t> row) {
 
     // `png_bytep` is `uint8_t*` rather than `const uint8_t*`.
     png_bytep rowPtr = const_cast<png_bytep>(row.data());
-
     png_write_rows(fEncoderMgr->pngPtr(), &rowPtr, 1);
     return true;
 }
@@ -436,7 +447,7 @@ std::unique_ptr<SkEncoder> Make(SkWStream* dst, const SkPixmap& src, const Optio
         return nullptr;
     }
 
-    if (!encoderMgr->setHeader(targetInfo->fDstInfo, src.info(), options)) {
+    if (!encoderMgr->setHeader(targetInfo.value(), src.info(), options)) {
         return nullptr;
     }
 
@@ -448,7 +459,7 @@ std::unique_ptr<SkEncoder> Make(SkWStream* dst, const SkPixmap& src, const Optio
         return nullptr;
     }
 
-    if (!encoderMgr->writeInfo(src.info())) {
+    if (!encoderMgr->writeInfo(src.info(), targetInfo.value())) {
         return nullptr;
     }
 

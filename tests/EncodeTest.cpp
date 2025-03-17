@@ -44,6 +44,10 @@
 #include "experimental/rust_png/decoder/SkPngRustDecoder.h"
 #endif
 
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+#include "experimental/rust_png/encoder/SkPngRustEncoder.h"
+#endif
+
 #include <png.h>
 #include <webp/decode.h>
 
@@ -220,6 +224,9 @@ void test_png_encoding_roundtrip_from_specific_source_format(skiatest::Reporter*
             case kRGBA_F32_SkColorType:
                 dstFormat = skcms_PixelFormat_RGBA_ffff;
                 break;
+            case kRGB_565_SkColorType:
+                dstFormat = skcms_PixelFormat_RGB_565;
+                break;
             default:
                 SkUNREACHABLE;
         }
@@ -268,7 +275,11 @@ void test_png_encoding_roundtrip_from_specific_source_format(skiatest::Reporter*
             return;
         }
         SkDynamicMemoryWStream buf;
+#if defined(Sk_CODEC_ENCODES_PNG_WITH_RUST)
+        success = SkPngRustEncoder::Encode(&buf, src, SkPngRustEncoder::Options());
+#else
         success = SkPngEncoder::Encode(&buf, src, SkPngEncoder::Options());
+#endif
         REPORTER_ASSERT(r, success);
         if (!success) {
             return;
@@ -338,6 +349,8 @@ DEF_TEST(Encode_png_roundtrip_for_different_source_formats, r) {
             r, kN32_SkColorType, kUnpremul_SkAlphaType, 0);
     test_png_encoding_roundtrip_from_specific_source_format(
             r, kN32_SkColorType, kPremul_SkAlphaType, 0);
+    test_png_encoding_roundtrip_from_specific_source_format(
+            r, kRGB_565_SkColorType, kOpaque_SkAlphaType, 0);
 
     // PNG encoder used to narrow down `kRGBA_F16_SkColorType` from RGBA to RGB
     // (BE16) by skipping the alpha channel via `png_set_filler`.  But this

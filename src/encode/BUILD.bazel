@@ -127,8 +127,10 @@ skia_cc_library(
     deps = [
         ":encoder_common",
         "//:core",
+        "//modules/skcms",
         "//src/base",
         "//src/codec:any_decoder",
+        "//src/core:core_priv",
     ],
 )
 

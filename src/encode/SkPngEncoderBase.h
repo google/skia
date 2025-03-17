@@ -12,11 +12,10 @@
 
 #include <optional>
 
+#include "include/core/SkImageInfo.h"
 #include "include/encode/SkEncoder.h"
 #include "include/private/SkEncodedInfo.h"
-#include "src/encode/SkImageEncoderFns.h"
 
-struct SkImageInfo;
 class SkPixmap;
 template <typename T> class SkSpan;
 
@@ -25,19 +24,20 @@ template <typename T> class SkSpan;
 class SkPngEncoderBase : public SkEncoder {
 public:
     struct TargetInfo {
+        std::optional<SkImageInfo> fSrcRowInfo;
+        std::optional<SkImageInfo> fDstRowInfo;
         SkEncodedInfo fDstInfo;
-        transform_scanline_proc fTransformProc;
         size_t fDstRowSize;
     };
 
-    // Gets the `fDstInfo` that `srcInfo` should be converted into before
-    // encoding and a `fTransformProc` that can transform source rows into
+    // Gets the `fDstRowInfo` that `fSrcRowInfo` should be converted into before
+    // encoding and uses SkConvertPixels to transform source rows into
     // ready-to-encode rows (and the `fDstRowSize` of such rows).
     //
     // For example, `kRGBA_F32_SkColorType` source will be encoded as
-    // `SkEncodedInfo::kRGBA_Color` with 16 `bitsPerComponent`.  Depending on
-    // `src`'s alpha type, such transformation can be handled by either
-    // `transform_scanline_F32` or `transform_scanline_F32_premul`.
+    // `SkEncodedInfo::kRGBA_Color` with 16 `bitsPerComponent`.
+    //
+    // 'fDstInfo' stores extra information for libpng.
     //
     // Returns `std::nullopt` if `srcInfo` is not supported by the PNG encoder.
     static std::optional<TargetInfo> getTargetInfo(const SkImageInfo& srcInfo);

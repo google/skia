@@ -19,6 +19,7 @@
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/base/SkAssert.h"
 #include "src/base/SkSafeMath.h"
+#include "src/encode/SkImageEncoderFns.h"
 #include "src/encode/SkImageEncoderPriv.h"
 #include "third_party/rust/cxx/v1/cxx.h"
 
