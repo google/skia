@@ -306,11 +306,11 @@ bool TextAtlasManager::initAtlas(MaskFormat format) {
     return true;
 }
 
-void TextAtlasManager::compact(bool forceCompact) {
+void TextAtlasManager::compact() {
     auto tokenTracker = fRecorder->priv().tokenTracker();
     for (int i = 0; i < kMaskFormatCount; ++i) {
         if (fAtlases[i]) {
-            fAtlases[i]->compact(tokenTracker->nextFlushToken(), forceCompact);
+            fAtlases[i]->compact(tokenTracker->nextFlushToken());
         }
     }
 }

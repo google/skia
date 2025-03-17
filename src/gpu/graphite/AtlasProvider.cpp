@@ -121,13 +121,13 @@ void AtlasProvider::recordUploads(DrawContext* dc) {
     }
 }
 
-void AtlasProvider::compact(bool forceCompact) {
-    fTextAtlasManager->compact(forceCompact);
+void AtlasProvider::compact() {
+    fTextAtlasManager->compact();
     if (fRasterPathAtlas) {
-        fRasterPathAtlas->compact(forceCompact);
+        fRasterPathAtlas->compact();
     }
     if (fClipAtlasManager) {
-        fClipAtlasManager->compact(forceCompact);
+        fClipAtlasManager->compact();
     }
 }
 

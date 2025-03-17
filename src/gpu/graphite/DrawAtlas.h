@@ -159,7 +159,7 @@ public:
         }
     }
 
-    void compact(AtlasToken startTokenForNextFlush, bool forceCompact);
+    void compact(AtlasToken startTokenForNextFlush);
 
     // Mark all plots with any content as full. Used only with Vello because it can't do
     // new renders to a texture without a clear.
@@ -218,13 +218,7 @@ private:
     bool activateNewPage(Recorder*);
     void deactivateLastPage();
 
-    void processEviction(PlotLocator);
-    inline void processEvictionAndResetRects(Plot* plot) {
-        if (!plot->isEmpty()) {
-            this->processEviction(plot->plotLocator());
-        }
-        plot->resetRects();
-    }
+    void processEvictionAndResetRects(Plot* plot);
 
     SkColorType           fColorType;
     size_t                fBytesPerPixel;

@@ -77,10 +77,10 @@ public:
         }
     }
 
-    void compact(bool forceCompact);
+    void compact();
 
     // Some clients may wish to verify the integrity of the texture backing store of the
-    // GrDrawOpAtlas. The atlasGeneration returned below is a monotonically increasing number which
+    // DrawAtlas. The atlasGeneration returned below is a monotonically increasing number which
     // changes every time something is removed from the texture backing store.
     uint64_t atlasGeneration(skgpu::MaskFormat format) const {
         return this->getAtlas(format)->atlasGeneration();

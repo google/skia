@@ -263,10 +263,10 @@ void ClipAtlasManager::evictAtlases() {
     SkASSERT(fMaskCache.empty());
 }
 
-void ClipAtlasManager::compact(bool forceCompact) {
+void ClipAtlasManager::compact() {
     auto tokenTracker = fRecorder->priv().tokenTracker();
     if (fDrawAtlas) {
-        fDrawAtlas->compact(tokenTracker->nextFlushToken(), forceCompact);
+        fDrawAtlas->compact(tokenTracker->nextFlushToken());
     }
 }
 

@@ -486,6 +486,8 @@ public:
 
     bool needsUpload() { return !fDirtyRect.isEmpty(); }
     std::pair<const void*, SkIRect> prepareForUpload();
+    // Re-initialize Plot. The client should ensure that they process any eviction callbacks
+    // before calling this, otherwise any cached references will point to invalid data.
     void resetRects();
 
     void markFullIfUsed() { fIsFull = !fDirtyRect.isEmpty(); }

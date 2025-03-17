@@ -109,12 +109,17 @@ DrawAtlas::DrawAtlas(SkColorType colorType, size_t bpp, int width, int height,
     this->createPages(generationCounter);
 }
 
-inline void DrawAtlas::processEviction(PlotLocator plotLocator) {
-    for (PlotEvictionCallback* evictor : fEvictionCallbacks) {
-        evictor->evict(plotLocator);
+inline void DrawAtlas::processEvictionAndResetRects(Plot* plot) {
+    // Process evictions
+    if (!plot->isEmpty()) {
+        const PlotLocator& plotLocator = plot->plotLocator();
+        for (PlotEvictionCallback* evictor : fEvictionCallbacks) {
+            evictor->evict(plotLocator);
+        }
+        fAtlasGeneration = fGenerationCounter->next();
     }
 
-    fAtlasGeneration = fGenerationCounter->next();
+    plot->resetRects();
 }
 
 inline void DrawAtlas::updatePlot(Plot* plot, AtlasLocator* atlasLocator) {
@@ -277,7 +282,7 @@ SkIPoint DrawAtlas::prepForRender(const AtlasLocator& locator, SkAutoPixmapStora
     return plot->prepForRender(locator, pixmap);
 }
 
-void DrawAtlas::compact(AtlasToken startTokenForNextFlush, bool forceCompact) {
+void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
     if (fNumActivePages < 1) {
         fPrevFlushToken = startTokenForNextFlush;
         return;
@@ -309,7 +314,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush, bool forceCompact) {
     // hasn't been used in a long time.
     // This is to handle the case where a lot of text or path rendering has occurred but then just
     // a blinking cursor is drawn.
-    if (forceCompact || atlasUsedThisFlush || fFlushesSinceLastUse > kAtlasRecentlyUsedCount) {
+    if (atlasUsedThisFlush || fFlushesSinceLastUse > kAtlasRecentlyUsedCount) {
         TArray<Plot*> availablePlots;
         uint32_t lastPageIndex = fNumActivePages - 1;
 
@@ -521,24 +526,18 @@ void DrawAtlas::markUsedPlotsAsFull() {
 
 void DrawAtlas::freeGpuResources(AtlasToken token) {
     PlotList::Iter plotIter;
-    bool canDeactivatePages = true;
     for (int pageIndex = (int)(fNumActivePages)-1; pageIndex >= 0; --pageIndex) {
         const Page& currPage = fPages[pageIndex];
-        bool hasPendingUploads = false;
-        bool hasPendingDraws = false;
         plotIter.init(currPage.fPlotList, PlotList::Iter::kHead_IterStart);
         while (Plot* plot = plotIter.get()) {
-            // TODO: use hasPendingUploads to decide whether to remove plot backing data
-            hasPendingUploads = hasPendingUploads || plot->needsUpload();
-            hasPendingDraws = hasPendingDraws ||
-                              plot->lastUseToken().inInterval(fPrevFlushToken, token);
+            if (plot->lastUseToken().inInterval(fPrevFlushToken, token)) {
+                // This page is in use and we can only deactivate pages from high index
+                // to low index, so bail.
+                return;
+            }
             plotIter.next();
         }
-        canDeactivatePages = canDeactivatePages &&
-                             !(hasPendingDraws || hasPendingUploads);
-        if (canDeactivatePages) {
-            this->deactivateLastPage();
-        }
+        this->deactivateLastPage();
     }
 }
 

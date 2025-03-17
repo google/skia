@@ -210,8 +210,8 @@ void PathAtlas::DrawAtlasMgr::evictAll() {
     SkASSERT(fShapeCache.empty());
 }
 
-void PathAtlas::DrawAtlasMgr::compact(Recorder* recorder, bool forceCompact) {
-    fDrawAtlas->compact(recorder->priv().tokenTracker()->nextFlushToken(), forceCompact);
+void PathAtlas::DrawAtlasMgr::compact(Recorder* recorder) {
+    fDrawAtlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
 }
 
 void PathAtlas::DrawAtlasMgr::freeGpuResources(Recorder* recorder) {
