@@ -35,6 +35,12 @@
     #define SK_UNROLL
 #endif
 
+// Why does RasterPipeline have its own SIMD wrapper and is not using SkVx? SkVx is designed
+// for keeping things simple, e.g. so you can put vectors in classes. SkVx has a very simple,
+// predictable, memory layout - they are equivalent to a struct with an array of n values.
+// Unfortunately, because of that, they will not pass in registers. A core design principle of
+// SkRP is to have the 8 parameters passed into a stage be actual hardware registers (for
+// optimal performance).
 #if defined(__clang__)
     template <int N, typename T> using Vec = T __attribute__((ext_vector_type(N)));
 #elif defined(__GNUC__)
