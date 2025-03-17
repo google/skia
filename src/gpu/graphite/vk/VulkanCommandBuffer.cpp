@@ -1313,7 +1313,7 @@ void VulkanCommandBuffer::bindTextureSamplers() {
 }
 
 void VulkanCommandBuffer::setScissor(const Scissor& scissor) {
-    this->setScissor(scissor.getRect(fReplayTranslation, fReplayClip));
+    this->setScissor(scissor.getRect(fReplayTranslation, fRenderPassBounds));
 }
 
 void VulkanCommandBuffer::setScissor(const SkIRect& rect) {

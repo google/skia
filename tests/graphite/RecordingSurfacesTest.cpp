@@ -87,7 +87,9 @@ void run_test(skiatest::Reporter* reporter,
         SkColor4f color = pixmap.getColor4f(e.fX, e.fY);
 #ifdef SK_DEBUG
         if (color != e.fColor) {
-            SkDebugf("Wrong color\n\texpected: %f %f %f %f\n\tactual: %f %f %f %f",
+            SkDebugf("Wrong color at %d, %d\n\texpected: %f %f %f %f\n\tactual: %f %f %f %f",
+                     e.fX,
+                     e.fY,
                      e.fColor.fR,
                      e.fColor.fG,
                      e.fColor.fB,
@@ -264,6 +266,34 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestDrawWithClip, reporter, 
                  draw,
                  expectations);
     }
+}
+
+// Tests that a scissor translated to negative coordinates is applied correctly.
+DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(RecordingSurfacesTestNegativeClip, reporter, context,
+                                   CtsEnforcement::kNextRelease) {
+    SkISize surfaceSize = SkISize::Make(4, 4);
+    SkISize recordingSize = SkISize::Make(4, 4);
+
+    auto draw = [](SkCanvas* canvas) {
+        canvas->clipIRect(SkIRect::MakeWH(4, 4));
+        canvas->drawIRect(SkIRect::MakeWH(4, 4), SkPaint(SkColors::kRed));
+    };
+
+    SkIVector replayOffset = SkIVector::Make(-2, 0);
+
+    std::vector<Expectation> expectations = {{0, 0, SkColors::kRed},
+                                             {2, 0, SkColors::kTransparent}};
+
+    run_test(reporter,
+             context,
+             surfaceSize,
+             recordingSize,
+             replayOffset,
+             kEmptyClip,
+             skgpu::Mipmapped::kNo,
+             skgpu::Mipmapped::kNo,
+             draw,
+             expectations);
 }
 
 // Tests that the result of writePixels is cropped correctly with a provided clip on replay.

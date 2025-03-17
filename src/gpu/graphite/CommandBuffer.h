@@ -124,22 +124,21 @@ public:
     bool clearBuffer(const Buffer* buffer, size_t offset, size_t size);
 
     // This sets a translation and clip to be applied to any subsequently added command, assuming
-    // these commands are part of a transformed replay of a Graphite recording.
-    void setReplayTranslationAndClip(const SkIVector& translation, const SkIRect& clip) {
-        fReplayTranslation = translation;
-        fReplayClip = clip.makeOffset(translation);
-    }
+    // these commands are part of a transformed replay of a Graphite recording. Returns whether the
+    // clip and render target bounds have an intersection; if not, no draws need be replayed.
+    bool setReplayTranslationAndClip(const SkIVector& translation,
+                                     const SkIRect& clip,
+                                     const SkIRect& renderTargetBounds);
 
     Protected isProtected() const { return fIsProtected; }
 
 protected:
     CommandBuffer(Protected);
 
-    SkISize fColorAttachmentSize;
-    // This is also the origin of the logical viewport relative to the target texture's (0,0) pixel
+    // These are the color attachment bounds, intersected with any clip provided on replay.
+    SkIRect fRenderPassBounds;
+    // This is also the origin of the logical viewport relative to the target texture's (0,0) pixel.
     SkIVector fReplayTranslation;
-    // This is in target texture space, having been transformed by the replay translation.
-    SkIRect fReplayClip;
 
     // The texture to use for implementing DstReadStrategy::kTextureCopy for the current render
     // pass. This is a bare pointer since the CopyTask that initializes the texture's contents

@@ -222,15 +222,7 @@ bool DawnCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
                                         SkIRect viewport,
                                         const DrawPassList& drawPasses) {
     // `viewport` has already been translated by the replay translation by the base CommandBuffer.
-    // All GPU backends support viewports that are defined to extend beyond the render target
-    // (allowing for a stable linear transformation from NDC to viewport coordinates as the replay
-    // translation pushes the viewport off the final deferred target's edges).
-    // However, WebGPU validation layers currently require that the viewport is contained within
-    // the attachment so we intersect the viewport before setting the intrinsic constants or
-    // viewport state.
-    // TODO(https://github.com/gpuweb/gpuweb/issues/373): Hopefully the validation layers can be
-    // relaxed and then this extra intersection can be removed.
-    if (!viewport.intersect(SkIRect::MakeSize(fColorAttachmentSize))) SK_UNLIKELY {
+    if (!SkIRect::Intersects(viewport, fRenderPassBounds)) SK_UNLIKELY {
         // The entire pass is offscreen
         return true;
     }
@@ -891,7 +883,7 @@ void DawnCommandBuffer::syncUniformBuffers() {
 
 void DawnCommandBuffer::setScissor(const Scissor& scissor) {
     SkASSERT(fActiveRenderPassEncoder);
-    SkIRect rect = scissor.getRect(fReplayTranslation, fReplayClip);
+    SkIRect rect = scissor.getRect(fReplayTranslation, fRenderPassBounds);
     fActiveRenderPassEncoder.SetScissorRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
