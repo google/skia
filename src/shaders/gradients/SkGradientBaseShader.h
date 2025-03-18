@@ -139,9 +139,10 @@ public:
 
     SkColor4f* fColors;               // points into fStorage
     SkScalar* fPositions;             // points into fStorage, or nullptr
-    int fColorCount;                  // length of fColors (and fPositions, if not nullptr)
     sk_sp<SkColorSpace> fColorSpace;  // color space of gradient stops
     Interpolation fInterpolation;
+
+    int fColorCount;                  // length of fColors (and fPositions, if not nullptr)
     bool fFirstStopIsImplicit;
     bool fLastStopIsImplicit;
 

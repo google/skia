@@ -170,16 +170,18 @@ struct SkRasterPipeline_RewindCtx {
     SkRasterPipelineStage* stage;
 };
 
+constexpr size_t kRGBAChannels = 4;
+
 struct SkRasterPipeline_GradientCtx {
     size_t stopCount;
-    float* fs[4];
-    float* bs[4];
+    float* factors[kRGBAChannels];
+    float* biases[kRGBAChannels];
     float* ts;
 };
 
 struct SkRasterPipeline_EvenlySpaced2StopGradientCtx {
-    float f[4];
-    float b[4];
+    float factor[kRGBAChannels];
+    float bias[kRGBAChannels];
 };
 
 struct SkRasterPipeline_2PtConicalCtx {

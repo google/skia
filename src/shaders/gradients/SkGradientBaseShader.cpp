@@ -307,15 +307,15 @@ static void add_stop_color(SkRasterPipeline_GradientCtx* ctx,
                            size_t stop,
                            const SkPMColor4f& Fs,
                            const SkPMColor4f& Bs) {
-    (ctx->fs[0])[stop] = Fs.fR;
-    (ctx->fs[1])[stop] = Fs.fG;
-    (ctx->fs[2])[stop] = Fs.fB;
-    (ctx->fs[3])[stop] = Fs.fA;
+    (ctx->factors[0])[stop] = Fs.fR;
+    (ctx->factors[1])[stop] = Fs.fG;
+    (ctx->factors[2])[stop] = Fs.fB;
+    (ctx->factors[3])[stop] = Fs.fA;
 
-    (ctx->bs[0])[stop] = Bs.fR;
-    (ctx->bs[1])[stop] = Bs.fG;
-    (ctx->bs[2])[stop] = Bs.fB;
-    (ctx->bs[3])[stop] = Bs.fA;
+    (ctx->biases[0])[stop] = Bs.fR;
+    (ctx->biases[1])[stop] = Bs.fG;
+    (ctx->biases[2])[stop] = Bs.fB;
+    (ctx->biases[3])[stop] = Bs.fA;
 }
 
 static void add_const_color(SkRasterPipeline_GradientCtx* ctx, size_t stop, const SkPMColor4f& color) {
@@ -323,17 +323,27 @@ static void add_const_color(SkRasterPipeline_GradientCtx* ctx, size_t stop, cons
 }
 
 // Calculate a factor F and a bias B so that color = F*t + B when t is in range of
-// the stop. Assume that the distance between stops is 1/gapCount.
+// the stop. Assume that all stops have width 1/gapCount and the stop parameter
+// refers to the nth stop.
 static void init_stop_evenly(SkRasterPipeline_GradientCtx* ctx,
                              float gapCount,
                              size_t stop,
-                             const SkPMColor4f& c_l,
-                             const SkPMColor4f& c_r) {
-    auto left = skvx::float4::Load(c_l.vec());
-    auto right = skvx::float4::Load(c_r.vec());
+                             const SkPMColor4f& leftC,
+                             const SkPMColor4f& rightC) {
+    auto left = skvx::float4::Load(leftC.vec());
+    auto right = skvx::float4::Load(rightC.vec());
 
     SkPMColor4f factor, bias;
 
+    // We start with the following 2 linear equations and 2 unknowns (factor, bias)
+    // left = factor * t + bias
+    // right = factor * (t + gap) + bias
+    // gap = 1/gapCount
+    // t = gap * stop
+
+    // right - left = factor * (t + gap) - factor * t
+    // right - left = factor * gap
+    // factor = (right - left) / gap  (and gap = 1/gapCount)
     auto factor4 = ((right - left) * gapCount);
     (left - (factor4 * (stop / gapCount))).store(bias.vec());
     factor4.store(factor.vec());
@@ -341,20 +351,26 @@ static void init_stop_evenly(SkRasterPipeline_GradientCtx* ctx,
     add_stop_color(ctx, stop, factor, bias);
 }
 
-// For each stop we calculate a bias B and a scale factor F, such that
-// for any t between stops n and n+1, the color we want is B[n] + F[n]*t.
+// Calculate a factor F and a bias B so that color = F*t + B when t is in range of
+// the stop. Unlike init_stop_evenly, this handles stops
 static void init_stop_pos(SkRasterPipeline_GradientCtx* ctx,
                           size_t stop,
                           float t_l,
-                          float c_scale,
-                          const SkPMColor4f& c_l,
-                          const SkPMColor4f& c_r) {
-    auto left = skvx::float4::Load(c_l.vec());
-    auto right = skvx::float4::Load(c_r.vec());
+                          float gapReciprocal,
+                          const SkPMColor4f& leftC,
+                          const SkPMColor4f& rightC) {
+    // gapReciprocal is 1/gapWidth. If two colors were on top of each other, we should
+    // have skipped that as a "stop".
+    SkASSERT(SkIsFinite(gapReciprocal));
+
+    auto left = skvx::float4::Load(leftC.vec());
+    auto right = skvx::float4::Load(rightC.vec());
 
     SkPMColor4f factor, bias;
 
-    auto factor4 = ((right - left) * c_scale);
+    // See init_stop_evenly for this derivation, noting that gap = 1/gapReciprocal
+    // and t = t_l
+    auto factor4 = ((right - left) * gapReciprocal);
     (left - (factor4 * t_l)).store(bias.vec());
     factor4.store(factor.vec());
 
@@ -371,22 +387,41 @@ void SkGradientBaseShader::AppendGradientFillStages(SkRasterPipeline* p,
     if (count == 2 && positions == nullptr) {
         const SkPMColor4f c_l = pmColors[0], c_r = pmColors[1];
 
-        // See F and B below.
         auto ctx = alloc->make<SkRasterPipeline_EvenlySpaced2StopGradientCtx>();
-        (skvx::float4::Load(c_r.vec()) - skvx::float4::Load(c_l.vec())).store(ctx->f);
-        (skvx::float4::Load(c_l.vec())).store(ctx->b);
+        (skvx::float4::Load(c_r.vec()) - skvx::float4::Load(c_l.vec())).store(ctx->factor);
+        (skvx::float4::Load(c_l.vec())).store(ctx->bias);
 
         p->append(SkRasterPipelineOp::evenly_spaced_2_stop_gradient, ctx);
         return;
     }
+    // Linear gradients with evenly spaced stops involve doing calculations to interpolate
+    // between color n and color n+1 based on t (in range [0.0,1.0]).
+    //   color_n * (t - t_n) / gap_n + color_{n+1} * (t_{n+1} - t) / gap_n
+    // We could just stick the colors and the gaps calculation in RP and do this calculation,
+    // but instead we can precompute things to make the RP calculation simpler and faster.
+    // For each gap, we calculate four linear equations in the form y = m*x + b, or rather
+    //  color_channel = factor * t + bias
+    // We do this pre-computation in init_stop_evenly and init_stop_pos.
+
     auto* ctx = alloc->make<SkRasterPipeline_GradientCtx>();
 
-    // Note: In order to handle clamps in search, the search assumes a stop conceptully placed
-    // at -inf. Therefore, the max number of stops is fColorCount+1.
-    for (int i = 0; i < 4; i++) {
-        // Allocate at least enough for the AVX2 gather from a YMM register.
-        ctx->fs[i] = alloc->makeArray<float>(std::max(count + 1, 8));
-        ctx->bs[i] = alloc->makeArray<float>(std::max(count + 1, 8));
+    // Allocate at least enough for the AVX2 gather from a YMM register.
+    constexpr int kMaxRegisterSize = 8;
+
+    // There are n - 1 gaps between n colors plus 2 regions to the left and right
+    // of the gradient to account for colors. For evenly spaced gradients, we cheat
+    // and skip the left gap, using one block of floats unused.
+    const size_t factorBiasFloats = std::max(count + 1, kMaxRegisterSize);
+    const size_t tsForArbitraryStops = count + 1;
+    // We need space for all factors and biases, and while we are at it, some space
+    // if we need to include the arbitrary stops.
+    const size_t toAlloc = 2 * kRGBAChannels * factorBiasFloats + tsForArbitraryStops;
+    float* gradientCtxBuffer = alloc->makeArray<float>(toAlloc);
+    for (size_t i = 0; i < kRGBAChannels; i++) {
+        ctx->factors[i] = gradientCtxBuffer;
+        gradientCtxBuffer += factorBiasFloats;
+        ctx->biases[i] = gradientCtxBuffer;
+        gradientCtxBuffer += factorBiasFloats;
     }
 
     if (positions == nullptr) {
@@ -396,7 +431,7 @@ void SkGradientBaseShader::AppendGradientFillStages(SkRasterPipeline* p,
         float gapCount = stopCount - 1;
 
         SkPMColor4f c_l = pmColors[0];
-        for (size_t i = 0; i < stopCount - 1; i++) {
+        for (size_t i = 0; i < gapCount; i++) {
             SkPMColor4f c_r = pmColors[i + 1];
             init_stop_evenly(ctx, gapCount, i, c_l, c_r);
             c_l = c_r;
@@ -409,7 +444,7 @@ void SkGradientBaseShader::AppendGradientFillStages(SkRasterPipeline* p,
     }
 
     // Handle arbitrary stops.
-    ctx->ts = alloc->makeArray<float>(count + 1);
+    ctx->ts = gradientCtxBuffer;
 
     // Remove the default stops inserted by SkGradientBaseShader::SkGradientBaseShader
     // because they are naturally handled by the search method.
@@ -968,7 +1003,7 @@ SkColor4fXformer::SkColor4fXformer(const SkGradientBaseShader* shader,
 }
 
 SkColorConverter::SkColorConverter(const SkColor* colors, int count) {
-    const float ONE_OVER_255 = 1.f / 255;
+    constexpr float ONE_OVER_255 = 1.f / 255;
     for (int i = 0; i < count; ++i) {
         fColors4f.push_back({SkColorGetR(colors[i]) * ONE_OVER_255,
                              SkColorGetG(colors[i]) * ONE_OVER_255,
