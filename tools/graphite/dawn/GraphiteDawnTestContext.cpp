@@ -149,6 +149,9 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
     if (adapter.HasFeature(wgpu::FeatureName::DawnTexelCopyBufferRowAlignment)) {
         features.push_back(wgpu::FeatureName::DawnTexelCopyBufferRowAlignment);
     }
+    if (adapter.HasFeature(wgpu::FeatureName::ImplicitDeviceSynchronization)) {
+        features.push_back(wgpu::FeatureName::ImplicitDeviceSynchronization);
+    }
 
     wgpu::DeviceDescriptor desc;
     desc.requiredFeatureCount  = features.size();
