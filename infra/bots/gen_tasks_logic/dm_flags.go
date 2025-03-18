@@ -533,9 +533,9 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					// is present, declare as such within the shaders and enable these tests.
 					// b/404250675: Add workaround / alternate SkSL to these tests and re-enable
 					// running them even when such support is not present.
-					skip(ALL, "test", ALL, "Compute_AtomicOperationsTest")
-					skip(ALL, "test", ALL, "Compute_AtomicOperationsOverArrayAndStructTest")
-					skip(ALL, "test", ALL, "Compute_WorkgroupTest")
+					skip(ALL, "test", ALL, "SkSLCompute_AtomicDeclarationsTest")
+					skip(ALL, "test", ALL, "SkSLCompute_AtomicOperationsOverArrayAndStructTest")
+					skip(ALL, "test", ALL, "SkSLCompute_WorkgroupTest")
 				}
 			}
 		}
