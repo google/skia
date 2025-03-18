@@ -36,6 +36,7 @@ using PDFTag = SkPDF::StructureElementNode;
 //   extra_cflags = [ "-DSK_PDF_TEST_TAGS_OUTPUT_PATH=\"/tmp/foo.pdf\"" ]
 DEF_TEST(SkPDF_tagged_doc, r) {
     REQUIRE_PDF_DOCUMENT(SkPDF_tagged_doc, r);
+
 #ifdef SK_PDF_TEST_TAGS_OUTPUT_PATH
     SkFILEWStream outputStream(SK_PDF_TEST_TAGS_OUTPUT_PATH);
 #else
@@ -173,25 +174,29 @@ DEF_TEST(SkPDF_tagged_doc, r) {
     // Second page.
     canvas = document->beginPage(pageSize.width(),
                                  pageSize.height());
+    SkPaint bgPaint;
+    bgPaint.setColor(SK_ColorLTGRAY);
+    SkPDF::SetNodeId(canvas, SkPDF::NodeID::BackgroundArtifact);
+    canvas->drawPaint(bgPaint);
+
     SkPDF::SetNodeId(canvas, 10);
     message = "and finishes on the second page.";
-    canvas->translate(72, 72);
-    canvas->drawString(message, 0, 0, font, paint);
+    canvas->drawString(message, 72, 72, font, paint);
 
     // Test a tagged image with alt text.
     SkPDF::SetNodeId(canvas, 11);
     SkBitmap testBitmap;
     testBitmap.allocN32Pixels(72, 72);
     testBitmap.eraseColor(SK_ColorRED);
-    canvas->translate(72, 72);
-    canvas->drawImage(testBitmap.asImage(), 0, 0);
+    canvas->drawImage(testBitmap.asImage(), 72, 144);
 
     // This has a node ID but never shows up in the tag tree so it
     // won't be tagged.
     SkPDF::SetNodeId(canvas, 999);
-    message = "Page 2";
-    canvas->translate(468, -36);
-    canvas->drawString(message, 0, 0, font, paint);
+    canvas->drawString("Page", pageSize.width() - 100, pageSize.height() - 30, font, paint);
+
+    SkPDF::SetNodeId(canvas, SkPDF::NodeID::PaginationFooterArtifact);
+    canvas->drawString("2", pageSize.width() - 30, pageSize.height() - 30, font, paint);
 
     document->endPage();
 

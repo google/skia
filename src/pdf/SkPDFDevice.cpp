@@ -98,6 +98,7 @@ SkPDFDevice::MarkedContentManager::MarkedContentManager(SkPDFDocument* document,
     , fOut(out)
     , fCurrentlyActiveMark()
     , fNextMarksElemId(0)
+    , fCurrentMarksElemId(0)
     , fMadeMarks(false)
 {}
 
@@ -112,13 +113,14 @@ void SkPDFDevice::MarkedContentManager::setNextMarksElemId(int nextMarksElemId) 
 int SkPDFDevice::MarkedContentManager::elemId() const { return fNextMarksElemId; }
 
 void SkPDFDevice::MarkedContentManager::beginMark() {
-    if (fNextMarksElemId == fCurrentlyActiveMark.elemId()) {
+    if (fNextMarksElemId == fCurrentMarksElemId) {
         return;
     }
-    if (fCurrentlyActiveMark) {
+    if (fCurrentMarksElemId) {
         // End this mark
         fOut->writeText("EMC\n");
         fCurrentlyActiveMark = SkPDFStructTree::Mark();
+        fCurrentMarksElemId = 0;
     }
     if (fNextMarksElemId) {
         fCurrentlyActiveMark = fDoc->createMarkForElemId(fNextMarksElemId);
@@ -128,7 +130,37 @@ void SkPDFDevice::MarkedContentManager::beginMark() {
             fOut->writeText(" <</MCID ");
             fOut->writeDecAsText(fCurrentlyActiveMark.mcid());
             fOut->writeText(" >>BDC\n");
+            fCurrentMarksElemId = fCurrentlyActiveMark.elemId();
             fMadeMarks = true;
+        } else if (SkPDF::NodeID::BackgroundArtifact <= fNextMarksElemId &&
+                   fNextMarksElemId <= SkPDF::NodeID::OtherArtifact &&
+                   fDoc->hasCurrentPage())
+        {
+            fOut->writeText("/Artifact");
+            if (fNextMarksElemId == SkPDF::NodeID::OtherArtifact) {
+                fOut->writeText(" BMC\n");
+            } else if (fNextMarksElemId == SkPDF::NodeID::PaginationArtifact ||
+                       fNextMarksElemId == SkPDF::NodeID::PaginationHeaderArtifact ||
+                       fNextMarksElemId == SkPDF::NodeID::PaginationFooterArtifact ||
+                       fNextMarksElemId == SkPDF::NodeID::PaginationWatermarkArtifact)
+            {
+                fOut->writeText(" <</Type Pagination");
+                if (fNextMarksElemId == SkPDF::NodeID::PaginationHeaderArtifact) {
+                    fOut->writeText(" /Subtype Header");
+                } else if  (fNextMarksElemId == SkPDF::NodeID::PaginationFooterArtifact) {
+                    fOut->writeText(" /Subtype Footer");
+                } else if (fNextMarksElemId == SkPDF::NodeID::PaginationWatermarkArtifact) {
+                    fOut->writeText(" /Subtype Watermark");
+                }
+                fOut->writeText(" >>BDC\n");
+            } else if (fNextMarksElemId == SkPDF::NodeID::LayoutArtifact) {
+                fOut->writeText(" <</Type Layout >>BDC\n");
+            } else if (fNextMarksElemId == SkPDF::NodeID::PageArtifact) {
+                fOut->writeText(" <</Type Page >>BDC\n");
+            } else if (fNextMarksElemId == SkPDF::NodeID::BackgroundArtifact) {
+                fOut->writeText(" <</Type Background >>BDC\n");
+            }
+            fCurrentMarksElemId = fNextMarksElemId;
         }
     }
 }
