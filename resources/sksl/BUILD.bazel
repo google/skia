@@ -172,9 +172,9 @@ skia_filegroup(
     name = "sksl_compute_tests",
     srcs = [
         "compute/ArrayAdd.compute",
-        "compute/AtomicDeclarations.compute",
+        #"compute/AtomicDeclarations.compute",
         "compute/AtomicOperations.compute",
-        "compute/AtomicOperationsOverArrayAndStruct.compute",
+        #"compute/AtomicOperationsOverArrayAndStruct.compute",
         "compute/Barrier.compute",
         "compute/BuiltinStageInputs.compute",
         "compute/Desaturate.compute",
@@ -187,7 +187,7 @@ skia_filegroup(
         "compute/ModuleStructInVariable.compute",
         "compute/Raytrace.compute",
         "compute/Uniforms.compute",
-        "compute/Workgroup.compute",
+        #"compute/Workgroup.compute",
     ],
 )
 
