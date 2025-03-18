@@ -669,7 +669,7 @@ private:
                SkScalar width,
                RunHandler*) const override;
 
-    virtual void wrap(char const * const utf8, size_t utf8Bytes,
+    virtual void wrap(char const * utf8, size_t utf8Bytes,
                       const BiDiRunIterator&,
                       const LanguageRunIterator&,
                       const ScriptRunIterator&,
@@ -684,7 +684,7 @@ class ShaperDrivenWrapper : public ShaperHarfBuzz {
 public:
     using ShaperHarfBuzz::ShaperHarfBuzz;
 private:
-    void wrap(char const * const utf8, size_t utf8Bytes,
+    void wrap(char const * utf8, size_t utf8Bytes,
               const BiDiRunIterator&,
               const LanguageRunIterator&,
               const ScriptRunIterator&,
@@ -699,7 +699,7 @@ class ShapeThenWrap : public ShaperHarfBuzz {
 public:
     using ShaperHarfBuzz::ShaperHarfBuzz;
 private:
-    void wrap(char const * const utf8, size_t utf8Bytes,
+    void wrap(char const * utf8, size_t utf8Bytes,
               const BiDiRunIterator&,
               const LanguageRunIterator&,
               const ScriptRunIterator&,
@@ -714,7 +714,7 @@ class ShapeDontWrapOrReorder : public ShaperHarfBuzz {
 public:
     using ShaperHarfBuzz::ShaperHarfBuzz;
 private:
-    void wrap(char const * const utf8, size_t utf8Bytes,
+    void wrap(char const * utf8, size_t utf8Bytes,
               const BiDiRunIterator&,
               const LanguageRunIterator&,
               const ScriptRunIterator&,
