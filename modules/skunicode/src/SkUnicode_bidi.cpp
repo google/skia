@@ -41,11 +41,9 @@ public:
     SkUnicode_bidi() {}
     ~SkUnicode_bidi() override = default;
 
-    // For SkShaper
     std::unique_ptr<SkBidiIterator> makeBidiIterator(const uint16_t text[], int count,
                                                      SkBidiIterator::Direction dir) override {
-        SkDEBUGF("Method 'makeBidiIterator' is not implemented\n");
-        return nullptr;
+        return fBidiFact->MakeIterator(text, count, dir);
     }
     std::unique_ptr<SkBidiIterator> makeBidiIterator(const char text[],
                                                      int count,

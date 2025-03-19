@@ -271,18 +271,22 @@ class SKUNICODE_API SkUnicode : public SkRefCnt {
 
             SkBidiIterator::Position pos16 = 0;
             while (pos16 <= iter->getLength()) {
-                auto level = iter->getLevelAt(pos16);
-                if (pos16 == 0) {
+                uint16_t nextPos16 = start16 - utf16;
+                auto level = iter->getLevelAt(nextPos16);
+                if (nextPos16 == 0) {
                     currentLevel = level;
                 } else if (level != currentLevel) {
-                    callback(pos16, start16 - utf16, currentLevel);
+                    callback(pos16, nextPos16, currentLevel);
                     currentLevel = level;
+                    pos16 = nextPos16;
                 }
                 if (start16 == end16) {
-                    break;
+                    if (pos16 != nextPos16) {
+                        callback(pos16, nextPos16, currentLevel);
+                    }
+                    return;
                 }
-                SkUnichar u = SkUTF::NextUTF16(&start16, end16);
-                pos16 += SkUTF::ToUTF16(u);
+                SkUTF::NextUTF16(&start16, end16);
             }
         }
 

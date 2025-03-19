@@ -28,9 +28,14 @@ describe('Bidi Behavior', function () {
         const sampleText = 'left1 يَهْدِيْكُمُ left2 اللَّه left3 ُ وَيُصْلِحُ left4 بَالَكُم left5 يَهْدِيْكُم';
         const regions = CanvasKit.Bidi.getBidiRegions(sampleText, CanvasKit.TextDirection.LTR);
 
+        // Making sure that the returned regions are UTF16-based:
+        // the last region should end at the end of the text
+        // (and we know that the text is UTF16 in javascript)
+        expect(regions[regions.length-1].end).toEqual(sampleText.length);
+
         expect(regions.length).toEqual(10);
         for (var i = 0; i < 5; i++) {
-            expect(regions[i * 2].level).toEqual(2);
+            expect(regions[i * 2].level).toEqual(0);
             expect(regions[i * 2 + 1].level).toEqual(1);
         }
     });

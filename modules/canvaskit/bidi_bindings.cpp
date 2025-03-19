@@ -8,7 +8,7 @@
 #include "include/private/base/SkOnce.h"
 #include "modules/skunicode/include/SkUnicode.h"
 
-#if defined(CK_ENABLE_BIDI)
+#if defined(SK_UNICODE_BIDI_IMPLEMENTATION)
 #include "modules/skunicode/include/SkUnicode_bidi.h"
 #else
 #error "SkUnicode bidi component is required but missing"
@@ -47,17 +47,18 @@ EMSCRIPTEN_BINDINGS(Bidi) {
     class_<BidiPlaceholder>("Bidi")
         .class_function("_getBidiRegions",
                   optional_override([](JSString jtext, int dir) -> JSArray {
-                      std::string textStorage = jtext.as<std::string>();
-                      const char* text = textStorage.data();
+                      std::u16string textStorage = jtext.as<std::u16string>();
+                      const char16_t* text = textStorage.data();
                       size_t textCount = textStorage.size();
                       JSArray result = emscripten::val::array();
                       std::vector<SkUnicode::BidiRegion> regions;
-                      SkUnicode::TextDirection textDirection =
-                              dir == 0 ? SkUnicode::TextDirection::kLTR
-                                       : SkUnicode::TextDirection::kRTL;
-                      if (!getClientUnicode()->getBidiRegions(text, textCount, textDirection, &regions)) {
-                          return result;
-                      }
+                      SkBidiIterator::Direction direction =
+                              dir == 1 ? SkBidiIterator::Direction::kLTR
+                                       : SkBidiIterator::Direction::kRTL;
+                      getClientUnicode()->forEachBidiRegion((const uint16_t*)text, textCount, direction,
+                                                            [&](uint16_t start, uint16_t end, SkBidiIterator::Level level) {
+                                                                regions.emplace_back(start, end, level);
+                                                            });
                       JSArrayFromBidiRegions(result, regions);
                       return result;
                   }),
