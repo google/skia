@@ -26,6 +26,9 @@ public:
                                   const SkFontStyle& style,
                                   const bool isFixedPitch)
     {
+        if (!realTypeface || !fci) {
+            return nullptr;
+        }
         return new SkTypeface_FCI(std::move(realTypeface), std::move(fci), fi,
                                   std::move(familyName), style, isFixedPitch);
     }
@@ -35,8 +38,12 @@ public:
     }
 
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
+        sk_sp<SkTypeface> realTypeface = SkTypeface_proxy::onMakeClone(args);
+        if (!realTypeface) {
+            return nullptr;
+        }
         return sk_sp<SkTypeface>(SkTypeface_FCI::Create(
-                SkTypeface_proxy::onMakeClone(args),
+                std::move(realTypeface),
                 fFCI,
                 fIdentity,
                 fFamilyName,
