@@ -477,17 +477,6 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 						// b/389706939 - Dawn/Vulkan reports a data race for LazyClearCountForTesting w/ TSAN
 						skip(ALL, "test", ALL, "ThreadedPipelineCompilePurgingTest")
 					}
-
-					// The following tests lead to a SPIR-V validation error:
-					// "Invalid explicit layout decorations on type" for Workgroup arrays with
-					// ArrayStrides.
-					// b/404249988: When SPIR-V WorkgroupMemoryExplicitLayoutKHR capability support
-					// is present, declare as such within the shaders and enable these tests.
-					// b/404250675: Add workaround / alternate SkSL to these tests and re-enable
-					// running them even when such support is not present.
-					skip(ALL, "test", ALL, "Compute_AtomicDeclarationsTest")
-					skip(ALL, "test", ALL, "Compute_AtomicOperationsOverArrayAndStructTest")
-					skip(ALL, "test", ALL, "Compute_WorkgroupTest")
 				}
 
 				if b.extraConfig("Metal") {
