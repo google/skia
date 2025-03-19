@@ -335,7 +335,11 @@ public:
                 SkScalerContextRec::PreMatrixScale::kVertical, &fScale, &fRemainingMatrix);
 
         fDoLinearMetrics = this->isLinearMetrics();
-        bool forceAutohinting = SkToBool(fRec.fFlags & kForceAutohinting_Flag);
+        // See below for the exception for SkFontHinting::kSlight.
+        fontations_ffi::AutoHintingControl autoHintingControl =
+                SkToBool(fRec.fFlags & kForceAutohinting_Flag)
+                        ? fontations_ffi::AutoHintingControl::ForceForGlyfAndCff
+                        : fontations_ffi::AutoHintingControl::AutoAsFallback;
 
         // Hinting-reliant fonts exist that display incorrect contours when not executing their
         // hinting instructions. Detect those and force-enable hinting for them.
@@ -361,6 +365,11 @@ public:
                         break;
                     case SkFontHinting::kSlight:
                         // Unhinted metrics.
+                        if (autoHintingControl !=
+                            fontations_ffi::AutoHintingControl::ForceForGlyfAndCff) {
+                            autoHintingControl =
+                                    fontations_ffi::AutoHintingControl::PreferAutoOverHintsForGlyf;
+                        }
                         fHintingInstance = fontations_ffi::make_hinting_instance(
                                 fOutlines,
                                 fScale.y(),
@@ -368,7 +377,7 @@ public:
                                 true /* do_light_hinting */,
                                 false /* do_lcd_antialiasing */,
                                 false /* lcd_orientation_vertical */,
-                                true /* force_autohinting */);
+                                autoHintingControl);
                         fDoLinearMetrics = true;
                         break;
                     case SkFontHinting::kNormal:
@@ -380,7 +389,7 @@ public:
                                 false /* do_light_hinting */,
                                 false /* do_lcd_antialiasing */,
                                 false /* lcd_orientation_vertical */,
-                                forceAutohinting /* force_autohinting */);
+                                autoHintingControl);
                         break;
                     case SkFontHinting::kFull:
                         // Attempt to make use of hinting to subpixel coordinates.
@@ -393,7 +402,7 @@ public:
                                 SkToBool(fRec.fFlags &
                                          SkScalerContext::
                                                  kLCD_Vertical_Flag) /* lcd_orientation_vertical */,
-                                forceAutohinting /* force_autohinting */);
+                                autoHintingControl);
                 }
             }
         }
