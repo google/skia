@@ -44,6 +44,7 @@ public:
                                                 const SkString& familyName,
                                                 const TArray<SkLanguage, true>& lang,
                                                 FontVariant variantStyle) {
+        SkASSERT(realTypeface);
         return sk_sp(new SkTypeface_AndroidSystem(std::move(realTypeface),
                                                   style, isFixedPitch,
                                                   familyName, lang, variantStyle));

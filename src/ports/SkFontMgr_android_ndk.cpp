@@ -254,6 +254,20 @@ private:
 
 class SkTypeface_AndroidNDK : public SkTypeface_proxy {
 public:
+   static sk_sp<SkTypeface_AndroidNDK> Make(sk_sp<SkTypeface> realTypeface,
+                                             const SkFontStyle& style,
+                                             bool isFixedPitch,
+                                             const SkString& familyName,
+                                             TArray<SkLanguage>&& lang) {
+        SkASSERT(realTypeface);
+        return sk_sp<SkTypeface_AndroidNDK>(new SkTypeface_AndroidNDK(std::move(realTypeface),
+                                                                      style,
+                                                                      isFixedPitch,
+                                                                      familyName,
+                                                                      std::move(lang)));
+    }
+
+private:
     SkTypeface_AndroidNDK(sk_sp<SkTypeface> realTypeface,
                           const SkFontStyle& style,
                           bool isFixedPitch,
@@ -263,18 +277,6 @@ public:
         , fFamilyName(familyName)
         , fLang(std::move(lang))
     { }
-
-    static sk_sp<SkTypeface_AndroidNDK> Make(sk_sp<SkTypeface> realTypeface,
-                                             const SkFontStyle& style,
-                                             bool isFixedPitch,
-                                             const SkString& familyName,
-                                             TArray<SkLanguage>&& lang) {
-        return sk_sp<SkTypeface_AndroidNDK>(new SkTypeface_AndroidNDK(std::move(realTypeface),
-                                                                      style,
-                                                                      isFixedPitch,
-                                                                      familyName,
-                                                                      std::move(lang)));
-    }
 
     void onGetFamilyName(SkString* familyName) const override {
         *familyName = fFamilyName;
@@ -310,8 +312,8 @@ public:
         return SkTypeface::onGetFixedPitch();
     }
 
+public:
     const SkString fFamilyName;
-    const STArray<4, SkFixed> fAxes;
     const STArray<4, SkLanguage> fLang;
 };
 
@@ -349,15 +351,10 @@ public:
             SkString resourceName;
             amatch->getResourceName(&resourceName);
             SkFontStyle fontStyle = amatch->fontStyle();
-            SkString axes;
-            for (auto&& axis : amatch->fAxes) {
-                axes.appendScalar(SkFixedToScalar(axis));
-                axes.append(", ");
-            }
-            SkDebugf("SKIA: Search for [%d, %d, %d] matched %s [%d, %d, %d] %s#%d [%s]\n",
+            SkDebugf("SKIA: Search for [%d, %d, %d] matched %s [%d, %d, %d] %s\n",
                      pattern.weight(), pattern.width(), pattern.slant(),
                      name.c_str(), fontStyle.weight(), fontStyle.width(), fontStyle.slant(),
-                     resourceName.c_str(), 0, axes.c_str());
+                     resourceName.c_str());
         }
         return match;
     }

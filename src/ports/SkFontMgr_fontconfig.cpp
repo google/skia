@@ -510,6 +510,9 @@ protected:
 
     sk_sp<SkTypeface> onMakeClone(const SkFontArguments& args) const override {
         sk_sp<SkTypeface> realTypeface = SkTypeface_proxy::onMakeClone(args);
+        if (!realTypeface) {
+            return nullptr;
+        }
         SkAutoFcPattern pattern;
         {
             FCLocker lock;

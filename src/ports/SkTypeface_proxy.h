@@ -42,7 +42,7 @@ public:
     SkTypeface_proxy(sk_sp<SkTypeface> realTypeface,
                      const SkFontStyle& style, bool isFixedPitch = false)
         : SkTypeface(style, isFixedPitch)
-        , fRealTypeface(std::move(realTypeface)) { }
+        , fRealTypeface(std::move(realTypeface)) { SkASSERT_RELEASE(fRealTypeface); }
 
 protected:
     int onGetUPEM() const override;
