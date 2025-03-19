@@ -873,7 +873,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Mac":         DEFAULT_OS_MAC,
 			"Mac10.15.1":  "Mac-10.15.1",
 			"Mac10.15.7":  "Mac-10.15.7",
-			"Mac11":       "Mac-11.4",
 			"Mac12":       "Mac-12",
 			"Mac13":       "Mac-13",
 			"Mac14":       "Mac-14.7", // Builds run on 14.5, tests on 14.7.
@@ -1119,7 +1118,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				"MacMini7.1":     "",
 				"MacMini8.1":     "Macmini8,1",
 				"MacMini9.1": map[string]string{
-					"Mac11": "",
 					"Mac12": "",
 					"Mac13": "",
 					"Mac14": "Macmini9,1",
@@ -1843,7 +1841,7 @@ func (b *jobBuilder) dm() {
 		} else if b.arch("x86") && b.debug() {
 			// skia:6737
 			b.timeout(6 * time.Hour)
-		} else if b.matchOs("Mac11") {
+		} else if b.matchOs("Mac14") {
 			b.timeout(30 * time.Minute)
 		}
 		b.maybeAddIosDevImage()
@@ -2056,7 +2054,7 @@ func (b *jobBuilder) perf() {
 		} else if b.parts["arch"] == "x86" && b.parts["configuration"] == "Debug" {
 			// skia:6737
 			b.timeout(6 * time.Hour)
-		} else if b.matchOs("Mac11") {
+		} else if b.matchOs("Mac14") {
 			b.timeout(30 * time.Minute)
 		}
 

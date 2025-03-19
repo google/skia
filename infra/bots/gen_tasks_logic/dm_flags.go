@@ -1093,6 +1093,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "image", "gen_platf", "rle4-height-negative.bmp")
 	}
 
+	if b.matchOs("Mac14") {
+		// These images are very large
+		skip(ALL, "image", "gen_platf", "rgb24largepal.bmp")
+		skip(ALL, "image", "gen_platf", "pal8oversizepal.bmp")
+	}
+
 	// These PNGs have CRC errors. The platform generators seem to draw
 	// uninitialized memory without reporting an error, so skip them to
 	// avoid lots of images on Gold.
