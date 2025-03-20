@@ -262,6 +262,7 @@ static constexpr VkFormat kVkFormats[] = {
     VK_FORMAT_B4G4R4A4_UNORM_PACK16,
     VK_FORMAT_R4G4B4A4_UNORM_PACK16,
     VK_FORMAT_R8G8B8A8_SRGB,
+    VK_FORMAT_B8G8R8A8_SRGB,
     VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK,
     VK_FORMAT_BC1_RGB_UNORM_BLOCK,
     VK_FORMAT_BC1_RGBA_UNORM_BLOCK,
@@ -784,8 +785,29 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
                 constexpr SkColorType ct = SkColorType::kSRGBA_8888_SkColorType;
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
-                ctInfo.fTransferColorType = ct;
+                ctInfo.fTransferColorType = SkColorType::kSRGBA_8888_SkColorType;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+            }
+        }
+    }
+    // Format: VK_FORMAT_B8G8R8A8_SRGB
+    {
+        constexpr VkFormat format = VK_FORMAT_B8G8R8A8_SRGB;
+        auto& info = this->getFormatInfo(format);
+        info.init(interface, physDev, properties, format);
+         if (info.isTexturable(VK_IMAGE_TILING_OPTIMAL)) {
+            info.fColorTypeInfoCount = 1;
+            info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
+            int ctIdx = 0;
+            // Format: VK_FORMAT_B8G8R8A8_SRGB, Surface: kRGBA_8888_SRGB
+            {
+                constexpr SkColorType ct = SkColorType::kSRGBA_8888_SkColorType;
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                ctInfo.fColorType = ct;
+                // Since the B and R channels are swapped and there's no BGRA sRGB color type,
+                // just disable read/writes back to the CPU.
+                ctInfo.fTransferColorType = SkColorType::kUnknown_SkColorType;
+                ctInfo.fFlags = ColorTypeInfo::kRenderable_Flag;
             }
         }
     }
@@ -982,7 +1004,8 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
     this->setColorType(ct::kARGB_4444_SkColorType,          { VK_FORMAT_R4G4B4A4_UNORM_PACK16,
                                                               VK_FORMAT_B4G4R4A4_UNORM_PACK16 });
     this->setColorType(ct::kRGBA_8888_SkColorType,          { VK_FORMAT_R8G8B8A8_UNORM });
-    this->setColorType(ct::kSRGBA_8888_SkColorType,         { VK_FORMAT_R8G8B8A8_SRGB });
+    this->setColorType(ct::kSRGBA_8888_SkColorType,         { VK_FORMAT_R8G8B8A8_SRGB,
+                                                              VK_FORMAT_B8G8R8A8_SRGB });
     this->setColorType(ct::kRGB_888x_SkColorType,           { VK_FORMAT_R8G8B8_UNORM,
                                                               VK_FORMAT_R8G8B8A8_UNORM });
     this->setColorType(ct::kR8G8_unorm_SkColorType,         { VK_FORMAT_R8G8_UNORM });
