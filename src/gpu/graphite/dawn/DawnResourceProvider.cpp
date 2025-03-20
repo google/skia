@@ -367,9 +367,9 @@ DawnResourceProvider::DawnResourceProvider(SharedContext* sharedContext,
 DawnResourceProvider::~DawnResourceProvider() = default;
 
 wgpu::RenderPipeline DawnResourceProvider::findOrCreateBlitWithDrawPipeline(
-        const RenderPassDesc& renderPassDesc) {
-    uint32_t renderPassKey =
-            this->dawnSharedContext()->dawnCaps()->getRenderPassDescKeyForPipeline(renderPassDesc);
+        const RenderPassDesc& renderPassDesc, bool srcIsMSAA) {
+    uint32_t renderPassKey = this->dawnSharedContext()->dawnCaps()->getRenderPassDescKeyForPipeline(
+            renderPassDesc, srcIsMSAA);
     wgpu::RenderPipeline pipeline = fBlitWithDrawPipelines[renderPassKey];
     if (!pipeline) {
         static constexpr char kVertexShaderText[] =
@@ -386,12 +386,27 @@ wgpu::RenderPipeline DawnResourceProvider::findOrCreateBlitWithDrawPipeline(
 
             "@fragment "
             "fn main(@builtin(position) fragPosition : vec4<f32>) -> @location(0) vec4<f32> {"
-                "var coords : vec2<i32> = vec2<i32>(i32(fragPosition.x), i32(fragPosition.y));"
+                "let coords = vec2<i32>(i32(fragPosition.x), i32(fragPosition.y));"
                 "return textureLoad(colorMap, coords, 0);"
             "}";
 
+        static constexpr char kFragmentShaderMSAAText[] =
+            "@group(0) @binding(0) var colorMap: texture_multisampled_2d<f32>;"
+            "@fragment\n"
+            "fn main(@builtin(position) fragPosition : vec4<f32>) -> @location(0) vec4<f32> {"
+                "let coords = vec2<i32>(i32(fragPosition.x), i32(fragPosition.y));"
+                "var sum = vec4f(0.0);"
+                "let sampleCount = textureNumSamples(colorMap);"
+                "for (var i: u32 = 0; i < sampleCount; i = i + 1) {"
+                    "sum += textureLoad(colorMap, coords, i);"
+                "}"
+                "return sum / f32(sampleCount);"
+            "}";
+
         auto vsModule = create_shader_module(dawnSharedContext()->device(), kVertexShaderText);
-        auto fsModule = create_shader_module(dawnSharedContext()->device(), kFragmentShaderText);
+        auto fsModule =
+                create_shader_module(dawnSharedContext()->device(),
+                                     srcIsMSAA ? kFragmentShaderMSAAText : kFragmentShaderText);
 
         const auto& colorTexInfo = renderPassDesc.fColorAttachment.fTextureInfo;
         const auto& dsTexInfo = renderPassDesc.fDepthStencilAttachment.fTextureInfo;

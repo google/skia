@@ -73,9 +73,22 @@ public:
                             const TextureInfo&,
                             ResourceType,
                             GraphiteResourceKey*) const override;
-    uint32_t getRenderPassDescKeyForPipeline(const RenderPassDesc&) const;
+    // Compute render pass desc's key as 32 bits key. The key has room for additional flag which can
+    // optionally be provided.
+    uint32_t getRenderPassDescKeyForPipeline(const RenderPassDesc&,
+                                             bool additionalFlag = false) const;
 
     bool supportsCommandBufferTimestamps() const { return fSupportsCommandBufferTimestamps; }
+
+    // Whether we should emulate load/resolve with separate render passes.
+    // TODO(b/399640773): This is currently used until Dawn supports true partial resolve feature
+    // that can resolve a MSAA texture to a resolve texture with different size.
+    bool emulateLoadStoreResolve() const { return fEmulateLoadStoreResolve; }
+
+    // Check whether the texture is texturable, ignoring its sample count. This is needed
+    // instead of isTextureable() because graphite frontend treats multisampled textures as
+    // non-textureable.
+    bool isTexturableIgnoreSampleCount(const TextureInfo& info) const;
 
 private:
     const ColorTypeInfo* getColorTypeInfo(SkColorType, const TextureInfo&) const override;
@@ -101,6 +114,7 @@ private:
     }
 
     uint32_t maxRenderTargetSampleCount(wgpu::TextureFormat format) const;
+    using Caps::isTexturable;
     bool isTexturable(wgpu::TextureFormat format) const;
     bool isRenderable(wgpu::TextureFormat format, uint32_t numSamples) const;
 
@@ -151,6 +165,8 @@ private:
     // and resolve. With this feature, we can do that partially according to the actual damage
     // region.
     bool fSupportsPartialLoadResolve = false;
+
+    bool fEmulateLoadStoreResolve = false;
 
     bool fUseAsyncPipelineCreation = true;
     bool fAllowScopedErrorChecks = true;

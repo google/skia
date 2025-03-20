@@ -71,16 +71,18 @@ private:
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture);
-    bool loadMSAAFromResolveAndBeginRenderPassEncoder(
-            const RenderPassDesc& frontendRenderPassDesc,
-            const wgpu::RenderPassDescriptor& wgpuRenderPassDesc,
-            const DawnTexture* msaaTexture);
+    bool emulateLoadMSAAFromResolveAndBeginRenderPassEncoder(
+            const RenderPassDesc& intendedRenderPassDesc,
+            const wgpu::RenderPassDescriptor& intendedDawnRenderPassDesc,
+            const SkIRect& renderPassBounds,
+            const DawnTexture* msaaTexture,
+            const DawnTexture* resolveTexture);
     bool doBlitWithDraw(const wgpu::RenderPassEncoder& renderEncoder,
-                        const RenderPassDesc& frontendRenderPassDesc,
-                        const wgpu::TextureView& sourceTextureView,
-                        int width,
-                        int height);
-    void endRenderPass();
+                        const RenderPassDesc& frontendRenderPassDescKey,
+                        const wgpu::TextureView& srcTextureView,
+                        bool srcIsMSAA,
+                        const SkIRect& bounds);
+    bool endRenderPass();
 
     bool addDrawPass(const DrawPass*);
 
@@ -160,6 +162,13 @@ private:
     wgpu::CommandEncoder fCommandEncoder;
     wgpu::RenderPassEncoder fActiveRenderPassEncoder;
     wgpu::ComputePassEncoder fActiveComputePassEncoder;
+
+    struct ResolveStepEmulationInfo {
+        const DawnTexture* fMSAATexture;
+        const DawnTexture* fResolveTexture;
+        SkIRect fResolveArea;
+    };
+    std::optional<ResolveStepEmulationInfo> fResolveStepEmulationInfo;
 
     wgpu::Buffer fCurrentIndirectBuffer;
     size_t fCurrentIndirectBufferOffset = 0;

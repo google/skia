@@ -25,7 +25,7 @@ namespace skgpu::graphite {
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(MultisampleRetainTest, reporter, context,
                                    CtsEnforcement::kNever) {
     const SkImageInfo surfaceImageInfo = SkImageInfo::Make(
-            16, 16, SkColorType::kRGBA_8888_SkColorType, SkAlphaType::kPremul_SkAlphaType);
+            17, 17, SkColorType::kRGBA_8888_SkColorType, SkAlphaType::kPremul_SkAlphaType);
 
     std::unique_ptr<Recorder> surfaceRecorder = context->makeRecorder();
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(surfaceRecorder.get(), surfaceImageInfo);
@@ -48,7 +48,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(MultisampleRetainTest, reporter, context,
         {3, 2},
         {3, 4},
         {6, 8},
-        {3, 15},
+        {3, 16},
     };
 
     for (size_t i = 0; i < std::size(kPathPoints); ++i) {
@@ -72,7 +72,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(MultisampleRetainTest, reporter, context,
     // Verify recording was replayed.
     REPORTER_ASSERT(reporter, bitmap.getColor4f(8, 0) == SkColors::kRed);
     REPORTER_ASSERT(reporter, bitmap.getColor4f(0, 8) == SkColors::kRed);
-    REPORTER_ASSERT(reporter, bitmap.getColor4f(15, 14) == SkColors::kRed);
+    REPORTER_ASSERT(reporter, bitmap.getColor4f(16, 14) == SkColors::kRed);
 
     // Verify points on the path have blue color. We don't verify last point because it is on the
     // edge of the path thus might have blurry color.

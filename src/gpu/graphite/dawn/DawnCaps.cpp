@@ -98,6 +98,13 @@ DawnCaps::DawnCaps(const DawnBackendContext& backendContext, const ContextOption
 
 DawnCaps::~DawnCaps() = default;
 
+bool DawnCaps::isTexturableIgnoreSampleCount(const TextureInfo& info) const {
+    auto overrideDawnInfo = TextureInfoPriv::Get<DawnTextureInfo>(info);
+    overrideDawnInfo.fSampleCount = 1;
+    TextureInfo overrideInfo = TextureInfos::MakeDawn(overrideDawnInfo);
+    return this->isTexturable(overrideInfo);
+}
+
 bool DawnCaps::onIsTexturable(const TextureInfo& info) const {
     if (!info.isValid()) {
         return false;
@@ -286,6 +293,10 @@ TextureInfo DawnCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampled
     if (fSupportedTransientAttachmentUsage != wgpu::TextureUsage::None &&
         discardable == Discardable::kYes) {
         info.fUsage |= fSupportedTransientAttachmentUsage;
+    }
+
+    if (fEmulateLoadStoreResolve) {
+        info.fUsage |= wgpu::TextureUsage::TextureBinding;
     }
 
     return TextureInfos::MakeDawn(info);
@@ -524,11 +535,26 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     if (backendContext.fDevice.HasFeature(wgpu::FeatureName::TransientAttachments)) {
         fSupportedTransientAttachmentUsage = wgpu::TextureUsage::TransientAttachment;
     }
-    if (backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnLoadResolveTexture)) {
-        fSupportedResolveTextureLoadOp = wgpu::LoadOp::ExpandResolveTexture;
+#endif
+
+    if (fSupportedTransientAttachmentUsage == wgpu::TextureUsage::None) {
+        // Without transient attachments, we currently emulate load/resolve using separate render
+        // passes, so that mismatched MSAA & resolve attachments' sizes can work. This helps
+        // reuse MSAA textures better to reduce memory usage.
+        // TODO(b/399640773): Avoid this when Dawn implements the partial resolve feature
+        // that can support mismatched sized MSAA & resolve attachments.
+        fEmulateLoadStoreResolve = true;
+        fDifferentResolveAttachmentSizeSupport = true;
     }
-    fSupportsPartialLoadResolve =
-            backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnPartialLoadResolveTexture);
+
+#if !defined(__EMSCRIPTEN__)
+    if (!fEmulateLoadStoreResolve) {
+        if (backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnLoadResolveTexture)) {
+            fSupportedResolveTextureLoadOp = wgpu::LoadOp::ExpandResolveTexture;
+        }
+        fSupportsPartialLoadResolve =
+                backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnPartialLoadResolveTexture);
+    }
 #endif
 
     if (backendContext.fDevice.HasFeature(wgpu::FeatureName::TimestampQuery)) {
@@ -981,19 +1007,22 @@ static constexpr int kFormatBits = 11; // x2 attachments (color & depthStencil f
 static constexpr int kSampleBits = 4;  // x2 attachments (color & depthStencil numSamples)
 static constexpr int kResolveBits = 1;
 static constexpr int kUnusedAttachmentIndex = (1 << kFormatBits) - 1;
-static_assert(2*(kFormatBits + kSampleBits) + kResolveBits <= 32);
+static_assert(2*(kFormatBits + kSampleBits) + kResolveBits <= 31);
 static_assert(std::size(kFormats) <= kUnusedAttachmentIndex);
 
 static constexpr int kDepthStencilNumSamplesOffset = kResolveBits;
 static constexpr int kDepthStencilFormatOffset = kDepthStencilNumSamplesOffset + kSampleBits;
 static constexpr int kColorNumSamplesOffset = kDepthStencilFormatOffset + kFormatBits;
 static constexpr int kColorFormatOffset = kColorNumSamplesOffset + kSampleBits;
+static constexpr int kAdditionalFlagOffset = kFormatBits + kColorFormatOffset;
+static_assert(kAdditionalFlagOffset <= 31);
 
 static constexpr uint32_t kFormatMask     = (1 << kFormatBits) - 1;
 static constexpr uint32_t kNumSamplesMask = (1 << kSampleBits) - 1;
 static constexpr uint32_t kResolveMask    = (1 << kResolveBits) - 1;
 
-uint32_t DawnCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderPassDesc) const {
+uint32_t DawnCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderPassDesc,
+                                                   bool additionalFlag) const {
     const TextureInfo& colorInfo = renderPassDesc.fColorAttachment.fTextureInfo;
     const TextureInfo& depthStencilInfo = renderPassDesc.fDepthStencilAttachment.fTextureInfo;
     // The color attachment should be valid; the depth-stencil attachment may not be if it's not
@@ -1030,9 +1059,12 @@ uint32_t DawnCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderP
     SkASSERT(depthStencilInfo.numSamples() < (1 << kSampleBits));
     SkASSERT(loadResolveAttachmentKey < (1 << kResolveBits));
 
-    return (colorFormatIndex              << kColorFormatOffset) |
-           (colorInfo.numSamples()        << kColorNumSamplesOffset) |
-           (depthStencilFormatIndex       << kDepthStencilFormatOffset) |
+    uint32_t additionalFlagKey = additionalFlag ? 1 : 0;
+
+    return (additionalFlagKey << kAdditionalFlagOffset) |
+           (colorFormatIndex << kColorFormatOffset) |
+           (colorInfo.numSamples() << kColorNumSamplesOffset) |
+           (depthStencilFormatIndex << kDepthStencilFormatOffset) |
            (depthStencilInfo.numSamples() << kDepthStencilNumSamplesOffset) |
            loadResolveAttachmentKey;
 }
