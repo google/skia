@@ -54,6 +54,7 @@ mod ffi {
 
     /// FFI-friendly simplification of `png::Compression`.
     enum Compression {
+        Fastest,
         Fast,
         Balanced,
         High,
@@ -264,6 +265,7 @@ impl From<Option<&png::DecodingError>> for ffi::DecodingResult {
 impl ffi::Compression {
     fn apply<'a, W: Write>(&self, encoder: &mut png::Encoder<'a, W>) {
         match self {
+            &Self::Fastest => encoder.set_compression(png::Compression::Fastest),
             &Self::Fast => encoder.set_compression(png::Compression::Fast),
             &Self::Balanced => encoder.set_compression(png::Compression::Balanced),
             &Self::High => encoder.set_compression(png::Compression::High),
