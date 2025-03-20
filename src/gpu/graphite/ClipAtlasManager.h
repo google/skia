@@ -23,10 +23,10 @@ class Recorder;
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /** The ClipAtlasManager manages the lifetime of and access to rasterized clip masks.
  */
-class ClipAtlasManager : public AtlasGenerationCounter, public PlotEvictionCallback {
+class ClipAtlasManager {
 public:
     ClipAtlasManager(Recorder* recorder);
-    ~ClipAtlasManager() override = default;
+    ~ClipAtlasManager() = default;
 
     const TextureProxy* findOrCreateEntry(uint32_t stackRecordID,
                                           const ClipStack::ElementList*,
@@ -34,46 +34,70 @@ public:
                                           SkIPoint* outPos);
 
     bool recordUploads(DrawContext* dc);
-    void evict(PlotLocator) override;
     void compact();
     void freeGpuResources();
 
     void evictAtlases();
 
 private:
-    const TextureProxy* addToAtlas(const ClipStack::ElementList*,
-                                   SkIRect iBounds,
-                                   SkIPoint* outPos,
-                                   AtlasLocator* locator);
+    // Wrapper class to manage DrawAtlas and associated caching operations
+    class DrawAtlasMgr : public AtlasGenerationCounter, public PlotEvictionCallback {
+    public:
+        DrawAtlasMgr(size_t width, size_t height,
+                     size_t plotWidth, size_t plotHeight,
+                     DrawAtlas::UseStorageTextures useStorageTextures,
+                     std::string_view label, const Caps*);
+
+        const TextureProxy* findOrCreateEntry(Recorder* recorder,
+                                              const skgpu::UniqueKey&,
+                                              const ClipStack::ElementList*,
+                                              SkIRect iBounds,
+                                              SkIPoint* outPos);
+        // Adds to DrawAtlas but not the cache
+        const TextureProxy* addToAtlas(Recorder* recorder,
+                                       const ClipStack::ElementList*,
+                                       SkIRect iBounds,
+                                       SkIPoint* outPos,
+                                       AtlasLocator* locator);
+        bool recordUploads(DrawContext*, Recorder*);
+        void evict(PlotLocator) override;
+        void compact(Recorder*);
+        void freeGpuResources(Recorder*);
+
+        void evictAll();
+
+    private:
+        std::unique_ptr<DrawAtlas> fDrawAtlas;
+
+        // Tracks whether a combined clip mask is already in the DrawAtlas and its location
+        struct MaskHashEntry {
+            SkIRect fBounds;
+            AtlasLocator fLocator;
+            MaskHashEntry* fNext = nullptr;
+        };
+        struct UniqueKeyHash {
+            uint32_t operator()(const skgpu::UniqueKey& key) const { return key.hash(); }
+        };
+        using MaskCache = skia_private::THashMap<skgpu::UniqueKey, MaskHashEntry, UniqueKeyHash>;
+        MaskCache fMaskCache;
+        int fHashEntryCount = 0;
+
+        // List of stored keys per Plot, used to invalidate cache entries.
+        // When a Plot is invalidated via evict(), we'll get its index and Page index from the
+        // PlotLocator, index into the fKeyLists array to get the MaskKeyList for that Plot,
+        // then iterate through the list and remove entries matching those keys from the MaskCache.
+        struct MaskKeyEntry {
+            skgpu::UniqueKey fKey;
+            SkIRect fBounds;
+            SK_DECLARE_INTERNAL_LLIST_INTERFACE(MaskKeyEntry);
+        };
+        using MaskKeyList = SkTInternalLList<MaskKeyEntry>;
+        SkTDArray<MaskKeyList> fKeyLists;
+        int fListEntryCount = 0;
+    };
 
     Recorder* fRecorder;
-    std::unique_ptr<DrawAtlas> fDrawAtlas;
-
-    // Tracks whether a combined clip mask is already in the DrawAtlas and its location in the atlas
-    struct MaskHashEntry {
-        SkIRect fBounds;
-        AtlasLocator fLocator;
-        MaskHashEntry* fNext = nullptr;
-    };
-    struct UniqueKeyHash {
-        uint32_t operator()(const skgpu::UniqueKey& key) const { return key.hash(); }
-    };
-    using MaskCache = skia_private::THashMap<skgpu::UniqueKey, MaskHashEntry, UniqueKeyHash>;
-    MaskCache fMaskCache;
-    int fHashEntryCount = 0;
-
-    // List of stored keys per Plot, used to invalidate cache entries.
-    // When a Plot is invalidated via evict(), we'll get its index and Page index from the
-    // PlotLocator, index into the fKeyLists array to get the MaskKeyList for that Plot,
-    // then iterate through the list and remove entries matching those keys from the MaskCache.
-    struct MaskKeyEntry {
-        skgpu::UniqueKey fKey;
-        SkIRect fBounds;
-        SK_DECLARE_INTERNAL_LLIST_INTERFACE(MaskKeyEntry);
-    };
-    using MaskKeyList = SkTInternalLList<MaskKeyEntry>;
-    SkTDArray<MaskKeyList> fKeyLists;
-    int fListEntryCount = 0;
+    DrawAtlasMgr fDrawAtlasMgr;
 };
 
 }  // namespace skgpu::graphite
