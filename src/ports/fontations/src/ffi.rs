@@ -160,8 +160,8 @@ fn fill_glyph_to_unicode_map(font_ref: &BridgeFontRef, map: &mut [u32]) {
     font_ref.with_font(|f| {
         let mappings = f.charmap().mappings();
         for item in mappings {
-            if map[item.1.to_u32() as usize] == 0 {
-                map[item.1.to_u32() as usize] = item.0;
+            if let Some(c) = map.get_mut(item.1.to_u32() as usize).filter(|c| **c == 0) {
+                *c = item.0;
             }
         }
         Some(())
