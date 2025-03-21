@@ -440,8 +440,8 @@ private:
     friend class SkRandomTypeface;   // getAdvancedMetrics
     friend class SkPDFFont;          // getAdvancedMetrics
     friend class SkTypeface_proxy;
-
     friend class SkFontPriv;         // getGlyphToUnicodeMap
+    friend void TestSkTypefaceGlyphToUnicodeMap(SkTypeface&, SkUnichar*);
 
 private:
     SkTypefaceID        fUniqueID;
