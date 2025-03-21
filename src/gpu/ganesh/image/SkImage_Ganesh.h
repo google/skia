@@ -160,7 +160,7 @@ private:
         // Call when it is known for sure copy won't be necessary.
         sk_sp<GrSurfaceProxy> makeVolatileProxyStable() SK_EXCLUDES(fLock);
 
-        bool surfaceMustCopyOnWrite(GrSurfaceProxy* surfaceProxy) SK_EXCLUDES(fLock);
+        bool surfaceMustCopyOnWrite(GrSurfaceProxy* surfaceProxy) const SK_EXCLUDES(fLock);
 
         // Queries that should be independent of which proxy is in use.
         size_t gpuMemorySize() const SK_EXCLUDES(fLock);
