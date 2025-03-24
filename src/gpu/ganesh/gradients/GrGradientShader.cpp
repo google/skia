@@ -930,7 +930,7 @@ std::unique_ptr<GrFragmentProcessor> MakeGradientFP(const SkGradientBaseShader& 
             SkPMColor4f borderColors[2] = { colors[0], colors[colorCount - 1] };
             SkArenaAlloc alloc(/*firstHeapAllocation=*/0);
             SkRasterPipeline p(&alloc);
-            SkRasterPipeline_MemoryCtx ctx = { borderColors, 0 };
+            SkRasterPipelineContexts::MemoryCtx ctx = {borderColors, 0};
 
             p.append(SkRasterPipelineOp::load_f32, &ctx);
             SkGradientBaseShader::AppendInterpolatedToDstStages(

@@ -183,7 +183,7 @@ public:
 private:
     SkArenaAlloc*              fAlloc;
     SkBlitter*                 fBlitter;
-    SkRasterPipeline_MemoryCtx fSrcPtr;
+    SkRasterPipelineContexts::MemoryCtx fSrcPtr;
     SkColor4f                  fPaintColor;
     sk_sp<SkShader>            fClipShader;
 

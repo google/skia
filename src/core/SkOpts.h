@@ -14,7 +14,9 @@
 #include <cstddef>
 #include <cstdint>
 
-struct SkRasterPipeline_MemoryCtxPatch;
+namespace SkRasterPipelineContexts {
+struct MemoryCtxPatch;
+}
 
 /**
  * SkOpts (short for SkOptimizations) is a mechanism where we can ship with multiple implementations
@@ -75,10 +77,10 @@ namespace SkOpts {
     extern StageFn ops_lowp [kNumRasterPipelineLowpOps ], just_return_lowp;
 
     extern void (*start_pipeline_highp)(size_t,size_t,size_t,size_t, SkRasterPipelineStage*,
-                                        SkSpan<SkRasterPipeline_MemoryCtxPatch>,
+                                        SkSpan<SkRasterPipelineContexts::MemoryCtxPatch>,
                                         uint8_t*);
     extern void (*start_pipeline_lowp )(size_t,size_t,size_t,size_t, SkRasterPipelineStage*,
-                                        SkSpan<SkRasterPipeline_MemoryCtxPatch>,
+                                        SkSpan<SkRasterPipelineContexts::MemoryCtxPatch>,
                                         uint8_t*);
 
     extern size_t raster_pipeline_lowp_stride;

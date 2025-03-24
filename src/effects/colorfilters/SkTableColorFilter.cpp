@@ -28,7 +28,8 @@ bool SkTableColorFilter::appendStages(const SkStageRec& rec, bool shaderIsOpaque
         p->append(SkRasterPipelineOp::unpremul);
     }
 
-    SkRasterPipeline_TablesCtx* tables = rec.fAlloc->make<SkRasterPipeline_TablesCtx>();
+    SkRasterPipelineContexts::TablesCtx* tables =
+            rec.fAlloc->make<SkRasterPipelineContexts::TablesCtx>();
     tables->a = fTable->alphaTable();
     tables->r = fTable->redTable();
     tables->g = fTable->greenTable();

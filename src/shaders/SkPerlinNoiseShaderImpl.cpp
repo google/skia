@@ -91,7 +91,7 @@ bool SkPerlinNoiseShader::appendStages(const SkStageRec& rec,
         const_cast<SkPerlinNoiseShader*>(this)->fPaintingData = this->getPaintingData();
     });
 
-    auto* ctx = rec.fAlloc->make<SkRasterPipeline_PerlinNoiseCtx>();
+    auto* ctx = rec.fAlloc->make<SkRasterPipelineContexts::PerlinNoiseCtx>();
     ctx->noiseType = fType;
     ctx->baseFrequencyX = fPaintingData->fBaseFrequency.fX;
     ctx->baseFrequencyY = fPaintingData->fBaseFrequency.fY;

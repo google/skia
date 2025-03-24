@@ -125,7 +125,8 @@ void SkRasterPipeline::uncheckedAppend(SkRasterPipelineOp op, void* ctx) {
         }
         case Op::emboss: {
             // Special-case, this op uses a context that holds *two* MemoryCtxs
-            SkRasterPipeline_EmbossCtx* embossCtx = (SkRasterPipeline_EmbossCtx*)ctx;
+            SkRasterPipelineContexts::EmbossCtx* embossCtx =
+                    (SkRasterPipelineContexts::EmbossCtx*)ctx;
             this->addMemoryContext(&embossCtx->add,
                                    SkColorTypeBytesPerPixel(kAlpha_8_SkColorType),
                                    /*load=*/true, /*store=*/false);
@@ -135,12 +136,12 @@ void SkRasterPipeline::uncheckedAppend(SkRasterPipelineOp op, void* ctx) {
             break;
         }
         case Op::init_lane_masks: {
-            auto* initCtx = (SkRasterPipeline_InitLaneMasksCtx*)ctx;
+            auto* initCtx = (SkRasterPipelineContexts::InitLaneMasksCtx*)ctx;
             initCtx->tail = this->tailPointer();
             break;
         }
         case Op::branch_if_all_lanes_active: {
-            auto* branchCtx = (SkRasterPipeline_BranchIfAllLanesActiveCtx*)ctx;
+            auto* branchCtx = (SkRasterPipelineContexts::BranchIfAllLanesActiveCtx*)ctx;
             branchCtx->tail = this->tailPointer();
             break;
         }
@@ -153,8 +154,10 @@ void SkRasterPipeline::uncheckedAppend(SkRasterPipelineOp op, void* ctx) {
 
     if (isLoad || isStore) {
         SkASSERT(ct != kUnknown_SkColorType);
-        this->addMemoryContext(
-                (SkRasterPipeline_MemoryCtx*)ctx, SkColorTypeBytesPerPixel(ct), isLoad, isStore);
+        this->addMemoryContext((SkRasterPipelineContexts::MemoryCtx*)ctx,
+                               SkColorTypeBytesPerPixel(ct),
+                               isLoad,
+                               isStore);
     }
 }
 
@@ -172,7 +175,7 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
     // we need to keep it, since we already have rewind ops that reference it. Either way, we need
     // to rewrite all the rewind ops to point to _our_ rewind context; we only get that checkpoint.
     if (src.fRewindCtx && !fRewindCtx) {
-        fRewindCtx = fAlloc->make<SkRasterPipeline_RewindCtx>();
+        fRewindCtx = fAlloc->make<SkRasterPipelineContexts::RewindCtx>();
     }
     auto stages = fAlloc->makeArrayDefault<StageList>(src.fNumStages);
 
@@ -189,12 +192,12 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
                 break;
             }
             case Op::init_lane_masks: {
-                auto* ctx = (SkRasterPipeline_InitLaneMasksCtx*)stages[n].ctx;
+                auto* ctx = (SkRasterPipelineContexts::InitLaneMasksCtx*)stages[n].ctx;
                 ctx->tail = this->tailPointer();
                 break;
             }
             case Op::branch_if_all_lanes_active: {
-                auto* ctx = (SkRasterPipeline_BranchIfAllLanesActiveCtx*)stages[n].ctx;
+                auto* ctx = (SkRasterPipelineContexts::BranchIfAllLanesActiveCtx*)stages[n].ctx;
                 ctx->tail = this->tailPointer();
                 break;
             }
@@ -209,7 +212,7 @@ void SkRasterPipeline::extend(const SkRasterPipeline& src) {
 
     fStages = &stages[src.fNumStages - 1];
     fNumStages += src.fNumStages;
-    for (const SkRasterPipeline_MemoryCtxInfo& info : src.fMemoryCtxInfos) {
+    for (const SkRasterPipelineContexts::MemoryCtxInfo& info : src.fMemoryCtxInfos) {
         this->addMemoryContext(info.context, info.bytesPerPixel, info.load, info.store);
     }
 }
@@ -263,7 +266,7 @@ void SkRasterPipeline::appendConstantColor(SkArenaAlloc* alloc, const float rgba
     } else if (rgba[0] == 1 && rgba[1] == 1 && rgba[2] == 1 && rgba[3] == 1) {
         this->append(Op::white_color);
     } else {
-        auto ctx = alloc->make<SkRasterPipeline_UniformColorCtx>();
+        auto ctx = alloc->make<SkRasterPipelineContexts::UniformColorCtx>();
         skvx::float4 color = skvx::float4::Load(rgba);
         color.store(&ctx->r);
 
@@ -316,7 +319,7 @@ void SkRasterPipeline::appendMatrix(SkArenaAlloc* alloc, const SkMatrix& matrix)
     }
 }
 
-void SkRasterPipeline::appendLoad(SkColorType ct, const SkRasterPipeline_MemoryCtx* ctx) {
+void SkRasterPipeline::appendLoad(SkColorType ct, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     switch (ct) {
         case kUnknown_SkColorType: SkASSERT(false); break;
 
@@ -384,7 +387,8 @@ void SkRasterPipeline::appendLoad(SkColorType ct, const SkRasterPipeline_MemoryC
     }
 }
 
-void SkRasterPipeline::appendLoadDst(SkColorType ct, const SkRasterPipeline_MemoryCtx* ctx) {
+void SkRasterPipeline::appendLoadDst(SkColorType ct,
+                                     const SkRasterPipelineContexts::MemoryCtx* ctx) {
     switch (ct) {
         case kUnknown_SkColorType: SkASSERT(false); break;
 
@@ -455,7 +459,7 @@ void SkRasterPipeline::appendLoadDst(SkColorType ct, const SkRasterPipeline_Memo
     }
 }
 
-void SkRasterPipeline::appendStore(SkColorType ct, const SkRasterPipeline_MemoryCtx* ctx) {
+void SkRasterPipeline::appendStore(SkColorType ct, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     switch (ct) {
         case kUnknown_SkColorType: SkASSERT(false); break;
 
@@ -548,7 +552,7 @@ void SkRasterPipeline::appendClampIfNormalized(const SkImageInfo& info) {
 
 void SkRasterPipeline::appendStackRewind() {
     if (!fRewindCtx) {
-        fRewindCtx = fAlloc->make<SkRasterPipeline_RewindCtx>();
+        fRewindCtx = fAlloc->make<SkRasterPipelineContexts::RewindCtx>();
     }
     this->uncheckedAppend(Op::stack_rewind, fRewindCtx);
 }
@@ -627,7 +631,7 @@ void SkRasterPipeline::run(size_t x, size_t y, size_t w, size_t h) const {
     AutoSTMalloc<32, SkRasterPipelineStage> program(stagesNeeded);
 
     int numMemoryCtxs = fMemoryCtxInfos.size();
-    AutoSTMalloc<2, SkRasterPipeline_MemoryCtxPatch> patches(numMemoryCtxs);
+    AutoSTMalloc<2, SkRasterPipelineContexts::MemoryCtxPatch> patches(numMemoryCtxs);
     for (int i = 0; i < numMemoryCtxs; ++i) {
         patches[i].info = fMemoryCtxInfos[i];
         patches[i].backup = nullptr;
@@ -650,8 +654,8 @@ std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() 
     SkRasterPipelineStage* program = fAlloc->makeArray<SkRasterPipelineStage>(stagesNeeded);
 
     int numMemoryCtxs = fMemoryCtxInfos.size();
-    SkRasterPipeline_MemoryCtxPatch* patches =
-            fAlloc->makeArray<SkRasterPipeline_MemoryCtxPatch>(numMemoryCtxs);
+    SkRasterPipelineContexts::MemoryCtxPatch* patches =
+            fAlloc->makeArray<SkRasterPipelineContexts::MemoryCtxPatch>(numMemoryCtxs);
     for (int i = 0; i < numMemoryCtxs; ++i) {
         patches[i].info = fMemoryCtxInfos[i];
         patches[i].backup = nullptr;
@@ -667,18 +671,20 @@ std::function<void(size_t, size_t, size_t, size_t)> SkRasterPipeline::compile() 
     };
 }
 
-void SkRasterPipeline::addMemoryContext(SkRasterPipeline_MemoryCtx* ctx,
+void SkRasterPipeline::addMemoryContext(SkRasterPipelineContexts::MemoryCtx* ctx,
                                         int bytesPerPixel,
                                         bool load,
                                         bool store) {
-    SkRasterPipeline_MemoryCtxInfo* info =
-            std::find_if(fMemoryCtxInfos.begin(), fMemoryCtxInfos.end(),
-                         [=](const SkRasterPipeline_MemoryCtxInfo& i) { return i.context == ctx; });
+    SkRasterPipelineContexts::MemoryCtxInfo* info = std::find_if(
+            fMemoryCtxInfos.begin(),
+            fMemoryCtxInfos.end(),
+            [=](const SkRasterPipelineContexts::MemoryCtxInfo& i) { return i.context == ctx; });
     if (info != fMemoryCtxInfos.end()) {
         SkASSERT(bytesPerPixel == info->bytesPerPixel);
         info->load = info->load || load;
         info->store = info->store || store;
     } else {
-        fMemoryCtxInfos.push_back(SkRasterPipeline_MemoryCtxInfo{ctx, bytesPerPixel, load, store});
+        fMemoryCtxInfos.push_back(
+                SkRasterPipelineContexts::MemoryCtxInfo{ctx, bytesPerPixel, load, store});
     }
 }

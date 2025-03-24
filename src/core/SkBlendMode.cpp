@@ -151,9 +151,8 @@ SkPMColor4f SkBlendMode_Apply(SkBlendMode mode, const SkPMColor4f& src, const Sk
     SkPMColor4f            src_storage = src,
                            dst_storage = dst,
                            res_storage;
-    SkRasterPipeline_MemoryCtx src_ctx = { &src_storage, 0 },
-                               dst_ctx = { &dst_storage, 0 },
-                               res_ctx = { &res_storage, 0 };
+    SkRasterPipelineContexts::MemoryCtx src_ctx = {&src_storage, 0}, dst_ctx = {&dst_storage, 0},
+                                        res_ctx = {&res_storage, 0};
 
     p.append(SkRasterPipelineOp::load_f32, &dst_ctx);
     p.append(SkRasterPipelineOp::move_src_dst);

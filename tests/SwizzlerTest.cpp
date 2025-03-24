@@ -210,7 +210,7 @@ DEF_TEST(ReciprocalAlphaPortable, reporter) {
 //     g *= scale;
 //     b *= scale;
 // }
-// STAGE(store_8888, const SkRasterPipeline_MemoryCtx* ctx) {
+// STAGE(store_8888, const SkRasterPipelineContexts::MemoryCtx* ctx) {
 //     auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
 //
 //     U32 px = to_unorm(r, 255)

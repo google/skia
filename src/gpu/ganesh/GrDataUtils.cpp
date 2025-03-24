@@ -452,7 +452,7 @@ bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
     }
     int cnt = 1;
     int height = src.height();
-    SkRasterPipeline_MemoryCtx
+    SkRasterPipelineContexts::MemoryCtx
             srcCtx{const_cast<void*>(src.addr()), SkToInt(src.rowBytes()/srcBpp)},
             dstCtx{                   dst.addr(), SkToInt(dst.rowBytes()/dstBpp)};
 
@@ -570,7 +570,7 @@ bool GrClearImage(const GrImageInfo& dstInfo, void* dst, size_t dstRB, std::arra
         pipeline.appendTransferFunction(*skcms_sRGB_Inverse_TransferFunction());
     }
     storeSwizzle.apply(&pipeline);
-    SkRasterPipeline_MemoryCtx dstCtx{dst, SkToInt(dstRB/dstInfo.bpp())};
+    SkRasterPipelineContexts::MemoryCtx dstCtx{dst, SkToInt(dstRB / dstInfo.bpp())};
     pipeline.append(store, &dstCtx);
     pipeline.run(0, 0, dstInfo.width(), dstInfo.height());
 

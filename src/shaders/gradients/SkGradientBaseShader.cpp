@@ -303,7 +303,7 @@ SkGradientBaseShader::SkGradientBaseShader(const Descriptor& desc, const SkMatri
 
 SkGradientBaseShader::~SkGradientBaseShader() {}
 
-static void add_stop_color(SkRasterPipeline_GradientCtx* ctx,
+static void add_stop_color(SkRasterPipelineContexts::GradientCtx* ctx,
                            size_t stop,
                            const SkPMColor4f& Fs,
                            const SkPMColor4f& Bs) {
@@ -318,14 +318,16 @@ static void add_stop_color(SkRasterPipeline_GradientCtx* ctx,
     (ctx->biases[3])[stop] = Bs.fA;
 }
 
-static void add_const_color(SkRasterPipeline_GradientCtx* ctx, size_t stop, const SkPMColor4f& color) {
+static void add_const_color(SkRasterPipelineContexts::GradientCtx* ctx,
+                            size_t stop,
+                            const SkPMColor4f& color) {
     add_stop_color(ctx, stop, {0, 0, 0, 0}, color);
 }
 
 // Calculate a factor F and a bias B so that color = F*t + B when t is in range of
 // the stop. Assume that all stops have width 1/gapCount and the stop parameter
 // refers to the nth stop.
-static void init_stop_evenly(SkRasterPipeline_GradientCtx* ctx,
+static void init_stop_evenly(SkRasterPipelineContexts::GradientCtx* ctx,
                              float gapCount,
                              size_t stop,
                              const SkPMColor4f& leftC,
@@ -353,7 +355,7 @@ static void init_stop_evenly(SkRasterPipeline_GradientCtx* ctx,
 
 // Calculate a factor F and a bias B so that color = F*t + B when t is in range of
 // the stop. Unlike init_stop_evenly, this handles stops
-static void init_stop_pos(SkRasterPipeline_GradientCtx* ctx,
+static void init_stop_pos(SkRasterPipelineContexts::GradientCtx* ctx,
                           size_t stop,
                           float t_l,
                           float gapReciprocal,
@@ -387,7 +389,7 @@ void SkGradientBaseShader::AppendGradientFillStages(SkRasterPipeline* p,
     if (count == 2 && positions == nullptr) {
         const SkPMColor4f c_l = pmColors[0], c_r = pmColors[1];
 
-        auto ctx = alloc->make<SkRasterPipeline_EvenlySpaced2StopGradientCtx>();
+        auto ctx = alloc->make<SkRasterPipelineContexts::EvenlySpaced2StopGradientCtx>();
         (skvx::float4::Load(c_r.vec()) - skvx::float4::Load(c_l.vec())).store(ctx->factor);
         (skvx::float4::Load(c_l.vec())).store(ctx->bias);
 
@@ -403,7 +405,7 @@ void SkGradientBaseShader::AppendGradientFillStages(SkRasterPipeline* p,
     //  color_channel = factor * t + bias
     // We do this pre-computation in init_stop_evenly and init_stop_pos.
 
-    auto* ctx = alloc->make<SkRasterPipeline_GradientCtx>();
+    auto* ctx = alloc->make<SkRasterPipelineContexts::GradientCtx>();
 
     // Allocate at least enough for the AVX2 gather from a YMM register.
     constexpr int kMaxRegisterSize = 8;
@@ -413,6 +415,8 @@ void SkGradientBaseShader::AppendGradientFillStages(SkRasterPipeline* p,
     // and skip the left gap, using one block of floats unused.
     const size_t factorBiasFloats = std::max(count + 1, kMaxRegisterSize);
     const size_t tsForArbitraryStops = count + 1;
+    using SkRasterPipelineContexts::kRGBAChannels;
+
     // We need space for all factors and biases, and while we are at it, some space
     // if we need to include the arbitrary stops.
     const size_t toAlloc = 2 * kRGBAChannels * factorBiasFloats + tsForArbitraryStops;
@@ -558,7 +562,7 @@ bool SkGradientBaseShader::appendStages(const SkStageRec& rec,
                                         const SkShaders::MatrixRec& mRec) const {
     SkRasterPipeline* p = rec.fPipeline;
     SkArenaAlloc* alloc = rec.fAlloc;
-    SkRasterPipeline_DecalTileCtx* decal_ctx = nullptr;
+    SkRasterPipelineContexts::DecalTileCtx* decal_ctx = nullptr;
 
     std::optional<SkShaders::MatrixRec> newMRec = mRec.apply(rec, fPtsToUnit);
     if (!newMRec.has_value()) {
@@ -577,7 +581,7 @@ bool SkGradientBaseShader::appendStages(const SkStageRec& rec,
             p->append(SkRasterPipelineOp::repeat_x_1);
             break;
         case SkTileMode::kDecal:
-            decal_ctx = alloc->make<SkRasterPipeline_DecalTileCtx>();
+            decal_ctx = alloc->make<SkRasterPipelineContexts::DecalTileCtx>();
             decal_ctx->limit_x = SkBits2Float(SkFloat2Bits(1.0f) + 1);
             // reuse mask + limit_x stage, or create a custom decal_1 that just stores the mask
             p->append(SkRasterPipelineOp::decal_x, decal_ctx);

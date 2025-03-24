@@ -89,10 +89,10 @@ private:
     // set to pipeline storage (for alpha) if we have a clipShader
     void*                  fClipShaderBuffer = nullptr; // "native" : float or U16
 
-    SkRasterPipeline_MemoryCtx
+    SkRasterPipelineContexts::MemoryCtx
         fDstPtr       = {nullptr,0},  // Always points to the top-left of fDst.
         fMaskPtr      = {nullptr,0};  // Updated each call to blitMask().
-    SkRasterPipeline_EmbossCtx fEmbossCtx;  // Used only for k3D_Format masks.
+    SkRasterPipelineContexts::EmbossCtx fEmbossCtx;  // Used only for k3D_Format masks.
 
     // We may be able to specialize blitH() or blitRect() into a memset.
     void   (*fMemset2D)(SkPixmap*, int x,int y, int w,int h, uint64_t color) = nullptr;
@@ -201,7 +201,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         if (as_SB(clipShader)->appendRootStages(rec, SkMatrix::I())) {
             struct Storage {
                 // large enough for highp (float) or lowp(U16)
-                float   fA[SkRasterPipeline_kMaxStride];
+                float fA[SkRasterPipelineContexts::kMaxStride];
             };
             auto storage = alloc->make<Storage>();
             clipP->append(SkRasterPipelineOp::store_src_a, storage->fA);
@@ -277,7 +277,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     // Optimization: A pipeline that's still constant here can collapse back into a constant color.
     if (is_constant) {
         SkColor4f constantColor;
-        SkRasterPipeline_MemoryCtx constantColorPtr = { &constantColor, 0 };
+        SkRasterPipelineContexts::MemoryCtx constantColorPtr = {&constantColor, 0};
         // We could remove this clamp entirely, but if the destination is 8888, doing the clamp
         // here allows the color pipeline to still run in lowp (we'll use uniform_color, rather than
         // unbounded_uniform_color).
@@ -311,7 +311,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         // Not all blits can memset, so we need to keep colorPipeline too.
         SkRasterPipeline_<256> p;
         p.extend(*colorPipeline);
-        blitter->fDstPtr = SkRasterPipeline_MemoryCtx{&blitter->fMemsetColor, 0};
+        blitter->fDstPtr = SkRasterPipelineContexts::MemoryCtx{&blitter->fMemsetColor, 0};
         blitter->appendStore(&p);
         p.run(0,0,1,1);
 
@@ -350,9 +350,9 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
         blitter->fBlendMode = as_BB(blender)->asBlendMode();
     }
 
-    blitter->fDstPtr = SkRasterPipeline_MemoryCtx{
-        blitter->fDst.writable_addr(),
-        blitter->fDst.rowBytesAsPixels(),
+    blitter->fDstPtr = SkRasterPipelineContexts::MemoryCtx{
+            blitter->fDst.writable_addr(),
+            blitter->fDst.rowBytesAsPixels(),
     };
 
     return blitter;
@@ -495,7 +495,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
           || mask.fFormat == SkMask::kLCD16_Format
           || mask.fFormat == SkMask::k3D_Format);
 
-    auto extract_mask_plane = [&mask](int plane, SkRasterPipeline_MemoryCtx* ctx) {
+    auto extract_mask_plane = [&mask](int plane, SkRasterPipelineContexts::MemoryCtx* ctx) {
         // LCD is 16-bit per pixel; A8 and 3D are 8-bit per pixel.
         size_t bpp = mask.fFormat == SkMask::kLCD16_Format ? 2 : 1;
 

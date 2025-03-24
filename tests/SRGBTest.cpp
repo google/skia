@@ -26,7 +26,7 @@ DEF_TEST(srgb_roundtrip, r) {
         reds[i] = i;
     }
 
-    SkRasterPipeline_MemoryCtx ptr = { reds, 0 };
+    SkRasterPipelineContexts::MemoryCtx ptr = { reds, 0 };
 
     sk_sp<SkColorSpace> sRGB = SkColorSpace::MakeSRGB(),
                         linear = sRGB->makeLinearGamma();
@@ -55,7 +55,7 @@ DEF_TEST(srgb_edge_cases, r) {
     float colors[4][4] = { {0,1,1,1}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0} };
     auto& color = colors[0];
 
-    SkRasterPipeline_MemoryCtx dst = { &color, 0 };
+    SkRasterPipelineContexts::MemoryCtx dst = { &color, 0 };
 
     sk_sp<SkColorSpace> sRGB = SkColorSpace::MakeSRGB(),
                         linear = sRGB->makeLinearGamma();
@@ -100,7 +100,7 @@ DEF_TEST(srgb_roundtrip_extended, r) {
         rgba[i] = expected(i);
     }
 
-    SkRasterPipeline_MemoryCtx ptr = { rgba, 0 };
+    SkRasterPipelineContexts::MemoryCtx ptr = { rgba, 0 };
 
     sk_sp<SkColorSpace> cs = SkColorSpace::MakeSRGB();
     sk_sp<SkColorSpace> linear = cs->makeLinearGamma();

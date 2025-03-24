@@ -362,14 +362,16 @@ void blendRow(SkSpan<uint8_t> dstRow,
     SkASSERT(dstRow.size() >= srcRow.size());
     SkRasterPipeline_<256> p;
 
-    SkRasterPipeline_MemoryCtx dstCtx = {dstRow.data(), 0};
+    SkRasterPipelineContexts::MemoryCtx dstCtx = {dstRow.data(), 0};
     p.appendLoadDst(color, &dstCtx);
     if (kUnpremul_SkAlphaType == alpha) {
         p.append(SkRasterPipelineOp::premul_dst);
     }
 
-    SkRasterPipeline_MemoryCtx srcCtx = {const_cast<void*>(static_cast<const void*>(srcRow.data())),
-                                         0};
+    SkRasterPipelineContexts::MemoryCtx srcCtx = {
+        const_cast<void*>(static_cast<const void*>(srcRow.data())),
+        0,
+    };
     p.appendLoad(color, &srcCtx);
     if (kUnpremul_SkAlphaType == alpha) {
         p.append(SkRasterPipelineOp::premul);

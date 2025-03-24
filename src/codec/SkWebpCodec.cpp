@@ -374,7 +374,7 @@ public:
     }
 
 private:
-    SkRasterPipeline_MemoryCtx fDstCtx, fSrcCtx;
+    SkRasterPipelineContexts::MemoryCtx fDstCtx, fSrcCtx;
 
     SkRasterPipeline_<256> fRP;
 };

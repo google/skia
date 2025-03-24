@@ -60,7 +60,7 @@ static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
     }
 }
 
-static void load_color(SkRasterPipeline_UniformColorCtx* ctx, const float rgba[]) {
+static void load_color(SkRasterPipelineContexts::UniformColorCtx* ctx, const float rgba[]) {
     // only need one of these. can I query the pipeline to know if its lowp or highp?
     ctx->rgba[0] = SkScalarRoundToInt(rgba[0]*255); ctx->r = rgba[0];
     ctx->rgba[1] = SkScalarRoundToInt(rgba[1]*255); ctx->g = rgba[1];
@@ -102,12 +102,12 @@ void SkDraw::drawAtlas(const SkRSXform xform[],
         return;
     }
 
-    SkRasterPipeline_UniformColorCtx* uniformCtx = nullptr;
+    SkRasterPipelineContexts::UniformColorCtx* uniformCtx = nullptr;
     SkColorSpaceXformSteps steps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
                                  rec.fDstCS, kUnpremul_SkAlphaType);
     if (colors) {
         // we will late-bind the values in ctx, once for each color in the loop
-        uniformCtx = alloc.make<SkRasterPipeline_UniformColorCtx>();
+        uniformCtx = alloc.make<SkRasterPipelineContexts::UniformColorCtx>();
         rec.fPipeline->append(SkRasterPipelineOp::uniform_color_dst, uniformCtx);
         std::optional<SkBlendMode> bm = as_BB(blender)->asBlendMode();
         if (!bm.has_value()) {

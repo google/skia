@@ -22,7 +22,7 @@ DEF_TEST(F16Stages, r) {
     };
     uint64_t halfs[4] = {0,0,0,0};
 
-    SkRasterPipeline_MemoryCtx f32 = { floats, 0 },
+    SkRasterPipelineContexts::MemoryCtx f32 = { floats, 0 },
                                f16 = { halfs,  0 };
 
     {

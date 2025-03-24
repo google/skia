@@ -213,7 +213,7 @@ void SkConicalGradient::appendGradientStages(SkArenaAlloc* alloc,
     }
 
     if (fType == Type::kStrip) {
-        auto* ctx = alloc->make<SkRasterPipeline_2PtConicalCtx>();
+        auto* ctx = alloc->make<SkRasterPipelineContexts::Conical2PtCtx>();
         SkScalar scaledR0 = fRadius1 / this->getCenterX1();
         ctx->fP0 = scaledR0 * scaledR0;
         p->append(SkRasterPipelineOp::xy_to_2pt_conical_strip, ctx);
@@ -222,7 +222,7 @@ void SkConicalGradient::appendGradientStages(SkArenaAlloc* alloc,
         return;
     }
 
-    auto* ctx = alloc->make<SkRasterPipeline_2PtConicalCtx>();
+    auto* ctx = alloc->make<SkRasterPipelineContexts::Conical2PtCtx>();
     ctx->fP0 = 1 / fFocalData.fR1;
     ctx->fP1 = fFocalData.fFocalX;
 

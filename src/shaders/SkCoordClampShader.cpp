@@ -43,7 +43,7 @@ bool SkCoordClampShader::appendStages(const SkStageRec& rec,
     // Strictly speaking, childMRec's total matrix is not valid. It is only valid inside the subset
     // rectangle. However, we don't mark it as such because we want the "total matrix is valid"
     // behavior in SkImageShader for filtering.
-    auto clampCtx = rec.fAlloc->make<SkRasterPipeline_CoordClampCtx>();
+    auto clampCtx = rec.fAlloc->make<SkRasterPipelineContexts::CoordClampCtx>();
     *clampCtx = {fSubset.fLeft, fSubset.fTop, fSubset.fRight, fSubset.fBottom};
     rec.fPipeline->append(SkRasterPipelineOp::clamp_x_and_y, clampCtx);
     return as_SB(fShader)->appendStages(rec, *childMRec);

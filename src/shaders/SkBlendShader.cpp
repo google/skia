@@ -60,8 +60,8 @@ static float* append_two_shaders(const SkStageRec& rec,
                                  SkShader* s0,
                                  SkShader* s1) {
     struct Storage {
-        float fCoords[2 * SkRasterPipeline_kMaxStride];
-        float fRes0[4 * SkRasterPipeline_kMaxStride];
+        float fCoords[2 * SkRasterPipelineContexts::kMaxStride];
+        float fRes0[4 * SkRasterPipelineContexts::kMaxStride];
     };
     auto storage = rec.fAlloc->make<Storage>();
 
