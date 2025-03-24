@@ -67,9 +67,15 @@ bool is_map_succeeded(wgpu::MapAsyncStatus status) {
 void log_map_error(wgpu::MapAsyncStatus status, wgpu::StringView message) {
     const char* statusStr;
     switch (status) {
+#ifdef WGPU_BREAKING_CHANGE_INSTANCE_DROPPED_RENAME
+        case wgpu::MapAsyncStatus::CallbackCancelled:
+            statusStr = "CallbackCancelled";
+            break;
+#else
         case wgpu::MapAsyncStatus::InstanceDropped:
             statusStr = "InstanceDropped";
             break;
+#endif  // WGPU_BREAKING_CHANGE_INSTANCE_DROPPED_RENAME
         case wgpu::MapAsyncStatus::Error:
             statusStr = "Error";
             break;

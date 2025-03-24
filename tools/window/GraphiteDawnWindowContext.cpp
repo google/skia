@@ -206,8 +206,8 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
     deviceDescriptor.SetDeviceLostCallback(
             wgpu::CallbackMode::AllowSpontaneous,
             [](const wgpu::Device&, wgpu::DeviceLostReason reason, wgpu::StringView message) {
-                if (reason != wgpu::DeviceLostReason::Destroyed &&
-                    reason != wgpu::DeviceLostReason::InstanceDropped) {
+                if (reason == wgpu::DeviceLostReason::Unknown ||
+                    reason == wgpu::DeviceLostReason::FailedCreation) {
                     SK_ABORT("Device lost: %.*s\n", static_cast<int>(message.length), message.data);
                 }
             });
