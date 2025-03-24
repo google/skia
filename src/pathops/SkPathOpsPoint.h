@@ -268,7 +268,7 @@ struct SkDPoint {
         float largestNumber = std::max(SkTAbs(a.fX), std::max(SkTAbs(a.fY),
                 std::max(SkTAbs(b.fX), SkTAbs(b.fY))));
         SkVector diffs = a - b;
-        float largestDiff = std::max(diffs.fX, diffs.fY);
+        float largestDiff = std::max(SkTAbs(diffs.fX), SkTAbs(diffs.fY));
         return roughly_zero_when_compared_to(largestDiff, largestNumber);
     }
 
