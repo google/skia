@@ -159,9 +159,9 @@ fn fill_glyph_to_unicode_map(font_ref: &BridgeFontRef, map: &mut [u32]) {
     map.fill(0);
     font_ref.with_font(|f| {
         let mappings = f.charmap().mappings();
-        for item in mappings {
-            if let Some(c) = map.get_mut(item.1.to_u32() as usize).filter(|c| **c == 0) {
-                *c = item.0;
+        for (codepoint, glyphid) in mappings {
+            if let Some(c) = map.get_mut(glyphid.to_u32() as usize).filter(|c| **c == 0) {
+                *c = codepoint;
             }
         }
         Some(())
