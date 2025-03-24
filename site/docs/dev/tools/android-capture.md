@@ -37,11 +37,12 @@ with the following script from the root of your Android tree. (See
 https://source.android.com/docs/setup/download.)
 
 ```
-frameworks/base/libs/hwui/tests/scripts/skp-capture.sh PACKAGE_NAME FRAMES
+frameworks/base/libs/hwui/tests/scripts/skp-capture.sh -p PACKAGE_NAME -n FRAMES
 ```
 
 `PACKAGE_NAME` is the name of the component or app you want to capture, for
-example: **com.google.android.apps.nexuslauncher**.
+example: **com.google.android.apps.nexuslauncher**. If not specified, the script will attempt
+to infer the package name of the currently open application.
 
 `FRAMES` is the number of frames to capture. This is optional and defaults to 1.
 
