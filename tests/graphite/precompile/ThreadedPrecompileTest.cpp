@@ -553,7 +553,9 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ThreadedPipelinePrecompileCompilePurgingTest,
                                                             stats.fGraphicsRaces);
     // Purges can force recreation of a Pipeline
     REPORTER_ASSERT(reporter, stats.fGraphicsCacheAdditions >= kNumDiffPipelines);
-    REPORTER_ASSERT(reporter, stats.fGraphicsRaces > 0);
+    // Given the use of permutations it is possible, though unlikely, that there are
+    // no races (particularly on Dawn/Metal).
+    //REPORTER_ASSERT(reporter, stats.fGraphicsRaces > 0);
 }
 
 #endif // SK_GRAPHITE

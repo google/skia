@@ -461,14 +461,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 					// b/389701894 - The Dawn/GLES backend is hard crashing on this test
 					skip(ALL, "test", ALL, "ThreadedPipelineCompilePurgingTest")
-				}
 
-				// b/373845830 - Precompile isn't thread-safe on either Dawn Metal
-				// or Dawn Vulkan
-				skip(ALL, "test", ALL, "ThreadedPipelinePrecompileTest")
-				// b/380039123 getting both ASAN and TSAN failures for this test on Dawn
-				skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompileTest")
-				skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompilePurgingTest")
+					// b/405970498 - The Dawn/GLES backend is failing these two tests
+					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompileTest")
+					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompilePurgingTest")
+				}
 
 				if b.extraConfig("Vulkan") {
 					if b.extraConfig("TSAN") {
