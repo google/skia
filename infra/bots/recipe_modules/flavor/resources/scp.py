@@ -6,10 +6,12 @@
 import subprocess
 import sys
 
-src = sys.argv[1] + '/*'
-dest   = sys.argv[2]
+args = sys.argv[1:]
+# Add '/*' to the source directory.
+args[-2] = args[-2] + '/*'
 
 # We can't use rsync to communicate with the chromebooks because the
 # chromebooks don't have rsync installed on them.
+cmd = ['scp', '-r'] + args
 print(subprocess.check_output(
-      'scp -r %s %s' % (src, dest), shell=True).decode('utf-8'))
+      ' '.join(cmd), shell=True).decode('utf-8'))

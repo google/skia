@@ -282,6 +282,8 @@ Convenience function for writing files.
 
 #### **class [SkiaVarsApi](/infra/bots/recipe_modules/vars/api.py#16)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
+&mdash; **def [getenv](/infra/bots/recipe_modules/vars/api.py#107)(self, name, var):**
+
 &emsp; **@property**<br>&mdash; **def [is\_linux](/infra/bots/recipe_modules/vars/api.py#87)(self):**
 
 &mdash; **def [setup](/infra/bots/recipe_modules/vars/api.py#18)(self):**
@@ -290,7 +292,7 @@ Prepare the variables.
 
 &emsp; **@property**<br>&mdash; **def [swarming\_bot\_id](/infra/bots/recipe_modules/vars/api.py#95)(self):**
 
-&emsp; **@property**<br>&mdash; **def [swarming\_task\_id](/infra/bots/recipe_modules/vars/api.py#106)(self):**
+&emsp; **@property**<br>&mdash; **def [swarming\_task\_id](/infra/bots/recipe_modules/vars/api.py#101)(self):**
 ### *recipe_modules* / [xcode](/infra/bots/recipe_modules/xcode)
 
 [DEPS](/infra/bots/recipe_modules/xcode/__init__.py#8): [recipe\_engine/cipd][recipe_engine/recipe_modules/cipd], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/step][recipe_engine/recipe_modules/step], [vars](#recipe_modules-vars)

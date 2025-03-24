@@ -942,6 +942,19 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			if b.extraConfig("HWASAN") {
 				d["android_hwasan_build"] = "1"
 			}
+		} else if b.os("ChromeOS") {
+			// TODO(borenet): Make this mapping non-optional after removing the
+			// old devices in the Skia lab.
+			deviceOS, ok := map[string]string{
+				"Cherry":   "16002.30.0",
+				"Guybrush": "16002.27.0",
+				"Octopus":  "16002.21.0",
+				"Trogdor":  "16002.26.0",
+			}[b.parts["model"]]
+			if ok {
+				d["device_os"] = deviceOS
+				d["device_type"] = strings.ToLower(b.parts["model"])
+			}
 		} else if b.matchOs("iOS") {
 			device, ok := map[string]string{
 				"iPadMini4":   "iPad5,1",
@@ -1362,6 +1375,11 @@ func (b *jobBuilder) compile() string {
 				} else if b.arch("arm") {
 					b.asset("armhf_sysroot")
 					b.asset("chromebook_arm_gles")
+				} else if b.arch("arm64") {
+					b.asset("arm64_sysroot")
+					b.asset("chromebook_arm64_gles")
+				} else {
+					panic(fmt.Sprintf("Unknown arch %q for Chromebook", b.parts["arch"]))
 				}
 			} else if b.isLinux() {
 				if b.compiler("Clang") {
