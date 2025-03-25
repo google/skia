@@ -114,6 +114,7 @@ SkTypeface_Fontations::SkTypeface_Fontations(
         rust::Box<fontations_ffi::BridgeMappingIndex>&& mappingIndex,
         rust::Box<fontations_ffi::BridgeNormalizedCoords>&& normalizedCoords,
         rust::Box<fontations_ffi::BridgeOutlineCollection>&& outlines,
+        rust::Box<fontations_ffi::BridgeGlyphStyles>&& glyphStyles,
         rust::Vec<uint32_t>&& palette)
         : SkTypeface(style, true)
         , fFontData(std::move(fontData))
@@ -122,6 +123,7 @@ SkTypeface_Fontations::SkTypeface_Fontations(
         , fMappingIndex(std::move(mappingIndex))
         , fBridgeNormalizedCoords(std::move(normalizedCoords))
         , fOutlines(std::move(outlines))
+        , fGlyphStyles(std::move(glyphStyles))
         , fPalette(std::move(palette)) {}
 
 sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromStream(std::unique_ptr<SkStreamAsset> stream,
@@ -185,6 +187,10 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
     rust::Box<fontations_ffi::BridgeOutlineCollection> outlines =
             fontations_ffi::get_outline_collection(*bridgeFontRef);
 
+    // Container for precomputed work for autohinting, see Skrifa's GlyphStyles.
+    rust::Box<fontations_ffi::BridgeGlyphStyles> glyphStyles =
+            fontations_ffi::get_bridge_glyph_styles();
+
     rust::Slice<const fontations_ffi::PaletteOverride> paletteOverrides(
             reinterpret_cast<const ::fontations_ffi::PaletteOverride*>(args.getPalette().overrides),
             args.getPalette().overrideCount);
@@ -198,6 +204,7 @@ sk_sp<SkTypeface> SkTypeface_Fontations::MakeFromData(sk_sp<SkData> data,
                                                        std::move(mappingIndex),
                                                        std::move(normalizedCoords),
                                                        std::move(outlines),
+                                                       std::move(glyphStyles),
                                                        std::move(palette)));
 }
 
@@ -328,6 +335,7 @@ public:
             , fBridgeFontRef(realTypeface.getBridgeFontRef())
             , fBridgeNormalizedCoords(realTypeface.getBridgeNormalizedCoords())
             , fOutlines(realTypeface.getOutlines())
+            , fGlyphStyles(realTypeface.getGlyphStyles())
             , fMappingIndex(realTypeface.getMappingIndex())
             , fPalette(realTypeface.getPalette())
             , fHintingInstance(fontations_ffi::no_hinting_instance()) {
@@ -372,6 +380,7 @@ public:
                         }
                         fHintingInstance = fontations_ffi::make_hinting_instance(
                                 fOutlines,
+                                fGlyphStyles,
                                 fScale.y(),
                                 fBridgeNormalizedCoords,
                                 true /* do_light_hinting */,
@@ -384,6 +393,7 @@ public:
                         // No hinting to subpixel coordinates.
                         fHintingInstance = fontations_ffi::make_hinting_instance(
                                 fOutlines,
+                                fGlyphStyles,
                                 fScale.y(),
                                 fBridgeNormalizedCoords,
                                 false /* do_light_hinting */,
@@ -395,6 +405,7 @@ public:
                         // Attempt to make use of hinting to subpixel coordinates.
                         fHintingInstance = fontations_ffi::make_hinting_instance(
                                 fOutlines,
+                                fGlyphStyles,
                                 fScale.y(),
                                 fBridgeNormalizedCoords,
                                 false /* do_light_hinting */,
@@ -884,6 +895,7 @@ private:
     const fontations_ffi::BridgeFontRef& fBridgeFontRef;
     const fontations_ffi::BridgeNormalizedCoords& fBridgeNormalizedCoords;
     const fontations_ffi::BridgeOutlineCollection& fOutlines;
+    const fontations_ffi::BridgeGlyphStyles& fGlyphStyles;
     const fontations_ffi::BridgeMappingIndex& fMappingIndex;
     const SkSpan<const SkColor> fPalette;
     rust::Box<fontations_ffi::BridgeHintingInstance> fHintingInstance;

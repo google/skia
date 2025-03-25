@@ -1,7 +1,8 @@
-use ffi::{FillLinearParams, FillRadialParams};
 // Copyright 2023 Google LLC
 // Use of this source code is governed by a BSD-style license that can be found
 // in the LICENSE file.
+
+use ffi::{FillLinearParams, FillRadialParams};
 use font_types::{BoundingBox, GlyphId};
 use read_fonts::{
     tables::{colr::CompositeMode, cpal::Cpal, os2::SelectionFlags},
@@ -14,14 +15,14 @@ use skrifa::{
     instance::{Location, Size},
     metrics::{GlyphMetrics, Metrics},
     outline::{
-        pen::NullPen, DrawSettings, Engine, HintingInstance, HintingOptions, OutlineGlyphFormat,
-        OutlinePen, SmoothMode, Target,
+        pen::NullPen, DrawSettings, Engine, GlyphStyles, HintingInstance, HintingOptions,
+        OutlineGlyphFormat, OutlinePen, SmoothMode, Target,
     },
     setting::VariationSetting,
     string::{LocalizedStrings, StringId},
     MetadataProvider, OutlineGlyphCollection, Tag,
 };
-use std::pin::Pin;
+use std::{pin::Pin, sync::OnceLock};
 
 use crate::bitmap::{bitmap_glyph, bitmap_metrics, has_bitmap_glyph, png_data, BridgeBitmapGlyph};
 
@@ -52,6 +53,7 @@ unsafe fn no_hinting_instance<'a>() -> Box<BridgeHintingInstance> {
 
 unsafe fn make_hinting_instance<'a>(
     outlines: &BridgeOutlineCollection,
+    bridge_glyph_styles: &BridgeGlyphStyles,
     size: f32,
     coords: &BridgeNormalizedCoords,
     do_light_hinting: bool,
@@ -89,11 +91,18 @@ unsafe fn make_hinting_instance<'a>(
             // automatic hinter otherwise."
             // So Engine::AutoFallback does not engage autohinting for CFF.
             let engine_type = match (autohinting_control, outlines.format()) {
-                (AutoHintingControl::ForceForGlyfAndCff, _) => Engine::Auto(None),
                 (
                     AutoHintingControl::PreferAutoOverHintsForGlyf,
                     Some(OutlineGlyphFormat::Glyf),
-                ) => Engine::Auto(None),
+                )
+                | (AutoHintingControl::ForceForGlyfAndCff, _) => {
+                    let glyph_styles = Some(
+                        bridge_glyph_styles
+                            .glyph_styles
+                            .get_or_init(|| GlyphStyles::new(outlines)),
+                    );
+                    Engine::Auto(glyph_styles.cloned())
+                }
                 _ => Engine::AutoFallback,
             };
 
@@ -1033,6 +1042,10 @@ fn get_outline_collection<'a>(font_ref: &'a BridgeFontRef<'a>) -> Box<BridgeOutl
     )
 }
 
+fn get_bridge_glyph_styles<'a>() -> Box<BridgeGlyphStyles> {
+    Box::new(BridgeGlyphStyles::default())
+}
+
 fn font_or_collection<'a>(font_data: &'a [u8], num_fonts: &mut u32) -> bool {
     match FileRef::new(font_data) {
         Ok(FileRef::Collection(collection)) => {
@@ -1284,6 +1297,13 @@ impl<'a> BridgeFontRef<'a> {
 
 #[derive(Default)]
 struct BridgeOutlineCollection<'a>(Option<OutlineGlyphCollection<'a>>);
+
+// Rust side lazily created GlyphStyles that are computed when first needed.
+// This helps optimize make_hinting_instance in the Fontations ScalerContext.
+#[derive(Default)]
+struct BridgeGlyphStyles {
+    glyph_styles: OnceLock<GlyphStyles>,
+}
 
 #[derive(Default)]
 struct BridgeNormalizedCoords {
@@ -1678,6 +1698,9 @@ mod ffi {
             font_ref: &'a BridgeFontRef<'a>,
         ) -> Box<BridgeOutlineCollection<'a>>;
 
+        type BridgeGlyphStyles;
+        unsafe fn get_bridge_glyph_styles<'a>() -> Box<BridgeGlyphStyles>;
+
         /// Returns true on a font or collection, sets `num_fonts``
         /// to 0 if single font file, and to > 0 for a TrueType collection.
         /// Returns false if the data cannot be interpreted as a font or collection.
@@ -1693,6 +1716,7 @@ mod ffi {
         type BridgeHintingInstance;
         unsafe fn make_hinting_instance<'a>(
             outlines: &BridgeOutlineCollection,
+            bridge_glyph_styles: &BridgeGlyphStyles,
             size: f32,
             coords: &BridgeNormalizedCoords,
             do_light_hinting: bool,
