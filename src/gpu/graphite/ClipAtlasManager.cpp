@@ -124,6 +124,7 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
         return atlasProxy;
     }
 
+#if defined(SK_GRAPHITE_ENABLE_CLIP_PROXY)
     // We need to include the bounds in the key when using the ProxyCache
     maskKey = GenerateClipMaskKey(stackRecordID, elementList, iBounds, &usesPathKey);
     // Bounds relative to the bitmap origin
@@ -151,6 +152,9 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
     *outPos = { kEntryPadding, kEntryPadding };
 
     return proxy.get();
+#else
+    return nullptr;
+#endif
 }
 
 bool ClipAtlasManager::recordUploads(DrawContext* dc) {
