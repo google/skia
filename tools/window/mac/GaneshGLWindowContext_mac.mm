@@ -9,6 +9,7 @@
 
 #include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
+#include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/mac/MacWindowGLUtils.h"
 #include "tools/window/mac/MacWindowInfo.h"
@@ -87,10 +88,13 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     // make context current
     [fGLContext makeCurrentContext];
 
-    glClearStencil(0);
-    glClearColor(0, 0, 0, 255);
-    glStencilMask(0xffffffff);
-    glClear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    sk_sp<const GrGLInterface> backendContext = GrGLInterfaces::MakeMac();
+    const GrGLInterface* gl = backendContext.get();
+
+    GR_GL_CALL(gl, ClearStencil(0));
+    GR_GL_CALL(gl, ClearColor(0, 0, 0, 255));
+    GR_GL_CALL(gl, StencilMask(0xffffffff));
+    GR_GL_CALL(gl, Clear(GL_STENCIL_BUFFER_BIT | GL_COLOR_BUFFER_BIT));
 
     GLint stencilBits;
     [fPixelFormat getValues:&stencilBits forAttribute:NSOpenGLPFAStencilSize forVirtualScreen:0];
@@ -103,9 +107,9 @@ sk_sp<const GrGLInterface> GLWindowContext_mac::onInitializeContext() {
     CGFloat backingScaleFactor = skwindow::GetBackingScaleFactor(fMainView);
     fWidth = fMainView.bounds.size.width * backingScaleFactor;
     fHeight = fMainView.bounds.size.height * backingScaleFactor;
-    glViewport(0, 0, fWidth, fHeight);
+    GR_GL_CALL(gl, Viewport(0, 0, fWidth, fHeight));
 
-    return GrGLInterfaces::MakeMac();
+    return backendContext;
 }
 
 void GLWindowContext_mac::onDestroyContext() {
