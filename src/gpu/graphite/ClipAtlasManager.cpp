@@ -7,32 +7,136 @@
 
 #include "src/gpu/graphite/ClipAtlasManager.h"
 
+#include "include/core/SkBitmap.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/base/SkFixed.h"
 #include "src/base/SkFloatBits.h"
 #include "src/gpu/graphite/AtlasProvider.h"
+#include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/RasterPathUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 
 namespace skgpu::graphite {
 
-static constexpr int kClipAtlasWidth = 4096;
-static constexpr int kClipAtlasHeight = 4096;
+static constexpr int kClipAtlasWidth = 2048;
+static constexpr int kClipAtlasHeight = 2048;
 
 ClipAtlasManager::ClipAtlasManager(Recorder* recorder)
         : fRecorder(recorder)
         , fDrawAtlasMgr(kClipAtlasWidth, kClipAtlasHeight,
-                        /*plotWidth=*/kClipAtlasWidth, /*plotHeight=*/kClipAtlasHeight,
+                        /*plotWidth=*/kClipAtlasWidth/2, /*plotHeight=*/kClipAtlasHeight/2,
                         DrawAtlas::UseStorageTextures::kNo,
                         "ClipAtlas", recorder->priv().caps()) {}
+
+namespace {
+// Needed to ensure that we have surrounding context, e.g. for inverse clips this would be solid.
+constexpr int kEntryPadding = 1;
+
+// Copied and modified from Ganesh ClipStack
+void draw_to_sw_mask(RasterMaskHelper* helper,
+                     const ClipStack::Element& e,
+                     bool isFirstElement,
+                     const SkIRect& resultBounds) {
+    // If the first element to draw is an intersect, we clear to 0 and will draw it directly with
+    // coverage 1 (subsequent intersect elements will be inverse-filled and draw 0 outside).
+    // If the first element to draw is a difference, we clear to 1, and in all cases we draw the
+    // difference element directly with coverage 0.
+    if (isFirstElement) {
+        helper->clear(e.fOp == SkClipOp::kIntersect ? 0x00 : 0xFF, resultBounds);
+    }
+
+    uint8_t alpha;
+    bool invert;
+    if (e.fOp == SkClipOp::kIntersect) {
+        // Intersect modifies pixels outside of its geometry. If this is the first element,
+        // we can draw directly with coverage 1 since we cleared to 0. Otherwise we draw the
+        // inverse-filled shape with 0 coverage to erase everything outside the element.
+        if (isFirstElement) {
+            alpha = 0xFF;
+            invert = false;
+        } else {
+            alpha = 0x00;
+            invert = true;
+        }
+    } else {
+        // For difference ops, can always just subtract the shape directly by drawing 0 coverage
+        SkASSERT(e.fOp == SkClipOp::kDifference);
+        alpha = 0x00;
+        invert = false;
+    }
+
+    // Draw the shape; based on how we've initialized the buffer and chosen alpha+invert,
+    // every element is drawn with the kReplace_Op
+    if (invert != e.fShape.inverted()) {
+        Shape inverted(e.fShape);
+        inverted.setInverted(invert);
+        helper->drawClip(inverted, e.fLocalToDevice, alpha, resultBounds);
+    } else {
+        helper->drawClip(e.fShape, e.fLocalToDevice, alpha, resultBounds);
+    }
+}
+
+void draw_clip_mask_to_pixmap(const ClipStack::ElementList* elementList,
+                              SkIRect iBounds,
+                              SkISize renderSize,
+                              SkIRect iDrawBounds,
+                              SkAutoPixmapStorage* dst) {
+    // The shape bounds are expanded by kEntryPadding so we need to take that into account here.
+    SkIVector transformedMaskOffset = {iBounds.left() - kEntryPadding,
+                                       iBounds.top() - kEntryPadding};
+    RasterMaskHelper helper(dst);
+    if (!helper.init(renderSize, transformedMaskOffset)) {
+        return;
+    }
+
+    SkASSERT(!elementList->empty());
+    for (int i = 0; i < elementList->size(); ++i) {
+        draw_to_sw_mask(&helper, *(*elementList)[i], i == 0, iDrawBounds);
+    }
+}
+} // anonymous namespace
 
 const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
                                                         const ClipStack::ElementList* elementList,
                                                         SkIRect iBounds,
                                                         SkIPoint* outPos) {
-    skgpu::UniqueKey maskKey = GenerateClipMaskKey(stackRecordID, elementList);
-    return fDrawAtlasMgr.findOrCreateEntry(fRecorder, maskKey, elementList, iBounds, outPos);
+    // For the ClipAtlas cache, we don't include the bounds in the key
+    skgpu::UniqueKey maskKey = GenerateClipMaskKey(stackRecordID, elementList, {});
+
+    const TextureProxy* atlasProxy = fDrawAtlasMgr.findOrCreateEntry(fRecorder, maskKey,
+                                                                     elementList, iBounds, outPos);
+    if (atlasProxy) {
+        return atlasProxy;
+    }
+
+    // We need to include the bounds in the key when using the ProxyCache
+    maskKey = GenerateClipMaskKey(stackRecordID, elementList, iBounds);
+    // Bounds relative to the bitmap origin
+    // Expanded to include padding as well (so we clear correctly for inverse clip)
+    SkIRect iDrawBounds = SkIRect::MakeXYWH(0, 0,
+                                            iBounds.width() + 2*kEntryPadding,
+                                            iBounds.height() + 2*kEntryPadding);
+    const struct ClipDrawContext {
+        const ClipStack::ElementList* fElementList;
+        SkIRect fBounds;
+        SkISize fRenderSize;
+        SkIRect fDrawBounds;
+    } context = { elementList, iBounds, iDrawBounds.size(), iDrawBounds };
+    sk_sp<TextureProxy> proxy = fRecorder->priv().proxyCache()->findOrCreateCachedProxy(
+            fRecorder, maskKey, &context,
+            [](const void* ctx) {
+                const ClipDrawContext* cdc = static_cast<const ClipDrawContext*>(ctx);
+                SkBitmap bm;
+                SkAutoPixmapStorage dst;
+                draw_clip_mask_to_pixmap(cdc->fElementList, cdc->fBounds, cdc->fRenderSize,
+                                         cdc->fDrawBounds, &dst);
+                bm.installPixels(dst);
+                return bm;
+            });
+    *outPos = { kEntryPadding, kEntryPadding };
+
+    return proxy.get();
 }
 
 bool ClipAtlasManager::recordUploads(DrawContext* dc) {
@@ -75,11 +179,6 @@ ClipAtlasManager::DrawAtlasMgr::DrawAtlasMgr(size_t width, size_t height,
         fKeyLists[i].reset();
     }
 }
-
-namespace {
-// Needed to ensure that we have surrounding context, e.g. for inverse clips this would be solid.
-constexpr int kEntryPadding = 1;
-}  // namespace
 
 const TextureProxy* ClipAtlasManager::DrawAtlasMgr::findOrCreateEntry(
             Recorder* recorder,
@@ -144,51 +243,6 @@ const TextureProxy* ClipAtlasManager::DrawAtlasMgr::findOrCreateEntry(
     return proxy;
 }
 
-// Copied and modified from Ganesh ClipStack
-void draw_to_sw_mask(RasterMaskHelper* helper,
-                     const ClipStack::Element& e,
-                     bool clearMask,
-                     const SkIRect& resultBounds) {
-    // If the first element to draw is an intersect, we clear to 0 and will draw it directly with
-    // coverage 1 (subsequent intersect elements will be inverse-filled and draw 0 outside).
-    // If the first element to draw is a difference, we clear to 1, and in all cases we draw the
-    // difference element directly with coverage 0.
-    if (clearMask) {
-        helper->clear(e.fOp == SkClipOp::kIntersect ? 0x00 : 0xFF, resultBounds);
-    }
-
-    uint8_t alpha;
-    bool invert;
-    if (e.fOp == SkClipOp::kIntersect) {
-        // Intersect modifies pixels outside of its geometry. If this isn't the first op, we
-        // draw the inverse-filled shape with 0 coverage to erase everything outside the element
-        // But if we are the first element, we can draw directly with coverage 1 since we
-        // cleared to 0.
-        if (clearMask) {
-            alpha = 0xFF;
-            invert = false;
-        } else {
-            alpha = 0x00;
-            invert = true;
-        }
-    } else {
-        // For difference ops, can always just subtract the shape directly by drawing 0 coverage
-        SkASSERT(e.fOp == SkClipOp::kDifference);
-        alpha = 0x00;
-        invert = false;
-    }
-
-    // Draw the shape; based on how we've initialized the buffer and chosen alpha+invert,
-    // every element is drawn with the kReplace_Op
-    if (invert != e.fShape.inverted()) {
-        Shape inverted(e.fShape);
-        inverted.setInverted(invert);
-        helper->drawClip(inverted, e.fLocalToDevice, alpha, resultBounds);
-    } else {
-        helper->drawClip(e.fShape, e.fLocalToDevice, alpha, resultBounds);
-    }
-}
-
 const TextureProxy* ClipAtlasManager::DrawAtlasMgr::addToAtlas(
             Recorder* recorder,
             const ClipStack::ElementList* elementsForMask,
@@ -200,23 +254,18 @@ const TextureProxy* ClipAtlasManager::DrawAtlasMgr::addToAtlas(
     if (maskSize.isEmpty()) {
         return nullptr;
     }
-
-    // Bounds relative to the AtlasLocator
-    // Expanded to include padding as well (so we clear correctly for inverse clip)
-    SkIRect iShapeBounds = SkIRect::MakeXYWH(0, 0,
-                                             maskSize.width() + 2*kEntryPadding,
-                                             maskSize.height() + 2*kEntryPadding);
+    // Expand to include padding as well (so we clear correctly for inverse clip)
+    maskSize.fWidth += 2*kEntryPadding;
+    maskSize.fHeight += 2*kEntryPadding;
 
     // Request space in DrawAtlas, including padding
     DrawAtlas::ErrorCode errorCode = fDrawAtlas->addRect(recorder,
-                                                         iShapeBounds.width(),
-                                                         iShapeBounds.height(),
+                                                         maskSize.width(),
+                                                         maskSize.height(),
                                                          locator);
     if (errorCode != DrawAtlas::ErrorCode::kSucceeded) {
         return nullptr;
     }
-    SkIPoint topLeft = locator->topLeft();
-    *outPos = SkIPoint::Make(topLeft.x() + kEntryPadding, topLeft.y() + kEntryPadding);
 
     // Rasterize path to backing pixmap.
     // This pixmap will be the size of the Plot that contains the given rect, not the entire atlas,
@@ -225,21 +274,15 @@ const TextureProxy* ClipAtlasManager::DrawAtlasMgr::addToAtlas(
     SkAutoPixmapStorage dst;
     SkIPoint renderPos = fDrawAtlas->prepForRender(*locator, &dst);
 
-    // The shape bounds are expanded by kEntryPadding so we need to take that into account here.
-    SkIVector transformedMaskOffset = {iBounds.left() - kEntryPadding,
-                                       iBounds.top() - kEntryPadding};
-    RasterMaskHelper helper(&dst);
-    if (!helper.init(fDrawAtlas->plotSize(), transformedMaskOffset)) {
-        return nullptr;
-    }
-
+    // Bounds relative to the AtlasLocator
+    SkIRect iDrawBounds = SkIRect::MakeXYWH(0, 0, maskSize.width(), maskSize.height());
     // Offset bounds to plot location for draw
-    iShapeBounds.offset(renderPos.x(), renderPos.y());
+    iDrawBounds.offset(renderPos.x(), renderPos.y());
 
-    SkASSERT(!elementsForMask->empty());
-    for (int i = 0; i < elementsForMask->size(); ++i) {
-        draw_to_sw_mask(&helper, *(*elementsForMask)[i], i == 0, iShapeBounds);
-    }
+    draw_clip_mask_to_pixmap(elementsForMask, iBounds, fDrawAtlas->plotSize(), iDrawBounds, &dst);
+
+    SkIPoint topLeft = locator->topLeft();
+    *outPos = SkIPoint::Make(topLeft.x() + kEntryPadding, topLeft.y() + kEntryPadding);
 
     fDrawAtlas->setLastUseToken(*locator,
                                 recorder->priv().tokenTracker()->nextFlushToken());

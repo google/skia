@@ -179,7 +179,8 @@ skgpu::UniqueKey GeneratePathMaskKey(const Shape& shape,
 }
 
 skgpu::UniqueKey GenerateClipMaskKey(uint32_t stackRecordID,
-                                     const ClipStack::ElementList* elementsForMask) {
+                                     const ClipStack::ElementList* elementsForMask,
+                                     SkIRect iBounds) {
     skgpu::UniqueKey maskKey;
     {
         static constexpr int kMaxShapeCountForKey = 2;
@@ -200,9 +201,23 @@ skgpu::UniqueKey GenerateClipMaskKey(uint32_t stackRecordID,
                 keySize += kXformKeySize + shapeKeySize;
             }
             if (canCreateKey) {
+                if (!iBounds.isEmpty()) {
+                    keySize += 2;
+                }
                 skgpu::UniqueKey::Builder builder(&maskKey, kDomain, keySize,
                                                   "Clip Path Mask");
                 int elementKeyIndex = 0;
+                if (!iBounds.isEmpty()) {
+                    SkASSERT(SkTFitsIn<int16_t>(iBounds.left()));
+                    SkASSERT(SkTFitsIn<int16_t>(iBounds.top()));
+                    SkASSERT(SkTFitsIn<int16_t>(iBounds.right()));
+                    SkASSERT(SkTFitsIn<int16_t>(iBounds.bottom()));
+
+                    builder[0] = iBounds.left() | (iBounds.top() << 16);
+                    builder[1] = iBounds.right() | (iBounds.bottom() << 16);
+                    elementKeyIndex += 2;
+                }
+
                 for (int i = 0; i < elementsForMask->size(); ++i) {
                     const ClipStack::Element* element = (*elementsForMask)[i];
 
