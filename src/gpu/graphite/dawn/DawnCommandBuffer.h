@@ -80,7 +80,7 @@ private:
     bool doBlitWithDraw(const wgpu::RenderPassEncoder& renderEncoder,
                         const RenderPassDesc& frontendRenderPassDescKey,
                         const wgpu::TextureView& srcTextureView,
-                        bool srcIsMSAA,
+                        int srcSampleCount,
                         const SkIRect& bounds);
     bool endRenderPass();
 

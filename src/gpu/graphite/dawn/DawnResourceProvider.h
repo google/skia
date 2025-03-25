@@ -40,7 +40,7 @@ public:
                                                               const TextureInfo& msaaInfo);
 
     wgpu::RenderPipeline findOrCreateBlitWithDrawPipeline(const RenderPassDesc& renderPassDesc,
-                                                          bool srcIsMSAA);
+                                                          int srcSampleCount);
 
     sk_sp<DawnBuffer> findOrCreateDawnBuffer(size_t size,
                                              BufferType type,

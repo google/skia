@@ -498,7 +498,7 @@ bool DawnCommandBuffer::emulateLoadMSAAFromResolveAndBeginRenderPassEncoder(
         if (!this->doBlitWithDraw(renderPassEncoder,
                                   renderPassWithoutResolveDesc,
                                   /*srcTextureView=*/resolveTexture->renderTextureView(),
-                                  /*srcIsMSAA=*/false,
+                                  /*srcSampleCount=*/1,
                                   resolveArea)) {
             renderPassEncoder.End();
             return false;
@@ -515,10 +515,10 @@ bool DawnCommandBuffer::emulateLoadMSAAFromResolveAndBeginRenderPassEncoder(
 bool DawnCommandBuffer::doBlitWithDraw(const wgpu::RenderPassEncoder& renderEncoder,
                                        const RenderPassDesc& frontendRenderPassDescKey,
                                        const wgpu::TextureView& srcTextureView,
-                                       bool srcIsMSAA,
+                                       int srcSampleCount,
                                        const SkIRect& bounds) {
     auto blitPipeline = fResourceProvider->findOrCreateBlitWithDrawPipeline(
-            frontendRenderPassDescKey, srcIsMSAA);
+            frontendRenderPassDescKey, srcSampleCount);
     if (!blitPipeline) {
         SKGPU_LOG_E("Unable to create pipeline to blit with draw");
         return false;
@@ -588,7 +588,7 @@ bool DawnCommandBuffer::endRenderPass() {
             renderPassEncoder,
             intermediateRenderPassDesc,
             /*srcTextureView=*/fResolveStepEmulationInfo->fMSAATexture->renderTextureView(),
-            /*srcIsMSAA=*/true,
+            /*srcSampleCount=*/fResolveStepEmulationInfo->fMSAATexture->textureInfo().numSamples(),
             fResolveStepEmulationInfo->fResolveArea);
 
     renderPassEncoder.End();
