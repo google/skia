@@ -180,70 +180,71 @@ skgpu::UniqueKey GeneratePathMaskKey(const Shape& shape,
 
 skgpu::UniqueKey GenerateClipMaskKey(uint32_t stackRecordID,
                                      const ClipStack::ElementList* elementsForMask,
-                                     SkIRect iBounds) {
+                                     SkIRect iBounds,
+                                     bool* usesPathKey) {
+    static constexpr int kMaxShapeCountForKey = 2;
+    static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
+
     skgpu::UniqueKey maskKey;
-    {
-        static constexpr int kMaxShapeCountForKey = 2;
-
-        static const skgpu::UniqueKey::Domain kDomain = skgpu::UniqueKey::GenerateDomain();
-        // if the element list is too large we just use the stackRecordID
-        if (elementsForMask->size() <= kMaxShapeCountForKey) {
-            constexpr int kXformKeySize = 5;
-            int keySize = 0;
-            bool canCreateKey = true;
-            // Iterate through to get key size and see if we can create a key at all
-            for (int i = 0; i < elementsForMask->size(); ++i) {
-                int shapeKeySize = (*elementsForMask)[i]->fShape.keySize();
-                if (shapeKeySize < 0) {
-                    canCreateKey = false;
-                    break;
-                }
-                keySize += kXformKeySize + shapeKeySize;
+    // if the element list is too large we just use the stackRecordID
+    if (elementsForMask->size() <= kMaxShapeCountForKey) {
+        constexpr int kXformKeySize = 5;
+        int keySize = 0;
+        bool canCreateKey = true;
+        // Iterate through to get key size and see if we can create a key at all
+        for (int i = 0; i < elementsForMask->size(); ++i) {
+            int shapeKeySize = (*elementsForMask)[i]->fShape.keySize();
+            if (shapeKeySize < 0) {
+                canCreateKey = false;
+                break;
             }
-            if (canCreateKey) {
-                if (!iBounds.isEmpty()) {
-                    keySize += 2;
-                }
-                skgpu::UniqueKey::Builder builder(&maskKey, kDomain, keySize,
-                                                  "Clip Path Mask");
-                int elementKeyIndex = 0;
-                if (!iBounds.isEmpty()) {
-                    SkASSERT(SkTFitsIn<int16_t>(iBounds.left()));
-                    SkASSERT(SkTFitsIn<int16_t>(iBounds.top()));
-                    SkASSERT(SkTFitsIn<int16_t>(iBounds.right()));
-                    SkASSERT(SkTFitsIn<int16_t>(iBounds.bottom()));
-
-                    builder[0] = iBounds.left() | (iBounds.top() << 16);
-                    builder[1] = iBounds.right() | (iBounds.bottom() << 16);
-                    elementKeyIndex += 2;
-                }
-
-                for (int i = 0; i < elementsForMask->size(); ++i) {
-                    const ClipStack::Element* element = (*elementsForMask)[i];
-
-                    // Add transform key and get packed fractional translation bits
-                    uint32_t fracBits = add_transform_key(&builder,
-                                                          elementKeyIndex,
-                                                          element->fLocalToDevice);
-                    uint32_t opBits = static_cast<uint32_t>(element->fOp);
-                    builder[elementKeyIndex + 4] = fracBits | (opBits << 16);
-
-                    const Shape& shape = element->fShape;
-                    shape.writeKey(&builder[elementKeyIndex + kXformKeySize],
-                                   /*includeInverted=*/true);
-
-                    elementKeyIndex += kXformKeySize + shape.keySize();
-                }
-
-                return maskKey;
-            }
+            keySize += kXformKeySize + shapeKeySize;
         }
+        if (canCreateKey) {
+            if (!iBounds.isEmpty()) {
+                keySize += 2;
+            }
+            skgpu::UniqueKey::Builder builder(&maskKey, kDomain, keySize,
+                                              "Clip Path Mask");
+            int elementKeyIndex = 0;
+            if (!iBounds.isEmpty()) {
+                SkASSERT(SkTFitsIn<int16_t>(iBounds.left()));
+                SkASSERT(SkTFitsIn<int16_t>(iBounds.top()));
+                SkASSERT(SkTFitsIn<int16_t>(iBounds.right()));
+                SkASSERT(SkTFitsIn<int16_t>(iBounds.bottom()));
 
-        // Either we have too many elements or at least one shape can't create a key
-        skgpu::UniqueKey::Builder builder(&maskKey, kDomain, 1, "Clip Path Mask");
-        builder[0] = stackRecordID;
+                builder[0] = iBounds.left() | (iBounds.top() << 16);
+                builder[1] = iBounds.right() | (iBounds.bottom() << 16);
+                elementKeyIndex += 2;
+            }
+
+            for (int i = 0; i < elementsForMask->size(); ++i) {
+                const ClipStack::Element* element = (*elementsForMask)[i];
+
+                // Add transform key and get packed fractional translation bits
+                uint32_t fracBits = add_transform_key(&builder,
+                                                      elementKeyIndex,
+                                                      element->fLocalToDevice);
+                uint32_t opBits = static_cast<uint32_t>(element->fOp);
+                builder[elementKeyIndex + 4] = fracBits | (opBits << 16);
+
+                const Shape& shape = element->fShape;
+                shape.writeKey(&builder[elementKeyIndex + kXformKeySize],
+                               /*includeInverted=*/true);
+
+                elementKeyIndex += kXformKeySize + shape.keySize();
+            }
+
+            *usesPathKey = true;
+            return maskKey;
+        }
     }
 
+    // Either we have too many elements or at least one shape can't create a key
+    skgpu::UniqueKey::Builder builder(&maskKey, kDomain, 1, "Clip SaveRecord Mask");
+    builder[0] = stackRecordID;
+
+    *usesPathKey = false;
     return maskKey;
 }
 

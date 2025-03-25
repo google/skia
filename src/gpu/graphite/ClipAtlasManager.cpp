@@ -24,10 +24,16 @@ static constexpr int kClipAtlasHeight = 2048;
 
 ClipAtlasManager::ClipAtlasManager(Recorder* recorder)
         : fRecorder(recorder)
-        , fDrawAtlasMgr(kClipAtlasWidth, kClipAtlasHeight,
-                        /*plotWidth=*/kClipAtlasWidth/2, /*plotHeight=*/kClipAtlasHeight/2,
-                        DrawAtlas::UseStorageTextures::kNo,
-                        "ClipAtlas", recorder->priv().caps()) {}
+        , fPathKeyAtlasMgr(kClipAtlasWidth, kClipAtlasHeight,
+                           /*plotWidth=*/kClipAtlasWidth/2, /*plotHeight=*/kClipAtlasHeight/2,
+                           DrawAtlas::UseStorageTextures::kNo,
+                           "PathKeyClipAtlas", recorder->priv().caps())
+        // Examining the results from the top 20 or so webpages, the SaveRecord keyed clips
+        // tend to be considerably smaller and rarer, so we use a smaller atlas here.
+        , fSaveRecordKeyAtlasMgr(kClipAtlasWidth/2, kClipAtlasHeight/2,
+                                 /*plotWidth=*/kClipAtlasWidth/2, /*plotHeight=*/kClipAtlasHeight/2,
+                                 DrawAtlas::UseStorageTextures::kNo,
+                                 "SaveRecordKeyClipAtlas", recorder->priv().caps()) {}
 
 namespace {
 // Needed to ensure that we have surrounding context, e.g. for inverse clips this would be solid.
@@ -102,16 +108,24 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
                                                         SkIRect iBounds,
                                                         SkIPoint* outPos) {
     // For the ClipAtlas cache, we don't include the bounds in the key
-    skgpu::UniqueKey maskKey = GenerateClipMaskKey(stackRecordID, elementList, {});
+    skgpu::UniqueKey maskKey;
+    bool usesPathKey;
+    maskKey = GenerateClipMaskKey(stackRecordID, elementList, {}, &usesPathKey);
 
-    const TextureProxy* atlasProxy = fDrawAtlasMgr.findOrCreateEntry(fRecorder, maskKey,
-                                                                     elementList, iBounds, outPos);
+    const TextureProxy* atlasProxy = nullptr;
+    if (usesPathKey) {
+        atlasProxy = fPathKeyAtlasMgr.findOrCreateEntry(fRecorder, maskKey,
+                                                        elementList, iBounds, outPos);
+    } else {
+        atlasProxy = fSaveRecordKeyAtlasMgr.findOrCreateEntry(fRecorder, maskKey,
+                                                              elementList, iBounds, outPos);
+    }
     if (atlasProxy) {
         return atlasProxy;
     }
 
     // We need to include the bounds in the key when using the ProxyCache
-    maskKey = GenerateClipMaskKey(stackRecordID, elementList, iBounds);
+    maskKey = GenerateClipMaskKey(stackRecordID, elementList, iBounds, &usesPathKey);
     // Bounds relative to the bitmap origin
     // Expanded to include padding as well (so we clear correctly for inverse clip)
     SkIRect iDrawBounds = SkIRect::MakeXYWH(0, 0,
@@ -140,19 +154,23 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
 }
 
 bool ClipAtlasManager::recordUploads(DrawContext* dc) {
-    return fDrawAtlasMgr.recordUploads(dc, fRecorder);
+    return fPathKeyAtlasMgr.recordUploads(dc, fRecorder) ||
+           fSaveRecordKeyAtlasMgr.recordUploads(dc, fRecorder);
 }
 
 void ClipAtlasManager::compact() {
-    fDrawAtlasMgr.compact(fRecorder);
+    fPathKeyAtlasMgr.compact(fRecorder);
+    fSaveRecordKeyAtlasMgr.compact(fRecorder);
 }
 
 void ClipAtlasManager::freeGpuResources() {
-    fDrawAtlasMgr.freeGpuResources(fRecorder);
+    fPathKeyAtlasMgr.freeGpuResources(fRecorder);
+    fSaveRecordKeyAtlasMgr.freeGpuResources(fRecorder);
 }
 
 void ClipAtlasManager::evictAtlases() {
-    fDrawAtlasMgr.evictAll();
+    fPathKeyAtlasMgr.evictAll();
+    fSaveRecordKeyAtlasMgr.evictAll();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
