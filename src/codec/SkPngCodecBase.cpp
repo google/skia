@@ -7,6 +7,7 @@
 
 #include "src/codec/SkPngCodecBase.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <tuple>
 #include <utility>
@@ -297,11 +298,13 @@ bool SkPngCodecBase::createColorTable(const SkImageInfo& dstInfo) {
         return false;
     }
     const PaletteColorEntry* palette = maybePlteChunk->data();
+    constexpr size_t kMaxCountOfPaletteEntries = 256;
     size_t numColors = maybePlteChunk->size();
+    numColors = std::min(numColors, kMaxCountOfPaletteEntries);
 
     // Contents depend on tableColorType and our choice of if/when to premultiply:
     // { kPremul, kUnpremul, kOpaque } x { RGBA, BGRA }
-    SkPMColor colorTable[256];
+    SkPMColor colorTable[kMaxCountOfPaletteEntries];
     SkColorType tableColorType = this->colorXform() ? kXformSrcColorType : dstInfo.colorType();
 
     std::optional<SkSpan<const uint8_t>> maybeTrnsChunk = this->onTryGetTrnsChunk();
@@ -310,6 +313,7 @@ bool SkPngCodecBase::createColorTable(const SkImageInfo& dstInfo) {
     if (maybeTrnsChunk.has_value()) {
         alphas = maybeTrnsChunk->data();
         numColorsWithAlpha = maybeTrnsChunk->size();
+        numColorsWithAlpha = std::min(numColorsWithAlpha, numColors);
     }
 
     bool shouldApplyColorXformToColorTable = this->colorXform() && !this->xformOnDecode();
