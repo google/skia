@@ -6725,8 +6725,157 @@ LOWP_STAGE_PP(swizzle, void* ctx) {
     }
 }
 
+// These debug stages are meant to be used with SkRasterPipelineVisualizer functions
+// to look at certain lanes in a pipeline at various times.
+// There are 3 flavors of functions for lowp, 2 for highp
+//   debug_L_255: clamps the value of the lane to [0, 255] and puts it into
+//                a channel of an appropriate color to visualize that component.
+//   debug_L: Converts the value of the lane to 12.8 fixed point such that it is
+//            easier to understand when using Viewer's debugger. A number like
+//            532.5 will be displayed as 0x02 0x14 0x80 0xFF. 532 -> hex is 214
+//            0.5 is 0x80 / 0x100 and 0xFF indicates positive (0x00 is negative).
+//            Note on lowp there will be no fractional components nor negative numbers.
+//   debug_x/y: (lowp only) visualizes the lane, which is a 32 bit float (combined from
+//               rg or ba) as 12.8 fixed point (outlined above).
+
+LOWP_STAGE_PP(debug_r_255, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+
+    auto px = cast<U32>(min(r, 255));
+    px |= 0xFF000000; // make opaque
+    store(ptr, px);
+}
+LOWP_STAGE_PP(debug_g_255, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+
+    auto px = cast<U32>(min(g, 255)) << 8;
+    px |= 0xFF000000; // make opaque
+    store(ptr, px);
+}
+LOWP_STAGE_PP(debug_b_255, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+
+    auto px = cast<U32>(min(b, 255)) << 16;
+    px |= 0xFF000000; // make opaque
+    store(ptr, px);
+}
+LOWP_STAGE_PP(debug_a_255, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+
+    auto px = cast<U32>(min(a, 255));
+    // Render alpha as greyscale
+    store(ptr, px | px << 8 | px << 16 | px << 24);
+}
+
+SI void lowp_fixed_point(const SkRasterPipelineContexts::MemoryCtx* ctx,
+                         const size_t dx, const size_t dy,
+                         const F lane) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+
+    auto r2 = cast<U32>(abs_(lane) / 256) & 0xFF;
+    auto g2 = cast<U32>(abs_(lane)) & 0xFF;
+    auto b2 = cast<U32>(abs_(lane) * 256) & 0xFF;
+    auto a2 = cast<U32>(min(max(lane * -256 * 256, 0), 0xFF));
+    store(ptr, r2 | (g2 << 8) | (b2 << 16) | (a2 << 24));
+}
+
+LOWP_STAGE_GG(debug_x, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    lowp_fixed_point(ctx, dx, dy, x);
+}
+LOWP_STAGE_GG(debug_y, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    lowp_fixed_point(ctx, dx, dy, y);
+}
+
+// Note that there won't be negative numbers nor fractional points.
+SI void lowp_fixed_point(const SkRasterPipelineContexts::MemoryCtx* ctx,
+                         const size_t dx, const size_t dy,
+                         const U16 lane) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+    // Flip the byte ordering so it aligns with the fixed point used above
+    auto px = cast<U32>((lane & 0xFF00) >> 8 |
+                        (lane & 0x00FF) << 8);
+    store(ptr, px);
+}
+
+LOWP_STAGE_PP(debug_r, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    lowp_fixed_point(ctx, dx, dy, r);
+}
+LOWP_STAGE_PP(debug_g, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    lowp_fixed_point(ctx, dx, dy, g);
+}
+LOWP_STAGE_PP(debug_b, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    lowp_fixed_point(ctx, dx, dy, b);
+}
+LOWP_STAGE_PP(debug_a, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    lowp_fixed_point(ctx, dx, dy, a);
+}
+
 #endif//defined(SKRP_CPU_SCALAR) controlling whether we build lowp stages
 }  // namespace lowp
+
+HIGHP_STAGE(debug_r_255, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+
+    auto px = to_unorm(r, 255);
+    px |= 0xFF000000; // make opaque
+    store(ptr, px);
+}
+HIGHP_STAGE(debug_g_255, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+
+    auto px = to_unorm(g, 255) << 8;
+    px |= 0xFF000000; // make opaque
+    store(ptr, px);
+}
+HIGHP_STAGE(debug_b_255, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+
+    auto px = to_unorm(b, 255) << 16;
+    px |= 0xFF000000; // make opaque
+    store(ptr, px);
+}
+HIGHP_STAGE(debug_a_255, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+
+    auto px = to_unorm(a, 255);
+    // Render alpha as greyscale
+    store(ptr, px | px << 8 | px << 16 | px << 24);
+}
+
+SI void highp_fixed_point(const SkRasterPipelineContexts::MemoryCtx* ctx,
+                          const size_t dx, const size_t dy,
+                          const F lane) {
+    auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
+
+    auto r2 = trunc_(abs_(lane) / 256) & 0xFF;
+    auto g2 = trunc_(abs_(lane)) & 0xFF;
+    auto b2 = trunc_(abs_(lane) * 256) & 0xFF;
+    auto a2 = to_unorm(lane * -256 * 256, 255);
+    store(ptr, r2 | (g2 << 8) | (b2 << 16) | (a2 << 24));
+}
+
+HIGHP_STAGE(debug_r, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    highp_fixed_point(ctx, dx, dy, r);
+}
+HIGHP_STAGE(debug_g, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    highp_fixed_point(ctx, dx, dy, g);
+}
+HIGHP_STAGE(debug_b, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    highp_fixed_point(ctx, dx, dy, b);
+}
+HIGHP_STAGE(debug_a, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    highp_fixed_point(ctx, dx, dy, a);
+}
+// The special handling of x and y only make sense in lowp mode. If they are
+// called in highp mode (e.g. someone made a lowp pipelin and then added something
+// which required highp), we'll just treat x and y as r and g respectively (we have
+// to define *some* behavior or this won't link).
+HIGHP_STAGE(debug_x, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    highp_fixed_point(ctx, dx, dy, r);
+}
+HIGHP_STAGE(debug_y, const SkRasterPipelineContexts::MemoryCtx* ctx) {
+    highp_fixed_point(ctx, dx, dy, g);
+}
 
 /* This gives us SK_OPTS::lowp::N if lowp::N has been set, or SK_OPTS::N if it hasn't. */
 namespace lowp { static constexpr size_t lowp_N = N; }

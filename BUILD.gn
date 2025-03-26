@@ -3153,6 +3153,7 @@ if (skia_enable_tools) {
         "tools/viewer/PathTextSlide.cpp",
         "tools/viewer/ProtectedSlide.cpp",
         "tools/viewer/QuadStrokerSlide.cpp",
+        "tools/viewer/RasterPipelineVizSlide.cpp",
         "tools/viewer/RectanizerSlide.cpp",
         "tools/viewer/RepeatTileSlide.cpp",
         "tools/viewer/SBIXSlide.cpp",

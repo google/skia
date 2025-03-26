@@ -121,6 +121,7 @@ skia_filegroup(
         "SkRasterPipelineContextUtils.h",
         "SkRasterPipelineOpContexts.h",
         "SkRasterPipelineOpList.h",
+        "SkRasterPipelineVizualizer.h",
         "SkReadBuffer.h",
         "SkRecord.h",
         "SkRecordDraw.h",
@@ -541,5 +542,6 @@ generate_cpp_files_for_headers(
         "SkPathPriv.h",
         "SkPicturePriv.h",
         "SkRuntimeEffectPriv.h",
+        "SkRasterPipelineVizualizer.h",
     ],
 )

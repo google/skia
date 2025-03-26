@@ -506,6 +506,7 @@ skia_core_sources = [
   "$_src/core/SkRasterPipelineContextUtils.h",
   "$_src/core/SkRasterPipelineOpContexts.h",
   "$_src/core/SkRasterPipelineOpList.h",
+  "$_src/core/SkRasterPipelineVizualizer.h",
   "$_src/core/SkReadBuffer.cpp",
   "$_src/core/SkReadBuffer.h",
   "$_src/core/SkReadPixelsRec.cpp",

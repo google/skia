@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkBlender.h"
 #include "include/core/SkColor.h"
@@ -19,6 +20,7 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkCPUTypes.h"
+#include "include/private/base/SkOnce.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkBlendModePriv.h"
@@ -26,20 +28,24 @@
 #include "src/core/SkBlitter.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkColorSpaceXformSteps.h"
+#include "src/core/SkCoreBlitters.h"
 #include "src/core/SkEffectPriv.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMemset.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
 #include "src/core/SkRasterPipelineOpList.h"
+#include "src/core/SkRasterPipelineVizualizer.h"
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/shaders/SkShaderBase.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <functional>
 #include <optional>
 #include <utility>
+#include <vector>
 
 class SkColorSpace;
 class SkShader;
@@ -120,44 +126,133 @@ static SkColor4f paint_color_to_dst(const SkPaint& paint, const SkPixmap& dst) {
     return paintColor;
 }
 
+static bool create_pipeline_for_blitter(const SkPixmap& dst,
+                                        const SkPaint& paint,
+                                        const SkMatrix& ctm,
+                                        SkArenaAlloc* alloc,
+                                        const SkSurfaceProps& props,
+                                        SkRasterPipeline* shaderPipeline,
+                                        SkColor4f* dstPaintColor,
+                                        bool* isOpaqueOut,
+                                        bool* isConstantOut) {
+    *dstPaintColor = paint_color_to_dst(paint, dst);
+
+    auto shader = as_SB(paint.getShader());
+
+    if (!shader) {
+        // Having no shader makes things nice and easy... just use the paint color
+        shaderPipeline->appendConstantColor(alloc, dstPaintColor->premul().vec());
+        *isOpaqueOut = dstPaintColor->fA == 1.0f;
+        *isConstantOut = true;
+        return true;
+    }
+
+    SkColorSpace* dstCS = dst.colorSpace();
+    SkColorType dstCT = dst.colorType();
+    *isOpaqueOut = shader->isOpaque() && dstPaintColor->fA == 1.0f;
+    *isConstantOut = shader->isConstant();
+    if (shader->appendRootStages(
+                SkStageRec{shaderPipeline, alloc, dstCT, dstCS, *dstPaintColor, props}, ctm)) {
+        if (dstPaintColor->fA != 1.0f) {
+            shaderPipeline->append(SkRasterPipelineOp::scale_1_float,
+                                   alloc->make<float>(dstPaintColor->fA));
+        }
+        return true;
+    }
+    // The shader can't draw with SkRasterPipeline.
+    return false;
+}
+
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkPaint& paint,
                                          const SkMatrix& ctm,
                                          SkArenaAlloc* alloc,
                                          sk_sp<SkShader> clipShader,
                                          const SkSurfaceProps& props) {
-    SkColorSpace* dstCS = dst.colorSpace();
-    SkColorType dstCT = dst.colorType();
-    SkColor4f dstPaintColor = paint_color_to_dst(paint, dst);
-
-    auto shader = as_SB(paint.getShader());
-
     SkRasterPipeline_<256> shaderPipeline;
-    if (!shader) {
-        // Having no shader makes things nice and easy... just use the paint color
-        shaderPipeline.appendConstantColor(alloc, dstPaintColor.premul().vec());
-        bool is_opaque    = dstPaintColor.fA == 1.0f,
-             is_constant  = true;
-        return SkRasterPipelineBlitter::Create(dst, paint, dstPaintColor, alloc, shaderPipeline,
-                                               is_opaque, is_constant, clipShader.get());
+    SkColor4f dstPaintColor;
+    bool is_opaque, is_constant;
+    if (!create_pipeline_for_blitter(dst,
+                                     paint,
+                                     ctm,
+                                     alloc,
+                                     props,
+                                     &shaderPipeline,
+                                     &dstPaintColor,
+                                     &is_opaque,
+                                     &is_constant)) {
+        return nullptr;
     }
 
-    bool is_opaque    = shader->isOpaque() && dstPaintColor.fA == 1.0f;
-    bool is_constant  = shader->isConstant();
-
-    if (shader->appendRootStages(SkStageRec{&shaderPipeline, alloc, dstCT, dstCS, dstPaintColor, props},
-                                 ctm)) {
-        if (dstPaintColor.fA != 1.0f) {
-            shaderPipeline.append(SkRasterPipelineOp::scale_1_float,
-                                  alloc->make<float>(dstPaintColor.fA));
-        }
-        return SkRasterPipelineBlitter::Create(dst, paint, dstPaintColor, alloc, shaderPipeline,
-                                               is_opaque, is_constant, clipShader.get());
-    }
-
-    // The shader can't draw with SkRasterPipeline.
-    return nullptr;
+    return SkRasterPipelineBlitter::Create(dst,
+                                           paint,
+                                           dstPaintColor,
+                                           alloc,
+                                           shaderPipeline,
+                                           is_opaque,
+                                           is_constant,
+                                           clipShader.get());
 }
+
+namespace SkRasterPipelineVisualizer {
+
+SkBlitter* CreateBlitter(const SkPixmap& dst,
+                         const std::vector<DebugStage>& debugStages,
+                         const SkPaint& paint,
+                         const SkMatrix& ctm,
+                         SkArenaAlloc* alloc,
+                         sk_sp<SkShader> clipShader,
+                         const SkSurfaceProps& props) {
+    SkRasterPipeline_<256> shaderPipeline;
+    SkColor4f dstPaintColor;
+    bool is_opaque, is_constant;
+    if (!create_pipeline_for_blitter(dst,
+                                     paint,
+                                     ctm,
+                                     alloc,
+                                     props,
+                                     &shaderPipeline,
+                                     &dstPaintColor,
+                                     &is_opaque,
+                                     &is_constant)) {
+        return nullptr;
+    }
+
+    static SkOnce once;
+    once([&] { shaderPipeline.dump(); });
+
+    std::vector<SkRasterPipeline::StageList> stages;
+    for (auto st = shaderPipeline.getStageList(); st; st = st->prev) {
+        stages.push_back(*st);
+    }
+    std::reverse(stages.begin(), stages.end());
+
+    SkASSERT_RELEASE(stages.size() == debugStages.size());
+    SkRasterPipeline_<256> shaderPipeline2;
+
+    for (size_t i = 0; i < stages.size(); i++) {
+        shaderPipeline2.append(stages[i].stage, stages[i].ctx);
+        auto stage = debugStages[i];
+        SkASSERT_RELEASE(stage.panels.size() == stage.ops.size());
+        for (size_t j = 0; j < stage.panels.size() && j < stage.ops.size(); j++) {
+            auto panelCtx = alloc->make<SkRasterPipelineContexts::MemoryCtx>();
+            panelCtx->pixels = stage.panels[j].pixmap().writable_addr();
+            panelCtx->stride = stage.panels[j].pixmap().rowBytesAsPixels();
+            shaderPipeline2.append(stage.ops[j], panelCtx);
+        }
+    }
+
+    return SkRasterPipelineBlitter::Create(dst,
+                                           paint,
+                                           dstPaintColor,
+                                           alloc,
+                                           shaderPipeline2,
+                                           is_opaque,
+                                           is_constant,
+                                           clipShader.get());
+}
+
+}  // namespace SkRasterPipelineVisualizer
 
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkPaint& paint,
@@ -351,8 +446,8 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     }
 
     blitter->fDstPtr = SkRasterPipelineContexts::MemoryCtx{
-            blitter->fDst.writable_addr(),
-            blitter->fDst.rowBytesAsPixels(),
+        blitter->fDst.writable_addr(),
+        blitter->fDst.rowBytesAsPixels(),
     };
 
     return blitter;

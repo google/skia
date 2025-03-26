@@ -157,8 +157,9 @@ private:
                           bool store);
     uint8_t* tailPointer();
 
-    SkArenaAlloc*               fAlloc;
+    SkArenaAlloc*                        fAlloc;
     SkRasterPipelineContexts::RewindCtx* fRewindCtx;
+    // A linked list of stages. fStages and getStageList() return the latest stage.
     StageList*                  fStages;
     uint8_t*                    fTailPointer;
     int                         fNumStages;
