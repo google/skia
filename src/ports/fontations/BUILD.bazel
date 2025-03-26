@@ -3,6 +3,7 @@ load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load(
     "//bazel:skia_rules.bzl",
     "skia_cc_library",
+    "skia_filegroup",
 )
 
 package(
@@ -10,6 +11,13 @@ package(
 )
 
 licenses(["notice"])
+
+skia_filegroup(
+    name = "bridge_rust_side_srcs",
+    srcs = [
+        "src/ffi.rs",
+    ],
+)
 
 rust_cxx_bridge(
     name = "fontations_ffi",
@@ -19,7 +27,10 @@ rust_cxx_bridge(
 
 rust_static_library(
     name = "bridge_rust_side",
-    srcs = ["src/ffi.rs"],
+    srcs = [
+        ":bridge_rust_side_srcs",
+    ],
+    crate_root = "src/ffi.rs",
     deps = [
         "@cxx",
         "@fontations//:font-types",

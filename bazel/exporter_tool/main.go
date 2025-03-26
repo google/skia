@@ -312,6 +312,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/ports:typeface_fontations_hdrs",
 				"//src/ports:typeface_fontations_srcs",
 			}},
+		{Var: "skia_ports_fontations_bridge_rust_side_sources",
+			Rules: []string{
+				"//src/ports/fontations:bridge_rust_side_srcs",
+			}},
 		{Var: "skia_ports_typeface_proxy_sources",
 			Rules: []string{
 				"//src/ports:typeface_proxy_hdrs",
