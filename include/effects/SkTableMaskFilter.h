@@ -38,6 +38,10 @@ public:
     static SkMaskFilter* CreateClip(uint8_t min, uint8_t max);
 
     SkTableMaskFilter() = delete;
+
+private:
+    static void RegisterFlattenables();
+    friend class SkFlattenable;
 };
 
 #endif
