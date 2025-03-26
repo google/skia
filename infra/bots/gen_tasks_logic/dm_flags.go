@@ -1308,6 +1308,17 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "tests", ALL, "ImageFilterCropRect_Gpu") // b/294080402
 	}
 
+	if b.extraConfig("ANGLE") && b.matchOs("Mac15") && b.matchGpu("IntelUHDGraphics630") {
+		// b/405918638
+		skip(ALL, "tests", ALL, "TransferPixelsFromTextureTest")
+		skip(ALL, "tests", ALL, "ImageAsyncReadPixels_Renderable_BottomLeft")
+		skip(ALL, "tests", ALL, "ImageAsyncReadPixels_Renderable_TopLeft")
+		skip(ALL, "tests", ALL, "ImageAsyncReadPixels_NonRenderable_BottomLeft")
+		skip(ALL, "tests", ALL, "ImageAsyncReadPixels_NonRenderable_TopLeft")
+		skip(ALL, "tests", ALL, "SurfaceAsyncReadPixels")
+		skip(ALL, "tests", ALL, "TransferPixelsToTextureTest")
+	}
+
 	if b.gpu("RTX3060") && b.extraConfig("Vulkan") && b.matchOs("Win") {
 		skip(ALL, "gm", ALL, "blurcircles2") // skia:13342
 	}
