@@ -89,6 +89,7 @@
 //#define SK_HISTOGRAM_ENUMERATION(name, sampleEnum, enumSize)
 //#define SK_HISTOGRAM_EXACT_LINEAR(name, sample, valueMax)
 //#define SK_HISTOGRAM_MEMORY_KB(name, sample)
+//#define SK_HISTOGRAM_CUSTOM_COUNTS(name, sample, countMin, countMax, bucketCount)
 //#define SK_HISTOGRAM_CUSTOM_MICROSECONDS_TIMES(name, sampleUSec, minUSec, maxUSec, bucketCount)
 
 /*

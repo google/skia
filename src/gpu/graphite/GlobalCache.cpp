@@ -47,7 +47,7 @@ constexpr int kGlobalComputePipelineCacheSizeLimit = 256;
 namespace skgpu::graphite {
 
 GlobalCache::GlobalCache()
-        : fGraphicsPipelineCache(kGlobalGraphicsPipelineCacheSizeLimit)
+        : fGraphicsPipelineCache(kGlobalGraphicsPipelineCacheSizeLimit, &fStats)
         , fComputePipelineCache(kGlobalComputePipelineCacheSizeLimit) {}
 
 GlobalCache::~GlobalCache() {
@@ -126,7 +126,13 @@ void GlobalCache::deleteResources() {
     fStaticResource.clear();
 }
 
-void GlobalCache::LogPurge(const UniqueKey& key, sk_sp<GraphicsPipeline>* p) {
+void GlobalCache::LogPurge(void* context, const UniqueKey& key, sk_sp<GraphicsPipeline>* p) {
+    PipelineStats* stats = static_cast<PipelineStats*>(context);
+
+    if ((*p)->fromPrecompile() && !(*p)->wasUsed()) {
+        ++stats->fUnusedPrecompiledPipelines;
+    }
+
 #if defined(SK_PIPELINE_LIFETIME_LOGGING)
     // A "Bad" Purge is one where the Pipeline was never retrieved from the Cache (i.e., unused
     // overgeneration).
@@ -156,6 +162,10 @@ sk_sp<GraphicsPipeline> GlobalCache::findGraphicsPipeline(
 #if defined(GPU_TEST_UTILS)
         ++fStats.fGraphicsCacheHits;
 #endif
+
+        if (!forPrecompile && (*entry)->fromPrecompile() && !(*entry)->wasUsed()) {
+            ++fStats.fNormalPreemptedByPrecompile;
+        }
 
         (*entry)->updateAccessTime();
         (*entry)->markUsed();
@@ -231,6 +241,10 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
         ++fStats.fGraphicsCacheAdditions;
 #endif
 
+        if ((*entry)->fromPrecompile()) {
+            ++fStats.fUnpreemptedPrecompilePipelines;
+        }
+
         // Precompile Pipelines are only marked as used when they get a cache hit in
         // findGraphicsPipeline
         if (!(*entry)->fromPrecompile()) {
@@ -302,6 +316,26 @@ void GlobalCache::purgePipelinesNotUsedSince(StdSteadyClock::time_point purgeTim
     }
 
     // TODO: add purging of Compute Pipelines (b/389073204)
+
+    // From local testing we expect these UMA stats to comfortably fit in the specified ranges.
+    // If we see a lot of the counts hitting the over and under-flow buckets something
+    // unexpected is happening and we would need to figure it out and, possibly, create
+    // new UMA statistics for the observed range.
+    SK_HISTOGRAM_CUSTOM_COUNTS("Skia.Graphite.Precompile.NormalPreemptedByPrecompile",
+                               fStats.fNormalPreemptedByPrecompile,
+                               /* countMin= */ 1,
+                               /* countMax= */ 51,
+                               /* bucketCount= */ 50);
+    SK_HISTOGRAM_CUSTOM_COUNTS("Skia.Graphite.Precompile.UnpreemptedPrecompilePipelines",
+                               fStats.fUnpreemptedPrecompilePipelines,
+                               /* countMin= */ 100,
+                               /* countMax= */ 150,
+                               /* bucketCount= */ 50);
+    SK_HISTOGRAM_CUSTOM_COUNTS("Skia.Graphite.Precompile.UnusedPrecompiledPipelines",
+                               fStats.fUnusedPrecompiledPipelines,
+                               /* countMin= */ 50,
+                               /* countMax= */ 100,
+                               /* bucketCount= */ 50);
 }
 
 #if defined(GPU_TEST_UTILS)
@@ -325,13 +359,13 @@ void GlobalCache::forEachGraphicsPipeline(
         fn(*k, v->get());
     });
 }
+#endif // defined(GPU_TEST_UTILS)
 
 GlobalCache::PipelineStats GlobalCache::getStats() const {
     SkAutoSpinlock lock{fSpinLock};
 
     return fStats;
 }
-#endif // defined(GPU_TEST_UTILS)
 
 sk_sp<ComputePipeline> GlobalCache::findComputePipeline(const UniqueKey& key) {
     SkAutoSpinlock lock{fSpinLock};
