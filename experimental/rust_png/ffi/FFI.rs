@@ -405,9 +405,14 @@ impl Reader {
         // `SkStream` API when/if possible in the future.
         let input = BufReader::with_capacity(BUF_CAPACITY, input);
 
-        // By default, the decoder is limited to using 64 Mib. If we ever need to change
-        // that, we can use `png::Decoder::new_with_limits`.
-        let mut decoder = png::Decoder::new(input);
+        let mut decoder = {
+            // By default, `DecodeOptions` cap the memory usage at using 64 Mib.
+            let mut options = png::DecodeOptions::default();
+            if cfg!(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION) {
+                options.set_ignore_checksums(true);
+            }
+            png::Decoder::new_with_options(input, options)
+        };
 
         let info = decoder.read_header_info()?;
         let transformations = compute_transformations(info);
