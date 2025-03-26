@@ -55,7 +55,8 @@ sk_sp<SkFontStyleSet> SkOrderedFontMgr::onCreateStyleSet(int index) const {
 
 sk_sp<SkFontStyleSet> SkOrderedFontMgr::onMatchFamily(const char familyName[]) const {
     for (const auto& fm : fList) {
-        if (auto fs = fm->matchFamily(familyName)) {
+        const auto fs = fm->matchFamily(familyName);
+        if (fs->count() > 0){
             return fs;
         }
     }
@@ -85,6 +86,15 @@ sk_sp<SkTypeface> SkOrderedFontMgr::onMatchFamilyStyleCharacter(
     return nullptr;
 }
 
+sk_sp<SkTypeface> SkOrderedFontMgr::onLegacyMakeTypeface(const char family[], SkFontStyle style) const {
+    for (const auto& fm : fList) {
+        if (auto tf = fm->matchFamilyStyle(family, style)) {
+            return fm->legacyMakeTypeface(family, style);
+        }
+    }
+    return nullptr;
+}
+
 // All of these are defined to fail by returning null
 
 sk_sp<SkTypeface> SkOrderedFontMgr::onMakeFromData(sk_sp<SkData>, int ttcIndex) const {
@@ -102,9 +112,5 @@ sk_sp<SkTypeface> SkOrderedFontMgr::onMakeFromStreamArgs(std::unique_ptr<SkStrea
 }
 
 sk_sp<SkTypeface> SkOrderedFontMgr::onMakeFromFile(const char path[], int ttcIndex) const {
-    return nullptr;
-}
-
-sk_sp<SkTypeface> SkOrderedFontMgr::onLegacyMakeTypeface(const char family[], SkFontStyle) const {
     return nullptr;
 }
