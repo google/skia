@@ -46,6 +46,11 @@ void PrecompileContext::purgePipelinesNotUsedInMs(std::chrono::milliseconds msNo
     fSharedContext->globalCache()->purgePipelinesNotUsedSince(purgeTime);
 }
 
+void PrecompileContext::reportPipelineStats() {
+    ASSERT_SINGLE_OWNER
+
+    fSharedContext->globalCache()->reportPipelineStats();
+}
 
 bool PrecompileContext::precompile(sk_sp<SkData> serializedPipelineKey) {
 #if defined(SK_ENABLE_PRECOMPILE)

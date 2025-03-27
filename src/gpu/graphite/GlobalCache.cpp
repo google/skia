@@ -130,7 +130,7 @@ void GlobalCache::LogPurge(void* context, const UniqueKey& key, sk_sp<GraphicsPi
     PipelineStats* stats = static_cast<PipelineStats*>(context);
 
     if ((*p)->fromPrecompile() && !(*p)->wasUsed()) {
-        ++stats->fUnusedPrecompiledPipelines;
+        ++stats->fPurgedUnusedPrecompiledPipelines;
     }
 
 #if defined(SK_PIPELINE_LIFETIME_LOGGING)
@@ -293,7 +293,6 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
     return *entry;
 }
 
-
 void GlobalCache::purgePipelinesNotUsedSince(StdSteadyClock::time_point purgeTime) {
     SkAutoSpinlock lock{fSpinLock};
 
@@ -316,6 +315,20 @@ void GlobalCache::purgePipelinesNotUsedSince(StdSteadyClock::time_point purgeTim
     }
 
     // TODO: add purging of Compute Pipelines (b/389073204)
+}
+
+void GlobalCache::reportPipelineStats() {
+    SkAutoSpinlock lock{fSpinLock};
+
+    uint32_t numUnusedInCache = 0;
+
+    fGraphicsPipelineCache.foreach([&numUnusedInCache](const UniqueKey* key,
+                                                       const sk_sp<GraphicsPipeline>* pipeline) {
+        if (!(*pipeline)->wasUsed()) {
+            SkASSERT((*pipeline)->fromPrecompile());
+            ++numUnusedInCache;
+        }
+    });
 
     // From local testing we expect these UMA stats to comfortably fit in the specified ranges.
     // If we see a lot of the counts hitting the over and under-flow buckets something
@@ -332,7 +345,7 @@ void GlobalCache::purgePipelinesNotUsedSince(StdSteadyClock::time_point purgeTim
                                /* countMax= */ 150,
                                /* bucketCount= */ 50);
     SK_HISTOGRAM_CUSTOM_COUNTS("Skia.Graphite.Precompile.UnusedPrecompiledPipelines",
-                               fStats.fUnusedPrecompiledPipelines,
+                               fStats.fPurgedUnusedPrecompiledPipelines + numUnusedInCache,
                                /* countMin= */ 50,
                                /* countMax= */ 100,
                                /* bucketCount= */ 50);

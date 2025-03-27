@@ -58,6 +58,8 @@ public:
     void purgePipelinesNotUsedSince(
             StdSteadyClock::time_point purgeTime) SK_EXCLUDES(fSpinLock);
 
+    void reportPipelineStats() SK_EXCLUDES(fSpinLock);
+
 #if defined(GPU_TEST_UTILS)
     int numGraphicsPipelines() const SK_EXCLUDES(fSpinLock);
     void resetGraphicsPipelines() SK_EXCLUDES(fSpinLock);
@@ -74,9 +76,12 @@ public:
         int fGraphicsRaces = 0;
         int fGraphicsPurges = 0;
 #endif
+        // Normally compiled Pipelines that were skipped bc of a preexisting Precompiled Pipeline
         uint32_t fNormalPreemptedByPrecompile = 0;
+        // Precompiled Pipelines that made it into the cache
         uint32_t fUnpreemptedPrecompilePipelines = 0;
-        uint32_t fUnusedPrecompiledPipelines = 0;
+        // Precompiled Pipelines that were purged from the cache prior to use
+        uint32_t fPurgedUnusedPrecompiledPipelines = 0;
     };
 
     PipelineStats getStats() const SK_EXCLUDES(fSpinLock);

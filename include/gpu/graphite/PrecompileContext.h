@@ -35,6 +35,11 @@ public:
     void purgePipelinesNotUsedInMs(std::chrono::milliseconds msNotUsed);
 
     /**
+     * Emit histograms (using the SK_HISTOGRAM* macros) for Skia's Pipeline usage.
+     */
+    void reportPipelineStats();
+
+    /**
      * Precompile one specific Pipeline that has been previously serialized. Serialized pipeline
      * keys can be acquired via the ContextOptions::PipelineCallback.
      *
