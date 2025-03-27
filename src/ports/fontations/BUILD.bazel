@@ -15,7 +15,13 @@ licenses(["notice"])
 skia_filegroup(
     name = "bridge_rust_side_srcs",
     srcs = [
+        "src/base.rs",
+        "src/bitmap.rs",
+        "src/colr.rs",
         "src/ffi.rs",
+        "src/hinting.rs",
+        "src/names.rs",
+        "src/verbs_points_pen.rs",
     ],
 )
 

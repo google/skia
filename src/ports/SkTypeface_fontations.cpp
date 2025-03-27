@@ -106,6 +106,14 @@ sk_sp<SkTypeface> SkTypeface_Make_Fontations(sk_sp<SkData> fontData,
     return SkTypeface_Fontations::MakeFromData(std::move(fontData), args);
 }
 
+static_assert(
+        sizeof(fontations_ffi::PaletteOverride) == sizeof(SkFontArguments::Palette::Override) &&
+                sizeof(fontations_ffi::PaletteOverride::index) ==
+                        sizeof(SkFontArguments::Palette::Override::index) &&
+                sizeof(fontations_ffi::PaletteOverride::color_8888) ==
+                        sizeof(SkFontArguments::Palette::Override::color),
+        "Struct fontations_ffi::PaletteOverride must match SkFontArguments::Palette::Override.");
+
 SkTypeface_Fontations::SkTypeface_Fontations(
         sk_sp<SkData> fontData,
         const SkFontStyle& style,

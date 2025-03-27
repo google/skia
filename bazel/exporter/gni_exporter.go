@@ -115,10 +115,6 @@ skia_fontations_path_bridge_sources = [
   "$_src/ports/fontations/src/skpath_bridge.h"
 ]
 
-skia_fontations_bridge_sources = [
-  "$_src/ports/fontations/src/ffi.rs"
-]
-
 skia_fontations_bridge_root = "$_src/ports/fontations/src/ffi.rs"
 `
 
