@@ -22,6 +22,8 @@ declare_args() {
   malloc = ""
   werror = false
   xcode_sysroot = ""
+
+  skia_use_cpp20 = false
 }
 
 if (is_ios && xcode_sysroot == "") {
@@ -105,7 +107,12 @@ config("default") {
       "/bigobj",  # Some of our files are bigger than the regular limits.
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
     ]
-    cflags_cc += [ "/std:c++17" ]
+    if (skia_use_cpp20) {
+      cflags_cc += [ "/std:c++20" ]
+    } else {
+      cflags_cc += [ "/std:c++17" ]
+    }
+
     if (!is_clang) {
       # https://developercommunity.visualstudio.com/t/Incorrect-C4573-when-taking-address-of-m/10662923
       cflags_cc += [ "/Zc:lambda" ]
@@ -146,10 +153,12 @@ config("default") {
       "-fPIC",
       "-fvisibility=hidden",
     ]
-    cflags_cc += [
-      "-std=c++17",
-      "-fvisibility-inlines-hidden",
-    ]
+    cflags_cc += [ "-fvisibility-inlines-hidden" ]
+    if (skia_use_cpp20) {
+      cflags_cc += [ "-std=c++20" ]
+    } else {
+      cflags_cc += [ "-std=c++17" ]
+    }
   }
 
   if (current_cpu == "arm") {
