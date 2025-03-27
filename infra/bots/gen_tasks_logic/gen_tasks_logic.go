@@ -943,18 +943,17 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 				d["android_hwasan_build"] = "1"
 			}
 		} else if b.os("ChromeOS") {
-			// TODO(borenet): Make this mapping non-optional after removing the
-			// old devices in the Skia lab.
 			deviceOS, ok := map[string]string{
 				"Cherry":   "16002.30.0",
 				"Guybrush": "16002.27.0",
 				"Octopus":  "16002.21.0",
 				"Trogdor":  "16002.26.0",
 			}[b.parts["model"]]
-			if ok {
-				d["device_os"] = deviceOS
-				d["device_type"] = strings.ToLower(b.parts["model"])
+			if !ok {
+				log.Fatalf("Entry %q not found in ChromeOS mapping.", b.parts["model"])
 			}
+			d["device_os"] = deviceOS
+			d["device_type"] = strings.ToLower(b.parts["model"])
 		} else if b.matchOs("iOS") {
 			device, ok := map[string]string{
 				"iPadMini4":   "iPad5,1",
@@ -1103,18 +1102,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 						d["cpu"] = "x86-64-i7-4578U"
 					}
 				}
-			} else if b.os("ChromeOS") {
-				version, ok := map[string]string{
-					"IntelUHDGraphics605": "15236.2.0",
-					"RadeonVega3":         "14233.0.0",
-					"Adreno618":           "14150.39.0",
-					"MaliT860":            "14092.77.0",
-				}[b.parts["cpu_or_gpu_value"]]
-				if !ok {
-					log.Fatalf("Entry %q not found in ChromeOS GPU mapping.", b.parts["cpu_or_gpu_value"])
-				}
-				d["gpu"] = b.parts["cpu_or_gpu_value"]
-				d["release_version"] = version
 			} else {
 				log.Fatalf("Unknown GPU mapping for OS %q.", b.parts["os"])
 			}
