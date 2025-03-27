@@ -103,8 +103,6 @@ public:
     void drawSpecial(SkSpecialImage*, const SkMatrix&, const SkSamplingOptions&,
                      const SkPaint&, SkCanvas::SrcRectConstraint) override;
 
-    sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
-    sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
     sk_sp<SkSpecialImage> snapSpecial(const SkIRect&, bool forceCopy = false) override;
 
     sk_sp<SkDevice> createDevice(const CreateInfo&, const SkPaint*) override;

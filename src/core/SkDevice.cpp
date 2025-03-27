@@ -310,8 +310,6 @@ void SkDevice::drawCoverageMask(const SkSpecialImage*, const SkMatrix& maskToDev
     SK_ABORT("Must override if useDrawCoverageMaskForMaskFilters() is true");
 }
 
-sk_sp<SkSpecialImage> SkDevice::makeSpecial(const SkBitmap&) { return nullptr; }
-sk_sp<SkSpecialImage> SkDevice::makeSpecial(const SkImage*) { return nullptr; }
 sk_sp<SkSpecialImage> SkDevice::snapSpecial(const SkIRect&, bool forceCopy) { return nullptr; }
 sk_sp<SkSpecialImage> SkDevice::snapSpecialScaled(const SkIRect& subset,
                                                   const SkISize& dstDims) {

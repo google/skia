@@ -11,7 +11,6 @@
 #include "include/core/SkBlender.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColorType.h"
-#include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -578,15 +577,6 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src,
         draw.fRC = &fRCStack.rc();
         draw.drawBitmap(resultBM, SkMatrix::I(), nullptr, sampling, paint);
     }
-}
-sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkBitmap& bitmap) {
-    return SkSpecialImages::MakeFromRaster(bitmap.bounds(), bitmap, this->surfaceProps());
-}
-
-sk_sp<SkSpecialImage> SkBitmapDevice::makeSpecial(const SkImage* image) {
-    return SkSpecialImages::MakeFromRaster(SkIRect::MakeWH(image->width(), image->height()),
-                                           image->makeNonTextureImage(),
-                                           this->surfaceProps());
 }
 
 sk_sp<SkSpecialImage> SkBitmapDevice::snapSpecial(const SkIRect& bounds, bool forceCopy) {

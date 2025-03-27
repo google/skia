@@ -1917,14 +1917,6 @@ void Device::drawCoverageMask(const SkSpecialImage* mask,
                        DrawFlags::kIgnorePathEffect);
 }
 
-sk_sp<SkSpecialImage> Device::makeSpecial(const SkBitmap&) {
-    return nullptr;
-}
-
-sk_sp<SkSpecialImage> Device::makeSpecial(const SkImage*) {
-    return nullptr;
-}
-
 sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy) {
     // NOTE: snapSpecial() can be called even after the device has been marked immutable (null
     // recorder), but in those cases it should not be a copy and just returns the image view.

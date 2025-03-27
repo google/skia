@@ -1860,12 +1860,3 @@ void SkPDFDevice::drawSpecial(SkSpecialImage* srcImg, const SkMatrix& localToDev
                                     localToDevice);
     }
 }
-
-sk_sp<SkSpecialImage> SkPDFDevice::makeSpecial(const SkBitmap& bitmap) {
-    return SkSpecialImages::MakeFromRaster(bitmap.bounds(), bitmap, this->surfaceProps());
-}
-
-sk_sp<SkSpecialImage> SkPDFDevice::makeSpecial(const SkImage* image) {
-    return SkSpecialImages::MakeFromRaster(
-            image->bounds(), image->makeNonTextureImage(), this->surfaceProps());
-}

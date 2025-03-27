@@ -124,10 +124,6 @@ public:
 
     const SkMatrix& initialTransform() const { return fInitialTransform; }
 
-protected:
-    sk_sp<SkSpecialImage> makeSpecial(const SkBitmap&) override;
-    sk_sp<SkSpecialImage> makeSpecial(const SkImage*) override;
-
 private:
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in
     // order to get the right access levels without using friend.
