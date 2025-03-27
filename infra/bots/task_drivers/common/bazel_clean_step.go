@@ -45,8 +45,8 @@ type BazelCleanIfLowDiskSpaceContextValue = struct {
 // This function is placed here rather than in the testutils Go package to avoid an import cycle.
 func WithEnoughSpaceOnBazelCachePartitionTestOnlyContext(ctx context.Context) (context.Context, string) {
 	const (
-		bazelCacheDir                 = "/mnt/pd0/bazel_cache"
-		bazelCachePartitionMountpoint = "/mnt/pd0"
+		bazelCacheDir                 = "/home/chrome-bot/bazel_cache"
+		bazelCachePartitionMountpoint = "/home/chrome-bot"
 	)
 
 	ctx = context.WithValue(ctx, BazelCleanIfLowDiskSpaceContextKey, BazelCleanIfLowDiskSpaceContextValue{
@@ -68,7 +68,7 @@ func WithEnoughSpaceOnBazelCachePartitionTestOnlyContext(ctx context.Context) (c
 
 // BazelCleanIfLowDiskSpace runs "bazel clean" as a task driver step if disk space is too low. This
 // step should be added at the end of any task driver that shells out to Bazel in order to prevent
-// DiskSpaceLow alerts due to the Bazel cache (usually at /mnt/pd0/bazel_cache) growing too large.
+// DiskSpaceLow alerts due to the Bazel cache (usually at /home/chrome-bot/bazel_cache) growing too large.
 //
 // Ideally, we would like to tell Bazel to prevent the cache from growing above a certain size, but
 // there is currently no way to do this. See discussion in the below links:
@@ -110,7 +110,7 @@ func BazelCleanIfLowDiskSpace(ctx context.Context, bazelCacheDir, bazelWorkspace
 		bazelCachePartitionMountpoint := ""
 		for _, candidate := range mountpointCandidates {
 			// The longest candidate wins. For example, if the Bazel cache directory is
-			// "/mnt/pd0/bazel_cache" and the candidates are "/mnt", "/mnt/pd0" and "/", then "/mnt/pd0"
+			// "/home/chrome-bot/bazel_cache" and the candidates are "/home/chrome-bot "/home/chrome-bot" and "/", then "/home/chrome-bot"
 			// is selected.
 			if len(candidate) > len(bazelCachePartitionMountpoint) {
 				bazelCachePartitionMountpoint = candidate

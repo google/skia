@@ -774,7 +774,7 @@ DEF_TEST(Encode_jpeg_blend_to_black, r) {
             for (bool blendOnBlack : {true, false}) {
                 skiatest::ReporterContext rc(r,
                                              SkStringPrintf("colorType=0x%x alphaType=0x%x blendOnBlack=%d",
-                                                            colorType, alphaType, blendOnBlack));
+                                                            unsigned(colorType), unsigned(alphaType), blendOnBlack));
                 /////////////////////////////////////////////////////////////////
                 // Decode the test image into `originalBitmap` into correct alpha
                 // and color type.

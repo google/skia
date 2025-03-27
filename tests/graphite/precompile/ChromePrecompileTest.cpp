@@ -287,7 +287,7 @@ void run_test(skgpu::graphite::PrecompileContext* precompileContext,
 
     bool correctGenerationAmt = generated.size() == expectedNumPipelines;
     REPORTER_ASSERT(reporter, correctGenerationAmt,
-                    "case %zu generated unexpected amount - a: %zu != e: %d\n",
+                    "case %zu generated unexpected amount - a: %zu != e: %u\n",
                     caseID, generated.size(), expectedNumPipelines);
 
     const size_t len = strlen(expectedString);

@@ -78,6 +78,8 @@ def compile_fn(api, checkout_root, out_dir):
   target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
   clang_linux      = str(api.vars.workdir.joinpath('clang_linux'))
+  if 'MSAN' in extra_tokens:
+    clang_linux = str(api.vars.workdir.joinpath('clang_ubuntu_noble'))
   win_toolchain    = str(api.vars.workdir.joinpath('win_toolchain'))
   dwritecore       = str(api.vars.workdir.joinpath('dwritecore'))
 

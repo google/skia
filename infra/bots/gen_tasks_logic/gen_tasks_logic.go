@@ -58,17 +58,14 @@ const (
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
-	DEBIAN_11_OS                   = "Debian-11.5"
-	DEFAULT_OS_DEBIAN              = "Debian-10.10"
-	DEFAULT_OS_LINUX_GCE           = "Debian-10.3"
-	OLD_OS_LINUX_GCE               = "Debian-9.8"
-	COMPILE_TASK_NAME_OS_LINUX     = "Debian10"
-	COMPILE_TASK_NAME_OS_LINUX_OLD = "Debian9"
-	DEFAULT_OS_MAC                 = "Mac-14.5"
-	DEFAULT_OS_WIN_GCE             = "Windows-Server-17763"
-	UBUNTU_20_04_OS                = "Ubuntu-20.04"
-	UBUNTU_22_04_OS                = "Ubuntu-22.04"
-	UBUNTU_24_04_OS                = "Ubuntu-24.04"
+	DEBIAN_11_OS         = "Debian-11.5"
+	DEBIAN_10_OS         = "Debian-10.10"
+	DEFAULT_OS_LINUX_GCE = UBUNTU_24_04_OS
+	DEFAULT_OS_MAC       = "Mac-14.5"
+	DEFAULT_OS_WIN_GCE   = "Windows-Server-17763"
+	UBUNTU_20_04_OS      = "Ubuntu-20.04"
+	UBUNTU_22_04_OS      = "Ubuntu-22.04"
+	UBUNTU_24_04_OS      = "Ubuntu-24.04"
 
 	// Small is a 2-core machine.
 	// TODO(dogben): Would n1-standard-1 or n1-standard-2 be sufficient?
@@ -97,9 +94,8 @@ const (
 
 	// bazelCacheDirOnGCELinux is the path where Bazel should write its cache on Linux GCE machines.
 	// The Bazel cache can grow large (>10GB), so this should be in a partition with enough free
-	// space. On Linux GCE machines, the partition mounted at /mnt/pd0 is significantly larger than
-	// the partition mounted at /.
-	bazelCacheDirOnGCELinux = "/mnt/pd0/bazel_cache"
+	// space.
+	bazelCacheDirOnGCELinux = "/home/chrome-bot/bazel_cache"
 
 	// bazelCacheDirOnSkoloLinux is like bazelCacheDirOnGCELinux for Skolo Linux machines. Unlike GCE
 	// Linux machines, the partition mounted at / on Skolo Linux machines is large enough. While
@@ -710,17 +706,29 @@ func (b *taskBuilder) internalHardwareLabel() *int {
 	return nil
 }
 
+// getLinuxGceDimensions returns a map of default Swarming bot dimensions for
+// Linux GCE instances.
+func (b *taskBuilder) getLinuxGceDimensions(machineType string) map[string]string {
+	return map[string]string{
+		// Specify CPU to avoid running builds on bots with a more unique CPU.
+		"cpu": "x86-64-Haswell_GCE",
+		"gpu": "none",
+		// Currently all Linux GCE tasks run on 16-CPU machines.
+		"machine_type": machineType,
+		"os":           DEFAULT_OS_LINUX_GCE,
+		"pool":         b.cfg.Pool,
+	}
+}
+
 // linuxGceDimensions adds the Swarming bot dimensions for Linux GCE instances.
 func (b *taskBuilder) linuxGceDimensions(machineType string) {
-	b.dimension(
-		// Specify CPU to avoid running builds on bots with a more unique CPU.
-		"cpu:x86-64-Haswell_GCE",
-		"gpu:none",
-		// Currently all Linux GCE tasks run on 16-CPU machines.
-		fmt.Sprintf("machine_type:%s", machineType),
-		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
-		fmt.Sprintf("pool:%s", b.cfg.Pool),
-	)
+	dims := b.getLinuxGceDimensions(machineType)
+	dimsSlice := make([]string, 0, len(dims))
+	for k, v := range dims {
+		dimsSlice = append(dimsSlice, fmt.Sprintf("%s:%s", k, v))
+	}
+	sort.Strings(dimsSlice)
+	b.dimension(dimsSlice...)
 }
 
 // codesizeTaskNameRegexp captures the "CodeSize-<binary name>-" prefix of a CodeSize task name.
@@ -755,10 +763,10 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			if !In("Android", ec) {
 				ec = append([]string{"Android"}, ec...)
 			}
-			task_os = COMPILE_TASK_NAME_OS_LINUX
+			task_os = DEFAULT_OS_LINUX_GCE
 		} else if b.os("ChromeOS") {
 			ec = append([]string{"Chromebook", "GLES"}, ec...)
-			task_os = COMPILE_TASK_NAME_OS_LINUX
+			task_os = DEFAULT_OS_LINUX_GCE
 		} else if b.matchOs("iOS") {
 			ec = append([]string{task_os}, ec...)
 			if b.parts["compiler"] == "Xcode11.4.1" {
@@ -772,17 +780,16 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			// GCC compiles are now on a Docker container. We use the same OS and
 			// version to compile as to test.
 			ec = append(ec, "Docker")
-		} else if b.matchOs("Debian11") {
-			// We compile using the Debian11 machines in the skolo.
-			task_os = "Debian11"
-		} else if b.matchOs("Ubuntu", "Debian") {
-			task_os = COMPILE_TASK_NAME_OS_LINUX
+		} else if b.extraConfig("WasmGMTests") {
+			task_os = DEFAULT_OS_LINUX_GCE
+		} else if b.os("Ubuntu18") {
+			task_os = "Debian10" // TODO(borenet): Remove once these machines update to 24.04.
 		} else if b.matchOs("Mac") {
 			task_os = "Mac"
 		}
 		jobNameMap := map[string]string{
 			"role":          "Build",
-			"os":            task_os,
+			"os":            strings.ReplaceAll(task_os, "-", ""),
 			"compiler":      b.parts["compiler"],
 			"target_arch":   b.parts["arch"],
 			"configuration": b.parts["configuration"],
@@ -790,7 +797,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 		if b.extraConfig("PathKit") {
 			ec = []string{"PathKit"}
 			// We prefer to compile this in the cloud because we have more resources there
-			jobNameMap["os"] = "Debian10"
+			jobNameMap["os"] = strings.ReplaceAll(DEFAULT_OS_LINUX_GCE, "-", "")
 		}
 		if b.extraConfig("CanvasKit", "SkottieWASM", "Puppeteer") {
 			if b.cpu() {
@@ -799,7 +806,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 				ec = []string{"CanvasKit"}
 			}
 			// We prefer to compile this in the cloud because we have more resources there
-			jobNameMap["os"] = "Debian10"
+			jobNameMap["os"] = strings.ReplaceAll(DEFAULT_OS_LINUX_GCE, "-", "")
 		}
 		if len(ec) > 0 {
 			jobNameMap["extra_config"] = strings.Join(ec, "_")
@@ -868,7 +875,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Android12":   "Android",
 			"ChromeOS":    "ChromeOS",
 			"Debian9":     DEFAULT_OS_LINUX_GCE, // Runs in Deb9 Docker.
-			"Debian10":    DEFAULT_OS_LINUX_GCE,
+			"Debian10":    DEBIAN_10_OS,
 			"Debian11":    DEBIAN_11_OS,
 			"Mac":         DEFAULT_OS_MAC,
 			"Mac10.15.1":  "Mac-10.15.1",
@@ -907,7 +914,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			d["os"] = "iOS-13.6"
 		}
 	} else {
-		d["os"] = DEFAULT_OS_DEBIAN
+		d["os"] = DEFAULT_OS_LINUX_GCE
 	}
 	if b.role("Test", "Perf") {
 		if b.os("Android") {
@@ -997,7 +1004,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"Golo": "Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
 				},
 				"Rome": {
-					"GCE": "x86-64-AMD_Rome_GCE",
+					"GCE": "x86-64",
 				},
 				"SwiftShader": {
 					"GCE": "x86-64-Haswell_GCE",
@@ -1016,6 +1023,9 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			}
 			if b.model("GCE") && d["cpu"] == "x86-64-Haswell_GCE" {
 				d["machine_type"] = MACHINE_TYPE_MEDIUM
+			}
+			if b.model("GCE") && b.cpu("Rome") {
+				d["machine_type"] = "n2d-standard-16"
 			}
 		} else {
 			// It's a GPU job.
@@ -1059,13 +1069,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					log.Fatalf("Entry %q not found in Linux GPU mapping.", b.parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
-
-				if b.matchOs("Debian11") {
-					d["os"] = DEBIAN_11_OS
-				} else if b.matchOs("Debian") {
-					// The Debian10 machines in the skolo are 10.10, not 10.3.
-					d["os"] = DEFAULT_OS_DEBIAN
-				}
 				if b.parts["cpu_or_gpu_value"] == "IntelIrisXe" {
 					// The Intel Iris Xe devices are Debian 11.3.
 					d["os"] = "Debian-bookworm/sid"
@@ -1140,15 +1143,25 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			}
 		}
 	} else {
-		d["gpu"] = "none"
+		if b.matchOs("Debian10") {
+			// The old Linux GCE build machines are running 10.3, not 10.10.
+			// TODO(borenet): Remove this once we stop running on these VMs.
+			dims := b.getLinuxGceDimensions(MACHINE_TYPE_LARGE)
+			dims["os"] = "Debian-10.3"
+			for k, v := range dims {
+				d[k] = v
+			}
+		} else if d["os"] != "Ubuntu-18.04" {
+			// We don't have Ubuntu 18 VMs in GCE.
+			d["gpu"] = "none"
+		}
 		if d["os"] == DEFAULT_OS_LINUX_GCE {
 			if b.extraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.role("BuildStats", "CodeSize") {
 				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-				return
+			} else {
+				// Use many-core machines for Build tasks.
+				b.linuxGceDimensions(MACHINE_TYPE_LARGE)
 			}
-			// Use many-core machines for Build tasks.
-			b.linuxGceDimensions(MACHINE_TYPE_LARGE)
-			return
 		} else if d["os"] == DEFAULT_OS_WIN_GCE {
 			// Windows CPU bots.
 			d["cpu"] = "x86-64-Haswell_GCE"
@@ -1190,13 +1203,17 @@ func (b *jobBuilder) bundleRecipes() string {
 func (b *jobBuilder) buildTaskDrivers(goos, goarch string) string {
 	name := BUILD_TASK_DRIVERS_PREFIX + "_" + goos + "_" + goarch
 	b.addTask(name, func(b *taskBuilder) {
-		b.cmd("/bin/bash", "skia/infra/bots/build_task_drivers.sh",
+		b.cmd(
+			"luci-auth", "context",
+			"/bin/bash", "skia/infra/bots/build_task_drivers.sh",
 			specs.PLACEHOLDER_ISOLATED_OUTDIR,
 			goos+"_"+goarch)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesBazel("linux_x64")
+		b.usesLUCIAuth()
 		b.idempotent()
 		b.cas(CAS_TASK_DRIVERS)
+		b.serviceAccount(b.cfg.ServiceAccountCompile)
 	})
 	return name
 }
@@ -1251,6 +1268,7 @@ func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 		// TODO(borenet): Make this task not use Git.
 		b.usesGit()
 		b.cmd(
+			"luci-auth", "context",
 			b.taskDriver("push_apps_from_skia_image", false),
 			"--project_id", "skia-swarming-bots",
 			"--task_id", specs.PLACEHOLDER_TASK_ID,
@@ -1266,6 +1284,7 @@ func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 		b.dep(b.createDockerImage(false))
 		b.cas(CAS_EMPTY)
 		b.usesBazel("linux_x64")
+		b.usesLUCIAuth()
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
@@ -1370,7 +1389,11 @@ func (b *jobBuilder) compile() string {
 				}
 			} else if b.isLinux() {
 				if b.compiler("Clang") {
-					b.asset("clang_linux")
+					if b.extraConfig("MSAN") {
+						b.asset("clang_ubuntu_noble")
+					} else {
+						b.asset("clang_linux")
+					}
 				}
 				if b.extraConfig("SwiftShader") {
 					b.asset("cmake_linux")
@@ -1438,13 +1461,16 @@ func (b *jobBuilder) recreateSKPs() {
 		}
 
 		b.cas(CAS_RECREATE_SKPS)
-		b.dep("Build-Debian10-Clang-x86_64-Release") // To get DM.
+		// We use a build task To get DM.
+		b.dep("Build-Debian10-Clang-x86_64-Release")
 		b.cmd(cmd...)
 		b.usesLUCIAuth()
 		b.serviceAccount(b.cfg.ServiceAccountRecreateSKPs)
 		b.dimension(
 			"pool:SkiaCT",
-			fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
+			// TODO(borenet): Update the SkiaCT pool to use Ubuntu24.04 and
+			// update this dimension and the dependent build task above.
+			"os:Debian-10.3",
 		)
 		b.usesGo()
 		b.cache(CACHES_WORKDIR...)
@@ -1460,6 +1486,7 @@ func (b *jobBuilder) checkGeneratedFiles() {
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.cas(CAS_BAZEL)
 		b.cmd(
+			"luci-auth", "context",
 			b.taskDriver("check_generated_files", false),
 			"--local=false",
 			"--git_path=cipd_bin_packages/git",
@@ -1472,6 +1499,7 @@ func (b *jobBuilder) checkGeneratedFiles() {
 		)
 		b.usesBazel("linux_x64")
 		b.usesGit()
+		b.usesLUCIAuth()
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.serviceAccount(b.cfg.ServiceAccountHousekeeper)
 	})
@@ -1483,6 +1511,7 @@ func (b *jobBuilder) goLinters() {
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.cas(CAS_BAZEL)
 		b.cmd(
+			"luci-auth", "context",
 			b.taskDriver("go_linters", false),
 			"--local=false",
 			"--git_path=cipd_bin_packages/git",
@@ -1495,6 +1524,7 @@ func (b *jobBuilder) goLinters() {
 		)
 		b.usesBazel("linux_x64")
 		b.usesGit()
+		b.usesLUCIAuth()
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.serviceAccount(b.cfg.ServiceAccountHousekeeper)
 	})
@@ -1665,8 +1695,7 @@ func (b *jobBuilder) codesize() {
 			cmd = append(cmd, "--strip_binary",
 				"android_ndk_linux/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip")
 		} else {
-			b.asset("binutils_linux_x64")
-			cmd = append(cmd, "--strip_binary", "binutils_linux_x64/strip")
+			cmd = append(cmd, "--strip_binary", "/usr/bin/strip")
 		}
 		b.cmd(cmd...)
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
@@ -1712,7 +1741,11 @@ func (b *taskBuilder) commonTestPerfAssets() {
 	}
 
 	if b.isLinux() && b.matchExtraConfig("SAN") {
-		b.asset("clang_linux")
+		if b.extraConfig("MSAN") {
+			b.asset("clang_ubuntu_noble")
+		} else {
+			b.asset("clang_linux")
+		}
 	}
 
 	if b.isLinux() {
@@ -2299,8 +2332,10 @@ func (b *jobBuilder) bazelBuild() {
 		// CIPD to ensure that we're not using an old locally-installed version.
 		b.usesGit()
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
+		b.usesLUCIAuth()
 
 		cmd := []string{
+			"luci-auth", "context",
 			b.taskDriver("bazel_build", host != "windows_x64"),
 			"--project_id=skia-swarming-bots",
 			"--task_id=" + specs.PLACEHOLDER_TASK_ID,
@@ -2399,6 +2434,11 @@ func (b *jobBuilder) bazelTest() {
 		taskdriverName = "bazel_test_benchmark"
 	}
 
+	useLUCIAuth := true
+	if taskdriverName == "external_client" {
+		useLUCIAuth = false
+	}
+
 	var deviceSpecificBazelConfig *device_specific_configs.Config
 	if testConfig != "" {
 		if config, ok := device_specific_configs.Configs[testConfig]; ok {
@@ -2414,13 +2454,18 @@ func (b *jobBuilder) bazelTest() {
 	}
 
 	b.addTask(b.Name, func(b *taskBuilder) {
-		cmd := []string{
+		cmd := []string{}
+		if useLUCIAuth {
+			cmd = []string{"luci-auth", "context"}
+		}
+		cmd = append(cmd,
 			b.taskDriver(taskdriverName, false),
 			"--project_id=skia-swarming-bots",
-			"--task_id=" + specs.PLACEHOLDER_TASK_ID,
-			"--task_name=" + b.Name,
+			"--task_id="+specs.PLACEHOLDER_TASK_ID,
+			"--task_name="+b.Name,
 			"--workdir=.",
-		}
+		)
+		b.usesLUCIAuth()
 
 		switch taskdriverName {
 		case "canvaskit_gold":

@@ -151,7 +151,7 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
 
         EGLConfig surfaceConfig;
         if (!eglChooseConfig(fDisplay, configAttribs, &surfaceConfig, 1, &numConfigs)) {
-            SkDebugf("eglChooseConfig failed. EGL Error: 0x%08x\n", eglGetError());
+            SkDebugf("eglChooseConfig failed. EGL Error: 0x%08x\n", unsigned(eglGetError()));
             continue;
         }
 
@@ -185,7 +185,7 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
                                              createProtected);
         }
         if (EGL_NO_CONTEXT == fContext) {
-            SkDebugf("eglCreateContext failed.  EGL Error: 0x%08x\n", eglGetError());
+            SkDebugf("eglCreateContext failed.  EGL Error: 0x%08x\n", unsigned(eglGetError()));
             continue;
         }
 
@@ -199,14 +199,14 @@ EGLGLTestContext::EGLGLTestContext(GrGLStandard forcedGpuAPI, EGLGLTestContext* 
 
         fSurface = eglCreatePbufferSurface(fDisplay, surfaceConfig, kSurfaceAttribs);
         if (EGL_NO_SURFACE == fSurface) {
-            SkDebugf("eglCreatePbufferSurface failed. EGL Error: 0x%08x\n", eglGetError());
+            SkDebugf("eglCreatePbufferSurface failed. EGL Error: 0x%08x\n", unsigned(eglGetError()));
             this->destroyGLContext();
             continue;
         }
 
         SkScopeExit restorer(context_restorer());
         if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
-            SkDebugf("eglMakeCurrent failed.  EGL Error: 0x%08x\n", eglGetError());
+            SkDebugf("eglMakeCurrent failed.  EGL Error: 0x%08x\n", unsigned(eglGetError()));
             this->destroyGLContext();
             continue;
         }
