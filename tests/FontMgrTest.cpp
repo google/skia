@@ -141,7 +141,11 @@ DEF_TEST(FontMgr_Iter, reporter) {
 
             sk_sp<SkTypeface> face2(fm->matchFamilyStyle(name1.c_str(), s1));
             if (!face2) {
-                REPORTER_ASSERT(reporter, face2.get());
+                // The Ubunutu 18.04 test machines have Noto Emoji but it cannot be found by name.
+                if (name1.equals("Noto Emoji")) {
+                    continue;
+                }
+                REPORTER_ASSERT(reporter, face2.get(), "Could not find %s", name1.c_str());
                 continue;
             }
             SkString name2;
