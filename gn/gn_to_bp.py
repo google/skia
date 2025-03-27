@@ -77,7 +77,6 @@ license {
 
 cc_defaults {
     name: "skia_arch_defaults",
-    cpp_std: "gnu++17",
     arch: {
         arm: {
             srcs: [],
