@@ -65,6 +65,7 @@
     // Each of the specific intrinsic headers also checks to ensure that immintrin.h has been
     // included, so do that here, first.
     #if defined(__clang__) && defined(_MSC_VER)
+        #define __RTMINTRIN_H  // Workaround for https://github.com/llvm/llvm-project/issues/95133
         #include <immintrin.h>
     #endif
 
