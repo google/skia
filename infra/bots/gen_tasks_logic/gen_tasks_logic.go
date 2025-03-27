@@ -766,7 +766,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			task_os = DEFAULT_OS_LINUX_GCE
 		} else if b.os("ChromeOS") {
 			ec = append([]string{"Chromebook", "GLES"}, ec...)
-			task_os = DEFAULT_OS_LINUX_GCE
+			task_os = UBUNTU_22_04_OS
 		} else if b.matchOs("iOS") {
 			ec = append([]string{task_os}, ec...)
 			if b.parts["compiler"] == "Xcode11.4.1" {
