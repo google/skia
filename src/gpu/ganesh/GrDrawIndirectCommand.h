@@ -50,7 +50,7 @@ public:
         return *this;
     }
 
-    bool operator==(const GrDrawIndirectWriter& that) { return fData == that.fData; }
+    bool operator==(const GrDrawIndirectWriter& that) const { return fData == that.fData; }
 
     explicit operator bool() const { return fData != nullptr; }
 

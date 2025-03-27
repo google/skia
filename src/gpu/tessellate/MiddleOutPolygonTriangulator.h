@@ -102,7 +102,7 @@ public:
         }
 
         struct Iter {
-            bool operator!=(const Iter& iter) { return fVertex != iter.fVertex; }
+            bool operator!=(const Iter& iter) const { return fVertex != iter.fVertex; }
             void operator++() { --fVertex; }
             std::tuple<SkPoint, SkPoint, SkPoint> operator*() {
                 return {fVertex[-1].fPoint, fVertex[0].fPoint, fLastPoint};

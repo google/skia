@@ -38,7 +38,7 @@ public:
     ~SkBitSet() = default;
 
     /** Basic equality checks. */
-    bool operator==(const SkBitSet& that) {
+    bool operator==(const SkBitSet& that) const {
         if (fSize != that.fSize) {
             return false;
         }
@@ -46,7 +46,7 @@ public:
         return 0 == memcmp(fChunks.get(), that.fChunks.get(), sizeof(Chunk) * numChunks);
     }
 
-    bool operator!=(const SkBitSet& that) {
+    bool operator!=(const SkBitSet& that) const {
         return !this->operator==(that);
     }
 

@@ -238,7 +238,7 @@ public:
         /**
          * C++11 range-for interface.
          */
-        bool operator!=(const Iter& that) { return fCurr != that.fCurr; }
+        bool operator!=(const Iter& that) const { return fCurr != that.fCurr; }
         T* operator*() { return this->get(); }
         void operator++() { this->next(); }
 

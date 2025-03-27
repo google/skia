@@ -91,13 +91,13 @@ public:
             return *this;
         }
 
-        bool operator==(const ForwardVerbIterator& other) {
+        bool operator==(const ForwardVerbIterator& other) const {
             SkASSERT(fSegments.data() != other.fSegments.data() ||
                      fSegments.size() == other.fSegments.size());
             return fSegments.data() == other.fSegments.data();
         }
 
-        bool operator!=(const ForwardVerbIterator& other) {
+        bool operator!=(const ForwardVerbIterator& other) const {
             return !((*this) == other);
         }
 

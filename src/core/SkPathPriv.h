@@ -152,7 +152,7 @@ public:
         Verbs(const SkPath& path) : fPathRef(path.fPathRef.get()) {}
         struct Iter {
             void operator++() { fVerb++; }
-            bool operator!=(const Iter& b) { return fVerb != b.fVerb; }
+            bool operator!=(const Iter& b) const { return fVerb != b.fVerb; }
             SkPath::Verb operator*() { return static_cast<SkPath::Verb>(*fVerb); }
             const uint8_t* fVerb;
         };
