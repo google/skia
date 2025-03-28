@@ -490,18 +490,14 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     fResourceBindingReqs.fGradientBufferBinding = DawnGraphicsPipeline::kGradientBufferIndex;
 
 #if !defined(__EMSCRIPTEN__)
+    // We need at least 4 SSBOs for intrinsic, render step, paint & gradient buffers.
     // TODO(b/344963958): SSBOs contribute to OOB shader memory access and dawn device loss on
     // Android. Once the problem is fixed SSBOs can be enabled again.
-    // TODO(dawn:388028942): In compat mode, the number of storage buffers in vertex stage could be
-    // zero on some devices. We currently use SSBO in vertex shaders so disabling it entirely in
-    // this case. There is a bug in D3D11's backend where it sets number of SSBOs in vertex shader
-    // to non-zero in compat mode. Once that bug is fixed, and a new limit is used for readonly
-    // SSBOs, we can enable this again.
-    fStorageBufferSupport =
-            info.backendType != wgpu::BackendType::OpenGL &&
-            info.backendType != wgpu::BackendType::OpenGLES &&
-            info.backendType != wgpu::BackendType::Vulkan &&
-            backendContext.fDevice.HasFeature(wgpu::FeatureName::CoreFeaturesAndLimits);
+    fStorageBufferSupport = info.backendType != wgpu::BackendType::OpenGL &&
+                            info.backendType != wgpu::BackendType::OpenGLES &&
+                            info.backendType != wgpu::BackendType::Vulkan &&
+                            limits.maxStorageBuffersInVertexStage >= 4 &&
+                            limits.maxStorageBuffersInFragmentStage >= 4;
 #else
     // WASM doesn't provide a way to query the backend, so can't tell if we are on a backend that
     // needs to have SSBOs disabled. Pessimistically assume we could be. Once the above conditions
