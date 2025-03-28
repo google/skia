@@ -113,7 +113,7 @@ const TextureProxy* PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorde
                                                                skvx::half2 maskSize,
                                                                SkIVector transformedMaskOffset,
                                                                skvx::half2* outPos) {
-    // Shapes must have a key to use this method
+    // TODO: pull this out so we don't have to recalculate it for each atlas?
     skgpu::UniqueKey maskKey = GeneratePathMaskKey(shape, localToDevice, strokeRec,
                                                    maskOrigin, maskSize);
     AtlasLocator* cachedLocator = fShapeCache.find(maskKey);
