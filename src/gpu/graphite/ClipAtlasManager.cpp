@@ -145,9 +145,12 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
                 draw_clip_mask_to_pixmap(cdc->fElementList, cdc->fBounds, cdc->fRenderSize,
                                          cdc->fDrawBounds, &dst);
                 SkBitmap bm;
+                // SkPixmap::detachPixels() clears these so we need to make a copy.
+                SkImageInfo ii = dst.info();
+                size_t rowBytes = dst.rowBytes();
                 // The bitmap needs to take ownership of the pixels, so we detach them from the
                 // SkAutoPixmapStorage and pass them to SkBitmap::installPixels().
-                SkAssertResult(bm.installPixels(dst.info(), dst.detachPixels(), dst.rowBytes(),
+                SkAssertResult(bm.installPixels(ii, dst.detachPixels(), rowBytes,
                                                 [](void* addr, void* context) { sk_free(addr); },
                                                 nullptr));
                 bm.setImmutable();
