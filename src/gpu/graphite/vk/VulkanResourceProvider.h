@@ -127,12 +127,8 @@ private:
     // information that we do not need for identifying unique pipelines.
     skia_private::TArray<std::pair<GraphiteResourceKey,
                          sk_sp<VulkanGraphicsPipeline>>> fLoadMSAAPipelines;
-    // All of the following attributes are the same between all msaa load pipelines, so they only
-    // need to be created once and can then be stored.
-    VkShaderModule fMSAALoadVertShaderModule = VK_NULL_HANDLE;
-    VkShaderModule fMSAALoadFragShaderModule = VK_NULL_HANDLE;
-    VkPipelineShaderStageCreateInfo fMSAALoadShaderStageInfo[2];
-    VkPipelineLayout fMSAALoadPipelineLayout = VK_NULL_HANDLE;
+    // The shader modules and pipeline layout can be shared for all loadMSAA pipelines.
+    std::unique_ptr<VulkanProgramInfo> fLoadMSAAProgram;
 
     SkLRUCache<UniformBindGroupKey, sk_sp<VulkanDescriptorSet>,
                UniformBindGroupKey::Hash> fUniformBufferDescSetCache;

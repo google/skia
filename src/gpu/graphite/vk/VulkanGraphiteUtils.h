@@ -57,7 +57,7 @@ class VulkanSharedContext;
 struct RenderPassDesc;
 enum class TextureFormat : uint8_t;
 
-VkShaderModule createVulkanShaderModule(const VulkanSharedContext*,
+VkShaderModule CreateVulkanShaderModule(const VulkanSharedContext*,
                                         const std::string& spirv,
                                         VkShaderStageFlagBits);
 

@@ -44,7 +44,7 @@ std::unique_ptr<Context> MakeVulkan(const VulkanBackendContext& backendContext,
 
 namespace skgpu::graphite {
 
-VkShaderModule createVulkanShaderModule(const VulkanSharedContext* context,
+VkShaderModule CreateVulkanShaderModule(const VulkanSharedContext* context,
                                         const std::string& spirv,
                                         VkShaderStageFlagBits stage) {
     TRACE_EVENT0("skia.shaders", "InstallVkShaderModule");
