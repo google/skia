@@ -199,15 +199,11 @@
       "--some-flag"
     ],
     "env": {
-      "ASAN_OPTIONS": "symbolize=1 detect_leaks=1",
-      "ASAN_SYMBOLIZER_PATH": "[START_DIR]/clang_ubuntu_noble/bin/llvm-symbolizer",
       "CHROME_HEADLESS": "1",
       "LD_LIBRARY_PATH": "[START_DIR]/clang_ubuntu_noble/msan:[START_DIR]/clang_ubuntu_noble/lib/x86_64-unknown-linux-gnu",
-      "LSAN_OPTIONS": "symbolize=1 print_suppressions=1",
       "MSAN_OPTIONS": "symbolize=1 print_suppressions=1",
       "MSAN_SYMBOLIZER_PATH": "[START_DIR]/clang_ubuntu_noble/bin/llvm-symbolizer",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/clang_ubuntu_noble/bin",
-      "UBSAN_OPTIONS": "symbolize=1 print_stacktrace=1"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/clang_ubuntu_noble/bin"
     },
     "name": "nanobench"
   },

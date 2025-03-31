@@ -972,50 +972,56 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			}
 			d["device"] = device
 		} else if b.cpu() || b.extraConfig("CanvasKit", "Docker", "SwiftShader") {
-			modelMapping, ok := map[string]map[string]string{
+			modelMapping, ok := map[string]map[string]map[string]string{
 				"AppleM1": {
-					"MacMini9.1": "arm64-64-Apple_M1",
+					"MacMini9.1": {"cpu": "arm64-64-Apple_M1"},
 				},
 				"AppleM3": {
-					"MacBookPro15.3": "arm64-64-Apple_M3",
+					"MacBookPro15.3": {"cpu": "arm64-64-Apple_M3"},
 				},
 				"AppleIntel": {
-					"MacBookPro15.1": "x86-64",
-					"MacBookPro16.2": "x86-64",
+					"MacBookPro15.1": {"cpu": "x86-64"},
+					"MacBookPro16.2": {"cpu": "x86-64"},
 				},
 				"AVX": {
-					"VMware7.1": "x86-64",
+					"VMware7.1": {"cpu": "x86-64"},
 				},
 				"AVX2": {
-					"GCE":            "x86-64-Haswell_GCE",
-					"Golo":           "x86-64-E3-1230_v5",
-					"MacBookAir7.2":  "x86-64-i5-5350U",
-					"MacBookPro11.5": "x86-64-i7-4870HQ",
-					"MacMini7.1":     "x86-64-i5-4278U",
-					"MacMini8.1":     "x86-64-i7-8700B",
-					"NUC5i7RYH":      "x86-64-i7-5557U",
-					"NUC9i7QN":       "x86-64-i7-9750H",
-					"NUC11TZi5":      "x86-64-i5-1135G7",
+					"GCE":            {"cpu": "x86-64-Haswell_GCE"},
+					"Golo":           {"cpu": "x86-64-E3-1230_v5"},
+					"MacBookAir7.2":  {"cpu": "x86-64-i5-5350U"},
+					"MacBookPro11.5": {"cpu": "x86-64-i7-4870HQ"},
+					"MacMini7.1":     {"cpu": "x86-64-i5-4278U"},
+					"MacMini8.1":     {"cpu": "x86-64-i7-8700B"},
+					"NUC5i7RYH":      {"cpu": "x86-64-i7-5557U"},
+					"NUC9i7QN":       {"cpu": "x86-64-i7-9750H"},
+					// Unfortunately, these machines don't have a more-specific
+					// CPU dimension we can use. However, they do have integrated
+					// GPUs whose models differ from our other machines, so we
+					// specify the GPU dimension even when running CPU tests.
+					"NUC11TZi5": {"cpu": "x86-64", "gpu": "8086:9a49"},
 				},
 				"AVX512": {
-					"GCE":  "x86-64-Skylake_GCE",
-					"Golo": "Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
+					"GCE":  {"cpu": "x86-64-Skylake_GCE"},
+					"Golo": {"cpu": "Intel64_Family_6_Model_85_Stepping_7__GenuineIntel"},
 				},
 				"Rome": {
-					"GCE": "x86-64",
+					"GCE": {"cpu": "x86-64"},
 				},
 				"SwiftShader": {
-					"GCE": "x86-64-Haswell_GCE",
+					"GCE": {"cpu": "x86-64-Haswell_GCE"},
 				},
 			}[b.parts["cpu_or_gpu_value"]]
 			if !ok {
 				log.Fatalf("Entry %q not found in CPU mapping.", b.parts["cpu_or_gpu_value"])
 			}
-			cpu, ok := modelMapping[b.parts["model"]]
+			dims, ok := modelMapping[b.parts["model"]]
 			if !ok {
 				log.Fatalf("Entry %q not found in %q model mapping.", b.parts["model"], b.parts["cpu_or_gpu_value"])
 			}
-			d["cpu"] = cpu
+			for k, v := range dims {
+				d[k] = v
+			}
 			if b.model("GCE") && b.matchOs("Debian") {
 				d["os"] = DEFAULT_OS_LINUX_GCE
 			}
@@ -1032,9 +1038,9 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"GTX1660":       "10de:2184-31.0.15.4601",
 					"IntelHD4400":   "8086:0a16-20.19.15.4963",
 					"IntelIris540":  "8086:1926-31.0.101.2115",
-					"IntelIris6100": "8086:162b-20.19.15.4963",
+					"IntelIris6100": "8086:162b-20.19.15.5171",
 					"IntelIris655":  "8086:3ea5-26.20.100.7463",
-					"IntelIrisXe":   "8086:9a49-32.0.101.5972",
+					"IntelIrisXe":   "8086:9a49-31.0.101.5333",
 					"RadeonHD7770":  "1002:683d-26.20.13031.18002",
 					"RadeonR9M470X": "1002:6646-26.20.13031.18002",
 					"QuadroP400":    "10de:1cb3-31.0.15.5222",
@@ -1067,10 +1073,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					log.Fatalf("Entry %q not found in Linux GPU mapping.", b.parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
-				if b.parts["cpu_or_gpu_value"] == "IntelIrisXe" {
-					// The Intel Iris Xe devices are Debian 11.3.
-					d["os"] = "Debian-bookworm/sid"
-				}
 			} else if b.matchOs("Mac") {
 				gpu, ok := map[string]string{
 					"AppleM1":             "AppleM1",
