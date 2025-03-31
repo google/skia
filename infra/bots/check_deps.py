@@ -29,7 +29,7 @@ def main():
   gclient = subprocess.check_output([
       utils.WHICH, utils.GCLIENT]).decode('utf-8')
   gclient_py = os.path.join(os.path.dirname(gclient), 'gclient.py')
-  python = sys.executable or 'python'
+  python = sys.executable or 'python3'
 
   # Obtain the DEPS mapping.
   output = subprocess.check_output(

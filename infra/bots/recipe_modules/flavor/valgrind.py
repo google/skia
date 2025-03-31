@@ -22,6 +22,7 @@ class ValgrindFlavor(default.DefaultFlavor):
   def step(self, name, cmd, **kwargs):
     new_cmd = [self._valgrind, '--gen-suppressions=all', '--leak-check=full',
                '--track-origins=yes', '--error-exitcode=1', '--num-callers=40',
+               '--vex-guest-max-insns=25',
                '--suppressions=%s' % self._suppressions_file]
     path_to_app = self.host_dirs.bin_dir.joinpath(cmd[0])
     new_cmd.append(path_to_app)

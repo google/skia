@@ -776,14 +776,12 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			}
 		} else if b.matchOs("Win") {
 			task_os = "Win"
-		} else if b.compiler("GCC") {
-			// GCC compiles are now on a Docker container. We use the same OS and
-			// version to compile as to test.
-			ec = append(ec, "Docker")
 		} else if b.extraConfig("WasmGMTests") {
 			task_os = DEFAULT_OS_LINUX_GCE
-		} else if b.os("Ubuntu18") {
-			task_os = "Debian10" // TODO(borenet): Remove once these machines update to 24.04.
+		} else if b.compiler("GCC") || b.os("Ubuntu18") {
+			// GCC compiles are now on a Docker container. We use the same OS and
+			// version to compile as to test.
+			ec = append([]string{"Docker"}, ec...)
 		} else if b.matchOs("Mac") {
 			task_os = "Mac"
 		}
@@ -875,7 +873,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Android12":   "Android",
 			"ChromeOS":    "ChromeOS",
 			"Debian9":     DEFAULT_OS_LINUX_GCE, // Runs in Deb9 Docker.
-			"Debian10":    DEBIAN_10_OS,
 			"Debian11":    DEBIAN_11_OS,
 			"Mac":         DEFAULT_OS_MAC,
 			"Mac10.15.1":  "Mac-10.15.1",
@@ -900,8 +897,9 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		if !ok {
 			log.Fatalf("Entry %q not found in OS mapping.", os)
 		}
-		if os == "Debian11" && b.extraConfig("Docker") {
+		if (os == "Debian11" || os == "Ubuntu18") && b.extraConfig("Docker") {
 			d["os"] = DEFAULT_OS_LINUX_GCE
+			d["gce"] = "1"
 		}
 		if os == "Win10" && b.parts["model"] == "Golo" {
 			// ChOps-owned machines have Windows 10 22H2.
@@ -1143,18 +1141,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			}
 		}
 	} else {
-		if b.matchOs("Debian10") {
-			// The old Linux GCE build machines are running 10.3, not 10.10.
-			// TODO(borenet): Remove this once we stop running on these VMs.
-			dims := b.getLinuxGceDimensions(MACHINE_TYPE_LARGE)
-			dims["os"] = "Debian-10.3"
-			for k, v := range dims {
-				d[k] = v
-			}
-		} else if d["os"] != "Ubuntu-18.04" {
-			// We don't have Ubuntu 18 VMs in GCE.
-			d["gpu"] = "none"
-		}
+		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_LINUX_GCE {
 			if b.extraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.role("BuildStats", "CodeSize") {
 				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
@@ -1462,15 +1449,20 @@ func (b *jobBuilder) recreateSKPs() {
 
 		b.cas(CAS_RECREATE_SKPS)
 		// We use a build task To get DM.
-		b.dep("Build-Debian10-Clang-x86_64-Release")
+		b.dep("Build-Ubuntu24.04-Clang-x86_64-Release")
 		b.cmd(cmd...)
 		b.usesLUCIAuth()
 		b.serviceAccount(b.cfg.ServiceAccountRecreateSKPs)
 		b.dimension(
-			"pool:SkiaCT",
-			// TODO(borenet): Update the SkiaCT pool to use Ubuntu24.04 and
-			// update this dimension and the dependent build task above.
-			"os:Debian-10.3",
+			"pool:Skia",
+			"cpu:x86-64-Haswell_GCE",
+			// TODO(borenet): It'd be much faster to run this on n1-highcpu-64,
+			// for which we do have have capacity, but the task gets OOM-killed
+			// while building Chrome, presumably because the ratio of RAM to CPU
+			// cores is too low.
+			"machine_type:n1-standard-16",
+			"gce:1",
+			fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 		)
 		b.usesGo()
 		b.cache(CACHES_WORKDIR...)
