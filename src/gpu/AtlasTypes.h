@@ -494,6 +494,7 @@ public:
 
     void markFullIfUsed() { fIsFull = !fDirtyRect.isEmpty(); }
     bool isEmpty() const { return fRectanizer.percentFull() == 0; }
+    bool hasAllocation() const { return fData != nullptr; }
 
     /**
      * Create a clone of this plot. The cloned plot will take the place of the current plot in

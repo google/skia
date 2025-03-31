@@ -92,11 +92,13 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
         }
         check(reporter, atlas.get(), /*expectedActive=*/1, /*expectedEvictCount=*/0);
     }
+    REPORTER_ASSERT(reporter, atlas->numAllocatedPlots() == 4);
 
     // Force creation of a second page.
     bool result = fill_plot(atlas.get(), recorder.get(), &atlasLocator, 4 * 32);
     REPORTER_ASSERT(reporter, result);
     check(reporter, atlas.get(), /*expectedActive=*/2, /*expectedEvictCount=*/0);
+    REPORTER_ASSERT(reporter, atlas->numAllocatedPlots() == 5);
 
     // Simulate a lot of draws using only the first plot. The last texture should be compacted.
     for (int i = 0; i < 512; ++i) {
@@ -105,6 +107,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
         atlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
     }
     check(reporter, atlas.get(), /*expectedActive=*/1, /*expectedEvictCount=*/1);
+    REPORTER_ASSERT(reporter, atlas->numAllocatedPlots() == 4);
 
     // Simulate a lot of non-atlas draws. We should end up with no textures.
     for (int i = 0; i < 512; ++i) {
@@ -112,6 +115,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
         atlas->compact(recorder->priv().tokenTracker()->nextFlushToken());
     }
     check(reporter, atlas.get(), /*expectedActive=*/0, /*expectedEvictCount=*/5);
+    REPORTER_ASSERT(reporter, atlas->numAllocatedPlots() == 0);
 
     // Fill the atlas all the way up.
     gEvictCount = 0;
@@ -130,10 +134,12 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
     // Try one more, it should fail.
     result = fill_plot(atlas.get(), recorder.get(), &atlasLocator, 0xff);
     REPORTER_ASSERT(reporter, !result);
+    REPORTER_ASSERT(reporter, atlas->numAllocatedPlots() == 16);
 
     // Try to clear everything out. Should fail because there are pending "draws."
     atlas->freeGpuResources(recorder->priv().tokenTracker()->nextFlushToken());
     check(reporter, atlas.get(), /*expectedActive=*/4, /*expectedEvictCount=*/0);
+    REPORTER_ASSERT(reporter, atlas->numAllocatedPlots() == 16);
 
     // Flush those draws
     recorder->priv().issueFlushToken();
@@ -145,6 +151,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
     // FreeGpuResources should only remove the 4th page
     atlas->freeGpuResources(recorder->priv().tokenTracker()->nextFlushToken());
     check(reporter, atlas.get(), /*expectedActive=*/3, /*expectedEvictCount=*/4);
+    REPORTER_ASSERT(reporter, atlas->numAllocatedPlots() == 12);
 
     // Now flush
     recorder->priv().issueFlushToken();
@@ -153,6 +160,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BasicDrawAtlas,
     // FreeGpuResources should clear everything out
     atlas->freeGpuResources(recorder->priv().tokenTracker()->nextFlushToken());
     check(reporter, atlas.get(), /*expectedActive=*/0, /*expectedEvictCount=*/16);
+    REPORTER_ASSERT(reporter, atlas->numAllocatedPlots() == 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////

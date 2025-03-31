@@ -558,6 +558,24 @@ void DrawAtlas::evictAllPlots() {
     }
 }
 
+#if defined(GPU_TEST_UTILS)
+int DrawAtlas::numAllocatedPlots() const {
+    int numAllocatedPlots = 0;
+    PlotList::Iter plotIter;
+    for (uint32_t pageIndex = 0; pageIndex < this->maxPages(); ++pageIndex) {
+        plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
+        while (Plot* plot = plotIter.get()) {
+            if (plot->hasAllocation()) {
+                ++numAllocatedPlots;
+            }
+            plotIter.next();
+        }
+    }
+
+    return numAllocatedPlots;
+}
+#endif
+
 DrawAtlasConfig::DrawAtlasConfig(int maxTextureSize, size_t maxBytes) {
     static const SkISize kARGBDimensions[] = {
         {256, 256},   // maxBytes < 2^19
