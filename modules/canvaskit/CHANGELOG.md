@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.40.0] - 2025-03-31
+
 ### Changed
  - `Typeface.MakeFreeTypeFaceFromData` is now `Typeface.MakeTypefaceFromData` to be consistent
    with the rest of the Skia library in the capitalization of the f in Typeface.
