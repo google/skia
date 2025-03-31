@@ -90,6 +90,7 @@ GrGLCaps::GrGLCaps(const GrContextOptions& contextOptions,
     fMustResetBlendFuncBetweenDualSourceAndDisable = false;
     fBindTexture0WhenChangingTextureFBOMultisampleCount = false;
     fRebindColorAttachmentAfterCheckFramebufferStatus = false;
+    fBindDefaultFramebufferOnPresent = false;
     fFlushBeforeWritePixels = false;
     fDisableScalingCopyAsDraws = false;
     fPadRG88TransferAlignment = false;
@@ -4749,6 +4750,16 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.driverVersion()  < GR_GL_DRIVER_VER(1, 26, 0)) {
         fRebindColorAttachmentAfterCheckFramebufferStatus = true;
     }
+
+#ifdef SK_BUILD_FOR_MAC
+    // skbug.com/398631003
+    if (ctxInfo.vendor() == GrGLVendor::kApple &&
+        // Even the GL ANGLE backend doesn't have this issue, so the workaround is only necessary
+        // if we're not rendering with ANGLE.
+        ctxInfo.angleBackend() == GrGLANGLEBackend::kUnknown) {
+        fBindDefaultFramebufferOnPresent = true;
+    }
+#endif
 
     // skbug.com/13286
     // We found that the P30 produces a GL error when setting GL_TEXTURE_MAX_ANISOTROPY as a sampler

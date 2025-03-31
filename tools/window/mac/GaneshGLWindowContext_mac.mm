@@ -7,8 +7,9 @@
 
 #include "tools/window/mac/GaneshGLWindowContext_mac.h"
 
-#include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
+#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
+#include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/mac/MacWindowGLUtils.h"
@@ -119,7 +120,11 @@ void GLWindowContext_mac::onDestroyContext() {
     }
 }
 
-void GLWindowContext_mac::onSwapBuffers() { [fGLContext flushBuffer]; }
+void GLWindowContext_mac::onSwapBuffers() {
+    GrDirectContext* dContext = fSurface->recordingContext()->asDirectContext();
+    dContext->flush(fSurface.get(), SkSurfaces::BackendSurfaceAccess::kPresent, {});
+    [fGLContext flushBuffer];
+}
 
 void GLWindowContext_mac::resize(int w, int h) {
     [fGLContext update];
