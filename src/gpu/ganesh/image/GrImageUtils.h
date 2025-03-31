@@ -34,6 +34,7 @@ enum SkColorType : int;
 enum class GrColorType;
 enum class SkTileMode;
 namespace skgpu { enum class Mipmapped : bool; }
+namespace skgpu::ganesh { class SurfaceDrawContext; }
 struct SkRect;
 
 namespace skgpu::ganesh {
@@ -89,7 +90,7 @@ GrColorType ColorTypeOfLockTextureProxy(const GrCaps*, SkColorType);
  * Optional 'domain' is a bound on the coordinates of the image that will be required and can be
  * used to optimize the shader if 'subset' is also specified.
  */
-std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(GrRecordingContext*,
+std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(SurfaceDrawContext*,
                                                          const SkImage*,
                                                          SkSamplingOptions,
                                                          const SkTileMode[2],
@@ -97,14 +98,14 @@ std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(GrRecordingContext*,
                                                          const SkRect* subset = nullptr,
                                                          const SkRect* domain = nullptr);
 
-inline std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(GrRecordingContext* ctx,
+inline std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(SurfaceDrawContext* sdc,
                                                                 const sk_sp<const SkImage>& img,
                                                                 SkSamplingOptions opt,
                                                                 const SkTileMode tm[2],
                                                                 const SkMatrix& m,
                                                                 const SkRect* subset = nullptr,
                                                                 const SkRect* domain = nullptr) {
-    return AsFragmentProcessor(ctx, img.get(), opt, tm, m, subset, domain);
+    return AsFragmentProcessor(sdc, img.get(), opt, tm, m, subset, domain);
 }
 
 std::unique_ptr<GrFragmentProcessor> MakeFragmentProcessorFromView(GrRecordingContext*,

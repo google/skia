@@ -334,13 +334,13 @@ void Device::drawEdgeAAImage(const SkImage* image,
     const SkRect* domain = coordsAllInsideSrcRect ? &src : nullptr;
     SkTileMode tileModes[] = {tm, tm};
     std::unique_ptr<GrFragmentProcessor> fp = skgpu::ganesh::AsFragmentProcessor(
-            rContext, image, sampling, tileModes, textureMatrix, subset, domain);
+            sdc, image, sampling, tileModes, textureMatrix, subset, domain);
     fp = GrColorSpaceXformEffect::Make(
             std::move(fp), image->imageInfo().colorInfo(), sdc->colorInfo());
     if (image->isAlphaOnly()) {
         if (const auto* shader = as_SB(paint.getShader())) {
             auto shaderFP = GrFragmentProcessors::Make(shader,
-                                                       GrFPArgs(rContext,
+                                                       GrFPArgs(sdc,
                                                                 &sdc->colorInfo(),
                                                                 sdc->surfaceProps(),
                                                                 GrFPArgs::Scope::kDefault),
@@ -357,13 +357,7 @@ void Device::drawEdgeAAImage(const SkImage* image,
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaintReplaceShader(rContext,
-                                       sdc->colorInfo(),
-                                       paint,
-                                       localToDevice,
-                                       std::move(fp),
-                                       sdc->surfaceProps(),
-                                       &grPaint)) {
+    if (!SkPaintToGrPaintReplaceShader(sdc, paint, localToDevice, std::move(fp), &grPaint)) {
         return;
     }
 

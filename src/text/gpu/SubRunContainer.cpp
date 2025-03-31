@@ -121,15 +121,12 @@ SkPMColor4f calculate_colors(skgpu::ganesh::SurfaceDrawContext* sdc,
                              const SkMatrix& matrix,
                              MaskFormat maskFormat,
                              GrPaint* grPaint) {
-    GrRecordingContext* rContext = sdc->recordingContext();
-    const GrColorInfo& colorInfo = sdc->colorInfo();
-    const SkSurfaceProps& props = sdc->surfaceProps();
     if (maskFormat == MaskFormat::kARGB) {
-        SkPaintToGrPaintReplaceShader(rContext, colorInfo, paint, matrix, nullptr, props, grPaint);
+        SkPaintToGrPaintReplaceShader(sdc, paint, matrix, nullptr, grPaint);
         float a = grPaint->getColor4f().fA;
         return {a, a, a, a};
     }
-    SkPaintToGrPaint(rContext, colorInfo, paint, matrix, props, grPaint);
+    SkPaintToGrPaint(sdc, paint, matrix, grPaint);
     return grPaint->getColor4f();
 }
 

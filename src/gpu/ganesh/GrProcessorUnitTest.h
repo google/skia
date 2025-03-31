@@ -31,6 +31,7 @@ class SkArenaAlloc;
 class SkRandom;
 enum SkAlphaType : int;
 enum class GrColorType;
+namespace skgpu::ganesh { class SurfaceDrawContext; }
 
 namespace GrProcessorUnitTest {
 
@@ -53,15 +54,16 @@ class GrProcessorTestData {
 public:
     using ViewInfo = std::tuple<GrSurfaceProxyView, GrColorType, SkAlphaType>;
 
-    GrProcessorTestData(SkRandom* random, GrRecordingContext* context, int maxTreeDepth,
-                        int numViews, const ViewInfo views[]);
-    GrProcessorTestData(SkRandom* random, GrRecordingContext* context, int maxTreeDepth,
-                        int numViews, const ViewInfo views[],
+    GrProcessorTestData(SkRandom* random, skgpu::ganesh::SurfaceDrawContext* sdc,
+                        int maxTreeDepth, int numViews, const ViewInfo views[]);
+    GrProcessorTestData(SkRandom* random, skgpu::ganesh::SurfaceDrawContext* sdc,
+                        int maxTreeDepth, int numViews, const ViewInfo views[],
                         std::unique_ptr<GrFragmentProcessor> inputFP);
     GrProcessorTestData(const GrProcessorTestData&) = delete;
     ~GrProcessorTestData();
 
     GrRecordingContext* context() { return fContext; }
+    skgpu::ganesh::SurfaceDrawContext* surfaceDrawContext() { return fDrawContext; }
     GrProxyProvider* proxyProvider();
     const GrCaps* caps();
     SkArenaAlloc* allocator() { return fArena.get(); }
@@ -76,6 +78,7 @@ public:
 
 private:
     GrRecordingContext* fContext;
+    skgpu::ganesh::SurfaceDrawContext* fDrawContext;
     skia_private::TArray<ViewInfo> fViews;
     std::unique_ptr<SkArenaAlloc> fArena;
     std::unique_ptr<GrFragmentProcessor> fInputFP;

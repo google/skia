@@ -1565,7 +1565,7 @@ void DrawShapeWithMaskFilter(GrRecordingContext* rContext,
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(rContext, sdc->colorInfo(), paint, ctm, sdc->surfaceProps(), &grPaint)) {
+    if (!SkPaintToGrPaint(sdc, paint, ctm, &grPaint)) {
         return;
     }
 

@@ -65,6 +65,7 @@
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrBlendFragmentProcessor.h"
 #include "src/gpu/ganesh/effects/GrColorTableEffect.h"
 #include "src/gpu/ganesh/effects/GrMatrixEffect.h"
@@ -169,7 +170,7 @@ GrFPResult MakeChildFP(const SkRuntimeEffect::ChildPtr& child, const GrFPArgs& c
         }
         case ChildType::kColorFilter: {
             // Convert a SkColorFilter into a child FP.
-            auto [success, childFP] = GrFragmentProcessors::Make(childArgs.fContext,
+            auto [success, childFP] = GrFragmentProcessors::Make(childArgs.fSurfaceDrawContext,
                                                                  child.colorFilter(),
                                                                  /*inputFP=*/nullptr,
                                                                  *childArgs.fDstColorInfo,
@@ -223,7 +224,7 @@ static std::unique_ptr<GrFragmentProcessor> make_blender_fp(
         std::unique_ptr<GrFragmentProcessor> dstFP,
         const GrFPArgs& fpArgs) {
     SkASSERT(rtb);
-    if (!SkRuntimeEffectPriv::CanDraw(fpArgs.fContext->priv().caps(), rtb->effect().get())) {
+    if (!SkRuntimeEffectPriv::CanDraw(fpArgs.fSurfaceDrawContext->caps(), rtb->effect().get())) {
         return nullptr;
     }
 
@@ -232,7 +233,7 @@ static std::unique_ptr<GrFragmentProcessor> make_blender_fp(
             rtb->uniforms(),
             fpArgs.fDstColorInfo->colorSpace());
     SkASSERT(uniforms);
-    GrFPArgs childArgs(fpArgs.fContext,
+    GrFPArgs childArgs(fpArgs.fSurfaceDrawContext,
                        fpArgs.fDstColorInfo,
                        fpArgs.fSurfaceProps,
                        GrFPArgs::Scope::kRuntimeEffect);
@@ -281,7 +282,7 @@ static SkPMColor4f map_color(const SkColor4f& c, SkColorSpace* src, SkColorSpace
     SkColorSpaceXformSteps(src, kUnpremul_SkAlphaType, dst, kPremul_SkAlphaType).apply(color.vec());
     return color;
 }
-static GrFPResult make_colorfilter_fp(GrRecordingContext*,
+static GrFPResult make_colorfilter_fp(skgpu::ganesh::SurfaceDrawContext*,
                                       const SkBlendModeColorFilter* filter,
                                       std::unique_ptr<GrFragmentProcessor> inputFP,
                                       const GrColorInfo& dstColorInfo,
@@ -317,7 +318,7 @@ static GrFPResult make_colorfilter_fp(GrRecordingContext*,
     return GrFPSuccess(std::move(xferFP));
 }
 
-static GrFPResult make_colorfilter_fp(GrRecordingContext* context,
+static GrFPResult make_colorfilter_fp(skgpu::ganesh::SurfaceDrawContext* sdc,
                                       const SkComposeColorFilter* filter,
                                       std::unique_ptr<GrFragmentProcessor> inputFP,
                                       const GrColorInfo& dstColorInfo,
@@ -327,13 +328,13 @@ static GrFPResult make_colorfilter_fp(GrRecordingContext* context,
     auto inputClone = inputFP ? inputFP->clone() : nullptr;
 
     auto [innerSuccess, innerFP] =
-            Make(context, filter->inner().get(), std::move(inputFP), dstColorInfo, props);
+            Make(sdc, filter->inner().get(), std::move(inputFP), dstColorInfo, props);
     if (!innerSuccess) {
         return GrFPFailure(std::move(inputClone));
     }
 
     auto [outerSuccess, outerFP] =
-            Make(context, filter->outer().get(), std::move(innerFP), dstColorInfo, props);
+            Make(sdc, filter->outer().get(), std::move(innerFP), dstColorInfo, props);
     if (!outerSuccess) {
         return GrFPFailure(std::move(inputClone));
     }
@@ -341,7 +342,7 @@ static GrFPResult make_colorfilter_fp(GrRecordingContext* context,
     return GrFPSuccess(std::move(outerFP));
 }
 
-static GrFPResult make_colorfilter_fp(GrRecordingContext*,
+static GrFPResult make_colorfilter_fp(skgpu::ganesh::SurfaceDrawContext* sdc,
                                       const SkColorSpaceXformColorFilter* filter,
                                       std::unique_ptr<GrFragmentProcessor> inputFP,
                                       const GrColorInfo&,
@@ -352,7 +353,7 @@ static GrFPResult make_colorfilter_fp(GrRecordingContext*,
             std::move(inputFP), filter->src().get(), alphaType, filter->dst().get(), alphaType));
 }
 
-static GrFPResult make_colorfilter_fp(GrRecordingContext*,
+static GrFPResult make_colorfilter_fp(skgpu::ganesh::SurfaceDrawContext*,
                                       const SkGaussianColorFilter*,
                                       std::unique_ptr<GrFragmentProcessor> inputFP,
                                       const GrColorInfo&,
@@ -391,7 +392,7 @@ static std::unique_ptr<GrFragmentProcessor> hsl_to_rgb(std::unique_ptr<GrFragmen
             effect, "HslToRgb", std::move(child), GrSkSLFP::OptFlags::kPreservesOpaqueInput);
 }
 
-static GrFPResult make_colorfilter_fp(GrRecordingContext*,
+static GrFPResult make_colorfilter_fp(skgpu::ganesh::SurfaceDrawContext* sdc,
                                       const SkMatrixColorFilter* filter,
                                       std::unique_ptr<GrFragmentProcessor> inputFP,
                                       const GrColorInfo&,
@@ -418,7 +419,7 @@ static GrFPResult make_colorfilter_fp(GrRecordingContext*,
     SkUNREACHABLE;
 }
 
-static GrFPResult make_colorfilter_fp(GrRecordingContext* context,
+static GrFPResult make_colorfilter_fp(skgpu::ganesh::SurfaceDrawContext* sdc,
                                       const SkRuntimeColorFilter* filter,
                                       std::unique_ptr<GrFragmentProcessor> inputFP,
                                       const GrColorInfo& colorInfo,
@@ -427,7 +428,7 @@ static GrFPResult make_colorfilter_fp(GrRecordingContext* context,
             filter->effect()->uniforms(), filter->uniforms(), colorInfo.colorSpace());
     SkASSERT(uniforms);
 
-    GrFPArgs childArgs(context, &colorInfo, props, GrFPArgs::Scope::kRuntimeEffect);
+    GrFPArgs childArgs(sdc, &colorInfo, props, GrFPArgs::Scope::kRuntimeEffect);
     return make_effect_fp(filter->effect(),
                           "runtime_color_filter",
                           std::move(uniforms),
@@ -437,16 +438,17 @@ static GrFPResult make_colorfilter_fp(GrRecordingContext* context,
                           childArgs);
 }
 
-static GrFPResult make_colorfilter_fp(GrRecordingContext* context,
+static GrFPResult make_colorfilter_fp(skgpu::ganesh::SurfaceDrawContext* sdc,
                                       const SkTableColorFilter* filter,
                                       std::unique_ptr<GrFragmentProcessor> inputFP,
                                       const GrColorInfo&,
                                       const SkSurfaceProps&) {
-    auto cte = ColorTableEffect::Make(std::move(inputFP), context, filter->bitmap());
+    auto cte = ColorTableEffect::Make(std::move(inputFP), sdc->recordingContext(),
+                                      filter->bitmap());
     return cte ? GrFPSuccess(std::move(cte)) : GrFPFailure(nullptr);
 }
 
-static GrFPResult make_colorfilter_fp(GrRecordingContext* context,
+static GrFPResult make_colorfilter_fp(skgpu::ganesh::SurfaceDrawContext* sdc,
                                       const SkWorkingFormatColorFilter* filter,
                                       std::unique_ptr<GrFragmentProcessor> inputFP,
                                       const GrColorInfo& dstColorInfo,
@@ -462,7 +464,7 @@ static GrFPResult make_colorfilter_fp(GrRecordingContext* context,
     GrColorInfo dst = {dstColorInfo.colorType(), dstColorInfo.alphaType(), dstCS},
                 working = {dstColorInfo.colorType(), workingAT, workingCS};
 
-    auto [ok, fp] = Make(context,
+    auto [ok, fp] = Make(sdc,
                          filter->child().get(),
                          GrColorSpaceXformEffect::Make(std::move(inputFP), dst, working),
                          working,
@@ -472,7 +474,7 @@ static GrFPResult make_colorfilter_fp(GrRecordingContext* context,
               : GrFPFailure(std::move(fp));
 }
 
-GrFPResult Make(GrRecordingContext* ctx,
+GrFPResult Make(skgpu::ganesh::SurfaceDrawContext* sdc,
                 const SkColorFilter* cf,
                 std::unique_ptr<GrFragmentProcessor> inputFP,
                 const GrColorInfo& dstColorInfo,
@@ -486,7 +488,7 @@ GrFPResult Make(GrRecordingContext* ctx,
             return GrFPFailure(nullptr);
 #define M(type)                                                                   \
     case SkColorFilterBase::Type::k##type:                                        \
-        return make_colorfilter_fp(ctx,                                           \
+        return make_colorfilter_fp(sdc,                                           \
                                    static_cast<const Sk##type##ColorFilter*>(cf), \
                                    std::move(inputFP),                            \
                                    dstColorInfo,                                  \
@@ -520,7 +522,7 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkColorFilterSh
     // TODO I guess, but it shouldn't come up as used today.
     SkASSERT(shader->alpha() == 1.0f);
 
-    auto [success, fp] = Make(args.fContext,
+    auto [success, fp] = Make(args.fSurfaceDrawContext,
                               shader->filter().get(),
                               std::move(shaderFP),
                               *args.fDstColorInfo,
@@ -617,7 +619,8 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkImageShader* 
     const SkRect shaderSubset = shader->subset();
     const SkRect* subset = needs_subset(shader->image(), shaderSubset) ? &shaderSubset : nullptr;
     auto fp = skgpu::ganesh::AsFragmentProcessor(
-            args.fContext, shader->image(), shader->sampling(), tileModes, SkMatrix::I(), subset);
+            args.fSurfaceDrawContext, shader->image(), shader->sampling(), tileModes, SkMatrix::I(),
+            subset);
     if (!fp) {
         return nullptr;
     }
@@ -654,7 +657,7 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkLocalMatrixSh
 static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkPerlinNoiseShader* shader,
                                                            const GrFPArgs& args,
                                                            const SkShaders::MatrixRec& mRec) {
-    SkASSERT(args.fContext);
+    SkASSERT(args.fSurfaceDrawContext);
     SkASSERT(shader->numOctaves());
 
     // Either we don't stitch tiles, or we have a valid tile size
@@ -663,7 +666,7 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkPerlinNoiseSh
     auto paintingData = shader->getPaintingData();
     paintingData->generateBitmaps();
 
-    GrRecordingContext* context = args.fContext;
+    GrRecordingContext* context = args.fSurfaceDrawContext->recordingContext();
 
     const SkBitmap& permutationsBitmap = paintingData->getPermutationsBitmap();
     const SkBitmap& noiseBitmap = paintingData->getNoiseBitmap();
@@ -701,7 +704,7 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkPerlinNoiseSh
 static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkPictureShader* shader,
                                                            const GrFPArgs& args,
                                                            const SkShaders::MatrixRec& mRec) {
-    auto ctx = args.fContext;
+    auto ctx = args.fSurfaceDrawContext->recordingContext();
     SkColorType dstColorType = GrColorTypeToSkColorType(args.fDstColorInfo->colorType());
     if (dstColorType == kUnknown_SkColorType) {
         dstColorType = kRGBA_8888_SkColorType;
@@ -782,7 +785,8 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkPictureShader
 static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkRuntimeShader* shader,
                                                            const GrFPArgs& args,
                                                            const SkShaders::MatrixRec& mRec) {
-    if (!SkRuntimeEffectPriv::CanDraw(args.fContext->priv().caps(), shader->asRuntimeEffect())) {
+    if (!SkRuntimeEffectPriv::CanDraw(args.fSurfaceDrawContext->caps(),
+                                      shader->asRuntimeEffect())) {
         return nullptr;
     }
 
@@ -794,8 +798,8 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkRuntimeShader
 
     bool success;
     std::unique_ptr<GrFragmentProcessor> fp;
-    GrFPArgs childArgs(
-            args.fContext, args.fDstColorInfo, args.fSurfaceProps, GrFPArgs::Scope::kRuntimeEffect);
+    GrFPArgs childArgs(args.fSurfaceDrawContext, args.fDstColorInfo, args.fSurfaceProps,
+                       GrFPArgs::Scope::kRuntimeEffect);
     std::tie(success, fp) = make_effect_fp(shader->effect(),
                                            "runtime_shader",
                                            std::move(uniforms),
@@ -837,7 +841,7 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkWorkingColorS
 
     GrColorInfo dst     = {dstInfo->colorType(), dstInfo->alphaType(), dstCS},
                 working = {dstInfo->colorType(), dstInfo->alphaType(), shader->workingSpace()};
-    GrFPArgs workingArgs(args.fContext, &working, args.fSurfaceProps, args.fScope);
+    GrFPArgs workingArgs(args.fSurfaceDrawContext, &working, args.fSurfaceProps, args.fScope);
 
     auto childFP = Make(shader->shader().get(), workingArgs, mRec);
     if (!childFP) {
@@ -1043,7 +1047,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient_fp(const SkSweepGradie
     // undefined behavior of the second paramenter being 0 instead of doing the divide ourselves and
     // using atan instead.
     int useAtanWorkaround =
-            args.fContext->priv().caps()->shaderCaps()->fAtan2ImplementedAsAtanYOverX;
+            args.fSurfaceDrawContext->caps()->shaderCaps()->fAtan2ImplementedAsAtanYOverX;
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
         "uniform half bias;"
         "uniform half scale;"

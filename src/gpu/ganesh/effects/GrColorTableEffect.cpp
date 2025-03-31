@@ -118,7 +118,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::TestCreate(GrProcessorTes
     sk_sp<SkColorSpace> colorSpace = GrTest::TestColorSpace(d->fRandom);
     SkSurfaceProps props;  // default props for testing
     auto [success, fp] = GrFragmentProcessors::Make(
-            d->context(),
+            d->surfaceDrawContext(),
             filter.get(),
             d->inputFP(),
             GrColorInfo(GrColorType::kRGBA_8888, kUnknown_SkAlphaType, std::move(colorSpace)),

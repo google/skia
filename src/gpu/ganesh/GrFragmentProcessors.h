@@ -15,7 +15,6 @@
 
 class GrColorInfo;
 class GrFragmentProcessor;
-class GrRecordingContext;
 class SkBlenderBase;
 class SkColorFilter;
 class SkMaskFilter;
@@ -23,6 +22,7 @@ class SkMatrix;
 class SkSurfaceProps;
 class SkShader;
 struct GrFPArgs;
+namespace skgpu::ganesh { class SurfaceDrawContext; }
 
 using GrFPResult = std::tuple<bool, std::unique_ptr<GrFragmentProcessor>>;
 
@@ -48,7 +48,7 @@ std::unique_ptr<GrFragmentProcessor> Make(const SkBlenderBase*,
  *
  *  A GrFPFailure indicates that the color filter isn't implemented for the GPU backend.
  */
-GrFPResult Make(GrRecordingContext*,
+GrFPResult Make(skgpu::ganesh::SurfaceDrawContext*,
                 const SkColorFilter*,
                 std::unique_ptr<GrFragmentProcessor> inputFP,
                 const GrColorInfo& dstColorInfo,

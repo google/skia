@@ -508,7 +508,7 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
     auto filter = SkOverdrawColorFilter::MakeWithSkColors(colors);
     SkSurfaceProps props; // default props for testing
     auto [success, fp] = GrFragmentProcessors::Make(
-            d->context(), filter.get(), /*inputFP=*/nullptr, GrColorInfo{}, props);
+            d->surfaceDrawContext(), filter.get(), /*inputFP=*/nullptr, GrColorInfo{}, props);
     SkASSERT(success);
     return std::move(fp);
 }

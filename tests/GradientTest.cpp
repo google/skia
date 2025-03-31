@@ -38,6 +38,7 @@
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessors.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/shaders/SkShaderBase.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
@@ -371,7 +372,23 @@ static void test_unsorted_degenerate(skiatest::Reporter* r) {
     GrMockOptions options;
     auto context = GrDirectContext::MakeMock(&options);
 
-    GrFPArgs args(context.get(), &dstColorInfo, props, GrFPArgs::Scope::kDefault);
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(context.get(),
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kApprox,
+                                                       {800, 800},
+                                                       SkSurfaceProps(),
+                                                       /*label=*/{},
+                                                       /* sampleCnt= */ 1,
+                                                       skgpu::Mipmapped::kNo,
+                                                       GrProtected::kNo,
+                                                       kTopLeft_GrSurfaceOrigin);
+    REPORTER_ASSERT(r, sdc);
+    if (!sdc) {
+        return;
+    }
+
+    GrFPArgs args(sdc.get(), &dstColorInfo, props, GrFPArgs::Scope::kDefault);
     GrFragmentProcessors::Make(gradient.get(), args, SkMatrix::I());
 }
 

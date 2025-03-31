@@ -310,8 +310,10 @@ static void render_fp(GrDirectContext* dContext,
 class TestFPGenerator {
     public:
         TestFPGenerator() = delete;
-        TestFPGenerator(GrDirectContext* context, GrResourceProvider* resourceProvider)
+        TestFPGenerator(GrDirectContext* context, skgpu::ganesh::SurfaceDrawContext* sdc,
+                        GrResourceProvider* resourceProvider)
                 : fContext(context)
+                , fSurfaceDrawContext(sdc)
                 , fResourceProvider(resourceProvider)
                 , fInitialSeed(synthesizeInitialSeed())
                 , fRandomSeed(fInitialSeed) {}
@@ -388,7 +390,7 @@ class TestFPGenerator {
             // This will generate the exact same randomized FP (of each requested type) each time
             // it's called. Call `reroll` to get a different FP.
             SkRandom random{fRandomSeed};
-            GrProcessorTestData testData{&random, fContext, randomTreeDepth,
+            GrProcessorTestData testData{&random, fSurfaceDrawContext, randomTreeDepth,
                                          static_cast<int>(std::size(fTestViews)), fTestViews,
                                          std::move(inputFP)};
             return GrFragmentProcessorTestFactory::MakeIdx(type, &testData);
@@ -410,8 +412,9 @@ class TestFPGenerator {
             }
         }
 
-        GrDirectContext* fContext;              // owned by caller
-        GrResourceProvider* fResourceProvider;  // owned by caller
+        GrDirectContext* fContext;                               // owned by caller
+        skgpu::ganesh::SurfaceDrawContext* fSurfaceDrawContext;  // owned by caller
+        GrResourceProvider* fResourceProvider;                   // owned by caller
         const uint32_t fInitialSeed;
         uint32_t fRandomSeed;
         GrProcessorTestData::ViewInfo fTestViews[2];
@@ -591,12 +594,6 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(ProcessorOptimizationValidationTest,
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
     using FPFactory = GrFragmentProcessorTestFactory;
 
-    TestFPGenerator fpGenerator{context, resourceProvider};
-    if (!fpGenerator.init()) {
-        ERRORF(reporter, "Could not initialize TestFPGenerator");
-        return;
-    }
-
     // Make the destination context for the test.
     static constexpr int kRenderSize = 256;
     auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(context,
@@ -606,6 +603,12 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(ProcessorOptimizationValidationTest,
                                                        {kRenderSize, kRenderSize},
                                                        SkSurfaceProps(),
                                                        /*label=*/{});
+
+    TestFPGenerator fpGenerator{context, sdc.get(), resourceProvider};
+    if (!fpGenerator.init()) {
+        ERRORF(reporter, "Could not initialize TestFPGenerator");
+        return;
+    }
 
     // Coverage optimization uses three frames with a linearly transformed input texture.  The first
     // frame has no offset, second frames add .2 and .4, which should then be present as a fixed
@@ -949,12 +952,6 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(ProcessorCloneTest, reporter, ctxInfo, CtsEnforce
     GrDirectContext* context = ctxInfo.directContext();
     GrResourceProvider* resourceProvider = context->priv().resourceProvider();
 
-    TestFPGenerator fpGenerator{context, resourceProvider};
-    if (!fpGenerator.init()) {
-        ERRORF(reporter, "Could not initialize TestFPGenerator");
-        return;
-    }
-
     // Make the destination context for the test.
     static constexpr int kRenderSize = 1024;
     auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(context,
@@ -964,6 +961,12 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(ProcessorCloneTest, reporter, ctxInfo, CtsEnforce
                                                        {kRenderSize, kRenderSize},
                                                        SkSurfaceProps(),
                                                        /*label=*/{});
+
+    TestFPGenerator fpGenerator{context, sdc.get(), resourceProvider};
+    if (!fpGenerator.init()) {
+        ERRORF(reporter, "Could not initialize TestFPGenerator");
+        return;
+    }
 
     std::vector<GrColor> inputPixels = make_input_pixels(kRenderSize, kRenderSize, 0.0f);
     GrSurfaceProxyView inputTexture =

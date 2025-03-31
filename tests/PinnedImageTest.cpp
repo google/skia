@@ -11,6 +11,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorSpace.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
@@ -26,6 +27,7 @@
 #include "include/gpu/ganesh/mock/GrMockTypes.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h" // IWYU pragma: keep
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
@@ -197,7 +199,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PinnedImageTest_AsFragmentProcessor,
                                        reporter,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
-    GrRecordingContext* rContext = ctxInfo.directContext();
+    GrDirectContext* dContext = ctxInfo.directContext();
     const SkImageInfo ii = SkImageInfo::Make(64, 64, kN32_SkColorType, kPremul_SkAlphaType);
 
     SkBitmap bm;
@@ -211,8 +213,24 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PinnedImageTest_AsFragmentProcessor,
 
     SkTileMode tm[2] = {SkTileMode::kClamp, SkTileMode::kClamp};
 
+    auto sdc = skgpu::ganesh::SurfaceDrawContext::Make(dContext,
+                                                       GrColorType::kRGBA_8888,
+                                                       nullptr,
+                                                       SkBackingFit::kApprox,
+                                                       {800, 800},
+                                                       SkSurfaceProps(),
+                                                       /*label=*/{},
+                                                       /* sampleCnt= */ 1,
+                                                       skgpu::Mipmapped::kNo,
+                                                       GrProtected::kNo,
+                                                       kTopLeft_GrSurfaceOrigin);
+    REPORTER_ASSERT(reporter, sdc);
+    if (!sdc) {
+        return;
+    }
+
     auto fp = skgpu::ganesh::AsFragmentProcessor(
-            rContext, img.get(), SkSamplingOptions({1/3, 1/3}), tm,
+            sdc.get(), img.get(), SkSamplingOptions({1/3, 1/3}), tm,
             SkMatrix::I(), nullptr, nullptr);
     REPORTER_ASSERT(reporter, fp, "AsFragmentProcessor returned falsey processor");
 }

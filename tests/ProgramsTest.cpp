@@ -328,7 +328,8 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
         }
 
         GrPaint paint;
-        GrProcessorTestData ptd(&random, direct, /*maxTreeDepth=*/1, std::size(views), views);
+        GrProcessorTestData ptd(&random, surfaceDrawContext.get(), /*maxTreeDepth=*/1,
+                                std::size(views), views);
         set_random_color_coverage_stages(&paint, &ptd, maxStages, maxLevels);
         set_random_xpf(&paint, &ptd);
         GrDrawRandomOp(&random, surfaceDrawContext.get(), std::move(paint));
@@ -354,7 +355,7 @@ bool GrDrawingManager::ProgramUnitTest(GrDirectContext* direct, int maxStages, i
     for (int i = 0; i < fpFactoryCnt; ++i) {
         // Since FP factories internally randomize, call each 10 times.
         for (int j = 0; j < 10; ++j) {
-            GrProcessorTestData ptd(&random, direct, /*maxTreeDepth=*/1, std::size(views),
+            GrProcessorTestData ptd(&random, sdc.get(), /*maxTreeDepth=*/1, std::size(views),
                                     views);
 
             GrPaint paint;

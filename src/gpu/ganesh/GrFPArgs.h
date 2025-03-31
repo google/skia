@@ -11,8 +11,8 @@
 #include "include/private/base/SkAssert.h"
 
 class GrColorInfo;
-class GrRecordingContext;
 class SkSurfaceProps;
+namespace skgpu::ganesh { class SurfaceDrawContext; }
 
 struct GrFPArgs {
     enum class Scope {
@@ -20,18 +20,18 @@ struct GrFPArgs {
         kRuntimeEffect,
     };
 
-    GrFPArgs(GrRecordingContext* context,
+    GrFPArgs(skgpu::ganesh::SurfaceDrawContext* sdc,
              const GrColorInfo* dstColorInfo,
              const SkSurfaceProps& surfaceProps,
              Scope scope)
-            : fContext(context)
+            : fSurfaceDrawContext(sdc)
             , fDstColorInfo(dstColorInfo)
             , fSurfaceProps(surfaceProps)
             , fScope(scope) {
-        SkASSERT(fContext);
+        SkASSERT(fSurfaceDrawContext);
     }
 
-    GrRecordingContext* fContext;
+    skgpu::ganesh::SurfaceDrawContext* fSurfaceDrawContext;
 
     const GrColorInfo* fDstColorInfo;
 

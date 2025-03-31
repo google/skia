@@ -35,6 +35,7 @@
 #include "src/gpu/ganesh/GrTextureProxy.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
@@ -429,12 +430,13 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Ganesh::asView(
 }
 
 std::unique_ptr<GrFragmentProcessor> SkImage_Ganesh::asFragmentProcessor(
-        GrRecordingContext* rContext,
+        skgpu::ganesh::SurfaceDrawContext* sdc,
         SkSamplingOptions sampling,
         const SkTileMode tileModes[2],
         const SkMatrix& m,
         const SkRect* subset,
         const SkRect* domain) const {
+    GrRecordingContext* rContext = sdc->recordingContext();
     if (!fContext->priv().matches(rContext)) {
         return {};
     }

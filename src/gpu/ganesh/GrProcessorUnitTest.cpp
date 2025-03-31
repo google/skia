@@ -17,6 +17,7 @@
 #include "src/core/SkColorData.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 
 #include <cstdint>
 #include <memory>
@@ -24,17 +25,18 @@
 
 using namespace skia_private;
 
-GrProcessorTestData::GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
+GrProcessorTestData::GrProcessorTestData(SkRandom* random, skgpu::ganesh::SurfaceDrawContext* sdc,
                                          int maxTreeDepth, int numViews, const ViewInfo views[])
-        : GrProcessorTestData(random, context, maxTreeDepth, numViews, views,
+        : GrProcessorTestData(random, sdc, maxTreeDepth, numViews, views,
                               /*inputFP=*/nullptr) {}
 
-GrProcessorTestData::GrProcessorTestData(SkRandom* random, GrRecordingContext* context,
+GrProcessorTestData::GrProcessorTestData(SkRandom* random, skgpu::ganesh::SurfaceDrawContext* sdc,
                                          int maxTreeDepth, int numViews, const ViewInfo views[],
                                          std::unique_ptr<GrFragmentProcessor> inputFP)
         : fRandom(random)
         , fMaxTreeDepth(maxTreeDepth)
-        , fContext(context)
+        , fContext(sdc->recordingContext())
+        , fDrawContext(sdc)
         , fInputFP(std::move(inputFP)) {
     fViews.reset(views, numViews);
     fArena = std::make_unique<SkArenaAlloc>(1000);

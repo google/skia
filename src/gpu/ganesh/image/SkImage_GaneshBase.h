@@ -49,7 +49,7 @@ namespace skgpu {
 enum class Mipmapped : bool;
 class RefCntedCallback;
 }  // namespace skgpu
-
+namespace skgpu::ganesh { class SurfaceDrawContext; }
 namespace skgpu { namespace graphite { class Recorder; } }
 
 class SkImage_GaneshBase : public SkImage_Base {
@@ -106,12 +106,13 @@ public:
                                                                skgpu::Mipmapped,
                                                                GrImageTexGenPolicy) const = 0;
 
-    virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(GrRecordingContext*,
-                                                                     SkSamplingOptions,
-                                                                     const SkTileMode[2],
-                                                                     const SkMatrix&,
-                                                                     const SkRect*,
-                                                                     const SkRect*) const = 0;
+    virtual std::unique_ptr<GrFragmentProcessor> asFragmentProcessor(
+            skgpu::ganesh::SurfaceDrawContext*,
+            SkSamplingOptions,
+            const SkTileMode[2],
+            const SkMatrix&,
+            const SkRect*,
+            const SkRect*) const = 0;
 
     virtual GrSurfaceOrigin origin() const = 0;
 

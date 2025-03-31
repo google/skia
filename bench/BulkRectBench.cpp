@@ -134,8 +134,7 @@ protected:
         SkASSERT(kImageMode == ImageMode::kNone);
         SkASSERT(kDrawMode == DrawMode::kBatch);
 
-        auto context = canvas->recordingContext();
-        SkASSERT(context);
+        SkASSERT(canvas->recordingContext());
 
         GrQuadSetEntry batch[kRectCount];
         for (int i = 0; i < kRectCount; ++i) {
@@ -153,7 +152,7 @@ protected:
         SkMatrix view = canvas->getLocalToDeviceAs3x3();
         SkSurfaceProps props;
         GrPaint grPaint;
-        SkPaintToGrPaint(context, sdc->colorInfo(), paint, view, props, &grPaint);
+        SkPaintToGrPaint(sdc, paint, view, &grPaint);
         sdc->drawQuadSet(nullptr, std::move(grPaint), view, batch, kRectCount);
     }
 

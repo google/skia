@@ -53,6 +53,7 @@
 #include "src/gpu/ganesh/GrThreadSafeCache.h"
 #include "src/gpu/ganesh/GrYUVATextureProxies.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "src/gpu/ganesh/effects/GrBicubicEffect.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
@@ -527,13 +528,17 @@ std::unique_ptr<GrFragmentProcessor> raster_as_fp(GrRecordingContext* rContext,
                              domain);
 }
 
-std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(GrRecordingContext* rContext,
+std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(SurfaceDrawContext* sdc,
                                                          const SkImage* img,
                                                          SkSamplingOptions sampling,
                                                          const SkTileMode tileModes[2],
                                                          const SkMatrix& m,
                                                          const SkRect* subset,
                                                          const SkRect* domain) {
+    if (!sdc) {
+        return {};
+    }
+    GrRecordingContext* rContext = sdc->recordingContext();
     if (!rContext) {
         return {};
     }
@@ -556,7 +561,7 @@ std::unique_ptr<GrFragmentProcessor> AsFragmentProcessor(GrRecordingContext* rCo
                             domain);
     } else if (ib->isGaneshBacked()) {
         auto gb = static_cast<const SkImage_GaneshBase*>(img);
-        return gb->asFragmentProcessor(rContext, sampling, tileModes, m, subset, domain);
+        return gb->asFragmentProcessor(sdc, sampling, tileModes, m, subset, domain);
     } else if (ib->isLazyGenerated()) {
         // TODO: If the CPU data is extracted as planes return a FP that reconstructs the image from
         // the planes.

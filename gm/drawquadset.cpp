@@ -52,8 +52,6 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
 
     auto sdc = skgpu::ganesh::TopDeviceSurfaceDrawContext(canvas);
 
-    auto rContext = canvas->recordingContext();
-
     auto gradient = SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkTileMode::kMirror);
     SkPaint paint;
     paint.setShader(gradient);
@@ -87,7 +85,7 @@ static void draw_gradient_tiles(SkCanvas* canvas, bool alignGradients) {
                 const SkMatrix& view = canvas->getTotalMatrix();
                 SkSurfaceProps props;
                 GrPaint grPaint;
-                SkPaintToGrPaint(rContext, sdc->colorInfo(), paint, view, props, &grPaint);
+                SkPaintToGrPaint(sdc, paint, view, &grPaint);
                 sdc->fillRectWithEdgeAA(nullptr, std::move(grPaint),
                                         static_cast<GrQuadAAFlags>(aa), view, tile);
             } else {

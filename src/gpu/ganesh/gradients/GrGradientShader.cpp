@@ -19,7 +19,6 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
-#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
@@ -42,10 +41,10 @@
 #include "src/gpu/ganesh/GrColorSpaceXform.h"
 #include "src/gpu/ganesh/GrFPArgs.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrSamplerState.h"
 #include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/SkGr.h"
+#include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrMatrixEffect.h"
 #include "src/gpu/ganesh/effects/GrSkSLFP.h"
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
@@ -95,7 +94,7 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(
     // TODO: Use 1010102 for opaque gradients, at least if destination is 1010102?
     SkColorType colorType = kRGBA_8888_SkColorType;
     if (GrColorTypeIsWiderThan(args.fDstColorInfo->colorType(), 8)) {
-        auto f16Format = args.fContext->priv().caps()->getDefaultBackendFormat(
+        auto f16Format = args.fSurfaceDrawContext->caps()->getDefaultBackendFormat(
                 GrColorType::kRGBA_F16, GrRenderable::kNo);
         if (f16Format.isValid()) {
             colorType = kRGBA_F16_SkColorType;
@@ -119,7 +118,8 @@ static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(
     SkASSERT(bitmap.isImmutable());
 
     auto view = std::get<0>(GrMakeCachedBitmapProxyView(
-            args.fContext, bitmap, /*label=*/"MakeTexturedColorizer", skgpu::Mipmapped::kNo));
+            args.fSurfaceDrawContext->recordingContext(), bitmap, /*label=*/"MakeTexturedColorizer",
+            skgpu::Mipmapped::kNo));
     if (!view) {
         SkDebugf("Gradient won't draw. Could not create texture.");
         return nullptr;
@@ -524,7 +524,7 @@ static std::unique_ptr<GrFragmentProcessor> make_uniform_colorizer(const SkPMCol
         return make_single_interval_colorizer(colors[0], colors[1]);
     }
 
-    const GrShaderCaps* caps = args.fContext->priv().caps()->shaderCaps();
+    const GrShaderCaps* caps = args.fSurfaceDrawContext->caps()->shaderCaps();
     auto intervalsExceedPrecisionLimit = [&]() -> bool {
         // The remaining analytic colorizers use scale*t+bias, and the scale/bias values can become
         // quite large when thresholds are close (but still outside the hardstop limit). If float
@@ -707,7 +707,7 @@ static std::unique_ptr<GrFragmentProcessor> make_tiled_gradient(
         optFlags |= GrSkSLFP::OptFlags::kPreservesOpaqueInput;
     }
     const bool useFloorAbsWorkaround =
-            args.fContext->priv().caps()->shaderCaps()->fMustDoOpBetweenFloorAndAbs;
+            args.fSurfaceDrawContext->caps()->shaderCaps()->fMustDoOpBetweenFloorAndAbs;
 
     return GrSkSLFP::Make(effect, "TiledGradient", /*inputFP=*/nullptr, optFlags,
                           "colorizer", GrSkSLFP::IgnoreOptFlags(std::move(colorizer)),
