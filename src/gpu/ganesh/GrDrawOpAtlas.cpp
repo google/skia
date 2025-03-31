@@ -552,7 +552,7 @@ inline void GrDrawOpAtlas::deactivateLastPage() {
             uint32_t plotIndex = r * numPlotsX + c;
 
             Plot* currPlot = fPages[lastPageIndex].fPlotArray[plotIndex].get();
-            currPlot->resetRects();
+            currPlot->resetRects(/*freeData=*/false);
             currPlot->resetFlushesSinceLastUsed();
 
             // rebuild the LRU list
