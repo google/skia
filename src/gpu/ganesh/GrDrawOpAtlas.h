@@ -205,7 +205,7 @@ private:
     void processEviction(skgpu::PlotLocator);
     inline void processEvictionAndResetRects(skgpu::Plot* plot) {
         this->processEviction(plot->plotLocator());
-        plot->resetRects();
+        plot->resetRects(/*freeData=*/false);
     }
 
     GrBackendFormat       fFormat;

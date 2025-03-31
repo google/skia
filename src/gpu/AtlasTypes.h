@@ -488,7 +488,9 @@ public:
     std::pair<const void*, SkIRect> prepareForUpload();
     // Re-initialize Plot. The client should ensure that they process any eviction callbacks
     // before calling this, otherwise any cached references will point to invalid data.
-    void resetRects();
+    // If freeData is true, this will free the backing data as well. This should only be used
+    // when we know we won't be adding to the Plot immediately afterwards.
+    void resetRects(bool freeData);
 
     void markFullIfUsed() { fIsFull = !fDirtyRect.isEmpty(); }
     bool isEmpty() const { return fRectanizer.percentFull() == 0; }

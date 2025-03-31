@@ -157,15 +157,18 @@ std::pair<const void*, SkIRect> Plot::prepareForUpload() {
     return { dataPtr, offsetRect };
 }
 
-void Plot::resetRects() {
+void Plot::resetRects(bool freeData) {
     fRectanizer.reset();
     fGenID = fGenerationCounter->next();
     fPlotLocator = PlotLocator(fPageIndex, fPlotIndex, fGenID);
     fLastUpload = AtlasToken::InvalidToken();
     fLastUse = AtlasToken::InvalidToken();
 
-    // zero out the plot
-    if (fData) {
+    if (freeData) {
+        sk_free(fData);
+        fData = nullptr;
+    } else if (fData) {
+        // zero out the plot
         sk_bzero(fData, fBytesPerPixel * fWidth * fHeight);
     }
 
