@@ -204,7 +204,16 @@ class DefaultFlavor(object):
       if self.m.vars.is_linux:
         # Running through setarch with '-R' disables address randomization,
         # which would otherwise cause TSAN to error out.
-        cmd = ['setarch', '-R'] + cmd
+
+        # First, find the appropriate architecture setting. Note: newer versions
+        # of setarch support using the default, so once we stop running on
+        # Ubuntu 18 we can remove this.
+        arch = self.m.run(
+            self.m.step, 'get arch', cmd=['arch'], infra_step=True,
+            stdout=self.m.raw_io.output(),
+            step_test_data=(lambda: self.m.raw_io.test_api.stream_output('x86_64'))
+        ).stdout.decode('utf-8').rstrip()
+        cmd = ['setarch', arch, '-R'] + cmd
 
     if 'Coverage' in extra_tokens:
       # This is the output file for the coverage data. Just running the binary
