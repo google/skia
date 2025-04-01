@@ -1878,7 +1878,7 @@ void SkCanvas::experimental_DrawEdgeAAImageSet(const ImageSetEntry imageSet[], i
     TRACE_EVENT0("skia", TRACE_FUNC);
     // Route single, rectangular quads to drawImageRect() to take advantage of image filter
     // optimizations that avoid a layer.
-    if (paint && paint->getImageFilter() && cnt == 1) {
+    if (paint && (paint->getImageFilter() || paint->getMaskFilter()) && cnt == 1) {
         const auto& entry = imageSet[0];
         // If the preViewMatrix is skipped or a positive-scale + translate matrix, we can apply it
         // to the entry's dstRect w/o changing output behavior.
@@ -2324,8 +2324,6 @@ void SkCanvas::onDrawImageRect2(const SkImage* image, const SkRect& src, const S
         return;
     }
 
-    // When there's a alpha-only image that must be colorized or a mask filter to apply, go through
-    // the regular auto-layer-for-imagefilter process
     if (realPaint.getMaskFilter() && this->topDevice()->useDrawCoverageMaskForMaskFilters()) {
         // Route mask-filtered drawImages to drawRect() to use the auto-layer for mask filters,
         // which require all shading to be encoded in the paint.
@@ -2697,7 +2695,7 @@ void SkCanvas::onDrawEdgeAAImageSet2(const ImageSetEntry imageSet[], int count,
     // individual entries and Chromium's occlusion culling already makes it likely that at least one
     // entry will be visible. So, we only calculate the draw bounds when it's trivial (count == 1),
     // or we need it for the autolooper (since it greatly improves image filter perf).
-    bool needsAutoLayer = SkToBool(realPaint.getImageFilter());
+    bool needsAutoLayer = SkToBool(realPaint.getImageFilter() || realPaint.getMaskFilter());
     bool setBoundsValid = count == 1 || needsAutoLayer;
     SkRect setBounds = imageSet[0].fDstRect;
     if (imageSet[0].fMatrixIndex >= 0) {
@@ -2716,6 +2714,46 @@ void SkCanvas::onDrawEdgeAAImageSet2(const ImageSetEntry imageSet[], int count,
 
     // If we happen to have the draw bounds, though, might as well check quickReject().
     if (setBoundsValid && this->internalQuickReject(setBounds, realPaint)) {
+        return;
+    }
+
+    if (realPaint.getMaskFilter() && this->topDevice()->useDrawCoverageMaskForMaskFilters()) {
+        // Route mask-filtered drawEdgeAAImageSets to drawEdgeAAQuad() or drawImageRect()
+        // to use the auto-layer for mask filters, which require all shading to be encoded in
+        // the paint.
+        int dstClipIndex = 0;
+        for (int i = 0; i < count; ++i) {
+            SkPaint imagePaint = realPaint;
+            SkRect drawDst = SkModifyPaintAndDstForDrawImageRect(
+                                imageSet[i].fImage.get(), sampling,
+                                imageSet[i].fSrcRect, imageSet[i].fDstRect,
+                                constraint == kStrict_SrcRectConstraint, &imagePaint);
+            if (drawDst.isEmpty()) {
+                return;
+            }
+
+            auto layer = this->aboutToDraw(imagePaint, &drawDst);
+            if (layer) {
+                // Since we can't call mapRect to apply any preview matrix and drawEdgeAAQuad
+                // doesn't take an optional matrix, we can modify the local-to-device matrix
+                // of the layers top device.
+                if (imageSet[i].fMatrixIndex >= 0) {
+                    this->topDevice()->setLocalToDevice(
+                        this->topDevice()->localToDevice44() *
+                        SkM44(preViewMatrices[imageSet[i].fMatrixIndex]));
+                }
+
+                // Call drawEdgeAAImageSet on each image one at a time, to correctly
+                // paint the image.
+                this->topDevice()->drawEdgeAAQuad(drawDst,
+                                                  imageSet[i].fHasClip ? dstClips + dstClipIndex
+                                                                        : nullptr,
+                                                  (QuadAAFlags)imageSet[i].fAAFlags,
+                                                  layer->paint().getColor4f(),
+                                                  SkBlendMode::kSrcOver);
+            }
+            dstClipIndex += 4 * imageSet[i].fHasClip;
+        }
         return;
     }
 
