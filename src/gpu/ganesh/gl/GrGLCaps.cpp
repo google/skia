@@ -4518,9 +4518,13 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // GL_VERSION : OpenGL ES 3.1 build 1.15@6133109
     // GL_RENDERER: PowerVR Rogue AXE-1-16M
     // GL_VENDOR  : Imagination Technologies
-    if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue &&
-        ctxInfo.driverVersion() < GR_GL_DRIVER_VER(1, 15, 0)) {
-        fDisableTessellationPathRenderer = true;
+    if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue) {
+        GrGLDriverVersion driverVersion =
+                ctxInfo.angleBackend() == GrGLANGLEBackend::kUnknown ? ctxInfo.driverVersion()
+                                                                     : ctxInfo.angleDriverVersion();
+        if (driverVersion < GR_GL_DRIVER_VER(1, 15, 0)) {
+            fDisableTessellationPathRenderer = true;
+        }
     }
 
     // The Wembley device draws the mesh_update GM incorrectly when using transfer buffers. Buffer
