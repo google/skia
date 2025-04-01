@@ -16,7 +16,7 @@ use crate::{
         get_skia_metrics, get_unscaled_metrics, has_any_color_table, is_embeddable, is_fixed_pitch,
         is_script_style, is_serif_style, is_subsettable, italic_angle, lookup_glyph_or_zero,
         make_font_ref, make_mapping_index, normalized_coords_equal, num_axes, num_glyphs,
-        num_named_instances, populate_axes, resolve_into_normalized_coords,
+        num_named_instances, outline_format, populate_axes, resolve_into_normalized_coords,
         scaler_hinted_advance_width, table_data, table_tags, unhinted_advance_width_or_zero,
         units_per_em_or_zero, variation_position, BridgeFontRef, BridgeMappingIndex,
         BridgeNormalizedCoords, BridgeOutlineCollection,
@@ -166,6 +166,13 @@ pub mod ffi {
         AutoAsFallback,
     }
 
+    pub enum OutlineFormat {
+        NoOutlines,
+        Glyf,
+        Cff,
+        Cff2,
+    }
+
     extern "Rust" {
         type BridgeFontRef<'a>;
         unsafe fn make_font_ref<'a>(font_data: &'a [u8], index: u32) -> Box<BridgeFontRef<'a>>;
@@ -225,6 +232,8 @@ pub mod ffi {
             codepoint: &[u32],
             glyphs: &mut [u16],
         );
+
+        fn outline_format(outlines: &BridgeOutlineCollection) -> OutlineFormat;
 
         fn get_path_verbs_points(
             outlines: &BridgeOutlineCollection,

@@ -9,14 +9,14 @@ use skrifa::{
     charmap::MappingIndex,
     instance::{Location, Size},
     metrics::{GlyphMetrics, Metrics as SkrifaMetrics},
-    outline::{pen::NullPen, DrawSettings},
+    outline::{pen::NullPen, DrawSettings, OutlineGlyphFormat},
     setting::VariationSetting,
     MetadataProvider, OutlineGlyphCollection, Tag,
 };
 use std::pin::Pin;
 
 use crate::{
-    ffi::{AxisWrapper, BridgeFontStyle, Metrics, SkiaDesignCoordinate},
+    ffi::{AxisWrapper, BridgeFontStyle, Metrics, OutlineFormat, SkiaDesignCoordinate},
     hinting::BridgeHintingInstance,
 };
 
@@ -122,6 +122,16 @@ pub fn scaler_hinted_advance_width(
             })
         })
         .is_some()
+}
+
+pub fn outline_format(outlines: &BridgeOutlineCollection) -> OutlineFormat {
+    let outlines = outlines.0.as_ref();
+    match outlines.and_then(|o| o.format()) {
+        None => OutlineFormat::NoOutlines,
+        Some(OutlineGlyphFormat::Glyf) => OutlineFormat::Glyf,
+        Some(OutlineGlyphFormat::Cff) => OutlineFormat::Cff,
+        Some(OutlineGlyphFormat::Cff2) => OutlineFormat::Cff2,
+    }
 }
 
 pub fn units_per_em_or_zero(font_ref: &BridgeFontRef) -> u16 {
