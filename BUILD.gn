@@ -1356,10 +1356,8 @@ if (is_debug) {
 if (skia_use_fontations) {
   action("fontations_rust_side_bazel_build") {
     script = "gn/bazel_build.py"
-    sources = [
-      "src/ports/fontations/BUILD.bazel",
-      "src/ports/fontations/src/ffi.rs",
-    ]
+    sources = [ "src/ports/fontations/BUILD.bazel" ]
+    sources += skia_ports_fontations_bridge_rust_side_sources
     outputs = [ "$root_out_dir/libbridge_rust_side.a" ]
     args =
         [
@@ -1375,10 +1373,8 @@ if (skia_use_fontations) {
   # Bazel may end up using different ones).
   action("fontations_ffi_bazel_build") {
     script = "gn/bazel_build.py"
-    sources = [
-      "src/ports/fontations/BUILD.bazel",
-      "src/ports/fontations/src/ffi.rs",
-    ]
+    sources = [ "src/ports/fontations/BUILD.bazel" ]
+    sources += skia_ports_fontations_bridge_rust_side_sources
     outputs = [
       "$root_out_dir/src/ports/fontations/src/ffi.rs.h",
       "$root_out_dir/src/ports/fontations/src/ffi.rs.cc",
