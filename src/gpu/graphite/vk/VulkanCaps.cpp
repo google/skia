@@ -401,8 +401,10 @@ TextureInfo VulkanCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampl
      * Graphite, unlike ganesh, does not require a dedicated MSAA attachment on every surface.
      * MSAA textures now get resolved within the scope of a render pass, which can be done simply
      * with the color attachment usage flag. So we no longer require transfer src/dst usage flags.
+     * All renderable textures in Vulkan are made with input attachment usage.
     */
-    VkImageUsageFlags flags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    VkImageUsageFlags flags =
+            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
     if (discardable == Discardable::kYes && fSupportsMemorylessAttachments) {
         flags = flags | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
     }
