@@ -34,10 +34,22 @@ public:
      */
     void purgePipelinesNotUsedInMs(std::chrono::milliseconds msNotUsed);
 
+    enum class StatOptions {
+        // Emit histograms (using the SK_HISTOGRAM* macros) for Skia's Precompiled Pipeline
+        // usage:
+        //    Skia.Graphite.Precompile.NormalPreemptedByPrecompile
+        //    Skia.Graphite.Precompile.UnpreemptedPrecompilePipelines
+        //    Skia.Graphite.Precompile.UnusedPrecompiledPipelines
+        kPrecompile,
+        // Emit histograms (using the SK_HISTOGRAM* macros) for Skia's Pipeline cache usage:
+        //    Skia.Graphite.PipelineCache.PipelineUsesInEpoch
+        kPipelineCache,
+    };
+
     /**
-     * Emit histograms (using the SK_HISTOGRAM* macros) for Skia's Pipeline usage.
+     * Emit histograms histograms related to Skia's Pipelines (c.f. the StatOptions enum).
      */
-    void reportPipelineStats();
+    void reportPipelineStats(StatOptions option = StatOptions::kPrecompile);
 
     /**
      * Precompile one specific Pipeline that has been previously serialized. Serialized pipeline

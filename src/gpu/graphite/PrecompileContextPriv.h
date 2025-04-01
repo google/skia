@@ -9,6 +9,7 @@
 #define skgpu_graphite_PrecompileContextPriv_DEFINED
 
 #include "include/gpu/graphite/PrecompileContext.h"
+#include "src/gpu/graphite/SharedContext.h"
 
 class Caps;
 

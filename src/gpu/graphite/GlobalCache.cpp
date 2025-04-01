@@ -163,6 +163,10 @@ sk_sp<GraphicsPipeline> GlobalCache::findGraphicsPipeline(
         ++fStats.fGraphicsCacheHits;
 #endif
 
+        if ((*entry)->epoch() != fEpochCounter) {
+            (*entry)->markEpoch(fEpochCounter);   // update epoch due to use in a new epoch
+            ++fStats.fPipelineUsesInEpoch;
+        }
         if (!forPrecompile && (*entry)->fromPrecompile() && !(*entry)->wasUsed()) {
             ++fStats.fNormalPreemptedByPrecompile;
         }
@@ -241,6 +245,10 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
         ++fStats.fGraphicsCacheAdditions;
 #endif
 
+        SkASSERT((*entry)->epoch() == 0);
+        (*entry)->markEpoch(fEpochCounter);      // mark w/ epoch in which it was created
+        ++fStats.fPipelineUsesInEpoch;
+
         if ((*entry)->fromPrecompile()) {
             ++fStats.fUnpreemptedPrecompilePipelines;
         }
@@ -315,7 +323,7 @@ void GlobalCache::purgePipelinesNotUsedSince(StdSteadyClock::time_point purgeTim
     // TODO: add purging of Compute Pipelines (b/389073204)
 }
 
-void GlobalCache::reportPipelineStats() {
+void GlobalCache::reportPrecompileStats() {
     SkAutoSpinlock lock{fSpinLock};
 
     uint32_t numUnusedInCache = 0;
@@ -349,6 +357,29 @@ void GlobalCache::reportPipelineStats() {
                                      /* bucketCount= */ 52);
 }
 
+
+void GlobalCache::reportCacheStats() {
+    SkAutoSpinlock lock{fSpinLock};
+
+    SK_HISTOGRAM_CUSTOM_EXACT_LINEAR("Skia.Graphite.PipelineCache.PipelineUsesInEpoch",
+                                     fStats.fPipelineUsesInEpoch,
+                                     /* countMin= */ 1,
+                                     /* countMax= */ 1001,
+                                     /* bucketCount= */ 100); // 10/bucket
+
+    // Set up for a new epoch
+    fStats.fPipelineUsesInEpoch = 0;
+    ++fEpochCounter;
+    if (!fEpochCounter) {
+        // The epoch counter has wrapped around - this should be *very* rare. Reset the cache.
+        fGraphicsPipelineCache.foreach([](const UniqueKey* key,
+                                          const sk_sp<GraphicsPipeline>* pipeline) {
+            (*pipeline)->markEpoch(0);
+        });
+        fEpochCounter = 1;
+    }
+}
+
 #if defined(GPU_TEST_UTILS)
 int GlobalCache::numGraphicsPipelines() const {
     SkAutoSpinlock lock{fSpinLock};
@@ -370,6 +401,20 @@ void GlobalCache::forEachGraphicsPipeline(
         fn(*k, v->get());
     });
 }
+
+uint16_t GlobalCache::getEpoch() const {
+    SkAutoSpinlock lock{fSpinLock};
+
+    return fEpochCounter;
+}
+
+// The next reportCacheStats call after this will overflow
+void GlobalCache::forceNextEpochOverflow() {
+    SkAutoSpinlock lock{fSpinLock};
+
+    fEpochCounter = std::numeric_limits<uint16_t>::max();
+}
+
 #endif // defined(GPU_TEST_UTILS)
 
 GlobalCache::PipelineStats GlobalCache::getStats() const {
