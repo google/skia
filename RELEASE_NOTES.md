@@ -2,6 +2,15 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 136
+-------------
+  * The Fontations SkTypeface backend has a new factory method to create a typeface from `SkData`,
+    not only from `SkStreamAsset`. The new signature is
+    `sk_sp<SkTypeface> SkTypeface_Make_Fontations(sk_sp<SkData> fontData, const SkFontArguments& args)`.
+  * `SkColorPriv.h` has been removed from the public API
+
+* * *
+
 Milestone 135
 -------------
   * The `SkCodec` class has a new `isAnimated` method which helps to disambiguate
