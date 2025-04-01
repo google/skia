@@ -81,7 +81,18 @@ void AtlasTextOp::ClearCache() {
     gCache = nullptr;
 }
 
-AtlasTextOp::AtlasTextOp(MaskType maskType,
+namespace {
+AtlasTextOp::MaskType op_mask_type(MaskFormat maskFormat) {
+    switch (maskFormat) {
+        case MaskFormat::kA8:   return AtlasTextOp::MaskType::kGrayscaleCoverage;
+        case MaskFormat::kA565: return AtlasTextOp::MaskType::kLCDCoverage;
+        case MaskFormat::kARGB: return AtlasTextOp::MaskType::kColorBitmap;
+    }
+    SkUNREACHABLE;
+}
+} // anonymous namespce
+
+AtlasTextOp::AtlasTextOp(MaskFormat maskFormat,
                          bool needsTransform,
                          int glyphCount,
                          SkRect deviceRect,
@@ -92,7 +103,7 @@ AtlasTextOp::AtlasTextOp(MaskType maskType,
         , fProcessors(std::move(paint))
         , fNumGlyphs(glyphCount)
         , fDFGPFlags(0)
-        , fMaskType(static_cast<uint32_t>(maskType))
+        , fMaskType(static_cast<uint32_t>(op_mask_type(maskFormat)))
         , fUsesLocalCoords(false)
         , fNeedsGlyphTransform(needsTransform)
         , fHasPerspective(needsTransform && geo->fDrawMatrix.hasPerspective())
@@ -102,7 +113,7 @@ AtlasTextOp::AtlasTextOp(MaskType maskType,
     // We don't have tight bounds on the glyph paths in device space. For the purposes of bounds
     // we treat this as a set of non-AA rects rendered with a texture.
     this->setBounds(deviceRect, HasAABloat::kNo, IsHairline::kNo);
-    if (maskType == MaskType::kColorBitmap) {
+    if (static_cast<MaskType>(fMaskType) == MaskType::kColorBitmap) {
         // We assume that color emoji use the sRGB colorspace
         fColorSpaceXform = dstColorInfo.refColorSpaceXformFromSRGB();
     }
@@ -154,7 +165,7 @@ auto AtlasTextOp::Geometry::Make(const sktext::gpu::AtlasSubRun& subRun,
 
 void AtlasTextOp::Geometry::fillVertexData(void *dst, int offset, int count) const {
     fSubRun.fillVertexData(
-            dst, offset, count, fColor.toBytes_RGBA(), fDrawMatrix, fDrawOrigin, fClipRect);
+            dst, offset, count, fColor, fDrawMatrix, fDrawOrigin, fClipRect);
 }
 
 void AtlasTextOp::visitProxies(const GrVisitProxyFunc& func) const {

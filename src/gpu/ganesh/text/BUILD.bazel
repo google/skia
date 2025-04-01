@@ -9,6 +9,7 @@ licenses(["notice"])
 skia_filegroup(
     name = "srcs",
     srcs = [
+        "GaneshVertexFiller.cpp",
         "GrAtlasManager.cpp",
     ],
     visibility = ["//src/gpu/ganesh:__pkg__"],

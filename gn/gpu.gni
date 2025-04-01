@@ -545,6 +545,7 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/tessellate/StrokeTessellator.cpp",
   "$_src/gpu/ganesh/tessellate/StrokeTessellator.h",
   "$_src/gpu/ganesh/tessellate/VertexChunkPatchAllocator.h",
+  "$_src/gpu/ganesh/text/GaneshVertexFiller.cpp",
   "$_src/gpu/ganesh/text/GrAtlasManager.cpp",
   "$_src/gpu/ganesh/text/GrAtlasManager.h",
 ]

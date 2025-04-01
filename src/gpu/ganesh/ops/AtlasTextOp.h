@@ -147,7 +147,8 @@ private:
         int fNumDraws = 0;
     };
 
-    AtlasTextOp(MaskType maskType,
+    // DirectMask and TransformedMask constructor
+    AtlasTextOp(skgpu::MaskFormat maskFormat,
                 bool needsTransform,
                 int glyphCount,
                 SkRect deviceRect,
@@ -155,6 +156,7 @@ private:
                 const GrColorInfo& dstColorInfo,
                 GrPaint&& paint);
 
+    // SDF constructor
     AtlasTextOp(MaskType maskType,
                 bool needsTransform,
                 int glyphCount,

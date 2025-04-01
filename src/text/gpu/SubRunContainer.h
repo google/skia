@@ -11,6 +11,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
+#include "src/core/SkColorData.h"  // IWYU pragma: keep
 #include "src/text/gpu/SubRunAllocator.h"
 
 #include <cstddef>
@@ -38,7 +39,6 @@ enum class MaskFormat : int;
 }
 
 #if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-#include "src/gpu/ganesh/GrColor.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
 class GrClip;
@@ -103,7 +103,7 @@ public:
 
     virtual void fillVertexData(
             void* vertexDst, int offset, int count,
-            GrColor color,
+            const SkPMColor4f& color,
             const SkMatrix& drawMatrix,
             SkPoint drawOrigin,
             SkIRect clip) const = 0;
