@@ -315,12 +315,7 @@ public:
 
     // Returns what method of dst read a draw should use for obtaining the dst color. Backends can
     // use the default implementation or override this method as needed.
-    // TODO(b/390458117): Once the Vulkan backend supports DstReadStrategy::kReadFromInput for
-    // MSAA textures (and if we are comfortable assuming by this point that all render targets, at
-    // least on Android, support input attachment usage) then the TextureInfo argument can be
-    // removed and backend Caps implementations can report kReadFromInput support some other way
-    // (such as a simple member attribute bool). For now, we must check each render target's info.
-    virtual DstReadStrategy getDstReadStrategy(const TextureInfo&) const;
+    virtual DstReadStrategy getDstReadStrategy() const;
 
     float minDistanceFieldFontSize() const { return fMinDistanceFieldFontSize; }
     float glyphsAsPathsFontSize() const { return fGlyphsAsPathsFontSize; }

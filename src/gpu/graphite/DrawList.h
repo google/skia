@@ -86,8 +86,13 @@ public:
 
     int renderStepCount() const { return fRenderStepCount; }
 
-    // Bounds for a dst read required by this DrawList.
+    // Bounds for a dst read required by this DrawList. These bounds are only valid if drawsReadDst
+    // returns true.
     const Rect& dstReadBounds() const { return fDstReadBounds; }
+    bool drawsReadDst() const { return !fDstReadBounds.isEmptyNegativeOrNaN(); }
+    bool drawsRequireMSAA() const { return fRequiresMSAA; }
+    SkEnumBitMask<DepthStencilFlags> depthStencilFlags() const { return fDepthStencilFlags; }
+
 
     SkDEBUGCODE(bool hasCoverageMaskDraws() const { return fCoverageMaskShapeDrawCount > 0; })
 
@@ -128,6 +133,9 @@ private:
     // Tracked for all paints that read from the dst. If it is later determined that the
     // DstReadStrategy is not kTextureCopy, this value can simply be ignored.
     Rect fDstReadBounds = Rect::InfiniteInverted();
+    // Other properties of draws contained within this DrawList
+    bool fRequiresMSAA = false;
+    SkEnumBitMask<DepthStencilFlags> fDepthStencilFlags = DepthStencilFlags::kNone;
 };
 
 } // namespace skgpu::graphite

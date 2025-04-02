@@ -96,10 +96,13 @@ DrawContext::DrawContext(const Caps* caps,
         : fTarget(std::move(target))
         , fImageInfo(ii)
         , fSurfaceProps(props)
-        , fDstReadStrategy(caps->getDstReadStrategy(fTarget->textureInfo()))
+        , fDstReadStrategy(caps->getDstReadStrategy())
         , fCurrentDrawTask(sk_make_sp<DrawTask>(fTarget))
         , fPendingDraws(std::make_unique<DrawList>())
         , fPendingUploads(std::make_unique<UploadList>()) {
+    // Must determine a valid strategy to use should a dst texture read be required.
+    SkASSERT(fDstReadStrategy != DstReadStrategy::kNoneRequired);
+
     if (!caps->isTexturable(fTarget->textureInfo())) {
         fReadView = {}; // Presumably this DrawContext is rendering into a swap chain
     } else {
@@ -194,6 +197,37 @@ PathAtlas* DrawContext::getComputePathAtlas(Recorder* recorder) {
     return fComputePathAtlas.get();
 }
 
+namespace {
+DstReadStrategy determine_drawpass_dstReadStrategy(
+        const DstReadStrategy drawContextDstReadStrategy,
+        bool drawsReadDst,
+        bool drawsRequireMSAA) {
+
+    // If no draws read from the dst texture, the drawpass can ignore the drawContextDstReadStrategy
+    // and instead use DstReadStrategy::kNoneRequired.
+    if (!drawsReadDst) {
+        return DstReadStrategy::kNoneRequired;
+    }
+
+    // TODO(b/390458117): Vulkan is currently the only backend to utilize
+    // DstReadStrategy::kReadFromInput. Until reading MSAA textures as input attachments is
+    // implemented in the Vulkan backend, we must fall back to using texture copies for reading the
+    // dst texture if it is multisampled. It is necessary to perform this check for each drawpass
+    // rather than relying upon the DrawContext's DstReadStrategy because, even if the DrawContext
+    // target has a sample count of 1, RenderPassDesc creation can later determine that the target
+    // should actually be multisampled depending upon Caps's msaaRenderToSingleSampledSupport.
+    // Drawpasses must know the actual DstReadStrategy upon creation to make certain
+    // decisions, so if we originally planned to use kReadFromInput, we must determine now that we
+    // must fall back to using kTextureCopy.
+    if (drawContextDstReadStrategy == DstReadStrategy::kReadFromInput && drawsRequireMSAA) {
+        return DstReadStrategy::kTextureCopy;
+    }
+
+    // If none of these special cases apply, simply use the draw context's DstReadStrategy.
+    return drawContextDstReadStrategy;
+}
+} // anonymous
+
 void DrawContext::flush(Recorder* recorder) {
     if (fPendingUploads->size() > 0) {
         TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
@@ -227,19 +261,30 @@ void DrawContext::flush(Recorder* recorder) {
         return;
     }
 
+    // Extract certain properties from DrawList relevant for DrawTask construction before
+    // relinquishing the pending draw list to the DrawPass constructor.
+    SkIRect dstReadPixelBounds = fPendingDraws->dstReadBounds().makeRoundOut().asSkIRect();
+    const bool drawsRequireMSAA = fPendingDraws->drawsRequireMSAA();
+    const SkEnumBitMask<DepthStencilFlags> dsFlags = fPendingDraws->depthStencilFlags();
+    // Determine the optimal strategy given the draw context's dst texture reading strategy and
+    // the drawpass's properties.
+    const DstReadStrategy drawPassDstReadStrategy =
+            determine_drawpass_dstReadStrategy(/*drawContextDstReadStrategy=*/fDstReadStrategy,
+                                               fPendingDraws->drawsReadDst(),
+                                               fPendingDraws->drawsRequireMSAA());
+
     // Convert the pending draws and load/store ops into a DrawPass that will be executed after
-    // the collected uploads and compute dispatches. Save the bounds required for a dst copy to
-    // insert a copy task of sufficient size.
+    // the collected uploads and compute dispatches.
     // TODO: At this point, there's only ever one DrawPass in a RenderPassTask to a target. When
     // subpasses are implemented, they will either be collected alongside fPendingDraws or added
     // to the RenderPassTask separately.
-    SkIRect dstReadPixelBounds = fPendingDraws->dstReadBounds().makeRoundOut().asSkIRect();
     std::unique_ptr<DrawPass> pass = DrawPass::Make(recorder,
                                                     std::move(fPendingDraws),
                                                     fTarget,
                                                     this->imageInfo(),
                                                     std::make_pair(fPendingLoadOp, fPendingStoreOp),
-                                                    fPendingClearColor);
+                                                    fPendingClearColor,
+                                                    drawPassDstReadStrategy);
     fPendingDraws = std::make_unique<DrawList>();
     // Now that there is content drawn to the target, that content must be loaded on any subsequent
     // render pass.
@@ -252,7 +297,8 @@ void DrawContext::flush(Recorder* recorder) {
         // If any paint used within the DrawPass reads from the dst texture (indicated by nonempty
         // dstReadPixelBounds) and the dstReadStrategy is kTextureCopy, then add a CopyTask.
         sk_sp<TextureProxy> dstCopy;
-        if (!dstReadPixelBounds.isEmpty() && fDstReadStrategy == DstReadStrategy::kTextureCopy) {
+        if (!dstReadPixelBounds.isEmpty() &&
+            drawPassDstReadStrategy == DstReadStrategy::kTextureCopy) {
             TRACE_EVENT_INSTANT0("skia.gpu", "DrawPass requires dst copy",
                                  TRACE_EVENT_SCOPE_THREAD);
 
@@ -284,11 +330,11 @@ void DrawContext::flush(Recorder* recorder) {
                                                   fTarget->textureInfo());
 
         RenderPassDesc desc = RenderPassDesc::Make(caps, fTarget->textureInfo(), loadOp, storeOp,
-                                                   pass->depthStencilFlags(),
+                                                   dsFlags,
                                                    pass->clearColor(),
-                                                   pass->requiresMSAA(),
+                                                   drawsRequireMSAA,
                                                    writeSwizzle,
-                                                   fDstReadStrategy);
+                                                   drawPassDstReadStrategy);
 
         RenderPassTask::DrawPassList passes;
         passes.emplace_back(std::move(pass));

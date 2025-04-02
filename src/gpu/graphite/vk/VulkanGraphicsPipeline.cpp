@@ -702,7 +702,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                              pipelineDesc.paintParamsID(),
                              useStorageBuffers,
                              renderPassDesc.fWriteSwizzle,
-                             renderPassDesc.fDstReadStrategyIfRequired,
+                             renderPassDesc.fDstReadStrategy,
                              &descContainer);
 
     // Populate an array of sampler ptrs where a sampler's index within the array indicates their

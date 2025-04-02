@@ -137,7 +137,7 @@ skgpu::Swizzle Caps::getWriteSwizzle(SkColorType ct, const TextureInfo& info) co
     return colorTypeInfo->fWriteSwizzle;
 }
 
-DstReadStrategy Caps::getDstReadStrategy(const TextureInfo& info) const {
+DstReadStrategy Caps::getDstReadStrategy() const {
     // TODO(b/238757201; b/383769988): Dst reads are currently only supported by FB fetch and
     // texture copy.
     if (this->shaderCaps()->fFBFetchSupport) {

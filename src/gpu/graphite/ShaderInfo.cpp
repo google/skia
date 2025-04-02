@@ -497,7 +497,7 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
                                              UniquePaintParamsID paintID,
                                              bool useStorageBuffers,
                                              skgpu::Swizzle writeSwizzle,
-                                             DstReadStrategy dstReadStrategyIfRequired,
+                                             DstReadStrategy dstReadStrategy,
                                              skia_private::TArray<SamplerDesc>* outDescs) {
     const char* shadingSsboIndex =
             useStorageBuffers && step->performsShading() ? "shadingSsboIndex" : nullptr;
@@ -511,8 +511,7 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
     auto result = std::unique_ptr<ShaderInfo>(
             new ShaderInfo(dict, rteDict,
                            shadingSsboIndex,
-                           hasFragShader ? dstReadStrategyIfRequired
-                                         : DstReadStrategy::kNoneRequired));
+                           hasFragShader ? dstReadStrategy : DstReadStrategy::kNoneRequired));
 
     // The fragment shader must be generated before the vertex shader, because we determine
     // properties of the entire program while generating the fragment shader.
@@ -654,9 +653,11 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     // The passed-in dstReadStrategy should only be used iff it is determined one is needed. If not,
     // then manually assign fDstReadStrategy to kNoneRequired. ShaderInfo's dst read strategy
     // informs the pipeline's via PipelineInfo created w/ shader info.
-    bool dstReadRequired = IsDstReadRequired(caps, finalBlendMode, finalCoverage);
+    const bool dstReadRequired = IsDstReadRequired(caps, finalBlendMode, finalCoverage);
     if (!dstReadRequired) {
         fDstReadStrategy = DstReadStrategy::kNoneRequired;
+    } else {
+        SkASSERT(fDstReadStrategy != DstReadStrategy::kNoneRequired);
     }
 
     // TODO(b/372912880): Release assert debugging for illegal instruction occurring in the wild.

@@ -297,7 +297,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
                              paintID,
                              useStorageBuffers,
                              renderPassDesc.fWriteSwizzle,
-                             renderPassDesc.fDstReadStrategyIfRequired);
+                             renderPassDesc.fDstReadStrategy);
 
     const std::string& fsSkSL = shaderInfo->fragmentSkSL();
     const BlendInfo& blendInfo = shaderInfo->blendInfo();

@@ -61,7 +61,8 @@ public:
                                           sk_sp<TextureProxy> target,
                                           const SkImageInfo& targetInfo,
                                           std::pair<LoadOp, StoreOp>,
-                                          std::array<float, 4> clearColor);
+                                          std::array<float, 4> clearColor,
+                                          const DstReadStrategy dstReadStrategy);
 
     // Defined relative to the top-left corner of the surface the DrawPass renders to, and is
     // contained within its dimensions.
@@ -69,11 +70,6 @@ public:
     TextureProxy* target() const { return fTarget.get(); }
     std::pair<LoadOp, StoreOp> ops() const { return fOps; }
     std::array<float, 4> clearColor() const { return fClearColor; }
-
-    bool requiresDstTexture() const { return false;            }
-    bool requiresMSAA()       const { return fRequiresMSAA;    }
-
-    SkEnumBitMask<DepthStencilFlags> depthStencilFlags() const { return fDepthStencilFlags; }
 
     size_t vertexBufferSize()  const { return 0; }
     size_t uniformBufferSize() const { return 0; }
@@ -113,9 +109,6 @@ private:
 
     std::pair<LoadOp, StoreOp> fOps;
     std::array<float, 4> fClearColor;
-
-    SkEnumBitMask<DepthStencilFlags> fDepthStencilFlags = DepthStencilFlags::kNone;
-    bool fRequiresMSAA = false;
 
     // The pipelines are referenced by index in BindGraphicsPipeline, but that will index into a
     // an array of actual GraphicsPipelines.

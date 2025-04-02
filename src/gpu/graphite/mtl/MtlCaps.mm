@@ -1034,7 +1034,7 @@ bool MtlCaps::extractGraphicsDescs(const UniqueKey& key,
                                            /* clearColor= */ { .0f, .0f, .0f, .0f },
                                            /* requiresMSAA= */ keyData.fColorSampleCount > 1,
                                            keyData.fWriteSwizzle,
-                                           this->getDstReadStrategy(info));
+                                           this->getDstReadStrategy());
 
     // Recreate the GraphicsPipelineDesc
     const RenderStep* renderStep = rendererProvider->lookup(keyData.fRenderStepID);

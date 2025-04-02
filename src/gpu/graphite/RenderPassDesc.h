@@ -47,7 +47,7 @@ struct RenderPassDesc {
                                const std::array<float, 4>& clearColor,
                                bool requiresMSAA,
                                Swizzle writeSwizzle,
-                               const DstReadStrategy targetReadStrategy);
+                               const DstReadStrategy);
 
     bool operator==(const RenderPassDesc& other) const {
         return (fSampleCount == other.fSampleCount &&
@@ -57,7 +57,7 @@ struct RenderPassDesc {
                 fColorAttachment == other.fColorAttachment &&
                 fColorResolveAttachment == other.fColorResolveAttachment &&
                 fDepthStencilAttachment == other.fDepthStencilAttachment &&
-                fDstReadStrategyIfRequired == other.fDstReadStrategyIfRequired);
+                fDstReadStrategy == other.fDstReadStrategy);
     }
 
     bool operator!=(const RenderPassDesc& other) const {
@@ -79,10 +79,11 @@ struct RenderPassDesc {
     // that case, the fColorAttachment's samples count will be 1 and fSampleCount will be > 1.
     uint32_t fSampleCount;
 
-    // Each shader/pipeline will need to independently determine whether a dst read is required.
-    // If so, it can consult RenderPassDesc's fDstReadStrategyIfRequired which is determined by
-    // the dst texture's information.
-    DstReadStrategy fDstReadStrategyIfRequired;
+    // Each renderpass determines what strategy to use for reading the dst texture. If no draws
+    // within the renderpass require a dst read, this is set to be kNoneRequired. If any draw does
+    // read from the dst, then each pipeline used by this RP independently determines if a dst read
+    // is needed. When required, this strategy determines how to perform it.
+    DstReadStrategy fDstReadStrategy;
 
     SkString toString() const;
     // Only includes fixed state relevant to pipeline creation

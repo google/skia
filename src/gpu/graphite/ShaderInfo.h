@@ -50,7 +50,7 @@ public:
                                             UniquePaintParamsID,
                                             bool useStorageBuffers,
                                             skgpu::Swizzle writeSwizzle,
-                                            DstReadStrategy dstReadStrategyIfRequired,
+                                            DstReadStrategy dstReadStrategy,
                                             skia_private::TArray<SamplerDesc>* outDescs = nullptr);
 
     const ShaderCodeDictionary* shaderCodeDictionary() const {

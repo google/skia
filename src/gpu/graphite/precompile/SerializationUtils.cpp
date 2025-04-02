@@ -196,9 +196,9 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
         return false;
     }
 
-    if (!stream->write8(static_cast<uint8_t>(renderPassDesc.fDstReadStrategyIfRequired))) {
-        return false;
-    }
+    // Omit fDstReadStrategy from the serialization because it is not a part of RenderPassDesc
+    // keys and does not impact pipeline creation. When deserializing, the strategy can be
+    // obtained via caps->getDstReadStrategy().
 
     return true;
 }
@@ -248,12 +248,10 @@ static const char kMagic[] = { 's', 'k', 'i', 'a', 'p', 'i', 'p', 'e' };
         return false;
     }
 
-    uint8_t tmp8;
-    if (!stream->readU8(&tmp8)) {
-        return false;
-    }
-
-    renderPassDesc->fDstReadStrategyIfRequired = static_cast<DstReadStrategy>(tmp8);
+    // RenderPassDesc dst read strategy should not be serialized as it is not something we key on
+    // and does not impact pipeline creation. When deserializing, simply query Caps again for
+    // a DstReadStrategy.
+    renderPassDesc->fDstReadStrategy = caps->getDstReadStrategy();
 
     return true;
 }

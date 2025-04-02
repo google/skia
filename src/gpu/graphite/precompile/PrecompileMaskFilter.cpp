@@ -62,7 +62,7 @@ private:
                 { 0.0f, 0.0f, 0.0f, 0.0f },
                 /* requiresMSAA= */ false,
                 skgpu::Swizzle("a000"),
-                caps->getDstReadStrategy(info));
+                caps->getDstReadStrategy());
 
         PrecompileImageFiltersPriv::CreateBlurImageFilterPipelines(keyContext, gatherer,
                                                                    coverageRenderPassDesc,
