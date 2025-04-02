@@ -189,6 +189,9 @@ bool DrawAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
 // to hang around for a bit in case it's needed. The assumption is that flushes
 // are rare; i.e., we are not continually refreshing the frame.
 static constexpr auto kPlotRecentlyUsedCount = 32;
+// Number of flushes before we'll try to evict a plot from a sparsely used page.
+static constexpr auto kPlotUsedCountBeforeEvict = 8;
+// Number of flushes beyond which we'll consider the atlas no longer in use.
 static constexpr auto kAtlasRecentlyUsedCount = 128;
 
 DrawAtlas::ErrorCode DrawAtlas::addRect(Recorder* recorder,
@@ -318,7 +321,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
         TArray<Plot*> availablePlots;
         uint32_t lastPageIndex = fNumActivePages - 1;
 
-        // For all plots but the last one, update number of flushes since used, and check to see
+        // For all pages but the last one, update number of flushes since used, and check to see
         // if there are any in the first pages that the last page can safely upload to.
         for (uint32_t pageIndex = 0; pageIndex < lastPageIndex; ++pageIndex) {
             if constexpr (kDumpAtlasData) {
@@ -393,7 +396,9 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
             plotIter.init(fPages[lastPageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
             while (Plot* plot = plotIter.get()) {
                 // If this plot was used recently
-                if (plot->flushesSinceLastUsed() <= kPlotRecentlyUsedCount) {
+                int plotFlushes = plot->flushesSinceLastUsed();
+                if (kPlotUsedCountBeforeEvict <= plotFlushes &&
+                    plotFlushes <= kPlotRecentlyUsedCount) {
                     // See if there's room in an lower index page and if so evict.
                     // We need to be somewhat harsh here so that a handful of plots that are
                     // consistently in use don't end up locking the page in memory.
