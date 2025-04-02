@@ -166,7 +166,8 @@ private:
         BufferInfo(BufferType type, uint32_t minBlockSize, uint32_t maxBlockSize, const Caps* caps);
 
         const BufferType fType;
-        const uint32_t fStartAlignment;
+        // Note, this alignment is guaranteed to be a power of two.
+        const uint32_t fMinimumAlignment;
         const uint32_t fMinBlockSize;
         const uint32_t fMaxBlockSize;
         sk_sp<Buffer> fBuffer;
@@ -255,7 +256,10 @@ public:
     // The passed in BindBufferInfos are updated when finalize() is later called, to point to the
     // packed, GPU-private buffer at the appropriate offset. The data written to the returned Writer
     // is copied to the private buffer at that offset. 'binding' must live until finalize() returns.
-    VertexWriter getVertexWriter(size_t size, BindBufferInfo* binding);
+
+    // For the vertex writer, the count and stride of the buffer is passed to allow alignment of
+    // future vertices.
+    VertexWriter getVertexWriter(size_t count, size_t stride, BindBufferInfo* binding);
     // TODO: Update the tessellation index buffer generation functions to use an IndexWriter so this
     // can return an IndexWriter vs. a VertexWriter that happens to just write uint16s...
     VertexWriter getIndexWriter(size_t size, BindBufferInfo* binding);
@@ -272,8 +276,9 @@ public:
 
 private:
     struct CopyRange {
-        BindBufferInfo  fSource; // The CPU-to-GPU buffer and offset for the source of the copy
-        BindBufferInfo* fTarget; // The late-assigned destination of the copy
+        BindBufferInfo  fSource;            // The CPU-to-GPU buffer and offset for the source of the copy
+        BindBufferInfo* fTarget;            // The late-assigned destination of the copy
+        size_t          fRequiredAlignment; // The requested stride of the data.
     };
     struct BufferInfo {
         BufferInfo(BufferType type, const Caps* caps);
@@ -289,13 +294,18 @@ private:
         }
 
         const BufferType fBufferType;
-        const uint32_t   fAlignment;
+        // This is the lcm of the alignment requirement of the buffer type and the transfer buffer
+        // alignment requirement.
+        const uint32_t fMinimumAlignment;
 
         skia_private::TArray<CopyRange> fData;
         uint32_t fTotalRequiredBytes;
     };
 
-    void* prepareStaticData(BufferInfo* info, size_t requiredBytes, BindBufferInfo* target);
+    void* prepareStaticData(BufferInfo* info,
+                            size_t requiredBytes,
+                            size_t requiredAlignment,
+                            BindBufferInfo* target);
 
     ResourceProvider* const fResourceProvider;
     UploadBufferManager fUploadManager;

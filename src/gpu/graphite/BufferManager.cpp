@@ -21,6 +21,7 @@
 #include "src/gpu/graphite/task/TaskList.h"
 
 #include <limits>
+#include <numeric>
 
 namespace skgpu::graphite {
 
@@ -91,8 +92,9 @@ bool can_fit(uint32_t requestedSize,
     return requestedSize <= (allocatedSize - startOffset);
 }
 
-uint32_t starting_alignment(BufferType type, bool useTransferBuffers, const Caps* caps) {
-    // Both vertex and index data is aligned to 4 bytes by default
+// This returns the minimum required alignment depending on the type of buffer. This is guaranteed
+// to be a power of two.
+uint32_t minimum_alignment(BufferType type, bool useTransferBuffers, const Caps* caps) {
     uint32_t alignment = 4;
     if (type == BufferType::kUniform) {
         alignment = SkTo<uint32_t>(caps->requiredUniformBufferAlignment());
@@ -101,9 +103,38 @@ uint32_t starting_alignment(BufferType type, bool useTransferBuffers, const Caps
         alignment = SkTo<uint32_t>(caps->requiredStorageBufferAlignment());
     }
     if (useTransferBuffers) {
+        // Both alignment and the requiredTransferBufferAlignment must be powers of two, so max
+        // provides the correct alignment semantics
         alignment = std::max(alignment, SkTo<uint32_t>(caps->requiredTransferBufferAlignment()));
     }
     return alignment;
+}
+
+// Buffers can explicitly require a certain alignment. To ensure correctness, we thus need to find
+// the lcm of the required alignment and the minimum alignment, which itself is the lcm of the
+// buffer type's alignment and the transferBuffer alignment.
+// Since we guarantee that none of our alignments will be zero, lcm is commutative and associative:
+// lcm(a, b) = lcm(b, a) and lcm(a, lcm(b, c)) = lcm(lcm(a, b), c)
+uint32_t align_to_req_min_lcm(uint32_t bytes, uint32_t req, uint32_t min) {
+    // This should never be called with a 0 required alignment, DBM guards already, SBM does not
+    // append 0 stride vert data
+    SkASSERT(req);
+    SkASSERT(SkIsPow2(min));
+    // The minimum alignment is guaranteed to be a power of two, so we can easily check if the
+    // requiredAlignment is a multiple of it.
+    if (req & (min - 1)) {
+        // If it's not divisible, we need to find the lcm between the two
+        bytes = SkTo<uint32_t>(SkAlignNonPow2(bytes, std::lcm(req, min)));
+    } else {
+        // Since it is divisible, we can align without calling lcm
+        // If req != min, then not guaranteed power of two
+        if (SkIsPow2(req)) {
+            bytes = SkTo<uint32_t>(SkAlignTo(bytes, req));
+        } else {
+            bytes = SkTo<uint32_t>(SkAlignNonPow2(bytes, req));
+        }
+    }
+    return bytes;
 }
 
 } // anonymous namespace
@@ -179,11 +210,13 @@ DrawBufferManager::BufferInfo::BufferInfo(BufferType type,
                                           uint32_t maxBlockSize,
                                           const Caps* caps)
         : fType(type)
-        , fStartAlignment(starting_alignment(type, !caps->drawBufferCanBeMapped(), caps))
+        , fMinimumAlignment(minimum_alignment(type, !caps->drawBufferCanBeMapped(), caps))
         , fMinBlockSize(minBlockSize)
         , fMaxBlockSize(maxBlockSize)
-        , fCurBlockSize(SkAlignTo(minBlockSize, fStartAlignment)) {}
+        , fCurBlockSize(SkAlignTo(minBlockSize, fMinimumAlignment)) {}
 
+// For the vertexWriter, we explicitly pass in the required stride to align the mapped
+// bindBuffer to try to keep the buffer contiguous with future vertex data.
 std::pair<VertexWriter, BindBufferInfo> DrawBufferManager::getVertexWriter(size_t count,
                                                                            size_t stride) {
     uint32_t requiredBytes = validate_count_and_stride(count, stride);
@@ -192,7 +225,8 @@ std::pair<VertexWriter, BindBufferInfo> DrawBufferManager::getVertexWriter(size_
     }
 
     auto& info = fCurrentBuffers[kVertexBufferIndex];
-    auto [ptr, bindInfo] = this->prepareMappedBindBuffer(&info, "VertexBuffer", requiredBytes);
+    auto [ptr, bindInfo] =
+        this->prepareMappedBindBuffer(&info, "VertexBuffer", requiredBytes, stride);
     return {VertexWriter(ptr, requiredBytes), bindInfo};
 }
 
@@ -347,7 +381,7 @@ ScratchBuffer DrawBufferManager::getScratchStorage(size_t requiredBytes) {
             return {};
         }
     }
-    return {requiredBytes32, info.fStartAlignment, std::move(buffer), this};
+    return {requiredBytes32, info.fMinimumAlignment, std::move(buffer), this};
 }
 
 void DrawBufferManager::onFailedBuffer() {
@@ -502,17 +536,14 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
 
     if (requiredAlignment == 0) {
         // If explicitly required alignment is not provided, use the default buffer alignment.
-        requiredAlignment = info->fStartAlignment;
+        requiredAlignment = info->fMinimumAlignment;
 
     } else {
         // If an explicitly required alignment is provided, use that instead of the default buffer
         // alignment. This is useful when the offset is used as an index into a storage buffer
         // rather than an offset for an actual binding.
-        // We can't simply use SkAlignTo here, because that can only align to powers of two.
-        const uint32_t misalignment = info->fOffset % requiredAlignment;
-        if (misalignment > 0) {
-            info->fOffset += requiredAlignment - misalignment;
-        }
+        info->fOffset =
+            align_to_req_min_lcm(info->fOffset, requiredAlignment, info->fMinimumAlignment);
 
         // Don't align the offset any further.
         requiredAlignment = 1;
@@ -616,35 +647,44 @@ StaticBufferManager::~StaticBufferManager() = default;
 
 StaticBufferManager::BufferInfo::BufferInfo(BufferType type, const Caps* caps)
         : fBufferType(type)
-        , fAlignment(starting_alignment(type, /*useTransferBuffers=*/true, caps))
+        , fMinimumAlignment(minimum_alignment(type, /*useTransferBuffers=*/true, caps))
         , fTotalRequiredBytes(0) {}
 
-VertexWriter StaticBufferManager::getVertexWriter(size_t size, BindBufferInfo* binding) {
-    void* data = this->prepareStaticData(&fVertexBufferInfo, size, binding);
+VertexWriter StaticBufferManager::getVertexWriter(size_t count,
+                                                  size_t stride,
+                                                  BindBufferInfo* binding) {
+    const size_t size = count * stride;
+    void* data = this->prepareStaticData(&fVertexBufferInfo, size, stride, binding);
     return VertexWriter{data, size};
 }
 
 VertexWriter StaticBufferManager::getIndexWriter(size_t size, BindBufferInfo* binding) {
-    void* data = this->prepareStaticData(&fIndexBufferInfo, size, binding);
+    // The index writer does not have the same alignment requirements as a vertex, so we simply pass
+    // in the minimum alignment as the required alignment
+    void* data = this->prepareStaticData(&fIndexBufferInfo,
+                                         size,
+                                         fIndexBufferInfo.fMinimumAlignment,
+                                         binding);
     return VertexWriter{data, size};
 }
 
 void* StaticBufferManager::prepareStaticData(BufferInfo* info,
-                                             size_t size,
+                                             size_t requiredBytes,
+                                             size_t requiredAlignment,
                                              BindBufferInfo* target) {
     // Zero-out the target binding in the event of any failure in actually transfering data later.
     SkASSERT(target);
     *target = {nullptr, 0};
-    uint32_t size32 = validate_size(size);
+    uint32_t size32 = validate_size(requiredBytes);
     if (!size32 || fMappingFailed) {
         return nullptr;
     }
 
-    // Both the transfer buffer and static buffers are aligned to the max required alignment for
-    // the pair of buffer types involved (transfer cpu->gpu and either index or vertex). Copies
-    // must also copy an aligned amount of bytes.
-    size32 = SkAlignTo(size32, info->fAlignment);
+    size32 = align_to_req_min_lcm(size32, requiredAlignment, info->fMinimumAlignment);
 
+    // Copies must copy an amount of bytes aligned to the transfer alignment. For simplicity, we
+    // align the reserved size to the LCM of the minimum alignment (already net buffer and transfer
+    // alignment) and the required alignment stride.
     auto [transferMapPtr, transferBindInfo] =
             fUploadManager.makeBindInfo(size32,
                                         fRequiredTransferAlignment,
@@ -655,8 +695,11 @@ void* StaticBufferManager::prepareStaticData(BufferInfo* info,
         return nullptr;
     }
 
-    info->fData.push_back({transferBindInfo, target});
-    info->fTotalRequiredBytes += size32;
+    info->fData.push_back({transferBindInfo, target, requiredAlignment});
+    info->fTotalRequiredBytes =
+        align_to_req_min_lcm(info->fTotalRequiredBytes,
+                             requiredAlignment,
+                             info->fMinimumAlignment) + size32;
     return transferMapPtr;
 }
 
@@ -680,9 +723,10 @@ bool StaticBufferManager::BufferInfo::createAndUpdateBindings(
 
     uint32_t offset = 0;
     for (const CopyRange& data : fData) {
-        // Each copy range's size should be aligned to the max of the required buffer alignment and
-        // the transfer alignment, so we can just increment the offset into the static buffer.
-        SkASSERT(offset % fAlignment == 0);
+        // Each copy range's size should be aligned to the lcm of the required alignment and minimum
+        // alignment so we can increment the offset in the static buffer.
+        offset = align_to_req_min_lcm(offset, data.fRequiredAlignment, fMinimumAlignment);
+        SkASSERT(!(offset % fMinimumAlignment) && !(offset % data.fRequiredAlignment));
         uint32_t size = data.fSource.fSize;
         data.fTarget->fBuffer = staticBuffer.get();
         data.fTarget->fOffset = offset;

@@ -81,15 +81,34 @@ public:
     // the old pipeline, so this must be called *before* binding the new pipeline.
     void newPipelineState(PrimitiveType type, size_t vertexStride, size_t instanceStride) {
         this->flush();
+
+        // At this point, whatever was pending was flushed, meaning that whatever pendingCount was,
+        // it has now been added to the pendingBase.
+        SkASSERT(fPendingCount == 0);
+
+        // We try to prevent additional draw calls + bindings in reserve by starting the new
+        // pendingBase at the previous pendingBase byte usage, aligned to the new stride usage:
+
+        // What is the stride of the data in the buffer? A positive instance stride implies fixed
+        // vertex data, so the instance stride is used, else, the vertex stride is used. As a future
+        // alternative, the type of data (instance or vertex) could be returned by each renderStep,
+        // and tracked at the drawPass level.
+        const size_t prevStride = fInstanceStride ? fInstanceStride : fVertexStride;
+        const size_t currStride = instanceStride ? instanceStride : vertexStride;
+        uint32_t& pendingBase = instanceStride ? fPendingBaseInstance : fPendingBaseVertex;
+        // If either stride is 0, no aligning is required so the pendingBase is set to 0.
+        if (prevStride && currStride) {
+            const size_t prevBytes = pendingBase * prevStride;
+            // Because neither stride is guaranteed to be a power of two, we manually align instead
+            // of using SkAlignTo.
+            pendingBase = SkTo<uint32_t>((prevBytes + currStride - 1) / currStride);
+        } else {
+            pendingBase = 0;
+        }
+
         fPrimitiveType = type;
         fVertexStride = vertexStride;
         fInstanceStride = instanceStride;
-
-        // NOTE: resetting pending base is sufficient to redo bindings for vertex/instance data that
-        // is later appended but doesn't invalidate bindings for fixed buffers that might not need
-        // to change between pipelines.
-        fPendingBase = 0;
-        SkASSERT(fPendingCount == 0);
     }
 
 #ifdef SK_DEBUG
@@ -213,7 +232,8 @@ private:
     int fTemplateCount;
 
     uint32_t fPendingCount; // # of vertices or instances (depending on mode) to be drawn
-    uint32_t fPendingBase; // vertex/instance offset (depending on mode) applied to buffer
+    uint32_t fPendingBaseInstance;
+    uint32_t fPendingBaseVertex;
     bool fPendingBufferBinds; // true if {fVertices,fIndices,fInstances} has changed since last draw
 
     void setTemplate(BindBufferInfo vertices, BindBufferInfo indices, BindBufferInfo instances,
@@ -225,7 +245,8 @@ private:
         SkASSERT(drawCount > 0);
         SkASSERT(!fAppender); // shouldn't be appending and manually drawing at the same time.
         this->setTemplate(vertices, indices, instances, SkTo<int>(templateCount));
-        fPendingBase = 0;
+        fPendingBaseInstance = 0;
+        fPendingBaseVertex = 0;
         fPendingCount = drawCount;
         this->flush();
     }
@@ -244,7 +265,9 @@ public:
 
     Appender(DrawWriter& w, Target target)
             : fDrawer(w)
-            , fTarget(target == Target::kVertices ? w.fVertices     : w.fInstances)
+            , fTarget(target == Target::kVertices ? w.fVertices : w.fInstances)
+            , fPendingBase(target == Target::kVertices ? w.fPendingBaseVertex :
+                                                         w.fPendingBaseInstance)
             , fStride(target == Target::kVertices ? w.fVertexStride : w.fInstanceStride)
             , fReservedCount(0)
             , fNextWriter() {
@@ -264,6 +287,7 @@ public:
 protected:
     DrawWriter&     fDrawer;
     BindBufferInfo& fTarget;
+    uint32_t&       fPendingBase;
     uint32_t        fStride;
 
     uint32_t     fReservedCount; // in target stride units
@@ -295,16 +319,16 @@ protected:
 
             if (reservedChunk.fBuffer != fTarget.fBuffer ||
                 reservedChunk.fOffset !=
-                        (fTarget.fOffset + (fDrawer.fPendingBase+fDrawer.fPendingCount)*fStride)) {
+                        (fTarget.fOffset + (fPendingBase+fDrawer.fPendingCount)*fStride)) {
                 // Not contiguous, so flush and update binding to 'reservedChunk'
                 this->onFlush();
                 fDrawer.flush();
 
                 fTarget = reservedChunk;
-                fDrawer.fPendingBase = 0;
+                fPendingBase = 0;
                 fDrawer.fPendingBufferBinds = true;
             } else {
-                fTarget.fSize += reservedChunk.fSize;
+                fTarget.fSize = reservedChunk.fSize + reservedChunk.fOffset - fTarget.fOffset;
             }
         }
         fNextWriter = std::move(writer);

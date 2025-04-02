@@ -23,7 +23,8 @@ DrawWriter::DrawWriter(DrawPassCommands::List* commandList, DrawBufferManager* b
         , fInstances()
         , fTemplateCount(0)
         , fPendingCount(0)
-        , fPendingBase(0)
+        , fPendingBaseInstance(0)
+        , fPendingBaseVertex(0)
         , fPendingBufferBinds(true) {
     SkASSERT(commandList && bufferManager);
 }
@@ -43,7 +44,8 @@ void DrawWriter::setTemplate(BindBufferInfo vertices,
             (isAppendingVertices && fVertices != vertices) ||
             (!isAppendingVertices && fInstances != instances)) {
             // The buffer binding target for appended data is changing, so reset the base offset
-            fPendingBase = 0;
+            fPendingBaseInstance = 0;
+            fPendingBaseVertex = 0;
         }
 
         fVertices = vertices;
@@ -61,7 +63,7 @@ void DrawWriter::setTemplate(BindBufferInfo vertices,
         if ((templateCount == 0) != (fTemplateCount == 0)) {
             // Switching from appending vertices to instances, or vice versa, so the pending
             // base vertex for appended data is invalid
-            fPendingBase = 0;
+            fPendingBaseVertex = 0;
         }
         fTemplateCount = templateCount;
     }
@@ -96,32 +98,39 @@ void DrawWriter::flush() {
             realVertexCount = fTemplateCount;
         }
 
-        SkASSERT((fPendingBase + fPendingCount)*fInstanceStride <= fInstances.fSize);
+        SkASSERT((fPendingBaseInstance + fPendingCount)*fInstanceStride <= fInstances.fSize);
         if (fIndices) {
             // It's not possible to validate that the indices stored in fIndices access only valid
-            // data within fVertices. Simply vaidate that fIndices holds enough data for the
+            // data within fVertices. Simply validate that fIndices holds enough data for the
             // vertex count that's drawn.
             SkASSERT(realVertexCount*sizeof(uint16_t) <= fIndices.fSize);
-            fCommandList->drawIndexedInstanced(fPrimitiveType, 0, realVertexCount, 0,
-                                               fPendingBase, fPendingCount);
+            fCommandList->drawIndexedInstanced(fPrimitiveType,
+                                               0,
+                                               realVertexCount,
+                                               fPendingBaseVertex,
+                                               fPendingBaseInstance,
+                                               fPendingCount);
         } else {
             SkASSERT(realVertexCount*fVertexStride <= fVertices.fSize);
-            fCommandList->drawInstanced(fPrimitiveType, 0, realVertexCount,
-                                        fPendingBase, fPendingCount);
+            fCommandList->drawInstanced(fPrimitiveType, fPendingBaseVertex, realVertexCount,
+                                        fPendingBaseInstance, fPendingCount);
         }
+
+        fPendingBaseInstance += fPendingCount;
     } else {
         SkASSERT(!fInstances);
         if (fIndices) {
             // As before, just validate there is sufficient index data
             SkASSERT(fPendingCount*sizeof(uint16_t) <= fIndices.fSize);
-            fCommandList->drawIndexed(fPrimitiveType, 0, fPendingCount, fPendingBase);
+            fCommandList->drawIndexed(fPrimitiveType, 0, fPendingCount, fPendingBaseVertex);
         } else {
-            SkASSERT((fPendingBase + fPendingCount)*fVertexStride <= fVertices.fSize);
-            fCommandList->draw(fPrimitiveType, fPendingBase, fPendingCount);
+            SkASSERT((fPendingBaseVertex + fPendingCount)*fVertexStride <= fVertices.fSize);
+            fCommandList->draw(fPrimitiveType, fPendingBaseVertex, fPendingCount);
         }
+
+        fPendingBaseVertex += fPendingCount;
     }
 
-    fPendingBase += fPendingCount;
     fPendingCount = 0;
 }
 

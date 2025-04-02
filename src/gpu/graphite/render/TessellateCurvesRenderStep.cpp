@@ -96,10 +96,12 @@ TessellateCurvesRenderStep::TessellateCurvesRenderStep(bool evenOdd,
     // Initialize the static buffers we'll use when recording draw calls.
     // NOTE: Each instance of this RenderStep gets its own copy of the data. If this ends up causing
     // problems, we can modify StaticBufferManager to de-duplicate requests.
-    const size_t vertexSize = FixedCountCurves::VertexBufferSize();
-    auto vertexData = bufferManager->getVertexWriter(vertexSize, &fVertexBuffer);
+    auto vertexData = bufferManager->getVertexWriter(FixedCountCurves::VertexBufferVertexCount(),
+                                                     FixedCountCurves::VertexBufferStride(),
+                                                     &fVertexBuffer);
     if (vertexData) {
-        FixedCountCurves::WriteVertexBuffer(std::move(vertexData), vertexSize);
+        FixedCountCurves::WriteVertexBuffer(std::move(vertexData),
+                                            FixedCountCurves::VertexBufferSize());
     } // otherwise static buffer creation failed, so do nothing; Context initialization will fail.
 
     const size_t indexSize = FixedCountCurves::IndexBufferSize();
