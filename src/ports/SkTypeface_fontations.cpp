@@ -774,7 +774,7 @@ protected:
 
         *path = path->makeTransform(fRemainingMatrix);
 
-        if (fScale.y() != 1.0f || !fRemainingMatrix.isIdentity()) {
+        if (!fRemainingMatrix.isIdentity()) {
             *modified = true;
         }
         return true;
@@ -1032,6 +1032,11 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_Fontations::onGetAdvancedM
     // Style information.
     if (fontations_ffi::is_fixed_pitch(*fBridgeFontRef)) {
         info->fStyle |= SkAdvancedTypefaceMetrics::kFixedPitch_Style;
+    }
+
+    rust::String readPsName;
+    if (fontations_ffi::postscript_name(*fBridgeFontRef, readPsName)) {
+        info->fPostScriptName = SkString(readPsName.data(), readPsName.size());
     }
 
     fontations_ffi::BridgeFontStyle fontStyle;
