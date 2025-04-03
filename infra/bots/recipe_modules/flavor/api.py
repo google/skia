@@ -45,7 +45,7 @@ def is_chromebook(vars_api):
 
 def is_ios(vars_api):
   return ('iOS' in vars_api.extra_tokens or
-          'iOS' == vars_api.builder_cfg.get('os', ''))
+          'iOS' in vars_api.builder_cfg.get('os', ''))
 
 def is_valgrind(vars_api):
   return 'Valgrind' in vars_api.extra_tokens

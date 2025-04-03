@@ -309,6 +309,10 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/text_blob_traces"
   },
   {
+    "cmd": [],
+    "name": "copy [START_DIR]/text_blob_traces /sdcard/revenge_of_the_skiabot/text_blob_traces"
+  },
+  {
     "cmd": [
       "vpython3",
       "-u",
@@ -320,8 +324,9 @@
       "*"
     ],
     "infra_step": true,
-    "name": "ls [START_DIR]/text_blob_traces/*",
+    "name": "copy [START_DIR]/text_blob_traces /sdcard/revenge_of_the_skiabot/text_blob_traces.ls [START_DIR]/text_blob_traces/*",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/text_blob_traces/bar.jpg@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/text_blob_traces/foo.png@@@",
       "@@@STEP_LOG_END@glob@@@"
@@ -332,6 +337,24 @@
       "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/text_blob_traces/bar.jpg",
+      "/sdcard/revenge_of_the_skiabot/text_blob_traces"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [START_DIR]/text_blob_traces /sdcard/revenge_of_the_skiabot/text_blob_traces.push [START_DIR]/text_blob_traces/bar.jpg /sdcard/revenge_of_the_skiabot/text_blob_traces",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
       "[START_DIR]/text_blob_traces/foo.png",
       "/sdcard/revenge_of_the_skiabot/text_blob_traces"
     ],
@@ -342,7 +365,10 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/text_blob_traces/* /sdcard/revenge_of_the_skiabot/text_blob_traces"
+    "name": "copy [START_DIR]/text_blob_traces /sdcard/revenge_of_the_skiabot/text_blob_traces.push [START_DIR]/text_blob_traces/foo.png /sdcard/revenge_of_the_skiabot/text_blob_traces",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -361,6 +387,10 @@
     "name": "push [START_DIR]/tmp/TEXTTRACES_VERSION /sdcard/revenge_of_the_skiabot/TEXTTRACES_VERSION"
   },
   {
+    "cmd": [],
+    "name": "copy [START_DIR]/skia/resources /sdcard/revenge_of_the_skiabot/resources"
+  },
+  {
     "cmd": [
       "vpython3",
       "-u",
@@ -372,8 +402,9 @@
       "*"
     ],
     "infra_step": true,
-    "name": "ls [START_DIR]/skia/resources/*",
+    "name": "copy [START_DIR]/skia/resources /sdcard/revenge_of_the_skiabot/resources.ls [START_DIR]/skia/resources/*",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/skia/resources/bar.jpg@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/skia/resources/foo.png@@@",
       "@@@STEP_LOG_END@glob@@@"
@@ -384,6 +415,24 @@
       "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/skia/resources/bar.jpg",
+      "/sdcard/revenge_of_the_skiabot/resources"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [START_DIR]/skia/resources /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/bar.jpg /sdcard/revenge_of_the_skiabot/resources",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
       "[START_DIR]/skia/resources/foo.png",
       "/sdcard/revenge_of_the_skiabot/resources"
     ],
@@ -394,7 +443,10 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
+    "name": "copy [START_DIR]/skia/resources /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/foo.png /sdcard/revenge_of_the_skiabot/resources",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -511,6 +563,10 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/skps"
   },
   {
+    "cmd": [],
+    "name": "copy [START_DIR]/skp /sdcard/revenge_of_the_skiabot/skps"
+  },
+  {
     "cmd": [
       "vpython3",
       "-u",
@@ -522,8 +578,9 @@
       "*"
     ],
     "infra_step": true,
-    "name": "ls [START_DIR]/skp/*",
+    "name": "copy [START_DIR]/skp /sdcard/revenge_of_the_skiabot/skps.ls [START_DIR]/skp/*",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/skp/bar.jpg@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/skp/foo.png@@@",
       "@@@STEP_LOG_END@glob@@@"
@@ -534,6 +591,24 @@
       "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/skp/bar.jpg",
+      "/sdcard/revenge_of_the_skiabot/skps"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [START_DIR]/skp /sdcard/revenge_of_the_skiabot/skps.push [START_DIR]/skp/bar.jpg /sdcard/revenge_of_the_skiabot/skps",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
       "[START_DIR]/skp/foo.png",
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
@@ -544,7 +619,10 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skp/* /sdcard/revenge_of_the_skiabot/skps"
+    "name": "copy [START_DIR]/skp /sdcard/revenge_of_the_skiabot/skps.push [START_DIR]/skp/foo.png /sdcard/revenge_of_the_skiabot/skps",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -677,6 +755,10 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/images"
   },
   {
+    "cmd": [],
+    "name": "copy [START_DIR]/skimage /sdcard/revenge_of_the_skiabot/images"
+  },
+  {
     "cmd": [
       "vpython3",
       "-u",
@@ -688,8 +770,9 @@
       "*"
     ],
     "infra_step": true,
-    "name": "ls [START_DIR]/skimage/*",
+    "name": "copy [START_DIR]/skimage /sdcard/revenge_of_the_skiabot/images.ls [START_DIR]/skimage/*",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/skimage/bar.jpg@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/skimage/foo.png@@@",
       "@@@STEP_LOG_END@glob@@@"
@@ -700,6 +783,24 @@
       "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/skimage/bar.jpg",
+      "/sdcard/revenge_of_the_skiabot/images"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [START_DIR]/skimage /sdcard/revenge_of_the_skiabot/images.push [START_DIR]/skimage/bar.jpg /sdcard/revenge_of_the_skiabot/images",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
       "[START_DIR]/skimage/foo.png",
       "/sdcard/revenge_of_the_skiabot/images"
     ],
@@ -710,7 +811,10 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skimage/* /sdcard/revenge_of_the_skiabot/images"
+    "name": "copy [START_DIR]/skimage /sdcard/revenge_of_the_skiabot/images.push [START_DIR]/skimage/foo.png /sdcard/revenge_of_the_skiabot/images",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -843,6 +947,10 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/svgs"
   },
   {
+    "cmd": [],
+    "name": "copy [START_DIR]/svg /sdcard/revenge_of_the_skiabot/svgs"
+  },
+  {
     "cmd": [
       "vpython3",
       "-u",
@@ -854,8 +962,9 @@
       "*"
     ],
     "infra_step": true,
-    "name": "ls [START_DIR]/svg/*",
+    "name": "copy [START_DIR]/svg /sdcard/revenge_of_the_skiabot/svgs.ls [START_DIR]/svg/*",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/svg/bar.jpg@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/svg/foo.png@@@",
       "@@@STEP_LOG_END@glob@@@"
@@ -866,6 +975,24 @@
       "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/svg/bar.jpg",
+      "/sdcard/revenge_of_the_skiabot/svgs"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [START_DIR]/svg /sdcard/revenge_of_the_skiabot/svgs.push [START_DIR]/svg/bar.jpg /sdcard/revenge_of_the_skiabot/svgs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
       "[START_DIR]/svg/foo.png",
       "/sdcard/revenge_of_the_skiabot/svgs"
     ],
@@ -876,7 +1003,10 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/svg/* /sdcard/revenge_of_the_skiabot/svgs"
+    "name": "copy [START_DIR]/svg /sdcard/revenge_of_the_skiabot/svgs.push [START_DIR]/svg/foo.png /sdcard/revenge_of_the_skiabot/svgs",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -1032,6 +1162,21 @@
   },
   {
     "cmd": [
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/dump_adb_log.py",
+      "[START_DIR]/build",
+      "/opt/infra-android/tools/adb"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "dump log",
+    "timeout": 300
+  },
+  {
+    "cmd": [
       "/opt/infra-android/tools/adb",
       "reboot"
     ],
@@ -1069,7 +1214,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "dump log",
+    "name": "dump reboot log",
     "timeout": 300
   },
   {

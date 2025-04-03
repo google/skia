@@ -19,7 +19,33 @@ class SSHFlavor(default.DefaultFlavor):
 
   def __init__(self, m, app_name):
     super(SSHFlavor, self).__init__(m, app_name)
-    self._user_ip = ''
+    self._did_ssh_setup = False
+    self._use_old_flow = self.m.vars.builder_cfg['model'] in (
+        'Kevin', 'Sparky360', 'Spin513', 'Spin514')
+    self._ssh_args = []
+    self._user_ip = 'root@variable_chromeos_device_hostname'
+    if self._use_old_flow:
+      self._user_ip = ''  # Will be filled in later.
+
+  def _ssh_setup(self):
+    if self._use_old_flow or self._did_ssh_setup:
+      return
+
+    tmp = self.m.path.mkdtemp('chromite')
+    with self.m.context(cwd=tmp):
+      chromite_url = 'https://chromium.googlesource.com/chromiumos/chromite.git'
+      self.m.step('clone chromite', ['git', 'clone', chromite_url])
+    testing_rsa = tmp.join('chromite', 'ssh_keys', 'testing_rsa')
+    self.m.step('chmod 600 testing_rsa', ['chmod', '600', testing_rsa])
+    self._ssh_args = [
+      '-oConnectTimeout=30', '-oConnectionAttempts=4',
+      '-oNumberOfPasswordPrompts=0', '-oProtocol=2', '-oServerAliveInterval=15',
+      '-oServerAliveCountMax=8', '-oStrictHostKeyChecking=no',
+      '-oUserKnownHostsFile=/dev/null', '-oIdentitiesOnly=yes',
+      '-i', testing_rsa
+    ]
+
+    self._did_ssh_setup = True
 
   @property
   def user_ip(self):
@@ -31,11 +57,13 @@ class SSHFlavor(default.DefaultFlavor):
     return self._user_ip
 
   def ssh(self, title, *cmd, **kwargs):
+    self._ssh_setup()
+
     if 'infra_step' not in kwargs:
       kwargs['infra_step'] = True
 
-    ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
-               '-t', '-t', self.user_ip] + list(cmd)
+    ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes', '-t', '-t'] + \
+        self._ssh_args + [self.user_ip] + list(cmd)
 
     return self._run(title, ssh_cmd, **kwargs)
 
@@ -72,7 +100,7 @@ class SSHFlavor(default.DefaultFlavor):
   def copy_file_to_device(self, host_path, device_path):
     device_path = self.scp_device_path(device_path)
     self._run('scp %s %s' % (host_path, device_path),
-              ['scp', host_path, device_path], infra_step=True)
+              ['scp'] + self._ssh_args + [host_path, device_path], infra_step=True)
 
   # TODO(benjaminwagner): implement with rsync
   #def copy_directory_contents_to_device(self, host_path, device_path):

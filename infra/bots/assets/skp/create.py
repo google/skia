@@ -106,7 +106,7 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
 
     print('Running webpages_playback to generate SKPs...')
     webpages_playback_cmd = [
-      'python', '-u', os.path.join(SKIA_TOOLS, 'skp', 'webpages_playback.py'),
+      'python3', '-u', os.path.join(SKIA_TOOLS, 'skp', 'webpages_playback.py'),
       '--page_sets', 'all',
       '--browser_executable', browser_executable,
       '--non-interactive',
@@ -139,7 +139,7 @@ def create_asset(chrome_src_path, browser_executable, target_dir,
         if browser_executable in line:
           print(line)
           pid = line.strip().split(' ')[0]
-          if pid != str(os.getpid()) and not 'python' in line:
+          if pid != str(os.getpid()) and not 'python3' in line:
             print('Kill browser process %s' % str(pid))
             try:
               subprocess.check_call(['kill', '-9', str(pid)])

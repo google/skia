@@ -237,6 +237,7 @@ skia_cc_library(
         "GPU_TEST_UTILS",
     ],
     visibility = [
+        "//dm:__pkg__",
         "//src/gpu/graphite/mtl:__pkg__",
         "//src/gpu/graphite/vk:__pkg__",
         "//tools:__subpackages__",

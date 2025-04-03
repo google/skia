@@ -96,7 +96,7 @@ func TestRun_Success(t *testing.T) {
 				"/path/to/goldctl imgtest add --work-dir "+goldctlWorkDir+" --test-name beta --png-file "+outputsZIPExtractionDir+"/beta.png --png-digest b02b02b02b02b02b02b02b02b02b02b0 --add-test-key build_system:bazel --add-test-key name:beta --add-test-key source_type:gm",
 				"/path/to/goldctl imgtest finalize --work-dir "+goldctlWorkDir,
 				"Clean Bazel cache if disk space is too low",
-				"No need to clear the Bazel cache: free space on partition /mnt/pd0 is 20000000000 bytes, which is above the threshold of 15000000000 bytes",
+				"No need to clear the Bazel cache: free space on partition /home/chrome-bot is 20000000000 bytes, which is above the threshold of 15000000000 bytes",
 			)
 
 			// Command "bazelisk test ..." should be called from the checkout directory.

@@ -139,7 +139,7 @@ void run_test(PrecompileContext* precompileContext,
 
     bool correctGenerationAmt = generated.size() == allowedOvergeneration;
     REPORTER_ASSERT(reporter, correctGenerationAmt,
-                    "case %zu overgenerated - %zu > %d\n",
+                    "case %zu overgenerated - %zu > %u\n",
                     caseID, generated.size(), allowedOvergeneration);
 
     const size_t len = strlen(expectedString);

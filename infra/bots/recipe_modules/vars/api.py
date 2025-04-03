@@ -95,21 +95,19 @@ class SkiaVarsApi(recipe_api.RecipeApi):
   @property
   def swarming_bot_id(self):
     if not self._swarming_bot_id:
-      script = self.resource('get_env_var.py')
-      step_stdout = self.m.step(
-          name='get swarming bot id',
-          cmd=['python3', script, 'SWARMING_BOT_ID'],
-          stdout=self.m.raw_io.output()).stdout.decode('utf-8')
-      self._swarming_bot_id = step_stdout.rstrip() if step_stdout else ''
+      self._swarming_bot_id = self.getenv('get swarming bot id', 'SWARMING_BOT_ID')
     return self._swarming_bot_id
 
   @property
   def swarming_task_id(self):
     if not self._swarming_task_id:
-      script = self.resource('get_env_var.py')
-      step_stdout = self.m.step(
-          name='get swarming task id',
-          cmd=['python3', script, 'SWARMING_TASK_ID'],
-          stdout=self.m.raw_io.output()).stdout.decode('utf-8')
-      self._swarming_task_id = step_stdout.rstrip() if step_stdout else ''
+      self._swarming_task_id = self.getenv('get swarming task id', 'SWARMING_TASK_ID')
     return self._swarming_task_id
+
+  def getenv(self, name, var):
+    script = self.resource('get_env_var.py')
+    step_stdout = self.m.step(
+        name=name,
+        cmd=['python3', script, var],
+        stdout=self.m.raw_io.output()).stdout.decode('utf-8')
+    return step_stdout.rstrip() if step_stdout else ''

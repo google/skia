@@ -195,19 +195,17 @@
   },
   {
     "cmd": [
-      "python3",
-      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
-      "[START_DIR]",
       "[START_DIR]/build/nanobench",
       "--some-flag"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "LD_LIBRARY_PATH": "[START_DIR]/clang_linux/msan:[START_DIR]/clang_linux/lib/x86_64-unknown-linux-gnu",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/clang_linux/bin"
+      "LD_LIBRARY_PATH": "[START_DIR]/clang_ubuntu_noble/msan:[START_DIR]/clang_ubuntu_noble/lib/x86_64-unknown-linux-gnu",
+      "MSAN_OPTIONS": "symbolize=1 print_suppressions=1",
+      "MSAN_SYMBOLIZER_PATH": "[START_DIR]/clang_ubuntu_noble/bin/llvm-symbolizer",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/clang_ubuntu_noble/bin"
     },
-    "name": "symbolized nanobench"
+    "name": "nanobench"
   },
   {
     "name": "$result"

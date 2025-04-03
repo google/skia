@@ -476,13 +476,13 @@ void ANGLEGLContext::destroyGLContext() {
 
 void ANGLEGLContext::onPlatformMakeNotCurrent() const {
     if (!eglMakeCurrent(fDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
-        SkDebugf("Could not reset the context 0x%x.\n", eglGetError());
+        SkDebugf("Could not reset the context 0x%x.\n", unsigned(eglGetError()));
     }
 }
 
 void ANGLEGLContext::onPlatformMakeCurrent() const {
     if (!eglMakeCurrent(fDisplay, fSurface, fSurface, fContext)) {
-        SkDebugf("Could not set the context 0x%x.\n", eglGetError());
+        SkDebugf("Could not set the context 0x%x.\n", unsigned(eglGetError()));
     }
 }
 
