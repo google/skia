@@ -52,9 +52,7 @@ RandomScalerContext::RandomScalerContext(SkRandomTypeface& face,
                                          bool fakeIt)
         : SkScalerContext(face, effects, desc)
         , fProxy(getRandomTypeface()->proxy()->createScalerContext(SkScalerContextEffects(), desc))
-        , fFakeIt(fakeIt) {
-    fProxy->forceGenerateImageFromPath();
-}
+        , fFakeIt(fakeIt) {}
 
 SkScalerContext::GlyphMetrics RandomScalerContext::generateMetrics(const SkGlyph& origGlyph,
                                                                    SkArenaAlloc* alloc) {
