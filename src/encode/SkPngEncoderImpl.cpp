@@ -80,13 +80,22 @@ public:
      * Does not take ownership of stream
      */
     static std::unique_ptr<SkPngEncoderMgr> Make(SkWStream* stream);
-
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+    bool setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
+                   const SkImageInfo& srcInfo,
+                   const SkPngEncoder::Options& options);
+#else
     bool setHeader(const SkEncodedInfo& dstInfo,
                    const SkImageInfo& srcInfo,
                    const SkPngEncoder::Options& options);
+#endif //SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
     bool setColorSpace(const SkImageInfo& info, const SkPngEncoder::Options& options);
     bool setV0Gainmap(const SkPngEncoder::Options& options);
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+    bool writeInfo(const SkImageInfo& srcInfo,const SkPngEncoderBase::TargetInfo& targetInfo);
+#else
     bool writeInfo(const SkImageInfo& srcInfo);
+#endif //SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 
     png_structp pngPtr() { return fPngPtr; }
     png_infop infoPtr() { return fInfoPtr; }
@@ -119,6 +128,157 @@ std::unique_ptr<SkPngEncoderMgr> SkPngEncoderMgr::Make(SkWStream* stream) {
     return std::unique_ptr<SkPngEncoderMgr>(new SkPngEncoderMgr(pngPtr, infoPtr));
 }
 
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+bool SkPngEncoderMgr::setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
+                                const SkImageInfo& srcInfo,
+                                const SkPngEncoder::Options& options) {
+    if (setjmp(png_jmpbuf(fPngPtr))) {
+        return false;
+    }
+
+    const SkEncodedInfo& dstInfo = targetInfo.fDstInfo;
+    const std::optional<SkImageInfo>& dstRowInfo = targetInfo.fDstRowInfo;
+
+    int pngColorType;
+    switch (dstInfo.color()) {
+        case SkEncodedInfo::kRGB_Color:
+            pngColorType = PNG_COLOR_TYPE_RGB;
+            break;
+        case SkEncodedInfo::kRGBA_Color:
+            SkASSERT(dstRowInfo);
+            pngColorType = dstRowInfo->isOpaque() ? PNG_COLOR_TYPE_RGB
+                                : PNG_COLOR_TYPE_RGB_ALPHA;
+            break;
+        case SkEncodedInfo::kGray_Color:
+            pngColorType = PNG_COLOR_TYPE_GRAY;
+            break;
+        case SkEncodedInfo::kGrayAlpha_Color:
+            pngColorType = PNG_COLOR_TYPE_GRAY_ALPHA;
+            break;
+        default:
+            SkDEBUGFAIL("`getTargetInfo` returned unexpected `SkEncodedInfo::Color`");
+            return false;
+    }
+
+    png_color_8 sigBit;
+    switch (srcInfo.colorType()) {
+        case kRGBA_F16Norm_SkColorType:
+        case kRGBA_F16_SkColorType:
+        case kRGBA_F32_SkColorType:
+            sigBit.red = 16;
+            sigBit.green = 16;
+            sigBit.blue = 16;
+            sigBit.alpha = 16;
+            break;
+        case kRGB_F16F16F16x_SkColorType:
+            sigBit.red = 16;
+            sigBit.green = 16;
+            sigBit.blue = 16;
+            break;
+        case kGray_8_SkColorType:
+            sigBit.gray = 8;
+            break;
+        case kRGB_888x_SkColorType:
+            sigBit.red = 8;
+            sigBit.green = 8;
+            sigBit.blue = 8;
+            break;
+        case kARGB_4444_SkColorType:
+            sigBit.red = 4;
+            sigBit.green = 4;
+            sigBit.blue = 4;
+            sigBit.alpha = 4;
+            break;
+        case kRGB_565_SkColorType:
+            sigBit.red = 5;
+            sigBit.green = 6;
+            sigBit.blue = 5;
+            break;
+        case kAlpha_8_SkColorType:  // store as gray+alpha, but ignore gray
+            sigBit.gray = kGraySigBit_GrayAlphaIsJustAlpha;
+            sigBit.alpha = 8;
+            break;
+        case kRGBA_1010102_SkColorType:
+            sigBit.red = 10;
+            sigBit.green = 10;
+            sigBit.blue = 10;
+            sigBit.alpha = 2;
+            break;
+        case kBGR_101010x_XR_SkColorType:
+            case kRGB_101010x_SkColorType:
+            sigBit.red = 10;
+            sigBit.green = 10;
+            sigBit.blue = 10;
+            break;
+        case kBGRA_10101010_XR_SkColorType:
+            sigBit.red = 10;
+            sigBit.green = 10;
+            sigBit.blue = 10;
+            sigBit.alpha = 10;
+            break;
+        case kRGBA_8888_SkColorType:
+        case kBGRA_8888_SkColorType:
+            default:
+            sigBit.red = 8;
+            sigBit.green = 8;
+            sigBit.blue = 8;
+            sigBit.alpha = 8;
+            break;
+    }
+
+    png_set_IHDR(fPngPtr,
+                 fInfoPtr,
+                 srcInfo.width(),
+                 srcInfo.height(),
+                 dstInfo.bitsPerComponent(),
+                 pngColorType,
+                 PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_BASE,
+                 PNG_FILTER_TYPE_BASE);
+    png_set_sBIT(fPngPtr, fInfoPtr, &sigBit);
+
+    int filters = (int)options.fFilterFlags & (int)SkPngEncoder::FilterFlag::kAll;
+    SkASSERT(filters == (int)options.fFilterFlags);
+    png_set_filter(fPngPtr, PNG_FILTER_TYPE_BASE, filters);
+
+    int zlibLevel = std::min(std::max(0, options.fZLibLevel), 9);
+    SkASSERT(zlibLevel == options.fZLibLevel);
+    png_set_compression_level(fPngPtr, zlibLevel);
+
+    // Set comments in tEXt chunk
+    const sk_sp<SkDataTable>& comments = options.fComments;
+    if (comments != nullptr) {
+        if (comments->count() % 2 != 0) {
+            return false;
+        }
+
+        std::vector<png_text> png_texts(comments->count());
+        std::vector<SkString> clippedKeys;
+        for (int i = 0; i < comments->count() / 2; ++i) {
+            const char* keyword;
+            const char* originalKeyword = comments->atStr(2 * i);
+            const char* text = comments->atStr(2 * i + 1);
+            if (strlen(originalKeyword) <= PNG_KEYWORD_MAX_LENGTH) {
+                keyword = originalKeyword;
+            } else {
+                SkDEBUGFAILF("PNG tEXt keyword should be no longer than %d.",
+                             PNG_KEYWORD_MAX_LENGTH);
+                clippedKeys.emplace_back(originalKeyword, PNG_KEYWORD_MAX_LENGTH);
+                keyword = clippedKeys.back().c_str();
+            }
+            // It seems safe to convert png_const_charp to png_charp for key/text,
+            // and we don't have to provide text_length and other fields as we're providing
+            // 0-terminated c_str with PNG_TEXT_COMPRESSION_NONE (no compression, no itxt).
+            png_texts[i].compression = PNG_TEXT_COMPRESSION_NONE;
+            png_texts[i].key = const_cast<png_charp>(keyword);
+            png_texts[i].text = const_cast<png_charp>(text);
+        }
+        png_set_text(fPngPtr, fInfoPtr, png_texts.data(), png_texts.size());
+    }
+
+    return true;
+}
+#else
 bool SkPngEncoderMgr::setHeader(const SkEncodedInfo& dstInfo,
                                 const SkImageInfo& srcInfo,
                                 const SkPngEncoder::Options& options) {
@@ -264,6 +424,7 @@ bool SkPngEncoderMgr::setHeader(const SkEncodedInfo& dstInfo,
 
     return true;
 }
+#endif //SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 
 static void set_icc(png_structp png_ptr,
                     png_infop info_ptr,
@@ -382,6 +543,26 @@ bool SkPngEncoderMgr::setV0Gainmap(const SkPngEncoder::Options& options) {
     return true;
 }
 
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+bool SkPngEncoderMgr::writeInfo(const SkImageInfo& srcInfo, const SkPngEncoderBase::TargetInfo& targetInfo) {
+  if (setjmp(png_jmpbuf(fPngPtr))) {
+      return false;
+  }
+  png_write_info(fPngPtr, fInfoPtr);
+
+  const SkEncodedInfo& dstInfo = targetInfo.fDstInfo;
+  const std::optional<SkImageInfo>& dstRowInfo = targetInfo.fDstRowInfo;
+
+  // Strip input data that has 4 or 8 bytes per pixel down to 3 or 6 bytes if we don't want alpha.
+  if (dstInfo.color() == SkEncodedInfo::kRGBA_Color) {
+      SkASSERT(dstRowInfo);
+      if (dstRowInfo->isOpaque()) {
+        png_set_filler(fPngPtr, 0, PNG_FILLER_AFTER);
+      }
+  }
+  return true;
+}
+#else
 bool SkPngEncoderMgr::writeInfo(const SkImageInfo& srcInfo) {
     if (setjmp(png_jmpbuf(fPngPtr))) {
         return false;
@@ -390,6 +571,7 @@ bool SkPngEncoderMgr::writeInfo(const SkImageInfo& srcInfo) {
     png_write_info(fPngPtr, fInfoPtr);
     return true;
 }
+#endif //SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 
 SkPngEncoderImpl::SkPngEncoderImpl(TargetInfo targetInfo,
                                    std::unique_ptr<SkPngEncoderMgr> encoderMgr,
@@ -436,9 +618,15 @@ std::unique_ptr<SkEncoder> Make(SkWStream* dst, const SkPixmap& src, const Optio
         return nullptr;
     }
 
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+    if (!encoderMgr->setHeader(targetInfo.value(), src.info(), options)) {
+      return nullptr;
+    }
+#else
     if (!encoderMgr->setHeader(targetInfo->fDstInfo, src.info(), options)) {
         return nullptr;
     }
+#endif //SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 
     if (!encoderMgr->setColorSpace(src.info(), options)) {
         return nullptr;
@@ -448,9 +636,15 @@ std::unique_ptr<SkEncoder> Make(SkWStream* dst, const SkPixmap& src, const Optio
         return nullptr;
     }
 
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+    if (!encoderMgr->writeInfo(src.info(), targetInfo.value())) {
+        return nullptr;
+    }
+#else
     if (!encoderMgr->writeInfo(src.info())) {
         return nullptr;
     }
+#endif //SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 
     return std::make_unique<SkPngEncoderImpl>(std::move(*targetInfo), std::move(encoderMgr), src);
 }

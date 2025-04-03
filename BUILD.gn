@@ -1307,6 +1307,7 @@ optional("png_encode") {
   public_defines = [
     "SK_CODEC_ENCODES_PNG",
     "SK_CODEC_ENCODES_PNG_WITH_LIBPNG",
+    "SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS",
   ]
 
   public = skia_encode_png_public

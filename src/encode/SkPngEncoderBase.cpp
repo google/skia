@@ -20,6 +20,14 @@
 #include "src/base/SkMSAN.h"
 #include "src/base/SkSafeMath.h"
 
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+#include "include/core/SkColor.h"
+#include "modules/skcms/skcms.h"
+#include "src/core/SkConvertPixels.h"
+#include "src/core/SkImageInfoPriv.h"
+#include "src/encode/SkImageEncoderFns.h"
+#endif //SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+
 namespace {
 
 SkEncodedInfo makeInfo(const SkImageInfo& srcInfo,
@@ -41,22 +49,55 @@ SkEncodedInfo makeGrayAlpha8Info(const SkImageInfo& srcInfo) {
     return makeInfo(srcInfo, SkEncodedInfo::kGrayAlpha_Color, 8);
 }
 
+#ifndef  SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 SkEncodedInfo makeRgb8Info(const SkImageInfo& srcInfo) {
     return makeInfo(srcInfo, SkEncodedInfo::kRGB_Color, 8);
 }
+#endif //ifndef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 
 SkEncodedInfo makeRgba8Info(const SkImageInfo& srcInfo) {
     return makeInfo(srcInfo, SkEncodedInfo::kRGBA_Color, 8);
 }
 
+#ifndef  SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 SkEncodedInfo makeRgb16Info(const SkImageInfo& srcInfo) {
     return makeInfo(srcInfo, SkEncodedInfo::kRGB_Color, 16);
 }
+#endif //ifndef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 
 SkEncodedInfo makeRgba16Info(const SkImageInfo& srcInfo) {
     return makeInfo(srcInfo, SkEncodedInfo::kRGBA_Color, 16);
 }
 
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+SkPngEncoderBase::TargetInfo makeTargetInfo(SkEncodedInfo dstInfo, const SkImageInfo& srcImageInfo,
+                                            SkColorType dstCT, SkAlphaType dstAT) {
+    SkASSERT(dstCT != kAlpha_8_SkColorType);
+    SkImageInfo dstRowInfo = SkImageInfo::Make(srcImageInfo.width(), 1, dstCT, dstAT);
+    return SkPngEncoderBase::TargetInfo {srcImageInfo.makeWH(srcImageInfo.width(), 1),
+                                         dstRowInfo,
+                                         std::move(dstInfo),
+                                         dstRowInfo.minRowBytes(),};
+}
+
+std::optional<SkPngEncoderBase::TargetInfo> makeAlpha8TargetInfo(SkEncodedInfo dstInfo) {
+    // `static_cast<size_t>`(dstInfo.bitsPerPixel())` uses trustworthy, bounded
+    // data as input - no need to use `SkSafeMath` for this part.
+    SkASSERT(dstInfo.bitsPerComponent() == 8 || dstInfo.bitsPerComponent() == 16);
+    SkASSERT(dstInfo.bitsPerPixel() <= (16 * 4));
+    size_t bitsPerPixel = static_cast<size_t>(dstInfo.bitsPerPixel());
+    SkASSERT((bitsPerPixel % 8) == 0);
+    size_t bytesPerPixel = bitsPerPixel / 8;
+
+    SkSafeMath safe;
+    size_t dstRowSize = safe.mul(safe.castTo<size_t>(dstInfo.width()), bytesPerPixel);
+    if (!safe.ok()) {
+        return std::nullopt;
+    }
+    return SkPngEncoderBase::TargetInfo{std::nullopt, std::nullopt,
+                                        std::move(dstInfo), dstRowSize};
+}
+#else
 std::optional<SkPngEncoderBase::TargetInfo> makeTargetInfo(SkEncodedInfo dstInfo,
                                                            transform_scanline_proc transformProc) {
     // `static_cast<size_t>`(dstInfo.bitsPerPixel())` uses trustworthy, bounded
@@ -75,10 +116,89 @@ std::optional<SkPngEncoderBase::TargetInfo> makeTargetInfo(SkEncodedInfo dstInfo
 
     return SkPngEncoderBase::TargetInfo{std::move(dstInfo), transformProc, dstRowSize};
 }
+#endif //SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 
 }  // namespace
 
 // static
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+std::optional<SkPngEncoderBase::TargetInfo> SkPngEncoderBase::getTargetInfo(
+        const SkImageInfo& srcInfo) {
+
+SkColorType srcCT = srcInfo.colorType();
+SkAlphaType srcAT = srcInfo.alphaType();
+int numChannels = SkColorTypeNumChannels(srcCT);
+
+switch(numChannels) {
+  case 1: {
+      uint32_t srcChannelFlags = SkColorTypeChannelFlags(srcCT);
+      if (srcChannelFlags == kGray_SkColorChannelFlag) {
+          SkASSERT(srcInfo.isOpaque());
+          return makeTargetInfo(makeGray8Info(srcInfo), srcInfo, srcCT, srcAT);
+      }
+      // We support encoding kAlpha_8_SkColorType to GrayAlpha images and just ignore gray.
+      // Otherwise, there is no sensible way to encode alpha only images.
+      if (srcCT == kAlpha_8_SkColorType) {
+          return makeAlpha8TargetInfo(makeGrayAlpha8Info(srcInfo));
+      }
+      break;
+  }
+  case 3: {
+      SkASSERT(srcInfo.isOpaque());
+      if (srcAT == kUnknown_SkAlphaType) {
+          SkDEBUGFAIL("unknown alpha type");
+          return std::nullopt;
+      }
+      int maxBitsPerChannel = SkColorTypeMaxBitsPerChannel(srcCT);
+      if (maxBitsPerChannel <= 8) {
+          return makeTargetInfo(makeRgba8Info(srcInfo),
+                                srcInfo,
+                                kRGB_888x_SkColorType,
+                                kOpaque_SkAlphaType);
+      } else if (maxBitsPerChannel <= 32) {
+          return makeTargetInfo(makeRgba16Info(srcInfo),
+                                srcInfo,
+                                kR16G16B16A16_unorm_SkColorType,
+                                kOpaque_SkAlphaType);
+      }
+      break;
+  }
+  case 4: {
+      if (srcAT == kUnknown_SkAlphaType) {
+          SkDEBUGFAIL("unknown alpha type");
+          return std::nullopt;
+      }
+      int maxBitsPerChannel = SkColorTypeMaxBitsPerChannel(srcCT);
+      if (maxBitsPerChannel <= 8) {
+          if (srcAT == kOpaque_SkAlphaType) {
+              return makeTargetInfo(makeRgba8Info(srcInfo),
+                                    srcInfo,
+                                    kRGB_888x_SkColorType,
+                                    kOpaque_SkAlphaType);
+          }
+          return makeTargetInfo(makeRgba8Info(srcInfo),
+                                srcInfo,
+                                kRGBA_8888_SkColorType,
+                                kUnpremul_SkAlphaType);
+      } else if (maxBitsPerChannel <= 32) {
+          if (srcAT == kOpaque_SkAlphaType) {
+              return makeTargetInfo(makeRgba16Info(srcInfo),
+                                    srcInfo,
+                                    kR16G16B16A16_unorm_SkColorType,
+                                    kOpaque_SkAlphaType);
+          }
+          return makeTargetInfo(makeRgba16Info(srcInfo),
+                                srcInfo,
+                                kR16G16B16A16_unorm_SkColorType,
+                                kUnpremul_SkAlphaType);
+      }
+  }
+  break;
+}
+return std::nullopt;
+}
+#else
+
 std::optional<SkPngEncoderBase::TargetInfo> SkPngEncoderBase::getTargetInfo(
         const SkImageInfo& srcInfo) {
     switch (srcInfo.colorType()) {
@@ -226,11 +346,17 @@ std::optional<SkPngEncoderBase::TargetInfo> SkPngEncoderBase::getTargetInfo(
     SkDEBUGFAIL("unsupported color type");
     return std::nullopt;
 }
+#endif //SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 
 SkPngEncoderBase::SkPngEncoderBase(TargetInfo targetInfo, const SkPixmap& src)
         : SkEncoder(src, targetInfo.fDstRowSize), fTargetInfo(std::move(targetInfo)) {
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+    SkASSERT(src.colorType() == kAlpha_8_SkColorType
+             || (fTargetInfo.fSrcRowInfo && fTargetInfo.fDstRowInfo));
+#else
     SkASSERT(fTargetInfo.fTransformProc);
     SkASSERT(fTargetInfo.fDstRowSize > 0);
+#endif //SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 }
 
 bool SkPngEncoderBase::onEncodeRows(int numRows) {
@@ -253,11 +379,40 @@ bool SkPngEncoderBase::onEncodeRows(int numRows) {
         sk_msan_assert_initialized(srcRow,
                                    (const uint8_t*)srcRow + (fSrc.width() << fSrc.shiftPerPixel()));
 
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+        if (fSrc.colorType() == kAlpha_8_SkColorType) {
+          // This is a special case where we store kAlpha_8 images as GrayAlpha in png.
+          transform_scanline_A8_to_GrayAlpha((char*)fStorage.get(),
+                                            (const char*)srcRow,
+                                            fSrc.width(),
+                                            SkColorTypeBytesPerPixel(fSrc.colorType()));
+        } else {
+          SkASSERT(fSrc.width() == fTargetInfo.fSrcRowInfo->width());
+          if (!SkConvertPixels(fTargetInfo.fDstRowInfo.value(),
+                              (void*)fStorage.get(),
+                              fTargetInfo.fDstRowSize,
+                              fTargetInfo.fSrcRowInfo.value(),
+                              srcRow,
+                              fTargetInfo.fSrcRowInfo->minRowBytes()))
+          {
+              return false;
+          }
+          // We need to convert from little endian to big endian so we use skcms.
+          if (fTargetInfo.fDstRowInfo.value().colorType() == kR16G16B16A16_unorm_SkColorType) {
+              if (!skcms_Transform((char*)fStorage.get(), skcms_PixelFormat_RGBA_16161616LE,
+                                  skcms_AlphaFormat_Unpremul, nullptr, fStorage.get(),
+                                  skcms_PixelFormat_RGBA_16161616BE, skcms_AlphaFormat_Unpremul,
+                                  nullptr, fSrc.width())) {
+                  return false;
+              }
+          }
+        }
+#else
         fTargetInfo.fTransformProc((char*)fStorage.get(),
                                    (const char*)srcRow,
                                    fSrc.width(),
                                    SkColorTypeBytesPerPixel(fSrc.colorType()));
-
+#endif //SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
         SkSpan<const uint8_t> rowToEncode(fStorage.get(), fTargetInfo.fDstRowSize);
         if (!this->onEncodeRow(rowToEncode)) {
             return false;

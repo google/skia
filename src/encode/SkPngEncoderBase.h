@@ -12,6 +12,9 @@
 
 #include <optional>
 
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+#include "include/core/SkImageInfo.h"
+#endif
 #include "include/encode/SkEncoder.h"
 #include "include/private/SkEncodedInfo.h"
 #include "src/encode/SkImageEncoderFns.h"
@@ -25,9 +28,16 @@ template <typename T> class SkSpan;
 class SkPngEncoderBase : public SkEncoder {
 public:
     struct TargetInfo {
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
+        std::optional<SkImageInfo> fSrcRowInfo;
+        std::optional<SkImageInfo> fDstRowInfo;
+        SkEncodedInfo fDstInfo;
+        size_t fDstRowSize;
+#else
         SkEncodedInfo fDstInfo;
         transform_scanline_proc fTransformProc;
         size_t fDstRowSize;
+#endif //SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
     };
 
     // Gets the `fDstInfo` that `srcInfo` should be converted into before
