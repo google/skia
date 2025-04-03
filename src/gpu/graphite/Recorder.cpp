@@ -102,6 +102,9 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
         , fTextureDataCache(new TextureDataCache)
         , fProxyReadCounts(new ProxyReadCountMap)
         , fUniqueID(next_id())
+        , fRequireOrderedRecordings(options.fRequireOrderedRecordings.has_value()
+                                            ? *options.fRequireOrderedRecordings
+                                            : fSharedContext->caps()->requireOrderedRecordings())
         , fAtlasProvider(std::make_unique<AtlasProvider>(this))
         , fTokenTracker(std::make_unique<TokenTracker>())
         , fStrikeCache(std::make_unique<sktext::gpu::StrikeCache>())
@@ -189,7 +192,8 @@ std::unique_ptr<Recording> Recorder::snap() {
     // Recorder doesn't hold a persistent manager and it can be deleted when snap() returns.
     ScratchResourceManager scratchManager{fResourceProvider, std::move(fProxyReadCounts)};
     std::unique_ptr<Recording> recording(new Recording(fNextRecordingID++,
-                                                       fUniqueID,
+                                                       fRequireOrderedRecordings ? fUniqueID
+                                                                                 : SK_InvalidGenID,
                                                        std::move(nonVolatileLazyProxies),
                                                        std::move(volatileLazyProxies),
                                                        std::move(fTargetProxyData),
@@ -227,7 +231,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     fRuntimeEffectDict->reset();
     fProxyReadCounts = std::make_unique<ProxyReadCountMap>();
     fTextureDataCache = std::make_unique<TextureDataCache>();
-    if (!this->priv().caps()->requireOrderedRecordings()) {
+    if (!fRequireOrderedRecordings) {
         fAtlasProvider->invalidateAtlases();
     }
 

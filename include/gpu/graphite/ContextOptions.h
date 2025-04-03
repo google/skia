@@ -89,10 +89,18 @@ struct SK_API ContextOptions {
     bool fSupportBilerpFromGlyphAtlas = false;
 
     /**
-     * For the moment, if Recordings are replayed in the order they are recorded, then
-     * Graphite can make certain assumptions that allow for better performance. Otherwise
-     * we have to flush some caches at the start of each Recording to ensure that they can
+     * For the moment, if Recordings from the same Recorder are replayed in the order they are
+     * recorded, then Graphite can make certain assumptions that allow for better performance.
+     * Otherwise we have to flush some caches at the start of each Recording to ensure that they can
      * be played back properly.
+     *
+     * This is the default ordering requirement for a Recorder. It can be overridden by
+     * setting the same field on the RecorderOptions passed to makeRecorder.
+     *
+     * Regardless of this value or a per-Recorder's setting, Recordings from separate Recorders can
+     * always be inserted in any order but it is the application's responsible to ensure that any
+     * implicit dependencies between the Recorders are respected (e.g. rendering to an SkSurface
+     * in one Recorder and sampling from that SkSurface's SkImage view on another Recorder).
      */
     bool fRequireOrderedRecordings = false;
 

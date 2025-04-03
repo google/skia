@@ -106,10 +106,12 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
         return false;
     }
 
-    if (fSharedContext->caps()->requireOrderedRecordings()) {
-        uint32_t* recordingID = fLastAddedRecordingIDs.find(info.fRecording->priv().recorderID());
-        if (recordingID &&
-            info.fRecording->priv().uniqueID() != *recordingID+1) {
+    // Recordings from a Recorder that requires ordered recordings will have a valid recorder ID.
+    // Recordings that don't have any required order are assigned SK_InvalidID.
+    uint32_t recorderID = info.fRecording->priv().recorderID();
+    if (recorderID != SK_InvalidGenID) {
+        uint32_t* recordingID = fLastAddedRecordingIDs.find(recorderID);
+        if (recordingID && info.fRecording->priv().uniqueID() != *recordingID + 1) {
             if (callback) {
                 callback->setFailureResult();
             }
@@ -118,8 +120,7 @@ bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* contex
         }
 
         // Note the new Recording ID.
-        fLastAddedRecordingIDs.set(info.fRecording->priv().recorderID(),
-                                   info.fRecording->priv().uniqueID());
+        fLastAddedRecordingIDs.set(recorderID, info.fRecording->priv().uniqueID());
     }
 
     if (info.fTargetSurface &&
