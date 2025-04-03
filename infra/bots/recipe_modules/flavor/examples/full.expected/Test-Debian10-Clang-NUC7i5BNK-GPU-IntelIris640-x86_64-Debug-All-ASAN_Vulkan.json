@@ -195,13 +195,9 @@
   },
   {
     "cmd": [
-      "python3",
-      "RECIPE_MODULE[skia::flavor]/resources/symbolize_stack_trace.py",
-      "[START_DIR]",
       "[START_DIR]/build/dm",
       "--some-flag"
     ],
-    "cwd": "[START_DIR]/skia",
     "env": {
       "ASAN_OPTIONS": "symbolize=1 detect_leaks=1 fast_unwind_on_malloc=0",
       "ASAN_SYMBOLIZER_PATH": "[START_DIR]/clang_linux/bin/llvm-symbolizer",
@@ -214,7 +210,7 @@
       "VK_ICD_FILENAMES": "[START_DIR]/mesa_intel_driver_linux/intel_icd.x86_64.json",
       "VULKAN_SDK": "[START_DIR]/linux_vulkan_sdk"
     },
-    "name": "symbolized dm"
+    "name": "dm"
   },
   {
     "name": "$result"

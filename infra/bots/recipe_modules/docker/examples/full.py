@@ -25,6 +25,7 @@ def RunSteps(api):
       docker_args=['--cpus', '2'],
       copies=[{'src': '/copy-src/myfile', 'dst': '/copy-dst/myfile'}],
       recursive_read=['/host-src'],
+      env={'ENV_VAR': 'VALUE'},
   )
 
 def GenTests(api):

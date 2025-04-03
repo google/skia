@@ -176,7 +176,7 @@ public:
         size_t uniformPayloadSize = UniformPayloadSize(effect);
         std::unique_ptr<GrSkSLFP> fp(new (uniformPayloadSize) GrSkSLFP(sk_ref_sp(effect),
                                                                        name, optFlags));
-        fp->appendArgs(fp->uniformData(), fp->specialized(), std::forward<Args>(args)...);
+        fp->appendArgs(fp->uniformData(), fp->specialized(), std::forward<Args>(args)...); // NOLINT
         if (inputFP) {
             fp->setInput(std::move(inputFP));
         }

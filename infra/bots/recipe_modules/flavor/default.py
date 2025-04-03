@@ -128,8 +128,10 @@ class DefaultFlavor(object):
     ld_library_path = []
 
     workdir = self.m.vars.workdir
-    clang_linux = workdir.joinpath('clang_linux')
     extra_tokens = self.m.vars.extra_tokens
+    clang_linux = workdir.joinpath('clang_linux')
+    if 'MSAN' in extra_tokens:
+      clang_linux = workdir.joinpath('clang_ubuntu_noble')
 
     if self.m.vars.is_linux:
       if (self.m.vars.builder_cfg.get('cpu_or_gpu', '') == 'GPU'
@@ -190,10 +192,19 @@ class DefaultFlavor(object):
         env['ASAN_OPTIONS'] += ' fast_unwind_on_malloc=0'
         env['LSAN_OPTIONS'] += ' fast_unwind_on_malloc=0'
 
+    if 'MSAN' in extra_tokens:
+      env['MSAN_OPTIONS'] = 'symbolize=1 print_suppressions=1'
+      env['MSAN_SYMBOLIZER_PATH'] = clang_linux.joinpath('bin', 'llvm-symbolizer')
+
+
     if 'TSAN' in extra_tokens:
       # We don't care about malloc(), fprintf, etc. used in signal handlers.
       # If we're in a signal handler, we're already crashing...
       env['TSAN_OPTIONS'] = 'report_signal_unsafe=0'
+      if self.m.vars.is_linux:
+        # Running through setarch with '-R' disables address randomization,
+        # which would otherwise cause TSAN to error out.
+        cmd = ['setarch', '-R'] + cmd
 
     if 'Coverage' in extra_tokens:
       # This is the output file for the coverage data. Just running the binary
@@ -214,7 +225,7 @@ class DefaultFlavor(object):
           '%s' % p for p in ld_library_path)
 
     to_symbolize = ['dm', 'nanobench']
-    if name in to_symbolize and self.m.vars.is_linux:
+    if name in to_symbolize and self.m.vars.is_linux and 'MSAN' not in extra_tokens and 'ASAN' not in extra_tokens:
       # Convert path objects or placeholders into strings such that they can
       # be passed to symbolize_stack_trace.py
       args = [workdir] + [str(x) for x in cmd]

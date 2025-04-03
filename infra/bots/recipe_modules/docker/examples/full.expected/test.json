@@ -141,6 +141,8 @@
       "type=bind,source=/host-out,target=/OUT",
       "--cpus",
       "2",
+      "-e",
+      "ENV_VAR=VALUE",
       "my.docker.image",
       "/SRC/../do-stuff.sh",
       "--src",

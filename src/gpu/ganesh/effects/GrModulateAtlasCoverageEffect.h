@@ -48,7 +48,7 @@ private:
     void onAddToKey(const GrShaderCaps&, skgpu::KeyBuilder* b) const override;
 
     bool onIsEqual(const GrFragmentProcessor& that) const override {
-        auto fp = that.cast<GrModulateAtlasCoverageEffect>();
+        auto fp = that.cast<GrModulateAtlasCoverageEffect>(); // NOLINT
         return fFlags == fp.fFlags && fBounds == fp.fBounds;
     }
     std::unique_ptr<ProgramImpl> onMakeProgramImpl() const override;

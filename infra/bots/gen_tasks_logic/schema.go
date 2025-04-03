@@ -104,11 +104,14 @@ func (p parts) extraConfig(eq ...string) bool {
 	if ec == "" {
 		return false
 	}
-	var cfgs []string
-	if strings.HasPrefix(ec, "SK_") {
-		cfgs = []string{ec}
-	} else {
-		cfgs = strings.Split(ec, "_")
+	splitCfgs := strings.Split(ec, "_")
+	cfgs := make([]string, 0, len(splitCfgs))
+	for idx, c := range splitCfgs {
+		if c == "SK" {
+			cfgs = append(cfgs, strings.Join(cfgs[idx:], "_"))
+			break
+		}
+		cfgs = append(cfgs, c)
 	}
 	for _, c := range cfgs {
 		for _, e := range eq {

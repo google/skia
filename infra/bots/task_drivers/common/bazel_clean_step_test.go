@@ -25,17 +25,17 @@ func TestBazelCleanIfLowDiskSpace_EnoughDiskSpace_BazelCachePreserved(t *testing
 
 		ctx = context.WithValue(ctx, BazelCleanIfLowDiskSpaceContextKey, BazelCleanIfLowDiskSpaceContextValue{
 			GetPartitionMountpoints: func() ([]string, error) {
-				// Note that some of these mountpoints are prefixes of the actual mountpoint ("/mnt/pd0").
+				// Note that some of these mountpoints are prefixes of the actual mountpoint ("/home").
 				// This test checks that BazelCleanIfLowDiskSpace correctly identifies the mountpoint.
-				return []string{"/", "/boot", "/mnt", "/mnt/pd0", "/var"}, nil
+				return []string{"/", "/boot", "/home", "/home/chrome-bot", "/var"}, nil
 			},
 			FreeBytesOnPartition: func(mountpoint string) (uint64, error) {
-				require.Equal(t, "/mnt/pd0", mountpoint)
+				require.Equal(t, "/home/chrome-bot", mountpoint)
 				return uint64(20_000_000_000), nil
 			},
 		})
 
-		err := BazelCleanIfLowDiskSpace(ctx, "/mnt/pd0/bazel_cache", "/path/to/checkout", "/path/to/bazel")
+		err := BazelCleanIfLowDiskSpace(ctx, "/home/chrome-bot/bazel_cache", "/path/to/checkout", "/path/to/bazel")
 
 		assert.NoError(t, err)
 		return err
@@ -45,7 +45,7 @@ func TestBazelCleanIfLowDiskSpace_EnoughDiskSpace_BazelCachePreserved(t *testing
 	require.Empty(t, res.Exceptions)
 	testutils.AssertStepNames(t, res,
 		"Clean Bazel cache if disk space is too low",
-		"No need to clear the Bazel cache: free space on partition /mnt/pd0 is 20000000000 bytes, which is above the threshold of 15000000000 bytes",
+		"No need to clear the Bazel cache: free space on partition /home/chrome-bot is 20000000000 bytes, which is above the threshold of 15000000000 bytes",
 	)
 
 	assert.Empty(t, commandCollector.Commands())
@@ -58,17 +58,17 @@ func TestBazelCleanIfLowDiskSpace_LowDiskSpace_BazelCacheDeleted(t *testing.T) {
 
 		ctx = context.WithValue(ctx, BazelCleanIfLowDiskSpaceContextKey, BazelCleanIfLowDiskSpaceContextValue{
 			GetPartitionMountpoints: func() ([]string, error) {
-				// Note that some of these mountpoints are prefixes of the actual mountpoint ("/mnt/pd0").
+				// Note that some of these mountpoints are prefixes of the actual mountpoint ("//home").
 				// This test checks that BazelCleanIfLowDiskSpace correctly identifies the mountpoint.
-				return []string{"/", "/boot", "/mnt/pd0", "/var"}, nil
+				return []string{"/", "/boot", "/home", "/home/chrome-bot", "/var"}, nil
 			},
 			FreeBytesOnPartition: func(mountpoint string) (uint64, error) {
-				require.Equal(t, "/mnt/pd0", mountpoint)
+				require.Equal(t, "/home/chrome-bot", mountpoint)
 				return 0, nil
 			},
 		})
 
-		err := BazelCleanIfLowDiskSpace(ctx, "/mnt/pd0", "/path/to/checkout", "/path/to/bazel")
+		err := BazelCleanIfLowDiskSpace(ctx, "/home/chrome-bot", "/path/to/checkout", "/path/to/bazel")
 
 		assert.NoError(t, err)
 		return err
@@ -78,7 +78,7 @@ func TestBazelCleanIfLowDiskSpace_LowDiskSpace_BazelCacheDeleted(t *testing.T) {
 	require.Empty(t, res.Exceptions)
 	testutils.AssertStepNames(t, res,
 		"Clean Bazel cache if disk space is too low",
-		"Free space on partition /mnt/pd0 is 0 bytes, which is below the threshold of 15000000000 bytes",
+		"Free space on partition /home/chrome-bot is 0 bytes, which is below the threshold of 15000000000 bytes",
 		"/path/to/bazel clean",
 	)
 

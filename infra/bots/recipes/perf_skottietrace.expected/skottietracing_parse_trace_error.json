@@ -72,6 +72,10 @@
     "name": "push dm"
   },
   {
+    "cmd": [],
+    "name": "copy [START_DIR]/skia/resources /sdcard/revenge_of_the_skiabot/resources"
+  },
+  {
     "cmd": [
       "vpython3",
       "-u",
@@ -83,8 +87,9 @@
       "*"
     ],
     "infra_step": true,
-    "name": "ls [START_DIR]/skia/resources/*",
+    "name": "copy [START_DIR]/skia/resources /sdcard/revenge_of_the_skiabot/resources.ls [START_DIR]/skia/resources/*",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/skia/resources/bar.jpg@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/skia/resources/foo.png@@@",
       "@@@STEP_LOG_END@glob@@@"
@@ -95,6 +100,24 @@
       "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/skia/resources/bar.jpg",
+      "/sdcard/revenge_of_the_skiabot/resources"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [START_DIR]/skia/resources /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/bar.jpg /sdcard/revenge_of_the_skiabot/resources",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
       "[START_DIR]/skia/resources/foo.png",
       "/sdcard/revenge_of_the_skiabot/resources"
     ],
@@ -105,7 +128,10 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/skia/resources/* /sdcard/revenge_of_the_skiabot/resources"
+    "name": "copy [START_DIR]/skia/resources /sdcard/revenge_of_the_skiabot/resources.push [START_DIR]/skia/resources/foo.png /sdcard/revenge_of_the_skiabot/resources",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -222,6 +248,10 @@
     "name": "mkdir /sdcard/revenge_of_the_skiabot/lotties"
   },
   {
+    "cmd": [],
+    "name": "copy [START_DIR]/lottie-samples /sdcard/revenge_of_the_skiabot/lotties"
+  },
+  {
     "cmd": [
       "vpython3",
       "-u",
@@ -233,8 +263,9 @@
       "*"
     ],
     "infra_step": true,
-    "name": "ls [START_DIR]/lottie-samples/*",
+    "name": "copy [START_DIR]/lottie-samples /sdcard/revenge_of_the_skiabot/lotties.ls [START_DIR]/lottie-samples/*",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/lottie-samples/bar.jpg@@@",
       "@@@STEP_LOG_LINE@glob@[START_DIR]/lottie-samples/foo.png@@@",
       "@@@STEP_LOG_END@glob@@@"
@@ -245,6 +276,24 @@
       "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/lottie-samples/bar.jpg",
+      "/sdcard/revenge_of_the_skiabot/lotties"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [START_DIR]/lottie-samples /sdcard/revenge_of_the_skiabot/lotties.push [START_DIR]/lottie-samples/bar.jpg /sdcard/revenge_of_the_skiabot/lotties",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
       "[START_DIR]/lottie-samples/foo.png",
       "/sdcard/revenge_of_the_skiabot/lotties"
     ],
@@ -255,7 +304,10 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [START_DIR]/lottie-samples/* /sdcard/revenge_of_the_skiabot/lotties"
+    "name": "copy [START_DIR]/lottie-samples /sdcard/revenge_of_the_skiabot/lotties.push [START_DIR]/lottie-samples/foo.png /sdcard/revenge_of_the_skiabot/lotties",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -350,6 +402,10 @@
     "name": "Copying files on host to remove symlinks"
   },
   {
+    "cmd": [],
+    "name": "copy [CLEANUP]/lwa_tmp_1/nosymlinks /sdcard/revenge_of_the_skiabot/lotties_with_assets"
+  },
+  {
     "cmd": [
       "vpython3",
       "-u",
@@ -361,8 +417,9 @@
       "*"
     ],
     "infra_step": true,
-    "name": "ls [CLEANUP]/lwa_tmp_1/nosymlinks/*",
+    "name": "copy [CLEANUP]/lwa_tmp_1/nosymlinks /sdcard/revenge_of_the_skiabot/lotties_with_assets.ls [CLEANUP]/lwa_tmp_1/nosymlinks/*",
     "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@",
       "@@@STEP_LOG_LINE@glob@[CLEANUP]/lwa_tmp_1/nosymlinks/bar.jpg@@@",
       "@@@STEP_LOG_LINE@glob@[CLEANUP]/lwa_tmp_1/nosymlinks/foo.png@@@",
       "@@@STEP_LOG_END@glob@@@"
@@ -373,6 +430,24 @@
       "/opt/infra-android/tools/adb",
       "push",
       "[CLEANUP]/lwa_tmp_1/nosymlinks/bar.jpg",
+      "/sdcard/revenge_of_the_skiabot/lotties_with_assets"
+    ],
+    "cwd": "[START_DIR]/skia",
+    "env": {
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "copy [CLEANUP]/lwa_tmp_1/nosymlinks /sdcard/revenge_of_the_skiabot/lotties_with_assets.push [CLEANUP]/lwa_tmp_1/nosymlinks/bar.jpg /sdcard/revenge_of_the_skiabot/lotties_with_assets",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
+      "push",
       "[CLEANUP]/lwa_tmp_1/nosymlinks/foo.png",
       "/sdcard/revenge_of_the_skiabot/lotties_with_assets"
     ],
@@ -383,7 +458,10 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "push [CLEANUP]/lwa_tmp_1/nosymlinks/* /sdcard/revenge_of_the_skiabot/lotties_with_assets"
+    "name": "copy [CLEANUP]/lwa_tmp_1/nosymlinks /sdcard/revenge_of_the_skiabot/lotties_with_assets.push [CLEANUP]/lwa_tmp_1/nosymlinks/foo.png /sdcard/revenge_of_the_skiabot/lotties_with_assets",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -532,6 +610,21 @@
   },
   {
     "cmd": [
+      "python3",
+      "RECIPE_MODULE[skia::flavor]/resources/dump_adb_log.py",
+      "[START_DIR]/build",
+      "/opt/infra-android/tools/adb"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "dump log",
+    "timeout": 300
+  },
+  {
+    "cmd": [
       "/opt/infra-android/tools/adb",
       "reboot"
     ],
@@ -569,7 +662,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "dump log",
+    "name": "dump reboot log",
     "timeout": 300
   },
   {
