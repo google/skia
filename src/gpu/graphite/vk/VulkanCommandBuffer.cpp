@@ -1223,7 +1223,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
                                    /*bindingIdx=*/numTexSamplers-1,
                                    PipelineStageFlags::kFragmentShader,
                                    /*immutableSampler=*/nullptr});
-                            }
+        }
         SkASSERT(descriptors.size() == numTexSamplers);
         set = fResourceProvider->findOrCreateDescriptorSet(
                 SkSpan<DescriptorData>{&descriptors.front(), descriptors.size()});

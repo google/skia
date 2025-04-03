@@ -509,13 +509,13 @@ sk_sp<VulkanFramebuffer> VulkanResourceProvider::createFramebuffer(
 
     VulkanTexture* mainTexture = nullptr;
     if (colorTexture) {
-        mainTexture = resolveTexture ? resolveTexture: colorTexture;
+        mainTexture = resolveTexture ? resolveTexture : colorTexture;
     } else {
         SkASSERT(depthStencilTexture);
         mainTexture = depthStencilTexture;
     }
     SkASSERT(mainTexture);
-    VulkanTexture* msaaTexture = resolveTexture ? colorTexture: nullptr;
+    VulkanTexture* msaaTexture = resolveTexture ? colorTexture : nullptr;
 
     sk_sp<VulkanFramebuffer> fb = mainTexture->getCachedFramebuffer(renderPassDesc,
                                                                     msaaTexture,
