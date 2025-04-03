@@ -58,17 +58,14 @@ const (
 	ISOLATE_SDK_LINUX_NAME     = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME = "Housekeeper-PerCommit-IsolateWinToolchain"
 
-	DEBIAN_11_OS                   = "Debian-11.5"
-	DEFAULT_OS_DEBIAN              = "Debian-10.10"
-	DEFAULT_OS_LINUX_GCE           = "Debian-10.3"
-	OLD_OS_LINUX_GCE               = "Debian-9.8"
-	COMPILE_TASK_NAME_OS_LINUX     = "Debian10"
-	COMPILE_TASK_NAME_OS_LINUX_OLD = "Debian9"
-	DEFAULT_OS_MAC                 = "Mac-14.5"
-	DEFAULT_OS_WIN_GCE             = "Windows-Server-17763"
-	UBUNTU_20_04_OS                = "Ubuntu-20.04"
-	UBUNTU_22_04_OS                = "Ubuntu-22.04"
-	UBUNTU_24_04_OS                = "Ubuntu-24.04"
+	DEBIAN_11_OS         = "Debian-11.5"
+	DEBIAN_10_OS         = "Debian-10.10"
+	DEFAULT_OS_LINUX_GCE = UBUNTU_24_04_OS
+	DEFAULT_OS_MAC       = "Mac-14.5"
+	DEFAULT_OS_WIN_GCE   = "Windows-Server-17763"
+	UBUNTU_20_04_OS      = "Ubuntu-20.04"
+	UBUNTU_22_04_OS      = "Ubuntu-22.04"
+	UBUNTU_24_04_OS      = "Ubuntu-24.04"
 
 	// Small is a 2-core machine.
 	// TODO(dogben): Would n1-standard-1 or n1-standard-2 be sufficient?
@@ -97,9 +94,8 @@ const (
 
 	// bazelCacheDirOnGCELinux is the path where Bazel should write its cache on Linux GCE machines.
 	// The Bazel cache can grow large (>10GB), so this should be in a partition with enough free
-	// space. On Linux GCE machines, the partition mounted at /mnt/pd0 is significantly larger than
-	// the partition mounted at /.
-	bazelCacheDirOnGCELinux = "/mnt/pd0/bazel_cache"
+	// space.
+	bazelCacheDirOnGCELinux = "/home/chrome-bot/bazel_cache"
 
 	// bazelCacheDirOnSkoloLinux is like bazelCacheDirOnGCELinux for Skolo Linux machines. Unlike GCE
 	// Linux machines, the partition mounted at / on Skolo Linux machines is large enough. While
@@ -710,17 +706,29 @@ func (b *taskBuilder) internalHardwareLabel() *int {
 	return nil
 }
 
+// getLinuxGceDimensions returns a map of default Swarming bot dimensions for
+// Linux GCE instances.
+func (b *taskBuilder) getLinuxGceDimensions(machineType string) map[string]string {
+	return map[string]string{
+		// Specify CPU to avoid running builds on bots with a more unique CPU.
+		"cpu": "x86-64-Haswell_GCE",
+		"gpu": "none",
+		// Currently all Linux GCE tasks run on 16-CPU machines.
+		"machine_type": machineType,
+		"os":           DEFAULT_OS_LINUX_GCE,
+		"pool":         b.cfg.Pool,
+	}
+}
+
 // linuxGceDimensions adds the Swarming bot dimensions for Linux GCE instances.
 func (b *taskBuilder) linuxGceDimensions(machineType string) {
-	b.dimension(
-		// Specify CPU to avoid running builds on bots with a more unique CPU.
-		"cpu:x86-64-Haswell_GCE",
-		"gpu:none",
-		// Currently all Linux GCE tasks run on 16-CPU machines.
-		fmt.Sprintf("machine_type:%s", machineType),
-		fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
-		fmt.Sprintf("pool:%s", b.cfg.Pool),
-	)
+	dims := b.getLinuxGceDimensions(machineType)
+	dimsSlice := make([]string, 0, len(dims))
+	for k, v := range dims {
+		dimsSlice = append(dimsSlice, fmt.Sprintf("%s:%s", k, v))
+	}
+	sort.Strings(dimsSlice)
+	b.dimension(dimsSlice...)
 }
 
 // codesizeTaskNameRegexp captures the "CodeSize-<binary name>-" prefix of a CodeSize task name.
@@ -755,11 +763,11 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			if !In("Android", ec) {
 				ec = append([]string{"Android"}, ec...)
 			}
-			task_os = COMPILE_TASK_NAME_OS_LINUX
+			task_os = DEFAULT_OS_LINUX_GCE
 		} else if b.os("ChromeOS") {
 			ec = append([]string{"Chromebook", "GLES"}, ec...)
-			task_os = COMPILE_TASK_NAME_OS_LINUX
-		} else if b.os("iOS") {
+			task_os = UBUNTU_22_04_OS
+		} else if b.matchOs("iOS") {
 			ec = append([]string{task_os}, ec...)
 			if b.parts["compiler"] == "Xcode11.4.1" {
 				task_os = "Mac10.15.7"
@@ -768,21 +776,18 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			}
 		} else if b.matchOs("Win") {
 			task_os = "Win"
-		} else if b.compiler("GCC") {
+		} else if b.extraConfig("WasmGMTests") {
+			task_os = DEFAULT_OS_LINUX_GCE
+		} else if b.compiler("GCC") || b.os("Ubuntu18") {
 			// GCC compiles are now on a Docker container. We use the same OS and
 			// version to compile as to test.
-			ec = append(ec, "Docker")
-		} else if b.matchOs("Debian11") {
-			// We compile using the Debian11 machines in the skolo.
-			task_os = "Debian11"
-		} else if b.matchOs("Ubuntu", "Debian") {
-			task_os = COMPILE_TASK_NAME_OS_LINUX
+			ec = append([]string{"Docker"}, ec...)
 		} else if b.matchOs("Mac") {
 			task_os = "Mac"
 		}
 		jobNameMap := map[string]string{
 			"role":          "Build",
-			"os":            task_os,
+			"os":            strings.ReplaceAll(task_os, "-", ""),
 			"compiler":      b.parts["compiler"],
 			"target_arch":   b.parts["arch"],
 			"configuration": b.parts["configuration"],
@@ -790,7 +795,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 		if b.extraConfig("PathKit") {
 			ec = []string{"PathKit"}
 			// We prefer to compile this in the cloud because we have more resources there
-			jobNameMap["os"] = "Debian10"
+			jobNameMap["os"] = strings.ReplaceAll(DEFAULT_OS_LINUX_GCE, "-", "")
 		}
 		if b.extraConfig("CanvasKit", "SkottieWASM", "Puppeteer") {
 			if b.cpu() {
@@ -799,7 +804,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 				ec = []string{"CanvasKit"}
 			}
 			// We prefer to compile this in the cloud because we have more resources there
-			jobNameMap["os"] = "Debian10"
+			jobNameMap["os"] = strings.ReplaceAll(DEFAULT_OS_LINUX_GCE, "-", "")
 		}
 		if len(ec) > 0 {
 			jobNameMap["extra_config"] = strings.Join(ec, "_")
@@ -868,15 +873,14 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Android12":   "Android",
 			"ChromeOS":    "ChromeOS",
 			"Debian9":     DEFAULT_OS_LINUX_GCE, // Runs in Deb9 Docker.
-			"Debian10":    DEFAULT_OS_LINUX_GCE,
 			"Debian11":    DEBIAN_11_OS,
 			"Mac":         DEFAULT_OS_MAC,
 			"Mac10.15.1":  "Mac-10.15.1",
 			"Mac10.15.7":  "Mac-10.15.7",
-			"Mac11":       "Mac-11.4",
 			"Mac12":       "Mac-12",
 			"Mac13":       "Mac-13",
 			"Mac14":       "Mac-14.7", // Builds run on 14.5, tests on 14.7.
+			"Mac15":       "Mac-15.3",
 			"Mokey":       "Android",
 			"MokeyGo32":   "Android",
 			"Ubuntu18":    "Ubuntu-18.04",
@@ -888,12 +892,14 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Win11":       "Windows-11-26100.1742",
 			"Win2019":     DEFAULT_OS_WIN_GCE,
 			"iOS":         "iOS-13.3.1",
+			"iOS18":       "iOS-18.2.1",
 		}[os]
 		if !ok {
 			log.Fatalf("Entry %q not found in OS mapping.", os)
 		}
-		if os == "Debian11" && b.extraConfig("Docker") {
+		if (os == "Debian11" || os == "Ubuntu18") && b.extraConfig("Docker") {
 			d["os"] = DEFAULT_OS_LINUX_GCE
+			d["gce"] = "1"
 		}
 		if os == "Win10" && b.parts["model"] == "Golo" {
 			// ChOps-owned machines have Windows 10 22H2.
@@ -906,7 +912,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			d["os"] = "iOS-13.6"
 		}
 	} else {
-		d["os"] = DEFAULT_OS_DEBIAN
+		d["os"] = DEFAULT_OS_LINUX_GCE
 	}
 	if b.role("Test", "Perf") {
 		if b.os("Android") {
@@ -941,65 +947,89 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			if b.extraConfig("HWASAN") {
 				d["android_hwasan_build"] = "1"
 			}
-		} else if b.os("iOS") {
+		} else if b.os("ChromeOS") {
+			deviceOS, ok := map[string]string{
+				"Cherry":   "16002.30.0",
+				"Guybrush": "16002.27.0",
+				"Octopus":  "16002.21.0",
+				"Trogdor":  "16002.26.0",
+			}[b.parts["model"]]
+			if !ok {
+				log.Fatalf("Entry %q not found in ChromeOS mapping.", b.parts["model"])
+			}
+			d["device_os"] = deviceOS
+			d["device_type"] = strings.ToLower(b.parts["model"])
+		} else if b.matchOs("iOS") {
 			device, ok := map[string]string{
-				"iPadMini4": "iPad5,1",
-				"iPhone7":   "iPhone9,1",
-				"iPhone8":   "iPhone10,1",
-				"iPadPro":   "iPad6,3",
+				"iPadMini4":   "iPad5,1",
+				"iPhone15Pro": "iPhone16,1",
+				"iPhone7":     "iPhone9,1",
+				"iPhone8":     "iPhone10,1",
+				"iPadPro":     "iPad6,3",
 			}[b.parts["model"]]
 			if !ok {
 				log.Fatalf("Entry %q not found in iOS mapping.", b.parts["model"])
 			}
 			d["device"] = device
 		} else if b.cpu() || b.extraConfig("CanvasKit", "Docker", "SwiftShader") {
-			modelMapping, ok := map[string]map[string]string{
+			modelMapping, ok := map[string]map[string]map[string]string{
 				"AppleM1": {
-					"MacMini9.1": "arm64-64-Apple_M1",
+					"MacMini9.1": {"cpu": "arm64-64-Apple_M1"},
 				},
 				"AppleM3": {
-					"MacBookPro15.3": "arm64-64-Apple_M3",
+					"MacBookPro15.3": {"cpu": "arm64-64-Apple_M3"},
 				},
 				"AppleIntel": {
-					"MacBookPro16.2": "x86-64",
+					"MacBookPro15.1": {"cpu": "x86-64"},
+					"MacBookPro16.2": {"cpu": "x86-64"},
 				},
 				"AVX": {
-					"VMware7.1": "x86-64",
+					"VMware7.1": {"cpu": "x86-64"},
 				},
 				"AVX2": {
-					"GCE":            "x86-64-Haswell_GCE",
-					"MacBookAir7.2":  "x86-64-i5-5350U",
-					"MacBookPro11.5": "x86-64-i7-4870HQ",
-					"MacMini7.1":     "x86-64-i5-4278U",
-					"MacMini8.1":     "x86-64-i7-8700B",
-					"NUC5i7RYH":      "x86-64-i7-5557U",
-					"NUC9i7QN":       "x86-64-i7-9750H",
-					"NUC11TZi5":      "x86-64-i5-1135G7",
+					"GCE":            {"cpu": "x86-64-Haswell_GCE"},
+					"Golo":           {"cpu": "x86-64-E3-1230_v5"},
+					"MacBookAir7.2":  {"cpu": "x86-64-i5-5350U"},
+					"MacBookPro11.5": {"cpu": "x86-64-i7-4870HQ"},
+					"MacMini7.1":     {"cpu": "x86-64-i5-4278U"},
+					"MacMini8.1":     {"cpu": "x86-64-i7-8700B"},
+					"NUC5i7RYH":      {"cpu": "x86-64-i7-5557U"},
+					"NUC9i7QN":       {"cpu": "x86-64-i7-9750H"},
+					// Unfortunately, these machines don't have a more-specific
+					// CPU dimension we can use. However, they do have integrated
+					// GPUs whose models differ from our other machines, so we
+					// specify the GPU dimension even when running CPU tests.
+					"NUC11TZi5": {"cpu": "x86-64", "gpu": "8086:9a49"},
 				},
 				"AVX512": {
-					"GCE":  "x86-64-Skylake_GCE",
-					"Golo": "Intel64_Family_6_Model_85_Stepping_7__GenuineIntel",
+					"GCE":  {"cpu": "x86-64-Skylake_GCE"},
+					"Golo": {"cpu": "Intel64_Family_6_Model_85_Stepping_7__GenuineIntel"},
 				},
 				"Rome": {
-					"GCE": "x86-64-AMD_Rome_GCE",
+					"GCE": {"cpu": "x86-64"},
 				},
 				"SwiftShader": {
-					"GCE": "x86-64-Haswell_GCE",
+					"GCE": {"cpu": "x86-64-Haswell_GCE"},
 				},
 			}[b.parts["cpu_or_gpu_value"]]
 			if !ok {
 				log.Fatalf("Entry %q not found in CPU mapping.", b.parts["cpu_or_gpu_value"])
 			}
-			cpu, ok := modelMapping[b.parts["model"]]
+			dims, ok := modelMapping[b.parts["model"]]
 			if !ok {
 				log.Fatalf("Entry %q not found in %q model mapping.", b.parts["model"], b.parts["cpu_or_gpu_value"])
 			}
-			d["cpu"] = cpu
+			for k, v := range dims {
+				d[k] = v
+			}
 			if b.model("GCE") && b.matchOs("Debian") {
 				d["os"] = DEFAULT_OS_LINUX_GCE
 			}
 			if b.model("GCE") && d["cpu"] == "x86-64-Haswell_GCE" {
 				d["machine_type"] = MACHINE_TYPE_MEDIUM
+			}
+			if b.model("GCE") && b.cpu("Rome") {
+				d["machine_type"] = "n2d-standard-16"
 			}
 		} else {
 			// It's a GPU job.
@@ -1008,18 +1038,23 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					"GTX1660":       "10de:2184-31.0.15.4601",
 					"IntelHD4400":   "8086:0a16-20.19.15.4963",
 					"IntelIris540":  "8086:1926-31.0.101.2115",
-					"IntelIris6100": "8086:162b-20.19.15.4963",
+					"IntelIris6100": "8086:162b-20.19.15.5171",
 					"IntelIris655":  "8086:3ea5-26.20.100.7463",
-					"IntelIrisXe":   "8086:9a49-32.0.101.5972",
+					"IntelIrisXe":   "8086:9a49-31.0.101.5333",
 					"RadeonHD7770":  "1002:683d-26.20.13031.18002",
 					"RadeonR9M470X": "1002:6646-26.20.13031.18002",
 					"QuadroP400":    "10de:1cb3-31.0.15.5222",
 					"RadeonVega6":   "1002:1636-31.0.14057.5006",
 					"RadeonVega8":   "1002:1638-31.0.21916.2",
-					"RTX3060":       "10de:2489-32.0.15.6094",
+					"RTX3060":       "10de:2489-32.0.15.7270",
 				}[b.parts["cpu_or_gpu_value"]]
 				if !ok {
 					log.Fatalf("Entry %q not found in Win GPU mapping.", b.parts["cpu_or_gpu_value"])
+				}
+				// TODO(borenet): Remove this block once these machines are all
+				// migrated.
+				if b.os("Win10") && b.parts["cpu_or_gpu_value"] == "RTX3060" {
+					gpu = "10de:2489-32.0.15.6094"
 				}
 				d["gpu"] = gpu
 			} else if b.isLinux() {
@@ -1038,17 +1073,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 					log.Fatalf("Entry %q not found in Linux GPU mapping.", b.parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
-
-				if b.matchOs("Debian11") {
-					d["os"] = DEBIAN_11_OS
-				} else if b.matchOs("Debian") {
-					// The Debian10 machines in the skolo are 10.10, not 10.3.
-					d["os"] = DEFAULT_OS_DEBIAN
-				}
-				if b.parts["cpu_or_gpu_value"] == "IntelIrisXe" {
-					// The Intel Iris Xe devices are Debian 11.3.
-					d["os"] = "Debian-bookworm/sid"
-				}
 			} else if b.matchOs("Mac") {
 				gpu, ok := map[string]string{
 					"AppleM1":             "AppleM1",
@@ -1081,43 +1105,52 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 						d["cpu"] = "x86-64-i7-4578U"
 					}
 				}
-			} else if b.os("ChromeOS") {
-				version, ok := map[string]string{
-					"IntelUHDGraphics605": "15236.2.0",
-					"RadeonVega3":         "14233.0.0",
-					"Adreno618":           "14150.39.0",
-					"MaliT860":            "14092.77.0",
-				}[b.parts["cpu_or_gpu_value"]]
-				if !ok {
-					log.Fatalf("Entry %q not found in ChromeOS GPU mapping.", b.parts["cpu_or_gpu_value"])
-				}
-				d["gpu"] = b.parts["cpu_or_gpu_value"]
-				d["release_version"] = version
 			} else {
 				log.Fatalf("Unknown GPU mapping for OS %q.", b.parts["os"])
 			}
 		}
-	} else {
-		if d["os"] == DEBIAN_11_OS {
-			// The Debian11 compile machines in the skolo have
-			// GPUs, but we still use them for compiles also.
-
-			// Dodge Raspberry Pis.
-			d["cpu"] = "x86-64"
-			// Target the AMDRyzen 5 4500U machines, as they are beefy and we have
-			// 19 of them, and they are setup to compile.
-			d["gpu"] = "1002:1636"
-		} else {
-			d["gpu"] = "none"
+		if b.matchOs("Mac") {
+			// TODO(borenet): Remove empty and nested entries after all Macs
+			// are migrated to the new lab.
+			if macModel, ok := map[string]interface{}{
+				"MacBookAir7.2":  "",
+				"MacBookPro11.5": "MacBookPro11,5",
+				"MacBookPro15.1": "MacBookPro15,1",
+				"MacBookPro15.3": "Mac15,3",
+				"MacBookPro16.2": "",
+				"MacMini7.1":     "",
+				"MacMini8.1":     "Macmini8,1",
+				"MacMini9.1": map[string]string{
+					"Mac12": "",
+					"Mac13": "",
+					"Mac14": "Macmini9,1",
+				},
+				// TODO(borenet): This is currently resolving to multiple
+				// different actual device types.
+				"VMware7.1": "",
+			}[b.parts["model"]]; ok {
+				if macModel != "" {
+					macModelDim, ok := macModel.(string)
+					if !ok {
+						macModelDim = macModel.(map[string]string)[b.parts["os"]]
+					}
+					if macModelDim != "" {
+						d["mac_model"] = macModelDim
+					}
+				}
+			} else {
+				log.Fatalf("No mac_model found for %q", b.parts["model"])
+			}
 		}
+	} else {
+		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_LINUX_GCE {
 			if b.extraConfig("CanvasKit", "CMake", "Docker", "PathKit") || b.role("BuildStats", "CodeSize") {
 				b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
-				return
+			} else {
+				// Use many-core machines for Build tasks.
+				b.linuxGceDimensions(MACHINE_TYPE_LARGE)
 			}
-			// Use many-core machines for Build tasks.
-			b.linuxGceDimensions(MACHINE_TYPE_LARGE)
-			return
 		} else if d["os"] == DEFAULT_OS_WIN_GCE {
 			// Windows CPU bots.
 			d["cpu"] = "x86-64-Haswell_GCE"
@@ -1159,13 +1192,17 @@ func (b *jobBuilder) bundleRecipes() string {
 func (b *jobBuilder) buildTaskDrivers(goos, goarch string) string {
 	name := BUILD_TASK_DRIVERS_PREFIX + "_" + goos + "_" + goarch
 	b.addTask(name, func(b *taskBuilder) {
-		b.cmd("/bin/bash", "skia/infra/bots/build_task_drivers.sh",
+		b.cmd(
+			"luci-auth", "context",
+			"/bin/bash", "skia/infra/bots/build_task_drivers.sh",
 			specs.PLACEHOLDER_ISOLATED_OUTDIR,
 			goos+"_"+goarch)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesBazel("linux_x64")
+		b.usesLUCIAuth()
 		b.idempotent()
 		b.cas(CAS_TASK_DRIVERS)
+		b.serviceAccount(b.cfg.ServiceAccountCompile)
 	})
 	return name
 }
@@ -1220,6 +1257,7 @@ func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 		// TODO(borenet): Make this task not use Git.
 		b.usesGit()
 		b.cmd(
+			"luci-auth", "context",
 			b.taskDriver("push_apps_from_skia_image", false),
 			"--project_id", "skia-swarming-bots",
 			"--task_id", specs.PLACEHOLDER_TASK_ID,
@@ -1235,6 +1273,7 @@ func (b *jobBuilder) createPushAppsFromSkiaDockerImage() {
 		b.dep(b.createDockerImage(false))
 		b.cas(CAS_EMPTY)
 		b.usesBazel("linux_x64")
+		b.usesLUCIAuth()
 		b.serviceAccount(b.cfg.ServiceAccountCompile)
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.usesDocker()
@@ -1261,10 +1300,14 @@ func (b *taskBuilder) maybeAddIosDevImage() {
 				asset = "ios-dev-image-13.5"
 			case "13.6":
 				asset = "ios-dev-image-13.6"
+			case "18.2.1":
+				// Newer iOS versions don't use a pre-packaged dev image.
 			default:
 				log.Fatalf("Unable to determine correct ios-dev-image asset for %s. If %s is a new iOS release, you must add a CIPD package containing the corresponding iOS dev image; see ios-dev-image-11.4 for an example.", b.Name, m[1])
 			}
-			b.asset(asset)
+			if asset != "" {
+				b.asset(asset)
+			}
 			break
 		} else if strings.Contains(dim, "iOS") {
 			log.Fatalf("Must specify iOS version for %s to obtain correct dev image; os dimension is missing version: %s", b.Name, dim)
@@ -1327,10 +1370,19 @@ func (b *jobBuilder) compile() string {
 				} else if b.arch("arm") {
 					b.asset("armhf_sysroot")
 					b.asset("chromebook_arm_gles")
+				} else if b.arch("arm64") {
+					b.asset("arm64_sysroot")
+					b.asset("chromebook_arm64_gles")
+				} else {
+					panic(fmt.Sprintf("Unknown arch %q for Chromebook", b.parts["arch"]))
 				}
 			} else if b.isLinux() {
 				if b.compiler("Clang") {
-					b.asset("clang_linux")
+					if b.extraConfig("MSAN") {
+						b.asset("clang_ubuntu_noble")
+					} else {
+						b.asset("clang_linux")
+					}
 				}
 				if b.extraConfig("SwiftShader") {
 					b.asset("cmake_linux")
@@ -1357,7 +1409,7 @@ func (b *jobBuilder) compile() string {
 				})
 				b.asset("ccache_mac")
 				b.usesCCache()
-				if b.extraConfig("iOS") {
+				if b.matchExtraConfig("iOS.*") {
 					b.asset("provisioning_profile_ios")
 				}
 				if b.shellsOutToBazel() {
@@ -1398,12 +1450,20 @@ func (b *jobBuilder) recreateSKPs() {
 		}
 
 		b.cas(CAS_RECREATE_SKPS)
-		b.dep("Build-Debian10-Clang-x86_64-Release") // To get DM.
+		// We use a build task To get DM.
+		b.dep("Build-Ubuntu24.04-Clang-x86_64-Release")
 		b.cmd(cmd...)
 		b.usesLUCIAuth()
 		b.serviceAccount(b.cfg.ServiceAccountRecreateSKPs)
 		b.dimension(
-			"pool:SkiaCT",
+			"pool:Skia",
+			"cpu:x86-64-Haswell_GCE",
+			// TODO(borenet): It'd be much faster to run this on n1-highcpu-64,
+			// for which we do have have capacity, but the task gets OOM-killed
+			// while building Chrome, presumably because the ratio of RAM to CPU
+			// cores is too low.
+			"machine_type:n1-standard-16",
+			"gce:1",
 			fmt.Sprintf("os:%s", DEFAULT_OS_LINUX_GCE),
 		)
 		b.usesGo()
@@ -1420,6 +1480,7 @@ func (b *jobBuilder) checkGeneratedFiles() {
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.cas(CAS_BAZEL)
 		b.cmd(
+			"luci-auth", "context",
 			b.taskDriver("check_generated_files", false),
 			"--local=false",
 			"--git_path=cipd_bin_packages/git",
@@ -1432,6 +1493,7 @@ func (b *jobBuilder) checkGeneratedFiles() {
 		)
 		b.usesBazel("linux_x64")
 		b.usesGit()
+		b.usesLUCIAuth()
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.serviceAccount(b.cfg.ServiceAccountHousekeeper)
 	})
@@ -1443,6 +1505,7 @@ func (b *jobBuilder) goLinters() {
 	b.addTask(b.Name, func(b *taskBuilder) {
 		b.cas(CAS_BAZEL)
 		b.cmd(
+			"luci-auth", "context",
 			b.taskDriver("go_linters", false),
 			"--local=false",
 			"--git_path=cipd_bin_packages/git",
@@ -1455,6 +1518,7 @@ func (b *jobBuilder) goLinters() {
 		)
 		b.usesBazel("linux_x64")
 		b.usesGit()
+		b.usesLUCIAuth()
 		b.linuxGceDimensions(MACHINE_TYPE_MEDIUM)
 		b.serviceAccount(b.cfg.ServiceAccountHousekeeper)
 	})
@@ -1625,8 +1689,7 @@ func (b *jobBuilder) codesize() {
 			cmd = append(cmd, "--strip_binary",
 				"android_ndk_linux/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip")
 		} else {
-			b.asset("binutils_linux_x64")
-			cmd = append(cmd, "--strip_binary", "binutils_linux_x64/strip")
+			cmd = append(cmd, "--strip_binary", "/usr/bin/strip")
 		}
 		b.cmd(cmd...)
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
@@ -1672,7 +1735,11 @@ func (b *taskBuilder) commonTestPerfAssets() {
 	}
 
 	if b.isLinux() && b.matchExtraConfig("SAN") {
-		b.asset("clang_linux")
+		if b.extraConfig("MSAN") {
+			b.asset("clang_ubuntu_noble")
+		} else {
+			b.asset("clang_linux")
+		}
 	}
 
 	if b.isLinux() {
@@ -1806,7 +1873,7 @@ func (b *jobBuilder) dm() {
 		} else if b.arch("x86") && b.debug() {
 			// skia:6737
 			b.timeout(6 * time.Hour)
-		} else if b.matchOs("Mac11") {
+		} else if b.matchOs("Mac14") {
 			b.timeout(30 * time.Minute)
 		}
 		b.maybeAddIosDevImage()
@@ -2019,7 +2086,7 @@ func (b *jobBuilder) perf() {
 		} else if b.parts["arch"] == "x86" && b.parts["configuration"] == "Debug" {
 			// skia:6737
 			b.timeout(6 * time.Hour)
-		} else if b.matchOs("Mac11") {
+		} else if b.matchOs("Mac14") {
 			b.timeout(30 * time.Minute)
 		}
 
@@ -2259,8 +2326,10 @@ func (b *jobBuilder) bazelBuild() {
 		// CIPD to ensure that we're not using an old locally-installed version.
 		b.usesGit()
 		b.addToPATH("cipd_bin_packages", "cipd_bin_packages/bin")
+		b.usesLUCIAuth()
 
 		cmd := []string{
+			"luci-auth", "context",
 			b.taskDriver("bazel_build", host != "windows_x64"),
 			"--project_id=skia-swarming-bots",
 			"--task_id=" + specs.PLACEHOLDER_TASK_ID,
@@ -2359,6 +2428,11 @@ func (b *jobBuilder) bazelTest() {
 		taskdriverName = "bazel_test_benchmark"
 	}
 
+	useLUCIAuth := true
+	if taskdriverName == "external_client" {
+		useLUCIAuth = false
+	}
+
 	var deviceSpecificBazelConfig *device_specific_configs.Config
 	if testConfig != "" {
 		if config, ok := device_specific_configs.Configs[testConfig]; ok {
@@ -2374,13 +2448,18 @@ func (b *jobBuilder) bazelTest() {
 	}
 
 	b.addTask(b.Name, func(b *taskBuilder) {
-		cmd := []string{
+		cmd := []string{}
+		if useLUCIAuth {
+			cmd = []string{"luci-auth", "context"}
+		}
+		cmd = append(cmd,
 			b.taskDriver(taskdriverName, false),
 			"--project_id=skia-swarming-bots",
-			"--task_id=" + specs.PLACEHOLDER_TASK_ID,
-			"--task_name=" + b.Name,
+			"--task_id="+specs.PLACEHOLDER_TASK_ID,
+			"--task_name="+b.Name,
 			"--workdir=.",
-		}
+		)
+		b.usesLUCIAuth()
 
 		switch taskdriverName {
 		case "canvaskit_gold":

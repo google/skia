@@ -69,7 +69,7 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, ninja_root, cc, cxx
     api.run(api.step, 'swiftshader ninja', cmd=['ninja', '-C', out, 'vk_swiftshader'])
 
 
-def compile_fn(api, checkout_root, out_dir):
+def get_compile_flags(api, checkout_root, out_dir, workdir):
   skia_dir      = checkout_root.joinpath('skia')
   compiler      = api.vars.builder_cfg.get('compiler',      '')
   configuration = api.vars.builder_cfg.get('configuration', '')
@@ -77,9 +77,11 @@ def compile_fn(api, checkout_root, out_dir):
   os            = api.vars.builder_cfg.get('os',            '')
   target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
-  clang_linux      = str(api.vars.workdir.joinpath('clang_linux'))
-  win_toolchain    = str(api.vars.workdir.joinpath('win_toolchain'))
-  dwritecore       = str(api.vars.workdir.joinpath('dwritecore'))
+  clang_linux      = str(workdir.joinpath('clang_linux'))
+  if 'MSAN' in extra_tokens:
+    clang_linux = str(workdir.joinpath('clang_ubuntu_noble'))
+  win_toolchain    = str(workdir.joinpath('win_toolchain'))
+  dwritecore       = str(workdir.joinpath('dwritecore'))
 
   cc, cxx, ccache = None, None, None
   extra_cflags = []
@@ -87,18 +89,7 @@ def compile_fn(api, checkout_root, out_dir):
   args = {'werror': 'true', 'link_pool_depth':'2'}
   env = {}
 
-  with api.context(cwd=skia_dir):
-    api.run(api.step, 'fetch-gn',
-            cmd=['python3', skia_dir.joinpath('bin', 'fetch-gn')],
-            infra_step=True)
-
-    api.run(api.step, 'fetch-ninja',
-            cmd=['python3', skia_dir.joinpath('bin', 'fetch-ninja')],
-            infra_step=True)
-
   if os == 'Mac' or os == 'Mac10.15.7':
-    api.xcode.install()
-
     extra_cflags.append(
         '-DREBUILD_IF_CHANGED_xcode_build_version=%s' % api.xcode.version)
     if 'iOS' in extra_tokens:
@@ -117,19 +108,19 @@ def compile_fn(api, checkout_root, out_dir):
   # ccache + clang-tidy.sh chokes on the argument list.
   if (api.vars.is_linux or os == 'Mac' or os == 'Mac10.15.5' or os == 'Mac10.15.7') and 'Tidy' not in extra_tokens:
     if api.vars.is_linux:
-      ccache = api.vars.workdir.joinpath('ccache_linux', 'bin', 'ccache')
+      ccache = workdir.joinpath('ccache_linux', 'bin', 'ccache')
       # As of 2020-02-07, the sum of each Debian10-Clang-x86
       # non-flutter/android/chromebook build takes less than 75G cache space.
       env['CCACHE_MAXSIZE'] = '75G'
     else:
-      ccache = api.vars.workdir.joinpath('ccache_mac', 'bin', 'ccache')
+      ccache = workdir.joinpath('ccache_mac', 'bin', 'ccache')
       # As of 2020-02-10, the sum of each Build-Mac-Clang- non-android build
       # takes ~30G cache space.
       env['CCACHE_MAXSIZE'] = '50G'
 
     args['cc_wrapper'] = '"%s"' % ccache
 
-    env['CCACHE_DIR'] = api.vars.cache_dir.joinpath('ccache')
+    env['CCACHE_DIR'] = workdir.joinpath('cache', 'ccache')
     env['CCACHE_MAXFILES'] = '0'
     # Compilers are unpacked from cipd with bogus timestamps, only contribute
     # compiler content to hashes. If Ninja ever uses absolute paths to changing
@@ -149,6 +140,12 @@ def compile_fn(api, checkout_root, out_dir):
 
   elif compiler == 'Clang':
     cc, cxx = 'clang', 'clang++'
+  elif compiler == 'GCC':
+    cc, cxx = 'gcc', 'g++'
+    # Newer GCC includes tons and tons of debugging symbols. This seems to
+    # negatively affect our bots (potentially only in combination with other
+    # bugs in Swarming or recipe code). Use g1 to reduce it a bit.
+    extra_cflags.append('-g1')
 
   if 'Tidy' in extra_tokens:
     # Swap in clang-tidy.sh for clang++, but update PATH so it can find clang++.
@@ -201,7 +198,7 @@ def compile_fn(api, checkout_root, out_dir):
     extra_ldflags.append('-L' + clang_linux + '/msan')
   elif 'TSAN' in extra_tokens:
     extra_ldflags.append('-L' + clang_linux + '/tsan')
-  elif api.vars.is_linux:
+  elif api.vars.is_linux and compiler == 'Clang':
     extra_ldflags.append('-L' + clang_linux + '/lib')
 
   if configuration != 'Debug':
@@ -244,7 +241,7 @@ def compile_fn(api, checkout_root, out_dir):
     args['skia_use_system_freetype2'] = 'false'
     extra_cflags.extend(['-DSK_USE_FREETYPE_EMBOLDEN'])
 
-  if 'NoGpu' in extra_tokens:
+  if 'NoGPU' in extra_tokens:
     args['skia_enable_ganesh'] = 'false'
   if 'NoDEPS' in extra_tokens:
     args.update({
@@ -297,11 +294,11 @@ def compile_fn(api, checkout_root, out_dir):
     # Bots use Chromium signing cert.
     args['skia_ios_identity'] = '".*83FNP.*"'
     # Get mobileprovision via the CIPD package.
-    args['skia_ios_profile'] = '"%s"' % api.vars.workdir.joinpath(
+    args['skia_ios_profile'] = '"%s"' % workdir.joinpath(
         'provisioning_profile_ios',
         'Upstream_Testing_Provisioning_Profile.mobileprovision')
   if compiler == 'Clang' and 'Win' in os:
-    args['clang_win'] = '"%s"' % api.vars.workdir.joinpath('clang_win')
+    args['clang_win'] = '"%s"' % workdir.joinpath('clang_win')
     extra_cflags.append('-DPLACEHOLDER_clang_win_version=%s' %
                         api.run.asset_version('clang_win', skia_dir))
 
@@ -335,11 +332,40 @@ def compile_fn(api, checkout_root, out_dir):
     if v:
       args[k] = '"%s"' % v
   if extra_cflags:
-    args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
+    args['extra_cflags'] = extra_cflags
   if extra_ldflags:
-    args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
+    args['extra_ldflags'] = extra_ldflags
 
-  gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.items()))
+  return args, env, ccache
+
+
+def finalize_gn_flags(args):
+  if args.get('extra_cflags'):
+    args['extra_cflags'] = repr(args['extra_cflags']).replace("'", '"')
+  if args.get('extra_ldflags'):
+    args['extra_ldflags'] = repr(args['extra_ldflags']).replace("'", '"')
+  return ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.items()))
+
+
+def compile_fn(api, checkout_root, out_dir):
+  skia_dir      = checkout_root.joinpath('skia')
+  extra_tokens  = api.vars.extra_tokens
+
+  with api.context(cwd=skia_dir):
+    api.run(api.step, 'fetch-gn',
+            cmd=['python3', skia_dir.joinpath('bin', 'fetch-gn')],
+            infra_step=True)
+
+    api.run(api.step, 'fetch-ninja',
+            cmd=['python3', skia_dir.joinpath('bin', 'fetch-ninja')],
+            infra_step=True)
+
+  if api.vars.builder_cfg.get('os', '') in ('Mac', 'Mac10.15.7'):
+    api.xcode.install()
+
+  workdir = api.path.start_dir
+  args, env, ccache = get_compile_flags(api, checkout_root, out_dir, workdir)
+  gn_args = finalize_gn_flags(args)
   gn = skia_dir.joinpath('bin', 'gn')
   ninja = skia_dir.joinpath('third_party', 'ninja', 'ninja')
 

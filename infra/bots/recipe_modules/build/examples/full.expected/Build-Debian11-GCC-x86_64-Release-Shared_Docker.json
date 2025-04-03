@@ -47,10 +47,10 @@
     "cmd": [
       "chmod",
       "755",
-      "[START_DIR]/cache/work"
+      "[START_DIR]"
     ],
     "infra_step": true,
-    "name": "Docker setup.chmod 755 [START_DIR]/cache/work",
+    "name": "Docker setup.chmod 755 [START_DIR]",
     "~followup_annotations": [
       "@@@STEP_NEST_LEVEL@1@@@"
     ]
@@ -76,12 +76,20 @@
       "--user",
       "13:17",
       "--mount",
-      "type=bind,source=[START_DIR]/cache/work,target=/SRC",
+      "type=bind,source=[START_DIR],target=/SRC",
       "--mount",
       "type=bind,source=[START_DIR]/cache/work/skia/out/Build-Debian11-GCC-x86_64-Release-Shared_Docker/Release,target=/OUT",
+      "-e",
+      "CCACHE_COMPILERCHECK=content",
+      "-e",
+      "CCACHE_DIR=/SRC/cache/ccache",
+      "-e",
+      "CCACHE_MAXFILES=0",
+      "-e",
+      "CCACHE_MAXSIZE=75G",
       "gcr.io/skia-public/gcc-debian11@sha256:1117ea368f43e45e0f543f74c8e3bf7ff6932df54ddaa4ba1fe6131209110d3d",
       "/SRC/../RECIPE_MODULE[skia::build]/resources/docker-compile.sh",
-      "cc=\"gcc\" cxx=\"g++\" extra_cflags=[\"-g1\",\"-DREBUILD_IF_CHANGED_docker_image=gcr.io/skia-public/gcc-debian11@sha256:1117ea368f43e45e0f543f74c8e3bf7ff6932df54ddaa4ba1fe6131209110d3d\"] extra_ldflags=[] is_component_build=true is_debug=false target_cpu=\"x86_64\" werror=true"
+      "cc=\"gcc\" cc_wrapper=\"/SRC/ccache_linux/bin/ccache\" cxx=\"g++\" extra_cflags=[\"-g1\", \"-DREBUILD_IF_CHANGED_docker_image=gcr.io/skia-public/gcc-debian11@sha256:1117ea368f43e45e0f543f74c8e3bf7ff6932df54ddaa4ba1fe6131209110d3d\"] is_component_build=true is_debug=false link_pool_depth=2 skia_use_client_icu=true skia_use_libgrapheme=true target_cpu=\"x86_64\" werror=true"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

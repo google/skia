@@ -102,6 +102,7 @@ DEF_TEST(SkMultiPictureDocument_Serialize_and_deserialize, reporter) {
 
     // Create the image sharing proc.
     SkSharingSerialContext ctx;
+    ctx.setDirectContext(nullptr);
     SkSerialProcs procs;
     procs.fImageProc = SkSharingSerialContext::serializeImage;
     procs.fImageCtx = &ctx;

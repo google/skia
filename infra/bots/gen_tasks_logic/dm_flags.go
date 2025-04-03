@@ -461,14 +461,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 					// b/389701894 - The Dawn/GLES backend is hard crashing on this test
 					skip(ALL, "test", ALL, "ThreadedPipelineCompilePurgingTest")
-				}
 
-				// b/373845830 - Precompile isn't thread-safe on either Dawn Metal
-				// or Dawn Vulkan
-				skip(ALL, "test", ALL, "ThreadedPipelinePrecompileTest")
-				// b/380039123 getting both ASAN and TSAN failures for this test on Dawn
-				skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompileTest")
-				skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompilePurgingTest")
+					// b/405970498 - The Dawn/GLES backend is failing these two tests
+					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompileTest")
+					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompilePurgingTest")
+				}
 
 				if b.extraConfig("Vulkan") {
 					if b.extraConfig("TSAN") {
@@ -1082,6 +1079,12 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip(ALL, "image", "gen_platf", "rle4-height-negative.bmp")
 	}
 
+	if b.matchOs("Mac14") {
+		// These images are very large
+		skip(ALL, "image", "gen_platf", "rgb24largepal.bmp")
+		skip(ALL, "image", "gen_platf", "pal8oversizepal.bmp")
+	}
+
 	// These PNGs have CRC errors. The platform generators seem to draw
 	// uninitialized memory without reporting an error, so skip them to
 	// avoid lots of images on Gold.
@@ -1303,6 +1306,17 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 
 	if b.extraConfig("ANGLE") && b.matchOs("Win") && b.matchGpu("IntelIris(540|655|Xe)") {
 		skip(ALL, "tests", ALL, "ImageFilterCropRect_Gpu") // b/294080402
+	}
+
+	if b.extraConfig("ANGLE") && b.matchOs("Mac15") && b.matchGpu("IntelUHDGraphics630") {
+		// b/405918638
+		skip(ALL, "tests", ALL, "TransferPixelsFromTextureTest")
+		skip(ALL, "tests", ALL, "ImageAsyncReadPixels_Renderable_BottomLeft")
+		skip(ALL, "tests", ALL, "ImageAsyncReadPixels_Renderable_TopLeft")
+		skip(ALL, "tests", ALL, "ImageAsyncReadPixels_NonRenderable_BottomLeft")
+		skip(ALL, "tests", ALL, "ImageAsyncReadPixels_NonRenderable_TopLeft")
+		skip(ALL, "tests", ALL, "SurfaceAsyncReadPixels")
+		skip(ALL, "tests", ALL, "TransferPixelsToTextureTest")
 	}
 
 	if b.gpu("RTX3060") && b.extraConfig("Vulkan") && b.matchOs("Win") {

@@ -14,6 +14,8 @@ set -x
 
 export PATH="/SRC/recipe_bundle/depot_tools:${PATH}"
 
+env
+
 cd /SRC/skia
 ./bin/fetch-ninja
 ./bin/fetch-gn

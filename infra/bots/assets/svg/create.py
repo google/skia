@@ -35,7 +35,7 @@ def create_asset(target_dir):
 
   # Download the SVGs specified in tools/svg/svgs.txt
   download_svgs_cmd = [
-    'python', os.path.join(SVG_TOOLS, 'svg_downloader.py'),
+    'python3', os.path.join(SVG_TOOLS, 'svg_downloader.py'),
     '--output_dir', target_svg_dir,
     '--input_file', os.path.join(SVG_TOOLS, 'svgs.txt'),
   ]
@@ -43,7 +43,7 @@ def create_asset(target_dir):
 
   # Download the SVGs specified in tools/svg/svgs_parse_only.txt with a prefix.
   download_svgs_parse_only_cmd = [
-    'python', os.path.join(SVG_TOOLS, 'svg_downloader.py'),
+    'python3', os.path.join(SVG_TOOLS, 'svg_downloader.py'),
     '--output_dir', target_svg_dir,
     '--input_file', os.path.join(SVG_TOOLS, 'svgs_parse_only.txt'),
     '--prefix', 'svgparse_',
@@ -52,7 +52,7 @@ def create_asset(target_dir):
 
   # Download the image resources specified in tools/svg/svg_images.txt
   download_images_cmd = [
-    'python', os.path.join(SVG_TOOLS, 'svg_downloader.py'),
+    'python3', os.path.join(SVG_TOOLS, 'svg_downloader.py'),
     '--output_dir', target_image_dir,
     '--input_file', os.path.join(SVG_TOOLS, 'svg_images.txt'),
     '--keep_common_prefix',

@@ -113,7 +113,7 @@ Run the steps to perform a pure-git checkout without DEPS.
 
 &mdash; **def [mount\_src](/infra/bots/recipe_modules/docker/api.py#24)(self):**
 
-&mdash; **def [run](/infra/bots/recipe_modules/docker/api.py#32)(self, name, docker_image, src_dir, out_dir, script, args=None, docker_args=None, copies=None, recursive_read=None, attempts=1, match_directory_structure=False):**
+&mdash; **def [run](/infra/bots/recipe_modules/docker/api.py#32)(self, name, docker_image, src_dir, out_dir, script, args=None, docker_args=None, copies=None, recursive_read=None, attempts=1, match_directory_structure=False, env=None):**
 ### *recipe_modules* / [doxygen](/infra/bots/recipe_modules/doxygen)
 
 [DEPS](/infra/bots/recipe_modules/doxygen/__init__.py#7): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/step][recipe_engine/recipe_modules/step], [run](#recipe_modules-run)

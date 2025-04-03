@@ -31,8 +31,8 @@ def main():
     upload_script = os.path.join(FILE_DIR, 'upload.py')
 
     try:
-      subprocess.check_call(['python', create_script, '-t', cwd])
-      cmd = ['python', upload_script, '-t', cwd]
+      subprocess.check_call(['python3', create_script, '-t', cwd])
+      cmd = ['python3', upload_script, '-t', cwd]
       if args.gsutil:
         cmd.extend(['--gsutil', args.gsutil])
       subprocess.check_call(cmd)

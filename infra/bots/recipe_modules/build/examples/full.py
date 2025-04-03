@@ -77,10 +77,10 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-arm64-Debug-Android_Vulkan',
   'Build-Mac-Clang-arm64-Debug-iOS',
   'Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal',
-  'Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGpu',
+  'Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoGPU',
   'Build-Mac-Clang-arm64-Debug-Graphite_Dawn_Metal_NoPrecompile',
   'Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal',
-  'Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGpu',
+  'Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoGPU',
   'Build-Mac-Clang-arm64-Debug-Graphite_Native_Metal_NoPrecompile',
   'Build-Mac-Clang-arm64-Release-Graphite_Native_Metal',
   'Build-Mac-Clang-arm64-Release-Graphite_Native_Dawn_Metal',
@@ -98,6 +98,7 @@ TEST_BUILDERS = [
   'Build-Win-MSVC-x86_64-Release-Graphite_Dawn_D3D11',
   'Build-Win-MSVC-x86_64-Release-Graphite_Dawn_D3D12',
   'Build-Debian10-Clang-x86_64-Release-SK_USE_PADDED_BLUR_UPSCALE',
+  'Build-Ubuntu18-Clang-x86_64-Release-Docker',
 ]
 
 # Default properties used for TEST_BUILDERS.

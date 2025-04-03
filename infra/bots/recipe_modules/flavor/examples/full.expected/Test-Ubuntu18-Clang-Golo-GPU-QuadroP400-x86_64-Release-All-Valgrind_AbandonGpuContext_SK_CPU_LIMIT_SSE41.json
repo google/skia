@@ -201,6 +201,7 @@
       "--track-origins=yes",
       "--error-exitcode=1",
       "--num-callers=40",
+      "--vex-guest-max-insns=25",
       "--suppressions=[START_DIR]/skia/tools/valgrind.supp",
       "[START_DIR]/build/dm",
       "--some-flag"
