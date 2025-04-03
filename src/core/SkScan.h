@@ -34,8 +34,6 @@ public:
     typedef void (*HairRgnProc)(const SkPoint[], int count, const SkRegion*, SkBlitter*);
     typedef void (*HairRCProc)(const SkPoint[], int count, const SkRasterClip&, SkBlitter*);
 
-    static void FillPath(const SkPath&, const SkIRect&, SkBlitter*);
-
     // Paths of a certain size cannot be anti-aliased unless externally tiled (handled by SkDraw).
     // SkBitmapDevice automatically tiles, SkAAClip does not so SkRasterClipStack converts AA clips
     // to BW clips if that's the case. SkRegion uses this to know when to tile and union smaller

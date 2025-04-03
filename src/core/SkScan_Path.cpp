@@ -675,12 +675,6 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
     }
 }
 
-void SkScan::FillPath(const SkPath& path, const SkIRect& ir,
-                      SkBlitter* blitter) {
-    SkRegion rgn(ir);
-    FillPath(path, rgn, blitter);
-}
-
 bool SkScan::PathRequiresTiling(const SkIRect& bounds) {
     SkRegion out;  // ignored
     return clip_to_limit(SkRegion(bounds), &out);
