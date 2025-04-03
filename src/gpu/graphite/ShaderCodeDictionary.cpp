@@ -67,8 +67,8 @@ std::string get_mangled_uniform_name(const ShaderInfo& shaderInfo,
     } else {
         result = uniform.name() + std::string("_") + std::to_string(manglingSuffix);
     }
-    if (shaderInfo.ssboIndex()) {
-        result = get_storage_buffer_access("fs", shaderInfo.ssboIndex(), result.c_str());
+    if (shaderInfo.shadingSsboIndex()) {
+        result = get_storage_buffer_access("fs", shaderInfo.shadingSsboIndex(), result.c_str());
     }
     return result;
 }
@@ -81,8 +81,8 @@ std::string get_mangled_struct_reference(const ShaderInfo& shaderInfo,
                                          const ShaderNode* node) {
     SkASSERT(node->entry()->fUniformStructName);
     std::string result = "node_" + std::to_string(node->keyIndex()); // Field holding the struct
-    if (shaderInfo.ssboIndex()) {
-        result = get_storage_buffer_access("fs", shaderInfo.ssboIndex(), result.c_str());
+    if (shaderInfo.shadingSsboIndex()) {
+        result = get_storage_buffer_access("fs", shaderInfo.shadingSsboIndex(), result.c_str());
     }
     return result;
 }
@@ -272,6 +272,13 @@ std::string ShaderNode::invokeAndAssign(const ShaderInfo& shaderInfo,
     return outputVar;
 }
 
+// Return a name that should be used as a varying passing the result of an expression emitted by
+// this node, if the expression is being lifted from the fragment shader to the vertex shader. The
+// choice of name is arbitrary, but it must be used consistently.
+std::string ShaderNode::getExpressionVarying() const {
+    return get_mangled_name(this->entry()->fName, this->keyIndex()) + "_Var";
+}
+
 //--------------------------------------------------------------------------------------------------
 // ShaderCodeDictionary
 
@@ -375,12 +382,22 @@ const SkRuntimeEffect* ShaderCodeDictionary::getUserDefinedKnownRuntimeEffect(
 //--------------------------------------------------------------------------------------------------
 namespace {
 
+// Generate the expression that applies a non-perspective local matrix to coordinates.
+std::string GenerateLocalMatrixExpression(const ShaderInfo& shaderInfo,
+                                          const ShaderNode* node,
+                                          const ShaderSnippet::Args& args) {
+    std::string controlUni =
+            get_mangled_uniform_name(shaderInfo, node->entry()->fUniforms[0], node->keyIndex());
+
+    return SkSL::String::printf("(%s * %s.xy01).xy",
+                                controlUni.c_str(),
+                                args.fFragCoord.c_str());
+}
+
 static constexpr int kNumCoordinateManipulateChildren = 1;
 
 // Create a helper function that manipulates the coordinates passed into a child. The specific
-// manipulation is pre-determined by the code id (local matrix or clamp). This helper function meets
-// the requirements for use with GenerateDefaultExpression, so there's no need to have a separate
-// special GenerateLocalMatrixExpression.
+// manipulation is pre-determined by the code id (local matrix or clamp).
 // TODO: This is effectively GenerateComposePreamble except that 'node' is counting as the inner.
 std::string GenerateCoordManipulationPreamble(const ShaderInfo& shaderInfo,
                                               const ShaderNode* node) {
@@ -395,9 +412,11 @@ std::string GenerateCoordManipulationPreamble(const ShaderInfo& shaderInfo,
                 get_mangled_uniform_name(shaderInfo, node->entry()->fUniforms[0], node->keyIndex());
 
         if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kLocalMatrixShader) {
-            localArgs.fFragCoord = SkSL::String::printf("(%s * %s.xy01).xy",
-                                                        controlUni.c_str(),
-                                                        defaultArgs.fFragCoord.c_str());
+            if (node->requiredFlags() & SnippetRequirementFlags::kLiftExpression) {
+                localArgs.fFragCoord = node->getExpressionVarying();
+            } else {
+                localArgs.fFragCoord = GenerateLocalMatrixExpression(shaderInfo, node, defaultArgs);
+            }
         } else if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kLocalMatrixShaderPersp) {
             perspectiveStatement = SkSL::String::printf("float4 perspCoord = %s * %s.xy01;",
                                                         controlUni.c_str(),
@@ -469,8 +488,9 @@ public:
 
     std::string declareUniform(const SkSL::VarDeclaration* decl) override {
         std::string result = get_mangled_name(std::string(decl->var()->name()), fNode->keyIndex());
-        if (fShaderInfo.ssboIndex()) {
-            result = get_storage_buffer_access("fs", fShaderInfo.ssboIndex(), result.c_str());
+        if (fShaderInfo.shadingSsboIndex()) {
+            result =
+                    get_storage_buffer_access("fs", fShaderInfo.shadingSsboIndex(), result.c_str());
         }
         return result;
     }
@@ -730,6 +750,7 @@ ShaderSnippet ShaderCodeDictionary::convertRuntimeEffect(const SkRuntimeEffect* 
                          snippetFlags,
                          this->convertUniforms(effect),
                          /*texturesAndSamplers=*/{},
+                         /*liftableExpression=*/nullptr,
                          GenerateRuntimeShaderPreamble,
                          numChildrenIncColorTransforms);
 }
@@ -1092,6 +1113,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "localMatrix", SkSLType::kFloat4x4 } },
             /*texturesAndSamplers=*/{},
+            GenerateLocalMatrixExpression,
             GenerateCoordManipulationPreamble,
             /*numChildren=*/kNumCoordinateManipulateChildren
     };
@@ -1101,6 +1123,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "localMatrix", SkSLType::kFloat4x4 } },
             /*texturesAndSamplers=*/{},
+            /*liftableExpression=*/nullptr,
             GenerateCoordManipulationPreamble,
             /*numChildren=*/kNumCoordinateManipulateChildren
     };
@@ -1227,6 +1250,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "subset", SkSLType::kFloat4 } },
             /*texturesAndSamplers=*/{},
+            /*liftableExpression=*/nullptr,
             GenerateCoordManipulationPreamble,
             /*numChildren=*/kNumCoordinateManipulateChildren
     };
@@ -1339,6 +1363,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{},
             /*texturesAndSamplers=*/{},
+            /*liftableExpression=*/nullptr,
             GenerateComposePreamble,
             /*numChildren=*/2
     };
@@ -1348,6 +1373,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{},
             /*texturesAndSamplers=*/{},
+            /*liftableExpression=*/nullptr,
             GenerateComposePreamble,
             /*numChildren=*/3
     };

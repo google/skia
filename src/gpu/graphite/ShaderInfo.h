@@ -60,7 +60,7 @@ public:
         return fRuntimeEffectDictionary;
     }
 
-    const char* ssboIndex() const { return fSsboIndex; }
+    const char* shadingSsboIndex() const { return fShadingSsboIndex; }
 
     DstReadStrategy dstReadStrategy() const { return fDstReadStrategy; }
     const skgpu::BlendInfo& blendInfo() const { return fBlendInfo; }
@@ -113,7 +113,7 @@ private:
 
     const ShaderCodeDictionary* fShaderCodeDictionary;
     const RuntimeEffectDictionary* fRuntimeEffectDictionary;
-    const char* fSsboIndex;
+    const char* fShadingSsboIndex;
 
     // De-compressed shader tree from a PaintParamsKey. There can be 1 or 2 root nodes, the first
     // being the paint effects (rooted with a BlendCompose for the final paint blend) and the

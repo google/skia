@@ -127,9 +127,9 @@ private:
     // Returns null if the node or any of its children have an invalid snippet ID. Recursively
     // creates a node and all of its children, incrementing 'currentIndex' by the total number of
     // nodes created.
-    const ShaderNode* createNode(const ShaderCodeDictionary*,
-                                 int* currentIndex,
-                                 SkArenaAlloc* arena) const;
+    ShaderNode* createNode(const ShaderCodeDictionary*,
+                           int* currentIndex,
+                           SkArenaAlloc* arena) const;
 
     // The memory referenced in 'fData' is always owned by someone else. It either shares the span
     // from the Builder, or clone() puts the span in an arena.

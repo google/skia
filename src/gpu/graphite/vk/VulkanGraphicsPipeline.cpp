@@ -510,7 +510,7 @@ static bool uniform_desc_set_layout(VkDescriptorSetLayout& outLayout,
         uniformDescriptors.push_back({
                 uniformBufferType, /*count=*/1,
                 VulkanGraphicsPipeline::kPaintUniformBufferIndex,
-                PipelineStageFlags::kFragmentShader});
+                PipelineStageFlags::kVertexShader | PipelineStageFlags::kFragmentShader});
     }
     if (hasGradientBuffer) {
         uniformDescriptors.push_back({

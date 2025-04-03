@@ -588,7 +588,7 @@ const wgpu::BindGroupLayout& DawnResourceProvider::getOrCreateUniformBuffersBind
     entries[1].buffer.minBindingSize = 0;
 
     entries[2].binding = DawnGraphicsPipeline::kPaintUniformBufferIndex;
-    entries[2].visibility = wgpu::ShaderStage::Fragment;
+    entries[2].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
     entries[2].buffer.type = fSharedContext->caps()->storageBufferSupport()
                                      ? wgpu::BufferBindingType::ReadOnlyStorage
                                      : wgpu::BufferBindingType::Uniform;

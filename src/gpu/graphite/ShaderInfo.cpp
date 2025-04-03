@@ -262,7 +262,7 @@ std::string emit_render_step_storage_buffer(int set, int bufferID, SkSpan<const 
 }
 
 std::string emit_uniforms_from_storage_buffer(const char* bufferNamePrefix,
-                                              const char* ssboIndex,
+                                              const char* shadingSsboIndex,
                                               SkSpan<const Uniform> uniforms) {
     std::string result;
 
@@ -271,8 +271,11 @@ std::string emit_uniforms_from_storage_buffer(const char* bufferNamePrefix,
         if (u.count()) {
             SkSL::String::appendf(&result, "[%d]", u.count());
         }
-        SkSL::String::appendf(
-                &result, " = %sUniformData[%s].%s;\n", bufferNamePrefix, ssboIndex, u.name());
+        SkSL::String::appendf(&result,
+                              " = %sUniformData[%s].%s;\n",
+                              bufferNamePrefix,
+                              shadingSsboIndex,
+                              u.name());
     }
 
     return result;
@@ -368,6 +371,7 @@ std::string emit_textures_and_samplers(const ResourceBindingRequirements& bindin
 
 std::string emit_varyings(const RenderStep* step,
                           const char* direction,
+                          SkSpan<const ShaderNode*> liftedExpressions,
                           bool emitSsboIndicesVarying,
                           bool emitLocalCoordsVarying) {
     std::string result;
@@ -394,6 +398,12 @@ std::string emit_varyings(const RenderStep* step,
 
     if (emitLocalCoordsVarying) {
         appendVarying({"localCoordsVar", SkSLType::kFloat2});
+    }
+
+    for (const ShaderNode* node : liftedExpressions) {
+        // TODO(b/402402925) Provide a way for lifted expressions to declare their varying type.
+        std::string name = node->getExpressionVarying();
+        appendVarying({name.c_str(), SkSLType::kFloat2});
     }
 
     for (auto v : step->varyings()) {
@@ -459,6 +469,19 @@ std::string emit_color_output(BlendFormula::OutputType outputType,
             SkUNREACHABLE;
     }
 }
+
+void collect_lifted_expressions(SkSpan<const ShaderNode*> nodes,
+                                std::vector<const ShaderNode*>& lifted) {
+    for (const ShaderNode* node : nodes) {
+        SkASSERT(!(node->requiredFlags() & SnippetRequirementFlags::kLiftExpression) ||
+                 node->entry()->fLiftableExpressionGenerator);
+        if ((node->requiredFlags() & SnippetRequirementFlags::kLiftExpression) &&
+            node->entry()->fLiftableExpressionGenerator) {
+            lifted.push_back(node);
+        }
+        collect_lifted_expressions(node->children(), lifted);
+    }
+};
 
 constexpr skgpu::BlendInfo make_simple_blendInfo(skgpu::BlendCoeff srcCoeff,
                                                  skgpu::BlendCoeff dstCoeff) {
@@ -534,11 +557,11 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
 
 ShaderInfo::ShaderInfo(const ShaderCodeDictionary* shaderCodeDictionary,
                        const RuntimeEffectDictionary* rteDict,
-                       const char* ssboIndex,
+                       const char* shadingSsboIndex,
                        DstReadStrategy dstReadStrategy)
         : fShaderCodeDictionary(shaderCodeDictionary)
         , fRuntimeEffectDictionary(rteDict)
-        , fSsboIndex(ssboIndex)
+        , fShadingSsboIndex(shadingSsboIndex)
         , fDstReadStrategy(dstReadStrategy) {}
 
 namespace {
@@ -682,9 +705,13 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     const bool useDstSampler = fDstReadStrategy == DstReadStrategy::kTextureCopy ||
                                fDstReadStrategy == DstReadStrategy::kTextureSample;
 
+    std::vector<const ShaderNode*> liftedExpr;
+    collect_lifted_expressions(fRootNodes, liftedExpr);
+
     const bool defineLocalCoordsVarying = this->needsLocalCoords();
     std::string preamble = emit_varyings(step,
                                          /*direction=*/"in",
+                                         liftedExpr,
                                          /*emitSsboIndicesVarying=*/useShadingStorageBuffer,
                                          defineLocalCoordsVarying);
 
@@ -711,7 +738,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
                                                      fRootNodes,
                                                      &fHasPaintUniforms,
                                                      &wrotePaintColor);
-        SkSL::String::appendf(&preamble, "uint %s;\n", this->ssboIndex());
+        SkSL::String::appendf(&preamble, "uint %s;\n", this->shadingSsboIndex());
     } else {
         preamble += emit_paint_params_uniforms(bindingReqs.fUniformsSetIdx,
                                                bindingReqs.fPaintParamsBufferBinding,
@@ -774,7 +801,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     if (useShadingStorageBuffer) {
         SkSL::String::appendf(&mainBody,
                               "%s = %s.y;\n",
-                              this->ssboIndex(),
+                              this->shadingSsboIndex(),
                               RenderStep::ssboIndicesVarying());
     }
 
@@ -999,8 +1026,31 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
         }
     }
 
+    std::vector<const ShaderNode*> liftedExpr;
+    collect_lifted_expressions(fRootNodes, liftedExpr);
+
+    if (!liftedExpr.empty()) {
+        bool unusedHasPaintUniforms = false;
+        bool unusedWrotePaintColor = false;
+        if (useShadingStorageBuffer) {
+            sksl += emit_paint_params_storage_buffer(bindingReqs.fUniformsSetIdx,
+                                                     bindingReqs.fPaintParamsBufferBinding,
+                                                     fRootNodes,
+                                                     &unusedHasPaintUniforms,
+                                                     &unusedWrotePaintColor);
+        } else {
+            sksl += emit_paint_params_uniforms(bindingReqs.fUniformsSetIdx,
+                                               bindingReqs.fPaintParamsBufferBinding,
+                                               bindingReqs.fUniformBufferLayout,
+                                               fRootNodes,
+                                               &unusedHasPaintUniforms,
+                                               &unusedWrotePaintColor);
+        }
+    }
+
     // Varyings needed by RenderStep
-    sksl += emit_varyings(step, "out", useShadingStorageBuffer, defineLocalCoordsVarying);
+    sksl += emit_varyings(
+            step, "out", liftedExpr, useShadingStorageBuffer, defineLocalCoordsVarying);
 
     // Vertex shader function declaration
     sksl += "void main() {";
@@ -1041,6 +1091,26 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
         // Assign Render Step's stepLocalCoords to the localCoordsVar varying.
         sksl += "localCoordsVar = stepLocalCoords;";
     }
+
+    if (!liftedExpr.empty()) {
+        // If we're reading uniforms from a storage buffer, emit the SSBO index first.
+        if (this->shadingSsboIndex()) {
+            SkSL::String::appendf(&sksl,
+                                  "uint %s = %s.y;\n",
+                                  this->shadingSsboIndex(),
+                                  RenderStep::ssboIndicesAttribute());
+        }
+
+        for (const ShaderNode* node : liftedExpr) {
+            ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
+            args.fFragCoord = "stepLocalCoords";  // Render Step's stepLocalCoords
+
+            std::string varName = node->getExpressionVarying();
+            std::string expression = node->entry()->fLiftableExpressionGenerator(*this, node, args);
+            SkSL::String::appendf(&sksl, "%s = %s;", varName.c_str(), expression.c_str());
+        }
+    }
+
     sksl += "}";
 
     fVertexSkSL = std::move(sksl);

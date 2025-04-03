@@ -54,6 +54,7 @@ enum class SnippetRequirementFlags : uint32_t {
     kPrimitiveColor        = 0x8,
     kGradientBuffer        = 0x10,
     kStoresSamplerDescData = 0x20, // Indicates that the node stores numerical sampler data
+    kLiftExpression        = 0x40,
 };
 SK_MAKE_BITMASK_OPS(SnippetRequirementFlags)
 
@@ -64,14 +65,17 @@ class ShaderNode;
 // well as functions for generating the invoking SkSL. Snippets are composed into an effect tree
 // using ShaderNodes.
 struct ShaderSnippet {
-    using GeneratePreambleForSnippetFn = std::string (*)(const ShaderInfo& shaderInfo,
-                                                         const ShaderNode*);
     struct Args {
         std::string fPriorStageOutput;
         std::string fBlenderDstColor;
         std::string fFragCoord;
     };
 
+    using GeneratePreambleForSnippetFn = std::string (*)(const ShaderInfo& shaderInfo,
+                                                         const ShaderNode*);
+    using GenerateLiftableExpressionFn = std::string (*)(const ShaderInfo& shaderInfo,
+                                                         const ShaderNode*,
+                                                         const ShaderSnippet::Args& args);
     static const Args kDefaultArgs;
 
     ShaderSnippet() = default;
@@ -81,6 +85,7 @@ struct ShaderSnippet {
                   SkEnumBitMask<SnippetRequirementFlags> snippetRequirementFlags,
                   SkSpan<const Uniform> uniforms,
                   SkSpan<const TextureAndSampler> texturesAndSamplers = {},
+                  GenerateLiftableExpressionFn liftableExpression = nullptr,
                   GeneratePreambleForSnippetFn preambleGenerator = nullptr,
                   int numChildren = 0)
             : fName(name)
@@ -89,7 +94,8 @@ struct ShaderSnippet {
             , fUniforms(uniforms)
             , fTexturesAndSamplers(texturesAndSamplers)
             , fNumChildren(numChildren)
-            , fPreambleGenerator(preambleGenerator) {
+            , fPreambleGenerator(preambleGenerator)
+            , fLiftableExpressionGenerator(liftableExpression) {
         // Must always provide a name; static function is not optional if using the default (null)
         // generation logic.
         SkASSERT(name);
@@ -128,6 +134,7 @@ struct ShaderSnippet {
 
     int fNumChildren = 0;
     GeneratePreambleForSnippetFn fPreambleGenerator = nullptr;
+    GenerateLiftableExpressionFn fLiftableExpressionGenerator = nullptr;
 };
 
 // ShaderNodes organize snippets into an effect tree, and provide random access to the dynamically
@@ -175,11 +182,14 @@ public:
                                 const ShaderSnippet::Args& args,
                                 std::string* funcBody) const;
 
+    std::string getExpressionVarying() const;
+
     int32_t codeSnippetId() const { return fCodeID; }
     int32_t keyIndex() const { return fKeyIndex; }
     const ShaderSnippet* entry() const { return fEntry; }
 
     SkEnumBitMask<SnippetRequirementFlags> requiredFlags() const { return fRequiredFlags; }
+    void setLiftExpressionFlag() { fRequiredFlags |= SnippetRequirementFlags::kLiftExpression; }
 
     int numChildren() const { return fEntry->fNumChildren; }
     SkSpan<const ShaderNode*> children() const { return fChildren; }

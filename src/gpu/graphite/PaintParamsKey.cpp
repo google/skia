@@ -73,10 +73,9 @@ PaintParamsKey PaintParamsKey::clone(SkArenaAlloc* arena) const {
     return PaintParamsKey({newData, fData.size()});
 }
 
-
-const ShaderNode* PaintParamsKey::createNode(const ShaderCodeDictionary* dict,
-                                             int* currentIndex,
-                                             SkArenaAlloc* arena) const {
+ShaderNode* PaintParamsKey::createNode(const ShaderCodeDictionary* dict,
+                                       int* currentIndex,
+                                       SkArenaAlloc* arena) const {
     SkASSERT(*currentIndex < SkTo<int>(fData.size()));
     const int32_t index = (*currentIndex)++;
     const int32_t id = fData[index];
@@ -127,14 +126,25 @@ SkSpan<const ShaderNode*> PaintParamsKey::getRootNodes(const ShaderCodeDictionar
     const int keySize = SkTo<int>(fData.size());
 
     // Normal PaintParams creation will have up to 7 roots for the different stages.
-    STArray<7, const ShaderNode*> roots;
+    STArray<7, ShaderNode*> roots;
     int currentIndex = 0;
     while (currentIndex < keySize) {
-        const ShaderNode* root = this->createNode(dict, &currentIndex, arena);
+        ShaderNode* root = this->createNode(dict, &currentIndex, arena);
         if (!root) {
             return {}; // a bad key
         }
         roots.push_back(root);
+    }
+
+    // TODO(b/402402925) This only lifts expressions from root nodes, but we want to allow
+    // combining expressions from nested nodes and skipping intermediate nodes that don't
+    // modify the operands in these expressions.
+    const bool hasClipNode = roots.size() > 2;
+    const int liftableNodes = hasClipNode ? 2 : roots.size();
+    for (ShaderNode* node : SkSpan(roots.data(), liftableNodes)) {
+        if (node->entry()->fLiftableExpressionGenerator) {
+            node->setLiftExpressionFlag();
+        }
     }
 
     // Copy the accumulated roots into a span stored in the arena
