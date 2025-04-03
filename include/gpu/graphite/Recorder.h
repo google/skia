@@ -16,6 +16,7 @@
 #include "include/private/base/SkTArray.h"
 
 #include <chrono>
+#include <optional>
 
 struct AHardwareBuffer;
 class SkCanvas;
@@ -70,6 +71,10 @@ struct SK_API RecorderOptions final {
     static constexpr size_t kDefaultRecorderBudget = 256 * (1 << 20);
     // What is the budget for GPU resources allocated and held by this Recorder.
     size_t fGpuBudgetInBytes = kDefaultRecorderBudget;
+    // If Recordings are known to be played back in the order they are recorded, then Graphite
+    // may be able to make certain assuptions that improve performance. This is often the case
+    // if the content being drawn triggers the use of internal atlasing in Graphite (e.g. text).
+    std::optional<bool> fRequireOrderedRecordings;
 };
 
 class SK_API Recorder final {
@@ -281,6 +286,8 @@ private:
 
     uint32_t fUniqueID;  // Needed for MessageBox handling for text
     uint32_t fNextRecordingID = 1;
+    const bool fRequireOrderedRecordings;
+
     std::unique_ptr<AtlasProvider> fAtlasProvider;
     std::unique_ptr<TokenTracker> fTokenTracker;
     std::unique_ptr<sktext::gpu::StrikeCache> fStrikeCache;
