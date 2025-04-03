@@ -444,7 +444,6 @@ protected:
     virtual void generateFontMetrics(SkFontMetrics*) = 0;
 
     void forceGenerateImageFromPath() { fGenerateImageFromPath = true; }
-    void forceOffGenerateImageFromPath() { fGenerateImageFromPath = false; }
 
 private:
     friend class PathText;  // For debug purposes
