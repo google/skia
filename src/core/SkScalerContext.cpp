@@ -861,7 +861,7 @@ void SkScalerContextRec::getSingleMatrix(SkMatrix* m) const {
 }
 
 bool SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector* s, SkMatrix* sA,
-                                         SkMatrix* GsA, SkMatrix* G_inv, SkMatrix* A_out)
+                                         SkMatrix* GsA, SkMatrix* G_inv, SkMatrix* A_out) const
 {
     // A is the 'total' matrix.
     SkMatrix A;
