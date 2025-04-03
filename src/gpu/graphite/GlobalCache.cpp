@@ -357,15 +357,14 @@ void GlobalCache::reportPrecompileStats() {
                                      /* bucketCount= */ 52);
 }
 
-
 void GlobalCache::reportCacheStats() {
     SkAutoSpinlock lock{fSpinLock};
 
-    SK_HISTOGRAM_CUSTOM_EXACT_LINEAR("Skia.Graphite.PipelineCache.PipelineUsesInEpoch",
+    SK_HISTOGRAM_CUSTOM_EXACT_LINEAR("Graphite.PipelineCache.PipelineUsesInEpoch",
                                      fStats.fPipelineUsesInEpoch,
                                      /* countMin= */ 1,
                                      /* countMax= */ 1001,
-                                     /* bucketCount= */ 100); // 10/bucket
+                                     /* bucketCount= */ 102); // 10/bucket
 
     // Set up for a new epoch
     fStats.fPipelineUsesInEpoch = 0;
