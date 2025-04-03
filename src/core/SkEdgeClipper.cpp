@@ -568,7 +568,7 @@ void SkEdgeClipper::ClipPath(const SkPath& path, const SkRect& clip, bool canCul
     SkASSERT(path.isFinite());
 
     SkAutoConicToQuads quadder;
-    const SkScalar conicTol = SK_Scalar1 / 4;
+    constexpr float kConicTol = 0.25f;
 
     SkPathEdgeIter iter(path);
     SkEdgeClipper clipper(canCullToTheRight);
@@ -586,7 +586,8 @@ void SkEdgeClipper::ClipPath(const SkPath& path, const SkRect& clip, bool canCul
                 }
                 break;
             case SkPathEdgeIter::Edge::kConic: {
-                const SkPoint* quadPts = quadder.computeQuads(e.fPts, iter.conicWeight(), conicTol);
+                const SkPoint* quadPts =
+                        quadder.computeQuads(e.fPts, iter.conicWeight(), kConicTol);
                 for (int i = 0; i < quadder.countQuads(); ++i) {
                     if (clipper.clipQuad(quadPts, clip)) {
                         consume(&clipper, e.fIsNewContour, ctx);
@@ -598,6 +599,9 @@ void SkEdgeClipper::ClipPath(const SkPath& path, const SkRect& clip, bool canCul
                 if (clipper.clipCubic(e.fPts, clip)) {
                     consume(&clipper, e.fIsNewContour, ctx);
                 }
+                break;
+            default:
+                SkDEBUGFAIL("Unknown edge type");
                 break;
         }
     }

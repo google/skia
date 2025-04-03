@@ -301,7 +301,6 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, bool canC
 }
 
 int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullToTheRight) {
-    SkPathEdgeIter iter(path);
     if (iclip) {
         SkRect clip = this->recoverClip(*iclip);
         struct Rec {
@@ -333,6 +332,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
         return rec.fIsFinite ? fList.size() : 0;
     }
 
+    SkPathEdgeIter iter(path);
     SkAutoConicToQuads quadder;
     constexpr float kConicTol = 0.25f;
     SkPoint monoY[10];
@@ -368,6 +368,9 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
                 }
                 break;
             }
+            default:
+                SkDEBUGFAIL("Unknown edge type");
+                break;
         }
     }
     fEdgeList = fList.begin();

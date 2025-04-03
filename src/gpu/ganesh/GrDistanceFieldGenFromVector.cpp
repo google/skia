@@ -805,10 +805,12 @@ bool GrGenerateDistanceFieldFromPath(unsigned char* distanceField,
                 }
                 break;
             }
-            case SkPathEdgeIter::Edge::kCubic: {
+            case SkPathEdgeIter::Edge::kCubic:
                 add_cubic(e.fPts, &segments);
                 break;
-            }
+            default:
+                SkDEBUGFAIL("Unknown edge type");
+                break;
         }
     }
 

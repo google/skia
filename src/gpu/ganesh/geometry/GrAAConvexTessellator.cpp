@@ -441,6 +441,9 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
                     this->conicTo(m, e.fPts, iter.conicWeight());
                 }
                 break;
+            default:
+                SkDEBUGFAIL("Unknown edge type");
+                break;
         }
     }
 
