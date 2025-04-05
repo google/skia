@@ -21,12 +21,14 @@ extern "C" {
 // skcms can leverage some C++ extensions when they are present.
 #define ARRAY_COUNT(arr) (int)(sizeof((arr)) / sizeof(*(arr)))
 
-#if defined(__clang__) && defined(__has_cpp_attribute)
+#if defined(__has_cpp_attribute)
     #if __has_cpp_attribute(clang::fallthrough)
         #define SKCMS_FALLTHROUGH [[clang::fallthrough]]
+    #elif __has_cpp_attribute(gnu::fallthrough)
+        #define SKCMS_FALLTHROUGH [[gnu::fallthrough]]
     #endif
 
-    #ifndef SKCMS_HAS_MUSTTAIL
+    #if defined(__clang__) && !defined(SKCMS_HAS_MUSTTAIL)
         // [[clang::musttail]] is great for performance, but it's not well supported and we run into
         // a variety of problems when we use it. Fortunately, it's an optional feature that doesn't
         // affect correctness, and usually the compiler will generate a tail-call even for us
@@ -53,6 +55,12 @@ extern "C" {
                                                  && !defined(__loongarch__) \
                                                  && !defined(_WIN32) && !defined(__SYMBIAN32__)
             #define SKCMS_HAS_MUSTTAIL 1
+        #endif
+    #elif !defined(__clang__) && !defined(SKCMS_HAS_MUSTTAIL)
+        #if __has_cpp_attribute(clang::musttail)
+            #define SKCMS_HAS_MUSTTAIL 1
+        #else
+            #define SKCMS_HAS_MUSTTAIL 0
         #endif
     #endif
 #endif
