@@ -15,7 +15,6 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathEffect.h"
-#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStrokeRec.h"
@@ -47,11 +46,9 @@
 #include "src/text/GlyphRun.h"
 #include "src/text/StrikeForGPU.h"
 #include "src/text/gpu/Glyph.h"
-#include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/SDFMaskFilter.h"
-#include "src/text/gpu/SubRunAllocator.h"
+#include "src/text/gpu/StrikeCache.h"
 #include "src/text/gpu/SubRunControl.h"
-#include "src/text/gpu/VertexFiller.h"
 
 #include <algorithm>
 #include <climits>
@@ -677,12 +674,11 @@ calculate_clip(const GrClip* clip, SkRect deviceBounds, SkRect glyphBounds) {
 #endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
 // -- DirectMaskSubRun -----------------------------------------------------------------------------
-class DirectMaskSubRun final : public SubRun, public AtlasSubRun {
+class DirectMaskSubRun final : public AtlasSubRun {
 public:
     DirectMaskSubRun(VertexFiller&& vertexFiller,
                      GlyphVector&& glyphs)
-            : fVertexFiller{std::move(vertexFiller)}
-            , fGlyphs{std::move(glyphs)} {}
+            : AtlasSubRun(std::move(vertexFiller), std::move(glyphs)) {}
 
     static SubRunOwner Make(SkRect creationBounds,
                             SkZip<const SkPackedGlyphID, const SkPoint> accepted,
@@ -735,31 +731,13 @@ public:
                fVertexFiller.unflattenSize();
     }
 
-    int glyphCount() const override {
-        return SkCount(fGlyphs.glyphs());
-    }
-
-    SkSpan<const Glyph*> glyphs() const override {
-        return fGlyphs.glyphs();
-    }
-
-    MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
-
     int glyphSrcPadding() const override { return 0; }
-
-    unsigned short instanceFlags() const override {
-        return (unsigned short)fVertexFiller.grMaskType();
-    }
 
     void testingOnly_packedGlyphIDToGlyph(StrikeCache* cache) const override {
         fGlyphs.packedGlyphIDToGlyph(cache);
     }
 
 #if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-    size_t vertexStride(const SkMatrix& drawMatrix) const override {
-        return fVertexFiller.vertexStride(drawMatrix);
-    }
-
     std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(
             const GrClip* clip,
             const SkMatrix& viewMatrix,
@@ -829,19 +807,6 @@ public:
                                                  std::move(grPaint));
         return {clip, std::move(op)};
     }
-
-    void fillVertexData(void* vertexDst, int offset, int count,
-                        const SkPMColor4f& color,
-                        const SkMatrix& drawMatrix, SkPoint drawOrigin,
-                        SkIRect clip) const override {
-        const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
-        fVertexFiller.fillVertexData(offset, count,
-                                     fGlyphs.glyphs(),
-                                     color,
-                                     positionMatrix,
-                                     clip,
-                                     vertexDst);
-    }
 #endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end,
@@ -849,8 +814,6 @@ public:
         return regenerateAtlas(
                 &fGlyphs, begin, end, fVertexFiller.grMaskType(), this->glyphSrcPadding());
     }
-
-    const VertexFiller& vertexFiller() const override { return fVertexFiller; }
 
     bool canReuse(const SkPaint& paint, const SkMatrix& positionMatrix) const override {
         auto [reuse, _] = fVertexFiller.deviceRectAndCheckTransform(positionMatrix);
@@ -870,24 +833,16 @@ protected:
         fVertexFiller.flatten(buffer);
         fGlyphs.flatten(buffer);
     }
-
-private:
-    const VertexFiller fVertexFiller;
-
-    // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
-    // be single threaded.
-    mutable GlyphVector fGlyphs;
 };
 
 // -- TransformedMaskSubRun ------------------------------------------------------------------------
-class TransformedMaskSubRun final : public SubRun, public AtlasSubRun {
+class TransformedMaskSubRun final : public AtlasSubRun {
 public:
     TransformedMaskSubRun(bool isBigEnough,
                           VertexFiller&& vertexFiller,
                           GlyphVector&& glyphs)
-            : fIsBigEnough{isBigEnough}
-            , fVertexFiller{std::move(vertexFiller)}
-            , fGlyphs{std::move(glyphs)} {}
+            : AtlasSubRun(std::move(vertexFiller), std::move(glyphs))
+            , fIsBigEnough{isBigEnough} {}
 
     static SubRunOwner Make(SkZip<const SkPackedGlyphID, const SkPoint> accepted,
                             const SkMatrix& initialPositionMatrix,
@@ -946,18 +901,6 @@ public:
         fGlyphs.packedGlyphIDToGlyph(cache);
     }
 
-    int glyphCount() const override { return SkCount(fGlyphs.glyphs()); }
-
-    SkSpan<const Glyph*> glyphs() const override {
-        return fGlyphs.glyphs();
-    }
-
-    unsigned short instanceFlags() const override {
-        return (unsigned short)fVertexFiller.grMaskType();
-    }
-
-    MaskFormat maskFormat() const override { return fVertexFiller.grMaskType(); }
-
     int glyphSrcPadding() const override { return 1; }
 
     void draw(SkCanvas*,
@@ -970,11 +913,6 @@ public:
     }
 
 #if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-
-    size_t vertexStride(const SkMatrix& drawMatrix) const override {
-        return fVertexFiller.vertexStride(drawMatrix);
-    }
-
     std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(
             const GrClip* clip,
             const SkMatrix& viewMatrix,
@@ -1012,20 +950,6 @@ public:
                                                  std::move(grPaint));
         return {clip, std::move(op)};
     }
-
-    void fillVertexData(
-            void* vertexDst, int offset, int count,
-            const SkPMColor4f& color,
-            const SkMatrix& drawMatrix, SkPoint drawOrigin,
-            SkIRect clip) const override {
-        const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
-        fVertexFiller.fillVertexData(offset, count,
-                                     fGlyphs.glyphs(),
-                                     color,
-                                     positionMatrix,
-                                     clip,
-                                     vertexDst);
-    }
 #endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end,
@@ -1033,8 +957,6 @@ public:
         return regenerateAtlas(
                 &fGlyphs, begin, end, fVertexFiller.grMaskType(), this->glyphSrcPadding());
     }
-
-    const VertexFiller& vertexFiller() const override { return fVertexFiller; }
 
 protected:
     SubRunStreamTag subRunStreamTag() const override {
@@ -1049,12 +971,6 @@ protected:
 
 private:
     const bool fIsBigEnough;
-
-    const VertexFiller fVertexFiller;
-
-    // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
-    // be single threaded.
-    mutable GlyphVector fGlyphs;
 };  // class TransformedMaskSubRun
 
 // -- SDFTSubRun -----------------------------------------------------------------------------------
@@ -1101,18 +1017,19 @@ static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameter
 
 #endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
-class SDFTSubRun final : public SubRun, public AtlasSubRun {
+class SDFTSubRun final : public AtlasSubRun {
 public:
     SDFTSubRun(bool useLCDText,
                bool antiAliased,
                const SDFTMatrixRange& matrixRange,
                VertexFiller&& vertexFiller,
                GlyphVector&& glyphs)
-        : fUseLCDText{useLCDText}
-        , fAntiAliased{antiAliased}
-        , fMatrixRange{matrixRange}
-        , fVertexFiller{std::move(vertexFiller)}
-        , fGlyphs{std::move(glyphs)} { }
+            : AtlasSubRun(std::move(vertexFiller), std::move(glyphs))
+            , fUseLCDText{useLCDText}
+            , fAntiAliased{antiAliased}
+            , fMatrixRange{matrixRange} {
+        SkASSERT(fVertexFiller.grMaskType() == MaskFormat::kA8);
+    }
 
     static SubRunOwner Make(SkZip<const SkPackedGlyphID, const SkPoint> accepted,
                             const SkFont& runFont,
@@ -1176,20 +1093,7 @@ public:
         fGlyphs.packedGlyphIDToGlyph(cache);
     }
 
-    int glyphCount() const override { return fVertexFiller.count(); }
-    MaskFormat maskFormat() const override {
-        SkASSERT(fVertexFiller.grMaskType() == MaskFormat::kA8);
-        return MaskFormat::kA8;
-    }
     int glyphSrcPadding() const override { return SK_DistanceFieldInset; }
-
-    SkSpan<const Glyph*> glyphs() const override {
-        return fGlyphs.glyphs();
-    }
-
-    unsigned short instanceFlags() const override {
-        return (unsigned short)MaskFormat::kA8;
-    }
 
     void draw(SkCanvas*,
               SkPoint drawOrigin,
@@ -1201,10 +1105,6 @@ public:
     }
 
 #if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-    size_t vertexStride(const SkMatrix& drawMatrix) const override {
-        return fVertexFiller.vertexStride(drawMatrix);
-    }
-
     std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(
             const GrClip* clip,
             const SkMatrix& viewMatrix,
@@ -1248,22 +1148,6 @@ public:
 
         return {clip, std::move(op)};
     }
-
-    void fillVertexData(
-            void *vertexDst, int offset, int count,
-            const SkPMColor4f& color,
-            const SkMatrix& drawMatrix, SkPoint drawOrigin,
-            SkIRect clip) const override {
-        const SkMatrix positionMatrix = position_matrix(drawMatrix, drawOrigin);
-
-        fVertexFiller.fillVertexData(offset, count,
-                                     fGlyphs.glyphs(),
-                                     color,
-                                     positionMatrix,
-                                     clip,
-                                     vertexDst);
-    }
-
 #endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end,
@@ -1271,7 +1155,7 @@ public:
         return regenerateAtlas(&fGlyphs, begin, end, MaskFormat::kA8, this->glyphSrcPadding());
     }
 
-    const VertexFiller& vertexFiller() const override { return fVertexFiller; }
+    const VertexFiller& vertexFiller() const { return fVertexFiller; }
 
 protected:
     SubRunStreamTag subRunStreamTag() const override { return SubRunStreamTag::kSDFTStreamTag; }
@@ -1287,12 +1171,6 @@ private:
     const bool fUseLCDText;
     const bool fAntiAliased;
     const SDFTMatrixRange fMatrixRange;
-
-    const VertexFiller fVertexFiller;
-
-    // The regenerateAtlas method mutates fGlyphs. It should be called from onPrepare which must
-    // be single threaded.
-    mutable GlyphVector fGlyphs;
 };  // class SDFTSubRun
 
 #endif // !defined(SK_DISABLE_SDF_TEXT)
@@ -1324,7 +1202,7 @@ void add_multi_mask_format(
     auto glyphsWithSameFormat = SkMakeZip(interval.get<0>(), interval.get<1>());
     addSingleMaskFormat(glyphsWithSameFormat, format);
 }
-}  // namespace
+}  // anonymous namespace
 
 namespace sktext::gpu {
 SubRun::~SubRun() = default;
