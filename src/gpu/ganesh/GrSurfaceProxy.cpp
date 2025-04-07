@@ -258,7 +258,13 @@ static void check_dimensions_match_target(const GrSurfaceProxy* proxy, SkISize e
 
     SkAutoMutexExclusive am(mutex);
     if (GrSurface* target = proxy->peekSurface()) {
-        SkASSERT(target->dimensions() == expected);
+        SkASSERTF(target->dimensions() == expected,
+                  "Actual %d,%d vs. Expected %d,%d. isTP: %d isRP: %d isPromise: %d",
+                  target->dimensions().fWidth, target->dimensions().fHeight,
+                  expected.fWidth, expected.fHeight,
+                  SkToBool(proxy->asTextureProxy()),
+                  SkToBool(proxy->asRenderTargetProxy()),
+                  proxy->isPromiseProxy());
     }
 }
 #endif
