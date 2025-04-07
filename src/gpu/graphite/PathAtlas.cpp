@@ -73,7 +73,8 @@ std::pair<const Renderer*, std::optional<PathAtlas::MaskAndOrigin>> PathAtlas::a
     }
 
     std::optional<PathAtlas::MaskAndOrigin> atlasMask =
-            std::make_pair(CoverageMaskShape(shape, atlasProxy, localToDevice.inverse(), maskInfo),
+            std::make_pair(CoverageMaskShape(shape, sk_ref_sp(atlasProxy), localToDevice.inverse(),
+                                             maskInfo),
                            SkIPoint{(int) maskBounds.left(), (int) maskBounds.top()});
     return std::make_pair(fRecorder->priv().rendererProvider()->coverageMask(), atlasMask);
 }
