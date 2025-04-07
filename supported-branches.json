@@ -5,10 +5,6 @@
       "owner": "skiabot@google.com"
     },
     {
-      "ref": "refs/heads/android/next-release",
-      "owner": "djsollen@google.com"
-    },
-    {
       "ref": "refs/heads/chrome/m133",
       "owner": "sharaks@google.com"
     },
