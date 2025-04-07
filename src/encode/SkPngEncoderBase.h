@@ -17,9 +17,11 @@
 #endif
 #include "include/encode/SkEncoder.h"
 #include "include/private/SkEncodedInfo.h"
+#ifndef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 #include "src/encode/SkImageEncoderFns.h"
 
 struct SkImageInfo;
+#endif // SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 class SkPixmap;
 template <typename T> class SkSpan;
 
