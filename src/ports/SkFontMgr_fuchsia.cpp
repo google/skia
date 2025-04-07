@@ -519,7 +519,9 @@ sk_sp<SkTypeface> SkFontMgr_Fuchsia::GetOrCreateTypeface(TypefaceId id,
     if (!data) return nullptr;
 
     auto result = CreateTypefaceFromSkData(std::move(data), id);
-    fTypefaceCache.add(result);
+    if (result) {
+        fTypefaceCache.add(result);
+    }
     return result;
 }
 
