@@ -171,15 +171,16 @@ protected:
             SkCanvas* drawCanvas = canvas;
 
             // See https://issues.skia.org/issues/396360753
-            // We would like Fontations anti-aliasing on a surface with unknown pixel geometry to
-            // look like the FreeType backend in order to avoid perceived regressions
-            // in contrast/sharpness.
-            // Simulate the unknown geometry case for tests that request it.
+            // We would like Fontations anti-aliasing on a surface with unknown pixel geometry
+            // to look like the FreeType backend in order to avoid perceived regressions in
+            // contrast/sharpness. Simulate the unknown geometry case for tests that request it.
             sk_sp<SkSurface> surface = nullptr;
-            if (!wrapCanvasUnknownGeometry(canvas, surface)) {
-                return DrawResult::kFail;
+            if (fSimulatePixelGeometry) {
+                if (!wrapCanvasUnknownGeometry(canvas, surface)) {
+                    return DrawResult::kFail;
+                }
+                drawCanvas = surface->getCanvas();
             }
-            drawCanvas = surface->getCanvas();
 
             SkRect maxBounds = SkRect::MakeEmpty();
             for (auto phase : {DrawPhase::Fontations, DrawPhase::FreeType, DrawPhase::Comparison}) {
