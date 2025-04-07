@@ -1889,21 +1889,11 @@ void Device::drawCoverageMask(const SkSpecialImage* mask,
     // the texture is consumed by the RenderStep and not part of the PaintParams.
     static_cast<Image_Base*>(mask->asImage().get())->notifyInUse(fRecorder, fDC.get());
 
-    // 'mask' logically has 0 coverage outside of its pixels, which is equivalent to kDecal tiling.
-    // However, since we draw geometry tightly fitting 'mask', we can use the better-supported
-    // kClamp tiling and behave effectively the same way.
-    TextureDataBlock::SampledTexture sampledMask{maskProxyView.refProxy(),
-                                                 {SkFilterMode::kLinear, SkTileMode::kClamp}};
-    // Ensure this is kept alive; normally textures are kept alive by the PipelineDataGatherer for
-    // image shaders, or by the PathAtlas. This is a unique circumstance.
-    // NOTE: CoverageMaskRenderStep controls the final sampling options; this texture data block
-    // serves only to keep the mask alive so the sampling passed to add() doesn't matter.
-    fRecorder->priv().textureDataCache()->insert(TextureDataBlock(sampledMask));
-
     // CoverageMaskShape() wraps a Shape when it's used as a PathAtlas, but in this case the
     // original shape has been long lost, so just use a Rect that bounds the image.
     CoverageMaskShape maskShape{Shape{Rect::WH((float)mask->width(), (float)mask->height())},
-                                maskProxyView.proxy(),
+                                // We store a ref to the textureProxy to keep it alive.
+                                maskProxyView.refProxy(),
                                 // Use the active local-to-device transform for this since it
                                 // determines the local coords for evaluating the skpaint, whereas
                                 // the provided 'localToDevice' just places the coverage mask.
