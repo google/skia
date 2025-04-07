@@ -148,7 +148,6 @@ skia_cc_library(
     defines = [
         "SK_CODEC_ENCODES_PNG",
         "SK_CODEC_ENCODES_PNG_WITH_LIBPNG",
-        "SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS",
     ],
     features = ["layering_check"],
     visibility = ["//:__pkg__"],
