@@ -294,6 +294,12 @@ void SkTypeface_Fontations::getGlyphToUnicodeMap(SkUnichar* codepointForGlyphMap
 void SkTypeface_Fontations::onFilterRec(SkScalerContextRec* rec) const {
     rec->useStrokeForFakeBold();
 
+    // See https://issues.skia.org/issues/396360753
+    // We would like Fontations anti-aliasing on a surface with unknown pixel geometry to
+    // look like the FreeType backend in order to avoid perceived regressions
+    // in sharpness, so we ignore SkScalerContext::kGenA8FromLCD_Flag in fRec.fFlags.
+    rec->fFlags &= ~SkScalerContext::kGenA8FromLCD_Flag;
+
     // Opportunistic hinting downgrades copied from SkFontHost_FreeType.cpp
     SkFontHinting h = rec->getHinting();
     if (SkFontHinting::kFull == h && !isLCD(*rec)) {
@@ -718,26 +724,7 @@ protected:
     void generateImage(const SkGlyph& glyph, void* imageBuffer) override {
         ScalerContextBits::value_type format = glyph.extraBits();
         if (format == ScalerContextBits::PATH) {
-            const SkPath* devPath = glyph.path();
-            SkASSERT_RELEASE(devPath);
-            SkMaskBuilder mask(static_cast<uint8_t*>(imageBuffer),
-                               glyph.iRect(),
-                               glyph.rowBytes(),
-                               glyph.maskFormat());
-            SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
-            const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
-            const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
-            // See https://issues.skia.org/issues/396360753
-            // We would like Fontations anti-aliasing on a surface with unknown pixel geometry to
-            // look like the FreeType backend in order to avoid perceived regressions
-            // in sharpness, so we ignore SkScalerContext::kGenA8FromLCD_Flag in fRec.fFlags.
-            const bool a8LCD = false;
-            const bool hairline = glyph.pathIsHairline();
-
-            // Path offseting for subpixel positioning is not needed here,
-            // as this is done in SkScalerContext::internalGetPath.
-            GenerateImageFromPath(mask, *devPath, fPreBlend, doBGR, doVert, a8LCD, hairline);
-
+            this->generateImageFromPath(glyph, imageBuffer);
         } else if (format == ScalerContextBits::COLRv1 || format == ScalerContextBits::COLRv0) {
             SkASSERT(glyph.maskFormat() == SkMask::kARGB32_Format);
             SkBitmap dstBitmap;

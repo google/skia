@@ -422,6 +422,7 @@ protected:
     static void GenerateImageFromPath(
         SkMaskBuilder& dst, const SkPath& path, const SkMaskGamma::PreBlend& maskPreBlend,
         bool doBGR, bool verticalLCD, bool a8FromLCD, bool hairline);
+    void generateImageFromPath(const SkGlyph& glyph, void* imageBuffer);
 
     /** Sets the passed path to the glyph outline.
      *  If this cannot be done the path is set to empty;
@@ -442,8 +443,6 @@ protected:
 
     /** Retrieves font metrics. */
     virtual void generateFontMetrics(SkFontMetrics*) = 0;
-
-    void forceGenerateImageFromPath() { fGenerateImageFromPath = true; }
 
 private:
     friend class PathText;  // For debug purposes
@@ -466,7 +465,7 @@ private:
 
     // if this is set, we draw the image from a path, rather than
     // calling generateImage.
-    bool fGenerateImageFromPath;
+    const bool fGenerateImageFromPath;
 
     void internalGetPath(SkGlyph&, SkArenaAlloc*);
     SkGlyph internalMakeGlyph(SkPackedGlyphID, SkMask::Format, SkArenaAlloc*);

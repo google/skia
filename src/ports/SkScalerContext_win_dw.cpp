@@ -2394,16 +2394,7 @@ void SkScalerContext_DW::generateImage(const SkGlyph& glyph, void* imageBuffer) 
     } else if (format == ScalerContextBits::PNG) {
         this->generatePngImage(glyph, imageBuffer);
     } else if (format == ScalerContextBits::PATH) {
-        const SkPath* devPath = glyph.path();
-        SkASSERT_RELEASE(devPath);
-        SkMaskBuilder mask(static_cast<uint8_t*>(imageBuffer),
-                           glyph.iRect(), glyph.rowBytes(), glyph.maskFormat());
-        SkASSERT(SkMask::kARGB32_Format != mask.fFormat);
-        const bool doBGR = SkToBool(fRec.fFlags & SkScalerContext::kLCD_BGROrder_Flag);
-        const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
-        const bool a8LCD = SkToBool(fRec.fFlags & SkScalerContext::kGenA8FromLCD_Flag);
-        const bool hairline = glyph.pathIsHairline();
-        GenerateImageFromPath(mask, *devPath, fPreBlend, doBGR, doVert, a8LCD, hairline);
+        this->generateImageFromPath(glyph, imageBuffer);
     } else {
         SK_ABORT("Bad format");
     }
