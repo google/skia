@@ -68,7 +68,6 @@ GrGeometryProcessor::TextureSampler::TextureSampler(GrSamplerState samplerState,
 void GrGeometryProcessor::TextureSampler::reset(GrSamplerState samplerState,
                                                 const GrBackendFormat& backendFormat,
                                                 const skgpu::Swizzle& swizzle) {
-    fSamplerState = samplerState;
     fSamplerState = GrSamplerState(samplerState.wrapModeX(),
                                    samplerState.wrapModeY(),
                                    clamp_filter(backendFormat.textureType(), samplerState.filter()),
