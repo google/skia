@@ -113,6 +113,7 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
         return proxy;
     }
 
+#if defined(SK_GRAPHITE_RASTER_ATLAS_ENABLE_PROXY_CACHE)
     // Failed to add to atlases, try to add to ProxyCache
     skgpu::UniqueKey maskKey = GeneratePathMaskKey(shape, localToDevice, strokeRec,
                                                    maskOrigin, maskSize);
@@ -151,6 +152,9 @@ const TextureProxy* RasterPathAtlas::onAddShape(const Shape& shape,
 
     *outPos = { kEntryPadding, kEntryPadding };
     return cachedProxy.get();
+#else
+    return nullptr;
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
