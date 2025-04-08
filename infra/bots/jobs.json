@@ -771,7 +771,12 @@
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Dawn_Metal_TintIR"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Native_Metal"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Native_Metal_ColorSpaces"},
-  {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Native_Metal_TestPrecompile"},
+  {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Native_Metal_TestPrecompile",
+   "cq_config": {"location_regexes": [
+        "(include|src)/gpu/graphite/.*Precompile.*",
+        "(include|src)/gpu/graphite/precompile/.*",
+        "(tests|tools)/graphite/precompile/.*"]}
+  },
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Metal"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-TSAN_Graphite_Dawn_Metal"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-TSAN_Graphite_Native_Metal"},
@@ -807,7 +812,12 @@
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_Vulkan"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan"},
-  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan_TestPrecompile"},
+  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan_TestPrecompile",
+  "cq_config": {"location_regexes": [
+    "(include|src)/gpu/graphite/.*Precompile.*",
+    "(include|src)/gpu/graphite/precompile/.*",
+    "(tests|tools)/graphite/precompile/.*"]}
+  },
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41"},
