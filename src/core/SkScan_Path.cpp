@@ -153,13 +153,8 @@ static void walk_edges(SkEdge* prevHead, SkPathFillType fillType,
             SkFixed newX;
 
             if (currE->fLastY == curr_y) {    // are we done with this edge?
-                if (currE->fCurveCount > 0) {
-                    if (((SkQuadraticEdge*)currE)->updateQuadratic()) {
-                        newX = currE->fX;
-                        goto NEXT_X;
-                    }
-                } else if (currE->fCurveCount < 0) {
-                    if (((SkCubicEdge*)currE)->updateCubic()) {
+                if (currE->hasNextSegment()) {
+                    if (currE->nextSegment()) {
                         SkASSERT(currE->fFirstY == curr_y + 1);
 
                         newX = currE->fX;
@@ -205,21 +200,17 @@ static void walk_edges(SkEdge* prevHead, SkPathFillType fillType,
 // return true if we're NOT done with this edge
 static bool update_edge(SkEdge* edge, int last_y) {
     SkASSERT(edge->fLastY >= last_y);
-    if (last_y == edge->fLastY) {
-        if (edge->fCurveCount < 0) {
-            if (((SkCubicEdge*)edge)->updateCubic()) {
-                SkASSERT(edge->fFirstY == last_y + 1);
-                return true;
-            }
-        } else if (edge->fCurveCount > 0) {
-            if (((SkQuadraticEdge*)edge)->updateQuadratic()) {
-                SkASSERT(edge->fFirstY == last_y + 1);
-                return true;
-            }
-        }
+    if (last_y != edge->fLastY) {
+        return true;
+    }
+    if (!edge->hasNextSegment()) {
         return false;
     }
-    return true;
+    if (edge->nextSegment()) {
+        SkASSERT(edge->fFirstY == last_y + 1);
+        return true;
+    }
+    return false;
 }
 
 // Unexpected conditions for which we need to return
@@ -396,7 +387,6 @@ static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
     return list[0];
 }
 
-// clipRect has not been shifted up
 static void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitter,
                          int start_y, int stop_y, bool pathContainedInClip) {
     SkASSERT(blitter);

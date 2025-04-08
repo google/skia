@@ -38,6 +38,7 @@ struct SkIRect;
 */
 class SkEdge {
 public:
+    virtual ~SkEdge() = default;
     enum class Type : int8_t {
         kLine,
         kQuad,
@@ -72,11 +73,23 @@ public:
     // call this version if you know you don't have a clip
     inline bool setLine(const SkPoint& p0, const SkPoint& p1);
 
-    // TODO(kjlubick) make this private
-    int8_t  fCurveCount;    // only non-zero for Quad and Cubics
+    bool hasNextSegment() const {
+        return fSegmentCount != 0;
+    }
+    // Update fX, fDxDY, fFirstY, and fLastY to represent the segment. It will skip over
+    // any lines that have a height of 0 pixels and return false if there were only 0-height
+    // segments remaining. For quadratic and cubic curves this will involve forward-differencing
+    // (see the subclasses for those values).
+    virtual bool nextSegment();
+
+    uint8_t segmentsLeft() const {
+        return fSegmentCount;
+    }
+
 protected:
     inline bool updateLine(SkFixed ax, SkFixed ay, SkFixed bx, SkFixed by);
 
+    uint8_t fSegmentCount; // only non-zero for Quad and Cubics
     // How much to shift the derivatives to multiply by deltaT when doing forward-differencing.
     // For cubics, this is log_2(N) and for quadratics this is log_2(N) - 1.
     uint8_t fCurveShift;
@@ -86,7 +99,7 @@ private:
 
 #if defined(SK_DEBUG)
 public:
-    void dump() const;
+    virtual void dump() const;
     void validate() const {
         SkASSERT(fPrev && fNext);
         SkASSERT(fPrev->fNext == this);
@@ -102,14 +115,9 @@ class SkQuadraticEdge final : public SkEdge {
 public:
     // Sets up the line segments. Returns false if the line would be of height 0.
     bool setQuadratic(const SkPoint pts[3]);
+    bool nextSegment() override;
 
-    // Update fX, fDxDY, fFirstY, and fLastY to represent the segment. It will skip over
-    // any lines that have a height of 0 pixels and return false if there were only 0-height
-    // segments remaining. This will involve forward-differencing.
-    bool updateQuadratic();
-
-// TODO(kjlubick) make these private
-public:
+private:
     // These are the non-rounded points that the current line segment ends at.
     SkFixed fQx, fQy;
     // These represent the first derivatives of the quadratic curve evaluated
@@ -124,19 +132,20 @@ public:
     // will be used instead of the results from our forward-differnce technique
     // to make sure cumulative error doesn't result in a dramatically different line.
     SkFixed fQLastX, fQLastY;
+
+#if defined(SK_DEBUG)
+public:
+    void dump() const override;
+#endif
 };
 
 class SkCubicEdge final : public SkEdge {
 public:
     // Sets up the line segments. Returns false if the line would be of height 0.
     bool setCubic(const SkPoint pts[4]);
-    // Update fX, fDxDY, fFirstY, and fLastY to represent the segment. It will skip over
-    // any lines that have a height of 0 pixels and return false if there were only 0-height
-    // segments remaining. This will involve forward-differencing.
-    bool updateCubic();
+    bool nextSegment() override;
 
-// TODO(kjlubick) make these private
-public:
+private:
     // These are the non-rounded points that the current line segment ends at.
     SkFixed fCx, fCy;
     SkFixed fCDxDt, fCDyDt;
@@ -149,6 +158,11 @@ public:
     SkFixed fCLastX, fCLastY;
 
     uint8_t fCubicDShift;   // applied to fCDxDt and fCDyDt only in cubic
+
+#if defined(SK_DEBUG)
+public:
+    void dump() const override;
+#endif
 };
 
 bool SkEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
@@ -192,7 +206,7 @@ bool SkEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
     fFirstY     = top;
     fLastY      = bot - 1;
     fEdgeType   = Type::kLine;
-    fCurveCount = 0;
+    fSegmentCount = 0;
     fWinding    = winding;
     fCurveShift = 0;
     return true;

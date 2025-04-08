@@ -37,22 +37,62 @@ static inline SkFixed SkFDot6ToFixedDiv2(SkFDot6 value) {
 
 /////////////////////////////////////////////////////////////////////////
 
-#ifdef SK_DEBUG
+#if defined(SK_DEBUG)
 void SkEdge::dump() const {
-    int realLastY = SkScalarToFixed(fLastY);
-    if (fCurveCount > 0) {
-        realLastY = static_cast<const SkQuadraticEdge*>(this)->fQLastY;
-    } else if (fCurveCount < 0) {
-        realLastY = static_cast<const SkCubicEdge*>(this)->fCLastY;
-    }
-    SkDebugf("edge (%c): firstY:%d lastY:%d (%g) x:%g dx:%g w:%d\n",
-             fCurveCount > 0 ? 'Q' : (fCurveCount < 0 ? 'C' : 'L'),
+    SkASSERT(fSegmentCount == 0);
+    SkDebugf("line edge: firstY:%d lastY:%d x:%g dx/dy:%g\n"
+             "\twinding:%d curveShift:%u\n",
              fFirstY,
              fLastY,
-             SkFixedToFloat(realLastY),
              SkFixedToFloat(fX),
              SkFixedToFloat(fDxDy),
-             static_cast<int8_t>(fWinding));
+             static_cast<int8_t>(fWinding),
+             fCurveShift);
+}
+
+void SkQuadraticEdge::dump() const {
+    SkDebugf("quad edge; %u segment(s) left: firstY:%d lastY:%d x:%g dx/dy:%g\n"
+             "\tqx:%g qy:%g dqx:%g dqy:%g ddqx:%g ddqy:%g qLastX:%g qLastY:%g\n"
+             "\twinding:%d curveShift:%u\n",
+             fSegmentCount,
+             fFirstY,
+             fLastY,
+             SkFixedToFloat(fX),
+             SkFixedToFloat(fDxDy),
+             SkFixedToFloat(fQx),
+             SkFixedToFloat(fQy),
+             SkFixedToFloat(fQDxDt),
+             SkFixedToFloat(fQDyDt),
+             SkFixedToFloat(fQD2xDt2),
+             SkFixedToFloat(fQD2yDt2),
+             SkFixedToFloat(fQLastX),
+             SkFixedToFloat(fQLastY),
+             static_cast<int8_t>(fWinding),
+             fCurveShift);
+}
+
+void SkCubicEdge::dump() const {
+    SkDebugf("cube edge; %u segment(s) left: firstY:%d lastY:%d x:%g dx/dy:%g\n"
+             "qx:%g qy:%g dcx:%g dcy:%g ddcx:%g ddcy:%g dddcx:%g dddcy:%g cLastX:%g cLastY:%g\n"
+             "\twinding:%d curveShift:%u dShift:%u\n",
+             fSegmentCount,
+             fFirstY,
+             fLastY,
+             SkFixedToFloat(fX),
+             SkFixedToFloat(fDxDy),
+             SkFixedToFloat(fCx),
+             SkFixedToFloat(fCy),
+             SkFixedToFloat(fCDxDt),
+             SkFixedToFloat(fCDyDt),
+             SkFixedToFloat(fCD2xDt2),
+             SkFixedToFloat(fCD2yDt2),
+             SkFixedToFloat(fCD3xDt3),
+             SkFixedToFloat(fCD3yDt3),
+             SkFixedToFloat(fCLastX),
+             SkFixedToFloat(fCLastY),
+             static_cast<int8_t>(fWinding),
+             fCurveShift,
+             fCubicDShift);
 }
 #endif
 
@@ -100,7 +140,7 @@ bool SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip) 
     fFirstY     = top;
     fLastY      = bot - 1;
     fEdgeType   = Type::kLine;
-    fCurveCount = 0;
+    fSegmentCount = 0;
     fWinding    = winding;
     fCurveShift = 0;
 
@@ -110,35 +150,37 @@ bool SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip) 
     return true;
 }
 
+bool SkEdge::nextSegment() {
+    SkDEBUGFAILF("Shouldn't be asking a linear edge to go to the next curve.");
+    return false;
+}
+
 // Draws a line between the provided points and then calculates the slope and starting
 // x value to line up with the closest pixel center. Updates the fields in the SkEdge
 // base class appropriately. Returns false if this edge would start and stop in the
 // same row.
-bool SkEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1) {
+bool SkEdge::updateLine(SkFixed xStart, SkFixed yStart, SkFixed xEnd, SkFixed yEnd) {
     SkASSERT(fWinding == Winding::kCW || fWinding == Winding::kCCW);
-    SkASSERT(fCurveCount != 0);
-//    SkASSERT(fCurveShift != 0);
+    SkASSERT(fSegmentCount != 0);
 
-    y0 >>= 10;
-    y1 >>= 10;
+    const SkFDot6 y0 = SkFixedToFDot6(yStart);
+    const SkFDot6 y1 = SkFixedToFDot6(yEnd);
 
     SkASSERT(y0 <= y1);
 
-    int top = SkFDot6Round(y0);
-    int bot = SkFDot6Round(y1);
-
-//  SkASSERT(top >= fFirstY);
+    const int top = SkFDot6Round(y0);
+    const int bot = SkFDot6Round(y1);
 
     // are we a zero-height line?
     if (top == bot) {
         return false;
     }
 
-    x0 >>= 10;
-    x1 >>= 10;
+    const SkFDot6 x0 = SkFixedToFDot6(xStart);
+    const SkFDot6 x1 = SkFixedToFDot6(xEnd);
 
     SkFixed slope = SkFDot6Div(x1 - x0, y1 - y0);
-    const SkFDot6 dy  = SkEdge_Compute_DY(top, y0);
+    const SkFDot6 dy = SkEdge_Compute_DY(top, y0);
 
     // We could do this math in fixed point, but it would potentially require some
     // rebaselining https://codereview.chromium.org/960353005/#msg6
@@ -170,7 +212,7 @@ void SkEdge::chopLineWithClip(const SkIRect& clip)
 
 /*  This limits the number of lines we use to approximate a curve.
     If we need to increase this, we need to store fSegmentCount in a larger data type.
-    TODO(kjlubick): Could this be an unsigned byte and go up to 7?
+    TODO(kjlubick): now that this is in an unsigned byte, we could go up to 7
 */
 #define MAX_COEFF_SHIFT     6
 
@@ -255,9 +297,8 @@ bool SkQuadraticEdge::setQuadratic(const SkPoint pts[3]) {
     }
 
     fWinding = winding;
-    //fCubicDShift only set for cubics
     fEdgeType = Type::kQuad;
-    fCurveCount = SkToS8(1 << shift);
+    fSegmentCount = SkToU8(1 << shift);
 
     /*
      *  By re-arranging the Bezier curve in polynomial form, it is easier to
@@ -307,13 +348,12 @@ bool SkQuadraticEdge::setQuadratic(const SkPoint pts[3]) {
     fQLastX = SkFDot6ToFixed(x2);
     fQLastY = SkFDot6ToFixed(y2);
 
-    return this->updateQuadratic();
+    return this->nextSegment();
 }
 
-bool SkQuadraticEdge::updateQuadratic()
-{
+bool SkQuadraticEdge::nextSegment() {
     bool    success;
-    int     count = fCurveCount;
+    int     count = fSegmentCount;
     SkFixed oldx = fQx;
     SkFixed oldy = fQy;
     SkFixed dx = fQDxDt;
@@ -324,8 +364,7 @@ bool SkQuadraticEdge::updateQuadratic()
     SkASSERT(count > 0);
 
     do {
-        if (--count > 0)
-        {
+        if (--count > 0) {
             newx = oldx + (dx >> shift);
             dx += fQD2xDt2;
             newy = oldy + (dy >> shift);
@@ -341,11 +380,11 @@ bool SkQuadraticEdge::updateQuadratic()
         oldy = newy;
     } while (count > 0 && !success);
 
-    fQx         = newx;
-    fQy         = newy;
-    fQDxDt        = dx;
-    fQDyDt        = dy;
-    fCurveCount = SkToS8(count);
+    fQx = newx;
+    fQy = newy;
+    fQDxDt = dx;
+    fQDyDt = dy;
+    fSegmentCount = SkToU8(count);
     return success;
 }
 
@@ -442,7 +481,7 @@ bool SkCubicEdge::setCubic(const SkPoint pts[4]) {
 
     fWinding = winding;
     fEdgeType = Type::kCubic;
-    fCurveCount = SkToS8(SkLeftShift(-1, shift));
+    fSegmentCount = SkToU8(SkLeftShift(1, shift));
     fCurveShift = SkToU8(shift);
     fCubicDShift = SkToU8(downShift);
 
@@ -467,23 +506,22 @@ bool SkCubicEdge::setCubic(const SkPoint pts[4]) {
     fCLastX = SkFDot6ToFixed(x3);
     fCLastY = SkFDot6ToFixed(y3);
 
-    return this->updateCubic();
+    return this->nextSegment();
 }
 
-bool SkCubicEdge::updateCubic()
-{
+bool SkCubicEdge::nextSegment() {
     bool    success;
-    int     count = fCurveCount;
+    int     count = fSegmentCount;
     SkFixed oldx = fCx;
     SkFixed oldy = fCy;
     SkFixed newx, newy;
     const int ddshift = fCurveShift;
     const int dshift = fCubicDShift;
 
-    SkASSERT(count < 0);
+    SkASSERT(count > 0);
 
     do {
-        if (++count < 0)
+        if (--count > 0)
         {
             newx = oldx + (fCDxDt >> dshift);
             fCDxDt += fCD2xDt2 >> ddshift;
@@ -508,10 +546,10 @@ bool SkCubicEdge::updateCubic()
         success = this->updateLine(oldx, oldy, newx, newy);
         oldx = newx;
         oldy = newy;
-    } while (count < 0 && !success);
+    } while (count > 0 && !success);
 
-    fCx         = newx;
-    fCy         = newy;
-    fCurveCount = SkToS8(count);
+    fCx = newx;
+    fCy = newy;
+    fSegmentCount = SkToU8(count);
     return success;
 }
