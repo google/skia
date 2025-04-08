@@ -27,7 +27,7 @@
 SkEdgeBuilder::Combine SkBasicEdgeBuilder::combineVertical(const SkEdge* edge, SkEdge* last) {
     // We only consider edges that were originally lines to be vertical to avoid numerical issues
     // (crbug.com/1154864).
-    if (last->fEdgeType != SkEdge::Type::kLine || last->fDX || edge->fX != last->fX) {
+    if (last->fEdgeType != SkEdge::Type::kLine || last->fDxDy || edge->fX != last->fX) {
         return kNo_Combine;
     }
     if (edge->fWinding == last->fWinding) {
@@ -119,12 +119,18 @@ SkEdgeBuilder::Combine SkAnalyticEdgeBuilder::combineVertical(const SkAnalyticEd
     return kNo_Combine;
 }
 
-template <typename Edge>
-static bool is_vertical(const Edge* edge) {
+static bool is_vertical(const SkEdge* edge) {
+    // We only consider edges that were originally lines to be vertical to avoid numerical issues
+    // (crbug.com/1154864).
+    return edge->fDxDy     == 0
+        && edge->fEdgeType == SkEdge::Type::kLine;
+}
+
+static bool is_vertical(const SkAnalyticEdge* edge) {
     // We only consider edges that were originally lines to be vertical to avoid numerical issues
     // (crbug.com/1154864).
     return edge->fDX       == 0
-        && edge->fEdgeType == Edge::Type::kLine;
+        && edge->fEdgeType == SkAnalyticEdge::Type::kLine;
 }
 
 // TODO: we can deallocate the edge if edge->setFoo() fails

@@ -13,9 +13,9 @@
 
 #include <cstddef>
 
+class SkEdge;
 class SkPath;
 struct SkAnalyticEdge;
-struct SkEdge;
 struct SkPoint;
 
 class SkEdgeBuilder {

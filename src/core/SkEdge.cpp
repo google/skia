@@ -7,6 +7,7 @@
 
 #include "src/core/SkEdge.h"
 
+#include "include/core/SkRect.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTo.h"
@@ -50,12 +51,12 @@ void SkEdge::dump() const {
              fLastY,
              SkFixedToFloat(realLastY),
              SkFixedToFloat(fX),
-             SkFixedToFloat(fDX),
+             SkFixedToFloat(fDxDy),
              static_cast<int8_t>(fWinding));
 }
 #endif
 
-int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip, int shift) {
+bool SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip, int shift) {
     SkFDot6 x0, y0, x1, y1;
 
     {
@@ -86,18 +87,18 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip, i
 
     // are we a zero-height line?
     if (top == bot) {
-        return 0;
+        return false;
     }
     // are we completely above or below the clip?
     if (clip && (top >= clip->fBottom || bot <= clip->fTop)) {
-        return 0;
+        return false;
     }
 
     SkFixed slope = SkFDot6Div(x1 - x0, y1 - y0);
     const SkFDot6 dy  = SkEdge_Compute_DY(top, y0);
 
-    fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, dy));   // + SK_Fixed1/2
-    fDX         = slope;
+    fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, dy));
+    fDxDy       = slope;
     fFirstY     = top;
     fLastY      = bot - 1;
     fEdgeType   = Type::kLine;
@@ -108,12 +109,14 @@ int SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip, i
     if (clip) {
         this->chopLineWithClip(*clip);
     }
-    return 1;
+    return true;
 }
 
-// called from a curve subclass
-int SkEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1)
-{
+// Draws a line between the provided points and then calculates the slope and starting
+// x value to line up with the closest pixel center. Updates the fields in the SkEdge
+// base class appropriately. Returns false if this edge would start and stop in the
+// same row.
+bool SkEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1) {
     SkASSERT(fWinding == Winding::kCW || fWinding == Winding::kCCW);
     SkASSERT(fCurveCount != 0);
 //    SkASSERT(fCurveShift != 0);
@@ -129,8 +132,9 @@ int SkEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1)
 //  SkASSERT(top >= fFirstY);
 
     // are we a zero-height line?
-    if (top == bot)
-        return 0;
+    if (top == bot) {
+        return false;
+    }
 
     x0 >>= 10;
     x1 >>= 10;
@@ -138,12 +142,15 @@ int SkEdge::updateLine(SkFixed x0, SkFixed y0, SkFixed x1, SkFixed y1)
     SkFixed slope = SkFDot6Div(x1 - x0, y1 - y0);
     const SkFDot6 dy  = SkEdge_Compute_DY(top, y0);
 
-    fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, dy));   // + SK_Fixed1/2
-    fDX         = slope;
+    // We could do this math in fixed point, but it would potentially require some
+    // rebaselining https://codereview.chromium.org/960353005/#msg6
+    // Note that SkFixedMul(SkFixed, SkFDot6) produces results in SkFDot6
+    fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, dy));
+    fDxDy       = slope;
     fFirstY     = top;
     fLastY      = bot - 1;
 
-    return 1;
+    return true;
 }
 
 void SkEdge::chopLineWithClip(const SkIRect& clip)
@@ -156,17 +163,16 @@ void SkEdge::chopLineWithClip(const SkIRect& clip)
     if (top < clip.fTop)
     {
         SkASSERT(fLastY >= clip.fTop);
-        fX += fDX * (clip.fTop - top);
+        fX += fDxDy * (clip.fTop - top);
         fFirstY = clip.fTop;
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-/*  We store 1<<shift in a (signed) byte, so its maximum value is 1<<6 == 64.
-    Note that this limits the number of lines we use to approximate a curve.
-    If we need to increase this, we need to store fCurveCount in something
-    larger than int8_t.
+/*  This limits the number of lines we use to approximate a curve.
+    If we need to increase this, we need to store fSegmentCount in a larger data type.
+    TODO(kjlubick): Could this be an unsigned byte and go up to 7?
 */
 #define MAX_COEFF_SHIFT     6
 
@@ -175,14 +181,15 @@ static inline SkFDot6 cheap_distance(SkFDot6 dx, SkFDot6 dy)
     dx = SkAbs32(dx);
     dy = SkAbs32(dy);
     // return max + min/2
-    if (dx > dy)
+    if (dx > dy) {
         dx += dy >> 1;
-    else
+    } else {
         dx = dy + (dx >> 1);
+    }
     return dx;
 }
 
-static inline int diff_to_shift(SkFDot6 dx, SkFDot6 dy, int shiftAA = 2)
+static inline int diff_to_shift(SkFDot6 dx, SkFDot6 dy, int shiftAA)
 {
     // cheap calc of distance from center of p0-p2 to the center of the curve
     SkFDot6 dist = cheap_distance(dx, dy);
@@ -199,7 +206,7 @@ static inline int diff_to_shift(SkFDot6 dx, SkFDot6 dy, int shiftAA = 2)
     return (32 - SkCLZ(dist)) >> 1;
 }
 
-bool SkQuadraticEdge::setQuadraticWithoutUpdate(const SkPoint pts[3], int shift) {
+bool SkQuadraticEdge::setQuadratic(const SkPoint pts[3], int shift) {
     SkFDot6 x0, y0, x1, y1, x2, y2;
 
     {
@@ -222,21 +229,21 @@ bool SkQuadraticEdge::setQuadraticWithoutUpdate(const SkPoint pts[3], int shift)
     }
 
     Winding winding = Winding::kCW;
-    if (y0 > y2)
-    {
+    if (y0 > y2) {
         using std::swap;
         swap(x0, x2);
         swap(y0, y2);
         winding = Winding::kCCW;
     }
-    SkASSERT(y0 <= y1 && y1 <= y2);
+    SkASSERTF(y0 <= y1 && y1 <= y2, "curve must be monotonic");
 
     int top = SkFDot6Round(y0);
     int bot = SkFDot6Round(y2);
 
     // are we a zero-height quad (line)?
-    if (top == bot)
-        return 0;
+    if (top == bot) {
+        return false;
+    }
 
     // compute number of steps needed (1 << shift)
     {
@@ -248,7 +255,9 @@ bool SkQuadraticEdge::setQuadraticWithoutUpdate(const SkPoint pts[3], int shift)
         shift = diff_to_shift(dx, dy, shift);
         SkASSERT(shift >= 0);
     }
-    // need at least 1 subdivision for our bias trick
+
+    // We need at least 2 line segments for us to be able to save the derivatives as
+    // half their values to avoid overflow.
     if (shift == 0) {
         shift = 1;
     } else if (shift > MAX_COEFF_SHIFT) {
@@ -261,10 +270,10 @@ bool SkQuadraticEdge::setQuadraticWithoutUpdate(const SkPoint pts[3], int shift)
     fCurveCount = SkToS8(1 << shift);
 
     /*
-     *  We want to reformulate into polynomial form, to make it clear how we
-     *  should forward-difference.
+     *  By re-arranging the Bezier curve in polynomial form, it is easier to
+     *  find the derivatives and forward-differentiate from one segment to the next.
      *
-     *  p0 (1 - t)^2 + p1 t(1 - t) + p2 t^2 ==> At^2 + Bt + C
+     *  p0 (1-t)^2 + p1 t(1-t) + p2 t^2 ==> At^2 + Bt + C
      *
      *  A = p0 - 2p1 + p2
      *  B = 2(p1 - p0)
@@ -279,42 +288,46 @@ bool SkQuadraticEdge::setQuadraticWithoutUpdate(const SkPoint pts[3], int shift)
      */
 
     fCurveShift = SkToU8(shift - 1);
+    // TODO(kjlubick): Can we use SkVx and calculate both X and Y at once?
 
-    SkFixed A = SkFDot6ToFixedDiv2(x0 - x1 - x1 + x2);  // 1/2 the real value
-    SkFixed B = SkFDot6ToFixed(x1 - x0);                // 1/2 the real value
+    // The extra 1/2 factor avoids overflow
+    SkFixed A_half = SkFDot6ToFixedDiv2(x0 - x1 - x1 + x2);
+    SkFixed B_half = SkFDot6ToFixed(x1 - x0);
+
+    // We want to calculate the slope at the midpoint of our first segment. This means evaluating
+    //   dx/dt = 2A*t + B
+    //   dx^2/dt^2 = 2A
+    // at t = 1/N * 1/2
+    // There's an extra 1/2 on the whole expression to avoid overflows (as above).
+    //  1/2 ( 2A*t + B) => 1/2 (2A*1/2N + B) => A/2*1/N + B/2 => A/2 * 1/2^shift + B/2
+    fQDxDt = B_half + (A_half >> shift);
+    // The second derivatives are constant, so we can pre-multiply them by 1/N to save having
+    // to do it in nextSegment(). Since A_half was already calculated we can use a smaller shift.
+    // 1/2 (2A * 1/N) => A * 1/N => A * 1/2^shift => A/2 * 1/2^(shift-1)
+    fQD2xDt2 = A_half >> (shift - 1);
+
+    A_half = SkFDot6ToFixedDiv2(y0 - y1 - y1 + y2);
+    B_half = SkFDot6ToFixed(y1 - y0);
+
+    fQDyDt = B_half + (A_half >> shift);
+    fQD2yDt2 = A_half >> (shift - 1);
 
     fQx     = SkFDot6ToFixed(x0);
-    fQDx    = B + (A >> shift);     // biased by shift
-    fQDDx   = A >> (shift - 1);     // biased by shift
-
-    A = SkFDot6ToFixedDiv2(y0 - y1 - y1 + y2);  // 1/2 the real value
-    B = SkFDot6ToFixed(y1 - y0);                // 1/2 the real value
-
     fQy     = SkFDot6ToFixed(y0);
-    fQDy    = B + (A >> shift);     // biased by shift
-    fQDDy   = A >> (shift - 1);     // biased by shift
-
     fQLastX = SkFDot6ToFixed(x2);
     fQLastY = SkFDot6ToFixed(y2);
 
-    return true;
-}
-
-int SkQuadraticEdge::setQuadratic(const SkPoint pts[3], int shift) {
-    if (!setQuadraticWithoutUpdate(pts, shift)) {
-        return 0;
-    }
     return this->updateQuadratic();
 }
 
-int SkQuadraticEdge::updateQuadratic()
+bool SkQuadraticEdge::updateQuadratic()
 {
-    int     success;
+    bool    success;
     int     count = fCurveCount;
     SkFixed oldx = fQx;
     SkFixed oldy = fQy;
-    SkFixed dx = fQDx;
-    SkFixed dy = fQDy;
+    SkFixed dx = fQDxDt;
+    SkFixed dy = fQDyDt;
     SkFixed newx, newy;
     int     shift = fCurveShift;
 
@@ -323,15 +336,15 @@ int SkQuadraticEdge::updateQuadratic()
     do {
         if (--count > 0)
         {
-            newx    = oldx + (dx >> shift);
-            dx    += fQDDx;
-            newy    = oldy + (dy >> shift);
-            dy    += fQDDy;
+            newx = oldx + (dx >> shift);
+            dx += fQD2xDt2;
+            newy = oldy + (dy >> shift);
+            dy += fQD2yDt2;
         }
         else    // last segment
         {
-            newx    = fQLastX;
-            newy    = fQLastY;
+            newx = fQLastX;
+            newy = fQLastY;
         }
         success = this->updateLine(oldx, oldy, newx, newy);
         oldx = newx;
@@ -340,8 +353,8 @@ int SkQuadraticEdge::updateQuadratic()
 
     fQx         = newx;
     fQy         = newy;
-    fQDx        = dx;
-    fQDy        = dy;
+    fQDxDt        = dx;
+    fQDyDt        = dy;
     fCurveCount = SkToS8(count);
     return success;
 }
@@ -370,7 +383,7 @@ static SkFDot6 cubic_delta_from_line(SkFDot6 a, SkFDot6 b, SkFDot6 c, SkFDot6 d)
     return std::max(SkAbs32(oneThird), SkAbs32(twoThird));
 }
 
-bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift, bool sortY) {
+bool SkCubicEdge::setCubic(const SkPoint pts[4], int shift) {
     SkFDot6 x0, y0, x1, y1, x2, y2, x3, y3;
 
     {
@@ -397,7 +410,7 @@ bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift, bool so
     }
 
     Winding winding = Winding::kCW;
-    if (sortY && y0 > y3)
+    if (y0 > y3)
     {
         using std::swap;
         swap(x0, x3);
@@ -411,8 +424,9 @@ bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift, bool so
     int bot = SkFDot6Round(y3);
 
     // are we a zero-height cubic (line)?
-    if (sortY && top == bot)
-        return 0;
+    if (top == bot) {
+        return false;
+    }
 
     // compute number of steps needed (1 << shift)
     {
@@ -422,7 +436,7 @@ bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift, bool so
         SkFDot6 dx = cubic_delta_from_line(x0, x1, x2, x3);
         SkFDot6 dy = cubic_delta_from_line(y0, y1, y2, y3);
         // add 1 (by observation)
-        shift = diff_to_shift(dx, dy) + 1;
+        shift = diff_to_shift(dx, dy, 2) + 1;
     }
     // need at least 1 subdivision for our bias trick
     SkASSERT(shift > 0);
@@ -452,35 +466,28 @@ bool SkCubicEdge::setCubicWithoutUpdate(const SkPoint pts[4], int shift, bool so
     SkFixed D = SkFDot6UpShift(x3 + 3 * (x1 - x2) - x0, upShift);
 
     fCx     = SkFDot6ToFixed(x0);
-    fCDx    = B + (C >> shift) + (D >> 2*shift);    // biased by shift
-    fCDDx   = 2*C + (3*D >> (shift - 1));           // biased by 2*shift
-    fCDDDx  = 3*D >> (shift - 1);                   // biased by 2*shift
+    fCDxDt    = B + (C >> shift) + (D >> 2*shift);    // biased by shift
+    fCD2xDt2   = 2*C + (3*D >> (shift - 1));           // biased by 2*shift
+    fCD3xDt3  = 3*D >> (shift - 1);                   // biased by 2*shift
 
     B = SkFDot6UpShift(3 * (y1 - y0), upShift);
     C = SkFDot6UpShift(3 * (y0 - y1 - y1 + y2), upShift);
     D = SkFDot6UpShift(y3 + 3 * (y1 - y2) - y0, upShift);
 
     fCy     = SkFDot6ToFixed(y0);
-    fCDy    = B + (C >> shift) + (D >> 2*shift);    // biased by shift
-    fCDDy   = 2*C + (3*D >> (shift - 1));           // biased by 2*shift
-    fCDDDy  = 3*D >> (shift - 1);                   // biased by 2*shift
+    fCDyDt    = B + (C >> shift) + (D >> 2*shift);    // biased by shift
+    fCD2yDt2   = 2*C + (3*D >> (shift - 1));           // biased by 2*shift
+    fCD3yDt3  = 3*D >> (shift - 1);                   // biased by 2*shift
 
     fCLastX = SkFDot6ToFixed(x3);
     fCLastY = SkFDot6ToFixed(y3);
 
-    return true;
-}
-
-int SkCubicEdge::setCubic(const SkPoint pts[4], int shift) {
-    if (!this->setCubicWithoutUpdate(pts, shift)) {
-        return 0;
-    }
     return this->updateCubic();
 }
 
-int SkCubicEdge::updateCubic()
+bool SkCubicEdge::updateCubic()
 {
-    int     success;
+    bool    success;
     int     count = fCurveCount;
     SkFixed oldx = fCx;
     SkFixed oldy = fCy;
@@ -493,19 +500,18 @@ int SkCubicEdge::updateCubic()
     do {
         if (++count < 0)
         {
-            newx    = oldx + (fCDx >> dshift);
-            fCDx    += fCDDx >> ddshift;
-            fCDDx   += fCDDDx;
+            newx = oldx + (fCDxDt >> dshift);
+            fCDxDt += fCD2xDt2 >> ddshift;
+            fCD2xDt2 += fCD3xDt3;
 
-            newy    = oldy + (fCDy >> dshift);
-            fCDy    += fCDDy >> ddshift;
-            fCDDy   += fCDDDy;
+            newy = oldy + (fCDyDt >> dshift);
+            fCDyDt += fCD2yDt2 >> ddshift;
+            fCD2yDt2 += fCD3yDt3;
         }
         else    // last segment
         {
-        //  SkDebugf("LastX err=%d, LastY err=%d\n", (oldx + (fCDx >> shift) - fLastX), (oldy + (fCDy >> shift) - fLastY));
-            newx    = fCLastX;
-            newy    = fCLastY;
+            newx = fCLastX;
+            newy = fCLastY;
         }
 
         // we want to say SkASSERT(oldy <= newy), but our finite fixedpoint

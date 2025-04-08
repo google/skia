@@ -169,7 +169,7 @@ static void walk_edges(SkEdge* prevHead, SkPathFillType fillType,
                 remove_edge(currE);
             } else {
                 SkASSERT(currE->fLastY > curr_y);
-                newX = currE->fX + currE->fDX;
+                newX = currE->fX + currE->fDxDy;
                 currE->fX = newX;
             NEXT_X:
                 if (newX < prevX) { // ripple currE backwards until it is x-sorted
@@ -253,13 +253,13 @@ static void walk_simple_edges(SkEdge* prevHead, SkBlitter* blitter, int start_y,
         ASSERT_RETURN(local_top <= local_bot);
 
         SkFixed left = leftE->fX;
-        SkFixed dLeft = leftE->fDX;
+        SkFixed dLeft = leftE->fDxDy;
         SkFixed rite = riteE->fX;
-        SkFixed dRite = riteE->fDX;
+        SkFixed dRite = riteE->fDxDy;
         int count = local_bot - local_top;
         ASSERT_RETURN(count >= 0);
 
-        if (0 == (dLeft | dRite)) {
+        if (dLeft == 0 && dRite == 0) {
             int L = SkFixedRoundToInt(left);
             int R = SkFixedRoundToInt(rite);
             if (L > R) {
