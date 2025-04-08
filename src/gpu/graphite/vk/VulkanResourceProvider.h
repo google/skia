@@ -58,6 +58,35 @@ public:
     sk_sp<VulkanYcbcrConversion> findOrCreateCompatibleYcbcrConversion(
             const VulkanYcbcrConversionInfo& ycbcrInfo) const;
 
+    sk_sp<VulkanDescriptorSet> findOrCreateDescriptorSet(SkSpan<DescriptorData>);
+
+    sk_sp<VulkanDescriptorSet> findOrCreateUniformBuffersDescriptorSet(
+            SkSpan<DescriptorData> requestedDescriptors,
+            SkSpan<BindBufferInfo> bindUniformBufferInfo);
+
+    sk_sp<VulkanGraphicsPipeline> findOrCreateLoadMSAAPipeline(const RenderPassDesc&);
+
+    // Find or create a compatible (needed when creating a framebuffer and graphics pipeline) or
+    // full (needed when beginning a render pass from the command buffer) RenderPass.
+    sk_sp<VulkanRenderPass> findOrCreateRenderPass(const RenderPassDesc&, bool compatibleOnly);
+
+    VkPipelineCache pipelineCache();
+
+    VkPipelineLayout mockPushConstantPipelineLayout() const {
+        return fMockPushConstantPipelineLayout;
+    }
+
+    // TODO(b/302126809): Should these be cached? e.g. findOrCreateFramebuffer
+    sk_sp<VulkanFramebuffer> createFramebuffer(
+        const VulkanSharedContext*,
+        VulkanTexture* colorTexture,
+        VulkanTexture* resolveTexture,
+        VulkanTexture* depthStencilTexture,
+        const RenderPassDesc& renderPassDesc,
+        const VulkanRenderPass&,
+        const int width,
+        const int height);
+
 private:
     const VulkanSharedContext* vulkanSharedContext() const;
 
@@ -74,16 +103,6 @@ private:
     sk_sp<Buffer> createBuffer(size_t size, BufferType type, AccessPattern) override;
     sk_sp<Sampler> createSampler(const SamplerDesc&) override;
 
-    sk_sp<VulkanFramebuffer> createFramebuffer(
-            const VulkanSharedContext*,
-            VulkanTexture* colorTexture,
-            VulkanTexture* resolveTexture,
-            VulkanTexture* depthStencilTexture,
-            const RenderPassDesc& renderPassDesc,
-            const VulkanRenderPass&,
-            const int width,
-            const int height);
-
     BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
 #ifdef SK_BUILD_FOR_ANDROID
     BackendTexture onCreateBackendTexture(AHardwareBuffer*,
@@ -94,29 +113,10 @@ private:
 #endif
     void onDeleteBackendTexture(const BackendTexture&) override;
 
-    sk_sp<VulkanDescriptorSet> findOrCreateDescriptorSet(SkSpan<DescriptorData>);
-
-    sk_sp<VulkanDescriptorSet> findOrCreateUniformBuffersDescriptorSet(
-            SkSpan<DescriptorData> requestedDescriptors,
-            SkSpan<BindBufferInfo> bindUniformBufferInfo);
-
-    sk_sp<VulkanGraphicsPipeline> findOrCreateLoadMSAAPipeline(const RenderPassDesc&);
-
-    // Find or create a compatible (needed when creating a framebuffer and graphics pipeline) or
-    // full (needed when beginning a render pass from the command buffer) RenderPass.
-    sk_sp<VulkanRenderPass> findOrCreateRenderPass(const RenderPassDesc&, bool compatibleOnly);
-
     // Use a predetermined RenderPass key for finding/creating a RenderPass to avoid recreating it
     sk_sp<VulkanRenderPass> findOrCreateRenderPassWithKnownKey(
             const RenderPassDesc&, bool compatibleOnly, const GraphiteResourceKey& rpKey);
 
-    VkPipelineCache pipelineCache();
-    VkPipelineLayout mockPushConstantPipelineLayout() const {
-        return fMockPushConstantPipelineLayout;
-    }
-
-    friend class VulkanCommandBuffer;
-    friend class VulkanGraphicsPipeline;
     VkPipelineCache fPipelineCache = VK_NULL_HANDLE;
 
     // Create and store a pipeline layout that has compatible push constant parameters with other

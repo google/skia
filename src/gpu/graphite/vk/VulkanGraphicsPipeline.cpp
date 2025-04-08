@@ -668,6 +668,7 @@ VulkanProgramInfo::~VulkanProgramInfo() {
 }
 
 sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
+        const VulkanSharedContext* sharedContext,
         VulkanResourceProvider* rsrcProvider,
         const RuntimeEffectDictionary* runtimeDict,
         const UniqueKey& pipelineKey,
@@ -676,7 +677,6 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
         SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags,
         uint32_t compilationID) {
     SkASSERT(rsrcProvider);
-    const VulkanSharedContext* sharedContext = rsrcProvider->vulkanSharedContext();
 
     SkSL::ProgramSettings settings;
     settings.fSharpenTextures = true;
@@ -786,7 +786,8 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     // if there will be a load-MSAA subpass, the index changes. Ideally with
     // VK_dynamic_rendering_local_read, we can reuse pipelines across subpasses for layer elision.
     int subpassIndex = RenderPassDescWillLoadMSAAFromResolve(renderPassDesc) ? 1 : 0;
-    VkPipeline vkPipeline = MakePipeline(rsrcProvider,
+    VkPipeline vkPipeline = MakePipeline(sharedContext,
+                                         rsrcProvider,
                                          *program,
                                          subpassIndex,
                                          step->primitiveType(),
@@ -817,7 +818,8 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     return pipeline;
 }
 
-VkPipeline VulkanGraphicsPipeline::MakePipeline(VulkanResourceProvider* rsrcProvider,
+VkPipeline VulkanGraphicsPipeline::MakePipeline(const VulkanSharedContext* sharedContext,
+                                                VulkanResourceProvider* rsrcProvider,
                                                 const VulkanProgramInfo& program,
                                                 int subpassIndex,
                                                 PrimitiveType primitiveType,
@@ -908,7 +910,6 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(VulkanResourceProvider* rsrcProv
     VkResult result;
     {
         TRACE_EVENT0_ALWAYS("skia.shaders", "VkCreateGraphicsPipeline");
-        const VulkanSharedContext* sharedContext = rsrcProvider->vulkanSharedContext();
         VULKAN_CALL_RESULT(sharedContext,
                            result,
                            CreateGraphicsPipelines(sharedContext->device(),
@@ -1013,6 +1014,7 @@ std::unique_ptr<VulkanProgramInfo> VulkanGraphicsPipeline::CreateLoadMSAAProgram
 }
 
 sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
+        const VulkanSharedContext* sharedContext,
         VulkanResourceProvider* rsrcProvider,
         const VulkanProgramInfo& loadMSAAProgram,
         const RenderPassDesc& renderPassDesc) {
@@ -1021,7 +1023,8 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
     // shader modules or layout. The pipeline layout will not be owned by the created
     // VulkanGraphicsPipeline either, as it's owned by the resource provider.
     SkASSERT(RenderPassDescWillLoadMSAAFromResolve(renderPassDesc));
-    VkPipeline vkPipeline = MakePipeline(rsrcProvider,
+    VkPipeline vkPipeline = MakePipeline(sharedContext,
+                                         rsrcProvider,
                                          loadMSAAProgram,
                                          /*subpassIndex=*/0, // loading to MSAA is always first
                                          PrimitiveType::kTriangleStrip,
@@ -1035,7 +1038,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
     }
 
     return sk_sp<VulkanGraphicsPipeline>(new VulkanGraphicsPipeline(
-        rsrcProvider->vulkanSharedContext(),
+        sharedContext,
         /*pipelineInfo=*/{}, // leave empty for an internal pipeline
         loadMSAAProgram.layout(),
         vkPipeline,

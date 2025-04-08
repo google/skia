@@ -1531,7 +1531,7 @@ UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeli
         static const skgpu::UniqueKey::Domain kGraphicsPipelineDomain =
             UniqueKey::GenerateDomain();
 
-        VulkanRenderPass::VulkanRenderPassMetaData rpMetaData {renderPassDesc};
+        VulkanRenderPass::Metadata rpMetadata{renderPassDesc};
 
         // Reserve 3 uint32s for the render step id, paint id, and write swizzle.
         static constexpr int kUint32sNeededForPipelineInfo = 3;
@@ -1539,7 +1539,7 @@ UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeli
         // determine how many to reserve.
         UniqueKey::Builder builder(&pipelineKey,
                                    kGraphicsPipelineDomain,
-                                   kUint32sNeededForPipelineInfo + rpMetaData.fUint32DataCnt,
+                                   kUint32sNeededForPipelineInfo + rpMetadata.keySize(),
                                    "GraphicsPipeline");
 
         int idx = 0;
@@ -1549,7 +1549,7 @@ UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeli
         // Add RenderPass info relevant for pipeline creation that's not captured in RenderPass keys
         builder[idx++] = renderPassDesc.fWriteSwizzle.asKey();
         // Add RenderPassDesc information
-        VulkanRenderPass::AddRenderPassInfoToKey(rpMetaData, builder, idx, /*compatibleOnly=*/true);
+        rpMetadata.addToKey(builder, idx, /*compatibleOnly=*/true);
 
         builder.finish();
     }
