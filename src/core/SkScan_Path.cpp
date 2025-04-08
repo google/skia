@@ -401,7 +401,7 @@ static void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter*
                          int start_y, int stop_y, bool pathContainedInClip) {
     SkASSERT(blitter);
 
-    SkBasicEdgeBuilder builder(0);
+    SkBasicEdgeBuilder builder;
     int count = builder.buildEdges(path, pathContainedInClip ? nullptr : &clipRect);
     SkEdge** list = builder.edgeList();
 
@@ -677,15 +677,15 @@ static int build_tri_edges(SkEdge edge[], const SkPoint pts[],
                            const SkIRect* clipRect, SkEdge* list[]) {
     SkEdge** start = list;
 
-    if (edge->setLine(pts[0], pts[1], clipRect, 0)) {
+    if (edge->setLine(pts[0], pts[1], clipRect)) {
         *list++ = edge;
-        edge = (SkEdge*)((char*)edge + sizeof(SkEdge));
+        edge++;
     }
-    if (edge->setLine(pts[1], pts[2], clipRect, 0)) {
+    if (edge->setLine(pts[1], pts[2], clipRect)) {
         *list++ = edge;
-        edge = (SkEdge*)((char*)edge + sizeof(SkEdge));
+        edge++;
     }
-    if (edge->setLine(pts[2], pts[0], clipRect, 0)) {
+    if (edge->setLine(pts[2], pts[0], clipRect)) {
         *list++ = edge;
     }
     return (int)(list - start);

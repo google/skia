@@ -54,7 +54,7 @@ private:
 
 class SkBasicEdgeBuilder final : public SkEdgeBuilder {
 public:
-    explicit SkBasicEdgeBuilder(int clipShift) : fClipShift(clipShift) {}
+    explicit SkBasicEdgeBuilder() {}
 
     SkEdge** edgeList() { return (SkEdge**)fEdgeList; }
 
@@ -68,8 +68,6 @@ private:
     void addQuad (const SkPoint pts[]) override;
     void addCubic(const SkPoint pts[]) override;
     Combine addPolyLine(const SkPoint pts[], char* edge, char** edgePtr) override;
-
-    const int fClipShift;
 };
 
 class SkAnalyticEdgeBuilder final : public SkEdgeBuilder {

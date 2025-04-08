@@ -20,7 +20,7 @@ typedef int32_t SkFDot6;
  * _cairo_fixed_from_double. It does banker's rounding
  * (i.e. round to nearest even)
  */
-inline SkFDot6 SkScalarRoundToFDot6(SkScalar x, int shift = 0)
+inline SkFDot6 SkScalarRoundToFDot6(SkScalar x, int shift)
 {
     union {
         double  fDouble;

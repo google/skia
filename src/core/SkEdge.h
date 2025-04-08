@@ -68,9 +68,9 @@ public:
 
     // Represent a straight line with an optional clip. This will always be a single segment.
     // Returns false if the line has height 0.
-    bool setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip, int shiftUp);
+    bool setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip);
     // call this version if you know you don't have a clip
-    inline bool setLine(const SkPoint& p0, const SkPoint& p1, int shiftUp);
+    inline bool setLine(const SkPoint& p0, const SkPoint& p1);
 
     // TODO(kjlubick) make this private
     int8_t  fCurveCount;    // only non-zero for Quad and Cubics
@@ -101,7 +101,7 @@ public:
 class SkQuadraticEdge final : public SkEdge {
 public:
     // Sets up the line segments. Returns false if the line would be of height 0.
-    bool setQuadratic(const SkPoint pts[3], int shiftUp);
+    bool setQuadratic(const SkPoint pts[3]);
 
     // Update fX, fDxDY, fFirstY, and fLastY to represent the segment. It will skip over
     // any lines that have a height of 0 pixels and return false if there were only 0-height
@@ -129,7 +129,7 @@ public:
 class SkCubicEdge final : public SkEdge {
 public:
     // Sets up the line segments. Returns false if the line would be of height 0.
-    bool setCubic(const SkPoint pts[4], int shiftUp);
+    bool setCubic(const SkPoint pts[4]);
     // Update fX, fDxDY, fFirstY, and fLastY to represent the segment. It will skip over
     // any lines that have a height of 0 pixels and return false if there were only 0-height
     // segments remaining. This will involve forward-differencing.
@@ -151,23 +151,20 @@ public:
     uint8_t fCubicDShift;   // applied to fCDxDt and fCDyDt only in cubic
 };
 
-bool SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, int shift) {
+bool SkEdge::setLine(const SkPoint& p0, const SkPoint& p1) {
     SkFDot6 x0, y0, x1, y1;
 
-    {
-#ifdef SK_RASTERIZE_EVEN_ROUNDING
-        x0 = SkScalarRoundToFDot6(p0.fX, shift);
-        y0 = SkScalarRoundToFDot6(p0.fY, shift);
-        x1 = SkScalarRoundToFDot6(p1.fX, shift);
-        y1 = SkScalarRoundToFDot6(p1.fY, shift);
+#if defined(SK_RASTERIZE_EVEN_ROUNDING)
+    x0 = SkScalarRoundToFDot6(p0.fX, 0);
+    y0 = SkScalarRoundToFDot6(p0.fY, 0);
+    x1 = SkScalarRoundToFDot6(p1.fX, 0);
+    y1 = SkScalarRoundToFDot6(p1.fY, 0);
 #else
-        float scale = float(1 << (shift + 6));
-        x0 = int(p0.fX * scale);
-        y0 = int(p0.fY * scale);
-        x1 = int(p1.fX * scale);
-        y1 = int(p1.fY * scale);
+    x0 = SkFloatToFDot6(p0.fX);
+    y0 = SkFloatToFDot6(p0.fY);
+    x1 = SkFloatToFDot6(p1.fX);
+    y1 = SkFloatToFDot6(p1.fY);
 #endif
-    }
 
     Winding winding = Winding::kCW;
 
@@ -189,6 +186,7 @@ bool SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, int shift) {
     SkFixed slope = SkFDot6Div(x1 - x0, y1 - y0);
     const SkFDot6 dy  = SkEdge_Compute_DY(top, y0);
 
+    // Note that SkFixedMul(SkFixed, SkFDot6) produces results in SkFDot6
     fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, dy));
     fDxDy       = slope;
     fFirstY     = top;
