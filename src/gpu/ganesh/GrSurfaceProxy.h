@@ -328,7 +328,7 @@ public:
     };
 
     // Helper function that creates a temporary SurfaceContext to perform the copy
-    // The copy is not a render target and not multisampled.
+    // The copy is is not a render target and not multisampled.
     //
     // The intended use of this copy call is simply to copy exact pixel values from one proxy to a
     // new one. Thus, there isn't a need for a swizzle when doing the copy. The format of the copy
@@ -336,7 +336,7 @@ public:
     // as the original for use with a given color type.
     //
     // Optionally gets the render task that performs the copy. If it is later determined that the
-    // copy is not necessary then the task can be marked skippable using GrRenderTask::canSkip() and
+    // copy is not neccessaru then the task can be marked skippable using GrRenderTask::canSkip() and
     // the copy will be elided.
     static sk_sp<GrSurfaceProxy> Copy(GrRecordingContext*,
                                       sk_sp<GrSurfaceProxy> src,
@@ -381,7 +381,7 @@ public:
 
     GrProtected isProtected() const { return fIsProtected; }
 
-    bool isPromiseProxy() const { return fIsPromiseProxy; }
+    bool isPromiseProxy() { return fIsPromiseProxy; }
 
 protected:
     // Deferred version - takes a new UniqueID from the shared resource/proxy pool.
