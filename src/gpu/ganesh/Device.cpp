@@ -99,6 +99,7 @@
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/gpu/ganesh/image/SkSpecialImage_Ganesh.h"
+#include "src/gpu/ganesh/ops/AtlasTextOp.h"
 #include "src/text/GlyphRun.h"
 #include "src/text/gpu/SlugImpl.h"
 #include "src/text/gpu/SubRunContainer.h"
@@ -1436,9 +1437,10 @@ void Device::drawSlug(SkCanvas* canvas, const sktext::gpu::Slug* slug, const SkP
                              const SkPaint& paint,
                              sk_sp<SkRefCnt> subRunStorage,
                              sktext::gpu::RendererData) {
-        auto[drawingClip, op] = subRun->makeAtlasTextOp(
+        auto[drawingClip, op] = AtlasTextOp::Make(
+                fSurfaceDrawContext.get(), subRun,
                 this->clip(), this->localToDevice(), drawOrigin, paint,
-                std::move(subRunStorage), fSurfaceDrawContext.get());
+                std::move(subRunStorage));
         if (op != nullptr) {
             fSurfaceDrawContext->addDrawOp(drawingClip, std::move(op));
         }

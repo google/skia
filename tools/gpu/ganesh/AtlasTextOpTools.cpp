@@ -14,6 +14,7 @@
 #include "src/core/SkStrikeCache.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
+#include "src/gpu/ganesh/ops/AtlasTextOp.h"
 #include "src/text/GlyphRun.h"
 #include "src/text/gpu/TextBlob.h"
 #include "tools/text/gpu/TextBlobTools.h"
@@ -65,7 +66,7 @@ GrOp::Owner AtlasTextOpTools::CreateOp(skgpu::ganesh::SurfaceDrawContext* sdc,
 
     GrOp::Owner op;
     std::tie(std::ignore, op) =
-            subRun->makeAtlasTextOp(nullptr, ctm, glyphRunList.origin(), skPaint, blob, sdc);
+            AtlasTextOp::Make(sdc, subRun, nullptr, ctm, glyphRunList.origin(), skPaint, blob);
     return op;
 }
 

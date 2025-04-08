@@ -19,7 +19,7 @@
 #include "include/private/gpu/ganesh/GrImageContext.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkMipmap.h"
-#include "src/core/SkTraceEvent.h"
+#include "src/core/SkTraceEventCommon.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/ganesh/GrCaps.h"

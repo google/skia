@@ -57,24 +57,6 @@
 #include <optional>
 #include <vector>
 
-#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-#include "include/core/SkRRect.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
-#include "src/core/SkPaintPriv.h"
-#include "src/gpu/ganesh/GrClip.h"
-#include "src/gpu/ganesh/GrColorInfo.h"
-#include "src/gpu/ganesh/GrFragmentProcessor.h"
-#include "src/gpu/ganesh/GrPaint.h"
-#include "src/gpu/ganesh/SkGr.h"
-#include "src/gpu/ganesh/SurfaceDrawContext.h"
-#include "src/gpu/ganesh/effects/GrDistanceFieldGeoProc.h"
-#include "src/gpu/ganesh/ops/AtlasTextOp.h"
-
-class GrRecordingContext;
-
-using AtlasTextOp = skgpu::ganesh::AtlasTextOp;
-#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-
 using namespace skia_private;
 using namespace skglyph;
 
@@ -111,27 +93,6 @@ using namespace sktext;
 using namespace sktext::gpu;
 
 namespace {
-#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-SkPMColor4f calculate_colors(skgpu::ganesh::SurfaceDrawContext* sdc,
-                             const SkPaint& paint,
-                             const SkMatrix& matrix,
-                             MaskFormat maskFormat,
-                             GrPaint* grPaint) {
-    if (maskFormat == MaskFormat::kARGB) {
-        SkPaintToGrPaintReplaceShader(sdc, paint, matrix, nullptr, grPaint);
-        float a = grPaint->getColor4f().fA;
-        return {a, a, a, a};
-    }
-    SkPaintToGrPaint(sdc, paint, matrix, grPaint);
-    return grPaint->getColor4f();
-}
-
-SkMatrix position_matrix(const SkMatrix& drawMatrix, SkPoint drawOrigin) {
-    SkMatrix position_matrix = drawMatrix;
-    return position_matrix.preTranslate(drawOrigin.x(), drawOrigin.y());
-}
-#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-
 SkSpan<const SkPackedGlyphID> get_packedIDs(SkZip<const SkPackedGlyphID, const SkPoint> accepted) {
     return accepted.get<0>();
 }
@@ -631,48 +592,6 @@ const AtlasSubRun* DrawableSubRun::testingOnly_atlasSubRun() const {
     return nullptr;
 }
 
-#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-enum ClipMethod {
-    kClippedOut,
-    kUnclipped,
-    kGPUClipped,
-    kGeometryClipped
-};
-
-std::tuple<ClipMethod, SkIRect>
-calculate_clip(const GrClip* clip, SkRect deviceBounds, SkRect glyphBounds) {
-    if (clip == nullptr && !deviceBounds.intersects(glyphBounds)) {
-        return {kClippedOut, SkIRect::MakeEmpty()};
-    } else if (clip != nullptr) {
-        switch (auto result = clip->preApply(glyphBounds, GrAA::kNo); result.fEffect) {
-            case GrClip::Effect::kClippedOut:
-                return {kClippedOut, SkIRect::MakeEmpty()};
-            case GrClip::Effect::kUnclipped:
-                return {kUnclipped, SkIRect::MakeEmpty()};
-            case GrClip::Effect::kClipped: {
-                if (result.fIsRRect && result.fRRect.isRect()) {
-                    SkRect r = result.fRRect.rect();
-                    if (result.fAA == GrAA::kNo || GrClip::IsPixelAligned(r)) {
-                        SkIRect clipRect = SkIRect::MakeEmpty();
-                        // Clip geometrically during onPrepare using clipRect.
-                        r.round(&clipRect);
-                        if (clipRect.contains(glyphBounds)) {
-                            // If fully within the clip, signal no clipping using the empty rect.
-                            return {kUnclipped, SkIRect::MakeEmpty()};
-                        }
-                        // Use the clipRect to clip the geometry.
-                        return {kGeometryClipped, clipRect};
-                    }
-                    // Partial pixel clipped at this point. Have the GPU handle it.
-                }
-            }
-            break;
-        }
-    }
-    return {kGPUClipped, SkIRect::MakeEmpty()};
-}
-#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-
 // -- DirectMaskSubRun -----------------------------------------------------------------------------
 class DirectMaskSubRun final : public AtlasSubRun {
 public:
@@ -737,77 +656,17 @@ public:
         fGlyphs.packedGlyphIDToGlyph(cache);
     }
 
-#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-    std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(
-            const GrClip* clip,
-            const SkMatrix& viewMatrix,
-            SkPoint drawOrigin,
-            const SkPaint& paint,
-            sk_sp<SkRefCnt>&& subRunStorage,
-            skgpu::ganesh::SurfaceDrawContext* sdc) const override {
-        SkASSERT(this->glyphCount() != 0);
-        const SkMatrix& positionMatrix = position_matrix(viewMatrix, drawOrigin);
-
-        auto [integerTranslate, subRunDeviceBounds] =
+    std::tuple<bool, SkRect> deviceRectAndNeedsTransform(
+            const SkMatrix &positionMatrix) const override {
+        auto [integerTranslate, deviceRect] =
                 fVertexFiller.deviceRectAndCheckTransform(positionMatrix);
-        if (subRunDeviceBounds.isEmpty()) {
-            return {nullptr, nullptr};
-        }
-        // Rect for optimized bounds clipping when doing an integer translate.
-        SkIRect geometricClipRect = SkIRect::MakeEmpty();
-        if (integerTranslate) {
-            // We can clip geometrically using clipRect and ignore clip when an axis-aligned
-            // rectangular non-AA clip is used. If clipRect is empty, and clip is nullptr, then
-            // there is no clipping needed.
-            const SkRect deviceBounds = SkRect::MakeWH(sdc->width(), sdc->height());
-            auto [clipMethod, clipRect] = calculate_clip(clip, deviceBounds, subRunDeviceBounds);
-
-            switch (clipMethod) {
-                case kClippedOut:
-                    // Returning nullptr as op means skip this op.
-                    return {nullptr, nullptr};
-                case kUnclipped:
-                case kGeometryClipped:
-                    // GPU clip is not needed.
-                    clip = nullptr;
-                    break;
-                case kGPUClipped:
-                    // Use th GPU clip; clipRect is ignored.
-                    break;
-            }
-            geometricClipRect = clipRect;
-
-            if (!geometricClipRect.isEmpty()) { SkASSERT(clip == nullptr); }
-        }
-
-        GrPaint grPaint;
-        const SkPMColor4f drawingColor = calculate_colors(sdc,
-                                                          paint,
-                                                          viewMatrix,
-                                                          fVertexFiller.grMaskType(),
-                                                          &grPaint);
-
-        auto geometry = AtlasTextOp::Geometry::Make(*this,
-                                                    viewMatrix,
-                                                    drawOrigin,
-                                                    geometricClipRect,
-                                                    std::move(subRunStorage),
-                                                    drawingColor,
-                                                    sdc->arenaAlloc());
-
-        GrRecordingContext* const rContext = sdc->recordingContext();
-
-        GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
-                                                 fVertexFiller.grMaskType(),
-                                                 !integerTranslate,
-                                                 this->glyphCount(),
-                                                 subRunDeviceBounds,
-                                                 geometry,
-                                                 sdc->colorInfo(),
-                                                 std::move(grPaint));
-        return {clip, std::move(op)};
+        return {!integerTranslate, deviceRect};
     }
-#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
+
+    GlyphParams glyphParams() const override {
+        // Since this is non-SDF, isAA will be ignored so we just pass true
+        return { /*isSDF=*/false, fVertexFiller.isLCD(), /*isAA=*/true };
+    }
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end,
                                           RegenerateAtlasDelegate regenerateAtlas) const override {
@@ -912,45 +771,16 @@ public:
                   {/* isSDF = */false, fVertexFiller.isLCD(), fVertexFiller.grMaskType()});
     }
 
-#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-    std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(
-            const GrClip* clip,
-            const SkMatrix& viewMatrix,
-            SkPoint drawOrigin,
-            const SkPaint& paint,
-            sk_sp<SkRefCnt>&& subRunStorage,
-            skgpu::ganesh::SurfaceDrawContext* sdc) const override {
-        SkASSERT(this->glyphCount() != 0);
-
-        GrPaint grPaint;
-        SkPMColor4f drawingColor = calculate_colors(sdc,
-                                                    paint,
-                                                    viewMatrix,
-                                                    fVertexFiller.grMaskType(),
-                                                    &grPaint);
-
-        auto geometry = AtlasTextOp::Geometry::Make(*this,
-                                                    viewMatrix,
-                                                    drawOrigin,
-                                                    SkIRect::MakeEmpty(),
-                                                    std::move(subRunStorage),
-                                                    drawingColor,
-                                                    sdc->arenaAlloc());
-
-        GrRecordingContext* const rContext = sdc->recordingContext();
-        SkMatrix positionMatrix = position_matrix(viewMatrix, drawOrigin);
+    std::tuple<bool, SkRect> deviceRectAndNeedsTransform(
+            const SkMatrix &positionMatrix) const override {
         auto [_, deviceRect] = fVertexFiller.deviceRectAndCheckTransform(positionMatrix);
-        GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
-                                                 fVertexFiller.grMaskType(),
-                                                 true,
-                                                 this->glyphCount(),
-                                                 deviceRect,
-                                                 geometry,
-                                                 sdc->colorInfo(),
-                                                 std::move(grPaint));
-        return {clip, std::move(op)};
+        return {true, deviceRect};
     }
-#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
+
+    GlyphParams glyphParams() const override {
+        // Since this is non-SDF, isAA will be ignored so we just pass true
+        return { /*isSDF=*/false, fVertexFiller.isLCD(), /*isAA=*/true };
+    }
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end,
                                           RegenerateAtlasDelegate regenerateAtlas) const override {
@@ -982,40 +812,6 @@ bool has_some_antialiasing(const SkFont& font ) {
 }
 
 #if !defined(SK_DISABLE_SDF_TEXT)
-
-#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-
-static std::tuple<AtlasTextOp::MaskType, uint32_t, bool> calculate_sdf_parameters(
-        const skgpu::ganesh::SurfaceDrawContext& sdc,
-        const SkMatrix& drawMatrix,
-        bool useLCDText,
-        bool isAntiAliased) {
-    const GrColorInfo& colorInfo = sdc.colorInfo();
-    const SkSurfaceProps& props = sdc.surfaceProps();
-    using MT = AtlasTextOp::MaskType;
-    bool isLCD = useLCDText && props.pixelGeometry() != kUnknown_SkPixelGeometry;
-    MT maskType = !isAntiAliased ? MT::kAliasedDistanceField
-                                 : isLCD ? MT::kLCDDistanceField
-                                         : MT::kGrayscaleDistanceField;
-
-    bool useGammaCorrectDistanceTable = colorInfo.isLinearlyBlended();
-    uint32_t DFGPFlags = drawMatrix.isSimilarity() ? kSimilarity_DistanceFieldEffectFlag : 0;
-    DFGPFlags |= drawMatrix.isScaleTranslate() ? kScaleOnly_DistanceFieldEffectFlag : 0;
-    DFGPFlags |= useGammaCorrectDistanceTable ? kGammaCorrect_DistanceFieldEffectFlag : 0;
-    DFGPFlags |= MT::kAliasedDistanceField == maskType ? kAliased_DistanceFieldEffectFlag : 0;
-    DFGPFlags |= drawMatrix.hasPerspective() ? kPerspective_DistanceFieldEffectFlag : 0;
-
-    if (isLCD) {
-        bool isBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
-        bool isVertical = SkPixelGeometryIsV(props.pixelGeometry());
-        DFGPFlags |= kUseLCD_DistanceFieldEffectFlag;
-        DFGPFlags |= isBGR ? kBGR_DistanceFieldEffectFlag : 0;
-        DFGPFlags |= isVertical ? kPortrait_DistanceFieldEffectFlag : 0;
-    }
-    return {maskType, DFGPFlags, useGammaCorrectDistanceTable};
-}
-
-#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
 
 class SDFTSubRun final : public AtlasSubRun {
 public:
@@ -1104,58 +900,20 @@ public:
                   {/* isSDF = */true, /* isLCD = */fUseLCDText, skgpu::MaskFormat::kA8});
     }
 
-#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-    std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(
-            const GrClip* clip,
-            const SkMatrix& viewMatrix,
-            SkPoint drawOrigin,
-            const SkPaint& paint,
-            sk_sp<SkRefCnt>&& subRunStorage,
-            skgpu::ganesh::SurfaceDrawContext* sdc) const override {
-        SkASSERT(this->glyphCount() != 0);
-
-        GrPaint grPaint;
-        SkPMColor4f drawingColor = calculate_colors(sdc,
-                                                    paint,
-                                                    viewMatrix,
-                                                    MaskFormat::kA8,
-                                                    &grPaint);
-
-        auto [maskType, DFGPFlags, useGammaCorrectDistanceTable] =
-                calculate_sdf_parameters(*sdc, viewMatrix, fUseLCDText, fAntiAliased);
-
-        auto geometry = AtlasTextOp::Geometry::Make(*this,
-                                                    viewMatrix,
-                                                    drawOrigin,
-                                                    SkIRect::MakeEmpty(),
-                                                    std::move(subRunStorage),
-                                                    drawingColor,
-                                                    sdc->arenaAlloc());
-
-        GrRecordingContext* const rContext = sdc->recordingContext();
-        SkMatrix positionMatrix = position_matrix(viewMatrix, drawOrigin);
+    std::tuple<bool, SkRect> deviceRectAndNeedsTransform(
+            const SkMatrix &positionMatrix) const override {
         auto [_, deviceRect] = fVertexFiller.deviceRectAndCheckTransform(positionMatrix);
-        GrOp::Owner op = GrOp::Make<AtlasTextOp>(rContext,
-                                                 maskType,
-                                                 true,
-                                                 this->glyphCount(),
-                                                 deviceRect,
-                                                 SkPaintPriv::ComputeLuminanceColor(paint),
-                                                 useGammaCorrectDistanceTable,
-                                                 DFGPFlags,
-                                                 geometry,
-                                                 std::move(grPaint));
-
-        return {clip, std::move(op)};
+        return {true, deviceRect};
     }
-#endif  // defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
+
+    GlyphParams glyphParams() const override {
+        return { /*isSDF=*/true, fUseLCDText, /*isAA=*/fAntiAliased };
+    }
 
     std::tuple<bool, int> regenerateAtlas(int begin, int end,
                                           RegenerateAtlasDelegate regenerateAtlas) const override {
         return regenerateAtlas(&fGlyphs, begin, end, MaskFormat::kA8, this->glyphSrcPadding());
     }
-
-    const VertexFiller& vertexFiller() const { return fVertexFiller; }
 
 protected:
     SubRunStreamTag subRunStreamTag() const override { return SubRunStreamTag::kSDFTStreamTag; }

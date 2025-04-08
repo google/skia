@@ -75,6 +75,7 @@
 #include "src/gpu/ganesh/geometry/GrQuad.h"
 #include "src/gpu/ganesh/geometry/GrQuadUtils.h"
 #include "src/gpu/ganesh/geometry/GrStyledShape.h"
+#include "src/gpu/ganesh/ops/AtlasTextOp.h"
 #include "src/gpu/ganesh/ops/ClearOp.h"
 #include "src/gpu/ganesh/ops/DrawAtlasOp.h"
 #include "src/gpu/ganesh/ops/DrawMeshOp.h"
@@ -366,8 +367,8 @@ void SurfaceDrawContext::drawGlyphRunList(SkCanvas* canvas,
                              const SkPaint& paint,
                              sk_sp<SkRefCnt> subRunStorage,
                              sktext::gpu::RendererData) {
-        auto [drawingClip, op] = subRun->makeAtlasTextOp(
-                clip, viewMatrix, drawOrigin, paint, std::move(subRunStorage), this);
+        auto [drawingClip, op] = AtlasTextOp::Make(
+                this, subRun, clip, viewMatrix, drawOrigin, paint, std::move(subRunStorage));
         if (op != nullptr) {
             this->addDrawOp(drawingClip, std::move(op));
         }

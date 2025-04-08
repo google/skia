@@ -42,15 +42,6 @@ namespace skgpu {
 enum class MaskFormat : int;
 }
 
-#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-#include "src/gpu/ganesh/ops/GrOp.h"
-
-class GrClip;
-namespace skgpu::ganesh {
-class SurfaceDrawContext;
-}
-#endif
-
 namespace sktext::gpu {
 class Glyph;
 class StrikeCache;
@@ -140,19 +131,20 @@ public:
     virtual int glyphSrcPadding() const = 0;
     unsigned short instanceFlags() const { return (unsigned short)this->maskFormat(); }
 
+    virtual std::tuple<bool, SkRect> deviceRectAndNeedsTransform(
+            const SkMatrix &positionMatrix) const = 0;
+
+    struct GlyphParams {
+        bool isSDF;
+        bool isLCD;
+        bool isAA;
+    };
+    virtual GlyphParams glyphParams() const = 0;
+
     size_t vertexStride(const SkMatrix& drawMatrix) const {
         return fVertexFiller.vertexStride(drawMatrix);
     }
 
-#if defined(SK_GANESH) || defined(SK_USE_LEGACY_GANESH_TEXT_APIS)
-    virtual std::tuple<const GrClip*, GrOp::Owner> makeAtlasTextOp(
-            const GrClip*,
-            const SkMatrix& viewMatrix,
-            SkPoint drawOrigin,
-            const SkPaint&,
-            sk_sp<SkRefCnt>&& subRunStorage,
-            skgpu::ganesh::SurfaceDrawContext*) const = 0;
-#endif
     void fillVertexData(
             void* vertexDst, int offset, int count,
             const SkPMColor4f& color,
