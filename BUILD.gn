@@ -3118,6 +3118,7 @@ if (skia_enable_tools) {
         "tools/viewer/CowboySlide.cpp",
         "tools/viewer/DegenerateQuadsSlide.cpp",
         "tools/viewer/DegenerateTwoPtRadialsSlide.cpp",
+        "tools/viewer/EdgeBuilderVizSlide.cpp",
         "tools/viewer/FatBitsSlide.cpp",
         "tools/viewer/FilterBoundsSlide.cpp",
         "tools/viewer/FitCubicToCircleSlide.cpp",

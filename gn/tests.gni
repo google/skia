@@ -69,6 +69,7 @@ tests_sources = [
   "$_tests/DrawBitmapRectTest.cpp",
   "$_tests/DrawPathTest.cpp",
   "$_tests/DrawTextTest.cpp",
+  "$_tests/EdgeTest.cpp",
   "$_tests/EmptyPathTest.cpp",
   "$_tests/EncodeTest.cpp",
   "$_tests/EncodedInfoTest.cpp",
