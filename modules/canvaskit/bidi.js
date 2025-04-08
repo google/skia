@@ -16,6 +16,18 @@
       return ret;
     }
 
+    function Int32ArrayToBidiIndexes(int32Array) {
+      if (!int32Array || !int32Array.length) {
+        return [];
+      }
+      let ret = [];
+      for (let i = 0; i < int32Array.length; i+=1) {
+        let index = int32Array[i];
+        ret.push({'index': index});
+      }
+      return ret;
+    }
+
     CanvasKit.Bidi.getBidiRegions = function(text, textDirection) {
       let dir = textDirection === CanvasKit.TextDirection.LTR ? 1 : 0;
       /**
@@ -35,7 +47,7 @@
        */
       let int32Array = CanvasKit.Bidi._reorderVisual(vPtr, visualRuns && visualRuns.length || 0);
       freeArraysThatAreNotMallocedByUsers(vPtr, visualRuns);
-      return int32Array;
+      return Int32ArrayToBidiIndexes(int32Array);
     }
 
     CanvasKit.CodeUnits.compute = function(text) {

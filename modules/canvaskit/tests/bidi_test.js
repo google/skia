@@ -44,7 +44,7 @@ describe('Bidi Behavior', function () {
         const logicals = CanvasKit.Bidi.reorderVisual(input);
         var result = '[';
         for (var i = 0; i < logicals.length; ++i) {
-            const logical = logicals[i];
+            const logical = logicals[i].index;
             result += (i === 0 ? '' : ', ') + logical;
         }
         result += ']';

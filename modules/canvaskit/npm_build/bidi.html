@@ -108,7 +108,7 @@
 
             result += '[';
             for (let i = 0; i < logicals.length; ++i) {
-                const logical = logicals[i];
+                const logical = logicals[i].index;
                 result += (i === 0 ? '' : ', ') + logical;
             }
             result += '] expected: ' + output;
