@@ -62,7 +62,7 @@ const (
 	DEBIAN_10_OS         = "Debian-10.10"
 	DEFAULT_OS_LINUX_GCE = UBUNTU_24_04_OS
 	DEFAULT_OS_MAC       = "Mac-14.5"
-	DEFAULT_OS_WIN_GCE   = "Windows-Server-17763"
+	DEFAULT_OS_WIN_GCE   = "Windows-11-22631.5039"
 	UBUNTU_20_04_OS      = "Ubuntu-20.04"
 	UBUNTU_22_04_OS      = "Ubuntu-22.04"
 	UBUNTU_24_04_OS      = "Ubuntu-24.04"
@@ -890,7 +890,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Win":         DEFAULT_OS_WIN_GCE,
 			"Win10":       "Windows-10-19045",
 			"Win11":       "Windows-11-26100.1742",
-			"Win2019":     DEFAULT_OS_WIN_GCE,
 			"iOS":         "iOS-13.3.1",
 			"iOS18":       "iOS-18.2.1",
 		}[os]
@@ -901,9 +900,9 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			d["os"] = DEFAULT_OS_LINUX_GCE
 			d["gce"] = "1"
 		}
-		if os == "Win10" && b.parts["model"] == "Golo" {
-			// ChOps-owned machines have Windows 10 22H2.
-			d["os"] = "Windows-10-19045"
+		if os == "Win11" && b.model("GCE") {
+			d["os"] = DEFAULT_OS_WIN_GCE
+			d["gce"] = "1"
 		}
 		if strings.Contains(os, "iOS") {
 			d["pool"] = "SkiaIOS"
@@ -1154,6 +1153,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 		} else if d["os"] == DEFAULT_OS_WIN_GCE {
 			// Windows CPU bots.
 			d["cpu"] = "x86-64-Haswell_GCE"
+			d["gce"] = "1"
 			// Use many-core machines for Build tasks.
 			d["machine_type"] = MACHINE_TYPE_LARGE
 		} else if d["os"] == DEFAULT_OS_MAC || d["os"] == "Mac-10.15.7" {
