@@ -218,9 +218,7 @@ private:
     bool activateNewPage(Recorder*);
     void deactivateLastPage();
 
-    // If freeData is true, this will free the backing data as well. This should only be used
-    // when we know we won't be adding to the Plot immediately afterwards.
-    void processEvictionAndResetRects(Plot* plot, bool freeData);
+    void processEvictionAndResetRects(Plot* plot);
 
     SkColorType           fColorType;
     size_t                fBytesPerPixel;
