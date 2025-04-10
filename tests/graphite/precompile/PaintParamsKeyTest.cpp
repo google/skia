@@ -870,11 +870,14 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_yuv_image_shader(SkRa
     sk_sp<PrecompileShader> o;
 
     SkSamplingOptions samplingOptions(SkFilterMode::kLinear);
-    if (rand->nextBool()) {
+    bool useCubic = rand->nextBool();
+    if (useCubic) {
         samplingOptions = SkCubicResampler::Mitchell();
     }
 
     sk_sp<SkImage> yuvImage = make_yuv_image(rand, recorder);
+    SkColorInfo colorInfo = yuvImage->imageInfo().colorInfo();
+
     if (rand->nextBool()) {
         s = SkImageShader::MakeSubset(std::move(yuvImage), SkRect::MakeXYWH(8, 8, 16, 16),
                                       tmX, tmY, samplingOptions, lmPtr);
@@ -882,7 +885,7 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_yuv_image_shader(SkRa
         s = SkShaders::Image(std::move(yuvImage), tmX, tmY, samplingOptions, lmPtr);
     }
 
-    o = PrecompileShaders::YUVImage();
+    o = PrecompileShaders::YUVImage({ colorInfo }, useCubic);
 
     return { s, o };
 }
@@ -2158,14 +2161,14 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTestReduced,
     //----------------------
 #else
     //------------------------
-    uint32_t seed = 1721227069;
-    ShaderType shaderType = ShaderType::kLocalMatrix;
-    BlenderType blenderType = BlenderType::kArithmetic;
-    ColorFilterType colorFilterType = ColorFilterType::kRuntime;
+    uint32_t seed = 0;
+    ShaderType shaderType = ShaderType::kYUVImage;
+    BlenderType blenderType = BlenderType::kPorterDuff;
+    ColorFilterType colorFilterType = ColorFilterType::kNone;
     MaskFilterType maskFilterType = MaskFilterType::kNone;
-    ImageFilterType imageFilterType = ImageFilterType::kDisplacement;
+    ImageFilterType imageFilterType = ImageFilterType::kNone;
     ClipType clipType = ClipType::kNone;
-    DrawTypeFlags drawTypeFlags = DrawTypeFlags::kText;
+    DrawTypeFlags drawTypeFlags = DrawTypeFlags::kBitmapText_Mask;
     //-----------------------
 #endif
 
@@ -2214,6 +2217,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             ShaderType::kImage,
             ShaderType::kRadialGradient,
             ShaderType::kSolidColor,
+            ShaderType::kYUVImage,
 #if EXPANDED_SET
             ShaderType::kNone,
             ShaderType::kColorFilter,
@@ -2225,7 +2229,6 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             ShaderType::kPicture,
             ShaderType::kRuntime,
             ShaderType::kSweepGradient,
-            ShaderType::kYUVImage,
             ShaderType::kWorkingColorSpace,
 #endif
     };

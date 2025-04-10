@@ -119,10 +119,20 @@ namespace PrecompileShaders {
     SK_API sk_sp<PrecompileShader> RawImage(SkSpan<const SkColorInfo> = {},
                                             SkSpan<const SkTileMode> = {});
 
-    // In the main Skia API, the specifics of the SkImage used for the SkImage::makeShader call
-    // can determine whether normal or YUV sampling is required. This entry point allows clients
-    // to specify that the future image will be a YUV image.
-    SK_API sk_sp<PrecompileShader> YUVImage();
+    /**
+        In the main Skia API, the specifics of the SkImage used for the SkImage::makeShader call
+        can determine whether normal or YUV sampling is required. This entry point allows clients
+        to specify that the future image will be a YUV image.
+
+        @param colorInfos a span of SkColorInfos to narrow down the combinations.
+                          In general, the color info affects the swizzle and colorSpace
+                          transformation of the final Pipeline.
+        @param includeCubic if true, a cubic-sampling combination will be included.
+                            In practice, YUV images are rarely cubic-sampling.
+        @return             A precompile shader capturing the specified combinations
+    */
+    SK_API sk_sp<PrecompileShader> YUVImage(SkSpan<const SkColorInfo> = {},
+                                            bool includeCubic = true);
 
     // --- This block of two matches the SkShaders factories in SkPerlinNoiseShader.h
     // Again, most of the details have been elided.

@@ -254,6 +254,8 @@ public:
             , fRaw(raw) {}
 
 private:
+    friend class PrecompileYUVImageShader; // for NonAlphaOnlyDefaultColorInfos
+
     // In addition to the tile mode options provided by the client, we can precompile two additional
     // sampling/tiling variants: hardware-tiled and cubic sampling (which always uses the most
     // generic tiling shader).
@@ -458,44 +460,43 @@ sk_sp<PrecompileShader> PrecompileShadersPriv::RawImage(
 //--------------------------------------------------------------------------------------------------
 class PrecompileYUVImageShader : public PrecompileShader {
 public:
-    PrecompileYUVImageShader() {}
+    PrecompileYUVImageShader(SkSpan<const SkColorInfo> colorInfos,
+                             bool includeCubic)
+            : fColorInfos(!colorInfos.empty()
+                            ? std::vector<SkColorInfo>(colorInfos.begin(), colorInfos.end())
+                            : PrecompileImageShader::NonAlphaOnlyDefaultColorInfos())
+            , fUseDstColorSpace(!colorInfos.empty())
+            , fNumTilingModes(includeCubic ? kAllTilingModes : kNumTilingModesNoCubic) {}
 
 private:
-    // There are 12 intrinsic YUV shaders:
-    //  4 tiling modes
+    // There are 4 possible tiling modes:
+    //    non-cubic shader tiling
     //    HW tiling w/o swizzle
     //    HW tiling w/ swizzle
-    //    cubic shader tiling
-    //    non-cubic shader tiling
-    //  crossed with 3 color space transforms:
-    //    premul/alpha-swizzle only
-    //    srgb-to-srgb
-    //    general transform
-    inline static constexpr int kNumTilingModes     = 4;
-    inline static constexpr int kHWTiledNoSwizzle   = 3;
-    inline static constexpr int kHWTiledWithSwizzle = 2;
-    inline static constexpr int kCubicShaderTiled   = 1;
+    //    cubic shader tiling       -- can be omitted
+    inline static constexpr int kAllTilingModes        = 4;
+    inline static constexpr int kNumTilingModesNoCubic = 3;
+
     inline static constexpr int kShaderTiled        = 0;
+    inline static constexpr int kHWTiledNoSwizzle   = 1;
+    inline static constexpr int kHWTiledWithSwizzle = 2;
+    inline static constexpr int kCubicShaderTiled   = 3;
 
-    inline static constexpr int kNumColorSpaceCombinations = 3;
-    inline static constexpr int kColorSpacePremul  = 2;
-    inline static constexpr int kColorSpaceSRGB    = 1;
-    inline static constexpr int kColorSpaceGeneral = 0;
-
-    inline static constexpr int kNumIntrinsicCombinations =
-            kNumTilingModes * kNumColorSpaceCombinations;
-
-    int numIntrinsicCombinations() const override { return kNumIntrinsicCombinations; }
+    int numIntrinsicCombinations() const override {
+        return fNumTilingModes * fColorInfos.size();
+    }
 
     void addToKey(const KeyContext& keyContext,
                   PaintParamsKeyBuilder* builder,
                   PipelineDataGatherer* gatherer,
                   int desiredCombination) const override {
-        SkASSERT(desiredCombination < kNumIntrinsicCombinations);
+        SkASSERT(desiredCombination < this->numIntrinsicCombinations());
 
-        int desiredColorSpaceCombo = desiredCombination % kNumColorSpaceCombinations;
-        int desiredTiling = desiredCombination / kNumColorSpaceCombinations;
-        SkASSERT(desiredTiling < kNumTilingModes);
+        int desiredTiling = desiredCombination % fNumTilingModes;
+        desiredCombination /= fNumTilingModes;
+
+        int desiredColorInfo = desiredCombination;
+        SkASSERT(desiredColorInfo < static_cast<int>(fColorInfos.size()));
 
         static constexpr SkSamplingOptions kDefaultCubicSampling(SkCubicResampler::Mitchell());
         static constexpr SkSamplingOptions kDefaultSampling;
@@ -524,17 +525,23 @@ private:
         imgData.fYUVtoRGBTranslate = { 0, 0, 0 };
 
         static sk_sp<SkColorSpace> srgbSpinColorSpace = sk_srgb_singleton()->makeColorSpin();
-        const ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData =
-                desiredColorSpaceCombo == kColorSpacePremul
-                        ? ColorSpaceTransformBlock::ColorSpaceTransformData(
-                                  skgpu::graphite::ReadSwizzle::kRGB1) :
-                desiredColorSpaceCombo == kColorSpaceSRGB
-                        ? ColorSpaceTransformBlock::ColorSpaceTransformData(
-                                  sk_srgb_singleton(), kPremul_SkAlphaType,
-                                  srgbSpinColorSpace.get(), kPremul_SkAlphaType)
-                        : ColorSpaceTransformBlock::ColorSpaceTransformData(
-                                  sk_srgb_singleton(), kPremul_SkAlphaType,
-                                  sk_srgb_linear_singleton(), kPremul_SkAlphaType);
+        const SkColorInfo& colorInfo = fColorInfos[desiredColorInfo];
+
+        const Caps* caps = keyContext.caps();
+        Swizzle readSwizzle = caps->getReadSwizzle(
+                colorInfo.colorType(),
+                caps->getDefaultSampledTextureInfo(
+                        colorInfo.colorType(), Mipmapped::kNo, Protected::kNo, Renderable::kNo));
+        ColorSpaceTransformBlock::ColorSpaceTransformData colorXformData(
+                SwizzleClassToReadEnum(readSwizzle));
+
+        const SkColorSpace* dstColorSpace = fUseDstColorSpace
+                                            ? keyContext.dstColorInfo().colorSpace()
+                                            : sk_srgb_singleton();
+        colorXformData.fSteps = SkColorSpaceXformSteps(
+                colorInfo.colorSpace(), colorInfo.alphaType(),
+                dstColorSpace, colorInfo.alphaType());
+
         Compose(keyContext, builder, gatherer,
                 /* addInnerToKey= */ [&]() -> void {
                     YUVImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
@@ -544,10 +551,21 @@ private:
                                                        colorXformData);
                 });
     }
+
+    const std::vector<SkColorInfo> fColorInfos;
+
+    // If true, use the destination color space from the KeyContext provided to addToKey.
+    // This is true if and only if the client has provided a list of color infos. Otherwise, we
+    // always use an sRGB destination per the default SkColorInfo lists defined in
+    // PrecompileImageShader::DefaultColorInfos.
+    const bool fUseDstColorSpace;
+    const int fNumTilingModes;
 };
 
-sk_sp<PrecompileShader> PrecompileShaders::YUVImage() {
-    return PrecompileShaders::LocalMatrix({ sk_make_sp<PrecompileYUVImageShader>() });
+sk_sp<PrecompileShader> PrecompileShaders::YUVImage(SkSpan<const SkColorInfo> colorInfos,
+                                                    bool includeCubic) {
+    return PrecompileShaders::LocalMatrix(
+            { sk_make_sp<PrecompileYUVImageShader>(colorInfos, includeCubic) });
 }
 
 //--------------------------------------------------------------------------------------------------
