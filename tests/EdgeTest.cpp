@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFixed.h"
 #include "src/core/SkEdge.h"
+#include "src/core/SkEdgeBuilder.h"
 #include "src/core/SkGeometry.h"
 #include "tests/Test.h"
 
@@ -270,4 +272,50 @@ DEF_TEST(SkEdge_Cubic_ApproximatedWithMultipleLineSegments, r) {
             t += kSegmentWidth;
         }
     }
+}
+
+DEF_TEST(SkBasicEdgeBuilder_TrapezoidNoClip_HasTwoEdges, r) {
+    SkPathBuilder pb;
+    SkPath path = pb.moveTo(5, 0)
+                    .lineTo(0, 20)
+                    .lineTo(20, 20)
+                    .lineTo(10, 0)
+                    .close()
+                    .detach();
+
+    SkBasicEdgeBuilder eb;
+    int numEdges = eb.buildEdges(path, nullptr);
+    REPORTER_ASSERT(r, numEdges == 2);
+
+    SkEdge** edges = eb.edgeList();
+    SkEdge* left = edges[0];
+    SkEdge* right = edges[1];
+
+    if (left->fX > right->fX) { // An implementation could return these edges in either order
+        std::swap(left, right);
+    }
+
+    // left edge should go from (5,0) -> (0,20) (clockwise) which is a X/Y slope of -5/20
+    REPORTER_ASSERT(r, left->fWinding == SkEdge::Winding::kCW);
+    const float kLeftSlope = -0.25f;
+    REPORTER_ASSERT(r, left->fDxDy == SkFloatToFixed(kLeftSlope));
+    // fX will be slightly less than 5 because it's evaluated at y=0.5
+    const float kLeftX = 5.f + kLeftSlope * 0.5f; // 4.875
+    REPORTER_ASSERT(r, left->fX == SkFloatToFixed(kLeftX));
+    REPORTER_ASSERT(r, left->fFirstY == 0);
+    REPORTER_ASSERT(r, left->fLastY == 19); // this represents 19.5 and is inclusive
+
+    // right edge should go from (20,20) -> (10,0) (counter clockwise) which is a X/Y slope of 10/20
+    REPORTER_ASSERT(r, right->fWinding == SkEdge::Winding::kCCW);
+    const float kRightSlope = 0.5f;
+    REPORTER_ASSERT(r, right->fDxDy == SkFloatToFixed(kRightSlope));
+    // fX will be slightly more than 10 because it's evaluated at y=0.5
+    const float kRightX = 10.f + kRightSlope * 0.5f; // 10.25
+    REPORTER_ASSERT(r, right->fX == SkFloatToFixed(kRightX));
+    REPORTER_ASSERT(r, right->fFirstY == 0);
+    REPORTER_ASSERT(r, right->fLastY == 19); // this represents 19.5 and is inclusive
+
+    // Lines are "approximated" in one shot and have no need for follow-up approximations.
+    REPORTER_ASSERT(r, !left->hasNextSegment());
+    REPORTER_ASSERT(r, !right->hasNextSegment());
 }

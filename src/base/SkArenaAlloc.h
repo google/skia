@@ -268,6 +268,7 @@ private:
 
     template <typename T>
     T* allocUninitializedArray(size_t countZ) {
+        static_assert(!std::has_virtual_destructor<T>::value, "Can't make an array of objects which have a vtable");
         AssertRelease(SkTFitsIn<uint32_t>(countZ));
         uint32_t count = SkToU32(countZ);
 

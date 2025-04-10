@@ -113,9 +113,8 @@ bool SkEdge::setLine(const SkPoint& p0, const SkPoint& p1, const SkIRect* clip) 
 
     Winding winding = Winding::kCW;
     if (y0 > y1) {
-        using std::swap;
-        swap(x0, x1);
-        swap(y0, y1);
+        std::swap(x0, x1);
+        std::swap(y0, y1);
         winding = Winding::kCCW;
     }
 
@@ -270,9 +269,8 @@ bool SkQuadraticEdge::setQuadratic(const SkPoint pts[3]) {
 
     Winding winding = Winding::kCW;
     if (y0 > y2) {
-        using std::swap;
-        swap(x0, x2);
-        swap(y0, y2);
+        std::swap(x0, x2);
+        std::swap(y0, y2);
         winding = Winding::kCCW;
     }
     SkASSERTF(y0 <= y1 && y1 <= y2, "curve must be monotonic");
@@ -452,13 +450,11 @@ bool SkCubicEdge::setCubic(const SkPoint pts[4]) {
 #endif
 
     Winding winding = Winding::kCW;
-    if (y0 > y3)
-    {
-        using std::swap;
-        swap(x0, x3);
-        swap(x1, x2);
-        swap(y0, y3);
-        swap(y1, y2);
+    if (y0 > y3) {
+        std::swap(x0, x3);
+        std::swap(x1, x2);
+        std::swap(y0, y3);
+        std::swap(y1, y2);
         winding = Winding::kCCW;
     }
 
