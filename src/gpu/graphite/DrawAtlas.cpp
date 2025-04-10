@@ -109,7 +109,7 @@ DrawAtlas::DrawAtlas(SkColorType colorType, size_t bpp, int width, int height,
     this->createPages(generationCounter);
 }
 
-inline void DrawAtlas::processEvictionAndResetRects(Plot* plot, bool freeData) {
+inline void DrawAtlas::processEvictionAndResetRects(Plot* plot) {
     // Process evictions
     if (!plot->isEmpty()) {
         const PlotLocator& plotLocator = plot->plotLocator();
@@ -119,7 +119,7 @@ inline void DrawAtlas::processEvictionAndResetRects(Plot* plot, bool freeData) {
         fAtlasGeneration = fGenerationCounter->next();
     }
 
-    plot->resetRects(freeData);
+    plot->resetRects();
 }
 
 inline void DrawAtlas::updatePlot(Plot* plot, AtlasLocator* atlasLocator) {
@@ -235,7 +235,7 @@ DrawAtlas::ErrorCode DrawAtlas::addRect(Recorder* recorder,
             Plot* plot = fPages[pageIdx].fPlotList.tail();
             SkASSERT(plot);
             if (plot->lastUseToken() < recorder->priv().tokenTracker()->nextFlushToken()) {
-                this->processEvictionAndResetRects(plot, /*freeData=*/false);
+                this->processEvictionAndResetRects(plot);
                 SkDEBUGCODE(bool verify = )plot->addRect(width, height, atlasLocator);
                 SkASSERT(verify);
                 this->updatePlot(plot, atlasLocator);
@@ -379,7 +379,7 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
                 usedPlots++;
             } else if (plot->lastUseToken() != AtlasToken::InvalidToken()) {
                 // otherwise if aged out just evict it.
-                this->processEvictionAndResetRects(plot, /*freeData=*/false);
+                this->processEvictionAndResetRects(plot);
             }
             plotIter.next();
         }
@@ -403,9 +403,8 @@ void DrawAtlas::compact(AtlasToken startTokenForNextFlush) {
                     // We need to be somewhat harsh here so that a handful of plots that are
                     // consistently in use don't end up locking the page in memory.
                     if (!availablePlots.empty()) {
-                        this->processEvictionAndResetRects(plot, /*freeData=*/true);
-                        this->processEvictionAndResetRects(availablePlots.back(),
-                                                           /*freeData=*/false);
+                        this->processEvictionAndResetRects(plot);
+                        this->processEvictionAndResetRects(availablePlots.back());
                         availablePlots.pop_back();
                         --usedPlots;
                     }
@@ -505,7 +504,7 @@ inline void DrawAtlas::deactivateLastPage() {
             uint32_t plotIndex = r * numPlotsX + c;
 
             Plot* currPlot = fPages[lastPageIndex].fPlotArray[plotIndex].get();
-            this->processEvictionAndResetRects(currPlot, /*freeData=*/true);
+            this->processEvictionAndResetRects(currPlot);
             currPlot->resetFlushesSinceLastUsed();
 
             // rebuild the LRU list
@@ -552,7 +551,7 @@ void DrawAtlas::evictAllPlots() {
     for (uint32_t pageIndex = 0; pageIndex < fNumActivePages; ++pageIndex) {
         plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
         while (Plot* plot = plotIter.get()) {
-            this->processEvictionAndResetRects(plot, /*freeData=*/true);
+            this->processEvictionAndResetRects(plot);
             plotIter.next();
         }
     }
