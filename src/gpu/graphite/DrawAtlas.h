@@ -175,9 +175,8 @@ public:
         return fMaxPages;
     }
 
-#if defined(GPU_TEST_UTILS)
-    int numAllocatedPlots() const;
-#endif
+    int numAllocated_TestingOnly() const;
+    void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
     DrawAtlas(SkColorType, size_t bpp,
