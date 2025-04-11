@@ -530,6 +530,7 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
 }
 
 float4 analytic_rrect_vertex_fn(// Vertex Attributes
+                                uint cornerID,
                                 float2 position,
                                 float2 normal,
                                 float normalScale,
@@ -550,12 +551,9 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
                                 out float2 perPixelControl,
                                 // Render Step
                                 out float2 stepLocalCoords) {
-    const uint kCornerVertexCount = 9; // KEEP IN SYNC WITH C++'s
-                                       // AnalyticRRectRenderStep::kCornerVertexCount
     const float kMiterScale = 1.0;
     const float kBevelScale = 0.0;
     const float kRoundScale = 0.41421356237; // sqrt(2)-1
-
     const float kEpsilon = 0.00024; // SK_ScalarNearlyZero
 
     // Default to miter'ed vertex positioning. Corners with sufficiently large corner radii, or
@@ -619,7 +617,6 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
     }
 
     // Adjust state on a per-corner basis
-    uint cornerID = uint(sk_VertexID) / kCornerVertexCount;
     float2 cornerRadii = float2(xRadii[cornerID], yRadii[cornerID]);
     if (cornerID % 2 != 0) {
         // Corner radii are uploaded in the local coordinate frame, but vertex placement happens
@@ -842,6 +839,7 @@ float4 analytic_rrect_vertex_fn(// Vertex Attributes
 }
 
 float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
+                                  uint cornerID,
                                   float2 normal,
                                   // Instance Attributes
                                   float4 edgeAA,
@@ -853,9 +851,6 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
                                   out float4 edgeDistances,
                                   // Render Step
                                   out float2 stepLocalCoords) {
-    const uint kCornerVertexCount = 4; // KEEP IN SYNC WITH C++'s
-                                       // PerEdgeAAQuadRenderStep::kCornerVertexCount
-
     const float kEpsilon = 0.00024; // SK_ScalarNearlyZero
 
     // Calculate the local edge vectors, ordered L, T, R, B starting from the bottom left point.
@@ -898,7 +893,6 @@ float4 per_edge_aa_quad_vertex_fn(// Vertex Attributes
     dy *= inverseEdgeLen;
 
     // Calculate local coordinate for the vertex (relative to xAxis and yAxis at first).
-    uint cornerID = uint(sk_VertexID) / kCornerVertexCount;
     float2 xAxis = -float2(dx.yzwx[cornerID], dy.yzwx[cornerID]);
     float2 yAxis =  float2(dx.xyzw[cornerID], dy.xyzw[cornerID]);
 
