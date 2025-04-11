@@ -688,17 +688,22 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
     // once we've created pipelines, so we drop the storage for them here.
     fPipelineDescs.clear();
 
-#if defined(SK_DEBUG)
     for (int i = 0; i < fSampledTextures.size(); ++i) {
         // It should not have been possible to draw an Image that has an invalid texture info
         SkASSERT(fSampledTextures[i]->textureInfo().isValid());
         // Tasks should have been ordered to instantiate any scratch textures already, or any
-        // client-owned image will have been instantiated at creation.
-        SkASSERTF(fSampledTextures[i]->isInstantiated() ||
-                  fSampledTextures[i]->isLazy(),
-                  "proxy label = %s", fSampledTextures[i]->label());
+        // client-owned image will have been instantiated at creation. However, if a TextureProxy
+        // was cached for reuse across Recordings, it's possible that the initializing Recording
+        // failed, leaving the TextureProxy in a bad state (and currently with no way to reconstruct
+        // the tasks required to initialize it).
+        // TODO(b/409888039): Once TextureProxies track their dependendent tasks to include in all
+        // Recordings, this "should" be able to changed to asserts.
+        if (!fSampledTextures[i]->isInstantiated() && !fSampledTextures[i]->isLazy()) {
+            SKGPU_LOG_W("Cannot sample from an uninstantiated TextureProxy, label %s",
+                        fSampledTextures[i]->label());
+            return false;
+        }
     }
-#endif
 
     fSamplers.reserve(fSamplers.size() + fSamplerDescs.size());
     for (int i = 0; i < fSamplerDescs.size(); ++i) {
