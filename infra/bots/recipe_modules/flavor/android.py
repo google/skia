@@ -53,12 +53,14 @@ class AndroidFlavor(default.DefaultFlavor):
       'Wembley',
       'Pixel6',
       'Pixel7',
+      'Pixel7Pro',
       'Pixel9',
     ]
 
     self.use_powersave_governor_for_nanobench = [
       'Pixel6',
       'Pixel7',
+      'Pixel7Pro',
       'Pixel9',
     ]
 
