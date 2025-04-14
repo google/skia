@@ -845,7 +845,7 @@ var androidDeviceInfos = map[string][]string{
 	"JioNext":         {"msm8937", "RKQ1.210602.002"},
 	"Mokey":           {"mokey", "UP1A.231105.001"},
 	"MokeyGo32":       {"mokey_go32", "UQ1A.240105.003.A1"},
-	"MotoG73":         {"devonf", "U1TNS34.82-12-7-6"},
+	"MotoG73":         {"devonf", "U1TN34.82-12-17"},
 	"Nexus5":          {"hammerhead", "M4B30Z_3437181"},
 	"Nexus7":          {"grouper", "LMY47V"}, // 2012 Nexus 7
 	"P30":             {"HWELE", "HUAWEIELE-L29"},
