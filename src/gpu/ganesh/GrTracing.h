@@ -9,7 +9,6 @@
 #define GrTracing_DEFINED
 
 #include "src/core/SkTraceEvent.h"  // IWYU pragma: keep
-#include "src/core/SkTraceEventCommon.h"
 #include "src/gpu/ganesh/GrAuditTrail.h"
 
 /**

@@ -10,7 +10,6 @@
 #include <fcntl.h>
 #include <fstream>
 #include "src/core/SkTraceEvent.h"
-#include "src/core/SkTraceEventCommon.h"
 #include "tools/flags/CommandLineFlags.h"
 
 PERFETTO_TRACK_EVENT_STATIC_STORAGE();

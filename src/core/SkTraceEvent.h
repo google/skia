@@ -12,7 +12,7 @@
 
 #include "include/utils/SkEventTracer.h"
 #include "src/base/SkUtils.h"
-#include "src/core/SkTraceEventCommon.h"
+#include "src/core/SkTraceEventCommon.h" // IWYU pragma: export
 #include <atomic>
 
 #if defined(SK_ANDROID_FRAMEWORK_USE_PERFETTO)
