@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkRecorder_DEFINED
-#define SkRecorder_DEFINED
+#ifndef SkRecordCanvas_DEFINED
+#define SkRecordCanvas_DEFINED
 
 #include "include/core/SkCanvasVirtualEnforcer.h"
 #include "include/core/SkColor.h"
@@ -50,9 +50,11 @@ struct SkRSXform;
 struct SkRect;
 
 namespace sktext {
-    class GlyphRunList;
-    namespace gpu { class Slug; }
+class GlyphRunList;
+namespace gpu {
+class Slug;
 }
+}  // namespace sktext
 
 class SkDrawableList : SkNoncopyable {
 public:
@@ -72,13 +74,13 @@ private:
     SkTDArray<SkDrawable*> fArray;
 };
 
-// SkRecorder provides an SkCanvas interface for recording into an SkRecord.
+// SkRecordCanvas provides an SkCanvas interface for recording into an SkRecord.
 
-class SkRecorder final : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
+class SkRecordCanvas final : public SkCanvasVirtualEnforcer<SkNoDrawCanvas> {
 public:
     // Does not take ownership of the SkRecord.
-    SkRecorder(SkRecord*, int width, int height);   // TODO: remove
-    SkRecorder(SkRecord*, const SkRect& bounds);
+    SkRecordCanvas(SkRecord*, int width, int height);  // TODO: remove
+    SkRecordCanvas(SkRecord*, const SkRect& bounds);
 
     void reset(SkRecord*, const SkRect& bounds);
 
@@ -87,7 +89,8 @@ public:
     SkDrawableList* getDrawableList() const { return fDrawableList.get(); }
     std::unique_ptr<SkDrawableList> detachDrawableList() { return std::move(fDrawableList); }
 
-    // Make SkRecorder forget entirely about its SkRecord*; all calls to SkRecorder will fail.
+    // Make SkRecordCanvas forget entirely about its SkRecord*; all calls to SkRecordCanvas will
+    // fail.
     void forgetRecord();
 
     void willSave() override;
@@ -108,10 +111,12 @@ public:
                         SkScalar y,
                         const SkPaint& paint) override;
     void onDrawSlug(const sktext::gpu::Slug* slug, const SkPaint& paint) override;
-    void onDrawGlyphRunList(
-            const sktext::GlyphRunList& glyphRunList, const SkPaint& paint) override;
-    void onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
-                     const SkPoint texCoords[4], SkBlendMode,
+    void onDrawGlyphRunList(const sktext::GlyphRunList& glyphRunList,
+                            const SkPaint& paint) override;
+    void onDrawPatch(const SkPoint cubics[12],
+                     const SkColor colors[4],
+                     const SkPoint texCoords[4],
+                     SkBlendMode,
                      const SkPaint& paint) override;
 
     void onDrawPaint(const SkPaint&) override;
@@ -124,14 +129,25 @@ public:
     void onDrawRRect(const SkRRect&, const SkPaint&) override;
     void onDrawPath(const SkPath&, const SkPaint&) override;
 
-    void onDrawImage2(const SkImage*, SkScalar, SkScalar, const SkSamplingOptions&,
+    void onDrawImage2(
+            const SkImage*, SkScalar, SkScalar, const SkSamplingOptions&, const SkPaint*) override;
+    void onDrawImageRect2(const SkImage*,
+                          const SkRect&,
+                          const SkRect&,
+                          const SkSamplingOptions&,
+                          const SkPaint*,
+                          SrcRectConstraint) override;
+    void onDrawImageLattice2(
+            const SkImage*, const Lattice&, const SkRect&, SkFilterMode, const SkPaint*) override;
+    void onDrawAtlas2(const SkImage*,
+                      const SkRSXform[],
+                      const SkRect[],
+                      const SkColor[],
+                      int,
+                      SkBlendMode,
+                      const SkSamplingOptions&,
+                      const SkRect*,
                       const SkPaint*) override;
-    void onDrawImageRect2(const SkImage*, const SkRect&, const SkRect&, const SkSamplingOptions&,
-                          const SkPaint*, SrcRectConstraint) override;
-    void onDrawImageLattice2(const SkImage*, const Lattice&, const SkRect&, SkFilterMode,
-                             const SkPaint*) override;
-    void onDrawAtlas2(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[], int,
-                     SkBlendMode, const SkSamplingOptions&, const SkRect*, const SkPaint*) override;
 
     void onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint&) override;
 
@@ -150,27 +166,28 @@ public:
 
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
 
-    void onDrawEdgeAAQuad(const SkRect&, const SkPoint[4], QuadAAFlags, const SkColor4f&,
-                          SkBlendMode) override;
-    void onDrawEdgeAAImageSet2(const ImageSetEntry[], int count, const SkPoint[], const SkMatrix[],
-                               const SkSamplingOptions&, const SkPaint*,
+    void onDrawEdgeAAQuad(
+            const SkRect&, const SkPoint[4], QuadAAFlags, const SkColor4f&, SkBlendMode) override;
+    void onDrawEdgeAAImageSet2(const ImageSetEntry[],
+                               int count,
+                               const SkPoint[],
+                               const SkMatrix[],
+                               const SkSamplingOptions&,
+                               const SkPaint*,
                                SrcRectConstraint) override;
 
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
 
 private:
-    template <typename T>
-    T* copy(const T*);
+    template <typename T> T* copy(const T*);
 
-    template <typename T>
-    T* copy(const T[], size_t count);
+    template <typename T> T* copy(const T[], size_t count);
 
-    template<typename T, typename... Args>
-    void append(Args&&...);
+    template <typename T, typename... Args> void append(Args&&...);
 
     size_t fApproxBytesUsedBySubPictures;
     SkRecord* fRecord;
     std::unique_ptr<SkDrawableList> fDrawableList;
 };
 
-#endif//SkRecorder_DEFINED
+#endif  // SkRecordCanvas_DEFINED

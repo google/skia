@@ -20,8 +20,8 @@
 #include "include/core/SkSurface.h"
 #include "include/effects/SkImageFilters.h"
 #include "src/core/SkRecord.h"
+#include "src/core/SkRecordCanvas.h"
 #include "src/core/SkRecordOpts.h"
-#include "src/core/SkRecorder.h"
 #include "src/core/SkRecords.h"
 #include "tests/RecordTestUtils.h"
 #include "tests/Test.h"
@@ -33,7 +33,7 @@ static const int W = 1920, H = 1080;
 
 DEF_TEST(RecordOpts_NoopDraw, r) {
     SkRecord record;
-    SkRecorder recorder(&record, W, H);
+    SkRecordCanvas recorder(&record, W, H);
 
     recorder.drawRect(SkRect::MakeWH(200, 200), SkPaint());
     recorder.drawRect(SkRect::MakeWH(300, 300), SkPaint());
@@ -48,7 +48,7 @@ DEF_TEST(RecordOpts_NoopDraw, r) {
 
 DEF_TEST(RecordOpts_SingleNoopSaveRestore, r) {
     SkRecord record;
-    SkRecorder recorder(&record, W, H);
+    SkRecordCanvas recorder(&record, W, H);
 
     recorder.save();
         recorder.clipRect(SkRect::MakeWH(200, 200));
@@ -62,7 +62,7 @@ DEF_TEST(RecordOpts_SingleNoopSaveRestore, r) {
 
 DEF_TEST(RecordOpts_NoopSaveRestores, r) {
     SkRecord record;
-    SkRecorder recorder(&record, W, H);
+    SkRecordCanvas recorder(&record, W, H);
 
     // The second pass will clean up this pair after the first pass noops all the innards.
     recorder.save();
@@ -85,7 +85,7 @@ DEF_TEST(RecordOpts_NoopSaveRestores, r) {
 
 DEF_TEST(RecordOpts_SaveSaveLayerRestoreRestore, r) {
     SkRecord record;
-    SkRecorder recorder(&record, W, H);
+    SkRecordCanvas recorder(&record, W, H);
 
     // A previous bug NoOp'd away the first 3 commands.
     recorder.save();
@@ -143,7 +143,7 @@ static void assert_savelayer_draw_restore(skiatest::Reporter* r,
 
 DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     SkRecord record;
-    SkRecorder recorder(&record, W, H);
+    SkRecordCanvas recorder(&record, W, H);
 
     SkRect bounds = SkRect::MakeWH(100, 200);
     SkRect   draw = SkRect::MakeWH(50, 60);
@@ -224,7 +224,7 @@ static void assert_merge_svg_opacity_and_filter_layers(skiatest::Reporter* r,
 
 DEF_TEST(RecordOpts_MergeSvgOpacityAndFilterLayers, r) {
     SkRecord record;
-    SkRecorder recorder(&record, W, H);
+    SkRecordCanvas recorder(&record, W, H);
 
     SkRect bounds = SkRect::MakeWH(SkIntToScalar(100), SkIntToScalar(200));
     SkRect clip = SkRect::MakeWH(SkIntToScalar(50), SkIntToScalar(60));

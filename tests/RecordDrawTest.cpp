@@ -20,8 +20,8 @@
 #include "include/effects/SkImageFilters.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/core/SkRecord.h"
+#include "src/core/SkRecordCanvas.h"
 #include "src/core/SkRecordDraw.h"
-#include "src/core/SkRecorder.h"
 #include "src/core/SkRecords.h"
 #include "tests/RecordTestUtils.h"
 #include "tests/Test.h"
@@ -44,7 +44,7 @@ private:
 DEF_TEST(RecordDraw_LazySaves, r) {
     // Record two commands.
     SkRecord record;
-    SkRecorder recorder(&record, W, H);
+    SkRecordCanvas recorder(&record, W, H);
 
     REPORTER_ASSERT(r, 0 == record.count());
     recorder.save();
@@ -71,12 +71,12 @@ DEF_TEST(RecordDraw_LazySaves, r) {
 DEF_TEST(RecordDraw_Abort, r) {
     // Record two commands.
     SkRecord record;
-    SkRecorder recorder(&record, W, H);
+    SkRecordCanvas recorder(&record, W, H);
     recorder.drawRect(SkRect::MakeWH(200, 300), SkPaint());
     recorder.clipRect(SkRect::MakeWH(100, 200));
 
     SkRecord rerecord;
-    SkRecorder canvas(&rerecord, W, H);
+    SkRecordCanvas canvas(&rerecord, W, H);
 
     JustOneDraw callback;
     SkRecordDraw(record, &canvas, nullptr, nullptr, 0, nullptr/*bbh*/, &callback);
@@ -87,12 +87,12 @@ DEF_TEST(RecordDraw_Abort, r) {
 
 DEF_TEST(RecordDraw_Unbalanced, r) {
     SkRecord record;
-    SkRecorder recorder(&record, W, H);
+    SkRecordCanvas recorder(&record, W, H);
     recorder.save();  // We won't balance this, but SkRecordDraw will for us.
     recorder.scale(2, 2);
 
     SkRecord rerecord;
-    SkRecorder canvas(&rerecord, W, H);
+    SkRecordCanvas canvas(&rerecord, W, H);
     SkRecordDraw(record, &canvas, nullptr, nullptr, 0, nullptr/*bbh*/, nullptr/*callback*/);
 
     int save_count = count_instances_of_type<SkRecords::Save>(rerecord);
@@ -103,14 +103,14 @@ DEF_TEST(RecordDraw_Unbalanced, r) {
 DEF_TEST(RecordDraw_SetMatrixClobber, r) {
     // Set up an SkRecord that just scales by 2x,3x.
     SkRecord scaleRecord;
-    SkRecorder scaleCanvas(&scaleRecord, W, H);
+    SkRecordCanvas scaleCanvas(&scaleRecord, W, H);
     SkMatrix scale;
     scale.setScale(2, 3);
     scaleCanvas.setMatrix(scale);
 
     // Set up an SkRecord with an initial +20, +20 translate.
     SkRecord translateRecord;
-    SkRecorder translateCanvas(&translateRecord, W, H);
+    SkRecordCanvas translateCanvas(&translateRecord, W, H);
     SkMatrix translate;
     translate.setTranslate(20, 20);
     translateCanvas.setMatrix(translate);
@@ -146,7 +146,7 @@ static bool sloppy_rect_eq(SkRect a, SkRect b) {
 #if 0
 DEF_TEST(RecordDraw_BasicBounds, r) {
     SkRecord record;
-    SkRecorder recorder(&record, W, H);
+    SkRecordCanvas recorder(&record, W, H);
     recorder.save();
         recorder.clipRect(SkRect::MakeWH(400, 500));
         recorder.scale(2, 2);
@@ -169,7 +169,7 @@ DEF_TEST(RecordDraw_BasicBounds, r) {
 // (We were applying the saveLayer paint to the bounds after restore, which makes no sense.)
 DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
     SkRecord record;
-    SkRecorder recorder(&record, 50, 50);
+    SkRecordCanvas recorder(&record, 50, 50);
 
     // We draw a rectangle with a long drop shadow.  We used to not update the clip
     // bounds based on SaveLayer paints, so the drop shadow could be cut off.
@@ -203,7 +203,7 @@ DEF_TEST(RecordDraw_SaveLayerAffectsClipBounds, r) {
 // A regression test for https://g-issues.skia.org/issues/362552959.
 DEF_TEST(RecordDraw_EmptySaveLayerWithBackdropFilterAffectsCullRect, r) {
     SkRecord record;
-    SkRecorder recorder(&record, 50, 50);
+    SkRecordCanvas recorder(&record, 50, 50);
 
     auto blurFilter = SkImageFilters::Blur(5.0, 5.0, SkTileMode::kDecal, nullptr);
 
@@ -228,7 +228,7 @@ DEF_TEST(RecordDraw_EmptySaveLayerWithBackdropFilterAffectsCullRect, r) {
 
 DEF_TEST(RecordDraw_Metadata, r) {
     SkRecord record;
-    SkRecorder recorder(&record, 50, 50);
+    SkRecordCanvas recorder(&record, 50, 50);
 
     // Just doing some mildly interesting drawing, mostly grabbed from the unit test above.
     SkPaint paint;
@@ -262,7 +262,7 @@ DEF_TEST(RecordDraw_Metadata, r) {
 // backing store.
 DEF_TEST(RecordDraw_SaveLayerBoundsAffectsClipBounds, r) {
     SkRecord record;
-    SkRecorder recorder(&record, 50, 50);
+    SkRecordCanvas recorder(&record, 50, 50);
 
     SkPaint p;
     p.setBlendMode(SkBlendMode::kSrc);

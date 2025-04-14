@@ -14,9 +14,9 @@
 #include "src/base/SkTime.h"
 #include "src/core/SkPicturePriv.h"
 #include "src/core/SkRecord.h"
+#include "src/core/SkRecordCanvas.h"
 #include "src/core/SkRecordDraw.h"
 #include "src/core/SkRecordOpts.h"
-#include "src/core/SkRecorder.h"
 #include "src/image/SkImage_Base.h"
 #include "tools/flags/CommandLineFlags.h"
 
@@ -165,7 +165,7 @@ int main(int argc, char** argv) {
         const int h = SkScalarCeilToInt(src->cullRect().height());
 
         SkRecord record;
-        SkRecorder rec(&record, w, h);
+        SkRecordCanvas rec(&record, w, h);
         src->playback(&rec);
 
         if (FLAGS_optimize) {

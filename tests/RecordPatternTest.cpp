@@ -9,8 +9,8 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
 #include "src/core/SkRecord.h"
+#include "src/core/SkRecordCanvas.h"
 #include "src/core/SkRecordPattern.h"
-#include "src/core/SkRecorder.h"
 #include "src/core/SkRecords.h"
 #include "tests/Test.h"
 
@@ -26,7 +26,7 @@ DEF_TEST(RecordPattern_Simple, r) {
     SkRecord record;
     REPORTER_ASSERT(r, !pattern.match(&record, 0));
 
-    SkRecorder recorder(&record, 1920, 1200);
+    SkRecordCanvas recorder(&record, 1920, 1200);
 
     // Build up a save-clip-restore block.  The pattern will match only it's complete.
     recorder.save();
@@ -46,7 +46,7 @@ DEF_TEST(RecordPattern_StartingIndex, r) {
     SaveClipRectRestore pattern;
 
     SkRecord record;
-    SkRecorder recorder(&record, 1920, 1200);
+    SkRecordCanvas recorder(&record, 1920, 1200);
 
     // There will be two save-clipRect-restore blocks [0,3) and [3,6).
     for (int i = 0; i < 2; i++) {
@@ -69,7 +69,7 @@ DEF_TEST(RecordPattern_DontMatchSubsequences, r) {
     SaveClipRectRestore pattern;
 
     SkRecord record;
-    SkRecorder recorder(&record, 1920, 1200);
+    SkRecordCanvas recorder(&record, 1920, 1200);
 
     recorder.save();
         recorder.clipRect(SkRect::MakeWH(300, 200));
@@ -83,7 +83,7 @@ DEF_TEST(RecordPattern_Greedy, r) {
     Pattern<Is<Save>, Greedy<Is<ClipRect>>, Is<Restore>> pattern;
 
     SkRecord record;
-    SkRecorder recorder(&record, 1920, 1200);
+    SkRecordCanvas recorder(&record, 1920, 1200);
     int index = 0;
 
     recorder.save();
@@ -107,7 +107,7 @@ DEF_TEST(RecordPattern_Complex, r) {
             Is<Restore>> pattern;
 
     SkRecord record;
-    SkRecorder recorder(&record, 1920, 1200);
+    SkRecordCanvas recorder(&record, 1920, 1200);
     int start, begin, end;
 
     start = record.count();
@@ -147,7 +147,7 @@ DEF_TEST(RecordPattern_SaveLayerIsNotADraw, r) {
     Pattern<IsDraw> pattern;
 
     SkRecord record;
-    SkRecorder recorder(&record, 1920, 1200);
+    SkRecordCanvas recorder(&record, 1920, 1200);
     recorder.saveLayer(nullptr, nullptr);
 
     REPORTER_ASSERT(r, !pattern.match(&record, 0));

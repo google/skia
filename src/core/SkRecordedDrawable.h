@@ -13,7 +13,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "src/core/SkRecord.h"
-#include "src/core/SkRecorder.h"
+#include "src/core/SkRecordCanvas.h"
 
 #include <cstddef>
 #include <memory>

@@ -27,7 +27,7 @@ class SkCanvas;
 class SkDrawable;
 class SkPicture;
 class SkRecord;
-class SkRecorder;
+class SkRecordCanvas;
 
 class SK_API SkPictureRecorder {
 public:
@@ -102,11 +102,11 @@ private:
     friend class SkPictureRecorderReplayTester; // for unit testing
     void partialReplay(SkCanvas* canvas) const;
 
-    bool                        fActivelyRecording;
-    SkRect                      fCullRect;
-    sk_sp<SkBBoxHierarchy>      fBBH;
-    std::unique_ptr<SkRecorder> fRecorder;
-    sk_sp<SkRecord>             fRecord;
+    sk_sp<SkBBoxHierarchy> fBBH;
+    std::unique_ptr<SkRecordCanvas> fRecorder;
+    sk_sp<SkRecord> fRecord;
+    SkRect fCullRect;
+    bool fActivelyRecording;
 
     SkPictureRecorder(SkPictureRecorder&&) = delete;
     SkPictureRecorder& operator=(SkPictureRecorder&&) = delete;
