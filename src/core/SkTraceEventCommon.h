@@ -92,6 +92,8 @@
 
 #ifdef SK_ANDROID_FRAMEWORK_USE_PERFETTO
 
+#include "src/core/SkTraceEvent.h"  // for TRACE_STR_COPY
+
 // PERFETTO_TRACK_EVENT_NAMESPACE must be defined before including Perfetto. This allows Skia to
 // maintain separate "track event" category storage, etc. from codebases linked into the same
 // executable, and avoid symbol duplication errors.
