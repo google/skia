@@ -78,6 +78,27 @@ void SkGraphics::PurgePinnedFontCache() {
     SkStrikeCache::GlobalStrikeCache()->purgePinned();
 }
 
+size_t SkGraphics::GetResourceCacheTotalBytesUsed() { return SkResourceCache::GetTotalBytesUsed(); }
+
+size_t SkGraphics::GetResourceCacheTotalByteLimit() { return SkResourceCache::GetTotalByteLimit(); }
+
+size_t SkGraphics::SetResourceCacheTotalByteLimit(size_t newLimit) {
+    return SkResourceCache::SetTotalByteLimit(newLimit);
+}
+
+size_t SkGraphics::GetResourceCacheSingleAllocationByteLimit() {
+    return SkResourceCache::GetSingleAllocationByteLimit();
+}
+
+size_t SkGraphics::SetResourceCacheSingleAllocationByteLimit(size_t newLimit) {
+    return SkResourceCache::SetSingleAllocationByteLimit(newLimit);
+}
+
+void SkGraphics::PurgeResourceCache() {
+    SkImageFilter_Base::PurgeCache();
+    return SkResourceCache::PurgeAll();
+}
+
 static int gTypefaceCacheCountLimit = 1024; // historical default value
 
 int SkGraphics::GetTypefaceCacheCountLimit() {
