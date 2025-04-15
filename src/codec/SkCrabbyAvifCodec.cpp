@@ -212,8 +212,6 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
         return nullptr;
     }
 
-    std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
-
     // CrabbyAvif uses MediaCodec, which always sets bitsPerComponent to 8.
     const int bitsPerComponent = 8;
     SkEncodedInfo::Color color;
@@ -241,6 +239,16 @@ std::unique_ptr<SkCodec> SkCrabbyAvifCodec::MakeFromData(std::unique_ptr<SkStrea
             height = rect.height;
         }
     }
+
+    std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
+    if (image->icc.size > 0) {
+        auto icc = SkData::MakeWithCopy(image->icc.data, image->icc.size);
+        profile = SkEncodedInfo::ICCProfile::Make(std::move(icc));
+        if (profile && profile->profile()->data_color_space != skcms_Signature_RGB) {
+            profile = nullptr;
+        }
+    }
+
     SkEncodedInfo info = SkEncodedInfo::Make(
             width, height, color, alpha, bitsPerComponent, std::move(profile), image->depth);
     bool animation = avifDecoder->imageCount > 1;
