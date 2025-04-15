@@ -69,6 +69,10 @@ public:
     bool isArc()   const { return fType == Type::kArc;   }
     bool isPath()  const { return fType == Type::kPath;  }
 
+    bool isVolatilePath() const {
+        return fType == Type::kPath && this->path().isVolatile();
+    }
+
     bool inverted() const {
         SkASSERT(fType != Type::kPath || fInverted == fPath.isInverseFillType());
         return fInverted;
@@ -165,17 +169,13 @@ public:
 
     /**
      * Gets the size of the key for the shape represented by this Shape.
-     * A negative value is returned if the shape has no key (shouldn't be cached).
      */
     int keySize() const;
 
-    bool hasKey() const { return this->keySize() >= 0; }
-
     /**
      * Writes keySize() bytes into the provided pointer. Assumes that there is enough
-     * space allocated for the key and that keySize() does not return a negative value
-     * for this shape. If includeInverted is false, non-inverted state will be written
-     * into the key regardless of the Shape's state.
+     * space allocated for the key. If includeInverted is false, non-inverted state will
+     * be written into the key regardless of the Shape's state.
      */
     void writeKey(uint32_t* key, bool includeInverted) const;
 

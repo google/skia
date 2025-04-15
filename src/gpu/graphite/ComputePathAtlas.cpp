@@ -320,8 +320,7 @@ const TextureProxy* VelloComputePathAtlas::onAddShape(
         skvx::half2* outPos) {
 
     skgpu::UniqueKey maskKey;
-    bool hasKey = shape.hasKey();
-    if (hasKey) {
+    if (!shape.isVolatilePath()) {
         // Try to locate or add to cached DrawAtlas
         const TextureProxy* proxy = fCachedAtlasMgr.findOrCreateEntry(fRecorder,
                                                                       shape,

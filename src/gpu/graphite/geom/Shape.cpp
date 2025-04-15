@@ -204,17 +204,14 @@ int Shape::keySize() const {
             count += sizeof(SkArc) / sizeof(uint32_t);
             break;
         case Type::kPath: {
-            if (this->path().isVolatile()) {
-                return -1; // volatile, so won't be keyed
-            }
-            if (this->path().isEmpty()) {
-                return -1; // empty, so won't be keyed
-            }
-            int dataKeySize = path_key_from_data_size(this->path());
-            if (dataKeySize >= 0) {
-                count += dataKeySize;
-            } else {
-                count++; // Just adds the gen ID.
+            // An empty path is the same as an empty shape -- only needs the state flags
+            if (!this->path().isEmpty()) {
+                int dataKeySize = path_key_from_data_size(this->path());
+                if (dataKeySize >= 0) {
+                    count += dataKeySize;
+                } else {
+                    count++; // Just adds the gen ID.
+                }
             }
             break;
         }
@@ -235,17 +232,20 @@ void Shape::writeKey(uint32_t* key, bool includeInverted) const {
 
     switch(this->type()) {
         case Type::kPath: {
-            SkASSERT(!this->path().isVolatile());
-            SkASSERT(!this->path().isEmpty());
-            // Ensure that the path's inversion matches our state so that the path's key suffices.
-            SkASSERT(this->inverted() == this->path().isInverseFillType());
+            // An empty path is the same as an empty shape -- only needs the state flags
+            if (!this->path().isEmpty()) {
+                // The path's inversion must match our state in order for the path's key to suffice.
+                SkASSERT(this->inverted() == this->path().isInverseFillType());
 
-            int dataKeySize = path_key_from_data_size(this->path());
-            if (dataKeySize >= 0) {
-                write_path_key_from_data(this->path(), key);
-                return;
-            } else {
-                *key++ = this->path().getGenerationID();
+                int dataKeySize = path_key_from_data_size(this->path());
+                if (dataKeySize >= 0) {
+                    // We check the rest of the size in write_path_key_from_data
+                    SkASSERT(key - origKey == 1);
+                    write_path_key_from_data(this->path(), key);
+                    return;
+                } else {
+                    *key++ = this->path().getGenerationID();
+                }
             }
             break;
         }
