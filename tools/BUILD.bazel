@@ -334,6 +334,7 @@ skia_cc_library(
         "//src/gpu/ganesh/tessellate:headers_to_compile",
         "//src/gpu/ganesh:headers_to_compile",
         "//src/gpu/graphite/geom:headers_to_compile",
+        "//src/gpu/graphite:headers_to_compile",
         "//src/gpu/tessellate:headers_to_compile",
         "//src/gpu/vk:headers_to_compile",
         "//src/gpu:headers_to_compile",

@@ -8,20 +8,25 @@
 #ifndef skgpu_graphite_TextAtlasManager_DEFINED
 #define skgpu_graphite_TextAtlasManager_DEFINED
 
-#include "include/gpu/graphite/TextureInfo.h"
+#include "include/core/SkRefCnt.h"  // IWYU pragma: keep
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/AtlasTypes.h"
-#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/DrawAtlas.h"
+
+#include <cstdint>
+#include <memory>
+
+class SkGlyph;
 
 namespace sktext::gpu {
 class Glyph;
 }
-class SkGlyph;
 
 namespace skgpu::graphite {
 
+class DrawContext;
 class Recorder;
-class UploadList;
+class TextureProxy;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /** The TextAtlasManager manages the lifetime of and access to DrawAtlases used in glyph rendering.

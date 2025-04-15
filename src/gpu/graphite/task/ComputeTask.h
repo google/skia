@@ -8,15 +8,20 @@
 #ifndef skgpu_graphite_task_ComputeTask_DEFINED
 #define skgpu_graphite_task_ComputeTask_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTArray.h"
+#include "src/gpu/graphite/compute/DispatchGroup.h"
 #include "src/gpu/graphite/task/Task.h"
-#include "src/gpu/graphite/task/TaskList.h"
 
 #include <memory>
 
 namespace skgpu::graphite {
 
-class DispatchGroup;
+class CommandBuffer;
+class Context;
+class ResourceProvider;
+class RuntimeEffectDictionary;
+class ScratchResourceManager;
 
 /**
  * ComputeTask handles preparing and recording DispatchGroups into a series of compute dispatches

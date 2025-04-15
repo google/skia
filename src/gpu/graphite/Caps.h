@@ -15,6 +15,7 @@
 
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkAlign.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/gpu/ResourceKey.h"

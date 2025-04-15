@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_RecordingPriv_DEFINED
 #define skgpu_graphite_RecordingPriv_DEFINED
 
+#include "include/core/SkRect.h"
 #include "include/gpu/graphite/Recording.h"
 
 namespace skgpu::graphite {

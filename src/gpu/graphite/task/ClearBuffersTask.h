@@ -8,11 +8,20 @@
 #ifndef skgpu_graphite_task_ClearBuffersTask_DEFINED
 #define skgpu_graphite_task_ClearBuffersTask_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/task/Task.h"
 
+#include <utility>
+
 namespace skgpu::graphite {
+
+class CommandBuffer;
+class Context;
+class ResourceProvider;
+class RuntimeEffectDictionary;
+class ScratchResourceManager;
 
 /**
  * Task that clears a region of a list of buffers to 0.

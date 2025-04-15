@@ -7,24 +7,39 @@
 
 #include "src/gpu/graphite/task/UploadTask.h"
 
-#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTextureCompressionType.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCompressedDataUtils.h"
+#include "src/core/SkConvertPixels.h"
 #include "src/core/SkMipmap.h"
-#include "src/core/SkTraceEvent.h"
+#include "src/core/SkTraceEvent.h"  // IWYU pragma: keep
 #include "src/gpu/DataUtils.h"
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/ResourceProvider.h"
-#include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/Texture.h"  // IWYU pragma: keep
+#include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
+
+#include <algorithm>
+#include <cstdint>
+#include <tuple>
+#include <utility>
+#include <vector>
 
 using namespace skia_private;
 

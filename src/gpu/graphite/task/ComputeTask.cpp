@@ -7,10 +7,15 @@
 
 #include "src/gpu/graphite/task/ComputeTask.h"
 
-#include "src/gpu/graphite/Buffer.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/graphite/CommandBuffer.h"
-#include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/ComputePipeline.h"  // IWYU pragma: keep
+#include "src/gpu/graphite/Sampler.h"  // IWYU pragma: keep
+#include "src/gpu/graphite/TextureProxy.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/compute/DispatchGroup.h"
+
+#include <cstddef>
+#include <utility>
 
 namespace skgpu::graphite {
 

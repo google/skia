@@ -47,7 +47,7 @@ public:
     static PathAtlasFlagsBitMask QueryPathAtlasSupport(const Caps*);
 
     explicit AtlasProvider(Recorder*);
-    ~AtlasProvider() = default;
+    ~AtlasProvider();
 
     // Returns the TextAtlasManager that provides access to persistent DrawAtlas instances used in
     // glyph rendering. This TextAtlasManager is always available.

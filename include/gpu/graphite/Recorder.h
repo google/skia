@@ -9,22 +9,30 @@
 #define skgpu_graphite_Recorder_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkSize.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/Recording.h"
 #include "include/private/base/SingleOwner.h"
+#include "include/private/base/SkAPI.h"
 #include "include/private/base/SkTArray.h"
 
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <optional>
 
-struct AHardwareBuffer;
 class SkCanvas;
-struct SkImageInfo;
 class SkPixmap;
 class SkTraceMemoryDump;
+struct SkISize;
+struct SkImageInfo;
+
+#if defined(SK_BUILD_FOR_ANDROID)
+struct AHardwareBuffer;
+#endif
 
 namespace skgpu {
+enum class BackendApi : unsigned int;
 class RefCntedCallback;
 class TokenTracker;
 }
@@ -38,23 +46,18 @@ namespace skgpu::graphite {
 
 class AtlasProvider;
 class BackendTexture;
-class Caps;
 class Context;
 class Device;
 class DrawBufferManager;
-class GlobalCache;
 class ImageProvider;
-class ProxyCache;
 class ProxyReadCountMap;
 class RecorderPriv;
 class ResourceProvider;
 class RuntimeEffectDictionary;
 class SharedContext;
-class Task;
 class TaskList;
 class TextureDataBlock;
 class TextureInfo;
-class UniformDataBlock;
 class UploadBufferManager;
 class UploadList;
 

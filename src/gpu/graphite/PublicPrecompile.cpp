@@ -17,6 +17,7 @@
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/PrecompileContextPriv.h"
 #include "src/gpu/graphite/PrecompileInternal.h"
 #include "src/gpu/graphite/RenderPassDesc.h"

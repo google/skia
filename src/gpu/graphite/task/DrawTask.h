@@ -8,13 +8,20 @@
 #ifndef skgpu_graphite_task_DrawTask_DEFINED
 #define skgpu_graphite_task_DrawTask_DEFINED
 
+#include "include/core/SkRefCnt.h"
 #include "src/gpu/graphite/ScratchResourceManager.h"
 #include "src/gpu/graphite/task/Task.h"
 #include "src/gpu/graphite/task/TaskList.h"
 
+#include <utility>
+
 namespace skgpu::graphite {
 
 class TextureProxy;
+class CommandBuffer;
+class Context;
+class ResourceProvider;
+class RuntimeEffectDictionary;
 
 /**
  * DrawTask is a collection of subtasks that are executed in order to produce some intended

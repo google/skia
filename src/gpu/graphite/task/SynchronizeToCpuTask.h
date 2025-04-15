@@ -8,12 +8,18 @@
 #ifndef skgpu_graphite_task_SynchronizeToCpuTask_DEFINED
 #define skgpu_graphite_task_SynchronizeToCpuTask_DEFINED
 
-#include "src/gpu/graphite/Buffer.h"
+#include "include/core/SkRefCnt.h"
 #include "src/gpu/graphite/task/Task.h"
+#include <utility>
 
 namespace skgpu::graphite {
 
 class Buffer;
+class CommandBuffer;
+class Context;
+class ResourceProvider;
+class RuntimeEffectDictionary;
+class ScratchResourceManager;
 
 /**
  * Task that synchronizes the contents of a buffer from the GPU to the CPU. This task ensures that

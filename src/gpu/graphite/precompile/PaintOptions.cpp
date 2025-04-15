@@ -16,6 +16,7 @@
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/PrecompileInternal.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"

@@ -8,13 +8,23 @@
 #ifndef skgpu_graphite_task_RenderPassTask_DEFINED
 #define skgpu_graphite_task_RenderPassTask_DEFINED
 
-#include "src/gpu/graphite/CommandBuffer.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkTArray.h"
+#include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/task/Task.h"
 
+#include <memory>
+
 namespace skgpu::graphite {
 
-class DrawPass;
+class TextureProxy;
+class CommandBuffer;
+class Context;
+class ResourceProvider;
+class RuntimeEffectDictionary;
+class ScratchResourceManager;
 
 /**
  * RenderPassTask handles preparing and recording DrawLists into a single render pass within a

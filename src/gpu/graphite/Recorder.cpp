@@ -4,53 +4,60 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "include/gpu/graphite/Recorder.h"
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorSpace.h"
-#include "include/core/SkTraceMemoryDump.h"
-#include "include/effects/SkRuntimeEffect.h"
+#include "include/core/SkImage.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkPixmap.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/BackendTexture.h"
+#include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/ImageProvider.h"
 #include "include/gpu/graphite/Recording.h"
-
-#include "src/core/SkCompressedDataUtils.h"
-#include "src/core/SkConvertPixels.h"
+#include "include/gpu/graphite/TextureInfo.h"
+#include "src/core/SkMipmap.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/AtlasTypes.h"
-#include "src/gpu/DataUtils.h"
+#include "src/gpu/GpuTypesPriv.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/AtlasProvider.h"
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/ClipAtlasManager.h"
-#include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/Device.h"
-#include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/PathAtlas.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/ProxyCache.h"
-#include "src/gpu/graphite/RasterPathAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/ScratchResourceManager.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
-#include "src/gpu/graphite/task/CopyTask.h"
+#include "src/gpu/graphite/task/Task.h"
 #include "src/gpu/graphite/task/TaskList.h"
 #include "src/gpu/graphite/task/UploadTask.h"
-#include "src/gpu/graphite/text/TextAtlasManager.h"
 #include "src/image/SkImage_Base.h"
 #include "src/text/gpu/StrikeCache.h"
 #include "src/text/gpu/TextBlobRedrawCoordinator.h"
+
+#include <atomic>
+#include <string_view>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+
+enum SkColorType : int;
 
 namespace skgpu::graphite {
 

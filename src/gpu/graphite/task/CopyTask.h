@@ -8,15 +8,22 @@
 #ifndef skgpu_graphite_task_CopyTask_DEFINED
 #define skgpu_graphite_task_CopyTask_DEFINED
 
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
 #include "src/gpu/graphite/task/Task.h"
 
-#include "include/core/SkRect.h"
+#include <cstddef>
 
 namespace skgpu::graphite {
 
 class Buffer;
-class Texture;
 class TextureProxy;
+class CommandBuffer;
+class Context;
+class ResourceProvider;
+class RuntimeEffectDictionary;
+class ScratchResourceManager;
 
 class CopyBufferToBufferTask final : public Task {
 public:

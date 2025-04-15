@@ -9,12 +9,15 @@
 #define skgpu_graphite_Recording_DEFINED
 
 #include "include/core/SkRefCnt.h"
-#include "include/core/SkSize.h"
+#include "include/private/base/SkAPI.h"
 #include "include/private/base/SkTArray.h"
-
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <unordered_set>
 #include <vector>
+
+struct SkISize;
 
 namespace skgpu {
 class RefCntedCallback;
@@ -47,6 +50,7 @@ private:
     class LazyProxyData {
     public:
         LazyProxyData(const Caps*, SkISize dimensions, const TextureInfo&);
+        ~LazyProxyData();
 
         TextureProxy* lazyProxy();
         sk_sp<TextureProxy> refLazyProxy();

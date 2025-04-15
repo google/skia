@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_library", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -207,6 +207,16 @@ skia_cc_library(
         "//src/core:core_priv",
         "//src/gpu",
         "//src/sksl/codegen:gpu",
+    ],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = [
+        "ContextOptionsPriv.h",
+        "ContextPriv.h",
+        "RecordingPriv.h",
+        "RecorderPriv.h",
     ],
 )
 

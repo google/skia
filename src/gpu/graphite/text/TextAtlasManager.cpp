@@ -7,19 +7,35 @@
 
 #include "src/gpu/graphite/text/TextAtlasManager.h"
 
-#include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkSpan_impl.h"
+#include "include/private/base/SkTLogic.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/core/SkDistanceFieldGen.h"
+#include "src/core/SkGlyph.h"
+#include "src/core/SkMask.h"
 #include "src/core/SkMasks.h"
+#include "src/core/SkStrikeSpec.h"
 #include "src/gpu/graphite/AtlasProvider.h"
+#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/DrawAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/TextureProxy.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/text/gpu/Glyph.h"
 #include "src/text/gpu/GlyphVector.h"
 #include "src/text/gpu/StrikeCache.h"
+
+#include <cstring>
+#include <new>
+#include <tuple>
 
 using Glyph = sktext::gpu::Glyph;
 

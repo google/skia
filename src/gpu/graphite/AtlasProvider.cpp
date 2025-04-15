@@ -35,6 +35,8 @@ AtlasProvider::AtlasProvider(Recorder* recorder)
         , fClipAtlasManager(std::make_unique<ClipAtlasManager>(recorder))
         , fPathAtlasFlags(QueryPathAtlasSupport(recorder->priv().caps())) {}
 
+AtlasProvider::~AtlasProvider() = default;
+
 std::unique_ptr<ComputePathAtlas> AtlasProvider::createComputePathAtlas(Recorder* recorder) const {
     if (this->isAvailable(PathAtlasFlags::kCompute)) {
         return ComputePathAtlas::CreateDefault(recorder);

@@ -10,6 +10,8 @@
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/ScratchResourceManager.h"
 
+#include <cstdint>
+
 namespace skgpu::graphite {
 
 using Status = Task::Status;

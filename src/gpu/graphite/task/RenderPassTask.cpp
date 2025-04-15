@@ -7,6 +7,11 @@
 
 #include "src/gpu/graphite/task/RenderPassTask.h"
 
+#include "include/core/SkPoint.h"
+#include "include/core/SkSize.h"
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
@@ -17,6 +22,8 @@
 #include "src/gpu/graphite/ScratchResourceManager.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
+
+#include <utility>
 
 namespace skgpu::graphite {
 

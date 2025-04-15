@@ -10,19 +10,27 @@
 
 #include "src/gpu/graphite/task/Task.h"
 
-#include "include/core/SkImageInfo.h"
-#include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/CommandTypes.h"
 
+#include <cstddef>
 #include <memory>
+
+class SkColorInfo;
+struct SkIRect;
 
 namespace skgpu::graphite {
 
 class Buffer;
 class Recorder;
 class TextureProxy;
+class CommandBuffer;
+class Context;
+class ResourceProvider;
+class RuntimeEffectDictionary;
+class ScratchResourceManager;
 
 struct MipLevel {
     const void* fPixels = nullptr;

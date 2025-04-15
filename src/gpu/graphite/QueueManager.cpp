@@ -7,6 +7,7 @@
 
 #include "src/gpu/graphite/QueueManager.h"
 
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recording.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/GpuTypesPriv.h"

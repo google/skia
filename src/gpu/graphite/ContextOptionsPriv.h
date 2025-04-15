@@ -8,6 +8,8 @@
 #ifndef skgpu_graphite_ContextOptionsPriv_DEFINED
 #define skgpu_graphite_ContextOptionsPriv_DEFINED
 
+#include "include/private/base/SkMath.h"
+
 namespace skgpu::graphite {
 
 /**

@@ -19,6 +19,7 @@
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/ShaderInfo.h"
+#include "src/gpu/graphite/UniformManager.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/codegen/SkSLPipelineStageCodeGenerator.h"
 #include "src/sksl/ir/SkSLVarDeclarations.h"

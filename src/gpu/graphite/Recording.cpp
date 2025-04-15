@@ -4,23 +4,34 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "include/gpu/graphite/Recording.h"
 
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
+#include "include/gpu/GpuTypes.h"
+#include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkTo.h"
 #include "src/core/SkChecksum.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/CommandBuffer.h"
-#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Resource.h"
-#include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/task/Task.h"
 #include "src/gpu/graphite/task/TaskList.h"
 
+#include <functional>
+#include <unordered_map>
 #include <unordered_set>
+#include <utility>
+
+namespace skgpu::graphite { class Context; }
 
 using namespace skia_private;
 
@@ -72,6 +83,8 @@ Recording::LazyProxyData::LazyProxyData(const Caps* caps,
                                                          Volatile::kYes,
                                                          std::move(onInstantiate));
 }
+
+Recording::LazyProxyData::~LazyProxyData() = default;
 
 TextureProxy* Recording::LazyProxyData::lazyProxy() { return fTargetProxy.get(); }
 

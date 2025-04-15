@@ -7,8 +7,9 @@
 
 #include "src/gpu/graphite/task/DrawTask.h"
 
+#include "include/private/base/SkAssert.h"
 #include "src/gpu/graphite/ScratchResourceManager.h"
-#include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/Texture.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/TextureProxy.h"
 
 namespace skgpu::graphite {
