@@ -72,9 +72,7 @@ public:
 
     VkPipelineCache pipelineCache();
 
-    VkPipelineLayout mockPushConstantPipelineLayout() const {
-        return fMockPushConstantPipelineLayout;
-    }
+    VkPipelineLayout mockPipelineLayout() const { return fMockPipelineLayout; }
 
     // TODO(b/302126809): Should these be cached? e.g. findOrCreateFramebuffer
     sk_sp<VulkanFramebuffer> createFramebuffer(
@@ -119,9 +117,12 @@ private:
 
     VkPipelineCache fPipelineCache = VK_NULL_HANDLE;
 
-    // Create and store a pipeline layout that has compatible push constant parameters with other
-    // real pipeline layouts that can be reused across command buffers.
-    VkPipelineLayout fMockPushConstantPipelineLayout;
+    // Certain operations only need to occur once per renderpass (updating push constants and, if
+    // necessary, binding the dst texture as an input attachment). It is useful to have a
+    // mock pipeline layout that has compatible push constant parameters and input attachment
+    // descriptor set with all other real pipeline layouts such that it can be reused across command
+    // buffers to perform these operations even before we bind any pipelines.
+    VkPipelineLayout fMockPipelineLayout;
 
     // The first value of the pair is a renderpass key. Graphics pipeline keys contain extra
     // information that we do not need for identifying unique pipelines.

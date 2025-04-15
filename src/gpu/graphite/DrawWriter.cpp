@@ -88,6 +88,12 @@ void DrawWriter::flush() {
         fPendingBufferBinds = false;
     }
 
+    // Before any draw commands are added, check if the DrawWriter has an assigned barrier type
+    // to issue prior to draw calls.
+    if (fBarrierToIssueBeforeDraws.has_value()) {
+        fCommandList->addBarrier(fBarrierToIssueBeforeDraws.value());
+    }
+
     if (fTemplateCount) {
         // Instanced drawing
         unsigned int realVertexCount;

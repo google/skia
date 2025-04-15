@@ -85,6 +85,9 @@ private:
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture);
+
+    void performOncePerRPUpdates(SkIRect viewport, bool bindDstAsInputAttachment);
+
     void endRenderPass();
 
     void addDrawPass(const DrawPass*);
@@ -96,7 +99,7 @@ private:
     void recordTextureAndSamplerDescSet(
             const DrawPass*, const DrawPassCommands::BindTexturesAndSamplers*);
 
-    bool updateAndBindInputAttachment(const VulkanTexture&, const int setIdx);
+    bool updateAndBindInputAttachment(const VulkanTexture&, const int setIdx, VkPipelineLayout);
     void bindTextureSamplers();
     void bindUniformBuffers();
     void syncDescriptorSets();
@@ -197,7 +200,10 @@ private:
     // Track whether there is currently an active render pass (beginRenderPass has been called, but
     // not endRenderPass)
     bool fActiveRenderPass = false;
-
+    // Store a ptr to the active RenderPass's target texture so we have access to it for any
+    // AddBarrier DrawPassCommands that pertain to the dst. A raw ptr is acceptable here because the
+    // target texture is kept alive via a command buffer reference.
+    VulkanTexture* fTargetTexture = nullptr;
     const VulkanGraphicsPipeline* fActiveGraphicsPipeline = nullptr;
 
     VkFence fSubmitFence = VK_NULL_HANDLE;

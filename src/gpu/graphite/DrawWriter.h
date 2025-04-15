@@ -13,6 +13,8 @@
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawTypes.h"
 
+#include <optional>
+
 namespace skgpu::graphite {
 
 namespace DrawPassCommands {
@@ -79,7 +81,10 @@ public:
     // Notify the DrawWriter that a new pipeline needs to be bound, providing the primitive type and
     // attribute strides of that pipeline. This issues draw calls for pending data that relied on
     // the old pipeline, so this must be called *before* binding the new pipeline.
-    void newPipelineState(PrimitiveType type, size_t vertexStride, size_t instanceStride) {
+    void newPipelineState(PrimitiveType type,
+                          size_t vertexStride,
+                          size_t instanceStride,
+                          std::optional<BarrierType> barrierType) {
         this->flush();
 
         // At this point, whatever was pending was flushed, meaning that whatever pendingCount was,
@@ -109,6 +114,11 @@ public:
         fPrimitiveType = type;
         fVertexStride = vertexStride;
         fInstanceStride = instanceStride;
+
+        // Assign the (optional) barrier type. If a valid value, then the DrawWriter will append
+        // AddBarrier commands of the indicated type prior to appending any draw commands used with
+        // this pipeline.
+        fBarrierToIssueBeforeDraws = barrierType;
     }
 
 #ifdef SK_DEBUG
@@ -235,6 +245,8 @@ private:
     uint32_t fPendingBaseInstance;
     uint32_t fPendingBaseVertex;
     bool fPendingBufferBinds; // true if {fVertices,fIndices,fInstances} has changed since last draw
+
+    std::optional<BarrierType> fBarrierToIssueBeforeDraws = std::nullopt;
 
     void setTemplate(BindBufferInfo vertices, BindBufferInfo indices, BindBufferInfo instances,
                      int templateCount);

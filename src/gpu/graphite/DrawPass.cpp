@@ -568,16 +568,15 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // TODO(b/372953722): Remove this forced binding command behavior once dst copies are always
     // bound separately from the rest of the textures.
     const bool rebindTexturesOnPipelineChange = dstReadStrategy == DstReadStrategy::kTextureCopy;
+    // Keep track of the prior draw's PaintOrder. If the current draw requires barriers and there
+    // is no pipeline or state change, then we must compare the current and prior draw's PaintOrders
+    // to determine if the draws overlap. If they do, we must inject a flush between them such that
+    // the barrier addition and draw commands are ordered correctly.
+    CompressedPaintersOrder priorDrawPaintOrder {};
 
     for (const SortKey& key : keys) {
         const DrawList::Draw& draw = key.draw();
         const RenderStep& renderStep = key.renderStep();
-
-        // If a draw reads from the dst texture as an input attachment, append a DrawCommand to
-        // signal to backend command buffers to add the appropriate barrier type.
-        if (dstReadStrategy == DstReadStrategy::kReadFromInput && draw.readsFromDst()) {
-            drawPass->fCommandList.addBarrier(BarrierType::kReadDstFromInput);
-        }
 
         const bool pipelineChange = key.pipelineIndex() != lastPipeline;
 
@@ -604,6 +603,10 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         // that draw must not be grouped with draws that read from the dst texture since those
         // requirements are mutually exclusive. We would also need to issue append an addBarrier
         // command to the command list with BarrierType::kAdvancedNoncoherentBlend.
+        const std::optional<BarrierType> barrierToAddBeforeDraws =
+                dstReadStrategy == DstReadStrategy::kReadFromInput && draw.readsFromDst()
+                        ? std::optional<BarrierType>(BarrierType::kReadDstFromInput)
+                        : std::nullopt;
 
         const bool stateChange = geomBindingChange ||
                                  shadingBindingChange ||
@@ -615,9 +618,18 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         if (pipelineChange) {
             drawWriter.newPipelineState(renderStep.primitiveType(),
                                         renderStep.vertexStride(),
-                                        renderStep.instanceStride());
+                                        renderStep.instanceStride(),
+                                        barrierToAddBeforeDraws);
         } else if (stateChange) {
             drawWriter.newDynamicState();
+        } else if (barrierToAddBeforeDraws.has_value() &&
+                   priorDrawPaintOrder != draw.fDrawParams.order().paintOrder()) {
+            // Even if there is no pipeline or state change, we must consider whether a
+            // DrawPassCommand to add barriers must be inserted before any draw commands. If so,
+            // then determine if the current and prior draws overlap (ie, their PaintOrders are
+            // unequal). If so, perform a flush() to make sure the draw and add barrier commands are
+            // appended to the command list in the proper order.
+            drawWriter.flush();
         }
 
         // Make state changes before accumulating new draw data
@@ -651,6 +663,9 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             SKGPU_LOG_W("Failed to write necessary vertex/instance data for DrawPass, dropping!");
             return nullptr;
         }
+
+        // Update priorDrawPaintOrder value before iterating to analyze the next draw.
+        priorDrawPaintOrder = draw.fDrawParams.order().paintOrder();
     }
     // Finish recording draw calls for any collected data at the end of the loop
     drawWriter.flush();
