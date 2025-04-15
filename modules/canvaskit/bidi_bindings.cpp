@@ -36,7 +36,7 @@ class BidiPlaceholder { };
 
 class CodeUnitsPlaceholder { };
 
-static sk_sp<SkUnicode> getClientUnicode() {
+static sk_sp<SkUnicode> getBidiUnicode() {
     static sk_sp<SkUnicode> unicode;
     static SkOnce once;
     once([] { unicode = SkUnicodes::Bidi::Make(); });
@@ -55,10 +55,10 @@ EMSCRIPTEN_BINDINGS(Bidi) {
                       SkBidiIterator::Direction direction =
                               dir == 1 ? SkBidiIterator::Direction::kLTR
                                        : SkBidiIterator::Direction::kRTL;
-                      getClientUnicode()->forEachBidiRegion((const uint16_t*)text, textCount, direction,
-                                                            [&](uint16_t start, uint16_t end, SkBidiIterator::Level level) {
-                                                                regions.emplace_back(start, end, level);
-                                                            });
+                      getBidiUnicode()->forEachBidiRegion((const uint16_t*)text, textCount, direction,
+                                                           [&](uint16_t start, uint16_t end, SkBidiIterator::Level level) {
+                                                               regions.emplace_back(start, end, level);
+                                                           });
                       JSArrayFromBidiRegions(result, regions);
                       return result;
                   }),
@@ -73,7 +73,7 @@ EMSCRIPTEN_BINDINGS(Bidi) {
                     // The resulting vector
                     std::vector<int32_t> logicalFromVisual;
                     logicalFromVisual.resize(levelsCount);
-                    getClientUnicode()->reorderVisual(data, levelsCount, logicalFromVisual.data());
+                    getBidiUnicode()->reorderVisual(data, levelsCount, logicalFromVisual.data());
 
                     // Convert std::vector<int32_t> to JSArray
                     JSArray result = emscripten::val::array();
@@ -93,7 +93,7 @@ EMSCRIPTEN_BINDINGS(Bidi) {
               skia_private::TArray<SkUnicode::CodeUnitFlags, true> flags;
               flags.resize(textCount);
               JSArray result = emscripten::val::array();
-              if (!getClientUnicode()->computeCodeUnitFlags(
+              if (!getBidiUnicode()->computeCodeUnitFlags(
                           text, textCount, /*replaceTabs=*/false, &flags)) {
                   return result;
               }

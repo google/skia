@@ -161,7 +161,7 @@
 
             let result = '0: ';
             for (let i = 0; i < flags.length; ++i) {
-                const flag = flags[i];
+                const flag = flags[i].flags;
                 if (flagsText[i] === '|') {
                     canvas.drawText(result, 100, height, dataPaint, dataFont);
                     height += 40;

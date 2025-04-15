@@ -81,9 +81,9 @@ describe('Bidi Behavior', function () {
         }
         const flagsText = '   |\u{a0}\u{a0}\u{a0}|\u{0a}\u{0a}\u{0a}|満毎行';
         const flags = CanvasKit.CodeUnits.compute(flagsText);
-        checkFlags(flags, 0, 3, 'WS');      // Whitespaces
-        checkFlags(flags, 4, 7, 'S');       // Spaces (including some that are not whitespaces)
-        checkFlags(flags, 8, 11, 'WSC');    // Controls
-        checkFlags(flags, 12, 15, 'I');     // Ideographic
+        checkFlags(flags.flags, 0, 3, 'WS');      // Whitespaces
+        checkFlags(flags.flags, 4, 7, 'S');       // Spaces (including some that are not whitespaces)
+        checkFlags(flags.flags, 8, 11, 'WSC');    // Controls
+        checkFlags(flags.flags, 12, 15, 'I');     // Ideographic
     });
 });
