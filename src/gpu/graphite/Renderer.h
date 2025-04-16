@@ -150,6 +150,16 @@ public:
     bool emitsPrimitiveColor() const { return SkToBool(fFlags & Flags::kEmitsPrimitiveColor); }
     bool outsetBoundsForAA()   const { return SkToBool(fFlags & Flags::kOutsetBoundsForAA);   }
     bool useNonAAInnerFill()   const { return SkToBool(fFlags & Flags::kUseNonAAInnerFill);   }
+    SkEnumBitMask<RenderStateFlags> getRenderStateFlags() const {
+        SkEnumBitMask<RenderStateFlags> rs = RenderStateFlags::kNone;
+        if (fFlags & Flags::kFixed)             { rs |= RenderStateFlags::kFixed; }
+        if (fFlags & Flags::kAppendVertices)    { rs |= RenderStateFlags::kAppendVertices; }
+        if (fFlags & Flags::kAppendInstances)   { rs |= RenderStateFlags::kAppendInstances; }
+        if (fFlags & Flags::kAppendDynamicInstances) {
+             rs |= RenderStateFlags::kAppendDynamicInstances;
+        }
+        return rs;
+    }
 
     Coverage coverage() const { return RenderStep::GetCoverage(fFlags); }
 
@@ -210,18 +220,22 @@ public:
     //      stateless Renderstep can refer to for {draw,step} pairs?
     //    - Does each DrawList::Draw have extra space (e.g. 8 bytes) that steps can cache data in?
 protected:
-    enum class Flags : unsigned {
-        kNone                  = 0b00000000,
-        kRequiresMSAA          = 0b00000001,
-        kPerformsShading       = 0b00000010,
-        kHasTextures           = 0b00000100,
-        kEmitsCoverage         = 0b00001000,
-        kLCDCoverage           = 0b00010000,
-        kEmitsPrimitiveColor   = 0b00100000,
-        kOutsetBoundsForAA     = 0b01000000,
-        kUseNonAAInnerFill     = 0b10000000,
-    };
-    SK_DECL_BITMASK_OPS_FRIENDS(Flags)
+enum class Flags : unsigned {
+    kNone                   = 0b000000000000,
+    kFixed                  = 0b000000000001,   // Uses explicit DrawWriter::draw functions
+    kAppendVertices         = 0b000000000010,   // Appends vertices
+    kAppendInstances        = 0b000000000100,   // Appends instances with static vertex count
+    kAppendDynamicInstances = 0b000000001000,   // Appends instances with a flexible vertex count
+    kRequiresMSAA           = 0b000000010000,
+    kPerformsShading        = 0b000000100000,
+    kHasTextures            = 0b000001000000,
+    kEmitsCoverage          = 0b000010000000,
+    kLCDCoverage            = 0b000100000000,
+    kEmitsPrimitiveColor    = 0b001000000000,
+    kOutsetBoundsForAA      = 0b010000000000,
+    kUseNonAAInnerFill      = 0b100000000000,
+};
+SK_DECL_BITMASK_OPS_FRIENDS(Flags)
 
     // While RenderStep does not define the full program that's run for a draw, it defines the
     // entire vertex layout of the pipeline. This is not allowed to change, so can be provided to

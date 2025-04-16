@@ -12,7 +12,6 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkSpan_impl.h"
-#include "src/base/SkEnumBitMask.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/BufferWriter.h"
@@ -82,7 +81,7 @@ TessellateCurvesRenderStep::TessellateCurvesRenderStep(bool evenOdd,
                                                        StaticBufferManager* bufferManager)
         : RenderStep(evenOdd ? RenderStepID::kTessellateCurves_EvenOdd
                              : RenderStepID::kTessellateCurves_Winding,
-                     Flags::kRequiresMSAA,
+                     Flags::kRequiresMSAA | Flags::kAppendDynamicInstances,
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4}},
                      PrimitiveType::kTriangles,
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,
