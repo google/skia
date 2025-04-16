@@ -361,6 +361,9 @@ void SkTypeface_FreeType::FaceRec::setupPalette(const SkFontData& data) {
     if (FT_Palette_Select(fFace.get(), basePaletteIndex, &ftPalette)) {
         return;
     }
+    if (!ftPalette) {
+        return;
+    }
     fFTPaletteEntryCount = paletteData.num_palette_entries;
 
     for (int i = 0; i < data.getPaletteOverrideCount(); ++i) {
