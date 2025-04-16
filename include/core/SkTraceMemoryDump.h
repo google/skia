@@ -104,6 +104,13 @@ public:
      */
     virtual void dumpBudgetedState(const char* /*dumpName*/, bool /*isBudgeted*/) {}
 
+    /**
+     * Returns true if we should dump sizeless non-texture objects (e.g. Samplers, pipelines, etc).
+     * Memoryless textures are always dumped. This call is only used when dumping Graphite memory
+     * statistics.
+     */
+    virtual bool shouldDumpSizelessObjects() const { return false; }
+
 protected:
     virtual ~SkTraceMemoryDump() = default;
     SkTraceMemoryDump() = default;
