@@ -163,7 +163,6 @@ private:
             fInUnionPlane = {"inUnionPlane", kFloat3_GrVertexAttribType, SkSLType::kHalf3};
         }
         if (roundCaps) {
-            SkASSERT(stroke);
             SkASSERT(clipPlane);
             fInRoundCapCenters =
                     {"inRoundCapCenters", kFloat4_GrVertexAttribType, SkSLType::kFloat4};
@@ -1156,7 +1155,7 @@ public:
                 std::swap(startPoint, stopPoint);
             }
 
-            fRoundCaps = stroked &&
+            fRoundCaps = hasStroke &&
                          style.strokeRec().getWidth() > 0 &&
                          style.strokeRec().getCap() == SkPaint::kRound_Cap;
             SkPoint roundCaps[2];

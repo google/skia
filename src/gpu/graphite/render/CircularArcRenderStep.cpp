@@ -146,7 +146,7 @@ CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
                              {"fragClipPlane1", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              // Roundcap positions, if needed
                              {"inRoundCapPos", VertexAttribType::kFloat4, SkSLType::kFloat4},
-
+                             {"inRoundCapRadius", VertexAttribType::kFloat, SkSLType::kFloat},
                              {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
                              {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2},
 
@@ -182,7 +182,7 @@ std::string CircularArcRenderStep::vertexSkSL() const {
                    "position, "
                    // Instance Attributes
                    "centerScales, radiiAndFlags, geoClipPlane, fragClipPlane0, fragClipPlane1, "
-                   "inRoundCapPos, depth, float3x3(mat0, mat1, mat2), "
+                   "inRoundCapPos, inRoundCapRadius, depth, float3x3(mat0, mat1, mat2), "
                    // Varyings
                    "circleEdge, clipPlane, isectPlane, unionPlane, "
                    "roundCapRadius, roundCapPos, "
@@ -297,10 +297,11 @@ void CircularArcRenderStep::writeVertices(DrawWriter* writer,
     static constexpr float kIntersection_NoRoundCaps = 1;
     static constexpr float kIntersection_RoundCaps = 2;
 
+    float roundCapRadius = 0;
     // Default to intersection and no round caps.
     float flags = kIntersection_NoRoundCaps;
     // Determine if we need round caps.
-    if (isStroke && innerRadius > -SK_ScalarHalf &&
+    if (isStroke &&
         params.strokeStyle().halfWidth() > 0 &&
         params.strokeStyle().cap() == SkPaint::kRound_Cap) {
         // Compute the cap center points in the normalized space.
@@ -308,6 +309,8 @@ void CircularArcRenderStep::writeVertices(DrawWriter* writer,
         roundCapPos0 = startPoint * midRadius;
         roundCapPos1 = stopPoint * midRadius;
         flags = kIntersection_RoundCaps;
+        // Compute the cap radius in the normalized space.
+        roundCapRadius = (outerRadius - innerRadius) / (2 * outerRadius);
     }
 
     // Determine clip planes.
@@ -359,13 +362,20 @@ void CircularArcRenderStep::writeVertices(DrawWriter* writer,
         clipPlane1 = {0.f, 0.f, 1.f}; // no clipping
     }
 
+    if (isStroke && innerRadius < -SK_ScalarHalf) {
+        // Reset the inner radius to render a filled arc instead of a stroked arc, as the stroke
+        // width is greater than or equal to the oval's width.
+        innerRadius = -SK_ScalarHalf;
+        localInnerRadius = 0.f;
+    }
+
     // The inner radius in the vertex data must be specified in normalized space.
     innerRadius = innerRadius / outerRadius;
 
     vw << localCenter << localOuterRadius << localInnerRadius
        << outerRadius << innerRadius << flags
        << geoClipPlane << clipPlane0 << clipPlane1
-       << roundCapPos0 << roundCapPos1
+       << roundCapPos0 << roundCapPos1 << roundCapRadius
        << params.order().depthAsFloat()
        << ssboIndices
        << m.rc(0,0) << m.rc(1,0) << m.rc(3,0)  // mat0

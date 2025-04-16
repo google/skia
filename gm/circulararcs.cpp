@@ -343,3 +343,24 @@ DEF_SIMPLE_GM(crbug_1472747, canvas, 400, 400) {
     fill.setAntiAlias(true);
     canvas->drawPath(strokedCircle, fill);
 }
+
+DEF_SIMPLE_GM(bug406747427, canvas, 400, 400) {
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setStrokeCap(SkPaint::kRound_Cap);
+    paint.setColor(SkColorSetARGB(255,255,0,0));
+    paint.setStrokeWidth(50);
+    SkRect oval = SkRect::MakeXYWH(100, 40, 50, 50);
+    canvas->drawArc(oval, 45, 275, false, paint);
+
+    paint.setColor(SkColorSetARGB(255,0,0,255));
+    paint.setStrokeWidth(48);
+    oval = SkRect::MakeXYWH(100, 140, 50, 50);
+    canvas->drawArc(oval, 45, 275, false, paint);
+
+    paint.setColor(SkColorSetARGB(255,0,255,0));
+    paint.setStrokeWidth(80);
+    oval = SkRect::MakeXYWH(100, 280, 50, 50);
+    canvas->drawArc(oval, 45, 275, false, paint);
+}

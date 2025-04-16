@@ -982,6 +982,7 @@ float4 circular_arc_vertex_fn(float3 position,
                               float3 fragClipPlane0,
                               float3 fragClipPlane1,
                               float4 inRoundCapPos,
+                              float inRoundCapRadius,
                               float depth,
                               float3x3 localToDevice,
                               // Varyings
@@ -1039,13 +1040,7 @@ float4 circular_arc_vertex_fn(float3 position,
         isectPlane = float3(0, 0, 1);
         unionPlane = fragClipPlane1;
     }
-    if (abs(radiiAndFlags.z) > 1) {
-        // This is the cap radius in normalized space where the outer radius is 1 and
-        // radii.y is the normalized inner radius.
-        roundCapRadius = (1.0 - radiiAndFlags.y) / 2.0;
-    } else {
-        roundCapRadius = 0;
-    }
+    roundCapRadius = inRoundCapRadius;
     roundCapPos = inRoundCapPos;
     stepLocalCoords = localPos;
 
