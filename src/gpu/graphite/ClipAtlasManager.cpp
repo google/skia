@@ -103,7 +103,7 @@ void draw_clip_mask_to_pixmap(const ClipStack::ElementList* elementList,
 }
 } // anonymous namespace
 
-const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
+sk_sp<TextureProxy> ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
                                                         const ClipStack::ElementList* elementList,
                                                         SkIRect iBounds,
                                                         SkIPoint* outPos) {
@@ -112,7 +112,7 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
     bool usesPathKey;
     maskKey = GenerateClipMaskKey(stackRecordID, elementList, {}, &usesPathKey);
 
-    const TextureProxy* atlasProxy = nullptr;
+    sk_sp<TextureProxy> atlasProxy;
     if (usesPathKey) {
         atlasProxy = fPathKeyAtlasMgr.findOrCreateEntry(fRecorder, maskKey,
                                                         elementList, iBounds, outPos);
@@ -159,7 +159,7 @@ const TextureProxy* ClipAtlasManager::findOrCreateEntry(uint32_t stackRecordID,
             });
     *outPos = { kEntryPadding, kEntryPadding };
 
-    return proxy.get();
+    return proxy;
 #else
     return nullptr;
 #endif
@@ -210,7 +210,7 @@ ClipAtlasManager::DrawAtlasMgr::DrawAtlasMgr(size_t width, size_t height,
     }
 }
 
-const TextureProxy* ClipAtlasManager::DrawAtlasMgr::findOrCreateEntry(
+sk_sp<TextureProxy> ClipAtlasManager::DrawAtlasMgr::findOrCreateEntry(
             Recorder* recorder,
             const skgpu::UniqueKey& maskKey,
             const ClipStack::ElementList* elementList,
@@ -227,13 +227,13 @@ const TextureProxy* ClipAtlasManager::DrawAtlasMgr::findOrCreateEntry(
                                      topLeft.y() + kEntryPadding + subsetRelativePos.y());
             fDrawAtlas->setLastUseToken(entry->fLocator,
                                         recorder->priv().tokenTracker()->nextFlushToken());
-            return fDrawAtlas->getProxies()[entry->fLocator.pageIndex()].get();
+            return fDrawAtlas->getProxies()[entry->fLocator.pageIndex()];
         }
         entry = entry->fNext;
     }
 
     AtlasLocator locator;
-    const TextureProxy* proxy = this->addToAtlas(recorder, elementList, iBounds, outPos, &locator);
+    sk_sp<TextureProxy> proxy = this->addToAtlas(recorder, elementList, iBounds, outPos, &locator);
     if (!proxy) {
         return nullptr;
     }
@@ -273,7 +273,7 @@ const TextureProxy* ClipAtlasManager::DrawAtlasMgr::findOrCreateEntry(
     return proxy;
 }
 
-const TextureProxy* ClipAtlasManager::DrawAtlasMgr::addToAtlas(
+sk_sp<TextureProxy> ClipAtlasManager::DrawAtlasMgr::addToAtlas(
             Recorder* recorder,
             const ClipStack::ElementList* elementsForMask,
             SkIRect iBounds,
@@ -317,7 +317,7 @@ const TextureProxy* ClipAtlasManager::DrawAtlasMgr::addToAtlas(
     fDrawAtlas->setLastUseToken(*locator,
                                 recorder->priv().tokenTracker()->nextFlushToken());
 
-    return fDrawAtlas->getProxies()[locator->pageIndex()].get();
+    return fDrawAtlas->getProxies()[locator->pageIndex()];
 }
 
 bool ClipAtlasManager::DrawAtlasMgr::recordUploads(DrawContext* dc, Recorder* recorder) {

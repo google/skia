@@ -28,7 +28,7 @@ public:
     ClipAtlasManager(Recorder* recorder);
     ~ClipAtlasManager() = default;
 
-    const TextureProxy* findOrCreateEntry(uint32_t stackRecordID,
+    sk_sp<TextureProxy> findOrCreateEntry(uint32_t stackRecordID,
                                           const ClipStack::ElementList*,
                                           SkIRect iBounds,
                                           SkIPoint* outPos);
@@ -48,13 +48,13 @@ private:
                      DrawAtlas::UseStorageTextures useStorageTextures,
                      std::string_view label, const Caps*);
 
-        const TextureProxy* findOrCreateEntry(Recorder* recorder,
+        sk_sp<TextureProxy> findOrCreateEntry(Recorder* recorder,
                                               const skgpu::UniqueKey&,
                                               const ClipStack::ElementList*,
                                               SkIRect iBounds,
                                               SkIPoint* outPos);
         // Adds to DrawAtlas but not the cache
-        const TextureProxy* addToAtlas(Recorder* recorder,
+        sk_sp<TextureProxy> addToAtlas(Recorder* recorder,
                                        const ClipStack::ElementList*,
                                        SkIRect iBounds,
                                        SkIPoint* outPos,
