@@ -56,7 +56,7 @@ protected:
     explicit ComputePathAtlas(Recorder*);
 
     const TextureProxy* texture() const { return fTexture.get(); }
-    const TextureProxy* addRect(skvx::half2 maskSize,
+    sk_sp<TextureProxy> addRect(skvx::half2 maskSize,
                                 SkIPoint16* outPos);
     bool isSuitableForAtlasing(const Rect& transformedShapeBounds,
                                const Rect& clipBounds) const override;

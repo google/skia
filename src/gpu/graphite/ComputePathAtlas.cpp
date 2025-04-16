@@ -86,7 +86,7 @@ bool ComputePathAtlas::isSuitableForAtlasing(const Rect& transformedShapeBounds,
     return true;
 }
 
-const TextureProxy* ComputePathAtlas::addRect(skvx::half2 maskSize,
+sk_sp<TextureProxy> ComputePathAtlas::addRect(skvx::half2 maskSize,
                                               SkIPoint16* outPos) {
     if (!this->initializeTextureIfNeeded()) {
         SKGPU_LOG_E("Failed to instantiate an atlas texture");
@@ -98,14 +98,14 @@ const TextureProxy* ComputePathAtlas::addRect(skvx::half2 maskSize,
     // another way. See PathAtlas::addShape().
     if (!all(maskSize)) {
         *outPos = {0, 0};
-        return fTexture.get();
+        return fTexture;
     }
 
     if (!fRectanizer.addPaddedRect(maskSize.x(), maskSize.y(), kEntryPadding, outPos)) {
         return nullptr;
     }
 
-    return fTexture.get();
+    return fTexture;
 }
 
 void ComputePathAtlas::reset() {
@@ -128,7 +128,7 @@ public:
     bool recordDispatches(Recorder*, ComputeTask::DispatchGroupList*) const override;
 
 private:
-    const TextureProxy* onAddShape(const Shape&,
+    sk_sp<TextureProxy> onAddShape(const Shape&,
                                    const Transform& localToDevice,
                                    const SkStrokeRec&,
                                    skvx::half2 maskOrigin,
@@ -310,7 +310,7 @@ bool VelloComputePathAtlas::recordDispatches(Recorder* recorder,
     return addedDispatches;
 }
 
-const TextureProxy* VelloComputePathAtlas::onAddShape(
+sk_sp<TextureProxy> VelloComputePathAtlas::onAddShape(
         const Shape& shape,
         const Transform& localToDevice,
         const SkStrokeRec& style,
@@ -322,7 +322,7 @@ const TextureProxy* VelloComputePathAtlas::onAddShape(
     skgpu::UniqueKey maskKey;
     if (!shape.isVolatilePath()) {
         // Try to locate or add to cached DrawAtlas
-        const TextureProxy* proxy = fCachedAtlasMgr.findOrCreateEntry(fRecorder,
+        sk_sp<TextureProxy> proxy = fCachedAtlasMgr.findOrCreateEntry(fRecorder,
                                                                       shape,
                                                                       localToDevice,
                                                                       style,
@@ -337,7 +337,7 @@ const TextureProxy* VelloComputePathAtlas::onAddShape(
 
     // Try to add to uncached texture
     SkIPoint16 iPos;
-    const TextureProxy* texProxy = this->addRect(maskSize, &iPos);
+    sk_sp<TextureProxy> texProxy = this->addRect(maskSize, &iPos);
     if (!texProxy) {
         return nullptr;
     }

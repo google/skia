@@ -47,7 +47,7 @@ public:
     }
 
 protected:
-    const TextureProxy* onAddShape(const Shape&,
+    sk_sp<TextureProxy> onAddShape(const Shape&,
                                    const Transform& localToDevice,
                                    const SkStrokeRec&,
                                    skvx::half2 maskOrigin,

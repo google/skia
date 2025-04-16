@@ -61,7 +61,7 @@ std::pair<const Renderer*, std::optional<PathAtlas::MaskAndOrigin>> PathAtlas::a
     skvx::float2 clippedMaskOrigin = maskBounds.topLeft() - shapeDevBounds.topLeft();
     SkIVector transformedMaskOffset = SkIVector::Make(maskBounds.topLeft().x(),
                                                       maskBounds.topLeft().y());
-    const TextureProxy* atlasProxy = this->onAddShape(shape,
+    sk_sp<TextureProxy> atlasProxy = this->onAddShape(shape,
                                                       localToDevice,
                                                       style,
                                                       skvx::cast<uint16_t>(clippedMaskOrigin),
@@ -73,7 +73,7 @@ std::pair<const Renderer*, std::optional<PathAtlas::MaskAndOrigin>> PathAtlas::a
     }
 
     std::optional<PathAtlas::MaskAndOrigin> atlasMask =
-            std::make_pair(CoverageMaskShape(shape, sk_ref_sp(atlasProxy), localToDevice.inverse(),
+            std::make_pair(CoverageMaskShape(shape, std::move(atlasProxy), localToDevice.inverse(),
                                              maskInfo),
                            SkIPoint{(int) maskBounds.left(), (int) maskBounds.top()});
     return std::make_pair(fRecorder->priv().rendererProvider()->coverageMask(), atlasMask);
@@ -106,7 +106,7 @@ PathAtlas::DrawAtlasMgr::DrawAtlasMgr(size_t width, size_t height,
     }
 }
 
-const TextureProxy* PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorder,
+sk_sp<TextureProxy> PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorder,
                                                                const Shape& shape,
                                                                const Transform& localToDevice,
                                                                const SkStrokeRec& strokeRec,
@@ -123,11 +123,11 @@ const TextureProxy* PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorde
         *outPos = skvx::half2(topLeft.x() + kEntryPadding, topLeft.y() + kEntryPadding);
         fDrawAtlas->setLastUseToken(*cachedLocator,
                                     recorder->priv().tokenTracker()->nextFlushToken());
-        return fDrawAtlas->getProxies()[cachedLocator->pageIndex()].get();
+        return fDrawAtlas->getProxies()[cachedLocator->pageIndex()];
     }
 
     AtlasLocator locator;
-    const TextureProxy* proxy = this->addToAtlas(recorder, shape, localToDevice, strokeRec,
+    sk_sp<TextureProxy> proxy = this->addToAtlas(recorder, shape, localToDevice, strokeRec,
                                                  maskSize, transformedMaskOffset, outPos, &locator);
     if (!proxy) {
         return nullptr;
@@ -144,7 +144,7 @@ const TextureProxy* PathAtlas::DrawAtlasMgr::findOrCreateEntry(Recorder* recorde
     return proxy;
 }
 
-const TextureProxy* PathAtlas::DrawAtlasMgr::addToAtlas(Recorder* recorder,
+sk_sp<TextureProxy> PathAtlas::DrawAtlasMgr::addToAtlas(Recorder* recorder,
                                                         const Shape& shape,
                                                         const Transform& localToDevice,
                                                         const SkStrokeRec& strokeRec,
@@ -174,7 +174,7 @@ const TextureProxy* PathAtlas::DrawAtlasMgr::addToAtlas(Recorder* recorder,
     if (!all(maskSize)) {
         fDrawAtlas->setLastUseToken(*locator,
                                     recorder->priv().tokenTracker()->nextFlushToken());
-        return fDrawAtlas->getProxies()[locator->pageIndex()].get();
+        return fDrawAtlas->getProxies()[locator->pageIndex()];
     }
 
     if (!this->onAddToAtlas(shape, localToDevice, strokeRec, iShapeBounds, transformedMaskOffset,
@@ -185,7 +185,7 @@ const TextureProxy* PathAtlas::DrawAtlasMgr::addToAtlas(Recorder* recorder,
     fDrawAtlas->setLastUseToken(*locator,
                                 recorder->priv().tokenTracker()->nextFlushToken());
 
-    return fDrawAtlas->getProxies()[locator->pageIndex()].get();
+    return fDrawAtlas->getProxies()[locator->pageIndex()];
 }
 
 bool PathAtlas::DrawAtlasMgr::recordUploads(DrawContext* dc, Recorder* recorder) {
