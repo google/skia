@@ -1361,7 +1361,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kCompose] = {
             /*name=*/"Compose",
             /*staticFn=*/nullptr,
-            SnippetRequirementFlags::kNone,
+            SnippetRequirementFlags::kPassthroughLocalCoords,
             /*uniforms=*/{},
             /*texturesAndSamplers=*/{},
             /*liftableExpression=*/nullptr,
@@ -1371,7 +1371,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kBlendCompose] = {
             /*name=*/"BlendCompose",
             /*staticFn=*/nullptr,
-            SnippetRequirementFlags::kNone,
+            SnippetRequirementFlags::kPassthroughLocalCoords,
             /*uniforms=*/{},
             /*texturesAndSamplers=*/{},
             /*liftableExpression=*/nullptr,

@@ -101,9 +101,9 @@ ShaderNode* PaintParamsKey::createNode(const ShaderCodeDictionary* dict,
         *currentIndex += dataLength;
     }
 
-    const ShaderNode** childArray = arena->makeArray<const ShaderNode*>(entry->fNumChildren);
+    ShaderNode** childArray = arena->makeArray<ShaderNode*>(entry->fNumChildren);
     for (int i = 0; i < entry->fNumChildren; ++i) {
-        const ShaderNode* child = this->createNode(dict, currentIndex, arena);
+        ShaderNode* child = this->createNode(dict, currentIndex, arena);
         if (!child) {
             return nullptr;
         }
@@ -117,8 +117,40 @@ ShaderNode* PaintParamsKey::createNode(const ShaderCodeDictionary* dict,
                                    dataSpan);
 }
 
+// Traverse a ShaderNode tree, attempting to lift any coordinate modification expressions.
+int lift_coord_expressions(SkSpan<ShaderNode*> nodes, int availableVaryings) {
+    for (ShaderNode* node : nodes) {
+        // If in the course of lifting expressions we've used up all of our available varyings,
+        // there's nothing more we can do.
+        if (availableVaryings == 0) {
+            return 0;
+        }
+
+        // If there are no local coords, there are no modifications to lift.
+        if (!(node->requiredFlags() & SnippetRequirementFlags::kLocalCoords)) {
+            continue;
+        }
+
+        // If the node has a generator, we can lift its modification of its local coords input.
+        if (node->entry()->fLiftableExpressionGenerator) {
+            node->setLiftExpressionFlag();
+            --availableVaryings;
+
+#if !defined(SK_USE_LEGACY_UNIFORM_LIFTING_GRAPHITE)
+        // If the node passes through its local coords to its children, we check if those perform
+        // modifications that can be lifted.
+        } else if (node->requiredFlags() & SnippetRequirementFlags::kPassthroughLocalCoords) {
+            availableVaryings = lift_coord_expressions(node->children(), availableVaryings);
+#endif
+        }
+    }
+
+    return availableVaryings;
+}
+
 SkSpan<const ShaderNode*> PaintParamsKey::getRootNodes(const ShaderCodeDictionary* dict,
-                                                       SkArenaAlloc* arena) const {
+                                                       SkArenaAlloc* arena,
+                                                       int availableVaryings) const {
     // TODO: Once the PaintParamsKey creation is organized to represent a single tree starting at
     // the final blend, there will only be a single root node and this can be simplified.
     // For now, we don't know how many roots there are, so collect them into a local array before
@@ -136,16 +168,11 @@ SkSpan<const ShaderNode*> PaintParamsKey::getRootNodes(const ShaderCodeDictionar
         roots.push_back(root);
     }
 
-    // TODO(b/402402925) This only lifts expressions from root nodes, but we want to allow
-    // combining expressions from nested nodes and skipping intermediate nodes that don't
-    // modify the operands in these expressions.
+    // TODO(b/402402925) This doesn't attempt to combine lifted transformations, which we
+    // eventually want to allow.
     const bool hasClipNode = roots.size() > 2;
     const int liftableNodes = hasClipNode ? 2 : roots.size();
-    for (ShaderNode* node : SkSpan(roots.data(), liftableNodes)) {
-        if (node->entry()->fLiftableExpressionGenerator) {
-            node->setLiftExpressionFlag();
-        }
-    }
+    lift_coord_expressions(SkSpan(roots.data(), liftableNodes), availableVaryings);
 
     // Copy the accumulated roots into a span stored in the arena
     const ShaderNode** rootSpan = arena->makeArray<const ShaderNode*>(roots.size());

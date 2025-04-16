@@ -173,6 +173,14 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
 
     fComputeSupport = true;
 
+    // See https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf, and what Dawn does at
+    // https://crsrc.org/c/third_party/dawn/src/dawn/native/metal/PhysicalDeviceMTL.mm?q=maxInterStageShaderVariables
+    if (this->isMac() || fFamilyGroup >= 4) {
+        fMaxVaryings = 31;
+    } else {
+        fMaxVaryings = 15;
+    }
+
     if (@available(macOS 10.12, iOS 14.0, tvOS 14.0, *)) {
         fClampToBorderSupport = (this->isMac() || fFamilyGroup >= 7);
     } else {

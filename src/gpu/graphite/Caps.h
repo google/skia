@@ -148,6 +148,10 @@ public:
     int maxTextureSize() const { return fMaxTextureSize; }
     uint8_t defaultMSAASamplesCount() const { return fDefaultMSAASamples; }
 
+    // Returns the maximum number of varyings allowed in a render pipeline. Note that this is the
+    // number of varying variables, not the total number of varying scalars.
+    int maxVaryings() const { return fMaxVaryings; }
+
     virtual void buildKeyForTexture(SkISize dimensions,
                                     const TextureInfo&,
                                     ResourceType,
@@ -399,6 +403,8 @@ protected:
     size_t fRequiredStorageBufferAlignment = 0;
     size_t fRequiredTransferBufferAlignment = 0;
     size_t fTextureDataRowBytesAlignment = 1;
+
+    int fMaxVaryings = 0;
 
     std::unique_ptr<SkSL::ShaderCaps> fShaderCaps;
 

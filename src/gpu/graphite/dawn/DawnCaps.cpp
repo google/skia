@@ -455,6 +455,8 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     fRequiredUniformBufferAlignment = limits.minUniformBufferOffsetAlignment;
     fRequiredStorageBufferAlignment = limits.minStorageBufferOffsetAlignment;
 
+    fMaxVaryings = limits.maxInterStageShaderVariables;
+
     // Dawn requires 256 bytes per row alignment for buffer texture copies.
     fTextureDataRowBytesAlignment = 256;
 #if !defined(__EMSCRIPTEN__)

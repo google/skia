@@ -119,6 +119,9 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     fRequiredStorageBufferAlignment =  physDevProperties.limits.minStorageBufferOffsetAlignment;
     fRequiredTransferBufferAlignment = 4;
 
+    fMaxVaryings = std::min(physDevProperties.limits.maxVertexOutputComponents,
+                            physDevProperties.limits.maxFragmentInputComponents) / 4;
+
     // Unlike D3D, WebGPU, and Metal, the Vulkan NDC coordinate space is aligned with the top-left
     // Y-down coordinate space of the viewport.
     fNDCYAxisPointsDown = true;
