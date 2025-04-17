@@ -13,7 +13,6 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkPoint_impl.h"
 #include "include/private/base/SkSpan_impl.h"
-#include "src/base/SkEnumBitMask.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/Attribute.h"
@@ -84,7 +83,7 @@ TessellateWedgesRenderStep::TessellateWedgesRenderStep(RenderStepID renderStepID
                                                        DepthStencilSettings depthStencilSettings,
                                                        StaticBufferManager* bufferManager)
         : RenderStep(renderStepID,
-                     Flags::kRequiresMSAA | Flags::kAppendDynamicInstances |
+                     Flags::kRequiresMSAA |
                      (depthStencilSettings.fDepthWriteEnabled ? Flags::kPerformsShading
                                                               : Flags::kNone),
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4}},

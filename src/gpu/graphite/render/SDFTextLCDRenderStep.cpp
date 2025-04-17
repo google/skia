@@ -50,7 +50,7 @@ constexpr int kNumSDFAtlasTextures = 4;
 SDFTextLCDRenderStep::SDFTextLCDRenderStep()
         : RenderStep(RenderStepID::kSDFTextLCD,
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage |
-                     Flags::kLCDCoverage | Flags::kAppendInstances,
+                     Flags::kLCDCoverage,
                      /*uniforms=*/{{"subRunDeviceMatrix", SkSLType::kFloat4x4},
                                    {"deviceToLocal", SkSLType::kFloat4x4},
                                    {"atlasSizeInv", SkSLType::kFloat2},

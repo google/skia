@@ -364,7 +364,7 @@ static void write_vertex_buffer(VertexWriter writer) {
 AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferManager)
         : RenderStep(RenderStepID::kAnalyticRRect,
                      Flags::kPerformsShading | Flags::kEmitsCoverage | Flags::kOutsetBoundsForAA |
-                     Flags::kUseNonAAInnerFill | Flags::kAppendInstances,
+                     Flags::kUseNonAAInnerFill,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGreaterPass,
