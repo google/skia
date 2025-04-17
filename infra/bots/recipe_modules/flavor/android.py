@@ -41,10 +41,20 @@ class AndroidFlavor(default.DefaultFlavor):
 
     # A list of devices we can't root.  If rooting fails and a device is not
     # on the list, we fail the task to avoid perf inconsistencies.
-    self.cant_root = ['GalaxyS7_G930FD',
-                      'GalaxyS20', 'MotoG4',
-                      'P30', 'Pixel4','Pixel4XL', 'Pixel5', 'TecnoSpark3Pro', 'JioNext',
-                      'GalaxyS24', 'MotoG73']
+    self.cant_root = [
+      'GalaxyS7_G930FD',
+      'GalaxyS9',
+      'GalaxyS20',
+      'GalaxyS24',
+      'JioNext',
+      'MotoG4',
+      'MotoG73',
+      'P30',
+      'Pixel4',
+      'Pixel4XL',
+      'Pixel5',
+      'TecnoSpark3Pro',
+    ]
 
     self.use_performance_governor_for_dm = [
       'Pixel3a',
@@ -281,7 +291,7 @@ class AndroidFlavor(default.DefaultFlavor):
   def install(self):
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
-    if self.m.vars.builder_cfg.get('model') == 'GalaxyS20':
+    if self.m.vars.builder_cfg.get('model') in ('GalaxyS20', 'GalaxyS9'):
       # See skia:10184, should be moot once upgraded to Android 11?
       self._adb('cp libGLES_mali.so to ' + self.device_dirs.bin_dir,
                  'shell', 'cp',
