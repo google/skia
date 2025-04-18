@@ -9,7 +9,15 @@ export interface CanvasKitInitOptions {
      * the blob of WASM code). The correct url prefix should be applied.
      * @param file - the name of the file that is about to be loaded.
      */
-    locateFile(file: string): string;
+    locateFile?(file: string): string;
+
+    /**
+     * See https://emscripten.org/docs/api_reference/module.html#Module.instantiateWasm
+     */
+    instantiateWasm?(
+        imports: Record<string, any>,
+        successCallback: (instance: WebAssembly.Instance) => void
+    ): WebAssembly.Exports | {} | false;
 }
 
 export interface CanvasKit {
