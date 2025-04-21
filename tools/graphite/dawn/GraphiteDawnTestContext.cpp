@@ -103,9 +103,12 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
     }
 
 #if LOG_ADAPTER
-    wgpu::AdapterInfo info;
-    sAdapter.GetInfo(&info);
-    SkDebugf("GPU: %s\nDriver: %s\n", info.device, info.description);
+{
+    wgpu::AdapterInfo debugInfo;
+    wgpu::Adapter debugAdapter = matchedAdaptor.Get();
+    debugAdapter.GetInfo(&debugInfo);
+    SkDebugf("GPU: %s\nDriver: %s\n", debugInfo.device.data, debugInfo.description.data);
+}
 #endif
 
     std::vector<wgpu::FeatureName> features;
