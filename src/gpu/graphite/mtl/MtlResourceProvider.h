@@ -54,7 +54,7 @@ private:
 
     skia_private::THashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>>
             fDepthStencilStates;
-    skia_private::THashMap<uint64_t, sk_sp<MtlGraphicsPipeline>> fLoadMSAAPipelines;
+    skia_private::THashMap<uint32_t, sk_sp<MtlGraphicsPipeline>> fLoadMSAAPipelines;
 };
 
 } // namespace skgpu::graphite

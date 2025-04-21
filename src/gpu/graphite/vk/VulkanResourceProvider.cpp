@@ -44,6 +44,7 @@ namespace skgpu::graphite {
 constexpr int kMaxNumberOfCachedBufferDescSets = 1024;
 
 namespace {
+
 // Create a mock pipeline layout that has a compatible input attachment descriptor set layout and
 // push constant parameters with all other real pipeline layouts. This allows us to perform
 // once-per-renderpass operations even before a real pipeline is bound by the command buffer.
@@ -84,7 +85,9 @@ VkPipelineLayout create_mock_layout(const VulkanSharedContext* sharedContext) {
 
     return pipelineLayout;
 }
+
 } // anonymous namespace
+
 VulkanResourceProvider::VulkanResourceProvider(SharedContext* sharedContext,
                                                SingleOwner* singleOwner,
                                                uint32_t recorderID,
@@ -429,49 +432,34 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateUniformBuffersDes
     return *fUniformBufferDescSetCache.insert(key, newDS);
 }
 
-// TODO: This function can move into findOrCreateRenderPass once findorCreateLoadMSAAPipeline uses
-// VulkanRenderPass::Metadata as its cache key and findOrCreateRenderPassWithKnownKey can go away.
-static void build_renderpass_key(GraphiteResourceKey* key,
-                                 const RenderPassDesc& renderPassDesc,
-                                 bool compatibleOnly) {
-    static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
-
-    VulkanRenderPass::Metadata rpMetadata{renderPassDesc};
-    GraphiteResourceKey::Builder builder(key, kType, rpMetadata.keySize());
-
-    int startingIdx = 0;
-    rpMetadata.addToKey(builder, startingIdx, compatibleOnly);
-}
-
-sk_sp<VulkanRenderPass> VulkanResourceProvider::findOrCreateRenderPassWithKnownKey(
+sk_sp<VulkanRenderPass> VulkanResourceProvider::findOrCreateRenderPass(
             const RenderPassDesc& renderPassDesc,
-            bool compatibleOnly,
-            const GraphiteResourceKey& rpKey) {
+            bool compatibleOnly) {
     static constexpr Budgeted kBudgeted = Budgeted::kYes;
     static constexpr Shareable kShareable = Shareable::kYes;
+    static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
-    if (Resource* resource = fResourceCache->findAndRefResource(rpKey, kBudgeted, kShareable)) {
+    VulkanRenderPass::Metadata rpMetadata{renderPassDesc, compatibleOnly};
+    GraphiteResourceKey key;
+    {
+        GraphiteResourceKey::Builder builder(&key, kType, rpMetadata.keySize());
+
+        int startingIdx = 0;
+        rpMetadata.addToKey(builder, startingIdx);
+    }
+    if (Resource* resource = fResourceCache->findAndRefResource(key, kBudgeted, kShareable)) {
         return sk_sp<VulkanRenderPass>(static_cast<VulkanRenderPass*>(resource));
     }
 
     sk_sp<VulkanRenderPass> renderPass =
-                VulkanRenderPass::MakeRenderPass(this->vulkanSharedContext(),
-                                                 renderPassDesc,
-                                                 compatibleOnly);
+            VulkanRenderPass::Make(this->vulkanSharedContext(), rpMetadata);
     if (!renderPass) {
         return nullptr;
     }
 
-    fResourceCache->insertResource(renderPass.get(), rpKey, kBudgeted, kShareable);
+    fResourceCache->insertResource(renderPass.get(), key, kBudgeted, kShareable);
 
     return renderPass;
-}
-
-sk_sp<VulkanRenderPass> VulkanResourceProvider::findOrCreateRenderPass(
-        const RenderPassDesc& renderPassDesc, bool compatibleOnly) {
-    GraphiteResourceKey key;
-    build_renderpass_key(&key, renderPassDesc, compatibleOnly);
-    return this->findOrCreateRenderPassWithKnownKey(renderPassDesc, compatibleOnly, key);
 }
 
 VkPipelineCache VulkanResourceProvider::pipelineCache() {
@@ -638,17 +626,16 @@ sk_sp<VulkanYcbcrConversion> VulkanResourceProvider::findOrCreateCompatibleYcbcr
 
 sk_sp<VulkanGraphicsPipeline> VulkanResourceProvider::findOrCreateLoadMSAAPipeline(
         const RenderPassDesc& renderPassDesc) {
-    if (!renderPassDesc.fColorResolveAttachment.fTextureInfo.isValid() ||
-        !renderPassDesc.fColorAttachment.fTextureInfo.isValid()) {
+    if (renderPassDesc.fColorResolveAttachment.fFormat == TextureFormat::kUnsupported ||
+        renderPassDesc.fColorAttachment.fFormat == TextureFormat::kUnsupported) {
         SKGPU_LOG_E("Loading MSAA from resolve texture requires valid color & resolve attachment");
         return nullptr;
     }
 
     // Check to see if we already have a suitable pipeline that we can use.
-    GraphiteResourceKey renderPassKey;
-    build_renderpass_key(&renderPassKey, renderPassDesc, /*compatibleOnly=*/true);
+    VulkanRenderPass::Metadata rpMetadata{renderPassDesc, /*compatibleOnly=*/true};
     for (int i = 0; i < fLoadMSAAPipelines.size(); i++) {
-        if (renderPassKey == fLoadMSAAPipelines.at(i).first) {
+        if (rpMetadata == fLoadMSAAPipelines.at(i).first) {
             return fLoadMSAAPipelines.at(i).second;
         }
     }
@@ -670,7 +657,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanResourceProvider::findOrCreateLoadMSAAPipeli
         return nullptr;
     }
 
-    fLoadMSAAPipelines.push_back(std::make_pair(renderPassKey, pipeline));
+    fLoadMSAAPipelines.push_back(std::make_pair(rpMetadata, pipeline));
     return pipeline;
 }
 

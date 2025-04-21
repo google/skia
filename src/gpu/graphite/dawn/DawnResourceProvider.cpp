@@ -415,21 +415,16 @@ wgpu::RenderPipeline DawnResourceProvider::findOrCreateBlitWithDrawPipeline(
                 srcIsMSAA ? SkStringPrintf(kReadMSAAFSTemplate, srcSampleCount).c_str()
                           : kReadSingleSampledFS);
 
-        const auto& colorTexInfo = renderPassDesc.fColorAttachment.fTextureInfo;
-        const auto& dsTexInfo = renderPassDesc.fDepthStencilAttachment.fTextureInfo;
-
         pipeline = create_blit_render_pipeline(
                 dawnSharedContext(),
                 /*label=*/"BlitWithDraw",
                 std::move(vsModule),
                 std::move(fsModule),
                 /*renderPassColorFormat=*/
-                TextureInfoPriv::Get<DawnTextureInfo>(colorTexInfo).getViewFormat(),
+                TextureFormatToDawnFormat(renderPassDesc.fColorAttachment.fFormat),
                 /*renderPassDepthStencilFormat=*/
-                dsTexInfo.isValid()
-                        ? TextureInfoPriv::Get<DawnTextureInfo>(dsTexInfo).getViewFormat()
-                        : wgpu::TextureFormat::Undefined,
-                /*numSamples=*/renderPassDesc.fColorAttachment.fTextureInfo.numSamples());
+                TextureFormatToDawnFormat(renderPassDesc.fDepthStencilAttachment.fFormat),
+                /*numSamples=*/renderPassDesc.fColorAttachment.fSampleCount);
 
         if (pipeline) {
             fBlitWithDrawPipelines.set(pipelineKey, pipeline);
@@ -481,8 +476,10 @@ sk_sp<DawnTexture> DawnResourceProvider::findOrCreateDiscardableMSAALoadTexture(
     dawnMsaaLoadTextureInfo.fUsage &= (~wgpu::TextureUsage::TransientAttachment);
 #endif
 
-    auto texture = this->findOrCreateDiscardableMSAAAttachment(
-            dimensions, TextureInfos::MakeDawn(dawnMsaaLoadTextureInfo));
+    auto texture = this->findOrCreateShareableTexture(
+            dimensions,
+            TextureInfos::MakeDawn(dawnMsaaLoadTextureInfo),
+            "DiscardableLoadMSAATexture");
 
     return sk_sp<DawnTexture>(static_cast<DawnTexture*>(texture.release()));
 }

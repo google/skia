@@ -436,24 +436,22 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
     // TODO: I *think* this gets cleaned up by the pipelineDescriptor?
     (*psoDescriptor).vertexDescriptor = create_vertex_descriptor(vertexAttrs, instanceAttrs);
 
-    const TextureInfo& colorAttachmentInfo = renderPassDesc.fColorAttachment.fTextureInfo;
-    const TextureInfo& dsAttachmentInfo = renderPassDesc.fDepthStencilAttachment.fTextureInfo;
+    TextureFormat colorFormat = renderPassDesc.fColorAttachment.fFormat;
+    TextureFormat dsFormat = renderPassDesc.fDepthStencilAttachment.fFormat;
 
-    MTLPixelFormat pixelFormat = TextureInfoPriv::Get<MtlTextureInfo>(colorAttachmentInfo).fFormat;
-    auto mtlColorAttachment = create_color_attachment(pixelFormat, blendInfo);
+    auto mtlColorAttachment =
+            create_color_attachment(TextureFormatToMTLPixelFormat(colorFormat), blendInfo);
     (*psoDescriptor).colorAttachments[0] = mtlColorAttachment;
 
-    (*psoDescriptor).rasterSampleCount = colorAttachmentInfo.numSamples();
+    (*psoDescriptor).rasterSampleCount = renderPassDesc.fColorAttachment.fSampleCount;
 
-    MTLPixelFormat depthStencilFormat =
-            TextureInfoPriv::Get<MtlTextureInfo>(dsAttachmentInfo).fFormat;
-    if (MtlFormatIsStencil(depthStencilFormat)) {
-        (*psoDescriptor).stencilAttachmentPixelFormat = depthStencilFormat;
+    if (TextureFormatHasStencil(dsFormat)) {
+        (*psoDescriptor).stencilAttachmentPixelFormat = TextureFormatToMTLPixelFormat(dsFormat);
     } else {
         (*psoDescriptor).stencilAttachmentPixelFormat = MTLPixelFormatInvalid;
     }
-    if (MtlFormatIsDepth(depthStencilFormat)) {
-        (*psoDescriptor).depthAttachmentPixelFormat = depthStencilFormat;
+    if (TextureFormatHasDepth(dsFormat)) {
+        (*psoDescriptor).depthAttachmentPixelFormat = TextureFormatToMTLPixelFormat(dsFormat);
     } else {
         (*psoDescriptor).depthAttachmentPixelFormat = MTLPixelFormatInvalid;
     }

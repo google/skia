@@ -69,48 +69,4 @@ SkString TextureInfo::toString() const {
                           static_cast<int>(fProtected));
 }
 
-SkString TextureInfoPriv::GetAttachmentLabel(const TextureInfo& info) {
-    if (!info.isValid()) {
-        return SkString("{}");
-    }
-
-    // Strip the leading "k" from the enum name when creating the TextureInfo string.
-    SkASSERT(BackendApiToStr(info.backend())[0] == 'k');
-    const char* backendName = BackendApiToStr(info.backend()) + 1;
-    // For renderpass attachments, the string will contain the view format and sample count only
-    return SkStringPrintf("%s(f=%s,s=%u)",
-                          backendName,
-                          TextureFormatName(ViewFormat(info)),
-                          info.fData->fSampleCount);
-}
-
-static constexpr uint8_t kInfoSentinel = 0xFF;
-
-uint32_t TextureInfoPriv::GetInfoTag(const TextureInfo& info) {
-    SkASSERT(info.isValid());
-    return (kInfoSentinel                    << 24) | // force value to be non-zero
-           (SkTo<uint8_t>(info.backend())    << 16) |
-           (SkTo<uint8_t>(info.mipmapped())  <<  8) |
-           (SkTo<uint8_t>(info.numSamples()) <<  0);
-}
-
-std::tuple<BackendApi, Mipmapped, int> TextureInfoPriv::ParseInfoTag(uint32_t tag) {
-    static constexpr std::tuple<BackendApi, Mipmapped, int> kInvalid =
-            {BackendApi::kUnsupported, Mipmapped::kNo, 0};
-
-    uint8_t sentinel  = 0xFF & (tag >> 24);
-    uint8_t backend   = 0xFF & (tag >> 16);
-    uint8_t mipmapped = 0xFF & (tag >>  8);
-    uint8_t samples   = 0xFF & (tag >>  0);
-    if (sentinel != kInfoSentinel) {
-        return kInvalid;
-    }
-    if (backend >= SkTo<uint8_t>(BackendApi::kUnsupported)) {
-        return kInvalid;
-    }
-    return {static_cast<BackendApi>(backend),
-            mipmapped ? Mipmapped::kYes : Mipmapped::kNo,
-            static_cast<int>(samples)};
-}
-
 } // namespace skgpu::graphite

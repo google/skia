@@ -49,7 +49,7 @@ private:
     public:
         virtual ~Data() = default;
 
-        Data(uint32_t sampleCount, skgpu::Mipmapped mipmapped)
+        Data(uint8_t sampleCount, skgpu::Mipmapped mipmapped)
                 : fSampleCount(sampleCount)
                 , fMipmapped(mipmapped) {}
 
@@ -59,7 +59,7 @@ private:
         Data& operator=(const Data&) = default;
 
         // NOTE: These fields are accessible via the backend-specific subclasses.
-        uint32_t fSampleCount = 1;
+        uint8_t fSampleCount = 1;
         Mipmapped fMipmapped = Mipmapped::kNo;
 
     private:
@@ -92,7 +92,7 @@ public:
         return fBackend;
     }
 
-    uint32_t numSamples() const { return fData.has_value() ? fData->fSampleCount : 1; }
+    uint8_t numSamples() const { return fData.has_value() ? fData->fSampleCount : 1; }
     Mipmapped mipmapped() const { return fData.has_value() ? fData->fMipmapped   : Mipmapped::kNo; }
     Protected isProtected() const { return fProtected; }
 

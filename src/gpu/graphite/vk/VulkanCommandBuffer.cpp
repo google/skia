@@ -666,26 +666,29 @@ void setup_texture_layouts(VulkanCommandBuffer* cmdBuf,
     }
 }
 
-void gather_clear_values(
-        STArray<VulkanRenderPass::kMaxExpectedAttachmentCount, VkClearValue>& clearValues,
-        const RenderPassDesc& rpDesc,
-        VulkanTexture* colorTexture,
-        VulkanTexture* depthStencilTexture,
-        int depthStencilAttachmentIdx) {
-    clearValues.push_back_n(VulkanRenderPass::kMaxExpectedAttachmentCount);
-    if (colorTexture) {
-        VkClearValue& colorAttachmentClear =
-                clearValues.at(VulkanRenderPass::kColorAttachmentIdx);
-        memset(&colorAttachmentClear, 0, sizeof(VkClearValue));
+static constexpr int kMaxNumAttachments = 3;
+void gather_clear_values(const RenderPassDesc& rpDesc,
+                         STArray<kMaxNumAttachments, VkClearValue>* clearValues) {
+    // NOTE: This must stay in sync with the attachment order defined in VulkanRenderPass::Metadata
+    if (rpDesc.fColorAttachment.fFormat != TextureFormat::kUnsupported) {
+        VkClearValue& colorAttachmentClear = clearValues->push_back();
         colorAttachmentClear.color = {{rpDesc.fClearColor[0],
                                        rpDesc.fClearColor[1],
                                        rpDesc.fClearColor[2],
                                        rpDesc.fClearColor[3]}};
     }
-    // Resolve texture does not have a clear value
-    if (depthStencilTexture) {
-        VkClearValue& depthStencilAttachmentClear = clearValues.at(depthStencilAttachmentIdx);
-        memset(&depthStencilAttachmentClear, 0, sizeof(VkClearValue));
+    // The resolve attachment (if defined) should never be cleared, but add a value to keep the
+    // attachment indices in sync.
+    if (rpDesc.fColorResolveAttachment.fFormat != TextureFormat::kUnsupported) {
+        SkASSERT(rpDesc.fColorResolveAttachment.fLoadOp != LoadOp::kClear);
+        VkClearValue& colorResolveAttachmentClear = clearValues->push_back();
+        memset(&colorResolveAttachmentClear, 0, sizeof(VkClearValue));
+    }
+
+    // Vulkan takes the clear depth and clear stencil regardless of whether or not the DS attachment
+    // only has a single aspect or both.
+    if (rpDesc.fDepthStencilAttachment.fFormat != TextureFormat::kUnsupported) {
+        VkClearValue& depthStencilAttachmentClear = clearValues->push_back();
         depthStencilAttachmentClear.depthStencil = {rpDesc.fClearDepth, rpDesc.fClearStencil};
     }
 }
@@ -747,19 +750,27 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
                                           const Texture* colorTexture,
                                           const Texture* resolveTexture,
                                           const Texture* depthStencilTexture) {
-    // TODO: Check that Textures match RenderPassDesc
+    // Validate attachment descs and textures
+    SkDEBUGCODE(const auto& colorInfo = rpDesc.fColorAttachment;)
+    SkDEBUGCODE(const auto& resolveInfo = rpDesc.fColorResolveAttachment;)
+    SkDEBUGCODE(const auto& depthStencilInfo = rpDesc.fDepthStencilAttachment;)
+    SkASSERT(colorTexture ? colorInfo.isCompatible(colorTexture->textureInfo())
+                          : colorInfo.fFormat == TextureFormat::kUnsupported);
+    SkASSERT(resolveTexture ? resolveInfo.isCompatible(resolveTexture->textureInfo())
+                            : resolveInfo.fFormat == TextureFormat::kUnsupported);
+    SkASSERT(depthStencilTexture ? depthStencilInfo.isCompatible(depthStencilTexture->textureInfo())
+                                 : depthStencilInfo.fFormat == TextureFormat::kUnsupported);
+
     fTargetTexture =
             const_cast<VulkanTexture*>(static_cast<const VulkanTexture*>(colorTexture));
     VulkanTexture* vulkanResolveTexture =
             const_cast<VulkanTexture*>(static_cast<const VulkanTexture*>(resolveTexture));
     VulkanTexture* vulkanDepthStencilTexture =
             const_cast<VulkanTexture*>(static_cast<const VulkanTexture*>(depthStencilTexture));
-    SkASSERT(resolveTexture ? rpDesc.fColorResolveAttachment.fStoreOp == StoreOp::kStore : true);
 
     // Determine if we need to load MSAA from resolve, and if so, make certain that key conditions
     // are met before proceeding.
-    const bool loadMSAAFromResolve = rpDesc.fColorResolveAttachment.fTextureInfo.isValid() &&
-                                     rpDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad;
+    const bool loadMSAAFromResolve = RenderPassDescWillLoadMSAAFromResolve(rpDesc);
     if (loadMSAAFromResolve && (!vulkanResolveTexture || !fTargetTexture ||
                                 !vulkanResolveTexture->supportsInputAttachmentUsage())) {
         SKGPU_LOG_E("Cannot begin render pass. In order to load MSAA from resolve, the color "
@@ -777,18 +788,10 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
             vulkanDepthStencilTexture,
             loadMSAAFromResolve,
             /*rpReadsDstAsInput=*/rpDesc.fDstReadStrategy == DstReadStrategy::kReadFromInput);
-    static constexpr int kMaxNumAttachments = 3;
 
     // Gather clear values needed for RenderPassBeginInfo. Indexed by attachment number.
     STArray<kMaxNumAttachments, VkClearValue> clearValues;
-    // The depth/stencil attachment can be at attachment index 1 or 2 depending on whether there is
-    // a resolve texture attachment for this renderpass.
-    int depthStencilAttachmentIndex = resolveTexture ? 2 : 1;
-    gather_clear_values(clearValues,
-                        rpDesc,
-                        fTargetTexture,
-                        vulkanDepthStencilTexture,
-                        depthStencilAttachmentIndex);
+    gather_clear_values(rpDesc, &clearValues);
 
     sk_sp<VulkanRenderPass> vulkanRenderPass =
             fResourceProvider->findOrCreateRenderPass(rpDesc, /*compatibleOnly=*/false);

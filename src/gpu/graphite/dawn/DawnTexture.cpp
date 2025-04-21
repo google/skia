@@ -36,8 +36,7 @@ wgpu::Texture DawnTexture::MakeDawnTexture(const DawnSharedContext* sharedContex
         return {};
     }
 
-    if (dawnInfo.fUsage & wgpu::TextureUsage::RenderAttachment &&
-        !(caps->isRenderable(info) || DawnFormatIsDepthOrStencil(dawnInfo.fFormat))) {
+    if (dawnInfo.fUsage & wgpu::TextureUsage::RenderAttachment && !caps->isRenderable(info)) {
         return {};
     }
 

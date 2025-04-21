@@ -20,8 +20,10 @@
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
+#include "src/gpu/graphite/vk/VulkanGraphicsPipeline.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "src/gpu/graphite/vk/VulkanRenderPass.h"
+#include "src/gpu/graphite/vk/VulkanResourceProvider.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
 #include "src/gpu/graphite/vk/VulkanYcbcrConversion.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
@@ -282,22 +284,89 @@ static constexpr VkFormat kDepthStencilVkFormats[] = {
     VK_FORMAT_D32_SFLOAT_S8_UINT,
 };
 
+bool VulkanCaps::isSampleCountSupported(TextureFormat format, uint8_t requestedSampleCount) const {
+    VkFormat vkFormat = TextureFormatToVkFormat(format);
+    const SupportedSampleCounts* sampleCounts;
+
+    // TODO(b/390473370): When Caps stores the format tables, the color format and depth stencil
+    // format infos will be combined and this will be simplified.
+    if (TextureFormatIsDepthOrStencil(format)) {
+        const DepthStencilFormatInfo& formatInfo = this->getDepthStencilFormatInfo(vkFormat);
+        if (!formatInfo.isDepthStencilSupported(
+                formatInfo.fFormatProperties.optimalTilingFeatures)) {
+            return false;
+        }
+        sampleCounts = &formatInfo.fSupportedSampleCounts;
+    } else {
+        const FormatInfo& formatInfo = this->getFormatInfo(vkFormat);
+        if (!formatInfo.isRenderable(VK_IMAGE_TILING_OPTIMAL, 1)) {
+            return false;
+        }
+        sampleCounts = &formatInfo.fSupportedSampleCounts;
+    }
+
+    return sampleCounts->isSampleCountSupported(requestedSampleCount);
+}
+
+TextureFormat VulkanCaps::getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags> flags) const {
+    VkFormat format = fDepthStencilFlagsToFormatTable[flags.value()];
+    return VkFormatToTextureFormat(format);
+}
+
+TextureInfo VulkanCaps::getDefaultAttachmentTextureInfo(AttachmentDesc desc,
+                                                        Protected isProtected,
+                                                        Discardable discardable) const {
+    if ((isProtected == Protected::kYes && !this->protectedSupport()) ||
+         !this->isSampleCountSupported(desc.fFormat, desc.fSampleCount)) {
+        return {};
+    }
+
+    const bool isDepthStencil = TextureFormatIsDepthOrStencil(desc.fFormat);
+
+    VulkanTextureInfo info;
+    info.fSampleCount = desc.fSampleCount;
+    info.fMipmapped = Mipmapped::kNo;
+    info.fFlags = (isProtected == Protected::kYes) ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
+    info.fFormat = TextureFormatToVkFormat(desc.fFormat);
+    info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
+
+    /**
+     * Graphite, unlike ganesh, does not require a dedicated MSAA attachment on every surface.
+     * MSAA textures now get resolved within the scope of a render pass, which can be done simply
+     * with the color attachment usage flag. So we no longer require transfer src/dst usage flags.
+     * All renderable textures in Vulkan are made with input attachment usage.
+    */
+    VkImageUsageFlags flags = isDepthStencil
+            ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
+            : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+    if (discardable == Discardable::kYes && fSupportsMemorylessAttachments) {
+        flags = flags | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
+    }
+
+    info.fImageUsageFlags = flags;
+    info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    info.fAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+    return TextureInfos::MakeVulkan(info);
+}
+
 TextureInfo VulkanCaps::getDefaultSampledTextureInfo(SkColorType ct,
                                                      Mipmapped mipmapped,
                                                      Protected isProtected,
                                                      Renderable isRenderable) const {
     VkFormat format = this->getFormatFromColorType(ct);
     const FormatInfo& formatInfo = this->getFormatInfo(format);
-    static constexpr int defaultSampleCount = 1;
+
+    static constexpr int kSingleSampled = 1;
     if ((isProtected == Protected::kYes && !this->protectedSupport()) ||
         !formatInfo.isTexturable(VK_IMAGE_TILING_OPTIMAL) ||
         (isRenderable == Renderable::kYes &&
-         !formatInfo.isRenderable(VK_IMAGE_TILING_OPTIMAL, defaultSampleCount)) ) {
+         !formatInfo.isRenderable(VK_IMAGE_TILING_OPTIMAL, kSingleSampled)) ) {
         return {};
     }
 
     VulkanTextureInfo info;
-    info.fSampleCount = defaultSampleCount;
+    info.fSampleCount = kSingleSampled;
     info.fMipmapped = mipmapped;
     info.fFlags = (isProtected == Protected::kYes) ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
     info.fFormat = format;
@@ -369,77 +438,6 @@ TextureInfo VulkanCaps::getDefaultCompressedTextureInfo(SkTextureCompressionType
     info.fImageUsageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
                             VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
                             VK_IMAGE_USAGE_TRANSFER_DST_BIT;
-    info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    info.fAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-
-    return TextureInfos::MakeVulkan(info);
-}
-
-TextureInfo VulkanCaps::getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
-                                                  Discardable discardable) const {
-    if (fDefaultMSAASamples <= 1) {
-        return {};
-    }
-
-    const VkFormat singleSpecFormat =
-            TextureInfoPriv::Get<VulkanTextureInfo>(singleSampledInfo).fFormat;
-    const FormatInfo& formatInfo = this->getFormatInfo(singleSpecFormat);
-    if ((singleSampledInfo.isProtected() == Protected::kYes && !this->protectedSupport()) ||
-        !formatInfo.isRenderable(VK_IMAGE_TILING_OPTIMAL, fDefaultMSAASamples)) {
-        return {};
-    }
-
-    VulkanTextureInfo info;
-    info.fSampleCount = fDefaultMSAASamples;
-    info.fMipmapped = Mipmapped::kNo;
-    info.fFlags = (singleSampledInfo.isProtected() == Protected::kYes) ?
-            VK_IMAGE_CREATE_PROTECTED_BIT : 0;
-    info.fFormat = singleSpecFormat;
-    info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-
-    /**
-     * Graphite, unlike ganesh, does not require a dedicated MSAA attachment on every surface.
-     * MSAA textures now get resolved within the scope of a render pass, which can be done simply
-     * with the color attachment usage flag. So we no longer require transfer src/dst usage flags.
-     * All renderable textures in Vulkan are made with input attachment usage.
-    */
-    VkImageUsageFlags flags =
-            VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
-    if (discardable == Discardable::kYes && fSupportsMemorylessAttachments) {
-        flags = flags | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
-    }
-
-    info.fImageUsageFlags = flags;
-    info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    info.fAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-
-    return TextureInfos::MakeVulkan(info);
-}
-
-TextureInfo VulkanCaps::getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthStencilFlags> flags,
-                                                          uint32_t sampleCount,
-                                                          Protected isProtected,
-                                                          Discardable discardable) const {
-    VkFormat format = this->getFormatFromDepthStencilFlags(flags);
-    const DepthStencilFormatInfo& formatInfo = this->getDepthStencilFormatInfo(format);
-    if ( (isProtected == Protected::kYes && !this->protectedSupport()) ||
-         !formatInfo.isDepthStencilSupported(formatInfo.fFormatProperties.optimalTilingFeatures) ||
-         !formatInfo.fSupportedSampleCounts.isSampleCountSupported(sampleCount)) {
-        return {};
-    }
-
-    VulkanTextureInfo info;
-    info.fSampleCount = sampleCount;
-    info.fMipmapped = Mipmapped::kNo;
-    info.fFlags = (isProtected == Protected::kYes) ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
-    info.fFormat = format;
-    info.fImageTiling = VK_IMAGE_TILING_OPTIMAL;
-    // TODO: Passing in a discardable flag to this method, and if true, add the TRANSIENT bit.
-    VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    if (discardable == Discardable::kYes && fSupportsMemorylessAttachments) {
-        usageFlags = usageFlags | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
-    }
-    info.fImageUsageFlags = usageFlags;
     info.fSharingMode = VK_SHARING_MODE_EXCLUSIVE;
     info.fAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
@@ -1328,11 +1326,6 @@ bool VulkanCaps::DepthStencilFormatInfo::isDepthStencilSupported(VkFormatFeature
     return SkToBool(VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT & flags);
 }
 
-VkFormat VulkanCaps::getFormatFromDepthStencilFlags(const SkEnumBitMask<DepthStencilFlags>& flags)
-        const {
-    return fDepthStencilFlagsToFormatTable[flags.value()];
-}
-
 VulkanCaps::DepthStencilFormatInfo& VulkanCaps::getDepthStencilFormatInfo(VkFormat format) {
     static_assert(std::size(kDepthStencilVkFormats) == VulkanCaps::kNumDepthStencilVkFormats,
                   "Size of VkFormats array must match static value in header");
@@ -1530,10 +1523,9 @@ UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeli
                                               const RenderPassDesc& renderPassDesc) const {
     UniqueKey pipelineKey;
     {
-        static const skgpu::UniqueKey::Domain kGraphicsPipelineDomain =
-            UniqueKey::GenerateDomain();
+        static const skgpu::UniqueKey::Domain kGraphicsPipelineDomain = UniqueKey::GenerateDomain();
 
-        VulkanRenderPass::Metadata rpMetadata{renderPassDesc};
+        VulkanRenderPass::Metadata rpMetadata{renderPassDesc, /*compatibleOnly=*/true};
 
         // Reserve 3 uint32s for the render step id, paint id, and write swizzle.
         static constexpr int kUint32sNeededForPipelineInfo = 3;
@@ -1551,20 +1543,12 @@ UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeli
         // Add RenderPass info relevant for pipeline creation that's not captured in RenderPass keys
         builder[idx++] = renderPassDesc.fWriteSwizzle.asKey();
         // Add RenderPassDesc information
-        rpMetadata.addToKey(builder, idx, /*compatibleOnly=*/true);
+        rpMetadata.addToKey(builder, idx);
 
         builder.finish();
     }
 
     return pipelineKey;
-}
-
-bool VulkanCaps::serializeTextureInfo(const TextureInfo& info, SkWStream* out) const {
-    return TextureInfoPriv::Serialize<VulkanTextureInfo>(info, out);
-}
-
-bool VulkanCaps::deserializeTextureInfo(SkStream* stream, TextureInfo* out) const {
-    return TextureInfoPriv::Deserialize<VulkanTextureInfo>(stream, out);
 }
 
 void VulkanCaps::buildKeyForTexture(SkISize dimensions,

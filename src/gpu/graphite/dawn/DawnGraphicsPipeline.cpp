@@ -426,15 +426,14 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     }
 
     wgpu::ColorTargetState colorTarget;
-    colorTarget.format = TextureInfoPriv::Get<DawnTextureInfo>(
-            renderPassDesc.fColorAttachment.fTextureInfo).getViewFormat();
+    colorTarget.format = TextureFormatToDawnFormat(renderPassDesc.fColorAttachment.fFormat);
     colorTarget.blend = blendOn ? &blend : nullptr;
     colorTarget.writeMask = blendInfo.fWritesColor && hasFragmentSkSL ? wgpu::ColorWriteMask::All
                                                                       : wgpu::ColorWriteMask::None;
 
 #if !defined(__EMSCRIPTEN__)
     const bool loadMsaaFromResolve =
-            renderPassDesc.fColorResolveAttachment.fTextureInfo.isValid() &&
+            renderPassDesc.fColorResolveAttachment.fFormat != TextureFormat::kUnsupported &&
             renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad;
     // Special case: a render pass loading resolve texture requires additional settings for the
     // pipeline to make it compatible.
@@ -461,12 +460,11 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     const auto& depthStencilSettings = step->depthStencilSettings();
     SkASSERT(depthStencilSettings.fDepthTestEnabled ||
              depthStencilSettings.fDepthCompareOp == CompareOp::kAlways);
+    TextureFormat dsFormat = renderPassDesc.fDepthStencilAttachment.fFormat;
     wgpu::DepthStencilState depthStencil;
-    if (renderPassDesc.fDepthStencilAttachment.fTextureInfo.isValid()) {
-        wgpu::TextureFormat dsFormat = TextureInfoPriv::Get<DawnTextureInfo>(
-                renderPassDesc.fDepthStencilAttachment.fTextureInfo).getViewFormat();
-        depthStencil.format =
-                DawnFormatIsDepthOrStencil(dsFormat) ? dsFormat : wgpu::TextureFormat::Undefined;
+    if (dsFormat != TextureFormat::kUnsupported) {
+        SkASSERT(TextureFormatIsDepthOrStencil(dsFormat));
+        depthStencil.format = TextureFormatToDawnFormat(dsFormat);
         if (depthStencilSettings.fDepthTestEnabled) {
             depthStencil.depthWriteEnabled = depthStencilSettings.fDepthWriteEnabled;
         }
@@ -474,7 +472,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
 
         // Dawn validation fails if the stencil state is non-default and the
         // format doesn't have the stencil aspect.
-        if (DawnFormatIsStencil(dsFormat) && depthStencilSettings.fStencilTestEnabled) {
+        if (TextureFormatHasStencil(dsFormat) && depthStencilSettings.fStencilTestEnabled) {
             depthStencil.stencilFront = stencil_face_to_dawn(depthStencilSettings.fFrontStencil);
             depthStencil.stencilBack = stencil_face_to_dawn(depthStencilSettings.fBackStencil);
             depthStencil.stencilReadMask = depthStencilSettings.fFrontStencil.fReadMask;

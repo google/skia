@@ -328,13 +328,23 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     SkASSERT(!fTimestampQueryBuffer);
 #endif
 
-    auto& colorInfo = renderPassDesc.fColorAttachment;
+    // Validate attachment descs and textures
+    const auto& colorInfo = renderPassDesc.fColorAttachment;
+    const auto& resolveInfo = renderPassDesc.fColorResolveAttachment;
+    const auto& depthStencilInfo = renderPassDesc.fDepthStencilAttachment;
+    SkASSERT(colorTexture ? colorInfo.isCompatible(colorTexture->textureInfo())
+                          : colorInfo.fFormat == TextureFormat::kUnsupported);
+    SkASSERT(resolveTexture ? resolveInfo.isCompatible(resolveTexture->textureInfo())
+                            : resolveInfo.fFormat == TextureFormat::kUnsupported);
+    SkASSERT(depthStencilTexture ? depthStencilInfo.isCompatible(depthStencilTexture->textureInfo())
+                                 : depthStencilInfo.fFormat == TextureFormat::kUnsupported);
+
+    // Set up color attachment
     bool emulateLoadStoreResolveTexture = false;
     if (colorTexture) {
         wgpuRenderPass.colorAttachments = &wgpuColorAttachment;
         wgpuRenderPass.colorAttachmentCount = 1;
 
-        // TODO: check Texture matches RenderPassDesc
         const auto* dawnColorTexture = static_cast<const DawnTexture*>(colorTexture);
         SkASSERT(dawnColorTexture->renderTextureView());
         wgpuColorAttachment.view = dawnColorTexture->renderTextureView();
@@ -347,8 +357,8 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
 
         // Set up resolve attachment
         if (resolveTexture) {
-            SkASSERT(renderPassDesc.fColorResolveAttachment.fStoreOp == StoreOp::kStore);
-            // TODO: check Texture matches RenderPassDesc
+            SkASSERT(resolveInfo.fStoreOp == StoreOp::kStore);
+
             const auto* dawnResolveTexture = static_cast<const DawnTexture*>(resolveTexture);
             SkASSERT(dawnResolveTexture->renderTextureView());
             wgpuColorAttachment.resolveTarget = dawnResolveTexture->renderTextureView();
@@ -361,7 +371,7 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
             if (fSharedContext->dawnCaps()->emulateLoadStoreResolve()) {
                 // TODO(b/399640773): Remove this once Dawn natively supports the feature.
                 emulateLoadStoreResolveTexture = true;
-            } else  if (renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad) {
+            } else if (resolveInfo.fLoadOp == LoadOp::kLoad) {
                 std::optional<wgpu::LoadOp> resolveLoadOp =
                         fSharedContext->dawnCaps()->resolveTextureLoadOp();
                 if (resolveLoadOp.has_value()) {
@@ -404,17 +414,13 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     }
 
     // Set up stencil/depth attachment
-    auto& depthStencilInfo = renderPassDesc.fDepthStencilAttachment;
     if (depthStencilTexture) {
         const auto* dawnDepthStencilTexture = static_cast<const DawnTexture*>(depthStencilTexture);
-        auto format = dawnDepthStencilTexture->dawnTextureInfo().getViewFormat();
-        SkASSERT(DawnFormatIsDepthOrStencil(format));
 
-        // TODO: check Texture matches RenderPassDesc
         SkASSERT(dawnDepthStencilTexture->renderTextureView());
         wgpuDepthStencilAttachment.view = dawnDepthStencilTexture->renderTextureView();
 
-        if (DawnFormatIsDepth(format)) {
+        if (TextureFormatHasDepth(depthStencilInfo.fFormat)) {
             wgpuDepthStencilAttachment.depthClearValue = renderPassDesc.fClearDepth;
             wgpuDepthStencilAttachment.depthLoadOp =
                     wgpuLoadActionMap[static_cast<int>(depthStencilInfo.fLoadOp)];
@@ -422,7 +428,7 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
                     wgpuStoreActionMap[static_cast<int>(depthStencilInfo.fStoreOp)];
         }
 
-        if (DawnFormatIsStencil(format)) {
+        if (TextureFormatHasStencil(depthStencilInfo.fFormat)) {
             wgpuDepthStencilAttachment.stencilClearValue = renderPassDesc.fClearStencil;
             wgpuDepthStencilAttachment.stencilLoadOp =
                     wgpuLoadActionMap[static_cast<int>(depthStencilInfo.fLoadOp)];
@@ -431,8 +437,6 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
         }
 
         wgpuRenderPass.depthStencilAttachment = &wgpuDepthStencilAttachment;
-    } else {
-        SkASSERT(!depthStencilInfo.fTextureInfo.isValid());
     }
 
     if (emulateLoadStoreResolveTexture) {
@@ -466,7 +470,7 @@ bool DawnCommandBuffer::emulateLoadMSAAFromResolveAndBeginRenderPassEncoder(
     // Override the render pass to exclude the resolve texture. We will emulate the loading &
     // resolve via blit. The resovle step will be done separately after endRenderPass()
     RenderPassDesc renderPassWithoutResolveDesc = intendedRenderPassDesc;
-    renderPassWithoutResolveDesc.fColorResolveAttachment.fTextureInfo = {};
+    renderPassWithoutResolveDesc.fColorResolveAttachment = {};
 
     wgpu::RenderPassColorAttachment dawnColorAttachmentWithoutResolve =
             intendedDawnRenderPassDesc.colorAttachments[0];
@@ -567,10 +571,11 @@ bool DawnCommandBuffer::endRenderPass() {
 
     // Creating an intermediate render pass to copy from the MSAA texture -> resolve texture.
     RenderPassDesc intermediateRenderPassDesc = {};
-    intermediateRenderPassDesc.fColorAttachment.fLoadOp = LoadOp::kLoad;
-    intermediateRenderPassDesc.fColorAttachment.fStoreOp = StoreOp::kStore;
-    intermediateRenderPassDesc.fColorAttachment.fTextureInfo =
-            fResolveStepEmulationInfo->fResolveTexture->textureInfo();
+    intermediateRenderPassDesc.fColorAttachment = {
+            TextureInfoPriv::ViewFormat(fResolveStepEmulationInfo->fResolveTexture->textureInfo()),
+            LoadOp::kLoad,
+            StoreOp::kStore,
+            /*fSampleCount=*/1 };
 
     wgpu::RenderPassColorAttachment dawnIntermediateColorAttachment;
     dawnIntermediateColorAttachment.loadOp = wgpu::LoadOp::Load;

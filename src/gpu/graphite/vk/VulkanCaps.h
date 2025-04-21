@@ -28,6 +28,13 @@ public:
                Protected);
     ~VulkanCaps() override;
 
+    bool isSampleCountSupported(TextureFormat, uint8_t requestedSampleCount) const override;
+    TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const override;
+
+    TextureInfo getDefaultAttachmentTextureInfo(AttachmentDesc,
+                                                Protected,
+                                                Discardable) const override;
+
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
                                              Mipmapped mipmapped,
                                              Protected,
@@ -40,14 +47,6 @@ public:
                                                 Mipmapped mipmapped,
                                                 Protected) const override;
 
-    TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
-                                          Discardable discardable) const override;
-
-    TextureInfo getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthStencilFlags>,
-                                                  uint32_t sampleCount,
-                                                  Protected,
-                                                  Discardable discardable) const override;
-
     TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
 
     // Override Caps's implementation in order to consult Vulkan-specific texture properties.
@@ -59,13 +58,10 @@ public:
                                       const RenderPassDesc&) const override;
     UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const override { return {}; }
 
-    bool serializeTextureInfo(const TextureInfo&, SkWStream*) const override;
-    bool deserializeTextureInfo(SkStream*, TextureInfo* out) const override;
-
     bool isTexturable(const VulkanTextureInfo&) const;
+    bool isRenderable(const VulkanTextureInfo&) const;
 
     bool isRenderable(const TextureInfo&) const override;
-    bool isRenderable(const VulkanTextureInfo&) const;
     bool isStorage(const TextureInfo&) const override;
 
     void buildKeyForTexture(SkISize dimensions,
@@ -222,7 +218,6 @@ private:
     // Map DepthStencilFlags to VkFormat.
     static const size_t kNumDepthStencilFlags = 4;
     VkFormat fDepthStencilFlagsToFormatTable[kNumDepthStencilFlags];
-    VkFormat getFormatFromDepthStencilFlags(const SkEnumBitMask<DepthStencilFlags>& flags) const;
 
     // Map depth/stencil VkFormats to DepthStencilFormatInfo.
     static const size_t kNumDepthStencilVkFormats = 5;

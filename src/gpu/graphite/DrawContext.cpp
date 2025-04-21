@@ -79,10 +79,13 @@ sk_sp<DrawContext> DrawContext::Make(const Caps* caps,
     if (!caps->isRenderable(target->textureInfo())) {
         return nullptr;
     }
+    if (!caps->areColorTypeAndTextureInfoCompatible(colorInfo.colorType(), target->textureInfo())) {
+        return nullptr;
+    }
 
     // Accept an approximate-fit texture, but make sure it's at least as large as the device's
     // logical size.
-    // TODO: validate that the color type and alpha type are compatible with the target's info
+    // TODO: validate that the alpha type is compatible with the target's info
     SkASSERT(target->isFullyLazy() || (target->dimensions().width() >= deviceSize.width() &&
                                        target->dimensions().height() >= deviceSize.height()));
     SkImageInfo imageInfo = SkImageInfo::Make(deviceSize, colorInfo);

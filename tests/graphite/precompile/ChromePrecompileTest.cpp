@@ -16,6 +16,7 @@
 #include "src/gpu/graphite/PrecompileContextPriv.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
+#include "src/gpu/graphite/TextureInfoPriv.h"
 #include "tools/graphite/UniqueKeyUtils.h"
 
 #include <cstring>
@@ -124,38 +125,38 @@ PaintOptions blend_porter_duff_cf_srcover() {
     return paintOptions;
 }
 
-// "RP(color: Dawn(f=R8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: a000)",
+// "RP((R8+D16 x1).a000)"
 // Single sampled R w/ just depth
 const RenderPassProperties kR_1_D { DepthStencilFlags::kDepth,
                                     kAlpha_8_SkColorType,
                                     /* fDstCS= */ nullptr,
                                     /* fRequiresMSAA= */ false };
 
-// "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000)",
-// "RP(color: Dawn(f=R8,s=4) w/ msaa load, resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000)",
+// "RP((R8+D24_S8 x4->1).a000)"
+// "RP((R8+D24_S8 x4->1).a000 w/ msaa load)"
 // MSAA R w/ depth and stencil
 const RenderPassProperties kR_4_DS { DepthStencilFlags::kDepthStencil,
                                      kAlpha_8_SkColorType,
                                      /* fDstCS= */ nullptr,
                                      /* fRequiresMSAA= */ true };
 
-// "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba)"
+// "RP((BGRA8+D16 x1).rgba)"
 // Single sampled BGRA w/ just depth
 const RenderPassProperties kBGRA_1_D { DepthStencilFlags::kDepth,
                                        kBGRA_8888_SkColorType,
                                        /* fDstCS= */ nullptr,
                                        /* fRequiresMSAA= */ false };
 
-// "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba)"
-// "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba)"
+// "RP((BGRA8+D16 x4->1).rgba)"
+// "RP((BGRA8+D16 x4->1).rgba w/ msaa load)"
 // MSAA BGRA w/ just depth
 const RenderPassProperties kBGRA_4_D { DepthStencilFlags::kDepth,
                                        kBGRA_8888_SkColorType,
                                        /* fDstCS= */ nullptr,
                                        /* fRequiresMSAA= */ true };
 
-// "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba)"
-// "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba)",
+// "RP((BGRA8+D24_S8 x4->1).rgba)"
+// "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load)"
 // MSAA BGRA w/ depth and stencil
 const RenderPassProperties kBGRA_4_DS { DepthStencilFlags::kDepthStencil,
                                         kBGRA_8888_SkColorType,
@@ -214,32 +215,18 @@ const struct PrecompileSettings {
 // the mapping between the string and the RenderPassProperties
 [[maybe_unused]] RenderPassProperties get_render_pass_properties(const char* str) {
     static const struct {
-        const char* fStr;
         RenderPassProperties fRenderPassProperties;
+        const char* fStr;
     } kRenderPassPropertiesMapping[] = {
-        { "RP(color: Dawn(f=R8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: a000)",
-          kR_1_D },
-
-        // This RPP (kR_4_DS) can generate two strings when Caps::loadOpAffectsMSAAPipelines.
-        { "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000)",
-          kR_4_DS },
-        { "RP(color: Dawn(f=R8,s=4) w/ msaa load, resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000)",
-          kR_4_DS },
-
-        { "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba)",
-          kBGRA_1_D },
-
-        // This RPP (kBGRA_4_D) can generate two strings when Caps::loadOpAffectsMSAAPipelines.
-        { "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba)",
-          kBGRA_4_D },
-        { "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba)",
-          kBGRA_4_D },
-
-        // This RPP (kBGRA_4_DS) can generate two strings when Caps::loadOpAffectsMSAAPipelines.
-        { "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba)",
-           kBGRA_4_DS },
-        { "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba)",
-           kBGRA_4_DS },
+        { kR_1_D,     "RP((R8+D16 x1).a000)" },
+        { kBGRA_1_D,  "RP((BGRA8+D16 x1).rgba)" },
+        // These RPPs can generate two strings when Caps::loadOpAffectsMSAAPipelines.
+        { kR_4_DS,    "RP((R8+D24_S8 x4->1).a000)" },
+        { kR_4_DS,    "RP((R8+D24_S8 x4->1).a000 w/ msaa load)" },
+        { kBGRA_4_D,  "RP((BGRA8+D16 x4->1).rgba)" },
+        { kBGRA_4_D,  "RP((BGRA8+D16 x4->1).rgba w/ msaa load)" },
+        { kBGRA_4_DS, "RP((BGRA8+D24_S8 x4->1).rgba)" },
+        { kBGRA_4_DS, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load)" },
     };
 
     for (const auto& rppm : kRenderPassPropertiesMapping) {
@@ -317,441 +304,441 @@ struct ChromePipeline {
 //
 static const ChromePipeline kCases[] = {
 //--------
-/*   0 */ { 9, "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*   0 */ { 9, "RP((R8+D24_S8 x4->1).a000) + "
                "TessellateWedgesRenderStep[Winding] + (empty)" },
-/*   1 */ { 9, "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*   1 */ { 9, "RP((R8+D24_S8 x4->1).a000) + "
                "TessellateWedgesRenderStep[EvenOdd] + (empty)" },
-/*   2 */ { 9, "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*   2 */ { 9, "RP((R8+D24_S8 x4->1).a000) + "
                "TessellateWedgesRenderStep[Convex] + SolidColor SrcOver" },
-/*   3 */ { 9, "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*   3 */ { 9, "RP((R8+D24_S8 x4->1).a000) + "
                "TessellateStrokesRenderStep + SolidColor SrcOver" },
-/*   4 */ { 9, "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*   4 */ { 9, "RP((R8+D24_S8 x4->1).a000) + "
                "TessellateCurvesRenderStep[Winding] + (empty)" },
-/*   5 */ { 9, "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*   5 */ { 9, "RP((R8+D24_S8 x4->1).a000) + "
                "TessellateCurvesRenderStep[EvenOdd] + (empty)" },
-/*   6 */ { 9, "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*   6 */ { 9, "RP((R8+D24_S8 x4->1).a000) + "
                "MiddleOutFanRenderStep[Winding] + (empty)" },
-/*   7 */ { 9, "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*   7 */ { 9, "RP((R8+D24_S8 x4->1).a000) + "
                "MiddleOutFanRenderStep[EvenOdd] + (empty)" },
-/*   8 */ { 9, "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*   8 */ { 9, "RP((R8+D24_S8 x4->1).a000) + "
                "CoverBoundsRenderStep[RegularCover] + SolidColor SrcOver" },
-/*   9 */ { 9, "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*   9 */ { 9, "RP((R8+D24_S8 x4->1).a000) + "
                "CoverBoundsRenderStep[InverseCover] + SolidColor SrcOver" },
-/*  10 */ { 9, "RP(color: Dawn(f=R8,s=4), resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*  10 */ { 9, "RP((R8+D24_S8 x4->1).a000) + "
                "CoverageMaskRenderStep + SolidColor SrcOver" },
 //--------
-/*  11 */ { 9, "RP(color: Dawn(f=R8,s=4) w/ msaa load, resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*  11 */ { 9, "RP((R8+D24_S8 x4->1).a000 w/ msaa load) + "
                "TessellateWedgesRenderStep[Winding] + (empty)" },
-/*  12 */ { 9, "RP(color: Dawn(f=R8,s=4) w/ msaa load, resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*  12 */ { 9, "RP((R8+D24_S8 x4->1).a000 w/ msaa load) + "
                "TessellateWedgesRenderStep[EvenOdd] + (empty)" },
-/*  13 */ { 9, "RP(color: Dawn(f=R8,s=4) w/ msaa load, resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*  13 */ { 9, "RP((R8+D24_S8 x4->1).a000 w/ msaa load) + "
                "TessellateWedgesRenderStep[Convex] + SolidColor SrcOver" },
-/*  14 */ { 9, "RP(color: Dawn(f=R8,s=4) w/ msaa load, resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*  14 */ { 9, "RP((R8+D24_S8 x4->1).a000 w/ msaa load) + "
                "TessellateStrokesRenderStep + SolidColor SrcOver" },
-/*  15 */ { 9, "RP(color: Dawn(f=R8,s=4) w/ msaa load, resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*  15 */ { 9, "RP((R8+D24_S8 x4->1).a000 w/ msaa load) + "
                "TessellateCurvesRenderStep[Winding] + (empty)" },
-/*  16 */ { 9, "RP(color: Dawn(f=R8,s=4) w/ msaa load, resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*  16 */ { 9, "RP((R8+D24_S8 x4->1).a000 w/ msaa load) + "
                "TessellateCurvesRenderStep[EvenOdd] + (empty)" },
-/*  17 */ { 9, "RP(color: Dawn(f=R8,s=4) w/ msaa load, resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*  17 */ { 9, "RP((R8+D24_S8 x4->1).a000 w/ msaa load) + "
                "MiddleOutFanRenderStep[Winding] + (empty)" },
-/*  18 */ { 9, "RP(color: Dawn(f=R8,s=4) w/ msaa load, resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*  18 */ { 9, "RP((R8+D24_S8 x4->1).a000 w/ msaa load) + "
                "MiddleOutFanRenderStep[EvenOdd] + (empty)" },
-/*  19 */ { 9, "RP(color: Dawn(f=R8,s=4) w/ msaa load, resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*  19 */ { 9, "RP((R8+D24_S8 x4->1).a000 w/ msaa load) + "
                "CoverBoundsRenderStep[RegularCover] + SolidColor SrcOver" },
-/*  20 */ { 9, "RP(color: Dawn(f=R8,s=4) w/ msaa load, resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*  20 */ { 9, "RP((R8+D24_S8 x4->1).a000 w/ msaa load) + "
                "CoverBoundsRenderStep[InverseCover] + SolidColor SrcOver" },
-/*  21 */ { 9, "RP(color: Dawn(f=R8,s=4) w/ msaa load, resolve: Dawn(f=R8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: a000) + "
+/*  21 */ { 9, "RP((R8+D24_S8 x4->1).a000 w/ msaa load) + "
                "CoverageMaskRenderStep + SolidColor SrcOver" },
 //--------
-/*  22 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  22 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "TessellateWedgesRenderStep[Winding] + (empty)" },
-/*  23 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  23 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "TessellateWedgesRenderStep[EvenOdd] + (empty)" },
-/*  24 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  24 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "TessellateWedgesRenderStep[Convex] + SolidColor SrcOver" },
-/*  25 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  25 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "TessellateStrokesRenderStep + SolidColor SrcOver" },
-/*  26 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  26 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "TessellateCurvesRenderStep[Winding] + (empty)" },
-/*  27 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  27 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "TessellateCurvesRenderStep[EvenOdd] + (empty)" },
-/*  28 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  28 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + SolidColor SrcOver" },
-/*  29 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  29 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + SolidColor Src" },
-/*  30 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  30 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + SolidColor Clear" },
-/*  31 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  31 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/*  32 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  32 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/*  33 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  33 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "MiddleOutFanRenderStep[Winding] + (empty)" },
-/*  34 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  34 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "MiddleOutFanRenderStep[EvenOdd] + (empty)" },
-/*  35 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  35 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[RegularCover] + SolidColor SrcOver" },
-/*  36 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  36 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver AnalyticClip" },
-/*  37 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  37 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver" },
-/*  38 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  38 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor Src" },
-/*  39 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  39 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor Clear" },
-/*  40 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  40 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[InverseCover] + SolidColor SrcOver" },
-/*  41 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  41 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[InverseCover] + (empty)" },
-/*  42 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  42 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverageMaskRenderStep + SolidColor SrcOver" },
-/*  43 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  43 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CircularArcRenderStep + SolidColor SrcOver" },
-/*  44 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  44 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "BitmapTextRenderStep[Mask] + SolidColor SrcOver" },
-/*  45 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  45 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + SolidColor SrcOver" },
-/*  46 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  46 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + SolidColor Src" },
-/*  47 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  47 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + SolidColor Clear" },
 //--------
-/*  48 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  48 */ { 9, "RP((BGRA8+D16 x4->1).rgba) + "
                "TessellateWedgesRenderStep[Winding] + (empty)" },
-/*  49 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  49 */ { 9, "RP((BGRA8+D16 x4->1).rgba) + "
                "TessellateWedgesRenderStep[EvenOdd] + (empty)" },
-/*  50 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  50 */ { 9, "RP((BGRA8+D16 x4->1).rgba) + "
                "TessellateWedgesRenderStep[Convex] + SolidColor SrcOver" },
-/*  51 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  51 */ { 9, "RP((BGRA8+D16 x4->1).rgba) + "
                "TessellateStrokesRenderStep + SolidColor SrcOver" },
-/*  52 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  52 */ { 9, "RP((BGRA8+D16 x4->1).rgba) + "
                "TessellateCurvesRenderStep[Winding] + (empty)" },
-/*  53 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  53 */ { 9, "RP((BGRA8+D16 x4->1).rgba) + "
                "TessellateCurvesRenderStep[EvenOdd] + (empty)" },
-/*  54 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  54 */ { 9, "RP((BGRA8+D16 x4->1).rgba) + "
                "MiddleOutFanRenderStep[Winding] + (empty)" },
-/*  55 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  55 */ { 9, "RP((BGRA8+D16 x4->1).rgba) + "
                "MiddleOutFanRenderStep[EvenOdd] + (empty)" },
-/*  56 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  56 */ { 9, "RP((BGRA8+D16 x4->1).rgba) + "
                "CoverBoundsRenderStep[RegularCover] + SolidColor SrcOver" },
-/*  57 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  57 */ { 9, "RP((BGRA8+D16 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
-/*  58 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  58 */ { 9, "RP((BGRA8+D16 x4->1).rgba) + "
                "CoverBoundsRenderStep[InverseCover] + SolidColor SrcOver" },
-/*  59 */ { 9, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  59 */ { 9, "RP((BGRA8+D16 x4->1).rgba) + "
                "CoverageMaskRenderStep + SolidColor SrcOver" },
 //--------
-/*  60 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  60 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "TessellateWedgesRenderStep[Winding] + (empty)" },
-/*  61 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  61 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "TessellateWedgesRenderStep[EvenOdd] + (empty)" },
-/*  62 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  62 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "TessellateWedgesRenderStep[Convex] + SolidColor SrcOver" },
-/*  63 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  63 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "TessellateStrokesRenderStep + SolidColor SrcOver" },
-/*  64 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  64 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "TessellateCurvesRenderStep[Winding] + (empty)" },
-/*  65 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  65 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "TessellateCurvesRenderStep[EvenOdd] + (empty)" },
-/*  66 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  66 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + SolidColor SrcOver" },
-/*  67 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  67 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + SolidColor Src" },
-/*  68 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  68 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + SolidColor Clear" },
-/*  69 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  69 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/*  70 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  70 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/*  71 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  71 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "MiddleOutFanRenderStep[Winding] + (empty)" },
-/*  72 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  72 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "MiddleOutFanRenderStep[EvenOdd] + (empty)" },
-/*  73 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  73 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[RegularCover] + SolidColor SrcOver" },
-/*  74 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  74 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver AnalyticClip" },
-/*  75 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  75 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver" },
-/*  76 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  76 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor Src" },
-/*  77 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  77 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor Clear" },
-/*  78 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  78 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/*  79 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  79 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[InverseCover] + SolidColor SrcOver" },
-/*  80 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  80 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[InverseCover] + (empty)" },
-/*  81 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  81 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverageMaskRenderStep + SolidColor SrcOver" },
-/*  82 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  82 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CircularArcRenderStep + SolidColor SrcOver" },
-/*  83 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  83 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "BitmapTextRenderStep[Mask] + SolidColor SrcOver" },
-/*  84 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  84 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + SolidColor SrcOver" },
-/*  85 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  85 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + SolidColor Src" },
-/*  86 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/*  86 */ { 9, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + SolidColor Clear" },
 //--------
-/*  87 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  87 */ { 9, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "TessellateWedgesRenderStep[Winding] + (empty)" },
-/*  88 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  88 */ { 9, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "TessellateWedgesRenderStep[EvenOdd] + (empty)" },
-/*  89 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  89 */ { 9, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "TessellateWedgesRenderStep[Convex] + SolidColor SrcOver" },
-/*  90 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  90 */ { 9, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "TessellateStrokesRenderStep + SolidColor SrcOver" },
-/*  91 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  91 */ { 9, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "TessellateCurvesRenderStep[Winding] + (empty)" },
-/*  92 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  92 */ { 9, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "TessellateCurvesRenderStep[EvenOdd] + (empty)" },
-/*  93 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  93 */ { 9, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "MiddleOutFanRenderStep[Winding] + (empty)" },
-/*  94 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  94 */ { 9, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "MiddleOutFanRenderStep[EvenOdd] + (empty)" },
-/*  95 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  95 */ { 9, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[RegularCover] + SolidColor SrcOver" },
-/*  96 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  96 */ { 9, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[InverseCover] + SolidColor SrcOver" },
-/*  97 */ { 9, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/*  97 */ { 9, "RP((BGRA8+D16 x4->1).rgba w/ msaa load) + "
                "CoverageMaskRenderStep + SolidColor SrcOver" },
 //--------
-/*  98 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/*  98 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "TessellateWedgesRenderStep[Winding] + (empty)" },
-/*  99 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/*  99 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "TessellateWedgesRenderStep[EvenOdd] + (empty)" },
-/* 100 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 100 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "TessellateWedgesRenderStep[Convex] + Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
-/* 101 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 101 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "TessellateStrokesRenderStep + Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
-/* 102 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 102 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "TessellateCurvesRenderStep[Winding] + (empty)" },
-/* 103 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 103 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "TessellateCurvesRenderStep[EvenOdd] + (empty)" },
-/* 104 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 104 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + SolidColor SrcOver" },
-/* 105 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 105 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + SolidColor Src" },
-/* 106 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 106 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + SolidColor Clear" },
-/* 107 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 107 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 108 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 108 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] Src" },
-/* 109 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 109 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 119 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 119 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] Src" },
-/* 111 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 111 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformSRGB ] ] Src" },
-/* 112 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 112 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 113 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 113 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] Src" },
-/* 114 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 114 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformPremul ] ] Src" },
-/* 115 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 115 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "MiddleOutFanRenderStep[Winding] + (empty)" },
-/* 116 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 116 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "MiddleOutFanRenderStep[EvenOdd] + (empty)" },
-/* 117 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 117 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[RegularCover] + Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
-/* 118 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 118 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver" },
-/* 119 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 119 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor Src" },
-/* 120 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 120 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor Clear" },
-/* 121 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 121 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 122 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 122 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] Src" },
-/* 123 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 123 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 124 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 124 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] Src" },
-/* 125 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 125 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformSRGB ] ] Src" },
-/* 126 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 126 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
-/* 127 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 127 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 128 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 128 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] Src" },
-/* 129 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 129 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 130 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 130 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformPremul ] ] Src" },
-/* 131 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 131 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[InverseCover] + Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
-/* 132 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 132 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "CoverageMaskRenderStep + Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
-/* 133 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 133 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "BitmapTextRenderStep[Mask] + SolidColor SrcOver" },
-/* 134 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 134 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + SolidColor SrcOver" },
-/* 135 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 135 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + SolidColor Src" },
-/* 136 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 136 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + SolidColor Clear" },
-/* 137 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 137 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 138 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 138 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] Src" },
-/* 139 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 139 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 140 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 140 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] Src" },
-/* 141 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 141 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 142 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 142 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] Src" },
-/* 143 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 143 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformPremul ] ] Src" },
-/* 144 */ { 9, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 144 */ { 9, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticBlurRenderStep + Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
 //--------
-/* 145 */ { 8, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 145 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 146 */ { 8, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 146 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 147 */ { 8, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 147 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 148 */ { 8, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 148 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 149 */ { 8, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 149 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 150 */ { 8, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 150 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 151 */ { 8, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 151 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 152 */ { 8, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 152 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 153 */ { 8, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 153 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 154 */ { 8, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 154 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
 //--------
-/* 155 */ { 8, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 155 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 156 */ { 8, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 156 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 157 */ { 8, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 157 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 158 */ { 8, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 158 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 159 */ { 8, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 159 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 160 */ { 8, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 160 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 161 */ { 8, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 161 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 162 */ { 8, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 162 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 163 */ { 8, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 163 */ { 8, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
 //--------
-/* 164 */ { 8, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 164 */ { 8, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformSRGB ] ] Src" },
-/* 165 */ { 8, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 165 */ { 8, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformSRGB ] ] Src" },
-/* 166 */ { 8, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 166 */ { 8, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformSRGB ] ] Src" },
-/* 167 */ { 8, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 167 */ { 8, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 168 */ { 8, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 168 */ { 8, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformSRGB ] ] Src" },
-/* 169 */ { 8, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 169 */ { 8, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformSRGB ] ] Src" },
-/* 170 */ { 8, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 170 */ { 8, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformSRGB ] ] Src" },
-/* 171 */ { 8, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 171 */ { 8, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformSRGB ] ] Src" },
-/* 172 */ { 8, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 172 */ { 8, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ Image(0) ColorSpaceTransformSRGB ] ] Src" },
-/* 173 */ { 8, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 173 */ { 8, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformSRGB ] ] Src" },
-/* 174 */ { 8, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 174 */ { 8, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformSRGB ] ] Src" },
-/* 175 */ { 8, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 175 */ { 8, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + LocalMatrix [ Compose [ CubicImage(0) ColorSpaceTransformPremul ] ] SrcOver" },
-/* 176 */ { 8, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 176 */ { 8, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticBlurRenderStep + Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
 //--------
-/* 177 */ { 7, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 177 */ { 7, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
-/* 178 */ { 7, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 178 */ { 7, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "AnalyticBlurRenderStep + Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
-/* 179 */ { 7, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/* 179 */ { 7, "RP((BGRA8+D16 x4->1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver" },
-/* 180 */ { 7, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/* 180 */ { 7, "RP((BGRA8+D16 x4->1).rgba) + "
                "BitmapTextRenderStep[Mask] + SolidColor SrcOver" },
-/* 181 */ { 7, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D16,s=4), samples: 4, swizzle: rgba) + "
+/* 181 */ { 7, "RP((BGRA8+D16 x4->1).rgba) + "
                "AnalyticRRectRenderStep + SolidColor SrcOver" },
 //--------
-/* 182 */ { 7, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 182 */ { 7, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
-/* 183 */ { 7, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 183 */ { 7, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] SrcOver AnalyticClip" },
-/* 184 */ { 6, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 184 */ { 6, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
-/* 185 */ { 6, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 185 */ { 6, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
-/* 186 */ { 6, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 186 */ { 6, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "BitmapTextRenderStep[Mask] + LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformPremul ] ] SrcOver" },
-/* 187 */ { 6, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 187 */ { 6, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticRRectRenderStep + SolidColor SrcOver AnalyticClip" },
 //--------
-/* 188 */ { 6, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 188 */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver" },
-/* 189 */ { 6, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 189 */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
-/* 190 */ { 6, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 190 */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver" },
-/* 191 */ { 6, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 191 */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver AnalyticClip" },
-/* 192 */ { 6, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 192 */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver" },
-/* 193 */ { 6, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 193 */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver" },
-/* 194 */ { 6, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 194 */ { 6, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + Compose [ LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
 //--------
-/* 195 */ { 5, "RP(color: Dawn(f=R8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: a000) + "
+/* 195 */ { 5, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + SolidColor SrcOver" },
-/* 196 */ { 5, "RP(color: Dawn(f=R8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: a000) + "
+/* 196 */ { 5, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransform ] ] ] Src" },
-/* 197 */ { 5, "RP(color: Dawn(f=R8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: a000) + "
+/* 197 */ { 5, "RP((R8+D16 x1).a000) + "
                "AnalyticRRectRenderStep + SolidColor SrcOver" },
 //--------
-/* 198 */ { 5, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 198 */ { 5, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
-/* 199 */ { 5, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 199 */ { 5, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ HWYUVImageNoSwizzle ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
-/* 200 */ { 5, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 200 */ { 5, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "PerEdgeAAQuadRenderStep + BlendCompose [ LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
-/* 201 */ { 5, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 201 */ { 5, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "CoverageMaskRenderStep + Compose [ SolidColor BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
-/* 202 */ { 5, "RP(color: Dawn(f=BGRA8,s=4), resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 202 */ { 5, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "BitmapTextRenderStep[Mask] + LocalMatrix [ Compose [ LinearGradient4 ColorSpaceTransformPremul ] ] SrcOver" },
 //--------
-/* 203 */ { 5, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 203 */ { 5, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "TessellateWedgesRenderStep[Convex] + (empty)" },
-/* 204 */ { 5, "RP(color: Dawn(f=BGRA8,s=4) w/ msaa load, resolve: Dawn(f=BGRA8,s=1), ds: Dawn(f=D24_S8,s=4), samples: 4, swizzle: rgba) + "
+/* 204 */ { 5, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load) + "
                "AnalyticBlurRenderStep + Compose [ SolidColor Bl\" },endCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver AnalyticClip" },
 //--------
-/* 205 */ { 5, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 205 */ { 5, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ YUVImage ColorSpaceTransformSRGB ] ] SrcOver AnalyticClip" },
-/* 206 */ { 5, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 206 */ { 5, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] DstIn" },
-/* 207 */ { 5, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 207 */ { 5, "RP((BGRA8+D16 x1).rgba) + "
                "PerEdgeAAQuadRenderStep + Compose [ LocalMatrix [ Compose [ HardwareImage(0) ColorSpaceTransformPremul ] ] BlendCompose [ SolidColor Passthrough PorterDuffBlender ] ] SrcOver" },
-/* 208 */ { 5, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 208 */ { 5, "RP((BGRA8+D16 x1).rgba) + "
                "CoverBoundsRenderStep[NonAAFill] + KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformPremul ] ] ] Src" },
-/* 209 */ { 5, "RP(color: Dawn(f=BGRA8,s=1), resolve: {}, ds: Dawn(f=D16,s=1), samples: 1, swizzle: rgba) + "
+/* 209 */ { 5, "RP((BGRA8+D16 x1).rgba) + "
                "AnalyticRRectRenderStep + SolidColor SrcOver AnalyticClip" },
     };
 
@@ -919,9 +906,12 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
                                                                  skgpu::Protected::kNo,
                                                                  skgpu::Renderable::kYes);
 
-    TextureInfo msaaTex = caps->getDefaultMSAATextureInfo(textureInfo, Discardable::kYes);
+    const bool msaaSupported =
+            caps->msaaRenderToSingleSampledSupport() ||
+            caps->isSampleCountSupported(TextureInfoPriv::ViewFormat(textureInfo),
+                                         caps->defaultMSAASamplesCount());
 
-    if (msaaTex.numSamples() <= 1) {
+    if (!msaaSupported) {
         // The following pipelines rely on having MSAA
         return;
     }

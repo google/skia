@@ -61,6 +61,10 @@ public:
 
     sk_sp<ComputePipeline> findOrCreateComputePipeline(const ComputePipelineDesc&);
 
+    sk_sp<Texture> findOrCreateShareableTexture(SkISize,
+                                                const TextureInfo&,
+                                                std::string_view label);
+
     sk_sp<Texture> findOrCreateNonShareableTexture(SkISize,
                                                    const TextureInfo&,
                                                    std::string_view label,
@@ -71,12 +75,6 @@ public:
                                               const ResourceCache::ScratchResourceSet& unavailable);
 
     sk_sp<Texture> createWrappedTexture(const BackendTexture&, std::string_view label);
-
-    sk_sp<Texture> findOrCreateDepthStencilAttachment(SkISize dimensions,
-                                                      const TextureInfo&);
-
-    sk_sp<Texture> findOrCreateDiscardableMSAAAttachment(SkISize dimensions,
-                                                         const TextureInfo&);
 
     sk_sp<Buffer> findOrCreateBuffer(size_t size,
                                      BufferType type,

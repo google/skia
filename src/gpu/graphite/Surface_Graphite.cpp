@@ -22,6 +22,7 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Texture.h"
+#include "src/gpu/graphite/TextureFormat.h"
 
 namespace skgpu::graphite {
 

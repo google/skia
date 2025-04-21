@@ -43,7 +43,7 @@ const MtlSharedContext* MtlResourceProvider::mtlSharedContext() {
 
 sk_sp<MtlGraphicsPipeline> MtlResourceProvider::findOrCreateLoadMSAAPipeline(
         const RenderPassDesc& renderPassDesc) {
-    uint64_t renderPassKey =
+    uint32_t renderPassKey =
             this->mtlSharedContext()->mtlCaps().getRenderPassDescKey(renderPassDesc);
     sk_sp<MtlGraphicsPipeline> pipeline = fLoadMSAAPipelines[renderPassKey];
     if (!pipeline) {

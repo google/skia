@@ -10,13 +10,12 @@
 
 #include "src/gpu/graphite/Resource.h"
 
+#include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/base/SkTArray.h"
-#include "src/gpu/graphite/vk/VulkanCommandBuffer.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 
 namespace skgpu::graphite {
 
-struct AttachmentDesc;
-struct RenderPassDesc;
 class VulkanCommandBuffer;
 class VulkanSharedContext;
 
@@ -25,18 +24,6 @@ class VulkanSharedContext;
 */
 class VulkanRenderPass : public Resource {
 public:
-    // Statically assign attachment indices until such information can be fetched from
-    // graphite-level structures (likely RenderPassDesc)
-    static constexpr int kColorAttachmentIdx = 0;
-    static constexpr int kColorResolveAttachmentIdx = 1;
-    static constexpr int kDepthStencilAttachmentIdx = 2;
-
-    static constexpr int kMaxExpectedAttachmentCount = kDepthStencilAttachmentIdx + 1;
-
-    static sk_sp<VulkanRenderPass> MakeRenderPass(const VulkanSharedContext*,
-                                                  const RenderPassDesc&,
-                                                  bool compatibleOnly);
-
     VkRenderPass renderPass() const {
         SkASSERT(fRenderPass != VK_NULL_HANDLE);
         return fRenderPass;
@@ -48,22 +35,31 @@ public:
 
     // Struct to store Vulkan information surrounding a RenderPassDesc
     struct Metadata {
-        Metadata(const RenderPassDesc&);
+        Metadata(const RenderPassDesc& renderPassDesc, bool compatibleOnly);
+
+        bool operator==(const Metadata&) const;
+        bool operator!=(const Metadata& other) const { return !(*this == other); }
 
         bool fLoadMSAAFromResolve;
 
         // TODO: Extend RenderPassDesc to have subpasses that index into the attachments of the
         // RenderPassDesc. For a given subpass, we can simplify the description to assume there's
-        // at most 1 color, resolve, and depth-stencil attachment. For now these bools represent
-        // the main subpass's attachment "refs".
-        bool fHasColorAttachment;
-        bool fHasColorResolveAttachment;
-        bool fHasDepthStencilAttachment;
-        bool fHasInputAttachment;
+        // at most 1 color, resolve, and depth-stencil attachment. For now there's only one main
+        // subpass that can be configured (MSAA load is special) and it's assumed that if there's
+        // an input attachment, it references the color attachment. These index into `fAttachments`,
+        // or are -1 if there is no attachment. Additionally, once subpasses may only reference
+        // a subset of the net attachments, it may be necessary to distinguish between no attachment
+        // at all, and VK_ATTACHMENT_UNUSED.
+        int8_t fColorAttachIndex;
+        int8_t fColorResolveIndex;
+        int8_t fDepthStencilIndex;
+        // To minimize pipeline compiles, there is always a self-dependency input attachment for the
+        // color attachment, but for a given render pass it may never actually be used.
+        bool fUsesInputAttachment;
 
         // Accumulate attachments into a container to mimic future structure in RenderPassDesc
         // Currently there can be up to three: color, resolve, depth+stencil
-        skia_private::STArray<3, const AttachmentDesc*> fAttachments;
+        skia_private::STArray<3, AttachmentDesc> fAttachments;
 
         int keySize() const;
 
@@ -73,8 +69,10 @@ public:
         int subpassCount() const { return fLoadMSAAFromResolve ? 2 : 1; }
         int subpassDependencyCount() const { return fLoadMSAAFromResolve ? 1 : 0; }
 
-        void addToKey(ResourceKey::Builder&, int& builderIdx, bool compatibleOnly);
+        void addToKey(ResourceKey::Builder&, int& builderIdx);
     };
+
+    static sk_sp<VulkanRenderPass> Make(const VulkanSharedContext*, const Metadata& rpMetadata);
 
 private:
     void freeGpuData() override;

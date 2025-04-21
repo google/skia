@@ -72,13 +72,8 @@ wgpu::YCbCrVkDescriptor DawnDescriptorFromImmutableSamplerInfo(ImmutableSamplerI
 
 SkTextureCompressionType DawnFormatToCompressionType(wgpu::TextureFormat format);
 
-bool DawnFormatIsDepthOrStencil(wgpu::TextureFormat);
-bool DawnFormatIsDepth(wgpu::TextureFormat);
-bool DawnFormatIsStencil(wgpu::TextureFormat);
-
-wgpu::TextureFormat DawnDepthStencilFlagsToFormat(SkEnumBitMask<DepthStencilFlags>);
-
 TextureFormat DawnFormatToTextureFormat(wgpu::TextureFormat);
+wgpu::TextureFormat TextureFormatToDawnFormat(TextureFormat);
 
 namespace BackendTextures {
 

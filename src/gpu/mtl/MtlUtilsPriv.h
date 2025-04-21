@@ -38,10 +38,10 @@ inline bool SkSLToMSL(const SkSL::ShaderCaps* caps,
                          sksl, programKind, settings, msl, outInterface, errorHandler);
 }
 
-bool MtlFormatIsDepthOrStencil(MTLPixelFormat);
-bool MtlFormatIsDepth(MTLPixelFormat);
-bool MtlFormatIsStencil(MTLPixelFormat);
 bool MtlFormatIsCompressed(MTLPixelFormat);
+
+// NOTE: All of these functions are actually only used by Ganesh. When building Graphite in
+// isolation, the linker should drop them.
 
 uint32_t MtlFormatChannels(MTLPixelFormat);
 

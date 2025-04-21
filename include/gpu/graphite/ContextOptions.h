@@ -45,7 +45,7 @@ struct SK_API ContextOptions {
      *
      * If <= 1, Graphite will disable internal code paths that use multisampling.
      */
-    int fInternalMultisampleCount = 4;
+    uint8_t fInternalMultisampleCount = 4;
 
     /**
      * Will the client make sure to only ever be executing one thread that uses the Context and all

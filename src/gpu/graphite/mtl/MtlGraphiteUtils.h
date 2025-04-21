@@ -58,6 +58,7 @@ sk_cfp<id<MTLLibrary>> MtlCompileShaderLibrary(const MtlSharedContext* sharedCon
                                                ShaderErrorHandler* errorHandler);
 
 TextureFormat MTLPixelFormatToTextureFormat(MTLPixelFormat);
+MTLPixelFormat TextureFormatToMTLPixelFormat(TextureFormat);
 
 }  // namespace skgpu::graphite
 

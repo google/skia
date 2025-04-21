@@ -67,6 +67,7 @@ void DescriptorDataToVkDescSetLayout(const VulkanSharedContext*,
                                      VkDescriptorSetLayout*);
 
 TextureFormat VkFormatToTextureFormat(VkFormat);
+VkFormat TextureFormatToVkFormat(TextureFormat);
 
 VkShaderStageFlags PipelineStageFlagsToVkShaderStageFlags(SkEnumBitMask<PipelineStageFlags>);
 

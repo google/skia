@@ -15,6 +15,7 @@
 #include "src/core/SkLRUCache.h"
 #include "src/core/SkTHash.h"
 #include "src/gpu/graphite/DescriptorData.h"
+#include "src/gpu/graphite/vk/VulkanRenderPass.h"
 
 #ifdef  SK_BUILD_FOR_ANDROID
 extern "C" {
@@ -28,7 +29,6 @@ class VulkanCommandBuffer;
 class VulkanDescriptorSet;
 class VulkanFramebuffer;
 class VulkanGraphicsPipeline;
-class VulkanRenderPass;
 class VulkanSharedContext;
 class VulkanTexture;
 class VulkanYcbcrConversion;
@@ -111,10 +111,6 @@ private:
 #endif
     void onDeleteBackendTexture(const BackendTexture&) override;
 
-    // Use a predetermined RenderPass key for finding/creating a RenderPass to avoid recreating it
-    sk_sp<VulkanRenderPass> findOrCreateRenderPassWithKnownKey(
-            const RenderPassDesc&, bool compatibleOnly, const GraphiteResourceKey& rpKey);
-
     VkPipelineCache fPipelineCache = VK_NULL_HANDLE;
 
     // Certain operations only need to occur once per renderpass (updating push constants and, if
@@ -124,10 +120,9 @@ private:
     // buffers to perform these operations even before we bind any pipelines.
     VkPipelineLayout fMockPipelineLayout;
 
-    // The first value of the pair is a renderpass key. Graphics pipeline keys contain extra
-    // information that we do not need for identifying unique pipelines.
-    skia_private::TArray<std::pair<GraphiteResourceKey,
-                         sk_sp<VulkanGraphicsPipeline>>> fLoadMSAAPipelines;
+    // The first value of the pair is a compatible-only renderpass metadata for the render pass.
+    skia_private::TArray<std::pair<VulkanRenderPass::Metadata,
+                                   sk_sp<VulkanGraphicsPipeline>>> fLoadMSAAPipelines;
     // The shader modules and pipeline layout can be shared for all loadMSAA pipelines.
     std::unique_ptr<VulkanProgramInfo> fLoadMSAAProgram;
 

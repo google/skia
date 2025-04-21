@@ -33,6 +33,12 @@ public:
     }
     bool supportsPartialLoadResolve() const { return fSupportsPartialLoadResolve; }
 
+    bool isSampleCountSupported(TextureFormat, uint8_t requestedSampleCount) const override;
+    TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const override;
+
+    TextureInfo getDefaultAttachmentTextureInfo(AttachmentDesc,
+                                                Protected,
+                                                Discardable) const override;
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
                                              Mipmapped mipmapped,
                                              Protected,
@@ -42,12 +48,6 @@ public:
     TextureInfo getDefaultCompressedTextureInfo(SkTextureCompressionType,
                                                 Mipmapped mipmapped,
                                                 Protected) const override;
-    TextureInfo getDefaultMSAATextureInfo(const TextureInfo& singleSampledInfo,
-                                          Discardable discardable) const override;
-    TextureInfo getDefaultDepthStencilTextureInfo(SkEnumBitMask<DepthStencilFlags>,
-                                                  uint32_t sampleCount,
-                                                  Protected,
-                                                  Discardable discardable) const override;
     TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
     SkISize getDepthAttachmentDimensions(const TextureInfo&,
                                          const SkISize colorAttachmentDimensions) const override;
@@ -65,9 +65,6 @@ public:
     bool loadOpAffectsMSAAPipelines() const override {
         return fSupportedResolveTextureLoadOp.has_value();
     }
-
-    bool serializeTextureInfo(const TextureInfo&, SkWStream*) const override;
-    bool deserializeTextureInfo(SkStream*, TextureInfo* out) const override;
 
     void buildKeyForTexture(SkISize dimensions,
                             const TextureInfo&,
@@ -113,11 +110,6 @@ private:
         return fColorTypeToFormatTable[idx];
     }
 
-    uint32_t maxRenderTargetSampleCount(wgpu::TextureFormat format) const;
-    using Caps::isTexturable;
-    bool isTexturable(wgpu::TextureFormat format) const;
-    bool isRenderable(wgpu::TextureFormat format, uint32_t numSamples) const;
-
     struct FormatInfo {
         uint32_t colorTypeFlags(SkColorType colorType) const {
             for (int i = 0; i < fColorTypeInfoCount; ++i) {
@@ -130,7 +122,7 @@ private:
 
         enum {
             kTexturable_Flag  = 0x01,
-            kRenderable_Flag  = 0x02, // Color attachment and blendable
+            kRenderable_Flag  = 0x02, // Render attachment (color or depth/stencil)
             kMSAA_Flag        = 0x04,
             kResolve_Flag     = 0x08,
             kStorage_Flag     = 0x10,

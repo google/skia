@@ -34,8 +34,7 @@ sk_cfp<id<MTLTexture>> MtlTexture::MakeMtlTexture(const MtlSharedContext* shared
         return nullptr;
     }
 
-    if (mtlInfo.fUsage & MTLTextureUsageRenderTarget &&
-        !(caps->isRenderable(info) || MtlFormatIsDepthOrStencil(mtlInfo.fFormat))) {
+    if (mtlInfo.fUsage & MTLTextureUsageRenderTarget && !caps->isRenderable(info)) {
         return nullptr;
     }
 

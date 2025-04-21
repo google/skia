@@ -96,7 +96,6 @@ enum class TextureFormat : uint8_t {
     kBGR10_XR,       //             -              |            -            | BGR10_XR
     // 4 channel     //----------------------------|-------------------------|----------------------
     kRGBA8,          // _R8G8B8A8_UNORM            | ::RGBA8Unorm            | RGBA8Unorm
-                     // _A8B8G8R8_UNORM_PACK32     |                         |
     kRGBA16,         // _R16G16B16A16_UNORM        | ::RGBA16Unorm           | RGBA16Unorm
     kRGBA16F,        // _R16G16B16A16_SFLOAT       | ::RGBA16Float           | RGBA16Float
     kRGBA32F,        // _R32G32B32A32_SFLOAT       | ::RGBA32Float           | RGBA32Float

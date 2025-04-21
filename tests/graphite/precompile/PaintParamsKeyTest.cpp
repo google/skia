@@ -61,6 +61,7 @@
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
+#include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/precompile/PaintOptionsPriv.h"
@@ -2055,7 +2056,10 @@ void precompile_vs_real_draws_subtest(skiatest::Reporter* reporter,
                                                                  skgpu::Protected::kNo,
                                                                  skgpu::Renderable::kYes);
 
-    TextureInfo msaaTex = caps->getDefaultMSAATextureInfo(textureInfo, Discardable::kYes);
+    const bool msaaSupported =
+            caps->msaaRenderToSingleSampledSupport() ||
+            caps->isSampleCountSupported(TextureInfoPriv::ViewFormat(textureInfo),
+                                         caps->defaultMSAASamplesCount());
 
     bool vello = false;
 #ifdef SK_ENABLE_VELLO_SHADERS
@@ -2064,9 +2068,8 @@ void precompile_vs_real_draws_subtest(skiatest::Reporter* reporter,
 
     // Using Vello skips using MSAA for complex paths. Additionally, Intel Macs avoid MSAA
     // in favor of path rendering.
-    const RenderPassProperties* pathProperties = (msaaTex.numSamples() > 1 && !vello)
-                                                                 ? &kDepth_Stencil_4
-                                                                 : &kDepth_1;
+    const RenderPassProperties* pathProperties = (msaaSupported && !vello) ? &kDepth_Stencil_4
+                                                                           : &kDepth_1;
 
     int before = globalCache->numGraphicsPipelines();
     Precompile(precompileContext, paintOptions, dt,
