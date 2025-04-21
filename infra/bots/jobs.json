@@ -59,11 +59,9 @@
   {"name": "Build-Debian11-GCC-x86_64-Release-Docker_NoGPU"},
   {"name": "Build-Debian11-GCC-x86_64-Release-Docker_Shared"},
   {"name": "Build-Ubuntu18-Clang-x86_64-Debug-Docker"},
-  {"name": "Build-Ubuntu18-Clang-x86_64-Debug-Docker_Graphite_Dawn_Vulkan"},
   {"name": "Build-Ubuntu18-Clang-x86_64-Debug-Docker_Graphite_Native_Vulkan"},
   {"name": "Build-Ubuntu18-Clang-x86_64-Debug-Docker_Vulkan"},
   {"name": "Build-Ubuntu18-Clang-x86_64-Release-Docker"},
-  {"name": "Build-Ubuntu18-Clang-x86_64-Release-Docker_Graphite_Dawn_Vulkan"},
   {"name": "Build-Ubuntu18-Clang-x86_64-Release-Docker_Graphite_Native_Vulkan"},
   {"name": "Build-Ubuntu18-Clang-x86_64-Release-Docker_SK_CPU_LIMIT_SSE41"},
   {"name": "Build-Ubuntu18-Clang-x86_64-Release-Docker_SK_USE_PADDED_BLUR_UPSCALE"},
@@ -812,7 +810,6 @@
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan",
    "cq_config": {}
    },
-  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Dawn_Vulkan"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Native_Vulkan",
    "cq_config": {"location_regexes": ["(tests|src/gpu)/graphite/.*", "src/sksl/generated/.*", "dm/.+", "DEPS"]}
   },
@@ -825,7 +822,6 @@
    },
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-SK_USE_PADDED_BLUR_UPSCALE"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN"},
-  {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_Vulkan"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan"},
   {"name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan_TestPrecompile",
   "cq_config": {"location_regexes": [

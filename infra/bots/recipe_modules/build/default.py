@@ -207,6 +207,7 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
     args['is_debug'] = 'false'
   if 'Dawn' in extra_tokens:
     util.set_dawn_args_and_env(args, env, api, extra_tokens, skia_dir)
+    args['skia_use_cpp20'] = 'true'
   if 'ANGLE' in extra_tokens:
     args['skia_use_angle'] = 'true'
     args['skia_use_cpp20'] = 'true'
