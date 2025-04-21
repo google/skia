@@ -161,6 +161,8 @@ namespace SK_OPTS_NS {
 
     template <typename T>
     SI T gather(const T* p, U32 ix) { return p[ix]; }
+    template <typename T>
+    SI T gather_unaligned(const T* p, U32 ix) { return gather<T>(p, ix); }
 
     SI void scatter_masked(I32 src, int* dst, U32 ix, I32 mask) {
         dst[ix] = mask ? src : dst[ix];
@@ -274,9 +276,23 @@ namespace SK_OPTS_NS {
     #endif
 
     template <typename T>
-    SI V<T> gather(const T* p, U32 ix) {
-        return V<T>{p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
+    SI V<T> gather(const T* ptr, U32 ix) {
+        // The compiler assumes ptr is aligned, which caused crashes on some
+        // arm32 chips because a register was marked as "aligned to 32 bits"
+        // incorrectly. https://crbug.com/skia/409859319
+        SkASSERTF(reinterpret_cast<uintptr_t>(ptr) % alignof(T) == 0,
+                 "Should use gather_unaligned");
+        return V<T>{ptr[ix[0]], ptr[ix[1]], ptr[ix[2]], ptr[ix[3]]};
     }
+    template <typename T>
+    SI V<T> gather_unaligned(const T* ptr, U32 ix) {
+        // This tells the compiler ptr might not be aligned appropriately, so
+        // it generates better assembly.
+        typedef T __attribute__ ((aligned (1))) unaligned_ptr;
+        const unaligned_ptr* uptr = static_cast<const unaligned_ptr*>(ptr);
+        return V<T>{uptr[ix[0]], uptr[ix[1]], uptr[ix[2]], uptr[ix[3]]};
+    }
+
     SI void scatter_masked(I32 src, int* dst, U32 ix, I32 mask) {
         I32 before = gather(dst, ix);
         I32 after = if_then_else(mask, src, before);
@@ -389,6 +405,11 @@ namespace SK_OPTS_NS {
         };
         return sk_bit_cast<U64>(parts);
     }
+    template <typename T>
+    SI V<T> gather_unaligned(const T* p, U32 ix) {
+        return gather(p, ix);
+    }
+
     template <typename V, typename S>
     SI void scatter_masked(V src, S* dst, U32 ix, I32 mask) {
         V before = gather(dst, ix);
@@ -627,6 +648,11 @@ namespace SK_OPTS_NS {
         };
         return sk_bit_cast<U64>(parts);
     }
+    template <typename T>
+    SI V<T> gather_unaligned(const T* p, U32 ix) {
+        return gather(p, ix);
+    }
+
     SI void scatter_masked(I32 src, int* dst, U32 ix, I32 mask) {
         I32 before = gather(dst, ix);
         I32 after = if_then_else(mask, src, before);
@@ -827,6 +853,10 @@ namespace SK_OPTS_NS {
     SI V<T> gather(const T* p, U32 ix) {
         return V<T>{p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]]};
     }
+    template <typename T>
+    SI V<T> gather_unaligned(const T* p, U32 ix) {
+        return gather(p, ix);
+    }
     SI void scatter_masked(I32 src, int* dst, U32 ix, I32 mask) {
         I32 before = gather(dst, ix);
         I32 after = if_then_else(mask, src, before);
@@ -987,6 +1017,10 @@ namespace SK_OPTS_NS {
     SI V<T> gather(const T* p, U32 ix) {
         return V<T>{ p[ix[0]], p[ix[1]], p[ix[2]], p[ix[3]],
                      p[ix[4]], p[ix[5]], p[ix[6]], p[ix[7]], };
+    }
+    template <typename T>
+    SI V<T> gather_unaligned(const T* p, U32 ix) {
+        return gather(p, ix);
     }
 
     template <typename V, typename S>
@@ -1194,6 +1228,10 @@ namespace SK_OPTS_NS {
        ret = (F)__lsx_vinsgr2vr_w(ret, p[ix2], 2);
        ret = (F)__lsx_vinsgr2vr_w(ret, p[ix3], 3);
        return ret;
+    }
+    template <typename T>
+    SI V<T> gather_unaligned(const T* p, U32 ix) {
+        return gather(p, ix);
     }
 
     template <typename V, typename S>
@@ -2854,7 +2892,7 @@ HIGHP_STAGE(load_565_dst, const SkRasterPipelineContexts::MemoryCtx* ctx) {
 HIGHP_STAGE(gather_565, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint16_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
-    from_565(gather(ptr, ix), &r,&g,&b);
+    from_565(gather_unaligned(ptr, ix), &r,&g,&b);
     a = F1;
 }
 HIGHP_STAGE(store_565, const SkRasterPipelineContexts::MemoryCtx* ctx) {
@@ -2877,7 +2915,7 @@ HIGHP_STAGE(load_4444_dst, const SkRasterPipelineContexts::MemoryCtx* ctx) {
 HIGHP_STAGE(gather_4444, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint16_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
-    from_4444(gather(ptr, ix), &r,&g,&b,&a);
+    from_4444(gather_unaligned(ptr, ix), &r,&g,&b,&a);
 }
 HIGHP_STAGE(store_4444, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint16_t>(ctx, dx,dy);
@@ -2899,7 +2937,7 @@ HIGHP_STAGE(load_8888_dst, const SkRasterPipelineContexts::MemoryCtx* ctx) {
 HIGHP_STAGE(gather_8888, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint32_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
-    from_8888(gather(ptr, ix), &r,&g,&b,&a);
+    from_8888(gather_unaligned(ptr, ix), &r,&g,&b,&a);
 }
 HIGHP_STAGE(store_8888, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint32_t>(ctx, dx,dy);
@@ -2926,7 +2964,7 @@ HIGHP_STAGE(load_rg88_dst, const SkRasterPipelineContexts::MemoryCtx* ctx) {
 HIGHP_STAGE(gather_rg88, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint16_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r, g);
-    from_88(gather(ptr, ix), &r, &g);
+    from_88(gather_unaligned(ptr, ix), &r, &g);
     b = F0;
     a = F1;
 }
@@ -2950,7 +2988,7 @@ HIGHP_STAGE(gather_a16, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint16_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r, g);
     r = g = b = F0;
-    a = from_short(gather(ptr, ix));
+    a = from_short(gather_unaligned(ptr, ix));
 }
 HIGHP_STAGE(store_a16, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint16_t>(ctx, dx,dy);
@@ -2974,7 +3012,7 @@ HIGHP_STAGE(load_rg1616_dst, const SkRasterPipelineContexts::MemoryCtx* ctx) {
 HIGHP_STAGE(gather_rg1616, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint32_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r, g);
-    from_1616(gather(ptr, ix), &r, &g);
+    from_1616(gather_unaligned(ptr, ix), &r, &g);
     b = F0;
     a = F1;
 }
@@ -2997,7 +3035,7 @@ HIGHP_STAGE(load_16161616_dst, const SkRasterPipelineContexts::MemoryCtx* ctx) {
 HIGHP_STAGE(gather_16161616, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint64_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r, g);
-    from_16161616(gather(ptr, ix), &r, &g, &b, &a);
+    from_16161616(gather_unaligned(ptr, ix), &r, &g, &b, &a);
 }
 HIGHP_STAGE(store_16161616, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint16_t>(ctx, 4*dx,4*dy);
@@ -3021,7 +3059,7 @@ HIGHP_STAGE(load_10x6_dst, const SkRasterPipelineContexts::MemoryCtx* ctx) {
 HIGHP_STAGE(gather_10x6, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint64_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r, g);
-    from_10x6(gather(ptr, ix), &r, &g, &b, &a);
+    from_10x6(gather_unaligned(ptr, ix), &r, &g, &b, &a);
 }
 HIGHP_STAGE(store_10x6, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint16_t>(ctx, 4*dx,4*dy);
@@ -3053,17 +3091,17 @@ HIGHP_STAGE(load_1010102_xr_dst, const SkRasterPipelineContexts::MemoryCtx* ctx)
 HIGHP_STAGE(gather_1010102, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint32_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
-    from_1010102(gather(ptr, ix), &r,&g,&b,&a);
+    from_1010102(gather_unaligned(ptr, ix), &r,&g,&b,&a);
 }
 HIGHP_STAGE(gather_1010102_xr, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint32_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r, g);
-    from_1010102_xr(gather(ptr, ix), &r,&g,&b,&a);
+    from_1010102_xr(gather_unaligned(ptr, ix), &r,&g,&b,&a);
 }
 HIGHP_STAGE(gather_10101010_xr, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint64_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r, g);
-    from_10101010_xr(gather(ptr, ix), &r, &g, &b, &a);
+    from_10101010_xr(gather_unaligned(ptr, ix), &r, &g, &b, &a);
 }
 HIGHP_STAGE(load_10101010_xr, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint64_t>(ctx, dx, dy);
@@ -3127,7 +3165,7 @@ HIGHP_STAGE(load_f16_dst, const SkRasterPipelineContexts::MemoryCtx* ctx) {
 HIGHP_STAGE(gather_f16, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint64_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
-    auto px = gather(ptr, ix);
+    auto px = gather_unaligned(ptr, ix);
 
     U16 R,G,B,A;
     load4((const uint16_t*)&px, &R,&G,&B,&A);
@@ -3164,7 +3202,7 @@ HIGHP_STAGE(gather_af16, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint16_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r, g);
     r = g = b = F0;
-    a = from_half(gather(ptr, ix));
+    a = from_half(gather_unaligned(ptr, ix));
 }
 HIGHP_STAGE(store_af16, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint16_t>(ctx, dx,dy);
@@ -3194,7 +3232,7 @@ HIGHP_STAGE(load_rgf16_dst, const SkRasterPipelineContexts::MemoryCtx* ctx) {
 HIGHP_STAGE(gather_rgf16, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const uint32_t* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r, g);
-    auto px = gather(ptr, ix);
+    auto px = gather_unaligned(ptr, ix);
 
     U16 R,G;
     load2((const uint16_t*)&px, &R, &G);
@@ -3220,10 +3258,10 @@ HIGHP_STAGE(load_f32_dst, const SkRasterPipelineContexts::MemoryCtx* ctx) {
 HIGHP_STAGE(gather_f32, const SkRasterPipelineContexts::GatherCtx* ctx) {
     const float* ptr;
     U32 ix = ix_and_ptr(&ptr, ctx, r,g);
-    r = gather(ptr, 4*ix + 0);
-    g = gather(ptr, 4*ix + 1);
-    b = gather(ptr, 4*ix + 2);
-    a = gather(ptr, 4*ix + 3);
+    r = gather_unaligned(ptr, 4*ix + 0);
+    g = gather_unaligned(ptr, 4*ix + 1);
+    b = gather_unaligned(ptr, 4*ix + 2);
+    a = gather_unaligned(ptr, 4*ix + 3);
 }
 HIGHP_STAGE(store_f32, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<float>(ctx, 4*dx,4*dy);
@@ -5009,7 +5047,7 @@ HIGHP_STAGE(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx) {
         U32 ix = ix_and_ptr(&ptr, ctx, x,y);
 
         F sr,sg,sb,sa;
-        from_8888(gather(ptr, ix), &sr,&sg,&sb,&sa);
+        from_8888(gather_unaligned(ptr, ix), &sr,&sg,&sb,&sa);
 
         // In bilinear interpolation, the 4 pixels at +/- 0.5 offsets from the sample pixel center
         // are combined in direct proportion to their area overlapping that logical query pixel.
@@ -5061,7 +5099,7 @@ HIGHP_STAGE(bicubic_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx) 
             U32 ix = ix_and_ptr(&ptr, ctx, sample_x, sample_y);
 
             F sr,sg,sb,sa;
-            from_8888(gather(ptr, ix), &sr,&sg,&sb,&sa);
+            from_8888(gather_unaligned(ptr, ix), &sr,&sg,&sb,&sa);
 
             r = mad(scale, sr, r);
             g = mad(scale, sg, g);
@@ -5958,7 +5996,6 @@ SI void store(T* ptr, V v) {
         return gather<V, T>(ptr, ix);
     }
 #endif
-
 
 // ~~~~~~ 32-bit memory loads and stores ~~~~~~ //
 
