@@ -60,11 +60,14 @@ struct MemoryCtxInfo {
     bool store;
 };
 
-struct MemoryCtxPatch {
-    MemoryCtxInfo info;
-
-    void* backup;  // Remembers context->pixels so we can restore it
+// Some SIMD instructions operate faster if we read from aligned memory. 64 bytes (512 bits) is
+// the widest we have (AVX-512), so if we have the scratch field be first and the whole struct
+// aligned that way, the memory for our tail pixels should also be aligned to 64 bytes.
+struct alignas(64) MemoryCtxPatch {
     std::byte scratch[kMaxScratchPerPatch];
+
+    MemoryCtxInfo info;
+    void* backup;  // Remembers context->pixels so we can restore it
 };
 
 struct GatherCtx {
