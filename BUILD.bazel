@@ -27,6 +27,12 @@ alias(
     visibility = ["//visibility:public"],
 )
 
+alias(
+    name = "mac_utils",
+    actual = "//src/utils/mac:mac_utils",
+    visibility = ["//visibility:public"],
+)
+
 ###
 
 alias(
