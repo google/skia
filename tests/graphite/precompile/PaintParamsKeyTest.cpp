@@ -1572,10 +1572,13 @@ std::pair<SkPaint, PaintOptions> create_paint(SkRandom* rand,
                                               ColorFilterType colorFilterType,
                                               MaskFilterType maskFilterType,
                                               ImageFilterType imageFilterType) {
+    SkColor paintColor = random_color(rand, ColorConstraint::kNone);
+
     SkPaint paint;
-    paint.setColor(random_color(rand, ColorConstraint::kOpaque));
+    paint.setColor(paintColor);
 
     PaintOptions paintOptions;
+    paintOptions.setPaintColorIsOpaque(SkColorGetA(paintColor) == 0xFF);
 
     {
         auto [s, o] = create_shader(rand, recorder, shaderType);

@@ -175,9 +175,6 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     const int desiredShaderCombination = remainingCombinations;
     SkASSERT(desiredShaderCombination < this->numShaderCombinations());
 
-    // TODO: this probably needs to be passed in just like addPrimitiveBlender
-    const bool kOpaquePaintColor = true;
-
     auto clipShader = PrecompileBase::SelectOption(SkSpan(fClipShaderOptions),
                                                    desiredClipShaderCombination);
 
@@ -196,7 +193,7 @@ void PaintOptions::createKey(const KeyContext& keyContext,
     PrecompileBlender* blender = finalBlender.first.get();
     std::optional<SkBlendMode> blendMode = blender ? blender->priv().asBlendMode()
                                                    : SkBlendMode::kSrcOver;
-    PaintOption option(kOpaquePaintColor,
+    PaintOption option(fPaintColorIsOpaque,
                        finalBlender,
                        PrecompileBase::SelectOption(SkSpan(fShaderOptions),
                                                     desiredShaderCombination),
