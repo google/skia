@@ -58,13 +58,6 @@ SK_API sk_sp<SkImage> PinnableRasterFromBitmap(const SkBitmap&);
 
 }  // namespace SkImages
 
-// TODO(kjlubick) remove this after Android has been ported.
-namespace sk_image_factory {
-inline sk_sp<SkImage> MakePinnableFromRasterBitmap(const SkBitmap& b) {
-    return SkImages::PinnableRasterFromBitmap(b);
-}
-}  // namespace sk_image_factory
-
 namespace skgpu::ganesh {
 /**
  *  Will attempt to upload and lock the contents of the image as a texture, so that subsequent
