@@ -158,6 +158,7 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
       'skia_enable_fontmgr_empty':     'true',
       'skia_enable_graphite':          'true',
       'skia_enable_pdf':               'true',
+      'skia_use_cpp20':                'true',
       'skia_use_dawn':                 'true',
       'skia_use_expat':                'true',
       'skia_use_freetype':             'true',
