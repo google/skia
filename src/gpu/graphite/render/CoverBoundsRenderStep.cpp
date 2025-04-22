@@ -8,7 +8,6 @@
 #include "src/gpu/graphite/render/CoverBoundsRenderStep.h"
 
 #include "include/core/SkM44.h"
-#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/BufferWriter.h"
@@ -27,7 +26,7 @@ namespace skgpu::graphite {
 CoverBoundsRenderStep::CoverBoundsRenderStep(RenderStep::RenderStepID renderStepID,
                                              DepthStencilSettings dsSettings)
         : RenderStep(renderStepID,
-                     Flags::kPerformsShading,
+                     Flags::kPerformsShading | Flags::kAppendInstances,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      dsSettings,

@@ -44,7 +44,7 @@ public:
 
 private:
     struct LinearToleranceProxy {
-        operator unsigned int() const { return FixedCountVariant::VertexCount(fTolerances); }
+        operator uint32_t() const { return FixedCountVariant::VertexCount(fTolerances); }
         void operator <<(const tess::LinearTolerances& t) { fTolerances.accumulate(t); }
 
         tess::LinearTolerances fTolerances;

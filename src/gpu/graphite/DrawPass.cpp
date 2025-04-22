@@ -619,6 +619,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             drawWriter.newPipelineState(renderStep.primitiveType(),
                                         renderStep.vertexStride(),
                                         renderStep.instanceStride(),
+                                        renderStep.getRenderStateFlags(),
                                         barrierToAddBeforeDraws);
         } else if (stateChange) {
             drawWriter.newDynamicState();

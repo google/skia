@@ -58,7 +58,7 @@ RenderStep::RenderStepID variant_id(skgpu::MaskFormat variant) {
 
 BitmapTextRenderStep::BitmapTextRenderStep(skgpu::MaskFormat variant)
         : RenderStep(variant_id(variant),
-                     Flags(variant),
+                     Flags(variant) | Flags::kAppendInstances,
                      /*uniforms=*/{{"subRunDeviceMatrix", SkSLType::kFloat4x4},
                                    {"deviceToLocal"     , SkSLType::kFloat4x4},
                                    {"atlasSizeInv"      , SkSLType::kFloat2}},

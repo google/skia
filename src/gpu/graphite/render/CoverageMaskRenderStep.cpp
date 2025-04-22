@@ -61,7 +61,7 @@ CoverageMaskRenderStep::CoverageMaskRenderStep()
                      // The mask will have AA outsets baked in, but the original bounds for clipping
                      // still require the outset for analytic coverage.
                      Flags::kPerformsShading | Flags::kHasTextures | Flags::kEmitsCoverage |
-                     Flags::kOutsetBoundsForAA,
+                     Flags::kOutsetBoundsForAA | Flags::kAppendInstances,
                      /*uniforms=*/{{"maskToDeviceRemainder", SkSLType::kFloat3x3}},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGreaterPass,
