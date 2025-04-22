@@ -22,7 +22,7 @@
 #include "src/encode/SkImageEncoderPriv.h"
 #include "third_party/rust/cxx/v1/cxx.h"
 
-#ifdef SK_PNG_ENCODE_USE_CONVERT_PIXELS
+#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
 #include "src/encode/SkImageEncoderFns.h"
 #endif
 
