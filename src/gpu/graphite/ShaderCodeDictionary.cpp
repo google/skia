@@ -415,7 +415,7 @@ std::string GenerateCoordManipulationPreamble(const ShaderInfo& shaderInfo,
         if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kLocalMatrixShader) {
             if (node->requiredFlags() & SnippetRequirementFlags::kLiftExpression) {
                 localArgs.fFragCoord = node->getExpressionVarying();
-            } else {
+            } else if (!(node->requiredFlags() & SnippetRequirementFlags::kOmitExpression)) {
                 localArgs.fFragCoord = GenerateLocalMatrixExpression(shaderInfo, node, defaultArgs);
             }
         } else if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kLocalMatrixShaderPersp) {
@@ -728,9 +728,10 @@ ShaderSnippet ShaderCodeDictionary::convertRuntimeEffect(const SkRuntimeEffect* 
                                                          const char* name) {
     SkEnumBitMask<SnippetRequirementFlags> snippetFlags = SnippetRequirementFlags::kNone;
     if (effect->allowShader()) {
-        // SkRuntimeEffect::usesSampleCoords() can't be used to restrict this because it returns
-        // false when the only use is to pass the coord unmodified to a child. When children can
-        // refer to interpolated varyings directly in this case, we can refine the flags.
+        // TODO(b/412621191) SkRuntimeEffect::usesSampleCoords() can't be used to restrict this
+        // because it returns false when the only use is to pass the coord unmodified to a child.
+        // When children can refer to interpolated varyings directly in this case, we can refine the
+        // flags.
         snippetFlags |= SnippetRequirementFlags::kLocalCoords;
     } else if (effect->allowColorFilter()) {
         snippetFlags |= SnippetRequirementFlags::kPriorStageOutput;

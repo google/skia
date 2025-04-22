@@ -22,6 +22,16 @@ namespace skgpu::graphite {
 
 namespace {
 
+struct LiftedExpression {
+    // The node who's expression should be lifted.
+    const ShaderNode* fNode;
+    // The arguments to use as input to the lifted expression.
+    ShaderSnippet::Args fArgs;
+    // If true, capture the expression's resolved value in a varying.
+    // This is false for expressions whose output is only used in other lifted expressions.
+    bool fEmitVarying = true;
+};
+
 std::string get_uniform_header(int set, int bufferID, const char* name) {
     std::string result;
     SkSL::String::appendf(
@@ -371,7 +381,7 @@ std::string emit_textures_and_samplers(const ResourceBindingRequirements& bindin
 
 std::string emit_varyings(const RenderStep* step,
                           const char* direction,
-                          SkSpan<const ShaderNode*> liftedExpressions,
+                          SkSpan<const LiftedExpression> liftedExpressions,
                           bool emitSsboIndicesVarying,
                           bool emitLocalCoordsVarying) {
     std::string result;
@@ -400,10 +410,12 @@ std::string emit_varyings(const RenderStep* step,
         appendVarying({"localCoordsVar", SkSLType::kFloat2});
     }
 
-    for (const ShaderNode* node : liftedExpressions) {
+    for (const LiftedExpression& expr : liftedExpressions) {
         // TODO(b/402402925) Provide a way for lifted expressions to declare their varying type.
-        std::string name = node->getExpressionVarying();
-        appendVarying({name.c_str(), SkSLType::kFloat2});
+        if (expr.fEmitVarying) {
+            std::string name = expr.fNode->getExpressionVarying();
+            appendVarying({name.c_str(), SkSLType::kFloat2});
+        }
     }
 
     for (auto v : step->varyings()) {
@@ -471,17 +483,33 @@ std::string emit_color_output(BlendFormula::OutputType outputType,
 }
 
 void collect_lifted_expressions(SkSpan<const ShaderNode*> nodes,
-                                std::vector<const ShaderNode*>& lifted) {
+                                const ShaderSnippet::Args& args,
+                                std::vector<LiftedExpression>& lifted) {
     for (const ShaderNode* node : nodes) {
-        SkASSERT(!(node->requiredFlags() & SnippetRequirementFlags::kLiftExpression) ||
-                 node->entry()->fLiftableExpressionGenerator);
-        if ((node->requiredFlags() & SnippetRequirementFlags::kLiftExpression) &&
-            node->entry()->fLiftableExpressionGenerator) {
-            lifted.push_back(node);
+        const bool emitVaryingInFS =
+                static_cast<bool>(node->requiredFlags() & SnippetRequirementFlags::kLiftExpression);
+        const bool emitExpressionInVS =
+                emitVaryingInFS ||
+                (node->requiredFlags() & SnippetRequirementFlags::kOmitExpression);
+        SkASSERT(!emitExpressionInVS || node->entry()->fLiftableExpressionGenerator);
+
+        ShaderSnippet::Args childArgs = args;
+        if (emitExpressionInVS && node->entry()->fLiftableExpressionGenerator) {
+            lifted.push_back({node, args, emitVaryingInFS});
+            childArgs.fFragCoord = node->getExpressionVarying();
         }
-        collect_lifted_expressions(node->children(), lifted);
+
+        collect_lifted_expressions(node->children(), childArgs, lifted);
     }
 };
+
+std::vector<LiftedExpression> collect_lifted_expressions(SkSpan<const ShaderNode*> nodes) {
+    std::vector<LiftedExpression> lifted;
+    ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
+    args.fFragCoord = "stepLocalCoords";  // Render Steps' stepLocalCoords
+    collect_lifted_expressions(nodes, args, lifted);
+    return lifted;
+}
 
 constexpr skgpu::BlendInfo make_simple_blendInfo(skgpu::BlendCoeff srcCoeff,
                                                  skgpu::BlendCoeff dstCoeff) {
@@ -709,8 +737,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     const bool useDstSampler = fDstReadStrategy == DstReadStrategy::kTextureCopy ||
                                fDstReadStrategy == DstReadStrategy::kTextureSample;
 
-    std::vector<const ShaderNode*> liftedExpr;
-    collect_lifted_expressions(fRootNodes, liftedExpr);
+    const std::vector<LiftedExpression> liftedExpr = collect_lifted_expressions(fRootNodes);
 
     const bool defineLocalCoordsVarying = this->needsLocalCoords();
     std::string preamble = emit_varyings(step,
@@ -1053,8 +1080,7 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
         }
     }
 
-    std::vector<const ShaderNode*> liftedExpr;
-    collect_lifted_expressions(fRootNodes, liftedExpr);
+    const std::vector<LiftedExpression> liftedExpr = collect_lifted_expressions(fRootNodes);
 
     if (!liftedExpr.empty()) {
         bool unusedHasPaintUniforms = false;
@@ -1128,13 +1154,13 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
                                   RenderStep::ssboIndicesAttribute());
         }
 
-        for (const ShaderNode* node : liftedExpr) {
-            ShaderSnippet::Args args = ShaderSnippet::kDefaultArgs;
-            args.fFragCoord = "stepLocalCoords";  // Render Step's stepLocalCoords
-
-            std::string varName = node->getExpressionVarying();
-            std::string expression = node->entry()->fLiftableExpressionGenerator(*this, node, args);
-            SkSL::String::appendf(&sksl, "%s = %s;", varName.c_str(), expression.c_str());
+        for (const LiftedExpression& expr : liftedExpr) {
+            const char* decl = expr.fEmitVarying ? "" : "float2 ";
+            const ShaderNode* node = expr.fNode;
+            const std::string varName = node->getExpressionVarying();
+            const std::string expression =
+                    node->entry()->fLiftableExpressionGenerator(*this, node, expr.fArgs);
+            SkSL::String::appendf(&sksl, "%s%s = %s;", decl, varName.c_str(), expression.c_str());
         }
     }
 

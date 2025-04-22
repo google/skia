@@ -133,8 +133,27 @@ int lift_coord_expressions(SkSpan<ShaderNode*> nodes, int availableVaryings) {
 
         // If the node has a generator, we can lift its modification of its local coords input.
         if (node->entry()->fLiftableExpressionGenerator) {
+#if !defined(SK_USE_LEGACY_UNIFORM_LIFTING_GRAPHITE)
+            // We can potentially lift the nested expressions under here as well.
+            const int previouslyAvailableVaryings = availableVaryings - 1;
+            availableVaryings = lift_coord_expressions(node->children(), availableVaryings - 1);
+            // Don't emit a varying for this node if its output is used in other lifted expressions.
+            // TODO(b/412621191) In some cases we may want to emit varyings for nodes even when
+            // their children's expressions have been lifted. Specifically, a runtime shader node
+            // may use a lifted expression directly and also pass along the expression as input to
+            // children who further modify and use the expression. However, we don't currently
+            // detect such cases in Graphite (we never lift expressions from runtime shaders'
+            // children).
+            const bool childrenLifted = availableVaryings < previouslyAvailableVaryings;
+            if (childrenLifted) {
+                node->setOmitExpressionFlag();
+            } else {
+                node->setLiftExpressionFlag();
+            }
+#else
             node->setLiftExpressionFlag();
             --availableVaryings;
+#endif
 
 #if !defined(SK_USE_LEGACY_UNIFORM_LIFTING_GRAPHITE)
         // If the node passes through its local coords to its children, we check if those perform
