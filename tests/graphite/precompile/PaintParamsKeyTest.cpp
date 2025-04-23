@@ -306,7 +306,9 @@ const char* to_str(DrawTypeFlags dt) {
         case DrawTypeFlags::kSDFText_LCD:      return "DrawTypeFlags::kSDFText_LCD";
         case DrawTypeFlags::kDrawVertices:     return "DrawTypeFlags::kDrawVertices";
         case DrawTypeFlags::kCircularArc:      return "DrawTypeFlags::kCircularArc";
-        case DrawTypeFlags::kSimpleShape:      return "DrawTypeFlags::kSimpleShape";
+        case DrawTypeFlags::kAnalyticRRect:    return "DrawTypeFlags::kAnalyticRRect";
+        case DrawTypeFlags::kPerEdgeAAQuad:    return "DrawTypeFlags::kPerEdgeAAQuad";
+        case DrawTypeFlags::kNonAAFillRect:    return "DrawTypeFlags::kNonAAFillRect";
         case DrawTypeFlags::kNonSimpleShape:   return "DrawTypeFlags::kNonSimpleShape";
         default:                               SkASSERT(0); return "DrawTypeFlags::kNone";
     }
@@ -492,18 +494,20 @@ ImageFilterType random_imagefiltertype(SkRandom* rand) {
 }
 
 [[maybe_unused]] DrawTypeFlags random_drawtype(SkRandom* rand) {
-    uint32_t index = rand->nextULessThan(9);
+    uint32_t index = rand->nextULessThan(11);
 
     switch (index) {
-        case 0: return DrawTypeFlags::kBitmapText_Mask;
-        case 1: return DrawTypeFlags::kBitmapText_LCD;
-        case 2: return DrawTypeFlags::kBitmapText_Color;
-        case 3: return DrawTypeFlags::kSDFText;
-        case 4: return DrawTypeFlags::kSDFText_LCD;
-        case 5: return DrawTypeFlags::kDrawVertices;
-        case 6: return DrawTypeFlags::kCircularArc;
-        case 7: return DrawTypeFlags::kSimpleShape;
-        case 8: return DrawTypeFlags::kNonSimpleShape;
+        case 0:  return DrawTypeFlags::kBitmapText_Mask;
+        case 1:  return DrawTypeFlags::kBitmapText_LCD;
+        case 2:  return DrawTypeFlags::kBitmapText_Color;
+        case 3:  return DrawTypeFlags::kSDFText;
+        case 4:  return DrawTypeFlags::kSDFText_LCD;
+        case 5:  return DrawTypeFlags::kDrawVertices;
+        case 6:  return DrawTypeFlags::kCircularArc;
+        case 7:  return DrawTypeFlags::kAnalyticRRect;
+        case 8:  return DrawTypeFlags::kPerEdgeAAQuad;
+        case 9:  return DrawTypeFlags::kNonAAFillRect;
+        case 10: return DrawTypeFlags::kNonSimpleShape;
     }
 
     SkASSERT(0);
@@ -1693,27 +1697,6 @@ struct DrawData {
     sk_sp<SkVertices> fVertsWithOutColors;
 };
 
-void simple_draws(SkCanvas* canvas, const SkPaint& paint) {
-    // TODO: add some drawLine calls
-    canvas->drawRect(SkRect::MakeWH(16, 16), paint);
-    canvas->drawRRect(SkRRect::MakeOval({0, 0, 16, 16}), paint);
-    canvas->drawRRect(SkRRect::MakeRectXY({0, 0, 16, 16}, 4, 4), paint);
-
-    // TODO: add a case that uses the SkCanvas::experimental_DrawEdgeAAImageSet entry point
-    if (!paint.getShader() &&
-        !paint.getColorFilter() &&
-        !paint.getImageFilter() &&
-        paint.asBlendMode().has_value()) {
-        // The SkPaint reconstructed inside the drawEdgeAAQuad call needs to match 'paint' for
-        // the precompilation checks to work.
-        canvas->experimental_DrawEdgeAAQuad(SkRect::MakeWH(16, 16),
-                                            /* clip= */ nullptr,
-                                            SkCanvas::kAll_QuadAAFlags,
-                                            paint.getColor4f(),
-                                            paint.asBlendMode().value());
-    }
-}
-
 void non_simple_draws(SkCanvas* canvas, const SkPaint& paint, const DrawData& drawData) {
     // TODO: add strokeAndFill draws here as well as a stroked non-circular rrect draw
     canvas->drawPath(drawData.fPath, paint);
@@ -1838,8 +1821,28 @@ void check_draw(skiatest::Reporter* reporter,
                     canvas->drawArc({0, 0, 16, 16}, 0, 90, /* useCenter= */ true, paint);
                 }
                 break;
-            case DrawTypeFlags::kSimpleShape:
-                simple_draws(canvas, paint);
+            case DrawTypeFlags::kAnalyticRRect:
+                canvas->drawRRect(SkRRect::MakeOval({0, 0, 16, 16}), paint);
+                canvas->drawRRect(SkRRect::MakeRectXY({0, 0, 16, 16}, 4, 4), paint);
+                break;
+            case DrawTypeFlags::kPerEdgeAAQuad:
+                // TODO: add a case that uses the SkCanvas::experimental_DrawEdgeAAImageSet
+                //  entry point
+                if (!paint.getShader() &&
+                    !paint.getColorFilter() &&
+                    !paint.getImageFilter() &&
+                    paint.asBlendMode().has_value()) {
+                    // The SkPaint reconstructed inside the drawEdgeAAQuad call needs to match
+                    // 'paint' for the precompilation checks to work.
+                    canvas->experimental_DrawEdgeAAQuad(SkRect::MakeWH(16, 16),
+                                                        /* clip= */ nullptr,
+                                                        SkCanvas::kAll_QuadAAFlags,
+                                                        paint.getColor4f(),
+                                                        paint.asBlendMode().value());
+                }
+                break;
+            case DrawTypeFlags::kNonAAFillRect:
+                canvas->drawRect(SkRect::MakeWH(16, 16), paint);
                 break;
             case DrawTypeFlags::kNonSimpleShape:
                 non_simple_draws(canvas, paint, kDrawData);
@@ -2077,7 +2080,7 @@ void precompile_vs_real_draws_subtest(skiatest::Reporter* reporter,
     if (gNeedSKPPaintOption) {
         // The skp draws a rect w/ a default SkPaint and RGBA dst color type
         PaintOptions skpPaintOptions;
-        Precompile(precompileContext, skpPaintOptions, DrawTypeFlags::kSimpleShape,
+        Precompile(precompileContext, skpPaintOptions, DrawTypeFlags::kNonAAFillRect,
                    { { kDepth_1.fDSFlags, kRGBA_8888_SkColorType, kDepth_1.fDstCS,
                        kDepth_1.fRequiresMSAA } });
     }
@@ -2306,7 +2309,9 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
             DrawTypeFlags::kSDFText_LCD,
             DrawTypeFlags::kDrawVertices,
             DrawTypeFlags::kCircularArc,
-            DrawTypeFlags::kSimpleShape,
+            DrawTypeFlags::kAnalyticRRect,
+            DrawTypeFlags::kPerEdgeAAQuad,
+            DrawTypeFlags::kNonAAFillRect,
             DrawTypeFlags::kNonSimpleShape,
     };
 

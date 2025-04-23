@@ -264,9 +264,9 @@ const struct PrecompileSettings {
 
         { "CircularArcRenderStep",                       DrawTypeFlags::kCircularArc  },
 
-        { "AnalyticRRectRenderStep",                     DrawTypeFlags::kSimpleShape  },
-        { "CoverBoundsRenderStep[NonAAFill]",            DrawTypeFlags::kSimpleShape  },
-        { "PerEdgeAAQuadRenderStep",                     DrawTypeFlags::kSimpleShape  },
+        { "AnalyticRRectRenderStep",                     DrawTypeFlags::kAnalyticRRect  },
+        { "CoverBoundsRenderStep[NonAAFill]",            DrawTypeFlags::kNonAAFillRect  },
+        { "PerEdgeAAQuadRenderStep",                     DrawTypeFlags::kPerEdgeAAQuad  },
 
         { "CoverageMaskRenderStep",                      DrawTypeFlags::kNonSimpleShape },
         { "CoverBoundsRenderStep[RegularCover]",         DrawTypeFlags::kNonSimpleShape },
@@ -808,7 +808,7 @@ void run_test(skgpu::graphite::PrecompileContext* precompileContext,
 
 #if defined(SK_DEBUG)
                 DrawTypeFlags expectedFlags = get_draw_type_flags(testStr);
-                SkASSERT(expectedFlags == settings.fDrawTypeFlags);
+                SkASSERT(expectedFlags & settings.fDrawTypeFlags);
                 RenderPassProperties expectedRPP = get_render_pass_properties(testStr);
                 if (strstr(testStr, "ColorSpaceTransformSRGB")) {
                     expectedRPP.fDstCS = SkColorSpace::MakeSRGB();

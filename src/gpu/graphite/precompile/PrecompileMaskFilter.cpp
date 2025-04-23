@@ -98,7 +98,7 @@ private:
             coverageOptions.priv().buildCombinations(
                     keyContext,
                     gatherer,
-                    static_cast<DrawTypeFlags>(InternalDrawTypeFlags::kAnalyticRRect),
+                    DrawTypeFlags::kAnalyticRRect,
                     /* withPrimitiveBlender= */ false,
                     Coverage::kSingleChannel,
                     coverageRenderPassDesc,
