@@ -1,0 +1,16 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_cc_library(
+    name = "skcapture",
+    srcs = ["SkCaptureCanvas.cpp"],
+    hdrs = ["SkCaptureCanvas.h"],
+    features = ["layering_check"],
+    visibility = ["//tests:tests_base"],
+    deps = ["//:core"],
+)

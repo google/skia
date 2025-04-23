@@ -753,6 +753,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_jsonreader_sources",
 			Rules: []string{"//modules/jsonreader:jsonreader"}},
 	}},
+	{GNI: "modules/skcapture/skcapture.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_skcapture_sources",
+			Rules: []string{"//modules/skcapture:skcapture"}},
+	}},
 }
 
 const (
