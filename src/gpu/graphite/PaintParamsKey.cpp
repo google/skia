@@ -226,29 +226,37 @@ static int key_to_string(SkString* str,
 
     if (entry->storesSamplerDescData()) {
         SkASSERT(currentIndex + 1 < SkTo<int>(keyData.size()));
-        const int dataLength = keyData[currentIndex++];
-        SkASSERT(currentIndex + dataLength < SkTo<int>(keyData.size()));
+
+        // If an entry stores data, then the next key value reports the quantity of key indices that
+        // are used to house the data for this snippet. This way, we know how many indices to
+        // iterate over in order to capture the snippet's data before we may encounter another
+        // snippet ID.
+        // For example:
+        // [snippetId using 2 indices worth of data] [2] [dataValue0] [dataValue1] [next snippet ID]
+        const int dataIndexCount = keyData[currentIndex++];
+        SkASSERT(currentIndex + dataIndexCount < SkTo<int>(keyData.size()));
 
         // Define a compact representation for the common case of shader snippets using just one
-        // dynamic sampler. Immutable samplers require a data length > 1 to be represented while a
-        // dynamic sampler is represented with just one, so we can simply consult the data length.
-        if (dataLength == 1) {
+        // dynamic sampler. Immutable samplers require > 1 index of data to be represented while a
+        // dynamic sampler is represented with just one, so we can simply consult dataIndexCount.
+        if (dataIndexCount == 1) {
             str->append("(0)");
         } else {
             str->append("(");
-            str->appendU32(dataLength);
+            str->appendU32(dataIndexCount);
             if (includeData) {
-                // Encode data in base64 to shorten it
                 str->append(": ");
-                SkAutoMalloc encodedData{SkBase64::EncodedSize(dataLength)};
+                // Encode data in base64 to shorten it
+                const size_t srcDataSize = dataIndexCount * sizeof(uint32_t); // size in bytes
+                SkAutoMalloc encodedData{SkBase64::EncodedSize(srcDataSize)};
                 char* dst = static_cast<char*>(encodedData.get());
-                size_t encodedLen = SkBase64::Encode(&keyData[currentIndex], dataLength, dst);
+                size_t encodedLen = SkBase64::Encode(&keyData[currentIndex], srcDataSize, dst);
                 str->append(dst, encodedLen);
             }
             str->append(")");
         }
-
-        currentIndex += dataLength;
+        // Increment current index past the indices which contain data
+        currentIndex += dataIndexCount;
     }
 
     if (entry->fNumChildren > 0) {
