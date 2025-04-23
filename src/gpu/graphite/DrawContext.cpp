@@ -92,6 +92,18 @@ sk_sp<DrawContext> DrawContext::Make(const Caps* caps,
     return sk_sp<DrawContext>(new DrawContext(caps, std::move(target), imageInfo, props));
 }
 
+namespace {
+DstReadStrategy determine_msaa_dstReadStrategy(DstReadStrategy singleSampledStrategy) {
+    // TODO(b/390458117): Vulkan is currently the only backend to utilize
+    // DstReadStrategy::kReadFromInput. However, it does not yet support reading from multisampled
+    // textures as input attachments. So, we must fall back to using texture copies when
+    // multisampling. Once Vulkan supports dst reads for multisampled targets, we can consolidate to
+    // using one shared dst read strategy for all targets regardless of sample count.
+    return singleSampledStrategy == DstReadStrategy::kReadFromInput ? DstReadStrategy::kTextureCopy
+                                                                    : singleSampledStrategy;
+}
+} // anonymous namespace
+
 DrawContext::DrawContext(const Caps* caps,
                          sk_sp<TextureProxy> target,
                          const SkImageInfo& ii,
@@ -99,12 +111,13 @@ DrawContext::DrawContext(const Caps* caps,
         : fTarget(std::move(target))
         , fImageInfo(ii)
         , fSurfaceProps(props)
-        , fDstReadStrategy(caps->getDstReadStrategy())
+        , fSingleSampleDstReadStrategy(caps->getDstReadStrategy())
+        , fMSAADstReadStrategy(determine_msaa_dstReadStrategy(fSingleSampleDstReadStrategy))
         , fCurrentDrawTask(sk_make_sp<DrawTask>(fTarget))
         , fPendingDraws(std::make_unique<DrawList>())
         , fPendingUploads(std::make_unique<UploadList>()) {
     // Must determine a valid strategy to use should a dst texture read be required.
-    SkASSERT(fDstReadStrategy != DstReadStrategy::kNoneRequired);
+    SkASSERT(fSingleSampleDstReadStrategy != DstReadStrategy::kNoneRequired);
 
     if (!caps->isTexturable(fTarget->textureInfo())) {
         fReadView = {}; // Presumably this DrawContext is rendering into a swap chain
@@ -200,37 +213,6 @@ PathAtlas* DrawContext::getComputePathAtlas(Recorder* recorder) {
     return fComputePathAtlas.get();
 }
 
-namespace {
-DstReadStrategy determine_drawpass_dstReadStrategy(
-        const DstReadStrategy drawContextDstReadStrategy,
-        bool drawsReadDst,
-        bool drawsRequireMSAA) {
-
-    // If no draws read from the dst texture, the drawpass can ignore the drawContextDstReadStrategy
-    // and instead use DstReadStrategy::kNoneRequired.
-    if (!drawsReadDst) {
-        return DstReadStrategy::kNoneRequired;
-    }
-
-    // TODO(b/390458117): Vulkan is currently the only backend to utilize
-    // DstReadStrategy::kReadFromInput. Until reading MSAA textures as input attachments is
-    // implemented in the Vulkan backend, we must fall back to using texture copies for reading the
-    // dst texture if it is multisampled. It is necessary to perform this check for each drawpass
-    // rather than relying upon the DrawContext's DstReadStrategy because, even if the DrawContext
-    // target has a sample count of 1, RenderPassDesc creation can later determine that the target
-    // should actually be multisampled depending upon Caps's msaaRenderToSingleSampledSupport.
-    // Drawpasses must know the actual DstReadStrategy upon creation to make certain
-    // decisions, so if we originally planned to use kReadFromInput, we must determine now that we
-    // must fall back to using kTextureCopy.
-    if (drawContextDstReadStrategy == DstReadStrategy::kReadFromInput && drawsRequireMSAA) {
-        return DstReadStrategy::kTextureCopy;
-    }
-
-    // If none of these special cases apply, simply use the draw context's DstReadStrategy.
-    return drawContextDstReadStrategy;
-}
-} // anonymous
-
 void DrawContext::flush(Recorder* recorder) {
     if (fPendingUploads->size() > 0) {
         TRACE_EVENT_INSTANT1("skia.gpu", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
@@ -269,12 +251,10 @@ void DrawContext::flush(Recorder* recorder) {
     SkIRect dstReadPixelBounds = fPendingDraws->dstReadBounds().makeRoundOut().asSkIRect();
     const bool drawsRequireMSAA = fPendingDraws->drawsRequireMSAA();
     const SkEnumBitMask<DepthStencilFlags> dsFlags = fPendingDraws->depthStencilFlags();
-    // Determine the optimal strategy given the draw context's dst texture reading strategy and
-    // the drawpass's properties.
+    // Determine the optimal dst read strategy for the drawpass given pending draw characteristics
     const DstReadStrategy drawPassDstReadStrategy =
-            determine_drawpass_dstReadStrategy(/*drawContextDstReadStrategy=*/fDstReadStrategy,
-                                               fPendingDraws->drawsReadDst(),
-                                               fPendingDraws->drawsRequireMSAA());
+            fPendingDraws->drawsReadDst() ? this->dstReadStrategy(fPendingDraws->drawsRequireMSAA())
+                                          : DstReadStrategy::kNoneRequired;
 
     // Convert the pending draws and load/store ops into a DrawPass that will be executed after
     // the collected uploads and compute dispatches.
