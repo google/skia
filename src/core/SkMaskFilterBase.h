@@ -20,7 +20,9 @@
 #include "src/core/SkMask.h"
 
 #include <optional>
+#include <utility>
 
+class SkPaint;
 class SkBlitter;
 class SkImageFilter;
 class SkCachedData;
@@ -88,10 +90,20 @@ public:
     virtual bool asABlur(BlurRec*) const;
 
     /**
-     * Return an SkImageFilter representation of this mask filter that SkCanvas can apply to an
-     * alpha-only image to produce an equivalent effect to running the mask filter directly.
+     * Return an SkImageFilter representation of this mask filter that SkCanvas can apply
+     * to an alpha-only image to produce an equivalent effect to running the mask filter directly.
+     *
+     * Additionally, return a boolean that indicates if the image filter applies shading properties.
+     * When restoring a layer, this affects whether to draw a rgba image or blend the coverage
+     * mask (A8 image).
+     *
+     * The paint parameter can be used to apply shading. Some mask filters (e.g. EmbossMaskFilter)
+     * may not produce correct results under these circumstances and different blend modes,
+     * given that the coverage mask will be blended in the mask filter as image filter impl in
+     * these cases.
      */
-    virtual sk_sp<SkImageFilter> asImageFilter(const SkMatrix& ctm) const;
+    virtual std::pair<sk_sp<SkImageFilter>, bool> asImageFilter(const SkMatrix& ctm,
+                                                                const SkPaint& paint) const;
 
     static SkFlattenable::Type GetFlattenableType() {
         return kSkMaskFilter_Type;

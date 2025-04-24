@@ -29,8 +29,10 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <utility>
 
 class SkMatrix;
+class SkPaint;
 
 class SkTableMaskFilterImpl : public SkMaskFilterBase {
 public:
@@ -39,7 +41,8 @@ public:
     SkMask::Format getFormat() const override;
     bool filterMask(SkMaskBuilder*, const SkMask&, const SkMatrix&, SkIPoint*) const override;
     SkMaskFilterBase::Type type() const override { return SkMaskFilterBase::Type::kTable; }
-    sk_sp<SkImageFilter> asImageFilter(const SkMatrix&) const override;
+    std::pair<sk_sp<SkImageFilter>, bool> asImageFilter(const SkMatrix&,
+                                                        const SkPaint&) const override;
 
 protected:
     ~SkTableMaskFilterImpl() override;
@@ -128,12 +131,13 @@ sk_sp<SkFlattenable> SkTableMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
     return sk_sp<SkFlattenable>(SkTableMaskFilter::Create(table));
 }
 
-sk_sp<SkImageFilter> SkTableMaskFilterImpl::asImageFilter(const SkMatrix&) const {
+std::pair<sk_sp<SkImageFilter>, bool> SkTableMaskFilterImpl::asImageFilter(const SkMatrix&,
+                                                                           const SkPaint&) const {
     sk_sp<SkColorFilter> colorFilter = SkColorFilters::TableARGB(fTable,
                                                                  nullptr,
                                                                  nullptr,
                                                                  nullptr);
-    return SkImageFilters::ColorFilter(colorFilter, nullptr);
+    return std::make_pair(SkImageFilters::ColorFilter(colorFilter, nullptr), false);
 }
 ///////////////////////////////////////////////////////////////////////////////
 

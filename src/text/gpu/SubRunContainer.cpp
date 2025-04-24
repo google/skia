@@ -1419,10 +1419,13 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 }
             }
 #endif  // !defined(SK_DISABLE_SDF_TEXT)
-
+            // Mask filters with 3D format (e.g. EmbossMaskFilter) need to be drawn as a path
+            // in order to apply the filter through the Canvas AutoLayer system.
+            const bool needsAutoLayer = runPaint.getMaskFilter() &&
+                as_MFB(runPaint.getMaskFilter())->getFormat() == SkMask::k3D_Format;
             // Direct Mask case
             // Handle all the directly mapped mask subruns.
-            if (!source.empty() && !positionMatrix.hasPerspective()) {
+            if (!source.empty() && !positionMatrix.hasPerspective() && !needsAutoLayer) {
                 // Process masks including ARGB - this should be the 99.99% case.
                 // This will handle medium size emoji that are sharing the run with SDFT drawn text.
                 // If things are too big they will be passed along to the drawing of last resort

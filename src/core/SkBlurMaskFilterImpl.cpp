@@ -71,7 +71,8 @@ bool SkBlurMaskFilterImpl::asABlur(BlurRec* rec) const {
     return true;
 }
 
-sk_sp<SkImageFilter> SkBlurMaskFilterImpl::asImageFilter(const SkMatrix& ctm) const {
+std::pair<sk_sp<SkImageFilter>, bool> SkBlurMaskFilterImpl::asImageFilter(const SkMatrix& ctm,
+                                                                          const SkPaint&) const {
     float sigma = fSigma;
     if (this->ignoreXform()) {
         // This is analogous to computeXformedSigma(), but it might be more correct to wrap the
@@ -87,15 +88,15 @@ sk_sp<SkImageFilter> SkBlurMaskFilterImpl::asImageFilter(const SkMatrix& ctm) co
     switch(fBlurStyle) {
         case kInner_SkBlurStyle: //  dst = dst * src
                                  //      = 0 * src + src * dst
-            return SkImageFilters::Blend(SkBlendMode::kDstIn, std::move(filter), nullptr);
+            return {SkImageFilters::Blend(SkBlendMode::kDstIn, std::move(filter), nullptr), false};
         case kSolid_SkBlurStyle: //  dst = src + dst - src * dst
                                  //      = 1 * src + (1 - src) * dst
-            return SkImageFilters::Blend(SkBlendMode::kSrcOver, std::move(filter), nullptr);
+            return {SkImageFilters::Blend(SkBlendMode::kSrcOver, std::move(filter), nullptr), false};
         case kOuter_SkBlurStyle: //  dst = dst * (1 - src)
                                  //      = 0 * src + (1 - src) * dst
-            return SkImageFilters::Blend(SkBlendMode::kDstOut, std::move(filter), nullptr);
+            return {SkImageFilters::Blend(SkBlendMode::kDstOut, std::move(filter), nullptr), false};
         case kNormal_SkBlurStyle:
-            return filter;
+            return {filter, false};
     }
     SkUNREACHABLE;
 }
