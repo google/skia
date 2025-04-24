@@ -76,7 +76,7 @@ skia_cc_library(
             "@skia//:fontmgr_fontconfig_freetype",
         ],
         # TODO(kjlubick) mac, windows
-        "//conditions:default": ["//:fontmgr_empty"],
+        "//conditions:default": ["//:fontmgr_empty_freetype"],
     }),
 )
 
