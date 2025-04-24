@@ -119,7 +119,6 @@ skia_cc_library(
     name = "png_encode_base",
     srcs = [":png_encode_base_srcs"],
     hdrs = [":png_encode_base_hdrs"],
-    defines = ["SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS"],
     features = ["layering_check"],
     visibility = [
         "//:__pkg__",

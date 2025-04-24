@@ -19,12 +19,9 @@
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/base/SkAssert.h"
 #include "src/base/SkSafeMath.h"
+#include "src/encode/SkImageEncoderFns.h"
 #include "src/encode/SkImageEncoderPriv.h"
 #include "third_party/rust/cxx/v1/cxx.h"
-
-#ifdef SK_CODEC_ENCODES_PNG_WITH_CONVERT_PIXELS
-#include "src/encode/SkImageEncoderFns.h"
-#endif
 
 #ifdef __clang__
 #pragma clang diagnostic error "-Wconversion"
