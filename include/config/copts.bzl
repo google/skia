@@ -3,7 +3,7 @@ THIS IS THE EXTERNAL-ONLY VERSION OF THIS FILE. G3 HAS ITS OWN.
 
 This file contains flags for the C++ compiler, referred to by Bazel as copts.
 
-The copts in a cc_library to not flow to the children (dependencies) nor the parents
+The copts in a cc_library do not flow to the children (dependencies) nor the parents
 (dependents), so we use skia_cc_library to inject them in every library along the chain.
 
 Now that we have a modular build, this file could maybe go away and folded into our toolchains.

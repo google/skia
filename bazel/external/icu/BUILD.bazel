@@ -1065,6 +1065,7 @@ cc_library(
         "-Wno-deprecated-declarations",
         "-Wno-unused-but-set-variable",
         "-Wno-unused-function",
+        "-Wno-ambiguous-reversed-operator",
     ],
     defines = [
         "SK_USING_THIRD_PARTY_ICU",

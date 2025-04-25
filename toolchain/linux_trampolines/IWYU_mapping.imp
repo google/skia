@@ -190,6 +190,9 @@
   { include: ["<__algorithm/unwrap_range.h>", "private", "<algorithm>", "public"] },
   { include: ["<__algorithm/upper_bound.h>", "private", "<algorithm>", "public"] },
 
+  { include: ["<__compare/common_comparison_category.h>", "private", "<compare>", "public"] },
+  { include: ["<__compare/ordering.h>", "private", "<compare>", "public"] },
+
   { symbol: ["std::move", "private", "<utility>", "public"] },
 
   { symbol: ["std::swap", "private", "<utility>", "public"] },

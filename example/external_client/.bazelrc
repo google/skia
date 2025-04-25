@@ -1,2 +1,2 @@
-# Skia requires at least C++17
-build --cxxopt='-std=c++17'
+# Skia requires at least C++17 (soon to be C++20)
+build --cxxopt='-std=c++20'

@@ -14,15 +14,16 @@ It follows the example of:
 # https://github.com/bazelbuild/bazel/blob/master/tools/build_defs/cc/action_names.bzl
 load("@bazel_tools//tools/build_defs/cc:action_names.bzl", "ACTION_NAMES")
 
-# https://github.com/bazelbuild/bazel/blob/master/tools/cpp/cc_toolchain_config_lib.bzl
+# https://github.com/bazelbuild/rules_cc/blob/main/cc/cc_toolchain_config_lib.bzl
 load(
-    "@bazel_tools//tools/cpp:cc_toolchain_config_lib.bzl",
+    "@rules_cc//cc:cc_toolchain_config_lib.bzl",
     "action_config",
     "feature",
     "flag_group",
     "flag_set",
     "tool",
     "variable_with_value",
+    "with_feature_set",
 )
 load(":clang_layering_check.bzl", "make_layering_check_features")
 
@@ -242,7 +243,6 @@ def _make_default_flags():
         flag_groups = [
             flag_group(
                 flags = [
-                    "-std=c++17",
                     "-stdlib=libc++",
                 ],
             ),
@@ -262,7 +262,6 @@ def _make_default_flags():
                     # We chose to use the llvm runtime, not the gcc one because it is already
                     # included in the clang binary
                     "--rtlib=compiler-rt",
-                    "-std=c++17",
                     "-stdlib=libc++",
                     # We statically include these libc++ libraries so they do not need to be
                     # on a developer's machine (they can be tricky to get).
@@ -277,15 +276,66 @@ def _make_default_flags():
             ),
         ],
     )
-    return [feature(
-        "default_flags",
+
+    # Declare a feature that can be true or false
+    cpp20 = feature(
+        name = "skia_uses_cpp20",
+        enabled = False,
+    )
+
+    # A big fancy if/else branch depending on if the above feature is True or False
+    cpp20_flags = feature(
+        name = "cpp20_flags",
         enabled = True,
         flag_sets = [
-            cxx_compile_includes,
-            cpp_compile_flags,
-            link_exe_flags,
+            flag_set(
+                actions = [
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_link_executable,
+                    ACTION_NAMES.cpp_link_dynamic_library,
+                    ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+                ],
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-std=c++20",
+                        ],
+                    ),
+                ],
+                with_features = [with_feature_set(features = ["skia_uses_cpp20"])],
+            ),
+            flag_set(
+                actions = [
+                    ACTION_NAMES.cpp_compile,
+                    ACTION_NAMES.cpp_link_executable,
+                    ACTION_NAMES.cpp_link_dynamic_library,
+                    ACTION_NAMES.cpp_link_nodeps_dynamic_library,
+                ],
+                flag_groups = [
+                    flag_group(
+                        flags = [
+                            "-std=c++17",
+                        ],
+                    ),
+                ],
+                with_features = [with_feature_set(not_features = ["skia_uses_cpp20"])],
+            ),
         ],
-    )]
+    )
+
+    return [
+        feature(
+            name = "default_flags",
+            enabled = True,
+            flag_sets = [
+                cxx_compile_includes,
+                cpp_compile_flags,
+                link_exe_flags,
+            ],
+        ),
+        cpp20,
+        cpp20_flags,
+    ]
 
 def _make_diagnostic_flags():
     """Here we define the flags that can be turned on via features to yield debug info."""
@@ -330,7 +380,7 @@ def _make_diagnostic_flags():
         # Running a Bazel command with --features diagnostic will cause the compilation and
         # link steps to be more verbose.
         feature(
-            "diagnostic",
+            name = "diagnostic",
             enabled = False,
             flag_sets = [
                 cxx_diagnostic,
@@ -338,7 +388,7 @@ def _make_diagnostic_flags():
             ],
         ),
         feature(
-            "diagnostic_link",
+            name = "diagnostic_link",
             enabled = False,
             flag_sets = [
                 link_diagnostic,
@@ -347,7 +397,7 @@ def _make_diagnostic_flags():
         # Running a Bazel command with --features print_search_dirs will cause the link to fail
         # but directories searched for libraries, etc will be displayed.
         feature(
-            "print_search_dirs",
+            name = "print_search_dirs",
             enabled = False,
             flag_sets = [
                 link_search_dirs,
@@ -382,7 +432,7 @@ def _make_iwyu_flags():
 
     return [
         feature(
-            "skia_enforce_iwyu",
+            name = "skia_enforce_iwyu",
             enabled = False,
             flag_sets = [
                 opt_file_into_iwyu,
