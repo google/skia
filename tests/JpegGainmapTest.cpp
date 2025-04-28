@@ -786,8 +786,7 @@ static SkBitmap render_gainmap(const SkImageInfo& renderInfo,
                                                    SkSamplingOptions(),
                                                    gainmapInfo,
                                                    dstRect,
-                                                   renderHdrRatio,
-                                                   renderInfo.refColorSpace());
+                                                   renderHdrRatio);
 
     SkBitmap result;
     result.allocPixels(renderInfo);
