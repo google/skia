@@ -99,6 +99,7 @@ skia_cc_binary(
         "Viewer.h",
         "//bench:gpu_tools",
         "//gm:gm_subset",
+        "//tools/flags:common_flags_config",
         "//tools/fonts:test_font_manager_srcs",
     ],
     data = [

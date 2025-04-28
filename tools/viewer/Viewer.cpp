@@ -610,6 +610,9 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     skwindow::GraphiteTestOptions gto;
     CommonFlags::SetTestOptions(&gto.fTestOptions);
     gto.fPriv.fPathRendererStrategy = get_path_renderer_strategy_type(FLAGS_pathstrategy[0]);
+    if (FLAGS_msaa <= 0) {
+        gto.fTestOptions.fContextOptions.fInternalMultisampleCount = 1;
+    }
     paramsBuilder.graphiteTestOptions(gto);
 #endif
     fWindow->setRequestedDisplayParams(paramsBuilder.build());

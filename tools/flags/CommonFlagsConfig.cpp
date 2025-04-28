@@ -250,6 +250,9 @@ static const char* config_extended_help_fn() {
 
 DEFINE_extended_string(config, defaultConfigs, config_help_fn(), config_extended_help_fn());
 
+DEFINE_int(internalSamples, -1,
+           "Number of samples for internal draws that use MSAA, or default value if negative.");
+
 SkCommandLineConfig::SkCommandLineConfig(const SkString& tag,
                                          const SkString& backend,
                                          const TArray<SkString>& viaParts)

@@ -14,6 +14,9 @@ DEFINE_int(gpuThreads,
              "Create this many extra threads to assist with GPU work, "
              "including software path rendering. Defaults to two.");
 
+// Defined in CommonFlagsConfig
+DECLARE_int(internalSamples);
+
 namespace CommonFlags {
 
 static DEFINE_bool(cachePathMasks, true,
@@ -27,9 +30,6 @@ static DEFINE_string(pr, "",
               "Set of enabled gpu path renderers. Defined as a list of: "
               "[~]none [~]dashline [~]aahairline [~]aaconvex [~]aalinearizing [~]small [~]tri "
               "[~]atlas [~]tess [~]all");
-
-static DEFINE_int(internalSamples, -1,
-        "Number of samples for internal draws that use MSAA, or default value if negative.");
 
 static DEFINE_int(maxAtlasSize, -1,
         "Maximum width and height of internal texture atlases, or default value if negative.");

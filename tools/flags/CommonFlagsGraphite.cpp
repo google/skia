@@ -8,8 +8,10 @@
 #include "tools/flags/CommonFlagsGraphite.h"
 #include "tools/graphite/TestOptions.h"
 
-namespace CommonFlags {
+// Defined in CommonFlagsConfig
+DECLARE_int(internalSamples);
 
+namespace CommonFlags {
 #if defined(SK_DAWN)
 static DEFINE_bool(disable_tint_symbol_renaming, false, "Disable Tint WGSL symbol renaming when "
                                                         "using Dawn");
@@ -20,6 +22,9 @@ static DEFINE_bool(useWGPUTextureView, false, "Run Graphite w/ a wrapped WGPU te
 #endif // SK_DAWN
 
 void SetTestOptions(skiatest::graphite::TestOptions* testOptions) {
+    if (FLAGS_internalSamples >= 0) {
+        testOptions->fContextOptions.fInternalMultisampleCount = FLAGS_internalSamples;
+    }
 #if defined(SK_DAWN)
     testOptions->fDisableTintSymbolRenaming = FLAGS_disable_tint_symbol_renaming;
     testOptions->fNeverYieldToWebGPU = FLAGS_neverYieldToWebGPU;
