@@ -348,7 +348,7 @@ sk_sp<SkImageFilter> SkImageFilters::SpotLitDiffuse(
 sk_sp<SkImageFilter> SkEmbossMaskFilter::LegacySpecular(
         const SkPoint3& direction, SkColor lightColor, SkScalar surfaceScale, SkScalar ks,
         SkScalar shininess, sk_sp<SkImageFilter> input) {
-    return make_lighting(Light::Distant(lightColor, direction),
+    return make_lighting(::Light::Distant(lightColor, direction),
                          Material::EmbossSpecular(ks, shininess, surfaceScale),
                          std::move(input), {});
 }

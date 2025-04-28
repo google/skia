@@ -406,7 +406,7 @@ DEF_TEST(BlurAsABlur, reporter) {
     // Test asABlur for SkEmbossMaskFilter -- should never succeed
     //
     {
-        SkEmbossMaskFilter::EmbossLight light = {
+        SkEmbossMaskFilter::Light light = {
             { 1, 1, 1 }, 0, 127, 127
         };
         for (size_t j = 0; j < std::size(sigmas); ++j) {
@@ -502,7 +502,7 @@ DEF_TEST(BlurredRRectNinePatchComputation, reporter) {
 DEF_TEST(EmbossPerlinCrash, reporter) {
     SkPaint p;
 
-    static constexpr SkEmbossMaskFilter::EmbossLight light = {
+    static constexpr SkEmbossMaskFilter::Light light = {
         { 1, 1, 1 }, 0, 127, 127
     };
     p.setMaskFilter(SkEmbossMaskFilter::Make(1, light));

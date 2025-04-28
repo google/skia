@@ -52,7 +52,7 @@ static inline unsigned div255(unsigned x) {
 
 #define kDelta  32  // small enough to show off angle differences
 
-void SkEmbossMask::Emboss(SkMaskBuilder* mask, const SkEmbossMaskFilter::EmbossLight& light) {
+void SkEmbossMask::Emboss(SkMaskBuilder* mask, const SkEmbossMaskFilter::Light& light) {
     SkASSERT(mask->fFormat == SkMask::k3D_Format);
 
     int     specular = light.fSpecular;

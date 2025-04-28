@@ -93,7 +93,7 @@ DEF_GM(return new EmbossGM;)
 
 void draw_emboss_example(SkCanvas* canvas,
                          const SkRect& bounds,
-                         const SkEmbossMaskFilter::EmbossLight& light,
+                         const SkEmbossMaskFilter::Light& light,
                          SkScalar blurSigma,
                          const char* label) {
     canvas->save();
@@ -211,31 +211,31 @@ DEF_SIMPLE_GM(embossmaskfilter, canvas, 640, 960) {
         const float cellWidth = (float)totalWidth / gridCols;
         const float cellHeight = (float)topHeight / gridRows;
 
-        std::vector<SkEmbossMaskFilter::EmbossLight> embossRecs;
+        std::vector<SkEmbossMaskFilter::Light> embossRecs;
         std::vector<std::string> labels;
         SkScalar blurSigma = SkDoubleToScalar(2.5);
 
-        SkEmbossMaskFilter::EmbossLight rec;
+        SkEmbossMaskFilter::Light rec;
 
         // Example 1: Top-left light, medium ambient, low specular
         rec = {{-1.0f, -1.0f, 1.0f}, 0, 80, 16};
         embossRecs.push_back(rec);
-        labels.push_back("EmbossLight: TL, Amb: 80, Spec: 16");
+        labels.push_back("Light: TL, Amb: 80, Spec: 16");
 
         // Example 2: Bottom-right light, high ambient, low specular
         rec = {{1.0f, 1.0f, 0.8f}, 0, 180, 16};
         embossRecs.push_back(rec);
-        labels.push_back("EmbossLight: BR, Amb: 180, Spec: 16");
+        labels.push_back("Light: BR, Amb: 180, Spec: 16");
 
         // Example 3: Direct top light, low ambient, high specular
         rec = {{0.0f, -1.0f, 1.0f}, 0, 30, 128};
         embossRecs.push_back(rec);
-        labels.push_back("EmbossLight: Top, Amb: 30, Spec: 128");
+        labels.push_back("Light: Top, Amb: 30, Spec: 128");
 
         // Example 4: Left light, medium ambient, medium specular
         rec = {{-1.0f, 0.0f, 0.5f}, 0, 80, 64};
         embossRecs.push_back(rec);
-        labels.push_back("EmbossLight: Left, Amb: 80, Spec: 64");
+        labels.push_back("Light: Left, Amb: 80, Spec: 64");
 
         size_t exampleIndex = 0;
         for (int r = 0; r < gridRows; ++r) {
@@ -261,7 +261,7 @@ DEF_SIMPLE_GM(embossmaskfilter, canvas, 640, 960) {
         const float cellWidth = (float)totalWidth / gridCols;
         const float cellHeight = (float)bottomHeight / gridRows;
 
-        SkEmbossMaskFilter::EmbossLight embossRec = {{-0.707f, -0.707f, 0.707f}, 0, 60, 48};
+        SkEmbossMaskFilter::Light embossRec = {{-0.707f, -0.707f, 0.707f}, 0, 60, 48};
         SkScalar blurSigma = SkDoubleToScalar(2.0);
 
         sk_sp<SkMaskFilter> embossMF = SkEmbossMaskFilter::Make(blurSigma, embossRec);

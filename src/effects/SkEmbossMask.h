@@ -15,7 +15,7 @@ struct SkMaskBuilder;
 
 class SkEmbossMask {
 public:
-    static void Emboss(SkMaskBuilder* mask, const SkEmbossMaskFilter::EmbossLight&);
+    static void Emboss(SkMaskBuilder* mask, const SkEmbossMaskFilter::Light&);
 };
 
 #endif

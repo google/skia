@@ -33,14 +33,14 @@ struct SkPoint3;
 */
 class SkEmbossMaskFilter : public SkMaskFilterBase {
 public:
-    struct EmbossLight {
+    struct Light {
         SkScalar    fDirection[3];  // x,y,z
         uint16_t    fPad;
         uint8_t     fAmbient;
         uint8_t     fSpecular;      // exponent, 4.4 right now
     };
 
-    static sk_sp<SkMaskFilter> Make(SkScalar blurSigma, const EmbossLight& light);
+    static sk_sp<SkMaskFilter> Make(SkScalar blurSigma, const Light& light);
 
     // overrides from SkMaskFilter
     //  This method is not exported to java.
@@ -53,7 +53,7 @@ public:
                                                         const SkPaint& paint) const override;
 
 protected:
-    SkEmbossMaskFilter(SkScalar blurSigma, const EmbossLight& light);
+    SkEmbossMaskFilter(SkScalar blurSigma, const Light& light);
     void flatten(SkWriteBuffer&) const override;
 
 private:
@@ -80,7 +80,7 @@ private:
                                                SkScalar surfaceScale, SkScalar ks,
                                                SkScalar shininess, sk_sp<SkImageFilter> input);
 
-    EmbossLight fLight;
+    Light fLight;
     SkScalar    fBlurSigma;
 
     using INHERITED = SkMaskFilter;
