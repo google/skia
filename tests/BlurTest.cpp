@@ -49,6 +49,11 @@
 #include <cstdint>
 #include <initializer_list>
 
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Surface.h"
+#endif
+
 struct GrContextOptions;
 
 #define WRITE_CSV 0
@@ -587,3 +592,33 @@ DEF_TEST(zero_blur, reporter) {
     SkIPoint offset;
     bitmap.extractAlpha(&alpha, &paint, nullptr, &offset);
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
+#if defined(SK_GRAPHITE)
+
+// Reproducing integer overflow in https://g-issues.skia.org/issues/413427423
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BlurPointCircle,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kNever) {
+    using namespace skgpu::graphite;
+    SkImageInfo ii = SkImageInfo::Make(SkISize::Make(1, 1),
+                                       SkColorType::kRGBA_8888_SkColorType,
+                                       SkAlphaType::kPremul_SkAlphaType);
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), ii);
+    SkCanvas* canvas = surface->getCanvas();
+
+    SkPaint paint;
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 5.f, /*respectCTM=*/false));
+
+    canvas->concat(SkMatrix::MakeAll(0.000256608007f, 0.f, 0.f,
+                                     0.f, 0.000256608007f, 0.f,
+                                     0.f, 0.f, 1.f));
+    canvas->drawArc(SkRect::MakeLTRB(-1, -1, 1, 1), 0.f, 360.f, false, paint);
+
+    (void) recorder->snap();
+}
+
+#endif // SK_GRAPHITE

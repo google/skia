@@ -25,6 +25,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -186,19 +187,26 @@ static uint8_t eval_at(float evalX,
 // steps in each horizontal direction multiplying the corresponding y evaluation by the half
 // kernel entry and sum these values to compute the profile entry.
 SkBitmap CreateCircleProfile(float sigma, float radius, int profileWidth) {
-    SkBitmap bitmap;
-    if (!bitmap.tryAllocPixels(SkImageInfo::MakeA8(profileWidth, 1))) {
-        return bitmap;
-    }
-
-    uint8_t* profile = bitmap.getAddr8(0, 0);
-
     const int numSteps = profileWidth;
 
-    // The full kernel is 6 sigmas wide.
+    // The full kernel is 6 sigmas wide. SkScalarCeilToInt saturates to a number large enough to
+    // still detect overflow in the kernel size calcutions.
     int halfKernelSize = SkScalarCeilToInt(6.0f * sigma);
+    // and this is small enough that the rest of the `halfKernelSize` math won't overflow
+    SkASSERT(halfKernelSize <= SK_MaxS32FitsInFloat &&
+             SK_MaxS32FitsInFloat <= std::numeric_limits<int32_t>::max() - 1);
     // Round up to next multiple of 2 and then divide by 2.
     halfKernelSize = ((halfKernelSize + 1) & ~1) >> 1;
+
+    // The full internal allocations will be numSteps + 4*halfKernelSize, so if that would overflow
+    // then return an empty bitmap.
+    static constexpr int kAllocLimit = std::numeric_limits<int32_t>::max() >> 2;
+
+    SkBitmap bitmap;
+    if (numSteps > kAllocLimit || halfKernelSize > (kAllocLimit - numSteps) ||
+        !bitmap.tryAllocPixels(SkImageInfo::MakeA8(profileWidth, 1))) {
+        return bitmap;
+    }
 
     // Number of x steps at which to apply kernel in y to cover all the profile samples in x.
     const int numYSteps = numSteps + 2 * halfKernelSize;
@@ -212,6 +220,7 @@ SkBitmap CreateCircleProfile(float sigma, float radius, int profileWidth) {
     float firstX = -halfKernelSize + 0.5f;
     apply_kernel_in_y(yEvals, numYSteps, firstX, radius, halfKernelSize, summedKernel);
 
+    uint8_t* profile = bitmap.getAddr8(0, 0);
     for (int i = 0; i < numSteps - 1; ++i) {
         float evalX = i + 0.5f;
         profile[i] = eval_at(evalX, radius, halfKernel, halfKernelSize, yEvals + i);
