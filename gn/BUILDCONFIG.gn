@@ -43,7 +43,7 @@ declare_args() {
   is_debug = !is_official_build
 
   # This affects Skia's ABI; must be set consistently for Skia and dependents.
-  is_trivial_abi = !is_official_build
+  is_trivial_abi = false
 }
 
 assert(!(is_debug && is_official_build))

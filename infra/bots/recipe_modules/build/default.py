@@ -86,7 +86,11 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
   cc, cxx, ccache = None, None, None
   extra_cflags = []
   extra_ldflags = []
-  args = {'werror': 'true', 'link_pool_depth':'2'}
+  args = {
+      'is_trivial_abi': 'true',
+      'link_pool_depth': '2',
+      'werror': 'true',
+  }
   env = {}
 
   if os == 'Mac' or os == 'Mac10.15.7':

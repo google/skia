@@ -33,6 +33,7 @@ def compile_fn(api, checkout_root, out_dir):
 
   quote = lambda x: '"%s"' % x
   args = {
+      'is_trivial_abi': 'true',
       'ndk': quote(api.vars.workdir.joinpath(ndk_path)),
       'target_cpu': quote(target_arch),
       'werror': 'true',

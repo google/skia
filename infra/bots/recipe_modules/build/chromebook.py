@@ -20,6 +20,7 @@ def compile_fn(api, checkout_root, out_dir):
     'extra_cflags' : [],
     'extra_ldflags' : [],
     'extra_asmflags' : [],
+    'is_trivial_abi': 'true',
     'target_cpu': target_arch,
     'skia_use_fontconfig': False,
     'skia_use_system_freetype2': False,

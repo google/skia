@@ -89,7 +89,7 @@
       "CCACHE_MAXSIZE=75G",
       "gcr.io/skia-public/gcc-debian11-x86@sha256:eb30682887c4c74c95f769aacab8a1a170eb561536ded87f0914f88b7243ba23",
       "/SRC/../RECIPE_MODULE[skia::build]/resources/docker-compile.sh",
-      "cc=\"gcc\" cc_wrapper=\"/SRC/ccache_linux/bin/ccache\" cxx=\"g++\" extra_cflags=[\"-g1\", \"-O1\", \"-DREBUILD_IF_CHANGED_docker_image=gcr.io/skia-public/gcc-debian11-x86@sha256:eb30682887c4c74c95f769aacab8a1a170eb561536ded87f0914f88b7243ba23\"] link_pool_depth=2 skia_use_client_icu=true skia_use_libgrapheme=true target_cpu=\"x86\" werror=true"
+      "cc=\"gcc\" cc_wrapper=\"/SRC/ccache_linux/bin/ccache\" cxx=\"g++\" extra_cflags=[\"-g1\", \"-O1\", \"-DREBUILD_IF_CHANGED_docker_image=gcr.io/skia-public/gcc-debian11-x86@sha256:eb30682887c4c74c95f769aacab8a1a170eb561536ded87f0914f88b7243ba23\"] is_trivial_abi=true link_pool_depth=2 skia_use_client_icu=true skia_use_libgrapheme=true target_cpu=\"x86\" werror=true"
     ],
     "env": {
       "CHROME_HEADLESS": "1",

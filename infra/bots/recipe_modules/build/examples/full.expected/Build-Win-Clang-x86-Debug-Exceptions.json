@@ -48,7 +48,7 @@
       "[START_DIR]\\cache\\work\\skia\\bin\\gn",
       "gen",
       "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug-Exceptions\\Debug",
-      "--args=cc=\"clang\" clang_win=\"[START_DIR]\\clang_win\" cxx=\"clang++\" extra_cflags=[\"-O1\", \"/EHsc\", \"-DPLACEHOLDER_clang_win_version=42\"] link_pool_depth=2 skia_use_client_icu=true skia_use_libgrapheme=true target_cpu=\"x86\" werror=true win_sdk=\"[START_DIR]\\win_toolchain/win_sdk\" win_vc=\"[START_DIR]\\win_toolchain/VC\""
+      "--args=cc=\"clang\" clang_win=\"[START_DIR]\\clang_win\" cxx=\"clang++\" extra_cflags=[\"-O1\", \"/EHsc\", \"-DPLACEHOLDER_clang_win_version=42\"] is_trivial_abi=true link_pool_depth=2 skia_use_client_icu=true skia_use_libgrapheme=true target_cpu=\"x86\" werror=true win_sdk=\"[START_DIR]\\win_toolchain/win_sdk\" win_vc=\"[START_DIR]\\win_toolchain/VC\""
     ],
     "cwd": "[START_DIR]\\cache\\work\\skia",
     "env": {

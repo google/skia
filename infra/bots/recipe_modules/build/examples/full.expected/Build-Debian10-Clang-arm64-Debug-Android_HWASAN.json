@@ -48,7 +48,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm64-Debug-Android_HWASAN/Debug",
-      "--args=extra_cflags=[\"-O1\", \"-DREBUILD_IF_CHANGED_ndk_version=42\"] ndk=\"[START_DIR]/android_ndk_linux\" sanitize=\"HWASAN\" target_cpu=\"arm64\" werror=true"
+      "--args=extra_cflags=[\"-O1\", \"-DREBUILD_IF_CHANGED_ndk_version=42\"] is_trivial_abi=true ndk=\"[START_DIR]/android_ndk_linux\" sanitize=\"HWASAN\" target_cpu=\"arm64\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {

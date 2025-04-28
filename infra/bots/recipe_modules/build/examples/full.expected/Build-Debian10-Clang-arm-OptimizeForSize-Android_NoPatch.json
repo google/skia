@@ -48,7 +48,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm-OptimizeForSize-Android_NoPatch/OptimizeForSize",
-      "--args=extra_cflags=[\"-DREBUILD_IF_CHANGED_ndk_version=42\"] extra_ldflags=[\"-Wl,--build-id=sha1\"] is_debug=false ndk=\"[START_DIR]/android_ndk_linux\" skia_enable_optimize_size=true skia_use_jpeg_gainmaps=false skia_use_runtime_icu=true target_cpu=\"arm\" werror=true"
+      "--args=extra_cflags=[\"-DREBUILD_IF_CHANGED_ndk_version=42\"] extra_ldflags=[\"-Wl,--build-id=sha1\"] is_debug=false is_trivial_abi=true ndk=\"[START_DIR]/android_ndk_linux\" skia_enable_optimize_size=true skia_use_jpeg_gainmaps=false skia_use_runtime_icu=true target_cpu=\"arm\" werror=true"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
