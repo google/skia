@@ -86,6 +86,8 @@ constexpr uint32_t kDefaultSeed = 0;
 
 using namespace skgpu::graphite;
 using namespace skiatest::graphite;
+using PrecompileShaders::ImageShaderFlags;
+using PrecompileShaders::YUVImageShaderFlags;
 
 namespace {
 
@@ -824,7 +826,8 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_image_shader(SkRandom
     SkTileMode tmY = random_tilemode(rand);
 
     std::vector<SkTileMode> precompileTileModes =
-            (tmX == tmY) ? std::vector<SkTileMode>{tmX} : std::vector<SkTileMode>{};
+            (tmX == tmY) ? std::vector<SkTileMode>{ tmX }
+                         : std::vector<SkTileMode>{ SkTileMode::kClamp, SkTileMode::kRepeat };
 
     SkMatrix lmStorage;
     SkMatrix* lmPtr = random_local_matrix(rand, &lmStorage);
@@ -839,24 +842,32 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_image_shader(SkRandom
         case 0: {
             // Non-subset image.
             s = SkShaders::Image(std::move(image), tmX, tmY, SkSamplingOptions(), lmPtr);
-            o = PrecompileShaders::Image({ colorInfo }, precompileTileModes);
+            o = PrecompileShaders::Image(ImageShaderFlags::kAll,
+                                         { colorInfo },
+                                         precompileTileModes);
         } break;
         case 1: {
             // Subset image.
             const SkRect subset = SkRect::MakeWH(image->width() / 2, image->height() / 2);
             s = SkImageShader::MakeSubset(
                     std::move(image), subset, tmX, tmY, SkSamplingOptions(), lmPtr);
-            o = PrecompileShaders::Image({ colorInfo }, precompileTileModes);
+            o = PrecompileShaders::Image(ImageShaderFlags::kAll,
+                                         { colorInfo },
+                                         precompileTileModes);
         } break;
         case 2: {
             // Cubic-sampled image.
             s = SkShaders::Image(std::move(image), tmX, tmY, SkCubicResampler::Mitchell(), lmPtr);
-            o = PrecompileShaders::Image({ colorInfo }, precompileTileModes);
+            o = PrecompileShaders::Image(ImageShaderFlags::kAll,
+                                         { colorInfo },
+                                         precompileTileModes);
         } break;
         default: {
             // Raw image draw.
             s = SkShaders::RawImage(std::move(image), tmX, tmY, SkSamplingOptions(), lmPtr);
-            o = PrecompileShaders::RawImage({ colorInfo }, precompileTileModes);
+            o = PrecompileShaders::RawImage(ImageShaderFlags::kExcludeCubic,
+                                            { colorInfo },
+                                            precompileTileModes);
         } break;
     }
 
@@ -890,7 +901,9 @@ std::pair<sk_sp<SkShader>, sk_sp<PrecompileShader>> create_yuv_image_shader(SkRa
         s = SkShaders::Image(std::move(yuvImage), tmX, tmY, samplingOptions, lmPtr);
     }
 
-    o = PrecompileShaders::YUVImage({ colorInfo }, useCubic);
+    o = PrecompileShaders::YUVImage(useCubic ? YUVImageShaderFlags::kCubicSampling
+                                             : YUVImageShaderFlags::kExcludeCubic,
+                                    { colorInfo });
 
     return { s, o };
 }

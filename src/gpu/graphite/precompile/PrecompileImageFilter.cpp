@@ -18,6 +18,8 @@
 
 namespace skgpu::graphite {
 
+using PrecompileShaders::ImageShaderFlags;
+
 //--------------------------------------------------------------------------------------------------
 PrecompileImageFilter::PrecompileImageFilter(SkSpan<sk_sp<PrecompileImageFilter>> inputs)
         : PrecompileBase(Type::kImageFilter) {
@@ -75,8 +77,8 @@ void CreateBlurImageFilterPipelines(
 
     // For blur imagefilters we know we don't have alpha-only textures and don't need cubic
     // filtering.
-    sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
-            PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
+    sk_sp<PrecompileShader> imageShader = PrecompileShaders::Image(
+            ImageShaderFlags::kNoAlphaNoCubic);
 
     static const SkBlendMode kBlurBlendModes[] = { SkBlendMode::kSrc };
     blurPaintOptions.setShaders({ PrecompileShadersPriv::Blur(imageShader) });
@@ -111,9 +113,8 @@ private:
 
         PaintOptions paintOptions;
 
-        sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
-                PrecompileImageShaderFlags::kExcludeAlpha |
-                PrecompileImageShaderFlags::kExcludeCubic);
+        sk_sp<PrecompileShader> imageShader = PrecompileShaders::Image(
+                ImageShaderFlags::kNoAlphaNoCubic);
 
         sk_sp<PrecompileShader> blendShader = PrecompileShaders::Blend(
                 SkSpan<const sk_sp<PrecompileBlender>>(&fBlender, 1),
@@ -216,9 +217,8 @@ private:
             const PaintOptionsPriv::ProcessCombination& processCombination) const override {
         PaintOptions paintOptions;
 
-        sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
-                PrecompileImageShaderFlags::kExcludeAlpha |
-                PrecompileImageShaderFlags::kExcludeCubic);
+        sk_sp<PrecompileShader> imageShader = PrecompileShaders::Image(
+                ImageShaderFlags::kNoAlphaNoCubic);
 
         static const SkBlendMode kBlendModes[] = { SkBlendMode::kDstOut };
         paintOptions.setShaders({ std::move(imageShader) });
@@ -274,9 +274,8 @@ private:
 
         // For displacement imagefilters we know we don't have alpha-only textures and don't need
         // cubic filtering.
-        sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
-                PrecompileImageShaderFlags::kExcludeAlpha |
-                PrecompileImageShaderFlags::kExcludeCubic);
+        sk_sp<PrecompileShader> imageShader = PrecompileShaders::Image(
+                ImageShaderFlags::kNoAlphaNoCubic);
 
         displacement.setShaders({ PrecompileShadersPriv::Displacement(imageShader, imageShader) });
 
@@ -309,9 +308,8 @@ private:
             const RenderPassDesc& renderPassDesc,
             const PaintOptionsPriv::ProcessCombination& processCombination) const override {
 
-        sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
-                PrecompileImageShaderFlags::kExcludeAlpha |
-                PrecompileImageShaderFlags::kExcludeCubic);
+        sk_sp<PrecompileShader> imageShader = PrecompileShaders::Image(
+                ImageShaderFlags::kNoAlphaNoCubic);
 
         PaintOptions lighting;
         lighting.setShaders({ PrecompileShadersPriv::Lighting(std::move(imageShader)) });
@@ -349,9 +347,8 @@ private:
 
         // For matrix convolution imagefilters we know we don't have alpha-only textures and don't
         // need cubic filtering.
-        sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
-                PrecompileImageShaderFlags::kExcludeAlpha |
-                PrecompileImageShaderFlags::kExcludeCubic);
+        sk_sp<PrecompileShader> imageShader = PrecompileShaders::Image(
+                ImageShaderFlags::kNoAlphaNoCubic);
 
         matrixConv.setShaders({ PrecompileShadersPriv::MatrixConvolution(imageShader) });
 
@@ -386,8 +383,8 @@ private:
 
         // For morphology imagefilters we know we don't have alpha-only textures and don't need
         // cubic filtering.
-        sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
-            PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
+        sk_sp<PrecompileShader> imageShader = PrecompileShaders::Image(
+                ImageShaderFlags::kNoAlphaNoCubic);
 
         {
             PaintOptions sparse;

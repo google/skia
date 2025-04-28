@@ -217,8 +217,8 @@ void create_image_drawing_pipelines(const KeyContext& keyContext,
     PaintOptions imagePaintOptions;
 
     // For imagefilters we know we don't have alpha-only textures and don't need cubic filtering.
-    sk_sp<PrecompileShader> imageShader = PrecompileShadersPriv::Image(
-            PrecompileImageShaderFlags::kExcludeAlpha | PrecompileImageShaderFlags::kExcludeCubic);
+    sk_sp<PrecompileShader> imageShader = PrecompileShaders::Image(
+            PrecompileShaders::ImageShaderFlags::kNoAlphaNoCubic);
 
     imagePaintOptions.setShaders({ imageShader });
     imagePaintOptions.setBlendModes(orig.getBlendModes());

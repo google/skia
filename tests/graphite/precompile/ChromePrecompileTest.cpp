@@ -40,6 +40,10 @@
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 
+using namespace skgpu::graphite;
+using PrecompileShaders::ImageShaderFlags;
+using PrecompileShaders::YUVImageShaderFlags;
+
 namespace {
 
 using ::skgpu::graphite::DepthStencilFlags;
@@ -70,7 +74,8 @@ PaintOptions solid_clear_src_srcover() {
 PaintOptions image_premul_srcover() {
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
     PaintOptions paintOptions;
-    paintOptions.setShaders({ skgpu::graphite::PrecompileShaders::Image({ &ci, 1 }) });
+    paintOptions.setShaders({ PrecompileShaders::Image(ImageShaderFlags::kAll,
+                                                       { &ci, 1 }) });
     paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
     return paintOptions;
 }
@@ -83,9 +88,8 @@ PaintOptions yuv_image_srgb_srcover() {
                      SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kAdobeRGB) };
 
     PaintOptions paintOptions;
-    paintOptions.setShaders({ skgpu::graphite::PrecompileShaders::YUVImage(
-            { &ci, 1 },
-            /* includeCubic= */ false) });   // using cubic sampling w/ YUV images is rare
+    paintOptions.setShaders({ PrecompileShaders::YUVImage(YUVImageShaderFlags::kExcludeCubic,
+                                                          { &ci, 1 }) });
     paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
     return paintOptions;
 }
@@ -96,7 +100,8 @@ PaintOptions yuv_image_srgb_srcover() {
 PaintOptions image_premul_src_srcover() {
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
     PaintOptions paintOptions;
-    paintOptions.setShaders({ skgpu::graphite::PrecompileShaders::Image({ &ci, 1 }) });
+    paintOptions.setShaders({ PrecompileShaders::Image(ImageShaderFlags::kAll,
+                                                       { &ci, 1 }) });
     paintOptions.setBlendModes({ SkBlendMode::kSrc,
                                  SkBlendMode::kSrcOver });
     return paintOptions;
@@ -109,7 +114,8 @@ PaintOptions image_srgb_src() {
                      SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
                                            SkNamedGamut::kAdobeRGB) };
     PaintOptions paintOptions;
-    paintOptions.setShaders({ skgpu::graphite::PrecompileShaders::Image({ &ci, 1 }) });
+    paintOptions.setShaders({ PrecompileShaders::Image(ImageShaderFlags::kAll,
+                                                       { &ci, 1 }) });
     paintOptions.setBlendModes({ SkBlendMode::kSrc });
     return paintOptions;
 }
