@@ -194,7 +194,8 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeRect(Recorder* recorder,
 static float quantize(float deviceSpaceFloat) {
     // Snap the device-space value to the nearest 1/32 to increase cache hits w/o impacting the
     // visible output since it should be hard to see a change limited to 1/32 of a pixel.
-    return SkScalarRoundToInt(deviceSpaceFloat * 32.f) / 32.f;
+    // Clamp the value to 1/32 as identity blurs and points should be caught earlier.
+    return std::max(SkScalarRoundToInt(deviceSpaceFloat * 32.f) / 32.f, 1.f / 32.f);
 }
 
 std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeCircle(Recorder* recorder,
