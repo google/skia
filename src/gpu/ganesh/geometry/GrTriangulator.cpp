@@ -765,6 +765,9 @@ static bool rewind(EdgeList* activeEdges, Vertex** current, Vertex* dst, const C
             }
             leftEdge = e;
             Vertex* top = e->fTop;
+            if (!top) {
+                return false;
+            }
             if (c.sweep_lt(top->fPoint, dst->fPoint) &&
                 ((top->fLeftEnclosingEdge && !top->fLeftEnclosingEdge->isLeftOf(*e->fTop)) ||
                  (top->fRightEnclosingEdge && !top->fRightEnclosingEdge->isRightOf(*e->fTop)))) {
