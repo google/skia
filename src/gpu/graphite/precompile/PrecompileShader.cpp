@@ -39,6 +39,7 @@ namespace skgpu::graphite {
 SK_MAKE_BITMASK_OPS(PrecompileShaders::ImageShaderFlags)
 SK_MAKE_BITMASK_OPS(PrecompileShaders::YUVImageShaderFlags)
 
+using PrecompileShaders::GradientShaderFlags;
 using PrecompileShaders::ImageShaderFlags;
 using PrecompileShaders::YUVImageShaderFlags;
 
@@ -633,30 +634,50 @@ sk_sp<SkColorSpace> get_gradient_intermediate_cs(SkColorSpace* dstColorSpace,
 class PrecompileGradientShader final : public PrecompileShader {
 public:
     PrecompileGradientShader(SkShaderBase::GradientType type,
+                             SkEnumBitMask<GradientShaderFlags> flags,
                              const SkGradientShader::Interpolation& interpolation)
-            : fType(type), fInterpolation(interpolation) {}
+            : fType(type)
+            , fInterpolation(interpolation) {
+        this->setupStopVariants(flags);
+    }
 
 private:
     /*
-     * The gradients currently have three specializations based on the number of stops.
+     * The gradients can have up to three specializations based on the number of stops.
      */
-    inline static constexpr int kNumStopVariants = 3;
-    inline static constexpr int kStopVariants[kNumStopVariants] =
-            { 4, 8, GradientShaderBlocks::GradientData::kNumInternalStorageStops+1 };
+    inline static constexpr int kMaxStopVariants = 3;
 
-    int numIntrinsicCombinations() const override { return kNumStopVariants; }
+    void setupStopVariants(SkEnumBitMask<GradientShaderFlags> flags) {
+        fNumStopVariants = 0;
+
+        if (flags & GradientShaderFlags::kSmall) {
+            fStopVariants[fNumStopVariants++] = 4;
+        }
+        if (flags & GradientShaderFlags::kMedium) {
+            fStopVariants[fNumStopVariants++] = 8;
+        }
+        if (flags & GradientShaderFlags::kLarge) {
+            fStopVariants[fNumStopVariants++] =
+                    GradientShaderBlocks::GradientData::kNumInternalStorageStops+1;
+        }
+
+        SkASSERT(fNumStopVariants == SkPopCount(flags.value()));
+        SkASSERT(fNumStopVariants <= kMaxStopVariants);
+    }
+
+    int numIntrinsicCombinations() const override { return fNumStopVariants; }
 
     void addToKey(const KeyContext& keyContext,
                   PaintParamsKeyBuilder* builder,
                   PipelineDataGatherer* gatherer,
                   int desiredCombination) const override {
         SkASSERT(this->numChildCombinations() == 1);
-        SkASSERT(desiredCombination < kNumStopVariants);
+        SkASSERT(desiredCombination < fNumStopVariants);
 
         bool useStorageBuffer = keyContext.caps()->gradientBufferSupport();
 
         GradientShaderBlocks::GradientData gradData(fType,
-                                                    kStopVariants[desiredCombination],
+                                                    fStopVariants[desiredCombination],
                                                     useStorageBuffer);
 
         // The logic for setting up color spaces here should match that in the "add_gradient_to_key"
@@ -682,33 +703,40 @@ private:
 
     const SkShaderBase::GradientType fType;
     const SkGradientShader::Interpolation fInterpolation;
+
+    int fNumStopVariants = 0;
+    int fStopVariants[kMaxStopVariants];
 };
 
 sk_sp<PrecompileShader> PrecompileShaders::LinearGradient(
+        GradientShaderFlags flags,
         SkGradientShader::Interpolation interpolation) {
     sk_sp<PrecompileShader> s = sk_make_sp<PrecompileGradientShader>(
-            SkShaderBase::GradientType::kLinear, interpolation);
+            SkShaderBase::GradientType::kLinear, flags, interpolation);
     return PrecompileShaders::LocalMatrix({ std::move(s) });
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::RadialGradient(
+        GradientShaderFlags flags,
         SkGradientShader::Interpolation interpolation) {
     sk_sp<PrecompileShader> s = sk_make_sp<PrecompileGradientShader>(
-            SkShaderBase::GradientType::kRadial, interpolation);
+            SkShaderBase::GradientType::kRadial, flags, interpolation);
     return PrecompileShaders::LocalMatrix({ std::move(s) });
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::SweepGradient(
+        GradientShaderFlags flags,
         SkGradientShader::Interpolation interpolation) {
-    sk_sp<PrecompileShader> s =
-            sk_make_sp<PrecompileGradientShader>(SkShaderBase::GradientType::kSweep, interpolation);
+    sk_sp<PrecompileShader> s = sk_make_sp<PrecompileGradientShader>(
+            SkShaderBase::GradientType::kSweep, flags, interpolation);
     return PrecompileShaders::LocalMatrix({ std::move(s) });
 }
 
 sk_sp<PrecompileShader> PrecompileShaders::TwoPointConicalGradient(
+        GradientShaderFlags flags,
         SkGradientShader::Interpolation interpolation) {
     sk_sp<PrecompileShader> s = sk_make_sp<PrecompileGradientShader>(
-            SkShaderBase::GradientType::kConical, interpolation);
+            SkShaderBase::GradientType::kConical, flags, interpolation);
     return PrecompileShaders::LocalMatrix({ std::move(s) });
 }
 

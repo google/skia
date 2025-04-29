@@ -190,14 +190,29 @@ namespace PrecompileShaders {
     SK_API sk_sp<PrecompileShader> MakeFractalNoise();
     SK_API sk_sp<PrecompileShader> MakeTurbulence();
 
+    enum class GradientShaderFlags : uint16_t {
+        kNone    = 0,
+
+        kSmall   = 1 << 1,
+        kMedium  = 1 << 2,
+        kLarge   = 1 << 3,
+
+        kAll     = kSmall | kMedium | kLarge,
+        kNoLarge = kSmall | kMedium,
+    };
+
     // --- This block of four matches all the factories in SkGradientShader (SkGradientShader.h)
     SK_API sk_sp<PrecompileShader> LinearGradient(
+            GradientShaderFlags = GradientShaderFlags::kAll,
             SkGradientShader::Interpolation = SkGradientShader::Interpolation());
     SK_API sk_sp<PrecompileShader> RadialGradient(
+            GradientShaderFlags = GradientShaderFlags::kAll,
             SkGradientShader::Interpolation = SkGradientShader::Interpolation());
     SK_API sk_sp<PrecompileShader> TwoPointConicalGradient(
+            GradientShaderFlags = GradientShaderFlags::kAll,
             SkGradientShader::Interpolation = SkGradientShader::Interpolation());
     SK_API sk_sp<PrecompileShader> SweepGradient(
+            GradientShaderFlags = GradientShaderFlags::kAll,
             SkGradientShader::Interpolation = SkGradientShader::Interpolation());
 
     // Normally, SkPicture shaders are only created via SkPicture::makeShader. Since the
