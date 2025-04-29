@@ -2,6 +2,14 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 137
+-------------
+  * `RecorderOptions.fRequireOrderedRecordings` can now be used to specify a per-`Recorder` ordering
+    policy for how its `Recordings` must be inserted into a `Context`. If not provided, the `Recorder`
+    will default to the value in `ContextOptions`.
+
+* * *
+
 Milestone 136
 -------------
   * The Fontations SkTypeface backend has a new factory method to create a typeface from `SkData`,
