@@ -635,15 +635,6 @@ void add_cubic_image_uniform_data(const ShaderCodeDictionary* dict,
     gatherer->writeHalf(SkImageShader::CubicResamplerMatrix(cubic.B, cubic.C));
 }
 
-void add_hw_image_uniform_data(const ShaderCodeDictionary* dict,
-                               const ImageShaderBlock::ImageData& imgData,
-                               PipelineDataGatherer* gatherer) {
-    SkASSERT(!imgData.fSampling.useCubic);
-    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kHWImageShader)
-
-    gatherer->write(SkSize::Make(1.f/imgData.fImgSize.width(), 1.f/imgData.fImgSize.height()));
-}
-
 bool can_do_tiling_in_hw(const Caps* caps, const ImageShaderBlock::ImageData& imgData) {
     if (!caps->clampToBorderSupport() && (imgData.fTileModes.first == SkTileMode::kDecal ||
                                           imgData.fTileModes.second == SkTileMode::kDecal)) {
@@ -689,7 +680,8 @@ void ImageShaderBlock::AddBlock(const KeyContext& keyContext,
     const bool doTilingInHw = !imgData.fSampling.useCubic && can_do_tiling_in_hw(caps, imgData);
 
     if (doTilingInHw) {
-        add_hw_image_uniform_data(keyContext.dict(), imgData, gatherer);
+        CoordNormalizeShaderBlock::CoordNormalizeData data(SkSize::Make(imgData.fImgSize));
+        CoordNormalizeShaderBlock::BeginBlock(keyContext, builder, gatherer, data);
         builder->beginBlock(BuiltInCodeSnippetID::kHWImageShader);
     } else if (imgData.fSampling.useCubic) {
         add_cubic_image_uniform_data(keyContext.dict(), imgData, gatherer);
@@ -720,6 +712,11 @@ void ImageShaderBlock::AddBlock(const KeyContext& keyContext,
     add_sampler_data_to_key(builder, samplerDesc);
 
     builder->endBlock();
+
+    if (doTilingInHw) {
+        // Additional block for coord normalization.
+        builder->endBlock();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -883,6 +880,29 @@ void YUVImageShaderBlock::AddBlock(const KeyContext& keyContext,
         add_yuv_image_uniform_data(keyContext.dict(), imgData, gatherer);
         builder->addBlock(BuiltInCodeSnippetID::kYUVImageShader);
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+
+namespace {
+
+void add_coord_normalize_uniform_data(const ShaderCodeDictionary* dict,
+                                      const CoordNormalizeShaderBlock::CoordNormalizeData& data,
+                                      PipelineDataGatherer* gatherer) {
+    BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kCoordNormalizeShader)
+
+    gatherer->write(data.fInvDimensions);
+}
+
+} // anonymous namespace
+
+void CoordNormalizeShaderBlock::BeginBlock(const KeyContext& keyContext,
+                                           PaintParamsKeyBuilder* builder,
+                                           PipelineDataGatherer* gatherer,
+                                           const CoordNormalizeData& data) {
+    add_coord_normalize_uniform_data(keyContext.dict(), data, gatherer);
+
+    builder->beginBlock(BuiltInCodeSnippetID::kCoordNormalizeShader);
 }
 
 //--------------------------------------------------------------------------------------------------

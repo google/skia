@@ -213,6 +213,20 @@ struct YUVImageShaderBlock {
                          const ImageData&);
 };
 
+struct CoordNormalizeShaderBlock {
+    struct CoordNormalizeData {
+        CoordNormalizeData(SkSize dimensions)
+                : fInvDimensions(
+                          SkSize::Make(1.0f / dimensions.width(), 1.0f / dimensions.height())) {}
+        SkSize fInvDimensions;
+    };
+
+    static void BeginBlock(const KeyContext&,
+                           PaintParamsKeyBuilder*,
+                           PipelineDataGatherer*,
+                           const CoordNormalizeData&);
+};
+
 struct CoordClampShaderBlock {
     struct CoordClampData {
         CoordClampData(SkRect subset) : fSubset(subset) {}
