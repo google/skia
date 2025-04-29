@@ -112,4 +112,4 @@ class CheckoutApi(recipe_api.RecipeApi):
           download_topics=True,
       )
 
-    return update_step.presentation.properties['got_revision']
+    return update_step.properties['got_revision']

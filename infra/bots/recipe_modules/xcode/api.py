@@ -45,7 +45,7 @@ class SkiaXCodeApi(recipe_api.RecipeApi):
               search_dir, contents))  # pragma: nocover
         self.m.step('ls -R cipd_tool', ['ls', '-R', self.m.vars.workdir.joinpath('cipd_tool')])
         self.m.step('ls -R cipd_tool', ['ls', '-R', search_dir])
-        mac_toolchain_cmd = contents[0].join('mac_toolchain')
+        mac_toolchain_cmd = contents[0].joinpath('mac_toolchain')
         self.m.step('ls -alh mac_toolchain', ['ls', '-alh', mac_toolchain_cmd])
 
       # Ensure XCode is installed.

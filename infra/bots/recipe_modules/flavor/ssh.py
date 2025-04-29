@@ -35,7 +35,7 @@ class SSHFlavor(default.DefaultFlavor):
     with self.m.context(cwd=tmp):
       chromite_url = 'https://chromium.googlesource.com/chromiumos/chromite.git'
       self.m.step('clone chromite', ['git', 'clone', chromite_url])
-    testing_rsa = tmp.join('chromite', 'ssh_keys', 'testing_rsa')
+    testing_rsa = tmp.joinpath('chromite', 'ssh_keys', 'testing_rsa')
     self.m.step('chmod 600 testing_rsa', ['chmod', '600', testing_rsa])
     self._ssh_args = [
       '-oConnectTimeout=30', '-oConnectionAttempts=4',

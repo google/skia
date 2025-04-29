@@ -43,7 +43,6 @@
       "vpython3",
       "RECIPE_REPO[depot_tools]/gerrit_client.py",
       "changes",
-      "--verbose",
       "--host",
       "https://skia-review.googlesource.com",
       "--json_file",
@@ -55,7 +54,8 @@
       "-o",
       "ALL_REVISIONS",
       "-o",
-      "DOWNLOAD_COMMANDS"
+      "DOWNLOAD_COMMANDS",
+      "--verbose"
     ],
     "cwd": "[START_DIR]/cache/work",
     "env": {
