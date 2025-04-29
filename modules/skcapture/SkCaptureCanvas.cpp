@@ -21,6 +21,8 @@ SkCaptureCanvas::SkCaptureCanvas(SkCanvas* canvas)
     this->addCanvas(canvas);
 }
 
+SkCaptureCanvas::~SkCaptureCanvas() = default;
+
 void SkCaptureCanvas::pollCapturingStatus() {
     bool shouldPoll = false;  // TODO: = SkCanvasPriv::TopDevice(fBaseCanvas)->recorder()->...
     if (fCapturing != shouldPoll) {
