@@ -171,6 +171,10 @@ static bool should_include_extension(const char* extensionName) {
             VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME,
             VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
             VK_EXT_DEVICE_FAULT_EXTENSION_NAME,
+            VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME,
+            VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME,
+            VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME,
+            VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME,
             VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME,
             VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
             VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME,
@@ -185,6 +189,7 @@ static bool should_include_extension(const char* extensionName) {
             VK_KHR_MAINTENANCE1_EXTENSION_NAME,
             VK_KHR_MAINTENANCE2_EXTENSION_NAME,
             VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+            VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME,
             VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,
             VK_KHR_SURFACE_EXTENSION_NAME,
             VK_KHR_SWAPCHAIN_EXTENSION_NAME,
@@ -195,11 +200,11 @@ static bool should_include_extension(const char* extensionName) {
             // just listing the strings these macros are defined to. This really shouldn't cause
             // any long term issues as the chances of the strings connected to the name macros
             // changing is next to zero.
-            "VK_KHR_win32_surface", // VK_KHR_WIN32_SURFACE_EXTENSION_NAME
-            "VK_KHR_xcb_surface", // VK_KHR_XCB_SURFACE_EXTENSION_NAME,
+            "VK_KHR_win32_surface",  // VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+            "VK_KHR_xcb_surface",    // VK_KHR_XCB_SURFACE_EXTENSION_NAME,
             "VK_ANDROID_external_memory_android_hardware_buffer",
             // VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME,
-            "VK_KHR_android_surface", // VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,
+            "VK_KHR_android_surface",  // VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,
     };
 
     for (size_t i = 0; i < std::size(kValidExtensions); ++i) {
@@ -479,6 +484,53 @@ static bool setup_features(const skgpu::VulkanGetProc& getProc, VkInstance inst,
         blend->pNext = nullptr;
         *tailPNext = blend;
         tailPNext = &blend->pNext;
+    }
+
+    VkPhysicalDeviceExtendedDynamicStateFeaturesEXT* edsFeature = nullptr;
+    if (extensions->hasExtension(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME, 1)) {
+        edsFeature = (VkPhysicalDeviceExtendedDynamicStateFeaturesEXT*)sk_malloc_throw(
+                sizeof(VkPhysicalDeviceExtendedDynamicStateFeaturesEXT));
+        edsFeature->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT;
+        edsFeature->pNext = nullptr;
+        edsFeature->extendedDynamicState = VK_TRUE;
+        *tailPNext = edsFeature;
+        tailPNext = &edsFeature->pNext;
+    }
+
+    VkPhysicalDeviceExtendedDynamicState2FeaturesEXT* eds2Feature = nullptr;
+    if (extensions->hasExtension(VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME, 1)) {
+        eds2Feature = (VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*)sk_malloc_throw(
+                sizeof(VkPhysicalDeviceExtendedDynamicState2FeaturesEXT));
+        eds2Feature->sType =
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT;
+        eds2Feature->pNext = nullptr;
+        eds2Feature->extendedDynamicState2 = VK_TRUE;
+        *tailPNext = eds2Feature;
+        tailPNext = &eds2Feature->pNext;
+    }
+
+    VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT* vidsFeature = nullptr;
+    if (extensions->hasExtension(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME, 1)) {
+        vidsFeature = (VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*)sk_malloc_throw(
+                sizeof(VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT));
+        vidsFeature->sType =
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT;
+        vidsFeature->pNext = nullptr;
+        vidsFeature->vertexInputDynamicState = VK_TRUE;
+        *tailPNext = vidsFeature;
+        tailPNext = &vidsFeature->pNext;
+    }
+
+    VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT* gplFeature = nullptr;
+    if (extensions->hasExtension(VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME, 1)) {
+        gplFeature = (VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*)sk_malloc_throw(
+                sizeof(VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT));
+        gplFeature->sType =
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT;
+        gplFeature->pNext = nullptr;
+        gplFeature->graphicsPipelineLibrary = VK_TRUE;
+        *tailPNext = gplFeature;
+        tailPNext = &gplFeature->pNext;
     }
 
     VkPhysicalDeviceSamplerYcbcrConversionFeatures* ycbcrFeature = nullptr;

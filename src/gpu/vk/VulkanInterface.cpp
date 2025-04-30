@@ -236,6 +236,51 @@ VulkanInterface::VulkanInterface(VulkanGetProc getProc,
                             VK_NULL_HANDLE);
     }
 
+    // Functions for VK_EXT_extended_dynamic_state or 1.3
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 3, 0)) {
+        ACQUIRE_PROC(CmdBindVertexBuffers2, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CmdSetCullMode, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CmdSetDepthBoundsTestEnable, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CmdSetDepthCompareOp, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CmdSetDepthTestEnable, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CmdSetDepthWriteEnable, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CmdSetFrontFace, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CmdSetPrimitiveTopology, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CmdSetScissorWithCount, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CmdSetStencilOp, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CmdSetStencilTestEnable, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CmdSetViewportWithCount, VK_NULL_HANDLE, device);
+    } else if (extensions->hasExtension(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME, 1)) {
+        ACQUIRE_PROC_SUFFIX(CmdBindVertexBuffers2, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CmdSetCullMode, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CmdSetDepthBoundsTestEnable, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CmdSetDepthCompareOp, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CmdSetDepthTestEnable, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CmdSetDepthWriteEnable, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CmdSetFrontFace, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CmdSetPrimitiveTopology, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CmdSetScissorWithCount, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CmdSetStencilOp, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CmdSetStencilTestEnable, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CmdSetViewportWithCount, EXT, VK_NULL_HANDLE, device);
+    }
+
+    // Functions for VK_EXT_extended_dynamic_state2 or 1.3
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 3, 0)) {
+        ACQUIRE_PROC(CmdSetDepthBiasEnable, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CmdSetPrimitiveRestartEnable, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CmdSetRasterizerDiscardEnable, VK_NULL_HANDLE, device);
+    } else if (extensions->hasExtension(VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME, 1)) {
+        ACQUIRE_PROC_SUFFIX(CmdSetDepthBiasEnable, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CmdSetPrimitiveRestartEnable, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CmdSetRasterizerDiscardEnable, EXT, VK_NULL_HANDLE, device);
+    }
+
+    // Functions for VK_EXT_vertex_input_dynamic_state
+    if (extensions->hasExtension(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME, 1)) {
+        ACQUIRE_PROC_SUFFIX(CmdSetVertexInput, EXT, VK_NULL_HANDLE, device);
+    }
+
     // Functions for VK_KHR_sampler_ycbcr_conversion
     if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         ACQUIRE_PROC(CreateSamplerYcbcrConversion, VK_NULL_HANDLE, device);
@@ -466,6 +511,41 @@ bool VulkanInterface::validate(uint32_t instanceVersion,
     if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions->hasExtension(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fGetPhysicalDeviceExternalBufferProperties) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    // Functions for VK_EXT_extended_dynamic_state or 1.3
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 3, 0) ||
+        extensions->hasExtension(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fCmdBindVertexBuffers2 || nullptr == fFunctions.fCmdSetCullMode ||
+            nullptr == fFunctions.fCmdSetDepthBoundsTestEnable ||
+            nullptr == fFunctions.fCmdSetDepthCompareOp ||
+            nullptr == fFunctions.fCmdSetDepthTestEnable ||
+            nullptr == fFunctions.fCmdSetDepthWriteEnable ||
+            nullptr == fFunctions.fCmdSetFrontFace ||
+            nullptr == fFunctions.fCmdSetPrimitiveTopology ||
+            nullptr == fFunctions.fCmdSetScissorWithCount ||
+            nullptr == fFunctions.fCmdSetStencilOp ||
+            nullptr == fFunctions.fCmdSetStencilTestEnable ||
+            nullptr == fFunctions.fCmdSetViewportWithCount) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    // Functions for VK_EXT_extended_dynamic_state2 or 1.3
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 3, 0) ||
+        extensions->hasExtension(VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fCmdSetDepthBiasEnable ||
+            nullptr == fFunctions.fCmdSetPrimitiveRestartEnable ||
+            nullptr == fFunctions.fCmdSetRasterizerDiscardEnable) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    // Functions for VK_EXT_vertex_input_dynamic_state
+    if (extensions->hasExtension(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fCmdSetVertexInput) {
             RETURN_FALSE_INTERFACE
         }
     }
