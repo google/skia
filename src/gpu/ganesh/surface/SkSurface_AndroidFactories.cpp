@@ -35,7 +35,6 @@
 #include "src/core/SkSurfacePriv.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/SkBackingFit.h"
-#include "src/gpu/SkRenderEngineAbortf.h"
 #include "src/gpu/ganesh/Device.h"
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrContextThreadSafeProxyPriv.h"
@@ -59,6 +58,7 @@
 #include <utility>
 
 #include <android/hardware_buffer.h>
+#include <inttypes.h>
 
 namespace SkSurfaces {
 
@@ -72,17 +72,23 @@ sk_sp<SkSurface> WrapAndroidHardwareBuffer(GrDirectContext* dContext,
     AHardwareBuffer_describe(hardwareBuffer, &bufferDesc);
 
     if (!SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT)) {
+        SkDebugf("%s failed due buffer lacking AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT usage bit",
+                 __func__);
         return nullptr;
     }
 
     bool isTextureable = SkToBool(bufferDesc.usage & AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE);
     if (!isTextureable) {
+        SkDebugf("%s failed due buffer lacking AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE usage bit",
+                 __func__);
         return nullptr;
     }
 
     GrBackendFormat backendFormat = GrAHardwareBufferUtils::GetBackendFormat(
             dContext, hardwareBuffer, bufferDesc.format, true);
     if (!backendFormat.isValid()) {
+        SkDebugf("%s requires a known format, but failed due not finding a valid backend format for"
+                 " %" PRIu32 ".", __func__, bufferDesc.format);
         return nullptr;
     }
 
@@ -111,6 +117,7 @@ sk_sp<SkSurface> WrapAndroidHardwareBuffer(GrDirectContext* dContext,
                                                        true,
                                                        fromWindowLocal);
     if (!backendTexture.isValid()) {
+        SkDebugf("%s failed due to backend texture creation failing", __func__);
         return nullptr;
     }
 
