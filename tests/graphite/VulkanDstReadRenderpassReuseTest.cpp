@@ -89,8 +89,8 @@ DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanDstReadsShareRenderpass, reporter, co
     // expectations. For the sake of this test, assume Coverage::kNone.
     static const SkBlendMode simpleBlendMode = SkBlendMode::kSrcATop;
     static const SkBlendMode dstReadBlendMode = SkBlendMode::kLighten;
-    REPORTER_ASSERT(reporter, !IsDstReadRequired(caps, simpleBlendMode, Coverage::kNone));
-    REPORTER_ASSERT(reporter, IsDstReadRequired(caps, dstReadBlendMode, Coverage::kNone));
+    REPORTER_ASSERT(reporter, CanUseHardwareBlending(caps, simpleBlendMode, Coverage::kNone));
+    REPORTER_ASSERT(reporter, !CanUseHardwareBlending(caps, dstReadBlendMode, Coverage::kNone));
 
     // Perform draw operations which do not read from the dst. Clear the canvas to initialize it to
     // any color, drawing a color over it afterwards using the simple blend mode.

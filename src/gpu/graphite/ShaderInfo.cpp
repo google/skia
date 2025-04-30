@@ -708,7 +708,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     // The passed-in dstReadStrategy should only be used iff it is determined one is needed. If not,
     // then manually assign fDstReadStrategy to kNoneRequired. ShaderInfo's dst read strategy
     // informs the pipeline's via PipelineInfo created w/ shader info.
-    const bool dstReadRequired = IsDstReadRequired(caps, finalBlendMode, finalCoverage);
+    const bool dstReadRequired = !CanUseHardwareBlending(caps, finalBlendMode, finalCoverage);
     if (!dstReadRequired) {
         fDstReadStrategy = DstReadStrategy::kNoneRequired;
     } else {

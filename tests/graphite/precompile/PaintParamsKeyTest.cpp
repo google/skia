@@ -1959,9 +1959,9 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
         Coverage coverage = coverageOptions[rand->nextULessThan(3)];
 
         const SkBlenderBase* blender = as_BB(paint.getBlender());
-        bool dstReadRequired = blender ? IsDstReadRequired(recorder->priv().caps(),
-                                                           blender->asBlendMode(),
-                                                           coverage)
+        bool dstReadRequired = blender ? !CanUseHardwareBlending(recorder->priv().caps(),
+                                                                 blender->asBlendMode(),
+                                                                 coverage)
                                        : false;
 
         // In the normal API this modification happens in SkDevice::clipShader()

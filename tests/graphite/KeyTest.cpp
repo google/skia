@@ -112,7 +112,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
 
         const RenderStep* renderStep = &context->priv().rendererProvider()->nonAABounds()->step(0);
         bool dstReadRequired =
-                IsDstReadRequired(caps, static_cast<SkBlendMode>(bm), renderStep->coverage());
+                !CanUseHardwareBlending(caps, static_cast<SkBlendMode>(bm), renderStep->coverage());
 
         // ShaderInfo expects to receive a concrete determination of dstReadStrategy based upon
         // whether a dst read is needed. Therefore, we need to decide whether to pass in the

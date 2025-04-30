@@ -201,7 +201,9 @@ void PaintOptions::createKey(const KeyContext& keyContext,
                                                     desiredColorFilterCombination),
                        addPrimitiveBlender,
                        clipShader,
-                       IsDstReadRequired(keyContext.caps(), blendMode, coverage),
+                       /*dstReadRequired=*/!CanUseHardwareBlending(keyContext.caps(),
+                                                                   blendMode,
+                                                                   coverage),
                        fDither);
 
     option.toKey(keyContext, keyBuilder, gatherer);

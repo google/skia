@@ -303,6 +303,15 @@ public:
      */
     bool supportsAHardwareBufferImages() const { return fSupportsAHardwareBufferImages; }
 
+    /**
+     * Returns true if the given backend supports using advanced coherent (no barriers needed,
+     * overlap permitted) blend equations on hardware
+     * TODO(b/239726010): Have backends determine support for hardware-based advanced blend modes
+     * and update fSupportsHardwareAdvancedBlending accordingly once graphite supports using it.
+     * TODO(b/393382700): Add separate check for non-coherent advanced blend support once supported.
+     */
+    bool supportsHardwareAdvancedBlending() const { return fSupportsHardwareAdvancedBlending; }
+
     // Returns the skgpu::Swizzle to use when sampling or reading back from a texture with the
     // passed in SkColorType and TextureInfo.
     skgpu::Swizzle getReadSwizzle(SkColorType, const TextureInfo&) const;
@@ -421,6 +430,7 @@ protected:
 
     bool fComputeSupport = false;
     bool fSupportsAHardwareBufferImages = false;
+    bool fSupportsHardwareAdvancedBlending = false;
     bool fFullCompressedUploadSizeMustAlignToBlockDims = false;
 
 #if defined(GPU_TEST_UTILS)

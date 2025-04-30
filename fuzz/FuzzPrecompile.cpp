@@ -329,9 +329,9 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
     Coverage coverage = coverageOptions[temp % 3];
 
     const SkBlenderBase* blender = as_BB(paint.getBlender());
-    bool dstReadRequired = blender ? IsDstReadRequired(recorder->priv().caps(),
-                                                       blender->asBlendMode(),
-                                                       coverage)
+    bool dstReadRequired = blender ? !CanUseHardwareBlending(recorder->priv().caps(),
+                                                             blender->asBlendMode(),
+                                                             coverage)
                                    : false;
     UniquePaintParamsID paintID = ExtractPaintData(recorder.get(),
                                                    &gatherer,
