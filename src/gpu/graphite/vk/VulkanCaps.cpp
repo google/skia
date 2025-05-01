@@ -45,75 +45,6 @@ skgpu::UniqueKey::Domain get_pipeline_domain() {
 }
 }  // namespace
 
-namespace {
-struct EnabledFeatures {
-    // VkPhysicalDeviceFeatures
-    bool fDualSrcBlend = false;
-    // From VkPhysicalDeviceSamplerYcbcrConversionFeatures:
-    bool fSamplerYcbcrConversion = false;
-    // From VkPhysicalDeviceFaultFeaturesEXT:
-    bool fDeviceFault = false;
-    // From VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT:
-    bool fAdvancedBlendModes = false;
-    bool fCoherentAdvancedBlendModes = false;
-    // From VK_EXT_rasterization_order_attachment_access:
-    bool fRasterizationOrderColorAttachmentAccess = false;
-};
-
-// Walk the feature chain once and extract any enabled features that Graphite cares about.
-EnabledFeatures GetEnabledFeature(const VkPhysicalDeviceFeatures2* features) {
-    EnabledFeatures enabled;
-    if (features) {
-        // Base features:
-        enabled.fDualSrcBlend = features->features.dualSrcBlend;
-
-        // Extended features:
-        const VkBaseInStructure* pNext = static_cast<const VkBaseInStructure*>(features->pNext);
-        while (pNext) {
-            switch (pNext->sType) {
-                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES: {
-                    const auto* feature =
-                            reinterpret_cast<const VkPhysicalDeviceSamplerYcbcrConversionFeatures*>(
-                                    pNext);
-                    enabled.fSamplerYcbcrConversion = feature->samplerYcbcrConversion;
-                    break;
-                }
-                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT: {
-                    const auto* feature =
-                            reinterpret_cast<const VkPhysicalDeviceFaultFeaturesEXT*>(pNext);
-                    enabled.fDeviceFault = feature->deviceFault;
-                    break;
-                }
-                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT: {
-                    const auto* feature = reinterpret_cast<
-                            const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT*>(pNext);
-                    // The feature struct being present at all indicated advanced blend mode
-                    // support. A member of it indicates whether the device offers coherent or
-                    // noncoherent support.
-                    enabled.fAdvancedBlendModes = true;
-                    enabled.fCoherentAdvancedBlendModes =
-                            feature->advancedBlendCoherentOperations == VK_TRUE;
-                    break;
-                }
-                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT: {
-                    const auto* feature = reinterpret_cast<
-                            const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(
-                            pNext);
-                    enabled.fRasterizationOrderColorAttachmentAccess =
-                            feature->rasterizationOrderColorAttachmentAccess;
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            pNext = pNext->pNext;
-        }
-    }
-    return enabled;
-}
-}  // namespace
-
 VulkanCaps::VulkanCaps(const ContextOptions& contextOptions,
                        const skgpu::VulkanInterface* vkInterface,
                        VkPhysicalDevice physDev,
@@ -167,13 +98,19 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
                       const VkPhysicalDeviceFeatures2* features,
                       const skgpu::VulkanExtensions* extensions,
                       Protected isProtected) {
+    const EnabledFeatures enabledFeatures =
+            this->getEnabledFeatures(features, physicalDeviceVersion);
+
     PhysicalDeviceProperties deviceProperties;
-    this->getProperties(vkInterface, physDev, physicalDeviceVersion, extensions, &deviceProperties);
+    this->getProperties(vkInterface,
+                        physDev,
+                        physicalDeviceVersion,
+                        extensions,
+                        enabledFeatures,
+                        &deviceProperties);
 
     const VkPhysicalDeviceLimits& deviceLimits = deviceProperties.base.properties.limits;
     const uint32_t vendorID = deviceProperties.base.properties.vendorID;
-
-    const EnabledFeatures enabledFeatures = GetEnabledFeature(features);
 
 #if defined(GPU_TEST_UTILS)
     this->setDeviceName(deviceProperties.base.properties.deviceName);
@@ -234,13 +171,13 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     }
 
 #ifdef SK_BUILD_FOR_UNIX
-    if (kNvidia_VkVendor == vendorID) {
+    if (skgpu::kNvidia_VkVendor == vendorID) {
         // On NVIDIA linux we see a big perf regression when not using dedicated image allocations.
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
 #endif
 
-    if (vendorID == kNvidia_VkVendor || vendorID == kAMD_VkVendor) {
+    if (vendorID == skgpu::kNvidia_VkVendor || vendorID == skgpu::kAMD_VkVendor) {
         // On discrete GPUs, it can be faster to read gpu-only memory compared to memory that is
         // also mappable on the host.
         fGpuOnlyBuffersMorePerformant = true;
@@ -254,7 +191,8 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     }
 
     // AMD advertises support for MAX_UINT vertex attributes but in reality only supports 32.
-    fMaxVertexAttributes = vendorID == kAMD_VkVendor ? 32 : deviceLimits.maxVertexInputAttributes;
+    fMaxVertexAttributes =
+            vendorID == skgpu::kAMD_VkVendor ? 32 : deviceLimits.maxVertexInputAttributes;
     fMaxUniformBufferRange = deviceLimits.maxUniformBufferRange;
     fMaxStorageBufferRange = deviceLimits.maxStorageBufferRange;
 
@@ -290,6 +228,12 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
 
     fShaderCaps->fDualSourceBlendingSupport = enabledFeatures.fDualSrcBlend;
 
+    // Vulkan 1.0 dynamic state is always supported.  Dynamic state based on mandatory features of
+    // VK_EXT_extended_dynamic_state and VK_EXT_extended_dynamic_state2 are also considered basic
+    // given the extensions' age and the fact that they are core since Vulkan 1.3.
+    fUseBasicDynamicState =
+            enabledFeatures.fExtendedDynamicState && enabledFeatures.fExtendedDynamicState2;
+
     // Note: Do not add extension/feature checks after this; driver workarounds should be done last.
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         this->applyDriverCorrectnessWorkarounds(deviceProperties);
@@ -303,11 +247,89 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     this->finishInitialization(contextOptions);
 }
 
+// Walk the feature chain once and extract any enabled features that Graphite cares about.
+VulkanCaps::EnabledFeatures VulkanCaps::getEnabledFeatures(
+        const VkPhysicalDeviceFeatures2* features, uint32_t physicalDeviceVersion) {
+    EnabledFeatures enabled;
+    if (features) {
+        // Base features:
+        enabled.fDualSrcBlend = features->features.dualSrcBlend;
+
+        if (physicalDeviceVersion >= VK_API_VERSION_1_3) {
+            enabled.fExtendedDynamicState = true;
+            enabled.fExtendedDynamicState2 = true;
+        }
+
+        // Extended features:
+        const VkBaseInStructure* pNext = static_cast<const VkBaseInStructure*>(features->pNext);
+        while (pNext) {
+            switch (pNext->sType) {
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES: {
+                    const auto* feature =
+                            reinterpret_cast<const VkPhysicalDeviceVulkan11Features*>(pNext);
+                    enabled.fSamplerYcbcrConversion = feature->samplerYcbcrConversion;
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES: {
+                    const auto* feature =
+                            reinterpret_cast<const VkPhysicalDeviceSamplerYcbcrConversionFeatures*>(
+                                    pNext);
+                    enabled.fSamplerYcbcrConversion = feature->samplerYcbcrConversion;
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT: {
+                    const auto* feature =
+                            reinterpret_cast<const VkPhysicalDeviceFaultFeaturesEXT*>(pNext);
+                    enabled.fDeviceFault = feature->deviceFault;
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT: {
+                    const auto* feature = reinterpret_cast<
+                            const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT*>(pNext);
+                    // The feature struct being present at all indicated advanced blend mode
+                    // support. A member of it indicates whether the device offers coherent or
+                    // noncoherent support.
+                    enabled.fAdvancedBlendModes = true;
+                    enabled.fCoherentAdvancedBlendModes =
+                            feature->advancedBlendCoherentOperations == VK_TRUE;
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT: {
+                    const auto* feature = reinterpret_cast<
+                            const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(
+                            pNext);
+                    enabled.fRasterizationOrderColorAttachmentAccess =
+                            feature->rasterizationOrderColorAttachmentAccess;
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_FEATURES_EXT: {
+                    const auto* feature = reinterpret_cast<
+                            const VkPhysicalDeviceExtendedDynamicStateFeaturesEXT*>(pNext);
+                    enabled.fExtendedDynamicState = feature->extendedDynamicState;
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT: {
+                    const auto* feature = reinterpret_cast<
+                            const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*>(pNext);
+                    enabled.fExtendedDynamicState2 = feature->extendedDynamicState2;
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            pNext = pNext->pNext;
+        }
+    }
+    return enabled;
+}
+
 // Query the physical device properties that Graphite cares about.
 void VulkanCaps::getProperties(const skgpu::VulkanInterface* vkInterface,
                                VkPhysicalDevice physDev,
                                uint32_t physicalDeviceVersion,
                                const skgpu::VulkanExtensions* extensions,
+                               const EnabledFeatures& features,
                                PhysicalDeviceProperties* props) {
     props->base = {};
     props->base.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
@@ -341,6 +363,12 @@ void VulkanCaps::getProperties(const skgpu::VulkanInterface* vkInterface,
             case kARM_VkVendor:
                 props->driver.driverID = VK_DRIVER_ID_ARM_PROPRIETARY;
                 break;
+            case kBroadcom_VkVendor:
+                props->driver.driverID = VK_DRIVER_ID_BROADCOM_PROPRIETARY;
+                break;
+            case kGoogle_VkVendor:
+                props->driver.driverID = VK_DRIVER_ID_GOOGLE_SWIFTSHADER;
+                break;
             case kImagination_VkVendor:
                 props->driver.driverID = VK_DRIVER_ID_IMAGINATION_PROPRIETARY;
                 break;
@@ -356,6 +384,12 @@ void VulkanCaps::getProperties(const skgpu::VulkanInterface* vkInterface,
                 break;
             case kQualcomm_VkVendor:
                 props->driver.driverID = VK_DRIVER_ID_QUALCOMM_PROPRIETARY;
+                break;
+            case kSamsung_VkVendor:
+                props->driver.driverID = VK_DRIVER_ID_SAMSUNG_PROPRIETARY;
+                break;
+            case kVeriSilicon_VkVendor:
+                props->driver.driverID = VK_DRIVER_ID_VERISILICON_PROPRIETARY;
                 break;
             default:
                 // Unknown device, but this means no driver workarounds are provisioned for it so
@@ -379,11 +413,19 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const PhysicalDevicePropertie
 
     const uint32_t vendorID = properties.base.properties.vendorID;
     const VkDriverId driverID = properties.driver.driverID;
+    const skgpu::DriverVersion driverVersion =
+            skgpu::ParseVulkanDriverVersion(driverID, properties.base.properties.driverVersion);
 
-    const bool isARMProprietary =
-            kARM_VkVendor == vendorID && VK_DRIVER_ID_ARM_PROPRIETARY == driverID;
-    const bool isQualcommProprietary =
-            kQualcomm_VkVendor == vendorID && VK_DRIVER_ID_QUALCOMM_PROPRIETARY == driverID;
+    const bool isARM = skgpu::kARM_VkVendor == vendorID;
+    const bool isQualcomm = skgpu::kQualcomm_VkVendor == vendorID;
+
+    const bool isARMProprietary = isARM && VK_DRIVER_ID_ARM_PROPRIETARY == driverID;
+    const bool isQualcommProprietary = isQualcomm && VK_DRIVER_ID_QUALCOMM_PROPRIETARY == driverID;
+
+    // All Mali Job-Manager based GPUs have maxDrawIndirectCount==1 and all Commans-Stream Front
+    // GPUs have maxDrawIndirectCount>1.  This is used as proxy to detect JM GPUs.
+    const bool isMaliJobManagerArch =
+            isARM && properties.base.properties.limits.maxDrawIndirectCount <= 1;
 
     // On Mali galaxy s7 we see lots of rendering issues when we suballocate VkImages.
     if (isARMProprietary && androidAPIVersion <= 28) {
@@ -400,6 +442,23 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const PhysicalDevicePropertie
     // until we run into it.
     if (isQualcommProprietary) {
         fMustLoadFullImageForMSAA = true;
+    }
+
+    // Too many bugs on older ARM drivers with CSF architecture.  On JM GPUs, more bugs were
+    // encountered with newer drivers, unknown if ever fixed.
+    const bool avoidExtendedDynamicState =
+            (isARMProprietary && driverVersion < skgpu::DriverVersion(44, 1)) ||
+            isMaliJobManagerArch;
+
+    // Known bugs in addition to ARM bugs above:
+    //
+    // - Cull mode dynamic state on ARM drivers prior to r52; vkCmdSetCullMode incorrectly culls
+    //   non-triangle topologies, according to the errata:
+    //   https://developer.arm.com/documentation/SDEN-3735689/0100/?lang=en.  However,
+    //   Graphite only uses triangles and cull mode is always disabled so this driver bug is not
+    //   relevant.
+    if (avoidExtendedDynamicState) {
+        fUseBasicDynamicState = false;
     }
 }
 
@@ -1213,8 +1272,8 @@ void VulkanCaps::initDepthStencilFormatTable(const skgpu::VulkanInterface* inter
         // Qualcomm drivers will report OUT_OF_HOST_MEMORY when binding memory to a VkImage with
         // D16_UNORM in a protected context. Using D32_SFLOAT succeeds, so clearly it's not actually
         // out of memory. D16_UNORM appears to function correctly in unprotected contexts.
-        const bool disableD16InProtected = this->protectedSupport() &&
-                                           kQualcomm_VkVendor == properties.vendorID;
+        const bool disableD16InProtected =
+                this->protectedSupport() && skgpu::kQualcomm_VkVendor == properties.vendorID;
         if (!disableD16InProtected) {
             constexpr VkFormat format = VK_FORMAT_D16_UNORM;
             auto& info = this->getDepthStencilFormatInfo(format);
@@ -1290,7 +1349,7 @@ void VulkanCaps::SupportedSampleCounts::initSampleCounts(const skgpu::VulkanInte
     if (flags & VK_SAMPLE_COUNT_1_BIT) {
         fSampleCounts.push_back(1);
     }
-    if (kIntel_VkVendor == physProps.vendorID) {
+    if (skgpu::kIntel_VkVendor == physProps.vendorID) {
         // MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
         return;
     }

@@ -140,13 +140,21 @@ public:
         return fPipeline;
     }
 
+    // Update any dynamic state (including none, if dynamic state is not available) that has changed
+    // since the previously bound Graphite pipeline.
+    void updateDynamicState(const VulkanSharedContext*,
+                            VkCommandBuffer commandBuffer,
+                            const VulkanGraphicsPipeline* previous) const;
+
 private:
     VulkanGraphicsPipeline(const VulkanSharedContext* sharedContext,
                            const PipelineInfo& pipelineInfo,
                            VkPipelineLayout,
                            VkPipeline,
                            bool ownsPipelineLayout,
-                           skia_private::TArray<sk_sp<VulkanSampler>>&& immutableSamplers);
+                           skia_private::TArray<sk_sp<VulkanSampler>>&& immutableSamplers,
+                           PrimitiveType primitiveType,
+                           const DepthStencilSettings& depthStencilSettings);
 
     void freeGpuData() override;
 
@@ -170,6 +178,13 @@ private:
 
     // Hold a ref to immutable samplers used such that their lifetime is properly managed.
     const skia_private::TArray<sk_sp<VulkanSampler>> fImmutableSamplers;
+
+    // State that needs to be set dynamically.  When a new pipeline is bound, only the diff with the
+    // previous pipeline is set.  This is not optimal, and eventually the front-end should calculate
+    // this diff and set the state directly instead of the graphics pipeline tracking it, at which
+    // point these members can be removed (b/414645289).
+    PrimitiveType fPrimitiveType;
+    DepthStencilSettings fDepthStencilSettings;
 };
 
 } // namespace skgpu::graphite

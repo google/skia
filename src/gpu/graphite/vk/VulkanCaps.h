@@ -119,15 +119,6 @@ public:
     bool mustLoadFullImageForMSAA() const { return fMustLoadFullImageForMSAA; }
 
 private:
-    enum VkVendor {
-        kAMD_VkVendor             = 4098,
-        kARM_VkVendor             = 5045,
-        kImagination_VkVendor     = 4112,
-        kIntel_VkVendor           = 32902,
-        kNvidia_VkVendor          = 4318,
-        kQualcomm_VkVendor        = 20803,
-    };
-
     void init(const ContextOptions&,
               const skgpu::VulkanInterface*,
               VkPhysicalDevice,
@@ -136,14 +127,36 @@ private:
               const skgpu::VulkanExtensions*,
               Protected);
 
+    struct EnabledFeatures {
+        // VkPhysicalDeviceFeatures
+        bool fDualSrcBlend = false;
+        // From VkPhysicalDeviceSamplerYcbcrConversionFeatures or VkPhysicalDeviceVulkan11Features:
+        bool fSamplerYcbcrConversion = false;
+        // From VkPhysicalDeviceFaultFeaturesEXT:
+        bool fDeviceFault = false;
+        // From VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT:
+        bool fAdvancedBlendModes = false;
+        bool fCoherentAdvancedBlendModes = false;
+        // From VK_EXT_rasterization_order_attachment_access:
+        bool fRasterizationOrderColorAttachmentAccess = false;
+        // From VkPhysicalDeviceExtendedDynamicStateFeaturesEXT or Vulkan 1.3 (no features):
+        bool fExtendedDynamicState = false;
+        // From VkPhysicalDeviceExtendedDynamicState2FeaturesEXT or Vulkan 1.3 (no features):
+        bool fExtendedDynamicState2 = false;
+    };
+    EnabledFeatures getEnabledFeatures(const VkPhysicalDeviceFeatures2* features,
+                                       uint32_t physicalDeviceVersion);
+
     struct PhysicalDeviceProperties {
         VkPhysicalDeviceProperties2 base;
         VkPhysicalDeviceDriverProperties driver;
+        VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT gpl;
     };
     void getProperties(const skgpu::VulkanInterface* vkInterface,
                        VkPhysicalDevice physDev,
                        uint32_t physicalDeviceVersion,
                        const skgpu::VulkanExtensions* extensions,
+                       const EnabledFeatures& features,
                        PhysicalDeviceProperties* props);
 
     void applyDriverCorrectnessWorkarounds(const PhysicalDeviceProperties&);

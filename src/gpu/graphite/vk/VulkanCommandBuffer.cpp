@@ -148,6 +148,50 @@ void VulkanCommandBuffer::begin() {
     VULKAN_CALL_ERRCHECK(fSharedContext,
                          BeginCommandBuffer(fPrimaryCommandBuffer, &cmdBufferBeginInfo));
     fActive = true;
+
+    // Set all the dynamic state that Graphite never changes once at the beginning of the command
+    // buffer.  The following state are constants in Graphite:
+    //
+    // * lineWidth
+    // * depthBiasEnable, depthBiasConstantFactor, depthBiasClamp, depthBiasSlopeFactor
+    // * min/maxDepthBounds, depthBoundsTestEnable
+    // * primitiveRestartEnable
+    // * cullMode
+    // * frontFace
+    // * rasterizerDiscardEnable
+
+    if (fSharedContext->caps()->useBasicDynamicState()) {
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdSetLineWidth(fPrimaryCommandBuffer,
+                                    /*lineWidth=*/1.0));
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdSetDepthBias(fPrimaryCommandBuffer,
+                                    /*depthBiasConstantFactor=*/0.0f,
+                                    /*depthBiasClamp=*/0.0f,
+                                    /*depthBiasSlopeFactor=*/0.0f));
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdSetDepthBounds(fPrimaryCommandBuffer,
+                                      /*minDepthBounds=*/0.0f,
+                                      /*maxDepthBounds=*/1.0f));
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdSetDepthBoundsTestEnable(fPrimaryCommandBuffer,
+                                                /*depthBoundsTestEnable=*/VK_FALSE));
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdSetDepthBiasEnable(fPrimaryCommandBuffer,
+                                          /*depthBiasEnable=*/VK_FALSE));
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdSetPrimitiveRestartEnable(fPrimaryCommandBuffer,
+                                                 /*primitiveRestartEnable=*/VK_FALSE));
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdSetCullMode(fPrimaryCommandBuffer,
+                                   /*cullMode=*/VK_CULL_MODE_NONE));
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdSetFrontFace(fPrimaryCommandBuffer,
+                                    /*frontFace=*/VK_FRONT_FACE_COUNTER_CLOCKWISE));
+        VULKAN_CALL(fSharedContext->interface(),
+                    CmdSetRasterizerDiscardEnable(fPrimaryCommandBuffer,
+                                                  /*rasterizerDiscardEnable=*/VK_FALSE));
+    }
 }
 
 void VulkanCommandBuffer::end() {
@@ -566,7 +610,7 @@ bool VulkanCommandBuffer::loadMSAAFromResolve(const RenderPassDesc& rpDesc,
     // After loading the resolve attachment, proceed to the next subpass.
     this->nextSubpass();
     // While transitioning to the next subpass, the layout of the resolve texture gets changed
-    // internally to accommodate its usage within the following subpass. Thus, we need  to update
+    // internally to accommodate its usage within the following subpass. Thus, we need to update
     // our tracking of the layout to match the new/final layout. We do not need to use a general
     // layout because we do not expect to later treat the resolve texture as a dst to read from.
     resolveTexture.updateImageLayout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
@@ -964,6 +1008,11 @@ void VulkanCommandBuffer::addDrawPass(const DrawPass* drawPass) {
 
 void VulkanCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsPipeline) {
     SkASSERT(fActiveRenderPass);
+    // TODO(b/414645289): Once the front-end is made aware of dynamic state, it could recognize when
+    // only dynamic state has changed.  In that case, since the pipeline doesn't change, this call
+    // can be avoided.  The logic after this would then have to move to another place; for example
+    // setting dynamic states should move to a separate VulkanCommandBuffer call.
+    const auto* previousGraphicsPipeline = fActiveGraphicsPipeline;
     fActiveGraphicsPipeline = static_cast<const VulkanGraphicsPipeline*>(graphicsPipeline);
     VULKAN_CALL(fSharedContext->interface(), CmdBindPipeline(fPrimaryCommandBuffer,
                                                              VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -981,6 +1030,9 @@ void VulkanCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsP
         // up front in this case.
         this->recordTextureAndSamplerDescSet(/*drawPass=*/nullptr, /*command=*/nullptr);
     }
+
+    fActiveGraphicsPipeline->updateDynamicState(
+            fSharedContext, fPrimaryCommandBuffer, previousGraphicsPipeline);
 }
 
 void VulkanCommandBuffer::setBlendConstants(float* blendConstants) {

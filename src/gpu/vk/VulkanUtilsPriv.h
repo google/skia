@@ -45,6 +45,55 @@ struct VulkanInterface;
 struct VulkanBackendContext;
 class VulkanExtensions;
 
+enum VkVendor {
+    kAMD_VkVendor = 0x1002,
+    kARM_VkVendor = 0x13B5,
+    kBroadcom_VkVendor = 0x14E4,
+    kGoogle_VkVendor = 0x1AE0,
+    kImagination_VkVendor = 0x1010,
+    kIntel_VkVendor = 0x8086,
+    kKazan_VkVendor = 0x10003,
+    kMesa_VkVendor = 0x10005,
+    kNvidia_VkVendor = 0x10DE,
+    kQualcomm_VkVendor = 0x5143,
+    kSamsung_VkVendor = 0x144D,
+    kVeriSilicon_VkVendor = 0x10002,
+    kVivante_VkVendor = 0x10001,
+};
+
+// GPU driver version, used for driver bug workarounds.
+struct DriverVersion {
+    constexpr DriverVersion() {}
+
+    constexpr DriverVersion(int major, int minor) : fMajor(major), fMinor(minor) {}
+
+    uint32_t fMajor = 0;
+    uint32_t fMinor = 0;
+};
+
+inline constexpr bool operator==(const DriverVersion& a, const DriverVersion& b) {
+    return a.fMajor == b.fMajor && a.fMinor == b.fMinor;
+}
+inline constexpr bool operator!=(const DriverVersion& a, const DriverVersion& b) {
+    return !(a == b);
+}
+inline constexpr bool operator<(const DriverVersion& a, const DriverVersion& b) {
+    return a.fMajor < b.fMajor || (a.fMajor == b.fMajor && a.fMinor < b.fMinor);
+}
+inline constexpr bool operator>=(const DriverVersion& a, const DriverVersion& b) {
+    return !(a < b);
+}
+
+static_assert(DriverVersion(3, 4) == DriverVersion(3, 4));
+static_assert(DriverVersion(3, 4) != DriverVersion(4, 3));
+static_assert(DriverVersion(2, 3)  < DriverVersion(2, 4));
+static_assert(DriverVersion(2, 3)  < DriverVersion(3, 0));
+static_assert(DriverVersion(2, 3) >= DriverVersion(2, 1));
+static_assert(DriverVersion(2, 3) >= DriverVersion(2, 3));
+static_assert(DriverVersion(2, 3) >= DriverVersion(1, 8));
+
+DriverVersion ParseVulkanDriverVersion(VkDriverId driverId, uint32_t driverVersion);
+
 inline bool SkSLToSPIRV(const SkSL::ShaderCaps* caps,
                         const std::string& sksl,
                         SkSL::ProgramKind programKind,

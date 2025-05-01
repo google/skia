@@ -366,6 +366,30 @@ public:
      */
     skgpu::Swizzle getWriteSwizzle(SkColorType, const TextureInfo&) const;
 
+    /**
+     * Includes the following dynamic state:
+     *
+     * * Line width, depth bias, depth bounds, stencil compare mask, stencil write mask and stencil
+     *   reference.
+     *   This set corresponds to Vulkan 1.0 dynamic state.  Blend constants does not depend on this
+     *   flag as it is always dynamic with all graphite backends.
+     *
+     * * Depth test enable, depth write enable, depth compare op, depth bounds test enable, depth
+     *   bias enable, stencil test enable and stencil op.
+     *   This set corresponds to depth and stencil related state from VK_EXT_extended_dynamic_state
+     *   and VK_EXT_extended_dynamic_state2.
+     *
+     * * Primitive topology and primitive restart enable.
+     *   Note that the primitive topology _class_ is not dynamic.
+     *   This set corresponds to input assembly state from VK_EXT_extended_dynamic_state and
+     *   VK_EXT_extended_dynamic_state2.
+     *
+     * * Cull mode, front face and rasterizer discard.
+     *   This set corresponds to rasterizer state from VK_EXT_extended_dynamic_state and
+     *   VK_EXT_extended_dynamic_state2.
+     */
+    bool useBasicDynamicState() const { return fUseBasicDynamicState; }
+
     skgpu::ShaderErrorHandler* shaderErrorHandler() const { return fShaderErrorHandler; }
 
     /**
@@ -524,6 +548,12 @@ protected:
     bool fRequireOrderedRecordings = false;
 
     bool fSetBackendLabels = false;
+
+    // Dynamic state.  The granularity is less fine than Vulkan's, but there is still some
+    // granularity to allow for some dynamic state to be disabled due to driver bugs without having
+    // to disable everything.  Eventually, these can be used to create fewer pipelines in the first
+    // place (b/414645289).
+    bool fUseBasicDynamicState = false;
 
 private:
     virtual bool onIsTexturable(const TextureInfo&) const = 0;

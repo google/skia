@@ -161,12 +161,20 @@ static VkPrimitiveTopology primitive_type_to_vk_topology(PrimitiveType primitive
     SkUNREACHABLE;
 }
 
-static void setup_input_assembly_state(PrimitiveType primitiveType,
+static void setup_input_assembly_state(const Caps& caps,
+                                       PrimitiveType primitiveType,
                                        VkPipelineInputAssemblyStateCreateInfo* inputAssemblyInfo) {
     *inputAssemblyInfo = {};
     inputAssemblyInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssemblyInfo->primitiveRestartEnable = false;
-    inputAssemblyInfo->topology = primitive_type_to_vk_topology(primitiveType);
+    inputAssemblyInfo->primitiveRestartEnable = VK_FALSE;
+    if (caps.useBasicDynamicState()) {
+        // Note: when topology is dynamic state, the topology _class_ still needs to be specified.
+        inputAssemblyInfo->topology = primitiveType == PrimitiveType::kPoints
+                                              ? VK_PRIMITIVE_TOPOLOGY_POINT_LIST
+                                              : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    } else {
+        inputAssemblyInfo->topology = primitive_type_to_vk_topology(primitiveType);
+    }
 }
 
 static VkStencilOp stencil_op_to_vk_stencil_op(StencilOp op) {
@@ -225,33 +233,41 @@ static void setup_stencil_op_state(VkStencilOpState* opState,
     opState->passOp = stencil_op_to_vk_stencil_op(face.fDepthStencilPassOp);
     opState->depthFailOp = stencil_op_to_vk_stencil_op(face.fDepthFailOp);
     opState->compareOp = compare_op_to_vk_compare_op(face.fCompareOp);
-    opState->compareMask = face.fReadMask; // TODO - check this.
+    opState->compareMask = face.fReadMask;
+    // Note: On some old ARM driver versions, dynamic state for stencil write mask doesn't work
+    // correctly in the presence of discard or alpha to coverage, if the static state provided
+    // when creating the pipeline has a value of 0.  However, both alphaToCoverageEnable and
+    // rasterizerDiscardEnable are always false in Graphite, so no driver bug workaround is
+    // necessary at the moment.
     opState->writeMask = face.fWriteMask;
     opState->reference = referenceValue;
 }
 
-static void setup_depth_stencil_state(const DepthStencilSettings& stencilSettings,
+static void setup_depth_stencil_state(const Caps& caps,
+                                      const DepthStencilSettings& stencilSettings,
                                       VkPipelineDepthStencilStateCreateInfo* stencilInfo) {
     SkASSERT(stencilSettings.fDepthTestEnabled ||
              stencilSettings.fDepthCompareOp == CompareOp::kAlways);
 
     *stencilInfo = {};
     stencilInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    stencilInfo->depthTestEnable = stencilSettings.fDepthTestEnabled;
-    stencilInfo->depthWriteEnable = stencilSettings.fDepthWriteEnabled;
-    stencilInfo->depthCompareOp = compare_op_to_vk_compare_op(stencilSettings.fDepthCompareOp);
-    stencilInfo->depthBoundsTestEnable = VK_FALSE; // Default value TODO - Confirm
-    stencilInfo->stencilTestEnable = stencilSettings.fStencilTestEnabled;
-    if (stencilSettings.fStencilTestEnabled) {
-        setup_stencil_op_state(&stencilInfo->front,
-                               stencilSettings.fFrontStencil,
-                               stencilSettings.fStencilReferenceValue);
-        setup_stencil_op_state(&stencilInfo->back,
-                               stencilSettings.fBackStencil,
-                               stencilSettings.fStencilReferenceValue);
+    if (!caps.useBasicDynamicState()) {
+        stencilInfo->depthTestEnable = stencilSettings.fDepthTestEnabled;
+        stencilInfo->depthWriteEnable = stencilSettings.fDepthWriteEnabled;
+        stencilInfo->depthCompareOp = compare_op_to_vk_compare_op(stencilSettings.fDepthCompareOp);
+        stencilInfo->depthBoundsTestEnable = VK_FALSE;
+        stencilInfo->stencilTestEnable = stencilSettings.fStencilTestEnabled;
+        if (stencilSettings.fStencilTestEnabled) {
+            setup_stencil_op_state(&stencilInfo->front,
+                                   stencilSettings.fFrontStencil,
+                                   stencilSettings.fStencilReferenceValue);
+            setup_stencil_op_state(&stencilInfo->back,
+                                   stencilSettings.fBackStencil,
+                                   stencilSettings.fStencilReferenceValue);
+        }
+        stencilInfo->minDepthBounds = 0.0f;
+        stencilInfo->maxDepthBounds = 1.0f;
     }
-    stencilInfo->minDepthBounds = 0.0f;
-    stencilInfo->maxDepthBounds = 1.0f;
 }
 
 static void setup_viewport_scissor_state(VkPipelineViewportStateCreateInfo* viewportInfo) {
@@ -409,7 +425,8 @@ static void setup_color_blend_state(const VulkanCaps& caps,
     }
 }
 
-static void setup_raster_state(bool isWireframe,
+static void setup_raster_state(const Caps& caps,
+                               bool isWireframe,
                                VkPipelineRasterizationStateCreateInfo* rasterInfo) {
     *rasterInfo = {};
     rasterInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -619,15 +636,60 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
     return result == VK_SUCCESS ? layout : VK_NULL_HANDLE;
 }
 
-static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
-                                VkDynamicState* dynamicStates) {
-    *dynamicInfo = {};
+using VkDynamicStateList = std::array<VkDynamicState, 21>;
+static void setup_dynamic_state(const Caps& caps,
+                                VkPipelineDynamicStateCreateInfo* dynamicInfo,
+                                VkDynamicStateList* dynamicStates) {
+    uint32_t count = 0;
+
+    // The following state is always dynamic in Graphite
+    (*dynamicStates)[count++] = VK_DYNAMIC_STATE_VIEWPORT;
+    (*dynamicStates)[count++] = VK_DYNAMIC_STATE_SCISSOR;
+    (*dynamicStates)[count++] = VK_DYNAMIC_STATE_BLEND_CONSTANTS;
+
+    if (caps.useBasicDynamicState()) {
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_LINE_WIDTH;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_BIAS;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_BOUNDS;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_STENCIL_WRITE_MASK;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_STENCIL_REFERENCE;
+
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_BOUNDS_TEST_ENABLE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_BIAS_ENABLE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_COMPARE_OP;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_STENCIL_OP;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE;
+
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_PRIMITIVE_RESTART_ENABLE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY;
+
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_CULL_MODE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_FRONT_FACE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_RASTERIZER_DISCARD_ENABLE;
+    }
+
+    // VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT_EXT and VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT_EXT are not
+    // used because Graphite only sets one scissor and viewport.
+    //
+    // VK_DYNAMIC_STATE_LOGIC_OP_EXT and VK_DYNAMIC_STATE_PATCH_CONTROL_POINTS_EXT are irrelevant to
+    // Graphite.
+    //
+    // VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE is not used because it will be eventually made
+    // obsolete with VK_EXT_vertex_input_dynamic_state and VK_EXT_graphics_pipeline_library.
+    //
+    // Dynamic state from VK_EXT_extended_dynamic_state3 is not yet used.  They _could_ be useful,
+    // but very few bits are universal and lots of the interesting bits are covered by
+    // VK_EXT_graphics_pipeline_library already.  Still, state like
+    // VK_DYNAMIC_STATE_DEPTH_CLAMP_ENABLE_EXT or VK_DYNAMIC_STATE_POLYGON_MODE_EXT could be used in
+    // the future.
+
+    memset(dynamicInfo, 0, sizeof(VkPipelineDynamicStateCreateInfo));
     dynamicInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicStates[0] = VK_DYNAMIC_STATE_VIEWPORT;
-    dynamicStates[1] = VK_DYNAMIC_STATE_SCISSOR;
-    dynamicStates[2] = VK_DYNAMIC_STATE_BLEND_CONSTANTS;
-    dynamicInfo->dynamicStateCount = 3;
-    dynamicInfo->pDynamicStates = dynamicStates;
+    dynamicInfo->dynamicStateCount = count;
+    dynamicInfo->pDynamicStates = dynamicStates->data();
 }
 
 VulkanProgramInfo::~VulkanProgramInfo() {
@@ -793,12 +855,14 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
 #endif
 
         pipeline = sk_sp<VulkanGraphicsPipeline>(
-            new VulkanGraphicsPipeline(sharedContext,
-                                       pipelineInfo,
-                                       program->releaseLayout(),
-                                       vkPipeline,
-                                       /*ownsPipelineLayout=*/true,
-                                       std::move(immutableSamplers)));
+                new VulkanGraphicsPipeline(sharedContext,
+                                           pipelineInfo,
+                                           program->releaseLayout(),
+                                           vkPipeline,
+                                           /*ownsPipelineLayout=*/true,
+                                           std::move(immutableSamplers),
+                                           step->primitiveType(),
+                                           step->depthStencilSettings()));
     }
 
     return pipeline;
@@ -828,10 +892,10 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(const VulkanSharedContext* share
                              &attributeDescs);
 
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
-    setup_input_assembly_state(primitiveType, &inputAssemblyInfo);
+    setup_input_assembly_state(*sharedContext->caps(), primitiveType, &inputAssemblyInfo);
 
     VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
-    setup_depth_stencil_state(depthStencilSettings, &depthStencilInfo);
+    setup_depth_stencil_state(*sharedContext->caps(), depthStencilSettings, &depthStencilInfo);
 
     VkPipelineViewportStateCreateInfo viewportInfo;
     setup_viewport_scissor_state(&viewportInfo);
@@ -847,7 +911,7 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(const VulkanSharedContext* share
 
     VkPipelineRasterizationStateCreateInfo rasterInfo;
     // TODO: Check for wire frame mode once that is an available context option within graphite.
-    setup_raster_state(/*isWireframe=*/false, &rasterInfo);
+    setup_raster_state(*sharedContext->caps(), /*isWireframe=*/false, &rasterInfo);
 
     VkPipelineShaderStageCreateInfo pipelineShaderStages[2];
     setup_shader_stage_info(VK_SHADER_STAGE_VERTEX_BIT,
@@ -859,9 +923,9 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(const VulkanSharedContext* share
                                 &pipelineShaderStages[1]);
     }
 
-    VkDynamicState dynamicStates[3];
+    VkDynamicStateList dynamicStates;
     VkPipelineDynamicStateCreateInfo dynamicInfo;
-    setup_dynamic_state(&dynamicInfo, dynamicStates);
+    setup_dynamic_state(*sharedContext->caps(), &dynamicInfo, &dynamicStates);
 
     sk_sp<VulkanRenderPass> compatibleRenderPass =
             rsrcProvider->findOrCreateRenderPass(renderPassDesc, /*compatibleOnly=*/true);
@@ -1023,13 +1087,15 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
         return nullptr;
     }
 
-    return sk_sp<VulkanGraphicsPipeline>(new VulkanGraphicsPipeline(
-        sharedContext,
-        /*pipelineInfo=*/{}, // leave empty for an internal pipeline
-        loadMSAAProgram.layout(),
-        vkPipeline,
-        /*ownsPipelineLayout=*/false,
-        /*immutableSamplers=*/{}));
+    return sk_sp<VulkanGraphicsPipeline>(
+            new VulkanGraphicsPipeline(sharedContext,
+                                       /*pipelineInfo=*/{},  // leave empty for an internal pipeline
+                                       loadMSAAProgram.layout(),
+                                       vkPipeline,
+                                       /*ownsPipelineLayout=*/false,
+                                       /*immutableSamplers=*/{},
+                                       PrimitiveType::kTriangleStrip,
+                                       /*depthStencilSettings=*/{}));
 }
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline(
@@ -1038,12 +1104,16 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
         VkPipelineLayout pipelineLayout,
         VkPipeline pipeline,
         bool ownsPipelineLayout,
-        skia_private::TArray<sk_sp<VulkanSampler>>&& immutableSamplers)
+        skia_private::TArray<sk_sp<VulkanSampler>>&& immutableSamplers,
+        PrimitiveType primitiveType,
+        const DepthStencilSettings& depthStencilSettings)
     : GraphicsPipeline(sharedContext, pipelineInfo)
     , fPipelineLayout(pipelineLayout)
     , fPipeline(pipeline)
     , fOwnsPipelineLayout(ownsPipelineLayout)
-    , fImmutableSamplers(std::move(immutableSamplers)) {}
+    , fImmutableSamplers(std::move(immutableSamplers))
+    , fPrimitiveType(primitiveType)
+    , fDepthStencilSettings(depthStencilSettings) {}
 
 void VulkanGraphicsPipeline::freeGpuData() {
     auto sharedCtxt = static_cast<const VulkanSharedContext*>(this->sharedContext());
@@ -1054,6 +1124,141 @@ void VulkanGraphicsPipeline::freeGpuData() {
     if (fOwnsPipelineLayout && fPipelineLayout != VK_NULL_HANDLE) {
         VULKAN_CALL(sharedCtxt->interface(),
                     DestroyPipelineLayout(sharedCtxt->device(), fPipelineLayout, nullptr));
+    }
+}
+
+void VulkanGraphicsPipeline::updateDynamicState(const VulkanSharedContext* sharedContext,
+                                                VkCommandBuffer commandBuffer,
+                                                const VulkanGraphicsPipeline* previous) const {
+    // The front-end currently is unaware of dynamic state, so we have no choice but to calculate
+    // the diff between pipelines and update the state as needed.  This is not quite so efficient,
+    // but will need awareness from the front-end to optimize.
+    if (sharedContext->caps()->useBasicDynamicState()) {
+        const DepthStencilSettings& depthStencil = fDepthStencilSettings;
+        const DepthStencilSettings::Face& frontStencil = depthStencil.fFrontStencil;
+        const DepthStencilSettings::Face& backStencil = depthStencil.fBackStencil;
+
+        const DepthStencilSettings* pastDepthStencil =
+                previous ? &previous->fDepthStencilSettings : nullptr;
+        const DepthStencilSettings::Face* pastFrontStencil =
+                previous ? &pastDepthStencil->fFrontStencil : nullptr;
+        const DepthStencilSettings::Face* pastBackStencil =
+                previous ? &pastDepthStencil->fBackStencil : nullptr;
+
+        const bool frontStencilReadMaskDirty =
+                previous == nullptr || pastFrontStencil->fReadMask != frontStencil.fReadMask;
+        if (frontStencilReadMaskDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetStencilCompareMask(
+                                commandBuffer, VK_STENCIL_FACE_FRONT_BIT, frontStencil.fReadMask));
+        }
+        const bool backStencilReadMaskDirty =
+                previous == nullptr || pastBackStencil->fReadMask != backStencil.fReadMask;
+        if (backStencilReadMaskDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetStencilCompareMask(
+                                commandBuffer, VK_STENCIL_FACE_BACK_BIT, backStencil.fReadMask));
+        }
+        const bool frontStencilWriteMaskDirty =
+                previous == nullptr || pastFrontStencil->fWriteMask != frontStencil.fWriteMask;
+        if (frontStencilWriteMaskDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetStencilWriteMask(
+                                commandBuffer, VK_STENCIL_FACE_FRONT_BIT, frontStencil.fWriteMask));
+        }
+        const bool backStencilWriteMaskDirty =
+                previous == nullptr || pastBackStencil->fWriteMask != backStencil.fWriteMask;
+        if (backStencilWriteMaskDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetStencilWriteMask(
+                                commandBuffer, VK_STENCIL_FACE_BACK_BIT, backStencil.fWriteMask));
+        }
+        const bool stencilReferenceDirty =
+                previous == nullptr ||
+                pastDepthStencil->fStencilReferenceValue != depthStencil.fStencilReferenceValue;
+        if (stencilReferenceDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetStencilReference(commandBuffer,
+                                               VK_STENCIL_FACE_FRONT_AND_BACK,
+                                               depthStencil.fStencilReferenceValue));
+        }
+        const bool depthCompareOpDirty =
+                previous == nullptr ||
+                pastDepthStencil->fDepthCompareOp != depthStencil.fDepthCompareOp;
+        if (depthCompareOpDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetDepthCompareOp(
+                                commandBuffer,
+                                compare_op_to_vk_compare_op(depthStencil.fDepthCompareOp)));
+        }
+        const bool depthTestEnabledDirty =
+                previous == nullptr ||
+                pastDepthStencil->fDepthTestEnabled != depthStencil.fDepthTestEnabled;
+        if (depthTestEnabledDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetDepthTestEnable(commandBuffer, depthStencil.fDepthTestEnabled));
+        }
+        const bool depthWriteEnabledDirty =
+                previous == nullptr ||
+                pastDepthStencil->fDepthWriteEnabled != depthStencil.fDepthWriteEnabled;
+        if (depthWriteEnabledDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetDepthWriteEnable(commandBuffer, depthStencil.fDepthWriteEnabled));
+        }
+        const bool stencilTestEnabledDirty =
+                previous == nullptr ||
+                pastDepthStencil->fStencilTestEnabled != depthStencil.fStencilTestEnabled;
+        if (stencilTestEnabledDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetStencilTestEnable(commandBuffer, depthStencil.fStencilTestEnabled));
+        }
+        const bool frontStencilOpsDirty =
+                previous == nullptr ||
+                pastFrontStencil->fDepthStencilPassOp != frontStencil.fDepthStencilPassOp ||
+                pastFrontStencil->fStencilFailOp != frontStencil.fStencilFailOp ||
+                pastFrontStencil->fDepthFailOp != frontStencil.fDepthFailOp ||
+                pastFrontStencil->fCompareOp != frontStencil.fCompareOp;
+        if (frontStencilOpsDirty) {
+            VULKAN_CALL(
+                    sharedContext->interface(),
+                    CmdSetStencilOp(commandBuffer,
+                                    VK_STENCIL_FACE_FRONT_BIT,
+                                    /*failOp=*/
+                                    stencil_op_to_vk_stencil_op(frontStencil.fStencilFailOp),
+                                    /*passOp=*/
+                                    stencil_op_to_vk_stencil_op(frontStencil.fDepthStencilPassOp),
+                                    /*depthFailOp=*/
+                                    stencil_op_to_vk_stencil_op(frontStencil.fDepthFailOp),
+                                    /*compareOp=*/
+                                    compare_op_to_vk_compare_op(frontStencil.fCompareOp)));
+        }
+        const bool backStencilOpsDirty =
+                previous == nullptr ||
+                pastBackStencil->fDepthStencilPassOp != backStencil.fDepthStencilPassOp ||
+                pastBackStencil->fStencilFailOp != backStencil.fStencilFailOp ||
+                pastBackStencil->fDepthFailOp != backStencil.fDepthFailOp ||
+                pastBackStencil->fCompareOp != backStencil.fCompareOp;
+        if (backStencilOpsDirty) {
+            VULKAN_CALL(
+                    sharedContext->interface(),
+                    CmdSetStencilOp(commandBuffer,
+                                    VK_STENCIL_FACE_BACK_BIT,
+                                    /*failOp=*/
+                                    stencil_op_to_vk_stencil_op(backStencil.fStencilFailOp),
+                                    /*passOp=*/
+                                    stencil_op_to_vk_stencil_op(backStencil.fDepthStencilPassOp),
+                                    /*depthFailOp=*/
+                                    stencil_op_to_vk_stencil_op(backStencil.fDepthFailOp),
+                                    /*compareOp=*/
+                                    compare_op_to_vk_compare_op(backStencil.fCompareOp)));
+        }
+        const bool primitiveTypeDirty =
+                previous == nullptr || previous->fPrimitiveType != fPrimitiveType;
+        if (primitiveTypeDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetPrimitiveTopology(commandBuffer,
+                                                primitive_type_to_vk_topology(fPrimitiveType)));
+        }
     }
 }
 
