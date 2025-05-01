@@ -12,7 +12,7 @@
 set -e
 set -x
 
-export PATH="/SRC/recipe_bundle/depot_tools:${PATH}"
+export PATH="/SRC/cipd_bin_packages/cpython3/bin:/SRC/recipe_bundle/depot_tools:${PATH}"
 
 env
 
