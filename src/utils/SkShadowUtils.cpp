@@ -596,7 +596,7 @@ static bool validate_rec(const SkDrawShadowRec& rec) {
            SkIsFinite(rec.fLightRadius);
 }
 
-void SkDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
+void SkDevice::drawShadow(SkCanvas* canvas, const SkPath& path, const SkDrawShadowRec& rec) {
     if (!validate_rec(rec)) {
         return;
     }
@@ -684,7 +684,7 @@ void SkDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
         if (!success) {
             // Pretransform the path to avoid transforming the stroke, below.
             SkPath devSpacePath;
-            path.transform(viewMatrix, &devSpacePath);
+            path.transform(canvas->getLocalToDeviceAs3x3(), &devSpacePath);
             devSpacePath.setIsVolatile(true);
 
             // The tesselator outsets by AmbientBlurRadius (or 'r') to get the outer ring of
@@ -719,14 +719,16 @@ void SkDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
             SkScalar strokeWidth = 0.5f*(devSpaceOutset - blurRadius);
 
             // Now draw with blur
+            SkAutoCanvasRestore autoRestore(canvas, /*doSave=*/true);
+            canvas->setMatrix(SkM44());
             SkPaint paint;
             paint.setColor(rec.fAmbientColor);
             paint.setStrokeWidth(strokeWidth);
             paint.setStyle(SkPaint::kStrokeAndFill_Style);
             SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(blurRadius);
-            bool respectCTM = false;
-            paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, respectCTM));
-            this->drawPath(devSpacePath, paint, true);
+            paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma,
+                                                       /*respectCTM=*/false));
+            canvas->drawPath(devSpacePath, paint);
         }
     }
 
@@ -833,19 +835,22 @@ void SkDevice::drawShadow(const SkPath& path, const SkDrawShadowRec& rec) {
             SkMatrix shadowMatrix;
             SkScalar radius;
             if (!SkDrawShadowMetrics::GetSpotShadowTransform(devLightPos, lightRadius,
-                                                             viewMatrix, zPlaneParams,
+                                                             canvas->getLocalToDeviceAs3x3(),
+                                                             zPlaneParams,
                                                              path.getBounds(), directional,
                                                              &shadowMatrix, &radius)) {
                 return;
             }
-            SkAutoDeviceTransformRestore adr2(this, SkM44(shadowMatrix));
+            SkAutoCanvasRestore autoRestore(canvas, /*doSave=*/true);
 
+            // And draw with blur
+            canvas->setMatrix(shadowMatrix);
             SkPaint paint;
             paint.setColor(rec.fSpotColor);
             SkScalar sigma = SkBlurMask::ConvertRadiusToSigma(radius);
-            bool respectCTM = false;
-            paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma, respectCTM));
-            this->drawPath(path, paint, false);
+            paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, sigma,
+                                                       /*respectCTM=*/false));
+            canvas->drawPath(path, paint);
         }
     }
 }

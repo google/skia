@@ -1858,7 +1858,7 @@ void SkCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
     if (!this->predrawNotify()) {
         return;
     }
-    this->topDevice()->drawShadow(path, rec);
+    this->topDevice()->drawShadow(this, path, rec);
 }
 
 void SkCanvas::experimental_DrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],

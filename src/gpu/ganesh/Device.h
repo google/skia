@@ -191,7 +191,7 @@ public:
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
-    void drawShadow(const SkPath&, const SkDrawShadowRec&) override;
+    void drawShadow(SkCanvas*, const SkPath&, const SkDrawShadowRec&) override;
 #endif
     void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, sk_sp<SkBlender>,
                    const SkPaint&) override;
