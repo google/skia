@@ -4537,7 +4537,8 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // GL_VERSION : OpenGL ES 3.2 build 1.13@5720833
     // GL_RENDERER: PowerVR Rogue GE8300
     // GL_VENDOR  : Imagination Technologies
-    if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue) {
+    if (ctxInfo.renderer() == GrGLRenderer::kPowerVRRogue &&
+        driverVersion < GR_GL_DRIVER_VER(1, 15, 0)) {
         fShaderCaps->fRemoveConstFromFunctionParameters = true;
     }
 #ifdef SK_BUILD_FOR_WIN
