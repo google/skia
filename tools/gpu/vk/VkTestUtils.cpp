@@ -185,6 +185,7 @@ static bool should_include_extension(const char* extensionName) {
             VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
             VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME,
             VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME,
+            VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME,
             VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
             VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
             VK_KHR_IMAGE_FORMAT_LIST_EXTENSION_NAME,
@@ -632,7 +633,7 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
         // If the instance version is 1.0 we must have the apiVersion also be 1.0. However, if the
         // instance version is 1.1 or higher, we can set the apiVersion to be whatever the highest
         // api we may use in skia (technically it can be arbitrary). So for now we set it to 1.1
-        // since that is the highest vulkan version.
+        // since that is the minimum requirement of Graphite.
         apiVersion = VK_MAKE_VERSION(1, 1, 0);
     }
 

@@ -167,16 +167,20 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
                       const VkPhysicalDeviceFeatures2* features,
                       const skgpu::VulkanExtensions* extensions,
                       Protected isProtected) {
-    VkPhysicalDeviceProperties physDevProperties;
-    VULKAN_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &physDevProperties));
+    PhysicalDeviceProperties deviceProperties;
+    this->getProperties(vkInterface, physDev, physicalDeviceVersion, extensions, &deviceProperties);
+
+    const VkPhysicalDeviceLimits& deviceLimits = deviceProperties.base.properties.limits;
+    const uint32_t vendorID = deviceProperties.base.properties.vendorID;
 
     const EnabledFeatures enabledFeatures = GetEnabledFeature(features);
 
 #if defined(GPU_TEST_UTILS)
-    this->setDeviceName(physDevProperties.deviceName);
+    this->setDeviceName(deviceProperties.base.properties.deviceName);
 #endif
 
-    // Graphite requires Vulkan version 1.1 or later, which always has protected support.
+    // Graphite requires Vulkan version 1.1 or later, which always has protected support. The
+    // protectedMemory feature is assumed enabled if isProtected is true.
     if (isProtected == Protected::kYes) {
         fProtectedSupport = true;
         fShouldAlwaysUseDedicatedImageMemory = true;
@@ -189,19 +193,19 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
 
     // We could actually query and get a max size for each config, however maxImageDimension2D will
     // give the minimum max size across all configs. So for simplicity we will use that for now.
-    fMaxTextureSize = std::min(physDevProperties.limits.maxImageDimension2D, (uint32_t)INT_MAX);
+    fMaxTextureSize = std::min(deviceLimits.maxImageDimension2D, (uint32_t)INT_MAX);
 
     // Assert that our push constant sizes are below the maximum allowed (which is guaranteed to be
     // at least 128 bytes per spec).
     static_assert(VulkanResourceProvider::kIntrinsicConstantSize < 128 &&
                   VulkanResourceProvider::kLoadMSAAPushConstantSize < 128);
 
-    fRequiredUniformBufferAlignment = physDevProperties.limits.minUniformBufferOffsetAlignment;
-    fRequiredStorageBufferAlignment =  physDevProperties.limits.minStorageBufferOffsetAlignment;
+    fRequiredUniformBufferAlignment = deviceLimits.minUniformBufferOffsetAlignment;
+    fRequiredStorageBufferAlignment = deviceLimits.minStorageBufferOffsetAlignment;
     fRequiredTransferBufferAlignment = 4;
 
-    fMaxVaryings = std::min(physDevProperties.limits.maxVertexOutputComponents,
-                            physDevProperties.limits.maxFragmentInputComponents) / 4;
+    fMaxVaryings = std::min(deviceLimits.maxVertexOutputComponents,
+                            deviceLimits.maxFragmentInputComponents) / 4;
 
     // Unlike D3D, WebGPU, and Metal, the Vulkan NDC coordinate space is aligned with the top-left
     // Y-down coordinate space of the viewport.
@@ -230,14 +234,13 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     }
 
 #ifdef SK_BUILD_FOR_UNIX
-    if (kNvidia_VkVendor == physDevProperties.vendorID) {
+    if (kNvidia_VkVendor == vendorID) {
         // On NVIDIA linux we see a big perf regression when not using dedicated image allocations.
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
 #endif
 
-    if (physDevProperties.vendorID == kNvidia_VkVendor ||
-        physDevProperties.vendorID == kAMD_VkVendor) {
+    if (vendorID == kNvidia_VkVendor || vendorID == kAMD_VkVendor) {
         // On discrete GPUs, it can be faster to read gpu-only memory compared to memory that is
         // also mappable on the host.
         fGpuOnlyBuffersMorePerformant = true;
@@ -250,14 +253,10 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
         fShouldPersistentlyMapCpuToGpuBuffers = false;
     }
 
-    if (physDevProperties.vendorID == kAMD_VkVendor) {
-        // AMD advertises support for MAX_UINT vertex attributes but in reality only supports 32.
-        fMaxVertexAttributes = 32;
-    } else {
-        fMaxVertexAttributes = physDevProperties.limits.maxVertexInputAttributes;
-    }
-    fMaxUniformBufferRange = physDevProperties.limits.maxUniformBufferRange;
-    fMaxStorageBufferRange = physDevProperties.limits.maxStorageBufferRange;
+    // AMD advertises support for MAX_UINT vertex attributes but in reality only supports 32.
+    fMaxVertexAttributes = vendorID == kAMD_VkVendor ? 32 : deviceLimits.maxVertexInputAttributes;
+    fMaxUniformBufferRange = deviceLimits.maxUniformBufferRange;
+    fMaxStorageBufferRange = deviceLimits.maxStorageBufferRange;
 
 #ifdef SK_BUILD_FOR_ANDROID
     if (extensions->hasExtension(
@@ -280,7 +279,7 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     // Note: ARM GPUs have always been coherent, do not add a subpass self-dependency even if the
     // application hasn't enabled this feature as it comes with a performance cost on this GPU.
     fIsInputAttachmentReadCoherent = enabledFeatures.fRasterizationOrderColorAttachmentAccess ||
-                                     physDevProperties.vendorID == kARM_VkVendor;
+                                     vendorID == kARM_VkVendor;
 
     // TODO(skia:14639): We must force std430 array stride when using SSBOs since SPIR-V generation
     // cannot handle mixed array strides being passed into functions.
@@ -291,18 +290,80 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
 
     // Note: Do not add extension/feature checks after this; driver workarounds should be done last.
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
-        this->applyDriverCorrectnessWorkarounds(physDevProperties);
+        this->applyDriverCorrectnessWorkarounds(deviceProperties);
     }
 
     // Note that format table initialization should be performed at the end of this method to ensure
     // all capability determinations are completed prior to populating the format tables.
-    this->initFormatTable(vkInterface, physDev, physDevProperties);
-    this->initDepthStencilFormatTable(vkInterface, physDev, physDevProperties);
+    this->initFormatTable(vkInterface, physDev, deviceProperties.base.properties);
+    this->initDepthStencilFormatTable(vkInterface, physDev, deviceProperties.base.properties);
 
     this->finishInitialization(contextOptions);
 }
 
-void VulkanCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDeviceProperties& properties) {
+// Query the physical device properties that Graphite cares about.
+void VulkanCaps::getProperties(const skgpu::VulkanInterface* vkInterface,
+                               VkPhysicalDevice physDev,
+                               uint32_t physicalDeviceVersion,
+                               const skgpu::VulkanExtensions* extensions,
+                               PhysicalDeviceProperties* props) {
+    props->base = {};
+    props->base.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+
+    props->driver = {};
+    props->driver.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES;
+
+    const bool hasDriverProperties =
+            physicalDeviceVersion >= VK_API_VERSION_1_2 ||
+            extensions->hasExtension(VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME, 1);
+    if (hasDriverProperties) {
+        AddToPNextChain(&props->base, &props->driver);
+    } else {
+        SKGPU_LOG_W("VK_KHR_driver_properties is not enabled, driver workarounds cannot "
+                    "be correctly applied");
+    }
+
+    // Graphite requires Vulkan version 1.1 or later, so vkGetPhysicalDeviceProperties2 should
+    // always be available.
+    VULKAN_CALL(vkInterface, GetPhysicalDeviceProperties2(physDev, &props->base));
+
+    // If this field is not filled, driver bug workarounds won't work correctly. It should always
+    // be filled, unless filling it itself is a driver bug, or the Vulkan driver is too old. In
+    // that case, make a guess of what the driver ID is, but the driver is likely to be too buggy to
+    // be used by Graphite either way.
+    if (props->driver.driverID == 0) {
+        switch (props->base.properties.vendorID) {
+            case kAMD_VkVendor:
+                props->driver.driverID = VK_DRIVER_ID_AMD_PROPRIETARY;
+                break;
+            case kARM_VkVendor:
+                props->driver.driverID = VK_DRIVER_ID_ARM_PROPRIETARY;
+                break;
+            case kImagination_VkVendor:
+                props->driver.driverID = VK_DRIVER_ID_IMAGINATION_PROPRIETARY;
+                break;
+            case kIntel_VkVendor:
+#ifdef SK_BUILD_FOR_WIN
+                props->driver.driverID = VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS;
+#else
+                props->driver.driverID = VK_DRIVER_ID_INTEL_OPEN_SOURCE_MESA;
+#endif
+                break;
+            case kNvidia_VkVendor:
+                props->driver.driverID = VK_DRIVER_ID_NVIDIA_PROPRIETARY;
+                break;
+            case kQualcomm_VkVendor:
+                props->driver.driverID = VK_DRIVER_ID_QUALCOMM_PROPRIETARY;
+                break;
+            default:
+                // Unknown device, but this means no driver workarounds are provisioned for it so
+                // driver ID remaining 0 is not going to change anything.
+                break;
+        }
+    }
+}
+
+void VulkanCaps::applyDriverCorrectnessWorkarounds(const PhysicalDeviceProperties& properties) {
     // By default, we initialize the Android API version to 0 since we consider certain things
     // "fixed" only once above a certain version. This way, we default to enabling the workarounds.
     int androidAPIVersion = 0;
@@ -314,8 +375,16 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropert
     androidAPIVersion = (strLength == 0) ? 0 : atoi(androidAPIVersionStr);
 #endif
 
+    const uint32_t vendorID = properties.base.properties.vendorID;
+    const VkDriverId driverID = properties.driver.driverID;
+
+    const bool isARMProprietary =
+            kARM_VkVendor == vendorID && VK_DRIVER_ID_ARM_PROPRIETARY == driverID;
+    const bool isQualcommProprietary =
+            kQualcomm_VkVendor == vendorID && VK_DRIVER_ID_QUALCOMM_PROPRIETARY == driverID;
+
     // On Mali galaxy s7 we see lots of rendering issues when we suballocate VkImages.
-    if (kARM_VkVendor == properties.vendorID && androidAPIVersion <= 28) {
+    if (isARMProprietary && androidAPIVersion <= 28) {
         fShouldAlwaysUseDedicatedImageMemory = true;
     }
 
@@ -327,7 +396,7 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropert
     // that we don't even test any more. This also occurs on swiftshader: b/303705884 in Ganesh, but
     // we aren't currently testing that in Graphite yet so leaving that off the workaround for now
     // until we run into it.
-    if (kQualcomm_VkVendor == properties.vendorID) {
+    if (isQualcommProprietary) {
         fMustLoadFullImageForMSAA = true;
     }
 }
