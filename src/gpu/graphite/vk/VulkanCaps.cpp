@@ -35,6 +35,51 @@
 
 namespace skgpu::graphite {
 
+namespace {
+struct EnabledFeatures {
+    // VkPhysicalDeviceFeatures
+    bool dualSrcBlend = false;
+    // From VkPhysicalDeviceSamplerYcbcrConversionFeatures:
+    bool samplerYcbcrConversion = false;
+    // From VkPhysicalDeviceFaultFeaturesEXT:
+    bool deviceFault = false;
+};
+
+// Walk the feature chain once and extract any enabled features that Graphite cares about.
+EnabledFeatures GetEnabledFeature(const VkPhysicalDeviceFeatures2* features) {
+    EnabledFeatures enabled;
+    if (features) {
+        // Base features:
+        enabled.dualSrcBlend = features->features.dualSrcBlend;
+
+        // Extended features:
+        const VkBaseInStructure* pNext = static_cast<const VkBaseInStructure*>(features->pNext);
+        while (pNext) {
+            switch (pNext->sType) {
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES: {
+                    const auto* feature =
+                            reinterpret_cast<const VkPhysicalDeviceSamplerYcbcrConversionFeatures*>(
+                                    pNext);
+                    enabled.samplerYcbcrConversion = feature->samplerYcbcrConversion;
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT: {
+                    const auto* feature =
+                            reinterpret_cast<const VkPhysicalDeviceFaultFeaturesEXT*>(pNext);
+                    enabled.deviceFault = feature->deviceFault;
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            pNext = pNext->pNext;
+        }
+    }
+    return enabled;
+}
+}  // namespace
+
 VulkanCaps::VulkanCaps(const ContextOptions& contextOptions,
                        const skgpu::VulkanInterface* vkInterface,
                        VkPhysicalDevice physDev,
@@ -90,6 +135,8 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
                       Protected isProtected) {
     VkPhysicalDeviceProperties physDevProperties;
     VULKAN_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &physDevProperties));
+
+    const EnabledFeatures enabledFeatures = GetEnabledFeature(features);
 
 #if defined(GPU_TEST_UTILS)
     this->setDeviceName(physDevProperties.deviceName);
@@ -169,10 +216,6 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
         fShouldPersistentlyMapCpuToGpuBuffers = false;
     }
 
-    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
-        this->applyDriverCorrectnessWorkarounds(physDevProperties);
-    }
-
     if (physDevProperties.vendorID == kAMD_VkVendor) {
         // AMD advertises support for MAX_UINT vertex attributes but in reality only supports 32.
         fMaxVertexAttributes = 32;
@@ -189,28 +232,19 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     }
 #endif
 
-    // Determine whether the client enabled certain physical device features.
-    if (features) {
-        auto ycbcrFeatures =
-                skgpu::GetExtensionFeatureStruct<VkPhysicalDeviceSamplerYcbcrConversionFeatures>(
-                        *features,
-                        VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES);
-        if (ycbcrFeatures && ycbcrFeatures->samplerYcbcrConversion) {
-            fSupportsYcbcrConversion = true;
-        }
-    }
-
-    if (extensions->hasExtension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME, 1)) {
-        fSupportsDeviceFaultInfo = true;
-    }
+    fSupportsYcbcrConversion = enabledFeatures.samplerYcbcrConversion;
+    fSupportsDeviceFaultInfo = enabledFeatures.deviceFault;
 
     // TODO(skia:14639): We must force std430 array stride when using SSBOs since SPIR-V generation
     // cannot handle mixed array strides being passed into functions.
     fShaderCaps->fForceStd430ArrayLayout =
             fStorageBufferSupport && fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430;
 
-    if (features && features->features.dualSrcBlend) {
-        fShaderCaps->fDualSourceBlendingSupport = true;
+    fShaderCaps->fDualSourceBlendingSupport = enabledFeatures.dualSrcBlend;
+
+    // Note: Do not add extension/feature checks after this; driver workarounds should be done last.
+    if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
+        this->applyDriverCorrectnessWorkarounds(physDevProperties);
     }
 
     // Note that format table initialization should be performed at the end of this method to ensure
