@@ -17,6 +17,7 @@
 #include "src/gpu/graphite/UploadBufferManager.h"
 
 #include <array>
+#include <optional>
 #include <tuple>
 
 namespace skgpu::graphite {
@@ -105,9 +106,14 @@ public:
     // work that will be wasted because the next Recording snap will fail.
     bool hasMappingFailed() const { return fMappingFailed; }
 
+    // Return true if the next call to getVertexWriter() with the same values would require a new
+    // buffer. This is only called by render steps that are appending verts.
+    bool willVertexOverflow(size_t count, size_t dataStride, size_t alignStride) const;
+
     // These writers automatically calculate the required bytes based on count and stride. If a
     // valid writer is returned, the byte count will fit in a uint32_t.
-    std::pair<VertexWriter, BindBufferInfo> getVertexWriter(size_t count, size_t stride);
+    std::pair<VertexWriter, BindBufferInfo> getVertexWriter(size_t count, size_t dataStride,
+                                                            size_t alignStride);
     std::pair<IndexWriter, BindBufferInfo> getIndexWriter(size_t count, size_t stride);
     std::pair<UniformWriter, BindBufferInfo> getUniformWriter(size_t count, size_t stride);
 
@@ -182,6 +188,7 @@ private:
         // How many bytes have been used for for this buffer type since the last Recording snap.
         uint32_t fUsedSize = 0;
     };
+
     std::pair<void* /*mappedPtr*/, BindBufferInfo> prepareMappedBindBuffer(
             BufferInfo* info,
             std::string_view label,

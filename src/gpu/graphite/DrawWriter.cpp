@@ -54,7 +54,7 @@ void DrawWriter::setTemplate(BindBufferInfo vertices,
     // and thus the above assert will be safe.
 }
 
-void DrawWriter::flush() {
+void DrawWriter::flushInternal() {
     // Skip flush if no items appended, or dynamic instances resolved to zero count.
     if (fPendingCount == 0 ||
         ((fRenderState & RenderStateFlags::kAppendDynamicInstances) && fTemplateCount == 0)) {

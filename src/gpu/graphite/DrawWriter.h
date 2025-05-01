@@ -75,7 +75,10 @@ public:
 
     // Issue draw calls for any pending vertex and instance data collected by the writer.
     // Use either flush() or newDynamicState() based on context and readability.
-    void flush();
+    void flush() {
+        this->padAndZero();
+        this->flushInternal();
+    }
     void newDynamicState() { this->flush(); }
 
     // Notify the DrawWriter that a new pipeline needs to be bound, providing the primitive type,
@@ -95,6 +98,10 @@ public:
         fVertexStride = vertexStride;
         fInstanceStride = instanceStride;
         fRenderState = newRenderState;
+
+        // ARM hardware b/399631317: The initial offset when appending vertices must be 4-count
+        // aligned, regardless of the previous render state.
+        fShouldAlign4 = SkToBool(newRenderState & RenderStateFlags::kAppendVertices);
 
         // Assign the (optional) barrier type. If a valid value, then the DrawWriter will append
         // AddBarrier commands of the indicated type prior to appending any draw commands used with
@@ -248,7 +255,30 @@ private:
     // Reset to 0 after a flush().
     uint32_t fPendingCount;
 
+    // ARM hardware b/399631317: Track whenever a newPipelineState occurs with appending vertices,
+    // to let the next reserve() call know that we need a 4 count aligned offset.
+    bool fShouldAlign4;
+
     std::optional<BarrierType> fBarrierToIssueBeforeDraws = std::nullopt;
+
+    void flushInternal();
+
+    // ARM hardware b/399631317: Unreferenced vertices in sequential indexes of 4 will be
+    // speculatively executed. To work around this, we pad the buffer by requesting additional
+    // space, and then ensure valid, minimally deleterious data by memsetting the padding to zero.
+    void padAndZero() {
+        if (fPendingCount && (fRenderState & RenderStateFlags::kAppendVertices)) {
+            const uint32_t alignedCount = SkAlign4(fPendingCount);
+            if (alignedCount > fPendingCount) {
+                const uint32_t byteDiff = (alignedCount - fPendingCount) * fVertexStride;
+                SkASSERT(!fManager->willVertexOverflow(byteDiff, 1, 1));
+                auto[zWriter, zBuff] = fManager->getVertexWriter(byteDiff, 1, 1);
+                if (zWriter) {
+                    zWriter.zeroBytes(byteDiff);
+                }
+            }
+        }
+    }
 
     void setTemplate(BindBufferInfo vertices, BindBufferInfo indices, BindBufferInfo instances,
                      uint32_t templateCount);
@@ -258,6 +288,9 @@ private:
         SkASSERT(drawCount > 0);
         SkASSERT(!fAppender); // Shouldn't be appending and manually drawing at the same time.
         SkASSERT(fPendingCount == 0); // Any prior appends must have been flushed by now.
+        // CAUTION: We can make sure that the vertex offset is count 4 aligned, but no way to check
+        // if the data is padded and zeroed properly. Caller must ensure any unaligned data is safe.
+        SkASSERT(vertices.fOffset % (fVertexStride * 4) == 0);
         this->setTemplate(vertices, indices, instances, templateCount);
         fPendingCount = drawCount;
         this->flush();
@@ -275,10 +308,9 @@ class DrawWriter::Appender {
 public:
     Appender(DrawWriter& w, SkEnumBitMask<RenderStateFlags> renderState)
             : fDrawer(w)
-            , fTarget(SkToBool(w.fRenderState & RenderStateFlags::kAppendVertices) ?
-                               w.fVertices : w.fInstances)
-            , fStride(SkToBool(w.fRenderState & RenderStateFlags::kAppendVertices) ?
-                               w.fVertexStride : w.fInstanceStride)
+            , fAppendVerts(w.fRenderState & RenderStateFlags::kAppendVertices)
+            , fTarget(fAppendVerts ? w.fVertices : w.fInstances)
+            , fStride(fAppendVerts ? w.fVertexStride : w.fInstanceStride)
             , fReservedCount(0)
             , fNextWriter() {
         SkASSERT(fStride > 0);
@@ -297,22 +329,38 @@ public:
 
 protected:
     DrawWriter&     fDrawer;
+    bool            fAppendVerts;
     BindBufferInfo& fTarget;
     uint32_t        fStride;
 
-    uint32_t     fReservedCount; // in target stride units
-    VertexWriter fNextWriter;    // writing to the target buffer binding
+    uint32_t        fReservedCount; // in target stride units
+    VertexWriter    fNextWriter;    // writing to the target buffer binding
 
     virtual void prepareFlush() {}
 
+    // Reserves 'count' elements, managing potential re-allocation and buffer contiguity.
+    // For vertex appends (fAppendVerts), addresses ARM hardware issue (b/399631317) by:
+    //  1. Requesting 4-count aligned space (for necessary padding).
+    //  2. Ensuring the initial buffer offset is 4-count stride aligned after a newPipelineState().
+    //  3. Checking whether a new reservation will overflow to a new buffer, and if it will, safely
+    //     padding the current buffer.
+    // If current reservation is insufficient, any existing reserved (but unused) contiguous
+    // bytes are returned to the manager before attempting a new allocation.
+    // If the newly allocated chunk isn't contiguous with the current target buffer,
+    // pending draws are flushed, and the target is updated to this new chunk.
     void reserve(unsigned int count) {
-        if (fReservedCount >= count) {
+        uint32_t alignedCount =
+                fAppendVerts ? (SkAlign4(fDrawer.fPendingCount + count) - fDrawer.fPendingCount)
+                             : count;
+        uint32_t alignedStride = fStride;
+        if (fDrawer.fShouldAlign4) {
+            alignedStride *= 4;
+            fDrawer.fShouldAlign4 = false;
+        }
+
+        if (fReservedCount >= alignedCount) {
             return;
         } else if (fReservedCount > 0) {
-            // Have contiguous bytes that can't satisfy request, so return them in the event the
-            // DBM has additional contiguous bytes after the prior reserved range. The byte count
-            // multiply should be safe here: if it would have overflowed, the original allocation
-            // should have failed and not increased fReservedCount.
             SkASSERT(SkTFitsIn<uint32_t>((uint64_t)fReservedCount*(uint64_t)fStride));
             const uint32_t returnedBytes = fReservedCount * fStride;
             SkASSERT(fTarget.fSize >= returnedBytes);
@@ -321,22 +369,37 @@ protected:
             fReservedCount = 0;
         }
 
+        // If we are appending verts, we need to check if our requested allocation will overflow the
+        // current buffer
+        if (fAppendVerts) {
+            // If it does, we need to get a vertex writer to pad and zero out the old buffer
+            // *before* we get our new one and lose bufferWriter's mapping to the transfer buffer.
+            if (fDrawer.fManager->willVertexOverflow(alignedCount, fStride, alignedStride)) {
+                fDrawer.padAndZero();
+                // When we overflow the buffer, the previous alignedCount will be incorrect, since
+                // it accounted for the about-to-be-flushed fPendingCount, which will not apply to
+                // writing to the new buffer.
+                alignedCount = SkAlign4(count);
+            }
+        }
+
         // NOTE: Cannot bind tuple directly to fNextWriter, compilers don't produce the right
         // move assignment.
-        auto [writer, reservedChunk] = fDrawer.fManager->getVertexWriter(count, fStride);
+        auto [writer, reservedChunk] =
+            fDrawer.fManager->getVertexWriter(alignedCount, fStride, alignedStride);
         if (writer) {
-            fReservedCount = count;
-
+            fReservedCount = alignedCount;
             if (reservedChunk.fBuffer != fTarget.fBuffer ||
-                reservedChunk.fOffset != (fTarget.fOffset + fDrawer.fPendingCount*fStride)) {
+                reservedChunk.fOffset != fTarget.fOffset + fDrawer.fPendingCount * fStride) {
                 // Not contiguous, so flush and update binding to 'reservedChunk'
                 this->prepareFlush();
-                fDrawer.flush();
+                fDrawer.flushInternal();
                 fTarget = reservedChunk;
             } else {
                 fTarget.fSize += reservedChunk.fSize;
             }
         }
+
         fNextWriter = std::move(writer);
     }
 
@@ -373,8 +436,8 @@ public:
         w.setTemplate(w.fVertices, {}, {}, 0);
     }
 
-    using Appender::reserve;
     using Appender::append;
+    using Appender::reserve;
 };
 
 class DrawWriter::Instances : private DrawWriter::Appender {

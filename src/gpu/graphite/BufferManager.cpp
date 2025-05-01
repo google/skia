@@ -22,6 +22,7 @@
 
 #include <limits>
 #include <numeric>
+#include <optional>
 
 namespace skgpu::graphite {
 
@@ -84,14 +85,6 @@ uint32_t sufficient_block_size(uint32_t requiredBytes, uint32_t blockSize) {
     return bufferSize;
 }
 
-bool can_fit(uint32_t requestedSize,
-             uint32_t allocatedSize,
-             uint32_t currentOffset,
-             uint32_t alignment) {
-    uint32_t startOffset = SkAlignTo(currentOffset, alignment);
-    return requestedSize <= (allocatedSize - startOffset);
-}
-
 // This returns the minimum required alignment depending on the type of buffer. This is guaranteed
 // to be a power of two.
 uint32_t minimum_alignment(BufferType type, bool useTransferBuffers, const Caps* caps) {
@@ -137,6 +130,18 @@ uint32_t align_to_req_min_lcm(uint32_t bytes, uint32_t req, uint32_t min) {
     return bytes;
 }
 
+std::optional<uint32_t> can_offset_fit(uint32_t reqSize,
+                                       uint32_t allocatedSize,
+                                       uint32_t currentOffset,
+                                       uint32_t minAlignment,
+                                       uint32_t reqAlignment) {
+    uint32_t startOffset = reqAlignment ?
+                           align_to_req_min_lcm(currentOffset, reqAlignment, minAlignment) :
+                           SkAlignTo(currentOffset, minAlignment);
+    return (allocatedSize > startOffset && reqSize <= allocatedSize - startOffset) ?
+           std::optional<uint32_t>(startOffset) : std::nullopt;
+}
+
 } // anonymous namespace
 
 // ------------------------------------------------------------------------------------------------
@@ -161,12 +166,12 @@ BindBufferInfo ScratchBuffer::suballocate(size_t requiredBytes) {
     if (!this->isValid() || !requiredBytes32) {
         return {};
     }
-    if (!can_fit(requiredBytes32, fSize, fOffset, fAlignment)) {
+    std::optional<uint32_t> offset = can_offset_fit(requiredBytes32, fSize, fOffset, fAlignment, 0);
+    if (!offset.has_value()) {
         return {};
     }
-    const uint32_t offset = SkAlignTo(fOffset, fAlignment);
-    fOffset = offset + requiredBytes32;
-    return {fBuffer.get(), offset, requiredBytes32};
+    fOffset = offset.value() + requiredBytes32;
+    return {fBuffer.get(), offset.value(), requiredBytes32};
 }
 
 void ScratchBuffer::returnToPool() {
@@ -215,18 +220,33 @@ DrawBufferManager::BufferInfo::BufferInfo(BufferType type,
         , fMaxBlockSize(maxBlockSize)
         , fCurBlockSize(SkAlignTo(minBlockSize, fMinimumAlignment)) {}
 
+bool DrawBufferManager::willVertexOverflow(size_t count, size_t dataStride,
+                                           size_t alignStride) const {
+    uint32_t requiredBytes = validate_count_and_stride(count, dataStride);
+    const BufferInfo& vertBuff = fCurrentBuffers[kVertexBufferIndex];
+    if (!requiredBytes || !vertBuff.fBuffer) {
+        return false;
+    }
+    return !can_offset_fit(requiredBytes,
+                          SkTo<uint32_t>(vertBuff.fBuffer->size()),
+                          vertBuff.fOffset,
+                          vertBuff.fMinimumAlignment,
+                          alignStride).has_value();
+}
+
 // For the vertexWriter, we explicitly pass in the required stride to align the mapped
 // bindBuffer to try to keep the buffer contiguous with future vertex data.
 std::pair<VertexWriter, BindBufferInfo> DrawBufferManager::getVertexWriter(size_t count,
-                                                                           size_t stride) {
-    uint32_t requiredBytes = validate_count_and_stride(count, stride);
+                                                                           size_t dataStride,
+                                                                           size_t alignStride) {
+    uint32_t requiredBytes = validate_count_and_stride(count, dataStride);
     if (!requiredBytes) {
         return {};
     }
 
     auto& info = fCurrentBuffers[kVertexBufferIndex];
     auto [ptr, bindInfo] =
-        this->prepareMappedBindBuffer(&info, "VertexBuffer", requiredBytes, stride);
+        this->prepareMappedBindBuffer(&info, "VertexBuffer", requiredBytes, alignStride);
     return {VertexWriter(ptr, requiredBytes), bindInfo};
 }
 
@@ -534,31 +554,19 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
     // A transfer buffer is not necessary if the caller does not intend to upload CPU data to it.
     bool useTransferBuffer = supportCpuUpload && !fCaps->drawBufferCanBeMapped();
 
-    if (requiredAlignment == 0) {
-        // If explicitly required alignment is not provided, use the default buffer alignment.
-        requiredAlignment = info->fMinimumAlignment;
-
-    } else {
-        // If an explicitly required alignment is provided, use that instead of the default buffer
-        // alignment. This is useful when the offset is used as an index into a storage buffer
-        // rather than an offset for an actual binding.
-        info->fOffset =
-            align_to_req_min_lcm(info->fOffset, requiredAlignment, info->fMinimumAlignment);
-
-        // Don't align the offset any further.
-        requiredAlignment = 1;
-    }
-
-    const bool overflowedBuffer =
-            info->fBuffer && (info->fOffset >= SkTo<uint32_t>(info->fBuffer->size()) ||
-                              !can_fit(requiredBytes,
-                                       SkTo<uint32_t>(info->fBuffer->size()),
-                                       info->fOffset,
-                                       requiredAlignment));
+    auto offset = info->fBuffer ? can_offset_fit(requiredBytes,
+                                                 SkTo<uint32_t>(info->fBuffer->size()),
+                                                 info->fOffset,
+                                                 info->fMinimumAlignment,
+                                                 requiredAlignment)
+                                : std::optional<uint32_t>(0);
+    const bool overflowedBuffer = !offset.has_value();
     if (overflowedBuffer) {
         fUsedBuffers.emplace_back(std::move(info->fBuffer), info->fTransferBuffer);
         info->fTransferBuffer = {};
         info->fUsedSize += info->fOffset;
+    } else {
+        info->fOffset = offset.value();
     }
 
     if (!info->fBuffer) {
@@ -602,7 +610,8 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
         SkASSERT(info->fTransferMapPtr);
     }
 
-    info->fOffset = SkAlignTo(info->fOffset, requiredAlignment);
+    SkASSERT(info->fOffset % (requiredAlignment ?
+            requiredAlignment : info->fMinimumAlignment) == 0);
     BindBufferInfo bindInfo{info->fBuffer.get(), info->fOffset, requiredBytes};
     info->fOffset += requiredBytes;
 
@@ -650,13 +659,20 @@ StaticBufferManager::BufferInfo::BufferInfo(BufferType type, const Caps* caps)
         , fMinimumAlignment(minimum_alignment(type, /*useTransferBuffers=*/true, caps))
         , fTotalRequiredBytes(0) {}
 
+// ARM hardware b/399631317 also means that static vertex data must be padded and zeroed out. So we
+// always request a count 4 aligned offset, count 4 aligned amount of space, and zero it.
 VertexWriter StaticBufferManager::getVertexWriter(size_t count,
                                                   size_t stride,
                                                   BindBufferInfo* binding) {
     const size_t size = count * stride;
-    // We align the stride of the static buffer to 4 to accomodate driver issues on ARM hardware,
-    // when converting byte offsets into base vertex.
-    void* data = this->prepareStaticData(&fVertexBufferInfo, size, stride * 4, binding);
+    const size_t alignedCount = SkAlign4(count);
+    const size_t alignedSize = validate_count_and_stride(alignedCount, stride);
+    void* data = this->prepareStaticData(&fVertexBufferInfo, alignedSize, stride * 4, binding);
+    if (alignedCount > count) {
+        const uint32_t byteDiff = (alignedCount - count) * stride;
+        void* zPtr = SkTAddOffset<void>(data, count * stride);
+        memset(zPtr, 0, byteDiff);
+    }
     return VertexWriter{data, size};
 }
 
