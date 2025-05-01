@@ -191,9 +191,9 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 	args = append(args, "--config")
 	args = append(args, configs...)
 
-	// Use 4 internal msaa samples on mobile and AppleM*, otherwise 8.
+	// Use 4 internal msaa samples on mobile, AppleM*, and with Graphite, otherwise 8.
 	args = append(args, "--internalSamples")
-	if b.matchOs("Android") || b.os("iOS") || b.matchGpu("AppleM") {
+	if b.matchOs("Android") || b.os("iOS") || b.matchGpu("AppleM") || b.extraConfig("Graphite") {
 		args = append(args, "4")
 	} else {
 		args = append(args, "8")
