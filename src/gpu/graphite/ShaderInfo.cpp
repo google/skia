@@ -379,6 +379,19 @@ std::string emit_textures_and_samplers(const ResourceBindingRequirements& bindin
     return result;
 }
 
+SkSLType sksl_type_for_lifted_expression(
+        ShaderSnippet::LiftableExpressionType liftedExpressionType) {
+    switch (liftedExpressionType) {
+        case ShaderSnippet::LiftableExpressionType::kNone:
+            return SkSLType::kVoid;
+        case ShaderSnippet::LiftableExpressionType::kLocalCoords:
+            return SkSLType::kFloat2;
+        case ShaderSnippet::LiftableExpressionType::kPriorStageOutput:
+            return SkSLType::kHalf4;
+    }
+    return SkSLType::kVoid;
+}
+
 std::string emit_varyings(const RenderStep* step,
                           const char* direction,
                           SkSpan<const LiftedExpression> liftedExpressions,
@@ -411,10 +424,11 @@ std::string emit_varyings(const RenderStep* step,
     }
 
     for (const LiftedExpression& expr : liftedExpressions) {
-        // TODO(b/402402925) Provide a way for lifted expressions to declare their varying type.
         if (expr.fEmitVarying) {
-            std::string name = expr.fNode->getExpressionVarying();
-            appendVarying({name.c_str(), SkSLType::kFloat2});
+            std::string name = expr.fNode->getExpressionVaryingName();
+            appendVarying({name.c_str(),
+                           sksl_type_for_lifted_expression(
+                                   expr.fNode->entry()->fLiftableExpressionType)});
         }
     }
 
@@ -496,7 +510,16 @@ void collect_lifted_expressions(SkSpan<const ShaderNode*> nodes,
         ShaderSnippet::Args childArgs = args;
         if (emitExpressionInVS && node->entry()->fLiftableExpressionGenerator) {
             lifted.push_back({node, args, emitVaryingInFS});
-            childArgs.fFragCoord = node->getExpressionVarying();
+            switch (node->entry()->fLiftableExpressionType) {
+                case ShaderSnippet::LiftableExpressionType::kLocalCoords:
+                    childArgs.fFragCoord = node->getExpressionVaryingName();
+                    break;
+                case ShaderSnippet::LiftableExpressionType::kPriorStageOutput:
+                    childArgs.fPriorStageOutput = node->getExpressionVaryingName();
+                    break;
+                default:
+                    SkUNREACHABLE;
+            }
         }
 
         collect_lifted_expressions(node->children(), childArgs, lifted);
@@ -1155,12 +1178,14 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
         }
 
         for (const LiftedExpression& expr : liftedExpr) {
-            const char* decl = expr.fEmitVarying ? "" : "float2 ";
             const ShaderNode* node = expr.fNode;
-            const std::string varName = node->getExpressionVarying();
+            const char* type = expr.fEmitVarying ? ""
+                                                 : SkSLTypeString(sksl_type_for_lifted_expression(
+                                                           node->entry()->fLiftableExpressionType));
+            const std::string varName = node->getExpressionVaryingName();
             const std::string expression =
                     node->entry()->fLiftableExpressionGenerator(*this, node, expr.fArgs);
-            SkSL::String::appendf(&sksl, "%s%s = %s;", decl, varName.c_str(), expression.c_str());
+            SkSL::String::appendf(&sksl, "%s %s = %s;", type, varName.c_str(), expression.c_str());
         }
     }
 
