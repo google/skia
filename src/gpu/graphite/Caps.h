@@ -51,31 +51,39 @@ struct RenderPassDesc;
 class TextureInfo;
 
 struct ResourceBindingRequirements {
-    // The required data layout rules for the contents of a uniform buffer.
+    /* The required data layout rules for the contents of a uniform buffer. */
     Layout fUniformBufferLayout = Layout::kInvalid;
 
-    // The required data layout rules for the contents of a storage buffer.
+    /* The required data layout rules for the contents of a storage buffer. */
     Layout fStorageBufferLayout = Layout::kInvalid;
 
-    // Whether combined texture-sampler types are supported. Backends that do not support
-    // combined image samplers (i.e. sampler2D) require a texture and sampler object to be bound
-    // separately and their binding indices explicitly specified in the shader text.
+    /**
+     * Whether combined texture-sampler types are supported. Backends that do not support combined
+     * image samplers (i.e. sampler2D) require a texture and sampler object to be bound separately
+     * and their binding indices explicitly specified in the shader text.
+     */
     bool fSeparateTextureAndSamplerBinding = false;
 
-    // Whether intrinsic constant information is stored as push constants (rather than normal UBO).
-    // Currently only relevant or possibly true for Vulkan.
+    /**
+     * Whether intrinsic constant information is stored as push constants (rather than normal UBO).
+     * Currently only relevant or possibly true for Vulkan.
+     */
     bool fUseVulkanPushConstantsForIntrinsicConstants = false;
 
-    // Whether compute shader textures use separate index ranges from other resources (i.e. buffers)
+    /**
+     * Whether compute shader textures use separate index ranges from other resources (i.e. buffers)
+     */
     bool fComputeUsesDistinctIdxRangesForTextures = false;
 
-    // Define set indices. We assume that even if textures and samplers must be bound separately,
-    // they will still be contained within the same set/group.
+    /**
+     * Define set indices. We assume that even if textures and samplers must be bound separately,
+     * they will still be contained within the same set/group.
+     */
     static constexpr int kUnassigned = -1;
     int fUniformsSetIdx              = kUnassigned;
     int fTextureSamplerSetIdx        = kUnassigned;
     int fInputAttachmentSetIdx       = kUnassigned;
-    // Define uniform buffer bindings
+    /* Define uniform buffer bindings */
     int fIntrinsicBufferBinding      = kUnassigned;
     int fRenderStepBufferBinding     = kUnassigned;
     int fPaintParamsBufferBinding    = kUnassigned;
@@ -98,11 +106,12 @@ public:
     }
 #endif
 
-    // TODO(b/390473370): Once backends initialize a Caps-level format table, these will not need
-    // to be virtual anymore:
-
+    /**
+     * TODO(b/390473370): Once backends initialize a Caps-level format table, these will not need
+     * to be virtual anymore:
+     */
     virtual bool isSampleCountSupported(TextureFormat, uint8_t requestedSampleCount) const = 0;
-    // Return the TextureFormat that satisfies `dsFlags`.
+    /* Return the TextureFormat that satisfies `dsFlags`. */
     virtual TextureFormat getDepthStencilFormat(SkEnumBitMask<DepthStencilFlags>) const = 0;
 
     virtual TextureInfo getDefaultAttachmentTextureInfo(AttachmentDesc,
@@ -123,7 +132,7 @@ public:
 
     virtual TextureInfo getDefaultStorageTextureInfo(SkColorType) const = 0;
 
-    // Get required depth attachment dimensions for a givin color attachment info and dimensions.
+    /* Get required depth attachment dimensions for a givin color attachment info and dimensions. */
     virtual SkISize getDepthAttachmentDimensions(const TextureInfo&,
                                                  const SkISize colorAttachmentDimensions) const;
 
@@ -148,8 +157,10 @@ public:
     int maxTextureSize() const { return fMaxTextureSize; }
     uint8_t defaultMSAASamplesCount() const { return fDefaultMSAASamples; }
 
-    // Returns the maximum number of varyings allowed in a render pipeline. Note that this is the
-    // number of varying variables, not the total number of varying scalars.
+    /**
+     * Returns the maximum number of varyings allowed in a render pipeline. Note that this is the
+     * number of varying variables, not the total number of varying scalars.
+     */
     int maxVaryings() const { return fMaxVaryings; }
 
     virtual void buildKeyForTexture(SkISize dimensions,
@@ -161,24 +172,32 @@ public:
         return fResourceBindingReqs;
     }
 
-    // Returns the required alignment in bytes for the offset into a uniform buffer when binding it
-    // to a draw.
+    /**
+     * Returns the required alignment in bytes for the offset into a uniform buffer when binding it
+     * to a draw.
+     */
     size_t requiredUniformBufferAlignment() const { return fRequiredUniformBufferAlignment; }
 
-    // Returns the required alignment in bytes for the offset into a storage buffer when binding it
-    // to a draw.
+    /**
+     * Returns the required alignment in bytes for the offset into a storage buffer when binding it
+     * to a draw.
+     */
     size_t requiredStorageBufferAlignment() const { return fRequiredStorageBufferAlignment; }
 
-    // Returns the required alignment in bytes for the offset and size of copies involving a buffer.
+    /**
+     * Returns the required alignment in bytes for the offset and size of copies involving a buffer.
+     */
     size_t requiredTransferBufferAlignment() const { return fRequiredTransferBufferAlignment; }
 
-    // Returns the aligned rowBytes when transfering to or from a Texture
+    /* Returns the aligned rowBytes when transfering to or from a Texture */
     size_t getAlignedTextureDataRowBytes(size_t rowBytes) const {
         return SkAlignTo(rowBytes, fTextureDataRowBytesAlignment);
     }
 
-    // Backends can optionally override this method to return meaningful sampler conversion info.
-    // By default, simply return a default ImmutableSamplerInfo (e.g. no immutable sampler).
+    /**
+     * Backends can optionally override this method to return meaningful sampler conversion info.
+     * By default, simply return a default ImmutableSamplerInfo (e.g. no immutable sampler).
+     */
     virtual ImmutableSamplerInfo getImmutableSamplerInfo(const TextureInfo&) const {
         return {};
     }
@@ -237,64 +256,72 @@ public:
      */
     SkColorType getRenderableColorType(SkColorType) const;
 
-    // Determines the orientation of the NDC coordinates emitted by the vertex stage relative to
-    // both Skia's presumed top-left Y-down system and the viewport coordinates (which are also
-    // always top-left, Y-down for all supported backends).)
-    //
-    // If true is returned, then (-1,-1) in normalized device coords maps to the top-left of the
-    // configured viewport and positive Y points down. This aligns with Skia's conventions.
-    // If false is returned, then (-1,-1) in NDC maps to the bottom-left of the viewport and
-    // positive Y points up (so NDC is flipped relative to sk_Position and the viewport coords).
-    //
-    // There is no backend difference in handling the X axis so it's assumed -1 maps to the left
-    // edge and +1 maps to the right edge.
+    /**
+     * Determines the orientation of the NDC coordinates emitted by the vertex stage relative to
+     * both Skia's presumed top-left Y-down system and the viewport coordinates (which are also
+     * always top-left, Y-down for all supported backends).)
+     *
+     * If true is returned, then (-1,-1) in normalized device coords maps to the top-left of the
+     * configured viewport and positive Y points down. This aligns with Skia's conventions.
+     * If false is returned, then (-1,-1) in NDC maps to the bottom-left of the viewport and
+     * positive Y points up (so NDC is flipped relative to sk_Position and the viewport coords).
+     *
+     * There is no backend difference in handling the X axis so it's assumed -1 maps to the left
+     * edge and +1 maps to the right edge.
+     */
     bool ndcYAxisPointsDown() const { return fNDCYAxisPointsDown; }
 
     bool clampToBorderSupport() const { return fClampToBorderSupport; }
 
     bool protectedSupport() const { return fProtectedSupport; }
 
-    // Supports BackendSemaphores
+    /* Supports BackendSemaphores */
     bool semaphoreSupport() const { return fSemaphoreSupport; }
 
-    // If false then calling Context::submit with SyncToCpu::kYes is an error.
+    /* If false then calling Context::submit with SyncToCpu::kYes is an error. */
     bool allowCpuSync() const { return fAllowCpuSync; }
 
-    // Returns whether storage buffers are supported and to be preferred over uniform buffers.
+    /* Returns whether storage buffers are supported and to be preferred over uniform buffers. */
     bool storageBufferSupport() const { return fStorageBufferSupport; }
 
-    // The gradient buffer is an unsized float array so it is only optimal memory-wise to use it if
-    // the storage buffer memory layout is std430 or in metal, which is also the only supported
-    // way the data is packed.
+    /**
+     * The gradient buffer is an unsized float array so it is only optimal memory-wise to use it if
+     * the storage buffer memory layout is std430 or in metal, which is also the only supported
+     * way the data is packed.
+     */
     bool gradientBufferSupport() const {
         return fStorageBufferSupport &&
                (fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430 ||
                 fResourceBindingReqs.fStorageBufferLayout == Layout::kMetal);
     }
 
-    // Returns whether a draw buffer can be mapped.
+    /* Returns whether a draw buffer can be mapped. */
     bool drawBufferCanBeMapped() const { return fDrawBufferCanBeMapped; }
 
 #if defined(GPU_TEST_UTILS)
     bool drawBufferCanBeMappedForReadback() const { return fDrawBufferCanBeMappedForReadback; }
 #endif
 
-    // Returns whether using Buffer::asyncMap() must be used to map buffers. map() may only be
-    // called after asyncMap() is called and will fail if the asynchronous map is not complete. This
-    // excludes premapped buffers for which map() can be called freely until the first unmap() call.
+    /**
+     * Returns whether using Buffer::asyncMap() must be used to map buffers. map() may only be
+     * called after asyncMap() is called and will fail if the asynchronous map is not complete. This
+     * excludes premapped buffers for which map() can be called freely until the first unmap() call.
+     */
     bool bufferMapsAreAsync() const { return fBufferMapsAreAsync; }
 
-    // Returns whether multisampled render to single sampled is supported.
+    /* Returns whether multisampled render to single sampled is supported. */
     bool msaaRenderToSingleSampledSupport() const { return fMSAARenderToSingleSampledSupport; }
 
-    // Returns whether a render pass can have MSAA/depth/stencil attachments and a resolve
-    // attachment with mismatched sizes. Note: the MSAA attachment and the depth/stencil attachment
-    // still need to match their sizes.
+    /**
+     * Returns whether a render pass can have MSAA/depth/stencil attachments and a resolve
+     * attachment with mismatched sizes. Note: the MSAA attachment and the depth/stencil attachment
+     * still need to match their sizes.
+     */
     bool differentResolveAttachmentSizeSupport() const {
         return fDifferentResolveAttachmentSizeSupport;
     }
 
-    // Returns whether compute shaders are supported.
+    /* Returns whether compute shaders are supported. */
     bool computeSupport() const { return fComputeSupport; }
 
     /**
@@ -312,18 +339,24 @@ public:
      */
     bool supportsHardwareAdvancedBlending() const { return fSupportsHardwareAdvancedBlending; }
 
-    // Returns the skgpu::Swizzle to use when sampling or reading back from a texture with the
-    // passed in SkColorType and TextureInfo.
+    /**
+     * Returns the skgpu::Swizzle to use when sampling or reading back from a texture with the
+     * passed in SkColorType and TextureInfo.
+     */
     skgpu::Swizzle getReadSwizzle(SkColorType, const TextureInfo&) const;
 
-    // Returns the skgpu::Swizzle to use when writing colors to a surface with the passed in
-    // SkColorType and TextureInfo.
+    /**
+     * Returns the skgpu::Swizzle to use when writing colors to a surface with the passed in
+     * SkColorType and TextureInfo.
+     */
     skgpu::Swizzle getWriteSwizzle(SkColorType, const TextureInfo&) const;
 
     skgpu::ShaderErrorHandler* shaderErrorHandler() const { return fShaderErrorHandler; }
 
-    // Returns what method of dst read a draw should use for obtaining the dst color. Backends can
-    // use the default implementation or override this method as needed.
+    /**
+     * Returns what method of dst read a draw should use for obtaining the dst color. Backends can
+     * use the default implementation or override this method as needed.
+     */
     virtual DstReadStrategy getDstReadStrategy() const;
 
     float minDistanceFieldFontSize() const { return fMinDistanceFieldFontSize; }
@@ -337,8 +370,10 @@ public:
 
     bool requireOrderedRecordings() const { return fRequireOrderedRecordings; }
 
-    // When uploading to a full compressed texture do we need to pad the size out to a multiple of
-    // the block width and height.
+    /**
+     * When uploading to a full compressed texture do we need to pad the size out to a multiple of
+     * the block width and height.
+     */
     bool fullCompressedUploadSizeMustAlignToBlockDims() const {
         return fFullCompressedUploadSizeMustAlignToBlockDims;
     }
@@ -352,8 +387,10 @@ public:
 protected:
     Caps();
 
-    // Subclasses must call this at the end of their init method in order to do final processing on
-    // the caps.
+    /**
+     * Subclasses must call this at the end of their init method in order to do final processing on
+     * the caps.
+     */
     void finishInitialization(const ContextOptions&);
 
 #if defined(GPU_TEST_UTILS)
@@ -362,8 +399,10 @@ protected:
     }
 #endif
 
-    // There are only a few possible valid sample counts (1, 2, 4, 8, 16). So we can key on those 5
-    // options instead of the actual sample value.
+    /**
+     * There are only a few possible valid sample counts (1, 2, 4, 8, 16). So we can key on those 5
+     * options instead of the actual sample value.
+     */
     static inline uint32_t SamplesToKey(uint32_t numSamples) {
         switch (numSamples) {
             case 1:
@@ -381,7 +420,7 @@ protected:
         }
     }
 
-    // ColorTypeInfo for a specific format. Used in format tables.
+    /* ColorTypeInfo for a specific format. Used in format tables. */
     struct ColorTypeInfo {
         ColorTypeInfo() = default;
         ColorTypeInfo(SkColorType ct, SkColorType transferCt, uint32_t flags,
@@ -396,8 +435,10 @@ protected:
         SkColorType fTransferColorType = kUnknown_SkColorType;
         enum {
             kUploadData_Flag = 0x1,
-            // Does Graphite itself support rendering to this colorType & format pair. Renderability
-            // still additionally depends on if the format itself is renderable.
+            /**
+             * Does Graphite itself support rendering to this colorType & format pair. Renderability
+             * still additionally depends on if the format itself is renderable.
+             */
             kRenderable_Flag = 0x2,
         };
         uint32_t fFlags = 0;
