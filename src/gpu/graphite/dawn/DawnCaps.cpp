@@ -485,11 +485,8 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
 
 #if !defined(__EMSCRIPTEN__)
     // We need at least 4 SSBOs for intrinsic, render step, paint & gradient buffers.
-    // TODO(b/344963958): SSBOs contribute to OOB shader memory access and dawn device loss on
-    // Android. Once the problem is fixed SSBOs can be enabled again.
     fStorageBufferSupport = info.backendType != wgpu::BackendType::OpenGL &&
                             info.backendType != wgpu::BackendType::OpenGLES &&
-                            info.backendType != wgpu::BackendType::Vulkan &&
                             limits.maxStorageBuffersInVertexStage >= 4 &&
                             limits.maxStorageBuffersInFragmentStage >= 4;
 #else
