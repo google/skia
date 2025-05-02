@@ -11,6 +11,11 @@
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/google/skia.git",
+    "directory": "modules/canvaskit/npm-build"
+  },
   "scripts": {
     "dtslint": "dtslint types"
   },
