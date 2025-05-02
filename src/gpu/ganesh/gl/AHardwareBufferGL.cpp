@@ -151,6 +151,16 @@ static GrBackendTexture make_gl_backend_texture(
 
     GrGLuint target = isRenderable ? GR_GL_TEXTURE_2D : GR_GL_TEXTURE_EXTERNAL;
 
+    if (!dContext->priv().caps()->shaderCaps()->fExternalTextureSupport) {
+        // The extension OES_EGL_image_external is mandatory for an
+        // Android-compatible device. See
+        // https://source.android.com/docs/core/graphics/implement-opengl-es
+        //
+        // This path exists to support a RenderDoc fork which supports
+        // OES_EGL_image but not OES_EGL_image_external.
+        target = GR_GL_TEXTURE_2D;
+    }
+
     glBindTexture(target, texID);
     GLenum status = GL_NO_ERROR;
     if ((status = glGetError()) != GL_NO_ERROR) {
