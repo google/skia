@@ -276,7 +276,7 @@ std::string ShaderNode::invokeAndAssign(const ShaderInfo& shaderInfo,
 // Return a name that should be used as a varying passing the result of an expression emitted by
 // this node, if the expression is being lifted from the fragment shader to the vertex shader. The
 // choice of name is arbitrary, but it must be used consistently.
-std::string ShaderNode::getExpressionVaryingName() const {
+std::string ShaderNode::getExpressionVarying() const {
     return get_mangled_name(this->entry()->fName, this->keyIndex()) + "_Var";
 }
 
@@ -383,31 +383,6 @@ const SkRuntimeEffect* ShaderCodeDictionary::getUserDefinedKnownRuntimeEffect(
 //--------------------------------------------------------------------------------------------------
 namespace {
 
-std::string GenerateSolidColorExpression(const ShaderInfo& shaderInfo,
-                                         const ShaderNode* node,
-                                         const ShaderSnippet::Args& args) {
-    std::string uniform =
-            get_mangled_uniform_name(shaderInfo, node->entry()->fUniforms[0], node->keyIndex());
-    return SkSL::String::printf("half4(%s)", uniform.c_str());
-}
-
-std::string GenerateSolidColorPreamble(const ShaderInfo& shaderInfo,
-                                       const ShaderNode* node) {
-    std::string code = emit_helper_declaration(node) + " {return ";
-
-    if (node->requiredFlags() & SnippetRequirementFlags::kLiftExpression) {
-        code += node->getExpressionVaryingName();
-    } else if (node->requiredFlags() & SnippetRequirementFlags::kOmitExpression) {
-        code += "half4(0)";
-    } else {
-        code += GenerateSolidColorExpression(shaderInfo, node, ShaderSnippet::kDefaultArgs);
-    }
-
-    return code + ";}";
-}
-
-//--------------------------------------------------------------------------------------------------
-
 // Generate the expression that applies a non-perspective local matrix to coordinates.
 std::string GenerateLocalMatrixExpression(const ShaderInfo& shaderInfo,
                                           const ShaderNode* node,
@@ -448,7 +423,7 @@ std::string GenerateCoordManipulationPreamble(const ShaderInfo& shaderInfo,
 
         if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kLocalMatrixShader) {
             if (node->requiredFlags() & SnippetRequirementFlags::kLiftExpression) {
-                localArgs.fFragCoord = node->getExpressionVaryingName();
+                localArgs.fFragCoord = node->getExpressionVarying();
             } else if (!(node->requiredFlags() & SnippetRequirementFlags::kOmitExpression)) {
                 localArgs.fFragCoord = GenerateLocalMatrixExpression(shaderInfo, node, defaultArgs);
             }
@@ -459,7 +434,7 @@ std::string GenerateCoordManipulationPreamble(const ShaderInfo& shaderInfo,
             localArgs.fFragCoord = "perspCoord.xy / perspCoord.w";
         } else if (node->codeSnippetId() == (int) BuiltInCodeSnippetID::kCoordNormalizeShader) {
             if (node->requiredFlags() & SnippetRequirementFlags::kLiftExpression) {
-                localArgs.fFragCoord = node->getExpressionVaryingName();
+                localArgs.fFragCoord = node->getExpressionVarying();
             } else if (!(node->requiredFlags() & SnippetRequirementFlags::kOmitExpression)) {
                 localArgs.fFragCoord =
                         GenerateCoordNormalizeExpression(shaderInfo, node, defaultArgs);
@@ -793,6 +768,7 @@ ShaderSnippet ShaderCodeDictionary::convertRuntimeEffect(const SkRuntimeEffect* 
                          snippetFlags,
                          this->convertUniforms(effect),
                          /*texturesAndSamplers=*/{},
+                         /*liftableExpression=*/nullptr,
                          GenerateRuntimeShaderPreamble,
                          numChildrenIncColorTransforms);
 }
@@ -945,14 +921,9 @@ ShaderCodeDictionary::ShaderCodeDictionary(
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kSolidColorShader] = {
             /*name=*/"SolidColor",
-            /*staticFn=*/nullptr,
+            /*staticFn=*/"sk_solid_shader",
             SnippetRequirementFlags::kNone,
-            /*uniforms=*/{ { "color", SkSLType::kFloat4 } },
-            /*texturesAndSamplers=*/{},
-            GenerateSolidColorPreamble,
-            /*numChildren=*/0,
-            /*liftableExpression=*/GenerateSolidColorExpression,
-            /*liftableExpressionType=*/ShaderSnippet::LiftableExpressionType::kPriorStageOutput
+            /*uniforms=*/{ { "color", SkSLType::kFloat4 } }
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kRGBPaintColor] = {
             /*name=*/"RGBPaintColor",
@@ -1160,10 +1131,9 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "localMatrix", SkSLType::kFloat4x4 } },
             /*texturesAndSamplers=*/{},
+            GenerateLocalMatrixExpression,
             GenerateCoordManipulationPreamble,
-            /*numChildren=*/kNumCoordinateManipulateChildren,
-            /*liftableExpression=*/GenerateLocalMatrixExpression,
-            /*liftableExpressionType=*/ShaderSnippet::LiftableExpressionType::kLocalCoords
+            /*numChildren=*/kNumCoordinateManipulateChildren
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kLocalMatrixShaderPersp] = {
             /*name=*/"LocalMatrixShaderPersp",
@@ -1171,6 +1141,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "localMatrix", SkSLType::kFloat4x4 } },
             /*texturesAndSamplers=*/{},
+            /*liftableExpression=*/nullptr,
             GenerateCoordManipulationPreamble,
             /*numChildren=*/kNumCoordinateManipulateChildren
     };
@@ -1296,10 +1267,9 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "invDimensions", SkSLType::kFloat2 } },
             /*texturesAndSamplers=*/{},
+            GenerateCoordNormalizeExpression,
             GenerateCoordManipulationPreamble,
-            /*numChildren=*/kNumCoordinateManipulateChildren,
-            /*liftableExpression=*/GenerateCoordNormalizeExpression,
-            /*liftableExpressionType=*/ShaderSnippet::LiftableExpressionType::kLocalCoords
+            /*numChildren=*/kNumCoordinateManipulateChildren
     };
 
     // Like the local matrix shader, this is a no-op if the child doesn't need coords
@@ -1309,6 +1279,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kNone,
             /*uniforms=*/{ { "subset", SkSLType::kFloat4 } },
             /*texturesAndSamplers=*/{},
+            /*liftableExpression=*/nullptr,
             GenerateCoordManipulationPreamble,
             /*numChildren=*/kNumCoordinateManipulateChildren
     };
@@ -1421,6 +1392,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kPassthroughLocalCoords,
             /*uniforms=*/{},
             /*texturesAndSamplers=*/{},
+            /*liftableExpression=*/nullptr,
             GenerateComposePreamble,
             /*numChildren=*/2
     };
@@ -1430,6 +1402,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kPassthroughLocalCoords,
             /*uniforms=*/{},
             /*texturesAndSamplers=*/{},
+            /*liftableExpression=*/nullptr,
             GenerateComposePreamble,
             /*numChildren=*/3
     };

@@ -28,6 +28,10 @@ $pure half4 sk_passthrough(half4 color) {
     return color;
 }
 
+$pure half4 sk_solid_shader(float4 colorParam) {
+    return half4(colorParam);
+}
+
 $pure half4 sk_rgb_opaque(float4 colorParam) {
     return half4(colorParam.rgb, 1.0);
 }
