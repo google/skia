@@ -76,8 +76,8 @@ protected:
 
     skgpu::VulkanExtensions fExtensions;
     VkPhysicalDeviceFeatures2 fFeatures = {};
-    VkDebugReportCallbackEXT fDebugCallback = VK_NULL_HANDLE;
-    PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugCallback = nullptr;
+    VkDebugUtilsMessengerEXT fDebugMessenger = VK_NULL_HANDLE;
+    PFN_vkDestroyDebugUtilsMessengerEXT fDestroyDebugCallback = nullptr;
     skgpu::VulkanBackendContext fBackendContext;
 };
 

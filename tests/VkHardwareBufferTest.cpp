@@ -443,8 +443,8 @@ public:
             fDevice = VK_NULL_HANDLE;
         }
 #ifdef SK_ENABLE_VK_LAYERS
-        if (fDebugCallback != VK_NULL_HANDLE) {
-            fDestroyDebugCallback(fBackendContext.fInstance, fDebugCallback, nullptr);
+        if (fDebugMessenger != VK_NULL_HANDLE) {
+            fDestroyDebugCallback(fBackendContext.fInstance, fDebugMessenger, nullptr);
         }
 #endif
         if (fBackendContext.fInstance != VK_NULL_HANDLE) {
@@ -519,8 +519,8 @@ private:
 
     skgpu::VulkanExtensions*            fExtensions = nullptr;
     VkPhysicalDeviceFeatures2*          fFeatures = nullptr;
-    VkDebugReportCallbackEXT            fDebugCallback = VK_NULL_HANDLE;
-    PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugCallback = nullptr;
+    VkDebugUtilsMessengerEXT fDebugMessenger = VK_NULL_HANDLE;
+    PFN_vkDestroyDebugUtilsMessengerEXT fDestroyDebugCallback = nullptr;
 
     // We hold on to the semaphore so we can delete once the GPU is done.
     VkSemaphore fSignalSemaphore = VK_NULL_HANDLE;
@@ -546,16 +546,16 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
     fBackendContext.fInstance = VK_NULL_HANDLE;
     fBackendContext.fDevice = VK_NULL_HANDLE;
 
-    if (!sk_gpu_test::CreateVkBackendContext(instProc, &fBackendContext, fExtensions,
-                                             fFeatures, &fDebugCallback)) {
+    if (!sk_gpu_test::CreateVkBackendContext(
+                instProc, &fBackendContext, fExtensions, fFeatures, &fDebugMessenger)) {
         return false;
     }
     fDevice = fBackendContext.fDevice;
     auto getProc = fBackendContext.fGetProc;
 
-    if (fDebugCallback != VK_NULL_HANDLE) {
-        fDestroyDebugCallback = (PFN_vkDestroyDebugReportCallbackEXT) instProc(
-                fBackendContext.fInstance, "vkDestroyDebugReportCallbackEXT");
+    if (fDebugMessenger != VK_NULL_HANDLE) {
+        fDestroyDebugCallback = (PFN_vkDestroyDebugUtilsMessengerEXT)instProc(
+                fBackendContext.fInstance, "vkDestroyDebugUtilsMessengerEXT");
     }
 
     ACQUIRE_INST_VK_PROC(DestroyInstance);

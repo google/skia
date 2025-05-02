@@ -63,7 +63,7 @@ private:
     VkInstance fInstance = VK_NULL_HANDLE;
     VkPhysicalDevice fPhysicalDevice = VK_NULL_HANDLE;
     VkDevice fDevice = VK_NULL_HANDLE;
-    VkDebugReportCallbackEXT fDebugCallback = VK_NULL_HANDLE;
+    VkDebugUtilsMessengerEXT fDebugMessenger = VK_NULL_HANDLE;
 
     // Create functions
     CreateVkSurfaceFn fCreateVkSurfaceFn;
@@ -86,7 +86,7 @@ private:
 
     PFN_vkDestroyInstance fDestroyInstance = nullptr;
     PFN_vkDeviceWaitIdle fDeviceWaitIdle = nullptr;
-    PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugReportCallbackEXT = nullptr;
+    PFN_vkDestroyDebugUtilsMessengerEXT fDestroyDebugUtilsMessengerEXT = nullptr;
     PFN_vkQueueWaitIdle fQueueWaitIdle = nullptr;
     PFN_vkDestroyDevice fDestroyDevice = nullptr;
     PFN_vkGetDeviceQueue fGetDeviceQueue = nullptr;

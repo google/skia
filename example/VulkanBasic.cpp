@@ -43,7 +43,7 @@
 
 int main(int argc, char** argv) {
     skgpu::VulkanBackendContext backendContext;
-    VkDebugReportCallbackEXT debugCallback;
+    VkDebugUtilsMessengerEXT debugMessenger;
     std::unique_ptr<skgpu::VulkanExtensions> extensions(new skgpu::VulkanExtensions());
     std::unique_ptr<VkPhysicalDeviceFeatures2> features(new VkPhysicalDeviceFeatures2);
 
@@ -69,19 +69,19 @@ int main(int argc, char** argv) {
         backendContext.fInstance = VK_NULL_HANDLE;
         backendContext.fDevice = VK_NULL_HANDLE;
 
-        if (!sk_gpu_test::CreateVkBackendContext(instProc, &backendContext, extensions.get(),
-                                                 features.get(), &debugCallback)) {
+        if (!sk_gpu_test::CreateVkBackendContext(
+                    instProc, &backendContext, extensions.get(), features.get(), &debugMessenger)) {
             return 1;
         }
     }
 
     auto getProc = backendContext.fGetProc;
     PFN_vkDestroyInstance fVkDestroyInstance;
-    PFN_vkDestroyDebugReportCallbackEXT fVkDestroyDebugReportCallbackEXT = nullptr;
+    PFN_vkDestroyDebugUtilsMessengerEXT fVkDestroyDebugUtilsMessengerEXT = nullptr;
     PFN_vkDestroyDevice fVkDestroyDevice;
     ACQUIRE_INST_VK_PROC(DestroyInstance);
-    if (debugCallback != VK_NULL_HANDLE) {
-        ACQUIRE_INST_VK_PROC(DestroyDebugReportCallbackEXT);
+    if (debugMessenger != VK_NULL_HANDLE) {
+        ACQUIRE_INST_VK_PROC(DestroyDebugUtilsMessengerEXT);
     }
     ACQUIRE_INST_VK_PROC(DestroyDevice);
 
@@ -92,8 +92,8 @@ int main(int argc, char** argv) {
     sk_sp<GrDirectContext> context = GrDirectContexts::MakeVulkan(backendContext);
     if (!context) {
         fVkDestroyDevice(backendContext.fDevice, nullptr);
-        if (debugCallback != VK_NULL_HANDLE) {
-            fVkDestroyDebugReportCallbackEXT(backendContext.fInstance, debugCallback, nullptr);
+        if (debugMessenger != VK_NULL_HANDLE) {
+            fVkDestroyDebugUtilsMessengerEXT(backendContext.fInstance, debugMessenger, nullptr);
         }
         fVkDestroyInstance(backendContext.fInstance, nullptr);
         return 1;
@@ -110,9 +110,10 @@ int main(int argc, char** argv) {
     if (!surface) {
         context.reset();
         fVkDestroyDevice(backendContext.fDevice, nullptr);
-        if (debugCallback != VK_NULL_HANDLE) {
-            fVkDestroyDebugReportCallbackEXT(backendContext.fInstance, debugCallback, nullptr);
-        }        fVkDestroyInstance(backendContext.fInstance, nullptr);
+        if (debugMessenger != VK_NULL_HANDLE) {
+            fVkDestroyDebugUtilsMessengerEXT(backendContext.fInstance, debugMessenger, nullptr);
+        }
+        fVkDestroyInstance(backendContext.fInstance, nullptr);
         return 1;
     }
 
@@ -131,8 +132,9 @@ int main(int argc, char** argv) {
     // client must not delete these objects until cleaning up all Skia objects that may have used
     // them first.
     fVkDestroyDevice(backendContext.fDevice, nullptr);
-    if (debugCallback != VK_NULL_HANDLE) {
-        fVkDestroyDebugReportCallbackEXT(backendContext.fInstance, debugCallback, nullptr);
-    }    fVkDestroyInstance(backendContext.fInstance, nullptr);
+    if (debugMessenger != VK_NULL_HANDLE) {
+        fVkDestroyDebugUtilsMessengerEXT(backendContext.fInstance, debugMessenger, nullptr);
+    }
+    fVkDestroyInstance(backendContext.fInstance, nullptr);
     return 0;
 }

@@ -37,21 +37,21 @@ protected:
                   const skgpu::VulkanExtensions* extensions,
                   const VkPhysicalDeviceFeatures2* features,
                   bool ownsContext,
-                  VkDebugReportCallbackEXT debugCallback,
-                  PFN_vkDestroyDebugReportCallbackEXT destroyCallback)
+                  VkDebugUtilsMessengerEXT debugMessenger,
+                  PFN_vkDestroyDebugUtilsMessengerEXT destroyCallback)
             : fVk(vk)
             , fExtensions(extensions)
             , fFeatures(features)
             , fOwnsContext(ownsContext)
-            , fDebugCallback(debugCallback)
-            , fDestroyDebugReportCallbackEXT(destroyCallback) {}
+            , fDebugMessenger(debugMessenger)
+            , fDestroyDebugUtilsMessengerEXT(destroyCallback) {}
 
     skgpu::VulkanBackendContext         fVk;
     const skgpu::VulkanExtensions*      fExtensions;
     const VkPhysicalDeviceFeatures2*    fFeatures;
     bool                                fOwnsContext;
-    VkDebugReportCallbackEXT            fDebugCallback = VK_NULL_HANDLE;
-    PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugReportCallbackEXT = nullptr;
+    VkDebugUtilsMessengerEXT fDebugMessenger = VK_NULL_HANDLE;
+    PFN_vkDestroyDebugUtilsMessengerEXT fDestroyDebugUtilsMessengerEXT = nullptr;
 
 private:
     using INHERITED = TestContext;

@@ -31,7 +31,7 @@ namespace sk_gpu_test {
                                 skgpu::VulkanBackendContext* ctx,
                                 skgpu::VulkanExtensions*,
                                 VkPhysicalDeviceFeatures2*,
-                                VkDebugReportCallbackEXT* debugCallback,
+                                VkDebugUtilsMessengerEXT* debugMessenger,
                                 uint32_t* presentQueueIndexPtr = nullptr,
                                 const CanPresentFn& canPresent = CanPresentFn(),
                                 bool isProtected = false);

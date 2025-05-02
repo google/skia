@@ -71,7 +71,7 @@ void GraphiteVulkanWindowContext::initializeContext() {
                                              &backendContext,
                                              &extensions,
                                              &features,
-                                             &fDebugCallback,
+                                             &fDebugMessenger,
                                              &fPresentQueueIndex,
                                              fCanPresentFn,
                                              fDisplayParams->createProtectedNativeBackend())) {
@@ -110,8 +110,8 @@ void GraphiteVulkanWindowContext::initializeContext() {
                                                 &extensions));
 
     GET_PROC(DestroyInstance);
-    if (fDebugCallback != VK_NULL_HANDLE) {
-        GET_PROC(DestroyDebugReportCallbackEXT);
+    if (fDebugMessenger != VK_NULL_HANDLE) {
+        GET_PROC(DestroyDebugUtilsMessengerEXT);
     }
     GET_PROC(DestroySurfaceKHR);
     GET_PROC(GetPhysicalDeviceSurfaceSupportKHR);
@@ -490,8 +490,8 @@ void GraphiteVulkanWindowContext::destroyContext() {
     }
 
 #ifdef SK_ENABLE_VK_LAYERS
-    if (fDebugCallback != VK_NULL_HANDLE) {
-        fDestroyDebugReportCallbackEXT(fInstance, fDebugCallback, nullptr);
+    if (fDebugMessenger != VK_NULL_HANDLE) {
+        fDestroyDebugUtilsMessengerEXT(fInstance, fDebugMessenger, nullptr);
     }
 #endif
 
