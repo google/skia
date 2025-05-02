@@ -626,7 +626,7 @@ private:
     struct RunHead;
 
     static RunHead* emptyRunHeadPtr() { return (SkRegion::RunHead*) -1; }
-    static constexpr RunHead* kRectRunHeadPtr = nullptr;
+    static constexpr const RunHead* const kRectRunHeadPtr = nullptr;
 
     // allocate space for count runs
     void allocateRuns(int count);

@@ -160,10 +160,7 @@ public:
 
 private:
 #ifdef SK_TRACE_MANAGED_RESOURCES
-    static Trace* GetTrace() {
-        static Trace kTrace;
-        return &kTrace;
-    }
+    static Trace* GetTrace();
 #endif
 
     /** Must be implemented by any subclasses.

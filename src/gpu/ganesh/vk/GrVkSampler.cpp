@@ -20,6 +20,7 @@
 
 #include <string.h>
 #include <algorithm>
+#include <atomic>
 
 static VkSamplerAddressMode wrap_mode_to_vk_sampler_address(GrSamplerState::WrapMode wrapMode) {
     switch (wrapMode) {
@@ -156,4 +157,13 @@ GrVkSampler::Key GrVkSampler::GenerateKey(GrSamplerState samplerState,
     // driver is encouraged to consider the other filter settings when doing aniso.
     return {samplerState.asKey(/*anisoIsOrthogonal=*/true),
             GrVkSamplerYcbcrConversion::GenerateKey(ycbcrInfo)};
+}
+
+ uint32_t GrVkSampler::GenID() {
+    static std::atomic<uint32_t> nextID{1};
+    uint32_t id;
+    do {
+        id = nextID++;
+    } while (id == SK_InvalidUniqueID);
+    return id;
 }

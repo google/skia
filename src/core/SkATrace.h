@@ -42,7 +42,7 @@ public:
     const uint8_t* getCategoryGroupEnabled(const char* name) override;
 
     const char* getCategoryGroupName(const uint8_t* categoryEnabledFlag) override {
-        static const char* category = "skiaATrace";
+        static const char* const category = "skiaATrace";
         return category;
     }
 

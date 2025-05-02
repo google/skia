@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "src/core/SkTraceEvent.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
 
 std::atomic<uint32_t> GrOp::gCurrOpClassID {GrOp::kIllegalOpID + 1};
@@ -43,6 +44,24 @@ GrOp::Owner GrOp::cutChain() {
         return std::move(fNextInChain);
     }
     return nullptr;
+}
+
+void GrOp::prePrepare(GrRecordingContext* context, const GrSurfaceProxyView& dstView,
+                      GrAppliedClip* clip, const GrDstProxyView& dstProxyView,
+                      GrXferBarrierFlags renderPassXferBarriers, GrLoadOp colorLoadOp) {
+    TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_STR_STATIC(name()));
+    this->onPrePrepare(context, dstView, clip, dstProxyView, renderPassXferBarriers,
+                       colorLoadOp);
+}
+
+void GrOp::prepare(GrOpFlushState* state) {
+    TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_STR_STATIC(name()));
+    this->onPrepare(state);
+}
+
+void GrOp::execute(GrOpFlushState* state, const SkRect& chainBounds) {
+    TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_STR_STATIC(name()));
+    this->onExecute(state, chainBounds);
 }
 
 #ifdef SK_DEBUG
