@@ -229,11 +229,15 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
 
     fShaderCaps->fDualSourceBlendingSupport = enabledFeatures.fDualSrcBlend;
 
-    // Vulkan 1.0 dynamic state is always supported.  Dynamic state based on mandatory features of
+    // Vulkan 1.0 dynamic state is always supported.  Dynamic state based on features of
     // VK_EXT_extended_dynamic_state and VK_EXT_extended_dynamic_state2 are also considered basic
     // given the extensions' age and the fact that they are core since Vulkan 1.3.
     fUseBasicDynamicState =
             enabledFeatures.fExtendedDynamicState && enabledFeatures.fExtendedDynamicState2;
+
+    // Vertex input state depends on the main feature of
+    // VK_EXT_vertex_input_dynamic_state.
+    fUseVertexInputDynamicState = enabledFeatures.fVertexInputDynamicState;
 
     // Note: Do not add extension/feature checks after this; driver workarounds should be done last.
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
@@ -313,6 +317,12 @@ VulkanCaps::EnabledFeatures VulkanCaps::getEnabledFeatures(
                     const auto* feature = reinterpret_cast<
                             const VkPhysicalDeviceExtendedDynamicState2FeaturesEXT*>(pNext);
                     enabled.fExtendedDynamicState2 = feature->extendedDynamicState2;
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT: {
+                    const auto* feature = reinterpret_cast<
+                            const VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT*>(pNext);
+                    enabled.fVertexInputDynamicState = feature->vertexInputDynamicState;
                     break;
                 }
                 default:
@@ -418,9 +428,12 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const PhysicalDevicePropertie
             skgpu::ParseVulkanDriverVersion(driverID, properties.base.properties.driverVersion);
 
     const bool isARM = skgpu::kARM_VkVendor == vendorID;
+    const bool isIntel = skgpu::kIntel_VkVendor == vendorID;
     const bool isQualcomm = skgpu::kQualcomm_VkVendor == vendorID;
 
     const bool isARMProprietary = isARM && VK_DRIVER_ID_ARM_PROPRIETARY == driverID;
+    const bool isIntelWindowsProprietary =
+            isIntel && VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS == driverID;
     const bool isQualcommProprietary = isQualcomm && VK_DRIVER_ID_QUALCOMM_PROPRIETARY == driverID;
 
     // All Mali Job-Manager based GPUs have maxDrawIndirectCount==1 and all Commans-Stream Front
@@ -460,6 +473,19 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const PhysicalDevicePropertie
     //   relevant.
     if (avoidExtendedDynamicState) {
         fUseBasicDynamicState = false;
+    }
+
+    // Known bugs in vertex input dynamic state:
+    //
+    // - Intel windows driver, unknown if fixed: http://anglebug.com/42265637#comment9
+    // - Qualcomm drivers prior to 777:  http://anglebug.com/381384988
+    // - In ARM drivers prior to r48, vkCmdBindVertexBuffers2 applies strides to the wrong index
+    //   when the state is dynamic, according to the errata:
+    //   https://developer.arm.com/documentation/SDEN-3735689/0100/?lang=en
+    if (isIntelWindowsProprietary ||
+        (isARMProprietary && driverVersion < skgpu::DriverVersion(48, 0)) ||
+        (isQualcommProprietary && driverVersion < skgpu::DriverVersion(512, 777))) {
+        fUseVertexInputDynamicState = false;
     }
 }
 

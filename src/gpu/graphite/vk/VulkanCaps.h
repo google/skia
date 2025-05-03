@@ -143,6 +143,8 @@ private:
         bool fExtendedDynamicState = false;
         // From VkPhysicalDeviceExtendedDynamicState2FeaturesEXT or Vulkan 1.3 (no features):
         bool fExtendedDynamicState2 = false;
+        // From VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT:
+        bool fVertexInputDynamicState = false;
     };
     EnabledFeatures getEnabledFeatures(const VkPhysicalDeviceFeatures2* features,
                                        uint32_t physicalDeviceVersion);
