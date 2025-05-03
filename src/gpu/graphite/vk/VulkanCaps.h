@@ -145,14 +145,16 @@ private:
         bool fExtendedDynamicState2 = false;
         // From VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT:
         bool fVertexInputDynamicState = false;
+        // From VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT:
+        bool fGraphicsPipelineLibrary = false;
     };
     EnabledFeatures getEnabledFeatures(const VkPhysicalDeviceFeatures2* features,
                                        uint32_t physicalDeviceVersion);
 
     struct PhysicalDeviceProperties {
-        VkPhysicalDeviceProperties2 base;
-        VkPhysicalDeviceDriverProperties driver;
-        VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT gpl;
+        VkPhysicalDeviceProperties2 fBase;
+        VkPhysicalDeviceDriverProperties fDriver;
+        VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT fGpl;
     };
     void getProperties(const skgpu::VulkanInterface* vkInterface,
                        VkPhysicalDevice physDev,

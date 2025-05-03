@@ -110,11 +110,11 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
                         enabledFeatures,
                         &deviceProperties);
 
-    const VkPhysicalDeviceLimits& deviceLimits = deviceProperties.base.properties.limits;
-    const uint32_t vendorID = deviceProperties.base.properties.vendorID;
+    const VkPhysicalDeviceLimits& deviceLimits = deviceProperties.fBase.properties.limits;
+    const uint32_t vendorID = deviceProperties.fBase.properties.vendorID;
 
 #if defined(GPU_TEST_UTILS)
-    this->setDeviceName(deviceProperties.base.properties.deviceName);
+    this->setDeviceName(deviceProperties.fBase.properties.deviceName);
 #endif
 
     // Graphite requires Vulkan version 1.1 or later, which always has protected support. The
@@ -243,6 +243,15 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     // VK_EXT_vertex_input_dynamic_state.
     fUseVertexInputDynamicState = enabledFeatures.fVertexInputDynamicState;
 
+    // Graphics pipeline library usage depends on the main feature of
+    // VK_EXT_graphics_pipeline_library.  The graphicsPipelineLibraryFastLinking property indicates
+    // whether linking libraries is cheap, without which the extension is not very useful.  However,
+    // this property is currently ignored for known vendors that set it to false while link is still
+    // fast.
+    fUsePipelineLibraries =
+            enabledFeatures.fGraphicsPipelineLibrary &&
+            (deviceProperties.fGpl.graphicsPipelineLibraryFastLinking || vendorID == kARM_VkVendor);
+
     // Note: Do not add extension/feature checks after this; driver workarounds should be done last.
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
         this->applyDriverCorrectnessWorkarounds(deviceProperties);
@@ -250,8 +259,8 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
 
     // Note that format table initialization should be performed at the end of this method to ensure
     // all capability determinations are completed prior to populating the format tables.
-    this->initFormatTable(vkInterface, physDev, deviceProperties.base.properties);
-    this->initDepthStencilFormatTable(vkInterface, physDev, deviceProperties.base.properties);
+    this->initFormatTable(vkInterface, physDev, deviceProperties.fBase.properties);
+    this->initDepthStencilFormatTable(vkInterface, physDev, deviceProperties.fBase.properties);
 
     this->finishInitialization(contextOptions);
 }
@@ -329,6 +338,12 @@ VulkanCaps::EnabledFeatures VulkanCaps::getEnabledFeatures(
                     enabled.fVertexInputDynamicState = feature->vertexInputDynamicState;
                     break;
                 }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT: {
+                    const auto* feature = reinterpret_cast<
+                            const VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT*>(pNext);
+                    enabled.fGraphicsPipelineLibrary = feature->graphicsPipelineLibrary;
+                    break;
+                }
                 default:
                     break;
             }
@@ -346,65 +361,72 @@ void VulkanCaps::getProperties(const skgpu::VulkanInterface* vkInterface,
                                const skgpu::VulkanExtensions* extensions,
                                const EnabledFeatures& features,
                                PhysicalDeviceProperties* props) {
-    props->base = {};
-    props->base.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+    props->fBase = {};
+    props->fBase.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
 
-    props->driver = {};
-    props->driver.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES;
+    props->fDriver = {};
+    props->fDriver.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DRIVER_PROPERTIES;
+
+    props->fGpl = {};
+    props->fGpl.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_PROPERTIES_EXT;
 
     const bool hasDriverProperties =
             physicalDeviceVersion >= VK_API_VERSION_1_2 ||
             extensions->hasExtension(VK_KHR_DRIVER_PROPERTIES_EXTENSION_NAME, 1);
     if (hasDriverProperties) {
-        AddToPNextChain(&props->base, &props->driver);
+        AddToPNextChain(&props->fBase, &props->fDriver);
     } else {
         SKGPU_LOG_W("VK_KHR_driver_properties is not enabled, driver workarounds cannot "
                     "be correctly applied");
     }
 
+    if (features.fGraphicsPipelineLibrary) {
+        AddToPNextChain(&props->fBase, &props->fGpl);
+    }
+
     // Graphite requires Vulkan version 1.1 or later, so vkGetPhysicalDeviceProperties2 should
     // always be available.
-    VULKAN_CALL(vkInterface, GetPhysicalDeviceProperties2(physDev, &props->base));
+    VULKAN_CALL(vkInterface, GetPhysicalDeviceProperties2(physDev, &props->fBase));
 
     // If this field is not filled, driver bug workarounds won't work correctly. It should always
     // be filled, unless filling it itself is a driver bug, or the Vulkan driver is too old. In
     // that case, make a guess of what the driver ID is, but the driver is likely to be too buggy to
     // be used by Graphite either way.
-    if (props->driver.driverID == 0) {
-        switch (props->base.properties.vendorID) {
+    if (props->fDriver.driverID == 0) {
+        switch (props->fBase.properties.vendorID) {
             case kAMD_VkVendor:
-                props->driver.driverID = VK_DRIVER_ID_AMD_PROPRIETARY;
+                props->fDriver.driverID = VK_DRIVER_ID_AMD_PROPRIETARY;
                 break;
             case kARM_VkVendor:
-                props->driver.driverID = VK_DRIVER_ID_ARM_PROPRIETARY;
+                props->fDriver.driverID = VK_DRIVER_ID_ARM_PROPRIETARY;
                 break;
             case kBroadcom_VkVendor:
-                props->driver.driverID = VK_DRIVER_ID_BROADCOM_PROPRIETARY;
+                props->fDriver.driverID = VK_DRIVER_ID_BROADCOM_PROPRIETARY;
                 break;
             case kGoogle_VkVendor:
-                props->driver.driverID = VK_DRIVER_ID_GOOGLE_SWIFTSHADER;
+                props->fDriver.driverID = VK_DRIVER_ID_GOOGLE_SWIFTSHADER;
                 break;
             case kImagination_VkVendor:
-                props->driver.driverID = VK_DRIVER_ID_IMAGINATION_PROPRIETARY;
+                props->fDriver.driverID = VK_DRIVER_ID_IMAGINATION_PROPRIETARY;
                 break;
             case kIntel_VkVendor:
 #ifdef SK_BUILD_FOR_WIN
-                props->driver.driverID = VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS;
+                props->fDriver.driverID = VK_DRIVER_ID_INTEL_PROPRIETARY_WINDOWS;
 #else
-                props->driver.driverID = VK_DRIVER_ID_INTEL_OPEN_SOURCE_MESA;
+                props->fDriver.driverID = VK_DRIVER_ID_INTEL_OPEN_SOURCE_MESA;
 #endif
                 break;
             case kNvidia_VkVendor:
-                props->driver.driverID = VK_DRIVER_ID_NVIDIA_PROPRIETARY;
+                props->fDriver.driverID = VK_DRIVER_ID_NVIDIA_PROPRIETARY;
                 break;
             case kQualcomm_VkVendor:
-                props->driver.driverID = VK_DRIVER_ID_QUALCOMM_PROPRIETARY;
+                props->fDriver.driverID = VK_DRIVER_ID_QUALCOMM_PROPRIETARY;
                 break;
             case kSamsung_VkVendor:
-                props->driver.driverID = VK_DRIVER_ID_SAMSUNG_PROPRIETARY;
+                props->fDriver.driverID = VK_DRIVER_ID_SAMSUNG_PROPRIETARY;
                 break;
             case kVeriSilicon_VkVendor:
-                props->driver.driverID = VK_DRIVER_ID_VERISILICON_PROPRIETARY;
+                props->fDriver.driverID = VK_DRIVER_ID_VERISILICON_PROPRIETARY;
                 break;
             default:
                 // Unknown device, but this means no driver workarounds are provisioned for it so
@@ -426,10 +448,10 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const PhysicalDevicePropertie
     androidAPIVersion = (strLength == 0) ? 0 : atoi(androidAPIVersionStr);
 #endif
 
-    const uint32_t vendorID = properties.base.properties.vendorID;
-    const VkDriverId driverID = properties.driver.driverID;
+    const uint32_t vendorID = properties.fBase.properties.vendorID;
+    const VkDriverId driverID = properties.fDriver.driverID;
     const skgpu::DriverVersion driverVersion =
-            skgpu::ParseVulkanDriverVersion(driverID, properties.base.properties.driverVersion);
+            skgpu::ParseVulkanDriverVersion(driverID, properties.fBase.properties.driverVersion);
 
     const bool isARM = skgpu::kARM_VkVendor == vendorID;
     const bool isIntel = skgpu::kIntel_VkVendor == vendorID;
@@ -443,7 +465,7 @@ void VulkanCaps::applyDriverCorrectnessWorkarounds(const PhysicalDevicePropertie
     // All Mali Job-Manager based GPUs have maxDrawIndirectCount==1 and all Commans-Stream Front
     // GPUs have maxDrawIndirectCount>1.  This is used as proxy to detect JM GPUs.
     const bool isMaliJobManagerArch =
-            isARM && properties.base.properties.limits.maxDrawIndirectCount <= 1;
+            isARM && properties.fBase.properties.limits.maxDrawIndirectCount <= 1;
 
     // On Mali galaxy s7 we see lots of rendering issues when we suballocate VkImages.
     if (isARMProprietary && androidAPIVersion <= 28) {

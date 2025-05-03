@@ -653,6 +653,74 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
     return result == VK_SUCCESS ? layout : VK_NULL_HANDLE;
 }
 
+static VkResult create_shaders_pipeline(const VulkanSharedContext* sharedContext,
+                                        VkPipelineCache pipelineCache,
+                                        VkGraphicsPipelineCreateInfo& completePipelineInfo,
+                                        VkPipelineLibraryCreateInfoKHR& shadersLibraryInfo,
+                                        VkGraphicsPipelineLibraryCreateInfoEXT& libraryInfo,
+                                        VkPipeline* shadersPipeline) {
+    // Provide state that only pertains to the shaders subset to create the library.
+    VkGraphicsPipelineCreateInfo shadersPipelineCreateInfo = {};
+    shadersPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    shadersPipelineCreateInfo.flags = 0;
+    shadersPipelineCreateInfo.stageCount = completePipelineInfo.stageCount;
+    shadersPipelineCreateInfo.pStages = completePipelineInfo.pStages;
+    shadersPipelineCreateInfo.pViewportState = completePipelineInfo.pViewportState;
+    shadersPipelineCreateInfo.pRasterizationState = completePipelineInfo.pRasterizationState;
+    shadersPipelineCreateInfo.pMultisampleState = completePipelineInfo.pMultisampleState;
+    shadersPipelineCreateInfo.pDepthStencilState = completePipelineInfo.pDepthStencilState;
+    shadersPipelineCreateInfo.pDynamicState = completePipelineInfo.pDynamicState;
+    shadersPipelineCreateInfo.layout = completePipelineInfo.layout;
+    shadersPipelineCreateInfo.renderPass = completePipelineInfo.renderPass;
+    shadersPipelineCreateInfo.subpass = completePipelineInfo.subpass;
+
+    // Specify that this is the shaders subset of the pipeline.
+    libraryInfo.flags = VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT |
+                        VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT;
+    shadersPipelineCreateInfo.flags |= VK_PIPELINE_CREATE_LIBRARY_BIT_KHR;
+    skgpu::AddToPNextChain(&shadersPipelineCreateInfo, &libraryInfo);
+
+    // Create the library.
+    VkResult result;
+    {
+        TRACE_EVENT0_ALWAYS("skia.shaders", "VkCreateGraphicsPipeline - shaders");
+        VULKAN_CALL_RESULT(sharedContext,
+                           result,
+                           CreateGraphicsPipelines(sharedContext->device(),
+                                                   pipelineCache,
+                                                   /*createInfoCount=*/1,
+                                                   &shadersPipelineCreateInfo,
+                                                   /*pAllocator=*/nullptr,
+                                                   shadersPipeline));
+    }
+    if (result != VK_SUCCESS) {
+        return result;
+    }
+
+    // The complete pipeline doesn't need all the state anymore, it inherits them from the
+    // shaders library.
+    completePipelineInfo.stageCount = 0;
+    completePipelineInfo.pStages = nullptr;
+    completePipelineInfo.pViewportState = nullptr;
+    completePipelineInfo.pRasterizationState = nullptr;
+    completePipelineInfo.pDepthStencilState = nullptr;
+
+    // The complete pipeline provides the vertex input and fragment output interface state.
+    // It's important that these states are not built into a separate library, because some
+    // drivers can generate more efficient blend code if they have information about the
+    // fragment shader.
+    libraryInfo.flags = VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT |
+                        VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT;
+    skgpu::AddToPNextChain(&completePipelineInfo, &libraryInfo);
+
+    // Tell the complete pipeline to link with the shaders library:
+    shadersLibraryInfo.libraryCount = 1;
+    shadersLibraryInfo.pLibraries = shadersPipeline;
+    AddToPNextChain(&completePipelineInfo, &shadersLibraryInfo);
+
+    return VK_SUCCESS;
+}
+
 using VkDynamicStateList = std::array<VkDynamicState, 22>;
 static void setup_dynamic_state(const Caps& caps,
                                 VkPipelineDynamicStateCreateInfo* dynamicInfo,
@@ -853,6 +921,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     int subpassIndex = RenderPassDescWillLoadMSAAFromResolve(renderPassDesc) ? 1 : 0;
     VertexInputBindingDescriptions vertexBindingDescriptions;
     VertexInputAttributeDescriptions vertexAttributeDescriptions;
+    VkPipeline shadersPipeline = VK_NULL_HANDLE;
     VkPipeline vkPipeline = MakePipeline(
             sharedContext,
             rsrcProvider,
@@ -866,7 +935,8 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
             vertexAttributeDescriptions,
             step->depthStencilSettings(),
             shaderInfo->blendInfo(),
-            renderPassDesc);
+            renderPassDesc,
+            &shadersPipeline);
 
     sk_sp<VulkanGraphicsPipeline> pipeline;
     if (vkPipeline) {
@@ -882,6 +952,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                                            pipelineInfo,
                                            program->releaseLayout(),
                                            vkPipeline,
+                                           shadersPipeline,
                                            /*ownsPipelineLayout=*/true,
                                            std::move(immutableSamplers),
                                            step->renderStepID(),
@@ -907,7 +978,8 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(
         VertexInputAttributeDescriptions& vertexAttributeDescriptions,
         const DepthStencilSettings& depthStencilSettings,
         const BlendInfo& blendInfo,
-        const RenderPassDesc& renderPassDesc) {
+        const RenderPassDesc& renderPassDesc,
+        VkPipeline* shadersPipeline) {
     SkASSERT(program.layout() && program.vs()); // but a fragment shader isn't required
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
@@ -1001,6 +1073,32 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(
     pipelineCreateInfo.subpass = subpassIndex;
     pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineCreateInfo.basePipelineIndex = -1;
+
+    VkPipelineLibraryCreateInfoKHR shadersLibraryInfo = {};
+    shadersLibraryInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR;
+
+    VkGraphicsPipelineLibraryCreateInfoEXT libraryInfo = {};
+    libraryInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT;
+
+    if (shadersPipeline && sharedContext->caps()->usePipelineLibraries()) {
+        // When using VK_EXT_graphics_pipeline_library, create the "shaders" subset of the pipeline,
+        // and then create the full pipeline (with the vertex input and fragment output state)
+        // immediately afterwards using the shaders library, which is a cheap operation.
+        // This is typically what vendors without dynamic blend state do in their GL drivers.
+        //
+        // This can be further optimized by the front-end creating fewer shaders pipelines, and only
+        // create multiple full pipelines out of them as needed.
+        VkResult result = create_shaders_pipeline(sharedContext,
+                                                  rsrcProvider->pipelineCache(),
+                                                  pipelineCreateInfo,
+                                                  shadersLibraryInfo,
+                                                  libraryInfo,
+                                                  shadersPipeline);
+        if (result != VK_SUCCESS) {
+            SKGPU_LOG_E("Failed to create pipeline library. Error: %d\n", result);
+            return VK_NULL_HANDLE;
+        }
+    }
 
     VkPipeline vkPipeline;
     VkResult result;
@@ -1133,7 +1231,8 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
                                          vertexAttributeDescriptions,
                                          /*depthStencilSettings=*/{},
                                          /*blendInfo=*/{},
-                                         renderPassDesc);
+                                         renderPassDesc,
+                                         /*shadersPipeline=*/nullptr);
     if (!vkPipeline) {
         return nullptr;
     }
@@ -1145,6 +1244,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
                                        /*pipelineInfo=*/{},  // leave empty for an internal pipeline
                                        loadMSAAProgram.layout(),
                                        vkPipeline,
+                                       /*shadersPipeline=*/VK_NULL_HANDLE,
                                        /*ownsPipelineLayout=*/false,
                                        /*immutableSamplers=*/{},
                                        RenderStep::RenderStepID::kInvalid,
@@ -1159,6 +1259,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
         const PipelineInfo& pipelineInfo,
         VkPipelineLayout pipelineLayout,
         VkPipeline pipeline,
+        VkPipeline shadersPipeline,
         bool ownsPipelineLayout,
         skia_private::TArray<sk_sp<VulkanSampler>>&& immutableSamplers,
         RenderStep::RenderStepID renderStepID,
@@ -1169,6 +1270,7 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
     : GraphicsPipeline(sharedContext, pipelineInfo)
     , fPipelineLayout(pipelineLayout)
     , fPipeline(pipeline)
+    , fShadersPipeline(shadersPipeline)
     , fOwnsPipelineLayout(ownsPipelineLayout)
     , fImmutableSamplers(std::move(immutableSamplers))
     , fPrimitiveType(primitiveType)
@@ -1179,6 +1281,10 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
 
 void VulkanGraphicsPipeline::freeGpuData() {
     auto sharedCtxt = static_cast<const VulkanSharedContext*>(this->sharedContext());
+    if (fShadersPipeline != VK_NULL_HANDLE) {
+        VULKAN_CALL(sharedCtxt->interface(),
+                    DestroyPipeline(sharedCtxt->device(), fShadersPipeline, nullptr));
+    }
     if (fPipeline != VK_NULL_HANDLE) {
         VULKAN_CALL(sharedCtxt->interface(),
             DestroyPipeline(sharedCtxt->device(), fPipeline, nullptr));
