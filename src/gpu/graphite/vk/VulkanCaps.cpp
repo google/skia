@@ -1232,7 +1232,7 @@ void VulkanCaps::FormatInfo::init(const skgpu::VulkanInterface* interface,
                                   VkPhysicalDevice physDev,
                                   const VkPhysicalDeviceProperties& properties,
                                   VkFormat format) {
-    memset(&fFormatProperties, 0, sizeof(VkFormatProperties));
+    fFormatProperties = {};
     VULKAN_CALL(interface, GetPhysicalDeviceFormatProperties(physDev, format, &fFormatProperties));
 
     if (is_renderable(fFormatProperties.optimalTilingFeatures)) {
@@ -1350,7 +1350,7 @@ void VulkanCaps::DepthStencilFormatInfo::init(const skgpu::VulkanInterface* inte
                                              VkPhysicalDevice physDev,
                                              const VkPhysicalDeviceProperties& properties,
                                              VkFormat format) {
-    memset(&fFormatProperties, 0, sizeof(VkFormatProperties));
+    fFormatProperties = {};
     VULKAN_CALL(interface, GetPhysicalDeviceFormatProperties(physDev, format, &fFormatProperties));
 
     if (this->isDepthStencilSupported(fFormatProperties.optimalTilingFeatures)) {

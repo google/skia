@@ -40,21 +40,15 @@ sk_sp<VulkanSampler> VulkanSampler::Make(
         const VulkanSharedContext* sharedContext,
         const SamplerDesc& desc,
         sk_sp<VulkanYcbcrConversion> ycbcrConversion) {
-    VkSamplerCreateInfo samplerInfo;
-    memset(&samplerInfo, 0, sizeof(VkSamplerCreateInfo));
+    VkSamplerCreateInfo samplerInfo = {};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 
-    void* pNext = nullptr;
-    VkSamplerYcbcrConversionInfo conversionInfo;
+    VkSamplerYcbcrConversionInfo conversionInfo = {};
     if (ycbcrConversion) {
         conversionInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_YCBCR_CONVERSION_INFO;
-        conversionInfo.pNext = nullptr;
         conversionInfo.conversion = ycbcrConversion->ycbcrConversion();
-        pNext = &conversionInfo;
+        samplerInfo.pNext = &conversionInfo;
     }
-
-    samplerInfo.pNext = pNext;
-    samplerInfo.flags = 0;
 
     VkFilter minMagFilter = [&] {
         switch (desc.samplingOptions().filter) {

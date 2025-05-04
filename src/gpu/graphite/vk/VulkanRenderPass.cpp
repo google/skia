@@ -199,12 +199,10 @@ void setup_vk_attachment_description(VkAttachmentDescription* outAttachment,
     static_assert((int) StoreOp::kStore   == (int) VK_ATTACHMENT_STORE_OP_STORE);
     static_assert((int) StoreOp::kDiscard == (int) VK_ATTACHMENT_STORE_OP_DONT_CARE);
 
-    memset(outAttachment, 0, sizeof(VkAttachmentDescription));
-
     VkAttachmentLoadOp vkLoadOp = static_cast<VkAttachmentLoadOp>(desc.fLoadOp);
     VkAttachmentStoreOp vkStoreOp = static_cast<VkAttachmentStoreOp>(desc.fStoreOp);
 
-    outAttachment->flags = 0;
+    *outAttachment = {};
     outAttachment->format = TextureFormatToVkFormat(desc.fFormat);
     VkSampleCountFlagBits sampleCount;
     SkAssertResult(SampleCountToVkSampleCount(desc.fSampleCount, &sampleCount));
@@ -382,22 +380,16 @@ void populate_subpass_descs(skia_private::TArray<VkSubpassDescription>& descs,
     // If loading MSAA from resolve, add the additional subpass to do so.
     if (resolveLoadInputRef.attachment != VK_ATTACHMENT_UNUSED) {
         VkSubpassDescription& loadSubpassDesc = descs.push_back();
-        memset(&loadSubpassDesc, 0, sizeof(VkSubpassDescription));
-        loadSubpassDesc.flags = 0;
+        loadSubpassDesc = {};
         loadSubpassDesc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
         loadSubpassDesc.inputAttachmentCount = 1;
         loadSubpassDesc.pInputAttachments = &resolveLoadInputRef;
         loadSubpassDesc.colorAttachmentCount = 1;
         loadSubpassDesc.pColorAttachments = &colorRef;
-        loadSubpassDesc.pResolveAttachments = nullptr;
-        loadSubpassDesc.pDepthStencilAttachment = nullptr;
-        loadSubpassDesc.preserveAttachmentCount = 0;
-        loadSubpassDesc.pPreserveAttachments = nullptr;
     }
 
     VkSubpassDescription& mainSubpassDesc = descs.push_back();
-    memset(&mainSubpassDesc, 0, sizeof(VkSubpassDescription));
-    mainSubpassDesc.flags = 0;
+    mainSubpassDesc = {};
     mainSubpassDesc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     // Always include one input attachment on the main subpass which can optionally be used or not
     mainSubpassDesc.inputAttachmentCount = 1;
@@ -406,8 +398,6 @@ void populate_subpass_descs(skia_private::TArray<VkSubpassDescription>& descs,
     mainSubpassDesc.pColorAttachments = &colorRef;
     mainSubpassDesc.pResolveAttachments = &resolveRef;
     mainSubpassDesc.pDepthStencilAttachment = &depthStencilRef;
-    mainSubpassDesc.preserveAttachmentCount = 0;
-    mainSubpassDesc.pPreserveAttachments = nullptr;
 }
 
 } // anonymous namespace
@@ -444,11 +434,8 @@ sk_sp<VulkanRenderPass> VulkanRenderPass::Make(const VulkanSharedContext* contex
     populate_subpass_dependencies(dependencies, rpMetadata.fLoadMSAAFromResolve);
 
     // Create VkRenderPass
-    VkRenderPassCreateInfo renderPassInfo;
-    memset(&renderPassInfo, 0, sizeof(VkRenderPassCreateInfo));
+    VkRenderPassCreateInfo renderPassInfo = {};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.pNext = nullptr;
-    renderPassInfo.flags = 0;
     renderPassInfo.subpassCount = subpassDescs.size();
     renderPassInfo.pSubpasses = subpassDescs.begin();
     renderPassInfo.dependencyCount = dependencies.size();

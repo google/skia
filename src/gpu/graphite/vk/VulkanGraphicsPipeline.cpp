@@ -138,10 +138,8 @@ static void setup_vertex_input_state(
         };
     }
 
-    memset(vertexInputInfo, 0, sizeof(VkPipelineVertexInputStateCreateInfo));
+    *vertexInputInfo = {};
     vertexInputInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo->pNext = nullptr;
-    vertexInputInfo->flags = 0;
     vertexInputInfo->vertexBindingDescriptionCount = bindingDescs ? bindingDescs->size() : 0;
     vertexInputInfo->pVertexBindingDescriptions =
             bindingDescs && !bindingDescs->empty() ? bindingDescs->begin() : VK_NULL_HANDLE;
@@ -164,10 +162,8 @@ static VkPrimitiveTopology primitive_type_to_vk_topology(PrimitiveType primitive
 
 static void setup_input_assembly_state(PrimitiveType primitiveType,
                                        VkPipelineInputAssemblyStateCreateInfo* inputAssemblyInfo) {
-    memset(inputAssemblyInfo, 0, sizeof(VkPipelineInputAssemblyStateCreateInfo));
+    *inputAssemblyInfo = {};
     inputAssemblyInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssemblyInfo->pNext = nullptr;
-    inputAssemblyInfo->flags = 0;
     inputAssemblyInfo->primitiveRestartEnable = false;
     inputAssemblyInfo->topology = primitive_type_to_vk_topology(primitiveType);
 }
@@ -238,10 +234,8 @@ static void setup_depth_stencil_state(const DepthStencilSettings& stencilSetting
     SkASSERT(stencilSettings.fDepthTestEnabled ||
              stencilSettings.fDepthCompareOp == CompareOp::kAlways);
 
-    memset(stencilInfo, 0, sizeof(VkPipelineDepthStencilStateCreateInfo));
+    *stencilInfo = {};
     stencilInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    stencilInfo->pNext = nullptr;
-    stencilInfo->flags = 0;
     stencilInfo->depthTestEnable = stencilSettings.fDepthTestEnabled;
     stencilInfo->depthWriteEnable = stencilSettings.fDepthWriteEnabled;
     stencilInfo->depthCompareOp = compare_op_to_vk_compare_op(stencilSettings.fDepthCompareOp);
@@ -260,26 +254,20 @@ static void setup_depth_stencil_state(const DepthStencilSettings& stencilSetting
 }
 
 static void setup_viewport_scissor_state(VkPipelineViewportStateCreateInfo* viewportInfo) {
-    memset(viewportInfo, 0, sizeof(VkPipelineViewportStateCreateInfo));
+    *viewportInfo = {};
     viewportInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    viewportInfo->pNext = nullptr;
-    viewportInfo->flags = 0;
 
+    // The viewport and scissor are set dyanmically with draw pass commands
     viewportInfo->viewportCount = 1;
-    viewportInfo->pViewports = nullptr; // This is set dynamically with a draw pass command
-
     viewportInfo->scissorCount = 1;
-    viewportInfo->pScissors = nullptr; // This is set dynamically with a draw pass command
 
     SkASSERT(viewportInfo->viewportCount == viewportInfo->scissorCount);
 }
 
 static void setup_multisample_state(int numSamples,
                                     VkPipelineMultisampleStateCreateInfo* multisampleInfo) {
-    memset(multisampleInfo, 0, sizeof(VkPipelineMultisampleStateCreateInfo));
+    *multisampleInfo = {};
     multisampleInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    multisampleInfo->pNext = nullptr;
-    multisampleInfo->flags = 0;
     SkAssertResult(skgpu::SampleCountToVkSampleCount(numSamples,
                                                      &multisampleInfo->rasterizationSamples));
     multisampleInfo->sampleShadingEnable = VK_FALSE;
@@ -388,7 +376,7 @@ static void setup_color_blend_state(const skgpu::BlendInfo& blendInfo,
     skgpu::BlendCoeff dstCoeff = blendInfo.fDstBlend;
     bool blendOff = skgpu::BlendShouldDisable(equation, srcCoeff, dstCoeff);
 
-    memset(attachmentState, 0, sizeof(VkPipelineColorBlendAttachmentState));
+    *attachmentState = {};
     attachmentState->blendEnable = !blendOff;
     if (!blendOff) {
         attachmentState->srcColorBlendFactor = blend_coeff_to_vk_blend(srcCoeff);
@@ -406,10 +394,8 @@ static void setup_color_blend_state(const skgpu::BlendInfo& blendInfo,
                                           VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     }
 
-    memset(colorBlendInfo, 0, sizeof(VkPipelineColorBlendStateCreateInfo));
+    *colorBlendInfo = {};
     colorBlendInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlendInfo->pNext = nullptr;
-    colorBlendInfo->flags = 0;
     colorBlendInfo->logicOpEnable = VK_FALSE;
     colorBlendInfo->attachmentCount = 1;
     colorBlendInfo->pAttachments = attachmentState;
@@ -418,10 +404,8 @@ static void setup_color_blend_state(const skgpu::BlendInfo& blendInfo,
 
 static void setup_raster_state(bool isWireframe,
                                VkPipelineRasterizationStateCreateInfo* rasterInfo) {
-    memset(rasterInfo, 0, sizeof(VkPipelineRasterizationStateCreateInfo));
+    *rasterInfo = {};
     rasterInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-    rasterInfo->pNext = nullptr;
-    rasterInfo->flags = 0;
     rasterInfo->depthClampEnable = VK_FALSE;
     rasterInfo->rasterizerDiscardEnable = VK_FALSE;
     rasterInfo->polygonMode = isWireframe ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
@@ -437,14 +421,11 @@ static void setup_raster_state(bool isWireframe,
 static void setup_shader_stage_info(VkShaderStageFlagBits stage,
                                     VkShaderModule shaderModule,
                                     VkPipelineShaderStageCreateInfo* shaderStageInfo) {
-    memset(shaderStageInfo, 0, sizeof(VkPipelineShaderStageCreateInfo));
+    *shaderStageInfo = {};
     shaderStageInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    shaderStageInfo->pNext = nullptr;
-    shaderStageInfo->flags = 0;
     shaderStageInfo->stage = stage;
     shaderStageInfo->module = shaderModule;
     shaderStageInfo->pName = "main";
-    shaderStageInfo->pSpecializationInfo = nullptr;
 }
 
 static VkDescriptorSetLayout descriptor_data_to_layout(
@@ -609,11 +590,8 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
         pushConstantRange.size = pushConstantSize;
         pushConstantRange.stageFlags = pushConstantPipelineStageFlags;
     }
-    VkPipelineLayoutCreateInfo layoutCreateInfo;
-    memset(&layoutCreateInfo, 0, sizeof(VkPipelineLayoutCreateFlags));
+    VkPipelineLayoutCreateInfo layoutCreateInfo = {};
     layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    layoutCreateInfo.pNext = nullptr;
-    layoutCreateInfo.flags = 0;
     layoutCreateInfo.setLayoutCount = setLayouts.size();
     layoutCreateInfo.pSetLayouts = setLayouts.begin();
     layoutCreateInfo.pushConstantRangeCount = pushConstantSize ? 1 : 0;
@@ -636,10 +614,8 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
 
 static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
                                 VkDynamicState* dynamicStates) {
-    memset(dynamicInfo, 0, sizeof(VkPipelineDynamicStateCreateInfo));
+    *dynamicInfo = {};
     dynamicInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicInfo->pNext = VK_NULL_HANDLE;
-    dynamicInfo->flags = 0;
     dynamicStates[0] = VK_DYNAMIC_STATE_VIEWPORT;
     dynamicStates[1] = VK_DYNAMIC_STATE_SCISSOR;
     dynamicStates[2] = VK_DYNAMIC_STATE_BLEND_CONSTANTS;
@@ -883,11 +859,8 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(const VulkanSharedContext* share
     SkDEBUGCODE(int subpassCount = RenderPassDescWillLoadMSAAFromResolve(renderPassDesc) ? 2 : 1;)
     SkASSERT(subpassIndex >= 0 && subpassIndex < subpassCount);
 
-    VkGraphicsPipelineCreateInfo pipelineCreateInfo;
-    memset(&pipelineCreateInfo, 0, sizeof(VkGraphicsPipelineCreateInfo));
+    VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
     pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineCreateInfo.pNext = nullptr;
-    pipelineCreateInfo.flags = 0;
     pipelineCreateInfo.stageCount = program.fs() ? 2 : 1;
     pipelineCreateInfo.pStages = &pipelineShaderStages[0];
     pipelineCreateInfo.pVertexInputState = &vertexInputInfo;

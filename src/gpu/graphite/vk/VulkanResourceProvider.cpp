@@ -60,11 +60,8 @@ VkPipelineLayout create_mock_layout(const VulkanSharedContext* sharedContext) {
     VkDescriptorSetLayout setLayout;
     DescriptorDataToVkDescSetLayout(sharedContext, inputDesc, &setLayout);
 
-    VkPipelineLayoutCreateInfo layoutCreateInfo;
-    memset(&layoutCreateInfo, 0, sizeof(VkPipelineLayoutCreateFlags));
+    VkPipelineLayoutCreateInfo layoutCreateInfo = {};
     layoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    layoutCreateInfo.pNext = nullptr;
-    layoutCreateInfo.flags = 0;
     layoutCreateInfo.setLayoutCount = 1;
     layoutCreateInfo.pSetLayouts = &setLayout;
     layoutCreateInfo.pushConstantRangeCount = 1;
@@ -373,25 +370,20 @@ void update_uniform_descriptor_set(SkSpan<DescriptorData> requestedDescriptors,
                     : sharedContext->vulkanCaps().maxUniformBufferRange();
             SkASSERT(bindInfo.fSize <= maxBufferRange);
 #endif
-            VkDescriptorBufferInfo bufferInfo;
-            memset(&bufferInfo, 0, sizeof(VkDescriptorBufferInfo));
+            VkDescriptorBufferInfo bufferInfo = {};
             auto vulkanBuffer = static_cast<const VulkanBuffer*>(bindInfo.fBuffer);
             bufferInfo.buffer = vulkanBuffer->vkBuffer();
             bufferInfo.offset = 0; // We always use dynamic ubos so we set the base offset to 0
             bufferInfo.range = bindInfo.fSize;
 
-            VkWriteDescriptorSet writeInfo;
-            memset(&writeInfo, 0, sizeof(VkWriteDescriptorSet));
+            VkWriteDescriptorSet writeInfo = {};
             writeInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            writeInfo.pNext = nullptr;
             writeInfo.dstSet = descSet;
             writeInfo.dstBinding = descriptorBindingIndex;
             writeInfo.dstArrayElement = 0;
             writeInfo.descriptorCount = requestedDescriptors[i].fCount;
             writeInfo.descriptorType = DsTypeEnumToVkDs(requestedDescriptors[i].fType);
-            writeInfo.pImageInfo = nullptr;
             writeInfo.pBufferInfo = &bufferInfo;
-            writeInfo.pTexelBufferView = nullptr;
 
             // TODO(b/293925059): Migrate to updating all the uniform descriptors with one driver
             // call. Calling UpdateDescriptorSets once to encapsulate updates to all uniform
@@ -464,11 +456,8 @@ sk_sp<VulkanRenderPass> VulkanResourceProvider::findOrCreateRenderPass(
 
 VkPipelineCache VulkanResourceProvider::pipelineCache() {
     if (fPipelineCache == VK_NULL_HANDLE) {
-        VkPipelineCacheCreateInfo createInfo;
-        memset(&createInfo, 0, sizeof(VkPipelineCacheCreateInfo));
+        VkPipelineCacheCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-        createInfo.pNext = nullptr;
-        createInfo.flags = 0;
         createInfo.initialDataSize = 0;
         createInfo.pInitialData = nullptr;
         VkResult result;
@@ -546,11 +535,8 @@ sk_sp<VulkanFramebuffer> VulkanResourceProvider::createFramebuffer(
     // TODO(b/302126809): Consider caching these in the future. If we pursue that, it may make more
     // sense to use a compatible renderpass rather than a full one to make each frame buffer more
     // versatile.
-    VkFramebufferCreateInfo framebufferInfo;
-    memset(&framebufferInfo, 0, sizeof(VkFramebufferCreateInfo));
+    VkFramebufferCreateInfo framebufferInfo = {};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-    framebufferInfo.pNext = nullptr;
-    framebufferInfo.flags = 0;
     framebufferInfo.renderPass = renderPass.renderPass();
     framebufferInfo.attachmentCount = attachmentViews.size();
     framebufferInfo.pAttachments = attachmentViews.begin();

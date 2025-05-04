@@ -48,11 +48,8 @@ VkShaderModule CreateVulkanShaderModule(const VulkanSharedContext* context,
                                         const std::string& spirv,
                                         VkShaderStageFlagBits stage) {
     TRACE_EVENT0("skia.shaders", "InstallVkShaderModule");
-    VkShaderModuleCreateInfo moduleCreateInfo;
-    memset(&moduleCreateInfo, 0, sizeof(VkShaderModuleCreateInfo));
+    VkShaderModuleCreateInfo moduleCreateInfo = {};
     moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    moduleCreateInfo.pNext = nullptr;
-    moduleCreateInfo.flags = 0;
     moduleCreateInfo.codeSize = spirv.size();
     moduleCreateInfo.pCode = (const uint32_t*)spirv.c_str();
 
@@ -81,7 +78,7 @@ void DescriptorDataToVkDescSetLayout(const VulkanSharedContext* ctxt,
         if (requestedDescriptors[i].fCount != 0) {
             const DescriptorData& currDescriptor = requestedDescriptors[i];
             VkDescriptorSetLayoutBinding& layoutBinding = bindingLayouts.push_back();
-            memset(&layoutBinding, 0, sizeof(VkDescriptorSetLayoutBinding));
+            layoutBinding = {};
             layoutBinding.binding = currDescriptor.fBindingIndex;
             layoutBinding.descriptorType = DsTypeEnumToVkDs(currDescriptor.fType);
             layoutBinding.descriptorCount = currDescriptor.fCount;
@@ -94,11 +91,8 @@ void DescriptorDataToVkDescSetLayout(const VulkanSharedContext* ctxt,
         }
     }
 
-    VkDescriptorSetLayoutCreateInfo layoutCreateInfo;
-    memset(&layoutCreateInfo, 0, sizeof(VkDescriptorSetLayoutCreateInfo));
+    VkDescriptorSetLayoutCreateInfo layoutCreateInfo = {};
     layoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutCreateInfo.pNext = nullptr;
-    layoutCreateInfo.flags = 0;
     layoutCreateInfo.bindingCount = bindingLayouts.size();
     layoutCreateInfo.pBindings = bindingLayouts.data();
 

@@ -16,10 +16,8 @@ namespace skgpu::graphite {
 sk_sp<VulkanDescriptorSet> VulkanDescriptorSet::Make(const VulkanSharedContext* ctxt,
                                                      const sk_sp<VulkanDescriptorPool>& pool) {
     VkDescriptorSet descSet;
-    VkDescriptorSetAllocateInfo dsAllocateInfo;
-    memset(&dsAllocateInfo, 0, sizeof(VkDescriptorSetAllocateInfo));
+    VkDescriptorSetAllocateInfo dsAllocateInfo = {};
     dsAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    dsAllocateInfo.pNext = nullptr;
     dsAllocateInfo.descriptorPool = pool->descPool();
     dsAllocateInfo.descriptorSetCount = 1;
     dsAllocateInfo.pSetLayouts = pool->descSetLayout();

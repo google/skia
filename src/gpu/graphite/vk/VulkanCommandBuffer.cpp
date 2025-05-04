@@ -149,12 +149,9 @@ bool VulkanCommandBuffer::setNewCommandBufferResources() {
 
 void VulkanCommandBuffer::begin() {
     SkASSERT(!fActive);
-    VkCommandBufferBeginInfo cmdBufferBeginInfo;
-    memset(&cmdBufferBeginInfo, 0, sizeof(VkCommandBufferBeginInfo));
+    VkCommandBufferBeginInfo cmdBufferBeginInfo = {};
     cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    cmdBufferBeginInfo.pNext = nullptr;
     cmdBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    cmdBufferBeginInfo.pInheritanceInfo = nullptr;
 
     VULKAN_CALL_ERRCHECK(fSharedContext,
                          BeginCommandBuffer(fPrimaryCommandBuffer, &cmdBufferBeginInfo));
@@ -250,16 +247,13 @@ static VkResult submit_to_queue(const VulkanSharedContext* sharedContext,
                                 uint32_t signalCount,
                                 const VkSemaphore* signalSemaphores,
                                 Protected protectedContext) {
-    VkProtectedSubmitInfo protectedSubmitInfo;
+    VkProtectedSubmitInfo protectedSubmitInfo = {};
     if (protectedContext == Protected::kYes) {
-        memset(&protectedSubmitInfo, 0, sizeof(VkProtectedSubmitInfo));
         protectedSubmitInfo.sType = VK_STRUCTURE_TYPE_PROTECTED_SUBMIT_INFO;
-        protectedSubmitInfo.pNext = nullptr;
         protectedSubmitInfo.protectedSubmit = VK_TRUE;
     }
 
-    VkSubmitInfo submitInfo;
-    memset(&submitInfo, 0, sizeof(VkSubmitInfo));
+    VkSubmitInfo submitInfo = {};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.pNext = protectedContext == Protected::kYes ? &protectedSubmitInfo : nullptr;
     submitInfo.waitSemaphoreCount = waitCount;
@@ -281,8 +275,7 @@ bool VulkanCommandBuffer::submit(VkQueue queue) {
     VkResult err;
 
     if (fSubmitFence == VK_NULL_HANDLE) {
-        VkFenceCreateInfo fenceInfo;
-        memset(&fenceInfo, 0, sizeof(VkFenceCreateInfo));
+        VkFenceCreateInfo fenceInfo = {};
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         VULKAN_CALL_RESULT(
                 fSharedContext, err, CreateFence(device, &fenceInfo, nullptr, &fSubmitFence));
@@ -487,25 +480,20 @@ bool VulkanCommandBuffer::updateAndBindInputAttachment(const VulkanTexture& text
     }
 
     // Update and write to the descriptor given the provided texture, binding it afterwards.
-    VkDescriptorImageInfo textureInfo;
-    memset(&textureInfo, 0, sizeof(VkDescriptorImageInfo));
+    VkDescriptorImageInfo textureInfo = {};
     textureInfo.sampler = VK_NULL_HANDLE;
     textureInfo.imageView =
             texture.getImageView(VulkanImageView::Usage::kAttachment)->imageView();
     textureInfo.imageLayout = texture.currentLayout();
 
-    VkWriteDescriptorSet writeInfo;
-    memset(&writeInfo, 0, sizeof(VkWriteDescriptorSet));
+    VkWriteDescriptorSet writeInfo = {};
     writeInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    writeInfo.pNext = nullptr;
     writeInfo.dstSet = *set->descriptorSet();
     writeInfo.dstBinding = 0;
     writeInfo.dstArrayElement = 0;
     writeInfo.descriptorCount = 1;
     writeInfo.descriptorType = DsTypeEnumToVkDs(DescriptorType::kInputAttachment);
     writeInfo.pImageInfo = &textureInfo;
-    writeInfo.pBufferInfo = nullptr;
-    writeInfo.pTexelBufferView = nullptr;
 
     VULKAN_CALL(fSharedContext->interface(),
                 UpdateDescriptorSets(fSharedContext->device(),
@@ -681,8 +669,7 @@ void gather_clear_values(const RenderPassDesc& rpDesc,
     // attachment indices in sync.
     if (rpDesc.fColorResolveAttachment.fFormat != TextureFormat::kUnsupported) {
         SkASSERT(rpDesc.fColorResolveAttachment.fLoadOp != LoadOp::kClear);
-        VkClearValue& colorResolveAttachmentClear = clearValues->push_back();
-        memset(&colorResolveAttachmentClear, 0, sizeof(VkClearValue));
+        clearValues->push_back({});
     }
 
     // Vulkan takes the clear depth and clear stencil regardless of whether or not the DS attachment
@@ -842,10 +829,8 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
                                           frameBufferWidth,
                                           frameBufferHeight);
 
-    VkRenderPassBeginInfo beginInfo;
-    memset(&beginInfo, 0, sizeof(VkRenderPassBeginInfo));
+    VkRenderPassBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    beginInfo.pNext = nullptr;
     beginInfo.renderPass = vulkanRenderPass->renderPass();
     beginInfo.framebuffer = framebuffer->framebuffer();
     beginInfo.renderArea = renderArea;
@@ -1299,7 +1284,7 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
             }
 
             VkDescriptorImageInfo& textureInfo = descriptorImageInfos.push_back();
-            memset(&textureInfo, 0, sizeof(VkDescriptorImageInfo));
+            textureInfo = {};
             textureInfo.sampler = sampler->ycbcrConversion() ? VK_NULL_HANDLE
                                                              : sampler->vkSampler();
             textureInfo.imageView =
@@ -1307,17 +1292,14 @@ void VulkanCommandBuffer::recordTextureAndSamplerDescSet(
             textureInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
             VkWriteDescriptorSet& writeInfo = writeDescriptorSets.push_back();
-            memset(&writeInfo, 0, sizeof(VkWriteDescriptorSet));
+            writeInfo = {};
             writeInfo.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            writeInfo.pNext = nullptr;
             writeInfo.dstSet = *set->descriptorSet();
             writeInfo.dstBinding = writeDescriptorSets.size() - 1;
             writeInfo.dstArrayElement = 0;
             writeInfo.descriptorCount = 1;
             writeInfo.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
             writeInfo.pImageInfo = &textureInfo;
-            writeInfo.pBufferInfo = nullptr;
-            writeInfo.pTexelBufferView = nullptr;
 
             return true;
         };
@@ -1505,8 +1487,7 @@ bool VulkanCommandBuffer::onCopyBufferToBuffer(const Buffer* srcBuffer,
     vkDstBuffer->setBufferAccess(
         this, VK_ACCESS_TRANSFER_WRITE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
 
-    VkBufferCopy region;
-    memset(&region, 0, sizeof(VkBufferCopy));
+    VkBufferCopy region = {};
     region.srcOffset = srcOffset;
     region.dstOffset = dstOffset;
     region.size = size;
@@ -1555,8 +1536,7 @@ bool VulkanCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
     size_t bytesPerBlock = VkFormatBytesPerBlock(srcTexture->vulkanTextureInfo().fFormat);
 
     // Set up copy region
-    VkBufferImageCopy region;
-    memset(&region, 0, sizeof(VkBufferImageCopy));
+    VkBufferImageCopy region = {};
     region.bufferOffset = bufferOffset;
     // Vulkan expects bufferRowLength in texels, not bytes.
     region.bufferRowLength = (uint32_t)(bufferRowBytes/bytesPerBlock);
@@ -1604,7 +1584,7 @@ bool VulkanCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
     TArray<VkBufferImageCopy> regions(count);
     for (int i = 0; i < count; ++i) {
         VkBufferImageCopy& region = regions.push_back();
-        memset(&region, 0, sizeof(VkBufferImageCopy));
+        region = {};
         region.bufferOffset = copyData[i].fBufferOffset;
         // copyData provides row length in bytes, but Vulkan expects bufferRowLength in texels.
         // For compressed this is the number of logical pixels not the number of blocks.
@@ -1647,8 +1627,7 @@ bool VulkanCommandBuffer::onCopyTextureToTexture(const Texture* src,
     const VulkanTexture* srcTexture = static_cast<const VulkanTexture*>(src);
     const VulkanTexture* dstTexture = static_cast<const VulkanTexture*>(dst);
 
-    VkImageCopy copyRegion;
-    memset(&copyRegion, 0, sizeof(VkImageCopy));
+    VkImageCopy copyRegion = {};
     copyRegion.srcSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1 };
     copyRegion.srcOffset = { srcRect.fLeft, srcRect.fTop, 0 };
     copyRegion.dstSubresource = { VK_IMAGE_ASPECT_COLOR_BIT, (uint32_t)mipLevel, 0, 1 };
