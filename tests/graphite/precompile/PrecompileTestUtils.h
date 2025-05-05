@@ -1,0 +1,199 @@
+/*
+ * Copyright 2025 Google LLC
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef PrecompileTestUtils_DEFINED
+#define PrecompileTestUtils_DEFINED
+
+#include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/gpu/graphite/precompile/PaintOptions.h"
+#include "include/gpu/graphite/precompile/Precompile.h"
+
+// Print out a final report that includes missed cases in 'kCases'
+#define FINAL_REPORT
+
+// Print out the cases (in 'kCases') that are covered by each 'kPrecompileCases' case
+// Also lists the utilization of each 'kPrecompileCases' case
+#define PRINT_COVERAGE
+
+// Print out all the generated labels and whether they were found in 'kCases'.
+// This is usually used along with the 'kChosenCase' variable.
+#define PRINT_GENERATED_LABELS
+
+namespace PrecompileTestUtils {
+
+struct PrecompileSettings {
+    skgpu::graphite::PaintOptions fPaintOptions;
+    skgpu::graphite::DrawTypeFlags fDrawTypeFlags = skgpu::graphite::DrawTypeFlags::kNone;
+    skgpu::graphite::RenderPassProperties fRenderPassProps;
+
+    bool isSubsetOf(const PrecompileSettings& superSet) const;
+};
+
+struct PipelineLabel {
+    int fNumHits;         // the number of uses in 9 of the 14 most visited web sites
+    const char* fString;
+};
+
+class PipelineLabelInfoCollector {
+public:
+    explicit PipelineLabelInfoCollector(SkSpan<const PipelineLabel> cases);
+
+    int processLabel(const std::string& precompiledLabel, int precompileCase);
+
+    void finalReport();
+
+private:
+    // PipelineLabelInfo captures the information for a single Pipeline label. It stores which
+    // entry in 'kCases' it represents and which entry in 'kPrecompileCases' fulfilled it.
+    class PipelineLabelInfo {
+    public:
+        PipelineLabelInfo(int casesIndex, int val = kUninit)
+                : fCasesIndex(casesIndex)
+                , fPrecompileCase(val) {}
+
+        // Index of this Pipeline label in 'kCases'.
+        const int fCasesIndex;
+
+        static constexpr int kSkipped = -2;
+        static constexpr int kUninit  = -1;
+        // >= 0 -> covered by the 'fPrecompileCase' case in 'kPrecompileCases'
+        int fPrecompileCase = kUninit;
+    };
+
+    struct comparator {
+        bool operator()(const char* a, const char* b) const {
+            return strcmp(a, b) < 0;
+        }
+    };
+
+    int fNumLabelsProcessed = 0;
+    std::map<const char*, PipelineLabelInfo, comparator> fMap;
+
+    struct OverGenInfo {
+        OverGenInfo(int originatingSetting) : fOriginatingSetting(originatingSetting) {}
+
+        int fOriginatingSetting;
+    };
+
+    std::map<std::string, OverGenInfo> fOverGenerated;
+};
+
+void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
+             skiatest::Reporter* reporter,
+             SkSpan<const PrecompileSettings> precompileSettings,
+             int precompileSettingsIndex,
+             SkSpan<const PipelineLabel> cases,
+             PipelineLabelInfoCollector* collector);
+
+skgpu::graphite::PaintOptions SolidSrcover();
+skgpu::graphite::PaintOptions LinearGradSmSrcover();
+skgpu::graphite::PaintOptions LinearGradSRGBSmMedSrcover();
+skgpu::graphite::PaintOptions TransparentPaintImagePremulHWAndClampSrcover();
+skgpu::graphite::PaintOptions TransparentPaintImagePremulHWOnlySrcover();
+skgpu::graphite::PaintOptions TransparentPaintSrcover();
+skgpu::graphite::PaintOptions SolidClearSrcSrcover();
+skgpu::graphite::PaintOptions SolidSrcSrcover();
+skgpu::graphite::PaintOptions ImagePremulNoCubicSrcover();
+skgpu::graphite::PaintOptions ImagePremulHWOnlySrcover();
+skgpu::graphite::PaintOptions ImagePremulClampNoCubicDstin();
+skgpu::graphite::PaintOptions ImagePremulHWOnlyDstin();
+skgpu::graphite::PaintOptions YUVImageSRGBNoCubicSrcover();
+skgpu::graphite::PaintOptions YUVImageSRGBSrcover2();
+skgpu::graphite::PaintOptions ImagePremulNoCubicSrcSrcover();
+skgpu::graphite::PaintOptions ImageSRGBNoCubicSrc();
+skgpu::graphite::PaintOptions BlendPorterDuffCFSrcover();
+skgpu::graphite::PaintOptions ImageAlphaHWOnlySrcover();
+skgpu::graphite::PaintOptions ImageAlphaNoCubicSrc();
+skgpu::graphite::PaintOptions ImagePremulHWOnlyPorterDuffCFSrcover();
+skgpu::graphite::PaintOptions ImagePremulHWOnlyMatrixCFSrcover();
+skgpu::graphite::PaintOptions ImageHWOnlySRGBSrcover();
+
+
+// Single sampled R w/ just depth
+const skgpu::graphite::RenderPassProperties kR_1_D {
+    skgpu::graphite::DepthStencilFlags::kDepth,
+    kAlpha_8_SkColorType,
+    /* fDstCS= */ nullptr,
+    /* fRequiresMSAA= */ false
+};
+
+// MSAA R w/ depth and stencil
+const skgpu::graphite::RenderPassProperties kR_4_DS {
+    skgpu::graphite::DepthStencilFlags::kDepthStencil,
+    kAlpha_8_SkColorType,
+    /* fDstCS= */ nullptr,
+    /* fRequiresMSAA= */ true
+};
+
+// Single sampled BGRA w/ just depth
+const skgpu::graphite::RenderPassProperties kBGRA_1_D {
+    skgpu::graphite::DepthStencilFlags::kDepth,
+    kBGRA_8888_SkColorType,
+    /* fDstCS= */ nullptr,
+    /* fRequiresMSAA= */ false
+};
+
+// MSAA BGRA w/ just depth
+const skgpu::graphite::RenderPassProperties kBGRA_4_D {
+    skgpu::graphite::DepthStencilFlags::kDepth,
+    kBGRA_8888_SkColorType,
+    /* fDstCS= */ nullptr,
+    /* fRequiresMSAA= */ true
+};
+
+// MSAA BGRA w/ depth and stencil
+const skgpu::graphite::RenderPassProperties kBGRA_4_DS {
+    skgpu::graphite::DepthStencilFlags::kDepthStencil,
+    kBGRA_8888_SkColorType,
+    /* fDstCS= */ nullptr,
+    /* fRequiresMSAA= */ true
+};
+
+// The same as kBGRA_1_D but w/ an SRGB colorSpace
+const skgpu::graphite::RenderPassProperties kBGRA_1_D_SRGB {
+    skgpu::graphite::DepthStencilFlags::kDepth,
+    kBGRA_8888_SkColorType,
+    SkColorSpace::MakeSRGB(),
+    /* fRequiresMSAA= */ false
+};
+
+// The same as kBGRA_1_D but w/ an Adobe RGB colorSpace
+const skgpu::graphite::RenderPassProperties kBGRA_1_D_Adobe {
+    skgpu::graphite::DepthStencilFlags::kDepth,
+    kBGRA_8888_SkColorType,
+    SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
+                       SkNamedGamut::kAdobeRGB),
+    /* fRequiresMSAA= */ false
+};
+
+// The same as kBGRA_4_DS but w/ an SRGB colorSpace
+const skgpu::graphite::RenderPassProperties kBGRA_4_DS_SRGB {
+    skgpu::graphite::DepthStencilFlags::kDepthStencil,
+    kBGRA_8888_SkColorType,
+    SkColorSpace::MakeSRGB(),
+    /* fRequiresMSAA= */ true
+};
+
+// The same as kBGRA_4_DS but w/ an Adobe RGB colorSpace
+const skgpu::graphite::RenderPassProperties kBGRA_4_DS_Adobe {
+    skgpu::graphite::DepthStencilFlags::kDepthStencil,
+    kBGRA_8888_SkColorType,
+    SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
+                        SkNamedGamut::kAdobeRGB),
+    /* fRequiresMSAA= */ true
+};
+
+constexpr skgpu::graphite::DrawTypeFlags kRRectAndNonAARect =
+        static_cast<skgpu::graphite::DrawTypeFlags>(skgpu::graphite::DrawTypeFlags::kAnalyticRRect |
+                                                    skgpu::graphite::DrawTypeFlags::kNonAAFillRect);
+constexpr skgpu::graphite::DrawTypeFlags kQuadAndNonAARect =
+        static_cast<skgpu::graphite::DrawTypeFlags>(skgpu::graphite::DrawTypeFlags::kPerEdgeAAQuad |
+                                                    skgpu::graphite::DrawTypeFlags::kNonAAFillRect);
+
+} // namespace PrecompileTestUtils
+
+#endif // PrecompileTestUtils_DEFINED

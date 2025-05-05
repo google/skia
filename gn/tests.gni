@@ -389,6 +389,8 @@ precompile_tests_sources = [
   "$_tests/graphite/precompile/CombinationBuilderTest.cpp",
   "$_tests/graphite/precompile/PaintParamsKeyTest.cpp",
   "$_tests/graphite/precompile/PrecompileStatsTest.cpp",
+  "$_tests/graphite/precompile/PrecompileTestUtils.cpp",
+  "$_tests/graphite/precompile/PrecompileTestUtils.h",
   "$_tests/graphite/precompile/ThreadedPrecompileTest.cpp",
   "$_tests/graphite/precompile/UserdefinedStableKeyTest.cpp",
 ]
