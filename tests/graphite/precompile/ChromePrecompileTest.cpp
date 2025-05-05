@@ -441,6 +441,9 @@ const struct PrecompileSettings {
 /* 37 */ { yuv_image_srgb_srcover2(),          DrawTypeFlags::kSimpleShape,      kBGRA_4_DS_SRGB },
 };
 
+// Case 36 is the only case that solely covers Pipeline labels with the "w/ msaa load" sub-string.
+#define MSAA_ONLY_CASE 36
+
 /*********** Here ends the part that can be pasted into Chrome's graphite_precompile.cc ***********/
 
 #if defined(SK_DEBUG)
@@ -1644,9 +1647,15 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
 
     PipelineLabelInfoCollector collector;
 
-    static const size_t kChosenCase = -1;  // only test this entry in 'kPrecompileCases'
+    static const size_t kChosenCase = -1; // only test this entry in 'kPrecompileCases'
     for (size_t i = 0; i < std::size(kPrecompileCases); ++i) {
         if (kChosenCase != -1 && kChosenCase != i) {
+            continue;
+        }
+
+        if (i == MSAA_ONLY_CASE && !caps->loadOpAffectsMSAAPipelines()) {
+            // If "w/ msaa load" strings aren't being generated, cases that only handle Pipeline
+            // labels with that sub-string will never be matched.
             continue;
         }
 
