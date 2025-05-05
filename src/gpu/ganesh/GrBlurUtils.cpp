@@ -1096,7 +1096,7 @@ static bool direct_filter_mask(GrRecordingContext* context,
         sdc->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, srcProxyRect);
         return true;
     }
-    if (!viewMatrix.isScaleTranslate()) {
+    if (!viewMatrix.rectStaysRect()) {
         return false;
     }
     if (!devRRectIsValid || !SkRRectPriv::AllCornersCircular(devRRect)) {
