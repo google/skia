@@ -270,7 +270,7 @@ SkGlyph SkScalerContext::internalMakeGlyph(SkPackedGlyphID packedID, SkMask::For
 
     if (mx.computeFromPath || (fGenerateImageFromPath && !mx.neverRequestPath)) {
         SkDEBUGCODE(glyph.fAdvancesBoundsFormatAndInitialPathDone = true;)
-        this->internalGetPath(glyph, alloc);
+        this->internalGetPath(glyph, alloc, std::move(mx.generatedPath));
         const SkPath* devPath = glyph.path();
         if (devPath) {
             const bool doVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
@@ -753,7 +753,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
 }
 
 void SkScalerContext::getPath(SkGlyph& glyph, SkArenaAlloc* alloc) {
-    this->internalGetPath(glyph, alloc);
+    this->internalGetPath(glyph, alloc, std::nullopt);
 }
 
 sk_sp<SkDrawable> SkScalerContext::getDrawable(SkGlyph& glyph) {
@@ -771,7 +771,8 @@ void SkScalerContext::getFontMetrics(SkFontMetrics* fm) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc) {
+void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc,
+                                      std::optional<GeneratedPath>&& generatedPath) {
     SkASSERT(glyph.fAdvancesBoundsFormatAndInitialPathDone);
 
     if (glyph.setPathHasBeenCalled()) {
@@ -784,7 +785,10 @@ void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc) {
     bool pathModified = false;
 
     SkPackedGlyphID glyphID = glyph.getPackedID();
-    if (!generatePath(glyph, &path, &pathModified)) {
+    if (generatedPath) {
+        path = std::move(generatedPath->path);
+        pathModified = std::move(generatedPath->modified);
+    } else if (!generatePath(glyph, &path, &pathModified)) {
         glyph.setPath(alloc, (SkPath*)nullptr, hairline, pathModified);
         return;
     }

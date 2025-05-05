@@ -12,6 +12,7 @@
 #include "include/core/SkFourByteTag.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -30,6 +31,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <optional>
 
 class SkArenaAlloc;
 class SkAutoDescriptor;
@@ -37,7 +39,6 @@ class SkDescriptor;
 class SkDrawable;
 class SkFont;
 class SkMaskFilter;
-class SkPath;
 class SkPathEffect;
 enum class SkFontHinting;
 struct SkFontMetrics;
@@ -383,6 +384,10 @@ public:
 protected:
     const SkScalerContextRec fRec;
 
+    struct GeneratedPath {
+        SkPath path;
+        bool modified;
+    };
     struct GlyphMetrics {
         SkVector       advance;
         SkRect         bounds;
@@ -390,7 +395,7 @@ protected:
         uint16_t       extraBits;
         bool           neverRequestPath;
         bool           computeFromPath;
-
+        std::optional<GeneratedPath> generatedPath;
         GlyphMetrics(SkMask::Format format)
             : advance{0, 0}
             , bounds{0, 0, 0, 0}
@@ -398,6 +403,7 @@ protected:
             , extraBits(0)
             , neverRequestPath(false)
             , computeFromPath(false)
+            , generatedPath{std::nullopt}
         {}
     };
 
@@ -467,7 +473,7 @@ private:
     // calling generateImage.
     const bool fGenerateImageFromPath;
 
-    void internalGetPath(SkGlyph&, SkArenaAlloc*);
+    void internalGetPath(SkGlyph&, SkArenaAlloc*, std::optional<GeneratedPath>&&);
     SkGlyph internalMakeGlyph(SkPackedGlyphID, SkMask::Format, SkArenaAlloc*);
 
 protected:
