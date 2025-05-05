@@ -29,9 +29,13 @@
 #include <utility>
 #include <vector>
 
+namespace {
 using PDFTag = SkPDF::StructureElementNode;
 
-static void write_structured_document(SkWStream& outputStream, SkPDF::Metadata::Outline outline) {
+enum class EmitHeader : bool { No = false, Yes = true };
+
+void write_structured_document(SkWStream& outputStream, SkPDF::Metadata::Outline outline,
+                               EmitHeader emitHeader) {
     SkSize pageSize = SkSize::Make(612, 792);  // U.S. Letter
 
     SkPDF::Metadata metadata;
@@ -51,11 +55,13 @@ static void write_structured_document(SkWStream& outputStream, SkPDF::Metadata::
     root->fTypeString = "Document";
 
     // Heading.
-    auto h1 = std::make_unique<PDFTag>();
-    h1->fNodeId = 2;
-    h1->fTypeString = "H1";
-    h1->fAlt = "A Header";
-    root->fChildVector.push_back(std::move(h1));
+    if (emitHeader == EmitHeader::Yes) {
+        auto h1 = std::make_unique<PDFTag>();
+        h1->fNodeId = 2;
+        h1->fTypeString = "H1";
+        h1->fAlt = "A Header";
+        root->fChildVector.push_back(std::move(h1));
+    }
 
     // Initial paragraph.
     auto p = std::make_unique<PDFTag>();
@@ -189,29 +195,33 @@ static void write_structured_document(SkWStream& outputStream, SkPDF::Metadata::
 
     outputStream.flush();
 }
+} // namespace
 
-// Test building a tagged PDF.
-// Add this to args.gn to output the PDF to a file:
-//   extra_cflags = [ "-DSK_PDF_TEST_HEADER_OUTLINE_PATH=\"/tmp/foo.pdf\"" ]
+// To log the output, replace the SkDynamicMemoryWStream with something like
+// SkFILEWStream outputStream("test.pdf");
+
+// Test building a tagged PDF with headers and a header outline.
 DEF_TEST(SkPDF_structelem_header_outline_doc, r) {
     REQUIRE_PDF_DOCUMENT(SkPDF_structelem_header_outline_doc, r);
-#ifdef SK_PDF_TEST_HEADER_OUTLINE_PATH
-    SkFILEWStream outputStream(SK_PDF_TEST_HEADER_OUTLINE_PATH);
-#else
     SkDynamicMemoryWStream outputStream;
-#endif
-
-    write_structured_document(outputStream, SkPDF::Metadata::Outline::StructureElementHeaders);
+    write_structured_document(outputStream, SkPDF::Metadata::Outline::StructureElementHeaders,
+                              EmitHeader::Yes);
 }
 
+// Test building a tagged PDF with a structure element outline.
 DEF_TEST(SkPDF_structelem_outline_doc, r) {
     REQUIRE_PDF_DOCUMENT(SkPDF_structelem_outline_doc, r);
-#ifdef SK_PDF_TEST_STRUCTELEM_OUTLINE_PATH
-    SkFILEWStream outputStream(SK_PDF_TEST_STRUCTELEM_OUTLINE_PATH);
-#else
     SkDynamicMemoryWStream outputStream;
-#endif
-
-    write_structured_document(outputStream, SkPDF::Metadata::Outline::StructureElements);
+    write_structured_document(outputStream, SkPDF::Metadata::Outline::StructureElements,
+                              EmitHeader::Yes);
 }
+
+// Test building a tagged PDF with no headers with a header outline.
+DEF_TEST(SkPDF_structelem_header_outline_doc_noheader, r) {
+    REQUIRE_PDF_DOCUMENT(SkPDF_structelem_header_outline_doc, r);
+    SkDynamicMemoryWStream outputStream;
+    write_structured_document(outputStream, SkPDF::Metadata::Outline::StructureElementHeaders,
+                              EmitHeader::No);
+}
+
 #endif

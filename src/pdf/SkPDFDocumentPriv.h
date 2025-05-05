@@ -149,6 +149,7 @@ public:
 
     std::unique_ptr<SkPDFArray> getAnnotations();
 
+    // Every reference returned by this method must be passed to `emit` exactly once.
     SkPDFIndirectReference reserveRef() { return SkPDFIndirectReference{fNextObjectNumber++}; }
 
     // Returns a tag to prepend to a PostScript name of a subset font. Includes the '+'.
