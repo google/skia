@@ -30,7 +30,6 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RendererProvider.h"
-#include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/SpecialImage_Graphite.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
@@ -1350,7 +1349,8 @@ void Device::drawGeometry(const Transform& localToDevice,
                               (secondaryRenderer && secondaryRenderer->requiresMSAA());
     DstReadStrategy dstReadStrategy = dstReadRequired ? fDC->dstReadStrategy(requiresMSAA)
                                                       : DstReadStrategy::kNoneRequired;
-    const bool needsFlush = this->needsFlushBeforeDraw(numNewRenderSteps, dstReadStrategy);
+    const bool needsFlush =
+            this->needsFlushBeforeDraw(numNewRenderSteps, dstReadStrategy, requiresMSAA);
     if (needsFlush) {
         if (pathAtlas != nullptr) {
             // We need to flush work for all devices associated with the current Recorder.
@@ -1804,6 +1804,10 @@ void Device::flushPendingWorkToRecorder() {
         }
     }
 
+    // Upon flushing, reset the last recorded dst read strategy. We do not want a dst read
+    // performed in a prior draw pass to impact draws in a fresh pass.
+    fPriorDrawDstReadStrategy = DstReadStrategy::kNoneRequired;
+
     fIsFlushing = false;
 }
 
@@ -1829,13 +1833,34 @@ void Device::internalFlush() {
     fRecorder->priv().atlasProvider()->compact();
 }
 
-bool Device::needsFlushBeforeDraw(int numNewRenderSteps, DstReadStrategy dstReadStrategy) const {
+bool Device::needsFlushBeforeDraw(int numNewRenderSteps,
+                                  DstReadStrategy dstReadStrategy,
+                                  bool requiresMSAA) {
     // Must also account for the elements in the clip stack that might need to be recorded.
     numNewRenderSteps += fClip.maxDeferredClipDraws() * Renderer::kMaxRenderSteps;
-    return // Need flush if we don't have room to record into the current list.
+    bool needsFlush =
+           // Need flush if we don't have room to record into the current list.
            (DrawList::kMaxRenderSteps - fDC->pendingRenderSteps()) < numNewRenderSteps ||
            // Need flush if this draw needs to copy the dst surface for reading.
-           dstReadStrategy == DstReadStrategy::kTextureCopy;
+           dstReadStrategy == DstReadStrategy::kTextureCopy ||
+           // Need flush if we were performing a dst copy but now can read as an input
+           // attachment (we must perform the copy operation prior to reading).
+           (fPriorDrawDstReadStrategy == DstReadStrategy::kTextureCopy &&
+            dstReadStrategy == DstReadStrategy::kReadFromInput) ||
+           // Need flush if going from reading the dst as an input attachment to a draw that
+           // requires MSAA (we must ensure the loading of the MSAA attachment from resolve
+           // occurs after any prior draw operations).
+           (fPriorDrawDstReadStrategy == DstReadStrategy::kReadFromInput && requiresMSAA);
+
+    // After making this determination, update the last recorded DstReadStrategy. Only update if
+    // a dst read is actually performed (i.e. the strategy used for this draw is not kNoneRequired).
+    // This is because we must maintain a record of the last strategy used to actually perform a dst
+    // read (even if this draw does not perform one) as that informs whether a flush is needed.
+    if (dstReadStrategy != DstReadStrategy::kNoneRequired) {
+        fPriorDrawDstReadStrategy = dstReadStrategy;
+    }
+
+    return needsFlush;
 }
 
 void Device::drawSpecial(SkSpecialImage* special,
