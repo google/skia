@@ -312,6 +312,11 @@ public:
     /* Returns whether multisampled render to single sampled is supported. */
     bool msaaRenderToSingleSampledSupport() const { return fMSAARenderToSingleSampledSupport; }
 
+    /* Returns whether multisampled render to single sampled is supported for a given texture. */
+    virtual bool msaaTextureRenderToSingleSampledSupport(const TextureInfo& info) const {
+        return this->msaaRenderToSingleSampledSupport();
+    }
+
     /**
      * Returns whether a render pass can have MSAA/depth/stencil attachments and a resolve
      * attachment with mismatched sizes. Note: the MSAA attachment and the depth/stencil attachment

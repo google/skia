@@ -64,11 +64,8 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
     }
 
     SkASSERT(!isLinear || vkSamples == VK_SAMPLE_COUNT_1_BIT);
-
-    VkImageCreateFlags createflags = 0;
-    if (info.isProtected() == Protected::kYes && caps.protectedSupport()) {
-        createflags |= VK_IMAGE_CREATE_PROTECTED_BIT;
-    }
+    SkASSERT(info.isProtected() == Protected::kNo ||
+             (caps.protectedSupport() && SkToBool(VK_IMAGE_CREATE_PROTECTED_BIT & vkInfo.fFlags)));
 
     uint32_t numMipLevels = 1;
     if (vkInfo.fMipmapped == Mipmapped::kYes) {
@@ -81,7 +78,7 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
     const VkImageCreateInfo imageCreateInfo = {
         VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO, // sType
         nullptr,                             // pNext
-        createflags,                         // VkImageCreateFlags
+        vkInfo.fFlags,                       // VkImageCreateFlags
         VK_IMAGE_TYPE_2D,                    // VkImageType
         vkInfo.fFormat,                      // VkFormat
         { width, height, 1 },                // VkExtent3D
@@ -199,23 +196,6 @@ sk_sp<Texture> VulkanTexture::MakeWrapped(const VulkanSharedContext* sharedConte
 
 VulkanTexture::~VulkanTexture() {}
 
-VkImageAspectFlags vk_format_to_aspect_flags(VkFormat format) {
-    switch (format) {
-        case VK_FORMAT_S8_UINT:
-            return VK_IMAGE_ASPECT_STENCIL_BIT;
-        case VK_FORMAT_D16_UNORM:
-            [[fallthrough]];
-        case VK_FORMAT_D32_SFLOAT:
-            return VK_IMAGE_ASPECT_DEPTH_BIT;
-        case VK_FORMAT_D24_UNORM_S8_UINT:
-            [[fallthrough]];
-        case VK_FORMAT_D32_SFLOAT_S8_UINT:
-            return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
-        default:
-            return VK_IMAGE_ASPECT_COLOR_BIT;
-    }
-}
-
 void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
                                                 VkImageLayout newLayout,
                                                 VkAccessFlags dstAccessMask,
@@ -290,7 +270,8 @@ void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
     VkAccessFlags srcAccessMask = VulkanTexture::LayoutToSrcAccessMask(currentLayout);
     VkPipelineStageFlags srcStageMask = VulkanTexture::LayoutToPipelineSrcStageFlags(currentLayout);
 
-    VkImageAspectFlags aspectFlags = vk_format_to_aspect_flags(textureInfo.fFormat);
+    VkImageAspectFlags aspectFlags =
+            GetVkImageAspectFlags(TextureInfoPriv::ViewFormat(this->textureInfo()));
     uint32_t numMipLevels = 1;
     SkISize dimensions = this->dimensions();
     if (this->mipmapped() == Mipmapped::kYes) {

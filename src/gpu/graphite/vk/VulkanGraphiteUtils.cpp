@@ -195,6 +195,23 @@ VkFormat TextureFormatToVkFormat(TextureFormat format) {
 #undef M
 }
 
+VkImageAspectFlags GetVkImageAspectFlags(TextureFormat format) {
+    switch (format) {
+        case TextureFormat::kS8:
+            return VK_IMAGE_ASPECT_STENCIL_BIT;
+        case TextureFormat::kD16:
+            [[fallthrough]];
+        case TextureFormat::kD32F:
+            return VK_IMAGE_ASPECT_DEPTH_BIT;
+        case TextureFormat::kD24_S8:
+            [[fallthrough]];
+        case TextureFormat::kD32F_S8:
+            return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        default:
+            return VK_IMAGE_ASPECT_COLOR_BIT;
+    }
+}
+
 VkShaderStageFlags PipelineStageFlagsToVkShaderStageFlags(
         SkEnumBitMask<PipelineStageFlags> stageFlags) {
     VkShaderStageFlags vkStageFlags = 0;
@@ -216,13 +233,11 @@ bool RenderPassDescWillLoadMSAAFromResolve(const RenderPassDesc& renderPassDesc)
 }
 
 bool RenderPassDescWillImplicitlyLoadMSAA(const RenderPassDesc& renderPassDesc) {
-    // TODO: This is currently not possible, but will be with an upcoming change adding support for
-    // VK_EXT_multisampled_render_to_single_sampled. For now, simply return false.
     SkASSERT(renderPassDesc.fColorAttachment.fFormat != TextureFormat::kUnsupported);
     SkASSERT(renderPassDesc.fColorAttachment.fSampleCount > 1 ||
              renderPassDesc.fColorResolveAttachment.fFormat == TextureFormat::kUnsupported);
 
-    return false;
+    return renderPassDesc.fColorAttachment.fSampleCount == 1 && renderPassDesc.fSampleCount > 1;
 }
 
 RenderPassDesc MakePipelineCompatibleRenderPass(const RenderPassDesc& renderPassDesc) {

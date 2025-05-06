@@ -169,8 +169,10 @@ void VulkanRenderPass::ExtractRenderPassDesc(uint32_t key,
 
 namespace {
 
-void setup_vk_attachment_description(VkAttachmentDescription* outAttachment,
+template <typename AttachmentDescription>
+void setup_vk_attachment_description(AttachmentDescription* outAttachment,
                                      const AttachmentDesc& desc,
+                                     const AttachmentDescription& defaultAttachmentDescription,
                                      bool isColor) {
     static_assert((int) LoadOp::kLoad     == (int) VK_ATTACHMENT_LOAD_OP_LOAD);
     static_assert((int) LoadOp::kClear    == (int) VK_ATTACHMENT_LOAD_OP_CLEAR);
@@ -181,7 +183,7 @@ void setup_vk_attachment_description(VkAttachmentDescription* outAttachment,
     VkAttachmentLoadOp vkLoadOp = static_cast<VkAttachmentLoadOp>(desc.fLoadOp);
     VkAttachmentStoreOp vkStoreOp = static_cast<VkAttachmentStoreOp>(desc.fStoreOp);
 
-    *outAttachment = {};
+    *outAttachment = defaultAttachmentDescription;
     outAttachment->format = TextureFormatToVkFormat(desc.fFormat);
     VkSampleCountFlagBits sampleCount;
     SkAssertResult(SampleCountToVkSampleCount(desc.fSampleCount, &sampleCount));
@@ -202,20 +204,23 @@ void setup_vk_attachment_description(VkAttachmentDescription* outAttachment,
     }
 }
 
+template <typename AttachmentDescription, typename AttachmentReference>
 void populate_attachment_refs(const RenderPassDesc& renderPassDesc,
                               bool needLoadMSAAFromResolveSubpass,
-                              skia_private::TArray<VkAttachmentDescription>& descs,
-                              VkAttachmentReference& colorRef,
-                              VkAttachmentReference& resolveRef,
-                              VkAttachmentReference& resolveLoadInputRef,
-                              VkAttachmentReference& depthStencilRef) {
-    static constexpr VkAttachmentReference kUnused{VK_ATTACHMENT_UNUSED, VK_IMAGE_LAYOUT_UNDEFINED};
-
+                              skia_private::TArray<AttachmentDescription>& descs,
+                              AttachmentReference& colorRef,
+                              AttachmentReference& resolveRef,
+                              AttachmentReference& resolveLoadInputRef,
+                              AttachmentReference& depthStencilRef,
+                              const AttachmentDescription& defaultAttachmentDescription) {
     // Note: See assumptions regarding RenderPassDesc structure in AddToKey().
     const AttachmentDesc color = renderPassDesc.fColorAttachment;
     const AttachmentDesc resolve = renderPassDesc.fColorResolveAttachment;
     const AttachmentDesc depthStencil = renderPassDesc.fDepthStencilAttachment;
     SkASSERT(color.fFormat != TextureFormat::kUnsupported);
+    // If MSAA data needs to be loaded from the resolve attachment, there must be a resolve
+    // attachment!
+    SkASSERT(!needLoadMSAAFromResolveSubpass || resolve.fFormat != TextureFormat::kUnsupported);
 
     // If reading from the dst as an input attachment, we must use VK_IMAGE_LAYOUT_GENERAL
     // for the color attachment description. Use a general image layout for all renderpasses to
@@ -227,8 +232,11 @@ void populate_attachment_refs(const RenderPassDesc& renderPassDesc,
     // internal layout optimal.
     colorRef.layout = VK_IMAGE_LAYOUT_GENERAL;
     colorRef.attachment = descs.size();
-    VkAttachmentDescription& vkColorAttachDesc = descs.push_back();
-    setup_vk_attachment_description(&vkColorAttachDesc, color, /*isColor=*/true);
+    AttachmentDescription& vkColorAttachDesc = descs.push_back();
+    setup_vk_attachment_description(&vkColorAttachDesc,
+                                    color,
+                                    defaultAttachmentDescription,
+                                    /*isColor=*/true);
 
     if (resolve.fFormat != TextureFormat::kUnsupported) {
         resolveRef.attachment = descs.size();
@@ -242,29 +250,37 @@ void populate_attachment_refs(const RenderPassDesc& renderPassDesc,
             // read-only layout when specified on the attachment ref.
             resolveLoadInputRef.layout = VK_IMAGE_LAYOUT_GENERAL;
         } else {
-            resolveLoadInputRef = kUnused;
+            resolveLoadInputRef.attachment = VK_ATTACHMENT_UNUSED;
         }
 
-        VkAttachmentDescription& vkResolveAttachDesc = descs.push_back();
-        setup_vk_attachment_description(&vkResolveAttachDesc, resolve, /*isColor=*/true);
+        AttachmentDescription& vkResolveAttachDesc = descs.push_back();
+        setup_vk_attachment_description(&vkResolveAttachDesc,
+                                        resolve,
+                                        defaultAttachmentDescription,
+                                        /*isColor=*/true);
     } else {
-        resolveRef = resolveLoadInputRef = kUnused;
+        resolveRef.attachment = resolveLoadInputRef.attachment = VK_ATTACHMENT_UNUSED;
     }
 
     if (depthStencil.fFormat != TextureFormat::kUnsupported) {
         depthStencilRef.attachment = descs.size();
         depthStencilRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-        VkAttachmentDescription& vkDepthStencilAttachDesc = descs.push_back();
-        setup_vk_attachment_description(&vkDepthStencilAttachDesc, depthStencil, /*isColor=*/false);
+        AttachmentDescription& vkDepthStencilAttachDesc = descs.push_back();
+        setup_vk_attachment_description(&vkDepthStencilAttachDesc,
+                                        depthStencil,
+                                        defaultAttachmentDescription,
+                                        /*isColor=*/false);
     } else {
-        depthStencilRef = kUnused;
+        depthStencilRef.attachment = VK_ATTACHMENT_UNUSED;
     }
 }
 
+template <typename SubpassDependency, typename SubpassDependencyArray>
 void populate_subpass_dependencies(const VulkanSharedContext* context,
-                                   skia_private::STArray<2, VkSubpassDependency>& deps,
-                                   bool needLoadMSAAFromResolveSubpass) {
+                                   SubpassDependencyArray& deps,
+                                   bool needLoadMSAAFromResolveSubpass,
+                                   const SubpassDependency& defaultSubpassDependency) {
     const int mainSubpassIdx = needLoadMSAAFromResolveSubpass ? 1 : 0;
 
     // Adding a single subpass self-dependency for color attachments is basically free, so apply
@@ -272,7 +288,8 @@ void populate_subpass_dependencies(const VulkanSharedContext* context,
     // because it means that as we perform draw calls, if we encounter a draw that uses a blend
     // operation requiring a dst read, we can avoid having to switch RenderPasses.
     if (!context->vulkanCaps().supportsRasterizationOrderColorAttachmentAccess()) {
-        VkSubpassDependency& selfDependency = deps.push_back();
+        SubpassDependency& selfDependency = deps.push_back();
+        selfDependency = defaultSubpassDependency;
         selfDependency.srcSubpass = mainSubpassIdx;
         selfDependency.dstSubpass = mainSubpassIdx;
         selfDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
@@ -284,7 +301,8 @@ void populate_subpass_dependencies(const VulkanSharedContext* context,
 
     // If loading MSAA from resolve, enforce that subpass goes first with a subpass dependency.
     if (needLoadMSAAFromResolveSubpass) {
-        VkSubpassDependency& dependency = deps.push_back();
+        SubpassDependency& dependency = deps.push_back();
+        dependency = defaultSubpassDependency;
         dependency.srcSubpass = 0;
         dependency.dstSubpass = mainSubpassIdx;
         dependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
@@ -293,6 +311,30 @@ void populate_subpass_dependencies(const VulkanSharedContext* context,
         dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         dependency.dstAccessMask =
                 VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    }
+}
+
+template <typename SubpassDescription, typename AttachmentReference>
+void populate_main_subpass_desc(const VulkanCaps& caps,
+                                SubpassDescription& mainSubpassDesc,
+                                const AttachmentReference& colorRef,
+                                const AttachmentReference& resolveRef,
+                                const AttachmentReference& depthStencilRef) {
+    mainSubpassDesc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    // In the main subpass, the input attachment is the color attachment.  We could have excluded
+    // this attachment if unused, but always assigning it to be the color attachment even when
+    // unused allows for compatible-only renderpasses to be shared for pipelines that do read from
+    // the dst and those that do not.
+    mainSubpassDesc.inputAttachmentCount = 1;
+    mainSubpassDesc.pInputAttachments = &colorRef;
+    mainSubpassDesc.colorAttachmentCount = 1;
+    mainSubpassDesc.pColorAttachments = &colorRef;
+    mainSubpassDesc.pResolveAttachments = &resolveRef;
+    mainSubpassDesc.pDepthStencilAttachment = &depthStencilRef;
+
+    if (caps.supportsRasterizationOrderColorAttachmentAccess()) {
+        mainSubpassDesc.flags =
+                VK_SUBPASS_DESCRIPTION_RASTERIZATION_ORDER_ATTACHMENT_COLOR_ACCESS_BIT_EXT;
     }
 }
 
@@ -315,22 +357,7 @@ void populate_subpass_descs(const VulkanCaps& caps,
 
     VkSubpassDescription& mainSubpassDesc = descs.push_back();
     mainSubpassDesc = {};
-    mainSubpassDesc.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    // In the main subpass, the input attachment is the color attachment.  We could have excluded
-    // this attachment if unused, but always assigning it to be the color attachment even when
-    // unused allows for compatible-only renderpasses to be shared for pipelines that do read from
-    // the dst and those that do not.
-    mainSubpassDesc.inputAttachmentCount = 1;
-    mainSubpassDesc.pInputAttachments = &colorRef;
-    mainSubpassDesc.colorAttachmentCount = 1;
-    mainSubpassDesc.pColorAttachments = &colorRef;
-    mainSubpassDesc.pResolveAttachments = &resolveRef;
-    mainSubpassDesc.pDepthStencilAttachment = &depthStencilRef;
-
-    if (caps.supportsRasterizationOrderColorAttachmentAccess()) {
-        mainSubpassDesc.flags =
-                VK_SUBPASS_DESCRIPTION_RASTERIZATION_ORDER_ATTACHMENT_COLOR_ACCESS_BIT_EXT;
-    }
+    populate_main_subpass_desc(caps, mainSubpassDesc, colorRef, resolveRef, depthStencilRef);
 }
 
 } // anonymous namespace
@@ -339,50 +366,138 @@ sk_sp<VulkanRenderPass> VulkanRenderPass::Make(const VulkanSharedContext* contex
                                                const RenderPassDesc& renderPassDesc) {
     const bool needLoadMSAAFromResolveSubpass =
             RenderPassDescWillLoadMSAAFromResolve(renderPassDesc);
-
-    // Set up attachment descriptions + references. Declare them before having a helper populate
-    // their values so we can reference them later during RP creation.
-    skia_private::TArray<VkAttachmentDescription> attachmentDescs;
-    VkAttachmentReference colorRef;
-    VkAttachmentReference resolveRef;
-    VkAttachmentReference resolveLoadInputRef;
-    VkAttachmentReference depthStencilRef;
-    populate_attachment_refs(renderPassDesc,
-                             needLoadMSAAFromResolveSubpass,
-                             attachmentDescs,
-                             colorRef,
-                             resolveRef,
-                             resolveLoadInputRef,
-                             depthStencilRef);
-
-    // Assemble subpass information before creating the renderpass. Each renderpass has at least one
-    // subpass dependency (self-dependency for reading the dst texture). If loading MSAA from
-    // resolve, that adds another subpass and an additional dependency.
-    skia_private::STArray<2, VkSubpassDescription> subpassDescs;
-    populate_subpass_descs(context->vulkanCaps(),
-                           subpassDescs,
-                           colorRef,
-                           resolveRef,
-                           resolveLoadInputRef,
-                           depthStencilRef);
-    skia_private::STArray<2, VkSubpassDependency> dependencies;
-    populate_subpass_dependencies(context, dependencies, needLoadMSAAFromResolveSubpass);
-
-    // Create VkRenderPass
-    VkRenderPassCreateInfo renderPassInfo = {};
-    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.subpassCount = subpassDescs.size();
-    renderPassInfo.pSubpasses = subpassDescs.begin();
-    renderPassInfo.dependencyCount = dependencies.size();
-    renderPassInfo.pDependencies = dependencies.data();
-    renderPassInfo.attachmentCount = attachmentDescs.size();
-    renderPassInfo.pAttachments = attachmentDescs.data();
+    const bool isMultisampledRenderToSingleSampled =
+            RenderPassDescWillImplicitlyLoadMSAA(renderPassDesc);
 
     VkResult result;
     VkRenderPass renderPass = VK_NULL_HANDLE;
-    VULKAN_CALL_RESULT(context,
-                       result,
-                       CreateRenderPass(context->device(), &renderPassInfo, nullptr, &renderPass));
+
+    // VK_EXT_multisampled_render_to_single_sampled usage requires vkCreateRenderPass2.
+    if (isMultisampledRenderToSingleSampled) {
+        // Set up attachment descriptions + references. Declare them before having a helper populate
+        // their values so we can reference them later during RP creation.
+        SkASSERT(renderPassDesc.fColorResolveAttachment.fFormat == TextureFormat::kUnsupported);
+        SkASSERT(!needLoadMSAAFromResolveSubpass);
+
+        VkAttachmentDescription2 defaultAttachmentDescription = {};
+        defaultAttachmentDescription.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2;
+
+        VkAttachmentReference2 defaultAttachmentReference = {};
+        defaultAttachmentReference.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
+        defaultAttachmentReference.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+
+        skia_private::TArray<VkAttachmentDescription2> attachmentDescs;
+        VkAttachmentReference2 colorRef = defaultAttachmentReference;
+        VkAttachmentReference2 resolveRef = defaultAttachmentReference;
+        VkAttachmentReference2 resolveLoadInputRef = defaultAttachmentReference;
+        VkAttachmentReference2 depthStencilRef = defaultAttachmentReference;
+        depthStencilRef.aspectMask =
+                GetVkImageAspectFlags(renderPassDesc.fDepthStencilAttachment.fFormat);
+
+        populate_attachment_refs(renderPassDesc,
+                                 /*needLoadMSAAFromResolveSubpass=*/false,
+                                 attachmentDescs,
+                                 colorRef,
+                                 resolveRef,
+                                 resolveLoadInputRef,
+                                 depthStencilRef,
+                                 defaultAttachmentDescription);
+        SkASSERT(resolveLoadInputRef.attachment == VK_ATTACHMENT_UNUSED);
+
+        // Assemble subpass information before creating the renderpass. Each renderpass has at least
+        // one subpass dependency (self-dependency for reading the dst texture).
+        VkSubpassDescription2 mainSubpassDesc = {};
+        mainSubpassDesc.sType = VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2;
+        populate_main_subpass_desc(
+                context->vulkanCaps(), mainSubpassDesc, colorRef, resolveRef, depthStencilRef);
+
+        // Enable multisampled render to single-sampled with the render pass's sample count.
+        VkMultisampledRenderToSingleSampledInfoEXT msrtss = {};
+        msrtss.sType = VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT;
+        msrtss.multisampledRenderToSingleSampledEnable = VK_TRUE;
+        SampleCountToVkSampleCount(renderPassDesc.fSampleCount, &msrtss.rasterizationSamples);
+        AddToPNextChain(&mainSubpassDesc, &msrtss);
+
+        // Depth/stencil resolve needs additional configuration (even though Graphite always
+        // discards depth/stencil).
+        SkASSERT(renderPassDesc.fDepthStencilAttachment.fStoreOp == StoreOp::kDiscard);
+        VkSubpassDescriptionDepthStencilResolve dsResolve = {};
+        dsResolve.sType = VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_DEPTH_STENCIL_RESOLVE;
+        dsResolve.depthResolveMode = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
+        dsResolve.stencilResolveMode = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
+        AddToPNextChain(&mainSubpassDesc, &dsResolve);
+
+        VkSubpassDependency2 defaultSubpassDependency = {};
+        defaultSubpassDependency.sType = VK_STRUCTURE_TYPE_SUBPASS_DEPENDENCY_2;
+
+        skia_private::STArray<1, VkSubpassDependency2> dependencies;
+        populate_subpass_dependencies(context,
+                                      dependencies,
+                                      /*needLoadMSAAFromResolveSubpass=*/false,
+                                      defaultSubpassDependency);
+
+        // Create VkRenderPass
+        VkRenderPassCreateInfo2 renderPassInfo = {};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2;
+        renderPassInfo.subpassCount = 1;
+        renderPassInfo.pSubpasses = &mainSubpassDesc;
+        renderPassInfo.dependencyCount = dependencies.size();
+        renderPassInfo.pDependencies = dependencies.data();
+        renderPassInfo.attachmentCount = attachmentDescs.size();
+        renderPassInfo.pAttachments = attachmentDescs.data();
+
+        VULKAN_CALL_RESULT(
+                context,
+                result,
+                CreateRenderPass2(context->device(), &renderPassInfo, nullptr, &renderPass));
+    } else {
+        // Same thing as above, but using Vulkan 1.0 render pass API.  Practically every usable
+        // driver supports VK_KHR_create_renderpass2, but that is not yet a minimum requirement of
+        // Graphite.
+        skia_private::TArray<VkAttachmentDescription> attachmentDescs;
+        VkAttachmentReference colorRef = {};
+        VkAttachmentReference resolveRef = {};
+        VkAttachmentReference resolveLoadInputRef = {};
+        VkAttachmentReference depthStencilRef = {};
+        populate_attachment_refs(renderPassDesc,
+                                 needLoadMSAAFromResolveSubpass,
+                                 attachmentDescs,
+                                 colorRef,
+                                 resolveRef,
+                                 resolveLoadInputRef,
+                                 depthStencilRef,
+                                 /*defaultAttachmentDescription=*/{});
+
+        // If loading MSAA from resolve, an extra subpass and an additional dependency is needed.
+        skia_private::STArray<2, VkSubpassDescription> subpassDescs;
+        populate_subpass_descs(context->vulkanCaps(),
+                               subpassDescs,
+                               colorRef,
+                               resolveRef,
+                               resolveLoadInputRef,
+                               depthStencilRef);
+        skia_private::STArray<2, VkSubpassDependency> dependencies;
+        populate_subpass_dependencies(context,
+                                      dependencies,
+                                      needLoadMSAAFromResolveSubpass,
+                                      /*defaultSubpassDependency=*/VkSubpassDependency{});
+
+        // Create VkRenderPass
+        VkRenderPassCreateInfo renderPassInfo = {};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+        renderPassInfo.subpassCount = subpassDescs.size();
+        renderPassInfo.pSubpasses = subpassDescs.begin();
+        renderPassInfo.dependencyCount = dependencies.size();
+        renderPassInfo.pDependencies = dependencies.data();
+        renderPassInfo.attachmentCount = attachmentDescs.size();
+        renderPassInfo.pAttachments = attachmentDescs.data();
+
+        VULKAN_CALL_RESULT(
+                context,
+                result,
+                CreateRenderPass(context->device(), &renderPassInfo, nullptr, &renderPass));
+    }
+
     if (result != VK_SUCCESS) {
         return nullptr;
     }

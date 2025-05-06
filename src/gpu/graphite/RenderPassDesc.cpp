@@ -65,8 +65,10 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
     // Higher-level logic should ensure the default MSAA sample count is supported if using either
     // msaa-render-to-single-sample or with separate attachments, and select non-MSAA techniques if
     // they weren't supported. Downgrade to single-sampled if we get here somehow anyways.
+    const bool msaaRenderToSingleSampledSupport =
+            caps->msaaTextureRenderToSingleSampledSupport(targetInfo);
     const uint8_t defaultSamples = caps->defaultMSAASamplesCount();
-    const bool canUseDefaultMSAA = caps->msaaRenderToSingleSampledSupport() ||
+    const bool canUseDefaultMSAA = msaaRenderToSingleSampledSupport ||
                                    caps->isSampleCountSupported(colorFormat, defaultSamples);
     desc.fSampleCount = requiresMSAA && targetInfo.numSamples() == 1
             ? (canUseDefaultMSAA ? defaultSamples : 1)
@@ -74,9 +76,9 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
 
     // We need to handle MSAA with an extra color attachment if:
     const bool needsMSAAColorAttachment =
-            desc.fSampleCount > 1 &&                    // using MSAA for the render pass,
-            targetInfo.numSamples() == 1 &&             // the target isn't already MSAA'ed,
-            !caps->msaaRenderToSingleSampledSupport();  // can't use an MSAA->single extension.
+            desc.fSampleCount > 1 &&            // using MSAA for the render pass,
+            targetInfo.numSamples() == 1 &&     // the target isn't already MSAA'ed,
+            !msaaRenderToSingleSampledSupport;  // can't use an MSAA->single extension.
     if (needsMSAAColorAttachment) {
         // We set the color and resolve attachments up the same regardless of if the backend ends up
         // using msaaRenderToSingleSampledSupport() to skip explicitly creating the MSAA attachment.

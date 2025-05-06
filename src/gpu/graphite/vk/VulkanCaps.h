@@ -118,6 +118,7 @@ public:
     }
 
     bool mustLoadFullImageForMSAA() const { return fMustLoadFullImageForMSAA; }
+    bool avoidMSAA() const { return fAvoidMSAA; }
 
 private:
     void init(const ContextOptions&,
@@ -148,6 +149,8 @@ private:
         bool fVertexInputDynamicState = false;
         // From VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT:
         bool fGraphicsPipelineLibrary = false;
+        // From VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT:
+        bool fMultisampledRenderToSingleSampled = false;
     };
     EnabledFeatures getEnabledFeatures(const VkPhysicalDeviceFeatures2* features,
                                        uint32_t physicalDeviceVersion);
@@ -190,11 +193,20 @@ private:
             const TextureInfo& srcTextureInfo,
             SkColorType dstColorType) const override;
 
+    /*
+     * Whether the texture supports multisampled-render-to-single-sampled.  When
+     * VK_EXT_multisampled_render_to_single_sampled is supported, all textures created by Graphite
+     * that are renderable will support this feature.  Textures imported into Graphite however
+     * depend on whether the application has created the image with the
+     * VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT flag.
+     */
+    bool msaaTextureRenderToSingleSampledSupport(const TextureInfo& info) const override;
+
     // Struct that determines and stores which sample count quantities a VkFormat supports.
     struct SupportedSampleCounts {
         void initSampleCounts(const skgpu::VulkanInterface*,
+                              const VulkanCaps&,
                               VkPhysicalDevice,
-                              const VkPhysicalDeviceProperties&,
                               VkFormat,
                               VkImageUsageFlags);
 
@@ -214,10 +226,7 @@ private:
             return 0;
         }
 
-        void init(const skgpu::VulkanInterface*,
-                  VkPhysicalDevice,
-                  const VkPhysicalDeviceProperties&,
-                  VkFormat);
+        void init(const skgpu::VulkanInterface*, const VulkanCaps&, VkPhysicalDevice, VkFormat);
 
         bool isTexturable(VkImageTiling) const;
         bool isRenderable(VkImageTiling, uint32_t sampleCount) const;
@@ -249,10 +258,7 @@ private:
 
     // A more lightweight equivalent to FormatInfo for depth/stencil VkFormats.
     struct DepthStencilFormatInfo {
-        void init(const skgpu::VulkanInterface*,
-                  VkPhysicalDevice,
-                  const VkPhysicalDeviceProperties&,
-                  VkFormat);
+        void init(const skgpu::VulkanInterface*, const VulkanCaps&, VkPhysicalDevice, VkFormat);
         bool isDepthStencilSupported(VkFormatFeatureFlags) const;
 
         VkFormatProperties fFormatProperties;
@@ -294,6 +300,7 @@ private:
 
     // Flags to enable workarounds for driver bugs
     bool fMustLoadFullImageForMSAA = false;
+    bool fAvoidMSAA = false;
 };
 
 } // namespace skgpu::graphite

@@ -76,6 +76,8 @@ void DescriptorDataToVkDescSetLayout(const VulkanSharedContext*,
 TextureFormat VkFormatToTextureFormat(VkFormat);
 VkFormat TextureFormatToVkFormat(TextureFormat);
 
+VkImageAspectFlags GetVkImageAspectFlags(TextureFormat);
+
 VkShaderStageFlags PipelineStageFlagsToVkShaderStageFlags(SkEnumBitMask<PipelineStageFlags>);
 
 // When multisampling is used, Graphite never retains the multisampled data at the end of the render
