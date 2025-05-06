@@ -1742,31 +1742,75 @@ std::pair<SkColorType, bool /*isRGBFormat*/> VulkanCaps::supportedReadPixelsColo
     return {kUnknown_SkColorType, false};
 }
 
-// 3 uint32s for the render step id, paint id, and write swizzle.
-static constexpr int kVulkanGraphicsPipelineKeyHeaderData32Count = 3;
+static constexpr uint32_t kFormatBits = 8;
+static constexpr uint32_t kSampleBits = 7;
+static constexpr uint32_t kLoadFromResolveBits = 1;
+
+static constexpr uint32_t kColorFormatOffset = 0;
+static constexpr uint32_t kColorNumSamplesOffset = kColorFormatOffset + kFormatBits;
+static constexpr uint32_t kDepthStencilFormatOffset = kColorNumSamplesOffset + kSampleBits;
+static constexpr uint32_t kDepthStencilNumSamplesOffset = kDepthStencilFormatOffset + kFormatBits;
+static constexpr uint32_t kLoadFromResolveOffset = kDepthStencilNumSamplesOffset + kSampleBits;
+
+static constexpr uint32_t kFormatMask = (1 << kFormatBits) - 1;
+static constexpr uint32_t kNumSamplesMask = (1 << kSampleBits) - 1;
+static constexpr uint32_t kLoadFromResolveMask = (1 << kLoadFromResolveBits) - 1;
+
+uint32_t VulkanCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderPassDesc) const {
+    // The render pass always has a color attachment, and maybe a depth-stencil attachment. An input
+    // attachment is always provided for compatibility purposes (even if not required). In
+    // truth, the existence of a resolve attachment or whether multisampled unresolve/resolve
+    // happens also does not affect the pipeline, but the render pass compatiblity rules are too
+    // restrictive. For that reason, one bit is used to indicate whether load-from-resolve is
+    // happening or not which informs everything else. Note that with
+    // VK_KHR_dynamic_rendering[_local_read] this bit is unneeded.
+    //
+    // The layout of the packed information is thus:
+    //
+    //     LSB                                                                     MSB
+    //     +-------------+--------------+----------+-----------+-----------------+---+
+    //     | ColorFormat | ColorSamples | DSFormat | DSSamples | LoadFromResolve | 0 |
+    //     +-------------+--------------+----------+-----------+-----------------+---+
+    //         8 bits         7 bits       8 bits     7 bits         1 bit
+    //
+    const auto& color = renderPassDesc.fColorAttachment;
+    const auto& depthStencil = renderPassDesc.fDepthStencilAttachment;
+    const bool loadMSAAFromResolve = RenderPassDescWillLoadMSAAFromResolve(renderPassDesc);
+
+    SkASSERT(color.fSampleCount <= kNumSamplesMask);
+    SkASSERT(depthStencil.fSampleCount <= kNumSamplesMask);
+
+    return (static_cast<uint32_t>(color.fFormat) << kColorFormatOffset) |
+           (color.fSampleCount << kColorNumSamplesOffset) |
+           (static_cast<uint32_t>(depthStencil.fFormat) << kDepthStencilFormatOffset) |
+           (depthStencil.fSampleCount << kDepthStencilNumSamplesOffset) |
+           (loadMSAAFromResolve << kLoadFromResolveOffset);
+}
+
+// 4 uint32s for the render step id, paint id, compatible render pass description, and write
+// swizzle.
+static constexpr int kPipelineKeyData32Count = 4;
+
+static constexpr int kPipelineKeyRenderStepIDIndex = 0;
+static constexpr int kPipelineKeyPaintParamsIDIndex = 1;
+static constexpr int kPipelineKeyRenderPassDescIndex = 2;
+static constexpr int kPipelineKeyWriteSwizzleIndex = 3;
 
 UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipelineDesc,
                                               const RenderPassDesc& renderPassDesc) const {
     UniqueKey pipelineKey;
     {
-        VulkanRenderPass::Metadata rpMetadata{renderPassDesc, /*compatibleOnly=*/true};
-
-        // The uint32s needed for a RenderPass is variable number, so consult rpMetaData to
-        // determine how many to reserve.
         UniqueKey::Builder builder(
-                &pipelineKey,
-                get_pipeline_domain(),
-                kVulkanGraphicsPipelineKeyHeaderData32Count + rpMetadata.keySize(),
-                "GraphicsPipeline");
+                &pipelineKey, get_pipeline_domain(), kPipelineKeyData32Count, "GraphicsPipeline");
 
-        int idx = 0;
         // Add GraphicsPipelineDesc information
-        builder[idx++] = static_cast<uint32_t>(pipelineDesc.renderStepID());
-        builder[idx++] = pipelineDesc.paintParamsID().asUInt();
-        // Add RenderPass info relevant for pipeline creation that's not captured in RenderPass keys
-        builder[idx++] = renderPassDesc.fWriteSwizzle.asKey();
+        builder[kPipelineKeyRenderStepIDIndex] = static_cast<uint32_t>(pipelineDesc.renderStepID());
+        builder[kPipelineKeyPaintParamsIDIndex] = pipelineDesc.paintParamsID().asUInt();
         // Add RenderPassDesc information
-        rpMetadata.addToKey(builder, idx);
+        builder[kPipelineKeyRenderPassDescIndex] =
+                this->getRenderPassDescKeyForPipeline(renderPassDesc);
+        // Add RenderPass info relevant for pipeline creation that's not captured in RenderPass keys
+        builder[kPipelineKeyWriteSwizzleIndex] = renderPassDesc.fWriteSwizzle.asKey();
 
         builder.finish();
     }
@@ -1779,65 +1823,52 @@ bool VulkanCaps::extractGraphicsDescs(const UniqueKey& key,
                                       RenderPassDesc* renderPassDesc,
                                       const RendererProvider* rendererProvider) const {
     SkASSERT(key.domain() == get_pipeline_domain());
-    SkASSERT(key.dataSize() >= 4 * kVulkanGraphicsPipelineKeyHeaderData32Count);
+    SkASSERT(key.dataSize() == 4 * kPipelineKeyData32Count);
 
     const uint32_t* rawKeyData = key.data();
 
-    SkASSERT(RenderStep::IsValidRenderStepID(rawKeyData[0]));
-    RenderStep::RenderStepID renderStepID = static_cast<RenderStep::RenderStepID>(rawKeyData[0]);
+    SkASSERT(RenderStep::IsValidRenderStepID(rawKeyData[kPipelineKeyRenderStepIDIndex]));
+    RenderStep::RenderStepID renderStepID =
+            static_cast<RenderStep::RenderStepID>(rawKeyData[kPipelineKeyRenderStepIDIndex]);
 
-    SkDEBUGCODE(const RenderStep* renderStep = rendererProvider->lookup(renderStepID);)
-    *pipelineDesc = GraphicsPipelineDesc(renderStepID, UniquePaintParamsID(rawKeyData[1]));
+    SkDEBUGCODE(const RenderStep* renderStep =
+                        rendererProvider->lookup(renderStepID);)* pipelineDesc =
+            GraphicsPipelineDesc(renderStepID,
+                                 UniquePaintParamsID(rawKeyData[kPipelineKeyPaintParamsIDIndex]));
     SkASSERT(renderStep->performsShading() == pipelineDesc->paintParamsID().isValid());
 
+    const uint32_t rpDescBits = rawKeyData[kPipelineKeyRenderPassDescIndex];
+    TextureFormat colorFormat =
+            static_cast<TextureFormat>((rpDescBits >> kColorFormatOffset) & kFormatMask);
+    uint8_t colorSamples = SkTo<uint8_t>((rpDescBits >> kColorNumSamplesOffset) & kNumSamplesMask);
+
+    TextureFormat depthStencilFormat =
+            static_cast<TextureFormat>((rpDescBits >> kDepthStencilFormatOffset) & kFormatMask);
+    uint8_t depthStencilSamples =
+            SkTo<uint8_t>((rpDescBits >> kDepthStencilNumSamplesOffset) & kNumSamplesMask);
+
+    const bool loadFromResolve =
+            ((rpDescBits >> kLoadFromResolveOffset) & kLoadFromResolveMask) != 0;
+
+    // Recreate the RenderPassDesc.  If the color attachment is multisampled, a resolve attachment
+    // is necessarily present.  The resolve attachment's load op will be based on loadFromResolve.
+    SkASSERT(colorSamples == depthStencilSamples ||
+             depthStencilFormat == TextureFormat::kUnsupported);
     *renderPassDesc = {};
-    renderPassDesc->fWriteSwizzle = SwizzleCtorAccessor::Make(rawKeyData[2] & 0xFFFF);
-
-    const uint32_t attachmentCount = rawKeyData[3] & 0xFF;
-    const uint32_t subpassCount = rawKeyData[3] >> 8;
-    SkASSERT(key.dataSize() ==
-             4 * (kVulkanGraphicsPipelineKeyHeaderData32Count + 1 + (attachmentCount + 1) / 2 + 1));
-    SkASSERT(subpassCount == 1 || subpassCount == 2);
-
-    SkASSERT(attachmentCount <= 3);
-    AttachmentDesc attachments[3] = {};
-
-    for (uint32_t i = 0; i < attachmentCount; i++) {
-        uint32_t desc = rawKeyData[4 + i / 2];
-        if (i % 2 == 0) {
-            desc &= 0xFFFF;
-        } else if (i % 2 == 1) {
-            desc >>= 16;
-        }
-
-        attachments[i].fFormat = static_cast<TextureFormat>(desc >> 8);
-        attachments[i].fLoadOp = static_cast<LoadOp>(desc >> 6 & 0x3);
-        attachments[i].fStoreOp = static_cast<StoreOp>(desc >> 4 & 0x3);
-        attachments[i].fSampleCount = desc & 0xF;
+    renderPassDesc->fColorAttachment = {colorFormat, LoadOp::kClear, StoreOp::kStore, colorSamples};
+    renderPassDesc->fDepthStencilAttachment = {
+            depthStencilFormat, LoadOp::kClear, StoreOp::kDiscard, depthStencilSamples};
+    if (colorSamples > 1) {
+        renderPassDesc->fColorResolveAttachment = {colorFormat,
+                                                   loadFromResolve ? LoadOp::kLoad : LoadOp::kClear,
+                                                   StoreOp::kStore,
+                                                   /*fSampleCount=*/1};
+        renderPassDesc->fColorAttachment.fStoreOp = StoreOp::kDiscard;
     }
 
-    const uint32_t attachmentIndices = rawKeyData[3 + (attachmentCount + 1) / 2 + 1];
-    const uint32_t colorIndex = attachmentIndices & 0xFF;
-    const uint32_t resolveIndex = attachmentIndices >> 8 & 0xFF;
-    const uint32_t depthIndex = attachmentIndices >> 16 & 0xFF;
-
-    if (colorIndex < 3) {
-        renderPassDesc->fColorAttachment = attachments[colorIndex];
-    }
-    if (resolveIndex < 3) {
-        renderPassDesc->fColorResolveAttachment = attachments[resolveIndex];
-
-        const bool loadMSAAFromResolve = subpassCount == 2;
-        if (loadMSAAFromResolve) {
-            renderPassDesc->fColorResolveAttachment.fLoadOp = LoadOp::kLoad;
-            renderPassDesc->fColorResolveAttachment.fStoreOp = StoreOp::kStore;
-        }
-    }
-    if (depthIndex < 3) {
-        renderPassDesc->fDepthStencilAttachment = attachments[depthIndex];
-    }
-
-    renderPassDesc->fSampleCount = renderPassDesc->fColorAttachment.fSampleCount;
+    renderPassDesc->fSampleCount = colorSamples;
+    renderPassDesc->fWriteSwizzle =
+            SwizzleCtorAccessor::Make(rawKeyData[kPipelineKeyWriteSwizzleIndex]);
     renderPassDesc->fDstReadStrategy = this->getDstReadStrategy();
 
     return true;
