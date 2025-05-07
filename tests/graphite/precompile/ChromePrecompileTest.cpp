@@ -887,6 +887,26 @@ static const PipelineLabel kCases[] = {
                "Compose [ LocalMatrix [ Compose [ LinearGradient8 ColorSpaceTransformSRGB ] ] Dither ] SrcOver" },
 };
 
+bool skip(const char* str) {
+    if (strstr(str, "AnalyticClip")) {  // we have to think about this a bit more
+        return true;
+    }
+    if (strstr(str, "AnalyticBlurRenderStep")) { // currently internal only
+        return true;
+    }
+    if (strstr(str, "KnownRuntimeEffect_1DBlur4")) {  // we have to revise how we do blurring
+        return true;
+    }
+    if (strstr(str, "KnownRuntimeEffect_1DBlur16")) {  // we have to revise how we do blurring
+        return true;
+    }
+    if (strstr(str, "KnownRuntimeEffect_Luma")) {  // this also seems too specialized
+        return true;
+    }
+
+    return false;
+}
+
 // The pipeline strings were created using the Dawn Metal backend so that is the only viable
 // comparison
 bool is_dawn_metal_context_type(skgpu::ContextType type) {
@@ -933,7 +953,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
     }
 #endif
 
-    PipelineLabelInfoCollector collector({ kCases });
+    PipelineLabelInfoCollector collector({ kCases }, skip);
 
     static const size_t kChosenCase = -1; // only test this entry in 'kPrecompileCases'
     for (size_t i = 0; i < std::size(kPrecompileCases); ++i) {

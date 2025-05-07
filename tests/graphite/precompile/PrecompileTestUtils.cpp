@@ -89,6 +89,21 @@ PaintOptions TransparentPaintImagePremulHWOnlySrcover() {
     return paintOptions;
 }
 
+PaintOptions TransparentPaintImageSRGBHWOnlySrcover() {
+    SkColorInfo ci { kRGBA_8888_SkColorType,
+                     kPremul_SkAlphaType,
+                     SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kAdobeRGB) };
+
+    PaintOptions paintOptions;
+
+    paintOptions.setShaders({ PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                       { &ci, 1 },
+                                                       {}) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setPaintColorIsOpaque(false);
+    return paintOptions;
+}
+
 PaintOptions TransparentPaintSrcover() {
     PaintOptions paintOptions;
 
@@ -293,13 +308,23 @@ RenderPassProperties get_render_pass_properties(const char* str) {
     } kRenderPassPropertiesMapping[] = {
         { kR_1_D,     "RP((R8+D16 x1).a000)" },
         { kBGRA_1_D,  "RP((BGRA8+D16 x1).rgba)" },
+        { kRGBA_1_D,  "RP((RGBA8+D16 x1).rgba)" },
         // These RPPs can generate two strings when Caps::loadOpAffectsMSAAPipelines.
         { kR_4_DS,    "RP((R8+D24_S8 x4->1).a000)" },
         { kR_4_DS,    "RP((R8+D24_S8 x4->1).a000 w/ msaa load)" },
         { kBGRA_4_D,  "RP((BGRA8+D16 x4->1).rgba)" },
         { kBGRA_4_D,  "RP((BGRA8+D16 x4->1).rgba w/ msaa load)" },
+
+        { kRGBA_4_D,  "RP((RGBA8+D16 x4->1).rgba)" },
+        { kRGBA_4_D,  "RP((RGBA8+D16 x4->1).rgba w/ msaa load)" },
+
         { kBGRA_4_DS, "RP((BGRA8+D24_S8 x4->1).rgba)" },
         { kBGRA_4_DS, "RP((BGRA8+D24_S8 x4->1).rgba w/ msaa load)" },
+
+        { kRGBA_4_DS, "RP((RGBA8+D24_S8 x4->1).rgba)" },
+        { kRGBA_4_DS, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load)" },
+
+        { kRGBA16F_1_D, "RP((RGBA16F+D16 x1).rgba)" },
     };
 
     for (const auto& rppm : kRenderPassPropertiesMapping) {
@@ -396,26 +421,6 @@ std::string rm_whitespace(const std::string& s) {
     return s.substr(start, (end - start) + 1);
 }
 
-[[maybe_unused]] bool skip(const char* str) {
-    if (strstr(str, "AnalyticClip")) {  // we have to think about this a bit more
-        return true;
-    }
-    if (strstr(str, "AnalyticBlurRenderStep")) { // currently internal only
-        return true;
-    }
-    if (strstr(str, "KnownRuntimeEffect_1DBlur4")) {  // we have to revise how we do blurring
-        return true;
-    }
-    if (strstr(str, "KnownRuntimeEffect_1DBlur16")) {  // we have to revise how we do blurring
-        return true;
-    }
-    if (strstr(str, "KnownRuntimeEffect_Luma")) {  // this also seems too specialized
-        return true;
-    }
-
-    return false;
-}
-
 } // anonymous namespace
 
 bool PrecompileSettings::isSubsetOf(const PrecompileSettings& superSet) const {
@@ -426,7 +431,8 @@ bool PrecompileSettings::isSubsetOf(const PrecompileSettings& superSet) const {
            fRenderPassProps == superSet.fRenderPassProps;
 }
 
-PipelineLabelInfoCollector::PipelineLabelInfoCollector(SkSpan<const PipelineLabel> cases) {
+PipelineLabelInfoCollector::PipelineLabelInfoCollector(SkSpan<const PipelineLabel> cases,
+                                                       SkipFunc skip) {
     for (size_t i = 0; i < std::size(cases); ++i) {
         const char* testStr = cases[i].fString;
 
@@ -438,7 +444,8 @@ PipelineLabelInfoCollector::PipelineLabelInfoCollector(SkSpan<const PipelineLabe
     }
 }
 
-int PipelineLabelInfoCollector::processLabel(const std::string& precompiledLabel, int precompileCase) {
+int PipelineLabelInfoCollector::processLabel(const std::string& precompiledLabel,
+                                             int precompileCase) {
     ++fNumLabelsProcessed;
 
     auto result = fMap.find(precompiledLabel.c_str());
@@ -448,6 +455,8 @@ int PipelineLabelInfoCollector::processLabel(const std::string& precompiledLabel
         return -1;
     }
 
+    // We expect each PrecompileSettings case to handle disjoint sets of labels. If this
+    // assert fires some pair of PrecompileSettings are handling the same case.
     SkASSERT(result->second.fPrecompileCase == PipelineLabelInfo::kUninit);
     result->second.fPrecompileCase = precompileCase;
     return result->second.fCasesIndex;

@@ -13,15 +13,15 @@
 #include "include/gpu/graphite/precompile/Precompile.h"
 
 // Print out a final report that includes missed cases in 'kCases'
-#define FINAL_REPORT
+//#define FINAL_REPORT
 
 // Print out the cases (in 'kCases') that are covered by each 'kPrecompileCases' case
 // Also lists the utilization of each 'kPrecompileCases' case
-#define PRINT_COVERAGE
+//#define PRINT_COVERAGE
 
 // Print out all the generated labels and whether they were found in 'kCases'.
 // This is usually used along with the 'kChosenCase' variable.
-#define PRINT_GENERATED_LABELS
+//#define PRINT_GENERATED_LABELS
 
 namespace PrecompileTestUtils {
 
@@ -40,7 +40,9 @@ struct PipelineLabel {
 
 class PipelineLabelInfoCollector {
 public:
-    explicit PipelineLabelInfoCollector(SkSpan<const PipelineLabel> cases);
+    typedef bool (*SkipFunc)(const char*);
+
+    explicit PipelineLabelInfoCollector(SkSpan<const PipelineLabel> cases, SkipFunc);
 
     int processLabel(const std::string& precompiledLabel, int precompileCase);
 
@@ -94,6 +96,7 @@ skgpu::graphite::PaintOptions LinearGradSmSrcover();
 skgpu::graphite::PaintOptions LinearGradSRGBSmMedSrcover();
 skgpu::graphite::PaintOptions TransparentPaintImagePremulHWAndClampSrcover();
 skgpu::graphite::PaintOptions TransparentPaintImagePremulHWOnlySrcover();
+skgpu::graphite::PaintOptions TransparentPaintImageSRGBHWOnlySrcover();
 skgpu::graphite::PaintOptions TransparentPaintSrcover();
 skgpu::graphite::PaintOptions SolidClearSrcSrcover();
 skgpu::graphite::PaintOptions SolidSrcSrcover();
@@ -137,10 +140,26 @@ const skgpu::graphite::RenderPassProperties kBGRA_1_D {
     /* fRequiresMSAA= */ false
 };
 
+// RGBA version of the above
+const skgpu::graphite::RenderPassProperties kRGBA_1_D {
+    skgpu::graphite::DepthStencilFlags::kDepth,
+    kRGBA_8888_SkColorType,
+    /* fDstCS= */ nullptr,
+    /* fRequiresMSAA= */ false
+};
+
 // MSAA BGRA w/ just depth
 const skgpu::graphite::RenderPassProperties kBGRA_4_D {
     skgpu::graphite::DepthStencilFlags::kDepth,
     kBGRA_8888_SkColorType,
+    /* fDstCS= */ nullptr,
+    /* fRequiresMSAA= */ true
+};
+
+// RGBA version of the above
+const skgpu::graphite::RenderPassProperties kRGBA_4_D {
+    skgpu::graphite::DepthStencilFlags::kDepth,
+    kRGBA_8888_SkColorType,
     /* fDstCS= */ nullptr,
     /* fRequiresMSAA= */ true
 };
@@ -153,10 +172,26 @@ const skgpu::graphite::RenderPassProperties kBGRA_4_DS {
     /* fRequiresMSAA= */ true
 };
 
+// RGBA version of the above
+const skgpu::graphite::RenderPassProperties kRGBA_4_DS {
+    skgpu::graphite::DepthStencilFlags::kDepthStencil,
+    kRGBA_8888_SkColorType,
+    /* fDstCS= */ nullptr,
+    /* fRequiresMSAA= */ true
+};
+
 // The same as kBGRA_1_D but w/ an SRGB colorSpace
 const skgpu::graphite::RenderPassProperties kBGRA_1_D_SRGB {
     skgpu::graphite::DepthStencilFlags::kDepth,
     kBGRA_8888_SkColorType,
+    SkColorSpace::MakeSRGB(),
+    /* fRequiresMSAA= */ false
+};
+
+// RGBA version of the above
+const skgpu::graphite::RenderPassProperties kRGBA_1_D_SRGB {
+    skgpu::graphite::DepthStencilFlags::kDepth,
+    kRGBA_8888_SkColorType,
     SkColorSpace::MakeSRGB(),
     /* fRequiresMSAA= */ false
 };
@@ -178,6 +213,14 @@ const skgpu::graphite::RenderPassProperties kBGRA_4_DS_SRGB {
     /* fRequiresMSAA= */ true
 };
 
+// RGBA version of the above
+const skgpu::graphite::RenderPassProperties kRGBA_4_DS_SRGB {
+    skgpu::graphite::DepthStencilFlags::kDepthStencil,
+    kRGBA_8888_SkColorType,
+    SkColorSpace::MakeSRGB(),
+    /* fRequiresMSAA= */ true
+};
+
 // The same as kBGRA_4_DS but w/ an Adobe RGB colorSpace
 const skgpu::graphite::RenderPassProperties kBGRA_4_DS_Adobe {
     skgpu::graphite::DepthStencilFlags::kDepthStencil,
@@ -185,6 +228,22 @@ const skgpu::graphite::RenderPassProperties kBGRA_4_DS_Adobe {
     SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
                         SkNamedGamut::kAdobeRGB),
     /* fRequiresMSAA= */ true
+};
+
+// Single sampled RGBA16F w/ just depth
+const skgpu::graphite::RenderPassProperties kRGBA16F_1_D {
+    skgpu::graphite::DepthStencilFlags::kDepth,
+    kRGBA_F16_SkColorType,
+    /* fDstCS= */ nullptr,
+    /* fRequiresMSAA= */ false
+};
+
+// The same as kRGBA16F_1_D but w/ an SRGB colorSpace
+const skgpu::graphite::RenderPassProperties kRGBA16F_1_D_SRGB {
+        skgpu::graphite::DepthStencilFlags::kDepth,
+        kRGBA_F16_SkColorType,
+        SkColorSpace::MakeSRGB(),
+        /* fRequiresMSAA= */ false
 };
 
 constexpr skgpu::graphite::DrawTypeFlags kRRectAndNonAARect =
