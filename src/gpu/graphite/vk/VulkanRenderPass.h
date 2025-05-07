@@ -53,9 +53,6 @@ public:
         int8_t fColorAttachIndex;
         int8_t fColorResolveIndex;
         int8_t fDepthStencilIndex;
-        // To minimize pipeline compiles, there is always a self-dependency input attachment for the
-        // color attachment, but for a given render pass it may never actually be used.
-        bool fUsesInputAttachment;
 
         // Accumulate attachments into a container to mimic future structure in RenderPassDesc
         // Currently there can be up to three: color, resolve, depth+stencil
