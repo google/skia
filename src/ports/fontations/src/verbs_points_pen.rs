@@ -149,6 +149,10 @@ pub fn get_path_verbs_points(
                 Err(_) => None,
                 Ok(metrics) => {
                     scaler_metrics.has_overlaps = metrics.has_overlaps;
+                    (
+                        scaler_metrics.has_adjusted_advance,
+                        scaler_metrics.adjusted_advance,
+                    ) = metrics.advance_width.map_or((false, 0.0), |a| (true, a));
                     Some(())
                 }
             }

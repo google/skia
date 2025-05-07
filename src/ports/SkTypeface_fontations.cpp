@@ -443,7 +443,9 @@ public:
             return false;
         }
         SkPath glyphPath;
-        if (!generateYScalePathForGlyphId(glyphId, &glyphPath, fScale.y(), *fHintingInstance)) {
+        fontations_ffi::BridgeScalerMetrics scalerMetrics;
+        if (!generatePathForGlyphId(
+                    glyphId, &glyphPath, fScale.y(), *fHintingInstance, scalerMetrics)) {
             return false;
         }
         height = glyphPath.getBounds().height();
@@ -454,13 +456,11 @@ public:
     // otherwise the size is controlled by the configured hintingInstance.
     // hintingInstance argument is needed as COLRv1 drawing performs unhinted,
     // unscaled path retrieval.
-    bool generateYScalePathForGlyphId(
-            uint16_t glyphId,
-            SkPath* path,
-            float yScale,
-            const fontations_ffi::BridgeHintingInstance& hintingInstance) {
-        fontations_ffi::BridgeScalerMetrics scalerMetrics;
-
+    bool generatePathForGlyphId(uint16_t glyphId,
+                                SkPath* path,
+                                float yScale,
+                                const fontations_ffi::BridgeHintingInstance& hintingInstance,
+                                fontations_ffi::BridgeScalerMetrics& scalerMetrics) {
         // See https://crbug.com/390889644 - while SkScalerContexts are single-thread
         // in general, generateYScalePathForGlyphId() can be called from a COLRv1
         // SkDrawable as well (see generateDrawable()). For this reason access to the
@@ -534,20 +534,26 @@ protected:
         x_advance = fontations_ffi::unhinted_advance_width_or_zero(
                 fBridgeFontRef, fScale.y(), fBridgeNormalizedCoords, glyph.getGlyphID());
         if (!doLinearMetrics) {
-            float hinted_advance = 0;
-            fontations_ffi::scaler_hinted_advance_width(
-                    fOutlines, *fHintingInstance, glyph.getGlyphID(), hinted_advance);
-            // FreeType rounds the advance to full pixels when in hinting modes.
-            // Match FreeType and round here.
-            // See
-            // * https://gitlab.freedesktop.org/freetype/freetype/-/blob/57617782464411201ce7bbc93b086c1b4d7d84a5/src/autofit/afloader.c#L422
-            // * https://gitlab.freedesktop.org/freetype/freetype/-/blob/57617782464411201ce7bbc93b086c1b4d7d84a5/src/truetype/ttgload.c#L823
-            hinted_advance = roundf(hinted_advance);
-            // TODO(drott): Remove this workaround for fontations returning 0
-            // for a space glyph without contours, compare
-            // https://github.com/googlefonts/fontations/issues/905
-            if (hinted_advance != x_advance && hinted_advance != 0) {
-                x_advance = hinted_advance;
+            fontations_ffi::BridgeScalerMetrics scalerMetrics;
+            bool modified;
+            SkPath path;
+            if (generatePathImpl(glyph.getGlyphID(), &path, &modified, scalerMetrics)) {
+                mx.generatedPath = {path, modified};
+
+                if (scalerMetrics.has_adjusted_advance) {
+                    // FreeType rounds the advance to full pixels when in hinting modes.
+                    // Match FreeType and round here.
+                    // See
+                    // * https://gitlab.freedesktop.org/freetype/freetype/-/blob/57617782464411201ce7bbc93b086c1b4d7d84a5/src/autofit/afloader.c#L422
+                    // * https://gitlab.freedesktop.org/freetype/freetype/-/blob/57617782464411201ce7bbc93b086c1b4d7d84a5/src/truetype/ttgload.c#L823
+                    float hinted_advance = roundf(scalerMetrics.adjusted_advance);
+                    // TODO(drott): Remove this workaround for fontations returning 0
+                    // for a space glyph without contours, compare
+                    // https://github.com/googlefonts/fontations/issues/905
+                    if (hinted_advance != x_advance && hinted_advance != 0) {
+                        x_advance = hinted_advance;
+                    }
+                }
             }
         }
         mx.advance = fRemainingMatrix.mapXY(x_advance, SkFloatToScalar(0.f));
@@ -750,11 +756,12 @@ protected:
         }
     }
 
-    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override {
-        SkASSERT(glyph.extraBits() == ScalerContextBits::PATH);
-
-        bool result = generateYScalePathForGlyphId(
-                glyph.getGlyphID(), path, fScale.y(), *fHintingInstance);
+    bool generatePathImpl(SkGlyphID glyphId,
+                          SkPath* path,
+                          bool* modified,
+                          fontations_ffi::BridgeScalerMetrics& scalerMetrics) {
+        bool result =
+                generatePathForGlyphId(glyphId, path, fScale.y(), *fHintingInstance, scalerMetrics);
         if (!result) {
             return false;
         }
@@ -765,6 +772,14 @@ protected:
             *modified = true;
         }
         return true;
+    }
+
+    // For hinted glyphs, generateMetrics provides a shortcut to set a generated path on
+    // SkGlyph - so this method will not be called when a path has already been set.
+    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override {
+        SkASSERT(glyph.extraBits() == ScalerContextBits::PATH);
+        fontations_ffi::BridgeScalerMetrics scalerMetrics;
+        return generatePathImpl(glyph.getGlyphID(), path, modified, scalerMetrics);
     }
 
     bool drawCOLRGlyph(const SkGlyph& glyph, SkColor foregroundColor, SkCanvas* canvas) {
@@ -1286,7 +1301,9 @@ void ColorPainter::pop_transform() { fCanvas.restore(); }
 void ColorPainter::push_clip_glyph(uint16_t glyph_id) {
     fCanvas.save();
     SkPath path;
-    fScalerContext.generateYScalePathForGlyphId(glyph_id, &path, fUpem, *fontations_ffi::no_hinting_instance());
+    fontations_ffi::BridgeScalerMetrics scalerMetrics;
+    fScalerContext.generatePathForGlyphId(
+            glyph_id, &path, fUpem, *fontations_ffi::no_hinting_instance(), scalerMetrics);
     fCanvas.clipPath(path, fAntialias);
 }
 
@@ -1319,7 +1336,9 @@ void ColorPainter::fill_solid(uint16_t palette_index, float alpha) {
 
 void ColorPainter::fill_glyph_solid(uint16_t glyph_id, uint16_t palette_index, float alpha) {
     SkPath path;
-    fScalerContext.generateYScalePathForGlyphId(glyph_id, &path, fUpem, *fontations_ffi::no_hinting_instance());
+    fontations_ffi::BridgeScalerMetrics scalerMetrics;
+    fScalerContext.generatePathForGlyphId(
+            glyph_id, &path, fUpem, *fontations_ffi::no_hinting_instance(), scalerMetrics);
 
     SkPaint paint;
     configure_solid_paint(palette_index, alpha, paint);
@@ -1382,7 +1401,9 @@ void ColorPainter::fill_glyph_linear(uint16_t glyph_id,
                                      fontations_ffi::BridgeColorStops& bridge_stops,
                                      uint8_t extend_mode) {
     SkPath path;
-    fScalerContext.generateYScalePathForGlyphId(glyph_id, &path, fUpem, *fontations_ffi::no_hinting_instance());
+    fontations_ffi::BridgeScalerMetrics scalerMetrics;
+    fScalerContext.generatePathForGlyphId(
+            glyph_id, &path, fUpem, *fontations_ffi::no_hinting_instance(), scalerMetrics);
 
     SkPaint paint;
     SkMatrix paintTransform = SkMatrixFromFontationsTransform(transform);
@@ -1539,7 +1560,9 @@ void ColorPainter::fill_glyph_radial(uint16_t glyph_id,
                                      fontations_ffi::BridgeColorStops& bridge_stops,
                                      uint8_t extend_mode) {
     SkPath path;
-    fScalerContext.generateYScalePathForGlyphId(glyph_id, &path, fUpem, *fontations_ffi::no_hinting_instance());
+    fontations_ffi::BridgeScalerMetrics scalerMetrics;
+    fScalerContext.generatePathForGlyphId(
+            glyph_id, &path, fUpem, *fontations_ffi::no_hinting_instance(), scalerMetrics);
 
     SkPaint paint;
     SkMatrix paintTransform = SkMatrixFromFontationsTransform(transform);
@@ -1604,7 +1627,9 @@ void ColorPainter::fill_glyph_sweep(uint16_t glyph_id,
                                     fontations_ffi::BridgeColorStops& bridge_stops,
                                     uint8_t extend_mode) {
     SkPath path;
-    fScalerContext.generateYScalePathForGlyphId(glyph_id, &path, fUpem, *fontations_ffi::no_hinting_instance());
+    fontations_ffi::BridgeScalerMetrics scalerMetrics;
+    fScalerContext.generatePathForGlyphId(
+            glyph_id, &path, fUpem, *fontations_ffi::no_hinting_instance(), scalerMetrics);
 
     SkPaint paint;
     SkMatrix paintTransform = SkMatrixFromFontationsTransform(transform);
@@ -1642,7 +1667,9 @@ void BoundsPainter::pop_transform() {
 
 void BoundsPainter::push_clip_glyph(uint16_t glyph_id) {
     SkPath path;
-    fScalerContext.generateYScalePathForGlyphId(glyph_id, &path, fUpem, *fontations_ffi::no_hinting_instance());
+    fontations_ffi::BridgeScalerMetrics scalerMetrics;
+    fScalerContext.generatePathForGlyphId(
+            glyph_id, &path, fUpem, *fontations_ffi::no_hinting_instance(), scalerMetrics);
     path.transform(fMatrixStack.back());
     fBounds.join(path.getBounds());
 }
