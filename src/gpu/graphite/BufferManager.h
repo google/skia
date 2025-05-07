@@ -290,10 +290,7 @@ private:
     struct BufferInfo {
         BufferInfo(BufferType type, const Caps* caps);
 
-        bool createAndUpdateBindings(ResourceProvider*,
-                                     Context*,
-                                     QueueManager*,
-                                     GlobalCache*,
+        bool createAndUpdateBindings(ResourceProvider*, Context*, QueueManager*, GlobalCache*,
                                      std::string_view label) const;
         void reset() {
             fData.clear();

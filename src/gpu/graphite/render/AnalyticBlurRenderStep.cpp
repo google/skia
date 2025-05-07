@@ -42,10 +42,10 @@ AnalyticBlurRenderStep::AnalyticBlurRenderStep()
                       {"depth", SkSLType::kFloat}},
                      PrimitiveType::kTriangles,
                      kDirectDepthGreaterPass,
-                     /*vertexAttrs=*/
+                     /*staticAttrs=*/ {},
+                     /*appendAttrs=*/
                      {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
                       {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}},
-                     /*instanceAttrs=*/{},
                      /*varyings=*/
                      // scaledShapeCoords are the fragment coordinates in local shape space, where
                      // the shape has been scaled to device space but not translated or rotated.

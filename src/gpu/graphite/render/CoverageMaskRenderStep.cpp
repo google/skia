@@ -65,8 +65,8 @@ CoverageMaskRenderStep::CoverageMaskRenderStep()
                      /*uniforms=*/{{"maskToDeviceRemainder", SkSLType::kFloat3x3}},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGreaterPass,
-                     /*vertexAttrs=*/{},
-                     /*instanceAttrs=*/
+                     /*staticAttrs=*/ {},
+                     /*appendAttrs=*/
                      // Draw bounds and mask bounds are in normalized relative to the mask texture,
                      // but 'drawBounds' is stored in float since the coords may map outside of
                      // [0,1] for inverse-filled masks. 'drawBounds' is relative to the logical mask

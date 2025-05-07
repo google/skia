@@ -590,18 +590,18 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
 
     // Vertex state
     std::array<wgpu::VertexBufferLayout, kNumVertexBuffers> vertexBufferLayouts;
-    // Vertex buffer layout
-    std::vector<wgpu::VertexAttribute> vertexAttributes;
+    // Static data buffer layout
+    std::vector<wgpu::VertexAttribute> staticDataAttributes;
     {
-        auto arrayStride = create_vertex_attributes(step->vertexAttributes(),
+        auto arrayStride = create_vertex_attributes(step->staticAttributes(),
                                                     0,
-                                                    &vertexAttributes);
-        auto& layout = vertexBufferLayouts[kVertexBufferIndex];
+                                                    &staticDataAttributes);
+        auto& layout = vertexBufferLayouts[kStaticDataBufferIndex];
         if (arrayStride) {
             layout.arrayStride = arrayStride;
             layout.stepMode = wgpu::VertexStepMode::Vertex;
-            layout.attributeCount = vertexAttributes.size();
-            layout.attributes = vertexAttributes.data();
+            layout.attributeCount = staticDataAttributes.size();
+            layout.attributes = staticDataAttributes.data();
         } else {
             layout.arrayStride = 0;
 #if defined(__EMSCRIPTEN__)
@@ -614,18 +614,20 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
         }
     }
 
-    // Instance buffer layout
-    std::vector<wgpu::VertexAttribute> instanceAttributes;
+    // Append data buffer layout
+    std::vector<wgpu::VertexAttribute> appendDataAttributes;
     {
-        auto arrayStride = create_vertex_attributes(step->instanceAttributes(),
-                                                    step->vertexAttributes().size(),
-                                                    &instanceAttributes);
-        auto& layout = vertexBufferLayouts[kInstanceBufferIndex];
+        // Note: the shaderLocationOffset in this function call needs to be the staticAttributeSize
+        auto arrayStride = create_vertex_attributes(step->appendAttributes(),
+                                                    step->staticAttributes().size(),
+                                                    &appendDataAttributes);
+        auto& layout = vertexBufferLayouts[kAppendDataBufferIndex];
         if (arrayStride) {
             layout.arrayStride = arrayStride;
-            layout.stepMode = wgpu::VertexStepMode::Instance;
-            layout.attributeCount = instanceAttributes.size();
-            layout.attributes = instanceAttributes.data();
+            layout.stepMode = step->appendsVertices() ? wgpu::VertexStepMode::Vertex :
+                                                        wgpu::VertexStepMode::Instance;
+            layout.attributeCount = appendDataAttributes.size();
+            layout.attributes = appendDataAttributes.data();
         } else {
             layout.arrayStride = 0;
 #if defined(__EMSCRIPTEN__)

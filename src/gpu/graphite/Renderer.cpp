@@ -14,24 +14,24 @@ RenderStep::RenderStep(RenderStepID renderStepID,
                        std::initializer_list<Uniform> uniforms,
                        PrimitiveType primitiveType,
                        DepthStencilSettings depthStencilSettings,
-                       SkSpan<const Attribute> vertexAttrs,
-                       SkSpan<const Attribute> instanceAttrs,
+                       SkSpan<const Attribute> staticAttrs,
+                       SkSpan<const Attribute> appendAttrs,
                        SkSpan<const Varying> varyings)
         : fRenderStepID(renderStepID)
         , fFlags(flags)
         , fPrimitiveType(primitiveType)
         , fDepthStencilSettings(depthStencilSettings)
         , fUniforms(uniforms)
-        , fVertexAttrs(vertexAttrs.begin(), vertexAttrs.end())
-        , fInstanceAttrs(instanceAttrs.begin(), instanceAttrs.end())
+        , fStaticAttrs(staticAttrs.begin(), staticAttrs.end())
+        , fAppendAttrs(appendAttrs.begin(), appendAttrs.end())
         , fVaryings(varyings.begin(), varyings.end())
-        , fVertexStride(0)
-        , fInstanceStride(0) {
-    for (auto v : this->vertexAttributes()) {
-        fVertexStride += v.sizeAlign4();
+        , fStaticDataStride(0)
+        , fAppendDataStride(0) {
+    for (auto v : this->staticAttributes()) {
+        fStaticDataStride += v.sizeAlign4();
     }
-    for (auto i : this->instanceAttributes()) {
-        fInstanceStride += i.sizeAlign4();
+    for (auto i : this->appendAttributes()) {
+        fAppendDataStride += i.sizeAlign4();
     }
 }
 

@@ -389,10 +389,28 @@ void MtlCommandBuffer::addDrawPass(const DrawPass* drawPass) {
                 this->bindUniformBuffer(bub->fInfo, bub->fSlot);
                 break;
             }
-            case DrawPassCommands::Type::kBindDrawBuffers: {
-                auto bdb = static_cast<DrawPassCommands::BindDrawBuffers*>(cmdPtr);
-                this->bindDrawBuffers(
-                        bdb->fVertices, bdb->fInstances, bdb->fIndices, bdb->fIndirect);
+            case DrawPassCommands::Type::kBindStaticDataBuffer: {
+                auto bdb = static_cast<DrawPassCommands::BindStaticDataBuffer*>(cmdPtr);
+                this->bindInputBuffer(bdb->fStaticData.fBuffer, bdb->fStaticData.fOffset,
+                                      MtlGraphicsPipeline::kStaticDataBufferIndex);
+                break;
+            }
+            case DrawPassCommands::Type::kBindAppendDataBuffer: {
+                auto bdb = static_cast<DrawPassCommands::BindAppendDataBuffer*>(cmdPtr);
+                this->bindInputBuffer(bdb->fAppendData.fBuffer, bdb->fAppendData.fOffset,
+                                      MtlGraphicsPipeline::kAppendDataBufferIndex);
+                break;
+            }
+            case DrawPassCommands::Type::kBindIndexBuffer: {
+                auto bdb = static_cast<DrawPassCommands::BindIndexBuffer*>(cmdPtr);
+                this->bindIndexBuffer(
+                        bdb->fIndices.fBuffer, bdb->fIndices.fOffset);
+                break;
+            }
+            case DrawPassCommands::Type::kBindIndirectBuffer: {
+                auto bdb = static_cast<DrawPassCommands::BindIndirectBuffer*>(cmdPtr);
+                this->bindIndirectBuffer(
+                        bdb->fIndirect.fBuffer, bdb->fIndirect.fOffset);
                 break;
             }
             case DrawPassCommands::Type::kBindTexturesAndSamplers: {
@@ -527,37 +545,12 @@ void MtlCommandBuffer::bindUniformBuffer(const BindBufferInfo& info, UniformSlot
     fActiveRenderCommandEncoder->setFragmentBuffer(mtlBuffer, info.fOffset, bufferIndex);
 }
 
-void MtlCommandBuffer::bindDrawBuffers(const BindBufferInfo& vertices,
-                                       const BindBufferInfo& instances,
-                                       const BindBufferInfo& indices,
-                                       const BindBufferInfo& indirect) {
-    this->bindVertexBuffers(vertices.fBuffer,
-                            vertices.fOffset,
-                            instances.fBuffer,
-                            instances.fOffset);
-    this->bindIndexBuffer(indices.fBuffer, indices.fOffset);
-    this->bindIndirectBuffer(indirect.fBuffer, indirect.fOffset);
-}
-
-void MtlCommandBuffer::bindVertexBuffers(const Buffer* vertexBuffer,
-                                         size_t vertexOffset,
-                                         const Buffer* instanceBuffer,
-                                         size_t instanceOffset) {
+void MtlCommandBuffer::bindInputBuffer(const Buffer* buffer, size_t offset, uint32_t bindingIndex) {
     SkASSERT(fActiveRenderCommandEncoder);
-
-    if (vertexBuffer) {
-        id<MTLBuffer> mtlBuffer = static_cast<const MtlBuffer*>(vertexBuffer)->mtlBuffer();
-        // Metal requires buffer offsets to be aligned to the data type, which is at most 4 bytes
-        // since we use [[attribute]] to automatically unpack float components into SIMD arrays.
-        SkASSERT((vertexOffset & 0b11) == 0);
-        fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, vertexOffset,
-                                                     MtlGraphicsPipeline::kVertexBufferIndex);
-    }
-    if (instanceBuffer) {
-        id<MTLBuffer> mtlBuffer = static_cast<const MtlBuffer*>(instanceBuffer)->mtlBuffer();
-        SkASSERT((instanceOffset & 0b11) == 0);
-        fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, instanceOffset,
-                                                     MtlGraphicsPipeline::kInstanceBufferIndex);
+    if (buffer) {
+        id<MTLBuffer> mtlBuffer = static_cast<const MtlBuffer*>(buffer)->mtlBuffer();
+        SkASSERT((offset & 0b11) == 0);
+        fActiveRenderCommandEncoder->setVertexBuffer(mtlBuffer, offset, bindingIndex);
     }
 }
 

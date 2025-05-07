@@ -1042,7 +1042,7 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
     const ResourceBindingRequirements& bindingReqs = caps->resourceBindingRequirements();
     std::string sksl = emit_intrinsic_constants(bindingReqs);
 
-    if (step->numVertexAttributes() > 0 || step->numInstanceAttributes() > 0) {
+    if (step->numStaticAttributes() > 0 || step->numAppendAttributes() > 0) {
         int attr = 0;
         auto add_attrs = [&sksl, &attr](SkSpan<const Attribute> attrs) {
             for (auto a : attrs) {
@@ -1051,17 +1051,17 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
                 SkSL::String::appendf(&sksl, " %s;\n", a.name());
             }
         };
-        if (step->numVertexAttributes() > 0) {
+        if (step->numStaticAttributes() > 0) {
 #if defined(SK_DEBUG)
-            sksl.append("// vertex attrs\n");
+            sksl.append("// static attrs\n");
 #endif
-            add_attrs(step->vertexAttributes());
+            add_attrs(step->staticAttributes());
         }
-        if (step->numInstanceAttributes() > 0) {
+        if (step->numAppendAttributes() > 0) {
 #if defined(SK_DEBUG)
-            sksl.append("// instance attrs\n");
+            sksl.append("// append attrs\n");
 #endif
-            add_attrs(step->instanceAttributes());
+            add_attrs(step->appendAttributes());
         }
     }
 

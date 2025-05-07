@@ -368,17 +368,17 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGreaterPass,
-                     /*vertexAttrs=*/{
-                            {"cornerID", VertexAttribType::kUInt, SkSLType::kUInt},
-                            {"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                            {"normal", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                            // TODO: These values are all +1/0/-1, or +1/0, so could be packed
-                            // much more densely than as three floats.
-                            {"normalScale", VertexAttribType::kFloat, SkSLType::kFloat},
-                            {"centerWeight", VertexAttribType::kFloat, SkSLType::kFloat}
+                     /*staticAttrs=*/{
+                             {"cornerID", VertexAttribType::kUInt, SkSLType::kUInt},
+                             {"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
+                             {"normal", VertexAttribType::kFloat2, SkSLType::kFloat2},
+                             // TODO: These values are all +1/0/-1, or +1/0, so could be packed
+                             // much more densely than as three floats.
+                             {"normalScale", VertexAttribType::kFloat, SkSLType::kFloat},
+                             {"centerWeight", VertexAttribType::kFloat, SkSLType::kFloat}
                      },
-                     /*instanceAttrs=*/
-                            {{"xRadiiOrFlags", VertexAttribType::kFloat4, SkSLType::kFloat4},
+                     /*appendAttrs=*/{
+                             {"xRadiiOrFlags", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              {"radiiOrQuadXs", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              {"ltrbOrQuadYs", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              // XY stores center of rrect in local coords. Z and W store values to
@@ -397,7 +397,8 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
 
                              {"mat0", VertexAttribType::kFloat3, SkSLType::kFloat3},
                              {"mat1", VertexAttribType::kFloat3, SkSLType::kFloat3},
-                             {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}},
+                             {"mat2", VertexAttribType::kFloat3, SkSLType::kFloat3}
+                    },
                      /*varyings=*/{
                              // TODO: If the inverse transform is part of the draw's SSBO, we can
                              // reconstruct the Jacobian in the fragment shader using the existing
@@ -457,9 +458,9 @@ std::string AnalyticRRectRenderStep::vertexSkSL() const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable.
     return "float4 devPosition = analytic_rrect_vertex_fn("
-                   // Vertex Attributes
+                   // Static Data Attributes
                    "cornerID, position, normal, normalScale, centerWeight, "
-                   // Instance Attributes
+                   // Append Data Attributes
                    "xRadiiOrFlags, radiiOrQuadXs, ltrbOrQuadYs, center, depth, "
                    "float3x3(mat0, mat1, mat2), "
                    // Varyings

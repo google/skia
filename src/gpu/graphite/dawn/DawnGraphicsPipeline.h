@@ -51,8 +51,8 @@ public:
     inline static constexpr unsigned int kGradientBufferIndex = 3;
     inline static constexpr unsigned int kNumUniformBuffers = 4;
 
-    inline static constexpr unsigned int kVertexBufferIndex = 0;
-    inline static constexpr unsigned int kInstanceBufferIndex = 1;
+    inline static constexpr unsigned int kStaticDataBufferIndex = 0;
+    inline static constexpr unsigned int kAppendDataBufferIndex = 1;
     inline static constexpr unsigned int kNumVertexBuffers = 2;
 
     static sk_sp<DawnGraphicsPipeline> Make(const DawnSharedContext* sharedContext,

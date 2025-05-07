@@ -548,8 +548,6 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // TODO: It's not strictly necessary, but would a stable sort be useful or just end up hiding
     // bugs in the DrawOrder determination code?
     std::sort(keys.begin(), keys.end());
-
-    // Used to record vertex/instance data, buffer binds, and draw calls
     DrawWriter drawWriter(&drawPass->fCommandList, bufferMgr);
     GraphicsPipelineCache::Index lastPipeline = GraphicsPipelineCache::kInvalidIndex;
     SkIRect lastScissor = SkIRect::MakeSize(targetInfo.dimensions());
@@ -561,7 +559,6 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // All large gradients pack their data into a single buffer throughout the draw pass,
     // therefore the gradient buffer only needs to be bound once.
     gradientBufferTracker.bindIfNeeded(&drawPass->fCommandList);
-
     UniformTracker geometryUniformTracker(useStorageBuffers);
     UniformTracker shadingUniformTracker(useStorageBuffers);
 
@@ -617,8 +614,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         // the previous state use the proper state.
         if (pipelineChange) {
             drawWriter.newPipelineState(renderStep.primitiveType(),
-                                        renderStep.vertexStride(),
-                                        renderStep.instanceStride(),
+                                        renderStep.staticDataStride(),
+                                        renderStep.appendDataStride(),
                                         renderStep.getRenderStateFlags(),
                                         barrierToAddBeforeDraws);
         } else if (stateChange) {

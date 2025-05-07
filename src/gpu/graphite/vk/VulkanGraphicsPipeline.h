@@ -98,8 +98,8 @@ public:
     inline static constexpr unsigned int kLoadMsaaFromResolveInputDescSetIndex = 3;
     inline static constexpr unsigned int kMaxNumDescSets = 4;
 
-    inline static constexpr unsigned int kVertexBufferIndex = 0;
-    inline static constexpr unsigned int kInstanceBufferIndex = 1;
+    inline static constexpr unsigned int kStaticDataBufferIndex = 0;
+    inline static constexpr unsigned int kAppendDataBufferIndex = 1;
     inline static constexpr unsigned int kNumInputBuffers = 2;
 
     // Define a static DescriptorData to represent input attachments which have the same values
@@ -157,8 +157,9 @@ private:
                                    const VulkanProgramInfo&,
                                    int subpassIndex,
                                    PrimitiveType,
-                                   SkSpan<const Attribute> vertexAttrs,
-                                   SkSpan<const Attribute> instanceAttrs,
+                                   VkVertexInputRate appendInputRate,
+                                   SkSpan<const Attribute> staticAttrs,
+                                   SkSpan<const Attribute> appendAttrs,
                                    const DepthStencilSettings&,
                                    const BlendInfo&,
                                    const RenderPassDesc&);

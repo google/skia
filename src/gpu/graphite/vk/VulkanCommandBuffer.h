@@ -114,12 +114,6 @@ private:
     void pushConstants(const PushConstantInfo&, VkPipelineLayout compatibleLayout);
 
     void setBlendConstants(float* blendConstants);
-    void bindDrawBuffers(const BindBufferInfo& vertices,
-                         const BindBufferInfo& instances,
-                         const BindBufferInfo& indices,
-                         const BindBufferInfo& indirect);
-    void bindVertexBuffers(const Buffer* vertexBuffer, size_t vertexOffset,
-                           const Buffer* instanceBuffer, size_t instanceOffset);
     void bindInputBuffer(const Buffer* buffer, VkDeviceSize offset, uint32_t binding);
     void bindIndexBuffer(const Buffer* indexBuffer, size_t offset);
     void bindIndirectBuffer(const Buffer* indirectBuffer, size_t offset);

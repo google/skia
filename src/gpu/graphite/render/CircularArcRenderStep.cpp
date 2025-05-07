@@ -131,10 +131,10 @@ CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGreaterPass,
-                     /*vertexAttrs=*/{
+                     /*staticAttrs=*/{
                              {"position", VertexAttribType::kFloat3, SkSLType::kFloat3},
                      },
-                     /*instanceAttrs=*/{
+                     /*appendAttrs=*/{
                              // Center plus radii, used to transform to local position
                              {"centerScales", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              // Outer (device space) and inner (normalized) radii
@@ -179,9 +179,9 @@ std::string CircularArcRenderStep::vertexSkSL() const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable.
     return "float4 devPosition = circular_arc_vertex_fn("
-                   // Vertex Attributes
+                   // Static Data Attributes
                    "position, "
-                   // Instance Attributes
+                   // Append Data Attributes
                    "centerScales, radiiAndFlags, geoClipPlane, fragClipPlane0, fragClipPlane1, "
                    "inRoundCapPos, inRoundCapRadius, depth, float3x3(mat0, mat1, mat2), "
                    // Varyings

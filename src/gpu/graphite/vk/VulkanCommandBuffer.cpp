@@ -892,10 +892,28 @@ void VulkanCommandBuffer::addDrawPass(const DrawPass* drawPass) {
                 this->recordBufferBindingInfo(bub->fInfo, bub->fSlot);
                 break;
             }
-            case DrawPassCommands::Type::kBindDrawBuffers: {
-                auto bdb = static_cast<DrawPassCommands::BindDrawBuffers*>(cmdPtr);
-                this->bindDrawBuffers(
-                        bdb->fVertices, bdb->fInstances, bdb->fIndices, bdb->fIndirect);
+            case DrawPassCommands::Type::kBindStaticDataBuffer: {
+                auto bdb = static_cast<DrawPassCommands::BindStaticDataBuffer*>(cmdPtr);
+                this->bindInputBuffer(bdb->fStaticData.fBuffer, bdb->fStaticData.fOffset,
+                                      VulkanGraphicsPipeline::kStaticDataBufferIndex);
+                break;
+            }
+            case DrawPassCommands::Type::kBindAppendDataBuffer: {
+                auto bdb = static_cast<DrawPassCommands::BindAppendDataBuffer*>(cmdPtr);
+                this->bindInputBuffer(bdb->fAppendData.fBuffer, bdb->fAppendData.fOffset,
+                                      VulkanGraphicsPipeline::kAppendDataBufferIndex);
+                break;
+            }
+            case DrawPassCommands::Type::kBindIndexBuffer: {
+                auto bdb = static_cast<DrawPassCommands::BindIndexBuffer*>(cmdPtr);
+                this->bindIndexBuffer(
+                        bdb->fIndices.fBuffer, bdb->fIndices.fOffset);
+                break;
+            }
+            case DrawPassCommands::Type::kBindIndirectBuffer: {
+                auto bdb = static_cast<DrawPassCommands::BindIndirectBuffer*>(cmdPtr);
+                this->bindIndirectBuffer(
+                        bdb->fIndirect.fBuffer, bdb->fIndirect.fOffset);
                 break;
             }
             case DrawPassCommands::Type::kBindTexturesAndSamplers: {
@@ -1123,28 +1141,6 @@ void VulkanCommandBuffer::bindUniformBuffers() {
                                       descriptors.size(),
                                       dynamicOffsets.get()));
     this->trackResource(std::move(descSet));
-}
-
-void VulkanCommandBuffer::bindDrawBuffers(const BindBufferInfo& vertices,
-                                          const BindBufferInfo& instances,
-                                          const BindBufferInfo& indices,
-                                          const BindBufferInfo& indirect) {
-    this->bindVertexBuffers(vertices.fBuffer,
-                            vertices.fOffset,
-                            instances.fBuffer,
-                            instances.fOffset);
-    this->bindIndexBuffer(indices.fBuffer, indices.fOffset);
-    this->bindIndirectBuffer(indirect.fBuffer, indirect.fOffset);
-}
-
-void VulkanCommandBuffer::bindVertexBuffers(const Buffer* vertexBuffer,
-                                            size_t vertexOffset,
-                                            const Buffer* instanceBuffer,
-                                            size_t instanceOffset) {
-    this->bindInputBuffer(vertexBuffer, vertexOffset,
-                          VulkanGraphicsPipeline::kVertexBufferIndex);
-    this->bindInputBuffer(instanceBuffer, instanceOffset,
-                          VulkanGraphicsPipeline::kInstanceBufferIndex);
 }
 
 void VulkanCommandBuffer::bindInputBuffer(const Buffer* buffer, VkDeviceSize offset,

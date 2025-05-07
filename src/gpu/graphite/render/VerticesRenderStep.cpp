@@ -112,9 +112,9 @@ VerticesRenderStep::VerticesRenderStep(PrimitiveType type, bool hasColor, bool h
                                    {"depth", SkSLType::kFloat}},
                      type,
                      kDirectDepthGEqualPass,
-                     /*vertexAttrs=*/  kAttributes[2*hasTexCoords + hasColor],
-                     /*instanceAttrs=*/{},
-                     /*varyings=*/     kVaryings[hasColor])
+                     /*staticAttrs=*/ {},
+                     /*appendAttrs=*/kAttributes[2*hasTexCoords + hasColor],
+                     /*varyings=*/   kVaryings[hasColor])
         , fHasColor(hasColor)
         , fHasTexCoords(hasTexCoords) {}
 

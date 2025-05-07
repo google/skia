@@ -34,11 +34,11 @@ MiddleOutFanRenderStep::MiddleOutFanRenderStep(bool evenOdd)
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4}},
                      PrimitiveType::kTriangles,
                      evenOdd ? kEvenOddStencilPass : kWindingStencilPass,
-                     /*vertexAttrs=*/
-                            {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
-                             {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
-                             {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}},
-                     /*instanceAttrs=*/{}) {}
+                     /*staticAttrs=*/ {},
+                     /*appendAttrs=*/
+                     {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
+                     {"depth", VertexAttribType::kFloat, SkSLType::kFloat},
+                     {"ssboIndices", VertexAttribType::kUInt2, SkSLType::kUInt2}}) {}
 
 MiddleOutFanRenderStep::~MiddleOutFanRenderStep() {}
 

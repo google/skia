@@ -109,51 +109,52 @@ inline MTLVertexFormat attribute_type_to_mtlformat(VertexAttribType type) {
     SK_ABORT("Unknown vertex attribute type");
 }
 
-MTLVertexDescriptor* create_vertex_descriptor(SkSpan<const Attribute> vertexAttrs,
-                                              SkSpan<const Attribute> instanceAttrs) {
+MTLVertexDescriptor* create_vertex_descriptor(MTLVertexStepFunction appendStepFunc,
+                                              SkSpan<const Attribute> staticAttrs,
+                                              SkSpan<const Attribute> appendAttrs) {
     auto vertexDescriptor = [[MTLVertexDescriptor alloc] init];
     int attributeIndex = 0;
 
-    size_t vertexAttributeOffset = 0;
-    for (const auto& attribute : vertexAttrs) {
+    size_t staticAttributeOffset = 0;
+    for (const auto& attribute : staticAttrs) {
         MTLVertexAttributeDescriptor* mtlAttribute = vertexDescriptor.attributes[attributeIndex];
         MTLVertexFormat format = attribute_type_to_mtlformat(attribute.cpuType());
         SkASSERT(MTLVertexFormatInvalid != format);
         mtlAttribute.format = format;
-        mtlAttribute.offset = vertexAttributeOffset;
-        mtlAttribute.bufferIndex = MtlGraphicsPipeline::kVertexBufferIndex;
+        mtlAttribute.offset = staticAttributeOffset;
+        mtlAttribute.bufferIndex = MtlGraphicsPipeline::kStaticDataBufferIndex;
 
-        vertexAttributeOffset += attribute.sizeAlign4();
+        staticAttributeOffset += attribute.sizeAlign4();
         attributeIndex++;
     }
 
-    if (vertexAttributeOffset) {
-        MTLVertexBufferLayoutDescriptor* vertexBufferLayout =
-                vertexDescriptor.layouts[MtlGraphicsPipeline::kVertexBufferIndex];
-        vertexBufferLayout.stepFunction = MTLVertexStepFunctionPerVertex;
-        vertexBufferLayout.stepRate = 1;
-        vertexBufferLayout.stride = vertexAttributeOffset;
+    if (staticAttributeOffset) {
+        MTLVertexBufferLayoutDescriptor* staticDataBufferLayout =
+                vertexDescriptor.layouts[MtlGraphicsPipeline::kStaticDataBufferIndex];
+        staticDataBufferLayout.stepFunction = MTLVertexStepFunctionPerVertex;
+        staticDataBufferLayout.stepRate = 1;
+        staticDataBufferLayout.stride = staticAttributeOffset;
     }
 
-    size_t instanceAttributeOffset = 0;
-    for (const auto& attribute : instanceAttrs) {
+    size_t appendAttributeOffset = 0;
+    for (const auto& attribute : appendAttrs) {
         MTLVertexAttributeDescriptor* mtlAttribute = vertexDescriptor.attributes[attributeIndex];
         MTLVertexFormat format = attribute_type_to_mtlformat(attribute.cpuType());
         SkASSERT(MTLVertexFormatInvalid != format);
         mtlAttribute.format = format;
-        mtlAttribute.offset = instanceAttributeOffset;
-        mtlAttribute.bufferIndex = MtlGraphicsPipeline::kInstanceBufferIndex;
+        mtlAttribute.offset = appendAttributeOffset;
+        mtlAttribute.bufferIndex = MtlGraphicsPipeline::kAppendDataBufferIndex;
 
-        instanceAttributeOffset += attribute.sizeAlign4();
+        appendAttributeOffset += attribute.sizeAlign4();
         attributeIndex++;
     }
 
-    if (instanceAttributeOffset) {
-        MTLVertexBufferLayoutDescriptor* instanceBufferLayout =
-                vertexDescriptor.layouts[MtlGraphicsPipeline::kInstanceBufferIndex];
-        instanceBufferLayout.stepFunction = MTLVertexStepFunctionPerInstance;
-        instanceBufferLayout.stepRate = 1;
-        instanceBufferLayout.stride = instanceAttributeOffset;
+    if (appendAttributeOffset) {
+        MTLVertexBufferLayoutDescriptor* appendBufferDataLayout =
+                vertexDescriptor.layouts[MtlGraphicsPipeline::kAppendDataBufferIndex];
+        appendBufferDataLayout.stepFunction = appendStepFunc;
+        appendBufferDataLayout.stepRate = 1;
+        appendBufferDataLayout.stride = appendAttributeOffset;
     }
     return vertexDescriptor;
 }
@@ -343,8 +344,10 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
                 pipelineLabel,
                 pipelineInfo,
                 {vsLibrary.get(), "vertexMain"},
-                step->vertexAttributes(),
-                step->instanceAttributes(),
+                step->appendsVertices() ? MTLVertexStepFunctionPerVertex :
+                                          MTLVertexStepFunctionPerInstance,
+                step->staticAttributes(),
+                step->appendAttributes(),
                 {fsLibrary.get(), "fragmentMain"},
                 std::move(dss),
                 step->depthStencilSettings().fStencilReferenceValue,
@@ -397,8 +400,9 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::MakeLoadMSAAPipeline(
                 pipelineLabel,
                 pipelineInfo,
                 {mtlLibrary.get(), "vertexMain"},
-                /*vertexAttrs=*/{},
-                /*instanceAttrs=*/{},
+                /*appendStepFunc=*/{},
+                /*staticAttrs=*/{},
+                /*appendAttrs=*/{},
                 {mtlLibrary.get(), "fragmentMain"},
                 std::move(ignoreDS),
                 /*stencilRefValue=*/0,
@@ -410,8 +414,9 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
                                                      const std::string& label,
                                                      const PipelineInfo& pipelineInfo,
                                                      MSLFunction vertexMain,
-                                                     SkSpan<const Attribute> vertexAttrs,
-                                                     SkSpan<const Attribute> instanceAttrs,
+                                                     MTLVertexStepFunction appendStepFunc,
+                                                     SkSpan<const Attribute> staticAttrs,
+                                                     SkSpan<const Attribute> appendAttrs,
                                                      MSLFunction fragmentMain,
                                                      sk_cfp<id<MTLDepthStencilState>> dss,
                                                      uint32_t stencilRefValue,
@@ -434,7 +439,9 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(const MtlSharedContext* sha
     (*psoDescriptor).fragmentFunction = [fsLibrary newFunctionWithName: fsFuncName];
 
     // TODO: I *think* this gets cleaned up by the pipelineDescriptor?
-    (*psoDescriptor).vertexDescriptor = create_vertex_descriptor(vertexAttrs, instanceAttrs);
+    (*psoDescriptor).vertexDescriptor = create_vertex_descriptor(appendStepFunc,
+                                                                 staticAttrs,
+                                                                 appendAttrs);
 
     TextureFormat colorFormat = renderPassDesc.fColorAttachment.fFormat;
     TextureFormat dsFormat = renderPassDesc.fDepthStencilAttachment.fFormat;

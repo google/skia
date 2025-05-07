@@ -201,12 +201,12 @@ PerEdgeAAQuadRenderStep::PerEdgeAAQuadRenderStep(StaticBufferManager* bufferMana
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      kDirectDepthGreaterPass,
-                     /*vertexAttrs=*/{
-                            {"cornerID", VertexAttribType::kUInt, SkSLType::kUInt },
-                            {"normal", VertexAttribType::kFloat2, SkSLType::kFloat2},
+                     /*staticAttrs=*/{
+                             {"cornerID", VertexAttribType::kUInt, SkSLType::kUInt },
+                             {"normal", VertexAttribType::kFloat2, SkSLType::kFloat2},
                      },
-                     /*instanceAttrs=*/
-                            {{"edgeFlags", VertexAttribType::kUByte4_norm, SkSLType::kFloat4},
+                     /*appendAttrs=*/{
+                             {"edgeFlags", VertexAttribType::kUByte4_norm, SkSLType::kFloat4},
                              {"quadXs", VertexAttribType::kFloat4, SkSLType::kFloat4},
                              {"quadYs", VertexAttribType::kFloat4, SkSLType::kFloat4},
 
@@ -237,9 +237,9 @@ std::string PerEdgeAAQuadRenderStep::vertexSkSL() const {
     // Returns the body of a vertex function, which must define a float4 devPosition variable and
     // must write to an already-defined float2 stepLocalCoords variable.
     return "float4 devPosition = per_edge_aa_quad_vertex_fn("
-                   // Vertex Attributes
+                   // Static Data Attributes
                    "cornerID, normal, "
-                   // Instance Attributes
+                   // Append Data Attributes
                    "edgeFlags, quadXs, quadYs, depth, "
                    "float3x3(mat0, mat1, mat2), "
                    // Varyings

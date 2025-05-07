@@ -94,47 +94,48 @@ static inline VkFormat attrib_type_to_vkformat(VertexAttribType type) {
 }
 
 static void setup_vertex_input_state(
-        const SkSpan<const Attribute>& vertexAttrs,
-        const SkSpan<const Attribute>& instanceAttrs,
+        VkVertexInputRate appendVertexRate,
+        const SkSpan<const Attribute>& staticAttrs,
+        const SkSpan<const Attribute>& appendAttrs,
         VkPipelineVertexInputStateCreateInfo* vertexInputInfo,
         skia_private::STArray<2, VkVertexInputBindingDescription, true>* bindingDescs,
         skia_private::STArray<16, VkVertexInputAttributeDescription>* attributeDescs) {
     // Setup attribute & binding descriptions
     int attribIndex = 0;
-    size_t vertexAttributeOffset = 0;
-    for (auto attrib : vertexAttrs) {
+    size_t staticAttributeOffset = 0;
+    for (auto attrib : staticAttrs) {
         VkVertexInputAttributeDescription vkAttrib;
         vkAttrib.location = attribIndex++;
-        vkAttrib.binding = VulkanGraphicsPipeline::kVertexBufferIndex;
+        vkAttrib.binding = VulkanGraphicsPipeline::kStaticDataBufferIndex;
         vkAttrib.format = attrib_type_to_vkformat(attrib.cpuType());
-        vkAttrib.offset = vertexAttributeOffset;
-        vertexAttributeOffset += attrib.sizeAlign4();
+        vkAttrib.offset = staticAttributeOffset;
+        staticAttributeOffset += attrib.sizeAlign4();
         attributeDescs->push_back(vkAttrib);
     }
 
-    size_t instanceAttributeOffset = 0;
-    for (auto attrib : instanceAttrs) {
+    size_t appendAttributeOffset = 0;
+    for (auto attrib : appendAttrs) {
         VkVertexInputAttributeDescription vkAttrib;
         vkAttrib.location = attribIndex++;
-        vkAttrib.binding = VulkanGraphicsPipeline::kInstanceBufferIndex;
+        vkAttrib.binding = VulkanGraphicsPipeline::kAppendDataBufferIndex;
         vkAttrib.format = attrib_type_to_vkformat(attrib.cpuType());
-        vkAttrib.offset = instanceAttributeOffset;
-        instanceAttributeOffset += attrib.sizeAlign4();
+        vkAttrib.offset = appendAttributeOffset;
+        appendAttributeOffset += attrib.sizeAlign4();
         attributeDescs->push_back(vkAttrib);
     }
 
-    if (bindingDescs && !vertexAttrs.empty()) {
+    if (bindingDescs && !staticAttrs.empty()) {
         bindingDescs->push_back() = {
-                VulkanGraphicsPipeline::kVertexBufferIndex,
-                (uint32_t) vertexAttributeOffset,
+                VulkanGraphicsPipeline::kStaticDataBufferIndex,
+                (uint32_t) staticAttributeOffset,
                 VK_VERTEX_INPUT_RATE_VERTEX
         };
     }
-    if (bindingDescs && !instanceAttrs.empty()) {
+    if (bindingDescs && !appendAttrs.empty()) {
         bindingDescs->push_back() = {
-                VulkanGraphicsPipeline::kInstanceBufferIndex,
-                (uint32_t) instanceAttributeOffset,
-                VK_VERTEX_INPUT_RATE_INSTANCE
+                VulkanGraphicsPipeline::kAppendDataBufferIndex,
+                (uint32_t) appendAttributeOffset,
+                appendVertexRate
         };
     }
 
@@ -663,7 +664,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     const RenderStep* step = sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
     const bool useStorageBuffers = sharedContext->caps()->storageBufferSupport();
 
-    if (step->vertexAttributes().size() + step->instanceAttributes().size() >
+    if (step->staticAttributes().size() + step->appendAttributes().size() >
         sharedContext->vulkanCaps().maxVertexAttributes()) {
         SKGPU_LOG_W("Requested more than the supported number of vertex attributes");
         return nullptr;
@@ -767,8 +768,10 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                                          *program,
                                          subpassIndex,
                                          step->primitiveType(),
-                                         step->vertexAttributes(),
-                                         step->instanceAttributes(),
+                                         step->appendsVertices() ? VK_VERTEX_INPUT_RATE_VERTEX :
+                                                                   VK_VERTEX_INPUT_RATE_INSTANCE,
+                                         step->staticAttributes(),
+                                         step->appendAttributes(),
                                          step->depthStencilSettings(),
                                          shaderInfo->blendInfo(),
                                          renderPassDesc);
@@ -799,8 +802,9 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(const VulkanSharedContext* share
                                                 const VulkanProgramInfo& program,
                                                 int subpassIndex,
                                                 PrimitiveType primitiveType,
-                                                SkSpan<const Attribute> vertexAttrs,
-                                                SkSpan<const Attribute> instanceAttrs,
+                                                VkVertexInputRate appendInputRate,
+                                                SkSpan<const Attribute> staticAttrs,
+                                                SkSpan<const Attribute> appendAttrs,
                                                 const DepthStencilSettings& depthStencilSettings,
                                                 const BlendInfo& blendInfo,
                                                 const RenderPassDesc& renderPassDesc) {
@@ -809,8 +813,9 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(const VulkanSharedContext* share
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
     skia_private::STArray<2, VkVertexInputBindingDescription, true> bindingDescs;
     skia_private::STArray<16, VkVertexInputAttributeDescription> attributeDescs;
-    setup_vertex_input_state(vertexAttrs,
-                             instanceAttrs,
+    setup_vertex_input_state(appendInputRate,
+                             staticAttrs,
+                             appendAttrs,
                              &vertexInputInfo,
                              &bindingDescs,
                              &attributeDescs);
@@ -1000,8 +1005,9 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
                                          loadMSAAProgram,
                                          /*subpassIndex=*/0, // loading to MSAA is always first
                                          PrimitiveType::kTriangleStrip,
-                                         /*vertexAttrs=*/{},
-                                         /*instanceAttrs=*/{},
+                                         /*appendInputRate=*/{},
+                                         /*staticAttrs=*/{},
+                                         /*appendAttrs=*/{},
                                          /*depthStencilSettings=*/{},
                                          /*blendInfo=*/{},
                                          renderPassDesc);

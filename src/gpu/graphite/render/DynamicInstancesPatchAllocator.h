@@ -32,7 +32,7 @@ public:
                                    BindBufferInfo fixedIndexBuffer,
                                    unsigned int reserveCount)
             : fInstances(writer, fixedVertexBuffer, fixedIndexBuffer) {
-        SkASSERT(stride == writer.instanceStride());
+        SkASSERT(stride == writer.appendStride());
         // TODO: Is it worth re-reserving large chunks after this preallocation is used up? Or will
         // appending 1 at a time be fine since it's coming from a large vertex buffer alloc anyway?
         fInstances.reserve(reserveCount);
