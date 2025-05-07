@@ -87,12 +87,18 @@ public:
     // The logical viewport is always (0,0,viewportDims) and matches the "device" coordinate space
     // of the higher-level SkDevices that recorded the rendering operations. The actual viewport
     // is automatically adjusted by the replay translation.
+    //
+    // If the RenderPassTask allocates a smaller color texture than the resolve texture, it can pass
+    // a non-zero `resolveOffset` which is the the offset for resolving:
+    // - The color texture's (0, 0, w, h) region.
+    // - And store in the resolve texture's (resolveOffset.x, resolveOffset.y, w, h) region.
     bool addRenderPass(const RenderPassDesc&,
                        sk_sp<Texture> colorTexture,
                        sk_sp<Texture> resolveTexture,
                        sk_sp<Texture> depthStencilTexture,
                        const Texture* dstCopy,
                        SkIRect dstReadBounds,
+                       SkIPoint resolveOffset,
                        SkISize viewportDims,
                        const DrawPassList& drawPasses);
 
@@ -168,6 +174,7 @@ private:
                                  const Texture* colorTexture,
                                  const Texture* resolveTexture,
                                  const Texture* depthStencilTexture,
+                                 SkIPoint resolveOffset,
                                  SkIRect viewport,
                                  const DrawPassList& drawPasses) = 0;
 

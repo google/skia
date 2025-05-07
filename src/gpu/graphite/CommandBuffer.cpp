@@ -93,6 +93,7 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
                                   sk_sp<Texture> depthStencilTexture,
                                   const Texture* dstCopy,
                                   SkIRect dstReadBounds,
+                                  SkIPoint resolveOffset,
                                   SkISize viewportDims,
                                   const DrawPassList& drawPasses) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
@@ -111,7 +112,7 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
         return true;
     }
 
-    dstReadBounds.offset(fReplayTranslation.x(), fReplayTranslation.y());
+    dstReadBounds.offset(fReplayTranslation);
     if (!dstReadBounds.intersect(fRenderPassBounds)) {
         // The draws within the RenderPass that would sample from the dstCopy have been translated
         // off screen. Set the bounds to empty and let the GPU clipping do its job.
@@ -140,6 +141,7 @@ bool CommandBuffer::addRenderPass(const RenderPassDesc& renderPassDesc,
                                colorTexture.get(),
                                resolveTexture.get(),
                                depthStencilTexture.get(),
+                               resolveOffset,
                                viewport,
                                drawPasses)) {
         return false;

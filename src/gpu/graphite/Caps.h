@@ -316,6 +316,7 @@ public:
      * Returns whether a render pass can have MSAA/depth/stencil attachments and a resolve
      * attachment with mismatched sizes. Note: the MSAA attachment and the depth/stencil attachment
      * still need to match their sizes.
+     * This also implies supporting partial load/resolve.
      */
     bool differentResolveAttachmentSizeSupport() const {
         return fDifferentResolveAttachmentSizeSupport;

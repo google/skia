@@ -48,8 +48,9 @@ wgpu::ShaderModule create_shader_module(const wgpu::Device& device, const char* 
 
 wgpu::RenderPipeline create_blit_render_pipeline(const DawnSharedContext* sharedContext,
                                                  const char* label,
-                                                 wgpu::ShaderModule vsModule,
-                                                 wgpu::ShaderModule fsModule,
+                                                 wgpu::ShaderModule shaderModule,
+                                                 const char* vsEntryPoint,
+                                                 const char* fsEntryPoint,
                                                  wgpu::TextureFormat renderPassColorFormat,
                                                  wgpu::TextureFormat renderPassDepthStencilFormat,
                                                  int numSamples) {
@@ -72,16 +73,16 @@ wgpu::RenderPipeline create_blit_render_pipeline(const DawnSharedContext* shared
     }
 
     wgpu::FragmentState fragment;
-    fragment.module = std::move(fsModule);
-    fragment.entryPoint = "main";
+    fragment.module = shaderModule;
+    fragment.entryPoint = fsEntryPoint;
     fragment.constantCount = 0;
     fragment.constants = nullptr;
     fragment.targetCount = 1;
     fragment.targets = &colorTarget;
     descriptor.fragment = &fragment;
 
-    descriptor.vertex.module = std::move(vsModule);
-    descriptor.vertex.entryPoint = "main";
+    descriptor.vertex.module = shaderModule;
+    descriptor.vertex.entryPoint = vsEntryPoint;
     descriptor.vertex.constantCount = 0;
     descriptor.vertex.constants = nullptr;
     descriptor.vertex.bufferCount = 0;
@@ -351,6 +352,58 @@ template <typename T> void DawnResourceProvider::IntrinsicConstantsManager::purg
 // DawnResourceProvider::IntrinsicConstantsManager
 // ----------------------------------------------------------------------------
 
+// DawnResourceProvider::BlitWithDrawEncoder
+DawnResourceProvider::BlitWithDrawEncoder::BlitWithDrawEncoder(wgpu::RenderPipeline pipeline,
+                                                             bool srcIsMSAA)
+        : fPipeline(std::move(pipeline)), fSrcIsMSAA(srcIsMSAA) {}
+
+void DawnResourceProvider::BlitWithDrawEncoder::EncodeBlit(
+        const wgpu::Device& device,
+        const wgpu::RenderPassEncoder& renderEncoder,
+        const wgpu::TextureView& srcTextureView,
+        const SkIPoint& srcOffset,
+        const SkIRect& dstBounds) {
+    SkASSERT(fPipeline);
+    renderEncoder.SetPipeline(fPipeline);
+
+    // TODO(b/260368758): cache single texture's bind group creation.
+    wgpu::BindGroupEntry entry;
+    entry.binding = fSrcIsMSAA ? 1 : 0;
+    entry.textureView = srcTextureView;
+
+    wgpu::BindGroupDescriptor desc;
+    desc.layout = fPipeline.GetBindGroupLayout(0);
+    desc.entryCount = 1;
+    desc.entries = &entry;
+
+    auto bindGroup = device.CreateBindGroup(&desc);
+
+    renderEncoder.SetBindGroup(0, bindGroup);
+
+    renderEncoder.SetScissorRect(
+            dstBounds.left(), dstBounds.top(), dstBounds.width(), dstBounds.height());
+    renderEncoder.SetViewport(
+            dstBounds.left(), dstBounds.top(), dstBounds.width(), dstBounds.height(), 0, 1);
+
+    // In fragment shader, the sampling coords are calculated as:
+    // - x = fragPosition.x - dstX + srcX = fragPosition.x - (dxtX - srcX)
+    // - y = fragPosition.y - dstY + srcX = fragPosition.y - (dxtY - srcY)
+    int32_t deltaX = dstBounds.left() - srcOffset.x();
+    int32_t deltaY = dstBounds.top() - srcOffset.y();
+    // Since texture's sizes are never larger than 16 bits, we can encode the offsets's (x, y)
+    // in one single 32 bits instance index value. In future, once push constants are implemented in
+    // Dawn, we should use them instead.
+    SkASSERT(std::abs(deltaX) < std::numeric_limits<int16_t>::max());
+    SkASSERT(std::abs(deltaY) < std::numeric_limits<int16_t>::max());
+    int32_t baseInstance = (deltaX & 0xffff) | (deltaY << 16);
+
+    renderEncoder.Draw(/*vertexCount=*/3,
+                       /*instanceCount=*/ 1,
+                       /*firstVertex=*/0,
+                       /*firstInstance=*/baseInstance);
+}
+
+// ----------------------------------------------------------------------------
 DawnResourceProvider::DawnResourceProvider(SharedContext* sharedContext,
                                            SingleOwner* singleOwner,
                                            uint32_t recorderID,
@@ -367,7 +420,7 @@ DawnResourceProvider::DawnResourceProvider(SharedContext* sharedContext,
 
 DawnResourceProvider::~DawnResourceProvider() = default;
 
-wgpu::RenderPipeline DawnResourceProvider::findOrCreateBlitWithDrawPipeline(
+DawnResourceProvider::BlitWithDrawEncoder DawnResourceProvider::findOrCreateBlitWithDrawEncoder(
         const RenderPassDesc& renderPassDesc, int srcSampleCount) {
     // Currently Dawn only supports one sample count > 1. So we can optimize the pipeline key by
     // specifying whether the source has MSAA or not.
@@ -378,48 +431,69 @@ wgpu::RenderPipeline DawnResourceProvider::findOrCreateBlitWithDrawPipeline(
             renderPassDesc, srcIsMSAA);
     wgpu::RenderPipeline pipeline = fBlitWithDrawPipelines[pipelineKey];
     if (!pipeline) {
-        static constexpr char kVS[] =
+        // Since texture's sizes are never larger than 16 bits, we can encode the offsets's (x, y)
+        // in one single 32 bits instance index value.
+        static constexpr char kShaderSrc[] =
+            "struct VertexOutput {"
+                "@builtin(position) position: vec4f,"
+                "@location(1) @interpolate(flat) srcOffset: vec2i,"
+            "};"
             "var<private> fullscreenTriPositions : array<vec2<f32>, 3> = array<vec2<f32>, 3>("
                 "vec2(-1.0, -1.0), vec2(-1.0, 3.0), vec2(3.0, -1.0));"
 
             "@vertex "
-            "fn main(@builtin(vertex_index) vertexIndex : u32) -> @builtin(position) vec4<f32> {"
-                "return vec4(fullscreenTriPositions[vertexIndex], 1.0, 1.0);"
-            "}";
+            "fn VS(@builtin(vertex_index) vertexIndex : u32,"
+                  "@builtin(instance_index) instanceIndex : u32)"
+                  "-> VertexOutput {"
+                "var out: VertexOutput;"
+                "out.position = vec4(fullscreenTriPositions[vertexIndex], 1.0, 1.0);"
+                "var srcOffset = vec2u("
+                    "bitcast<u32>(instanceIndex & 0xffff),"
+                    "bitcast<u32>(instanceIndex >> 16)"
+                ");"
 
-        static constexpr char kReadSingleSampledFS[] =
+                // Sign extending from 16 bits to 32 bits
+                "let hasSignBit = (srcOffset & vec2u(0x8000)) != vec2u(0u);"
+                "srcOffset = select(srcOffset, srcOffset | vec2u(0xffff0000), hasSignBit);"
+
+                "out.srcOffset = bitcast<vec2i>(srcOffset);"
+
+                "return out;"
+            "}"
+
+            "fn getSamplingCoords(input: VertexOutput) -> vec2i {"
+                "var coords : vec2<i32> = vec2<i32>(i32(input.position.x), i32(input.position.y));"
+                "return coords - input.srcOffset;"
+            "}"
+
             "@group(0) @binding(0) var colorMap: texture_2d<f32>;"
-
             "@fragment "
-            "fn main(@builtin(position) fragPosition : vec4<f32>) -> @location(0) vec4<f32> {"
-                "let coords = vec2<i32>(i32(fragPosition.x), i32(fragPosition.y));"
+            "fn SampleFS(input: VertexOutput) -> @location(0) vec4<f32> {"
+                "let coords = getSamplingCoords(input);"
                 "return textureLoad(colorMap, coords, 0);"
-            "}";
+            "}"
 
-        static constexpr char kReadMSAAFSTemplate[] =
-            "@group(0) @binding(0) var colorMap: texture_multisampled_2d<f32>;"
+            "@group(0) @binding(1) var msColorMap: texture_multisampled_2d<f32>;"
             "@fragment\n"
-            "fn main(@builtin(position) fragPosition : vec4<f32>) -> @location(0) vec4<f32> {"
-                "let coords = vec2<i32>(i32(fragPosition.x), i32(fragPosition.y));"
+            "fn SampleMSAAFS(input: VertexOutput) -> @location(0) vec4<f32> {"
+                "let coords = getSamplingCoords(input);"
                 "const sampleCount = %d;"
                 "var sum = vec4f(0.0);"
                 "for (var i: u32 = 0; i < sampleCount; i = i + 1) {"
-                    "sum += textureLoad(colorMap, coords, i);"
+                    "sum += textureLoad(msColorMap, coords, i);"
                 "}"
                 "return sum * (1.0 / f32(sampleCount));"
             "}";
 
-        auto vsModule = create_shader_module(dawnSharedContext()->device(), kVS);
-        auto fsModule = create_shader_module(
-                dawnSharedContext()->device(),
-                srcIsMSAA ? SkStringPrintf(kReadMSAAFSTemplate, srcSampleCount).c_str()
-                          : kReadSingleSampledFS);
+        auto shaderModule = create_shader_module(
+                dawnSharedContext()->device(), SkStringPrintf(kShaderSrc, srcSampleCount).c_str());
 
         pipeline = create_blit_render_pipeline(
                 dawnSharedContext(),
                 /*label=*/"BlitWithDraw",
-                std::move(vsModule),
-                std::move(fsModule),
+                std::move(shaderModule),
+                "VS",
+                srcIsMSAA ? "SampleMSAAFS": "SampleFS",
                 /*renderPassColorFormat=*/
                 TextureFormatToDawnFormat(renderPassDesc.fColorAttachment.fFormat),
                 /*renderPassDepthStencilFormat=*/
@@ -431,7 +505,7 @@ wgpu::RenderPipeline DawnResourceProvider::findOrCreateBlitWithDrawPipeline(
         }
     }
 
-    return pipeline;
+    return BlitWithDrawEncoder(std::move(pipeline), srcIsMSAA);
 }
 
 sk_sp<Texture> DawnResourceProvider::onCreateWrappedTexture(const BackendTexture& texture) {

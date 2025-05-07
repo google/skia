@@ -61,12 +61,14 @@ private:
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
                          const Texture* depthStencilTexture,
+                         SkIPoint resolveOffset,
                          SkIRect viewport,
                          const DrawPassList&) override;
     bool onAddComputePass(DispatchGroupSpan) override;
 
     // Methods for populating a Dawn RenderPassEncoder:
     bool beginRenderPass(const RenderPassDesc&,
+                         const SkIPoint& resolveOffset,
                          SkIRect renderPassBounds,
                          const Texture* colorTexture,
                          const Texture* resolveTexture,
@@ -74,6 +76,7 @@ private:
     bool emulateLoadMSAAFromResolveAndBeginRenderPassEncoder(
             const RenderPassDesc& intendedRenderPassDesc,
             const wgpu::RenderPassDescriptor& intendedDawnRenderPassDesc,
+            const SkIPoint& resolveOffset,
             const SkIRect& renderPassBounds,
             const DawnTexture* msaaTexture,
             const DawnTexture* resolveTexture);
@@ -81,7 +84,8 @@ private:
                         const RenderPassDesc& frontendRenderPassDescKey,
                         const wgpu::TextureView& srcTextureView,
                         int srcSampleCount,
-                        const SkIRect& bounds);
+                        const SkIPoint& srcOffset,
+                        const SkIRect& dstBounds);
     bool endRenderPass();
 
     bool addDrawPass(const DrawPass*);
@@ -165,6 +169,7 @@ private:
     struct ResolveStepEmulationInfo {
         const DawnTexture* fMSAATexture;
         const DawnTexture* fResolveTexture;
+        SkIPoint fMSAAAOffset;
         SkIRect fResolveArea;
     };
     std::optional<ResolveStepEmulationInfo> fResolveStepEmulationInfo;

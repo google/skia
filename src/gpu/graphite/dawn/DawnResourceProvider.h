@@ -30,6 +30,24 @@ public:
 
     static constexpr size_t kNumUniformEntries = 4;
 
+    class BlitWithDrawEncoder {
+    public:
+        BlitWithDrawEncoder(wgpu::RenderPipeline pipeline,
+                            bool srcIsMSAA);
+
+        operator bool() const { return fPipeline != nullptr; }
+
+        void EncodeBlit(const wgpu::Device& device,
+                        const wgpu::RenderPassEncoder& encoder,
+                        const wgpu::TextureView& srcTextureView,
+                        const SkIPoint& srcOffset,
+                        const SkIRect& dstBounds);
+
+    private:
+        wgpu::RenderPipeline fPipeline;
+        const bool fSrcIsMSAA;
+    };
+
     DawnResourceProvider(SharedContext* sharedContext,
                          SingleOwner*,
                          uint32_t recorderID,
@@ -39,8 +57,8 @@ public:
     sk_sp<DawnTexture> findOrCreateDiscardableMSAALoadTexture(SkISize dimensions,
                                                               const TextureInfo& msaaInfo);
 
-    wgpu::RenderPipeline findOrCreateBlitWithDrawPipeline(const RenderPassDesc& renderPassDesc,
-                                                          int srcSampleCount);
+    BlitWithDrawEncoder findOrCreateBlitWithDrawEncoder(const RenderPassDesc& renderPassDesc,
+                                                        int srcSampleCount);
 
     sk_sp<DawnBuffer> findOrCreateDawnBuffer(size_t size,
                                              BufferType type,
