@@ -13,6 +13,7 @@
 #include "include/gpu/graphite/vk/VulkanGraphiteTypes.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 #include "include/gpu/vk/VulkanTypes.h"
+#include "include/private/base/SkMath.h"
 #include "src/gpu/SwizzlePriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
@@ -1345,40 +1346,22 @@ void VulkanCaps::SupportedSampleCounts::initSampleCounts(const skgpu::VulkanInte
         return;
     }
 
-    VkSampleCountFlags flags = properties.sampleCounts;
-    if (flags & VK_SAMPLE_COUNT_1_BIT) {
-        fSampleCounts.push_back(1);
-    }
-    if (skgpu::kIntel_VkVendor == physProps.vendorID) {
-        // MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
-        return;
-    }
-    if (flags & VK_SAMPLE_COUNT_2_BIT) {
-        fSampleCounts.push_back(2);
-    }
-    if (flags & VK_SAMPLE_COUNT_4_BIT) {
-        fSampleCounts.push_back(4);
-    }
-    if (flags & VK_SAMPLE_COUNT_8_BIT) {
-        fSampleCounts.push_back(8);
-    }
-    if (flags & VK_SAMPLE_COUNT_16_BIT) {
-        fSampleCounts.push_back(16);
-    }
     // Standard sample locations are not defined for more than 16 samples, and we don't need more
     // than 16. Omit 32 and 64.
+    fSampleCounts = properties.sampleCounts &
+                    (VK_SAMPLE_COUNT_1_BIT | VK_SAMPLE_COUNT_2_BIT | VK_SAMPLE_COUNT_4_BIT |
+                     VK_SAMPLE_COUNT_8_BIT | VK_SAMPLE_COUNT_16_BIT);
 }
 
 bool VulkanCaps::SupportedSampleCounts::isSampleCountSupported(int requestedCount) const {
     requestedCount = std::max(1, requestedCount);
-    for (int i = 0; i < fSampleCounts.size(); i++) {
-        if (fSampleCounts[i] == requestedCount) {
-            return true;
-        } else if (requestedCount < fSampleCounts[i]) {
-            return false;
-        }
+    // Non-power-of-two sample counts are never supported (but practically also never expected to be
+    // requested)
+    if (!SkIsPow2(requestedCount)) {
+        return false;
     }
-    return false;
+
+    return (fSampleCounts & requestedCount) != 0;
 }
 
 

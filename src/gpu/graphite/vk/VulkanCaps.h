@@ -195,7 +195,7 @@ private:
 
         bool isSampleCountSupported(int requestedCount) const;
 
-        SkTDArray<int> fSampleCounts;
+        VkSampleCountFlags fSampleCounts;
     };
 
     // Struct that determines and stores useful information about VkFormats.

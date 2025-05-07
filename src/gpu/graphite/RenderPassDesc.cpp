@@ -103,7 +103,7 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
         TextureFormat dsFormat = caps->getDepthStencilFormat(depthStencilFlags);
         SkASSERT(dsFormat != TextureFormat::kUnsupported);
         // Depth and stencil values are currently always cleared and don't need to persist.
-        // The sample count should always matche the color attachment.
+        // The sample count should always match the color attachment.
         desc.fDepthStencilAttachment = {dsFormat,
                                         LoadOp::kClear,
                                         StoreOp::kDiscard,
