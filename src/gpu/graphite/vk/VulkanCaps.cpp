@@ -38,11 +38,14 @@ namespace skgpu::graphite {
 namespace {
 struct EnabledFeatures {
     // VkPhysicalDeviceFeatures
-    bool dualSrcBlend = false;
+    bool fDualSrcBlend = false;
     // From VkPhysicalDeviceSamplerYcbcrConversionFeatures:
-    bool samplerYcbcrConversion = false;
+    bool fSamplerYcbcrConversion = false;
     // From VkPhysicalDeviceFaultFeaturesEXT:
-    bool deviceFault = false;
+    bool fDeviceFault = false;
+    // From VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT:
+    bool fCoherentAdvancedBlends = false;
+    // TODO(b/393382700): Check for noncoherent HW advanced blending support
 };
 
 // Walk the feature chain once and extract any enabled features that Graphite cares about.
@@ -50,7 +53,7 @@ EnabledFeatures GetEnabledFeature(const VkPhysicalDeviceFeatures2* features) {
     EnabledFeatures enabled;
     if (features) {
         // Base features:
-        enabled.dualSrcBlend = features->features.dualSrcBlend;
+        enabled.fDualSrcBlend = features->features.dualSrcBlend;
 
         // Extended features:
         const VkBaseInStructure* pNext = static_cast<const VkBaseInStructure*>(features->pNext);
@@ -60,15 +63,22 @@ EnabledFeatures GetEnabledFeature(const VkPhysicalDeviceFeatures2* features) {
                     const auto* feature =
                             reinterpret_cast<const VkPhysicalDeviceSamplerYcbcrConversionFeatures*>(
                                     pNext);
-                    enabled.samplerYcbcrConversion = feature->samplerYcbcrConversion;
+                    enabled.fSamplerYcbcrConversion = feature->samplerYcbcrConversion;
                     break;
                 }
                 case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT: {
                     const auto* feature =
                             reinterpret_cast<const VkPhysicalDeviceFaultFeaturesEXT*>(pNext);
-                    enabled.deviceFault = feature->deviceFault;
+                    enabled.fDeviceFault = feature->deviceFault;
                     break;
                 }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT: {
+                    const auto* feature = reinterpret_cast<
+                            const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT*>(pNext);
+                    enabled.fCoherentAdvancedBlends =
+                            feature->advancedBlendCoherentOperations == VK_TRUE;
+                }
+                break;
                 default:
                     break;
             }
@@ -232,15 +242,23 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     }
 #endif
 
-    fSupportsYcbcrConversion = enabledFeatures.samplerYcbcrConversion;
-    fSupportsDeviceFaultInfo = enabledFeatures.deviceFault;
+    fSupportsYcbcrConversion = enabledFeatures.fSamplerYcbcrConversion;
+    fSupportsDeviceFaultInfo = enabledFeatures.fDeviceFault;
+    // TODO(b/393382700): Check noncoherent HW advanced blending support once implemented. For now,
+    // indicate support iff the device has coherent adv blend mode support (meaning overlap is
+    // permitted and no barriers are required).
+    if (enabledFeatures.fCoherentAdvancedBlends) {
+        fSupportsHardwareAdvancedBlending = true;
+        fShaderCaps->fAdvBlendEqInteraction =
+                SkSL::ShaderCaps::AdvBlendEqInteraction::kAutomatic_AdvBlendEqInteraction;
+    }
 
     // TODO(skia:14639): We must force std430 array stride when using SSBOs since SPIR-V generation
     // cannot handle mixed array strides being passed into functions.
     fShaderCaps->fForceStd430ArrayLayout =
             fStorageBufferSupport && fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430;
 
-    fShaderCaps->fDualSourceBlendingSupport = enabledFeatures.dualSrcBlend;
+    fShaderCaps->fDualSourceBlendingSupport = enabledFeatures.fDualSrcBlend;
 
     // Note: Do not add extension/feature checks after this; driver workarounds should be done last.
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
