@@ -697,7 +697,8 @@ void setup_texture_layouts(VulkanCommandBuffer* cmdBuf,
 static constexpr int kMaxNumAttachments = 3;
 void gather_clear_values(const RenderPassDesc& rpDesc,
                          STArray<kMaxNumAttachments, VkClearValue>* clearValues) {
-    // NOTE: This must stay in sync with the attachment order defined in VulkanRenderPass::Metadata
+    // NOTE: This must stay in sync with the attachment order defined in VulkanRenderPass.cpp, in
+    // populate_attachment_refs().
     if (rpDesc.fColorAttachment.fFormat != TextureFormat::kUnsupported) {
         VkClearValue& colorAttachmentClear = clearValues->push_back();
         colorAttachmentClear.color = {{rpDesc.fClearColor[0],

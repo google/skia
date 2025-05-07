@@ -215,4 +215,35 @@ bool RenderPassDescWillLoadMSAAFromResolve(const RenderPassDesc& renderPassDesc)
            renderPassDesc.fColorResolveAttachment.fLoadOp == LoadOp::kLoad;
 }
 
+bool RenderPassDescWillImplicitlyLoadMSAA(const RenderPassDesc& renderPassDesc) {
+    // TODO: This is currently not possible, but will be with an upcoming change adding support for
+    // VK_EXT_multisampled_render_to_single_sampled. For now, simply return false.
+    SkASSERT(renderPassDesc.fColorAttachment.fFormat != TextureFormat::kUnsupported);
+    SkASSERT(renderPassDesc.fColorAttachment.fSampleCount > 1 ||
+             renderPassDesc.fColorResolveAttachment.fFormat == TextureFormat::kUnsupported);
+
+    return false;
+}
+
+RenderPassDesc MakePipelineCompatibleRenderPass(const RenderPassDesc& renderPassDesc) {
+    RenderPassDesc compatible = renderPassDesc;
+
+    // Reset all load/store ops on the attachments since those do not affect compatibility.
+    // Choose a combination that is most likely to be used later by the real render pass.
+    const bool hasResolve =
+            renderPassDesc.fColorResolveAttachment.fFormat != TextureFormat::kUnsupported;
+    const bool needLoadMSAAFromResolveSubpass =
+            RenderPassDescWillLoadMSAAFromResolve(renderPassDesc);
+    compatible.fColorAttachment.fLoadOp =
+            needLoadMSAAFromResolveSubpass ? LoadOp::kDiscard : LoadOp::kClear;
+    compatible.fColorAttachment.fStoreOp = hasResolve ? StoreOp::kDiscard : StoreOp::kStore;
+    compatible.fColorResolveAttachment.fLoadOp =
+            needLoadMSAAFromResolveSubpass ? LoadOp::kLoad : LoadOp::kDiscard;
+    compatible.fColorResolveAttachment.fStoreOp = hasResolve ? StoreOp::kStore : StoreOp::kDiscard;
+    compatible.fDepthStencilAttachment.fLoadOp = LoadOp::kClear;
+    compatible.fDepthStencilAttachment.fStoreOp = StoreOp::kDiscard;
+
+    return compatible;
+}
+
 } // namespace skgpu::graphite

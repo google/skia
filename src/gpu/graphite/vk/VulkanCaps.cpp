@@ -1779,51 +1779,6 @@ std::pair<SkColorType, bool /*isRGBFormat*/> VulkanCaps::supportedReadPixelsColo
     return {kUnknown_SkColorType, false};
 }
 
-static constexpr uint32_t kFormatBits = 8;
-static constexpr uint32_t kSampleBits = 7;
-static constexpr uint32_t kLoadFromResolveBits = 1;
-
-static constexpr uint32_t kColorFormatOffset = 0;
-static constexpr uint32_t kColorNumSamplesOffset = kColorFormatOffset + kFormatBits;
-static constexpr uint32_t kDepthStencilFormatOffset = kColorNumSamplesOffset + kSampleBits;
-static constexpr uint32_t kDepthStencilNumSamplesOffset = kDepthStencilFormatOffset + kFormatBits;
-static constexpr uint32_t kLoadFromResolveOffset = kDepthStencilNumSamplesOffset + kSampleBits;
-
-static constexpr uint32_t kFormatMask = (1 << kFormatBits) - 1;
-static constexpr uint32_t kNumSamplesMask = (1 << kSampleBits) - 1;
-static constexpr uint32_t kLoadFromResolveMask = (1 << kLoadFromResolveBits) - 1;
-
-uint32_t VulkanCaps::getRenderPassDescKeyForPipeline(const RenderPassDesc& renderPassDesc) const {
-    // The render pass always has a color attachment, and maybe a depth-stencil attachment. An input
-    // attachment is always provided for compatibility purposes (even if not required). In
-    // truth, the existence of a resolve attachment or whether multisampled unresolve/resolve
-    // happens also does not affect the pipeline, but the render pass compatiblity rules are too
-    // restrictive. For that reason, one bit is used to indicate whether load-from-resolve is
-    // happening or not which informs everything else. Note that with
-    // VK_KHR_dynamic_rendering[_local_read] this bit is unneeded.
-    //
-    // The layout of the packed information is thus:
-    //
-    //     LSB                                                                     MSB
-    //     +-------------+--------------+----------+-----------+-----------------+---+
-    //     | ColorFormat | ColorSamples | DSFormat | DSSamples | LoadFromResolve | 0 |
-    //     +-------------+--------------+----------+-----------+-----------------+---+
-    //         8 bits         7 bits       8 bits     7 bits         1 bit
-    //
-    const auto& color = renderPassDesc.fColorAttachment;
-    const auto& depthStencil = renderPassDesc.fDepthStencilAttachment;
-    const bool loadMSAAFromResolve = RenderPassDescWillLoadMSAAFromResolve(renderPassDesc);
-
-    SkASSERT(color.fSampleCount <= kNumSamplesMask);
-    SkASSERT(depthStencil.fSampleCount <= kNumSamplesMask);
-
-    return (static_cast<uint32_t>(color.fFormat) << kColorFormatOffset) |
-           (color.fSampleCount << kColorNumSamplesOffset) |
-           (static_cast<uint32_t>(depthStencil.fFormat) << kDepthStencilFormatOffset) |
-           (depthStencil.fSampleCount << kDepthStencilNumSamplesOffset) |
-           (loadMSAAFromResolve << kLoadFromResolveOffset);
-}
-
 // 4 uint32s for the render step id, paint id, compatible render pass description, and write
 // swizzle.
 static constexpr int kPipelineKeyData32Count = 4;
@@ -1844,8 +1799,8 @@ UniqueKey VulkanCaps::makeGraphicsPipelineKey(const GraphicsPipelineDesc& pipeli
         builder[kPipelineKeyRenderStepIDIndex] = static_cast<uint32_t>(pipelineDesc.renderStepID());
         builder[kPipelineKeyPaintParamsIDIndex] = pipelineDesc.paintParamsID().asUInt();
         // Add RenderPassDesc information
-        builder[kPipelineKeyRenderPassDescIndex] =
-                this->getRenderPassDescKeyForPipeline(renderPassDesc);
+        builder[kPipelineKeyRenderPassDescIndex] = VulkanRenderPass::GetRenderPassKey(
+                renderPassDesc, /*compatibleForPipelineKey=*/true);
         // Add RenderPass info relevant for pipeline creation that's not captured in RenderPass keys
         builder[kPipelineKeyWriteSwizzleIndex] = renderPassDesc.fWriteSwizzle.asKey();
 
@@ -1875,38 +1830,11 @@ bool VulkanCaps::extractGraphicsDescs(const UniqueKey& key,
     SkASSERT(renderStep->performsShading() == pipelineDesc->paintParamsID().isValid());
 
     const uint32_t rpDescBits = rawKeyData[kPipelineKeyRenderPassDescIndex];
-    TextureFormat colorFormat =
-            static_cast<TextureFormat>((rpDescBits >> kColorFormatOffset) & kFormatMask);
-    uint8_t colorSamples = SkTo<uint8_t>((rpDescBits >> kColorNumSamplesOffset) & kNumSamplesMask);
-
-    TextureFormat depthStencilFormat =
-            static_cast<TextureFormat>((rpDescBits >> kDepthStencilFormatOffset) & kFormatMask);
-    uint8_t depthStencilSamples =
-            SkTo<uint8_t>((rpDescBits >> kDepthStencilNumSamplesOffset) & kNumSamplesMask);
-
-    const bool loadFromResolve =
-            ((rpDescBits >> kLoadFromResolveOffset) & kLoadFromResolveMask) != 0;
-
-    // Recreate the RenderPassDesc.  If the color attachment is multisampled, a resolve attachment
-    // is necessarily present.  The resolve attachment's load op will be based on loadFromResolve.
-    SkASSERT(colorSamples == depthStencilSamples ||
-             depthStencilFormat == TextureFormat::kUnsupported);
-    *renderPassDesc = {};
-    renderPassDesc->fColorAttachment = {colorFormat, LoadOp::kClear, StoreOp::kStore, colorSamples};
-    renderPassDesc->fDepthStencilAttachment = {
-            depthStencilFormat, LoadOp::kClear, StoreOp::kDiscard, depthStencilSamples};
-    if (colorSamples > 1) {
-        renderPassDesc->fColorResolveAttachment = {colorFormat,
-                                                   loadFromResolve ? LoadOp::kLoad : LoadOp::kClear,
-                                                   StoreOp::kStore,
-                                                   /*fSampleCount=*/1};
-        renderPassDesc->fColorAttachment.fStoreOp = StoreOp::kDiscard;
-    }
-
-    renderPassDesc->fSampleCount = colorSamples;
-    renderPassDesc->fWriteSwizzle =
-            SwizzleCtorAccessor::Make(rawKeyData[kPipelineKeyWriteSwizzleIndex]);
-    renderPassDesc->fDstReadStrategy = this->getDstReadStrategy();
+    VulkanRenderPass::ExtractRenderPassDesc(
+            rpDescBits,
+            SwizzleCtorAccessor::Make(rawKeyData[kPipelineKeyWriteSwizzleIndex]),
+            this->getDstReadStrategy(),
+            renderPassDesc);
 
     return true;
 }
