@@ -229,26 +229,37 @@ public:
     */
     SkPathFillType getFillType() const { return (SkPathFillType)fFillType; }
 
-    /** Sets FillType, the rule used to fill SkPath. While there is no check
-        that ft is legal, values outside of FillType are not supported.
+    /** Sets SkPathFillType, the rule used to fill SkPath. While there is no
+        check that ft is legal, values outside of SkPathFillType are not supported.
     */
     void setFillType(SkPathFillType ft) {
         fFillType = SkToU8(ft);
     }
 
-    /** Returns if FillType describes area outside SkPath geometry. The inverse fill area
+    /** Creates an SkPath with the same properties and data, and with SkPathFillType
+        set to newFillType.
+    */
+    SkPath makeFillType(SkPathFillType newFillType) const;
+
+    /** Returns if SkPathFillType describes area outside SkPath geometry. The inverse fill area
         extends indefinitely.
 
         @return  true if FillType is kInverseWinding or kInverseEvenOdd
     */
     bool isInverseFillType() const { return SkPathFillType_IsInverse(this->getFillType()); }
 
-    /** Replaces FillType with its inverse. The inverse of FillType describes the area
-        unmodified by the original FillType.
+    /** Replaces SkPathFillType with its inverse. The inverse of SkPathFillType describes the area
+        unmodified by the original SkPathFillType.
     */
     void toggleInverseFillType() {
         fFillType ^= 2;
     }
+
+    /** Creates an SkPath with the same properties and data, and with SkPathFillType
+        replaced with its inverse.  The inverse of SkPathFillType describes the area unmodified
+        by the original FillType.
+    */
+    SkPath makeToggleInverseFillType() const;
 
     /** Returns true if the path is convex. If necessary, it will first compute the convexity.
      */

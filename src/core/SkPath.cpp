@@ -9,6 +9,7 @@
 
 #include "include/core/SkArc.h"
 #include "include/core/SkPathBuilder.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
@@ -451,6 +452,22 @@ void SkPath::setBounds(const SkRect& rect) {
 
 SkPathConvexity SkPath::getConvexityOrUnknown() const {
     return (SkPathConvexity)fConvexity.load(std::memory_order_relaxed);
+}
+
+SkPath SkPath::makeFillType(SkPathFillType ft) const {
+    return SkPath(fPathRef,
+                  ft,
+                  fIsVolatile,
+                  this->getConvexityOrUnknown(),
+                  this->getFirstDirection());
+}
+
+SkPath SkPath::makeToggleInverseFillType() const {
+    return SkPath(fPathRef,
+                  static_cast<SkPathFillType>(fFillType ^ 2),
+                  fIsVolatile,
+                  this->getConvexityOrUnknown(),
+                  this->getFirstDirection());
 }
 
 #ifdef SK_DEBUG

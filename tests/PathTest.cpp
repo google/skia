@@ -4572,6 +4572,10 @@ public:
         return PathRefTest_Private::GetFreeSpace(*path.fPathRef);
     }
 
+    static const sk_sp<SkPathRef>& GetPathRef(const SkPath& path) {
+        return path.fPathRef;
+    }
+
     static void TestPathTo(skiatest::Reporter* reporter) {
         SkPath p, q;
         p.lineTo(4, 4);
@@ -6074,4 +6078,23 @@ DEF_TEST(path_walk_edges_concave_large_dx, r) {
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kFill_Style);
     surface->getCanvas()->drawPath(path, paint);
+}
+
+DEF_TEST(path_filltype_utils, r) {
+    SkPath p1;
+    p1.lineTo(42, 42);
+    p1.lineTo(42, 0);
+    p1.close();
+
+    REPORTER_ASSERT(r, p1.getFillType() == SkPathFillType::kWinding);
+
+    const SkPath p2 = p1.makeFillType(SkPathFillType::kEvenOdd);
+    REPORTER_ASSERT(r, p2 != p1);
+    REPORTER_ASSERT(r, p2.getFillType() == SkPathFillType::kEvenOdd);
+    REPORTER_ASSERT(r, PathTest_Private::GetPathRef(p2) == PathTest_Private::GetPathRef(p1));
+
+    const SkPath p3 = p2.makeToggleInverseFillType();
+    REPORTER_ASSERT(r, p3 != p2);
+    REPORTER_ASSERT(r, p3.getFillType() == SkPathFillType::kInverseEvenOdd);
+    REPORTER_ASSERT(r, PathTest_Private::GetPathRef(p3) == PathTest_Private::GetPathRef(p2));
 }
