@@ -12,6 +12,7 @@
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkImageInfo.h"
+#include "include/core/SkM44.h"
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
@@ -73,17 +74,23 @@ bool SkBlurMaskFilterImpl::asABlur(BlurRec* rec) const {
 
 std::pair<sk_sp<SkImageFilter>, bool> SkBlurMaskFilterImpl::asImageFilter(const SkMatrix& ctm,
                                                                           const SkPaint&) const {
-    float sigma = fSigma;
+    // Mask filters apply a uniform blur in either local or device space. Depending on the scale
+    // factors of the `ctm`, the actual blur radii can end up non-uniform.
+    SkV2 sigma = {fSigma, fSigma};
     if (this->ignoreXform()) {
         // This is analogous to computeXformedSigma(), but it might be more correct to wrap the
         // blur image filter in a local matrix with ctm^-1, or to control the skif::Mapping when
-        // the mask filter layer is restored. This is inaccurate when 'ctm' has skew or perspective
-        const float ctmScaleFactor = fSigma / ctm.mapRadius(fSigma);
-        sigma *= ctmScaleFactor;
+        // the mask filter layer is restored. It calculates new blur radii such that transforming
+        // these to the layer space of the image filter will match the original device-space fSigma.
+        // This can be inaccurate when 'ctm' has skew or perspective. A full fix requires layers
+        // having flexible operating coordinate spaces (e.g. parent or root canvas).
+        const float xScaleFactor = fSigma / ctm.mapVector(fSigma, 0.f).length();
+        const float yScaleFactor = fSigma / ctm.mapVector(0.f, fSigma).length();
+        sigma = {fSigma * xScaleFactor, fSigma * yScaleFactor};
     }
 
     // The null input image filter will be bound to the original coverage mask.
-    sk_sp<SkImageFilter> filter = SkImageFilters::Blur(sigma, sigma, nullptr);
+    sk_sp<SkImageFilter> filter = SkImageFilters::Blur(sigma.x, sigma.y, nullptr);
     // Combine the original coverage mask (src) and the blurred coverage mask (dst)
     switch(fBlurStyle) {
         case kInner_SkBlurStyle: //  dst = dst * src
