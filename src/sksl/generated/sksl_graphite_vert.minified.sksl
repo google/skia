@@ -33,7 +33,7 @@ static constexpr char SKSL_MINIFIED_sksl_graphite_vert[] =
 "float j){float2 k=f.xy;float2 l=f.zw;float2 m=g.xy;float2 n=g.zw;float o=-1."
 ";if($k(j)){o=n.x;n=m;}float p;if(o<0.)if(k==l&&m==n)p=1.;else p=$n(k,l,m,n,"
 "c);else p=$q(c*k,c*l,c*m,o);float q=i.x;float r=i.y;bool s=i.x==0.;float t;"
-"if(s){t=$v(1.);q=.5;}else t=$v(e*i.x);if(s){k=c*k;l=c*l;m=c*m;n=c*n;h=c*h;}"
+"if(s){t=$v(.5);q=.5;}else t=$v(e*i.x);if(s){k=c*k;l=c*l;m=c*m;n=c*n;h=c*h;}"
 "float2 u=$s(k==l?(l==m?n:m):l,k);float2 v=$s(n,n==m?(m==l?k:l):m);if(u==0.."
 "xx){u=float2(1.,0.);v=float2(-1.,0.);}float x;if(r>=0.)x=sign(r)+3.;else{float2"
 " y=$s(k,h);float z=acos($t(y,u));float A=max(ceil(z*t),1.);x=A+2.;x=min(x,b"

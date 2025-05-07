@@ -244,7 +244,7 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
     bool isHairline = strokeParams.x == 0.0;
     float numRadialSegmentsPerRadian;
     if (isHairline) {
-        numRadialSegmentsPerRadian = $num_radial_segments_per_radian(1.0);
+        numRadialSegmentsPerRadian = $num_radial_segments_per_radian(0.5);
         strokeRadius = 0.5;
     } else {
         numRadialSegmentsPerRadian = $num_radial_segments_per_radian(maxScale * strokeParams.x);
