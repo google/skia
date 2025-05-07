@@ -58,7 +58,7 @@ const PrecompileSettings kPrecompileCases[] = {
 /* 17 */ { LinearGradSmSrcover(),              DrawTypeFlags::kNonAAFillRect,    kBGRA_1_D },
 /* 18 */ { SolidSrcSrcover(),                  DrawTypeFlags::kSimpleShape,      kBGRA_1_D },
 /* 19 */ { TransparentPaintImagePremulHWAndClampSrcover(),kQuadAndNonAARect,     kBGRA_1_D },
-/* 20 */ { LinearGradSRGBSmMedSrcover(),       kRRectAndNonAARect,               kBGRA_1_D_Adobe },
+/* 20 */ { LinearGradSRGBSmMedDitherSrcover(), kRRectAndNonAARect,               kBGRA_1_D_Adobe },
 /* 21 */ { ImageHWOnlySRGBSrcover(),           kRRectAndNonAARect,               kBGRA_1_D_SRGB },
 /* 22 */ { ImageSRGBNoCubicSrc(),              kQuadAndNonAARect,                kBGRA_1_D_SRGB },
 /* 23 */ { YUVImageSRGBNoCubicSrcover(),       DrawTypeFlags::kSimpleShape,      kBGRA_1_D_SRGB },
@@ -75,7 +75,7 @@ const PrecompileSettings kPrecompileCases[] = {
 /* 32 */ { SolidSrcover(),                     DrawTypeFlags::kNonSimpleShape,   kBGRA_4_DS },
 /* 33 */ { SolidSrcover(),                     DrawTypeFlags::kAnalyticRRect,    kBGRA_4_DS },
 /* 34 */ { TransparentPaintImagePremulHWOnlySrcover(), DrawTypeFlags::kPerEdgeAAQuad, kBGRA_4_DS },
-/* 35 */ { LinearGradSRGBSmMedSrcover(),       kRRectAndNonAARect,               kBGRA_4_DS_Adobe },
+/* 35 */ { LinearGradSRGBSmMedDitherSrcover(), kRRectAndNonAARect,               kBGRA_4_DS_Adobe },
 /* 36 */ { ImageHWOnlySRGBSrcover(),           DrawTypeFlags::kAnalyticRRect,    kBGRA_4_DS_SRGB },
 /* 37 */ { YUVImageSRGBSrcover2(),             DrawTypeFlags::kSimpleShape,      kBGRA_4_DS_SRGB },
 };

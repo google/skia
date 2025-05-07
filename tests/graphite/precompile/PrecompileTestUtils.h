@@ -92,15 +92,20 @@ void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
              PipelineLabelInfoCollector* collector);
 
 skgpu::graphite::PaintOptions SolidSrcover();
+skgpu::graphite::PaintOptions SolidMatrixCFSrcover();
 skgpu::graphite::PaintOptions LinearGradSmSrcover();
-skgpu::graphite::PaintOptions LinearGradSRGBSmMedSrcover();
+skgpu::graphite::PaintOptions LinearGradSRGBSmMedDitherSrcover();
 skgpu::graphite::PaintOptions TransparentPaintImagePremulHWAndClampSrcover();
+skgpu::graphite::PaintOptions TransparentPaintImagePremulHWOnlyMatrixCFSrcover();
+skgpu::graphite::PaintOptions TransparentPaintImagePremulHWOnlyMatrixCFDitherSrcover();
+skgpu::graphite::PaintOptions TransparentPaintImageSRGBHWOnlyMatrixCFDitherSrcover();
 skgpu::graphite::PaintOptions TransparentPaintImagePremulHWOnlySrcover();
 skgpu::graphite::PaintOptions TransparentPaintImageSRGBHWOnlySrcover();
 skgpu::graphite::PaintOptions TransparentPaintSrcover();
 skgpu::graphite::PaintOptions SolidClearSrcSrcover();
 skgpu::graphite::PaintOptions SolidSrcSrcover();
 skgpu::graphite::PaintOptions ImagePremulNoCubicSrcover();
+skgpu::graphite::PaintOptions ImagePremulHWOnlySrc();
 skgpu::graphite::PaintOptions ImagePremulHWOnlySrcover();
 skgpu::graphite::PaintOptions ImagePremulClampNoCubicDstin();
 skgpu::graphite::PaintOptions ImagePremulHWOnlyDstin();
@@ -110,9 +115,13 @@ skgpu::graphite::PaintOptions ImagePremulNoCubicSrcSrcover();
 skgpu::graphite::PaintOptions ImageSRGBNoCubicSrc();
 skgpu::graphite::PaintOptions BlendPorterDuffCFSrcover();
 skgpu::graphite::PaintOptions ImageAlphaHWOnlySrcover();
+skgpu::graphite::PaintOptions ImageAlphaPremulHWOnlyMatrixCFSrcover();
+skgpu::graphite::PaintOptions ImageAlphaSRGBHWOnlyMatrixCFSrcover();
 skgpu::graphite::PaintOptions ImageAlphaNoCubicSrc();
 skgpu::graphite::PaintOptions ImagePremulHWOnlyPorterDuffCFSrcover();
 skgpu::graphite::PaintOptions ImagePremulHWOnlyMatrixCFSrcover();
+skgpu::graphite::PaintOptions ImagePremulHWOnlyMatrixCFDitherSrcover();
+skgpu::graphite::PaintOptions ImageSRGBHWOnlyMatrixCFDitherSrcover();
 skgpu::graphite::PaintOptions ImageHWOnlySRGBSrcover();
 
 

@@ -43,6 +43,15 @@ PaintOptions SolidSrcover() {
     return paintOptions;
 }
 
+PaintOptions SolidMatrixCFSrcover() {
+    PaintOptions paintOptions;
+
+    paintOptions.setColorFilters({ PrecompileColorFilters::Matrix() });
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+
+    return paintOptions;
+}
+
 PaintOptions LinearGradSmSrcover() {
     PaintOptions paintOptions;
     paintOptions.setShaders({ PrecompileShaders::LinearGradient(GradientShaderFlags::kSmall) });
@@ -50,7 +59,7 @@ PaintOptions LinearGradSmSrcover() {
     return paintOptions;
 }
 
-PaintOptions LinearGradSRGBSmMedSrcover() {
+PaintOptions LinearGradSRGBSmMedDitherSrcover() {
     PaintOptions paintOptions;
     paintOptions.setShaders({ PrecompileShaders::LinearGradient(
             GradientShaderFlags::kNoLarge,
@@ -74,6 +83,50 @@ PaintOptions TransparentPaintImagePremulHWAndClampSrcover() {
                                                        { &tm, 1 }) });
     paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
     paintOptions.setPaintColorIsOpaque(false);
+    return paintOptions;
+}
+
+PaintOptions TransparentPaintImagePremulHWOnlyMatrixCFSrcover() {
+    PaintOptions paintOptions;
+
+    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
+    paintOptions.setShaders({ PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                       { &ci, 1 },
+                                                       {}) });
+    paintOptions.setColorFilters({ PrecompileColorFilters::Matrix() });
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setPaintColorIsOpaque(false);
+    return paintOptions;
+}
+
+PaintOptions TransparentPaintImagePremulHWOnlyMatrixCFDitherSrcover() {
+    PaintOptions paintOptions;
+
+    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
+    paintOptions.setShaders({ PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                       { &ci, 1 },
+                                                       {}) });
+    paintOptions.setColorFilters({ PrecompileColorFilters::Matrix() });
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setPaintColorIsOpaque(false);
+    paintOptions.setDither(true);
+    return paintOptions;
+}
+
+PaintOptions TransparentPaintImageSRGBHWOnlyMatrixCFDitherSrcover() {
+    SkColorInfo ci { kRGBA_8888_SkColorType,
+                     kPremul_SkAlphaType,
+                     SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kAdobeRGB) };
+
+    PaintOptions paintOptions;
+
+    paintOptions.setShaders({ PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                       { &ci, 1 },
+                                                       {}) });
+    paintOptions.setColorFilters({ PrecompileColorFilters::Matrix() });
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setPaintColorIsOpaque(false);
+    paintOptions.setDither(true);
     return paintOptions;
 }
 
@@ -134,6 +187,17 @@ PaintOptions ImagePremulNoCubicSrcover() {
                                                        { &ci, 1 },
                                                        { &tm, 1 }) });
     paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    return paintOptions;
+}
+
+PaintOptions ImagePremulHWOnlySrc() {
+    PaintOptions paintOptions;
+
+    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
+    paintOptions.setShaders({ PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                       { &ci, 1 },
+                                                       {}) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrc });
     return paintOptions;
 }
 
@@ -240,6 +304,36 @@ PaintOptions ImageAlphaHWOnlySrcover() {
     return paintOptions;
 }
 
+PaintOptions ImageAlphaPremulHWOnlyMatrixCFSrcover() {
+    PaintOptions paintOptions;
+
+    SkColorInfo ci { kAlpha_8_SkColorType, kUnpremul_SkAlphaType, nullptr };
+    paintOptions.setShaders({ PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                       { &ci, 1 },
+                                                       {}) });
+    paintOptions.setColorFilters({ PrecompileColorFilters::Matrix() });
+
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    return paintOptions;
+}
+
+PaintOptions ImageAlphaSRGBHWOnlyMatrixCFSrcover() {
+    // Note: this is different from the other SRGB ColorInfos
+    SkColorInfo ci { kAlpha_8_SkColorType,
+                     kUnpremul_SkAlphaType,
+                     SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kAdobeRGB) };
+
+    PaintOptions paintOptions;
+
+    paintOptions.setShaders({ PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                       { &ci, 1 },
+                                                       {}) });
+    paintOptions.setColorFilters({ PrecompileColorFilters::Matrix() });
+
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    return paintOptions;
+}
+
 PaintOptions ImageAlphaNoCubicSrc() {
     PaintOptions paintOptions;
 
@@ -276,6 +370,39 @@ PaintOptions ImagePremulHWOnlyMatrixCFSrcover() {
     paintOptions.setColorFilters({ PrecompileColorFilters::Matrix() });
 
     paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    return paintOptions;
+}
+
+PaintOptions ImagePremulHWOnlyMatrixCFDitherSrcover() {
+    PaintOptions paintOptions;
+
+    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
+    paintOptions.setShaders({ PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                       { &ci, 1 },
+                                                       {}) });
+    paintOptions.setColorFilters({ PrecompileColorFilters::Matrix() });
+
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setDither(true);
+
+    return paintOptions;
+}
+
+PaintOptions ImageSRGBHWOnlyMatrixCFDitherSrcover() {
+    SkColorInfo ci { kRGBA_8888_SkColorType,
+                     kPremul_SkAlphaType,
+                     SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kAdobeRGB) };
+
+    PaintOptions paintOptions;
+
+    paintOptions.setShaders({ PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                       { &ci, 1 },
+                                                       {}) });
+    paintOptions.setColorFilters({ PrecompileColorFilters::Matrix() });
+
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setDither(true);
+
     return paintOptions;
 }
 
