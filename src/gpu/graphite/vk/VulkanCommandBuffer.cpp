@@ -123,8 +123,6 @@ void VulkanCommandBuffer::onResetCommandBuffer() {
     VULKAN_CALL_ERRCHECK(fSharedContext, ResetCommandPool(fSharedContext->device(), fPool, 0));
     fActiveGraphicsPipeline = nullptr;
     fBindUniformBuffers = true;
-    fBoundIndexBuffer = VK_NULL_HANDLE;
-    fBoundIndexBufferOffset = 0;
     fBoundIndirectBuffer = VK_NULL_HANDLE;
     fBoundIndirectBufferOffset = 0;
     fTargetTexture = nullptr;
@@ -133,12 +131,6 @@ void VulkanCommandBuffer::onResetCommandBuffer() {
     fUniformBuffersToBind.fill({});
     for (int i = 0; i < 4; ++i) {
         fCachedBlendConstant[i] = -1.0;
-    }
-    for (auto& boundInputBuffer : fBoundInputBuffers) {
-        boundInputBuffer = VK_NULL_HANDLE;
-    }
-    for (auto& boundInputOffset : fBoundInputBufferOffsets) {
-        boundInputOffset = 0;
     }
 }
 
@@ -1143,23 +1135,17 @@ void VulkanCommandBuffer::bindUniformBuffers() {
     this->trackResource(std::move(descSet));
 }
 
-void VulkanCommandBuffer::bindInputBuffer(const Buffer* buffer, VkDeviceSize offset,
+void VulkanCommandBuffer::bindInputBuffer(const Buffer* inputBuffer, VkDeviceSize offset,
                                           uint32_t binding) {
-    if (buffer) {
-        SkASSERT(buffer->isProtected() == Protected::kNo);
-        VkBuffer vkBuffer = static_cast<const VulkanBuffer*>(buffer)->vkBuffer();
+    if (inputBuffer) {
+        SkASSERT(inputBuffer->isProtected() == Protected::kNo);
+        VkBuffer vkBuffer = static_cast<const VulkanBuffer*>(inputBuffer)->vkBuffer();
         SkASSERT(vkBuffer != VK_NULL_HANDLE);
-        if (vkBuffer != fBoundInputBuffers[binding] ||
-            offset != fBoundInputBufferOffsets[binding]) {
-            VULKAN_CALL(fSharedContext->interface(),
-                        CmdBindVertexBuffers(fPrimaryCommandBuffer,
-                                             binding,
-                                             /*bindingCount=*/1,
-                                             &vkBuffer,
-                                             &offset));
-            fBoundInputBuffers[binding] = vkBuffer;
-            fBoundInputBufferOffsets[binding] = offset;
-        }
+        VULKAN_CALL(fSharedContext->interface(), CmdBindVertexBuffers(fPrimaryCommandBuffer,
+                                                                      binding,
+                                                                      /*bindingCount=*/1,
+                                                                      &vkBuffer,
+                                                                      &offset));
     }
 }
 
@@ -1168,17 +1154,10 @@ void VulkanCommandBuffer::bindIndexBuffer(const Buffer* indexBuffer, size_t offs
         SkASSERT(indexBuffer->isProtected() == Protected::kNo);
         VkBuffer vkBuffer = static_cast<const VulkanBuffer*>(indexBuffer)->vkBuffer();
         SkASSERT(vkBuffer != VK_NULL_HANDLE);
-        if (vkBuffer != fBoundIndexBuffer || offset != fBoundIndexBufferOffset) {
-            VULKAN_CALL(fSharedContext->interface(), CmdBindIndexBuffer(fPrimaryCommandBuffer,
-                                                                        vkBuffer,
-                                                                        offset,
-                                                                        VK_INDEX_TYPE_UINT16));
-            fBoundIndexBuffer = vkBuffer;
-            fBoundIndexBufferOffset = offset;
-        }
-    } else {
-        fBoundIndexBuffer = VK_NULL_HANDLE;
-        fBoundIndexBufferOffset = 0;
+        VULKAN_CALL(fSharedContext->interface(), CmdBindIndexBuffer(fPrimaryCommandBuffer,
+                                                                     vkBuffer,
+                                                                     offset,
+                                                                     VK_INDEX_TYPE_UINT16));
     }
 }
 

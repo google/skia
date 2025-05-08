@@ -222,12 +222,8 @@ private:
 
     int fNumTextureSamplers = 0;
 
-    VkBuffer fBoundInputBuffers[VulkanGraphicsPipeline::kNumInputBuffers];
-    size_t fBoundInputBufferOffsets[VulkanGraphicsPipeline::kNumInputBuffers];
-
-    VkBuffer fBoundIndexBuffer = VK_NULL_HANDLE;
+    // Tracking for whether an indirect buffer should be rebound.
     VkBuffer fBoundIndirectBuffer = VK_NULL_HANDLE;
-    size_t fBoundIndexBufferOffset = 0;
     size_t fBoundIndirectBufferOffset = 0;
 
     float fCachedBlendConstant[4];
