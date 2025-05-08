@@ -17,6 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/utils/SkParsePath.h"
 
 namespace {
 struct PathDY {
@@ -705,5 +706,58 @@ DEF_SIMPLE_GM(path_skbug_11886, canvas, 256, 256) {
     path.cubicTo(m + SkPoint{0.f, 1.f}, m + SkPoint{20.f, -750.f}, m + SkPoint{83.f, -746.f});
     SkPaint paint;
     paint.setAntiAlias(true);
+    canvas->drawPath(path, paint);
+}
+
+DEF_SIMPLE_GM(path_skbug_328687149_Case1, canvas, 256, 256) {
+    SkPaint paint;
+    paint.setAntiAlias(false);
+
+    SkPath path;
+    SkParsePath::FromSVGString(
+        "M0 0C54 26 55 32 39 0L60 48M47 50Q32 26 58 8L25 20L60 7L19 17",
+        &path
+    );
+    path.setFillType(SkPathFillType::kEvenOdd);
+
+    canvas->drawPath(path, paint);
+}
+
+DEF_SIMPLE_GM(path_skbug_328687149_Case2, canvas, 256, 256) {
+    SkPaint paint;
+    paint.setAntiAlias(false);
+
+    SkPath path;
+    SkParsePath::FromSVGString(
+        "M0 0Q44 39 47 1L43 23C9 36 51 13 45 12C53 41 58 49 7 23M4 13M12 10L52 7C32 62 33 38 36 62",
+        &path
+    );
+    path.setFillType(SkPathFillType::kEvenOdd);
+
+    canvas->drawPath(path, paint);
+}
+
+DEF_SIMPLE_GM(path_skbug_328687149_Case3, canvas, 256, 256) {
+    SkPaint paint;
+    paint.setAntiAlias(false);
+
+    SkPath path;
+    SkParsePath::FromSVGString(
+        "M0 0L9 19Q57 50 48 28C48 62 45 34 14 54Q6 53 28 49M50 54C58 35 53 45 20 35",
+        &path
+    );
+    path.setFillType(SkPathFillType::kEvenOdd);
+
+    canvas->drawPath(path, paint);
+}
+
+DEF_SIMPLE_GM(path_skbug_328687149_Case4, canvas, 256, 256) {
+    SkPaint paint;
+    paint.setAntiAlias(false);
+
+    SkPath path;
+    SkParsePath::FromSVGString("M0 0L8 5Q1 43 61 55M57 14Q2 11 42 51Q22 1 40 46", &path);
+    path.setFillType(SkPathFillType::kEvenOdd);
+
     canvas->drawPath(path, paint);
 }

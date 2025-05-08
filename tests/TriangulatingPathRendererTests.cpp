@@ -1360,7 +1360,7 @@ DEF_TEST(Triangulator_Crbug1262444, r) {
     SimplerVertexAllocator alloc;
 
     int vertexCount = GrAATriangulator::PathToAATriangles(path, kTol, clipBounds, &alloc);
-    REPORTER_ASSERT(r, vertexCount == 0);
+    REPORTER_ASSERT(r, vertexCount == 303);
 }
 
 DEF_TEST(Triangulator_Crbug337080025, r) {

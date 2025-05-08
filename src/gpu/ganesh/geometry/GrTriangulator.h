@@ -59,6 +59,7 @@ public:
     struct Vertex;
     struct VertexList;
     struct Line;
+    struct Segment;
     struct Edge;
     struct EdgeList;
     struct MonotonePoly;
@@ -387,6 +388,27 @@ struct GrTriangulator::Line {
     double fA, fB, fC;
 };
 
+// The data structure of the original segment to which the split edge belongs
+struct GrTriangulator::Segment {
+    Segment(Vertex* top, Vertex* bottom)
+        : fTop(top)
+        , fBottom(bottom)
+        , fLine(top, bottom) {
+    }
+
+    bool isEndpoint(const SkPoint& point) const {
+        return (point == fTop->fPoint) || (point == fBottom->fPoint);
+    }
+
+    bool isEndpoint(Vertex* v) const {
+        return (v == fTop) || (v == fBottom);
+    }
+
+    Vertex* fTop;
+    Vertex* fBottom;
+    Line fLine;
+};
+
 /**
  * An Edge joins a top Vertex to a bottom Vertex. Edge ordering for the list of "edges above" and
  * "edge below" a vertex as well as for the active edge list is handled by isLeftOf()/isRightOf().
@@ -425,7 +447,8 @@ struct GrTriangulator::Edge {
         , fRightPolyNext(nullptr)
         , fUsedInLeftPoly(false)
         , fUsedInRightPoly(false)
-        , fLine(top, bottom) {
+        , fLine(top, bottom)
+        , fOriginalSegment(nullptr) {
         }
     int      fWinding;          // 1 == edge goes downward; -1 = edge goes upward.
     Vertex*  fTop;              // The top vertex in vertex-sort-order (sweep_lt).
@@ -446,12 +469,15 @@ struct GrTriangulator::Edge {
     bool     fUsedInLeftPoly;
     bool     fUsedInRightPoly;
     Line     fLine;
+    Segment* fOriginalSegment;
 
     double dist(const SkPoint& p) const {
         // Coerce points coincident with the vertices to have dist = 0, since converting from
         // a double intersection point back to float storage might construct a point that's no
         // longer on the ideal line.
-        return (p == fTop->fPoint || p == fBottom->fPoint) ? 0.0 : fLine.dist(p);
+        const Line* line = fOriginalSegment && !fOriginalSegment->isEndpoint(p)
+            ? &fOriginalSegment->fLine : &fLine;
+        return (p == fTop->fPoint || p == fBottom->fPoint) ? 0.0 : line->dist(p);
     }
     bool isRightOf(const Vertex& v) const { return this->dist(v.fPoint) < 0.0; }
     bool isLeftOf(const Vertex& v) const { return this->dist(v.fPoint) > 0.0; }
@@ -460,6 +486,22 @@ struct GrTriangulator::Edge {
     void insertBelow(Vertex*, const Comparator&);
     void disconnect();
     bool intersect(const Edge& other, SkPoint* p, uint8_t* alpha = nullptr) const;
+    void rescaleToWinding() {
+        fLine.normalize();
+        fLine = fLine * fWinding;
+
+        if (fOriginalSegment) {
+            fOriginalSegment->fLine.normalize();
+            fOriginalSegment->fLine = fOriginalSegment->fLine * fWinding;
+        }
+    }
+    double pointTo(const SkPoint& p) const {
+        float sDx = fBottom->fPoint.fX - fTop->fPoint.fX;
+        float sDy = fBottom->fPoint.fY - fTop->fPoint.fY;
+        double t = (std::abs(sDx) > std::abs(sDy)) ? ((double)p.fX - fTop->fPoint.fX) / sDx
+                                                   : ((double)p.fY - fTop->fPoint.fY) / sDy;
+        return t;
+    }
 };
 
 struct GrTriangulator::EdgeList {
