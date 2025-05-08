@@ -17,9 +17,9 @@ use crate::{
         is_script_style, is_serif_style, is_subsettable, italic_angle, lookup_glyph_or_zero,
         make_font_ref, make_mapping_index, normalized_coords_equal, num_axes, num_glyphs,
         num_named_instances, outline_format, populate_axes, resolve_into_normalized_coords,
-        table_data, table_tags, unhinted_advance_width_or_zero, units_per_em_or_zero,
-        variation_position, BridgeFontRef, BridgeMappingIndex, BridgeNormalizedCoords,
-        BridgeOutlineCollection,
+        scaler_hinted_advance_width, table_data, table_tags, unhinted_advance_width_or_zero,
+        units_per_em_or_zero, variation_position, BridgeFontRef, BridgeMappingIndex,
+        BridgeNormalizedCoords, BridgeOutlineCollection,
     },
     bitmap::{bitmap_glyph, bitmap_metrics, has_bitmap_glyph, png_data, BridgeBitmapGlyph},
     colr::{
@@ -83,8 +83,6 @@ pub mod ffi {
 
     struct BridgeScalerMetrics {
         has_overlaps: bool,
-        has_adjusted_advance: bool,
-        adjusted_advance: f32,
     }
 
     pub struct PaletteOverride {
@@ -256,6 +254,12 @@ pub mod ffi {
             coords: &BridgeNormalizedCoords,
             glyph_id: u16,
         ) -> f32;
+        fn scaler_hinted_advance_width(
+            outlines: &BridgeOutlineCollection,
+            hinting_instance: &BridgeHintingInstance,
+            glyph_id: u16,
+            out_advance_width: &mut f32,
+        ) -> bool;
         fn units_per_em_or_zero(font_ref: &BridgeFontRef) -> u16;
         fn get_skia_metrics(
             font_ref: &BridgeFontRef,
