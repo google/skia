@@ -166,9 +166,9 @@ bool TextStyle::matchOneAttribute(StyleType styleType, const TextStyle& other) c
 
 void TextStyle::getFontMetrics(SkFontMetrics* metrics) const {
     SkFont font(fTypeface, fFontSize);
-    font.setEdging(SkFont::Edging::kAntiAlias);
-    font.setSubpixel(true);
-    font.setHinting(SkFontHinting::kSlight);
+    font.setEdging(fEdging);
+    font.setSubpixel(fSubpixel);
+    font.setHinting(fHinting);
     font.getMetrics(metrics);
     if (fHeightOverride) {
         auto multiplier = fHeight * fFontSize;
