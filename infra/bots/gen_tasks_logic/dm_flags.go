@@ -1273,6 +1273,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		}
 	}
 
+	// b/416733454
+	if (b.model("AndroidOne") || b.model("JioNext")) && b.gpu() {
+		skip(ALL, "svg", ALL, "desk_motionmark_paths.svg")
+	}
+
 	// b/296440036
 	// disable broken tests on Adreno 5/6xx Vulkan or API30
 	if b.matchGpu("Adreno[56]") && (b.extraConfig("Vulkan") || b.extraConfig("API30")) {
