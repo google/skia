@@ -585,6 +585,10 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
         sk_sp<SkTypeface> typeface = typefaces.empty() ? nullptr : typefaces.front();
         SkFont font(typeface, placeholder.fTextStyle.getFontSize());
 
+        font.setEdging(placeholder.fTextStyle.getFontEdging());
+        font.setHinting(placeholder.fTextStyle.getFontHinting());
+        font.setSubpixel(placeholder.fTextStyle.getSubpixel());
+
         // "Shape" the placeholder
         uint8_t bidiLevel = (bidiIndex < fParagraph->fBidiRegions.size())
             ? fParagraph->fBidiRegions[bidiIndex].level
