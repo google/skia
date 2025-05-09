@@ -519,7 +519,9 @@ private:
                 fTilingModes[desiredTiling] == kCubicShaderTiled
                                      ? kDefaultCubicSampling
                                      : kDefaultSampling,
-                SkTileMode::kClamp, SkTileMode::kClamp,
+                SkTileMode::kClamp,
+                fTilingModes[desiredTiling] == kShaderTiled ? SkTileMode::kRepeat
+                                                            : SkTileMode::kClamp,
                 /* imgSize= */ { 1, 1 },
                 /* subset= */ fTilingModes[desiredTiling] == kShaderTiled
                                      ? SkRect::MakeEmpty()

@@ -1235,6 +1235,8 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kLocalCoords,
             /*uniforms=*/{ { "invImgSizeY",           SkSLType::kFloat2 },
                            { "invImgSizeUV",          SkSLType::kFloat2 }, // Relative to Y's texels
+                           { "subset",                SkSLType::kFloat4 },
+                           { "linearFilterUVInset",   SkSLType::kFloat2 },
                            { "channelSelectY",        SkSLType::kHalf4 },
                            { "channelSelectU",        SkSLType::kHalf4 },
                            { "channelSelectV",        SkSLType::kHalf4 },
@@ -1253,6 +1255,8 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             SnippetRequirementFlags::kLocalCoords,
             /*uniforms=*/{ { "invImgSizeY",              SkSLType::kFloat2 },
                            { "invImgSizeUV",             SkSLType::kFloat2 }, // Relative to Y space
+                           { "subset",                   SkSLType::kFloat4 },
+                           { "linearFilterUVInset",      SkSLType::kFloat2 },
                            { "yuvToRGBMatrix",           SkSLType::kHalf3x3 },
                            { "yuvToRGBXlateAlphaParams", SkSLType::kHalf4 } },
             /*texturesAndSamplers=*/ {{ "samplerY" },
