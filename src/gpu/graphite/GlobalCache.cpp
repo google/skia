@@ -298,6 +298,29 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
     return *entry;
 }
 
+void GlobalCache::removeGraphicsPipeline(const GraphicsPipeline* pipeline) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    skia_private::STArray<1, skgpu::UniqueKey> toRemove;
+    // This is only called when a pipeline failed to compile, so it is not performance critical.
+    fGraphicsPipelineCache.foreach([&toRemove, pipeline](const UniqueKey* key,
+                                                         const sk_sp<GraphicsPipeline>* inCache) {
+        // Since inCache is ref'ed by GlobalCache, we can safely compare direct addresses and not
+        // worry about a new GraphicsPipeline being allocated at an address that was still here.
+        if ((*inCache).get() == pipeline) {
+            toRemove.push_back(*key);
+        }
+    });
+
+    // The pipeline shouldn't have multiple unique keys, but this is structured to clean up every
+    // occurrence of pipeline in fGraphicsPipelineCache in release builds.
+    SkASSERT(toRemove.size() <= 1);
+
+    for (const skgpu::UniqueKey& k : toRemove) {
+        fGraphicsPipelineCache.remove(k);
+    }
+}
+
 void GlobalCache::purgePipelinesNotUsedSince(StdSteadyClock::time_point purgeTime) {
     SkAutoSpinlock lock{fSpinLock};
 

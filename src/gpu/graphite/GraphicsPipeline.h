@@ -91,6 +91,11 @@ public:
     void markEpoch(uint16_t epoch) { fPipelineInfo.fEpoch = epoch; }
     uint16_t epoch() const { return fPipelineInfo.fEpoch; }
 
+    // GraphicsPipeline compiles can take a while. If the underlying compilation is performed
+    // asynchronously, we may create a GraphicsPipeline object that later "fails" and need to remove
+    // it from the GlobalCache.
+    virtual bool didAsyncCompilationFail() const { return false; }
+
 protected:
     GraphicsPipeline(const SharedContext*, const PipelineInfo&);
 

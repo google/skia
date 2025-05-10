@@ -721,6 +721,12 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
             asyncCreation->fRenderPipeline = nullptr;
         }
 
+        // Fail ASAP for synchronous pipeline creation so it affects the Recording snap instead of
+        // being detected later at insertRecording().
+        if (!asyncCreation->fRenderPipeline) {
+            return nullptr;
+        }
+
         log_pipeline_creation(asyncCreation.get());
     }
 
@@ -764,6 +770,12 @@ void DawnGraphicsPipeline::freeGpuData() {
     // Wait for async creation to finish before we can destroy this object.
     (void)this->dawnRenderPipeline();
     fAsyncPipelineCreation = nullptr;
+}
+
+bool DawnGraphicsPipeline::didAsyncCompilationFail() const {
+    return fAsyncPipelineCreation &&
+           fAsyncPipelineCreation->fFinished &&
+           !fAsyncPipelineCreation->fRenderPipeline;
 }
 
 const wgpu::RenderPipeline& DawnGraphicsPipeline::dawnRenderPipeline() const {
