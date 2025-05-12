@@ -11,9 +11,12 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/gpu/graphite/TextureProxy.h"
+
+class SkRuntimeEffect;
 
 namespace skgpu::graphite {
 
@@ -23,12 +26,28 @@ class Recorder;
 class RuntimeEffectDictionary;
 class ShaderCodeDictionary;
 
+enum class KeyGenFlags : uint8_t {
+    kDefault = 0b0,
+    // By default, linear sampling can be optimized to nearest when it's visually equivalent.
+    // This flag disables this behavior.
+    kDisableSamplingOptimization       = 0b001,
+    // By default, identity color conversions map to ColorSpaceTransformPremul as a reasonably
+    // performant baseline that avoids shader combinatorics. However, in certain contexts (such as
+    // image filters or runtime effects) that sample an image many times *and* perform up front
+    // work to ensure there doesn't need to be any color conversion, skipping color space conversion
+    // in the shader produces meaningful performance improvements.
+    kEnableIdentityColorSpaceXform     = 0b010,
+    // By default, alpha-only image shaders are colorized by the paint's color. In the context of
+    // a runtime effect this is disabled.
+    kDisableAlphaOnlyImageColorization = 0b100,
+};
+SK_MAKE_BITMASK_OPS(KeyGenFlags)
+
 // The key context must always be able to provide a valid ShaderCodeDictionary and
 // SkRuntimeEffectDictionary. Depending on the calling context it can also supply a
 // backend-specific resource providing object (e.g., a Recorder).
 class KeyContext {
 public:
-    enum class OptimizeSampling : bool { kNo = false, kYes = true };
     // Constructor for the pre-compile code path (i.e., no Recorder)
     KeyContext(const Caps* caps,
                ShaderCodeDictionary* dict,
@@ -43,7 +62,7 @@ public:
     KeyContext(Recorder*,
                const SkM44& local2Dev,
                const SkColorInfo& dstColorInfo,
-               OptimizeSampling optimizeSampling,
+               SkEnumBitMask<KeyGenFlags> initialFlags,
                const SkColor4f& paintColor);
 
     KeyContext(const KeyContext&);
@@ -62,13 +81,7 @@ public:
 
     const SkPMColor4f& paintColor() const { return fPaintColor; }
 
-    enum class Scope {
-        kDefault,
-        kRuntimeEffect,
-    };
-
-    Scope scope() const { return fScope; }
-    OptimizeSampling optimizeSampling() const { return fOptimizeSampling; }
+    SkEnumBitMask<KeyGenFlags> flags() const { return fKeyGenFlags; }
 
 protected:
     Recorder* fRecorder = nullptr;
@@ -81,8 +94,7 @@ protected:
     // and a separate alpha portion. The two portions will never be used together but are stored
     // together to reduce the number of uniforms.
     SkPMColor4f fPaintColor = SK_PMColor4fBLACK;
-    Scope fScope = Scope::kDefault;
-    OptimizeSampling fOptimizeSampling = OptimizeSampling::kNo;
+    SkEnumBitMask<KeyGenFlags> fKeyGenFlags = KeyGenFlags::kDefault;
 
 private:
     const Caps* fCaps = nullptr;
@@ -127,33 +139,29 @@ private:
     KeyContextWithColorInfo& operator=(const KeyContextWithColorInfo&) = delete;
 };
 
-class KeyContextWithScope : public KeyContext {
+// The key generation flags vary in the scope of a SkRuntimeEffect per child based on how the RE's
+// SkSL invokes each child.
+class KeyContextForRuntimeEffect : public KeyContext {
 public:
-    KeyContextWithScope(const KeyContext& other, KeyContext::Scope scope) : KeyContext(other) {
-        fScope = scope;
-        // We skip optimized sampling for runtime effects because these might have arbitrary
-        // coordinate sampling.
-        if (fScope == Scope::kRuntimeEffect) {
-            fOptimizeSampling = OptimizeSampling::kNo;
-        }
-    }
+    KeyContextForRuntimeEffect(const KeyContext& other, const SkRuntimeEffect* effect, int child);
+
 
 private:
-    KeyContextWithScope(const KeyContextWithScope&) = delete;
-    KeyContextWithScope& operator=(const KeyContextWithScope&) = delete;
+    KeyContextForRuntimeEffect(const KeyContextForRuntimeEffect&) = delete;
+    KeyContextForRuntimeEffect& operator=(const KeyContextForRuntimeEffect&) = delete;
 };
 
 class KeyContextWithCoordClamp : public KeyContext {
 public:
     KeyContextWithCoordClamp(const KeyContext& other) : KeyContext(other) {
-        // Subtlies in clampling implmentation can lead to texture samples at non pixel aligned
-        // coordinates.
-        fOptimizeSampling = OptimizeSampling::kNo;
+        // Subtleties in clamping implmentation can lead to texture samples at non pixel aligned
+        // coordinates, particularly if clamped to non-texel centers.
+        fKeyGenFlags |= KeyGenFlags::kDisableSamplingOptimization;
     }
 
 private:
-    KeyContextWithCoordClamp(const KeyContextWithScope&) = delete;
-    KeyContextWithCoordClamp& operator=(const KeyContextWithScope&) = delete;
+    KeyContextWithCoordClamp(const KeyContextWithCoordClamp&) = delete;
+    KeyContextWithCoordClamp& operator=(const KeyContextWithCoordClamp&) = delete;
 };
 
 } // namespace skgpu::graphite

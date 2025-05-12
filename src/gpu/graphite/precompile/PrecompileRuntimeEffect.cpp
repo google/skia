@@ -13,6 +13,7 @@
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "include/private/base/SkTArray.h"
+#include "src/core/SkRuntimeEffectPriv.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParams.h"
@@ -126,8 +127,6 @@ private:
             return;
         }
 
-        KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
-
         int remainingCombinations = desiredCombination;
 
         for (size_t rowIndex = 0; rowIndex < fChildOptions.size(); ++rowIndex) {
@@ -141,9 +140,11 @@ private:
                     SkSpan<const sk_sp<PrecompileBase>>(slotOptions),
                     slotOption);
 
+            KeyContextForRuntimeEffect childContext(keyContext, fEffect.get(), rowIndex);
+
             SkASSERT(precompilebase_is_valid_as_child(option.get()));
             if (option) {
-                option->priv().addToKey(keyContext, builder, gatherer, childOptions);
+                option->priv().addToKey(childContext, builder, gatherer, childOptions);
             } else {
                 SkASSERT(childOptions == 0);
 

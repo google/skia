@@ -1045,11 +1045,12 @@ private:
                 StableKey::k2DBlur16, StableKey::k2DBlur20, StableKey::k2DBlur28,
         };
 
-        const SkRuntimeEffect* fEffect = GetKnownRuntimeEffect(kIDs[desiredBlurCombination]);
+        const SkRuntimeEffect* effect = GetKnownRuntimeEffect(kIDs[desiredBlurCombination]);
+        SkASSERT(effect->children().size() == 1);
 
-        KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
+        KeyContextForRuntimeEffect childContext(keyContext, effect, /*child=*/0);
 
-        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(fEffect) });
+        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(effect) });
             fWrapped->priv().addToKey(childContext, builder, gatherer, desiredWrappedCombination);
         builder->endBlock();
     }
@@ -1112,15 +1113,19 @@ private:
             SkASSERT(desiredTextureCombination < fNumRawImageShaderCombos);
         }
 
-        const SkRuntimeEffect* fEffect = GetKnownRuntimeEffect(stableKey);
+        const SkRuntimeEffect* effect = GetKnownRuntimeEffect(stableKey);
 
-        KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
+        KeyContextForRuntimeEffect childContext(keyContext, effect, /*child=*/0);
 
-        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(fEffect) });
+        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(effect) });
             fWrapped->priv().addToKey(childContext, builder, gatherer, desiredWrappedCombination);
             if (stableKey != SkKnownRuntimeEffects::StableKey::kMatrixConvUniforms) {
-                fRawImageShader->priv().addToKey(childContext, builder, gatherer,
+                SkASSERT(effect->children().size() == 2);
+                KeyContextForRuntimeEffect kernelContext(keyContext, effect, /*child=*/1);
+                fRawImageShader->priv().addToKey(kernelContext, builder, gatherer,
                                                  desiredTextureCombination);
+            } else {
+                SkASSERT(effect->children().size() == 1);
             }
         builder->endBlock();
     }
@@ -1158,8 +1163,9 @@ private:
         SkASSERT(desiredCombination < fNumWrappedCombos);
 
         const SkRuntimeEffect* effect = GetKnownRuntimeEffect(fStableKey);
+        SkASSERT(effect->children().size() == 1);
 
-        KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
+        KeyContextForRuntimeEffect childContext(keyContext, effect, /*child=*/0);
 
         RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(effect) });
             fWrapped->priv().addToKey(childContext, builder, gatherer, desiredCombination);
@@ -1207,15 +1213,17 @@ private:
         const int desiredColorCombination = desiredCombination / fNumDisplacementCombos;
         SkASSERT(desiredColorCombination < fNumColorCombos);
 
-        const SkRuntimeEffect* fEffect =
+        const SkRuntimeEffect* effect =
                 GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kDisplacement);
+        SkASSERT(effect->children().size() == 2);
 
-        KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
+        KeyContextForRuntimeEffect displContext(keyContext, effect, /*child=*/0);
+        KeyContextForRuntimeEffect colorContext(keyContext, effect, /*child=*/1);
 
-        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(fEffect) });
-            fDisplacement->priv().addToKey(childContext, builder, gatherer,
+        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(effect) });
+            fDisplacement->priv().addToKey(displContext, builder, gatherer,
                                            desiredDisplacementCombination);
-            fColor->priv().addToKey(childContext, builder, gatherer,
+            fColor->priv().addToKey(colorContext, builder, gatherer,
                                     desiredColorCombination);
         builder->endBlock();
     }
@@ -1253,14 +1261,17 @@ private:
                 GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kNormal);
         const SkRuntimeEffect* lightingEffect =
                 GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kLighting);
+        SkASSERT(normalEffect->children().size() == 1 &&
+                 lightingEffect->children().size() == 1);
 
-        KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
+        KeyContextForRuntimeEffect lightingContext(keyContext, lightingEffect, /*child=*/0);
+        KeyContextForRuntimeEffect normalContext(lightingContext, normalEffect, /*child=*/0);
 
         RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer,
                                        { sk_ref_sp(lightingEffect) });
-            RuntimeEffectBlock::BeginBlock(childContext, builder, gatherer,
+            RuntimeEffectBlock::BeginBlock(lightingContext, builder, gatherer,
                                            { sk_ref_sp(normalEffect) });
-                fWrapped->priv().addToKey(childContext, builder, gatherer, desiredCombination);
+                fWrapped->priv().addToKey(normalContext, builder, gatherer, desiredCombination);
             builder->endBlock();
         builder->endBlock();
     }

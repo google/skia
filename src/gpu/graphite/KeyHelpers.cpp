@@ -1178,6 +1178,15 @@ void ColorSpaceTransformBlock::AddBlock(const KeyContext& keyContext,
 
     // Use a specialized shader if we don't need transfer function or gamut transforms.
     if (!(xformNeedsGamutOrXferFn || swizzleNeedsGamutTransform)) {
+        // When enabled, the most specialized is to do nothing at all. To simplify calling code,
+        // this adds a passthrough block vs. having callers know how to reconfigure their blocks.
+        if (SkToBool(keyContext.flags() & KeyGenFlags::kEnableIdentityColorSpaceXform) &&
+            data.fReadSwizzle == ReadSwizzle::kRGBA &&
+            !data.fSteps.fFlags.premul && !data.fSteps.fFlags.unpremul) {
+            builder->addBlock(BuiltInCodeSnippetID::kPriorOutput);
+            return;
+        }
+
         add_color_space_xform_premul_uniform_data(keyContext.dict(), data, gatherer);
         builder->addBlock(BuiltInCodeSnippetID::kColorSpaceXformPremul);
         return;
@@ -1411,9 +1420,10 @@ void add_children_to_key(const KeyContext& keyContext,
 
     using ChildType = SkRuntimeEffect::ChildType;
 
-    KeyContextWithScope childContext(keyContext, KeyContext::Scope::kRuntimeEffect);
     for (size_t index = 0; index < children.size(); ++index) {
         const SkRuntimeEffect::ChildPtr& child = children[index];
+        KeyContextForRuntimeEffect childContext(keyContext, effect, index);
+
         std::optional<ChildType> type = child.type();
         if (type == ChildType::kShader) {
             AddToKey(childContext, builder, gatherer, child.shader());
@@ -1467,8 +1477,8 @@ void add_children_to_key(const KeyContext& keyContext,
                                                                       dstCS,
                                                                       kUnpremul_SkAlphaType);
 
-        ColorSpaceTransformBlock::AddBlock(childContext, builder, gatherer, dstToLinear);
-        ColorSpaceTransformBlock::AddBlock(childContext, builder, gatherer, linearToDst);
+        ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, dstToLinear);
+        ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, linearToDst);
     }
 }
 
@@ -2089,8 +2099,7 @@ static void add_to_key(const KeyContext& keyContext,
     // hardware.
     bool samplingHasNoEffect = false;
     // Cubic sampling is will not filter the same as nearest even when pixel aligned.
-    if (keyContext.optimizeSampling() == KeyContext::OptimizeSampling::kYes &&
-        !newSampling.useCubic) {
+    if (!(keyContext.flags() & KeyGenFlags::kDisableSamplingOptimization || newSampling.useCubic)) {
         SkMatrix totalM = keyContext.local2Dev().asM33();
         if (keyContext.localMatrix()) {
             totalM.preConcat(*keyContext.localMatrix());
@@ -2117,7 +2126,11 @@ static void add_to_key(const KeyContext& keyContext,
                                                        keyContext.dstColorInfo().colorSpace(),
                                                        keyContext.dstColorInfo().alphaType());
 
-        if (imageToDraw->isAlphaOnly() && keyContext.scope() != KeyContext::Scope::kRuntimeEffect) {
+        if (imageToDraw->isAlphaOnly() &&
+            !(keyContext.flags() & KeyGenFlags::kDisableAlphaOnlyImageColorization)) {
+            // NOTE: Alpha is not affected by colorspace conversion to the dst, and the paint color
+            // is already xformed to the dst, but the ColorSpaceTransformBlock is necessary to apply
+            // any read swizzle, which is often necessary for alpha-only color types.
             Blend(keyContext, builder, gatherer,
                   /* addBlendToKey= */ [&] () -> void {
                       AddFixedBlendMode(keyContext, builder, gatherer, SkBlendMode::kDstIn);
