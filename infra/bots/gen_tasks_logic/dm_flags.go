@@ -1274,7 +1274,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	}
 
 	// b/416733454
-	if (b.model("AndroidOne") || b.model("JioNext")) && b.gpu() {
+	if (b.model("AndroidOne") || b.model("JioNext") || b.model("GalaxyS7_G930FD")) && b.gpu() {
 		skip(ALL, "svg", ALL, "desk_motionmark_paths.svg")
 	}
 
