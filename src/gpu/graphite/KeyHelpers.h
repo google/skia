@@ -144,11 +144,12 @@ struct GradientShaderBlocks {
 struct LocalMatrixShaderBlock {
     struct LMShaderData {
         LMShaderData(const SkMatrix& localMatrix)
-                : fLocalMatrix(localMatrix)
-                , fHasPerspective(localMatrix.hasPerspective()) {}
+                : fLocalMatrix(localMatrix) {}
 
-        const SkM44 fLocalMatrix;
-        const bool  fHasPerspective;
+        // Local matrices are applied to coords.xy01, so a 4x4 matrix can be flattened to a 3x3
+        // for less data upload to the GPU at this point (as there will be no more coordinate
+        // space manipulation that might require the full 4x4).
+        const SkMatrix fLocalMatrix;
     };
 
     static void BeginBlock(const KeyContext&,
