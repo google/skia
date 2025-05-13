@@ -92,7 +92,7 @@ skia_cc_library(
         "//src/utils:clip_stack_utils",
         "//src/utils:float_to_decimal",
         "//modules/skcms",
-        "@zlib_skia//:zlib",
+        "@zlib",
         # TODO(kjlubick) Remove this dependency after migrating clients
         ":jpeg_helpers",
     ] +

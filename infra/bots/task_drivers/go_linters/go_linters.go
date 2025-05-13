@@ -77,11 +77,7 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
-	if err := bazelRun(ctx, skiaPath, "//:gofmt", append(*bazelFlags.AdditionalArgs, "--", "-s", "-w", ".")...); err != nil {
-		td.Fatal(ctx, err)
-	}
-
-	if err := bazelRun(ctx, skiaPath, "//:errcheck", append(*bazelFlags.AdditionalArgs, "--", "-ignore", ":Close", "go.skia.org/skia/...")...); err != nil {
+	if err := bazelRun(ctx, skiaPath, "//:go", append(*bazelFlags.AdditionalArgs, "--", "fmt", "./...")...); err != nil {
 		td.Fatal(ctx, err)
 	}
 

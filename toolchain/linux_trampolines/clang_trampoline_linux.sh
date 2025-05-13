@@ -4,7 +4,11 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-export LD_LIBRARY_PATH="external/clang_linux_amd64/usr/lib/x86_64-linux-gnu"
+# Find this file and look for ../../external
+BASE_DIR=$( realpath $( dirname ${BASH_SOURCE[0]}))
+CLANG_DIR=$( dirname $( dirname $BASE_DIR))/external/*clang_linux_amd64
+
+export LD_LIBRARY_PATH=$CLANG_DIR"/usr/lib/x86_64-linux-gnu"
 
 set -euo pipefail
 
@@ -19,7 +23,7 @@ fi
 # passed in (i.e. the "skia_enforce_iwyu" feature is enabled) and we are not linking
 # (as detected by the presence of -fuse-ld).
 if [[ "$@" != *DSKIA_ENFORCE_IWYU* || "$@" == *use-ld* ]]; then
-  external/clang_linux_amd64/bin/clang $@
+  $CLANG_DIR/bin/clang $@
   exit 0
 fi
 
@@ -129,7 +133,7 @@ function opted_in_to_IWYU_checks() {
 # https://unix.stackexchange.com/a/197794
 opt_in=$(opted_in_to_IWYU_checks "'$*'")
 if [[ -z $opt_in ]]; then
-  external/clang_linux_amd64/bin/clang $@
+  $CLANG_DIR/bin/clang $@
   exit 0
 else
   # IWYU always [1] returns a non-zero code because it doesn't produce the .o file (that's why
@@ -138,13 +142,13 @@ else
   set +e
   # Get absolute path to the mapping file because resolving the relative path is tricky, given
   # how Bazel locates the toolchain files.
-  MAPPING_FILE=$(realpath $(dirname ${BASH_SOURCE[0]}))"/IWYU_mapping.imp"
+  MAPPING_FILE=$(realpath $BASE_DIR)"/IWYU_mapping.imp"
   # IWYU always outputs something to stderr, which can be noisy if everything is fixed.
   # Otherwise, we send the exact same arguments to include-what-you-use that we would for
   # regular compilation with clang.
   # We always allow SkTypes.h because it sets some defines that later #ifdefs use and IWYU is
   # not consistent with detecting that.
-  external/clang_linux_amd64/bin/include-what-you-use $@ \
+  $CLANG_DIR/bin/include-what-you-use $@ \
       -Xiwyu --keep="include/core/SkTypes.h" \
       -Xiwyu --keep="include/private/base/SkDebug.h" \
       -Xiwyu --no_default_mappings \
@@ -164,7 +168,7 @@ else
     # Run IWYU again, but this time display the output. Then return non-zero to fail the build.
     # These flags are a little different, but only in ways that affect what was displayed, not the
     # analysis. If we aren't sure why IWYU wants to include something, try changing verbose to 3.
-    external/clang_linux_amd64/bin/include-what-you-use $@ \
+    $CLANG_DIR/bin/include-what-you-use $@ \
         -Xiwyu --keep="include/core/SkTypes.h" \
         -Xiwyu --keep="include/private/base/SkDebug.h" \
         -Xiwyu --no_default_mappings \

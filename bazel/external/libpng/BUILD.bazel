@@ -1,6 +1,8 @@
 # This file will be copied into //third_party/externals/libpng via the new_local_repository
 # rule in WORKSPACE.bazel, so all files should be relative to that path.
 
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 # We define this here because the emscripten toolchain calls the cpu wasm, whereas the
 # bazelbuild/platforms call it wasm32. https://github.com/emscripten-core/emsdk/issues/919
 config_setting(
@@ -74,7 +76,7 @@ cc_library(
     # file, we must tell Bazel to explicitly bring it in as an "includable".
     textual_hdrs = ["scripts/pnglibconf.h.prebuilt"],
     visibility = ["//visibility:public"],
-    deps = ["@zlib_skia//:zlib"],
+    deps = ["@zlib"],
 )
 
 # Creates a file called pnglibconf.h that includes the default png settings with one

@@ -1,4 +1,5 @@
 load("@py_deps//:requirements.bzl", "requirement")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("@rules_python//python:defs.bzl", "py_binary")
 
 # This file will be copied into //third_party/externals/dawn via the new_local_repository

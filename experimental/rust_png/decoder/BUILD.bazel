@@ -35,6 +35,6 @@ skia_cc_library(
         "//src/codec:any_decoder",
         "//src/codec:png_codec_base",
         "//src/core:core_priv",
-        "@cxx//:core-lib",
+        "@crates//:cxx_cc",
     ],
 )

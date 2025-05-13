@@ -1,20 +1,7 @@
 # This file will be copied into //third_party/externals/harfbuzz via the new_local_repository
 # rule in WORKSPACE.bazel, so all files should be relative to that path.
 
-genrule(
-    name = "copy_config_override",
-    srcs = [
-        "@harfbuzz_config//:config-override.h",
-    ],
-    outs = [
-        # Putting this in the root of the harfbuzz directory makes it easiest to include.
-        "config-override.h",
-    ],
-    # $< is the one and only input file.
-    # $@ is the one and only output location.
-    cmd = "cp $< $@",
-    cmd_bat = "copy $< $@",
-)
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
 HARFBUZZ_HDRS = [
     "src/hb-aat-layout.h",
@@ -44,7 +31,6 @@ HARFBUZZ_HDRS = [
 ]
 
 HARFBUZZ_SRCS = [
-    "config-override.h",
     "src/OT/Color/CBDT/CBDT.hh",
     "src/OT/Color/COLR/COLR.hh",
     "src/OT/Color/COLR/colrv1-closure.hh",
@@ -348,6 +334,8 @@ HARFBUZZ_SRCS = [
     "src/hb-utf.hh",
     "src/hb-vector.hh",
     "src/hb.hh",
+    # We expect this to be copied in via the repository_rule that checks out harfbuzz
+    "config-override.h",
 ]
 
 cc_library(

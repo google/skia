@@ -61,7 +61,7 @@ alias(
 
 alias(
     name = "ganesh_gl_ios_factory",
-    actual = "//src/gpu/ganesh/gl/ios:ios_factory",
+    actual = "//src/gpu/ganesh/gl/iOS:ios_factory",
     visibility = ["//visibility:public"],
 )
 
@@ -96,12 +96,6 @@ alias(
 )
 
 ###
-
-alias(
-    name = "graphite_dawn_vulkan",
-    actual = "//src/gpu/graphite/vk:graphite_dawn_vulkan",
-    visibility = ["//visibility:public"],
-)
 
 alias(
     name = "graphite_native_metal",
@@ -337,14 +331,6 @@ alias(
 # for a special comment indicating the prefix.
 # gazelle:prefix go.skia.org/skia
 
-# This is an alias to avoid having to load the golang toolchain code just to
-# create the rules in our primary BUILD.bazel file
-alias(
-    name = "gazelle",
-    actual = "//infra:gazelle",
-    visibility = ["//visibility:public"],
-)
-
 test_suite(
     name = "all_go_tests",
     tests = [
@@ -354,7 +340,6 @@ test_suite(
         "//infra/bots/task_drivers/bazel_test_benchmark:bazel_test_benchmark_test",
         "//infra/bots/task_drivers/bazel_test_gm:bazel_test_gm_test",
         "//infra/bots/task_drivers/bazel_test_precompiled:bazel_test_precompiled_test",
-        "//infra/bots/task_drivers/codesize:codesize_test",
         "//infra/bots/task_drivers/common:common_test",
         "//infra/bots/task_drivers/perf_puppeteer_canvas:perf_puppeteer_canvas_test",
         "//infra/bots/task_drivers/perf_puppeteer_render_skps:perf_puppeteer_render_skps_test",
@@ -400,29 +385,7 @@ gen_compile_flags_txt_linux_amd64(
 # Sample usage: "bazel run //:go -- generate ./...".
 alias(
     name = "go",
-    actual = "@go_sdk//:bin/go",
-    visibility = ["//visibility:public"],
-)
-
-#########
-# gofmt #
-#########
-
-# Sample usage: "bazel run //:gofmt -- -s -w .".
-alias(
-    name = "gofmt",
-    actual = "@go_sdk//:bin/gofmt",
-    visibility = ["//visibility:public"],
-)
-
-############
-# Errcheck #
-############
-
-# Sample usage: "bazel run //:errcheck -- go.skia.org/skia/...".
-alias(
-    name = "errcheck",
-    actual = "//infra:errcheck",
+    actual = "@rules_go//go",
     visibility = ["//visibility:public"],
 )
 

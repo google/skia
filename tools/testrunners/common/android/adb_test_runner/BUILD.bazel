@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+load("@rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 load("//bazel:flags.bzl", "string_flag_with_values")
 
 package(
@@ -33,7 +33,7 @@ string_flag_with_values(
     name = "adb_platform",
     values = [
         # These are shorthand for rules_go platforms, e.g.
-        # @io_bazel_rules_go//go/toolchain:linux_amd64.
+        # @rules_go//go/toolchain:linux_amd64.
         #
         # To make the CPU part more readable, we replace "amd64" with "x86", which makes it more
         # visually distinct from "arm64". We map the CPU dimension back to GOARCH style in

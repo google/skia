@@ -55,7 +55,7 @@ rust_static_library(
     ],
     deps = [
         ":ffi_cpp",
-        "@cxx",
-        "@rust_png//:png",
+        "@crates//:cxx",
+        "@crates//:png",
     ],
 )

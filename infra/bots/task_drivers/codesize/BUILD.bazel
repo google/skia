@@ -1,4 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+load("@rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -45,6 +45,7 @@ go_test(
         "//conditions:default": [],  # Prevent errors on platforms without this CIPD package.
     }),
     embed = [":codesize_lib"],
+    tags = ["manual"],
     deps = [
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//mock",

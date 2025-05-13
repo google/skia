@@ -12,13 +12,13 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 )
 
 type depConfig struct {
 	bazelNameOverride string // Bazel style uses underscores not dashes, so we fix those if needed.
 	needsBazelFile    bool
+	patches           []string
 	patchCmds         []string
 	patchCmdsWin      []string
 }
@@ -37,11 +37,21 @@ var deps = map[string]depConfig{
 	"dawn":           {needsBazelFile: true},
 	"delaunator-cpp": {bazelNameOverride: "delaunator", needsBazelFile: true},
 	"dng_sdk":        {needsBazelFile: true},
-	"expat":          {needsBazelFile: true},
-	"freetype":       {needsBazelFile: true},
-	"harfbuzz":       {needsBazelFile: true},
+	"expat": {
+		needsBazelFile: true,
+		patches:        []string{"//bazel/external/expat:config_files.patch"},
+	},
+	"freetype": {
+		needsBazelFile: true,
+		patches:        []string{"//bazel/external/freetype:config_files.patch"},
+	},
+	"harfbuzz": {
+		needsBazelFile: true,
+		patches:        []string{"//bazel/external/harfbuzz:config_files.patch"},
+	},
 	"icu": {
 		needsBazelFile: true,
+		patches:        []string{"//bazel/external/icu:icu_utils.patch"},
 		patchCmds: []string{
 			`"rm source/i18n/BUILD.bazel"`,
 			`"rm source/common/BUILD.bazel"`,
@@ -71,15 +81,13 @@ var deps = map[string]depConfig{
 	"vulkan-utility-libraries": {bazelNameOverride: "vulkan_utility_libraries", needsBazelFile: true},
 	"vulkanmemoryallocator":    {needsBazelFile: true},
 	"wuffs":                    {needsBazelFile: true},
-	// Some other dependency downloads zlib but with their own rules
-	"zlib": {bazelNameOverride: "zlib_skia", needsBazelFile: true},
+	"zlib":                     {needsBazelFile: true},
 }
 
 func main() {
 	var (
-		depsFile      = flag.String("deps_file", "DEPS", "The location of the DEPS file. Usually at the root of the repository")
-		genBzlFile    = flag.String("gen_bzl_file", "bazel/deps.bzl", "The location of the .bzl file that has the generated Bazel repository rules.")
-		workspaceFile = flag.String("workspace_file", "WORKSPACE.bazel", "The location of the WORKSPACE file that should be updated with dep names.")
+		depsFile   = flag.String("deps_file", "DEPS", "The location of the DEPS file. Usually at the root of the repository")
+		genBzlFile = flag.String("gen_bzl_file", "bazel/deps.bzl", "The location of the .bzl file that has the generated Bazel repository rules.")
 		// https://bazel.build/docs/user-manual#running-executables
 		repoDir        = flag.String("repo_dir", os.Getenv("BUILD_WORKSPACE_DIRECTORY"), "The root directory of the repo. Default set by BUILD_WORKSPACE_DIRECTORY env variable.")
 		buildifierPath = flag.String("buildifier", "", "Where to find buildifier. Defaults to Bazel's location")
@@ -128,23 +136,23 @@ This is done automatically via:
 	}
 	contents := strings.Split(string(b), "\n")
 
-	outputFile, count, err := parseDEPSFile(contents, *workspaceFile)
+	outputFile, count, err := parseDEPSFile(contents)
 	if err != nil {
 		fmt.Printf("Parsing error %s\n", err)
 		os.Exit(1)
 	}
-	if err := exec.Command(buildifier, outputFile).Run(); err != nil {
-		fmt.Printf("Buildifier error %s\n", err)
+	if err := exec.Command(buildifier, "--mode=fix", "--lint=fix", outputFile).Run(); err != nil {
+		fmt.Printf("Buildifier error on %s %s\n", outputFile, err)
 		os.Exit(1)
 	}
 	if err := moveWithCopyBackup(outputFile, *genBzlFile); err != nil {
-		fmt.Printf("Could not write comments in workspace file: %s\n", err)
+		fmt.Printf("Could not write to generated .bzl file: %s\n", err)
 		os.Exit(1)
 	}
 	fmt.Printf("Wrote %d deps\n", count)
 }
 
-func parseDEPSFile(contents []string, workspaceFile string) (string, int, error) {
+func parseDEPSFile(contents []string) (string, int, error) {
 	depsLine := regexp.MustCompile(`externals/(\S+)".+"(https.+)@([a-f0-9]+)"`)
 	outputFile, err := os.CreateTemp("", "genbzl")
 	if err != nil {
@@ -174,7 +182,7 @@ func parseDEPSFile(contents []string, workspaceFile string) (string, int, error)
 				id = cfg.bazelNameOverride
 			}
 			if cfg.needsBazelFile {
-				if err := writeNewGitRepositoryRule(outputFile, id, repo, rev, cfg.patchCmds, cfg.patchCmdsWin); err != nil {
+				if err := writeNewGitRepositoryRule(outputFile, id, repo, rev, cfg.patches, cfg.patchCmds, cfg.patchCmdsWin); err != nil {
 					return "", 0, fmt.Errorf("Could not write to output file %s: %s\n", outputFile.Name(), err)
 				}
 				workspaceLine := fmt.Sprintf("# @%s - //bazel/external/%s:BUILD.bazel", id, id)
@@ -197,74 +205,7 @@ func parseDEPSFile(contents []string, workspaceFile string) (string, int, error)
 		return "", 0, fmt.Errorf("Could not write footer to output file %s: %s\n", outputFile.Name(), err)
 	}
 
-	if newWorkspaceFile, err := writeCommentsToWorkspace(workspaceFile, nativeRepos, providedRepos); err != nil {
-		fmt.Printf("Could not parse workspace file %s: %s\n", workspaceFile, err)
-		os.Exit(1)
-	} else {
-		if err := moveWithCopyBackup(newWorkspaceFile, workspaceFile); err != nil {
-			fmt.Printf("Could not write comments in workspace file: %s\n", err)
-			os.Exit(1)
-		}
-	}
 	return outputFile.Name(), count, nil
-}
-
-func writeCommentsToWorkspace(workspaceFile string, nativeRepos, providedRepos []string) (string, error) {
-	b, err := os.ReadFile(workspaceFile)
-	if err != nil {
-		return "", fmt.Errorf("Could not open %s: %s\n", workspaceFile, err)
-	}
-	newWorkspace, err := os.CreateTemp("", "workspace")
-	if err != nil {
-		return "", fmt.Errorf("Could not make tempfile: %s\n", err)
-	}
-	defer newWorkspace.Close()
-
-	workspaceContents := strings.Split(string(b), "\n")
-
-	sort.Strings(nativeRepos)
-	sort.Strings(providedRepos)
-	for _, line := range workspaceContents {
-		if _, err := newWorkspace.WriteString(line + "\n"); err != nil {
-			return "", err
-		}
-		if line == startListString {
-			break
-		}
-	}
-	for _, repoLine := range nativeRepos {
-		if _, err := newWorkspace.WriteString(repoLine + "\n"); err != nil {
-			return "", err
-		}
-	}
-	if _, err := newWorkspace.WriteString("#\n"); err != nil {
-		return "", err
-	}
-	for _, repoLine := range providedRepos {
-		if _, err := newWorkspace.WriteString(repoLine + "\n"); err != nil {
-			return "", err
-		}
-	}
-	if _, err := newWorkspace.WriteString(endListString + "\n"); err != nil {
-		return "", err
-	}
-
-	pastEnd := false
-	// Skip the last line, which is blank. We don't want to end with two empty newlines.
-	for _, line := range workspaceContents[:len(workspaceContents)-1] {
-		if line == endListString {
-			pastEnd = true
-			continue
-		}
-		if !pastEnd {
-			continue
-		}
-		if _, err := newWorkspace.WriteString(line + "\n"); err != nil {
-			return "", err
-		}
-	}
-
-	return newWorkspace.Name(), nil
 }
 
 const (
@@ -280,117 +221,58 @@ Instead, do:
 """
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:utils.bzl", "maybe")
-load("//bazel:download_config_files.bzl", "download_config_files")
-load("//bazel:gcs_mirror.bzl", "gcs_mirror_url")
 
-def c_plus_plus_deps(ws = "@skia"):
+def _c_plus_plus_modules_impl(ctx):
     """A list of native Bazel git rules to download third party git repositories
 
        These are in the order they appear in //DEPS.
         https://bazel.build/rules/lib/repo/git
 
     Args:
-      ws: The name of the Skia Bazel workspace. The default, "@", may be when used from within the
-          Skia workspace.
+      ctx: https://bazel.build/rules/lib/builtins/module_ctx
     """`
 
 // If necessary, we can make a new map for bazel deps
 const footer = `
-def bazel_deps():
-    maybe(
-        http_archive,
-        name = "bazel_skylib",
-        sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
-        urls = gcs_mirror_url(
-            sha256 = "c6966ec828da198c5d9adbaa94c05e3a1c7f21bd012a0b29ba8ddbccb2c93b0d",
-            url = "https://github.com/bazelbuild/bazel-skylib/releases/download/1.1.1/bazel-skylib-1.1.1.tar.gz",
-        ),
-    )
 
-    maybe(
-        http_archive,
-        name = "bazel_toolchains",
-        sha256 = "e52789d4e89c3e2dc0e3446a9684626a626b6bec3fde787d70bae37c6ebcc47f",
-        strip_prefix = "bazel-toolchains-5.1.1",
-        urls = gcs_mirror_url(
-            sha256 = "e52789d4e89c3e2dc0e3446a9684626a626b6bec3fde787d70bae37c6ebcc47f",
-            url = "https://github.com/bazelbuild/bazel-toolchains/archive/refs/tags/v5.1.1.tar.gz",
-        ),
-    )
-
-def header_based_configs():
-    skia_revision = "d211141c45c9171437fa8e6e07989edb5bffa17a"
-    maybe(
-        download_config_files,
-        name = "expat_config",
-        skia_revision = skia_revision,
-        files = {
-            "BUILD.bazel": "third_party/expat/include/BUILD.bazel",
-            "expat_config/expat_config.h": "third_party/expat/include/expat_config/expat_config.h",
-        },
-    )
-    maybe(
-        download_config_files,
-        name = "freetype_config",
-        skia_revision = skia_revision,
-        files = {
-            "BUILD.bazel": "third_party/freetype2/include/BUILD.bazel",
-            "freetype-android/freetype/config/ftmodule.h": "third_party/freetype2/include/freetype-android/freetype/config/ftmodule.h",
-            "freetype-android/freetype/config/ftoption.h": "third_party/freetype2/include/freetype-android/freetype/config/ftoption.h",
-            "freetype-no-type1/freetype/config/ftmodule.h": "third_party/freetype2/include/freetype-no-type1/freetype/config/ftmodule.h",
-            "freetype-no-type1/freetype/config/ftoption.h": "third_party/freetype2/include/freetype-no-type1/freetype/config/ftoption.h",
-        },
-    )
-    maybe(
-        download_config_files,
-        name = "harfbuzz_config",
-        skia_revision = skia_revision,
-        files = {
-            "BUILD.bazel": "third_party/harfbuzz/BUILD.bazel",
-            "config-override.h": "third_party/harfbuzz/config-override.h",
-        },
-    )
-    maybe(
-        download_config_files,
-        name = "icu_utils",
-        skia_revision = skia_revision,
-        files = {
-            "BUILD.bazel": "third_party/icu/BUILD.bazel",
-            "SkLoadICU.cpp": "third_party/icu/SkLoadICU.cpp",
-            "SkLoadICU.h": "third_party/icu/SkLoadICU.h",
-            "make_data_cpp.py": "third_party/icu/make_data_cpp.py",
-        },
-    )
+c_plus_plus_modules = module_extension(
+    implementation = _c_plus_plus_modules_impl,
+)
 `
 
-func writeNewGitRepositoryRule(w io.StringWriter, bazelName, repo, rev string, patchCmds, patchCmdsWin []string) error {
-	if len(patchCmds) == 0 {
-		// TODO(kjlubick) In a newer version of Bazel, new_git_repository can be replaced with just
-		// git_repository
-		_, err := w.WriteString(fmt.Sprintf(`
-    new_git_repository(
-        name = "%s",
-        build_file = ws + "//bazel/external/%s:BUILD.bazel",
-        commit = "%s",
-        remote = "%s",
-    )
-`, bazelName, bazelName, rev, repo))
-		return err
-	}
-	patches := "[" + strings.Join(patchCmds, ",\n") + "]"
-	patches_win := "[" + strings.Join(patchCmdsWin, ",\n") + "]"
+func writeNewGitRepositoryRule(w io.StringWriter, bazelName, repo, rev string, patches, patchCmds, patchCmdsWin []string) error {
 	_, err := w.WriteString(fmt.Sprintf(`
     new_git_repository(
         name = "%s",
-        build_file = ws + "//bazel/external/%s:BUILD.bazel",
+        build_file = "//bazel/external/%s:BUILD.bazel",
         commit = "%s",
         remote = "%s",
-        patch_cmds = %s,
-		patch_cmds_win = %s,
-    )
-`, bazelName, bazelName, rev, repo, patches, patches_win))
+        `, bazelName, bazelName, rev, repo))
+	if err != nil {
+		return err
+	}
+	if len(patches) > 0 {
+		patch_files := `["` + strings.Join(patches, `",\n"`) + `"]`
+		_, err := w.WriteString(fmt.Sprintf("patches = %s,\n", patch_files))
+		if err != nil {
+			return err
+		}
+	}
+	if len(patchCmds) > 0 {
+		patches_unix := "[" + strings.Join(patchCmds, ",\n") + "]"
+		_, err := w.WriteString(fmt.Sprintf("patch_cmds = %s,\n", patches_unix))
+		if err != nil {
+			return err
+		}
+	}
+	if len(patchCmdsWin) > 0 {
+		patches_win := "[" + strings.Join(patchCmdsWin, ",\n") + "]"
+		_, err := w.WriteString(fmt.Sprintf("patch_cmds_win = %s,\n", patches_win))
+		if err != nil {
+			return err
+		}
+	}
+	_, err = w.WriteString(")\n")
 	return err
 }
 

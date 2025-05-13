@@ -19,7 +19,7 @@ PLATFORM=${2:-linux_amd64} # use linux_amd64 if not specified
 
 # Build the executables and extract them to the folder in the first argument.
 bazelisk build //infra/bots:all_task_drivers \
-    --platforms=@io_bazel_rules_go//go/toolchain:${PLATFORM} \
+    --platforms=@rules_go//go/toolchain:${PLATFORM} \
     --config=linux_rbe --jobs=100
 
 tar -xf bazel-bin/infra/bots/built_task_drivers.tar -C ${1}

@@ -36,8 +36,5 @@ def download_toolchains_for_skia(*args):
                list of supported toolchains.
     """
 
-    for toolchain_name in args:
-        if toolchain_name not in name_toolchain:
-            fail("unrecognized toolchain name " + toolchain_name)
-        download_toolchain = name_toolchain[toolchain_name]
-        download_toolchain(name = toolchain_name)
+    for toolchain_name in toolchain_names:
+        download_toolchain_for_skia(toolchain_name)

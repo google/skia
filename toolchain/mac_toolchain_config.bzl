@@ -24,10 +24,11 @@ load(
     "tool",
     "variable_with_value",
 )
+load("@rules_cc//cc/common:cc_common.bzl", "cc_common")
 load(":clang_layering_check.bzl", "make_layering_check_features")
 
 # The location of the created clang toolchain.
-EXTERNAL_TOOLCHAIN = "external/clang_mac"
+EXTERNAL_TOOLCHAIN = "external/+_repo_rules2+clang_mac"
 
 # Root of our symlinks. These symlinks are created in download_mac_toolchain.bzl
 XCODE_MACSDK_SYMLINK = EXTERNAL_TOOLCHAIN + "/symlinks/xcode/MacSDK"

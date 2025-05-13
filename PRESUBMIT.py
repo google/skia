@@ -446,7 +446,6 @@ def _CheckBuildifier(input_api, output_api):
     affected_file_path = affected_file.LocalPath()
     if affected_file_path.endswith('BUILD.bazel') or affected_file_path.endswith('.bzl'):
       if not affected_file_path.endswith('public.bzl') and \
-        not affected_file_path.endswith('go_repositories.bzl') and \
         not "bazel/rbe/gce_linux/" in affected_file_path and \
         not affected_file_path.startswith("third_party/externals/") and \
         not "node_modules/" in affected_file_path:  # Skip generated files.

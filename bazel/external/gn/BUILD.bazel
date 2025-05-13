@@ -22,11 +22,13 @@ import os
 import subprocess
 import sys
 
-# execpath returns the path to the given label from the exec path.
+# rlocationpath returns the path to the given label from the runfiles path (which is the
+# parent directory, according to local experimentation).
 # https://bazel.build/reference/be/make-variables#predefined_label_variables
 # We need to get the absolute path here because we want to run gn from the
 # location where the user invoked Bazel.
-gn_exe = os.path.abspath("$(execpath :gn_exe)")
+os.chdir("..")
+gn_exe = os.path.abspath("$(rlocationpath :gn_exe)")
 
 # https://bazel.build/docs/user-manual#running-executables
 # Note: Bazel eats single quotes, so we must use double quotes.

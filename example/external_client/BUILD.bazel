@@ -1,4 +1,5 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load("@rules_cc//cc:objc_library.bzl", "objc_library")
 
 # This first example only needs the core Skia functionality and the pathops
 # module. Thus, the client defines a cc_library (skia_core_and_pathops) with
@@ -144,6 +145,11 @@ objc_library(
     sdk_frameworks = [
         "OpenGL",
     ],
+    target_compatible_with = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:ios": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
 )
 
 cc_binary(

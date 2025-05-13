@@ -1,6 +1,0 @@
-exports_files(
-    [
-        "config-override.h",
-    ],
-    visibility = ["//visibility:public"],
-)

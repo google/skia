@@ -1,20 +1,7 @@
 # This file will be copied into //third_party/externals/expat via the new_local_repository
 # rule in WORKSPACE.bazel, so all files should be relative to that path.
 
-genrule(
-    name = "copy_config_override",
-    srcs = [
-        "@expat_config//:expat_config/expat_config.h",
-    ],
-    outs = [
-        # Putting this in the root of the expat directory makes it easiest to include.
-        "include/expat_config.h",
-    ],
-    # $< is the one and only input file.
-    # $@ is the one and only output location.
-    cmd = "cp $< $@",
-    cmd_bat = "copy $< $@",
-)
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
 EXPAT_HDRS = [
     "expat/lib/expat.h",
@@ -38,8 +25,8 @@ EXPAT_SRCS = [
     "expat/lib/xmltok.c",
     "expat/lib/xmltok.h",
     "expat/lib/xmltok_impl.h",
-    # Our generated configuration file
-    "include/expat_config.h",
+    # We expect this to be copied in via the repository_rule that checks out expat
+    "expat_config.h",
 ]
 
 TEXTUAL_HDRS = [
@@ -58,7 +45,6 @@ cc_library(
     ],
     includes = [
         "expat/lib",
-        "include",
     ],
     textual_hdrs = TEXTUAL_HDRS,
     visibility = ["//visibility:public"],

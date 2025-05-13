@@ -1,6 +1,0 @@
-exports_files(
-    [
-        "expat_config/expat_config.h",
-    ],
-    visibility = ["//visibility:public"],
-)

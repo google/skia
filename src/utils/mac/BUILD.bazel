@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_objc_library")
+load("//bazel:skia_rules.bzl", "skia_objc_library", "supports_platforms")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -50,6 +50,10 @@ skia_objc_library(
         "//include/utils/mac:public_hdrs",
     ],
     sdk_frameworks = ["CoreFoundation"],
+    target_compatible_with = supports_platforms(
+        "@platforms//os:macos",
+        "@platforms//os:ios",
+    ),
     visibility = ["//:__subpackages__"],
     deps = [
         "//:core",

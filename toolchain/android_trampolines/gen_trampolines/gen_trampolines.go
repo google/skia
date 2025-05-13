@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 )
 
-const bazelNdkPath = "external/ndk_linux_amd64"
+const bazelNdkPath = "external/+download_ndk_linux_amd64_toolchain+ndk_linux_amd64"
 
 // Paths relative to the Android NDK root directory. These paths can be determined by inspecting
 // the Android NDK ZIP file downloaded by the `download_toolchains` macro defined in
@@ -46,13 +46,21 @@ var tools = []string{
 	"toolchains/llvm/prebuilt/linux-x86_64/bin/clang",
 }
 
-const trampolineScriptTemplate = `#!/bin/sh
+const trampolineScriptTemplate = `#!/bin/bash
 # Copyright 2023 Google LLC
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-%s $@
+BASE_DIR=$( realpath $( dirname ${BASH_SOURCE[0]}))
+# If we invoke clang with an absolute path, that throws off the #include detection (because it
+# will also expect the system paths to be given with an absolute path). Instead, we find out where
+# this script is and go two levels up to find external/
+cd $( dirname $( dirname $BASE_DIR))
+# Then, we can find the toolchain.
+CLANG_DIR=%s
+
+$CLANG_DIR/%s $@
 `
 
 func main() {
@@ -74,7 +82,7 @@ func main() {
 		}
 
 		// Generate trampoline script.
-		trampolineScript := fmt.Sprintf(trampolineScriptTemplate, filepath.Join(bazelNdkPath, tool))
+		trampolineScript := fmt.Sprintf(trampolineScriptTemplate, bazelNdkPath, tool)
 		trampolineScriptPath := filepath.Join(*outDirFlag, filepath.Base(tool)+".sh")
 		if err := os.WriteFile(trampolineScriptPath, []byte(trampolineScript), 0750); err != nil {
 			fmt.Fprintf(os.Stderr, "Error writing file %s: %s", trampolineScriptPath, err)

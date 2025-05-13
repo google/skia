@@ -3,6 +3,7 @@ load(
     "skia_cc_library",
     "skia_filegroup",
     "skia_objc_library",
+    "supports_platforms",
 )
 
 package(
@@ -217,6 +218,10 @@ skia_objc_library(
         "CoreFoundation",
         "CoreText",
     ],
+    target_compatible_with = supports_platforms(
+        "@platforms//os:macos",
+        "@platforms//os:ios",
+    ),
     visibility = ["//:__pkg__"],
     deps = [
         ":coretext_typeface",
@@ -348,6 +353,9 @@ skia_cc_library(
         "//include/ports:fontconfig_fontmgr_hdrs",
     ],
     defines = ["SK_FONTMGR_FONTCONFIG_AVAILABLE"],
+    target_compatible_with = supports_platforms(
+        "@platforms//os:linux",
+    ),
     visibility = [
         "//:__pkg__",
         "//tools/fonts:__pkg__",
@@ -371,6 +379,9 @@ skia_cc_library(
         "//include/ports:fontconfig_fontmgr_hdrs",
     ],
     defines = ["SK_FONTMGR_FONTCONFIG_AVAILABLE"],
+    target_compatible_with = supports_platforms(
+        "@platforms//os:linux",
+    ),
     visibility = [
         "//:__pkg__",
         "//tools/fonts:__pkg__",

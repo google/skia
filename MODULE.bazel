@@ -1,7 +1,237 @@
-###############################################################################
-# Bazel now uses Bzlmod by default to manage external dependencies.
-# Please consider migrating your external dependencies from WORKSPACE to MODULE.bazel.
-#
-# For more details, please check https://github.com/bazelbuild/bazel/issues/18958
-###############################################################################
-# TODO(kjlubick) set up modules
+module(
+    name = "skia",
+)
+
+# Bazel and Toolchain deps
+EMSDK_VERSION = "4.0.7"
+
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "buildifier_prebuilt", version = "8.0.3")
+bazel_dep(name = "gazelle", version = "0.43.0")
+bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "rules_cc", version = "0.1.1")
+bazel_dep(name = "rules_license", version = "1.0.0")
+bazel_dep(name = "rules_python", version = "1.3.0")
+bazel_dep(name = "rules_rust", version = "0.60.0")
+bazel_dep(name = "rules_shell", version = "0.4.1")
+
+bazel_dep(name = "rules_webtesting", version = "0.4.0", dev_dependency = True)
+bazel_dep(name = "emsdk", version = EMSDK_VERSION, dev_dependency = True)
+bazel_dep(name = "rules_go", version = "0.54.0", dev_dependency = True)
+
+# C++ deps
+bazel_dep(name = "skia_user_config")  # local
+
+# Configuration
+git_override(
+    module_name = "emsdk",
+    remote = "https://github.com/emscripten-core/emsdk.git",
+    strip_prefix = "bazel",
+    tag = EMSDK_VERSION,
+)
+
+# use the go version specified in go.mod
+# https://github.com/bazel-contrib/rules_go/blob/f0d3aa796ba9723ce89057f8f4b04f2165d38a72/docs/go/core/bzlmod.md
+go_sdk = use_extension("@rules_go//go:extensions.bzl", "go_sdk", dev_dependency = True)
+go_sdk.from_file(go_mod = "//:go.mod")
+
+# Get all the direct and indirect dependencies specified in go.mod.
+# We only need to label the direct ones.
+go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
+go_deps.from_file(go_mod = "//:go.mod")
+go_deps.gazelle_override(
+    build_file_generation = "on",  # overwrite existing Bazel files (for go code)
+    directives = [
+        # This module is distributed with pre-generated .pb.go files, so we disable generation of
+        # go_proto_library targets. Trying to enable them anyway runs into issues because they
+        # copy some protos from googleapis.
+        "gazelle:proto disable",
+    ],
+    path = "go.chromium.org/luci",
+)
+use_repo(
+    go_deps,
+    "com_github_flynn_json5",
+    "com_github_golang_glog",
+    "com_github_google_uuid",
+    "com_github_shirou_gopsutil",
+    "com_github_stretchr_testify",
+    "com_github_trietmn_go_wiki",
+    "com_github_vektra_mockery_v2",
+    "com_google_cloud_go_pubsub",
+    "com_google_cloud_go_storage",
+    "org_chromium_go_luci",
+    "org_golang_google_api",
+    "org_golang_google_protobuf",
+    "org_golang_x_exp",
+    "org_skia_go_infra",
+)
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(
+    python_version = "3.13",
+)
+
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "py_deps",
+    python_version = "3.13",
+    requirements_lock = "//:requirements.txt",
+)
+use_repo(pip, "py_deps")
+
+rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
+rust.toolchain(
+    edition = "2021",
+    extra_target_triples = [
+        "aarch64-apple-darwin",
+        "aarch64-apple-ios",
+    ],
+    versions = [
+        # supported versions from https://github.com/bazelbuild/rules_rust/blob/6bdae371374a3740e97370bd9379da5b3ecab389/util/fetch_shas/fetch_shas_VERSIONS.txt
+        # The rust rules validate a toolchain by sha256 hash, as listed in https://github.com/bazelbuild/rules_rust/blob/6bdae371374a3740e97370bd9379da5b3ecab389/rust/known_shas.bzl
+        "1.86.0",
+    ],
+)
+
+crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
+crate.spec(
+    package = "cxx",
+    version = "1.0.158",
+)
+crate.annotation(
+    # We want a custom build rule so we can use a different include path
+    additive_build_file = "//bazel/external/cxx:BUILD.bazel.skia",
+    crate = "cxx",
+    extra_aliased_targets = {
+        "cxx_cc": "cxx_cc",
+    },
+    gen_build_script = "on",
+)
+crate.spec(
+    package = "font-types",
+    version = "0.8.0",
+)
+crate.spec(
+    package = "png",
+    version = "0.18.0-rc",
+)
+crate.spec(
+    package = "read-fonts",
+    version = "0.27.0",
+)
+crate.spec(
+    package = "skrifa",
+    version = "0.29.0",
+)
+crate.from_specs()
+use_repo(crate, "crates")
+
+# cxxbridge-cmd is a binary only Rust crate, so we follow these instructions for it
+# https://bazelbuild.github.io/rules_rust/crate_universe_bzlmod.html#binary-dependencies
+cargo_bindeps = use_extension("@rules_rust//crate_universe:extension.bzl", "crate")
+cargo_bindeps.spec(
+    artifact = "bin",
+    package = "cxxbridge-cmd",
+    version = "1.0.158",
+)
+cargo_bindeps.annotation(
+    crate = "cxxbridge-cmd",
+    gen_all_binaries = True,
+)
+cargo_bindeps.from_specs(
+    name = "cargo_bindeps",
+    host_tools_repo = "rust_host_tools_nightly",
+)
+use_repo(
+    cargo_bindeps,
+    "cargo_bindeps",
+)
+
+# TODO(kjlubick): Switch to a release version once it's available in BCR.
+# We should be able to clean up rules_scala also
+git_override(
+    module_name = "rules_webtesting",
+    commit = "c884a863c09001776b001a76886e14f87ca8fd12",
+    remote = "https://github.com/bazelbuild/rules_webtesting.git",
+)
+
+bazel_dep(name = "rules_scala", dev_dependency = True, repo_name = "io_bazel_rules_scala")
+git_override(
+    module_name = "rules_scala",
+    commit = "219e63983e8e483e66ebf70372969ba227382001",
+    remote = "https://github.com/mbland/rules_scala",
+)
+
+scala_deps = use_extension(
+    "@io_bazel_rules_scala//scala/extensions:deps.bzl",
+    "scala_deps",
+    dev_dependency = True,
+)
+scala_deps.settings(
+    fetch_sources = True,
+)
+scala_deps.toolchains(
+    scalatest = True,
+)
+
+# Bazel deps we make ourselves
+local_path_override(
+    module_name = "skia_user_config",
+    path = "include/config",
+)
+
+c_plus_plus_modules = use_extension("//bazel:deps.bzl", "c_plus_plus_modules")
+use_repo(
+    c_plus_plus_modules,
+    "dawn",
+    "delaunator",
+    "dng_sdk",
+    "expat",
+    "freetype",
+    "harfbuzz",
+    "icu",
+    "icu4x",
+    "imgui",
+    "libavif",
+    "libgav1",
+    "libjpeg_turbo",
+    "libjxl",
+    "libpng",
+    "libwebp",
+    "libyuv",
+    "perfetto",
+    "piex",
+    "spirv_cross",
+    "spirv_headers",
+    "spirv_tools",
+    "vello",
+    "vulkan_headers",
+    "vulkan_tools",
+    "vulkan_utility_libraries",
+    "vulkanmemoryallocator",
+    "wuffs",
+    "zlib",
+)
+
+download_linux_amd64_toolchain = use_repo_rule("//toolchain:download_linux_amd64_toolchain.bzl", "download_linux_amd64_toolchain")
+
+download_linux_amd64_toolchain(name = "clang_linux_amd64")
+
+download_clang_mac_toolchain = use_repo_rule("//toolchain:download_mac_toolchain.bzl", "download_mac_toolchain")
+
+download_clang_mac_toolchain(name = "clang_mac")
+
+download_ndk_linux_amd64_toolchain = use_extension("//toolchain:download_ndk_linux_amd64_toolchain.bzl", "download_ndk_linux_amd64_toolchain")
+use_repo(download_ndk_linux_amd64_toolchain, "ndk_linux_amd64")
+
+#toolchain_names = ["clang_windows_amd64", "clang_ios"],
+
+cipd_deps = use_extension("//bazel:cipd_deps.bzl", "cipd_deps")
+use_repo(
+    cipd_deps,
+    "git_linux_amd64",
+    "gn_linux_amd64",
+    "gn_mac_amd64",
+    "gn_mac_arm64",
+)

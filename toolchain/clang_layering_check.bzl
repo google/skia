@@ -119,8 +119,8 @@ def generate_system_module_map(ctx, module_file, folders):
 
     """
 
-    # https://github.com/bazelbuild/bazel/blob/8f5b626acea0086be8a314d5efbf6bc6d3473cd2/tools/cpp/generate_system_module_map.sh
-    script_path = ctx.path(Label("@bazel_tools//tools/cpp:generate_system_module_map.sh"))
+    # https://github.com/bazelbuild/rules_cc/blob/04dce0ee738e19a4f2117231a6213a54f6e6d23a/cc/private/toolchain/generate_system_module_map.sh
+    script_path = ctx.path(Label("@rules_cc//cc/private/toolchain:generate_system_module_map.sh"))
 
     # https://bazel.build/rules/lib/repository_ctx#execute
     res = ctx.execute([script_path] + folders)

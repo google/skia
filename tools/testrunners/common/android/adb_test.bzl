@@ -45,7 +45,7 @@ def _adb_test_runner_transition_impl(settings, attr):  # buildifier: disable=unu
         # Map the --adb_platform CPU part to GOARCH style, which we differ from for readability.
         platform = platform.replace("x86", "amd64")
 
-    return {"//command_line_option:platforms": "@io_bazel_rules_go//go/toolchain:" + platform}
+    return {"//command_line_option:platforms": "@rules_go//go/toolchain:" + platform}
 
 # This transition allows us to cross-compile the Go test runner (i.e. the program that issues adb
 # commands) for a different platform, for example when "bazel build"-ing on an x86 GCE machine and

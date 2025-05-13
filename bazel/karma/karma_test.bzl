@@ -5,11 +5,11 @@ This module defines rules for running JS tests in a browser.
 
 """
 
-# https://github.com/bazelbuild/rules_webtesting/blob/master/web/web.bzl
-load("@io_bazel_rules_webtesting//web:web.bzl", "web_test")
-
 # https://github.com/google/skia-buildbot/blob/main/bazel/test_on_env/test_on_env.bzl
 load("@org_skia_go_infra//bazel/test_on_env:test_on_env.bzl", "test_on_env")
+
+# https://github.com/bazelbuild/rules_webtesting/blob/master/web/web.bzl
+load("@rules_webtesting//web:web.bzl", "web_test")
 
 def karma_test(name, config_file, srcs, static_files = None, env = None, **kwargs):
     """Tests the given JS files using Karma and a browser provided by Bazel (Chromium)
@@ -46,7 +46,7 @@ def karma_test(name, config_file, srcs, static_files = None, env = None, **kwarg
         and this binary will be used as the "env" part of test_on_env. It will be started before
         the tests run and be running in parallel to them. See the test_on_env.bzl in the
         Skia Infra repo for more.
-      **kwargs: Additional arguments are passed to @io_bazel_rules_webtesting/web_test.
+      **kwargs: Additional arguments are passed to @rules_webtesting/web_test.
     """
     if len(srcs) == 0:
         fail("Must pass at least one file into srcs or there will be no tests to run")
@@ -70,7 +70,7 @@ def karma_test(name, config_file, srcs, static_files = None, env = None, **kwarg
         web_test(
             name = name,
             launcher = ":" + karma_test_name,
-            browser = "@io_bazel_rules_webtesting//browsers:chromium-local",
+            browser = "@rules_webtesting//browsers:chromium-local",
             test = karma_test_name,
             tags = [
                 # https://bazel.build/reference/be/common-definitions#common.tags
@@ -86,7 +86,7 @@ def karma_test(name, config_file, srcs, static_files = None, env = None, **kwarg
         web_test(
             name = web_test_name,
             launcher = ":" + karma_test_name,
-            browser = "@io_bazel_rules_webtesting//browsers:chromium-local",
+            browser = "@rules_webtesting//browsers:chromium-local",
             test = karma_test_name,
             visibility = ["//visibility:private"],
             tags = [

@@ -1,0 +1,203 @@
+new file mode 100644
+index 0000000..fffffff
+--- /dev/null
++++ SkLoadICU.cpp
+@@ -0,0 +1,121 @@
++// Copyright 2019 Google LLC.
++// Use of this source code is governed by a BSD-style license that can be found in the LICENSE file.
++
++#include "SkLoadICU.h"
++
++#if defined(_WIN32) && defined(SK_USING_THIRD_PARTY_ICU)
++
++#ifndef WIN32_LEAN_AND_MEAN
++#define WIN32_LEAN_AND_MEAN
++#endif
++#include <windows.h>
++#include <io.h>
++
++#include <cstdio>
++#include <cstring>
++#include <mutex>
++#include <string>
++
++#include "unicode/udata.h"
++
++static void* win_mmap(const wchar_t* dataFile) {
++    if (!dataFile) {
++        return nullptr;
++    }
++    struct FCloseWrapper { void operator()(FILE* f) { fclose(f); } };
++    std::unique_ptr<FILE, FCloseWrapper> stream(_wfopen(dataFile, L"rb"));
++    if (!stream) {
++        fprintf(stderr, "SkIcuLoader: datafile missing: %ls.\n", dataFile);
++        return nullptr;
++    }
++    int fileno = _fileno(stream.get());
++    if (fileno < 0) {
++        fprintf(stderr, "SkIcuLoader: datafile fileno error.\n");
++        return nullptr;
++    }
++    HANDLE file = (HANDLE)_get_osfhandle(fileno);
++    if ((HANDLE)INVALID_HANDLE_VALUE == file) {
++        fprintf(stderr, "SkIcuLoader: datafile handle error.\n");
++        return nullptr;
++    }
++    struct CloseHandleWrapper { void operator()(HANDLE h) { CloseHandle(h); } };
++    std::unique_ptr<void, CloseHandleWrapper> mmapHandle(
++        CreateFileMapping(file, nullptr, PAGE_READONLY, 0, 0, nullptr));
++    if (!mmapHandle) {
++        fprintf(stderr, "SkIcuLoader: datafile mmap error.\n");
++        return nullptr;
++    }
++    void* addr = MapViewOfFile(mmapHandle.get(), FILE_MAP_READ, 0, 0, 0);
++    if (nullptr == addr) {
++        fprintf(stderr, "SkIcuLoader: datafile view error.\n");
++        return nullptr;
++    }
++    return addr;
++}
++
++static bool init_icu(void* addr) {
++    UErrorCode err = U_ZERO_ERROR;
++    udata_setCommonData(addr, &err);
++    if (err != U_ZERO_ERROR) {
++        fprintf(stderr, "udata_setCommonData() returned %d.\n", (int)err);
++        return false;
++    }
++    udata_setFileAccess(UDATA_ONLY_PACKAGES, &err);
++    if (err != U_ZERO_ERROR) {
++        fprintf(stderr, "udata_setFileAccess() returned %d.\n", (int)err);
++        return false;
++    }
++    return true;
++}
++
++static std::wstring get_module_path(HMODULE module) {
++    DWORD len;
++    std::wstring path;
++    path.resize(MAX_PATH);
++
++    len = GetModuleFileNameW(module, (LPWSTR)path.data(), (DWORD)path.size());
++    if (len > path.size()) {
++        path.resize(len);
++        len = GetModuleFileNameW(module, (LPWSTR)path.data(), (DWORD)path.size());
++    }
++    path.resize(len);
++    std::size_t end = path.rfind('\\');
++    if (end == std::wstring::npos) {
++        return std::wstring();
++    }
++    path.resize(end);
++    return path;
++}
++
++static std::wstring library_directory() {
++    HMODULE hModule = NULL;
++    GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
++        reinterpret_cast<LPCSTR>(&library_directory), &hModule);
++    return get_module_path(hModule);
++}
++
++static std::wstring executable_directory() {
++    HMODULE hModule = GetModuleHandleA(NULL);
++    return get_module_path(hModule);
++}
++
++static bool load_from(const std::wstring& dir) {
++    auto sPath = dir + L"\\icudtl.dat";
++    if (void* addr = win_mmap(sPath.c_str())) {
++        if (init_icu(addr)) {
++            return true;
++        }
++    }
++    return false;
++}
++
++bool SkLoadICU() {
++    static bool good = false;
++    static std::once_flag flag;
++    std::call_once(flag, []() {
++        good = load_from(executable_directory()) || load_from(library_directory());
++    });
++    return good;
++}
++
++#endif  // defined(_WIN32) && defined(SK_USING_THIRD_PARTY_ICU)
+new file mode 100644
+index 0000000..fffffff
+--- /dev/null
++++ SkLoadICU.h
+@@ -0,0 +1,16 @@
++/*
++ * Copyright 2018 Google Inc.
++ *
++ * Use of this source code is governed by a BSD-style license that can be
++ * found in the LICENSE file.
++ */
++#ifndef load_icu_DEFINED
++#define load_icu_DEFINED
++
++#if defined(_WIN32) && defined(SK_USING_THIRD_PARTY_ICU)
++bool SkLoadICU();
++#else
++static inline bool SkLoadICU() { return true; }
++#endif  // defined(_WIN32) && defined(SK_USING_THIRD_PARTY_ICU)
++
++#endif  // load_icu_DEFINED
+new file mode 100644
+index 0000000..fffffff
+--- /dev/null
++++ make_data_cpp.py
+@@ -0,0 +1,50 @@
++#!/usr/bin/env python
++
++# Copyright 2019 Google LLC.
++# Use of this source code is governed by a BSD-style license that can be
++# found in the LICENSE file.
++
++'''
++Generate a source file containing the given binary data.
++
++Output type is C++.
++'''
++
++from __future__ import print_function
++
++import os
++import struct
++import sys
++import mmap
++
++def iterate_as_uint32(path):
++    with open(path, 'rb') as f:
++        s = struct.Struct('@I')
++        assert s.size == 4
++        mm = mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ)
++        assert (len(mm) % s.size) == 0
++        for offset in range(0, len(mm), s.size):
++            yield s.unpack_from(mm, offset)[0]
++        mm.close()
++
++
++def convert(fmt, name, src_path, dst_path):
++    header, line_begin, line_end, footer = fmt
++    assert os.path.exists(src_path)
++    src = iterate_as_uint32(src_path)
++    with open(dst_path, 'w') as o:
++        o.write(header.format(name))
++        while True:
++            line = ','.join('%d' % v for _, v in zip(range(8), src))
++            if not line:
++                break
++            o.write('%s%s%s\n' % (line_begin, line, line_end))
++        o.write(footer.format(name))
++
++
++cpp = ('#include <cstdint>\nextern "C" uint32_t {0}[] __attribute__((aligned(16))) = {{\n',
++       '', ',', '}};\n')
++
++if __name__ == '__main__':
++    print('\n'.join('>>>  %r' % x for x in sys.argv))
++    convert(cpp, sys.argv[1], sys.argv[2], sys.argv[3])
+

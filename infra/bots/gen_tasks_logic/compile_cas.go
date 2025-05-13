@@ -50,6 +50,8 @@ var (
 		".vpython3",
 		"BUILD.bazel",
 		"DEPS", // Needed by bin/fetch-ninja
+		"MODULE.bazel",
+		"MODULE.bazel.lock",
 		"WORKSPACE.bazel",
 		"bazel",
 		"bin/activate-emsdk",
@@ -59,7 +61,6 @@ var (
 		"buildtools",
 		"example",
 		"experimental/rust_png",
-		"go_repositories.bzl",
 		"infra/bots/assets/android_ndk_darwin/VERSION",
 		"infra/bots/assets/android_ndk_linux/VERSION",
 		"infra/bots/assets/android_ndk_windows/VERSION",

@@ -4,6 +4,7 @@ FT_GIT_REPO="https://chromium.googlesource.com/chromium/src/third_party/freetype
 FT_GIT_REF="origin/master"
 FT_GIT_DIR="third_party/externals/freetype"
 FT_BUILD_DIR="$(dirname -- "$0")"
+SKIA_BUILD_DIR=$(dirname $(dirname -- "$0"))
 
 notshallow() {
   STEP="check ${FT_GIT_DIR} not shallow"
@@ -53,6 +54,17 @@ mergeinclude() {
   git add "${FT_BUILD_DIR}/${SKIA_INCLUDE}"
 }
 
+update_bazel_patch() {
+  cd ${SKIA_BUILD_DIR} &&
+  python3 tools/generate_patches.py \
+    ${FT_BUILD_DIR}/include/freetype-android/freetype/config/ftmodule.h builds/android-ftmodule.h \
+    ${FT_BUILD_DIR}/include/freetype-android/freetype/config/ftoption.h builds/android-ftoption.h \
+    ${FT_BUILD_DIR}/include/freetype-no-type1/freetype/config/ftmodule.h builds/no-type1-ftmodule.h \
+    ${FT_BUILD_DIR}/include/freetype-no-type1/freetype/config/ftoption.h builds/no-type1-ftoption.h \
+    > bazel/external/freetype/config_files.patch &&
+  git add bazel/external/freetype/config_files.patch
+}
+
 commit() {
   STEP="commit" &&
   FT_PREVIOUS_REV_SHORT=$(echo "${FT_PREVIOUS_REV}" | cut -c 1-8) &&
@@ -75,5 +87,6 @@ mergeinclude freetype-android freetype/config/ftoption.h &&
 mergeinclude freetype-android freetype/config/ftmodule.h &&
 mergeinclude freetype-no-type1 freetype/config/ftoption.h &&
 mergeinclude freetype-no-type1 freetype/config/ftmodule.h &&
+update_bazel_patch &&
 commit &&
 true || { echo "Failed step ${STEP}"; exit 1; }

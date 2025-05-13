@@ -9,7 +9,7 @@ type QueryCommand struct {
 	mock.Mock
 }
 
-// Read provides a mock function with given fields:
+// Read provides a mock function with no fields
 func (_m *QueryCommand) Read() ([]byte, error) {
 	ret := _m.Called()
 

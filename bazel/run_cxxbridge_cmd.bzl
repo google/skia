@@ -21,18 +21,14 @@ def _run_cxxbridge_cmd_impl(ctx):
         args.append("--cfg")
         args.append("feature=\"%s\"" % f)
 
-    # https://bazel.build/rules/lib/builtins/ctx#resolve_tools
-    tool_inputs, tool_input_manifests = ctx.resolve_tools(tools = tool_as_list)
-
     # https://bazel.build/rules/lib/builtins/actions.html#run
     ctx.actions.run(
         outputs = ctx.outputs.outs,
         inputs = ctx.files.srcs,
-        tools = tool_inputs,
+        tools = [ctx.executable._cxxbridge],
         executable = ctx.executable._cxxbridge,
         arguments = args,
         mnemonic = "RunCxxbridgeCmd",
-        input_manifests = tool_input_manifests,
     )
 
     return DefaultInfo(
@@ -60,7 +56,7 @@ run_cxxbridge_cmd = rule(
             doc = "Optional list of cargo features that CXX bridge definitions may depend on.",
         ),
         "_cxxbridge": attr.label(
-            default = Label("@cxxbridge_cmd//:cxxbridge"),
+            default = Label("@cargo_bindeps//:cxxbridge-cmd__cxxbridge"),
             allow_single_file = True,
             executable = True,
             cfg = "exec",

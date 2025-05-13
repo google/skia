@@ -1,6 +1,8 @@
 # This file will be copied into //third_party/externals/freetype via the new_local_repository
 # rule in WORKSPACE.bazel, so all files should be relative to that path.
 
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 # We define this here because the emscripten toolchain calls the cpu wasm, whereas the
 # bazelbuild/platforms call it wasm32. https://github.com/emscripten-core/emsdk/issues/919
 config_setting(
@@ -20,8 +22,8 @@ FREETYPE_PUBLIC_DEFINES = [
     {
         ":cpu_wasm": [
             # Use a trimmed down set of options to reduce code size.
-            "FT_CONFIG_MODULES_H=<skia/no-type1/freetype/config/ftmodule.h>",
-            "FT_CONFIG_OPTIONS_H=<skia/no-type1/freetype/config/ftoption.h>",
+            "FT_CONFIG_MODULES_H=<no-type1-ftmodule.h>",
+            "FT_CONFIG_OPTIONS_H=<no-type1-ftoption.h>",
         ],
         "@platforms//os:windows": [
             # On Windows, the shell doesn't like the angle brackets, so we need
@@ -29,56 +31,17 @@ FREETYPE_PUBLIC_DEFINES = [
             # also escape the escape character, '^') so that they make it
             # through from Bazel to the trampoline script and from the
             # trampoline script to Clang.
-            "FT_CONFIG_MODULES_H=^^^<skia/android/freetype/config/ftmodule.h^^^>",
-            "FT_CONFIG_OPTIONS_H=^^^<skia/android/freetype/config/ftoption.h^^^>",
+            "FT_CONFIG_MODULES_H=^^^<android-ftmodule.h^^^>",
+            "FT_CONFIG_OPTIONS_H=^^^<android-ftoption.h^^^>",
         ],
         "//conditions:default": [
-            "FT_CONFIG_MODULES_H=<skia/android/freetype/config/ftmodule.h>",
-            "FT_CONFIG_OPTIONS_H=<skia/android/freetype/config/ftoption.h>",
+            "FT_CONFIG_MODULES_H=<android-ftmodule.h>",
+            "FT_CONFIG_OPTIONS_H=<android-ftoption.h>",
         ],
     },
 )
 
 FREETYPE_LOCAL_DEFINES = ["FT2_BUILD_LIBRARY"]
-
-# Copy our freetype include files from the config subfolder so they can be more
-# easily accessed by how we set FT_CONFIG_MODULES_H. Because these files don't exist in
-# the original Freetype checkout, we have to put them in a separate workspace (we cannot
-# refer to them from the Skia workspace or that would be a circular dependency).
-genrule(
-    name = "copy_android_freetype_config",
-    srcs = [
-        "@freetype_config//:freetype-android/freetype/config/ftmodule.h",
-        "@freetype_config//:freetype-android/freetype/config/ftoption.h",
-    ],
-    outs = [
-        "builds/skia/android/freetype/config/ftmodule.h",
-        "builds/skia/android/freetype/config/ftoption.h",
-    ],
-    # SRCS is a space seperated list of files.
-    # RULEDIR is the directory containing this BUILD.bazel file (the root of the freetype directory)
-    # but only in the "genfiles tree", which does not persist after compilation.
-    cmd = "cp $(SRCS) $(RULEDIR)/builds/skia/android/freetype/config/",
-    cmd_bat = "for %f in ($(SRCS)) do copy %f $(RULEDIR)\\builds\\skia\\android\\freetype\\config",
-)
-
-# It is easiest to have multiple copy rules, one per output directory.
-genrule(
-    name = "copy_no_type1_freetype_config",
-    srcs = [
-        "@freetype_config//:freetype-no-type1/freetype/config/ftmodule.h",
-        "@freetype_config//:freetype-no-type1/freetype/config/ftoption.h",
-    ],
-    outs = [
-        "builds/skia/no-type1/freetype/config/ftmodule.h",
-        "builds/skia/no-type1/freetype/config/ftoption.h",
-    ],
-    # SRCS is a space seperated list of files.
-    # RULEDIR is the directory containing this BUILD.bazel file (the root of the freetype directory)
-    # but only in the "genfiles tree", which does not persist after compilation.
-    cmd = "cp $(SRCS) $(RULEDIR)/builds/skia/no-type1/freetype/config/",
-    cmd_bat = "for %f in ($(SRCS)) do copy %f $(RULEDIR)\\builds\\skia\\no-type1\\freetype\\config",
-)
 
 cc_library(
     name = "freetype",
@@ -334,11 +297,11 @@ cc_library(
         "include/freetype/tttables.h",
         "include/freetype/tttags.h",
         "include/ft2build.h",
-        # These are copied in by some genrules
-        "builds/skia/android/freetype/config/ftmodule.h",
-        "builds/skia/android/freetype/config/ftoption.h",
-        "builds/skia/no-type1/freetype/config/ftmodule.h",
-        "builds/skia/no-type1/freetype/config/ftoption.h",
+        # We expect this to be copied in via the repository_rule that checks out freetype
+        "builds/android-ftmodule.h",
+        "builds/android-ftoption.h",
+        "builds/no-type1-ftmodule.h",
+        "builds/no-type1-ftoption.h",
     ],
     copts = [
         "-Wno-unused-function",

@@ -11,4 +11,8 @@ if [[ "$@" == *SKIA_SKIP_LINKING* ]]; then
   exit 0
 fi
 
-external/clang_linux_amd64/bin/llvm-ar $@
+# Find this file and look for ../../external
+BASE_DIR=$( realpath $( dirname ${BASH_SOURCE[0]}))
+CLANG_DIR=$( dirname $( dirname $BASE_DIR))/external/*clang_linux_amd64
+
+$CLANG_DIR/bin/llvm-ar $@

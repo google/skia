@@ -1,9 +1,0 @@
-exports_files(
-    [
-        "freetype-android/freetype/config/ftmodule.h",
-        "freetype-android/freetype/config/ftoption.h",
-        "freetype-no-type1/freetype/config/ftmodule.h",
-        "freetype-no-type1/freetype/config/ftoption.h",
-    ],
-    visibility = ["//visibility:public"],
-)

@@ -1,6 +1,8 @@
 # This file will be copied into //third_party/externals/icu via the new_local_repository
 # rule in WORKSPACE.bazel, so all files should be relative to that path.
 
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 # We define this here because the emscripten toolchain calls the cpu wasm, whereas the
 # bazelbuild/platforms call it wasm32. https://github.com/emscripten-core/emsdk/issues/919
 config_setting(
@@ -17,7 +19,8 @@ py_binary(
 
 py_binary(
     name = "make_data_cpp",
-    srcs = ["@icu_utils//:make_data_cpp.py"],
+    # We expect this to be copied in via the repository_rule that checks out icu
+    srcs = [":make_data_cpp.py"],
 )
 
 _icu_version_major_num = "74"  # defined in source/common/unicode/uvernum.h
@@ -83,27 +86,6 @@ genrule(
           # $@ is replaced with the one and only out location, located in //bazel-out.
           "$@ --mac",
     tools = [":make_data_assembly"],
-)
-
-# For convenience, we add in a Skia-specific loader to help out on Windows.
-# It is not easy to directly expose headers defined elsewhere (e.g. a different Bazel package)
-# because the include paths will be based on that different path. The simplest solution is
-# to copy the files we need into this package - then they will be include able via
-#     #include "SkLoadICU.h".
-genrule(
-    name = "copy_skloadicu_h",
-    srcs = [
-        "@icu_utils//:SkLoadICU.cpp",
-        "@icu_utils//:SkLoadICU.h",
-    ],
-    outs = [
-        "SkLoadICU.cpp",
-        "SkLoadICU.h",
-    ],
-    # SRCS is a space seperated list of files.
-    # RULEDIR is the directory containing this BUILD.bazel file (the root of the ICU directory)
-    cmd = "cp $(SRCS) $(RULEDIR)",
-    cmd_bat = "for %f in ($(SRCS)) do copy %f $(RULEDIR)",
 )
 
 ICU_HDRS = [
@@ -597,6 +579,7 @@ ICU_HDRS = [
     "source/i18n/zonemeta.h",
     "source/i18n/zrule.h",
     "source/i18n/ztrans.h",
+    # We expect this to be copied in via the repository_rule that checks out icu
     "SkLoadICU.h",
 ]
 
@@ -1048,6 +1031,7 @@ ICU_SRCS = [
 ] + select({
     "@platforms//os:windows": [
         "source/stubdata/stubdata.cpp",
+        # We expect this to be copied in via the repository_rule that checks out icu
         "SkLoadICU.cpp",
     ],
     ":cpu_wasm": ["generated_icu_wasm_dat.cpp"],

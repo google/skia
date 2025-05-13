@@ -1,3 +1,4 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 load("@rules_rust//rust:defs.bzl", "rust_static_library")
 load("//bazel:rust_cxx_bridge.bzl", "rust_cxx_bridge")
 load(
@@ -42,7 +43,7 @@ rust_static_library(
         },
     ),
     deps = [
-        "@cxx",
+        "@crates//:cxx",
         "@vello//:vello_encoding",
         "@vello//:vello_shaders",
         "@vello_deps//:bytemuck",

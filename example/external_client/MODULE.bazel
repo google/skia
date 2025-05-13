@@ -1,0 +1,59 @@
+# Rules for building C++ things in general
+bazel_dep(name = "rules_cc", version = "0.1.1")
+bazel_dep(name = "platforms", version = "0.0.11")
+
+# TODO(kjlubick) publish to https://registry.bazel.build/ for better interop
+# bazel_dep(name = "skia", version = "137.0.0")
+
+# A real client should download a pinned version of Skia by putting the following
+# in a file called skia.bzl:
+#
+#     load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+#
+#     def _skia_ext_impl(ctx):
+#         git_repository(
+#             name = "skia",
+#             commit = "8b051126be8ae6c3e718bd3817eebb867b2fd612",
+#             remote = "https://skia.googlesource.com/skia",
+#         )
+#
+#     skia_ext = module_extension(
+#         implementation = _skia_ext_impl,
+#     )
+#
+# and then in MODULE.bazel:
+#     skia_module = use_extension("//skia.bzl", "skia_ext")
+#     use_repo(skia_ext, "skia")
+
+# We use local_repository to allow us to test Skia at head as if it were checked
+# out via git_repository.
+bazel_dep(name = "skia")
+local_path_override(
+    module_name = "skia",
+    path = "../..",
+)
+
+# Clients need to define a target here named "skia_user_config" that points to a
+# Bazel workspace with:
+#   - a user_config cc_library rule that has SkiaUserConfig.h available and
+#     the SK_USE_BAZEL_CONFIG_HEADER define set.
+#   - A copts.bzl file with at least two string lists: DEFAULT_COPTS, DEFAULT_OBJC_COPTS
+#     These lists can be empty if you want to use the toolchain's default.
+#   - a linkopts.bzl file with at least the string list DEFAULT_LINKOPTS
+#     This list can be empty if you want to use the toolchain's default.
+bazel_dep(name = "skia_user_config")
+local_path_override(
+    module_name = "skia_user_config",
+    path = "custom_skia_config",
+)
+
+# bzlmod doesn't allow for transitive dependencies, so if your rules depend on
+# these headers directly, you must include them. Ideally, you'd use bazel_dep
+# from the registry, but some of them aren't there, so you may have to make
+# your own rules. Feel free to crib them off Skia's bazel/external directory.
+
+skia_deps = use_extension("@skia//bazel:deps.bzl", "c_plus_plus_modules")
+use_repo(
+    skia_deps,
+    "vulkan_headers",
+)

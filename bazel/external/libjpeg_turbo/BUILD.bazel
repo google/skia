@@ -1,6 +1,7 @@
 # This file will be copied into //third_party/externals/libjpeg-turbo via the new_local_repository
 # rule in WORKSPACE.bazel, so all files should be relative to that path.
 load("@bazel_skylib//lib:selects.bzl", "selects")
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
 config_setting(
     name = "mac_arm64",
@@ -233,6 +234,7 @@ cc_library(
     copts = [
         # There are some #include "neon-compat.h" etc that need this search path
         "-Iexternal/libjpeg_turbo/simd/arm/",
+        "-Iexternal/+c_plus_plus_modules+libjpeg_turbo/simd/arm/",
     ],
     includes = ["src"],
     local_defines = JPEGTURBO_DEFINES,

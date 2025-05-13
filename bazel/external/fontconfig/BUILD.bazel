@@ -1,3 +1,5 @@
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 # We currently do not build fontconfig from source, but dynamically link against a precompiled
 # version. This precompiled version is downloaded as part of the hermetic toolchain.
 #

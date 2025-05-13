@@ -1,6 +1,8 @@
 # This file will be copied into //third_party/externals/piex via the new_local_repository
 # rule in WORKSPACE.bazel, so all files should be relative to that path.
 
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 cc_library(
     name = "piex",
     srcs = [

@@ -1,6 +1,3 @@
-# https://github.com/bazelbuild/bazel-toolchains/blob/master/rules/exec_properties/exec_properties.bzl
-load("@bazel_toolchains//rules/exec_properties:exec_properties.bzl", "create_rbe_exec_properties_dict")
-
 # https://bazel.build/concepts/platforms-intro
 # https://bazel.build/docs/platforms
 platform(
@@ -21,11 +18,13 @@ platform(
     # a Linux RBE worker (which they should, assuming our hermetic toolchain *is* hermetic).
     # See https://github.com/bazelbuild/bazel/blob/f28209df2b0ebeff1de0b8b7f6b9e215d890e753/src/main/java/com/google/devtools/build/lib/actions/ActionKeyCacher.java#L67-L73
     # for how the exec_properties and execution platform impact the action cache.
-    exec_properties = create_rbe_exec_properties_dict(
-        container_image = "docker://gcr.io/skia-public/rbe_linux@sha256:82e8a4c7d06c8f47bbc08ee899c4c03069af0f7f4d8c0d958a50a23d814405e6",
-        os_family = "Linux",
-        pool = "gce_linux",
-    ),
+    # See this file for a list of the keys:
+    # https://github.com/bazelbuild/bazel-toolchains/blob/master/rules/exec_properties/exec_properties.bzl
+    exec_properties = {
+        "container-image": "docker://gcr.io/skia-public/rbe_linux@sha256:82e8a4c7d06c8f47bbc08ee899c4c03069af0f7f4d8c0d958a50a23d814405e6",
+        "OSFamily": "Linux",
+        "Pool": "gce_linux",
+    },
 )
 
 platform(
@@ -109,7 +108,7 @@ constraint_value(
 # the C++ compiler will never be invoked when building Go binaries.
 #
 # For context, when cgo is enabled, the C++ compiler will be involved when building Go binaries,
-# even for pure builds (e.g. "bazel build //some:target --@io_bazel_rules_go//go/config:pure").
+# even for pure builds (e.g. "bazel build //some:target --@rules_go//go/config:pure").
 # Presumably this is because some parts of the Go stdlib are written in C. It is unclear to
 # lovisolo@ whether disabling cgo means some parts of the Go stdlib become unavailable.
 #
@@ -125,7 +124,7 @@ constraint_value(
 # It is unclear whether this is a rules_go bug, or if there's something specific about our hermetic
 # C++ toolchains (Linux and macOS) that is causing the build to fail when cgo is enabled.
 #
-# Note that the @io_bazel_rules_go//go/toolchain:cgo_off constraint is not well documented.
+# Note that the @rules_go//go/toolchain:cgo_off constraint is not well documented.
 # lovisolo@ discovered this constraint because it was mentioned on some issues and PRs in the
 # rules_go repository and some other places, namely:
 #
@@ -137,5 +136,5 @@ constraint_value(
 # https://github.com/bazelbuild/rules_go/pull/3390.
 alias(
     name = "cgo_off",
-    actual = "@io_bazel_rules_go//go/toolchain:cgo_off",
+    actual = "@rules_go//go/toolchain:cgo_off",
 )

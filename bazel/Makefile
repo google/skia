@@ -17,14 +17,16 @@ generate_gni:
 	# is currently infeasible due to the fact that the exporter tool *calls*
 	# Bazel, resulting in a deadlock because only one Bazel command can run
 	# at a time.
-	cd .. && bazelisk build //bazel/exporter_tool --config=no_sandbox && \
+	cd .. && bazelisk build //bazel/exporter_tool && \
         ${EXPORTER_TOOL} -output_format=gni -proj_name=Skia ${EXPORTER_RULES} \
 		&& bazelisk run //bazel/external/gn -- format gn/*.gni modules/*/*.gni
+
+HOST_GO_ARCH := $(shell bazelisk run //:go -- version | awk '{print $$NF}' | sed 's/\//_/g')
 
 .PHONY: generate_gni_rbe
 generate_gni_rbe:
 	cd .. && bazelisk build //bazel/exporter_tool --config=linux_rbe --jobs=100 \
- 		--platforms=@io_bazel_rules_go//go/toolchain:$(shell bazelisk run //bazel/utils:go_platform) \
+ 		--platforms=@rules_go//go/toolchain:$(HOST_GO_ARCH) \
  		--remote_download_toplevel && \
         ${EXPORTER_TOOL} -output_format=gni -proj_name=Skia ${EXPORTER_RULES} \
 		&& bazelisk run //bazel/external/gn -- format gn/*.gni modules/*/*.gni
@@ -33,6 +35,24 @@ generate_gni_rbe:
 mocks:
 	go generate ./...
 
-# This target should be run after the go.mod file is updated (e.g. version rolls or new updates)
-gazelle_update_repo:
-	cd .. && bazelisk run //infra:gazelle -- update-repos -from_file=go.mod -to_macro=go_repositories.bzl%go_repositories -prune
+generate_third_party_patches:
+	cd .. && python3 tools/generate_patches.py \
+	third_party/freetype2/include/freetype-android/freetype/config/ftmodule.h builds/android-ftmodule.h \
+	third_party/freetype2/include/freetype-android/freetype/config/ftoption.h builds/android-ftoption.h \
+	third_party/freetype2/include/freetype-no-type1/freetype/config/ftmodule.h builds/no-type1-ftmodule.h \
+	third_party/freetype2/include/freetype-no-type1/freetype/config/ftoption.h builds/no-type1-ftoption.h \
+	> bazel/external/freetype/config_files.patch
+
+	cd .. && python3 tools/generate_patches.py \
+	third_party/expat/include/expat_config/expat_config.h expat_config.h \
+	> bazel/external/expat/config_files.patch
+
+	cd .. && python3 tools/generate_patches.py \
+	third_party/harfbuzz/config-override.h config-override.h \
+	> bazel/external/harfbuzz/config_files.patch
+
+	cd .. && python3 tools/generate_patches.py \
+	third_party/icu/SkLoadICU.cpp SkLoadICU.cpp \
+	third_party/icu/SkLoadICU.h SkLoadICU.h \
+	third_party/icu/make_data_cpp.py make_data_cpp.py \
+	> bazel/external/icu/icu_utils.patch

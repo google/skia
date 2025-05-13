@@ -1,4 +1,4 @@
-load("@build_bazel_rules_nodejs//:index.bzl", "nodejs_binary")
+load("@rules_nodejs//:index.bzl", "nodejs_binary")
 
 package(
     default_applicable_licenses = ["//:license"],

@@ -1,6 +1,8 @@
 # This file will be copied into //third_party/externals/libjxl via the new_local_repository
 # rule in WORKSPACE.bazel, so all files should be relative to that path.
 
+load("@rules_cc//cc:cc_library.bzl", "cc_library")
+
 # jxl_export.h appears to be a configuration file where clients can override what JXL_EXPORT
 # and JXL_DEPRECATED are. Our GN rules defined these as empty macros. Instead of doing that,
 # we just make a blank file here and define those empty macros in the cc_library rule.
@@ -276,6 +278,8 @@ cc_library(
         # and thus clang throws an error about that. It is easier to add an extra include
         # path than figuring out if we should upstream the change to libjxl and/or highway.
         "-isystem external/highway",
+        "-isystem external/+c_plus_plus_modules+highway",
+        "-isystem external/skia++c_plus_plus_modules+highway",
         "-Wno-unused-function",
     ],
     defines = JPEG_XL_PUBLIC_DEFINES,

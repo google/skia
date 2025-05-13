@@ -38,10 +38,10 @@ rust_static_library(
     ],
     crate_root = "src/ffi.rs",
     deps = [
-        "@cxx",
-        "@fontations//:font-types",
-        "@fontations//:read-fonts",
-        "@fontations//:skrifa",
+        "@crates//:cxx",
+        "@crates//:font-types",
+        "@crates//:read-fonts",
+        "@crates//:skrifa",
     ],
 )
 

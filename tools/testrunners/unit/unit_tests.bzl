@@ -1,5 +1,6 @@
 """This module contains macros to generate C++ unit test targets."""
 
+load("@rules_cc//cc:cc_test.bzl", "cc_test")
 load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
 load("@skia_user_config//:linkopts.bzl", "DEFAULT_LINKOPTS")
 
@@ -34,7 +35,7 @@ def unit_tests(
     for filename in tests:
         new_target = name + "_" + filename[:-4]  # trim .cpp
         test_targets.append(new_target)
-        native.cc_test(
+        cc_test(
             name = new_target,
             copts = DEFAULT_COPTS,
             linkopts = DEFAULT_LINKOPTS,

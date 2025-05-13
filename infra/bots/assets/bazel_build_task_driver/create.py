@@ -26,7 +26,7 @@ def create_asset(target_dir):
   """Compiles the task driver using bazel, which is presumed to be on PATH """
   out = subprocess.check_output([
     "bazel", "build", "//infra/bots/task_drivers/bazel_build",
-    "--platforms=@io_bazel_rules_go//go/toolchain:linux_amd64",
+    "--platforms=@rules_go//go/toolchain:linux_amd64",
   ], encoding='utf-8')
   print(out)
   path_to_binary = os.path.join(SKIA_ROOT_DIR, 'bazel-bin', 'infra', 'bots', 'task_drivers',
