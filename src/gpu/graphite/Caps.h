@@ -331,13 +331,27 @@ public:
     bool supportsAHardwareBufferImages() const { return fSupportsAHardwareBufferImages; }
 
     /**
-     * Returns true if the given backend supports using advanced coherent (no barriers needed,
-     * overlap permitted) blend equations on hardware
-     * TODO(b/239726010): Have backends determine support for hardware-based advanced blend modes
-     * and update fSupportsHardwareAdvancedBlending accordingly once graphite supports using it.
-     * TODO(b/393382700): Add separate check for non-coherent advanced blend support once supported.
+     * Enum representing the capabilities of the fixed function blend unit.
      */
-    bool supportsHardwareAdvancedBlending() const { return fSupportsHardwareAdvancedBlending; }
+    enum BlendEquationSupport : uint8_t {
+        kBasic = 0,           /* Default bare minimum support. Allows selecting the operator that
+                                 combines src + dst terms.*/
+        kAdvancedNoncoherent, /* Additional fixed function support for specific SVG/PDF blend modes.
+                                 Requires blend barriers.*/
+        kAdvancedCoherent     /* Advanced blend equation support that does not require blend
+                                 barriers and permits overlap.*/
+    };
+    /**
+     * Return the level of hardware advanced blend mode support.
+     */
+    BlendEquationSupport blendEquationSupport() const { return fBlendEqSupport; }
+    /**
+     * Simple helper for indicating whether the hardware supports advanced blend modes at all
+     * (coherent or noncoherent).
+     */
+    bool supportsHardwareAdvancedBlending() const {
+        return fBlendEqSupport > BlendEquationSupport::kBasic;
+    }
 
     /**
      * Returns the skgpu::Swizzle to use when sampling or reading back from a texture with the
@@ -471,7 +485,7 @@ protected:
 
     bool fComputeSupport = false;
     bool fSupportsAHardwareBufferImages = false;
-    bool fSupportsHardwareAdvancedBlending = false;
+    BlendEquationSupport fBlendEqSupport = BlendEquationSupport::kBasic;
     bool fFullCompressedUploadSizeMustAlignToBlockDims = false;
 
 #if defined(GPU_TEST_UTILS)

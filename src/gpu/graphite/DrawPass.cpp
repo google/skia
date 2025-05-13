@@ -411,6 +411,17 @@ DrawPass::DrawPass(sk_sp<TextureProxy> target,
 
 DrawPass::~DrawPass() = default;
 
+namespace {
+bool paint_uses_advanced_blend_equation(std::optional<PaintParams> drawPaintParams) {
+    if (!drawPaintParams.has_value() || !drawPaintParams.value().asFinalBlendMode().has_value()) {
+        return false;
+    }
+
+    return (int)drawPaintParams.value().asFinalBlendMode().value() >
+           (int)SkBlendMode::kLastCoeffMode;
+}
+} // anonymous
+
 std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                          std::unique_ptr<DrawList> draws,
                                          sk_sp<TextureProxy> target,
@@ -571,6 +582,11 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     // the barrier addition and draw commands are ordered correctly.
     CompressedPaintersOrder priorDrawPaintOrder {};
 
+    // If a draw uses an advanced blend mode and the device supports this via noncoherent blending,
+    // then we must insert the appropriate barrier and ensure that the draws do not overlap.
+    const bool advancedBlendsRequireBarrier =
+            caps->blendEquationSupport() == Caps::BlendEquationSupport::kAdvancedNoncoherent;
+
     for (const SortKey& key : keys) {
         const DrawList::Draw& draw = key.draw();
         const RenderStep& renderStep = key.renderStep();
@@ -596,14 +612,23 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         const SkIRect* newScissor        = draw.fDrawParams.clip().scissor() != lastScissor ?
                 &draw.fDrawParams.clip().scissor() : nullptr;
 
-        // TODO(b/393382700): Check whether a draw uses an advanced noncoherent blend mode. If so,
-        // that draw must not be grouped with draws that read from the dst texture since those
-        // requirements are mutually exclusive. We would also need to issue append an addBarrier
-        // command to the command list with BarrierType::kAdvancedNoncoherentBlend.
-        const std::optional<BarrierType> barrierToAddBeforeDraws =
-                dstReadStrategy == DstReadStrategy::kReadFromInput && draw.readsFromDst()
-                        ? std::optional<BarrierType>(BarrierType::kReadDstFromInput)
-                        : std::nullopt;
+        // Determine + analyze draw properties to inform whether we need to issue barriers before
+        // issuing draw calls.
+        bool drawsOverlap = priorDrawPaintOrder != draw.fDrawParams.order().paintOrder();
+        bool drawUsesAdvancedBlendMode = paint_uses_advanced_blend_equation(draw.fPaintParams);
+
+        std::optional<BarrierType> barrierToAddBeforeDraws = std::nullopt;
+        if (dstReadStrategy == DstReadStrategy::kReadFromInput && draw.readsFromDst()) {
+            barrierToAddBeforeDraws = BarrierType::kReadDstFromInput;
+        }
+        if (drawUsesAdvancedBlendMode &&
+            caps->supportsHardwareAdvancedBlending() &&
+            advancedBlendsRequireBarrier) {
+            // A draw should only read from the dst OR use hardware for advanced blend modes.
+            SkASSERT(!draw.readsFromDst());
+
+            barrierToAddBeforeDraws = BarrierType::kAdvancedNoncoherentBlend;
+        }
 
         const bool stateChange = geomBindingChange ||
                                  shadingBindingChange ||
@@ -620,8 +645,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                                         barrierToAddBeforeDraws);
         } else if (stateChange) {
             drawWriter.newDynamicState();
-        } else if (barrierToAddBeforeDraws.has_value() &&
-                   priorDrawPaintOrder != draw.fDrawParams.order().paintOrder()) {
+        } else if (barrierToAddBeforeDraws.has_value() && drawsOverlap) {
             // Even if there is no pipeline or state change, we must consider whether a
             // DrawPassCommand to add barriers must be inserted before any draw commands. If so,
             // then determine if the current and prior draws overlap (ie, their PaintOrders are

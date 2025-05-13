@@ -54,8 +54,8 @@ struct EnabledFeatures {
     // From VkPhysicalDeviceFaultFeaturesEXT:
     bool fDeviceFault = false;
     // From VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT:
-    bool fCoherentAdvancedBlends = false;
-    // TODO(b/393382700): Check for noncoherent HW advanced blending support
+    bool fAdvancedBlendModes = false;
+    bool fCoherentAdvancedBlendModes = false;
 };
 
 // Walk the feature chain once and extract any enabled features that Graphite cares about.
@@ -85,7 +85,11 @@ EnabledFeatures GetEnabledFeature(const VkPhysicalDeviceFeatures2* features) {
                 case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT: {
                     const auto* feature = reinterpret_cast<
                             const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT*>(pNext);
-                    enabled.fCoherentAdvancedBlends =
+                    // The feature struct being present at all indicated advanced blend mode
+                    // support. A member of it indicates whether the device offers coherent or
+                    // noncoherent support.
+                    enabled.fAdvancedBlendModes = true;
+                    enabled.fCoherentAdvancedBlendModes =
                             feature->advancedBlendCoherentOperations == VK_TRUE;
                 }
                 break;
@@ -254,11 +258,11 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
 
     fSupportsYcbcrConversion = enabledFeatures.fSamplerYcbcrConversion;
     fSupportsDeviceFaultInfo = enabledFeatures.fDeviceFault;
-    // TODO(b/393382700): Check noncoherent HW advanced blending support once implemented. For now,
-    // indicate support iff the device has coherent adv blend mode support (meaning overlap is
-    // permitted and no barriers are required).
-    if (enabledFeatures.fCoherentAdvancedBlends) {
-        fSupportsHardwareAdvancedBlending = true;
+
+    if (enabledFeatures.fAdvancedBlendModes) {
+        fBlendEqSupport = enabledFeatures.fCoherentAdvancedBlendModes
+                ? BlendEquationSupport::kAdvancedCoherent
+                : BlendEquationSupport::kAdvancedNoncoherent;
         fShaderCaps->fAdvBlendEqInteraction =
                 SkSL::ShaderCaps::AdvBlendEqInteraction::kAutomatic_AdvBlendEqInteraction;
     }
