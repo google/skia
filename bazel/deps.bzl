@@ -25,14 +25,14 @@ def _c_plus_plus_modules_impl(ctx):
     new_git_repository(
         name = "dawn",
         build_file = "//bazel/external/dawn:BUILD.bazel",
-        commit = "1a81a31c86f24b217d6396bc0a4c796590fffc43",
+        commit = "be90a8f836d3a41eae2d8a5152f24b54d7469599",
         remote = "https://dawn.googlesource.com/dawn.git",
     )
 
     git_repository(
         name = "abseil_cpp",
-        commit = "65a55c2ba891f6d2492477707f4a2e327a0b40dc",
-        remote = "https://skia.googlesource.com/external/github.com/abseil/abseil-cpp.git",
+        commit = "04dc59d2c83238cb1fcb49083e5e416643a899ce",
+        remote = "https://chromium.googlesource.com/chromium/src/third_party/abseil-cpp",
     )
 
     new_git_repository(
