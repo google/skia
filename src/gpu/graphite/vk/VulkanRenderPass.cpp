@@ -26,55 +26,34 @@ void add_subpass_info_to_key(ResourceKey::Builder& builder,
                              const VulkanRenderPass::Metadata& rpData) {
     SkASSERT(rpData.fColorAttachIndex >= 0); // We expect to always have a valid color attachment
 
-    // TODO: Fetch actual attachment reference and index information for each
-    // subpass from RenderPassDesc. For now, determine subpass data based upon whether we are
-    // loading from MSAA or not.
-    const int mainSubpassIdx = rpData.fLoadMSAAFromResolve ? 1 : 0;
     // Assign a smaller value to represent VK_ATTACHMENT_UNUSED.
     static constexpr int kAttachmentUnused = std::numeric_limits<uint8_t>::max();
 
     // The following key structure assumes that we only have up to one reference of each type per
     // subpass and that attachments are indexed in order of color, resolve, depth/stencil, then
     // input attachments. These indices are statically defined in the VulkanRenderPass header file.
-    for (int j = 0; j < rpData.subpassCount(); j++) {
-        if (j == mainSubpassIdx) {
-            // For keying purposes, if the renderpass will not use the input attachment, we mark its
-            // input attachment as unused. This differentiates it from compatible-only renderpasses
-            // and those that require dst reads so that it can use
-            // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL for the color attachment. However, the
-            // actual subpass will still have an input attachment ref to preserve renderpass
-            // compatibility to minimize pipeline compiles.
-            builder[builderIdx++] =
-                    (rpData.fColorAttachIndex   >= 0 ? SkTo<uint8_t>(rpData.fColorAttachIndex)
-                                                     : kAttachmentUnused)        |
-                    ((rpData.fColorResolveIndex >= 0 ? SkTo<uint8_t>(rpData.fColorResolveIndex)
-                                                     : kAttachmentUnused) << 8)  |
-                    ((rpData.fDepthStencilIndex >= 0 ? SkTo<uint8_t>(rpData.fDepthStencilIndex)
-                                                     : kAttachmentUnused) << 16) |
-                    ((rpData.fUsesInputAttachment    ? SkTo<uint8_t>(rpData.fColorAttachIndex)
-                                                     : kAttachmentUnused) << 24);
-        } else { // Loading MSAA from resolve subpass
-            builder[builderIdx++] =
-                    static_cast<uint8_t>(rpData.fColorAttachIndex) | // color attachment
-                    (kAttachmentUnused << 8)                       | // No color resolve attachment
-                    (kAttachmentUnused << 16)                      | // No depth/stencil attachment
-                    // The input attachment for the load subpass is the color resolve texture.
-                    (static_cast<uint8_t>(rpData.fColorResolveIndex) << 24);
-        }
-    }
+    // Additionally, there will always be a single subpass, except when |fLoadMSAAFromResolve| is
+    // true, in which case an unresolve pass is added with a known structure (always referencing the
+    // color and resolve attachments, with a known dependency etc).
 
-    // TODO: Query RenderPassDesc for subpass dependency information & populate the key accordingly.
-    // For now, we know that the only subpass dependency will be that expected for loading MSAA from
-    // resolve.
-    for (int i = 0; i < rpData.subpassDependencyCount(); i++) {
-        builder[builderIdx++] = 0 | (mainSubpassIdx << 8); // srcSubpass, dstSubpass
-        builder[builderIdx++] = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT; // srcStageMask
-        builder[builderIdx++] = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT; // dstStageMask
-        builder[builderIdx++] = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;          // srcAccessMask
-        builder[builderIdx++] = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT |          // dstAccessMask
-                                VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        builder[builderIdx++] = VK_DEPENDENCY_BY_REGION_BIT;                   // dependencyFlags
-    }
+    // For keying purposes, if the renderpass will not use the input attachment, we mark its
+    // input attachment as unused. This differentiates it from compatible-only renderpasses
+    // and those that require dst reads so that it can use
+    // VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL for the color attachment. However, the
+    // actual subpass will still have an input attachment ref to preserve renderpass
+    // compatibility to minimize pipeline compiles.
+    builder[builderIdx++] =
+            (rpData.fColorAttachIndex >= 0 ? SkTo<uint8_t>(rpData.fColorAttachIndex)
+                                           : kAttachmentUnused) |
+            ((rpData.fColorResolveIndex >= 0 ? SkTo<uint8_t>(rpData.fColorResolveIndex)
+                                             : kAttachmentUnused)
+             << 8) |
+            ((rpData.fDepthStencilIndex >= 0 ? SkTo<uint8_t>(rpData.fDepthStencilIndex)
+                                             : kAttachmentUnused)
+             << 16) |
+            ((rpData.fUsesInputAttachment ? SkTo<uint8_t>(rpData.fColorAttachIndex)
+                                          : kAttachmentUnused)
+             << 24);
 }
 
 } // anonymous namespace
@@ -136,12 +115,13 @@ int VulkanRenderPass::Metadata::keySize() const {
     // The key will be formed such that bigger-picture items (such as the total attachment count)
     // will be near the front of the key to more quickly eliminate incompatible keys. Each
     // renderpass key will start with the total number of attachments associated with it
-    // followed by how many subpasses and subpass dependencies the renderpass has. Packed together,
-    // these will use one uint32.
+    // followed by how many subpasses it has (there is always one subpass, except when loading MSAA
+    // data from the resolve attachment, in which case another subpass is added with a known
+    // dependency). Packed together, these will use one uint32.
     int num32DataCnt = 1;
     SkASSERT(static_cast<uint32_t>(fAttachments.size()) <= (1u << 8));
     SkASSERT(static_cast<uint32_t>(this->subpassCount()) <= (1u << 8));
-    SkASSERT(static_cast<uint32_t>(this->subpassDependencyCount()) <= (1u << 8));
+    SkASSERT(static_cast<uint32_t>(this->subpassDependencyCount()) <= 1u);
 
     // The key will then contain format, sample count, and load/store ops for each attachment.
     // It packs up to 2 attachments per uint32_t
@@ -150,20 +130,21 @@ int VulkanRenderPass::Metadata::keySize() const {
     // Then, subpass information will be added in the form of attachment reference indices. Reserve
     // one int32 for each possible attachment reference type, of which there are 4.
     // There are 4 possible attachment reference types. Pack all 4 attachment reference indices into
-    // one uint32.
-    num32DataCnt += this->subpassCount();
-    // Each subpass dependency will be allotted 6 int32s to store all its pertinent information.
-    num32DataCnt += 6 * this->subpassDependencyCount();
+    // one uint32.  Only the main subpass is relevant; the unresolve subpass (if any) is derived
+    // from it (and a bit is set already for whether this subpass is needed).
+    num32DataCnt += 1;
+
     return num32DataCnt;
 }
 
 void VulkanRenderPass::Metadata::addToKey(ResourceKey::Builder& builder, int& builderIdx) {
-    builder[builderIdx++] = fAttachments.size()  |
-                            (this->subpassCount() << 8) |
-                            (this->subpassDependencyCount() << 16);
+    builder[builderIdx++] = fAttachments.size() | (this->subpassCount() << 8);
 
     // Iterate through each renderpass attachment to add its information. Each attachment is packed
     // into 16 bits, so two attachments per key field
+    // TODO: It is unlikely that the full flexibility of Vulkan subpass dependencies will be exposed
+    // in the generalized subpasses of RenderPassDesc, so if those are sufficient for the Vulkan
+    // backend as well then we may be able to reduce the key size here.
     for (int i = 0; i < fAttachments.size(); i++) {
         AttachmentDesc desc = fAttachments[i];
         uint16_t descKey = static_cast<uint8_t>(desc.fFormat) << 8 |
@@ -179,11 +160,6 @@ void VulkanRenderPass::Metadata::addToKey(ResourceKey::Builder& builder, int& bu
     }
     builderIdx += (fAttachments.size() + 1) / 2;
 
-    // TODO: Currently subpasses and their dependencies are keyed for maximum simplicity and ability
-    // to represent all Vulkan features. This makes for a large key size. It is unlikely that the
-    // full flexibility of Vulkan subpass dependencies will be exposed in the generalized subpasses
-    // of RenderPassDesc, so if those are sufficient for the Vulkan backend as well then we may be
-    // able to reduce the key size here.
     add_subpass_info_to_key(builder, builderIdx, *this);
 }
 
