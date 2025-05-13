@@ -80,19 +80,19 @@ static void test_big_grad(skiatest::Reporter* reporter) {
 }
 
 struct GradRec {
-    int             fColorCount;
-    const SkColor*  fColors;
+    int fColorCount;
+    const SkColor4f* fColors;
     const SkScalar* fPos;
-    const SkPoint*  fPoint;   // 2
+    const SkPoint* fPoint;   // 2
     const SkScalar* fRadius; // 2
-    SkTileMode      fTileMode;
+    SkTileMode fTileMode;
 
     void gradCheck(skiatest::Reporter* reporter,
                    const sk_sp<SkShader>& shader,
                    SkShaderBase::GradientInfo* info,
                    SkShaderBase::GradientType gt,
                    const SkMatrix& localMatrix = SkMatrix::I()) const {
-        AutoTMalloc<SkColor> colorStorage(fColorCount);
+        AutoTMalloc<SkColor4f> colorStorage(fColorCount);
         AutoTMalloc<SkScalar> posStorage(fColorCount);
 
         info->fColorCount = fColorCount;
@@ -104,7 +104,7 @@ struct GradRec {
 
         REPORTER_ASSERT(reporter, info->fColorCount == fColorCount);
         REPORTER_ASSERT(reporter,
-                        !memcmp(info->fColors, fColors, fColorCount * sizeof(SkColor)));
+                        !memcmp(info->fColors, fColors, fColorCount * sizeof(SkColor4f)));
         REPORTER_ASSERT(reporter,
                         !memcmp(info->fColorOffsets, fPos, fColorCount * sizeof(SkScalar)));
         REPORTER_ASSERT(reporter, fTileMode == (SkTileMode)info->fTileMode);
@@ -118,14 +118,16 @@ static void none_gradproc(skiatest::Reporter* reporter, const GradRec&, const Gr
 }
 
 static void color_gradproc(skiatest::Reporter* reporter, const GradRec& rec, const GradRec&) {
-    sk_sp<SkShader> s(SkShaders::Color(rec.fColors[0]));
+    sk_sp<SkShader> s(SkShaders::Color(rec.fColors[0], SkColorSpace::MakeSRGB()));
     REPORTER_ASSERT(reporter, SkShaderBase::GradientType::kNone == as_SB(s)->asGradient());
 }
 
 static void linear_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec,
                             const GradRec& checkRec) {
-    sk_sp<SkShader> s(SkGradientShader::MakeLinear(buildRec.fPoint, buildRec.fColors, buildRec.fPos,
-                                                   buildRec.fColorCount, buildRec.fTileMode));
+    sk_sp<SkShader> s(SkGradientShader::MakeLinear(
+            buildRec.fPoint,
+            buildRec.fColors, SkColorSpace::MakeSRGB(), buildRec.fPos, buildRec.fColorCount,
+            buildRec.fTileMode));
 
     SkShaderBase::GradientInfo info;
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kLinear);
@@ -134,9 +136,10 @@ static void linear_gradproc(skiatest::Reporter* reporter, const GradRec& buildRe
 
 static void radial_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec,
                             const GradRec& checkRec) {
-    sk_sp<SkShader> s(SkGradientShader::MakeRadial(buildRec.fPoint[0], buildRec.fRadius[0],
-                                                   buildRec.fColors, buildRec.fPos,
-                                                   buildRec.fColorCount, buildRec.fTileMode));
+    sk_sp<SkShader> s(SkGradientShader::MakeRadial(
+            buildRec.fPoint[0], buildRec.fRadius[0],
+            buildRec.fColors, SkColorSpace::MakeSRGB(), buildRec.fPos, buildRec.fColorCount,
+            buildRec.fTileMode));
 
     SkShaderBase::GradientInfo info;
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kRadial);
@@ -146,9 +149,9 @@ static void radial_gradproc(skiatest::Reporter* reporter, const GradRec& buildRe
 
 static void sweep_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec,
                            const GradRec& checkRec) {
-    sk_sp<SkShader> s(SkGradientShader::MakeSweep(buildRec.fPoint[0].fX, buildRec.fPoint[0].fY,
-                                                  buildRec.fColors, buildRec.fPos,
-                                                  buildRec.fColorCount));
+    sk_sp<SkShader> s(SkGradientShader::MakeSweep(
+            buildRec.fPoint[0].fX, buildRec.fPoint[0].fY,
+            buildRec.fColors, SkColorSpace::MakeSRGB(), buildRec.fPos, buildRec.fColorCount));
 
     SkShaderBase::GradientInfo info;
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kSweep);
@@ -157,14 +160,10 @@ static void sweep_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec
 
 static void conical_gradproc(skiatest::Reporter* reporter, const GradRec& buildRec,
                              const GradRec& checkRec) {
-    sk_sp<SkShader> s(SkGradientShader::MakeTwoPointConical(buildRec.fPoint[0],
-                                                            buildRec.fRadius[0],
-                                                            buildRec.fPoint[1],
-                                                            buildRec.fRadius[1],
-                                                            buildRec.fColors,
-                                                            buildRec.fPos,
-                                                            buildRec.fColorCount,
-                                                            buildRec.fTileMode));
+    sk_sp<SkShader> s(SkGradientShader::MakeTwoPointConical(
+            buildRec.fPoint[0], buildRec.fRadius[0], buildRec.fPoint[1], buildRec.fRadius[1],
+            buildRec.fColors, SkColorSpace::MakeSRGB(), buildRec.fPos, buildRec.fColorCount,
+            buildRec.fTileMode));
 
     SkShaderBase::GradientInfo info;
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kConical);
@@ -175,18 +174,20 @@ static void conical_gradproc(skiatest::Reporter* reporter, const GradRec& buildR
 static void linear_gradproc_matrix(skiatest::Reporter* reporter, const GradRec& buildRec,
                                    const GradRec& checkRec) {
     SkMatrix localMatrix = SkMatrix::RotateDeg(45, {100, 100});
-    sk_sp<SkShader> s(SkGradientShader::MakeLinear(buildRec.fPoint, buildRec.fColors, buildRec.fPos,
-                                                   buildRec.fColorCount, buildRec.fTileMode,
-                                                   /*flags=*/0,
-                                                   &localMatrix));
+    sk_sp<SkShader> s(SkGradientShader::MakeLinear(
+            buildRec.fPoint,
+            buildRec.fColors, SkColorSpace::MakeSRGB(), buildRec.fPos, buildRec.fColorCount,
+            buildRec.fTileMode, /*flags=*/0, &localMatrix));
 
     SkShaderBase::GradientInfo info;
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kLinear, localMatrix);
     REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint, 2 * sizeof(SkPoint)));
 
     // Same but using a local matrix wrapper.
-    s = SkGradientShader::MakeLinear(buildRec.fPoint, buildRec.fColors, buildRec.fPos,
-                                     buildRec.fColorCount, buildRec.fTileMode);
+    s = SkGradientShader::MakeLinear(
+            buildRec.fPoint,
+            buildRec.fColors, SkColorSpace::MakeSRGB(), buildRec.fPos, buildRec.fColorCount,
+            buildRec.fTileMode);
     s = s->makeWithLocalMatrix(localMatrix);
     checkRec.gradCheck(reporter, s, &info, SkShaderBase::GradientType::kLinear, localMatrix);
     REPORTER_ASSERT(reporter, !memcmp(info.fPoint, checkRec.fPoint, 2 * sizeof(SkPoint)));
@@ -217,7 +218,9 @@ static void TestConstantGradient(skiatest::Reporter*) {
 typedef void (*GradProc)(skiatest::Reporter* reporter, const GradRec&, const GradRec&);
 
 static void TestGradientShaders(skiatest::Reporter* reporter) {
-    static const SkColor gColors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
+    static const SkColor4f gColors[] = { SkColor4f::FromColor(SK_ColorRED),
+                                         SkColor4f::FromColor(SK_ColorGREEN),
+                                         SkColor4f::FromColor(SK_ColorBLUE) };
     static const SkScalar gPos[] = { 0, SK_ScalarHalf, SK_Scalar1 };
     static const SkPoint gPts[] = {
         { 0, 0 },

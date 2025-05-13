@@ -165,7 +165,7 @@ private:
         const SkMatrix* parentTransform = nullptr);
 
     HRESULT createXpsSolidColorBrush(
-        const SkColor skColor, const SkAlpha alpha,
+        const SkColor4f skColor, const SkAlpha alpha,
         IXpsOMBrush** xpsBrush);
 
     HRESULT createXpsImageBrush(
@@ -190,7 +190,7 @@ private:
         IXpsOMBrush** xpsBrush);
 
     HRESULT createXpsGradientStop(
-        const SkColor skColor,
+        const SkColor4f skColor,
         const SkScalar offset,
         IXpsOMGradientStop** xpsGradStop);
 
@@ -241,7 +241,7 @@ private:
 
     HRESULT cornerOfClamp(
         const SkRect& tlPoints,
-        const SkColor color,
+        const SkColor4f color,
         IXpsOMVisualCollection* visuals);
 
     HRESULT clip(IXpsOMVisual* xpsVisual);

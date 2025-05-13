@@ -33,7 +33,7 @@ SkPDFIndirectReference Make(SkPDFDocument* doc,
 struct Key {
     SkShaderBase::GradientType fType;
     SkShaderBase::GradientInfo fInfo;
-    std::unique_ptr<SkColor[]> fColors;
+    std::unique_ptr<SkColor4f[]> fColors;
     std::unique_ptr<SkScalar[]> fStops;
     SkMatrix fCanvasTransform;
     SkMatrix fShaderTransform;

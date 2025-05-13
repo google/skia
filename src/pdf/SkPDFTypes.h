@@ -105,6 +105,7 @@ public:
      */
     void appendInt(int32_t);
     void appendColorComponent(uint8_t);
+    void appendColorComponentF(float);
     void appendBool(bool);
     void appendScalar(SkScalar);
     void appendName(const char[]);

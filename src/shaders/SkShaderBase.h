@@ -244,7 +244,7 @@ public:
                                                //   of fColors/fColorOffsets on input, and
                                                //   actual number of colors/offsets on
                                                //   output.
-        SkColor*    fColors        = nullptr;  //!< The colors in the gradient.
+        SkColor4f*  fColors        = nullptr;  //!< The colors in the gradient.
         SkScalar*   fColorOffsets  = nullptr;  //!< The unit offset for color transitions.
         SkPoint     fPoint[2];                 //!< Type specific, see above.
         SkScalar    fRadius[2];                //!< Type specific, see above.

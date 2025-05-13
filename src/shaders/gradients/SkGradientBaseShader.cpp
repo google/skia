@@ -1021,7 +1021,7 @@ void SkGradientBaseShader::commonAsAGradient(GradientInfo* info) const {
         if (info->fColorCount >= fColorCount) {
             if (info->fColors) {
                 for (int i = 0; i < fColorCount; ++i) {
-                    info->fColors[i] = this->getLegacyColor(i);
+                    info->fColors[i] = fColors[i];
                 }
             }
             if (info->fColorOffsets) {

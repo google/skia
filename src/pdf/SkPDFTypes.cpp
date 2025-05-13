@@ -411,6 +411,10 @@ void SkPDFArray::appendColorComponent(uint8_t value) {
     this->append(SkPDFUnion::ColorComponent(value));
 }
 
+void SkPDFArray::appendColorComponentF(float value) {
+    this->append(SkPDFUnion::ColorComponentF(value));
+}
+
 void SkPDFArray::appendBool(bool value) {
     this->append(SkPDFUnion::Bool(value));
 }

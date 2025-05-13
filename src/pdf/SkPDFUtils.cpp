@@ -293,7 +293,7 @@ static constexpr int int_pow(int base, unsigned exp, int acc = 1) {
 }
 
 
-size_t SkPDFUtils::ColorToDecimalF(float value, char result[kFloatColorDecimalCount + 2]) {
+size_t SkPDFUtils::ColorToDecimalF(float value, char (&result)[kFloatColorDecimalCount + 2]) {
     static constexpr int kFactor = int_pow(10, kFloatColorDecimalCount);
     int x = sk_float_round2int(value * kFactor);
     if (x >= kFactor || x <= 0) {  // clamp to 0-1

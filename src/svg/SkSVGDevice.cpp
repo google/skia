@@ -447,7 +447,7 @@ void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader
         return;
     }
 
-    AutoSTArray<16, SkColor>  grColors(grInfo.fColorCount);
+    AutoSTArray<16, SkColor4f> grColors(grInfo.fColorCount);
     AutoSTArray<16, SkScalar> grOffsets(grInfo.fColorCount);
     grInfo.fColors = grColors.get();
     grInfo.fColorOffsets = grOffsets.get();
@@ -669,7 +669,7 @@ SkString SkSVGDevice::AutoElement::addGradientDef(SkShaderBase::GradientType typ
 
         SkASSERT(info.fColorCount >= 2);
         for (int i = 0; i < info.fColorCount; ++i) {
-            SkColor color = info.fColors[i];
+            SkColor color = info.fColors[i].toSkColor();
             SkString colorStr(svg_color(color));
 
             {

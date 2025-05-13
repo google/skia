@@ -437,14 +437,14 @@ bool SkXPSDevice::endPortfolio() {
     return true;
 }
 
-static XPS_COLOR xps_color(const SkColor skColor) {
+static XPS_COLOR xps_color(const SkColor4f skColor) {
     //XPS uses non-pre-multiplied alpha (XPS Spec 11.4).
     XPS_COLOR xpsColor;
-    xpsColor.colorType = XPS_COLOR_TYPE_SRGB;
-    xpsColor.value.sRGB.alpha = SkColorGetA(skColor);
-    xpsColor.value.sRGB.red = SkColorGetR(skColor);
-    xpsColor.value.sRGB.green = SkColorGetG(skColor);
-    xpsColor.value.sRGB.blue = SkColorGetB(skColor);
+    xpsColor.colorType = XPS_COLOR_TYPE_SCRGB;
+    xpsColor.value.scRGB.alpha = skColor.fA;
+    xpsColor.value.scRGB.red = skColor.fR;
+    xpsColor.value.scRGB.green = skColor.fG;
+    xpsColor.value.scRGB.blue = skColor.fB;
 
     return xpsColor;
 }
@@ -553,7 +553,7 @@ HRESULT SkXPSDevice::createPath(IXpsOMGeometryFigure* figure,
     return S_OK;
 }
 
-HRESULT SkXPSDevice::createXpsSolidColorBrush(const SkColor skColor,
+HRESULT SkXPSDevice::createXpsSolidColorBrush(const SkColor4f skColor,
                                               const SkAlpha alpha,
                                               IXpsOMBrush** xpsBrush) {
     XPS_COLOR xpsColor = xps_color(skColor);
@@ -590,7 +590,7 @@ HRESULT SkXPSDevice::sideOfClamp(const SkRect& areaToFill,
 }
 
 HRESULT SkXPSDevice::cornerOfClamp(const SkRect& areaToFill,
-                                   const SkColor color,
+                                   const SkColor4f color,
                                    IXpsOMVisualCollection* visuals) {
     SkTScopedComPtr<IXpsOMGeometryFigure> areaToFillFigure;
     HR(this->createXpsRect(areaToFill, FALSE, TRUE, &areaToFillFigure));
@@ -754,20 +754,20 @@ HRESULT SkXPSDevice::createXpsImageBrush(
         if (SkTileMode::kClamp == xy[0] &&
             SkTileMode::kClamp == xy[1]) {
 
-            const SkColor tlColor = bitmap.getColor(0,0);
+            const SkColor4f tlColor = bitmap.getColor4f(0,0);
             const SkRect tlArea = SkRect::MakeLTRB(-BIG, -BIG, 0, 0);
             HR(this->cornerOfClamp(tlArea, tlColor, brushVisuals.get()));
 
-            const SkColor trColor = bitmap.getColor(bitmap.width()-1,0);
+            const SkColor4f trColor = bitmap.getColor4f(bitmap.width()-1,0);
             const SkRect trArea = SkRect::MakeLTRB(bWidth, -BIG, BIG, 0);
             HR(this->cornerOfClamp(trArea, trColor, brushVisuals.get()));
 
-            const SkColor brColor = bitmap.getColor(bitmap.width()-1,
+            const SkColor4f brColor = bitmap.getColor4f(bitmap.width()-1,
                                                     bitmap.height()-1);
             const SkRect brArea = SkRect::MakeLTRB(bWidth, bHeight, BIG, BIG);
             HR(this->cornerOfClamp(brArea, brColor, brushVisuals.get()));
 
-            const SkColor blColor = bitmap.getColor(0,bitmap.height()-1);
+            const SkColor4f blColor = bitmap.getColor4f(0,bitmap.height()-1);
             const SkRect blArea = SkRect::MakeLTRB(-BIG, bHeight, 0, BIG);
             HR(this->cornerOfClamp(blArea, blColor, brushVisuals.get()));
         }
@@ -817,7 +817,7 @@ HRESULT SkXPSDevice::createXpsImageBrush(
     return S_OK;
 }
 
-HRESULT SkXPSDevice::createXpsGradientStop(const SkColor skColor,
+HRESULT SkXPSDevice::createXpsGradientStop(const SkColor4f skColor,
                                            const SkScalar offset,
                                            IXpsOMGradientStop** xpsGradStop) {
     XPS_COLOR gradStopXpsColor = xps_color(skColor);
@@ -973,7 +973,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
                                     const SkMatrix* parentTransform) {
     const SkShader *shader = skPaint.getShader();
     if (nullptr == shader) {
-        HR(this->createXpsSolidColorBrush(skPaint.getColor(), 0xFF, brush));
+        HR(this->createXpsSolidColorBrush(skPaint.getColor4f(), 0xFF, brush));
         return S_OK;
     }
 
@@ -983,26 +983,26 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     if (shaderBase->type() == SkShaderBase::ShaderType::kColor) {
         auto colorShader = static_cast<const SkColorShader*>(shader);
         SkAlpha alpha = skPaint.getAlpha();
-        HR(this->createXpsSolidColorBrush(colorShader->color().toSkColor(), alpha, brush));
+        HR(this->createXpsSolidColorBrush(colorShader->color(), alpha, brush));
         return S_OK;
-    } else if (shaderBase->type() == SkShaderBase::ShaderType::kGradientBase) {
+    } else if (shaderBase->asGradient() != SkShaderBase::GradientType::kNone) {
         SkShaderBase::GradientInfo info;
         SkShaderBase::GradientType gradientType = shaderBase->asGradient(&info);
         if (info.fColorCount == 0) {
-            const SkColor color = skPaint.getColor();
+            const SkColor4f color = skPaint.getColor4f();
             HR(this->createXpsSolidColorBrush(color, 0xFF, brush));
             return S_OK;
         }
 
         SkMatrix localMatrix;
-        AutoTArray<SkColor> colors(info.fColorCount);
+        AutoTArray<SkColor4f> colors(info.fColorCount);
         AutoTArray<SkScalar> colorOffsets(info.fColorCount);
         info.fColors = colors.get();
         info.fColorOffsets = colorOffsets.get();
         shaderBase->asGradient(&info, &localMatrix);
 
         if (1 == info.fColorCount) {
-            SkColor color = info.fColors[0];
+            SkColor4f color = info.fColors[0];
             SkAlpha alpha = skPaint.getAlpha();
             HR(this->createXpsSolidColorBrush(color, alpha, brush));
             return S_OK;
@@ -1045,7 +1045,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
     SkMatrix outMatrix;
     SkTileMode xy[2];
     SkImage* image = shader->isAImage(&outMatrix, xy);
-    if (image->asLegacyBitmap(&outTexture)) {
+    if (image && image->asLegacyBitmap(&outTexture)) {
         if (parentTransform) {
             outMatrix.postConcat(*parentTransform);
         }
@@ -1056,7 +1056,7 @@ HRESULT SkXPSDevice::createXpsBrush(const SkPaint& skPaint,
 
         HRM(tileBrush->QueryInterface<IXpsOMBrush>(brush), "QI failed.");
     } else {
-        HR(this->createXpsSolidColorBrush(skPaint.getColor(), 0xFF, brush));
+        HR(this->createXpsSolidColorBrush(skPaint.getColor4f(), 0xFF, brush));
     }
     return S_OK;
 }
