@@ -57,6 +57,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, co
                                    CtsEnforcement::kApiLevel_202404) {
     SkArenaAlloc arena{256};
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+    const Caps* caps = context->priv().caps();
 
     // A builder without any data is invalid. The Builder and the PaintParamKeys can include
     // invalid IDs without themselves becoming invalid. Normally adding an invalid ID triggers an
@@ -79,7 +80,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyWithInvalidCodeSnippetIDTest, reporter, co
                                  (int32_t) BuiltInCodeSnippetID::kFixedBlend_Src};
     SkSpan<const int32_t> invalidKeySpan{invalidKeyData, std::size(invalidKeyData)*sizeof(int32_t)};
     const PaintParamsKey* fakeKey = reinterpret_cast<const PaintParamsKey*>(&invalidKeySpan);
-    REPORTER_ASSERT(reporter, fakeKey->getRootNodes(dict, &arena, 0).empty());
+    REPORTER_ASSERT(reporter, fakeKey->getRootNodes(caps, dict, &arena, 0).empty());
 }
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(KeyEqualityChecksSnippetID, reporter, context,

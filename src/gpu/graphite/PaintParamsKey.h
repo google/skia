@@ -95,7 +95,8 @@ public:
     //
     // Before returning the ShaderNode trees, this method decides which ShaderNode expressions to
     // lift to the vertex shader, depending on how many varyings are available.
-    SkSpan<const ShaderNode*> getRootNodes(const ShaderCodeDictionary*,
+    SkSpan<const ShaderNode*> getRootNodes(const Caps*,
+                                           const ShaderCodeDictionary*,
                                            SkArenaAlloc*,
                                            int availableVaryings) const;
 
