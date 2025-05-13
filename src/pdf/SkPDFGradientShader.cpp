@@ -7,11 +7,13 @@
 
 #include "src/pdf/SkPDFGradientShader.h"
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTileMode.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkChecksum.h"
@@ -995,6 +997,12 @@ static SkPDFGradientShader::Key make_key(const SkShader* shader,
     key.fInfo.fColors = key.fColors.get();
     key.fInfo.fColorOffsets = key.fStops.get();
     as_SB(shader)->asGradient(&key.fInfo);
+    if (SkToBool(key.fInfo.fGradientFlags & SkGradientShader::kInterpolateColorsInPremul_Flag)) {
+        for (auto&& c : SkSpan(key.fInfo.fColors, key.fInfo.fColorCount)) {
+            SkRGBA4f<kPremul_SkAlphaType> pm = c.premul();
+            c = SkColor4f{pm.fR, pm.fG, pm.fB, pm.fA};
+        }
+    }
     key.fHash = hash(key);
     return key;
 }
