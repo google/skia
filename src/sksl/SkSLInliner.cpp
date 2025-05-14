@@ -77,8 +77,6 @@ using namespace skia_private;
 namespace SkSL {
 namespace {
 
-static constexpr int kInlinedStatementLimit = 2500;
-
 static bool is_scopeless_block(Statement* stmt) {
     return stmt->is<Block>() && !stmt->as<Block>().isScope();
 }
@@ -649,6 +647,14 @@ Inliner::InlinedCall Inliner::inlineCall(const FunctionCall& call,
     return inlinedCall;
 }
 
+bool Inliner::overInlineStatementLimit() const {
+    // Enforce a limit on inlining to avoid pathological cases. (inliner/ExponentialGrowth.sksl)
+    // Modules, which are entirely built-in SkSL, do not need to be limited in this way.
+    static constexpr int kInlinedStatementLimit = 2500;
+    return !fContext->fConfig->isBuiltinCode() &&
+           fInlinedStatementCounter >= kInlinedStatementLimit;
+}
+
 bool Inliner::isSafeToInline(const FunctionDefinition* functionDef, const ProgramUsage& usage) {
     // A threshold of zero indicates that the inliner is completely disabled, so we can just return.
     if (this->settings().fInlineThreshold <= 0) {
@@ -656,7 +662,7 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef, const Progra
     }
 
     // Enforce a limit on inlining to avoid pathological cases. (inliner/ExponentialGrowth.sksl)
-    if (fInlinedStatementCounter >= kInlinedStatementLimit) {
+    if (this->overInlineStatementLimit()) {
         return false;
     }
 
@@ -1104,7 +1110,7 @@ bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elemen
     }
 
     // Enforce a limit on inlining to avoid pathological cases. (inliner/ExponentialGrowth.sksl)
-    if (fInlinedStatementCounter >= kInlinedStatementLimit) {
+    if (this->overInlineStatementLimit()) {
         return false;
     }
 
@@ -1167,7 +1173,7 @@ bool Inliner::analyze(const std::vector<std::unique_ptr<ProgramElement>>& elemen
         statementRemappingTable.set(enclosingStmt,&(*enclosingStmt)->as<Block>().children().back());
 
         // Stop inlining if we've reached our hard cap on new statements.
-        if (fInlinedStatementCounter >= kInlinedStatementLimit) {
+        if (this->overInlineStatementLimit()) {
             break;
         }
 
