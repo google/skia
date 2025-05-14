@@ -820,7 +820,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     PaintParamsKey key = dict->lookup(paintID);
     SkASSERT(key.isValid());  // invalid keys should have been caught by invalid paint ID earlier
 
-    std::string label = key.toString(dict, /*includeData=*/false).c_str();
+    std::string label = key.toString(dict).c_str();
 
     // Two varyings are reserved for 1) the SSBO indices and 2) local coordinates.
     constexpr int kFixedVaryings = 2;

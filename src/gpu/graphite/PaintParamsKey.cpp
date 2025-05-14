@@ -234,7 +234,6 @@ static int key_to_string(SkString* str,
                          const ShaderCodeDictionary* dict,
                          SkSpan<const uint32_t> keyData,
                          int currentIndex,
-                         bool includeData,
                          int indent) {
     SkASSERT(currentIndex < SkTo<int>(keyData.size()));
 
@@ -275,15 +274,13 @@ static int key_to_string(SkString* str,
         } else {
             str->append("(");
             str->appendU32(dataIndexCount);
-            if (includeData) {
-                str->append(": ");
-                // Encode data in base64 to shorten it
-                const size_t srcDataSize = dataIndexCount * sizeof(uint32_t); // size in bytes
-                SkAutoMalloc encodedData{SkBase64::EncodedSize(srcDataSize)};
-                char* dst = static_cast<char*>(encodedData.get());
-                size_t encodedLen = SkBase64::Encode(&keyData[currentIndex], srcDataSize, dst);
-                str->append(dst, encodedLen);
-            }
+            str->append(": ");
+            // Encode data in base64 to shorten it
+            const size_t srcDataSize = dataIndexCount * sizeof(uint32_t); // size in bytes
+            SkAutoMalloc encodedData{SkBase64::EncodedSize(srcDataSize)};
+            char* dst = static_cast<char*>(encodedData.get());
+            size_t encodedLen = SkBase64::Encode(&keyData[currentIndex], srcDataSize, dst);
+            str->append(dst, encodedLen);
             str->append(")");
         }
         // Increment current index past the indices which contain data
@@ -299,7 +296,7 @@ static int key_to_string(SkString* str,
         }
 
         for (int i = 0; i < entry->fNumChildren; ++i) {
-            currentIndex = key_to_string(str, dict, keyData, currentIndex, includeData, indent);
+            currentIndex = key_to_string(str, dict, keyData, currentIndex, indent);
         }
 
         if (!multiline) {
@@ -315,11 +312,11 @@ static int key_to_string(SkString* str,
     return currentIndex;
 }
 
-SkString PaintParamsKey::toString(const ShaderCodeDictionary* dict, bool includeData) const {
+SkString PaintParamsKey::toString(const ShaderCodeDictionary* dict) const {
     SkString str;
     const int keySize = SkTo<int>(fData.size());
     for (int currentIndex = 0; currentIndex < keySize;) {
-        currentIndex = key_to_string(&str, dict, fData, currentIndex, includeData, /*indent=*/-1);
+        currentIndex = key_to_string(&str, dict, fData, currentIndex, /*indent=*/-1);
     }
     return str.isEmpty() ? SkString("(empty)") : str;
 }
@@ -340,8 +337,7 @@ void PaintParamsKey::dump(const ShaderCodeDictionary* dict, UniquePaintParamsID 
     int currentIndex = 0;
     while (currentIndex < keySize) {
         SkString nodeStr;
-        currentIndex = key_to_string(&nodeStr, dict, fData, currentIndex,
-                                     /*includeData=*/true, /*indent=*/1);
+        currentIndex = key_to_string(&nodeStr, dict, fData, currentIndex, /*indent=*/1);
         SkDebugf("%s", nodeStr.c_str());
     }
 }

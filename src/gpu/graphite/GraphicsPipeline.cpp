@@ -65,7 +65,7 @@ SkString GraphicsPipelineDesc::toString(ShaderCodeDictionary* dict) const {
 
     PaintParamsKey key = dict->lookup(fPaintID);
 
-    tmp.append(key.toString(dict, true));
+    tmp.append(key.toString(dict));
 
     return tmp;
 }

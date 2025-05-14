@@ -124,6 +124,15 @@ skgpu::graphite::PaintOptions ImagePremulHWOnlyMatrixCFDitherSrcover();
 skgpu::graphite::PaintOptions ImageSRGBHWOnlyMatrixCFDitherSrcover();
 skgpu::graphite::PaintOptions ImageHWOnlySRGBSrcover();
 
+#if defined(SK_VULKAN)
+skgpu::graphite::PaintOptions ImagePremulYCbCr238Srcover();
+skgpu::graphite::PaintOptions ImagePremulYCbCr240Srcover();
+skgpu::graphite::PaintOptions TransparentPaintImagePremulYCbCr240Srcover();
+
+// Prints out the VulkanYcbcrConversionInfo retrieved from a Vulkan YCbCr Pipeline label
+// (e.g., base64 part of HardwareImage(3: kEwAAPcAAAAAAAAA)).
+void Base642YCbCr(const char*);
+#endif // SK_VULKAN
 
 // Single sampled R w/ just depth
 const skgpu::graphite::RenderPassProperties kR_1_D {

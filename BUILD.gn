@@ -1245,6 +1245,10 @@ optional("graphite") {
     public += skia_graphite_vk_public
     sources += skia_graphite_vk_sources
     configs += [ ":use_skia_vulkan_headers" ]
+    if (skia_enable_precompile) {
+      public += skia_graphite_vk_precompile_public
+      sources += skia_graphite_vk_precompile_sources
+    }
   }
   if (skia_enable_precompile) {
     public += skia_graphite_precompile_public

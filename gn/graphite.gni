@@ -325,6 +325,12 @@ skia_graphite_vk_public = [
   "$_include/vk/VulkanGraphiteUtils.h",
 ]
 
+skia_graphite_vk_precompile_public =
+    [ "$_include/vk/precompile/VulkanPrecompileShader.h" ]
+
+skia_graphite_vk_precompile_sources =
+    [ "$_src/vk/precompile/VulkanPrecompileShader.cpp" ]
+
 skia_graphite_vk_sources = [
   "$_src/vk/VulkanBackendSemaphore.cpp",
   "$_src/vk/VulkanBackendTexture.cpp",
@@ -398,6 +404,7 @@ skia_graphite_precompile_sources = [
   "$_src/precompile/PrecompileImageFilter.cpp",
   "$_src/precompile/PrecompileImageFilterPriv.h",
   "$_src/precompile/PrecompileImageFiltersPriv.h",
+  "$_src/precompile/PrecompileImageShader.h",
   "$_src/precompile/PrecompileMaskFilter.cpp",
   "$_src/precompile/PrecompileRuntimeEffect.cpp",
   "$_src/precompile/PrecompileShader.cpp",

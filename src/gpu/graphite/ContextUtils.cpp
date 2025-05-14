@@ -170,7 +170,8 @@ std::string GetPipelineLabel(const ShaderCodeDictionary* dict,
     label += " + ";
     label += renderStep->name();
     label += " + ";
-    label += dict->idToString(paintID).c_str(); // will be "(empty)" for depth-only draws
+    // the shader portion will be "(empty)" for depth-only draws
+    label += dict->idToString(paintID).c_str();
     return label;
 }
 

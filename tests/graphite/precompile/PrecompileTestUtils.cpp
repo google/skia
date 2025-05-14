@@ -9,7 +9,6 @@
 
 #if defined(SK_GRAPHITE)
 
-
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/base/SkMathPriv.h"
@@ -21,6 +20,13 @@
 #include "src/gpu/graphite/RendererProvider.h"
 #include "tests/graphite/precompile/PrecompileTestUtils.h"
 #include "tools/graphite/UniqueKeyUtils.h"
+
+#if defined (SK_VULKAN)
+#include "include/gpu/graphite/vk/precompile/VulkanPrecompileShader.h"
+#include "include/gpu/vk/VulkanTypes.h"
+#include "src/base/SkBase64.h"
+#include "src/gpu/graphite/vk/VulkanYcbcrConversion.h"
+#endif // SK_VULKAN
 
 #include <cstring>
 #include <set>
@@ -420,6 +426,111 @@ PaintOptions ImageHWOnlySRGBSrcover() {
     paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
     return paintOptions;
 }
+
+#if defined(SK_VULKAN)
+namespace {
+sk_sp<PrecompileShader> vulkan_ycbcr_709_image_shader(uint64_t format,
+                                                      VkSamplerYcbcrRange range) {
+    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
+
+    skgpu::VulkanYcbcrConversionInfo info;
+
+    info.fExternalFormat = format;
+    info.fYcbcrModel     = VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709;
+    info.fYcbcrRange     = range;
+    info.fXChromaOffset  = VK_CHROMA_LOCATION_MIDPOINT;
+    info.fYChromaOffset  = VK_CHROMA_LOCATION_MIDPOINT;
+    info.fChromaFilter   = VK_FILTER_LINEAR;
+
+    return PrecompileShaders::VulkanYCbCrImage(info,
+                                               PrecompileShaders::ImageShaderFlags::kExcludeCubic,
+                                               { &ci, 1 },
+                                               {});
+}
+
+} // anonymous namespace
+
+PaintOptions ImagePremulYCbCr238Srcover() {
+    PaintOptions paintOptions;
+
+    // HardwareImage(3: kHoAAO4AAAAAAAAA)
+    paintOptions.setShaders({ vulkan_ycbcr_709_image_shader(238,
+                                                            VK_SAMPLER_YCBCR_RANGE_ITU_NARROW) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    return paintOptions;
+}
+
+PaintOptions ImagePremulYCbCr240Srcover() {
+    PaintOptions paintOptions;
+
+    // HardwareImage(3: kHIAAPAAAAAAAAAA)
+    paintOptions.setShaders({ vulkan_ycbcr_709_image_shader(240,
+                                                            VK_SAMPLER_YCBCR_RANGE_ITU_FULL) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    return paintOptions;
+}
+
+PaintOptions TransparentPaintImagePremulYCbCr240Srcover() {
+    PaintOptions paintOptions;
+
+    // HardwareImage(3: kHIAAPAAAAAAAAAA)
+    paintOptions.setShaders({ vulkan_ycbcr_709_image_shader(240,
+                                                            VK_SAMPLER_YCBCR_RANGE_ITU_FULL) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setPaintColorIsOpaque(false);
+    return paintOptions;
+}
+
+void Base642YCbCr(const char* str) {
+
+    size_t expectedDstLength;
+    SkBase64::Error error = SkBase64::Decode(str, strlen(str), nullptr, &expectedDstLength);
+    if (error != SkBase64::kNoError) {
+        return;
+    }
+
+    if (expectedDstLength % 4 != 0) {
+        return;
+    }
+
+    int numInts = expectedDstLength / 4;
+    skia_private::AutoTMalloc<uint32_t> dst(numInts);
+    size_t actualDstLength;
+    error = SkBase64::Decode(str, strlen(str), dst, &actualDstLength);
+    if (error != SkBase64::kNoError || expectedDstLength != actualDstLength) {
+        return;
+    }
+
+    SamplerDesc s(dst[0], dst[1], dst[2]);
+
+    SkDebugf("tileModes: %d %d filterMode: %d mipmap: %d ",
+             s.tileModeX(),
+             s.tileModeY(),
+             s.filterMode(),
+             s.mipmap());
+
+    skgpu::VulkanYcbcrConversionInfo info =
+            VulkanYcbcrConversion::FromImmutableSamplerInfo(s.immutableSamplerInfo());
+
+    SkDebugf("VulkanYcbcrConversionInfo: format: %d extFormat: %llu model: %d range: %d "
+             "xOff: %d yOff: %d filter: %d explicit: %u features: %u components: %d %d %d %d\n",
+             info.fFormat,
+             (unsigned long long) info.fExternalFormat,
+             info.fYcbcrModel,
+             info.fYcbcrRange,
+             info.fXChromaOffset,
+             info.fYChromaOffset,
+             info.fChromaFilter,
+             info.fForceExplicitReconstruction,
+             info.fFormatFeatures,
+             info.fComponents.r,
+             info.fComponents.g,
+             info.fComponents.b,
+             info.fComponents.a);
+}
+
+#endif // SK_VULKAN
+
 
 namespace {
 

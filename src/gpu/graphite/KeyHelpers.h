@@ -23,6 +23,7 @@
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/ReadSwizzle.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/shaders/SkShaderBase.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
@@ -164,16 +165,17 @@ struct ImageShaderBlock {
                   SkTileMode tileModeX,
                   SkTileMode tileModeY,
                   SkISize imgSize,
-                  SkRect subset);
+                  SkRect subset,
+                  ImmutableSamplerInfo immutableSamplerInfo = {});
         SkSamplingOptions fSampling;
         std::pair<SkTileMode, SkTileMode> fTileModes;
         SkISize fImgSize;
         SkRect fSubset;
 
-        // TODO: Currently this is only filled in when we're generating the key from an actual
-        // SkImageShader. In the pre-compile case we will need to create a Graphite promise
-        // image which holds the appropriate data.
+        // When we're generating the key from an actual SkImageShader fTextureProxy will be
+        // non-null. Otherwise, fImmutableSamplerInfo will be filled in.
         sk_sp<TextureProxy> fTextureProxy;
+        ImmutableSamplerInfo fImmutableSamplerInfo;
     };
 
     static void AddBlock(const KeyContext&,

@@ -102,7 +102,7 @@ public:
 
     // Converts the key to a structured list of snippet information for debugging or labeling
     // purposes.
-    SkString toString(const ShaderCodeDictionary* dict, bool includeData) const;
+    SkString toString(const ShaderCodeDictionary* dict) const;
 
 #ifdef SK_DEBUG
     void dump(const ShaderCodeDictionary*, UniquePaintParamsID) const;

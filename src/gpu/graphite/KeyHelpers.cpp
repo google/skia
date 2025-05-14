@@ -660,11 +660,13 @@ ImageShaderBlock::ImageData::ImageData(const SkSamplingOptions& sampling,
                                        SkTileMode tileModeX,
                                        SkTileMode tileModeY,
                                        SkISize imgSize,
-                                       SkRect subset)
+                                       SkRect subset,
+                                       ImmutableSamplerInfo immutableSamplerInfo)
         : fSampling(sampling)
         , fTileModes{tileModeX, tileModeY}
         , fImgSize(imgSize)
-        , fSubset(subset) {
+        , fSubset(subset)
+        , fImmutableSamplerInfo(immutableSamplerInfo) {
 }
 
 void ImageShaderBlock::AddBlock(const KeyContext& keyContext,
@@ -705,7 +707,7 @@ void ImageShaderBlock::AddBlock(const KeyContext& keyContext,
     // immutable samplers, which must be passed in somehow.
     ImmutableSamplerInfo info = imgData.fTextureProxy
             ? caps->getImmutableSamplerInfo(imgData.fTextureProxy->textureInfo())
-            : ImmutableSamplerInfo{};
+            : imgData.fImmutableSamplerInfo;
     SamplerDesc samplerDesc {imgData.fSampling,
                              doTilingInHw ? imgData.fTileModes : kDefaultTileModes,
                              info};
