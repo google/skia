@@ -969,7 +969,8 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             GenerateSolidColorPreamble,
             /*numChildren=*/0,
             /*liftableExpression=*/GenerateSolidColorExpression,
-            /*liftableExpressionType=*/ShaderSnippet::LiftableExpressionType::kPriorStageOutput
+            /*liftableExpressionType=*/ShaderSnippet::LiftableExpressionType::kPriorStageOutput,
+            /*liftableExpressionInterpolation=*/Interpolation::kLinear
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kRGBPaintColor] = {
             /*name=*/"RGBPaintColor",

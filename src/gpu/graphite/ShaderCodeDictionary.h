@@ -17,6 +17,7 @@
 #include "src/core/SkKnownRuntimeEffects.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/core/SkTHash.h"
+#include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/BuiltInCodeSnippetID.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/ResourceTypes.h"
@@ -107,7 +108,8 @@ struct ShaderSnippet {
                   GeneratePreambleForSnippetFn preambleGenerator = nullptr,
                   int numChildren = 0,
                   GenerateLiftableExpressionFn liftableExpression = nullptr,
-                  LiftableExpressionType liftableExpressionType = LiftableExpressionType::kNone)
+                  LiftableExpressionType liftableExpressionType = LiftableExpressionType::kNone,
+                  Interpolation liftableExpressionInterpolation = Interpolation::kPerspective)
             : fName(name)
             , fStaticFunctionName(staticFn)
             , fSnippetRequirementFlags(snippetRequirementFlags)
@@ -115,6 +117,7 @@ struct ShaderSnippet {
             , fTexturesAndSamplers(texturesAndSamplers)
             , fNumChildren(numChildren)
             , fPreambleGenerator(preambleGenerator)
+            , fLiftableExpressionInterpolation(liftableExpressionInterpolation)
             , fLiftableExpressionType(liftableExpressionType)
             , fLiftableExpressionGenerator(liftableExpression) {
         // Must always provide a name; static function is not optional if using the default (null)
@@ -156,6 +159,7 @@ struct ShaderSnippet {
     int fNumChildren = 0;
     GeneratePreambleForSnippetFn fPreambleGenerator = nullptr;
 
+    Interpolation fLiftableExpressionInterpolation = Interpolation::kPerspective;
     LiftableExpressionType fLiftableExpressionType = LiftableExpressionType::kNone;
     GenerateLiftableExpressionFn fLiftableExpressionGenerator = nullptr;
 };

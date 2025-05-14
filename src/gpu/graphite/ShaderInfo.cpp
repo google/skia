@@ -425,10 +425,11 @@ std::string emit_varyings(const RenderStep* step,
 
     for (const LiftedExpression& expr : liftedExpressions) {
         if (expr.fEmitVarying) {
-            std::string name = expr.fNode->getExpressionVaryingName();
+            const ShaderNode* node = expr.fNode;
+            const std::string name = node->getExpressionVaryingName();
             appendVarying({name.c_str(),
-                           sksl_type_for_lifted_expression(
-                                   expr.fNode->entry()->fLiftableExpressionType)});
+                           sksl_type_for_lifted_expression(node->entry()->fLiftableExpressionType),
+                           node->entry()->fLiftableExpressionInterpolation});
         }
     }
 
