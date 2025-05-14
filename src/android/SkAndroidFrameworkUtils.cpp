@@ -7,6 +7,7 @@
 
 #include "include/android/SkAndroidFrameworkUtils.h"
 #include "include/core/SkCanvas.h"
+#include "include/private/base/SkTemplates.h"
 #include "include/utils/SkPaintFilterCanvas.h"
 #include "src/base/SkTLazy.h"
 #include "src/core/SkDevice.h"
@@ -54,16 +55,25 @@ bool SkAndroidFrameworkUtils::ShaderAsALinearGradient(SkShader* shader,
                                                       LinearGradientInfo* info) {
     SkASSERT(shader);
     SkTLazy<SkShaderBase::GradientInfo> baseInfo;
+    skia_private::AutoSTMalloc<4, SkColor4f> colorStorage;
     if (info) {
         baseInfo.init();
-        baseInfo->fColorCount   = info->fColorCount;
-        baseInfo->fColors       = info->fColors;
+        baseInfo->fColorCount = info->fColorCount;
+        if (info->fColors) {
+            colorStorage.reset(info->fColorCount);
+            baseInfo->fColors = colorStorage.get();
+        }
         baseInfo->fColorOffsets = info->fColorOffsets;
     }
     if (as_SB(shader)->asGradient(baseInfo.getMaybeNull()) != SkShaderBase::GradientType::kLinear) {
         return false;
     }
     if (info) {
+        if (info->fColors && info->fColorCount >= baseInfo->fColorCount) {
+            for (int i = 0; i < baseInfo->fColorCount; ++i) {
+                info->fColors[i] = baseInfo->fColors[i].toSkColor();
+            }
+        }
         info->fColorCount    = baseInfo->fColorCount;  // this is inout in asGradient()
         info->fPoints[0]     = baseInfo->fPoint[0];
         info->fPoints[1]     = baseInfo->fPoint[1];
