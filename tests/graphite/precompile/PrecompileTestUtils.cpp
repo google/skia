@@ -504,10 +504,10 @@ void Base642YCbCr(const char* str) {
     SamplerDesc s(dst[0], dst[1], dst[2]);
 
     SkDebugf("tileModes: %d %d filterMode: %d mipmap: %d ",
-             s.tileModeX(),
-             s.tileModeY(),
-             s.filterMode(),
-             s.mipmap());
+             static_cast<int>(s.tileModeX()),
+             static_cast<int>(s.tileModeY()),
+             static_cast<int>(s.filterMode()),
+             static_cast<int>(s.mipmap()));
 
     skgpu::VulkanYcbcrConversionInfo info =
             VulkanYcbcrConversion::FromImmutableSamplerInfo(s.immutableSamplerInfo());

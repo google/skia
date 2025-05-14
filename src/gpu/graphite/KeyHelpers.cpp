@@ -646,11 +646,11 @@ bool can_do_tiling_in_hw(const Caps* caps, const ImageShaderBlock::ImageData& im
 
 void add_sampler_data_to_key(PaintParamsKeyBuilder* builder, const SamplerDesc& samplerDesc) {
     if (samplerDesc.isImmutable()) {
-        builder->addData({samplerDesc.asSpan()});
+        builder->addData(samplerDesc.asSpan());
     } else {
         // Means we have a regular dynamic sampler. Append a default SamplerDesc to convey this,
         // allowing the key to maintain and convey sampler binding order.
-        builder->addData({{}});
+        builder->addData({});
     }
 }
 

@@ -264,10 +264,8 @@ static int key_to_string(SkString* str,
         const int dataIndexCount = keyData[currentIndex++];
         SkASSERT(currentIndex + dataIndexCount < SkTo<int>(keyData.size()));
 
-        // Define a compact representation for the common case of shader snippets using just one
-        // dynamic sampler. Immutable samplers require > 1 index of data to be represented while a
-        // dynamic sampler is represented with just one, so we can simply consult dataIndexCount.
-        if (dataIndexCount == 1) {
+        // We shorten the string for the common case of no extra data.
+        if (dataIndexCount == 0) {
             str->append("(0)");
         } else {
             str->append("(");
