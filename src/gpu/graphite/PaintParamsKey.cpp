@@ -118,54 +118,60 @@ ShaderNode* PaintParamsKey::createNode(const ShaderCodeDictionary* dict,
 }
 
 // Traverse a ShaderNode tree, attempting to lift any coordinate modification expressions.
-int lift_coord_expressions(SkSpan<ShaderNode*> nodes, int availableVaryings) {
-    for (ShaderNode* node : nodes) {
-        // If in the course of lifting expressions we've used up all of our available varyings,
-        // there's nothing more we can do.
-        if (availableVaryings == 0) {
-            return 0;
-        }
+// Returns whether any of the given nodes need local coordinate inputs after lifting.
+bool lift_coord_expressions(SkSpan<ShaderNode*> nodes, int* availableVaryings) {
+    bool anyNeedLocalCoords = false;
 
-        // If there are no local coords, there are no modifications to lift.
-        if (!(node->requiredFlags() & SnippetRequirementFlags::kLocalCoords)) {
-            continue;
-        }
+    for (ShaderNode* node : nodes) {
+        bool curNeedsLocalCoords =
+                SkToBool(node->requiredFlags() & SnippetRequirementFlags::kLocalCoords);
 
         // Lift expressions from nodes whose liftable expressions are on coordinate inputs.
-        if (node->entry()->fLiftableExpressionType ==
-            ShaderSnippet::LiftableExpressionType::kLocalCoords) {
+        if (*availableVaryings > 0 && curNeedsLocalCoords &&
+            node->entry()->fLiftableExpressionType ==
+                    ShaderSnippet::LiftableExpressionType::kLocalCoords) {
+            --*availableVaryings;
+
 #if !defined(SK_USE_LEGACY_UNIFORM_LIFTING_GRAPHITE)
             // We can potentially lift the nested expressions under here as well.
-            const int previouslyAvailableVaryings = availableVaryings - 1;
-            availableVaryings = lift_coord_expressions(node->children(), availableVaryings - 1);
-            // Don't emit a varying for this node if its output is used in other lifted expressions.
-            // TODO(b/412621191) In some cases we may want to emit varyings for nodes even when
-            // their children's expressions have been lifted. Specifically, a runtime shader node
-            // may use a lifted expression directly and also pass along the expression as input to
-            // children who further modify and use the expression. However, we don't currently
-            // detect such cases in Graphite (we never lift expressions from runtime shaders'
-            // children).
-            const bool childrenLifted = availableVaryings < previouslyAvailableVaryings;
-            if (childrenLifted) {
+            const bool childNeedsOurCoords =
+                    lift_coord_expressions(node->children(), availableVaryings);
+            // If no child needs our lifted coords, we can omit them from the fragment shader
+            // entirely, and only use them in the vertex shader for calculating other coords.
+            if (!childNeedsOurCoords) {
                 node->setOmitExpressionFlag();
             } else {
                 node->setLiftExpressionFlag();
             }
 #else
             node->setLiftExpressionFlag();
-            --availableVaryings;
 #endif
+            // Since we lifted the coordinate expression here, this node no longer needs a local
+            // coords argument.
+            curNeedsLocalCoords = false;
+            node->unsetLocalCoordsFlag();
 
 #if !defined(SK_USE_LEGACY_UNIFORM_LIFTING_GRAPHITE)
         // If the node passes through its local coords to its children, we check if those perform
         // modifications that can be lifted.
-        } else if (node->requiredFlags() & SnippetRequirementFlags::kPassthroughLocalCoords) {
-            availableVaryings = lift_coord_expressions(node->children(), availableVaryings);
+        } else if (*availableVaryings > 0 &&
+                   node->requiredFlags() & SnippetRequirementFlags::kPassthroughLocalCoords) {
+            // Assume that this node doesn't need local coordinates unless its actual shader snippet
+            // entry does, or one of its children does even after accounting for lifting.
+            const bool entryNeedsLocalCoords = node->entry()->needsLocalCoords();
+            const bool childNeedsLocalCoords = lift_coord_expressions(node->children(),
+                                                                      availableVaryings);
+            curNeedsLocalCoords = entryNeedsLocalCoords || childNeedsLocalCoords;
+            if (!curNeedsLocalCoords) {
+                node->unsetLocalCoordsFlag();
+            }
 #endif
         }
+
+        anyNeedLocalCoords |= curNeedsLocalCoords;
     }
 
-    return availableVaryings;
+    return anyNeedLocalCoords;
 }
 
 // Traverse a list of ShaderNodes, attempting to lift any expressions that resolve to a color.
@@ -174,22 +180,15 @@ int lift_coord_expressions(SkSpan<ShaderNode*> nodes, int availableVaryings) {
 // shader work (i.e., if the solid color expression is a root node in a shader's ShaderNode tree).
 // If there is other fragment shader work, we'll likely be accessing other fragment shader uniforms,
 // the color value will likely be cached, and lifting may not be worth the extra varying.
-int lift_color_expressions(SkSpan<ShaderNode*> nodes, int availableVaryings) {
+void lift_color_expressions(SkSpan<ShaderNode*> nodes, int* availableVaryings) {
     for (ShaderNode* node : nodes) {
-        // If in the course of lifting expressions we've used up all of our available varyings,
-        // there's nothing more we can do.
-        if (availableVaryings == 0) {
-            return 0;
-        }
-
-        if (node->entry()->fLiftableExpressionType ==
-            ShaderSnippet::LiftableExpressionType::kPriorStageOutput) {
+        if (*availableVaryings > 0 &&
+            node->entry()->fLiftableExpressionType ==
+                    ShaderSnippet::LiftableExpressionType::kPriorStageOutput) {
+            --*availableVaryings;
             node->setLiftExpressionFlag();
-            --availableVaryings;
         }
     }
-
-    return availableVaryings;
 }
 
 SkSpan<const ShaderNode*> PaintParamsKey::getRootNodes(const Caps* caps,
@@ -213,15 +212,14 @@ SkSpan<const ShaderNode*> PaintParamsKey::getRootNodes(const Caps* caps,
         roots.push_back(root);
     }
 
-    // TODO(b/402402925) This doesn't attempt to combine lifted transformations, which we
-    // eventually want to allow.
+    // See what expressions we can lift to the vertex shader.
     const bool hasClipNode = roots.size() > 2;
     SkSpan<ShaderNode*> liftableNodes(roots.data(), hasClipNode ? 2 : roots.size());
-    availableVaryings = lift_coord_expressions(liftableNodes, availableVaryings);
+    lift_coord_expressions(liftableNodes, &availableVaryings);
     // Don't lift constant expressions if we're using regular UBOs, since lifting is likely only
     // beneficial if we're avoiding a storage buffer access.
     if (caps->storageBufferSupport()) {
-        lift_color_expressions(liftableNodes, availableVaryings);
+        lift_color_expressions(liftableNodes, &availableVaryings);
     }
 
     // Copy the accumulated roots into a span stored in the arena

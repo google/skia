@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkBlender.h"
 #include "include/core/SkCanvas.h"
@@ -54,6 +55,7 @@
 #include "src/sksl/SkSLString.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/GpuToolUtils.h"
 
 #include <array>
 #include <cstdint>
@@ -1593,6 +1595,105 @@ DEF_TEST(SkRuntimeShaderIsOpaque, r) {
     test("return uOnes;",          false);
     test("return cOnes.eval(xy);", false);
 }
+
+// This test verifies that when a runtime shader's input coordinates are previously transformed
+// by a local matrix (which may be lifted to the vertex shader on GPU backends), the coordinates
+// resolve correctly for the runtime shader and any child shaders.
+void test_using_transformed_coords(skiatest::Reporter* reporter,
+                                   GrDirectContext* ganeshContext,
+                                   GraphiteInfo* graphiteInfo) {
+    const SkImageInfo surfaceImageInfo = SkImageInfo::Make(SkISize::Make(12, 1),
+                                                           SkColorType::kRGBA_8888_SkColorType,
+                                                           SkAlphaType::kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface;
+    if (ganeshContext) {
+        surface = SkSurfaces::RenderTarget(ganeshContext, skgpu::Budgeted::kNo, surfaceImageInfo);
+    } else if (graphiteInfo) {
+#if defined(SK_GRAPHITE)
+        surface = SkSurfaces::RenderTarget(graphiteInfo->recorder, surfaceImageInfo);
+#endif
+    }
+    REPORTER_ASSERT(reporter, surface);
+    if (!surface) {
+        return;
+    }
+
+    SkCanvas* canvas = surface->getCanvas();
+
+    // Make a 1x12 pixel image with left 1/4 red and right 3/4 green.
+    SkBitmap bitmap;
+    bitmap.allocN32Pixels(12, 1, true);
+    SkCanvas bitmapCanvas(bitmap);
+    bitmapCanvas.drawIRect(SkIRect::MakeXYWH(0, 0, 3, 1), SkPaint(SkColors::kRed));
+    bitmapCanvas.drawIRect(SkIRect::MakeXYWH(3, 0, 9, 1), SkPaint(SkColors::kGreen));
+
+    sk_sp<SkShader> imageShader = ToolUtils::MakeTextureImage(canvas, bitmap.asImage())
+                                          ->makeShader(SkFilterMode::kNearest);
+
+    // Runtime effect that sets the blue channel to 1 in the right half of its child.
+    SkString src(
+            "uniform shader s;"
+            "half4 main(float2 p) {"
+                // round() doesn't seem to be legal in runtime shaders for some reason.
+                "return half4(s.eval(p).rg, max(0.0, sign(p.x / 12.0 - 0.5)), 1.0);"
+            "}");
+    SkRuntimeEffect::Result runtimeEffectResult = SkRuntimeEffect::MakeForShader(src);
+    auto [effect, errorText] = SkRuntimeEffect::MakeForShader(SkString(src));
+    REPORTER_ASSERT(reporter, effect);
+    if (!effect) {
+        return;
+    }
+
+    // Nest the image shader under the runtime shader, all under a local matrix transformation that
+    // translates the draw right 1/4 of the way.
+    SkPaint paint;
+    paint.setShader(runtimeEffectResult.effect->makeShader(nullptr, &imageShader, 1)
+                            ->makeWithLocalMatrix(SkMatrix::Translate(3.0f, 0.0f)));
+
+    canvas->drawPaint(paint);
+
+    // Read pixels.
+    SkBitmap readBitmap;
+    SkPixmap pixmap;
+    readBitmap.allocPixels(surfaceImageInfo);
+    SkAssertResult(readBitmap.peekPixels(&pixmap));
+    if (!surface->readPixels(pixmap, 0, 0)) {
+        ERRORF(reporter, "readPixels failed");
+        return;
+    }
+
+    // The first half of the canvas should be red, since the image was drawn shifted to the right
+    // with clamp tiling.
+    REPORTER_ASSERT(reporter, pixmap.getColor4f(1, 0) == SkColors::kRed);
+    REPORTER_ASSERT(reporter, pixmap.getColor4f(4, 0) == SkColors::kRed);
+
+    // The third quarter of the canvas should be green. This is the second quarter of the image,
+    // translated right, and not affected by the runtime shader which should only touch the right
+    // half of the image.
+    REPORTER_ASSERT(reporter, pixmap.getColor4f(7, 0) == SkColors::kGreen);
+
+    // The last quarter of the canvas should be cyan, since the green in the image has its blue
+    // channel set to 1 by the runtime shader.
+    REPORTER_ASSERT(reporter, pixmap.getColor4f(10, 0) == SkColors::kCyan);
+}
+
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShader_TransformedCoords_Ganesh,
+                                       reporter,
+                                       contextInfo,
+                                       CtsEnforcement::kNextRelease) {
+    test_using_transformed_coords(reporter, contextInfo.directContext(), /*graphiteInfo=*/nullptr);
+}
+
+#if defined(SK_GRAPHITE)
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeShader_TransformedCoords_Graphite,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
+    std::unique_ptr<skgpu::graphite::Recorder> recorder = context->makeRecorder();
+    GraphiteInfo graphiteInfo = {context, recorder.get()};
+    test_using_transformed_coords(reporter, /*ganeshContext=*/nullptr, &graphiteInfo);
+}
+#endif
 
 DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrSkSLFP_Specialized, r, ctxInfo, CtsEnforcement::kApiLevel_T) {
     struct FpAndKey {

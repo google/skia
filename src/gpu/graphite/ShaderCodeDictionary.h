@@ -219,6 +219,7 @@ public:
     SkEnumBitMask<SnippetRequirementFlags> requiredFlags() const { return fRequiredFlags; }
     void setLiftExpressionFlag() { fRequiredFlags |= SnippetRequirementFlags::kLiftExpression; }
     void setOmitExpressionFlag() { fRequiredFlags |= SnippetRequirementFlags::kOmitExpression; }
+    void unsetLocalCoordsFlag() { fRequiredFlags &= ~SnippetRequirementFlags::kLocalCoords; }
 
     int numChildren() const { return fEntry->fNumChildren; }
     SkSpan<ShaderNode*> children() { return fChildren; }

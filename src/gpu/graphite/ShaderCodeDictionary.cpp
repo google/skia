@@ -770,15 +770,27 @@ SkSpan<const Uniform> ShaderCodeDictionary::convertUniforms(const SkRuntimeEffec
     return SkSpan<const Uniform>(uniformArray, numUniforms);
 }
 
+static bool all_sample_usages_are_passthrough(const SkRuntimeEffect* effect) {
+    for (size_t i = 0; i < effect->children().size(); ++i) {
+        if (!SkRuntimeEffectPriv::ChildSampleUsage(effect, i).isPassThrough()) {
+            return false;
+        }
+    }
+    return true;
+}
+
 ShaderSnippet ShaderCodeDictionary::convertRuntimeEffect(const SkRuntimeEffect* effect,
                                                          const char* name) {
     SkEnumBitMask<SnippetRequirementFlags> snippetFlags = SnippetRequirementFlags::kNone;
     if (effect->allowShader()) {
-        // TODO(b/412621191) SkRuntimeEffect::usesSampleCoords() can't be used to restrict this
-        // because it returns false when the only use is to pass the coord unmodified to a child.
-        // When children can refer to interpolated varyings directly in this case, we can refine the
-        // flags.
+        // TODO(b/412621191) Ideally we would have a way to tell exactly which children of a runtime
+        // shader are sampled with modified coords, or whether coordinates are required at all. For
+        // now we assume all runtime shaders need coordinates, and if any children are sampled with
+        // modified coords, we assume they all are.
         snippetFlags |= SnippetRequirementFlags::kLocalCoords;
+        if (all_sample_usages_are_passthrough(effect)) {
+            snippetFlags |= SnippetRequirementFlags::kPassthroughLocalCoords;
+        }
     } else if (effect->allowColorFilter()) {
         snippetFlags |= SnippetRequirementFlags::kPriorStageOutput;
     } else if (effect->allowBlender()) {

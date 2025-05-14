@@ -25,6 +25,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <vector>
 
 #include "include/sksl/SkSLVersion.h"
 
@@ -157,11 +158,11 @@ public:
     static void WriteChildEffects(SkWriteBuffer& buffer,
                                   SkSpan<const SkRuntimeEffect::ChildPtr> children);
 
-    static bool UsesSampleCoords(const SkRuntimeEffect* effect) {
-        return effect->usesSampleCoords();
-    }
     static bool UsesColorTransform(const SkRuntimeEffect* effect) {
         return effect->usesColorTransform();
+    }
+    static SkSL::SampleUsage ChildSampleUsage(const SkRuntimeEffect* effect, int child) {
+        return effect->fSampleUsages[child];
     }
 };
 
