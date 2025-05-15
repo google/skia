@@ -501,7 +501,7 @@ void gather_attachment_views(skia_private::TArray<VkImageView>& attachmentViews,
 
 } // anonymous namespace
 
-sk_sp<VulkanFramebuffer> VulkanResourceProvider::createFramebuffer(
+sk_sp<VulkanFramebuffer> VulkanResourceProvider::findOrCreateFramebuffer(
         const VulkanSharedContext* context,
         VulkanTexture* colorTexture,
         VulkanTexture* resolveTexture,
@@ -521,6 +521,7 @@ sk_sp<VulkanFramebuffer> VulkanResourceProvider::createFramebuffer(
     SkASSERT(mainTexture);
     VulkanTexture* msaaTexture = resolveTexture ? colorTexture : nullptr;
 
+    // First check for a cached frame buffer.
     sk_sp<VulkanFramebuffer> fb = mainTexture->getCachedFramebuffer(renderPassDesc,
                                                                     msaaTexture,
                                                                     depthStencilTexture);
@@ -532,9 +533,6 @@ sk_sp<VulkanFramebuffer> VulkanResourceProvider::createFramebuffer(
     skia_private::TArray<VkImageView> attachmentViews;
     gather_attachment_views(attachmentViews, colorTexture, resolveTexture, depthStencilTexture);
 
-    // TODO(b/302126809): Consider caching these in the future. If we pursue that, it may make more
-    // sense to use a compatible renderpass rather than a full one to make each frame buffer more
-    // versatile.
     VkFramebufferCreateInfo framebufferInfo = {};
     framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     framebufferInfo.renderPass = renderPass.renderPass();

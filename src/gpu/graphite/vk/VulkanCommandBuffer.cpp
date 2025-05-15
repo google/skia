@@ -791,16 +791,16 @@ bool VulkanCommandBuffer::beginRenderPass(const RenderPassDesc& rpDesc,
         frameBufferHeight = depthStencilTexture->dimensions().height();
     }
     sk_sp<VulkanFramebuffer> framebuffer =
-            fResourceProvider->createFramebuffer(fSharedContext,
-                                                 fTargetTexture,
-                                                 vulkanResolveTexture,
-                                                 vulkanDepthStencilTexture,
-                                                 rpDesc,
-                                                 *vulkanRenderPass,
-                                                 frameBufferWidth,
-                                                 frameBufferHeight);
+            fResourceProvider->findOrCreateFramebuffer(fSharedContext,
+                                                       fTargetTexture,
+                                                       vulkanResolveTexture,
+                                                       vulkanDepthStencilTexture,
+                                                       rpDesc,
+                                                       *vulkanRenderPass,
+                                                       frameBufferWidth,
+                                                       frameBufferHeight);
     if (!framebuffer) {
-        SKGPU_LOG_W("Could not create Vulkan Framebuffer");
+        SKGPU_LOG_W("Could not find or create Vulkan Framebuffer");
         return false;
     }
 

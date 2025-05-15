@@ -74,16 +74,14 @@ public:
 
     VkPipelineLayout mockPipelineLayout() const { return fMockPipelineLayout; }
 
-    // TODO(b/302126809): Should these be cached? e.g. findOrCreateFramebuffer
-    sk_sp<VulkanFramebuffer> createFramebuffer(
-        const VulkanSharedContext*,
-        VulkanTexture* colorTexture,
-        VulkanTexture* resolveTexture,
-        VulkanTexture* depthStencilTexture,
-        const RenderPassDesc& renderPassDesc,
-        const VulkanRenderPass&,
-        const int width,
-        const int height);
+    sk_sp<VulkanFramebuffer> findOrCreateFramebuffer(const VulkanSharedContext*,
+                                                     VulkanTexture* colorTexture,
+                                                     VulkanTexture* resolveTexture,
+                                                     VulkanTexture* depthStencilTexture,
+                                                     const RenderPassDesc&,
+                                                     const VulkanRenderPass&,
+                                                     const int width,
+                                                     const int height);
 
 private:
     const VulkanSharedContext* vulkanSharedContext() const;
