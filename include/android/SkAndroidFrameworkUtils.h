@@ -74,7 +74,11 @@ public:
                                                //   of fColors/fColorOffsets on input, and
                                                //   actual number of colors/offsets on
                                                //   output.
+#ifdef SK_IGNORE_LINEAR_GRADIENT_INFO_FIX
         SkColor*    fColors        = nullptr;  //!< The colors in the gradient.
+#else
+        SkColor4f*  fColors        = nullptr;  //!< The colors in the gradient.
+#endif
         SkScalar*   fColorOffsets  = nullptr;  //!< The unit offset for color transitions.
         SkPoint     fPoints[2];                //!< Type specific, see above.
         SkTileMode  fTileMode;
