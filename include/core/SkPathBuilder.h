@@ -8,6 +8,7 @@
 #ifndef SkPathBuilder_DEFINED
 #define SkPathBuilder_DEFINED
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
@@ -19,6 +20,7 @@
 #include "include/private/base/SkTo.h"
 
 #include <initializer_list>
+#include <optional>
 
 class SkRRect;
 
@@ -222,10 +224,22 @@ public:
 
     SkPathBuilder& offset(SkScalar dx, SkScalar dy);
 
+    SkPathBuilder& transform(const SkMatrix& matrix,
+                             SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes);
+
     SkPathBuilder& toggleInverseFillType() {
         fFillType = (SkPathFillType)((unsigned)fFillType ^ 2);
         return *this;
     }
+
+    bool isEmpty() const { return fVerbs.empty(); }
+
+    std::optional<SkPoint> getLastPt() const;
+    void setLastPt(SkScalar x, SkScalar y);
+
+    int countPoints() const { return fPts.size(); }
+
+    bool isInverseFillType() const { return SkPathFillType_IsInverse(fFillType); }
 
 private:
     SkPathRef::PointsArray fPts;
@@ -262,7 +276,10 @@ private:
 
     SkPath make(sk_sp<SkPathRef>) const;
 
+    bool isZeroLengthSincePoint(int startPtIndex) const;
+
     SkPathBuilder& privateReverseAddPath(const SkPath&);
+    SkPathBuilder& privateReversePathTo(const SkPath&);
 
     friend class SkPathPriv;
 };
