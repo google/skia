@@ -27,6 +27,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 
 enum SerializationOffsets {
     kType_SerializationShift = 28,       // requires 4 bits
@@ -191,26 +192,41 @@ size_t SkPath::readAsRRect(const void* storage, size_t length) {
 }
 
 size_t SkPath::readFromMemory(const void* storage, size_t length) {
+    size_t bytesRead;
+    std::optional<SkPath> path = SkPath::ReadFromMemory(storage, length, &bytesRead);
+    if (path) {
+        *this = path.value();
+    }
+    return bytesRead;
+}
+
+#define RETURN_PATH_AND_BYTES(p, b) \
+    do { if (bytesRead) { *bytesRead = b; }; return p; } while (0)
+
+std::optional<SkPath> SkPath::ReadFromMemory(const void* storage, size_t length, size_t* bytesRead) {
     SkRBuffer buffer(storage, length);
     uint32_t packed;
     if (!buffer.readU32(&packed)) {
-        return 0;
+        RETURN_PATH_AND_BYTES(std::nullopt, 0);
     }
     unsigned version = extract_version(packed);
 
     const bool verbsAreForward = (version == kVerbsAreStoredForward_Version);
     if (!verbsAreForward && version != kJustPublicData_Version) SK_UNLIKELY {
         // Old/unsupported version.
-        return 0;
+        RETURN_PATH_AND_BYTES(std::nullopt, 0);
     }
 
+    SkPath path;
+    size_t tmp;
     switch (extract_serializationtype(packed)) {
         case SerializationType::kRRect:
-            return this->readAsRRect(storage, length);
+            tmp = path.readAsRRect(storage, length);
+            RETURN_PATH_AND_BYTES(path, tmp);
         case SerializationType::kGeneral:
             break;  // fall out
         default:
-            return 0;
+            RETURN_PATH_AND_BYTES(std::nullopt, 0);
     }
 
     // To minimize the number of reads done a structure with the counts is used.
@@ -218,7 +234,7 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
       int32_t pts, cnx, vbs;
     } counts;
     if (!buffer.read(&counts, sizeof(counts))) {
-        return 0;
+        RETURN_PATH_AND_BYTES(std::nullopt, 0);
     }
 
     const SkPoint* points = buffer.skipCount<SkPoint>(counts.pts);
@@ -226,18 +242,20 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
     const uint8_t* verbs = buffer.skipCount<uint8_t>(counts.vbs);
     buffer.skipToAlign4();
     if (!buffer.isValid()) {
-        return 0;
+        RETURN_PATH_AND_BYTES(std::nullopt, 0);
     }
     SkASSERT(buffer.pos() <= length);
 
     if (counts.vbs == 0) {
         if (counts.pts == 0 && counts.cnx == 0) {
-            reset();
-            setFillType(extract_filltype(packed));
-            return buffer.pos();
+            path.setFillType(extract_filltype(packed));
+            if (bytesRead) {
+                *bytesRead = buffer.pos();
+            }
+            return path;
         }
         // No verbs but points and/or conic weights is a not a valid path.
-        return 0;
+        RETURN_PATH_AND_BYTES(std::nullopt, 0);
     }
 
     SkAutoMalloc reversedStorage;
@@ -251,9 +269,12 @@ size_t SkPath::readFromMemory(const void* storage, size_t length) {
 
     SkPathVerbAnalysis analysis = SkPathPriv::AnalyzeVerbs(verbs, counts.vbs);
     if (!analysis.valid || analysis.points != counts.pts || analysis.weights != counts.cnx) {
-        return 0;
+        RETURN_PATH_AND_BYTES(std::nullopt, 0);
     }
-    *this = SkPathPriv::MakePath(analysis, points, verbs, counts.vbs, conics,
-                                 extract_filltype(packed), false);
-    return buffer.pos();
+    path = SkPathPriv::MakePath(analysis, points, verbs, counts.vbs, conics,
+                                extract_filltype(packed), false);
+
+    RETURN_PATH_AND_BYTES(path,buffer.pos());
 }
+
+#undef RETURN_PATH_AND_BYTES

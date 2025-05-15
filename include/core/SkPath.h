@@ -23,6 +23,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <initializer_list>
+#include <optional>
 #include <tuple>
 #include <type_traits>
 
@@ -206,6 +207,9 @@ public:
     */
     bool isInterpolatable(const SkPath& compare) const;
 
+#ifdef SK_HIDE_PATH_EDIT_METHODS
+private:
+#endif
     /** Interpolates between SkPath with SkPoint array of equal size.
         Copy verb array and weights to out, and set out SkPoint array to a weighted
         average of this SkPoint array and ending SkPoint array, using the formula:
@@ -228,6 +232,10 @@ public:
         example: https://fiddle.skia.org/c/@Path_interpolate
     */
     bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
+#ifdef SK_HIDE_PATH_EDIT_METHODS
+public:
+#endif
+    SkPath makeInterpolate(const SkPath& ending, SkScalar weight) const;
 
     /** Returns SkPathFillType, the rule used to fill SkPath.
 
@@ -1388,6 +1396,14 @@ private:
 #ifdef SK_HIDE_PATH_EDIT_METHODS
 public:
 #endif
+    SkPath makeOffset(SkScalar dx, SkScalar dy) const {
+        SkPath dst;
+        this->offset(dx, dy, &dst);
+        return dst;
+    }
+#ifdef SK_HIDE_PATH_EDIT_METHODS
+private:
+#endif
     /** Offsets SkPoint array by (dx, dy). Offset SkPath replaces dst.
         If dst is nullptr, SkPath is replaced by offset data.
 
@@ -1398,9 +1414,6 @@ public:
         example: https://fiddle.skia.org/c/@Path_offset
     */
     void offset(SkScalar dx, SkScalar dy, SkPath* dst) const;
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
 
     /** Offsets SkPoint array by (dx, dy). SkPath is replaced by offset data.
 
@@ -1411,10 +1424,6 @@ private:
         this->offset(dx, dy, this);
         return *this;
     }
-
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
 
     /** Transforms verb array, SkPoint array, and weight by matrix.
         transform may change verbs and increase their number.
@@ -1430,9 +1439,6 @@ public:
     void transform(const SkMatrix& matrix, SkPath* dst,
                    SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const;
 
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
     /** Transforms verb array, SkPoint array, and weight by matrix.
         transform may change verbs and increase their number.
         SkPath is replaced by transformed data.
@@ -1849,6 +1855,25 @@ private:
 #ifdef SK_HIDE_PATH_EDIT_METHODS
 public:
 #endif
+    /** Initializes SkPath from buffer of size length. If the buffer data is inconsistent, or the
+        length is too small, returns a nullopt.
+
+        Reads SkPath::FillType, verb array, SkPoint array, conic weight, and
+        additionally reads computed information like SkPath::Convexity and bounds.
+
+        Used only in concert with writeToMemory();
+        the format used for SkPath in memory is not guaranteed.
+
+        @param buffer    storage for SkPath
+        @param length    buffer size in bytes; must be multiple of 4
+        @param bytesRead if not null, the number of bytes read from buffer will be written here
+        @return          the path read, or nullopt on failure
+
+        example: https://fiddle.skia.org/c/@Path_readFromMemory
+    */
+    static std::optional<SkPath> ReadFromMemory(const void* buffer, size_t length,
+                                                size_t* bytesRead = nullptr);
+
     /** (See Skia bug 1762.)
         Returns a non-zero, globally unique value. A different value is returned
         if verb array, SkPoint array, or conic weight changes.
@@ -1949,7 +1974,7 @@ private:
 
     // Bottlenecks for working with fConvexity and fFirstDirection.
     // Notice the setters are const... these are mutable atomic fields.
-    void  setConvexity(SkPathConvexity) const;
+    void setConvexity(SkPathConvexity) const;
 
     void setFirstDirection(SkPathFirstDirection) const;
     SkPathFirstDirection getFirstDirection() const;

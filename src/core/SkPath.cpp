@@ -263,6 +263,12 @@ bool SkPath::interpolate(const SkPath& ending, SkScalar weight, SkPath* out) con
     return true;
 }
 
+SkPath SkPath::makeInterpolate(const SkPath& ending, SkScalar weight) const {
+    SkPath out;
+    this->interpolate(ending, weight, &out);
+    return out;
+}
+
 static inline bool check_edge_against_rect(const SkPoint& p0,
                                            const SkPoint& p1,
                                            const SkRect& rect,
@@ -466,6 +472,14 @@ SkPath SkPath::makeToggleInverseFillType() const {
     return SkPath(fPathRef,
                   static_cast<SkPathFillType>(fFillType ^ 2),
                   fIsVolatile,
+                  this->getConvexityOrUnknown(),
+                  this->getFirstDirection());
+}
+
+SkPath SkPath::makeIsVolatile(bool v) const {
+    return SkPath(fPathRef,
+                  static_cast<SkPathFillType>(fFillType),
+                  v,
                   this->getConvexityOrUnknown(),
                   this->getFirstDirection());
 }
