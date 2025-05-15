@@ -12,6 +12,7 @@
 #include "include/gpu/graphite/PrecompileContext.h"
 #include "src/gpu/graphite/PrecompileContextPriv.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
+#include "src/sksl/SkSLUtil.h"
 #include "tests/graphite/precompile/PrecompileTestUtils.h"
 
 #include <set>
@@ -104,7 +105,7 @@ const PrecompileSettings kPrecompileCases[] = {
 // 50% (1/2) handles 74 - due to the w/o msaa load variants not being used
 /* 26 */ { ImagePremulHWOnlySrc(),             DrawTypeFlags::kNonAAFillRect,   kRGBA_4_DS },
 
-#if defined(SK_VULKAN)
+#if defined(SK_VULKAN) && defined(SK_BUILD_FOR_ANDROID)
 // 100% (2/2) handles 26 50
 /* 27 */ { ImagePremulYCbCr238Srcover(),       kRRectAndNonAARect,              kRGBA_1_D },
 // 100% (1/1) handles 49
@@ -435,9 +436,10 @@ bool skip(const char* str) {
 }
 
 // The pipeline strings were created with Android Vulkan but we're going to run the test
-// on Dawn Metal
-bool is_dawn_metal_context_type(skgpu::ContextType type) {
-    return type == skgpu::ContextType::kDawn_Metal;
+// on Dawn Metal and all the Native Vulkan configs
+bool is_acceptable_context_type(skgpu::ContextType type) {
+    return type == skgpu::ContextType::kDawn_Metal ||
+           type == skgpu::ContextType::kVulkan;
 }
 
 } // anonymous namespace
@@ -451,7 +453,7 @@ bool is_dawn_metal_context_type(skgpu::ContextType type) {
 //    PRINT_COVERAGE: list the cases (in 'kCases') that are covered by each 'kPrecompileCases' case
 //    PRINT_GENERATED_LABELS: list the Pipeline labels for a specific 'kPrecompileCases' case
 // Also of note, the "skip" method documents the Pipelines we're intentionally skipping and why.
-DEF_GRAPHITE_TEST_FOR_CONTEXTS(AndroidPrecompileTest, is_dawn_metal_context_type,
+DEF_GRAPHITE_TEST_FOR_CONTEXTS(AndroidPrecompileTest, is_acceptable_context_type,
                                reporter, context, /* testContext */, CtsEnforcement::kNever) {
     using namespace skgpu::graphite;
 
@@ -499,6 +501,29 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(AndroidPrecompileTest, is_dawn_metal_context_type
             MSAALoadOnlyCases.find(i) != MSAALoadOnlyCases.end()) {
             // If "w/ msaa load" strings aren't being generated, cases that only handle Pipeline
             // labels with that sub-string will never be matched.
+            continue;
+        }
+
+        if (kPrecompileCases[i].fRenderPassProps.fDSFlags == DepthStencilFlags::kDepth &&
+            caps->getDepthStencilFormat(DepthStencilFlags::kDepth) != TextureFormat::kD16) {
+            // The Pipeline labels in 'kCases' have "D16" for this case (i.e., "D32F" is a
+            // fine Depth buffer type but won't match the strings).
+            continue;
+        }
+
+        SkSpan<const SkBlendMode> blendModes = kPrecompileCases[i].fPaintOptions.getBlendModes();
+        bool skip = false;
+        for (SkBlendMode bm : blendModes) {
+            if (bm == SkBlendMode::kSrc && !caps->shaderCaps()->fDualSourceBlendingSupport) {
+                // The Pipeline labels were gathered on a device w/ dual source blending.
+                // kSrc blend mode w/o dual source blending can result in a dst read and, thus,
+                // break the string matching.
+                skip = true;
+                break;
+            }
+        }
+
+        if (skip) {
             continue;
         }
 

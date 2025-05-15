@@ -34,8 +34,9 @@ void SetupSamplerYcbcrConversionInfo(VkSamplerYcbcrConversionCreateInfo* outInfo
     const VkFormatFeatureFlags& featureFlags = conversionInfo.fFormatFeatures;
 
     // Format feature flags are only representative of an external format's capabilities, so skip
-    // these checks in the case of using a known format.
-    if (conversionInfo.fFormat == VK_FORMAT_UNDEFINED) {
+    // these checks in the case of using a known format or if the featureFlags were clearly not
+    // filled in.
+    if (conversionInfo.fFormat == VK_FORMAT_UNDEFINED && featureFlags) {
         if (conversionInfo.fXChromaOffset == VK_CHROMA_LOCATION_MIDPOINT ||
             conversionInfo.fYChromaOffset == VK_CHROMA_LOCATION_MIDPOINT) {
             SkASSERT(featureFlags & VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT);
