@@ -266,7 +266,7 @@
     },
     "//bazel:deps.bzl%c_plus_plus_modules": {
       "general": {
-        "bzlTransitiveDigest": "56b/T2D9KA3/t9n6PBi119Gp1E/jWdKEcowDpLkUYv4=",
+        "bzlTransitiveDigest": "WoyI/c5+B4a8JemdXelFoOUdvg5b85R1G3EeuE5AeRk=",
         "usagesDigest": "M56H0+n+RaBxHZxx6IKdjhqxKnJMl3f35dOrIPL6knA=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -314,7 +314,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:git.bzl%git_repository",
             "attributes": {
               "build_file": "@@//bazel/external/expat:BUILD.bazel",
-              "commit": "624da0f593bb8d7e146b9f42b06d8e6c80d032a3",
+              "commit": "8e49998f003d693213b538ef765814c7d21abada",
               "remote": "https://chromium.googlesource.com/external/github.com/libexpat/libexpat.git",
               "patches": [
                 "@@//bazel/external/expat:config_files.patch"

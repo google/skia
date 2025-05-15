@@ -4,7 +4,6 @@ EXPAT_GIT_REPO=https://chromium.googlesource.com/external/github.com/libexpat/li
 EXPAT_GIT_REF=origin/upstream/master
 EXPAT_GIT_DIR=third_party/externals/expat
 EXPAT_BUILD_DIR=$(dirname -- "$0")
-SKIA_BUILD_DIR=$(dirname $(dirname -- "$0"))
 
 previousrev() {
   STEP="original revision" &&
@@ -22,6 +21,18 @@ rolldeps() {
   sed -i'' -e "s!${EXPAT_GIT_REPO}@${EXPAT_PREVIOUS_REV}!${EXPAT_GIT_REPO}@${EXPAT_NEXT_REV}!" DEPS &&
   tools/git-sync-deps &&
   git add DEPS
+}
+
+rollbazel() {
+  STEP="roll-bazel" &&
+  sed -i'' -e "s!commit = \"${EXPAT_PREVIOUS_REV}\",!commit = \"${EXPAT_NEXT_REV}\",!" bazel/deps.bzl &&
+  git add bazel/deps.bzl
+}
+
+rolldepsgen() {
+  STEP="roll-depsgen" &&
+  sed -i'' -e "s!Version: \"${EXPAT_PREVIOUS_REV}\",!Version: \"${EXPAT_NEXT_REV}\",!" infra/bots/deps/deps_gen.go &&
+  git add infra/bots/deps/deps_gen.go
 }
 
 check_all_files_are_categorized() {
@@ -85,10 +96,10 @@ update_expat_config_h() {
 }
 
 update_bazel_patch() {
-  cd ${SKIA_BUILD_DIR} &&
+  STEP="Update Bazel patch" &&
   python3 tools/generate_patches.py \
     "${EXPAT_BUILD_DIR}/include/expat_config/expat_config.h" expat_config.h \
-    > bazel/external/expat/config_files.patch &
+    > bazel/external/expat/config_files.patch &&
   git add bazel/external/expat/config_files.patch
 }
 
@@ -107,6 +118,8 @@ Disable: treat-URL-as-trailer"
 previousrev &&
 nextrev &&
 rolldeps "$@" &&
+rollbazel &&
+rolldepsgen &&
 update_expat_config_h &&
 check_all_files_are_categorized &&
 update_bazel_patch &&

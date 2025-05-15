@@ -52,7 +52,7 @@ def _c_plus_plus_modules_impl(ctx):
     new_git_repository(
         name = "expat",
         build_file = "//bazel/external/expat:BUILD.bazel",
-        commit = "624da0f593bb8d7e146b9f42b06d8e6c80d032a3",
+        commit = "8e49998f003d693213b538ef765814c7d21abada",
         remote = "https://chromium.googlesource.com/external/github.com/libexpat/libexpat.git",
         patches = ["//bazel/external/expat:config_files.patch"],
     )
