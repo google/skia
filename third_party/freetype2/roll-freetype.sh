@@ -4,7 +4,6 @@ FT_GIT_REPO="https://chromium.googlesource.com/chromium/src/third_party/freetype
 FT_GIT_REF="origin/master"
 FT_GIT_DIR="third_party/externals/freetype"
 FT_BUILD_DIR="$(dirname -- "$0")"
-SKIA_BUILD_DIR=$(dirname $(dirname -- "$0"))
 
 notshallow() {
   STEP="check ${FT_GIT_DIR} not shallow"
@@ -55,7 +54,7 @@ mergeinclude() {
 }
 
 update_bazel_patch() {
-  cd ${SKIA_BUILD_DIR} &&
+  STEP="Update Bazel patch" &&
   python3 tools/generate_patches.py \
     ${FT_BUILD_DIR}/include/freetype-android/freetype/config/ftmodule.h builds/android-ftmodule.h \
     ${FT_BUILD_DIR}/include/freetype-android/freetype/config/ftoption.h builds/android-ftoption.h \
