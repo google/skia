@@ -28,23 +28,6 @@ namespace skgpu::graphite {
 
 namespace {
 
-// TODO: Tune these values on real world data
-static constexpr uint32_t kVertexBufferMinSize = 16 << 10; // 16 KB
-static constexpr uint32_t kVertexBufferMaxSize =  1 << 20; //  1 MB
-static constexpr uint32_t kIndexBufferSize   = 2 << 10; // 2 KB
-static constexpr uint32_t kUniformBufferSize = 2 << 10; // 2 KB
-static constexpr uint32_t kStorageBufferMinSize = 2 << 10; // 2 KB
-static constexpr uint32_t kStorageBufferMaxSize = 1 << 20; // 1 MB
-
-// Make sure the buffer size constants are all powers of two, so we can align to them efficiently
-// when dynamically sizing buffers.
-static_assert(SkIsPow2(kVertexBufferMinSize));
-static_assert(SkIsPow2(kVertexBufferMaxSize));
-static_assert(SkIsPow2(kIndexBufferSize));
-static_assert(SkIsPow2(kUniformBufferSize));
-static_assert(SkIsPow2(kStorageBufferMinSize));
-static_assert(SkIsPow2(kStorageBufferMaxSize));
-
 // The limit for all data created by the StaticBufferManager. This data remains alive for
 // the entire SharedContext so we want to keep it small and give a concrete upper bound to
 // clients for our steady-state memory usage.
@@ -187,23 +170,43 @@ void ScratchBuffer::returnToPool() {
 
 DrawBufferManager::DrawBufferManager(ResourceProvider* resourceProvider,
                                      const Caps* caps,
-                                     UploadBufferManager* uploadManager)
+                                     UploadBufferManager* uploadManager,
+                                     BufferSizes buffSizes)
         : fResourceProvider(resourceProvider)
         , fCaps(caps)
         , fUploadManager(uploadManager)
-        , fCurrentBuffers{{
-            { BufferType::kVertex,        kVertexBufferMinSize,  kVertexBufferMaxSize,  caps },
-            { BufferType::kIndex,         kIndexBufferSize,      kIndexBufferSize,      caps },
-            { BufferType::kUniform,       kUniformBufferSize,    kUniformBufferSize,    caps },
-
-            // mapped storage
-            { BufferType::kStorage,       kStorageBufferMinSize, kStorageBufferMaxSize, caps },
-            // GPU-only storage
-            { BufferType::kStorage,       kStorageBufferMinSize, kStorageBufferMinSize, caps },
-
-            { BufferType::kVertexStorage, kVertexBufferMinSize,  kVertexBufferMinSize,  caps },
-            { BufferType::kIndexStorage,  kIndexBufferSize,      kIndexBufferSize,      caps },
-            { BufferType::kIndirect,      kStorageBufferMinSize, kStorageBufferMinSize, caps } }} {}
+        , fCurrentBuffers{{{BufferType::kVertex,
+                            buffSizes.fVertexBufferMinSize, buffSizes.fVertexBufferMaxSize, caps},
+                           {BufferType::kIndex,
+                            buffSizes.fIndexBufferSize, buffSizes.fIndexBufferSize, caps},
+                           {BufferType::kUniform,
+                            buffSizes.fUniformBufferSize, buffSizes.fUniformBufferSize, caps},
+                           // mapped storage
+                           {BufferType::kStorage,
+                            buffSizes.fStorageBufferMinSize, buffSizes.fStorageBufferMaxSize, caps},
+                           // GPU-only storage
+                           {BufferType::kStorage,
+                            buffSizes.fStorageBufferMinSize, buffSizes.fStorageBufferMinSize, caps},
+                           {BufferType::kVertexStorage,
+                            buffSizes.fVertexBufferMinSize, buffSizes.fVertexBufferMinSize, caps},
+                           {BufferType::kIndexStorage,
+                            buffSizes.fIndexBufferSize, buffSizes.fIndexBufferSize, caps},
+                           {BufferType::kIndirect,
+                            buffSizes.fStorageBufferMinSize, buffSizes.fStorageBufferMinSize,
+                            caps}}}
+#if defined(GPU_TEST_UTILS)
+        , fUseExactBuffSizes(buffSizes.fUseExactBuffSizes)
+#endif
+{
+    // Make sure the buffer size constants are all powers of two, so we can align to them
+    // efficiently when dynamically sizing buffers.
+    SkASSERT(SkIsPow2(buffSizes.fVertexBufferMinSize));
+    SkASSERT(SkIsPow2(buffSizes.fVertexBufferMaxSize));
+    SkASSERT(SkIsPow2(buffSizes.fIndexBufferSize));
+    SkASSERT(SkIsPow2(buffSizes.fUniformBufferSize));
+    SkASSERT(SkIsPow2(buffSizes.fStorageBufferMinSize));
+    SkASSERT(SkIsPow2(buffSizes.fStorageBufferMaxSize));
+}
 
 DrawBufferManager::~DrawBufferManager() {}
 
@@ -390,7 +393,13 @@ ScratchBuffer DrawBufferManager::getScratchStorage(size_t requiredBytes) {
 
     // TODO: Generalize the pool to other buffer types.
     auto& info = fCurrentBuffers[kStorageBufferIndex];
-    uint32_t bufferSize = sufficient_block_size(requiredBytes32, info.fCurBlockSize);
+
+    uint32_t bufferSize =
+#if defined(GPU_TEST_UTILS)
+            fUseExactBuffSizes ? info.fCurBlockSize :
+#endif
+                               sufficient_block_size(requiredBytes32, info.fCurBlockSize);
+
     sk_sp<Buffer> buffer = this->findReusableSbo(bufferSize);
     if (!buffer) {
         buffer = fResourceProvider->findOrCreateBuffer(

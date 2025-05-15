@@ -99,7 +99,28 @@ private:
 */
 class DrawBufferManager {
 public:
-    DrawBufferManager(ResourceProvider*, const Caps*, UploadBufferManager*);
+    struct BufferSizes {
+        BufferSizes() {
+            fVertexBufferMinSize  = 16 << 10; // 16 KB
+            fVertexBufferMaxSize  = 1 << 20;  // 1  MB
+            fIndexBufferSize      = 2 << 10;  // 2  KB
+            fUniformBufferSize    = 2 << 10;  // 2  KB
+            fStorageBufferMinSize = 2 << 10;  // 2  KB
+            fStorageBufferMaxSize = 1 << 20;  // 1  MB
+            fUseExactBuffSizes    = false;    // Use sufficient_block_size ?
+        }
+
+        uint32_t fVertexBufferMinSize;
+        uint32_t fVertexBufferMaxSize;
+        uint32_t fIndexBufferSize;
+        uint32_t fUniformBufferSize;
+        uint32_t fStorageBufferMinSize;
+        uint32_t fStorageBufferMaxSize;
+        bool     fUseExactBuffSizes;
+    };
+
+    DrawBufferManager(ResourceProvider* resourceProvider, const Caps* caps,
+                      UploadBufferManager* uploadManager, BufferSizes buffSize = BufferSizes());
     ~DrawBufferManager();
 
     // Let possible users check if the manager is already in a bad mapping state and skip any extra
@@ -242,6 +263,10 @@ private:
     // If mapping failed on Buffers created/managed by this DrawBufferManager or by the mapped
     // transfer buffers from the UploadManager, remember so that the next Recording will fail.
     bool fMappingFailed = false;
+
+#if defined(GPU_TEST_UTILS)
+    const bool fUseExactBuffSizes;
+#endif
 };
 
 /**

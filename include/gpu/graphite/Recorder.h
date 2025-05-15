@@ -61,6 +61,8 @@ class TextureInfo;
 class UploadBufferManager;
 class UploadList;
 
+struct RecorderOptionsPriv;
+
 template<typename T> class PipelineDataCache;
 using TextureDataCache = PipelineDataCache<TextureDataBlock>;
 
@@ -75,9 +77,12 @@ struct SK_API RecorderOptions final {
     // What is the budget for GPU resources allocated and held by this Recorder.
     size_t fGpuBudgetInBytes = kDefaultRecorderBudget;
     // If Recordings are known to be played back in the order they are recorded, then Graphite
-    // may be able to make certain assuptions that improve performance. This is often the case
+    // may be able to make certain assumptions that improve performance. This is often the case
     // if the content being drawn triggers the use of internal atlasing in Graphite (e.g. text).
     std::optional<bool> fRequireOrderedRecordings;
+
+    // Private options that are only meant for testing within Skia's tools.
+    RecorderOptionsPriv* fRecorderOptionsPriv = nullptr;
 };
 
 class SK_API Recorder final {

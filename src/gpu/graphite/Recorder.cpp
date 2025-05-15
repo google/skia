@@ -57,6 +57,10 @@
 #include <utility>
 #include <vector>
 
+#if defined(GPU_TEST_UTILS)
+#include "src/gpu/graphite/RecorderOptionsPriv.h"
+#endif
+
 enum SkColorType : int;
 
 namespace skgpu::graphite {
@@ -133,9 +137,26 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
     }
     fUploadBufferManager = std::make_unique<UploadBufferManager>(fResourceProvider,
                                                                  fSharedContext->caps());
+
+#if defined(GPU_TEST_UTILS)
+    if (options.fRecorderOptionsPriv) {
+        if (options.fRecorderOptionsPriv->fBufferSizes.has_value()) {
+            fDrawBufferManager = std::make_unique<DrawBufferManager>(
+                    fResourceProvider,
+                    fSharedContext->caps(),
+                    fUploadBufferManager.get(),
+                    options.fRecorderOptionsPriv->fBufferSizes.value());
+        }
+    } else {
+        fDrawBufferManager = std::make_unique<DrawBufferManager>(fResourceProvider,
+                                                                 fSharedContext->caps(),
+                                                                 fUploadBufferManager.get());
+    }
+#else
     fDrawBufferManager = std::make_unique<DrawBufferManager>(fResourceProvider,
                                                              fSharedContext->caps(),
                                                              fUploadBufferManager.get());
+#endif
 
     SkASSERT(fResourceProvider);
 }

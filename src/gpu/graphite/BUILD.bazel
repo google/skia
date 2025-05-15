@@ -97,6 +97,7 @@ GRAPHITE_FILES = [
     "RasterPathUtils.h",
     "ReadSwizzle.h",
     "Recorder.cpp",
+    "RecorderOptionsPriv.h",
     "RecorderPriv.h",
     "Recording.cpp",
     "RecordingPriv.h",
@@ -215,6 +216,7 @@ generate_cpp_files_for_headers(
     headers = [
         "ContextOptionsPriv.h",
         "ContextPriv.h",
+        "RecorderOptionsPriv.h",
         "RecordingPriv.h",
         "RecorderPriv.h",
     ],
