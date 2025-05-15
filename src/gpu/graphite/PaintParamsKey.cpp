@@ -181,6 +181,7 @@ bool lift_coord_expressions(SkSpan<ShaderNode*> nodes, int* availableVaryings) {
 // If there is other fragment shader work, we'll likely be accessing other fragment shader uniforms,
 // the color value will likely be cached, and lifting may not be worth the extra varying.
 void lift_color_expressions(SkSpan<ShaderNode*> nodes, int* availableVaryings) {
+#if !defined(SK_USE_LEGACY_UNIFORM_LIFTING_GRAPHITE)
     for (ShaderNode* node : nodes) {
         if (*availableVaryings > 0 &&
             node->entry()->fLiftableExpressionType ==
@@ -189,6 +190,7 @@ void lift_color_expressions(SkSpan<ShaderNode*> nodes, int* availableVaryings) {
             node->setLiftExpressionFlag();
         }
     }
+#endif
 }
 
 SkSpan<const ShaderNode*> PaintParamsKey::getRootNodes(const Caps* caps,
