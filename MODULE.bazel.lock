@@ -266,7 +266,7 @@
     },
     "//bazel:deps.bzl%c_plus_plus_modules": {
       "general": {
-        "bzlTransitiveDigest": "HGT032kkp69UU4qyzz8ZUzda/DD/egazdudRZ5CVQk4=",
+        "bzlTransitiveDigest": "56b/T2D9KA3/t9n6PBi119Gp1E/jWdKEcowDpLkUYv4=",
         "usagesDigest": "M56H0+n+RaBxHZxx6IKdjhqxKnJMl3f35dOrIPL6knA=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -336,7 +336,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:git.bzl%git_repository",
             "attributes": {
               "build_file": "@@//bazel/external/harfbuzz:BUILD.bazel",
-              "commit": "ca3cd48fa3e06fa81d7c8a3f716cca44ed2de26a",
+              "commit": "08b52ae2e44931eef163dbad71697f911fadc323",
               "remote": "https://chromium.googlesource.com/external/github.com/harfbuzz/harfbuzz.git",
               "patches": [
                 "@@//bazel/external/harfbuzz:config_files.patch"

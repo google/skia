@@ -641,5 +641,22 @@
   { include: ["\"jmorecfg.h\"", "private", "\"jpeglib.h\"", "public"] },
   { include: ["<jmorecfg.h>", "private", "\"jpeglib.h\"", "public"] },
 
+  # The reason for <hb.h> is to transitively provide the following.
+  { include: ["\"hb-blob.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-buffer.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-common.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-deprecated.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-draw.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-face.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-font.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-map.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-paint.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-set.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-shape.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-shape-plan.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-style.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-unicode.h\"", "public", "<hb.h>", "public"] },
+  { include: ["\"hb-version.h\"", "public", "<hb.h>", "public"] },
+
   { include: ["\"chromeconf.h\"", "private", "\"zlib.h\"", "public"] },
 ]

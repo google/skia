@@ -4,7 +4,6 @@ HB_GIT_REPO=https://chromium.googlesource.com/external/github.com/harfbuzz/harfb
 HB_GIT_REF=origin/upstream/main
 HB_GIT_DIR=third_party/externals/harfbuzz
 HB_BUILD_DIR=$(dirname -- "$0")
-SKIA_BUILD_DIR=$(dirname $(dirname -- "$0"))
 
 previousrev() {
   STEP="original revision" &&
@@ -86,10 +85,8 @@ check_all_files_are_categorized() {
 }
 
 update_bazel_patch() {
-  cd ${SKIA_BUILD_DIR} &&
-  python3 tools/generate_patches.py \
-    "${HB_BUILD_DIR}"/config-override.h config-override.h \
-    > bazel/external/harfbuzz/config_files.patch &&
+  STEP="Update Bazel patch" &&
+  python3 tools/generate_patches.py "${HB_BUILD_DIR}/config-override.h" config-override.h > bazel/external/harfbuzz/config_files.patch &&
   git add bazel/external/harfbuzz/config_files.patch
 }
 

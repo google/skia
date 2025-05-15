@@ -68,7 +68,7 @@ def _c_plus_plus_modules_impl(ctx):
     new_git_repository(
         name = "harfbuzz",
         build_file = "//bazel/external/harfbuzz:BUILD.bazel",
-        commit = "ca3cd48fa3e06fa81d7c8a3f716cca44ed2de26a",
+        commit = "08b52ae2e44931eef163dbad71697f911fadc323",
         remote = "https://chromium.googlesource.com/external/github.com/harfbuzz/harfbuzz.git",
         patches = ["//bazel/external/harfbuzz:config_files.patch"],
     )
