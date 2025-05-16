@@ -485,8 +485,10 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
 
 #if !defined(__EMSCRIPTEN__)
     // We need at least 4 SSBOs for intrinsic, render step, paint & gradient buffers.
+    // TODO(b/418235681): Enable SSBOs after fixing performance regressions for Dawn/Vulkan.
     fStorageBufferSupport = info.backendType != wgpu::BackendType::OpenGL &&
                             info.backendType != wgpu::BackendType::OpenGLES &&
+                            info.backendType != wgpu::BackendType::Vulkan &&
                             limits.maxStorageBuffersInVertexStage >= 4 &&
                             limits.maxStorageBuffersInFragmentStage >= 4;
 #else
