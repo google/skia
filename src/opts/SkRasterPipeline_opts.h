@@ -3099,7 +3099,7 @@ HIGHP_STAGE(store_1010102_xr, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     // This is the inverse of from_1010102_xr, e.g. (v * 510 + 384)
     U32 px = to_unorm(r, /*scale=*/510, /*bias=*/384, /*maxI=*/1023)
            | to_unorm(g, /*scale=*/510, /*bias=*/384, /*maxI=*/1023) << 10
-           | to_unorm(b, /*scale=*/510, /*bias=*/384, /*maxI=*/1023) << 10
+           | to_unorm(b, /*scale=*/510, /*bias=*/384, /*maxI=*/1023) << 20
            | to_unorm(a, /*scale=*/3) << 30;
     store(ptr, px);
 }
