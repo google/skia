@@ -38,6 +38,8 @@ struct SkIRect;
 struct SkPoint;
 struct SkRect;
 
+namespace skcpu { class ContextImpl; }
+
 class SkDrawBase : public SkGlyphRunListPainterCPU::BitmapDevicePainter {
 public:
     SkDrawBase();
@@ -156,6 +158,8 @@ public:
     const SkMatrix*         fCTM{nullptr};             // required
     const SkRasterClip*     fRC{nullptr};              // required
     const SkSurfaceProps*   fProps{nullptr};           // optional
+
+    const skcpu::ContextImpl* fCtx{nullptr};  // optional for now
 
 #ifdef SK_DEBUG
     void validate() const;

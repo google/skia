@@ -4,6 +4,8 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "include/gpu/graphite/Context.h"
+
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
@@ -25,7 +27,6 @@
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/BackendTexture.h"
-#include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/PrecompileContext.h"
@@ -35,12 +36,13 @@
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkOnce.h"
-#include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/base/SkRectMemcpy.h"
 #include "src/core/SkAutoPixmapStorage.h"
+#include "src/core/SkCPUContextImpl.h"
+#include "src/core/SkCPURecorderImpl.h"
 #include "src/core/SkConvertPixels.h"
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkTraceEvent.h"
@@ -135,6 +137,8 @@ Context::Context(sk_sp<SharedContext> sharedContext,
 
     fSharedContext->globalCache()->setPipelineCallback(options.fPipelineCallback,
                                                        options.fPipelineCallbackContext);
+
+    fCPUContext = std::make_unique<skcpu::ContextImpl>();
 }
 
 Context::~Context() {
@@ -187,6 +191,12 @@ std::unique_ptr<Recorder> Context::makeRecorder(const RecorderOptions& options) 
     }
 #endif
     return recorder;
+}
+
+std::unique_ptr<skcpu::Recorder> Context::makeCPURecorder() {
+    ASSERT_SINGLE_OWNER
+
+    return std::make_unique<skcpu::RecorderImpl>(fCPUContext.get());
 }
 
 std::unique_ptr<PrecompileContext> Context::makePrecompileContext() {

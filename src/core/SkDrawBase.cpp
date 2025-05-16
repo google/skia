@@ -46,6 +46,7 @@ class SkBitmap;
 class SkBlitter;
 class SkGlyph;
 class SkMaskFilter;
+class SkResourceCache;
 
 using namespace skia_private;
 
@@ -310,7 +311,9 @@ void SkDrawBase::drawRRect(const SkRRect& rrect, const SkPaint& paint) const {
         SkRRect devRRect;
         if (rrect.transform(*fCTM, &devRRect)) {
             SkAutoBlitterChoose blitter(*this, nullptr, paint);
-            if (as_MFB(paint.getMaskFilter())->filterRRect(devRRect, *fCTM, *fRC, blitter.get())) {
+            SkResourceCache* cache = nullptr;  // TODO(kjlubick) get this from fCtx
+            if (as_MFB(paint.getMaskFilter())
+                        ->filterRRect(devRRect, *fCTM, *fRC, blitter.get(), cache)) {
                 return;  // filterRRect() called the blitter, so we're done
             }
         }
@@ -342,7 +345,9 @@ void SkDrawBase::drawDevPath(const SkPath& devPath,
     if (paint.getMaskFilter()) {
         SkStrokeRec::InitStyle style = doFill ? SkStrokeRec::kFill_InitStyle
                                               : SkStrokeRec::kHairline_InitStyle;
-        if (as_MFB(paint.getMaskFilter())->filterPath(devPath, *fCTM, *fRC, blitter, style)) {
+        SkResourceCache* cache = nullptr;  // TODO(kjlubick) get this from fCtx
+        if (as_MFB(paint.getMaskFilter())
+                    ->filterPath(devPath, *fCTM, *fRC, blitter, style, cache)) {
             return;  // filterPath() called the blitter, so we're done
         }
     }

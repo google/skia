@@ -206,6 +206,7 @@ tests_sources = [
   "$_tests/RRectInPathTest.cpp",
   "$_tests/RTreeTest.cpp",
   "$_tests/RandomTest.cpp",
+  "$_tests/RasterContextTest.cpp",
   "$_tests/RasterPipelineBuilderTest.cpp",
   "$_tests/RasterPipelineCodeGeneratorTest.cpp",
   "$_tests/ReadPixelsTest.cpp",

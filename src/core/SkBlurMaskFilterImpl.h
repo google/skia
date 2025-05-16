@@ -22,6 +22,7 @@ class SkMatrix;
 class SkPaint;
 class SkRRect;
 class SkReadBuffer;
+class SkResourceCache;
 class SkWriteBuffer;
 enum SkBlurStyle : int;
 struct SkIPoint;
@@ -53,11 +54,13 @@ private:
     FilterReturn filterRectsToNine(SkSpan<const SkRect>,
                                    const SkMatrix&,
                                    const SkIRect& clipBounds,
-                                   std::optional<NinePatch>*) const override;
+                                   std::optional<NinePatch>*,
+                                   SkResourceCache*) const override;
 
     std::optional<NinePatch> filterRRectToNine(const SkRRect&,
                                                const SkMatrix&,
-                                               const SkIRect& clipBounds) const override;
+                                               const SkIRect& clipBounds,
+                                               SkResourceCache*) const override;
 
     bool filterRectMask(SkMaskBuilder* dstM,
                         const SkRect& r,

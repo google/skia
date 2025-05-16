@@ -9,6 +9,7 @@
 
 #include "include/core/SkAlphaType.h"
 #include "include/core/SkBlender.h"
+#include "include/core/SkCPURecorder.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColorType.h"
 #include "include/core/SkImageInfo.h"
@@ -29,6 +30,7 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkTLazy.h"
+#include "src/core/SkCPURecorderImpl.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMatrixPriv.h"
@@ -83,13 +85,13 @@ public:
         fDone = false;
 
         // we need fDst to be set, and if we're actually drawing, to dirty the genID
-        if (!dev->accessPixels(&fRootPixmap)) {
+        if (!fDevice->accessPixels(&fRootPixmap)) {
             // NoDrawDevice uses us (why?) so we have to catch this case w/ no pixels
-            fRootPixmap.reset(dev->imageInfo(), nullptr, 0);
+            fRootPixmap.reset(fDevice->imageInfo(), nullptr, 0);
         }
 
         // do a quick check, so we don't even have to process "bounds" if there is no need
-        const SkIRect clipR = dev->fRCStack.rc().getBounds();
+        const SkIRect clipR = fDevice->fRCStack.rc().getBounds();
         fNeedsTiling = clipR.right() > kMaxDim || clipR.bottom() > kMaxDim;
         if (fNeedsTiling) {
             if (bounds) {
@@ -105,7 +107,7 @@ public:
                 //        fSrcBounds = devBounds.roundOut();
                 // The problem being that the promotion of clipR to SkRect was unreliable
                 //
-                fSrcBounds = dev->localToDevice().mapRect(*bounds).roundOut();
+                fSrcBounds = fDevice->localToDevice().mapRect(*bounds).roundOut();
                 if (fSrcBounds.intersect(clipR)) {
                     // Check again, now that we have computed srcbounds.
                     fNeedsTiling = fSrcBounds.right() > kMaxDim || fSrcBounds.bottom() > kMaxDim;
@@ -126,12 +128,15 @@ public:
         } else {
             // don't reference fSrcBounds, as it may not have been set
             fDraw.fDst = fRootPixmap;
-            fDraw.fCTM = &dev->localToDevice();
-            fDraw.fRC = &dev->fRCStack.rc();
+            fDraw.fCTM = &fDevice->localToDevice();
+            fDraw.fRC = &fDevice->fRCStack.rc();
             fOrigin.set(0, 0);
         }
 
         fDraw.fProps = &fDevice->surfaceProps();
+        if (fDevice->fRecorder) {
+            fDraw.fCtx = fDevice->fRecorder->ctx();
+        }
     }
 
     bool needsTiling() const { return fNeedsTiling; }
@@ -225,18 +230,30 @@ static bool valid_for_bitmap_device(const SkImageInfo& info,
 }
 
 SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
+        : SkBitmapDevice(asRRI(skcpu::Recorder::TODO()), bitmap) {}
+
+SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap,
+                               const SkSurfaceProps& surfaceProps,
+                               SkRasterHandleAllocator::Handle hndl)
+        : SkBitmapDevice(asRRI(skcpu::Recorder::TODO()), bitmap, surfaceProps, hndl) {}
+
+SkBitmapDevice::SkBitmapDevice(skcpu::RecorderImpl* recorder, const SkBitmap& bitmap)
         : SkDevice(bitmap.info(), SkSurfaceProps())
+        , fRecorder(recorder)
         , fBitmap(bitmap)
         , fRCStack(bitmap.width(), bitmap.height())
         , fGlyphPainter(this->surfaceProps(), bitmap.colorType(), bitmap.colorSpace()) {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 }
 
-SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
+SkBitmapDevice::SkBitmapDevice(skcpu::RecorderImpl* recorder,
+                               const SkBitmap& bitmap,
+                               const SkSurfaceProps& surfaceProps,
                                SkRasterHandleAllocator::Handle hndl)
         : SkDevice(bitmap.info(), surfaceProps)
-        , fBitmap(bitmap)
         , fRasterHandle(hndl)
+        , fRecorder(recorder)
+        , fBitmap(bitmap)
         , fRCStack(bitmap.width(), bitmap.height())
         , fGlyphPainter(this->surfaceProps(), bitmap.colorType(), bitmap.colorSpace()) {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));

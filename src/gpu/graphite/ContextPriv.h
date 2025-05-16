@@ -54,6 +54,7 @@ public:
     SharedContext* sharedContext() {
         return fContext->fSharedContext.get();
     }
+    const skcpu::ContextImpl* cpuContext() const { return fContext->fCPUContext.get(); }
 
 #if defined(GPU_TEST_UTILS)
     void startCapture() {
