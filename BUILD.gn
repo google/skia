@@ -1344,12 +1344,13 @@ optional("typeface_freetype") {
   sources_for_tests = [ "tests/FontScanner_FreeTypeTest.cpp" ]
 }
 
-bazel_args = []
-if (is_mac && target_cpu == "arm64") {
-  # TODO: Normally the target toolchain would be specified with `--platforms` but that doesn't
-  # work. When building and running on an arm64 mac, setting `--host_platform` seems to do the
-  # right thing but may not be the right build configuration in the long run.
-  bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
+bazel_args = [ "--toolchain_resolution_debug=." ]
+if (is_mac) {
+  if (target_cpu == "arm64") {
+    bazel_args += [ "--platforms=//bazel/platform:mac_arm64_hermetic" ]
+  } else {
+    bazel_args += [ "--platforms=//bazel/platform:mac_x64_hermetic" ]
+  }
 }
 if (is_debug) {
   bazel_args += [ "--compilation_mode=dbg" ]
@@ -1415,7 +1416,10 @@ if (skia_use_fontations) {
     ]
     public = [ "${root_out_dir}/src/ports/fontations/src/ffi.rs.h" ]
     sources = [ "${root_out_dir}/src/ports/fontations/src/ffi.rs.cc" ]
-    libs = [ "$root_out_dir/libbridge_rust_side.a" ]
+    libs = [
+      "$root_out_dir/libbridge_rust_side.a",
+      "c++",
+    ]
     public_configs = [ ":fontations_ffi_public_config" ]
     configs = [ ":fontations_ffi_private_config" ]
   }

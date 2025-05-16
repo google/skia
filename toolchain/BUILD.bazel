@@ -50,7 +50,7 @@ toolchain(
         "@platforms//cpu:x86_64",
         "//bazel/platform:use_hermetic_toolchain",
     ],
-    toolchain = ":mac_host",
+    toolchain = ":mac_host_and_target_match",
     # https://github.com/bazelbuild/rules_cc/blob/8bb0eb5c5ccd96b91753bb112096bb6993d16d13/cc/BUILD#L32-L36
     toolchain_type = "@rules_cc//cc:toolchain_type",
 )
@@ -66,7 +66,7 @@ toolchain(
         "@platforms//cpu:arm64",
         "//bazel/platform:use_hermetic_toolchain",
     ],
-    toolchain = ":mac_host",
+    toolchain = ":mac_host_and_target_match",
     # https://github.com/bazelbuild/rules_cc/blob/8bb0eb5c5ccd96b91753bb112096bb6993d16d13/cc/BUILD#L32-L36
     toolchain_type = "@rules_cc//cc:toolchain_type",
 )
@@ -84,6 +84,22 @@ toolchain(
         "//bazel/platform:use_hermetic_toolchain",
     ],
     toolchain = ":mac_target_arm64",
+    # https://github.com/bazelbuild/rules_cc/blob/8bb0eb5c5ccd96b91753bb112096bb6993d16d13/cc/BUILD#L32-L36
+    toolchain_type = "@rules_cc//cc:toolchain_type",
+)
+
+toolchain(
+    name = "clang_host_mac_arm64_target_mac_x64_toolchain",
+    exec_compatible_with = [
+        "@platforms//os:macos",
+        "@platforms//cpu:arm64",
+    ],
+    target_compatible_with = [
+        "@platforms//os:macos",
+        "@platforms//cpu:x86_64",
+        "//bazel/platform:use_hermetic_toolchain",
+    ],
+    toolchain = ":mac_target_x64",
     # https://github.com/bazelbuild/rules_cc/blob/8bb0eb5c5ccd96b91753bb112096bb6993d16d13/cc/BUILD#L32-L36
     toolchain_type = "@rules_cc//cc:toolchain_type",
 )
@@ -293,12 +309,17 @@ provide_linux_amd64_toolchain_config(
 )
 
 provide_mac_toolchain_config(
-    name = "mac_toolchain_config",
+    name = "mac_host_toolchain_config",
 )
 
 provide_mac_toolchain_config(
     name = "mac_arm64_toolchain_config",
     cpu = "arm64",
+)
+
+provide_mac_toolchain_config(
+    name = "mac_x64_toolchain_config",
+    cpu = "x64",
 )
 
 provide_windows_amd64_toolchain_config(
@@ -328,7 +349,7 @@ cc_toolchain(
 )
 
 cc_toolchain(
-    name = "mac_host",
+    name = "mac_host_and_target_match",
     all_files = ":all_mac_files",  # Apparently also used to compile objc code
     ar_files = ":archive_mac_files",
     compiler_files = ":compile_mac_files",
@@ -338,7 +359,7 @@ cc_toolchain(
     objcopy_files = ":not_implemented",
     strip_files = ":not_implemented",
     supports_param_files = False,
-    toolchain_config = ":mac_toolchain_config",
+    toolchain_config = ":mac_host_toolchain_config",
 )
 
 cc_toolchain(
@@ -353,6 +374,20 @@ cc_toolchain(
     strip_files = ":not_implemented",
     supports_param_files = False,
     toolchain_config = ":mac_arm64_toolchain_config",
+)
+
+cc_toolchain(
+    name = "mac_target_x64",
+    all_files = ":all_mac_files",  # Apparently also used to compile objc code
+    ar_files = ":archive_mac_files",
+    compiler_files = ":compile_mac_files",
+    dwp_files = ":not_implemented",
+    linker_files = ":link_mac_files",
+    module_map = "@clang_mac//:generated_module_map",
+    objcopy_files = ":not_implemented",
+    strip_files = ":not_implemented",
+    supports_param_files = False,
+    toolchain_config = ":mac_x64_toolchain_config",
 )
 
 cc_toolchain(

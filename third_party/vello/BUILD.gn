@@ -18,14 +18,13 @@ import("../third_party.gni")
 if (skia_enable_vello_shaders) {
   bazel_args = []
   if (is_mac) {
-    if (host_cpu == "arm64") {
-      bazel_args += [ "--host_platform=//bazel/platform:mac_arm64_hermetic" ]
-    }
     if (target_cpu == "arm64") {
       bazel_args += [
         "--platforms=//bazel/platform:mac_arm64_hermetic",
         "--cc_output_directory_tag=mac_arm64",
       ]
+    } else {
+      bazel_args += [ "--platforms=//bazel/platform:mac_x64_hermetic" ]
     }
   }
   if (!is_debug) {
@@ -82,6 +81,7 @@ third_party("vello") {
   libs = [
     "$root_out_dir/libvello_ffi.a",
     "$root_out_dir/libvello_rust.a",
+    "c++",
   ]
   deps = [
     ":compile_vello_ffi",

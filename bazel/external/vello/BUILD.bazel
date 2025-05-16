@@ -33,8 +33,8 @@ rust_library(
     crate_features = ["bump_estimate"],
     visibility = ["//visibility:public"],
     deps = [
-        "@vello_deps//:bytemuck",
-        "@vello_deps//:peniko",
+        "@crates//:bytemuck",
+        "@crates//:peniko",
     ],
 )
 
@@ -105,8 +105,8 @@ cargo_build_script(
         allow_empty = False,
     ),
     deps = [
-        "@vello_deps//:naga",
-        "@vello_deps//:regex",
-        "@vello_deps//:thiserror",
+        "@crates//:naga",
+        "@crates//:regex",
+        "@crates//:thiserror",
     ],
 )

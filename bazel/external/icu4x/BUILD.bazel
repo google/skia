@@ -7,6 +7,6 @@ rust_static_library(
         "src/lib.rs",
     ],
     deps = [
-        "@icu4x_deps//:icu_capi",
+        "@crates//:icu_capi",
     ],
 )

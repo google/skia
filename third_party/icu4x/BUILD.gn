@@ -28,6 +28,9 @@ third_party("icu4x") {
     "../externals/icu4x/ffi/capi/c/include",
   ]
 
-  libs = [ "$root_out_dir/libicu4x_rust.a" ]
+  libs = [
+    "$root_out_dir/libicu4x_rust.a",
+    "c++",
+  ]
   deps = [ ":compile_icu4x_rust" ]
 }

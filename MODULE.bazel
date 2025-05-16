@@ -84,6 +84,7 @@ rust = use_extension("@rules_rust//rust:extensions.bzl", "rust")
 rust.toolchain(
     edition = "2021",
     extra_target_triples = [
+        "x86_64-apple-darwin",
         "aarch64-apple-darwin",
         "aarch64-apple-ios",
     ],
@@ -96,6 +97,11 @@ rust.toolchain(
 
 crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
 crate.spec(
+    features = ["derive"],
+    package = "bytemuck",
+    version = "1.16.0",
+)
+crate.spec(
     package = "cxx",
     version = "1.0.158",
 )
@@ -106,25 +112,68 @@ crate.annotation(
     extra_aliased_targets = {
         "cxx_cc": "cxx_cc",
     },
-    gen_build_script = "on",
+    gen_build_script = "off",
 )
 crate.spec(
     package = "font-types",
     version = "0.8.0",
 )
 crate.spec(
+    features = [
+        "provider_test",
+        "icu_casemap",
+        "compiled_data",
+    ],
+    git = "https://chromium.googlesource.com/external/github.com/unicode-org/icu4x.git",
+    package = "icu_capi",
+    tag = "upstream/ind/icu_capi@1.4.1",
+)
+crate.spec(
     package = "png",
     version = "0.18.0-rc",
+)
+crate.spec(
+    features = [
+        "wgsl-in",
+        "msl-out",
+    ],
+    package = "naga",
+    version = "0.20.0",
+)
+crate.spec(
+    package = "peniko",
+    version = "0.1.1",
 )
 crate.spec(
     package = "read-fonts",
     version = "0.27.0",
 )
 crate.spec(
+    package = "regex",
+    version = "1.8.1",
+)
+crate.spec(
     package = "skrifa",
     version = "0.29.0",
 )
-crate.from_specs()
+crate.spec(
+    package = "thiserror",
+    version = "1.0.60",
+)
+crate.from_specs(
+    # by default, intel macs are not included in this list, but we have CI hardware
+    # that still uses them, so we add them to the list.
+    # https://bazelbuild.github.io/rules_rust/crate_universe_bzlmod.html#crate.from_specs-supported_platform_triples
+    supported_platform_triples = [
+        "aarch64-apple-darwin",
+        "aarch64-unknown-linux-gnu",
+        "wasm32-unknown-unknown",
+        "wasm32-wasip1",
+        "x86_64-apple-darwin",
+        "x86_64-pc-windows-msvc",
+        "x86_64-unknown-linux-gnu",
+    ],
+)
 use_repo(crate, "crates")
 
 # cxxbridge-cmd is a binary only Rust crate, so we follow these instructions for it
@@ -142,6 +191,15 @@ cargo_bindeps.annotation(
 cargo_bindeps.from_specs(
     name = "cargo_bindeps",
     host_tools_repo = "rust_host_tools_nightly",
+    supported_platform_triples = [
+        "aarch64-apple-darwin",
+        "aarch64-unknown-linux-gnu",
+        "wasm32-unknown-unknown",
+        "wasm32-wasip1",
+        "x86_64-apple-darwin",
+        "x86_64-pc-windows-msvc",
+        "x86_64-unknown-linux-gnu",
+    ],
 )
 use_repo(
     cargo_bindeps,
