@@ -391,7 +391,7 @@ static void pack4xHToMask(const SkPixmap& src, SkMaskBuilder& dst,
             dstPDelta = dstPB;
         }
 
-        const uint8_t* srcP = src.addr8(0, y);
+        const uint8_t* srcP = SkTAddOffset<const uint8_t>(src.addr(), y * src.rowBytes());
 
         // TODO: this fir filter implementation is straight forward, but slow.
         // It should be possible to make it much faster.
