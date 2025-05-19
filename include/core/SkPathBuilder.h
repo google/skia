@@ -26,75 +26,502 @@ class SkRRect;
 
 class SK_API SkPathBuilder {
 public:
+    /** Constructs an empty SkPathBuilder. By default, SkPathBuilder has no verbs, no SkPoint, and
+        no weights. FillType is set to kWinding.
+
+        @return  empty SkPathBuilder
+    */
     SkPathBuilder();
-    SkPathBuilder(SkPathFillType);
-    SkPathBuilder(const SkPath&);
+
+    /** Constructs an empty SkPathBuilder with the given FillType. By default, SkPathBuilder has no
+        verbs, no SkPoint, and no weights.
+
+        @param fillType  SkPathFillType to set on the SkPathBuilder.
+        @return          empty SkPathBuilder
+    */
+    SkPathBuilder(SkPathFillType fillType);
+
+    /** Constructs an SkPathBuilder that is a copy of an existing SkPath.
+        Copies the FillType and replays all of the verbs from the SkPath into the SkPathBuilder.
+
+        @param path  SkPath to copy
+        @return      SkPathBuilder
+    */
+    SkPathBuilder(const SkPath& path);
+
     SkPathBuilder(const SkPathBuilder&) = default;
     ~SkPathBuilder();
 
+    /** Sets an SkPathBuilder to be a copy of an existing SkPath.
+        Copies the FillType and replays all of the verbs from the SkPath into the SkPathBuilder.
+
+        @param path  SkPath to copy
+        @return      SkPathBuilder
+    */
     SkPathBuilder& operator=(const SkPath&);
+
     SkPathBuilder& operator=(const SkPathBuilder&) = default;
 
+    /** Returns SkPathFillType, the rule used to fill SkPath.
+
+        @return  current SkPathFillType setting
+    */
     SkPathFillType fillType() const { return fFillType; }
+
+    /** Returns minimum and maximum axes values of SkPoint array.
+        Returns (0, 0, 0, 0) if SkPathBuilder contains no points. Returned bounds width and height
+        may be larger or smaller than area affected when SkPath is drawn.
+
+        SkRect returned includes all SkPoint added to SkPathBuilder, including SkPoint associated
+        with kMove_Verb that define empty contours.
+
+        @return  bounds of all SkPoint in SkPoint array
+    */
     SkRect computeBounds() const;
 
-    SkPath snapshot() const;  // the builder is unchanged after returning this path
-    SkPath detach();    // the builder is reset to empty after returning this path
+    /** Returns an SkPath representing the current state of the SkPathBuilder. The builder is
+        unchanged after returning the path.
 
+        @return  SkPath representing the current state of the builder.
+     */
+    SkPath snapshot() const;
+
+    /** Returns an SkPath representing the current state of the SkPathBuilder. The builder is
+        reset to empty after returning the path.
+
+        @return  SkPath representing the current state of the builder.
+     */
+    SkPath detach();
+
+    /** Sets SkPathFillType, the rule used to fill SkPath. While there is no
+        check that ft is legal, values outside of SkPathFillType are not supported.
+
+        @param ft  SkPathFillType to be used by SKPaths generated from this builder.
+        @return    reference to SkPathBuilder
+    */
     SkPathBuilder& setFillType(SkPathFillType ft) { fFillType = ft; return *this; }
+
+    /** Specifies whether SkPath is volatile; whether it will be altered or discarded
+        by the caller after it is drawn. SkPath by default have volatile set false, allowing
+        Skia to attach a cache of data which speeds repeated drawing.
+
+        Mark temporary paths, discarded or modified after use, as volatile
+        to inform Skia that the path need not be cached.
+
+        Mark animating SkPath volatile to improve performance.
+        Mark unchanging SkPath non-volatile to improve repeated rendering.
+
+        raster surface SkPath draws are affected by volatile for some shadows.
+        GPU surface SkPath draws are affected by volatile for some shadows and concave geometries.
+
+        @param isVolatile  true if caller will alter SkPath after drawing
+        @return            reference to SkPathBuilder
+    */
     SkPathBuilder& setIsVolatile(bool isVolatile) { fIsVolatile = isVolatile; return *this; }
 
+    /** Sets SkPathBuilder to its initial state.
+        Removes verb array, SkPoint array, and weights, and sets FillType to kWinding.
+        Internal storage associated with SkPathBuilder is released.
+
+        @return  reference to SkPathBuilder
+    */
     SkPathBuilder& reset();
 
+    /** Adds beginning of contour at SkPoint p.
+
+        @param p  contour start
+        @return   reference to SkPathBuilder
+    */
     SkPathBuilder& moveTo(SkPoint pt);
+
+    /** Adds beginning of contour at SkPoint (x, y).
+
+        @param x  x-axis value of contour start
+        @param y  y-axis value of contour start
+        @return   reference to SkPathBuilder
+    */
     SkPathBuilder& moveTo(SkScalar x, SkScalar y) { return this->moveTo(SkPoint::Make(x, y)); }
 
+    /** Adds line from last point to SkPoint p. If SkPathBuilder is empty, or last SkPath::Verb is
+        kClose_Verb, last point is set to (0, 0) before adding line.
+
+        lineTo() first appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed.
+        lineTo() then appends kLine_Verb to verb array and SkPoint p to SkPoint array.
+
+        @param p  end SkPoint of added line
+        @return   reference to SkPathBuilder
+    */
     SkPathBuilder& lineTo(SkPoint pt);
+
+    /** Adds line from last point to (x, y). If SkPathBuilder is empty, or last SkPath::Verb is
+        kClose_Verb, last point is set to (0, 0) before adding line.
+
+        lineTo() appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed.
+        lineTo() then appends kLine_Verb to verb array and (x, y) to SkPoint array.
+
+        @param x  end of added line on x-axis
+        @param y  end of added line on y-axis
+        @return   reference to SkPathBuilder
+    */
     SkPathBuilder& lineTo(SkScalar x, SkScalar y) { return this->lineTo(SkPoint::Make(x, y)); }
 
+    /** Adds quad from last point towards SkPoint p1, to SkPoint p2.
+        If SkPathBuilder is empty, or last SkPath::Verb is kClose_Verb, last point is set to (0, 0)
+        before adding quad.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed;
+        then appends kQuad_Verb to verb array; and SkPoint p1, p2
+        to SkPoint array.
+
+        @param p1  control SkPoint of added quad
+        @param p2  end SkPoint of added quad
+        @return    reference to SkPathBuilder
+    */
     SkPathBuilder& quadTo(SkPoint pt1, SkPoint pt2);
+
+    /** Adds quad from last point towards (x1, y1), to (x2, y2).
+        If SkPath is empty, or last SkPath::Verb is kClose_Verb, last point is set to (0, 0)
+        before adding quad.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed;
+        then appends kQuad_Verb to verb array; and (x1, y1), (x2, y2)
+        to SkPoint array.
+
+        @param x1  control SkPoint of quad on x-axis
+        @param y1  control SkPoint of quad on y-axis
+        @param x2  end SkPoint of quad on x-axis
+        @param y2  end SkPoint of quad on y-axis
+        @return    reference to SkPath
+
+        example: https://fiddle.skia.org/c/@Path_quadTo
+    */
     SkPathBuilder& quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
         return this->quadTo(SkPoint::Make(x1, y1), SkPoint::Make(x2, y2));
     }
+
+    /** Adds quad from last point towards the first SkPoint in pts, to the second.
+        If SkPathBuilder is empty, or last SkPath::Verb is kClose_Verb, last point is set to (0, 0)
+        before adding quad.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed;
+        then appends kQuad_Verb to verb array; and the SkPoints to SkPoint array.
+
+        @param pts  control point and endpoint of added quad.
+        @return     reference to SkPathBuilder
+    */
     SkPathBuilder& quadTo(const SkPoint pts[2]) { return this->quadTo(pts[0], pts[1]); }
 
+    /** Adds conic from last point towards pt1, to pt2, weighted by w.
+        If SkPathBuilder is empty, or last SkPath::Verb is kClose_Verb, last point is set to (0, 0)
+        before adding conic.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed.
+
+        If w is finite and not one, appends kConic_Verb to verb array;
+        and pt1, pt2 to SkPoint array; and w to conic weights.
+
+        If w is one, appends kQuad_Verb to verb array, and
+        pt1, pt2 to SkPoint array.
+
+        If w is not finite, appends kLine_Verb twice to verb array, and
+        pt1, pt2 to SkPoint array.
+
+        @param pt1  control SkPoint of conic
+        @param pt2  end SkPoint of conic
+        @param w   weight of added conic
+        @return    reference to SkPathBuilder
+    */
     SkPathBuilder& conicTo(SkPoint pt1, SkPoint pt2, SkScalar w);
+
+    /** Adds conic from last point towards (x1, y1), to (x2, y2), weighted by w.
+        If SkPathBuilder is empty, or last SkPath::Verb is kClose_Verb, last point is set to (0, 0)
+        before adding conic.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed.
+
+        If w is finite and not one, appends kConic_Verb to verb array;
+        and (x1, y1), (x2, y2) to SkPoint array; and w to conic weights.
+
+        If w is one, appends kQuad_Verb to verb array, and
+        (x1, y1), (x2, y2) to SkPoint array.
+
+        If w is not finite, appends kLine_Verb twice to verb array, and
+        (x1, y1), (x2, y2) to SkPoint array.
+
+        @param x1  control SkPoint of conic on x-axis
+        @param y1  control SkPoint of conic on y-axis
+        @param x2  end SkPoint of conic on x-axis
+        @param y2  end SkPoint of conic on y-axis
+        @param w   weight of added conic
+        @return    reference to SkPathBuilder
+    */
     SkPathBuilder& conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar w) {
         return this->conicTo(SkPoint::Make(x1, y1), SkPoint::Make(x2, y2), w);
     }
+
+    /** Adds conic from last point towards SkPoint p1, to SkPoint p2, weighted by w.
+        If SkPathBuilder is empty, or last SkPath::Verb is kClose_Verb, last point is set to (0, 0)
+        before adding conic.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed.
+
+        If w is finite and not one, appends kConic_Verb to verb array;
+        and SkPoint p1, p2 to SkPoint array; and w to conic weights.
+
+        If w is one, appends kQuad_Verb to verb array, and SkPoint p1, p2
+        to SkPoint array.
+
+        If w is not finite, appends kLine_Verb twice to verb array, and
+        SkPoint p1, p2 to SkPoint array.
+
+        @param p1  control SkPoint of added conic
+        @param p2  end SkPoint of added conic
+        @param w   weight of added conic
+        @return    reference to SkPathBuilder
+    */
     SkPathBuilder& conicTo(const SkPoint pts[2], SkScalar w) {
         return this->conicTo(pts[0], pts[1], w);
     }
 
+    /** Adds cubic from last point towards SkPoint p1, then towards SkPoint p2, ending at
+        SkPoint p3. If SkPathBuilder is empty, or last SkPath::Verb is kClose_Verb, last point is
+        set to (0, 0) before adding cubic.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed;
+        then appends kCubic_Verb to verb array; and SkPoint p1, p2, p3
+        to SkPoint array.
+
+        @param p1  first control SkPoint of cubic
+        @param p2  second control SkPoint of cubic
+        @param p3  end SkPoint of cubic
+        @return    reference to SkPathBuilder
+    */
     SkPathBuilder& cubicTo(SkPoint pt1, SkPoint pt2, SkPoint pt3);
+
+    /** Adds cubic from last point towards (x1, y1), then towards (x2, y2), ending at
+        (x3, y3). If SkPathBuilder is empty, or last SkPath::Verb is kClose_Verb, last point is set
+        to (0, 0) before adding cubic.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed;
+        then appends kCubic_Verb to verb array; and (x1, y1), (x2, y2), (x3, y3)
+        to SkPoint array.
+
+        @param x1  first control SkPoint of cubic on x-axis
+        @param y1  first control SkPoint of cubic on y-axis
+        @param x2  second control SkPoint of cubic on x-axis
+        @param y2  second control SkPoint of cubic on y-axis
+        @param x3  end SkPoint of cubic on x-axis
+        @param y3  end SkPoint of cubic on y-axis
+        @return    reference to SkPathBuilder
+    */
     SkPathBuilder& cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar x3, SkScalar y3) {
         return this->cubicTo(SkPoint::Make(x1, y1), SkPoint::Make(x2, y2), SkPoint::Make(x3, y3));
     }
+
+    /** Adds cubic from last point towards the first SkPoint, then towards the second, ending at
+        the third. If SkPathBuilder is empty, or last SkPath::Verb is kClose_Verb, last point is
+        set to (0, 0) before adding cubic.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed;
+        then appends kCubic_Verb to verb array; and SkPoint p1, p2, p3
+        to SkPoint array.
+
+        @param pts  first and second control SkPoints of cubic, and end SkPoint.
+        @return     reference to SkPathBuilder
+    */
     SkPathBuilder& cubicTo(const SkPoint pts[3]) {
         return this->cubicTo(pts[0], pts[1], pts[2]);
     }
 
+    /** Appends kClose_Verb to SkPathBuilder. A closed contour connects the first and last SkPoint
+        with line, forming a continuous loop. Open and closed contour draw the same
+        with SkPaint::kFill_Style. With SkPaint::kStroke_Style, open contour draws
+        SkPaint::Cap at contour start and end; closed contour draws
+        SkPaint::Join at contour start and end.
+
+        close() has no effect if SkPathBuilder is empty or last SkPath SkPath::Verb is kClose_Verb.
+
+        @return  reference to SkPathBuilder
+    */
     SkPathBuilder& close();
 
-    // Append a series of lineTo(...)
+    /** Append a series of lineTo(...)
+
+        @param pts    array of SkPoint
+        @param count  number of SkPoint
+        @return       reference to SkPathBuilder.
+    */
     SkPathBuilder& polylineTo(const SkPoint pts[], int count);
+
+    /** Append a series of lineTo(...)
+
+        @param list  list of SkPoint
+        @return      reference to SkPathBuilder.
+    */
     SkPathBuilder& polylineTo(const std::initializer_list<SkPoint>& list) {
         return this->polylineTo(list.begin(), SkToInt(list.size()));
     }
 
     // Relative versions of segments, relative to the previous position.
 
+    /** Adds line from last point to vector given by pt. If SkPathBuilder is empty, or last
+        SkPath::Verb is kClose_Verb, last point is set to (0, 0) before adding line.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed;
+        then appends kLine_Verb to verb array and line end to SkPoint array.
+        Line end is last point plus vector given by pt.
+        Function name stands for "relative line to".
+
+        @param pt  vector offset from last point to line end
+        @return    reference to SkPathBuilder
+    */
     SkPathBuilder& rLineTo(SkPoint pt);
+
+    /** Adds line from last point to vector (dx, dy). If SkPathBuilder is empty, or last
+        SkPath::Verb is kClose_Verb, last point is set to (0, 0) before adding line.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array, if needed;
+        then appends kLine_Verb to verb array and line end to SkPoint array.
+        Line end is last point plus vector (dx, dy).
+        Function name stands for "relative line to".
+
+        @param dx  offset from last point to line end on x-axis
+        @param dy  offset from last point to line end on y-axis
+        @return    reference to SkPathBuilder
+    */
     SkPathBuilder& rLineTo(SkScalar x, SkScalar y) { return this->rLineTo({x, y}); }
+
+    /** Adds quad from last point towards vector pt1, to vector pt2.
+        If SkPathBuilder is empty, or last SkPath::Verb
+        is kClose_Verb, last point is set to (0, 0) before adding quad.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array,
+        if needed; then appends kQuad_Verb to verb array; and appends quad
+        control and quad end to SkPoint array.
+        Quad control is last point plus vector pt1.
+        Quad end is last point plus vector pt2.
+        Function name stands for "relative quad to".
+
+        @param pt1  offset vector from last point to quad control
+        @param pt2  offset vector from last point to quad end
+        @return     reference to SkPathBuilder
+    */
     SkPathBuilder& rQuadTo(SkPoint pt1, SkPoint pt2);
+
+    /** Adds quad from last point towards vector (dx1, dy1), to vector (dx2, dy2).
+        If SkPathBuilder is empty, or last SkPath::Verb
+        is kClose_Verb, last point is set to (0, 0) before adding quad.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array,
+        if needed; then appends kQuad_Verb to verb array; and appends quad
+        control and quad end to SkPoint array.
+        Quad control is last point plus vector (dx1, dy1).
+        Quad end is last point plus vector (dx2, dy2).
+        Function name stands for "relative quad to".
+
+        @param dx1  offset from last point to quad control on x-axis
+        @param dy1  offset from last point to quad control on y-axis
+        @param dx2  offset from last point to quad end on x-axis
+        @param dy2  offset from last point to quad end on y-axis
+        @return     reference to SkPathBuilder
+    */
     SkPathBuilder& rQuadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
         return this->rQuadTo({x1, y1}, {x2, y2});
     }
+
+    /** Adds conic from last point towards vector p1, to vector p2,
+        weighted by w. If SkPathBuilder is empty, or last SkPath::Verb
+        is kClose_Verb, last point is set to (0, 0) before adding conic.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array,
+        if needed.
+
+        If w is finite and not one, next appends kConic_Verb to verb array,
+        and w is recorded as conic weight; otherwise, if w is one, appends
+        kQuad_Verb to verb array; or if w is not finite, appends kLine_Verb
+        twice to verb array.
+
+        In all cases appends SkPoint control and end to SkPoint array.
+        control is last point plus vector p1.
+        end is last point plus vector p2.
+
+        Function name stands for "relative conic to".
+
+        @param p1  offset vector from last point to conic control
+        @param p2  offset vector from last point to conic end
+        @param w   weight of added conic
+        @return    reference to SkPathBuilder
+    */
     SkPathBuilder& rConicTo(SkPoint p1, SkPoint p2, SkScalar w);
+
+    /** Adds conic from last point towards vector (dx1, dy1), to vector (dx2, dy2),
+        weighted by w. If SkPathBuilder is empty, or last SkPath::Verb
+        is kClose_Verb, last point is set to (0, 0) before adding conic.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array,
+        if needed.
+
+        If w is finite and not one, next appends kConic_Verb to verb array,
+        and w is recorded as conic weight; otherwise, if w is one, appends
+        kQuad_Verb to verb array; or if w is not finite, appends kLine_Verb
+        twice to verb array.
+
+        In all cases appends SkPoint control and end to SkPoint array.
+        control is last point plus vector (dx1, dy1).
+        end is last point plus vector (dx2, dy2).
+
+        Function name stands for "relative conic to".
+
+        @param dx1  offset from last point to conic control on x-axis
+        @param dy1  offset from last point to conic control on y-axis
+        @param dx2  offset from last point to conic end on x-axis
+        @param dy2  offset from last point to conic end on y-axis
+        @param w    weight of added conic
+        @return     reference to SkPathBuilder
+    */
     SkPathBuilder& rConicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar w) {
         return this->rConicTo({x1, y1}, {x2, y2}, w);
     }
+
+    /** Adds cubic from last point towards vector pt1, then towards
+        vector pt2, to vector pt3.
+        If SkPathBuilder is empty, or last SkPath::Verb
+        is kClose_Verb, last point is set to (0, 0) before adding cubic.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array,
+        if needed; then appends kCubic_Verb to verb array; and appends cubic
+        control and cubic end to SkPoint array.
+        Cubic control is last point plus vector (dx1, dy1).
+        Cubic end is last point plus vector (dx2, dy2).
+        Function name stands for "relative cubic to".
+
+        @param pt1  offset vector from last point to first cubic control
+        @param pt2  offset vector from last point to second cubic control
+        @param pt3  offset vector from last point to cubic end
+        @return    reference to SkPathBuilder
+    */
     SkPathBuilder& rCubicTo(SkPoint pt1, SkPoint pt2, SkPoint pt3);
+
+    /** Adds cubic from last point towards vector (dx1, dy1), then towards
+        vector (dx2, dy2), to vector (dx3, dy3).
+        If SkPathBuilder is empty, or last SkPath::Verb
+        is kClose_Verb, last point is set to (0, 0) before adding cubic.
+
+        Appends kMove_Verb to verb array and (0, 0) to SkPoint array,
+        if needed; then appends kCubic_Verb to verb array; and appends cubic
+        control and cubic end to SkPoint array.
+        Cubic control is last point plus vector (dx1, dy1).
+        Cubic end is last point plus vector (dx2, dy2).
+        Function name stands for "relative cubic to".
+
+        @param dx1  offset from last point to first cubic control on x-axis
+        @param dy1  offset from last point to first cubic control on y-axis
+        @param dx2  offset from last point to second cubic control on x-axis
+        @param dy2  offset from last point to second cubic control on y-axis
+        @param dx3  offset from last point to cubic end on x-axis
+        @param dy3  offset from last point to cubic end on y-axis
+        @return    reference to SkPathBuilder
+    */
     SkPathBuilder& rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScalar x3, SkScalar y3) {
         return this->rCubicTo({x1, y1}, {x2, y2}, {x3, y3});
     }
@@ -187,58 +614,238 @@ public:
     */
     SkPathBuilder& addArc(const SkRect& oval, SkScalar startAngleDeg, SkScalar sweepAngleDeg);
 
-    // Add a new contour
+    /** Adds a new contour to the SkPathBuilder, defined by the rect, and wound in the
+        specified direction. The verbs added to the path will be:
 
+        kMove, kLine, kLine, kLine, kClose
+
+        start specifies which corner to begin the contour:
+            0: upper-left  corner
+            1: upper-right corner
+            2: lower-right corner
+            3: lower-left  corner
+
+        This start point also acts as the implied beginning of the subsequent,
+        contour, if it does not have an explicit moveTo(). e.g.
+
+            path.addRect(...)
+            // if we don't say moveTo() here, we will use the rect's start point
+            path.lineTo(...)
+
+        @param rect   SkRect to add as a closed contour
+        @param dir    SkPath::Direction to orient the new contour
+        @param start  initial corner of SkRect to add
+        @return       reference to SkPathBuilder
+     */
     SkPathBuilder& addRect(const SkRect&, SkPathDirection, unsigned startIndex);
-    SkPathBuilder& addOval(const SkRect&, SkPathDirection, unsigned startIndex);
-    SkPathBuilder& addRRect(const SkRRect&, SkPathDirection, unsigned startIndex);
 
+    /** Adds a new contour to the SkPathBuilder, defined by the rect, and wound in the
+        specified direction. The verbs added to the path will be:
+
+        kMove, kLine, kLine, kLine, kClose
+
+        The contour starts at the upper-left corner of the rect, which also acts as the implied
+        beginning of the subsequent contour, if it does not have an explicit moveTo(). e.g.
+
+            path.addRect(...)
+            // if we don't say moveTo() here, we will use the rect's upper-left corner
+            path.lineTo(...)
+
+        @param rect   SkRect to add as a closed contour
+        @param dir    SkPath::Direction to orient the new contour
+        @return       reference to SkPathBuilder
+     */
     SkPathBuilder& addRect(const SkRect& rect, SkPathDirection dir = SkPathDirection::kCW) {
         return this->addRect(rect, dir, 0);
     }
-    SkPathBuilder& addOval(const SkRect& rect, SkPathDirection dir = SkPathDirection::kCW) {
-        // legacy start index: 1
-        return this->addOval(rect, dir, 1);
-    }
+
+    /** Adds oval to SkPathBuilder, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
+        Oval is upright ellipse bounded by SkRect oval with radii equal to half oval width
+        and half oval height. Oval begins at (oval.fRight, oval.centerY()) and continues
+        clockwise if dir is kCW_Direction, counterclockwise if dir is kCCW_Direction.
+
+        @param oval  bounds of ellipse added
+        @param dir   SkPath::Direction to wind ellipse
+        @return      reference to SkPathBuilder
+    */
+    SkPathBuilder& addOval(const SkRect&, SkPathDirection, unsigned startIndex);
+
+    /** Appends SkRRect to SkPathBuilder, creating a new closed contour. If dir is kCW_Direction,
+        SkRRect winds clockwise. If dir is kCCW_Direction, SkRRect winds counterclockwise.
+
+        After appending, SkPathBuilder may be empty, or may contain: SkRect, oval, or SkRRect.
+
+        @param rrect  SkRRect to add
+        @param dir    SkPath::Direction to wind SkRRect
+        @param start  index of initial point of SkRRect
+        @return       reference to SkPathBuilder
+    */
+    SkPathBuilder& addRRect(const SkRRect& rrect, SkPathDirection, unsigned start);
+
+    /** Appends SkRRect to SkPathBuilder, creating a new closed contour. If dir is kCW_Direction,
+        SkRRect starts at top-left of the lower-left corner and winds clockwise. If dir is
+        kCCW_Direction, SkRRect starts at the bottom-left of the upper-left corner and winds
+        counterclockwise.
+
+        After appending, SkPathBuilder may be empty, or may contain: SkRect, oval, or SkRRect.
+
+        @param rrect  SkRRect to add
+        @param dir    SkPath::Direction to wind SkRRect
+        @return       reference to SkPathBuilder
+    */
     SkPathBuilder& addRRect(const SkRRect& rrect, SkPathDirection dir = SkPathDirection::kCW) {
         // legacy start indices: 6 (CW) and 7 (CCW)
         return this->addRRect(rrect, dir, dir == SkPathDirection::kCW ? 6 : 7);
     }
 
-    SkPathBuilder& addCircle(SkScalar center_x, SkScalar center_y, SkScalar radius,
-                             SkPathDirection dir = SkPathDirection::kCW);
+    /** Adds oval to SkPathBuilder, appending kMove_Verb, four kConic_Verb, and kClose_Verb.
+        Oval is upright ellipse bounded by SkRect oval with radii equal to half oval width
+        and half oval height. Oval begins at start and continues
+        clockwise if dir is kCW_Direction, counterclockwise if dir is kCCW_Direction.
 
-    SkPathBuilder& addPolygon(const SkPoint pts[], int count, bool isClosed);
-    SkPathBuilder& addPolygon(const std::initializer_list<SkPoint>& list, bool isClosed) {
-        return this->addPolygon(list.begin(), SkToInt(list.size()), isClosed);
+        @param oval   bounds of ellipse added
+        @param dir    SkPath::Direction to wind ellipse
+        @return       reference to SkPath
+
+        example: https://fiddle.skia.org/c/@Path_addOval_2
+    */
+    SkPathBuilder& addOval(const SkRect& oval, SkPathDirection dir = SkPathDirection::kCW) {
+        // legacy start index: 1
+        return this->addOval(oval, dir, 1);
     }
 
-    SkPathBuilder& addPath(const SkPath&);
+    /** Adds circle centered at (x, y) of size radius to SkPathBuilder, appending kMove_Verb,
+        four kConic_Verb, and kClose_Verb. Circle begins at: (x + radius, y), continuing
+        clockwise if dir is kCW_Direction, and counterclockwise if dir is kCCW_Direction.
+
+        Has no effect if radius is zero or negative.
+
+        @param x       center of circle
+        @param y       center of circle
+        @param radius  distance from center to edge
+        @param dir     SkPath::Direction to wind circle
+        @return        reference to SkPathBuilder
+    */
+    SkPathBuilder& addCircle(SkScalar x, SkScalar y, SkScalar radius,
+                             SkPathDirection dir = SkPathDirection::kCW);
+
+    /** Adds contour created from line array, adding (count - 1) line segments.
+        Contour added starts at pts[0], then adds a line for every additional SkPoint
+        in pts array. If close is true, appends kClose_Verb to SkPath, connecting
+        pts[count - 1] and pts[0].
+
+        If count is zero, append kMove_Verb to path.
+        Has no effect if count is less than one.
+
+        @param pts    array of line sharing end and start SkPoint
+        @param count  length of SkPoint array
+        @param close  true to add line connecting contour end and start
+        @return       reference to SkPath
+    */
+    SkPathBuilder& addPolygon(const SkPoint pts[], int count, bool close);
+
+    /** Adds contour created from list. Contour added starts at list[0], then adds a line
+        for every additional SkPoint in list. If close is true, appends kClose_Verb to SkPath,
+        connecting last and first SkPoint in list.
+
+        If list is empty, append kMove_Verb to path.
+
+        @param list   array of SkPoint
+        @param close  true to add line connecting contour end and start
+        @return       reference to SkPath
+    */
+    SkPathBuilder& addPolygon(const std::initializer_list<SkPoint>& list, bool close) {
+        return this->addPolygon(list.begin(), SkToInt(list.size()), close);
+    }
+
+    /** Appends src to SkPathBuilder.
+
+        @param src   SkPath to add
+        @return      reference to SkPathBuilder
+    */
+    SkPathBuilder& addPath(const SkPath& src);
 
     // Performance hint, to reserve extra storage for subsequent calls to lineTo, quadTo, etc.
 
+    /** Grows SkPathBuilder verb array and SkPoint array to contain additional space.
+        May improve performance and use less memory by
+        reducing the number and size of allocations when creating SkPathBuilder.
+
+        @param extraPtCount    number of additional SkPoint to allocate
+        @param extraVerbCount  number of additional verbs
+    */
     void incReserve(int extraPtCount, int extraVerbCount);
+
+    /** Grows SkPathBuilder verb array and SkPoint array to contain additional space.
+        May improve performance and use less memory by
+        reducing the number and size of allocations when creating SkPathBuilder.
+
+        @param extraPtCount    number of additional SkPoints and verbs to allocate
+    */
     void incReserve(int extraPtCount) {
         this->incReserve(extraPtCount, extraPtCount);
     }
 
+    /** Offsets SkPoint array by (dx, dy).
+
+        @param dx   offset added to SkPoint array x-axis coordinates
+        @param dy   offset added to SkPoint array y-axis coordinates
+    */
     SkPathBuilder& offset(SkScalar dx, SkScalar dy);
 
+    /** Transforms verb array, SkPoint array, and weight by matrix.
+        transform may change verbs and increase their number.
+
+        @param matrix  SkMatrix to apply to SkPath
+        @param pc      whether to apply perspective clipping
+    */
     SkPathBuilder& transform(const SkMatrix& matrix,
                              SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes);
 
+    /** Replaces SkPathFillType with its inverse. The inverse of SkPathFillType describes the area
+        unmodified by the original SkPathFillType.
+    */
     SkPathBuilder& toggleInverseFillType() {
         fFillType = (SkPathFillType)((unsigned)fFillType ^ 2);
         return *this;
     }
 
+    /** Returns if SkPath is empty.
+        Empty SkPathBuilder may have FillType but has no SkPoint, SkPath::Verb, or conic weight.
+        SkPathBuilder() constructs empty SkPathBuilder; reset() and rewind() make SkPath empty.
+
+        @return  true if the path contains no SkPath::Verb array
+    */
     bool isEmpty() const { return fVerbs.empty(); }
 
+    /** Returns last point on SkPathBuilder. Returns nullopt if SkPoint array is empty.
+
+        @return  last SkPoint if SkPoint array contains one or more SkPoint, otherwise nullopt
+
+        example: https://fiddle.skia.org/c/@Path_getLastPt
+    */
     std::optional<SkPoint> getLastPt() const;
+
+    /** Sets the last point on the path. If SkPoint array is empty, append kMove_Verb to
+        verb array and append p to SkPoint array.
+
+        @param x  x-value of last point
+        @param y  y-value of last point
+    */
     void setLastPt(SkScalar x, SkScalar y);
 
+    /** Returns the number of points in SkPathBuilder.
+        SkPoint count is initially zero.
+
+        @return  SkPathBuilder SkPoint array length
+    */
     int countPoints() const { return fPts.size(); }
 
+    /** Returns if SkPathFillType describes area outside SkPath geometry. The inverse fill area
+        extends indefinitely.
+
+        @return  true if FillType is kInverseWinding or kInverseEvenOdd
+    */
     bool isInverseFillType() const { return SkPathFillType_IsInverse(fFillType); }
 
 private:

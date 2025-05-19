@@ -32,10 +32,12 @@ static void is_empty(skiatest::Reporter* reporter, const SkPath& p) {
 DEF_TEST(pathbuilder, reporter) {
     SkPathBuilder b;
 
+    REPORTER_ASSERT(reporter, b.isEmpty());
     is_empty(reporter, b.snapshot());
     is_empty(reporter, b.detach());
 
     b.moveTo(10, 10).lineTo(20, 20).quadTo(30, 10, 10, 20);
+    REPORTER_ASSERT(reporter, b.countPoints() == 4);
 
     SkPath p0 = b.snapshot();
     SkPath p1 = b.snapshot();
@@ -52,6 +54,7 @@ DEF_TEST(pathbuilder, reporter) {
     REPORTER_ASSERT(reporter, p0 == p1);
     REPORTER_ASSERT(reporter, p0 == p2);
 
+    REPORTER_ASSERT(reporter, b.isEmpty());
     is_empty(reporter, b.snapshot());
     is_empty(reporter, b.detach());
 }
@@ -64,6 +67,7 @@ DEF_TEST(pathbuilder_filltype, reporter) {
         SkPathBuilder b(fillType);
 
         REPORTER_ASSERT(reporter, b.fillType() == fillType);
+        REPORTER_ASSERT(reporter, b.isInverseFillType() == SkPathFillType_IsInverse(fillType));
 
         for (const SkPath& path : { b.snapshot(), b.detach() }) {
             REPORTER_ASSERT(reporter, path.getFillType() == fillType);
@@ -415,4 +419,115 @@ DEF_TEST(SkPathBuilder_arcToPtPtRad_invalidInputsResultInALine, reporter) {
     test("two points equal", {5, 7}, {5, 7}, 1, {5, 7});
     test("radius is zero", {-3, 5}, {-7, 11}, 0, {-3, 5});
     test("second point equals previous point", {5, 4}, {0, 0}, 1, {5, 4});
+}
+
+DEF_TEST(SkPathBuilder_getLastPt, reporter) {
+    SkPathBuilder b;
+    REPORTER_ASSERT(reporter, b.getLastPt() == std::nullopt);
+    b.setLastPt(10, 10);
+    std::optional<SkPoint> pt = b.getLastPt();
+    REPORTER_ASSERT(reporter, pt);
+    REPORTER_ASSERT(reporter, pt == SkPoint::Make(10, 10));
+    b.rLineTo(10, 10);
+    pt = b.getLastPt();
+    REPORTER_ASSERT(reporter, pt == SkPoint::Make(20, 20));
+}
+
+DEF_TEST(SkPathBuilder_transform, reporter) {
+    SkPathBuilder b;
+
+#define CONIC_PERSPECTIVE_BUG_FIXED 0
+    static const SkPoint pts[] = {
+        { 0, 0 },  // move
+        { SkIntToScalar(10), SkIntToScalar(10) },  // line
+        { SkIntToScalar(20), SkIntToScalar(10) }, { SkIntToScalar(20), 0 },  // quad
+        { 0, 0 }, { 0, SkIntToScalar(10) }, { SkIntToScalar(1), SkIntToScalar(10) },  // cubic
+#if CONIC_PERSPECTIVE_BUG_FIXED
+        { 0, 0 }, { SkIntToScalar(20), SkIntToScalar(10) },  // conic
+#endif
+    };
+    const int kPtCount = std::size(pts);
+
+    b.moveTo(pts[0]);
+    b.lineTo(pts[1]);
+    b.quadTo(pts[2], pts[3]);
+    b.cubicTo(pts[4], pts[5], pts[6]);
+#if CONIC_PERSPECTIVE_BUG_FIXED
+    b.conicTo(pts[4], pts[5], 0.5f);
+#endif
+    b.close();
+
+    {
+        SkMatrix matrix;
+        matrix.reset();
+        SkPath p1 = SkPathBuilder(b.snapshot()).transform(matrix).detach();
+        REPORTER_ASSERT(reporter, b.snapshot() == p1);
+    }
+
+
+    {
+        SkMatrix matrix;
+        matrix.setScale(SK_Scalar1 * 2, SK_Scalar1 * 3);
+
+        SkPath p1 = SkPathBuilder(b.snapshot()).transform(matrix).detach();
+        SkPoint pts1[kPtCount];
+        int count = p1.getPoints(pts1, kPtCount);
+        REPORTER_ASSERT(reporter, kPtCount == count);
+        for (int i = 0; i < count; ++i) {
+            SkPoint newPt = SkPoint::Make(pts[i].fX * 2, pts[i].fY * 3);
+            REPORTER_ASSERT(reporter, newPt == pts1[i]);
+        }
+    }
+
+    {
+        SkMatrix matrix;
+        matrix.reset();
+        matrix.setPerspX(4);
+
+        SkPathBuilder b1 = SkPathBuilder(b.snapshot())
+            .moveTo(SkPoint::Make(0, 0))
+            .transform(matrix, SkApplyPerspectiveClip::kNo);
+        REPORTER_ASSERT(reporter, matrix.invert(&matrix));
+        b1.transform(matrix, SkApplyPerspectiveClip::kNo);
+        SkRect pBounds = b.snapshot().getBounds();
+        SkRect p1Bounds = b1.detach().getBounds();
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fLeft, p1Bounds.fLeft));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fTop, p1Bounds.fTop));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fRight, p1Bounds.fRight));
+        REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fBottom, p1Bounds.fBottom));
+    }
+
+    b.reset();
+    b.addCircle(0, 0, 1, SkPathDirection::kCW);
+
+    {
+        SkMatrix matrix;
+        matrix.reset();
+        SkPathBuilder b1(b.snapshot());
+        b1.moveTo(SkPoint::Make(0, 0));
+        b1.transform(matrix);
+        REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(b1.detach()) == SkPathFirstDirection::kCW);
+    }
+
+
+    {
+        SkMatrix matrix;
+        matrix.reset();
+        matrix.setScaleX(-1);
+        SkPathBuilder b1(b.snapshot());
+        b1.moveTo(SkPoint::Make(0, 0)); // Make b1 unique (i.e., not empty path)
+
+        b1.transform(matrix);
+        REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(b1.detach()) == SkPathFirstDirection::kCCW);
+    }
+
+    {
+        SkMatrix matrix;
+        matrix.setAll(1, 1, 0, 1, 1, 0, 0, 0, 1);
+        SkPathBuilder b1(b.snapshot());
+        b1.moveTo(SkPoint::Make(0, 0)); // Make p1 unique (i.e., not empty path)
+
+        b1.transform(matrix);
+        REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(b1.snapshot()) == SkPathFirstDirection::kUnknown);
+    }
 }
