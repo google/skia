@@ -11,7 +11,12 @@
 
 class SK_API SkRecorder {
 public:
+    SkRecorder() = default;
     virtual ~SkRecorder() = default;
+    SkRecorder(const SkRecorder&) = delete;
+    SkRecorder(SkRecorder&&) = delete;
+    SkRecorder& operator=(const SkRecorder&) = delete;
+
     enum class Type {
         kRaster,
         kGanesh,
