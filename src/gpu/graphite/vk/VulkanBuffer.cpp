@@ -31,9 +31,15 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
     // factory to say what stage the buffer is for. Maybe expand AccessPattern to be
     // GpuOnly_NotVertex or some better name like that.
     bool isProtected = sharedContext->isProtected() == Protected::kYes &&
-                       accessPattern == AccessPattern::kGpuOnly &&
+                       (accessPattern == AccessPattern::kGpuOnly ||
+                        accessPattern == AccessPattern::kGpuOnlyCopySrc) &&
                        type != BufferType::kVertex &&
                        type != BufferType::kIndex;
+
+    // kGpuOnlyCopySrc is used during testing to overwrite buffer accessPatterns that would normally
+    // be AccessPattern::kGpuOnly. So make sure that buffers that *should* be protected, don't
+    // accidentally expose access here.
+    SkASSERT(!isProtected || accessPattern != AccessPattern::kGpuOnlyCopySrc);
 
     // Protected memory _never_ uses mappable buffers.
     // Otherwise, the only time we don't require mappable buffers is when we're on a device
@@ -102,8 +108,13 @@ sk_sp<Buffer> VulkanBuffer::Make(const VulkanSharedContext* sharedContext,
     // transfer dst usage bit in case we need to do a copy to write data. It doesn't really hurt
     // to set this extra usage flag, but we could narrow the scope of buffers we set it on more than
     // just not dynamic.
-    if (!requiresMappable || accessPattern == AccessPattern::kGpuOnly) {
+    if (!requiresMappable || accessPattern == AccessPattern::kGpuOnly ||
+        accessPattern == AccessPattern::kGpuOnlyCopySrc) {
         bufInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    }
+
+    if (accessPattern == AccessPattern::kGpuOnlyCopySrc) {
+        bufInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     }
 
     bufInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -333,25 +344,31 @@ void VulkanBuffer::setBufferAccess(VulkanCommandBuffer* cmdBuffer,
 
     bool needsBarrier = true;
 
-    // We don't need a barrier if we're going from a read access to another read access.
-    if (access_is_read_only(fCurrentAccess) && access_is_read_only(dstAccess)) {
-        // Currently all of reads should be the same type of access. If we ever allow and need
-        // different read usages for a buffer, then we'll need to update the logic in this file to
-        // store all the read accesses in a mask. Additionally we'll need to keep track of what the
-        // last write was since we will need to add a barrier to for the new read access. Even if we
-        // had put in a barrier for a previous read already. For example if we have the sequence
-        // Write_1, Read_Access1, Read_Access2. We will first put a barrier going from Write_1 to
-        // Read_Access1. But with the current logic when we add Read_Access2 it will think its going
-        // from a read -> read. Thus no barrier would be added. But we need do to add another
-        // barrier for Write_1 to Read_Access2 so that the changes from write become visibile.
-        SkASSERT(fCurrentAccess == dstAccess || fCurrentAccess == 0);
-        needsBarrier = false;
-    }
-
     // When the buffer was last used on the host, we don't need to add any barrier as writes on the
     // CPU host are implicitly synchronized what you submit new commands.
     if (srcStageMask == VK_PIPELINE_STAGE_HOST_BIT) {
         needsBarrier = false;
+    } else if (access_is_read_only(fCurrentAccess) && access_is_read_only(dstAccess)) {
+        // We don't need a barrier if we're going from a read access to another read access, and we
+        // have the same type of read only access.
+        if (fCurrentAccess == dstAccess) {
+            needsBarrier = false;
+        } else {
+            /*needBarrier=true*/
+            // NOTE: Currently this setup *only* correctly handles copying from a vertex
+            // kGpuOnlyCopySrc buffer to kXferGpuToCpu buffer for read backs during testing on
+            // non-protected data.
+            //
+            // In the future we'll need to update the logic in this file to store all the read
+            // accesses in a mask. Additionally we'll need to keep track of what the last write was
+            // since we will need to add a barrier for the new read access--even if we have to put
+            // in a barrier for a previous read already. For example if we have the sequence
+            // Write_1, Read_Access1, Read_Access2. We will first put a barrier going from Write_1
+            // to Read_Access1. But with the current logic when we add Read_Access2 it will think
+            // its going from a read -> read. Thus no barrier would be added. But we need do to add
+            // another barrier for Write_1 to Read_Access2 so that the changes from write become
+            // visibile.
+        }
     }
 
     if (needsBarrier) {

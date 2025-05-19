@@ -149,6 +149,10 @@ sk_sp<DawnBuffer> DawnBuffer::Make(const DawnSharedContext* sharedContext,
         }
     }
 
+    if (accessPattern == AccessPattern::kGpuOnlyCopySrc) {
+        usage |= wgpu::BufferUsage::CopySrc;
+    }
+
     wgpu::BufferDescriptor desc;
     desc.usage = usage;
     desc.size  = size;

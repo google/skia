@@ -117,6 +117,9 @@ enum class AccessPattern : uint8_t {
 
     // The resource needs to be CPU visible, e.g. for read-back or as a copy/upload source.
     kHostVisible,
+
+    // Use to debug GPU only buffers.
+    kGpuOnlyCopySrc,
 };
 
 /**

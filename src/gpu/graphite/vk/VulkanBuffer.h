@@ -27,6 +27,8 @@ public:
                          VkAccessFlags dstAccess,
                          VkPipelineStageFlags dstStageMask) const;
 
+    bool bufferUsedForCpuRead() const { return fBufferUsedForCPURead; }
+
 private:
     VulkanBuffer(const VulkanSharedContext*,
                  size_t,
