@@ -125,18 +125,6 @@ std::optional<uint32_t> can_offset_fit(uint32_t reqSize,
            std::optional<uint32_t>(startOffset) : std::nullopt;
 }
 
-AccessPattern get_gpu_access_pattern(bool isAccessPatternGpuOnly) {
-    if (isAccessPatternGpuOnly) {
-#if defined(GPU_TEST_UTILS)
-        return AccessPattern::kGpuOnlyCopySrc;
-#else
-        return AccessPattern::kGpuOnly;
-#endif
-    } else {
-        return AccessPattern::kHostVisible;
-    }
-}
-
 } // anonymous namespace
 
 // ------------------------------------------------------------------------------------------------
@@ -183,41 +171,41 @@ void ScratchBuffer::returnToPool() {
 DrawBufferManager::DrawBufferManager(ResourceProvider* resourceProvider,
                                      const Caps* caps,
                                      UploadBufferManager* uploadManager,
-                                     BufferSizes buffSizes)
+                                     DrawBufferManagerOptions dbmOpts)
         : fResourceProvider(resourceProvider)
         , fCaps(caps)
         , fUploadManager(uploadManager)
         , fCurrentBuffers{{{BufferType::kVertex,
-                            buffSizes.fVertexBufferMinSize, buffSizes.fVertexBufferMaxSize, caps},
+                            dbmOpts.fVertexBufferMinSize, dbmOpts.fVertexBufferMaxSize, caps},
                            {BufferType::kIndex,
-                            buffSizes.fIndexBufferSize, buffSizes.fIndexBufferSize, caps},
+                            dbmOpts.fIndexBufferSize, dbmOpts.fIndexBufferSize, caps},
                            {BufferType::kUniform,
-                            buffSizes.fUniformBufferSize, buffSizes.fUniformBufferSize, caps},
+                            dbmOpts.fUniformBufferSize, dbmOpts.fUniformBufferSize, caps},
                            // mapped storage
                            {BufferType::kStorage,
-                            buffSizes.fStorageBufferMinSize, buffSizes.fStorageBufferMaxSize, caps},
+                            dbmOpts.fStorageBufferMinSize, dbmOpts.fStorageBufferMaxSize, caps},
                            // GPU-only storage
                            {BufferType::kStorage,
-                            buffSizes.fStorageBufferMinSize, buffSizes.fStorageBufferMinSize, caps},
+                            dbmOpts.fStorageBufferMinSize, dbmOpts.fStorageBufferMinSize, caps},
                            {BufferType::kVertexStorage,
-                            buffSizes.fVertexBufferMinSize, buffSizes.fVertexBufferMinSize, caps},
+                            dbmOpts.fVertexBufferMinSize, dbmOpts.fVertexBufferMinSize, caps},
                            {BufferType::kIndexStorage,
-                            buffSizes.fIndexBufferSize, buffSizes.fIndexBufferSize, caps},
+                            dbmOpts.fIndexBufferSize, dbmOpts.fIndexBufferSize, caps},
                            {BufferType::kIndirect,
-                            buffSizes.fStorageBufferMinSize, buffSizes.fStorageBufferMinSize,
-                            caps}}}
+                            dbmOpts.fStorageBufferMinSize, dbmOpts.fStorageBufferMinSize, caps}}}
 #if defined(GPU_TEST_UTILS)
-        , fUseExactBuffSizes(buffSizes.fUseExactBuffSizes)
+        , fUseExactBuffSizes(dbmOpts.fUseExactBuffSizes)
+        , fAllowCopyingGpuOnly(dbmOpts.fAllowCopyingGpuOnly)
 #endif
 {
     // Make sure the buffer size constants are all powers of two, so we can align to them
     // efficiently when dynamically sizing buffers.
-    SkASSERT(SkIsPow2(buffSizes.fVertexBufferMinSize));
-    SkASSERT(SkIsPow2(buffSizes.fVertexBufferMaxSize));
-    SkASSERT(SkIsPow2(buffSizes.fIndexBufferSize));
-    SkASSERT(SkIsPow2(buffSizes.fUniformBufferSize));
-    SkASSERT(SkIsPow2(buffSizes.fStorageBufferMinSize));
-    SkASSERT(SkIsPow2(buffSizes.fStorageBufferMaxSize));
+    SkASSERT(SkIsPow2(dbmOpts.fVertexBufferMinSize));
+    SkASSERT(SkIsPow2(dbmOpts.fVertexBufferMaxSize));
+    SkASSERT(SkIsPow2(dbmOpts.fIndexBufferSize));
+    SkASSERT(SkIsPow2(dbmOpts.fUniformBufferSize));
+    SkASSERT(SkIsPow2(dbmOpts.fStorageBufferMinSize));
+    SkASSERT(SkIsPow2(dbmOpts.fStorageBufferMaxSize));
 }
 
 DrawBufferManager::~DrawBufferManager() {}
@@ -530,6 +518,19 @@ bool DrawBufferManager::transferToRecording(Recording* recording) {
     return true;
 }
 
+// Only when defined(GPU_TEST_UTILS) do we allow enabling copying.
+AccessPattern DrawBufferManager::getGpuAccessPattern(bool isGpuOnlyAccess) const {
+    if (isGpuOnlyAccess) {
+#if defined(GPU_TEST_UTILS)
+        return fAllowCopyingGpuOnly ? AccessPattern::kGpuOnlyCopySrc : AccessPattern::kGpuOnly;
+#else
+        return AccessPattern::kGpuOnly;
+#endif
+    } else {
+        return AccessPattern::kHostVisible;
+    }
+}
+
 std::pair<void*, BindBufferInfo> DrawBufferManager::prepareMappedBindBuffer(
         BufferInfo* info,
         std::string_view label,
@@ -605,7 +606,7 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
         info->fBuffer = fResourceProvider->findOrCreateBuffer(
             bufferSize,
             info->fType,
-            get_gpu_access_pattern(useTransferBuffer || !supportCpuUpload),
+            this->getGpuAccessPattern(useTransferBuffer || !supportCpuUpload),
             std::move(label));
         info->fOffset = 0;
         if (!info->fBuffer) {
@@ -746,10 +747,18 @@ bool StaticBufferManager::BufferInfo::createAndUpdateBindings(
         return true; // No buffer needed
     }
 
+    // The static buffer is always copyable when testing.
+    constexpr AccessPattern gpuAccessPattern =
+#if defined(GPU_TEST_UTILS)
+        AccessPattern::kGpuOnlyCopySrc;
+#else
+        AccessPattern::kGpuOnly;
+#endif
+
     sk_sp<Buffer> staticBuffer = resourceProvider->findOrCreateBuffer(
             fTotalRequiredBytes,
             fBufferType,
-            get_gpu_access_pattern(/*useTransferBuffer*/true),
+            gpuAccessPattern,
             std::move(label));
     if (!staticBuffer) {
         SKGPU_LOG_E("Failed to create static buffer for type %d of size %u bytes.\n",

@@ -20,7 +20,7 @@ namespace skgpu::graphite {
 
 struct RecorderOptionsPriv {
     // Override the default buffer sizes of the DrawBufferManager using this option.
-    std::optional<DrawBufferManager::BufferSizes> fBufferSizes = std::nullopt;
+    std::optional<DrawBufferManager::DrawBufferManagerOptions> fDbmOptions = std::nullopt;
 };
 
 }  // namespace skgpu::graphite
