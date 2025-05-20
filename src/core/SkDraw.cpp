@@ -34,6 +34,7 @@
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScan.h"
+#include <optional>
 
 #if defined(SK_SUPPORT_LEGACY_ALPHA_BITMAP_AS_COVERAGE)
 #include "src/core/SkMaskFilterBase.h"
@@ -78,11 +79,25 @@ private:
 
 static void bw_pt_hair_proc(const PtProcRec& rec, const SkPoint devPts[],
                             int count, SkBlitter* blitter) {
-    for (int i = 0; i < count; i++) {
-        int x = SkScalarFloorToInt(devPts[i].fX);
-        int y = SkScalarFloorToInt(devPts[i].fY);
-        if (rec.fClip->contains(x, y)) {
-            blitter->blitH(x, y, 1);
+    const auto direct = blitter->canDirectBlit();
+    if (direct && rec.fClip->isRect()) {
+        const SkIRect cr = rec.fClip->getBounds();
+        auto pm = direct->pm;
+        const auto v = direct->value;
+        for (int i = 0; i < count; i++) {
+            int x = SkScalarFloorToInt(devPts[i].fX);
+            int y = SkScalarFloorToInt(devPts[i].fY);
+            if (cr.contains(x, y)) {
+                *pm.writable_addr32(x, y) = v;
+            }
+        }
+    } else {
+        for (int i = 0; i < count; i++) {
+            int x = SkScalarFloorToInt(devPts[i].fX);
+            int y = SkScalarFloorToInt(devPts[i].fY);
+            if (rec.fClip->contains(x, y)) {
+                blitter->blitH(x, y, 1);
+            }
         }
     }
 }

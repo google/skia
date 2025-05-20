@@ -20,6 +20,7 @@
 #include "src/base/SkVx.h"
 #include "src/core/SkBlitMask.h"
 #include "src/core/SkBlitRow.h"
+#include "src/core/SkBlitter.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkCoreBlitters.h"
@@ -30,6 +31,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 
 static inline int upscale_31_to_32(int value) {
     SkASSERT((unsigned)value <= 31);
@@ -1634,6 +1636,10 @@ void SkARGB32_Opaque_Blitter::blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
     device[0] = SkFastFourByteInterp(fPMColor, device[0], a0);
     device = (uint32_t*)((char*)device + fDevice.rowBytes());
     device[0] = SkFastFourByteInterp(fPMColor, device[0], a1);
+}
+
+std::optional<SkBlitter::DirectBlit> SkARGB32_Opaque_Blitter::canDirectBlit() const {
+    return {{ fDevice, fPMColor }};
 }
 
 ///////////////////////////////////////////////////////////////////////////////

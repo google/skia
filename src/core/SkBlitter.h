@@ -9,6 +9,7 @@
 #define SkBlitter_DEFINED
 
 #include "include/core/SkColor.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
@@ -20,11 +21,11 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 
 class SkArenaAlloc;
 class SkMatrix;
 class SkPaint;
-class SkPixmap;
 class SkShader;
 class SkSurfaceProps;
 struct SkMask;
@@ -119,6 +120,13 @@ public:
      * at a time.
      */
     virtual int requestRowsPreserved() const { return 1; }
+
+
+    struct DirectBlit {
+        SkPixmap pm;
+        uint32_t value; // low bits match pixmap's bitdepth
+    };
+    virtual std::optional<DirectBlit> canDirectBlit() const { return {}; }
 
     /**
      * This function allocates memory for the blitter that the blitter then owns.

@@ -19,6 +19,7 @@
 #include "src/shaders/SkShaderBase.h"
 
 #include <cstdint>
+#include <optional>
 
 class SkArenaAlloc;
 class SkMatrix;
@@ -81,6 +82,7 @@ public:
     void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]) override;
     void blitAntiH2(int x, int y, U8CPU a0, U8CPU a1) override;
     void blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) override;
+    std::optional<DirectBlit> canDirectBlit() const override;
 };
 
 class SkARGB32_Black_Blitter : public SkARGB32_Opaque_Blitter {
