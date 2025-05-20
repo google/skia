@@ -1499,6 +1499,16 @@ ShaderCodeDictionary::ShaderCodeDictionary(
         }
     }
 
+    // Check for duplicate snippet names.
+    SkDEBUGCODE(
+        THashSet<std::string> snippetNames;
+        for (const ShaderSnippet& snippet : fBuiltInCodeSnippets) {
+            std::string name = snippet.fName;
+            SkASSERT(!snippetNames.contains(name));
+            snippetNames.add(name);
+        }
+    )
+
     this->registerUserDefinedKnownRuntimeEffects(userDefinedKnownRuntimeEffects);
 }
 
