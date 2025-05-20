@@ -4,8 +4,6 @@
 * Use of this source code is governed by a BSD-style license that can be
 * found in the LICENSE file.
 */
-#include "modules/skunicode/include/SkUnicode_icu.h"
-
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
@@ -16,6 +14,7 @@
 #include "include/private/base/SkTemplates.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skunicode/include/SkUnicode.h"
+#include "modules/skunicode/include/SkUnicode_icu.h"
 #include "modules/skunicode/src/SkBidiFactory_icu_full.h"
 #include "modules/skunicode/src/SkUnicode_icu_bidi.h"
 #include "modules/skunicode/src/SkUnicode_icupriv.h"
@@ -674,6 +673,11 @@ public:
     void reorderVisual(const BidiLevel runLevels[],
                        int levelsCount,
                        int32_t logicalFromVisual[]) override {
+        if (levelsCount == 0) {
+            // To avoid an assert in unicode
+            return;
+        }
+        SkASSERT(runLevels != nullptr);
         fBidiFact->bidi_reorderVisual(runLevels, levelsCount, logicalFromVisual);
     }
 

@@ -4,14 +4,14 @@
 * Use of this source code is governed by a BSD-style license that can be
 * found in the LICENSE file.
 */
-#include "modules/skunicode/include/SkUnicode_icu4x.h"
-
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skunicode/include/SkUnicode.h"
+#include "modules/skunicode/include/SkUnicode_icu4x.h"
 #include "modules/skunicode/src/SkUnicode_hardcoded.h"
 #include "src/base/SkBitmaskEnum.h"
 #include "src/base/SkUTF.h"
@@ -175,6 +175,11 @@ public:
                        int levelsCount,
                        int32_t logicalFromVisual[]) override {
 
+        if (levelsCount == 0) {
+            // To avoid an assert in unicode
+            return;
+        }
+        SkASSERT(runLevels != nullptr);
         const auto bidi = ICU4XBidi::create(fDataProvider).ok().value();
         const diplomat::span<const uint8_t> levels(&runLevels[0], levelsCount);
         auto map = bidi.reorder_visual(levels);
