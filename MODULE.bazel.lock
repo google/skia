@@ -266,7 +266,7 @@
     },
     "//bazel:deps.bzl%c_plus_plus_modules": {
       "general": {
-        "bzlTransitiveDigest": "EG1XAW1b409T4WoAUCRYGn7uIOHHksUqyD6jMnouZI0=",
+        "bzlTransitiveDigest": "cUQee5jjYEaijcGQhomolFq3fCoL3fW9vYVIlczfnds=",
         "usagesDigest": "M56H0+n+RaBxHZxx6IKdjhqxKnJMl3f35dOrIPL6knA=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -283,7 +283,7 @@
             "repoRuleId": "@@bazel_tools//tools/build_defs/repo:git.bzl%git_repository",
             "attributes": {
               "build_file": "@@//bazel/external/dawn:BUILD.bazel",
-              "commit": "be90a8f836d3a41eae2d8a5152f24b54d7469599",
+              "commit": "a3bfb33a777c75f77da36a7eb5ea4be24b86810f",
               "remote": "https://dawn.googlesource.com/dawn.git"
             }
           },
