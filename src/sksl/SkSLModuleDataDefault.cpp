@@ -34,9 +34,7 @@
 // build with Graphite's modules. These will be filled in during initialization of the
 // Graphite backend.
 static const char* sdata_sksl_graphite_frag = "";
-static const char* sdata_sksl_graphite_frag_es2 = "";
 static const char* sdata_sksl_graphite_vert = "";
-static const char* sdata_sksl_graphite_vert_es2 = "";
 
 namespace SkSL {
 
@@ -61,9 +59,7 @@ std::string GetModuleData(ModuleType type, const char* /*filename*/) {
         M(sksl_vert)
 
         G(sksl_graphite_frag)
-        G(sksl_graphite_frag_es2)
         G(sksl_graphite_vert)
-        G(sksl_graphite_vert_es2)
         default:
             SkUNREACHABLE;
     }
@@ -74,13 +70,10 @@ namespace Loader {
 void SetGraphiteModuleData(const GraphiteModules& modules) {
     SkASSERTF(sdata_sksl_graphite_frag[0] == '\0', "We should only initialize this once");
     sdata_sksl_graphite_frag = modules.fFragmentShader;
-    sdata_sksl_graphite_frag_es2 = modules.fFragmentShaderES2;
     sdata_sksl_graphite_vert = modules.fVertexShader;
-    sdata_sksl_graphite_vert_es2 = modules.fVertexShaderES2;
 
     SkASSERT(sdata_sksl_graphite_frag[0] != '\0');
     SkASSERT(sdata_sksl_graphite_vert[0] != '\0');
-    // TODO(jamesgk, kjlubick) Add check when ES2 code is included
 }
 }  // namespace Loader
 

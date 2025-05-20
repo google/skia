@@ -801,8 +801,7 @@ std::string dst_read_strategy_to_str(DstReadStrategy strategy) {
 
 // The current, incomplete, model for shader construction is:
 //   - Static code snippets (which can have an arbitrary signature) live in the Graphite
-//     pre-compiled modules, which are located at `src/sksl/sksl_graphite_frag.sksl` and
-//     `src/sksl/sksl_graphite_frag_es2.sksl`.
+//     pre-compiled module, which is located at `src/sksl/sksl_graphite_frag.sksl`.
 //   - Glue code is generated in a `main` method which calls these static code snippets.
 //     The glue code is responsible for:
 //            1) gathering the correct (mangled) uniforms

@@ -108,8 +108,6 @@ struct ModuleLoader::Impl {
     std::unique_ptr<const Module> fComputeModule;           // [GPU] + Compute stage decls
     std::unique_ptr<const Module> fGraphiteVertexModule;    // [Vert] + Graphite vertex helpers
     std::unique_ptr<const Module> fGraphiteFragmentModule;  // [Frag] + Graphite fragment helpers
-    std::unique_ptr<const Module> fGraphiteVertexES2Module; // [Vert] + Graphite vertex ES2 helpers
-    std::unique_ptr<const Module> fGraphiteFragmentES2Module;//[Frag] + Graphite fragment ES2 "  "
 
     std::unique_ptr<const Module> fPublicModule;            // [Shared] minus Private types +
                                                             //     Runtime effect intrinsics
@@ -328,18 +326,6 @@ const Module* ModuleLoader::loadGraphiteFragmentModule(SkSL::Compiler* compiler)
     return fModuleLoader.fGraphiteFragmentModule.get();
 }
 
-const Module* ModuleLoader::loadGraphiteFragmentES2Module(SkSL::Compiler* compiler) {
-    if (!fModuleLoader.fGraphiteFragmentES2Module) {
-        const Module* fragmentModule = this->loadFragmentModule(compiler);
-        fModuleLoader.fGraphiteFragmentES2Module =
-                compile_and_shrink(compiler,
-                                   ProgramKind::kGraphiteFragmentES2,
-                                   MODULE_DATA(sksl_graphite_frag_es2),
-                                   fragmentModule);
-    }
-    return fModuleLoader.fGraphiteFragmentES2Module.get();
-}
-
 const Module* ModuleLoader::loadGraphiteVertexModule(SkSL::Compiler* compiler) {
     if (!fModuleLoader.fGraphiteVertexModule) {
         const Module* vertexModule = this->loadVertexModule(compiler);
@@ -349,18 +335,6 @@ const Module* ModuleLoader::loadGraphiteVertexModule(SkSL::Compiler* compiler) {
                                                                  vertexModule);
     }
     return fModuleLoader.fGraphiteVertexModule.get();
-}
-
-const Module* ModuleLoader::loadGraphiteVertexES2Module(SkSL::Compiler* compiler) {
-    if (!fModuleLoader.fGraphiteVertexES2Module) {
-        const Module* vertexModule = this->loadVertexModule(compiler);
-        fModuleLoader.fGraphiteVertexES2Module =
-                compile_and_shrink(compiler,
-                                   ProgramKind::kGraphiteVertexES2,
-                                   MODULE_DATA(sksl_graphite_vert_es2),
-                                   vertexModule);
-    }
-    return fModuleLoader.fGraphiteVertexES2Module.get();
 }
 
 void ModuleLoader::Impl::makeRootSymbolTable() {
