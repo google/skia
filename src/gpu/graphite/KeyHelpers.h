@@ -458,6 +458,12 @@ struct RuntimeEffectBlock {
                               PaintParamsKeyBuilder*,
                               PipelineDataGatherer*,
                               SkRuntimeEffect*);
+
+    // Add a post-amble for runtime effects that use the toLinearSrgb/fromLinearSrgb intrinsics
+    static void HandleIntrinsics(const KeyContext&,
+                                 PaintParamsKeyBuilder*,
+                                 PipelineDataGatherer*,
+                                 const SkRuntimeEffect*);
 };
 
 void AddToKey(const KeyContext&,

@@ -1396,6 +1396,39 @@ void RuntimeEffectBlock::AddNoOpEffect(const KeyContext& keyContext,
     }
 }
 
+void RuntimeEffectBlock::HandleIntrinsics(const KeyContext& keyContext,
+                                          PaintParamsKeyBuilder* builder,
+                                          PipelineDataGatherer* gatherer,
+                                          const SkRuntimeEffect* effect) {
+    // Runtime effects that reference color transform intrinsics have two extra children that
+    // are bound to the colorspace xform snippet with values to go to and from the linear srgb
+    // to the current working/dst color space.
+    if (SkRuntimeEffectPriv::UsesColorTransform(effect)) {
+        SkColorSpace* dstCS = keyContext.dstColorInfo().colorSpace();
+        if (!dstCS) {
+            dstCS = sk_srgb_linear_singleton(); // turn colorspace conversion into a noop
+        }
+
+        // TODO(b/332565302): If the runtime shader only uses one of these transforms, we could
+        // upload only one set of uniforms.
+
+        // NOTE: This must be kept in sync with the logic used to generate the toLinearSrgb() and
+        // fromLinearSrgb() expressions for each runtime effect. toLinearSrgb() is assumed to be
+        // the second to last child, and fromLinearSrgb() is assumed to be the last.
+        ColorSpaceTransformBlock::ColorSpaceTransformData dstToLinear(dstCS,
+                                                                      kUnpremul_SkAlphaType,
+                                                                      sk_srgb_linear_singleton(),
+                                                                      kUnpremul_SkAlphaType);
+        ColorSpaceTransformBlock::ColorSpaceTransformData linearToDst(sk_srgb_linear_singleton(),
+                                                                      kUnpremul_SkAlphaType,
+                                                                      dstCS,
+                                                                      kUnpremul_SkAlphaType);
+
+        ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, dstToLinear);
+        ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, linearToDst);
+    }
+}
+
 // ==================================================================
 
 namespace {
@@ -1453,33 +1486,7 @@ void add_children_to_key(const KeyContext& keyContext,
         }
     }
 
-    // Runtime effects that reference color transform intrinsics have two extra children that
-    // are bound to the colorspace xform snippet with values to go to and from the linear srgb
-    // to the current working/dst color space.
-    if (SkRuntimeEffectPriv::UsesColorTransform(effect)) {
-        SkColorSpace* dstCS = keyContext.dstColorInfo().colorSpace();
-        if (!dstCS) {
-            dstCS = sk_srgb_linear_singleton(); // turn colorspace conversion into a noop
-        }
-
-        // TODO(b/332565302): If the runtime shader only uses one of these transforms, we could
-        // upload only one set of uniforms.
-
-        // NOTE: This must be kept in sync with the logic used to generate the toLinearSrgb() and
-        // fromLinearSrgb() expressions for each runtime effect. toLinearSrgb() is assumed to be
-        // the second to last child, and fromLinearSrgb() is assumed to be the last.
-        ColorSpaceTransformBlock::ColorSpaceTransformData dstToLinear(dstCS,
-                                                                      kUnpremul_SkAlphaType,
-                                                                      sk_srgb_linear_singleton(),
-                                                                      kUnpremul_SkAlphaType);
-        ColorSpaceTransformBlock::ColorSpaceTransformData linearToDst(sk_srgb_linear_singleton(),
-                                                                      kUnpremul_SkAlphaType,
-                                                                      dstCS,
-                                                                      kUnpremul_SkAlphaType);
-
-        ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, dstToLinear);
-        ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, linearToDst);
-    }
+    RuntimeEffectBlock::HandleIntrinsics(keyContext, builder, gatherer, effect);
 }
 
 void add_to_key(const KeyContext& keyContext,

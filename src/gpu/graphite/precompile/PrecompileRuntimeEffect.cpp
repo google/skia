@@ -169,6 +169,8 @@ private:
             }
         }
 
+        RuntimeEffectBlock::HandleIntrinsics(keyContext, builder, gatherer, fEffect.get());
+
         builder->endBlock();
     }
 

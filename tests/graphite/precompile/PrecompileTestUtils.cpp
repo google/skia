@@ -10,6 +10,7 @@
 #if defined(SK_GRAPHITE)
 
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
+#include "include/gpu/graphite/precompile/PrecompileRuntimeEffect.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/base/SkMathPriv.h"
 #include "src/gpu/graphite/ContextPriv.h"
@@ -427,6 +428,96 @@ PaintOptions ImageHWOnlySRGBSrcover() {
     return paintOptions;
 }
 
+
+namespace {
+
+// Note: passing in a name to 'makeEffect' is a difference from Android's factory functions.
+sk_sp<SkRuntimeEffect> makeEffect(const SkString& sksl, const char* name) {
+    SkRuntimeEffect::Options options;
+    options.fName = name;
+
+    auto [effect, error] = SkRuntimeEffect::MakeForShader(sksl, options);
+    if (!effect) {
+        SkDebugf("%s\n", error.c_str());
+    }
+    return effect;
+}
+
+class MouriMap {
+public:
+    MouriMap() {
+        // The following code blocks are just stubs for the Android code. For Skia's testing
+        // purposes they only need to have the same name and number of children as the real code.
+        // When the following PaintOptions are used in Android the real SkSL must be supplied.
+        static const SkString kBlurCode(R"(
+            uniform shader img;
+            vec4 main(vec2 xy) {
+                return float4(0.0, 0.0, 0.0, 1.0);
+            }
+        )");
+
+        fBlurEffect = makeEffect(kBlurCode, "RE_MouriMap_BlurEffect");
+
+        static const SkString kTonemapCode(R"(
+            uniform shader img1;
+            uniform shader img2;
+            vec4 main(vec2 xy) {
+                float3 linear = toLinearSrgb(float3(0.0, 0.0, 0.0));
+                return float4(fromLinearSrgb(linear), 1.0);
+            }
+        )");
+
+        fToneMapEffect = makeEffect(kTonemapCode, "RE_MouriMap_TonemapEffect");
+    }
+
+    sk_sp<SkRuntimeEffect> blurEffect() const { return fBlurEffect; }
+    sk_sp<SkRuntimeEffect> toneMapEffect() const { return fToneMapEffect; }
+
+private:
+    sk_sp<SkRuntimeEffect> fBlurEffect;
+    sk_sp<SkRuntimeEffect> fToneMapEffect;
+};
+
+const MouriMap& MouriMap() {
+    static class MouriMap gMouriMap;
+
+    return gMouriMap;
+}
+
+} // anonymous namespace
+
+skgpu::graphite::PaintOptions MouriMapBlur() {
+    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
+    sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                           { &ci, 1 },
+                                                           {});
+
+    sk_sp<PrecompileShader> blur = PrecompileRuntimeEffects::MakePrecompileShader(
+            MouriMap().blurEffect(),
+            { { std::move(img) } });
+
+    PaintOptions paintOptions;
+    paintOptions.setShaders({ std::move(blur) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrc });
+    return paintOptions;
+}
+
+skgpu::graphite::PaintOptions MouriMapToneMap() {
+    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
+    sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                           { &ci, 1 },
+                                                           {});
+
+    sk_sp<PrecompileShader> toneMap = PrecompileRuntimeEffects::MakePrecompileShader(
+            MouriMap().toneMapEffect(),
+            { { img }, { img } });
+
+    PaintOptions paintOptions;
+    paintOptions.setShaders({ std::move(toneMap) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrc });
+    return paintOptions;
+}
+
 #if defined(SK_VULKAN)
 namespace {
 sk_sp<PrecompileShader> vulkan_ycbcr_709_image_shader(uint64_t format,
@@ -635,8 +726,12 @@ void deduce_settings_from_label(const char* testStr, PrecompileSettings* result)
         strstr(testStr, "LinearGradient8 ColorSpaceTransformSRGB") ||
         strstr(testStr, "PrimitiveColor ColorSpaceTransformSRGB")) {
         result->fRenderPassProps.fDstCS = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
-                                                               SkNamedGamut::kAdobeRGB);
+                                                                SkNamedGamut::kAdobeRGB);
     } else if (strstr(testStr, "ColorSpaceTransformSRGB")) {
+        result->fRenderPassProps.fDstCS = SkColorSpace::MakeSRGB();
+    } else if (strstr(testStr, "] ColorSpaceTransform ColorSpaceTransform ]")) {
+        // The above string only appears for RuntimeEffects that use the
+        // toLinearSrgb/fromLinearSrgb intrinsics w/ a destination SRGB color space.
         result->fRenderPassProps.fDstCS = SkColorSpace::MakeSRGB();
     }
 }
@@ -666,7 +761,7 @@ bool PrecompileSettings::isSubsetOf(const PrecompileSettings& superSet) const {
 
     // 'superSet' may have a wider range of DrawTypeFlags
     return (fDrawTypeFlags & superSet.fDrawTypeFlags) &&
-           fRenderPassProps == superSet.fRenderPassProps;
+            fRenderPassProps == superSet.fRenderPassProps;
 }
 
 PipelineLabelInfoCollector::PipelineLabelInfoCollector(SkSpan<const PipelineLabel> cases,

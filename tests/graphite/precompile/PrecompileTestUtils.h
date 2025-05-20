@@ -124,6 +124,9 @@ skgpu::graphite::PaintOptions ImagePremulHWOnlyMatrixCFDitherSrcover();
 skgpu::graphite::PaintOptions ImageSRGBHWOnlyMatrixCFDitherSrcover();
 skgpu::graphite::PaintOptions ImageHWOnlySRGBSrcover();
 
+skgpu::graphite::PaintOptions MouriMapBlur();
+skgpu::graphite::PaintOptions MouriMapToneMap();
+
 #if defined(SK_VULKAN)
 skgpu::graphite::PaintOptions ImagePremulYCbCr238Srcover();
 skgpu::graphite::PaintOptions ImagePremulYCbCr240Srcover();
