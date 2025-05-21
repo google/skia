@@ -10,6 +10,9 @@
                OpName %this_function_is_prototyped_after_its_definition_h4h4 "this_function_is_prototyped_after_its_definition_h4h4"
                OpName %this_function_is_defined_before_use_h4h4 "this_function_is_defined_before_use_h4h4"
                OpName %main "main"
+               OpDecorate %this_function_is_prototyped_after_its_definition_h4h4 RelaxedPrecision
+               OpDecorate %this_function_is_defined_before_use_h4h4 RelaxedPrecision
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -18,8 +21,10 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %9 Binding 0
                OpDecorate %9 DescriptorSet 0
+               OpDecorate %24 RelaxedPrecision
                OpDecorate %26 RelaxedPrecision
                OpDecorate %27 RelaxedPrecision
+               OpDecorate %28 RelaxedPrecision
                OpDecorate %30 RelaxedPrecision
                OpDecorate %31 RelaxedPrecision
                OpDecorate %34 RelaxedPrecision

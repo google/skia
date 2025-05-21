@@ -21,6 +21,7 @@
                OpName %shared "shared"
                OpName %smooth "smooth"
                OpName %subroutine "subroutine"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

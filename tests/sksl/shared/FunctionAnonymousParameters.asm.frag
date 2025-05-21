@@ -13,6 +13,9 @@
                OpMemberName %S 0 "i"
                OpName %fnRed_h4ifS "fnRed_h4ifS"
                OpName %main "main"
+               OpDecorate %fnGreen_h4bf2 RelaxedPrecision
+               OpDecorate %fnRed_h4ifS RelaxedPrecision
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

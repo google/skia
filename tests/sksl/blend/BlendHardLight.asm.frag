@@ -11,6 +11,8 @@
                OpName %blend_overlay_h4h4h4 "blend_overlay_h4h4h4"
                OpName %result "result"
                OpName %main "main"
+               OpDecorate %blend_overlay_component_Qhh2h2 RelaxedPrecision
+               OpDecorate %blend_overlay_h4h4h4 RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -21,6 +23,8 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %9 Binding 0
                OpDecorate %9 DescriptorSet 0
+               OpDecorate %15 RelaxedPrecision
+               OpDecorate %16 RelaxedPrecision
                OpDecorate %19 RelaxedPrecision
                OpDecorate %20 RelaxedPrecision
                OpDecorate %21 RelaxedPrecision
@@ -51,6 +55,8 @@
                OpDecorate %53 RelaxedPrecision
                OpDecorate %54 RelaxedPrecision
                OpDecorate %55 RelaxedPrecision
+               OpDecorate %58 RelaxedPrecision
+               OpDecorate %59 RelaxedPrecision
                OpDecorate %result RelaxedPrecision
                OpDecorate %62 RelaxedPrecision
                OpDecorate %63 RelaxedPrecision

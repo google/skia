@@ -29,6 +29,7 @@
                OpName %b2 "b2"
                OpName %b3 "b3"
                OpName %b4 "b4"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

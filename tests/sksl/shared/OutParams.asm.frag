@@ -55,6 +55,7 @@
                OpName %b3 "b3"
                OpName %b4 "b4"
                OpName %ok "ok"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -67,28 +68,35 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %29 Binding 0
                OpDecorate %29 DescriptorSet 0
+               OpDecorate %44 RelaxedPrecision
                OpDecorate %50 RelaxedPrecision
                OpDecorate %51 RelaxedPrecision
+               OpDecorate %53 RelaxedPrecision
                OpDecorate %56 RelaxedPrecision
                OpDecorate %57 RelaxedPrecision
                OpDecorate %58 RelaxedPrecision
+               OpDecorate %62 RelaxedPrecision
                OpDecorate %65 RelaxedPrecision
                OpDecorate %66 RelaxedPrecision
                OpDecorate %67 RelaxedPrecision
+               OpDecorate %70 RelaxedPrecision
                OpDecorate %73 RelaxedPrecision
                OpDecorate %74 RelaxedPrecision
                OpDecorate %75 RelaxedPrecision
+               OpDecorate %79 RelaxedPrecision
                OpDecorate %82 RelaxedPrecision
                OpDecorate %83 RelaxedPrecision
                OpDecorate %84 RelaxedPrecision
                OpDecorate %85 RelaxedPrecision
                OpDecorate %86 RelaxedPrecision
+               OpDecorate %90 RelaxedPrecision
                OpDecorate %93 RelaxedPrecision
                OpDecorate %94 RelaxedPrecision
                OpDecorate %95 RelaxedPrecision
                OpDecorate %96 RelaxedPrecision
                OpDecorate %97 RelaxedPrecision
                OpDecorate %98 RelaxedPrecision
+               OpDecorate %102 RelaxedPrecision
                OpDecorate %105 RelaxedPrecision
                OpDecorate %106 RelaxedPrecision
                OpDecorate %107 RelaxedPrecision

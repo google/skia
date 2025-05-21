@@ -33,6 +33,7 @@
                OpName %c2 "c2"
                OpName %c3 "c3"
                OpName %valid "valid"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

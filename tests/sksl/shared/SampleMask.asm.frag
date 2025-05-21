@@ -10,6 +10,7 @@
                OpName %clear_samplemask_v "clear_samplemask_v"
                OpName %reset_samplemask_v "reset_samplemask_v"
                OpName %main "main"
+               OpDecorate %samplemaskin_as_color_h4 RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

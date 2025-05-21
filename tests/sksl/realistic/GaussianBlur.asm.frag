@@ -27,6 +27,7 @@
                OpName %_7_coord "_7_coord"
                OpName %_8_coordSampled "_8_coordSampled"
                OpName %output_Stage1 "output_Stage1"
+               OpDecorate %MatrixEffect_Stage1_c0_c0_h4h4f2 RelaxedPrecision
                OpDecorate %_arr_v4float_int_7 ArrayStride 16
                OpMemberDecorate %uniformBuffer 0 Offset 0
                OpMemberDecorate %uniformBuffer 1 Offset 16
@@ -50,6 +51,7 @@
                OpDecorate %uTextureSampler_0_Stage1 Binding 0
                OpDecorate %uTextureSampler_0_Stage1 DescriptorSet 0
                OpDecorate %vLocalCoord_Stage0 Location 0
+               OpDecorate %26 RelaxedPrecision
                OpDecorate %_4_textureColor RelaxedPrecision
                OpDecorate %60 RelaxedPrecision
                OpDecorate %91 RelaxedPrecision

@@ -13,6 +13,8 @@
                OpName %t "t"
                OpName %main "main"
                OpName %result "result"
+               OpDecorate %swizzle_lvalue_h2hhh2h RelaxedPrecision
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -23,6 +25,10 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %9 Binding 0
                OpDecorate %9 DescriptorSet 0
+               OpDecorate %24 RelaxedPrecision
+               OpDecorate %25 RelaxedPrecision
+               OpDecorate %26 RelaxedPrecision
+               OpDecorate %27 RelaxedPrecision
                OpDecorate %29 RelaxedPrecision
                OpDecorate %30 RelaxedPrecision
                OpDecorate %31 RelaxedPrecision
@@ -31,6 +37,7 @@
                OpDecorate %34 RelaxedPrecision
                OpDecorate %35 RelaxedPrecision
                OpDecorate %36 RelaxedPrecision
+               OpDecorate %39 RelaxedPrecision
                OpDecorate %t RelaxedPrecision
                OpDecorate %46 RelaxedPrecision
                OpDecorate %47 RelaxedPrecision

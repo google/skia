@@ -12,6 +12,7 @@
                OpName %a_vi "a_vi"
                OpName %main "main"
                OpName %i "i"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

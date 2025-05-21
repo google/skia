@@ -19,6 +19,7 @@
                OpName %expected_0 "expected"
                OpName %index_0 "index"
                OpName %main "main"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

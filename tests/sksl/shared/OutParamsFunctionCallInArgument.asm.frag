@@ -12,6 +12,7 @@
                OpName %out_param_func2_ih "out_param_func2_ih"
                OpName %main "main"
                OpName %testArray "testArray"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -22,8 +23,10 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %9 Binding 0
                OpDecorate %9 DescriptorSet 0
+               OpDecorate %24 RelaxedPrecision
                OpDecorate %30 RelaxedPrecision
                OpDecorate %31 RelaxedPrecision
+               OpDecorate %33 RelaxedPrecision
                OpDecorate %37 RelaxedPrecision
                OpDecorate %38 RelaxedPrecision
                OpDecorate %testArray RelaxedPrecision

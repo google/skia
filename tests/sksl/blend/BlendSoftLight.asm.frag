@@ -14,6 +14,7 @@
                OpName %DaSqd "DaSqd"
                OpName %DaCub "DaCub"
                OpName %main "main"
+               OpDecorate %soft_light_component_Qhh2h2 RelaxedPrecision
                OpDecorate %_kGuardedDivideEpsilon RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
@@ -25,6 +26,8 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %15 Binding 0
                OpDecorate %15 DescriptorSet 0
+               OpDecorate %21 RelaxedPrecision
+               OpDecorate %22 RelaxedPrecision
                OpDecorate %25 RelaxedPrecision
                OpDecorate %26 RelaxedPrecision
                OpDecorate %27 RelaxedPrecision

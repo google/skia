@@ -11,6 +11,9 @@
                OpName %a "a"
                OpName %b "b"
                OpName %main "main"
+               OpDecorate %bar_h4Z_aSampler RelaxedPrecision
+               OpDecorate %bar_h4Z_aSecondSampler RelaxedPrecision
+               OpDecorate %foo_h4 RelaxedPrecision
                OpDecorate %aSampler RelaxedPrecision
                OpDecorate %aSampler Binding 0
                OpDecorate %aSampler DescriptorSet 0

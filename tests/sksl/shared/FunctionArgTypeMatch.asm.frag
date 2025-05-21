@@ -32,6 +32,7 @@
                OpName %takes_int3_bi3 "takes_int3_bi3"
                OpName %takes_int4_bi4 "takes_int4_bi4"
                OpName %main "main"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -42,6 +43,13 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %30 Binding 0
                OpDecorate %30 DescriptorSet 0
+               OpDecorate %78 RelaxedPrecision
+               OpDecorate %80 RelaxedPrecision
+               OpDecorate %82 RelaxedPrecision
+               OpDecorate %84 RelaxedPrecision
+               OpDecorate %86 RelaxedPrecision
+               OpDecorate %88 RelaxedPrecision
+               OpDecorate %90 RelaxedPrecision
                OpDecorate %285 RelaxedPrecision
                OpDecorate %287 RelaxedPrecision
                OpDecorate %288 RelaxedPrecision

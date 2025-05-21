@@ -11,6 +11,7 @@
                OpName %_entrypoint_v "_entrypoint_v"
                OpName %out_params_are_distinct_from_global_bh "out_params_are_distinct_from_global_bh"
                OpName %main "main"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -22,6 +23,7 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %11 Binding 0
                OpDecorate %11 DescriptorSet 0
+               OpDecorate %27 RelaxedPrecision
                OpDecorate %31 RelaxedPrecision
                OpDecorate %40 RelaxedPrecision
                OpDecorate %42 RelaxedPrecision

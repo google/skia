@@ -17,6 +17,7 @@
                OpName %_3_two "_3_two"
                OpName %_4_nine "_4_nine"
                OpName %_5_m "_5_m"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
