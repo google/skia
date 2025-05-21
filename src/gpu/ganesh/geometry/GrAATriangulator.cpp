@@ -213,7 +213,8 @@ void GrAATriangulator::simplifyBoundary(EdgeList* boundary, const Comparator& c)
             (distPrev * distPrev <= kQuarterPixelSq || distNext * distNext <= kQuarterPixelSq)) {
             Edge* join = this->makeEdge(prev, next, EdgeType::kInner, c);
             if (prev->fPoint != next->fPoint) {
-                join->rescaleToWinding();
+                join->fLine.normalize();
+                join->fLine = join->fLine * join->fWinding;
             }
             boundary->insert(join, e);
             boundary->remove(prevEdge);
@@ -581,7 +582,8 @@ void GrAATriangulator::extractBoundary(EdgeList* boundary, Edge* e) const {
     do {
         e->fWinding = down ? 1 : -1;
         Edge* next;
-        e->rescaleToWinding();
+        e->fLine.normalize();
+        e->fLine = e->fLine * e->fWinding;
         boundary->append(e);
         if (down) {
             // Find outgoing edge, in clockwise order.
