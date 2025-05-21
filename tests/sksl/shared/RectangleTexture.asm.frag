@@ -16,8 +16,11 @@
                OpDecorate %test2DRect RelaxedPrecision
                OpDecorate %test2DRect Binding 1
                OpDecorate %test2DRect DescriptorSet 0
+               OpDecorate %15 RelaxedPrecision
                OpDecorate %16 RelaxedPrecision
+               OpDecorate %20 RelaxedPrecision
                OpDecorate %21 RelaxedPrecision
+               OpDecorate %22 RelaxedPrecision
                OpDecorate %23 RelaxedPrecision
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4

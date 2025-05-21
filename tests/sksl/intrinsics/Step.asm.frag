@@ -28,42 +28,54 @@
                OpDecorate %expectedA RelaxedPrecision
                OpDecorate %expectedB RelaxedPrecision
                OpDecorate %expectedC RelaxedPrecision
+               OpDecorate %33 RelaxedPrecision
                OpDecorate %39 RelaxedPrecision
                OpDecorate %40 RelaxedPrecision
+               OpDecorate %44 RelaxedPrecision
                OpDecorate %47 RelaxedPrecision
                OpDecorate %48 RelaxedPrecision
                OpDecorate %49 RelaxedPrecision
+               OpDecorate %56 RelaxedPrecision
                OpDecorate %60 RelaxedPrecision
                OpDecorate %61 RelaxedPrecision
                OpDecorate %62 RelaxedPrecision
+               OpDecorate %69 RelaxedPrecision
                OpDecorate %72 RelaxedPrecision
                OpDecorate %83 RelaxedPrecision
                OpDecorate %90 RelaxedPrecision
+               OpDecorate %99 RelaxedPrecision
                OpDecorate %101 RelaxedPrecision
                OpDecorate %102 RelaxedPrecision
+               OpDecorate %107 RelaxedPrecision
                OpDecorate %109 RelaxedPrecision
                OpDecorate %110 RelaxedPrecision
                OpDecorate %112 RelaxedPrecision
+               OpDecorate %118 RelaxedPrecision
                OpDecorate %120 RelaxedPrecision
                OpDecorate %121 RelaxedPrecision
                OpDecorate %123 RelaxedPrecision
+               OpDecorate %129 RelaxedPrecision
                OpDecorate %131 RelaxedPrecision
                OpDecorate %142 RelaxedPrecision
                OpDecorate %149 RelaxedPrecision
+               OpDecorate %158 RelaxedPrecision
                OpDecorate %161 RelaxedPrecision
                OpDecorate %162 RelaxedPrecision
                OpDecorate %165 RelaxedPrecision
                OpDecorate %166 RelaxedPrecision
+               OpDecorate %171 RelaxedPrecision
                OpDecorate %173 RelaxedPrecision
                OpDecorate %174 RelaxedPrecision
                OpDecorate %176 RelaxedPrecision
                OpDecorate %177 RelaxedPrecision
                OpDecorate %178 RelaxedPrecision
+               OpDecorate %184 RelaxedPrecision
                OpDecorate %186 RelaxedPrecision
                OpDecorate %187 RelaxedPrecision
                OpDecorate %189 RelaxedPrecision
                OpDecorate %190 RelaxedPrecision
                OpDecorate %191 RelaxedPrecision
+               OpDecorate %197 RelaxedPrecision
                OpDecorate %199 RelaxedPrecision
                OpDecorate %201 RelaxedPrecision
                OpDecorate %210 RelaxedPrecision

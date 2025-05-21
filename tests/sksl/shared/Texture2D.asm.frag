@@ -14,7 +14,9 @@
                OpDecorate %tex RelaxedPrecision
                OpDecorate %tex Binding 0
                OpDecorate %tex DescriptorSet 0
+               OpDecorate %16 RelaxedPrecision
                OpDecorate %17 RelaxedPrecision
+               OpDecorate %22 RelaxedPrecision
                OpDecorate %23 RelaxedPrecision
                OpDecorate %27 RelaxedPrecision
                OpDecorate %28 RelaxedPrecision

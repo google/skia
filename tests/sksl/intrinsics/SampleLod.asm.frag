@@ -14,7 +14,9 @@
                OpDecorate %t Binding 0
                OpDecorate %t DescriptorSet 0
                OpDecorate %c RelaxedPrecision
+               OpDecorate %16 RelaxedPrecision
                OpDecorate %17 RelaxedPrecision
+               OpDecorate %21 RelaxedPrecision
                OpDecorate %22 RelaxedPrecision
                OpDecorate %26 RelaxedPrecision
       %float = OpTypeFloat 32

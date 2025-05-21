@@ -32,8 +32,11 @@
                OpDecorate %aThirdSampler RelaxedPrecision
                OpDecorate %aThirdSampler Binding 2
                OpDecorate %aThirdSampler DescriptorSet 0
+               OpDecorate %23 RelaxedPrecision
                OpDecorate %24 RelaxedPrecision
+               OpDecorate %29 RelaxedPrecision
                OpDecorate %30 RelaxedPrecision
+               OpDecorate %32 RelaxedPrecision
                OpDecorate %33 RelaxedPrecision
                OpDecorate %a RelaxedPrecision
                OpDecorate %b RelaxedPrecision
