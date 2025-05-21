@@ -179,6 +179,10 @@ sk_sp<const SkCapabilities> SkSurface_Raster::onCapabilities() {
     return SkCapabilities::RasterBackend();
 }
 
+SkRecorder* SkSurface_Raster::onGetBaseRecorder() const {
+    return fRecorder;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 namespace SkSurfaces {
 sk_sp<SkSurface> WrapPixels(const SkImageInfo& info,

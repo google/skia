@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_Surface_Graphite_DEFINED
 #define skgpu_graphite_Surface_Graphite_DEFINED
 
+#include "include/core/SkRecorder.h"
 #include "src/image/SkSurface_Base.h"
 
 #include "include/gpu/GpuTypes.h"
@@ -60,6 +61,7 @@ public:
     SkSurface_Base::Type type() const override { return SkSurface_Base::Type::kGraphite; }
 
     Recorder* onGetRecorder() const override;
+    SkRecorder* onGetBaseRecorder() const override;
     SkCanvas* onNewCanvas() override;
     sk_sp<SkSurface> onNewSurface(const SkImageInfo&) override;
     sk_sp<SkImage> onNewImageSnapshot(const SkIRect* subset) override;

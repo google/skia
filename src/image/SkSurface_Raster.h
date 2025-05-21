@@ -24,6 +24,7 @@ class SkImage;
 class SkPaint;
 class SkPixelRef;
 class SkPixmap;
+class SkRecorder;
 class SkSurfaceProps;
 struct SkIRect;
 
@@ -62,6 +63,7 @@ public:
     bool onCopyOnWrite(ContentChangeMode) override;
     void onRestoreBackingMutability() override;
     sk_sp<const SkCapabilities> onCapabilities() override;
+    SkRecorder* onGetBaseRecorder() const override;
 
 private:
     skcpu::RecorderImpl* fRecorder;
