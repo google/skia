@@ -278,8 +278,8 @@ cc_library(
         # and thus clang throws an error about that. It is easier to add an extra include
         # path than figuring out if we should upstream the change to libjxl and/or highway.
         "-isystem external/highway",
-        "-isystem external/+c_plus_plus_modules+highway",
-        "-isystem external/skia++c_plus_plus_modules+highway",
+        "-isystem external/+cpp_modules+highway",
+        "-isystem external/skia++cpp_modules+highway",
         "-Wno-unused-function",
     ],
     defines = JPEG_XL_PUBLIC_DEFINES,

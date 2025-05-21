@@ -25,8 +25,8 @@ rolldeps() {
 
 rollbazel() {
   STEP="roll-bazel" &&
-  sed -i'' -e "s!commit = \"${EXPAT_PREVIOUS_REV}\",!commit = \"${EXPAT_NEXT_REV}\",!" bazel/deps.bzl &&
-  git add bazel/deps.bzl
+  sed -i'' -e "s!\"${EXPAT_PREVIOUS_REV}\",!\"${EXPAT_NEXT_REV}\",!" bazel/deps.json &&
+  git add bazel/deps.json
 }
 
 rolldepsgen() {

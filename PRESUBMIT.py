@@ -581,11 +581,11 @@ def _CheckBannedAPIs(input_api, output_api):
 
 
 def _CheckDEPS(input_api, output_api):
-  """If DEPS was modified, run the deps_parser to update bazel/deps.bzl"""
+  """If DEPS was modified, run the deps_parser to update bazel/deps.json"""
   files = []
   for affected_file in input_api.AffectedFiles(include_deletes=False):
     affected_file_path = affected_file.LocalPath()
-    if affected_file_path.endswith('DEPS') or affected_file_path.endswith('deps.bzl'):
+    if affected_file_path.endswith('DEPS') or affected_file_path.endswith('deps.json'):
       files.append(affected_file)
   if not files:
     return []

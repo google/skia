@@ -239,9 +239,10 @@ local_path_override(
     path = "include/config",
 )
 
-c_plus_plus_modules = use_extension("//bazel:deps.bzl", "c_plus_plus_modules")
+cpp_modules = use_extension("//bazel:cpp_modules.bzl", "cpp_modules")
+cpp_modules.from_file(deps_json = "//bazel:deps.json")
 use_repo(
-    c_plus_plus_modules,
+    cpp_modules,
     "dawn",
     "delaunator",
     "dng_sdk",
