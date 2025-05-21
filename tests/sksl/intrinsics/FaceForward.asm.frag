@@ -18,6 +18,7 @@
                OpName %huge4 "huge4"
                OpName %expectedPos "expectedPos"
                OpName %expectedNeg "expectedNeg"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

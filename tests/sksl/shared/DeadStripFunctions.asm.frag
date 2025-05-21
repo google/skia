@@ -13,6 +13,9 @@
                OpName %main "main"
                OpName %a "a"
                OpName %b "b"
+               OpDecorate %unpremul_h4h4 RelaxedPrecision
+               OpDecorate %live_fn_h4h4h4 RelaxedPrecision
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -23,6 +26,7 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %9 Binding 0
                OpDecorate %9 DescriptorSet 0
+               OpDecorate %24 RelaxedPrecision
                OpDecorate %26 RelaxedPrecision
                OpDecorate %27 RelaxedPrecision
                OpDecorate %29 RelaxedPrecision
@@ -36,6 +40,8 @@
                OpDecorate %39 RelaxedPrecision
                OpDecorate %40 RelaxedPrecision
                OpDecorate %41 RelaxedPrecision
+               OpDecorate %43 RelaxedPrecision
+               OpDecorate %44 RelaxedPrecision
                OpDecorate %46 RelaxedPrecision
                OpDecorate %47 RelaxedPrecision
                OpDecorate %48 RelaxedPrecision

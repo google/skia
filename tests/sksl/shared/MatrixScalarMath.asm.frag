@@ -24,6 +24,7 @@
                OpName %_0_expected "_0_expected"
                OpName %_1_one "_1_one"
                OpName %_2_m2 "_2_m2"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

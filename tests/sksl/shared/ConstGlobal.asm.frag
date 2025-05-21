@@ -11,6 +11,7 @@
                OpName %_entrypoint_v "_entrypoint_v"
                OpName %verify_const_globals_biih44 "verify_const_globals_biih44"
                OpName %main "main"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -22,6 +23,7 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %18 Binding 0
                OpDecorate %18 DescriptorSet 0
+               OpDecorate %37 RelaxedPrecision
                OpDecorate %51 RelaxedPrecision
                OpDecorate %53 RelaxedPrecision
                OpDecorate %54 RelaxedPrecision

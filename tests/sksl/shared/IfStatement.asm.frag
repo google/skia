@@ -10,6 +10,8 @@
                OpName %ifElseTest_h4h4h4h4 "ifElseTest_h4h4h4h4"
                OpName %result "result"
                OpName %main "main"
+               OpDecorate %ifElseTest_h4h4h4h4 RelaxedPrecision
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -18,6 +20,9 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %8 Binding 0
                OpDecorate %8 DescriptorSet 0
+               OpDecorate %23 RelaxedPrecision
+               OpDecorate %24 RelaxedPrecision
+               OpDecorate %25 RelaxedPrecision
                OpDecorate %result RelaxedPrecision
                OpDecorate %33 RelaxedPrecision
                OpDecorate %34 RelaxedPrecision

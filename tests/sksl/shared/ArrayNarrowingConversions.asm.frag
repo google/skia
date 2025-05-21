@@ -14,6 +14,7 @@
                OpName %f2 "f2"
                OpName %h2 "h2"
                OpName %cf2 "cf2"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

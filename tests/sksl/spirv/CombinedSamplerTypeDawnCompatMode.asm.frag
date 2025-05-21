@@ -14,6 +14,11 @@
                OpName %helper_h4Z_anotherSampler "helper_h4Z_anotherSampler"
                OpName %helper2_h4ZZ_aSampler_anotherSampler "helper2_h4ZZ_aSampler_anotherSampler"
                OpName %main "main"
+               OpDecorate %helpers_helper_h4Z_aSampler RelaxedPrecision
+               OpDecorate %helpers_helper_h4Z_anotherSampler RelaxedPrecision
+               OpDecorate %helper_h4Z_aSampler RelaxedPrecision
+               OpDecorate %helper_h4Z_anotherSampler RelaxedPrecision
+               OpDecorate %helper2_h4ZZ_aSampler_anotherSampler RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -25,8 +30,14 @@
                OpDecorate %anotherSampler_texture DescriptorSet 1
                OpDecorate %anotherSampler_sampler Binding 5
                OpDecorate %anotherSampler_sampler DescriptorSet 1
+               OpDecorate %21 RelaxedPrecision
                OpDecorate %23 RelaxedPrecision
+               OpDecorate %31 RelaxedPrecision
                OpDecorate %33 RelaxedPrecision
+               OpDecorate %37 RelaxedPrecision
+               OpDecorate %40 RelaxedPrecision
+               OpDecorate %44 RelaxedPrecision
+               OpDecorate %45 RelaxedPrecision
                OpDecorate %47 RelaxedPrecision
                OpDecorate %52 RelaxedPrecision
                OpDecorate %56 RelaxedPrecision

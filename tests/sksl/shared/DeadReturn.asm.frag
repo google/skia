@@ -15,6 +15,7 @@
                OpName %test_loop_if_b "test_loop_if_b"
                OpName %x "x"
                OpName %main "main"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

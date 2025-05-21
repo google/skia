@@ -15,6 +15,7 @@
                OpName %bufferIndex "bufferIndex"
                OpName %_entrypoint_v "_entrypoint_v"
                OpName %main "main"
+               OpDecorate %main RelaxedPrecision
                OpMemberDecorate %SomeData 0 Offset 0
                OpMemberDecorate %SomeData 1 Offset 16
                OpDecorate %_runtimearr_SomeData ArrayStride 32

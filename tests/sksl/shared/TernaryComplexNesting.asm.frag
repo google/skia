@@ -13,6 +13,7 @@
                OpName %colorGreen "colorGreen"
                OpName %colorRed "colorRed"
                OpName %result "result"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -21,6 +22,8 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %8 Binding 0
                OpDecorate %8 DescriptorSet 0
+               OpDecorate %24 RelaxedPrecision
+               OpDecorate %25 RelaxedPrecision
                OpDecorate %27 RelaxedPrecision
                OpDecorate %28 RelaxedPrecision
                OpDecorate %colorBlue RelaxedPrecision

@@ -11,6 +11,7 @@
                OpName %out_params_are_distinct_bhh "out_params_are_distinct_bhh"
                OpName %main "main"
                OpName %x "x"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -21,6 +22,8 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %8 Binding 0
                OpDecorate %8 DescriptorSet 0
+               OpDecorate %24 RelaxedPrecision
+               OpDecorate %25 RelaxedPrecision
                OpDecorate %x RelaxedPrecision
                OpDecorate %38 RelaxedPrecision
                OpDecorate %39 RelaxedPrecision

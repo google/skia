@@ -52,6 +52,14 @@
                OpName %x20 "x20"
                OpName %x21 "x21"
                OpName %x22 "x22"
+               OpDecorate %returns_half_h RelaxedPrecision
+               OpDecorate %returns_half2_h2 RelaxedPrecision
+               OpDecorate %returns_half3_h3 RelaxedPrecision
+               OpDecorate %returns_half4_h4 RelaxedPrecision
+               OpDecorate %returns_half2x2_h22 RelaxedPrecision
+               OpDecorate %returns_half3x3_h33 RelaxedPrecision
+               OpDecorate %returns_half4x4_h44 RelaxedPrecision
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

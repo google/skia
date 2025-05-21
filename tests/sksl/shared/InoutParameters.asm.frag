@@ -13,6 +13,7 @@
                OpName %inoutParameterWriteIndirect_vh4 "inoutParameterWriteIndirect_vh4"
                OpName %main "main"
                OpName %c "c"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -21,12 +22,16 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %11 Binding 0
                OpDecorate %11 DescriptorSet 0
+               OpDecorate %26 RelaxedPrecision
                OpDecorate %32 RelaxedPrecision
+               OpDecorate %33 RelaxedPrecision
                OpDecorate %35 RelaxedPrecision
                OpDecorate %37 RelaxedPrecision
+               OpDecorate %38 RelaxedPrecision
                OpDecorate %40 RelaxedPrecision
                OpDecorate %41 RelaxedPrecision
                OpDecorate %42 RelaxedPrecision
+               OpDecorate %43 RelaxedPrecision
                OpDecorate %45 RelaxedPrecision
                OpDecorate %46 RelaxedPrecision
                OpDecorate %48 RelaxedPrecision

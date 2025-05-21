@@ -11,6 +11,7 @@
                OpName %main "main"
                OpName %ok "ok"
                OpName %TRUE "TRUE"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

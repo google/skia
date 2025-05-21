@@ -29,6 +29,7 @@
                OpName %v16 "v16"
                OpName %v17 "v17"
                OpName %v18 "v18"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

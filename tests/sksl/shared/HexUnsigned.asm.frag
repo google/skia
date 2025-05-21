@@ -13,6 +13,7 @@
                OpName %u3 "u3"
                OpName %u4 "u4"
                OpName %u5 "u5"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

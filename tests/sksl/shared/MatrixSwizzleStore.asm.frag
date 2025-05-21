@@ -18,6 +18,7 @@
                OpName %_0_matrix "_0_matrix"
                OpName %_1_values "_1_values"
                OpName %_2_index "_2_index"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

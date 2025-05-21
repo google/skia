@@ -19,6 +19,7 @@
                OpName %local_variable_hides_global_variable_b "local_variable_hides_global_variable_b"
                OpName %glob_0 "glob"
                OpName %main "main"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

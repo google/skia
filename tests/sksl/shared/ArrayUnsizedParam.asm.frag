@@ -19,6 +19,8 @@
                OpName %getColor_h4f_testArr "getColor_h4f_testArr"
                OpName %getColor_helper_h4f_testArr "getColor_helper_h4f_testArr"
                OpName %main "main"
+               OpDecorate %getColor_h4f_testArr RelaxedPrecision
+               OpDecorate %getColor_helper_h4f_testArr RelaxedPrecision
                OpDecorate %_runtimearr_float ArrayStride 4
                OpMemberDecorate %testStorageBuffer 0 Offset 0
                OpDecorate %testStorageBuffer BufferBlock

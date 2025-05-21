@@ -24,6 +24,7 @@
                OpName %switch_with_if_that_returns_b "switch_with_if_that_returns_b"
                OpName %switch_with_one_sided_if_then_fallthrough_b "switch_with_one_sided_if_then_fallthrough_b"
                OpName %main "main"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

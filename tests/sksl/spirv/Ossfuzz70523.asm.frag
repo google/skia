@@ -10,6 +10,8 @@
                OpName %helper_h4Z_aSampler "helper_h4Z_aSampler"
                OpName %helper_h4Z_anotherSampler "helper_h4Z_anotherSampler"
                OpName %main "main"
+               OpDecorate %helper_h4Z_aSampler RelaxedPrecision
+               OpDecorate %helper_h4Z_anotherSampler RelaxedPrecision
                OpDecorate %aSampler_texture Binding 2
                OpDecorate %aSampler_texture DescriptorSet 0
                OpDecorate %aSampler_sampler Binding 3
@@ -18,7 +20,9 @@
                OpDecorate %anotherSampler_texture DescriptorSet 0
                OpDecorate %anotherSampler_sampler Binding 5
                OpDecorate %anotherSampler_sampler DescriptorSet 0
+               OpDecorate %16 RelaxedPrecision
                OpDecorate %18 RelaxedPrecision
+               OpDecorate %26 RelaxedPrecision
                OpDecorate %28 RelaxedPrecision
                OpDecorate %37 RelaxedPrecision
       %float = OpTypeFloat 32

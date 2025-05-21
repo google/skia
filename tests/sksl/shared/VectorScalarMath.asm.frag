@@ -19,6 +19,7 @@
                OpName %_1_inputRed "_1_inputRed"
                OpName %_2_inputGreen "_2_inputGreen"
                OpName %_3_x "_3_x"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

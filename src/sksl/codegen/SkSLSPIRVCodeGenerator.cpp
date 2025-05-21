@@ -4435,7 +4435,7 @@ void SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Output
         if (fUseTextureSamplerPairs && parameter->type().isSampler()) {
             auto [texture, sampler] = this->synthesizeTextureAndSampler(*parameter);
 
-            SpvId textureId = this->nextId(nullptr);
+            SpvId textureId = this->nextId(&parameter->type());
             fVariableMap.set(texture, textureId);
 
             SpvId textureType = this->getFunctionParameterType(texture->type(), texture->layout());
@@ -4448,7 +4448,7 @@ void SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Output
                 SkASSERT(uniformId);
                 fVariableMap.set(sampler, *uniformId);
             } else {
-                SpvId samplerId = this->nextId(nullptr);
+                SpvId samplerId = this->nextId(&parameter->type());
                 fVariableMap.set(sampler, samplerId);
 
                 SpvId samplerType =
@@ -4461,7 +4461,7 @@ void SPIRVCodeGenerator::writeFunctionStart(const FunctionDeclaration& f, Output
                 SkASSERT(uniformId);
                 fVariableMap.set(parameter, *uniformId);
             } else {
-                SpvId id = this->nextId(nullptr);
+                SpvId id = this->nextId(&parameter->type());
                 fVariableMap.set(parameter, id);
 
                 SpvId type = this->getFunctionParameterType(parameter->type(), parameter->layout());
@@ -5352,10 +5352,11 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
                 if (const Analysis::Specializations* specializations =
                             fSpecializationInfo.fSpecializationMap.find(&funcDecl)) {
                     for (int i = 0; i < specializations->size(); i++) {
-                        fFunctionMap.set({&funcDecl, i}, this->nextId(nullptr));
+                        fFunctionMap.set({&funcDecl, i}, this->nextId(&funcDecl.returnType()));
                     }
                 } else {
-                    fFunctionMap.set({&funcDecl, Analysis::kUnspecialized}, this->nextId(nullptr));
+                    fFunctionMap.set({&funcDecl, Analysis::kUnspecialized},
+                                     this->nextId(&funcDecl.returnType()));
                 }
                 if (funcDecl.isMain()) {
                     main = &funcDecl;

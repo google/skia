@@ -14,6 +14,7 @@
                OpName %inv3x3 "inv3x3"
                OpName %inv4x4 "inv4x4"
                OpName %Zero "Zero"
+               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
