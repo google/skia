@@ -602,7 +602,6 @@ void SkDevice::drawShadow(SkCanvas* canvas, const SkPath& path, const SkDrawShad
     }
 
     SkMatrix viewMatrix = this->localToDevice();
-    SkAutoDeviceTransformRestore adr(this, SkM44());
 
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     auto drawVertsProc = [this](const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint,
@@ -640,6 +639,8 @@ void SkDevice::drawShadow(SkCanvas* canvas, const SkPath& path, const SkDrawShad
     float lightRadius = rec.fLightRadius;
 
     if (SkColorGetA(rec.fAmbientColor) > 0) {
+        SkAutoDeviceTransformRestore adr(this, SkM44());
+
         bool success = false;
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
         if (uncached && !useBlur) {
@@ -733,6 +734,8 @@ void SkDevice::drawShadow(SkCanvas* canvas, const SkPath& path, const SkDrawShad
     }
 
     if (SkColorGetA(rec.fSpotColor) > 0) {
+        SkAutoDeviceTransformRestore adr(this, SkM44());
+
         bool success = false;
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
         if (uncached && !useBlur) {
