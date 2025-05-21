@@ -11,6 +11,7 @@
 #   //include/private/base/BUILD.bazel
 #   //include/private/chromium/BUILD.bazel
 #   //src/base/BUILD.bazel
+#   //src/capture/BUILD.bazel
 #   //src/core/BUILD.bazel
 #   //src/encode/BUILD.bazel
 #   //src/image/BUILD.bazel
@@ -132,6 +133,8 @@ skia_core_public = [
 #  //src/base:private_hdrs
 #  //src/base:skslc_srcs
 #  //src/base:srcs
+#  //src/capture:capture_hdrs
+#  //src/capture:capture_srcs
 #  //src/core:core_priv_hdrs
 #  //src/core:core_priv_srcs
 #  //src/core:core_srcs
@@ -251,6 +254,8 @@ skia_core_sources = [
   "$_src/base/SkUtils.h",
   "$_src/base/SkVx.h",
   "$_src/base/SkZip.h",
+  "$_src/capture/SkCaptureCanvas.cpp",
+  "$_src/capture/SkCaptureCanvas.h",
   "$_src/core/Sk4px.h",
   "$_src/core/SkAAClip.cpp",
   "$_src/core/SkAAClip.h",

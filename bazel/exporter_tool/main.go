@@ -102,6 +102,8 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/base:private_hdrs",
 				"//src/base:skslc_srcs",
 				"//src/base:srcs",
+				"//src/capture:capture_hdrs",
+				"//src/capture:capture_srcs",
 				"//src/core:core_priv_hdrs",
 				"//src/core:core_priv_srcs",
 				"//src/core:core_srcs",
@@ -752,10 +754,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 	{GNI: "modules/jsonreader/jsonreader.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_jsonreader_sources",
 			Rules: []string{"//modules/jsonreader:jsonreader"}},
-	}},
-	{GNI: "modules/skcapture/skcapture.gni", Vars: []exporter.GNIFileListExportDesc{
-		{Var: "skia_skcapture_sources",
-			Rules: []string{"//modules/skcapture:skcapture"}},
 	}},
 }
 

@@ -1,0 +1,19 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "capture_srcs",
+    srcs = ["SkCaptureCanvas.cpp"],
+    visibility = ["//src/core:__pkg__"],
+)
+
+skia_filegroup(
+    name = "capture_hdrs",
+    srcs = ["SkCaptureCanvas.h"],
+    visibility = ["//src/core:__pkg__"],
+)

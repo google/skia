@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "modules/skcapture/SkCaptureCanvas.h"
+#include "src/capture/SkCaptureCanvas.h"
 
 #include <memory>
 #include "include/core/SkPicture.h"
