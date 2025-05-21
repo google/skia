@@ -577,6 +577,64 @@ skgpu::graphite::PaintOptions MouriMapToneMap() {
     return paintOptions;
 }
 
+skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver() {
+    static const SkString kLowSampleBlurString(R"(
+        uniform shader img;
+
+        half4 main(float2 xy) {
+            half3 c = img.eval(xy).rgb;
+            return half4(c, 1.0);
+        }
+    )");
+
+    sk_sp<SkRuntimeEffect> lowSampleBlurEffect = makeEffect(
+            kLowSampleBlurString,
+            "RE_KawaseBlurDualFilter_LowSampleBlurEffect");
+
+    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
+    sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                           { &ci, 1 },
+                                                           {});
+
+    sk_sp<PrecompileShader> kawase = PrecompileRuntimeEffects::MakePrecompileShader(
+            std::move(lowSampleBlurEffect),
+            { { img } });
+
+    PaintOptions paintOptions;
+    paintOptions.setShaders({ std::move(kawase) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrc, SkBlendMode::kSrcOver });
+    return paintOptions;
+}
+
+skgpu::graphite::PaintOptions KawaseBlurHighSrc() {
+    SkString kHighSampleBlurString(R"(
+        uniform shader img;
+
+        half4 main(float2 xy) {
+            half3 c = img.eval(xy).rgb;
+            return half4(c * 0.5, 1.0);
+        }
+    )");
+
+    sk_sp<SkRuntimeEffect> highSampleBlurEffect = makeEffect(
+            kHighSampleBlurString,
+            "RE_KawaseBlurDualFilter_HighSampleBlurEffect");
+
+    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
+    sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                           { &ci, 1 },
+                                                           {});
+
+    sk_sp<PrecompileShader> kawase = PrecompileRuntimeEffects::MakePrecompileShader(
+            std::move(highSampleBlurEffect),
+            { { img } });
+
+    PaintOptions paintOptions;
+    paintOptions.setShaders({ std::move(kawase) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrc });
+    return paintOptions;
+}
+
 #if defined(SK_VULKAN)
 namespace {
 sk_sp<PrecompileShader> vulkan_ycbcr_image_shader(uint64_t format,

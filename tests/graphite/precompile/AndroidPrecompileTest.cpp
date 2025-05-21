@@ -22,8 +22,8 @@ using namespace PrecompileTestUtils;
 
 namespace {
 
-// For non-Vulkan configs, these settings cover 45 of the 87 cases in 'kCases'.
-// They create 57 Pipelines so only modestly over-generate (12 extra Pipelines - 21%).
+// For non-Vulkan configs, these settings cover 48 of the 87 cases in 'kCases'.
+// They create 60 Pipelines so only modestly over-generate (12 extra Pipelines - 20%).
 //
 // For Vulkan configs, the Vulkan-specific PrecompileSettings handle 6 more cases and
 // add 8 more Pipelines.
@@ -113,18 +113,22 @@ const PrecompileSettings kPrecompileCases[] = {
 /* 29 */ { MouriMapCrosstalkAndChunk16x16(),   DrawTypeFlags::kNonAAFillRect,   kRGBA16F_1_D_SRGB },
 // 100% (1/1) handles 6
 /* 30 */ { MouriMapChunk8x8Effect(),           DrawTypeFlags::kNonAAFillRect,   kRGBA16F_1_D },
+// 100% (2/2) handles 55, 56
+/* 31 */ { KawaseBlurLowSrcSrcOver(),          DrawTypeFlags::kNonAAFillRect,   kRGBA_1_D },
+// 100% (1/1) handles 54
+/* 32 */ { KawaseBlurHighSrc(),                DrawTypeFlags::kNonAAFillRect,   kRGBA_1_D },
 
 #if defined(SK_VULKAN) && defined(SK_BUILD_FOR_ANDROID)
 // 100% (2/2) handles 26 50
-/* 31 */ { ImagePremulYCbCr238Srcover(),       kRRectAndNonAARect,              kRGBA_1_D },
+/* 33 */ { ImagePremulYCbCr238Srcover(),       kRRectAndNonAARect,              kRGBA_1_D },
 // 100% (1/1) handles 49
-/* 32 */ { ImagePremulYCbCr240Srcover(),       DrawTypeFlags::kNonAAFillRect,   kRGBA_1_D },
+/* 34 */ { ImagePremulYCbCr240Srcover(),       DrawTypeFlags::kNonAAFillRect,   kRGBA_1_D },
 // 50% (1/2) handles 76
-/* 33 */ { ImagePremulYCbCr240Srcover(),       DrawTypeFlags::kNonAAFillRect,   kRGBA_4_DS },
+/* 35 */ { ImagePremulYCbCr240Srcover(),       DrawTypeFlags::kNonAAFillRect,   kRGBA_4_DS },
 // 50% (1/2) handles 70
-/* 34 */ { TransparentPaintImagePremulYCbCr240Srcover(), DrawTypeFlags::kNonAAFillRect,kRGBA_4_DS },
+/* 36 */ { TransparentPaintImagePremulYCbCr240Srcover(), DrawTypeFlags::kNonAAFillRect,kRGBA_4_DS },
 // 100% (1/1) handles 8
-/* 35 */ { MouriMapCrosstalkAndChunk16x16YCbCr247(),DrawTypeFlags::kNonAAFillRect,kRGBA16F_1_D_SRGB },
+/* 37 */ { MouriMapCrosstalkAndChunk16x16YCbCr247(),DrawTypeFlags::kNonAAFillRect,kRGBA16F_1_D_SRGB },
 #endif
 };
 
@@ -300,13 +304,13 @@ static const PipelineLabel kCases[] = {
 /*   X */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "RE_GainmapEffect [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ColorSpaceTransformPremul ColorSpaceTransformPremul ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] ] ColorSpaceTransformPremul ColorSpaceTransformPremul ] Src" },
-/*   X */ { -1, "RP((RGBA8+D16 x1).rgba) + "
+/*  54 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "RE_KawaseBlurDualFilter_HighSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] Src" },
-/*   X */ { -1, "RP((RGBA8+D16 x1).rgba) + "
+/*  55 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "RE_KawaseBlurDualFilter_LowSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] Src" },
-/*   X */ { -1, "RP((RGBA8+D16 x1).rgba) + "
+/*  56 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "RE_KawaseBlurDualFilter_LowSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] SrcOver" },
 /*   X */ { -1, "RP((RGBA8+D16 x1).rgba) + "
@@ -416,12 +420,6 @@ bool skip(const char* str) {
     if (strstr(str, "RE_GainmapEffect")) {
         return true;
     }
-    if (strstr(str, "RE_KawaseBlurDualFilter_HighSampleBlurEffect")) {
-        return true;
-    }
-    if (strstr(str, "RE_KawaseBlurDualFilter_LowSampleBlurEffect")) {
-        return true;
-    }
     if (strstr(str, "RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader")) {
         return true;
     }
@@ -486,7 +484,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(AndroidPrecompileTest, is_acceptable_context_type
     }
 #endif
 
-    std::set<int> MSAALoadOnlyCases = { 2, 6, 9, 13, 15, 22, 26, 33, 34 };
+    std::set<int> MSAALoadOnlyCases = { 2, 6, 9, 13, 15, 22, 26, 35, 36 };
 
     PipelineLabelInfoCollector collector({ kCases }, skip);
 
