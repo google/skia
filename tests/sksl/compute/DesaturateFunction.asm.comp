@@ -22,9 +22,9 @@
                OpDecorate %33 RelaxedPrecision
                OpDecorate %34 RelaxedPrecision
                OpDecorate %35 RelaxedPrecision
-               OpDecorate %37 RelaxedPrecision
-               OpDecorate %48 RelaxedPrecision
-               OpDecorate %56 RelaxedPrecision
+               OpDecorate %36 RelaxedPrecision
+               OpDecorate %47 RelaxedPrecision
+               OpDecorate %55 RelaxedPrecision
        %uint = OpTypeInt 32 0
      %v3uint = OpTypeVector %uint 3
 %_ptr_Input_v3uint = OpTypePointer Input %v3uint
@@ -44,7 +44,7 @@
 %float_0_670000017 = OpConstant %float 0.670000017
 %float_0_109999999 = OpConstant %float 0.109999999
          %32 = OpConstantComposite %v3float %float_0_219999999 %float_0_670000017 %float_0_109999999
-         %40 = OpTypeFunction %void
+         %39 = OpTypeFunction %void
        %bool = OpTypeBool
       %false = OpConstantFalse %bool
 %desaturate_vTT = OpFunction %void None %14
@@ -63,37 +63,37 @@
          %34 = OpLoad %v4float %color
          %35 = OpVectorShuffle %v4float %34 %33 4 5 6 3
                OpStore %color %35
-         %37 = OpLoad %10 %16
-         %38 = OpLoad %v3uint %sk_GlobalInvocationID
-         %39 = OpVectorShuffle %v2uint %38 %38 0 1
-               OpImageWrite %37 %39 %35
+         %36 = OpLoad %10 %16
+         %37 = OpLoad %v3uint %sk_GlobalInvocationID
+         %38 = OpVectorShuffle %v2uint %37 %37 0 1
+               OpImageWrite %36 %38 %35
                OpReturn
                OpFunctionEnd
-       %main = OpFunction %void None %40
-         %41 = OpLabel
-         %44 = OpLoad %v3uint %sk_GlobalInvocationID
-         %45 = OpCompositeExtract %uint %44 0
-         %48 = OpLoad %10 %src
-         %47 = OpImageQuerySize %v2uint %48
-         %46 = OpCompositeExtract %uint %47 0
-         %49 = OpULessThan %bool %45 %46
-               OpSelectionMerge %51 None
-               OpBranchConditional %49 %50 %51
+       %main = OpFunction %void None %39
+         %40 = OpLabel
+         %43 = OpLoad %v3uint %sk_GlobalInvocationID
+         %44 = OpCompositeExtract %uint %43 0
+         %47 = OpLoad %10 %src
+         %46 = OpImageQuerySize %v2uint %47
+         %45 = OpCompositeExtract %uint %46 0
+         %48 = OpULessThan %bool %44 %45
+               OpSelectionMerge %50 None
+               OpBranchConditional %48 %49 %50
+         %49 = OpLabel
+         %51 = OpLoad %v3uint %sk_GlobalInvocationID
+         %52 = OpCompositeExtract %uint %51 1
+         %55 = OpLoad %10 %src
+         %54 = OpImageQuerySize %v2uint %55
+         %53 = OpCompositeExtract %uint %54 1
+         %56 = OpULessThan %bool %52 %53
+               OpBranch %50
          %50 = OpLabel
-         %52 = OpLoad %v3uint %sk_GlobalInvocationID
-         %53 = OpCompositeExtract %uint %52 1
-         %56 = OpLoad %10 %src
-         %55 = OpImageQuerySize %v2uint %56
-         %54 = OpCompositeExtract %uint %55 1
-         %57 = OpULessThan %bool %53 %54
-               OpBranch %51
-         %51 = OpLabel
-         %58 = OpPhi %bool %false %41 %57 %50
-               OpSelectionMerge %60 None
-               OpBranchConditional %58 %59 %60
+         %57 = OpPhi %bool %false %40 %56 %49
+               OpSelectionMerge %59 None
+               OpBranchConditional %57 %58 %59
+         %58 = OpLabel
+         %60 = OpFunctionCall %void %desaturate_vTT %src %dest
+               OpBranch %59
          %59 = OpLabel
-         %61 = OpFunctionCall %void %desaturate_vTT %src %dest
-               OpBranch %60
-         %60 = OpLabel
                OpReturn
                OpFunctionEnd

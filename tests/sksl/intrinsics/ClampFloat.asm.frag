@@ -27,23 +27,31 @@
                OpDecorate %7 DescriptorSet 0
                OpDecorate %expectedA RelaxedPrecision
                OpDecorate %expectedB RelaxedPrecision
+               OpDecorate %35 RelaxedPrecision
                OpDecorate %40 RelaxedPrecision
                OpDecorate %41 RelaxedPrecision
+               OpDecorate %45 RelaxedPrecision
                OpDecorate %47 RelaxedPrecision
                OpDecorate %48 RelaxedPrecision
                OpDecorate %51 RelaxedPrecision
+               OpDecorate %58 RelaxedPrecision
                OpDecorate %60 RelaxedPrecision
                OpDecorate %61 RelaxedPrecision
                OpDecorate %65 RelaxedPrecision
+               OpDecorate %72 RelaxedPrecision
                OpDecorate %74 RelaxedPrecision
+               OpDecorate %83 RelaxedPrecision
                OpDecorate %85 RelaxedPrecision
                OpDecorate %86 RelaxedPrecision
+               OpDecorate %91 RelaxedPrecision
                OpDecorate %93 RelaxedPrecision
                OpDecorate %94 RelaxedPrecision
                OpDecorate %99 RelaxedPrecision
+               OpDecorate %105 RelaxedPrecision
                OpDecorate %107 RelaxedPrecision
                OpDecorate %108 RelaxedPrecision
                OpDecorate %111 RelaxedPrecision
+               OpDecorate %117 RelaxedPrecision
                OpDecorate %119 RelaxedPrecision
                OpDecorate %133 RelaxedPrecision
                OpDecorate %140 RelaxedPrecision

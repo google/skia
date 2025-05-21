@@ -25,7 +25,7 @@
                OpDecorate %50 RelaxedPrecision
                OpDecorate %51 RelaxedPrecision
                OpDecorate %gray RelaxedPrecision
-               OpDecorate %54 RelaxedPrecision
+               OpDecorate %53 RelaxedPrecision
        %uint = OpTypeInt 32 0
      %v3uint = OpTypeVector %uint 3
 %_ptr_Input_v3uint = OpTypePointer Input %v3uint
@@ -84,10 +84,10 @@
          %51 = OpVectorShuffle %v4float %50 %49 4 5 6 3
                OpStore %_0_color %51
                OpStore %gray %51
-         %54 = OpLoad %9 %texOut
-         %55 = OpLoad %v3uint %sk_GlobalInvocationID
-         %56 = OpVectorShuffle %v2uint %55 %55 0 1
-               OpImageWrite %54 %56 %51
+         %53 = OpLoad %9 %texOut
+         %54 = OpLoad %v3uint %sk_GlobalInvocationID
+         %55 = OpVectorShuffle %v2uint %54 %54 0 1
+               OpImageWrite %53 %55 %51
                OpBranch %34
          %34 = OpLabel
                OpReturn

@@ -332,6 +332,12 @@ static bool failure_is_expected(std::string_view deviceName,    // "Geforce RTX4
             disables[test].push_back({regex("Mali-400"), _, GPU, _});
         }
 
+        // Old driver on Pixel6 causes unexpected precision issues when clamp is RelaxedPrecision
+        // (skbug.com/421882947)
+        for (const char* test : {"IntrinsicClampFloat"}) {
+            disables[test].push_back({regex("Mali-G78"), "Vulkan", Graphite, _});
+        }
+
         // - Nvidia -------------------------------------------------------------------------------
         // Tegra3 has several issues, but the inability to break from a for loop is a common theme.
         for (const char* test : {"Switch",                            // b/40043561
