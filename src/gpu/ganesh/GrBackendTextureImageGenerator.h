@@ -10,7 +10,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/ganesh/GrBackendSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/gpu/ganesh/GrTextureGenerator.h"
 #include "src/gpu/ResourceKey.h"
@@ -18,10 +17,12 @@
 
 #include <memory>
 
+class GrRecordingContext;
 class GrSemaphore;
 class GrTexture;
 class SkColorInfo;
 class SkColorSpace;
+class SkRecorder;
 enum GrSurfaceOrigin : int;
 enum SkAlphaType : int;
 enum SkColorType : int;
@@ -45,7 +46,7 @@ enum class Mipmapped : bool;
  * GrContext-B) which will then use the texture as a source for draws. GrContext-A uses the
  * semaphore to notify GrContext-B when the shared texture is ready to use.
  */
-class GrBackendTextureImageGenerator : public GrTextureGenerator {
+class GrBackendTextureImageGenerator final : public GrTextureGenerator {
 public:
     static std::unique_ptr<GrTextureGenerator> Make(const sk_sp<GrTexture>&, GrSurfaceOrigin,
                                                     std::unique_ptr<GrSemaphore>, SkColorType,
@@ -54,12 +55,8 @@ public:
     ~GrBackendTextureImageGenerator() override;
 
 protected:
-    bool onIsValid(GrRecordingContext* context) const override {
-        if (context && context->abandoned()) {
-            return false;
-        }
-        return true;
-    }
+    bool onIsValid(GrRecordingContext*) const override;
+    bool onIsValid(SkRecorder*) const override;
     bool onIsProtected() const override;
 
     GrSurfaceProxyView onGenerateTexture(GrRecordingContext*,

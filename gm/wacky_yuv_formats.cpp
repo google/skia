@@ -54,6 +54,10 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/gpu/YUVUtils.h"
 
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Recorder.h"
+#endif
+
 #include <math.h>
 #include <string.h>
 #include <initializer_list>
@@ -936,10 +940,8 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        auto direct = GrAsDirectContext(canvas->recordingContext());
-#if defined(SK_GRAPHITE)
-        auto recorder = canvas->recorder();
-#endif
+        auto recorder = canvas->baseRecorder();
+        SkASSERT(recorder);
 
         float cellWidth = kTileWidthHeight, cellHeight = kTileWidthHeight;
         if (fUseSubset) {
@@ -990,17 +992,8 @@ protected:
                         // Making a CS-specific version of a kIdentity_SkYUVColorSpace YUV image
                         // doesn't make a whole lot of sense. The colorSpace conversion will
                         // operate on the YUV components rather than the RGB components.
-                        sk_sp<SkImage> csImage;
-#if defined(SK_GRAPHITE)
-                        if (recorder) {
-                            csImage = fImages[opaque][cs][format]->makeColorSpace(
-                                    recorder, fTargetColorSpace, {});
-                        } else
-#endif
-                        {
-                            csImage = fImages[opaque][cs][format]->makeColorSpace(
-                                    direct, fTargetColorSpace);
-                        }
+                        sk_sp<SkImage> csImage = fImages[opaque][cs][format]->makeColorSpace(
+                                recorder, fTargetColorSpace, {});
                         canvas->drawImageRect(csImage, srcRect, dstRect, sampling,
                                               &paint, constraint);
                     } else {

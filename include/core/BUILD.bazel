@@ -134,6 +134,7 @@ generate_cpp_files_for_headers(
         "SkFourByteTag.h",
         "SkPathTypes.h",
         "SkRefCnt.h",
+        "SkRecorder.h",
         "SkScalar.h",
         "SkSerialProcs.h",
         "SkShader.h",

@@ -44,16 +44,9 @@ sk_sp<SkImage> make_color_space(sk_sp<SkImage> orig,
         return nullptr;
     }
 
-    sk_sp<SkImage> xform;
-#if defined(SK_GRAPHITE)
-    if (auto recorder = canvas->recorder()) {
-        xform = orig->makeColorSpace(recorder, colorSpace, {});
-    } else
-#endif
-    {
-        auto direct = GrAsDirectContext(canvas->recordingContext());
-        xform = orig->makeColorSpace(direct, colorSpace);
-    }
+    auto recorder = canvas->baseRecorder();
+    SkASSERT(recorder);
+    sk_sp<SkImage> xform = orig->makeColorSpace(recorder, colorSpace, {});
 
     if (!xform) {
         return nullptr;
@@ -110,6 +103,8 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
 
     // Use the lazy images on the first iteration, and concrete (raster/GPU) images on the second
     auto direct = GrAsDirectContext(canvas->recordingContext());
+    auto recorder = canvas->baseRecorder();
+    SkASSERT(recorder);
     for (bool lazy : {true, false}) {
         for (size_t j = 0; j < std::size(images); ++j) {
             const SkImage* image = images[j].get();
@@ -127,17 +122,8 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
 
             // 565 in a wide color space (should be visibly quantized). Fails with the color_wheel,
             // because of the codec issues mentioned above.
-            sk_sp<SkImage> image565;
-
-#if defined(SK_GRAPHITE)
-            if (auto recorder = canvas->recorder()) {
-                image565 = image->makeColorTypeAndColorSpace(
-                        recorder, kRGB_565_SkColorType, rec2020, {});
-            } else
-#endif
-            {
-                image565 = image->makeColorTypeAndColorSpace(direct, kRGB_565_SkColorType, rec2020);
-            }
+            sk_sp<SkImage> image565 =
+                    image->makeColorTypeAndColorSpace(recorder, kRGB_565_SkColorType, rec2020, {});
             if (image565) {
                 if (!lazy || image565->isTextureBacked() || image565->makeRasterImage()) {
                     canvas->drawImage(image565, 128, 0);
@@ -146,17 +132,8 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
 
             // Grayscale in the original color space. This fails in even more cases, due to the
             // above opaque issue, and because Ganesh doesn't support drawing to gray, at all.
-            sk_sp<SkImage> imageGray;
-#if defined(SK_GRAPHITE)
-            if (auto recorder = canvas->recorder()) {
-                imageGray = image->makeColorTypeAndColorSpace(
-                        recorder, kGray_8_SkColorType, image->refColorSpace(), {});
-            } else
-#endif
-            {
-                imageGray = image->makeColorTypeAndColorSpace(
-                        direct, kGray_8_SkColorType, image->refColorSpace());
-            }
+            sk_sp<SkImage> imageGray = image->makeColorTypeAndColorSpace(
+                    recorder, kGray_8_SkColorType, image->refColorSpace(), {});
             if (imageGray) {
                 if (!lazy || imageGray->isTextureBacked() || imageGray->makeRasterImage()) {
                     canvas->drawImage(imageGray, 256, 0);
@@ -164,8 +141,8 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
             }
 
 #if defined(SK_GRAPHITE)
-            if (auto recorder = canvas->recorder()) {
-                images[j] = SkImages::TextureFromImage(recorder, image, {});
+            if (auto r = canvas->recorder()) {
+                images[j] = SkImages::TextureFromImage(r, image, {});
             } else
 #endif
             {
@@ -236,15 +213,9 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
 
     canvas->drawImage(image, 0.0f, 0.0f);
     canvas->drawImage(image->reinterpretColorSpace(spin), 128.0f, 0.0f);
-
-#if defined(SK_GRAPHITE)
-    if (auto recorder = canvas->recorder()) {
-        gpuImage = image->makeColorSpace(recorder, spin, {});
-    } else
-#endif
-    {
-        gpuImage = image->makeColorSpace(direct, spin);
-    }
+    auto recorder = canvas->baseRecorder();
+    SkASSERT(recorder);
+    gpuImage = image->makeColorSpace(recorder, spin, {});
     if (gpuImage) {
         canvas->drawImage(gpuImage->reinterpretColorSpace(srgb), 256.0f, 0.0f);
     }

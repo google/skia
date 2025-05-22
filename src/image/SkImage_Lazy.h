@@ -30,6 +30,7 @@ class SkBitmap;
 class SkCachedData;
 class SkData;
 class SkPixmap;
+class SkRecorder;
 class SkSurface;
 enum SkColorType : int;
 struct SkIRect;
@@ -53,6 +54,7 @@ public:
 
     // From SkImage.h
     bool isValid(GrRecordingContext*) const override;
+    bool isValid(SkRecorder*) const override;
 
     // From SkImage_Base.h
     bool onHasMipmaps() const override {
@@ -70,7 +72,7 @@ public:
                                 const SkIRect&,
                                 RequiredProperties) const override;
 
-    sk_sp<SkSurface> onMakeSurface(skgpu::graphite::Recorder*, const SkImageInfo&) const override;
+    sk_sp<SkSurface> onMakeSurface(SkRecorder*, const SkImageInfo&) const override;
 
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const override;
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kLazy; }

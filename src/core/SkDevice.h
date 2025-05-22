@@ -48,6 +48,7 @@ class SkPaint;
 class SkPath;
 class SkPixmap;
 class SkRRect;
+class SkRecorder;
 class SkSurface;
 class SkVertices;
 enum SkColorType : int;
@@ -282,6 +283,7 @@ public:
 
     virtual GrRecordingContext* recordingContext() const { return nullptr; }
     virtual skgpu::graphite::Recorder* recorder() const { return nullptr; }
+    virtual SkRecorder* baseRecorder() const { return nullptr; }
 
     virtual skgpu::ganesh::Device* asGaneshDevice() { return nullptr; }
     virtual skgpu::graphite::Device* asGraphiteDevice() { return nullptr; }

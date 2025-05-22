@@ -129,7 +129,7 @@ sk_sp<SkImage> SkImage_Base::makeColorSpace(GrDirectContext* direct,
     return this->makeColorTypeAndColorSpace(direct, this->colorType(), std::move(target));
 }
 
-sk_sp<SkImage> SkImage_Base::makeColorSpace(skgpu::graphite::Recorder* recorder,
+sk_sp<SkImage> SkImage_Base::makeColorSpace(SkRecorder* recorder,
                                             sk_sp<SkColorSpace> target,
                                             RequiredProperties props) const {
     return this->makeColorTypeAndColorSpace(recorder, this->colorType(), std::move(target), props);
@@ -155,7 +155,7 @@ sk_sp<SkImage> SkImage_Base::makeColorTypeAndColorSpace(GrDirectContext* dContex
     return this->onMakeColorTypeAndColorSpace(targetColorType, std::move(targetCS), dContext);
 }
 
-sk_sp<SkImage> SkImage_Base::makeColorTypeAndColorSpace(skgpu::graphite::Recorder*,
+sk_sp<SkImage> SkImage_Base::makeColorTypeAndColorSpace(SkRecorder* recorder,
                                                         SkColorType ct,
                                                         sk_sp<SkColorSpace> cs,
                                                         RequiredProperties) const {

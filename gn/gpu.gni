@@ -330,6 +330,7 @@ skia_ganesh_private = [
   "$_src/gpu/ganesh/PathRenderer.h",
   "$_src/gpu/ganesh/PathRendererChain.cpp",
   "$_src/gpu/ganesh/PathRendererChain.h",
+  "$_src/gpu/ganesh/SkGaneshRecorder.h",
   "$_src/gpu/ganesh/SkGr.cpp",
   "$_src/gpu/ganesh/SkGr.h",
   "$_src/gpu/ganesh/StencilClip.h",

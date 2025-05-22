@@ -9,7 +9,9 @@
 #define skgpu_graphite_Device_DEFINED
 
 #include "include/core/SkImage.h"
+#include "include/core/SkRecorder.h"
 #include "include/gpu/GpuTypes.h"
+#include "include/gpu/graphite/Recorder.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/core/SkDevice.h"
 #include "src/gpu/graphite/ClipStack.h"
@@ -34,7 +36,6 @@ class Geometry;
 class Image;
 enum class LoadOp : uint8_t;
 class PaintParams;
-class Recorder;
 class Renderer;
 class Shape;
 class StrokeStyle;
@@ -70,6 +71,8 @@ public:
     Device* asGraphiteDevice() override { return this; }
 
     Recorder* recorder() const override { return fRecorder; }
+    SkRecorder* baseRecorder() const override { return fRecorder; }
+
     // This call is triggered from the Recorder on its registered Devices. It is typically called
     // when the Recorder is abandoned or deleted.
     void abandonRecorder() { fRecorder = nullptr; }

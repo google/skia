@@ -23,7 +23,7 @@ void draw(SkCanvas* canvas) {
             canvas->drawString(msg, 20, image->height() * 5 / 8, font, paint);
         }
 
-        const char* msg = image->isValid(nullptr) ? "is valid on CPU" : "not valid on CPU";
+        const char* msg = image->isTextureBacked() ? "is not valid on CPU" : "valid on CPU";
 
         canvas->drawString(msg, 20, image->height() * 7 / 8, font, paint);
     };

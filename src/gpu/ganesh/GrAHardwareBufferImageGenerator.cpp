@@ -28,6 +28,7 @@
 #include "src/gpu/ganesh/GrResourceProviderPriv.h"
 #include "src/gpu/ganesh/GrTexture.h"
 #include "src/gpu/ganesh/GrTextureProxy.h"
+#include "src/gpu/ganesh/SkGaneshRecorder.h"
 #include "src/gpu/ganesh/SkGr.h"
 
 #include <android/hardware_buffer.h>
@@ -211,6 +212,16 @@ bool GrAHardwareBufferImageGenerator::onIsValid(GrRecordingContext* context) con
     }
     return GrBackendApi::kOpenGL == context->backend() ||
            GrBackendApi::kVulkan == context->backend();
+}
+
+bool GrAHardwareBufferImageGenerator::onIsValid(SkRecorder* recorder) const {
+    if (!recorder) {
+        return false;
+    }
+    if (recorder->type() != SkRecorder::Type::kGanesh) {
+        return false;
+    }
+    return this->onIsValid(static_cast<SkGaneshRecorder*>(recorder)->recordingContext());
 }
 
 #endif //SK_BUILD_FOR_ANDROID_FRAMEWORK

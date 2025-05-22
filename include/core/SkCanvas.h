@@ -68,6 +68,7 @@ class SkPicture;
 class SkPixmap;
 class SkRRect;
 class SkRegion;
+class SkRecorder;
 class SkShader;
 class SkSpecialImage;
 class SkSurface;
@@ -327,12 +328,17 @@ public:
      */
     virtual GrRecordingContext* recordingContext() const;
 
-
     /** Returns Recorder for the GPU surface associated with SkCanvas.
 
         @return  Recorder, if available; nullptr otherwise
      */
     virtual skgpu::graphite::Recorder* recorder() const;
+
+    /** Returns Recorder for the surface associated with SkCanvas.
+
+        @return  Recorder, should be non-null
+     */
+    virtual SkRecorder* baseRecorder() const;
 
     /** Sometimes a canvas is owned by a surface. If it is, getSurface() will return a bare
      *  pointer to that surface, else this will return nullptr.

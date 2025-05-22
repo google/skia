@@ -45,16 +45,13 @@
 #include "tools/fonts/FontToolUtils.h"
 
 #if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Image.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
 #endif
 
 #include <functional>
 #include <utility>
-
-#if defined(SK_GRAPHITE)
-#include "include/gpu/graphite/Image.h"
-#endif
 
 const SkSamplingOptions gSamplings[] = {
     SkSamplingOptions(SkFilterMode::kNearest),
@@ -223,7 +220,7 @@ static void show_scaled_pixels(SkCanvas* canvas, SkImage* image, bool useImageSc
         canvas->save();
         for (auto s : gSamplings) {
             if (useImageScaling) {
-                if (auto scaled = image->makeScaled(canvas->recorder() ,info, s)) {
+                if (auto scaled = image->makeScaled(canvas->baseRecorder(), info, s)) {
                     canvas->drawImage(scaled, 0, 0);
                 }
             } else {

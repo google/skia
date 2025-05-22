@@ -14,6 +14,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
+#include "src/core/SkCPURecorderImpl.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkRasterClipStack.h"
@@ -29,6 +30,7 @@ class SkPath;
 class SkPixmap;
 class SkRRect;
 class SkRasterHandleAllocator;
+class SkRecorder;
 class SkRegion;
 class SkShader;
 class SkSpecialImage;
@@ -39,7 +41,6 @@ enum class SkClipOp;
 struct SkImageInfo;
 struct SkPoint;
 struct SkRSXform;
-namespace skcpu { class RecorderImpl; }
 namespace sktext { class GlyphRunList; }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -119,6 +120,8 @@ public:
     void setImmutable() override { fBitmap.setImmutable(); }
 
     void* getRasterHandle() const override { return fRasterHandle; }
+
+    SkRecorder* baseRecorder() const override { return fRecorder; }
 
 private:
     friend class SkDraw;

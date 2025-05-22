@@ -23,6 +23,7 @@ class GrImageContext;
 class SkBitmap;
 class SkColorSpace;
 class SkPixmap;
+class SkRecorder;
 class SkSurface;
 enum SkColorType : int;
 enum SkYUVColorSpace : int;
@@ -44,13 +45,13 @@ public:
 
     // From SkImage.h
     sk_sp<SkImage> makeColorSpace(GrDirectContext*, sk_sp<SkColorSpace>) const override;
-    sk_sp<SkImage> makeColorSpace(skgpu::graphite::Recorder*,
+    sk_sp<SkImage> makeColorSpace(SkRecorder*,
                                   sk_sp<SkColorSpace>,
                                   RequiredProperties) const override;
     sk_sp<SkImage> makeColorTypeAndColorSpace(GrDirectContext* dContext,
                                               SkColorType targetColorType,
                                               sk_sp<SkColorSpace> targetCS) const override;
-    sk_sp<SkImage> makeColorTypeAndColorSpace(skgpu::graphite::Recorder*,
+    sk_sp<SkImage> makeColorTypeAndColorSpace(SkRecorder*,
                                               SkColorType,
                                               sk_sp<SkColorSpace>,
                                               RequiredProperties) const override;
@@ -73,10 +74,6 @@ public:
                               int srcX,
                               int srcY,
                               CachingHint) const = 0;
-
-    // used by makeScaled()
-    virtual sk_sp<SkSurface> onMakeSurface(skgpu::graphite::Recorder*,
-                                           const SkImageInfo&) const = 0;
 
     virtual bool readPixelsGraphite(skgpu::graphite::Recorder*,
                                     const SkPixmap& dst,
@@ -135,6 +132,10 @@ public:
     virtual sk_sp<SkData> onRefEncoded() const { return nullptr; }
 
     virtual bool onAsLegacyBitmap(GrDirectContext*, SkBitmap*) const;
+
+    // Create the surface used by makeScaled. If this is a GPU backed image, the surface
+    // should be Ganesh or Graphite backed (as appropriate), otherwise this can raster backed.
+    virtual sk_sp<SkSurface> onMakeSurface(SkRecorder*, const SkImageInfo&) const = 0;
 
     enum class Type {
         kRaster,
@@ -202,6 +203,7 @@ protected:
 
 private:
     // Set true by caches when they cache content that's derived from the current pixels.
+
     mutable std::atomic<bool> fAddedToRasterCache;
 };
 

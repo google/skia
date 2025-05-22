@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_Image_Base_Graphite_DEFINED
 #define skgpu_graphite_Image_Base_Graphite_DEFINED
 
+#include "include/core/SkRecorder.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "src/base/SkSpinlock.h"
@@ -48,14 +49,17 @@ public:
 
     // From SkImage.h
     // TODO(egdaniel) This feels wrong. Re-think how this method is used and works.
-    bool isValid(GrRecordingContext*) const override { return true; }
+    bool isValid(GrRecordingContext*) const final { return true; }
+    bool isValid(SkRecorder* recorder) const final {
+        return recorder && recorder->type() == SkRecorder::Type::kGraphite;
+    }
 
     // From SkImage_Base.h
-    sk_sp<SkImage> onMakeSubset(Recorder*, const SkIRect&, RequiredProperties) const override;
-    sk_sp<SkImage> makeColorTypeAndColorSpace(Recorder*,
+    sk_sp<SkImage> onMakeSubset(Recorder*, const SkIRect&, RequiredProperties) const final;
+    sk_sp<SkImage> makeColorTypeAndColorSpace(SkRecorder*,
                                               SkColorType targetCT,
                                               sk_sp<SkColorSpace> targetCS,
-                                              RequiredProperties) const override;
+                                              RequiredProperties) const final;
 
     // No-ops for Ganesh APIs
     bool onReadPixels(GrDirectContext*,
@@ -64,19 +68,21 @@ public:
                       size_t dstRowBytes,
                       int srcX,
                       int srcY,
-                      CachingHint) const override { return false; }
+                      CachingHint) const final {
+        return false;
+    }
 
-    bool getROPixels(GrDirectContext*,
-                     SkBitmap*,
-                     CachingHint = kAllow_CachingHint) const override { return false; }
+    bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint = kAllow_CachingHint) const final {
+        return false;
+    }
 
-    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
+    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const final;
 
-    sk_sp<SkSurface> onMakeSurface(Recorder*, const SkImageInfo&) const override;
+    sk_sp<SkSurface> onMakeSurface(SkRecorder*, const SkImageInfo&) const final;
 
     sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
                                                 sk_sp<SkColorSpace>,
-                                                GrDirectContext*) const override;
+                                                GrDirectContext*) const final;
 
     void onAsyncRescaleAndReadPixels(const SkImageInfo&,
                                      SkIRect srcRect,

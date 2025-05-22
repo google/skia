@@ -248,6 +248,7 @@ CORE_FILES = [
     "PathRendererChain.h",
     "SkGr.cpp",
     "SkGr.h",
+    "SkGaneshRecorder.h",
     "StencilClip.h",
     "StencilMaskHelper.cpp",
     "StencilMaskHelper.h",
@@ -423,6 +424,7 @@ generate_cpp_files_for_headers(
         "GrUserStencilSettings.h",
         "GrWindowRectangles.h",
         "GrWaitRenderTask.h",
+        "SkGaneshRecorder.h",
 
         # Trips an assertion in IWYU
         # /tmp/iwyu/iwyu.cc:2003: Assertion failed:

@@ -7,6 +7,7 @@
 #include "src/image/SkImage_Raster.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkCPURecorder.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
@@ -82,11 +83,18 @@ bool SkImage_Raster::getROPixels(GrDirectContext*, SkBitmap* dst, CachingHint) c
     return true;
 }
 
-sk_sp<SkSurface> SkImage_Raster::onMakeSurface(skgpu::graphite::Recorder*,
+sk_sp<SkSurface> SkImage_Raster::onMakeSurface(SkRecorder* recorder,
                                                const SkImageInfo& info) const {
+    if (!recorder) {
+        // TODO(kjlubick) remove this after old SkImage::makeScaled(image info, sampling) API gone
+        recorder = skcpu::Recorder::TODO();
+    }
+    if (recorder->type() != SkRecorder::Type::kRaster) {
+        return nullptr;
+    }
     const SkSurfaceProps* props = nullptr;
-    const size_t rowBytes = 0;
-    return SkSurfaces::Raster(info, rowBytes, props);
+    constexpr size_t rowBytes = 0;
+    return static_cast<skcpu::Recorder*>(recorder)->makeBitmapSurface(info, rowBytes, props);
 }
 
 static SkBitmap copy_bitmap_subset(const SkBitmap& orig, const SkIRect& subset) {
@@ -115,7 +123,7 @@ sk_sp<SkImage> SkImage_Raster::onMakeSubset(GrDirectContext*, const SkIRect& sub
     if (copy.isNull()) {
         return nullptr;
     } else {
-        return copy.asImage();
+        return SkImages::RasterFromBitmap(copy);
     }
 }
 
@@ -166,7 +174,7 @@ sk_sp<SkImage> SkImage_Raster::onMakeSubset(skgpu::graphite::Recorder*,
     } else {
         SkBitmap copy = copy_bitmap_subset(fBitmap, subset);
         if (!copy.isNull()) {
-            img = copy.asImage();
+            img = SkImages::RasterFromBitmap(copy);
         }
     }
 
@@ -229,7 +237,7 @@ sk_sp<SkImage> SkImage_Raster::onMakeColorTypeAndColorSpace(SkColorType targetCT
 
     SkAssertResult(dst.writePixels(src));
     dst.setImmutable();
-    return dst.asImage();
+    return SkImages::RasterFromBitmap(dst);
 }
 
 sk_sp<SkImage> SkImage_Raster::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {

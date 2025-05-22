@@ -1661,6 +1661,10 @@ skgpu::graphite::Recorder* SkCanvas::recorder() const {
     return this->topDevice()->recorder();
 }
 
+SkRecorder* SkCanvas::baseRecorder() const {
+    return this->topDevice()->baseRecorder();
+}
+
 void SkCanvas::drawDRRect(const SkRRect& outer, const SkRRect& inner,
                           const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);

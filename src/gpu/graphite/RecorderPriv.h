@@ -113,6 +113,16 @@ inline const RecorderPriv Recorder::priv() const {  // NOLINT(readability-const-
     return RecorderPriv(const_cast<Recorder*>(this));
 }
 
+inline Recorder* AsGraphiteRecorder(SkRecorder* recorder) {
+    if (!recorder) {
+        return nullptr;
+    }
+    if (recorder->type() != SkRecorder::Type::kGraphite) {
+        return nullptr;
+    }
+    return static_cast<Recorder*>(recorder);
+}
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_RecorderPriv_DEFINED
