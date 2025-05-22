@@ -130,6 +130,7 @@ skgpu::graphite::PaintOptions MouriMapBlur();
 skgpu::graphite::PaintOptions MouriMapToneMap();
 skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver();
 skgpu::graphite::PaintOptions KawaseBlurHighSrc();
+skgpu::graphite::PaintOptions BlurFilterMix();
 
 #if defined(SK_VULKAN)
 skgpu::graphite::PaintOptions ImagePremulYCbCr238Srcover();

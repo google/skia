@@ -578,7 +578,7 @@ skgpu::graphite::PaintOptions MouriMapToneMap() {
 }
 
 skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver() {
-    static const SkString kLowSampleBlurString(R"(
+    static const SkString kLowSampleBlurCode(R"(
         uniform shader img;
 
         half4 main(float2 xy) {
@@ -588,7 +588,7 @@ skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver() {
     )");
 
     sk_sp<SkRuntimeEffect> lowSampleBlurEffect = makeEffect(
-            kLowSampleBlurString,
+            kLowSampleBlurCode,
             "RE_KawaseBlurDualFilter_LowSampleBlurEffect");
 
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
@@ -607,7 +607,7 @@ skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver() {
 }
 
 skgpu::graphite::PaintOptions KawaseBlurHighSrc() {
-    SkString kHighSampleBlurString(R"(
+    SkString kHighSampleBlurCode(R"(
         uniform shader img;
 
         half4 main(float2 xy) {
@@ -617,7 +617,7 @@ skgpu::graphite::PaintOptions KawaseBlurHighSrc() {
     )");
 
     sk_sp<SkRuntimeEffect> highSampleBlurEffect = makeEffect(
-            kHighSampleBlurString,
+            kHighSampleBlurCode,
             "RE_KawaseBlurDualFilter_HighSampleBlurEffect");
 
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
@@ -631,6 +631,33 @@ skgpu::graphite::PaintOptions KawaseBlurHighSrc() {
 
     PaintOptions paintOptions;
     paintOptions.setShaders({ std::move(kawase) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrc });
+    return paintOptions;
+}
+
+skgpu::graphite::PaintOptions BlurFilterMix() {
+    static const SkString kMixCode(R"(
+        uniform shader img1;
+        uniform shader img2;
+
+        half4 main(float2 xy) {
+            return half4(mix(img1.eval(xy), img2.eval(xy), 0.5)).rgb1;
+        }
+    )");
+
+    sk_sp<SkRuntimeEffect> mixEffect = makeEffect(kMixCode, "RE_BlurFilterMixEffect");
+
+    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
+    sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                           { &ci, 1 },
+                                                           {});
+
+    sk_sp<PrecompileShader> mix = PrecompileRuntimeEffects::MakePrecompileShader(
+            std::move(mixEffect),
+            { { img }, { img } });
+
+    PaintOptions paintOptions;
+    paintOptions.setShaders({ std::move(mix) });
     paintOptions.setBlendModes({ SkBlendMode::kSrc });
     return paintOptions;
 }
@@ -934,7 +961,9 @@ int PipelineLabelInfoCollector::processLabel(const std::string& precompiledLabel
 
     // We expect each PrecompileSettings case to handle disjoint sets of labels. If this
     // assert fires some pair of PrecompileSettings are handling the same case.
-    SkASSERT(result->second.fPrecompileCase == PipelineLabelInfo::kUninit);
+    SkASSERTF(result->second.fPrecompileCase == PipelineLabelInfo::kUninit,
+              "cases %d and %d cover the same label",
+              result->second.fPrecompileCase, precompileCase);
     result->second.fPrecompileCase = precompileCase;
     return result->second.fCasesIndex;
 }
