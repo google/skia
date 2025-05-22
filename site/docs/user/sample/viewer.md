@@ -132,11 +132,8 @@ refresh rate in milliseconds.
 
 #### Loading resources / skps
 
-TODO (https://issues.skia.org/295805469): This used to be possible with the instructions
-below, but they no longer work on recent versions of Android.
-
-To load resources in the Android Viewer place them in
-`/data/local/tmp/resources`; to load SKPs place them in `/data/local/tmp/skps`.
+Resources and SKPs are automatically copied to the package's assets and are loaded via the Android
+Asset Manager API.
 
 #### Running over RenderDoc
 
