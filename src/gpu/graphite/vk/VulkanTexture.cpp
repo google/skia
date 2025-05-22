@@ -122,15 +122,26 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
                                                useLazyAllocation,
                                                checkResult,
                                                &outInfo->fMemoryAlloc)) {
-        VULKAN_CALL(sharedContext->interface(), DestroyImage(device, image, nullptr));
-        return false;
-    }
+        // If lazy memory allocation fails, fallback to attempting to use a regular allocation.
+        if (useLazyAllocation &&
+            skgpu::VulkanMemory::AllocImageMemory(allocator,
+                                                  image,
+                                                  info.isProtected(),
+                                                  forceDedicatedMemory,
+                                                  /*useLazyAllocation=*/false,
+                                                  checkResult,
+                                                  &outInfo->fMemoryAlloc)) {
+            SKGPU_LOG_W("Could not allocate lazy image memory; using non-lazy instead.");
+            useLazyAllocation = false;
+        } else {
+            const char* protectednessStr =
+                    info.isProtected() == Protected::kYes ? "protected" : "unprotected";
+            const char* memoryTypeStr = forceDedicatedMemory ? "dedicated" : "shared";
+            SKGPU_LOG_E("Failed to allocate %s %s image memory.", protectednessStr, memoryTypeStr);
 
-    if (useLazyAllocation &&
-        !SkToBool(outInfo->fMemoryAlloc.fFlags & skgpu::VulkanAlloc::kLazilyAllocated_Flag)) {
-        SKGPU_LOG_E("Failed allocate lazy vulkan memory when requested");
-        skgpu::VulkanMemory::FreeImageMemory(allocator, outInfo->fMemoryAlloc);
-        return false;
+            VULKAN_CALL(sharedContext->interface(), DestroyImage(device, image, nullptr));
+            return false;
+        }
     }
 
     VULKAN_CALL_RESULT(
@@ -226,8 +237,8 @@ void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
     auto device = sharedContext->device();
     if (fAlloc.fFlags & skgpu::VulkanAlloc::kLazilyAllocated_Flag) {
         VkDeviceSize size;
-        VULKAN_CALL(sharedContext->interface(), GetDeviceMemoryCommitment(device, fAlloc.fMemory, &size));
-
+        VULKAN_CALL(sharedContext->interface(),
+                    GetDeviceMemoryCommitment(device, fAlloc.fMemory, &size));
         SkDebugf("Lazy Image. This: %p, image: %d, size: %d\n", this, fImage, size);
     }
 #endif
@@ -305,10 +316,20 @@ void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
     skgpu::MutableTextureStates::SetVkQueueFamilyIndex(this->mutableState(), newQueueFamilyIndex);
 }
 
-static bool has_transient_usage(const TextureInfo& info) {
+namespace {
+
+bool uses_lazy_memory(const VulkanAlloc& alloc) {
+    return alloc.fFlags & VulkanAlloc::Flag::kLazilyAllocated_Flag;
+}
+
+#ifdef SK_DEBUG
+bool has_transient_usage(const TextureInfo& info) {
     const auto& vkInfo = TextureInfoPriv::Get<VulkanTextureInfo>(info);
     return vkInfo.fImageUsageFlags & VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
 }
+#endif
+
+} // anonymous
 
 VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
                              SkISize dimensions,
@@ -321,12 +342,14 @@ VulkanTexture::VulkanTexture(const VulkanSharedContext* sharedContext,
         : Texture(sharedContext,
                   dimensions,
                   info,
-                  has_transient_usage(info),
+                  uses_lazy_memory(alloc),
                   std::move(mutableState),
                   ownership)
         , fImage(image)
         , fMemoryAlloc(alloc)
-        , fYcbcrConversion(std::move(ycbcrConversion)) {}
+        , fYcbcrConversion(std::move(ycbcrConversion)) {
+    SkASSERT(!uses_lazy_memory(fMemoryAlloc) || has_transient_usage(info));
+}
 
 void VulkanTexture::freeGpuData() {
     // Need to delete any ImageViews first
@@ -435,7 +458,7 @@ bool VulkanTexture::supportsInputAttachmentUsage() const {
 }
 
 size_t VulkanTexture::onUpdateGpuMemorySize() {
-    if (!has_transient_usage(this->textureInfo())) {
+    if (!uses_lazy_memory(fMemoryAlloc)) {
         // We don't expect non-transient textures to change their size over time.
         return this->gpuMemorySize();
     }

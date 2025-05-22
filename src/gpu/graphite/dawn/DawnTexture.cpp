@@ -98,7 +98,7 @@ DawnTexture::DawnTexture(const DawnSharedContext* sharedContext,
         : Texture(sharedContext,
                   dimensions,
                   info,
-                  has_transient_usage(info),
+                  /*isTransient=*/has_transient_usage(info),
                   /*mutableState=*/nullptr,
                   ownership)
         , fTexture(std::move(texture))
