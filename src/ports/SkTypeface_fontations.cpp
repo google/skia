@@ -363,7 +363,7 @@ public:
         // See below for the exception for SkFontHinting::kSlight.
         bool forceAutoHinting = SkToBool(fRec.fFlags & kForceAutohinting_Flag);
         AutoHinting autoHintingControl = forceAutoHinting ? AutoHinting::ForceForGlyfAndCff
-                : AutoHinting::Fallback;
+                                                          : AutoHinting::Fallback;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
         // On Android, match the FreeType backend and disable autohinting completely
