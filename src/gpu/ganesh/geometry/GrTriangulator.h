@@ -460,6 +460,7 @@ struct GrTriangulator::Edge {
     void insertBelow(Vertex*, const Comparator&);
     void disconnect();
     bool intersect(const Edge& other, SkPoint* p, uint8_t* alpha = nullptr) const;
+    bool hasTopAndBottom() const { return fTop != nullptr && fBottom != nullptr; }
 };
 
 struct GrTriangulator::EdgeList {
