@@ -80,7 +80,7 @@ pub unsafe fn make_hinting_instance<'a>(
             // So Engine::AutoFallback does not engage autohinting for CFF.
             let engine_type = match (autohinting_control, outlines.format()) {
                 (
-                    AutoHintingControl::PreferAutoOverHintsForGlyf,
+                    AutoHintingControl::ForceForGlyf,
                     Some(OutlineGlyphFormat::Glyf),
                 )
                 | (AutoHintingControl::ForceForGlyfAndCff, _) => {
@@ -91,6 +91,7 @@ pub unsafe fn make_hinting_instance<'a>(
                     );
                     Engine::Auto(glyph_styles.cloned())
                 }
+                (AutoHintingControl::ForceOff, _) => Engine::Interpreter,
                 _ => Engine::AutoFallback,
             };
 

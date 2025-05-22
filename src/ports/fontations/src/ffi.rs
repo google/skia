@@ -163,9 +163,10 @@ pub mod ffi {
     }
 
     pub enum AutoHintingControl {
-        PreferAutoOverHintsForGlyf,
+        ForceForGlyf,
         ForceForGlyfAndCff,
-        AutoAsFallback,
+        ForceOff,
+        Fallback,
     }
 
     pub enum OutlineFormat {
