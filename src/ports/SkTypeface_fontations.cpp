@@ -353,6 +353,8 @@ public:
             , fMappingIndex(realTypeface.getMappingIndex())
             , fPalette(realTypeface.getPalette())
             , fHintingInstance(fontations_ffi::no_hinting_instance()) {
+        using AutoHinting = fontations_ffi::AutoHintingControl;
+
         fRec.computeMatrices(
                 SkScalerContextRec::PreMatrixScale::kVertical, &fScale, &fRemainingMatrix);
 
@@ -360,16 +362,14 @@ public:
 
         // See below for the exception for SkFontHinting::kSlight.
         bool forceAutoHinting = SkToBool(fRec.fFlags & kForceAutohinting_Flag);
-        fontations_ffi::AutoHintingControl autoHintingControl =
-                forceAutoHinting
-                        ? fontations_ffi::AutoHintingControl::ForceForGlyfAndCff
-                        : fontations_ffi::AutoHintingControl::Fallback;
+        AutoHinting autoHintingControl = forceAutoHinting ? AutoHinting::ForceForGlyfAndCff
+                : AutoHinting::Fallback;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
         // On Android, match the FreeType backend and disable autohinting completely
         // unless the force flag is set.
         if (!forceAutoHinting)
-            autoHintingControl = fontations_ffi::AutoHintingControl::ForceOff;
+            autoHintingControl = AutoHinting::ForceOff;
 #endif
 
         // Hinting-reliant fonts exist that display incorrect contours when not executing their
@@ -396,12 +396,10 @@ public:
                         break;
                     case SkFontHinting::kSlight:
                         // Unhinted metrics.
-                        if (autoHintingControl !=
-                            fontations_ffi::AutoHintingControl::ForceForGlyfAndCff &&
-                            autoHintingControl !=
-                            fontations_ffi::AutoHintingControl::ForceOff) {
-                            autoHintingControl =
-                                    fontations_ffi::AutoHintingControl::ForceForGlyf;
+                        if (autoHintingControl != AutoHinting::ForceForGlyfAndCff &&
+                            autoHintingControl != AutoHinting::ForceOff)
+                        {
+                            autoHintingControl = AutoHinting::ForceForGlyf;
                         }
                         fHintingInstance = fontations_ffi::make_hinting_instance(
                                 fOutlines,
