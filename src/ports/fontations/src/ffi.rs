@@ -165,6 +165,7 @@ pub mod ffi {
     pub enum AutoHintingControl {
         PreferAutoOverHintsForGlyf,
         ForceForGlyfAndCff,
+        ForceInterpreter,
         AutoAsFallback,
     }
 

@@ -91,6 +91,7 @@ pub unsafe fn make_hinting_instance<'a>(
                     );
                     Engine::Auto(glyph_styles.cloned())
                 }
+                (AutoHintingControl::ForceInterpreter, _) => Engine::Interpreter,
                 _ => Engine::AutoFallback,
             };
 
