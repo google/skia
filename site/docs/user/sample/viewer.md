@@ -52,12 +52,13 @@ Android
 To build Viewer as an Android App, first follow the
 [Android build instructions](/docs/user/build#android) to set up the
 Android NDK and a ninja out directory. In addition, you will need the
-[Android SDK](https://developer.android.com/studio/#command-tools) installed and your
-`ANDROID_HOME` environment variable set.
+[Android SDK command line tools](https://developer.android.com/studio/#command-line-tools-only)
+installed and your `ANDROID_HOME` environment variable set.
 
     mkdir ~/android-sdk
-    ( cd ~/android-sdk; unzip ~/Downloads/sdk-tools-*.zip )
-    yes | ~/android-sdk/tools/bin/sdkmanager --licenses
+    cd ~/android-sdk
+    unzip ~/Downloads/commandlinetools-*.zip
+    yes | cmdline-tools/bin/sdkmanager --licenses --sdk_root=.
     export ANDROID_HOME=~/android-sdk  # Or wherever you installed the Android SDK.
 
 If you are not using the NDK included with the Android SDK (at ~/android-sdk/ndk-bundle
@@ -71,12 +72,33 @@ with the following script:
     platform_tools/android/bin/android_build_app -C <out_dir> viewer
 
 where `<out_dir>` is the ninja out directory (e.g., `out/arm64`)
-that you created. Upon completion of the script the APK
-can be found at `<out_dir>/viewer.apk`. Install it with `adb install`.
+that you created.
+
+If you get errors that seem unrelated to Skia or Viewer, you may have incompatible versions of the
+various build tools installed:
+
+* Make sure you have the latest version of Java installed
+* Make sure that Gradle version specified by "distributionUrl" in
+  [gradle-wrapper.properties](https://crsrc.org/c/third_party/skia/platform_tools/android/apps/gradle/wrapper/gradle-wrapper.properties)
+  is compatible with your installed Java version, per
+  https://docs.gradle.org/current/userguide/compatibility.html
+* Make sure that the Android Gradle tool version specified by
+  "com.android.tools.build:gradle:[version]"
+  in [build.gradle](https://crsrc.org/c/third_party/skia/platform_tools/android/apps/build.gradle)
+  is compatible with gradle version, per https://developer.android.com/build/releases/gradle-plugin
+
+Upon completion of the script the APK can be found at `<out_dir>/viewer.apk`. Install it with
+`adb install`.
 
 It is possible to pass additional command line flags like
 
     adb shell am start -a android.intent.action.MAIN -n org.skia.viewer/org.skia.viewer.ViewerActivity --es args '"--androidndkfonts"'
+
+If you followed the above instructions to install the Android SDK command line tools, you should
+have adb installed at [android-sdk]/platform-tools/adb. You can filter console output from Viewer
+like so:
+
+    adb logcat --pid=`adb shell pidof org.skia.viewer`
 
 ### How to Use the App
 
@@ -115,6 +137,18 @@ below, but they no longer work on recent versions of Android.
 
 To load resources in the Android Viewer place them in
 `/data/local/tmp/resources`; to load SKPs place them in `/data/local/tmp/skps`.
+
+#### Running over RenderDoc
+
+For running the Android Viewer over RenderDoc, refer to the following documentation:
+http://renderdoc.org/docs/how/how_android_capture.html
+
+Specifically, you will want to set the Executable Path to
+`org.skia.viewer/org.skia.viewer.ViewerActivity` and can set Command-line Arguments with
+`--es args '"[args]"'`, e.g. `--es args '"--backend vk"'`.
+
+RenderDoc does not have any mechanism itself for capturing or displaying console output, but you can
+always run `adb logcat` independently of RenderDoc to view console output.
 
 iOS
 ---
