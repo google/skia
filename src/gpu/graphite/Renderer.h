@@ -153,6 +153,14 @@ public:
     // 'half4 primitiveColor' variable (defined in the calling code).
     virtual const char* fragmentColorSkSL() const { return ""; }
 
+    // Indicates whether this RenderStep's uniforms are referenced in its fragment shader code.
+    // If not, its uniforms can be omitted from the fragment shader entirely.
+    // By default, we assume that RenderSteps use their uniforms for emitting coverage or primitive
+    // colors.
+    virtual bool usesUniformsInFragmentSkSL() const {
+        return this->coverage() != Coverage::kNone || this->emitsPrimitiveColor();
+    }
+
     // Returns a name formatted as "Subclass[variant]", where "Subclass" matches the C++ class name
     // and variant is a unique term describing instance's specific configuration.
     const char* name() const { return RenderStepName(fRenderStepID); }

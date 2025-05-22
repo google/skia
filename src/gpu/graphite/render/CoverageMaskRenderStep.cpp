@@ -114,6 +114,8 @@ const char* CoverageMaskRenderStep::fragmentCoverageSkSL() const {
         "outputCoverage = half4(mix(c, 1 - c, invert));\n";
 }
 
+bool CoverageMaskRenderStep::usesUniformsInFragmentSkSL() const { return false; }
+
 void CoverageMaskRenderStep::writeVertices(DrawWriter* dw,
                                            const DrawParams& params,
                                            skvx::uint2 ssboIndices) const {

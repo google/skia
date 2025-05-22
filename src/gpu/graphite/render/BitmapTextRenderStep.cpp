@@ -152,6 +152,8 @@ const char* BitmapTextRenderStep::fragmentCoverageSkSL() const {
                                                     "int(maskFormat));";
 }
 
+bool BitmapTextRenderStep::usesUniformsInFragmentSkSL() const { return false; }
+
 void BitmapTextRenderStep::writeVertices(DrawWriter* dw,
                                          const DrawParams& params,
                                          skvx::uint2 ssboIndices) const {

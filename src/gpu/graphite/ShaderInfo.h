@@ -90,8 +90,9 @@ private:
                             const RenderStep*,
                             bool useStorageBuffers);
 
-    // Determines fNumFragmentTexturesAndSamplers, fHasPaintUniforms, fHasGradientBuffer, and if a
-    // valid SamplerDesc ptr is passed in, any immutable sampler SamplerDescs.
+    // Determines fNumFragmentTexturesAndSamplers, fHasPaintUniforms, fHasGradientBuffer,
+    // fHasSsboIndicesVarying, and if a valid SamplerDesc ptr is passed in, any immutable
+    // sampler SamplerDescs.
     void generateFragmentSkSL(const Caps*,
                               const ShaderCodeDictionary*,
                               const RenderStep*,
@@ -137,7 +138,9 @@ private:
     int fNumFragmentTexturesAndSamplers = 0;
     bool fHasStepUniforms = false;
     bool fHasPaintUniforms = false;
+    bool fHasLiftedPaintUniforms = false;
     bool fHasGradientBuffer = false;
+    bool fHasSsboIndicesVarying = false;
 };
 
 }  // namespace skgpu::graphite
