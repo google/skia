@@ -161,16 +161,16 @@ static const PipelineLabel kCases[] = {
                 "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ SolidColor ColorSpaceTransform ColorSpaceTransform ] SrcOver" },
 /*   5 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_MouriMap_BlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] Src" },
+                "RE_MouriMap_BlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] Src" },
 /*   6 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_MouriMap_Chunk8x8Effect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] Src" },
+                "RE_MouriMap_Chunk8x8Effect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] Src" },
 /*   7 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_MouriMap_CrossTalkAndChunk16x16Effect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ColorSpaceTransform ColorSpaceTransform ] Src" },
+                "RE_MouriMap_CrossTalkAndChunk16x16Effect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ColorSpaceTransform ColorSpaceTransform ] Src" },
 /*   8 */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_MouriMap_CrossTalkAndChunk16x16Effect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kEwAAPcAAAAAAAAA) ] ColorSpaceTransformPremul ] ] ColorSpaceTransform ColorSpaceTransform ] Src" },
+                "RE_MouriMap_CrossTalkAndChunk16x16Effect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(3: kEwAAPcAAAAAAAAA) ] Passthrough ] ] ColorSpaceTransform ColorSpaceTransform ] Src" },
 /*   9 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "AnalyticRRectRenderStep + "
                 "BlendCompose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] AlphaOnlyPaintColor SrcIn ] SrcOver" },
@@ -308,19 +308,19 @@ static const PipelineLabel kCases[] = {
                 "RE_GainmapEffect [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ColorSpaceTransformPremul ColorSpaceTransformPremul ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] ] ColorSpaceTransformPremul ColorSpaceTransformPremul ] Src" },
 /*  54 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_KawaseBlurDualFilter_HighSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] Src" },
+                "RE_KawaseBlurDualFilter_HighSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] Src" },
 /*  55 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_KawaseBlurDualFilter_LowSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] Src" },
+                "RE_KawaseBlurDualFilter_LowSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] Src" },
 /*  56 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_KawaseBlurDualFilter_LowSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ] SrcOver" },
+                "RE_KawaseBlurDualFilter_LowSampleBlurEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ] SrcOver" },
 /*   X */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "RE_LinearEffect_BT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader [ SolidColor ColorSpaceTransform ColorSpaceTransform ] Src" },
 /*  58 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
-                "RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] ColorSpaceTransform ColorSpaceTransform ] Src" },
+                "RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ColorSpaceTransform ColorSpaceTransform ] Src" },
 /*  59 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "CoverBoundsRenderStep[NonAAFill] + "
                 "SolidColor Src" },

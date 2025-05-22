@@ -452,7 +452,7 @@ public:
         static const SkString kCrosstalkAndChunk16x16Code(R"(
             uniform shader img;
             vec4 main(vec2 xy) {
-                float3 linear = toLinearSrgb(float3(0.0, 0.0, 0.0));
+                float3 linear = toLinearSrgb(img.eval(0.25 * xy).rgb);
                 return float4(fromLinearSrgb(linear), 1.0);
             }
         )");
@@ -463,7 +463,7 @@ public:
         static const SkString kChunk8x8Code(R"(
             uniform shader img;
             vec4 main(vec2 xy) {
-                return float4(0.0, 0.0, 0.0, 1.0);
+                return float4(img.eval(0.33 * xy).rgb, 1.0);
             }
         )");
 
@@ -473,7 +473,7 @@ public:
         static const SkString kBlurCode(R"(
             uniform shader img;
             vec4 main(vec2 xy) {
-                return float4(1.0, 0.0, 0.0, 1.0);
+                return float4(img.eval(0.4 * xy).rgb, 0.0);
             }
         )");
 
@@ -483,8 +483,9 @@ public:
             uniform shader img1;
             uniform shader img2;
             vec4 main(vec2 xy) {
-                float3 linear = toLinearSrgb(float3(0.0, 0.0, 0.0));
-                return float4(fromLinearSrgb(linear), 1.0);
+                float alpha = img1.eval(xy).r;
+                float3 linear = toLinearSrgb(img2.eval(0.5 * xy).rgb);
+                return float4(fromLinearSrgb(linear), alpha);
             }
         )");
 
@@ -563,13 +564,16 @@ skgpu::graphite::PaintOptions MouriMapBlur() {
 
 skgpu::graphite::PaintOptions MouriMapToneMap() {
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
-    sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
-                                                           { &ci, 1 },
-                                                           {});
+    sk_sp<PrecompileShader> img1 = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                            { &ci, 1 },
+                                                            {});
+    sk_sp<PrecompileShader> img2 = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                            { &ci, 1 },
+                                                            {});
 
     sk_sp<PrecompileShader> toneMap = PrecompileRuntimeEffects::MakePrecompileShader(
             MouriMap().toneMapEffect(),
-            { { img }, { img } });
+            { { std::move(img1) }, { std::move(img2) } });
 
     PaintOptions paintOptions;
     paintOptions.setShaders({ std::move(toneMap) });
@@ -582,7 +586,7 @@ skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver() {
         uniform shader img;
 
         half4 main(float2 xy) {
-            half3 c = img.eval(xy).rgb;
+            half3 c = img.eval(0.55 * xy).rgb;
             return half4(c, 1.0);
         }
     )");
@@ -611,7 +615,7 @@ skgpu::graphite::PaintOptions KawaseBlurHighSrc() {
         uniform shader img;
 
         half4 main(float2 xy) {
-            half3 c = img.eval(xy).rgb;
+            half3 c = img.eval(0.6 * xy).rgb;
             return half4(c * 0.5, 1.0);
         }
     )");
