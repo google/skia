@@ -20,7 +20,8 @@ previousrev() {
 nextrev() {
   STEP="next revision" &&
   git -C "${FT_GIT_DIR}" fetch &&
-  FT_NEXT_REV=$(git -C "${FT_GIT_DIR}" rev-parse "${FT_GIT_REF}")
+  FT_NEXT_REV=$1 &&
+  : ${FT_NEXT_REV:=$(git -C "${FT_GIT_DIR}" rev-parse "${FT_GIT_REF}")}
 }
 
 rolldeps() {
@@ -78,8 +79,8 @@ Disable: treat-URL-as-trailer"
 
 notshallow &&
 previousrev &&
-nextrev &&
-rolldeps "$@" &&
+nextrev "$1" &&
+rolldeps &&
 rollbazel &&
 rolldepsgen &&
 mergeinclude freetype-android freetype/config/ftoption.h &&
