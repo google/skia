@@ -56,6 +56,8 @@ struct EnabledFeatures {
     // From VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT:
     bool fAdvancedBlendModes = false;
     bool fCoherentAdvancedBlendModes = false;
+    // From VK_EXT_rasterization_order_attachment_access:
+    bool fRasterizationOrderColorAttachmentAccess = false;
 };
 
 // Walk the feature chain once and extract any enabled features that Graphite cares about.
@@ -91,8 +93,16 @@ EnabledFeatures GetEnabledFeature(const VkPhysicalDeviceFeatures2* features) {
                     enabled.fAdvancedBlendModes = true;
                     enabled.fCoherentAdvancedBlendModes =
                             feature->advancedBlendCoherentOperations == VK_TRUE;
+                    break;
                 }
-                break;
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_FEATURES_EXT: {
+                    const auto* feature = reinterpret_cast<
+                            const VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT*>(
+                            pNext);
+                    enabled.fRasterizationOrderColorAttachmentAccess =
+                            feature->rasterizationOrderColorAttachmentAccess;
+                    break;
+                }
                 default:
                     break;
             }
@@ -266,6 +276,11 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
         fShaderCaps->fAdvBlendEqInteraction =
                 SkSL::ShaderCaps::AdvBlendEqInteraction::kAutomatic_AdvBlendEqInteraction;
     }
+
+    // Note: ARM GPUs have always been coherent, do not add a subpass self-dependency even if the
+    // application hasn't enabled this feature as it comes with a performance cost on this GPU.
+    fIsInputAttachmentReadCoherent = enabledFeatures.fRasterizationOrderColorAttachmentAccess ||
+                                     physDevProperties.vendorID == kARM_VkVendor;
 
     // TODO(skia:14639): We must force std430 array stride when using SSBOs since SPIR-V generation
     // cannot handle mixed array strides being passed into functions.

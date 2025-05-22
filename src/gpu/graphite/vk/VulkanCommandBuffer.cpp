@@ -1008,6 +1008,11 @@ void VulkanCommandBuffer::addBarrier(BarrierType type) {
         dstStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         dstAccess = VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT;
     } else {
+        // If input reads are coherent, no barrier is needed
+        if (fSharedContext->vulkanCaps().isInputAttachmentReadCoherent()) {
+            return;
+        }
+
         SkASSERT(type == BarrierType::kReadDstFromInput);
         dstStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
         dstAccess = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
