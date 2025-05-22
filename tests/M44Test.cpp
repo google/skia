@@ -8,6 +8,7 @@
 #include "include/core/SkM44.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
@@ -332,8 +333,10 @@ DEF_TEST(M44_mapRect, reporter) {
             REPORTER_ASSERT(reporter, leftFound && topFound && rightFound && bottomFound);
         }
 
-        SkPath path = SkPath::Rect(src);
-        path.transform(m.asM33(), SkApplyPerspectiveClip::kYes);
+        const SkPath path = SkPathBuilder()
+            .addRect(src)
+            .transform(m.asM33(), SkApplyPerspectiveClip::kYes)
+            .detach();
         assertRectsNearlyEqual(actual, path.getBounds(), epsilon);
     };
 

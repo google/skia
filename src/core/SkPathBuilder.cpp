@@ -8,6 +8,8 @@
 #include "include/core/SkPathBuilder.h"
 
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/base/SkFloatingPoint.h"
@@ -23,6 +25,22 @@
 #include <cstring>
 #include <iterator>
 #include <utility>
+
+namespace {
+
+void subdivide_cubic_to(SkPathBuilder* path, const SkPoint pts[4], int level = 2) {
+    if (--level >= 0) {
+        SkPoint tmp[7];
+
+        SkChopCubicAtHalf(pts, tmp);
+        subdivide_cubic_to(path, &tmp[0], level);
+        subdivide_cubic_to(path, &tmp[3], level);
+    } else {
+        path->cubicTo(pts[1], pts[2], pts[3]);
+    }
+}
+
+}  // namespace
 
 SkPathBuilder::SkPathBuilder() {
     this->reset();
@@ -924,8 +942,54 @@ void SkPathBuilder::setLastPt(SkScalar x, SkScalar y) {
 }
 
 SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix, SkApplyPerspectiveClip pc) {
-    // TODO: Rewrite this to avoid snapshotting/copying, as most transforms can be applied in place.
-    *this = this->snapshot().transform(matrix, pc);
+    if (matrix.isIdentity()) {
+        return *this;
+    }
+
+    if (matrix.hasPerspective()) {
+        SkPath src = this->detach();
+
+        // Apply perspective clip if needed.
+        if (pc == SkApplyPerspectiveClip::kYes) {
+            SkPath clipped;
+            if (SkPathPriv::PerspectiveClip(src, matrix, &clipped)) {
+                src = std::move(clipped);
+            }
+        }
+
+        // Convert to a format more amenable to perspective.
+        *this = SkPathBuilder(fFillType);
+        for (auto [verb, pts, wt] : SkPathPriv::Iterate(src)) {
+            switch (verb) {
+                case SkPathVerb::kMove:
+                    this->moveTo(pts[0]);
+                    break;
+                case SkPathVerb::kLine:
+                    this->lineTo(pts[1]);
+                    break;
+                case SkPathVerb::kQuad:
+                    // promote the quad to a conic
+                    this->conicTo(pts[1], pts[2],
+                                  SkConic::TransformW(pts, SK_Scalar1, matrix));
+                    break;
+                case SkPathVerb::kConic:
+                    this->conicTo(pts[1], pts[2],
+                                  SkConic::TransformW(pts, wt[0], matrix));
+                    break;
+                case SkPathVerb::kCubic:
+                    subdivide_cubic_to(this, pts);
+                    break;
+                case SkPathVerb::kClose:
+                    this->close();
+                    break;
+            }
+        }
+    }
+
+    matrix.mapPoints(fPts.data(), fPts.size());
+
+    // TODO: handle bounds, convexity, and direction when added.
+
     return *this;
 }
 
