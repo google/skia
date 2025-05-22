@@ -31,7 +31,7 @@ SK_MAKE_BITMASK_OPS(DepthStencilFlags)
 enum class DstReadStrategy : uint8_t {
     kNoneRequired,
     kTextureCopy,
-    kTextureSample,
+    kTextureSample,  // TODO(b/238756862): To be used once direct texture sampling is implemented
     kReadFromInput,
     kFramebufferFetch,
 
