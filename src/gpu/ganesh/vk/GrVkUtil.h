@@ -23,8 +23,12 @@ namespace SkSL {
 struct ProgramSettings;
 }
 
-// makes a Vk call on the interface
-#define GR_VK_CALL(IFACE, X) (IFACE)->fFunctions.f##X
+// Uncomment to log all Ganesh Vulkan calls
+#define GR_VK_LOG(X) // SkDebugf("vk%s\n", #X);
+
+// Makes a Vk call on the interface
+#define GR_VK_CALL_NO_LOG(IFACE, X) (IFACE)->fFunctions.f##X
+#define GR_VK_CALL(IFACE, X) GR_VK_LOG(X) GR_VK_CALL_NO_LOG(IFACE, X)
 
 // Note: must be called before checkVkResult, since this does not log if the GPU is already
 // considering the device to be lost.
@@ -37,16 +41,18 @@ struct ProgramSettings;
 
 #define GR_VK_CALL_RESULT(GPU, RESULT, X)                                 \
     do {                                                                  \
-        (RESULT) = GR_VK_CALL(GPU->vkInterface(), X);                     \
+        GR_VK_LOG(X)                                                      \
+        (RESULT) = GR_VK_CALL_NO_LOG(GPU->vkInterface(), X);              \
         SkASSERT(VK_SUCCESS == RESULT || VK_ERROR_DEVICE_LOST == RESULT); \
         GR_VK_LOG_IF_NOT_SUCCESS(GPU, RESULT, #X);                        \
         GPU->checkVkResult(RESULT);                                       \
     } while (false)
 
-#define GR_VK_CALL_RESULT_NOCHECK(GPU, RESULT, X)     \
-    do {                                              \
-        (RESULT) = GR_VK_CALL(GPU->vkInterface(), X); \
-        GPU->checkVkResult(RESULT);                   \
+#define GR_VK_CALL_RESULT_NOCHECK(GPU, RESULT, X)            \
+    do {                                                     \
+        GR_VK_LOG(X)                                         \
+        (RESULT) = GR_VK_CALL_NO_LOG(GPU->vkInterface(), X); \
+        GPU->checkVkResult(RESULT);                          \
     } while (false)
 
 // same as GR_VK_CALL but checks for success

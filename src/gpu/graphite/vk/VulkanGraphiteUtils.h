@@ -20,10 +20,14 @@
 class SkStream;
 class SkWStream;
 
+// Uncomment to log all Vulkan commands from Graphite
+#define VULKAN_LOG(X) // SkDebugf("vk%s\n", #X);
+
 // Helper macros to call functions on the VulkanInterface without checking for errors. Note: This
 // cannot require a VulkanSharedContext because driver calls are needed before the shared context
 // has been initialized.
-#define VULKAN_CALL(IFACE, X) (IFACE)->fFunctions.f##X
+#define VULKAN_CALL_NO_LOG(IFACE, X) (IFACE)->fFunctions.f##X
+#define VULKAN_CALL(IFACE, X) VULKAN_LOG(X) VULKAN_CALL_NO_LOG(IFACE, X)
 
 // Must be called before checkVkResult, since this does not log if the VulkanSharedContext is
 // already considering the device to be lost.
@@ -36,7 +40,8 @@ class SkWStream;
 
 #define VULKAN_CALL_RESULT(SHARED_CONTEXT, RESULT, X)                     \
     do {                                                                  \
-        (RESULT) = VULKAN_CALL((SHARED_CONTEXT)->interface(), X);         \
+        VULKAN_LOG(X)                                                     \
+        (RESULT) = VULKAN_CALL_NO_LOG((SHARED_CONTEXT)->interface(), X);  \
         SkASSERT(VK_SUCCESS == RESULT || VK_ERROR_DEVICE_LOST == RESULT); \
         VULKAN_LOG_IF_NOT_SUCCESS(SHARED_CONTEXT, RESULT, #X);            \
         (SHARED_CONTEXT)->checkVkResult(RESULT);                          \
@@ -47,9 +52,10 @@ class SkWStream;
     VkResult SK_MACRO_APPEND_LINE(ret);         \
     VULKAN_CALL_RESULT(SHARED_CONTEXT, SK_MACRO_APPEND_LINE(ret), X)
 
-#define VULKAN_CALL_RESULT_NOCHECK(IFACE, RESULT, X) \
-    do {                                             \
-        (RESULT) = VULKAN_CALL(IFACE, X);            \
+#define VULKAN_CALL_RESULT_NOCHECK(IFACE, RESULT, X)        \
+    do {                                                    \
+        VULKAN_LOG(X)                                       \
+        (RESULT) = VULKAN_CALL_NO_LOG(IFACE, X);            \
     } while (false)
 namespace skgpu::graphite {
 

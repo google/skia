@@ -759,8 +759,7 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
 
     VkResult result;
     VkImage image;
-    result = VULKAN_CALL(vkContext->interface(),
-                         CreateImage(device, &imageCreateInfo, nullptr, &image));
+    VULKAN_CALL_RESULT(vkContext, result, CreateImage(device, &imageCreateInfo, nullptr, &image));
     if (result != VK_SUCCESS) {
         return {};
     }

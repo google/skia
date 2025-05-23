@@ -149,7 +149,7 @@ sk_sp<GrVkBuffer> GrVkBuffer::Make(GrVkGpu* gpu,
     bufInfo.pQueueFamilyIndices = nullptr;
 
     VkResult err;
-    err = VK_CALL(gpu, CreateBuffer(gpu->device(), &bufInfo, nullptr, &buffer));
+    GR_VK_CALL_RESULT(gpu, err, CreateBuffer(gpu->device(), &bufInfo, nullptr, &buffer));
     if (err) {
         return nullptr;
     }

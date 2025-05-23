@@ -122,9 +122,9 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
     layoutCreateInfo.pushConstantRangeCount = 0;
     layoutCreateInfo.pPushConstantRanges = nullptr;
 
-    VkResult err = GR_VK_CALL(
-            gpu->vkInterface(),
-            CreatePipelineLayout(gpu->device(), &layoutCreateInfo, nullptr, &fPipelineLayout));
+    VkResult err;
+    GR_VK_CALL_RESULT(gpu, err, CreatePipelineLayout(
+            gpu->device(), &layoutCreateInfo, nullptr, &fPipelineLayout));
     if (err) {
         this->destroyResources(gpu);
         return false;
@@ -255,4 +255,3 @@ void GrVkMSAALoadManager::destroyResources(GrVkGpu* gpu) {
         fPipelineLayout = VK_NULL_HANDLE;
     }
 }
-
