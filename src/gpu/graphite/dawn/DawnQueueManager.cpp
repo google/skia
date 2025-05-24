@@ -74,8 +74,13 @@ private:
 DawnWorkSubmissionWithFuture::DawnWorkSubmissionWithFuture(std::unique_ptr<CommandBuffer> cmdBuffer,
                                                            DawnQueueManager* queueManager)
         : GpuWorkSubmission(std::move(cmdBuffer), queueManager) {
+#if defined(WGPU_BREAKING_CHANGE_QUEUE_WORK_DONE_CALLBACK_MESSAGE)
+    fSubmittedWorkDoneFuture = queueManager->dawnQueue().OnSubmittedWorkDone(
+            wgpu::CallbackMode::WaitAnyOnly, [](wgpu::QueueWorkDoneStatus, wgpu::StringView) {});
+#else  // defined(WGPU_BREAKING_CHANGE_QUEUE_WORK_DONE_CALLBACK_MESSAGE)
     fSubmittedWorkDoneFuture = queueManager->dawnQueue().OnSubmittedWorkDone(
             wgpu::CallbackMode::WaitAnyOnly, [](wgpu::QueueWorkDoneStatus) {});
+#endif  // defined(WGPU_BREAKING_CHANGE_QUEUE_WORK_DONE_CALLBACK_MESSAGE)
 }
 
 bool DawnWorkSubmissionWithFuture::onIsFinished(const SharedContext* sharedContext) {
