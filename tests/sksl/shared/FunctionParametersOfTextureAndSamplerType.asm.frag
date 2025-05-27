@@ -25,9 +25,7 @@
                OpDecorate %aSecondSampledTexture Binding 3
                OpDecorate %aSecondSampledTexture DescriptorSet 0
                OpDecorate %c Location 1
-               OpDecorate %25 RelaxedPrecision
                OpDecorate %26 RelaxedPrecision
-               OpDecorate %30 RelaxedPrecision
                OpDecorate %31 RelaxedPrecision
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4

@@ -2098,9 +2098,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
                                                 OutputStream& out) {
     const ExpressionArray& arguments = c.arguments();
     const Type& callType = c.type();
-    // Note: MatrixCompMult creates its own result ID, avoid calling nextId as it could generate a
-    // RelaxedPrecision decoration on an ID that would never be used.
-    SpvId result = kind == kMatrixCompMult_SpecialIntrinsic ? 0 : this->nextId(&callType);
+    SpvId result = this->nextId(nullptr);
     switch (kind) {
         case kAtan_SpecialIntrinsic: {
             STArray<2, SpvId> argumentIds;
@@ -2281,7 +2279,6 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             SkASSERT(arguments[0]->type().dimensions() == SpvDim2D);
             SkASSERT(arguments[1]->type().matches(*fContext.fTypes.fUInt2));
             SkASSERT(arguments[2]->type().matches(*fContext.fTypes.fHalf4));
-            SkASSERT(!callType.hasPrecision());
 
             SpvId image = this->writeExpression(*arguments[0], out);
             SpvId coord = this->writeExpression(*arguments[1], out);
@@ -2418,7 +2415,6 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kWorkgroupBarrier_SpecialIntrinsic: {
             // Both barrier types operate in the workgroup execution and memory scope and differ
             // only in memory semantics. storageBarrier() is not a device-scope barrier.
-            SkASSERT(!callType.hasPrecision());
             SpvId scopeId =
                     this->writeOpConstant(*fContext.fTypes.fUInt, (int32_t)SpvScopeWorkgroup);
             int32_t memSemMask = (kind == kStorageBarrier_SpecialIntrinsic)
@@ -2434,8 +2430,6 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
                                    out);
             break;
         }
-        default:
-            SkUNREACHABLE;
     }
     return result;
 }

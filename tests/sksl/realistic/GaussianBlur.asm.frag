@@ -51,7 +51,6 @@
                OpDecorate %uTextureSampler_0_Stage1 DescriptorSet 0
                OpDecorate %vLocalCoord_Stage0 Location 0
                OpDecorate %_4_textureColor RelaxedPrecision
-               OpDecorate %59 RelaxedPrecision
                OpDecorate %60 RelaxedPrecision
                OpDecorate %91 RelaxedPrecision
                OpDecorate %92 RelaxedPrecision

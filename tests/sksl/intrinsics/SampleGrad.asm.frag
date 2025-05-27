@@ -15,7 +15,6 @@
                OpDecorate %t RelaxedPrecision
                OpDecorate %t Binding 0
                OpDecorate %t DescriptorSet 0
-               OpDecorate %24 RelaxedPrecision
                OpDecorate %25 RelaxedPrecision
                OpMemberDecorate %sksl_synthetic_uniforms 0 Offset 16384
                OpDecorate %sksl_synthetic_uniforms Block

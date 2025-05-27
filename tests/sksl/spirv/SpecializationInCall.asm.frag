@@ -17,9 +17,7 @@
                OpDecorate %aSecondSampler RelaxedPrecision
                OpDecorate %aSecondSampler Binding 1
                OpDecorate %aSecondSampler DescriptorSet 0
-               OpDecorate %15 RelaxedPrecision
                OpDecorate %16 RelaxedPrecision
-               OpDecorate %21 RelaxedPrecision
                OpDecorate %22 RelaxedPrecision
                OpDecorate %a RelaxedPrecision
                OpDecorate %b RelaxedPrecision

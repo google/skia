@@ -17,7 +17,6 @@
                OpDecorate %22 RelaxedPrecision
                OpDecorate %30 RelaxedPrecision
                OpDecorate %_0_color RelaxedPrecision
-               OpDecorate %38 RelaxedPrecision
                OpDecorate %39 RelaxedPrecision
                OpDecorate %42 RelaxedPrecision
                OpDecorate %43 RelaxedPrecision
