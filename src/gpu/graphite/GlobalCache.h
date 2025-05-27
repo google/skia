@@ -114,6 +114,19 @@ public:
     void invokePipelineCallback(SharedContext*,
                                 const GraphicsPipelineDesc&,
                                 const RenderPassDesc&);
+
+#if defined(GPU_TEST_UTILS)
+    struct StaticVertexCopyRanges {
+        uint32_t fOffset;
+        size_t fUnalignedSize;
+        size_t fSize;
+        size_t fRequiredAlignment;
+    };
+    void testingOnly_SetStaticVertexInfo(skia_private::TArray<StaticVertexCopyRanges>,
+                                         const Buffer*) SK_EXCLUDES(fSpinLock);
+    SkSpan<const StaticVertexCopyRanges> getStaticVertexCopyRanges() const SK_EXCLUDES(fSpinLock);
+    sk_sp<Buffer> getStaticVertexBuffer() SK_EXCLUDES(fSpinLock);
+#endif
 private:
     struct KeyHash {
         uint32_t operator()(const UniqueKey& key) const { return key.hash(); }
@@ -149,6 +162,11 @@ private:
     // Every Pipeline will be marked with the epoch in which it was created and then updated
     // for each epoch in which it was used.
     uint16_t fEpochCounter SK_GUARDED_BY(fSpinLock) = 1;
+
+#if defined(GPU_TEST_UTILS)
+    skia_private::TArray<StaticVertexCopyRanges> fStaticVertexInfo SK_GUARDED_BY(fSpinLock);
+    const Buffer* fStaticVertexBuffer SK_GUARDED_BY(fSpinLock);
+#endif
 };
 
 }  // namespace skgpu::graphite

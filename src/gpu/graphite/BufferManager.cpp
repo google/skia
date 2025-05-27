@@ -729,7 +729,11 @@ void* StaticBufferManager::prepareStaticData(BufferInfo* info,
         return nullptr;
     }
 
+#if defined(GPU_TEST_UTILS)
+    info->fData.push_back({transferBindInfo, target, requiredAlignment, requiredBytes});
+#else
     info->fData.push_back({transferBindInfo, target, requiredAlignment});
+#endif
     info->fTotalRequiredBytes =
         align_to_req_min_lcm(info->fTotalRequiredBytes,
                              requiredAlignment,
@@ -819,6 +823,19 @@ StaticBufferManager::FinishResult StaticBufferManager::finalize(Context* context
                                                    "StaticVertexBuffer")) {
         return FinishResult::kFailure;
     }
+
+#if defined(GPU_TEST_UTILS)
+    skia_private::TArray<GlobalCache::StaticVertexCopyRanges> statVertCopy;
+    for (const CopyRange& data : fVertexBufferInfo.fData) {
+        statVertCopy.push_back({data.fTarget->fOffset,
+                                data.fUnalignedSize,
+                                data.fTarget->fSize,
+                                data.fRequiredAlignment});
+    }
+    globalCache->testingOnly_SetStaticVertexInfo(
+            statVertCopy,
+            fVertexBufferInfo.fData[0].fTarget->fBuffer);
+#endif
 
     if (!fIndexBufferInfo.createAndUpdateBindings(fResourceProvider,
                                                   context,
