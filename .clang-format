@@ -204,4 +204,7 @@ Standard:        Auto
 TabWidth:        4
 UseTab:          Never
 ...
+---
+Language:      Json
+DisableFormat: true
 
