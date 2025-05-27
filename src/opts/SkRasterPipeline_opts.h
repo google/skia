@@ -4645,14 +4645,27 @@ SI void mul_fn(T* dst, T* src) {
     *dst *= *src;
 }
 
-template <typename T>
-SI void div_fn(T* dst, T* src) {
-    T divisor = *src;
-    if constexpr (!std::is_same_v<T, F>) {
-        // We will crash if we integer-divide against zero. Convert 0 to ~0 to avoid this.
-        divisor |= (T)cond_to_mask(divisor == 0);
-    }
+SI void div_fn(I32* dst, I32* src) {
+    I32 divisor = *src;
+    // Integer division crashes when we divide by 0, but we can divide by -1 to not crash (the
+    // result will be non-sensical). The mask will be 0xFFFFFFF if true, which happens to be -1.
+    divisor |= ((I32)cond_to_mask(divisor == 0));
+    // Dividing by -1 works for all numerators *except* INT_MIN, so we can add -1 once more if
+    // we are in that case.
+    divisor += ((I32)cond_to_mask(divisor == -1 && *dst == std::numeric_limits<int32_t>::lowest()));
     *dst /= divisor;
+}
+
+SI void div_fn(U32* dst, U32* src) {
+    U32 divisor = *src;
+    // Integer division crashes when we divide by 0, but we can divide by something else to not
+    // crash (the result will be non-sensical). The mask will be 0xFFFFFFF if true.
+    divisor |= ((U32)cond_to_mask(divisor == 0));
+    *dst /= divisor;
+}
+
+SI void div_fn(F* dst, F* src) {
+    *dst /= *src;
 }
 
 SI void bitwise_and_fn(I32* dst, I32* src) {

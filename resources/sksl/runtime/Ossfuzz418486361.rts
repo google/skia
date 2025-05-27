@@ -1,0 +1,13 @@
+uniform half4 colorGreen;
+
+half BigX(half x) {
+	int(x)/int(x==2);
+	int(x)/-1;
+	x/=x;
+	return x;
+}
+
+half4 main(float2) {
+	BigX(BigX(0)).0x0x;
+	return colorGreen;
+}
