@@ -294,6 +294,15 @@ SkIRect rect_to_pixelbounds(const Rect& r) {
     return r.makeRoundOut().asSkIRect();
 }
 
+bool is_pixel_aligned(const Rect& r, const Transform& t) {
+    if (t.type() <= Transform::Type::kRectStaysRect) {
+        Rect devRect = t.mapRect(r);
+        return devRect.nearlyEquals(devRect.makeRound());
+    }
+
+    return false;
+}
+
 bool is_simple_shape(const Shape& shape, SkStrokeRec::Style type) {
     // We send regular filled and hairline [round] rectangles, stroked/hairline lines, and stroked
     // [r]rects with circular corners to a single Renderer that does not trigger MSAA.
@@ -1572,10 +1581,15 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         SkASSERT(!requireMSAA && style.isFillStyle());
         // handled by specialized system, simplified from rects and round rects
         const EdgeAAQuad& quad = geometry.edgeAAQuad();
-        if (quad.isRect() && quad.edgeFlags() == EdgeAAQuad::Flags::kNone) {
+        if (quad.isRect() && (quad.edgeFlags() == EdgeAAQuad::Flags::kNone
+#if !defined(SK_SKIP_PIXELALIGNED_QUAD_CHECK_GRAPHITE)
+                              || is_pixel_aligned(quad.bounds(), localToDevice)
+#endif
+                             )) {
             // For non-AA rectangular quads, it can always use a coverage-less renderer; there's no
             // need to check for pixel alignment to avoid popping if MSAA is turned on because quad
-            // tile edges will seam with each in either mode.
+            // tile edges will seam with each in either mode. We also switch to use the cover bounds
+            // when the quad is pixel aligned to be consistent with drawRect Renderer handling.
             return {renderers->nonAABounds(), nullptr};
         } else {
             return {renderers->perEdgeAAQuad(), nullptr};
@@ -1593,10 +1607,8 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         // For pixel-aligned rects, use the the non-AA bounds renderer to avoid triggering any
         // dst-read requirement due to src blending.
         bool pixelAlignedRect = false;
-        if (shape.isRect() && style.isFillStyle() &&
-            localToDevice.type() <= Transform::Type::kRectStaysRect) {
-            Rect devRect = localToDevice.mapRect(shape.rect());
-            pixelAlignedRect = devRect.nearlyEquals(devRect.makeRound());
+        if (shape.isRect() && style.isFillStyle()) {
+            pixelAlignedRect = is_pixel_aligned(shape.rect(), localToDevice);
         }
 
         if (shape.isEmpty() || pixelAlignedRect) {
