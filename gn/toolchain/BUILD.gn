@@ -87,16 +87,6 @@ template("msvc_toolchain") {
 
     bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$toolchain_target_cpu"
 
-    env_setup = ""
-    if (toolchain_target_cpu == "x86") {
-      # Toolchain asset includes a script that configures for x86 building.
-      # We don't support x86 builds with local MSVC installations.
-      env_setup = "$shell $win_sdk/bin/SetEnv.cmd /x86 && "
-    } else if (toolchain_target_cpu == "arm64") {
-      # ARM64 compiler is incomplete - it relies on DLLs located in the host toolchain directory.
-      env_setup = "$shell set \"PATH=%PATH%;$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\x64\" && "
-    }
-
     cl_m32_flag = ""
 
     if (clang_win != "") {
@@ -126,7 +116,8 @@ template("msvc_toolchain") {
       if (toolchain_target_cpu == "x64") {
         _ml += "64"
       }
-      command = "$env_setup \"$bin/$_ml.exe\" {{asmflags}} /nologo /c /Fo {{output}} {{source}}"
+      command =
+          "\"$bin/$_ml.exe\" {{asmflags}} /nologo /c /Fo {{output}} {{source}}"
       outputs = [
         "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
       ]
@@ -138,7 +129,7 @@ template("msvc_toolchain") {
       pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
       # Label names may have spaces so pdbname must be quoted.
-      command = "$env_setup $cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+      command = "$cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
       depsformat = "msvc"
       outputs = [
         "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
@@ -151,7 +142,7 @@ template("msvc_toolchain") {
       pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
       # Label names may have spaces so pdbname must be quoted.
-      command = "$env_setup $cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+      command = "$cc_wrapper $cl /nologo /showIncludes /FC {{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}} /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
       depsformat = "msvc"
       outputs = [
         "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
@@ -162,7 +153,8 @@ template("msvc_toolchain") {
     tool("alink") {
       rspfile = "{{output}}.rsp"
 
-      command = "$env_setup $lib /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
+      command =
+          "$lib /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
       outputs = [
         # Ignore {{output_extension}} and always use .lib, there's no reason to
         # allow targets to override this extension on Windows.
@@ -185,7 +177,7 @@ template("msvc_toolchain") {
       pdbname = "${dllname}.pdb"
       rspfile = "${dllname}.rsp"
 
-      command = "$env_setup $link /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
+      command = "$link /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
       outputs = [
         dllname,
         libname,
@@ -217,7 +209,7 @@ template("msvc_toolchain") {
       pdbname = "$exename.pdb"
       rspfile = "$exename.rsp"
 
-      command = "$env_setup $link /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
+      command = "$link /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
       default_output_extension = ".exe"
       default_output_dir = "{{root_out_dir}}"
       outputs = [ exename ]
