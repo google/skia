@@ -737,21 +737,13 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         }
         fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     } else if (GR_IS_GR_GL_ES(standard)) {
-        if (ctxInfo.hasExtension("GL_ANGLE_base_vertex_base_instance")) {
-            fBaseVertexBaseInstanceSupport = true;
-            fNativeDrawIndirectSupport = true;
-            fMultiDrawType = MultiDrawType::kANGLEOrWebGL;
-            // The indirect structs need to reside in CPU memory for the ANGLE version.
-            fUseClientSideIndirectBuffers = true;
-        } else {
-            fBaseVertexBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance");
-            // Don't support indirect draws on ES. They don't allow VAO 0.
-            //
-            // "An INVALID_OPERATION error is generated if zero is bound to VERTEX_ARRAY_BINDING,
-            // DRAW_INDIRECT_BUFFER or to any enabled vertex array."
-            //
-            // https://www.khronos.org/registry/OpenGL/specs/es/3.1/es_spec_3.1.pdf
-        }
+        fBaseVertexBaseInstanceSupport = ctxInfo.hasExtension("GL_EXT_base_instance");
+        // Don't support indirect draws on ES. They don't allow VAO 0.
+        //
+        // "An INVALID_OPERATION error is generated if zero is bound to VERTEX_ARRAY_BINDING,
+        // DRAW_INDIRECT_BUFFER or to any enabled vertex array."
+        //
+        // https://www.khronos.org/registry/OpenGL/specs/es/3.1/es_spec_3.1.pdf
         fDrawRangeElementsSupport = version >= GR_GL_VER(3,0);
     } else if (GR_IS_GR_WEBGL(standard)) {
         fBaseVertexBaseInstanceSupport = ctxInfo.hasExtension(
