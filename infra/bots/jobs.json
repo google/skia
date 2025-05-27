@@ -351,10 +351,7 @@
   {"name": "Build-Ubuntu24.04-EMCC-asmjs-Release-PathKit"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_CPU"},
-  {
-    "name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_WebGPU",
-    "cq_config": {}
-  },
+  {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_WebGPU"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-PathKit"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Release-CanvasKit"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Release-CanvasKit_CPU"},
@@ -442,15 +439,7 @@
   {"name": "BuildStats-Ubuntu24.04-EMCC-asmjs-Release-PathKit"},
   {"name": "BuildStats-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit"},
   {"name": "BuildStats-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_CPU"},
-  {
-    "name": "BuildStats-Ubuntu24.04-EMCC-wasm-Release-CanvasKit",
-    "cq_config": {
-      "location_regexes": [
-        "infra/canvaskit/.*",
-        "modules/canvaskit/.*"
-      ]
-    }
-  },
+  {"name": "BuildStats-Ubuntu24.04-EMCC-wasm-Release-CanvasKit"},
   {"name": "BuildStats-Ubuntu24.04-EMCC-wasm-Release-CanvasKit_CPU"},
   {"name": "BuildStats-Ubuntu24.04-EMCC-wasm-Release-PathKit"},
   {"name": "Canary-Android"},
@@ -961,23 +950,9 @@
   {"name": "Test-Ubuntu24.04-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-TSAN_Graphite_Native_Vulkan"},
   {"name": "Test-Ubuntu24.04-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-TSAN_Vulkan"},
   {"name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit"},
-  {
-    "name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit",
-    "cq_config": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
-      ]
-    }
-  },
+  {"name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit"},
   {"name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit"},
-  {
-    "name": "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit",
-    "cq_config": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
-      ]
-    }
-  },
+  {"name": "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit"},
   {"name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"},
   {"name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"},
   {"name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-BonusConfigs"},
