@@ -492,9 +492,9 @@ static std::unique_ptr<GrFragmentProcessor> create_profile_effect(GrRecordingCon
     return GrTextureEffect::Make(std::move(profileView), kPremul_SkAlphaType, texM);
 }
 
-static std::unique_ptr<GrFragmentProcessor> make_circle_blur(GrRecordingContext* context,
-                                                             const SkRect& circle,
-                                                             float sigma) {
+std::unique_ptr<GrFragmentProcessor> MakeCircleBlur(GrRecordingContext* context,
+                                                    const SkRect& circle,
+                                                    float sigma) {
     if (skgpu::BlurIsEffectivelyIdentity(sigma)) {
         return nullptr;
     }
@@ -574,11 +574,11 @@ static std::unique_ptr<GrFragmentProcessor> make_rect_integral_fp(GrRecordingCon
             std::move(view), kPremul_SkAlphaType, m, GrSamplerState::Filter::kLinear);
 }
 
-static std::unique_ptr<GrFragmentProcessor> make_rect_blur(GrRecordingContext* context,
-                                                           const GrShaderCaps& caps,
-                                                           const SkRect& srcRect,
-                                                           const SkMatrix& viewMatrix,
-                                                           float transformedSigma) {
+std::unique_ptr<GrFragmentProcessor> MakeRectBlur(GrRecordingContext* context,
+                                                  const GrShaderCaps& caps,
+                                                  const SkRect& srcRect,
+                                                  const SkMatrix& viewMatrix,
+                                                  float transformedSigma) {
     SkASSERT(viewMatrix.preservesRightAngles());
     SkASSERT(srcRect.isSorted());
 
@@ -888,11 +888,11 @@ static std::unique_ptr<GrFragmentProcessor> find_or_create_rrect_blur_mask_fp(
     return GrTextureEffect::Make(std::move(view), kPremul_SkAlphaType, m);
 }
 
-static std::unique_ptr<GrFragmentProcessor> make_rrect_blur(GrRecordingContext* context,
-                                                            float sigma,
-                                                            float xformedSigma,
-                                                            const SkRRect& srcRRect,
-                                                            const SkRRect& devRRect) {
+std::unique_ptr<GrFragmentProcessor> MakeRRectBlur(GrRecordingContext* context,
+                                                   float sigma,
+                                                   float xformedSigma,
+                                                   const SkRRect& srcRRect,
+                                                   const SkRRect& devRRect) {
     SkASSERTF(!SkRRectPriv::IsCircle(devRRect),
               "Unexpected circle. %d\n\t%s\n\t%s",
               SkRRectPriv::IsCircle(srcRRect),
@@ -1053,7 +1053,7 @@ static bool direct_filter_mask(GrRecordingContext* context,
 
     if (canBeRect || canBeCircle) {
         if (canBeRect) {
-            fp = make_rect_blur(context, *context->priv().caps()->shaderCaps(),
+            fp = MakeRectBlur(context, *context->priv().caps()->shaderCaps(),
                                 srcRRect.rect(), viewMatrix, xformedSigma);
         } else {
             SkRect devBounds;
@@ -1068,7 +1068,7 @@ static bool direct_filter_mask(GrRecordingContext* context,
                              center.x() + radius,
                              center.y() + radius};
             }
-            fp = make_circle_blur(context, devBounds, xformedSigma);
+            fp = MakeCircleBlur(context, devBounds, xformedSigma);
         }
 
         if (!fp) {
@@ -1103,7 +1103,7 @@ static bool direct_filter_mask(GrRecordingContext* context,
         return false;
     }
 
-    fp = make_rrect_blur(context, bmf->sigma(), xformedSigma, srcRRect, devRRect);
+    fp = MakeRRectBlur(context, bmf->sigma(), xformedSigma, srcRRect, devRRect);
     if (!fp) {
         return false;
     }
