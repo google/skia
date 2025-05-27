@@ -304,6 +304,160 @@ DEF_TEST(pathbuilder_addPolygon, reporter) {
     }
 }
 
+static void test_addPath(skiatest::Reporter* reporter) {
+    SkPathBuilder p, q;
+    p.lineTo(1, 2);
+    q.moveTo(4, 4);
+    q.lineTo(7, 8);
+    q.conicTo(8, 7, 6, 5, 0.5f);
+    q.quadTo(6, 7, 8, 6);
+    q.cubicTo(5, 6, 7, 8, 7, 5);
+    q.close();
+    p.addPath(q.snapshot(), -4, -4);
+    SkRect expected = {0, 0, 4, 4};
+    REPORTER_ASSERT(reporter, p.snapshot().getBounds() == expected);
+    p.reset();
+    SkPathPriv::ReverseAddPath(&p, q.snapshot());
+    SkRect reverseExpected = {4, 4, 8, 8};
+    REPORTER_ASSERT(reporter, p.snapshot().getBounds() == reverseExpected);
+}
+
+static void test_addPathMode(skiatest::Reporter* reporter, bool explicitMoveTo, bool extend) {
+    SkPathBuilder p, q;
+    if (explicitMoveTo) {
+        p.moveTo(1, 1);
+    }
+    p.lineTo(1, 2);
+    if (explicitMoveTo) {
+        q.moveTo(2, 1);
+    }
+    q.lineTo(2, 2);
+    p.addPath(q.snapshot(), extend ? SkPath::kExtend_AddPathMode : SkPath::kAppend_AddPathMode);
+    SkSpan<const uint8_t> verbs = SkPathPriv::GetVerbs(p);
+    REPORTER_ASSERT(reporter, SkPathPriv::CountVerbs(p) == 4);
+    REPORTER_ASSERT(reporter, verbs[0] == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, verbs[1] == SkPath::kLine_Verb);
+    REPORTER_ASSERT(reporter, verbs[2] == (extend ? SkPath::kLine_Verb : SkPath::kMove_Verb));
+    REPORTER_ASSERT(reporter, verbs[3] == SkPath::kLine_Verb);
+}
+
+static void test_extendClosedPath(skiatest::Reporter* reporter) {
+    SkPathBuilder p, q;
+    p.moveTo(1, 1);
+    p.lineTo(1, 2);
+    p.lineTo(2, 2);
+    p.close();
+    q.moveTo(2, 1);
+    q.lineTo(2, 3);
+    p.addPath(q.detach(), SkPath::kExtend_AddPathMode);
+    SkSpan<const uint8_t> verbs = SkPathPriv::GetVerbs(p);
+    REPORTER_ASSERT(reporter, SkPathPriv::CountVerbs(p) == 7);
+    REPORTER_ASSERT(reporter, verbs[0] == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, verbs[1] == SkPath::kLine_Verb);
+    REPORTER_ASSERT(reporter, verbs[2] == SkPath::kLine_Verb);
+    REPORTER_ASSERT(reporter, verbs[3] == SkPath::kClose_Verb);
+    REPORTER_ASSERT(reporter, verbs[4] == SkPath::kMove_Verb);
+    REPORTER_ASSERT(reporter, verbs[5] == SkPath::kLine_Verb);
+    REPORTER_ASSERT(reporter, verbs[6] == SkPath::kLine_Verb);
+
+    std::optional<SkPoint> pt = p.getLastPt();
+    REPORTER_ASSERT(reporter, pt.has_value());
+    REPORTER_ASSERT(reporter, pt.value() == SkPoint::Make(2, 3));
+    pt = SkPathPriv::GetPoint(p, 3);
+    REPORTER_ASSERT(reporter, pt.has_value());
+    REPORTER_ASSERT(reporter, pt == SkPoint::Make(1, 1));
+}
+
+static void test_addEmptyPath(skiatest::Reporter* reporter, SkPath::AddPathMode mode) {
+    SkPathBuilder p, q, r;
+    // case 1: dst is empty
+    p.moveTo(2, 1);
+    p.lineTo(2, 3);
+    q.addPath(p.snapshot(), mode);
+    REPORTER_ASSERT(reporter, q.snapshot() == p.snapshot());
+    // case 2: src is empty
+    p.addPath(r.snapshot(), mode);
+    REPORTER_ASSERT(reporter, q.snapshot() == p.snapshot());
+    // case 3: src and dst are empty
+    q.reset();
+    q.addPath(r.snapshot(), mode);
+    REPORTER_ASSERT(reporter, q.isEmpty());
+}
+
+/*
+ *  SkPath allows the caller to "skip" calling moveTo for contours. If lineTo (or a curve) is
+ *  called on an empty path, a 'moveTo(0,0)' will automatically be injected. If the path is
+ *  not empty, but its last contour has been "closed", then it will inject a moveTo corresponding
+ *  to where the last contour itself started (i.e. its moveTo).
+ *
+ *  This test exercises this in a particular case:
+ *      path.moveTo(...)                <-- needed to show the bug
+ *      path.moveTo....close()
+ *      // at this point, the path's verbs are: M M ... C
+ *
+ *      path.lineTo(...)
+ *      // after lineTo,  the path's verbs are: M M ... C M L
+ */
+static void test_addPath_and_injected_moveTo(skiatest::Reporter* reporter) {
+    /*
+     *  Given a path, and the expected last-point and last-move-to in it,
+     *  assert that, after a lineTo(), that the injected moveTo corresponds
+     *  to the expected value.
+     */
+    auto test_before_after_lineto = [reporter](SkPathBuilder& path,
+                                               SkPoint expectedLastPt,
+                                               SkPoint expectedMoveTo) {
+        std::optional<SkPoint> p = SkPathPriv::GetPoint(path, path.countPoints() - 1);
+        REPORTER_ASSERT(reporter, p.has_value());
+        REPORTER_ASSERT(reporter, p.value() == expectedLastPt);
+
+        const SkPoint newLineTo = {1234, 5678};
+        path.lineTo(newLineTo);
+
+        p = SkPathPriv::GetPoint(path, path.countPoints() - 2);
+        REPORTER_ASSERT(reporter, p.has_value());
+        REPORTER_ASSERT(reporter, p.value() == expectedMoveTo); // this was injected by lineTo()
+
+        p = SkPathPriv::GetPoint(path, path.countPoints() - 1);
+        REPORTER_ASSERT(reporter, p.has_value());
+        REPORTER_ASSERT(reporter, p.value() == newLineTo);
+    };
+
+    SkPathBuilder path1;
+    path1.moveTo(230, 230); // Needed to show the bug: a moveTo before the addRect
+    path1.moveTo(20,30).lineTo(40,30).lineTo(40,50).lineTo(20,50);
+    SkPathBuilder path1c(path1.snapshot());
+    path1c.close();
+
+    SkPathBuilder path2;
+    // If path2 contains zero points, the update calculation isn't tested.
+    path2.moveTo(144, 72);
+    path2.lineTo(146, 72);
+    SkPathBuilder path2c(path2.snapshot());
+    path2c.close();
+    SkPathBuilder path3(path2.snapshot());
+    SkPathBuilder path3c(path2c.snapshot());
+
+    // Test addPath, adding a path that ends with close.
+    // The start point of the last contour added,
+    // and the internal flag tracking whether it is closed,
+    // must be updated correctly.
+    path2.addPath(path1c.snapshot());
+    path2c.addPath(path1c.snapshot());
+    // At this point, path1c, path2, and path2c should end the same way.
+    test_before_after_lineto(path1c, {20,50}, {20,30});
+    test_before_after_lineto(path2, {20,50}, {20,30});
+    test_before_after_lineto(path2c, {20,50}, {20,30});
+
+    // Test addPath, adding a path not ending in close.
+    path3.addPath(path1.snapshot());
+    path3c.addPath(path1.snapshot());
+    // At this point, path1, path3, and path3c should end the same way.
+    test_before_after_lineto(path1, {20,50}, {20,50});
+    test_before_after_lineto(path3, {20,50}, {20,50});
+    test_before_after_lineto(path3c, {20,50}, {20,50});
+}
+
 DEF_TEST(pathbuilder_addPath, reporter) {
     const auto p = SkPath()
         .moveTo(10, 10)
@@ -315,6 +469,44 @@ DEF_TEST(pathbuilder_addPath, reporter) {
         .conicTo(150, 250, 100, 200, 1.4f);
 
     REPORTER_ASSERT(reporter, p == SkPathBuilder().addPath(p).detach());
+
+    test_addPath(reporter);
+    test_addPathMode(reporter, false, false);
+    test_addPathMode(reporter, true, false);
+    test_addPathMode(reporter, false, true);
+    test_addPathMode(reporter, true, true);
+    test_extendClosedPath(reporter);
+    test_addEmptyPath(reporter, SkPath::kExtend_AddPathMode);
+    test_addEmptyPath(reporter, SkPath::kAppend_AddPathMode);
+    test_addPath_and_injected_moveTo(reporter);
+}
+
+DEF_TEST(pathbuilder_addpath_crbug_1153516, r) {
+    // When we add a closed path to another path, verify
+    // that the result has the right value for last contour start point.
+    SkPathBuilder p1, p2;
+    p2.lineTo(10,20);
+    p1.addRect({143,226,200,241});
+    p2.addPath(p1.snapshot());
+    p2.lineTo(262,513); // this should not assert
+    SkPoint rectangleStart = {143, 226};
+    SkPoint lineEnd = {262, 513};
+    std::optional<SkPoint> actualMoveTo = SkPathPriv::GetPoint(p2, p2.countPoints() - 2);
+    REPORTER_ASSERT(r, actualMoveTo.has_value());
+    REPORTER_ASSERT(r, actualMoveTo.value() == rectangleStart );
+    std::optional<SkPoint> actualLineTo = SkPathPriv::GetPoint(p2, p2.countPoints() - 1);
+    REPORTER_ASSERT(r, actualLineTo.has_value());
+    REPORTER_ASSERT(r, actualLineTo.value() == lineEnd);
+
+    // Verify adding a closed path to itself
+    p1.addPath(p1.snapshot());
+    p1.lineTo(262,513);
+    actualMoveTo = SkPathPriv::GetPoint(p1, p1.countPoints() - 2);
+    REPORTER_ASSERT(r, actualMoveTo.has_value());
+    REPORTER_ASSERT(r, actualMoveTo.value() == rectangleStart );
+    actualLineTo = SkPathPriv::GetPoint(p1, p1.countPoints() - 1);
+    REPORTER_ASSERT(r, actualLineTo.has_value());
+    REPORTER_ASSERT(r, actualLineTo.value() == lineEnd);
 }
 
 /*

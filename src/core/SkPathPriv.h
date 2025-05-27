@@ -20,10 +20,12 @@
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/base/SkDebug.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "src/core/SkPathEnums.h"
 
 #include <cstdint>
 #include <iterator>
+#include <optional>
 #include <utility>
 
 class SkMatrix;
@@ -429,6 +431,21 @@ public:
 
     static void ReverseAddPath(SkPathBuilder* builder, const SkPath& reverseMe) {
         builder->privateReverseAddPath(reverseMe);
+    }
+
+    static std::optional<SkPoint> GetPoint(const SkPathBuilder& builder, int index) {
+        if ((unsigned)index < (unsigned)builder.fPts.size()) {
+            return builder.fPts.at(index);
+        }
+        return std::nullopt;
+    }
+
+    static SkSpan<const uint8_t> GetVerbs(const SkPathBuilder& builder) {
+        return builder.fVerbs;
+    }
+
+    static int CountVerbs(const SkPathBuilder& builder) {
+        return builder.fVerbs.size();
     }
 
     static SkPath MakePath(const SkPathVerbAnalysis& analysis,

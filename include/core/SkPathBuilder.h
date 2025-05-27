@@ -22,6 +22,7 @@
 
 #include <initializer_list>
 #include <optional>
+#include <tuple>
 
 class SkRRect;
 
@@ -759,12 +760,52 @@ public:
         return this->addPolygon(list.begin(), SkToInt(list.size()), close);
     }
 
-    /** Appends src to SkPathBuilder.
+    /** Appends src to SkPathBuilder, offset by (dx, dy).
 
-        @param src   SkPath to add
+        If mode is kAppend_AddPathMode, src verb array, SkPoint array, and conic weights are
+        added unaltered. If mode is kExtend_AddPathMode, add line before appending
+        verbs, SkPoint, and conic weights.
+
+        @param src   SkPath verbs, SkPoint, and conic weights to add
+        @param dx    offset added to src SkPoint array x-axis coordinates
+        @param dy    offset added to src SkPoint array y-axis coordinates
+        @param mode  kAppend_AddPathMode or kExtend_AddPathMode
         @return      reference to SkPathBuilder
     */
-    SkPathBuilder& addPath(const SkPath& src);
+    SkPathBuilder& addPath(const SkPath& src, SkScalar dx, SkScalar dy,
+                           SkPath::AddPathMode mode = SkPath::kAppend_AddPathMode);
+
+    /** Appends src to SkPathBuilder.
+
+        If mode is kAppend_AddPathMode, src verb array, SkPoint array, and conic weights are
+        added unaltered. If mode is kExtend_AddPathMode, add line before appending
+        verbs, SkPoint, and conic weights.
+
+        @param src   SkPath verbs, SkPoint, and conic weights to add
+        @param mode  kAppend_AddPathMode or kExtend_AddPathMode
+        @return      reference to SkPathBuilder
+    */
+    SkPathBuilder& addPath(const SkPath& src,
+                           SkPath::AddPathMode mode = SkPath::kAppend_AddPathMode) {
+        SkMatrix m;
+        m.reset();
+        return this->addPath(src, m, mode);
+    }
+
+    /** Appends src to SkPathBuilder, transformed by matrix. Transformed curves may have different
+        verbs, SkPoint, and conic weights.
+
+        If mode is kAppend_AddPathMode, src verb array, SkPoint array, and conic weights are
+        added unaltered. If mode is kExtend_AddPathMode, add line before appending
+        verbs, SkPoint, and conic weights.
+
+        @param src     SkPath verbs, SkPoint, and conic weights to add
+        @param matrix  transform applied to src
+        @param mode    kAppend_AddPathMode or kExtend_AddPathMode
+        @return        reference to SkPathBuilder
+    */
+    SkPathBuilder& addPath(const SkPath& src, const SkMatrix& matrix,
+                           SkPath::AddPathMode mode = SkPath::AddPathMode::kAppend_AddPathMode);
 
     // Performance hint, to reserve extra storage for subsequent calls to lineTo, quadTo, etc.
 
@@ -872,8 +913,6 @@ private:
     int fIsAStart = -1;     // tracks direction iff fIsA is not unknown
     bool fIsACCW  = false;  // tracks direction iff fIsA is not unknown
 
-    int countVerbs() const { return fVerbs.size(); }
-
     // called right before we add a (non-move) verb
     void ensureMove() {
         fIsA = kIsA_MoreThanMoves;
@@ -888,6 +927,8 @@ private:
 
     SkPathBuilder& privateReverseAddPath(const SkPath&);
     SkPathBuilder& privateReversePathTo(const SkPath&);
+
+    std::tuple<SkPoint*, SkScalar*> growForVerbsInPath(const SkPathRef& path);
 
     friend class SkPathPriv;
 };
