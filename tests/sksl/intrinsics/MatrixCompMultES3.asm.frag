@@ -12,7 +12,6 @@
                OpName %h24 "h24"
                OpName %h42 "h42"
                OpName %f43 "f43"
-               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

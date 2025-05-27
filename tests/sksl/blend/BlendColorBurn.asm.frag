@@ -13,8 +13,6 @@
                OpName %dyTerm "dyTerm"
                OpName %delta "delta"
                OpName %main "main"
-               OpDecorate %guarded_divide_Qhhh RelaxedPrecision
-               OpDecorate %color_burn_component_Qhh2h2 RelaxedPrecision
                OpDecorate %_kGuardedDivideEpsilon RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
@@ -26,15 +24,11 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %16 Binding 0
                OpDecorate %16 DescriptorSet 0
-               OpDecorate %21 RelaxedPrecision
-               OpDecorate %22 RelaxedPrecision
                OpDecorate %24 RelaxedPrecision
                OpDecorate %25 RelaxedPrecision
                OpDecorate %26 RelaxedPrecision
                OpDecorate %27 RelaxedPrecision
                OpDecorate %28 RelaxedPrecision
-               OpDecorate %32 RelaxedPrecision
-               OpDecorate %33 RelaxedPrecision
                OpDecorate %dyTerm RelaxedPrecision
                OpDecorate %36 RelaxedPrecision
                OpDecorate %37 RelaxedPrecision

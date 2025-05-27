@@ -21,7 +21,6 @@
                OpName %hugeMxM "hugeMxM"
                OpName %hugeMxV "hugeMxV"
                OpName %hugeVxM "hugeVxM"
-               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

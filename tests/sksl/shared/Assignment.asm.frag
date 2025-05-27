@@ -30,7 +30,6 @@
                OpName %s "s"
                OpName %l "l"
                OpName %repeat "repeat"
-               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -48,7 +47,6 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %20 Binding 0
                OpDecorate %20 DescriptorSet 0
-               OpDecorate %35 RelaxedPrecision
                OpDecorate %x RelaxedPrecision
                OpDecorate %80 RelaxedPrecision
                OpDecorate %81 RelaxedPrecision

@@ -28,7 +28,6 @@
                OpName %_6_m "_6_m"
                OpName %_7_m "_7_m"
                OpName %_8_m "_8_m"
-               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0

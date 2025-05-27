@@ -10,7 +10,6 @@
                OpName %blend_overlay_component_Qhh2h2 "blend_overlay_component_Qhh2h2"
                OpName %main "main"
                OpName %_0_result "_0_result"
-               OpDecorate %blend_overlay_component_Qhh2h2 RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -21,8 +20,6 @@
                OpDecorate %_UniformBuffer Block
                OpDecorate %8 Binding 0
                OpDecorate %8 DescriptorSet 0
-               OpDecorate %14 RelaxedPrecision
-               OpDecorate %15 RelaxedPrecision
                OpDecorate %18 RelaxedPrecision
                OpDecorate %19 RelaxedPrecision
                OpDecorate %20 RelaxedPrecision

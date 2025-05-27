@@ -9,7 +9,6 @@
                OpName %main "main"
                OpName %sksl_synthetic_uniforms "sksl_synthetic_uniforms"
                OpMemberName %sksl_synthetic_uniforms 0 "u_skRTFlip"
-               OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
