@@ -122,4 +122,12 @@
  */
 //#define SK_API __declspec(dllexport)
 
+/*
+ * If using DNG support, set the version of the dng_sdk being compiled against here
+ * following the versioning scheme of dng_tag_valus.h
+ * eg, DNG 1.4 is 0x01040000, DNG 1.7.1 is 0x01070100, etc...
+ * If unspecified, DNG SDK 1.4 is assumed
+ */
+// #define SK_DNG_VERSION 0x01040000
+
 #endif

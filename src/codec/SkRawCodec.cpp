@@ -60,6 +60,16 @@
 #include "src/piex.h"  // NO_G3_REWRITE
 #include "src/piex_types.h"  // NO_G3_REWRITE
 
+#ifndef SK_DNG_VERSION
+#define SK_DNG_VERSION 0x01040000
+#endif
+
+#if SK_DNG_VERSION <= 0x01040000
+#define OPT_PROGRESS_ARG
+#else
+#define OPT_PROGRESS_ARG ,dng_area_task_progress*
+#endif
+
 using namespace skia_private;
 
 template <typename T> struct sk_is_trivially_relocatable;
@@ -124,7 +134,7 @@ class SkDngHost : public dng_host {
 public:
     explicit SkDngHost(dng_memory_allocator* allocater) : dng_host(allocater) {}
 
-    void PerformAreaTask(dng_area_task& task, const dng_rect& area) override {
+    void PerformAreaTask(dng_area_task& task, const dng_rect& area OPT_PROGRESS_ARG) override {
         SkTaskGroup taskGroup;
 
         // tileSize is typically 256x256
@@ -135,11 +145,19 @@ public:
 
         SkMutex mutex;
         TArray<dng_exception> exceptions;
+#if SK_DNG_VERSION <= 0x01040000
         task.Start(numTasks, tileSize, &Allocator(), Sniffer());
+#else
+        task.Start(numTasks, area, tileSize, &Allocator(), Sniffer());
+#endif
         for (int taskIndex = 0; taskIndex < numTasks; ++taskIndex) {
             taskGroup.add([&mutex, &exceptions, &task, this, taskIndex, taskAreas, tileSize] {
                 try {
+#if SK_DNG_VERSION <= 0x01040000
                     task.ProcessOnThread(taskIndex, taskAreas[taskIndex], tileSize, this->Sniffer());
+#else
+                    task.ProcessOnThread(taskIndex, taskAreas[taskIndex], tileSize, this->Sniffer(), nullptr);
+#endif
                 } catch (dng_exception& exception) {
                     SkAutoMutexExclusive lock(mutex);
                     exceptions.push_back(exception);
