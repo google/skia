@@ -18,7 +18,7 @@ public:
     SkRecorder& operator=(const SkRecorder&) = delete;
 
     enum class Type {
-        kRaster,
+        kCPU,
         kGanesh,
         kGraphite,
     };

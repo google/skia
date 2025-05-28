@@ -7,7 +7,6 @@
 #include "src/image/SkImage_Raster.h"
 
 #include "include/core/SkBitmap.h"
-#include "include/core/SkCPURecorder.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
@@ -15,6 +14,7 @@
 #include "include/core/SkPixelRef.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRecorder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
@@ -89,7 +89,7 @@ sk_sp<SkSurface> SkImage_Raster::onMakeSurface(SkRecorder* recorder,
         // TODO(kjlubick) remove this after old SkImage::makeScaled(image info, sampling) API gone
         recorder = skcpu::Recorder::TODO();
     }
-    if (recorder->type() != SkRecorder::Type::kRaster) {
+    if (recorder->type() != SkRecorder::Type::kCPU) {
         return nullptr;
     }
     const SkSurfaceProps* props = nullptr;

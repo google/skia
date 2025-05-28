@@ -221,7 +221,7 @@ sk_sp<SkSurface> SkImage_Lazy::onMakeSurface(SkRecorder* recorder, const SkImage
         // TODO(kjlubick) remove this after old SkImage::makeScaled(image info, sampling) API gone
         recorder = skcpu::Recorder::TODO();
     }
-    if (recorder->type() != SkRecorder::Type::kRaster) {
+    if (recorder->type() != SkRecorder::Type::kCPU) {
         return nullptr;
     }
     const SkSurfaceProps* props = nullptr;

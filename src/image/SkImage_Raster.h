@@ -9,9 +9,9 @@
 #define SkImage_Raster_DEFINED
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkCPURecorder.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPixelRef.h"
-#include "include/core/SkRecorder.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTo.h"
@@ -28,6 +28,7 @@ class GrRecordingContext;
 class SkColorSpace;
 class SkData;
 class SkPixmap;
+class SkRecorder;
 class SkSurface;
 enum SkColorType : int;
 struct SkIRect;
@@ -45,10 +46,7 @@ public:
     // From SkImage.h
     bool isValid(GrRecordingContext*) const override { return true; }
     bool isValid(SkRecorder* recorder) const override {
-        if (!recorder) {
-            return false;
-        }
-        if (recorder->type() != SkRecorder::Type::kRaster) {
+        if (!skcpu::AsRecorder(recorder)) {
             return false;
         }
         return true;
