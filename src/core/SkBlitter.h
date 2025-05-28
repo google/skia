@@ -124,9 +124,9 @@ public:
 
     struct DirectBlit {
         SkPixmap pm;
-        uint32_t value; // low bits match pixmap's bitdepth
+        uint64_t value; // low bits match pixmap's bitdepth
     };
-    virtual std::optional<DirectBlit> canDirectBlit() const { return {}; }
+    virtual std::optional<DirectBlit> canDirectBlit() { return {}; }
 
     /**
      * This function allocates memory for the blitter that the blitter then owns.

@@ -5,8 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
@@ -32,26 +34,63 @@
 #include <array>
 #include <cstdint>
 #include <cstring>
+#include <optional>
+
+#define DISPATCH_LOOP()                                     \
+    const auto pm = direct->pm;                             \
+    const auto value = direct->value;                       \
+    switch (pm.info().bytesPerPixel()) {                    \
+        case 1: DIRECT_BLIT_LOOP(writable_addr8); break;    \
+        case 2: DIRECT_BLIT_LOOP(writable_addr16); break;   \
+        case 4: DIRECT_BLIT_LOOP(writable_addr32); break;   \
+        case 8: DIRECT_BLIT_LOOP(writable_addr64); break;   \
+    }
+
+#define DIRECT_BLIT_LOOP(writable_proc)         \
+    do {                                        \
+        *pm.writable_proc(x, fy >> 16) = value; \
+        fy += dy;                               \
+    } while (++x < stopx)
 
 static void horiline(int x, int stopx, SkFixed fy, SkFixed dy,
                      SkBlitter* blitter) {
     SkASSERT(x < stopx);
 
-    do {
-        blitter->blitH(x, fy >> 16, 1);
-        fy += dy;
-    } while (++x < stopx);
+    if (auto direct = blitter->canDirectBlit()) {
+        DISPATCH_LOOP()
+    } else {
+        do {
+            blitter->blitH(x, fy >> 16, 1);
+            fy += dy;
+        } while (++x < stopx);
+    }
 }
+
+#undef DIRECT_BLIT_LOOP
+#define DIRECT_BLIT_LOOP(writable_proc)         \
+    do {                                        \
+        *pm.writable_proc(fx >> 16, y) = value; \
+        fx += dx;                               \
+    } while (++y < stopy)
+
 
 static void vertline(int y, int stopy, SkFixed fx, SkFixed dx,
                      SkBlitter* blitter) {
     SkASSERT(y < stopy);
 
-    do {
-        blitter->blitH(fx >> 16, y, 1);
-        fx += dx;
-    } while (++y < stopy);
+    if (auto direct = blitter->canDirectBlit()) {
+        DISPATCH_LOOP()
+    } else {
+        do {
+            blitter->blitH(fx >> 16, y, 1);
+            fx += dx;
+        } while (++y < stopy);
+    }
 }
+
+#undef DIRECT_BLIT_LOOP
+
+//////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
 static bool canConvertFDot6ToFixed(SkFDot6 x) {

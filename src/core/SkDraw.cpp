@@ -9,6 +9,7 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
@@ -77,6 +78,18 @@ private:
     SkAAClipBlitterWrapper fWrapper;
 };
 
+#define DIRECT_BLIT_LOOP(writable_method, value)    \
+    do {                                            \
+        for (auto p : devPts) {                     \
+            int x = SkScalarFloorToInt(p.fX);       \
+            int y = SkScalarFloorToInt(p.fY);       \
+            if (cr.contains(x, y)) {                \
+                *pm.writable_method(x, y) = value;  \
+            }                                       \
+        }                                           \
+    } while (0)
+
+
 static void bw_pt_hair_proc(const PtProcRec& rec, SkSpan<const SkPoint> devPts,
                             SkBlitter* blitter) {
     const auto direct = blitter->canDirectBlit();
@@ -84,12 +97,12 @@ static void bw_pt_hair_proc(const PtProcRec& rec, SkSpan<const SkPoint> devPts,
         const SkIRect cr = rec.fClip->getBounds();
         auto pm = direct->pm;
         const auto v = direct->value;
-        for (auto p : devPts) {
-            int x = SkScalarFloorToInt(p.fX);
-            int y = SkScalarFloorToInt(p.fY);
-            if (cr.contains(x, y)) {
-                *pm.writable_addr32(x, y) = v;
-            }
+        switch (pm.info().bytesPerPixel()) {
+            case 1: DIRECT_BLIT_LOOP(writable_addr8,  v); break;
+            case 2: DIRECT_BLIT_LOOP(writable_addr16, v); break;
+            case 4: DIRECT_BLIT_LOOP(writable_addr32, v); break;
+            case 8: DIRECT_BLIT_LOOP(writable_addr64, v); break;
+            default: SkASSERT(false);
         }
     } else {
         for (auto p : devPts) {

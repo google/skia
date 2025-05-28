@@ -1638,7 +1638,7 @@ void SkARGB32_Opaque_Blitter::blitAntiV2(int x, int y, U8CPU a0, U8CPU a1) {
     device[0] = SkFastFourByteInterp(fPMColor, device[0], a1);
 }
 
-std::optional<SkBlitter::DirectBlit> SkARGB32_Opaque_Blitter::canDirectBlit() const {
+std::optional<SkBlitter::DirectBlit> SkARGB32_Opaque_Blitter::canDirectBlit() {
     return {{ fDevice, fPMColor }};
 }
 

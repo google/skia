@@ -682,6 +682,8 @@ static std::optional<Config> create_config(const SkCommandLineConfig* config) {
     CPU_CONFIG("nonrendering", Backend::kNonRendering, kUnknown_SkColorType, kUnpremul_SkAlphaType)
 
     CPU_CONFIG("a8",    Backend::kRaster,    kAlpha_8_SkColorType, kPremul_SkAlphaType)
+    CPU_CONFIG("gray8", Backend::kRaster,     kGray_8_SkColorType, kOpaque_SkAlphaType)
+    CPU_CONFIG("r8",    Backend::kRaster,   kR8_unorm_SkColorType, kOpaque_SkAlphaType)
     CPU_CONFIG("565",   Backend::kRaster,    kRGB_565_SkColorType, kOpaque_SkAlphaType)
     CPU_CONFIG("8888",  Backend::kRaster,        kN32_SkColorType, kPremul_SkAlphaType)
     CPU_CONFIG("rgba",  Backend::kRaster,  kRGBA_8888_SkColorType, kPremul_SkAlphaType)
