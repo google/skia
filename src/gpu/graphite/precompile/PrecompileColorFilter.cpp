@@ -196,6 +196,10 @@ sk_sp<PrecompileColorFilter> PrecompileColorFilters::Blend(SkSpan<const SkBlendM
 
 //--------------------------------------------------------------------------------------------------
 class PrecompileMatrixColorFilter : public PrecompileColorFilter {
+public:
+    PrecompileMatrixColorFilter(bool inHSLA) : fInHSLA(inHSLA) {}
+
+private:
     void addToKey(const KeyContext& keyContext,
                   PaintParamsKeyBuilder* builder,
                   PipelineDataGatherer* gatherer,
@@ -208,18 +212,20 @@ class PrecompileMatrixColorFilter : public PrecompileColorFilter {
                                                  0, 0, 0, 1, 0 };
 
         MatrixColorFilterBlock::MatrixColorFilterData matrixCFData(
-                kIdentity, /* inHSLA= */ false, /* clamp= */ true);
+                kIdentity, fInHSLA, /* clamp= */ true);
 
         MatrixColorFilterBlock::AddBlock(keyContext, builder, gatherer, matrixCFData);
     }
+
+    bool fInHSLA;
 };
 
 sk_sp<PrecompileColorFilter> PrecompileColorFilters::Matrix() {
-    return sk_make_sp<PrecompileMatrixColorFilter>();
+    return sk_make_sp<PrecompileMatrixColorFilter>(/*inHSLA=*/false);
 }
 
 sk_sp<PrecompileColorFilter> PrecompileColorFilters::HSLAMatrix() {
-    return sk_make_sp<PrecompileMatrixColorFilter>();
+    return sk_make_sp<PrecompileMatrixColorFilter>(/*inHSLA=*/true);
 }
 
 //--------------------------------------------------------------------------------------------------
