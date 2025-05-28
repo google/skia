@@ -17,7 +17,6 @@
 #include "include/core/SkOpenTypeSVGDecoder.h"
 #include "include/core/SkPath.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkFDot6.h"
@@ -2074,17 +2073,11 @@ bool generateFacePathCOLRv1(FT_Face face, SkGlyphID glyphID, SkPath* path) {
 }  // namespace
 
 bool SkScalerContextFTUtils::generateGlyphPath(FT_Face face, SkPath* path) const {
-    if (!generateGlyphPathStatic(face, path)) {
-        return false;
-    }
-    if (face->glyph->outline.flags & FT_OUTLINE_OVERLAP) {
-        Simplify(*path, path);
-        // Simplify will return an even-odd path.
-        // A stroke+fill (for fake bold) may be incorrect for even-odd.
-        // https://github.com/flutter/flutter/issues/112546
-        AsWinding(*path, path);
-    }
-    return true;
+    // We used to try simplifying overlapping contours (flags & FT_OUTLINE_OVERLAP)
+    // at this stage, but that was not 100% reliable, and other font backends
+    // (e.g. CoreText) do not attempt this, so we removed it.
+
+    return generateGlyphPathStatic(face, path);
 }
 
 bool SkScalerContextFTUtils::generateFacePath(FT_Face face, SkGlyphID glyphID, LoadGlyphFlags flags,
