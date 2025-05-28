@@ -30,19 +30,6 @@ struct Options;
 // http://review.skia.org/923336 and http://review.skia.org/922676).
 class SkPngRustEncoderImpl final : public SkPngEncoderBase {
 public:
-    enum ExtraRowTransform {
-      // `kNone...` indicates that pixels from `SkPngEncoderBase` can be fed
-      // directly into Rust `png`.
-      kNone_ExtraRowTransform,
-
-      // `kRgbaToRgb...` indicates that `SkPngEncoderBase` gives RGBx (8-bit or
-      // 16-bit) pixels to `onEncodeRow`.  And since Rust `png` can't ignore the
-      // alpha channel (`libpng` can do this via `png_set_filler`), we need to
-      // do an extra RGBA => RGB transformation before feeding the data into
-      // Rust.
-      kRgbaToRgb_ExtraRowTransform,
-    };
-
     static std::unique_ptr<SkEncoder> Make(SkWStream*,
                                            const SkPixmap&,
                                            const SkPngRustEncoder::Options& options);
@@ -50,8 +37,7 @@ public:
     // `public` to support `std::make_unique<SkPngRustEncoderImpl>(...)`.
     SkPngRustEncoderImpl(TargetInfo targetInfo,
                          const SkPixmap& src,
-                         rust::Box<rust_png::StreamWriter> streamWriter,
-                         ExtraRowTransform extraRowTransform);
+                         rust::Box<rust_png::StreamWriter> streamWriter);
 
     ~SkPngRustEncoderImpl() override;
 
@@ -61,9 +47,6 @@ protected:
 
 private:
     rust::Box<rust_png::StreamWriter> fStreamWriter;
-
-    ExtraRowTransform fExtraRowTransform;
-    std::vector<uint8_t> fExtraRowBuffer;
 };
 
 #endif  // SkPngRustEncoderImpl_DEFINED
