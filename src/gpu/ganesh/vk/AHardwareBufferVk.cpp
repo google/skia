@@ -24,10 +24,6 @@
 
 #include <android/hardware_buffer.h>
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-#include <vndk/hardware_buffer.h>
-#endif
-
 #define VK_CALL(X) gpu->vkInterface()->fFunctions.f##X
 
 namespace GrAHardwareBufferUtils {
@@ -74,12 +70,6 @@ GrBackendFormat GetVulkanBackendFormat(GrDirectContext* dContext, AHardwareBuffe
 #if __ANDROID_API__ >= 33
         case AHARDWAREBUFFER_FORMAT_R8_UNORM: {
             bufferVkFormat = VK_FORMAT_R8_UNORM;
-            break;
-        }
-#endif
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-        case AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM: {
-            bufferVkFormat = VK_FORMAT_B8G8R8A8_UNORM;
             break;
         }
 #endif
