@@ -66,7 +66,9 @@ sk_sp<VulkanYcbcrConversion> VulkanYcbcrConversion::Make(
     }
 
     VkSamplerYcbcrConversionCreateInfo ycbcrCreateInfo;
-    skgpu::SetupSamplerYcbcrConversionInfo(&ycbcrCreateInfo, conversionInfo);
+    std::optional<VkFilter> requiredSamplerFilter;
+    skgpu::SetupSamplerYcbcrConversionInfo(
+            &ycbcrCreateInfo, &requiredSamplerFilter, conversionInfo);
 
 #ifdef SK_BUILD_FOR_ANDROID
     VkExternalFormatANDROID externalFormat;
@@ -97,7 +99,8 @@ sk_sp<VulkanYcbcrConversion> VulkanYcbcrConversion::Make(
     if (result != VK_SUCCESS) {
         return nullptr;
     }
-    return sk_sp<VulkanYcbcrConversion>(new VulkanYcbcrConversion(context, conversion));
+    return sk_sp<VulkanYcbcrConversion>(
+            new VulkanYcbcrConversion(context, conversion, requiredSamplerFilter));
 }
 
 ImmutableSamplerInfo VulkanYcbcrConversion::ToImmutableSamplerInfo(
@@ -132,7 +135,8 @@ ImmutableSamplerInfo VulkanYcbcrConversion::ToImmutableSamplerInfo(
              ((uint32_t)(conversionInfo.fComponents.g               ) << kComponentGShift        ) |
              ((uint32_t)(conversionInfo.fComponents.b               ) << kComponentBShift        ) |
              ((uint32_t)(conversionInfo.fComponents.a               ) << kComponentAShift        ));
-    info.fFormat = usesExternalFormat  ? conversionInfo.fExternalFormat : conversionInfo.fFormat;
+    info.fFormat = usesExternalFormat ? conversionInfo.fExternalFormat
+                                      : static_cast<uint64_t>(conversionInfo.fFormat);
     return info;
 }
 
@@ -177,11 +181,13 @@ VulkanYcbcrConversionInfo VulkanYcbcrConversion::FromImmutableSamplerInfo(
 }
 
 VulkanYcbcrConversion::VulkanYcbcrConversion(const VulkanSharedContext* context,
-                                             VkSamplerYcbcrConversion ycbcrConversion)
+                                             VkSamplerYcbcrConversion ycbcrConversion,
+                                             std::optional<VkFilter> requiredFilter)
         : Resource(context,
                    Ownership::kOwned,
                    /*gpuMemorySize=*/0)
-        , fYcbcrConversion (ycbcrConversion) {}
+        , fYcbcrConversion(ycbcrConversion)
+        , fRequiredFilter(requiredFilter) {}
 
 void VulkanYcbcrConversion::freeGpuData() {
     auto sharedContext = static_cast<const VulkanSharedContext*>(this->sharedContext());

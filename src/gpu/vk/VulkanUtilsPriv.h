@@ -22,6 +22,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <type_traits>
 
@@ -222,6 +223,7 @@ const T* GetExtensionFeatureStruct(const VkPhysicalDeviceFeatures2& features,
  * Returns a populated VkSamplerYcbcrConversionCreateInfo object based on VulkanYcbcrConversionInfo
 */
 void SetupSamplerYcbcrConversionInfo(VkSamplerYcbcrConversionCreateInfo* outInfo,
+                                     std::optional<VkFilter>* requiredSamplerFilter,
                                      const VulkanYcbcrConversionInfo& conversionInfo);
 
 static constexpr const char* VkFormatToStr(VkFormat vkFormat) {
