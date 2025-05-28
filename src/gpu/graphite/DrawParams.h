@@ -85,12 +85,21 @@ public:
     // intersected with the device bounds.
     const SkIRect& scissor() const { return fScissor; }
 
-    // Clipped bounds of the shape in device space, including any padding/outset for stroking,
-    // intersected with the scissor and ignoring the fill rule. For a regular fill this is identical
-    // to drawBounds(). For an inverse fill, this is a subset of drawBounds().
+    // Unclipped bounds of the shape in device space, including any padding/outset for stroking but
+    // ignoring the fill rule. This is not restricted by the scissor (or the target device's
+    // physical bounds).
+    //
+    // For a regular fill, drawBounds() is the intersection of this rectangle and scissor().
+    //
+    // For an inverse fill, this is the bounding box of the interesting portion of any coverage
+    // mask. If it doesn't intersect the scissor, the draw fully covers the scissor; regardless the
+    // drawBounds() are equal to the scissor.
     const Rect& transformedShapeBounds() const { return fTransformedShapeBounds; }
 
     // If set, the shape's bounds and/or an atlas mask are further used to clip the draw.
+    // NOTE: This cannot impact `drawBounds()` as pixels outside of the non-msaa clip may still be
+    // shaded and blended with a coverage value of 0, which could lead to undefined behavior on the
+    // GPU if operations were ordered assuming tighter bounds.
     const NonMSAAClip& nonMSAAClip() const { return fNonMSAAClip; }
 
     // If set, the clip shader's output alpha is further used to clip the draw.

@@ -1282,9 +1282,13 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     // Some renderers make the drawn area larger than the geometry for anti-aliasing
     float rendererOutset = outsetBoundsForAA ? localToDevice.localAARadius(styledShape->bounds())
                                              : 0.f;
-    if (!SkIsFinite(rendererOutset)) {
-        transformedShapeBounds = deviceBounds;
+    if (!SkIsFinite(rendererOutset)) SK_UNLIKELY {
         infiniteBounds = true;
+        // We cannot calculate an accurate local shape bounds, and transformedShapeBounds is meant
+        // to be unclipped. This is to maximize atlas reuse for mostly unclipped draws and to detect
+        // when a scissor state change is required. Setting transformredShapeBounds to deviceBounds
+        // is harmless in this case as these benefits are unlikely to apply for this transform.
+        transformedShapeBounds = deviceBounds;
     } else {
         // Will be in device space once style/AA outsets and the localToDevice transform are
         // applied.
@@ -1313,9 +1317,6 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
             styledShape.writable()->setRect(transformedShapeBounds);
             shapeInDeviceSpace = true;
         }
-
-        // Restrict bounds to the device limits.
-        transformedShapeBounds.intersect(deviceBounds);
     }
 
     Rect drawBounds;  // defined in device space
@@ -1324,7 +1325,9 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         styledShape.writable()->setRect(drawBounds);
         shapeInDeviceSpace = true;
     } else {
+        // Restrict the draw bounds to the device limits.
         drawBounds = transformedShapeBounds;
+        drawBounds.intersect(deviceBounds);
     }
 
     if (drawBounds.isEmptyNegativeOrNaN() || cs.state() == ClipState::kWideOpen) {
@@ -1345,7 +1348,6 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     // coordinates.
     Rect scissor = cs.scissor(deviceBounds, drawBounds).makeRoundOut();
     drawBounds.intersect(scissor);
-    transformedShapeBounds.intersect(scissor);
     if (drawBounds.isEmptyNegativeOrNaN() || cs.innerBounds().contains(drawBounds)) {
         // Like above, in both cases drawBounds holds the right value.
         return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), {}, cs.shader());

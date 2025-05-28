@@ -571,6 +571,13 @@ struct SK_API SkIRect {
         return MakeLTRB(std::min(fLeft, fRight), std::min(fTop, fBottom),
                         std::max(fLeft, fRight), std::max(fTop, fBottom));
     }
+
+    /** Returns pointer to first int32 in SkIRect, to treat it as an array with four
+        entries.
+
+        @return  pointer to fLeft
+    */
+    const int32_t* asInt32s() const { return &fLeft; }
 };
 
 /** \struct SkRect
