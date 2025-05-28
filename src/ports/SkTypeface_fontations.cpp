@@ -7,7 +7,6 @@
 #include "include/ports/SkTypeface_fontations.h"
 
 #include "include/codec/SkCodec.h"
-#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
@@ -19,12 +18,21 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkMutex.h"
 #include "src/base/SkScopeExit.h"
+#include "src/codec/SkCodecPriv.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
 #include "src/ports/SkTypeface_fontations_priv.h"
 #include "src/ports/fontations/src/skpath_bridge.h"
 
 namespace {
+
+void CheckPng() {
+#if defined(SK_DEBUG)
+    if (!SkCodecs::HasDecoder("png")) {
+        SkDebugf("No PNG decoder registered. A call to SkCodecs::Register is necessary.\n");
+    }
+#endif
+}
 
 [[maybe_unused]] static inline const constexpr bool kSkShowTextBlitCoverage = false;
 
@@ -630,13 +638,14 @@ protected:
             const fontations_ffi::BitmapMetrics bitmapMetrics =
                     fontations_ffi::bitmap_metrics(*bitmap_glyph);
 
-            std::unique_ptr<SkCodec> codec = SkPngDecoder::Decode(
-                    SkData::MakeWithoutCopy(png_data.data(), png_data.size()), nullptr);
-            if (!codec) {
+            sk_sp<SkImage> img = SkImages::DeferredFromEncodedData(
+                    SkData::MakeWithoutCopy(png_data.data(), png_data.size()));
+            if (!img) {
+                CheckPng();
                 return mx;
             }
 
-            SkImageInfo info = codec->getInfo();
+            SkImageInfo info = img->imageInfo();
 
             SkRect bounds = SkRect::Make(info.bounds());
             SkMatrix matrix = fRemainingMatrix;
@@ -696,15 +705,10 @@ protected:
         rust::cxxbridge1::Slice<const uint8_t> png_data = fontations_ffi::png_data(*bitmap_glyph);
         SkASSERT(png_data.size());
 
-        std::unique_ptr<SkCodec> codec = SkPngDecoder::Decode(
-                SkData::MakeWithoutCopy(png_data.data(), png_data.size()), nullptr);
-
-        if (!codec) {
-            return;
-        }
-
-        auto [glyph_image, result] = codec->getImage();
-        if (result != SkCodec::Result::kSuccess) {
+        sk_sp<SkImage> glyph_image = SkImages::DeferredFromEncodedData(
+                SkData::MakeWithoutCopy(png_data.data(), png_data.size()));
+        if (!glyph_image) {
+            CheckPng();
             return;
         }
 
