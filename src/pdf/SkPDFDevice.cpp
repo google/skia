@@ -144,21 +144,21 @@ void SkPDFDevice::MarkedContentManager::beginMark() {
                        fNextMarksElemId == SkPDF::NodeID::PaginationFooterArtifact ||
                        fNextMarksElemId == SkPDF::NodeID::PaginationWatermarkArtifact)
             {
-                fOut->writeText(" <</Type Pagination");
+                fOut->writeText(" <</Type /Pagination");
                 if (fNextMarksElemId == SkPDF::NodeID::PaginationHeaderArtifact) {
-                    fOut->writeText(" /Subtype Header");
+                    fOut->writeText(" /Subtype /Header");
                 } else if  (fNextMarksElemId == SkPDF::NodeID::PaginationFooterArtifact) {
-                    fOut->writeText(" /Subtype Footer");
+                    fOut->writeText(" /Subtype /Footer");
                 } else if (fNextMarksElemId == SkPDF::NodeID::PaginationWatermarkArtifact) {
-                    fOut->writeText(" /Subtype Watermark");
+                    fOut->writeText(" /Subtype /Watermark");
                 }
                 fOut->writeText(" >>BDC\n");
             } else if (fNextMarksElemId == SkPDF::NodeID::LayoutArtifact) {
-                fOut->writeText(" <</Type Layout >>BDC\n");
+                fOut->writeText(" <</Type /Layout >>BDC\n");
             } else if (fNextMarksElemId == SkPDF::NodeID::PageArtifact) {
-                fOut->writeText(" <</Type Page >>BDC\n");
+                fOut->writeText(" <</Type /Page >>BDC\n");
             } else if (fNextMarksElemId == SkPDF::NodeID::BackgroundArtifact) {
-                fOut->writeText(" <</Type Background >>BDC\n");
+                fOut->writeText(" <</Type /Background >>BDC\n");
             }
             fCurrentMarksElemId = fNextMarksElemId;
         }
