@@ -114,9 +114,7 @@ static std::string identify_transfer_fn(SkColorSpace* cs) {
                                   tf.f + 1)
                     .c_str();
 
-        case skcms_TFType_HLGinvish:
-            break;
-        case skcms_TFType_Invalid:
+        default:
             break;
     }
     return "non-numeric";

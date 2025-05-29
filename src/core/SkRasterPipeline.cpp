@@ -541,7 +541,7 @@ void SkRasterPipeline::appendStore(SkColorType ct, const SkRasterPipelineContext
 void SkRasterPipeline::appendTransferFunction(const skcms_TransferFunction& tf) {
     void* ctx = const_cast<void*>(static_cast<const void*>(&tf));
     switch (skcms_TransferFunction_getType(&tf)) {
-        case skcms_TFType_Invalid: SkASSERT(false); break;
+        default: SkASSERT(false); break;
 
         case skcms_TFType_sRGBish:
             if (tf.a == 1 && tf.b == 0 && tf.c == 0 && tf.d == 0 && tf.e == 0 && tf.f == 0) {

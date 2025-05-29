@@ -211,7 +211,7 @@ constexpr uint32_t kCICPTrfnHLG = 18;
 
 uint32_t get_cicp_trfn(const skcms_TransferFunction& fn) {
     switch (skcms_TransferFunction_getType(&fn)) {
-        case skcms_TFType_Invalid:
+        default:
             return 0;
         case skcms_TFType_sRGBish:
             if (nearly_equal(fn, SkNamedTransferFn::kSRGB)) {
