@@ -55,6 +55,8 @@ protected:
     // `IEND` chunk).
     virtual bool onFinishEncoding() = 0;
 
+    const TargetInfo& targetInfo() const { return fTargetInfo; }
+
 private:
     TargetInfo fTargetInfo;
     bool fFinishedEncoding = false;

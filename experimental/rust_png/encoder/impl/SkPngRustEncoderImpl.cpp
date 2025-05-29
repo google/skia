@@ -9,6 +9,7 @@
 
 #include <limits>
 #include <memory>
+#include <optional>
 #include <utility>
 
 #include "experimental/rust_png/encoder/SkPngRustEncoder.h"
@@ -28,21 +29,6 @@
 #endif
 
 namespace {
-
-rust_png::ColorType ToColorType(SkEncodedInfo::Color color) {
-    switch (color) {
-        case SkEncodedInfo::kRGB_Color:
-            return rust_png::ColorType::Rgb;
-        case SkEncodedInfo::kRGBA_Color:
-            return rust_png::ColorType::Rgba;
-        case SkEncodedInfo::kGray_Color:
-            return rust_png::ColorType::Grayscale;
-        case SkEncodedInfo::kGrayAlpha_Color:
-            return rust_png::ColorType::GrayscaleAlpha;
-        default:
-            SkUNREACHABLE;
-    }
-}
 
 rust_png::Compression ToCompression(SkPngRustEncoder::CompressionLevel level) {
     switch (level) {
@@ -143,6 +129,12 @@ std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst,
         return nullptr;
     }
     const SkEncodedInfo& dstInfo = maybeTargetInfo->fDstInfo;
+#ifdef SKIA_FIX_CRBUG_419011374
+    // TODO(https://crbug.com/419011374): Remove this `ifdef` after updating
+    // expectations of Chromium-side tests which hardcode the exact expected
+    // output of a PNG encoder.
+    const std::optional<SkImageInfo>& maybeDstRowInfo = maybeTargetInfo->fDstRowInfo;
+#endif
 
     SkSafeMath safe;
     uint32_t width = safe.castTo<uint32_t>(dstInfo.width());
@@ -161,12 +153,43 @@ std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst,
         }
     }
 
+    rust_png::ColorType rustEncoderColorType;
+    ExtraRowTransform extraRowTransform = kNone_ExtraRowTransform;
+    switch (dstInfo.color()) {
+        case SkEncodedInfo::kRGB_Color:
+            rustEncoderColorType = rust_png::ColorType::Rgb;
+            break;
+        case SkEncodedInfo::kRGBA_Color:
+#ifdef SKIA_FIX_CRBUG_419011374
+            // TODO(https://crbug.com/419011374): Remove this `ifdef` after updating
+            // expectations of Chromium-side tests which hardcode the exact expected
+            // output of a PNG encoder.
+            if (maybeDstRowInfo && maybeDstRowInfo->isOpaque()) {
+              rustEncoderColorType = rust_png::ColorType::Rgb;
+              extraRowTransform = kRgbaToRgb_ExtraRowTransform;
+            } else {
+              rustEncoderColorType = rust_png::ColorType::Rgba;
+            }
+#else
+            rustEncoderColorType = rust_png::ColorType::Rgba;
+#endif
+            break;
+        case SkEncodedInfo::kGray_Color:
+            rustEncoderColorType = rust_png::ColorType::Grayscale;
+            break;
+        case SkEncodedInfo::kGrayAlpha_Color:
+            rustEncoderColorType = rust_png::ColorType::GrayscaleAlpha;
+            break;
+        default:
+            SkUNREACHABLE;
+    }
+
     auto writeTraitAdapter = std::make_unique<WriteTraitAdapterForSkWStream>(dst);
     rust::Box<rust_png::ResultOfWriter> resultOfWriter =
             rust_png::new_writer(std::move(writeTraitAdapter),
                                  width,
                                  height,
-                                 ToColorType(dstInfo.color()),
+                                 rustEncoderColorType,
                                  dstInfo.bitsPerComponent(),
                                  ToCompression(options.fCompressionLevel),
                                  encodedProfileSlice);
@@ -187,19 +210,66 @@ std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst,
     rust::Box<rust_png::StreamWriter> stream_writer = resultOfStreamWriter->unwrap();
 
     return std::make_unique<SkPngRustEncoderImpl>(
-            std::move(*maybeTargetInfo), src, std::move(stream_writer));
+            std::move(*maybeTargetInfo), src, std::move(stream_writer), extraRowTransform);
 }
 
 SkPngRustEncoderImpl::SkPngRustEncoderImpl(TargetInfo targetInfo,
                                            const SkPixmap& src,
-                                           rust::Box<rust_png::StreamWriter> stream_writer)
-        : SkPngEncoderBase(std::move(targetInfo), src), fStreamWriter(std::move(stream_writer)) {}
+                                           rust::Box<rust_png::StreamWriter> stream_writer,
+                                           ExtraRowTransform extraRowTransform)
+        : SkPngEncoderBase(std::move(targetInfo), src)
+        , fStreamWriter(std::move(stream_writer))
+        , fExtraRowTransform(extraRowTransform) {}
 
 SkPngRustEncoderImpl::~SkPngRustEncoderImpl() = default;
 
 bool SkPngRustEncoderImpl::onEncodeRow(SkSpan<const uint8_t> row) {
-    return fStreamWriter->write(rust::Slice<const uint8_t>(row)) ==
-           rust_png::EncodingResult::Success;
+    rust::Slice<const uint8_t> rustRow;
+    switch (this->fExtraRowTransform) {
+        case kNone_ExtraRowTransform:
+            rustRow = rust::Slice<const uint8_t>(row);
+            break;
+        case kRgbaToRgb_ExtraRowTransform: {
+            skcms_PixelFormat srcFmt, dstFmt;
+            switch (this->targetInfo().fDstRowInfo->colorType()) {
+                case kRGB_888x_SkColorType:
+                    srcFmt = skcms_PixelFormat_RGBA_8888;
+                    dstFmt = skcms_PixelFormat_RGB_888;
+                    break;
+                case kR16G16B16A16_unorm_SkColorType:
+                    srcFmt = skcms_PixelFormat_RGBA_16161616BE;
+                    dstFmt = skcms_PixelFormat_RGB_161616BE;
+                    break;
+                default:
+                    SkUNREACHABLE;
+            }
+
+            size_t srcRowBytes = this->targetInfo().fDstRowInfo->minRowBytes();
+            size_t dstRowBytes = srcRowBytes - (srcRowBytes / 4);
+            fExtraRowBuffer.resize(dstRowBytes, 0x00);
+
+            SkSafeMath safe;
+            size_t width = safe.castTo<size_t>(this->targetInfo().fDstRowInfo->width());
+            if (!safe.ok()) {
+                return false;
+            }
+
+            bool success = skcms_Transform(
+                    row.data(), srcFmt, skcms_AlphaFormat_Unpremul, nullptr,
+                    fExtraRowBuffer.data(), dstFmt, skcms_AlphaFormat_Unpremul, nullptr,
+                    width);
+            if (!success) {
+                return false;
+            }
+
+            rustRow = rust::Slice<const uint8_t>(fExtraRowBuffer);
+            break;
+        }
+        default:
+            SkUNREACHABLE;
+    }
+
+    return fStreamWriter->write(rustRow) == rust_png::EncodingResult::Success;
 }
 
 bool SkPngRustEncoderImpl::onFinishEncoding() {

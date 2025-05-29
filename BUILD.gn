@@ -1536,6 +1536,11 @@ optional("png_decode_rust") {
 }
 
 optional("png_encode_rust") {
+  # TODO(https://crbug.com/419011374): Remove the `defines` below after
+  # updating expectations of Chromium-side tests which hardcode the exact
+  # expected output of a PNG encoder.
+  defines = [ "SKIA_FIX_CRBUG_419011374" ]
+
   public_defines = [ "SK_CODEC_ENCODES_PNG_WITH_RUST" ]
   enabled = skia_use_rust_png_encode
   public = skia_encode_rust_png_public  # From `gn/core.gni`
