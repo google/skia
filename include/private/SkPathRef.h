@@ -36,7 +36,7 @@ class SkRRect;
  * constructor a pointer to a sk_sp<SkPathRef>, which may be updated to point to a new SkPathRef
  * after the editor's constructor returns.
  *
- * The points and verbs are stored in a single allocation. The points are at the begining of the
+ * The points and verbs are stored in a single allocation. The points are at the beginning of the
  * allocation while the verbs are stored at end of the allocation, in reverse order. Thus the points
  * and verbs both grow into the middle of the allocation until the meet. To access verb i in the
  * verb array use ref.verbs()[~i] (because verbs() returns a pointer just beyond the first

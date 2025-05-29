@@ -59,7 +59,7 @@ Tweak icd.json file and output dir (mesa/lib)
 Finally, use mesa/lib as the input directory to the upload script.
 
 
-Docker Image Maintanence
+Docker Image Maintenance
 ------------------------
 The docker image `mesa-driver-builder` is an Ubuntu container with many build
 tools installed (including Clang 6). It is designed specifically to build the mesa driver.

@@ -49,7 +49,7 @@ var (
 	taskId        = flag.String("task_id", "", "Skia task id")
 )
 
-// reportBody is the JSON recieved from the JS side. It represents
+// reportBody is the JSON received from the JS side. It represents
 // exactly one unique Gold image/test.
 type reportBody struct {
 	// a base64 encoded PNG image.

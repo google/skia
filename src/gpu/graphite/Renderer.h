@@ -101,7 +101,7 @@ enum class Coverage { kNone, kSingleChannel, kLCD };
  * attributes, strides, and layouts (see fStaticAttrs, fAppendAttrs, etc.), and resides on a
  * specific binding on the GPU. This minimizes the number of bindings during a draw pass.
  * - Static data is information that is fixed in count, does not change between calls of the same
- *   RenderStep, and known after recieving device capabilities. Consequently, it is uploaded ONCE by
+ *   RenderStep, and known after receiving device capabilities. Consequently, it is uploaded ONCE by
  *   the StaticBufferManager prior to any drawPasses, and is initialized during the constructor of a
  *   RenderStep. Currently, static data can be either Indices or Vertices.
  * - Append data might not be fixed in count and its' usage is not known prior to the draw pass.

@@ -18,7 +18,7 @@ lang = sys.argv[2]
 settings = sys.argv[3]
 input_root_dir = sys.argv[4]
 output_root_dir = sys.argv[5]
-# The last arg is a file containing a space seperated list of filenames
+# The last arg is a file containing a space separated list of filenames
 input_file = sys.argv[6]
 with open(input_file, 'r') as reader:
     inputs = shlex.split(reader.read())

@@ -19,7 +19,7 @@ def main():
   keystr = sys.argv[3]
   propstr = sys.argv[4]
   total_size_bytes_key = sys.argv[5]
-  magic_seperator = sys.argv[6]
+  magic_separator = sys.argv[6]
 
   results = {
     'key': { },
@@ -48,7 +48,7 @@ def main():
 
   name = os.path.basename(input_file)
 
-  print(magic_seperator)
+  print(magic_separator)
   results['results'][name] = {
     # We need this top level layer 'config'/slice
     # Other analysis methods (e.g. libskia) might have

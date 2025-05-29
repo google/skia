@@ -165,7 +165,7 @@ public:
     GrGLSLProgramBuilder* getProgramBuilder() { return fProgramBuilder; }
 
     /**
-     * Helper for begining and ending a block in the shader code.
+     * Helper for beginning and ending a block in the shader code.
      */
     class ShaderBlock {
     public:

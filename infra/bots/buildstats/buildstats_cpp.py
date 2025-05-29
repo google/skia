@@ -22,7 +22,7 @@ def main():
   propstr = sys.argv[4]
   bloaty_path = sys.argv[5]
   total_size_bytes_key = sys.argv[6]
-  magic_seperator = sys.argv[7]
+  magic_separator = sys.argv[7]
 
   results = {
     'key': { },
@@ -38,7 +38,7 @@ def main():
     results['key'][keys[i]] = keys[i+1]
 
   # Human "readable" overview as an FYI.
-  print(magic_seperator)
+  print(magic_separator)
   print('Note that template instantiations are grouped together, '
         'thus the elided types.')
   print(subprocess.check_output([bloaty_path, input_file,
@@ -77,7 +77,7 @@ def main():
       'vm_size_bytes': int(vmsize),
     }
 
-  print(magic_seperator)
+  print(magic_separator)
   results['results'][name] = r
 
   # Make debugging easier

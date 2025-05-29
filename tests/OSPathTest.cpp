@@ -47,7 +47,7 @@ static void test_dir_with_file(skiatest::Reporter* reporter, const SkString& dir
     // basename should be the same as filename
     REPORTER_ASSERT(reporter, basename.equals(filename));
 
-    // dirname should be the same as dir with any trailing seperators removed.
+    // dirname should be the same as dir with any trailing separators removed.
     // Except when the the string is just "/".
     SkString strippedDir = dir;
     while (strippedDir.size() > 2 && strippedDir[strippedDir.size() - 1] == SkOSPath::SEPARATOR) {

@@ -167,7 +167,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target,
     this->makeMRU(plot, pageIdx);
 
     // If our most recent upload has already occurred then we have to insert a new
-    // upload. Otherwise, we already have a scheduled upload that hasn't yet ocurred.
+    // upload. Otherwise, we already have a scheduled upload that hasn't yet occurred.
     // This new update will piggy back on that previously scheduled update.
     if (plot->lastUploadToken() < target->tokenTracker()->nextFlushToken()) {
         // With c+14 we could move sk_sp into lamba to only ref once.
