@@ -1342,7 +1342,7 @@ optional("typeface_freetype") {
   sources_for_tests = [ "tests/FontScanner_FreeTypeTest.cpp" ]
 }
 
-bazel_args = []
+bazel_args = [ "--toolchain_resolution_debug=." ]
 if (is_mac) {
   if (target_cpu == "arm64") {
     bazel_args += [ "--platforms=//bazel/platform:mac_arm64_hermetic" ]
@@ -1427,14 +1427,6 @@ optional("typeface_fontations") {
   public_defines = [ "SK_TYPEFACE_FACTORY_FONTATIONS" ]
   enabled = skia_use_fontations
   public_deps = [ ":fontations_ffi" ]
-  deps = []
-  if (skia_use_rust_png_decode) {
-    deps += [ ":png_decode_rust" ]
-  } else if (skia_use_libpng_decode) {
-    deps += [ ":png_decode_libpng" ]
-  } else {
-    assert(!enabled, "Fontations requires a PNG decoder")
-  }
   sources = skia_ports_typeface_fontations_sources
   sources_for_tests = [
     "tests/FontationsTest.cpp",
