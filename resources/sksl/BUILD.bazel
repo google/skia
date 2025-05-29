@@ -1,5 +1,11 @@
 load("//bazel:skia_rules.bzl", "skia_filegroup")
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
 # Necessary to give the //resources:resources skia_filegroup visibility to files in this directory.
 skia_filegroup(
     name = "sksl",

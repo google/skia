@@ -1,5 +1,11 @@
 load("//bazel:skia_rules.bzl", "skia_filegroup")
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
 # We export a known file inside the resources directory so that we can compute a path to said
 # directory from places that support "Make" variables[1], such as the "cmd" attribute[2] of a
 # genrule. For example, a genrule can compute the path to the resources directory from its "cmd"

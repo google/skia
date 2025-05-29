@@ -1,5 +1,11 @@
 load("@rules_go//go:def.bzl", "go_binary", "go_library")
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
 go_library(
     name = "gold_test_env_lib",
     srcs = ["gold_test_env.go"],

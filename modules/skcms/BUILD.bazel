@@ -1,5 +1,5 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup")
 load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],

@@ -1,3 +1,9 @@
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
 # https://bazel.build/concepts/platforms-intro
 # https://bazel.build/docs/platforms
 platform(

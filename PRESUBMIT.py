@@ -30,6 +30,11 @@ SERVICE_ACCOUNT_SUFFIX = [
 
 USE_PYTHON3 = True
 
+def np(path):
+  """normalize path
+     This takes in a os-dependent path and returns it using forward slashes only.
+  """
+  return os.path.normpath(path).replace(os.sep, '/')
 
 def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
   """Checks that files end with at least one \n (LF)."""
@@ -53,8 +58,8 @@ def _JsonChecks(input_api, output_api):
   for affected_file in input_api.AffectedFiles(None):
     affected_file_path = affected_file.LocalPath()
     is_json = affected_file_path.endswith('.json')
-    is_metadata = (affected_file_path.startswith('site/') and
-                   affected_file_path.endswith('/METADATA'))
+    is_metadata = (np(affected_file_path).startswith('site/') and
+                   np(affected_file_path).endswith('/METADATA'))
     if is_json or is_metadata:
       try:
         input_api.json.load(open(affected_file_path, 'r'))
@@ -120,12 +125,13 @@ def _CopyrightChecks(input_api, output_api, source_file_filter=None):
       r'Copyright (\([cC]\) )?%s \w+' % years_pattern)
 
   for affected_file in input_api.AffectedSourceFiles(source_file_filter):
-    if ('third_party/' in affected_file.LocalPath() or
-        'tests/sksl/' in affected_file.LocalPath() or
-        'bazel/rbe/' in affected_file.LocalPath() or
-        'bazel/external/' in affected_file.LocalPath() or
-        'bazel/exporter/interfaces/mocks/' in affected_file.LocalPath() or
-        affected_file.LocalPath().endswith('gen.go')):
+    norm_path = np(affected_file.LocalPath())
+    if ('third_party/' in norm_path or
+        'tests/sksl/' in norm_path or
+        'bazel/rbe/' in norm_path or
+        'bazel/external/' in norm_path or
+        'bazel/exporter/interfaces/mocks/' in norm_path or
+        norm_path.endswith('gen.go')):
       continue
     contents = input_api.ReadFile(affected_file, 'rb')
     if not re.search(copyright_pattern, contents):
@@ -223,10 +229,10 @@ class _WarningsAsErrors():
 
 def _RegenerateAllExamplesCPP(input_api, output_api):
   """Regenerates all_examples.cpp if an example was added or deleted."""
-  if not any(f.LocalPath().startswith('docs/examples/')
+  if not any(np(f.LocalPath()).startswith('docs/examples/')
              for f in input_api.AffectedFiles()):
     return []
-  command_str = 'tools/fiddle/make_all_examples_cpp.py'
+  command_str =  os.path.join('tools', 'fiddle', 'make_all_examples_cpp.py')
   cmd = ['python3', command_str, '--print-diff']
   proc = subprocess.run(cmd, capture_output=True)
   if proc.returncode != 0:
@@ -261,7 +267,7 @@ def _CheckIncludeForOutsideDeps(input_api, output_api):
     input_api.re.compile(r'#\s*include\s+("src/.*)'),
     input_api.re.compile(r'#\s*include\s+("tools/.*)'),
   ]
-  file_filter = lambda x: (x.LocalPath().startswith('include/'))
+  file_filter = lambda x: (np(x.LocalPath()).startswith('include/'))
   errors = []
   for affected_file in input_api.AffectedSourceFiles(file_filter):
     affected_filepath = affected_file.LocalPath()
@@ -284,7 +290,7 @@ def _CheckExamplesForPrivateAPIs(input_api, output_api):
     input_api.re.compile(r'#\s*include\s+("src/.*)'),
     input_api.re.compile(r'#\s*include\s+("include/private/.*)'),
   ]
-  file_filter = lambda x: (x.LocalPath().startswith('docs/examples/'))
+  file_filter = lambda x: (np(x.LocalPath()).startswith('docs/examples/'))
   errors = []
   for affected_file in input_api.AffectedSourceFiles(file_filter):
     affected_filepath = affected_file.LocalPath()
@@ -333,7 +339,7 @@ def _CheckBazelBUILDFiles(input_api, output_api):
                       "tests/", "resources/", "bazel/deps_parser/", "bazel/exporter_tool/",
                       "tools/gpu/gl/interface/", "bazel/utils/", "include/config/",
                       "bench/", "example/external_client/"]
-    is_excluded = any(affected_file_path.startswith(n) for n in excluded_paths)
+    is_excluded = any(affected_file_path.startswith(os.path.normpath(n)) for n in excluded_paths)
     if is_bazel and not is_excluded:
       with open(affected_file_path, 'r') as file:
         contents = file.read()
@@ -444,11 +450,12 @@ def _CheckBuildifier(input_api, output_api):
   # Please keep the below exclude patterns in sync with those in the //:buildifier rule definition.
   for affected_file in input_api.AffectedFiles(include_deletes=False):
     affected_file_path = affected_file.LocalPath()
-    if affected_file_path.endswith('BUILD.bazel') or affected_file_path.endswith('.bzl'):
-      if not affected_file_path.endswith('public.bzl') and \
-        not "bazel/rbe/gce_linux/" in affected_file_path and \
-        not affected_file_path.startswith("third_party/externals/") and \
-        not "node_modules/" in affected_file_path:  # Skip generated files.
+    norm_path = np(affected_file.LocalPath())
+    if norm_path.endswith('BUILD.bazel') or norm_path.endswith('.bzl'):
+      if not norm_path.endswith('public.bzl') and \
+        not "bazel/rbe/gce_linux/" in norm_path and \
+        not norm_path.startswith("third_party/externals/") and \
+        not "node_modules/" in norm_path:  # Skip generated files.
         files.append(affected_file)
   if not files:
     return []

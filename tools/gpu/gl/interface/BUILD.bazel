@@ -1,5 +1,11 @@
 load("//bazel:macros.bzl", "go_binary", "go_library", "py_binary")
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
 go_library(
     name = "interface_lib",
     srcs = [

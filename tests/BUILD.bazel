@@ -7,6 +7,12 @@ load(
     "RECORD_TESTS",
 )
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
 skia_cc_library(
     name = "test_type",
     hdrs = ["TestType.h"],
