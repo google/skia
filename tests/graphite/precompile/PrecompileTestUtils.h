@@ -132,6 +132,19 @@ skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver();
 skgpu::graphite::PaintOptions KawaseBlurHighSrc();
 skgpu::graphite::PaintOptions BlurFilterMix();
 
+// Specifies the child shader to be created for a RE_LinearEffect
+enum class ChildType {
+    kSolidColor,
+    kHWTexture,
+};
+
+skgpu::graphite::PaintOptions LinearEffect(const char* parameterStr,
+                                           ChildType childType,
+                                           SkBlendMode blendMode,
+                                           bool paintColorIsOpaque = true,
+                                           bool matrixColorFilter = false,
+                                           bool dither = false);
+
 #if defined(SK_VULKAN)
 skgpu::graphite::PaintOptions ImagePremulYCbCr238Srcover();
 skgpu::graphite::PaintOptions ImagePremulYCbCr240Srcover();

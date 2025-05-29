@@ -428,7 +428,6 @@ PaintOptions ImageHWOnlySRGBSrcover() {
     return paintOptions;
 }
 
-
 namespace {
 
 // Note: passing in a name to 'makeEffect' is a difference from Android's factory functions.
@@ -797,6 +796,92 @@ void Base642YCbCr(const char* str) {
 
 #endif // SK_VULKAN
 
+namespace {
+
+// This assumes there is some Singleton in Android that can provide RE_LinearEffects
+// given some input. For this mock up, the input is just the parameter portion
+// of the RE_LinearEffect Pipeline label (e.g., "UNKNOWN__SRGB__false__UNKNOWN").
+// Presumably, irl, the parameters would be the actual types used to create the label.
+class LinearEffectSingleton {
+public:
+    sk_sp<SkRuntimeEffect> findOrCreate(const char* parameterStr) {
+        SkString name = SkStringPrintf("RE_LinearEffect_%s__Shader",
+                                       parameterStr);
+
+        auto result = fEffects.find(name.c_str());
+        if (result != fEffects.end()) {
+            return result->second;
+        }
+
+        // Each code snippet must be unique, otherwise Skia will internally find a match
+        // and uniquify things. To avoid this we just add an arbitrary alpha constant
+        // to the code.
+        static float arbitraryAlpha = 0.051f;
+        SkString linearEffectCode = SkStringPrintf(
+            "uniform shader child;"
+            "vec4 main(vec2 xy) {"
+                "float3 linear = toLinearSrgb(child.eval(xy).rgb);"
+                "return float4(fromLinearSrgb(linear), %f);"
+            "}",
+            arbitraryAlpha);
+        arbitraryAlpha += 0.05f;
+
+        sk_sp<SkRuntimeEffect> linearEffect = makeEffect(linearEffectCode, name.c_str());
+
+        fEffects.insert({ name.c_str(), linearEffect });
+        return linearEffect;
+    }
+
+private:
+    std::map<std::string, sk_sp<SkRuntimeEffect>> fEffects;
+};
+
+sk_sp<PrecompileShader> create_child_shader(ChildType childType) {
+    switch (childType) {
+        case ChildType::kSolidColor:
+            return PrecompileShaders::Color();
+        case ChildType::kHWTexture: {
+            SkColorInfo ci { kRGBA_8888_SkColorType,
+                             kPremul_SkAlphaType,
+                             SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
+                                                   SkNamedGamut::kAdobeRGB) };
+
+            return PrecompileShaders::Image(PrecompileShaders::ImageShaderFlags::kExcludeCubic,
+                                            { &ci, 1 },
+                                            {});
+        }
+    }
+
+    return nullptr;
+}
+
+} // anonymous namespace
+
+skgpu::graphite::PaintOptions LinearEffect(const char* parameterStr,
+                                           ChildType childType,
+                                           SkBlendMode blendMode,
+                                           bool paintColorIsOpaque,
+                                           bool matrixColorFilter,
+                                           bool dither) {
+    static LinearEffectSingleton gLinearEffectSingleton;
+
+    PaintOptions paintOptions;
+
+    sk_sp<SkRuntimeEffect> linearEffect = gLinearEffectSingleton.findOrCreate(parameterStr);
+    sk_sp<PrecompileShader> child = create_child_shader(childType);
+
+    paintOptions.setShaders({ PrecompileRuntimeEffects::MakePrecompileShader(
+                                            std::move(linearEffect),
+                                            { { std::move(child) } }) });
+    if (matrixColorFilter) {
+        paintOptions.setColorFilters({PrecompileColorFilters::Matrix()});
+    }
+    paintOptions.setBlendModes({ blendMode });
+    paintOptions.setPaintColorIsOpaque(paintColorIsOpaque);
+    paintOptions.setDither(dither);
+
+    return paintOptions;
+}
 
 namespace {
 
@@ -904,7 +989,7 @@ void deduce_settings_from_label(const char* testStr, PrecompileSettings* result)
                                                                 SkNamedGamut::kAdobeRGB);
     } else if (strstr(testStr, "ColorSpaceTransformSRGB")) {
         result->fRenderPassProps.fDstCS = SkColorSpace::MakeSRGB();
-    } else if (strstr(testStr, "] ColorSpaceTransform ColorSpaceTransform ]")) {
+    } else if (strstr(testStr, "ColorSpaceTransform ColorSpaceTransform ]")) {
         // The above string only appears for RuntimeEffects that use the
         // toLinearSrgb/fromLinearSrgb intrinsics w/ a destination SRGB color space.
         result->fRenderPassProps.fDstCS = SkColorSpace::MakeSRGB();
