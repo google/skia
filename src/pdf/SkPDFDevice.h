@@ -8,6 +8,7 @@
 #ifndef SkPDFDevice_DEFINED
 #define SkPDFDevice_DEFINED
 
+#include "include/core/SkCPURecorder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
@@ -31,9 +32,10 @@ class SkData;
 class SkDevice;
 class SkImage;
 class SkMesh;
-class SkPDFDocument;
 class SkPaint;
 class SkPath;
+class SkPDFDocument;
+class SkRecorder;
 class SkRRect;
 class SkSpecialImage;
 class SkSurface;
@@ -123,6 +125,11 @@ public:
     std::unique_ptr<SkStreamAsset> content();
 
     const SkMatrix& initialTransform() const { return fInitialTransform; }
+
+    SkRecorder* baseRecorder() const override {
+        // TODO(kjlubick) the creation of this should likely involve a CPU context.
+        return skcpu::Recorder::TODO();
+    }
 
 private:
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in

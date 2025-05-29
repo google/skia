@@ -15,6 +15,7 @@
 #include <ObjBase.h>
 #include <XpsObjectModel.h>
 
+#include "include/core/SkCPURecorder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
@@ -99,6 +100,11 @@ public:
     void drawDevice(SkDevice*, const SkSamplingOptions&, const SkPaint&) override;
 
     sk_sp<SkDevice> createDevice(const CreateInfo&, const SkPaint*) override;
+
+    SkRecorder* baseRecorder() const override {
+        // TODO(kjlubick) the creation of this should likely involve a CPU context.
+        return skcpu::Recorder::TODO();
+    }
 
 private:
     class TypefaceUse {
