@@ -440,11 +440,21 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     SkASSERT(limitsSucceeded);
     wgpu::Limits& limits = supportedLimits.limits;
 #else
+#    ifdef WGPU_BREAKING_CHANGE_COMPATIBILITY_MODE_LIMITS
+    wgpu::CompatibilityModeLimits compatLimits;
+    wgpu::Limits limits{.nextInChain = &compatLimits};
+    wgpu::DawnTexelCopyBufferRowAlignmentLimits alignmentLimits{};
+    if (backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnTexelCopyBufferRowAlignment)) {
+        compatLimits.nextInChain = &alignmentLimits;
+    }
+#    else
     wgpu::Limits limits;
+    const wgpu::Limits& compatLimits = limits; // Temporary alias to avoid more ifdefs later
     wgpu::DawnTexelCopyBufferRowAlignmentLimits alignmentLimits{};
     if (backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnTexelCopyBufferRowAlignment)) {
         limits.nextInChain = &alignmentLimits;
     }
+#    endif
     [[maybe_unused]] wgpu::Status status = backendContext.fDevice.GetLimits(&limits);
     SkASSERT(status == wgpu::Status::Success);
 #endif  // defined(__EMSCRIPTEN__)
@@ -489,8 +499,8 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     fStorageBufferSupport = info.backendType != wgpu::BackendType::OpenGL &&
                             info.backendType != wgpu::BackendType::OpenGLES &&
                             info.backendType != wgpu::BackendType::Vulkan &&
-                            limits.maxStorageBuffersInVertexStage >= 4 &&
-                            limits.maxStorageBuffersInFragmentStage >= 4;
+                            compatLimits.maxStorageBuffersInVertexStage >= 4 &&
+                            compatLimits.maxStorageBuffersInFragmentStage >= 4;
 #else
     // WASM doesn't provide a way to query the backend, so can't tell if we are on a backend that
     // needs to have SSBOs disabled. Pessimistically assume we could be. Once the above conditions
