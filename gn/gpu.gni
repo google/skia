@@ -667,6 +667,7 @@ skia_gpu_vk_public = [
   "$_include/gpu/vk/VulkanExtensions.h",
   "$_include/gpu/vk/VulkanMemoryAllocator.h",
   "$_include/gpu/vk/VulkanMutableTextureState.h",
+  "$_include/gpu/vk/VulkanPreferredFeatures.h",
   "$_include/gpu/vk/VulkanTypes.h",
 ]
 
@@ -989,6 +990,7 @@ skia_shared_vk_sources = [
   "$_src/gpu/vk/VulkanMemory.h",
   "$_src/gpu/vk/VulkanMutableTextureState.cpp",
   "$_src/gpu/vk/VulkanMutableTextureStatePriv.h",
+  "$_src/gpu/vk/VulkanPreferredFeatures.cpp",
   "$_src/gpu/vk/VulkanUtilsPriv.cpp",
   "$_src/gpu/vk/VulkanUtilsPriv.h",
 ]

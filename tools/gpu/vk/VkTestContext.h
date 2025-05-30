@@ -14,6 +14,7 @@
 
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "tools/gpu/vk/GrVulkanDefines.h"
+#include "tools/gpu/vk/VkTestUtils.h"
 
 namespace skgpu { class VulkanExtensions; }
 
@@ -28,14 +29,12 @@ public:
         return fExtensions;
     }
 
-    const VkPhysicalDeviceFeatures2* getVkFeatures() const {
-        return fFeatures;
-    }
+    const sk_gpu_test::TestVkFeatures* getVkFeatures() const { return fFeatures; }
 
 protected:
     VkTestContext(const skgpu::VulkanBackendContext& vk,
                   const skgpu::VulkanExtensions* extensions,
-                  const VkPhysicalDeviceFeatures2* features,
+                  const sk_gpu_test::TestVkFeatures* features,
                   bool ownsContext,
                   VkDebugUtilsMessengerEXT debugMessenger,
                   PFN_vkDestroyDebugUtilsMessengerEXT destroyCallback)
@@ -48,7 +47,7 @@ protected:
 
     skgpu::VulkanBackendContext         fVk;
     const skgpu::VulkanExtensions*      fExtensions;
-    const VkPhysicalDeviceFeatures2*    fFeatures;
+    const sk_gpu_test::TestVkFeatures*  fFeatures;
     bool                                fOwnsContext;
     VkDebugUtilsMessengerEXT fDebugMessenger = VK_NULL_HANDLE;
     PFN_vkDestroyDebugUtilsMessengerEXT fDestroyDebugUtilsMessengerEXT = nullptr;
