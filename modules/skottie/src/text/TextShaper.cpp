@@ -724,9 +724,8 @@ void Shaper::ShapedGlyphs::draw(SkCanvas* canvas,
                                 const SkPaint& paint) const {
     size_t offset = 0;
     for (const auto& run : fRuns) {
-        canvas->drawGlyphs(SkToInt(run.fSize),
-                           fGlyphIDs.data() + offset,
-                           fGlyphPos.data() + offset,
+        canvas->drawGlyphs({fGlyphIDs.data() + offset, run.fSize},
+                           {fGlyphPos.data() + offset, run.fSize},
                            origin,
                            run.fFont,
                            paint);

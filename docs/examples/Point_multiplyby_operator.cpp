@@ -11,11 +11,11 @@ void draw(SkCanvas* canvas) {
                          { 2, 4 }, { 1, 3 }, { 3, 1 } };
     canvas->scale(15, 10);
     paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawPoints(SkCanvas::kPolygon_PointMode, std::size(points), points, paint);
+    canvas->drawPoints(SkCanvas::kPolygon_PointMode, points, paint);
     for (auto& point : points) {
         point *= 2;
     }
     paint.setColor(SK_ColorRED);
-    canvas->drawPoints(SkCanvas::kPolygon_PointMode, std::size(points), points, paint);
+    canvas->drawPoints(SkCanvas::kPolygon_PointMode, points, paint);
 }
 }  // END FIDDLE

@@ -585,7 +585,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkPoint* pts = (const SkPoint*)reader->skip(count, sizeof(SkPoint));
             BREAK_ON_READ_ERROR(reader);
 
-            canvas->drawPoints(mode, count, pts, paint);
+            canvas->drawPoints(mode, {pts, count}, paint);
         } break;
         case DRAW_RECT: {
             const SkPaint& paint = fPictureData->requiredPaint(reader);

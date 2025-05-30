@@ -101,10 +101,10 @@ void StrokeVerbSlide::draw(SkCanvas* canvas) {
     pointsPaint.setAntiAlias(true);
 
     if (VerbType::kCubics == fVerbType) {
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, fPoints, pointsPaint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, {fPoints, 4}, pointsPaint);
     } else {
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, fPoints, pointsPaint);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, 1, fPoints + 3, pointsPaint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, {fPoints, 2}, pointsPaint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, {fPoints + 3, 1}, pointsPaint);
     }
 
     SkFont font(ToolUtils::DefaultTypeface(), 20);

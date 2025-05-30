@@ -154,8 +154,8 @@ protected:
             if (!info) {
                 return;
             }
-            canvas->drawGlyphs(info->count, info->glyphs, info->positions, info->origin,
-                               info->font, p);
+            canvas->drawGlyphs({info->glyphs, info->count}, {info->positions, info->count},
+                               info->origin, info->font, p);
 
             if (fFlags & kUseUnderline) {
                 // Need to modify positions to roll-in the orign

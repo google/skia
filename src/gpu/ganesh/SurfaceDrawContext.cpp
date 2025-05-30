@@ -16,6 +16,7 @@
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRSXform.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"

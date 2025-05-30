@@ -241,7 +241,7 @@ public:
             return false;
     }
     void draw(SkCanvas* canvas) override {
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, fPts, fPtsPaint);
 
         SkPath path;
         this->makePath(&path);
@@ -370,7 +370,7 @@ public:
         if (fShowSkeleton) {
             canvas->drawPath(path, fSkeletonPaint);
         }
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, fPts, fPtsPaint);
     }
 
 protected:

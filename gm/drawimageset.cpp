@@ -55,7 +55,7 @@ static void make_image_tiles(int tileW, int tileH, int m, int n, const SkColor c
     paint.setStrokeWidth(kStripeW);
     SkPoint stripePts[] = {{-w - kStripeW, -kStripeW}, {kStripeW, h + kStripeW}};
     while (stripePts[0].fX <= w) {
-        surf->getCanvas()->drawPoints(SkCanvas::kLines_PointMode, 2, stripePts, paint);
+        surf->getCanvas()->drawPoints(SkCanvas::kLines_PointMode, stripePts, paint);
         stripePts[0].fX += kStripeSpacing;
         stripePts[1].fX += kStripeSpacing;
     }
@@ -67,7 +67,7 @@ static void make_image_tiles(int tileW, int tileH, int m, int n, const SkColor c
     stripePts[0] = {-w - kStripeW, h + kStripeW};
     stripePts[1] = {kStripeW, -kStripeW};
     while (stripePts[0].fX <= w) {
-        surf->getCanvas()->drawPoints(SkCanvas::kLines_PointMode, 2, stripePts, paint);
+        surf->getCanvas()->drawPoints(SkCanvas::kLines_PointMode, stripePts, paint);
         stripePts[0].fX += kStripeSpacing;
         stripePts[1].fX += kStripeSpacing;
     }

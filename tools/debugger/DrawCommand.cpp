@@ -1624,7 +1624,7 @@ DrawPointsCommand::DrawPointsCommand(SkCanvas::PointMode mode,
         : INHERITED(kDrawPoints_OpType), fMode(mode), fPts(pts, count), fPaint(paint) {}
 
 void DrawPointsCommand::execute(SkCanvas* canvas) const {
-    canvas->drawPoints(fMode, fPts.size(), fPts.begin(), fPaint);
+    canvas->drawPoints(fMode, fPts, fPaint);
 }
 
 bool DrawPointsCommand::render(SkCanvas* canvas) const {
@@ -1644,7 +1644,7 @@ bool DrawPointsCommand::render(SkCanvas* canvas) const {
     p.setColor(SK_ColorBLACK);
     p.setStyle(SkPaint::kStroke_Style);
 
-    canvas->drawPoints(fMode, fPts.size(), fPts.begin(), p);
+    canvas->drawPoints(fMode, fPts, p);
     canvas->restore();
 
     return true;

@@ -51,7 +51,7 @@ protected:
         paint.setStrokeWidth(fStrokeWidth);
 
         for (int i = 0; i < loops; i++) {
-            canvas->drawPoints(SkCanvas::kLines_PointMode, PTS, fPts, paint);
+            canvas->drawPoints(SkCanvas::kLines_PointMode, fPts, paint);
         }
     }
 

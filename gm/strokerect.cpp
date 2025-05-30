@@ -46,7 +46,7 @@ static void draw_path(SkCanvas* canvas, const SkPath& path, const SkRect& rect,
     int n = path.countPoints();
     AutoTArray<SkPoint> points(n);
     path.getPoints(points.get(), n);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, n, points.get(), paint);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, points, paint);
 }
 
 /*

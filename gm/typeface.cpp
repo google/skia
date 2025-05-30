@@ -425,13 +425,13 @@ DEF_SIMPLE_GM(typeface_styling, canvas, 710, 360) {
         paint.setStrokeWidth(width);
 
         font.setEmbolden(true);
-        canvas->drawGlyphs(1, glyphs, pos, {20, 120*2}, font, paint);
-        canvas->drawGlyphs(1, glyphs, pos, {20, 120*3}, font, paint);
+        canvas->drawGlyphs(glyphs, pos, {20, 120*2}, font, paint);
+        canvas->drawGlyphs(glyphs, pos, {20, 120*3}, font, paint);
 
         font.setEmbolden(false);
-        canvas->drawGlyphs(1, glyphs, pos, {20, 120*1}, font, paint);
+        canvas->drawGlyphs(glyphs, pos, {20, 120*1}, font, paint);
         paint.setColor(SK_ColorYELLOW);
-        canvas->drawGlyphs(1, glyphs, pos, {20, 120*3}, font, paint);
+        canvas->drawGlyphs(glyphs, pos, {20, 120*3}, font, paint);
     };
 
     const struct {

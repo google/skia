@@ -437,7 +437,7 @@ public:
         if (fShowSkeleton) {
             canvas->drawPath(path, fSkeletonPaint);
         }
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, kN, fPts, fPtsPaint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, fPts, fPtsPaint);
 
         // Draw a mirror but using Skia's stroker.
         canvas->translate(0, 400);

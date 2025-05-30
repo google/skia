@@ -645,10 +645,10 @@ DEF_TEST(SVGDevice_path_effect, reporter) {
     SkScalar intervals[] = {0, 20};
     sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
     paint.setPathEffect(pathEffect);
-    SkPoint points[] = {{50, 15}, {100, 15}, {150, 15} };
+    const SkPoint points[] = {{50, 15}, {100, 15}, {150, 15} };
     {
         auto svgCanvas = MakeDOMCanvas(&dom);
-        svgCanvas->drawPoints(SkCanvas::kLines_PointMode, 3, points, paint);
+        svgCanvas->drawPoints(SkCanvas::kLines_PointMode, points, paint);
     }
     const auto* rootElement = dom.finishParsing();
     REPORTER_ASSERT(reporter, rootElement, "root element not found");

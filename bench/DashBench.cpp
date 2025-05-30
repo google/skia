@@ -283,7 +283,7 @@ protected:
 
         for (int i = 0; i < loops; ++i) {
             pts[0].fY = pts[1].fY = SkIntToScalar(i % 480);
-            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p);
+            canvas->drawPoints(SkCanvas::kLines_PointMode, pts, p);
         }
     }
 
@@ -360,7 +360,7 @@ protected:
         p.setPathEffect(fPathEffect);
 
         for (int i = 0; i < loops; i++) {
-            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, fPts, p);
+            canvas->drawPoints(SkCanvas::kLines_PointMode, fPts, p);
         }
     }
 
@@ -417,7 +417,7 @@ protected:
                     horPts[0].fY = pts[0].fY + j * 22.f;
                     horPts[1].fX = pts[1].fX + k * 22.f;
                     horPts[1].fY = pts[1].fY + j * 22.f;
-                    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, horPts, p);
+                    canvas->drawPoints(SkCanvas::kLines_PointMode, horPts, p);
 
                     // Vertical line
                     SkPoint vertPts[2];
@@ -425,7 +425,7 @@ protected:
                     vertPts[0].fY = pts[2].fY + j * 22.f;
                     vertPts[1].fX = pts[3].fX + k * 22.f;
                     vertPts[1].fY = pts[3].fY + j * 22.f;
-                    canvas->drawPoints(SkCanvas::kLines_PointMode, 2, vertPts, p);
+                    canvas->drawPoints(SkCanvas::kLines_PointMode, vertPts, p);
                 }
             }
         }

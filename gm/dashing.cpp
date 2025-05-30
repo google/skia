@@ -221,7 +221,7 @@ class Dashing3GM : public skiagm::GM {
             pts[0].set(0, SkIntToScalar(y));
             pts[1].set(lineLength, SkIntToScalar(y));
 
-            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p);
+            canvas->drawPoints(SkCanvas::kLines_PointMode, pts, p);
         }
 
         p.setAntiAlias(true);
@@ -230,7 +230,7 @@ class Dashing3GM : public skiagm::GM {
             pts[0].set(SkIntToScalar(x), 0);
             pts[1].set(SkIntToScalar(x), lineLength);
 
-            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p);
+            canvas->drawPoints(SkCanvas::kLines_PointMode, pts, p);
         }
     }
 

@@ -279,7 +279,7 @@ protected:
                 canvas->drawCircle(controlPts[i], 6.f, ctrlPtPaint);
             }
 
-            canvas->drawPoints(SkCanvas::kPolygon_PointMode, 3, controlPts, polyPaint);
+            canvas->drawPoints(SkCanvas::kPolygon_PointMode, controlPts, polyPaint);
 
             SkConic dst[4];
             SkMatrix klm;
@@ -473,7 +473,7 @@ protected:
                 canvas->drawCircle(controlPts[i], 6.f, ctrlPtPaint);
             }
 
-            canvas->drawPoints(SkCanvas::kPolygon_PointMode, 3, controlPts, polyPaint);
+            canvas->drawPoints(SkCanvas::kPolygon_PointMode, controlPts, polyPaint);
 
             SkPoint chopped[5];
             int cnt = SkChopQuadAtMaxCurvature(controlPts, chopped);

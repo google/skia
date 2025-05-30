@@ -9,15 +9,15 @@ void draw(SkCanvas* canvas) {
     paint.setAntiAlias(true);
     SkMatrix matrix;
     matrix.setPolyToPoly(src, dst, 4);
-    canvas->drawPoints(SkCanvas::kPolygon_PointMode, 4, src, paint);
-    canvas->drawPoints(SkCanvas::kPolygon_PointMode, 4, dst, paint);
+    canvas->drawPoints(SkCanvas::kPolygon_PointMode, src, paint);
+    canvas->drawPoints(SkCanvas::kPolygon_PointMode, dst, paint);
     paint.setColor(SK_ColorBLUE);
     paint.setStrokeWidth(3);
     paint.setStrokeCap(SkPaint::kRound_Cap);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, dst, paint);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, dst, paint);
     if (matrix.invert(&matrix)) {
         canvas->concat(matrix);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, 4, dst, paint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, dst, paint);
     }
 }
 }  // END FIDDLE

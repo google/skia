@@ -266,7 +266,7 @@ public:
         paint.setShader(nullptr);
         paint.setAntiAlias(true);
         paint.setStrokeWidth(SkIntToScalar(5));
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, std::size(fPts), fPts, paint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, fPts, paint);
 
         canvas->translate(0, SkIntToScalar(300));
 

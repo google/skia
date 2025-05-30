@@ -210,7 +210,7 @@ static void draw_points(SkCanvas* canvas, SkImage* image) {
     paint.setStrokeWidth(100);
     paint.setStrokeCap(SkPaint::kSquare_Cap);
 
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, pts, paint);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, pts, paint);
 }
 
 static void draw_image_set(SkCanvas* canvas, SkImage* image) {

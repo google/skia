@@ -516,7 +516,6 @@ static void test_copy_on_write(skiatest::Reporter* reporter, SkSurface* surface)
         {SkIntToScalar(2), SkIntToScalar(1)},
         {SkIntToScalar(0), SkIntToScalar(2)}
     };
-    const size_t testPointCount = 3;
 
     SkBitmap testBitmap;
     testBitmap.allocN32Pixels(10, 10);
@@ -539,8 +538,7 @@ static void test_copy_on_write(skiatest::Reporter* reporter, SkSurface* surface)
 
     EXPECT_COPY_ON_WRITE(clear(testColor))
     EXPECT_COPY_ON_WRITE(drawPaint(testPaint))
-    EXPECT_COPY_ON_WRITE(drawPoints(SkCanvas::kPoints_PointMode, testPointCount, testPoints, \
-        testPaint))
+    EXPECT_COPY_ON_WRITE(drawPoints(SkCanvas::kPoints_PointMode, testPoints, testPaint))
     EXPECT_COPY_ON_WRITE(drawOval(testRect, testPaint))
     EXPECT_COPY_ON_WRITE(drawRect(testRect, testPaint))
     EXPECT_COPY_ON_WRITE(drawRRect(testRRect, testPaint))

@@ -14,6 +14,6 @@ void draw(SkCanvas* canvas) {
         canvas->drawCircle(pt.fX, pt.fY, 3, paint);
     }
     canvas->concat(matrix);
-    canvas->drawPoints(SkCanvas::kPolygon_PointMode, std::size(lines), lines, paint);
+    canvas->drawPoints(SkCanvas::kPolygon_PointMode, lines, paint);
 }
 }  // END FIDDLE

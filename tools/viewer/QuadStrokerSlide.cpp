@@ -509,14 +509,14 @@ private:
             for (int i = 0; i < contourCounts.size(); ++i) {
                 int count = contourCounts[i];
                 path.getPoints(ptPtr, count);
-                canvas->drawPoints(SkCanvas::kPolygon_PointMode, count, ptPtr, paint);
+                canvas->drawPoints(SkCanvas::kPolygon_PointMode, {ptPtr, count}, paint);
                 ptPtr += count;
             }
         } else {
             n = getOnCurvePoints(path, pts.get());
         }
         paint.setStrokeWidth(5);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, n, pts.get(), paint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, {pts.get(), n}, paint);
     }
 
     void draw_ribs(SkCanvas* canvas, const SkPath& path, SkScalar width,

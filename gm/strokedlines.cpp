@@ -294,7 +294,7 @@ static void draw_path(SkCanvas* canvas, const SkPoint& p0, const SkPoint& p1, Sk
     int n = fillPath.countPoints();
     AutoTArray<SkPoint> points(n);
     fillPath.getPoints(points.get(), n);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, n, points.get(), paint);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, points, paint);
 }
 
 DEF_SIMPLE_GM(strokedline_caps, canvas, 1400, 740) {

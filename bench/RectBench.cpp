@@ -242,7 +242,7 @@ protected:
             for (size_t i = 0; i < sizes; i++) {
                 paint.setStrokeWidth(gSizes[i]);
                 this->setupPaint(&paint);
-                canvas->drawPoints(fMode, N * 2, reinterpret_cast<SkPoint*>(fRects), paint);
+                canvas->drawPoints(fMode, {reinterpret_cast<SkPoint*>(fRects), N*2}, paint);
                 paint.setColor(fColors[i % N]);
             }
         }
@@ -291,7 +291,7 @@ protected:
 
         for (int loop = 0; loop < loops; loop++) {
             for (int i = 0; i < 1000; ++i)
-            canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts.data(), paint);
+            canvas->drawPoints(SkCanvas::kPoints_PointMode, fPts, paint);
         }
     }
 };
@@ -362,7 +362,7 @@ protected:
                 this->setupPaint(&paint);
                 paint.setColor(color);
                 paint.setAlpha(alpha);
-                canvas->drawPoints(fMode, N * 2, reinterpret_cast<SkPoint*>(fRects), paint);
+                canvas->drawPoints(fMode, {reinterpret_cast<SkPoint*>(fRects), N*2}, paint);
            }
         }
     }

@@ -1730,9 +1730,9 @@ void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     this->onDrawRRect(rrect, paint);
 }
 
-void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[], const SkPaint& paint) {
+void SkCanvas::drawPoints(PointMode mode, SkSpan<const SkPoint> pts, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-    this->onDrawPoints(mode, count, pts, paint);
+    this->onDrawPoints(mode, pts.size(), pts.data(), paint);
 }
 
 void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode,
@@ -2484,17 +2484,17 @@ void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncodin
     }
 }
 
-void SkCanvas::drawGlyphs(int count, const SkGlyphID* glyphs, const SkPoint* positions,
-                          const uint32_t* clusters, int textByteCount, const char* utf8text,
+void SkCanvas::drawGlyphs(SkSpan<const SkGlyphID> glyphs, SkSpan<const SkPoint> positions,
+                          SkSpan<const uint32_t> clusters, SkSpan<const char> utf8text,
                           SkPoint origin, const SkFont& font, const SkPaint& paint) {
-    if (count <= 0) { return; }
+    if (glyphs.size() == 0) { return; }
 
     sktext::GlyphRun glyphRun {
             font,
-            SkSpan(positions, count),
-            SkSpan(glyphs, count),
-            SkSpan(utf8text, textByteCount),
-            SkSpan(clusters, count),
+            positions,
+            glyphs,
+            utf8text,
+            clusters,
             SkSpan<SkVector>()
     };
 
@@ -2503,14 +2503,14 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID* glyphs, const SkPoint* pos
     this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
-void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkPoint positions[],
+void SkCanvas::drawGlyphs(SkSpan<const SkGlyphID> glyphs, SkSpan<const SkPoint> positions,
                           SkPoint origin, const SkFont& font, const SkPaint& paint) {
-    if (count <= 0) { return; }
+    if (glyphs.size() == 0) { return; }
 
     sktext::GlyphRun glyphRun {
         font,
-        SkSpan(positions, count),
-        SkSpan(glyphs, count),
+        positions,
+        glyphs,
         SkSpan<const char>(),
         SkSpan<const uint32_t>(),
         SkSpan<SkVector>()
@@ -2521,17 +2521,17 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkPoint pos
     this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
-void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkRSXform xforms[],
-                          SkPoint origin, const SkFont& font, const SkPaint& paint) {
-    if (count <= 0) { return; }
+void SkCanvas::drawGlyphsRSXform(SkSpan<const SkGlyphID> glyphs, SkSpan<const SkRSXform> xforms,
+                                 SkPoint origin, const SkFont& font, const SkPaint& paint) {
+    if (glyphs.size() == 0) { return; }
 
     auto [positions, rotateScales] =
-            fScratchGlyphRunBuilder->convertRSXForm(SkSpan(xforms, count));
+            fScratchGlyphRunBuilder->convertRSXForm(xforms);
 
     sktext::GlyphRun glyphRun {
             font,
             positions,
-            SkSpan(glyphs, count),
+            glyphs,
             SkSpan<const char>(),
             SkSpan<const uint32_t>(),
             rotateScales
@@ -2793,15 +2793,15 @@ void SkCanvas::drawColor(const SkColor4f& c, SkBlendMode mode) {
 }
 
 void SkCanvas::drawPoint(SkScalar x, SkScalar y, const SkPaint& paint) {
-    const SkPoint pt = { x, y };
-    this->drawPoints(kPoints_PointMode, 1, &pt, paint);
+    const SkPoint pt[1] = {{ x, y }};
+    this->drawPoints(kPoints_PointMode, pt, paint);
 }
 
 void SkCanvas::drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint) {
     SkPoint pts[2];
     pts[0].set(x0, y0);
     pts[1].set(x1, y1);
-    this->drawPoints(kLines_PointMode, 2, pts, paint);
+    this->drawPoints(kLines_PointMode, pts, paint);
 }
 
 void SkCanvas::drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint) {

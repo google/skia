@@ -77,6 +77,6 @@ void draw(SkCanvas* canvas) {
 
     p.setStrokeWidth(10);
     p.setColor(SK_ColorBLACK);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, std::size(pts), pts, p);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, pts, p);
 }
 }  // END FIDDLE

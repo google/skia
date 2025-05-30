@@ -151,7 +151,7 @@ static void plot(SkCanvas* canvas,
             pts[x].set(x + 0.5f, y);
         }
         plotPaint.setAntiAlias(true);
-        canvas->drawPoints(SkCanvas::kPolygon_PointMode, kBoxSize, pts, plotPaint);
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, pts, plotPaint);
     }
 
     canvas->restore();

@@ -219,7 +219,7 @@ public:
 
             p.setStrokeCap(SkPaint::kRound_Cap);
             p.setStrokeWidth(5/mesh_size);
-            canvas->drawPoints(SkCanvas::kPoints_PointMode, fVertices.size(), fVertices.data(), p);
+            canvas->drawPoints(SkCanvas::kPoints_PointMode, fVertices, p);
         }
 
         this->drawControls();

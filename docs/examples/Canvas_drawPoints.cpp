@@ -21,7 +21,7 @@ void draw(SkCanvas* canvas) {
         for (const auto mode : { SkCanvas::kPoints_PointMode,
                                  SkCanvas::kLines_PointMode,
                                  SkCanvas::kPolygon_PointMode } ) {
-            canvas->drawPoints(mode, 3, points, paint);
+            canvas->drawPoints(mode, points, paint);
             canvas->translate(64, 0);
         }
         canvas->drawPath(path, paint);

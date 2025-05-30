@@ -1180,7 +1180,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz->nextRange(&count, 0, kMaxCount);
                 SkPoint pts[kMaxCount];
                 fuzz->nextN(pts, count);
-                canvas->drawPoints(pointMode, count, pts, paint);
+                canvas->drawPoints(pointMode, {pts, count}, paint);
                 break;
             }
             case 25: {

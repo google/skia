@@ -233,8 +233,8 @@ void PathTessellatorsSlide::draw(SkCanvas* canvas) {
         SkPaint captionPaint;
         captionPaint.setColor(SK_ColorWHITE);
         canvas->drawString(caption, 10, 30, font, captionPaint);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, devPath.countPoints(),
-                           SkPathPriv::PointData(devPath), pointsPaint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode,
+                           {SkPathPriv::PointData(devPath), devPath.countPoints()}, pointsPaint);
     }
 }
 

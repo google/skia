@@ -163,7 +163,7 @@ public:
                     canvas->drawRect(advanceBounds.makeOffset(position), metricPaint);
                 }
 
-                canvas->drawGlyphs(1, &gid, &position, origin, font, paint);
+                canvas->drawGlyphs({&gid, 1}, {&position, 1}, origin, font, paint);
 
                 if (fGlyphNumbers) {
                     SkString gidStr;

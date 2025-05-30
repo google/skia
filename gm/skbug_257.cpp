@@ -124,7 +124,7 @@ DEF_SIMPLE_GM(skbug_257, canvas, 512, 512) {
         checker.setStyle(SkPaint::kStroke_Style);
         checker.setStrokeWidth(8);
         checker.setStrokeCap(SkPaint::kRound_Cap);
-        canvas->drawPoints(SkCanvas::kLines_PointMode, 8, points, checker);
+        canvas->drawPoints(SkCanvas::kLines_PointMode, points, checker);
 
         // Test Text
         canvas->translate(size, 0);
