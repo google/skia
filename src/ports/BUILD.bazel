@@ -153,6 +153,7 @@ skia_cc_library(
     ],
     deps = [
         "//:core",
+        "//src/codec:any_decoder",
         "//src/utils:char_to_glyphcache",
     ],
 )
@@ -345,7 +346,7 @@ skia_cc_library(
 )
 
 skia_cc_library(
-    name = "fontmgr_fontconfig_freetype",
+    name = "fontconfig_support",
     srcs = [
         "SkFontMgr_fontconfig.cpp",
     ],
@@ -353,13 +354,6 @@ skia_cc_library(
         "//include/ports:fontconfig_fontmgr_hdrs",
     ],
     defines = ["SK_FONTMGR_FONTCONFIG_AVAILABLE"],
-    target_compatible_with = supports_platforms(
-        "@platforms//os:linux",
-    ),
-    visibility = [
-        "//:__pkg__",
-        "//tools/fonts:__pkg__",
-    ],
     deps = [
         ":freetype_support",
         ":typeface_proxy",
@@ -371,14 +365,13 @@ skia_cc_library(
 )
 
 skia_cc_library(
-    name = "fontmgr_fontconfig_fontations",
+    name = "fontmgr_fontconfig_freetype",
     srcs = [
-        "SkFontMgr_fontconfig.cpp",
+        "SkFontMgr_fontconfig_freetype.cpp",
     ],
     hdrs = [
         "//include/ports:fontconfig_fontmgr_hdrs",
     ],
-    defines = ["SK_FONTMGR_FONTCONFIG_AVAILABLE"],
     target_compatible_with = supports_platforms(
         "@platforms//os:linux",
     ),
@@ -387,11 +380,8 @@ skia_cc_library(
         "//tools/fonts:__pkg__",
     ],
     deps = [
-        ":fontations_support",
-        "//:core",
-        "//bazel/external/fontconfig",
-        "//src/base",
-        "//src/core:core_priv",
+        ":fontconfig_support",
+        ":freetype_support",
     ],
 )
 

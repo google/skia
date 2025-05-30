@@ -272,6 +272,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_ports_fontmgr_fontconfig_sources",
 			Rules: []string{
+				"//src/ports:fontconfig_support",
 				"//src/ports:fontmgr_fontconfig_freetype",
 			}},
 		{Var: "skia_ports_fontmgr_fontations_public",

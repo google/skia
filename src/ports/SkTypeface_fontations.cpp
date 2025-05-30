@@ -7,7 +7,6 @@
 #include "include/ports/SkTypeface_fontations.h"
 
 #include "include/codec/SkCodec.h"
-#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkData.h"
@@ -19,12 +18,27 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkMutex.h"
 #include "src/base/SkScopeExit.h"
+#include "src/codec/SkCodecPriv.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkFontPriv.h"
 #include "src/ports/SkTypeface_fontations_priv.h"
 #include "src/ports/fontations/src/skpath_bridge.h"
 
+#if defined(SK_USE_LEGACY_PNG_DECODING_FONTATIONS)
+#include "include/codec/SkPngDecoder.h"
+#endif
+
 namespace {
+
+#if !defined(SK_USE_LEGACY_PNG_DECODING_FONTATIONS)
+void CheckPng() {
+#if defined(SK_DEBUG)
+    if (!SkCodecs::HasDecoder("png")) {
+        SkDebugf("No PNG decoder registered. A call to SkCodecs::Register is necessary.\n");
+    }
+#endif
+}
+#endif
 
 [[maybe_unused]] static inline const constexpr bool kSkShowTextBlitCoverage = false;
 
@@ -630,6 +644,7 @@ protected:
             const fontations_ffi::BitmapMetrics bitmapMetrics =
                     fontations_ffi::bitmap_metrics(*bitmap_glyph);
 
+#if defined(SK_USE_LEGACY_PNG_DECODING_FONTATIONS)
             std::unique_ptr<SkCodec> codec = SkPngDecoder::Decode(
                     SkData::MakeWithoutCopy(png_data.data(), png_data.size()), nullptr);
             if (!codec) {
@@ -637,6 +652,16 @@ protected:
             }
 
             SkImageInfo info = codec->getInfo();
+#else
+            sk_sp<SkImage> img = SkImages::DeferredFromEncodedData(
+                    SkData::MakeWithoutCopy(png_data.data(), png_data.size()));
+            if (!img) {
+                CheckPng();
+                return mx;
+            }
+
+            SkImageInfo info = img->imageInfo();
+#endif
 
             SkRect bounds = SkRect::Make(info.bounds());
             SkMatrix matrix = fRemainingMatrix;
@@ -645,8 +670,9 @@ protected:
             // device pixels, and scaling the embedded PNG from its number of
             // rows to a specific size, depending on the ppem values in the
             // bitmap glyph information.
-            SkScalar imageToSize = fScale.y() / bitmapMetrics.ppem_y;
-            float fontUnitsToSize = fScale.y() / fontations_ffi::units_per_em_or_zero(fBridgeFontRef);
+            float imageToSize = fScale.y() / bitmapMetrics.ppem_y;
+            float fontUnitsToSize = fScale.y() /
+                                    fontations_ffi::units_per_em_or_zero(fBridgeFontRef);
 
             // The offset from origin is given in font units, so requires a
             // different scale factor than the scaling of the image.
@@ -696,6 +722,7 @@ protected:
         rust::cxxbridge1::Slice<const uint8_t> png_data = fontations_ffi::png_data(*bitmap_glyph);
         SkASSERT(png_data.size());
 
+#if defined(SK_USE_LEGACY_PNG_DECODING_FONTATIONS)
         std::unique_ptr<SkCodec> codec = SkPngDecoder::Decode(
                 SkData::MakeWithoutCopy(png_data.data(), png_data.size()), nullptr);
 
@@ -707,6 +734,14 @@ protected:
         if (result != SkCodec::Result::kSuccess) {
             return;
         }
+#else
+        sk_sp<SkImage> glyph_image = SkImages::DeferredFromEncodedData(
+                SkData::MakeWithoutCopy(png_data.data(), png_data.size()));
+        if (!glyph_image) {
+            CheckPng();
+            return;
+        }
+#endif
 
         canvas.clear(SK_ColorTRANSPARENT);
         canvas.concat(fRemainingMatrix);

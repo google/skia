@@ -24,6 +24,7 @@ skia_cc_library(
     name = "decoder",
     srcs = [":srcs"],
     hdrs = [":hdrs"],
+    defines = ["SK_CODEC_DECODES_PNG_WITH_RUST"],
     features = ["layering_check"],
     deps = [
         "//:core",

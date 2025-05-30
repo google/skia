@@ -363,6 +363,7 @@ skia_cc_library(
         "//:core",
         "//:fontmgr_data_freetype",
         "//:fontmgr_directory_freetype",
+        "//:fontmgr_empty_fontations",
         "//:fontmgr_empty_freetype",
         "//:gif_decode_codec",
         "//:ico_decode_codec",
