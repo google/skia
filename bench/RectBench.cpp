@@ -273,6 +273,10 @@ public:
 
 protected:
     bool isSuitableFor(Backend backend) override {
+        if (backend == Backend::kNonRendering) {
+            return false;
+        }
+
         // seems to be a bug on graphic (mali) + src_mode
         auto showsBug = fBM == SkBlendMode::kSrc && backend == Backend::kGraphite;
         return !showsBug;
