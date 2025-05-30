@@ -26,11 +26,11 @@ error: 14: caused by:
     ^^^^^^
 error: 26: type 'bool' is not permitted in an interface block
     bool b; // invalid
-    ^^^^^^^
+    ^^^^^^
 error: 24: variables of type 'invalidBlock' may not be uniform
 uniform invalidBlock {
         ^^^^^^^^^^^^
 error: 26: caused by:
     bool b; // invalid
-    ^^^^^^^
+    ^^^^^^
 11 errors

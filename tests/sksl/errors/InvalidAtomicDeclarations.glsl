@@ -20,7 +20,7 @@ layout(metal, binding = 1) uniform ubo1 {
                                    ^^^^
 error: 32: caused by:
     atomicUint uboAtomic;                     // invalid
-    ^^^^^^^^^^^^^^^^^^^^^
+    ^^^^^^^^^^^^^^^^^^^^
 error: 31: atomics are only permitted in workgroup variables and writable storage blocks
 layout(metal, binding = 1) uniform ubo1 {
                                    ^^^^
@@ -29,7 +29,7 @@ layout(metal, binding = 2) uniform ubo2 {
                                    ^^^^
 error: 35: caused by:
     atomic_uint uboAtomicArray[2];            // invalid
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 error: 34: atomics are only permitted in workgroup variables and writable storage blocks
 layout(metal, binding = 2) uniform ubo2 {
                                    ^^^^

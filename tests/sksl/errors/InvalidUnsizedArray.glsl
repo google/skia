@@ -14,13 +14,13 @@ int[][] b;
 ^^^^^^^
 error: 5: unsized array must be the last member of a storage block
     int[] c;
-    ^^^^^^^^
+    ^^^^^^^
 error: 9: unsized array must be the last member of a storage block
     int[] d;
-    ^^^^^^^^
+    ^^^^^^^
 error: 14: unsized array must be the last member of a storage block
     int[] f;
-    ^^^^^^^^
+    ^^^^^^^
 error: 19: multi-dimensional arrays are not supported
     int[][] h;
     ^^^^^^^

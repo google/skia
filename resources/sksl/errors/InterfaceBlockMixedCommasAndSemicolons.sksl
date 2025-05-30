@@ -1,0 +1,5 @@
+uniform foo { int x;, y;, z; };
+
+/*%%*
+expected a type, but found ','
+*%%*/

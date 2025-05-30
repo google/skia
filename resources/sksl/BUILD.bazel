@@ -297,6 +297,7 @@ skia_filegroup(
         "errors/IncompleteExpression.rts",
         "errors/IncompleteFunctionCall.rts",
         "errors/InterfaceBlockMemberReservedName.sksl",
+        "errors/InterfaceBlockMixedCommasAndSemicolons.sksl",
         "errors/InterfaceBlockPrivateType.sksl",
         "errors/InterfaceBlockReservedName.sksl",
         "errors/InterfaceBlockScope.sksl",
