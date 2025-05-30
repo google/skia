@@ -670,8 +670,13 @@ namespace {
 sk_sp<PrecompileShader> vulkan_ycbcr_image_shader(uint64_t format,
                                                   VkSamplerYcbcrModelConversion model,
                                                   VkSamplerYcbcrRange range,
-                                                  VkChromaLocation location) {
-    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
+                                                  VkChromaLocation location,
+                                                  bool pqCS = false) {
+    SkColorInfo ci { kRGBA_8888_SkColorType,
+                     kPremul_SkAlphaType,
+                     pqCS ? SkColorSpace::MakeRGB(SkNamedTransferFn::kPQ,
+                                                  SkNamedGamut::kRec2020)
+                          : nullptr };
 
     skgpu::VulkanYcbcrConversionInfo info;
 
@@ -850,6 +855,15 @@ sk_sp<PrecompileShader> create_child_shader(ChildType childType) {
                                             { &ci, 1 },
                                             {});
         }
+#if defined(SK_VULKAN)
+        case ChildType::kHWTextureYCbCr247:
+            // HardwareImage(3: kEwAAPcAAAAAAAAA)
+            return vulkan_ycbcr_image_shader(247,
+                                             VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_2020,
+                                             VK_SAMPLER_YCBCR_RANGE_ITU_NARROW,
+                                             VK_CHROMA_LOCATION_COSITED_EVEN,
+                                             /* pqCS= */ true);
+#endif
     }
 
     return nullptr;

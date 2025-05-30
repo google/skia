@@ -25,8 +25,8 @@ namespace {
 // For non-Vulkan configs, these settings cover 59 of the 87 cases in 'kCases'.
 // They create 73 Pipelines so only modestly over-generate (14 extra Pipelines - 19%).
 //
-// For Vulkan configs, the Vulkan-specific PrecompileSettings handle 6 more cases and
-// add 8 more Pipelines.
+// For Vulkan configs, the Vulkan-specific PrecompileSettings handle 9 more cases and
+// add 11 more Pipelines.
 //
 // These are sorted into groups based on (first) PaintOptions creation function and
 // then Render Pass Properties.
@@ -212,6 +212,28 @@ const PrecompileSettings kPrecompileCases[] = {
 /* 47 */ { TransparentPaintImagePremulYCbCr240Srcover(), DrawTypeFlags::kNonAAFillRect,kRGBA_4_DS },
 // 100% (1/1) handles 8
 /* 48 */ { MouriMapCrosstalkAndChunk16x16YCbCr247(),DrawTypeFlags::kNonAAFillRect,kRGBA16F_1_D_SRGB },
+
+// The next 2 have the same PaintOptions but different destination surfaces
+
+// 100% (2/2) handles 21 40
+/* 49 */ { LinearEffect("BT2020_ITU_PQ__BT2020__false__UNKNOWN",
+                        ChildType::kHWTextureYCbCr247,
+                        SkBlendMode::kSrcOver,
+                        /* paintColorIsOpaque= */ true,
+                        /* matrixColorFilter= */ false,
+                        /* dither= */ true),
+           kRRectAndNonAARect,
+           kRGBA_1_D_SRGB },
+
+// 100% (1/1) handles 82
+/* 50 */ { LinearEffect("BT2020_ITU_PQ__BT2020__false__UNKNOWN",
+                        ChildType::kHWTextureYCbCr247,
+                        SkBlendMode::kSrcOver,
+                        /* paintColorIsOpaque= */ true,
+                        /* matrixColorFilter= */ false,
+                        /* dither= */ true),
+           DrawTypeFlags::kNonAAFillRect,
+           kRGBA_4_DS_SRGB },
 #endif
 };
 

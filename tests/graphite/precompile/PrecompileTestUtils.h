@@ -136,6 +136,9 @@ skgpu::graphite::PaintOptions BlurFilterMix();
 enum class ChildType {
     kSolidColor,
     kHWTexture,
+#if defined(SK_VULKAN)
+    kHWTextureYCbCr247,
+#endif
 };
 
 skgpu::graphite::PaintOptions LinearEffect(const char* parameterStr,
@@ -241,7 +244,7 @@ const skgpu::graphite::RenderPassProperties kBGRA_1_D_Adobe {
     skgpu::graphite::DepthStencilFlags::kDepth,
     kBGRA_8888_SkColorType,
     SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
-                       SkNamedGamut::kAdobeRGB),
+                          SkNamedGamut::kAdobeRGB),
     /* fRequiresMSAA= */ false
 };
 
@@ -266,7 +269,7 @@ const skgpu::graphite::RenderPassProperties kBGRA_4_DS_Adobe {
     skgpu::graphite::DepthStencilFlags::kDepthStencil,
     kBGRA_8888_SkColorType,
     SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
-                        SkNamedGamut::kAdobeRGB),
+                          SkNamedGamut::kAdobeRGB),
     /* fRequiresMSAA= */ true
 };
 
