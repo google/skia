@@ -1,0 +1,5 @@
+# Placeholder for client migration. To be replaced with actual pathops sources in
+# https://skia-review.googlesource.com/c/skia/+/999760
+
+skia_pathops_public = []
+skia_pathops_sources = []

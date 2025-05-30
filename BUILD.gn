@@ -1864,8 +1864,8 @@ skia_static_library("pathkit") {
   deps = [ ":hsw" ]
 
   sources = []
-  sources += skia_pathops_sources
-  sources += skia_pathops_public
+  sources += skia_legacy_pathops_sources
+  sources += skia_legacy_pathops_public
   sources += [
     "src/base/SkArenaAlloc.cpp",
     "src/base/SkBezierCurves.cpp",
