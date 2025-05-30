@@ -272,6 +272,12 @@ public:
     }
 
 protected:
+    bool isSuitableFor(Backend backend) override {
+        // seems to be a bug on graphic (mali) + src_mode
+        auto showsBug = fBM == SkBlendMode::kSrc && backend == Backend::kGraphite;
+        return !showsBug;
+    }
+
     const char* onGetName() override { return fName.c_str(); }
 
     void onDelayedSetup() override {
