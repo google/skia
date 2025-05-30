@@ -1164,13 +1164,13 @@ $pure half4 sk_hsl_matrix_colorfilter(half4 color, half4x4 m, half4 v) {
     return $hsl_to_rgb(color.rgb, color.a); // includes clamp and premul
 }
 
-$pure half4 sk_matrix_colorfilter(half4 color, half4x4 m, half4 v, half4 maxRGBA) {
+$pure half4 sk_matrix_colorfilter(half4 color, half4x4 m, half4 v, half2 minMaxRGB) {
     color = unpremul(color);
     color = half4((m * color) + v);
-    // maxRGBA.rgb is either 1, clamping RGB to [0,1] or a very large float ("unclamped").
-    // maxRGBA.a is always 1. The clamping is uploaded as a half4 since alignment and padding
-    // of a `half` takes the same space and this skips a swizzle operation.
-    color = clamp(color, half4(0), maxRGBA);
+    // minMaxRGB is a tuple that stores [minRGB, maxRGB]. minA and maxA are always 0 and 1. minRGB
+    // and maxRGB are either 0 and 1 for clamped color filters, or very large negative/positive
+    // values to be unclamped.
+    color = clamp(color, minMaxRGB.xxx0, minMaxRGB.yyy1);
     color.rgb *= color.a;
     return color;
 }

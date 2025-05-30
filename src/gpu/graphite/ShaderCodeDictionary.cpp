@@ -1365,7 +1365,7 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             /*uniforms=*/{
                            { "colorMatrix",    SkSLType::kHalf4x4 },
                            { "colorTranslate", SkSLType::kHalf4 },
-                           { "maxRGBA",        SkSLType::kHalf4 } }
+                           { "minMaxRGB",      SkSLType::kHalf2 } }
     };
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kHSLMatrixColorFilter] = {
             /*name=*/"HSLMatrixColorFilter",
