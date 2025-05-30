@@ -1290,6 +1290,11 @@ optional("xps") {
   sources = skia_xps_sources
 }
 
+optional("png_decode_common") {
+  enabled = skia_use_libpng_decode || skia_use_rust_png_decode
+  sources = skia_codec_png_base
+}
+
 optional("png_decode_libpng") {
   enabled = skia_use_libpng_decode
   public_defines = [
@@ -1299,12 +1304,19 @@ optional("png_decode_libpng") {
   ]
   sources_for_tests = [ "tests/PngGainmapTest.cpp" ]
 
-  deps = [ "//third_party/libpng" ]
-  sources = [ "src/codec/SkIcoCodec.cpp" ] + skia_codec_png_base +
-            skia_codec_libpng_srcs
+  deps = [
+    ":png_decode_common",
+    "//third_party/libpng",
+  ]
+  sources = [ "src/codec/SkIcoCodec.cpp" ] + skia_codec_libpng_srcs
 }
 
-optional("png_encode") {
+optional("png_encode_common") {
+  enabled = skia_use_libpng_encode || skia_use_rust_png_encode
+  sources = skia_encode_png_base
+}
+
+optional("png_encode_libpng") {
   enabled = skia_use_libpng_encode && !skia_use_ndk_images
   public_defines = [
     "SK_CODEC_ENCODES_PNG",
@@ -1312,8 +1324,11 @@ optional("png_encode") {
   ]
 
   public = skia_encode_png_public
-  deps = [ "//third_party/libpng" ]
-  sources = skia_encode_png_base + skia_encode_libpng_srcs
+  deps = [
+    ":png_encode_common",
+    "//third_party/libpng",
+  ]
+  sources = skia_encode_libpng_srcs
 }
 
 optional("raw") {
@@ -1530,10 +1545,11 @@ optional("png_decode_rust") {
   public_defines = [ "SK_CODEC_DECODES_PNG_WITH_RUST" ]
   enabled = skia_use_rust_png_decode
   public = skia_codec_rust_png_public
-  sources = skia_codec_rust_png + skia_codec_png_base
+  sources = skia_codec_rust_png
   sources_for_tests = [ "tests/SkPngRustDecoderTest.cpp" ]
 
   deps = [
+    ":png_decode_common",
     ":rust_png_cxx_bridge",
     ":rust_png_cxx_core_bazel_build",
   ]
@@ -1552,10 +1568,10 @@ optional("png_encode_rust") {
   public_defines = [ "SK_CODEC_ENCODES_PNG_WITH_RUST" ]
   enabled = skia_use_rust_png_encode
   public = skia_encode_rust_png_public  # From `gn/core.gni`
-  sources =
-      skia_encode_rust_png_srcs + skia_encode_png_base  # From `gn/core.gni`
+  sources = skia_encode_rust_png_srcs  # From `gn/core.gni`
   sources_for_tests = [ "tests/SkPngRustEncoderTest.cpp" ]
   deps = [
+    ":png_encode_common",
     ":rust_png_cxx_bridge",
     ":rust_png_cxx_core_bazel_build",
   ]
@@ -1652,7 +1668,7 @@ skia_component("skia") {
     ":jpeg_encode",
     ":pdf",
     ":pdf_jpeg_helpers",
-    ":png_encode",
+    ":png_encode_libpng",
     ":webp_encode",
     ":xps",
   ]
