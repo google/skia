@@ -24,7 +24,7 @@ namespace skiatest::graphite {
 std::unique_ptr<GraphiteTestContext> VulkanTestContext::Make() {
     skgpu::VulkanBackendContext backendContext;
     skgpu::VulkanExtensions* extensions;
-    VkPhysicalDeviceFeatures2* features;
+    sk_gpu_test::TestVkFeatures* features;
     VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
     PFN_vkDestroyDebugUtilsMessengerEXT destroyCallback = nullptr;
 
@@ -34,8 +34,8 @@ std::unique_ptr<GraphiteTestContext> VulkanTestContext::Make() {
     }
 
     extensions = new skgpu::VulkanExtensions();
-    features = new VkPhysicalDeviceFeatures2;
-    memset(features, 0, sizeof(VkPhysicalDeviceFeatures2));
+    features = new sk_gpu_test::TestVkFeatures;
+    memset(&features->deviceFeatures, 0, sizeof(VkPhysicalDeviceFeatures2));
     if (!sk_gpu_test::CreateVkBackendContext(instProc,
                                              &backendContext,
                                              extensions,
@@ -44,7 +44,6 @@ std::unique_ptr<GraphiteTestContext> VulkanTestContext::Make() {
                                              nullptr,
                                              sk_gpu_test::CanPresentFn(),
                                              gCreateProtectedContext)) {
-        sk_gpu_test::FreeVulkanFeaturesStructs(features);
         delete features;
         delete extensions;
         return nullptr;
@@ -86,8 +85,6 @@ VulkanTestContext::~VulkanTestContext() {
 #endif
     localVkDestroyInstance(fVulkan.fInstance, nullptr);
     delete fExtensions;
-
-    sk_gpu_test::FreeVulkanFeaturesStructs(fFeatures);
     delete fFeatures;
 }
 

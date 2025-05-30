@@ -210,9 +210,6 @@ bool VkTestHelper::setupBackendContext() {
         return false;
     }
 
-    fFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    fFeatures.pNext = nullptr;
-
     fBackendContext.fInstance = VK_NULL_HANDLE;
     fBackendContext.fDevice = VK_NULL_HANDLE;
 
@@ -269,8 +266,6 @@ VkTestHelper::~VkTestHelper() {
         fVkDestroyInstance(fBackendContext.fInstance, nullptr);
         fBackendContext.fInstance = VK_NULL_HANDLE;
     }
-
-    sk_gpu_test::FreeVulkanFeaturesStructs(&fFeatures);
 }
 
 #endif // SK_VULKAN
