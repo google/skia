@@ -144,7 +144,7 @@ genrule(
     name = "enumerate_test_input_list",
     srcs = ["//resources/sksl:sksl_minify_tests_sources"],
     outs = ["test_input_list.txt"],
-    # Put a space seperated list of file names into the one output
+    # Put a space separated list of file names into the one output
     # This is done because the list could be quite long and overflow
     # the command line length
     # https://bazel.build/reference/be/make-variables#predefined_genrule_variables

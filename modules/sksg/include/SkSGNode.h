@@ -32,7 +32,7 @@ class InvalidationController;
  */
 class Node : public SkRefCnt {
 public:
-    // Traverse the DAG and revalidate any dependant/invalidated nodes.
+    // Traverse the DAG and revalidate any dependent/invalidated nodes.
     // Returns the bounding box for the DAG fragment.
     const SkRect& revalidate(InvalidationController*, const SkMatrix&);
 
