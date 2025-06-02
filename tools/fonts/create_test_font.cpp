@@ -167,8 +167,7 @@ static void output_path_data(const SkFont& font,
         }
         *verbs->append() = SkPath::kDone_Verb;
         *charCodes->append() = index;
-        SkScalar width;
-        font.getWidths(&glyphID, 1, &width);
+        SkScalar width = font.getWidth(glyphID);
      // SkASSERT(floor(width) == width);  // not true for Hiragino Maru Gothic Pro
         *widths->append() = width;
         if (0 == index) {

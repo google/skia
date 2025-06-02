@@ -31,8 +31,8 @@ static sk_sp<SkTextBlob> make_hpos_test_blob_utf8(const char* text, const SkFont
     size_t len = strlen(text);
     int glyphCount = font.countText(text, len, enc);
     const auto& buffer = builder.allocRunPosH(font, glyphCount, 0);
-    (void)font.textToGlyphs(text, len, enc, buffer.glyphs, glyphCount);
-    font.getXPos(buffer.glyphs, glyphCount, buffer.pos);
+    (void)font.textToGlyphs(text, len, enc, {buffer.glyphs, glyphCount});
+    font.getXPos({buffer.glyphs, glyphCount}, {buffer.pos, glyphCount});
     return builder.make();
 }
 

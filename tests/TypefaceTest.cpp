@@ -698,7 +698,8 @@ DEF_TEST(Typeface_glyph_to_char, reporter) {
         originalCodepoints[i] = SkUTF::NextUTF8(&text, textEnd);
     }
     std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[codepointCount]);
-    font.unicharsToGlyphs(originalCodepoints.get(), codepointCount, glyphs.get());
+    font.unicharsToGlyphs({originalCodepoints.get(), codepointCount},
+                          {glyphs.get(), codepointCount});
     if (std::any_of(glyphs.get(), glyphs.get()+codepointCount, [](SkGlyphID g){ return g == 0;})) {
         ERRORF(reporter, "Unexpected typeface \"%s\". Expected full support for emoji_sample_text.",
                familyName.c_str());
@@ -759,7 +760,7 @@ DEF_TEST(CustomTypeface_invalid_glyphid, reporter) {
 
     SkGlyphID glyph_ids[] = {0, 1};
     SkRect bounds[2];
-    custom_font.getBounds(glyph_ids, 2, bounds, nullptr);
+    custom_font.getBounds(glyph_ids, bounds, nullptr);
 
     REPORTER_ASSERT(reporter, bounds[0] == SkRect::MakeLTRB(10, 20, 30, 40));
     REPORTER_ASSERT(reporter, bounds[1] == SkRect::MakeLTRB(0, 0, 0, 0));

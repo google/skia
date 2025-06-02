@@ -146,10 +146,10 @@ protected:
             canvas->scale(2.0f, 2.0f);
 
             AutoTArray<SkGlyphID> glyphs(SkToInt(textLen));
-            int count = font.textToGlyphs(text, textLen, SkTextEncoding::kUTF8, glyphs.get(), textLen);
+            int count = font.textToGlyphs(text, textLen, SkTextEncoding::kUTF8, glyphs);
             AutoTArray<SkPoint>  pos(count);
             font.setSize(textSizes[0]);
-            font.getPos(glyphs.get(), count, pos.get(), {340, 75});
+            font.getPos(glyphs, pos, {340, 75});
 
             auto blob = SkTextBlob::MakeFromPosText(glyphs.get(), count * sizeof(SkGlyphID),
                                                     pos.get(), font, SkTextEncoding::kGlyphID);

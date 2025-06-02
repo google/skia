@@ -338,7 +338,7 @@ SkSpan<const SkGlyphID> GlyphRunBuilder::textToGlyphIDs(
         int count = font.countText(bytes, byteLength, encoding);
         if (count > 0) {
             fScratchGlyphIDs.resize(count);
-            font.textToGlyphs(bytes, byteLength, encoding, fScratchGlyphIDs.data(), count);
+            font.textToGlyphs(bytes, byteLength, encoding, fScratchGlyphIDs);
             return SkSpan(fScratchGlyphIDs);
         } else {
             return SkSpan<const SkGlyphID>();

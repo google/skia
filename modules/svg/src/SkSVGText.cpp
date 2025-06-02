@@ -464,8 +464,7 @@ SkRSXform SkSVGTextContext::computeGlyphXform(SkGlyphID glyph, const SkFont& fon
     // (https://www.w3.org/TR/SVG11/text.html#TextpathLayoutRules)
 
     // Path positioning is based on the glyph center (horizontal component).
-    float glyph_width;
-    font.getWidths(&glyph, 1, &glyph_width);
+    float glyph_width = font.getWidth(glyph);
     auto path_offset = pos.fX + glyph_width * .5f;
 
     // In addition to the path matrix, the final glyph matrix also includes:
@@ -652,8 +651,9 @@ SkRect SkSVGText::onTransformableObjectBoundingBox(const SkSVGRenderContext& ctx
             AutoSTArray<64, SkRect> glyphBounds;
 
             for (SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
-                glyphBounds.reset(SkToInt(it.glyphCount()));
-                it.font().getBounds(it.glyphs(), it.glyphCount(), glyphBounds.get(), nullptr);
+                const auto nglyphs = it.glyphCount();
+                glyphBounds.reset(SkToInt(nglyphs));
+                it.font().getBounds({it.glyphs(), nglyphs}, {glyphBounds.get(), nglyphs}, nullptr);
 
                 SkASSERT(it.positioning() == SkTextBlobRunIterator::kRSXform_Positioning);
                 SkMatrix m;
@@ -688,9 +688,9 @@ SkPath SkSVGText::onAsPath(const SkSVGRenderContext& ctx) const {
                     const SkRSXform* xform;
                 } get_paths_ctx {builder, it.xforms()};
 
-                it.font().getPaths(it.glyphs(), it.glyphCount(), [](const SkPath* path,
-                                                                    const SkMatrix& matrix,
-                                                                    void* raw_ctx) {
+                it.font().getPaths({it.glyphs(), it.glyphCount()}, [](const SkPath* path,
+                                                                      const SkMatrix& matrix,
+                                                                      void* raw_ctx) {
                     auto* get_paths_ctx = static_cast<GetPathsCtx*>(raw_ctx);
                     const auto& glyph_rsx = *get_paths_ctx->xform++;
 

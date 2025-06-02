@@ -968,19 +968,19 @@ static sk_sp<SkTextBlob> make_fuzz_textblob(Fuzz* fuzz) {
                 fuzz->next(&x, &y);
                 // TODO: Test other variations of this.
                 buffer = &textBlobBuilder.allocRun(font, glyphCount, x, y);
-                (void)font.textToGlyphs(textPtr, textLen, encoding, buffer->glyphs, glyphCount);
+                (void)font.textToGlyphs(textPtr, textLen, encoding, {buffer->glyphs, glyphCount});
                 break;
             case 1:
                 fuzz->next(&y);
                 // TODO: Test other variations of this.
                 buffer = &textBlobBuilder.allocRunPosH(font, glyphCount, y);
-                (void)font.textToGlyphs(textPtr, textLen, encoding, buffer->glyphs, glyphCount);
+                (void)font.textToGlyphs(textPtr, textLen, encoding, {buffer->glyphs, glyphCount});
                 fuzz->nextN(buffer->pos, glyphCount);
                 break;
             case 2:
                 // TODO: Test other variations of this.
                 buffer = &textBlobBuilder.allocRunPos(font, glyphCount);
-                (void)font.textToGlyphs(textPtr, textLen, encoding, buffer->glyphs, glyphCount);
+                (void)font.textToGlyphs(textPtr, textLen, encoding, {buffer->glyphs, glyphCount});
                 fuzz->nextN(buffer->pos, glyphCount * 2);
                 break;
             default:

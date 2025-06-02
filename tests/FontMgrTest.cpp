@@ -47,12 +47,11 @@ DEF_TEST(FontMgr_Font, reporter) {
     sk_bzero(glyphs, sizeof(glyphs));
 
     // Check that no glyphs are copied with insufficient storage.
-    int count = font.textToGlyphs("Hello", 5, SkTextEncoding::kUTF8, glyphs, 2);
+    int count = font.textToGlyphs("Hello", 5, SkTextEncoding::kUTF8, {glyphs, 2});
     REPORTER_ASSERT(reporter, 5 == count);
     for (const auto glyph : glyphs) { REPORTER_ASSERT(reporter, glyph == 0); }
 
-    SkAssertResult(font.textToGlyphs("Hello", 5, SkTextEncoding::kUTF8, glyphs,
-                                     std::size(glyphs)) == count);
+    SkAssertResult(font.textToGlyphs("Hello", 5, SkTextEncoding::kUTF8, glyphs) == count);
 
     for (int i = 0; i < count; ++i) {
         REPORTER_ASSERT(reporter, 0 != glyphs[i]);

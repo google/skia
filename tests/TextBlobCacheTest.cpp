@@ -258,7 +258,7 @@ static sk_sp<SkTextBlob> make_blob() {
     static const int maxGlyphLen = sizeof(text) * 4;
     SkGlyphID glyphs[maxGlyphLen];
     int glyphCount =
-            font.textToGlyphs(text, sizeof(text), SkTextEncoding::kUTF8, glyphs, maxGlyphLen);
+            font.textToGlyphs(text, sizeof(text), SkTextEncoding::kUTF8, glyphs);
 
     SkTextBlobBuilder builder;
     const auto& runBuffer = builder.allocRun(font, glyphCount, 0, 0);

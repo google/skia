@@ -112,7 +112,7 @@ unsigned skhb_nominal_glyphs(hb_font_t *hb_font, void *font_data,
     }
     AutoSTMalloc<256, SkGlyphID> glyph(count);
     font.textToGlyphs(unicode.get(), count * sizeof(SkUnichar), SkTextEncoding::kUTF32,
-                        glyph.get(), count);
+                      {glyph.get(), count});
 
     // Copy the results back to the sparse array.
     unsigned int done;
@@ -130,10 +130,8 @@ hb_position_t skhb_glyph_h_advance(hb_font_t* hb_font,
                                    void* user_data) {
     SkFont& font = *reinterpret_cast<SkFont*>(font_data);
 
-    SkScalar advance;
-    SkGlyphID skGlyph = SkTo<SkGlyphID>(hbGlyph);
+    SkScalar advance = font.getWidth(SkTo<SkGlyphID>(hbGlyph));
 
-    font.getWidths(&skGlyph, 1, &advance);
     if (!font.isSubpixel()) {
         advance = SkScalarRoundToInt(advance);
     }
@@ -158,7 +156,7 @@ void skhb_glyph_h_advances(hb_font_t* hb_font,
         glyphs = SkTAddOffset<const hb_codepoint_t>(glyphs, glyph_stride);
     }
     AutoSTMalloc<256, SkScalar> advance(count);
-    font.getWidths(glyph.get(), count, advance.get());
+    font.getWidths({glyph, count}, {advance, count});
 
     if (!font.isSubpixel()) {
         for (unsigned i = 0; i < count; i++) {
@@ -190,7 +188,7 @@ hb_bool_t skhb_glyph_extents(hb_font_t* hb_font,
     SkRect sk_bounds;
     SkGlyphID skGlyph = SkTo<SkGlyphID>(hbGlyph);
 
-    font.getWidths(&skGlyph, 1, nullptr, &sk_bounds);
+    font.getBounds({&skGlyph, 1}, {&sk_bounds, 1}, nullptr);
     if (!font.isSubpixel()) {
         sk_bounds.set(sk_bounds.roundOut());
     }
@@ -1389,7 +1387,7 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
     }
     AutoSTArray<32, SkRect> glyphBounds(len);
     SkPaint p;
-    run.fFont.getBounds(glyphIDs.get(), len, glyphBounds.get(), &p);
+    run.fFont.getBounds(glyphIDs, glyphBounds, &p);
 
     double SkScalarFromHBPosX = +(1.52587890625e-5) * run.fFont.getScaleX();
     double SkScalarFromHBPosY = -(1.52587890625e-5);  // HarfBuzz y-up, Skia y-down

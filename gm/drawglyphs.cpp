@@ -29,10 +29,10 @@ public:
         fGlyphCount = fFont.countText(gText, txtLen, SkTextEncoding::kUTF8);
 
         fGlyphs.append(fGlyphCount);
-        fFont.textToGlyphs(gText, txtLen, SkTextEncoding::kUTF8, fGlyphs.begin(), fGlyphCount);
+        fFont.textToGlyphs(gText, txtLen, SkTextEncoding::kUTF8, fGlyphs);
 
         fPositions.append(fGlyphCount);
-        fFont.getPos(fGlyphs.begin(), fGlyphCount, fPositions.begin());
+        fFont.getPos(fGlyphs, fPositions);
         auto positions = SkSpan(fPositions.begin(), fGlyphCount);
 
         fLength = positions.back().x() - positions.front().x();

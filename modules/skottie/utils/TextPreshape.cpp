@@ -203,8 +203,7 @@ public:
             std::cerr << "Glyph ID %d could not be converted to a path, discarding.";
         }
 
-        float width;
-        font.getWidths(&glyph, 1, &width);
+        float width = font.getWidth(glyph);
 
         // Lottie glyph shapes are always defined at a normalized size of 100.
         const float scale = 100 / font.getSize();

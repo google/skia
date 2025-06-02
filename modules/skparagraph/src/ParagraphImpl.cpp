@@ -1413,10 +1413,7 @@ void ParagraphImpl::extendedVisit(const ExtendedVisitor& visitor) {
                     SkRect rect = context.clip.makeOffset(line.offset());
                     AutoSTArray<16, SkRect> glyphBounds;
                     glyphBounds.reset(SkToInt(run->size()));
-                    run->font().getBounds(run->glyphs().data(),
-                                          SkToInt(run->size()),
-                                          glyphBounds.data(),
-                                          nullptr);
+                    run->font().getBounds(run->glyphs(), glyphBounds, nullptr);
                     STArray<128, uint32_t> clusterStorage;
                     const uint32_t* clusterPtr = run->clusterIndexes().data();
                     if (run->fClusterStart > 0) {
@@ -1480,7 +1477,7 @@ int ParagraphImpl::getPath(int lineNumber, SkPath* dest) {
               } rec =
                   {dest, SkPoint::Make(rect.left(), rect.top()),
                    &run->positions()[context.pos], 0};
-              font.getPaths(&run->glyphs()[context.pos], context.size,
+              font.getPaths({&run->glyphs()[context.pos], context.size},
                     [](const SkPath* path, const SkMatrix& mx, void* ctx) {
                         Rec* rec = reinterpret_cast<Rec*>(ctx);
                         if (path) {
@@ -1509,7 +1506,7 @@ SkPath Paragraph::GetPath(SkTextBlob* textBlob) {
         struct Rec { SkPath* fDst; SkPoint fOffset; const SkPoint* fPos; } rec =
             {&path, {textBlob->bounds().left(), textBlob->bounds().top()},
              iter.points()};
-        font.getPaths(iter.glyphs(), iter.glyphCount(),
+        font.getPaths({iter.glyphs(), iter.glyphCount()},
             [](const SkPath* src, const SkMatrix& mx, void* ctx) {
                 Rec* rec = (Rec*)ctx;
                 if (src) {
@@ -1547,8 +1544,7 @@ bool ParagraphImpl::containsColorFontOrBitmap(SkTextBlob* textBlob) {
     bool flag = false;
     while (!iter.done() && !flag) {
         iter.font().getPaths(
-            (const SkGlyphID*) iter.glyphs(),
-            iter.glyphCount(),
+            {(const SkGlyphID*) iter.glyphs(), iter.glyphCount()},
             [](const SkPath* path, const SkMatrix& mx, void* ctx) {
                 if (path == nullptr) {
                     bool* flag1 = (bool*)ctx;

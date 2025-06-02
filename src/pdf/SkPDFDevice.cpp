@@ -867,7 +867,7 @@ void SkPDFDevice::drawGlyphRunAsPath(
         const SkPoint* fPos;
     } rec = {&path, offset, glyphRun.positions().data()};
 
-    font.getPaths(glyphRun.glyphsIDs().data(), glyphRun.glyphsIDs().size(),
+    font.getPaths(glyphRun.glyphsIDs(),
                   [](const SkPath* path, const SkMatrix& mx, void* ctx) {
                       Rec* rec = reinterpret_cast<Rec*>(ctx);
                       if (path) {

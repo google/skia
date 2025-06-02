@@ -56,7 +56,7 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
     const int count = atg.count();
     AutoTArray<SkPoint>  pos(count);
     AutoTArray<SkScalar> widths(count);
-    font.getWidths(atg.glyphs(), count, &widths[0]);
+    font.getWidths({atg.glyphs(), count}, widths);
 
     SkRandom rand;
     SkScalar x = SkIntToScalar(20);

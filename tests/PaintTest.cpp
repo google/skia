@@ -208,17 +208,12 @@ DEF_TEST(Font_getpos, r) {
     SkFont font = ToolUtils::DefaultFont();
     const char text[] = "Hamburgefons!@#!#23425,./;'[]";
     int count = font.countText(text, strlen(text), SkTextEncoding::kUTF8);
-    AutoTArray<SkGlyphID> glyphStorage(count);
-    SkGlyphID* glyphs = glyphStorage.get();
-    (void)font.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, glyphs, count);
+    AutoTArray<SkGlyphID> glyphs(count);
+    (void)font.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, glyphs);
 
-    AutoTArray<SkScalar> widthStorage(count);
-    AutoTArray<SkScalar> xposStorage(count);
-    AutoTArray<SkPoint> posStorage(count);
-
-    SkScalar* widths = widthStorage.get();
-    SkScalar* xpos = xposStorage.get();
-    SkPoint* pos = posStorage.get();
+    AutoTArray<SkScalar> widths(count);
+    AutoTArray<SkScalar> xpos(count);
+    AutoTArray<SkPoint> pos(count);
 
     for (bool subpix : { false, true }) {
         font.setSubpixel(subpix);
@@ -227,9 +222,9 @@ DEF_TEST(Font_getpos, r) {
             for (auto size : { 1.0f, 12.0f, 100.0f }) {
                 font.setSize(size);
 
-                font.getWidths(glyphs, count, widths);
-                font.getXPos(glyphs, count, xpos, 10);
-                font.getPos(glyphs, count, pos, {10, 20});
+                font.getWidths(glyphs, widths);
+                font.getXPos(glyphs, xpos, 10);
+                font.getPos(glyphs, pos, {10, 20});
 
                 auto nearly_eq = [](SkScalar a, SkScalar b) {
                     return SkScalarAbs(a - b) < 0.000001f;

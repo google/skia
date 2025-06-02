@@ -215,7 +215,7 @@ void AddPath(const sktext::GlyphRun& glyphRun, const SkPoint& offset, SkPath* pa
         const SkPoint* fPos;
     } rec = { path, offset, glyphRun.positions().data() };
 
-    glyphRun.font().getPaths(glyphRun.glyphsIDs().data(), SkToInt(glyphRun.glyphsIDs().size()),
+    glyphRun.font().getPaths(glyphRun.glyphsIDs(),
             [](const SkPath* path, const SkMatrix& mx, void* ctx) {
                 Rec* rec = reinterpret_cast<Rec*>(ctx);
                 if (path) {

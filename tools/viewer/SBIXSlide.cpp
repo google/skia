@@ -132,7 +132,7 @@ public:
             paint.setStyle(SkPaint::kStroke_Style);
             SkScalar advance;
             SkRect rect;
-            font.getWidthsBounds(&kGlyphID, 1, &advance, &rect, &paint);
+            font.getWidthsBounds({&kGlyphID, 1}, {&advance, 1}, {&rect, 1}, &paint);
 
             paint.setColor(SK_ColorRED);
             canvas->drawRect(rect, paint);

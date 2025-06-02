@@ -102,13 +102,16 @@ public:
                 fCount = 0;
             }
             fStorage.reset(fCount);
-            font.textToGlyphs(text, length, encoding, fStorage.get(), fCount);
+            font.textToGlyphs(text, length, encoding, {fStorage.get(), fCount});
             fGlyphs = fStorage.get();
         }
     }
 
     int count() const { return fCount; }
     const SkGlyphID* glyphs() const { return fGlyphs; }
+
+    int size() const { return fCount; }
+    const SkGlyphID* data() const { return fGlyphs; }
 
 private:
     skia_private::AutoSTArray<32, SkGlyphID> fStorage;

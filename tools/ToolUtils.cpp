@@ -220,7 +220,7 @@ void add_to_text_blob_w_len(SkTextBlobBuilder* builder,
         return;
     }
     auto run   = builder->allocRun(font, count, x, y);
-    font.textToGlyphs(text, len, encoding, run.glyphs, count);
+    font.textToGlyphs(text, len, encoding, {run.glyphs, count});
 }
 
 void add_to_text_blob(SkTextBlobBuilder* builder,
@@ -242,7 +242,7 @@ void get_text_path(const SkFont&  font,
     AutoTArray<SkPoint> computedPos;
     if (pos == nullptr) {
         computedPos.reset(count);
-        font.getPos(atg.glyphs(), count, &computedPos[0]);
+        font.getPos(atg, computedPos);
         pos = computedPos.get();
     }
 
@@ -250,8 +250,7 @@ void get_text_path(const SkFont&  font,
         SkPath*        fDst;
         const SkPoint* fPos;
     } rec = {dst, pos};
-    font.getPaths(atg.glyphs(),
-                  atg.count(),
+    font.getPaths(atg,
                   [](const SkPath* src, const SkMatrix& mx, void* ctx) {
                       Rec* rec = (Rec*)ctx;
                       if (src) {

@@ -45,10 +45,6 @@
 #define SK_SUPPORT_LEGACY_GETTOTALMATRIX
 #endif
 
-#ifndef SK_SUPPORT_UNSPANNED_APIS
-#define SK_SUPPORT_UNSPANNED_APIS
-#endif
-
 namespace sktext {
 class GlyphRunBuilder;
 class GlyphRunList;

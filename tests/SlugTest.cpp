@@ -47,7 +47,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(Slug_empty,
 
     SkTDArray<SkGlyphID> glyphs;
     glyphs.append(glyphCount);
-    font.textToGlyphs(kText, txtLen, SkTextEncoding::kUTF8, glyphs.begin(), glyphCount);
+    font.textToGlyphs(kText, txtLen, SkTextEncoding::kUTF8, glyphs);
 
     SkTextBlobBuilder builder;
 

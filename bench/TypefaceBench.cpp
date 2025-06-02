@@ -244,7 +244,7 @@ protected:
         for (int i = 0; i < loops * 3; ++i) {
             for (auto& line : fLines) {
                 font.textToGlyphs(line->utf.data(), line->utf.size(), fEncoding,
-                                  fGlyphIds.data(), line->glyphCount);
+                                  {fGlyphIds.data(), line->glyphCount});
             }
         }
     }

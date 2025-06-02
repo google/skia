@@ -800,7 +800,7 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
                 SkGlyphID gid = i;
                 SkScalar  advance;
                 SkRect    bounds;
-                font.getWidthsBounds(&gid, 1, &advance, &bounds, nullptr);
+                font.getWidthsBounds({&gid, 1}, {&advance, 1}, {&bounds, 1}, nullptr);
                 SkIRect ibounds = bounds.roundOut();
                 if (!SkTFitsIn<int8_t>(ibounds.fLeft) || !SkTFitsIn<int8_t>(ibounds.fTop) ||
                     !SkTFitsIn<uint8_t>(ibounds.width()) || !SkTFitsIn<uint8_t>(ibounds.height()) ||
@@ -839,7 +839,7 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
             SkGlyphID gid = i;
             SkScalar  advance;
             SkRect    bounds;
-            font.getWidthsBounds(&gid, 1, &advance, &bounds, nullptr);
+            font.getWidthsBounds({&gid, 1}, {&advance, 1}, {&bounds, 1}, nullptr);
             SkIRect ibounds = bounds.roundOut();
             if (ibounds.isEmpty()) {
                 continue;
@@ -967,8 +967,7 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
                 "lastGlyphIndex=\"1\">\n");
         for (int i = 0; i < fGlyphCount; ++i) {
             SkGlyphID gid = i;
-            SkRect    bounds;
-            font.getBounds(&gid, 1, &bounds, nullptr);
+            SkRect    bounds = font.getBounds(gid, nullptr);
             if (bounds.isEmpty()) {
                 continue;
             }
@@ -1075,7 +1074,7 @@ void TestSVGTypeface::exportTtxSbix(SkWStream* out, SkSpan<unsigned> strikeSizes
             SkGlyphID gid = i;
             SkScalar  advance;
             SkRect    bounds;
-            font.getWidthsBounds(&gid, 1, &advance, &bounds, nullptr);
+            font.getWidthsBounds({&gid, 1}, {&advance, 1}, {&bounds, 1}, nullptr);
             SkIRect ibounds = bounds.roundOut();
             if (ibounds.isEmpty()) {
                 continue;

@@ -283,7 +283,7 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface& typefac
             for (char c : {'i', 'I', '!', '1'}) {
                 SkGlyphID g = font.unicharToGlyph(c);
                 SkRect bounds;
-                font.getBounds(&g, 1, &bounds, nullptr);
+                font.getBounds({&g, 1}, {&bounds, 1}, nullptr);
                 stemV = std::min(stemV, SkToS16(SkScalarRoundToInt(bounds.width())));
             }
             metrics->fStemV = stemV;
@@ -294,7 +294,7 @@ const SkAdvancedTypefaceMetrics* SkPDFFont::GetMetrics(const SkTypeface& typefac
             for (char c : {'M', 'X'}) {
                 SkGlyphID g = font.unicharToGlyph(c);
                 SkRect bounds;
-                font.getBounds(&g, 1, &bounds, nullptr);
+                font.getBounds({&g, 1}, {&bounds, 1}, nullptr);
                 capHeight += bounds.height();
             }
             metrics->fCapHeight = SkToS16(SkScalarRoundToInt(capHeight / 2));

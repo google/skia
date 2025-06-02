@@ -31,13 +31,14 @@
 
 using namespace skia_private;
 
-static void getGlyphPositions(const SkFont& font, const SkGlyphID glyphs[],
-                             int count, SkScalar x, SkScalar y, SkPoint pos[]) {
+static void getGlyphPositions(const SkFont& font, SkSpan<const SkGlyphID> glyphs,
+                              SkScalar x, SkScalar y, SkPoint pos[]) {
+    const auto count = glyphs.size();
     AutoSTMalloc<128, SkScalar> widthStorage(count);
     SkScalar* widths = widthStorage.get();
-    font.getWidths(glyphs, count, widths);
+    font.getWidths(glyphs, {widths, count});
 
-    for (int i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) {
         pos[i].set(x, y);
         x += widths[i];
     }
@@ -64,7 +65,7 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
 
     AutoSTMalloc<128, SkGlyphID> glyphStorage(len);
     SkGlyphID* glyphs = glyphStorage.get();
-    int glyphCount = font.textToGlyphs(text, len, SkTextEncoding::kUTF8, glyphs, len);
+    int glyphCount = font.textToGlyphs(text, len, SkTextEncoding::kUTF8, {glyphs, len});
     if (glyphCount < 1) {
         return;
     }
@@ -80,7 +81,7 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
     SkTextBlobBuilder builder;
     auto rec = builder.allocRunPos(font, glyphCount);
     memcpy(rec.glyphs, glyphs, glyphCount * sizeof(SkGlyphID));
-    getGlyphPositions(font, glyphs, glyphCount, x, y, rec.points());
+    getGlyphPositions(font, {glyphs, glyphCount}, x, y, rec.points());
     applyKerning(rec.points(), adjustments, glyphCount, font);
 
     canvas->drawTextBlob(builder.make(), 0, 0, paint);

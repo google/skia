@@ -183,7 +183,7 @@ protected:
                     fFont.getPath(fGlyphs[i], &path);
                 }
             } else {
-                fFont.getPaths(fGlyphs, std::size(fGlyphs),
+                fFont.getPaths(fGlyphs,
                                [](const SkPath* src, const SkMatrix& mx, void* ctx) {
                                    if (src) {
                                        src->transform(mx, static_cast<SkPath*>(ctx));

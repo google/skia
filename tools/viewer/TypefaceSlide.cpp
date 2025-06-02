@@ -117,7 +117,7 @@ public:
                 }
                 SkScalar advance;
                 SkRect glyphBounds;
-                font.getWidths(&glyph, 1, &advance, &glyphBounds);
+                font.getWidthsBounds({&glyph, 1}, {&advance, 1}, {&glyphBounds, 1}, nullptr);
                 SkRect advanceBounds = SkRect::MakeWH(advance, 1);
                 SkRect glyphAndAdvanceBounds = glyphBounds;
                 glyphAndAdvanceBounds.join(advanceBounds);
@@ -148,7 +148,7 @@ public:
                 }
                 SkScalar advance;
                 SkRect glyphBounds;
-                font.getWidths(&gid, 1, &advance, &glyphBounds);
+                font.getWidthsBounds({&gid, 1}, {&advance, 1}, {&glyphBounds, 1}, nullptr);
                 SkRect advanceBounds = SkRect::MakeWH(advance, 1);
                 SkRect glyphAndAdvanceBounds = glyphBounds;
                 glyphAndAdvanceBounds.join(advanceBounds);
