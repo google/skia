@@ -571,7 +571,7 @@ SkPathBuilder& SkPathBuilder::arcTo(SkPoint rad, SkScalar angle, SkPathBuilder::
         thetaArc -= SK_ScalarPI * 2;
     }
 
-    // Very tiny angles cause our subsequent math to go wonky (skbug.com/9272)
+    // Very tiny angles cause our subsequent math to go wonky (skbug.com/40040578)
     // so we do a quick check here. The precise tolerance amount is just made up.
     // PI/million happens to fix the bug in 9272, but a larger value is probably
     // ok too.

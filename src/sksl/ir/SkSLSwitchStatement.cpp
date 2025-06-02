@@ -194,7 +194,7 @@ std::unique_ptr<Statement> SwitchStatement::Convert(const Context& context,
     // If a switch-case has variable declarations at its top level, we want to create a scoped block
     // around the switch, then move the variable declarations out of the switch body and into the
     // outer scope. This prevents scoping issues in backends which don't offer a native switch.
-    // (skia:14375) It also allows static-switch optimization to work properly when variables are
+    // (skbug.com/40045447) It also allows static-switch optimization to work properly when variables are
     // inherited from earlier fall-through cases. (oss-fuzz:70589)
     std::unique_ptr<Block> block =
             Transform::HoistSwitchVarDeclarationsAtTopLevel(context, cases, *symbolTable, pos);

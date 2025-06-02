@@ -190,7 +190,7 @@ public:
             *dst = src;
         }
 
-        // This may not be the correct SkStrokeRec to use if there's a path effect: skbug.com/5299
+        // This may not be the correct SkStrokeRec to use if there's a path effect: skbug.com/40036474
         // It happens to work for dashing.
         SkScalar radius = fStrokeRec.getInflationRadius();
         dst->outset(radius, radius);

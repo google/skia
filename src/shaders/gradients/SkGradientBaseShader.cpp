@@ -546,7 +546,7 @@ void SkGradientBaseShader::AppendInterpolatedToDstStages(SkRasterPipeline* p,
         dstColorSpace = sk_srgb_singleton();
     }
     SkAlphaType intermediateAlphaType = colorIsPremul ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
-    // TODO(skia:13108): Get dst alpha type correctly
+    // TODO(skbug.com/40044213): Get dst alpha type correctly
     SkAlphaType dstAlphaType = kPremul_SkAlphaType;
 
     if (colorsAreOpaque) {
@@ -669,7 +669,7 @@ static sk_sp<SkColorSpace> intermediate_color_space(SkGradientShader::Interpolat
             // The "standard" conversion to these spaces starts with XYZD65. That requires extra
             // effort to conjure. The author also has reference code for going directly from linear
             // sRGB, so we use that.
-            // TODO(skia:13108): Even better would be to have an LMS color space, because the first
+            // TODO(skbug.com/40044213): Even better would be to have an LMS color space, because the first
             // part of the conversion is a matrix multiply, which could be absorbed into the
             // color space xform.
             return SkColorSpace::MakeSRGBLinear();
@@ -948,7 +948,7 @@ SkColor4fXformer::SkColor4fXformer(const SkGradientBaseShader* shader,
                     if ((i == 0 && shader->fFirstStopIsImplicit) ||
                         (i == colorCount - 2 && shader->fLastStopIsImplicit)) {
                         // Do nothing. We don't want to introduce a full revolution for these stops
-                        // Full rationale at skbug.com/13941
+                        // Full rationale at skbug.com/40044215
                     } else if (0 < h2 - h1 && h2 - h1 < 180) {
                         h2 -= 360;  // i.e. h1 += 360
                         delta -= 360;

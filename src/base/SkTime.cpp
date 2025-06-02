@@ -16,7 +16,7 @@
 
 double SkTime::GetNSecs() {
 #if __has_feature(memory_sanitizer)
-    // See skia:6504
+    // See skbug.com/40037711
     struct timespec tp;
     clock_gettime(CLOCK_MONOTONIC, &tp);
     return tp.tv_sec * 1e9 + tp.tv_nsec;

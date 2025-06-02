@@ -329,7 +329,7 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
             test_9patch_rrect(reporter, rect, 10, 9, 8, 7, true);
 
             {
-                // Test out the rrect from skia:3466
+                // Test out the rrect from skbug.com/40034587
                 SkRect rect2 = SkRect::MakeLTRB(0.358211994f, 0.755430222f, 0.872866154f,
                                                 0.806214333f);
 

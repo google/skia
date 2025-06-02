@@ -127,7 +127,7 @@ private:
 DEF_GM(return new ImageBlurRepeatModeGM;)
 }  // namespace skiagm
 
-// See skbug.com/10145 for more context, but if the blur doesn't have its own crop rect and
+// See skbug.com/40039025 for more context, but if the blur doesn't have its own crop rect and
 // the canvas is not clipped, repeat can behave strangely (before fixes, this meant:
 //  1. The filtered results became semi-transparent when they should have remained opaque.
 //  2. The filtered results clip to 3xSigma, which makes sense for the decal tile mode, but not

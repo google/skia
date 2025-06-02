@@ -774,7 +774,7 @@ static void test_clone(skiatest::Reporter* r, const char* testFile, SkSLTestFlag
         return;
     }
     SkSL::ProgramSettings settings;
-    // TODO(skia:11209): Can we just put the correct #version in the source files that need this?
+    // TODO(skbug.com/40042585): Can we just put the correct #version in the source files that need this?
     settings.fMaxVersionAllowed = is_strict_es2(flags) ? SkSL::Version::k100 : SkSL::Version::k300;
     SkSL::ProgramKind kind = bool(flags & SkSLTestFlag::Priv)
                                      ? SkSL::ProgramKind::kPrivateRuntimeShader
@@ -1256,7 +1256,7 @@ SKSL_TEST(CPU | GPU_ES3, kNever,           StaticSwitch,                    "sha
 SKSL_TEST(CPU | GPU,     kApiLevel_T,      StructArrayFollowedByScalar,     "shared/StructArrayFollowedByScalar.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_202404, StructIndexLookup,               "shared/StructIndexLookup.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_202404, StructIndexStore,                "shared/StructIndexStore.sksl")
-// TODO(skia:13920): StructComparison currently exposes a bug in SPIR-V codegen.
+// TODO(skbug.com/40045007): StructComparison currently exposes a bug in SPIR-V codegen.
 SKSL_TEST(ES3,           kApiLevel_202504, StructComparison,                "shared/StructComparison.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T,      StructsInFunctions,              "shared/StructsInFunctions.sksl")
 SKSL_TEST(CPU | GPU,     kApiLevel_T,      Switch,                          "shared/Switch.sksl")

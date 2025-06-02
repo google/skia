@@ -511,7 +511,7 @@ void GrStrokeTessellationShader::Impl::emitTessellationCode(
             "B = E - C;"
             "A = fma(float2(-3), E, D);"
         "}"
-        // FIXME(crbug.com/800804,skbug.com/11268): Consider normalizing the exponents in A,B,C at
+        // FIXME(crbug.com/800804,skbug.com/40042642): Consider normalizing the exponents in A,B,C at
         // this point in order to prevent fp32 overflow.
 
         // Now find the coefficients that give a tangent direction from a parametric edge ID:

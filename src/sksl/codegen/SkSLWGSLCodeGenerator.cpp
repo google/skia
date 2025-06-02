@@ -936,7 +936,7 @@ std::optional<WGSLCodeGenerator::Builtin> builtin_from_sksl_name(int builtin) {
         case SK_LASTFRAGCOLOR_BUILTIN:
             return Builtin::kLastFragColor;
         case SK_CLOCKWISE_BUILTIN:
-            // TODO(skia:13092): While `front_facing` is the corresponding built-in, it does not
+            // TODO(skbug.com/40044196): While `front_facing` is the corresponding built-in, it does not
             // imply a particular winding order. We correctly compute the face orientation based
             // on how Skia configured the render pipeline for all references to this built-in
             // variable (see `SkSL::Program::Interface::fRTFlipUniform`).
@@ -2754,7 +2754,7 @@ std::string WGSLCodeGenerator::assembleBinaryExpression(const Expression& left,
     // compile such expressions, as WGSL 1.0 has no infinity/nan support. However, the WGSL
     // compile-time check can be dodged by putting one side into a let-variable. This technically
     // gives us an indeterminate result, but the vast majority of backends will just calculate an
-    // infinity or nan here, as we would expect. (skia:14385)
+    // infinity or nan here, as we would expect. (skbug.com/40045457)
     bool bothSidesConstant = ConstantFolder::GetConstantValueOrNull(left) &&
                              ConstantFolder::GetConstantValueOrNull(right);
 
@@ -2840,7 +2840,7 @@ static bool all_arguments_constant(const ExpressionArray& arguments) {
     // generally indicates that constant-folding resulted in an infinity or nan. The WGSL compiler
     // will reject such an expression with a compile-time error. We can dodge the error, taking on
     // the risk of indeterminate behavior instead, by replacing one of the constant values with a
-    // scratch let-variable. (skia:14385)
+    // scratch let-variable. (skbug.com/40045457)
     for (const std::unique_ptr<Expression>& arg : arguments) {
         if (!ConstantFolder::GetConstantValueOrNull(*arg)) {
             return false;
@@ -2866,7 +2866,7 @@ std::string WGSLCodeGenerator::assembleSimpleIntrinsic(std::string_view intrinsi
             expr += '&';
             expr += argument;
         } else if (allConstant && index == 0) {
-            // We can use a scratch-let for argument 0 to dodge WGSL overflow errors. (skia:14385)
+            // We can use a scratch-let for argument 0 to dodge WGSL overflow errors. (skbug.com/40045457)
             expr += this->writeScratchLet(argument);
         } else {
             expr += argument;
@@ -2904,7 +2904,7 @@ std::string WGSLCodeGenerator::assembleVectorizedIntrinsic(std::string_view intr
             expr.push_back('(');
         }
 
-        // We can use a scratch-let for argument 0 to dodge WGSL overflow errors. (skia:14385)
+        // We can use a scratch-let for argument 0 to dodge WGSL overflow errors. (skbug.com/40045457)
         std::string argument = this->assembleExpression(*args[index], Precedence::kSequence);
         expr += (allConstant && index == 0) ? this->writeScratchLet(argument)
                                             : argument;
@@ -2952,7 +2952,7 @@ std::string WGSLCodeGenerator::assembleBinaryOpIntrinsic(Operator op,
         expr.push_back('(');
     }
 
-    // We can use a scratch-let for argument 0 to dodge WGSL overflow errors. (skia:14385)
+    // We can use a scratch-let for argument 0 to dodge WGSL overflow errors. (skbug.com/40045457)
     std::string argument = this->assembleExpression(*call.arguments()[0], precedence);
     expr += all_arguments_constant(call.arguments()) ? this->writeScratchLet(argument)
                                                      : argument;
@@ -2981,7 +2981,7 @@ std::string WGSLCodeGenerator::assembleOutAssignedIntrinsic(std::string_view int
     expr += "(";
 
     // Invoke the intrinsic with the first parameter. Use a scratch-let if argument is a constant
-    // to dodge WGSL overflow errors. (skia:14385)
+    // to dodge WGSL overflow errors. (skbug.com/40045457)
     std::string argument = this->assembleExpression(*call.arguments()[0], Precedence::kSequence);
     expr += ConstantFolder::GetConstantValueOrNull(*call.arguments()[0])
             ? this->writeScratchLet(argument) : argument;
@@ -3137,7 +3137,7 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
             return this->assembleBinaryOpIntrinsic(OperatorKind::LTEQ, call, parentPrecedence);
 
         case k_matrixCompMult_IntrinsicKind: {
-            // We use a scratch-let for arg0 to avoid the potential for WGSL overflow. (skia:14385)
+            // We use a scratch-let for arg0 to avoid the potential for WGSL overflow. (skbug.com/40045457)
             std::string arg0 = all_arguments_constant(arguments)
                             ? this->writeScratchLet(*arguments[0], Precedence::kPostfix)
                             : this->writeNontrivialScratchLet(*arguments[0], Precedence::kPostfix);
@@ -3156,7 +3156,7 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_mod_IntrinsicKind: {
             // WGSL has no intrinsic equivalent to `mod`. Synthesize `x - y * floor(x / y)`.
             // We can use a scratch-let on one side to dodge WGSL overflow errors.  In practice, I
-            // can't find any values of x or y which would overflow, but it can't hurt. (skia:14385)
+            // can't find any values of x or y which would overflow, but it can't hurt. (skbug.com/40045457)
             std::string arg0 = all_arguments_constant(arguments)
                             ? this->writeScratchLet(*arguments[0], Precedence::kAdditive)
                             : this->writeNontrivialScratchLet(*arguments[0], Precedence::kAdditive);
@@ -3199,7 +3199,7 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
         case k_reflect_IntrinsicKind:
             if (arguments[0]->type().isScalar()) {
                 // I - 2 * N * I * N
-                // We can use a scratch-let for N to dodge WGSL overflow errors. (skia:14385)
+                // We can use a scratch-let for N to dodge WGSL overflow errors. (skbug.com/40045457)
                 std::string I = this->writeNontrivialScratchLet(*arguments[0],
                                                                 Precedence::kAdditive);
                 std::string N = all_arguments_constant(arguments)
@@ -3219,7 +3219,7 @@ std::string WGSLCodeGenerator::assembleIntrinsicCall(const FunctionCall& call,
                                                                 Precedence::kSequence);
                 std::string N = this->writeNontrivialScratchLet(*arguments[1],
                                                                 Precedence::kSequence);
-                // We can use a scratch-let for Eta to avoid WGSL overflow errors. (skia:14385)
+                // We can use a scratch-let for Eta to avoid WGSL overflow errors. (skbug.com/40045457)
                 std::string Eta = all_arguments_constant(arguments)
                       ? this->writeScratchLet(*arguments[2], Precedence::kSequence)
                       : this->writeNontrivialScratchLet(*arguments[2], Precedence::kSequence);
@@ -4085,7 +4085,7 @@ std::string WGSLCodeGenerator::assembleEqualityExpression(const Expression& left
 void WGSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
     switch (e.kind()) {
         case ProgramElement::Kind::kExtension:
-            // TODO(skia:13092): WGSL supports extensions via the "enable" directive
+            // TODO(skbug.com/40044196): WGSL supports extensions via the "enable" directive
             // (https://www.w3.org/TR/WGSL/#enable-extensions-sec ). While we could easily emit this
             // directive, we should first ensure that all possible SkSL extension names are
             // converted to their appropriate WGSL extension.
@@ -4229,7 +4229,7 @@ void WGSLCodeGenerator::writeModifiersDeclaration(const ModifiersDeclaration& mo
 void WGSLCodeGenerator::writeFields(SkSpan<const Field> fields, const MemoryLayout* memoryLayout) {
     fIndentation++;
 
-    // TODO(skia:14370): array uniforms may need manual fixup for std140 padding. (Those uniforms
+    // TODO(skbug.com/40045444): array uniforms may need manual fixup for std140 padding. (Those uniforms
     // will also need special handling when they are accessed, or passed to functions.)
     for (size_t index = 0; index < fields.size(); ++index) {
         const Field& field = fields[index];

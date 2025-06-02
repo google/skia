@@ -308,7 +308,7 @@ def _CheckExamplesForPrivateAPIs(input_api, output_api):
 
 def _CheckGeneratedBazelBUILDFiles(input_api, output_api):
   if 'win32' in sys.platform:
-    # TODO(crbug.com/skia/12541): Remove when Bazel builds work on Windows.
+    # TODO(skbug.com/40043154): Remove when Bazel builds work on Windows.
     # Note: `make` is not installed on Windows by default.
     return []
   if 'darwin' in sys.platform:
@@ -416,7 +416,7 @@ def _CheckGNIGenerated(input_api, output_api):
   are still current.
   """
   if 'win32' in sys.platform:
-    # TODO(crbug.com/skia/12541): Remove when Bazel builds work on Windows.
+    # TODO(skbug.com/40043154): Remove when Bazel builds work on Windows.
     # Note: `make` is not installed on Windows by default.
     return [
         output_api.PresubmitNotifyResult(

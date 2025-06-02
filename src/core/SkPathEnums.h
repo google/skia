@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  *
- * This file contains private enums related to paths. See also skbug.com/10670
+ * This file contains private enums related to paths. See also skbug.com/40042016
  */
 
 #ifndef SkPathEnums_DEFINED

@@ -237,7 +237,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> GrMakeCachedBitmapProxyView(
     if (!mippedProxy) {
         // We failed to make a mipped proxy with the base copied into it. This could have
         // been from failure to make the proxy or failure to do the copy. Thus we will fall
-        // back to just using the non mipped proxy; See skbug.com/7094.
+        // back to just using the non mipped proxy; See skbug.com/40038328.
         return {{std::move(proxy), kTopLeft_GrSurfaceOrigin, swizzle}, ct};
     }
     // In this case we are stealing the key from the original proxy which should only happen
@@ -436,7 +436,7 @@ static inline bool skpaint_to_grpaint_impl(
                 grPaint->setColor4f({origColor.fR, origColor.fG, origColor.fB, origColor.fA});
             } else {
                 // paintFP will ignore its input color, so we must disable coverage-as-alpha.
-                // TODO(skbug:11942): The alternative would be to always use ApplyPaintAlpha, but
+                // TODO(skbug.com/40043035): The alternative would be to always use ApplyPaintAlpha, but
                 // we'd need to measure the cost of that shader math against the CAA benefit.
                 paintFP = GrFragmentProcessor::DisableCoverageAsAlpha(std::move(paintFP));
                 grPaint->setColor4f(origColor.premul());

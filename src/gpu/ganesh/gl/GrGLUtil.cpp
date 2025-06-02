@@ -335,7 +335,7 @@ static GrGLRenderer get_renderer(const char* rendererString, const GrGLExtension
         }
     }
 
-    // The AMD string can have a somewhat arbitrary preamble (see skbug.com/7195)
+    // The AMD string can have a somewhat arbitrary preamble (see skbug.com/40038435)
     static constexpr char kRadeonStr[] = "Radeon ";
     if (const char* amdString = strstr(rendererString, kRadeonStr)) {
         amdString += strlen(kRadeonStr);

@@ -34,7 +34,7 @@ namespace skiagm {
 //////////////////////////////////////////////////////////////////////////////
 
 // This GM tests subsetting YUV multiplanar images where the U and V
-// planes have different resolution from Y. See skbug:8959
+// planes have different resolution from Y. See skbug.com/40040241
 
 class YUVtoRGBSubsetEffect : public GM {
 public:

@@ -31,7 +31,7 @@ static SkPath get_path() {
     return path;
 }
 
-// Reproduces the underlying problem from skbug.com/12866.
+// Reproduces the underlying problem from skbug.com/40043963.
 // The path (part of a glyph) was being drawn stroked, and with a perspective matrix.
 // The perspective matrix forces a very large resScale when stroking the path.
 // The resulting filled path is incorrect. Note that stroking with a smaller resScale works fine.

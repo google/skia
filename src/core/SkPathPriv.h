@@ -48,7 +48,7 @@ class SkPathPriv {
 public:
     static SkPathVerbAnalysis AnalyzeVerbs(SkSpan<const uint8_t> verbs);
 
-    // skbug.com/9906: Not a perfect solution for W plane clipping, but 1/16384 is a
+    // skbug.com/40041027: Not a perfect solution for W plane clipping, but 1/16384 is a
     // reasonable limit (roughly 5e-5)
     inline static constexpr SkScalar kW0PlaneDistance = 1.f / (1 << 14);
 

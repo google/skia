@@ -85,7 +85,7 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim, canvas, errMsg,
         }
     }
     // We draw the image offscreen and then blow it up using nearest filtering by kScale.
-    // This avoids skbug.com/9693
+    // This avoids skbug.com/40040903
     sk_sp<SkSurface> surface;
     if (auto origSurface = canvas->getSurface()) {
         surface = origSurface->makeSurface(image->width(), image->height());

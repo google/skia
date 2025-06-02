@@ -214,7 +214,7 @@ class ConvexPathsGM : public skiagm::GM {
         fPaths.push_back(b.quadTo(50, 50, 100, 100).detach());
         fPaths.push_back(b.cubicTo(0, 0, 0, 0, 100, 100).detach());
 
-        // skbug.com/8928
+        // skbug.com/40040207
         fPaths.push_back(b.moveTo(16.875f, 192.594f)
                           .cubicTo(45.625f, 192.594f, 74.375f, 192.594f, 103.125f, 192.594f)
                           .cubicTo(88.75f, 167.708f, 74.375f, 142.823f, 60, 117.938f)

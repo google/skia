@@ -133,7 +133,7 @@ bool GrStyle::applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath&
         return false;
     }
 
-    // TODO: [skbug.com/11957] Plumb CTM callers and pass it to filterPath().
+    // TODO: [skbug.com/40043046] Plumb CTM callers and pass it to filterPath().
     SkASSERT(!fPathEffect->needsCTM());
 
     if (SkPathEffectBase::DashType::kDash == fDashInfo.fType) {

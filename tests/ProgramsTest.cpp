@@ -389,7 +389,7 @@ static int get_programs_max_stages(const sk_gpu_test::ContextInfo& ctxInfo) {
             maxStages = 1;
         }
 #endif
-        // On iOS we can exceed the maximum number of varyings. http://skbug.com/6627.
+        // On iOS we can exceed the maximum number of varyings. skbug.com/40037842.
 #ifdef SK_BUILD_FOR_IOS
             maxStages = 3;
 #endif
@@ -412,7 +412,7 @@ static int get_programs_max_levels(const sk_gpu_test::ContextInfo& ctxInfo) {
     // (e.g. uniform or varying limits); maxTreeLevels should be a number from 1 to 4 inclusive.
     int maxTreeLevels = 4;
     if (skiatest::IsGLContextType(ctxInfo.type())) {
-        // On iOS we can exceed the maximum number of varyings. http://skbug.com/6627.
+        // On iOS we can exceed the maximum number of varyings. skbug.com/40037842.
 #ifdef SK_BUILD_FOR_IOS
         maxTreeLevels = 2;
 #endif

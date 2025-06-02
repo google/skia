@@ -35,7 +35,7 @@ enum class SkPathConvexity;
 enum class SkPathFirstDirection;
 struct SkPathVerbAnalysis;
 
-// WIP -- define this locally, and fix call-sites to use SkPathBuilder (skbug.com/9000)
+// WIP -- define this locally, and fix call-sites to use SkPathBuilder (skbug.com/40040287)
 //#define SK_HIDE_PATH_EDIT_METHODS
 
 /** \class SkPath

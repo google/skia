@@ -89,7 +89,7 @@ bool IsMockContextType(skgpu::ContextType type) { return type == skgpu::ContextT
 skgpu::ContextType compiledInContextTypes[] = {
 #if defined(SK_GL)
 // Use "native" instead of explicitly trying both OpenGL and OpenGL ES. Do not use GLES on
-// desktop since tests do not account for not fixing http://skbug.com/2809
+// desktop since tests do not account for not fixing skbug.com/40033921
 #if defined(SK_BUILD_FOR_UNIX) || defined(SK_BUILD_FOR_WIN) || defined(SK_BUILD_FOR_MAC)
         skgpu::ContextType::kGL,
 #else

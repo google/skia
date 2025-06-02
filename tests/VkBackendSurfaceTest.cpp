@@ -208,7 +208,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo, CtsEnfo
 
 // This test is disabled because it executes illegal vulkan calls which cause the validations layers
 // to fail and makes us assert. Once fixed to use a valid vulkan call sequence it should be
-// renenabled, see skbug.com/8936.
+// renenabled, see skbug.com/40040216.
 #if 0
 // Test to make sure we transition from the EXTERNAL queue even when no layout transition is needed.
 DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxInfo,

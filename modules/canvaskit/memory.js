@@ -269,7 +269,7 @@ function copy4x4MatrixToWasm(matr) {
       return copy1dArray(matr, 'HEAPF32', _scratch4x4MatrixPtr);
     }
     // Upscale the row-major 3x3 or 3x2 matrix into a 4x4 row-major matrix
-    // TODO(skbug.com/10108) This will need to change when we convert our
+    // TODO(skbug.com/40041444) This will need to change when we convert our
     //   JS 4x4 to be column-major.
     // When upscaling, we need to overwrite the 3rd column and the 3rd row with
     // 0s. It's easiest to just do that with a fill command.

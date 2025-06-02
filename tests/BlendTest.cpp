@@ -190,7 +190,7 @@ DEF_GANESH_TEST_FOR_GL_CONTEXT(ES2BlendWithNoTexture,
 
 // Test that dst reads when large coordinates read the correct pixels.
 // When we use half-width floats for dst read coordinates, we can end up reading the wrong pixel
-// from dst and consequently writing the wrong blended color (skbug.com/14347).
+// from dst and consequently writing the wrong blended color (skbug.com/40045423).
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BlendRequiringDstReadWithLargeCoordinates,
                                        reporter,
                                        contextInfo,

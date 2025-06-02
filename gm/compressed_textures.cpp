@@ -268,7 +268,7 @@ protected:
 
         if (fType == Type::kNonMultipleOfFour) {
             if (dContext && dContext->backend() == GrBackendApi::kDirect3D) {
-                // skbug.com/10541 - Are non-multiple-of-four BC1 textures supported in D3D?
+                // skbug.com/40041877 - Are non-multiple-of-four BC1 textures supported in D3D?
                 return DrawResult::kSkip;
             }
 #if defined(SK_GRAPHITE)

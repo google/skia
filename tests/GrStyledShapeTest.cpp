@@ -1836,7 +1836,7 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
 
                     // Both hairline and stroke shapes must respect the dashing.
                     if (dash) {
-                        // Dashing always ignores the inverseness. skbug.com/5421
+                        // Dashing always ignores the inverseness. skbug.com/40036591
                         TestCase f(exampleStrokeCase, r);
                         TestCase h(exampleHairlineCase, r);
                         unsigned expectedStart = canonicalize_rrect_start(start, rrect);

@@ -7,7 +7,7 @@ uniform half2x2 hm1, hm2, hm3;
 
 uniform half4 colorGreen, colorRed;
 
-// TODO(skia:13092): Test array equality.
+// TODO(skbug.com/40044196): Test array equality.
 
 half4 main() {
     bool ok = true;

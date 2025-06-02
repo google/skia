@@ -50,7 +50,7 @@ protected:
         // outside of the loop. This means that repeatedly drawing with the same filter will hit
         // the global image filter cache inside the loop. Raster backend uses this cache so will see
         // artificially improved performance. Ganesh will not because it uses a cache per filter
-        // call, so only within-DAG cache hits are measured (as desired). skbug:9297 wants to move
+        // call, so only within-DAG cache hits are measured (as desired). skbug.com/40040590 wants to move
         // raster backend to the same pattern, which will make the benchmark executions fair again.
         for (int j = 0; j < loops; j++) {
             canvas->drawRect(rect, paint);

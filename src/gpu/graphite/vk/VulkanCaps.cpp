@@ -221,7 +221,7 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     fIsInputAttachmentReadCoherent =
             fSupportsRasterizationOrderColorAttachmentAccess || vendorID == kARM_VkVendor;
 
-    // TODO(skia:14639): We must force std430 array stride when using SSBOs since SPIR-V generation
+    // TODO(skbug.com/40045541): We must force std430 array stride when using SSBOs since SPIR-V generation
     // cannot handle mixed array strides being passed into functions.
     fShaderCaps->fForceStd430ArrayLayout =
             fStorageBufferSupport && fResourceBindingReqs.fStorageBufferLayout == Layout::kStd430;

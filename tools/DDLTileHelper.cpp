@@ -218,7 +218,7 @@ void DDLTileHelper::TileData::DeleteBackendTexture(GrDirectContext* dContext, Ti
     SkASSERT(tile->fCallbackContext);
 
     // TODO: it seems that, on the Linux bots, backend texture creation is failing
-    // a lot (skbug.com/10142)
+    // a lot (skbug.com/40041492)
     SkASSERT(!tile->fCallbackContext->promiseImageTexture() ||
              tile->fCallbackContext->promiseImageTexture()->backendTexture().isValid());
 

@@ -9420,7 +9420,7 @@ static void bug11958_a(skiatest::Reporter* reporter, const char* filename) {
     path.lineTo(SkBits2Float(0x440f9d71), SkBits2Float(0x00000000));  // 574.46f, 0
     path.close();
 
-    // TODO(skbug:11958) - This should not fail to simplify
+    // TODO(skbug.com/40043047) - This should not fail to simplify
     testSimplifyFail(reporter, path, filename);
 }
 

@@ -537,7 +537,7 @@ SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
 
 static bool clip_to_limit(const SkRegion& orig, SkRegion* reduced) {
     // need to limit coordinates such that the width/height of our rect can be represented
-    // in SkFixed (16.16). See skbug.com/7998
+    // in SkFixed (16.16). See skbug.com/40039252
     const int32_t limit = 32767 >> 1;
 
     SkIRect limitR;

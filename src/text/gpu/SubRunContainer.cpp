@@ -1559,7 +1559,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 //  large, then the M may return 0 because its dimensions are > 65535, but
                 //  the small character produces regular result because its largest dimension
                 //  is < 65535. This will create an improper scale factor causing the M to be
-                //  too large to fit in the atlas. Tracked by skia:13714.
+                //  too large to fit in the atlas. Tracked by skbug.com/40044801.
                 return maxDimension;
             };
 

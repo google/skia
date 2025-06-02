@@ -12,7 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 
-// Repro case for skia:7674.  Requires lots of RAM to run, and currently triggers UB:
+// Repro case for skbug.com/40038934.  Requires lots of RAM to run, and currently triggers UB:
 // //include/private/base/SkTDArray.h:382:26:
 //   runtime error: signed integer overflow: 2147483644 + 4 cannot be represented in type 'int'
 

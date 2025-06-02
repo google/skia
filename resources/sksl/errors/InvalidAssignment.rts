@@ -20,7 +20,7 @@ void assign_to_foldable_ternary_const_right() { float l; const float r = 1; (fal
 void assign_to_foldable_ternary_const_both()  { const float l = 1; const float r = 1; (true ? l : r) = 0; }
 void assign_to_unfoldable_ternary()           { float l, r; (u > 0 ? l : r) = 0; }
 void assign_to_unary_minus()                  { float x; -x = 0; }
-void assign_to_unary_plus()                   { float x; +x = 0; }  // TODO(skbug.com/10766)
+void assign_to_unary_plus()                   { float x; +x = 0; }  // TODO(skbug.com/40042130)
 
 void assign_to_const_param(const int x)             { x = 0; }
 void assign_to_const_array_param(const int x[1])    { x[0] = 0; }

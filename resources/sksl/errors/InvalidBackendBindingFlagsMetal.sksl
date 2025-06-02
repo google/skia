@@ -5,7 +5,7 @@ layout(metal, rgba32f, texture=0) readonly texture2D rtexture1;   // valid
 layout(metal, rgba32f, texture=0) writeonly texture2D wtexture1;  // valid
 layout(metal, texture=0, sampler=0) sampler2D sampler1;           // valid
 
-// TODO(skia:14023): This should require 'texture' once the metal backend supports it
+// TODO(skbug.com/40045103): This should require 'texture' once the metal backend supports it
 layout(metal, rgba32f, binding=0) readonly texture2D rtexture2;   // valid
 layout(metal, rgba32f, binding=0) writeonly texture2D wtexture2;  // valid
 layout(metal, binding=0) sampler2D sampler2;                      // valid

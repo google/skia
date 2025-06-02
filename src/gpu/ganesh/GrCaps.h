@@ -541,7 +541,7 @@ public:
 
     virtual bool dmsaaResolveCanBeUsedAsTextureInSameRenderPass() const { return true; }
 
-    // skbug.com/11935. Task reordering is disabled for some GPUs on GL due to driver bugs.
+    // skbug.com/40042245. Task reordering is disabled for some GPUs on GL due to driver bugs.
     bool avoidReorderingRenderTasks() const {
         return fAvoidReorderingRenderTasks;
     }

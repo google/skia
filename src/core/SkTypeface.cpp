@@ -42,7 +42,7 @@
 #include "src/ports/SkTypeface_win_dw.h"
 #endif
 
-// TODO(https://crbug.com/skia/14338): This needs to be set by Bazel rules.
+// TODO(skbug.com/40045343): This needs to be set by Bazel rules.
 #ifdef SK_TYPEFACE_FACTORY_FONTATIONS
 #include "src/ports/SkTypeface_fontations_priv.h"
 #endif

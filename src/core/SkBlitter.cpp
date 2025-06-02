@@ -55,7 +55,7 @@ void SkBlitter::blitFatAntiRect(const SkRect& rect) {
     SkIRect bounds = rect.roundOut();
     SkASSERT(bounds.width() >= 3);
 
-    // skbug.com/7813
+    // skbug.com/40039068
     // To ensure consistency of the threaded backend (a rect that's considered fat in the init-once
     // phase must also be considered fat in the draw phase), we have to deal with rects with small
     // heights because the horizontal tiling in the threaded backend may change the height.

@@ -16,7 +16,7 @@
  * The old Nvidia Path Renderer used to yield correct results, so a possible
  * direction of attack is to use the GPU and a completely different algorithm.
  *
- * See crbug.com/589769 skbug.com/5405 skbug.com/5406
+ * See crbug.com/589769 skbug.com/40036571 skbug.com/40036572
  */
 
 #include "gm/gm.h"

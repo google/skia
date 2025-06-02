@@ -110,7 +110,7 @@ ANDROID_BUILD_PRODUCTS_LIST = [
   'dm',
   'nanobench',
   # The following only exists when building for OptimizeForSize
-  # This is the only target we currently measure: skbug.com/13657
+  # This is the only target we currently measure: skbug.com/40044745
   'skottie_tool_gpu',
 ]
 

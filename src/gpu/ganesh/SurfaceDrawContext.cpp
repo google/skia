@@ -481,7 +481,7 @@ SurfaceDrawContext::QuadOptimization SurfaceDrawContext::attemptQuadOptimization
                 // through to attempt the draw->native clear optimization. Pick an AA value such
                 // that any geometric clipping doesn't need to change aa or edge flags (since we
                 // know this is on pixel boundaries, it will draw the same regardless).
-                // See skbug.com/13114 for more details.
+                // See skbug.com/40044221 for more details.
                 result = GrClip::PreClipResult(SkRRect::MakeRect(rtRect), drawUsesAA);
             }
             break;
@@ -717,7 +717,7 @@ void SurfaceDrawContext::drawRect(const GrClip* clip,
         // Only use the StrokeRectOp for non-empty rectangles. Empty rectangles will be processed by
         // GrStyledShape to handle stroke caps and dashing properly.
         //
-        // http://skbug.com/12206 -- there is a double-blend issue with the bevel version of
+        // skbug.com/40043303 -- there is a double-blend issue with the bevel version of
         // AAStrokeRectOp, and if we increase the AA bloat for MSAA it becomes more pronounced.
         // Don't use the bevel version with DMSAA.
         GrAAType aaType = (fCanUseDynamicMSAA &&
@@ -752,7 +752,7 @@ void SurfaceDrawContext::fillRectToRect(const GrClip* clip,
         this->caps()->drawInstancedSupport()                                      &&
         aa == GrAA::kYes) {  // If aa is kNo when using dmsaa, the rect is axis aligned. Don't use
                              // FillRRectOp because it might require dual source blending.
-                             // http://skbug.com/11756
+                             // skbug.com/40042830
         QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr/*stencil*/, &quad,
                                                              &paint);
         if (opt < QuadOptimization::kClipApplied) {
@@ -820,7 +820,7 @@ OpsTask::CanDiscardPreviousOps SurfaceDrawContext::canDiscardPreviousOpsOnFullCl
     // needing a stencil buffer then there may be a prior op that writes to the stencil buffer.
     // Although the clear will ignore the stencil buffer, following draw ops may not so we can't get
     // rid of all the preceding ops. Beware! If we ever add any ops that have a side effect beyond
-    // modifying the stencil buffer we will need a more elaborate tracking system (skbug.com/7002).
+    // modifying the stencil buffer we will need a more elaborate tracking system (skbug.com/40038231).
     return OpsTask::CanDiscardPreviousOps(!fNeedsStencil);
 }
 
@@ -1028,7 +1028,7 @@ void SurfaceDrawContext::drawRRect(const GrClip* origClip,
     // clip can be ignored. The following test attempts to mitigate the stencil clip cost but only
     // works for axis-aligned round rects. This also only works for filled rrects since the stroke
     // width outsets beyond the rrect itself.
-    // TODO: skbug.com/10462 - There was mixed performance wins and regressions when this
+    // TODO: skbug.com/40041797 - There was mixed performance wins and regressions when this
     // optimization was turned on outside of Android Framework. I (michaelludwig) believe this is
     // do to the overhead in determining if an SkClipStack is just a rrect. Once that is improved,
     // re-enable this and see if we avoid the regressions.

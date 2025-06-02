@@ -237,7 +237,7 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
     success = perspX.getMinMaxScales(scales);
     REPORTER_ASSERT(reporter, !success);
 
-    // skbug.com/4718
+    // skbug.com/40035872
     SkMatrix big;
     big.setAll(2.39394089e+36f, 8.85347779e+36f, 9.26526204e+36f,
                3.9159619e+36f, 1.44823453e+37f, 1.51559342e+37f,
@@ -245,7 +245,7 @@ static void test_matrix_min_max_scale(skiatest::Reporter* reporter) {
     success = big.getMinMaxScales(scales);
     REPORTER_ASSERT(reporter, !success);
 
-    // skbug.com/4718
+    // skbug.com/40035872
     SkMatrix givingNegativeNearlyZeros;
     givingNegativeNearlyZeros.setAll(0.00436534f, 0.114138f, 0.37141f,
                                      0.00358857f, 0.0936228f, -0.0174198f,
@@ -820,7 +820,7 @@ static bool check_decompScale(const SkMatrix& original) {
     SkMatrix scaleMat = SkMatrix::Scale(scale.width(), scale.height());
 
     // Note, we intend the decomposition to be applied in the order scale and then remainder but,
-    // due to skbug.com/7211, the order is reversed!
+    // due to skbug.com/40038455, the order is reversed!
     scaleMat.mapPoints(v2, testPts, kNumPoints);
     remaining.mapPoints(v2, kNumPoints);
 
@@ -1075,7 +1075,7 @@ DEF_TEST(Matrix_maprects, r) {
 }
 
 DEF_TEST(Matrix_mapRect_skbug12335, r) {
-    // Stripped down test case from skbug.com/12335. Essentially, the corners of this rect would
+    // Stripped down test case from skbug.com/40043416. Essentially, the corners of this rect would
     // map to homogoneous coords with very small w's (below the old value of kW0PlaneDistance) and
     // so they would be clipped "behind" the plane, resulting in an empty mapped rect. Coordinates
     // with positive that wouldn't overflow when divided by w should still be included in the mapped

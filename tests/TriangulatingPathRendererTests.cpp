@@ -416,7 +416,7 @@ CreatePathFn kNonEdgeAAPaths[] = {
         return path;
     },
 
-    // Reduction from skbug.com/7911 that causes a crash due to splitting a
+    // Reduction from skbug.com/40039164 that causes a crash due to splitting a
     // zombie edge.
     []() -> SkPath {
         SkPath path;

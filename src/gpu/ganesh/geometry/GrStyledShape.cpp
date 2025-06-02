@@ -512,7 +512,7 @@ bool GrStyledShape::asNestedRects(SkRect rects[2]) const {
 class AutoRestoreInverseness {
 public:
     AutoRestoreInverseness(GrShape* shape, const GrStyle& style)
-            // Dashing ignores inverseness skbug.com/5421.
+            // Dashing ignores inverseness skbug.com/40036591.
             : fShape(shape), fInverted(!style.isDashed() && fShape->inverted()) {}
 
     ~AutoRestoreInverseness() {
@@ -559,7 +559,7 @@ void GrStyledShape::simplify() {
              fShape.path().isConvex())) {
             // Stroke styles don't differentiate between winding and even/odd. There is no
             // distinction between even/odd and non-zero winding count for convex paths.
-            // Moreover, dashing ignores inverseness (skbug.com/5421)
+            // Moreover, dashing ignores inverseness (skbug.com/40036591)
             fShape.path().setFillType(GrShape::kDefaultFillType);
         }
     } else {

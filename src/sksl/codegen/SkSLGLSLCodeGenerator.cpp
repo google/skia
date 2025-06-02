@@ -954,7 +954,7 @@ void GLSLCodeGenerator::writeConstructorDiagonalMatrix(const ConstructorDiagonal
                                                        Precedence parentPrecedence) {
     if (c.type().columns() == 4 && c.type().rows() == 2) {
         // Due to a longstanding bug in glslang and Mesa, several GPU drivers generate diagonal 4x2
-        // matrices incorrectly. (skia:12003, https://github.com/KhronosGroup/glslang/pull/2646)
+        // matrices incorrectly. (skbug.com/40043085, https://github.com/KhronosGroup/glslang/pull/2646)
         // We can work around this issue by multiplying a scalar by the identity matrix.
         // In practice, this doesn't come up naturally in real code and we don't know every affected
         // driver, so we just apply this workaround everywhere.
@@ -975,7 +975,7 @@ void GLSLCodeGenerator::writeConstructorCompound(const ConstructorCompound& c,
         // ... and that argument is a vec4...
         const Expression& expr = *c.arguments().front();
         if (expr.type().isVector() && expr.type().columns() == 4) {
-            // ... let's rewrite the cast to dodge issues on very old GPUs. (skia:13559)
+            // ... let's rewrite the cast to dodge issues on very old GPUs. (skbug.com/40043276)
             if (Analysis::IsTrivialExpression(expr)) {
                 this->writeType(c.type());
                 this->write("(");
@@ -1864,7 +1864,7 @@ void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     fIndentation++;
     // If a switch contains only a `default` case and nothing else, this confuses some drivers and
     // can lead to a crash. Adding a real case before the default seems to work around the bug,
-    // and doesn't change the meaning of the switch. (skia:12465)
+    // and doesn't change the meaning of the switch. (skbug.com/40043548)
     if (s.cases().size() == 1 && s.cases().front()->as<SwitchCase>().isDefault()) {
         this->writeLine("case 0:");
     }

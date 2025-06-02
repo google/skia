@@ -114,7 +114,7 @@ bool GrRenderTargetProxy::canUseStencil(const GrCaps& caps) const {
             // have an exact way of knowing whether the target will be able to use stencil, so we do
             // the best we can: if a lazy GL proxy doesn't have a texture, then it might be a
             // wrapped target without stencil, so we conservatively block stencil.
-            // FIXME: skbug.com/11943: GrSurfaceCharacterization needs a "canUseStencil" flag.
+            // FIXME: skbug.com/40043036: GrSurfaceCharacterization needs a "canUseStencil" flag.
             return SkToBool(this->asTextureProxy());
         } else {
             // Otherwise the target will definitely not be wrapped. Ganesh is free to attach

@@ -51,7 +51,7 @@ public:
 
     uint32_t initialKeyLength() const { return fInitialKeyLength; }
 
-    // TODO(skia:11372): Incorporate this into caps interface (part of makeDesc, or a parallel
+    // TODO(skbug.com/40042745): Incorporate this into caps interface (part of makeDesc, or a parallel
     // function), so other backends can include their information in the description.
     static SkString Describe(const GrProgramInfo&, const GrCaps&);
 

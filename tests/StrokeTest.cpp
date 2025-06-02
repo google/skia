@@ -168,7 +168,7 @@ static void test_strokerec_equality(skiatest::Reporter* reporter) {
     }
 }
 
-// From skbug.com/6491. The large stroke width can cause numerical instabilities.
+// From skbug.com/40037699. The large stroke width can cause numerical instabilities.
 static void test_big_stroke(skiatest::Reporter* reporter) {
     SkPaint paint;
     paint.setStyle(SkPaint::kStrokeAndFill_Style);

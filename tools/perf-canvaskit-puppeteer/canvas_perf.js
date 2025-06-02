@@ -698,7 +698,7 @@ for (const variant of ['ttf', 'woff', 'woff2']) {
         },
         test: function (CanvasKit, ctx) {
             // We get one glyph ID at a time to force cache misses and require Skia to
-            // perhaps re-access the font. See skbug.com/12112 for example.
+            // perhaps re-access the font. See skbug.com/40043207 for example.
             const output = new Uint16Array(1);
             for (let i = ctx.testGlyphID; i < ctx.testGlyphID+100; i++) {
                 ctx.robotoFont.getGlyphIDs(String.fromCodePoint(i), 1, output);

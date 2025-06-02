@@ -1431,7 +1431,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                         GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_RENDERBUFFER,
                                         rtIDs->fMSColorRenderbufferID));
-// See skbug.com/12644
+// See skbug.com/40043725
 #if !IS_TSAN
         if (!this->glCaps().skipErrorChecks()) {
             GrGLenum status;
@@ -1459,7 +1459,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                  desc.fTarget,
                                  desc.fID,
                                  0));
-// See skbug.com/12644
+// See skbug.com/40043725
 #if !IS_TSAN
     if (!this->glCaps().skipErrorChecks()) {
         GrGLenum status;

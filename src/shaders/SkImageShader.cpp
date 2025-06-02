@@ -159,7 +159,7 @@ sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
     bool raw = buffer.isVersionLT(SkPicturePriv::Version::kRawImageShaders) ? false
                                                                             : buffer.readBool();
 
-    // TODO(skbug.com/12784): Subset is not serialized yet; it's only used by special images so it
+    // TODO(skbug.com/40043877): Subset is not serialized yet; it's only used by special images so it
     // will never be written to an SKP.
 
     return raw ? SkImageShader::MakeRaw(std::move(img), tmx, tmy, sampling, &localMatrix)
@@ -175,7 +175,7 @@ void SkImageShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeImage(fImage.get());
     SkASSERT(fClampAsIfUnpremul == false);
 
-    // TODO(skbug.com/12784): Subset is not serialized yet; it's only used by special images so it
+    // TODO(skbug.com/40043877): Subset is not serialized yet; it's only used by special images so it
     // will never be written to an SKP.
     SkASSERT(!needs_subset(fImage.get(), fSubset));
 
@@ -215,7 +215,7 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
-    SkASSERT(!needs_subset(fImage.get(), fSubset)); // TODO(skbug.com/12784)
+    SkASSERT(!needs_subset(fImage.get(), fSubset)); // TODO(skbug.com/40043877)
     if (fImage->alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
@@ -507,7 +507,7 @@ static SkSamplingOptions tweak_sampling(SkSamplingOptions sampling, const SkMatr
 }
 
 bool SkImageShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec& mRec) const {
-    SkASSERT(!needs_subset(fImage.get(), fSubset));  // TODO(skbug.com/12784)
+    SkASSERT(!needs_subset(fImage.get(), fSubset));  // TODO(skbug.com/40043877)
 
     // We only support certain sampling options in stages so far
     auto sampling = fSampling;

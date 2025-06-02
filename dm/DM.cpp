@@ -837,7 +837,7 @@ static void push_codec_srcs(Path path) {
         };
         for (const char* rawExt : rawExts) {
             if (0 == strcmp(rawExt, ext)) {
-                // RAW is not supported by image generator (skbug.com/5079) or BRD.
+                // RAW is not supported by image generator (skbug.com/40036243) or BRD.
                 return;
             }
         }

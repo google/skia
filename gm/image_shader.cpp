@@ -207,7 +207,7 @@ DEF_SIMPLE_GM(drawimage_sampling, canvas, 500, 500) {
 
 }
 
-// Test case for skbug.com/12685 (texture-backed image shaders silently fail drawing to CPU canvas)
+// Test case for skbug.com/40043768 (texture-backed image shaders silently fail drawing to CPU canvas)
 DEF_SIMPLE_GM(textureimage_and_shader, canvas, 100, 50) {
     canvas->clear(SK_ColorGREEN);
 

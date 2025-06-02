@@ -552,7 +552,7 @@ void GrMtlCaps::initShaderCaps() {
         shaderCaps->fVectorClampMinMaxSupport = false;
     }
 
-    // TODO(skia:8270): Re-enable this once bug 8270 is fixed. Will also need to remove asserts in
+    // TODO(skbug.com/40039539): Re-enable this once bug is fixed. Will also need to remove asserts in
     // GrMtlPipelineStateBuilder which assert we aren't using this feature.
 #if 0
     if (this->isIOS()) {
@@ -1193,7 +1193,7 @@ GrCaps::SupportedRead GrMtlCaps::onSupportedReadPixelsColorType(
     SkTextureCompressionType compression = GrBackendFormatToCompressionType(srcBackendFormat);
     if (compression != SkTextureCompressionType::kNone) {
 #ifdef SK_BUILD_FOR_IOS
-        // Reading back to kRGB_888x doesn't work on Metal/iOS (skbug.com/9839)
+        // Reading back to kRGB_888x doesn't work on Metal/iOS (skbug.com/40041169)
         return { GrColorType::kUnknown, 0 };
 #else
         return { SkTextureCompressionTypeIsOpaque(compression) ? GrColorType::kRGB_888x

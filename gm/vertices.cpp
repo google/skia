@@ -268,7 +268,7 @@ DEF_SIMPLE_GM(vertices_batching, canvas, 100, 500) {
     draw_batching(canvas);
 }
 
-// Test case for skbug.com/10069. We need to draw the vertices twice (with different matrices) to
+// Test case for skbug.com/40041407. We need to draw the vertices twice (with different matrices) to
 // trigger the bug.
 DEF_SIMPLE_GM(vertices_perspective, canvas, 256, 256) {
     SkPaint paint;

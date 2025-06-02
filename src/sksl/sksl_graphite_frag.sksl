@@ -289,7 +289,7 @@ $pure half4 $sample_image_subset(float2 pos,
                                  sampler2D s) {
     // Do hard-edge shader transitions to the border color for nearest-neighbor decal tiling at the
     // subset boundaries. Snap the input coordinates to nearest neighbor before comparing to the
-    // subset rect, to avoid GPU interpolation errors. See https://crbug.com/skia/10403.
+    // subset rect, to avoid GPU interpolation errors. See skbug.com/40041736.
     if (tileModeX == $kTileModeDecal && filterMode == $kFilterModeNearest) {
         float snappedX = floor(pos.x) + 0.5;
         if (snappedX < subset.x || snappedX > subset.z) {

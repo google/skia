@@ -114,7 +114,7 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
         dsSamplerLayoutCreateInfo.pBindings = numBindings ? dsSamplerBindings.get() : nullptr;
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
-        // skia:8713
+        // skbug.com/40040004
         __lsan::ScopedDisabler lsanDisabler;
 #endif
         VkResult result;
@@ -145,7 +145,7 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
         uniformLayoutCreateInfo.pBindings = &dsUniBinding;
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
-        // skia:8713
+        // skbug.com/40040004
         __lsan::ScopedDisabler lsanDisabler;
 #endif
         VkResult result;
@@ -180,7 +180,7 @@ static bool get_layout_and_desc_count(GrVkGpu* gpu,
         inputLayoutCreateInfo.pBindings = &dsInpuBinding;
 
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
-        // skia:8713
+        // skbug.com/40040004
         __lsan::ScopedDisabler lsanDisabler;
 #endif
         VkResult result;

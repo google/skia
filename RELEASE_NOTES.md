@@ -920,7 +920,7 @@ Milestone 109
     "output-file.sksl". By default, sksl-minify expects a shader, but you can also pass command
     line options `--colorfilter` or `--blender` if your program is a color-filter or a blender.
     A compile error will be printed to stdout if an error is found in the program.
-  * The order of SkShader local matrix concatenation has been reversed. See skbug.com/13749
+  * The order of SkShader local matrix concatenation has been reversed. See skbug.com/40044836
   * PromiseImages have been added to Graphite. This supports both volatile and non-volatile Promise Images.
     See the comment for SkImage::MakeGraphitePromiseTexture for more details.
   * Graphite has loosened the immutability requirements of SkImages - through a new SkSurface API and careful

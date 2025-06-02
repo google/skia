@@ -1443,7 +1443,7 @@ sk_sp<SkShader> FilterResult::getAnalyzedShaderView(
 
     if (analysis & BoundsAnalysis::kRequiresDecalInLayerSpace) {
         SkASSERT(fTileMode == SkTileMode::kDecal);
-        // TODO(skbug:12784) - As part of fully supporting subsets in image shaders, it probably
+        // TODO(skbug.com/40043877) - As part of fully supporting subsets in image shaders, it probably
         // makes sense to share the subset tiling logic that's in GrTextureEffect as dedicated
         // SkShaders. Graphite can then add those to its program as-needed vs. always doing
         // shader-based tiling, and CPU can have raster-pipeline tiling applied more flexibly than

@@ -130,7 +130,7 @@ half4 main(float2 pos) {
     int five = int(clamp(pos.x, colorGreen.g, colorGreen.a)) * 5;
 
     // We pass a literal 5 into `break_loop` instead of the variable `five` as a workaround for
-    // a Metal crash bug in macOS 12. (skia:13005; Apple FB9937818)
+    // a Metal crash bug in macOS 12. (skbug.com/40044108; Apple FB9937818)
     return (return_loop(five) == 5 && continue_loop(five) == 35 && break_loop(5) == 15 &&
             loop_operator_le() && loop_operator_lt() &&
             loop_operator_ge() && loop_operator_gt() &&

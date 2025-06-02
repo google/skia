@@ -557,7 +557,7 @@ DEF_SIMPLE_GM(longrect_dash, canvas, 250, 250) {
 
 DEF_SIMPLE_GM(inner_join_geometry, canvas, 1000, 700) {
     // These paths trigger cases where we must add inner join geometry.
-    // skbug.com/11964
+    // skbug.com/40043052
     const SkPoint pathPoints[] = {
         /*moveTo*/  /*lineTo*/  /*lineTo*/
         {119,  71}, {129, 151}, {230,  24},

@@ -94,7 +94,7 @@ private:
         // is unique in that it might not produce unbounded output, but we can't calculate the
         // fast bounds because the kernel is applied in device space and no transform is provided
         // with that API.
-        // TODO(skbug.com/14617): Accept a matrix in computeFastBounds() so that we can handle the
+        // TODO(skbug.com/40045519): Accept a matrix in computeFastBounds() so that we can handle the
         // layer-space kernel case.
 
         // That issue aside, a matrix convolution can affect transparent black when it has a

@@ -244,8 +244,8 @@ DEF_GANESH_TEST(PromiseImageTextureShutdown, reporter, ctxInfo, CtsEnforcement::
 
     for (int type = 0; type < skgpu::kContextTypeCount; ++type) {
         auto contextType = static_cast<skgpu::ContextType>(type);
-        // These tests are difficult to get working with Vulkan. See http://skbug.com/8705
-        // and http://skbug.com/8275
+        // These tests are difficult to get working with Vulkan. See skbug.com/40039997
+        // and skbug.com/40039545
         // And Direct3D, for similar reasons.
         GrBackendApi api = skgpu::ganesh::ContextTypeBackend(contextType);
         if (api == GrBackendApi::kUnsupported || api == GrBackendApi::kVulkan ||

@@ -126,7 +126,7 @@ constexpr static int kAtlasMaxPathHeight = 256;
 // atlasing when they are very small.
 constexpr static int kAtlasMaxPathHeightWithMSAAFallback = 128;
 
-// http://skbug.com/12291 -- The way GrDynamicAtlas works, a single 2048x1 path is given an entire
+// skbug.com/40043377 -- The way GrDynamicAtlas works, a single 2048x1 path is given an entire
 // 2048x2048 atlas with draw bounds of 2048x1025. Limit the max width to 1024 to avoid this landmine
 // until it's resolved.
 constexpr static int kAtlasMaxPathWidth = 1024;
@@ -140,7 +140,7 @@ bool AtlasPathRenderer::IsSupported(GrRecordingContext* rContext) {
     }
 #endif
 #ifdef SK_BUILD_FOR_WIN
-    // http://skbug.com/13519 There is a bug with the atlas path renderer on Direct3D, running on
+    // skbug.com/40044606 There is a bug with the atlas path renderer on Direct3D, running on
     // Radeon hardware and possibly others. Disable until we can investigate.
     if (rContext->backend() == GrBackendApi::kDirect3D) {
         return false;
@@ -442,7 +442,7 @@ bool AtlasPathRenderer::preFlush(GrOnFlushResourceProvider* onFlushRP) {
 #endif
     {
         // TODO: it seems like this path renderer's backing-texture reuse could be greatly
-        // improved. Please see skbug.com/13298.
+        // improved. Please see skbug.com/40044379.
 
         // Instantiate the first atlas.
         successful = fAtlasRenderTasks[0]->instantiate(onFlushRP);

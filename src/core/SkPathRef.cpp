@@ -19,7 +19,7 @@
 #include <utility>
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-    static constexpr int kPathRefGenIDBitCnt = 30; // leave room for the fill type (skbug.com/1762)
+    static constexpr int kPathRefGenIDBitCnt = 30; // leave room for the fill type (skbug.com/40032862)
 #else
     static constexpr int kPathRefGenIDBitCnt = 32;
 #endif

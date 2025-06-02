@@ -1209,7 +1209,7 @@ SkScalerContext::GlyphMetrics SkScalerContext_FreeType::generateMetrics(const Sk
 
     FT_Bool haveLayers = false;
 #ifdef FT_COLOR_H
-    // See https://skbug.com/12945, if the face isn't marked scalable then paths cannot be loaded.
+    // See https://skbug.com/40044044, if the face isn't marked scalable then paths cannot be loaded.
     if (FT_IS_SCALABLE(fFace)) {
         SkRect bounds = SkRect::MakeEmpty();
 #ifdef TT_SUPPORT_COLRV1

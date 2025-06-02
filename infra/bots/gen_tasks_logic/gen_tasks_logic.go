@@ -1806,7 +1806,7 @@ func (b *jobBuilder) dm() {
 			}
 		} else {
 			// Default recipe supports direct upload.
-			// TODO(http://skbug.com/11785): Windows jobs are unable to extract gsutil.
+			// TODO(skbug.com/40042855): Windows jobs are unable to extract gsutil.
 			// https://bugs.chromium.org/p/chromium/issues/detail?id=1192611
 			if b.doUpload() && !b.matchOs("Win") {
 				b.directUpload(b.cfg.GsBucketGm, b.cfg.ServiceAccountUploadGM)
@@ -1868,7 +1868,7 @@ func (b *jobBuilder) dm() {
 		} else if b.extraConfig("MSAN") {
 			b.timeout(9 * time.Hour)
 		} else if b.arch("x86") && b.debug() {
-			// skia:6737
+			// skbug.com/40037952
 			b.timeout(6 * time.Hour)
 		} else if b.matchOs("Mac14") {
 			b.timeout(30 * time.Minute)
@@ -2081,7 +2081,7 @@ func (b *jobBuilder) perf() {
 		} else if b.extraConfig("MSAN") {
 			b.timeout(9 * time.Hour)
 		} else if b.parts["arch"] == "x86" && b.parts["configuration"] == "Debug" {
-			// skia:6737
+			// skbug.com/40037952
 			b.timeout(6 * time.Hour)
 		} else if b.matchOs("Mac14") {
 			b.timeout(30 * time.Minute)

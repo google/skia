@@ -483,7 +483,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
 
     fNativeDrawIndirectSupport = features.features.drawIndirectFirstInstance;
     if (properties.vendorID == skgpu::kQualcomm_VkVendor) {
-        // Indirect draws seem slow on QC. Disable until we can investigate. http://skbug.com/11139
+        // Indirect draws seem slow on QC. Disable until we can investigate. skbug.com/40042512
         fNativeDrawIndirectSupport = false;
     }
 
@@ -654,7 +654,7 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     }
 
     // ARM GPUs calculate `matrix * vector` in SPIR-V at full precision, even when the inputs are
-    // RelaxedPrecision. Rewriting the multiply as a sum of vector*scalar fixes this. (skia:11769)
+    // RelaxedPrecision. Rewriting the multiply as a sum of vector*scalar fixes this. (skbug.com/40042841)
     if (skgpu::kARM_VkVendor == properties.vendorID) {
         fShaderCaps->fRewriteMatrixVectorMultiply = true;
     }

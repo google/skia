@@ -54,7 +54,7 @@ If the autoroller displays an error in the UI then look for more detail in it's
 [cloud logs](https://pantheon.corp.google.com/logs/viewer?project=google.com:skia-buildbots&resource=logging_log%2Fname%2Fandroid-master-autoroll&logName=projects%2Fgoogle.com:skia-buildbots%2Flogs%2Fautoroll).
 
 If you need any more information about the autoroller please look at
-[skia:5538](https://bugs.chromium.org/p/skia/issues/detail?id=5538) or ask
+[skbug.com/40036716](https://bugs.chromium.org/p/skia/issues/detail?id=5538) or ask
 rmistry@ / skiabot@.
 
 We also have autorollers into release branches (also restricted only to

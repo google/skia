@@ -1227,7 +1227,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             self.clipRect(*rect, op, doAntiAlias);
         }))
         .function("_concat", optional_override([](SkCanvas& self, WASMPointerF32 mPtr) {
-            //TODO(skbug.com/10108): make the JS side be column major.
+            //TODO(skbug.com/40041444): make the JS side be column major.
             const SkScalar* sixteenMatrixValues = reinterpret_cast<const SkScalar*>(mPtr);
             SkM44 m = SkM44::RowMajor(sixteenMatrixValues);
             self.concat(m);

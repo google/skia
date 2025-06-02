@@ -10,7 +10,7 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, ninja_root, cc, cxx
   """Build SwiftShader with CMake.
 
   Building SwiftShader works differently from any other Skia third_party lib.
-  See discussion in skia:7671 for more detail.
+  See discussion in skbug.com/40034635 for more detail.
 
   Args:
     swiftshader_root: root of the SwiftShader checkout.
@@ -65,7 +65,7 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, ninja_root, cc, cxx
     api.run(api.step, 'swiftshader cmake',
             cmd=['cmake'] + swiftshader_opts + [swiftshader_root, '-GNinja'])
     # See https://swiftshader-review.googlesource.com/c/SwiftShader/+/56452 for when the
-    # deprecated targets were added. See skbug.com/12386 for longer-term plans.
+    # deprecated targets were added. See skbug.com/40043473 for longer-term plans.
     api.run(api.step, 'swiftshader ninja', cmd=['ninja', '-C', out, 'vk_swiftshader'])
 
 
@@ -311,7 +311,7 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
     if t.endswith('SAN'):
       sanitize = t
       if api.vars.is_linux and t == 'ASAN':
-        # skia:8712 and skia:8713
+        # skbug.com/40040003 and skbug.com/40040004
         extra_cflags.append('-DSK_ENABLE_SCOPED_LSAN_SUPPRESSIONS')
   if 'SafeStack' in extra_tokens:
     assert sanitize == ''

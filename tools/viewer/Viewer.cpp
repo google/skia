@@ -2932,7 +2932,7 @@ void Viewer::drawImGui() {
                 bool doApply = false;
                 bool doDump  = false;
                 if (ctx) {
-                    // TODO(skia:14418): we only have Ganesh implementations of Apply/Dump
+                    // TODO(skbug.com/40045492): we only have Ganesh implementations of Apply/Dump
                     doApply  = ImGui::Button("Apply Changes"); ImGui::SameLine();
                     doDump   = ImGui::Button("Dump SkSL to resources/sksl/");
                 }

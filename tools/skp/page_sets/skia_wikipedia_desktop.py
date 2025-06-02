@@ -29,7 +29,7 @@ class SkiaWikipediaDesktopPageSet(story.StorySet):
       archive_data_file='data/skia_wikipedia_desktop.json')
 
     urls_list = [
-      # Why: stress tests for fonts (from skia:3574).
+      # Why: stress tests for fonts (from skbug.com/40034705).
       'http://www.wikipedia.org/',
     ]
 

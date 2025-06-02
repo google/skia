@@ -289,7 +289,7 @@ private:
     skia_private::STArray<1, GrRenderTask*, true> fDependents;
 
     // For performance reasons, we should perform texture resolves back-to-back as much as possible.
-    // (http://skbug.com/9406). To accomplish this, we make and reuse one single resolve task for
+    // (skbug.com/40040728). To accomplish this, we make and reuse one single resolve task for
     // each render task, then add it as a dependency during makeClosed().
     GrTextureResolveRenderTask* fTextureResolveTask = nullptr;
 

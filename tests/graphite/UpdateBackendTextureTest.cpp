@@ -144,7 +144,7 @@ void check_levels(skiatest::Reporter* reporter,
 
     for (int i = 0, drawSize = kSize.width(); i < numLevels; ++i, drawSize /= 2) {
         if (i == 5) {
-            // TODO: Metal currently never draws the top-most mip-level (skbug.com/13792)
+            // TODO: Metal currently never draws the top-most mip-level (skbug.com/40044877)
             continue;
         }
 

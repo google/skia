@@ -193,7 +193,7 @@ bool SkRasterClip::op(const SkPath& path, const SkMatrix& matrix, SkClipOp op, b
     if (this->isRect() && op == SkClipOp::kIntersect) {
         // However, in the relatively common case of intersecting a new path with a rectangular
         // clip, it's faster to convert the path into a region/aa-mask in place than evaluate the
-        // actual intersection. See skbug.com/12398
+        // actual intersection. See skbug.com/40043482
         if (doAA && fIsBW) {
             this->convertToAA();
         }

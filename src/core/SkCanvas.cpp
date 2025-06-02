@@ -899,7 +899,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
     restorePaint.setImageFilter(nullptr);        // the image filter is held separately
     // Smooth non-axis-aligned layer edges; this automatically downgrades to non-AA for aligned
     // layer restores. This is done to match legacy behavior where the post-applied MatrixTransform
-    // bilerp also smoothed cropped edges. See skbug.com/11252
+    // bilerp also smoothed cropped edges. See skbug.com/40042614
     restorePaint.setAntiAlias(true);
 
     sk_sp<SkImageFilter> paintFilter = rec.fPaint ? rec.fPaint->refImageFilter() : nullptr;
@@ -1401,7 +1401,7 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
     // of renderable pixels, so once set, the restriction will be respected until the canvas
     // save stack is restored past the point this function was invoked. Unfortunately, the current
     // implementation relies on the clip stack of the underyling SkDevices, which leads to some
-    // awkward behavioral interactions (see skbug.com/12252).
+    // awkward behavioral interactions (see skbug.com/40043342).
     //
     // Namely, a canvas restore() could undo the clip restriction's rect, and if
     // setDeviceClipRestriction were called at a nested save level, there's no way to undo just the
@@ -2225,7 +2225,7 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     }
 }
 
-// Clean-up the paint to match the drawing semantics for drawImage et al. (skbug.com/7804).
+// Clean-up the paint to match the drawing semantics for drawImage et al. (skbug.com/40039059).
 static SkPaint clean_paint_for_drawImage(const SkPaint* paint) {
     SkPaint cleaned;
     if (paint) {

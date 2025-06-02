@@ -356,7 +356,7 @@ config("default") {
       sanitizers = "undefined,address,float-divide-by-zero"
 
       if (is_android) {
-        # TODO(skia:13344): work out UBSAN link errors
+        # TODO(skbug.com/40044427): work out UBSAN link errors
         sanitizers = "address"
       }
     } else if (sanitize == "HWASAN") {
@@ -409,7 +409,7 @@ config("default") {
   cflags_objcc += cflags_cc
 }
 
-# See skia:9731.
+# See skbug.com/40041063.
 config("recover_pointer_overflow") {
   if (sanitize == "ASAN" && !(is_win && !is_clang)) {
     cflags = [ "-fsanitize-recover=pointer-overflow" ]

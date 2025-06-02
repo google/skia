@@ -119,7 +119,7 @@ DEF_TEST(Recorder_drawImage_takeReference, reporter) {
     REPORTER_ASSERT(reporter, image->unique());
 }
 
-// skbug.com/10997
+// skbug.com/40042379
 DEF_TEST(Recorder_boundsOverflow, reporter) {
     SkRect bigBounds = {SK_ScalarMin, SK_ScalarMin, SK_ScalarMax, SK_ScalarMax};
 

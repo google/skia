@@ -375,7 +375,7 @@ public:
     }
     static void RegisterFlattenables();
 
-    /** DEPRECATED. skbug.com/8941
+    /** DEPRECATED. skbug.com/40040221
      *  If this shader can be represented by another shader + a localMatrix, return that shader and
      *  the localMatrix. If not, return nullptr and ignore the localMatrix parameter.
      */

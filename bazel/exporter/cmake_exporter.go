@@ -43,7 +43,7 @@ func NewCMakeExporter(projName, workspaceDir, cmakeFile string, fs interfaces.Fi
 
 // Return the default copts (COMPILE_FLAGS in CMake) for the macOS toolchain.
 func getMacPlatformRuleCopts() []string {
-	// TODO(crbug.com/skia/13586): Retrieve these values from Bazel.
+	// TODO(skbug.com/40044673): Retrieve these values from Bazel.
 	// These values must match those values defined in mac_toolchain_config.bzl
 	return []string{
 		// These items are from _make_default_flags().
@@ -57,7 +57,7 @@ func getMacPlatformRuleCopts() []string {
 
 // Return the default copts (COMPILE_FLAGS in CMake) for the Linux toolchain.
 func getLinuxPlatformRuleCopts() []string {
-	// TODO(crbug.com/skia/13586): Retrieve these values from Bazel.
+	// TODO(skbug.com/40044673): Retrieve these values from Bazel.
 	return []string{
 		// These items are from _make_default_flags().
 		"-std=c++17",

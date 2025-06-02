@@ -986,7 +986,7 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
 
     {
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
-        // skia:8712
+        // skbug.com/40040003
         __lsan::ScopedDisabler lsanDisabler;
 #endif
         err = grVkCreateDevice(physDev, &deviceInfo, nullptr, &device);

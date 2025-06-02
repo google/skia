@@ -217,7 +217,7 @@ public:
     bool inverseFilled() const {
         // Since the path tracks inverted-fillness itself, it should match what was recorded.
         SkASSERT(!fShape.isPath() || fShape.inverted() == fShape.path().isInverseFillType());
-        // Dashing ignores inverseness. We should have caught this earlier. skbug.com/5421
+        // Dashing ignores inverseness. We should have caught this earlier. skbug.com/40036591
         SkASSERT(!(fShape.inverted() && this->style().isDashed()));
         return fShape.inverted();
     }

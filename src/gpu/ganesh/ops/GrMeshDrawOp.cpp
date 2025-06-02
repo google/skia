@@ -56,7 +56,7 @@ void GrMeshDrawOp::onPrePrepareDraws(GrRecordingContext* context,
                                      GrLoadOp colorLoadOp) {
     SkArenaAlloc* arena = context->priv().recordTimeAllocator();
 
-    // http://skbug.com/12201 -- DDL does not yet support DMSAA.
+    // skbug.com/40043298 -- DDL does not yet support DMSAA.
     bool usesMSAASurface = writeView.asRenderTargetProxy()->numSamples() > 1;
 
     // This is equivalent to a GrOpFlushState::detachAppliedClip

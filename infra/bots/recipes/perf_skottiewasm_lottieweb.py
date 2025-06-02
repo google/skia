@@ -148,7 +148,7 @@ def RunSteps(api):
       continue
     output_file = output_dir.joinpath(lottie_filename)
     with api.context(cwd=perf_app_dir, env={'DISPLAY': ':0'}):
-      # This is occasionally flaky due to skbug.com/9207, adding retries.
+      # This is occasionally flaky due to skbug.com/40040508, adding retries.
       attempts = 3
       # Add output and input arguments to the cmd.
       api.run.with_retry(api.step, 'Run perf cmd line app', attempts,

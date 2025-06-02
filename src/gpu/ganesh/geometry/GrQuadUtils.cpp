@@ -584,7 +584,7 @@ bool CropToRect(const SkRect& cropRect, GrAA cropAA, DrawQuad* quad, bool comput
 
     if (computeLocal || quad->fDevice.quadType() == GrQuad::Type::kPerspective) {
         // FIXME (michaelludwig) Calculate cropped local coordinates when not kAxisAligned
-        // FIXME (michaelludwig) crbug.com/1204347 and skbug.com/9906 - disable this when there's
+        // FIXME (michaelludwig) crbug.com/1204347 and skbug.com/40041027 - disable this when there's
         // perspective; it does not prove numerical robust enough in the wild and should be
         // revisited.
         return false;

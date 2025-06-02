@@ -207,7 +207,7 @@
         // GL is an emscripten object that holds onto WebGL state. One item in that state is
         // an array of textures, of which the index is the handle/id. We must call getNewId so
         // the GL's tracking of textures is up to date and we do not accidentally use the same
-        // texture in two different places if Skia creates a texture. (e.g. skbug.com/12797)
+        // texture in two different places if Skia creates a texture. (e.g. skbug.com/40043889)
         var texHandle = GL.getNewId(GL.textures);
         GL.textures[texHandle] = tex;
         return texHandle

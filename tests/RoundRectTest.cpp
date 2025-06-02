@@ -261,7 +261,7 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
     test_9patch_rrect(reporter, rect, 10, 9, 8, 7, true);
 
     {
-        // Test out the rrect from skia:3466
+        // Test out the rrect from skbug.com/40034587
         SkRect rect2 = SkRect::MakeLTRB(0.358211994f, 0.755430222f, 0.872866154f, 0.806214333f);
 
         test_9patch_rrect(reporter,
@@ -1211,7 +1211,7 @@ static void test_round_rect_transform(skiatest::Reporter* reporter) {
 // Test out the case where an oval already off in space is translated/scaled
 // further off into space - yielding numerical issues when the rect & radii
 // are transformed separatly
-// BUG=skia:2696
+// BUG=skbug.com/40033801
 static void test_issue_2696(skiatest::Reporter* reporter) {
     SkRRect rrect;
     SkRect r = { 28443.8594f, 53.1428604f, 28446.7148f, 56.0000038f };

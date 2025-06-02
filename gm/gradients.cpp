@@ -1114,7 +1114,7 @@ DEF_SIMPLE_GM(gradients_interesting, canvas, 640, 1300) {
     }
 }
 
-// TODO(skia:13774): Still need to test degenerate gradients in strange color spaces
+// TODO(skbug.com/40044214): Still need to test degenerate gradients in strange color spaces
 DEF_SIMPLE_GM_BG(gradients_color_space, canvas, 265, 355, SK_ColorGRAY) {
     using CS = SkGradientShader::Interpolation::ColorSpace;
 
@@ -1193,7 +1193,7 @@ DEF_SIMPLE_GM_BG(gradients_hue_method, canvas, 285, 155, SK_ColorGRAY) {
         canvas->translate(0, 25);
     }
 
-    // Test a bug (skia:13941) with how gradient shaders handle explicit positions.
+    // Test a bug (skbug.com/40044215) with how gradient shaders handle explicit positions.
     // If there are no explicit positions at 0 or 1, those are automatically added, with copies of
     // the first/last color. When using kLonger, this can produce extra gradient that should
     // actually be solid. This gradient *should* be:

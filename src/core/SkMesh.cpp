@@ -509,7 +509,7 @@ SkMeshSpecification::Result SkMeshSpecification::MakeFromSourceWithStructs(
     SkSL::ProgramSettings settings;
     settings.fUseMemoryPool = false;
 
-    // TODO(skia:11209): Add SkCapabilities to the API, check against required version.
+    // TODO(skbug.com/40042585): Add SkCapabilities to the API, check against required version.
     std::unique_ptr<SkSL::Program> vsProgram = compiler.convertProgram(
             SkSL::ProgramKind::kMeshVertex,
             std::string(vs.c_str()),

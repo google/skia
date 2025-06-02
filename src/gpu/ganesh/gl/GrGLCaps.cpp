@@ -758,7 +758,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fDrawRangeElementsSupport = version >= GR_GL_VER(2,0);
     }
     // We used to disable this as a correctness workaround (http://anglebug.com/4536). Now it is
-    // disabled because of poor performance (http://skbug.com/11998).
+    // disabled because of poor performance (skbug.com/40043081).
     if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D11) {
         fBaseVertexBaseInstanceSupport = false;
         fNativeDrawIndirectSupport = false;
@@ -3989,7 +3989,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         }
     }
 
-    // http://skbug.com/12081
+    // skbug.com/40043172
     if (GR_IS_GR_WEBGL(ctxInfo.standard())) {
         fDisallowDynamicMSAA = true;
     }
@@ -4000,7 +4000,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // or buffer to surface transfers don't work.
 #if defined(__has_feature)
 #if defined(SK_BUILD_FOR_MAC) && __has_feature(thread_sanitizer)
-    // See skbug.com/7058
+    // See skbug.com/40038290
     fMapBufferType = kNone_MapBufferType;
     fMapBufferFlags = kNone_MapFlags;
     fTransferFromBufferToTextureSupport = false;
@@ -4048,7 +4048,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // GL_VENDOR:   Intel
     // GL_RENDERER: Intel(R) HD Graphics 2000
     // https://groups.google.com/g/skia-discuss/c/dYV1blEAda0/m/-zuZLXQKAwAJ?utm_medium=email&utm_source=footer
-    // See also http://skbug.com/9286
+    // See also skbug.com/40040603
     if (ctxInfo.renderer() == GrGLRenderer::kIntelSandyBridge &&
         ctxInfo.driver() == GrGLDriver::kIntel) {
         fMapBufferType  = kNone_MapBufferType;
@@ -4072,7 +4072,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // https://b.corp.google.com/issues/143074513
-    // https://skbug.com/11152
+    // https://skbug.com/40042528
     if (ctxInfo.renderer() == GrGLRenderer::kAdreno615 ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno620) {
         fMSFBOType = kNone_MSFBOType;
@@ -4087,7 +4087,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 #endif
 
-    // A lot of GPUs have trouble with full screen clears (skbug.com/7195)
+    // A lot of GPUs have trouble with full screen clears (skbug.com/40038435)
     if (ctxInfo.renderer() == GrGLRenderer::kAMDRadeonHD7xxx ||
         ctxInfo.renderer() == GrGLRenderer::kAMDRadeonR9M4xx) {
         fPerformColorClearsAsDraws = true;
@@ -4132,7 +4132,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         // This is known to be fixed sometime between driver 129.0 and 145.0 on Nexus 6P.
         // On driver 129 on Android M it fails the unit tests called WritePixelsPendingIO without
         // the workaround. It passes on Android N with driver 145 without the workaround.
-        // skbug.com/11834
+        // skbug.com/40042902
         if (ctxInfo.driverVersion() < GR_GL_DRIVER_VER(145, 0, 0)) {
             fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO = true;
         }
@@ -4298,7 +4298,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (ctxInfo.vendor() == GrGLVendor::kATI) {
         // The Radeon GLSL compiler on Mac gets confused by ldexp(..., -x).
         // Convert to ldexp(..., x * -1).
-        // http://skbug.com/12076
+        // skbug.com/40043167
         shaderCaps->fMustForceNegatedLdexpParamToMultiply = true;
     }
 #endif
@@ -4371,7 +4371,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
 
     // We've seen Adreno 3xx devices produce incorrect (flipped) values for gl_FragCoord, in some
     // (rare) situations. It's sporadic, and mostly on older drivers. Additionally, old Adreno
-    // compilers (see crbug.com/skia/4078) crash when accessing .zw of gl_FragCoord, so just bypass
+    // compilers (see skbug.com/40035225) crash when accessing .zw of gl_FragCoord, so just bypass
     // using gl_FragCoord at all to get around it.
     if (ctxInfo.renderer() == GrGLRenderer::kAdreno3xx) {
         shaderCaps->fCanUseFragCoord = false;
@@ -4420,7 +4420,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.driver()   == GrGLDriver::kIntel             ||
         ctxInfo.angleVendor() == GrGLVendor::kIntel          ||
         ctxInfo.isOverCommandBuffer()                        ||
-        ctxInfo.vendor()   == GrGLVendor::kARM /* http://skbug.com/11906 */) {
+        ctxInfo.vendor()   == GrGLVendor::kARM /* skbug.com/40043001 */) {
         fBlendEquationSupport = kBasic_BlendEquationSupport;
         shaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kNotSupported_AdvBlendEqInteraction;
     }
@@ -4472,7 +4472,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // Many ES3 drivers only advertise the ES2 image_external extension, but support the _essl3
     // extension, and require that it be enabled to work with ESSL3. Other devices require the ES2
     // extension to be enabled, even when using ESSL3. Enabling both extensions fixes both cases.
-    // skbug.com/7713
+    // skbug.com/40038974
     if (ctxInfo.hasExtension("GL_OES_EGL_image_external") &&
         ctxInfo.glslGeneration() >= SkSL::GLSLGeneration::k330 &&
         !shaderCaps->fExternalTextureSupport) { // i.e. Missing the _essl3 extension
@@ -4633,7 +4633,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fNoDefaultPrecisionForExternalSamplers = true;
     }
 
-    // http://skbug.com/9491: Nexus5 produces rendering artifacts when we use QCOM_tiled_rendering.
+    // skbug.com/40040812: Nexus5 produces rendering artifacts when we use QCOM_tiled_rendering.
     if (ctxInfo.renderer() == GrGLRenderer::kAdreno3xx) {
         fTiledRenderingSupport = false;
     }
@@ -4668,18 +4668,18 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         }
     }
 
-    // ANGLE's D3D9 backend + AMD GPUs are flaky with program binary caching (skbug.com/10395)
+    // ANGLE's D3D9 backend + AMD GPUs are flaky with program binary caching (skbug.com/40041731)
     if (ctxInfo.angleBackend() == GrGLANGLEBackend::kD3D9 &&
         ctxInfo.angleVendor()  == GrGLVendor::kATI) {
         fProgramBinarySupport = false;
     }
 
-    // skbug.com/11204. Avoid recursion issue in SurfaceContext::writePixels.
+    // skbug.com/40042580. Avoid recursion issue in SurfaceContext::writePixels.
     if (fDisallowTexSubImageForUnormConfigTexturesEverBoundToFBO) {
         fReuseScratchTextures = false;
     }
 
-    // skbug.com/11935. Don't reorder on these GPUs in GL on old drivers.
+    // skbug.com/40042245. Don't reorder on these GPUs in GL on old drivers.
     if ((ctxInfo.renderer() == GrGLRenderer::kAdreno620 ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno640) &&
         ctxInfo.driverVersion() < GR_GL_DRIVER_VER(571, 0, 0)) {
@@ -4729,7 +4729,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fBindTexture0WhenChangingTextureFBOMultisampleCount = true;
     }
 
-    // skbug.com/12640
+    // skbug.com/40043721
     // We found that on the Galaxy S7 the TransferPixelsTo test would fail after adding
     // glCheckFramebufferStatus() checks when making new FBOs. Note that the returned status was
     // GL_FRAMEBUFFER_COMPLETE. Switching the color binding to ID 0 and back to the original
@@ -4758,7 +4758,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 #endif
 
-    // skbug.com/13286
+    // skbug.com/40044367
     // We found that the P30 produces a GL error when setting GL_TEXTURE_MAX_ANISOTROPY as a sampler
     // parameter but not as a texture parameter. We are disabling anisotropy on drivers that may
     // be affected.
@@ -4809,7 +4809,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         ctxInfo.driverVersion() >= GR_GL_DRIVER_VER(2, 1, 19900)) {
         fDisableScalingCopyAsDraws = true;
     }
-    // skbug.com/14194
+    // skbug.com/40045272
     // Setting the max level is technically unnecessary, but on Intel drivers it makes it
     // clear that a rendering feedback loop is not occurring, and avoids hitting a slow path.
     // When running on ANGLE, however, this triggers the validator because we can only use

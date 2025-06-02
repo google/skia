@@ -180,7 +180,7 @@ void check_xformed_bounds(skiatest::Reporter* reporter, const SkPath& path, cons
 }
 
 void check_bounds(skiatest::Reporter* reporter, const SkPath& path) {
-    const bool fixed_shadows_in_perspective = false;    // skbug.com/9698
+    const bool fixed_shadows_in_perspective = false;    // skbug.com/40041026
 
     SkMatrix ctm;
     ctm.setTranslate(100, 100);

@@ -40,9 +40,9 @@ void main() {
     various_parameter_types(x + 1, s.v.y, x);
 }
 
-// TODO(skia:13092): test the case in which a pipeline IO parameter is passed as out-param,
+// TODO(skbug.com/40044196): test the case in which a pipeline IO parameter is passed as out-param,
 //                   directly and indirectly
-// TODO(skia:13092): module-private out-param
-// TODO(skia:13092): access an IO parameter while also passing it as an out-param
-// TODO(skia:13092): mixing out params with in and inout
-// TODO(skia:13092): swizzle assignment when that's supported
+// TODO(skbug.com/40044196): module-private out-param
+// TODO(skbug.com/40044196): access an IO parameter while also passing it as an out-param
+// TODO(skbug.com/40044196): mixing out params with in and inout
+// TODO(skbug.com/40044196): swizzle assignment when that's supported

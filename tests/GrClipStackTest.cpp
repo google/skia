@@ -1747,7 +1747,7 @@ DEF_TEST(ClipStack_ReplaceClip, r) {
                     "RRect element state not restored properly after replace clip undone");
 }
 
-// Try to overflow the number of allowed window rects (see skbug.com/10989)
+// Try to overflow the number of allowed window rects (see skbug.com/40042371)
 DEF_TEST(ClipStack_DiffRects, r) {
     using ClipStack = skgpu::ganesh::ClipStack;
     using SurfaceDrawContext = skgpu::ganesh::SurfaceDrawContext;

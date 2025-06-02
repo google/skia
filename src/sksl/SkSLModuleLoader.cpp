@@ -57,7 +57,7 @@ static constexpr BuiltinTypePtr kRootTypes[] = {
     TYPE(SquareMat), TYPE(SquareHMat),
     TYPE(Mat),       TYPE(HMat),
 
-    // TODO(skia:12349): generic short/ushort
+    // TODO(skbug.com/40043431): generic short/ushort
     TYPE(GenType),   TYPE(GenIType), TYPE(GenUType),
     TYPE(GenHType),   /* (GenSType)      (GenUSType) */
     TYPE(GenBType),

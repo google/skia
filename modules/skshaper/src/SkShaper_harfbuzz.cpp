@@ -1294,7 +1294,7 @@ ShapedRun ShaperHarfBuzz::shape(char const * const utf8,
 
     // Documentation for HB_BUFFER_FLAG_BOT/EOT at 763e5466c0a03a7c27020e1e2598e488612529a7.
     // Currently BOT forces a dotted circle when first codepoint is a mark; EOT has no effect.
-    // Avoid adding dotted circle, re-evaluate if BOT/EOT change. See https://skbug.com/9618.
+    // Avoid adding dotted circle, re-evaluate if BOT/EOT change. See https://skbug.com/40040947.
     // hb_buffer_set_flags(buffer, HB_BUFFER_FLAG_BOT | HB_BUFFER_FLAG_EOT);
 
     // Add precontext.

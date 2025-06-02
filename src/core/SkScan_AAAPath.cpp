@@ -541,7 +541,7 @@ static SkAlpha trapezoid_to_alpha(SkFixed l1, SkFixed l2) {
 static SkAlpha partial_triangle_to_alpha(SkFixed a, SkFixed b) {
     SkASSERT(a <= SK_Fixed1);
 #if 0
-    // TODO(mtklein): skia:8877
+    // TODO(mtklein): skbug.com/40040159
     SkASSERT(b <= SK_Fixed1);
 #endif
 
@@ -550,7 +550,7 @@ static SkAlpha partial_triangle_to_alpha(SkFixed a, SkFixed b) {
     SkFixed area = (a >> 11) * (a >> 11) * (b >> 11);
 
 #if 0
-    // TODO(mtklein): skia:8877
+    // TODO(mtklein): skbug.com/40040159
     return SkTo<SkAlpha>(area >> 8);
 #else
     return SkTo<SkAlpha>((area >> 8) & 0xFF);

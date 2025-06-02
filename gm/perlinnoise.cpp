@@ -193,7 +193,7 @@ class PerlinNoiseLocalMatrixGM : public skiagm::GM {
     }
 };
 
-// Demonstrate skbug.com/14166 (Perlin noise shader doesn't rotate correctly)
+// Demonstrate skbug.com/40045243 (Perlin noise shader doesn't rotate correctly)
 class PerlinNoiseRotatedGM : public skiagm::GM {
     static constexpr SkISize kCellSize = { 100, 100 };
     static constexpr SkISize kRectSize = { 60, 60 };
@@ -251,7 +251,7 @@ class PerlinNoiseRotatedGM : public skiagm::GM {
     }
 };
 
-// Demonstrate skbug.com/14411 (Intel GPUs show artifacts when applying perlin noise to layers)
+// Demonstrate skbug.com/40045485 (Intel GPUs show artifacts when applying perlin noise to layers)
 class PerlinNoiseLayeredGM : public skiagm::GM {
     SkString getName() const override { return SkString("perlinnoise_layered"); }
 

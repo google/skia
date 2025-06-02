@@ -354,7 +354,7 @@ protected:
 
     // If we might use an index expression more than once, we need to capture the result in a
     // temporary variable to avoid double-evaluation. This should generally only occur when emitting
-    // a function call, since we need to polyfill GLSL-style out-parameter support. (skia:14130)
+    // a function call, since we need to polyfill GLSL-style out-parameter support. (skbug.com/40045204)
     // The map holds <index-expression, temp-variable name>.
     using IndexSubstitutionMap = skia_private::THashMap<const Expression*, std::string>;
 

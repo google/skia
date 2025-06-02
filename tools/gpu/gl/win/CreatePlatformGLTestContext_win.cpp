@@ -98,7 +98,7 @@ WinGLTestContext::WinGLTestContext(GrGLStandard forcedGpuAPI, WinGLTestContext* 
     }
 
     // We request a compatibility context since glMultiDrawArraysIndirect, apparently, doesn't
-    // work correctly on Intel Iris GPUs with the core profile (skbug.com/11787).
+    // work correctly on Intel Iris GPUs with the core profile (skbug.com/40042857).
     SkWGLContextRequest contextType =
         kGLES_GrGLStandard == forcedGpuAPI ? kGLES_SkWGLContextRequest
                                            : kGLPreferCompatibilityProfile_SkWGLContextRequest;

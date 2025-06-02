@@ -564,7 +564,7 @@ static sk_sp<SkImage> upload(const sk_sp<SkSurface>& surf, SkColor color) {
 // in between uses of the shared backing resource).
 // The unit test fails on Nexus 6P/Android M with driver 129.0 without the
 // "DisallowTexSubImageForUnormConfigTexturesEverBoundToFBO" workaround enabled.
-// skbug.com/11834
+// skbug.com/40042902
 DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(WritePixelsPendingIO,
                                        reporter,
                                        ctxInfo,

@@ -16,7 +16,7 @@
 #include "tools/fonts/FontToolUtils.h"
 
 // This GM shows off a flaw in delta-based rasterizers (DAA, CCPR, etc.).
-// See also the bottom of dashing4 and skia:6886.
+// See also the bottom of dashing4 and skbug.com/40038110.
 
 static const int K = 49;
 

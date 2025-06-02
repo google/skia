@@ -387,7 +387,7 @@ void SkDraw::drawBitmap(const SkBitmap& bitmap, const SkMatrix& prematrix,
     draw.fCTM = &matrix;
 
     // For a long time, the CPU backend treated A8 bitmaps as coverage, rather than alpha. This was
-    // inconsistent with the GPU backend (skbug.com/9692). When this was fixed, it altered behavior
+    // inconsistent with the GPU backend (skbug.com/40041022). When this was fixed, it altered behavior
     // for some Android apps (b/231400686). Thus: keep the old behavior in the framework.
 #if defined(SK_SUPPORT_LEGACY_ALPHA_BITMAP_AS_COVERAGE)
     if (bitmap.colorType() == kAlpha_8_SkColorType && !paint->getColorFilter()) {

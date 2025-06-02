@@ -1324,7 +1324,7 @@ sk_sp<SkColorFilter> affect_transparent(SkColor4f color) {
 
 // ----------------------------------------------------------------------------
 
-// TODO(skbug.com/14607) - Run FilterResultTests on Dawn and ANGLE backends, too
+// TODO(skbug.com/40045510) - Run FilterResultTests on Dawn and ANGLE backends, too
 
 #if defined(SK_GANESH)
 #define DEF_GANESH_TEST_SUITE(name, ctsEnforcement)          \

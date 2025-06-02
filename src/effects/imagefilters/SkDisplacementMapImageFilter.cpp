@@ -38,7 +38,7 @@ class SkDisplacementMapImageFilter final : public SkImageFilter_Base {
     static constexpr int kDisplacement = 0;
     static constexpr int kColor = 1;
 
-    // TODO(skbug.com/14376): Use nearest to match historical behavior, but eventually this should
+    // TODO(skbug.com/40045448): Use nearest to match historical behavior, but eventually this should
     // become a factory option.
     static constexpr SkSamplingOptions kDisplacementSampling{SkFilterMode::kNearest};
 

@@ -603,7 +603,7 @@ bool SkOpAngle::endsIntersect(SkOpAngle* rh) {
         double maxWidth = std::max(maxX - minX, maxY - minY);
         delta = sk_ieee_double_divide(delta, maxWidth);
         // FIXME: move these magic numbers
-        // This fixes skbug.com/8380
+        // This fixes skbug.com/40039654
         // Larger changes (like changing the constant in the next block) cause other
         // tests to fail as documented in the bug.
         // This could probably become a more general test: e.g., if translating the

@@ -39,7 +39,7 @@ void SkSpecialImage::draw(SkCanvas* canvas,
                                                   : SkCanvas::kFast_SrcRectConstraint);
 }
 
-// TODO(skbug.com/12784): Once bitmap images work with SkImageShader::MakeSubset(), this does not
+// TODO(skbug.com/40043877): Once bitmap images work with SkImageShader::MakeSubset(), this does not
 // need to be virtual anymore.
 sk_sp<SkShader> SkSpecialImage::asShader(SkTileMode tileMode,
                                          const SkSamplingOptions& sampling,
@@ -94,7 +94,7 @@ public:
                              const SkMatrix& lm,
                              bool strict) const override {
         if (strict) {
-            // TODO(skbug.com/12784): SkImage::makeShader() doesn't support a subset yet, but
+            // TODO(skbug.com/40043877): SkImage::makeShader() doesn't support a subset yet, but
             // SkBitmap supports subset views so create the shader from the subset bitmap instead of
             // fBitmap.
             SkBitmap subsetBM;

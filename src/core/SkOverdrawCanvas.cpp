@@ -69,7 +69,7 @@ public:
         for (auto [glyph, pos] : accepted) {
             SkMask mask = glyph->mask(pos);
             // We need to ignore any matrix on the overdraw canvas (it's already been baked into
-            // our glyph positions). Otherwise, the CTM is double-applied. (skbug.com/13732)
+            // our glyph positions). Otherwise, the CTM is double-applied. (skbug.com/40044818)
             fOverdrawCanvas->save();
             fOverdrawCanvas->resetMatrix();
             fOverdrawCanvas->drawRect(SkRect::Make(mask.fBounds), SkPaint());

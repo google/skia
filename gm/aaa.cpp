@@ -68,7 +68,7 @@ DEF_SIMPLE_GM(analytic_antialias_convex, canvas, W, H) {
     SkPathPriv::SetConvexity(path, SkPathConvexity::kConvex);
     canvas->drawPath(path, p);
 
-    // skbug.com/7573
+    // skbug.com/40038820
     y += 200;
     canvas->save();
     canvas->translate(0, y);
@@ -80,7 +80,7 @@ DEF_SIMPLE_GM(analytic_antialias_convex, canvas, W, H) {
     canvas->drawPath(pb.detach(), p);
     canvas->restore();
 
-    // skbug.com/7813
+    // skbug.com/40039068
     // t8888 splits the 800-high canvas into 3 pieces; the boundary is close to 266 and 534
     pb.moveTo(700, 266);
     pb.lineTo(710, 266);
