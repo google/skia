@@ -46,7 +46,7 @@ def compile_sksl(name, lang, inputs, settings = "settings"):
         name = "enumerate_%s_list" % name,  # This name does not really matter.
         srcs = [inputs],
         outs = [name + ".txt"],
-        # Put a space seperated list of file names into the one output
+        # Put a space separated list of file names into the one output
         # This is done because the list could be quite long and overflow
         # the command line length
         # https://bazel.build/reference/be/make-variables#predefined_genrule_variables

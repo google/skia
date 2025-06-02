@@ -96,7 +96,7 @@ struct InsertRecordingInfo {
  * and the caller can use the callback to know it is safe to free any resources associated with
  * the Recording that they may be holding onto. If the Recording is successfully submitted to the
  * GPU the callback will be called with CallbackResult::kSuccess once the GPU has finished. All
- * other cases where some failure occured it will be called with CallbackResult::kFailed.
+ * other cases where some failure occurred it will be called with CallbackResult::kFailed.
  */
 struct InsertFinishInfo {
     InsertFinishInfo() = default;
