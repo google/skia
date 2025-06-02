@@ -175,13 +175,13 @@ SkGlyphID SkFont::unicharToGlyph(SkUnichar uni) const {
 }
 
 void SkFont::unicharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
-    this->getTypeface()->unicharsToGlyphs(uni, count, glyphs);
+    this->getTypeface()->unicharsToGlyphs({uni, count}, {glyphs, count});
 }
 
 int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
                          SkGlyphID glyphs[], int maxGlyphCount) const {
     return this->getTypeface()->textToGlyphs(text, byteLength, encoding,
-                                             glyphs, maxGlyphCount);
+                                             {glyphs, maxGlyphCount});
 }
 
 SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding encoding,
