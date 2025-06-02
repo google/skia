@@ -2022,7 +2022,7 @@ SkPoint Viewer::mapEvent(float x, float y) {
 
     SkAssertResult(m.invert(&inv));
 
-    return inv.mapXY(x, y);
+    return inv.mapPoint({x, y});
 }
 
 bool Viewer::onTouch(intptr_t owner, skui::InputState state, float x, float y) {

@@ -265,7 +265,7 @@ protected:
         }
 
         const auto& rec = tf->fGlyphRecs[gid];
-        mx.advance = fMatrix.mapXY(rec.fAdvance, 0);
+        mx.advance = fMatrix.mapPoint({rec.fAdvance, 0});
 
         if (rec.isDrawable()) {
             mx.maskFormat = SkMask::kARGB32_Format;
@@ -353,7 +353,7 @@ protected:
     }
 
     void generateFontMetrics(SkFontMetrics* metrics) override {
-        auto [sx, sy] = fMatrix.mapXY(1, 1);
+        auto [sx, sy] = fMatrix.mapPoint({1, 1});
         *metrics = scale_fontmetrics(this->userTF()->fMetrics, sx, sy);
     }
 

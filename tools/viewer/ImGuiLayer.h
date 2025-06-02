@@ -83,7 +83,7 @@ struct DragCanvas {
 
     void dragPoint(SkPoint* p, bool tooltip = false, ImU32 color = 0xFFFFFFFF) {
         // Transform points from logical coordinates to screen coordinates
-        SkPoint center = fLocalToScreen.mapXY(p->fX, p->fY);
+        SkPoint center = fLocalToScreen.mapPoint(*p);
 
         // Invisible 10x10 button
         ImGui::PushID(fID++);
@@ -97,7 +97,7 @@ struct DragCanvas {
                        SkTPin(io.MousePos.y, fPos.y, fPos.y + fSize.y));
 
             // Update local coordinates for the caller
-            *p = fScreenToLocal.mapXY(center.fX, center.fY);
+            *p = fScreenToLocal.mapPoint(center);
             fDragging = true;
         }
 

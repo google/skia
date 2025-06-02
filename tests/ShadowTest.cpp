@@ -151,7 +151,7 @@ void check_xformed_bounds(skiatest::Reporter* reporter, const SkPath& path, cons
         REPORTER_ASSERT(reporter, bounds.contains(verts->bounds()));
     }
 
-    SkPoint mapXY = ctm.mapXY(rec.fLightPos.fX, rec.fLightPos.fY);
+    SkPoint mapXY = ctm.mapPoint({rec.fLightPos.fX, rec.fLightPos.fY});
     SkPoint3 devLightPos = SkPoint3::Make(mapXY.fX, mapXY.fY, rec.fLightPos.fZ);
     verts = SkShadowTessellator::MakeSpot(path, ctm, rec.fZPlaneParams, devLightPos,
                                           rec.fLightRadius, false, false);

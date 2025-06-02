@@ -529,14 +529,14 @@ public:
     */
     SkMatrix& setTranslateY(SkScalar v) { return this->set(kMTransY, v); }
 
-    /** Sets input x-axis perspective factor, which causes mapXY() to vary input x-axis values
+    /** Sets input x-axis perspective factor, which causes mapPoints() to vary input x-axis values
         inversely proportional to input y-axis values.
 
         @param v  perspective factor
     */
     SkMatrix& setPerspX(SkScalar v) { return this->set(kMPersp0, v); }
 
-    /** Sets input y-axis perspective factor, which causes mapXY() to vary input y-axis values
+    /** Sets input y-axis perspective factor, which causes mapPoints() to vary input y-axis values
         inversely proportional to input x-axis values.
 
         @param v  perspective factor
@@ -1369,56 +1369,36 @@ public:
                           |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 
         @param p  SkPoint to map
-        @return   mapped SkPoint
+        @return mapped SkPoint
     */
-    SkPoint mapPoint(SkPoint pt) const {
-        SkPoint result;
-        this->mapXY(pt.x(), pt.y(), &result);
-        return result;
+    SkPoint mapPoint(SkPoint p) const {
+        if (this->hasPerspective()) {
+            return this->mapPointPerspective(p);
+        } else {
+            return this->mapPointAffine(p);
+        }
     }
 
-    /** Maps SkPoint (x, y) to result. SkPoint is mapped by multiplying by SkMatrix. Given:
-
-                     | A B C |        | x |
-            Matrix = | D E F |,  pt = | y |
-                     | G H I |        | 1 |
-
-        result is computed as:
-
-                          |A B C| |x|                               Ax+By+C   Dx+Ey+F
-            Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-                          |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
-
-        @param x       x-axis value of SkPoint to map
-        @param y       y-axis value of SkPoint to map
-        @param result  storage for mapped SkPoint
-
-        example: https://fiddle.skia.org/c/@Matrix_mapXY
-    */
-    void mapXY(SkScalar x, SkScalar y, SkPoint* result) const;
-
-    /** Returns SkPoint (x, y) multiplied by SkMatrix. Given:
-
-                     | A B C |        | x |
-            Matrix = | D E F |,  pt = | y |
-                     | G H I |        | 1 |
-
-        result is computed as:
-
-                          |A B C| |x|                               Ax+By+C   Dx+Ey+F
-            Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-                          |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
-
-        @param x  x-axis value of SkPoint to map
-        @param y  y-axis value of SkPoint to map
-        @return   mapped SkPoint
-    */
+    // deprecated: call mapPoint(()
+    void mapXY(SkScalar x, SkScalar y, SkPoint* result) const {
+        *result = this->mapPoint({x, y});
+    }
+    // deprecated: call mapPoint(()
     SkPoint mapXY(SkScalar x, SkScalar y) const {
-        SkPoint result;
-        this->mapXY(x,y, &result);
-        return result;
+        return this->mapPoint({x, y});
     }
 
+    /*
+     *  If the caller knows the matrix has no perspective, this will inline the
+     *  math, making it more efficient than calling mapPoint().
+     */
+    SkPoint mapPointAffine(SkPoint p) const {
+        SkASSERT(!this->hasPerspective());
+        return {
+            (p.fX * fMat[0] + p.fY * fMat[1]) + fMat[2],
+            (p.fX * fMat[3] + p.fY * fMat[4]) + fMat[5],
+        };
+    }
 
     /** Returns (0, 0) multiplied by SkMatrix. Given:
 
@@ -1921,17 +1901,12 @@ private:
         }
     }
 
-    typedef void (*MapXYProc)(const SkMatrix& mat, SkScalar x, SkScalar y,
-                                 SkPoint* result);
-
-    static MapXYProc GetMapXYProc(TypeMask mask) {
-        SkASSERT((mask & ~kAllMasks) == 0);
-        return gMapXYProcs[mask & kAllMasks];
-    }
-
-    MapXYProc getMapXYProc() const {
-        return GetMapXYProc(this->getType());
-    }
+    /*
+     *  If the caller knows the matrix perspective, this dos the extra work to
+     *  correctly compute the mapping. mapPoint() calls this, but only after
+     *  checking if the matrix includes perspective.
+     */
+    SkPoint mapPointPerspective(SkPoint pt) const;
 
     typedef void (*MapPtsProc)(const SkMatrix& mat, SkPoint dst[],
                                   const SkPoint src[], int count);
@@ -1950,16 +1925,6 @@ private:
     static bool Poly2Proc(const SkPoint[], SkMatrix*);
     static bool Poly3Proc(const SkPoint[], SkMatrix*);
     static bool Poly4Proc(const SkPoint[], SkMatrix*);
-
-    static void Identity_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-    static void Trans_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-    static void Scale_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-    static void ScaleTrans_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-    static void Rot_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-    static void RotTrans_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-    static void Persp_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-
-    static const MapXYProc gMapXYProcs[];
 
     static void Identity_pts(const SkMatrix&, SkPoint[], const SkPoint[], int);
     static void Trans_pts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);

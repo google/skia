@@ -35,16 +35,11 @@ public:
         return matrix->readFromMemory(buffer, length);
     }
 
-    typedef SkMatrix::MapXYProc MapXYProc;
     typedef SkMatrix::MapPtsProc MapPtsProc;
 
 
     static MapPtsProc GetMapPtsProc(const SkMatrix& matrix) {
         return SkMatrix::GetMapPtsProc(matrix.getType());
-    }
-
-    static MapXYProc GetMapXYProc(const SkMatrix& matrix) {
-        return SkMatrix::GetMapXYProc(matrix.getType());
     }
 
     /**
@@ -131,10 +126,16 @@ public:
         // Insert other special-cases here (e.g. scale+translate)
 
         // general case
-        SkMatrix::MapXYProc proc = mx.getMapXYProc();
-        for (int i = 0; i < count; ++i) {
-            proc(mx, pts->fX, pts->fY, pts);
-            pts = (SkPoint*)((intptr_t)pts + stride);
+        if (mx.hasPerspective()) {
+            for (int i = 0; i < count; ++i) {
+                *pts = mx.mapPointPerspective(*pts);
+                pts = (SkPoint*)((intptr_t)pts + stride);
+            }
+        } else {
+            for (int i = 0; i < count; ++i) {
+                *pts = mx.mapPointAffine(*pts);
+                pts = (SkPoint*)((intptr_t)pts + stride);
+            }
         }
     }
 

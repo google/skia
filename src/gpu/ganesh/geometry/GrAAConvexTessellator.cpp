@@ -966,7 +966,7 @@ void GrAAConvexTessellator::lineTo(const SkPoint& p, CurveState curve) {
 }
 
 void GrAAConvexTessellator::lineTo(const SkMatrix& m, const SkPoint& p, CurveState curve) {
-    this->lineTo(m.mapXY(p.fX, p.fY), curve);
+    this->lineTo(m.mapPoint(p), curve);
 }
 
 void GrAAConvexTessellator::quadTo(const SkPoint pts[3]) {

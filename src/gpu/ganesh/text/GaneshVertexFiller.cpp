@@ -145,10 +145,10 @@ static void fill2D(SkZip<Quad, const Glyph*, const VertexData> quadData,
     for (auto [quad, glyph, leftTop] : quadData) {
         auto [l, t] = leftTop;
         auto [r, b] = leftTop + glyph->fAtlasLocator.widthHeight();
-        SkPoint lt = viewDifference.mapXY(l, t),
-                lb = viewDifference.mapXY(l, b),
-                rt = viewDifference.mapXY(r, t),
-                rb = viewDifference.mapXY(r, b);
+        SkPoint lt = viewDifference.mapPoint({l, t}),
+                lb = viewDifference.mapPoint({l, b}),
+                rt = viewDifference.mapPoint({r, t}),
+                rb = viewDifference.mapPoint({r, b});
         auto [al, at, ar, ab] = glyph->fAtlasLocator.getUVs();
         quad[0] = {lt, color, {al, at}};  // L,T
         quad[1] = {lb, color, {al, ab}};  // L,B

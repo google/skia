@@ -14,6 +14,7 @@
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTPin.h"
 #include "src/core/SkColorPriv.h"
+#include "src/core/SkMatrixPriv.h"
 #include "src/core/SkMemset.h"
 #include "src/core/SkMipmapAccessor.h"
 
@@ -267,7 +268,6 @@ bool SkBitmapProcState::chooseProcs() {
 
     SkASSERT(fTileModeX != SkTileMode::kDecal);
 
-    fInvProc            = SkMatrixPriv::GetMapXYProc(fInvMatrix);
     fInvSxFractionalInt = SkScalarToFractionalInt(fInvMatrix.getScaleX());
     fInvKyFractionalInt = SkScalarToFractionalInt(fInvMatrix.getSkewY ());
 

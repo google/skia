@@ -193,7 +193,7 @@ public:
         // Map coords to slide space.
         const auto xform = SkMatrix::RectToRect(fRect, SkRect::MakeSize(fDir->fWinSize),
                                                 SkMatrix::kCenter_ScaleToFit);
-        const auto pt = xform.mapXY(x, y);
+        const auto pt = xform.mapPoint({x, y});
 
         return fTarget->fSlide->onMouse(pt.x(), pt.y(), state, modifiers);
     }

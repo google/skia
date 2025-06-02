@@ -407,8 +407,6 @@
 #include "docs/examples/Matrix_mapRect_3.cpp"
 #include "docs/examples/Matrix_mapVectors.cpp"
 #include "docs/examples/Matrix_mapVectors_2.cpp"
-#include "docs/examples/Matrix_mapXY.cpp"
-#include "docs/examples/Matrix_mapXY_2.cpp"
 #include "docs/examples/Matrix_postConcat.cpp"
 #include "docs/examples/Matrix_postRotate.cpp"
 #include "docs/examples/Matrix_postRotate_2.cpp"

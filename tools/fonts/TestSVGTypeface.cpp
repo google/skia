@@ -191,7 +191,7 @@ protected:
 
     SkVector computeAdvance(SkGlyphID glyphID) {
         auto advance = this->getTestSVGTypeface()->getAdvance(glyphID);
-        return fMatrix.mapXY(advance.fX, advance.fY);
+        return fMatrix.mapPoint(advance);
     }
 
     GlyphMetrics generateMetrics(const SkGlyph& glyph, SkArenaAlloc*) override {

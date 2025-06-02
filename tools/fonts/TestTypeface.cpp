@@ -263,7 +263,7 @@ protected:
         GlyphMetrics mx(glyph.maskFormat());
 
         SkPoint advance = this->getTestTypeface()->getAdvance(glyph.getGlyphID());
-        mx.advance = fMatrix.mapXY(advance.fX, advance.fY);
+        mx.advance = fMatrix.mapPoint(advance);
 
         // Always generates from paths, so SkScalerContext::makeGlyph will figure the bounds.
         mx.computeFromPath = true;

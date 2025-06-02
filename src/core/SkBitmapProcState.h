@@ -19,7 +19,6 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFixed.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/core/SkMatrixPriv.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -62,7 +61,6 @@ struct SkBitmapProcState {
     SkTileMode              fTileModeY;
     bool                    fBilerp;
 
-    SkMatrixPriv::MapXYProc fInvProc;           // chooseProcs
     SkFractionalInt     fInvSxFractionalInt;
     SkFractionalInt     fInvKyFractionalInt;
 
@@ -162,10 +160,10 @@ class SkBitmapProcStateAutoMapper {
 public:
     SkBitmapProcStateAutoMapper(const SkBitmapProcState& s, int x, int y,
                                 SkPoint* scalarPoint = nullptr) {
-        SkPoint pt;
-        s.fInvProc(s.fInvMatrix,
-                   SkIntToScalar(x) + SK_ScalarHalf,
-                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
+        SkPoint pt = s.fInvMatrix.mapPoint({
+            SkIntToScalar(x) + SK_ScalarHalf,
+            SkIntToScalar(y) + SK_ScalarHalf,
+        });
 
         SkFixed biasX = 0, biasY = 0;
         if (s.fBilerp) {
