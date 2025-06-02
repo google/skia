@@ -84,7 +84,7 @@ EnabledFeatures GetEnabledFeature(const VkPhysicalDeviceFeatures2* features) {
                     enabled.fDeviceFault = feature->deviceFault;
                     break;
                 }
-                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT: {
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT: {
                     const auto* feature = reinterpret_cast<
                             const VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT*>(pNext);
                     // The feature struct being present at all indicated advanced blend mode

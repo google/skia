@@ -84,13 +84,15 @@ DEF_GRAPHITE_TEST_FOR_VULKAN_CONTEXT(VulkanDstReadsShareRenderpass, reporter, co
     sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), ii);
     SkCanvas* canvas = surface->getCanvas();
 
-    // Select which blend modes to use for testing: one that we do expect to require a dst read
-    // and one we do not. Assert that the dst read requirements of the modes align to
+    // Select which blend modes to use for testing: one that we do expect to require a dst read on
+    // most hardware and one we do not. Assert that the dst read requirements of the modes align to
     // expectations. For the sake of this test, assume Coverage::kNone.
     static const SkBlendMode simpleBlendMode = SkBlendMode::kSrcATop;
     static const SkBlendMode dstReadBlendMode = SkBlendMode::kLighten;
     REPORTER_ASSERT(reporter, CanUseHardwareBlending(caps, simpleBlendMode, Coverage::kNone));
-    REPORTER_ASSERT(reporter, !CanUseHardwareBlending(caps, dstReadBlendMode, Coverage::kNone));
+    // VK_EXT_blend_operation_advanced is supported on Nvidia hardware which does enable hardware
+    // blending for every Skia blend mode, so the following assertion is not universal.
+    // REPORTER_ASSERT(reporter, !CanUseHardwareBlending(caps, dstReadBlendMode, Coverage::kNone));
 
     // Perform draw operations which do not read from the dst. Clear the canvas to initialize it to
     // any color, drawing a color over it afterwards using the simple blend mode.
