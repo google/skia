@@ -8,7 +8,6 @@
 #include "src/core/SkImageFilterCache.h"
 
 #include "include/private/base/SkMutex.h"
-#include "include/private/base/SkOnce.h"
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkChecksum.h"
 #include "src/core/SkImageFilterTypes.h"
@@ -157,13 +156,15 @@ sk_sp<SkImageFilterCache> SkImageFilterCache::Create(size_t maxBytes) {
 }
 
 sk_sp<SkImageFilterCache> SkImageFilterCache::Get(CreateIfNecessary createIfNecessary) {
-    static SkOnce once;
+    static SkMutex mutex;
     static sk_sp<SkImageFilterCache> cache;
+    SkAutoMutexExclusive ame(mutex);
 
     if (createIfNecessary == CreateIfNecessary::kNo) {
         return cache;
     }
-
-    once([]{ cache = SkImageFilterCache::Create(kDefaultCacheSize); });
+    if (!cache) {
+        cache = SkImageFilterCache::Create(kDefaultCacheSize);
+    }
     return cache;
 }
