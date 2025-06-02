@@ -794,8 +794,6 @@ public:
         return this;
     }
 
-    bool useLegacyFilterResultBlur() const override { return false; }
-
     // SkShaderBlurAlgorithm
     sk_sp<SkDevice> makeDevice(const SkImageInfo& imageInfo) const override {
         return fContext->priv().createDevice(skgpu::Budgeted::kYes,

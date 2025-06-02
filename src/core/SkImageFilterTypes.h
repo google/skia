@@ -1108,10 +1108,6 @@ public:
     // TODO: Once all Backends provide a blur engine, maybe just have Backend extend it.
     virtual const SkBlurEngine* getBlurEngine() const = 0;
 
-    // TODO: Can be removed once all blur engines rely on FilterResult::rescale and not their own
-    // rescale implementations.
-    virtual bool useLegacyFilterResultBlur() const { return true; }
-
     // Properties controlling the pixel data for offscreen surfaces rendered to during filtering.
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     SkColorType colorType() const { return fColorType; }

@@ -13,7 +13,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkColor.h"
-#include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
@@ -205,16 +204,9 @@ public:
         return SkImages::RasterFromBitmap(data);
     }
 
-#if defined(SK_USE_LEGACY_BLUR_RASTER)
-    const SkBlurEngine* getBlurEngine() const override { return nullptr; }
-#else
-    bool useLegacyFilterResultBlur() const override { return false; }
-
     const SkBlurEngine* getBlurEngine() const override {
         return SkBlurEngine::GetRasterBlurEngine();
     }
-#endif
-
 };
 
 } // anonymous namespace
@@ -231,11 +223,6 @@ Backend::Backend(sk_sp<SkImageFilterCache> cache,
 Backend::~Backend() = default;
 
 sk_sp<Backend> MakeRasterBackend(const SkSurfaceProps& surfaceProps, SkColorType colorType) {
-    // TODO (skbug:14286): Remove this forcing to 8888. Many legacy image filters only support
-    // N32 on CPU, but once they are implemented in terms of draws and SkSL they will support
-    // all color types, like the GPU backends.
-    colorType = kN32_SkColorType;
-
     return sk_make_sp<RasterBackend>(surfaceProps, colorType);
 }
 
@@ -2117,8 +2104,6 @@ FilterResult FilterResult::Builder::merge() {
 FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
     SkASSERT(fInputs.size() == 1);
 
-    // TODO: The blur functor is only supported for GPU contexts; SkBlurImageFilter should have
-    // detected this.
     const SkBlurEngine* blurEngine = fContext.backend()->getBlurEngine();
     SkASSERT(blurEngine);
 
@@ -2144,24 +2129,6 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
     // in Builder::add()).
     auto sampleBounds = outputBounds;
     sampleBounds.outset(radii);
-
-    if (fContext.backend()->useLegacyFilterResultBlur()) {
-        SkASSERT(sigma.width() <= algorithm->maxSigma() && sigma.height() <= algorithm->maxSigma());
-
-        FilterResult resolved = fInputs[0].fImage.resolve(fContext, sampleBounds);
-        if (!resolved) {
-            return {};
-        }
-        auto srcRelativeOutput = outputBounds;
-        srcRelativeOutput.offset(-resolved.layerBounds().topLeft());
-        resolved = {algorithm->blur(SkSize(sigma),
-                                    resolved.fImage,
-                                    SkIRect::MakeSize(resolved.fImage->dimensions()),
-                                    SkTileMode::kDecal,
-                                    SkIRect(srcRelativeOutput)),
-                    outputBounds.topLeft()};
-        return resolved;
-    }
 
     float sx = sigma.width()  > algorithm->maxSigma() ? algorithm->maxSigma()/sigma.width()  : 1.f;
     float sy = sigma.height() > algorithm->maxSigma() ? algorithm->maxSigma()/sigma.height() : 1.f;

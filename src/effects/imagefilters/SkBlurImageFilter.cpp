@@ -7,7 +7,6 @@
 
 #include "include/effects/SkImageFilters.h"
 
-#include "include/core/SkColorType.h"
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkRect.h"
@@ -17,12 +16,10 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "include/private/base/SkTo.h"
 #include "src/core/SkBlurEngine.h"
 #include "src/core/SkImageFilterTypes.h"
 #include "src/core/SkImageFilter_Base.h"
 #include "src/core/SkReadBuffer.h"
-#include "src/core/SkSpecialImage.h"
 #include "src/core/SkWriteBuffer.h"
 
 #include <algorithm>
@@ -62,12 +59,11 @@ private:
             const skif::Mapping& mapping,
             std::optional<skif::LayerSpace<SkIRect>> contentBounds) const override;
 
-    skif::LayerSpace<SkSize> mapSigma(const skif::Mapping& mapping, bool useBlurEngine) const;
+    skif::LayerSpace<SkSize> mapSigma(const skif::Mapping& mapping) const;
 
     skif::LayerSpace<SkIRect> kernelBounds(const skif::Mapping& mapping,
-                                           skif::LayerSpace<SkIRect> bounds,
-                                           bool useBlurEngine) const {
-        skif::LayerSpace<SkSize> sigma = this->mapSigma(mapping, useBlurEngine);
+                                           skif::LayerSpace<SkIRect> bounds) const {
+        skif::LayerSpace<SkSize> sigma = this->mapSigma(mapping);
         bounds.outset(skif::LayerSpace<SkSize>({3 * sigma.width(), 3 * sigma.height()}).ceil());
         return bounds;
     }
@@ -157,13 +153,11 @@ static constexpr SkScalar kMaxSigma = 532.f;
 }  // namespace
 
 skif::FilterResult SkBlurImageFilter::onFilterImage(const skif::Context& ctx) const {
-    const bool useBlurEngine = SkToBool(ctx.backend()->getBlurEngine());
-
     skif::Context inputCtx = ctx.withNewDesiredOutput(
-            this->kernelBounds(ctx.mapping(), ctx.desiredOutput(), useBlurEngine));
+            this->kernelBounds(ctx.mapping(), ctx.desiredOutput()));
 
     skif::FilterResult childOutput = this->getChildOutput(0, inputCtx);
-    skif::LayerSpace<SkSize> sigma = this->mapSigma(ctx.mapping(), useBlurEngine);
+    skif::LayerSpace<SkSize> sigma = this->mapSigma(ctx.mapping());
     if (sigma.width() == 0.f && sigma.height() == 0.f) {
         // No actual blur, so just return the input unmodified
         return childOutput;
@@ -175,8 +169,10 @@ skif::FilterResult SkBlurImageFilter::onFilterImage(const skif::Context& ctx) co
     // By default, FilterResult::blur() will calculate a more optimal output automatically, so
     // convey the original output to it.
     skif::LayerSpace<SkIRect> maxOutput = ctx.desiredOutput();
-    if (!useBlurEngine || fLegacyTileMode != SkTileMode::kDecal) {
-        maxOutput = this->kernelBounds(ctx.mapping(), childOutput.layerBounds(), useBlurEngine);
+    if (fLegacyTileMode != SkTileMode::kDecal) {
+        // Legacy tiling output is also dependent on the original child output bounds ignoring
+        // the tile mode's effect.
+        maxOutput = this->kernelBounds(ctx.mapping(), childOutput.layerBounds());
         if (!maxOutput.intersect(ctx.desiredOutput())) {
             return {};
         }
@@ -190,62 +186,28 @@ skif::FilterResult SkBlurImageFilter::onFilterImage(const skif::Context& ctx) co
                                             fLegacyTileMode);
     }
 
-    // TODO(b/40039877): Once the CPU blur functions can handle tile modes and color types beyond
-    // N32, there won't be any need to branch on how to apply the blur to the filter result.
-    if (useBlurEngine) {
-        // For non-legacy tiling, 'maxOutput' is equal to the desired output. For decal's it matches
-        // what Builder::blur() calculates internally. For legacy tiling, however, it's dependent on
-        // the original child output's bounds ignoring the tile mode's effect.
-        skif::Context croppedOutput = ctx.withNewDesiredOutput(maxOutput);
-        skif::FilterResult::Builder builder{croppedOutput};
-        builder.add(childOutput);
-        return builder.blur(sigma);
-    }
-
-    // The legacy CPU blur does not yet support tile modes so explicitly resolve it to a special
-    // image that has the tiling rendered into the pixels.
-
-    auto [resolvedChildOutput, origin] = childOutput.imageAndOffset(inputCtx);
-    if (!resolvedChildOutput) {
-        return {};
-    }
-    SkIRect srcRect = SkIRect::MakeSize(resolvedChildOutput->dimensions());
-    SkIRect srcRelativeOutput = SkIRect(maxOutput).makeOffset(-origin.x(), -origin.y());
-
-    // These parameters will always select the successive box-blur algorithm for 8888 data,
-    // matching the legacy behavior when that code was defined inline here.
-    const SkBlurEngine::Algorithm* legacyBlur = SkBlurEngine::GetRasterBlurEngine()->findAlgorithm(
-            /*sigma=*/{kMaxSigma, kMaxSigma}, /*colorType=*/kN32_SkColorType);
-    sk_sp<SkSpecialImage> blurResult = legacyBlur->blur(SkSize(sigma),
-                                                        std::move(resolvedChildOutput),
-                                                        srcRect,
-                                                        SkTileMode::kDecal,
-                                                        srcRelativeOutput);
-    return skif::FilterResult{std::move(blurResult), maxOutput.topLeft()};
+    // For non-legacy tiling, 'maxOutput' is equal to the desired output. For decal's it matches
+    // what Builder::blur() calculates internally. For legacy tiling, however, it's dependent on
+    // the original child output's bounds ignoring the tile mode's effect.
+    skif::Context croppedOutput = ctx.withNewDesiredOutput(maxOutput);
+    skif::FilterResult::Builder builder{croppedOutput};
+    builder.add(childOutput);
+    return builder.blur(sigma);
 }
 
-skif::LayerSpace<SkSize> SkBlurImageFilter::mapSigma(const skif::Mapping& mapping,
-                                                     bool useBlurEngine) const {
+skif::LayerSpace<SkSize> SkBlurImageFilter::mapSigma(const skif::Mapping& mapping) const {
     skif::LayerSpace<SkSize> sigma = mapping.paramToLayer(fSigma);
     // Clamp to the maximum sigma
     sigma = skif::LayerSpace<SkSize>({std::min(sigma.width(), kMaxSigma),
                                       std::min(sigma.height(), kMaxSigma)});
 
-    // TODO(b/294575803) - The legacy CPU blur uses only the successive box-blur which is both
-    // inaccurate for sigma < 2 and unable to represent blurring when its window is <= 1 (sigma
-    // below ~0.8). Until everything is using the blur engine, support both notions of identity.
-
     // Disable bluring on axes that are not finite, or that are small enough that the blur is
     // effectively an identity.
-    if (!SkIsFinite(sigma.width()) ||
-        (!useBlurEngine && SkBlurEngine::BoxBlurWindow(sigma.width()) <= 1) ||
-        (useBlurEngine && SkBlurEngine::IsEffectivelyIdentity(sigma.width()))) {
+    if (!SkIsFinite(sigma.width()) || SkBlurEngine::IsEffectivelyIdentity(sigma.width())) {
         sigma = skif::LayerSpace<SkSize>({0.f, sigma.height()});
     }
 
-    if (!SkIsFinite(sigma.height()) ||
-        (!useBlurEngine && SkBlurEngine::BoxBlurWindow(sigma.height()) <= 1) ||
-        (useBlurEngine && SkBlurEngine::IsEffectivelyIdentity(sigma.height()))) {
+    if (!SkIsFinite(sigma.height()) || SkBlurEngine::IsEffectivelyIdentity(sigma.height())) {
         sigma = skif::LayerSpace<SkSize>({sigma.width(), 0.f});
     }
 
@@ -256,10 +218,8 @@ skif::LayerSpace<SkIRect> SkBlurImageFilter::onGetInputLayerBounds(
         const skif::Mapping& mapping,
         const skif::LayerSpace<SkIRect>& desiredOutput,
         std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
-    // Use useBlurEngine=true since that has a more sensitive kernel, ensuring any layer input
-    // bounds will be sufficient for both blur engine and legacy CPU evaluations.
     skif::LayerSpace<SkIRect> requiredInput =
-            this->kernelBounds(mapping, desiredOutput, /*useBlurEngine=*/true);
+            this->kernelBounds(mapping, desiredOutput);
     return this->getChildInputLayerBounds(0, mapping, requiredInput, contentBounds);
 }
 
@@ -268,9 +228,7 @@ std::optional<skif::LayerSpace<SkIRect>> SkBlurImageFilter::onGetOutputLayerBoun
         std::optional<skif::LayerSpace<SkIRect>> contentBounds) const {
     auto childOutput = this->getChildOutputLayerBounds(0, mapping, contentBounds);
     if (childOutput) {
-        // Use useBlurEngine=true since it will ensure output bounds are conservative; legacy
-        // CPU-based blurs may produce 1px inset from this for very small sigmas.
-        return this->kernelBounds(mapping, *childOutput, /*useBlurEngine=*/true);
+        return this->kernelBounds(mapping, *childOutput);
     } else {
         return skif::LayerSpace<SkIRect>::Unbounded();
     }
