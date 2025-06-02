@@ -278,8 +278,10 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
 
     // Note: ARM GPUs have always been coherent, do not add a subpass self-dependency even if the
     // application hasn't enabled this feature as it comes with a performance cost on this GPU.
-    fIsInputAttachmentReadCoherent = enabledFeatures.fRasterizationOrderColorAttachmentAccess ||
-                                     vendorID == kARM_VkVendor;
+    fSupportsRasterizationOrderColorAttachmentAccess =
+            enabledFeatures.fRasterizationOrderColorAttachmentAccess;
+    fIsInputAttachmentReadCoherent =
+            fSupportsRasterizationOrderColorAttachmentAccess || vendorID == kARM_VkVendor;
 
     // TODO(skia:14639): We must force std430 array stride when using SSBOs since SPIR-V generation
     // cannot handle mixed array strides being passed into functions.

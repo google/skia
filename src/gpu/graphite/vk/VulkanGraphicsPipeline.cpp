@@ -369,7 +369,8 @@ static VkBlendOp blend_equation_to_vk_blend_op(skgpu::BlendEquation equation) {
     return gTable[(int)equation];
 }
 
-static void setup_color_blend_state(const skgpu::BlendInfo& blendInfo,
+static void setup_color_blend_state(const VulkanCaps& caps,
+                                    const skgpu::BlendInfo& blendInfo,
                                     VkPipelineColorBlendStateCreateInfo* colorBlendInfo,
                                     VkPipelineColorBlendAttachmentState* attachmentState) {
     skgpu::BlendEquation equation = blendInfo.fEquation;
@@ -401,6 +402,11 @@ static void setup_color_blend_state(const skgpu::BlendInfo& blendInfo,
     colorBlendInfo->attachmentCount = 1;
     colorBlendInfo->pAttachments = attachmentState;
     // colorBlendInfo->blendConstants is set dynamically
+
+    if (caps.supportsRasterizationOrderColorAttachmentAccess()) {
+        colorBlendInfo->flags =
+                VK_PIPELINE_COLOR_BLEND_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_BIT_EXT;
+    }
 }
 
 static void setup_raster_state(bool isWireframe,
@@ -835,7 +841,8 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(const VulkanSharedContext* share
     // We will only have one color blend attachment per pipeline.
     VkPipelineColorBlendAttachmentState attachmentStates[1];
     VkPipelineColorBlendStateCreateInfo colorBlendInfo;
-    setup_color_blend_state(blendInfo, &colorBlendInfo, attachmentStates);
+    setup_color_blend_state(
+            sharedContext->vulkanCaps(), blendInfo, &colorBlendInfo, attachmentStates);
 
     VkPipelineRasterizationStateCreateInfo rasterInfo;
     // TODO: Check for wire frame mode once that is an available context option within graphite.

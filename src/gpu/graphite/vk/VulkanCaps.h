@@ -96,6 +96,14 @@ public:
     // Whether a subpass self-dependency is required and a barrier to read from input attachments or
     // not.
     bool isInputAttachmentReadCoherent() const { return fIsInputAttachmentReadCoherent; }
+    // isInputAttachmentReadCoherent() is based on whether
+    // VK_EXT_rasterization_order_attachment_access is supported, but is also enabled on a few
+    // architectures where it's known a priori that input attachment reads are coherent. The
+    // following determines whether that extension is enabled (in which case a pipeline creation
+    // flag is necessary) or not.
+    bool supportsRasterizationOrderColorAttachmentAccess() const {
+        return fSupportsRasterizationOrderColorAttachmentAccess;
+    }
 
     uint32_t maxVertexAttributes()   const { return fMaxVertexAttributes;   }
     uint64_t maxUniformBufferRange() const { return fMaxUniformBufferRange; }
@@ -263,6 +271,7 @@ private:
     bool fGpuOnlyBuffersMorePerformant = false;
     bool fShouldPersistentlyMapCpuToGpuBuffers = true;
     bool fSupportsDeviceFaultInfo = false;
+    bool fSupportsRasterizationOrderColorAttachmentAccess = false;
     bool fIsInputAttachmentReadCoherent = false;
 
     // Flags to enable workarounds for driver bugs
