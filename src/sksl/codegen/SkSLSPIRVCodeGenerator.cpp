@@ -2119,7 +2119,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             break;
         }
         case kSampledImage_SpecialIntrinsic: {
-            result = this->nextId(nullptr);
+            result = this->nextId(&callType);
             SkASSERT(arguments.size() == 2);
             SpvId img = this->writeExpression(*arguments[0], out);
             SpvId sampler = this->writeExpression(*arguments[1], out);
@@ -2132,7 +2132,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             break;
         }
         case kSubpassLoad_SpecialIntrinsic: {
-            result = this->nextId(nullptr);
+            result = this->nextId(&callType);
             SpvId img = this->writeExpression(*arguments[0], out);
             ExpressionArray args;
             args.reserve_exact(2);
@@ -2162,6 +2162,8 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             break;
         }
         case kTexture_SpecialIntrinsic: {
+            // TODO(skbug.com/421927604): Work around Nvidia bug when RelaxedPrecision is applied to
+            // YCbCr texture sampling op.
             result = this->nextId(nullptr);
             SpvOp_ op = SpvOpImageSampleImplicitLod;
             const Type& arg1Type = arguments[1]->type();
@@ -2216,7 +2218,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             break;
         }
         case kTextureGrad_SpecialIntrinsic: {
-            result = this->nextId(nullptr);
+            result = this->nextId(&callType);
             SpvOp_ op = SpvOpImageSampleExplicitLod;
             SkASSERT(arguments.size() == 4);
             SkASSERT(arguments[0]->type().dimensions() == SpvDim2D);
@@ -2233,7 +2235,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             break;
         }
         case kTextureLod_SpecialIntrinsic: {
-            result = this->nextId(nullptr);
+            result = this->nextId(&callType);
             SpvOp_ op = SpvOpImageSampleExplicitLod;
             SkASSERT(arguments.size() == 3);
             SkASSERT(arguments[0]->type().dimensions() == SpvDim2D);
@@ -2254,7 +2256,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             break;
         }
         case kTextureRead_SpecialIntrinsic: {
-            result = this->nextId(nullptr);
+            result = this->nextId(&callType);
             SkASSERT(arguments[0]->type().dimensions() == SpvDim2D);
             SkASSERT(arguments[1]->type().matches(*fContext.fTypes.fUInt2));
 
@@ -2299,12 +2301,12 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         }
         case kTextureWidth_SpecialIntrinsic:
         case kTextureHeight_SpecialIntrinsic: {
-            result = this->nextId(nullptr);
+            result = this->nextId(&callType);
             SkASSERT(arguments[0]->type().dimensions() == SpvDim2D);
             fCapabilities |= 1ULL << SpvCapabilityImageQuery;
 
             SpvId dimsType = this->getType(*fContext.fTypes.fUInt2);
-            SpvId dims = this->nextId(nullptr);
+            SpvId dims = this->nextId(&callType);
             SpvId image = this->writeExpression(*arguments[0], out);
             this->writeInstruction(SpvOpImageQuerySize, dimsType, dims, image, out);
 
@@ -2429,7 +2431,7 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
         case kAtomicAdd_SpecialIntrinsic:
         case kAtomicLoad_SpecialIntrinsic:
         case kAtomicStore_SpecialIntrinsic:
-            result = this->nextId(nullptr);
+            result = this->nextId(&callType);
             result = this->writeAtomicIntrinsic(c, kind, result, out);
             break;
         case kStorageBarrier_SpecialIntrinsic:
