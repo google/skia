@@ -325,7 +325,7 @@ void populate_subpass_dependencies(const VulkanSharedContext* context,
     // one to every RenderPass which has an input attachment on the main subpass. This is useful
     // because it means that as we perform draw calls, if we encounter a draw that uses a blend
     // operation requiring a dst read, we can avoid having to switch RenderPasses.
-    if (!context->vulkanCaps().isInputAttachmentReadCoherent()) {
+    if (!context->vulkanCaps().supportsRasterizationOrderColorAttachmentAccess()) {
         VkSubpassDependency& selfDependency = deps.push_back();
         selfDependency.srcSubpass = mainSubpassIdx;
         selfDependency.dstSubpass = mainSubpassIdx;

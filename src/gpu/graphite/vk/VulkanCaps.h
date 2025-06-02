@@ -93,14 +93,14 @@ public:
     bool supportsYcbcrConversion() const { return fSupportsYcbcrConversion; }
     bool supportsDeviceFaultInfo() const { return fSupportsDeviceFaultInfo; }
 
-    // Whether a subpass self-dependency is required and a barrier to read from input attachments or
-    // not.
+    // Whether a barrier is required before reading from input attachments (barrier is needed if
+    // !coherent).
     bool isInputAttachmentReadCoherent() const { return fIsInputAttachmentReadCoherent; }
     // isInputAttachmentReadCoherent() is based on whether
     // VK_EXT_rasterization_order_attachment_access is supported, but is also enabled on a few
     // architectures where it's known a priori that input attachment reads are coherent. The
     // following determines whether that extension is enabled (in which case a pipeline creation
-    // flag is necessary) or not.
+    // flag is necessary) or not. When disabled, a subpass self-dependency is needed instead.
     bool supportsRasterizationOrderColorAttachmentAccess() const {
         return fSupportsRasterizationOrderColorAttachmentAccess;
     }
