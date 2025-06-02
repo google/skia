@@ -54,7 +54,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"chromium.googlesource.com/chromium/src/third_party/freetype2": {
 		Id:      "chromium.googlesource.com/chromium/src/third_party/freetype2",
-		Version: "702e4a1d32e4b911e85cc7df84b3ba395c28dab3",
+		Version: "deef6d2a3c3c2e502c88737e22d4633f50d570b5",
 		Path:    "third_party/externals/freetype",
 	},
 	"chromium.googlesource.com/chromium/src/third_party/jinja2": {

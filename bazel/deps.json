@@ -30,7 +30,7 @@
     },
     {
       "build_file": "//bazel/external/freetype:BUILD.bazel",
-      "commit": "702e4a1d32e4b911e85cc7df84b3ba395c28dab3",
+      "commit": "deef6d2a3c3c2e502c88737e22d4633f50d570b5",
       "name": "freetype",
       "patches": [
         "//bazel/external/freetype:config_files.patch"
