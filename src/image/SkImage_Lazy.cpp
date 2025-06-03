@@ -15,7 +15,7 @@
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRecorder.h"
 #include "include/core/SkSize.h"
-#include "include/core/SkSurface.h"
+#include "include/core/SkSurface.h"  // IWYU pragma: keep
 #include "include/core/SkYUVAInfo.h"
 #include "src/core/SkBitmapCache.h"
 #include "src/core/SkCachedData.h"
@@ -221,12 +221,9 @@ sk_sp<SkSurface> SkImage_Lazy::onMakeSurface(SkRecorder* recorder, const SkImage
         // TODO(kjlubick) remove this after old SkImage::makeScaled(image info, sampling) API gone
         recorder = skcpu::Recorder::TODO();
     }
-    if (recorder->type() != SkRecorder::Type::kCPU) {
-        return nullptr;
-    }
     const SkSurfaceProps* props = nullptr;
     constexpr size_t rowBytes = 0;
-    return static_cast<skcpu::Recorder*>(recorder)->makeBitmapSurface(info, rowBytes, props);
+    return recorder->cpuRecorder()->makeBitmapSurface(info, rowBytes, props);
 }
 
 sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(SkColorType targetCT,
