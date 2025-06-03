@@ -58,14 +58,14 @@ void SkRect::toQuad(SkPoint quad[4]) const {
 
 #include "src/base/SkVx.h"
 
-bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
-    SkASSERT((pts && count > 0) || count == 0);
-
-    if (count <= 0) {
+bool SkRect::setBoundsCheck(SkSpan<const SkPoint> points) {
+    if (points.empty()) {
         this->setEmpty();
         return true;
     }
 
+    auto pts = points.data();
+    auto count = points.size();
     skvx::float4 min, max;
     if (count & 1) {
         min = max = skvx::float2::Load(pts).xyxy();
@@ -97,8 +97,8 @@ bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
     return all_finite;
 }
 
-void SkRect::setBoundsNoCheck(const SkPoint pts[], int count) {
-    if (!this->setBoundsCheck(pts, count)) {
+void SkRect::setBoundsNoCheck(SkSpan<const SkPoint> points) {
+    if (!this->setBoundsCheck(points)) {
         this->setLTRB(SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN);
     }
 }

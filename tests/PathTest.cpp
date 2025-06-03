@@ -947,17 +947,17 @@ static void test_rect_isfinite(skiatest::Reporter* reporter) {
         { 0, SK_Scalar1 },
     };
 
-    bool isFine = r.setBoundsCheck(pts, 3);
+    bool isFine = r.setBoundsCheck(pts);
     REPORTER_ASSERT(reporter, isFine);
     REPORTER_ASSERT(reporter, !r.isEmpty());
 
     pts[1].set(inf, 0);
-    isFine = r.setBoundsCheck(pts, 3);
+    isFine = r.setBoundsCheck(pts);
     REPORTER_ASSERT(reporter, !isFine);
     REPORTER_ASSERT(reporter, r.isEmpty());
 
     pts[1].set(nan, 0);
-    isFine = r.setBoundsCheck(pts, 3);
+    isFine = r.setBoundsCheck(pts);
     REPORTER_ASSERT(reporter, !isFine);
     REPORTER_ASSERT(reporter, r.isEmpty());
 }

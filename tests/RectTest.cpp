@@ -142,13 +142,13 @@ DEF_TEST(Rect_setbounds, reporter) {
     const SkRect zeror = { 0, 0, 0, 0 };
     for (const SkPoint* pts : { p0, p1, p2, p3 }) {
         for (int n = 1; n <= 4; ++n) {
-            bool isfinite = r.setBoundsCheck(pts, n);
+            bool isfinite = r.setBoundsCheck({pts, n});
             REPORTER_ASSERT(reporter, !isfinite);
             REPORTER_ASSERT(reporter, r == zeror);
 
-            r.setBoundsNoCheck(pts, n);
+            r.setBoundsNoCheck({pts, n});
             if (r.isFinite())
-                r.setBoundsNoCheck(pts, n);
+                r.setBoundsNoCheck({pts, n});
             REPORTER_ASSERT(reporter, !r.isFinite());
         }
     }

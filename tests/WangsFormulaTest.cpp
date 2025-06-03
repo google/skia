@@ -339,7 +339,7 @@ DEF_TEST(wangs_formula_worst_case_cubic, r) {
     }
     auto check_worst_case_cubic = [&](const SkPoint* pts) {
         SkRect bbox;
-        bbox.setBoundsNoCheck(pts, 4);
+        bbox.setBoundsNoCheck({pts, 4});
         float worst = wangs_formula::worst_case_cubic(kPrecision, bbox.width(), bbox.height());
         int worst_log2 = wangs_formula::worst_case_cubic_log2(kPrecision, bbox.width(),
                                                                bbox.height());

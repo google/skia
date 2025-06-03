@@ -34,7 +34,7 @@ DEF_FUZZ(PolyUtils, fuzz) {
         polygon[index] = sanitize_point(polygon[index]);
     }
     SkRect bounds;
-    bounds.setBoundsCheck(polygon, count);
+    bounds.setBoundsCheck({polygon, count});
 
     ignoreResult(SkGetPolygonWinding(polygon, count));
     bool isConvex = SkIsConvexPolygon(polygon, count);
