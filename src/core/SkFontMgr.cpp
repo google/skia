@@ -152,8 +152,8 @@ sk_sp<SkTypeface> SkFontMgr::legacyMakeTypeface(const char familyName[], SkFontS
 }
 
 sk_sp<SkFontMgr> SkFontMgr::RefEmpty() {
-    static sk_sp<SkFontMgr> singleton(new SkEmptyFontMgr);
-    return singleton;
+    static SkFontMgr* singleton = new SkEmptyFontMgr();
+    return sk_ref_sp(singleton);
 }
 
 /**

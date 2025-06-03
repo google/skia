@@ -17,6 +17,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/private/base/SkMacros.h"
+#include "include/private/base/SkOnce.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkRectPriv.h"
@@ -324,35 +325,36 @@ SkPathEffectBase::DashType TestDashPathEffect::asADash(DashInfo* info) const {
 }
 
 sk_sp<SkColorSpace> TestColorSpace(SkRandom* random) {
-    static sk_sp<SkColorSpace> gColorSpaces[3];
-    static bool gOnce;
-    if (!gOnce) {
-        gOnce = true;
+    static SkColorSpace* gColorSpaces[3];
+    static SkOnce once;
+    once([] {
         // No color space (legacy mode)
         gColorSpaces[0] = nullptr;
         // sRGB or color-spin sRGB
-        gColorSpaces[1] = SkColorSpace::MakeSRGB();
-        gColorSpaces[2] = SkColorSpace::MakeSRGB()->makeColorSpin();
-    }
-    return gColorSpaces[random->nextULessThan(static_cast<uint32_t>(std::size(gColorSpaces)))];
+        gColorSpaces[1] = SkColorSpace::MakeSRGB().release();
+        gColorSpaces[2] = SkColorSpace::MakeSRGB()->makeColorSpin().release();
+    });
+    return sk_ref_sp(
+            gColorSpaces[random->nextULessThan(static_cast<uint32_t>(std::size(gColorSpaces)))]);
 }
 
 sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
     // TODO: Add many more kinds of xforms here
-    static sk_sp<GrColorSpaceXform> gXforms[3];
-    static bool gOnce;
-    if (!gOnce) {
-        gOnce = true;
+    static GrColorSpaceXform* gXforms[3];
+    static SkOnce once;
+    once([] {
         sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
         sk_sp<SkColorSpace> spin = SkColorSpace::MakeSRGB()->makeColorSpin();
         // No gamut change
         gXforms[0] = nullptr;
-        gXforms[1] = GrColorSpaceXform::Make(srgb.get(), kPremul_SkAlphaType,
-                                             spin.get(), kPremul_SkAlphaType);
-        gXforms[2] = GrColorSpaceXform::Make(spin.get(), kPremul_SkAlphaType,
-                                             srgb.get(), kPremul_SkAlphaType);
-    }
-    return gXforms[random->nextULessThan(static_cast<uint32_t>(std::size(gXforms)))];
+        gXforms[1] = GrColorSpaceXform::Make(
+                             srgb.get(), kPremul_SkAlphaType, spin.get(), kPremul_SkAlphaType)
+                             .release();
+        gXforms[2] = GrColorSpaceXform::Make(
+                             spin.get(), kPremul_SkAlphaType, srgb.get(), kPremul_SkAlphaType)
+                             .release();
+    });
+    return sk_ref_sp(gXforms[random->nextULessThan(static_cast<uint32_t>(std::size(gXforms)))]);
 }
 
 TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d)
