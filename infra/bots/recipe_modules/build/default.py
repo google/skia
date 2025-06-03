@@ -93,7 +93,7 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
   }
   env = {}
 
-  if os == 'Mac' or os == 'Mac10.15.7':
+  if os == 'Mac':
     extra_cflags.append(
         '-DREBUILD_IF_CHANGED_xcode_build_version=%s' % api.xcode.version)
     if 'iOS12' in extra_tokens:
@@ -108,11 +108,11 @@ def get_compile_flags(api, checkout_root, out_dir, workdir):
       env['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
       args['ios_min_target'] = '"13.0"'
     else:
-      # We have some machines on 10.15.
-      env['MACOSX_DEPLOYMENT_TARGET'] = '10.15'
+      # We have some machines on 11.
+      env['MACOSX_DEPLOYMENT_TARGET'] = '11.0'
 
   # ccache + clang-tidy.sh chokes on the argument list.
-  if (api.vars.is_linux or os == 'Mac' or os == 'Mac10.15.5' or os == 'Mac10.15.7') and 'Tidy' not in extra_tokens:
+  if (api.vars.is_linux or os == 'Mac') and 'Tidy' not in extra_tokens:
     if api.vars.is_linux:
       ccache = workdir.joinpath('ccache_linux', 'bin', 'ccache')
       # As of 2020-02-07, the sum of each Debian10-Clang-x86
@@ -369,7 +369,7 @@ def compile_fn(api, checkout_root, out_dir):
             cmd=['python3', skia_dir.joinpath('bin', 'fetch-ninja')],
             infra_step=True)
 
-  if api.vars.builder_cfg.get('os', '') in ('Mac', 'Mac10.15.7'):
+  if api.vars.builder_cfg.get('os', '') in ('Mac'):
     api.xcode.install()
 
   workdir = api.path.start_dir

@@ -772,11 +772,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			task_os = UBUNTU_22_04_OS
 		} else if b.matchOs("iOS") {
 			ec = append([]string{task_os}, ec...)
-			if b.parts["compiler"] == "Xcode11.4.1" {
-				task_os = "Mac10.15.7"
-			} else {
-				task_os = "Mac"
-			}
+			task_os = "Mac"
 		} else if b.matchOs("Win") {
 			task_os = "Win"
 		} else if b.extraConfig("WasmGMTests") {
@@ -879,8 +875,6 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Debian9":     DEFAULT_OS_LINUX_GCE, // Runs in Deb9 Docker.
 			"Debian11":    DEBIAN_11_OS,
 			"Mac":         DEFAULT_OS_MAC,
-			"Mac10.15.1":  "Mac-10.15.1",
-			"Mac10.15.7":  "Mac-10.15.7",
 			"Mac12":       "Mac-12",
 			"Mac13":       "Mac-13",
 			"Mac14":       "Mac-14.7", // Builds run on 14.5, tests on 14.7.
@@ -1158,7 +1152,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			d["gce"] = "1"
 			// Use many-core machines for Build tasks.
 			d["machine_type"] = MACHINE_TYPE_LARGE
-		} else if d["os"] == DEFAULT_OS_MAC || d["os"] == "Mac-10.15.7" {
+		} else if d["os"] == DEFAULT_OS_MAC {
 			// Mac CPU bots are no longer VMs.
 			d["cpu"] = "x86-64"
 			d["cores"] = "12"

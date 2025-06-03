@@ -555,16 +555,6 @@
   {"name": "Perf-ChromeOS-Clang-Guybrush-GPU-RadeonVega3-x86_64-Release-All"},
   {"name": "Perf-ChromeOS-Clang-Octopus-GPU-IntelUHDGraphics600-x86_64-Release-All"},
   {"name": "Perf-ChromeOS-Clang-Trogdor-GPU-Adreno618-arm64-Release-All"},
-  {
-    "name": "Perf-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Graphite_Native_Metal",
-    "cq_config": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*"
-      ]
-    }
-  },
-  {"name": "Perf-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"},
   {"name": "Perf-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All"},
   {"name": "Perf-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All-Graphite_Native_Metal"},
   {"name": "Perf-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All-Metal"},
@@ -751,22 +741,6 @@
   {"name": "Test-ChromeOS-Clang-Octopus-GPU-IntelUHDGraphics600-x86_64-Release-All"},
   {"name": "Test-ChromeOS-Clang-Trogdor-GPU-Adreno618-arm64-Debug-All"},
   {"name": "Test-ChromeOS-Clang-Trogdor-GPU-Adreno618-arm64-Release-All"},
-  {
-    "name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Graphite_Native_Metal",
-    "cq_config": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*",
-        "dm/.+",
-        "src/shaders/.*"
-      ]
-    }
-  },
-  {"name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal"},
-  {"name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal_ColorSpaces"},
-  {"name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"},
-  {"name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal_ColorSpaces"},
-  {"name": "Test-Mac10.15.7-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts"},
   {"name": "Test-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All"},
   {"name": "Test-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All-ANGLE"},
   {"name": "Test-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All-Graphite_Native_Metal"},

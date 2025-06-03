@@ -178,7 +178,7 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
-      "MACOSX_DEPLOYMENT_TARGET": "10.15",
+      "MACOSX_DEPLOYMENT_TARGET": "11.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ccache stats-start"
@@ -197,7 +197,7 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
-      "MACOSX_DEPLOYMENT_TARGET": "10.15",
+      "MACOSX_DEPLOYMENT_TARGET": "11.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "gn gen"
@@ -215,7 +215,7 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
-      "MACOSX_DEPLOYMENT_TARGET": "10.15",
+      "MACOSX_DEPLOYMENT_TARGET": "11.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ninja"
@@ -232,7 +232,7 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
-      "MACOSX_DEPLOYMENT_TARGET": "10.15",
+      "MACOSX_DEPLOYMENT_TARGET": "11.0",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "name": "ccache stats-end"
