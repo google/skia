@@ -485,7 +485,6 @@ private:
         imgData.fYUVtoRGBMatrix.setAll(1, 0, 0, 0, 1, 0, 0, 0, 0);
         imgData.fYUVtoRGBTranslate = { 0, 0, 0 };
 
-        static sk_sp<SkColorSpace> srgbSpinColorSpace = sk_srgb_singleton()->makeColorSpin();
         const SkColorInfo& colorInfo = fColorInfos[desiredColorInfo];
 
         const Caps* caps = keyContext.caps();
