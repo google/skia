@@ -206,7 +206,7 @@ void SkRandomTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal
 }
 
 void SkRandomTypeface::onCharsToGlyphs(const SkUnichar* uni, int count, SkGlyphID glyphs[]) const {
-    fProxy->unicharsToGlyphs({uni, count}, {glyphs, count});
+    fProxy->unicharsToGlyphs(uni, count, glyphs);
 }
 
 int SkRandomTypeface::onCountGlyphs() const { return fProxy->countGlyphs(); }
@@ -245,8 +245,7 @@ int SkRandomTypeface::onGetVariationDesignParameters(SkFontParameters::Variation
 }
 
 int SkRandomTypeface::onGetTableTags(SkFontTableTag tags[]) const {
-    const size_t n = tags ? MAX_REASONABLE_TABLE_COUNT : 0;
-    return fProxy->getTableTags({tags, n});
+    return fProxy->getTableTags(tags);
 }
 
 size_t SkRandomTypeface::onGetTableData(SkFontTableTag tag,

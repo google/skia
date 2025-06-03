@@ -523,7 +523,7 @@ VariationSliders::VariationSliders(SkTypeface* typeface,
         return;
     }
 
-    int numAxes = typeface->getVariationDesignParameters({});
+    int numAxes = typeface->getVariationDesignParameters(nullptr, 0);
     if (numAxes < 0) {
         return;
     }
@@ -531,7 +531,7 @@ VariationSliders::VariationSliders(SkTypeface* typeface,
     std::unique_ptr<SkFontParameters::Variation::Axis[]> copiedAxes =
             std::make_unique<SkFontParameters::Variation::Axis[]>(numAxes);
 
-    numAxes = typeface->getVariationDesignParameters({copiedAxes.get(), numAxes});
+    numAxes = typeface->getVariationDesignParameters(copiedAxes.get(), numAxes);
     if (numAxes < 0) {
         return;
     }

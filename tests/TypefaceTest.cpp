@@ -176,7 +176,7 @@ DEF_TEST(TypefaceStyleVariable, reporter) {
 
     // Ensure that the font supports variable stuff
     Variation::Coordinate varPos[2];
-    int numAxes = typeface->getVariationDesignPosition(varPos);
+    int numAxes = typeface->getVariationDesignPosition(varPos, std::size(varPos));
     if (numAxes <= 0) {
         // Not all SkTypeface can get the variation.
         return;
@@ -311,7 +311,7 @@ DEF_TEST(TypefaceAxes, reporter) {
             return;  // Not all SkFontMgr can makeFromStream().
         }
 
-        int actualCount = typeface->getVariationDesignPosition({});
+        int actualCount = typeface->getVariationDesignPosition(nullptr, 0);
         if (actualCount == -1) {
             return;  // The number of axes is unknown.
         }
@@ -322,7 +322,7 @@ DEF_TEST(TypefaceAxes, reporter) {
         REPORTER_ASSERT(reporter, typeface->getBounds().isEmpty());
 
         std::unique_ptr<Variation::Coordinate[]> actual(new Variation::Coordinate[actualCount]);
-        actualCount = typeface->getVariationDesignPosition({actual.get(), actualCount});
+        actualCount = typeface->getVariationDesignPosition(actual.get(), actualCount);
         if (actualCount == -1) {
             return;  // The position cannot be determined.
         }
@@ -447,14 +447,14 @@ DEF_TEST(TypefaceVariationIndex, reporter) {
         return;
     }
 
-    int count = typeface->getVariationDesignPosition({});
+    int count = typeface->getVariationDesignPosition(nullptr, 0);
     if (!(count == 1)) {
         REPORT_FAILURE(reporter, "count == 1", SkString());
         return;
     }
 
     SkFontArguments::VariationPosition::Coordinate positionRead[1];
-    count = typeface->getVariationDesignPosition(positionRead);
+    count = typeface->getVariationDesignPosition(positionRead, std::size(positionRead));
     if (count == -1) {
         return;
     }
@@ -497,7 +497,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
             return;  // Not all SkFontMgr can makeFromStream().
         }
 
-        int actualCount = typeface->getVariationDesignParameters({});
+        int actualCount = typeface->getVariationDesignParameters(nullptr, 0);
         if (actualCount == -1) {
             return;  // The number of axes is unknown.
         }
@@ -505,7 +505,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
                                   actualCount == alsoAcceptedAxisTagCount);
 
         std::unique_ptr<Axis[]> actual(new Axis[actualCount]);
-        actualCount = typeface->getVariationDesignParameters({actual.get(), actualCount});
+        actualCount = typeface->getVariationDesignParameters(actual.get(), actualCount);
         if (actualCount == -1) {
             return;  // The position cannot be determined.
         }

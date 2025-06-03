@@ -622,7 +622,7 @@ std::unique_ptr<SkStreamAsset> SkTypeface_Mac::onOpenStream(int* ttcIndex) const
     int numTables = this->countTables();
     SkTDArray<SkFontTableTag> tableTags;
     tableTags.resize(numTables);
-    this->getTableTags(tableTags);
+    this->getTableTags(tableTags.begin());
 
     // CT seems to be unreliable in being able to obtain the type,
     // even if all we want is the first four bytes of the font resource.
