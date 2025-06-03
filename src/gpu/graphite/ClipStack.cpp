@@ -401,9 +401,15 @@ void ClipStack::RawElement::drawClip(Device* device) {
         // draw directly.
         SkASSERT((fOp == SkClipOp::kDifference && !fShape.inverted()) ||
                  (fOp == SkClipOp::kIntersect && fShape.inverted()));
+
+        // NOTE: We use fOuterBounds as the transformed shape bounds as that hasn't been clipped by
+        // the scissor. It has been clipped by the device bounds, but that shouldn't impact any
+        // decisions at this point. If that becomes not the case, we can either recompute the
+        // shape's device-space bounds (fLocalToDevice.mapRect(fShape.bounds())) or store a fully
+        // unclipped shape bounds on the RawElement.
         device->drawClipShape(fLocalToDevice,
                               fShape,
-                              Clip{drawBounds, drawBounds, scissor.asSkIRect(),
+                              Clip{drawBounds, fOuterBounds, scissor.asSkIRect(),
                                    /* nonMSAAClip= */ {}, /* shader= */ nullptr},
                               order);
     }
@@ -1403,8 +1409,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         SkASSERT(clipAtlas);
         AtlasClip* atlasClip = &nonMSAAClip.fAtlasClip;
 
-        SkRect maskBounds = cs.outerBounds().asSkRect();
-        SkIRect iMaskBounds = maskBounds.roundOut();
+        SkIRect iMaskBounds = cs.outerBounds().makeRoundOut().asSkIRect();
         sk_sp<TextureProxy> proxy = clipAtlas->findOrCreateEntry(cs.genID(),
                                                                  outEffectiveElements,
                                                                  iMaskBounds,

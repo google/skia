@@ -561,7 +561,8 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     std::sort(keys.begin(), keys.end());
     DrawWriter drawWriter(&drawPass->fCommandList, bufferMgr);
     GraphicsPipelineCache::Index lastPipeline = GraphicsPipelineCache::kInvalidIndex;
-    SkIRect lastScissor = SkIRect::MakeSize(targetInfo.dimensions());
+    const SkIRect targetBounds = SkIRect::MakeSize(targetInfo.dimensions());
+    SkIRect lastScissor = targetBounds;
 
     SkASSERT(drawPass->fTarget->isFullyLazy() ||
              SkIRect::MakeSize(drawPass->fTarget->dimensions()).contains(lastScissor));
@@ -609,8 +610,9 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
                 key.textureBindingIndex()) ||
                 (rebindTexturesOnPipelineChange && pipelineChange &&
                  key.textureBindingIndex() != TextureBindingCache::kInvalidIndex);
-        const SkIRect* newScissor        = draw.fDrawParams.clip().scissor() != lastScissor ?
-                &draw.fDrawParams.clip().scissor() : nullptr;
+
+        std::optional<SkIRect> newScissor =
+                renderStep.getScissor(draw.fDrawParams, lastScissor, targetBounds);
 
         // Determine + analyze draw properties to inform whether we need to issue barriers before
         // issuing draw calls.
@@ -633,7 +635,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
         const bool stateChange = geomBindingChange ||
                                  shadingBindingChange ||
                                  textureBindingsChange ||
-                                 SkToBool(newScissor);
+                                 newScissor.has_value();
 
         // Update DrawWriter *before* we actually change any state so that accumulated draws from
         // the previous state use the proper state.
@@ -670,7 +672,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
             if (textureBindingsChange) {
                 textureBindingTracker.bindTextures(&drawPass->fCommandList);
             }
-            if (newScissor) {
+            if (newScissor.has_value()) {
                 drawPass->fCommandList.setScissor(*newScissor);
                 lastScissor = *newScissor;
             }
