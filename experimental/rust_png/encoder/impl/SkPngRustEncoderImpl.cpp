@@ -129,12 +129,7 @@ std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst,
         return nullptr;
     }
     const SkEncodedInfo& dstInfo = maybeTargetInfo->fDstInfo;
-#ifdef SKIA_FIX_CRBUG_419011374
-    // TODO(https://crbug.com/419011374): Remove this `ifdef` after updating
-    // expectations of Chromium-side tests which hardcode the exact expected
-    // output of a PNG encoder.
     const std::optional<SkImageInfo>& maybeDstRowInfo = maybeTargetInfo->fDstRowInfo;
-#endif
 
     SkSafeMath safe;
     uint32_t width = safe.castTo<uint32_t>(dstInfo.width());
@@ -160,19 +155,12 @@ std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst,
             rustEncoderColorType = rust_png::ColorType::Rgb;
             break;
         case SkEncodedInfo::kRGBA_Color:
-#ifdef SKIA_FIX_CRBUG_419011374
-            // TODO(https://crbug.com/419011374): Remove this `ifdef` after updating
-            // expectations of Chromium-side tests which hardcode the exact expected
-            // output of a PNG encoder.
             if (maybeDstRowInfo && maybeDstRowInfo->isOpaque()) {
               rustEncoderColorType = rust_png::ColorType::Rgb;
               extraRowTransform = kRgbaToRgb_ExtraRowTransform;
             } else {
               rustEncoderColorType = rust_png::ColorType::Rgba;
             }
-#else
-            rustEncoderColorType = rust_png::ColorType::Rgba;
-#endif
             break;
         case SkEncodedInfo::kGray_Color:
             rustEncoderColorType = rust_png::ColorType::Grayscale;
