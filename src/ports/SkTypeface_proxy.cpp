@@ -60,7 +60,8 @@ SkTypeface::LocalizedStrings* SkTypeface_proxy::onCreateFamilyNameIterator() con
 }
 
 int SkTypeface_proxy::onGetTableTags(SkFontTableTag tags[]) const {
-    return fRealTypeface->getTableTags(tags);
+    const size_t size = tags ? SkTypeface::MAX_REASONABLE_TABLE_COUNT : 0;
+    return fRealTypeface->readTableTags({tags, size});
 }
 
 size_t SkTypeface_proxy::onGetTableData(SkFontTableTag tag, size_t offset, size_t length, void* data) const {
@@ -97,7 +98,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_proxy::onGetAdvancedMetric
 }
 
 void SkTypeface_proxy::onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const {
-    fRealTypeface->unicharsToGlyphs(chars, count, glyphs);
+    fRealTypeface->unicharsToGlyphs({chars, count}, {glyphs, count});
 }
 
 int SkTypeface_proxy::onCountGlyphs() const { return fRealTypeface->countGlyphs(); }

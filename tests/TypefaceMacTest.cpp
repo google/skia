@@ -67,10 +67,10 @@ DEF_TEST(TypefaceMacVariation, reporter) {
     using Coordinate = SkFontArguments::VariationPosition::Coordinate;
     using Axis = SkFontParameters::Variation::Axis;
 
-    const int originalPositionCount = typeface->getVariationDesignPosition(nullptr, 0);
+    const int originalPositionCount = typeface->getVariationDesignPosition({});
     std::vector<Coordinate> originalPosition(originalPositionCount);
     const int retrievedOriginalPositionCount =
-        typeface->getVariationDesignPosition(originalPosition.data(), originalPosition.size());
+        typeface->getVariationDesignPosition(originalPosition);
     if (!(retrievedOriginalPositionCount == originalPositionCount)) {
         REPORTER_ASSERT(reporter, retrievedOriginalPositionCount == originalPositionCount);
         return;
@@ -88,10 +88,10 @@ DEF_TEST(TypefaceMacVariation, reporter) {
     }
     SkMaybeDebugf("\n\n");
 
-    const int originalAxisCount = typeface->getVariationDesignParameters(nullptr, 0);
+    const int originalAxisCount = typeface->getVariationDesignParameters({});
     std::vector<Axis> originalAxes(originalAxisCount);
     const int returnedOriginalAxisCount =
-        typeface->getVariationDesignParameters(originalAxes.data(), originalAxes.size());
+        typeface->getVariationDesignParameters(originalAxes);
     if (!(returnedOriginalAxisCount == originalAxisCount)) {
         REPORTER_ASSERT(reporter, returnedOriginalAxisCount == originalAxisCount);
         return;
@@ -147,10 +147,10 @@ DEF_TEST(TypefaceMacVariation, reporter) {
         sk_sp<SkTypeface> cloneTypeface(
             typeface->makeClone(SkFontArguments().setVariationDesignPosition(variationPosition)));
 
-        const int cloneAxisCount = cloneTypeface->getVariationDesignPosition(nullptr, 0);
+        const int cloneAxisCount = cloneTypeface->getVariationDesignPosition({});
         std::vector<Coordinate> clonePosition(cloneAxisCount);
         const int retrievedCloneAxisCount =
-            cloneTypeface->getVariationDesignPosition(clonePosition.data(), clonePosition.size());
+            cloneTypeface->getVariationDesignPosition(clonePosition);
         if (!(retrievedCloneAxisCount == cloneAxisCount)) {
             REPORTER_ASSERT(reporter, retrievedCloneAxisCount == cloneAxisCount);
             continue;

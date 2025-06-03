@@ -190,6 +190,8 @@ DEF_TEST(Fontations_TableTags, reporter) {
     SkFourByteTag firstTag = SkSetFourByteTag('O', 'S', '/', '2');
     SkFourByteTag lastTag = SkSetFourByteTag('p', 'o', 's', 't');
 
+    // Keep these in the old ptr style (not readTableTags) until we're sure
+    // we've tested that adaptor through chrome (e.g. on 32bit machines)
     REPORTER_ASSERT(reporter, testTypeface->getTableTags(nullptr) == kNumTags);
 
     REPORTER_ASSERT(reporter, testTypeface->getTableTags(tagsBuffer) == kNumTags);

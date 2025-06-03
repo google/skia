@@ -147,10 +147,8 @@ static void test_tables(skiatest::Reporter* reporter, const sk_sp<SkTypeface>& f
 
     int count = face->countTables();
 
-    AutoTMalloc<SkFontTableTag> storage(count);
-    SkFontTableTag* tags = storage.get();
-
-    int count2 = face->getTableTags(tags);
+    std::vector<SkFontTableTag> tags(count);
+    int count2 = face->readTableTags(tags);
     REPORTER_ASSERT(reporter, count2 == count);
 
     for (int i = 0; i < count; ++i) {
