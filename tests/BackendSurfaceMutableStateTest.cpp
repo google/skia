@@ -171,39 +171,37 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkBackendSurfaceMutableStateTest,
 
     // To test queue transitions, we don't have any other valid queue available so instead we try
     // to transition to external queue.
-    if (gpu->vkCaps().supportsExternalMemory()) {
-        MutableTextureState externalState = skgpu::MutableTextureStates::MakeVulkan(
-                VK_IMAGE_LAYOUT_GENERAL, VK_QUEUE_FAMILY_EXTERNAL);
+    MutableTextureState externalState = skgpu::MutableTextureStates::MakeVulkan(
+            VK_IMAGE_LAYOUT_GENERAL, VK_QUEUE_FAMILY_EXTERNAL);
 
-        dContext->setBackendTextureState(backendTex, externalState, &previousState);
+    dContext->setBackendTextureState(backendTex, externalState, &previousState);
 
-        REPORTER_ASSERT(reporter, GrBackendTextures::GetVkImageInfo(backendTex, &info));
-        REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_GENERAL == info.fImageLayout);
-        REPORTER_ASSERT(reporter, VK_QUEUE_FAMILY_EXTERNAL == info.fCurrentQueueFamily);
+    REPORTER_ASSERT(reporter, GrBackendTextures::GetVkImageInfo(backendTex, &info));
+    REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_GENERAL == info.fImageLayout);
+    REPORTER_ASSERT(reporter, VK_QUEUE_FAMILY_EXTERNAL == info.fCurrentQueueFamily);
 
-        REPORTER_ASSERT(reporter, previousState.isValid());
-        REPORTER_ASSERT(reporter, previousState.backend() == BackendApi::kVulkan);
-        REPORTER_ASSERT(reporter,
-                GetVkImageLayout(previousState) == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-        REPORTER_ASSERT(reporter, GetVkQueueFamilyIndex(previousState) == gpu->queueIndex());
+    REPORTER_ASSERT(reporter, previousState.isValid());
+    REPORTER_ASSERT(reporter, previousState.backend() == BackendApi::kVulkan);
+    REPORTER_ASSERT(reporter,
+                    GetVkImageLayout(previousState) == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    REPORTER_ASSERT(reporter, GetVkQueueFamilyIndex(previousState) == gpu->queueIndex());
 
-        dContext->submit();
+    dContext->submit();
 
-        // Go back to the initial queue. Also we should stay in VK_IMAGE_LAYOUT_GENERAL since we
-        // are passing in VK_IMAGE_LAYOUT_UNDEFINED
-        MutableTextureState externalState2 =
-                skgpu::MutableTextureStates::MakeVulkan(VK_IMAGE_LAYOUT_UNDEFINED, initQueue);
-        dContext->setBackendTextureState(backendTex, externalState2, &previousState);
+    // Go back to the initial queue. Also we should stay in VK_IMAGE_LAYOUT_GENERAL since we
+    // are passing in VK_IMAGE_LAYOUT_UNDEFINED
+    MutableTextureState externalState2 =
+            skgpu::MutableTextureStates::MakeVulkan(VK_IMAGE_LAYOUT_UNDEFINED, initQueue);
+    dContext->setBackendTextureState(backendTex, externalState2, &previousState);
 
-        REPORTER_ASSERT(reporter, GrBackendTextures::GetVkImageInfo(backendTex, &info));
-        REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_GENERAL == info.fImageLayout);
-        REPORTER_ASSERT(reporter, gpu->queueIndex() == info.fCurrentQueueFamily);
+    REPORTER_ASSERT(reporter, GrBackendTextures::GetVkImageInfo(backendTex, &info));
+    REPORTER_ASSERT(reporter, VK_IMAGE_LAYOUT_GENERAL == info.fImageLayout);
+    REPORTER_ASSERT(reporter, gpu->queueIndex() == info.fCurrentQueueFamily);
 
-        REPORTER_ASSERT(reporter, previousState.isValid());
-        REPORTER_ASSERT(reporter, previousState.backend() == BackendApi::kVulkan);
-        REPORTER_ASSERT(reporter, GetVkImageLayout(previousState) == VK_IMAGE_LAYOUT_GENERAL);
-        REPORTER_ASSERT(reporter, GetVkQueueFamilyIndex(previousState) == VK_QUEUE_FAMILY_EXTERNAL);
-    }
+    REPORTER_ASSERT(reporter, previousState.isValid());
+    REPORTER_ASSERT(reporter, previousState.backend() == BackendApi::kVulkan);
+    REPORTER_ASSERT(reporter, GetVkImageLayout(previousState) == VK_IMAGE_LAYOUT_GENERAL);
+    REPORTER_ASSERT(reporter, GetVkQueueFamilyIndex(previousState) == VK_QUEUE_FAMILY_EXTERNAL);
 
     // We must submit this work before we try to delete the backend texture.
     dContext->submit(GrSyncCpu::kYes);

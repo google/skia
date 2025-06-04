@@ -77,24 +77,17 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VulkanPriorityExtension,
 
     ACQUIRE_VK_PROC_NOCHECK(EnumerateInstanceVersion, VK_NULL_HANDLE);
     uint32_t instanceVersion = 0;
-    if (!grVkEnumerateInstanceVersion) {
-        instanceVersion = VK_MAKE_VERSION(1, 0, 0);
-    } else {
-        err = grVkEnumerateInstanceVersion(&instanceVersion);
-        if (err) {
-            ERRORF(reporter, "failed ot enumerate instance version. Err: %d", err);
-            return;
-        }
+    // Vulkan 1.1 is required, so vkEnumerateInstanceVersion should always be available.
+    SkASSERT(grVkEnumerateInstanceVersion != nullptr);
+    err = grVkEnumerateInstanceVersion(&instanceVersion);
+    if (err) {
+        ERRORF(reporter, "failed ot enumerate instance version. Err: %d", err);
+        return;
     }
-    SkASSERT(instanceVersion >= VK_MAKE_VERSION(1, 0, 0));
-    uint32_t apiVersion = VK_MAKE_VERSION(1, 0, 0);
-    if (instanceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
-        // If the instance version is 1.0 we must have the apiVersion also be 1.0. However, if the
-        // instance version is 1.1 or higher, we can set the apiVersion to be whatever the highest
-        // api we may use in skia (technically it can be arbitrary). So for now we set it to 1.1
-        // since that is the highest vulkan version.
-        apiVersion = VK_MAKE_VERSION(1, 1, 0);
-    }
+    SkASSERT(instanceVersion >= VK_API_VERSION_1_1);
+    // We can set the apiVersion to be whatever the highest api we may use in skia. For now we
+    // set it to 1.1 since that is the most common Vulkan version on Android devices.
+    const uint32_t apiVersion = VK_API_VERSION_1_1;
 
     instanceVersion = std::min(instanceVersion, apiVersion);
 

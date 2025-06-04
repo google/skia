@@ -29,7 +29,7 @@ struct SK_API VulkanBackendContext {
     VkQueue                          fQueue = VK_NULL_HANDLE;
     uint32_t                         fGraphicsQueueIndex = 0;
     // The max api version set here should match the value set in VkApplicationInfo::apiVersion when
-    // then VkInstance was created.
+    // then VkInstance was created. Skia requires Vulkan 1.1 as the minimum version.
     uint32_t                         fMaxAPIVersion = 0;
     const skgpu::VulkanExtensions*   fVkExtensions = nullptr;
     // The client can create their VkDevice with either a VkPhysicalDeviceFeatures or

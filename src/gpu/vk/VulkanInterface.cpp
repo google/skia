@@ -173,71 +173,35 @@ VulkanInterface::VulkanInterface(VulkanGetProc getProc,
     ACQUIRE_PROC(CmdEndRenderPass, VK_NULL_HANDLE, device);
     ACQUIRE_PROC(CmdExecuteCommands, VK_NULL_HANDLE, device);
 
-    // Functions for VK_KHR_get_physical_device_properties2
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
-        ACQUIRE_PROC(GetPhysicalDeviceFeatures2, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC(GetPhysicalDeviceProperties2, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC(GetPhysicalDeviceFormatProperties2, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC(GetPhysicalDeviceImageFormatProperties2, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC(GetPhysicalDeviceQueueFamilyProperties2, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC(GetPhysicalDeviceMemoryProperties2, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC(GetPhysicalDeviceSparseImageFormatProperties2, instance, VK_NULL_HANDLE);
-    } else if (extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
-                                        1)) {
-        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceFeatures2, KHR, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceProperties2, KHR, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceFormatProperties2, KHR, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceImageFormatProperties2, KHR, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceQueueFamilyProperties2, KHR, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceMemoryProperties2, KHR, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceSparseImageFormatProperties2, KHR, instance,
-                            VK_NULL_HANDLE);
-    }
+    // Functions promoted from VK_KHR_get_physical_device_properties2 to Vulkan 1.1
+    ACQUIRE_PROC(GetPhysicalDeviceFeatures2, instance, VK_NULL_HANDLE);
+    ACQUIRE_PROC(GetPhysicalDeviceProperties2, instance, VK_NULL_HANDLE);
+    ACQUIRE_PROC(GetPhysicalDeviceFormatProperties2, instance, VK_NULL_HANDLE);
+    ACQUIRE_PROC(GetPhysicalDeviceImageFormatProperties2, instance, VK_NULL_HANDLE);
+    ACQUIRE_PROC(GetPhysicalDeviceQueueFamilyProperties2, instance, VK_NULL_HANDLE);
+    ACQUIRE_PROC(GetPhysicalDeviceMemoryProperties2, instance, VK_NULL_HANDLE);
+    ACQUIRE_PROC(GetPhysicalDeviceSparseImageFormatProperties2, instance, VK_NULL_HANDLE);
 
-    // Functions for VK_KHR_get_memory_requirements2
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
-        ACQUIRE_PROC(GetImageMemoryRequirements2, VK_NULL_HANDLE, device);
-        ACQUIRE_PROC(GetBufferMemoryRequirements2, VK_NULL_HANDLE, device);
-        ACQUIRE_PROC(GetImageSparseMemoryRequirements2, VK_NULL_HANDLE, device);
-    } else if (extensions->hasExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, 1)) {
-        ACQUIRE_PROC_SUFFIX(GetImageMemoryRequirements2, KHR, VK_NULL_HANDLE, device);
-        ACQUIRE_PROC_SUFFIX(GetBufferMemoryRequirements2, KHR, VK_NULL_HANDLE, device);
-        ACQUIRE_PROC_SUFFIX(GetImageSparseMemoryRequirements2, KHR, VK_NULL_HANDLE, device);
-    }
+    // Functions promoted from VK_KHR_get_memory_requirements2 to Vulkan 1.1
+    ACQUIRE_PROC(GetImageMemoryRequirements2, VK_NULL_HANDLE, device);
+    ACQUIRE_PROC(GetBufferMemoryRequirements2, VK_NULL_HANDLE, device);
+    ACQUIRE_PROC(GetImageSparseMemoryRequirements2, VK_NULL_HANDLE, device);
 
-    // Functions for VK_KHR_bind_memory2
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
-        ACQUIRE_PROC(BindBufferMemory2, VK_NULL_HANDLE, device);
-        ACQUIRE_PROC(BindImageMemory2, VK_NULL_HANDLE, device);
-    } else if (extensions->hasExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, 1)) {
-        ACQUIRE_PROC_SUFFIX(BindBufferMemory2, KHR, VK_NULL_HANDLE, device);
-        ACQUIRE_PROC_SUFFIX(BindImageMemory2, KHR, VK_NULL_HANDLE, device);
-    }
+    // Functions promoted from VK_KHR_bind_memory2 to Vulkan 1.1
+    ACQUIRE_PROC(BindBufferMemory2, VK_NULL_HANDLE, device);
+    ACQUIRE_PROC(BindImageMemory2, VK_NULL_HANDLE, device);
 
-    // Functions for VK_KHR_maintenance1 or vulkan 1.1
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
-        ACQUIRE_PROC(TrimCommandPool, VK_NULL_HANDLE, device);
-    } else if (extensions->hasExtension(VK_KHR_MAINTENANCE1_EXTENSION_NAME, 1)) {
-        ACQUIRE_PROC_SUFFIX(TrimCommandPool, KHR, VK_NULL_HANDLE, device);
-    }
+    // Function promoted from VK_KHR_maintenance1 to Vulkan 1.1
+    ACQUIRE_PROC(TrimCommandPool, VK_NULL_HANDLE, device);
 
-    // Functions for VK_KHR_maintenance3 or vulkan 1.1
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
-        ACQUIRE_PROC(GetDescriptorSetLayoutSupport, VK_NULL_HANDLE, device);
-    } else if (extensions->hasExtension(VK_KHR_MAINTENANCE3_EXTENSION_NAME, 1)) {
-        ACQUIRE_PROC_SUFFIX(GetDescriptorSetLayoutSupport, KHR, VK_NULL_HANDLE, device);
-    }
+    // Function promoted from VK_KHR_maintenance3 to Vulkan 1.1
+    ACQUIRE_PROC(GetDescriptorSetLayoutSupport, VK_NULL_HANDLE, device);
 
-    // Functions for VK_KHR_external_memory_capabilities
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
-        ACQUIRE_PROC(GetPhysicalDeviceExternalBufferProperties, instance, VK_NULL_HANDLE);
-    } else if (extensions->hasExtension(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, 1)) {
-        ACQUIRE_PROC_SUFFIX(GetPhysicalDeviceExternalBufferProperties, KHR, instance,
-                            VK_NULL_HANDLE);
-    }
+    // Function promoted from VK_KHR_external_memory_capabilities to Vulkan 1.1
+    ACQUIRE_PROC(GetPhysicalDeviceExternalBufferProperties, instance, VK_NULL_HANDLE);
 
     // Functions for VK_EXT_extended_dynamic_state or 1.3
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 3, 0)) {
+    if (physicalDeviceVersion >= VK_API_VERSION_1_3) {
         ACQUIRE_PROC(CmdBindVertexBuffers2, VK_NULL_HANDLE, device);
         ACQUIRE_PROC(CmdSetCullMode, VK_NULL_HANDLE, device);
         ACQUIRE_PROC(CmdSetDepthBoundsTestEnable, VK_NULL_HANDLE, device);
@@ -266,7 +230,7 @@ VulkanInterface::VulkanInterface(VulkanGetProc getProc,
     }
 
     // Functions for VK_EXT_extended_dynamic_state2 or 1.3
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 3, 0)) {
+    if (physicalDeviceVersion >= VK_API_VERSION_1_3) {
         ACQUIRE_PROC(CmdSetDepthBiasEnable, VK_NULL_HANDLE, device);
         ACQUIRE_PROC(CmdSetPrimitiveRestartEnable, VK_NULL_HANDLE, device);
         ACQUIRE_PROC(CmdSetRasterizerDiscardEnable, VK_NULL_HANDLE, device);
@@ -281,14 +245,9 @@ VulkanInterface::VulkanInterface(VulkanGetProc getProc,
         ACQUIRE_PROC_SUFFIX(CmdSetVertexInput, EXT, VK_NULL_HANDLE, device);
     }
 
-    // Functions for VK_KHR_sampler_ycbcr_conversion
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
-        ACQUIRE_PROC(CreateSamplerYcbcrConversion, VK_NULL_HANDLE, device);
-        ACQUIRE_PROC(DestroySamplerYcbcrConversion, VK_NULL_HANDLE, device);
-    } else if (extensions->hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1)) {
-        ACQUIRE_PROC_SUFFIX(CreateSamplerYcbcrConversion, KHR, VK_NULL_HANDLE, device);
-        ACQUIRE_PROC_SUFFIX(DestroySamplerYcbcrConversion, KHR, VK_NULL_HANDLE, device);
-    }
+    // Functions promoted from VK_KHR_sampler_ycbcr_conversion to Vulkan 1.1
+    ACQUIRE_PROC(CreateSamplerYcbcrConversion, VK_NULL_HANDLE, device);
+    ACQUIRE_PROC(DestroySamplerYcbcrConversion, VK_NULL_HANDLE, device);
 
     // Functions for VK_EXT_device_fault
     if (extensions->hasExtension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME, 1)) {
@@ -454,69 +413,36 @@ bool VulkanInterface::validate(uint32_t instanceVersion,
         nullptr == fFunctions.fCmdBeginRenderPass ||
         nullptr == fFunctions.fCmdNextSubpass ||
         nullptr == fFunctions.fCmdEndRenderPass ||
-        nullptr == fFunctions.fCmdExecuteCommands) {
+        nullptr == fFunctions.fCmdExecuteCommands ||
+        // Functions promoted from VK_KHR_get_physical_device_properties2 to Vulkan 1.1
+        nullptr == fFunctions.fGetPhysicalDeviceFeatures2 ||
+        nullptr == fFunctions.fGetPhysicalDeviceProperties2 ||
+        nullptr == fFunctions.fGetPhysicalDeviceFormatProperties2 ||
+        nullptr == fFunctions.fGetPhysicalDeviceImageFormatProperties2 ||
+        nullptr == fFunctions.fGetPhysicalDeviceQueueFamilyProperties2 ||
+        nullptr == fFunctions.fGetPhysicalDeviceMemoryProperties2 ||
+        nullptr == fFunctions.fGetPhysicalDeviceSparseImageFormatProperties2 ||
+        // Functions promoted from VK_KHR_get_memory_requirements2 to Vulkan 1.1
+        nullptr == fFunctions.fGetImageMemoryRequirements2 ||
+        nullptr == fFunctions.fGetBufferMemoryRequirements2 ||
+        nullptr == fFunctions.fGetImageSparseMemoryRequirements2 ||
+        // Functions promoted from VK_KHR_bind_memory2 to Vulkan 1.1
+        nullptr == fFunctions.fBindBufferMemory2 ||
+        nullptr == fFunctions.fBindImageMemory2 ||
+        // Function promoted from VK_KHR_maintenance1 to Vulkan 1.1
+        nullptr == fFunctions.fTrimCommandPool ||
+        // Function promoted from VK_KHR_maintenance3 to Vulkan 1.1
+        nullptr == fFunctions.fGetDescriptorSetLayoutSupport ||
+        // Function promoted from VK_KHR_external_memory_capabilities to Vulkan 1.1
+        nullptr == fFunctions.fGetPhysicalDeviceExternalBufferProperties ||
+        // Functions promoted from VK_KHR_sampler_ycbcr_conversion to Vulkan 1.1
+        nullptr == fFunctions.fCreateSamplerYcbcrConversion ||
+        nullptr == fFunctions.fDestroySamplerYcbcrConversion) {
         RETURN_FALSE_INTERFACE
     }
 
-    // Functions for VK_KHR_get_physical_device_properties2 or vulkan 1.1
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1)) {
-        if (nullptr == fFunctions.fGetPhysicalDeviceFeatures2 ||
-            nullptr == fFunctions.fGetPhysicalDeviceProperties2 ||
-            nullptr == fFunctions.fGetPhysicalDeviceFormatProperties2 ||
-            nullptr == fFunctions.fGetPhysicalDeviceImageFormatProperties2 ||
-            nullptr == fFunctions.fGetPhysicalDeviceQueueFamilyProperties2 ||
-            nullptr == fFunctions.fGetPhysicalDeviceMemoryProperties2 ||
-            nullptr == fFunctions.fGetPhysicalDeviceSparseImageFormatProperties2) {
-            RETURN_FALSE_INTERFACE
-        }
-    }
-
-    // Functions for VK_KHR_get_memory_requirements2 or vulkan 1.1
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions->hasExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, 1)) {
-        if (nullptr == fFunctions.fGetImageMemoryRequirements2 ||
-            nullptr == fFunctions.fGetBufferMemoryRequirements2 ||
-            nullptr == fFunctions.fGetImageSparseMemoryRequirements2) {
-            RETURN_FALSE_INTERFACE
-        }
-    }
-
-    // Functions for VK_KHR_bind_memory2
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions->hasExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, 1)) {
-        if (nullptr == fFunctions.fBindBufferMemory2 ||
-            nullptr == fFunctions.fBindImageMemory2) {
-            RETURN_FALSE_INTERFACE
-        }
-    }
-
-    // Functions for VK_KHR_maintenance1 or vulkan 1.1
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions->hasExtension(VK_KHR_MAINTENANCE1_EXTENSION_NAME, 1)) {
-        if (nullptr == fFunctions.fTrimCommandPool) {
-            RETURN_FALSE_INTERFACE
-        }
-    }
-
-    // Functions for VK_KHR_maintenance3 or vulkan 1.1
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions->hasExtension(VK_KHR_MAINTENANCE3_EXTENSION_NAME, 1)) {
-        if (nullptr == fFunctions.fGetDescriptorSetLayoutSupport) {
-            RETURN_FALSE_INTERFACE
-        }
-    }
-
-    // Functions for VK_KHR_external_memory_capabilities
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions->hasExtension(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, 1)) {
-        if (nullptr == fFunctions.fGetPhysicalDeviceExternalBufferProperties) {
-            RETURN_FALSE_INTERFACE
-        }
-    }
-
     // Functions for VK_EXT_extended_dynamic_state or 1.3
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 3, 0) ||
+    if (physicalDeviceVersion >= VK_API_VERSION_1_3 ||
         extensions->hasExtension(VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fCmdBindVertexBuffers2 || nullptr == fFunctions.fCmdSetCullMode ||
             nullptr == fFunctions.fCmdSetDepthBoundsTestEnable ||
@@ -534,7 +460,7 @@ bool VulkanInterface::validate(uint32_t instanceVersion,
     }
 
     // Functions for VK_EXT_extended_dynamic_state2 or 1.3
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 3, 0) ||
+    if (physicalDeviceVersion >= VK_API_VERSION_1_3 ||
         extensions->hasExtension(VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fCmdSetDepthBiasEnable ||
             nullptr == fFunctions.fCmdSetPrimitiveRestartEnable ||
@@ -546,15 +472,6 @@ bool VulkanInterface::validate(uint32_t instanceVersion,
     // Functions for VK_EXT_vertex_input_dynamic_state
     if (extensions->hasExtension(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fCmdSetVertexInput) {
-            RETURN_FALSE_INTERFACE
-        }
-    }
-
-    // Functions for VK_KHR_sampler_ycbcr_conversion
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions->hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1)) {
-        if (nullptr == fFunctions.fCreateSamplerYcbcrConversion ||
-            nullptr == fFunctions.fDestroySamplerYcbcrConversion) {
             RETURN_FALSE_INTERFACE
         }
     }

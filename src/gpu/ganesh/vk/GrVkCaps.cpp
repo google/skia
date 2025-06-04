@@ -325,81 +325,33 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
         fSupportsSwapchain = true;
     }
 
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions.hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1)) {
-        fSupportsPhysicalDeviceProperties2 = true;
-    }
-
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions.hasExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, 1)) {
-        fSupportsMemoryRequirements2 = true;
-    }
-
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions.hasExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, 1)) {
-        fSupportsBindMemory2 = true;
-    }
-
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions.hasExtension(VK_KHR_MAINTENANCE1_EXTENSION_NAME, 1)) {
-        fSupportsMaintenance1 = true;
-    }
-
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions.hasExtension(VK_KHR_MAINTENANCE2_EXTENSION_NAME, 1)) {
-        fSupportsMaintenance2 = true;
-    }
-
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions.hasExtension(VK_KHR_MAINTENANCE3_EXTENSION_NAME, 1)) {
-        fSupportsMaintenance3 = true;
-    }
-
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        (extensions.hasExtension(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME, 1) &&
-         this->supportsMemoryRequirements2())) {
-        fSupportsDedicatedAllocation = true;
-    }
-
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        (extensions.hasExtension(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, 1) &&
-         this->supportsPhysicalDeviceProperties2() &&
-         extensions.hasExtension(VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, 1) &&
-         this->supportsDedicatedAllocation())) {
-        fSupportsExternalMemory = true;
-    }
-
 #ifdef SK_BUILD_FOR_ANDROID
     // Currently Adreno devices are not supporting the QUEUE_FAMILY_FOREIGN_EXTENSION, so until they
     // do we don't explicitly require it here even the spec says it is required.
-    if (extensions.hasExtension(
-            VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME, 2) &&
-       /* extensions.hasExtension(VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME, 1) &&*/
-        this->supportsExternalMemory() &&
-        this->supportsBindMemory2()) {
+    if (extensions.hasExtension(VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME,
+                                2)
+        /* && extensions.hasExtension(VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME, 1)*/
+    ) {
         fSupportsAndroidHWBExternalMemory = true;
         fSupportsAHardwareBufferImages = true;
     }
 #endif
 
-    auto ycbcrFeatures = skgpu::GetExtensionFeatureStruct<
-            VkPhysicalDeviceSamplerYcbcrConversionFeatures>(
-                    features,
-                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES);
-    if (ycbcrFeatures && ycbcrFeatures->samplerYcbcrConversion &&
-        (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-         (extensions.hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1) &&
-          this->supportsMaintenance1() && this->supportsBindMemory2() &&
-          this->supportsMemoryRequirements2() && this->supportsPhysicalDeviceProperties2()))) {
-        fSupportsYcbcrConversion = true;
-    }
+    const auto ycbcrFeatures =
+            skgpu::GetExtensionFeatureStruct<VkPhysicalDeviceSamplerYcbcrConversionFeatures>(
+                    features, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES);
+    const auto vk11Features = skgpu::GetExtensionFeatureStruct<VkPhysicalDeviceVulkan11Features>(
+            features, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES);
+    fSupportsYcbcrConversion = (ycbcrFeatures && ycbcrFeatures->samplerYcbcrConversion) ||
+                               (vk11Features && vk11Features->samplerYcbcrConversion);
 
     // We always push back the default skgpu::VulkanYcbcrConversionInfo so that the case of no
     // conversion will return a key of 0.
     fYcbcrInfos.push_back(skgpu::VulkanYcbcrConversionInfo());
 
-    if ((isProtected == GrProtected::kYes) &&
-        (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0))) {
+    // Ganesh requires Vulkan version 1.1 or later, which always has protected support. The
+    // protectedMemory feature is assumed enabled if isProtected is true.
+    if (isProtected == GrProtected::kYes) {
         fSupportsProtectedContent = true;
         fAvoidUpdateBuffers = true;
         fShouldAlwaysUseDedicatedImageMemory = true;
@@ -409,23 +361,25 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
         fSupportsDRMFormatModifiers = true;
     }
 
-    if (extensions.hasExtension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME, 1)) {
-        fSupportsDeviceFaultInfo = true;
-    }
+    const auto deviceFaultFeatures =
+            skgpu::GetExtensionFeatureStruct<VkPhysicalDeviceFaultFeaturesEXT>(
+                    features, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT);
+    fSupportsDeviceFaultInfo = deviceFaultFeatures && deviceFaultFeatures->deviceFault;
 
-    if (extensions.hasExtension(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME, 1)) {
-        fSupportsFrameBoundary = true;
-    }
+    const auto frameBoundaryFeatures =
+            skgpu::GetExtensionFeatureStruct<VkPhysicalDeviceFrameBoundaryFeaturesEXT>(
+                    features, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT);
+    fSupportsFrameBoundary = frameBoundaryFeatures && frameBoundaryFeatures->frameBoundary;
 
-    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 3, 0) ||
-        extensions.hasExtension(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL_EXTENSION_NAME, 1)) {
-        auto cacheControlFeatures = skgpu::GetExtensionFeatureStruct<
-                VkPhysicalDevicePipelineCreationCacheControlFeatures>(
-                features,
-                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES);
-        fSupportsPipelineCreationCacheControl =
-                cacheControlFeatures && cacheControlFeatures->pipelineCreationCacheControl;
-    }
+    const auto cacheControlFeatures =
+            skgpu::GetExtensionFeatureStruct<VkPhysicalDevicePipelineCreationCacheControlFeatures>(
+                    features,
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES);
+    const auto vk13Features = skgpu::GetExtensionFeatureStruct<VkPhysicalDeviceVulkan13Features>(
+            features, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES);
+    fSupportsPipelineCreationCacheControl =
+            (cacheControlFeatures && cacheControlFeatures->pipelineCreationCacheControl) ||
+            (vk13Features && vk13Features->pipelineCreationCacheControl);
 
     fMaxInputAttachmentDescriptors = properties.limits.maxDescriptorSetInputAttachments;
 
@@ -711,9 +665,7 @@ void GrVkCaps::initGrCaps(const skgpu::VulkanInterface* vkInterface,
 
     fOversizedStencilSupport = true;
 
-    if (extensions.hasExtension(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME, 2) &&
-        this->supportsPhysicalDeviceProperties2()) {
-
+    if (extensions.hasExtension(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME, 2)) {
         VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT blendProps;
         blendProps.sType =
                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT;
@@ -1195,19 +1147,14 @@ void GrVkCaps::initFormatTable(const GrContextOptions& contextOptions,
         }
     }
 
-    bool supportsRGBA10x6 = false;
-    if (extensions.hasExtension(VK_EXT_RGBA10X6_FORMATS_EXTENSION_NAME, 1)) {
-        auto rgba10x6Feature =
-                skgpu::GetExtensionFeatureStruct<VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT>(
-                        features, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT);
-        // Technically without this extension and exabled feature we could still use this format to
-        // sample with a ycbcr sampler. But for simplicity until we have clients requesting that, we
-        // limit the use of this format to cases where we have the extension supported.
-        supportsRGBA10x6 = rgba10x6Feature  && rgba10x6Feature->formatRgba10x6WithoutYCbCrSampler;
-    }
-
     // Format: VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16
-    if (supportsRGBA10x6) {
+    // Technically without this extension and enabled feature we could still use this format to
+    // sample with a ycbcr sampler. But for simplicity until we have clients requesting that, we
+    // limit the use of this format to cases where we have the extension supported.
+    const auto rgba10x6Feature =
+            skgpu::GetExtensionFeatureStruct<VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT>(
+                    features, VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RGBA10X6_FORMATS_FEATURES_EXT);
+    if (rgba10x6Feature && rgba10x6Feature->formatRgba10x6WithoutYCbCrSampler) {
         constexpr VkFormat format = VK_FORMAT_R10X6G10X6B10X6A10X6_UNORM_4PACK16;
         auto& info = this->getFormatInfo(format);
         info.init(contextOptions, interface, physDev, properties, format);

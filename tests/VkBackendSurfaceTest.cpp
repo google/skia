@@ -216,9 +216,6 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VkTransitionExternalQueueTest, reporter, ctxI
     auto dContext = ctxInfo.directContext();
     GrGpu* gpu = dContext->priv().getGpu();
     GrVkGpu* vkGpu = static_cast<GrVkGpu*>(gpu);
-    if (!vkGpu->vkCaps().supportsExternalMemory()) {
-        return;
-    }
 
     GrBackendTexture backendTex = dContext->createBackendTexture(
             1, 1, kRGBA_8888_SkColorType,

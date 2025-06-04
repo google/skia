@@ -489,8 +489,7 @@ static bool setup_features(const skgpu::VulkanGetProc& getProc, VkInstance inst,
                            VkPhysicalDevice physDev, uint32_t physDeviceVersion,
                            skgpu::VulkanExtensions* extensions, VkPhysicalDeviceFeatures2* features,
                            bool isProtected) {
-    SkASSERT(physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-             extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1));
+    SkASSERT(physDeviceVersion >= VK_API_VERSION_1_1);
 
     // Setup all extension feature structs we may want to use.
     void** tailPNext = &features->pNext;
@@ -498,7 +497,6 @@ static bool setup_features(const skgpu::VulkanGetProc& getProc, VkInstance inst,
     // If |isProtected| is given, attach that first
     VkPhysicalDeviceProtectedMemoryFeatures* protectedMemoryFeatures = nullptr;
     if (isProtected) {
-        SkASSERT(physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0));
         protectedMemoryFeatures =
           (VkPhysicalDeviceProtectedMemoryFeatures*)sk_malloc_throw(
               sizeof(VkPhysicalDeviceProtectedMemoryFeatures));
@@ -580,8 +578,7 @@ static bool setup_features(const skgpu::VulkanGetProc& getProc, VkInstance inst,
     }
 
     VkPhysicalDeviceSamplerYcbcrConversionFeatures* ycbcrFeature = nullptr;
-    if (physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions->hasExtension(VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1)) {
+    {
         ycbcrFeature = (VkPhysicalDeviceSamplerYcbcrConversionFeatures*) sk_malloc_throw(
                 sizeof(VkPhysicalDeviceSamplerYcbcrConversionFeatures));
         ycbcrFeature->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES;
@@ -592,7 +589,7 @@ static bool setup_features(const skgpu::VulkanGetProc& getProc, VkInstance inst,
     }
 
     VkPhysicalDevicePipelineCreationCacheControlFeatures* cacheControlFeatures = nullptr;
-    if (physDeviceVersion >= VK_MAKE_VERSION(1, 3, 0) ||
+    if (physDeviceVersion >= VK_API_VERSION_1_3 ||
         extensions->hasExtension(VK_EXT_PIPELINE_CREATION_CACHE_CONTROL_EXTENSION_NAME, 1)) {
         cacheControlFeatures =
                 (VkPhysicalDevicePipelineCreationCacheControlFeatures*)sk_malloc_throw(
@@ -605,15 +602,8 @@ static bool setup_features(const skgpu::VulkanGetProc& getProc, VkInstance inst,
         tailPNext = &cacheControlFeatures->pNext;
     }
 
-    if (physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
-        ACQUIRE_VK_PROC_LOCAL(GetPhysicalDeviceFeatures2, inst, VK_NULL_HANDLE);
-        grVkGetPhysicalDeviceFeatures2(physDev, features);
-    } else {
-        SkASSERT(extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
-                                          1));
-        ACQUIRE_VK_PROC_LOCAL(GetPhysicalDeviceFeatures2KHR, inst, VK_NULL_HANDLE);
-        grVkGetPhysicalDeviceFeatures2KHR(physDev, features);
-    }
+    ACQUIRE_VK_PROC_LOCAL(GetPhysicalDeviceFeatures2, inst, VK_NULL_HANDLE);
+    grVkGetPhysicalDeviceFeatures2(physDev, features);
 
     // Disable depth/stencil coherence even if supported, in case it comes with a perf cost.
     if (rasterOrder != nullptr) {
@@ -642,29 +632,17 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
 
     ACQUIRE_VK_INST_PROC_NOCHECK(EnumerateInstanceVersion, VK_NULL_HANDLE);
     uint32_t instanceVersion = 0;
-    if (!grVkEnumerateInstanceVersion) {
-        instanceVersion = VK_MAKE_VERSION(1, 0, 0);
-    } else {
-        err = grVkEnumerateInstanceVersion(&instanceVersion);
-        if (err) {
-            SkDebugf("failed to enumerate instance version. Err: %d\n", err);
-            return false;
-        }
-    }
-    SkASSERT(instanceVersion >= VK_MAKE_VERSION(1, 0, 0));
-    if (isProtected && instanceVersion < VK_MAKE_VERSION(1, 1, 0)) {
-        SkDebugf("protected requires vk instance version 1.1\n");
+    // Vulkan 1.1 is required, so vkEnumerateInstanceVersion should always be available.
+    SkASSERT(grVkEnumerateInstanceVersion != nullptr);
+    err = grVkEnumerateInstanceVersion(&instanceVersion);
+    if (err) {
+        SkDebugf("failed to enumerate instance version. Err: %d\n", err);
         return false;
     }
-
-    uint32_t apiVersion = VK_MAKE_VERSION(1, 0, 0);
-    if (instanceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
-        // If the instance version is 1.0 we must have the apiVersion also be 1.0. However, if the
-        // instance version is 1.1 or higher, we can set the apiVersion to be whatever the highest
-        // api we may use in skia (technically it can be arbitrary). So for now we set it to 1.1
-        // since that is the minimum requirement of Graphite.
-        apiVersion = VK_MAKE_VERSION(1, 1, 0);
-    }
+    SkASSERT(instanceVersion >= VK_API_VERSION_1_1);
+    // We can set the apiVersion to be whatever the highest api we may use in skia. For now we
+    // set it to 1.1 since that is the most common Vulkan version on Android devices.
+    const uint32_t apiVersion = VK_API_VERSION_1_1;
 
     instanceVersion = std::min(instanceVersion, apiVersion);
 
@@ -839,12 +817,6 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
     grVkGetPhysicalDeviceProperties(physDev, &physDeviceProperties);
     uint32_t physDeviceVersion = std::min(physDeviceProperties.apiVersion, apiVersion);
 
-    if (isProtected && physDeviceVersion < VK_MAKE_VERSION(1, 1, 0)) {
-        SkDebugf("protected requires vk physical device version 1.1\n");
-        destroy_instance(getInstProc, inst, debugMessenger, hasDebugExtension);
-        return false;
-    }
-
     // query to get the initial queue props size
     uint32_t queueCount;
     grVkGetPhysicalDeviceQueueFamilyProperties(physDev, &queueCount, nullptr);
@@ -925,26 +897,15 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
     features->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
     features->pNext = nullptr;
 
-    VkPhysicalDeviceFeatures* deviceFeatures = &features->features;
-    void* pointerToFeatures = nullptr;
-    if (physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1)) {
-        if (!setup_features(getProc, inst, physDev, physDeviceVersion, extensions, features,
-                            isProtected)) {
-            destroy_instance(getInstProc, inst, debugMessenger, hasDebugExtension);
-            return false;
-        }
-
-        // If we set the pNext of the VkDeviceCreateInfo to our VkPhysicalDeviceFeatures2 struct,
-        // the device creation will use that instead of the ppEnabledFeatures.
-        pointerToFeatures = features;
-    } else {
-        grVkGetPhysicalDeviceFeatures(physDev, deviceFeatures);
+    if (!setup_features(getProc, inst, physDev, physDeviceVersion, extensions, features,
+                        isProtected)) {
+        destroy_instance(getInstProc, inst, debugMessenger, hasDebugExtension);
+        return false;
     }
 
-    // this looks like it would slow things down,
+    // This looks like it would slow things down,
     // and we can't depend on it on all platforms
-    deviceFeatures->robustBufferAccess = VK_FALSE;
+    features->features.robustBufferAccess = VK_FALSE;
 
     VkDeviceQueueCreateFlags flags = isProtected ? VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT : 0;
     float queuePriorities[1] = { 0.0 };
@@ -973,7 +934,7 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
 
     const VkDeviceCreateInfo deviceInfo = {
         VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,        // sType
-        pointerToFeatures,                           // pNext
+        features,                                    // pNext
         0,                                           // VkDeviceCreateFlags
         queueInfoCount,                              // queueCreateInfoCount
         queueInfo,                                   // pQueueCreateInfos
@@ -981,7 +942,7 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
         deviceLayerNames.begin(),                    // ppEnabledLayerNames
         (uint32_t) deviceExtensionNames.size(),      // extensionCount
         deviceExtensionNames.begin(),                // ppEnabledExtensionNames
-        pointerToFeatures ? nullptr : deviceFeatures // ppEnabledFeatures
+        nullptr,                                     // ppEnabledFeatures
     };
 
     {
