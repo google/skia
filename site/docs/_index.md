@@ -72,6 +72,6 @@ Click on any image below to see the source code that generated the image.
 
 - Windows 10, 11
 - macOS 11 or later
-- iOS 12 or later
+- iOS 13 or later
 - Android 4.3 (JellyBean) or later
 - Ubuntu 18.04+, Debian 10+, openSUSE 15.2+, or Fedora Linux 32+
