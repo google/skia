@@ -78,8 +78,7 @@ public:
     bool endPortfolio();
 
     void drawPaint(const SkPaint& paint) override;
-    void drawPoints(SkCanvas::PointMode mode, size_t count,
-                    const SkPoint[], const SkPaint& paint) override;
+    void drawPoints(SkCanvas::PointMode, SkSpan<const SkPoint>, const SkPaint&) override;
     void drawRect(const SkRect& r,
                   const SkPaint& paint) override;
     void drawOval(const SkRect& oval,

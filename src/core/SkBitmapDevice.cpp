@@ -359,9 +359,9 @@ void SkBitmapDevice::drawPaint(const SkPaint& paint) {
     BDDraw(this).drawPaint(paint);
 }
 
-void SkBitmapDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
-                                const SkPoint pts[], const SkPaint& paint) {
-    LOOP_TILER( drawPoints(mode, count, pts, paint, nullptr), nullptr)
+void SkBitmapDevice::drawPoints(SkCanvas::PointMode mode, SkSpan<const SkPoint> pts,
+                                const SkPaint& paint) {
+    LOOP_TILER( drawPoints(mode, pts, paint, nullptr), nullptr)
 }
 
 void SkBitmapDevice::drawRect(const SkRect& r, const SkPaint& paint) {

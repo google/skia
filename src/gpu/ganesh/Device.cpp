@@ -446,8 +446,7 @@ void Device::drawPaint(const SkPaint& paint) {
 }
 
 void Device::drawPoints(SkCanvas::PointMode mode,
-                        size_t count,
-                        const SkPoint pts[],
+                        SkSpan<const SkPoint> pts,
                         const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::ganesh::Device", "drawPoints", fContext.get());
@@ -455,6 +454,8 @@ void Device::drawPoints(SkCanvas::PointMode mode,
     if (width < 0) {
         return;
     }
+
+    const size_t count = pts.size();
 
     // If there is an image filter or mask filter these bounds were already checked in
     // the canvas.
@@ -464,7 +465,7 @@ void Device::drawPoints(SkCanvas::PointMode mode,
         if (count == 2) {
             bounds.set(pts[0], pts[1]);
         } else {
-            bounds.setBounds(pts, SkToInt(count));
+            bounds.setBounds(pts.data(), SkToInt(count));
         }
 
         if (!bounds.isFinite() || paint.nothingToDraw()) {
@@ -513,7 +514,7 @@ void Device::drawPoints(SkCanvas::PointMode mode,
                                                      std::move(grPaint),
                                                      aa,
                                                      this->localToDevice(),
-                                                     pts,
+                                                     pts.data(),
                                                      SkStrokeRec(paint, SkPaint::kStroke_Style));
             }
             return;
@@ -544,7 +545,7 @@ void Device::drawPoints(SkCanvas::PointMode mode,
         draw.fDst = SkPixmap(SkImageInfo::MakeUnknown(this->width(), this->height()), nullptr, 0);
         draw.fCTM = &this->localToDevice();
         draw.fRC = &rc;
-        draw.drawDevicePoints(mode, count, pts, paint, this);
+        draw.drawDevicePoints(mode, pts, paint, this);
         return;
     }
 
@@ -554,8 +555,8 @@ void Device::drawPoints(SkCanvas::PointMode mode,
     }
 
     static constexpr SkVertices::VertexMode kIgnoredMode = SkVertices::kTriangles_VertexMode;
-    sk_sp<SkVertices> vertices = SkVertices::MakeCopy(kIgnoredMode, SkToS32(count), pts, nullptr,
-                                                      nullptr);
+    sk_sp<SkVertices> vertices = SkVertices::MakeCopy(kIgnoredMode, SkToS32(count), pts.data(),
+                                                      nullptr, nullptr);
 
     GrPrimitiveType primitiveType = point_mode_to_primitive_type(mode);
     fSurfaceDrawContext->drawVertices(this->clip(), std::move(grPaint), this->localToDevice(),

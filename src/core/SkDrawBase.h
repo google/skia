@@ -13,14 +13,13 @@
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/private/base/SkDebug.h"
 #include "src/base/SkZip.h"
 #include "src/core/SkDrawTypes.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkMask.h"
-
-#include <cstddef>
 
 class SkArenaAlloc;
 class SkBitmap;
@@ -83,7 +82,7 @@ public:
                        customBlitter);
     }
 
-    void drawDevicePoints(SkCanvas::PointMode, size_t count, const SkPoint[], const SkPaint&,
+    void drawDevicePoints(SkCanvas::PointMode, SkSpan<const SkPoint>, const SkPaint&,
                           SkDevice*) const;
 
     /** Helper function that creates a mask from a path and a required maskfilter.

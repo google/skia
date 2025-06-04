@@ -14,12 +14,11 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
+#include "include/core/SkSpan.h"
 #include "src/core/SkCPURecorderImpl.h"
 #include "src/core/SkDevice.h"
 #include "src/core/SkGlyphRunPainter.h"
 #include "src/core/SkRasterClipStack.h"
-
-#include <cstddef>
 
 class SkBlender;
 class SkImage;
@@ -71,8 +70,7 @@ public:
                                         SkRasterHandleAllocator* = nullptr);
 
     void drawPaint(const SkPaint& paint) override;
-    void drawPoints(SkCanvas::PointMode mode, size_t count,
-                            const SkPoint[], const SkPaint& paint) override;
+    void drawPoints(SkCanvas::PointMode, SkSpan<const SkPoint>, const SkPaint&) override;
     void drawRect(const SkRect& r, const SkPaint& paint) override;
     void drawOval(const SkRect& oval, const SkPaint& paint) override;
     void drawRRect(const SkRRect& rr, const SkPaint& paint) override;

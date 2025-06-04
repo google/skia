@@ -900,19 +900,21 @@ void SkSVGDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     }
 }
 
-void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
-                             const SkPoint pts[], const SkPaint& paint) {
+void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, SkSpan<const SkPoint> pts,
+                             const SkPaint& paint) {
     SkPathBuilder path;
 
+    size_t count = pts.size();
     switch (mode) {
             // todo
         case SkCanvas::kPoints_PointMode:
-            for (size_t i = 0; i < count; ++i) {
-                path.moveTo(pts[i]);
-                path.lineTo(pts[i]);
+            for (const auto& pt : pts) {
+                path.moveTo(pt);
+                path.lineTo(pt);
             }
             break;
         case SkCanvas::kLines_PointMode:
+            SkASSERT(count != 0);
             count -= 1;
             for (size_t i = 0; i < count; i += 2) {
                 path.moveTo(pts[i]);
@@ -921,7 +923,7 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, size_t count,
             break;
         case SkCanvas::kPolygon_PointMode:
             if (count > 1) {
-                path.addPolygon(pts, SkToInt(count), false);
+                path.addPolygon(pts.data(), SkToInt(count), false);
             }
             break;
     }

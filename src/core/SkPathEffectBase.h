@@ -12,6 +12,7 @@
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
+#include "include/core/SkSpan.h"
 
 class SkPath;
 class SkStrokeRec;
@@ -59,6 +60,8 @@ public:
 
         SkPath             fFirst;      // If not empty, contains geometry for first point
         SkPath             fLast;       // If not empty, contains geometry for last point
+
+        SkSpan<SkPoint> points() { return {fPoints, fNumPoints}; }
     };
 
     /**

@@ -1128,9 +1128,7 @@ HRESULT SkXPSDevice::createXpsQuad(const SkPoint (&points)[4],
     return S_OK;
 }
 
-void SkXPSDevice::drawPoints(SkCanvas::PointMode mode,
-                             size_t count, const SkPoint points[],
-                             const SkPaint& paint) {
+void SkXPSDevice::drawPoints(SkCanvas::PointMode, SkSpan<const SkPoint>, const SkPaint&) {
     //TODO
 }
 

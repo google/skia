@@ -957,7 +957,7 @@ void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutab
         if (path.isLine(linePts)) {
             // A line has zero area, so stroke and stroke-and-fill are equivalent
             if (paint.getStyle() != SkPaint::kFill_Style) {
-                this->drawPoints(SkCanvas::kLines_PointMode, 2, linePts, paint);
+                this->drawPoints(SkCanvas::kLines_PointMode, linePts, paint);
             } // and if it's fill, nothing is drawn
             return;
         }
@@ -983,8 +983,13 @@ void Device::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutab
                        paint, SkStrokeRec(paint));
 }
 
-void Device::drawPoints(SkCanvas::PointMode mode, size_t count,
-                        const SkPoint* points, const SkPaint& paint) {
+void Device::drawPoints(SkCanvas::PointMode mode, SkSpan<const SkPoint> points,
+                        const SkPaint& paint) {
+    if (points.empty()) {
+        return;
+    }
+    size_t count = points.size();
+
     SkStrokeRec stroke(paint, SkPaint::kStroke_Style);
     size_t next = 0;
     if (mode == SkCanvas::kPoints_PointMode) {

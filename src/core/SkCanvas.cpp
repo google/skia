@@ -1732,7 +1732,9 @@ void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
 
 void SkCanvas::drawPoints(PointMode mode, SkSpan<const SkPoint> pts, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-    this->onDrawPoints(mode, pts.size(), pts.data(), paint);
+    if (!pts.empty()) {
+        this->onDrawPoints(mode, pts.size(), pts.data(), paint);
+    }
 }
 
 void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode,
@@ -1967,7 +1969,7 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
 
     auto layer = this->aboutToDraw(strokePaint, boundsPtr);
     if (layer) {
-        this->topDevice()->drawPoints(mode, count, pts, layer->paint());
+        this->topDevice()->drawPoints(mode, {pts, count}, layer->paint());
     }
 }
 
