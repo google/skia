@@ -37,8 +37,7 @@ static bool isClockwise(const SkPoint& a, const SkPoint& b) { return a.cross(b) 
 class PathRecorder {
 public:
     SkPath getPath() const {
-        return SkPath::Make(fPoints.data(), fPoints.size(), fVerbs.data(), fVerbs.size(), nullptr,
-                            0, SkPathFillType::kWinding);
+        return SkPath::Make(fPoints, fVerbs, {}, SkPathFillType::kWinding);
     }
 
     void moveTo(SkPoint p) {

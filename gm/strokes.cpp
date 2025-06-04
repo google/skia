@@ -583,7 +583,7 @@ DEF_SIMPLE_GM(inner_join_geometry, canvas, 1000, 700) {
 
     canvas->translate(0, 50);
     for (size_t i = 0; i < std::size(pathPoints) / 3; i++) {
-        auto path = SkPath::Polygon(pathPoints + i * 3, 3, false);
+        auto path = SkPath::Polygon({pathPoints + i * 3, 3}, false);
         canvas->drawPath(path, pathPaint);
 
         SkPath fillPath;

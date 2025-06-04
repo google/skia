@@ -26,7 +26,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <iterator>
 
 static inline int is_even(int x) {
     return !(x & 1);
@@ -295,7 +294,7 @@ public:
         pts[2].set(x1 - fNormal.fX, y1 - fNormal.fY);   // lineTo
         pts[3].set(x0 - fNormal.fX, y0 - fNormal.fY);   // lineTo
 
-        path->addPoly(pts, std::size(pts), false);
+        path->addPoly(pts, false);
     }
 
 private:

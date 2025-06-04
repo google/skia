@@ -1063,8 +1063,7 @@ static void test_addPoly(skiatest::Reporter* reporter) {
 
     for (int doClose = 0; doClose <= 1; ++doClose) {
         for (size_t count = 1; count <= std::size(pts); ++count) {
-            SkPath path;
-            path.addPoly(pts, SkToInt(count), SkToBool(doClose));
+            SkPath path = SkPath::Polygon({pts, count}, SkToBool(doClose));
             test_poly(reporter, path, pts, SkToBool(doClose));
         }
     }
@@ -2885,7 +2884,7 @@ static void test_transform(skiatest::Reporter* reporter) {
 
         p.transform(matrix, &p1);
         SkPoint pts1[kPtCount];
-        int count = p1.getPoints(pts1, kPtCount);
+        int count = p1.getPoints(pts1);
         REPORTER_ASSERT(reporter, kPtCount == count);
         for (int i = 0; i < count; ++i) {
             SkPoint newPt = SkPoint::Make(pts[i].fX * 2, pts[i].fY * 3);
@@ -3029,7 +3028,7 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, !p.isEmpty());
         REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultPts == (size_t)p.countPoints());
         REPORTER_ASSERT(reporter, gZeroLengthTests[i].resultBound == p.getBounds());
-        REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultVerbs == (size_t)p.getVerbs(verbs, std::size(verbs)));
+        REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultVerbs == (size_t)p.getVerbs(verbs));
         for (size_t j = 0; j < gZeroLengthTests[i].numResultVerbs; ++j) {
             REPORTER_ASSERT(reporter, gZeroLengthTests[i].resultVerbs[j] == verbs[j]);
         }
@@ -3804,9 +3803,9 @@ static void test_rrect(skiatest::Reporter* reporter) {
     test_rrect_is_convex(reporter, &p, SkPathDirection::kCW);
     p.addRRect(rr, SkPathDirection::kCCW);
     test_rrect_is_convex(reporter, &p, SkPathDirection::kCCW);
-    p.addRoundRect(r, &radii[0].fX);
+    p.addRoundRect(r, {&radii[0].fX, 8});
     test_rrect_is_convex(reporter, &p, SkPathDirection::kCW);
-    p.addRoundRect(r, &radii[0].fX, SkPathDirection::kCCW);
+    p.addRoundRect(r, {&radii[0].fX, 8}, SkPathDirection::kCCW);
     test_rrect_is_convex(reporter, &p, SkPathDirection::kCCW);
     p.addRoundRect(r, radii[1].fX, radii[1].fY);
     test_rrect_is_convex(reporter, &p, SkPathDirection::kCW);
@@ -4167,7 +4166,7 @@ static void test_addPathMode(skiatest::Reporter* reporter, bool explicitMoveTo, 
     q.lineTo(2, 2);
     p.addPath(q, extend ? SkPath::kExtend_AddPathMode : SkPath::kAppend_AddPathMode);
     uint8_t verbs[4];
-    int verbcount = p.getVerbs(verbs, 4);
+    int verbcount = p.getVerbs(verbs);
     REPORTER_ASSERT(reporter, verbcount == 4);
     REPORTER_ASSERT(reporter, verbs[0] == SkPath::kMove_Verb);
     REPORTER_ASSERT(reporter, verbs[1] == SkPath::kLine_Verb);
@@ -4185,7 +4184,7 @@ static void test_extendClosedPath(skiatest::Reporter* reporter) {
     q.lineTo(2, 3);
     p.addPath(q, SkPath::kExtend_AddPathMode);
     uint8_t verbs[7];
-    int verbcount = p.getVerbs(verbs, 7);
+    int verbcount = p.getVerbs(verbs);
     REPORTER_ASSERT(reporter, verbcount == 7);
     REPORTER_ASSERT(reporter, verbs[0] == SkPath::kMove_Verb);
     REPORTER_ASSERT(reporter, verbs[1] == SkPath::kLine_Verb);
@@ -5059,14 +5058,14 @@ DEF_TEST(Paths, reporter) {
     REPORTER_ASSERT(reporter, !(p == empty));
 
     // do getPoints and getVerbs return the right result
-    REPORTER_ASSERT(reporter, p.getPoints(nullptr, 0) == 4);
-    REPORTER_ASSERT(reporter, p.getVerbs(nullptr, 0) == 5);
+    REPORTER_ASSERT(reporter, p.getPoints({}) == 4);
+    REPORTER_ASSERT(reporter, p.getVerbs({}) == 5);
     SkPoint pts[4];
-    int count = p.getPoints(pts, 4);
+    int count = p.getPoints(pts);
     REPORTER_ASSERT(reporter, count == 4);
     uint8_t verbs[6];
     verbs[5] = 0xff;
-    p.getVerbs(verbs, 5);
+    p.getVerbs({verbs, 5});
     REPORTER_ASSERT(reporter, SkPath::kMove_Verb == verbs[0]);
     REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[1]);
     REPORTER_ASSERT(reporter, SkPath::kLine_Verb == verbs[2]);
@@ -5527,8 +5526,7 @@ static void draw_triangle(SkCanvas* canvas, const SkPoint pts[]) {
     // draw in different ways, looking for an assert
 
     {
-        SkPath path;
-        path.addPoly(pts, 3, false);
+        SkPath path = SkPath::Polygon({pts, 3}, false);
         canvas->drawPath(path, SkPaint());
     }
 

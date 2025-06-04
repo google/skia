@@ -13,7 +13,7 @@ void draw(SkCanvas* canvas) {
   canvas->translate(0, 128);
   canvas->drawPoints(SkCanvas::kPolygon_PointMode, points, paint);
   SkPath path;
-  path.addPoly(points, 3, false);
+  path.addPoly(points, false);
   canvas->translate(-128, 0);
   canvas->drawPath(path, paint);
 }

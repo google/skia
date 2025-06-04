@@ -8,6 +8,7 @@
 #include "modules/svg/include/SkSVGPoly.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPoint.h"
 #include "modules/svg/include/SkSVGAttribute.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
@@ -24,9 +25,8 @@ bool SkSVGPoly::parseAndSetAttribute(const char* n, const char* v) {
 
     if (this->setPoints(SkSVGAttributeParser::parse<SkSVGPointsType>("points", n, v))) {
         // TODO: we can likely just keep the points array and create the SkPath when needed.
-        fPath = SkPath::Polygon(
-                fPoints.data(), fPoints.size(),
-                this->tag() == SkSVGTag::kPolygon);  // only polygons are auto-closed
+        // only polygons are auto-closed
+        fPath = SkPath::Polygon(fPoints, this->tag() == SkSVGTag::kPolygon);
     }
 
     // No other attributes on this node

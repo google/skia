@@ -854,8 +854,8 @@ void SkVarWidthStroker::appendPathReversed(const SkPath& path, SkPath* result) {
     std::vector<SkPoint> points;
     verbs.resize(numVerbs);
     points.resize(numPoints);
-    path.getVerbs(verbs.data(), numVerbs);
-    path.getPoints(points.data(), numPoints);
+    path.getVerbs(verbs);
+    path.getPoints(points);
 
     for (int i = numVerbs - 1, j = numPoints; i >= 0; i--) {
         auto verb = static_cast<SkPath::Verb>(verbs[i]);

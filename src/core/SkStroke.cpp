@@ -1588,7 +1588,7 @@ static void addBevel(SkPath* path, const SkRect& r, const SkRect& outer, SkPathD
         pts[1].set(outer.fLeft, r.fBottom);
         pts[0].set(outer.fLeft, r.fTop);
     }
-    path->addPoly(pts, 8, true);
+    path->addPoly(pts, true);
 }
 
 void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,

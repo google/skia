@@ -57,14 +57,14 @@ DEF_SIMPLE_GM(arcto_skbug_9272, canvas, 150, 150) {
     canvas->drawPath(path2, paint);
 }
 
-static SkPath old_school_polygon(const SkPoint pts[], size_t count, bool isClosed) {
+static SkPath old_school_polygon(SkSpan<const SkPoint> pts, bool isClosed) {
     SkPath path;
-    path.addPoly(pts, count, isClosed);
+    path.addPoly(pts, isClosed);
     return path;
 }
 
-static SkPath new_school_polygon(const SkPoint pts[], size_t count, bool isClosed) {
-    return SkPath::Polygon(pts, count, isClosed);
+static SkPath new_school_polygon(SkSpan<const SkPoint> pts, bool isClosed) {
+    return SkPath::Polygon(pts, isClosed);
 }
 
 DEF_SIMPLE_GM(path_append_extend, canvas, 400, 400) {
@@ -75,7 +75,7 @@ DEF_SIMPLE_GM(path_append_extend, canvas, 400, 400) {
         { 10, 50 }, {30, 70}, {50, 50},
     };
 
-    const SkPath path1 = SkPath::Polygon(p1, std::size(p1), false);
+    const SkPath path1 = SkPath::Polygon(p1, false);
 
     SkPaint paint;
     paint.setStroke(true);
@@ -92,7 +92,7 @@ DEF_SIMPLE_GM(path_append_extend, canvas, 400, 400) {
         for (auto proc : {old_school_polygon, new_school_polygon}) {
             canvas->save();
 
-            SkPath path0 = proc(p0, std::size(p0), isClosed);
+            SkPath path0 = proc({p0, std::size(p0)}, isClosed);
 
             canvas->drawPath(path0, paint);
             canvas->drawPath(path1, paint);

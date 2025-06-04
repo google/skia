@@ -14,6 +14,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTo.h"
@@ -22,10 +23,8 @@
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
-#include <initializer_list>
 #include <optional>
 #include <tuple>
-#include <type_traits>
 
 struct SkArc;
 class SkData;
@@ -78,9 +77,9 @@ public:
      *  with a Move verb, followed by 0 or more segments: Line, Quad, Conic, Cubic, followed
      *  by an optional Close.
      */
-    static SkPath Make(const SkPoint[],  int pointCount,
-                       const uint8_t[],  int verbCount,
-                       const SkScalar[], int conicWeightCount,
+    static SkPath Make(SkSpan<const SkPoint> pts,
+                       SkSpan<const uint8_t> verbs,
+                       SkSpan<const SkScalar> conics,
                        SkPathFillType, bool isVolatile = false);
 
     static SkPath Rect(const SkRect&, SkPathDirection = SkPathDirection::kCW,
@@ -94,15 +93,9 @@ public:
     static SkPath RRect(const SkRect& bounds, SkScalar rx, SkScalar ry,
                         SkPathDirection dir = SkPathDirection::kCW);
 
-    static SkPath Polygon(const SkPoint pts[], int count, bool isClosed,
-                          SkPathFillType = SkPathFillType::kWinding,
-                          bool isVolatile = false);
-
-    static SkPath Polygon(const std::initializer_list<SkPoint>& list, bool isClosed,
+    static SkPath Polygon(SkSpan<const SkPoint> pts, bool isClosed,
                           SkPathFillType fillType = SkPathFillType::kWinding,
-                          bool isVolatile = false) {
-        return Polygon(list.begin(), SkToInt(list.size()), isClosed, fillType, isVolatile);
-    }
+                          bool isVolatile = false);
 
     static SkPath Line(const SkPoint a, const SkPoint b) {
         return Polygon({a, b}, false);
@@ -500,17 +493,15 @@ public:
     */
     SkPoint getPoint(int index) const;
 
-    /** Returns number of points in SkPath. Up to max points are copied.
-        points may be nullptr; then, max must be zero.
-        If max is greater than number of points, excess points storage is unaltered.
+    /** Returns number of points in SkPath.
+        Copies N points from the path into the span, where N = min(#points, span capacity)
 
-        @param points  storage for SkPath SkPoint array. May be nullptr
-        @param max     maximum to copy; must be greater than or equal to zero
-        @return        SkPath SkPoint array length
+        @param points  span to receive the points. may be empty
+        @return the number of points in the path
 
         example: https://fiddle.skia.org/c/@Path_getPoints
     */
-    int getPoints(SkPoint points[], int max) const;
+    size_t getPoints(SkSpan<SkPoint> points) const;
 
     /** Returns the number of verbs: kMove_Verb, kLine_Verb, kQuad_Verb, kConic_Verb,
         kCubic_Verb, and kClose_Verb; added to SkPath.
@@ -521,16 +512,15 @@ public:
     */
     int countVerbs() const;
 
-    /** Returns the number of verbs in the path. Up to max verbs are copied. The
-        verbs are copied as one byte per verb.
+    /** Returns number of points in SkPath.
+        Copies N points from the path into the span, where N = min(#points, span capacity)
 
-        @param verbs  storage for verbs, may be nullptr
-        @param max    maximum number to copy into verbs
-        @return       the actual number of verbs in the path
+        @param verbs span to store the verbs. may be empty.
+        @return the number of verbs in the path
 
         example: https://fiddle.skia.org/c/@Path_getVerbs
     */
-    int getVerbs(uint8_t verbs[], int max) const;
+    size_t getVerbs(SkSpan<uint8_t> verbs) const;
 
     /** Returns the approximate byte size of the SkPath in memory.
 
@@ -1258,7 +1248,7 @@ private:
         @param dir    SkPath::Direction to wind SkRRect
         @return       reference to SkPath
     */
-    SkPath& addRoundRect(const SkRect& rect, const SkScalar radii[],
+    SkPath& addRoundRect(const SkRect& rect, SkSpan<const SkScalar> radii,
                          SkPathDirection dir = SkPathDirection::kCW);
 
     /** Adds rrect to SkPath, creating a new closed contour. If
@@ -1304,21 +1294,7 @@ private:
 
         example: https://fiddle.skia.org/c/@Path_addPoly
     */
-    SkPath& addPoly(const SkPoint pts[], int count, bool close);
-
-    /** Adds contour created from list. Contour added starts at list[0], then adds a line
-        for every additional SkPoint in list. If close is true, appends kClose_Verb to SkPath,
-        connecting last and first SkPoint in list.
-
-        If list is empty, append kMove_Verb to path.
-
-        @param list   array of SkPoint
-        @param close  true to add line connecting contour end and start
-        @return       reference to SkPath
-    */
-    SkPath& addPoly(const std::initializer_list<SkPoint>& list, bool close) {
-        return this->addPoly(list.begin(), SkToInt(list.size()), close);
-    }
+    SkPath& addPoly(SkSpan<const SkPoint> pts, bool close);
 
     /** \enum SkPath::AddPathMode
         AddPathMode chooses how addPath() appends. Adding one SkPath to another can extend
@@ -1633,6 +1609,36 @@ public:
 
         Verb autoClose(SkPoint pts[2]);
     };
+
+#ifdef SK_SUPPORT_UNSPANNED_APIS
+    static SkPath Make(const SkPoint points[], int pointCount,
+                       const uint8_t verbs[], int verbCount,
+                       const SkScalar conics[], int conicWeightCount,
+                       SkPathFillType fillType, bool isVolatile = false) {
+        return Make({points, pointCount},
+                    {verbs, verbCount},
+                    {conics, conicWeightCount},
+                    fillType, isVolatile);
+    }
+    static SkPath Polygonx(const SkPoint pts[], int count, bool isClosed,
+                          SkPathFillType fillType = SkPathFillType::kWinding,
+                          bool isVolatile = false) {
+        return Polygon({pts, count}, isClosed, fillType, isVolatile);
+    }
+    int getPoints(SkPoint points[], int max) const {
+        return (int)this->getPoints({points, max});
+    }
+    int getVerbs(uint8_t verbs[], int max) const {
+        return (int)this->getVerbs({verbs, max});
+    }
+    SkPath& addRoundRect(const SkRect& rect, const SkScalar radii[],
+                         SkPathDirection dir = SkPathDirection::kCW) {
+        return this->addRoundRect(rect, {radii, radii ? 8 : 0}, dir);
+    }
+    SkPath& addPoly(const SkPoint pts[], int count, bool close) {
+        return this->addPoly({pts, count}, close);
+    }
+#endif
 
 private:
     /** \class SkPath::RangeIter

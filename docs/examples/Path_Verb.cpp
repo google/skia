@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
     path.cubicTo(1, 2, 3, 4, 5, 6);
     path.conicTo(0, 0, 0, 0, 2);
     uint8_t verbs[7];
-    int count = path.getVerbs(verbs, (int) std::size(verbs));
+    int count = path.getVerbs(verbs);
     const char* verbStr[] = { "Move", "Line", "Quad", "Conic", "Cubic", "Close" };
     SkDebugf("verb count: %d\nverbs: ", count);
     for (int i = 0; i < count; ++i) {

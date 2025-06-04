@@ -680,9 +680,9 @@ void SkPathRef::reset() {
 }
 
 bool SkPathRef::dataMatchesVerbs() const {
-    const auto info = SkPathPriv::AnalyzeVerbs(fVerbs.begin(), fVerbs.size());
+    const auto info = SkPathPriv::AnalyzeVerbs(fVerbs);
     return info.valid                          &&
            info.segmentMask == fSegmentMask    &&
-           info.points      == fPoints.size()  &&
-           info.weights     == fConicWeights.size();
+           info.points      == (size_t)fPoints.size()  &&
+           info.weights     == (size_t)fConicWeights.size();
 }

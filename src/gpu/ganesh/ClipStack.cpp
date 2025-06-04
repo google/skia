@@ -553,7 +553,7 @@ bool ClipStack::RawElement::contains(const RawElement& e) const {
                     == e.fShape.rrect();
         } else if (fShape.isPath() && e.fShape.isPath()) {
             return fShape.path().getGenerationID() == e.fShape.path().getGenerationID() ||
-                   (fShape.path().getPoints(nullptr, 0) <= kMaxPathComparePoints &&
+                   (fShape.path().countPoints() <= kMaxPathComparePoints &&
                     fShape.path() == e.fShape.path());
         } // else fall through to shape_contains_rect
     }

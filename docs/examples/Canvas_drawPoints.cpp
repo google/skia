@@ -14,7 +14,7 @@ void draw(SkCanvas* canvas) {
                                    SkPaint::kBevel_Join };
     int joinIndex = 0;
     SkPath path;
-    path.addPoly(points, 3, false);
+    path.addPoly(points, false);
     for (const auto cap : { SkPaint::kRound_Cap, SkPaint::kSquare_Cap, SkPaint::kButt_Cap } ) {
         paint.setStrokeCap(cap);
         paint.setStrokeJoin(join[joinIndex++]);

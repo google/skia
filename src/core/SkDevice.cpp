@@ -242,9 +242,7 @@ void SkDevice::drawEdgeAAQuad(const SkRect& r, const SkPoint clip[4], SkCanvas::
 
     if (clip) {
         // Draw the clip directly as a quad since it's a filled color with no local coords
-        SkPath clipPath;
-        clipPath.addPoly(clip, 4, true);
-        this->drawPath(clipPath, paint, true);
+        this->drawPath(SkPath::Polygon({clip, 4}, true), paint, true);
     } else {
         this->drawRect(r, paint);
     }
@@ -277,8 +275,7 @@ void SkDevice::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry images[], int co
         if (images[i].fHasClip) {
             // Since drawImageRect requires a srcRect, the dst clip is implemented as a true clip
             this->pushClipStack();
-            SkPath clipPath;
-            clipPath.addPoly(dstClips + clipIndex, 4, true);
+            SkPath clipPath = SkPath::Polygon({dstClips + clipIndex, 4}, true);
             this->clipPath(clipPath, SkClipOp::kIntersect, entryPaint.isAntiAlias());
             clipIndex += 4;
         }

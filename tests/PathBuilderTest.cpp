@@ -262,7 +262,7 @@ DEF_TEST(pathbuilder_make, reporter) {
         pts[i] = {x, y}; vbs[i] = (uint8_t)SkPathVerb::kLine;
     }
     auto p0 = b.detach();
-    auto p1 = SkPath::Make(pts, N, vbs, N, nullptr, 0, p0.getFillType());
+    auto p1 = SkPath::Make(pts, vbs, {}, p0.getFillType());
     REPORTER_ASSERT(reporter, p0 == p1);
 }
 
@@ -529,7 +529,7 @@ DEF_TEST(pathbuilder_lastmoveindex, reporter) {
             SkPathBuilder builder;
             for (int i = 0; i < ctrCount; ++i) {
                 builder.addPolygon(pts, N, isClosed);  // new-school way
-                b.addPoly(pts, N, isClosed);        // old-school way
+                b.addPoly(pts, isClosed);              // old-school way
             }
             a = builder.detach();
 
@@ -663,7 +663,7 @@ DEF_TEST(SkPathBuilder_transform, reporter) {
 
         SkPath p1 = SkPathBuilder(b.snapshot()).transform(matrix).detach();
         SkPoint pts1[kPtCount];
-        int count = p1.getPoints(pts1, kPtCount);
+        int count = p1.getPoints(pts1);
         REPORTER_ASSERT(reporter, kPtCount == count);
         for (int i = 0; i < count; ++i) {
             SkPoint newPt = SkPoint::Make(pts[i].fX * 2, pts[i].fY * 3);

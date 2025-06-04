@@ -11,12 +11,12 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMalloc.h"
-#include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"
@@ -567,14 +567,13 @@ int SkPath::countPoints() const {
     return fPathRef->countPoints();
 }
 
-int SkPath::getPoints(SkPoint dst[], int max) const {
+size_t SkPath::getPoints(SkSpan<SkPoint> dst) const {
     SkDEBUGCODE(this->validate();)
 
-    SkASSERT(max >= 0);
-    SkASSERT(!max || dst);
-    int count = std::min(max, fPathRef->countPoints());
-    sk_careful_memcpy(dst, fPathRef->points(), count * sizeof(SkPoint));
-    return fPathRef->countPoints();
+    const size_t ptCount = fPathRef->countPoints();
+    const size_t n = std::min(dst.size(), ptCount);
+    sk_careful_memcpy(dst.data(), fPathRef->points(), n * sizeof(SkPoint));
+    return ptCount;
 }
 
 SkPoint SkPath::getPoint(int index) const {
@@ -588,16 +587,13 @@ int SkPath::countVerbs() const {
     return fPathRef->countVerbs();
 }
 
-int SkPath::getVerbs(uint8_t dst[], int max) const {
+size_t SkPath::getVerbs(SkSpan<uint8_t> dst) const {
     SkDEBUGCODE(this->validate();)
 
-    SkASSERT(max >= 0);
-    SkASSERT(!max || dst);
-    int count = std::min(max, fPathRef->countVerbs());
-    if (count) {
-        memcpy(dst, fPathRef->verbsBegin(), count);
-    }
-    return fPathRef->countVerbs();
+    const size_t vbCount = fPathRef->countVerbs();
+    const size_t n = std::min(dst.size(), vbCount);
+    sk_careful_memcpy(dst.data(), fPathRef->verbsBegin(), n);
+    return vbCount;
 }
 
 size_t SkPath::approximateBytesUsed() const {
@@ -918,11 +914,12 @@ SkPath& SkPath::addRect(const SkRect &rect, SkPathDirection dir, unsigned startI
     return *this;
 }
 
-SkPath& SkPath::addPoly(const SkPoint pts[], int count, bool close) {
+SkPath& SkPath::addPoly(SkSpan<const SkPoint> pts, bool close) {
     SkDEBUGCODE(this->validate();)
-    if (count <= 0) {
+    if (pts.empty()) {
         return *this;
     }
+    const int count = SkToInt(pts.size());
 
     fLastMoveToIndex = fPathRef->countPoints();
 
@@ -1021,10 +1018,11 @@ static int build_arc_conics(const SkRect& oval, const SkVector& start, const SkV
     return count;
 }
 
-SkPath& SkPath::addRoundRect(const SkRect& rect, const SkScalar radii[],
-                          SkPathDirection dir) {
+SkPath& SkPath::addRoundRect(const SkRect& rect, SkSpan<const SkScalar> radii,
+                             SkPathDirection dir) {
+    SkASSERT(radii.size() >= 8);
     SkRRect rrect;
-    rrect.setRectRadii(rect, (const SkVector*) radii);
+    rrect.setRectRadii(rect, (const SkVector*) radii.data());
     return this->addRRect(rrect, dir);
 }
 
@@ -3490,12 +3488,12 @@ bool SkPath::IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkPathVerbAnalysis SkPathPriv::AnalyzeVerbs(const uint8_t vbs[], int verbCount) {
+SkPathVerbAnalysis SkPathPriv::AnalyzeVerbs(SkSpan<const uint8_t> vbs) {
     SkPathVerbAnalysis info = {false, 0, 0, 0};
     bool needMove = true;
     bool invalid = false;
 
-    if (verbCount >= (INT_MAX / 3)) SK_UNLIKELY {
+    if (vbs.size() >= (INT_MAX / 3)) SK_UNLIKELY {
         // A path with an extremely high number of quad, conic or cubic verbs could cause
         // `info.points` to overflow. To prevent against this, we reject extremely large paths. This
         // check is conservative and assumes the worst case (in particular, it assumes that every
@@ -3503,8 +3501,8 @@ SkPathVerbAnalysis SkPathPriv::AnalyzeVerbs(const uint8_t vbs[], int verbCount) 
         // This limits us to 700 million verbs, which is large enough for any reasonable use case.
         invalid = true;
     } else {
-        for (int i = 0; i < verbCount; ++i) {
-            switch ((SkPathVerb)vbs[i]) {
+        for (auto v : vbs) {
+            switch ((SkPathVerb)v) {
                 case SkPathVerb::kMove:
                     needMove = false;
                     info.points += 1;
@@ -3544,21 +3542,21 @@ SkPathVerbAnalysis SkPathPriv::AnalyzeVerbs(const uint8_t vbs[], int verbCount) 
     return info;
 }
 
-SkPath SkPath::Make(const SkPoint pts[], int pointCount,
-                    const uint8_t vbs[], int verbCount,
-                    const SkScalar ws[], int wCount,
+SkPath SkPath::Make(SkSpan<const SkPoint> pts,
+                    SkSpan<const uint8_t> vbs,
+                    SkSpan<const SkScalar> ws,
                     SkPathFillType ft, bool isVolatile) {
-    if (verbCount <= 0) {
+    if (vbs.empty()) {
         return SkPath();
     }
 
-    const auto info = SkPathPriv::AnalyzeVerbs(vbs, verbCount);
-    if (!info.valid || info.points > pointCount || info.weights > wCount) {
+    const auto info = SkPathPriv::AnalyzeVerbs(vbs);
+    if (!info.valid || info.points > pts.size() || info.weights > ws.size()) {
         SkDEBUGFAIL("invalid verbs and number of points/weights");
         return SkPath();
     }
 
-    return MakeInternal(info, pts, vbs, verbCount, ws, ft, isVolatile);
+    return MakeInternal(info, pts.data(), vbs.data(), vbs.size(), ws.data(), ft, isVolatile);
 }
 
 SkPath SkPath::Rect(const SkRect& r, SkPathDirection dir, unsigned startIndex) {
@@ -3589,9 +3587,9 @@ SkPath SkPath::RRect(const SkRect& r, SkScalar rx, SkScalar ry, SkPathDirection 
     return SkPathBuilder().addRRect(SkRRect::MakeRectXY(r, rx, ry), dir).detach();
 }
 
-SkPath SkPath::Polygon(const SkPoint pts[], int count, bool isClosed,
+SkPath SkPath::Polygon(SkSpan<const SkPoint> pts, bool isClosed,
                        SkPathFillType ft, bool isVolatile) {
-    return SkPathBuilder().addPolygon(pts, count, isClosed)
+    return SkPathBuilder().addPolygon(pts.data(), pts.size(), isClosed)
                           .setFillType(ft)
                           .setIsVolatile(isVolatile)
                           .detach();

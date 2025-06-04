@@ -735,9 +735,7 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
     // Use FixedMax/2 as the limit so we can subtract two edges and still store that in Fixed.
     const SkScalar limit = SK_MaxS16 >> 1;
     if (!SkRect::MakeLTRB(-limit, -limit, limit, limit).contains(r)) {
-        SkPath path;
-        path.addPoly(pts, 3, false);
-        FillPath(path, clip, blitter);
+        FillPath(SkPath::Polygon({pts, 3}, false), clip, blitter);
         return;
     }
 

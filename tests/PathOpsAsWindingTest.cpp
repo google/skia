@@ -465,7 +465,7 @@ DEF_TEST(PathOpsAsWinding, reporter) {
     // if test has only one contour
     test.reset();
     SkPoint ell[] = {{0, 0}, {4, 0}, {4, 1}, {1, 1}, {1, 4}, {0, 4}};
-    test.addPoly(ell, std::size(ell), true);
+    test.addPoly(ell, true);
     test.setFillType(SkPathFillType::kEvenOdd);
     REPORTER_ASSERT(reporter, AsWinding(test, &result));
     REPORTER_ASSERT(reporter, !result.isConvex());
@@ -480,7 +480,7 @@ DEF_TEST(PathOpsAsWinding, reporter) {
     REPORTER_ASSERT(reporter, test == result);
     // test two contours that do not overlap but share bounds
     test.reset();
-    test.addPoly(ell, std::size(ell), true);
+    test.addPoly(ell, true);
     test.addRect({2, 2, 3, 3});
     test.setFillType(SkPathFillType::kEvenOdd);
     REPORTER_ASSERT(reporter, AsWinding(test, &result));

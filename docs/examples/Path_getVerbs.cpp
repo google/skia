@@ -4,7 +4,7 @@
 REG_FIDDLE(Path_getVerbs, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     auto debugster = [](const char* prefix, const SkPath& path, uint8_t* verbs, int max) -> void {
-         int count = path.getVerbs(verbs, max);
+        int count = path.getVerbs({verbs, max});
          SkDebugf("%s verb count: %d  ", prefix, count);
          const char* verbStr[] = { "move", "line", "quad", "conic", "cubic", "close" };
          for (int i = 0; i < std::min(count, max) && verbs; ++i) {

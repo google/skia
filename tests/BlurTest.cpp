@@ -331,8 +331,7 @@ DEF_TEST(BlurSigmaRange, reporter) {
         { 0.3f, 100.3f },
         { 2.3f, 50.3f }     // a little divet to throw off the rect special case
     };
-    SkPath polyPath;
-    polyPath.addPoly(polyPts, std::size(polyPts), true);
+    auto polyPath = SkPath::Polygon(polyPts, true);
 
     int rectSpecialCaseResult[kSize];
     int generalCaseResult[kSize];

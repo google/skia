@@ -16,13 +16,14 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/base/SkDebug.h"
-#include "include/private/base/SkSpan_impl.h"
 #include "src/core/SkPathEnums.h"
 
+#include <cstddef>
 #include <cstdint>
 #include <iterator>
 #include <optional>
@@ -38,14 +39,14 @@ static_assert(3 == static_cast<int>(SkPathFillType::kInverseEvenOdd), "fill_type
 
 // These are computed from a stream of verbs
 struct SkPathVerbAnalysis {
-    int      points, weights;
+    size_t   points, weights;
     unsigned segmentMask;
     bool     valid;
 };
 
 class SkPathPriv {
 public:
-    static SkPathVerbAnalysis AnalyzeVerbs(const uint8_t verbs[], int count);
+    static SkPathVerbAnalysis AnalyzeVerbs(SkSpan<const uint8_t> verbs);
 
     // skbug.com/9906: Not a perfect solution for W plane clipping, but 1/16384 is a
     // reasonable limit (roughly 5e-5)
@@ -455,8 +456,7 @@ public:
                            const SkScalar conics[],
                            SkPathFillType fillType,
                            bool isVolatile) {
-        return SkPath::MakeInternal(analysis, points, verbs, verbCount, conics, fillType,
-                                    isVolatile);
+        return SkPath::MakeInternal(analysis, points, verbs, verbCount, conics, fillType, isVolatile);
     }
 };
 

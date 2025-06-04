@@ -231,7 +231,7 @@ std::optional<SkPath> SkPath::ReadFromMemory(const void* storage, size_t length,
 
     // To minimize the number of reads done a structure with the counts is used.
     struct {
-      int32_t pts, cnx, vbs;
+      uint32_t pts, cnx, vbs;
     } counts;
     if (!buffer.read(&counts, sizeof(counts))) {
         RETURN_PATH_AND_BYTES(std::nullopt, 0);
@@ -261,13 +261,13 @@ std::optional<SkPath> SkPath::ReadFromMemory(const void* storage, size_t length,
     SkAutoMalloc reversedStorage;
     if (!verbsAreForward) SK_UNLIKELY {
       uint8_t* tmpVerbs = (uint8_t*)reversedStorage.reset(counts.vbs);
-        for (int i = 0; i < counts.vbs; ++i) {
+        for (unsigned i = 0; i < counts.vbs; ++i) {
             tmpVerbs[i] = verbs[counts.vbs - i - 1];
         }
         verbs = tmpVerbs;
     }
 
-    SkPathVerbAnalysis analysis = SkPathPriv::AnalyzeVerbs(verbs, counts.vbs);
+    SkPathVerbAnalysis analysis = SkPathPriv::AnalyzeVerbs({verbs, counts.vbs});
     if (!analysis.valid || analysis.points != counts.pts || analysis.weights != counts.cnx) {
         RETURN_PATH_AND_BYTES(std::nullopt, 0);
     }

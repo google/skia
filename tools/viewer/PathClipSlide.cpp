@@ -136,7 +136,7 @@ static void draw_clipped_line(SkCanvas* canvas, const SkRect& bounds,
     int count = clip_line(bounds, p0, p1, verts);
 
     SkPath path;
-    path.addPoly(verts, count, false);
+    path.addPoly({verts, count}, false);
     canvas->drawPath(path, paint);
 }
 
@@ -176,7 +176,7 @@ public:
 
     void draw(SkCanvas* canvas) override {
         SkPath path;
-        path.addPoly(fPoly, N, true);
+        path.addPoly(fPoly, true);
 
         // Draw the full triangle, stroked and filled
         SkPaint p;
@@ -281,7 +281,7 @@ protected:
         }
 
         SkPath path;
-        path.addPoly(fPoly, N, true);
+        path.addPoly(fPoly, true);
         if (path.contains(x, y)) {
             return new DragPolyClick(fPoly, N);
         }

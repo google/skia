@@ -232,7 +232,7 @@ void SkOverdrawCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec
 void SkOverdrawCanvas::onDrawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
                                         QuadAAFlags aa, const SkColor4f& color, SkBlendMode mode) {
     if (clip) {
-        fList[0]->onDrawPath(SkPath::Polygon(clip, 4, true), fPaint);
+        fList[0]->onDrawPath(SkPath::Polygon({clip, 4}, true), fPaint);
     } else {
         fList[0]->onDrawRect(rect, fPaint);
     }
@@ -251,7 +251,7 @@ void SkOverdrawCanvas::onDrawEdgeAAImageSet2(const ImageSetEntry set[], int coun
             fList[0]->concat(preViewMatrices[set[i].fMatrixIndex]);
         }
         if (set[i].fHasClip) {
-            fList[0]->onDrawPath(SkPath::Polygon(dstClips + clipIndex, 4, true), fPaint);
+            fList[0]->onDrawPath(SkPath::Polygon({dstClips + clipIndex, 4}, true), fPaint);
             clipIndex += 4;
         } else {
             fList[0]->onDrawRect(set[i].fDstRect, fPaint);

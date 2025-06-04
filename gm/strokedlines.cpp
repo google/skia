@@ -293,7 +293,7 @@ static void draw_path(SkCanvas* canvas, const SkPoint& p0, const SkPoint& p1, Sk
     paint.setStrokeCap(SkPaint::kSquare_Cap);
     int n = fillPath.countPoints();
     AutoTArray<SkPoint> points(n);
-    fillPath.getPoints(points.get(), n);
+    fillPath.getPoints(points);
     canvas->drawPoints(SkCanvas::kPoints_PointMode, points, paint);
 }
 
