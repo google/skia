@@ -142,8 +142,8 @@ commands to fetch the NDK our bots use:
 
 ```
 ./bin/fetch-sk
-./bin/sk asset download android_ndk_linux /tmp/ndk     # on Linux
-./bin/sk asset download android_ndk_darwin /tmp/ndk    # on Mac
+./bin/sk asset download android_ndk_linux ~/ndk        # on Linux
+./bin/sk asset download android_ndk_darwin ~/ndk       # on Mac
 ./bin/sk.exe asset download android_ndk_windows C:/ndk # on Windows
 ```
 
@@ -151,10 +151,10 @@ When generating your GN build files, pass the path to your `ndk` and your
 desired `target_cpu`:
 
 ```
-bin/gn gen out/arm   --args='ndk="/tmp/ndk" target_cpu="arm"'
-bin/gn gen out/arm64 --args='ndk="/tmp/ndk" target_cpu="arm64"'
-bin/gn gen out/x64   --args='ndk="/tmp/ndk" target_cpu="x64"'
-bin/gn gen out/x86   --args='ndk="/tmp/ndk" target_cpu="x86"'
+bin/gn gen out/arm   --args='ndk="~/ndk" target_cpu="arm"'
+bin/gn gen out/arm64 --args='ndk="~/ndk" target_cpu="arm64"'
+bin/gn gen out/x64   --args='ndk="~/ndk" target_cpu="x64"'
+bin/gn gen out/x86   --args='ndk="~/ndk" target_cpu="x86"'
 ```
 
 Other arguments like `is_debug` and `is_component_build` continue to work.
