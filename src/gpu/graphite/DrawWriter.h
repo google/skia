@@ -207,6 +207,10 @@ public:
         this->bindAndFlush(vertices, indices, instances, indexCount, instanceCount);
     }
 
+#if defined(GPU_TEST_UTILS)
+    BindBufferInfo getLastAppendedBuffer() { return fAppend; }
+#endif
+
 private:
     // Both of these pointers must outlive the DrawWriter.
     DrawPassCommands::List* fCommandList;

@@ -14,9 +14,11 @@
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/DrawPass.h"
+#include "src/gpu/graphite/RecorderOptionsPriv.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
-#include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/task/CopyTask.h"
 #include "src/gpu/graphite/task/SynchronizeToCpuTask.h"
 #include "src/gpu/graphite/task/UploadTask.h"
@@ -69,6 +71,23 @@ sk_sp<Buffer> get_readback_buffer(Recorder* recorder, size_t copyBufferSize) {
 }
 
 template<typename T>
+bool map_and_readback_buffer_sync(Context* context,
+                                  GraphiteTestContext* testContext,
+                                  Buffer* sourceBuffer,
+                                  skia_private::TArray<T>& readbackDst,
+                                  uint32_t readbackSize) {
+    if (sourceBuffer->isMapped()) {
+        sourceBuffer->unmap();
+    }
+    T* read = static_cast<T*>(map_buffer(context, testContext, sourceBuffer, 0));
+    if (!read) {
+        return false;
+    }
+    readbackDst = skia_private::TArray<T>(read, readbackSize);
+    return true;
+}
+
+template<typename T>
 bool copy_and_readback_buffer_sync(Context* context,
                                    GraphiteTestContext* testContext,
                                    Recorder* recorder,
@@ -95,8 +114,7 @@ bool copy_and_readback_buffer_sync(Context* context,
 }
 
 bool is_dawn_or_vulkan_context_type(skiatest::GpuContextType contextType) {
-    return skiatest::IsDawnContextType(contextType) ||
-           skiatest::IsVulkanContextType(contextType);
+    return skiatest::IsDawnContextType(contextType) || skiatest::IsVulkanContextType(contextType);
 }
 
 } // namespace
@@ -186,6 +204,127 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(StaticVerticesPaddingTest,
                        byteIndex,
                        paddingStart,
                        regionEndOffset);
+                return;
+            }
+        }
+    }
+}
+
+DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(DynamicVerticesPaddingTest,
+                                               reporter,
+                                               context,
+                                               testContext) {
+    constexpr uint32_t kStride = 4;
+    constexpr uint32_t kVertBuffSize = 32; // I.e. blocks of 8 verts (vertBuffSize / stride = 8)
+    constexpr uint32_t kReadbackSize = kVertBuffSize / kStride;
+
+    auto buffOpts = DrawBufferManager::DrawBufferManagerOptions();
+    buffOpts.fVertexBufferMinSize = kVertBuffSize;
+    buffOpts.fVertexBufferMaxSize = kVertBuffSize;
+    buffOpts.fUseExactBuffSizes = true;
+    RecorderOptionsPriv recOptsPriv;
+    recOptsPriv.fDbmOptions = std::optional(buffOpts);
+    RecorderOptions recOpts;
+    recOpts.fRecorderOptionsPriv = &recOptsPriv;
+    std::unique_ptr<Recorder> recorder = context->makeRecorder(recOpts);
+    DrawBufferManager* bufferMgr = recorder->priv().drawBufferManager();
+    if (bufferMgr->hasMappingFailed()) {
+        ERRORF(reporter, "Failed to get buffer manager");
+        return;
+    }
+    DrawPassCommands::List commandList;
+    std::unique_ptr<DrawWriter> dw = std::make_unique<DrawWriter>(&commandList, bufferMgr);
+
+    auto vertsNewPipeline = [&]() {
+        dw->newPipelineState(/*type=*/{}, kStride, kStride, RenderStateFlags::kAppendVertices,
+                             std::nullopt);
+        return;
+    };
+
+    constexpr uint32_t V = UINT32_MAX;
+    auto vertAppend = [&](uint32_t count) -> BindBufferInfo {
+        DrawWriter::Vertices vdw{*dw};
+        auto a = vdw.append(count);
+        for (uint32_t i = 0; i < count; ++i) {
+            a << V;
+        }
+        return dw->getLastAppendedBuffer();
+    };
+
+    BindBufferInfo lastBBI;
+    skia_private::TArray<BindBufferInfo> bindBuffers(4);
+    auto checkAndAdvance = [&](const BindBufferInfo& currentBBI, bool expectSameBuffer) {
+        bool isSameBuffer = lastBBI.fBuffer == currentBBI.fBuffer;
+        if (expectSameBuffer != isSameBuffer) {
+            ERRORF(reporter, "Error: Expected %s buffer.\n", expectSameBuffer ? "same" : "new");
+            return true;
+        } else if (!isSameBuffer) {
+            bindBuffers.push_back(currentBBI);
+        }
+        lastBBI = currentBBI;
+        return false;
+    };
+
+    vertsNewPipeline();
+    lastBBI = vertAppend(1);
+    bindBuffers.push_back(lastBBI);
+    vertsNewPipeline();
+    if (checkAndAdvance(vertAppend(2), true))  { return; }
+    dw->newDynamicState();
+    if (checkAndAdvance(vertAppend(3), false)) { return; }
+    if (checkAndAdvance(vertAppend(1), true))  { return; }
+    dw->newDynamicState();
+    if (checkAndAdvance(vertAppend(1), true))  { return; }
+    vertsNewPipeline();
+    if (checkAndAdvance(vertAppend(1), false)) { return; }
+    if (checkAndAdvance(vertAppend(1), true))  { return; }
+    if (checkAndAdvance(vertAppend(1), true))  { return; }
+    if (checkAndAdvance(vertAppend(1), true))  { return; }
+    vertsNewPipeline();
+    if (checkAndAdvance(vertAppend(2), true))  { return; }
+    if (checkAndAdvance(vertAppend(3), false)) { return; }
+    if (checkAndAdvance(vertAppend(2), true))  { return; }
+    dw->flush();
+
+    constexpr uint32_t P = 0;
+    constexpr uint32_t kExpectedBufferCount = 4;
+    std::array<std::array<uint32_t, kReadbackSize>, kExpectedBufferCount> expected = {{
+        {V, P, P, P, V, V, P, P},
+        {V, V, V, V, V, P, P, P},
+        {V, V, V, V, V, V, P, P},
+        {V, V, V, V, V, P, P, P}
+    }};
+
+    skia_private::TArray<uint32_t> readbackData;
+    std::array<sk_sp<Buffer>, kExpectedBufferCount> copyBuffers;
+    const bool mappableDrawBuffers = recorder->priv().caps()->drawBufferCanBeMapped();
+    if (!mappableDrawBuffers) {
+        for(uint32_t i = 0; i < kExpectedBufferCount; ++i) {
+            copyBuffers[i] = get_readback_buffer(recorder.get(), kVertBuffSize);
+            recorder->priv().add(CopyBufferToBufferTask::Make(bindBuffers[i].fBuffer,
+                                                              /*srcOffset=*/0,
+                                                              copyBuffers[i],
+                                                              /*dstOffset=*/0,
+                                                              kVertBuffSize));
+        }
+    }
+    std::unique_ptr<Recording> recording = submit_recording(context, testContext, recorder.get());
+
+    for (uint32_t i = 0; i < kExpectedBufferCount; ++i) {
+        if (!map_and_readback_buffer_sync(
+                    context,
+                    testContext,
+                    mappableDrawBuffers ? const_cast<Buffer*>(bindBuffers[i].fBuffer) :
+                                          copyBuffers[i].get(),
+                    readbackData,
+                    kReadbackSize)) {
+            ERRORF(reporter, "Bad readback, exiting early.");
+            return;
+        }
+        for(uint32_t j = 0; j < static_cast<uint32_t>(readbackData.size()); ++j) {
+            if (readbackData[j] != expected[i][j]){
+                ERRORF(reporter, "Error expected %u: Got: %u At ExpectedIndex: %u \n",
+                    expected[i][j], readbackData[j], i * kExpectedBufferCount + j);
                 return;
             }
         }
