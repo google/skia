@@ -17,6 +17,7 @@
 #include "src/base/SkRandom.h"
 
 #include <stddef.h>
+#include <vector>
 
 namespace skiagm {
 
