@@ -193,6 +193,64 @@ uint32_t TextureFormatChannelMask(TextureFormat format) {
     SkUNREACHABLE;
 }
 
+bool TextureFormatAutoClamps(TextureFormat format) {
+    switch (format) {
+        // Floating point formats don't auto clamp
+        case TextureFormat::kR16F:           [[fallthrough]];
+        case TextureFormat::kR32F:
+        case TextureFormat::kRG16F:
+        case TextureFormat::kRG32F:
+        case TextureFormat::kRGB16F:
+        case TextureFormat::kRGB32F:
+        case TextureFormat::kRGBA16F:
+        case TextureFormat::kRGBA32F:
+        case TextureFormat::kD32F:
+        case TextureFormat::kD32F_S8:        return false;
+
+        // Extended range formats don't clamp to [0,1]
+        case TextureFormat::kBGR10_XR:
+        case TextureFormat::kBGRA10x6_XR:    return false;
+
+        // Non-normalized integral formats don't clamp to [0,1]
+        case TextureFormat::kS8:             return false;
+
+        // Everything else is unorm or unorm-srgb (we don't bother checking for renderability)
+        case TextureFormat::kUnsupported:    [[fallthrough]];
+        case TextureFormat::kR8:
+        case TextureFormat::kR16:
+        case TextureFormat::kA8:
+        case TextureFormat::kRG8:
+        case TextureFormat::kRG16:
+        case TextureFormat::kRGB8:
+        case TextureFormat::kBGR8:
+        case TextureFormat::kB5_G6_R5:
+        case TextureFormat::kR5_G6_B5:
+        case TextureFormat::kRGB16:
+        case TextureFormat::kRGB8_sRGB:
+        case TextureFormat::kRGBA8:
+        case TextureFormat::kRGBA16:
+        case TextureFormat::kRGB10_A2:
+        case TextureFormat::kRGBA8_sRGB:
+        case TextureFormat::kBGRA8:
+        case TextureFormat::kBGR10_A2:
+        case TextureFormat::kBGRA8_sRGB:
+        case TextureFormat::kABGR4:
+        case TextureFormat::kARGB4:
+        case TextureFormat::kRGB8_ETC2:
+        case TextureFormat::kRGB8_ETC2_sRGB:
+        case TextureFormat::kRGB8_BC1:
+        case TextureFormat::kRGBA8_BC1:
+        case TextureFormat::kRGBA8_BC1_sRGB:
+        case TextureFormat::kYUV8_P2_420:
+        case TextureFormat::kYUV8_P3_420:
+        case TextureFormat::kYUV10x6_P2_420:
+        case TextureFormat::kExternal:
+        case TextureFormat::kD16:
+        case TextureFormat::kD24_S8:          return true;
+    }
+    SkUNREACHABLE;
+}
+
 bool TextureFormatIsDepthOrStencil(TextureFormat format) {
     switch (format) {
         case TextureFormat::kS8:      [[fallthrough]];

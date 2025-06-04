@@ -12,6 +12,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
+#include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLUtil.h"
@@ -750,6 +751,7 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
                                              const RenderStep* step,
                                              UniquePaintParamsID paintID,
                                              bool useStorageBuffers,
+                                             TextureFormat targetFormat,
                                              skgpu::Swizzle writeSwizzle,
                                              DstReadStrategy dstReadStrategy,
                                              skia_private::TArray<SamplerDesc>* outDescs) {
@@ -775,6 +777,7 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
                                      step,
                                      paintID,
                                      useStorageBuffers,
+                                     targetFormat,
                                      writeSwizzle,
                                      outDescs);
     }
@@ -831,6 +834,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
                                       const RenderStep* step,
                                       UniquePaintParamsID paintID,
                                       bool useStorageBuffers,
+                                      TextureFormat targetFormat,
                                       Swizzle writeSwizzle,
                                       skia_private::TArray<SamplerDesc>* outDescs) {
     PaintParamsKey key = dict->lookup(paintID);
@@ -900,7 +904,8 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
         finalBlendRootSnippetId >= kFixedBlendIDOffset) {
         finalBlendMode = static_cast<SkBlendMode>(finalBlendRootSnippetId - kFixedBlendIDOffset);
     }
-    const bool useHardwareBlending = CanUseHardwareBlending(caps, finalBlendMode, finalCoverage);
+    const bool useHardwareBlending =
+            CanUseHardwareBlending(caps, targetFormat, finalBlendMode, finalCoverage);
     if (useHardwareBlending) {
         // If we can use hardware blending, update the dstReadStrategy to be kNoneRequired to ensure
         // that ShaderInfo properly informs PipelineInfo of the pipeline's dst read requirement.

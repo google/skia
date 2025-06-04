@@ -22,6 +22,7 @@ class RenderStep;
 class RuntimeEffectDictionary;
 class ShaderCodeDictionary;
 class ShaderNode;
+enum class TextureFormat : uint8_t;
 
 // ShaderInfo holds all root ShaderNodes defined for a PaintParams as well as the extracted fixed
 // function blending parameters and other aggregate requirements for the effect trees that have
@@ -49,6 +50,7 @@ public:
                                             const RenderStep*,
                                             UniquePaintParamsID,
                                             bool useStorageBuffers,
+                                            TextureFormat targetFormat,
                                             skgpu::Swizzle writeSwizzle,
                                             DstReadStrategy dstReadStrategy,
                                             skia_private::TArray<SamplerDesc>* outDescs = nullptr);
@@ -98,6 +100,7 @@ private:
                               const RenderStep*,
                               UniquePaintParamsID,
                               bool useStorageBuffers,
+                              TextureFormat targetFormat,
                               skgpu::Swizzle writeSwizzle,
                               skia_private::TArray<SamplerDesc>* outDescs);
 

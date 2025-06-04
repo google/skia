@@ -28,6 +28,7 @@
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
+#include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
 #include "src/gpu/graphite/compute/ComputeStep.h"
@@ -64,6 +65,7 @@ UniquePaintParamsID ExtractPaintData(Recorder* recorder,
 }
 
 bool CanUseHardwareBlending(const Caps* caps,
+                            TextureFormat targetFormat,
                             std::optional<SkBlendMode> blendMode,
                             Coverage coverage) {
     // If the blend mode is absent, this is assumed to be for a runtime blender, for which we always
@@ -83,9 +85,7 @@ bool CanUseHardwareBlending(const Caps* caps,
 
         // SkBlendMode::kPlus always clamps its output to [0,1], but we can't rely on hardware
         // blending to do that for all texture formats.
-        // NOTE: We could check the draw dst properties to only do in-shader blending with plus when
-        // necessary, but we can't detect that during shader precompilation.
-        bm == SkBlendMode::kPlus ||
+        (bm == SkBlendMode::kPlus && !TextureFormatAutoClamps(targetFormat)) ||
 
         // Using an advanced blend mode but the hardware does not support them
         (bm > SkBlendMode::kLastCoeffMode && !caps->supportsHardwareAdvancedBlending()) ||

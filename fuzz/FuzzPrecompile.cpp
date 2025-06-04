@@ -330,6 +330,7 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
 
     const SkBlenderBase* blender = as_BB(paint.getBlender());
     bool dstReadRequired = blender ? !CanUseHardwareBlending(recorder->priv().caps(),
+                                                             TextureFormat::kRGBA8,
                                                              blender->asBlendMode(),
                                                              coverage)
                                    : false;
