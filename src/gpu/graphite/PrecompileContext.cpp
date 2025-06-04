@@ -4,21 +4,25 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "include/gpu/graphite/PrecompileContext.h"
 
+#include "include/core/SkTypes.h"
+#include "src/gpu/GpuTypesPriv.h"
+#include "src/gpu/graphite/GlobalCache.h"
+#include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/SharedContext.h"
+
+#if defined(SK_ENABLE_PRECOMPILE)
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
-#include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
-#include "src/gpu/graphite/SharedContext.h"
-
-#if defined(SK_ENABLE_PRECOMPILE)
 #include "src/gpu/graphite/precompile/SerializationUtils.h"
 #endif
+
+#include <cstddef>
 
 namespace skgpu::graphite {
 

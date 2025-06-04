@@ -8,14 +8,25 @@
 #ifndef skgpu_graphite_RecordingPriv_DEFINED
 #define skgpu_graphite_RecordingPriv_DEFINED
 
-#include "include/core/SkRect.h"
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"  // IWYU pragma: keep
 #include "include/gpu/graphite/Recording.h"
+
+#include <cstdint>
+#include <memory>
+
+struct SkIRect;
 
 namespace skgpu::graphite {
 
+class CommandBuffer;
 class Context;
-class Task;
+class Resource;
+class ResourceProvider;
 class Surface;
+class TaskList;
+class Texture;
+class TextureProxy;
 
 class RecordingPriv {
 public:

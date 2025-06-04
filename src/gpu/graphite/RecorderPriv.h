@@ -8,21 +8,46 @@
 #ifndef skgpu_graphite_RecorderPriv_DEFINED
 #define skgpu_graphite_RecorderPriv_DEFINED
 
-#include <functional>
-
+#include "include/core/SkRecorder.h"
+#include "include/core/SkRefCnt.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "src/gpu/graphite/ResourceCache.h"
+#include "include/private/base/SkDebug.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
 
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string_view>
+
 class SkBitmap;
-class SkImage;
+
+namespace skgpu {
+class TokenTracker;
+enum class Protected : bool;
+}
+
+namespace sktext::gpu {
+class StrikeCache;
+class TextBlobRedrawCoordinator;
+}
 
 namespace skgpu::graphite {
 
 class ShaderCodeDictionary;
 class TextureProxy;
 class UploadList;
+class AtlasProvider;
+class Caps;
+class Context;
+class Device;
+class DrawBufferManager;
+class ProxyCache;
+class RendererProvider;
+class ResourceCache;
+class RuntimeEffectDictionary;
+class Task;
+class UploadBufferManager;
 
 class RecorderPriv {
 public:
