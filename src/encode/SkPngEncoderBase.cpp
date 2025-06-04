@@ -18,7 +18,6 @@
 #include "include/private/SkEncodedInfo.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTemplates.h"
-#include "modules/skcms/skcms.h"
 #include "src/base/SkMSAN.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkConvertPixels.h"
@@ -188,31 +187,21 @@ bool SkPngEncoderBase::onEncodeRows(int numRows) {
                                    (const uint8_t*)srcRow + (fSrc.width() << fSrc.shiftPerPixel()));
 
         if (fSrc.colorType() == kAlpha_8_SkColorType) {
-          // This is a special case where we store kAlpha_8 images as GrayAlpha in png.
-          transform_scanline_A8_to_GrayAlpha((char*)fStorage.get(),
-                                            (const char*)srcRow,
-                                            fSrc.width(),
-                                            SkColorTypeBytesPerPixel(fSrc.colorType()));
+            // This is a special case where we store kAlpha_8 images as GrayAlpha in png.
+            transform_scanline_A8_to_GrayAlpha((char*)fStorage.get(),
+                                               (const char*)srcRow,
+                                               fSrc.width(),
+                                               SkColorTypeBytesPerPixel(fSrc.colorType()));
         } else {
-          SkASSERT(fSrc.width() == fTargetInfo.fSrcRowInfo->width());
-          if (!SkConvertPixels(fTargetInfo.fDstRowInfo.value(),
-                              (void*)fStorage.get(),
-                              fTargetInfo.fDstRowSize,
-                              fTargetInfo.fSrcRowInfo.value(),
-                              srcRow,
-                              fTargetInfo.fSrcRowInfo->minRowBytes()))
-          {
-              return false;
-          }
-          // We need to convert from little endian to big endian so we use skcms.
-          if (fTargetInfo.fDstRowInfo.value().colorType() == kR16G16B16A16_unorm_SkColorType) {
-              if (!skcms_Transform((char*)fStorage.get(), skcms_PixelFormat_RGBA_16161616LE,
-                                  skcms_AlphaFormat_Unpremul, nullptr, fStorage.get(),
-                                  skcms_PixelFormat_RGBA_16161616BE, skcms_AlphaFormat_Unpremul,
-                                  nullptr, fSrc.width())) {
-                  return false;
-              }
-          }
+            SkASSERT(fSrc.width() == fTargetInfo.fSrcRowInfo->width());
+            if (!SkConvertPixels(fTargetInfo.fDstRowInfo.value(),
+                                 (void*)fStorage.get(),
+                                 fTargetInfo.fDstRowSize,
+                                 fTargetInfo.fSrcRowInfo.value(),
+                                 srcRow,
+                                 fTargetInfo.fSrcRowInfo->minRowBytes())) {
+                return false;
+            }
         }
 
         SkSpan<const uint8_t> rowToEncode(fStorage.get(), fTargetInfo.fDstRowSize);
