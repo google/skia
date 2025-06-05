@@ -875,6 +875,7 @@ func (b *taskBuilder) defaultSwarmDimensions() {
 			"Debian9":     DEFAULT_OS_LINUX_GCE, // Runs in Deb9 Docker.
 			"Debian11":    DEBIAN_11_OS,
 			"Mac":         DEFAULT_OS_MAC,
+			"Mac11":       "Mac-11",
 			"Mac12":       "Mac-12",
 			"Mac13":       "Mac-13",
 			"Mac14":       "Mac-14.7", // Builds run on 14.5, tests on 14.7.
