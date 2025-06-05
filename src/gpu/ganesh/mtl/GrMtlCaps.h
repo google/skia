@@ -86,10 +86,8 @@ public:
                            ProgramDescOverrideFlags) const override;
     MTLPixelFormat getStencilPixelFormat(const GrProgramDesc& desc) const;
 
-    bool isMac() const   { return fGPUFamily == GPUFamily::kMac ||
-                                  fGPUFamily == GPUFamily::kMacIntel; }
-    bool isApple() const { return fGPUFamily == GPUFamily::kApple;    }
-    bool isIntel() const { return fGPUFamily == GPUFamily::kMacIntel; }
+    bool isMac() const { return fGPUFamily == GPUFamily::kMac; }
+    bool isApple() const { return fGPUFamily == GPUFamily::kApple; }
 
     size_t getMinBufferAlignment() const { return this->isMac() ? 4 : 1; }
 
@@ -182,9 +180,8 @@ private:
     void setColorType(GrColorType, std::initializer_list<MTLPixelFormat> formats);
 
     enum class GPUFamily {
-        kApple,
         kMac,
-        kMacIntel,
+        kApple,
     };
     bool getGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* group);
     bool getGPUFamilyFromFeatureSet(id<MTLDevice> device, GrMtlCaps::GPUFamily* gpuFamily,

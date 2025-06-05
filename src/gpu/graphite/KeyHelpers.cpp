@@ -1071,6 +1071,7 @@ void add_matrix_colorfilter_uniform_data(const ShaderCodeDictionary* dict,
                                          const MatrixColorFilterBlock::MatrixColorFilterData& data,
                                          PipelineDataGatherer* gatherer) {
     BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kMatrixColorFilter)
+
     gatherer->writeHalf(data.fMatrix);
     gatherer->writeHalf(data.fTranslate);
     if (data.fClamp) {

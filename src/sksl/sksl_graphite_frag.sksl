@@ -1166,8 +1166,7 @@ $pure half4 sk_hsl_matrix_colorfilter(half4 color, half4x4 m, half4 v) {
 
 $pure half4 sk_matrix_colorfilter(half4 color, half4x4 m, half4 v, half2 minMaxRGB) {
     color = unpremul(color);
-    color = (m * color) + v;
-
+    color = half4((m * color) + v);
     // minMaxRGB is a tuple that stores [minRGB, maxRGB]. minA and maxA are always 0 and 1. minRGB
     // and maxRGB are either 0 and 1 for clamped color filters, or very large negative/positive
     // values to be unclamped.
