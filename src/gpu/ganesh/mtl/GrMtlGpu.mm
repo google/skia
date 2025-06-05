@@ -1739,33 +1739,24 @@ GrMtlRenderCommandEncoder* GrMtlGpu::loadMSAAFromResolve(
 
 #if defined(GPU_TEST_UTILS)
 void GrMtlGpu::testingOnly_startCapture() {
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-        // TODO: add Metal 3 interface as well
-        MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
-        if (captureManager.isCapturing) {
-            return;
-        }
-        if (@available(macOS 10.15, iOS 13.0, tvOS 13.0, *)) {
-            MTLCaptureDescriptor* captureDescriptor = [[MTLCaptureDescriptor alloc] init];
-            captureDescriptor.captureObject = fQueue;
+    // TODO: add Metal 3 interface as well
+    MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
+    if (captureManager.isCapturing) {
+        return;
+    }
+    MTLCaptureDescriptor* captureDescriptor = [[MTLCaptureDescriptor alloc] init];
+    captureDescriptor.captureObject = fQueue;
 
-            NSError *error;
-            if (![captureManager startCaptureWithDescriptor: captureDescriptor error:&error])
-            {
-                NSLog(@"Failed to start capture, error %@", error);
-            }
-        } else {
-            [captureManager startCaptureWithCommandQueue: fQueue];
-        }
-     }
+    NSError *error;
+    if (![captureManager startCaptureWithDescriptor: captureDescriptor error:&error]) {
+        NSLog(@"Failed to start capture, error %@", error);
+    }
 }
 
 void GrMtlGpu::testingOnly_stopCapture() {
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-        MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
-        if (captureManager.isCapturing) {
-            [captureManager stopCapture];
-        }
+    MTLCaptureManager* captureManager = [MTLCaptureManager sharedCaptureManager];
+    if (captureManager.isCapturing) {
+        [captureManager stopCapture];
     }
 }
 #endif

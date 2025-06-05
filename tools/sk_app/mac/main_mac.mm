@@ -83,7 +83,7 @@ int main(int argc, char * argv[]) {
     while (![appDelegate done]) {
         NSEvent* event;
         do {
-            event = [NSApp nextEventMatchingMask:NSAnyEventMask
+            event = [NSApp nextEventMatchingMask:NSEventMaskAny
                                        untilDate:[NSDate distantPast]
                                           inMode:NSDefaultRunLoopMode
                                          dequeue:YES];

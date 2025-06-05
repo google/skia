@@ -13,6 +13,10 @@
 #include <OpenGL/OpenGL.h>
 #include <dlfcn.h>
 
+// All of NSOpenGL is deprecated.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 namespace {
 
 std::function<void()> context_restorer() {
@@ -142,6 +146,8 @@ GrGLFuncPtr MacGLTestContext::onPlatformGetProcAddress(const char* procName) con
 }
 
 }  // anonymous namespace
+
+#pragma clang diagnostic pop
 
 namespace sk_gpu_test {
 GLTestContext* CreatePlatformGLTestContext(GrGLStandard forcedGpuAPI,

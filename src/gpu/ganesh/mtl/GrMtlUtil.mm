@@ -63,14 +63,13 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
     MTLCompileOptions* options = [[MTLCompileOptions alloc] init];
     // array<> is supported in MSL 2.0 on MacOS 10.13+ and iOS 11+,
     // and in MSL 1.2 on iOS 10+ (but not MacOS).
-    if (@available(macOS 10.13, iOS 11.0, tvOS 11.0, *)) {
-        options.languageVersion = MTLLanguageVersion2_0;
-#if defined(SK_BUILD_FOR_IOS)
-    } else if (@available(macOS 10.12, iOS 10.0, tvOS 10.0, *)) {
-        options.languageVersion = MTLLanguageVersion1_2;
+    options.languageVersion = MTLLanguageVersion2_0;
+
+#if (TARGET_OS_OSX && __MAC_OS_X_VERSION_MIN_REQUIRED >= 150000) || (TARGET_OS_IOS && __IPHONE_OS_VERSION_MIN_REQUIRED >= 180000)
+        options.mathMode = MTLMathModeFast;
+#else
+        options.fastMathEnabled = YES;
 #endif
-    }
-    options.fastMathEnabled = YES;
 
     NSError* error = nil;
     id<MTLLibrary> compiledLibrary;

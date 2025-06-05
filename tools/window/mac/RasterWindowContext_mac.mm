@@ -24,6 +24,10 @@ using skwindow::DisplayParams;
 using skwindow::MacWindowInfo;
 using skwindow::internal::GLWindowContext;
 
+// All of NSOpenGL is deprecated.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 namespace {
 
 // TODO: This still uses GL to handle the update rather than using a purely raster backend,
@@ -175,6 +179,8 @@ void RasterWindowContext_mac::resize(int w, int h) {
 }
 
 }  // anonymous namespace
+
+#pragma clang diagnostic pop
 
 namespace skwindow {
 

@@ -162,7 +162,7 @@ template <int N, typename T> static double test_parse_fixed_r(skiatest::Reporter
         SkString s;
         // 'sprintf' formatting as expected depends on the current locale being "C".
         // We currently expect tests and tools to run in the "C" locale.
-        sprintf(buffer, "%.20f", f);
+        snprintf(buffer, std::size(buffer), "%.20f", f);
         T fix;
         bool b = parse_fixed<N>(buffer, &fix);
         if (b) {
