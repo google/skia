@@ -225,7 +225,7 @@ bool SkPngRustEncoderImpl::onEncodeRow(SkSpan<const uint8_t> row) {
                     dstFmt = skcms_PixelFormat_RGB_888;
                     break;
                 case kR16G16B16A16_unorm_SkColorType:
-                    srcFmt = skcms_PixelFormat_RGBA_16161616LE;
+                    srcFmt = skcms_PixelFormat_RGBA_16161616BE;
                     dstFmt = skcms_PixelFormat_RGB_161616BE;
                     break;
                 default:
