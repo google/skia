@@ -57,6 +57,8 @@ typedef enum skcms_TFType {
     skcms_TFType_PQish,
     skcms_TFType_HLGish,
     skcms_TFType_HLGinvish,
+    skcms_TFType_PQ,
+    skcms_TFType_HLG,
 } skcms_TFType;
 
 // Identify which kind of transfer function is encoded in an skcms_TransferFunction
@@ -86,21 +88,48 @@ static inline bool skcms_TransferFunction_makeHLGish(skcms_TransferFunction* fn,
     return skcms_TransferFunction_makeScaledHLGish(fn, 1.0f, R,G, a,b,c);
 }
 
-// PQ mapping encoded [0,1] to linear [0,1].
-static inline bool skcms_TransferFunction_makePQ(skcms_TransferFunction* tf) {
-    return skcms_TransferFunction_makePQish(tf, -107/128.0f,         1.0f,   32/2523.0f
-                                              , 2413/128.0f, -2392/128.0f, 8192/1305.0f);
-}
-// HLG mapping encoded [0,1] to linear [0,12].
-static inline bool skcms_TransferFunction_makeHLG(skcms_TransferFunction* tf) {
-    return skcms_TransferFunction_makeHLGish(tf, 2.0f, 2.0f
-                                               , 1/0.17883277f, 0.28466892f, 0.55991073f);
-}
+// The PQ transfer function. The function skcms_TransferFunction_eval will always evaluate to the
+// unit PQ EOTF, which maps [0, 1] to [0, 1], regardless of the other parameters.
+// This is stored differently from PQish transfer functions. In particular:
+//   - the constant -5 is stored in g
+//   - the hdr_reference_white_luminance parameter is stored in a
+//   - all other parameters are set to 0
+// When this is used as an SkColorSpace, the transformation to XYZD50 will be as follows:
+//   1. Apply the unit PQ EOTF to each channel
+//   2. Multiply by 10,000 nits
+//   3. Divide by hdr_reference_white_luminance nits (default is 203)
+//   4. Transform primaries to XYZD50
+SKCMS_API void skcms_TransferFunction_makePQ(
+    skcms_TransferFunction*,
+    float hdr_reference_white_luminance);
+
+// The HLG transfer function. The function skcms_TransferFunction_eval will always evaluate to the
+// HLG inverse OETF, which maps [0, 1] to [0, 1], regardless of the other parameters.
+// This is stored differently from PQish transfer functions. In particular:
+//   - the constant -6 is stored in g
+//   - the hdr_reference_white_luminance parameter is stored in a
+//   - the peak_white_luminance parameter is stored in b
+//   - the system_gamma parameter is stored in c
+//   - all other parameters are set to 0
+// When this is used as an SkColorSpace, the transformation to XYZD50 will be as follows:
+//   1. Apply the HLG inverse OETF to each channel
+//   2. Transform primaries to Rec2020
+//   3. Apply the channel-mixing HLG OOTF using system_gamma (default is 1.2)
+//   4. Multiply by peak_luminance nits (default is 1,000)
+//   5. Divide by hdr_reference_white nits (default is 203)
+//   6. Transform primaries to XYZD50
+SKCMS_API void skcms_TransferFunction_makeHLG(
+    skcms_TransferFunction*,
+    float hdr_reference_white_luminance,
+    float peak_luminance,
+    float system_gamma);
 
 // Is this an ordinary sRGB-ish transfer function, or one of the HDR forms we support?
 SKCMS_API bool skcms_TransferFunction_isSRGBish(const skcms_TransferFunction*);
 SKCMS_API bool skcms_TransferFunction_isPQish  (const skcms_TransferFunction*);
 SKCMS_API bool skcms_TransferFunction_isHLGish (const skcms_TransferFunction*);
+SKCMS_API bool skcms_TransferFunction_isPQ     (const skcms_TransferFunction*);
+SKCMS_API bool skcms_TransferFunction_isHLG    (const skcms_TransferFunction*);
 
 // Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
 typedef union skcms_Curve {
