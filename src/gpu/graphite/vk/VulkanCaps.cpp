@@ -217,10 +217,16 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
 
     // Note: ARM GPUs have always been coherent, do not add a subpass self-dependency even if the
     // application hasn't enabled this feature as it comes with a performance cost on this GPU.
+    //
+    // Imagination GPUs are also coherent but only within the same sample when sample-shading.
+    // VK_EXT_rasterization_order_attachment_access indicates coherence when input attachment read
+    // is done from any samples of the same pixel, which is why Imagination drivers cannot expose
+    // this extension. This is not a problem for Graphite however, which does not enable sample
+    // shading (nor would it read color from other samples even if it did).
     fSupportsRasterizationOrderColorAttachmentAccess =
             enabledFeatures.fRasterizationOrderColorAttachmentAccess;
-    fIsInputAttachmentReadCoherent =
-            fSupportsRasterizationOrderColorAttachmentAccess || vendorID == kARM_VkVendor;
+    fIsInputAttachmentReadCoherent = fSupportsRasterizationOrderColorAttachmentAccess ||
+                                     vendorID == kARM_VkVendor || vendorID == kImagination_VkVendor;
 
     // TODO(skbug.com/40045541): We must force std430 array stride when using SSBOs since SPIR-V generation
     // cannot handle mixed array strides being passed into functions.
