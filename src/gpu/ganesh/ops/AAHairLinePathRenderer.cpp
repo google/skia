@@ -13,6 +13,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
@@ -313,9 +314,6 @@ int gather_lines_and_quads(const SkPath& path,
     SkPath::Iter iter(path, false);
 
     int totalQuadCount = 0;
-    SkRect bounds;
-    SkIRect ibounds;
-
     bool persp = m.hasPerspective();
 
     // Whenever a degenerate, zero-length contour is encountered, this code will insert a
@@ -325,19 +323,18 @@ int gather_lines_and_quads(const SkPath& path,
     bool seenZeroLengthVerb = false;
     SkPoint zeroVerbPt;
 
+    auto safeIBounds = [](SkSpan<const SkPoint> pts) {
+        return SkRect::BoundsOrEmpty(pts).makeOutset(1, 1).roundOut();
+    };
+
     // Adds a quad that has already been chopped to the list and checks for quads that are close to
     // lines. Also does a bounding box check. It takes points that are in src space and device
     // space. The src points are only required if the view matrix has perspective.
     auto addChoppedQuad = [&](const SkPoint srcPts[3], const SkPoint devPts[4],
                               bool isContourStart) {
-        SkRect bounds;
-        SkIRect ibounds;
-        bounds.setBounds(devPts, 3);
-        bounds.outset(SK_Scalar1, SK_Scalar1);
-        bounds.roundOut(&ibounds);
         // We only need the src space space pts when not in perspective.
         SkASSERT(srcPts || !persp);
-        if (SkIRect::Intersects(devClipBounds, ibounds)) {
+        if (SkIRect::Intersects(devClipBounds, safeIBounds({devPts, 3}))) {
             int subdiv = num_quad_subdivs(devPts);
             SkASSERT(subdiv >= -1);
             if (-1 == subdiv) {
@@ -392,10 +389,7 @@ int gather_lines_and_quads(const SkPath& path,
                         SkPoint devPts[4];
                         SkPoint* chopPnts = dst[i].fPts;
                         m.mapPoints(devPts, chopPnts, 3);
-                        bounds.setBounds(devPts, 3);
-                        bounds.outset(SK_Scalar1, SK_Scalar1);
-                        bounds.roundOut(&ibounds);
-                        if (SkIRect::Intersects(devClipBounds, ibounds)) {
+                        if (SkIRect::Intersects(devClipBounds, safeIBounds({devPts, 3}))) {
                             if (is_degen_quad_or_conic(devPts)) {
                                 SkPoint* pts = lines->push_back_n(4);
                                 pts[0] = devPts[0];
@@ -435,10 +429,7 @@ int gather_lines_and_quads(const SkPath& path,
             case SkPath::kLine_Verb: {
                 SkPoint devPts[2];
                 m.mapPoints(devPts, pathPts, 2);
-                bounds.setBounds(devPts, 2);
-                bounds.outset(SK_Scalar1, SK_Scalar1);
-                bounds.roundOut(&ibounds);
-                if (SkIRect::Intersects(devClipBounds, ibounds)) {
+                if (SkIRect::Intersects(devClipBounds, safeIBounds({devPts, 2}))) {
                     SkPoint* pts = lines->push_back_n(2);
                     pts[0] = devPts[0];
                     pts[1] = devPts[1];
@@ -467,10 +458,7 @@ int gather_lines_and_quads(const SkPath& path,
             case SkPath::kCubic_Verb: {
                 SkPoint devPts[4];
                 m.mapPoints(devPts, pathPts, 4);
-                bounds.setBounds(devPts, 4);
-                bounds.outset(SK_Scalar1, SK_Scalar1);
-                bounds.roundOut(&ibounds);
-                if (SkIRect::Intersects(devClipBounds, ibounds)) {
+                if (SkIRect::Intersects(devClipBounds, safeIBounds({devPts, 4}))) {
                     PREALLOC_PTARRAY(32) q;
                     // We convert cubics to quadratics (for now).
                     // In perspective have to do conversion in src space.
@@ -505,10 +493,7 @@ int gather_lines_and_quads(const SkPath& path,
                         SkPoint devPts[2];
                         m.mapPoints(devPts, pathPts, 1);
                         devPts[1] = devPts[0];
-                        bounds.setBounds(devPts, 2);
-                        bounds.outset(SK_Scalar1, SK_Scalar1);
-                        bounds.roundOut(&ibounds);
-                        if (SkIRect::Intersects(devClipBounds, ibounds)) {
+                        if (SkIRect::Intersects(devClipBounds, safeIBounds({devPts, 2}))) {
                             SkPoint* pts = lines->push_back_n(2);
                             pts[0] = SkPoint::Make(devPts[0].fX - capLength, devPts[0].fY);
                             pts[1] = SkPoint::Make(devPts[1].fX + capLength, devPts[1].fY);

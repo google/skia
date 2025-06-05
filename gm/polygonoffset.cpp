@@ -519,8 +519,7 @@ protected:
             } else {
                 GetSimplePolygon(index, SkPathDirection::kCW, &data, &numPts);
             }
-            SkRect bounds;
-            bounds.setBounds({data.get(), numPts});
+            SkRect bounds = SkRect::BoundsOrEmpty({data.get(), numPts});
             if (!fConvexOnly) {
                 bounds.outset(kMaxOutset, kMaxOutset);
             }

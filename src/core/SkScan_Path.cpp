@@ -728,8 +728,7 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
         return;
     }
 
-    SkRect  r;
-    r.setBounds(pts, 3);
+    const auto r = SkRect::BoundsOrEmpty({pts, 3});
     // If r is too large (larger than can easily fit in SkFixed) then we need perform geometric
     // clipping. This is a bit of work, so we just call the general FillPath() to handle it.
     // Use FixedMax/2 as the limit so we can subtract two edges and still store that in Fixed.

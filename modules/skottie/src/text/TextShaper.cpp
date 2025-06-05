@@ -694,8 +694,7 @@ SkRect Shaper::ShapedGlyphs::computeBounds(BoundsType btype) const {
 
         switch (btype) {
         case BoundsType::kConservative: {
-            SkRect run_bounds;
-            run_bounds.setBounds(fGlyphPos.data() + offset, SkToInt(run.fSize));
+            SkRect run_bounds = SkRect::BoundsOrEmpty({fGlyphPos.data() + offset, run.fSize});
             run_bounds.fLeft   += font_bounds.left();
             run_bounds.fTop    += font_bounds.top();
             run_bounds.fRight  += font_bounds.right();

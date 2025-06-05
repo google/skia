@@ -123,9 +123,7 @@ std::tuple<SkPoint*, SkScalar*> SkPathBuilder::growForVerbsInPath(const SkPathRe
 }
 
 SkRect SkPathBuilder::computeBounds() const {
-    SkRect bounds;
-    bounds.setBounds(fPts.begin(), fPts.size());
-    return bounds;
+    return SkRect::BoundsOrEmpty(fPts);
 }
 
 /*

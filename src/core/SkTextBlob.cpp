@@ -356,7 +356,7 @@ SkRect SkTextBlobBuilder::ConservativeRunBounds(const SkTextBlob::RunRecord& run
         const SkPoint* glyphPosPts = run.pointBuffer();
         SkASSERT((void*)(glyphPosPts + run.glyphCount()) <= SkTextBlob::RunRecord::Next(&run));
 
-        bounds.setBounds(glyphPosPts, run.glyphCount());
+        bounds = SkRect::BoundsOrEmpty({glyphPosPts, run.glyphCount()});
     } break;
     case SkTextBlob::kRSXform_Positioning: {
         const SkRSXform* xform = run.xformBuffer();

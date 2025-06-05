@@ -760,9 +760,7 @@ void SkScan::HairLine(const SkPoint pts[], int count, const SkRasterClip& clip,
     } else {
         const SkRegion* clipRgn = nullptr;
 
-        SkRect r;
-        r.setBounds(pts, count);
-        r.outset(SK_ScalarHalf, SK_ScalarHalf);
+        const auto r = SkRect::BoundsOrEmpty({pts, count}).makeOutset(SK_ScalarHalf, SK_ScalarHalf);
 
         SkAAClipBlitterWrapper wrap;
         if (!clip.quickContains(r.roundOut())) {
@@ -781,8 +779,7 @@ void SkScan::AntiHairLine(const SkPoint pts[], int count, const SkRasterClip& cl
     } else {
         const SkRegion* clipRgn = nullptr;
 
-        SkRect r;
-        r.setBounds(pts, count);
+        const auto r = SkRect::BoundsOrEmpty({pts, count});
 
         SkAAClipBlitterWrapper wrap;
         if (!clip.quickContains(r.roundOut().makeOutset(1, 1))) {

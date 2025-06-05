@@ -20,6 +20,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <optional>
 
 struct SkRect;
 class SkString;
@@ -878,8 +879,23 @@ struct SK_API SkRect {
         fBottom = bottom;
     }
 
-    /** Sets to bounds of the span of points. If the span is empty,
-        or if a point contains an infinity or NaN, sets to (0, 0, 0, 0).
+    /**
+     * Compute the bounds of the span of points.
+     * If the span is empty, returns the empty-rect {0, 0, 0, 0.
+     * If the span contains non-finite values (inf or nan), returns {}
+     */
+    static std::optional<SkRect> Bounds(SkSpan<const SkPoint> pts);
+
+    static SkRect BoundsOrEmpty(SkSpan<const SkPoint> pts) {
+        if (auto bounds = Bounds(pts)) {
+            return bounds.value();
+        } else {
+            return MakeEmpty();
+        }
+    }
+
+    /** Sets to bounds of SkPoint array with count entries. If count is zero or smaller,
+        or if SkPoint array contains an infinity or NaN, sets to (0, 0, 0, 0).
 
         Result is either empty or sorted: fLeft is less than or equal to fRight, and
         fTop is less than or equal to fBottom.

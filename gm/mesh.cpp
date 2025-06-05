@@ -995,8 +995,7 @@ protected:
                 SkASSERT(ib);
                 SkAssertResult(ib->update(ctx, kTiIndices, indexUploadOffset, sizeof(kTiIndices)));
 
-                SkRect bounds;
-                bounds.setBounds(kTri, std::size(kTri));
+                const auto bounds = SkRect::BoundsOrEmpty(kTri);
                 auto result = SkMesh::MakeIndexed(spec,
                                                   SkMesh::Mode::kTriangles,
                                                   std::move(vb),

@@ -342,10 +342,7 @@ void SkDraw::drawVertices(const SkVertices* vertices,
         dev2 = outerAlloc.makeArray<SkPoint>(vertexCount);
         fCTM->mapPoints(dev2, info.positions(), vertexCount);
 
-        SkRect bounds;
-        // this also sets bounds to empty if we see a non-finite value
-        bounds.setBounds(dev2, vertexCount);
-        if (bounds.isEmpty()) {
+        if (SkRect::BoundsOrEmpty({dev2, vertexCount}).isEmpty()) {
             return;
         }
     }

@@ -287,18 +287,14 @@ protected:
             GrPathUtils::getConicKLM(controlPts, weights[row], &klm);
 
             for (int c = 0; c < cnt; ++c) {
-                SkPoint* pts = dst[c].fPts;
-                for (int i = 0; i < 3; ++i) {
-                    canvas->drawCircle(pts[i], 3.f, choppedPtPaint);
+                for (auto p : dst[c].fPts) {
+                    canvas->drawCircle(p, 3.f, choppedPtPaint);
                 }
 
-                SkRect bounds;
-                bounds.setBounds(pts, 3);
-
+                const auto bounds = SkRect::BoundsOrEmpty(dst[c].fPts);
                 canvas->drawRect(bounds, boundsPaint);
 
-                GrOp::Owner op = BezierConicTestOp::Make(rContext, bounds,
-                                                         kOpaqueBlack, klm);
+                GrOp::Owner op = BezierConicTestOp::Make(rContext, bounds, kOpaqueBlack, klm);
                 sdc->addDrawOp(std::move(op));
             }
         }
@@ -485,8 +481,7 @@ protected:
                     canvas->drawCircle(pts[i], 3.f, choppedPtPaint);
                 }
 
-                SkRect bounds;
-                bounds.setBounds(pts, 3);
+                const auto bounds = SkRect::BoundsOrEmpty({pts, 3});
 
                 canvas->drawRect(bounds, boundsPaint);
 

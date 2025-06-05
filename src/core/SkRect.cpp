@@ -58,14 +58,14 @@ void SkRect::toQuad(SkPoint quad[4]) const {
 
 #include "src/base/SkVx.h"
 
-bool SkRect::setBoundsCheck(SkSpan<const SkPoint> points) {
+std::optional<SkRect> SkRect::Bounds(SkSpan<const SkPoint> points) {
     if (points.empty()) {
-        this->setEmpty();
-        return true;
+        return SkRect::MakeEmpty();
     }
 
-    auto pts = points.data();
     auto count = points.size();
+    auto pts = points.data();
+
     skvx::float4 min, max;
     if (count & 1) {
         min = max = skvx::float2::Load(pts).xyxy();
@@ -89,16 +89,26 @@ bool SkRect::setBoundsCheck(SkSpan<const SkPoint> points) {
 
     const bool all_finite = all(accum * 0 == 0);
     if (all_finite) {
-        this->setLTRB(std::min(min[0], min[2]), std::min(min[1], min[3]),
-                      std::max(max[0], max[2]), std::max(max[1], max[3]));
-    } else {
-        this->setEmpty();
+        return MakeLTRB(std::min(min[0], min[2]), std::min(min[1], min[3]),
+                        std::max(max[0], max[2]), std::max(max[1], max[3]));
     }
-    return all_finite;
+    return {};
 }
 
-void SkRect::setBoundsNoCheck(SkSpan<const SkPoint> points) {
-    if (!this->setBoundsCheck(points)) {
+bool SkRect::setBoundsCheck(SkSpan<const SkPoint> pts) {
+    if (auto bounds = Bounds(pts)) {
+        *this = bounds.value();
+        return true;
+    } else {
+        *this = MakeEmpty();
+        return false;
+    }
+}
+
+void SkRect::setBoundsNoCheck(SkSpan<const SkPoint> pts) {
+    if (auto bounds = Bounds(pts)) {
+        *this = bounds.value();
+    } else {
         this->setLTRB(SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN);
     }
 }
