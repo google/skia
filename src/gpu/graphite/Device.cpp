@@ -1315,12 +1315,8 @@ void Device::drawGeometry(const Transform& localToDevice,
         // but preserve LCD coverage if the Renderer uses that.
         rendererCoverage = Coverage::kSingleChannel;
     }
-
-    TextureFormat targetFormat = TextureInfoPriv::ViewFormat(fDC->target()->textureInfo());
-    bool dstReadRequired = !CanUseHardwareBlending(fRecorder->priv().caps(),
-                                                   targetFormat,
-                                                   blendMode,
-                                                   rendererCoverage);
+    bool dstReadRequired =
+            !CanUseHardwareBlending(fRecorder->priv().caps(), blendMode, rendererCoverage);
 
     // A primitive blender should be ignored if there is no primitive color to blend against.
     // Additionally, if a renderer emits a primitive color, then a null primitive blender should
