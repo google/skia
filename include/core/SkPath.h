@@ -1620,7 +1620,7 @@ public:
                     {conics, conicWeightCount},
                     fillType, isVolatile);
     }
-    static SkPath Polygonx(const SkPoint pts[], int count, bool isClosed,
+    static SkPath Polygon(const SkPoint pts[], int count, bool isClosed,
                           SkPathFillType fillType = SkPathFillType::kWinding,
                           bool isVolatile = false) {
         return Polygon({pts, count}, isClosed, fillType, isVolatile);
