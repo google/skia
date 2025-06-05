@@ -625,8 +625,8 @@ public:
 
         paint.setColor(SK_ColorGRAY);
         paint.setStroke(true);
-        canvas->drawPath(SkPathBuilder().addPolygon(fPts, 4, false).detach(), paint);
-        canvas->drawPath(SkPathBuilder().addPolygon(fQuad, 3, false).detach(), paint);
+        canvas->drawPath(SkPathBuilder().addPolygon({fPts, 4}, false).detach(), paint);
+        canvas->drawPath(SkPathBuilder().addPolygon({fQuad, 3}, false).detach(), paint);
 
         for (SkPoint p : fPts) {
             Dot(canvas, p, 7, SK_ColorBLACK);

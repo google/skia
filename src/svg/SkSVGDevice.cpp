@@ -904,7 +904,7 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, SkSpan<const SkPoint> pts
                              const SkPaint& paint) {
     SkPathBuilder path;
 
-    size_t count = pts.size();
+    const size_t count = pts.size();
     switch (mode) {
             // todo
         case SkCanvas::kPoints_PointMode:
@@ -914,16 +914,14 @@ void SkSVGDevice::drawPoints(SkCanvas::PointMode mode, SkSpan<const SkPoint> pts
             }
             break;
         case SkCanvas::kLines_PointMode:
-            SkASSERT(count != 0);
-            count -= 1;
-            for (size_t i = 0; i < count; i += 2) {
-                path.moveTo(pts[i]);
-                path.lineTo(pts[i+1]);
+            for (size_t i = 1; i < count; i += 2) {
+                path.moveTo(pts[i-1]);
+                path.lineTo(pts[i]);
             }
             break;
         case SkCanvas::kPolygon_PointMode:
             if (count > 1) {
-                path.addPolygon(pts.data(), SkToInt(count), false);
+                path.addPolygon(pts, false);
             }
             break;
     }

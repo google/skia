@@ -15,6 +15,7 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTArray.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMatrixPriv.h"
@@ -806,25 +807,26 @@ SkPathBuilder& SkPathBuilder::addCircle(SkScalar x, SkScalar y, SkScalar r, SkPa
     return *this;
 }
 
-SkPathBuilder& SkPathBuilder::addPolygon(const SkPoint pts[], int count, bool isClosed) {
-    if (count <= 0) {
+SkPathBuilder& SkPathBuilder::addPolygon(SkSpan<const SkPoint> pts, bool isClosed) {
+    if (pts.empty()) {
         return *this;
     }
 
     this->moveTo(pts[0]);
-    this->polylineTo(&pts[1], count - 1);
+    this->polylineTo(pts.last(pts.size() - 1));
     if (isClosed) {
         this->close();
     }
     return *this;
 }
 
-SkPathBuilder& SkPathBuilder::polylineTo(const SkPoint pts[], int count) {
-    if (count > 0) {
+SkPathBuilder& SkPathBuilder::polylineTo(SkSpan<const SkPoint> pts) {
+    if (!pts.empty()) {
         this->ensureMove();
 
+        const auto count = pts.size();
         this->incReserve(count, count);
-        memcpy(fPts.push_back_n(count), pts, count * sizeof(SkPoint));
+        memcpy(fPts.push_back_n(count), pts.data(), count * sizeof(SkPoint));
         memset(fVerbs.push_back_n(count), (uint8_t)SkPathVerb::kLine, count);
         fSegmentMask |= kLine_SkPathSegmentMask;
     }

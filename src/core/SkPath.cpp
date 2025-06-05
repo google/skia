@@ -3589,7 +3589,7 @@ SkPath SkPath::RRect(const SkRect& r, SkScalar rx, SkScalar ry, SkPathDirection 
 
 SkPath SkPath::Polygon(SkSpan<const SkPoint> pts, bool isClosed,
                        SkPathFillType ft, bool isVolatile) {
-    return SkPathBuilder().addPolygon(pts.data(), pts.size(), isClosed)
+    return SkPathBuilder().addPolygon(pts, isClosed)
                           .setFillType(ft)
                           .setIsVolatile(isVolatile)
                           .detach();

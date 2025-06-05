@@ -15,12 +15,11 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTo.h"
 
-#include <initializer_list>
 #include <optional>
 #include <tuple>
 
@@ -349,20 +348,10 @@ public:
 
     /** Append a series of lineTo(...)
 
-        @param pts    array of SkPoint
-        @param count  number of SkPoint
-        @return       reference to SkPathBuilder.
+        @param pts    span of SkPoint
+        @return reference to SkPathBuilder.
     */
-    SkPathBuilder& polylineTo(const SkPoint pts[], int count);
-
-    /** Append a series of lineTo(...)
-
-        @param list  list of SkPoint
-        @return      reference to SkPathBuilder.
-    */
-    SkPathBuilder& polylineTo(const std::initializer_list<SkPoint>& list) {
-        return this->polylineTo(list.begin(), SkToInt(list.size()));
-    }
+    SkPathBuilder& polylineTo(SkSpan<const SkPoint> pts);
 
     // Relative versions of segments, relative to the previous position.
 
@@ -731,34 +720,16 @@ public:
     SkPathBuilder& addCircle(SkScalar x, SkScalar y, SkScalar radius,
                              SkPathDirection dir = SkPathDirection::kCW);
 
-    /** Adds contour created from line array, adding (count - 1) line segments.
+    /** Adds contour created from line array, adding (pts.size() - 1) line segments.
         Contour added starts at pts[0], then adds a line for every additional SkPoint
         in pts array. If close is true, appends kClose_Verb to SkPath, connecting
         pts[count - 1] and pts[0].
 
-        If count is zero, append kMove_Verb to path.
-        Has no effect if count is less than one.
-
         @param pts    array of line sharing end and start SkPoint
-        @param count  length of SkPoint array
         @param close  true to add line connecting contour end and start
         @return       reference to SkPath
     */
-    SkPathBuilder& addPolygon(const SkPoint pts[], int count, bool close);
-
-    /** Adds contour created from list. Contour added starts at list[0], then adds a line
-        for every additional SkPoint in list. If close is true, appends kClose_Verb to SkPath,
-        connecting last and first SkPoint in list.
-
-        If list is empty, append kMove_Verb to path.
-
-        @param list   array of SkPoint
-        @param close  true to add line connecting contour end and start
-        @return       reference to SkPath
-    */
-    SkPathBuilder& addPolygon(const std::initializer_list<SkPoint>& list, bool close) {
-        return this->addPolygon(list.begin(), SkToInt(list.size()), close);
-    }
+    SkPathBuilder& addPolygon(SkSpan<const SkPoint> pts, bool close);
 
     /** Appends src to SkPathBuilder, offset by (dx, dy).
 
@@ -889,6 +860,15 @@ public:
         @return  true if FillType is kInverseWinding or kInverseEvenOdd
     */
     bool isInverseFillType() const { return SkPathFillType_IsInverse(fFillType); }
+
+#ifdef SK_SUPPORT_UNSPANNED_APIS
+    SkPathBuilder& addPolygon(const SkPoint pts[], int count, bool close) {
+        return this->addPolygon({pts, count}, close);
+    }
+    SkPathBuilder& polylineTo(const SkPoint pts[], int count) {
+        return this->polylineTo({pts, count});
+    }
+#endif
 
 private:
     SkPathRef::PointsArray fPts;
