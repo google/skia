@@ -240,6 +240,8 @@ protected:
 
     void writeSimpleIntrinsic(const FunctionCall& c);
 
+    void writeScalarizedIntrinsicCall(const FunctionCall& c);
+
     bool writeIntrinsicCall(const FunctionCall& c, IntrinsicKind kind);
 
     void writeConstructorCompound(const ConstructorCompound& c, Precedence parentPrecedence);
@@ -875,6 +877,36 @@ void MetalCodeGenerator::writeArgumentList(const ExpressionArray& arguments) {
     this->write(")");
 }
 
+void MetalCodeGenerator::writeScalarizedIntrinsicCall(const FunctionCall& c){
+    SkASSERT(!c.arguments().empty());
+    const ExpressionArray& arguments = c.arguments();
+    const Expression& primaryArg = *arguments[0];
+    int columns = primaryArg.type().columns();
+
+    static constexpr const char* kSwizzleChars = "xyzw";
+    this->writeWithIndexSubstitution([&]() {
+        this->writeType(primaryArg.type());
+        this->write("(");
+        for (int i = 0; i < columns; ++i) {
+            if (i) { this->write(", "); }
+            this->write(c.function().mangledName());
+            this->write("(");
+            for (int32_t j = 0; j < arguments.size(); ++j) {
+                if (j) { this->write(", "); }
+                if (arguments[j]->type().isScalar()) {
+                    this->writeExpression(*arguments[j], Precedence::kSequence);
+                } else {
+                    this->writeIndexInnerExpression(*arguments[j]);
+                    this->write(".");
+                    this->write(&kSwizzleChars[i]);
+                }
+            }
+            this->write(")");
+        }
+        this->write(")");
+    });
+}
+
 bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind kind) {
     const ExpressionArray& arguments = c.arguments();
     switch (kind) {
@@ -1320,6 +1352,21 @@ bool MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c, IntrinsicKind
             this->writeExpression(*c.arguments()[1], Precedence::kSequence);
             this->write(", memory_order_relaxed)");
             return true;
+        case k_min_IntrinsicKind:
+            [[fallthrough]];
+        case k_max_IntrinsicKind:
+            [[fallthrough]];
+        case k_clamp_IntrinsicKind: {
+            SkASSERT(c.function().mangledName() == "min" || c.function().mangledName() == "max" ||
+                     c.function().mangledName() == "clamp");
+            SkASSERT(!c.type().isMatrix());
+            if (fCaps.fVectorClampMinMaxSupport || !c.type().isVector()) {
+                this->writeSimpleIntrinsic(c);
+            } else {
+                this->writeScalarizedIntrinsicCall(c);
+            }
+            return true;
+        }
         default:
             return false;
     }

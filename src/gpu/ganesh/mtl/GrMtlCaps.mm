@@ -219,15 +219,18 @@ bool GrMtlCaps::getGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* gr
         // MTLGPUFamilyMac1, MTLGPUFamilyMacCatalyst1, and MTLGPUFamilyMacCatalyst2 are deprecated.
         // However, some MTLGPUFamilyMac1 only hardware is still supported.
         // MacCatalyst families have the same features as Mac, so treat them the same
+        //
+        // Check if an Intel GPU is present; allow targeting issues specific to that hardware.
+        bool isIntel = [device.name containsString:@"Intel"];
         if ([device supportsFamily:MTLGPUFamilyMac2] ||
             [device supportsFamily:(MTLGPUFamily)4002/*MTLGPUFamilyMacCatalyst2*/]) {
-            *gpuFamily = GPUFamily::kMac;
+            *gpuFamily = isIntel ? GPUFamily::kMacIntel : GPUFamily::kMac;
             *group = 2;
             return true;
         }
         if ([device supportsFamily:(MTLGPUFamily)2001/*MTLGPUFamilyMac1*/] ||
             [device supportsFamily:(MTLGPUFamily)4001/*MTLGPUFamilyMacCatalyst1*/]) {
-            *gpuFamily = GPUFamily::kMac;
+            *gpuFamily = isIntel ? GPUFamily::kMacIntel : GPUFamily::kMac;
             *group = 1;
             return true;
         }
@@ -543,6 +546,10 @@ void GrMtlCaps::initShaderCaps() {
         shaderCaps->fDualSourceBlendingSupport = true;
     } else {
         shaderCaps->fDualSourceBlendingSupport = false;
+    }
+
+    if (this->isIntel()) {
+        shaderCaps->fVectorClampMinMaxSupport = false;
     }
 
     // TODO(skia:8270): Re-enable this once bug 8270 is fixed. Will also need to remove asserts in

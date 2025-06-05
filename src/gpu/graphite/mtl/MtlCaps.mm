@@ -87,15 +87,18 @@ bool MtlCaps::GetGPUFamily(id<MTLDevice> device, GPUFamily* gpuFamily, int* grou
         // MTLGPUFamilyMac1, MTLGPUFamilyMacCatalyst1, and MTLGPUFamilyMacCatalyst2 are deprecated.
         // However, some MTLGPUFamilyMac1 only hardware is still supported.
         // MacCatalyst families have the same features as Mac, so treat them the same
+        //
+        // Check if an Intel GPU is present; allow targeting issues specific to that hardware.
+        bool isIntel = [device.name containsString:@"Intel"];
         if ([device supportsFamily:MTLGPUFamilyMac2] ||
             [device supportsFamily:(MTLGPUFamily)4002/*MTLGPUFamilyMacCatalyst2*/]) {
-            *gpuFamily = GPUFamily::kMac;
+            *gpuFamily = isIntel ? GPUFamily::kMacIntel : GPUFamily::kMac;
             *group = 2;
             return true;
         }
         if ([device supportsFamily:(MTLGPUFamily)2001/*MTLGPUFamilyMac1*/] ||
             [device supportsFamily:(MTLGPUFamily)4001/*MTLGPUFamilyMacCatalyst1*/]) {
-            *gpuFamily = GPUFamily::kMac;
+            *gpuFamily = isIntel ? GPUFamily::kMacIntel : GPUFamily::kMac;
             *group = 1;
             return true;
         }
@@ -189,7 +192,7 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
 
     // Init sample counts. All devices support 1 (i.e. 0 in skia).
     fColorSampleCounts.push_back(1);
-    if (![device.name containsString:@"Intel"]) {
+    if (!this->isIntel()) {
         if (@available(macOS 10.11, iOS 9.0, tvOS 9.0, *)) {
             for (auto sampleCnt : {2, 4, 8}) {
                 if ([device supportsTextureSampleCount:sampleCnt]) {
@@ -221,6 +224,10 @@ void MtlCaps::initShaderCaps() {
             shaderCaps->fFBFetchSupport = true;
             shaderCaps->fFBFetchColorName = "sk_LastFragColor";
         }
+    }
+
+    if (this->isIntel()) {
+        shaderCaps->fVectorClampMinMaxSupport = false;
     }
 
     shaderCaps->fIntegerSupport = true;

@@ -153,6 +153,9 @@ struct ShaderCaps {
     // array function parameter, so fForceStd430ArrayLayout will make all array strides conform
     // to std430 stride alignment rules.
     bool fForceStd430ArrayLayout = false;
+    // Clamp, Min, Max, intrinsics all appear to be broken on Intel UHD630, so shaders for these
+    // devices will break these intrinsics into individual scalar commands.
+    bool fVectorClampMinMaxSupport = true;
 
     const char* fVersionDeclString = "";
 
