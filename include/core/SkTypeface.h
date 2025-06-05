@@ -24,10 +24,6 @@
 #include <cstdint>
 #include <memory>
 
-#ifndef SK_SUPPORT_UNSPANNED_APIS
-#define SK_SUPPORT_UNSPANNED_APIS
-#endif
-
 class SkData;
 class SkDescriptor;
 class SkFontMgr;
