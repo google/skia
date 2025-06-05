@@ -139,9 +139,7 @@ public:
     }
 
     ///@name non-virtual helpers
-#if defined(SK_SUPPORT_LEGACY_ALPHA_BITMAP_AS_COVERAGE)
     void blitMaskRegion(const SkMask& mask, const SkRegion& clip);
-#endif
     void blitRectRegion(const SkIRect& rect, const SkRegion& clip);
     void blitRegion(const SkRegion& clip);
     ///@}

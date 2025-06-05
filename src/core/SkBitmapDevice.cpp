@@ -596,6 +596,27 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src,
     }
 }
 
+void SkBitmapDevice::drawCoverageMask(const SkSpecialImage* mask,
+                                      const SkMatrix& maskToDevice,
+                                      const SkSamplingOptions& sampling,
+                                      const SkPaint& paint) {
+    SkASSERT(!mask->isGaneshBacked());
+    SkASSERT(!mask->isGraphiteBacked());
+
+    SkBitmap maskBM;
+    if (!SkSpecialImages::AsBitmap(mask, &maskBM)) {
+        return;
+    }
+
+    SkDraw draw;
+    if (!this->accessPixels(&draw.fDst)) {
+      return; // no pixels to draw to so skip it
+    }
+    draw.fRC = &fRCStack.rc();
+    draw.fCTM = &maskToDevice;
+    draw.drawBitmapAsMask(maskBM, sampling, paint, &this->localToDevice());
+}
+
 sk_sp<SkSpecialImage> SkBitmapDevice::snapSpecial(const SkIRect& bounds, bool forceCopy) {
     if (forceCopy) {
         return SkSpecialImages::CopyFromRaster(bounds, fBitmap, this->surfaceProps());

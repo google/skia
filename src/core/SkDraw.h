@@ -28,6 +28,7 @@ class SkMatrix;
 class SkPaint;
 class SkVertices;
 namespace sktext { class GlyphRunList; }
+struct SkMask;
 struct SkPoint3;
 struct SkPoint;
 struct SkRSXform;
@@ -59,10 +60,9 @@ public:
     void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count,
                    sk_sp<SkBlender>, const SkPaint&);
 
-#if defined(SK_SUPPORT_LEGACY_ALPHA_BITMAP_AS_COVERAGE)
-    void drawDevMask(const SkMask& mask, const SkPaint&) const;
-    void drawBitmapAsMask(const SkBitmap&, const SkSamplingOptions&, const SkPaint&) const;
-#endif
+    void drawDevMask(const SkMask& mask, const SkPaint&, const SkMatrix*) const;
+    void drawBitmapAsMask(const SkBitmap&, const SkSamplingOptions&, const SkPaint&,
+                          const SkMatrix* paintMatrix) const;
 
 private:
     void drawFixedVertices(const SkVertices* vertices,
