@@ -658,6 +658,12 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     if (skgpu::kARM_VkVendor == properties.vendorID) {
         fShaderCaps->fRewriteMatrixVectorMultiply = true;
     }
+
+    // Avoid RelaxedPrecision with OpImageSampleImplicitLod due to driver bug with YCbCr sampling.
+    // (skbug.com/421927604)
+    if (skgpu::kNvidia_VkVendor == properties.vendorID) {
+        fShaderCaps->fCannotUseRelaxedPrecisionOnImageSample = true;
+    }
 }
 
 void GrVkCaps::initGrCaps(const skgpu::VulkanInterface* vkInterface,

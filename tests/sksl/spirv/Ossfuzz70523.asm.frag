@@ -21,7 +21,9 @@
                OpDecorate %anotherSampler_sampler Binding 5
                OpDecorate %anotherSampler_sampler DescriptorSet 0
                OpDecorate %16 RelaxedPrecision
+               OpDecorate %18 RelaxedPrecision
                OpDecorate %26 RelaxedPrecision
+               OpDecorate %28 RelaxedPrecision
                OpDecorate %37 RelaxedPrecision
       %float = OpTypeFloat 32
           %7 = OpTypeImage %float 2D 0 0 0 1 Unknown

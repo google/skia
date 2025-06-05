@@ -31,12 +31,16 @@
                OpDecorate %anotherSampler_sampler Binding 5
                OpDecorate %anotherSampler_sampler DescriptorSet 1
                OpDecorate %21 RelaxedPrecision
+               OpDecorate %23 RelaxedPrecision
                OpDecorate %31 RelaxedPrecision
+               OpDecorate %33 RelaxedPrecision
                OpDecorate %37 RelaxedPrecision
                OpDecorate %40 RelaxedPrecision
                OpDecorate %44 RelaxedPrecision
                OpDecorate %45 RelaxedPrecision
+               OpDecorate %47 RelaxedPrecision
                OpDecorate %52 RelaxedPrecision
+               OpDecorate %56 RelaxedPrecision
                OpDecorate %63 RelaxedPrecision
                OpDecorate %65 RelaxedPrecision
       %float = OpTypeFloat 32

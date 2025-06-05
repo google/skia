@@ -2162,9 +2162,6 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             break;
         }
         case kTexture_SpecialIntrinsic: {
-            // TODO(skbug.com/421927604): Work around Nvidia bug when RelaxedPrecision is applied to
-            // YCbCr texture sampling op.
-            result = this->nextId(nullptr);
             SpvOp_ op = SpvOpImageSampleImplicitLod;
             const Type& arg1Type = arguments[1]->type();
             switch (arguments[0]->type().dimensions()) {
@@ -2195,6 +2192,12 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
                 case SpvDimSubpassData:
                     break;
             }
+            // Work around Nvidia bug when RelaxedPrecision is applied to
+            // YCbCr texture sampling op. (skbug.com/421927604)
+            const bool avoidRelaxedPrecision = op == SpvOpImageSampleImplicitLod &&
+                                               fCaps.fCannotUseRelaxedPrecisionOnImageSample;
+            result = this->nextId(avoidRelaxedPrecision ? nullptr : &callType);
+
             SpvId type = this->getType(callType);
             SpvId sampler = this->writeExpression(*arguments[0], out);
             SpvId uv = this->writeExpression(*arguments[1], out);

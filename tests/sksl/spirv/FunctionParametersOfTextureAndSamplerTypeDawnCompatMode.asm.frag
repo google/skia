@@ -24,6 +24,7 @@
                OpDecorate %aSampledTexture_sampler DescriptorSet 0
                OpDecorate %c Location 1
                OpDecorate %22 RelaxedPrecision
+               OpDecorate %25 RelaxedPrecision
                OpDecorate %33 RelaxedPrecision
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4

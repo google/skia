@@ -153,6 +153,10 @@ struct ShaderCaps {
     // array function parameter, so fForceStd430ArrayLayout will make all array strides conform
     // to std430 stride alignment rules.
     bool fForceStd430ArrayLayout = false;
+    // Some NVIDIA drivers fail to create a pipeline if RelaxedPrecision is applied to
+    // OpImageSampleImplicitLod when sampling from a YCbCr image. This workaround simply disables
+    // RelaxedPrecision for that op regardless of image kind. (skbug.com/421927604)
+    bool fCannotUseRelaxedPrecisionOnImageSample = false;
 
     const char* fVersionDeclString = "";
 
