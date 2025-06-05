@@ -227,6 +227,16 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(DynamicVerticesPaddingTest,
     RecorderOptions recOpts;
     recOpts.fRecorderOptionsPriv = &recOptsPriv;
     std::unique_ptr<Recorder> recorder = context->makeRecorder(recOpts);
+
+    // b/422605960 Whatever the Quadro P400 is copying is empty, suggesting that the transfer buffer
+    // is being reused and cleared before the data can be read from it. Temporarily disable this
+    // test on all devices that use transfer buffers (implied by unmappable).
+    const bool mappableDrawBuffers = recorder->priv().caps()->drawBufferCanBeMapped();
+    if (!mappableDrawBuffers) {
+        INFOF(reporter, "Draw buffers not mappable test skipped.");
+        return;
+    }
+
     DrawBufferManager* bufferMgr = recorder->priv().drawBufferManager();
     if (bufferMgr->hasMappingFailed()) {
         ERRORF(reporter, "Failed to get buffer manager");
@@ -297,7 +307,6 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(DynamicVerticesPaddingTest,
 
     skia_private::TArray<uint32_t> readbackData;
     std::array<sk_sp<Buffer>, kExpectedBufferCount> copyBuffers;
-    const bool mappableDrawBuffers = recorder->priv().caps()->drawBufferCanBeMapped();
     if (!mappableDrawBuffers) {
         for(uint32_t i = 0; i < kExpectedBufferCount; ++i) {
             copyBuffers[i] = get_readback_buffer(recorder.get(), kVertBuffSize);
