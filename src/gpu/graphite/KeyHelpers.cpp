@@ -507,6 +507,7 @@ void LocalMatrixShaderBlock::BeginBlock(const KeyContext& keyContext,
 namespace {
 
 void add_color_space_uniforms(const SkColorSpaceXformSteps& steps,
+                              bool has_ootf,
                               ReadSwizzle readSwizzle,
                               PipelineDataGatherer* gatherer) {
     SkMatrix gamutTransform;
@@ -584,6 +585,12 @@ void add_color_space_uniforms(const SkColorSpaceXformSteps& steps,
     } else {
         gatherer->write(SkV4{0.f, 0.f, 0.f, 0.f});
         gatherer->write(SkV4{0.f, 0.f, 0.f, dstW});
+    }
+
+    if (has_ootf) {
+        // TODO(https://issues.skia.org/issues/420956739): Populate OOTF parameters.
+        gatherer->write(SkV4{0.f, 0.f, 0.f, 0.f});
+        gatherer->write(SkV4{0.f, 0.f, 0.f, 0.f});
     }
 }
 
@@ -1143,7 +1150,7 @@ void add_color_space_xform_uniform_data(
         const ColorSpaceTransformBlock::ColorSpaceTransformData& data,
         PipelineDataGatherer* gatherer) {
     BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kColorSpaceXformColorFilter)
-    add_color_space_uniforms(data.fSteps, data.fReadSwizzle, gatherer);
+    add_color_space_uniforms(data.fSteps, /*has_ootf=*/true, data.fReadSwizzle, gatherer);
 }
 
 void add_color_space_xform_premul_uniform_data(
@@ -1177,7 +1184,7 @@ void add_color_space_xform_srgb_uniform_data(
         const ColorSpaceTransformBlock::ColorSpaceTransformData& data,
         PipelineDataGatherer* gatherer) {
     BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kColorSpaceXformSRGB)
-    add_color_space_uniforms(data.fSteps, data.fReadSwizzle, gatherer);
+    add_color_space_uniforms(data.fSteps, /*has_ootf=*/false, data.fReadSwizzle, gatherer);
 }
 
 }  // anonymous namespace

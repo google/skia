@@ -65,7 +65,9 @@ $pure half4 sk_color_space_transform(half4 color,
                                      float4 srcGABC,
                                      float4 srcDEF_args,
                                      float4 dstGABC,
-                                     float4 dstDEF_args) {
+                                     float4 dstDEF_args,
+                                     float4 srcOOTF_args,
+                                     float4 dstOOTF_args) {
     // To encode whether to do premul/unpremul or make the output opaque, we use
     // srcDEF_args.w and dstDEF_args.w:
     // - identity: {0, 1}
@@ -107,7 +109,17 @@ $pure half4 sk_color_space_transform(half4 color,
         colorF = sign(colorF) * $apply_hlg_xfer_fn(abs(colorF), srcGABC.yzw, srcDEF_args.xyz);
     }
 
+    if (srcOOTF_args.w > 0) {
+        float Y = dot(srcOOTF_args.rgb, colorF);
+        colorF *= sign(Y) * pow(abs(Y), srcOOTF_args.w);
+    }
+
     colorF = gamut * colorF;
+
+    if (dstOOTF_args.w > 0) {
+        float Y = dot(dstOOTF_args.rgb, colorF);
+        colorF *= sign(Y) * pow(abs(Y), dstOOTF_args.w);
+    }
 
     if (dstGABC.x > 0) {
         colorF = sign(colorF) * $apply_srgb_xfer_fn(abs(colorF), dstGABC, dstDEF_args.xyz);

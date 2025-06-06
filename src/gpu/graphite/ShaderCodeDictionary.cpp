@@ -1390,11 +1390,13 @@ ShaderCodeDictionary::ShaderCodeDictionary(
             /*name=*/"ColorSpaceTransform",
             /*staticFn=*/"sk_color_space_transform",
             SnippetRequirementFlags::kPriorStageOutput,
-            /*uniforms=*/{ { "gamut",       SkSLType::kHalf3x3 },
-                           { "srcGABC",     SkSLType::kFloat4 },
-                           { "srcDEF_args", SkSLType::kFloat4 },
-                           { "dstGABC",     SkSLType::kFloat4 },
-                           { "dstDEF_args", SkSLType::kFloat4 } }
+            /*uniforms=*/{ { "gamut",        SkSLType::kHalf3x3 },
+                           { "srcGABC",      SkSLType::kFloat4 },
+                           { "srcDEF_args",  SkSLType::kFloat4 },
+                           { "dstGABC",      SkSLType::kFloat4 },
+                           { "dstDEF_args",  SkSLType::kFloat4 },
+                           { "srcOOTF_args", SkSLType::kFloat4 },
+                           { "dstOOTF_args", SkSLType::kFloat4 } }
     };
 
     fBuiltInCodeSnippets[(int) BuiltInCodeSnippetID::kColorSpaceXformPremul] = {
