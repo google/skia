@@ -27,6 +27,10 @@
 #include <algorithm>
 #include <cmath>
 
+template <typename S, typename T> int min_count(SkSpan<S> a, SkSpan<T> b) {
+    return SkToInt(std::min(a.size(), b.size()));
+}
+
 void SkMatrix::doNormalizePerspective() {
     // If the bottom row of the matrix is [0, 0, not_one], we will treat the matrix as if it
     // is in perspective, even though it stills behaves like its affine. If we divide everything
@@ -767,11 +771,9 @@ bool SkMatrix::asAffine(SkScalar affine[6]) const {
     return true;
 }
 
-void SkMatrix::mapPoints(SkPoint dst[], const SkPoint src[], int count) const {
-    SkASSERT((dst && src && count > 0) || 0 == count);
-    // no partial overlap
-    SkASSERT(src == dst || &dst[count] <= &src[0] || &src[count] <= &dst[0]);
-    this->getMapPtsProc()(*this, dst, src, count);
+void SkMatrix::mapPoints(SkSpan<SkPoint> dst, SkSpan<const SkPoint> src) const {
+    const auto count = min_count(dst, src);
+    this->getMapPtsProc()(*this, dst.data(), src.data(), count);
 }
 
 void SkMatrix::ComputeInv(SkScalar dst[9], const SkScalar src[9], double invDet, bool isPersp) {
@@ -1080,12 +1082,15 @@ void SkMatrixPriv::MapHomogeneousPointsWithStride(const SkMatrix& mx, SkPoint3 d
     }
 }
 
-void SkMatrix::mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const {
-    SkMatrixPriv::MapHomogeneousPointsWithStride(*this, dst, sizeof(SkPoint3), src,
+void SkMatrix::mapHomogeneousPoints(SkSpan<SkPoint3> dst, SkSpan<const SkPoint3> src) const {
+    const auto count = min_count(dst, src);
+    SkMatrixPriv::MapHomogeneousPointsWithStride(*this, dst.data(), sizeof(SkPoint3), src.data(),
                                                  sizeof(SkPoint3), count);
 }
 
-void SkMatrix::mapHomogeneousPoints(SkPoint3 dst[], const SkPoint src[], int count) const {
+void SkMatrix::mapPointsToHomogeneous(SkSpan<SkPoint3> dst, SkSpan<const SkPoint> src) const {
+    const auto count = min_count(dst, src);
+
     if (this->isIdentity()) {
         for (int i = 0; i < count; ++i) {
             dst[i] = { src[i].fX, src[i].fY, 1 };
@@ -1111,11 +1116,11 @@ void SkMatrix::mapHomogeneousPoints(SkPoint3 dst[], const SkPoint src[], int cou
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkMatrix::mapVectors(SkPoint dst[], const SkPoint src[], int count) const {
+void SkMatrix::mapVectors(SkSpan<SkPoint> dst, SkSpan<const SkPoint> src) const {
     if (this->hasPerspective()) {
         const SkPoint origin = this->mapPointPerspective({0, 0});
 
-        for (int i = count - 1; i >= 0; --i) {
+        for (int i = min_count(dst, src) - 1; i >= 0; --i) {
             dst[i] = this->mapPointPerspective(src[i]) - origin;
         }
     } else {
@@ -1123,7 +1128,7 @@ void SkMatrix::mapVectors(SkPoint dst[], const SkPoint src[], int count) const {
 
         tmp.fMat[kMTransX] = tmp.fMat[kMTransY] = 0;
         tmp.clearTypeMask(kTranslate_Mask);
-        tmp.mapPoints(dst, src, count);
+        tmp.mapPoints(dst, src);
     }
 }
 
@@ -1183,7 +1188,7 @@ SkScalar SkMatrix::mapRadius(SkScalar radius) const {
 
     vec[0].set(radius, 0);
     vec[1].set(0, radius);
-    this->mapVectors(vec, 2);
+    this->mapVectors(vec);
 
     SkScalar d0 = vec[0].length();
     SkScalar d1 = vec[1].length();
@@ -1730,8 +1735,7 @@ SkScalar SkMatrixPriv::DifferentialAreaScale(const SkMatrix& m, const SkPoint& p
     //      [x     y     w    ]   [x   y   w  ]
     // J' = [dx/du dy/du dw/du] = [m00 m10 m20]
     //      [dx/dv dy/dv dw/dv]   [m01 m11 m21]
-    SkPoint3 xyw;
-    m.mapHomogeneousPoints(&xyw, &p, 1);
+    SkPoint3 xyw = m.mapPointToHomogeneous(p);
 
     if (xyw.fZ < SK_ScalarNearlyZero) {
         // Reaching the discontinuity of xy/w and where the point would clip to w >= 0
@@ -1761,7 +1765,7 @@ bool SkMatrixPriv::NearlyAffine(const SkMatrix& m,
     SkPoint quad[4];
     bounds.toQuad(quad);
     SkPoint3 xyw[4];
-    m.mapHomogeneousPoints(xyw, quad, 4);
+    m.mapPointsToHomogeneous(xyw, quad);
 
     // Since the Jacobian is a 3x3 matrix, the determinant is a scalar triple product,
     // and the initial cross product is constant across all four points.

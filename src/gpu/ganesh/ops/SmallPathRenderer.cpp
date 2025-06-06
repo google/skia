@@ -577,7 +577,7 @@ private:
             SkPoint pts[4];
             SkPoint3 out[4];
             translatedBounds.toQuad(pts);
-            ctm.mapHomogeneousPoints(out, pts, 4);
+            ctm.mapPointsToHomogeneous(out, pts);
 
             vertices << out[0] << color << texCoords.l << texCoords.t;
             vertices << out[3] << color << texCoords.l << texCoords.b;

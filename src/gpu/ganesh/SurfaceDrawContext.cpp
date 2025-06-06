@@ -1148,7 +1148,7 @@ bool SurfaceDrawContext::drawFastShadow(const GrClip* clip,
     bool directional = SkToBool(rec.fFlags & kDirectionalLight_ShadowFlag);
     if (!directional) {
         // transform light
-        viewMatrix.mapPoints((SkPoint*)&devLightPos.fX, 1);
+        viewMatrix.mapPoints({(SkPoint*)&devLightPos.fX, 1});
     }
 
     // 1/scale
@@ -1221,7 +1221,7 @@ bool SurfaceDrawContext::drawFastShadow(const GrClip* clip,
         // This offset is in dev space, need to transform it into source space.
         SkMatrix ctmInverse;
         if (viewMatrix.invert(&ctmInverse)) {
-            ctmInverse.mapPoints(&spotOffset, 1);
+            spotOffset = ctmInverse.mapPoint(spotOffset);
         } else {
             // Since the matrix is a similarity, this should never happen, but just in case...
             SkDebugf("Matrix is degenerate. Will not render spot shadow correctly!\n");

@@ -1716,7 +1716,7 @@ SkScalar SkConic::TransformW(const SkPoint pts[3], SkScalar w, const SkMatrix& m
 
     ratquad_mapTo3D(pts, w, src);
 
-    matrix.mapHomogeneousPoints(dst, src, 3);
+    matrix.mapHomogeneousPoints(dst, src);
 
     // w' = sqrt(w1*w1/w0*w2)
     // use doubles temporarily, to handle small numer/denom
@@ -1812,7 +1812,7 @@ int SkConic::BuildUnitArc(const SkVector& uStart, const SkVector& uStop, SkRotat
         matrix.postConcat(*userMatrix);
     }
     for (int i = 0; i < conicCount; ++i) {
-        matrix.mapPoints(dst[i].fPts, 3);
+        matrix.mapPoints(dst[i].fPts);
     }
     return conicCount;
 }

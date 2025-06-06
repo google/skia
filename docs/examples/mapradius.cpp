@@ -12,9 +12,8 @@ void draw(SkCanvas* canvas) {
     matrix.postRotate(45, center.fX, center.fY);
     const SkScalar circleRadius = 60;
     SkScalar mappedRadius = matrix.mapRadius(circleRadius);
-    SkVector minorAxis, majorAxis;
-    matrix.mapVector(0, circleRadius, &minorAxis);
-    matrix.mapVector(circleRadius, 0, &majorAxis);
+    SkVector minorAxis = matrix.mapVector({0, circleRadius});
+    SkVector majorAxis = matrix.mapVector({circleRadius, 0});
     paint.setColor(SK_ColorRED);
     canvas->drawLine(40, 240, 40 + minorAxis.length(), 240, paint);
     canvas->drawLine(42 + minorAxis.length(), 240, 42 + minorAxis.length() + majorAxis.length(),

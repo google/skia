@@ -198,8 +198,7 @@ bool shape_contains_rect(const GrShape& a, const SkMatrix& aToDevice, const SkMa
     }
 
     for (int i = 0; i < 4; ++i) {
-        SkPoint cornerInA = deviceQuad.point(i);
-        deviceToA.mapPoints(&cornerInA, 1);
+        SkPoint cornerInA = deviceToA.mapPoint(deviceQuad.point(i));
         if (!a.conservativeContains(cornerInA)) {
             return false;
         }

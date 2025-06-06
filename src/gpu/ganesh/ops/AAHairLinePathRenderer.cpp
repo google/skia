@@ -363,7 +363,7 @@ int gather_lines_and_quads(const SkPath& path,
     // Applies the view matrix to quad src points and calls the above helper.
     auto addSrcChoppedQuad = [&](const SkPoint srcSpaceQuadPts[3], bool isContourStart) {
         SkPoint devPts[3];
-        m.mapPoints(devPts, srcSpaceQuadPts, 3);
+        m.mapPoints(devPts, {srcSpaceQuadPts, 3});
         addChoppedQuad(srcSpaceQuadPts, devPts, isContourStart);
     };
 
@@ -388,7 +388,7 @@ int gather_lines_and_quads(const SkPath& path,
                     for (int i = 0; i < conicCnt; ++i) {
                         SkPoint devPts[4];
                         SkPoint* chopPnts = dst[i].fPts;
-                        m.mapPoints(devPts, chopPnts, 3);
+                        m.mapPoints({devPts, 3}, {chopPnts, 3});
                         if (SkIRect::Intersects(devClipBounds, safeIBounds({devPts, 3}))) {
                             if (is_degen_quad_or_conic(devPts)) {
                                 SkPoint* pts = lines->push_back_n(4);
@@ -428,7 +428,7 @@ int gather_lines_and_quads(const SkPath& path,
                 break;
             case SkPath::kLine_Verb: {
                 SkPoint devPts[2];
-                m.mapPoints(devPts, pathPts, 2);
+                m.mapPoints(devPts, {pathPts, 2});
                 if (SkIRect::Intersects(devClipBounds, safeIBounds({devPts, 2}))) {
                     SkPoint* pts = lines->push_back_n(2);
                     pts[0] = devPts[0];
@@ -457,7 +457,7 @@ int gather_lines_and_quads(const SkPath& path,
             }
             case SkPath::kCubic_Verb: {
                 SkPoint devPts[4];
-                m.mapPoints(devPts, pathPts, 4);
+                m.mapPoints(devPts, {pathPts, 4});
                 if (SkIRect::Intersects(devClipBounds, safeIBounds({devPts, 4}))) {
                     PREALLOC_PTARRAY(32) q;
                     // We convert cubics to quadratics (for now).
@@ -491,7 +491,7 @@ int gather_lines_and_quads(const SkPath& path,
                     } else if (verbsInContour == 0) {
                         // Contour was (moveTo, close). Add a line.
                         SkPoint devPts[2];
-                        m.mapPoints(devPts, pathPts, 1);
+                        m.mapPoints({devPts, 1}, {pathPts, 1});
                         devPts[1] = devPts[0];
                         if (SkIRect::Intersects(devClipBounds, safeIBounds({devPts, 2}))) {
                             SkPoint* pts = lines->push_back_n(2);
@@ -573,9 +573,9 @@ bool bloat_quad(const SkPoint qpts[3],
     SkPoint c = qpts[2];
 
     if (toDevice) {
-        toDevice->mapPoints(&a, 1);
-        toDevice->mapPoints(&b, 1);
-        toDevice->mapPoints(&c, 1);
+        a = toDevice->mapPoint(a);
+        b = toDevice->mapPoint(b);
+        c = toDevice->mapPoint(c);
     }
     // make a new poly where we replace a and c by a 1-pixel wide edges orthog
     // to edges ab and bc:
@@ -672,7 +672,8 @@ void set_conic_coeffs(const SkPoint p[3],
 
     for (int i = 0; i < kQuadNumVertices; ++i) {
         const SkPoint3 pt3 = {verts[i].fPos.x(), verts[i].fPos.y(), 1.f};
-        klm.mapHomogeneousPoints((SkPoint3* ) verts[i].fConic.fKLM, &pt3, 1);
+        klm.mapHomogeneousPoints({(SkPoint3* ) verts[i].fConic.fKLM, 1},
+                                 {&pt3, 1});
     }
 }
 

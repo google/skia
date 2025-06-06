@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     for (int i = 0; i < 4; ++i) {
         SkVector rScaled[4];
         matrix.preScale(1.5f, 2.f);
-        matrix.mapVectors(rScaled, radii, std::size(radii));
+        matrix.mapVectors(rScaled, radii);
         SkRRect rrect;
         rrect.setRectRadii({20, 20, 180, 70}, rScaled);
         canvas->drawRRect(rrect, paint);

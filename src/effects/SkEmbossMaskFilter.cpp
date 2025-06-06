@@ -118,8 +118,8 @@ bool SkEmbossMaskFilter::filterMask(SkMaskBuilder* dst, const SkMask& src,
 
     // run the light direction through the matrix...
     Light   light = fLight;
-    matrix.mapVectors((SkVector*)(void*)light.fDirection,
-                      (SkVector*)(void*)fLight.fDirection, 1);
+    matrix.mapVectors({(SkVector*)(void*)light.fDirection, 1},
+                      {(SkVector*)(void*)fLight.fDirection, 1});
 
     // now restore the length of the XY component
     // cast to SkVector so we can call setLength (this double cast silences alias warnings)

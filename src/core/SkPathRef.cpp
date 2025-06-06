@@ -171,7 +171,7 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
         // don't copy, just allocate the points
         (*dst)->fPoints.resize(src.fPoints.size());
     }
-    matrix.mapPoints((*dst)->fPoints.begin(), src.fPoints.begin(), src.fPoints.size());
+    matrix.mapPoints((*dst)->fPoints, src.fPoints);
 
     // Need to check this here in case (&src == dst)
     bool canXformBounds = !src.fBoundsIsDirty && matrix.rectStaysRect() && src.countPoints() > 1;

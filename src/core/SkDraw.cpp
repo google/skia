@@ -297,7 +297,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, SkSpan<const SkPoint> points,
             if (n > MAX_DEV_PTS) {
                 n = MAX_DEV_PTS;
             }
-            fCTM->mapPoints(devPts, pts, n);
+            fCTM->mapPoints({devPts, n}, {pts, n});
             if (!SkIsFinite(&devPts[0].fX, n * 2)) {
                 return;
             }

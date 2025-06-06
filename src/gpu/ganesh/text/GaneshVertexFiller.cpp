@@ -162,10 +162,7 @@ static void fill3D(SkZip<Quad, const Glyph*, const VertexData> quadData,
                    GrColor color,
                    const SkMatrix& viewDifference) {
     auto mapXYZ = [&](SkScalar x, SkScalar y) {
-        SkPoint pt{x, y};
-        SkPoint3 result;
-        viewDifference.mapHomogeneousPoints(&result, &pt, 1);
-        return result;
+        return viewDifference.mapPointToHomogeneous({x, y});
     };
     for (auto [quad, glyph, leftTop] : quadData) {
         auto [l, t] = leftTop;

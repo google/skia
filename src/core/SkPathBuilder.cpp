@@ -26,7 +26,6 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <iterator>
 #include <utility>
 
 namespace {
@@ -503,7 +502,7 @@ SkPathBuilder& SkPathBuilder::arcTo(SkPoint rad, SkScalar angle, SkPathBuilder::
                                     SkPathDirection arcSweep, SkPoint endPt) {
     this->ensureMove();
 
-    SkPoint srcPts[2] = { fPts.back(), endPt };
+    const SkPoint srcPts[2] = { fPts.back(), endPt };
 
     // If rx = 0 or ry = 0 then this arc is treated as a straight line segment (a "lineto")
     // joining the endpoints.
@@ -524,8 +523,7 @@ SkPathBuilder& SkPathBuilder::arcTo(SkPoint rad, SkScalar angle, SkPathBuilder::
     SkMatrix pointTransform;
     pointTransform.setRotate(-angle);
 
-    SkPoint transformedMidPoint;
-    pointTransform.mapPoints(&transformedMidPoint, &midPointDistance, 1);
+    SkPoint transformedMidPoint = pointTransform.mapPoint(midPointDistance);
     SkScalar squareRx = rx * rx;
     SkScalar squareRy = ry * ry;
     SkScalar squareX = transformedMidPoint.fX * transformedMidPoint.fX;
@@ -544,7 +542,7 @@ SkPathBuilder& SkPathBuilder::arcTo(SkPoint rad, SkScalar angle, SkPathBuilder::
     pointTransform.preRotate(-angle);
 
     SkPoint unitPts[2];
-    pointTransform.mapPoints(unitPts, srcPts, (int) std::size(unitPts));
+    pointTransform.mapPoints(unitPts, srcPts);
     SkVector delta = unitPts[1] - unitPts[0];
 
     SkScalar d = delta.fX * delta.fX + delta.fY * delta.fY;
@@ -606,7 +604,7 @@ SkPathBuilder& SkPathBuilder::arcTo(SkPoint rad, SkScalar angle, SkPathBuilder::
         unitPts[0] = unitPts[1];
         unitPts[0].offset(t * sinEndTheta, -t * cosEndTheta);
         SkPoint mapped[2];
-        pointTransform.mapPoints(mapped, unitPts, (int) std::size(unitPts));
+        pointTransform.mapPoints(mapped, unitPts);
         /*
         Computing the arc width introduces rounding errors that cause arcs to start
         outside their marks. A round rect may lose convexity as a result. If the input
@@ -869,7 +867,8 @@ SkPathBuilder& SkPathBuilder::addPath(const SkPath& src, const SkMatrix& matrix,
         }
 
         auto [newPts, newWeights] = this->growForVerbsInPath(*src.fPathRef);
-        matrix.mapPoints(newPts, src.fPathRef->points(), src.countPoints());
+        const auto count = src.countPoints();
+        matrix.mapPoints({newPts, count}, {src.fPathRef->points(), count});
         if (int numWeights = src.fPathRef->countWeights()) {
             memcpy(newWeights, src.fPathRef->conicWeights(), numWeights * sizeof(newWeights[0]));
         }
@@ -1071,7 +1070,7 @@ SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix, SkApplyPerspecti
         }
     }
 
-    matrix.mapPoints(fPts.data(), fPts.size());
+    matrix.mapPoints(fPts);
 
     // TODO: handle bounds, convexity, and direction when added.
 

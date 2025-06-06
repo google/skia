@@ -1300,8 +1300,7 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
     SkMatrix pointTransform;
     pointTransform.setRotate(-angle);
 
-    SkPoint transformedMidPoint;
-    pointTransform.mapPoints(&transformedMidPoint, &midPointDistance, 1);
+    SkPoint transformedMidPoint = pointTransform.mapPoint(midPointDistance);
     SkScalar squareRx = rx * rx;
     SkScalar squareRy = ry * ry;
     SkScalar squareX = transformedMidPoint.fX * transformedMidPoint.fX;

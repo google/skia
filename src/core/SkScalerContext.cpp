@@ -896,8 +896,7 @@ bool SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
     if (skewedOrFlipped) {
         // QR by Givens rotations. G is Q^T and GA is R. G is rotational (no reflections).
         // h is where A maps the horizontal baseline.
-        SkPoint h = SkPoint::Make(SK_Scalar1, 0);
-        A.mapPoints(&h, 1);
+        SkPoint h = A.mapPoint({SK_Scalar1, 0});
 
         // G is the Givens Matrix for A (rotational matrix where GA[0][1] == 0).
         SkMatrix G;

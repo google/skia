@@ -100,8 +100,8 @@ void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
 
     SkVector vecSrcPerp;
     SkPointPriv::RotateCW(vecSrc, &vecSrcPerp);
-    viewMatrix.mapVectors(&vecSrc, 1);
-    viewMatrix.mapVectors(&vecSrcPerp, 1);
+    vecSrc = viewMatrix.mapVector(vecSrc);
+    vecSrcPerp = viewMatrix.mapVector(vecSrcPerp);
 
     // parallelScale tells how much to scale along the line parallel to the dash line
     // perpScale tells how much to scale in the direction perpendicular to the dash line

@@ -349,29 +349,23 @@ SkIRect Mapping::map<SkIRect>(const SkIRect& geom, const SkMatrix& matrix) {
 
 template<>
 SkIPoint Mapping::map<SkIPoint>(const SkIPoint& geom, const SkMatrix& matrix) {
-    SkPoint p = SkPoint::Make(SkIntToScalar(geom.fX), SkIntToScalar(geom.fY));
-    matrix.mapPoints(&p, 1);
+    SkPoint p = matrix.mapPoint({SkIntToScalar(geom.fX), SkIntToScalar(geom.fY)});
     return SkIPoint::Make(SkScalarRoundToInt(p.fX), SkScalarRoundToInt(p.fY));
 }
 
 template<>
 SkPoint Mapping::map<SkPoint>(const SkPoint& geom, const SkMatrix& matrix) {
-    SkPoint p;
-    matrix.mapPoints(&p, &geom, 1);
-    return p;
+    return matrix.mapPoint(geom);
 }
 
 template<>
 Vector Mapping::map<Vector>(const Vector& geom, const SkMatrix& matrix) {
-    SkVector v = SkVector::Make(geom.fX, geom.fY);
-    matrix.mapVectors(&v, 1);
-    return Vector{v};
+    return Vector(matrix.mapVector({geom.fX, geom.fY}));
 }
 
 template<>
 IVector Mapping::map<IVector>(const IVector& geom, const SkMatrix& matrix) {
-    SkVector v = SkVector::Make(SkIntToScalar(geom.fX), SkIntToScalar(geom.fY));
-    matrix.mapVectors(&v, 1);
+    const SkVector v = matrix.mapVector({SkIntToScalar(geom.fX), SkIntToScalar(geom.fY)});
     return IVector(SkScalarRoundToInt(v.fX), SkScalarRoundToInt(v.fY));
 }
 

@@ -333,14 +333,14 @@ void SkDraw::drawVertices(const SkVertices* vertices,
 
     if (fCTM->hasPerspective()) {
         dev3 = outerAlloc.makeArray<SkPoint3>(vertexCount);
-        fCTM->mapHomogeneousPoints(dev3, info.positions(), vertexCount);
+        fCTM->mapPointsToHomogeneous({dev3, vertexCount}, {info.positions(), vertexCount});
         // similar to the bounds check for 2d points (below)
         if (!SkIsFinite((const SkScalar*)dev3, vertexCount * 3)) {
             return;
         }
     } else {
         dev2 = outerAlloc.makeArray<SkPoint>(vertexCount);
-        fCTM->mapPoints(dev2, info.positions(), vertexCount);
+        fCTM->mapPoints({dev2, vertexCount}, {info.positions(), vertexCount});
 
         if (SkRect::BoundsOrEmpty({dev2, vertexCount}).isEmpty()) {
             return;

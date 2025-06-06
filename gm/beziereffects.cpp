@@ -191,7 +191,8 @@ private:
         SkPointPriv::SetRectTriStrip(&verts[0].fPosition, rect, sizeof(Vertex));
         for (int v = 0; v < 4; ++v) {
             SkPoint3 pt3 = {verts[v].fPosition.x(), verts[v].fPosition.y(), 1.f};
-            fKLM.mapHomogeneousPoints((SkPoint3* ) verts[v].fKLM, &pt3, 1);
+            fKLM.mapHomogeneousPoints({(SkPoint3* ) verts[v].fKLM, 1},
+                                      {&pt3, 1});
         }
 
         fMesh = helper.mesh();

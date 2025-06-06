@@ -166,7 +166,7 @@ public:
         SkASSERT(0 == srcStride % sizeof(SkScalar));
         SkASSERT(0 == dstStride % sizeof(SkScalar));
         for (int i = 0; i < count; ++i) {
-            mx.mapPoints(dst, src, 1);
+            *dst = mx.mapPoint(*src);
             src = (SkPoint*)((intptr_t)src + srcStride);
             dst = (SkPoint*)((intptr_t)dst + dstStride);
         }

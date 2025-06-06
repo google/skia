@@ -16,6 +16,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkCPUTypes.h"
@@ -93,9 +94,7 @@ static inline SkPoint compute_stroke_size(const SkPaint& paint, const SkMatrix& 
     SkASSERT(matrix.rectStaysRect());
     SkASSERT(SkPaint::kFill_Style != paint.getStyle());
 
-    SkVector size;
-    SkPoint pt = { paint.getStrokeWidth(), paint.getStrokeWidth() };
-    matrix.mapVectors(&size, &pt, 1);
+    SkVector size = matrix.mapVector({paint.getStrokeWidth(), paint.getStrokeWidth()});
     return SkPoint::Make(SkScalarAbs(size.fX), SkScalarAbs(size.fY));
 }
 
@@ -138,12 +137,12 @@ SkDrawBase::RectType SkDrawBase::ComputeRectType(const SkRect& rect,
     return rtype;
 }
 
-static const SkPoint* rect_points(const SkRect& r) {
-    return reinterpret_cast<const SkPoint*>(&r);
+static SkSpan<const SkPoint> rect_points(const SkRect& r) {
+    return {reinterpret_cast<const SkPoint*>(&r), 2};
 }
 
-static SkPoint* rect_points(SkRect& r) {
-    return reinterpret_cast<SkPoint*>(&r);
+static SkSpan<SkPoint> rect_points(SkRect& r) {
+    return {reinterpret_cast<SkPoint*>(&r), 2};
 }
 
 static void draw_rect_as_path(const SkDrawBase& orig,
@@ -186,7 +185,7 @@ void SkDrawBase::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
     SkRect devRect;
     const SkRect& paintRect = paintMatrix ? *postPaintRect : prePaintRect;
     // skip the paintMatrix when transforming the rect by the CTM
-    fCTM->mapPoints(rect_points(devRect), rect_points(paintRect), 2);
+    fCTM->mapPoints(rect_points(devRect), rect_points(paintRect));
     devRect.sort();
 
     // look for the quick exit, before we build a blitter
@@ -273,7 +272,7 @@ bool SkDrawTreatAAStrokeAsHairline(SkScalar strokeWidth, const SkMatrix& matrix,
     SkVector src[2], dst[2];
     src[0].set(strokeWidth, 0);
     src[1].set(0, strokeWidth);
-    matrix.mapVectors(dst, src, 2);
+    matrix.mapVectors(dst, src);
     SkScalar len0 = fast_len(dst[0]);
     SkScalar len1 = fast_len(dst[1]);
     if (len0 <= SK_Scalar1 && len1 <= SK_Scalar1) {

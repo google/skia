@@ -153,8 +153,7 @@ void GetLocalBounds(const SkPath& path, const SkDrawShadowRec& rec, const SkMatr
                                                       rec.fLightPos.fZ, rec.fLightRadius,
                                                       &spotBlur, &spotScale, &spotOffset);
         } else {
-            SkPoint devLightPos = SkPoint::Make(rec.fLightPos.fX, rec.fLightPos.fY);
-            ctm.mapPoints(&devLightPos, 1);
+            SkPoint devLightPos = ctm.mapPoint({rec.fLightPos.fX, rec.fLightPos.fY});
             SkDrawShadowMetrics::GetSpotParams(occluderZ, devLightPos.fX, devLightPos.fY,
                                                rec.fLightPos.fZ, rec.fLightRadius,
                                                &spotBlur, &spotScale, &spotOffset);
@@ -174,7 +173,7 @@ void GetLocalBounds(const SkPath& path, const SkDrawShadowRec& rec, const SkMatr
             // light dir is in device space, so need to map spot offset back into local space
             SkMatrix inverse;
             if (ctm.invert(&inverse)) {
-                inverse.mapVectors(&spotOffset, 1);
+                spotOffset = inverse.mapVector(spotOffset);
             }
         } else {
             SkDrawShadowMetrics::GetSpotParams(occluderZ, rec.fLightPos.fX, rec.fLightPos.fY,

@@ -6,7 +6,6 @@ void draw(SkCanvas* canvas) {
     SkPoint3 src[] = {{3, 3, 1}, {8, 2, 2}, {5, 0, 4}, {0, 1, 3},
                       {3, 7, 1}, {8, 6, 2}, {5, 4, 4}, {0, 5, 3}};
     int lines[] = {0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7};
-    constexpr int count = std::size(src);
     auto debugster = [=](SkPoint3 src[]) -> void {
         for (size_t i = 0; i < std::size(lines); i += 2) {
             const SkPoint3& s = src[lines[i]];
@@ -24,7 +23,7 @@ void draw(SkCanvas* canvas) {
     canvas->translate(128, 128);
     SkMatrix matrix;
     matrix.setAll(15, 0, 0, 0, 15, 0, -0.08, 0.04, 1);
-    matrix.mapHomogeneousPoints(src, src, count);
+    matrix.mapHomogeneousPoints(src, src);
     debugster(src);
 }
 }  // END FIDDLE

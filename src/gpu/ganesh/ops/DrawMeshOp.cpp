@@ -897,7 +897,7 @@ void MeshOp::Mesh::writeVertices(skgpu::VertexWriter& writer,
             SkPoint pos = fVertices->priv().positions()[i];
             if (transform) {
                 SkASSERT(!fViewMatrix.hasPerspective());
-                fViewMatrix.mapPoints(&pos, 1);
+                pos = fViewMatrix.mapPoint(pos);
             }
             writer << pos;
             if (SkMeshSpecificationPriv::HasColors(spec)) {

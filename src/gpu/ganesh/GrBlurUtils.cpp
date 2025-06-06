@@ -1060,8 +1060,7 @@ static bool direct_filter_mask(GrRecordingContext* context,
             if (devRRectIsCircle) {
                 devBounds = devRRect.getBounds();
             } else {
-                SkPoint center = {srcRRect.getBounds().centerX(), srcRRect.getBounds().centerY()};
-                viewMatrix.mapPoints(&center, 1);
+                SkPoint center = viewMatrix.mapPoint(srcRRect.getBounds().center());
                 SkScalar radius = viewMatrix.mapVector(0, srcRRect.width()/2.f).length();
                 devBounds = {center.x() - radius,
                              center.y() - radius,
