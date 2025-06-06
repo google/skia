@@ -41,7 +41,7 @@
  *  that we apply the xfermode *after* the image has been created and filtered, and not during
  *  the creation step (i.e. before it is filtered).
  *
- *  see https://bug.skia.org/3741
+ *  see skbug.com/40034872
  */
 static void do_draw(SkCanvas* canvas, SkBlendMode mode, sk_sp<SkImageFilter> imf) {
         SkAutoCanvasRestore acr(canvas, true);

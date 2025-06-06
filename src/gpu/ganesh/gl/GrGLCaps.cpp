@@ -4565,7 +4565,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     }
 
     // We disable srgb write control for Adreno4xx devices.
-    // see: https://bug.skia.org/5329
+    // see: skbug.com/40036502
     if (ctxInfo.renderer() == GrGLRenderer::kAdreno430 ||
         ctxInfo.renderer() == GrGLRenderer::kAdreno4xx_other) {
         fSRGBWriteControl = false;

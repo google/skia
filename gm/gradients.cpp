@@ -421,7 +421,7 @@ private:
 DEF_GM( return new GradientsDegenrate2PointGM(true); )
 DEF_GM( return new GradientsDegenrate2PointGM(false); )
 
-/* bug.skia.org/517
+/* skbug.com/40031542
 <canvas id="canvas"></canvas>
 <script>
 var c = document.getElementById("canvas");

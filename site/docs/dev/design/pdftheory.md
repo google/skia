@@ -274,7 +274,7 @@ Certain objects have specific properties that need to be dealt with. Images,
 layers (see below), and fonts assume the standard PDF coordinate system, so we
 have to undo any flip to the Skia coordinate system before drawing these
 entities. We don't currently support inverted paths, so filling an inverted path
-will give the wrong result ([issue 241](https://bug.skia.org/241)). PDF doesn't
+will give the wrong result ([issue 40031223](skbug.com/40031223)). PDF doesn't
 draw zero length lines that have butt of square caps, so that is emulated.
 
 ### Layers
@@ -425,12 +425,12 @@ SrcMode with Dst draw with an inverted Src as a mask.
 
 ## Known issues
 
-- [issue 249](https://bug.skia.org/249) SrcAtop Xor, and Plus xfer modes are not
+- [issue 40031257](skbug.com/40031257) SrcAtop Xor, and Plus xfer modes are not
   supported.
-- [issue 240](https://bug.skia.org/240) drawVerticies is not implemented.
-- [issue 244](https://bug.skia.org/244) Mostly, only TTF fonts are _directly_
+- [issue 40031248](skbug.com/40031248) drawVerticies is not implemented.
+- [issue 40031251](skbug.com/40031251) Mostly, only TTF fonts are _directly_
   supported. (User metrics show that almost all fonts are truetype.)
-- [issue 260](https://bug.skia.org/260) Page rotation is accomplished by
+- [issue 40031270](skbug.com/40031270) Page rotation is accomplished by
   specifying a different size page instead of including the appropriate rotation
   annotation.
 

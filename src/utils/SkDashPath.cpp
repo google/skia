@@ -329,7 +329,7 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
     const SkPath* srcPtr = &src;
     if (cull_path(src, *rec, cullRect, intervalLength, &cullPathStorage)) {
         // if rect is closed, starts in a dash, and ends in a dash, add the initial join
-        // potentially a better fix is described here: bug.skia.org/7445
+        // potentially a better fix is described here: skbug.com/40038693
         if (src.isRect(nullptr) && src.isLastContourClosed() && is_even(initialDashIndex)) {
             SkScalar pathLength = SkPathMeasure(src, false, rec->getResScale()).getLength();
             SkScalar endPhase = SkScalarMod(pathLength + startPhase, intervalLength);

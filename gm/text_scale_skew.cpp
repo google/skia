@@ -15,7 +15,7 @@
 
 class SkCanvas;
 
-// http://bug.skia.org/7315
+// skbug.com/40038559
 DEF_SIMPLE_GM(text_scale_skew, canvas, 256, 128) {
     SkPaint p;
     p.setAntiAlias(true);

@@ -111,7 +111,7 @@ def _IfDefChecks(input_api, output_api):
     results.append(
         output_api.PresubmitError(
             'The following files have #if or #ifdef before includes:\n%s\n\n'
-            'See https://bug.skia.org/3362 for why this should be fixed.' %
+            'See skbug.com/40034487 for why this should be fixed.' %
                 '\n'.join(failing_files)))
   return results
 

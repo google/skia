@@ -1482,7 +1482,7 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     check_convexity(reporter, dent, false);
     check_direction(reporter, dent, SkPathFirstDirection::kCW);
 
-    // https://bug.skia.org/2235
+    // skbug.com/40033336
     SkPath strokedSin;
     for (int i = 0; i < 2000; i++) {
         SkScalar x = SkIntToScalar(i) / 2;

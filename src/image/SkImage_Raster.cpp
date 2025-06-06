@@ -32,7 +32,7 @@
 class GrDirectContext;
 class SkSurfaceProps;
 
-// fixes https://bug.skia.org/5096
+// fixes skbug.com/40036261
 static bool is_not_subset(const SkBitmap& bm) {
     SkASSERT(bm.pixelRef());
     SkISize dim = SkISize::Make(bm.pixelRef()->width(), bm.pixelRef()->height());

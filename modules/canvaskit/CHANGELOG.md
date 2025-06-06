@@ -991,7 +991,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - and `no_embedded_font` option now allows creating a `SkFontMgr.FromData` instead of
    always having an empty one.
  - Updated to emscripten 1.38.47
- - Switch to WebGL 2.0, but fall back to 1.0 when unavailable - bug.skia.org/9052
+ - Switch to WebGL 2.0, but fall back to 1.0 when unavailable - skbug.com/40040335
 
 ### Fixed
  - Null terminator bug in draw text - skbug.com/40040633

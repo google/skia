@@ -112,7 +112,7 @@ static void assert_equal(skiatest::Reporter* reporter, GrDirectContext* dContext
     REPORTER_ASSERT(reporter, widthA == b->width());
     REPORTER_ASSERT(reporter, heightA == b->height());
 
-    // see https://bug.skia.org/3965
+    // see skbug.com/40035123
     //REPORTER_ASSERT(reporter, a->isOpaque() == b->isOpaque());
 
     SkAutoPixmapStorage pmapA, pmapB;

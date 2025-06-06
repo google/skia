@@ -15,7 +15,7 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
-// https://bug.skia.org/4374
+// skbug.com/40035524
 DEF_SIMPLE_GM(draw_bitmap_rect_skbug4734, canvas, 64, 64) {
     auto img = ToolUtils::MakeTextureImage(canvas,
                                            ToolUtils::GetResourceAsImage("images/randPixels.png"));

@@ -159,7 +159,7 @@ DEF_SIMPLE_GM(cgimage, canvas, 800, 250) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// https://bug.skia.org/3716
+// skbug.com/40034846
 class ClipCubicGM : public skiagm::GM {
     const SkScalar W = 100;
     const SkScalar H = 240;

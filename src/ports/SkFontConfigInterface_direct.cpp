@@ -27,7 +27,7 @@ namespace {
 
 // FontConfig was thread antagonistic until 2.10.91 with known thread safety issues until 2.13.93.
 // Before that, lock with a global mutex.
-// See https://bug.skia.org/1497 and cl/339089311 for background.
+// See skbug.com/40032593 and cl/339089311 for background.
 static SkMutex& f_c_mutex() {
     static SkMutex& mutex = *(new SkMutex);
     return mutex;
