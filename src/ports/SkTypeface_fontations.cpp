@@ -1004,7 +1004,7 @@ sk_sp<SkTypeface> SkTypeface_Fontations::onMakeClone(const SkFontArguments& args
         return MakeFromData(fFontData, fusedArgs);
     }
 
-    // TODO(crbug.com/skia/330149870): Palette differences are not fused, see DWrite backend impl.
+    // TODO(skbug.com/330149870): Palette differences are not fused, see DWrite backend impl.
     rust::Slice<const fontations_ffi::PaletteOverride> argPaletteOverrides(
             reinterpret_cast<const fontations_ffi::PaletteOverride*>(args.getPalette().overrides),
             args.getPalette().overrideCount);

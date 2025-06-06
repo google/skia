@@ -537,7 +537,7 @@ private:
 
     SkISize getISize() override { return {800, 400}; }
 
-    // Reproduces the example given in bug 7671058.
+    // Reproduces the example given in b/7671058.
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint1, paint2, paint3;
         paint1.setStyle(SkPaint::kFill_Style);

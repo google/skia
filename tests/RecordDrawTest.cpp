@@ -162,7 +162,7 @@ DEF_TEST(RecordDraw_BasicBounds, r) {
 }
 #endif
 
-// A regression test for crbug.com/415468 and https://bug.skia.org/2957 .
+// A regression test for crbug.com/40385134 and skbug.com/40034070.
 //
 // This also now serves as a regression test for crbug.com/418417.  We used to adjust the
 // bounds for the saveLayer, clip, and restore to be greater than the bounds of the picture.

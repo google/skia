@@ -186,7 +186,7 @@ static void test_giantrepeat_crbug118018(skiatest::Reporter* reporter) {
         int fWidth;
         int fHeight;
     } gTests[] = {
-        { 0x1b294, 0x7f},   // crbug 118018 (width exceeds 64K)... should draw safely now.
+        { 0x1b294, 0x7f},   // crbug.com/40054915 (width exceeds 64K)... should draw safely now.
         { 0xFFFF, 0x7f },   // should draw, test max width
         { 0x7f, 0xFFFF },   // should draw, test max height
     };

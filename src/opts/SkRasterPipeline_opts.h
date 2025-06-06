@@ -279,7 +279,7 @@ namespace SK_OPTS_NS {
     SI V<T> gather(const T* ptr, U32 ix) {
         // The compiler assumes ptr is aligned, which caused crashes on some
         // arm32 chips because a register was marked as "aligned to 32 bits"
-        // incorrectly. https://crbug.com/skia/409859319
+        // incorrectly. skbug.com/409859319
         SkASSERTF(reinterpret_cast<uintptr_t>(ptr) % alignof(T) == 0,
                  "Should use gather_unaligned");
         return V<T>{ptr[ix[0]], ptr[ix[1]], ptr[ix[2]], ptr[ix[3]]};
@@ -5992,7 +5992,7 @@ SI void store(T* ptr, V v) {
     SI V gather(const T* ptr, U32 ix) {
         // The compiler assumes ptr is aligned, which caused crashes on some
         // arm32 chips because a register was marked as "aligned to 32 bits"
-        // incorrectly. https://crbug.com/skia/409859319
+        // incorrectly. skbug.com/409859319
         SkASSERTF(reinterpret_cast<uintptr_t>(ptr) % alignof(T) == 0,
                  "Should use gather_unaligned");
         return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],

@@ -32,7 +32,7 @@ struct FakeBlitter : public SkBlitter {
     int m_blitCount;
 };
 
-// https://crbug.com/skia/40031085
+// skbug.com/40031085
 // Lines which is not clipped by boundary based clipping,
 // but skipped after tessellation, should be cleared by the blitter.
 DEF_TEST(FillPathInverse, reporter) {

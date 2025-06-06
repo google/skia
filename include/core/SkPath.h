@@ -1880,7 +1880,7 @@ public:
     static std::optional<SkPath> ReadFromMemory(const void* buffer, size_t length,
                                                 size_t* bytesRead = nullptr);
 
-    /** (See Skia bug 1762.)
+    /** (See skbug.com/40032862)
         Returns a non-zero, globally unique value. A different value is returned
         if verb array, SkPoint array, or conic weight changes.
 

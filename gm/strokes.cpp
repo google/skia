@@ -449,7 +449,7 @@ private:
     using INHERITED = skiagm::GM;
 };
 
-// Test stroking for curves that produce degenerate tangents when t is 0 or 1 (see bug 4191)
+// Test stroking for curves that produce degenerate tangents when t is 0 or 1 (skbug.com/40035337)
 class Strokes5GM : public skiagm::GM {
 public:
     Strokes5GM() {}

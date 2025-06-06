@@ -449,7 +449,7 @@ static void test_programs(skiatest::Reporter* reporter, const sk_gpu_test::Conte
 
 DEF_GANESH_TEST(Programs, reporter, options, CtsEnforcement::kNever) {
     // Set a locale that would cause shader compilation to fail because of , as decimal separator.
-    // skbug 3330
+    // skbug.com/40034453
 #ifdef SK_BUILD_FOR_WIN
     GrAutoLocaleSetter als("sv-SE");
 #else

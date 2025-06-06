@@ -123,7 +123,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest,
 
     class TestComputeStep : public ComputeStep {
     public:
-        // TODO(skia:40045541): SkSL doesn't support std430 layout well, so the buffers
+        // TODO(skbug.com/40045541): SkSL doesn't support std430 layout well, so the buffers
         // below all pack their data into vectors to be compatible with SPIR-V/WGSL.
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestArrayMultiply",
@@ -265,7 +265,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest,
 
     class TestComputeStep1 : public ComputeStep {
     public:
-        // TODO(skia:40045541): SkSL doesn't support std430 layout well, so the buffers
+        // TODO(skbug.com/40045541): SkSL doesn't support std430 layout well, so the buffers
         // below all pack their data into vectors to be compatible with SPIR-V/WGSL.
         TestComputeStep1() : ComputeStep(
                 /*name=*/"TestArrayMultiplyFirstPass",
