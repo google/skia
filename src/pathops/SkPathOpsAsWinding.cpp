@@ -58,8 +58,7 @@ static Contour::Direction to_direction(SkScalar dy) {
 }
 
 static int contains_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight, const SkPoint& edge) {
-    SkRect bounds;
-    bounds.setBounds(pts, kPtCount[verb] + 1);
+    SkRect bounds = SkRect::BoundsOrEmpty({pts, kPtCount[verb] + 1});
     if (bounds.fTop > edge.fY) {
         return 0;
     }
@@ -189,11 +188,12 @@ public:
                     containers->emplace_back(bounds, lastStart, verbStart);
                     lastStart = verbStart;
                }
-               bounds.setBounds(&pts[kPtIndex[SkPath::kMove_Verb]], kPtCount[SkPath::kMove_Verb]);
+                bounds.setBounds({&pts[kPtIndex[SkPath::kMove_Verb]],
+                                  kPtCount[SkPath::kMove_Verb]});
             }
             if (SkPathVerb::kLine <= verb && verb <= SkPathVerb::kCubic) {
                 SkRect verbBounds;
-                verbBounds.setBounds(&pts[kPtIndex[(int)verb]], kPtCount[(int)verb]);
+                verbBounds.setBounds({&pts[kPtIndex[(int)verb]], kPtCount[(int)verb]});
                 bounds.joinPossiblyEmptyRect(verbBounds);
             }
             ++verbStart;

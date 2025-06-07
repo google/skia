@@ -83,7 +83,7 @@ protected:
                     SkMatrix rot;
                     rot.setRotate(360.f / 5, 50.f, 70.f);
                     for (int i = 1; i < 5; ++i) {
-                        rot.mapPoints(points + i, points + i - 1, 1);
+                        points[i] = rot.mapPoint(points[i-1]);
                     }
                     b.moveTo(points[0]);
                     for (int i = 0; i < 5; ++i) {
@@ -131,7 +131,7 @@ protected:
         for (int i = 0; i < 12; ++i) {
             hairPaint.setColor(GetColor(&colorRandom));
             canvas->drawLine(pts[0], pts[1], hairPaint);
-            rot.mapPoints(pts, 2);
+            rot.mapPoints(pts);
         }
     }
 

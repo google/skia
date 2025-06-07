@@ -46,7 +46,7 @@ static void charsToGlyphs_proc(const Rec& r) {
 
     SkTypeface* face = r.fFont.getTypeface();
     for (int i = 0; i < r.fLoops; ++i) {
-        face->unicharsToGlyphs(r.fText, r.fCount, glyphs);
+        face->unicharsToGlyphs({r.fText, r.fCount}, glyphs);
     }
 }
 

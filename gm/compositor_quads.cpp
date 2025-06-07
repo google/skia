@@ -140,7 +140,7 @@ static void draw_outset_line(SkCanvas* canvas, const SkMatrix& local, const SkPo
                              const SkPaint& paint) {
     static constexpr SkScalar kLineOutset = 10.f;
     SkPoint mapped[2];
-    local.mapPoints(mapped, pts, 2);
+    local.mapPoints({mapped, 2}, {pts, 2});
     SkVector v = mapped[1] - mapped[0];
     v.setLength(v.length() + kLineOutset);
     canvas->drawLine(mapped[1] - v, mapped[0] + v, paint);

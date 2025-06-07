@@ -36,7 +36,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
-#include <iterator>
 #include <limits.h>
 #include <utility>
 
@@ -1319,7 +1318,7 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
     pointTransform.preRotate(-angle);
 
     SkPoint unitPts[2];
-    pointTransform.mapPoints(unitPts, srcPts, (int) std::size(unitPts));
+    pointTransform.mapPoints(unitPts, srcPts);
     SkVector delta = unitPts[1] - unitPts[0];
 
     SkScalar d = delta.fX * delta.fX + delta.fY * delta.fY;
@@ -1381,7 +1380,7 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
         unitPts[0] = unitPts[1];
         unitPts[0].offset(t * sinEndTheta, -t * cosEndTheta);
         SkPoint mapped[2];
-        pointTransform.mapPoints(mapped, unitPts, (int) std::size(unitPts));
+        pointTransform.mapPoints(mapped, unitPts);
         /*
         Computing the arc width introduces rounding errors that cause arcs to start
         outside their marks. A round rect may lose convexity as a result. If the input
@@ -1512,7 +1511,8 @@ SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMo
         }
         SkPathRef::Editor ed(&fPathRef);
         auto [newPts, newWeights] = ed.growForVerbsInPath(*src->fPathRef);
-        matrix.mapPoints(newPts, src->fPathRef->points(), src->countPoints());
+        const size_t N = src->countPoints();
+        matrix.mapPoints({newPts, N}, {src->fPathRef->points(), N});
         if (int numWeights = src->fPathRef->countWeights()) {
             memcpy(newWeights, src->fPathRef->conicWeights(), numWeights * sizeof(newWeights[0]));
         }
@@ -1743,7 +1743,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst, SkApplyPerspectiveCl
 
         dst->swap(tmp);
         SkPathRef::Editor ed(&dst->fPathRef);
-        matrix.mapPoints(ed.writablePoints(), ed.pathRef()->countPoints());
+        matrix.mapPoints({ed.writablePoints(), ed.pathRef()->countPoints()});
         dst->setFirstDirection(SkPathFirstDirection::kUnknown);
     } else {
         SkPathConvexity convexity = this->getConvexityOrUnknown();

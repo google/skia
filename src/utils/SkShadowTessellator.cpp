@@ -270,8 +270,6 @@ bool SkBaseShadowTessellator::computeConvexShadow(SkScalar inset, SkScalar outse
     SkScalar minDistSq = SkPointPriv::DistanceToLineSegmentBetweenSqd(fCentroid,
                                                                       fPathPolygon[0],
                                                                       fPathPolygon[1]);
-    SkRect bounds;
-    bounds.setBounds(&fPathPolygon[0], fPathPolygon.size());
     for (int i = 1; i < fPathPolygon.size(); ++i) {
         int j = i + 1;
         if (i == fPathPolygon.size() - 1) {
@@ -783,7 +781,7 @@ void SkBaseShadowTessellator::handleLine(const SkPoint& p) {
 }
 
 void SkBaseShadowTessellator::handleLine(const SkMatrix& m, SkPoint* p) {
-    m.mapPoints(p, 1);
+    *p = m.mapPoint(*p);
 
     this->handleLine(*p);
 }
@@ -814,12 +812,12 @@ void SkBaseShadowTessellator::handleQuad(const SkPoint pts[3]) {
 }
 
 void SkBaseShadowTessellator::handleQuad(const SkMatrix& m, SkPoint pts[3]) {
-    m.mapPoints(pts, 3);
+    m.mapPoints({pts, 3});
     this->handleQuad(pts);
 }
 
 void SkBaseShadowTessellator::handleCubic(const SkMatrix& m, SkPoint pts[4]) {
-    m.mapPoints(pts, 4);
+    m.mapPoints({pts, 4});
 #if defined(SK_GANESH)
     // TODO: Pull PathUtils out of Ganesh?
     int maxCount = GrPathUtils::cubicPointCount(pts, kCubicTolerance);
@@ -843,7 +841,7 @@ void SkBaseShadowTessellator::handleConic(const SkMatrix& m, SkPoint pts[3], SkS
     if (m.hasPerspective()) {
         w = SkConic::TransformW(pts, w, m);
     }
-    m.mapPoints(pts, 3);
+    m.mapPoints({pts, 3});
     SkAutoConicToQuads quadder;
     const SkPoint* quads = quadder.computeQuads(pts, w, kConicTolerance);
     SkPoint lastPoint = *(quads++);
@@ -1096,12 +1094,12 @@ bool SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
         }
         switch (verb) {
             case SkPath::kLine_Verb:
-                ctm.mapPoints(clipPts, &pts[1], 1);
+                clipPts[0] = ctm.mapPoint(pts[1]);
                 this->addToClip(clipPts[0]);
                 this->handleLine(shadowTransform, &pts[1]);
                 break;
             case SkPath::kQuad_Verb:
-                ctm.mapPoints(clipPts, pts, 3);
+                ctm.mapPoints({clipPts, 3}, {pts, 3});
                 // point at t = 1/2
                 curvePoint.fX = 0.25f*clipPts[0].fX + 0.5f*clipPts[1].fX + 0.25f*clipPts[2].fX;
                 curvePoint.fY = 0.25f*clipPts[0].fY + 0.5f*clipPts[1].fY + 0.25f*clipPts[2].fY;
@@ -1110,7 +1108,7 @@ bool SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
                 this->handleQuad(shadowTransform, pts);
                 break;
             case SkPath::kConic_Verb:
-                ctm.mapPoints(clipPts, pts, 3);
+                ctm.mapPoints({clipPts, 3}, {pts, 3});
                 w = iter.conicWeight();
                 // point at t = 1/2
                 curvePoint.fX = 0.25f*clipPts[0].fX + w*0.5f*clipPts[1].fX + 0.25f*clipPts[2].fX;
@@ -1121,7 +1119,7 @@ bool SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
                 this->handleConic(shadowTransform, pts, w);
                 break;
             case SkPath::kCubic_Verb:
-                ctm.mapPoints(clipPts, pts, 4);
+                ctm.mapPoints({clipPts, 4}, {pts, 4});
                 // point at t = 5/16
                 curvePoint.fX = kA*clipPts[0].fX + kB*clipPts[1].fX
                               + kC*clipPts[2].fX + kD*clipPts[3].fX;

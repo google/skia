@@ -157,14 +157,14 @@ private:
                 paint.setStrokeWidth(0.f);
                 for (int x = 1; x < kM; ++x) {
                     SkPoint pts[] = {{x * kTileW, 0}, {x * kTileW, kN * kTileH}};
-                    matrices[m].mapPoints(pts, 2);
+                    matrices[m].mapPoints(pts);
                     SkVector v = pts[1] - pts[0];
                     v.setLength(v.length() + kLineOutset);
                     canvas->drawLine(pts[1] - v, pts[0] + v, paint);
                 }
                 for (int y = 1; y < kN; ++y) {
                     SkPoint pts[] = {{0, y * kTileH}, {kTileW * kM, y * kTileH}};
-                    matrices[m].mapPoints(pts, 2);
+                    matrices[m].mapPoints(pts);
                     SkVector v = pts[1] - pts[0];
                     v.setLength(v.length() + kLineOutset);
                     canvas->drawLine(pts[1] - v, pts[0] + v, paint);

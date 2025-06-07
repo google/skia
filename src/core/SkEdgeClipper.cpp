@@ -227,8 +227,7 @@ bool SkEdgeClipper::clipQuad(const SkPoint srcPts[3], const SkRect& clip) {
     fCurrPoint = fPoints;
     fCurrVerb = fVerbs;
 
-    SkRect  bounds;
-    bounds.setBounds(srcPts, 3);
+    const SkRect bounds = SkRect::BoundsOrEmpty({srcPts, 3});
 
     if (!quick_reject(bounds, clip)) {
         SkPoint monoY[5];
@@ -403,9 +402,7 @@ void SkEdgeClipper::clipMonoCubic(const SkPoint src[4], const SkRect& clip) {
 }
 
 static SkRect compute_cubic_bounds(const SkPoint pts[4]) {
-    SkRect r;
-    r.setBounds(pts, 4);
-    return r;
+    return SkRect::BoundsOrEmpty({pts, 4});
 }
 
 static bool too_big_for_reliable_float_math(const SkRect& r) {

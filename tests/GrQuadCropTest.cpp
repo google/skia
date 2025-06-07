@@ -58,8 +58,7 @@ static void run_crop_axis_aligned_test(skiatest::Reporter* r, const SkRect& clip
         SkMatrix toLocal = SkMatrix::Concat(*localMatrix, invViewMatrix);
 
         for (int p = 0; p < 4; ++p) {
-            SkPoint expectedPoint = quad.fDevice.point(p);
-            toLocal.mapPoints(&expectedPoint, 1);
+            SkPoint expectedPoint = toLocal.mapPoint(quad.fDevice.point(p));
             SkPoint actualPoint = quad.fLocal.point(p);
 
             ASSERT_NEARLY_EQUAL(expectedPoint.fX, actualPoint.fX);

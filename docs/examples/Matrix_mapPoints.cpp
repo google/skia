@@ -12,7 +12,7 @@ void draw(SkCanvas* canvas) {
     paint.setARGB(77, 23, 99, 154);
     for (int i = 0; i < 5; ++i) {
         SkPoint dst[count];
-        matrix.mapPoints(dst, src, count);
+        matrix.mapPoints(dst, src);
         canvas->drawPoints(SkCanvas::kPolygon_PointMode, dst, paint);
         matrix.preRotate(35, 128, 128);
     }

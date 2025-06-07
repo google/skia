@@ -70,9 +70,9 @@ static void drawKernText(SkCanvas* canvas, const void* text, size_t len,
         return;
     }
 
-    AutoSTMalloc<128, int32_t> adjustmentStorage(glyphCount - 1);
+    AutoSTArray<128, int32_t> adjustmentStorage(glyphCount - 1);
     int32_t* adjustments = adjustmentStorage.get();
-    if (!face->getKerningPairAdjustments(glyphs, glyphCount, adjustments)) {
+    if (!face->getKerningPairAdjustments({glyphs, glyphCount}, adjustmentStorage)) {
         canvas->drawSimpleText(text, len, SkTextEncoding::kUTF8, x, y, font, paint);
         return;
     }

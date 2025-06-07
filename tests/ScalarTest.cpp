@@ -83,8 +83,7 @@ static void test_isRectFinite(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < std::size(gSets); ++i) {
-        SkRect r;
-        r.setBounds(gSets[i].fPts, gSets[i].fCount);
+        SkRect r = SkRect::BoundsOrEmpty({gSets[i].fPts, gSets[i].fCount});
         bool rectIsFinite = !r.isEmpty();
         REPORTER_ASSERT(reporter, gSets[i].fIsFinite == rectIsFinite);
     }

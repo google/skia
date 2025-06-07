@@ -344,7 +344,7 @@ public:
         const SkPoint pts[2] = {
             { -overshoot, cy }, { 640 + overshoot, cy }
         };
-        matrix.mapPoints(fPts, pts, 2);
+        matrix.mapPoints(fPts, pts);
     }
 
 protected:

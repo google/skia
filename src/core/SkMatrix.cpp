@@ -1177,7 +1177,7 @@ bool SkMatrix::mapRect(SkRect* dst, const SkRect& src, SkApplyPerspectiveClip pc
         SkPoint quad[4];
 
         src.toQuad(quad);
-        this->mapPoints(quad, quad, 4);
+        this->mapPoints(quad);
         dst->setBoundsNoCheck(quad);
         return this->rectStaysRect();   // might still return true if rotated by 90, etc.
     }

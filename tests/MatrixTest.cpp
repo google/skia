@@ -730,7 +730,7 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
     SkPoint3 src = {randTriples[0].fX, randTriples[0].fY, 1.f};
     SkPoint pnt = {src.fX, src.fY};
     SkPoint3 dst = mat.mapHomogeneousPoint(src);
-    mat.mapPoints(&pnt, &pnt, 1);
+    pnt = mat.mapPoint(pnt);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fX, pnt.fX));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fY, pnt.fY));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fZ, 1));
@@ -743,7 +743,7 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
     SkPoint pnt;
     pnt.set(src.fX, src.fY);
     SkPoint3 dst = mat.mapHomogeneousPoint(src);
-    mat.mapPoints(&pnt, &pnt, 1);
+    pnt = mat.mapPoint(pnt);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fX, pnt.fX));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fY, pnt.fY));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fZ, 1));
@@ -758,7 +758,7 @@ static void test_matrix_homogeneous(skiatest::Reporter* reporter) {
     SkPoint pnt;
     pnt.set(src.fX, src.fY);
     SkPoint3 dst = mat.mapHomogeneousPoint(src);
-    mat.mapPoints(&pnt, &pnt, 1);
+    pnt = mat.mapPoint(pnt);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fX, pnt.fX));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fY, pnt.fY));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(dst.fZ, 1));
@@ -808,15 +808,15 @@ static bool check_decompScale(const SkMatrix& original) {
     };
 
     SkPoint v1[kNumPoints];
-    original.mapPoints(v1, testPts, kNumPoints);
+    original.mapPoints(v1, testPts);
 
     SkPoint v2[kNumPoints];
     SkMatrix scaleMat = SkMatrix::Scale(scale.width(), scale.height());
 
     // Note, we intend the decomposition to be applied in the order scale and then remainder but,
     // due to skbug.com/40038455, the order is reversed!
-    scaleMat.mapPoints(v2, testPts, kNumPoints);
-    remaining.mapPoints(v2, kNumPoints);
+    scaleMat.mapPoints(v2, testPts);
+    remaining.mapPoints(v2);
 
     for (int i = 0; i < kNumPoints; ++i) {
         if (!SkPointPriv::EqualsWithinTolerance(v1[i], v2[i], 0.00001f)) {
@@ -1042,7 +1042,7 @@ DEF_TEST(Matrix_maprects, r) {
                                       rand.nextSScalar1() * scale);
         SkRect dst[4];
 
-        mat.mapPoints((SkPoint*)&dst[0].fLeft, (SkPoint*)&src.fLeft, 2);
+        mat.mapPoints({(SkPoint*)&dst[0].fLeft, 2}, {(SkPoint*)&src.fLeft, 2});
         dst[0].sort();
         mat.mapRect(&dst[1], src);
         mat.mapRectScaleTranslate(&dst[2], src);

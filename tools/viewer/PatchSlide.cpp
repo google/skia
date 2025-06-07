@@ -343,7 +343,7 @@ static sk_sp<SkVertices> make_verts(const SkPath& path, SkScalar width) {
             continue;
         }
         SkPoint* dst = pts.append(2);
-        mx.mapPoints(dst, src, 2);
+        mx.mapPoints({dst, 2}, {src, 2});
     }
 
     int vertCount = pts.size();

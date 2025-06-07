@@ -273,8 +273,7 @@ public:
 
         if (fRRectButton.fEnabled) {
             SkScalar rad = 32;
-            SkRect r;
-            r.setBounds(&fPts[13], 2);
+            SkRect r = SkRect::BoundsOrEmpty({&fPts[13], 2});
             path.reset();
             SkRRect rr;
             rr.setRectXY(r, rad, rad);
@@ -296,8 +295,7 @@ public:
 
         if (fCircleButton.fEnabled) {
             path.reset();
-            SkRect r;
-            r.setBounds(&fPts[15], 2);
+            SkRect r = SkRect::BoundsOrEmpty({&fPts[15], 2});
             path.addOval(r);
             setForGeometry();
             if (fCircleButton.fFill) {

@@ -59,7 +59,7 @@ protected:
 
         src.set(SkIntToScalar(x) + SK_ScalarHalf, SkIntToScalar(y) + SK_ScalarHalf);
         do {
-            mat.mapPoints(&dst, &src, 1);
+            dst = mat.mapPoint(src);
             this->next(dst, x++, y, path);
             src.fX += SK_Scalar1;
         } while (--ucount > 0);
@@ -141,7 +141,7 @@ public:
 
             src[0].set(SkIntToScalar(u) + SK_ScalarHalf, SkIntToScalar(v) + SK_ScalarHalf);
             src[1].set(SkIntToScalar(u+ucount) + SK_ScalarHalf, SkIntToScalar(v) + SK_ScalarHalf);
-            this->getMatrix().mapPoints(dstP, src, 2);
+            this->getMatrix().mapPoints(dstP, src);
 
             dst->moveTo(dstP[0]);
             dst->lineTo(dstP[1]);

@@ -164,7 +164,7 @@ static bool morphpoints(SkPoint dst[], const SkPoint src[], int count,
         matrix.setSinCos(tangent.fY, tangent.fX, 0, 0);
         matrix.preTranslate(-sx, 0);
         matrix.postTranslate(pos.fX, pos.fY);
-        matrix.mapPoints(&dst[i], &pt, 1);
+        dst[i] = matrix.mapPoint(pt);
     }
     return true;
 }

@@ -218,7 +218,7 @@ public:
 
     void performTest() override {
         for (int i = 0; i < 1000000; ++i) {
-            fM.mapPoints(fDst, fSrc, N);
+            fM.mapPoints(fDst, fSrc);
         }
     }
 };
@@ -299,7 +299,7 @@ public:
                 for (int i = 0; i < K; ++i) {
                     auto src = SkPoint{rand.nextSScalar1(), rand.nextSScalar1()};
                     for (int j = 0; j < N; ++j) {
-                        fM.mapPoints(&fDst[j], &src, 1);
+                        fM.mapPoints({&fDst[j], 1}, {&src, 1});
                         src.fX += 1;
                     }
                     this->handle(fDst);

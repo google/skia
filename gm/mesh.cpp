@@ -776,7 +776,7 @@ protected:
 
                 SkPoint t[4];
                 SkRect::MakeWH(2.f, 2.f).toQuad(t);
-                SkMatrix::RotateDeg(90.f*i, {1.f, 1.f}).mapPoints(t, std::size(t));
+                SkMatrix::RotateDeg(90.f*i, {1.f, 1.f}).mapPoints(t);
 
                 Vertex vertices[6];
                 vertices[0] = {{p.left(), p.top()}, t[0]};
@@ -834,7 +834,7 @@ protected:
 
                 SkPoint t[4];
                 SkRect::MakeWH(2.f, 2.f).toQuad(t);
-                SkMatrix::RotateDeg(90.f*i, {1.f, 1.f}).mapPoints(t, std::size(t));
+                SkMatrix::RotateDeg(90.f*i, {1.f, 1.f}).mapPoints(t);
                 Vertex vertices[4]{{p[0], t[0]}, {p[1], t[1]}, {p[2], t[2]}, {p[3], t[3]}};
                 SkAssertResult(
                         vb->update(ctx, vertices, i*4*sizeof(Vertex), 4*sizeof(Vertex)));

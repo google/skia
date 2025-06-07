@@ -455,7 +455,7 @@ static sk_sp<SkTypeface> makeDistortableWithNonDefaultAxes(skiatest::Reporter* r
         return nullptr;  // Not all SkFontMgr can makeFromStream().
     }
 
-    int count = typeface->getVariationDesignPosition(nullptr, 0);
+    int count = typeface->getVariationDesignPosition({});
     if (count == -1) {
         return nullptr;  // The number of axes is unknown.
     }

@@ -827,7 +827,7 @@ static SkPDFIndirectReference make_function_shader(SkPDFDocument* doc,
                 if (!mapperMatrix.invert(&inverseMapperMatrix)) {
                     return SkPDFIndirectReference();
                 }
-                inverseMapperMatrix.mapPoints(infoCopy.fPoint, 2);
+                inverseMapperMatrix.mapPoints(infoCopy.fPoint);
                 infoCopy.fRadius[0] = inverseMapperMatrix.mapRadius(info.fRadius[0]);
                 infoCopy.fRadius[1] = inverseMapperMatrix.mapRadius(info.fRadius[1]);
                 twoPointConicalCode(infoCopy, perspectiveInverseOnly, &functionCode);

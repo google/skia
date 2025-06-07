@@ -88,7 +88,7 @@ void extract_verts(const GrAAConvexTessellator& tess,
     for (int i = 0; i < tess.numPts(); ++i) {
         SkPoint lc;
         if (localCoordsMatrix) {
-            localCoordsMatrix->mapPoints(&lc, &tess.point(i), 1);
+            lc = localCoordsMatrix->mapPoint(tess.point(i));
         }
         verts << tess.point(i) << color << VertexWriter::If(localCoordsMatrix, lc)
               << tess.coverage(i);

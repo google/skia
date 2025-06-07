@@ -5,8 +5,7 @@ REG_FIDDLE(Rect_setBounds, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPoint points[] = {{3, 4}, {1, 2}, {5, 6}, {SK_ScalarNaN, 8}};
     for (int count = 0; count <= (int) std::size(points); ++count) {
-        SkRect rect;
-        rect.setBounds(points, count);
+        SkRect rect = SkRect::BoundsOrEmpty({points, count});
         if (count > 0) {
             SkDebugf("added: %3g, %g ", points[count - 1].fX,  points[count - 1].fY);
         } else {

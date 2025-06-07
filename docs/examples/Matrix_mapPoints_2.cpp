@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
     paint.setARGB(77, 23, 99, 154);
     for (int i = 0; i < 5; ++i) {
         canvas->drawPoints(SkCanvas::kPolygon_PointMode, pts, paint);
-        matrix.mapPoints(pts, std::size(pts));
+        matrix.mapPoints(pts);
     }
 }
 }  // END FIDDLE

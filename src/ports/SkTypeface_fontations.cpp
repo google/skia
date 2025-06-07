@@ -503,12 +503,10 @@ public:
                                                    scalerMetrics)) {
             return false;
         }
-        *path = SkPath::Make(reinterpret_cast<const SkPoint*>(fPathPoints.data()),
-                             fPathPoints.size(),
-                             fPathVerbs.data(),
-                             fPathVerbs.size(),
-                             nullptr,
-                             0,
+        *path = SkPath::Make({reinterpret_cast<const SkPoint*>(fPathPoints.data()),
+                              fPathPoints.size()},
+                             fPathVerbs,
+                             {},
                              SkPathFillType::kWinding);
 
         // See https://issues.skia.org/345178242 for details:
@@ -581,7 +579,7 @@ protected:
                 }
             }
         }
-        mx.advance = fRemainingMatrix.mapXY(x_advance, SkFloatToScalar(0.f));
+        mx.advance = fRemainingMatrix.mapPoint({x_advance, 0});
 
         if (has_colrv1_glyph || has_colrv0_glyph) {
             mx.extraBits = has_colrv1_glyph ? ScalerContextBits::COLRv1 : ScalerContextBits::COLRv0;
