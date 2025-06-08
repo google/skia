@@ -143,37 +143,37 @@ template<> struct SerializationUtils<unsigned char> {
 
 template<> struct SerializationUtils<SkColor> {
     static void Write(SkWriteBuffer& writer, SkColor* data, uint32_t arraySize) {
-        writer.writeColorArray(data, arraySize);
+        writer.writeColorArray({data, arraySize});
     }
     static bool Read(SkReadBuffer& reader, SkColor* data, uint32_t arraySize) {
-        return reader.readColorArray(data, arraySize);
+        return reader.readColorArray({data, arraySize});
     }
 };
 
 template<> struct SerializationUtils<SkColor4f> {
     static void Write(SkWriteBuffer& writer, SkColor4f* data, uint32_t arraySize) {
-        writer.writeColor4fArray(data, arraySize);
+        writer.writeColor4fArray({data, arraySize});
     }
     static bool Read(SkReadBuffer& reader, SkColor4f* data, uint32_t arraySize) {
-        return reader.readColor4fArray(data, arraySize);
+        return reader.readColor4fArray({data, arraySize});
     }
 };
 
 template<> struct SerializationUtils<int32_t> {
     static void Write(SkWriteBuffer& writer, int32_t* data, uint32_t arraySize) {
-        writer.writeIntArray(data, arraySize);
+        writer.writeIntArray({data, arraySize});
     }
     static bool Read(SkReadBuffer& reader, int32_t* data, uint32_t arraySize) {
-        return reader.readIntArray(data, arraySize);
+        return reader.readIntArray({data, arraySize});
     }
 };
 
 template<> struct SerializationUtils<SkPoint> {
     static void Write(SkWriteBuffer& writer, SkPoint* data, uint32_t arraySize) {
-        writer.writePointArray(data, arraySize);
+        writer.writePointArray({data, arraySize});
     }
     static bool Read(SkReadBuffer& reader, SkPoint* data, uint32_t arraySize) {
-        return reader.readPointArray(data, arraySize);
+        return reader.readPointArray({data, arraySize});
     }
 };
 
@@ -188,10 +188,10 @@ template<> struct SerializationUtils<SkPoint3> {
 
 template<> struct SerializationUtils<SkScalar> {
     static void Write(SkWriteBuffer& writer, SkScalar* data, uint32_t arraySize) {
-        writer.writeScalarArray(data, arraySize);
+        writer.writeScalarArray({data, arraySize});
     }
     static bool Read(SkReadBuffer& reader, SkScalar* data, uint32_t arraySize) {
-        return reader.readScalarArray(data, arraySize);
+        return reader.readScalarArray({data, arraySize});
     }
 };
 

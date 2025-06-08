@@ -109,12 +109,12 @@ void SkGradientBaseShader::flatten(SkWriteBuffer& buffer) const {
         colorCount--;
     }
 
-    buffer.writeColor4fArray(colors, colorCount);
+    buffer.writeColor4fArray({colors, colorCount});
     if (colorSpaceData) {
         buffer.writeDataAsByteArray(colorSpaceData.get());
     }
     if (positions) {
-        buffer.writeScalarArray(positions, colorCount);
+        buffer.writeScalarArray({positions, colorCount});
     }
 }
 
@@ -145,7 +145,7 @@ bool SkGradientBaseShader::DescriptorScope::unflatten(SkReadBuffer& buffer,
     fColorCount = buffer.getArrayCount();
 
     if (!(validate_array(buffer, fColorCount, &fColorStorage) &&
-          buffer.readColor4fArray(fColorStorage.begin(), fColorCount))) {
+          buffer.readColor4fArray({fColorStorage.begin(), fColorCount}))) {
         return false;
     }
     fColors = fColorStorage.begin();
@@ -158,7 +158,7 @@ bool SkGradientBaseShader::DescriptorScope::unflatten(SkReadBuffer& buffer,
     }
     if (SkToBool(flags & kHasPosition_GSF)) {
         if (!(validate_array(buffer, fColorCount, &fPositionStorage) &&
-              buffer.readScalarArray(fPositionStorage.begin(), fColorCount))) {
+              buffer.readScalarArray({fPositionStorage.begin(), fColorCount}))) {
             return false;
         }
         fPositions = fPositionStorage.begin();

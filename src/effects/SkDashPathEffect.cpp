@@ -386,7 +386,7 @@ SkPathEffectBase::DashType SkDashImpl::asADash(DashInfo* info) const {
 
 void SkDashImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fPhase);
-    buffer.writeScalarArray(fIntervals, fCount);
+    buffer.writeScalarArray({fIntervals, fCount});
 }
 
 sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
@@ -399,7 +399,7 @@ sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
     }
 
     AutoSTArray<32, SkScalar> intervals(count);
-    if (buffer.readScalarArray(intervals.get(), count)) {
+    if (buffer.readScalarArray(intervals)) {
         return SkDashPathEffect::Make(intervals.get(), SkToInt(count), phase);
     }
     return nullptr;

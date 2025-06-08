@@ -176,7 +176,7 @@ void PathOpSubmitter::flatten(SkWriteBuffer& buffer) const {
 
     buffer.writeInt(fIsAntiAliased);
     buffer.writeScalar(fStrikeToSourceScale);
-    buffer.writePointArray(fPositions.data(), SkCount(fPositions));
+    buffer.writePointArray(fPositions);
     for (IDOrPath& idOrPath : fIDsOrPaths) {
         buffer.writeInt(idOrPath.fGlyphID);
     }
@@ -437,7 +437,7 @@ void DrawableOpSubmitter::flatten(SkWriteBuffer& buffer) const {
     fStrikePromise.flatten(buffer);
 
     buffer.writeScalar(fStrikeToSourceScale);
-    buffer.writePointArray(fPositions.data(), SkCount(fPositions));
+    buffer.writePointArray(fPositions);
     for (IDOrDrawable idOrDrawable : fIDsOrDrawables) {
         buffer.writeInt(idOrDrawable.fGlyphID);
     }
@@ -1643,7 +1643,7 @@ SkSpan<SkPoint> MakePointsFromBuffer(SkReadBuffer& buffer, SubRunAllocator* allo
                          BagOfBytes::WillCountFit<SkPoint>(glyphCount))) { return {}; }
 
     SkPoint* positionsData = alloc->makePODArray<SkPoint>(glyphCount);
-    if (!buffer.readPointArray(positionsData, glyphCount)) { return {}; }
+    if (!buffer.readPointArray({positionsData, glyphCount})) { return {}; }
     return {positionsData, glyphCount};
 }
 

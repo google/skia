@@ -39,7 +39,7 @@ SkMatrixColorFilter::SkMatrixColorFilter(const float array[20], Domain domain, C
 
 void SkMatrixColorFilter::flatten(SkWriteBuffer& buffer) const {
     SkASSERT(sizeof(fMatrix) / sizeof(float) == 20);
-    buffer.writeScalarArray(fMatrix, 20);
+    buffer.writeScalarArray(fMatrix);
 
     // RGBA flag
     buffer.writeBool(fDomain == Domain::kRGBA);
@@ -48,7 +48,7 @@ void SkMatrixColorFilter::flatten(SkWriteBuffer& buffer) const {
 
 sk_sp<SkFlattenable> SkMatrixColorFilter::CreateProc(SkReadBuffer& buffer) {
     float matrix[20];
-    if (!buffer.readScalarArray(matrix, 20)) {
+    if (!buffer.readScalarArray(matrix)) {
         return nullptr;
     }
 

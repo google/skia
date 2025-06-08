@@ -285,24 +285,24 @@ bool SkReadBuffer::readByteArray(void* value, size_t size) {
     return this->readArray(value, size, sizeof(uint8_t));
 }
 
-bool SkReadBuffer::readColorArray(SkColor* colors, size_t size) {
-    return this->readArray(colors, size, sizeof(SkColor));
+bool SkReadBuffer::readColorArray(SkSpan<SkColor> colors) {
+    return this->readArray(colors.data(), colors.size(), sizeof(SkColor));
 }
 
-bool SkReadBuffer::readColor4fArray(SkColor4f* colors, size_t size) {
-    return this->readArray(colors, size, sizeof(SkColor4f));
+bool SkReadBuffer::readColor4fArray(SkSpan<SkColor4f> colors) {
+    return this->readArray(colors.data(), colors.size(), sizeof(SkColor4f));
 }
 
-bool SkReadBuffer::readIntArray(int32_t* values, size_t size) {
-    return this->readArray(values, size, sizeof(int32_t));
+bool SkReadBuffer::readIntArray(SkSpan<int32_t> values) {
+    return this->readArray(values.data(), values.size(), sizeof(int32_t));
 }
 
-bool SkReadBuffer::readPointArray(SkPoint* points, size_t size) {
-    return this->readArray(points, size, sizeof(SkPoint));
+bool SkReadBuffer::readPointArray(SkSpan<SkPoint> points) {
+    return this->readArray(points.data(), points.size(), sizeof(SkPoint));
 }
 
-bool SkReadBuffer::readScalarArray(SkScalar* values, size_t size) {
-    return this->readArray(values, size, sizeof(SkScalar));
+bool SkReadBuffer::readScalarArray(SkSpan<SkScalar> values) {
+    return this->readArray(values.data(), values.size(), sizeof(SkScalar));
 }
 
 const void* SkReadBuffer::skipByteArray(size_t* size) {

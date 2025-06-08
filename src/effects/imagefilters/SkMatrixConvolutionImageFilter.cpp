@@ -289,7 +289,7 @@ sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& bu
         return nullptr;
     }
     AutoSTArray<16, SkScalar> kernel(count);
-    if (!buffer.readScalarArray(kernel.get(), count)) {
+    if (!buffer.readScalarArray(kernel)) {
         return nullptr;
     }
     SkScalar gain = buffer.readScalar();
@@ -320,7 +320,7 @@ void SkMatrixConvolutionImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->SkImageFilter_Base::flatten(buffer);
     buffer.writeInt(fKernelSize.width());
     buffer.writeInt(fKernelSize.height());
-    buffer.writeScalarArray(fKernel.data(), fKernel.size());
+    buffer.writeScalarArray(fKernel);
     buffer.writeScalar(fGain);
     buffer.writeScalar(fBias);
     buffer.writeInt(fKernelOffset.x());

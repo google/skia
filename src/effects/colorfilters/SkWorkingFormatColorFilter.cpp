@@ -121,10 +121,10 @@ sk_sp<SkFlattenable> SkWorkingFormatColorFilter::CreateProc(SkReadBuffer& buffer
     SkAlphaType at;
 
     if (!useDstTF) {
-        buffer.readScalarArray(&tf.g, sizeof(skcms_TransferFunction) / sizeof(SkScalar));
+        buffer.readScalarArray({&tf.g, sizeof(skcms_TransferFunction) / sizeof(SkScalar)});
     }
     if (!useDstGamut) {
-        buffer.readScalarArray(&gamut.vals[0][0], sizeof(skcms_Matrix3x3) / sizeof(SkScalar));
+        buffer.readScalarArray({&gamut.vals[0][0], sizeof(skcms_Matrix3x3) / sizeof(SkScalar)});
     }
     if (!useDstAT) {
         at = buffer.read32LE(kLastEnum_SkAlphaType);
@@ -196,10 +196,10 @@ void SkWorkingFormatCalculator::flatten(SkWriteBuffer& buffer) const {
     buffer.writeBool(fUseDstGamut);
     buffer.writeBool(fUseDstAT);
     if (!fUseDstTF) {
-        buffer.writeScalarArray(&fTF.g, sizeof(skcms_TransferFunction) / sizeof(SkScalar));
+        buffer.writeScalarArray({&fTF.g, sizeof(skcms_TransferFunction) / sizeof(SkScalar)});
     }
     if (!fUseDstGamut) {
-        buffer.writeScalarArray(&fGamut.vals[0][0], sizeof(skcms_Matrix3x3) / sizeof(SkScalar));
+        buffer.writeScalarArray({&fGamut.vals[0][0], sizeof(skcms_Matrix3x3) / sizeof(SkScalar)});
     }
     if (!fUseDstAT) {
         buffer.writeInt(fAT);
