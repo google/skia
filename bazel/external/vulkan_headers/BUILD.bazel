@@ -18,6 +18,10 @@ cc_library(
         "include/vk_video/vulkan_video_codec_h265std_decode.h",
         "include/vk_video/vulkan_video_codec_h265std_encode.h",
         "include/vk_video/vulkan_video_codecs_common.h",
+        # As of https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers/+/2642d51e1e9230720a74d8c76bc7b301e69881bf
+        # these are also included by vulkan_core.h but not required for Skia.
+        "include/vk_video/vulkan_video_codec_vp9std_decode.h",
+        "include/vk_video/vulkan_video_codec_vp9std.h",
     ],
     hdrs = [
         "include/vulkan/vk_platform.h",
