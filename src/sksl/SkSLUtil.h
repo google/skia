@@ -157,6 +157,9 @@ struct ShaderCaps {
     // OpImageSampleImplicitLod when sampling from a YCbCr image. This workaround simply disables
     // RelaxedPrecision for that op regardless of image kind. (skbug.com/421927604)
     bool fCannotUseRelaxedPrecisionOnImageSample = false;
+    // Clamp, Min, Max, intrinsics all appear to be broken on Intel UHD630, so shaders for these
+    // devices will break these intrinsics into individual scalar commands.
+    bool fVectorClampMinMaxSupport = true;
 
     const char* fVersionDeclString = "";
 
