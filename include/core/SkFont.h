@@ -295,8 +295,8 @@ public:
         @param glyphs        storage for glyph indices; may be empty
         @return number of glyphs represented by text of length byteLength
     */
-    int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
-                     SkSpan<SkGlyphID> glyphs) const;
+    size_t textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
+                        SkSpan<SkGlyphID> glyphs) const;
 
     /** Returns glyph index for Unicode character.
 
@@ -319,7 +319,7 @@ public:
         @param byteLength    length of character storage in bytes
         @return              number of glyphs represented by text of length byteLength
     */
-    int countText(const void* text, size_t byteLength, SkTextEncoding encoding) const {
+    size_t countText(const void* text, size_t byteLength, SkTextEncoding encoding) const {
         return this->textToGlyphs(text, byteLength, encoding, {});
     }
 
@@ -482,7 +482,7 @@ public:
 #ifdef SK_SUPPORT_UNSPANNED_APIS
     int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
                      SkGlyphID glyphs[], int maxGlyphCount) const {
-        return this->textToGlyphs(text, byteLength, encoding, {glyphs, maxGlyphCount});
+        return (int)this->textToGlyphs(text, byteLength, encoding, {glyphs, maxGlyphCount});
     }
     void unicharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
         this->unicharsToGlyphs({uni, count}, {glyphs, count});

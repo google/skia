@@ -411,16 +411,16 @@ private:
 };
 }
 
-int SkTypeface::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
-                             SkSpan<SkGlyphID> glyphs) const {
+size_t SkTypeface::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
+                                SkSpan<SkGlyphID> glyphs) const {
     if (0 == byteLength) {
         return 0;
     }
 
     SkASSERT(text);
 
-    int count = SkFontPriv::CountTextElements(text, byteLength, encoding);
-    if ((size_t)count > glyphs.size()) {
+    size_t count = SkFontPriv::CountTextElements(text, byteLength, encoding);
+    if (count > glyphs.size()) {
         return count;
     }
 

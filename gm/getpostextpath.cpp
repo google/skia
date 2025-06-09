@@ -53,15 +53,15 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
     path.reset();
 
     SkAutoToGlyphs atg(font, text, len, SkTextEncoding::kUTF8);
-    const int count = atg.count();
+    const size_t count = atg.count();
     AutoTArray<SkPoint>  pos(count);
     AutoTArray<SkScalar> widths(count);
-    font.getWidths({atg.glyphs(), count}, widths);
+    font.getWidths(atg.glyphs(), widths);
 
     SkRandom rand;
     SkScalar x = SkIntToScalar(20);
     SkScalar y = SkIntToScalar(100);
-    for (int i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) {
         pos[i].set(x, y + rand.nextSScalar1() * 24);
         x += widths[i];
     }

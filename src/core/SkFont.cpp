@@ -178,7 +178,7 @@ void SkFont::unicharsToGlyphs(SkSpan<const SkUnichar> unis, SkSpan<SkGlyphID> gl
     this->getTypeface()->unicharsToGlyphs(unis, glyphs);
 }
 
-int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
+size_t SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
                          SkSpan<SkGlyphID> glyphs) const {
     return this->getTypeface()->textToGlyphs(text, byteLength, encoding, glyphs);
 }
@@ -187,24 +187,24 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
                              SkRect* bounds, const SkPaint* paint) const {
 
     SkAutoToGlyphs atg(*this, text, length, encoding);
-    const int glyphCount = atg.count();
-    if (glyphCount == 0) {
+    const SkSpan<const SkGlyphID> glyphIDs = atg.glyphs();
+
+    if (glyphIDs.size() == 0) {
         if (bounds) {
             bounds->setEmpty();
         }
         return 0;
     }
-    const SkGlyphID* glyphIDs = atg.glyphs();
 
     auto [strikeSpec, strikeToSourceScale] = SkStrikeSpec::MakeCanonicalized(*this, paint);
     SkBulkGlyphMetrics metrics{strikeSpec};
-    SkSpan<const SkGlyph*> glyphs = metrics.glyphs(SkSpan(glyphIDs, glyphCount));
+    SkSpan<const SkGlyph*> glyphs = metrics.glyphs(glyphIDs);
 
     SkScalar width = 0;
     if (bounds) {
         *bounds = glyphs[0]->rect();
         width = glyphs[0]->advanceX();
-        for (int i = 1; i < glyphCount; ++i) {
+        for (size_t i = 1; i < glyphIDs.size(); ++i) {
             SkRect r = glyphs[i]->rect();
             r.offset(width, 0);
             bounds->join(r);
@@ -375,7 +375,7 @@ SkScalar SkFontPriv::ApproximateTransformedTextSize(const SkFont& font, const Sk
     }
 }
 
-int SkFontPriv::CountTextElements(const void* text, size_t byteLength, SkTextEncoding encoding) {
+size_t SkFontPriv::CountTextElements(const void* text, size_t byteLength, SkTextEncoding encoding) {
     switch (encoding) {
         case SkTextEncoding::kUTF8:
             return SkUTF::CountUTF8(reinterpret_cast<const char*>(text), byteLength);

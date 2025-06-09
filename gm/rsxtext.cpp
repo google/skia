@@ -42,7 +42,7 @@ private:
         std::copy(glyphs, glyphs + glyph_count, buf.glyphs);
 
         float x = 0;
-        for (int i = 0; i < glyph_count; ++i) {
+        for (size_t i = 0; i < glyph_count; ++i) {
             buf.xforms()[i] = {
                 1, 0,
                 x, 0,

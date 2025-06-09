@@ -152,8 +152,8 @@ public:
      */
     void unicharsToGlyphs(SkSpan<const SkUnichar> unis, SkSpan<SkGlyphID> glyphs) const;
 
-    int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
-                     SkSpan<SkGlyphID> glyphs) const;
+    size_t textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
+                        SkSpan<SkGlyphID> glyphs) const;
 
     /**
      *  Return the glyphID that corresponds to the specified unicode code-point
@@ -362,7 +362,7 @@ public:
     }
     int textToGlyphs(const void* text, size_t byteLength, SkTextEncoding encoding,
                      SkGlyphID glyphs[], int maxGlyphCount) const {
-        return this->textToGlyphs(text, byteLength, encoding, {glyphs, maxGlyphCount});
+        return (int)this->textToGlyphs(text, byteLength, encoding, {glyphs, maxGlyphCount});
     }
     int getTableTags(SkFontTableTag tags[]) const {
         const size_t count = tags ? MAX_REASONABLE_TABLE_COUNT : 0;
