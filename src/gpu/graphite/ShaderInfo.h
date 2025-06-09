@@ -90,7 +90,8 @@ private:
 
     void generateVertexSkSL(const Caps*,
                             const RenderStep*,
-                            bool useStorageBuffers);
+                            bool useStorageBuffers,
+                            SkSpan<const ShaderNode*> rootNodes);
 
     // Determines fNumFragmentTexturesAndSamplers, fHasPaintUniforms, fHasGradientBuffer,
     // fHasSsboIndicesVarying, and if a valid SamplerDesc ptr is passed in, any immutable
@@ -102,9 +103,11 @@ private:
                               bool useStorageBuffers,
                               TextureFormat targetFormat,
                               skgpu::Swizzle writeSwizzle,
-                              skia_private::TArray<SamplerDesc>* outDescs);
+                              skia_private::TArray<SamplerDesc>* outDescs,
+                              SkArenaAlloc& shaderNodeAlloc,
+                              SkSpan<const ShaderNode*>* rootNodes);
 
-    bool needsLocalCoords() const;
+    bool needsLocalCoords() const { return fNeedsLocalCoords; }
 
     // Recursive method which traverses ShaderNodes in a depth-first manner to aggregate all
     // ShaderNode data (not owned by ShaderNode) into ShaderInfo's owned fData.
@@ -112,17 +115,10 @@ private:
     // tied to its ID instead of accumulating it all here.
     void aggregateSnippetData(const ShaderNode*);
 
-    // All shader nodes and arrays of children pointers are held in this arena
-    SkArenaAlloc fShaderNodeAlloc{256};
-
     const ShaderCodeDictionary* fShaderCodeDictionary;
     const RuntimeEffectDictionary* fRuntimeEffectDictionary;
     const char* fShadingSsboIndex;
 
-    // De-compressed shader tree from a PaintParamsKey. There can be 1 or 2 root nodes, the first
-    // being the paint effects (rooted with a BlendCompose for the final paint blend) and the
-    // optional second being any analytic clip effect (geometric or shader treated as coverage).
-    SkSpan<const ShaderNode*> fRootNodes;
     // The blendInfo represents the actual GPU blend operations, which may or may not completely
     // implement the paint and coverage blending defined by the root nodes.
     skgpu::BlendInfo fBlendInfo;
@@ -144,6 +140,7 @@ private:
     bool fHasLiftedPaintUniforms = false;
     bool fHasGradientBuffer = false;
     bool fHasSsboIndicesVarying = false;
+    bool fNeedsLocalCoords = false;
 };
 
 }  // namespace skgpu::graphite
