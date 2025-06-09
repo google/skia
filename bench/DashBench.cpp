@@ -71,7 +71,7 @@ protected:
         SkPath path;
         this->makePath(&path);
 
-        paint.setPathEffect(SkDashPathEffect::Make(fIntervals.begin(), fIntervals.size(), 0));
+        paint.setPathEffect(SkDashPathEffect::Make(fIntervals, 0));
 
         if (fDoClip) {
             SkRect r = path.getBounds();
@@ -182,7 +182,7 @@ public:
         proc(&fPath);
 
         SkScalar vals[] = { SkIntToScalar(4), SkIntToScalar(4) };
-        fPE = SkDashPathEffect::Make(vals, 2, 0);
+        fPE = SkDashPathEffect::Make(vals, 0);
     }
 
 protected:
@@ -220,7 +220,7 @@ public:
         fIsRound = isRound;
 
         SkScalar vals[] = { SK_Scalar1, SK_Scalar1 };
-        fPE = SkDashPathEffect::Make(vals, 2, 0);
+        fPE = SkDashPathEffect::Make(vals, 0);
     }
 
 protected:
@@ -259,7 +259,7 @@ public:
         fDoAA = doAA;
 
         SkScalar vals[] = { SkIntToScalar(dashLength), SkIntToScalar(dashLength) };
-        fPathEffect = SkDashPathEffect::Make(vals, 2, SK_Scalar1);
+        fPathEffect = SkDashPathEffect::Make(vals, SK_Scalar1);
     }
 
 protected:
@@ -319,7 +319,7 @@ public:
         // deliberately pick intervals that won't be caught by asPoints(), so
         // we can test the filterPath code-path.
         const SkScalar intervals[] = { 20, 10, 10, 10 };
-        fPathEffect = SkDashPathEffect::Make(intervals, std::size(intervals), 0);
+        fPathEffect = SkDashPathEffect::Make(intervals, 0);
 
         SkScalar cx = 640 / 2;  // center X
         SkScalar cy = 480 / 2;  // center Y
@@ -384,7 +384,7 @@ public:
         fDoAA = doAA;
 
         SkScalar vals[] = { SkIntToScalar(dashLength), SkIntToScalar(dashLength) };
-        fPathEffect = SkDashPathEffect::Make(vals, 2, SK_Scalar1);
+        fPathEffect = SkDashPathEffect::Make(vals, SK_Scalar1);
     }
 
 protected:

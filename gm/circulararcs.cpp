@@ -164,7 +164,7 @@ DEF_SIMPLE_GM(circular_arcs_weird, canvas, 1000, 400) {
     paints.push_back().setStroke(true);
     paints.back().setStrokeWidth(kS / 6.f);
     constexpr SkScalar kDashIntervals[] = {kS / 15, 2 * kS / 15};
-    paints.back().setPathEffect(SkDashPathEffect::Make(kDashIntervals, 2, 0.f));
+    paints.back().setPathEffect(SkDashPathEffect::Make(kDashIntervals, 0.f));
 
     constexpr SkScalar kPad = 20.f;
     canvas->translate(kPad, kPad);

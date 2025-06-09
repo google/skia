@@ -133,7 +133,7 @@ static bool scale_paint(SkPaint& paint, SkScalar fontToEMScale) {
             }
             dashInfo.fPhase *= fontToEMScale;
             paint.setPathEffect(
-                SkDashPathEffect::Make(dashInfo.fIntervals, dashInfo.fCount, dashInfo.fPhase));
+                SkDashPathEffect::Make({dashInfo.fIntervals, dashInfo.fCount}, dashInfo.fPhase));
         } else {
             return false;
         }

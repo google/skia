@@ -5,7 +5,7 @@ REG_FIDDLE(Paint_move_SkPaint, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     float intervals[] = { 5, 5 };
-    paint.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 2.5f));
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, 2.5f));
     SkPaint dashed(std::move(paint));
     SkDebugf("path effect unique: %s\n", dashed.getPathEffect()->unique() ? "true" : "false");
 }

@@ -1294,8 +1294,7 @@ make_sdft_strike_spec(const SkFont& font, const SkPaint& paint,
                 for (SkScalar& interval : scaledIntervals) {
                     interval /= strikeToSourceScale;
                 }
-                auto scaledDashes = SkDashPathEffect::Make(scaledIntervals.data(),
-                                                           scaledIntervals.size(),
+                auto scaledDashes = SkDashPathEffect::Make(scaledIntervals,
                                                            dashInfo.fPhase / strikeToSourceScale);
                 dfPaint.setPathEffect(scaledDashes);
             }

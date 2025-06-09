@@ -251,9 +251,9 @@ public:
 
     void draw(SkCanvas* canvas) override {
         static const SkScalar kDotParams[2] = {1.f / kViewScale, 12.f / kViewScale};
-        sk_sp<SkPathEffect> dots = SkDashPathEffect::Make(kDotParams, 2, 0.f);
+        sk_sp<SkPathEffect> dots = SkDashPathEffect::Make(kDotParams, 0.f);
         static const SkScalar kDashParams[2] = {8.f / kViewScale, 12.f / kViewScale};
-        sk_sp<SkPathEffect> dashes = SkDashPathEffect::Make(kDashParams, 2, 0.f);
+        sk_sp<SkPathEffect> dashes = SkDashPathEffect::Make(kDashParams, 0.f);
 
         SkPaint circlePaint;
         circlePaint.setAntiAlias(true);

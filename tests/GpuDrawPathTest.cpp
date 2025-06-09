@@ -79,7 +79,7 @@ static void test_drawSameRectOvals(skiatest::Reporter*, SkCanvas* canvas) {
     fill_and_stroke(canvas, oval1, oval2, nullptr);
 
     const SkScalar intervals[] = { 1, 1 };
-    fill_and_stroke(canvas, oval1, oval2, SkDashPathEffect::Make(intervals, 2, 0));
+    fill_and_stroke(canvas, oval1, oval2, SkDashPathEffect::Make(intervals, 0));
 }
 
 DEF_GANESH_TEST_FOR_GL_CONTEXT(GpuDrawPath, reporter, ctxInfo, CtsEnforcement::kNever) {

@@ -415,7 +415,7 @@ DEF_TEST(SVGDevice_textpath, reporter) {
 
     // We also use paths in the presence of path effects.
     SkScalar intervals[] = {10, 5};
-    paint.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 0));
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, 0));
     check_text(0, /*expect_path=*/true);
 }
 
@@ -575,7 +575,7 @@ DEF_TEST(SVGDevice_rect_with_path_effect, reporter) {
     SkDOM dom;
 
     SkScalar intervals[] = {0, 20};
-    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
+    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 0);
 
     SkPaint paint;
     paint.setPathEffect(pathEffect);
@@ -595,7 +595,7 @@ DEF_TEST(SVGDevice_rrect_with_path_effect, reporter) {
     SkDOM dom;
 
     SkScalar intervals[] = {0, 20};
-    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
+    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 0);
 
     SkPaint paint;
     paint.setPathEffect(pathEffect);
@@ -615,7 +615,7 @@ DEF_TEST(SVGDevice_oval_with_path_effect, reporter) {
     SkDOM dom;
 
     SkScalar intervals[] = {0, 20};
-    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
+    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 0);
 
     SkPaint paint;
     paint.setPathEffect(pathEffect);
@@ -643,7 +643,7 @@ DEF_TEST(SVGDevice_path_effect, reporter) {
 
     // Produces a line of three red dots.
     SkScalar intervals[] = {0, 20};
-    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
+    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 0);
     paint.setPathEffect(pathEffect);
     const SkPoint points[] = {{50, 15}, {100, 15}, {150, 15} };
     {

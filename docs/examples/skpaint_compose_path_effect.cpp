@@ -14,10 +14,9 @@ SkPath star() {
 }
 void draw(SkCanvas* canvas) {
     const SkScalar intervals[] = {10.0f, 5.0f, 2.0f, 5.0f};
-    size_t count = sizeof(intervals) / sizeof(intervals[0]);
     SkPaint paint;
     paint.setPathEffect(
-            SkPathEffect::MakeCompose(SkDashPathEffect::Make(intervals, count, 0.0f),
+            SkPathEffect::MakeCompose(SkDashPathEffect::Make(intervals, 0.0f),
                                       SkDiscretePathEffect::Make(10.0f, 4.0f)));
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(2.0f);

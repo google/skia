@@ -147,7 +147,7 @@ static sk_sp<SkPathEffect> dash_effect(const SkSVGPresentationAttributes& props,
     const auto phase = lctx.resolve(*props.fStrokeDashOffset,
                                     SkSVGLengthContext::LengthType::kOther);
 
-    return SkDashPathEffect::Make(intervals.begin(), intervals.size(), phase);
+    return SkDashPathEffect::Make(intervals, phase);
 }
 
 }  // namespace

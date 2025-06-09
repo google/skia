@@ -90,7 +90,7 @@ static SkPaint line_paint(SkColor color, bool dashed = false) {
     paint.setAntiAlias(true);
     if (dashed) {
         SkScalar dash[2] = {10.f, 10.f};
-        paint.setPathEffect(SkDashPathEffect::Make(dash, 2, 0.f));
+        paint.setPathEffect(SkDashPathEffect::Make(dash, 0.f));
     }
     return paint;
 }

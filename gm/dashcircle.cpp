@@ -92,7 +92,7 @@ protected:
                 for (int index = 0; index < dashExample.length; ++index) {
                     intervals[index] = dashExample.pattern[index] * dashLength;
                 }
-                p.setPathEffect(SkDashPathEffect::Make(intervals, intervalCount, 0));
+                p.setPathEffect(SkDashPathEffect::Make({intervals, intervalCount}, 0));
                 canvas->save();
                 canvas->rotate(fRotation);
                 canvas->drawPath(circle, p);
@@ -162,12 +162,12 @@ protected:
             SkScalar scaledIntervals[2] = {kCircumference * kIntervals[i][0],
                                            kCircumference * kIntervals[i][1]};
             deffects[i] = SkDashPathEffect::Make(
-                    scaledIntervals, 2, kCircumference * fPhaseDegrees * kTau / 360.f);
+                    scaledIntervals, kCircumference * fPhaseDegrees * kTau / 360.f);
             static constexpr SkScalar kThinCircumference = kThinRadius * kTau;
             scaledIntervals[0] = kThinCircumference * kIntervals[i][0];
             scaledIntervals[1] = kThinCircumference * kIntervals[i][1];
             thinDEffects[i] = SkDashPathEffect::Make(
-                    scaledIntervals, 2, kThinCircumference * fPhaseDegrees * kTau / 360.f);
+                    scaledIntervals, kThinCircumference * fPhaseDegrees * kTau / 360.f);
         }
 
         SkMatrix rotate;
@@ -245,7 +245,7 @@ DEF_SIMPLE_GM(maddash, canvas, 1600, 1600) {
     p.setStrokeWidth(380);
 
     SkScalar intvls[] = { 2.5, 10 /* 1200 */ };
-    p.setPathEffect(SkDashPathEffect::Make(intvls, 2, 0));
+    p.setPathEffect(SkDashPathEffect::Make(intvls, 0));
 
     canvas->drawCircle(400, 400, 200, p);
 

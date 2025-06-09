@@ -145,7 +145,7 @@ protected:
             canvas->drawPath(fMoveZfPath, strokePaint);
             dashPaint = strokePaint;
             const SkScalar intervals[] = { 0, 10 };
-            dashPaint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 0));
+            dashPaint.setPathEffect(SkDashPathEffect::Make(intervals, 0));
             SkPath fillPath;
             skpathutils::FillPathWithPaint(fDashedfPath, dashPaint, &fillPath);
             canvas->translate(0, 20);
@@ -520,7 +520,7 @@ DEF_SIMPLE_GM(zerolinedash, canvas, 256, 256) {
     paint.setStrokeJoin(SkPaint::kBevel_Join);
 
     SkScalar dash_pattern[] = {1, 5};
-    paint.setPathEffect(SkDashPathEffect::Make(dash_pattern, 2, 0));
+    paint.setPathEffect(SkDashPathEffect::Make(dash_pattern, 0));
 
     canvas->drawLine(100, 100, 100, 100, paint);
 }

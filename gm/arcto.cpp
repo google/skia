@@ -312,7 +312,6 @@ DEF_SIMPLE_GM(bug583299, canvas, 300, 300) {
   SkPathMeasure meas(path, false);
   SkScalar length = meas.getLength();
   SkScalar intervals[] = {0, length };
-  int intervalCount = (int) std::size(intervals);
-  p.setPathEffect(SkDashPathEffect::Make(intervals, intervalCount, 0));
+  p.setPathEffect(SkDashPathEffect::Make(intervals, 0));
   canvas->drawPath(path, p);
 }

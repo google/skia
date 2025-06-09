@@ -261,7 +261,7 @@ private:
         canvas->drawRect(fontBounds, boundsPaint);
 
         const SkScalar intervals[] = { 10.f, 10.f };
-        boundsPaint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 0.f));
+        boundsPaint.setPathEffect(SkDashPathEffect::Make(intervals, 0.f));
         canvas->drawRect(min, boundsPaint);
 
         SkFontMetrics fm;

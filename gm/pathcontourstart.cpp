@@ -40,7 +40,7 @@ protected:
         fDashPaint.setStyle(SkPaint::kStroke_Style);
         fDashPaint.setStrokeWidth(6);
         fDashPaint.setColor(0xff008000);
-        fDashPaint.setPathEffect(SkDashPathEffect::Make(intervals.begin(), intervals.size(), 0));
+        fDashPaint.setPathEffect(SkDashPathEffect::Make(intervals, 0));
 
         fPointsPaint.setColor(0xff800000);
         fPointsPaint.setStrokeWidth(3);

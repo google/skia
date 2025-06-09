@@ -252,7 +252,7 @@ static void test_crbug_140642() {
      */
 
     const SkScalar vals[] = { 27734, 35660, 2157846850.0f, 247 };
-    auto dontAssert = SkDashPathEffect::Make(vals, 4, -248.135982067f);
+    auto dontAssert = SkDashPathEffect::Make(vals, -248.135982067f);
 }
 
 static void test_crbug_124652() {
@@ -262,7 +262,7 @@ static void test_crbug_124652() {
         large values can "swamp" small ones.
      */
     SkScalar intervals[2] = {837099584, 33450};
-    auto dontAssert = SkDashPathEffect::Make(intervals, 2, -10);
+    auto dontAssert = SkDashPathEffect::Make(intervals, -10);
 }
 
 static void test_bigcubic() {
@@ -341,7 +341,7 @@ static void test_infinite_dash(skiatest::Reporter* reporter) {
     path.lineTo(5000000, 0);
 
     SkScalar intervals[] = { 0.2f, 0.2f };
-    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 2, 0));
+    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 0));
 
     SkPath filteredPath;
     SkPaint paint;
@@ -361,7 +361,7 @@ static void test_crbug_165432(skiatest::Reporter* reporter) {
     path.lineTo(10000000, 0);
 
     SkScalar intervals[] = { 0.5f, 0.5f };
-    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 2, 0));
+    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 0));
 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);

@@ -406,7 +406,7 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
             int count;
             fuzz->nextRange(&count, 0, (int)std::size(intervals));
             fuzz->nextN(intervals, count);
-            return SkDashPathEffect::Make(intervals, count, phase);
+            return SkDashPathEffect::Make({intervals, count}, phase);
         }
         case 8: {
             SkScalar segLength, dev;

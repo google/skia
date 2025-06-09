@@ -316,7 +316,7 @@ void draw_example_grid(
     dashedLine.setStyle(SkPaint::kStroke_Style);
     dashedLine.setStrokeCap(SkPaint::kSquare_Cap);
     static const float kDashes[2] = {5.f, 15.f};
-    dashedLine.setPathEffect(SkDashPathEffect::Make(kDashes, 2, 0.f));
+    dashedLine.setPathEffect(SkDashPathEffect::Make(kDashes, 0.f));
 
     for (int y = 1; y < kNumRows; ++y) {
         canvas->drawLine({0.5f, y * (kExampleBounds.fBottom+1.f) - 0.5f},

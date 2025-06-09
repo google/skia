@@ -179,7 +179,7 @@ static void draw_node(SkCanvas* canvas, const FilterNode& node) {
     // Device-space bounding box of the output bounds (e.g. what legacy DAG manipulation via
     // MatrixTransform would produce).
     static const SkScalar kDashParams[] = {6.f, 12.f};
-    line.setPathEffect(SkDashPathEffect::Make(kDashParams, 2, 0.f));
+    line.setPathEffect(SkDashPathEffect::Make(kDashParams, 0.f));
     SkRect devOutputBounds = SkRect::Make(SkIRect(node.fMapping.layerToDevice(node.fOutputBounds)));
     canvas->restore(); // undoes device matrix
     canvas->drawRect(devOutputBounds, line);

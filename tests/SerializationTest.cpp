@@ -1009,7 +1009,7 @@ DEF_TEST(WriteBuffer_external_memory_textblob, reporter) {
 
 DEF_TEST(WriteBuffer_external_memory_flattenable, reporter) {
     SkScalar intervals[] = {1.f, 1.f};
-    auto path_effect = SkDashPathEffect::Make(intervals, 2, 0);
+    auto path_effect = SkDashPathEffect::Make(intervals, 0);
     size_t path_size = SkAlign4(path_effect->serialize()->size());
     REPORTER_ASSERT(reporter, path_size > 4u);
     AutoTMalloc<uint8_t> storage;

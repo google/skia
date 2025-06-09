@@ -163,10 +163,9 @@ protected:
         {
             // dashing
             SkScalar intervals[] = { kStrokeWidth, kStrokeWidth };
-            int intervalCount = (int) std::size(intervals);
             SkPaint p;
             p.setColor(SK_ColorWHITE);
-            p.setPathEffect(SkDashPathEffect::Make(intervals, intervalCount, kStrokeWidth));
+            p.setPathEffect(SkDashPathEffect::Make(intervals, kStrokeWidth));
 
             fPaints.push_back(p);
         }

@@ -7,7 +7,7 @@ void draw(SkCanvas* canvas) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(16);
     SkScalar intervals[] = {30, 10};
-    paint.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 1));
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, 1));
     canvas->drawRoundRect({20, 20, 120, 120}, 20, 20, paint);
 }
 }  // END FIDDLE

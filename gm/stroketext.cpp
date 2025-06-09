@@ -74,7 +74,7 @@ static void draw_text_set(SkCanvas* canvas, const SkPaint& paint, const SkFont& 
 
     canvas->translate(200, 0);
     SkPaint p(paint);
-    p.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), phase));
+    p.setPathEffect(SkDashPathEffect::Make(intervals, phase));
     draw_text_stroked(canvas, p, font, 10);
 }
 

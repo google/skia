@@ -40,7 +40,7 @@ static void flower(SkCanvas* canvas, const SkPath& path, SkScalar intervals[2],
 
     paint.setColor(SK_ColorRED);
     paint.setStrokeWidth(21);
-    paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 0));
+    paint.setPathEffect(SkDashPathEffect::Make({intervals, 2}, 0));
     canvas->drawPath(path, paint);
 
     paint.setColor(SK_ColorGREEN);
