@@ -1403,6 +1403,11 @@ void VulkanCaps::SupportedSampleCounts::initSampleCounts(const skgpu::VulkanInte
     fSampleCounts = properties.sampleCounts &
                     (VK_SAMPLE_COUNT_1_BIT | VK_SAMPLE_COUNT_2_BIT | VK_SAMPLE_COUNT_4_BIT |
                      VK_SAMPLE_COUNT_8_BIT | VK_SAMPLE_COUNT_16_BIT);
+
+    if (skgpu::kIntel_VkVendor == physProps.vendorID) {
+        // MSAA doesn't work well on Intel GPUs crbug.com/40434119, crbug.com/41470715
+        fSampleCounts &= VK_SAMPLE_COUNT_1_BIT;
+    }
 }
 
 bool VulkanCaps::SupportedSampleCounts::isSampleCountSupported(int requestedCount) const {
