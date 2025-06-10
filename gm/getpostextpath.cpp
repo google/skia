@@ -68,7 +68,7 @@ DEF_SIMPLE_GM(getpostextpath, canvas, 480, 780) {
 
     canvas->translate(0, SkIntToScalar(64));
 
-    canvas->drawTextBlob(SkTextBlob::MakeFromPosText(text, len, &pos[0], font), 0, 0, paint);
+    canvas->drawTextBlob(SkTextBlob::MakeFromPosText(text, len, pos, font), 0, 0, paint);
     ToolUtils::get_text_path(font, text, len, SkTextEncoding::kUTF8, &path, &pos[0]);
     strokePath(canvas, path);
 }

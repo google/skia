@@ -138,23 +138,23 @@ void test_whitespace_pos(skiatest::Reporter* reporter,
     check_text_node(reporter, dom, dom.finishParsing(), offset, 0, txt, expected);
 
     {
-        AutoTMalloc<SkScalar> xpos(len);
+        AutoTArray<SkScalar> xpos(len);
         for (int i = 0; i < SkToInt(len); ++i) {
             xpos[i] = SkIntToScalar(txt[i]);
         }
 
-        auto blob = SkTextBlob::MakeFromPosTextH(txt, len, &xpos[0], offset.y(), font);
+        auto blob = SkTextBlob::MakeFromPosTextH(txt, len, xpos, offset.y(), font);
         MakeDOMCanvas(&dom)->drawTextBlob(blob, 0, 0, paint);
     }
     check_text_node(reporter, dom, dom.finishParsing(), offset, 1, txt, expected);
 
     {
-        AutoTMalloc<SkPoint> pos(len);
+        AutoTArray<SkPoint> pos(len);
         for (int i = 0; i < SkToInt(len); ++i) {
             pos[i] = SkPoint::Make(SkIntToScalar(txt[i]), 150 - SkIntToScalar(txt[i]));
         }
 
-        auto blob = SkTextBlob::MakeFromPosText(txt, len, &pos[0], font);
+        auto blob = SkTextBlob::MakeFromPosText(txt, len, pos, font);
         MakeDOMCanvas(&dom)->drawTextBlob(blob, 0, 0, paint);
     }
     check_text_node(reporter, dom, dom.finishParsing(), offset, 2, txt, expected);

@@ -167,8 +167,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
         xform[i].fTy   = pos.y() + tan.x() * xy[i].y() - tan.y() * offset;
     }
 
-    canvas->drawTextBlob(SkTextBlob::MakeFromRSXform(glyphs.get(), count * sizeof(SkGlyphID),
-                                         &xform[0], font, SkTextEncoding::kGlyphID),
+    canvas->drawTextBlob(SkTextBlob::MakeFromRSXformGlyphs(glyphs, {xform, count}, font),
                          0, 0, paint);
 
     if (true) {

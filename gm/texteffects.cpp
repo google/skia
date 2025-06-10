@@ -164,8 +164,7 @@ static sk_sp<SkTextBlob> make_posh(const SkFont& font, SkSpan<const SkGlyphID> g
     for (size_t i = 1; i < count; ++i) {
         xpos[i] += spacing * i;
     }
-    return SkTextBlob::MakeFromPosTextH(glyphs.data(), count * sizeof(SkGlyphID), xpos.get(), 0,
-                                        font, SkTextEncoding::kGlyphID);
+    return SkTextBlob::MakeFromPosHGlyphs(glyphs, {xpos.get(), count}, 0, font);
 }
 
 static sk_sp<SkTextBlob> make_pos(const SkFont& font, SkSpan<const SkGlyphID> glyphs,
@@ -176,8 +175,7 @@ static sk_sp<SkTextBlob> make_pos(const SkFont& font, SkSpan<const SkGlyphID> gl
     for (size_t i = 1; i < count; ++i) {
         pos[i].fX += spacing * i;
     }
-    return SkTextBlob::MakeFromPosText(glyphs.data(), count * sizeof(SkGlyphID), pos.get(), font,
-                                       SkTextEncoding::kGlyphID);
+    return SkTextBlob::MakeFromPosGlyphs(glyphs, pos, font);
 }
 
 // widen the gaps with a margin (on each side of the gap), elimnating segments that go away

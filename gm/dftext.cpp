@@ -151,8 +151,7 @@ protected:
             font.setSize(textSizes[0]);
             font.getPos(glyphs, pos, {340, 75});
 
-            auto blob = SkTextBlob::MakeFromPosText(glyphs.get(), count * sizeof(SkGlyphID),
-                                                    pos.get(), font, SkTextEncoding::kGlyphID);
+            auto blob = SkTextBlob::MakeFromPosGlyphs({glyphs.data(), count}, pos, font);
             canvas->drawTextBlob(blob, 0, 0, paint);
         }
 

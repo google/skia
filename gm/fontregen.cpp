@@ -51,7 +51,7 @@ static sk_sp<SkTextBlob> make_blob(const SkString& text, const SkFont& font) {
 
     font.textToGlyphs(text.c_str(), len, SkTextEncoding::kUTF8, glyphs);
     font.getXPos(glyphs, pos);
-    return SkTextBlob::MakeFromPosTextH(text.c_str(), len, pos.get(), 0, font);
+    return SkTextBlob::MakeFromPosTextH(text.c_str(), len, pos, 0, font);
 }
 
 class FontRegenGM : public skiagm::GM {

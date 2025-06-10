@@ -14,10 +14,10 @@
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRSXform.h"
+#include "include/core/SkSpan.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMalloc.h"
-#include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
 #include "src/base/SkTLazy.h"
@@ -789,8 +789,8 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromText(const void* text, size_t byteLength, 
                                            SkTextEncoding encoding) {
     // Note: we deliberately promote this to fully positioned blobs, since we'd have to pay the
     // same cost down stream (i.e. computing bounds), so its cheaper to pay the cost once now.
-    const int count = font.countText(text, byteLength, encoding);
-    if (count < 1) {
+    const size_t count = font.countText(text, byteLength, encoding);
+    if (count == 0) {
         return nullptr;
     }
     SkTextBlobBuilder builder;
@@ -801,44 +801,44 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromText(const void* text, size_t byteLength, 
 }
 
 sk_sp<SkTextBlob> SkTextBlob::MakeFromPosText(const void* text, size_t byteLength,
-                                              const SkPoint pos[], const SkFont& font,
+                                              SkSpan<const SkPoint> pos, const SkFont& font,
                                               SkTextEncoding encoding) {
-    const int count = font.countText(text, byteLength, encoding);
-    if (count < 1) {
+    const size_t count = font.countText(text, byteLength, encoding);
+    if (count == 0 || pos.size() < count) {
         return nullptr;
     }
     SkTextBlobBuilder builder;
     auto buffer = builder.allocRunPos(font, count);
     font.textToGlyphs(text, byteLength, encoding, {buffer.glyphs, count});
-    memcpy(buffer.points(), pos, count * sizeof(SkPoint));
+    memcpy(buffer.points(), pos.data(), count * sizeof(SkPoint));
     return builder.make();
 }
 
 sk_sp<SkTextBlob> SkTextBlob::MakeFromPosTextH(const void* text, size_t byteLength,
-                                               const SkScalar xpos[], SkScalar constY,
+                                               SkSpan<const SkScalar> xpos, SkScalar constY,
                                                const SkFont& font, SkTextEncoding encoding) {
-    const int count = font.countText(text, byteLength, encoding);
-    if (count < 1) {
+    const size_t count = font.countText(text, byteLength, encoding);
+    if (count == 0 || xpos.size() < count) {
         return nullptr;
     }
     SkTextBlobBuilder builder;
     auto buffer = builder.allocRunPosH(font, count, constY);
     font.textToGlyphs(text, byteLength, encoding, {buffer.glyphs, count});
-    memcpy(buffer.pos, xpos, count * sizeof(SkScalar));
+    memcpy(buffer.pos, xpos.data(), count * sizeof(SkScalar));
     return builder.make();
 }
 
 sk_sp<SkTextBlob> SkTextBlob::MakeFromRSXform(const void* text, size_t byteLength,
-                                              const SkRSXform xform[], const SkFont& font,
+                                              SkSpan<const SkRSXform> xform, const SkFont& font,
                                               SkTextEncoding encoding) {
-    const int count = font.countText(text, byteLength, encoding);
-    if (count < 1) {
+    const size_t count = font.countText(text, byteLength, encoding);
+    if (count == 0 || xform.size() < count) {
         return nullptr;
     }
     SkTextBlobBuilder builder;
     auto buffer = builder.allocRunRSXform(font, count);
     font.textToGlyphs(text, byteLength, encoding, {buffer.glyphs, count});
-    memcpy(buffer.xforms(), xform, count * sizeof(SkRSXform));
+    memcpy(buffer.xforms(), xform.data(), count * sizeof(SkRSXform));
     return builder.make();
 }
 
