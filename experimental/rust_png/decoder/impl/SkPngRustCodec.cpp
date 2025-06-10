@@ -702,7 +702,6 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
 
             // `static_cast` is ok, because `startDecoding` already validated `fFrameIndex`.
             fFrameHolder.markFrameAsFullyReceived(static_cast<size_t>(this->options().fFrameIndex));
-            fIncrementalDecodingState.reset();
             return kSuccess;
         }
 
@@ -765,7 +764,17 @@ SkCodec::Result SkPngRustCodec::onStartIncrementalDecode(const SkImageInfo& dstI
 
 SkCodec::Result SkPngRustCodec::onIncrementalDecode(int* rowsDecoded) {
     SkASSERT(fIncrementalDecodingState.has_value());
-    return this->incrementalDecode(*fIncrementalDecodingState, rowsDecoded);
+    Result result = this->incrementalDecode(*fIncrementalDecodingState, rowsDecoded);
+    if (result != kIncompleteInput) {
+        // After successfully reading the whole row (`kSuccess`), and after a
+        // fatal error (only recoverable error is `kIncompleteInput`) our client
+        // 1) should not call `onIncrementalDecode` and 2) can call
+        // `onStartIncrementalDecode` (these are transitive call, done
+        // indirectly via public API of `SkCodec`).  This means that the
+        // incremental decoding state should be discarded at this point.
+        fIncrementalDecodingState.reset();
+    }
+    return result;
 }
 
 int SkPngRustCodec::onGetFrameCount() {
