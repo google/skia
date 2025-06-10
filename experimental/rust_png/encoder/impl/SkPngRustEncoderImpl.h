@@ -35,12 +35,23 @@ public:
       // directly into Rust `png`.
       kNone_ExtraRowTransform,
 
-      // `kRgbaToRgb...` indicates that `SkPngEncoderBase` gives RGBx (8-bit or
-      // 16-bit) pixels to `onEncodeRow`.  And since Rust `png` can't ignore the
+      // `kRgba8ToRgb8...` indicates that `SkPngEncoderBase` gives RGBx (8-bit)
+      // pixels to `onEncodeRow`.  And since Rust `png` can't ignore the
       // alpha channel (`libpng` can do this via `png_set_filler`), we need to
       // do an extra RGBA => RGB transformation before feeding the data into
       // Rust.
-      kRgbaToRgb_ExtraRowTransform,
+      kRgba8ToRgb8_ExtraRowTransform,
+
+      // `kRgba16leToRgba16be...` indicates that `SkPngEncoderBase` gives RGBA (16-bit)
+      // little endian pixels to `onEncodeRow`.  And since Rust `png` can't swap the
+      // endianess (`libpng` can do this via `png_set_swap`), we need to
+      // do an extra LE => BE transformation before feeding the data into
+      // Rust.
+      kRgba16leToRgba16be_ExtraRowTransform,
+
+      // `kRgba16leToRgb16be...` indicates that `SkPngEncoderBase` gives RGBA (16-bit)
+      // little endian pixels to `onEncodeRow`. And we must ignore alpha + swap endianess.
+      kRgba16leToRgb16be_ExtraRowTransform,
     };
 
     static std::unique_ptr<SkEncoder> Make(SkWStream*,

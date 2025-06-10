@@ -398,7 +398,7 @@ bool SkPngEncoderMgr::writeInfo(const SkImageInfo& srcInfo, const SkPngEncoderBa
   if (dstInfo.color() == SkEncodedInfo::kRGBA_Color) {
       SkASSERT(dstRowInfo);
       if (dstRowInfo->isOpaque()) {
-        png_set_filler(fPngPtr, 0, PNG_FILLER_AFTER);
+          png_set_filler(fPngPtr, 0, PNG_FILLER_AFTER);
       }
   }
   return true;
@@ -418,6 +418,13 @@ bool SkPngEncoderImpl::onEncodeRow(SkSpan<const uint8_t> row) {
 
     // `png_bytep` is `uint8_t*` rather than `const uint8_t*`.
     png_bytep rowPtr = const_cast<png_bytep>(row.data());
+
+    // Swap to big endian if we are storing more than a byte per color channel
+    // (SkColorTypes are little endian by default).
+    // By this point our data will either be 8888 or 16161616, so we only check that case.
+    if (png_get_bit_depth(fEncoderMgr->pngPtr(), fEncoderMgr->infoPtr()) == 16) {
+        png_set_swap(fEncoderMgr->pngPtr());
+    }
 
     png_write_rows(fEncoderMgr->pngPtr(), &rowPtr, 1);
     return true;
