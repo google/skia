@@ -18,9 +18,8 @@ using namespace skgpu::graphite;
 using namespace PrecompileTestUtils;
 
 namespace {
-
-// These settings cover 113 of the 255 cases in 'kCases'.
-// They create 141 Pipelines so only modestly over-generate (28 Pipelines).
+// These settings cover 108 of the 255 cases in 'kCases'.
+// They create 136 Pipelines so only modestly over-generate (28 Pipelines).
 //
 // The order here is:
 //    First all the kBitmapText_Mask draws
@@ -29,14 +28,12 @@ namespace {
 // the name of the PaintOptions creation function.
 const PrecompileSettings kPrecompileCases[] = {
 //-----------------
-/*  0 */ { BlendPorterDuffCFSrcover(),         DrawTypeFlags::kBitmapText_Mask,  kBGRA_1_D },
 /*  1 */ { SolidSrcover(),                     DrawTypeFlags::kBitmapText_Mask,  kBGRA_1_D },
 //-----------------
 /*  2 */ { SolidSrcover(),                     DrawTypeFlags::kBitmapText_Mask,  kBGRA_4_D },
 //-----------------
 /*  3 */ { SolidSrcover(),                     DrawTypeFlags::kBitmapText_Mask,  kBGRA_4_DS },
 /*  4 */ { LinearGradSmSrcover(),              DrawTypeFlags::kBitmapText_Mask,  kBGRA_4_DS },
-/*  5 */ { BlendPorterDuffCFSrcover(),         DrawTypeFlags::kBitmapText_Mask,  kBGRA_4_DS },
 
 //-----------------
 /*  6 */ { TransparentPaintSrcover(),          DrawTypeFlags::kBitmapText_Color, kBGRA_1_D },
@@ -67,7 +64,6 @@ const PrecompileSettings kPrecompileCases[] = {
 /* 24 */ { ImagePremulHWOnlyDstin(),           DrawTypeFlags::kPerEdgeAAQuad,    kBGRA_4_D },
 /* 25 */ { ImagePremulHWOnlySrcover(),         kQuadAndNonAARect,                kBGRA_4_D },
 /* 26 */ { SolidSrcSrcover(),                  kRRectAndNonAARect,               kBGRA_4_D },
-/* 27 */ { BlendPorterDuffCFSrcover(),         DrawTypeFlags::kNonAAFillRect,    kBGRA_4_DS },
 /* 28 */ { ImagePremulHWOnlyDstin(),           DrawTypeFlags::kPerEdgeAAQuad,    kBGRA_4_DS },
 /* 29 */ { ImagePremulHWOnlyMatrixCFSrcover(), DrawTypeFlags::kNonAAFillRect,    kBGRA_4_DS },
 /* 30 */ { ImagePremulNoCubicSrcover(),        kQuadAndNonAARect,                kBGRA_4_DS },

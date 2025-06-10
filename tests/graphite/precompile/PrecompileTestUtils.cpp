@@ -50,15 +50,6 @@ PaintOptions SolidSrcover() {
     return paintOptions;
 }
 
-PaintOptions SolidMatrixCFSrcover() {
-    PaintOptions paintOptions;
-
-    paintOptions.setColorFilters({ PrecompileColorFilters::Matrix() });
-    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
-
-    return paintOptions;
-}
-
 PaintOptions LinearGradSmSrcover() {
     PaintOptions paintOptions;
     paintOptions.setShaders({ PrecompileShaders::LinearGradient(GradientShaderFlags::kSmall) });
@@ -287,16 +278,6 @@ PaintOptions ImageSRGBNoCubicSrc() {
                                                        { &ci, 1 },
                                                        {}) });
     paintOptions.setBlendModes({ SkBlendMode::kSrc });
-    return paintOptions;
-}
-
-PaintOptions BlendPorterDuffCFSrcover() {
-    PaintOptions paintOptions;
-    // kSrcOver will trigger the PorterDuffBlender
-    paintOptions.setColorFilters(
-            { PrecompileColorFilters::Blend({ SkBlendMode::kSrcOver }) });
-    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
-
     return paintOptions;
 }
 

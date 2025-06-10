@@ -31,16 +31,7 @@ public:
                 bool hasPrimitiveBlender,
                 const std::pair<sk_sp<PrecompileShader>, int>& clipShader,
                 bool dstReadRequired,
-                bool dither)
-        : fOpaquePaintColor(opaquePaintColor)
-        , fFinalBlender(finalBlender)
-        , fShader(shader)
-        , fColorFilter(colorFilter)
-        , fHasPrimitiveBlender(hasPrimitiveBlender)
-        , fClipShader(clipShader)
-        , fDstReadRequired(dstReadRequired)
-        , fDither(dither) {
-    }
+                bool dither);
 
     const PrecompileBlender* finalBlender() const { return fFinalBlender.first.get(); }
 

@@ -109,6 +109,7 @@ CORE_TESTS = [
     "ShaderOpacityTest.cpp",
     "ShaderTest.cpp",
     "ShadowTest.cpp",
+    "SimplifyPaintTest.cpp",
     "SizeTest.cpp",
     "SkBase64Test.cpp",
     "SkBlockAllocatorTest.cpp",

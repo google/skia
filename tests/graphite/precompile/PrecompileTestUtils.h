@@ -113,7 +113,6 @@ skgpu::graphite::PaintOptions YUVImageSRGBNoCubicSrcover();
 skgpu::graphite::PaintOptions YUVImageSRGBSrcover2();
 skgpu::graphite::PaintOptions ImagePremulNoCubicSrcSrcover();
 skgpu::graphite::PaintOptions ImageSRGBNoCubicSrc();
-skgpu::graphite::PaintOptions BlendPorterDuffCFSrcover();
 skgpu::graphite::PaintOptions ImageAlphaHWOnlySrcover();
 skgpu::graphite::PaintOptions ImageAlphaPremulHWOnlyMatrixCFSrcover();
 skgpu::graphite::PaintOptions ImageAlphaSRGBHWOnlyMatrixCFSrcover();

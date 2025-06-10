@@ -65,7 +65,24 @@ PaintParams::PaintParams(const SkPaint& paint,
         , fClipShader(std::move(clipShader))
         , fDstReadRequired(dstReadRequired)
         , fSkipColorXform(skipColorXform)
-        , fDither(paint.isDither()) {}
+        , fDither(paint.isDither()) {
+    if (!fPrimitiveBlender) {
+        SkColor4f constantColor;   // if filled in, will be un-premul sRGB
+        // fColor is un-premul sRGB
+        if (fShader && as_SB(fShader)->isConstant(&constantColor)) {
+            float origA = fColor.fA;
+            fColor = constantColor;
+            fColor.fA *= origA;
+            fShader = nullptr;
+        }
+        if (!fShader && fColorFilter) {
+            fColor = fColorFilter->filterColor4f(fColor,
+                                                 sk_srgb_singleton(),
+                                                 sk_srgb_singleton());
+            fColorFilter = nullptr;
+        }
+    }
+}
 
 PaintParams::PaintParams(const PaintParams& other) = default;
 PaintParams::~PaintParams() = default;

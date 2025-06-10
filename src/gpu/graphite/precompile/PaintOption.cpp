@@ -23,6 +23,32 @@
 
 namespace skgpu::graphite {
 
+PaintOption::PaintOption(bool opaquePaintColor,
+                         const std::pair<sk_sp<PrecompileBlender>, int>& finalBlender,
+                         const std::pair<sk_sp<PrecompileShader>, int>& shader,
+                         const std::pair<sk_sp<PrecompileColorFilter>, int>& colorFilter,
+                         bool hasPrimitiveBlender,
+                         const std::pair<sk_sp<PrecompileShader>, int>& clipShader,
+                         bool dstReadRequired,
+                         bool dither)
+        : fOpaquePaintColor(opaquePaintColor)
+        , fFinalBlender(finalBlender)
+        , fShader(shader)
+        , fColorFilter(colorFilter)
+        , fHasPrimitiveBlender(hasPrimitiveBlender)
+        , fClipShader(clipShader)
+        , fDstReadRequired(dstReadRequired)
+        , fDither(dither) {
+    if (!fHasPrimitiveBlender) {
+        if (fShader.first && fShader.first->priv().isConstant(fShader.second)) {
+            fShader = { nullptr, 0 };
+        }
+        if (!fShader.first && fColorFilter.first) {
+            fColorFilter = { nullptr, 0 };
+        }
+    }
+}
+
 void PaintOption::toKey(const KeyContext& keyContext,
                         PaintParamsKeyBuilder* keyBuilder,
                         PipelineDataGatherer* gatherer) const {
