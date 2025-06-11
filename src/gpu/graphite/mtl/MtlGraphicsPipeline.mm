@@ -297,6 +297,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
                              step,
                              paintID,
                              useStorageBuffers,
+                             renderPassDesc.fColorAttachment.fFormat,
                              renderPassDesc.fWriteSwizzle,
                              renderPassDesc.fDstReadStrategy);
 

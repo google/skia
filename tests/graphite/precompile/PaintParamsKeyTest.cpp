@@ -1960,6 +1960,7 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
 
         const SkBlenderBase* blender = as_BB(paint.getBlender());
         bool dstReadRequired = blender ? !CanUseHardwareBlending(recorder->priv().caps(),
+                                                                 TextureFormat::kRGBA8,
                                                                  blender->asBlendMode(),
                                                                  coverage)
                                        : false;

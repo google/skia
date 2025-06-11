@@ -16,6 +16,7 @@
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/ShaderInfo.h"
+#include "src/gpu/graphite/TextureFormat.h"
 
 using namespace skgpu::graphite;
 
@@ -104,16 +105,21 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
     const Caps* caps = context->priv().caps();
 
-    for (int bm = 0; bm <= (int) SkBlendMode::kLastCoeffMode; ++bm) {
+    // Iterate over all coeff modes, plus one extra iteration to handle the manually clamped kPlus
+    for (int bm = 0; bm <= (int) SkBlendMode::kLastCoeffMode + 1; ++bm) {
+        SkBlendMode mode = bm > (int) SkBlendMode::kLastCoeffMode ? SkBlendMode::kPlus
+                                                                  : static_cast<SkBlendMode>(bm);
+        TextureFormat format = bm > (int) SkBlendMode::kLastCoeffMode ? TextureFormat::kRGBA16F
+                                                                      : TextureFormat::kRGBA8;
+
         PaintParamsKeyBuilder builder(dict);
         // Use a solid color as the 1st root node; the 2nd root node represents the final blend.
         add_block(&builder, (int) BuiltInCodeSnippetID::kSolidColorShader);
-        add_block(&builder, bm + kFixedBlendIDOffset);
+        add_block(&builder, (int) mode + kFixedBlendIDOffset);
         UniquePaintParamsID paintID = dict->findOrCreate(&builder);
 
         const RenderStep* renderStep = &context->priv().rendererProvider()->nonAABounds()->step(0);
-        bool dstReadRequired =
-                !CanUseHardwareBlending(caps, static_cast<SkBlendMode>(bm), renderStep->coverage());
+        bool dstReadRequired = !CanUseHardwareBlending(caps, format, mode, renderStep->coverage());
 
         // ShaderInfo expects to receive a concrete determination of dstReadStrategy based upon
         // whether a dst read is needed. Therefore, we need to decide whether to pass in the
@@ -125,15 +131,19 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(ShaderInfoDetectsFixedFunctionBlend, reporter
                                  renderStep,
                                  paintID,
                                  /*useStorageBuffers=*/false,
+                                 format,
                                  skgpu::Swizzle::RGBA(),
                                  dstReadRequired ? caps->getDstReadStrategy()
                                                  : DstReadStrategy::kNoneRequired);
 
-        SkBlendMode expectedBM = static_cast<SkBlendMode>(bm);
-        if (expectedBM == SkBlendMode::kPlus) {
-            // The kPlus "coefficient" blend mode always triggers shader blending to add a clamping
-            // step that was originally elided in Porter-Duff due to automatic saturation to 8-bit
-            // color values. Shader-based blending always uses kSrc HW blending.
+        SkBlendMode expectedBM = mode;
+        if (expectedBM == SkBlendMode::kPlus &&
+            (!TextureFormatAutoClamps(format) ||
+             caps->getDstReadStrategy() != DstReadStrategy::kTextureCopy)) {
+            // The kPlus "coefficient" blend mode in non-clamping render targets triggers shader
+            // blending to add a clamping. HW kPlus blending is an approximation when there's
+            // coverage, so shader blending is used when no dst copy is required.
+            // Shader-based blending always uses kSrc HW blending.
             expectedBM = SkBlendMode::kSrc;
         }
         SkBlendModeCoeff expectedSrc, expectedDst;

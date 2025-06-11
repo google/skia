@@ -27,7 +27,9 @@
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Renderer.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
+#include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
 #include "src/gpu/graphite/compute/ComputeStep.h"
@@ -64,6 +66,7 @@ UniquePaintParamsID ExtractPaintData(Recorder* recorder,
 }
 
 bool CanUseHardwareBlending(const Caps* caps,
+                            TextureFormat targetFormat,
                             std::optional<SkBlendMode> blendMode,
                             Coverage coverage) {
     // If the blend mode is absent, this is assumed to be for a runtime blender, for which we always
@@ -76,16 +79,22 @@ bool CanUseHardwareBlending(const Caps* caps,
     // require us to fall back to using shader-based blending.
     const SkBlendMode bm = blendMode.value();
     const bool hasCoverage = coverage != Coverage::kNone;
+    const bool dstIsFast = caps->getDstReadStrategy() != DstReadStrategy::kTextureCopy;
     if (// Using LCD coverage (which must be applied after the blend equation) with any blend mode
         // besides SkBlendMode::kSrcOver
         // TODO(b/414597217): Add support to use dual-source blending with LCD coverage.
         (coverage == Coverage::kLCD && bm != SkBlendMode::kSrcOver) ||
 
-        // SkBlendMode::kPlus always clamps its output to [0,1], but we can't rely on hardware
-        // blending to do that for all texture formats.
-        // NOTE: We could check the draw dst properties to only do in-shader blending with plus when
-        // necessary, but we can't detect that during shader precompilation.
-        bm == SkBlendMode::kPlus ||
+        // SkBlendMode::kPlus clamps its output to [0,1], e.g. clamp(D+S,0,1), which is then
+        // combined with coverage (f) for a final written value of:
+        //   (1-f)*D + f*clamp(D+S,0,1)
+        //
+        // This can be rewritten to min(D+f*S, D+f*(1-D)), which is not representable with *any*
+        // hardware blend configuration. However, when the target format clamps to [0,1], we can
+        // approximate the output as min(D+f*S, 1) with a slight degradation in AA quality.
+        //
+        // If access to D doesn't require a texture copy, prefer shader blending for the quality.
+        (bm == SkBlendMode::kPlus && (dstIsFast || !TextureFormatAutoClamps(targetFormat))) ||
 
         // Using an advanced blend mode but the hardware does not support them
         (bm > SkBlendMode::kLastCoeffMode && !caps->supportsHardwareAdvancedBlending()) ||

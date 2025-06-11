@@ -363,6 +363,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
                              step,
                              paintID,
                              useStorageBuffers,
+                             renderPassDesc.fColorAttachment.fFormat,
                              renderPassDesc.fWriteSwizzle,
                              renderPassDesc.fDstReadStrategy,
                              samplerDescArrPtr);

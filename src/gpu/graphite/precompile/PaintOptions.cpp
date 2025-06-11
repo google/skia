@@ -18,6 +18,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/PrecompileInternal.h"
+#include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 #include "src/gpu/graphite/precompile/PaintOption.h"
@@ -151,6 +152,7 @@ int PaintOptions::numCombinations() const {
 }
 
 void PaintOptions::createKey(const KeyContext& keyContext,
+                             TextureFormat targetFormat,
                              PaintParamsKeyBuilder* keyBuilder,
                              PipelineDataGatherer* gatherer,
                              int desiredCombination,
@@ -202,6 +204,7 @@ void PaintOptions::createKey(const KeyContext& keyContext,
                        addPrimitiveBlender,
                        clipShader,
                        /*dstReadRequired=*/!CanUseHardwareBlending(keyContext.caps(),
+                                                                   targetFormat,
                                                                    blendMode,
                                                                    coverage),
                        fDither);
@@ -310,7 +313,8 @@ void PaintOptions::buildCombinations(
             // the exact layout doesn't matter
             gatherer->resetWithNewLayout(Layout::kMetal);
 
-            this->createKey(keyContext, &builder, gatherer, i, withPrimitiveBlender, coverage);
+            this->createKey(keyContext, renderPassDesc.fColorAttachment.fFormat,
+                            &builder, gatherer, i, withPrimitiveBlender, coverage);
 
             // The 'findOrCreate' calls lockAsKey on builder and then destroys the returned
             // PaintParamsKey. This serves to reset the builder.
