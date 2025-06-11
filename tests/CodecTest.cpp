@@ -25,6 +25,7 @@
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
@@ -44,6 +45,7 @@
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkMD5.h"
 #include "src/core/SkStreamPriv.h"
+#include "src/shaders/gradients/SkLinearGradient.h"
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
 #include "tools/DecodeUtils.h"
@@ -2273,4 +2275,240 @@ DEF_TEST(Codec_bmp_indexed_colorxform, r) {
     auto res = codec->getPixels(aps);
 
     REPORTER_ASSERT(r, res == SkCodec::kSuccess);
+}
+
+  // Create the base 50x50 gradient bitmaps in memory given a colorspace.
+static SkBitmap make_gradient_bitmap(sk_sp<SkColorSpace> cs) {
+    const int width = 50;
+    const int height = 50;
+      // Define the gradient shader.
+    const SkColor colors[] = { SK_ColorRED, SK_ColorYELLOW, SK_ColorGREEN, SK_ColorCYAN,
+                               SK_ColorBLUE, SK_ColorMAGENTA, SK_ColorRED };
+    const SkPoint points[] = { { 0.0f, 0.0f }, { (float)width, 0.0f } };
+    sk_sp<SkShader> rainbowShader = SkGradientShader::MakeLinear(points, colors, nullptr, 7,
+                        SkTileMode::kClamp);
+    SkPaint gradientPaint;
+    gradientPaint.setShader(rainbowShader);
+
+    SkImageInfo info = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType,
+                                         kPremul_SkAlphaType, cs);
+    sk_sp<SkSurface> surface = SkSurfaces::Raster(info);
+    surface->getCanvas()->drawRect(SkRect::MakeWH(width, height), gradientPaint);
+    SkBitmap bmp;
+    bmp.allocPixels(info);
+    surface->readPixels(bmp, 0, 0);
+    return bmp;
+}
+
+#if (0)
+// Helper function to encode a pixmap to a specified file format.
+// It takes the color space explicitly to embed the correct ICC profile.
+static bool encode_image(const SkPixmap& pixmap,
+                         SkEncodedImageFormat format,
+                         sk_sp<SkColorSpace> colorSpace,
+                         const char* fileName) {
+    SkFILEWStream stream(fileName);
+    if (!stream.isValid()) {
+        SkDebugf("Could not open %s for writing.\n", fileName);
+        return false;
+    }
+
+    skcms_ICCProfile iccStorage;
+    const skcms_ICCProfile* iccProfilePtr = nullptr;
+
+    if (colorSpace && !colorSpace->isSRGB()) {
+        colorSpace->toProfile(&iccStorage);
+        iccProfilePtr = &iccStorage;
+    }
+
+    switch (format) {
+        case SkEncodedImageFormat::kPNG: {
+            SkPngEncoder::Options options;
+            options.fICCProfile = iccProfilePtr;
+            return SkPngEncoder::Encode(&stream, pixmap, options);
+        }
+        case SkEncodedImageFormat::kJPEG: {
+            SkJpegEncoder::Options options;
+            options.fICCProfile = iccProfilePtr;
+            return SkJpegEncoder::Encode(&stream, pixmap, options);
+        }
+        default:
+            SkDebugf("Unsupported format.\n");
+            return false;
+    }
+}
+
+/**
+* Generates 8 gradient images:
+* - 4 base images (P3/AdobeRGB in PNG/JPEG)
+* - 4 transformed images (P3->Adobe and Adobe->P3 in PNG/JPEG)
+*/
+static void generate_all_gradient_images() {
+    // Define the color spaces.
+    sk_sp<SkColorSpace> p3Space = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB,
+                                                        SkNamedGamut::kDisplayP3);
+    sk_sp<SkColorSpace> adobeSpace = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2,
+                                                           SkNamedGamut::kAdobeRGB);
+    if (!p3Space || !adobeSpace) {
+        SkDebugf("Failed to create color spaces.\n");
+        return;
+    }
+
+    const std::vector<SkEncodedImageFormat> formats = {SkEncodedImageFormat::kPNG,
+                                                       SkEncodedImageFormat::kJPEG};
+
+    SkBitmap p3Bitmap = make_gradient_bitmap(p3Space);
+    SkBitmap adobeBitmap = make_gradient_bitmap(adobeSpace);
+
+    // Encode and save the base images.
+    for (auto format : formats) {
+        const char* ext = (format == SkEncodedImageFormat::kPNG) ? "png" : "jpeg";
+        encode_image(p3Bitmap.pixmap(), format, p3Space,
+                     SkStringPrintf("gradient_displayp3.%s", ext).c_str());
+        encode_image(adobeBitmap.pixmap(), format, adobeSpace,
+                     SkStringPrintf("gradient_adobergb.%s", ext).c_str());
+    }
+
+    // Create and save the transformed images.
+    auto transform_and_save = [&](const SkBitmap& srcBmp, sk_sp<SkColorSpace> dstCS,
+                                  const char* name) {
+        SkImageInfo dstInfo = srcBmp.info().makeColorSpace(dstCS);
+        SkBitmap transformedBmp;
+        transformedBmp.allocPixels(dstInfo);
+        srcBmp.readPixels(dstInfo, transformedBmp.getAddr(0, 0),
+                          transformedBmp.rowBytes(), 0, 0);
+
+        for (auto format : formats) {
+            const char* ext = (format == SkEncodedImageFormat::kPNG) ? "png" : "jpeg";
+            encode_image(transformedBmp.pixmap(), format, dstCS,
+                         SkStringPrintf("%s.%s", name, ext).c_str());
+        }
+    };
+
+    transform_and_save(p3Bitmap, adobeSpace, "gradient_p3_to_adobe");
+    transform_and_save(adobeBitmap, p3Space, "gradient_adobe_to_p3");
+}
+
+// Only purpose of this test is to generate the golden files needed by Codec_RoundTripColorXform.
+DEF_TEST(Codec_GenerateColorTransformFiles, r) {
+    generate_all_gradient_images();
+}
+#endif
+
+static inline bool almost_equals(SkPMColor a, SkPMColor b, int tolerance) {
+    if (SkTAbs((int)SkGetPackedR32(a) - (int)SkGetPackedR32(b)) > tolerance) {
+        return false;
+    }
+
+    if (SkTAbs((int)SkGetPackedG32(a) - (int)SkGetPackedG32(b)) > tolerance) {
+        return false;
+    }
+
+    if (SkTAbs((int)SkGetPackedB32(a) - (int)SkGetPackedB32(b)) > tolerance) {
+        return false;
+    }
+
+    if (SkTAbs((int)SkGetPackedA32(a) - (int)SkGetPackedA32(b)) > tolerance) {
+        return false;
+    }
+
+    return true;
+}
+
+
+static bool compare_bitmaps_approx(skiatest::Reporter* r, const SkBitmap& actual,
+                                   const SkBitmap& expected, int tol) {
+    for (int y = 0; y < actual.height(); ++y) {
+        for (int x = 0; x < actual.width(); ++x) {
+            SkColor c1 = actual.getColor(x, y);
+            SkColor c2 = expected.getColor(x, y);
+            SkPMColor actualPMColor = SkPreMultiplyColor(c1);
+            SkPMColor expectedPMColor = SkPreMultiplyColor(c2);
+
+            bool almost_same = almost_equals(actualPMColor, expectedPMColor, tol);
+            if (!almost_same) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+// Verifies that transforming a source image results in the same bitmap as a pre-transformed file.
+DEF_TEST(Codec_RoundTripColorXform, r) {
+    struct TestCase {
+        const char* srcFile;
+        const char* xformFile; // The pre-transformed file to compare a real transform against.
+        sk_sp<SkColorSpace> xformSpace; // The destination space for the real transform.
+    };
+
+    const TestCase testCases[] = {
+        { "resources/gradient_displayp3.png", "resources/gradient_p3_to_adobe.png",
+        SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, SkNamedGamut::kAdobeRGB) },
+        { "resources/gradient_adobergb.png", "resources/gradient_adobe_to_p3.png",
+          SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3) },
+        { "resources/gradient_displayp3.jpeg", "resources/gradient_p3_to_adobe.jpeg",
+        SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, SkNamedGamut::kAdobeRGB) },
+        { "resources/gradient_adobergb.jpeg", "resources/gradient_adobe_to_p3.jpeg",
+        SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3) },
+    };
+
+    for (const auto& test : testCases) {
+        sk_sp<SkData> srcData = SkData::MakeFromFileName(test.srcFile);
+        if (!srcData) {
+            ERRORF(r, "Could not load source file: %s", test.srcFile);
+            continue;
+        }
+
+        std::unique_ptr<SkCodec> srcCodec(SkCodec::MakeFromData(srcData));
+        if (!srcCodec) {
+            ERRORF(r, "Could not create codec for: %s", test.srcFile);
+            continue;
+        }
+
+        int tol = 1;
+        if (SkJpegDecoder::IsJpeg(srcData->bytes(), srcData->size())) {
+            tol = 20;
+        }
+
+        // No op colorspace transform, creates the same gradient with this colorspace
+        // in memory and compares it to the original image decoded
+        {
+            sk_sp<SkColorSpace> srcCS = srcCodec->getInfo().refColorSpace();
+            SkBitmap actualBitmap = make_gradient_bitmap(srcCS);
+
+            sk_sp<SkData> expectedData = SkData::MakeFromFileName(test.srcFile);
+            std::unique_ptr<SkCodec> expectedCodec(SkCodec::MakeFromData(expectedData));
+            SkBitmap expectedBitmap;
+            expectedBitmap.allocPixels(expectedCodec->getInfo());
+            expectedCodec->getPixels(expectedCodec->getInfo(), expectedBitmap.getAddr(0, 0),
+                                     expectedBitmap.rowBytes());
+
+            REPORTER_ASSERT(r,
+                            compare_bitmaps_approx(r, actualBitmap, expectedBitmap, tol),
+                            "Src file: %s, expected file: %s",
+                            test.srcFile, test.srcFile);
+        }
+
+        // Transform colorspace, test against tranformed file
+        {
+            SkImageInfo xformInfo = srcCodec->getInfo().makeColorSpace(test.xformSpace);
+            SkBitmap actualBitmap;
+            actualBitmap.allocPixels(xformInfo);
+            srcCodec->getPixels(xformInfo, actualBitmap.getAddr(0, 0), actualBitmap.rowBytes());
+
+            sk_sp<SkData> expectedData = SkData::MakeFromFileName(test.xformFile);
+            std::unique_ptr<SkCodec> expectedCodec(SkCodec::MakeFromData(expectedData));
+            SkBitmap expectedBitmap;
+            expectedBitmap.allocPixels(expectedCodec->getInfo());
+            expectedCodec->getPixels(expectedCodec->getInfo(), expectedBitmap.getAddr(0, 0),
+                                     expectedBitmap.rowBytes());
+
+            REPORTER_ASSERT(r,
+                            compare_bitmaps_approx(r, actualBitmap, expectedBitmap, tol),
+                            "Src file: %s, expected file: %s",
+                            test.srcFile, test.xformFile);
+        }
+    }
 }
