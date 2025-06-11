@@ -700,6 +700,19 @@ PaintOptions ImagePremulYCbCr240Srcover() {
     return paintOptions;
 }
 
+PaintOptions TransparentPaintImagePremulYCbCr238Srcover() {
+    PaintOptions paintOptions;
+
+    // HardwareImage(3: kHoAAO4AAAAAAAAA)
+    paintOptions.setShaders({ vulkan_ycbcr_image_shader(238,
+                                                        VK_SAMPLER_YCBCR_MODEL_CONVERSION_YCBCR_709,
+                                                        VK_SAMPLER_YCBCR_RANGE_ITU_NARROW,
+                                                        VK_CHROMA_LOCATION_MIDPOINT) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setPaintColorIsOpaque(false);
+    return paintOptions;
+}
+
 PaintOptions TransparentPaintImagePremulYCbCr240Srcover() {
     PaintOptions paintOptions;
 

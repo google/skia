@@ -149,6 +149,7 @@ skgpu::graphite::PaintOptions LinearEffect(const char* parameterStr,
 
 #if defined(SK_VULKAN)
 skgpu::graphite::PaintOptions ImagePremulYCbCr238Srcover();
+skgpu::graphite::PaintOptions TransparentPaintImagePremulYCbCr238Srcover();
 skgpu::graphite::PaintOptions ImagePremulYCbCr240Srcover();
 skgpu::graphite::PaintOptions TransparentPaintImagePremulYCbCr240Srcover();
 skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16YCbCr247();
