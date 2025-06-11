@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 #include <tuple>
 
 class GrEagerVertexAllocator;
@@ -200,6 +201,23 @@ protected:
     static int64_t CountPoints(Poly* polys, SkPathFillType overrideFillType);
     int polysToTriangles(Poly*, GrEagerVertexAllocator*) const;
 
+    static inline double GetEpsilon(const double maxValue) {
+        // We use a multiplier on machine epsilon as a safety factor and add a minimum
+        // tolerance for paths near the origin.
+        constexpr double kMachineEpsilon = std::numeric_limits<double>::epsilon();
+        return maxValue * kMachineEpsilon * 4 + 1e-9;
+    }
+
+    // The tolerance must be proportional to the absolute magnitude of the coordinates
+    // involved, as this determines the scale of potential floating-point error.
+    static double AdaptiveEpsilon(const SkPoint& p, const SkPoint& q) {
+        return GetEpsilon(std::max({fabs(p.fX), fabs(p.fY), fabs(q.fX), fabs(q.fY)}));
+    }
+
+    static double AdaptiveEpsilon(const double a, const double b, const double c) {
+        return GetEpsilon(std::max({fabs(a), fabs(b), fabs(c)}));
+    }
+
     // FIXME: fPath should be plumbed through function parameters instead.
     const SkPath fPath;
     SkArenaAlloc* const fAlloc;
@@ -358,13 +376,14 @@ struct GrTriangulator::VertexList {
 
 // A line equation in implicit form. fA * x + fB * y + fC = 0, for all points (x, y) on the line.
 struct GrTriangulator::Line {
-    Line(double a, double b, double c) : fA(a), fB(b), fC(c) {}
+    Line(double a, double b, double c) : fA(a), fB(b), fC(c), fEpsilon(AdaptiveEpsilon(a, b, c)) {}
     Line(Vertex* p, Vertex* q) : Line(p->fPoint, q->fPoint) {}
     Line(const SkPoint& p, const SkPoint& q)
         : fA(static_cast<double>(q.fY) - p.fY)      // a = dY
         , fB(static_cast<double>(p.fX) - q.fX)      // b = -dX
         , fC(static_cast<double>(p.fY) * q.fX -     // c = cross(q, p)
-             static_cast<double>(p.fX) * q.fY) {}
+             static_cast<double>(p.fX) * q.fY)
+        , fEpsilon(AdaptiveEpsilon(p, q)){}
     double dist(const SkPoint& p) const { return fA * p.fX + fB * p.fY + fC; }
     Line operator*(double v) const { return Line(fA * v, fB * v, fC * v); }
     double magSq() const { return fA * fA + fB * fB; }
@@ -378,13 +397,15 @@ struct GrTriangulator::Line {
         fB *= scale;
         fC *= scale;
     }
+
     bool nearParallel(const Line& o) const {
-        return fabs(o.fA - fA) < 0.00001 && fabs(o.fB - fB) < 0.00001;
+        return fabs(o.fA - fA) < fEpsilon && fabs(o.fB - fB) < fEpsilon;
     }
 
     // Compute the intersection of two (infinite) Lines.
     bool intersect(const Line& other, SkPoint* point) const;
     double fA, fB, fC;
+    double fEpsilon;
 };
 
 /**
@@ -425,8 +446,8 @@ struct GrTriangulator::Edge {
         , fRightPolyNext(nullptr)
         , fUsedInLeftPoly(false)
         , fUsedInRightPoly(false)
-        , fLine(top, bottom) {
-        }
+        , fLine(top, bottom)
+        , fEpsilon(AdaptiveEpsilon(top->fPoint, bottom->fPoint)) {}
     int      fWinding;          // 1 == edge goes downward; -1 = edge goes upward.
     Vertex*  fTop;              // The top vertex in vertex-sort-order (sweep_lt).
     Vertex*  fBottom;           // The bottom vertex in vertex-sort-order.
@@ -446,6 +467,7 @@ struct GrTriangulator::Edge {
     bool     fUsedInLeftPoly;
     bool     fUsedInRightPoly;
     Line     fLine;
+    double   fEpsilon;
 
     double dist(const SkPoint& p) const {
         // Coerce points coincident with the vertices to have dist = 0, since converting from
@@ -453,9 +475,13 @@ struct GrTriangulator::Edge {
         // longer on the ideal line.
         return (p == fTop->fPoint || p == fBottom->fPoint) ? 0.0 : fLine.dist(p);
     }
-    bool isRightOf(const Vertex& v) const { return this->dist(v.fPoint) < 0.0; }
-    bool isLeftOf(const Vertex& v) const { return this->dist(v.fPoint) > 0.0; }
-    void recompute() { fLine = Line(fTop, fBottom); }
+
+    bool isRightOf(const Vertex& v) const { return this->dist(v.fPoint) < -fEpsilon; }
+    bool isLeftOf(const Vertex& v) const { return this->dist(v.fPoint)  > fEpsilon; }
+    void recompute() {
+        fLine = Line(fTop, fBottom);
+        fEpsilon = AdaptiveEpsilon(fTop->fPoint, fBottom->fPoint);
+    }
     void insertAbove(Vertex*, const Comparator&);
     void insertBelow(Vertex*, const Comparator&);
     void disconnect();
