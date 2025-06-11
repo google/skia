@@ -31,6 +31,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
@@ -66,6 +67,7 @@
 #include <cstddef>
 #include <initializer_list>
 #include <memory>
+#include <optional>
 #include <utility>
 
 using namespace skia_private;
@@ -121,19 +123,13 @@ static bool scale_paint(SkPaint& paint, SkScalar fontToEMScale) {
         }
     }
     if (SkPathEffectBase* peb = as_PEB(paint.getPathEffect())) {
-        AutoSTMalloc<4, SkScalar> intervals;
-        SkPathEffectBase::DashInfo dashInfo(intervals, 4, 0);
-        if (peb->asADash(&dashInfo) == SkPathEffectBase::DashType::kDash) {
-            if (dashInfo.fCount > 4) {
-                intervals.realloc(dashInfo.fCount);
-                peb->asADash(&dashInfo);
+        if (auto dashInfo = peb->asADash()) {
+            SkSpan<const SkScalar> src = dashInfo->fIntervals;
+            AutoSTArray<4, SkScalar> dst(src.size());
+            for (size_t i = 0; i < src.size(); ++i) {
+                dst[i] = src[i] * fontToEMScale;
             }
-            for (int32_t i = 0; i < dashInfo.fCount; ++i) {
-                dashInfo.fIntervals[i] *= fontToEMScale;
-            }
-            dashInfo.fPhase *= fontToEMScale;
-            paint.setPathEffect(
-                SkDashPathEffect::Make({dashInfo.fIntervals, dashInfo.fCount}, dashInfo.fPhase));
+            paint.setPathEffect(SkDashPathEffect::Make(dst, dashInfo->fPhase * fontToEMScale));
         } else {
             return false;
         }

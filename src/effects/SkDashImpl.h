@@ -8,14 +8,17 @@
 #ifndef SkDashImpl_DEFINED
 #define SkDashImpl_DEFINED
 
+#include "include/core/SkSpan.h"
+#include "include/private/base/SkTemplates.h"
 #include "src/core/SkPathEffectBase.h"
+
+#include <optional>
 
 class SkDashImpl : public SkPathEffectBase {
 public:
-    SkDashImpl(const SkScalar intervals[], int count, SkScalar phase);
+    SkDashImpl(SkSpan<const SkScalar> intervals, SkScalar phase);
 
 protected:
-    ~SkDashImpl() override;
     void flatten(SkWriteBuffer&) const override;
     bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*,
                       const SkMatrix&) const override;
@@ -23,7 +26,7 @@ protected:
     bool onAsPoints(PointData* results, const SkPath& src, const SkStrokeRec&, const SkMatrix&,
                     const SkRect*) const override;
 
-    DashType asADash(DashInfo* info) const override;
+    std::optional<DashInfo> asADash() const override;
 
 private:
     SK_FLATTENABLE_HOOKS(SkDashImpl)
@@ -34,14 +37,13 @@ private:
         return true;
     }
 
-    SkScalar*   fIntervals;
-    int32_t     fCount;
-    SkScalar    fPhase;
-    // computed from phase
+    skia_private::AutoTArray<SkScalar> fIntervals;
+    SkScalar fPhase;
 
+    // computed from phase
     SkScalar    fInitialDashLength;
-    int32_t     fInitialDashIndex;
     SkScalar    fIntervalLength;
+    size_t      fInitialDashIndex;
 
     using INHERITED = SkPathEffectBase;
 };

@@ -1338,7 +1338,7 @@ GR_DRAW_OP_TEST_DEFINE(DashOpImpl) {
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SkIntToScalar(1));
     p.setStrokeCap(cap);
-    p.setPathEffect(GrTest::TestDashPathEffect::Make(intervals, 2, phase));
+    p.setPathEffect(GrTest::TestDashPathEffect::Make(intervals, phase));
 
     GrStyle style(p);
 

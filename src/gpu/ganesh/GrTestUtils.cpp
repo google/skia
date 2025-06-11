@@ -31,6 +31,7 @@
 
 #include <array>
 #include <cstring>
+#include <optional>
 #include <utility>
 
 static const SkMatrix& test_matrix(SkRandom* random,
@@ -294,35 +295,27 @@ void TestStyle(SkRandom* random, GrStyle* style) {
             sum += intervals[i];
         }
         SkScalar phase = random->nextRangeScalar(0, sum);
-        pe = TestDashPathEffect::Make(intervals.get(), cnt, phase);
+        pe = TestDashPathEffect::Make({intervals.get(), cnt}, phase);
     }
     *style = GrStyle(stroke, std::move(pe));
 }
 
-TestDashPathEffect::TestDashPathEffect(const SkScalar* intervals, int count, SkScalar phase) {
-    fCount = count;
-    fIntervals.reset(count);
-    memcpy(fIntervals.get(), intervals, count * sizeof(SkScalar));
-    SkDashPath::CalcDashParameters(phase, intervals, count, &fInitialDashLength,
+TestDashPathEffect::TestDashPathEffect(SkSpan<const SkScalar> intervals, SkScalar phase) {
+    fIntervals.reset(intervals.size());
+    memcpy(fIntervals.get(), intervals.data(), intervals.size_bytes());
+    SkDashPath::CalcDashParameters(phase, fIntervals, &fInitialDashLength,
                                    &fInitialDashIndex, &fIntervalLength, &fPhase);
 }
 
 bool TestDashPathEffect::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                                       const SkRect* cullRect, const SkMatrix&) const {
-    return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals.get(), fCount,
+    return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals,
                                       fInitialDashLength, fInitialDashIndex, fIntervalLength,
                                       fPhase);
 }
 
-SkPathEffectBase::DashType TestDashPathEffect::asADash(DashInfo* info) const {
-    if (info) {
-        if (info->fCount >= fCount && info->fIntervals) {
-            memcpy(info->fIntervals, fIntervals.get(), fCount * sizeof(SkScalar));
-        }
-        info->fCount = fCount;
-        info->fPhase = fPhase;
-    }
-    return DashType::kDash;
+std::optional<SkPathEffectBase::DashInfo> TestDashPathEffect::asADash() const {
+    return {{fIntervals, fPhase}};
 }
 
 sk_sp<SkColorSpace> TestColorSpace(SkRandom* random) {

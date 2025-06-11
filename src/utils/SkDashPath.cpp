@@ -13,6 +13,7 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkAlign.h"
@@ -25,15 +26,16 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 
 static inline int is_even(int x) {
     return !(x & 1);
 }
 
-static SkScalar find_first_interval(const SkScalar intervals[], SkScalar phase,
-                                    int32_t* index, int count) {
-    for (int i = 0; i < count; ++i) {
+static SkScalar find_first_interval(SkSpan<const SkScalar> intervals, SkScalar phase,
+                                    size_t* index) {
+    for (size_t i = 0; i < intervals.size(); ++i) {
         SkScalar gap = intervals[i];
         if (phase > gap || (phase == gap && gap)) {
             phase -= gap;
@@ -50,12 +52,12 @@ static SkScalar find_first_interval(const SkScalar intervals[], SkScalar phase,
     return intervals[0];
 }
 
-void SkDashPath::CalcDashParameters(SkScalar phase, const SkScalar intervals[], int32_t count,
-                                    SkScalar* initialDashLength, int32_t* initialDashIndex,
+void SkDashPath::CalcDashParameters(SkScalar phase, SkSpan<const SkScalar> intervals,
+                                    SkScalar* initialDashLength, size_t* initialDashIndex,
                                     SkScalar* intervalLength, SkScalar* adjustedPhase) {
     SkScalar len = 0;
-    for (int i = 0; i < count; i++) {
-        len += intervals[i];
+    for (SkScalar interval : intervals) {
+        len += interval;
     }
     *intervalLength = len;
     // Adjust phase to be between 0 and len, "flipping" phase if negative.
@@ -82,11 +84,10 @@ void SkDashPath::CalcDashParameters(SkScalar phase, const SkScalar intervals[], 
     }
     SkASSERT(phase >= 0 && phase < len);
 
-    *initialDashLength = find_first_interval(intervals, phase,
-                                            initialDashIndex, count);
+    *initialDashLength = find_first_interval(intervals, phase, initialDashIndex);
 
     SkASSERT(*initialDashLength >= 0);
-    SkASSERT(*initialDashIndex >= 0 && *initialDashIndex < count);
+    SkASSERT(*initialDashIndex < intervals.size());
 }
 
 static void outset_for_stroke(SkRect* rect, const SkStrokeRec& rec) {
@@ -306,10 +307,11 @@ private:
 
 
 bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                                const SkRect* cullRect, const SkScalar aIntervals[],
-                                int32_t count, SkScalar initialDashLength, int32_t initialDashIndex,
+                                const SkRect* cullRect, SkSpan<const SkScalar> aIntervals,
+                                SkScalar initialDashLength, int32_t initialDashIndex,
                                 SkScalar intervalLength, SkScalar startPhase,
                                 StrokeRecApplication strokeRecApplication) {
+    const size_t count = aIntervals.size();
     // we must always have an even number of intervals
     SkASSERT(is_even(count));
 
@@ -319,7 +321,7 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
         return false;
     }
 
-    const SkScalar* intervals = aIntervals;
+    const SkScalar* intervals = aIntervals.data();
     SkScalar        dashCount = 0;
     int             segCount = 0;
 
@@ -331,7 +333,7 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
         if (src.isRect(nullptr) && src.isLastContourClosed() && is_even(initialDashIndex)) {
             SkScalar pathLength = SkPathMeasure(src, false, rec->getResScale()).getLength();
             SkScalar endPhase = SkScalarMod(pathLength + startPhase, intervalLength);
-            int index = 0;
+            size_t index = 0;
             while (endPhase > intervals[index]) {
                 endPhase -= intervals[index++];
                 SkASSERT(index <= count);
@@ -384,7 +386,7 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
         bool        skipFirstSegment = meas.isClosed();
         bool        addedSegment = false;
         SkScalar    length = meas.getLength();
-        int         index = initialDashIndex;
+        size_t      index = initialDashIndex;
 
         // Since the path length / dash length ratio may be arbitrarily large, we can exert
         // significant memory pressure while attempting to build the filtered path. To avoid this,
@@ -456,28 +458,28 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
 
 bool SkDashPath::FilterDashPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
                                 const SkRect* cullRect, const SkPathEffectBase::DashInfo& info) {
-    if (!ValidDashPath(info.fPhase, info.fIntervals, info.fCount)) {
+    if (!ValidDashPath(info.fPhase, info.fIntervals)) {
         return false;
     }
     SkScalar initialDashLength = 0;
-    int32_t initialDashIndex = 0;
+    size_t initialDashIndex = 0;
     SkScalar intervalLength = 0;
-    CalcDashParameters(info.fPhase, info.fIntervals, info.fCount,
-                       &initialDashLength, &initialDashIndex, &intervalLength);
-    return InternalFilter(dst, src, rec, cullRect, info.fIntervals, info.fCount, initialDashLength,
+    CalcDashParameters(info.fPhase, info.fIntervals, &initialDashLength,
+                       &initialDashIndex, &intervalLength);
+    return InternalFilter(dst, src, rec, cullRect, info.fIntervals, initialDashLength,
                           initialDashIndex, intervalLength, info.fPhase);
 }
 
-bool SkDashPath::ValidDashPath(SkScalar phase, const SkScalar intervals[], int32_t count) {
-    if (count < 2 || !SkIsAlign2(count)) {
+bool SkDashPath::ValidDashPath(SkScalar phase, SkSpan<const SkScalar> intervals) {
+    if (intervals.size() < 2 || !SkIsAlign2(intervals.size())) {
         return false;
     }
     SkScalar length = 0;
-    for (int i = 0; i < count; i++) {
-        if (intervals[i] < 0) {
+    for (SkScalar interval : intervals) {
+        if (interval < 0) {
             return false;
         }
-        length += intervals[i];
+        length += interval;
     }
     // watch out for values that might make us go out of bounds
     return length > 0 && SkIsFinite(phase, length);

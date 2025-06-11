@@ -1283,21 +1283,17 @@ make_sdft_strike_spec(const SkFont& font, const SkPaint& paint,
 
     // Check for dashing and adjust the intervals.
     if (SkPathEffect* pathEffect = paint.getPathEffect(); pathEffect != nullptr) {
-        SkPathEffectBase::DashInfo dashInfo;
-        if (as_PEB(pathEffect)->asADash(&dashInfo) == SkPathEffectBase::DashType::kDash) {
-            if (dashInfo.fCount > 0) {
-                // Allocate the intervals.
-                std::vector<SkScalar> scaledIntervals(dashInfo.fCount);
-                dashInfo.fIntervals = scaledIntervals.data();
-                // Call again to get the interval data.
-                (void)as_PEB(pathEffect)->asADash(&dashInfo);
-                for (SkScalar& interval : scaledIntervals) {
-                    interval /= strikeToSourceScale;
-                }
-                auto scaledDashes = SkDashPathEffect::Make(scaledIntervals,
-                                                           dashInfo.fPhase / strikeToSourceScale);
-                dfPaint.setPathEffect(scaledDashes);
+        if (auto info = as_PEB(pathEffect)->asADash()) {
+            SkSpan<const SkScalar> src = info->fIntervals;
+            SkASSERT(src.size() > 1);
+            // Allocate the intervals.
+            std::vector<SkScalar> scaledIntervals(src.size());
+            for (size_t i = 0; i < src.size(); ++i) {
+                scaledIntervals[i] = src[i] / strikeToSourceScale;
             }
+            auto scaledDashes = SkDashPathEffect::Make(scaledIntervals,
+                                                       info->fPhase / strikeToSourceScale);
+            dfPaint.setPathEffect(scaledDashes);
         }
     }
 

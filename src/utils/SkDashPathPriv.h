@@ -9,6 +9,7 @@
 #define SkDashPathPriv_DEFINED
 
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkSpan.h"
 #include "src/core/SkPathEffectBase.h"
 
 namespace SkDashPath {
@@ -20,8 +21,8 @@ namespace SkDashPath {
      *
      * Caller should have already used ValidDashPath to exclude invalid data.
      */
-    void CalcDashParameters(SkScalar phase, const SkScalar intervals[], int32_t count,
-                            SkScalar* initialDashLength, int32_t* initialDashIndex,
+    void CalcDashParameters(SkScalar phase, SkSpan<const SkScalar> intervals,
+                            SkScalar* initialDashLength, size_t* initialDashIndex,
                             SkScalar* intervalLength, SkScalar* adjustedPhase = nullptr);
 
     bool FilterDashPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*,
@@ -46,12 +47,12 @@ namespace SkDashPath {
      * true for disallowStrokeRecApplication turns this behavior off.
      */
     bool InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                        const SkRect* cullRect, const SkScalar aIntervals[],
-                        int32_t count, SkScalar initialDashLength, int32_t initialDashIndex,
+                        const SkRect* cullRect, SkSpan<const SkScalar> aIntervals,
+                        SkScalar initialDashLength, int32_t initialDashIndex,
                         SkScalar intervalLength, SkScalar startPhase,
                         StrokeRecApplication = StrokeRecApplication::kAllow);
 
-    bool ValidDashPath(SkScalar phase, const SkScalar intervals[], int32_t count);
+    bool ValidDashPath(SkScalar phase, SkSpan<const SkScalar> intervals);
 }  // namespace SkDashPath
 
 #endif
