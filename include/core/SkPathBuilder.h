@@ -517,6 +517,40 @@ public:
         return this->rCubicTo({x1, y1}, {x2, y2}, {x3, y3});
     }
 
+    enum ArcSize {
+        kSmall_ArcSize, //!< smaller of arc pair
+        kLarge_ArcSize, //!< larger of arc pair
+    };
+
+    /** Appends arc to SkPathBuilder, relative to last SkPath SkPoint. Arc is implemented by one or
+        more conic, weighted to describe part of oval with radii (rx, ry) rotated by
+        xAxisRotate degrees. Arc curves from last SkPathBuilder SkPoint to relative end SkPoint:
+        (dx, dy), choosing one of four possible routes: clockwise or
+        counterclockwise, and smaller or larger. If SkPathBuilder is empty, the start arc SkPoint
+        is (0, 0).
+
+        Arc sweep is always less than 360 degrees. arcTo() appends line to end SkPoint
+        if either radii are zero, or if last SkPath SkPoint equals end SkPoint.
+        arcTo() scales radii (rx, ry) to fit last SkPath SkPoint and end SkPoint if both are
+        greater than zero but too small to describe an arc.
+
+        arcTo() appends up to four conic curves.
+        arcTo() implements the functionality of svg arc, although SVG "sweep-flag" value is
+        opposite the integer value of sweep; SVG "sweep-flag" uses 1 for clockwise, while
+        kCW_Direction cast to int is zero.
+
+        @param rx           radius before x-axis rotation
+        @param ry           radius before x-axis rotation
+        @param xAxisRotate  x-axis rotation in degrees; positive values are clockwise
+        @param largeArc     chooses smaller or larger arc
+        @param sweep        chooses clockwise or counterclockwise arc
+        @param dx           x-axis offset end of arc from last SkPath SkPoint
+        @param dy           y-axis offset end of arc from last SkPath SkPoint
+        @return             reference to SkPath
+    */
+    SkPathBuilder& rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
+                          SkPathDirection sweep, SkScalar dx, SkScalar dy);
+
     // Arcs
 
     /** Appends arc to the builder. Arc added is part of ellipse
@@ -557,11 +591,6 @@ public:
         @return        reference to SkPath
     */
     SkPathBuilder& arcTo(SkPoint p1, SkPoint p2, SkScalar radius);
-
-    enum ArcSize {
-        kSmall_ArcSize, //!< smaller of arc pair
-        kLarge_ArcSize, //!< larger of arc pair
-    };
 
     /** Appends arc to SkPath. Arc is implemented by one or more conic weighted to describe
         part of oval with radii (r.fX, r.fY) rotated by xAxisRotate degrees. Arc curves
