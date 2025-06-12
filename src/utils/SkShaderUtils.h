@@ -9,14 +9,11 @@
 #define SkShaderUtils_DEFINED
 
 #include "include/core/SkSpan.h"
-#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 
-#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <string>
-#include <vector>
 
 namespace SkSL { enum class ProgramKind : int8_t; }
 
@@ -36,15 +33,6 @@ inline void PrintLineByLine(const std::string& text) {
 
 // Prints binary shaders one line at the time. This ensures they don't get truncated by the adb log.
 std::string SpirvAsHexStream(SkSpan<const uint32_t> spirv);
-
-// Convert compiled binary generated in a std::string to std::vector<uint32_t>. This can be removed
-// if SPIR-V generator is modified to directly generate std::vector.
-inline std::vector<uint32_t> StringToBinary(const std::string& binary) {
-    const uint32_t* words = reinterpret_cast<const uint32_t*>(binary.data());
-    SkASSERT(binary.size() % sizeof(uint32_t) == 0);
-    const size_t wordCount = binary.size() / sizeof(uint32_t);
-    return std::vector<uint32_t>(words, words + wordCount);
-}
 
 // Combines raw shader and error text into an easier-to-read error message with line numbers.
 std::string BuildShaderErrorMessage(const char* shader, const char* errors);

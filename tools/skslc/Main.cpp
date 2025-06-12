@@ -648,17 +648,15 @@ static ResultCode process_command(SkSpan<std::string> args) {
                    const SkSL::ShaderCaps* shaderCaps,
                    SkSL::Program& program,
                    SkSL::OutputStream& out) {
-                    // Compile program to SPIR-V assembly in a string-stream.
-                    SkSL::StringStream assembly;
+                    // Compile program to SPIR-V assembly
+                    std::vector<uint32_t> spirv;
                     if (!SkSL::ToSPIRV(program,
                                        shaderCaps,
-                                       assembly,
+                                       &spirv,
                                        SkSL::ValidateSPIRVAndDissassemble)) {
                         return false;
                     }
                     // Convert the string-stream to a SPIR-V disassembly.
-                    const std::vector<uint32_t> spirv =
-                            SkShaderUtils::StringToBinary(assembly.str());
                     spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
                     std::string disassembly;
                     uint32_t options = spvtools::SpirvTools::kDefaultDisassembleOption;
