@@ -180,11 +180,12 @@ namespace SK_OPTS_NS {
         return __lsx_vsrlri_h(__lsx_vand_v(tmp, mask), 8);
     }
 
-    template <bool isColor>
-    static void D32_A8_Opaque_Color_lsx(void* SK_RESTRICT dst, size_t dstRB,
-                                         const void* SK_RESTRICT maskPtr, size_t maskRB,
-                                         SkColor color, int width, int height) {
-        SkPMColor pmc = SkPreMultiplyColor(color);
+    template <bool isTranslucent>
+    static void blit_mask_d32_a8_lsx(void* SK_RESTRICT dst, size_t dstRB,
+                                     const void* SK_RESTRICT maskPtr, size_t maskRB,
+                                     SkColor color, int width, int height) {
+        const SkPMColor pmc = SkPreMultiplyColor(color);
+        const U8CPU colorAlpha = SkGetPackedA32(pmc);
         SkPMColor* SK_RESTRICT device = (SkPMColor*)dst;
         const uint8_t* SK_RESTRICT mask = (const uint8_t*)maskPtr;
         __m128i vpmc_b = __lsx_vldi(0);
@@ -200,7 +201,7 @@ namespace SK_OPTS_NS {
             vpmc_b = __lsx_vreplgr2vr_h(SkGetPackedB32(pmc));
             vpmc_g = __lsx_vreplgr2vr_h(SkGetPackedG32(pmc));
             vpmc_r = __lsx_vreplgr2vr_h(SkGetPackedR32(pmc));
-            vpmc_a = __lsx_vreplgr2vr_h(SkGetPackedA32(pmc));
+            vpmc_a = __lsx_vreplgr2vr_h(colorAlpha);
         }
 
         const __m128i zeros = __lsx_vldi(0);
@@ -227,7 +228,7 @@ namespace SK_OPTS_NS {
                 vmask = __lsx_vilvl_b(zeros, vmask);
                 __m128i vscale, vmask256 = __lsx_vadd_h(vmask, __lsx_vreplgr2vr_h(1));
 
-                if (isColor) {
+                if constexpr (isTranslucent) {
                     __m128i tmp = SkAlphaMul_lsx(vpmc_a, vmask256);
                     vscale = __lsx_vsub_h(__lsx_vreplgr2vr_h(256), tmp);
                 } else {
@@ -252,14 +253,19 @@ namespace SK_OPTS_NS {
                 w -= 8;
             }
 
-            while (w--) {
-                unsigned aa = *mask++;
-                if (isColor) {
-                    *device = SkBlendARGB32(pmc, *device, aa);
+            while (w-- > 0) {
+                // These variables aren't actually vectors, but the names are consistent with
+                // the above to make it easier to compare the operations.
+                const U8CPU vmask = *mask++;
+                const U16CPU vmask256 = SkAlpha255To256(vmask);
+                U16CPU vscale;
+                if constexpr (isTranslucent) {
+                    vscale = 256 - SkAlphaMulQ(colorAlpha, vmask256);
                 } else {
-                    *device = SkAlphaMulQ(pmc, SkAlpha255To256(aa))
-                        + SkAlphaMulQ(*device, SkAlpha255To256(255 - aa));
+                    vscale = 256 - vmask;
                 }
+                *device = SkAlphaMulQ(pmc, vmask256)
+                        + SkAlphaMulQ(*device, vscale);
                 device += 1;
             }
 
@@ -272,13 +278,13 @@ namespace SK_OPTS_NS {
     static void blit_mask_d32_a8_general(SkPMColor* dst, size_t dstRB,
                                          const SkAlpha* mask, size_t maskRB,
                                          SkColor color, int w, int h) {
-        D32_A8_Opaque_Color_lsx<true>(dst, dstRB, mask, maskRB, color, w, h);
+        blit_mask_d32_a8_lsx<true>(dst, dstRB, mask, maskRB, color, w, h);
     }
 
     static void blit_mask_d32_a8_opaque(SkPMColor* dst, size_t dstRB,
                                          const SkAlpha* mask, size_t maskRB,
                                          SkColor color, int w, int h) {
-        D32_A8_Opaque_Color_lsx<false>(dst, dstRB, mask, maskRB, color, w, h);
+        blit_mask_d32_a8_lsx<false>(dst, dstRB, mask, maskRB, color, w, h);
     }
 
     // Same as _opaque, but assumes color == SK_ColorBLACK, a very common and even simpler case.
