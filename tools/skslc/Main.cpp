@@ -661,7 +661,9 @@ static ResultCode process_command(SkSpan<std::string> args) {
                     const std::string& spirv(assembly.str());
                     std::string disassembly;
                     uint32_t options = spvtools::SpirvTools::kDefaultDisassembleOption;
-                    options |= SPV_BINARY_TO_TEXT_OPTION_INDENT;
+                    options |= SPV_BINARY_TO_TEXT_OPTION_COMMENT |
+                               SPV_BINARY_TO_TEXT_OPTION_INDENT |
+                               SPV_BINARY_TO_TEXT_OPTION_NESTED_INDENT;
                     if (!tools.Disassemble((const uint32_t*)spirv.data(),
                                            spirv.size() / 4,
                                            &disassembly,

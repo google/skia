@@ -3,14 +3,20 @@
                OpMemoryModel Logical GLSL450
                OpEntryPoint Fragment %main "main"
                OpExecutionMode %main OriginUpperLeft
-               OpName %foo_ff "foo_ff"
-               OpName %main "main"
-               OpName %y "y"
+
+               ; Debug Information
+               OpName %foo_ff "foo_ff"              ; id %2
+               OpName %main "main"                  ; id %3
+               OpName %y "y"                        ; id %21
+
+               ; Annotations
                OpDecorate %_arr_float_int_2 ArrayStride 16
+
+               ; Types, variables and constants
       %float = OpTypeFloat 32
         %int = OpTypeInt 32 1
       %int_2 = OpConstant %int 2
-%_arr_float_int_2 = OpTypeArray %float %int_2
+%_arr_float_int_2 = OpTypeArray %float %int_2       ; ArrayStride 16
 %_ptr_Function__arr_float_int_2 = OpTypePointer Function %_arr_float_int_2
           %9 = OpTypeFunction %float %_ptr_Function__arr_float_int_2
       %int_1 = OpConstant %int 1
@@ -18,21 +24,29 @@
       %int_0 = OpConstant %int 0
        %void = OpTypeVoid
          %19 = OpTypeFunction %void
+
+
+               ; Function foo_ff
      %foo_ff = OpFunction %float None %9
          %10 = OpFunctionParameter %_ptr_Function__arr_float_int_2
+
          %11 = OpLabel
-         %13 = OpAccessChain %_ptr_Function_float %10 %int_1
-         %15 = OpLoad %float %13
-         %17 = OpAccessChain %_ptr_Function_float %10 %int_0
-               OpStore %17 %15
-               OpReturnValue %15
+         %13 =   OpAccessChain %_ptr_Function_float %10 %int_1
+         %15 =   OpLoad %float %13
+         %17 =   OpAccessChain %_ptr_Function_float %10 %int_0
+                 OpStore %17 %15
+                 OpReturnValue %15
                OpFunctionEnd
+
+
+               ; Function main
        %main = OpFunction %void None %19
+
          %20 = OpLabel
-          %y = OpVariable %_ptr_Function__arr_float_int_2 Function
-         %23 = OpVariable %_ptr_Function__arr_float_int_2 Function
-         %22 = OpLoad %_arr_float_int_2 %y
-               OpStore %23 %22
-         %24 = OpFunctionCall %float %foo_ff %23
-               OpReturn
+          %y =   OpVariable %_ptr_Function__arr_float_int_2 Function
+         %23 =   OpVariable %_ptr_Function__arr_float_int_2 Function
+         %22 =   OpLoad %_arr_float_int_2 %y
+                 OpStore %23 %22
+         %24 =   OpFunctionCall %float %foo_ff %23
+                 OpReturn
                OpFunctionEnd

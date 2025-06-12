@@ -2,13 +2,17 @@
           %1 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint Vertex %main "main" %3 %sk_VertexID
-               OpName %sk_PerVertex "sk_PerVertex"
+
+               ; Debug Information
+               OpName %sk_PerVertex "sk_PerVertex"  ; id %6
                OpMemberName %sk_PerVertex 0 "sk_Position"
                OpMemberName %sk_PerVertex 1 "sk_PointSize"
-               OpName %storageBuffer "storageBuffer"
+               OpName %storageBuffer "storageBuffer"    ; id %11
                OpMemberName %storageBuffer 0 "vertices"
-               OpName %sk_VertexID "sk_VertexID"
-               OpName %main "main"
+               OpName %sk_VertexID "sk_VertexID"    ; id %13
+               OpName %main "main"                  ; id %2
+
+               ; Annotations
                OpMemberDecorate %sk_PerVertex 0 BuiltIn Position
                OpMemberDecorate %sk_PerVertex 1 BuiltIn PointSize
                OpDecorate %sk_PerVertex Block
@@ -18,34 +22,40 @@
                OpDecorate %8 Binding 0
                OpDecorate %8 DescriptorSet 0
                OpDecorate %sk_VertexID BuiltIn VertexIndex
+
+               ; Types, variables and constants
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4
-%sk_PerVertex = OpTypeStruct %v4float %float
+%sk_PerVertex = OpTypeStruct %v4float %float        ; Block
 %_ptr_Output_sk_PerVertex = OpTypePointer Output %sk_PerVertex
           %3 = OpVariable %_ptr_Output_sk_PerVertex Output
     %v2float = OpTypeVector %float 2
-%_runtimearr_v2float = OpTypeRuntimeArray %v2float
-%storageBuffer = OpTypeStruct %_runtimearr_v2float
+%_runtimearr_v2float = OpTypeRuntimeArray %v2float  ; ArrayStride 8
+%storageBuffer = OpTypeStruct %_runtimearr_v2float  ; BufferBlock
 %_ptr_Uniform_storageBuffer = OpTypePointer Uniform %storageBuffer
-          %8 = OpVariable %_ptr_Uniform_storageBuffer Uniform
+          %8 = OpVariable %_ptr_Uniform_storageBuffer Uniform   ; Binding 0, DescriptorSet 0
         %int = OpTypeInt 32 1
 %_ptr_Input_int = OpTypePointer Input %int
-%sk_VertexID = OpVariable %_ptr_Input_int Input
+%sk_VertexID = OpVariable %_ptr_Input_int Input     ; BuiltIn VertexIndex
        %void = OpTypeVoid
          %17 = OpTypeFunction %void
       %int_0 = OpConstant %int 0
 %_ptr_Uniform_v2float = OpTypePointer Uniform %v2float
     %float_1 = OpConstant %float 1
 %_ptr_Output_v4float = OpTypePointer Output %v4float
+
+
+               ; Function main
        %main = OpFunction %void None %17
+
          %18 = OpLabel
-         %20 = OpLoad %int %sk_VertexID
-         %21 = OpAccessChain %_ptr_Uniform_v2float %8 %int_0 %20
-         %23 = OpLoad %v2float %21
-         %24 = OpCompositeExtract %float %23 0
-         %25 = OpCompositeExtract %float %23 1
-         %27 = OpCompositeConstruct %v4float %24 %25 %float_1 %float_1
-         %28 = OpAccessChain %_ptr_Output_v4float %3 %int_0
-               OpStore %28 %27
-               OpReturn
+         %20 =   OpLoad %int %sk_VertexID
+         %21 =   OpAccessChain %_ptr_Uniform_v2float %8 %int_0 %20
+         %23 =   OpLoad %v2float %21
+         %24 =   OpCompositeExtract %float %23 0
+         %25 =   OpCompositeExtract %float %23 1
+         %27 =   OpCompositeConstruct %v4float %24 %25 %float_1 %float_1
+         %28 =   OpAccessChain %_ptr_Output_v4float %3 %int_0
+                 OpStore %28 %27
+                 OpReturn
                OpFunctionEnd

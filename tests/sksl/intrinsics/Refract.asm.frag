@@ -3,16 +3,20 @@
                OpMemoryModel Logical GLSL450
                OpEntryPoint Fragment %_entrypoint_v "_entrypoint" %sk_FragColor
                OpExecutionMode %_entrypoint_v OriginUpperLeft
-               OpName %sk_FragColor "sk_FragColor"
-               OpName %_UniformBuffer "_UniformBuffer"
+
+               ; Debug Information
+               OpName %sk_FragColor "sk_FragColor"  ; id %3
+               OpName %_UniformBuffer "_UniformBuffer"  ; id %8
                OpMemberName %_UniformBuffer 0 "a"
                OpMemberName %_UniformBuffer 1 "b"
                OpMemberName %_UniformBuffer 2 "c"
                OpMemberName %_UniformBuffer 3 "d"
                OpMemberName %_UniformBuffer 4 "e"
-               OpName %_entrypoint_v "_entrypoint_v"
-               OpName %main "main"
-               OpName %result "result"
+               OpName %_entrypoint_v "_entrypoint_v"    ; id %10
+               OpName %main "main"                      ; id %2
+               OpName %result "result"                  ; id %23
+
+               ; Annotations
                OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
@@ -45,13 +49,15 @@
                OpDecorate %57 RelaxedPrecision
                OpDecorate %60 RelaxedPrecision
                OpDecorate %61 RelaxedPrecision
+
+               ; Types, variables and constants
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
-%sk_FragColor = OpVariable %_ptr_Output_v4float Output
-%_UniformBuffer = OpTypeStruct %float %float %float %v4float %v4float
+%sk_FragColor = OpVariable %_ptr_Output_v4float Output  ; RelaxedPrecision, Location 0, Index 0
+%_UniformBuffer = OpTypeStruct %float %float %float %v4float %v4float   ; Block
 %_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
-          %7 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
+          %7 = OpVariable %_ptr_Uniform__UniformBuffer Uniform  ; Binding 0, DescriptorSet 0
        %void = OpTypeVoid
          %12 = OpTypeFunction %void
     %float_0 = OpConstant %float 0
@@ -77,44 +83,52 @@
     %v3float = OpTypeVector %float 3
          %59 = OpConstantComposite %v3float %float_0_5 %float_0 %float_n0_866025388
          %62 = OpConstantComposite %v4float %float_0_5 %float_0 %float_0 %float_n0_866025388
+
+
+               ; Function _entrypoint_v
 %_entrypoint_v = OpFunction %void None %12
+
          %13 = OpLabel
-         %17 = OpVariable %_ptr_Function_v2float Function
-               OpStore %17 %16
-         %19 = OpFunctionCall %v4float %main %17
-               OpStore %sk_FragColor %19
-               OpReturn
+         %17 =   OpVariable %_ptr_Function_v2float Function
+                 OpStore %17 %16
+         %19 =   OpFunctionCall %v4float %main %17
+                 OpStore %sk_FragColor %19
+                 OpReturn
                OpFunctionEnd
-       %main = OpFunction %v4float None %20
+
+
+               ; Function main
+       %main = OpFunction %v4float None %20         ; RelaxedPrecision
          %21 = OpFunctionParameter %_ptr_Function_v2float
+
          %22 = OpLabel
-     %result = OpVariable %_ptr_Function_v4float Function
-         %25 = OpExtInst %float %1 Refract %float_6_00000015e_26 %float_2 %float_2
-         %28 = OpCompositeConstruct %v4float %25 %25 %25 %25
-               OpStore %result %28
-         %30 = OpAccessChain %_ptr_Uniform_float %7 %int_0
-         %34 = OpLoad %float %30
-         %35 = OpAccessChain %_ptr_Uniform_float %7 %int_1
-         %37 = OpLoad %float %35
-         %38 = OpAccessChain %_ptr_Uniform_float %7 %int_2
-         %40 = OpLoad %float %38
-         %29 = OpExtInst %float %1 Refract %34 %37 %40
-         %41 = OpAccessChain %_ptr_Function_float %result %int_0
-               OpStore %41 %29
-         %44 = OpAccessChain %_ptr_Uniform_v4float %7 %int_3
-         %47 = OpLoad %v4float %44
-         %48 = OpAccessChain %_ptr_Uniform_v4float %7 %int_4
-         %50 = OpLoad %v4float %48
-         %51 = OpAccessChain %_ptr_Uniform_float %7 %int_2
-         %52 = OpLoad %float %51
-         %43 = OpExtInst %v4float %1 Refract %47 %50 %52
-               OpStore %result %43
-         %56 = OpLoad %v4float %result
-         %57 = OpVectorShuffle %v4float %56 %55 4 5 2 3
-               OpStore %result %57
-         %60 = OpLoad %v4float %result
-         %61 = OpVectorShuffle %v4float %60 %59 4 5 6 3
-               OpStore %result %61
-               OpStore %result %62
-               OpReturnValue %62
+     %result =   OpVariable %_ptr_Function_v4float Function     ; RelaxedPrecision
+         %25 =   OpExtInst %float %1 Refract %float_6_00000015e_26 %float_2 %float_2    ; RelaxedPrecision
+         %28 =   OpCompositeConstruct %v4float %25 %25 %25 %25                          ; RelaxedPrecision
+                 OpStore %result %28
+         %30 =   OpAccessChain %_ptr_Uniform_float %7 %int_0
+         %34 =   OpLoad %float %30                  ; RelaxedPrecision
+         %35 =   OpAccessChain %_ptr_Uniform_float %7 %int_1
+         %37 =   OpLoad %float %35                  ; RelaxedPrecision
+         %38 =   OpAccessChain %_ptr_Uniform_float %7 %int_2
+         %40 =   OpLoad %float %38                  ; RelaxedPrecision
+         %29 =   OpExtInst %float %1 Refract %34 %37 %40    ; RelaxedPrecision
+         %41 =   OpAccessChain %_ptr_Function_float %result %int_0
+                 OpStore %41 %29
+         %44 =   OpAccessChain %_ptr_Uniform_v4float %7 %int_3
+         %47 =   OpLoad %v4float %44                ; RelaxedPrecision
+         %48 =   OpAccessChain %_ptr_Uniform_v4float %7 %int_4
+         %50 =   OpLoad %v4float %48                ; RelaxedPrecision
+         %51 =   OpAccessChain %_ptr_Uniform_float %7 %int_2
+         %52 =   OpLoad %float %51                  ; RelaxedPrecision
+         %43 =   OpExtInst %v4float %1 Refract %47 %50 %52  ; RelaxedPrecision
+                 OpStore %result %43
+         %56 =   OpLoad %v4float %result            ; RelaxedPrecision
+         %57 =   OpVectorShuffle %v4float %56 %55 4 5 2 3   ; RelaxedPrecision
+                 OpStore %result %57
+         %60 =   OpLoad %v4float %result            ; RelaxedPrecision
+         %61 =   OpVectorShuffle %v4float %60 %59 4 5 6 3   ; RelaxedPrecision
+                 OpStore %result %61
+                 OpStore %result %62
+                 OpReturnValue %62
                OpFunctionEnd

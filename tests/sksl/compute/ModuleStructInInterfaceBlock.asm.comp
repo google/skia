@@ -3,16 +3,20 @@
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %main "main"
                OpExecutionMode %main LocalSize 16 16 1
-               OpName %IndirectDispatchArgs "IndirectDispatchArgs"
+
+               ; Debug Information
+               OpName %IndirectDispatchArgs "IndirectDispatchArgs"  ; id %5
                OpMemberName %IndirectDispatchArgs 0 "x"
                OpMemberName %IndirectDispatchArgs 1 "y"
                OpMemberName %IndirectDispatchArgs 2 "z"
-               OpName %InputBuffer "InputBuffer"
+               OpName %InputBuffer "InputBuffer"    ; id %6
                OpMemberName %InputBuffer 0 "args"
-               OpName %outX "outX"
-               OpName %outY "outY"
-               OpName %outZ "outZ"
-               OpName %main "main"
+               OpName %outX "outX"                  ; id %8
+               OpName %outY "outY"                  ; id %10
+               OpName %outZ "outZ"                  ; id %11
+               OpName %main "main"                  ; id %2
+
+               ; Annotations
                OpMemberDecorate %IndirectDispatchArgs 0 Offset 0
                OpMemberDecorate %IndirectDispatchArgs 1 Offset 4
                OpMemberDecorate %IndirectDispatchArgs 2 Offset 8
@@ -21,11 +25,13 @@
                OpDecorate %InputBuffer BufferBlock
                OpDecorate %3 Binding 0
                OpDecorate %3 DescriptorSet 0
+
+               ; Types, variables and constants
         %int = OpTypeInt 32 1
 %IndirectDispatchArgs = OpTypeStruct %int %int %int
-%InputBuffer = OpTypeStruct %IndirectDispatchArgs
+%InputBuffer = OpTypeStruct %IndirectDispatchArgs   ; BufferBlock
 %_ptr_Uniform_InputBuffer = OpTypePointer Uniform %InputBuffer
-          %3 = OpVariable %_ptr_Uniform_InputBuffer Uniform
+          %3 = OpVariable %_ptr_Uniform_InputBuffer Uniform     ; Binding 0, DescriptorSet 0
 %_ptr_Workgroup_int = OpTypePointer Workgroup %int
        %outX = OpVariable %_ptr_Workgroup_int Workgroup
        %outY = OpVariable %_ptr_Workgroup_int Workgroup
@@ -36,16 +42,20 @@
 %_ptr_Uniform_int = OpTypePointer Uniform %int
       %int_1 = OpConstant %int 1
       %int_2 = OpConstant %int 2
+
+
+               ; Function main
        %main = OpFunction %void None %13
+
          %14 = OpLabel
-         %16 = OpAccessChain %_ptr_Uniform_int %3 %int_0 %int_0
-         %18 = OpLoad %int %16
-               OpStore %outX %18
-         %20 = OpAccessChain %_ptr_Uniform_int %3 %int_0 %int_1
-         %21 = OpLoad %int %20
-               OpStore %outY %21
-         %23 = OpAccessChain %_ptr_Uniform_int %3 %int_0 %int_2
-         %24 = OpLoad %int %23
-               OpStore %outZ %24
-               OpReturn
+         %16 =   OpAccessChain %_ptr_Uniform_int %3 %int_0 %int_0
+         %18 =   OpLoad %int %16
+                 OpStore %outX %18
+         %20 =   OpAccessChain %_ptr_Uniform_int %3 %int_0 %int_1
+         %21 =   OpLoad %int %20
+                 OpStore %outY %21
+         %23 =   OpAccessChain %_ptr_Uniform_int %3 %int_0 %int_2
+         %24 =   OpLoad %int %23
+                 OpStore %outZ %24
+                 OpReturn
                OpFunctionEnd

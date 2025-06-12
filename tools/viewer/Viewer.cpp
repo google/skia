@@ -2905,12 +2905,16 @@ void Viewer::drawImGui() {
                     if (isVulkan && !sksl) {
                         // Disassemble the SPIR-V into its textual form.
                         spvtools::SpirvTools tools(SPV_ENV_VULKAN_1_0);
+                        uint32_t options = spvtools::SpirvTools::kDefaultDisassembleOption;
+                        options |= SPV_BINARY_TO_TEXT_OPTION_COMMENT |
+                                   SPV_BINARY_TO_TEXT_OPTION_INDENT |
+                                   SPV_BINARY_TO_TEXT_OPTION_NESTED_INDENT;
                         for (auto& entry : fCachedShaders) {
                             for (int i = 0; i < kGrShaderTypeCount; ++i) {
                                 const std::string& spirv(entry.fShader[i]);
                                 std::string disasm;
                                 tools.Disassemble((const uint32_t*)spirv.c_str(), spirv.size() / 4,
-                                                  &disasm);
+                                                  &disasm, options);
                                 entry.fShader[i].assign(disasm);
                             }
                         }

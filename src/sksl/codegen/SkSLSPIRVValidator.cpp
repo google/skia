@@ -40,7 +40,8 @@ static bool validate_spirv(ErrorReporter& reporter, std::string_view program, bo
         // as if were an SkSL compile error message.
         std::string disassembly;
         uint32_t options = spvtools::SpirvTools::kDefaultDisassembleOption;
-        options |= SPV_BINARY_TO_TEXT_OPTION_INDENT;
+        options |= SPV_BINARY_TO_TEXT_OPTION_COMMENT | SPV_BINARY_TO_TEXT_OPTION_INDENT |
+                   SPV_BINARY_TO_TEXT_OPTION_NESTED_INDENT;
         if (tools.Disassemble(programData, programSize, &disassembly, options)) {
             errors.append(disassembly);
         }

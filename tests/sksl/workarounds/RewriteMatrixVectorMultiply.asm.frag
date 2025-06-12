@@ -3,14 +3,18 @@
                OpMemoryModel Logical GLSL450
                OpEntryPoint Fragment %_entrypoint_v "_entrypoint" %sk_FragColor
                OpExecutionMode %_entrypoint_v OriginUpperLeft
-               OpName %sk_FragColor "sk_FragColor"
-               OpName %_UniformBuffer "_UniformBuffer"
+
+               ; Debug Information
+               OpName %sk_FragColor "sk_FragColor"  ; id %3
+               OpName %_UniformBuffer "_UniformBuffer"  ; id %9
                OpMemberName %_UniformBuffer 0 "testMatrix4x4"
                OpMemberName %_UniformBuffer 1 "testValues"
-               OpName %_entrypoint_v "_entrypoint_v"
-               OpName %main "main"
-               OpName %m44 "m44"
-               OpName %v4 "v4"
+               OpName %_entrypoint_v "_entrypoint_v"    ; id %11
+               OpName %main "main"                      ; id %2
+               OpName %m44 "m44"                        ; id %18
+               OpName %v4 "v4"                          ; id %27
+
+               ; Annotations
                OpDecorate %main RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
@@ -51,14 +55,16 @@
                OpDecorate %62 RelaxedPrecision
                OpDecorate %63 RelaxedPrecision
                OpDecorate %64 RelaxedPrecision
+
+               ; Types, variables and constants
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
-%sk_FragColor = OpVariable %_ptr_Output_v4float Output
+%sk_FragColor = OpVariable %_ptr_Output_v4float Output  ; RelaxedPrecision, Location 0, Index 0
 %mat4v4float = OpTypeMatrix %v4float 4
-%_UniformBuffer = OpTypeStruct %mat4v4float %v4float
+%_UniformBuffer = OpTypeStruct %mat4v4float %v4float    ; Block
 %_ptr_Uniform__UniformBuffer = OpTypePointer Uniform %_UniformBuffer
-          %7 = OpVariable %_ptr_Uniform__UniformBuffer Uniform
+          %7 = OpVariable %_ptr_Uniform__UniformBuffer Uniform  ; Binding 0, DescriptorSet 0
        %void = OpTypeVoid
          %13 = OpTypeFunction %void
          %16 = OpTypeFunction %v4float
@@ -80,44 +86,52 @@
       %int_0 = OpConstant %int 0
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
       %int_1 = OpConstant %int 1
+
+
+               ; Function _entrypoint_v
 %_entrypoint_v = OpFunction %void None %13
+
          %14 = OpLabel
-         %15 = OpFunctionCall %v4float %main
-               OpStore %sk_FragColor %15
-               OpReturn
+         %15 =   OpFunctionCall %v4float %main
+                 OpStore %sk_FragColor %15
+                 OpReturn
                OpFunctionEnd
-       %main = OpFunction %v4float None %16
+
+
+               ; Function main
+       %main = OpFunction %v4float None %16         ; RelaxedPrecision
+
          %17 = OpLabel
-        %m44 = OpVariable %_ptr_Function_mat4v4float Function
-         %v4 = OpVariable %_ptr_Function_v4float Function
-               OpStore %m44 %26
-               OpStore %v4 %32
-         %33 = OpVectorTimesScalar %v4float %22 %float_0
-         %34 = OpVectorTimesScalar %v4float %23 %float_1
-         %35 = OpFAdd %v4float %33 %34
-         %36 = OpVectorTimesScalar %v4float %24 %float_2
-         %37 = OpFAdd %v4float %35 %36
-         %38 = OpVectorTimesScalar %v4float %25 %float_3
-         %39 = OpFAdd %v4float %37 %38
-         %40 = OpAccessChain %_ptr_Uniform_mat4v4float %7 %int_0
-         %44 = OpLoad %mat4v4float %40
-         %45 = OpAccessChain %_ptr_Uniform_v4float %7 %int_1
-         %48 = OpLoad %v4float %45
-         %49 = OpCompositeExtract %v4float %44 0
-         %50 = OpCompositeExtract %float %48 0
-         %51 = OpVectorTimesScalar %v4float %49 %50
-         %52 = OpCompositeExtract %v4float %44 1
-         %53 = OpCompositeExtract %float %48 1
-         %54 = OpVectorTimesScalar %v4float %52 %53
-         %55 = OpFAdd %v4float %51 %54
-         %56 = OpCompositeExtract %v4float %44 2
-         %57 = OpCompositeExtract %float %48 2
-         %58 = OpVectorTimesScalar %v4float %56 %57
-         %59 = OpFAdd %v4float %55 %58
-         %60 = OpCompositeExtract %v4float %44 3
-         %61 = OpCompositeExtract %float %48 3
-         %62 = OpVectorTimesScalar %v4float %60 %61
-         %63 = OpFAdd %v4float %59 %62
-         %64 = OpFAdd %v4float %39 %63
-               OpReturnValue %64
+        %m44 =   OpVariable %_ptr_Function_mat4v4float Function     ; RelaxedPrecision
+         %v4 =   OpVariable %_ptr_Function_v4float Function         ; RelaxedPrecision
+                 OpStore %m44 %26
+                 OpStore %v4 %32
+         %33 =   OpVectorTimesScalar %v4float %22 %float_0  ; RelaxedPrecision
+         %34 =   OpVectorTimesScalar %v4float %23 %float_1  ; RelaxedPrecision
+         %35 =   OpFAdd %v4float %33 %34                    ; RelaxedPrecision
+         %36 =   OpVectorTimesScalar %v4float %24 %float_2  ; RelaxedPrecision
+         %37 =   OpFAdd %v4float %35 %36                    ; RelaxedPrecision
+         %38 =   OpVectorTimesScalar %v4float %25 %float_3  ; RelaxedPrecision
+         %39 =   OpFAdd %v4float %37 %38                    ; RelaxedPrecision
+         %40 =   OpAccessChain %_ptr_Uniform_mat4v4float %7 %int_0
+         %44 =   OpLoad %mat4v4float %40            ; RelaxedPrecision
+         %45 =   OpAccessChain %_ptr_Uniform_v4float %7 %int_1
+         %48 =   OpLoad %v4float %45                ; RelaxedPrecision
+         %49 =   OpCompositeExtract %v4float %44 0  ; RelaxedPrecision
+         %50 =   OpCompositeExtract %float %48 0    ; RelaxedPrecision
+         %51 =   OpVectorTimesScalar %v4float %49 %50   ; RelaxedPrecision
+         %52 =   OpCompositeExtract %v4float %44 1      ; RelaxedPrecision
+         %53 =   OpCompositeExtract %float %48 1        ; RelaxedPrecision
+         %54 =   OpVectorTimesScalar %v4float %52 %53   ; RelaxedPrecision
+         %55 =   OpFAdd %v4float %51 %54                ; RelaxedPrecision
+         %56 =   OpCompositeExtract %v4float %44 2      ; RelaxedPrecision
+         %57 =   OpCompositeExtract %float %48 2        ; RelaxedPrecision
+         %58 =   OpVectorTimesScalar %v4float %56 %57   ; RelaxedPrecision
+         %59 =   OpFAdd %v4float %55 %58                ; RelaxedPrecision
+         %60 =   OpCompositeExtract %v4float %44 3      ; RelaxedPrecision
+         %61 =   OpCompositeExtract %float %48 3        ; RelaxedPrecision
+         %62 =   OpVectorTimesScalar %v4float %60 %61   ; RelaxedPrecision
+         %63 =   OpFAdd %v4float %59 %62                ; RelaxedPrecision
+         %64 =   OpFAdd %v4float %39 %63                ; RelaxedPrecision
+                 OpReturnValue %64
                OpFunctionEnd

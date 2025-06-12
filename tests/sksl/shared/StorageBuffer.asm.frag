@@ -3,18 +3,22 @@
                OpMemoryModel Logical GLSL450
                OpEntryPoint Fragment %_entrypoint_v "_entrypoint" %sk_FragColor %bufferIndex
                OpExecutionMode %_entrypoint_v OriginUpperLeft
-               OpName %SomeData "SomeData"
+
+               ; Debug Information
+               OpName %SomeData "SomeData"          ; id %8
                OpMemberName %SomeData 0 "a"
                OpMemberName %SomeData 1 "b"
-               OpName %storageBuffer "storageBuffer"
+               OpName %storageBuffer "storageBuffer"    ; id %10
                OpMemberName %storageBuffer 0 "offset"
                OpMemberName %storageBuffer 1 "inputData"
-               OpName %outputBuffer "outputBuffer"
+               OpName %outputBuffer "outputBuffer"  ; id %13
                OpMemberName %outputBuffer 0 "outputData"
-               OpName %sk_FragColor "sk_FragColor"
-               OpName %bufferIndex "bufferIndex"
-               OpName %_entrypoint_v "_entrypoint_v"
-               OpName %main "main"
+               OpName %sk_FragColor "sk_FragColor"  ; id %15
+               OpName %bufferIndex "bufferIndex"    ; id %17
+               OpName %_entrypoint_v "_entrypoint_v"    ; id %20
+               OpName %main "main"                      ; id %2
+
+               ; Annotations
                OpDecorate %main RelaxedPrecision
                OpMemberDecorate %SomeData 0 Offset 0
                OpMemberDecorate %SomeData 1 Offset 16
@@ -36,23 +40,25 @@
                OpDecorate %bufferIndex Location 2
                OpDecorate %bufferIndex Flat
                OpDecorate %39 RelaxedPrecision
+
+               ; Types, variables and constants
        %uint = OpTypeInt 32 0
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4
     %v2float = OpTypeVector %float 2
    %SomeData = OpTypeStruct %v4float %v2float
-%_runtimearr_SomeData = OpTypeRuntimeArray %SomeData
-%storageBuffer = OpTypeStruct %uint %_runtimearr_SomeData
+%_runtimearr_SomeData = OpTypeRuntimeArray %SomeData    ; ArrayStride 32
+%storageBuffer = OpTypeStruct %uint %_runtimearr_SomeData   ; BufferBlock
 %_ptr_Uniform_storageBuffer = OpTypePointer Uniform %storageBuffer
-          %3 = OpVariable %_ptr_Uniform_storageBuffer Uniform
-%outputBuffer = OpTypeStruct %_runtimearr_SomeData
+          %3 = OpVariable %_ptr_Uniform_storageBuffer Uniform   ; Binding 0, DescriptorSet 0
+%outputBuffer = OpTypeStruct %_runtimearr_SomeData              ; BufferBlock
 %_ptr_Uniform_outputBuffer = OpTypePointer Uniform %outputBuffer
-         %12 = OpVariable %_ptr_Uniform_outputBuffer Uniform
+         %12 = OpVariable %_ptr_Uniform_outputBuffer Uniform    ; Binding 1, DescriptorSet 0
 %_ptr_Output_v4float = OpTypePointer Output %v4float
-%sk_FragColor = OpVariable %_ptr_Output_v4float Output
+%sk_FragColor = OpVariable %_ptr_Output_v4float Output  ; RelaxedPrecision, Location 0, Index 0
         %int = OpTypeInt 32 1
 %_ptr_Input_int = OpTypePointer Input %int
-%bufferIndex = OpVariable %_ptr_Input_int Input
+%bufferIndex = OpVariable %_ptr_Input_int Input     ; Location 2, Flat
        %void = OpTypeVoid
          %22 = OpTypeFunction %void
     %float_0 = OpConstant %float 0
@@ -65,32 +71,40 @@
 %_ptr_Uniform_SomeData = OpTypePointer Uniform %SomeData
 %_ptr_Uniform_v4float = OpTypePointer Uniform %v4float
 %_ptr_Uniform_v2float = OpTypePointer Uniform %v2float
+
+
+               ; Function _entrypoint_v
 %_entrypoint_v = OpFunction %void None %22
+
          %23 = OpLabel
-         %26 = OpVariable %_ptr_Function_v2float Function
-               OpStore %26 %25
-         %28 = OpFunctionCall %v4float %main %26
-               OpStore %sk_FragColor %28
-               OpReturn
+         %26 =   OpVariable %_ptr_Function_v2float Function
+                 OpStore %26 %25
+         %28 =   OpFunctionCall %v4float %main %26
+                 OpStore %sk_FragColor %28
+                 OpReturn
                OpFunctionEnd
-       %main = OpFunction %v4float None %29
+
+
+               ; Function main
+       %main = OpFunction %v4float None %29         ; RelaxedPrecision
          %30 = OpFunctionParameter %_ptr_Function_v2float
+
          %31 = OpLabel
-         %34 = OpAccessChain %_ptr_Uniform_uint %3 %int_0
-         %36 = OpLoad %uint %34
-         %37 = OpAccessChain %_ptr_Uniform_SomeData %3 %int_1 %36
-         %39 = OpLoad %SomeData %37
-         %40 = OpAccessChain %_ptr_Uniform_uint %3 %int_0
-         %41 = OpLoad %uint %40
-         %42 = OpAccessChain %_ptr_Uniform_SomeData %12 %int_0 %41
-               OpStore %42 %39
-         %43 = OpLoad %int %bufferIndex
-         %44 = OpAccessChain %_ptr_Uniform_v4float %3 %int_1 %43 %int_0
-         %46 = OpLoad %v4float %44
-         %47 = OpLoad %int %bufferIndex
-         %48 = OpAccessChain %_ptr_Uniform_v2float %3 %int_1 %47 %int_1
-         %50 = OpLoad %v2float %48
-         %51 = OpCompositeExtract %float %50 0
-         %52 = OpVectorTimesScalar %v4float %46 %51
-               OpReturnValue %52
+         %34 =   OpAccessChain %_ptr_Uniform_uint %3 %int_0
+         %36 =   OpLoad %uint %34
+         %37 =   OpAccessChain %_ptr_Uniform_SomeData %3 %int_1 %36
+         %39 =   OpLoad %SomeData %37               ; RelaxedPrecision
+         %40 =   OpAccessChain %_ptr_Uniform_uint %3 %int_0
+         %41 =   OpLoad %uint %40
+         %42 =   OpAccessChain %_ptr_Uniform_SomeData %12 %int_0 %41
+                 OpStore %42 %39
+         %43 =   OpLoad %int %bufferIndex
+         %44 =   OpAccessChain %_ptr_Uniform_v4float %3 %int_1 %43 %int_0
+         %46 =   OpLoad %v4float %44
+         %47 =   OpLoad %int %bufferIndex
+         %48 =   OpAccessChain %_ptr_Uniform_v2float %3 %int_1 %47 %int_1
+         %50 =   OpLoad %v2float %48
+         %51 =   OpCompositeExtract %float %50 0
+         %52 =   OpVectorTimesScalar %v4float %46 %51
+                 OpReturnValue %52
                OpFunctionEnd

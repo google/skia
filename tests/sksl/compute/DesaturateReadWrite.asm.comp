@@ -4,12 +4,16 @@
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %main "main" %sk_GlobalInvocationID
                OpExecutionMode %main LocalSize 16 16 1
-               OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"
-               OpName %texIn "texIn"
-               OpName %texOut "texOut"
-               OpName %main "main"
-               OpName %_0_color "_0_color"
-               OpName %gray "gray"
+
+               ; Debug Information
+               OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"    ; id %3
+               OpName %texIn "texIn"                                    ; id %7
+               OpName %texOut "texOut"                                  ; id %11
+               OpName %main "main"                                      ; id %2
+               OpName %_0_color "_0_color"                              ; id %35
+               OpName %gray "gray"                                      ; id %52
+
+               ; Annotations
                OpDecorate %sk_GlobalInvocationID BuiltIn GlobalInvocationId
                OpDecorate %texIn Binding 0
                OpDecorate %texIn DescriptorSet 0
@@ -27,15 +31,17 @@
                OpDecorate %51 RelaxedPrecision
                OpDecorate %gray RelaxedPrecision
                OpDecorate %53 RelaxedPrecision
+
+               ; Types, variables and constants
        %uint = OpTypeInt 32 0
      %v3uint = OpTypeVector %uint 3
 %_ptr_Input_v3uint = OpTypePointer Input %v3uint
-%sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input    ; BuiltIn GlobalInvocationId
       %float = OpTypeFloat 32
           %9 = OpTypeImage %float 2D 0 0 0 2 Rgba32f
 %_ptr_UniformConstant_9 = OpTypePointer UniformConstant %9
-      %texIn = OpVariable %_ptr_UniformConstant_9 UniformConstant
-     %texOut = OpVariable %_ptr_UniformConstant_9 UniformConstant
+      %texIn = OpVariable %_ptr_UniformConstant_9 UniformConstant   ; Binding 0, DescriptorSet 0
+     %texOut = OpVariable %_ptr_UniformConstant_9 UniformConstant   ; Binding 1, DescriptorSet 0
        %void = OpTypeVoid
          %13 = OpTypeFunction %void
        %bool = OpTypeBool
@@ -48,48 +54,56 @@
 %float_0_670000017 = OpConstant %float 0.670000017
 %float_0_109999999 = OpConstant %float 0.109999999
          %48 = OpConstantComposite %v3float %float_0_219999999 %float_0_670000017 %float_0_109999999
+
+
+               ; Function main
        %main = OpFunction %void None %13
+
          %14 = OpLabel
-   %_0_color = OpVariable %_ptr_Function_v4float Function
-       %gray = OpVariable %_ptr_Function_v4float Function
-         %17 = OpLoad %v3uint %sk_GlobalInvocationID
-         %18 = OpCompositeExtract %uint %17 0
-         %22 = OpLoad %9 %texIn
-         %21 = OpImageQuerySize %v2uint %22
-         %19 = OpCompositeExtract %uint %21 0
-         %23 = OpULessThan %bool %18 %19
-               OpSelectionMerge %25 None
-               OpBranchConditional %23 %24 %25
-         %24 = OpLabel
-         %26 = OpLoad %v3uint %sk_GlobalInvocationID
-         %27 = OpCompositeExtract %uint %26 1
-         %30 = OpLoad %9 %texIn
-         %29 = OpImageQuerySize %v2uint %30
-         %28 = OpCompositeExtract %uint %29 1
-         %31 = OpULessThan %bool %27 %28
-               OpBranch %25
+   %_0_color =   OpVariable %_ptr_Function_v4float Function     ; RelaxedPrecision
+       %gray =   OpVariable %_ptr_Function_v4float Function     ; RelaxedPrecision
+         %17 =   OpLoad %v3uint %sk_GlobalInvocationID
+         %18 =   OpCompositeExtract %uint %17 0
+         %22 =   OpLoad %9 %texIn                   ; RelaxedPrecision
+         %21 =   OpImageQuerySize %v2uint %22
+         %19 =   OpCompositeExtract %uint %21 0
+         %23 =   OpULessThan %bool %18 %19
+                 OpSelectionMerge %25 None
+                 OpBranchConditional %23 %24 %25
+
+         %24 =     OpLabel
+         %26 =       OpLoad %v3uint %sk_GlobalInvocationID
+         %27 =       OpCompositeExtract %uint %26 1
+         %30 =       OpLoad %9 %texIn               ; RelaxedPrecision
+         %29 =       OpImageQuerySize %v2uint %30
+         %28 =       OpCompositeExtract %uint %29 1
+         %31 =       OpULessThan %bool %27 %28
+                     OpBranch %25
+
          %25 = OpLabel
-         %32 = OpPhi %bool %false %14 %31 %24
-               OpSelectionMerge %34 None
-               OpBranchConditional %32 %33 %34
-         %33 = OpLabel
-         %39 = OpLoad %9 %texIn
-         %40 = OpLoad %v3uint %sk_GlobalInvocationID
-         %41 = OpVectorShuffle %v2uint %40 %40 0 1
-         %38 = OpImageRead %v4float %39 %41
-               OpStore %_0_color %38
-         %43 = OpVectorShuffle %v3float %38 %38 0 1 2
-         %42 = OpDot %float %43 %48
-         %49 = OpCompositeConstruct %v3float %42 %42 %42
-         %50 = OpLoad %v4float %_0_color
-         %51 = OpVectorShuffle %v4float %50 %49 4 5 6 3
-               OpStore %_0_color %51
-               OpStore %gray %51
-         %53 = OpLoad %9 %texOut
-         %54 = OpLoad %v3uint %sk_GlobalInvocationID
-         %55 = OpVectorShuffle %v2uint %54 %54 0 1
-               OpImageWrite %53 %55 %51
-               OpBranch %34
+         %32 =   OpPhi %bool %false %14 %31 %24
+                 OpSelectionMerge %34 None
+                 OpBranchConditional %32 %33 %34
+
+         %33 =     OpLabel
+         %39 =       OpLoad %9 %texIn               ; RelaxedPrecision
+         %40 =       OpLoad %v3uint %sk_GlobalInvocationID
+         %41 =       OpVectorShuffle %v2uint %40 %40 0 1
+         %38 =       OpImageRead %v4float %39 %41   ; RelaxedPrecision
+                     OpStore %_0_color %38
+         %43 =       OpVectorShuffle %v3float %38 %38 0 1 2     ; RelaxedPrecision
+         %42 =       OpDot %float %43 %48                       ; RelaxedPrecision
+         %49 =       OpCompositeConstruct %v3float %42 %42 %42  ; RelaxedPrecision
+         %50 =       OpLoad %v4float %_0_color                  ; RelaxedPrecision
+         %51 =       OpVectorShuffle %v4float %50 %49 4 5 6 3   ; RelaxedPrecision
+                     OpStore %_0_color %51
+                     OpStore %gray %51
+         %53 =       OpLoad %9 %texOut              ; RelaxedPrecision
+         %54 =       OpLoad %v3uint %sk_GlobalInvocationID
+         %55 =       OpVectorShuffle %v2uint %54 %54 0 1
+                     OpImageWrite %53 %55 %51
+                     OpBranch %34
+
          %34 = OpLabel
-               OpReturn
+                 OpReturn
                OpFunctionEnd

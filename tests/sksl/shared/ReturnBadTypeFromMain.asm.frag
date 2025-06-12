@@ -8,7 +8,11 @@ error: SPIR-V validation error: [VUID-StandaloneSpirv-None-04633] OpEntryPoint E
                OpMemoryModel Logical GLSL450
                OpEntryPoint Fragment %main "main"
                OpExecutionMode %main OriginUpperLeft
-               OpName %main "main"
+
+               ; Debug Information
+               OpName %main "main"                  ; id %2
+
+               ; Types, variables and constants
         %int = OpTypeInt 32 1
       %v3int = OpTypeVector %int 3
           %5 = OpTypeFunction %v3int
@@ -16,9 +20,13 @@ error: SPIR-V validation error: [VUID-StandaloneSpirv-None-04633] OpEntryPoint E
       %int_2 = OpConstant %int 2
       %int_3 = OpConstant %int 3
          %10 = OpConstantComposite %v3int %int_1 %int_2 %int_3
+
+
+               ; Function main
        %main = OpFunction %v3int None %5
+
           %6 = OpLabel
-               OpReturnValue %10
+                 OpReturnValue %10
                OpFunctionEnd
 
 1 error

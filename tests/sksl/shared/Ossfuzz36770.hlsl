@@ -8,20 +8,30 @@ error: SPIR-V validation error: [VUID-StandaloneSpirv-Location-04919] Member ind
                OpMemoryModel Logical GLSL450
                OpEntryPoint Fragment %main "main" %3
                OpExecutionMode %main OriginUpperLeft
-               OpName %T "T"
+
+               ; Debug Information
+               OpName %T "T"                        ; id %5
                OpMemberName %T 0 "x"
-               OpName %main "main"
+               OpName %main "main"                  ; id %2
+
+               ; Annotations
                OpMemberDecorate %T 0 Offset 0
                OpDecorate %T Block
+
+               ; Types, variables and constants
         %int = OpTypeInt 32 1
-          %T = OpTypeStruct %int
+          %T = OpTypeStruct %int                    ; Block
 %_ptr_Input_T = OpTypePointer Input %T
           %3 = OpVariable %_ptr_Input_T Input
        %void = OpTypeVoid
           %8 = OpTypeFunction %void
+
+
+               ; Function main
        %main = OpFunction %void None %8
+
           %9 = OpLabel
-               OpReturn
+                 OpReturn
                OpFunctionEnd
 
 1 error
