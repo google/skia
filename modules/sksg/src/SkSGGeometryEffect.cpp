@@ -18,9 +18,9 @@
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkTrimPathEffect.h"
-#include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
+#include "modules/pathops/include/SkPathOps.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
 #include "src/core/SkPathPriv.h"
 

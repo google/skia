@@ -6,11 +6,11 @@
  */
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
-#include "src/pathops/SkIntersections.h"
-#include "src/pathops/SkPathOpsConic.h"
-#include "src/pathops/SkPathOpsCubic.h"
-#include "src/pathops/SkPathOpsPoint.h"
-#include "src/pathops/SkReduceOrder.h"
+#include "modules/pathops/src/SkIntersections.h"
+#include "modules/pathops/src/SkPathOpsConic.h"
+#include "modules/pathops/src/SkPathOpsCubic.h"
+#include "modules/pathops/src/SkPathOpsPoint.h"
+#include "modules/pathops/src/SkReduceOrder.h"
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
 

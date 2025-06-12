@@ -6,10 +6,10 @@
  */
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
+#include "modules/pathops/src/SkPathOpsCubic.h"
+#include "modules/pathops/src/SkPathOpsPoint.h"
+#include "modules/pathops/src/SkPathOpsQuad.h"
 #include "src/base/SkRandom.h"
-#include "src/pathops/SkPathOpsCubic.h"
-#include "src/pathops/SkPathOpsPoint.h"
-#include "src/pathops/SkPathOpsQuad.h"
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
 

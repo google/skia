@@ -119,7 +119,7 @@
 #endif // CK_NO_FONTS
 
 #ifdef CK_INCLUDE_PATHOPS
-#include "include/pathops/SkPathOps.h"
+#include "modules/pathops/include/SkPathOps.h"
 #endif
 
 #if defined(CK_INCLUDE_RUNTIME_EFFECT)

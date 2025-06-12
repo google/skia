@@ -8,10 +8,10 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
+#include "modules/pathops/src/SkPathOpsCubic.h"
+#include "modules/pathops/src/SkPathOpsPoint.h"
+#include "modules/pathops/src/SkPathOpsTypes.h"
 #include "src/base/SkBezierCurves.h"
-#include "src/pathops/SkPathOpsCubic.h"
-#include "src/pathops/SkPathOpsPoint.h"
-#include "src/pathops/SkPathOpsTypes.h"
 #include "tests/Test.h"
 
 #include <algorithm>

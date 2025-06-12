@@ -10,8 +10,8 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkClipOp.h"
 #include "include/core/SkPoint.h"
-#include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkAssert.h"
+#include "modules/pathops/include/SkPathOps.h"
 #include "modules/sksg/include/SkSGNode.h"
 #include "src/core/SkPathPriv.h"
 

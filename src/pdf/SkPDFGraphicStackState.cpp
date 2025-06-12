@@ -9,8 +9,8 @@
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkStream.h"
-#include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkAssert.h"
+#include "modules/pathops/include/SkPathOps.h"
 #include "src/pdf/SkPDFUtils.h"
 #include "src/utils/SkClipStackUtils.h"
 

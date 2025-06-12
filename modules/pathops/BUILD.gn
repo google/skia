@@ -1,0 +1,20 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("../../gn/skia.gni")
+
+config("public_config") {
+  include_dirs = [ "include" ]
+}
+
+skia_component("pathops") {
+  check_includes = false
+  import("pathops.gni")
+  public_configs = [ ":public_config" ]
+  public = skia_pathops_public
+  sources = skia_pathops_sources
+  configs = [ "../../:skia_private" ]
+  deps = [ "../..:skia" ]
+}

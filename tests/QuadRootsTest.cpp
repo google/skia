@@ -10,7 +10,7 @@
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "src/pathops/SkPathOpsQuad.h"
+#include "modules/pathops/src/SkPathOpsQuad.h"
 #include "tests/Test.h"
 
 #include <algorithm>

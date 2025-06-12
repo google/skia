@@ -7,7 +7,7 @@
 #ifndef PathOpsTSectDebug_DEFINED
 #define PathOpsTSectDebug_DEFINED
 
-#include "src/pathops/SkPathOpsTSect.h"
+#include "modules/pathops/src/SkPathOpsTSect.h"
 
 
 #endif  // PathOpsTSectDebug_DEFINED

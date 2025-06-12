@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "src/pathops/SkPathOpsTypes.h"
+#include "modules/pathops/src/SkPathOpsTypes.h"
 #include "tests/PathOpsCubicIntersectionTestData.h"
 
 #include <array>

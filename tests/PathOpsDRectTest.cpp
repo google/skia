@@ -5,10 +5,10 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkTypes.h"
-#include "src/pathops/SkPathOpsCubic.h"
-#include "src/pathops/SkPathOpsPoint.h"
-#include "src/pathops/SkPathOpsQuad.h"
-#include "src/pathops/SkPathOpsRect.h"
+#include "modules/pathops/src/SkPathOpsCubic.h"
+#include "modules/pathops/src/SkPathOpsPoint.h"
+#include "modules/pathops/src/SkPathOpsQuad.h"
+#include "modules/pathops/src/SkPathOpsRect.h"
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
 

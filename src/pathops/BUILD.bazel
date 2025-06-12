@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_cc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,85 +6,15 @@ package(
 
 licenses(["notice"])
 
-PATHOPS_FILES = [
-    "SkAddIntersections.cpp",
-    "SkAddIntersections.h",
-    "SkDConicLineIntersection.cpp",
-    "SkDCubicLineIntersection.cpp",
-    "SkDCubicToQuads.cpp",
-    "SkDLineIntersection.cpp",
-    "SkDQuadLineIntersection.cpp",
-    "SkIntersectionHelper.h",
-    "SkIntersections.cpp",
-    "SkIntersections.h",
-    "SkLineParameters.h",
-    "SkOpAngle.cpp",
-    "SkOpAngle.h",
-    "SkOpBuilder.cpp",
-    "SkOpCoincidence.cpp",
-    "SkOpCoincidence.h",
-    "SkOpContour.cpp",
-    "SkOpContour.h",
-    "SkOpCubicHull.cpp",
-    "SkOpEdgeBuilder.cpp",
-    "SkOpEdgeBuilder.h",
-    "SkOpSegment.cpp",
-    "SkOpSegment.h",
-    "SkOpSpan.cpp",
-    "SkOpSpan.h",
-    "SkPathOpsAsWinding.cpp",
-    "SkPathOpsBounds.h",
-    "SkPathOpsCommon.cpp",
-    "SkPathOpsCommon.h",
-    "SkPathOpsConic.cpp",
-    "SkPathOpsConic.h",
-    "SkPathOpsCubic.cpp",
-    "SkPathOpsCubic.h",
-    "SkPathOpsCurve.cpp",
-    "SkPathOpsCurve.h",
-    "SkPathOpsDebug.cpp",
-    "SkPathOpsDebug.h",
-    "SkPathOpsLine.cpp",
-    "SkPathOpsLine.h",
-    "SkPathOpsOp.cpp",
-    "SkPathOpsPoint.h",
-    "SkPathOpsQuad.cpp",
-    "SkPathOpsQuad.h",
-    "SkPathOpsRect.cpp",
-    "SkPathOpsRect.h",
-    "SkPathOpsSimplify.cpp",
-    "SkPathOpsTCurve.h",
-    "SkPathOpsTSect.cpp",
-    "SkPathOpsTSect.h",
-    "SkPathOpsTightBounds.cpp",
-    "SkPathOpsTypes.cpp",
-    "SkPathOpsTypes.h",
-    "SkPathOpsWinding.cpp",
-    "SkPathWriter.cpp",
-    "SkPathWriter.h",
-    "SkReduceOrder.cpp",
-    "SkReduceOrder.h",
-]
-
-split_srcs_and_hdrs(
-    name = "_pathops",
-    files = PATHOPS_FILES,
-)
+# Temporary forwarding target for g3 migration
 
 skia_cc_library(
     name = "pathops",
-    srcs = [
-        ":_pathops_hdrs",
-        ":_pathops_srcs",
-    ],
+    srcs = [],
     hdrs = [
         "//include/pathops:public_hdrs",
     ],
     features = ["layering_check"],
-    visibility = ["//:__pkg__"],
-    deps = [
-        "//src/base",
-        "//src/core",
-        "//src/core:core_priv",
-    ],
+    visibility = ["//visibility:public"],
+    deps = ["//modules/pathops"],
 )
