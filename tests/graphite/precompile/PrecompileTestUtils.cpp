@@ -1025,7 +1025,7 @@ std::string rm_whitespace(const std::string& s) {
 } // anonymous namespace
 
 bool PrecompileSettings::isSubsetOf(const PrecompileSettings& superSet) const {
-    SkASSERT(SkPopCount(static_cast<uint32_t>(fDrawTypeFlags)) == 1);
+    SkASSERT(SkPopCount(fDrawTypeFlags.value()) == 1);
 
     // 'superSet' may have a wider range of DrawTypeFlags
     return (fDrawTypeFlags & superSet.fDrawTypeFlags) &&
@@ -1134,7 +1134,7 @@ void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
 
     Precompile(precompileContext,
                settings.fPaintOptions,
-               settings.fDrawTypeFlags,
+               static_cast<DrawTypeFlags>(settings.fDrawTypeFlags.value()),
                { &settings.fRenderPassProps, 1 });
 
     std::set<std::string> generatedLabels;

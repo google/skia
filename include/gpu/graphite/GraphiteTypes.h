@@ -183,7 +183,13 @@ enum DrawTypeFlags : uint16_t {
     //    MiddleOutFanRenderStep[*] for [EvenOdd], [Winding]
     kNonSimpleShape   = 1 << 10,
 
-    kLast = kNonSimpleShape,
+    // kAnalyticClip should be combined with the primary drawType for Pipelines that contain
+    // either of the following sub-strings:
+    //    AnalyticClip
+    //    AnalyticAndAtlasClip
+    kAnalyticClip = 1 << 11,
+
+    kLast = kAnalyticClip,
 };
 
 } // namespace skgpu::graphite

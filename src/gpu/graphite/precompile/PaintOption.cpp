@@ -30,7 +30,8 @@ PaintOption::PaintOption(bool opaquePaintColor,
                          bool hasPrimitiveBlender,
                          const std::pair<sk_sp<PrecompileShader>, int>& clipShader,
                          bool dstReadRequired,
-                         bool dither)
+                         bool dither,
+                         bool analyticClip)
         : fOpaquePaintColor(opaquePaintColor)
         , fFinalBlender(finalBlender)
         , fShader(shader)
@@ -38,7 +39,8 @@ PaintOption::PaintOption(bool opaquePaintColor,
         , fHasPrimitiveBlender(hasPrimitiveBlender)
         , fClipShader(clipShader)
         , fDstReadRequired(dstReadRequired)
-        , fDither(dither) {
+        , fDither(dither)
+        , fAnalyticClip(analyticClip) {
     if (!fHasPrimitiveBlender) {
         if (fShader.first && fShader.first->priv().isConstant(fShader.second)) {
             fShader = { nullptr, 0 };
@@ -72,11 +74,7 @@ void PaintOption::toKey(const KeyContext& keyContext,
     }
 
     // Optional Root Node 2 is the clip
-    // TODO(b/372221436): Also include analytic clippiing in this node.
-    if (fClipShader.first) {
-        fClipShader.first->priv().addToKey(keyContext, keyBuilder, gatherer,
-                                           fClipShader.second);
-    }
+    this->handleClipping(keyContext, keyBuilder, gatherer);
 }
 
 void PaintOption::addPaintColorToKey(const KeyContext& keyContext,
@@ -193,6 +191,44 @@ void PaintOption::handleDithering(const KeyContext& keyContext,
 #endif
     {
         this->handleColorFilter(keyContext, builder, gatherer);
+    }
+}
+
+void PaintOption::handleClipping(const KeyContext& keyContext,
+                                 PaintParamsKeyBuilder* builder,
+                                 PipelineDataGatherer* gatherer) const {
+    if (fAnalyticClip) {
+        NonMSAAClipBlock::NonMSAAClipData data(
+                /* rect= */ {},
+                /* radiusPlusHalf= */ {},
+                /* edgeSelect= */ {},
+                /* texCoordOffset= */ {},
+                /* maskBounds= */ {},
+                // TODO: the kAnalyticAndAtlasClip vs. kAnalyticClip decision is based on this
+                // being a valid TextureProxy.
+                /* atlasTexture= */ nullptr);
+        if (fClipShader.first) {
+            // For both an analytic clip and clip shader, we need to compose them together into
+            // a single clipping root node.
+            Blend(keyContext, builder, gatherer,
+                    /* addBlendToKey= */ [&]() -> void {
+                        AddFixedBlendMode(keyContext, builder, gatherer, SkBlendMode::kModulate);
+                    },
+                    /* addSrcToKey= */ [&]() -> void {
+                        NonMSAAClipBlock::AddBlock(keyContext, builder, gatherer, data);
+                    },
+                    /* addDstToKey= */ [&]() -> void {
+                        fClipShader.first->priv().addToKey(keyContext, builder, gatherer,
+                                                           fClipShader.second);
+                    });
+        } else {
+            // Without a clip shader, the analytic clip can be the clipping root node.
+            NonMSAAClipBlock::AddBlock(keyContext, builder, gatherer, data);
+        }
+    } else if (fClipShader.first) {
+        // Since there's no analytic clip, the clipping root node can be fClipShader directly.
+        fClipShader.first->priv().addToKey(keyContext, builder, gatherer,
+                                           fClipShader.second);
     }
 }
 

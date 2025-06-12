@@ -146,6 +146,9 @@ void Precompile(PrecompileContext* precompileContext,
             }
 
             if (drawTypes & DrawTypeFlags::kBitmapText_Color) {
+                DrawTypeFlags reducedTypes =
+                        static_cast<DrawTypeFlags>(drawTypes & (DrawTypeFlags::kBitmapText_Color |
+                                                                DrawTypeFlags::kAnalyticClip));
                 // For color emoji text, shaders don't affect the final color
                 PaintOptions tmp = options;
                 tmp.setShaders({});
@@ -155,33 +158,39 @@ void Precompile(PrecompileContext* precompileContext,
                                        precompileContext->priv().resourceProvider(),
                                        tmp,
                                        keyContext,
-                                       DrawTypeFlags::kBitmapText_Color,
+                                       reducedTypes,
                                        /* withPrimitiveBlender= */ true,
                                        Coverage::kNone,
                                        renderPassDesc);
             }
 
             if (drawTypes & (DrawTypeFlags::kBitmapText_LCD | DrawTypeFlags::kSDFText_LCD)) {
+                DrawTypeFlags reducedTypes =
+                        static_cast<DrawTypeFlags>(drawTypes & (DrawTypeFlags::kBitmapText_LCD |
+                                                                DrawTypeFlags::kSDFText_LCD |
+                                                                DrawTypeFlags::kAnalyticClip));
                 // LCD-based text always emits LCD coverage but never has primitiveBlenders
                 PrecompileCombinations(
                         precompileContext->priv().rendererProvider(),
                         precompileContext->priv().resourceProvider(),
                         options, keyContext,
-                        static_cast<DrawTypeFlags>(drawTypes & (DrawTypeFlags::kBitmapText_LCD |
-                                                                DrawTypeFlags::kSDFText_LCD)),
+                        reducedTypes,
                         /* withPrimitiveBlender= */ false,
                         Coverage::kLCD,
                         renderPassDesc);
             }
 
             if (drawTypes & DrawTypeFlags::kDrawVertices) {
+                DrawTypeFlags reducedTypes =
+                        static_cast<DrawTypeFlags>(drawTypes & (DrawTypeFlags::kDrawVertices |
+                                                                DrawTypeFlags::kAnalyticClip));
                 // drawVertices w/ colors use a primitiveBlender while those w/o don't. It never
                 // emits coverage.
                 for (bool withPrimitiveBlender : { true, false }) {
                     PrecompileCombinations(precompileContext->priv().rendererProvider(),
                                            precompileContext->priv().resourceProvider(),
                                            options, keyContext,
-                                           DrawTypeFlags::kDrawVertices,
+                                           reducedTypes,
                                            withPrimitiveBlender,
                                            Coverage::kNone,
                                            renderPassDesc);

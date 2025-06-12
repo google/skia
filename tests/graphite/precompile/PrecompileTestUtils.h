@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/precompile/PaintOptions.h"
 #include "include/gpu/graphite/precompile/Precompile.h"
+#include "src/base/SkEnumBitMask.h"
 
 // Print out a final report that includes missed cases in 'kCases'
 //#define FINAL_REPORT
@@ -25,9 +26,12 @@
 
 namespace PrecompileTestUtils {
 
+SK_MAKE_BITMASK_OPS(skgpu::graphite::DrawTypeFlags);
+
 struct PrecompileSettings {
     skgpu::graphite::PaintOptions fPaintOptions;
-    skgpu::graphite::DrawTypeFlags fDrawTypeFlags = skgpu::graphite::DrawTypeFlags::kNone;
+    SkEnumBitMask<skgpu::graphite::DrawTypeFlags> fDrawTypeFlags =
+            skgpu::graphite::DrawTypeFlags::kNone;
     skgpu::graphite::RenderPassProperties fRenderPassProps;
 
     bool isSubsetOf(const PrecompileSettings& superSet) const;
@@ -289,12 +293,12 @@ const skgpu::graphite::RenderPassProperties kRGBA16F_1_D_SRGB {
         /* fRequiresMSAA= */ false
 };
 
-constexpr skgpu::graphite::DrawTypeFlags kRRectAndNonAARect =
-        static_cast<skgpu::graphite::DrawTypeFlags>(skgpu::graphite::DrawTypeFlags::kAnalyticRRect |
-                                                    skgpu::graphite::DrawTypeFlags::kNonAAFillRect);
-constexpr skgpu::graphite::DrawTypeFlags kQuadAndNonAARect =
-        static_cast<skgpu::graphite::DrawTypeFlags>(skgpu::graphite::DrawTypeFlags::kPerEdgeAAQuad |
-                                                    skgpu::graphite::DrawTypeFlags::kNonAAFillRect);
+constexpr SkEnumBitMask<skgpu::graphite::DrawTypeFlags> kRRectAndNonAARect =
+        skgpu::graphite::DrawTypeFlags::kAnalyticRRect |
+        skgpu::graphite::DrawTypeFlags::kNonAAFillRect;
+constexpr SkEnumBitMask<skgpu::graphite::DrawTypeFlags> kQuadAndNonAARect =
+        skgpu::graphite::DrawTypeFlags::kPerEdgeAAQuad |
+        skgpu::graphite::DrawTypeFlags::kNonAAFillRect;
 
 } // namespace PrecompileTestUtils
 
