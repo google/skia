@@ -1232,7 +1232,6 @@ AnalyticClip can_apply_analytic_clip(const Shape& shape,
 Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                                       const Geometry& geometry,
                                       const SkStrokeRec& style,
-                                      bool outsetBoundsForAA,
                                       bool msaaSupported,
                                       ClipStack::ElementList* outEffectiveElements) const {
     static const Clip kClippedOut = {
@@ -1327,16 +1326,6 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         }
 
         transformedShapeBounds = localToDevice.mapRect(transformedShapeBounds);
-        if (outsetBoundsForAA) {
-            // While we don't include the AA outset for most shapes in the local styledShape used
-            // for geometric clip testing, we do need to include the AA outset in the final pixel
-            // bounds that rasterization might touch because these bounds (and the dependent
-            // drawBounds) are used for ordering draws, sizing what is rasterized for depth-only
-            // clip draws, and any barriers for overlapping draws. Even if these outset pixels would
-            // evaluate to an analytic coverage of 0, incorrect ordering/barriers could lead to
-            // races in the determination of the dst value used when blending with coverage=0.
-            transformedShapeBounds.outset(0.5f);
-        }
 
         // Inverse-filled shapes always fill the entire device (restricted to the clip).
         if (styledShape.inverted()) {

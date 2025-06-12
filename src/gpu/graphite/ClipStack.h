@@ -96,7 +96,6 @@ public:
     Clip visitClipStackForDraw(const Transform&,
                                const Geometry&,
                                const SkStrokeRec&,
-                               bool outsetBoundsForAA,
                                bool msaaSupported,
                                ElementList* outEffectiveElements) const;
 

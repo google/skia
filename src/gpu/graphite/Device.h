@@ -277,6 +277,7 @@ private:
     std::pair<const Renderer*, PathAtlas*> chooseRenderer(const Transform& localToDevice,
                                                           const Geometry&,
                                                           const SkStrokeRec&,
+                                                          const Rect& drawBounds,
                                                           bool requireMSAA) const;
 
     // TODO(b/390458117): Vulkan must fall back from reading the dst as an input to using dst copies
