@@ -11,7 +11,6 @@
 #include "include/core/SkShader.h"
 #include "include/core/SkStrokeRec.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRectPriv.h"
@@ -1251,89 +1250,105 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
 
     // When 'style' isn't fill, 'shape' describes the pre-stroke shape so we can't use it to check
     // against clip elements and so 'styledShape' will be set to the bounds post-stroking.
-    SkTCopyOnFirstWrite<Shape> styledShape;
+    // `styledShape` may also include local AA outsets under certain circumstances:
+    //  1. If it's a hairline, the AA outset can be added in local space to preserve a tighter
+    //     oriented bbox compared to device bounds outset by 1px.
+    //  2. If it's subpixel, the rendered geometry is often treated as a hairline with an adjusted
+    //     coverage ramp.
+    // Notably, the local AA outset is not included in `styledShape` for other cases to maximize the
+    // cases where a draw is contained in a clip, or can be clipped geometrically. This assumes that
+    // rendering an AA'ed non-hairline/subpixel edge produces a 1px feathered edge that's not
+    // qualitatively different from the 1px feathered edge a clip would enforce.
+    Shape styledShape;
     if (geometry.isShape()) {
-        styledShape.init(geometry.shape());
+        styledShape = geometry.shape();
     } else {
         // The geometry is something special like text or vertices, in which case it's definitely
-        // not a shape that could simplify cleanly with the clip stack.
-        styledShape.initIfNeeded(geometry.bounds());
+        // not a shape that could simplify cleanly with the clip stack, so just track its bounds.
+        styledShape.setRect(geometry.bounds());
+        // If geometry is not a shape, it is not inverted.
+        SkASSERT(!styledShape.inverted());
     }
 
-    auto origSize = geometry.bounds().size();
+    Rect drawBounds; // in device-space, respects fill rule and scissor
+    Rect transformedShapeBounds = styledShape.bounds(); // not scissor'ed, regular fill rule bounds
+    bool shapeInDeviceSpace = false; // true if styledShape has been mapped to device space already
+
+    auto origSize = transformedShapeBounds.size();
     if (!SkIsFinite(origSize.x(), origSize.y())) {
         // Discard all non-finite geometry as if it were clipped out
         return kClippedOut;
     }
-
-    // Inverse-filled shapes always fill the entire device (restricted to the clip).
-    // Query the invertedness of the shape before any of the `setRect` calls below, which can
-    // modify it.
-    bool infiniteBounds = styledShape->inverted();
 
     // Discard fills and strokes that cannot produce any coverage: an empty fill, or a
     // zero-length stroke that has butt caps. Otherwise the stroke style applies to a vertical
     // or horizontal line (making it non-empty), or it's a zero-length path segment that
     // must produce round or square caps (making it non-empty):
     //     https://www.w3.org/TR/SVG11/implnote.html#PathElementImplementationNotes
-    if (!infiniteBounds && (styledShape->isLine() || any(origSize == 0.f))) {
+    if (!styledShape.inverted() && (styledShape.isLine() || any(origSize == 0.f))) {
         if (style.isFillStyle() || (style.getCap() == SkPaint::kButt_Cap && all(origSize == 0.f))) {
             return kClippedOut;
         }
     }
 
-    Rect transformedShapeBounds;
-    bool shapeInDeviceSpace = false;
 
-    // Some renderers make the drawn area larger than the geometry for anti-aliasing
-    float rendererOutset = outsetBoundsForAA ? localToDevice.localAARadius(styledShape->bounds())
-                                             : 0.f;
-    if (!SkIsFinite(rendererOutset)) SK_UNLIKELY {
-        infiniteBounds = true;
+
+    // Anti-aliasing makes shapes larger than their original coordinates, but we only care about
+    // that for local clip checks in certain cases (see above).
+    // NOTE: After this if-else block, `transformedShapeBounds` will be in device space.
+    float localAAOutset = localToDevice.localAARadius(transformedShapeBounds);
+    if (!SkIsFinite(localAAOutset)) SK_UNLIKELY {
         // We cannot calculate an accurate local shape bounds, and transformedShapeBounds is meant
         // to be unclipped. This is to maximize atlas reuse for mostly unclipped draws and to detect
-        // when a scissor state change is required. Setting transformredShapeBounds to deviceBounds
+        // when a scissor state change is required. Setting transformedShapeBounds to deviceBounds
         // is harmless in this case as these benefits are unlikely to apply for this transform.
         transformedShapeBounds = deviceBounds;
+        drawBounds = deviceBounds;
+        styledShape.setRect(deviceBounds);
+        shapeInDeviceSpace = true;
     } else {
-        // Will be in device space once style/AA outsets and the localToDevice transform are
-        // applied.
-        transformedShapeBounds = styledShape->bounds();
+        // SkStrokeRect::getInflationRadius() returns a device-space inflation for hairlines.
+        float localOutset = style.isHairlineStyle() ? 0.f : style.getInflationRadius();
+        if ((!style.isFillStyle() && style.getWidth() <= localAAOutset) ||
+            (style.isFillStyle() && any(origSize <= localAAOutset))) {
+            // The geometry is a hairline or projects to a subpixel shape, so rendering will not
+            // follow the typical 1/2px outset anti-aliasing that is compatible with clipping.
+            // In this case, apply the local AA radius to the shape to have a conservative clip
+            // query while preserving the oriented bounding box.
+            localOutset += localAAOutset;
+        }
 
-        // Regular filled shapes and strokes get larger based on style and transform
-        if (!style.isHairlineStyle() || rendererOutset != 0.0f) {
-            float localStyleOutset = style.getInflationRadius() + rendererOutset;
-            transformedShapeBounds.outset(localStyleOutset);
-
-            if (!style.isFillStyle() || rendererOutset != 0.0f) {
-                // While this loses any shape type, the bounds remain local so hopefully tests are
-                // fairly accurate.
-                styledShape.writable()->setRect(transformedShapeBounds);
-            }
+        transformedShapeBounds.outset(localOutset);
+        if (localOutset > 0.f) {
+            // Propagate style and AA outset into styledShape so clip queries reflect style.
+            bool inverted = styledShape.inverted();
+            styledShape.setRect(transformedShapeBounds); // it's still local at this point
+            styledShape.setInverted(inverted);  // preserve original inversion state
         }
 
         transformedShapeBounds = localToDevice.mapRect(transformedShapeBounds);
-
-        // Hairlines get an extra pixel *after* transforming to device space, unless the renderer
-        // has already defined an outset
-        if (style.isHairlineStyle() && rendererOutset == 0.0f) {
+        if (outsetBoundsForAA) {
+            // While we don't include the AA outset for most shapes in the local styledShape used
+            // for geometric clip testing, we do need to include the AA outset in the final pixel
+            // bounds that rasterization might touch because these bounds (and the dependent
+            // drawBounds) are used for ordering draws, sizing what is rasterized for depth-only
+            // clip draws, and any barriers for overlapping draws. Even if these outset pixels would
+            // evaluate to an analytic coverage of 0, incorrect ordering/barriers could lead to
+            // races in the determination of the dst value used when blending with coverage=0.
             transformedShapeBounds.outset(0.5f);
-            // and the associated transform must be kIdentity since the bounds have been mapped by
-            // localToDevice already.
-            styledShape.writable()->setRect(transformedShapeBounds);
-            shapeInDeviceSpace = true;
         }
-    }
 
-    Rect drawBounds;  // defined in device space
-    if (infiniteBounds) {
-        drawBounds = deviceBounds;
-        styledShape.writable()->setRect(drawBounds);
-        shapeInDeviceSpace = true;
-    } else {
-        // Restrict the draw bounds to the device limits.
-        drawBounds = transformedShapeBounds;
-        drawBounds.intersect(deviceBounds);
+        // Inverse-filled shapes always fill the entire device (restricted to the clip).
+        if (styledShape.inverted()) {
+            // TODO(424506312): This currently preserves prior behavior and is necessary if we
+            // treat all draws as SkClipOp::kIntersect shapes. Switching inverse fills to
+            // kDifference would mean we could keep styledShape in the local space.
+            styledShape.setRect(transformedShapeBounds);
+            drawBounds = deviceBounds;
+            shapeInDeviceSpace = true;
+        } else {
+            drawBounds = transformedShapeBounds.makeIntersect(deviceBounds);
+        }
     }
 
     if (drawBounds.isEmptyNegativeOrNaN() || cs.state() == ClipState::kWideOpen) {
@@ -1365,7 +1380,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     // check if the draw contains the clip (vice versa is still checked and represents an unclipped
     // draw so is very useful to identify).
     TransformedShape draw{shapeInDeviceSpace ? kIdentity : localToDevice,
-                          *styledShape,
+                          styledShape,
                           /*outerBounds=*/drawBounds,
                           /*innerBounds=*/Rect::InfiniteInverted(),
                           /*op=*/SkClipOp::kIntersect,
