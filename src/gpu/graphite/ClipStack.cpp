@@ -99,6 +99,99 @@ bool oriented_bbox_intersection(const Rect& a, const Transform& aXform,
     return all(overlaps); // any non-overlapping interval would imply no intersection
 }
 
+// Tries to intersect `otherShape` transformed by `otherToDevice` directly into `shape` assuming
+// that `shape` is transformed by localToDevice. If possible (true), `shape` represents the exact
+// intersection of the two original shapes. Returns true if `shape` is modified, false otherwise.
+bool intersect_shape(const Transform& otherToDevice, const Shape& otherShape,
+                     const Transform& localToDevice, Shape* shape) {
+    // There are only a subset of shape types that we can analytically intersect with each other,
+    // assuming a simple fill style (always the case for clip shapes):
+    //
+    //  rects, rrects
+    //
+    // In theory, flood-fills (empty+inverse == infinite full coverage) and per-edge AA quads could
+    // also be included but they do not appear as clip shapes.
+    //
+    // Paths and arcs have complex intersection logic, so are skipped under the assumption that
+    // simple cases have already been mapped to a rect or rrect. Lines are only ever stroked, so
+    // are incompatible with this function.
+    bool shapeIntersectable = shape->isRect() || shape->isRRect();
+    bool otherIntersectable = otherShape.isRect() || otherShape.isRRect();
+
+    if (!shapeIntersectable || !otherIntersectable) {
+        // Technically if shapeIntersectable was true for empty+inverse, we could turn the flood
+        // fill into `otherShape` regardless of its type, but those other types are more expensive
+        // to render and in the situation where many draws fill against a clip path, we'd want to
+        // draw the clip a single time vs. drawing the path multiple times.
+        return false;
+    }
+
+    // In order to combine, otherShape must be able to map into `localToDevice` without changing
+    // shape class (e.g. to a path when rotated) in order for shading to apply in the same
+    // coordinate space. This is possible if the relative transform between otherToDevice and
+    // localToDevice is rectStaysRect.
+    Transform storage{SkM44::kUninitialized_Constructor};
+    const Transform* localToOther;
+    if (otherToDevice == localToDevice) {
+        // No coordinate space conversion, so set to null to signal identity mapping is skippable.
+        // NOTE: This case arises in clip-clip combinations when both were axis-aligned and pre-
+        // transformed to device space.
+        localToOther = nullptr;
+    } else {
+        // `otherShape` can't be trivially mapped to the local coordinate space
+        // TODO(b/424507089): This isn't actually true, if the relative transforms between the two
+        // preserve rects. The current code preserves the prior behavior for clip-clip combinations
+        // and more complex transform comparisons will be added in follow-up work to measure perf.
+        return false;
+    }
+
+    SkRRect localOtherRRect;
+    if (otherShape.isRect()) {
+        Rect localOtherRect = otherShape.rect();
+        if (localToOther) {
+            localOtherRect = localToOther->inverseMapRect(localOtherRect);
+        }
+
+        if (shape->isRect()) {
+            localOtherRect.intersect(shape->rect());
+            SkASSERT(!localOtherRect.isEmptyNegativeOrNaN());
+            shape->setRect(localOtherRect);
+            return true;
+        } else {
+            // Fall back to rrect+rrect intersection
+            localOtherRRect = SkRRect::MakeRect(localOtherRect.asSkRect());
+        }
+    } else {
+        SkASSERT(otherShape.isRRect());
+        if (localToOther) {
+            if (!otherShape.rrect().transform(localToOther->inverse().asM33(), &localOtherRRect)) {
+                // Transformation produced invalid geometry
+                return false;
+            }
+        } else {
+            localOtherRRect = otherShape.rrect();
+        }
+
+        // Else continue with rrect+rrect intersection
+    }
+
+    SkRRect localRRect = SkRRectPriv::ConservativeIntersect(
+            localOtherRRect,
+            shape->isRect() ? SkRRect::MakeRect(shape->rect().asSkRect()) : shape->rrect());
+    if (localRRect.isRect()) {
+        // Valid shape that can be simplified to rect
+        shape->setRect(localRRect.rect());
+        return true;
+    } else if (!localRRect.isEmpty()) {
+        // Intersection is representable as a rrect still
+        shape->setRRect(localRRect);
+        return true;
+    } else {
+        // Intersection is complex
+        return false;
+    }
+}
+
 static constexpr Transform kIdentity = Transform::Identity();
 
 } // anonymous namespace
@@ -462,43 +555,12 @@ bool ClipStack::RawElement::combine(const RawElement& other, const SaveRecord& c
         return false;
     }
 
-    // At the moment, only rect+rect or rrect+rrect are supported (although rect+rrect is
-    // treated as a degenerate case of rrect+rrect).
-    bool shapeUpdated = false;
-    if (fShape.isRect() && other.fShape.isRect()) {
-        if (fLocalToDevice == other.fLocalToDevice) {
-            Rect intersection = fShape.rect().makeIntersect(other.fShape.rect());
-            // Simplify() should have caught this case
-            SkASSERT(!intersection.isEmptyNegativeOrNaN());
-            fShape.setRect(intersection);
-            shapeUpdated = true;
-        }
-    } else if ((fShape.isRect() || fShape.isRRect()) &&
-               (other.fShape.isRect() || other.fShape.isRRect())) {
-        if (fLocalToDevice == other.fLocalToDevice) {
-            // Treat rrect+rect intersections as rrect+rrect
-            SkRRect a = fShape.isRect() ? SkRRect::MakeRect(fShape.rect().asSkRect())
-                                        : fShape.rrect();
-            SkRRect b = other.fShape.isRect() ? SkRRect::MakeRect(other.fShape.rect().asSkRect())
-                                              : other.fShape.rrect();
-
-            SkRRect joined = SkRRectPriv::ConservativeIntersect(a, b);
-            if (!joined.isEmpty()) {
-                // Can reduce to a single element
-                if (joined.isRect()) {
-                    // And with a simplified type
-                    fShape.setRect(joined.rect());
-                } else {
-                    fShape.setRRect(joined);
-                }
-                shapeUpdated = true;
-            }
-            // else the intersection isn't representable as a rrect, or doesn't actually intersect.
-            // ConservativeIntersect doesn't disambiguate those two cases, and just testing bounding
-            // boxes for non-intersection would have already been caught by Simplify(), so
-            // just don't combine the two elements and let rasterization resolve the combination.
-        }
-    }
+    // NOTE: intersect_shape operates on the underlying geometry and ignores the fill rule, which
+    // because these are intersect clip ops, is the inverse fill. If the shape is updated, the
+    // resulting geometry is set to a regular fill so it must be re-inverted to represent the
+    // pixels rasterized for a depth-only clip draw.
+    const bool shapeUpdated = intersect_shape(other.fLocalToDevice, other.fShape,
+                                              fLocalToDevice, &fShape);
 
     if (shapeUpdated) {
         // This logic works under the assumption that both combined elements were intersect.
@@ -507,7 +569,7 @@ bool ClipStack::RawElement::combine(const RawElement& other, const SaveRecord& c
         fInnerBounds.intersect(other.fInnerBounds);
         // Inner bounds can become empty, but outer bounds should not be able to.
         SkASSERT(!fOuterBounds.isEmptyNegativeOrNaN());
-        fShape.setInverted(true); // the setR[R]ect operations reset to non-inverse
+        fShape.setInverted(true); // Undo intersect_shape setting it to non-inverse
         this->validate();
         return true;
     } else {

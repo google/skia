@@ -47,6 +47,11 @@ public:
         kInvalid,
     };
 
+    explicit Transform(SkM44::Uninitialized_Constructor)
+            : fM(SkM44::kUninitialized_Constructor)
+            , fInvM(SkM44::kUninitialized_Constructor)
+            , fType(Type::kInvalid) {}
+
     explicit Transform(const SkM44& m);
     Transform(const Transform& t) = default;
 
