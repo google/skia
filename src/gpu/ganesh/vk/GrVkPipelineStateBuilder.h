@@ -28,8 +28,9 @@ class GrVkGpu;
 class GrVkPipelineState;
 class SkReadBuffer;
 namespace SkSL {
+struct NativeShader;
 struct ProgramSettings;
-}
+}  // namespace SkSL
 
 class GrVkPipelineStateBuilder : public GrGLSLProgramBuilder {
 public:
@@ -61,23 +62,22 @@ private:
     int loadShadersFromCache(SkReadBuffer* cached, VkShaderModule outShaderModules[],
                              VkPipelineShaderStageCreateInfo* outStageInfo);
 
-    void storeShadersInCache(const std::string shaders[],
-                             const SkSL::Program::Interface[],
-                             bool isSkSL);
+    void storeShadersInCache(const SkSL::NativeShader binaryShaders[],
+                             const SkSL::Program::Interface[]);
 
     bool createVkShaderModule(VkShaderStageFlagBits stage,
                               const std::string& sksl,
                               VkShaderModule* shaderModule,
                               VkPipelineShaderStageCreateInfo* stageInfo,
                               const SkSL::ProgramSettings& settings,
-                              std::string* outSPIRV,
+                              SkSL::NativeShader* outSPIRV,
                               SkSL::Program::Interface* outInterface);
 
     bool installVkShaderModule(VkShaderStageFlagBits stage,
                                const GrGLSLShaderBuilder& builder,
                                VkShaderModule* shaderModule,
                                VkPipelineShaderStageCreateInfo* stageInfo,
-                               std::string spirv,
+                               const SkSL::NativeShader& spirv,
                                SkSL::Program::Interface);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }

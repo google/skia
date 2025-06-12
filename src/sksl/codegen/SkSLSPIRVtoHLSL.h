@@ -8,11 +8,14 @@
 #ifndef SKSL_SPIRVTOHLSL
 #define SKSL_SPIRVTOHLSL
 
+#include "include/core/SkSpan.h"
+
+#include <cstdint>
 #include <string>
 
 namespace SkSL {
 
-void SPIRVtoHLSL(const std::string& spirv, std::string* hlsl);
+void SPIRVtoHLSL(SkSpan<const uint32_t> spirv, std::string* hlsl);
 
 }  // namespace SkSL
 

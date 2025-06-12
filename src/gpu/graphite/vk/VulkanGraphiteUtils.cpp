@@ -45,13 +45,13 @@ std::unique_ptr<Context> MakeVulkan(const VulkanBackendContext& backendContext,
 namespace skgpu::graphite {
 
 VkShaderModule CreateVulkanShaderModule(const VulkanSharedContext* context,
-                                        const std::string& spirv,
+                                        const SkSL::NativeShader& spirv,
                                         VkShaderStageFlagBits stage) {
     TRACE_EVENT0("skia.shaders", "InstallVkShaderModule");
     VkShaderModuleCreateInfo moduleCreateInfo = {};
     moduleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    moduleCreateInfo.codeSize = spirv.size();
-    moduleCreateInfo.pCode = (const uint32_t*)spirv.c_str();
+    moduleCreateInfo.codeSize = spirv.fBinary.size() * sizeof(uint32_t);
+    moduleCreateInfo.pCode = spirv.fBinary.data();
 
     VkShaderModule shaderModule;
     VkResult result;

@@ -15,6 +15,7 @@
 #include "src/gpu/SkSLToBackend.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/sksl/SkSLProgramKind.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
@@ -37,11 +38,18 @@ inline bool SkSLToWGSL(const SkSL::ShaderCaps* caps,
                        const std::string& sksl,
                        SkSL::ProgramKind programKind,
                        const SkSL::ProgramSettings& settings,
-                       std::string* wgsl,
+                       SkSL::NativeShader* wgsl,
                        SkSL::ProgramInterface* outInterface,
                        ShaderErrorHandler* errorHandler) {
-    return SkSLToBackend(caps, &SkSL::ToWGSL, "WGSL",
-                         sksl, programKind, settings, wgsl, outInterface, errorHandler);
+    return SkSLToBackend(caps,
+                         &SkSL::ToWGSL,
+                         "WGSL",
+                         sksl,
+                         programKind,
+                         settings,
+                         wgsl,
+                         outInterface,
+                         errorHandler);
 }
 
 }  // namespace skgpu
@@ -53,7 +61,7 @@ enum class TextureFormat : uint8_t;
 
 bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
                                  const char* label,
-                                 const std::string& wgsl,
+                                 const SkSL::NativeShader& wgsl,
                                  wgpu::ShaderModule* module,
                                  ShaderErrorHandler*);
 

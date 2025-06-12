@@ -35,6 +35,7 @@
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/codegen/SkSLCodeGenTypes.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLConstructor.h"
@@ -4621,12 +4622,12 @@ bool ToWGSL(Program& program, const ShaderCaps* caps, OutputStream& out) {
     return ToWGSL(program, caps, out, defaultPrintOpts, IncludeSyntheticCode::kNo, nullptr);
 }
 
-bool ToWGSL(Program& program, const ShaderCaps* caps, std::string* out) {
+bool ToWGSL(Program& program, const ShaderCaps* caps, NativeShader* out) {
     StringStream buffer;
     if (!ToWGSL(program, caps, buffer)) {
         return false;
     }
-    *out = buffer.str();
+    out->fText = buffer.str();
     return true;
 }
 

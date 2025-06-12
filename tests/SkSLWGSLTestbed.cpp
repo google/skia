@@ -10,6 +10,7 @@
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "tests/Test.h"
@@ -28,10 +29,10 @@ static void test(skiatest::Reporter* r,
         SkDebugf("Unexpected error compiling %s\n%s", src, compiler.errorText().c_str());
         REPORTER_ASSERT(r, program);
     } else {
-        std::string output;
+        SkSL::NativeShader output;
         REPORTER_ASSERT(r, SkSL::ToWGSL(*program, SkSL::ShaderCapsFactory::Default(), &output));
-        REPORTER_ASSERT(r, output != "");
-        //SkDebugf("WGSL output:\n\n%s", output.c_str());
+        REPORTER_ASSERT(r, output.fText != "");
+        //SkDebugf("WGSL output:\n\n%s", output.fText.c_str());
     }
 }
 

@@ -19,6 +19,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 namespace skgpu::graphite {
@@ -41,7 +42,7 @@ sk_sp<MtlComputePipeline> MtlComputePipeline::Make(const MtlSharedContext* share
         }
         entryPointName = std::move(nativeShader.fEntryPoint);
     } else {
-        std::string msl;
+        SkSL::NativeShader msl;
         SkSL::Program::Interface interface;
         SkSL::ProgramSettings settings;
 
@@ -58,10 +59,8 @@ sk_sp<MtlComputePipeline> MtlComputePipeline::Make(const MtlSharedContext* share
                        errorHandler)) {
             return nullptr;
         }
-        library = MtlCompileShaderLibrary(sharedContext,
-                                          pipelineDesc.computeStep()->name(),
-                                          msl,
-                                          errorHandler);
+        library = MtlCompileShaderLibrary(
+                sharedContext, pipelineDesc.computeStep()->name(), msl.fText, errorHandler);
         if (library == nil) {
             return nullptr;
         }

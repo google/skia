@@ -63,6 +63,7 @@ skia_cc_library(
         ":shared_hdrs",
         "//include/gpu:shared_gpu_hdrs",
         "//src/gpu/tessellate:tessellate_hdrs",
+        "//src/sksl/codegen:codegen_shared_exported",
         "//src/utils:shader_utils_hdrs",
     ],
     visibility = [

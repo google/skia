@@ -4,9 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+
+#include "bench/SkSLBench.h"
+
 #include "bench/Benchmark.h"
 #include "bench/ResultsWriter.h"
-#include "bench/SkSLBench.h"
 #include "include/core/SkCanvas.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkRasterPipeline.h"
@@ -18,6 +20,7 @@
 #include "src/sksl/SkSLParser.h"
 #include "src/sksl/codegen/SkSLGLSLCodeGenerator.h"
 #include "src/sksl/codegen/SkSLMetalCodeGenerator.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/codegen/SkSLRasterPipelineBuilder.h"
 #include "src/sksl/codegen/SkSLRasterPipelineCodeGenerator.h"
 #include "src/sksl/codegen/SkSLSPIRVCodeGenerator.h"
@@ -151,7 +154,7 @@ protected:
             if (fCompiler.errorCount()) {
                 SK_ABORT("shader compilation failed: %s\n", fCompiler.errorText().c_str());
             }
-            std::string result;
+            SkSL::NativeShader result;
             switch (fOutput) {
                 case Output::kNone:
                     break;

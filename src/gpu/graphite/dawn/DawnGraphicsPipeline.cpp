@@ -343,7 +343,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     const RenderStep* step = sharedContext->rendererProvider()->lookup(pipelineDesc.renderStepID());
     const bool useStorageBuffers = caps.storageBufferSupport();
 
-    std::string vsCode, fsCode;
+    SkSL::NativeShader vsCode, fsCode;
     wgpu::ShaderModule fsModule, vsModule;
 
     // Some steps just render depth buffer but not color buffer, so the fragment
@@ -734,8 +734,8 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
     PipelineInfo pipelineInfo{ *shaderInfo, pipelineCreationFlags,
                                pipelineKey.hash(), compilationID };
 #if defined(GPU_TEST_UTILS)
-    pipelineInfo.fNativeVertexShader = std::move(vsCode);
-    pipelineInfo.fNativeFragmentShader = std::move(fsCode);
+    pipelineInfo.fNativeVertexShader = std::move(vsCode.fText);
+    pipelineInfo.fNativeFragmentShader = std::move(fsCode.fText);
 #endif
 
     return sk_sp<DawnGraphicsPipeline>(

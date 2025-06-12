@@ -14,6 +14,7 @@
 #include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/vk/VulkanInterface.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 
 #include <string>
 
@@ -64,7 +65,7 @@ struct RenderPassDesc;
 enum class TextureFormat : uint8_t;
 
 VkShaderModule CreateVulkanShaderModule(const VulkanSharedContext*,
-                                        const std::string& spirv,
+                                        const SkSL::NativeShader& spirv,
                                         VkShaderStageFlagBits);
 
 VkDescriptorType DsTypeEnumToVkDs(DescriptorType);

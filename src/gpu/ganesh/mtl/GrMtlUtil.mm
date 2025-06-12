@@ -50,11 +50,11 @@ MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
 }
 
 id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
-                                         const std::string& msl,
+                                         const SkSL::NativeShader& msl,
                                          GrContextOptions::ShaderErrorHandler* errorHandler) {
     TRACE_EVENT0("skia.shaders", "driver_compile_shader");
-    NSString* nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
-                                                        length:msl.size()
+    NSString* nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.fText.c_str())
+                                                        length:msl.fText.size()
                                                       encoding:NSUTF8StringEncoding
                                                   freeWhenDone:NO];
     if (!nsSource) {
@@ -83,17 +83,16 @@ id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
     }
     if (!compiledLibrary) {
         errorHandler->compileError(
-                msl.c_str(), error.debugDescription.UTF8String, /*shaderWasCached=*/false);
+                msl.fText.c_str(), error.debugDescription.UTF8String, /*shaderWasCached=*/false);
         return nil;
     }
 
     return compiledLibrary;
 }
 
-void GrPrecompileMtlShaderLibrary(const GrMtlGpu* gpu,
-                                  const std::string& msl) {
-    NSString* nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.c_str())
-                                                        length:msl.size()
+void GrPrecompileMtlShaderLibrary(const GrMtlGpu* gpu, const SkSL::NativeShader& msl) {
+    NSString* nsSource = [[NSString alloc] initWithBytesNoCopy:const_cast<char*>(msl.fText.c_str())
+                                                        length:msl.fText.size()
                                                       encoding:NSUTF8StringEncoding
                                                   freeWhenDone:NO];
     if (!nsSource) {

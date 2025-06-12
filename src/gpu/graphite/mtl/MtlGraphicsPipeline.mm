@@ -23,6 +23,7 @@
 #include "src/gpu/mtl/MtlUtilsPriv.h"
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 namespace skgpu::graphite {
@@ -275,7 +276,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
         const RenderPassDesc& renderPassDesc,
         SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags,
         uint32_t compilationID) {
-    std::string vsMSL, fsMSL;
+    SkSL::NativeShader vsMSL, fsMSL;
     SkSL::Program::Interface vsInterface, fsInterface;
 
     SkSL::ProgramSettings settings;
@@ -324,10 +325,10 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
         return nullptr;
     }
 
-    auto vsLibrary =
-            MtlCompileShaderLibrary(sharedContext, shaderInfo->vsLabel(), vsMSL, errorHandler);
-    auto fsLibrary =
-            MtlCompileShaderLibrary(sharedContext, shaderInfo->fsLabel(), fsMSL, errorHandler);
+    auto vsLibrary = MtlCompileShaderLibrary(
+            sharedContext, shaderInfo->vsLabel(), vsMSL.fText, errorHandler);
+    auto fsLibrary = MtlCompileShaderLibrary(
+            sharedContext, shaderInfo->fsLabel(), fsMSL.fText, errorHandler);
 
     sk_cfp<id<MTLDepthStencilState>> dss =
             resourceProvider->findOrCreateCompatibleDepthStencilState(step->depthStencilSettings());
@@ -335,8 +336,8 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
     PipelineInfo pipelineInfo{ *shaderInfo, pipelineCreationFlags,
                                pipelineKey.hash(), compilationID };
 #if defined(GPU_TEST_UTILS)
-    pipelineInfo.fNativeVertexShader = std::move(vsMSL);
-    pipelineInfo.fNativeFragmentShader = std::move(fsMSL);
+    pipelineInfo.fNativeVertexShader = std::move(vsMSL.fText);
+    pipelineInfo.fNativeFragmentShader = std::move(fsMSL.fText);
 #endif
 
     std::string pipelineLabel =

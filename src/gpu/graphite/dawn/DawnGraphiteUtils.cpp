@@ -208,7 +208,7 @@ static bool check_shader_module([[maybe_unused]] const DawnSharedContext* shared
 
 bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
                                  const char* label,
-                                 const std::string& wgsl,
+                                 const SkSL::NativeShader& wgsl,
                                  wgpu::ShaderModule* module,
                                  ShaderErrorHandler* errorHandler) {
 #if defined(__EMSCRIPTEN__)
@@ -216,7 +216,7 @@ bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
 #else
     wgpu::ShaderSourceWGSL wgslDesc;
 #endif
-    wgslDesc.code = wgsl.c_str();
+    wgslDesc.code = wgsl.fText.c_str();
 
     wgpu::ShaderModuleDescriptor desc;
     desc.nextInChain = &wgslDesc;
@@ -226,7 +226,7 @@ bool DawnCompileWGSLShaderModule(const DawnSharedContext* sharedContext,
 
     *module = sharedContext->device().CreateShaderModule(&desc);
 
-    return check_shader_module(sharedContext, module, wgsl.c_str(), errorHandler);
+    return check_shader_module(sharedContext, module, wgsl.fText.c_str(), errorHandler);
 }
 
 #if !defined(__EMSCRIPTEN__)

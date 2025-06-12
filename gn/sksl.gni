@@ -286,6 +286,7 @@ skia_sksl_codegen_sources = [
   "$_src/sksl/codegen/SkSLGLSLCodeGenerator.h",
   "$_src/sksl/codegen/SkSLMetalCodeGenerator.cpp",
   "$_src/sksl/codegen/SkSLMetalCodeGenerator.h",
+  "$_src/sksl/codegen/SkSLNativeShader.h",
   "$_src/sksl/codegen/SkSLSPIRVCodeGenerator.cpp",
   "$_src/sksl/codegen/SkSLSPIRVCodeGenerator.h",
   "$_src/sksl/codegen/SkSLWGSLCodeGenerator.cpp",

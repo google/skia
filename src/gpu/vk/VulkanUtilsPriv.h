@@ -31,6 +31,7 @@ class SkWStream;
 
 namespace SkSL {
 
+struct NativeShader;
 enum class ProgramKind : int8_t;
 struct ProgramInterface;
 struct ProgramSettings;
@@ -98,11 +99,18 @@ inline bool SkSLToSPIRV(const SkSL::ShaderCaps* caps,
                         const std::string& sksl,
                         SkSL::ProgramKind programKind,
                         const SkSL::ProgramSettings& settings,
-                        std::string* spirv,
+                        SkSL::NativeShader* spirv,
                         SkSL::ProgramInterface* outInterface,
                         ShaderErrorHandler* errorHandler) {
-    return SkSLToBackend(caps, &SkSL::ToSPIRV, /*backendLabel=*/nullptr,
-                         sksl, programKind, settings, spirv, outInterface, errorHandler);
+    return SkSLToBackend(caps,
+                         &SkSL::ToSPIRV,
+                         "SPIRV",
+                         sksl,
+                         programKind,
+                         settings,
+                         spirv,
+                         outInterface,
+                         errorHandler);
 }
 
 static constexpr uint32_t VkFormatChannels(VkFormat vkFormat) {

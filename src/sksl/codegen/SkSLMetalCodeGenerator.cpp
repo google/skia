@@ -32,6 +32,7 @@
 #include "src/sksl/analysis/SkSLProgramVisitor.h"
 #include "src/sksl/codegen/SkSLCodeGenTypes.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
 #include "src/sksl/ir/SkSLConstructor.h"
@@ -3721,12 +3722,12 @@ bool ToMetal(Program& program, const ShaderCaps* caps, OutputStream& out) {
     return ToMetal(program, caps, out, defaultPrintOpts);
 }
 
-bool ToMetal(Program& program, const ShaderCaps* caps, std::string* out) {
+bool ToMetal(Program& program, const ShaderCaps* caps, NativeShader* out) {
     StringStream buffer;
     if (!ToMetal(program, caps, buffer)) {
         return false;
     }
-    *out = buffer.str();
+    out->fText = buffer.str();
     return true;
 }
 

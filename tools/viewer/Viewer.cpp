@@ -2860,7 +2860,11 @@ void Viewer::drawImGui() {
 
                             SkReadBuffer reader(data->data(), data->size());
                             entry.fShaderType = GrPersistentCacheUtils::GetType(&reader);
-                            GrPersistentCacheUtils::UnpackCachedShaders(&reader, entry.fShader,
+                            const bool isBinaryShader =
+                                    entry.fShaderType == SkSetFourByteTag('S', 'P', 'R', 'V');
+                            GrPersistentCacheUtils::UnpackCachedShaders(&reader,
+                                                                        entry.fShader,
+                                                                        isBinaryShader,
                                                                         entry.fInterfaces,
                                                                         kGrShaderTypeCount);
                         });
@@ -2880,15 +2884,15 @@ void Viewer::drawImGui() {
                                                               index++, pipelineInfo.fLabel.c_str());
 
                             if (sksl) {
-                                entry.fShader[kVertex_GrShaderType] =
+                                entry.fShader[kVertex_GrShaderType].fText =
                                         pipelineInfo.fSkSLVertexShader;
-                                entry.fShader[kFragment_GrShaderType] =
+                                entry.fShader[kFragment_GrShaderType].fText =
                                         pipelineInfo.fSkSLFragmentShader;
                                 entry.fShaderType = SkSetFourByteTag('S', 'K', 'S', 'L');
                             } else {
-                                entry.fShader[kVertex_GrShaderType] =
+                                entry.fShader[kVertex_GrShaderType].fText =
                                         pipelineInfo.fNativeVertexShader;
-                                entry.fShader[kFragment_GrShaderType] =
+                                entry.fShader[kFragment_GrShaderType].fText =
                                         pipelineInfo.fNativeFragmentShader;
                                 // We could derive the shader type from the GraphicsPipeline's type
                                 // if there is ever a need to.
@@ -2911,11 +2915,12 @@ void Viewer::drawImGui() {
                                    SPV_BINARY_TO_TEXT_OPTION_NESTED_INDENT;
                         for (auto& entry : fCachedShaders) {
                             for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                                const std::string& spirv(entry.fShader[i]);
                                 std::string disasm;
-                                tools.Disassemble((const uint32_t*)spirv.c_str(), spirv.size() / 4,
-                                                  &disasm, options);
-                                entry.fShader[i].assign(disasm);
+                                tools.Disassemble(entry.fShader[i].fBinary.data(),
+                                                  entry.fShader[i].fBinary.size(),
+                                                  &disasm,
+                                                  options);
+                                entry.fShader[i].fText.assign(disasm);
                             }
                         }
                     } else
@@ -2924,7 +2929,8 @@ void Viewer::drawImGui() {
                         // Reformat the SkSL with proper indentation.
                         for (auto& entry : fCachedShaders) {
                             for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                                entry.fShader[i] = SkShaderUtils::PrettyPrint(entry.fShader[i]);
+                                entry.fShader[i].fText =
+                                        SkShaderUtils::PrettyPrint(entry.fShader[i].fText);
                             }
                         }
                     }
@@ -3015,8 +3021,8 @@ void Viewer::drawImGui() {
                             ImGui::TextWrapped("%s", entry.fKeyDescription.c_str());
                             ImGui::TreePop();
                         }
-                        stringBox("##VP", &entry.fShader[kVertex_GrShaderType]);
-                        stringBox("##FP", &entry.fShader[kFragment_GrShaderType]);
+                        stringBox("##VP", &entry.fShader[kVertex_GrShaderType].fText);
+                        stringBox("##FP", &entry.fShader[kFragment_GrShaderType].fText);
                         ImGui::TreePop();
                     }
                 }
@@ -3045,11 +3051,11 @@ void Viewer::drawImGui() {
                     fPersistentCache.reset();
                     ctx->priv().getGpu()->resetShaderCacheForTesting();
                     for (auto& entry : fCachedShaders) {
-                        std::string backup = entry.fShader[kFragment_GrShaderType];
+                        std::string backup = entry.fShader[kFragment_GrShaderType].fText;
                         if (entry.fHovered) {
                             // The hovered item (if any) gets a special shader to make it
                             // identifiable.
-                            std::string& fragShader = entry.fShader[kFragment_GrShaderType];
+                            std::string& fragShader = entry.fShader[kFragment_GrShaderType].fText;
                             switch (entry.fShaderType) {
                                 case SkSetFourByteTag('S', 'K', 'S', 'L'): {
                                     fragShader = build_sksl_highlight_shader();
@@ -3067,13 +3073,14 @@ void Viewer::drawImGui() {
                             }
                         }
 
+                        SkASSERT(!entry.fShader[0].isBinary());
                         auto data = GrPersistentCacheUtils::PackCachedShaders(entry.fShaderType,
                                                                               entry.fShader,
                                                                               entry.fInterfaces,
                                                                               kGrShaderTypeCount);
                         fPersistentCache.store(*entry.fKey, *data, entry.fKeyDescription);
 
-                        entry.fShader[kFragment_GrShaderType] = backup;
+                        entry.fShader[kFragment_GrShaderType].fText = backup;
                     }
                 }
             }
@@ -3236,8 +3243,10 @@ void Viewer::dumpShadersToResources() {
     }
 
     std::sort(shaders.begin(), shaders.end(), [](const CachedShader* a, const CachedShader* b) {
-        return std::tie(a->fShader[kFragment_GrShaderType], a->fShader[kVertex_GrShaderType]) <
-               std::tie(b->fShader[kFragment_GrShaderType], b->fShader[kVertex_GrShaderType]);
+        return std::tie(a->fShader[kFragment_GrShaderType].fText,
+                        a->fShader[kVertex_GrShaderType].fText) <
+               std::tie(b->fShader[kFragment_GrShaderType].fText,
+                        b->fShader[kVertex_GrShaderType].fText);
     });
 
     // Make the resources/sksl/SlideName/ directory.
@@ -3254,7 +3263,7 @@ void Viewer::dumpShadersToResources() {
         SkString vertPath = SkStringPrintf("%s/Vertex_%02d.vert", directory.c_str(), index);
         FILE* vertFile = sk_fopen(vertPath.c_str(), kWrite_SkFILE_Flag);
         if (vertFile) {
-            const std::string& vertText = entry->fShader[kVertex_GrShaderType];
+            const std::string& vertText = entry->fShader[kVertex_GrShaderType].fText;
             SkAssertResult(sk_fwrite(vertText.c_str(), vertText.size(), vertFile));
             sk_fclose(vertFile);
         } else {
@@ -3264,7 +3273,7 @@ void Viewer::dumpShadersToResources() {
         SkString fragPath = SkStringPrintf("%s/Fragment_%02d.frag", directory.c_str(), index);
         FILE* fragFile = sk_fopen(fragPath.c_str(), kWrite_SkFILE_Flag);
         if (fragFile) {
-            const std::string& fragText = entry->fShader[kFragment_GrShaderType];
+            const std::string& fragText = entry->fShader[kFragment_GrShaderType].fText;
             SkAssertResult(sk_fwrite(fragText.c_str(), fragText.size(), fragFile));
             sk_fclose(fragFile);
         } else {

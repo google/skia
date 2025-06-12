@@ -83,6 +83,7 @@
 #include "src/sksl/spirv.h"
 #include "src/sksl/transform/SkSLTransform.h"
 #include "src/utils/SkBitSet.h"
+#include "src/utils/SkShaderUtils.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -5585,9 +5586,9 @@ bool ToSPIRV(Program& program,
         result = cg.generateCode();
 
         if (result && program.fConfig->fSettings.fValidateSPIRV) {
-            std::string_view binary = buffer.str();
-            result = validateSPIRV(*program.fContext->fErrors, binary);
-            out.write(binary.data(), binary.size());
+            const std::vector<uint32_t> spirv = SkShaderUtils::StringToBinary(buffer.str());
+            result = validateSPIRV(*program.fContext->fErrors, spirv);
+            out.write(spirv.data(), spirv.size() * sizeof(uint32_t));
         }
     } else {
         SPIRVCodeGenerator cg(program.fContext.get(), caps, &program, &out);
@@ -5600,13 +5601,13 @@ bool ToSPIRV(Program& program,
 
 bool ToSPIRV(Program& program,
              const ShaderCaps* caps,
-             std::string* out,
+             std::vector<uint32_t>* out,
              ValidateSPIRVProc validateSPIRV) {
     StringStream buffer;
     if (!ToSPIRV(program, caps, buffer, validateSPIRV)) {
         return false;
     }
-    *out = buffer.str();
+    *out = SkShaderUtils::StringToBinary(buffer.str());
     return true;
 }
 

@@ -13,6 +13,7 @@
 
 namespace SkSL {
 
+struct NativeShader;
 enum class ProgramKind : int8_t;
 struct Program;
 struct ProgramInterface;
@@ -25,14 +26,18 @@ namespace skgpu {
 
 class ShaderErrorHandler;
 
-/** Wrapper for the SkSL compiler with useful logging and error handling. */
+/**
+ * Wrapper for the SkSL compiler with useful logging and error handling.
+ * Depending on whether the output is text or binary, either output->fText or output->fBinary is
+ * filled.
+ */
 bool SkSLToBackend(const SkSL::ShaderCaps* caps,
-                   bool (*toBackend)(SkSL::Program&, const SkSL::ShaderCaps*, std::string*),
+                   bool (*toBackend)(SkSL::Program&, const SkSL::ShaderCaps*, SkSL::NativeShader*),
                    const char* backendLabel,
                    const std::string& sksl,
                    SkSL::ProgramKind programKind,
                    const SkSL::ProgramSettings& settings,
-                   std::string* output,
+                   SkSL::NativeShader* output,
                    SkSL::ProgramInterface* outInterface,
                    ShaderErrorHandler* errorHandler);
 

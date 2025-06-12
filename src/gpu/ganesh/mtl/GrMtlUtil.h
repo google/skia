@@ -15,6 +15,7 @@
 #include "include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/gpu/ganesh/mtl/GrMtlTypesPriv.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 class GrMtlGpu;
@@ -76,15 +77,14 @@ MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture);
  * Returns a compiled MTLLibrary created from MSL code
  */
 id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
-                                         const std::string& msl,
+                                         const SkSL::NativeShader& msl,
                                          GrContextOptions::ShaderErrorHandler* errorHandler);
 
 /**
  * Attempts to compile an MSL shader asynchronously. We are not concerned about the result, which
  * will be cached in the Apple shader cache.
  */
-void GrPrecompileMtlShaderLibrary(const GrMtlGpu* gpu,
-                                  const std::string& msl);
+void GrPrecompileMtlShaderLibrary(const GrMtlGpu* gpu, const SkSL::NativeShader& msl);
 
 /**
  * Replacement for newLibraryWithSource:options:error that has a timeout.
