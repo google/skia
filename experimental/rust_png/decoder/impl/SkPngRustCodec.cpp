@@ -764,7 +764,10 @@ SkCodec::Result SkPngRustCodec::onStartIncrementalDecode(const SkImageInfo& dstI
 }
 
 SkCodec::Result SkPngRustCodec::onIncrementalDecode(int* rowsDecoded) {
-    SkASSERT(fIncrementalDecodingState.has_value());
+    if (!fIncrementalDecodingState.has_value()) {
+        return kInvalidParameters;
+    }
+
     Result result = this->incrementalDecode(*fIncrementalDecodingState, rowsDecoded);
     if (result != kIncompleteInput) {
         // After successfully reading the whole row (`kSuccess`), and after a
