@@ -85,8 +85,8 @@ public:
     // Implemented in src/sksl/SkBitmapDevice_mesh.cpp
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;
 
-    void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, sk_sp<SkBlender>,
-                   const SkPaint&) override;
+    void drawAtlas(SkSpan<const SkRSXform>, SkSpan<const SkRect>, SkSpan<const SkColor>,
+                   sk_sp<SkBlender>, const SkPaint&) override;
 
     ///////////////////////////////////////////////////////////////////////////
 

@@ -224,7 +224,8 @@ protected:
             tiny_persp_effect(canvas);
         }
         for (int i = 0; i < loops; i++) {
-            canvas->drawAtlas(fAtlas.get(), fXforms, fRects, colors, N, SkBlendMode::kModulate,
+            canvas->drawAtlas(fAtlas.get(), fXforms, fRects,
+                              {colors, colors ? N : 0}, SkBlendMode::kModulate,
                               SkSamplingOptions(), cullRect, paintPtr);
         }
     }

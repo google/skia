@@ -1832,18 +1832,21 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
     }
 }
 
-void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                         const SkColor colors[], int count, SkBlendMode mode,
+void SkCanvas::drawAtlas(const SkImage* atlas, SkSpan<const SkRSXform> xform,
+                         SkSpan<const SkRect> tex, SkSpan<const SkColor> colors, SkBlendMode mode,
                          const SkSamplingOptions& sampling, const SkRect* cull,
                          const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(atlas);
-    if (count <= 0) {
+    size_t count = std::min(xform.size(), tex.size());
+    if (!colors.empty()) {
+        count = std::min(count, colors.size());
+    }
+    if (count == 0) {
         return;
     }
-    SkASSERT(atlas);
-    SkASSERT(tex);
-    this->onDrawAtlas2(atlas, xform, tex, colors, count, mode, sampling, cull, paint);
+    this->onDrawAtlas2(atlas, xform.data(), tex.data(), colors.data(), count, mode, sampling,
+                       cull, paint);
 }
 
 void SkCanvas::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
@@ -2673,8 +2676,8 @@ void SkCanvas::onDrawAtlas2(const SkImage* atlas, const SkRSXform xform[], const
     SkASSERT(!realPaint.getMaskFilter());
     auto layer = this->aboutToDraw(realPaint);
     if (layer) {
-        this->topDevice()->drawAtlas(xform, tex, colors, count, SkBlender::Mode(bmode),
-                                     layer->paint());
+        this->topDevice()->drawAtlas({xform, count}, {tex, count}, {colors, colors ? count : 0},
+                                     SkBlender::Mode(bmode), layer->paint());
     }
 }
 

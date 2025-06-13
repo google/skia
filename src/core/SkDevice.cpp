@@ -40,7 +40,9 @@
 #include "src/text/GlyphRun.h"
 #include "src/utils/SkPatchUtils.h"
 
+#include <cstddef>
 #include <cstdint>
+
 
 SkDevice::SkDevice(const SkImageInfo& info, const SkSurfaceProps& surfaceProps)
         : fInfo(info)
@@ -200,16 +202,16 @@ static SkPoint* quad_to_tris(SkPoint tris[6], const SkPoint quad[4]) {
     return tris + 6;
 }
 
-void SkDevice::drawAtlas(const SkRSXform xform[],
-                         const SkRect tex[],
-                         const SkColor colors[],
-                         int quadCount,
+void SkDevice::drawAtlas(SkSpan<const SkRSXform> xform,
+                         SkSpan<const SkRect> tex,
+                         SkSpan<const SkColor> colors,
                          sk_sp<SkBlender> blender,
                          const SkPaint& paint) {
-    const int triCount = quadCount << 1;
-    const int vertexCount = triCount * 3;
+    const size_t quadCount = xform.size();
+    const size_t triCount = quadCount << 1;
+    const size_t vertexCount = triCount * 3;
     uint32_t flags = SkVertices::kHasTexCoords_BuilderFlag;
-    if (colors) {
+    if (!colors.empty()) {
         flags |= SkVertices::kHasColors_BuilderFlag;
     }
     SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vertexCount, 0, flags);
@@ -217,7 +219,7 @@ void SkDevice::drawAtlas(const SkRSXform xform[],
     SkPoint* vPos = builder.positions();
     SkPoint* vTex = builder.texCoords();
     SkColor* vCol = builder.colors();
-    for (int i = 0; i < quadCount; ++i) {
+    for (size_t i = 0; i < quadCount; ++i) {
         SkPoint tmp[4];
         xform[i].toQuad(tex[i].width(), tex[i].height(), tmp);
         vPos = quad_to_tris(vPos, tmp);
@@ -225,7 +227,7 @@ void SkDevice::drawAtlas(const SkRSXform xform[],
         tex[i].toQuad(tmp);
         vTex = quad_to_tris(vTex, tmp);
 
-        if (colors) {
+        if (!colors.empty()) {
             SkOpts::memset32(vCol, colors[i], 6);
             vCol += 6;
         }

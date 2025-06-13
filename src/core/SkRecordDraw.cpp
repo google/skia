@@ -10,11 +10,13 @@
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkBlender.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkMesh.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRSXform.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
@@ -160,8 +162,11 @@ DRAW(DrawRect, drawRect(r.rect, r.paint))
 DRAW(DrawRegion, drawRegion(r.region, r.paint))
 DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint))
 DRAW(DrawSlug, drawSlug(r.slug.get(), r.paint))
-DRAW(DrawAtlas, drawAtlas(r.atlas.get(), r.xforms, r.texs, r.colors, r.count, r.mode, r.sampling,
-                          r.cull, r.paint))
+DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
+                          {r.xforms, r.count},
+                          {r.texs, r.count},
+                          {r.colors, r.colors ? r.count : 0},
+                          r.mode, r.sampling, r.cull, r.paint))
 DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint))
 DRAW(DrawMesh, drawMesh(r.mesh, r.blender, r.paint))
 DRAW(DrawShadowRec, private_draw_shadow_rec(r.path, r.rec))

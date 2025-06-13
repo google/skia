@@ -289,7 +289,11 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 sampling = reader->readSampling();
                 BREAK_ON_READ_ERROR(reader);
             }
-            canvas->drawAtlas(atlas, xform, tex, colors, count, mode, sampling, cull, paint);
+            canvas->drawAtlas(atlas,
+                              {xform, count},
+                              {tex, count},
+                              {colors, colors ? count : 0},
+                              mode, sampling, cull, paint);
         } break;
         case DRAW_CLEAR: {
             auto c = reader->readInt();

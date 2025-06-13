@@ -131,7 +131,7 @@ static void draw_atlas(SkCanvas* canvas, SkImage* atlas, const SkRect& r,
     paint.setImageFilter(std::move(imf));
     paint.setAntiAlias(true);
     SkSamplingOptions sampling(SkCubicResampler::Mitchell());
-    canvas->drawAtlas(atlas, &xform, &r, /*colors=*/nullptr, /*count=*/1, SkBlendMode::kSrc,
+    canvas->drawAtlas(atlas, {&xform, 1}, {&r, 1}, {}, SkBlendMode::kSrc,
                       sampling, /*cullRect=*/nullptr, &paint);
 }
 

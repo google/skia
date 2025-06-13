@@ -115,10 +115,10 @@ protected:
         paint.setAntiAlias(true);
         SkSamplingOptions sampling(SkFilterMode::kLinear);
 
-        canvas->drawAtlas(atlas.get(), xform, tex, nullptr, N, SkBlendMode::kDst,
+        canvas->drawAtlas(atlas.get(), xform, tex, {}, SkBlendMode::kDst,
                           sampling, nullptr, &paint);
         canvas->translate(0, 100);
-        canvas->drawAtlas(atlas.get(), xform, tex, colors, N, SkBlendMode::kSrcIn,
+        canvas->drawAtlas(atlas.get(), xform, tex, colors, SkBlendMode::kSrcIn,
                           sampling, nullptr, &paint);
     }
 
@@ -344,7 +344,7 @@ DEF_SIMPLE_GM(compare_atlas_vertices, canvas, 560, 585) {
             canvas->save();
             for (const sk_sp<SkColorFilter>& cf : filters) {
                 paint.setColorFilter(cf);
-                canvas->drawAtlas(image.get(), &xform, &tex, &color, 1, mode,
+                canvas->drawAtlas(image.get(), {&xform, 1}, {&tex, 1}, {&color, 1}, mode,
                                   SkSamplingOptions(), &tex, &paint);
                 canvas->translate(128, 0);
                 paint.setShader(image->makeShader(SkSamplingOptions()));

@@ -153,11 +153,11 @@ protected:
             canvas->translate(SkIntToScalar(i*(target.height()+kPad)),
                               SkIntToScalar(kTextPad+kPad));
             // w/o a paint
-            canvas->drawAtlas(atlas.get(), xforms, rects, quadColors, numColors,
+            canvas->drawAtlas(atlas.get(), xforms, rects, quadColors,
                               gModes[i], SkSamplingOptions(), nullptr, nullptr);
             canvas->translate(0.0f, numColors*(target.height()+kPad));
             // w a paint
-            canvas->drawAtlas(atlas.get(), xforms, rects, quadColors, numColors,
+            canvas->drawAtlas(atlas.get(), xforms, rects, quadColors,
                               gModes[i], SkSamplingOptions(), nullptr, &paint);
             canvas->restore();
         }

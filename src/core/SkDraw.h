@@ -57,7 +57,7 @@ public:
                       sk_sp<SkBlender>,
                       const SkPaint&,
                       bool skipColorXform) const;
-    void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count,
+    void drawAtlas(SkSpan<const SkRSXform>, SkSpan<const SkRect>, SkSpan<const SkColor>,
                    sk_sp<SkBlender>, const SkPaint&);
 
     void drawDevMask(const SkMask& mask, const SkPaint&, const SkMatrix*) const;

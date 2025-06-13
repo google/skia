@@ -10,6 +10,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRSXform.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkSurface.h"
 #include "include/utils/SkTextUtils.h"
 #include "src/base/SkRandom.h"
@@ -17,21 +18,27 @@
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/viewer/Slide.h"
 
-typedef void (*DrawAtlasProc)(SkCanvas*, SkImage*, const SkRSXform[], const SkRect[],
-                              const SkColor[], int, const SkRect*, const SkSamplingOptions&,
+typedef void (*DrawAtlasProc)(SkCanvas*, SkImage*, SkSpan<const SkRSXform>, SkSpan<const SkRect>,
+                              SkSpan<const SkColor>, const SkRect*, const SkSamplingOptions&,
                               const SkPaint*);
 
-static void draw_atlas(SkCanvas* canvas, SkImage* atlas, const SkRSXform xform[],
-                       const SkRect tex[], const SkColor colors[], int count, const SkRect* cull,
+static void draw_atlas(SkCanvas* canvas, SkImage* atlas, SkSpan<const SkRSXform> xform,
+                       SkSpan<const SkRect> tex,
+                       SkSpan<const SkColor> colors, const SkRect* cull,
                        const SkSamplingOptions& sampling, const SkPaint* paint) {
-    canvas->drawAtlas(atlas, xform, tex, colors, count, SkBlendMode::kModulate,
+    canvas->drawAtlas(atlas, xform, tex, colors, SkBlendMode::kModulate,
                       sampling, cull, paint);
 }
 
-static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xform[],
-                           const SkRect tex[], const SkColor colors[], int count, const SkRect* cull,
+static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, SkSpan<const SkRSXform> xform,
+                           SkSpan<const SkRect> tex,
+                           SkSpan<const SkColor> colors, const SkRect* cull,
                            const SkSamplingOptions& sampling, const SkPaint* paint) {
-    for (int i = 0; i < count; ++i) {
+    size_t N = std::min(xform.size(), tex.size());
+    if (!colors.empty()) {
+        N = std::min(N, colors.size());
+    }
+    for (size_t i = 0; i < N; ++i) {
         SkMatrix matrix;
         matrix.setRSXform(xform[i]);
 
@@ -130,9 +137,7 @@ class DrawAtlasDrawable : public SkDrawable {
 
     DrawAtlasProc fProc;
 
-    enum {
-        N = 256,
-    };
+    static constexpr size_t N = 256;
 
     sk_sp<SkImage> fAtlas;
     Rec         fRec[N];
@@ -178,7 +183,7 @@ protected:
         SkRSXform xform[N];
         SkColor colors[N];
 
-        for (int i = 0; i < N; ++i) {
+        for (size_t i = 0; i < N; ++i) {
             fRec[i].advance(fBounds);
             xform[i] = fRec[i].asRSXform();
             if (fUseColors) {
@@ -190,7 +195,8 @@ protected:
 
         const SkRect cull = this->getBounds();
         const SkColor* colorsPtr = fUseColors ? colors : nullptr;
-        fProc(canvas, fAtlas.get(), xform, fTex, colorsPtr, N, &cull, sampling, &paint);
+        fProc(canvas, fAtlas.get(), {&xform[0], N}, {&fTex[0], N}, {colorsPtr, colorsPtr ? N : 0},
+              &cull, sampling, &paint);
     }
 
     SkRect onGetBounds() override {

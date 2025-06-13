@@ -21,20 +21,27 @@ static const int kGrid = 100;
 static const int kWidth = 960;
 static const int kHeight = 640;
 
-typedef void (*DrawAtlasProc)(SkCanvas*, SkImage*, const SkRSXform[], const SkRect[],
-const SkColor[], int, const SkRect*, const SkSamplingOptions&, const SkPaint*);
+typedef void (*DrawAtlasProc)(SkCanvas*, SkImage*, SkSpan<const SkRSXform>, SkSpan<const SkRect>,
+                              SkSpan<const SkColor>, const SkRect*, const SkSamplingOptions&,
+                              const SkPaint*);
 
-static void draw_atlas(SkCanvas* canvas, SkImage* atlas, const SkRSXform xform[],
-                       const SkRect tex[], const SkColor colors[], int count, const SkRect* cull,
+static void draw_atlas(SkCanvas* canvas, SkImage* atlas, SkSpan<const SkRSXform> xform,
+                       SkSpan<const SkRect> tex,
+                       SkSpan<const SkColor> colors, const SkRect* cull,
                        const SkSamplingOptions& sampling, const SkPaint* paint) {
-    canvas->drawAtlas(atlas, xform, tex, colors, count, SkBlendMode::kModulate, sampling,
-                      cull, paint);
+    canvas->drawAtlas(atlas, xform, tex, colors, SkBlendMode::kModulate,
+                      sampling, cull, paint);
 }
 
-static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xform[],
-                           const SkRect tex[], const SkColor colors[], int count, const SkRect* cull,
+static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, SkSpan<const SkRSXform> xform,
+                           SkSpan<const SkRect> tex,
+                           SkSpan<const SkColor> colors, const SkRect* cull,
                            const SkSamplingOptions& sampling, const SkPaint* paint) {
-    for (int i = 0; i < count; ++i) {
+    size_t N = std::min(xform.size(), tex.size());
+    if (!colors.empty()) {
+        N = std::min(N, colors.size());
+    }
+    for (size_t i = 0; i < N; ++i) {
         SkMatrix matrix;
         matrix.setRSXform(xform[i]);
 
@@ -45,7 +52,6 @@ static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xfo
         canvas->restore();
     }
 }
-
 
 class DrawShipSlide : public Slide {
 public:
@@ -122,7 +128,9 @@ protected:
             fXform[i].fTy += dy;
         }
 
-        fProc(canvas, fAtlas.get(), fXform, fTex, nullptr, kGrid*kGrid+1, nullptr,
+        SkSpan<const SkRSXform> xforms = {&fXform[0], kGrid*kGrid+1};
+        SkSpan<const SkRect>      texs = {&fTex[0],   kGrid*kGrid+1};
+        fProc(canvas, fAtlas.get(), xforms, texs, {}, nullptr,
               SkSamplingOptions(SkFilterMode::kLinear), &paint);
     }
 

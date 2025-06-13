@@ -2187,7 +2187,9 @@ public:
 
         SkMaskFilter and SkPathEffect on paint are ignored.
 
-        xform, tex, and colors if present, must contain count entries.
+        For non-empty spans, the number of draws will be the min of
+        xform.size(), tex.size(), and (if not empty) colors.size().
+
         Optional colors are applied for each sprite using SkBlendMode mode, treating
         sprite as source and colors as destination.
         Optional cullRect is a conservative bounds of all transformed sprites.
@@ -2199,15 +2201,25 @@ public:
         @param xform     SkRSXform mappings for sprites in atlas
         @param tex       SkRect locations of sprites in atlas
         @param colors    one per sprite, blended with sprite using SkBlendMode; may be nullptr
-        @param count     number of sprites to draw
         @param mode      SkBlendMode combining colors and sprites
         @param sampling  SkSamplingOptions used when sampling from the atlas image
         @param cullRect  bounds of transformed sprites for efficient clipping; may be nullptr
         @param paint     SkColorFilter, SkImageFilter, SkBlendMode, and so on; may be nullptr
     */
+    void drawAtlas(const SkImage* atlas, SkSpan<const SkRSXform> xform,
+                   SkSpan<const SkRect> tex, SkSpan<const SkColor> colors, SkBlendMode mode,
+                   const SkSamplingOptions& sampling, const SkRect* cullRect, const SkPaint* paint);
+#ifdef SK_SUPPORT_UNSPANNED_APIS
     void drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
                    const SkColor colors[], int count, SkBlendMode mode,
-                   const SkSamplingOptions& sampling, const SkRect* cullRect, const SkPaint* paint);
+                   const SkSamplingOptions& samp, const SkRect* cullRect, const SkPaint* paint) {
+        this->drawAtlas(atlas,
+                        {xform, count},
+                        {tex, tex ? count : 0},
+                        {colors, colors ? count : 0},
+                        mode, samp, cullRect, paint);
+    }
+#endif
 
     /** Draws SkDrawable drawable using clip and SkMatrix, concatenated with
         optional matrix.

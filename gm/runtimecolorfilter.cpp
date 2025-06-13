@@ -184,10 +184,9 @@ DEF_SIMPLE_GM(runtimecolorfilter_vertices_atlas_and_patch, canvas, 404, 404) {
         SkPaint paint = makePaint(useCF, /*useShader=*/false);
         constexpr SkColor kColor = SK_ColorWHITE;
         canvas->drawAtlas(atlas.get(),
-                          &xform,
-                          &r,
-                          &kColor,
-                          1,
+                          {&xform, 1},
+                          {&r, 1},
+                          {&kColor, 1},
                           SkBlendMode::kModulate,
                           SkFilterMode::kNearest,
                           nullptr,

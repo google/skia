@@ -185,7 +185,6 @@ static void draw_atlas(SkCanvas* canvas, SkImage* image) {
                       xforms,
                       tex,
                       colors,
-                      2,
                       SkBlendMode::kSrcIn,
                       SkFilterMode::kNearest,
                       nullptr,

@@ -197,8 +197,8 @@ public:
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
     void drawShadow(SkCanvas*, const SkPath&, const SkDrawShadowRec&) override;
 #endif
-    void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, sk_sp<SkBlender>,
-                   const SkPaint&) override;
+    void drawAtlas(SkSpan<const SkRSXform>, SkSpan<const SkRect>, SkSpan<const SkColor>,
+                   sk_sp<SkBlender>, const SkPaint&) override;
 
     void drawImageRect(const SkImage*, const SkRect* src, const SkRect& dst,
                        const SkSamplingOptions&, const SkPaint&,

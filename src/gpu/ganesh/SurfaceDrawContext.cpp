@@ -16,7 +16,6 @@
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRRect.h"
-#include "include/core/SkRSXform.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -987,10 +986,9 @@ void SurfaceDrawContext::drawMesh(const GrClip* clip,
 void SurfaceDrawContext::drawAtlas(const GrClip* clip,
                                    GrPaint&& paint,
                                    const SkMatrix& viewMatrix,
-                                   int spriteCount,
-                                   const SkRSXform xform[],
-                                   const SkRect texRect[],
-                                   const SkColor colors[]) {
+                                   SkSpan<const SkRSXform> xform,
+                                   SkSpan<const SkRect> texRect,
+                                   SkSpan<const SkColor> colors) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -998,7 +996,8 @@ void SurfaceDrawContext::drawAtlas(const GrClip* clip,
 
     GrAAType aaType = this->chooseAAType(GrAA::kNo);
     GrOp::Owner op = DrawAtlasOp::Make(fContext, std::move(paint), viewMatrix,
-                                       aaType, spriteCount, xform, texRect, colors);
+                                       aaType, xform.size(), xform.data(),
+                                       texRect.data(), colors.data());
     this->addDrawOp(clip, std::move(op));
 }
 

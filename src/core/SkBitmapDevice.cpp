@@ -558,18 +558,12 @@ void SkBitmapDevice::drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) {
     // TODO: Implement, maybe with a subclass of BitmapDevice that has SkSL support.
 }
 
-void SkBitmapDevice::drawAtlas(const SkRSXform xform[],
-                               const SkRect tex[],
-                               const SkColor colors[],
-                               int count,
+void SkBitmapDevice::drawAtlas(SkSpan<const SkRSXform> xform,
+                               SkSpan<const SkRect> tex,
+                               SkSpan<const SkColor> colors,
                                sk_sp<SkBlender> blender,
                                const SkPaint& paint) {
-    // set this to true for performance comparisons with the old drawVertices way
-    if ((false)) {
-        this->SkDevice::drawAtlas(xform, tex, colors, count, std::move(blender), paint);
-        return;
-    }
-    BDDraw(this).drawAtlas(xform, tex, colors, count, std::move(blender), paint);
+    BDDraw(this).drawAtlas(xform, tex, colors, std::move(blender), paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

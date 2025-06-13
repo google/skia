@@ -393,7 +393,7 @@ public:
                            const SkPoint texCoords[4], sk_sp<SkBlender>, const SkPaint& paint);
 
     // default implementation calls drawVertices
-    virtual void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count,
+    virtual void drawAtlas(SkSpan<const SkRSXform>, SkSpan<const SkRect>, SkSpan<const SkColor>,
                            sk_sp<SkBlender>, const SkPaint&);
 
     virtual void drawAnnotation(const SkRect&, const char[], SkData*) {}

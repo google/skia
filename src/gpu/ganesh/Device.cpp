@@ -1104,17 +1104,16 @@ void Device::drawShadow(SkCanvas* canvas, const SkPath& path, const SkDrawShadow
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void Device::drawAtlas(const SkRSXform xform[],
-                       const SkRect texRect[],
-                       const SkColor colors[],
-                       int count,
+void Device::drawAtlas(SkSpan<const SkRSXform> xform,
+                       SkSpan<const SkRect> texRect,
+                       SkSpan<const SkColor> colors,
                        sk_sp<SkBlender> blender,
                        const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::ganesh::Device", "drawAtlas", fContext.get());
 
     GrPaint grPaint;
-    if (colors) {
+    if (!colors.empty()) {
         if (!SkPaintToGrPaintWithBlend(fSurfaceDrawContext.get(),
                                        paint,
                                        this->localToDevice(),
@@ -1131,7 +1130,7 @@ void Device::drawAtlas(const SkRSXform xform[],
         }
     }
 
-    fSurfaceDrawContext->drawAtlas(this->clip(), std::move(grPaint), this->localToDevice(), count,
+    fSurfaceDrawContext->drawAtlas(this->clip(), std::move(grPaint), this->localToDevice(),
                                    xform, texRect, colors);
 }
 
