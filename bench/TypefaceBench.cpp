@@ -11,6 +11,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkTypeface.h"
+#include "src/base/SkRandom.h"
 #include "src/base/SkUTF.h"
 #include "src/base/SkUtils.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -315,5 +316,45 @@ DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF16, atext, std::size(atext),
 DEF_BENCH(return new UtfToGlyph(SkTextEncoding::kUTF8, atext, std::size(atext),
                                 "SkTypefaceUTF8ToGlyphAscii");)
 
+class FontGetBounds : public Benchmark {
+    sk_sp<SkTypeface>      fTypeface;
+    std::vector<SkGlyphID> fGlyphs; // input
+    std::vector<SkRect>    fBounds; // output
+public:
+    FontGetBounds() {}
 
+protected:
+    const char* onGetName() override {
+        return "Font_getBounds";
+    }
 
+    bool isSuitableFor(Backend backend) override {
+        return backend == Backend::kNonRendering;
+    }
+
+    void onDelayedSetup() override {
+        // Just need a font with a reasonable number of glyphs for this test
+        fTypeface = ToolUtils::CreateTypefaceFromResource("fonts/Roboto-Regular.ttf");
+
+        // simulate a big text hunk that SkParagraph might have to visit
+        constexpr size_t N = 8192;
+        fGlyphs.resize(N);
+        fBounds.resize(N);
+
+        SkRandom rand;
+        const size_t numGlyphs = fTypeface->countGlyphs();
+        for (auto& glyph : fGlyphs) {
+            glyph = rand.nextU() % numGlyphs;
+        }
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        SkFont font(fTypeface);
+        // Do more loops to reduce variance.
+        for (int i = 0; i < loops * 8; ++i) {
+            font.getBounds(fGlyphs, fBounds, nullptr);
+        }
+    }
+};
+
+DEF_BENCH(return new FontGetBounds;)

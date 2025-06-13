@@ -229,6 +229,12 @@ SkScalar SkFont::measureText(const void* text, size_t length, SkTextEncoding enc
     return width;
 }
 
+static inline SkRect scale_pos(SkRect r, SkScalar s) {
+    SkASSERT(s >= 0);   // so we don't have to worry about swapping the rect to stay valid
+    return {
+        r.fLeft * s, r.fTop * s, r.fRight * s, r.fBottom * s,
+    };
+}
 void SkFont::getWidthsBounds(SkSpan<const SkGlyphID> glyphIDs,
                              SkSpan<SkScalar> widths,
                              SkSpan<SkRect> bounds,
@@ -238,10 +244,9 @@ void SkFont::getWidthsBounds(SkSpan<const SkGlyphID> glyphIDs,
     SkSpan<const SkGlyph*> glyphs = metrics.glyphs(glyphIDs);
 
     if (bounds.size()) {
-        const auto scaleMat = SkMatrix::Scale(strikeToSourceScale, strikeToSourceScale);
         const auto n = std::min(bounds.size(), glyphs.size());
         for (auto [bound, glyph] : SkMakeZip(bounds.first(n), glyphs.first(n))) {
-            scaleMat.mapRectScaleTranslate(&bound, glyph->rect());
+            bound = scale_pos(glyph->rect(), strikeToSourceScale);
         }
     }
 
