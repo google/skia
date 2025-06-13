@@ -109,14 +109,14 @@ $pure half4 sk_color_space_transform(half4 color,
         colorF = sign(colorF) * $apply_hlg_xfer_fn(abs(colorF), srcGABC.yzw, srcDEF_args.xyz);
     }
 
-    if (srcOOTF_args.w > 0) {
+    if (srcOOTF_args.w != 0) {
         float Y = dot(srcOOTF_args.rgb, colorF);
         colorF *= sign(Y) * pow(abs(Y), srcOOTF_args.w);
     }
 
     colorF = gamut * colorF;
 
-    if (dstOOTF_args.w > 0) {
+    if (dstOOTF_args.w != 0) {
         float Y = dot(dstOOTF_args.rgb, colorF);
         colorF *= sign(Y) * pow(abs(Y), dstOOTF_args.w);
     }

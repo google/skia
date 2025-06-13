@@ -260,7 +260,9 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
 void SkColorSpaceXformSteps::apply(SkRasterPipeline* p) const {
     if (this->fFlags.unpremul)        { p->append(SkRasterPipelineOp::unpremul); }
     if (this->fFlags.linearize)       { p->appendTransferFunction(fSrcTF); }
+    if (this->fFlags.src_ootf)        { p->append(SkRasterPipelineOp::ootf, fSrcOotf); }
     if (this->fFlags.gamut_transform) { p->append(SkRasterPipelineOp::matrix_3x3, &fSrcToDstMatrix); }
+    if (this->fFlags.dst_ootf)        { p->append(SkRasterPipelineOp::ootf, fDstOotf); }
     if (this->fFlags.encode)          { p->appendTransferFunction(fDstTFInv); }
     if (this->fFlags.premul)          { p->append(SkRasterPipelineOp::premul); }
 }

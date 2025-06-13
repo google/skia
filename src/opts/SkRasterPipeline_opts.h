@@ -2846,6 +2846,17 @@ HIGHP_STAGE(HLGinvish, const skcms_TransferFunction* ctx) {
     b = fn(b);
 }
 
+HIGHP_STAGE(ootf, const float* ctx) {
+    F Y = ctx[0] * r + ctx[1] * g + ctx[2] * b;
+
+    U32 sign;
+    Y = strip_sign(Y, &sign);
+    F Y_to_gamma_minus_one = apply_sign(approx_powf(Y, ctx[3]), sign);
+    r = r * Y_to_gamma_minus_one;
+    g = g * Y_to_gamma_minus_one;
+    b = b * Y_to_gamma_minus_one;
+}
+
 HIGHP_STAGE(load_a8, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint8_t>(ctx, dx,dy);
 

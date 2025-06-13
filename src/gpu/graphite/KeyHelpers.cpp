@@ -507,7 +507,7 @@ void LocalMatrixShaderBlock::BeginBlock(const KeyContext& keyContext,
 namespace {
 
 void add_color_space_uniforms(const SkColorSpaceXformSteps& steps,
-                              bool has_ootf,
+                              bool has_ootf_uniforms,
                               ReadSwizzle readSwizzle,
                               PipelineDataGatherer* gatherer) {
     SkMatrix gamutTransform;
@@ -587,10 +587,35 @@ void add_color_space_uniforms(const SkColorSpaceXformSteps& steps,
         gatherer->write(SkV4{0.f, 0.f, 0.f, dstW});
     }
 
-    if (has_ootf) {
-        // TODO(https://issues.skia.org/issues/420956739): Populate OOTF parameters.
-        gatherer->write(SkV4{0.f, 0.f, 0.f, 0.f});
-        gatherer->write(SkV4{0.f, 0.f, 0.f, 0.f});
+    if (has_ootf_uniforms) {
+        SkV4 src_ootf = {0.f, 0.f, 0.f, 0.f};
+        SkV4 dst_ootf = {0.f, 0.f, 0.f, 0.f};
+
+        if (steps.fFlags.src_ootf) {
+          if (readSwizzle == ReadSwizzle::kBGRA) {
+              src_ootf = SkV4{
+                  steps.fSrcOotf[2], steps.fSrcOotf[1], steps.fSrcOotf[0], steps.fSrcOotf[3]};
+          } else {
+              src_ootf = SkV4{
+                  steps.fSrcOotf[0], steps.fSrcOotf[1], steps.fSrcOotf[2], steps.fSrcOotf[3]};
+          }
+        }
+
+        if (steps.fFlags.dst_ootf) {
+          if (readSwizzle == ReadSwizzle::kBGRA) {
+              dst_ootf = SkV4{
+                  steps.fDstOotf[2], steps.fDstOotf[1], steps.fDstOotf[0], steps.fDstOotf[3]};
+          } else {
+              dst_ootf = SkV4{
+                  steps.fDstOotf[0], steps.fDstOotf[1], steps.fDstOotf[2], steps.fDstOotf[3]};
+          }
+        }
+
+        gatherer->write(src_ootf);
+        gatherer->write(dst_ootf);
+    } else {
+      SkASSERT(!steps.fFlags.src_ootf);
+      SkASSERT(!steps.fFlags.dst_ootf);
     }
 }
 
@@ -1150,7 +1175,7 @@ void add_color_space_xform_uniform_data(
         const ColorSpaceTransformBlock::ColorSpaceTransformData& data,
         PipelineDataGatherer* gatherer) {
     BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kColorSpaceXformColorFilter)
-    add_color_space_uniforms(data.fSteps, /*has_ootf=*/true, data.fReadSwizzle, gatherer);
+    add_color_space_uniforms(data.fSteps, /*has_ootf_uniforms=*/true, data.fReadSwizzle, gatherer);
 }
 
 void add_color_space_xform_premul_uniform_data(
@@ -1184,7 +1209,7 @@ void add_color_space_xform_srgb_uniform_data(
         const ColorSpaceTransformBlock::ColorSpaceTransformData& data,
         PipelineDataGatherer* gatherer) {
     BEGIN_WRITE_UNIFORMS(gatherer, dict, BuiltInCodeSnippetID::kColorSpaceXformSRGB)
-    add_color_space_uniforms(data.fSteps, /*has_ootf=*/false, data.fReadSwizzle, gatherer);
+    add_color_space_uniforms(data.fSteps, /*has_ootf_uniforms=*/false, data.fReadSwizzle, gatherer);
 }
 
 }  // anonymous namespace
@@ -1200,6 +1225,7 @@ void ColorSpaceTransformBlock::AddBlock(const KeyContext& keyContext,
                                         PipelineDataGatherer* gatherer,
                                         const ColorSpaceTransformData& data) {
     const bool xformNeedsGamutOrXferFn = data.fSteps.fFlags.linearize || data.fSteps.fFlags.encode ||
+                                         data.fSteps.fFlags.src_ootf || data.fSteps.fFlags.dst_ootf ||
                                          data.fSteps.fFlags.gamut_transform;
     const bool swizzleNeedsGamutTransform = !(data.fReadSwizzle == ReadSwizzle::kRGBA ||
                                               data.fReadSwizzle == ReadSwizzle::kRGB1);

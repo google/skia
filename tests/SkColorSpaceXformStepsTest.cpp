@@ -6,10 +6,30 @@
  */
 
 #include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkCanvas.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkImage.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#endif  // defined(SK_GANESH)
+
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Image.h"
+#include "include/gpu/graphite/Surface.h"
+#endif  // defined(SK_GRAPHITE)
+
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "tests/Test.h"
+
+#if defined(SK_GRAPHITE)
+#include "tools/graphite/GraphiteTestContext.h"
+#endif  // defined(SK_GRAPHITE)
 
 #include <cstdint>
 
@@ -49,10 +69,14 @@ static skcms_TransferFunction trfn_hlg_203() {
   return trfn;
 }
 
-static bool rgb_close(const float* rgb, float r, float g, float b) {
-    return std::abs(rgb[0] - r) / r < 0.01 &&
-           std::abs(rgb[1] - g) / g < 0.01 &&
-           std::abs(rgb[2] - b) / b < 0.01;
+static bool rgba_close(const float* expected, const float* actual) {
+    // Allow 1% relative error.
+    constexpr float kEpsilon = 0.01f;
+    constexpr float kMinDenom = 0.001f;
+    return std::abs(expected[0] - actual[0]) / std::max(expected[0], kMinDenom) < kEpsilon &&
+           std::abs(expected[1] - actual[1]) / std::max(expected[1], kMinDenom) < kEpsilon &&
+           std::abs(expected[2] - actual[2]) / std::max(expected[2], kMinDenom) < kEpsilon &&
+           std::abs(expected[3] - actual[3]) / std::max(expected[3], kMinDenom) < kEpsilon;
 }
 
 DEF_TEST(SkColorSpaceXformSteps, r) {
@@ -240,96 +264,197 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
     }
 }
 
-DEF_TEST(SkColorSpaceXformStepsApplyPQ, r) {
-    auto rec2020_pq_203 = SkColorSpace::MakeRGB(trfn_pq_203(), SkNamedGamut::kRec2020),
-         rec2020_pq_100 = SkColorSpace::MakeRGB(trfn_pq_100(), SkNamedGamut::kRec2020),
-         rec2020_linear = SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear, SkNamedGamut::kRec2020),
-         p3_pq_100 = SkColorSpace::MakeRGB(trfn_pq_100(), SkNamedGamut::kDisplayP3),
-         p3_linear = SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear, SkNamedGamut::kDisplayP3);
+// Body of test to ensure that SkColorSpaceXformSteps::apply, raster, ganesh, and graphite all
+// produce the same results for color space conversions.
+static void run_color_space_xform_test(
+      skiatest::Reporter* reporter,
+      std::optional<std::function<sk_sp<SkSurface>(const SkImageInfo&)>> make_surface =
+          std::nullopt,
+      std::optional<std::function<sk_sp<SkImage>(sk_sp<SkImage>)>> upload_image =
+          std::nullopt) {
+    constexpr int kWidth = 2;
+    constexpr int kHeight = 2;
     constexpr float kPq100 = 0.508078421517399f;
     constexpr float kPq203 = 0.5806888810416109f;
     constexpr float kPq1000 = 0.751827096247041f;
 
-    // Convert to linear with HDR reference white at 203 nits.
-    {
-        SkColorSpaceXformSteps steps(rec2020_pq_203.get(), kUnpremul_SkAlphaType,
-                                     rec2020_linear.get(), kUnpremul_SkAlphaType);
-        float rgba[4] = {kPq100, kPq203, kPq1000, 1.f};
-        steps.apply(rgba);
-        REPORTER_ASSERT(r, rgb_close(rgba, 100/203.f, 203/203.f, 1000/203.f));
-    }
-
-    // Convert from linear with HDR reference white at 100 nits.
-    {
-        SkColorSpaceXformSteps steps(rec2020_linear.get(), kUnpremul_SkAlphaType,
-                                     rec2020_pq_100.get(), kUnpremul_SkAlphaType);
-        float rgba[4] = {1.f, 2.03f, 10.f, 1.f};
-        steps.apply(rgba);
-        REPORTER_ASSERT(r, rgb_close(rgba, kPq100, kPq203, kPq1000));
-    }
-
-    // Convert PQ at 203 to PQ at 100.
-    {
-        SkColorSpaceXformSteps steps(rec2020_pq_203.get(), kUnpremul_SkAlphaType,
-                                     rec2020_pq_100.get(), kUnpremul_SkAlphaType);
-        float rgba[4] = {kPq203, kPq203, kPq203, 1.f};
-        steps.apply(rgba);
-        REPORTER_ASSERT(r, rgb_close(rgba, kPq100, kPq100, kPq100));
-    }
-}
-
-DEF_TEST(SkColorSpaceXformStepsApplyHLG, r) {
-    auto rec2020_hlg_12x = SkColorSpace::MakeRGB(trfn_hlg_12x(), SkNamedGamut::kRec2020),
+    auto rec2020_pq_203 = SkColorSpace::MakeRGB(trfn_pq_203(), SkNamedGamut::kRec2020),
+         rec2020_pq_100 = SkColorSpace::MakeRGB(trfn_pq_100(), SkNamedGamut::kRec2020),
+         rec2020_hlg_12x = SkColorSpace::MakeRGB(trfn_hlg_12x(), SkNamedGamut::kRec2020),
          rec2020_hlg_203 = SkColorSpace::MakeRGB(trfn_hlg_203(), SkNamedGamut::kRec2020),
-         rec2020_linear = SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear, SkNamedGamut::kRec2020),
+         rec2020_linear = SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear,
+                                                SkNamedGamut::kRec2020),
          srgb_hlg_203 = SkColorSpace::MakeRGB(trfn_hlg_203(), SkNamedGamut::kSRGB),
          srgb_linear = SkColorSpace::MakeRGB(SkNamedTransferFn::kLinear, SkNamedGamut::kSRGB);
 
-    // Reference HLG has white at 75%.
-    {
-        SkColorSpaceXformSteps steps(rec2020_hlg_203.get(), kUnpremul_SkAlphaType,
-                                     rec2020_linear.get(), kUnpremul_SkAlphaType);
-        float rgba[4] = {0.75f, 0.75f, 0.75f, 1.f};
-        steps.apply(rgba);
-        REPORTER_ASSERT(r, rgb_close(rgba, 1.f, 1.f, 1.f));
-    }
-    {
-        SkColorSpaceXformSteps steps(rec2020_linear.get(), kUnpremul_SkAlphaType,
-                                     rec2020_hlg_203.get(), kUnpremul_SkAlphaType);
-        float rgba[4] = {1.f, 1.f, 1.f, 1.f};
-        steps.apply(rgba);
-        REPORTER_ASSERT(r, rgb_close(rgba, 0.75f, 0.75f, 0.75f));
-    }
+    const struct Rec {
+        sk_sp<SkColorSpace> src_cs = nullptr;
+        float src_rgba[4] = {0.f, 0.f, 0.f, 0.f};
+        sk_sp<SkColorSpace> dst_cs = nullptr;
+        float expected_rgba[4] = {0.f, 0.f, 0.f, 0.f};
+    } recs[] = {
+        {
+            rec2020_hlg_203, {0.75f, 0.75f, 0.75f, 1.f},
+            rec2020_linear,  {1.f,   1.f,   1.f,   1.f},
+        },
+        {
+            rec2020_linear,  {1.f,   1.f,   1.f,   1.f},
+            rec2020_hlg_203, {0.75f, 0.75f, 0.75f, 1.f},
+        },
+        {
+            rec2020_hlg_12x, {0.5f, 0.5f, 0.5f, 1.f},
+            rec2020_linear,  {1.f,  1.f,  1.f,  1.f},
+        },
+        {
+            rec2020_linear,  {1.f,  1.f,  1.f,  1.f},
+            rec2020_hlg_12x, {0.5f, 0.5f, 0.5f, 1.f},
+        },
+        {
+            srgb_hlg_203, {0.1f,        0.5f,        0.75f,       1.f},
+            srgb_linear,  {0.00989411f, 0.24735274f, 0.78647059f, 1.f},
+        },
+        {
+            srgb_linear,  {0.00989411f, 0.24735274f, 0.78647059f, 1.f},
+            srgb_hlg_203, {0.1f,        0.5f,        0.75f,       1.f},
+        },
+        {
+            rec2020_pq_203, {kPq100,    kPq203,    kPq1000,    1.f},
+            // Note: the blue expected component should be 1000/203, but the skcms formulation
+            // of PQ evaluates to this.
+            // TODO(https://issues.skia.org/issues/420956739): Investiage this.
+            rec2020_linear, {100/203.f, 203/203.f, 1003/203.f, 1.f},
+        },
+        {
+            rec2020_pq_203, {kPq203, kPq203, kPq203, 1.f},
+            rec2020_pq_100, {kPq100, kPq100, kPq100, 1.f},
+        },
+        // Note: the next two tests use color values outside of [0,1], so this will fail if
+        // there is clamping to [0,1].
+        {
+            rec2020_linear, {1.f,    2.03f,  10.f,    1.f},
+            rec2020_pq_100, {kPq100, kPq203, kPq1000, 1.f},
+        },
+        {
+            rec2020_pq_100, {kPq100, kPq203, kPq1000, 1.f},
+            rec2020_linear, {1.f,    2.03f,  10.f,    1.f},
+        },
+    };
 
-    // Scene-referred (12x) HLG has white at 50%.
-    {
-        SkColorSpaceXformSteps steps(rec2020_hlg_12x.get(), kUnpremul_SkAlphaType,
-                                     rec2020_linear.get(), kUnpremul_SkAlphaType);
-        float rgba[4] = {0.5f, 0.5f, 0.5f, 1.f};
-        steps.apply(rgba);
-        REPORTER_ASSERT(r, rgb_close(rgba, 1.f, 1.f, 1.f));
-    }
-    {
-        SkColorSpaceXformSteps steps(rec2020_linear.get(), kUnpremul_SkAlphaType,
-                                     rec2020_hlg_12x.get(), kUnpremul_SkAlphaType);
-        float rgba[4] = {1.f, 1.f, 1.f, 1.f};
-        steps.apply(rgba);
-        REPORTER_ASSERT(r, rgb_close(rgba, 0.5f, 0.5f, 0.5f));
-    }
+    for (const auto& rec : recs) {
+        if (!make_surface.has_value()) {
+            SkColorSpaceXformSteps steps(rec.src_cs.get(), kUnpremul_SkAlphaType,
+                                         rec.dst_cs.get(), kUnpremul_SkAlphaType);
+            float xform_rgba[4] = {
+                rec.src_rgba[0], rec.src_rgba[1], rec.src_rgba[2], rec.src_rgba[3]};
+            steps.apply(xform_rgba);
+            REPORTER_ASSERT(reporter, rgba_close(xform_rgba,  rec.expected_rgba));
+            continue;
+        }
 
-    // Testing the HLG OOTF in a non-rec2100 gamut.
-    {
-        SkColorSpaceXformSteps steps(srgb_hlg_203.get(), kUnpremul_SkAlphaType,
-                                     srgb_linear.get(), kUnpremul_SkAlphaType);
-        float rgba[4] = {0.1f, 0.5f, 0.75f, 1.f};
-        steps.apply(rgba);
-        REPORTER_ASSERT(r, rgb_close(rgba, 0.00989411f, 0.24735274f, 0.78647059f));
-    }
-    {
-        SkColorSpaceXformSteps steps(srgb_linear.get(), kUnpremul_SkAlphaType,
-                                     srgb_hlg_203.get(), kUnpremul_SkAlphaType);
-        float rgba[4] = {0.00989411f, 0.24735274f, 0.78647059f, 1.f};
-        steps.apply(rgba);
-        REPORTER_ASSERT(r, rgb_close(rgba, 0.1f, 0.5f, 0.75f));
+        // Create an F16 image with the specified color. If we do not convert explicitly to
+        // F16, then when the GPU based tests attempt to implicitly convert to F32 textures
+        // and fail, they fall back to converting to 8888, which results in clamping and
+        // ginormous error. Write the values directly (rather than ask SkColor4fs) to ensure
+        // we are testing the full pipeline.
+        sk_sp<SkImage> src_image;
+        {
+            auto src_info = SkImageInfo::Make(kWidth, kHeight, kRGBA_F32_SkColorType,
+                                              kPremul_SkAlphaType, rec.src_cs);
+
+            // Write the pixels as F32.
+            SkBitmap src_bm_f32;
+            src_bm_f32.allocPixels(src_info);
+            src_bm_f32.eraseColor(SK_ColorTRANSPARENT);
+            for (int x = 0; x < kWidth; ++x) {
+                for (int y = 0; y < kHeight; ++y) {
+                    float* p = reinterpret_cast<float*>(
+                        src_bm_f32.pixmap().writable_addr(x, y));
+                    for (int c = 0; c < 4; ++c) {
+                        p[c] = rec.src_rgba[c];
+                    }
+                }
+            }
+            SkBitmap src_bm;
+            src_bm.allocPixels(src_info.makeColorType(kRGBA_F16_SkColorType));
+            bool rp_result = src_bm_f32.readPixels(src_bm.pixmap(), 0, 0);
+            REPORTER_ASSERT(reporter, rp_result);
+            src_bm.setImmutable();
+
+            src_image = SkImages::RasterFromBitmap(src_bm);
+        }
+        if (upload_image.has_value()) {
+            src_image = upload_image.value()(src_image);
+            REPORTER_ASSERT(reporter, src_image);
+        }
+
+        // Render the image to an F16 target.
+        auto dst_info = SkImageInfo::Make(kWidth, kHeight, kRGBA_F16_SkColorType,
+                                          kPremul_SkAlphaType, rec.dst_cs);
+        auto dst_surface = make_surface.value()(dst_info);
+        if (!dst_surface) {
+            continue;
+        }
+        dst_surface->getCanvas()->clear(SK_ColorWHITE);
+        dst_surface->getCanvas()->drawImage(src_image, 0, 0);
+
+        // Read back to an F32 target.
+        const SkImageInfo rb_info = dst_info.makeColorType(kRGBA_F32_SkColorType);
+        SkBitmap rb_bm;
+        rb_bm.allocPixels(rb_info);
+        bool rb_result = dst_surface->readPixels(rb_bm.pixmap(), 0, 0);
+        REPORTER_ASSERT(reporter, rb_result);
+
+        const float* rb_rgba = reinterpret_cast<const float*>(rb_bm.pixmap().addr(0, 0));
+        REPORTER_ASSERT(reporter, rgba_close(rb_rgba, rec.expected_rgba));
     }
 }
+
+// Test color space space conversion using SkColorSpaceXformSteps::apply.
+DEF_TEST(SkColorSpaceXform_Apply, reporter) {
+    run_color_space_xform_test(reporter);
+}
+
+// Test color space space conversion using raster.
+DEF_TEST(SkColorSpaceXform_Raster, reporter) {
+    auto make_surface = [&](const SkImageInfo& info) {
+        return SkSurfaces::Raster(info);
+    };
+    run_color_space_xform_test(reporter, make_surface);
+}
+
+#if defined(SK_GANESH)
+// Test color space conversion using Ganesh.
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkColorSpaceXform_Ganesh,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
+    GrDirectContext* rContext = ctxInfo.directContext();
+    auto make_surface = [&](const SkImageInfo& info) {
+        return SkSurfaces::RenderTarget(
+            rContext, skgpu::Budgeted::kNo, info, 0, kTopLeft_GrSurfaceOrigin, nullptr);
+    };
+    auto upload_image = [&](sk_sp<SkImage> image) {
+      return SkImages::TextureFromImage(rContext, image.get());
+    };
+    run_color_space_xform_test(reporter, make_surface, upload_image);
+}
+#endif
+
+#if defined(SK_GRAPHITE)
+// Test color space conversion using Graphite.
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkColorSpaceXform_Graphite,
+                                         reporter,
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
+    using namespace skgpu::graphite;
+    std::unique_ptr<Recorder> recorder = context->makeRecorder();
+    auto make_surface = [&](const SkImageInfo& info) {
+        return SkSurfaces::RenderTarget(recorder.get(), info);
+    };
+    auto upload_image = [&](sk_sp<SkImage> image) {
+      return SkImages::TextureFromImage(recorder.get(), image.get(), {false});
+    };
+    run_color_space_xform_test(reporter, make_surface, upload_image);
+}
+#endif
+
