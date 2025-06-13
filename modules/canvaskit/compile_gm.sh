@@ -130,7 +130,7 @@ parse_targets() {
   done
 }
 ${NINJA} -C ${BUILD_DIR} libskia.a libskshaper.a libskunicode_core.a libskunicode_icu.a \
-  $(parse_targets $GM_LIB)
+  libpathops.a $(parse_targets $GM_LIB)
 
 echo "Generating final wasm"
 
@@ -223,6 +223,7 @@ EMCC_DEBUG=1 ${EMCXX} \
     $TESTS_TO_BUILD \
     $GM_LIB \
     $BUILD_DIR/libjsonreader.a \
+    $BUILD_DIR/libpathops.a \
     $BUILD_DIR/libskshaper.a \
     $BUILD_DIR/libskunicode_core.a \
     $BUILD_DIR/libskunicode_icu.a \

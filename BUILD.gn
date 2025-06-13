@@ -1851,68 +1851,6 @@ if (is_wasm) {
   }
 }
 
-skia_static_library("pathkit") {
-  check_includes = false
-  public_configs = [ ":skia_public" ]
-  configs = skia_library_configs
-
-  deps = [ ":hsw" ]
-
-  sources = [
-    "src/base/SkArenaAlloc.cpp",
-    "src/base/SkBezierCurves.cpp",
-    "src/base/SkContainers.cpp",
-    "src/base/SkCubics.cpp",
-    "src/base/SkFloatingPoint.cpp",
-    "src/base/SkMalloc.cpp",
-    "src/base/SkMathPriv.cpp",
-    "src/base/SkQuads.cpp",
-    "src/base/SkSafeMath.cpp",
-    "src/base/SkSemaphore.cpp",
-    "src/base/SkTDArray.cpp",
-    "src/base/SkThreadID.cpp",
-    "src/base/SkUTF.cpp",
-    "src/base/SkUtils.cpp",
-    "src/core/SkAnalyticEdge.cpp",
-    "src/core/SkContourMeasure.cpp",
-    "src/core/SkCubicMap.cpp",
-    "src/core/SkEdge.cpp",
-    "src/core/SkEdgeBuilder.cpp",
-    "src/core/SkEdgeClipper.cpp",
-    "src/core/SkGeometry.cpp",
-    "src/core/SkIDChangeListener.cpp",
-    "src/core/SkLineClipper.cpp",
-    "src/core/SkMallocPixelRef.cpp",
-    "src/core/SkMatrix.cpp",
-    "src/core/SkOpts.cpp",
-    "src/core/SkPaint.cpp",
-    "src/core/SkPaintPriv.cpp",
-    "src/core/SkPath.cpp",
-    "src/core/SkPathBuilder.cpp",
-    "src/core/SkPathEffect.cpp",
-    "src/core/SkPathMeasure.cpp",
-    "src/core/SkPathRef.cpp",
-    "src/core/SkPathUtils.cpp",
-    "src/core/SkPoint.cpp",
-    "src/core/SkRRect.cpp",
-    "src/core/SkReadBuffer.cpp",
-    "src/core/SkRect.cpp",
-    "src/core/SkStream.cpp",
-    "src/core/SkString.cpp",
-    "src/core/SkStringUtils.cpp",
-    "src/core/SkStroke.cpp",
-    "src/core/SkStrokeRec.cpp",
-    "src/core/SkStrokerPriv.cpp",
-    "src/effects/SkDashPathEffect.cpp",
-    "src/effects/SkTrimPathEffect.cpp",
-    "src/ports/SkDebug_stdio.cpp",
-    "src/ports/SkMemory_malloc.cpp",
-    "src/utils/SkDashPath.cpp",
-    "src/utils/SkParse.cpp",
-    "src/utils/SkParsePath.cpp",
-  ]
-}
-
 group("modules") {
   deps = [
     "modules/bentleyottmann",
