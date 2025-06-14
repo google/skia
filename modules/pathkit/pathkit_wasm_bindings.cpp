@@ -373,7 +373,7 @@ JSString GetFillTypeString(const SkPath& path) {
 
 bool ApplyDash(SkPath& path, SkScalar on, SkScalar off, SkScalar phase) {
     SkScalar intervals[] = { on, off };
-    auto pe = SkDashPathEffect::Make(intervals, 2, phase);
+    auto pe = SkDashPathEffect::Make(intervals, phase);
     if (!pe) {
         SkDebugf("Invalid args to dash()\n");
         return false;

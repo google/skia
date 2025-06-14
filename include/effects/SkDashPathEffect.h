@@ -8,7 +8,7 @@
 #ifndef SkDashPathEffect_DEFINED
 #define SkDashPathEffect_DEFINED
 
-#include "include/core/SkPathEffect.h"
+#include "include/core/SkPathEffect.h"  // IWYU pragma: keep    (for unspanned apis)
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
