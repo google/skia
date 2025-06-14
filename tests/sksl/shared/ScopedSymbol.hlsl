@@ -5,8 +5,8 @@ struct S
 
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _14_colorGreen : packoffset(c0);
-    float4 _14_colorRed : packoffset(c1);
+    float4 _17_colorGreen : packoffset(c0);
+    float4 _17_colorRed : packoffset(c1);
 };
 
 
@@ -32,8 +32,8 @@ bool local_variable_hides_struct_b()
 
 bool local_struct_variable_hides_struct_type_b()
 {
-    S _42 = { 1 };
-    S S_1 = _42;
+    S _45 = { 1 };
+    S S_1 = _45;
     return S_1.i == 1;
 }
 
@@ -43,62 +43,62 @@ bool local_variable_hides_global_variable_b()
     return true;
 }
 
-float4 main(float2 _51)
+float4 main(float2 _54)
 {
     glob = 2;
-    bool _57 = false;
+    bool _60 = false;
     if (true)
     {
-        _57 = block_variable_hides_global_variable_b();
+        _60 = block_variable_hides_global_variable_b();
     }
     else
     {
-        _57 = false;
+        _60 = false;
     }
-    bool _61 = false;
-    if (_57)
+    bool _64 = false;
+    if (_60)
     {
-        _61 = local_variable_hides_struct_b();
+        _64 = local_variable_hides_struct_b();
     }
     else
     {
-        _61 = false;
+        _64 = false;
     }
-    bool _65 = false;
-    if (_61)
+    bool _68 = false;
+    if (_64)
     {
-        _65 = local_struct_variable_hides_struct_type_b();
+        _68 = local_struct_variable_hides_struct_type_b();
     }
     else
     {
-        _65 = false;
+        _68 = false;
     }
-    bool _69 = false;
-    if (_65)
+    bool _72 = false;
+    if (_68)
     {
-        _69 = local_variable_hides_global_variable_b();
+        _72 = local_variable_hides_global_variable_b();
     }
     else
     {
-        _69 = false;
+        _72 = false;
     }
-    float4 _70 = 0.0f.xxxx;
-    if (_69)
+    float4 _73 = 0.0f.xxxx;
+    if (_72)
     {
-        _70 = _14_colorGreen;
+        _73 = _17_colorGreen;
     }
     else
     {
-        _70 = _14_colorRed;
+        _73 = _17_colorRed;
     }
-    return _70;
+    return _73;
 }
 
 void frag_main()
 {
-    float2 _24 = 0.0f.xx;
-    float4 _26 = main(_24);
-    sk_FragColor = _26;
+    float2 _27 = 0.0f.xx;
+    float4 _29 = main(_27);
+    sk_FragColor = _29;
 }
 
 SPIRV_Cross_Output main()

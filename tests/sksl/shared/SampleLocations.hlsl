@@ -17,56 +17,56 @@ struct SPIRV_Cross_Output
 
 void vert_main()
 {
-    int _22 = gl_InstanceIndex % 200;
-    int x = _22;
-    int _25 = gl_InstanceIndex / 200;
-    int y = _25;
-    int _31 = (gl_InstanceIndex * 929) % 17;
-    int ileft = _31;
-    int _40 = (_31 + 1) + ((gl_InstanceIndex * 1637) % (17 - _31));
-    int iright = _40;
-    int _45 = (gl_InstanceIndex * 313) % 17;
-    int itop = _45;
-    int _53 = (_45 + 1) + ((gl_InstanceIndex * 1901) % (17 - _45));
-    int ibot = _53;
+    int _24 = gl_InstanceIndex % 200;
+    int x = _24;
+    int _27 = gl_InstanceIndex / 200;
+    int y = _27;
+    int _33 = (gl_InstanceIndex * 929) % 17;
+    int ileft = _33;
+    int _42 = (_33 + 1) + ((gl_InstanceIndex * 1637) % (17 - _33));
+    int iright = _42;
+    int _47 = (gl_InstanceIndex * 313) % 17;
+    int itop = _47;
+    int _55 = (_47 + 1) + ((gl_InstanceIndex * 1901) % (17 - _47));
+    int ibot = _55;
     float outset = 0.03125f;
-    float _63 = 0.0f;
-    if (0 == ((_22 + _25) % 2))
+    float _65 = 0.0f;
+    if (0 == ((_24 + _27) % 2))
     {
-        _63 = -0.03125f;
+        _65 = -0.03125f;
     }
     else
     {
-        _63 = 0.03125f;
+        _65 = 0.03125f;
     }
-    outset = _63;
-    float _73 = (float(_31) * 0.0625f) - _63;
-    float l = _73;
-    float _77 = (float(_40) * 0.0625f) + _63;
-    float r = _77;
-    float t = (float(_45) * 0.0625f) - _63;
-    float b = (float(_53) * 0.0625f) + _63;
-    float _92 = 0.0f;
+    outset = _65;
+    float _75 = (float(_33) * 0.0625f) - _65;
+    float l = _75;
+    float _79 = (float(_42) * 0.0625f) + _65;
+    float r = _79;
+    float t = (float(_47) * 0.0625f) - _65;
+    float b = (float(_55) * 0.0625f) + _65;
+    float _94 = 0.0f;
     if (0 == (gl_VertexIndex % 2))
     {
-        _92 = _73;
+        _94 = _75;
     }
     else
     {
-        _92 = _77;
+        _94 = _79;
     }
     float2 vertexpos = 0.0f.xx;
-    vertexpos.x = float(_22) + _92;
-    float _104 = 0.0f;
+    vertexpos.x = float(_24) + _94;
+    float _106 = 0.0f;
     if (0 == (gl_VertexIndex / 2))
     {
-        _104 = t;
+        _106 = t;
     }
     else
     {
-        _104 = b;
+        _106 = b;
     }
-    vertexpos.y = float(y) + _104;
+    vertexpos.y = float(y) + _106;
     vcoord_Stage0.x = float((0 == (gl_VertexIndex % 2)) ? (-1) : 1);
     vcoord_Stage0.y = float((0 == (gl_VertexIndex / 2)) ? (-1) : 1);
     gl_Position = float4(vertexpos.x, vertexpos.y, 0.0f, 1.0f);

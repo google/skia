@@ -32,6 +32,7 @@
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/analysis/SkSLSpecialization.h"
+#include "src/sksl/codegen/SkSLCodeGenTypes.h"
 #include "src/sksl/codegen/SkSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLBinaryExpression.h"
 #include "src/sksl/ir/SkSLBlock.h"
@@ -577,7 +578,9 @@ private:
         struct Hash;
     };
 
-    static Instruction BuildInstructionKey(SpvOp_ opCode, const TArray<Word, true>& words);
+    static Instruction BuildInstructionKey(SpvOp_ opCode,
+                                           const TArray<Word, true>& words,
+                                           SpvId* predefinedResultId);
 
     // The writeOpXxxxx calls will simplify and deduplicate ops where possible.
     SpvId writeOpConstantTrue(const Type& type);
@@ -665,7 +668,7 @@ private:
     const MemoryLayout fDefaultMemoryLayout{MemoryLayout::Standard::k140};
 
     uint64_t fCapabilities = 0;
-    SpvId fIdCount = 1;
+    SpvId fIdCount = spirv::kIdFirstUnreserved;
     SpvId fGLSLExtendedInstructions;
     struct Intrinsic {
         IntrinsicOpcodeKind opKind;
@@ -782,6 +785,7 @@ struct SPIRVCodeGenerator::Word {
         kRelaxedPrecisionResult,
         kUniqueResult,
         kKeyedResult,
+        kReservedResult,
     };
 
     Word(SpvId id) : fValue(id), fKind(Kind::kSpvId) {}
@@ -806,6 +810,8 @@ struct SPIRVCodeGenerator::Word {
     static Word Result() {
         return Word{(int32_t)NA, kDefaultPrecisionResult};
     }
+
+    static Word ReservedResult(spirv::ReservedId id) { return Word{(int32_t)id, kReservedResult}; }
 
     // Unlike a Result (where the result ID is always deduplicated to its first instruction) or a
     // UniqueResult (which always produces a new instruction), a KeyedResult allows an instruction
@@ -1256,12 +1262,15 @@ void SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode, int32_t word1, int32_t 
 }
 
 SPIRVCodeGenerator::Instruction SPIRVCodeGenerator::BuildInstructionKey(SpvOp_ opCode,
-                                                                        const TArray<Word>& words) {
+                                                                        const TArray<Word>& words,
+                                                                        SpvId* predefinedResultId) {
     // Assemble a cache key for this instruction.
     Instruction key;
     key.fOp = opCode;
     key.fWords.resize(words.size());
     key.fResultKind = Word::Kind::kNone;
+
+    *predefinedResultId = NA;
 
     for (int index = 0; index < words.size(); ++index) {
         const Word& word = words[index];
@@ -1269,6 +1278,7 @@ SPIRVCodeGenerator::Instruction SPIRVCodeGenerator::BuildInstructionKey(SpvOp_ o
         if (word.isResult()) {
             SkASSERT(key.fResultKind == Word::Kind::kNone);
             key.fResultKind = word.fKind;
+            *predefinedResultId = word.fValue;
         }
     }
 
@@ -1283,7 +1293,8 @@ SpvId SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode,
     SkASSERT(opCode != SpvOpStore);
 
     // If this instruction exists in our op cache, return the cached SpvId.
-    Instruction key = BuildInstructionKey(opCode, words);
+    SpvId predefinedResultId = NA;
+    Instruction key = BuildInstructionKey(opCode, words, &predefinedResultId);
     if (SpvId* cachedOp = fOpCache.find(key)) {
         return *cachedOp;
     }
@@ -1320,6 +1331,17 @@ SpvId SPIRVCodeGenerator::writeInstruction(SpvOp_ opCode,
             if (!is_globally_reachable_op(opCode)) {
                 fReachableOps.push_back(result);
             }
+            break;
+
+        case Word::Kind::kReservedResult:
+            // The SpvId is predetermined in spirv::ReservedId.
+            SkASSERT(predefinedResultId != NA);
+            result = predefinedResultId;
+            fOpCache.set(key, result);
+            fSpvIdCache.set(result, key);
+            // Reserved IDs only make sense for globally-reachable ops; the ops in function bodies
+            // can never guarantee uniqueness.
+            SkASSERT(is_globally_reachable_op(opCode));
             break;
 
         default:
@@ -1738,10 +1760,8 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType,
                 return this->writeInstruction(SpvOpTypeBool, {Word::Result()}, fConstantBuffer);
             }
             if (type->isSigned()) {
-                return this->writeInstruction(
-                        SpvOpTypeInt,
-                        Words{Word::Result(), Word::Number(32), Word::Number(1)},
-                        fConstantBuffer);
+                // Predefined type
+                return spirv::kIdTypeInt;
             }
             if (type->isUnsigned()) {
                 return this->writeInstruction(
@@ -1828,8 +1848,16 @@ SpvId SPIRVCodeGenerator::getType(const Type& rawType,
                                             ? layout_flags_to_image_format(typeLayout.fFlags)
                                             : SpvImageFormatUnknown;
 
+            // Input attachments have a reserved ID.
+            Word result = Word::Result();
+            if (type->dimensions() == SpvDimSubpassData) {
+                // Only a single input attachment is currently supported.
+                SkASSERT(typeLayout.fInputAttachmentIndex == 0);
+                result = Word::ReservedResult(spirv::kIdTypeImageSubpassData);
+            }
+
             return this->writeInstruction(SpvOpTypeImage,
-                                          Words{Word::Result(),
+                                          Words{result,
                                                 floatTypeId,
                                                 Word::Number(type->dimensions()),
                                                 Word::Number(type->isDepth()),
@@ -4811,18 +4839,28 @@ SpvId SPIRVCodeGenerator::writeGlobalVar(ProgramKind kind,
             break;
     }
 
+    // Input attachments have a reserved ID.
+    const bool isInputAttachment =
+            type->typeKind() == Type::TypeKind::kTexture && type->dimensions() == SpvDimSubpassData;
+
     // Add this global to the variable map.
-    SpvId id = this->nextId(type);
+    SpvId id = isInputAttachment ? (SpvId)spirv::kIdVariableImageSubpassData : this->nextId(type);
     fVariableMap.set(&var, id);
 
     if (layout.fSet < 0 && storageClass == StorageClass::kUniformConstant) {
         layout.fSet = fProgram.fConfig->fSettings.fDefaultUniformSet;
     }
 
-    SpvId typeId = this->getPointerType(*type,
-                                        layout,
-                                        this->memoryLayoutForStorageClass(storageClass),
-                                        storageClass);
+    // Input int pointers have a reserved ID
+    SpvId typeId;
+    if (type->typeKind() == Type::TypeKind::kScalar && type->isSigned() &&
+        storageClass == StorageClass::kInput) {
+        // Predefined type pointer
+        typeId = spirv::kIdTypePointerInputInt;
+    } else {
+        typeId = this->getPointerType(
+                *type, layout, this->memoryLayoutForStorageClass(storageClass), storageClass);
+    }
     this->writeInstruction(SpvOpVariable, typeId, id,
                            get_storage_class_spv_id(storageClass), fConstantBuffer);
     this->writeInstruction(SpvOpName, id, var.name(), fNameBuffer);
@@ -5373,6 +5411,19 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, SPIRVBlob& ou
     Analysis::FindFunctionsToSpecialize(program, &fSpecializationInfo, [](const Variable& param) {
         return param.type().isSampler() || param.type().isUnsizedArray();
     });
+
+    // Pre-declare some types that the SPIR-V transformer expects to always be present.
+    // int:
+    this->writeInstruction(
+            SpvOpTypeInt,
+            Words{Word::ReservedResult(spirv::kIdTypeInt), Word::Number(32), Word::Number(1)},
+            fConstantBuffer);
+    // int pointer:
+    this->writeInstruction(SpvOpTypePointer,
+                           Words{Word::ReservedResult(spirv::kIdTypePointerInputInt),
+                                 Word::Number(SpvStorageClassInput),
+                                 (SpvId)spirv::kIdTypeInt},
+                           fConstantBuffer);
 
     fGLSLExtendedInstructions = this->nextId(nullptr);
     SPIRVBlob body;

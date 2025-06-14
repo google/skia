@@ -327,16 +327,7 @@ private:
                                                           const Rect& drawBounds,
                                                           bool requireMSAA) const;
 
-    // TODO(b/390458117): Vulkan must fall back from reading the dst as an input to using dst copies
-    // when we encounter draws that report needing to use MSAA (even when the target reports being
-    // single-sampeld). Sequential draws are not guaranteed to all require this fallback or not.
-    // If going from using the texture copy fallback to reading the dst as an input attachment, we
-    // must perform a flush so that the dst copy is completed prior to reading from it. Flushing
-    // every time we use kReadFromInput would lead to performing unnecessary flushes which is not
-    // optimal. Therefore, store + consult the prior strategy used to determine if we require a
-    // flush. Once b/390458117 is implemented, fPriorDrawDstReadStrategy can be removed.
-    DstReadStrategy fPriorDrawDstReadStrategy = DstReadStrategy::kNoneRequired;
-    bool needsFlushBeforeDraw(int numNewRenderSteps, DstReadStrategy, bool requiresMSAA);
+    bool needsFlushBeforeDraw(int numNewRenderSteps, DstReadStrategy);
 
     // Flush internal work, such as pending clip draws and atlas uploads, into the Device's DrawTask
     void internalFlush();

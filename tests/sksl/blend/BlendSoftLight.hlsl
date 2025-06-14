@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _15_src : packoffset(c0);
-    float4 _15_dst : packoffset(c1);
+    float4 _19_src : packoffset(c0);
+    float4 _19_dst : packoffset(c1);
 };
 
 
@@ -14,29 +14,29 @@ struct SPIRV_Cross_Output
 
 static float _kGuardedDivideEpsilon = 0.0f;
 
-float soft_light_component_Qhh2h2(float2 _21, float2 _22)
+float soft_light_component_Qhh2h2(float2 _25, float2 _26)
 {
-    if ((2.0f * _21.x) <= _21.y)
+    if ((2.0f * _25.x) <= _25.y)
     {
-        return ((((_22.x * _22.x) * (_21.y - (2.0f * _21.x))) / (_22.y + _kGuardedDivideEpsilon)) + ((1.0f - _22.y) * _21.x)) + (_22.x * (((-_21.y) + (2.0f * _21.x)) + 1.0f));
+        return ((((_26.x * _26.x) * (_25.y - (2.0f * _25.x))) / (_26.y + _kGuardedDivideEpsilon)) + ((1.0f - _26.y) * _25.x)) + (_26.x * (((-_25.y) + (2.0f * _25.x)) + 1.0f));
     }
     else
     {
-        if ((4.0f * _22.x) <= _22.y)
+        if ((4.0f * _26.x) <= _26.y)
         {
-            float _87 = _22.x * _22.x;
-            float DSqd = _87;
-            float _91 = _87 * _22.x;
-            float DCub = _91;
-            float _97 = _22.y * _22.y;
-            float DaSqd = _97;
-            float _101 = _97 * _22.y;
-            float DaCub = _101;
-            return ((((_97 * (_21.x - (_22.x * (((3.0f * _21.y) - (6.0f * _21.x)) - 1.0f)))) + (((12.0f * _22.y) * _87) * (_21.y - (2.0f * _21.x)))) - ((16.0f * _91) * (_21.y - (2.0f * _21.x)))) - (_101 * _21.x)) / (_97 + _kGuardedDivideEpsilon);
+            float _91 = _26.x * _26.x;
+            float DSqd = _91;
+            float _95 = _91 * _26.x;
+            float DCub = _95;
+            float _101 = _26.y * _26.y;
+            float DaSqd = _101;
+            float _105 = _101 * _26.y;
+            float DaCub = _105;
+            return ((((_101 * (_25.x - (_26.x * (((3.0f * _25.y) - (6.0f * _25.x)) - 1.0f)))) + (((12.0f * _26.y) * _91) * (_25.y - (2.0f * _25.x)))) - ((16.0f * _95) * (_25.y - (2.0f * _25.x)))) - (_105 * _25.x)) / (_101 + _kGuardedDivideEpsilon);
         }
         else
         {
-            return (((_22.x * ((_21.y - (2.0f * _21.x)) + 1.0f)) + _21.x) - (sqrt(_22.y * _22.x) * (_21.y - (2.0f * _21.x)))) - (_22.y * _21.x);
+            return (((_26.x * ((_25.y - (2.0f * _25.x)) + 1.0f)) + _25.x) - (sqrt(_26.y * _26.x) * (_25.y - (2.0f * _25.x)))) - (_26.y * _25.x);
         }
     }
 }
@@ -44,22 +44,22 @@ float soft_light_component_Qhh2h2(float2 _21, float2 _22)
 void frag_main()
 {
     _kGuardedDivideEpsilon = false ? 9.9999999392252902907785028219223e-09f : 0.0f;
-    float4 _192 = 0.0f.xxxx;
-    if (_15_dst.w == 0.0f)
+    float4 _195 = 0.0f.xxxx;
+    if (_19_dst.w == 0.0f)
     {
-        _192 = _15_src;
+        _195 = _19_src;
     }
     else
     {
-        float2 _203 = _15_src.xw;
-        float2 _207 = _15_dst.xw;
-        float2 _212 = _15_src.yw;
-        float2 _216 = _15_dst.yw;
-        float2 _221 = _15_src.zw;
-        float2 _225 = _15_dst.zw;
-        _192 = float4(soft_light_component_Qhh2h2(_203, _207), soft_light_component_Qhh2h2(_212, _216), soft_light_component_Qhh2h2(_221, _225), _15_src.w + ((1.0f - _15_src.w) * _15_dst.w));
+        float2 _206 = _19_src.xw;
+        float2 _210 = _19_dst.xw;
+        float2 _215 = _19_src.yw;
+        float2 _219 = _19_dst.yw;
+        float2 _224 = _19_src.zw;
+        float2 _228 = _19_dst.zw;
+        _195 = float4(soft_light_component_Qhh2h2(_206, _210), soft_light_component_Qhh2h2(_215, _219), soft_light_component_Qhh2h2(_224, _228), _19_src.w + ((1.0f - _19_src.w) * _19_dst.w));
     }
-    sk_FragColor = _192;
+    sk_FragColor = _195;
 }
 
 SPIRV_Cross_Output main()

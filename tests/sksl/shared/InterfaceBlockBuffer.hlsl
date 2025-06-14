@@ -1,4 +1,4 @@
-RWByteAddressBuffer _3 : register(u456, space0);
+RWByteAddressBuffer _7 : register(u456, space0);
 
 static float4 sk_FragColor;
 
@@ -9,7 +9,7 @@ struct SPIRV_Cross_Output
 
 void frag_main()
 {
-    sk_FragColor = asfloat(_3.Load(0)).xxxx;
+    sk_FragColor = asfloat(_7.Load(0)).xxxx;
 }
 
 SPIRV_Cross_Output main()

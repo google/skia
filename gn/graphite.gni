@@ -415,6 +415,8 @@ skia_graphite_vk_sources = [
   "$_src/gpu/graphite/vk/VulkanSampler.h",
   "$_src/gpu/graphite/vk/VulkanSharedContext.cpp",
   "$_src/gpu/graphite/vk/VulkanSharedContext.h",
+  "$_src/gpu/graphite/vk/VulkanSpirvTransforms.cpp",
+  "$_src/gpu/graphite/vk/VulkanSpirvTransforms.h",
   "$_src/gpu/graphite/vk/VulkanTexture.cpp",
   "$_src/gpu/graphite/vk/VulkanTexture.h",
   "$_src/gpu/graphite/vk/VulkanTextureInfo.cpp",

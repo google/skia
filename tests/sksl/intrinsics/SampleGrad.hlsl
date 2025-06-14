@@ -1,6 +1,6 @@
 cbuffer sksl_synthetic_uniforms : register(b0, space0)
 {
-    float2 _31_u_skRTFlip : packoffset(c1024);
+    float2 _35_u_skRTFlip : packoffset(c1024);
 };
 
 Texture2D<float4> t : register(t0, space0);
@@ -13,15 +13,15 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float4 main(float2 _22)
+float4 main(float2 _26)
 {
-    return t.SampleGrad(_t_sampler, _22, ddx(_22), ddy(_22) * _31_u_skRTFlip.yy);
+    return t.SampleGrad(_t_sampler, _26, ddx(_26), ddy(_26) * _35_u_skRTFlip.yy);
 }
 
 void frag_main()
 {
-    float2 _18 = 0.0f.xx;
-    sk_FragColor = main(_18);
+    float2 _22 = 0.0f.xx;
+    sk_FragColor = main(_22);
 }
 
 SPIRV_Cross_Output main()

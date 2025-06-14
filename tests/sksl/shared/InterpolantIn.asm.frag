@@ -1,15 +1,15 @@
                OpCapability Shader
-          %1 = OpExtInstImport "GLSL.std.450"
+          %5 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint Fragment %main "main" %sk_FragColor %defaultVarying %linearVarying %flatVarying
                OpExecutionMode %main OriginUpperLeft
 
                ; Debug Information
-               OpName %sk_FragColor "sk_FragColor"  ; id %3
-               OpName %defaultVarying "defaultVarying"  ; id %7
-               OpName %linearVarying "linearVarying"    ; id %9
-               OpName %flatVarying "flatVarying"        ; id %10
-               OpName %main "main"                      ; id %2
+               OpName %sk_FragColor "sk_FragColor"  ; id %7
+               OpName %defaultVarying "defaultVarying"  ; id %11
+               OpName %linearVarying "linearVarying"    ; id %13
+               OpName %flatVarying "flatVarying"        ; id %14
+               OpName %main "main"                      ; id %6
 
                ; Annotations
                OpDecorate %sk_FragColor RelaxedPrecision
@@ -20,9 +20,11 @@
                OpDecorate %linearVarying NoPerspective
                OpDecorate %flatVarying Location 2
                OpDecorate %flatVarying Flat
-               OpDecorate %18 RelaxedPrecision
+               OpDecorate %22 RelaxedPrecision
 
                ; Types, variables and constants
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
@@ -32,18 +34,18 @@
 %linearVarying = OpVariable %_ptr_Input_float Input     ; Location 1, NoPerspective
 %flatVarying = OpVariable %_ptr_Input_float Input       ; Location 2, Flat
        %void = OpTypeVoid
-         %12 = OpTypeFunction %void
+         %16 = OpTypeFunction %void
     %float_1 = OpConstant %float 1
 
 
                ; Function main
-       %main = OpFunction %void None %12
+       %main = OpFunction %void None %16
 
-         %13 = OpLabel
-         %14 =   OpLoad %float %defaultVarying
-         %15 =   OpLoad %float %linearVarying
-         %16 =   OpLoad %float %flatVarying
-         %18 =   OpCompositeConstruct %v4float %14 %15 %16 %float_1     ; RelaxedPrecision
-                 OpStore %sk_FragColor %18
+         %17 = OpLabel
+         %18 =   OpLoad %float %defaultVarying
+         %19 =   OpLoad %float %linearVarying
+         %20 =   OpLoad %float %flatVarying
+         %22 =   OpCompositeConstruct %v4float %18 %19 %20 %float_1     ; RelaxedPrecision
+                 OpStore %sk_FragColor %22
                  OpReturn
                OpFunctionEnd

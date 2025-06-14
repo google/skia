@@ -1,76 +1,77 @@
                OpCapability Shader
-          %1 = OpExtInstImport "GLSL.std.450"
+          %5 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %main "main" %sk_LocalInvocationID
                OpExecutionMode %main LocalSize 64 1 1
 
                ; Debug Information
-               OpName %ssbo "ssbo"                  ; id %5
+               OpName %ssbo "ssbo"                  ; id %9
                OpMemberName %ssbo 0 "globalCounter"
-               OpName %sk_LocalInvocationID "sk_LocalInvocationID"  ; id %7
-               OpName %localCounter "localCounter"                  ; id %10
-               OpName %main "main"                                  ; id %2
+               OpName %sk_LocalInvocationID "sk_LocalInvocationID"  ; id %11
+               OpName %localCounter "localCounter"                  ; id %14
+               OpName %main "main"                                  ; id %6
 
                ; Annotations
                OpMemberDecorate %ssbo 0 Offset 0
                OpMemberDecorate %ssbo 0 RelaxedPrecision
                OpDecorate %ssbo BufferBlock
-               OpDecorate %3 Binding 0
-               OpDecorate %3 DescriptorSet 0
+               OpDecorate %7 Binding 0
+               OpDecorate %7 DescriptorSet 0
                OpDecorate %sk_LocalInvocationID BuiltIn LocalInvocationId
 
                ; Types, variables and constants
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
        %uint = OpTypeInt 32 0
        %ssbo = OpTypeStruct %uint                   ; BufferBlock
 %_ptr_Uniform_ssbo = OpTypePointer Uniform %ssbo
-          %3 = OpVariable %_ptr_Uniform_ssbo Uniform    ; Binding 0, DescriptorSet 0
+          %7 = OpVariable %_ptr_Uniform_ssbo Uniform    ; Binding 0, DescriptorSet 0
      %v3uint = OpTypeVector %uint 3
 %_ptr_Input_v3uint = OpTypePointer Input %v3uint
 %sk_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input     ; BuiltIn LocalInvocationId
 %_ptr_Workgroup_uint = OpTypePointer Workgroup %uint
 %localCounter = OpVariable %_ptr_Workgroup_uint Workgroup
        %void = OpTypeVoid
-         %13 = OpTypeFunction %void
+         %17 = OpTypeFunction %void
      %uint_0 = OpConstant %uint 0
        %bool = OpTypeBool
      %uint_2 = OpConstant %uint 2
    %uint_264 = OpConstant %uint 264
      %uint_1 = OpConstant %uint 1
-        %int = OpTypeInt 32 1
       %int_0 = OpConstant %int 0
 %_ptr_Uniform_uint = OpTypePointer Uniform %uint
 
 
                ; Function main
-       %main = OpFunction %void None %13
+       %main = OpFunction %void None %17
 
-         %14 = OpLabel
-         %15 =   OpLoad %v3uint %sk_LocalInvocationID
-         %16 =   OpCompositeExtract %uint %15 0
-         %18 =   OpIEqual %bool %16 %uint_0
-                 OpSelectionMerge %21 None
-                 OpBranchConditional %18 %20 %21
+         %18 = OpLabel
+         %19 =   OpLoad %v3uint %sk_LocalInvocationID
+         %20 =   OpCompositeExtract %uint %19 0
+         %22 =   OpIEqual %bool %20 %uint_0
+                 OpSelectionMerge %25 None
+                 OpBranchConditional %22 %24 %25
 
-         %20 =     OpLabel
+         %24 =     OpLabel
                      OpAtomicStore %localCounter %uint_2 %uint_0 %uint_0
-                     OpBranch %21
+                     OpBranch %25
 
-         %21 = OpLabel
+         %25 = OpLabel
                  OpControlBarrier %uint_2 %uint_2 %uint_264
-         %25 =   OpAtomicIAdd %uint %localCounter %uint_2 %uint_0 %uint_1
+         %29 =   OpAtomicIAdd %uint %localCounter %uint_2 %uint_0 %uint_1
                  OpControlBarrier %uint_2 %uint_2 %uint_264
-         %27 =   OpLoad %v3uint %sk_LocalInvocationID
-         %28 =   OpCompositeExtract %uint %27 0
-         %29 =   OpIEqual %bool %28 %uint_0
-                 OpSelectionMerge %31 None
-                 OpBranchConditional %29 %30 %31
+         %31 =   OpLoad %v3uint %sk_LocalInvocationID
+         %32 =   OpCompositeExtract %uint %31 0
+         %33 =   OpIEqual %bool %32 %uint_0
+                 OpSelectionMerge %35 None
+                 OpBranchConditional %33 %34 %35
 
-         %30 =     OpLabel
-         %35 =       OpAccessChain %_ptr_Uniform_uint %3 %int_0
-         %37 =       OpAtomicLoad %uint %localCounter %uint_2 %uint_0
-         %32 =       OpAtomicIAdd %uint %35 %uint_1 %uint_0 %37
-                     OpBranch %31
+         %34 =     OpLabel
+         %38 =       OpAccessChain %_ptr_Uniform_uint %7 %int_0
+         %40 =       OpAtomicLoad %uint %localCounter %uint_2 %uint_0
+         %36 =       OpAtomicIAdd %uint %38 %uint_1 %uint_0 %40
+                     OpBranch %35
 
-         %31 = OpLabel
+         %35 = OpLabel
                  OpReturn
                OpFunctionEnd

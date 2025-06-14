@@ -1,21 +1,21 @@
                OpCapability Shader
-          %1 = OpExtInstImport "GLSL.std.450"
+          %5 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint Fragment %main "main" %sk_FragColor
                OpExecutionMode %main OriginUpperLeft
 
                ; Debug Information
-               OpName %sk_FragColor "sk_FragColor"  ; id %3
-               OpName %A "A"                        ; id %9
+               OpName %sk_FragColor "sk_FragColor"  ; id %7
+               OpName %A "A"                        ; id %12
                OpMemberName %A 0 "x"
                OpMemberName %A 1 "y"
-               OpName %a1 "a1"                      ; id %7
-               OpName %B "B"                        ; id %14
+               OpName %a1 "a1"                      ; id %11
+               OpName %B "B"                        ; id %17
                OpMemberName %B 0 "x"
                OpMemberName %B 1 "y"
                OpMemberName %B 2 "z"
-               OpName %b1 "b1"                      ; id %11
-               OpName %main "main"                  ; id %2
+               OpName %b1 "b1"                      ; id %14
+               OpName %main "main"                  ; id %6
 
                ; Annotations
                OpDecorate %sk_FragColor RelaxedPrecision
@@ -28,15 +28,16 @@
                OpMemberDecorate %B 1 Offset 16
                OpMemberDecorate %B 2 Offset 48
                OpMemberDecorate %B 2 RelaxedPrecision
-               OpDecorate %27 RelaxedPrecision
                OpDecorate %30 RelaxedPrecision
+               OpDecorate %33 RelaxedPrecision
 
                ; Types, variables and constants
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
 %sk_FragColor = OpVariable %_ptr_Output_v4float Output  ; RelaxedPrecision, Location 0, Index 0
-        %int = OpTypeInt 32 1
           %A = OpTypeStruct %int %int
 %_ptr_Private_A = OpTypePointer Private %A
          %a1 = OpVariable %_ptr_Private_A Private
@@ -46,7 +47,7 @@
 %_ptr_Private_B = OpTypePointer Private %B
          %b1 = OpVariable %_ptr_Private_B Private
        %void = OpTypeVoid
-         %17 = OpTypeFunction %void
+         %20 = OpTypeFunction %void
       %int_0 = OpConstant %int 0
 %_ptr_Private_int = OpTypePointer Private %int
     %float_0 = OpConstant %float 0
@@ -55,20 +56,20 @@
 
 
                ; Function main
-       %main = OpFunction %void None %17
+       %main = OpFunction %void None %20
 
-         %18 = OpLabel
-         %20 =   OpAccessChain %_ptr_Private_int %a1 %int_0
-                 OpStore %20 %int_0
-         %23 =   OpAccessChain %_ptr_Private_float %b1 %int_0
-                 OpStore %23 %float_0
-         %25 =   OpAccessChain %_ptr_Private_int %a1 %int_0
-         %26 =   OpLoad %int %25
-         %27 =   OpConvertSToF %float %26           ; RelaxedPrecision
-         %28 =   OpAccessChain %_ptr_Private_float %b1 %int_0
-         %29 =   OpLoad %float %28
-         %30 =   OpFAdd %float %27 %29              ; RelaxedPrecision
-         %31 =   OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
-                 OpStore %31 %30
+         %21 = OpLabel
+         %23 =   OpAccessChain %_ptr_Private_int %a1 %int_0
+                 OpStore %23 %int_0
+         %26 =   OpAccessChain %_ptr_Private_float %b1 %int_0
+                 OpStore %26 %float_0
+         %28 =   OpAccessChain %_ptr_Private_int %a1 %int_0
+         %29 =   OpLoad %int %28
+         %30 =   OpConvertSToF %float %29           ; RelaxedPrecision
+         %31 =   OpAccessChain %_ptr_Private_float %b1 %int_0
+         %32 =   OpLoad %float %31
+         %33 =   OpFAdd %float %30 %32              ; RelaxedPrecision
+         %34 =   OpAccessChain %_ptr_Output_float %sk_FragColor %int_0
+                 OpStore %34 %33
                  OpReturn
                OpFunctionEnd

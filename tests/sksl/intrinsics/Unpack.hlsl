@@ -1,6 +1,6 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    uint _7_a : packoffset(c0);
+    uint _11_a : packoffset(c0);
 };
 
 
@@ -74,14 +74,14 @@ float2 spvUnpackSnorm2x16(uint value)
 
 void frag_main()
 {
-    float2 _14 = spvUnpackHalf2x16(_7_a);
-    sk_FragColor = float4(_14.x, _14.y, sk_FragColor.z, sk_FragColor.w);
-    float2 _23 = spvUnpackUnorm2x16(_7_a);
-    sk_FragColor = float4(_23.x, _23.y, sk_FragColor.z, sk_FragColor.w);
-    float2 _28 = spvUnpackSnorm2x16(_7_a);
-    sk_FragColor = float4(_28.x, _28.y, sk_FragColor.z, sk_FragColor.w);
-    sk_FragColor = spvUnpackUnorm4x8(_7_a);
-    sk_FragColor = spvUnpackSnorm4x8(_7_a);
+    float2 _18 = spvUnpackHalf2x16(_11_a);
+    sk_FragColor = float4(_18.x, _18.y, sk_FragColor.z, sk_FragColor.w);
+    float2 _26 = spvUnpackUnorm2x16(_11_a);
+    sk_FragColor = float4(_26.x, _26.y, sk_FragColor.z, sk_FragColor.w);
+    float2 _31 = spvUnpackSnorm2x16(_11_a);
+    sk_FragColor = float4(_31.x, _31.y, sk_FragColor.z, sk_FragColor.w);
+    sk_FragColor = spvUnpackUnorm4x8(_11_a);
+    sk_FragColor = spvUnpackSnorm4x8(_11_a);
 }
 
 SPIRV_Cross_Output main()

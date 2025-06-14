@@ -22,8 +22,8 @@ void frag_main()
     {
         z = 1;
     }
-    float3 _33 = float3(float(x), float(y), float(z));
-    sk_FragColor = float4(_33.x, _33.y, _33.z, sk_FragColor.w);
+    float3 _36 = float3(float(x), float(y), float(z));
+    sk_FragColor = float4(_36.x, _36.y, _36.z, sk_FragColor.w);
 }
 
 SPIRV_Cross_Output main()

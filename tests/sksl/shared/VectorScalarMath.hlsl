@@ -1,8 +1,8 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _8_colorRed : packoffset(c0);
-    float4 _8_colorGreen : packoffset(c1);
-    float _8_unknownInput : packoffset(c2);
+    float4 _12_colorRed : packoffset(c0);
+    float4 _12_colorGreen : packoffset(c1);
+    float _12_unknownInput : packoffset(c2);
 };
 
 
@@ -16,419 +16,419 @@ struct SPIRV_Cross_Output
 bool test_int_b()
 {
     bool ok = true;
-    int4 _43 = int4(int(_8_colorRed.x), int(_8_colorRed.y), int(_8_colorRed.z), int(_8_colorRed.w));
-    int4 inputRed = _43;
-    int4 _56 = int4(int(_8_colorGreen.x), int(_8_colorGreen.y), int(_8_colorGreen.z), int(_8_colorGreen.w));
-    int4 inputGreen = _56;
-    int4 _60 = _43 + int4(2, 2, 2, 2);
-    int4 x = _60;
-    bool _69 = false;
+    int4 _46 = int4(int(_12_colorRed.x), int(_12_colorRed.y), int(_12_colorRed.z), int(_12_colorRed.w));
+    int4 inputRed = _46;
+    int4 _59 = int4(int(_12_colorGreen.x), int(_12_colorGreen.y), int(_12_colorGreen.z), int(_12_colorGreen.w));
+    int4 inputGreen = _59;
+    int4 _63 = _46 + int4(2, 2, 2, 2);
+    int4 x = _63;
+    bool _72 = false;
     if (true)
     {
-        _69 = all(bool4(_60.x == int4(3, 2, 2, 3).x, _60.y == int4(3, 2, 2, 3).y, _60.z == int4(3, 2, 2, 3).z, _60.w == int4(3, 2, 2, 3).w));
+        _72 = all(bool4(_63.x == int4(3, 2, 2, 3).x, _63.y == int4(3, 2, 2, 3).y, _63.z == int4(3, 2, 2, 3).z, _63.w == int4(3, 2, 2, 3).w));
     }
     else
     {
-        _69 = false;
+        _72 = false;
     }
-    ok = _69;
-    int4 _71 = _56.ywxz - int4(2, 2, 2, 2);
-    x = _71;
-    bool _79 = false;
-    if (_69)
+    ok = _72;
+    int4 _74 = _59.ywxz - int4(2, 2, 2, 2);
+    x = _74;
+    bool _82 = false;
+    if (_72)
     {
-        _79 = all(bool4(_71.x == int4(-1, -1, -2, -2).x, _71.y == int4(-1, -1, -2, -2).y, _71.z == int4(-1, -1, -2, -2).z, _71.w == int4(-1, -1, -2, -2).w));
+        _82 = all(bool4(_74.x == int4(-1, -1, -2, -2).x, _74.y == int4(-1, -1, -2, -2).y, _74.z == int4(-1, -1, -2, -2).z, _74.w == int4(-1, -1, -2, -2).w));
     }
     else
     {
-        _79 = false;
+        _82 = false;
     }
-    ok = _79;
-    int4 _82 = _43 + _56.y.xxxx;
-    x = _82;
-    bool _88 = false;
-    if (_79)
+    ok = _82;
+    int4 _85 = _46 + _59.y.xxxx;
+    x = _85;
+    bool _91 = false;
+    if (_82)
     {
-        _88 = all(bool4(_82.x == int4(2, 1, 1, 2).x, _82.y == int4(2, 1, 1, 2).y, _82.z == int4(2, 1, 1, 2).z, _82.w == int4(2, 1, 1, 2).w));
+        _91 = all(bool4(_85.x == int4(2, 1, 1, 2).x, _85.y == int4(2, 1, 1, 2).y, _85.z == int4(2, 1, 1, 2).z, _85.w == int4(2, 1, 1, 2).w));
     }
     else
     {
-        _88 = false;
+        _91 = false;
     }
-    ok = _88;
-    int3 _93 = _56.wyw * int3(9, 9, 9);
-    int4 _94 = x;
-    int4 _95 = int4(_93.x, _93.y, _93.z, _94.w);
-    x = _95;
-    bool _101 = false;
-    if (_88)
+    ok = _91;
+    int3 _96 = _59.wyw * int3(9, 9, 9);
+    int4 _97 = x;
+    int4 _98 = int4(_96.x, _96.y, _96.z, _97.w);
+    x = _98;
+    bool _104 = false;
+    if (_91)
     {
-        _101 = all(bool4(_95.x == int4(9, 9, 9, 2).x, _95.y == int4(9, 9, 9, 2).y, _95.z == int4(9, 9, 9, 2).z, _95.w == int4(9, 9, 9, 2).w));
+        _104 = all(bool4(_98.x == int4(9, 9, 9, 2).x, _98.y == int4(9, 9, 9, 2).y, _98.z == int4(9, 9, 9, 2).z, _98.w == int4(9, 9, 9, 2).w));
     }
     else
     {
-        _101 = false;
+        _104 = false;
     }
-    ok = _101;
-    int2 _106 = _95.zw / int2(4, 4);
-    int4 _107 = x;
-    int4 _108 = int4(_106.x, _106.y, _107.z, _107.w);
-    x = _108;
-    bool _114 = false;
-    if (_101)
+    ok = _104;
+    int2 _109 = _98.zw / int2(4, 4);
+    int4 _110 = x;
+    int4 _111 = int4(_109.x, _109.y, _110.z, _110.w);
+    x = _111;
+    bool _117 = false;
+    if (_104)
     {
-        _114 = all(bool4(_108.x == int4(2, 0, 9, 2).x, _108.y == int4(2, 0, 9, 2).y, _108.z == int4(2, 0, 9, 2).z, _108.w == int4(2, 0, 9, 2).w));
+        _117 = all(bool4(_111.x == int4(2, 0, 9, 2).x, _111.y == int4(2, 0, 9, 2).y, _111.z == int4(2, 0, 9, 2).z, _111.w == int4(2, 0, 9, 2).w));
     }
     else
     {
-        _114 = false;
+        _117 = false;
     }
-    ok = _114;
-    int4 _118 = (_43 * int4(5, 5, 5, 5)).yxwz;
-    x = _118;
-    bool _124 = false;
-    if (_114)
+    ok = _117;
+    int4 _121 = (_46 * int4(5, 5, 5, 5)).yxwz;
+    x = _121;
+    bool _127 = false;
+    if (_117)
     {
-        _124 = all(bool4(_118.x == int4(0, 5, 5, 0).x, _118.y == int4(0, 5, 5, 0).y, _118.z == int4(0, 5, 5, 0).z, _118.w == int4(0, 5, 5, 0).w));
+        _127 = all(bool4(_121.x == int4(0, 5, 5, 0).x, _121.y == int4(0, 5, 5, 0).y, _121.z == int4(0, 5, 5, 0).z, _121.w == int4(0, 5, 5, 0).w));
     }
     else
     {
-        _124 = false;
+        _127 = false;
     }
-    ok = _124;
-    int4 _125 = int4(2, 2, 2, 2) + _43;
-    x = _125;
-    bool _130 = false;
-    if (_124)
+    ok = _127;
+    int4 _128 = int4(2, 2, 2, 2) + _46;
+    x = _128;
+    bool _133 = false;
+    if (_127)
     {
-        _130 = all(bool4(_125.x == int4(3, 2, 2, 3).x, _125.y == int4(3, 2, 2, 3).y, _125.z == int4(3, 2, 2, 3).z, _125.w == int4(3, 2, 2, 3).w));
+        _133 = all(bool4(_128.x == int4(3, 2, 2, 3).x, _128.y == int4(3, 2, 2, 3).y, _128.z == int4(3, 2, 2, 3).z, _128.w == int4(3, 2, 2, 3).w));
     }
     else
     {
-        _130 = false;
+        _133 = false;
     }
-    ok = _130;
-    int4 _134 = int4(10, 10, 10, 10) - _56.ywxz;
-    x = _134;
-    bool _140 = false;
-    if (_130)
+    ok = _133;
+    int4 _137 = int4(10, 10, 10, 10) - _59.ywxz;
+    x = _137;
+    bool _143 = false;
+    if (_133)
     {
-        _140 = all(bool4(_134.x == int4(9, 9, 10, 10).x, _134.y == int4(9, 9, 10, 10).y, _134.z == int4(9, 9, 10, 10).z, _134.w == int4(9, 9, 10, 10).w));
+        _143 = all(bool4(_137.x == int4(9, 9, 10, 10).x, _137.y == int4(9, 9, 10, 10).y, _137.z == int4(9, 9, 10, 10).z, _137.w == int4(9, 9, 10, 10).w));
     }
     else
     {
-        _140 = false;
+        _143 = false;
     }
-    ok = _140;
-    int4 _143 = _43.x.xxxx + _56;
-    x = _143;
-    bool _149 = false;
-    if (_140)
+    ok = _143;
+    int4 _146 = _46.x.xxxx + _59;
+    x = _146;
+    bool _152 = false;
+    if (_143)
     {
-        _149 = all(bool4(_143.x == int4(1, 2, 1, 2).x, _143.y == int4(1, 2, 1, 2).y, _143.z == int4(1, 2, 1, 2).z, _143.w == int4(1, 2, 1, 2).w));
+        _152 = all(bool4(_146.x == int4(1, 2, 1, 2).x, _146.y == int4(1, 2, 1, 2).y, _146.z == int4(1, 2, 1, 2).z, _146.w == int4(1, 2, 1, 2).w));
     }
     else
     {
-        _149 = false;
+        _152 = false;
     }
-    ok = _149;
-    int3 _153 = int3(8, 8, 8) * _56.wyw;
-    int4 _154 = x;
-    int4 _155 = int4(_153.x, _153.y, _153.z, _154.w);
-    x = _155;
-    bool _161 = false;
-    if (_149)
+    ok = _152;
+    int3 _156 = int3(8, 8, 8) * _59.wyw;
+    int4 _157 = x;
+    int4 _158 = int4(_156.x, _156.y, _156.z, _157.w);
+    x = _158;
+    bool _164 = false;
+    if (_152)
     {
-        _161 = all(bool4(_155.x == int4(8, 8, 8, 2).x, _155.y == int4(8, 8, 8, 2).y, _155.z == int4(8, 8, 8, 2).z, _155.w == int4(8, 8, 8, 2).w));
+        _164 = all(bool4(_158.x == int4(8, 8, 8, 2).x, _158.y == int4(8, 8, 8, 2).y, _158.z == int4(8, 8, 8, 2).z, _158.w == int4(8, 8, 8, 2).w));
     }
     else
     {
-        _161 = false;
+        _164 = false;
     }
-    ok = _161;
-    int2 _165 = int2(36, 36) / _155.zw;
-    int4 _166 = x;
-    int4 _167 = int4(_165.x, _165.y, _166.z, _166.w);
-    x = _167;
-    bool _174 = false;
-    if (_161)
+    ok = _164;
+    int2 _168 = int2(36, 36) / _158.zw;
+    int4 _169 = x;
+    int4 _170 = int4(_168.x, _168.y, _169.z, _169.w);
+    x = _170;
+    bool _177 = false;
+    if (_164)
     {
-        _174 = all(bool4(_167.x == int4(4, 18, 8, 2).x, _167.y == int4(4, 18, 8, 2).y, _167.z == int4(4, 18, 8, 2).z, _167.w == int4(4, 18, 8, 2).w));
+        _177 = all(bool4(_170.x == int4(4, 18, 8, 2).x, _170.y == int4(4, 18, 8, 2).y, _170.z == int4(4, 18, 8, 2).z, _170.w == int4(4, 18, 8, 2).w));
     }
     else
     {
-        _174 = false;
+        _177 = false;
     }
-    ok = _174;
-    int4 _178 = (int4(37, 37, 37, 37) / _167).yxwz;
-    x = _178;
-    bool _184 = false;
-    if (_174)
+    ok = _177;
+    int4 _181 = (int4(37, 37, 37, 37) / _170).yxwz;
+    x = _181;
+    bool _187 = false;
+    if (_177)
     {
-        _184 = all(bool4(_178.x == int4(2, 9, 18, 4).x, _178.y == int4(2, 9, 18, 4).y, _178.z == int4(2, 9, 18, 4).z, _178.w == int4(2, 9, 18, 4).w));
+        _187 = all(bool4(_181.x == int4(2, 9, 18, 4).x, _181.y == int4(2, 9, 18, 4).y, _181.z == int4(2, 9, 18, 4).z, _181.w == int4(2, 9, 18, 4).w));
     }
     else
     {
-        _184 = false;
+        _187 = false;
     }
-    ok = _184;
-    int4 _185 = _178 + int4(2, 2, 2, 2);
-    x = _185;
-    int4 _186 = _185 * int4(2, 2, 2, 2);
-    x = _186;
-    int4 _188 = _186 - int4(4, 4, 4, 4);
+    ok = _187;
+    int4 _188 = _181 + int4(2, 2, 2, 2);
     x = _188;
-    int4 _189 = _188 / int4(2, 2, 2, 2);
+    int4 _189 = _188 * int4(2, 2, 2, 2);
     x = _189;
-    bool _194 = false;
-    if (_184)
+    int4 _191 = _189 - int4(4, 4, 4, 4);
+    x = _191;
+    int4 _192 = _191 / int4(2, 2, 2, 2);
+    x = _192;
+    bool _197 = false;
+    if (_187)
     {
-        _194 = all(bool4(_189.x == int4(2, 9, 18, 4).x, _189.y == int4(2, 9, 18, 4).y, _189.z == int4(2, 9, 18, 4).z, _189.w == int4(2, 9, 18, 4).w));
+        _197 = all(bool4(_192.x == int4(2, 9, 18, 4).x, _192.y == int4(2, 9, 18, 4).y, _192.z == int4(2, 9, 18, 4).z, _192.w == int4(2, 9, 18, 4).w));
     }
     else
     {
-        _194 = false;
+        _197 = false;
     }
-    ok = _194;
-    int4 _195 = _189 + int4(2, 2, 2, 2);
-    x = _195;
-    int4 _196 = _195 * int4(2, 2, 2, 2);
-    x = _196;
-    int4 _197 = _196 - int4(4, 4, 4, 4);
-    x = _197;
-    int4 _198 = _197 / int4(2, 2, 2, 2);
+    ok = _197;
+    int4 _198 = _192 + int4(2, 2, 2, 2);
     x = _198;
-    bool _203 = false;
-    if (_194)
+    int4 _199 = _198 * int4(2, 2, 2, 2);
+    x = _199;
+    int4 _200 = _199 - int4(4, 4, 4, 4);
+    x = _200;
+    int4 _201 = _200 / int4(2, 2, 2, 2);
+    x = _201;
+    bool _206 = false;
+    if (_197)
     {
-        _203 = all(bool4(_198.x == int4(2, 9, 18, 4).x, _198.y == int4(2, 9, 18, 4).y, _198.z == int4(2, 9, 18, 4).z, _198.w == int4(2, 9, 18, 4).w));
+        _206 = all(bool4(_201.x == int4(2, 9, 18, 4).x, _201.y == int4(2, 9, 18, 4).y, _201.z == int4(2, 9, 18, 4).z, _201.w == int4(2, 9, 18, 4).w));
     }
     else
     {
-        _203 = false;
+        _206 = false;
     }
-    ok = _203;
-    return _203;
+    ok = _206;
+    return _206;
 }
 
-float4 main(float2 _205)
+float4 main(float2 _208)
 {
     bool _RESERVED_IDENTIFIER_FIXUP_0_ok = true;
-    float4 _RESERVED_IDENTIFIER_FIXUP_1_inputRed = _8_colorRed;
-    float4 _RESERVED_IDENTIFIER_FIXUP_2_inputGreen = _8_colorGreen;
-    float4 _218 = _8_colorRed + 2.0f.xxxx;
-    float4 _RESERVED_IDENTIFIER_FIXUP_3_x = _218;
-    bool _225 = false;
+    float4 _RESERVED_IDENTIFIER_FIXUP_1_inputRed = _12_colorRed;
+    float4 _RESERVED_IDENTIFIER_FIXUP_2_inputGreen = _12_colorGreen;
+    float4 _221 = _12_colorRed + 2.0f.xxxx;
+    float4 _RESERVED_IDENTIFIER_FIXUP_3_x = _221;
+    bool _228 = false;
     if (true)
     {
-        _225 = all(bool4(_218.x == float4(3.0f, 2.0f, 2.0f, 3.0f).x, _218.y == float4(3.0f, 2.0f, 2.0f, 3.0f).y, _218.z == float4(3.0f, 2.0f, 2.0f, 3.0f).z, _218.w == float4(3.0f, 2.0f, 2.0f, 3.0f).w));
+        _228 = all(bool4(_221.x == float4(3.0f, 2.0f, 2.0f, 3.0f).x, _221.y == float4(3.0f, 2.0f, 2.0f, 3.0f).y, _221.z == float4(3.0f, 2.0f, 2.0f, 3.0f).z, _221.w == float4(3.0f, 2.0f, 2.0f, 3.0f).w));
     }
     else
     {
-        _225 = false;
+        _228 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _225;
-    float4 _227 = _8_colorGreen.ywxz - 2.0f.xxxx;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _227;
-    bool _235 = false;
-    if (_225)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _228;
+    float4 _230 = _12_colorGreen.ywxz - 2.0f.xxxx;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _230;
+    bool _238 = false;
+    if (_228)
     {
-        _235 = all(bool4(_227.x == float4(-1.0f, -1.0f, -2.0f, -2.0f).x, _227.y == float4(-1.0f, -1.0f, -2.0f, -2.0f).y, _227.z == float4(-1.0f, -1.0f, -2.0f, -2.0f).z, _227.w == float4(-1.0f, -1.0f, -2.0f, -2.0f).w));
+        _238 = all(bool4(_230.x == float4(-1.0f, -1.0f, -2.0f, -2.0f).x, _230.y == float4(-1.0f, -1.0f, -2.0f, -2.0f).y, _230.z == float4(-1.0f, -1.0f, -2.0f, -2.0f).z, _230.w == float4(-1.0f, -1.0f, -2.0f, -2.0f).w));
     }
     else
     {
-        _235 = false;
+        _238 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _235;
-    float4 _238 = _8_colorRed + _8_colorGreen.y.xxxx;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _238;
-    bool _245 = false;
-    if (_235)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _238;
+    float4 _241 = _12_colorRed + _12_colorGreen.y.xxxx;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _241;
+    bool _248 = false;
+    if (_238)
     {
-        _245 = all(bool4(_238.x == float4(2.0f, 1.0f, 1.0f, 2.0f).x, _238.y == float4(2.0f, 1.0f, 1.0f, 2.0f).y, _238.z == float4(2.0f, 1.0f, 1.0f, 2.0f).z, _238.w == float4(2.0f, 1.0f, 1.0f, 2.0f).w));
+        _248 = all(bool4(_241.x == float4(2.0f, 1.0f, 1.0f, 2.0f).x, _241.y == float4(2.0f, 1.0f, 1.0f, 2.0f).y, _241.z == float4(2.0f, 1.0f, 1.0f, 2.0f).z, _241.w == float4(2.0f, 1.0f, 1.0f, 2.0f).w));
     }
     else
     {
-        _245 = false;
+        _248 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _245;
-    float3 _249 = _8_colorGreen.wyw * 9.0f;
-    float4 _250 = _RESERVED_IDENTIFIER_FIXUP_3_x;
-    float4 _251 = float4(_249.x, _249.y, _249.z, _250.w);
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _251;
-    bool _257 = false;
-    if (_245)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _248;
+    float3 _252 = _12_colorGreen.wyw * 9.0f;
+    float4 _253 = _RESERVED_IDENTIFIER_FIXUP_3_x;
+    float4 _254 = float4(_252.x, _252.y, _252.z, _253.w);
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _254;
+    bool _260 = false;
+    if (_248)
     {
-        _257 = all(bool4(_251.x == float4(9.0f, 9.0f, 9.0f, 2.0f).x, _251.y == float4(9.0f, 9.0f, 9.0f, 2.0f).y, _251.z == float4(9.0f, 9.0f, 9.0f, 2.0f).z, _251.w == float4(9.0f, 9.0f, 9.0f, 2.0f).w));
+        _260 = all(bool4(_254.x == float4(9.0f, 9.0f, 9.0f, 2.0f).x, _254.y == float4(9.0f, 9.0f, 9.0f, 2.0f).y, _254.z == float4(9.0f, 9.0f, 9.0f, 2.0f).z, _254.w == float4(9.0f, 9.0f, 9.0f, 2.0f).w));
     }
     else
     {
-        _257 = false;
+        _260 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _257;
-    float2 _259 = _251.zw * 2.0f;
-    float4 _260 = _RESERVED_IDENTIFIER_FIXUP_3_x;
-    float4 _261 = float4(_259.x, _259.y, _260.z, _260.w);
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _261;
-    bool _269 = false;
-    if (_257)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _260;
+    float2 _262 = _254.zw * 2.0f;
+    float4 _263 = _RESERVED_IDENTIFIER_FIXUP_3_x;
+    float4 _264 = float4(_262.x, _262.y, _263.z, _263.w);
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _264;
+    bool _272 = false;
+    if (_260)
     {
-        _269 = all(bool4(_261.x == float4(18.0f, 4.0f, 9.0f, 2.0f).x, _261.y == float4(18.0f, 4.0f, 9.0f, 2.0f).y, _261.z == float4(18.0f, 4.0f, 9.0f, 2.0f).z, _261.w == float4(18.0f, 4.0f, 9.0f, 2.0f).w));
+        _272 = all(bool4(_264.x == float4(18.0f, 4.0f, 9.0f, 2.0f).x, _264.y == float4(18.0f, 4.0f, 9.0f, 2.0f).y, _264.z == float4(18.0f, 4.0f, 9.0f, 2.0f).z, _264.w == float4(18.0f, 4.0f, 9.0f, 2.0f).w));
     }
     else
     {
-        _269 = false;
+        _272 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _269;
-    float4 _272 = (_8_colorRed * 5.0f).yxwz;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _272;
-    bool _278 = false;
-    if (_269)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _272;
+    float4 _275 = (_12_colorRed * 5.0f).yxwz;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _275;
+    bool _281 = false;
+    if (_272)
     {
-        _278 = all(bool4(_272.x == float4(0.0f, 5.0f, 5.0f, 0.0f).x, _272.y == float4(0.0f, 5.0f, 5.0f, 0.0f).y, _272.z == float4(0.0f, 5.0f, 5.0f, 0.0f).z, _272.w == float4(0.0f, 5.0f, 5.0f, 0.0f).w));
+        _281 = all(bool4(_275.x == float4(0.0f, 5.0f, 5.0f, 0.0f).x, _275.y == float4(0.0f, 5.0f, 5.0f, 0.0f).y, _275.z == float4(0.0f, 5.0f, 5.0f, 0.0f).z, _275.w == float4(0.0f, 5.0f, 5.0f, 0.0f).w));
     }
     else
     {
-        _278 = false;
+        _281 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _278;
-    float4 _279 = 2.0f.xxxx + _8_colorRed;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _279;
-    bool _284 = false;
-    if (_278)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _281;
+    float4 _282 = 2.0f.xxxx + _12_colorRed;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _282;
+    bool _287 = false;
+    if (_281)
     {
-        _284 = all(bool4(_279.x == float4(3.0f, 2.0f, 2.0f, 3.0f).x, _279.y == float4(3.0f, 2.0f, 2.0f, 3.0f).y, _279.z == float4(3.0f, 2.0f, 2.0f, 3.0f).z, _279.w == float4(3.0f, 2.0f, 2.0f, 3.0f).w));
+        _287 = all(bool4(_282.x == float4(3.0f, 2.0f, 2.0f, 3.0f).x, _282.y == float4(3.0f, 2.0f, 2.0f, 3.0f).y, _282.z == float4(3.0f, 2.0f, 2.0f, 3.0f).z, _282.w == float4(3.0f, 2.0f, 2.0f, 3.0f).w));
     }
     else
     {
-        _284 = false;
+        _287 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _284;
-    float4 _288 = 10.0f.xxxx - _8_colorGreen.ywxz;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _288;
-    bool _294 = false;
-    if (_284)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _287;
+    float4 _291 = 10.0f.xxxx - _12_colorGreen.ywxz;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _291;
+    bool _297 = false;
+    if (_287)
     {
-        _294 = all(bool4(_288.x == float4(9.0f, 9.0f, 10.0f, 10.0f).x, _288.y == float4(9.0f, 9.0f, 10.0f, 10.0f).y, _288.z == float4(9.0f, 9.0f, 10.0f, 10.0f).z, _288.w == float4(9.0f, 9.0f, 10.0f, 10.0f).w));
+        _297 = all(bool4(_291.x == float4(9.0f, 9.0f, 10.0f, 10.0f).x, _291.y == float4(9.0f, 9.0f, 10.0f, 10.0f).y, _291.z == float4(9.0f, 9.0f, 10.0f, 10.0f).z, _291.w == float4(9.0f, 9.0f, 10.0f, 10.0f).w));
     }
     else
     {
-        _294 = false;
+        _297 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _294;
-    float4 _297 = _8_colorRed.x.xxxx + _8_colorGreen;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _297;
-    bool _303 = false;
-    if (_294)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _297;
+    float4 _300 = _12_colorRed.x.xxxx + _12_colorGreen;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _300;
+    bool _306 = false;
+    if (_297)
     {
-        _303 = all(bool4(_297.x == float4(1.0f, 2.0f, 1.0f, 2.0f).x, _297.y == float4(1.0f, 2.0f, 1.0f, 2.0f).y, _297.z == float4(1.0f, 2.0f, 1.0f, 2.0f).z, _297.w == float4(1.0f, 2.0f, 1.0f, 2.0f).w));
+        _306 = all(bool4(_300.x == float4(1.0f, 2.0f, 1.0f, 2.0f).x, _300.y == float4(1.0f, 2.0f, 1.0f, 2.0f).y, _300.z == float4(1.0f, 2.0f, 1.0f, 2.0f).z, _300.w == float4(1.0f, 2.0f, 1.0f, 2.0f).w));
     }
     else
     {
-        _303 = false;
+        _306 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _303;
-    float3 _306 = _8_colorGreen.wyw * 8.0f;
-    float4 _307 = _RESERVED_IDENTIFIER_FIXUP_3_x;
-    float4 _308 = float4(_306.x, _306.y, _306.z, _307.w);
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _308;
-    bool _314 = false;
-    if (_303)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _306;
+    float3 _309 = _12_colorGreen.wyw * 8.0f;
+    float4 _310 = _RESERVED_IDENTIFIER_FIXUP_3_x;
+    float4 _311 = float4(_309.x, _309.y, _309.z, _310.w);
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _311;
+    bool _317 = false;
+    if (_306)
     {
-        _314 = all(bool4(_308.x == float4(8.0f, 8.0f, 8.0f, 2.0f).x, _308.y == float4(8.0f, 8.0f, 8.0f, 2.0f).y, _308.z == float4(8.0f, 8.0f, 8.0f, 2.0f).z, _308.w == float4(8.0f, 8.0f, 8.0f, 2.0f).w));
+        _317 = all(bool4(_311.x == float4(8.0f, 8.0f, 8.0f, 2.0f).x, _311.y == float4(8.0f, 8.0f, 8.0f, 2.0f).y, _311.z == float4(8.0f, 8.0f, 8.0f, 2.0f).z, _311.w == float4(8.0f, 8.0f, 8.0f, 2.0f).w));
     }
     else
     {
-        _314 = false;
+        _317 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _314;
-    float2 _318 = 32.0f.xx / _308.zw;
-    float4 _319 = _RESERVED_IDENTIFIER_FIXUP_3_x;
-    float4 _320 = float4(_318.x, _318.y, _319.z, _319.w);
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _320;
-    bool _327 = false;
-    if (_314)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _317;
+    float2 _321 = 32.0f.xx / _311.zw;
+    float4 _322 = _RESERVED_IDENTIFIER_FIXUP_3_x;
+    float4 _323 = float4(_321.x, _321.y, _322.z, _322.w);
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _323;
+    bool _330 = false;
+    if (_317)
     {
-        _327 = all(bool4(_320.x == float4(4.0f, 16.0f, 8.0f, 2.0f).x, _320.y == float4(4.0f, 16.0f, 8.0f, 2.0f).y, _320.z == float4(4.0f, 16.0f, 8.0f, 2.0f).z, _320.w == float4(4.0f, 16.0f, 8.0f, 2.0f).w));
+        _330 = all(bool4(_323.x == float4(4.0f, 16.0f, 8.0f, 2.0f).x, _323.y == float4(4.0f, 16.0f, 8.0f, 2.0f).y, _323.z == float4(4.0f, 16.0f, 8.0f, 2.0f).z, _323.w == float4(4.0f, 16.0f, 8.0f, 2.0f).w));
     }
     else
     {
-        _327 = false;
+        _330 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _327;
-    float4 _330 = (32.0f.xxxx / _320).yxwz;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _330;
-    bool _336 = false;
-    if (_327)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _330;
+    float4 _333 = (32.0f.xxxx / _323).yxwz;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _333;
+    bool _339 = false;
+    if (_330)
     {
-        _336 = all(bool4(_330.x == float4(2.0f, 8.0f, 16.0f, 4.0f).x, _330.y == float4(2.0f, 8.0f, 16.0f, 4.0f).y, _330.z == float4(2.0f, 8.0f, 16.0f, 4.0f).z, _330.w == float4(2.0f, 8.0f, 16.0f, 4.0f).w));
+        _339 = all(bool4(_333.x == float4(2.0f, 8.0f, 16.0f, 4.0f).x, _333.y == float4(2.0f, 8.0f, 16.0f, 4.0f).y, _333.z == float4(2.0f, 8.0f, 16.0f, 4.0f).z, _333.w == float4(2.0f, 8.0f, 16.0f, 4.0f).w));
     }
     else
     {
-        _336 = false;
+        _339 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _336;
-    float4 _337 = _330 + 2.0f.xxxx;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _337;
-    float4 _338 = _337 * 2.0f;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _338;
-    float4 _340 = _338 - 4.0f.xxxx;
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _339;
+    float4 _340 = _333 + 2.0f.xxxx;
     _RESERVED_IDENTIFIER_FIXUP_3_x = _340;
-    float4 _342 = _340 * 0.5f;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _342;
-    bool _347 = false;
-    if (_336)
+    float4 _341 = _340 * 2.0f;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _341;
+    float4 _343 = _341 - 4.0f.xxxx;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _343;
+    float4 _345 = _343 * 0.5f;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _345;
+    bool _350 = false;
+    if (_339)
     {
-        _347 = all(bool4(_342.x == float4(2.0f, 8.0f, 16.0f, 4.0f).x, _342.y == float4(2.0f, 8.0f, 16.0f, 4.0f).y, _342.z == float4(2.0f, 8.0f, 16.0f, 4.0f).z, _342.w == float4(2.0f, 8.0f, 16.0f, 4.0f).w));
+        _350 = all(bool4(_345.x == float4(2.0f, 8.0f, 16.0f, 4.0f).x, _345.y == float4(2.0f, 8.0f, 16.0f, 4.0f).y, _345.z == float4(2.0f, 8.0f, 16.0f, 4.0f).z, _345.w == float4(2.0f, 8.0f, 16.0f, 4.0f).w));
     }
     else
     {
-        _347 = false;
+        _350 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _347;
-    float4 _348 = _342 + 2.0f.xxxx;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _348;
-    float4 _349 = _348 * 2.0f;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _349;
-    float4 _350 = _349 - 4.0f.xxxx;
-    _RESERVED_IDENTIFIER_FIXUP_3_x = _350;
-    float4 _351 = _350 * 0.5f;
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _350;
+    float4 _351 = _345 + 2.0f.xxxx;
     _RESERVED_IDENTIFIER_FIXUP_3_x = _351;
-    bool _356 = false;
-    if (_347)
+    float4 _352 = _351 * 2.0f;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _352;
+    float4 _353 = _352 - 4.0f.xxxx;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _353;
+    float4 _354 = _353 * 0.5f;
+    _RESERVED_IDENTIFIER_FIXUP_3_x = _354;
+    bool _359 = false;
+    if (_350)
     {
-        _356 = all(bool4(_351.x == float4(2.0f, 8.0f, 16.0f, 4.0f).x, _351.y == float4(2.0f, 8.0f, 16.0f, 4.0f).y, _351.z == float4(2.0f, 8.0f, 16.0f, 4.0f).z, _351.w == float4(2.0f, 8.0f, 16.0f, 4.0f).w));
+        _359 = all(bool4(_354.x == float4(2.0f, 8.0f, 16.0f, 4.0f).x, _354.y == float4(2.0f, 8.0f, 16.0f, 4.0f).y, _354.z == float4(2.0f, 8.0f, 16.0f, 4.0f).z, _354.w == float4(2.0f, 8.0f, 16.0f, 4.0f).w));
     }
     else
     {
-        _356 = false;
+        _359 = false;
     }
-    _RESERVED_IDENTIFIER_FIXUP_0_ok = _356;
-    bool _360 = false;
-    if (_356)
+    _RESERVED_IDENTIFIER_FIXUP_0_ok = _359;
+    bool _363 = false;
+    if (_359)
     {
-        _360 = test_int_b();
+        _363 = test_int_b();
     }
     else
     {
-        _360 = false;
+        _363 = false;
     }
-    float4 _361 = 0.0f.xxxx;
-    if (_360)
+    float4 _364 = 0.0f.xxxx;
+    if (_363)
     {
-        _361 = _8_colorGreen;
+        _364 = _12_colorGreen;
     }
     else
     {
-        _361 = _8_colorRed;
+        _364 = _12_colorRed;
     }
-    return _361;
+    return _364;
 }
 
 void frag_main()
 {
-    float2 _18 = 0.0f.xx;
-    sk_FragColor = main(_18);
+    float2 _22 = 0.0f.xx;
+    sk_FragColor = main(_22);
 }
 
 SPIRV_Cross_Output main()

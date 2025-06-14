@@ -1,17 +1,17 @@
                OpCapability Shader
-          %1 = OpExtInstImport "GLSL.std.450"
+          %5 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint Fragment %main "main"
                OpExecutionMode %main OriginUpperLeft
 
                ; Debug Information
-               OpName %aSampler_texture "aSampler_texture"  ; id %5
-               OpName %aSampler_sampler "aSampler_sampler"  ; id %9
-               OpName %anotherSampler_texture "anotherSampler_texture"  ; id %12
-               OpName %anotherSampler_sampler "anotherSampler_sampler"  ; id %13
-               OpName %helper_h4Z_aSampler "helper_h4Z_aSampler"        ; id %2
-               OpName %helper_h4Z_anotherSampler "helper_h4Z_anotherSampler"    ; id %3
-               OpName %main "main"                                              ; id %4
+               OpName %aSampler_texture "aSampler_texture"  ; id %9
+               OpName %aSampler_sampler "aSampler_sampler"  ; id %13
+               OpName %anotherSampler_texture "anotherSampler_texture"  ; id %16
+               OpName %anotherSampler_sampler "anotherSampler_sampler"  ; id %17
+               OpName %helper_h4Z_aSampler "helper_h4Z_aSampler"        ; id %6
+               OpName %helper_h4Z_anotherSampler "helper_h4Z_anotherSampler"    ; id %7
+               OpName %main "main"                                              ; id %8
 
                ; Annotations
                OpDecorate %helper_h4Z_aSampler RelaxedPrecision
@@ -24,64 +24,66 @@
                OpDecorate %anotherSampler_texture DescriptorSet 0
                OpDecorate %anotherSampler_sampler Binding 5
                OpDecorate %anotherSampler_sampler DescriptorSet 0
-               OpDecorate %16 RelaxedPrecision
-               OpDecorate %18 RelaxedPrecision
-               OpDecorate %26 RelaxedPrecision
-               OpDecorate %28 RelaxedPrecision
-               OpDecorate %37 RelaxedPrecision
+               OpDecorate %20 RelaxedPrecision
+               OpDecorate %22 RelaxedPrecision
+               OpDecorate %30 RelaxedPrecision
+               OpDecorate %32 RelaxedPrecision
+               OpDecorate %41 RelaxedPrecision
 
                ; Types, variables and constants
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
       %float = OpTypeFloat 32
-          %7 = OpTypeImage %float 2D 0 0 0 1 Unknown
-%_ptr_UniformConstant_7 = OpTypePointer UniformConstant %7
-%aSampler_texture = OpVariable %_ptr_UniformConstant_7 UniformConstant  ; Binding 2, DescriptorSet 0
-         %10 = OpTypeSampler
-%_ptr_UniformConstant_10 = OpTypePointer UniformConstant %10
-%aSampler_sampler = OpVariable %_ptr_UniformConstant_10 UniformConstant     ; Binding 3, DescriptorSet 0
-%anotherSampler_texture = OpVariable %_ptr_UniformConstant_7 UniformConstant    ; Binding 3, DescriptorSet 0
-%anotherSampler_sampler = OpVariable %_ptr_UniformConstant_10 UniformConstant   ; Binding 5, DescriptorSet 0
+         %11 = OpTypeImage %float 2D 0 0 0 1 Unknown
+%_ptr_UniformConstant_11 = OpTypePointer UniformConstant %11
+%aSampler_texture = OpVariable %_ptr_UniformConstant_11 UniformConstant     ; Binding 2, DescriptorSet 0
+         %14 = OpTypeSampler
+%_ptr_UniformConstant_14 = OpTypePointer UniformConstant %14
+%aSampler_sampler = OpVariable %_ptr_UniformConstant_14 UniformConstant     ; Binding 3, DescriptorSet 0
+%anotherSampler_texture = OpVariable %_ptr_UniformConstant_11 UniformConstant   ; Binding 3, DescriptorSet 0
+%anotherSampler_sampler = OpVariable %_ptr_UniformConstant_14 UniformConstant   ; Binding 5, DescriptorSet 0
     %v4float = OpTypeVector %float 4
-         %15 = OpTypeFunction %v4float %_ptr_UniformConstant_7
-         %22 = OpTypeSampledImage %7
+         %19 = OpTypeFunction %v4float %_ptr_UniformConstant_11
+         %26 = OpTypeSampledImage %11
     %float_1 = OpConstant %float 1
     %v2float = OpTypeVector %float 2
-         %25 = OpConstantComposite %v2float %float_1 %float_1
+         %29 = OpConstantComposite %v2float %float_1 %float_1
        %void = OpTypeVoid
-         %33 = OpTypeFunction %void
+         %37 = OpTypeFunction %void
 
 
                ; Function helper_h4Z_aSampler
-%helper_h4Z_aSampler = OpFunction %v4float None %15     ; RelaxedPrecision
-         %16 = OpFunctionParameter %_ptr_UniformConstant_7  ; RelaxedPrecision
+%helper_h4Z_aSampler = OpFunction %v4float None %19     ; RelaxedPrecision
+         %20 = OpFunctionParameter %_ptr_UniformConstant_11     ; RelaxedPrecision
 
-         %17 = OpLabel
-         %19 =   OpLoad %7 %16
-         %20 =   OpLoad %10 %aSampler_sampler
-         %21 =   OpSampledImage %22 %19 %20
-         %18 =   OpImageSampleImplicitLod %v4float %21 %25  ; RelaxedPrecision
-                 OpReturnValue %18
+         %21 = OpLabel
+         %23 =   OpLoad %11 %20
+         %24 =   OpLoad %14 %aSampler_sampler
+         %25 =   OpSampledImage %26 %23 %24
+         %22 =   OpImageSampleImplicitLod %v4float %25 %29  ; RelaxedPrecision
+                 OpReturnValue %22
                OpFunctionEnd
 
 
                ; Function helper_h4Z_anotherSampler
-%helper_h4Z_anotherSampler = OpFunction %v4float None %15   ; RelaxedPrecision
-         %26 = OpFunctionParameter %_ptr_UniformConstant_7  ; RelaxedPrecision
+%helper_h4Z_anotherSampler = OpFunction %v4float None %19   ; RelaxedPrecision
+         %30 = OpFunctionParameter %_ptr_UniformConstant_11     ; RelaxedPrecision
 
-         %27 = OpLabel
-         %29 =   OpLoad %7 %26
-         %30 =   OpLoad %10 %anotherSampler_sampler
-         %31 =   OpSampledImage %22 %29 %30
-         %28 =   OpImageSampleImplicitLod %v4float %31 %25  ; RelaxedPrecision
-                 OpReturnValue %28
+         %31 = OpLabel
+         %33 =   OpLoad %11 %30
+         %34 =   OpLoad %14 %anotherSampler_sampler
+         %35 =   OpSampledImage %26 %33 %34
+         %32 =   OpImageSampleImplicitLod %v4float %35 %29  ; RelaxedPrecision
+                 OpReturnValue %32
                OpFunctionEnd
 
 
                ; Function main
-       %main = OpFunction %void None %33
+       %main = OpFunction %void None %37
 
-         %34 = OpLabel
-         %35 =   OpFunctionCall %v4float %helper_h4Z_aSampler %aSampler_texture
-         %36 =   OpFunctionCall %v4float %helper_h4Z_anotherSampler %anotherSampler_texture
-         %37 =   OpFAdd %v4float %35 %36            ; RelaxedPrecision
+         %38 = OpLabel
+         %39 =   OpFunctionCall %v4float %helper_h4Z_aSampler %aSampler_texture
+         %40 =   OpFunctionCall %v4float %helper_h4Z_anotherSampler %anotherSampler_texture
+         %41 =   OpFAdd %v4float %39 %40            ; RelaxedPrecision
                  OpReturn
                OpFunctionEnd

@@ -37,6 +37,8 @@ VULKAN_FILES = [
     "VulkanSampler.h",
     "VulkanSharedContext.cpp",
     "VulkanSharedContext.h",
+    "VulkanSpirvTransforms.cpp",
+    "VulkanSpirvTransforms.h",
     "VulkanTexture.cpp",
     "VulkanTexture.h",
     "VulkanTextureInfo.cpp",

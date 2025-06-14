@@ -1,6 +1,6 @@
 cbuffer sksl_synthetic_uniforms : register(b0, space0)
 {
-    float2 _13_u_skRTFlip : packoffset(c1024);
+    float2 _17_u_skRTFlip : packoffset(c1024);
 };
 
 
@@ -19,7 +19,7 @@ struct SPIRV_Cross_Output
 
 void frag_main()
 {
-    sk_FragColor = float(((_13_u_skRTFlip.y > 0.0f) != gl_FrontFacing) ? 1 : (-1)).xxxx;
+    sk_FragColor = float(((_17_u_skRTFlip.y > 0.0f) != gl_FrontFacing) ? 1 : (-1)).xxxx;
 }
 
 SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)

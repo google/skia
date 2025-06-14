@@ -1,9 +1,9 @@
 cbuffer testBlock : register(b0, space0)
 {
-    float _3_x : packoffset(c0);
-    int _3_w : packoffset(c0.y);
-    float _3_y[2] : packoffset(c1);
-    row_major float3x3 _3_z : packoffset(c3);
+    float _7_x : packoffset(c0);
+    int _7_w : packoffset(c0.y);
+    float _7_y[2] : packoffset(c1);
+    row_major float3x3 _7_z : packoffset(c3);
 };
 
 
@@ -16,7 +16,7 @@ struct SPIRV_Cross_Output
 
 void frag_main()
 {
-    sk_FragColor = float4(_3_x, _3_y[0], _3_y[1], 0.0f);
+    sk_FragColor = float4(_7_x, _7_y[0], _7_y[1], 0.0f);
 }
 
 SPIRV_Cross_Output main()

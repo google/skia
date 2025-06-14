@@ -17,24 +17,24 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float4 helpers_helper_h4ZT_aSampledTexture(RWTexture2D<unorm float4> _23)
+float4 helpers_helper_h4ZT_aSampledTexture(RWTexture2D<unorm float4> _27)
 {
     return aSampledTexture.Sample(_aSampledTexture_sampler, c);
 }
 
-float4 helper_h4TZ_aSampledTexture(RWTexture2D<unorm float4> _33)
+float4 helper_h4TZ_aSampledTexture(RWTexture2D<unorm float4> _37)
 {
-    return helpers_helper_h4ZT_aSampledTexture(_33);
+    return helpers_helper_h4ZT_aSampledTexture(_37);
 }
 
-float4 helpers_helper_h4ZT_aSecondSampledTexture(RWTexture2D<unorm float4> _28)
+float4 helpers_helper_h4ZT_aSecondSampledTexture(RWTexture2D<unorm float4> _32)
 {
     return aSecondSampledTexture.Sample(_aSecondSampledTexture_sampler, c);
 }
 
-float4 helper_h4TZ_aSecondSampledTexture(RWTexture2D<unorm float4> _36)
+float4 helper_h4TZ_aSecondSampledTexture(RWTexture2D<unorm float4> _40)
 {
-    return helpers_helper_h4ZT_aSecondSampledTexture(_36);
+    return helpers_helper_h4ZT_aSecondSampledTexture(_40);
 }
 
 void frag_main()

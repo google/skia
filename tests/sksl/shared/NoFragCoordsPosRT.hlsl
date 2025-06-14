@@ -1,6 +1,6 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _10_sk_RTAdjust : packoffset(c0);
+    float4 _14_sk_RTAdjust : packoffset(c0);
 };
 
 
@@ -20,7 +20,7 @@ struct SPIRV_Cross_Output
 void vert_main()
 {
     gl_Position = pos;
-    gl_Position = float4((gl_Position.xy * _10_sk_RTAdjust.xz) + (gl_Position.ww * _10_sk_RTAdjust.yw), 0.0f, gl_Position.w);
+    gl_Position = float4((gl_Position.xy * _14_sk_RTAdjust.xz) + (gl_Position.ww * _14_sk_RTAdjust.yw), 0.0f, gl_Position.w);
 }
 
 SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)

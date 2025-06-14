@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _7_colorGreen : packoffset(c0);
-    float4 _7_colorRed : packoffset(c1);
+    float4 _11_colorGreen : packoffset(c0);
+    float4 _11_colorRed : packoffset(c1);
 };
 
 
@@ -12,58 +12,58 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float4 main(float2 _21)
+float4 main(float2 _25)
 {
-    bool4 _34 = (_7_colorGreen.y != 0.0f).xxxx;
-    bool4 v = _34;
-    bool _36 = _34.x;
-    bool4 result = bool4(_36, true, true, true);
-    result = bool4(_34.xy, false, true);
-    result = bool4(_36, true, true, false);
-    bool _46 = _34.y;
-    result = bool4(false, _46, true, true);
-    result = bool4(_34.xyz, true);
-    result = bool4(_34.xy, true, true);
-    bool _58 = _34.z;
-    bool4 _59 = bool4(_36, false, _58, true);
-    result = _59;
-    result = bool4(_36, true, false, false);
-    result = bool4(true, _34.yz, false);
-    result = bool4(false, _46, true, false);
-    result = bool4(true, true, _58, false);
-    result = _34;
-    result = bool4(_34.xyz, true);
-    bool _75 = _34.w;
-    result = bool4(_34.xy, false, _75);
-    result = bool4(_34.xy, true, false);
-    result = bool4(_36, true, _34.zw);
-    result = _59;
-    result = bool4(_36, true, true, _75);
-    result = bool4(_36, true, false, true);
-    result = bool4(true, _34.yzw);
-    result = bool4(false, _34.yz, true);
-    result = bool4(false, _46, true, _75);
-    result = bool4(true, _46, true, true);
-    result = bool4(false, false, _34.zw);
-    result = bool4(false, false, _58, true);
-    bool4 _103 = bool4(false, true, true, _75);
-    result = _103;
-    float4 _105 = 0.0f.xxxx;
-    if (any(_103))
+    bool4 _37 = (_11_colorGreen.y != 0.0f).xxxx;
+    bool4 v = _37;
+    bool _39 = _37.x;
+    bool4 result = bool4(_39, true, true, true);
+    result = bool4(_37.xy, false, true);
+    result = bool4(_39, true, true, false);
+    bool _49 = _37.y;
+    result = bool4(false, _49, true, true);
+    result = bool4(_37.xyz, true);
+    result = bool4(_37.xy, true, true);
+    bool _61 = _37.z;
+    bool4 _62 = bool4(_39, false, _61, true);
+    result = _62;
+    result = bool4(_39, true, false, false);
+    result = bool4(true, _37.yz, false);
+    result = bool4(false, _49, true, false);
+    result = bool4(true, true, _61, false);
+    result = _37;
+    result = bool4(_37.xyz, true);
+    bool _78 = _37.w;
+    result = bool4(_37.xy, false, _78);
+    result = bool4(_37.xy, true, false);
+    result = bool4(_39, true, _37.zw);
+    result = _62;
+    result = bool4(_39, true, true, _78);
+    result = bool4(_39, true, false, true);
+    result = bool4(true, _37.yzw);
+    result = bool4(false, _37.yz, true);
+    result = bool4(false, _49, true, _78);
+    result = bool4(true, _49, true, true);
+    result = bool4(false, false, _37.zw);
+    result = bool4(false, false, _61, true);
+    bool4 _106 = bool4(false, true, true, _78);
+    result = _106;
+    float4 _108 = 0.0f.xxxx;
+    if (any(_106))
     {
-        _105 = _7_colorGreen;
+        _108 = _11_colorGreen;
     }
     else
     {
-        _105 = _7_colorRed;
+        _108 = _11_colorRed;
     }
-    return _105;
+    return _108;
 }
 
 void frag_main()
 {
-    float2 _17 = 0.0f.xx;
-    sk_FragColor = main(_17);
+    float2 _21 = 0.0f.xx;
+    sk_FragColor = main(_21);
 }
 
 SPIRV_Cross_Output main()

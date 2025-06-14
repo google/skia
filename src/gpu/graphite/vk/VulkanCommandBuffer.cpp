@@ -510,9 +510,6 @@ void VulkanCommandBuffer::performOncePerRPUpdates(SkIRect viewport, bool bindDst
     this->pushConstants(pushConstantInfo, fResourceProvider->mockPipelineLayout());
 
     if (bindDstAsInputAttachment) {
-        // TODO(b/390458117): This assert can be removed once the sample loading shader supports
-        // sample counts > 1.
-        SkASSERT(fTargetTexture && fTargetTexture->numSamples() == 1);
         this->updateAndBindInputAttachment(*fTargetTexture,
                                             VulkanGraphicsPipeline::kDstAsInputDescSetIndex,
                                             fResourceProvider->mockPipelineLayout());

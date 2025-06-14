@@ -1,12 +1,12 @@
                OpCapability Shader
-          %1 = OpExtInstImport "GLSL.std.450"
+          %5 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint Fragment %main "main" %sk_FragColor
                OpExecutionMode %main OriginUpperLeft
 
                ; Debug Information
-               OpName %sk_FragColor "sk_FragColor"  ; id %3
-               OpName %main "main"                  ; id %2
+               OpName %sk_FragColor "sk_FragColor"  ; id %7
+               OpName %main "main"                  ; id %6
 
                ; Annotations
                OpDecorate %sk_FragColor RelaxedPrecision
@@ -14,17 +14,19 @@
                OpDecorate %sk_FragColor Index 0
 
                ; Types, variables and constants
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
 %sk_FragColor = OpVariable %_ptr_Output_v4float Output  ; RelaxedPrecision, Location 0, Index 0
        %void = OpTypeVoid
-          %8 = OpTypeFunction %void
+         %12 = OpTypeFunction %void
 
 
                ; Function main
-       %main = OpFunction %void None %8
+       %main = OpFunction %void None %12
 
-          %9 = OpLabel
+         %13 = OpLabel
                  OpKill
                OpFunctionEnd
