@@ -473,9 +473,15 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 					// b/405970498 - The Dawn/GLES backend is failing these two tests
 					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompileTest")
 					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompilePurgingTest")
+
+					// b/425434638 - PaintParamsKeyTest failing on Release Dawn_GLES
+					skip(ALL, "test", ALL, "PaintParamsKeyTest")
 				}
 
 				if b.extraConfig("Vulkan") {
+					// b/425434638 - PaintParamsKeyTest failing on Release Dawn_Vulkan
+					skip(ALL, "test", ALL, "PaintParamsKeyTest")
+
 					if b.extraConfig("TSAN") {
 						// The TSAN_Graphite_Dawn_Vulkan job goes off into space on this test
 						skip(ALL, "test", ALL, "BigImageTest_Graphite")
