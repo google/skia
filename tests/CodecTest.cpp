@@ -2444,18 +2444,18 @@ DEF_TEST(Codec_RoundTripColorXform, r) {
     };
 
     const TestCase testCases[] = {
-        { "resources/gradient_displayp3.png", "resources/gradient_p3_to_adobe.png",
+        { "images/gradient_displayp3.png", "images/gradient_p3_to_adobe.png",
         SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, SkNamedGamut::kAdobeRGB) },
-        { "resources/gradient_adobergb.png", "resources/gradient_adobe_to_p3.png",
+        { "images/gradient_adobergb.png", "images/gradient_adobe_to_p3.png",
           SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3) },
-        { "resources/gradient_displayp3.jpeg", "resources/gradient_p3_to_adobe.jpeg",
+        { "images/gradient_displayp3.jpeg", "images/gradient_p3_to_adobe.jpeg",
         SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, SkNamedGamut::kAdobeRGB) },
-        { "resources/gradient_adobergb.jpeg", "resources/gradient_adobe_to_p3.jpeg",
+        { "images/gradient_adobergb.jpeg", "images/gradient_adobe_to_p3.jpeg",
         SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3) },
     };
 
     for (const auto& test : testCases) {
-        sk_sp<SkData> srcData = SkData::MakeFromFileName(test.srcFile);
+        sk_sp<SkData> srcData = GetResourceAsData(test.srcFile);
         if (!srcData) {
             ERRORF(r, "Could not load source file: %s", test.srcFile);
             continue;
@@ -2478,7 +2478,7 @@ DEF_TEST(Codec_RoundTripColorXform, r) {
             sk_sp<SkColorSpace> srcCS = srcCodec->getInfo().refColorSpace();
             SkBitmap actualBitmap = make_gradient_bitmap(srcCS);
 
-            sk_sp<SkData> expectedData = SkData::MakeFromFileName(test.srcFile);
+            sk_sp<SkData> expectedData = GetResourceAsData(test.srcFile);
             std::unique_ptr<SkCodec> expectedCodec(SkCodec::MakeFromData(expectedData));
             SkBitmap expectedBitmap;
             expectedBitmap.allocPixels(expectedCodec->getInfo());
@@ -2498,7 +2498,7 @@ DEF_TEST(Codec_RoundTripColorXform, r) {
             actualBitmap.allocPixels(xformInfo);
             srcCodec->getPixels(xformInfo, actualBitmap.getAddr(0, 0), actualBitmap.rowBytes());
 
-            sk_sp<SkData> expectedData = SkData::MakeFromFileName(test.xformFile);
+            sk_sp<SkData> expectedData = GetResourceAsData(test.xformFile);
             std::unique_ptr<SkCodec> expectedCodec(SkCodec::MakeFromData(expectedData));
             SkBitmap expectedBitmap;
             expectedBitmap.allocPixels(expectedCodec->getInfo());
