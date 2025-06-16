@@ -31,7 +31,7 @@ skia_cc_binary(
         "//tools/flags:cmd_flags",
     ] + select({
         "@platforms//os:linux": [
-            "@skia//:fontmgr_fontconfig_freetype",
+            "@skia//:fontmgr_fontconfig",
             "@skia//:freetype_support",
         ],
         "@platforms//os:macos": ["//:fontmgr_coretext"],
@@ -87,7 +87,7 @@ skia_cc_binary(
         "//tools/flags:cmd_flags",
     ] + select({
         "@platforms//os:linux": [
-            "@skia//:fontmgr_fontconfig_freetype",
+            "@skia//:fontmgr_fontconfig",
             "@skia//:freetype_support",
         ],
         "@platforms//os:macos": ["//:fontmgr_coretext"],

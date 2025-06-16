@@ -781,10 +781,6 @@ private:
 
 }  // namespace
 
-sk_sp<SkFontMgr> SkFontMgr_New_AndroidNDK(bool cacheFontFiles) {
-    return SkFontMgr_New_AndroidNDK(cacheFontFiles, SkFontScanner_Make_FreeType());
-}
-
 sk_sp<SkFontMgr> SkFontMgr_New_AndroidNDK(bool cacheFontFiles,
                                            std::unique_ptr<SkFontScanner> scanner)
 {

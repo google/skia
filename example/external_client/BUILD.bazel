@@ -70,7 +70,7 @@ cc_binary(
         "@skia//:png_encode_codec",
     ] + select({
         "@platforms//os:linux": [
-            "@skia//:fontmgr_fontconfig_freetype",
+            "@skia//:fontmgr_fontconfig",
             "@skia//:freetype_support",
         ],
         "@platforms//os:macos": ["@skia//:fontmgr_coretext"],
@@ -277,7 +277,10 @@ cc_binary(
         "@skia//:skshaper_core",
         "@skia//:svg_renderer",
     ] + select({
-        "@platforms//os:linux": ["@skia//:fontmgr_fontconfig_freetype"],
+        "@platforms//os:linux": [
+            "@skia//:fontmgr_fontconfig",
+            "@skia//:freetype_support",
+        ],
         "@platforms//os:macos": ["@skia//:fontmgr_coretext"],
         "//conditions:default": [],
     }),
@@ -297,7 +300,10 @@ cc_binary(
         "@skia//:skunicode_icu",
         "@skia//:svg_renderer",
     ] + select({
-        "@platforms//os:linux": ["@skia//:fontmgr_fontconfig_freetype"],
+        "@platforms//os:linux": [
+            "@skia//:fontmgr_fontconfig",
+            "@skia//:freetype_support",
+        ],
         "@platforms//os:macos": ["@skia//:fontmgr_coretext"],
         "//conditions:default": [],
     }),
@@ -314,7 +320,10 @@ cc_binary(
         "@skia//:pdf_jpeg_helpers",
         "@skia//:pdf_writer",
     ] + select({
-        "@platforms//os:linux": ["@skia//:fontmgr_fontconfig_freetype"],
+        "@platforms//os:linux": [
+            "@skia//:fontmgr_fontconfig",
+            "@skia//:freetype_support",
+        ],
         "@platforms//os:macos": ["@skia//:fontmgr_coretext"],
         "//conditions:default": [],
     }),

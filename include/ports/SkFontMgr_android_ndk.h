@@ -17,8 +17,6 @@ class SkFontMgr;
 class SkFontScanner;
 
 /** Create a font manager for Android NDK. May return nullptr if unavailable (API < 29). */
-SK_API sk_sp<SkFontMgr> SkFontMgr_New_AndroidNDK(bool cacheFontFiles);
-
 SK_API sk_sp<SkFontMgr> SkFontMgr_New_AndroidNDK(bool cacheFontFiles,
                                                  std::unique_ptr<SkFontScanner> scanner);
 
