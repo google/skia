@@ -375,7 +375,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan11, reporter) {
     CHECK_EXT_ENABLED(VK_EXT_BLEND_OPERATION_ADVANCED);
     CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE);
     CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE_2);
-    //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
+    CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     //CHECK_EXT_ENABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_ENABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
     CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
@@ -430,9 +430,9 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan11, reporter) {
                            ExtendedDynamicState2FeaturesEXT,
                            extendedDynamicState2PatchControlPoints);
 
-    //CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
-    //                      VertexInputDynamicStateFeaturesEXT,
-    //                      vertexInputDynamicState);
+    CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
+                          VertexInputDynamicStateFeaturesEXT,
+                          vertexInputDynamicState);
 
     //CHECK_FEATURE_ENABLED(GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT,
     //                      GraphicsPipelineLibraryFeaturesEXT,
@@ -501,7 +501,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan12, reporter) {
     CHECK_EXT_ENABLED(VK_EXT_BLEND_OPERATION_ADVANCED);
     CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE);
     CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE_2);
-    //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
+    CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     //CHECK_EXT_ENABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_DISABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
     CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
@@ -586,9 +586,9 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan12, reporter) {
                            ExtendedDynamicState2FeaturesEXT,
                            extendedDynamicState2PatchControlPoints);
 
-    //CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
-    //                      VertexInputDynamicStateFeaturesEXT,
-    //                      vertexInputDynamicState);
+    CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
+                          VertexInputDynamicStateFeaturesEXT,
+                          vertexInputDynamicState);
 
     //CHECK_FEATURE_ENABLED(GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT,
     //                      GraphicsPipelineLibraryFeaturesEXT,
@@ -657,7 +657,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan13, reporter) {
     CHECK_EXT_ENABLED(VK_EXT_BLEND_OPERATION_ADVANCED);
     CHECK_EXT_DISABLED(VK_EXT_EXTENDED_DYNAMIC_STATE);
     CHECK_EXT_DISABLED(VK_EXT_EXTENDED_DYNAMIC_STATE_2);
-    //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
+    CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     //CHECK_EXT_ENABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_DISABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
     CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
@@ -757,9 +757,9 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan13, reporter) {
                            ExtendedDynamicState2FeaturesEXT,
                            extendedDynamicState2PatchControlPoints);
 
-    //CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
-    //                      VertexInputDynamicStateFeaturesEXT,
-    //                      vertexInputDynamicState);
+    CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
+                          VertexInputDynamicStateFeaturesEXT,
+                          vertexInputDynamicState);
 
     //CHECK_FEATURE_ENABLED(GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT,
     //                      GraphicsPipelineLibraryFeaturesEXT,
@@ -828,7 +828,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan14, reporter) {
     CHECK_EXT_ENABLED(VK_EXT_BLEND_OPERATION_ADVANCED);
     CHECK_EXT_DISABLED(VK_EXT_EXTENDED_DYNAMIC_STATE);
     CHECK_EXT_DISABLED(VK_EXT_EXTENDED_DYNAMIC_STATE_2);
-    //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
+    CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     //CHECK_EXT_ENABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_DISABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
     CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
@@ -943,9 +943,9 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan14, reporter) {
                            ExtendedDynamicState2FeaturesEXT,
                            extendedDynamicState2PatchControlPoints);
 
-    //CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
-    //                      VertexInputDynamicStateFeaturesEXT,
-    //                      vertexInputDynamicState);
+    CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
+                          VertexInputDynamicStateFeaturesEXT,
+                          vertexInputDynamicState);
 
     //CHECK_FEATURE_ENABLED(GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT,
     //                      GraphicsPipelineLibraryFeaturesEXT,
@@ -1045,7 +1045,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan11, reporter) {
     CHECK_EXT_ENABLED(VK_EXT_BLEND_OPERATION_ADVANCED);
     CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE);
     CHECK_EXT_DISABLED(VK_EXT_EXTENDED_DYNAMIC_STATE_2);
-    //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
+    CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     CHECK_EXT_DISABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_DISABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
     CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
@@ -1103,9 +1103,9 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan11, reporter) {
                            ExtendedDynamicState2FeaturesEXT,
                            extendedDynamicState2PatchControlPoints);
 
-    //CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
-    //                      VertexInputDynamicStateFeaturesEXT,
-    //                      vertexInputDynamicState);
+    CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
+                          VertexInputDynamicStateFeaturesEXT,
+                          vertexInputDynamicState);
 
     CHECK_FEATURE_DISABLED(GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT,
                            GraphicsPipelineLibraryFeaturesEXT,
@@ -1631,7 +1631,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan14, reporter) {
     CHECK_EXT_DISABLED(VK_EXT_BLEND_OPERATION_ADVANCED);
     CHECK_EXT_DISABLED(VK_EXT_EXTENDED_DYNAMIC_STATE);
     CHECK_EXT_DISABLED(VK_EXT_EXTENDED_DYNAMIC_STATE_2);
-    //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
+    CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     CHECK_EXT_DISABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_DISABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
     CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
@@ -1697,9 +1697,9 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan14, reporter) {
                            BlendOperationAdvancedFeaturesEXT,
                            advancedBlendCoherentOperations);
 
-    //CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
-    //                      VertexInputDynamicStateFeaturesEXT,
-    //                      vertexInputDynamicState);
+    CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
+                          VertexInputDynamicStateFeaturesEXT,
+                          vertexInputDynamicState);
 
     CHECK_FEATURE_DISABLED(GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT,
                            GraphicsPipelineLibraryFeaturesEXT,
@@ -1782,7 +1782,7 @@ DEF_TEST(VkPreferredFeaturesTest_EmptyEnableChain, reporter) {
     CHECK_EXT_DISABLED(VK_EXT_BLEND_OPERATION_ADVANCED);
     CHECK_EXT_DISABLED(VK_EXT_EXTENDED_DYNAMIC_STATE);
     CHECK_EXT_DISABLED(VK_EXT_EXTENDED_DYNAMIC_STATE_2);
-    //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
+    CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     CHECK_EXT_DISABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_DISABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
     CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
@@ -1841,9 +1841,9 @@ DEF_TEST(VkPreferredFeaturesTest_EmptyEnableChain, reporter) {
                            BlendOperationAdvancedFeaturesEXT,
                            advancedBlendCoherentOperations);
 
-    //CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
-    //                      VertexInputDynamicStateFeaturesEXT,
-    //                      vertexInputDynamicState);
+    CHECK_FEATURE_ENABLED(VERTEX_INPUT_DYNAMIC_STATE_FEATURES_EXT,
+                          VertexInputDynamicStateFeaturesEXT,
+                          vertexInputDynamicState);
 
     CHECK_FEATURE_DISABLED(GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT,
                            GraphicsPipelineLibraryFeaturesEXT,
