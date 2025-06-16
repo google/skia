@@ -12,6 +12,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/ResourceKey.h"
+#include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -71,6 +72,28 @@ uint32_t ProxyCache::UniqueKeyHash::operator()(const UniqueKey& key) const {
     return key.hash();
 }
 
+template <typename CreateEntryFn>
+sk_sp<TextureProxy> ProxyCache::findOrCreateCacheEntry(const UniqueKey& key,
+                                                       std::string_view label,
+                                                       CreateEntryFn fn) {
+    this->processInvalidKeyMsgs();
+
+    if (CacheEntry* cached = fCache.find(key)) {
+        SkASSERT(cached->fProxy);
+        if (Resource* resource = cached->fProxy->texture()) {
+            resource->updateAccessTime();
+        }
+        return cached->fProxy;
+    }
+
+    CacheEntry newEntry = fn(label.empty() ? key.tag() : label);
+    if (newEntry.fProxy) {
+        // Success, add it to the cache
+        fCache.set(key, newEntry);
+    }
+    return newEntry.fProxy;
+}
+
 sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
                                                         const SkBitmap& bitmap,
                                                         std::string_view label) {
@@ -85,26 +108,20 @@ sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
 
 sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
                                                         const UniqueKey& key,
-                                                        BitmapGeneratorContext context,
+                                                        GeneratorContext context,
                                                         BitmapGeneratorFn generator,
                                                         std::string_view label) {
-    this->processInvalidKeyMsgs();
-
-    if (CacheEntry* cached = fCache.find(key)) {
-        SkASSERT(cached->fProxy);
-        if (Resource* resource = cached->fProxy->texture()) {
-            resource->updateAccessTime();
+    return this->findOrCreateCacheEntry(key, label, [&](std::string_view finalLabel) {
+        SkBitmap bitmap = generator(context);
+        if (bitmap.empty()) {
+            return CacheEntry{};
         }
-        return cached->fProxy;
-    }
 
-    SkBitmap bitmap = generator(context);
-    if (bitmap.empty()) {
-        return nullptr;
-    }
-    auto [ view, ct ] = MakeBitmapProxyView(recorder, bitmap, nullptr, Mipmapped::kNo,
-                                            Budgeted::kYes, label.empty() ? key.tag() : label);
-    if (view) {
+        auto [ view, ct ] = MakeBitmapProxyView(recorder, bitmap, nullptr, Mipmapped::kNo,
+                                                Budgeted::kYes, finalLabel);
+        if (!view) {
+            return CacheEntry{};
+        }
         // Since if the bitmap is held by more than just this function call (e.g. it likely came
         // from findOrCreateCachedProxy() that takes an existing SkBitmap), it's worth adding a
         // listener to remove them from the cache automatically when no one holds on to it anymore.
@@ -117,9 +134,36 @@ sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
             listener = make_unique_key_invalidation_listener(key, recorder->priv().uniqueID());
             bitmap.pixelRef()->addGenIDChangeListener(listener);
         }
-        fCache.set(key, {view.refProxy(), std::move(listener)});
-    }
-    return view.refProxy();
+
+        return CacheEntry{view.refProxy(), std::move(listener)};
+    });
+}
+
+sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
+                                                        const UniqueKey& key,
+                                                        GeneratorContext context,
+                                                        GPUGeneratorFn fn,
+                                                        std::string_view label) {
+    return this->findOrCreateCacheEntry(key, label, [&](std::string_view finalLabel) {
+        sk_sp<Image> textureImage = fn(recorder, context);
+        if (!textureImage) {
+            return CacheEntry{};
+        }
+
+        // Force `textureImage`'s TextureProxy to be instantiated so that it's not treated by a
+        // Recorder as a scratch image that can have a temporary scratch texture assignment.
+        textureImage->textureProxyView().proxy()->instantiate(recorder->priv().resourceProvider());
+        // Flush pending work defining the image's content, which also adds these tasks to the root
+        // task list.
+        // TODO(b/409888039): These added tasks need to be preserved so that later Recordings that
+        // get cache hits in the ProxyCache can also initialize the texture if they are added out
+        // of order relative to this triggering Recording.
+        textureImage->notifyInUse(recorder, /*drawContext=*/nullptr);
+
+        // GPU created proxys never have SkIDChangeListeners.
+        return CacheEntry{textureImage->textureProxyView().refProxy(),
+                          /*listener=*/nullptr};
+    });
 }
 
 void ProxyCache::purgeAll() {

@@ -24,6 +24,7 @@ namespace skgpu {
 
 namespace skgpu::graphite {
 
+class Image;
 class Recorder;
 class TextureProxy;
 
@@ -47,12 +48,20 @@ public:
     // returned.
     //
     // The texture proxy's label defaults to the tag of the unique key if not otherwise provided.
-    using BitmapGeneratorContext = const void*;
-    using BitmapGeneratorFn = SkBitmap (*) (BitmapGeneratorContext);
+    using GeneratorContext = const void*;
+    using BitmapGeneratorFn = SkBitmap (*) (GeneratorContext);
     sk_sp<TextureProxy> findOrCreateCachedProxy(Recorder* recorder,
                                                 const UniqueKey& key,
-                                                BitmapGeneratorContext context,
+                                                GeneratorContext context,
                                                 BitmapGeneratorFn fn,
+                                                std::string_view label = {});
+
+    // As above but returns a GPU image instead of a CPU bitmap for the proxy's content.
+    using GPUGeneratorFn = sk_sp<Image> (*) (Recorder*, GeneratorContext);
+    sk_sp<TextureProxy> findOrCreateCachedProxy(Recorder* recorder,
+                                                const UniqueKey& key,
+                                                GeneratorContext context,
+                                                GPUGeneratorFn fn,
                                                 std::string_view label = {});
 
     void purgeAll();
@@ -80,6 +89,11 @@ private:
         sk_sp<TextureProxy> fProxy;
         sk_sp<SkIDChangeListener> fListener; // null if source bitmap won't change
     };
+
+    template <typename CreateEntryFn> // = CacheEntry (*) (std::string_view)
+    sk_sp<TextureProxy> findOrCreateCacheEntry(const UniqueKey& key,
+                                               std::string_view label,
+                                               CreateEntryFn);
 
     skia_private::THashMap<UniqueKey, CacheEntry, UniqueKeyHash> fCache;
     SkMessageBus<UniqueKeyInvalidatedMsg_Graphite, uint32_t>::Inbox fInvalidUniqueKeyInbox;
