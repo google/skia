@@ -15,6 +15,7 @@
 #include "src/gpu/ResourceKey.h"
 
 class SkBitmap;
+class SkIDChangeListener;
 
 namespace skgpu {
     enum class Mipmapped : bool;
@@ -70,11 +71,17 @@ private:
     void processInvalidKeyMsgs();
     void freeUniquelyHeld();
     void purgeProxiesNotUsedSince(const skgpu::StdSteadyClock::time_point* purgeTime);
+    void removeEntriesAndListeners(SkSpan<const UniqueKey> toRemove);
+
     struct UniqueKeyHash {
         uint32_t operator()(const UniqueKey& key) const;
     };
+    struct CacheEntry {
+        sk_sp<TextureProxy> fProxy;
+        sk_sp<SkIDChangeListener> fListener; // null if source bitmap won't change
+    };
 
-    skia_private::THashMap<UniqueKey, sk_sp<TextureProxy>, UniqueKeyHash> fCache;
+    skia_private::THashMap<UniqueKey, CacheEntry, UniqueKeyHash> fCache;
     SkMessageBus<UniqueKeyInvalidatedMsg_Graphite, uint32_t>::Inbox fInvalidUniqueKeyInbox;
 };
 
