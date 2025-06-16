@@ -33,7 +33,7 @@ namespace {
 rust_png::Compression ToCompression(SkPngRustEncoder::CompressionLevel level) {
     switch (level) {
         case SkPngRustEncoder::CompressionLevel::kLow:
-            return rust_png::Compression::Fastest;
+            return rust_png::Compression::Level1WithUpFilter;
         case SkPngRustEncoder::CompressionLevel::kMedium:
 #ifdef SK_RUST_PNG_MAP_MEDIUM_COMPRESSION_LEVEL_TO_FDEFLATE_FAST
             // TODO(https://crbug.com/406072770): Consider using `Fast` instead

@@ -54,9 +54,30 @@ mod ffi {
 
     /// FFI-friendly simplification of `png::Compression`.
     enum Compression {
+        /// In png-0.18.0-rc `Fastest` level would fall back to `Level1WithUpFilter` when using
+        /// `StreamWriter`.  See also code links below:
+        /// * In 0.18-rc2 `Fastest` initially maps to `FdeflateUltraFast`, but in the end falls back to `flate2`
+        ///   when using `StreamWriter`:
+        ///     - https://github.com/image-rs/image-png/blob/9294c26dc3ca7622f791e880810b575193fb6c29/src/common.rs#L414
+        ///     - https://github.com/image-rs/image-png/blob/33afddab77449bcd93b1783d2d0ca8ba744cc3c3/src/encoder.rs#L1402
+        ///     - https://github.com/image-rs/image-png/blob/33afddab77449bcd93b1783d2d0ca8ba744cc3c3/src/common.rs#L413
+        /// * In 0.18-rc2 `Fastest` maps to `Up`:
+        ///   https://github.com/image-rs/image-png/blob/9294c26dc3ca7622f791e880810b575193fb6c29/src/filter.rs#L47
+        ///
+        /// In newer versions, `Fastest` may map to `fdeflate` backend.
+        /// We export `Level1WithUpFilter` as an explicit, separate level to preserve the M136
+        /// behavior that was tested in a field trial and approved for shipping.
+        ///
+        /// TODO(https://crbug.com/406072770): Revisit this in the future and only use the built-in
+        /// levels in the long term.
+        Level1WithUpFilter,
+        /// Maps to `png::Compression::Fastest`.
         Fastest,
+        /// Maps to `png::Compression::Fast`.
         Fast,
+        /// Maps to `png::Compression::Balanced`.
         Balanced,
+        /// Maps to `png::Compression::High`.
         High,
     }
 
@@ -265,6 +286,10 @@ impl From<Option<&png::DecodingError>> for ffi::DecodingResult {
 impl ffi::Compression {
     fn apply<'a, W: Write>(&self, encoder: &mut png::Encoder<'a, W>) {
         match self {
+            &Self::Level1WithUpFilter => {
+                encoder.set_deflate_compression(png::DeflateCompression::Level(1));
+                encoder.set_filter(png::Filter::Up);
+            },
             &Self::Fastest => encoder.set_compression(png::Compression::Fastest),
             &Self::Fast => encoder.set_compression(png::Compression::Fast),
             &Self::Balanced => encoder.set_compression(png::Compression::Balanced),
