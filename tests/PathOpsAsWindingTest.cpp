@@ -11,8 +11,8 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "include/pathops/SkPathOps.h"
 #include "include/utils/SkParsePath.h"
-#include "modules/pathops/include/SkPathOps.h"
 #include "tests/Test.h"
 
 #include <initializer_list>

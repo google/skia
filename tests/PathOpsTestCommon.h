@@ -9,7 +9,7 @@
 
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkTArray.h"
-#include "modules/pathops/src/SkPathOpsPoint.h"
+#include "src/pathops/SkPathOpsPoint.h"
 
 class SkPath;
 struct SkDConic;

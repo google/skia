@@ -23,7 +23,7 @@ alias(
 
 alias(
     name = "pathops",
-    actual = "//modules/pathops:pathops",
+    actual = "//src/pathops:pathops",
     visibility = ["//visibility:public"],
 )
 

@@ -8,7 +8,7 @@
 #define PathOpsExtendedTest_DEFINED
 
 #include "include/core/SkBitmap.h"
-#include "modules/pathops/include/SkPathOps.h"
+#include "include/pathops/SkPathOps.h"
 
 #include <cstddef>
 
