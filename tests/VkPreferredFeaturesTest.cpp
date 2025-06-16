@@ -373,8 +373,8 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan11, reporter) {
     CHECK_EXT_DISABLED(VK_ARM_RASTERIZATION_ORDER_ATTACHMENT_ACCESS);
     CHECK_EXT_ENABLED(VK_EXT_RASTERIZATION_ORDER_ATTACHMENT_ACCESS);
     CHECK_EXT_ENABLED(VK_EXT_BLEND_OPERATION_ADVANCED);
-    //CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE);
-    //CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE_2);
+    CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE);
+    CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE_2);
     //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     //CHECK_EXT_ENABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_ENABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
@@ -416,13 +416,13 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan11, reporter) {
                           BlendOperationAdvancedFeaturesEXT,
                           advancedBlendCoherentOperations);
 
-    //CHECK_FEATURE_ENABLED(EXTENDED_DYNAMIC_STATE_FEATURES_EXT,
-    //                      ExtendedDynamicStateFeaturesEXT,
-    //                      extendedDynamicState);
+    CHECK_FEATURE_ENABLED(EXTENDED_DYNAMIC_STATE_FEATURES_EXT,
+                          ExtendedDynamicStateFeaturesEXT,
+                          extendedDynamicState);
 
-    //CHECK_FEATURE_ENABLED(EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT,
-    //                      ExtendedDynamicState2FeaturesEXT,
-    //                      extendedDynamicState2);
+    CHECK_FEATURE_ENABLED(EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT,
+                          ExtendedDynamicState2FeaturesEXT,
+                          extendedDynamicState2);
     CHECK_FEATURE_DISABLED(EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT,
                            ExtendedDynamicState2FeaturesEXT,
                            extendedDynamicState2LogicOp);
@@ -499,8 +499,8 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan12, reporter) {
     CHECK_EXT_DISABLED(VK_ARM_RASTERIZATION_ORDER_ATTACHMENT_ACCESS);
     CHECK_EXT_ENABLED(VK_EXT_RASTERIZATION_ORDER_ATTACHMENT_ACCESS);
     CHECK_EXT_ENABLED(VK_EXT_BLEND_OPERATION_ADVANCED);
-    //CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE);
-    //CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE_2);
+    CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE);
+    CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE_2);
     //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     //CHECK_EXT_ENABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_DISABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
@@ -572,13 +572,13 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan12, reporter) {
                           BlendOperationAdvancedFeaturesEXT,
                           advancedBlendCoherentOperations);
 
-    //CHECK_FEATURE_ENABLED(EXTENDED_DYNAMIC_STATE_FEATURES_EXT,
-    //                      ExtendedDynamicStateFeaturesEXT,
-    //                      extendedDynamicState);
+    CHECK_FEATURE_ENABLED(EXTENDED_DYNAMIC_STATE_FEATURES_EXT,
+                          ExtendedDynamicStateFeaturesEXT,
+                          extendedDynamicState);
 
-    //CHECK_FEATURE_ENABLED(EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT,
-    //                      ExtendedDynamicState2FeaturesEXT,
-    //                      extendedDynamicState2);
+    CHECK_FEATURE_ENABLED(EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT,
+                          ExtendedDynamicState2FeaturesEXT,
+                          extendedDynamicState2);
     CHECK_FEATURE_DISABLED(EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT,
                            ExtendedDynamicState2FeaturesEXT,
                            extendedDynamicState2LogicOp);
@@ -1043,7 +1043,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan11, reporter) {
     CHECK_EXT_DISABLED(VK_ARM_RASTERIZATION_ORDER_ATTACHMENT_ACCESS);
     CHECK_EXT_ENABLED(VK_EXT_RASTERIZATION_ORDER_ATTACHMENT_ACCESS);
     CHECK_EXT_ENABLED(VK_EXT_BLEND_OPERATION_ADVANCED);
-    //CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE);
+    CHECK_EXT_ENABLED(VK_EXT_EXTENDED_DYNAMIC_STATE);
     CHECK_EXT_DISABLED(VK_EXT_EXTENDED_DYNAMIC_STATE_2);
     //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     CHECK_EXT_DISABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
@@ -1089,9 +1089,9 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan11, reporter) {
                           BlendOperationAdvancedFeaturesEXT,
                           advancedBlendCoherentOperations);
 
-    //CHECK_FEATURE_ENABLED(EXTENDED_DYNAMIC_STATE_FEATURES_EXT,
-    //                      ExtendedDynamicStateFeaturesEXT,
-    //                      extendedDynamicState);
+    CHECK_FEATURE_ENABLED(EXTENDED_DYNAMIC_STATE_FEATURES_EXT,
+                          ExtendedDynamicStateFeaturesEXT,
+                          extendedDynamicState);
 
     CHECK_FEATURE_DISABLED(EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT,
                            ExtendedDynamicState2FeaturesEXT,
