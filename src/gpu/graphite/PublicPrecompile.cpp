@@ -27,6 +27,7 @@
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
 #include "src/gpu/graphite/precompile/PaintOptionsPriv.h"
+#include "src/gpu/graphite/precompile/PrecompileColorFiltersPriv.h"
 
 namespace {
 
@@ -139,7 +140,8 @@ void Precompile(PrecompileContext* precompileContext,
                         static_cast<DrawTypeFlags>(drawTypes & ~(DrawTypeFlags::kBitmapText_Color |
                                                                  DrawTypeFlags::kBitmapText_LCD |
                                                                  DrawTypeFlags::kSDFText_LCD |
-                                                                 DrawTypeFlags::kDrawVertices)),
+                                                                 DrawTypeFlags::kDrawVertices |
+                                                                 DrawTypeFlags::kDropShadows)),
                         /* withPrimitiveBlender= */ false,
                         coverage,
                         renderPassDesc);
@@ -192,6 +194,44 @@ void Precompile(PrecompileContext* precompileContext,
                                            options, keyContext,
                                            reducedTypes,
                                            withPrimitiveBlender,
+                                           Coverage::kNone,
+                                           renderPassDesc);
+                }
+            }
+
+            if (drawTypes & DrawTypeFlags::kDropShadows) {
+                DrawTypeFlags reducedTypes =
+                        static_cast<DrawTypeFlags>(drawTypes & (DrawTypeFlags::kDropShadows |
+                                                                DrawTypeFlags::kAnalyticClip));
+
+                PaintOptions newOptions;
+                newOptions.setBlendModes({ SkBlendMode::kSrcOver });
+
+                // Analytic
+                {
+                    PrecompileCombinations(precompileContext->priv().rendererProvider(),
+                                           precompileContext->priv().resourceProvider(),
+                                           newOptions, keyContext,
+                                           reducedTypes,
+                                           /* withPrimitiveBlender= */ false,
+                                           Coverage::kSingleChannel,
+                                           renderPassDesc);
+                }
+
+                // Geometric.
+                {
+                    sk_sp<PrecompileColorFilter> cf = PrecompileColorFilters::Compose(
+                            { PrecompileColorFilters::Blend({ SkBlendMode::kModulate }) },
+                            { PrecompileColorFiltersPriv::Gaussian() });
+
+                    newOptions.setColorFilters({ std::move(cf) });
+                    newOptions.priv().setPrimitiveBlendMode(SkBlendMode::kModulate);
+
+                    PrecompileCombinations(precompileContext->priv().rendererProvider(),
+                                           precompileContext->priv().resourceProvider(),
+                                           newOptions, keyContext,
+                                           reducedTypes,
+                                           /* withPrimitiveBlender= */ true,
                                            Coverage::kNone,
                                            renderPassDesc);
                 }

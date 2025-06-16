@@ -941,6 +941,9 @@ DrawTypeFlags get_draw_type_flags(const char* str) {
         const char* fStr;
         DrawTypeFlags fFlags;
     } kDrawTypeFlagsMapping[] = {
+        { "AnalyticBlurRenderStep",                      DrawTypeFlags::kDropShadows },
+        { "GaussianColorFilter",                         DrawTypeFlags::kDropShadows },
+
         { "BitmapTextRenderStep[Mask]",                  DrawTypeFlags::kBitmapText_Mask  },
         { "BitmapTextRenderStep[LCD]",                   DrawTypeFlags::kBitmapText_LCD   },
         { "BitmapTextRenderStep[Color]",                 DrawTypeFlags::kBitmapText_Color },

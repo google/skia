@@ -114,16 +114,22 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
                  DrawTypeFlags::kCircularArc);
     initFromStep(&fAnalyticBlur,
                  std::make_unique<AnalyticBlurRenderStep>(),
-                 static_cast<DrawTypeFlags>(InternalDrawTypeFlags::kAnalyticBlur));
+                 DrawTypeFlags::kDropShadows);
 
     // vertices
     for (PrimitiveType primType : {PrimitiveType::kTriangles, PrimitiveType::kTriangleStrip}) {
         for (bool color : {false, true}) {
             for (bool texCoords : {false, true}) {
+                DrawTypeFlags dtFlags = DrawTypeFlags::kDrawVertices;
+                if (primType == PrimitiveType::kTriangles && color && !texCoords) {
+                    // Android uses this drawVertices combination for drop shadows
+                    dtFlags = static_cast<DrawTypeFlags>(dtFlags | DrawTypeFlags::kDropShadows);
+                }
+
                 int index = 4*(primType == PrimitiveType::kTriangleStrip) + 2*color + texCoords;
                 initFromStep(&fVertices[index],
                              std::make_unique<VerticesRenderStep>(primType, color, texCoords),
-                             DrawTypeFlags::kDrawVertices);
+                             dtFlags);
             }
         }
     }

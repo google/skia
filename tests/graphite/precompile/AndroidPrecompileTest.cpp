@@ -246,47 +246,59 @@ const PrecompileSettings kPrecompileCases[] = {
            kRRectAndNonAARect | DrawTypeFlags::kAnalyticClip,
            kRGBA_1_D_SRGB },
 
+//--------------------------------------------------
+
+// 50% (1/2) handles 60
+/* 51 */ { {}, // ignored
+           DrawTypeFlags::kDropShadows,
+           kRGBA_1_D },
+
+// 50% (2/4) handles 82 85
+/* 52 */ { {}, // ignored
+           DrawTypeFlags::kDropShadows,
+           kRGBA_4_DS },
+
 #if defined(SK_VULKAN) && defined(SK_BUILD_FOR_ANDROID)
 // 238 block ----------------
 
 // 100% (2/2) handles 25 47
-/* 51 */ { ImagePremulYCbCr238Srcover(),       kRRectAndNonAARect,              kRGBA_1_D },
+/* 53 */ { ImagePremulYCbCr238Srcover(),       kRRectAndNonAARect,              kRGBA_1_D },
 
 // 50% (1/2) handles 48
-/* 52 */ { ImagePremulYCbCr238Srcover(),
+/* 54 */ { ImagePremulYCbCr238Srcover(),
            kRRectAndNonAARect | DrawTypeFlags::kAnalyticClip,
            kRGBA_1_D },
 
 // 50% (1/2) handles 93
-/* 53 */ { TransparentPaintImagePremulYCbCr238Srcover(), kRRectAndNonAARect,    kRGBA_1_D },
+/* 55 */ { TransparentPaintImagePremulYCbCr238Srcover(), kRRectAndNonAARect,    kRGBA_1_D },
 // 100% (2/2) handles 87 88
-/* 54 */ { ImagePremulYCbCr238Srcover(),       kRRectAndNonAARect,              kRGBA_4_DS },
+/* 56 */ { ImagePremulYCbCr238Srcover(),       kRRectAndNonAARect,              kRGBA_4_DS },
 
 // 100% (1/1) handles 90
-/* 55 */ { ImagePremulYCbCr238Srcover(),
+/* 57 */ { ImagePremulYCbCr238Srcover(),
            DrawTypeFlags::kNonAAFillRect | DrawTypeFlags::kAnalyticClip,
            kRGBA_4_DS },
 
 // 240 block ----------------
 
 // 100% (1/1) handles 46
-/* 56 */ { ImagePremulYCbCr240Srcover(),       DrawTypeFlags::kNonAAFillRect,   kRGBA_1_D },
+/* 58 */ { ImagePremulYCbCr240Srcover(),       DrawTypeFlags::kNonAAFillRect,   kRGBA_1_D },
 // 50% (1/2) handles 73
-/* 57 */ { ImagePremulYCbCr240Srcover(),       DrawTypeFlags::kNonAAFillRect,   kRGBA_4_DS },
+/* 59 */ { ImagePremulYCbCr240Srcover(),       DrawTypeFlags::kNonAAFillRect,   kRGBA_4_DS },
 // 50% (1/2) handles 67
-/* 58 */ { TransparentPaintImagePremulYCbCr240Srcover(), DrawTypeFlags::kNonAAFillRect,kRGBA_4_DS },
+/* 50 */ { TransparentPaintImagePremulYCbCr240Srcover(), DrawTypeFlags::kNonAAFillRect,kRGBA_4_DS },
 
 // 247 block ----------------
 
 // 100% (1/1) handles 8
-/* 59 */ { MouriMapCrosstalkAndChunk16x16YCbCr247(),
+/* 61 */ { MouriMapCrosstalkAndChunk16x16YCbCr247(),
            DrawTypeFlags::kNonAAFillRect,
            kRGBA16F_1_D_SRGB },
 
 // The next 2 have the same PaintOptions but different destination surfaces
 
 // 100% (2/2) handles 21 39
-/* 60 */ { LinearEffect("BT2020_ITU_PQ__BT2020__false__UNKNOWN",
+/* 62 */ { LinearEffect("BT2020_ITU_PQ__BT2020__false__UNKNOWN",
                         ChildType::kHWTextureYCbCr247,
                         SkBlendMode::kSrcOver,
                         /* paintColorIsOpaque= */ true,
@@ -296,7 +308,7 @@ const PrecompileSettings kPrecompileCases[] = {
            kRGBA_1_D_SRGB },
 
 // 100% (1/1) handles 79
-/* 61 */ { LinearEffect("BT2020_ITU_PQ__BT2020__false__UNKNOWN",
+/* 63 */ { LinearEffect("BT2020_ITU_PQ__BT2020__false__UNKNOWN",
                         ChildType::kHWTextureYCbCr247,
                         SkBlendMode::kSrcOver,
                         /* paintColorIsOpaque= */ true,
@@ -306,7 +318,7 @@ const PrecompileSettings kPrecompileCases[] = {
            kRGBA_4_DS_SRGB },
 
 // 100% (1/1) handles 40
-/* 62 */ { LinearEffect("BT2020_ITU_PQ__BT2020__false__UNKNOWN",
+/* 64 */ { LinearEffect("BT2020_ITU_PQ__BT2020__false__UNKNOWN",
                         ChildType::kHWTextureYCbCr247,
                         SkBlendMode::kSrcOver,
                         /* paintColorIsOpaque= */ true,
@@ -506,7 +518,7 @@ static const PipelineLabel kCases[] = {
 /*  59 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "PerEdgeAAQuadRenderStep + "
                 "LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformPremul ] ] Src" },
-/*   ? */ { -1, "RP((RGBA8+D16 x1).rgba) + "
+/*  60 */ { -1, "RP((RGBA8+D16 x1).rgba) + "
                 "VerticesRenderStep[TrisColor] + "
                 "Compose [ BlendCompose [ RGBPaintColor Compose [ PrimitiveColor ColorSpaceTransformPremul ] Modulate ] Compose [ GaussianColorFilter BlendCompose [ SolidColor Passthrough Modulate ] ] ] SrcOver" },
 /*  61 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
@@ -572,7 +584,7 @@ static const PipelineLabel kCases[] = {
 /*  81 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "TessellateCurvesRenderStep[EvenOdd] + "
                 "(empty)" },
-/*   ? */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
+/*  82 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "VerticesRenderStep[TrisColor] + "
                 "Compose [ BlendCompose [ RGBPaintColor Compose [ PrimitiveColor ColorSpaceTransformPremul ] Modulate ] Compose [ GaussianColorFilter BlendCompose [ SolidColor Passthrough Modulate ] ] ] SrcOver" },
 
@@ -583,7 +595,7 @@ static const PipelineLabel kCases[] = {
 /*  84 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[RegularCover] + "
                 "SolidColor SrcOver" },
-/*   X */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
+/*  85 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticBlurRenderStep + "
                 "SolidColor SrcOver" },
 /*  86 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
@@ -644,9 +656,6 @@ static const PipelineLabel kCases[] = {
 };
 
 bool skip(const char* str) {
-    if (strstr(str, "AnalyticBlurRenderStep")) { // currently internal only
-        return true;
-    }
 #if !defined(SK_VULKAN)
     if (strstr(str, "HardwareImage(3:")) {
         return true;
@@ -709,7 +718,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(AndroidPrecompileTest, is_acceptable_context_type
         return;
     }
 #endif
-    std::set<int> MSAALoadOnlyCases = { 2, 6, 9, 13, 15, 20, 24, 36, 38, 57, 58 };
+    std::set<int> MSAALoadOnlyCases = { 2, 6, 9, 13, 15, 20, 24, 36, 38, 59, 60 };
 
     PipelineLabelInfoCollector collector({ kCases }, skip);
 

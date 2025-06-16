@@ -27,6 +27,10 @@ public:
         fPaintOptions->setClipShaders(std::move(clipShaders));
     }
 
+    void setPrimitiveBlendMode(SkBlendMode primitiveBlendMode) {
+        fPaintOptions->setPrimitiveBlendMode(primitiveBlendMode);
+    }
+
     int numCombinations() const {
         return fPaintOptions->numCombinations();
     }

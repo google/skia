@@ -29,6 +29,7 @@ public:
                 const std::pair<sk_sp<PrecompileShader>, int>& shader,
                 const std::pair<sk_sp<PrecompileColorFilter>, int>& colorFilter,
                 bool hasPrimitiveBlender,
+                SkBlendMode primitiveBlendMode,
                 const std::pair<sk_sp<PrecompileShader>, int>& clipShader,
                 bool dstReadRequired,
                 bool dither,
@@ -53,6 +54,7 @@ private:
     std::pair<sk_sp<PrecompileBlender>, int> fFinalBlender;
     std::pair<sk_sp<PrecompileShader>, int> fShader;
     std::pair<sk_sp<PrecompileColorFilter>, int> fColorFilter;
+    SkBlendMode fPrimitiveBlendMode;
     bool fHasPrimitiveBlender;
     std::pair<sk_sp<PrecompileShader>, int> fClipShader;
     bool fDstReadRequired;
