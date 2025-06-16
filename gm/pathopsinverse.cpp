@@ -15,7 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/pathops/SkPathOps.h"
+#include "modules/pathops/include/SkPathOps.h"
 #include "tools/ToolUtils.h"
 
 namespace skiagm {

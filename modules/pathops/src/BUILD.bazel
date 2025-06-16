@@ -1,0 +1,84 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup", "split_srcs_and_hdrs")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+CORE_FILES = [
+    "SkAddIntersections.cpp",
+    "SkAddIntersections.h",
+    "SkDConicLineIntersection.cpp",
+    "SkDCubicLineIntersection.cpp",
+    "SkDCubicToQuads.cpp",
+    "SkDLineIntersection.cpp",
+    "SkDQuadLineIntersection.cpp",
+    "SkIntersectionHelper.h",
+    "SkIntersections.cpp",
+    "SkIntersections.h",
+    "SkLineParameters.h",
+    "SkOpAngle.cpp",
+    "SkOpAngle.h",
+    "SkOpBuilder.cpp",
+    "SkOpCoincidence.cpp",
+    "SkOpCoincidence.h",
+    "SkOpContour.cpp",
+    "SkOpContour.h",
+    "SkOpCubicHull.cpp",
+    "SkOpEdgeBuilder.cpp",
+    "SkOpEdgeBuilder.h",
+    "SkOpSegment.cpp",
+    "SkOpSegment.h",
+    "SkOpSpan.cpp",
+    "SkOpSpan.h",
+    "SkPathOpsAsWinding.cpp",
+    "SkPathOpsBounds.h",
+    "SkPathOpsCommon.cpp",
+    "SkPathOpsCommon.h",
+    "SkPathOpsConic.cpp",
+    "SkPathOpsConic.h",
+    "SkPathOpsCubic.cpp",
+    "SkPathOpsCubic.h",
+    "SkPathOpsCurve.cpp",
+    "SkPathOpsCurve.h",
+    "SkPathOpsDebug.cpp",
+    "SkPathOpsDebug.h",
+    "SkPathOpsLine.cpp",
+    "SkPathOpsLine.h",
+    "SkPathOpsOp.cpp",
+    "SkPathOpsPoint.h",
+    "SkPathOpsQuad.cpp",
+    "SkPathOpsQuad.h",
+    "SkPathOpsRect.cpp",
+    "SkPathOpsRect.h",
+    "SkPathOpsSimplify.cpp",
+    "SkPathOpsTCurve.h",
+    "SkPathOpsTSect.cpp",
+    "SkPathOpsTSect.h",
+    "SkPathOpsTightBounds.cpp",
+    "SkPathOpsTypes.cpp",
+    "SkPathOpsTypes.h",
+    "SkPathOpsWinding.cpp",
+    "SkPathWriter.cpp",
+    "SkPathWriter.h",
+    "SkReduceOrder.cpp",
+    "SkReduceOrder.h",
+]
+
+split_srcs_and_hdrs(
+    name = "core",
+    files = CORE_FILES,
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [":core_srcs"],
+    visibility = ["//modules/pathops:__pkg__"],
+)
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = [":core_hdrs"],
+    visibility = ["//modules/pathops:__pkg__"],
+)

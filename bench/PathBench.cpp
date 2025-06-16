@@ -1219,7 +1219,7 @@ DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::k
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kRoundRect_Type); )
 DEF_BENCH( return new ConservativelyContainsBench(ConservativelyContainsBench::kOval_Type); )
 
-#include "include/pathops/SkPathOps.h"
+#include "modules/pathops/include/SkPathOps.h"
 #include "src/core/SkPathPriv.h"
 
 DEF_BENCH( return new TightBoundsBench([](const SkPath& path){ return path.computeTightBounds();},

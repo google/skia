@@ -9,8 +9,8 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkTypes.h"
-#include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkTDArray.h"
+#include "modules/pathops/include/SkPathOps.h"
 
 #include <cstring>
 #include <string>

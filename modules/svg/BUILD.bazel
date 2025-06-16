@@ -19,8 +19,8 @@ skia_cc_library(
     deps = [
         "//:core",
         "//:jpeg_decode_codec",
-        "//:pathops",
         "//:png_decode_codec",
+        "//modules/pathops",
         "//modules/skresources",
         "//modules/skshaper:skshaper_core",
         "//src/base",

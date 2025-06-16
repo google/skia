@@ -5,9 +5,9 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkPath.h"
-#include "include/pathops/SkPathOps.h"
+#include "modules/pathops/include/SkPathOps.h"
+#include "modules/pathops/src/SkPathOpsTypes.h"
 #include "src/base/SkFloatBits.h"
-#include "src/pathops/SkPathOpsTypes.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/Test.h"
 

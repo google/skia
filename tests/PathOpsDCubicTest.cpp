@@ -6,8 +6,8 @@
  */
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkFloatingPoint.h"
-#include "src/pathops/SkPathOpsCubic.h"
-#include "src/pathops/SkPathOpsPoint.h"
+#include "modules/pathops/src/SkPathOpsCubic.h"
+#include "modules/pathops/src/SkPathOpsPoint.h"
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
 

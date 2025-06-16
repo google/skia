@@ -6,9 +6,9 @@
  */
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
-#include "src/pathops/SkLineParameters.h"
-#include "src/pathops/SkPathOpsCubic.h"
-#include "src/pathops/SkPathOpsTypes.h"
+#include "modules/pathops/src/SkLineParameters.h"
+#include "modules/pathops/src/SkPathOpsCubic.h"
+#include "modules/pathops/src/SkPathOpsTypes.h"
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
 

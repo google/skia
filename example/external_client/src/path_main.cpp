@@ -7,7 +7,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
-#include "include/pathops/SkPathOps.h"
+#include "modules/pathops/include/SkPathOps.h"
 
 #include <cstdio>
 

@@ -8,8 +8,8 @@
 #include "modules/svg/include/SkSVGContainer.h"
 
 #include "include/core/SkPath.h"
-#include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkAssert.h"
+#include "modules/pathops/include/SkPathOps.h"
 
 #include <utility>
 class SkSVGRenderContext;

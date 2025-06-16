@@ -43,10 +43,6 @@ skia_core_sources = [
   "$_src/opts/SkBlitRow_opts.h",
 ]
 
-skia_core_sources += skia_legacy_pathops_sources
-
-skia_core_public += skia_legacy_pathops_public
-
 `
 
 var exportDescs = []GNIExportDesc{

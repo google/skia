@@ -20,9 +20,9 @@
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
-#include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTArray.h"
+#include "modules/pathops/include/SkPathOps.h"
 #include "src/core/SkTHash.h"
 
 #include <memory>

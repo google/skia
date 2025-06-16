@@ -1,0 +1,31 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_cc_library(
+    name = "pathops",
+    srcs = [
+        "//modules/pathops/src:private_hdrs",
+        "//modules/pathops/src:srcs",
+    ],
+    hdrs = [
+        "//modules/pathops/include:hdrs",
+    ],
+    features = ["layering_check"],
+    visibility = [
+        "//:__pkg__",
+        "//modules/sksg:__pkg__",
+        "//modules/svg:__pkg__",
+        "//src/pathops:__pkg__",
+        "//src/pdf:__pkg__",
+    ],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+    ],
+)

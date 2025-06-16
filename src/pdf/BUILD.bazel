@@ -85,12 +85,12 @@ skia_cc_library(
     deps = [
         "//:core",
         "//src/base",
-        "//:pathops",
         "//src/codec:codec_support_priv",
         "//src/encode:icc_support",
         "//src/core:core_priv",
         "//src/utils:clip_stack_utils",
         "//src/utils:float_to_decimal",
+        "//modules/pathops",
         "//modules/skcms",
         "@zlib",
         # TODO(kjlubick) Remove this dependency after migrating clients

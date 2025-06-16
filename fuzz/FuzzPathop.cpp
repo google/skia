@@ -9,8 +9,8 @@
 #include "fuzz/FuzzCommon.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
-#include "include/pathops/SkPathOps.h"
-#include "src/pathops/SkPathOpsCommon.h"
+#include "modules/pathops/include/SkPathOps.h"
+#include "modules/pathops/src/SkPathOpsCommon.h"
 
 const uint8_t MAX_OPS = 20;
 

@@ -7,12 +7,12 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
+#include "modules/pathops/src/SkIntersections.h"
+#include "modules/pathops/src/SkPathOpsConic.h"
+#include "modules/pathops/src/SkPathOpsPoint.h"
+#include "modules/pathops/src/SkPathOpsQuad.h"
+#include "modules/pathops/src/SkPathOpsTypes.h"
 #include "src/core/SkGeometry.h"
-#include "src/pathops/SkIntersections.h"
-#include "src/pathops/SkPathOpsConic.h"
-#include "src/pathops/SkPathOpsPoint.h"
-#include "src/pathops/SkPathOpsQuad.h"
-#include "src/pathops/SkPathOpsTypes.h"
 #include "tests/PathOpsTestCommon.h"
 #include "tests/Test.h"
 
@@ -76,7 +76,7 @@ static void chopCompare(const SkConic chopped[2], const SkDConic dChopped[2]) {
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkString.h"
-#include "src/pathops/SkPathOpsRect.h"
+#include "modules/pathops/src/SkPathOpsRect.h"
 
 static void writePng(const SkConic& c, const SkConic ch[2], const char* name) {
     const int scale = 10;

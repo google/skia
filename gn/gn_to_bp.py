@@ -651,6 +651,7 @@ nanobench_includes = strip_slashes(nanobench_target['include_dirs'])
 
 skcms_srcs = strip_slashes(js['targets']['//modules/skcms:skcms']['sources'])
 
+pathops_srcs = strip_slashes(js['targets']['//modules/pathops:pathops']['sources'])
 
 gn_to_bp_utils.GrabDependentValues(js, '//:gm', 'sources', gm_srcs, '//:skia')
 gn_to_bp_utils.GrabDependentValues(js, '//:tests', 'sources', test_srcs, '//:skia')
@@ -711,6 +712,11 @@ test_srcs       = strip_non_srcs(test_srcs)
 dm_srcs         = strip_non_srcs(dm_srcs).difference(gm_srcs).difference(test_srcs)
 nanobench_srcs  = strip_non_srcs(nanobench_srcs).difference(gm_srcs)
 skcms_srcs      = strip_non_srcs(skcms_srcs)
+pathops_srcs    = strip_non_srcs(pathops_srcs)
+
+# PathOps is no longer part of core Skia, but that is not
+# an interesting distinction for Android (yet).
+srcs = srcs.union(pathops_srcs)
 
 test_minus_gm_includes = test_includes.difference(gm_includes)
 test_minus_gm_srcs = test_srcs.difference(gm_srcs)

@@ -9,7 +9,7 @@
 
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
-#include "include/pathops/SkPathOps.h"
+#include "modules/pathops/include/SkPathOps.h"
 #include "src/core/SkClipStack.h"
 
 enum class SkClipOp;

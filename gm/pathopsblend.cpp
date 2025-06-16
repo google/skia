@@ -13,7 +13,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkRect.h"
-#include "include/pathops/SkPathOps.h"
+#include "modules/pathops/include/SkPathOps.h"
 #include "src/core/SkStroke.h"
 #include "tools/ToolUtils.h"
 
