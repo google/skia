@@ -1358,7 +1358,7 @@ DEF_TEST(Triangulator_Crbug1262444, r) {
     SkRect clipBounds = SkRect::MakeLTRB(0, 0, 14, 14);
     SimplerVertexAllocator alloc;
     int vertexCount = GrAATriangulator::PathToAATriangles(
-        path, GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
+            path, GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
     REPORTER_ASSERT(r, vertexCount == 0);
 }
 
@@ -1471,6 +1471,15 @@ DEF_TEST(Triangulator_Crbug337080025, r) {
 }
 
 // From b/421959607, fixes regression from b/40577206 (crbug.com/844873 above)
+//
+// TODO: b/425655494. The purpose of this test is to reproduce the nullptr dereference found by the
+// fuzzer. Although this test should successfully terminate on Release builds, it is disabled for
+// Debug builds because it triggers the ordering asserts in validate_edge_list()
+//
+// Attempted to solve this ordering issue by adding a variable epsilon in
+// https://skia-review.googlesource.com/c/skia/+/1004396, but this had to be removed as it caused
+// regressions in the fuzzer.
+#ifndef SK_DEBUG
 DEF_TEST(Triangulator_bug421959607, r) {
     SkPath path;
     path.setFillType(SkPathFillType::kWinding);
@@ -1508,8 +1517,57 @@ DEF_TEST(Triangulator_bug421959607, r) {
     path.close();
     SkRect clipBounds = SkRect::MakeLTRB(0, 0, 128, 160);
     SimplerVertexAllocator alloc;
+
     int vertexCount = GrAATriangulator::PathToAATriangles(
-        path, GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
+            path, GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
+    REPORTER_ASSERT(r, vertexCount);
+}
+#endif
+
+DEF_TEST(Triangulator_bug424666603, r) {
+    SkPath path;
+    path.setFillType(SkPathFillType::kWinding);
+    path.moveTo(SkBits2Float(0x524ae681),
+                SkBits2Float(0xd277c639));  // 2.17862652e+11f, -2.66045637e+11f
+    path.conicTo(SkBits2Float(0x2009b044),
+                 SkBits2Float(0x9fbc6c7a),
+                 SkBits2Float(0x2009b044),
+                 SkBits2Float(0x9fbc6c7a),
+                 SkBits2Float(0x3f3504f3));  // 1.16626728e-19f, -7.98005565e-20f, 1.16626728e-19f,
+                                             // -7.98005565e-20f, 0.707106769f
+    path.conicTo(SkBits2Float(0x2009b044),
+                 SkBits2Float(0x9fbc6c7a),
+                 SkBits2Float(0x524ae681),
+                 SkBits2Float(0xd277c639),
+                 SkBits2Float(0x3f3504f3));  // 1.16626728e-19f, -7.98005565e-20f, 2.17862652e+11f,
+                                             // -2.66045637e+11f, 0.707106769f
+    path.conicTo(SkBits2Float(0x52cae681),
+                 SkBits2Float(0xd2f7c639),
+                 SkBits2Float(0x52cae681),
+                 SkBits2Float(0xd2f7c639),
+                 SkBits2Float(0x3f3504f3));  // 4.35725304e+11f, -5.32091273e+11f, 4.35725304e+11f,
+                                             // -5.32091273e+11f, 0.707106769f
+    path.conicTo(SkBits2Float(0x52cae681),
+                 SkBits2Float(0xd2f7c639),
+                 SkBits2Float(0x524ae681),
+                 SkBits2Float(0xd277c639),
+                 SkBits2Float(0x3f3504f3));  // 4.35725304e+11f, -5.32091273e+11f, 2.17862652e+11f,
+                                             // -2.66045637e+11f, 0.707106769f
+    path.close();
+    path.moveTo(SkBits2Float(0x200a3d8d),
+                SkBits2Float(0x9fbdc58a));  // 1.17094201e-19f, -8.03714145e-20f
+    path.cubicTo(SkBits2Float(0xcda1a399),
+                 SkBits2Float(0x4dc56333),
+                 SkBits2Float(0x2009b044),
+                 SkBits2Float(0x9fbc6c7a),
+                 SkBits2Float(0x5507077d),
+                 SkBits2Float(0xd524e482));  // -338981664, 413951584, 1.16626728e-19f,
+                                             // -7.98005565e-20f, 9.27913948e+12f, -1.13313338e+13f
+    path.close();
+    SkRect clipBounds = SkRect::MakeLTRB(0, 0, 128, 160);
+    SimplerVertexAllocator alloc;
+    int vertexCount = GrAATriangulator::PathToAATriangles(
+            path, GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
     REPORTER_ASSERT(r, vertexCount);
 }
 
