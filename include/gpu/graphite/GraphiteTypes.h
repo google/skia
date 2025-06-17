@@ -90,6 +90,37 @@ struct InsertRecordingInfo {
     GpuFinishedWithStatsProc fFinishedWithStatsProc = nullptr;
 };
 
+// NOTE: This can be converted to just an `enum class InsertStatus {}` once clients are migrated
+// off of assuming `Context::insertRecording()` returns a boolean.
+class InsertStatus {
+public:
+    // Do not refer to V directly; use these constants as if InsertStatus were a class enum, e.g.
+    // InsertStatus::kSuccess.
+    enum V {
+        // Everything successfully added to underlying CommandBuffer
+        kSuccess,
+        // Recording or InsertRecordingInfo invalid, no CB changes
+        kInvalidRecording,
+        // Promise image instantiation failed, no CB changes
+        kPromiseImageInstantiationFailed,
+        // Internal failure, CB partially modified, state unrecoverable or unknown (e.g. dependent
+        // texture uploads for future Recordings may or may not get executed)
+        kAddCommandsFailed,
+    };
+
+    constexpr InsertStatus() : fValue(kSuccess) {}
+    /*implicit*/ constexpr InsertStatus(V v) : fValue(v) {}
+
+    operator InsertStatus::V() const { return fValue; }
+
+    // Assist migration from old bool return value of insertRecording; kSuccess is true,
+    // all other error statuses are false.
+    explicit operator bool() const { return fValue == kSuccess; }
+
+private:
+    V fValue;
+};
+
 /**
  * The fFinishedProc is called when the Recording has been submitted and finished on the GPU, or
  * when there is a failure that caused it not to be submitted. The callback will always be called
