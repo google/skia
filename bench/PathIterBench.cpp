@@ -19,9 +19,10 @@ enum class PathIterType {
     kIter,
     kRaw,
     kEdge,
+    kPathRaw,
 };
 const char* gPathIterNames[] = {
-    "iter", "raw", "edge"
+    "iter", "raw", "edge", "pathraw",
 };
 
 static int rand_pts(SkRandom& rand, SkPoint pts[4]) {
@@ -112,6 +113,14 @@ protected:
                     }
                 }
                 break;
+            case PathIterType::kPathRaw:
+                for (int i = 0; i < loops; ++i) {
+                    auto iter = SkPathPriv::Raw(fPath).iter();
+                    while (auto r = iter.next()) {
+                        handle((int)r->vrb, r->pts.data());
+                    }
+                }
+                break;
         }
     }
 
@@ -123,4 +132,5 @@ private:
 
 DEF_BENCH( return new PathIterBench(PathIterType::kIter); )
 DEF_BENCH( return new PathIterBench(PathIterType::kRaw); )
+DEF_BENCH( return new PathIterBench(PathIterType::kPathRaw); )
 DEF_BENCH( return new PathIterBench(PathIterType::kEdge); )

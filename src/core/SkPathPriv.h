@@ -22,6 +22,7 @@
 #include "include/private/SkPathRef.h"
 #include "include/private/base/SkDebug.h"
 #include "src/core/SkPathEnums.h"
+#include "src/core/SkPathRaw.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -457,6 +458,17 @@ public:
                            SkPathFillType fillType,
                            bool isVolatile) {
         return SkPath::MakeInternal(analysis, points, verbs, verbCount, conics, fillType, isVolatile);
+    }
+
+    static SkPathRaw Raw(const SkPath& path) {
+        return {
+            path.fPathRef->fPoints,
+            path.fPathRef->fVerbs,
+            path.fPathRef->fConicWeights,
+            path.getBounds(),
+            path.getFillType(),
+            path.isConvex(),
+        };
     }
 };
 

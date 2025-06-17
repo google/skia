@@ -1,0 +1,92 @@
+/*
+ * Copyright 2025 Google LLC.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SkPathRaw_DEFINED
+#define SkPathRaw_DEFINED
+
+#include "include/core/SkPoint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <optional>
+
+enum class SkPathFillType;
+enum class SkPathVerb;
+
+struct SkPathRaw {
+    SkSpan<const SkPoint>  fPoints;
+    SkSpan<const uint8_t>  fVerbs;
+    SkSpan<const SkScalar> fConics;
+    SkRect                 fBounds;
+    SkPathFillType         fFillType;
+    bool                   fIsConvex;
+
+    bool empty() const { return fVerbs.empty(); }
+
+    struct IterRec {
+        SkSpan<const SkPoint> pts;
+        SkScalar              w;
+        SkPathVerb            vrb;
+    };
+
+    class Iter {
+    public:
+        Iter(const SkPathRaw& p) : fPoints(p.fPoints), fVerbs(p.fVerbs), fConics(p.fConics) {
+            vIndex = pIndex = cIndex = 0;
+        }
+
+        Iter(SkSpan<const SkPoint> pts, SkSpan<const uint8_t> vbs, SkSpan<const SkScalar> cns)
+            : fPoints(pts), fVerbs(vbs), fConics(cns) {
+            vIndex = pIndex = cIndex = 0;
+        }
+
+        /*  Holds the current verb, and its associated points
+         *  move:  pts[0]
+         *  line:  pts[0..1]
+         *  quad:  pts[0..2]
+         *  conic: pts[0..2] w
+         *  cubic: pts[0..3]
+         *  close: pts[0..1] ... as if close were a line from pts[0] to pts[1]
+         */
+        std::optional<IterRec> next();
+
+    private:
+        size_t                 vIndex, pIndex, cIndex;
+        SkSpan<const SkPoint>  fPoints;
+        SkSpan<const uint8_t>  fVerbs;
+        SkSpan<const SkScalar> fConics;
+        std::array<SkPoint, 2> fPointStorage;
+    };
+
+    Iter iter() const {
+        return Iter(*this);
+    }
+
+    struct ContourRec {
+        SkSpan<const SkPoint>  fPoints;
+        SkSpan<const uint8_t>  fVerbs;
+        SkSpan<const SkScalar> fConics;
+    };
+
+    class ContourIter {
+    public:
+        ContourIter(const SkPathRaw&);
+
+        std::optional<ContourRec> next();
+
+    private:
+        SkSpan<const SkPoint>  fPoints;
+        SkSpan<const uint8_t>  fVerbs;
+        SkSpan<const SkScalar> fConics;
+    };
+};
+
+#endif
