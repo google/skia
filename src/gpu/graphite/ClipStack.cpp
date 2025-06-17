@@ -1412,12 +1412,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
 
         // Inverse-filled shapes always fill the entire device (restricted to the clip).
         if (styledShape.inverted()) {
-            // TODO(424506312): This currently preserves prior behavior and is necessary if we
-            // treat all draws as SkClipOp::kIntersect shapes. Switching inverse fills to
-            // kDifference would mean we could keep styledShape in the local space.
-            styledShape.setRect(transformedShapeBounds);
             drawBounds = deviceBounds;
-            shapeInDeviceSpace = true;
         } else {
             drawBounds = transformedShapeBounds.makeIntersect(deviceBounds);
         }
@@ -1447,7 +1442,8 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     }
 
     // If we made it here, the clip stack affects the draw in a complex way so iterate each element.
-    // A draw is a transformed shape that "intersects" the clip. We use empty inner bounds because
+    // A regular draw is a transformed shape that "intersects" the clip. An inverse-filled draw is
+    // equivalent to "difference". We use empty inner bounds because
     // there's currently no way to re-write the draw as the clip's geometry, so there's no need to
     // check if the draw contains the clip (vice versa is still checked and represents an unclipped
     // draw so is very useful to identify).
@@ -1455,7 +1451,8 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                           styledShape,
                           /*outerBounds=*/drawBounds,
                           /*innerBounds=*/Rect::InfiniteInverted(),
-                          /*op=*/SkClipOp::kIntersect,
+                          /*op=*/styledShape.inverted() ? SkClipOp::kDifference
+                                                        : SkClipOp::kIntersect,
                           /*containsChecksOnlyBounds=*/true};
 
     SkASSERT(outEffectiveElements);
