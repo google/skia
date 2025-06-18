@@ -258,7 +258,7 @@ PrecompileImageShader::PrecompileImageShader(SkEnumBitMask<ImageShaderFlags> fla
                                      ? DefaultColorInfos()
                                      : NonAlphaOnlyDefaultColorInfos())
     , fTileModes(std::vector<SkTileMode>(tileModes.begin(), tileModes.end()))
-    , fUseDstColorSpace(!colorInfos.empty())
+    , fUseDstColorInfo(!colorInfos.empty())
     , fRaw(raw) {}
 
 void PrecompileImageShader::setImmutableSamplerInfo(const ImmutableSamplerInfo& samplerInfo) {
@@ -331,12 +331,15 @@ void PrecompileImageShader::addToKey(const KeyContext& keyContext,
             SwizzleClassToReadEnum(readSwizzle));
 
     if (!fRaw) {
-        const SkColorSpace* dstColorSpace = fUseDstColorSpace
-                                                    ? keyContext.dstColorInfo().colorSpace()
-                                                    : sk_srgb_singleton();
+        const SkColorSpace* dstColorSpace = sk_srgb_singleton();
+        SkAlphaType dstAT = colorInfo.alphaType();
+        if (fUseDstColorInfo) {
+            dstColorSpace = keyContext.dstColorInfo().colorSpace();
+            dstAT = keyContext.dstColorInfo().alphaType();
+        }
         colorXformData.fSteps = SkColorSpaceXformSteps(
                 colorInfo.colorSpace(), colorInfo.alphaType(),
-                dstColorSpace, colorInfo.alphaType());
+                dstColorSpace, dstAT);
 
         if (alphaOnly) {
             Blend(keyContext, builder, gatherer,

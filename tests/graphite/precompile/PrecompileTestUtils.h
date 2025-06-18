@@ -135,6 +135,10 @@ skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver();
 skgpu::graphite::PaintOptions KawaseBlurHighSrc();
 skgpu::graphite::PaintOptions BlurFilterMix();
 
+skgpu::graphite::PaintOptions EdgeExtensionPremulSrcover();
+skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPassthroughSrcover();
+skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPremulSrcover();
+
 // Specifies the child shader to be created for a RE_LinearEffect
 enum class ChildType {
     kSolidColor,

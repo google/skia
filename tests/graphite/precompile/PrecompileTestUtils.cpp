@@ -629,7 +629,7 @@ skgpu::graphite::PaintOptions BlurFilterMix() {
         }
     )");
 
-    sk_sp<SkRuntimeEffect> mixEffect = makeEffect(kMixCode, "RE_BlurFilterMixEffect");
+    sk_sp<SkRuntimeEffect> mixEffect = makeEffect(kMixCode, "RE_BlurFilter_MixEffect");
 
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
     sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
@@ -645,6 +645,102 @@ skgpu::graphite::PaintOptions BlurFilterMix() {
     paintOptions.setBlendModes({ SkBlendMode::kSrc });
     return paintOptions;
 }
+
+namespace {
+
+class EdgeExtension {
+public:
+    EdgeExtension() {
+        // The following code block is just a stub for the Android code. For Skia's testing
+        // purposes it only needs to have the same name and number of children as the real code.
+        // When the following PaintOptions are used in Android the real SkSL must be supplied.
+        static const SkString kEdgeExtensionCode(R"(
+            uniform shader img;
+
+            vec4 main(vec2 xy) {
+                float3 sample = img.eval(0.115 * xy).rgb;
+                return float4(sample, 1.0);
+            }
+        )");
+
+        fEdgeExtensionEffect = makeEffect(kEdgeExtensionCode, "RE_EdgeExtensionEffect");
+        SkASSERT(fEdgeExtensionEffect);
+    }
+
+    sk_sp<SkRuntimeEffect> edgeExtensionEffect() const { return fEdgeExtensionEffect; }
+
+private:
+    sk_sp<SkRuntimeEffect> fEdgeExtensionEffect;
+};
+
+const EdgeExtension& EdgeExtensionSingleton() {
+    static class EdgeExtension sEdgeExtension;
+
+    return sEdgeExtension;
+}
+
+} // anonymous namespace
+
+skgpu::graphite::PaintOptions EdgeExtensionPremulSrcover() {
+    // This usage of kUnpremul is non-obvious. It acts to short circuit the identity-colorspace
+    // optimization for runtime effects. In this case, the Pipeline requires a
+    // ColorSpaceTransformPremul instead of the (optimized) Passthrough.
+    SkColorInfo ci { kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, nullptr };
+
+    sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                           { &ci, 1 },
+                                                           {});
+
+    sk_sp<PrecompileShader> edgeEffect = PrecompileRuntimeEffects::MakePrecompileShader(
+            EdgeExtensionSingleton().edgeExtensionEffect(),
+            { { std::move(img) } });
+
+    PaintOptions paintOptions;
+    paintOptions.setShaders({ std::move(edgeEffect) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    return paintOptions;
+}
+
+skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPassthroughSrcover() {
+    SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
+    sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                           { &ci, 1 },
+                                                           {});
+
+    sk_sp<PrecompileShader> edgeEffect = PrecompileRuntimeEffects::MakePrecompileShader(
+            EdgeExtensionSingleton().edgeExtensionEffect(),
+            { { std::move(img) } });
+
+    PaintOptions paintOptions;
+    paintOptions.setShaders({ std::move(edgeEffect) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setPaintColorIsOpaque(false);
+
+    return paintOptions;
+}
+
+skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPremulSrcover() {
+    // This usage of kUnpremul is non-obvious. It acts to short circuit the identity-colorspace
+    // optimization for runtime effects. In this case, the Pipeline requires a
+    // ColorSpaceTransformPremul instead of the (optimized) Passthrough.
+    SkColorInfo ci { kRGBA_8888_SkColorType, kUnpremul_SkAlphaType, nullptr };
+
+    sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
+                                                           { &ci, 1 },
+                                                           {});
+
+    sk_sp<PrecompileShader> edgeEffect = PrecompileRuntimeEffects::MakePrecompileShader(
+            EdgeExtensionSingleton().edgeExtensionEffect(),
+            { { std::move(img) } });
+
+    PaintOptions paintOptions;
+    paintOptions.setShaders({ std::move(edgeEffect) });
+    paintOptions.setBlendModes({ SkBlendMode::kSrcOver });
+    paintOptions.setPaintColorIsOpaque(false);
+
+    return paintOptions;
+}
+
 
 #if defined(SK_VULKAN)
 namespace {
