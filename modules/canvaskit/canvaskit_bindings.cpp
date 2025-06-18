@@ -759,7 +759,7 @@ SkPath MakePathFromVerbsPointsWeights(WASMPointerU8 verbsPtr, int numVerbs,
 
 bool ApplyDash(SkPath& path, SkScalar on, SkScalar off, SkScalar phase) {
     SkScalar intervals[] = { on, off };
-    auto pe = SkDashPathEffect::Make(intervals, phase);
+    auto pe = SkDashPathEffect::Make(intervals, 2, phase);
     if (!pe) {
         SkDebugf("Invalid args to dash()\n");
         return false;
@@ -1250,8 +1250,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                 colors = reinterpret_cast<const SkColor*>(cptr);
             }
             SkSamplingOptions sampling(filter, mipmap);
-            self.drawAtlas(atlas.get(), {dstXforms, count}, {srcRects, count},
-                           {colors, colors ? count : 0}, mode, sampling,
+            self.drawAtlas(atlas.get(), dstXforms, srcRects, colors, count, mode, sampling,
                            nullptr, paint);
         }), allow_raw_pointers())
         .function("_drawAtlasCubic", optional_override([](SkCanvas& self,
@@ -1265,8 +1264,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                 colors = reinterpret_cast<const SkColor*>(cptr);
             }
             SkSamplingOptions sampling({B, C});
-            self.drawAtlas(atlas.get(), {dstXforms, count}, {srcRects, count},
-                           {colors, colors ? count : 0}, mode, sampling,
+            self.drawAtlas(atlas.get(), dstXforms, srcRects, colors, count, mode, sampling,
                            nullptr, paint);
         }), allow_raw_pointers())
         .function("_drawCircle", select_overload<void (SkScalar, SkScalar, SkScalar, const SkPaint& paint)>(&SkCanvas::drawCircle))
@@ -1290,8 +1288,9 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                       float x, float y,
                                                       const SkFont& font,
                                                       const SkPaint& paint)->void {
-            self.drawGlyphs({reinterpret_cast<const uint16_t*>(glyphs), count},
-                            {reinterpret_cast<const SkPoint*>(positions), count},
+            self.drawGlyphs(count,
+                            reinterpret_cast<const uint16_t*>(glyphs),
+                            reinterpret_cast<const SkPoint*>(positions),
                             {x, y}, font, paint);
         }))
         // TODO: deprecate this version, and require sampling
@@ -1380,7 +1379,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                      WASMPointerF32 pptr,
                                                      int count, SkPaint& paint)->void {
             const SkPoint* pts = reinterpret_cast<const SkPoint*>(pptr);
-            self.drawPoints(mode, {pts, count}, paint);
+            self.drawPoints(mode, count, pts, paint);
         }))
         .function("_drawRRect",optional_override([](SkCanvas& self, WASMPointerF32 fPtr, const SkPaint& paint) {
             self.drawRRect(ptrToSkRRect(fPtr), paint);
@@ -1552,9 +1551,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             // On the JS side only one of these is set at a time for easier ergonomics.
             SkRect* outputRects = reinterpret_cast<SkRect*>(rPtr);
             SkScalar* outputWidths = reinterpret_cast<SkScalar*>(wPtr);
-            self.getWidthsBounds({glyphs, numGlyphs},
-                                 {outputWidths, outputWidths ? numGlyphs : 0},
-                                 {outputRects, outputRects ? numGlyphs : 0}, paint);
+            self.getWidthsBounds(glyphs, numGlyphs, outputWidths, outputRects, paint);
         }), allow_raw_pointers())
         .function("_getGlyphIDs", optional_override([](SkFont& self, WASMPointerU8 sptr,
                                                        size_t strLen, size_t expectedCodePoints,
@@ -1563,7 +1560,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
             SkGlyphID* glyphIDs = reinterpret_cast<SkGlyphID*>(iPtr);
 
             int actualCodePoints = self.textToGlyphs(str, strLen, SkTextEncoding::kUTF8,
-                                                     {glyphIDs, glyphIDs ? expectedCodePoints : 0});
+                                                     glyphIDs, expectedCodePoints);
             return actualCodePoints;
         }))
         .function("getMetrics", optional_override([](SkFont& self) -> JSObject {
@@ -1591,8 +1588,8 @@ EMSCRIPTEN_BINDINGS(Skia) {
             if (glyphs.size() > (pos.size() >> 1)) {
                 return emscripten::val("Not enough x,y position pairs for glyphs");
             }
-            auto sects = self.getIntercepts(glyphs,
-                                            {(const SkPoint*)pos.data(), numGlyphs}, top, bottom);
+            auto sects  = self.getIntercepts(glyphs.data(), SkToInt(glyphs.size()),
+                                             (const SkPoint*)pos.data(), top, bottom);
             return MakeTypedArray(sects.size(), (const float*)sects.data());
         }), allow_raw_pointers())
         .function("getScaleX", &SkFont::getScaleX)
@@ -1899,7 +1896,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .class_function("_MakeDash", optional_override([](WASMPointerF32 cptr, int count,
                                                           SkScalar phase)->sk_sp<SkPathEffect> {
             const float* intervals = reinterpret_cast<const float*>(cptr);
-            return SkDashPathEffect::Make({intervals, count}, phase);
+            return SkDashPathEffect::Make(intervals, count, phase);
         }), allow_raw_pointers())
         .class_function("MakeDiscrete", &SkDiscretePathEffect::Make)
         .class_function("_MakeLine2D", optional_override([](SkScalar width,
@@ -1954,7 +1951,7 @@ EMSCRIPTEN_BINDINGS(Skia) {
                                                    WASMPointerF32 fPtr,
                                                    int count, bool close)->void {
             const SkPoint* pts = reinterpret_cast<const SkPoint*>(fPtr);
-            self.addPoly({pts, count}, close);
+            self.addPoly(pts, count, close);
         }))
         .function("_addRect", optional_override([](SkPath& self,
                                                    WASMPointerF32 fPtr,
@@ -2442,25 +2439,22 @@ EMSCRIPTEN_BINDINGS(Skia) {
     class_<SkTextBlob>("TextBlob")
         .smart_ptr<sk_sp<SkTextBlob>>("sk_sp<TextBlob>")
         .class_function("_MakeFromRSXform", optional_override([](WASMPointerU8 sptr,
-                                                              size_t strBytes,
+                                                              size_t strBtyes,
                                                               WASMPointerF32 xptr,
                                                               const SkFont& font)->sk_sp<SkTextBlob> {
             const char* str = reinterpret_cast<const char*>(sptr);
-            // We don't really know how many the client has provided, so we claim a worst-case
-            // value (from text bytes), knowing the impl will only write as many as needed.
-            SkSpan<const SkRSXform> xforms = {reinterpret_cast<const SkRSXform*>(xptr), strBytes};
+            const SkRSXform* xforms = reinterpret_cast<const SkRSXform*>(xptr);
 
-            return SkTextBlob::MakeFromRSXform(str, strBytes, xforms, font, SkTextEncoding::kUTF8);
+            return SkTextBlob::MakeFromRSXform(str, strBtyes, xforms, font, SkTextEncoding::kUTF8);
         }), allow_raw_pointers())
         .class_function("_MakeFromRSXformGlyphs", optional_override([](WASMPointerU16 gPtr,
-                                                          size_t byteLen,
-                                                          WASMPointerF32 xptr,
-                                                          const SkFont& font)->sk_sp<SkTextBlob> {
-            const size_t numGlyphs = byteLen >> 1;
-            SkSpan<const SkGlyphID> glyphs = {reinterpret_cast<const SkGlyphID*>(gPtr), numGlyphs};
-            SkSpan<const SkRSXform> xforms = {reinterpret_cast<const SkRSXform*>(xptr), numGlyphs};
+                                                              size_t byteLen,
+                                                              WASMPointerF32 xptr,
+                                                              const SkFont& font)->sk_sp<SkTextBlob> {
+            const SkGlyphID* glyphs = reinterpret_cast<const SkGlyphID*>(gPtr);
+            const SkRSXform* xforms = reinterpret_cast<const SkRSXform*>(xptr);
 
-            return SkTextBlob::MakeFromRSXformGlyphs(glyphs, xforms, font);
+            return SkTextBlob::MakeFromRSXform(glyphs, byteLen, xforms, font, SkTextEncoding::kGlyphID);
         }), allow_raw_pointers())
         .class_function("_MakeFromText", optional_override([](WASMPointerU8 sptr,
                                                               size_t len, const SkFont& font)->sk_sp<SkTextBlob> {
@@ -2507,10 +2501,12 @@ EMSCRIPTEN_BINDINGS(Skia) {
         .function("_getGlyphIDs", optional_override([](SkTypeface& self, WASMPointerU8 sptr,
                                                    size_t strLen, size_t expectedCodePoints,
                                                    WASMPointerU16 iPtr) -> int {
-            const char* str = reinterpret_cast<char*>(sptr);
-            SkSpan<SkGlyphID> glyphIDs = {reinterpret_cast<SkGlyphID*>(iPtr), expectedCodePoints};
+            char* str = reinterpret_cast<char*>(sptr);
+            SkGlyphID* glyphIDs = reinterpret_cast<SkGlyphID*>(iPtr);
 
-            return self.textToGlyphs(str, strLen, SkTextEncoding::kUTF8, glyphIDs);
+            int actualCodePoints = self.textToGlyphs(str, strLen, SkTextEncoding::kUTF8,
+                                                     glyphIDs, expectedCodePoints);
+            return actualCodePoints;
         }));
 #endif
 

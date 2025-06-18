@@ -133,9 +133,10 @@ DEF_TEST(FontConfigInterface_MatchStyleNamedInstance, reporter) {
                        family_from_typeface.c_str());
             }
 
-            const size_t numAxes = typeface->getVariationDesignPosition({});
-            std::vector<SkFontArguments::VariationPosition::Coordinate> coords(numAxes);
-            typeface->getVariationDesignPosition(coords);
+            int numAxes = typeface->getVariationDesignPosition(nullptr, 0);
+            std::vector<SkFontArguments::VariationPosition::Coordinate> coords;
+            coords.resize(numAxes);
+            typeface->getVariationDesignPosition(coords.data(), numAxes);
 
             REPORTER_ASSERT(reporter,
                             coords.size() == 1,
@@ -150,4 +151,5 @@ DEF_TEST(FontConfigInterface_MatchStyleNamedInstance, reporter) {
                             "The weight axis must match the weight from the request.");
         }
   }
+
 }
