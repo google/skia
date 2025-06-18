@@ -8,7 +8,6 @@
 #ifndef skiatest_graphite_VulkanTestContext_DEFINED
 #define skiatest_graphite_VulkanTestContext_DEFINED
 
-#include "tools/gpu/vk/VkTestUtils.h"
 #include "tools/graphite/GraphiteTestContext.h"
 
 #include "include/gpu/vk/VulkanBackendContext.h"
@@ -34,7 +33,7 @@ public:
 private:
     VulkanTestContext(const skgpu::VulkanBackendContext& vulkan,
                       const skgpu::VulkanExtensions* extensions,
-                      const sk_gpu_test::TestVkFeatures* features,
+                      VkPhysicalDeviceFeatures2* features,
                       VkDebugUtilsMessengerEXT debugMessenger,
                       PFN_vkDestroyDebugUtilsMessengerEXT destroyCallback)
             : fVulkan(vulkan)
@@ -45,7 +44,7 @@ private:
 
     skgpu::VulkanBackendContext fVulkan;
     const skgpu::VulkanExtensions* fExtensions;
-    const sk_gpu_test::TestVkFeatures* fFeatures;
+    const VkPhysicalDeviceFeatures2* fFeatures;
     VkDebugUtilsMessengerEXT fDebugMessenger = VK_NULL_HANDLE;
     PFN_vkDestroyDebugUtilsMessengerEXT fDestroyDebugUtilsMessengerEXT = nullptr;
 };

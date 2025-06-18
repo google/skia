@@ -15,7 +15,6 @@ skia_filegroup(
         "VulkanExtensions.h",
         "VulkanMemoryAllocator.h",
         "VulkanMutableTextureState.h",
-        "VulkanPreferredFeatures.h",
         "VulkanTypes.h",
     ],
     visibility = [

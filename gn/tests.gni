@@ -324,7 +324,6 @@ tests_sources = [
   "$_tests/VkBackendSurfaceTest.cpp",
   "$_tests/VkDrawableTest.cpp",
   "$_tests/VkHardwareBufferTest.cpp",
-  "$_tests/VkPreferredFeaturesTest.cpp",
   "$_tests/VkPriorityExtensionTest.cpp",
   "$_tests/VkProtectedContextTest.cpp",
   "$_tests/VkWrapTests.cpp",

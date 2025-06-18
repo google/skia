@@ -16,8 +16,6 @@
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/gpu/vk/VulkanExtensions.h"
 
-#include "tools/gpu/vk/VkTestUtils.h"
-
 class GrDirectContext;
 class SkSurface;
 struct SkISize;
@@ -76,8 +74,8 @@ protected:
     bool fIsProtected = false;
     VkDevice fDevice = VK_NULL_HANDLE;
 
-    skgpu::VulkanExtensions fExtensions = {};
-    sk_gpu_test::TestVkFeatures fFeatures = {};
+    skgpu::VulkanExtensions fExtensions;
+    VkPhysicalDeviceFeatures2 fFeatures = {};
     VkDebugUtilsMessengerEXT fDebugMessenger = VK_NULL_HANDLE;
     PFN_vkDestroyDebugUtilsMessengerEXT fDestroyDebugCallback = nullptr;
     skgpu::VulkanBackendContext fBackendContext;
