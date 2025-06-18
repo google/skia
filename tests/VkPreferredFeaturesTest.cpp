@@ -378,7 +378,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan11, reporter) {
     //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     //CHECK_EXT_ENABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_ENABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
-    //CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
+    CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
     //CHECK_EXT_ENABLED(VK_KHR_SYNCHRONIZATION_2);
     //CHECK_EXT_ENABLED(VK_KHR_DYNAMIC_RENDERING);
     //CHECK_EXT_ENABLED(VK_KHR_DYNAMIC_RENDERING_LOCAL_READ);
@@ -442,9 +442,9 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan11, reporter) {
                           SamplerYcbcrConversionFeatures,
                           samplerYcbcrConversion);
 
-    //CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
-    //                      RGBA10X6FormatsFeaturesEXT,
-    //                      formatRgba10x6WithoutYCbCrSampler);
+    CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
+                          RGBA10X6FormatsFeaturesEXT,
+                          formatRgba10x6WithoutYCbCrSampler);
 
     //CHECK_FEATURE_ENABLED(SYNCHRONIZATION_2_FEATURES, Synchronization2Features, synchronization2);
 
@@ -504,7 +504,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan12, reporter) {
     //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     //CHECK_EXT_ENABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_DISABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
-    //CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
+    CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
     //CHECK_EXT_ENABLED(VK_KHR_SYNCHRONIZATION_2);
     //CHECK_EXT_ENABLED(VK_KHR_DYNAMIC_RENDERING);
     //CHECK_EXT_ENABLED(VK_KHR_DYNAMIC_RENDERING_LOCAL_READ);
@@ -598,9 +598,9 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan12, reporter) {
                            SamplerYcbcrConversionFeatures,
                            samplerYcbcrConversion);
 
-    //CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
-    //                      RGBA10X6FormatsFeaturesEXT,
-    //                      formatRgba10x6WithoutYCbCrSampler);
+    CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
+                          RGBA10X6FormatsFeaturesEXT,
+                          formatRgba10x6WithoutYCbCrSampler);
 
     //CHECK_FEATURE_ENABLED(SYNCHRONIZATION_2_FEATURES, Synchronization2Features, synchronization2);
 
@@ -660,7 +660,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan13, reporter) {
     //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     //CHECK_EXT_ENABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_DISABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
-    //CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
+    CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
     CHECK_EXT_DISABLED(VK_KHR_SYNCHRONIZATION_2);
     CHECK_EXT_DISABLED(VK_KHR_DYNAMIC_RENDERING);
     //CHECK_EXT_ENABLED(VK_KHR_DYNAMIC_RENDERING_LOCAL_READ);
@@ -769,9 +769,9 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan13, reporter) {
                            SamplerYcbcrConversionFeatures,
                            samplerYcbcrConversion);
 
-    //CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
-    //                      RGBA10X6FormatsFeaturesEXT,
-    //                      formatRgba10x6WithoutYCbCrSampler);
+    CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
+                          RGBA10X6FormatsFeaturesEXT,
+                          formatRgba10x6WithoutYCbCrSampler);
 
     CHECK_FEATURE_DISABLED(SYNCHRONIZATION_2_FEATURES, Synchronization2Features, synchronization2);
 
@@ -831,7 +831,7 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan14, reporter) {
     //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     //CHECK_EXT_ENABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_DISABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
-    //CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
+    CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
     CHECK_EXT_DISABLED(VK_KHR_SYNCHRONIZATION_2);
     CHECK_EXT_DISABLED(VK_KHR_DYNAMIC_RENDERING);
     CHECK_EXT_DISABLED(VK_KHR_DYNAMIC_RENDERING_LOCAL_READ);
@@ -955,9 +955,9 @@ DEF_TEST(VkPreferredFeaturesTest_BasicVulkan14, reporter) {
                            SamplerYcbcrConversionFeatures,
                            samplerYcbcrConversion);
 
-    //CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
-    //                      RGBA10X6FormatsFeaturesEXT,
-    //                      formatRgba10x6WithoutYCbCrSampler);
+    CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
+                          RGBA10X6FormatsFeaturesEXT,
+                          formatRgba10x6WithoutYCbCrSampler);
 
     CHECK_FEATURE_DISABLED(SYNCHRONIZATION_2_FEATURES, Synchronization2Features, synchronization2);
 
@@ -1048,7 +1048,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan11, reporter) {
     //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     CHECK_EXT_DISABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_DISABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
-    //CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
+    CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
     //CHECK_EXT_ENABLED(VK_KHR_SYNCHRONIZATION_2);
     CHECK_EXT_DISABLED(VK_KHR_DYNAMIC_RENDERING);
     CHECK_EXT_DISABLED(VK_KHR_DYNAMIC_RENDERING_LOCAL_READ);
@@ -1115,9 +1115,9 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan11, reporter) {
                            SamplerYcbcrConversionFeatures,
                            samplerYcbcrConversion);
 
-    //CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
-    //                      RGBA10X6FormatsFeaturesEXT,
-    //                      formatRgba10x6WithoutYCbCrSampler);
+    CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
+                          RGBA10X6FormatsFeaturesEXT,
+                          formatRgba10x6WithoutYCbCrSampler);
 
     //CHECK_FEATURE_ENABLED(SYNCHRONIZATION_2_FEATURES, Synchronization2Features, synchronization2);
 
@@ -1634,7 +1634,7 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan14, reporter) {
     //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     CHECK_EXT_DISABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_DISABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
-    //CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
+    CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
     CHECK_EXT_DISABLED(VK_KHR_SYNCHRONIZATION_2);
     CHECK_EXT_DISABLED(VK_KHR_DYNAMIC_RENDERING);
     //CHECK_EXT_ENABLED(VK_EXT_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED);
@@ -1705,9 +1705,9 @@ DEF_TEST(VkPreferredFeaturesTest_CustomVulkan14, reporter) {
                            GraphicsPipelineLibraryFeaturesEXT,
                            graphicsPipelineLibrary);
 
-    //CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
-    //                      RGBA10X6FormatsFeaturesEXT,
-    //                      formatRgba10x6WithoutYCbCrSampler);
+    CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
+                          RGBA10X6FormatsFeaturesEXT,
+                          formatRgba10x6WithoutYCbCrSampler);
 
     //CHECK_FEATURE_ENABLED(MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_FEATURES_EXT,
     //                      MultisampledRenderToSingleSampledFeaturesEXT,
@@ -1785,7 +1785,7 @@ DEF_TEST(VkPreferredFeaturesTest_EmptyEnableChain, reporter) {
     //CHECK_EXT_ENABLED(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE);
     CHECK_EXT_DISABLED(VK_EXT_GRAPHICS_PIPELINE_LIBRARY);
     CHECK_EXT_DISABLED(VK_KHR_SAMPLER_YCBCR_CONVERSION);
-    //CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
+    CHECK_EXT_ENABLED(VK_EXT_RGBA10X6_FORMATS);
     CHECK_EXT_DISABLED(VK_KHR_SYNCHRONIZATION_2);
     CHECK_EXT_DISABLED(VK_KHR_DYNAMIC_RENDERING);
     //CHECK_EXT_ENABLED(VK_KHR_DYNAMIC_RENDERING_LOCAL_READ);
@@ -1849,9 +1849,9 @@ DEF_TEST(VkPreferredFeaturesTest_EmptyEnableChain, reporter) {
                            GraphicsPipelineLibraryFeaturesEXT,
                            graphicsPipelineLibrary);
 
-    //CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
-    //                      RGBA10X6FormatsFeaturesEXT,
-    //                      formatRgba10x6WithoutYCbCrSampler);
+    CHECK_FEATURE_ENABLED(RGBA10X6_FORMATS_FEATURES_EXT,
+                          RGBA10X6FormatsFeaturesEXT,
+                          formatRgba10x6WithoutYCbCrSampler);
 
     //CHECK_FEATURE_ENABLED(DYNAMIC_RENDERING_LOCAL_READ_FEATURES,
     //                      DynamicRenderingLocalReadFeatures,
