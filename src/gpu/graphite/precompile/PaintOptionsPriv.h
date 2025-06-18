@@ -31,6 +31,10 @@ public:
         fPaintOptions->setPrimitiveBlendMode(primitiveBlendMode);
     }
 
+    void setSkipColorXform(bool skipColorXform) {
+        fPaintOptions->setSkipColorXform(skipColorXform);
+    }
+
     int numCombinations() const {
         return fPaintOptions->numCombinations();
     }

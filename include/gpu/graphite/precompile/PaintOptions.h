@@ -163,6 +163,7 @@ private:
 
     // In the main API this is specified via the SkBlender parameter to drawVertices
     void setPrimitiveBlendMode(SkBlendMode bm) { fPrimitiveBlendMode = bm; }
+    void setSkipColorXform(bool skipColorXform) { fSkipColorXform = skipColorXform; }
 
     int numShaderCombinations() const;
     int numColorFilterCombinations() const;
@@ -204,6 +205,7 @@ private:
     skia_private::TArray<sk_sp<PrecompileMaskFilter>> fMaskFilterOptions;
 
     SkBlendMode fPrimitiveBlendMode = SkBlendMode::kSrcOver;
+    bool fSkipColorXform = false;
     bool fDither = false;
     bool fPaintColorIsOpaque = true;
 };

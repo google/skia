@@ -92,6 +92,10 @@ void PaintOption::addPaintColorToKey(const KeyContext& keyContext,
 void PaintOption::handlePrimitiveColor(const KeyContext& keyContext,
                                        PaintParamsKeyBuilder* keyBuilder,
                                        PipelineDataGatherer* gatherer) const {
+    // TODO: Check whether we can skip the colorspace transformation. For now, silence unused
+    // variable compiler warnings.
+    (void)fSkipColorXform;
+
     if (fHasPrimitiveBlender) {
         Blend(keyContext, keyBuilder, gatherer,
               /* addBlendToKey= */ [&] () -> void {

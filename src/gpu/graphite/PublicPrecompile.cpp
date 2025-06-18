@@ -218,7 +218,7 @@ void Precompile(PrecompileContext* precompileContext,
                                            renderPassDesc);
                 }
 
-                // Geometric.
+                // Geometric
                 {
                     sk_sp<PrecompileColorFilter> cf = PrecompileColorFilters::Compose(
                             { PrecompileColorFilters::Blend({ SkBlendMode::kModulate }) },
@@ -226,6 +226,7 @@ void Precompile(PrecompileContext* precompileContext,
 
                     newOptions.setColorFilters({ std::move(cf) });
                     newOptions.priv().setPrimitiveBlendMode(SkBlendMode::kModulate);
+                    newOptions.priv().setSkipColorXform(true);
 
                     PrecompileCombinations(precompileContext->priv().rendererProvider(),
                                            precompileContext->priv().resourceProvider(),

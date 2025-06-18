@@ -56,6 +56,7 @@ private:
     std::pair<sk_sp<PrecompileColorFilter>, int> fColorFilter;
     SkBlendMode fPrimitiveBlendMode;
     bool fHasPrimitiveBlender;
+    bool fSkipColorXform;
     std::pair<sk_sp<PrecompileShader>, int> fClipShader;
     bool fDstReadRequired;
     bool fDither;
