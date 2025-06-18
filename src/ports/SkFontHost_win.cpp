@@ -896,13 +896,13 @@ SkScalerContext::GlyphMetrics SkScalerContext_GDI::generateMetrics(const SkGlyph
         sk_bzero(&gm, sizeof(gm));
         status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, nullptr, &fHighResMat22);
         if (GDI_ERROR != status) {
-            mx.advance = fHiResMatrix.mapXY(SkIntToScalar(gm.gmCellIncX),
-                                            SkIntToScalar(gm.gmCellIncY));
+            mx.advance = fHiResMatrix.mapPoint({SkIntToScalar(gm.gmCellIncX),
+                                                SkIntToScalar(gm.gmCellIncY)});
         }
     } else if (!isAxisAligned(this->fRec)) {
         status = GetGlyphOutlineW(fDDC, glyphId, GGO_METRICS | GGO_GLYPH_INDEX, &gm, 0, nullptr, &fGsA);
         if (GDI_ERROR != status) {
-            mx.advance = fG_inv.mapXY(SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY));
+            mx.advance = fG_inv.mapPoint({SkIntToScalar(gm.gmCellIncX), SkIntToScalar(gm.gmCellIncY)});
         }
     }
 

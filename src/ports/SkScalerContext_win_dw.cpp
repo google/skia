@@ -23,6 +23,7 @@
 #include "include/core/SkOpenTypeSVGDecoder.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPictureRecorder.h"
+#include "include/core/SkSpan.h"
 #include "include/effects/SkGradientShader.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTo.h"
@@ -1522,7 +1523,7 @@ bool SkScalerContext_DW::setAdvance(const SkGlyph& glyph, SkVector* advance) {
         // the end result is not always an integer as it would be with GDI.
         advance->fX = SkScalarRoundToScalar(advance->fX);
     }
-    fSkXform.mapVectors(advance, 1);
+    *advance = fSkXform.mapVector(*advance);
     return true;
 }
 
