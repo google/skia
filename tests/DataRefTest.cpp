@@ -8,6 +8,7 @@
 #include "include/core/SkData.h"
 #include "include/core/SkDataTable.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
@@ -170,13 +171,90 @@ static void test_files(skiatest::Reporter* reporter) {
     sk_sp<SkData> r1(SkData::MakeFromFILE(file));
     REPORTER_ASSERT(reporter, r1.get() != nullptr);
     REPORTER_ASSERT(reporter, r1->size() == 26);
-    REPORTER_ASSERT(reporter, strncmp(static_cast<const char*>(r1->data()), s, 26) == 0);
+    REPORTER_ASSERT(reporter, strncmp(reinterpret_cast<const char*>(r1->data()), s, 26) == 0);
 
     int fd = sk_fileno(file);
     sk_sp<SkData> r2(SkData::MakeFromFD(fd));
     REPORTER_ASSERT(reporter, r2.get() != nullptr);
     REPORTER_ASSERT(reporter, r2->size() == 26);
-    REPORTER_ASSERT(reporter, strncmp(static_cast<const char*>(r2->data()), s, 26) == 0);
+    REPORTER_ASSERT(reporter, strncmp(reinterpret_cast<const char*>(r2->data()), s, 26) == 0);
+}
+
+template <typename T> bool operator==(SkSpan<T> a, SkSpan<T> b) {
+    return a.size() == b.size() && a.data() == b.data();
+}
+template <typename T> bool operator!=(SkSpan<T> a, SkSpan<T> b) {
+    return !(a == b);
+}
+
+template <typename T> bool deep_equal(SkSpan<T> a, SkSpan<T> b) {
+    if (a.size() != b.size()) {
+        return false;
+    }
+    return (a.size() == 0) || (memcmp(a.data(), b.data(), a.size()) == 0);
+}
+
+static void test_subsets(skiatest::Reporter* reporter) {
+    uint8_t array[] = {1, 2, 3, 4};
+    auto src = SkData::MakeWithoutCopy(array, sizeof(array));
+
+    struct Subset {
+        size_t offset, length;
+    };
+
+    const Subset bad_subsets[] = {
+        {5, 0}, {4, 2}, {0, 5}, {3, 2},
+    };
+    for (auto s : bad_subsets) {
+        REPORTER_ASSERT(reporter, src->shareSubset(s.offset, s.length) == nullptr);
+        REPORTER_ASSERT(reporter, src->copySubset(s.offset, s.length) == nullptr);
+    }
+
+    const Subset empty_subsets[] = {
+        {0, 0}, {2, 0}, {4, 0},
+    };
+    for (auto s : empty_subsets) {
+        REPORTER_ASSERT(reporter, src->shareSubset(s.offset, s.length)->empty());
+        REPORTER_ASSERT(reporter, src->copySubset(s.offset, s.length)->empty());
+    }
+
+    auto assert_shared = [reporter](sk_sp<const SkData> data, SkSpan<const uint8_t> src) {
+        REPORTER_ASSERT(reporter, data->byteSpan() == src);
+    };
+    auto assert_copied = [reporter](sk_sp<const SkData> data, SkSpan<const uint8_t> src) {
+        REPORTER_ASSERT(reporter, data->byteSpan() != src);
+        REPORTER_ASSERT(reporter, deep_equal(data->byteSpan(), src));
+    };
+
+    const Subset nonempty_subsets[] = {
+        {0, 4}, {2, 2}, {0, 2}, {1, 2},
+    };
+    for (auto s : nonempty_subsets) {
+        const auto srcSpan = src->byteSpan().subspan(s.offset, s.length);
+        assert_shared(src->shareSubset(s.offset, s.length), srcSpan);
+        assert_copied(src->copySubset(s.offset, s.length),  srcSpan);
+    }
+}
+
+static void test_copies(skiatest::Reporter* reporter) {
+    int32_t array[10];
+    for (int i = 0; i < 10; ++i) array[i] = i;
+
+    auto d = SkData::MakeWithCopy(array, sizeof(array));
+    REPORTER_ASSERT(reporter, d->size() == sizeof(array));
+    REPORTER_ASSERT(reporter, memcmp(array, d->data(), sizeof(array)) == 0);
+
+    auto d1 = d->shareSubset(8, 16);    // 2, 3, 4, 5
+    REPORTER_ASSERT(reporter, d1->size() == 16);
+    REPORTER_ASSERT(reporter, d1->bytes() == d->bytes() + 8);
+
+    auto d2 = d->copySubset(8, 16);
+    REPORTER_ASSERT(reporter, d2->size() == 16);
+    REPORTER_ASSERT(reporter, memcmp(d2->data(), &array[2], d2->size()) == 0);
+
+    REPORTER_ASSERT(reporter, *d == *d);
+    REPORTER_ASSERT(reporter, *d != *d1);
+    REPORTER_ASSERT(reporter, *d1 == *d2);
 }
 
 DEF_TEST(Data, reporter) {
@@ -203,6 +281,9 @@ DEF_TEST(Data, reporter) {
 
     test_cstring(reporter);
     test_files(reporter);
+
+    test_subsets(reporter);
+    test_copies(reporter);
 }
 
 DEF_TEST(Data_empty, reporter) {

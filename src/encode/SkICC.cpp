@@ -656,7 +656,7 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_ICCProfile* profile, const char* des
     size_t last_tag_offset = sizeof(header) + tag_table_size;
     size_t last_tag_size = 0;
     for (const auto& tag : tags) {
-        if (!tag.second->isEmpty()) {
+        if (!tag.second->empty()) {
             last_tag_offset = last_tag_offset + last_tag_size;
             last_tag_size = tag.second->size();
         }
@@ -671,7 +671,7 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_ICCProfile* profile, const char* des
 
     // Write the tags.
     for (const auto& tag : tags) {
-        if (tag.second->isEmpty()) continue;
+        if (tag.second->empty()) continue;
         memcpy(ptr, tag.second->data(), tag.second->size());
         ptr += tag.second->size();
     }

@@ -10,10 +10,6 @@
 #include <unordered_map>
 #include <vector>
 
-bool operator==(const SkData& a, const SkData& b) {
-    return a.equals(&b);
-}
-
 UrlDataManager::UrlDataManager(SkString rootUrl) : fRootUrl(rootUrl), fDataId(0) {}
 
 SkString UrlDataManager::addData(SkData* data, const char* contentType) {
