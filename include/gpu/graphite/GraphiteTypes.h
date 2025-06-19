@@ -106,6 +106,9 @@ public:
         // Internal failure, CB partially modified, state unrecoverable or unknown (e.g. dependent
         // texture uploads for future Recordings may or may not get executed)
         kAddCommandsFailed,
+        // Internal failure, shader pipeline compilation failed (driver issue, or disk corruption),
+        // state unrecoverable.
+        kAsyncShaderCompilesFailed
     };
 
     constexpr InsertStatus() : fValue(kSuccess) {}

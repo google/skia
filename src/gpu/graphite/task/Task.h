@@ -12,10 +12,13 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 
+#include <functional>
+
 namespace skgpu::graphite {
 
 class CommandBuffer;
 class Context;
+class GraphicsPipeline;
 class ResourceProvider;
 class RuntimeEffectDictionary;
 class ScratchResourceManager;
@@ -55,6 +58,12 @@ public:
 
     // Returns true on success; false on failure.
     virtual Status addCommands(Context*, CommandBuffer*, ReplayTargetData) = 0;
+
+    // Visit all pipelines until `visitor` returns false to end early.
+    virtual bool visitPipelines(const std::function<bool(const GraphicsPipeline*)>& visitor) {
+        // By default assume the task uses no GraphicsPipelines
+        return true;
+    }
 };
 
 } // namespace skgpu::graphite

@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/task/Task.h"
 
+#include <functional>
 #include <memory>
 
 namespace skgpu::graphite {
@@ -22,6 +23,7 @@ namespace skgpu::graphite {
 class TextureProxy;
 class CommandBuffer;
 class Context;
+class GraphicsPipeline;
 class ResourceProvider;
 class RuntimeEffectDictionary;
 class ScratchResourceManager;
@@ -54,6 +56,8 @@ public:
                             const RuntimeEffectDictionary*) override;
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
+
+    bool visitPipelines(const std::function<bool(const GraphicsPipeline*)>& visitor) override;
 
 private:
     RenderPassTask(DrawPassList,
