@@ -189,7 +189,7 @@ skcpu::Recorder* Recorder::cpuRecorder() {
 }
 
 std::unique_ptr<Recording> Recorder::snap() {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
     ASSERT_SINGLE_OWNER
 
     if (fTargetProxyData) {

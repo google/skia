@@ -588,11 +588,20 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
     const bool advancedBlendsRequireBarrier =
             caps->blendEquationSupport() == Caps::BlendEquationSupport::kAdvancedNoncoherent;
 
+#if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
+    // Accumulate rough pixel area touched by each pipeline as we iterate the SortKeys
+    drawPass->fPipelineDrawAreas.push_back_n(pipelineCache.size(), 0.f);
+#endif
+
     for (const SortKey& key : keys) {
         const DrawList::Draw& draw = key.draw();
         const RenderStep& renderStep = key.renderStep();
 
         const bool pipelineChange = key.pipelineIndex() != lastPipeline;
+#if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
+        drawPass->fPipelineDrawAreas[key.pipelineIndex()] +=
+                draw.fDrawParams.clip().drawBounds().area();
+#endif
 
         const bool geomBindingChange = geometryUniformTracker.writeUniforms(
                 geometryUniformDataCache, bufferMgr, key.geometryUniformIndex());
@@ -712,7 +721,7 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
                                 const RenderPassDesc& renderPassDesc) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    fFullPipelines.reserve(fFullPipelines.size() + fPipelineDescs.size());
+    fFullPipelines.reserve(fPipelineDescs.size());
     for (const GraphicsPipelineDesc& pipelineDesc : fPipelineDescs) {
         auto pipeline = resourceProvider->findOrCreateGraphicsPipeline(runtimeDict,
                                                                        pipelineDesc,
@@ -756,6 +765,19 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
     // The DrawPass may be long lived on a Recording and we no longer need the SamplerDescs
     // once we've created Samplers, so we drop the storage for them here.
     fSamplerDescs.clear();
+
+#if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
+    {
+        TRACE_EVENT0_ALWAYS("skia.shaders", "GraphitePipelineUse");
+        for (int i = 0 ; i < fFullPipelines.size(); ++i) {
+            TRACE_EVENT_INSTANT1_ALWAYS(
+                    "skia.shaders",
+                    TRACE_STR_COPY(fFullPipelines[i]->getPipelineInfo().fLabel.c_str()),
+                    TRACE_EVENT_SCOPE_THREAD,
+                    "area", sk_float_saturate2int(fPipelineDrawAreas[i]));
+        }
+    }
+#endif
 
     return true;
 }

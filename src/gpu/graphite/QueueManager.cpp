@@ -83,7 +83,7 @@ bool QueueManager::setupCommandBuffer(ResourceProvider* resourceProvider, Protec
 }
 
 bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* context) {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
 
     bool addTimerQuery = false;
     sk_sp<RefCntedCallback> callback;
@@ -273,7 +273,7 @@ bool QueueManager::addFinishInfo(const InsertFinishInfo& info,
 }
 
 bool QueueManager::submitToGpu() {
-    TRACE_EVENT0("skia.gpu", TRACE_FUNC);
+    TRACE_EVENT0_ALWAYS("skia.gpu", TRACE_FUNC);
 
     if (!fCurrentCommandBuffer) {
         // We warn because this probably representative of a bad client state, where they don't
