@@ -192,9 +192,9 @@ DEF_TEST(Fontations_TableTags, reporter) {
 
     // Keep these in the old ptr style (not readTableTags) until we're sure
     // we've tested that adaptor through chrome (e.g. on 32bit machines)
-    REPORTER_ASSERT(reporter, testTypeface->getTableTags(nullptr) == kNumTags);
+    REPORTER_ASSERT(reporter, testTypeface->countTables() == kNumTags);
 
-    REPORTER_ASSERT(reporter, testTypeface->getTableTags(tagsBuffer) == kNumTags);
+    REPORTER_ASSERT(reporter, testTypeface->readTableTags(tagsBuffer) == kNumTags);
     REPORTER_ASSERT(reporter, tagsBuffer[0] == firstTag);
     REPORTER_ASSERT(reporter, tagsBuffer[kNumTags - 1] == lastTag);
 }
@@ -203,7 +203,7 @@ DEF_TEST(Fontations_VariationPosition, reporter) {
     sk_sp<SkTypeface> variableTypeface(
             SkTypeface_Make_Fontations(GetResourceAsStream(kVariableResource), SkFontArguments()));
     // Everything at default.
-    const int numAxes = variableTypeface->getVariationDesignPosition(nullptr, 0);
+    const int numAxes = variableTypeface->getVariationDesignPosition({});
     REPORTER_ASSERT(reporter, numAxes == kNumVariableAxes, "numAxes: %d", numAxes);
 
     SkFontArguments::VariationPosition::Coordinate kSwpsCoordinateFirst = {SkSetFourByteTag('S', 'W', 'P', 'S'), 25};
@@ -221,17 +221,17 @@ DEF_TEST(Fontations_VariationPosition, reporter) {
 
     sk_sp<SkTypeface> cloneTypeface = variableTypeface->makeClone(
             SkFontArguments().setVariationDesignPosition(clonePosition));
-    const int cloneNumAxes = cloneTypeface->getVariationDesignPosition(nullptr, 0);
+    const int cloneNumAxes = cloneTypeface->getVariationDesignPosition({});
     REPORTER_ASSERT(reporter, cloneNumAxes == kNumVariableAxes, "clonedNumAxes: %d", cloneNumAxes);
 
     SkFontArguments::VariationPosition::Coordinate retrieveCoordinates[kNumVariableAxes] = {};
 
     // Error when providing too little space.
-    const int badClonedNumAxes = cloneTypeface->getVariationDesignPosition(retrieveCoordinates, 1);
+    const int badClonedNumAxes = cloneTypeface->getVariationDesignPosition({retrieveCoordinates,1});
     REPORTER_ASSERT(reporter, badClonedNumAxes == -1, "badClonedNumAxes: %d", badClonedNumAxes);
 
     const int retrievedClonedNumAxes =
-            cloneTypeface->getVariationDesignPosition(retrieveCoordinates, kNumVariableAxes);
+            cloneTypeface->getVariationDesignPosition(retrieveCoordinates);
     REPORTER_ASSERT(reporter, retrievedClonedNumAxes == kNumVariableAxes,
                     "retrievedClonedNumAxes: %d", retrievedClonedNumAxes);
     REPORTER_ASSERT(reporter,
@@ -246,12 +246,11 @@ DEF_TEST(Fontations_VariationParameters, reporter) {
     sk_sp<SkTypeface> variableTypeface(
             SkTypeface_Make_Fontations(GetResourceAsStream(kVariableResource), SkFontArguments()));
     REPORTER_ASSERT(reporter,
-                    variableTypeface->getVariationDesignParameters(nullptr, 0) == kNumVariableAxes);
+                    variableTypeface->getVariationDesignParameters({}) == kNumVariableAxes);
 
     SkFontParameters::Variation::Axis axes[kNumVariableAxes] = {};
     REPORTER_ASSERT(reporter,
-                    variableTypeface->getVariationDesignParameters(axes, kNumVariableAxes) ==
-                            kNumVariableAxes);
+                    variableTypeface->getVariationDesignParameters(axes) == kNumVariableAxes);
 
     for (size_t i = 0; i < kNumVariableAxes; ++i) {
         REPORTER_ASSERT(reporter, axes[i].tag == axisExpectations[i].tag);
@@ -265,12 +264,12 @@ DEF_TEST(Fontations_VariationParameters_BufferTooSmall, reporter) {
     sk_sp<SkTypeface> variableTypeface(
             SkTypeface_Make_Fontations(GetResourceAsStream(kVariableResource), SkFontArguments()));
     REPORTER_ASSERT(reporter,
-                    variableTypeface->getVariationDesignParameters(nullptr, 0) == kNumVariableAxes);
+                    variableTypeface->getVariationDesignParameters({}) == kNumVariableAxes);
 
     constexpr size_t kArrayTooSmall = 3;
     SkFontParameters::Variation::Axis axes[kArrayTooSmall] = {};
     REPORTER_ASSERT(reporter,
-                    variableTypeface->getVariationDesignParameters(axes, kArrayTooSmall) == -1);
+                    variableTypeface->getVariationDesignParameters(axes) == -1);
 }
 
 DEF_TEST(Fontations_SyntheticCapHeight, reporter) {
