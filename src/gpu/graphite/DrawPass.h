@@ -91,7 +91,10 @@ public:
     const Texture* getTexture(size_t index) const;
     const Sampler* getSampler(size_t index) const;
 
-    skia_private::TArray<sk_sp<TextureProxy>> sampledTextures() const { return fSampledTextures; }
+    // Proxies are always valid but may not be instantiated until after prepareResources() is called
+    SkSpan<const sk_sp<TextureProxy>> sampledTextures() const { return fSampledTextures; }
+    // Not valid until after prepareResources() is called
+    SkSpan<const sk_sp<GraphicsPipeline>> pipelines() const { return fFullPipelines; }
 
     void addResourceRefs(CommandBuffer*) const;
 
