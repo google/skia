@@ -1701,7 +1701,7 @@ std::unique_ptr<Statement> Parser::continueStatement() {
 /* DISCARD SEMICOLON */
 std::unique_ptr<Statement> Parser::discardStatement() {
     Token start;
-    if (!this->expect(Token::Kind::TK_DISCARD, "'continue'", &start)) {
+    if (!this->expect(Token::Kind::TK_DISCARD, "'discard'", &start)) {
         return nullptr;
     }
     if (!this->expect(Token::Kind::TK_SEMICOLON, "';'")) {
