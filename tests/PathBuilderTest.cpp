@@ -723,3 +723,20 @@ DEF_TEST(SkPathBuilder_transform, reporter) {
         REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(b1.snapshot()) == SkPathFirstDirection::kUnknown);
     }
 }
+
+DEF_TEST(SkPathBuilder_cleaning, reporter) {
+    // Test that we safely handle meaningless verbs, like repeated kClose
+    SkPathBuilder b;
+    b.moveTo(1, 2);
+    b.close();
+    b.close();  // this call should be silently ignored
+
+    auto verbs = b.verbs();
+    REPORTER_ASSERT(reporter, verbs.size() == 2);
+    REPORTER_ASSERT(reporter, verbs[0] == (uint8_t)SkPathVerb::kMove);
+    REPORTER_ASSERT(reporter, verbs[1] == (uint8_t)SkPathVerb::kClose);
+
+    auto pts = b.points();
+    REPORTER_ASSERT(reporter, pts.size() == 1);
+    REPORTER_ASSERT(reporter, (pts[0] == SkPoint{1, 2}));
+}

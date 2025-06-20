@@ -194,7 +194,8 @@ SkPathBuilder& SkPathBuilder::cubicTo(SkPoint pt1, SkPoint pt2, SkPoint pt3) {
 }
 
 SkPathBuilder& SkPathBuilder::close() {
-    if (!fVerbs.empty()) {
+    // If this is a 2nd 'close', we just ignore it
+    if (!fVerbs.empty() && fVerbs.back() != (uint8_t)SkPathVerb::kClose) {
         this->ensureMove();
 
         fVerbs.push_back((uint8_t)SkPathVerb::kClose);

@@ -20,6 +20,7 @@
 #include "include/private/SkPathRef.h"
 #include "include/private/base/SkTArray.h"
 
+#include <cstdint>
 #include <optional>
 #include <tuple>
 
@@ -898,6 +899,13 @@ public:
         return this->polylineTo({pts, count});
     }
 #endif
+
+    SkSpan<const SkPoint> points() const {
+        return fPts;
+    }
+    SkSpan<const uint8_t> verbs() const {
+        return fVerbs;
+    }
 
 private:
     SkPathRef::PointsArray fPts;
