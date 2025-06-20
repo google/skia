@@ -79,7 +79,7 @@ public:
      */
     std::unique_ptr<PrecompileContext> makePrecompileContext();
 
-    InsertStatus insertRecording(const InsertRecordingInfo&);
+    bool insertRecording(const InsertRecordingInfo&);
     bool submit(SyncToCpu = SyncToCpu::kNo);
 
     /** Returns true if there is work that was submitted to the GPU that has not finished. */

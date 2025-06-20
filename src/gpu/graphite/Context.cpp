@@ -216,7 +216,7 @@ std::unique_ptr<Recorder> Context::makeInternalRecorder() const {
     return std::unique_ptr<Recorder>(new Recorder(fSharedContext, {}, this));
 }
 
-InsertStatus Context::insertRecording(const InsertRecordingInfo& info) {
+bool Context::insertRecording(const InsertRecordingInfo& info) {
     ASSERT_SINGLE_OWNER
 
     return fQueueManager->addRecording(info, this);

@@ -82,11 +82,9 @@ bool QueueManager::setupCommandBuffer(ResourceProvider* resourceProvider, Protec
     return true;
 }
 
-InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context* context) {
+bool QueueManager::addRecording(const InsertRecordingInfo& info, Context* context) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    // Configure the callback before validation so that failures are propagated to the finish
-    // procs that were registered on `info` as well.
     bool addTimerQuery = false;
     sk_sp<RefCntedCallback> callback;
     if (info.fFinishedWithStatsProc) {
@@ -106,7 +104,7 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
             callback->setFailureResult();
         }
         SKGPU_LOG_E("No valid Recording passed into addRecording call");
-        return InsertStatus::kInvalidRecording;
+        return false;
     }
 
     // Recordings from a Recorder that requires ordered recordings will have a valid recorder ID.
@@ -119,7 +117,7 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
                 callback->setFailureResult();
             }
             SKGPU_LOG_E("Recordings are expected to be replayed in order");
-            return InsertStatus::kInvalidRecording;
+            return false;
         }
 
         // Note the new Recording ID.
@@ -132,8 +130,8 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
             callback->setFailureResult();
         }
         info.fRecording->priv().setFailureResultForFinishedProcs();
-        SKGPU_LOG_E("Target surface passed into addRecording call is not Graphite-backed");
-        return InsertStatus::kInvalidRecording;
+        SKGPU_LOG_E("Target surface passed into addRecording call is not graphite-backed");
+        return false;
     }
 
     auto resourceProvider = context->priv().resourceProvider();
@@ -143,9 +141,7 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
         }
         info.fRecording->priv().setFailureResultForFinishedProcs();
         SKGPU_LOG_E("CommandBuffer creation failed");
-        // Technically no commands have been added yet, but if this fails, things are in a bad state
-        // so signal the unrecoverable status.
-        return InsertStatus::kAddCommandsFailed;
+        return false;
     }
 
     // This must happen before instantiating the lazy proxies, because the target for draws in this
@@ -164,12 +160,12 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
                 info.fTargetClip);
         if (!replayTarget) {
             SKGPU_LOG_E("Failed to set up deferred replay target");
-            return InsertStatus::kPromiseImageInstantiationFailed;
+            return false;
         }
 
     } else if (deferredTargetProxy && !info.fTargetSurface) {
         SKGPU_LOG_E("No surface provided to instantiate deferred replay target.");
-        return InsertStatus::kPromiseImageInstantiationFailed;
+        return false;
     }
 
     if (info.fRecording->priv().hasNonVolatileLazyProxies()) {
@@ -179,7 +175,7 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
             }
             info.fRecording->priv().setFailureResultForFinishedProcs();
             SKGPU_LOG_E("Non-volatile PromiseImage instantiation has failed");
-            return InsertStatus::kPromiseImageInstantiationFailed;
+            return false;
         }
     }
 
@@ -191,7 +187,7 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
             info.fRecording->priv().setFailureResultForFinishedProcs();
             info.fRecording->priv().deinstantiateVolatileLazyProxies();
             SKGPU_LOG_E("Volatile PromiseImage instantiation has failed");
-            return InsertStatus::kPromiseImageInstantiationFailed;
+            return false;
         }
     }
 
@@ -210,7 +206,7 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
         info.fRecording->priv().setFailureResultForFinishedProcs();
         info.fRecording->priv().deinstantiateVolatileLazyProxies();
         SKGPU_LOG_E("Adding Recording commands to the CommandBuffer has failed");
-        return InsertStatus::kAddCommandsFailed;
+        return false;
     }
     fCurrentCommandBuffer->addSignalSemaphores(info.fNumSignalSemaphores, info.fSignalSemaphores);
     if (info.fTargetTextureState) {
@@ -227,7 +223,7 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
 
     info.fRecording->priv().deinstantiateVolatileLazyProxies();
 
-    return InsertStatus::kSuccess;
+    return true;
 }
 
 bool QueueManager::addTask(Task* task,
