@@ -208,12 +208,12 @@ bool RequiresViewportReset(const SkPaint& paint) {
   return false;
 }
 
-void AddPath(const sktext::GlyphRun& glyphRun, const SkPoint& offset, SkPath* path) {
+void AddPath(const sktext::GlyphRun& glyphRun, const SkPoint& offset, SkPathBuilder* builder) {
     struct Rec {
-        SkPath*        fPath;
+        SkPathBuilder* fBuilder;
         const SkPoint  fOffset;
         const SkPoint* fPos;
-    } rec = { path, offset, glyphRun.positions().data() };
+    } rec = { builder, offset, glyphRun.positions().data() };
 
     glyphRun.font().getPaths(glyphRun.glyphsIDs(),
             [](const SkPath* path, const SkMatrix& mx, void* ctx) {
@@ -222,7 +222,7 @@ void AddPath(const sktext::GlyphRun& glyphRun, const SkPoint& offset, SkPath* pa
                     SkMatrix total = mx;
                     total.postTranslate(rec->fPos->fX + rec->fOffset.fX,
                                         rec->fPos->fY + rec->fOffset.fY);
-                    rec->fPath->addPath(*path, total);
+                    rec->fBuilder->addPath(*path, total);
                 } else {
                     // TODO: this is going to drop color emojis.
                 }
@@ -1170,12 +1170,12 @@ void SkSVGDevice::onDrawGlyphRunList(SkCanvas* canvas,
 
     if (draw_as_path) {
         // Emit a single <path> element.
-        SkPath path;
+        SkPathBuilder builder;
         for (auto& glyphRun : glyphRunList) {
-            AddPath(glyphRun, glyphRunList.origin(), &path);
+            AddPath(glyphRun, glyphRunList.origin(), &builder);
         }
 
-        this->drawPath(path, paint);
+        this->drawPath(builder.detach(), paint);
 
         return;
     }
