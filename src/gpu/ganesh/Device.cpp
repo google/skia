@@ -81,6 +81,7 @@
 #include "src/gpu/ganesh/GrProxyProvider.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/GrRenderTargetProxy.h"
+#include "src/gpu/ganesh/GrShaderCaps.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrSurfaceProxyPriv.h"
@@ -113,7 +114,6 @@
 #include <utility>
 
 class GrBackendSemaphore;
-struct GrShaderCaps;
 struct SkDrawShadowRec;
 
 using namespace skia_private;
@@ -959,7 +959,8 @@ bool Device::drawAsTiledImageRect(SkCanvas* canvas,
             constraint,
             rCtx->priv().options().fSharpenMipmappedTextures,
             cacheSize,
-            maxTextureSize);
+            maxTextureSize,
+            !rCtx->priv().caps()->shaderCaps()->fHasLowFragmentPrecision);
 #if defined(GPU_TEST_UTILS)
     gNumTilesDrawnGanesh.store(numTiles, std::memory_order_relaxed);
 #endif
