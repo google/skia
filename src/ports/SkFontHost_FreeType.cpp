@@ -13,6 +13,7 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
@@ -1522,8 +1523,8 @@ bool SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path, 
     }
     *modified |= emboldenIfNeeded(fFace, fFace->glyph, glyphID);
 
-    if (!fUtils.generateGlyphPath(fFace, path)) {
-        path->reset();
+    SkPathBuilder builder;
+    if (!fUtils.generateGlyphPath(fFace, &builder)) {
         return false;
     }
 
@@ -1534,9 +1535,10 @@ bool SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path, 
         vector.x = fFace->glyph->metrics.vertBearingX - fFace->glyph->metrics.horiBearingX;
         vector.y = -fFace->glyph->metrics.vertBearingY - fFace->glyph->metrics.horiBearingY;
         FT_Vector_Transform(&vector, &fMatrix22);
-        path->offset(SkFDot6ToScalar(vector.x), -SkFDot6ToScalar(vector.y));
+        builder.offset(SkFDot6ToScalar(vector.x), -SkFDot6ToScalar(vector.y));
         *modified = true;
     }
+    *path = builder.detach();
     return true;
 }
 
