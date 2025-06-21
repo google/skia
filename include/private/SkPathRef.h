@@ -9,6 +9,7 @@
 #define SkPathRef_DEFINED
 
 #include "include/core/SkArc.h"
+#include "include/core/SkPathTypes.h" // IWYU pragma: keep
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -310,6 +311,9 @@ public:
      */
     const uint8_t* verbsEnd() const { return fVerbs.end(); }
 
+    SkSpan<const SkPathVerb> verbs() const {
+        return {reinterpret_cast<const SkPathVerb*>(fVerbs.begin()), fVerbs.size()};
+    }
     /**
      * Returns a const pointer to the first point.
      */

@@ -8,32 +8,28 @@
 #ifndef SkPathRaw_DEFINED
 #define SkPathRaw_DEFINED
 
+#include "include/core/SkPathTypes.h" // IWYU pragma: keep
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
-#include "include/core/SkScalar.h"
 #include "include/core/SkSpan.h"
 
 #include <array>
 #include <cstddef>
-#include <cstdint>
 #include <optional>
 
-enum class SkPathFillType;
-enum class SkPathVerb;
-
 struct SkPathRaw {
-    SkSpan<const SkPoint>  fPoints;
-    SkSpan<const uint8_t>  fVerbs;
-    SkSpan<const SkScalar> fConics;
-    SkRect                 fBounds;
-    SkPathFillType         fFillType;
-    bool                   fIsConvex;
+    SkSpan<const SkPoint>    fPoints;
+    SkSpan<const SkPathVerb> fVerbs;
+    SkSpan<const float>      fConics;
+    SkRect                   fBounds;
+    SkPathFillType           fFillType;
+    bool                     fIsConvex;
 
     bool empty() const { return fVerbs.empty(); }
 
     struct IterRec {
         SkSpan<const SkPoint> pts;
-        SkScalar              w;
+        float                 w;
         SkPathVerb            vrb;
     };
 
@@ -43,7 +39,7 @@ struct SkPathRaw {
             vIndex = pIndex = cIndex = 0;
         }
 
-        Iter(SkSpan<const SkPoint> pts, SkSpan<const uint8_t> vbs, SkSpan<const SkScalar> cns)
+        Iter(SkSpan<const SkPoint> pts, SkSpan<const SkPathVerb> vbs, SkSpan<const float> cns)
             : fPoints(pts), fVerbs(vbs), fConics(cns) {
             vIndex = pIndex = cIndex = 0;
         }
@@ -59,11 +55,11 @@ struct SkPathRaw {
         std::optional<IterRec> next();
 
     private:
-        size_t                 vIndex, pIndex, cIndex;
-        SkSpan<const SkPoint>  fPoints;
-        SkSpan<const uint8_t>  fVerbs;
-        SkSpan<const SkScalar> fConics;
-        std::array<SkPoint, 2> fPointStorage;
+        size_t                   vIndex, pIndex, cIndex;
+        SkSpan<const SkPoint>    fPoints;
+        SkSpan<const SkPathVerb> fVerbs;
+        SkSpan<const float>      fConics;
+        std::array<SkPoint, 2>   fPointStorage;
     };
 
     Iter iter() const {
@@ -71,9 +67,9 @@ struct SkPathRaw {
     }
 
     struct ContourRec {
-        SkSpan<const SkPoint>  fPoints;
-        SkSpan<const uint8_t>  fVerbs;
-        SkSpan<const SkScalar> fConics;
+        SkSpan<const SkPoint>    fPoints;
+        SkSpan<const SkPathVerb> fVerbs;
+        SkSpan<const float>      fConics;
     };
 
     class ContourIter {
@@ -83,9 +79,9 @@ struct SkPathRaw {
         std::optional<ContourRec> next();
 
     private:
-        SkSpan<const SkPoint>  fPoints;
-        SkSpan<const uint8_t>  fVerbs;
-        SkSpan<const SkScalar> fConics;
+        SkSpan<const SkPoint>    fPoints;
+        SkSpan<const SkPathVerb> fVerbs;
+        SkSpan<const float>      fConics;
     };
 };
 

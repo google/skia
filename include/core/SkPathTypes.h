@@ -8,6 +8,10 @@
 #ifndef SkPathTypes_DEFINED
 #define SkPathTypes_DEFINED
 
+#include "include/core/SkTypes.h"
+
+#include <cstdint>
+
 enum class SkPathFillType {
     /** Specifies that "inside" is computed by a non-zero sum of signed edge crossings */
     kWinding,
@@ -45,7 +49,7 @@ enum SkPathSegmentMask {
     kCubic_SkPathSegmentMask  = 1 << 3,
 };
 
-enum class SkPathVerb {
+enum class SkPathVerb : uint8_t {
     kMove,   //!< SkPath::RawIter returns 1 point
     kLine,   //!< SkPath::RawIter returns 2 points
     kQuad,   //!< SkPath::RawIter returns 3 points

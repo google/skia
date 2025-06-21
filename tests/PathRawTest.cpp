@@ -18,7 +18,7 @@
 
 class SkSPathRawBuilder {
 public:
-    SkSPathRawBuilder(SkSpan<SkPoint> ptStore, SkSpan<uint8_t> vbStore, SkSpan<SkScalar> cnStore)
+    SkSPathRawBuilder(SkSpan<SkPoint> ptStore, SkSpan<SkPathVerb> vbStore, SkSpan<float> cnStore)
         : fPtStorage(ptStore)
         , fVbStorage(vbStore)
         , fCnStorage(cnStore)
@@ -35,9 +35,9 @@ public:
     SkPathRaw raw(SkPathFillType, bool isConvex = false) const;
 
 private:
-    SkSpan<SkPoint>  fPtStorage;
-    SkSpan<uint8_t>  fVbStorage;
-    SkSpan<SkScalar> fCnStorage;
+    SkSpan<SkPoint>    fPtStorage;
+    SkSpan<SkPathVerb> fVbStorage;
+    SkSpan<SkScalar>   fCnStorage;
     size_t fPts, fCns, fVbs;
 
     void check_extend_pts(size_t n) const {
@@ -55,14 +55,14 @@ void SkSPathRawBuilder::moveTo(SkPoint p) {
     check_extend_pts(1);
     check_extend_vbs(1);
     fPtStorage[fPts++] = p;
-    fVbStorage[fVbs++] = (uint8_t)SkPathVerb::kMove;
+    fVbStorage[fVbs++] = SkPathVerb::kMove;
 }
 
 void SkSPathRawBuilder::lineTo(SkPoint p) {
     check_extend_pts(1);
     check_extend_vbs(1);
     fPtStorage[fPts++] = p;
-    fVbStorage[fVbs++] = (uint8_t)SkPathVerb::kLine;
+    fVbStorage[fVbs++] = SkPathVerb::kLine;
 }
 
 void SkSPathRawBuilder::quadTo(SkPoint p1, SkPoint p2) {
@@ -70,7 +70,7 @@ void SkSPathRawBuilder::quadTo(SkPoint p1, SkPoint p2) {
     check_extend_vbs(1);
     fPtStorage[fPts++] = p1;
     fPtStorage[fPts++] = p2;
-    fVbStorage[fVbs++] = (uint8_t)SkPathVerb::kQuad;
+    fVbStorage[fVbs++] = SkPathVerb::kQuad;
 }
 
 void SkSPathRawBuilder::conicTo(SkPoint p1, SkPoint p2, SkScalar w) {
@@ -80,7 +80,7 @@ void SkSPathRawBuilder::conicTo(SkPoint p1, SkPoint p2, SkScalar w) {
     fPtStorage[fPts++] = p1;
     fPtStorage[fPts++] = p2;
     fCnStorage[fCns++] = w;
-    fVbStorage[fVbs++] = (uint8_t)SkPathVerb::kConic;
+    fVbStorage[fVbs++] = SkPathVerb::kConic;
 }
 
 void SkSPathRawBuilder::cubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
@@ -89,12 +89,12 @@ void SkSPathRawBuilder::cubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
     fPtStorage[fPts++] = p1;
     fPtStorage[fPts++] = p2;
     fPtStorage[fPts++] = p3;
-    fVbStorage[fVbs++] = (uint8_t)SkPathVerb::kCubic;
+    fVbStorage[fVbs++] = SkPathVerb::kCubic;
 }
 
 void SkSPathRawBuilder::close() {
     check_extend_vbs(1);
-    fVbStorage[fVbs++] = (uint8_t)SkPathVerb::kClose;
+    fVbStorage[fVbs++] = SkPathVerb::kClose;
 }
 
 SkPathRaw SkSPathRawBuilder::raw(SkPathFillType ft, bool isConvex) const {
@@ -110,13 +110,13 @@ SkPathRaw SkSPathRawBuilder::raw(SkPathFillType ft, bool isConvex) const {
 }
 
 static void check_iter(skiatest::Reporter* reporter, SkPathRaw::Iter iter,
-                       SkSpan<SkPoint> pts, SkSpan<const uint8_t> vbs, SkSpan<const SkScalar> cns) {
+                       SkSpan<SkPoint> pts, SkSpan<const SkPathVerb> vbs, SkSpan<const float> cns) {
     size_t pIndex = 0, vIndex = 0, cIndex = 0;
     size_t moveToIndex = 0; // track the start of each contour
 
     while (auto r = iter.next()) {
         REPORTER_ASSERT(reporter, vIndex < vbs.size());
-        REPORTER_ASSERT(reporter, vbs[vIndex++] == (uint8_t)r->vrb);
+        REPORTER_ASSERT(reporter, vbs[vIndex++] == r->vrb);
         switch (r->vrb) {
             case SkPathVerb::kMove:
                 moveToIndex = pIndex;
@@ -162,8 +162,8 @@ static void check_iter(skiatest::Reporter* reporter, SkPathRaw::Iter iter,
 
 DEF_TEST(pathraw_iter, reporter) {
     SkPoint pts[11];
-    uint8_t vbs[8];
-    SkScalar cns[1];
+    SkPathVerb vbs[8];
+    float cns[1];
 
     constexpr size_t N = 11;
     SkPoint p[N];
@@ -173,15 +173,15 @@ DEF_TEST(pathraw_iter, reporter) {
 
     SkSPathRawBuilder bu(pts, vbs, cns);
 
-    const uint8_t verbs[] = {
-        (uint8_t)SkPathVerb::kMove,
-        (uint8_t)SkPathVerb::kLine,
-        (uint8_t)SkPathVerb::kQuad,
-        (uint8_t)SkPathVerb::kCubic,
-        (uint8_t)SkPathVerb::kClose,
-        (uint8_t)SkPathVerb::kMove,
-        (uint8_t)SkPathVerb::kLine,
-        (uint8_t)SkPathVerb::kConic,
+    const SkPathVerb verbs[] = {
+        SkPathVerb::kMove,
+        SkPathVerb::kLine,
+        SkPathVerb::kQuad,
+        SkPathVerb::kCubic,
+        SkPathVerb::kClose,
+        SkPathVerb::kMove,
+        SkPathVerb::kLine,
+        SkPathVerb::kConic,
     };
 
     bu.moveTo(p[0]);

@@ -8,6 +8,7 @@
 #ifndef SkContourMeasure_DEFINED
 #define SkContourMeasure_DEFINED
 
+#include "include/core/SkPathTypes.h" // IWYU pragma: keep
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -21,7 +22,6 @@
 
 class SkMatrix;
 class SkPath;
-enum class SkPathVerb;
 
 class SK_API SkContourMeasure : public SkRefCnt {
 public:

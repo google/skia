@@ -463,7 +463,7 @@ public:
     static SkPathRaw Raw(const SkPath& path) {
         return {
             path.fPathRef->fPoints,
-            path.fPathRef->fVerbs,
+            path.fPathRef->verbs(),
             path.fPathRef->fConicWeights,
             path.getBounds(),
             path.getFillType(),

@@ -52,7 +52,7 @@ std::optional<SkPathRaw::ContourRec> SkPathRaw::ContourIter::next() {
         return {};
     }
 
-    SkASSERT(fVerbs[0] == (uint8_t)SkPathVerb::kMove);
+    SkASSERT(fVerbs[0] == SkPathVerb::kMove);
     size_t npts = 1, nvbs = 1, nws = 0;
 
     for (size_t i = 1; i < fVerbs.size(); ++i) {
