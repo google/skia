@@ -33,6 +33,7 @@ struct PrecompileSettings {
     SkEnumBitMask<skgpu::graphite::DrawTypeFlags> fDrawTypeFlags =
             skgpu::graphite::DrawTypeFlags::kNone;
     skgpu::graphite::RenderPassProperties fRenderPassProps;
+    bool fAnalyticClipping = false;
 
     bool isSubsetOf(const PrecompileSettings& superSet) const;
 };

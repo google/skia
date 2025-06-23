@@ -1126,7 +1126,8 @@ std::string rm_whitespace(const std::string& s) {
 bool PrecompileSettings::isSubsetOf(const PrecompileSettings& superSet) const {
     SkASSERT(SkPopCount(fDrawTypeFlags.value()) == 1);
 
-    // 'superSet' may have a wider range of DrawTypeFlags
+    // 'superSet' may have a wider range of DrawTypeFlags.
+    // We're intentionally omitting the 'fAnalyticClipping' field here.
     return (fDrawTypeFlags & superSet.fDrawTypeFlags) &&
             fRenderPassProps == superSet.fRenderPassProps;
 }
@@ -1235,6 +1236,18 @@ void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
                settings.fPaintOptions,
                static_cast<DrawTypeFlags>(settings.fDrawTypeFlags.value()),
                { &settings.fRenderPassProps, 1 });
+
+    if (settings.fAnalyticClipping) {
+        SkASSERT(!(settings.fDrawTypeFlags & DrawTypeFlags::kAnalyticClip));
+
+        SkEnumBitMask<DrawTypeFlags> newFlags = settings.fDrawTypeFlags |
+                                                DrawTypeFlags::kAnalyticClip;
+
+        Precompile(precompileContext,
+                   settings.fPaintOptions,
+                   static_cast<DrawTypeFlags>(newFlags.value()),
+                   { &settings.fRenderPassProps, 1 });
+    }
 
     std::set<std::string> generatedLabels;
 
