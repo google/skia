@@ -408,20 +408,12 @@ template <typename VulkanStruct> void chain(void**& chainEnd, VulkanStruct* toAd
 }  // anonymous namespace
 
 VulkanPreferredFeatures::~VulkanPreferredFeatures() {
-    if (!fHasAddedToInstanceExtensions) {
-        SkDebugf("WARNING: VulkanPreferredFeatures::addToInstanceExtensions() was not called\n");
-    }
-    if (!fHasAddedFeaturesToQuery) {
+    if (fHasAddedToInstanceExtensions && !fHasAddedFeaturesToQuery) {
         SkDebugf("WARNING: VulkanPreferredFeatures::addFeaturesToQuery() was not called\n");
     }
-    if (!fHasAddedFeaturesToEnable) {
+    if (fHasAddedToInstanceExtensions && !fHasAddedFeaturesToEnable) {
         SkDebugf("WARNING: VulkanPreferredFeatures::addFeaturesToEnable() was not called\n");
     }
-
-    // Note: Cannot assert that fHasAddedFeaturesToEnable is called, because after querying the
-    // features the application may decide to give up because a requested feature (e.g. protected
-    // memory) is missing.
-    SkASSERT(fHasAddedToInstanceExtensions && fHasAddedFeaturesToQuery);
 }
 
 void VulkanPreferredFeatures::init(uint32_t appAPIVersion) {
