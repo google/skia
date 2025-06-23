@@ -53,7 +53,7 @@ public:
     virtual ~QueueManager();
 
     // Adds the commands from the passed in Recording to the current CommandBuffer
-    [[nodiscard]] bool addRecording(const InsertRecordingInfo&, Context*);
+    [[nodiscard]] InsertStatus addRecording(const InsertRecordingInfo&, Context*);
 
     // Adds the commands from the passed in Task to the current CommandBuffer
     [[nodiscard]] bool addTask(Task*, Context*, Protected);
