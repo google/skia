@@ -449,6 +449,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/utils:utils_skslc_hdrs",
 				"//src/utils:utils_skslc_srcs",
 			}},
+		{Var: "skia_clipstack_utils_sources",
+			Rules: []string{
+				"//src/utils:clip_stack_utils",
+			}},
 	},
 	},
 	{GNI: "gn/xps.gni", Vars: []exporter.GNIFileListExportDesc{
