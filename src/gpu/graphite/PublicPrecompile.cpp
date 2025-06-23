@@ -63,11 +63,10 @@ void compile(const RendererProvider* rendererProvider,
 
             UniquePaintParamsID paintID = s->performsShading() ? uniqueID
                                                                : UniquePaintParamsID::Invalid();
-            GraphicsPipelineDesc pipelineDesc(s->renderStepID(), paintID);
 
             sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
                     keyContext.rtEffectDict(),
-                    pipelineDesc,
+                    { s->renderStepID(), paintID },
                     renderPassDesc,
                     PipelineCreationFlags::kForPrecompilation);
             if (!pipeline) {
@@ -88,6 +87,8 @@ void Precompile(PrecompileContext* precompileContext,
                 SkSpan<const RenderPassProperties> renderPassProperties) {
 
     ShaderCodeDictionary* dict = precompileContext->priv().shaderCodeDictionary();
+    const RendererProvider* rendererProvider = precompileContext->priv().rendererProvider();
+    ResourceProvider* resourceProvider = precompileContext->priv().resourceProvider();
     const Caps* caps = precompileContext->priv().caps();
 
     auto rtEffectDict = std::make_unique<RuntimeEffectDictionary>();
@@ -134,8 +135,8 @@ void Precompile(PrecompileContext* precompileContext,
 
             for (Coverage coverage : { Coverage::kNone, Coverage::kSingleChannel }) {
                 PrecompileCombinations(
-                        precompileContext->priv().rendererProvider(),
-                        precompileContext->priv().resourceProvider(),
+                        rendererProvider,
+                        resourceProvider,
                         options, keyContext,
                         static_cast<DrawTypeFlags>(drawTypes & ~(DrawTypeFlags::kBitmapText_Color |
                                                                  DrawTypeFlags::kBitmapText_LCD |
@@ -147,6 +148,23 @@ void Precompile(PrecompileContext* precompileContext,
                         renderPassDesc);
             }
 
+            if (drawTypes & DrawTypeFlags::kNonSimpleShape) {
+                // Special case handling to pick up the:
+                //     "CoverBoundsRenderStep[InverseCover] + (empty)"
+                // pipelines.
+                const RenderStep* renderStep =
+                    rendererProvider->lookup(RenderStep::RenderStepID::kCoverBounds_InverseCover);
+                sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
+                        keyContext.rtEffectDict(),
+                        { renderStep->renderStepID(), UniquePaintParamsID::Invalid() },
+                        renderPassDesc,
+                        PipelineCreationFlags::kForPrecompilation);
+                if (!pipeline) {
+                    SKGPU_LOG_W("Failed to create \"CoverBoundsRenderStep[InverseCover] + (empty)\""
+                                " precompile Pipeline!");
+                }
+            }
+
             if (drawTypes & DrawTypeFlags::kBitmapText_Color) {
                 DrawTypeFlags reducedTypes =
                         static_cast<DrawTypeFlags>(drawTypes & (DrawTypeFlags::kBitmapText_Color |
@@ -156,8 +174,8 @@ void Precompile(PrecompileContext* precompileContext,
                 tmp.setShaders({});
 
                 // ARGB text doesn't emit coverage and always has a primitive blender
-                PrecompileCombinations(precompileContext->priv().rendererProvider(),
-                                       precompileContext->priv().resourceProvider(),
+                PrecompileCombinations(rendererProvider,
+                                       resourceProvider,
                                        tmp,
                                        keyContext,
                                        reducedTypes,
@@ -173,8 +191,8 @@ void Precompile(PrecompileContext* precompileContext,
                                                                 DrawTypeFlags::kAnalyticClip));
                 // LCD-based text always emits LCD coverage but never has primitiveBlenders
                 PrecompileCombinations(
-                        precompileContext->priv().rendererProvider(),
-                        precompileContext->priv().resourceProvider(),
+                        rendererProvider,
+                        resourceProvider,
                         options, keyContext,
                         reducedTypes,
                         /* withPrimitiveBlender= */ false,
@@ -189,8 +207,8 @@ void Precompile(PrecompileContext* precompileContext,
                 // drawVertices w/ colors use a primitiveBlender while those w/o don't. It never
                 // emits coverage.
                 for (bool withPrimitiveBlender : { true, false }) {
-                    PrecompileCombinations(precompileContext->priv().rendererProvider(),
-                                           precompileContext->priv().resourceProvider(),
+                    PrecompileCombinations(rendererProvider,
+                                           resourceProvider,
                                            options, keyContext,
                                            reducedTypes,
                                            withPrimitiveBlender,
@@ -209,8 +227,8 @@ void Precompile(PrecompileContext* precompileContext,
 
                 // Analytic
                 {
-                    PrecompileCombinations(precompileContext->priv().rendererProvider(),
-                                           precompileContext->priv().resourceProvider(),
+                    PrecompileCombinations(rendererProvider,
+                                           resourceProvider,
                                            newOptions, keyContext,
                                            reducedTypes,
                                            /* withPrimitiveBlender= */ false,
@@ -228,8 +246,8 @@ void Precompile(PrecompileContext* precompileContext,
                     newOptions.priv().setPrimitiveBlendMode(SkBlendMode::kModulate);
                     newOptions.priv().setSkipColorXform(true);
 
-                    PrecompileCombinations(precompileContext->priv().rendererProvider(),
-                                           precompileContext->priv().resourceProvider(),
+                    PrecompileCombinations(rendererProvider,
+                                           resourceProvider,
                                            newOptions, keyContext,
                                            reducedTypes,
                                            /* withPrimitiveBlender= */ true,

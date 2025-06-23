@@ -23,8 +23,8 @@ using namespace PrecompileTestUtils;
 namespace {
 constexpr bool kWithAnalyticClip = true;
 
-// For non-Vulkan configs, these settings cover 93 of the 160 cases in 'kCases'.
-// They create 124 Pipelines so only modestly over-generate (31 extra Pipelines - 25%).
+// For non-Vulkan configs, these settings cover 95 of the 161 cases in 'kCases'.
+// They create 126 Pipelines so only modestly over-generate (31 extra Pipelines - 25%).
 //
 // For Vulkan configs, the Vulkan-specific PrecompileSettings handle 12 more cases and
 // add 15 more Pipelines.
@@ -220,7 +220,7 @@ const PrecompileSettings kPrecompileCases[] = {
            DrawTypeFlags::kAnalyticRRect,
            kRGBA_1_D_SRGB },
 
-// 59% (13/22) handles 75 76 80 81 83 84 (153 154 155 156 157 158 159)
+// 68% (15/22) handles 65 75 76 78 80 81 83 84 (154 155 156 157 158 159 160)
 /* 42 */ { SolidSrcover(), DrawTypeFlags::kNonSimpleShape, kRGBA_4_DS },
 
 // AnalyticClip block - all the PrecompileOptions here are just clones of earlier ones
@@ -530,7 +530,7 @@ static const PipelineLabel kCases[] = {
 /*  64 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "AnalyticRRectRenderStep + "
                 "RE_LinearEffect_0x188a0000__DISPLAY_P3__false__0x90a0000__Shader [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ColorSpaceTransform ColorSpaceTransform ] SrcOver" },
-/*   ? */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
+/*  65 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "CoverBoundsRenderStep[InverseCover] + "
                 "(empty)" },
 /*  66 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
@@ -569,7 +569,7 @@ static const PipelineLabel kCases[] = {
 /*  77 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "AnalyticRRectRenderStep + "
                 "Compose [ Compose [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] MatrixColorFilter ] Dither ] SrcOver" },
-/*   ? */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
+/*  78 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "CoverBoundsRenderStep[InverseCover] + "
                 "(empty)" },
 /*  79 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
@@ -809,26 +809,30 @@ static const PipelineLabel kCases[] = {
                 "overBoundsRenderStep[RegularCover] + "
                 "SolidColor SrcOver AnalyticClip" },
 
+/*     */ { -1, "RP((RGBA16F+D16 x1).rgba) + "
+                "CoverBoundsRenderStep[NonAAFill] + "
+                "RE_LinearEffect_UNKNOWN__SRGB__false__UNKNOWN__Shader [ RE_MouriMap_TonemapEffect [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] Passthrough ] ] ColorSpaceTransform ColorSpaceTransform ] ColorSpaceTransform ColorSpaceTransform ] SrcOver" },
+
                 // Synthetic placeholders for non-convex draw helpers
-/* 153 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
+/* 154 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "MiddleOutFanRenderStep[Winding] + "
                 "(empty)" },
-/* 154 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
+/* 155 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "MiddleOutFanRenderStep[Winding] + "
                 "(empty)" },
-/* 155 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
+/* 156 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "TessellateCurvesRenderStep[Winding] + "
                 "(empty)" },
-/* 156 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
+/* 157 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "TessellateCurvesRenderStep[Winding] + "
                 "(empty)" },
-/* 157 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
-                "TessellateWedgesRenderStep[Winding] + "
-                "(empty)" },
-/* 158 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
+/* 158 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba) + "
                 "TessellateWedgesRenderStep[Winding] + "
                 "(empty)" },
 /* 159 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
+                "TessellateWedgesRenderStep[Winding] + "
+                "(empty)" },
+/* 160 */ { -1, "RP((RGBA8+D24_S8 x4->1).rgba w/ msaa load) + "
                 "TessellateWedgesRenderStep[EvenOdd] + "
                 "(empty)" },
 };
@@ -843,6 +847,17 @@ bool skip(const char* str) {
         return true;
     }
     return false;
+}
+
+// Find any duplicate Pipeline labels
+[[maybe_unused]] void find_duplicates() {
+    for (size_t i = 0; i < std::size(kCases); ++i) {
+        for (size_t j = i+1; j < std::size(kCases); ++j) {
+            if (!strcmp(kCases[j].fString, kCases[i].fString)) {
+                SkDebugf("%zu is a duplicate of %zu\n", i, j);
+            }
+        }
+    }
 }
 
 // The pipeline strings were created with Android Vulkan but we're going to run the test
@@ -866,6 +881,8 @@ bool is_acceptable_context_type(skgpu::ContextType type) {
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(AndroidPrecompileTest, is_acceptable_context_type,
                                reporter, context, /* testContext */, CtsEnforcement::kNever) {
     using namespace skgpu::graphite;
+
+    //find_duplicates();
 
 #if defined(SK_VULKAN)
     // Use this call to map back from a HardwareImage sub-string to a VulkanYcbcrConversionInfo

@@ -1823,11 +1823,9 @@ bool VulkanCaps::extractGraphicsDescs(const UniqueKey& key,
     RenderStep::RenderStepID renderStepID =
             static_cast<RenderStep::RenderStepID>(rawKeyData[kPipelineKeyRenderStepIDIndex]);
 
-    SkDEBUGCODE(const RenderStep* renderStep =
-                        rendererProvider->lookup(renderStepID);)* pipelineDesc =
+    *pipelineDesc =
             GraphicsPipelineDesc(renderStepID,
                                  UniquePaintParamsID(rawKeyData[kPipelineKeyPaintParamsIDIndex]));
-    SkASSERT(renderStep->performsShading() == pipelineDesc->paintParamsID().isValid());
 
     const uint32_t rpDescBits = rawKeyData[kPipelineKeyRenderPassDescIndex];
     VulkanRenderPass::ExtractRenderPassDesc(
