@@ -276,13 +276,13 @@ static const PipelineLabel kCases[] = {
 //--------
 /*  59 */ { 4, "RP((R8+D16 x1).a000) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] RGBPaintColor DstIn ] ] SrcOver" },
+               "LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] SrcOver" },
 /*  60 */ { 4, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
                "SolidColor SrcOver" },
 /*   X */ { 4, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransform ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformSRGB ] ] ] Src" },
 /*  62 */ { 4, "RP((R8+D16 x1).a000) + "
                "AnalyticRRectRenderStep + "
                "SolidColor SrcOver" },
@@ -377,10 +377,10 @@ static const PipelineLabel kCases[] = {
 //--------
 /*  91 */ { 3, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ BlendCompose [ Compose [ Image(0) ColorSpaceTransform ] RGBPaintColor DstIn ] ] Src" },
+               "LocalMatrix [ BlendCompose [ Compose [ Image(0) ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] Src" },
 /*   X */ { 3, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] Src" },
 //--------
 /*   ? */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba) + "                    //-----------------------------
                "TessellateWedgesRenderStep[Convex] + "
@@ -482,13 +482,13 @@ static const PipelineLabel kCases[] = {
 //--------
 /* 124 */ { 2, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] RGBPaintColor DstIn ] ] Src" },
+               "LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] Src" },
 /*   X */ { 2, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur4 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransform ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur4 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformSRGB ] ] ] Src" },
 /*   X */ { 2, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur4 [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur4 [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] Src" },
 //--------
 /*   X */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "TessellateWedgesRenderStep[Convex] + "

@@ -1089,6 +1089,13 @@ DrawTypeFlags get_draw_type_flags(const char* str) {
 void deduce_settings_from_label(const char* testStr, PrecompileSettings* result) {
     result->fDrawTypeFlags = get_draw_type_flags(testStr);
     result->fRenderPassProps = get_render_pass_properties(testStr);
+    if (result->fRenderPassProps.fDstCT == kAlpha_8_SkColorType) {
+        // Skip deducing the destination colorspace for alpha-only outputs. Those substrings can
+        // be present in pipelines rendering to alpha because swizzles and alpha-type handling are
+        // also part of the colorspace xform blocks.
+        return;
+    }
+
     if (strstr(testStr, "LinearGradient4 ColorSpaceTransformSRGB") ||
         strstr(testStr, "LinearGradient8 ColorSpaceTransformSRGB") ||
         strstr(testStr, "PrimitiveColor ColorSpaceTransformSRGB")) {
