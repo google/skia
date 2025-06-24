@@ -15,6 +15,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkStream.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkMutex.h"
 #include "src/base/SkScopeExit.h"
 #include "src/codec/SkCodecPriv.h"

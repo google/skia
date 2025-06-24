@@ -24,7 +24,6 @@ if (skia_enable_skottie) {
     deps = [
       "../..:skia",
       "../jsonreader",
-      "../pathops",
       "../skresources",
       "../sksg",
       "../skshaper",

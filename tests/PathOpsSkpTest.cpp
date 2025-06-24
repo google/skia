@@ -6,7 +6,7 @@
  */
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
-#include "modules/pathops/include/SkPathOps.h"
+#include "include/pathops/SkPathOps.h"
 #include "src/base/SkFloatBits.h"
 #include "tests/PathOpsExtendedTest.h"
 #include "tests/Test.h"
