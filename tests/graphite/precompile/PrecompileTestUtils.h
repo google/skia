@@ -29,13 +29,29 @@ namespace PrecompileTestUtils {
 SK_MAKE_BITMASK_OPS(skgpu::graphite::DrawTypeFlags);
 
 struct PrecompileSettings {
+    PrecompileSettings(const skgpu::graphite::PaintOptions& paintOptions,
+                       SkEnumBitMask<skgpu::graphite::DrawTypeFlags> drawTypeFlags,
+                       const skgpu::graphite::RenderPassProperties& renderPassProps,
+                       bool analyticClipping = false)
+           : fPaintOptions(paintOptions)
+           , fDrawTypeFlags(drawTypeFlags)
+           , fRenderPassProps({ &renderPassProps, 1 })
+           , fAnalyticClipping(analyticClipping) {}
+
+    PrecompileSettings(const skgpu::graphite::PaintOptions& paintOptions,
+                       SkEnumBitMask<skgpu::graphite::DrawTypeFlags> drawTypeFlags,
+                       SkSpan<const skgpu::graphite::RenderPassProperties> renderPassProps,
+                       bool analyticClipping = false)
+            : fPaintOptions(paintOptions)
+            , fDrawTypeFlags(drawTypeFlags)
+            , fRenderPassProps(renderPassProps)
+            , fAnalyticClipping(analyticClipping) {}
+
     skgpu::graphite::PaintOptions fPaintOptions;
     SkEnumBitMask<skgpu::graphite::DrawTypeFlags> fDrawTypeFlags =
             skgpu::graphite::DrawTypeFlags::kNone;
-    skgpu::graphite::RenderPassProperties fRenderPassProps;
+    SkSpan<const skgpu::graphite::RenderPassProperties> fRenderPassProps;
     bool fAnalyticClipping = false;
-
-    bool isSubsetOf(const PrecompileSettings& superSet) const;
 };
 
 struct PipelineLabel {
@@ -122,8 +138,10 @@ skgpu::graphite::PaintOptions ImageAlphaHWOnlySrcover();
 skgpu::graphite::PaintOptions ImageAlphaPremulHWOnlyMatrixCFSrcover();
 skgpu::graphite::PaintOptions ImageAlphaSRGBHWOnlyMatrixCFSrcover();
 skgpu::graphite::PaintOptions ImageAlphaNoCubicSrc();
+skgpu::graphite::PaintOptions ImageAlphaClampNoCubicSrc();
 skgpu::graphite::PaintOptions ImagePremulHWOnlyPorterDuffCFSrcover();
 skgpu::graphite::PaintOptions ImagePremulHWOnlyMatrixCFSrcover();
+skgpu::graphite::PaintOptions ImageSRGBHWOnlyMatrixCFSrcover();
 skgpu::graphite::PaintOptions ImagePremulHWOnlyMatrixCFDitherSrcover();
 skgpu::graphite::PaintOptions ImageSRGBHWOnlyMatrixCFDitherSrcover();
 skgpu::graphite::PaintOptions ImageHWOnlySRGBSrcover();
@@ -136,6 +154,7 @@ skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver();
 skgpu::graphite::PaintOptions KawaseBlurHighSrc();
 skgpu::graphite::PaintOptions BlurFilterMix();
 
+skgpu::graphite::PaintOptions EdgeExtensionPassthroughSrcover();
 skgpu::graphite::PaintOptions EdgeExtensionPremulSrcover();
 skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPassthroughSrcover();
 skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPremulSrcover();
