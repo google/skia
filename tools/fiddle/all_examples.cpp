@@ -814,6 +814,7 @@
 #include "docs/examples/RuntimeEffect_ColorFilter_grid.cpp"
 #include "docs/examples/SKIA_LOGO.cpp"
 #include "docs/examples/SKIA_LOGO_ANIMATE.cpp"
+#include "docs/examples/SKIA_LOGO_pride.cpp"
 #include "docs/examples/SKIA_LOGO_svg.cpp"
 #include "docs/examples/Saturation.cpp"
 #include "docs/examples/Screen.cpp"
