@@ -51,6 +51,7 @@ DEF_TEST(Annotation_NoDraw, reporter) {
     REPORTER_ASSERT(reporter, 0 == *bm.getAddr32(0, 0));
 }
 
+#if defined(SK_SUPPORT_PDF)
 DEF_TEST(Annotation_PdfLink, reporter) {
     REQUIRE_PDF_DOCUMENT(Annotation_PdfLink, reporter);
     SkDynamicMemoryWStream outStream;
@@ -88,6 +89,7 @@ DEF_TEST(Annotation_PdfDefineNamedDestination, reporter) {
     REPORTER_ASSERT(reporter,
         ContainsString(rawOutput, out->size(), "/example "));
 }
+#endif // defined(SK_SUPPORT_PDF)
 
 #if defined(SK_XML)
     #include "include/svg/SkSVGCanvas.h"
