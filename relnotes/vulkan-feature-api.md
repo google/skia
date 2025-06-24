@@ -1,2 +1,0 @@
-New public API: `VulkanPreferredFeatures` to automatically query and add Vulkan extensions and features that Skia would benefit from having available. Clients that use this API to allow Skia to enable its preferred extensions and features are then automatically opted in to future Skia support for leveraging more of these and do not need to manually turn on newly-supported features. This class is found in `VulkanBackendContext.h`.
-
