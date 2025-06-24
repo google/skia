@@ -191,7 +191,7 @@ pub fn table_data(font_ref: &BridgeFontRef, tag: u32, offset: usize, data: &mut 
 pub fn table_tags(font_ref: &BridgeFontRef, tags: &mut [u32]) -> u16 {
     font_ref
         .with_font(|f| {
-            let table_directory = &f.table_directory();
+            let table_directory = &f.table_directory;
             let table_tags_iter = table_directory
                 .table_records()
                 .iter()
