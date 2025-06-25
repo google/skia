@@ -33,6 +33,7 @@
 #include "src/core/SkCPURecorderImpl.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkImagePriv.h"
+#include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkSpecialImage.h"
@@ -609,6 +610,24 @@ void SkBitmapDevice::drawCoverageMask(const SkSpecialImage* mask,
     draw.fRC = &fRCStack.rc();
     draw.fCTM = &maskToDevice;
     draw.drawBitmapAsMask(maskBM, sampling, paint, &this->localToDevice());
+}
+
+// Try to filter as nine patch as a fast path.
+bool SkBitmapDevice::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float) {
+    SkASSERT(paint.getMaskFilter()
+             && as_MFB(paint.getMaskFilter())->type() == SkMaskFilterBase::Type::kBlur);
+
+    SkDrawTiler tiler(this, Bounder(rrect.getBounds(), paint));
+    // Check if the tiler only needs one iteration (common case). If there are multiple
+    // tiles, we just return false and fall back to the general mask filter path as we
+    // don't want to be in the scenario where only a subset fail/succeed.
+    if (!tiler.needsTiling()) {
+        if (const SkDraw* draw = tiler.next()) {
+            return draw->drawRRectNinePatch(rrect, paint);
+        }
+    }
+
+    return false;
 }
 
 sk_sp<SkSpecialImage> SkBitmapDevice::snapSpecial(const SkIRect& bounds, bool forceCopy) {

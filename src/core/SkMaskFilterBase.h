@@ -194,6 +194,12 @@ private:
                      const SkRasterClip&,
                      SkBlitter*,
                      SkResourceCache*) const;
+
+    FilterReturn filterRects(SkSpan<const SkRect> devRects,
+                     const SkMatrix& ctm,
+                     const SkRasterClip& clip,
+                     SkBlitter* blitter,
+                     SkResourceCache* cache) const;
 };
 
 inline SkMaskFilterBase* as_MFB(SkMaskFilter* mf) {

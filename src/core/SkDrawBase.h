@@ -50,6 +50,8 @@ public:
         this->drawRect(rect, paint, nullptr, nullptr);
     }
     void drawRRect(const SkRRect&, const SkPaint&) const;
+    // Specialized draw for RRect that only draws if it is nine-patchable.
+    bool drawRRectNinePatch(const SkRRect&, const SkPaint&) const;
     /**
      *  To save on mallocs, we allow a flag that tells us that srcPath is
      *  mutable, so that we don't have to make copies of it as we transform it.
