@@ -386,7 +386,7 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeRRect(Recorder* recorder,
 
     sk_sp<TextureProxy> ninePatch = recorder->priv().proxyCache()->findOrCreateCachedProxy(
             recorder, key, &params,
-            [](Recorder* r, const void* context) {
+            [](Recorder* r, const void* context) -> sk_sp<Image> {
                 const DerivedParams* params = static_cast<const DerivedParams*>(context);
 
                 const SkImageInfo rrectII = SkImageInfo::MakeA8(params->fDimensions.width(),
@@ -394,6 +394,9 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeRRect(Recorder* recorder,
                 sk_sp<Surface> surface = Surface::MakeScratch(r, rrectII, "BlurredRRectNinePatch",
                                                               Budgeted::kYes, Mipmapped::kNo,
                                                               SkBackingFit::kExact); // for now...
+                if (!surface) {
+                    return nullptr;
+                }
                 // Use an image filter directly, not a mask filter, so we don't get stuck in a loop
                 SkPaint blurRRectPaint;
                 blurRRectPaint.setImageFilter(SkImageFilters::Blur(params->fDevSigma,
