@@ -243,7 +243,7 @@ PaintOptions YUVImageSRGBNoCubicSrcover() {
     return paintOptions;
 }
 
-PaintOptions YUVImageSRGBSrcover2() {
+PaintOptions YUVImageSRGBSrcover() {
     SkColorInfo ci { kRGBA_8888_SkColorType,
                      kPremul_SkAlphaType,
                      SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kAdobeRGB) };

@@ -73,7 +73,7 @@ const PrecompileSettings kPrecompileCases[] = {
 /* 31 */ { TransparentPaintImagePremulHWOnlySrcover(), DrawTypeFlags::kPerEdgeAAQuad, kBGRA_4_DS },
 /* 32 */ { LinearGradSRGBSmMedDitherSrcover(), kRRectAndNonAARect,               kBGRA_4_DS_Adobe },
 /* 33 */ { ImageHWOnlySRGBSrcover(),           DrawTypeFlags::kAnalyticRRect,    kBGRA_4_DS_SRGB },
-/* 34 */ { YUVImageSRGBSrcover2(),             DrawTypeFlags::kSimpleShape,      kBGRA_4_DS_SRGB },
+/* 34 */ { YUVImageSRGBSrcover(),              DrawTypeFlags::kSimpleShape,      kBGRA_4_DS_SRGB },
 };
 
 // Case 33 is the only case that solely covers Pipeline labels with the "w/ msaa load" sub-string.
