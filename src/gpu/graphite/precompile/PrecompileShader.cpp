@@ -939,7 +939,7 @@ private:
 
         Compose(keyContext, builder, gatherer,
                 /* addInnerToKey= */ [&]() -> void {
-                    AddToKey<PrecompileShader>(keyContext, builder, gatherer, fShaders,
+                    AddToKey<PrecompileShader>(workingContext, builder, gatherer, fShaders,
                                                desiredShaderCombination);
                 },
                 /* addOuterToKey= */ [&]() -> void {
