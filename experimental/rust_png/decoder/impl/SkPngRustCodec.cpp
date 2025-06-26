@@ -222,9 +222,20 @@ SkEncodedInfo CreateEncodedInfo(const rust_png::Reader& reader) {
         profile = nullptr;
     }
 
-    static_assert(sizeof(int) >= sizeof(int32_t), "Is it ok to use Sk64_pin_to_s32 below?");
-    return SkEncodedInfo::Make(Sk64_pin_to_s32(reader.width()),
-                               Sk64_pin_to_s32(reader.height()),
+    // `SkPngRustCodec::MakeFromStream` checks image dimensions against
+    // `kMaxPNGSize` before calling `CreateEncodedInfo`.  So here we can
+    // just assert that these casts are safe.
+    //
+    // We don't use a saturating cast, because this could invalidate `fcTL`
+    // checks done within the `png` crate.  For example, the new / truncated
+    // image width could end up smaller than `fcTL.frameWidth`.
+    SkSafeMath safe;
+    int width = safe.castTo<int>(reader.width());
+    int height = safe.castTo<int>(reader.height());
+    SkASSERT(safe.ok());
+
+    return SkEncodedInfo::Make(width,
+                               height,
                                skColor,
                                ToAlpha(rustColor, reader),
                                reader.output_bits_per_component(),
@@ -434,6 +445,13 @@ std::unique_ptr<SkPngRustCodec> SkPngRustCodec::MakeFromStream(std::unique_ptr<S
         return nullptr;
     }
     rust::Box<rust_png::Reader> reader = resultOfReader->unwrap();
+
+    // Protect against large PNGs. See http://bugzil.la/251381 for more details.
+    constexpr uint32_t kMaxPNGSize = 1000000;
+    if ((reader->width() > kMaxPNGSize) || (reader->height() > kMaxPNGSize)) {
+        *result = SkCodec::kErrorInInput;
+        return nullptr;
+    }
 
     return std::make_unique<SkPngRustCodec>(
             CreateEncodedInfo(*reader), std::move(stream), std::move(reader));
