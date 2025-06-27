@@ -532,6 +532,9 @@ public:
 
     bool clientCanDisableMultisample() const { return fClientCanDisableMultisample; }
 
+    /* https://registry.khronos.org/webgl/specs/latest/2.0/#BUFFER_OBJECT_BINDING */
+    bool bufferBindingRestriction() const { return fBufferBindingRestriction; }
+
     GrBackendFormat getBackendFormatFromCompressionType(SkTextureCompressionType) const override;
 
     skgpu::Swizzle getWriteSwizzle(const GrBackendFormat&, GrColorType) const override;
@@ -649,6 +652,7 @@ private:
     bool fSRGBWriteControl : 1;
     bool fSkipErrorChecks : 1;
     bool fClientCanDisableMultisample : 1;
+    bool fBufferBindingRestriction: 1;
 
     // Driver workarounds
     bool fDoManualMipmapping : 1;
