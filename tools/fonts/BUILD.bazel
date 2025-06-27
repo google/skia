@@ -84,7 +84,7 @@ skia_cc_library(
     ] + select({
         "@platforms//os:android": [
             "//src/ports:freetype_support",
-            "@skia//:fontmgr_android_freetype",
+            "@skia//:fontmgr_android",
         ],
         "@platforms//os:linux": [
             "//src/ports:fontations_support",

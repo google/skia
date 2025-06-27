@@ -216,7 +216,7 @@ alias(
 )
 
 alias(
-    name = "fontmgr_android_freetype",
+    name = "fontmgr_android",
     actual = "//src/ports:fontmgr_android",
     visibility = ["//visibility:public"],
 )
