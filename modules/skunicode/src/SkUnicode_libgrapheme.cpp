@@ -20,7 +20,7 @@
 extern "C" {
 #include <grapheme.h>
 }
-#include <array>
+
 #include <memory>
 #include <vector>
 #include <unordered_map>
@@ -66,7 +66,7 @@ public:
 
         size_t lineBreak = 0;
         (*results)[lineBreak] |= CodeUnitFlags::kSoftLineBreakBefore;
-        while (lineBreak < utf8Units) {
+        while (lineBreak < SkToSizeT(utf8Units)) {
             lineBreak += grapheme_next_line_break_utf8(utf8 + lineBreak, utf8Units - lineBreak);
             // Check if the previous code unit is a hard break.
             auto codePoint = utf8[lineBreak - 1];
@@ -78,7 +78,7 @@ public:
 
         size_t graphemeBreak = 0;
         (*results)[graphemeBreak] |= CodeUnitFlags::kGraphemeStart;
-        while (graphemeBreak < utf8Units) {
+        while (graphemeBreak < SkToSizeT(utf8Units)) {
             graphemeBreak += grapheme_next_character_break_utf8(utf8 + graphemeBreak, utf8Units - graphemeBreak);
             (*results)[graphemeBreak] |= CodeUnitFlags::kGraphemeStart;
         }
@@ -146,7 +146,7 @@ public:
             return false;
         }
         size_t wordBreak = 0;
-        while (wordBreak < utf8Units) {
+        while (wordBreak < SkToSizeT(utf8Units)) {
             wordBreak += grapheme_next_word_break_utf8(utf8 + wordBreak, utf8Units - wordBreak);
             if (mapping.find(wordBreak) == mapping.end()) {
                 return false;
@@ -165,7 +165,7 @@ public:
 
         size_t lineBreak = 0;
         breaks[lineBreak] = CodeUnitFlags::kSoftLineBreakBefore;
-        while (lineBreak < utf8Units) {
+        while (lineBreak < SkToSizeT(utf8Units)) {
             lineBreak += grapheme_next_line_break_utf8(utf8 + lineBreak, utf8Units - lineBreak);
             breaks[lineBreak] = CodeUnitFlags::kSoftLineBreakBefore;
         }
@@ -244,7 +244,7 @@ class SkBreakIterator_libgrapheme: public SkBreakIterator {
     SkUnicode_libgrapheme* fUnicode;
     std::vector<SkUnicode::LineBreakBefore> fLineBreaks;
     Position fLineBreakIndex;
-    static constexpr const int kDone = -1;
+    static constexpr const SkUnicode::Position kDone = -1;
 public:
     explicit SkBreakIterator_libgrapheme(SkUnicode_libgrapheme* unicode) : fUnicode(unicode) { }
     Position first() override
@@ -262,10 +262,9 @@ public:
     bool isDone() override { return fLineBreaks[fLineBreakIndex].pos == kDone; }
     bool setText(const char utftext8[], int utf8Units) override {
         fLineBreaks.clear();
-        size_t lineBreak = 0;
         // first() must always go to the beginning of the string.
         fLineBreaks.emplace_back(0, SkUnicode::LineBreakType::kHardLineBreak);
-        for (size_t pos = 0; pos < utf8Units;) {
+        for (size_t pos = 0; pos < SkToSizeT(utf8Units);) {
             pos += grapheme_next_line_break_utf8(utftext8 + pos, utf8Units - pos);
             auto codePoint = utftext8[pos];
             fLineBreaks.emplace_back(pos,

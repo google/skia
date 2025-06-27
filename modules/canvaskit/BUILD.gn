@@ -9,7 +9,7 @@ import("canvaskit.gni")
 # These targets depend on components that are only declared if
 # `skia_enable_tools` is true.
 if (skia_enable_tools) {
-  component("viewer_wasm") {
+  skia_component("viewer_wasm") {
     testonly = true
     include_dirs = [ "../.." ]
     sources = [
@@ -49,7 +49,7 @@ if (skia_enable_tools) {
     ]
   }
 
-  component("gm_wasm") {
+  skia_component("gm_wasm") {
     testonly = true
     include_dirs = [ "../.." ]
     deps = [
@@ -61,7 +61,7 @@ if (skia_enable_tools) {
   }
 }
 
-component("debugger") {
+skia_component("debugger") {
   include_dirs = [ "../.." ]
   sources = [
     "../../tools/SkSharingProc.cpp",

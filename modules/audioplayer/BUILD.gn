@@ -5,7 +5,7 @@
 
 import("../../gn/skia.gni")
 
-component("audioplayer") {
+skia_component("audioplayer") {
   public = [ "SkAudioPlayer.h" ]
   sources = [ "SkAudioPlayer.cpp" ]
   deps = [ "../..:skia" ]

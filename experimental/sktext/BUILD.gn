@@ -16,7 +16,7 @@ if ((skia_use_icu || skia_use_libgrapheme || skia_use_icu4x) &&
     include_dirs = [ "include" ]
   }
 
-  component("sktext") {
+  skia_component("sktext") {
     import("sktext.gni")
     public_configs = [ ":public_config" ]
     public = sktext_public
