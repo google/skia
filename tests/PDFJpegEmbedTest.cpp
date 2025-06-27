@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
+
+#ifdef SK_SUPPORT_PDF
+
 #include "include/codec/SkEncodedOrigin.h"
 #include "include/codec/SkJpegDecoder.h"
 #include "include/core/SkCanvas.h"
@@ -15,7 +19,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkStream.h"
-#include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/docs/SkPDFJpegHelpers.h"
 #include "include/private/SkEncodedInfo.h"
@@ -108,8 +111,6 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
         s.fsync();
     }
 }
-
-#ifdef SK_SUPPORT_PDF
 
 struct SkJFIFInfo {
     SkISize fSize;

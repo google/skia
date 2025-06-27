@@ -5,6 +5,7 @@
 
 import("gn/codec.gni")
 import("gn/fuchsia_defines.gni")
+import("gn/pathops.gni")
 import("gn/shared_sources.gni")
 import("gn/skia.gni")
 import("gn/toolchain/wasm.gni")
@@ -1247,12 +1248,31 @@ optional("graphite") {
   }
 }
 
+skia_source_set("pathops") {
+  configs = skia_library_configs
+  public = skia_pathops_public
+  sources = skia_pathops_sources
+  deps = [ ":core" ]
+}
+
+skia_source_set("clipstack_utils") {
+  configs = skia_library_configs
+  sources = skia_clipstack_utils_sources
+  deps = [
+    ":core",
+    ":pathops",
+  ]
+}
+
 optional("pdf") {
-  enabled = skia_use_zlib && skia_enable_pdf && skia_use_libjpeg_turbo_decode &&
-            skia_use_libjpeg_turbo_encode
+  enabled = skia_use_zlib && skia_enable_pdf
   public_defines = [ "SK_SUPPORT_PDF" ]
 
-  deps = [ "//third_party/zlib" ]
+  deps = [
+    ":clipstack_utils",
+    ":pathops",
+    "//third_party/zlib",
+  ]
   public = skia_pdf_public
   sources = skia_pdf_sources
   sources_when_disabled = [ "src/pdf/SkDocument_PDF_None.cpp" ]
@@ -1276,6 +1296,10 @@ optional("pdf_jpeg_helpers") {
 optional("xps") {
   enabled = skia_use_xps && is_win
   public_defines = [ "SK_SUPPORT_XPS" ]
+  deps = [
+    ":clipstack_utils",
+    ":pathops",
+  ]
   public = skia_xps_public
   sources = skia_xps_sources
 }
@@ -1631,11 +1655,19 @@ if (skia_enable_ganesh && skia_generate_workarounds) {
 
 import("gn/codec.gni")
 
+skia_source_set("core") {
+  public_configs = [ ":skia_public" ]
+  configs = skia_library_configs
+  public = skia_core_public
+  sources = skia_core_sources
+}
+
 skia_component("skia") {
   public_configs = [ ":skia_public" ]
   configs = skia_library_configs
 
   public_deps = [
+    ":core",
     ":fontmgr_FontConfigInterface",
     ":fontmgr_android",
     ":fontmgr_android_ndk",
@@ -1681,14 +1713,13 @@ skia_component("skia") {
     "modules/skcms",
   ]
 
-  public = skia_core_public
+  public = []
   public += skia_codec_public
   public += skia_utils_public
   public += skia_effects_public
   public += skia_effects_imagefilter_public
 
   sources = []
-  sources += skia_core_sources
   sources += skia_utils_private
   sources += skia_utils_chromium
   sources += skia_effects_sources
@@ -1712,6 +1743,10 @@ skia_component("skia") {
     "src/sfnt/SkOTTable_name.cpp",
     "src/sfnt/SkOTUtils.cpp",
   ]
+
+  # TODO(fmalita): remove from skia_utils_private after clients are migrated to
+  # skia_clipstack_utils_sources
+  sources -= skia_clipstack_utils_sources
 
   defines = []
   libs = []
@@ -1846,64 +1881,9 @@ skia_static_library("pathkit") {
   public_configs = [ ":skia_public" ]
   configs = skia_library_configs
 
-  deps = [ ":hsw" ]
+  sources = skia_pathops_sources
 
-  sources = []
-  sources += skia_legacy_pathops_sources
-  sources += skia_legacy_pathops_public
-  sources += [
-    "src/base/SkArenaAlloc.cpp",
-    "src/base/SkBezierCurves.cpp",
-    "src/base/SkContainers.cpp",
-    "src/base/SkCubics.cpp",
-    "src/base/SkFloatingPoint.cpp",
-    "src/base/SkMalloc.cpp",
-    "src/base/SkMathPriv.cpp",
-    "src/base/SkQuads.cpp",
-    "src/base/SkSafeMath.cpp",
-    "src/base/SkSemaphore.cpp",
-    "src/base/SkTDArray.cpp",
-    "src/base/SkThreadID.cpp",
-    "src/base/SkUTF.cpp",
-    "src/base/SkUtils.cpp",
-    "src/core/SkAnalyticEdge.cpp",
-    "src/core/SkContourMeasure.cpp",
-    "src/core/SkCubicMap.cpp",
-    "src/core/SkEdge.cpp",
-    "src/core/SkEdgeBuilder.cpp",
-    "src/core/SkEdgeClipper.cpp",
-    "src/core/SkGeometry.cpp",
-    "src/core/SkIDChangeListener.cpp",
-    "src/core/SkLineClipper.cpp",
-    "src/core/SkMallocPixelRef.cpp",
-    "src/core/SkMatrix.cpp",
-    "src/core/SkOpts.cpp",
-    "src/core/SkPaint.cpp",
-    "src/core/SkPaintPriv.cpp",
-    "src/core/SkPath.cpp",
-    "src/core/SkPathBuilder.cpp",
-    "src/core/SkPathEffect.cpp",
-    "src/core/SkPathMeasure.cpp",
-    "src/core/SkPathRef.cpp",
-    "src/core/SkPathUtils.cpp",
-    "src/core/SkPoint.cpp",
-    "src/core/SkRRect.cpp",
-    "src/core/SkReadBuffer.cpp",
-    "src/core/SkRect.cpp",
-    "src/core/SkStream.cpp",
-    "src/core/SkString.cpp",
-    "src/core/SkStringUtils.cpp",
-    "src/core/SkStroke.cpp",
-    "src/core/SkStrokeRec.cpp",
-    "src/core/SkStrokerPriv.cpp",
-    "src/effects/SkDashPathEffect.cpp",
-    "src/effects/SkTrimPathEffect.cpp",
-    "src/ports/SkDebug_stdio.cpp",
-    "src/ports/SkMemory_malloc.cpp",
-    "src/utils/SkDashPath.cpp",
-    "src/utils/SkParse.cpp",
-    "src/utils/SkParsePath.cpp",
-  ]
+  deps = [ ":skia" ]
 }
 
 group("modules") {
