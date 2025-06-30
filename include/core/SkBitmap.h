@@ -1230,7 +1230,7 @@ public:
         memory from the heap. This is the default SkBitmap::Allocator invoked by
         allocPixels().
     */
-    class HeapAllocator : public Allocator {
+    class SK_API HeapAllocator : public Allocator {
     public:
 
         /** Allocates the pixel memory for the bitmap, given its dimensions and

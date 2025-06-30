@@ -560,7 +560,7 @@ public:
     /** \class SkRegion::Spanerator
         Returns the line segment ends within SkRegion that intersect a horizontal line.
     */
-    class Spanerator {
+    class SK_API Spanerator {
     public:
 
         /** Sets SkRegion::Spanerator to return line segments in SkRegion on scan line.

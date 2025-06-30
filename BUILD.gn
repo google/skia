@@ -1929,50 +1929,99 @@ config("vulkan_memory_allocator") {
   include_dirs = [ "$skia_vulkan_memory_allocator_dir/include" ]
 }
 
-# Targets guarded by skia_enable_tools may use //third_party freely.
-if (skia_enable_tools) {
-  skia_public_includes = [
-    "client_utils/android",
-    "include/android",
-    "include/codec",
-    "include/config",
-    "include/core",
-    "include/docs",
-    "include/effects",
-    "include/encode",
-    "include/gpu",
-    "include/pathops",
-    "include/ports",
-    "include/svg",
-    "include/utils",
-    "include/utils/mac",
-    "modules/skottie/include",
-    "modules/skparagraph/include",
-    "modules/skshaper/include",
-    "modules/svg/include",
+skia_public_includes = [
+  "client_utils/android",
+  "include/android",
+  "include/codec",
+  "include/config",
+  "include/core",
+  "include/docs",
+  "include/effects",
+  "include/encode",
+  "include/gpu",
+  "include/pathops",
+  "include/ports",
+  "include/svg",
+  "include/utils",
+  "include/utils/mac",
+  "modules/skottie/include",
+  "modules/skparagraph/include",
+  "modules/skshaper/include",
+  "modules/svg/include",
+]
+
+# Used by gn_to_bp.py to list our public include dirs.
+skia_source_set("public") {
+  configs = [ ":skia_public" ]
+  include_dirs = skia_public_includes
+}
+
+config("skia.h_config") {
+  include_dirs = [ "$target_gen_dir" ]
+}
+action("skia.h") {
+  public_configs = [ ":skia.h_config" ]
+  skia_h = "$target_gen_dir/skia.h"
+  script = "gn/find_headers.py"
+
+  args = [ rebase_path("//bin/gn") ] + [ rebase_path("//") ] +
+         [ rebase_path(skia_h, root_build_dir) ] +
+         rebase_path(skia_public_includes)
+  depfile = "$skia_h.deps"
+  outputs = [ skia_h ]
+}
+
+config("cpp17") {
+  if (is_win) {
+    cflags_cc = [ "/std:c++17" ]
+  } else {
+    cflags_cc = [ "-std=c++17" ]
+  }
+}
+
+skia_source_set("public_headers_warnings_check") {
+  sources = [ "tools/public_headers_warnings_check.cpp" ]
+  configs = [
+    ":use_skia_vulkan_headers",
+    ":cpp17",
+  ]
+  if (defined(skia_header_target_default_configs)) {
+    configs += skia_header_target_default_configs
+  }
+  deps = [
+    ":skia",
+    ":skia.h",
+    "modules/skottie",
+    "modules/skshaper",
   ]
 
-  # Used by gn_to_bp.py to list our public include dirs.
-  skia_source_set("public") {
-    configs = [ ":skia_public" ]
-    include_dirs = skia_public_includes
+  if (skia_use_dawn) {
+    deps += [ "//third_party/externals/dawn/include/dawn:headers" ]
   }
+}
 
-  config("skia.h_config") {
-    include_dirs = [ "$target_gen_dir" ]
+if (!skia_use_vulkan && (is_mac || is_linux || is_win)) {
+  skia_executable("fiddle_examples") {
+    sources = [
+      "tools/fiddle/all_examples.cpp",
+      "tools/fiddle/examples.cpp",
+      "tools/fiddle/examples.h",
+    ]
+    if (is_win) {
+      cflags = [
+        "/wd4756",  # Overflow in constant arithmetic
+        "/wd4305",  # truncation from 'double' to 'float'
+      ]
+    }
+    deps = [
+      ":skia",
+      ":skia.h",
+    ]
   }
-  action("skia.h") {
-    public_configs = [ ":skia.h_config" ]
-    skia_h = "$target_gen_dir/skia.h"
-    script = "gn/find_headers.py"
+}
 
-    args = [ rebase_path("//bin/gn") ] + [ rebase_path("//") ] +
-           [ rebase_path(skia_h, root_build_dir) ] +
-           rebase_path(skia_public_includes)
-    depfile = "$skia_h.deps"
-    outputs = [ skia_h ]
-  }
-
+# Targets guarded by skia_enable_tools may use //third_party freely.
+if (skia_enable_tools) {
   if (is_linux && target_cpu == "x64") {
     skia_executable("fiddle") {
       check_includes = false
@@ -1998,35 +2047,6 @@ if (skia_enable_tools) {
         "modules/skshaper",
         "modules/svg",
       ]
-    }
-  }
-
-  config("cpp17") {
-    if (is_win) {
-      cflags_cc = [ "/std:c++17" ]
-    } else {
-      cflags_cc = [ "-std=c++17" ]
-    }
-  }
-
-  skia_source_set("public_headers_warnings_check") {
-    sources = [ "tools/public_headers_warnings_check.cpp" ]
-    configs = [
-      ":use_skia_vulkan_headers",
-      ":cpp17",
-    ]
-    if (defined(skia_header_target_default_configs)) {
-      configs += skia_header_target_default_configs
-    }
-    deps = [
-      ":skia",
-      ":skia.h",
-      "modules/skottie",
-      "modules/skshaper",
-    ]
-
-    if (skia_use_dawn) {
-      deps += [ "//third_party/externals/dawn/include/dawn:headers" ]
     }
   }
 
@@ -3090,30 +3110,6 @@ if (skia_enable_tools) {
     }
     if (skia_use_gl && skia_use_angle) {
       deps += [ "//third_party/angle2" ]
-    }
-  }
-
-  if (!skia_use_vulkan && (is_mac || is_linux || is_win)) {
-    test_app("fiddle_examples") {
-      sources = [
-        "tools/fiddle/all_examples.cpp",
-        "tools/fiddle/examples.cpp",
-        "tools/fiddle/examples.h",
-      ]
-      if (is_win) {
-        cflags = [
-          "/wd4756",  # Overflow in constant arithmetic
-          "/wd4305",  # truncation from 'double' to 'float'
-        ]
-      }
-      deps = [
-        ":skia",
-        ":skia.h",
-        "modules/skottie",
-        "modules/skparagraph",
-        "modules/skshaper",
-        "modules/svg",
-      ]
     }
   }
 
