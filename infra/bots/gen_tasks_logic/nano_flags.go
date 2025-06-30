@@ -164,10 +164,6 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 				if b.extraConfig("GLES") {
 					configs = []string{"grdawn_gles"}
 				}
-
-				if b.extraConfig("TintIR") {
-					args = append(args, "--useTintIR")
-				}
 			}
 			if b.extraConfig("Native") {
 				if b.extraConfig("Metal") {

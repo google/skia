@@ -572,15 +572,6 @@
     "name": "Perf-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Dawn_Metal",
     "cq_config": {}
   },
-  {
-    "name": "Perf-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Dawn_Metal_TintIR",
-    "cq_config": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*"
-      ]
-    }
-  },
   {"name": "Perf-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Native_Metal"},
   {"name": "Perf-Mac15-Clang-MacBookPro15.1-CPU-AppleIntel-x86_64-Release-All"},
   {"name": "Perf-Mac15-Clang-MacBookPro15.1-GPU-IntelUHDGraphics630-x86_64-Release-All"},
@@ -794,17 +785,6 @@
   },
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-ASAN_Graphite_Native_Metal_ColorSpaces"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn_Metal_FakeWGPU"},
-  {
-    "name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn_Metal_TintIR",
-    "cq_config": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*",
-        "dm/.+",
-        "DEPS"
-      ]
-    }
-  },
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn_Metal_Vello"},
   {
     "name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Native_Metal",
@@ -814,7 +794,6 @@
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-NativeFonts"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Dawn_Metal"},
-  {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Dawn_Metal_TintIR"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Native_Metal"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Native_Metal_ColorSpaces"},
   {

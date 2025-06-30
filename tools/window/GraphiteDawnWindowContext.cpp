@@ -142,13 +142,9 @@ wgpu::Device GraphiteDawnWindowContext::createDevice(wgpu::BackendType type) {
             // Robustness impacts performance and is always disabled when running Graphite in
             // Chrome, so this keeps Skia's tests operating closer to real-use behavior.
             "disable_robustness",
-            // Must be last to correctly respond to `fUseTintIR` option.
-            "use_tint_ir",
     };
     wgpu::DawnTogglesDescriptor togglesDesc;
-    togglesDesc.enabledToggleCount =
-            std::size(kToggles) -
-            (fDisplayParams->graphiteTestOptions()->fTestOptions.fUseTintIR ? 0 : 1);
+    togglesDesc.enabledToggleCount  = std::size(kToggles);
     togglesDesc.enabledToggles      = kToggles;
 
     wgpu::RequestAdapterOptions adapterOptions;
