@@ -55,6 +55,9 @@ public:
         kLTR,
         kRTL,
     };
+    SkBidiIterator() = default;
+    SkBidiIterator(const SkBidiIterator&) = default;
+    SkBidiIterator& operator=(const SkBidiIterator&) = default;
     virtual ~SkBidiIterator() = default;
     virtual Position getLength() = 0;
     virtual Level getLevelAt(Position) = 0;
@@ -64,6 +67,9 @@ class SKUNICODE_API SkBreakIterator {
 public:
     typedef int32_t Position;
     typedef int32_t Status;
+    SkBreakIterator() = default;
+    SkBreakIterator(const SkBreakIterator&) = default;
+    SkBreakIterator& operator=(const SkBreakIterator&) = default;
     virtual ~SkBreakIterator() = default;
     virtual Position first() = 0;
     virtual Position current() = 0;
