@@ -22,7 +22,6 @@ if (skia_enable_skottie) {
     sources = skia_skottie_sources
     configs = [ "../../:skia_private" ]
     deps = [
-      "../..:pathops",
       "../..:skia",
       "../jsonreader",
       "../skresources",

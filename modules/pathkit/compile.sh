@@ -92,17 +92,9 @@ echo "Compiling bitcode"
   is_trivial_abi=true \
   is_component_build=false \
   werror=true \
-  target_cpu=\"wasm\" \
-  skia_use_freetype = false \
-  skia_use_libjpeg_turbo_decode = false \
-  skia_use_libjpeg_turbo_encode = false \
-  skia_use_libpng_decode = false \
-  skia_use_libpng_encode = false \
-  skia_use_libwebp_decode = false \
-  skia_use_libwebp_encode = false \
-  skia_use_wuffs = false"
+  target_cpu=\"wasm\" "
 
-${NINJA} -C ${BUILD_DIR} libpathkit.a libskia.a
+${NINJA} -C ${BUILD_DIR} libpathkit.a
 
 echo "Generating WASM"
 
@@ -126,7 +118,6 @@ $WASM_CONF \
 -sSTRICT=1 \
 $OUTPUT \
 $BASE_DIR/pathkit_wasm_bindings.cpp \
-${BUILD_DIR}/libpathkit.a \
-${BUILD_DIR}/libskia.a
+${BUILD_DIR}/libpathkit.a
 
 

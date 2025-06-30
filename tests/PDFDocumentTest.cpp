@@ -4,10 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "include/core/SkTypes.h"
-
-#ifdef SK_SUPPORT_PDF
-
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -277,4 +273,3 @@ DEF_TEST(SkPDF_abort_jobs, rep) {
     doc->abort();
 }
 
-#endif // SK_SUPPORT_PDF
