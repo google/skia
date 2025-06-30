@@ -23,7 +23,9 @@ struct SkPDFIndirectReference;
  */
 SkPDFIndirectReference SkPDFSerializeImage(const SkImage* img,
                                            SkPDFDocument* doc,
-                                           int encodingQuality = 101);
+                                           int encodingQuality);
+
+size_t SkPDFSerializeImageSize(const SkImage* img, SkPDFDocument* doc, int encodingQuality);
 
 struct SkPDFIccProfileKey {
     sk_sp<SkData> fData;

@@ -23,6 +23,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkM44.h"
 #include "include/core/SkMaskFilter.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
@@ -65,6 +66,7 @@
 #include "src/core/SkStrikeSpec.h"
 #include "src/pdf/SkBitmapKey.h"
 #include "src/pdf/SkClusterator.h"
+#include "src/pdf/SkKeyedImage.h"
 #include "src/pdf/SkPDFBitmap.h"
 #include "src/pdf/SkPDFDocumentPriv.h"
 #include "src/pdf/SkPDFFont.h"
@@ -1613,10 +1615,15 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         return;
     }
 
+    SkKeyedImage originalImage = imageSubset;
+    bool canUseOriginal = true;
+    bool didSubset = false;
+
     // First, figure out the src->dst transform and subset the image if needed.
     SkIRect bounds = imageSubset.image()->bounds();
     SkRect srcRect = src ? *src : SkRect::Make(bounds);
     SkMatrix transform = SkMatrix::RectToRect(srcRect, dst);
+    SkMatrix originalTransform = transform;
     if (src && *src != SkRect::Make(bounds)) {
         if (!srcRect.intersect(SkRect::Make(bounds))) {
             return;
@@ -1626,6 +1633,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
                                SkIntToScalar(bounds.y()));
         if (bounds != imageSubset.image()->bounds()) {
             imageSubset = imageSubset.subset(bounds);
+            didSubset = true;
         }
         if (!imageSubset) {
             return;
@@ -1660,6 +1668,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
             paint.writable()->setShader(nullptr);
         }
         imageSubset = SkKeyedImage(surface->makeImageSnapshot());
+        canUseOriginal = false;
         SkASSERT(!imageSubset.image()->isAlphaOnly());
     }
 
@@ -1717,15 +1726,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         return;
     }
     transform.postConcat(ctm);
-
-    bool needToRestore = false;
-    if (src && !is_integral(*src)) {
-        // Need sub-pixel clipping to fix skbug.com/40035524
-        this->cs().save();
-        this->cs().clipRect(dst, ctm, SkClipOp::kIntersect, true);
-        needToRestore = true;
-    }
-    SK_AT_SCOPE_EXIT(if (needToRestore) { this->cs().restore(); });
+    originalTransform.postConcat(ctm);
 
     SkMatrix matrix = transform;
 
@@ -1781,9 +1782,41 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         matrix.postTranslate(deltaX, deltaY);
 
         imageSubset = SkKeyedImage(surface->makeImageSnapshot());
+        canUseOriginal = false;
         if (!imageSubset) {
             return;
         }
+    }
+
+    if (SkColorFilter* colorFilter = paint->getColorFilter()) {
+        sk_sp<SkImage> img = color_filter(imageSubset.image().get(), colorFilter);
+        imageSubset = SkKeyedImage(std::move(img));
+        canUseOriginal = false;
+        if (!imageSubset) {
+            return;
+        }
+        // TODO(halcanary): de-dupe this by caching filtered images.
+        // (maybe in the resource cache?)
+    }
+
+    bool useCroppedOriginal = false;
+    if (didSubset && canUseOriginal) {
+        size_t originalSize = SkPDFSerializeImageSize(
+            originalImage.image().get(), fDocument, fDocument->metadata().fEncodingQuality);
+        size_t subsetSize = SkPDFSerializeImageSize(
+            imageSubset.image().get(), fDocument, fDocument->metadata().fEncodingQuality);
+        if (originalSize <= subsetSize) {
+            matrix = originalTransform;
+            imageSubset = originalImage;
+            useCroppedOriginal = true;
+        }
+    }
+
+    // Need sub-pixel clipping to fix skbug.com/40035524
+    SkClipStack::AutoRestore ar(&this->cs(), false);
+    if ((src && !is_integral(*src)) || useCroppedOriginal) {
+        this->cs().save();
+        this->cs().clipRect(dst, ctm, SkClipOp::kIntersect, true);
     }
 
     SkMatrix scaled;
@@ -1805,16 +1838,6 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     }
     if (!content.needSource()) {
         return;
-    }
-
-    if (SkColorFilter* colorFilter = paint->getColorFilter()) {
-        sk_sp<SkImage> img = color_filter(imageSubset.image().get(), colorFilter);
-        imageSubset = SkKeyedImage(std::move(img));
-        if (!imageSubset) {
-            return;
-        }
-        // TODO(halcanary): de-dupe this by caching filtered images.
-        // (maybe in the resource cache?)
     }
 
     SkBitmapKey key = imageSubset.key();

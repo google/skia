@@ -115,7 +115,7 @@ protected:
             SkNullWStream nullStream;
             SkPDFDocument doc(&nullStream, SkPDF::Metadata());
             doc.beginPage(256, 256);
-            (void)SkPDFSerializeImage(fImage.get(), &doc);
+            (void)SkPDFSerializeImage(fImage.get(), &doc, 101);
         }
     }
 
@@ -150,7 +150,7 @@ protected:
             SkNullWStream nullStream;
             SkPDFDocument doc(&nullStream, SkPDF::Metadata());
             doc.beginPage(256, 256);
-            (void)SkPDFSerializeImage(fImage.get(), &doc);
+            (void)SkPDFSerializeImage(fImage.get(), &doc, 101);
         }
     }
 
