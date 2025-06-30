@@ -189,7 +189,7 @@ public:
 
     bool onNeedsCTM() const final { return true; }
 
-    bool onFilterPath(SkPath* dst,
+    bool onFilterPath(SkPathBuilder* dst,
                       const SkPath& src,
                       SkStrokeRec* rec,
                       const SkRect* cullR,

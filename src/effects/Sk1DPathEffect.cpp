@@ -10,6 +10,7 @@
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkPoint.h"
@@ -31,7 +32,7 @@ struct SkRect;
 class Sk1DPathEffect : public SkPathEffectBase {
 public:
 protected:
-    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*,
+    bool onFilterPath(SkPathBuilder* builder, const SkPath& src, SkStrokeRec*, const SkRect*,
                       const SkMatrix&) const override {
         SkPathMeasure   meas(src, false);
         do {
@@ -39,7 +40,7 @@ protected:
             SkScalar    length = meas.getLength();
             SkScalar    distance = this->begin(length);
             while (distance < length && --governor >= 0) {
-                SkScalar delta = this->next(dst, distance, meas);
+                SkScalar delta = this->next(builder, distance, meas);
                 if (delta <= 0) {
                     break;
                 }
@@ -61,7 +62,7 @@ protected:
         Return the distance to travel for the next call. If return <= 0, then that
         contour is done.
     */
-    virtual SkScalar next(SkPath* dst, SkScalar dist, SkPathMeasure&) const = 0;
+    virtual SkScalar next(SkPathBuilder* dst, SkScalar dist, SkPathMeasure&) const = 0;
 
 private:
     // For simplicity, assume fast bounds cannot be computed
@@ -104,17 +105,17 @@ public:
         fStyle = style;
     }
 
-    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+    bool onFilterPath(SkPathBuilder* builder, const SkPath& src, SkStrokeRec* rec,
                       const SkRect* cullRect, const SkMatrix& ctm) const override {
         rec->setFillStyle();
-        return this->INHERITED::onFilterPath(dst, src, rec, cullRect, ctm);
+        return this->INHERITED::onFilterPath(builder, src, rec, cullRect, ctm);
     }
 
     SkScalar begin(SkScalar contourLength) const override {
         return fInitialOffset;
     }
 
-    SkScalar next(SkPath*, SkScalar, SkPathMeasure&) const override;
+    SkScalar next(SkPathBuilder*, SkScalar, SkPathMeasure&) const override;
 
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer) {
         SkScalar advance = buffer.readScalar();
@@ -175,7 +176,7 @@ Need differentially more subdivisions when the follow-path is curvy. Not sure ho
 determine that, but we need it. I guess a cheap answer is let the caller tell us,
 but that seems like a cop-out. Another answer is to get Rob Johnson to figure it out.
 */
-static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
+static void morphpath(SkPathBuilder* dst, const SkPath& src, SkPathMeasure& meas,
                       SkScalar dist) {
     SkPath::Iter    iter(src, false);
     SkPoint         srcP[4], dstP[3];
@@ -218,7 +219,7 @@ static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
     }
 }
 
-SkScalar SkPath1DPathEffectImpl::next(SkPath* dst, SkScalar distance,
+SkScalar SkPath1DPathEffectImpl::next(SkPathBuilder* builder, SkScalar distance,
                                       SkPathMeasure& meas) const {
 #if defined(SK_BUILD_FOR_FUZZER)
     if (dst->countPoints() > 100000) {
@@ -229,17 +230,17 @@ SkScalar SkPath1DPathEffectImpl::next(SkPath* dst, SkScalar distance,
         case SkPath1DPathEffect::kTranslate_Style: {
             SkPoint pos;
             if (meas.getPosTan(distance, &pos, nullptr)) {
-                dst->addPath(fPath, pos.fX, pos.fY);
+                builder->addPath(fPath, pos.fX, pos.fY);
             }
         } break;
         case SkPath1DPathEffect::kRotate_Style: {
             SkMatrix matrix;
             if (meas.getMatrix(distance, &matrix)) {
-                dst->addPath(fPath, matrix);
+                builder->addPath(fPath, matrix);
             }
         } break;
         case SkPath1DPathEffect::kMorph_Style:
-            morphpath(dst, fPath, meas, distance);
+            morphpath(builder, fPath, meas, distance);
             break;
     }
     return fAdvance;

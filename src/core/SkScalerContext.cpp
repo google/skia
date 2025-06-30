@@ -15,6 +15,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkStrokeRec.h"
@@ -552,7 +553,10 @@ void SkScalerContext::GenerateImageFromPath(
             rec.setStrokeStyle(1.0f, false);
             rec.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kRound_Join, 0.0f);
         }
-        if (rec.needToApply() && rec.applyToPath(&strokePath, path)) {
+
+        SkPathBuilder builder;
+        if (rec.needToApply() && rec.applyToPath(&builder, path)) {
+            strokePath = builder.detach();
             pathToUse = &strokePath;
             paint.setStyle(SkPaint::kFill_Style);
         }
@@ -835,16 +839,16 @@ void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc,
         }
 
         if (fPathEffect) {
-            SkPath effectPath;
-            if (fPathEffect->filterPath(&effectPath, localPath, &rec, nullptr, matrix)) {
-                localPath.swap(effectPath);
+            SkPathBuilder builder;
+            if (fPathEffect->filterPath(&builder, localPath, &rec, nullptr, matrix)) {
+                localPath = builder.detach();
             }
         }
 
         if (rec.needToApply()) {
-            SkPath strokePath;
-            if (rec.applyToPath(&strokePath, localPath)) {
-                localPath.swap(strokePath);
+            SkPathBuilder builder;
+            if (rec.applyToPath(&builder, localPath)) {
+                localPath = builder.detach();
             }
         }
 

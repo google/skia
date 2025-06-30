@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
@@ -191,12 +192,12 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas*) override {
-        SkPath dst;
+        SkPathBuilder dst;
         for (int i = 0; i < loops; ++i) {
             SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
 
-            fPE->filterPath(&dst, fPath, &rec, nullptr);
-            dst.rewind();
+            fPE->filterPath(&dst, fPath, &rec);
+            dst.reset();
         }
     }
 

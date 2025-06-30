@@ -15,8 +15,7 @@ void draw(SkCanvas* canvas) {
     SkScalar interv[2] = {120 * kPi / 6 - 0.05f, 0.0000f};
     p.setPathEffect(SkDashPathEffect::Make(interv, 0.5));
 
-    SkPath path, path2;
-    path.addCircle(128, 128, 60);
+    SkPath path = SkPath::Circle(128, 128, 60);
     canvas->drawPath(path, p);
 
     p.setColor(0x8800FF00);
@@ -24,7 +23,7 @@ void draw(SkCanvas* canvas) {
     p.setPathEffect(SkDashPathEffect::Make(interv2, 0));
     canvas->drawPath(path, p);
 
-    skpathutils::FillPathWithPaint(path, p, &path2);
+    SkPath path2 = skpathutils::FillPathWithPaint(path, p);
     p.setColor(0xFF000000);
     p.setStrokeWidth(0);
     p.setPathEffect(nullptr);

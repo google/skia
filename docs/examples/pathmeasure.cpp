@@ -9,8 +9,8 @@ void draw(SkCanvas* canvas) {
     path.moveTo(0, 1);
     path.lineTo(1, 1);
     SkPathMeasure measure(path, false);
-    SkPath result;
+    SkPathBuilder result;
     measure.getSegment(.5, 1.5, &result, true);
-    result.dump();
+    result.detach().dump();
 }
 }  // END FIDDLE

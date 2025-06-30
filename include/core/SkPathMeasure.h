@@ -12,11 +12,12 @@
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
-#include "include/private/base/SkAPI.h"
+#include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 
 class SkMatrix;
 class SkPath;
+class SkPathBuilder;
 
 class SK_API SkPathMeasure {
 public:
@@ -70,7 +71,10 @@ public:
         then return false (and leave dst untouched).
         Begin the segment with a moveTo if startWithMoveTo is true
     */
+    bool getSegment(SkScalar startD, SkScalar stopD, SkPathBuilder* dst, bool startWithMoveTo);
+#ifdef SK_SUPPORT_MUTABLE_PATHEFFECT
     bool getSegment(SkScalar startD, SkScalar stopD, SkPath* dst, bool startWithMoveTo);
+#endif
 
     /** Return true if the current contour is closed()
     */

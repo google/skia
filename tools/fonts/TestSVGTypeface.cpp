@@ -1362,7 +1362,9 @@ public:
 
         // Apply the path effect.
         if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style) {
-            bool fill = skpathutils::FillPathWithPaint(path, paint, &path);
+            SkPathBuilder builder;
+            bool fill = skpathutils::FillPathWithPaint(path, paint, &builder);
+            path = builder.detach();
 
             paint.setPathEffect(nullptr);
             if (fill) {

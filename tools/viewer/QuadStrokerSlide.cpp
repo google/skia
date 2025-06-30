@@ -656,8 +656,6 @@ private:
             draw_t_divs(canvas, scaled, width, 0xFF3F3F00);
         }
 
-        SkPath fill;
-
         SkPaint p;
         p.setStyle(SkPaint::kStroke_Style);
         if (drawText) {
@@ -665,7 +663,7 @@ private:
         } else {
             p.setStrokeWidth(width);
         }
-        skpathutils::FillPathWithPaint(path, p, &fill);
+        SkPath fill = skpathutils::FillPathWithPaint(path, p);
         SkPath scaledFill;
         if (drawText) {
             fill.transform(matrix, &scaledFill);

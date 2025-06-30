@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkRRect.h"
@@ -34,8 +35,7 @@ static PathDY make_frame() {
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SkIntToScalar(5));
-    skpathutils::FillPathWithPaint(path, paint, &path);
-    return {path, 15};
+    return {skpathutils::FillPathWithPaint(path, paint), 15};
 }
 
 static PathDY make_triangle() {

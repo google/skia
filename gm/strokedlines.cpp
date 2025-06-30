@@ -278,9 +278,7 @@ static void draw_path(SkCanvas* canvas, const SkPoint& p0, const SkPoint& p1, Sk
     canvas->drawLine(p0, p1, paint);
 
     // Show outline and control points
-    SkPath fillPath;
-    SkPath path = SkPath::Line(p0, p1);
-    skpathutils::FillPathWithPaint(path, paint, &fillPath);
+    SkPath fillPath = skpathutils::FillPathWithPaint(SkPath::Line(p0, p1), paint);
 
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(0);

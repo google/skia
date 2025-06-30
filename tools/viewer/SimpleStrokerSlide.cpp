@@ -443,8 +443,7 @@ public:
         fMirrorStrokePaint.setStrokeWidth(fWidth);
         canvas->drawPath(path, fMirrorStrokePaint);
         if (fShowHidden) {
-            SkPath hidden;
-            skpathutils::FillPathWithPaint(path, fStrokePaint, &hidden);
+            SkPath hidden = skpathutils::FillPathWithPaint(path, fStrokePaint);
             canvas->drawPath(hidden, fHiddenPaint);
         }
         if (fShowSkeleton) {

@@ -44,16 +44,16 @@ static void test_strokecubic(skiatest::Reporter* reporter) {
 
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(0.394537568f);
-    SkPath path, fillPath;
+    SkPath path;
     path.moveTo(cubicVals[0]);
     path.cubicTo(cubicVals[1], cubicVals[2], cubicVals[3]);
-    skpathutils::FillPathWithPaint(path, paint, &fillPath);
+    skpathutils::FillPathWithPaint(path, paint);
     path.reset();
     path.moveTo(SkBits2Float(hexCubicVals[0]), SkBits2Float(hexCubicVals[1]));
     path.cubicTo(SkBits2Float(hexCubicVals[2]), SkBits2Float(hexCubicVals[3]),
             SkBits2Float(hexCubicVals[4]), SkBits2Float(hexCubicVals[5]),
             SkBits2Float(hexCubicVals[6]), SkBits2Float(hexCubicVals[7]));
-    skpathutils::FillPathWithPaint(path, paint, &fillPath);
+    skpathutils::FillPathWithPaint(path, paint);
 }
 
 static void test_strokerect(skiatest::Reporter* reporter) {
@@ -75,9 +75,8 @@ static void test_strokerect(skiatest::Reporter* reporter) {
     for (size_t i = 0; i < std::size(joins); ++i) {
         paint.setStrokeJoin(joins[i]);
 
-        SkPath path, fillPath;
-        path.addRect(r);
-        skpathutils::FillPathWithPaint(path, paint, &fillPath);
+        SkPath path = SkPath::Rect(r);
+        SkPath fillPath = skpathutils::FillPathWithPaint(path, paint);
 
         REPORTER_ASSERT(reporter, equal(outer, fillPath.getBounds()));
 
@@ -182,8 +181,7 @@ static void test_big_stroke(skiatest::Reporter* reporter) {
     path.lineTo(SkBits2Float(0x46380000), SkBits2Float(0xc6380000));  // 11776, -11776
     path.close();
 
-    SkPath strokeAndFillPath;
-    skpathutils::FillPathWithPaint(path, paint, &strokeAndFillPath);
+    (void)skpathutils::FillPathWithPaint(path, paint);
 }
 
 DEF_TEST(Stroke, reporter) {

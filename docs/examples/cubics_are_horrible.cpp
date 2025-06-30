@@ -21,8 +21,7 @@ void draw(SkCanvas* canvas) {
     path.cubicTo(p1, p2, p3);
     // path.close();
 
-    SkPath fillpath;
-    skpathutils::FillPathWithPaint(path, p, &fillpath);
+    SkPath fillpath = skpathutils::FillPathWithPaint(path, p);
     SkPaint fillp;
     fillp.setColor(SK_ColorMAGENTA);
     fillp.setAntiAlias(true);

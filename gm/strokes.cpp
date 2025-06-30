@@ -146,8 +146,7 @@ protected:
             dashPaint = strokePaint;
             const SkScalar intervals[] = { 0, 10 };
             dashPaint.setPathEffect(SkDashPathEffect::Make(intervals, 0));
-            SkPath fillPath;
-            skpathutils::FillPathWithPaint(fDashedfPath, dashPaint, &fillPath);
+            (void)skpathutils::FillPathWithPaint(fDashedfPath, dashPaint);
             canvas->translate(0, 20);
             canvas->drawPath(fDashedfPath, dashPaint);
             canvas->translate(0, 20);
@@ -413,8 +412,7 @@ protected:
                 strokePaint.setStrokeWidth(SK_Scalar1 * j * j);
                 canvas->drawPath(orig, strokePaint);
                 canvas->drawPath(orig, origPaint);
-                SkPath fill;
-                skpathutils::FillPathWithPaint(orig, strokePaint, &fill);
+                SkPath fill = skpathutils::FillPathWithPaint(orig, strokePaint);
                 canvas->drawPath(fill, fillPaint);
                 canvas->translate(dx + strokePaint.getStrokeWidth(), 0);
             }
@@ -586,8 +584,7 @@ DEF_SIMPLE_GM(inner_join_geometry, canvas, 1000, 700) {
         auto path = SkPath::Polygon({pathPoints + i * 3, 3}, false);
         canvas->drawPath(path, pathPaint);
 
-        SkPath fillPath;
-        skpathutils::FillPathWithPaint(path, pathPaint, &fillPath);
+        SkPath fillPath = skpathutils::FillPathWithPaint(path, pathPaint);
         canvas->drawPath(fillPath, skeletonPaint);
 
         canvas->translate(200, 0);

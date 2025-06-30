@@ -12,6 +12,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPathUtils.h"
@@ -343,12 +344,11 @@ static void test_infinite_dash(skiatest::Reporter* reporter) {
     SkScalar intervals[] = { 0.2f, 0.2f };
     sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 0));
 
-    SkPath filteredPath;
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setPathEffect(dash);
 
-    skpathutils::FillPathWithPaint(path, paint, &filteredPath);
+    (void)skpathutils::FillPathWithPaint(path, paint);
     // If we reach this, we passed.
     REPORTER_ASSERT(reporter, true);
 }
@@ -367,9 +367,9 @@ static void test_crbug_165432(skiatest::Reporter* reporter) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setPathEffect(dash);
 
-    SkPath filteredPath;
+    SkPathBuilder filteredPath;
     SkStrokeRec rec(paint);
-    REPORTER_ASSERT(reporter, !dash->filterPath(&filteredPath, path, &rec, nullptr));
+    REPORTER_ASSERT(reporter, !dash->filterPath(&filteredPath, path, &rec));
     REPORTER_ASSERT(reporter, filteredPath.isEmpty());
 }
 

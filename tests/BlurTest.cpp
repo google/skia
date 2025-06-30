@@ -145,8 +145,7 @@ DEF_TEST(BlurDrawing, reporter) {
             for (size_t test = 0; test < std::size(tests); ++test) {
                 SkPath path;
                 tests[test].addPath(&path);
-                SkPath strokedPath;
-                skpathutils::FillPathWithPaint(path, paint, &strokedPath);
+                SkPath strokedPath = skpathutils::FillPathWithPaint(path, paint);
                 SkRect refBound = strokedPath.getBounds();
                 SkIRect iref;
                 refBound.roundOut(&iref);

@@ -15,7 +15,6 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
@@ -293,7 +292,9 @@ static void test_path_crbugskia2820(skiatest::Reporter* reporter) {
 
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
     stroke.setStrokeStyle(2 * SK_Scalar1);
-    stroke.applyToPath(&path, path);
+
+    SkPathBuilder bulider;
+    stroke.applyToPath(&bulider, path);
 }
 
 static void test_path_crbugskia5995() {
@@ -479,10 +480,9 @@ static void test_bad_cubic_crbug229478() {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(20);
 
-    SkPath dst;
     // Before the fix, this would infinite-recurse, and run out of stack
     // because we would keep trying to subdivide a degenerate cubic segment.
-    skpathutils::FillPathWithPaint(path, paint, &dst, nullptr);
+    (void)skpathutils::FillPathWithPaint(path, paint);
 }
 
 static void build_path_170666(SkPath& path) {
@@ -1229,8 +1229,7 @@ static void stroke_cubic(const SkPoint pts[4]) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SK_Scalar1 * 2);
 
-    SkPath fill;
-    skpathutils::FillPathWithPaint(path, paint, &fill);
+    (void)skpathutils::FillPathWithPaint(path, paint);
 }
 
 // just ensure this can run w/o any SkASSERTS firing in the debug build
@@ -1495,9 +1494,11 @@ static void test_convexity2(skiatest::Reporter* reporter) {
     }
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
     stroke.setStrokeStyle(2 * SK_Scalar1);
-    stroke.applyToPath(&strokedSin, strokedSin);
-    check_convexity(reporter, strokedSin, false);
-    check_direction(reporter, strokedSin, kDontCheckDir);
+    SkPathBuilder builder;
+    stroke.applyToPath(&builder, strokedSin);
+    SkPath newpath = builder.detach();
+    check_convexity(reporter, newpath, false);
+    check_direction(reporter, newpath, kDontCheckDir);
 
     // http://crbug.com/412640
     SkPath degenerateConcave;
@@ -2743,12 +2744,11 @@ static void test_isNestedFillRects(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, SkPathPriv::IsNestedFillRects(path, nullptr));
 
     // pass, stroke rect
-    SkPath src, dst;
-    src.addRect(1, 1, 7, 7, SkPathDirection::kCW);
+    SkPath src = SkPath::Rect({1, 1, 7, 7}, SkPathDirection::kCW);
     SkPaint strokePaint;
     strokePaint.setStyle(SkPaint::kStroke_Style);
     strokePaint.setStrokeWidth(2);
-    skpathutils::FillPathWithPaint(src, strokePaint, &dst);
+    SkPath dst = skpathutils::FillPathWithPaint(src, strokePaint);
     REPORTER_ASSERT(reporter, SkPathPriv::IsNestedFillRects(dst, nullptr));
 }
 

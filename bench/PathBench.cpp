@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkShader.h"
@@ -998,10 +999,12 @@ protected:
         // The large y scale factor produces a tiny error threshold.
         const SkMatrix mtx = SkMatrix::MakeAll(3.07294035f, 0.833333373f, 361.111115f, 0.0f,
                                                6222222.5f, 28333.334f, 0.0f, 0.0f, 1.0f);
+        const SkScalar scale = SkMatrixPriv::ComputeResScaleForStroking(mtx);
+        const SkMatrix mx = SkMatrix::Scale(scale, scale);
+
         for (int i = 0; i < loops; ++i) {
-            SkPath dst;
-            skpathutils::FillPathWithPaint(path, paint, &dst, nullptr,
-                                           SkMatrixPriv::ComputeResScaleForStroking(mtx));
+            SkPathBuilder dst;
+            skpathutils::FillPathWithPaint(path, paint, &dst, nullptr, mx);
         }
     }
 

@@ -143,10 +143,10 @@ void draw_quad_fillpath(SkCanvas *canvas) {
     SkPaint fillp = make_normal_paint();
     fillp.setColor(SK_ColorMAGENTA);
 
-    SkPath fillpath;
+    SkPathBuilder fillpath;
     skpathutils::FillPathWithPaint(path, p, &fillpath);
 
-    canvas->drawPath(fillpath, fillp);
+    canvas->drawPath(fillpath.detach(), fillp);
 }
 
 void draw_stroked_quad(SkCanvas *canvas) {
@@ -180,10 +180,10 @@ void draw_cubic_fillpath(SkCanvas *canvas) {
     SkPaint fillp = make_normal_paint();
     fillp.setColor(SK_ColorMAGENTA);
 
-    SkPath fillpath;
+    SkPathBuilder fillpath;
     skpathutils::FillPathWithPaint(path, p, &fillpath);
 
-    canvas->drawPath(fillpath, fillp);
+    canvas->drawPath(fillpath.detach(), fillp);
 }
 
 void draw_stroked_cubic(SkCanvas *canvas) {
@@ -218,8 +218,7 @@ void draw_oval_fillpath(SkCanvas *canvas) {
     SkPaint fillp = make_normal_paint();
     fillp.setColor(SK_ColorMAGENTA);
 
-    SkPath fillpath;
-    skpathutils::FillPathWithPaint(path, p, &fillpath);
+    SkPath fillpath = skpathutils::FillPathWithPaint(path, p);
 
     canvas->drawPath(fillpath, fillp);
 }

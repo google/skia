@@ -37,6 +37,7 @@ class GrStyle;
 class SkColorSpace;
 class SkMatrix;
 class SkPath;
+class SkPathBuilder;
 class SkRRect;
 class SkRandom;
 struct SkRect;
@@ -89,7 +90,7 @@ public:
     const char* getTypeName() const override { return nullptr; }
 
 protected:
-    bool onFilterPath(SkPath* dst, const SkPath&, SkStrokeRec* , const SkRect*,
+    bool onFilterPath(SkPathBuilder* dst, const SkPath&, SkStrokeRec* , const SkRect*,
                       const SkMatrix&) const override;
     std::optional<DashInfo> asADash() const override;
 

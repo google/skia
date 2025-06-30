@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathUtils.h"
 #include "src/base/SkFloatBits.h"
 
@@ -45,8 +46,10 @@ DEF_SIMPLE_GM(bug12866, canvas, 128, 64) {
     fillPaint.setAntiAlias(true);
 
     SkPath strokePath = get_path();
-    SkPath fillPath;
-    skpathutils::FillPathWithPaint(strokePath, strokePaint, &fillPath, nullptr, 1200.0f);
+    SkPathBuilder builder;
+    skpathutils::FillPathWithPaint(strokePath, strokePaint, &builder, nullptr,
+                                   SkMatrix::Scale(1200.0f, 1200.0f));
+    SkPath fillPath = builder.detach();
 
     SkRect strokeBounds = strokePath.getBounds();
     SkRect fillBounds = fillPath.getBounds();

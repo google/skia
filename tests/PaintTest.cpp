@@ -14,6 +14,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -68,7 +69,7 @@ DEF_TEST(Paint_copy, reporter) {
 // found and fixed for webkit: mishandling when we hit recursion limit on
 // mostly degenerate cubic flatness test
 DEF_TEST(Paint_regression_cubic, reporter) {
-    SkPath path, stroke;
+    SkPath path;
     SkPaint paint;
 
     path.moveTo(460.2881309415525f,
@@ -80,13 +81,13 @@ DEF_TEST(Paint_regression_cubic, reporter) {
                  453.15255460013304f,
                  305.788586869862f);
 
-    SkRect fillR, strokeR;
-    fillR = path.getBounds();
+    SkRect fillR = path.getBounds();
 
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(SkIntToScalar(2));
-    skpathutils::FillPathWithPaint(path, paint, &stroke);
-    strokeR = stroke.getBounds();
+    SkPathBuilder builder;
+    skpathutils::FillPathWithPaint(path, paint, &builder);
+    SkRect strokeR = builder.computeBounds();
 
     SkRect maxR = fillR;
     SkScalar miter = std::max(SK_Scalar1, paint.getStrokeMiter());

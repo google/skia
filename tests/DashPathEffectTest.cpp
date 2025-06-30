@@ -10,6 +10,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
@@ -108,8 +109,7 @@ DEF_TEST(DashPath_bug4871, r) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setPathEffect(dash);
 
-    SkPath fill;
-    skpathutils::FillPathWithPaint(path, paint, &fill);
+    (void)skpathutils::FillPathWithPaint(path, paint);
 }
 
 // Verify that long lines with many dashes don't cause overflows/OOMs.
@@ -135,10 +135,10 @@ DEF_TEST(DashCrazy_crbug_875494, r) {
     SkPath path;
     path.addRect(cull);
 
-    SkPath path2;
+    SkPathBuilder builder;
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setPathEffect(SkDashPathEffect::Make(vals, 222));
-    skpathutils::FillPathWithPaint(path, paint, &path2, &cull);
+    skpathutils::FillPathWithPaint(path, paint, &builder, &cull, SkMatrix::I());
 }
 

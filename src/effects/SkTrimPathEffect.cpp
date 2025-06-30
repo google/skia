@@ -24,13 +24,14 @@
 #include <cstdint>
 
 class SkMatrix;
+class SkPathBuilder;
 class SkStrokeRec;
 struct SkRect;
 
 namespace {
 
 // Returns the number of contours iterated to satisfy the request.
-static size_t add_segments(const SkPath& src, SkScalar start, SkScalar stop, SkPath* dst,
+static size_t add_segments(const SkPath& src, SkScalar start, SkScalar stop, SkPathBuilder* dst,
                            bool requires_moveto = true) {
     SkASSERT(start < stop);
 
@@ -63,7 +64,7 @@ static size_t add_segments(const SkPath& src, SkScalar start, SkScalar stop, SkP
 SkTrimPE::SkTrimPE(SkScalar startT, SkScalar stopT, SkTrimPathEffect::Mode mode)
     : fStartT(startT), fStopT(stopT), fMode(mode) {}
 
-bool SkTrimPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*,
+bool SkTrimPE::onFilterPath(SkPathBuilder* dst, const SkPath& src, SkStrokeRec*, const SkRect*,
                             const SkMatrix&) const {
     if (fStartT >= fStopT) {
         SkASSERT(fMode == SkTrimPathEffect::Mode::kNormal);

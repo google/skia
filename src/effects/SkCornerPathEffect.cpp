@@ -9,6 +9,7 @@
 
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
@@ -43,7 +44,7 @@ public:
         SkASSERT(radius > 0);
     }
 
-    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*,
+    bool onFilterPath(SkPathBuilder* dst, const SkPath& src, SkStrokeRec*, const SkRect*,
                       const SkMatrix&) const override {
         if (fRadius <= 0) {
             return false;

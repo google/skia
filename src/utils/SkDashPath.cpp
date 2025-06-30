@@ -9,6 +9,7 @@
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -20,8 +21,6 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkPathEffectBase.h"
-#include "src/core/SkPathEnums.h"
-#include "src/core/SkPathPriv.h"
 #include "src/core/SkPointPriv.h"
 
 #include <algorithm>
@@ -234,7 +233,7 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
 
 class SpecialLineRec {
 public:
-    bool init(const SkPath& src, SkPath* dst, SkStrokeRec* rec,
+    bool init(const SkPath& src, SkPathBuilder* dst, SkStrokeRec* rec,
               int intervalCount, SkScalar intervalLength) {
         if (rec->isHairlineStyle() || !src.isLine(fPts)) {
             return false;
@@ -277,7 +276,7 @@ public:
         return true;
     }
 
-    void addSegment(SkScalar d0, SkScalar d1, SkPath* path) const {
+    void addSegment(SkScalar d0, SkScalar d1, SkPathBuilder* path) const {
         SkASSERT(d0 <= fPathLength);
         // clamp the segment to our length
         if (d1 > fPathLength) {
@@ -295,7 +294,7 @@ public:
         pts[2].set(x1 - fNormal.fX, y1 - fNormal.fY);   // lineTo
         pts[3].set(x0 - fNormal.fX, y0 - fNormal.fY);   // lineTo
 
-        path->addPoly(pts, false);
+        path->addPolygon(pts, false);
     }
 
 private:
@@ -306,7 +305,7 @@ private:
 };
 
 
-bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+bool SkDashPath::InternalFilter(SkPathBuilder* dst, const SkPath& src, SkStrokeRec* rec,
                                 const SkRect* cullRect, SkSpan<const SkScalar> aIntervals,
                                 SkScalar initialDashLength, int32_t initialDashIndex,
                                 SkScalar intervalLength, SkScalar startPhase,
@@ -323,7 +322,6 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
 
     const SkScalar* intervals = aIntervals.data();
     SkScalar        dashCount = 0;
-    int             segCount = 0;
 
     SkPath cullPathStorage;
     const SkPath* srcPtr = &src;
@@ -412,7 +410,6 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
             addedSegment = false;
             if (is_even(index) && !skipFirstSegment) {
                 addedSegment = true;
-                ++segCount;
 
                 if (specialLine) {
                     lineRec.addSegment(SkDoubleToScalar(distance),
@@ -444,19 +441,13 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
         if (meas.isClosed() && is_even(initialDashIndex) &&
             initialDashLength >= 0) {
             meas.getSegment(0, initialDashLength, dst, !addedSegment);
-            ++segCount;
         }
     } while (meas.nextContour());
-
-    // TODO: do we still need this?
-    if (segCount > 1) {
-        SkPathPriv::SetConvexity(*dst, SkPathConvexity::kConcave);
-    }
 
     return true;
 }
 
-bool SkDashPath::FilterDashPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+bool SkDashPath::FilterDashPath(SkPathBuilder* dst, const SkPath& src, SkStrokeRec* rec,
                                 const SkRect* cullRect, const SkPathEffectBase::DashInfo& info) {
     if (!ValidDashPath(info.fPhase, info.fIntervals)) {
         return false;

@@ -102,9 +102,7 @@ protected:
                 for (size_t j = 0; j < std::size(gRects); ++j) {
                     const SkRect& r = gRects[j];
 
-                    SkPath path, fillPath;
-                    path.addRect(r);
-                    skpathutils::FillPathWithPaint(path, paint, &fillPath);
+                    SkPath fillPath = skpathutils::FillPathWithPaint(SkPath::Rect(r), paint);
                     draw_path(canvas, fillPath, r, join, doFill);
 
                     canvas->translate(W + 2 * STROKE_WIDTH, 0);

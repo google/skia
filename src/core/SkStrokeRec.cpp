@@ -104,7 +104,7 @@ void SkStrokeRec::setStrokeStyle(SkScalar width, bool strokeAndFill) {
     SkScalar gDebugStrokerError;
 #endif
 
-bool SkStrokeRec::applyToPath(SkPath* dst, const SkPath& src) const {
+bool SkStrokeRec::applyToPath(SkPathBuilder* dst, const SkPath& src) const {
     if (fWidth <= 0) {  // hairline or fill
         return false;
     }

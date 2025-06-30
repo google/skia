@@ -45,6 +45,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkStrokeRec.h"
 
@@ -1241,9 +1242,10 @@ void Device::drawGeometry(const Transform& localToDevice,
             maxScaleFactor = std::max(std::max(tl, tr), std::max(bl, br));
         }
         newStyle.setResScale(maxScaleFactor);
-        SkPath dst;
-        if (paint.getPathEffect()->filterPath(&dst, geometry.shape().asPath(), &newStyle,
+        SkPathBuilder builder;
+        if (paint.getPathEffect()->filterPath(&builder, geometry.shape().asPath(), &newStyle,
                                               nullptr, localToDevice)) {
+            SkPath dst = builder.detach();
             dst.setIsVolatile(true);
             // Recurse using the path and new style, while disabling downstream path effect handling
             this->drawGeometry(localToDevice, Geometry(Shape(dst)), paint, newStyle,

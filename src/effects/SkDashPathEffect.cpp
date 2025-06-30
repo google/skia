@@ -29,6 +29,8 @@
 #include <cstring>
 #include <optional>
 
+class SkPathBuilder;
+
 using namespace skia_private;
 
 SkDashImpl::SkDashImpl(SkSpan<const SkScalar> intervals, SkScalar phase)
@@ -47,9 +49,9 @@ SkDashImpl::SkDashImpl(SkSpan<const SkScalar> intervals, SkScalar phase)
             &fInitialDashLength, &fInitialDashIndex, &fIntervalLength, &fPhase);
 }
 
-bool SkDashImpl::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+bool SkDashImpl::onFilterPath(SkPathBuilder* builder, const SkPath& src, SkStrokeRec* rec,
                               const SkRect* cullRect, const SkMatrix&) const {
-    return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals,
+    return SkDashPath::InternalFilter(builder, src, rec, cullRect, fIntervals,
                                       fInitialDashLength, fInitialDashIndex, fIntervalLength,
                                       fPhase);
 }

@@ -8,6 +8,7 @@
 #include "bench/Benchmark.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkString.h"
 #include "src/base/SkRandom.h"
@@ -32,10 +33,11 @@ protected:
         SkPaint paint(fPaint);
         this->setupPaint(&paint);
 
+        const SkMatrix mx = SkMatrix::Scale(fRes, fRes);
         for (int outer = 0; outer < 10; ++outer) {
             for (int i = 0; i < loops; ++i) {
-                SkPath result;
-                skpathutils::FillPathWithPaint(fPath, paint, &result, nullptr, fRes);
+                SkPathBuilder result;
+                skpathutils::FillPathWithPaint(fPath, paint, &result, nullptr, mx);
             }
         }
     }

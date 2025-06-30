@@ -845,6 +845,11 @@ public:
     SkPathBuilder& transform(const SkMatrix& matrix,
                              SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes);
 
+    /*
+     *  Returns true if the builder is empty, or all of its points are finite.
+     */
+    bool isFinite() const;
+
     /** Replaces SkPathFillType with its inverse. The inverse of SkPathFillType describes the area
         unmodified by the original SkPathFillType.
     */
@@ -948,6 +953,7 @@ private:
     std::tuple<SkPoint*, SkScalar*> growForVerbsInPath(const SkPathRef& path);
 
     friend class SkPathPriv;
+    friend class SkStroke;
 };
 
 #endif

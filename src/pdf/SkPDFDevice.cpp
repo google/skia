@@ -25,6 +25,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPathUtils.h"
@@ -589,13 +590,14 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
                                              const SkPath& origPath,
                                              const SkPaint& origPaint) {
     SkASSERT(origPaint.getMaskFilter());
-    SkPath path(origPath);
+    SkPathBuilder builder;
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
 
-    SkStrokeRec::InitStyle initStyle = skpathutils::FillPathWithPaint(path, *paint, &path)
+    SkStrokeRec::InitStyle initStyle = skpathutils::FillPathWithPaint(origPath, *paint, &builder)
                                      ? SkStrokeRec::kFill_InitStyle
                                      : SkStrokeRec::kHairline_InitStyle;
-    path.transform(ctm, &path);
+    builder.transform(ctm);
+    SkPath path = builder.detach();
 
     SkIRect bounds = clipStack.bounds(this->bounds()).roundOut();
     SkMaskBuilder sourceMask;
@@ -672,12 +674,8 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
         if (clipStack.isEmpty(this->bounds())) {
             return;
         }
-        if (!pathIsMutable) {
-            modifiedPath = origPath;
-            pathPtr = &modifiedPath;
-            pathIsMutable = true;
-        }
-        if (skpathutils::FillPathWithPaint(*pathPtr, *paint, pathPtr)) {
+        SkPathBuilder builder;
+        if (skpathutils::FillPathWithPaint(*pathPtr, *paint, &builder)) {
             set_style(&paint, SkPaint::kFill_Style);
         } else {
             set_style(&paint, SkPaint::kStroke_Style);
@@ -685,6 +683,9 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
                 paint.writable()->setStrokeWidth(0);
             }
         }
+        modifiedPath = builder.detach();
+        pathPtr = &modifiedPath;
+        pathIsMutable = true;
         paint.writable()->setPathEffect(nullptr);
     }
 
@@ -1206,11 +1207,14 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
     // Merge stroking operations into final path.
     if (SkPaint::kStroke_Style == paint.getStyle() ||
         SkPaint::kStrokeAndFill_Style == paint.getStyle()) {
-        bool doFillPath = skpathutils::FillPathWithPaint(origPath, paint, &modifiedPath);
+        SkPathBuilder builder;
+        bool doFillPath = skpathutils::FillPathWithPaint(origPath, paint, &builder);
+        modifiedPath = builder.detach();
+        pathPtr = &modifiedPath;
+
         if (doFillPath) {
             noInversePaint.setStyle(SkPaint::kFill_Style);
             noInversePaint.setStrokeWidth(0);
-            pathPtr = &modifiedPath;
         } else {
             // To be consistent with the raster output, hairline strokes
             // are rendered as non-inverted.

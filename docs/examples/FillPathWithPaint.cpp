@@ -10,14 +10,15 @@ void draw(SkCanvas* canvas) {
     SkPath strokePath;
     strokePath.moveTo(.08f, .08f);
     strokePath.quadTo(.09f, .08f, .17f, .17f);
-    SkPath fillPath;
+    SkPathBuilder fillPath;
     SkPaint outlinePaint(strokePaint);
     outlinePaint.setStrokeWidth(2);
     SkMatrix scale = SkMatrix::Scale(300, 300);
     for (SkScalar precision : { 0.01f, .1f, 1.f, 10.f, 100.f } ) {
-        skpathutils::FillPathWithPaint(strokePath, strokePaint, &fillPath, nullptr, precision);
+        skpathutils::FillPathWithPaint(strokePath, strokePaint, &fillPath, nullptr,
+                                       SkMatrix::Scale(precision, precision));
         fillPath.transform(scale);
-        canvas->drawPath(fillPath, outlinePaint);
+        canvas->drawPath(fillPath.detach(), outlinePaint);
         canvas->translate(60, 0);
         if (1.f == precision) canvas->translate(-180, 100);
     }

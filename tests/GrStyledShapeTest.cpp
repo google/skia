@@ -1183,7 +1183,7 @@ void test_path_effect_makes_rrect(skiatest::Reporter* reporter, const Geo& geo) 
         const char* getTypeName() const override { return nullptr; }
 
     protected:
-        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+        bool onFilterPath(SkPathBuilder* dst, const SkPath& src, SkStrokeRec*,
                           const SkRect* cullR, const SkMatrix&) const override {
             dst->reset();
             dst->addRRect(RRect());
@@ -1264,7 +1264,7 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const Geo& geo) {
         const char* getTypeName() const override { return nullptr; }
 
     protected:
-        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+        bool onFilterPath(SkPathBuilder* dst, const SkPath& src, SkStrokeRec*,
                           const SkRect* cullR, const SkMatrix&) const override {
             *dst = src;
             // To avoid triggering data-based keying of paths with few verbs we add many segments.
@@ -1312,7 +1312,7 @@ void test_make_hairline_path_effect(skiatest::Reporter* reporter, const Geo& geo
         const char* getTypeName() const override { return nullptr; }
 
     protected:
-        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* strokeRec,
+        bool onFilterPath(SkPathBuilder* dst, const SkPath& src, SkStrokeRec* strokeRec,
                           const SkRect* cullR, const SkMatrix&) const override {
             *dst = src;
             strokeRec->setHairlineStyle();
@@ -1396,7 +1396,7 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const Geo&
         Factory getFactory() const override { return nullptr; }
         const char* getTypeName() const override { return nullptr; }
     protected:
-        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+        bool onFilterPath(SkPathBuilder* dst, const SkPath& src, SkStrokeRec*,
                           const SkRect* cullR, const SkMatrix&) const override {
             dst->reset();
             if (fInvert) {
@@ -1485,7 +1485,7 @@ void test_path_effect_fails(skiatest::Reporter* reporter, const Geo& geo) {
         Factory getFactory() const override { return nullptr; }
         const char* getTypeName() const override { return nullptr; }
     protected:
-        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+        bool onFilterPath(SkPathBuilder* dst, const SkPath& src, SkStrokeRec*,
                           const SkRect* cullR, const SkMatrix&) const override {
             return false;
         }
