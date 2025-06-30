@@ -146,13 +146,17 @@ skgpu::graphite::PaintOptions ImagePremulHWOnlyMatrixCFDitherSrcover();
 skgpu::graphite::PaintOptions ImageSRGBHWOnlyMatrixCFDitherSrcover();
 skgpu::graphite::PaintOptions ImageHWOnlySRGBSrcover();
 
-skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16();
+skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16Passthrough();
+skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16Premul();
 skgpu::graphite::PaintOptions MouriMapChunk8x8Effect();
 skgpu::graphite::PaintOptions MouriMapBlur();
 skgpu::graphite::PaintOptions MouriMapToneMap();
 skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver();
 skgpu::graphite::PaintOptions KawaseBlurHighSrc();
 skgpu::graphite::PaintOptions BlurFilterMix();
+
+skgpu::graphite::PaintOptions ImagePremulHWOnlyPlusColorSrcover();
+skgpu::graphite::PaintOptions TransparentPaintImagePremulHWOnlyPlusColorSrcover();
 
 skgpu::graphite::PaintOptions EdgeExtensionPassthroughSrcover();
 skgpu::graphite::PaintOptions EdgeExtensionPremulSrcover();
