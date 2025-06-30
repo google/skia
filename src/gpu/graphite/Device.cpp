@@ -509,7 +509,7 @@ void Device::setImmutable() {
         // both cases this is restricted to the Recorder's thread. This is in contrast to ~Device(),
         // which might be called from another thread if it was linked to an Image used in multiple
         // recorders.
-        this->flushPendingWorkToRecorder();
+        this->flushPendingWork(/*drawContext=*/nullptr);
         fRecorder->deregisterDevice(this);
         // Abandoning the recorder ensures that there are no further operations that can be recorded
         // and is relied on by Image::notifyInUse() to detect when it can unlink from a Device.
@@ -558,12 +558,14 @@ sk_sp<SkSurface> Device::makeSurface(const SkImageInfo& ii, const SkSurfaceProps
     return SkSurfaces::RenderTarget(fRecorder, ii, Mipmapped::kNo, &props);
 }
 
+// Although we have a drawContext here, we pass a nullptr to both flushPendingWork and Image::Copy
+// so that tasks end up on the root task list.
 sk_sp<Image> Device::makeImageCopy(const SkIRect& subset,
                                    Budgeted budgeted,
                                    Mipmapped mipmapped,
                                    SkBackingFit backingFit) {
     ASSERT_SINGLE_OWNER
-    this->flushPendingWorkToRecorder();
+    this->flushPendingWork(/*drawContext=*/nullptr);
 
     const SkColorInfo& colorInfo = this->imageInfo().colorInfo();
     TextureProxyView srcView = this->readSurfaceView();
@@ -581,8 +583,8 @@ sk_sp<Image> Device::makeImageCopy(const SkIRect& subset,
         label += "_DeviceCopy";
     }
 
-    return Image::Copy(fRecorder, srcView, colorInfo, subset, budgeted, mipmapped, backingFit,
-                       label);
+    return Image::Copy(fRecorder, /*drawContext=*/nullptr, srcView, colorInfo, subset, budgeted,
+                       mipmapped, backingFit, label);
 }
 
 bool Device::onReadPixels(const SkPixmap& pm, int srcX, int srcY) {
@@ -1386,7 +1388,7 @@ void Device::drawGeometry(const Transform& localToDevice,
             // Otherwise we may end up with outstanding draws that depend on past atlas state.
             fRecorder->priv().flushTrackedDevices();
         } else {
-            this->flushPendingWorkToRecorder();
+            this->flushPendingWork(/*drawContext=*/nullptr);
         }
     }
 
@@ -1770,7 +1772,7 @@ sk_sp<Task> Device::lastDrawTask() const {
     return fLastTask;
 }
 
-void Device::flushPendingWorkToRecorder() {
+void Device::flushPendingWork(DrawContext* drawContext) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     // If this is a scratch device being flushed, it should only be flushing into the expected
@@ -1799,39 +1801,31 @@ void Device::flushPendingWorkToRecorder() {
 
     this->internalFlush();
     sk_sp<Task> drawTask = fDC->snapDrawTask(fRecorder);
-    if (this->isScratchDevice()) {
-        // TODO(b/323887221): Once shared atlas resources are less brittle, scratch devices won't
-        // flush to the recorder at all and will only store the snapped task here.
-        fLastTask = drawTask;
+    if (drawContext) {
+        drawContext->recordDependency(std::move(drawTask));
     } else {
-        // Non-scratch devices do not need to point back to the last snapped task since they are
-        // always added to the root task list.
-        // TODO: It is currently possible for scratch devices to be flushed and instantiated before
-        // their work is finished, meaning they will produce additional tasks to be included in
-        // a follow-up Recording: https://chat.google.com/room/AAAA2HlH94I/YU0XdFqX2Uw.
-        // However, in this case they no longer appear scratch because the first Recording
-        // instantiated the targets. When scratch devices are not actually registered with the
-        // Recorder and are only included when they are drawn (e.g. restored), we should be able to
-        // assert that `fLastTask` is null.
-        fLastTask = nullptr;
-    }
+        if (this->isScratchDevice()) {
+            // TODO(b/323887221): Once shared atlas resources are less brittle, scratch devices
+            // won't flush to the recorder at all and will only store the snapped task here.
+            fLastTask = drawTask;
+        } else {
+            // Non-scratch devices do not need to point back to the last snapped task since they are
+            // always added to the root task list.
+            // TODO: It is currently possible for scratch devices to be flushed and instantiated
+            // before their work is finished, meaning they will produce additional tasks to be
+            // included in a follow-up Recording:
+            // https://chat.google.com/room/AAAA2HlH94I/YU0XdFqX2Uw. However, in this case they no
+            // longer appear scratch because the first Recording instantiated the targets. When
+            // scratch devices are not actually registered with the Recorder and are only included
+            // when they are drawn (e.g. restored), we should be able to assert that `fLastTask` is
+            // null.
+            fLastTask = nullptr;
+        }
 
-    if (drawTask) {
-        fRecorder->priv().add(std::move(drawTask));
-
-        // TODO(b/297344089): This always regenerates mipmaps on the draw target when it's drawn to.
-        // This could be wasteful if we draw to a target multiple times before reading from it with
-        // downscaling.
-        if (fDC->target()->mipmapped() == Mipmapped::kYes) {
-            if (!GenerateMipmaps(fRecorder, fDC->refTarget(), fDC->colorInfo())) {
-                SKGPU_LOG_W("Device::flushPendingWorkToRecorder: Failed to generate mipmaps");
-            }
+        if (drawTask) {
+            fRecorder->priv().add(std::move(drawTask));
         }
     }
-
-    // Upon flushing, reset the last recorded dst read strategy. We do not want a dst read
-    // performed in a prior draw pass to impact draws in a fresh pass.
-    fPriorDrawDstReadStrategy = DstReadStrategy::kNoneRequired;
 
     fIsFlushing = false;
 }
@@ -1856,6 +1850,10 @@ void Device::internalFlush() {
 
      // Any cleanup in the AtlasProvider
     fRecorder->priv().atlasProvider()->compact();
+
+    // Upon flushing, reset the last recorded dst read strategy. We do not want a dst read
+    // performed in a prior draw pass to impact draws in a fresh pass.
+    fPriorDrawDstReadStrategy = DstReadStrategy::kNoneRequired;
 }
 
 bool Device::needsFlushBeforeDraw(int numNewRenderSteps,
@@ -1979,7 +1977,7 @@ sk_sp<SkSpecialImage> Device::snapSpecial(const SkIRect& subset, bool forceCopy)
         // root task list. Once shared atlas management is solved and DrawTasks can be nested in a
         // graph then this can go away in favor of auto-flushing through the image's linked device.
         if (fRecorder) {
-            this->flushPendingWorkToRecorder();
+            this->flushPendingWork(/*drawContext=*/nullptr);
         }
         deviceImage = Image::WrapDevice(sk_ref_sp(this));
         finalSubset = subset;

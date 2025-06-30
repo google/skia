@@ -102,7 +102,7 @@ void Image_Base::notifyInUse(Recorder* recorder, DrawContext* drawContext) const
                         // an order consistent with the client-triggering actions. Because of this,
                         // there's no need to add references to the `drawContext` that the device
                         // is being drawn into.
-                        device->flushPendingWorkToRecorder();
+                        device->flushPendingWork(/*drawContext=*/nullptr);
                     }
                     if (!device->recorder() || device->unique()) {
                         // The device will not record any more commands that modify the texture, so
@@ -139,13 +139,16 @@ bool Image_Base::isDynamic() const {
     return emptyCount > 0;
 }
 
+// For now, CopyAsDraw is called with a nullptr for the drawContext, which causes the draw task
+// to be pushed onto the root task list. However, this could be given a drawContext in the future.
 sk_sp<Image> Image_Base::copyImage(Recorder* recorder,
                                    const SkIRect& subset,
                                    Budgeted budgeted,
                                    Mipmapped mipmapped,
                                    SkBackingFit backingFit,
                                    std::string_view label) const {
-    return CopyAsDraw(recorder, this, subset, this->imageInfo().colorInfo(),
+    return CopyAsDraw(recorder,
+                      /*drawContext=*/nullptr, this, subset, this->imageInfo().colorInfo(),
                       budgeted, mipmapped, backingFit, std::move(label));
 }
 
@@ -231,6 +234,7 @@ sk_sp<SkImage> Image_Base::makeColorTypeAndColorSpace(SkRecorder* recorder,
     // Use CopyAsDraw directly to perform the color space changes. The copied image is not
     // considered budgeted because this is a client-invoked API and they will own the image.
     return CopyAsDraw(gRecorder,
+                      /*drawContext=*/nullptr,
                       this,
                       this->bounds(),
                       dstColorInfo,

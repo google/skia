@@ -79,7 +79,13 @@ public:
 
     // Ensures clip elements are drawn that will clip previous draw calls, snaps all pending work
     // from the DrawContext as a RenderPassTask and records it in the Device's recorder.
-    void flushPendingWorkToRecorder();
+    //
+    // The behavior of this function depends on whether a drawContext is provided:
+    // - If a drawContext is provided, then any flushed tasks will be added to that drawContext's
+    //   task list. Note, no lastTask will be recorded in this case.
+    // - Else, flushed tasks are added to the root task list, and if this device is a scratch
+    //   device, the last task will be recorded.
+    void flushPendingWork(DrawContext*);
 
     const Transform& localToDeviceTransform();
 

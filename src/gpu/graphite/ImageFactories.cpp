@@ -112,7 +112,7 @@ sk_sp<SkImage> WrapTexture(Recorder* recorder,
                         "nonmipmapped texture");
             return nullptr;
         }
-        if (!GenerateMipmaps(recorder, view.refProxy(), info)) {
+        if (!GenerateMipmaps(recorder, /*drawContext=*/nullptr, view.refProxy(), info)) {
             SKGPU_LOG_W("Failed SkImage::WrapTexture. Could not generate mipmaps.");
             return nullptr;
         }

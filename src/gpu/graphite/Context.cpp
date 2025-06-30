@@ -367,6 +367,7 @@ void Context::asyncReadPixels(std::unique_ptr<Recorder> recorder,
             recorder = this->makeInternalRecorder();
         }
         sk_sp<SkImage> flattened = CopyAsDraw(recorder.get(),
+                                              /*drawContext=*/nullptr,
                                               params.fSrcImage,
                                               params.fSrcRect,
                                               params.fDstImageInfo.colorInfo(),

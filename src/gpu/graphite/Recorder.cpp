@@ -572,7 +572,7 @@ void RecorderPriv::flushTrackedDevices() {
         // along with any immutable or uniquely held Devices once everything is flushed.
         Device* device = fRecorder->fTrackedDevices[fRecorder->fFlushingDevicesIndex].get();
         if (device) {
-            device->flushPendingWorkToRecorder();
+            device->flushPendingWork(/*drawContext=*/nullptr);
         }
     }
 
