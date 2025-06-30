@@ -79,6 +79,7 @@ SkPathBuilder& SkPathBuilder::reset() {
 
 SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
     this->reset().setFillType(src.getFillType());
+    this->setIsVolatile(src.isVolatile());
 
     for (auto [verb, pts, w] : SkPathPriv::Iterate(src)) {
         switch (verb) {

@@ -613,6 +613,26 @@ DEF_TEST(SkPathBuilder_arcToPtPtRad_invalidInputsResultInALine, reporter) {
     test("second point equals previous point", {5, 4}, {0, 0}, 1, {5, 4});
 }
 
+DEF_TEST(SkPathBuilder_assign, reporter) {
+    auto check_round_trip = [reporter](const SkPath& src) {
+        SkPathBuilder builder;
+        builder = src;
+        const SkPath dst = builder.detach();
+        REPORTER_ASSERT(reporter, src == dst);
+        // Our equality test doesn't look at volatility, which is probably correct, but
+        // we want to ensure that our builder faithfully can reproduce the path.
+        REPORTER_ASSERT(reporter, src.isVolatile() == dst.isVolatile());
+    };
+
+    const SkPoint pts[] = {{0, 0}, {1, 1}, {2, 2}};
+    const bool isClosed = false; // doesn't matter for the test
+
+    bool isVolatile = false;
+    check_round_trip(SkPath::Polygon(pts, isClosed, SkPathFillType::kWinding, isVolatile));
+    isVolatile = true;
+    check_round_trip(SkPath::Polygon(pts, isClosed, SkPathFillType::kWinding, isVolatile));
+}
+
 DEF_TEST(SkPathBuilder_getLastPt, reporter) {
     SkPathBuilder b;
     REPORTER_ASSERT(reporter, b.getLastPt() == std::nullopt);
