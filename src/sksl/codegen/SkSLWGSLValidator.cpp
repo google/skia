@@ -10,7 +10,7 @@
 #include "src/sksl/SkSLErrorReporter.h"
 #include "src/sksl/SkSLPosition.h"
 
-#include "src/tint/lang/wgsl/extension.h"
+#include "src/tint/lang/wgsl/enums.h"
 #include "src/tint/lang/wgsl/reader/options.h"
 #include "tint/tint.h"
 
