@@ -15,7 +15,10 @@ skia_component("sksg") {
   public_configs = [ ":public_config" ]
   sources = skia_sksg_sources
   configs = [ "../../:skia_private" ]
-  deps = [ "../..:skia" ]
+  deps = [
+    "../..:pathops",
+    "../..:skia",
+  ]
 }
 
 if (defined(is_skia_standalone) && skia_enable_tools) {
