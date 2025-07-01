@@ -308,7 +308,7 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     // Set up color attachment.
 #if !defined(__EMSCRIPTEN__)
     wgpu::DawnRenderPassColorAttachmentRenderToSingleSampled mssaRenderToSingleSampledDesc;
-    wgpu::RenderPassDescriptorExpandResolveRect wgpuPartialRect = {};
+    wgpu::RenderPassDescriptorResolveRect wgpuPartialRect = {};
 #endif
 
 #if WGPU_TIMESTAMP_WRITES_DEFINED
@@ -372,29 +372,43 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
             // But it also means we might have to load the resolve texture into the MSAA color attachment
 
             if (fSharedContext->dawnCaps()->emulateLoadStoreResolve()) {
-                // TODO(b/399640773): Remove this once Dawn natively supports the partial resolve
-                // feature with different resolve & color offsets.
                 emulateLoadStoreResolveTexture = true;
             } else if (resolveInfo.fLoadOp == LoadOp::kLoad) {
                 std::optional<wgpu::LoadOp> resolveLoadOp =
                         fSharedContext->dawnCaps()->resolveTextureLoadOp();
                 if (resolveLoadOp.has_value()) {
                     wgpuColorAttachment.loadOp = *resolveLoadOp;
-#if !defined(__EMSCRIPTEN__)
-                    if (fSharedContext->dawnCaps()->supportsPartialLoadResolve()) {
-                        SkASSERT(resolveOffset.isZero());
-                        wgpuPartialRect.x = renderPassBounds.x();
-                        wgpuPartialRect.y = renderPassBounds.y();
-                        wgpuPartialRect.width = renderPassBounds.width();
-                        wgpuPartialRect.height = renderPassBounds.height();
-                        wgpuRenderPass.nextInChain = &wgpuPartialRect;
-                    }
-#endif
                 } else {
                     // No Dawn built-in support, we need to manually load the resolve texture.
                     emulateLoadStoreResolveTexture = true;
                 }
             }
+
+            if (!emulateLoadStoreResolveTexture) {
+#if !defined(__EMSCRIPTEN__)
+                if (fSharedContext->dawnCaps()->supportsPartialLoadResolve()) {
+                    SkIRect msaaArea = renderPassBounds;
+                    SkAssertResult(msaaArea.intersect(SkIRect::MakeSize(
+                            colorTexture->dimensions())));
+                    wgpuPartialRect.colorOffsetX = msaaArea.x();
+                    wgpuPartialRect.colorOffsetY = msaaArea.y();
+
+                    SkIRect resolveArea = renderPassBounds;
+                    resolveArea.offset(resolveOffset);
+                    SkAssertResult(resolveArea.intersect(SkIRect::MakeSize(
+                            resolveTexture->dimensions())));
+                    wgpuPartialRect.resolveOffsetX = resolveArea.x();
+                    wgpuPartialRect.resolveOffsetY = resolveArea.y();
+                    wgpuPartialRect.width = resolveArea.width();
+                    wgpuPartialRect.height = resolveArea.height();
+                    wgpuRenderPass.nextInChain = &wgpuPartialRect;
+                } else
+#endif
+                {
+                    SkASSERT(resolveOffset.isZero());
+                }
+            }
+
             // TODO: If the color resolve texture is read-only we can use a private (vs. memoryless)
             // msaa attachment that's coupled to the framebuffer and the StoreAndMultisampleResolve
             // action instead of loading as a draw.
