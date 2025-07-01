@@ -436,6 +436,7 @@ impl Reader {
             if cfg!(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION) {
                 options.set_ignore_checksums(true);
             }
+            options.set_ignore_text_chunk(true);
             png::Decoder::new_with_options(input, options)
         };
 
