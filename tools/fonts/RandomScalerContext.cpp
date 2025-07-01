@@ -179,7 +179,7 @@ void SkRandomTypeface::onFilterRec(SkScalerContextRec* rec) const {
     rec->fMaskFormat = SkMask::kARGB32_Format;
 }
 
-void SkRandomTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
+void SkRandomTypeface::getGlyphToUnicodeMap(SkSpan<SkUnichar> glyphToUnicode) const {
     fProxy->getGlyphToUnicodeMap(glyphToUnicode);
 }
 
@@ -205,8 +205,9 @@ void SkRandomTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal
     fProxy->getFontDescriptor(desc, isLocal);
 }
 
-void SkRandomTypeface::onCharsToGlyphs(const SkUnichar* uni, int count, SkGlyphID glyphs[]) const {
-    fProxy->unicharsToGlyphs({uni, count}, {glyphs, count});
+void SkRandomTypeface::onCharsToGlyphs(SkSpan<const SkUnichar> uni,
+                                       SkSpan<SkGlyphID> glyphs) const {
+    fProxy->unicharsToGlyphs(uni, glyphs);
 }
 
 int SkRandomTypeface::onCountGlyphs() const { return fProxy->countGlyphs(); }
@@ -234,19 +235,17 @@ bool SkRandomTypeface::onGlyphMaskNeedsCurrentColor() const {
 }
 
 int SkRandomTypeface::onGetVariationDesignPosition(
-        SkFontArguments::VariationPosition::Coordinate coordinates[],
-        int                                            coordinateCount) const {
-    return fProxy->onGetVariationDesignPosition(coordinates, coordinateCount);
+                       SkSpan<SkFontArguments::VariationPosition::Coordinate> coordinates) const {
+    return fProxy->onGetVariationDesignPosition(coordinates);
 }
 
-int SkRandomTypeface::onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
-                                                     int parameterCount) const {
-    return fProxy->onGetVariationDesignParameters(parameters, parameterCount);
+int SkRandomTypeface::onGetVariationDesignParameters(
+                                     SkSpan<SkFontParameters::Variation::Axis> parameters) const {
+    return fProxy->onGetVariationDesignParameters(parameters);
 }
 
-int SkRandomTypeface::onGetTableTags(SkFontTableTag tags[]) const {
-    const size_t n = tags ? MAX_REASONABLE_TABLE_COUNT : 0;
-    return fProxy->readTableTags({tags, n});
+int SkRandomTypeface::onGetTableTags(SkSpan<SkFontTableTag> tags) const {
+    return fProxy->readTableTags(tags);
 }
 
 size_t SkRandomTypeface::onGetTableData(SkFontTableTag tag,

@@ -404,7 +404,7 @@ void SkFontPriv::GlyphsToUnichars(const SkFont& font, const SkGlyphID glyphs[], 
     auto typeface = font.getTypeface();
     const unsigned numGlyphsInTypeface = typeface->countGlyphs();
     AutoTArray<SkUnichar> unichars(static_cast<size_t>(numGlyphsInTypeface));
-    typeface->getGlyphToUnicodeMap(unichars.get());
+    typeface->getGlyphToUnicodeMap(unichars);
 
     for (int i = 0; i < count; ++i) {
         unsigned id = glyphs[i];

@@ -147,8 +147,8 @@ void TestTypeface::onFilterRec(SkScalerContextRec* rec) const {
     rec->setHinting(SkFontHinting::kNone);
 }
 
-void TestTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
-    unsigned glyphCount = fTestFont->fCharCodesCount;
+void TestTypeface::getGlyphToUnicodeMap(SkSpan<SkUnichar> glyphToUnicode) const {
+    unsigned glyphCount = std::min(fTestFont->fCharCodesCount, glyphToUnicode.size());
     for (unsigned gid = 0; gid < glyphCount; ++gid) {
         glyphToUnicode[gid] = SkTo<SkUnichar>(fTestFont->fCharCodes[gid]);
     }
@@ -229,8 +229,9 @@ TestTypeface::Register::Register() {
 }
 static TestTypeface::Register registerer;
 
-void TestTypeface::onCharsToGlyphs(const SkUnichar* uni, int count, SkGlyphID glyphs[]) const {
-    for (int i = 0; i < count; ++i) {
+void TestTypeface::onCharsToGlyphs(SkSpan<const SkUnichar> uni, SkSpan<SkGlyphID> glyphs) const {
+    SkASSERT(uni.size() == glyphs.size());
+    for (size_t i = 0; i < uni.size(); ++i) {
         glyphs[i] = fTestFont->glyphForUnichar(uni[i]);
     }
 }

@@ -136,10 +136,11 @@ void TestSVGTypeface::onFilterRec(SkScalerContextRec* rec) const {
     rec->setHinting(SkFontHinting::kNone);
 }
 
-void TestSVGTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
+void TestSVGTypeface::getGlyphToUnicodeMap(SkSpan<SkUnichar> glyphToUnicode) const {
     SkDEBUGCODE(unsigned glyphCount = this->countGlyphs());
     fCMap.foreach ([=](const SkUnichar& c, const SkGlyphID& g) {
         SkASSERT(g < glyphCount);
+        SkASSERT(g < glyphToUnicode.size());
         glyphToUnicode[g] = c;
     });
 }
@@ -156,8 +157,9 @@ void TestSVGTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* serializ
     *serialize = true;
 }
 
-void TestSVGTypeface::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
-    for (int i = 0; i < count; i++) {
+void TestSVGTypeface::onCharsToGlyphs(SkSpan<const SkUnichar> uni, SkSpan<SkGlyphID> glyphs) const {
+    SkASSERT(uni.size() == glyphs.size());
+    for (size_t i = 0; i < uni.size(); i++) {
         SkGlyphID* g = fCMap.find(uni[i]);
         glyphs[i]    = g ? *g : 0;
     }

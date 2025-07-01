@@ -55,24 +55,23 @@ protected:
             const SkDescriptor*,
             SkTypeface* proxyTypeface) const override;
     void onFilterRec(SkScalerContextRec*) const override;
-    void getGlyphToUnicodeMap(SkUnichar*) const override;
+    void getGlyphToUnicodeMap(SkSpan<SkUnichar>) const override;
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override;
     void getPostScriptGlyphNames(SkString* dstArray) const override;
     bool onGetPostScriptName(SkString*) const override;
     int onGetUPEM() const override;
-    bool onGetKerningPairAdjustments(const SkGlyphID glyphs[], int count,
-                                     int32_t adjustments[]) const override;
-    void onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const override;
+    bool onGetKerningPairAdjustments(SkSpan<const SkGlyphID>,
+                                     SkSpan<int32_t> adjustments) const override;
+    void onCharsToGlyphs(SkSpan<const SkUnichar>, SkSpan<SkGlyphID>) const override;
     int onCountGlyphs() const override;
 
     LocalizedStrings* onCreateFamilyNameIterator() const override;
 
     bool onGlyphMaskNeedsCurrentColor() const override;
-    int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
-                                     int coordinateCount) const override;
-    int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
-                                       int parameterCount) const override;
-    int onGetTableTags(SkFontTableTag tags[]) const override;
+    int onGetVariationDesignPosition(
+                             SkSpan<SkFontArguments::VariationPosition::Coordinate>) const override;
+    int onGetVariationDesignParameters(SkSpan<SkFontParameters::Variation::Axis>) const override;
+    int onGetTableTags(SkSpan<SkFontTableTag>) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset,
                           size_t length, void* data) const override;
     sk_sp<SkData> onCopyTableData(SkFontTableTag) const override;

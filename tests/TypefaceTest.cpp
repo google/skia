@@ -120,7 +120,7 @@ DEF_TEST(TypefaceStyle, reporter) {
     }
 }
 
-void TestSkTypefaceGlyphToUnicodeMap(SkTypeface& typeface, SkUnichar* codepoints) {
+void TestSkTypefaceGlyphToUnicodeMap(SkTypeface& typeface, SkSpan<SkUnichar> codepoints) {
     typeface.getGlyphToUnicodeMap(codepoints);
 }
 

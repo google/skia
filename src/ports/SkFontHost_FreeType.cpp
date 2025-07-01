@@ -642,24 +642,27 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
     return info;
 }
 
-void SkTypeface_FreeType::getGlyphToUnicodeMap(SkUnichar* dstArray) const {
+void SkTypeface_FreeType::getGlyphToUnicodeMap(SkSpan<SkUnichar> dstArray) const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
         return;
     }
 
-    FT_Long numGlyphs = face->num_glyphs;
-    if (!dstArray) { SkASSERT(numGlyphs == 0); }
-    sk_bzero(dstArray, sizeof(SkUnichar) * numGlyphs);
+    const size_t numGlyphs = std::min(dstArray.size(), (size_t)face->num_glyphs);
+    if (numGlyphs == 0) {
+        return;
+    }
+    sk_bzero(dstArray.data(), dstArray.size_bytes());
 
     FT_UInt glyphIndex;
     SkUnichar charCode = FT_Get_First_Char(face, &glyphIndex);
     while (glyphIndex) {
-        SkASSERT(glyphIndex < SkToUInt(numGlyphs));
-        // Use the first character that maps to this glyphID. https://crbug.com/359065
-        if (0 == dstArray[glyphIndex]) {
-            dstArray[glyphIndex] = charCode;
+        if (glyphIndex < numGlyphs) {
+            // Use the first character that maps to this glyphID. https://crbug.com/359065
+            if (0 == dstArray[glyphIndex]) {
+                dstArray[glyphIndex] = charCode;
+            }
         }
         charCode = FT_Get_Next_Char(face, charCode, &glyphIndex);
     }
@@ -746,7 +749,7 @@ std::unique_ptr<SkScalerContext> SkTypeface_FreeType::onCreateScalerContextAsPro
  *  cannot.
  */
 static int GetVariationDesignPosition(FT_Face face,
-    SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount)
+                              SkSpan<SkFontArguments::VariationPosition::Coordinate> coordinates)
 {
     if (!(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
         return 0;
@@ -758,7 +761,7 @@ static int GetVariationDesignPosition(FT_Face face,
     }
     UniqueVoidPtr autoFreeVariations(variations);
 
-    if (!coordinates || coordinateCount < SkToInt(variations->num_axis)) {
+    if (coordinates.size() < variations->num_axis) {
         return variations->num_axis;
     }
 
@@ -789,7 +792,7 @@ std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(const SkFontArgum
     int axisCount = axisDefinitions.size();
 
     AutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> currentPosition(axisCount);
-    int currentAxisCount = GetVariationDesignPosition(face, currentPosition, axisCount);
+    int currentAxisCount = GetVariationDesignPosition(face, {currentPosition, axisCount});
 
     SkString name;
     AutoSTMalloc<4, SkFixed> axisValues(axisCount);
@@ -869,18 +872,19 @@ int SkTypeface_FreeType::onGetUPEM() const {
     return GetUnitsPerEm(face);
 }
 
-bool SkTypeface_FreeType::onGetKerningPairAdjustments(const SkGlyphID glyphs[],
-                                      int count, int32_t adjustments[]) const {
+bool SkTypeface_FreeType::onGetKerningPairAdjustments(SkSpan<const SkGlyphID> glyphs,
+                                                      SkSpan<int32_t> adjustments) const {
+    SkASSERT(glyphs.size() == adjustments.size() + 1);
+
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face || !FT_HAS_KERNING(face)) {
         return false;
     }
 
-    for (int i = 0; i < count - 1; ++i) {
+    for (size_t i = 0; i < adjustments.size(); ++i) {
         FT_Vector delta;
-        FT_Error err = FT_Get_Kerning(face, glyphs[i], glyphs[i+1],
-                                      FT_KERNING_UNSCALED, &delta);
+        FT_Error err = FT_Get_Kerning(face, glyphs[i], glyphs[i+1], FT_KERNING_UNSCALED, &delta);
         if (err) {
             return false;
         }
@@ -1745,13 +1749,17 @@ SkTypeface_FreeType::~SkTypeface_FreeType() {
 // Just made up, so we don't end up storing 1000s of entries
 constexpr int kMaxC2GCacheCount = 512;
 
-void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
-                                          SkGlyphID glyphs[]) const {
+void SkTypeface_FreeType::onCharsToGlyphs(SkSpan<const SkUnichar> uni,
+                                          SkSpan<SkGlyphID> glyphs) const {
     // Try the cache first, *before* accessing freetype lib/face, as that
     // can be very slow. If we do need to compute a new glyphID, then
     // access those freetype objects and continue the loop.
 
-    int i;
+    SkASSERT(uni.size() == glyphs.size());
+
+    const size_t count = uni.size();
+
+    size_t i;
     {
         // Optimistically use a shared lock.
         SkAutoSharedMutexShared ama(fC2GCacheMutex);
@@ -1773,7 +1781,7 @@ void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
-        sk_bzero(glyphs, count * sizeof(glyphs[0]));
+        sk_bzero(glyphs.data(), glyphs.size_bytes());
         return;
     }
 
@@ -1824,18 +1832,18 @@ bool SkTypeface_FreeType::onGlyphMaskNeedsCurrentColor() const {
 }
 
 int SkTypeface_FreeType::onGetVariationDesignPosition(
-    SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
+                          SkSpan<SkFontArguments::VariationPosition::Coordinate> coordinates) const
 {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
         return -1;
     }
-    return GetVariationDesignPosition(face, coordinates, coordinateCount);
+    return GetVariationDesignPosition(face, coordinates);
 }
 
 int SkTypeface_FreeType::onGetVariationDesignParameters(
-    SkFontParameters::Variation::Axis parameters[], int parameterCount) const
+    SkSpan<SkFontParameters::Variation::Axis> parameters) const
 {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
@@ -1853,7 +1861,7 @@ int SkTypeface_FreeType::onGetVariationDesignParameters(
     }
     UniqueVoidPtr autoFreeVariations(variations);
 
-    if (!parameters || parameterCount < SkToInt(variations->num_axis)) {
+    if (parameters.size() < variations->num_axis) {
         return variations->num_axis;
     }
 
@@ -1871,7 +1879,7 @@ int SkTypeface_FreeType::onGetVariationDesignParameters(
     return variations->num_axis;
 }
 
-int SkTypeface_FreeType::onGetTableTags(SkFontTableTag tags[]) const {
+int SkTypeface_FreeType::onGetTableTags(SkSpan<SkFontTableTag> tags) const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
@@ -1887,16 +1895,15 @@ int SkTypeface_FreeType::onGetTableTags(SkFontTableTag tags[]) const {
         return 0;
     }
 
-    if (tags) {
-        for (FT_ULong tableIndex = 0; tableIndex < tableCount; ++tableIndex) {
-            FT_ULong tableTag;
-            FT_ULong tablelength;
-            error = FT_Sfnt_Table_Info(face, tableIndex, &tableTag, &tablelength);
-            if (error) {
-                return 0;
-            }
-            tags[tableIndex] = static_cast<SkFontTableTag>(tableTag);
+    const size_t count = std::min<size_t>(tableCount, tags.size());
+    for (size_t tableIndex = 0; tableIndex < count; ++tableIndex) {
+        FT_ULong tableTag;
+        FT_ULong tablelength;
+        error = FT_Sfnt_Table_Info(face, tableIndex, &tableTag, &tablelength);
+        if (error) {
+            return 0;
         }
+        tags[tableIndex] = static_cast<SkFontTableTag>(tableTag);
     }
     return tableCount;
 }
@@ -2233,7 +2240,8 @@ bool SkFontScanner_FreeType::scanInstance(SkStreamAsset* stream,
             if (position) {
                 position->reset(numAxes);
                 auto coordinates = position->data();
-                if (GetVariationDesignPosition(face.get(), coordinates, numAxes) != (int)numAxes) {
+                if (GetVariationDesignPosition(face.get(),
+                                               {coordinates, numAxes}) != (int)numAxes) {
                     return false;
                 }
             }

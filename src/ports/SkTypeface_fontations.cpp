@@ -29,6 +29,10 @@
 
 namespace {
 
+template <typename T> rust::Slice<T> toSlice(SkSpan<T> span) {
+    return rust::Slice<T>(span.data(), span.size());
+}
+
 #if !defined(SK_USE_LEGACY_PNG_DECODING_FONTATIONS)
 void CheckPng() {
 #if defined(SK_DEBUG)
@@ -281,26 +285,22 @@ bool SkTypeface_Fontations::onGlyphMaskNeedsCurrentColor() const {
     return fGlyphMasksMayNeedCurrentColor;
 }
 
-void SkTypeface_Fontations::onCharsToGlyphs(const SkUnichar* chars,
-                                            int count,
-                                            SkGlyphID glyphs[]) const {
-    size_t realCount = SkToSizeT(count);
-    rust::Slice<const uint32_t> codepointSlice{reinterpret_cast<const uint32_t*>(chars), realCount};
-    rust::Slice<uint16_t> glyphSlice{reinterpret_cast<uint16_t*>(glyphs), realCount};
+void SkTypeface_Fontations::onCharsToGlyphs(SkSpan<const SkUnichar> chars,
+                                            SkSpan<SkGlyphID> glyphs) const {
+    SkASSERT(chars.size() == glyphs.size());
+    rust::Slice<const uint32_t> codepointSlice{reinterpret_cast<const uint32_t*>(chars.data()),
+                                               chars.size()};
     fontations_ffi::lookup_glyph_or_zero(*fBridgeFontRef, *fMappingIndex,
-                                         codepointSlice, glyphSlice);
+                                         codepointSlice, toSlice(glyphs));
 }
 int SkTypeface_Fontations::onCountGlyphs() const {
     return fontations_ffi::num_glyphs(*fBridgeFontRef);
 }
 
-void SkTypeface_Fontations::getGlyphToUnicodeMap(SkUnichar* codepointForGlyphMap) const {
-    size_t numGlyphs = SkToSizeT(onCountGlyphs());
-    if (!codepointForGlyphMap) {
-        SkASSERT(numGlyphs == 0);
-    }
-    rust::Slice<uint32_t> codepointForGlyphSlice{reinterpret_cast<uint32_t*>(codepointForGlyphMap),
-                                                 numGlyphs};
+void SkTypeface_Fontations::getGlyphToUnicodeMap(SkSpan<SkUnichar> codepointForGlyphMap) const {
+    size_t numGlyphs = std::min(SkToSizeT(onCountGlyphs()), codepointForGlyphMap.size());
+    rust::Slice<uint32_t> codepointForGlyphSlice
+        {reinterpret_cast<uint32_t*>(codepointForGlyphMap.data()), numGlyphs};
     fontations_ffi::fill_glyph_to_unicode_map(*fBridgeFontRef, codepointForGlyphSlice);
 }
 
@@ -973,10 +973,10 @@ sk_sp<SkTypeface> SkTypeface_Fontations::onMakeClone(const SkFontArguments& args
         return sk_ref_sp(this);
     }
 
-    int numAxes = onGetVariationDesignPosition(nullptr, 0);
+    int numAxes = onGetVariationDesignPosition({});
     auto fusedDesignPosition =
             std::make_unique<SkFontArguments::VariationPosition::Coordinate[]>(numAxes);
-    int retrievedAxes = onGetVariationDesignPosition(fusedDesignPosition.get(), numAxes);
+    int retrievedAxes = onGetVariationDesignPosition({fusedDesignPosition.get(), numAxes});
     if (numAxes != retrievedAxes) {
         return nullptr;
     }
@@ -1135,29 +1135,29 @@ size_t SkTypeface_Fontations::onGetTableData(SkFontTableTag tag,
     return std::min(copied, length);
 }
 
-int SkTypeface_Fontations::onGetTableTags(SkFontTableTag tags[]) const {
+int SkTypeface_Fontations::onGetTableTags(SkSpan<SkFontTableTag> tags) const {
     uint16_t numTables = fontations_ffi::table_tags(*fBridgeFontRef, rust::Slice<uint32_t>());
-    if (!tags) {
+    if (tags.empty()) {
         return numTables;
     }
-    rust::Slice<uint32_t> copyToTags(tags, numTables);
-    return fontations_ffi::table_tags(*fBridgeFontRef, copyToTags);
+    const size_t n = std::min<size_t>(numTables, tags.size());
+    return fontations_ffi::table_tags(*fBridgeFontRef, toSlice(tags.first(n)));
 }
 
 int SkTypeface_Fontations::onGetVariationDesignPosition(
-        SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const {
+        SkSpan<SkFontArguments::VariationPosition::Coordinate> coordinates) const {
     rust::Slice<fontations_ffi::SkiaDesignCoordinate> copyToCoordinates;
-    if (coordinates) {
+    if (!coordinates.empty()) {
         copyToCoordinates = rust::Slice<fontations_ffi::SkiaDesignCoordinate>(
-                reinterpret_cast<fontations_ffi::SkiaDesignCoordinate*>(coordinates),
-                coordinateCount);
+                reinterpret_cast<fontations_ffi::SkiaDesignCoordinate*>(coordinates.data()),
+                coordinates.size());
     }
     return fontations_ffi::variation_position(*fBridgeNormalizedCoords, copyToCoordinates);
 }
 
 int SkTypeface_Fontations::onGetVariationDesignParameters(
-        SkFontParameters::Variation::Axis parameters[], int parameterCount) const {
-    sk_fontations::AxisWrapper axisWrapper(parameters, parameterCount);
+        SkSpan<SkFontParameters::Variation::Axis> parameters) const {
+    sk_fontations::AxisWrapper axisWrapper(parameters.data(), parameters.size());
     return fontations_ffi::populate_axes(*fBridgeFontRef, axisWrapper);
 }
 

@@ -99,12 +99,12 @@ protected:
         desc->setFactoryId(FactoryId);
         *serialize = false;
     }
-    void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override {
-        sk_bzero(glyphs, count * sizeof(glyphs[0]));
+    void onCharsToGlyphs(SkSpan<const SkUnichar> chars, SkSpan<SkGlyphID> glyphs) const override {
+        sk_bzero(glyphs.data(), glyphs.size_bytes());
     }
     int onCountGlyphs() const override { return 0; }
     void getPostScriptGlyphNames(SkString*) const override {}
-    void getGlyphToUnicodeMap(SkUnichar*) const override {}
+    void getGlyphToUnicodeMap(SkSpan<SkUnichar>) const override {}
     int onGetUPEM() const override { return 0; }
     bool onComputeBounds(SkRect* bounds) const override { return false; }
 
@@ -124,17 +124,16 @@ protected:
     bool onGlyphMaskNeedsCurrentColor() const override {
         return false;
     }
-    int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
-                                     int coordinateCount) const override
+    int onGetVariationDesignPosition(
+                             SkSpan<SkFontArguments::VariationPosition::Coordinate>) const override
     {
         return 0;
     }
-    int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
-                                       int parameterCount) const override
+    int onGetVariationDesignParameters(SkSpan<SkFontParameters::Variation::Axis>) const override
     {
         return 0;
     }
-    int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
+    int onGetTableTags(SkSpan<SkFontTableTag>) const override { return 0; }
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override {
         return 0;
     }
@@ -289,21 +288,21 @@ bool SkTypeface::glyphMaskNeedsCurrentColor() const {
 int SkTypeface::getVariationDesignPosition(
         SkSpan<SkFontArguments::VariationPosition::Coordinate> coordinates) const
 {
-    return this->onGetVariationDesignPosition(coordinates.data(), coordinates.size());
+    return this->onGetVariationDesignPosition(coordinates);
 }
 
 int SkTypeface::getVariationDesignParameters(
         SkSpan<SkFontParameters::Variation::Axis> parameters) const
 {
-    return this->onGetVariationDesignParameters(parameters.data(), parameters.size());
+    return this->onGetVariationDesignParameters(parameters);
 }
 
 int SkTypeface::countTables() const {
-    return this->onGetTableTags(nullptr);
+    return this->onGetTableTags({});
 }
 
 int SkTypeface::readTableTags(SkSpan<SkFontTableTag> tags) const {
-    return this->onGetTableTags(tags.size() ? tags.data() : nullptr);
+    return this->onGetTableTags(tags);
 }
 
 size_t SkTypeface::getTableSize(SkFontTableTag tag) const {
@@ -363,13 +362,13 @@ std::unique_ptr<SkScalerContext> SkTypeface::onCreateScalerContextAsProxyTypefac
 
 void SkTypeface::unicharsToGlyphs(SkSpan<const SkUnichar> uni, SkSpan<SkGlyphID> glyphs) const {
     if (const size_t n = std::min(uni.size(), glyphs.size())) {
-        this->onCharsToGlyphs(uni.data(), n, glyphs.data());
+        this->onCharsToGlyphs(uni.first(n), glyphs.first(n));
     }
 }
 
 SkGlyphID SkTypeface::unicharToGlyph(SkUnichar uni) const {
     SkGlyphID glyphs[1] = { 0 };
-    this->onCharsToGlyphs(&uni, 1, glyphs);
+    this->onCharsToGlyphs({&uni, 1}, glyphs);
     return glyphs[0];
 }
 
@@ -447,21 +446,15 @@ int SkTypeface::getUnitsPerEm() const {
 
 bool SkTypeface::getKerningPairAdjustments(SkSpan<const SkGlyphID> glyphs,
                                            SkSpan<int32_t> adjustments) const {
-    // check for the only legal way to pass a nullptr.. everything is 0
-    // in which case they just want to know if this face can possibly support
-    // kerning (true) or never (false).
-    if (glyphs.empty() || adjustments.empty()) {
-        SkASSERT(glyphs.empty() && adjustments.empty());
+    // We need glyphs.size() == adjustments.size() + 1
+    // unless either is emptyish, in which case we still call the virtual, just
+    // to get the boolean result.
+    if (glyphs.size() <= 1 || adjustments.empty()) {
+        return this->onGetKerningPairAdjustments({}, {});   // just return the bool
     }
 
-    // If we update/the on-virtual to take spans, we won't need this
-    // But for now, we need to limit the # of glyphs to the number of adjustments - 1
-    size_t count = glyphs.size();
-    if (count > 0) {
-        count = std::min(count - 1, adjustments.size());
-    }
-
-    return this->onGetKerningPairAdjustments(glyphs.data(), count, adjustments.data());
+    const size_t n = std::min(glyphs.size() - 1, adjustments.size());
+    return this->onGetKerningPairAdjustments(glyphs.first(n + 1), adjustments.first(n));
 }
 
 SkTypeface::LocalizedStrings* SkTypeface::createFamilyNameIterator() const {
@@ -509,8 +502,8 @@ bool SkTypeface::onGetFixedPitch() const {
     return fIsFixedPitch;
 }
 
-void SkTypeface::getGlyphToUnicodeMap(SkUnichar* dst) const {
-    sk_bzero(dst, sizeof(SkUnichar) * this->countGlyphs());
+void SkTypeface::getGlyphToUnicodeMap(SkSpan<SkUnichar> dst) const {
+    sk_bzero(dst.data(), dst.size_bytes());
 }
 
 std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::getAdvancedMetrics() const {
@@ -537,8 +530,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface::getAdvancedMetrics() cons
     return result;
 }
 
-bool SkTypeface::onGetKerningPairAdjustments(const SkGlyphID glyphs[], int count,
-                                             int32_t adjustments[]) const {
+bool SkTypeface::onGetKerningPairAdjustments(SkSpan<const SkGlyphID>, SkSpan<int32_t> adj) const {
     return false;
 }
 

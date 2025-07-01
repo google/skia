@@ -85,10 +85,10 @@ static void test_countGlyphs(skiatest::Reporter* reporter, const sk_sp<SkTypefac
 }
 
 static void test_fontstream(skiatest::Reporter* reporter, SkStream* stream, int ttcIndex) {
-    int n = SkFontStream::GetTableTags(stream, ttcIndex, nullptr);
+    int n = SkFontStream::GetTableTags(stream, ttcIndex, {});
     AutoTArray<SkFontTableTag> array(n);
 
-    int n2 = SkFontStream::GetTableTags(stream, ttcIndex, array.get());
+    int n2 = SkFontStream::GetTableTags(stream, ttcIndex, array);
     REPORTER_ASSERT(reporter, n == n2);
 
     for (int i = 0; i < n; ++i) {

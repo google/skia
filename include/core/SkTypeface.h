@@ -410,7 +410,7 @@ protected:
     // The mapping from glyph to Unicode; array indices are glyph ids.
     // For each glyph, give the default Unicode value, if it exists.
     // dstArray is non-null, and points to an array of size this->countGlyphs().
-    virtual void getGlyphToUnicodeMap(SkUnichar* dstArray) const = 0;
+    virtual void getGlyphToUnicodeMap(SkSpan<SkUnichar> dstArray) const = 0;
 
     virtual std::unique_ptr<SkStreamAsset> onOpenStream(int* ttcIndex) const = 0;
 
@@ -419,20 +419,18 @@ protected:
     virtual bool onGlyphMaskNeedsCurrentColor() const = 0;
 
     virtual int onGetVariationDesignPosition(
-        SkFontArguments::VariationPosition::Coordinate coordinates[],
-        int coordinateCount) const = 0;
+                                 SkSpan<SkFontArguments::VariationPosition::Coordinate>) const = 0;
 
-    virtual int onGetVariationDesignParameters(
-        SkFontParameters::Variation::Axis parameters[], int parameterCount) const = 0;
+    virtual int onGetVariationDesignParameters(SkSpan<SkFontParameters::Variation::Axis>) const = 0;
 
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
-    virtual void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const = 0;
+    virtual void onCharsToGlyphs(SkSpan<const SkUnichar>, SkSpan<SkGlyphID>) const = 0;
     virtual int onCountGlyphs() const = 0;
 
     virtual int onGetUPEM() const = 0;
-    virtual bool onGetKerningPairAdjustments(const SkGlyphID glyphs[], int count,
-                                             int32_t adjustments[]) const;
+    virtual bool onGetKerningPairAdjustments(SkSpan<const SkGlyphID>,
+                                             SkSpan<int32_t> adjustments) const;
 
     /** Returns the family name of the typeface as known by its font manager.
      *  This name may or may not be produced by the family name iterator.
@@ -444,7 +442,7 @@ protected:
     /** Returns an iterator over the family names in the font. */
     virtual LocalizedStrings* onCreateFamilyNameIterator() const = 0;
 
-    virtual int onGetTableTags(SkFontTableTag tags[]) const = 0;
+    virtual int onGetTableTags(SkSpan<SkFontTableTag>) const = 0;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
                                   size_t length, void* data) const = 0;
     virtual sk_sp<SkData> onCopyTableData(SkFontTableTag) const;
@@ -468,7 +466,7 @@ private:
     friend class SkPDFFont;          // getAdvancedMetrics
     friend class SkTypeface_proxy;
     friend class SkFontPriv;         // getGlyphToUnicodeMap
-    friend void TestSkTypefaceGlyphToUnicodeMap(SkTypeface&, SkUnichar*);
+    friend void TestSkTypefaceGlyphToUnicodeMap(SkTypeface&, SkSpan<SkUnichar>);
 
 private:
     SkTypefaceID        fUniqueID;

@@ -309,7 +309,7 @@ const std::vector<SkUnichar>& SkPDFFont::GetUnicodeMap(const SkTypeface& typefac
         return *ptr;
     }
     std::vector<SkUnichar> buffer(typeface.countGlyphs());
-    typeface.getGlyphToUnicodeMap(buffer.data());
+    typeface.getGlyphToUnicodeMap(buffer);
     return *canon->fToUnicodeMap.set(id, std::move(buffer));
 }
 
