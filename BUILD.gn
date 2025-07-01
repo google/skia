@@ -2004,9 +2004,9 @@ skia_source_set("public_headers_warnings_check") {
 if (((skia_enable_fontmgr_fontconfig && skia_use_freetype) ||
      skia_use_fonthost_mac || skia_enable_fontmgr_win ||
      skia_enable_fontmgr_custom_directory) && skia_enable_ganesh &&
-    skia_use_libjpeg_turbo_encode &&
-    (skia_use_libpng_decode || skia_use_rust_png_decode) && skia_enable_pdf &&
-    !skia_use_vulkan) {
+    skia_use_libjpeg_turbo_encode && skia_use_libjpeg_turbo_decode &&
+    (skia_use_libpng_encode && !skia_use_ndk_images) && skia_use_zlib &&
+    skia_enable_pdf && !skia_use_vulkan) {
   skia_executable("fiddle_examples") {
     sources = [
       "tools/fiddle/all_examples.cpp",
