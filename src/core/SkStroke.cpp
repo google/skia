@@ -360,12 +360,10 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
         } else {    // add caps to start and end
             // cap the end
             fInner.getLastPt(&pt);
-            fCapper(&fOuter, fPrevPt, fPrevNormal, pt,
-                    currIsLine ? &fInner : nullptr);
+            fCapper(&fOuter, fPrevPt, fPrevNormal, pt, currIsLine);
             fOuter.reversePathTo(fInner);
             // cap the start
-            fCapper(&fOuter, fFirstPt, -fFirstNormal, fFirstOuterPt,
-                    fPrevIsLine ? &fInner : nullptr);
+            fCapper(&fOuter, fFirstPt, -fFirstNormal, fFirstOuterPt, fPrevIsLine);
             fOuter.close();
         }
         if (!fCusper.isEmpty()) {

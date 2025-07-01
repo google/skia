@@ -15,12 +15,12 @@
 #include <utility>
 
 static void ButtCapper(SkPath* path, const SkPoint& pivot, const SkVector& normal,
-                       const SkPoint& stop, SkPath*) {
+                       const SkPoint& stop, bool) {
     path->lineTo(stop.fX, stop.fY);
 }
 
 static void RoundCapper(SkPath* path, const SkPoint& pivot, const SkVector& normal,
-                        const SkPoint& stop, SkPath*) {
+                        const SkPoint& stop, bool) {
     SkVector parallel;
     SkPointPriv::RotateCW(normal, &parallel);
 
@@ -31,11 +31,11 @@ static void RoundCapper(SkPath* path, const SkPoint& pivot, const SkVector& norm
 }
 
 static void SquareCapper(SkPath* path, const SkPoint& pivot, const SkVector& normal,
-                         const SkPoint& stop, SkPath* otherPath) {
+                         const SkPoint& stop, bool extendLastPt) {
     SkVector parallel;
     SkPointPriv::RotateCW(normal, &parallel);
 
-    if (otherPath) {
+    if (extendLastPt) {
         path->setLastPt(pivot.fX + normal.fX + parallel.fX, pivot.fY + normal.fY + parallel.fY);
         path->lineTo(pivot.fX - normal.fX + parallel.fX, pivot.fY - normal.fY + parallel.fY);
     } else {

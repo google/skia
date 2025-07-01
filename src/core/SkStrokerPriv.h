@@ -31,7 +31,7 @@ public:
                             const SkPoint& pivot,
                             const SkVector& normal,
                             const SkPoint& stop,
-                            SkPath* otherPath);
+                            bool extendLastPt);
 
     typedef void (*JoinProc)(SkPath* outer, SkPath* inner,
                              const SkVector& beforeUnitNormal,
