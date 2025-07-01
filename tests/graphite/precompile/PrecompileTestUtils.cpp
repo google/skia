@@ -1121,7 +1121,12 @@ int PipelineLabelInfoCollector::processLabel(const std::string& precompiledLabel
 
     auto result = fMap.find(precompiledLabel.c_str());
     if (result == fMap.end()) {
-        SkASSERT(fOverGenerated.find(precompiledLabel) == fOverGenerated.end());
+        SkDEBUGCODE(auto prior = fOverGenerated.find(precompiledLabel);)
+        SkASSERTF(prior == fOverGenerated.end(),
+                  "duplicate (unused) Pipeline found for cases %d %d:\n%s\n",
+                  prior->second.fOriginatingSetting,
+                  precompileCase,
+                  precompiledLabel.c_str());
         fOverGenerated.insert({ precompiledLabel, OverGenInfo(precompileCase) });
         return -1;
     }
