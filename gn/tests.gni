@@ -395,6 +395,8 @@ precompile_tests_sources = [
   "$_tests/graphite/precompile/AndroidPrecompileTest.cpp",
   "$_tests/graphite/precompile/ChromePrecompileTest.cpp",
   "$_tests/graphite/precompile/CombinationBuilderTest.cpp",
+  "$_tests/graphite/precompile/PaintOptionsBuilder.cpp",
+  "$_tests/graphite/precompile/PaintOptionsBuilder.h",
   "$_tests/graphite/precompile/PaintParamsKeyTest.cpp",
   "$_tests/graphite/precompile/PrecompileStatsTest.cpp",
   "$_tests/graphite/precompile/PrecompileTestUtils.cpp",

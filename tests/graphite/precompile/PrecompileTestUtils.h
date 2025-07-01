@@ -125,7 +125,7 @@ skgpu::graphite::PaintOptions TransparentPaintImageSRGBHWOnlySrcover();
 skgpu::graphite::PaintOptions TransparentPaintSrcover();
 skgpu::graphite::PaintOptions SolidClearSrcSrcover();
 skgpu::graphite::PaintOptions SolidSrcSrcover();
-skgpu::graphite::PaintOptions ImagePremulNoCubicSrcover();
+skgpu::graphite::PaintOptions ImagePremulHWOnlyAndClampSrcover();
 skgpu::graphite::PaintOptions ImagePremulHWOnlySrc();
 skgpu::graphite::PaintOptions ImagePremulHWOnlySrcover();
 skgpu::graphite::PaintOptions ImagePremulClampNoCubicDstin();

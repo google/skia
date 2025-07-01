@@ -119,6 +119,9 @@ public:
     SkSpan<const SkBlendMode> getBlendModes() const {
         return SkSpan<const SkBlendMode>(fBlendModeOptions.data(), fBlendModeOptions.size());
     }
+    void addBlendMode(SkBlendMode bm) {
+        fBlendModeOptions.push_back(bm);
+    }
 
     /** Sets the blender options used when generating precompilation combinations.
 
@@ -155,9 +158,6 @@ private:
     friend class PrecompileMaskFilter;  // for ProcessCombination access
 
     void addColorFilter(sk_sp<PrecompileColorFilter> cf);
-    void addBlendMode(SkBlendMode bm) {
-        fBlendModeOptions.push_back(bm);
-    }
 
     void setClipShaders(SkSpan<const sk_sp<PrecompileShader>> clipShaders);
 
