@@ -102,9 +102,7 @@ private:
     sk_sp<SkColorPalette> fColorTable;
 
     size_t fEncodedRowBytes = 0;  // Size of encoded/source row in bytes.
-#if defined(SK_DEBUG)
     size_t fDstRowBytes = 0;      // Size of destination row in bytes.
-#endif
 
     std::optional<SkImageInfo> fDstInfoOfPreviousColorTableCreation;
 };
