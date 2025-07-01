@@ -144,7 +144,6 @@ skia_cc_library(
     ],
     defines = ["SK_TYPEFACE_FACTORY_FONTATIONS"],
     implementation_deps = [
-        "//:pathops",
         "//src/ports/fontations:deps",
     ],
     visibility = [
