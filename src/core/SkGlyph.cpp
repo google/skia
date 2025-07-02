@@ -40,7 +40,7 @@ SkPictureBackedGlyphDrawable::MakeFromBuffer(SkReadBuffer& buffer) {
     sk_sp<SkData> pictureData = buffer.readByteArrayAsData();
 
     // Return nullptr if invalid or there an empty drawable, which is represented by nullptr.
-    if (!buffer.isValid() || pictureData->size() == 0) {
+    if (!buffer.isValid() || pictureData->empty()) {
         return nullptr;
     }
 
@@ -68,7 +68,7 @@ void SkPictureBackedGlyphDrawable::FlattenDrawable(SkWriteBuffer& buffer, SkDraw
     sk_sp<SkData> data = picture->serialize();
 
     // If the picture is too big, or there is no picture, then drop by sending an empty byte array.
-    if (!SkTFitsIn<uint32_t>(data->size()) || data->size() == 0) {
+    if (!SkTFitsIn<uint32_t>(data->size()) || data->empty()) {
         buffer.writeByteArray(nullptr, 0);
         return;
     }

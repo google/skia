@@ -57,7 +57,7 @@ const char* SkPDFGetElemIdKey() {
 }
 
 static SkString ToValidUtf8String(const SkData& d) {
-    if (d.size() == 0) {
+    if (d.empty()) {
         SkDEBUGFAIL("Not a valid string, data length is zero.");
         return SkString();
     }
@@ -184,7 +184,7 @@ static SkPDFIndirectReference generate_page_tree(
             std::vector<PageTreeNode> result;
             static constexpr size_t kMaxNodeSize = 8;
             const size_t n = vec.size();
-            SkASSERT(n >= 1);
+            SkASSERT(!vec.empty());
             const size_t result_len = (n - 1) / kMaxNodeSize + 1;
             SkASSERT(result_len >= 1);
             SkASSERT(n == 1 || result_len < n);
