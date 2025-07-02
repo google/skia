@@ -649,20 +649,15 @@ nanobench_target = js['targets']['//:nanobench']
 nanobench_srcs     = strip_slashes(nanobench_target['sources'])
 nanobench_includes = strip_slashes(nanobench_target['include_dirs'])
 
-skcms_srcs   = strip_slashes(js['targets']['//modules/skcms:skcms']['sources'])
-pathops_srcs = strip_slashes(js['targets']['//:pathops']['sources'])
-pdf_srcs     = strip_slashes(js['targets']['//:pdf']['sources'])
+skcms_srcs = strip_slashes(js['targets']['//modules/skcms:skcms']['sources'])
 
-gn_to_bp_utils.GrabDependentValues(js, '//:gm', 'sources',
-                                   gm_srcs, ['//:skia', '//:pathops', '//:pdf'])
-gn_to_bp_utils.GrabDependentValues(js, '//:tests', 'sources',
-                                   test_srcs, ['//:skia', '//:pathops', '//:pdf'])
+
+gn_to_bp_utils.GrabDependentValues(js, '//:gm', 'sources', gm_srcs, ['//:skia', '//:pathops'])
+gn_to_bp_utils.GrabDependentValues(js, '//:tests', 'sources', test_srcs, ['//:skia', '//:pathops'])
 gn_to_bp_utils.GrabDependentValues(js, '//:dm', 'sources',
-                                   dm_srcs, ['//:skia', '//:gm', '//:tests'])
+                                   dm_srcs, ['//:skia', '//:gm', '//:tests', '//:pathops'])
 gn_to_bp_utils.GrabDependentValues(js, '//:nanobench', 'sources',
-                                   nanobench_srcs, ['//:skia', '//:gm'])
-gn_to_bp_utils.GrabDependentValues(js, '//:pathops', 'sources', pathops_srcs, '//:skia')
-gn_to_bp_utils.GrabDependentValues(js, '//:pdf', 'sources', pdf_srcs, ['//:pathops', '//:skia'])
+                                   nanobench_srcs, ['//:skia', '//:gm', '//:pathops'])
 
 # skcms is a little special, kind of a second-party library.
 local_includes.add("modules/skcms")
@@ -716,13 +711,6 @@ test_srcs       = strip_non_srcs(test_srcs)
 dm_srcs         = strip_non_srcs(dm_srcs).difference(gm_srcs).difference(test_srcs)
 nanobench_srcs  = strip_non_srcs(nanobench_srcs).difference(gm_srcs)
 skcms_srcs      = strip_non_srcs(skcms_srcs)
-pathops_srcs    = strip_non_srcs(pathops_srcs)
-pdf_srcs        = strip_non_srcs(pdf_srcs)
-
-# PathOps and PDF are no longer part of core Skia, but that is not
-# an interesting distinction for Android (yet).
-srcs = srcs.union(pathops_srcs)
-srcs = srcs.union(pdf_srcs)
 
 test_minus_gm_includes = test_includes.difference(gm_includes)
 test_minus_gm_srcs = test_srcs.difference(gm_srcs)
@@ -732,20 +720,11 @@ cflags_cc = gn_to_bp_utils.CleanupCCFlags(cflags_cc)
 
 # Execute GN for specialized RenderEngine target
 js_renderengine   = gn_to_bp_utils.GenerateJSONFromGN(gn_args_renderengine)
-renderengine_srcs         = strip_slashes(js_renderengine['targets']['//:skia']['sources'])
-renderengine_pathops_srcs = strip_slashes(js_renderengine['targets']['//:pathops']['sources'])
-renderengine_pdf_srcs     = strip_slashes(js_renderengine['targets']['//:pdf']['sources'])
+renderengine_srcs = strip_slashes(
+    js_renderengine['targets']['//:skia']['sources'])
 gn_to_bp_utils.GrabDependentValues(js_renderengine, '//:skia', 'sources',
                                    renderengine_srcs, VMA_DEP)
-gn_to_bp_utils.GrabDependentValues(js_renderengine, '//:pathops', 'sources',
-                                   renderengine_pathops_srcs, '//:skia')
-gn_to_bp_utils.GrabDependentValues(js_renderengine, '//:pdf', 'sources',
-                                   renderengine_pdf_srcs, ['//:pathops', '//:skia'])
-renderengine_srcs         = strip_non_srcs(renderengine_srcs)
-renderengine_pathops_srcs = strip_non_srcs(renderengine_pathops_srcs)
-renderengine_pdf_srcs     = strip_non_srcs(renderengine_pdf_srcs)
-renderengine_srcs = renderengine_srcs.union(renderengine_pathops_srcs)
-renderengine_srcs = renderengine_srcs.union(renderengine_pdf_srcs)
+renderengine_srcs = strip_non_srcs(renderengine_srcs)
 
 # Execute GN for specialized SkQP target
 skqp_sdk_version = 26
