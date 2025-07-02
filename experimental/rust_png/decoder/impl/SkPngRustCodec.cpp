@@ -255,7 +255,7 @@ public:
     // SAFETY: The caller needs to guarantee that `stream` will be alive for
     // as long as `ReadAndSeekTraitsAdapterForSkStream`.
     explicit ReadAndSeekTraitsAdapterForSkStream(SkStream* stream) : fStream(stream) {
-        SkASSERT(fStream);
+        SkASSERT_RELEASE(fStream);
     }
 
     ~ReadAndSeekTraitsAdapterForSkStream() override = default;
@@ -292,7 +292,7 @@ public:
         if (!fStream->seek(pos)) {
             return false;
         }
-        SkASSERT(!fStream->hasPosition() || fStream->getPosition() == requestedPos);
+        SkASSERT_RELEASE(!fStream->hasPosition() || fStream->getPosition() == requestedPos);
 
         // Assigning `size_t` to `uint64_t` doesn't need to go through
         // `SkSafeMath`, because `uint64_t` is never smaller than `size_t`.
@@ -359,7 +359,7 @@ void blendRow(SkSpan<uint8_t> dstRow,
               SkSpan<const uint8_t> srcRow,
               SkColorType color,
               SkAlphaType alpha) {
-    SkASSERT(dstRow.size() >= srcRow.size());
+    SkASSERT_RELEASE(dstRow.size() >= srcRow.size());
     SkRasterPipeline_<256> p;
 
     SkRasterPipelineContexts::MemoryCtx dstCtx = {dstRow.data(), 0};
@@ -386,7 +386,7 @@ void blendRow(SkSpan<uint8_t> dstRow,
 
     SkSafeMath safe;
     size_t bpp = safe.castTo<size_t>(SkColorTypeBytesPerPixel(color));
-    SkASSERT(safe.ok());
+    SkASSERT_RELEASE(safe.ok());
 
     size_t width = srcRow.size() / bpp;
     p.run(0, 0, width, 1);
@@ -423,8 +423,8 @@ SkEncodedOrigin GetEncodedOrigin(const rust_png::Reader& reader) {
 // static
 std::unique_ptr<SkPngRustCodec> SkPngRustCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
                                                                Result* result) {
-    SkASSERT(stream);
-    SkASSERT(result);
+    SkASSERT_RELEASE(stream);
+    SkASSERT_RELEASE(result);
 
     auto inputAdapter = std::make_unique<ReadAndSeekTraitsAdapterForSkStream>(stream.get());
     rust::Box<rust_png::ResultOfReader> resultOfReader =
@@ -451,7 +451,7 @@ SkPngRustCodec::SkPngRustCodec(SkEncodedInfo&& encodedInfo,
         , fReader(std::move(reader))
         , fPrivStream(std::move(stream))
         , fFrameHolder(encodedInfo.width(), encodedInfo.height()) {
-    SkASSERT(fPrivStream);
+    SkASSERT_RELEASE(fPrivStream);
 
     bool idatIsNotPartOfAnimation = fReader->has_actl_chunk() && !fReader->has_fctl_chunk();
     fFrameAtCurrentStreamPosition = idatIsNotPartOfAnimation ? -1 : 0;
@@ -463,14 +463,14 @@ SkPngRustCodec::SkPngRustCodec(SkEncodedInfo&& encodedInfo,
         // * `!fReader->has_fctl_chunk()` means that we don't need to worry
         //   about validating other frame metadata.
         Result result = fFrameHolder.appendNewFrame(*fReader, this->getEncodedInfo());
-        SkASSERT(result == kSuccess);
+        SkASSERT_RELEASE(result == kSuccess);
     }
 }
 
 SkPngRustCodec::~SkPngRustCodec() = default;
 
 SkCodec::Result SkPngRustCodec::readToStartOfNextFrame() {
-    SkASSERT(fFrameAtCurrentStreamPosition < this->getRawFrameCount());
+    SkASSERT_RELEASE(fFrameAtCurrentStreamPosition < this->getRawFrameCount());
     Result result = ToSkCodecResult(fReader->next_frame_info());
     if (result != kSuccess) {
         fStreamIsPositionedAtStartOfFrameData = false;
@@ -492,7 +492,7 @@ SkCodec::Result SkPngRustCodec::seekToStartOfFrame(int index) {
     // `index == fFrameHolder.size()` means that we are seeking to the next
     // frame (i.e. to the first frame for which an `fcTL` chunk wasn't parsed
     // yet).
-    SkASSERT((0 <= index) && (index <= fFrameHolder.size()));
+    SkASSERT_RELEASE((0 <= index) && (index <= fFrameHolder.size()));
 
     // TODO(https://crbug.com/371060427): Improve runtime performance by seeking
     // directly to the right offset in the stream, rather than calling `rewind`
@@ -511,7 +511,7 @@ SkCodec::Result SkPngRustCodec::seekToStartOfFrame(int index) {
         // `SkPngRustCodec` constructor must have run before, and the
         // constructor got a successfully created reader - we therefore also
         // expect success here.
-        SkASSERT(kSuccess == ToSkCodecResult(resultOfReader->err()));
+        SkASSERT_RELEASE(kSuccess == ToSkCodecResult(resultOfReader->err()));
         fReader = resultOfReader->unwrap();
 
         bool idatIsNotPartOfAnimation = fReader->has_actl_chunk() && !fReader->has_fctl_chunk();
@@ -546,7 +546,7 @@ SkCodec::Result SkPngRustCodec::parseAdditionalFrameInfos() {
         if (result != kSuccess) {
             return result;
         }
-        SkASSERT(fFrameHolder.size() == (oldFrameCount + 1));
+        SkASSERT_RELEASE(fFrameHolder.size() == (oldFrameCount + 1));
     }
     return kSuccess;
 }
@@ -565,7 +565,7 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
         return kInvalidParameters;
     }
     const SkFrame* frame = fFrameHolder.getFrame(options.fFrameIndex);
-    SkASSERT(frame);
+    SkASSERT_RELEASE(frame);
 
     // https://www.w3.org/TR/png-3/#11PLTE says that for color type 3
     // (indexed-color), the PLTE chunk is required.  OTOH, `Codec_InvalidImages`
@@ -635,7 +635,7 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
 void SkPngRustCodec::expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
                                                 SkSpan<const uint8_t> srcRow,
                                                 const DecodingState& decodingState) {
-    SkASSERT(fReader->interlaced());
+    SkASSERT_RELEASE(fReader->interlaced());
     std::vector<uint8_t> decodedInterlacedFullWidthRow;
     std::vector<uint8_t> xformedInterlacedRow;
 
@@ -648,7 +648,7 @@ void SkPngRustCodec::expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
     // https://github.com/image-rs/image-png/pull/493) would help avoid
     // an extra copy here.
     decodedInterlacedFullWidthRow.resize(this->getEncodedRowBytes(), 0x00);
-    SkASSERT(decodedInterlacedFullWidthRow.size() >= srcRow.size());
+    SkASSERT_RELEASE(decodedInterlacedFullWidthRow.size() >= srcRow.size());
     memcpy(decodedInterlacedFullWidthRow.data(), srcRow.data(), srcRow.size());
 
     xformedInterlacedRow.resize(decodingState.fDstRowSize, 0x00);
@@ -656,8 +656,8 @@ void SkPngRustCodec::expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
 
     SkSafeMath safe;
     uint8_t dstBytesPerPixel = safe.castTo<uint8_t>(this->dstInfo().bytesPerPixel());
-    SkASSERT(safe.ok());               // Checked in `startDecoding`.
-    SkASSERT(dstBytesPerPixel < 32u);  // Checked in `startDecoding`.
+    SkASSERT_RELEASE(safe.ok());               // Checked in `startDecoding`.
+    SkASSERT_RELEASE(dstBytesPerPixel < 32u);  // Checked in `startDecoding`.
     fReader->expand_last_interlaced_row(rust::Slice<uint8_t>(dstFrame),
                                         decodingState.fDstRowStride,
                                         rust::Slice<const uint8_t>(xformedInterlacedRow),
@@ -697,7 +697,7 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
             }
             if (!interlaced) {
                 // All of the original `fDst` should be filled out at this point.
-                SkASSERT(decodingState.fDst.empty());
+                SkASSERT_RELEASE(decodingState.fDst.empty());
             }
 
             // `static_cast` is ok, because `startDecoding` already validated `fFrameIndex`.
@@ -797,7 +797,7 @@ int SkPngRustCodec::onGetFrameCount() {
                 // We expect the input stream's length to be monotonically
                 // increasing (even though the code may not yet rely on that
                 // expectation).
-                SkASSERT(currentLength > oldLength);
+                SkASSERT_RELEASE(currentLength > oldLength);
             }
             fStreamLengthDuringLastCallToParseAdditionalFrameInfos = currentLength;
         }
@@ -807,7 +807,7 @@ int SkPngRustCodec::onGetFrameCount() {
                 fCanParseAdditionalFrameInfos = true;
                 break;
             case kSuccess:
-                SkASSERT(fFrameHolder.size() == this->getRawFrameCount());
+                SkASSERT_RELEASE(fFrameHolder.size() == this->getRawFrameCount());
                 fCanParseAdditionalFrameInfos = false;
                 break;
             default:
@@ -861,7 +861,7 @@ std::optional<SkSpan<const SkPngCodecBase::PaletteColorEntry>> SkPngRustCodec::o
         return std::nullopt;
     }
 
-    SkASSERT(fReader->has_plte_chunk());  // Checked in `startDecoding`.
+    SkASSERT_RELEASE(fReader->has_plte_chunk());  // Checked in `startDecoding`.
     SkSpan<const uint8_t> bytes = ToSkSpan(fReader->get_plte_chunk());
 
     // Make sure that `bytes.size()` is a multiple of
@@ -921,7 +921,7 @@ const SkFrameHolder* SkPngRustCodec::getFrameHolder() const { return &fFrameHold
 // TODO(https://crbug.com/370522089): See if `SkCodec` can be tweaked to avoid
 // the need to hide the stream from it.
 std::unique_ptr<SkStream> SkPngRustCodec::getEncodedData() const {
-    SkASSERT(fPrivStream);
+    SkASSERT_RELEASE(fPrivStream);
     return fPrivStream->duplicate();
 }
 
@@ -943,7 +943,7 @@ int SkPngRustCodec::FrameHolder::size() const {
 }
 
 void SkPngRustCodec::FrameHolder::markFrameAsFullyReceived(size_t index) {
-    SkASSERT(index < fFrames.size());
+    SkASSERT_RELEASE(index < fFrames.size());
     fFrames[index].markAsFullyReceived();
 }
 
@@ -981,8 +981,8 @@ SkCodec::Result SkPngRustCodec::FrameHolder::appendNewFrame(const rust_png::Read
         return result;
     }
 
-    SkASSERT(!reader.has_actl_chunk() || !reader.has_fctl_chunk());
-    SkASSERT(id == 0);
+    SkASSERT_RELEASE(!reader.has_actl_chunk() || !reader.has_fctl_chunk());
+    SkASSERT_RELEASE(id == 0);
     fFrames.emplace_back(id, info.alpha());
     SkFrame& frame = fFrames.back();
     frame.setXYWH(0, 0, info.width(), info.height());
@@ -993,8 +993,8 @@ SkCodec::Result SkPngRustCodec::FrameHolder::appendNewFrame(const rust_png::Read
 
 SkCodec::Result SkPngRustCodec::FrameHolder::setFrameInfoFromCurrentFctlChunk(
         const rust_png::Reader& reader, PngFrame* frame) {
-    SkASSERT(reader.has_fctl_chunk());  // Caller should guarantee this
-    SkASSERT(frame);
+    SkASSERT_RELEASE(reader.has_fctl_chunk());  // Caller should guarantee this
+    SkASSERT_RELEASE(frame);
 
     uint32_t width = 0;
     uint32_t height = 0;

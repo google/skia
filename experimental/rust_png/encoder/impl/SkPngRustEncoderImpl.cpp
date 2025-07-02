@@ -49,7 +49,7 @@ rust_png::Compression ToCompression(SkPngRustEncoder::CompressionLevel level) {
 }
 
 rust::Slice<const uint8_t> getDataTableEntry(const SkDataTable& table, int index) {
-    SkASSERT((0 <= index) && (index < table.count()));
+    SkASSERT_RELEASE((0 <= index) && (index < table.count()));
 
     size_t size = 0;
     const uint8_t* entry = table.atT<uint8_t>(index, &size);
@@ -88,7 +88,7 @@ public:
     // SAFETY: The caller needs to guarantee that `stream` will be alive for
     // as long as `WriteTraitAdapterForSkWStream`.
     explicit WriteTraitAdapterForSkWStream(SkWStream* stream) : fStream(stream) {
-        SkASSERT(fStream);
+        SkASSERT_RELEASE(fStream);
     }
 
     ~WriteTraitAdapterForSkWStream() override = default;
@@ -162,7 +162,7 @@ std::unique_ptr<SkEncoder> SkPngRustEncoderImpl::Make(SkWStream* dst,
                     if (maybeDstRowInfo->colorType() == kR16G16B16A16_unorm_SkColorType) {
                         extraRowTransform = kRgba16leToRgb16be_ExtraRowTransform;
                     } else {
-                        SkASSERT(maybeDstRowInfo->colorType() == kRGB_888x_SkColorType);
+                        SkASSERT_RELEASE(maybeDstRowInfo->colorType() == kRGB_888x_SkColorType);
                         extraRowTransform = kRgba8ToRgb8_ExtraRowTransform;
                     }
                 } else if (maybeDstRowInfo->colorType() == kR16G16B16A16_unorm_SkColorType) {
