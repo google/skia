@@ -174,9 +174,13 @@ TextureProxy* get_base_proxy_for_label(const Image_Base* baseImage) {
 
 } // anonymous namespace
 
-sk_sp<SkImage> Image_Base::onMakeSubset(Recorder* recorder,
+sk_sp<SkImage> Image_Base::onMakeSubset(SkRecorder* recorder,
                                         const SkIRect& subset,
                                         RequiredProperties requiredProps) const {
+    auto gRecorder = AsGraphiteRecorder(recorder);
+    if (!gRecorder) {
+        return nullptr;
+    }
     // optimization : return self if the subset == our bounds and requirements met and the image's
     // texture is immutable
     if (this->bounds() == subset &&
@@ -196,7 +200,7 @@ sk_sp<SkImage> Image_Base::onMakeSubset(Recorder* recorder,
 
     // The copied image is not considered budgeted because this is a client-invoked API and they
     // will own the image.
-    return this->copyImage(recorder,
+    return this->copyImage(gRecorder,
                            subset,
                            Budgeted::kNo,
                            requiredProps.fMipmapped ? Mipmapped::kYes : Mipmapped::kNo,

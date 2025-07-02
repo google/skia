@@ -145,7 +145,7 @@ static sk_sp<SkMipmap> copy_mipmaps(const SkBitmap& src, SkMipmap* srcMips) {
     return dst;
 }
 
-sk_sp<SkImage> SkImage_Raster::onMakeSubset(skgpu::graphite::Recorder*,
+sk_sp<SkImage> SkImage_Raster::onMakeSubset(SkRecorder*,
                                             const SkIRect& subset,
                                             RequiredProperties requiredProperties) const {
     sk_sp<SkImage> img;

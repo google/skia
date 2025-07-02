@@ -110,10 +110,7 @@ protected:
     DrawResult onDraw(SkCanvas* canvas,
                       SkString* errorMsg) override {
         auto context = GrAsDirectContext(canvas->recordingContext());
-        skgpu::graphite::Recorder* recorder = nullptr;
-#if defined(SK_GRAPHITE)
-        recorder = canvas->recorder();
-#endif
+        SkRecorder* recorder = canvas->baseRecorder();
         if (!context && !recorder) {
             *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
             return DrawResult::kSkip;
@@ -158,12 +155,9 @@ protected:
                 canvas->drawRect(rect, paint);
                 if (subset) {
                     sk_sp<SkImage> subsetImg;
-#if defined(SK_GRAPHITE)
                     if (recorder) {
                         subsetImg = fYUVImage->makeSubset(recorder, *subset, {false});
-                    } else
-#endif
-                    {
+                    } else {
                         subsetImg = fYUVImage->makeSubset(context, *subset);
                     }
                     SkASSERT(subsetImg);

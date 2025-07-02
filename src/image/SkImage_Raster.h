@@ -34,8 +34,6 @@ enum SkColorType : int;
 struct SkIRect;
 struct SkImageInfo;
 
-namespace skgpu { namespace graphite { class Recorder; } }
-
 class SkImage_Raster : public SkImage_Base {
 public:
     SkImage_Raster(const SkImageInfo&, sk_sp<SkData>, size_t rb,
@@ -60,7 +58,7 @@ public:
 
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const override;
     sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
-    sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
+    sk_sp<SkImage> onMakeSubset(SkRecorder*,
                                 const SkIRect&,
                                 RequiredProperties) const override;
 

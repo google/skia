@@ -43,8 +43,6 @@ enum class SkTileMode;
 struct SkIPoint;
 struct SkSamplingOptions;
 
-namespace skgpu::graphite { class Recorder; }
-
 namespace SkImages {
 
 /** Caller data passed to RasterReleaseProc; may be nullptr. */
@@ -798,7 +796,7 @@ public:
         @param RequiredProperties  properties the returned SkImage must possess (e.g. mipmaps)
         @return                    the subsetted image, or nullptr
     */
-    virtual sk_sp<SkImage> makeSubset(skgpu::graphite::Recorder*,
+    virtual sk_sp<SkImage> makeSubset(SkRecorder*,
                                       const SkIRect& subset,
                                       RequiredProperties) const = 0;
 

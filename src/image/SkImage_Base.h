@@ -56,7 +56,7 @@ public:
                                               sk_sp<SkColorSpace>,
                                               RequiredProperties) const override;
     sk_sp<SkImage> makeSubset(GrDirectContext* direct, const SkIRect& subset) const override;
-    sk_sp<SkImage> makeSubset(skgpu::graphite::Recorder*,
+    sk_sp<SkImage> makeSubset(SkRecorder*,
                               const SkIRect&,
                               RequiredProperties) const override;
 
@@ -128,6 +128,9 @@ public:
                              CachingHint = kAllow_CachingHint) const = 0;
 
     virtual sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const = 0;
+    virtual sk_sp<SkImage> onMakeSubset(SkRecorder*,
+                                        const SkIRect&,
+                                        RequiredProperties) const = 0;
 
     virtual sk_sp<SkData> onRefEncoded() const { return nullptr; }
 
@@ -193,10 +196,6 @@ public:
     virtual sk_sp<SkImage> onMakeWithMipmaps(sk_sp<SkMipmap>) const {
         return nullptr;
     }
-
-    virtual sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
-                                        const SkIRect&,
-                                        RequiredProperties) const = 0;
 
 protected:
     SkImage_Base(const SkImageInfo& info, uint32_t uniqueID);

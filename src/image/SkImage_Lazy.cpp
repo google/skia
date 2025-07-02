@@ -204,7 +204,7 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(GrDirectContext*, const SkIRect& subse
     return pixels ? pixels->makeSubset(nullptr, subset) : nullptr;
 }
 
-sk_sp<SkImage> SkImage_Lazy::onMakeSubset(skgpu::graphite::Recorder*,
+sk_sp<SkImage> SkImage_Lazy::onMakeSubset(SkRecorder*,
                                           const SkIRect& subset,
                                           RequiredProperties props) const {
     // TODO: can we do this more efficiently, by telling the generator we want to

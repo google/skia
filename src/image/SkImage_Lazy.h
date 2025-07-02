@@ -35,8 +35,6 @@ class SkSurface;
 enum SkColorType : int;
 struct SkIRect;
 
-namespace skgpu { namespace graphite { class Recorder; } }
-
 class SkImage_Lazy : public SkImage_Base {
 public:
     struct Validator {
@@ -68,7 +66,7 @@ public:
                       CachingHint) const override;
     sk_sp<SkData> onRefEncoded() const override;
     sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
-    sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
+    sk_sp<SkImage> onMakeSubset(SkRecorder*,
                                 const SkIRect&,
                                 RequiredProperties) const override;
 

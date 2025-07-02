@@ -55,7 +55,8 @@ public:
     }
 
     // From SkImage_Base.h
-    sk_sp<SkImage> onMakeSubset(Recorder*, const SkIRect&, RequiredProperties) const final;
+    sk_sp<SkImage> onMakeSubset(SkRecorder*, const SkIRect&, RequiredProperties) const final;
+    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const final;
     sk_sp<SkImage> makeColorTypeAndColorSpace(SkRecorder*,
                                               SkColorType targetCT,
                                               sk_sp<SkColorSpace> targetCS,
@@ -75,8 +76,6 @@ public:
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint = kAllow_CachingHint) const final {
         return false;
     }
-
-    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const final;
 
     sk_sp<SkSurface> onMakeSurface(SkRecorder*, const SkImageInfo&) const final;
 

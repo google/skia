@@ -51,7 +51,6 @@ enum class Mipmapped : bool;
 class RefCntedCallback;
 }  // namespace skgpu
 namespace skgpu::ganesh { class SurfaceDrawContext; }
-namespace skgpu { namespace graphite { class Recorder; } }
 
 class SkImage_GaneshBase : public SkImage_Base {
 public:
@@ -71,8 +70,6 @@ public:
     GrDirectContext* directContext() const final { return GrAsDirectContext(this->context()); }
 
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const final;
-
-    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect& subset) const final;
 
     sk_sp<SkSurface> onMakeSurface(SkRecorder*, const SkImageInfo&) const final;
 
@@ -124,7 +121,8 @@ public:
 protected:
     SkImage_GaneshBase(sk_sp<GrImageContext>, SkImageInfo, uint32_t uniqueID);
 
-    sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
+    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect& subset) const final;
+    sk_sp<SkImage> onMakeSubset(SkRecorder*,
                                 const SkIRect& subset,
                                 RequiredProperties) const final;
     using SkImage_Base::onMakeColorTypeAndColorSpace;

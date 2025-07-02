@@ -77,7 +77,7 @@ sk_sp<SkImage> SkImage_Picture::onMakeSubset(GrDirectContext*, const SkIRect& su
                                  bitDepth, this->refColorSpace(), pictureIG->fProps);
 }
 
-sk_sp<SkImage> SkImage_Picture::onMakeSubset(skgpu::graphite::Recorder*,
+sk_sp<SkImage> SkImage_Picture::onMakeSubset(SkRecorder*,
                                              const SkIRect& subset,
                                              RequiredProperties) const {
     // The Ganesh version doesn't make use of GrDirectContext so we can use it to

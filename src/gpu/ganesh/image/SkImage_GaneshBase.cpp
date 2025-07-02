@@ -218,10 +218,17 @@ sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(GrDirectContext* direct,
                                       this->imageInfo().colorInfo());
 }
 
-sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(skgpu::graphite::Recorder*,
-                                                const SkIRect&,
+sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(SkRecorder* recorder,
+                                                const SkIRect& subset,
                                                 RequiredProperties) const {
-    SkDEBUGFAIL("Cannot convert Ganesh-backed image to Graphite");
+    if (auto gRecorder = AsGaneshRecorder(recorder)) {
+        if (auto direct = gRecorder->directContext()) {
+            return this->onMakeSubset(direct, subset);
+        }
+        SkDEBUGFAIL("Cannot take subset of Ganesh image w/o a directContext");
+        return nullptr;
+    }
+    SkDEBUGFAIL("Wrong recorder type; need Ganesh Recorder made from direct context");
     return nullptr;
 }
 

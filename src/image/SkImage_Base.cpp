@@ -95,7 +95,7 @@ sk_sp<SkImage> SkImage_Base::makeSubset(GrDirectContext* direct, const SkIRect& 
     return this->onMakeSubset(direct, subset);
 }
 
-sk_sp<SkImage> SkImage_Base::makeSubset(skgpu::graphite::Recorder* recorder,
+sk_sp<SkImage> SkImage_Base::makeSubset(SkRecorder* recorder,
                                         const SkIRect& subset,
                                         RequiredProperties requiredProps) const {
     if (subset.isEmpty()) {

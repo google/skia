@@ -21,12 +21,12 @@ class SkImage;
 class SkMatrix;
 class SkPaint;
 class SkPicture;
+class SkRecorder;
 class SkSurfaceProps;
 struct SkIRect;
 struct SkISize;
 
 namespace SkImages { enum class BitDepth; }
-namespace skgpu::graphite { class Recorder; }
 
 class SkImage_Picture : public SkImage_Lazy {
 public:
@@ -46,7 +46,7 @@ public:
     void replay(SkCanvas*) const;
 
     sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
-    sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
+    sk_sp<SkImage> onMakeSubset(SkRecorder*,
                                 const SkIRect&,
                                 RequiredProperties) const override;
 

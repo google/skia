@@ -317,11 +317,9 @@ protected:
                             ->makeSubset(dContext, subset);
                 }
             } else {
-#if defined(SK_GRAPHITE)
-                auto recorder = canvas->recorder();
+                SkRecorder* recorder = canvas->baseRecorder();
                 fImageSubset = SkImages::DeferredFromGenerator(std::move(gen))
                                        ->makeSubset(recorder, subset, {});
-#endif
             }
             if (!fImageSubset) {
                 return false;
