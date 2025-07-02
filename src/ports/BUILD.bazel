@@ -157,13 +157,6 @@ skia_cc_library(
     ],
 )
 
-# Deprecated alias for rolling
-alias(
-    name = "fontmgr_android_freetype",
-    actual = ":fontmgr_android",
-    visibility = ["//:__pkg__"],
-)
-
 skia_cc_library(
     name = "fontmgr_android",
     srcs = [
@@ -346,16 +339,6 @@ skia_cc_library(
     hdrs = [":typeface_proxy_hdrs"],
     deps = [
         "//:core",
-    ],
-)
-
-# Deprecated alias for rolling
-alias(
-    name = "fontmgr_fontconfig_freetype",
-    actual = ":fontmgr_fontconfig",
-    visibility = [
-        "//:__pkg__",
-        "//tools/fonts:__pkg__",
     ],
 )
 
