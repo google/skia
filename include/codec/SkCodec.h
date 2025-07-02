@@ -904,11 +904,20 @@ protected:
     [[nodiscard]] bool rewindIfNeeded();
 
     /**
+     *  Called by onRewind(), attempts to rewind fStream.
+     */
+    bool rewindStream();
+
+    /**
      *  Called by rewindIfNeeded, if the stream needed to be rewound.
      *
-     *  Subclasses should do any set up needed after a rewind.
+     *  Subclasses should call rewindStream() if they own one, and then
+     *  do any set up needed after.
      */
     virtual bool onRewind() {
+        if (!this->rewindStream()) {
+            return false;
+        }
         return true;
     }
 

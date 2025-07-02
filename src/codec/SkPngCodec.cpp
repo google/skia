@@ -977,6 +977,9 @@ SkCodec::Result SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const O
 }
 
 bool SkPngCodec::onRewind() {
+    if (!this->rewindStream()) {
+        return false;
+    }
     // This sets fPng_ptr and fInfo_ptr to nullptr. If read_header
     // succeeds, they will be repopulated, and if it fails, they will
     // remain nullptr. Any future accesses to fPng_ptr and fInfo_ptr will

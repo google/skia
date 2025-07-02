@@ -628,6 +628,9 @@ SkBmpCodec::SkBmpCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
 {}
 
 bool SkBmpCodec::onRewind() {
+    if (!this->rewindStream()) {
+        return false;
+    }
     return SkBmpCodec::ReadHeader(this->stream(), this->inIco(), nullptr) == kSuccess;
 }
 

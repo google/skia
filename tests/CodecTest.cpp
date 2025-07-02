@@ -2512,3 +2512,29 @@ DEF_TEST(Codec_RoundTripColorXform, r) {
         }
     }
 }
+
+DEF_TEST(Codec_webp_animated_image_rewind, r) {
+    // stoplight.webp is an animated image.
+    constexpr char path[] = "images/stoplight.webp";
+    sk_sp<SkData> data(GetResourceAsData(path));
+    if (!data) {
+        ERRORF(r, "Could not create data for: %s", path);
+    }
+    auto codec = SkCodec::MakeFromStream(std::make_unique<NonseekableStream>(std::move(data)),
+                                         nullptr, nullptr,
+                                         SkCodec::SelectionPolicy::kPreferStillImage);
+    SkCodec::Options options;
+    options.fFrameIndex = 0;
+    SkBitmap bm;
+    bm.allocPixels(codec->getInfo());
+    SkCodec::Result res = codec->getPixels(codec->getInfo(), bm.getAddr(0,0), bm.rowBytes(),
+                                           &options);
+    REPORTER_ASSERT(r, res == SkCodec::Result::kSuccess);
+
+    // For a non-rewindable stream, reading the next frame from an animated image should
+    // still succeed.
+    options.fPriorFrame = 0;
+    options.fFrameIndex = 1;
+    res = codec->getPixels(codec->getInfo(), bm.getAddr(0,0), bm.rowBytes(), &options);
+    REPORTER_ASSERT(r, res == SkCodec::Result::kSuccess);
+}

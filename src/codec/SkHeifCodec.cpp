@@ -514,6 +514,9 @@ SkSampler* SkHeifCodec::getSampler(bool createIfNecessary) {
 }
 
 bool SkHeifCodec::onRewind() {
+    if (!this->rewindStream()) {
+        return false;
+    }
     fSwizzler.reset(nullptr);
     fSwizzleSrcRow = nullptr;
     fColorXformSrcRow = nullptr;
