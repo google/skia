@@ -1484,7 +1484,7 @@ void Device::drawGeometry(const Transform& localToDevice,
 
     // If an atlas path renderer was chosen, then record a single CoverageMaskShape draw.
     // The shape will be scheduled to be rendered or uploaded into the atlas during the
-    // next invocation of flushPendingWorkToRecorder().
+    // next invocation of flushPendingWork().
     if (pathAtlas != nullptr) {
         // Record the draw as a fill since stroking is handled by the atlas render/upload.
         SkASSERT(atlasMask.has_value());
@@ -1782,7 +1782,7 @@ void Device::flushPendingWork(DrawContext* drawContext) {
     SkASSERT(fRecorder);
     SkASSERT(fScopedRecordingID == 0 || fScopedRecordingID == fRecorder->priv().nextRecordingID());
 
-    // TODO(b/330864257):  flushPendingWorkToRecorder() can be recursively called if this Device
+    // TODO(b/330864257):  flushPendingWork() can be recursively called if this Device
     // recorded a picture shader draw and during a flush (triggered by snap or automatically from
     // reaching limits), the picture shader will be rendered to a new device. If that picture drawn
     // to the temporary device fills up an atlas it can trigger the global
