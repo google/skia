@@ -954,6 +954,7 @@ private:
 
     friend class SkPathPriv;
     friend class SkStroke;
+    friend class SkPathStroker;
 };
 
 #endif

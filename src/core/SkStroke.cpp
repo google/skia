@@ -13,6 +13,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTo.h"
@@ -24,6 +25,7 @@
 
 #include <algorithm>
 #include <array>
+#include <optional>
 
 enum {
     kTangent_RecursiveLimit,
@@ -166,6 +168,21 @@ struct SkQuadConstruct {    // The state of the quad stroke under construction.
    }
 };
 
+static bool isZeroLengthSincePoint(SkSpan<const SkPoint> span, int startPtIndex) {
+    int count = SkToInt(span.size()) - startPtIndex;
+    if (count < 2) {
+        return true;
+    }
+    const SkPoint* pts = span.data() + startPtIndex;
+    const SkPoint& first = *pts;
+    for (int index = 1; index < count; ++index) {
+        if (first != pts[index]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 class SkPathStroker {
 public:
     SkPathStroker(const SkPath& src,
@@ -192,8 +209,8 @@ public:
     SkScalar getResScale() const { return fResScale; }
 
     bool isCurrentContourEmpty() const {
-        return fInner.isZeroLengthSincePoint(0) &&
-               fOuter.isZeroLengthSincePoint(fFirstOuterPtIndexInContour);
+        return isZeroLengthSincePoint(fInner.points(), 0) &&
+               isZeroLengthSincePoint(fOuter.points(), fFirstOuterPtIndexInContour);
     }
 
 private:
@@ -214,7 +231,7 @@ private:
     SkStrokerPriv::CapProc  fCapper;
     SkStrokerPriv::JoinProc fJoiner;
 
-    SkPath  fInner, fOuter, fCusper; // outer is our working answer, inner is temp
+    SkPathBuilder  fInner, fOuter, fCusper; // outer is our working answer, inner is temp
 
     enum StrokeType {
         kOuter_StrokeType = 1,      // use sign-opposite values later to flip perpendicular axis
@@ -336,8 +353,6 @@ void SkPathStroker::postJoinTo(const SkPoint& currPt, const SkVector& normal,
 
 void SkPathStroker::finishContour(bool close, bool currIsLine) {
     if (fSegmentCount > 0) {
-        SkPoint pt;
-
         if (close) {
             fJoiner(&fOuter, &fInner, fPrevUnitNormal, fPrevPt,
                     fFirstUnitNormal, fRadius, fInvMiterLimit,
@@ -347,33 +362,32 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
             if (fCanIgnoreCenter) {
                 // If we can ignore the center just make sure the larger of the two paths
                 // is preserved and don't add the smaller one.
-                if (fInner.getBounds().contains(fOuter.getBounds())) {
-                    fInner.swap(fOuter);
+                if (fInner.computeBounds().contains(fOuter.computeBounds())) {
+                    fOuter = fInner;
                 }
             } else {
                 // now add fInner as its own contour
-                fInner.getLastPt(&pt);
-                fOuter.moveTo(pt);
-                fOuter.reversePathTo(fInner);
-                fOuter.close();
+                if (auto pt = fInner.getLastPt()) {
+                    fOuter.moveTo(*pt);
+                    fOuter.privateReversePathTo(fInner.detach()); // todo: take builder or raw
+                    fOuter.close();
+                }
             }
         } else {    // add caps to start and end
             // cap the end
-            fInner.getLastPt(&pt);
-            fCapper(&fOuter, fPrevPt, fPrevNormal, pt, currIsLine);
-            fOuter.reversePathTo(fInner);
-            // cap the start
-            fCapper(&fOuter, fFirstPt, -fFirstNormal, fFirstOuterPt, fPrevIsLine);
-            fOuter.close();
+            if (auto pt = fInner.getLastPt()) {
+                fCapper(&fOuter, fPrevPt, fPrevNormal, *pt, currIsLine);
+                fOuter.privateReversePathTo(fInner.detach());
+                // cap the start
+                fCapper(&fOuter, fFirstPt, -fFirstNormal, fFirstOuterPt, fPrevIsLine);
+                fOuter.close();
+            }
         }
         if (!fCusper.isEmpty()) {
-            fOuter.addPath(fCusper);
-            fCusper.rewind();
+            fOuter.addPath(fCusper.detach());
         }
     }
-    // since we may re-use fInner, we rewind instead of reset, to save on
-    // reallocating its internal storage.
-    fInner.rewind();
+    fInner.reset();
     fSegmentCount = -1;
     fFirstOuterPtIndexInContour = fOuter.countPoints();
 }
@@ -1151,8 +1165,8 @@ SkPathStroker::ResultType SkPathStroker::compareQuadQuad(const SkPoint quad[3],
 
 void SkPathStroker::addDegenerateLine(const SkQuadConstruct* quadPts) {
     const SkPoint* quad = quadPts->fQuad;
-    SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
-    path->lineTo(quad[2]);
+    auto sink = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
+    sink->lineTo(quad[2]);
 }
 
 bool SkPathStroker::cubicMidOnLine(const SkPoint cubic[4], const SkQuadConstruct* quadPts) const {
@@ -1180,9 +1194,9 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
     if (fFoundTangents) {
         ResultType resultType = this->compareQuadCubic(cubic, quadPts);
         if (kQuad_ResultType == resultType) {
-            SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
+            auto sink = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
             const SkPoint* stroke = quadPts->fQuad;
-            path->quadTo(stroke[1], stroke[2]);
+            sink->quadTo(stroke[1], stroke[2]);
             DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
             return true;
         }
@@ -1235,8 +1249,8 @@ bool SkPathStroker::conicStroke(const SkConic& conic, SkQuadConstruct* quadPts) 
     ResultType resultType = this->compareQuadConic(conic, quadPts);
     if (kQuad_ResultType == resultType) {
         const SkPoint* stroke = quadPts->fQuad;
-        SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
-        path->quadTo(stroke[1], stroke[2]);
+        auto sink = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
+        sink->quadTo(stroke[1], stroke[2]);
         return true;
     }
     if (kDegenerate_ResultType == resultType) {
@@ -1269,8 +1283,8 @@ bool SkPathStroker::quadStroke(const SkPoint quad[3], SkQuadConstruct* quadPts) 
     ResultType resultType = this->compareQuadQuad(quad, quadPts);
     if (kQuad_ResultType == resultType) {
         const SkPoint* stroke = quadPts->fQuad;
-        SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
-        path->quadTo(stroke[1], stroke[2]);
+        auto sink = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
+        sink->quadTo(stroke[1], stroke[2]);
         return true;
     }
     if (kDegenerate_ResultType == resultType) {
