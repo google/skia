@@ -33,6 +33,10 @@
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/geom/BoundsManager.h"
 
+#if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
+#include "src/gpu/graphite/RenderPassDesc.h"
+#endif
+
 #include "src/base/SkMathPriv.h"
 #include "src/base/SkTBlockList.h"
 
@@ -769,6 +773,7 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
 #if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
     {
         TRACE_EVENT0_ALWAYS("skia.shaders", "GraphitePipelineUse");
+        TRACE_EVENT0_ALWAYS("skia.shaders", TRACE_STR_COPY(renderPassDesc.toString().c_str()));
         for (int i = 0 ; i < fFullPipelines.size(); ++i) {
             TRACE_EVENT_INSTANT1_ALWAYS(
                     "skia.shaders",
