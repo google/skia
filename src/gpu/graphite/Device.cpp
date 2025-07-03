@@ -155,54 +155,34 @@ bool blender_depends_on_dst(const SkBlender* blender, bool srcIsTransparent) {
     return true;
 }
 
-bool paint_depends_on_dst(SkColor4f color,
-                          const SkShader* shader,
-                          const SkColorFilter* colorFilter,
-                          const SkBlender* finalBlender,
-                          const SkBlender* primitiveBlender) {
-    const bool srcIsTransparent = !color.isOpaque() || (shader && !shader->isOpaque()) ||
-                                  (colorFilter && !colorFilter->isAlphaUnchanged());
+bool paint_depends_on_dst(const PaintParams& paintParams) {
+    const bool srcIsTransparent = !paintParams.color().isOpaque() ||
+                                  (paintParams.shader() && !paintParams.shader()->isOpaque()) ||
+                                  (paintParams.colorFilter() &&
+                                        !paintParams.colorFilter()->isAlphaUnchanged());
 
-    if (primitiveBlender && blender_depends_on_dst(primitiveBlender, srcIsTransparent)) {
+    if (paintParams.primitiveBlender() &&
+        blender_depends_on_dst(paintParams.primitiveBlender(), srcIsTransparent)) {
         return true;
     }
 
-    return blender_depends_on_dst(finalBlender, srcIsTransparent);
-}
-
-bool paint_depends_on_dst(const PaintParams& paintParams) {
-    return paint_depends_on_dst(paintParams.color(),
-                                paintParams.shader(),
-                                paintParams.colorFilter(),
-                                paintParams.finalBlender(),
-                                paintParams.primitiveBlender());
-}
-
-bool paint_depends_on_dst(const SkPaint& paint) {
-    // CAUTION: getMaskFilter is intentionally ignored here.
-    SkASSERT(!paint.getImageFilter());  // no paints in SkDevice should have an image filter
-    return paint_depends_on_dst(paint.getColor4f(),
-                                paint.getShader(),
-                                paint.getColorFilter(),
-                                paint.getBlender(),
-                                /*primitiveBlender=*/nullptr);
+    return blender_depends_on_dst(paintParams.finalBlender(), srcIsTransparent);
 }
 
 /** If the paint can be reduced to a solid flood-fill, determine the correct color to fill with. */
-std::optional<SkColor4f> extract_paint_color(const SkPaint& paint,
+std::optional<SkColor4f> extract_paint_color(const PaintParams& paint,
                                              const SkColorInfo& dstColorInfo) {
     SkASSERT(!paint_depends_on_dst(paint));
-    if (paint.getShader()) {
+
+    // PaintParams has already consolidated constant shaders and applied color filters to constant
+    // input colors. If the paint still has any of those fields, then we can't extract it.
+    if (paint.shader() || paint.colorFilter()) {
         return std::nullopt;
     }
 
-    SkColor4f dstPaintColor = PaintParams::Color4fPrepForDst(paint.getColor4f(), dstColorInfo);
-
-    if (SkColorFilter* filter = paint.getColorFilter()) {
-        SkColorSpace* dstCS = dstColorInfo.colorSpace();
-        return filter->filterColor4f(dstPaintColor, dstCS, dstCS);
-    }
-    return dstPaintColor;
+    // However, PaintParams converted the color in sRGB and we need to return this in the
+    // destination color space.
+    return PaintParams::Color4fPrepForDst(paint.color(), dstColorInfo);
 }
 
 // Returns a local rect that has been adjusted such that when it's rasterized with `localToDevice`
@@ -814,22 +794,6 @@ void Device::replaceClip(const SkIRect& rect) {
 
 void Device::drawPaint(const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
-    // We never want to do a fullscreen clear on a fully-lazy render target, because the device size
-    // may be smaller than the final surface we draw to, in which case we don't want to fill the
-    // entire final surface.
-    if (this->isClipWideOpen() && !fDC->target()->isFullyLazy()) {
-        if (!paint_depends_on_dst(paint)) {
-            if (std::optional<SkColor4f> color = extract_paint_color(paint, fDC->colorInfo())) {
-                // do fullscreen clear
-                fDC->clear(*color);
-                return;
-            } else {
-                // This paint does not depend on the destination and covers the entire surface, so
-                // discard everything previously recorded and proceed with the draw.
-                fDC->discard();
-            }
-        }
-    }
 
     Shape inverseFill; // defaults to empty
     inverseFill.setInverted(true);
@@ -1390,6 +1354,25 @@ void Device::drawGeometry(const Transform& localToDevice,
                         skipColorXform};
     const bool dependsOnDst = paint_depends_on_dst(shading) ||
                               clip.shader() || !clip.nonMSAAClip().isEmpty();
+
+    // If we are unclipped, do not depend on the dst, and cover the target, then we can adjust
+    // load ops of the renderpass to more optimally handle the draw (and avoid redundant clears).
+    // NOTE: We skip this for fully-lazy render targets because the load ops may impact a larger
+    // area than the Device's theoretical bounds.
+    if (geometry.isShape() && geometry.shape().isFloodFill() &&
+        !dependsOnDst && clipElements.empty() && !fDC->target()->isFullyLazy()) {
+        if (std::optional<SkColor4f> color = extract_paint_color(shading, fDC->colorInfo())) {
+            // Fullscreen clear, so nothing has to be rendered at all
+            fDC->clear(*color);
+            return;
+        } else {
+            // This paint does not depend on the destination and covers the entire surface, so
+            // discard everything previously recorded and proceed with the draw.
+            fDC->discard();
+
+            // But then continue to render the flood fill with shading
+        }
+    }
 
     // Some shapes and styles combine multiple draws so the total render step count is split between
     // the main renderer and possibly a secondaryRenderer.
