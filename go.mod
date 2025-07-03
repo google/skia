@@ -13,7 +13,7 @@ require (
 	github.com/trietmn/go-wiki v1.0.1
 	github.com/vektra/mockery/v2 v2.52.2
 	go.chromium.org/luci v0.0.0-20240206071351-fb32c458db6e
-	go.skia.org/infra v0.0.0-20250701230134-c45c84ffa29e
+	go.skia.org/infra v0.0.0-20250702215201-ca3ad4399108
 	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac
 	google.golang.org/api v0.215.0
 	google.golang.org/protobuf v1.36.6
