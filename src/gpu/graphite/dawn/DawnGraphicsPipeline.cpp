@@ -582,6 +582,13 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
         layoutDesc.bindGroupLayoutCount =
             hasFragmentSamplers ? groupLayouts.size() : groupLayouts.size() - 1;
         layoutDesc.bindGroupLayouts = groupLayouts.data();
+#if !defined(__EMSCRIPTEN__)
+        if (sharedContext->caps()
+                    ->resourceBindingRequirements()
+                    .fUsePushConstantsForIntrinsicConstants) {
+            layoutDesc.immediateSize = kIntrinsicUniformSize;
+        }
+#endif
         auto layout = device.CreatePipelineLayout(&layoutDesc);
         if (!layout) {
             return {};

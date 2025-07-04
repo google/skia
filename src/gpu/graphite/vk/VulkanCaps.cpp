@@ -62,6 +62,7 @@ VulkanCaps::~VulkanCaps() {}
 
 namespace {
 void populate_resource_binding_reqs(ResourceBindingRequirements& reqs) {
+    reqs.fBackendApi = BackendApi::kVulkan;
     // We can enable std430 and ensure no array stride mismatch in functions because all bound
     // buffers will either be a UBO or SSBO, depending on if storage buffers are enabled or not.
     // Although intrinsic uniforms always use uniform buffers, they do not contain any arrays.
@@ -73,7 +74,7 @@ void populate_resource_binding_reqs(ResourceBindingRequirements& reqs) {
 
     // Vulkan uses push constants instead of an intrinsic UBO, so we do not need to assign
     // reqs.fIntrinsicBufferBinding.
-    reqs.fUseVulkanPushConstantsForIntrinsicConstants = true;
+    reqs.fUsePushConstantsForIntrinsicConstants = true;
 
     // Assign uniform buffer binding values for shader generation
     reqs.fRenderStepBufferBinding =

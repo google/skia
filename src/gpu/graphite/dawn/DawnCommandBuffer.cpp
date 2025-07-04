@@ -228,8 +228,17 @@ bool DawnCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
             return true;
         }
 
-    // Update the intrinsic constant buffer before starting a render pass.
-    if (!this->updateIntrinsicUniforms(viewport)) SK_UNLIKELY {
+
+    UniformManager intrinsicValues{Layout::kStd140};
+    CollectIntrinsicUniforms(fSharedContext->caps(), viewport, fDstReadBounds, &intrinsicValues);
+    const auto uniformData = UniformDataBlock::Wrap(&intrinsicValues);
+    const bool usePushConstant = fSharedContext->dawnCaps()
+                                         ->resourceBindingRequirements()
+                                         .fUsePushConstantsForIntrinsicConstants;
+
+    // If push constant is not supported, update the intrinsic constant buffer before starting a
+    // render pass.
+    if (!usePushConstant && !this->updateIntrinsicUniformsAsUBO(uniformData)) SK_UNLIKELY {
         return false;
     }
 
@@ -239,6 +248,11 @@ bool DawnCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
                                colorTexture,
                                resolveTexture,
                                depthStencilTexture)) SK_UNLIKELY {
+        return false;
+    }
+
+    // If push constant is supported, update the intrinsic constants after starting a render pass.
+    if (usePushConstant && !this->updateIntrinsicUniformsAsPushConstant(uniformData)) SK_UNLIKELY {
         return false;
     }
 
@@ -905,10 +919,12 @@ void DawnCommandBuffer::syncUniformBuffers() {
         std::array<std::pair<const DawnBuffer*, uint32_t>, kNumBuffers> boundBuffersAndSizes;
 
         std::array<bool, kNumBuffers> enabled = {
-            true,                                         // intrinsic uniforms are always enabled
-            fActiveGraphicsPipeline->hasStepUniforms(),   // render step uniforms
-            fActiveGraphicsPipeline->hasPaintUniforms(),  // paint uniforms
-            fActiveGraphicsPipeline->hasGradientBuffer(), // gradient SSBO
+                !fSharedContext->dawnCaps()
+                         ->resourceBindingRequirements()
+                         .fUsePushConstantsForIntrinsicConstants,  // intrinsic uniforms
+                fActiveGraphicsPipeline->hasStepUniforms(),            // render step uniforms
+                fActiveGraphicsPipeline->hasPaintUniforms(),           // paint uniforms
+                fActiveGraphicsPipeline->hasGradientBuffer(),          // gradient SSBO
         };
 
         for (int i = 0; i < kNumBuffers; ++i) {
@@ -940,12 +956,10 @@ void DawnCommandBuffer::setScissor(const Scissor& scissor) {
     fActiveRenderPassEncoder.SetScissorRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
-bool DawnCommandBuffer::updateIntrinsicUniforms(SkIRect viewport) {
-    UniformManager intrinsicValues{Layout::kStd140};
-    CollectIntrinsicUniforms(fSharedContext->caps(), viewport, fDstReadBounds, &intrinsicValues);
+bool DawnCommandBuffer::updateIntrinsicUniformsAsUBO(UniformDataBlock uniformData) {
+    BindBufferInfo binding =
+            fResourceProvider->findOrCreateIntrinsicBindBufferInfo(this, uniformData);
 
-    BindBufferInfo binding = fResourceProvider->findOrCreateIntrinsicBindBufferInfo(
-            this, UniformDataBlock::Wrap(&intrinsicValues));
     if (!binding) {
         return false;
     } else if (binding == fBoundUniforms[DawnGraphicsPipeline::kIntrinsicUniformBufferIndex]) {
@@ -955,6 +969,18 @@ bool DawnCommandBuffer::updateIntrinsicUniforms(SkIRect viewport) {
     fBoundUniforms[DawnGraphicsPipeline::kIntrinsicUniformBufferIndex] = binding;
     fBoundUniformBuffersDirty = true;
     return true;
+}
+
+bool DawnCommandBuffer::updateIntrinsicUniformsAsPushConstant(UniformDataBlock uniformData) {
+#if !defined(__EMSCRIPTEN__)
+    SkASSERT(fActiveRenderPassEncoder);
+    SkASSERT(uniformData.size() <= DawnGraphicsPipeline::kIntrinsicUniformSize);
+    fActiveRenderPassEncoder.SetImmediateData(0, uniformData.data(), uniformData.size());
+    return true;
+#else
+    SkASSERT(false); // No push constant support in WASM yet
+    return false;
+#endif
 }
 
 void DawnCommandBuffer::setViewport(SkIRect viewport) {

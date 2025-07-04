@@ -468,11 +468,18 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     }
 #endif
 
+    fResourceBindingReqs.fBackendApi = BackendApi::kDawn;
     fResourceBindingReqs.fUniformBufferLayout = Layout::kStd140;
     // The WGSL generator assumes tightly packed std430 layout for SSBOs which is also the default
     // for all types outside the uniform address space in WGSL.
     fResourceBindingReqs.fStorageBufferLayout = Layout::kStd430;
     fResourceBindingReqs.fSeparateTextureAndSamplerBinding = true;
+
+#if !defined(__EMSCRIPTEN__)
+    // We need 32 bytes push constant for 2 vectors worth of intrinsic data.
+    fResourceBindingReqs.fUsePushConstantsForIntrinsicConstants =
+            limits.maxImmediateSize >= DawnGraphicsPipeline::kIntrinsicUniformSize;
+#endif
 
     fResourceBindingReqs.fUniformsSetIdx = DawnGraphicsPipeline::kUniformBufferBindGroupIndex;
     fResourceBindingReqs.fTextureSamplerSetIdx = DawnGraphicsPipeline::kTextureBindGroupIndex;

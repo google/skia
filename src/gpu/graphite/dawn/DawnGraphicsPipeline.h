@@ -51,6 +51,8 @@ public:
     inline static constexpr unsigned int kGradientBufferIndex = 3;
     inline static constexpr unsigned int kNumUniformBuffers = 4;
 
+    inline static constexpr unsigned int kIntrinsicUniformSize = 32;
+
     inline static constexpr unsigned int kStaticDataBufferIndex = 0;
     inline static constexpr unsigned int kAppendDataBufferIndex = 1;
     inline static constexpr unsigned int kNumVertexBuffers = 2;

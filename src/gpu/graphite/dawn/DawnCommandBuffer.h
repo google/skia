@@ -102,7 +102,8 @@ private:
                                 const DrawPassCommands::BindTexturesAndSamplers& command);
 
     void setScissor(const Scissor&);
-    bool updateIntrinsicUniforms(SkIRect viewport);
+    bool updateIntrinsicUniformsAsUBO(UniformDataBlock dataBlock);
+    bool updateIntrinsicUniformsAsPushConstant(UniformDataBlock dataBlock);
     void setViewport(SkIRect viewport);
 
     void draw(PrimitiveType type, unsigned int baseVertex, unsigned int vertexCount);
