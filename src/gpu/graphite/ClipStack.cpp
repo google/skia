@@ -107,16 +107,21 @@ bool intersect_shape(const Transform& otherToDevice, const Shape& otherShape,
     // There are only a subset of shape types that we can analytically intersect with each other,
     // assuming a simple fill style (always the case for clip shapes):
     //
-    //  rects, rrects
+    //  rects, rrects, flood-fills (empty+inverse-fill)
     //
-    // In theory, flood-fills (empty+inverse == infinite full coverage) and per-edge AA quads could
-    // also be included but they do not appear as clip shapes.
+    // Flood-fills only appear as part of a draw, so it's only checked for `shape` and not
+    // `otherShape`. In theory, per-edge AA quads could also be included but they do not appear as
+    // clip shapes.
     //
     // Paths and arcs have complex intersection logic, so are skipped under the assumption that
     // simple cases have already been mapped to a rect or rrect. Lines are only ever stroked, so
     // are incompatible with this function.
-    bool shapeIntersectable = shape->isRect() || shape->isRRect();
+    bool shapeIntersectable = shape->isRect() ||
+                              shape->isRRect() ||
+                              (shape->isEmpty() && shape->inverted());
     bool otherIntersectable = otherShape.isRect() || otherShape.isRRect();
+    // Only clip shapes are used for `otherShape`, so we shouldn't see any flood fills here
+    SkASSERT(!(otherShape.isEmpty() && otherShape.inverted()));
 
     if (!shapeIntersectable || !otherIntersectable) {
         // Technically if shapeIntersectable was true for empty+inverse, we could turn the flood
@@ -178,6 +183,9 @@ bool intersect_shape(const Transform& otherToDevice, const Shape& otherShape,
             SkASSERT(!localOtherRect.isEmptyNegativeOrNaN());
             shape->setRect(localOtherRect);
             return true;
+        } else if (shape->isEmpty() && shape->inverted()) {
+            shape->setRect(localOtherRect);
+            return true;
         } else {
             // Fall back to rrect+rrect intersection
             localOtherRRect = SkRRect::MakeRect(localOtherRect.asSkRect());
@@ -193,8 +201,14 @@ bool intersect_shape(const Transform& otherToDevice, const Shape& otherShape,
             localOtherRRect = otherShape.rrect();
         }
 
-        // Else continue with rrect+rrect intersection
+        if (shape->isEmpty() && shape->inverted()) {
+            shape->setRRect(localOtherRRect);
+            return true;
+        } // Else continue with rrect+rrect intersection
     }
+
+    // `shape` can only be rect or rrect at this point, flood fill should already have returned.
+    SkASSERT(shape->isRect() || shape->isRRect());
 
     SkRRect localRRect = SkRRectPriv::ConservativeIntersect(
             localOtherRRect,
