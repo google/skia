@@ -13,7 +13,7 @@ bazel_dep(name = "platforms", version = "0.0.11")
 #     def _skia_ext_impl(ctx):
 #         git_repository(
 #             name = "skia",
-#             commit = "8b051126be8ae6c3e718bd3817eebb867b2fd612",
+#             commit = "99822dd8249dfe3773cbd7ca56bb1767bf92fa22",
 #             remote = "https://skia.googlesource.com/skia",
 #         )
 #
@@ -22,7 +22,7 @@ bazel_dep(name = "platforms", version = "0.0.11")
 #     )
 #
 # and then in MODULE.bazel:
-#     skia_module = use_extension("//skia.bzl", "skia_ext")
+#     skia_ext = use_extension("//:skia.bzl", "skia_ext")
 #     use_repo(skia_ext, "skia")
 
 # We use local_repository to allow us to test Skia at head as if it were checked
