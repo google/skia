@@ -118,10 +118,10 @@ bool intersect_shape(const Transform& otherToDevice, const Shape& otherShape,
     // are incompatible with this function.
     bool shapeIntersectable = shape->isRect() ||
                               shape->isRRect() ||
-                              (shape->isEmpty() && shape->inverted());
+                              shape->isFloodFill();
     bool otherIntersectable = otherShape.isRect() || otherShape.isRRect();
     // Only clip shapes are used for `otherShape`, so we shouldn't see any flood fills here
-    SkASSERT(!(otherShape.isEmpty() && otherShape.inverted()));
+    SkASSERT(!otherShape.isFloodFill());
 
     if (!shapeIntersectable || !otherIntersectable) {
         // Technically if shapeIntersectable was true for empty+inverse, we could turn the flood
@@ -183,7 +183,7 @@ bool intersect_shape(const Transform& otherToDevice, const Shape& otherShape,
             SkASSERT(!localOtherRect.isEmptyNegativeOrNaN());
             shape->setRect(localOtherRect);
             return true;
-        } else if (shape->isEmpty() && shape->inverted()) {
+        } else if (shape->isFloodFill()) {
             shape->setRect(localOtherRect);
             return true;
         } else {
@@ -201,7 +201,7 @@ bool intersect_shape(const Transform& otherToDevice, const Shape& otherShape,
             localOtherRRect = otherShape.rrect();
         }
 
-        if (shape->isEmpty() && shape->inverted()) {
+        if (shape->isFloodFill()) {
             shape->setRRect(localOtherRRect);
             return true;
         } // Else continue with rrect+rrect intersection

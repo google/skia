@@ -310,7 +310,7 @@ bool is_simple_shape(const Shape& shape, SkStrokeRec::Style type) {
     // Per-edge AA quadrilaterals also use the same Renderer but those are not "Shapes".
     // These shapes and quads may also be combined with a second non-AA inner fill. This fill step
     // is also directly used for flooding the clip
-    return (shape.isEmpty() && shape.inverted()) ||
+    return shape.isFloodFill() ||
            (!shape.inverted() && type != SkStrokeRec::kStrokeAndFill_Style &&
             (shape.isRect() ||
              (shape.isLine() && type != SkStrokeRec::kFill_Style) ||
@@ -797,7 +797,7 @@ void Device::drawPaint(const SkPaint& paint) {
     Shape inverseFill; // defaults to empty
     inverseFill.setInverted(true);
     // An empty shape with an inverse fill completely floods the clip
-    SkASSERT(inverseFill.isEmpty() && inverseFill.inverted());
+    SkASSERT(inverseFill.isFloodFill());
 
     this->drawGeometry(this->localToDeviceTransform(),
                        Geometry(inverseFill),

@@ -69,6 +69,8 @@ public:
     bool isArc()   const { return fType == Type::kArc;   }
     bool isPath()  const { return fType == Type::kPath;  }
 
+    bool isFloodFill() const { return this->isEmpty() && this->inverted(); }
+
     bool isVolatilePath() const {
         return fType == Type::kPath && this->path().isVolatile();
     }
