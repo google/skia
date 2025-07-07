@@ -130,9 +130,11 @@ private:
 
     // Internally, a lot of clip reasoning is based on an op, outer bounds, and whether a shape
     // contains another (possibly just conservatively based on inner/outer device-space bounds).
-    // Element and SaveRecord store this information directly. A draw is equivalent to a clip
-    // element with the intersection op. TransformedShape is a lightweight wrapper that can convert
-    // these different types into a common type that Simplify() can reason about.
+    // Element and SaveRecord store this information directly. A regular draw is equivalent to a
+    // clip element with the intersection op; an inverse-filled draw is the difference op.
+    //
+    // TransformedShape is a lightweight wrapper that can convert these different types into a
+    // common type that Simplify() can reason about.
     struct TransformedShape;
     // This captures which of the two elements in (A op B) would be required when they are combined,
     // where op is intersect or difference.
@@ -143,6 +145,16 @@ private:
         kBoth
     };
     static SimplifyResult Simplify(const TransformedShape& a, const TransformedShape& b);
+
+    // Returns how this element affects the draw after more detailed analysis.
+    enum class DrawInfluence {
+        kClipsOutDraw,       // The element causes the draw shape to be entirely clipped out
+        kReplacesDraw,       // The element is fully covered, so the draw's shape can be ignored
+        kNone,               // The element does not affect the draw
+        kComplexInteraction, // The element affects the draw shape in a complex way
+    };
+    static DrawInfluence SimplifyForDraw(const TransformedShape& clip,
+                                         const TransformedShape& draw);
 
     // Wraps the geometric Element data with logic for containment and bounds testing.
     class RawElement : public Element {
@@ -197,12 +209,6 @@ private:
         // is handled by modifying 'added'.
         void updateForElement(RawElement* added, const SaveRecord& current);
 
-        // Returns how this element affects the draw after more detailed analysis.
-        enum class DrawInfluence {
-            kNone,       // The element does not affect the draw
-            kClipOut,    // The element causes the draw shape to be entirely clipped out
-            kIntersect,  // The element intersects the draw shape in a complex way
-        };
         DrawInfluence testForDraw(const TransformedShape& draw) const;
 
         // Updates usage tracking to incorporate the bounds and Z value for the new draw call.
@@ -279,7 +285,7 @@ private:
         int  oldestElementIndex()      const { return fOldestValidIndex;         }
         bool canBeUpdated()            const { return (fDeferredSaveCount == 0); }
 
-        Rect scissor(const Rect& deviceBounds, const Rect& drawBounds) const;
+        DrawInfluence testForDraw(const TransformedShape& draw) const;
 
         // Deferred save manipulation
         void pushSave() {

@@ -409,6 +409,25 @@ ClipStack::SimplifyResult ClipStack::Simplify(const TransformedShape& a,
     SkUNREACHABLE;
 }
 
+ClipStack::DrawInfluence ClipStack::SimplifyForDraw(const TransformedShape& clip,
+                                                    const TransformedShape& draw) {
+    // Given the asserts below, we can just recast the SimplifyResult returned from
+    // Simplify(A=clip, B=draw):
+    //
+    // If the result is kEmpty, the draw is clipped out.
+    static_assert((int) SimplifyResult::kEmpty == (int) DrawInfluence::kClipsOutDraw);
+    // If the result is kAOnly, only the clip's shape provides coverage and the draw could be
+    // replaced with something that just covers the clip bounds.
+    static_assert((int) SimplifyResult::kAOnly == (int) DrawInfluence::kReplacesDraw);
+    // If the result is kBOnly, the clip's shape doesn't impact the draw's coverage at all.
+    static_assert((int) SimplifyResult::kBOnly == (int) DrawInfluence::kNone);
+    // If the result is kBoth, the clip and the draw combine in a complex manner
+    static_assert((int) SimplifyResult::kBoth == (int) DrawInfluence::kComplexInteraction);
+
+    SimplifyResult result = Simplify(clip, draw);
+    return static_cast<DrawInfluence>(result);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // ClipStack::Element
 
@@ -633,34 +652,13 @@ void ClipStack::RawElement::updateForElement(RawElement* added, const SaveRecord
     }
 }
 
-ClipStack::RawElement::DrawInfluence
-ClipStack::RawElement::testForDraw(const TransformedShape& draw) const {
+ClipStack::DrawInfluence ClipStack::RawElement::testForDraw(const TransformedShape& draw) const {
     if (this->isInvalid()) {
         // Cannot affect the draw
         return DrawInfluence::kNone;
     }
 
-    // For this analysis, A refers to the Element and B refers to the draw
-    switch(Simplify(*this, draw)) {
-        case SimplifyResult::kEmpty:
-            // The more detailed per-element checks have determined the draw is clipped out.
-            return DrawInfluence::kClipOut;
-
-        case SimplifyResult::kBOnly:
-            // This element does not affect the draw
-            return DrawInfluence::kNone;
-
-        case SimplifyResult::kAOnly:
-            // If this were the only element, we could replace the draw's geometry but that only
-            // gives us a win if we know that the clip element would only be used by this draw.
-            // For now, just fall through to regular clip handling.
-            [[fallthrough]];
-
-        case SimplifyResult::kBoth:
-            return DrawInfluence::kIntersect;
-    }
-
-    SkUNREACHABLE;
+    return SimplifyForDraw(*this, draw);
 }
 
 CompressedPaintersOrder ClipStack::RawElement::updateForDraw(const BoundsManager* boundsManager,
@@ -789,35 +787,12 @@ ClipStack::ClipState ClipStack::SaveRecord::state() const {
     }
 }
 
-Rect ClipStack::SaveRecord::scissor(const Rect& deviceBounds, const Rect& drawBounds) const {
-    // This should only be called when the clip stack actually has something non-trivial to evaluate
-    // It is effectively a reduced version of Simplify() dealing only with device-space bounds and
-    // returning the intersection results.
-    SkASSERT(this->state() != ClipState::kEmpty && this->state() != ClipState::kWideOpen);
-    SkASSERT(deviceBounds.contains(drawBounds)); // This should have already been handled.
+ClipStack::DrawInfluence ClipStack::SaveRecord::testForDraw(const TransformedShape& draw) const {
+    Shape outerSaveBounds{fOuterBounds};
+    TransformedShape save{kIdentity, outerSaveBounds, fOuterBounds, fInnerBounds, fStackOp,
+                          /*containsChecksOnlyBounds=*/true};
 
-    if (fStackOp == SkClipOp::kDifference) {
-        // kDifference nominally uses the draw's bounds minus the save record's inner bounds as the
-        // scissor. However, if the draw doesn't intersect the clip at all then it doesn't have any
-        // visual effect and we can switch to the device bounds as the canonical scissor.
-        if (!fOuterBounds.intersects(drawBounds)) {
-            return deviceBounds;
-        } else {
-            // This automatically detects the case where the draw is contained in inner bounds and
-            // would be entirely clipped out.
-            return subtract(drawBounds, fInnerBounds, /*exact=*/true);
-        }
-    } else {
-        // kIntersect nominally uses the save record's outer bounds as the scissor. However, if the
-        // draw is contained entirely within those bounds, it doesn't have any visual effect so
-        // switch to using the device bounds as the canonical scissor to minimize state changes.
-        if (fOuterBounds.contains(drawBounds)) {
-            return deviceBounds;
-        } else {
-            // This automatically detects the case where the draw does not intersect the clip.
-            return fOuterBounds;
-        }
-    }
+    return SimplifyForDraw(save, draw);
 }
 
 void ClipStack::SaveRecord::removeElements(RawElement::Stack* elements, Device* device) {
@@ -1373,8 +1348,6 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         }
     }
 
-
-
     // Anti-aliasing makes shapes larger than their original coordinates, but we only care about
     // that for local clip checks in certain cases (see above).
     // NOTE: After this if-else block, `transformedShapeBounds` will be in device space.
@@ -1418,30 +1391,27 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         }
     }
 
-    if (drawBounds.isEmptyNegativeOrNaN() || cs.state() == ClipState::kWideOpen) {
-        // Either the draw is off screen, so it's clipped out regardless of the state of the
-        // SaveRecord, or there are no elements to apply to the draw. In both cases, 'drawBounds'
-        // has the correct value, the scissor is the device bounds (ignored if clipped-out).
-        return Clip(drawBounds, transformedShapeBounds, deviceBounds.asSkIRect(), {}, cs.shader());
+    Rect scissor;
+    if (cs.op() == SkClipOp::kIntersect) {
+        // For intersect clips, the scissor rectangle is just the outer bounds. Cases where the draw
+        // can skip setting the scissor because it's contained entirely within it are handled
+        // automatically by command generation.
+        scissor = cs.outerBounds().makeRoundOut();
+
+        // Apply the scissor to the draw bounds because it restricts rasterization and will allow
+        // the SaveRecord::testForDraw() case to detect no clip influence if only the scissor is
+        // needed.
+        drawBounds.intersect(scissor);
+    } else {
+        // For difference clips, a tight scissor could be `subtract(drawBounds, cs.innerBounds(),
+        // true)` but this can trigger scissor state thrashing when the draw has analytic AA that
+        // will later on outset `drawBounds` and make it appear as though the scissor was required.
+        // The limited scenario where the tight scissor restricts anything is for axis-aligned
+        // difference clipRects that span across the draw along one axis. That is not worth the
+        // complexity, so just `deviceBounds` as the scissor.
+        scissor = deviceBounds;
     }
 
-    // We don't evaluate Simplify() on the SaveRecord and the draw because a reduced version of
-    // Simplify is effectively performed in computing the scissor rect.
-    // Given that, we can skip iterating over the clip elements when:
-    //  - the draw's *scissored* bounds are empty, which happens when the draw was clipped out.
-    //  - the scissored bounds are contained in our inner bounds, which happens if all we need to
-    //    apply to the draw is the computed scissor rect.
-    // TODO: The Clip's scissor is defined in terms of integer pixel coords, but if we move to
-    // clip plane distances in the vertex shader, it can be defined in terms of the original float
-    // coordinates.
-    Rect scissor = cs.scissor(deviceBounds, drawBounds).makeRoundOut();
-    drawBounds.intersect(scissor);
-    if (drawBounds.isEmptyNegativeOrNaN() || cs.innerBounds().contains(drawBounds)) {
-        // Like above, in both cases drawBounds holds the right value.
-        return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), {}, cs.shader());
-    }
-
-    // If we made it here, the clip stack affects the draw in a complex way so iterate each element.
     // A regular draw is a transformed shape that "intersects" the clip. An inverse-filled draw is
     // equivalent to "difference". We use empty inner bounds because
     // there's currently no way to re-write the draw as the clip's geometry, so there's no need to
@@ -1455,6 +1425,26 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                                                         : SkClipOp::kIntersect,
                           /*containsChecksOnlyBounds=*/true};
 
+    switch (cs.testForDraw(draw)) {
+        case DrawInfluence::kClipsOutDraw:
+            // The draw is offscreen or clipped out, so there is no need to visit the clip elements.
+            return kClippedOut;
+
+        case DrawInfluence::kNone:
+            // The draw is unaffected by the clip stack (except possibly `scissor`), and there's no
+            // need to visit each clip element.
+            return Clip(drawBounds, transformedShapeBounds, scissor.asSkIRect(), {}, cs.shader());
+
+        case DrawInfluence::kReplacesDraw:
+            // The draw covers the clip entirely. We could replace the geometry being drawn with
+            // something similar, but for now fall through to per-element clipping like kIntersect
+            [[fallthrough]];
+
+        case DrawInfluence::kComplexInteraction:
+            // Check each element's influence on the draw below
+            break;
+    }
+
     SkASSERT(outEffectiveElements);
     SkASSERT(outEffectiveElements->empty());
     int i = fElements.count();
@@ -1467,19 +1457,32 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
             break;
         }
 
-        auto influence = e.testForDraw(draw);
-        if (influence == RawElement::DrawInfluence::kClipOut) {
-            outEffectiveElements->clear();
-            return kClippedOut;
-        }
-        if (influence == RawElement::DrawInfluence::kIntersect) {
-            if (nonMSAAClip.fAnalyticClip.isEmpty()) {
-                nonMSAAClip.fAnalyticClip = can_apply_analytic_clip(e.shape(), e.localToDevice());
-                if (!nonMSAAClip.fAnalyticClip.isEmpty()) {
-                    continue;
+        switch (e.testForDraw(draw)) {
+            case DrawInfluence::kClipsOutDraw:
+                // Per-element check was able to completely reject the draw.
+                outEffectiveElements->clear();
+                return kClippedOut;
+
+            case DrawInfluence::kNone:
+                // This element does not interact, so continue to the next
+                continue;
+
+            case DrawInfluence::kReplacesDraw:
+                // This element is covered entirely by the draw so we could replace the draw with
+                // the clip's geometry. For now, fall through and treat as if it were kIntersect
+                [[fallthrough]];
+
+            case DrawInfluence::kComplexInteraction:
+                // First try to handle the clip analytically, otherwise add to outEffectiveElements
+                if (nonMSAAClip.fAnalyticClip.isEmpty()) {
+                    nonMSAAClip.fAnalyticClip = can_apply_analytic_clip(e.shape(),
+                                                                        e.localToDevice());
+                    if (!nonMSAAClip.fAnalyticClip.isEmpty()) {
+                        continue;
+                    }
                 }
-            }
-            outEffectiveElements->push_back(&e);
+                outEffectiveElements->push_back(&e);
+                break;
         }
     }
 
