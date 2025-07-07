@@ -585,12 +585,13 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
     if (!reporter->verbose()) {
         return true;
     }
+    SkPath pathOut, scaledPathOut;
     SkRegion rgnA, rgnB, openClip, rgnOut;
     openClip.setRect({-16000, -16000, 16000, 16000});
     rgnA.setPath(a, openClip);
     rgnB.setPath(b, openClip);
     rgnOut.op(rgnA, rgnB, (SkRegion::Op) shapeOp);
-    SkPath pathOut = rgnOut.getBoundaryPath();
+    rgnOut.getBoundaryPath(&pathOut);
 
     SkMatrix scale;
     scaleMatrix(a, b, scale);
@@ -603,7 +604,7 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
     scaledRgnA.setPath(scaledA, openClip);
     scaledRgnB.setPath(scaledB, openClip);
     scaledRgnOut.op(scaledRgnA, scaledRgnB, (SkRegion::Op) shapeOp);
-    SkPath scaledPathOut = scaledRgnOut.getBoundaryPath();
+    scaledRgnOut.getBoundaryPath(&scaledPathOut);
     SkBitmap bitmap;
     SkPath scaledOut;
     scaledOut.addPath(out, scale);

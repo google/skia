@@ -753,7 +753,8 @@ void Device::clipRegion(const SkRegion& globalRgn, SkClipOp op) {
                         ClipStack::PixelSnapping::kYes);
     } else {
         // TODO: Can we just iterate the region and do non-AA rects for each chunk?
-        SkPath path = globalRgn.getBoundaryPath();
+        SkPath path;
+        globalRgn.getBoundaryPath(&path);
         fClip.clipShape(globalToDevice, Shape{path}, op);
     }
 }

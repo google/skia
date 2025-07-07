@@ -120,7 +120,8 @@ void SkDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
     bool antiAlias = paint.isAntiAlias() && (!is_int(localToDevice.getTranslateX()) ||
                                              !is_int(localToDevice.getTranslateY()));
     if (isNonTranslate || complexPaint || antiAlias) {
-        SkPath path = region.getBoundaryPath();
+        SkPath path;
+        region.getBoundaryPath(&path);
         path.setIsVolatile(true);
         return this->drawPath(path, paint, true);
     }

@@ -8,7 +8,6 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkScalar.h"
@@ -513,7 +512,7 @@ static void find_link(Edge* base, Edge* stop) {
     base->fFlags = Edge::kCompleteLink;
 }
 
-static int extract_path(Edge* edge, Edge* stop, SkPathBuilder* builder) {
+static int extract_path(Edge* edge, Edge* stop, SkPath* path) {
     while (0 == edge->fFlags) {
         edge++; // skip over "used" edges
     }
@@ -526,20 +525,20 @@ static int extract_path(Edge* edge, Edge* stop, SkPathBuilder* builder) {
     SkASSERT(edge != base);
 
     int count = 1;
-    builder->moveTo(SkIntToScalar(prev->fX), SkIntToScalar(prev->fY0));
+    path->moveTo(SkIntToScalar(prev->fX), SkIntToScalar(prev->fY0));
     prev->fFlags = 0;
     do {
         if (prev->fX != edge->fX || prev->fY1 != edge->fY0) { // skip collinear
-            builder->lineTo(SkIntToScalar(prev->fX), SkIntToScalar(prev->fY1));    // V
-            builder->lineTo(SkIntToScalar(edge->fX), SkIntToScalar(edge->fY0));    // H
+            path->lineTo(SkIntToScalar(prev->fX), SkIntToScalar(prev->fY1));    // V
+            path->lineTo(SkIntToScalar(edge->fX), SkIntToScalar(edge->fY0));    // H
         }
         prev = edge;
         edge = edge->fNext;
         count += 1;
         prev->fFlags = 0;
     } while (edge != base);
-    builder->lineTo(SkIntToScalar(prev->fX), SkIntToScalar(prev->fY1));    // V
-    builder->close();
+    path->lineTo(SkIntToScalar(prev->fX), SkIntToScalar(prev->fY1));    // V
+    path->close();
     return count;
 }
 
@@ -549,10 +548,10 @@ struct EdgeLT {
     }
 };
 
-bool SkRegion::addBoundaryPath(SkPathBuilder* builder) const {
+bool SkRegion::getBoundaryPath(SkPath* path) const {
     // path could safely be nullptr if we're empty, but the caller shouldn't
     // *know* that
-    SkASSERT(builder);
+    SkASSERT(path);
 
     if (this->isEmpty()) {
         return false;
@@ -563,7 +562,7 @@ bool SkRegion::addBoundaryPath(SkPathBuilder* builder) const {
     if (this->isRect()) {
         SkRect  r;
         r.set(bounds);      // this converts the ints to scalars
-        builder->addRect(r);
+        path->addRect(r);
         return true;
     }
 
@@ -593,27 +592,11 @@ bool SkRegion::addBoundaryPath(SkPathBuilder* builder) const {
     }
 #endif
 
-    builder->incReserve(count << 1);
+    path->incReserve(count << 1);
     do {
         SkASSERT(count > 1);
-        count -= extract_path(start, stop, builder);
+        count -= extract_path(start, stop, path);
     } while (count > 0);
 
     return true;
 }
-
-SkPath SkRegion::getBoundaryPath() const {
-    SkPathBuilder builder;
-    (void)this->addBoundaryPath(&builder);
-    return builder.detach();
-}
-
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-bool SkRegion::getBoundaryPath(SkPath* path) const {
-    if (this->isEmpty()) {
-        return false;
-    }
-    path->addPath(this->getBoundaryPath());
-    return true;
-}
-#endif

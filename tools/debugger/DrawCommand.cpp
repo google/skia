@@ -572,7 +572,9 @@ void DrawCommand::MakeJsonPath(SkJSONWriter& writer, const SkPath& path) {
 
 void DrawCommand::MakeJsonRegion(SkJSONWriter& writer, const SkRegion& region) {
     // TODO: Actually serialize the rectangles, rather than just devolving to path
-    MakeJsonPath(writer, region.getBoundaryPath());
+    SkPath path;
+    region.getBoundaryPath(&path);
+    MakeJsonPath(writer, path);
 }
 
 void DrawCommand::MakeJsonSampling(SkJSONWriter& writer, const SkSamplingOptions& sampling) {

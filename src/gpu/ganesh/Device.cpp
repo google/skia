@@ -393,7 +393,8 @@ void Device::clipRegion(const SkRegion& globalRgn, SkClipOp op) {
     } else if (globalRgn.isRect()) {
         fClip.clipRect(this->globalToDevice().asM33(), SkRect::Make(globalRgn.getBounds()), aa, op);
     } else {
-        SkPath path = globalRgn.getBoundaryPath();
+        SkPath path;
+        globalRgn.getBoundaryPath(&path);
         fClip.clipPath(this->globalToDevice().asM33(), path, aa, op);
     }
 }
@@ -709,7 +710,8 @@ void Device::drawRegion(const SkRegion& region, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
 
     if (paint.getMaskFilter()) {
-        SkPath path = region.getBoundaryPath();
+        SkPath path;
+        region.getBoundaryPath(&path);
         path.setIsVolatile(true);
         return this->drawPath(path, paint, true);
     }
