@@ -160,6 +160,7 @@ skgpu::graphite::PaintOptions TransparentPaintImagePremulHWOnlyPlusColorSrcover(
 
 skgpu::graphite::PaintOptions EdgeExtensionPassthroughSrcover();
 skgpu::graphite::PaintOptions EdgeExtensionPremulSrcover();
+skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPassthroughMatrixCFDitherSrcover();
 skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPassthroughSrcover();
 skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPremulSrcover();
 
@@ -180,7 +181,7 @@ skgpu::graphite::PaintOptions LinearEffect(const char* parameterStr,
                                            bool dither = false);
 
 #if defined(SK_VULKAN)
-skgpu::graphite::PaintOptions ImagePremulYCbCr238Srcover();
+skgpu::graphite::PaintOptions ImagePremulYCbCr238Srcover(bool narrow);
 skgpu::graphite::PaintOptions TransparentPaintImagePremulYCbCr238Srcover();
 skgpu::graphite::PaintOptions ImagePremulYCbCr240Srcover();
 skgpu::graphite::PaintOptions TransparentPaintImagePremulYCbCr240Srcover();
