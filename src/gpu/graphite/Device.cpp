@@ -303,7 +303,7 @@ Rect get_inner_bounds(const Geometry& geometry, const Transform& localToDevice) 
         rect.inset(aaInset);
         // Only add a second draw if it will have a reasonable number of covered pixels; otherwise
         // we are just adding draws to sort and pipelines to switch around.
-        static constexpr float kInnerFillArea = 64*64;
+        static constexpr float kInnerFillArea = 256*256;
         // Approximate the device-space area based on the minimum scale factor of the transform.
         float scaleFactor = sk_ieee_float_divide(1.f, aaInset);
         return scaleFactor*rect.area() >= kInnerFillArea ? rect : Rect::InfiniteInverted();
