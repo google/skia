@@ -1331,12 +1331,17 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     // rendering an AA'ed non-hairline/subpixel edge produces a 1px feathered edge that's not
     // qualitatively different from the 1px feathered edge a clip would enforce.
     Shape styledShape;
+    bool shapeMatchesGeometry; // true if `styledShape` matches what's drawn
     if (geometry.isShape()) {
         styledShape = geometry.shape();
+        shapeMatchesGeometry = true;
     } else {
         // The geometry is something special like text or vertices, in which case it's definitely
         // not a shape that could simplify cleanly with the clip stack, so just track its bounds.
         styledShape.setRect(geometry.bounds());
+        shapeMatchesGeometry = geometry.isEdgeAAQuad() &&
+                               geometry.edgeAAQuad().isRect() &&
+                               geometry.edgeAAQuad().edgeFlags() == EdgeAAQuad::Flags::kAll;
         // If geometry is not a shape, it is not inverted.
         SkASSERT(!styledShape.inverted());
     }
@@ -1344,7 +1349,6 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     Rect drawBounds; // in device-space, respects fill rule and scissor
     Rect transformedShapeBounds = styledShape.bounds(); // not scissor'ed, regular fill rule bounds
     bool shapeInDeviceSpace = false; // true if styledShape has been mapped to device space already
-
     auto origSize = transformedShapeBounds.size();
     if (!SkIsFinite(origSize.x(), origSize.y())) {
         // Discard all non-finite geometry as if it were clipped out
@@ -1375,6 +1379,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         drawBounds = deviceBounds;
         styledShape.setRect(deviceBounds);
         shapeInDeviceSpace = true;
+        shapeMatchesGeometry = false;
     } else {
         // SkStrokeRect::getInflationRadius() returns a device-space inflation for hairlines.
         float localOutset = style.isHairlineStyle() ? 0.f : style.getInflationRadius();
@@ -1393,6 +1398,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
             bool inverted = styledShape.inverted();
             styledShape.setRect(transformedShapeBounds); // it's still local at this point
             styledShape.setInverted(inverted);  // preserve original inversion state
+            shapeMatchesGeometry = false;
         }
 
         transformedShapeBounds = localToDevice.mapRect(transformedShapeBounds);
@@ -1427,14 +1433,36 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
     }
 
     // A regular draw is a transformed shape that "intersects" the clip. An inverse-filled draw is
-    // equivalent to "difference". We use empty inner bounds because
-    // there's currently no way to re-write the draw as the clip's geometry, so there's no need to
-    // check if the draw contains the clip (vice versa is still checked and represents an unclipped
-    // draw so is very useful to identify).
+    // equivalent to "difference". For simple convex shapes we provide an inner bounds because we
+    // can geometrically intersect clip elements with the draw geometry and not really impact the
+    // choice of Renderer (given the family of renderers used for simple shapes). In theory any
+    // convex shape could provide an inner bounds and/or use the detailed contains check, but that
+    // would cause path rendering draws to potentially change in hard to predict ways.
+    Rect innerBounds = Rect::InfiniteInverted();
+    if (shapeMatchesGeometry && localToDevice.type() <= Transform::Type::kRectStaysRect) {
+        if (styledShape.isRect()) {
+            // For a rect-stays-rect transform, this should be equivalent to
+            // localToDevice.mapRect(styledShape.rect()).makeIntersect(scissor)
+            innerBounds = drawBounds;
+        } else if (styledShape.isRRect()) {
+            SkRect rrectInnerBounds = SkRRectPriv::InnerBounds(styledShape.rrect());
+            if (!rrectInnerBounds.isEmpty()) {
+                innerBounds = localToDevice.mapRect(rrectInnerBounds).makeIntersect(scissor);
+            }
+        }
+        // Else it's a flood fill, but should have empty bounds anyways
+    }
+    // Else we either don't need the inner bounds, or the inner bounds can't be computed for a
+    // non-axis-aligned transform
+
+    // The outer bounds for kIntersect is the same as drawBounds, but for kDifference it's meant
+    // to reflect the shape's bounds restricted to the scissor.
+    Rect outerBounds = transformedShapeBounds.makeIntersect(scissor);
+
     TransformedShape draw{shapeInDeviceSpace ? kIdentity : localToDevice,
                           styledShape,
-                          /*outerBounds=*/drawBounds,
-                          /*innerBounds=*/Rect::InfiniteInverted(),
+                          /*outerBounds=*/outerBounds,
+                          /*innerBounds=*/innerBounds,
                           /*op=*/styledShape.inverted() ? SkClipOp::kDifference
                                                         : SkClipOp::kIntersect,
                           /*containsChecksOnlyBounds=*/true};
