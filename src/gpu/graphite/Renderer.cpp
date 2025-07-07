@@ -81,6 +81,12 @@ std::optional<SkIRect> RenderStep::getScissor(const DrawParams& params,
         return {};
     }
 
+    if (drawBounds == params.clip().transformedShapeBounds()) {
+        // We need to change the scissor, but the registered scissor is a no-op so
+        // use the device bounds as a canonical scissor.
+        return deviceBounds;
+    }
+
     return params.clip().scissor();
 }
 
