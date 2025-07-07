@@ -762,15 +762,13 @@ static void set_region_to_stack(const SkClipStack& stack, const SkIRect& bounds,
     while (const SkClipStack::Element *element = iter.next()) {
         SkRegion elemRegion;
         SkRegion boundsRgn(bounds);
-        SkPath path;
 
         switch (element->getDeviceSpaceType()) {
             case SkClipStack::Element::DeviceSpaceType::kEmpty:
                 elemRegion.setEmpty();
                 break;
             default:
-                element->asDeviceSpacePath(&path);
-                elemRegion.setPath(path, boundsRgn);
+                elemRegion.setPath(element->asDeviceSpacePath(), boundsRgn);
                 break;
         }
 

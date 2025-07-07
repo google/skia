@@ -113,13 +113,11 @@ void SkClipStackDevice::android_utils_clipAsRgn(SkRegion* rgn) const {
         rgn->setRect(bounds.round());
     } else {
         SkRegion boundsRgn({0, 0, this->width(), this->height()});
-        SkPath tmpPath;
 
         *rgn = boundsRgn;
         SkClipStack::B2TIter iter(fClipStack);
         while (auto elem = iter.next()) {
-            tmpPath.rewind();
-            elem->asDeviceSpacePath(&tmpPath);
+            SkPath tmpPath = elem->asDeviceSpacePath();
             SkRegion tmpRgn;
             tmpRgn.setPath(tmpPath, boundsRgn);
             if (elem->isReplaceOp()) {
