@@ -141,6 +141,8 @@ private:
     // TransformedShape is a lightweight wrapper that can convert these different types into a
     // common type that Simplify() can reason about.
     struct TransformedShape;
+    class DrawShape;
+
     // This captures which of the two elements in (A op B) would be required when they are combined,
     // where op is intersect or difference.
     enum class SimplifyResult {
