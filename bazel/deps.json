@@ -167,7 +167,7 @@
     },
     {
       "build_file": "//bazel/external/vulkan_tools:BUILD.bazel",
-      "commit": "f0f308ad2cdc2e8fd58985d6230df4a29cc44eb6",
+      "commit": "06ae73a3dc3a03466817d8370355203dac7b79b1",
       "name": "vulkan_tools",
       "remote": "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Tools"
     },
