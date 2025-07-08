@@ -12,7 +12,7 @@ is_cast_android = false
 is_castos = false
 is_cronet_build = false
 is_nacl = false
-is_posix = !is_win && !is_fuchsia
+is_posix = !is_win
 
 # Skia standalone isn't built as part of chromium.
 build_with_chromium = false
@@ -45,8 +45,7 @@ _supported_build_type = !is_win || (!is_component_build && !is_debug)
 
 # TODO(351867706): Resolve compile assertions issues on Mac, and add `is_mac`
 # here.
-_supported_platform =
-    is_android || is_chromeos || is_fuchsia || is_linux || is_win
+_supported_platform = is_android || is_chromeos || is_linux || is_win
 
 # Sanitizers replace the allocator, don't replace it ourselves with
 # partition_alloc.
