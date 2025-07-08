@@ -175,7 +175,7 @@ static constexpr skcms_TransferFunction kRec2020_12bit = kRec709;
 
 // Rec. ITU-R BT.2100-2 perceptual quantization (PQ) system, value 16.
 static constexpr skcms_TransferFunction kPQ =
-    {-5.0f, 203.f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+    {-2.0f, -107/128.0f, 1.0f, 32/2523.0f, 2413/128.0f, -2392/128.0f, 8192/1305.0f };
 
 // SMPTE ST 428-1, value 17.
 static constexpr skcms_TransferFunction kSMPTE_ST_428_1 = {
@@ -183,7 +183,7 @@ static constexpr skcms_TransferFunction kSMPTE_ST_428_1 = {
 
 // Rec. ITU-R BT.2100-2 hybrid log-gamma (HLG) system, value 18.
 static constexpr skcms_TransferFunction kHLG =
-    {-6.0f, 203.f, 1000.0f, 1.2f, 0.0f, 0.0f, 0.0f };
+    {-3.0f, 2.0f, 2.0f, 1/0.17883277f, 0.28466892f, 0.55991073f, 0.0f };
 
 // Mapping between transfer function names and the number of the corresponding
 // row in ITU-T H.273, table 3.  As above, the constants are named based on the

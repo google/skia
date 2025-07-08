@@ -638,7 +638,7 @@ DEF_TEST(RustPngCodec_png_cicp, r) {
         return;
     }
 
-    REPORTER_ASSERT(r, skcms_TransferFunction_isPQ(&profile->trc[0].parametric));
+    REPORTER_ASSERT(r, skcms_TransferFunction_isPQish(&profile->trc[0].parametric));
 }
 
 DEF_TEST(RustPngCodec_green15x15, r) {
