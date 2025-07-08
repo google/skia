@@ -27,3 +27,10 @@ skia_filegroup(
     ],
     visibility = ["//src/android:__pkg__"],
 )
+
+skia_filegroup(
+    name = "graphite_android_hdrs",
+    srcs = [
+        "SkSurfaceAndroid.h",
+    ],
+)

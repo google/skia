@@ -1,0 +1,22 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "public_hdrs",
+    srcs = [
+        "PaintOptions.h",
+        "Precompile.h",
+        "PrecompileBase.h",
+        "PrecompileBlender.h",
+        "PrecompileColorFilter.h",
+        "PrecompileImageFilter.h",
+        "PrecompileMaskFilter.h",
+        "PrecompileRuntimeEffect.h",
+        "PrecompileShader.h",
+    ],
+)

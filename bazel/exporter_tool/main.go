@@ -194,6 +194,83 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/effects/imagefilters:srcs",
 			}}},
 	},
+	{GNI: "gn/graphite.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_graphite_public",
+			Rules: []string{
+				"//include/gpu/graphite:public_hdrs",
+			}},
+		{Var: "skia_graphite_sources",
+			Rules: []string{
+				"//src/gpu/graphite/compute:core_hdrs",
+				"//src/gpu/graphite/compute:core_srcs",
+				"//src/gpu/graphite/geom:core_hdrs",
+				"//src/gpu/graphite/geom:core_srcs",
+				"//src/gpu/graphite/render:core_hdrs",
+				"//src/gpu/graphite/render:core_srcs",
+				"//src/gpu/graphite/task:core_hdrs",
+				"//src/gpu/graphite/task:core_srcs",
+				"//src/gpu/graphite/text:core_hdrs",
+				"//src/gpu/graphite/text:core_srcs",
+				"//src/gpu/graphite:_graphite_hdrs",
+				"//src/gpu/graphite:_graphite_srcs",
+			}},
+		{Var: "skia_graphite_android_private",
+			Rules: []string{
+				"//src/gpu/graphite/surface:android_srcs",
+				"//include/android:graphite_android_hdrs",
+			}},
+		{Var: "skia_graphite_dawn_public",
+			Rules: []string{
+				"//include/gpu/graphite/dawn:public_hdrs",
+			}},
+		{Var: "skia_graphite_dawn_sources",
+			Rules: []string{
+				"//src/gpu/graphite/dawn:_dawn_hdrs",
+				"//src/gpu/graphite/dawn:_dawn_srcs",
+			}},
+		{Var: "skia_graphite_mtl_public",
+			Rules: []string{
+				"//include/gpu/graphite/mtl:public_hdrs",
+			}},
+		{Var: "skia_graphite_mtl_sources",
+			Rules: []string{
+				"//src/gpu/graphite/mtl:mtl_hdrs",
+				"//src/gpu/graphite/mtl:mtl_srcs",
+			}},
+		{Var: "skia_graphite_vk_public",
+			Rules: []string{
+				"//include/gpu/graphite/vk:public_hdrs",
+			}},
+		{Var: "skia_graphite_vk_precompile_public",
+			Rules: []string{
+				"//include/gpu/graphite/vk/precompile:public_hdrs",
+			}},
+		{Var: "skia_graphite_vk_precompile_sources",
+			Rules: []string{
+				"//src/gpu/graphite/vk/precompile:vk_precompile_srcs",
+			}},
+		{Var: "skia_graphite_vk_sources",
+			Rules: []string{
+				"//src/gpu/graphite/vk:vk_hdrs",
+				"//src/gpu/graphite/vk:vk_srcs",
+			}},
+		{Var: "skia_graphite_vello_sources",
+			Rules: []string{
+				"//src/gpu/graphite/compute:vello_hdrs",
+				"//src/gpu/graphite/compute:vello_srcs",
+			}},
+		{Var: "skia_graphite_precompile_public",
+			Rules: []string{
+				"//include/gpu/graphite/precompile:public_hdrs",
+			}},
+		{Var: "skia_graphite_precompile_sources",
+			Rules: []string{
+				"//src/gpu/graphite/precompile:_precompile_hdrs",
+				"//src/gpu/graphite/precompile:_precompile_srcs",
+				"//src/gpu/graphite:precompile_hdrs",
+				"//src/gpu/graphite:precompile_srcs",
+			}},
+	}},
 	{GNI: "gn/pathops.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_pathops_public",
 			Rules: []string{
