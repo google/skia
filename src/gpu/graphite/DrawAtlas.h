@@ -176,7 +176,24 @@ public:
     }
 
 #if defined(GPU_TEST_UTILS)
+    template <typename F>
+    int iteratePlots(F&& func) const {
+        int count = 0;
+        PlotList::Iter plotIter;
+        for (uint32_t pageIndex = 0; pageIndex < this->maxPages(); ++pageIndex) {
+            plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
+            while (Plot* plot = plotIter.get()) {
+                if (func(plot)) {
+                    count++;
+                }
+                plotIter.next();
+            }
+        }
+        return count;
+    }
+
     int numAllocatedPlots() const;
+    int numNonEmptyPlots() const;
 #endif
 
 private:
