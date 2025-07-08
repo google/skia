@@ -48,15 +48,12 @@ public:
                                    std::string_view label) const;
 
     // From SkImage.h
-    // TODO(egdaniel) This feels wrong. Re-think how this method is used and works.
-    bool isValid(GrRecordingContext*) const final { return true; }
     bool isValid(SkRecorder* recorder) const final {
         return recorder && recorder->type() == SkRecorder::Type::kGraphite;
     }
 
     // From SkImage_Base.h
     sk_sp<SkImage> onMakeSubset(SkRecorder*, const SkIRect&, RequiredProperties) const final;
-    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const final;
     sk_sp<SkImage> makeColorTypeAndColorSpace(SkRecorder*,
                                               SkColorType targetCT,
                                               sk_sp<SkColorSpace> targetCS,
@@ -79,10 +76,6 @@ public:
 
     sk_sp<SkSurface> onMakeSurface(SkRecorder*, const SkImageInfo&) const final;
 
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
-                                                sk_sp<SkColorSpace>,
-                                                GrDirectContext*) const final;
-
     void onAsyncRescaleAndReadPixels(const SkImageInfo&,
                                      SkIRect srcRect,
                                      RescaleGamma,
@@ -100,6 +93,14 @@ public:
                                            ReadPixelsCallback,
                                            ReadPixelsContext) const override;
 
+#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
+    bool isValid(GrRecordingContext*) const final { return true; }
+    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const final;
+    using SkImage_Base::makeColorTypeAndColorSpace;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
+                                                sk_sp<SkColorSpace>,
+                                                GrDirectContext*) const final;
+#endif
 protected:
     Image_Base(const SkImageInfo& info, uint32_t uniqueID);
 

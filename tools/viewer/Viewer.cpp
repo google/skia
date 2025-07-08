@@ -111,6 +111,7 @@
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Recorder.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
@@ -3146,9 +3147,9 @@ void Viewer::drawImGui() {
                 bitmap.allocPixels(info);
                 SkPixmap pixels;
                 SkAssertResult(bitmap.peekPixels(&pixels));
-                didGraphiteRead = as_IB(fLastImage)
-                                          ->readPixelsGraphite(
-                                                  fWindow->graphiteRecorder(), pixels, xInt, yInt);
+                didGraphiteRead =
+                        as_IB(fLastImage)
+                                ->readPixelsGraphite(fWindow->baseRecorder(), pixels, xInt, yInt);
                 pixel = *pixels.addr32();
                 ImGui::SameLine();
                 ImGui::Text("(X, Y): %d, %d RGBA: %X %X %X %X",

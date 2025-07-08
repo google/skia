@@ -306,9 +306,9 @@ bool SkImage_Ganesh::getExistingBackendTexture(GrBackendTexture* outTexture,
 
 size_t SkImage_Ganesh::textureSize() const { return fChooser.gpuMemorySize(); }
 
-sk_sp<SkImage> SkImage_Ganesh::onMakeColorTypeAndColorSpace(SkColorType targetCT,
-                                                            sk_sp<SkColorSpace> targetCS,
-                                                            GrDirectContext* dContext) const {
+sk_sp<SkImage> SkImage_Ganesh::onMakeColorTypeAndColorSpace(GrDirectContext* dContext,
+                                                            SkColorType targetCT,
+                                                            sk_sp<SkColorSpace> targetCS) const {
     SkColorInfo info(targetCT, this->alphaType(), std::move(targetCS));
     if (!fContext->priv().matches(dContext)) {
         return nullptr;

@@ -14,6 +14,7 @@
 class GrDirectContext;
 class SkImage;
 class SkPixmap;
+class SkRecorder;
 struct SkIRect;
 
 class SkImage_LazyTexture final : public SkImage_Lazy {
@@ -22,7 +23,7 @@ public:
 
     bool readPixelsProxy(GrDirectContext*, const SkPixmap&) const override;
 
-    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
+    sk_sp<SkImage> onMakeSubset(SkRecorder*, const SkIRect&, RequiredProperties) const override;
 };
 
 #endif

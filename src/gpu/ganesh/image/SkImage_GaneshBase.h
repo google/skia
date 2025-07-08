@@ -55,15 +55,7 @@ namespace skgpu::ganesh { class SurfaceDrawContext; }
 class SkImage_GaneshBase : public SkImage_Base {
 public:
     // From SkImage.h
-    bool isValid(GrRecordingContext*) const final;
     bool isValid(SkRecorder*) const final;
-    sk_sp<SkImage> makeColorTypeAndColorSpace(GrDirectContext* dContext,
-                                              SkColorType targetColorType,
-                                              sk_sp<SkColorSpace> targetCS) const final {
-        return makeColorTypeAndColorSpace(dContext->asRecorder(), targetColorType, targetCS, {});
-    }
-
-    sk_sp<SkImage> makeSubset(GrDirectContext* direct, const SkIRect& subset) const final;
 
     // From SkImage_Base.h
     GrImageContext* context() const final { return fContext.get(); }
@@ -81,7 +73,6 @@ public:
                       int srcY,
                       CachingHint) const override;
 
-    // From SkImage_GaneshBase.h
     virtual GrSemaphoresSubmitted flush(GrDirectContext*, const GrFlushInfo&) const = 0;
 
     static bool ValidateBackendTexture(const GrCaps*,
@@ -121,15 +112,29 @@ public:
 protected:
     SkImage_GaneshBase(sk_sp<GrImageContext>, SkImageInfo, uint32_t uniqueID);
 
+#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
+    bool isValid(GrRecordingContext*) const final;
+    sk_sp<SkImage> makeColorTypeAndColorSpace(GrDirectContext* dContext,
+                                              SkColorType targetColorType,
+                                              sk_sp<SkColorSpace> targetCS) const final {
+        return makeColorTypeAndColorSpace(dContext->asRecorder(), targetColorType, targetCS, {});
+    }
     sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect& subset) const final;
-    sk_sp<SkImage> onMakeSubset(SkRecorder*,
-                                const SkIRect& subset,
-                                RequiredProperties) const final;
-    using SkImage_Base::onMakeColorTypeAndColorSpace;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType ct,
+                                                sk_sp<SkColorSpace> cs,
+                                                GrDirectContext* ctx) const override {
+        return this->onMakeColorTypeAndColorSpace(ctx, ct, cs);
+    }
+#endif
+
+    sk_sp<SkImage> onMakeSubset(SkRecorder*, const SkIRect& subset, RequiredProperties) const final;
     sk_sp<SkImage> makeColorTypeAndColorSpace(SkRecorder*,
                                               SkColorType,
                                               sk_sp<SkColorSpace>,
                                               RequiredProperties) const final;
+    virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrDirectContext*,
+                                                        SkColorType,
+                                                        sk_sp<SkColorSpace>) const = 0;
 
     sk_sp<GrImageContext> fContext;
 };

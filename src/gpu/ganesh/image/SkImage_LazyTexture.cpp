@@ -15,10 +15,11 @@
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/SkImageGanesh.h"
-#include "include/private/gpu/ganesh/GrTextureGenerator.h" // IWYU pragma: keep
+#include "include/private/gpu/ganesh/GrTextureGenerator.h"  // IWYU pragma: keep
 #include "src/gpu/ganesh/GrColorInfo.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrSurfaceProxyView.h"
+#include "src/gpu/ganesh/SkGaneshRecorder.h"
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/SurfaceContext.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
@@ -29,11 +30,22 @@
 
 enum class GrColorType;
 
-sk_sp<SkImage> SkImage_LazyTexture::onMakeSubset(GrDirectContext* direct,
-                                                 const SkIRect& subset) const {
-    auto pixels = direct ? SkImages::TextureFromImage(direct, this) :
-                           this->makeRasterImage(nullptr);
-    return pixels ? pixels->makeSubset(direct, subset) : nullptr;
+sk_sp<SkImage> SkImage_LazyTexture::onMakeSubset(SkRecorder* recorder,
+                                                 const SkIRect& subset,
+                                                 RequiredProperties props) const {
+    sk_sp<SkImage> pixels;
+    if (auto gRecorder = AsGaneshRecorder(recorder)) {
+        if (auto direct = gRecorder->directContext()) {
+            pixels = SkImages::TextureFromImage(direct, this);
+        }
+    }
+    if (!pixels) {
+        pixels = this->makeRasterImage(nullptr);
+    }
+    if (!pixels) {
+        return nullptr;
+    }
+    return pixels->makeSubset(recorder, subset, props);
 }
 
 bool SkImage_LazyTexture::readPixelsProxy(GrDirectContext* ctx, const SkPixmap& pixmap) const {

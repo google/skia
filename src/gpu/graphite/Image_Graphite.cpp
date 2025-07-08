@@ -153,12 +153,19 @@ sk_sp<SkImage> Image::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
 }
 
 #if defined(GPU_TEST_UTILS)
-bool Image::readPixelsGraphite(Recorder* recorder, const SkPixmap& dst, int srcX, int srcY) const {
-    if (Context* context = recorder->priv().context()) {
+bool Image::readPixelsGraphite(SkRecorder* recorder,
+                               const SkPixmap& dst,
+                               int srcX,
+                               int srcY) const {
+    auto gRecorder = AsGraphiteRecorder(recorder);
+    if (!gRecorder) {
+        return false;
+    }
+    if (Context* context = gRecorder->priv().context()) {
         // Add all previous commands generated to the command buffer.
         // If the client snaps later they'll only get post-read commands in their Recording,
         // but since they're doing a readPixels in the middle that shouldn't be unexpected.
-        std::unique_ptr<Recording> recording = recorder->snap();
+        std::unique_ptr<Recording> recording = gRecorder->snap();
         if (!recording) {
             return false;
         }

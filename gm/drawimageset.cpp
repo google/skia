@@ -93,7 +93,7 @@ static void make_image_tiles(int tileW, int tileH, int m, int n, const SkColor c
                 subset.fBottom = h;
                 set[y * m + x].fAAFlags |= SkCanvas::kBottom_QuadAAFlag;
             }
-            set[y * m + x].fImage = fullImage->makeSubset(nullptr, subset);
+            set[y * m + x].fImage = fullImage->makeSubset(nullptr, subset, {});
             set[y * m + x].fSrcRect =
                     SkRect::MakeXYWH(x == 0 ? 0 : 1, y == 0 ? 0 : 1, tileW, tileH);
             set[y * m + x].fDstRect = SkRect::MakeXYWH(x * tileW, y * tileH, tileW, tileH);
@@ -299,10 +299,7 @@ private:
     SkISize getISize() override { return {kM * kTileW, 2 * kN * kTileH}; }
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString*, GraphiteTestContext*) override {
-        auto direct = GrAsDirectContext(canvas->recordingContext());
-#if defined(SK_GRAPHITE)
-        auto recorder = canvas->recorder();
-#endif
+        auto recorder = canvas->baseRecorder();
         static constexpr SkColor kColors[] = {SK_ColorBLUE, SK_ColorTRANSPARENT,
                                               SK_ColorRED,  SK_ColorTRANSPARENT};
         static constexpr SkColor kBGColor = SkColorSetARGB(128, 128, 128, 128);
@@ -316,16 +313,8 @@ private:
                 int i = y * kM + x;
                 fSet[i].fAlpha = (kM - x) / (float) kM;
                 if (y % 2 == 0) {
-#if defined(SK_GRAPHITE)
-                    if (recorder) {
-                        fSet[i].fImage = fSet[i].fImage->makeColorTypeAndColorSpace(
-                                recorder, kAlpha_8_SkColorType, alphaSpace, {});
-                    } else
-#endif
-                    {
-                        fSet[i].fImage = fSet[i].fImage->makeColorTypeAndColorSpace(
-                                direct, kAlpha_8_SkColorType, alphaSpace);
-                    }
+                    fSet[i].fImage = fSet[i].fImage->makeColorTypeAndColorSpace(
+                            recorder, kAlpha_8_SkColorType, alphaSpace, {});
                 }
             }
         }

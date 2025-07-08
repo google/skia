@@ -287,7 +287,7 @@ bool LazyYUVImage::reset(SkYUVAPixmaps pixmaps,
 bool LazyYUVImage::ensureYUVImage(GrRecordingContext* rContext, Type type) {
     size_t idx = static_cast<size_t>(type);
     SkASSERT(idx < std::size(fYUVImage));
-    if (fYUVImage[idx] && fYUVImage[idx]->isValid(rContext)) {
+    if (fYUVImage[idx] && fYUVImage[idx]->isValid(rContext->asRecorder())) {
         return true;  // Have already made a YUV image valid for this context.
     }
     // Try to make a new YUV image for this context.

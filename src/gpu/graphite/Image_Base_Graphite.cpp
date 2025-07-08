@@ -256,6 +256,7 @@ sk_sp<SkImage> Image_Base::makeColorTypeAndColorSpace(SkRecorder* recorder,
 
 // Ganesh APIs are no-ops
 
+#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
 sk_sp<SkImage> Image_Base::onMakeSubset(GrDirectContext*, const SkIRect&) const {
     SKGPU_LOG_W("Cannot convert Graphite-backed image to Ganesh");
     return nullptr;
@@ -267,6 +268,7 @@ sk_sp<SkImage> Image_Base::onMakeColorTypeAndColorSpace(SkColorType,
     SKGPU_LOG_W("Cannot convert Graphite-backed image to Ganesh");
     return nullptr;
 }
+#endif
 
 void Image_Base::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
                                              SkIRect srcRect,

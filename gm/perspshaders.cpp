@@ -25,6 +25,7 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "tools/DecodeUtils.h"
 #include "tools/ToolUtils.h"
 
@@ -146,7 +147,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (!fImage || !fImage->isValid(canvas->recordingContext())) {
+        if (!fImage || !fImage->isValid(canvas->recordingContext()->asRecorder())) {
             fImage = make_image(canvas, kCellSize, kCellSize);
         }
 

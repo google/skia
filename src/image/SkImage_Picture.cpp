@@ -62,7 +62,15 @@ void SkImage_Picture::replay(SkCanvas* canvas) const {
                         pictureIG->fPaint.getMaybeNull());
 }
 
+#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
 sk_sp<SkImage> SkImage_Picture::onMakeSubset(GrDirectContext*, const SkIRect& subset) const {
+    return this->onMakeSubset(nullptr, subset, {});
+}
+#endif
+
+sk_sp<SkImage> SkImage_Picture::onMakeSubset(SkRecorder*,
+                                             const SkIRect& subset,
+                                             RequiredProperties) const {
     auto sharedGenerator = this->generator();
     auto pictureIG = static_cast<SkPictureImageGenerator*>(sharedGenerator->fGenerator.get());
 
@@ -75,15 +83,6 @@ sk_sp<SkImage> SkImage_Picture::onMakeSubset(GrDirectContext*, const SkIRect& su
     return SkImage_Picture::Make(pictureIG->fPicture, subset.size(),
                                  &matrix, pictureIG->fPaint.getMaybeNull(),
                                  bitDepth, this->refColorSpace(), pictureIG->fProps);
-}
-
-sk_sp<SkImage> SkImage_Picture::onMakeSubset(SkRecorder*,
-                                             const SkIRect& subset,
-                                             RequiredProperties) const {
-    // The Ganesh version doesn't make use of GrDirectContext so we can use it to
-    // generate our initial subset. In addition, requesting mipmaps doesn't make
-    // much sense in this case so we ignore the props.
-    return this->onMakeSubset(nullptr, subset);
 }
 
 bool SkImage_Picture::getImageKeyValues(

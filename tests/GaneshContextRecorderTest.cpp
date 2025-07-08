@@ -58,7 +58,8 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageMakeColorSpace_GaneshImageWithContext_Succ
     auto grImage = SkImages::TextureFromImage(ctxInfo.directContext(), img);
     SkASSERT(grImage);
 
-    auto newImg = grImage->makeColorSpace(ctxInfo.directContext(), SkColorSpace::MakeSRGBLinear());
+    auto newImg = grImage->makeColorSpace(
+            ctxInfo.directContext()->asRecorder(), SkColorSpace::MakeSRGBLinear(), {});
 
     REPORTER_ASSERT(reporter, newImg);
     REPORTER_ASSERT(reporter, newImg->width() == 100);
@@ -103,7 +104,6 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ImageMakeScaled_GaneshImageWithRecorder_Success
     SkASSERT(img);
     SkASSERT(img->isTextureBacked());
 
-    REPORTER_ASSERT(reporter, img->isValid(ctxInfo.directContext()));
     REPORTER_ASSERT(reporter, img->isValid(ctxInfo.directContext()->asRecorder()));
 
     auto newImg =

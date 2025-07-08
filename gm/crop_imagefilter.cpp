@@ -169,9 +169,10 @@ sk_sp<SkImage> make_cropped_image(sk_sp<SkImage> image,
     auto surface = SkSurfaces::Raster(
             image->imageInfo().makeWH(SkScalarCeilToInt(cropRect.width()),
                                       SkScalarCeilToInt(cropRect.height())));
-    auto content = image->makeSubset(nullptr,
-                                     contentTile == SkTileMode::kDecal ? contentBounds.roundOut()
-                                                                       : contentBounds.roundIn());
+    auto content = image->makeSubset(
+            nullptr,
+            contentTile == SkTileMode::kDecal ? contentBounds.roundOut() : contentBounds.roundIn(),
+            {});
     if (!content || !surface) {
         return nullptr;
     }

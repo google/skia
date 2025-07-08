@@ -128,7 +128,7 @@ DEF_SIMPLE_GM_CAN_FAIL(yuv420_odd_dim_repeat, canvas, errMsg,
     // Make sure the image is odd dimensioned.
     int w = image->width()  & 0b1 ? image->width()  : image->width()  - 1;
     int h = image->height() & 0b1 ? image->height() : image->height() - 1;
-    image = image->makeSubset(nullptr, SkIRect::MakeWH(w, h));
+    image = image->makeSubset(nullptr, SkIRect::MakeWH(w, h), {});
 
     auto [planes, yuvaInfo] = sk_gpu_test::MakeYUVAPlanesAsA8(image.get(),
                                                               kJPEG_SkYUVColorSpace,

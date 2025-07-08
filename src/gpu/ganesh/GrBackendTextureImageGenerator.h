@@ -55,7 +55,9 @@ public:
     ~GrBackendTextureImageGenerator() override;
 
 protected:
+#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
     bool onIsValid(GrRecordingContext*) const override;
+#endif
     bool onIsValid(SkRecorder*) const override;
     bool onIsProtected() const override;
 

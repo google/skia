@@ -18,8 +18,11 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "src/core/SkBitmapCache.h"
-#include "src/core/SkColorSpacePriv.h"
 #include "src/image/SkRescaleAndReadPixels.h"
+
+#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
+#include "src/core/SkColorSpacePriv.h"
+#endif
 
 #include <atomic>
 #include <utility>
@@ -77,6 +80,7 @@ bool SkImage_Base::onAsLegacyBitmap(GrDirectContext* dContext, SkBitmap* bitmap)
     return true;
 }
 
+#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
 sk_sp<SkImage> SkImage_Base::makeSubset(GrDirectContext* direct, const SkIRect& subset) const {
     if (subset.isEmpty()) {
         return nullptr;
@@ -94,6 +98,7 @@ sk_sp<SkImage> SkImage_Base::makeSubset(GrDirectContext* direct, const SkIRect& 
 
     return this->onMakeSubset(direct, subset);
 }
+#endif
 
 sk_sp<SkImage> SkImage_Base::makeSubset(SkRecorder* recorder,
                                         const SkIRect& subset,
@@ -124,10 +129,12 @@ void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
     callback(context, nullptr);
 }
 
+#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
 sk_sp<SkImage> SkImage_Base::makeColorSpace(GrDirectContext* direct,
                                             sk_sp<SkColorSpace> target) const {
     return this->makeColorTypeAndColorSpace(direct, this->colorType(), std::move(target));
 }
+#endif
 
 sk_sp<SkImage> SkImage_Base::makeColorSpace(SkRecorder* recorder,
                                             sk_sp<SkColorSpace> target,
@@ -135,6 +142,7 @@ sk_sp<SkImage> SkImage_Base::makeColorSpace(SkRecorder* recorder,
     return this->makeColorTypeAndColorSpace(recorder, this->colorType(), std::move(target), props);
 }
 
+#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
 sk_sp<SkImage> SkImage_Base::makeColorTypeAndColorSpace(GrDirectContext* dContext,
                                                         SkColorType targetColorType,
                                                         sk_sp<SkColorSpace> targetCS) const {
@@ -154,13 +162,4 @@ sk_sp<SkImage> SkImage_Base::makeColorTypeAndColorSpace(GrDirectContext* dContex
 
     return this->onMakeColorTypeAndColorSpace(targetColorType, std::move(targetCS), dContext);
 }
-
-sk_sp<SkImage> SkImage_Base::makeColorTypeAndColorSpace(SkRecorder* recorder,
-                                                        SkColorType ct,
-                                                        sk_sp<SkColorSpace> cs,
-                                                        RequiredProperties) const {
-    // Default to the ganesh version which should be backend agnostic if this
-    // image is, for example, a raster backed image. The graphite subclass overrides
-    // this method and things work correctly.
-    return this->makeColorTypeAndColorSpace(nullptr, ct, std::move(cs));
-}
+#endif

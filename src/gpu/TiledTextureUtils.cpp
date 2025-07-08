@@ -435,7 +435,9 @@ std::tuple<bool, size_t> TiledTextureUtils::DrawAsTiledImageRect(
             // instead.
             if (renderLazyPictureTilesOnGPU &&
                 as_IB(image)->type() == SkImage_Base::Type::kLazyPicture) {
-                auto imageProc = [&](SkIRect iTileR) { return image->makeSubset(nullptr, iTileR); };
+                auto imageProc = [&](SkIRect iTileR) {
+                    return image->makeSubset(nullptr, iTileR, {});
+                };
 
                 size_t tiles = draw_tiled_image(canvas,
                                                 imageProc,

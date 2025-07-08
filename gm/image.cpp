@@ -529,23 +529,11 @@ DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {
         return skiagm::DrawResult::kFail;
     }
 
-    GrDirectContext* dContext = GrAsDirectContext(canvas->recordingContext());
-#if defined(SK_GRAPHITE)
-    auto recorder = canvas->recorder();
-#endif
+    auto recorder = canvas->baseRecorder();
 
     canvas->drawImage(img, 10, 10);
 
-    sk_sp<SkImage> subset;
-
-#if defined(SK_GRAPHITE)
-    if (recorder) {
-        subset = img->makeSubset(recorder, {100, 100, 200, 200}, {});
-    } else
-#endif
-    {
-        subset = img->makeSubset(dContext, {100, 100, 200, 200});
-    }
+    sk_sp<SkImage> subset = img->makeSubset(recorder, {100, 100, 200, 200}, {});
 
     canvas->drawImage(subset, 220, 10);
     subset = serial_deserial(subset.get());
