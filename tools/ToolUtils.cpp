@@ -491,8 +491,8 @@ bool equal_pixels(const SkImage* a, const SkImage* b) {
     SkASSERT_RELEASE(a);
     SkASSERT_RELEASE(b);
     // ensure that peekPixels will succeed
-    auto imga = a->makeRasterImage();
-    auto imgb = b->makeRasterImage();
+    auto imga = a->makeRasterImage(nullptr);
+    auto imgb = b->makeRasterImage(nullptr);
 
     SkPixmap pm0, pm1;
     if (!imga->peekPixels(&pm0)) {

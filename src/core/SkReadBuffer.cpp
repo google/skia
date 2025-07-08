@@ -396,7 +396,7 @@ static sk_sp<SkImage> add_mipmaps(sk_sp<SkImage> img, sk_sp<SkData> data,
     if (!buffer.isValid()) {
         return img;
     }
-    sk_sp<SkImage> raster = img->makeRasterImage();
+    sk_sp<SkImage> raster = img->makeRasterImage(nullptr);
     if (!raster) {
         return img;
     }

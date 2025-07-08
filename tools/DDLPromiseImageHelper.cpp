@@ -410,7 +410,7 @@ int DDLPromiseImageHelper::addImage(SkImage* image) {
         SkASSERT(yuvaPixmaps.isValid());
         newImageInfo.setYUVPlanes(std::move(yuvaPixmaps));
     } else {
-        sk_sp<SkImage> rasterImage = image->makeRasterImage(); // force decoding of lazy images
+        sk_sp<SkImage> rasterImage = image->makeRasterImage(nullptr); // force decoding of lazy images
         if (!rasterImage) {
             return -1;
         }

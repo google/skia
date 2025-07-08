@@ -1163,7 +1163,7 @@ Result SKPSrc::draw(SkCanvas* canvas, GraphiteTestContext*) const {
     procs.fImageProc = [](const void* data, size_t size, void* ctx) -> sk_sp<SkImage> {
         sk_sp<SkData> tmpData = SkData::MakeWithoutCopy(data, size);
         sk_sp<SkImage> image = SkImages::DeferredFromEncodedData(std::move(tmpData));
-        image = image->makeRasterImage(); // force decoding
+        image = image->makeRasterImage(nullptr); // force decoding
 
         if (image) {
             DeserializationContext* context = reinterpret_cast<DeserializationContext*>(ctx);

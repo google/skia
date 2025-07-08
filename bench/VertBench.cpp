@@ -193,7 +193,7 @@ protected:
     void onDelayedSetup() override {
         fAtlas = ToolUtils::GetResourceAsImage("images/mandrill_256.png");
         if (fAtlas) {
-            fAtlas = fAtlas->makeRasterImage();
+            fAtlas = fAtlas->makeRasterImage(nullptr);
         }
 
         const SkScalar imageW = fAtlas->width();

@@ -37,7 +37,7 @@ class ShowMipLevels3 : public skiagm::GM {
 
     void onOnceBeforeDraw() override {
         fImg = ToolUtils::GetResourceAsImage("images/ship.png");
-        fImg = fImg->makeRasterImage(); // makeWithMips only works on raster for now
+        fImg = fImg->makeRasterImage(nullptr); // makeWithMips only works on raster for now
 
         const SkColor colors[] = { SK_ColorRED, SK_ColorGREEN, SK_ColorBLUE };
 

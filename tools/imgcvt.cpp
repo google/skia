@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    image = image->makeRasterImage();
+    image = image->makeRasterImage(nullptr);
     if (!image) {
         SkDebugf("Converting to raster image failed.\n");
         return 1;

@@ -28,7 +28,7 @@ protected:
     void onDelayedSetup() override {
         auto img = ToolUtils::GetResourceAsImage("images/ship.png");
         // need to force raster since lazy doesn't support filteroptions yet
-        img = img->makeRasterImage();
+        img = img->makeRasterImage(nullptr);
 
         fRect = SkRect::MakeIWH(img->width(), img->height());
         fShader = img->makeShader(SkTileMode::kClamp, SkTileMode::kClamp, fSampling);
