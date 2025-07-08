@@ -193,6 +193,13 @@ private:
 
     SingleOwner* fSingleOwner = nullptr;
     SkDEBUGCODE(int fCount = 0;)
+
+    // TODO(b/407062399): Extra debugging fields that track the maximums of various resource
+    // processing phases to get an idea of how pathological scenarios arise.
+    int fMaxReturnQueueSize = 0;
+    int fMaxPurgeableQueueSizePurgeAsNeededUnderBudget = 0;
+    int fMaxPurgeableQueueSizePurgeAsNeededOverBudget = 0;
+    int fMaxResourcesToPurge = 0;
 };
 
 } // namespace skgpu::graphite

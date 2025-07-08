@@ -97,6 +97,13 @@ private:
 
     skia_private::THashMap<UniqueKey, CacheEntry, UniqueKeyHash> fCache;
     SkMessageBus<UniqueKeyInvalidatedMsg_Graphite, uint32_t>::Inbox fInvalidUniqueKeyInbox;
+
+    // TODO(b/407062399): Debugging values to track how the ProxyCache behaves under pathologic
+    // situations.
+    int fMaxProxyCacheSize = 0;
+    int fMaxProxiesPurgedUniquelyHeld = 0;
+    int fMaxProxiesPurgedNotUsedSince = 0;
+    int fMaxProxiesPurged = 0;
 };
 
 } // namespace skgpu::graphite

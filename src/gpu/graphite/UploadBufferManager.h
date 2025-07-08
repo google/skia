@@ -52,6 +52,12 @@ private:
     uint32_t fReusedBufferOffset = 0;
 
     std::vector<sk_sp<Buffer>> fUsedBuffers;
+
+    // TODO(b/407062399): Debugging fields to track pathologic resource situations
+    int fMaxReusedBufferCount = 0;
+    int fMaxUsedBufferCount = 0;
+
+    int fReusedBufferCount = 0; // reset after each transfer, should be less than fUsedBuffers.count
 };
 
 }  // namespace skgpu::graphite

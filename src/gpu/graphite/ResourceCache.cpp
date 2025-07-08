@@ -351,6 +351,7 @@ bool ResourceCache::processReturnedResources(Resource* queueHead) {
 
     TRACE_EVENT_INSTANT1("skia.gpu.cache", TRACE_FUNC, TRACE_EVENT_SCOPE_THREAD,
                          "count", returnCount);
+    fMaxReturnQueueSize = std::max(returnCount, fMaxReturnQueueSize);
     return returnCount > 0;
 }
 
@@ -563,6 +564,10 @@ void ResourceCache::purgeResource(Resource* resource) {
 void ResourceCache::purgeAsNeeded() {
     ASSERT_SINGLE_OWNER
 
+    int* tracker = this->overbudget() ? &fMaxPurgeableQueueSizePurgeAsNeededOverBudget
+                                      : &fMaxPurgeableQueueSizePurgeAsNeededUnderBudget;
+    *tracker = std::max(*tracker, fPurgeableQueue.count());
+
     if (this->overbudget() && fProxyCache) {
         fProxyCache->freeUniquelyHeld();
 
@@ -629,6 +634,8 @@ void ResourceCache::purgeResources(const StdSteadyClock::time_point* purgeTime) 
         SkASSERT(resource->isPurgeable());
         *resourcesToPurge.append() = resource;
     }
+
+    fMaxResourcesToPurge = std::max(fMaxResourcesToPurge, resourcesToPurge.size());
 
     // Delete the scratch resources. This must be done as a separate pass
     // to avoid messing up the sorted order of the queue
