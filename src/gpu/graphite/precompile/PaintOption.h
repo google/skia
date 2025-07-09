@@ -31,6 +31,7 @@ public:
                 const std::pair<sk_sp<PrecompileColorFilter>, int>& colorFilter,
                 bool hasPrimitiveBlender,
                 SkBlendMode primitiveBlendMode,
+                bool skipColorXform,
                 const std::pair<sk_sp<PrecompileShader>, int>& clipShader,
                 bool dstReadRequired,
                 bool dither,

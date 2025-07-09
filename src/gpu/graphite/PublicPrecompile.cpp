@@ -243,7 +243,7 @@ void Precompile(PrecompileContext* precompileContext,
                             { PrecompileColorFiltersPriv::Gaussian() });
 
                     newOptions.setColorFilters({ std::move(cf) });
-                    newOptions.priv().setPrimitiveBlendMode(SkBlendMode::kModulate);
+                    newOptions.priv().setPrimitiveBlendMode(SkBlendMode::kDst);
                     newOptions.priv().setSkipColorXform(true);
 
                     PrecompileCombinations(rendererProvider,

@@ -469,7 +469,7 @@ bool draw_shadow(const FACTORY& factory,
          SkColorFilters::Blend(color, SkBlendMode::kModulate)->makeComposed(
                                                                 SkColorFilterPriv::MakeGaussian()));
 
-    drawProc(vertices.get(), SkBlendMode::kModulate, paint,
+    drawProc(vertices.get(), SkBlendMode::kDst, paint,
              context.fTranslate.fX, context.fTranslate.fY, path.viewMatrix().hasPerspective());
 
     return true;
@@ -659,7 +659,7 @@ void SkDevice::drawShadow(SkCanvas* canvas, const SkPath& path, const SkDrawShad
                 // or transparent and their real contribution to the final blended color is via
                 // their alpha. We can skip expensive per-vertex color conversion for this.
                 this->drawVertices(vertices.get(),
-                                   SkBlender::Mode(SkBlendMode::kModulate),
+                                   SkBlender::Mode(SkBlendMode::kDst),
                                    paint,
                                    /*skipColorXform=*/true);
                 success = true;
@@ -756,7 +756,7 @@ void SkDevice::drawShadow(SkCanvas* canvas, const SkPath& path, const SkDrawShad
                 // or transparent and their real contribution to the final blended color is via
                 // their alpha. We can skip expensive per-vertex color conversion for this.
                 this->drawVertices(vertices.get(),
-                                   SkBlender::Mode(SkBlendMode::kModulate),
+                                   SkBlender::Mode(SkBlendMode::kDst),
                                    paint,
                                    /*skipColorXform=*/true);
                 success = true;

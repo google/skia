@@ -417,7 +417,7 @@ struct NonMSAAClipBlock {
 void AddPrimitiveColor(const KeyContext&,
                        PaintParamsKeyBuilder*,
                        PipelineDataGatherer*,
-                       const SkColorSpace* primitiveColorSpace);
+                       bool skipColorXform);
 
 /**
  * Blend mode color filters blend their input (as the dst color) with some given color (supplied

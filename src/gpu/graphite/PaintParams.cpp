@@ -177,30 +177,38 @@ void PaintParams::addPaintColorToKey(const KeyContext& keyContext,
 void PaintParams::handlePrimitiveColor(const KeyContext& keyContext,
                                        PaintParamsKeyBuilder* keyBuilder,
                                        PipelineDataGatherer* gatherer) const {
-    if (fPrimitiveBlender) {
-        Blend(keyContext, keyBuilder, gatherer,
-              /* addBlendToKey= */ [&] () -> void {
-                  AddToKey(keyContext, keyBuilder, gatherer, fPrimitiveBlender.get());
-              },
-              /* addSrcToKey= */ [&]() -> void {
-                  this->addPaintColorToKey(keyContext, keyBuilder, gatherer);
-              },
-              /* addDstToKey= */ [&]() -> void {
-                  // When fSkipColorXform is true, it's assumed that the primitive color is
-                  // already in the dst color space. We could change the paint key to not have
-                  // any colorspace block wrapping the primitive color block, but for now just
-                  // use the dst color space as the src color space to produce an identity CS
-                  // transform.
-                  //
-                  // When fSkipColorXform is false (most cases), it's assumed to be in sRGB.
-                  const SkColorSpace* primitiveCS =
-                        fSkipColorXform ? keyContext.dstColorInfo().colorSpace()
-                                        : sk_srgb_singleton();
-                  AddPrimitiveColor(keyContext, keyBuilder, gatherer, primitiveCS);
-              });
-    } else {
+    /**
+     * If no primitive blending is required, simply add the paint color.
+    */
+    if (!fPrimitiveBlender) {
         this->addPaintColorToKey(keyContext, keyBuilder, gatherer);
+        return;
     }
+
+    /**
+     * If no color space conversion is required and the primitive blend mode is kDst, the src
+     * branch of the blend does not matter and we can simply emit the primitive color.
+    */
+    const bool canSkipBlendStep =
+        fSkipColorXform &&
+        as_BB(fPrimitiveBlender.get())->asBlendMode().has_value() &&
+        as_BB(fPrimitiveBlender.get())->asBlendMode().value() == SkBlendMode::kDst;
+
+    if (canSkipBlendStep) {
+        AddPrimitiveColor(keyContext, keyBuilder, gatherer, fSkipColorXform);
+        return;
+    }
+
+    Blend(keyContext, keyBuilder, gatherer,
+        /* addBlendToKey= */ [&] () -> void {
+            AddToKey(keyContext, keyBuilder, gatherer, fPrimitiveBlender.get());
+        },
+        /* addSrcToKey= */ [&] () -> void {
+            this->addPaintColorToKey(keyContext, keyBuilder, gatherer);
+        },
+        /* addDstToKey= */ [&] () -> void {
+            AddPrimitiveColor(keyContext, keyBuilder, gatherer, fSkipColorXform);
+        });
 }
 
 // Apply the paint's alpha value.

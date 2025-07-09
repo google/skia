@@ -73,9 +73,8 @@ public:
 
 private:
     void addPaintColorToKey(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
-    void handlePrimitiveColor(const KeyContext&,
-                              PaintParamsKeyBuilder*,
-                              PipelineDataGatherer*) const;
+    void handlePrimitiveColor(
+            const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
     void handlePaintAlpha(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
     void handleColorFilter(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
     void handleDithering(const KeyContext&, PaintParamsKeyBuilder*, PipelineDataGatherer*) const;
