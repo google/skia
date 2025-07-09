@@ -322,6 +322,14 @@ const skgpu::graphite::RenderPassProperties kRGBA16F_1_D_SRGB {
         /* fRequiresMSAA= */ false
 };
 
+// The same as kRGBA16F_1_D but w/ a linear SRGB colorSpace
+const skgpu::graphite::RenderPassProperties kRGBA16F_1_D_Linear {
+        skgpu::graphite::DepthStencilFlags::kDepth,
+        kRGBA_F16_SkColorType,
+        SkColorSpace::MakeSRGBLinear(),
+        /* fRequiresMSAA= */ false
+};
+
 constexpr SkEnumBitMask<skgpu::graphite::DrawTypeFlags> kRRectAndNonAARect =
         skgpu::graphite::DrawTypeFlags::kAnalyticRRect |
         skgpu::graphite::DrawTypeFlags::kNonAAFillRect;
