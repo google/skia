@@ -7,11 +7,13 @@
 #ifndef skgpu_graphite_BackendTexturePriv_DEFINED
 #define skgpu_graphite_BackendTexturePriv_DEFINED
 
-#include "include/core/SkString.h"
+#include "include/core/SkSize.h"
 #include "include/gpu/graphite/BackendTexture.h"
+#include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 
-#include <cstdint>
+namespace skgpu { enum class BackendApi : unsigned int; }
 
 namespace skgpu::graphite {
 

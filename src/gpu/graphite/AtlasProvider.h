@@ -4,17 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef skgpu_graphite_AtlasProvider_DEFINED
 #define skgpu_graphite_AtlasProvider_DEFINED
 
-#include "include/core/SkColorType.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkEnumBitMask.h"
 
+#include <cstdint>
 #include <memory>
 #include <unordered_map>
+
+enum SkColorType : int;
 
 namespace skgpu::graphite {
 
@@ -22,7 +23,6 @@ class Caps;
 class ClipAtlasManager;
 class ComputePathAtlas;
 class DrawContext;
-class PathAtlas;
 class RasterPathAtlas;
 class Recorder;
 class TextAtlasManager;

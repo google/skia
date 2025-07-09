@@ -8,10 +8,15 @@
 #ifndef skgpu_graphite_Device_DEFINED
 #define skgpu_graphite_Device_DEFINED
 
-#include "include/core/SkImage.h"
-#include "include/core/SkRecorder.h"
-#include "include/gpu/GpuTypes.h"
+#include "include/core/SkBlender.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/core/SkDevice.h"
 #include "src/gpu/graphite/ClipStack.h"
@@ -22,23 +27,58 @@
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/SubRunControl.h"
 
-enum class SkBackingFit;
+#include <cstdint>
+#include <memory>
+#include <string_view>
+#include <utility>
+
+class SkColorInfo;
+class SkDrawable;
+class SkImage;
+class SkMatrix;
+class SkMesh;
+class SkPaint;
+class SkPath;
+class SkPixmap;
+class SkRRect;
+class SkRecorder;
+class SkRegion;
+class SkShader;
+class SkSpecialImage;
 class SkStrokeRec;
+class SkSurface;
+class SkSurfaceProps;
+class SkVertices;
+enum SkColorType : int;
+enum class SkBackingFit;
+enum class SkBlendMode;
+enum class SkClipOp;
+struct SkArc;
+struct SkISize;
+struct SkImageInfo;
+struct SkPoint;
+struct SkRSXform;
+
+namespace skgpu {
+enum class Budgeted : bool;
+enum class Mipmapped : bool;
+}
+namespace skif { class Backend; }
+namespace sktext {
+class GlyphRunList;
+namespace gpu { class Slug; }
+}
 
 namespace skgpu::graphite {
 
-class PathAtlas;
 class BoundsManager;
 class Clip;
-class Context;
 class DrawContext;
 class Geometry;
 class Image;
-enum class LoadOp : uint8_t;
-class PaintParams;
+class PathAtlas;
 class Renderer;
 class Shape;
-class StrokeStyle;
 class Task;
 class TextureProxy;
 class TextureProxyView;

@@ -4,25 +4,28 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef skgpu_graphite_DrawList_DEFINED
 #define skgpu_graphite_DrawList_DEFINED
 
-#include "include/core/SkPaint.h"
-#include "src/base/SkTBlockList.h"
+#include "include/gpu/graphite/GraphiteTypes.h"
 
+#include "include/private/base/SkDebug.h"
+#include "src/base/SkBlockAllocator.h"
+#include "src/base/SkEnumBitMask.h"
+#include "src/base/SkTBlockList.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/PaintParams.h"
-#include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Transform.h"
 
+#include <cstdint>
 #include <limits>
 #include <optional>
 
 namespace skgpu::graphite {
 
+class Geometry;
 class Renderer;
 
 /**

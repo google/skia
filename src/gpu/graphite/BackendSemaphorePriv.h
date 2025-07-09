@@ -7,10 +7,10 @@
 #ifndef skgpu_graphite_BackendSemaphorePriv_DEFINED
 #define skgpu_graphite_BackendSemaphorePriv_DEFINED
 
-#include "include/core/SkString.h"
 #include "include/gpu/graphite/BackendSemaphore.h"
+#include "include/private/base/SkDebug.h"
 
-#include <cstdint>
+namespace skgpu { enum class BackendApi : unsigned int; }
 
 namespace skgpu::graphite {
 

@@ -4,35 +4,30 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef skgpu_graphite_Caps_DEFINED
 #define skgpu_graphite_Caps_DEFINED
 
-#include <optional>
-#include <string>
-#include <string_view>
-#include <utility>
-
-#include "include/core/SkImageInfo.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/ResourceTypes.h"
-#include "src/gpu/graphite/TextureProxy.h"
 #include "src/text/gpu/SubRunControl.h"
 
-#if defined(GPU_TEST_UTILS)
-#include "src/gpu/graphite/ContextOptionsPriv.h"
-#endif
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
 
-enum class SkBlendMode;
-enum class SkTextureCompressionType;
 class SkCapabilities;
-class SkStream;
-class SkWStream;
+enum class SkTextureCompressionType;
 
 namespace SkSL { struct ShaderCaps; }
 
@@ -40,15 +35,17 @@ namespace skgpu { class ShaderErrorHandler; }
 
 namespace skgpu::graphite {
 
-struct AttachmentDesc;
-enum class BufferType : int;
-struct ContextOptions;
 class ComputePipelineDesc;
 class GraphicsPipelineDesc;
 class GraphiteResourceKey;
 class RendererProvider;
-struct RenderPassDesc;
 class TextureInfo;
+enum class DepthStencilFlags : int;
+enum class PathRendererStrategy;
+enum class TextureFormat : uint8_t;
+struct AttachmentDesc;
+struct ContextOptions;
+struct RenderPassDesc;
 
 struct ResourceBindingRequirements {
     /* The required data layout rules for the contents of a uniform buffer. */

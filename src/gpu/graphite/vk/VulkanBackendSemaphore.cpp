@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkString.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/BackendSemaphore.h"
 #include "include/private/gpu/vk/SkiaVulkan.h"
 #include "src/gpu/graphite/BackendSemaphorePriv.h"

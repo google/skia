@@ -4,12 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/graphite/DrawList.h"
 
-#include "src/gpu/BufferWriter.h"
+#include "include/core/SkTypes.h"
 #include "src/gpu/graphite/Renderer.h"
-#include "src/gpu/graphite/geom/Shape.h"
+#include "src/gpu/graphite/geom/Geometry.h"
 
 namespace skgpu::graphite {
 

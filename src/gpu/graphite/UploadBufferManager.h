@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/DrawTypes.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 
 #include <string_view>
 #include <tuple>

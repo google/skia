@@ -4,7 +4,6 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef skgpu_graphite_BufferManager_DEFINED
 #define skgpu_graphite_BufferManager_DEFINED
 
@@ -12,14 +11,14 @@
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/Buffer.h"
-#include "src/gpu/graphite/DrawTypes.h"
-#include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
 
 #include <array>
-#include <optional>
-#include <tuple>
+#include <cstddef>
+#include <cstdint>
+#include <string_view>
+#include <utility>
 
 namespace skgpu::graphite {
 

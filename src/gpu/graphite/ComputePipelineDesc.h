@@ -9,7 +9,7 @@
 
 #include "src/gpu/graphite/compute/ComputeStep.h"
 
-#include <functional>
+#include <cstdint>
 
 namespace skgpu::graphite {
 

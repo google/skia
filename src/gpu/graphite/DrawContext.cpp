@@ -4,47 +4,50 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/graphite/DrawContext.h"
 
-#include "include/core/SkColorSpace.h"
-#include "include/core/SkPixmap.h"
-#include "src/core/SkColorData.h"
-
-#include "include/gpu/graphite/Context.h"
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkSize.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/base/SkAssert.h"
+#include "src/base/SkEnumBitMask.h"
+#include "src/core/SkColorData.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/SkBackingFit.h"
+#include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/AtlasProvider.h"
-#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ComputePathAtlas.h"
-#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/DrawList.h"
+#include "src/gpu/graphite/DrawOrder.h"
+#include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawPass.h"
 #include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/RasterPathAtlas.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/ResourceTypes.h"
-#include "src/gpu/graphite/SharedContext.h"
-#include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureProxyView.h"
 #include "src/gpu/graphite/TextureUtils.h"
-#include "src/gpu/graphite/compute/DispatchGroup.h"
-#include "src/gpu/graphite/geom/BoundsManager.h"
-#include "src/gpu/graphite/geom/Geometry.h"
+#include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/task/ComputeTask.h"
-#include "src/gpu/graphite/task/CopyTask.h"
 #include "src/gpu/graphite/task/DrawTask.h"
 #include "src/gpu/graphite/task/RenderPassTask.h"
+#include "src/gpu/graphite/task/Task.h"
 #include "src/gpu/graphite/task/UploadTask.h"
-#include "src/gpu/graphite/text/TextAtlasManager.h"
+
+#include <cstdint>
+#include <utility>
 
 namespace skgpu::graphite {
+
+class PaintParams;
+class Renderer;
+enum class DepthStencilFlags : int;
 
 namespace {
 

@@ -4,26 +4,34 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/graphite/DrawAtlas.h"
 
-#include <memory>
-
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
-#include "include/core/SkStream.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTPin.h"
-#include "src/core/SkColorData.h"
-
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/CommandTypes.h"
-#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/task/UploadTask.h"
+
+#include <algorithm>
+#include <atomic>
+#include <memory>
+#include <tuple>
+
+enum SkColorType : int;
 
 using namespace skia_private;
 

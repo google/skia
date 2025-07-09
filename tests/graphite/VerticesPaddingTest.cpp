@@ -15,6 +15,7 @@
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/DrawPass.h"
+#include "src/gpu/graphite/DrawWriter.h"
 #include "src/gpu/graphite/RecorderOptionsPriv.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/RecordingPriv.h"

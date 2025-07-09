@@ -10,13 +10,41 @@
 
 #include "include/core/SkRect.h"
 #include "src/base/SkArenaAlloc.h"
+#include "src/base/SkBlockAllocator.h"
 #include "src/base/SkTBlockList.h"
 #include "src/gpu/graphite/CommandTypes.h"
-#include "src/gpu/graphite/DrawTypes.h"
+#include "src/gpu/graphite/ResourceTypes.h"
+
+#include <array>
+#include <cstdint>
+#include <cstring>
+#include <type_traits>
+#include <utility>
 
 namespace skgpu::graphite {
 
+enum class BarrierType : uint8_t;
+enum class PrimitiveType : uint8_t;
+enum class UniformSlot;
+
 namespace DrawPassCommands {
+
+struct AddBarrier;
+struct BindAppendDataBuffer;
+struct BindGraphicsPipeline;
+struct BindIndexBuffer;
+struct BindIndirectBuffer;
+struct BindStaticDataBuffer;
+struct BindTexturesAndSamplers;
+struct BindUniformBuffer;
+struct Draw;
+struct DrawIndexed;
+struct DrawIndexedIndirect;
+struct DrawIndexedInstanced;
+struct DrawIndirect;
+struct DrawInstanced;
+struct SetBlendConstants;
+struct SetScissor;
 
 // A list of all the commands types used by a DrawPass.
 // Each of these is reified into a struct below.

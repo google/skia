@@ -4,39 +4,43 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef skgpu_graphite_CommandBuffer_DEFINED
 #define skgpu_graphite_CommandBuffer_DEFINED
 
-#include "include/core/SkColor.h"
+#include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
+#include "include/core/SkTypes.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/GpuRefCnt.h"
-#include "src/gpu/graphite/CommandTypes.h"
-#include "src/gpu/graphite/DrawTypes.h"
-#include "src/gpu/graphite/DrawWriter.h"
-#include "src/gpu/graphite/Resource.h"
+#include "src/gpu/graphite/Resource.h"  // IWYU pragma: keep
 
+#include <cstddef>
+#include <memory>
 #include <optional>
+#include <utility>
+
+class SkSurface;
+struct SkISize;
 
 namespace skgpu {
-class RefCntedCallback;
 class MutableTextureState;
+class RefCntedCallback;
 }
 
 namespace skgpu::graphite {
 
+class BackendSemaphore;
 class Buffer;
 class DispatchGroup;
 class DrawPass;
-class SharedContext;
-class GraphicsPipeline;
-struct RenderPassDesc;
 class ResourceProvider;
 class Sampler;
 class Texture;
-class TextureProxy;
+struct BufferTextureCopyData;
+struct RenderPassDesc;
 
 class CommandBuffer {
 public:

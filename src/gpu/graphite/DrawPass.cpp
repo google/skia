@@ -4,47 +4,65 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/graphite/DrawPass.h"
 
-#include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkImageInfo.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkSpan_impl.h"
+#include "include/private/base/SkTo.h"
+#include "src/base/SkMathPriv.h"
+#include "src/base/SkTBlockList.h"
+#include "src/base/SkVx.h"
+#include "src/core/SkTHash.h"
 #include "src/core/SkTraceEvent.h"
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/CommandBuffer.h"
 #include "src/gpu/graphite/ContextUtils.h"
-#include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/DrawList.h"
+#include "src/gpu/graphite/DrawOrder.h"
+#include "src/gpu/graphite/DrawParams.h"
+#include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
-#include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Renderer.h"
+#include "src/gpu/graphite/Resource.h"
+#include "src/gpu/graphite/Resource.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/Sampler.h"
-#include "src/gpu/graphite/Texture.h"
-#include "src/gpu/graphite/UniformManager.h"
-#include "src/gpu/graphite/geom/BoundsManager.h"
+#include "src/gpu/graphite/Texture.h"  // IWYU pragma: keep
+#include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/UniquePaintParamsID.h"
+#include "src/gpu/graphite/geom/Rect.h"
+#include "src/gpu/graphite/geom/Transform.h"
 
 #if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
 #include "src/gpu/graphite/RenderPassDesc.h"
 #endif
 
-#include "src/base/SkMathPriv.h"
-#include "src/base/SkTBlockList.h"
-
 #include <algorithm>
+#include <cstdint>
+#include <optional>
+#include <tuple>
+#include <vector>
 
 using namespace skia_private;
 
 namespace skgpu::graphite {
+
+class ShaderCodeDictionary;
 
 namespace {
 

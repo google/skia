@@ -9,8 +9,11 @@
 #define ClientMappedBufferManager_graphite_DEFINED
 
 #include "include/gpu/graphite/Context.h"
+#include "include/private/base/SkTArray.h"
 #include "src/gpu/AsyncReadTypes.h"
 #include "src/gpu/graphite/Buffer.h"
+
+#include <forward_list>
 
 namespace skgpu::graphite {
 

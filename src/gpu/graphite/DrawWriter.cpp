@@ -4,10 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/graphite/DrawWriter.h"
 
-#include "src/gpu/BufferWriter.h"
+#include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/DrawCommands.h"
 
 namespace skgpu::graphite {

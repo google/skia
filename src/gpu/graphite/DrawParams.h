@@ -8,18 +8,22 @@
 #ifndef skgpu_graphite_DrawParams_DEFINED
 #define skgpu_graphite_DrawParams_DEFINED
 
-
 #include "include/core/SkPaint.h"
 #include "include/core/SkRect.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkTo.h"
 #include "src/gpu/graphite/DrawOrder.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/geom/NonMSAAClip.h"
 #include "src/gpu/graphite/geom/Rect.h"
-#include "src/gpu/graphite/geom/Transform.h"
 
+#include <algorithm>
 #include <optional>
 
+class SkShader;
+
 namespace skgpu::graphite {
+class Transform;
 
 // NOTE: Only represents the stroke or hairline styles; stroke-and-fill must be handled higher up.
 class StrokeStyle {

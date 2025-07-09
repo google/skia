@@ -4,28 +4,26 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef skgpu_graphite_DrawPass_DEFINED
 #define skgpu_graphite_DrawPass_DEFINED
 
-#include "include/core/SkColor.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
-#include "src/base/SkEnumBitMask.h"
 #include "src/gpu/graphite/DrawCommands.h"
-#include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/ResourceTypes.h"
-#include "src/gpu/graphite/TextureProxy.h"
 
+#include <array>
+#include <cstddef>
 #include <memory>
+#include <utility>
 
 struct SkImageInfo;
 
 namespace skgpu::graphite {
 
-class BoundsManager;
 class CommandBuffer;
 class DrawList;
 class GraphicsPipeline;
@@ -34,9 +32,8 @@ struct RenderPassDesc;
 class ResourceProvider;
 class RuntimeEffectDictionary;
 class Sampler;
-class TextureDataBlock;
 class Texture;
-enum class UniformSlot;
+class TextureProxy;
 
 /**
  * DrawPass is analogous to a subpass, storing the drawing operations in the order they are stored

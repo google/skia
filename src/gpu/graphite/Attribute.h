@@ -9,8 +9,11 @@
 #define skgpu_graphite_Attribute_DEFINED
 
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/graphite/DrawTypes.h"
+
+#include <cstddef>
 
 namespace skgpu::graphite {
 

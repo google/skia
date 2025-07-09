@@ -8,34 +8,40 @@
 #ifndef skgpu_graphite_DrawContext_DEFINED
 #define skgpu_graphite_DrawContext_DEFINED
 
+#include "include/core/SkColor.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/private/base/SkTArray.h"
-
 #include "src/gpu/graphite/DrawList.h"
-#include "src/gpu/graphite/DrawOrder.h"
-#include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureProxyView.h"
-#include "src/gpu/graphite/task/UploadTask.h"
 
+#include <array>
+#include <memory>
 #include <vector>
 
-class SkPixmap;
+struct SkIRect;
+struct SkISize;
 
 namespace skgpu::graphite {
 
-class Geometry;
-class Recorder;
-class Transform;
-
 class Caps;
+class Clip;
 class ComputePathAtlas;
+class ConditionalUploadContext;
+class DrawOrder;
 class DrawTask;
+class Geometry;
+class PaintParams;
 class PathAtlas;
+class Recorder;
+class Renderer;
+class StrokeStyle;
 class Task;
-class TextureProxy;
+class Transform;
+class UploadList;
+struct MipLevel;
 
 /**
  * DrawContext records draw commands into a specific Surface, via a general task graph

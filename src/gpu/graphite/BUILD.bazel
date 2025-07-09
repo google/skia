@@ -210,11 +210,20 @@ skia_cc_library(
 generate_cpp_files_for_headers(
     name = "headers_to_compile",
     headers = [
+        "Attribute.h",
+        "BackendSemaphorePriv.h",
+        "BackendTexturePriv.h",
+        "ComputePipelineDesc.h",
+        "ComputeTypes.h",
         "ContextOptionsPriv.h",
         "ContextPriv.h",
+        "DescriptorData.h",
+        "DrawCommands.h",
+        "DrawParams.h",
+        "DrawTypes.h",
         "RecorderOptionsPriv.h",
-        "RecordingPriv.h",
         "RecorderPriv.h",
+        "RecordingPriv.h",
     ],
 )
 
