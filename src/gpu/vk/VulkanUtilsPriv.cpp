@@ -9,6 +9,7 @@
 
 #include "include/core/SkStream.h"
 #include "include/gpu/vk/VulkanBackendContext.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTo.h"
@@ -470,7 +471,7 @@ sk_sp<skgpu::VulkanInterface> MakeInterface(const skgpu::VulkanBackendContext& c
     physDevVersion = std::min(physDevVersion, apiVersion);
 
     if (instanceVersion < VK_API_VERSION_1_1 || physDevVersion < VK_API_VERSION_1_1) {
-        SkDebugf("Vulkan 1.1 is required but not available. "
+        SK_ABORT("Vulkan 1.1 is required but not available. "
                  "Instance version: %#08X, Device version: %#08X",
                  instanceVersion, physDevVersion);
         return nullptr;

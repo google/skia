@@ -229,8 +229,7 @@ DEF_GANESH_TEST_FOR_VULKAN_CONTEXT(VulkanPriorityExtension,
     VkPhysicalDeviceFeatures deviceFeatures;
     grVkGetPhysicalDeviceFeatures(physDev, &deviceFeatures);
 
-    // this looks like it would slow things down,
-    // and we can't depend on it on all platforms
+    // This looks like it would slow things down and we can't depend on it on all platforms.
     deviceFeatures.robustBufferAccess = VK_FALSE;
 
     float queuePriorities[1] = { 0.0 };
