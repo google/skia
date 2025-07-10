@@ -11,7 +11,9 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkTypes.h"
 #include "include/private/SkPathRef.h"
+#include "include/private/base/SkAssert.h" // IWYU pragma: keep
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTArray.h"
@@ -81,16 +83,33 @@ SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
     this->reset().setFillType(src.getFillType());
     this->setIsVolatile(src.isVolatile());
 
-    for (auto [verb, pts, w] : SkPathPriv::Iterate(src)) {
-        switch (verb) {
-            case SkPathVerb::kMove:  this->moveTo(pts[0]); break;
-            case SkPathVerb::kLine:  this->lineTo(pts[1]); break;
-            case SkPathVerb::kQuad:  this->quadTo(pts[1], pts[2]); break;
-            case SkPathVerb::kConic: this->conicTo(pts[1], pts[2], w[0]); break;
-            case SkPathVerb::kCubic: this->cubicTo(pts[1], pts[2], pts[3]); break;
-            case SkPathVerb::kClose: this->close(); break;
+    auto is_a = [](const sk_sp<SkPathRef>& p) -> IsA {
+        if (p->fVerbs.empty()) {
+            return IsA::kIsA_JustMoves;
         }
-    }
+        switch (p->fType) {
+            case SkPathRef::PathType::kGeneral: return IsA::kIsA_MoreThanMoves;
+            case SkPathRef::PathType::kOval:    return IsA::kIsA_Oval;
+            case SkPathRef::PathType::kRRect:   return IsA::kIsA_RRect;
+            case SkPathRef::PathType::kArc:     return IsA::kIsA_MoreThanMoves;  // TODO: isArc
+        }
+        SkUNREACHABLE;
+    };
+
+    const sk_sp<SkPathRef>& ref = src.fPathRef;
+    fVerbs        = ref->fVerbs;
+    fPts          = ref->fPoints;
+    fConicWeights = ref->fConicWeights;
+
+    fSegmentMask   = ref->fSegmentMask;
+    fLastMoveIndex = src.fLastMoveToIndex < 0 ? ~src.fLastMoveToIndex : src.fLastMoveToIndex;
+    fLastMovePoint = fPts.empty() ? SkPoint{0, 0} : fPts[fLastMoveIndex];
+    fNeedsMoveVerb = src.fLastMoveToIndex < 0;
+
+    fIsA      = is_a(ref);
+    fIsAStart = ref->fRRectOrOvalStartIdx;
+    fIsACCW   = ref->fRRectOrOvalIsCCW;
+
     return *this;
 }
 

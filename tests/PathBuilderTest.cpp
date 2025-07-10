@@ -760,3 +760,50 @@ DEF_TEST(SkPathBuilder_cleaning, reporter) {
     REPORTER_ASSERT(reporter, pts.size() == 1);
     REPORTER_ASSERT(reporter, (pts[0] == SkPoint{1, 2}));
 }
+
+DEF_TEST(SkPathBuilder_path_roundtrip, reporter) {
+    auto check_roundtrip = [&reporter](const SkPath& path) {
+        const SkPath rpath = SkPathBuilder(path).detach();
+
+        REPORTER_ASSERT(reporter, path == rpath);
+        REPORTER_ASSERT(reporter, path.isConvex() == rpath.isConvex());
+
+        SkRect rect[2];
+        SkRRect rrect[2];
+        SkPathDirection dir[2];
+        unsigned start_index[2];
+
+        const bool is_oval[] = {
+            SkPathPriv::IsOval(path, &rect[0], &dir[0], &start_index[0]),
+            SkPathPriv::IsOval(rpath, &rect[1], &dir[1], &start_index[1])
+        };
+        REPORTER_ASSERT(reporter, is_oval[0] == is_oval[1]);
+        if (is_oval[0] && is_oval[1]) {
+            REPORTER_ASSERT(reporter, rect[0] == rect[1]);
+            REPORTER_ASSERT(reporter, dir[0] == dir[1]);
+            REPORTER_ASSERT(reporter, start_index[0] == start_index[1]);
+        }
+
+        const bool is_rrect[] = {
+            SkPathPriv::IsRRect(path, &rrect[0], &dir[0], &start_index[0]),
+            SkPathPriv::IsRRect(rpath, &rrect[1], &dir[1], &start_index[1])
+        };
+        REPORTER_ASSERT(reporter, is_rrect[0] == is_rrect[1]);
+        if (is_rrect[0] && is_rrect[1]) {
+            REPORTER_ASSERT(reporter, rrect[0] == rrect[1]);
+            REPORTER_ASSERT(reporter, dir[0] == dir[1]);
+            REPORTER_ASSERT(reporter, start_index[0] == start_index[1]);
+        }
+    };
+
+    check_roundtrip(SkPath());
+    check_roundtrip(SkPath::Circle(10, 20, 30, SkPathDirection::kCCW));
+    check_roundtrip(SkPath::Oval({10, 20, 30, 40}, SkPathDirection::kCCW, 2));
+    check_roundtrip(SkPath::Rect({10, 20, 30, 40}, SkPathDirection::kCCW, 2));
+    check_roundtrip(SkPath::RRect({10, 20, 30, 40}, 1, 2, SkPathDirection::kCCW));
+    check_roundtrip(SkPathBuilder()
+                      .lineTo(100, 0)
+                      .quadTo({0, 0}, {0, 100})
+                      .close()
+                      .detach());
+}
