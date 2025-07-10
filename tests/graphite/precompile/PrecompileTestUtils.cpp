@@ -19,7 +19,6 @@
 #include "src/gpu/graphite/PrecompileContextPriv.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
-#include "tests/graphite/precompile/PaintOptionsBuilder.h"
 #include "tests/graphite/precompile/PrecompileTestUtils.h"
 #include "tools/graphite/UniqueKeyUtils.h"
 
@@ -34,7 +33,6 @@
 #include <set>
 
 using namespace skgpu::graphite;
-using namespace PaintOptionsUtils;
 using PrecompileShaders::ImageShaderFlags;
 
 using ::skgpu::graphite::DrawTypeFlags;
@@ -42,142 +40,6 @@ using ::skgpu::graphite::PaintOptions;
 using ::skgpu::graphite::RenderPassProperties;
 
 namespace PrecompileTestUtils {
-
-PaintOptions ImagePremulHWOnlyPlusColorSrcover() {
-    return Builder().blend().srcOver();
-}
-
-PaintOptions TransparentPaintImagePremulHWOnlyPlusColorSrcover() {
-    return Builder().transparent().blend().srcOver();
-}
-
-PaintOptions SolidSrcover() {
-    return Builder().srcOver();
-}
-
-PaintOptions LinearGradSmSrcover() {
-    return Builder().linearGrad(kSmall).srcOver();
-}
-
-PaintOptions LinearGradSRGBSmMedDitherSrcover() {
-    return Builder().linearGrad(kComplex).dither().srcOver();
-}
-
-PaintOptions TransparentPaintImagePremulHWAndClampSrcover() {
-    return Builder().transparent().hwImg(kPremul, kClamp).srcOver();
-}
-
-PaintOptions TransparentPaintImagePremulHWOnlyMatrixCFSrcover() {
-    return Builder().transparent().hwImg(kPremul).matrixCF().srcOver();
-}
-
-PaintOptions TransparentPaintImagePremulHWOnlyMatrixCFDitherSrcover() {
-    return Builder().transparent().hwImg(kPremul).matrixCF().dither().srcOver();
-}
-
-PaintOptions TransparentPaintImageSRGBHWOnlyMatrixCFDitherSrcover() {
-    return Builder().transparent().hwImg(kSRGB).matrixCF().dither().srcOver();
-}
-
-PaintOptions TransparentPaintImagePremulHWOnlySrcover() {
-    return Builder().transparent().hwImg(kPremul).srcOver();
-}
-
-PaintOptions TransparentPaintImageSRGBHWOnlySrcover() {
-    return Builder().transparent().hwImg(kSRGB).srcOver();
-}
-
-PaintOptions TransparentPaintSrcover() {
-    return Builder().transparent().srcOver();
-}
-
-PaintOptions SolidClearSrcSrcover() {
-    return Builder().clear().src().srcOver();
-}
-
-PaintOptions SolidSrcSrcover() {
-    return Builder().src().srcOver();
-}
-
-PaintOptions ImagePremulHWOnlyAndClampSrcover() {
-    return Builder().hwImg(kPremul, kClamp).srcOver();
-}
-
-PaintOptions ImagePremulHWOnlySrc() {
-    return Builder().hwImg(kPremul).src();
-}
-
-PaintOptions ImagePremulHWOnlySrcover() {
-    return Builder().hwImg(kPremul).srcOver();
-}
-
-PaintOptions ImagePremulClampNoCubicDstin() {
-    return Builder().hwImg(kPremul, kClamp).dstIn();
-}
-
-PaintOptions ImagePremulHWOnlyDstin() {
-    return Builder().hwImg(kPremul).dstIn();
-}
-
-PaintOptions YUVImageSRGBNoCubicSrcover() {
-    return Builder().yuv(kNoCubic).srcOver();
-}
-
-PaintOptions YUVImageSRGBSrcover() {
-    return Builder().yuv(kHWAndShader).srcOver();
-}
-
-PaintOptions ImagePremulNoCubicSrcSrcover() {
-    return Builder().hwImg(kPremul).src().srcOver();
-}
-
-PaintOptions ImageSRGBNoCubicSrc() {
-    return Builder().hwImg(kSRGB).src();
-}
-
-PaintOptions ImageAlphaHWOnlySrcover() {
-    return Builder().hwImg(kAlpha).srcOver();
-}
-
-PaintOptions ImageAlphaPremulHWOnlyMatrixCFSrcover() {
-    return Builder().hwImg(kAlpha).matrixCF().srcOver();
-}
-
-PaintOptions ImageAlphaSRGBHWOnlyMatrixCFSrcover() {
-    return Builder().hwImg(kAlphaSRGB).matrixCF().srcOver();
-}
-
-PaintOptions ImageAlphaNoCubicSrc() {
-    return Builder().hwImg(kAlpha, kRepeat).src();
-}
-
-PaintOptions ImageAlphaClampNoCubicSrc() {
-    return Builder().hwImg(kAlpha, kClamp).src();
-}
-
-PaintOptions ImagePremulHWOnlyPorterDuffCFSrcover() {
-    return Builder().hwImg(kPremul).porterDuffCF().srcOver();
-}
-
-PaintOptions ImagePremulHWOnlyMatrixCFSrcover() {
-    return Builder().hwImg(kPremul).matrixCF().srcOver();
-}
-
-PaintOptions ImageSRGBHWOnlyMatrixCFSrcover() {
-    return Builder().hwImg(kSRGB).matrixCF().srcOver();
-}
-
-PaintOptions ImagePremulHWOnlyMatrixCFDitherSrcover() {
-    return Builder().hwImg(kPremul).matrixCF().dither().srcOver();
-}
-
-PaintOptions ImageSRGBHWOnlyMatrixCFDitherSrcover() {
-    return Builder().hwImg(kSRGB).matrixCF().dither().srcOver();
-}
-
-PaintOptions ImageHWOnlySRGBSrcover() {
-    return Builder().hwImg(kSRGB).srcOver();
-}
 
 namespace {
 
