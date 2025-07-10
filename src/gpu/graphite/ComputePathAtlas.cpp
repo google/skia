@@ -15,7 +15,11 @@
 #include "src/gpu/graphite/TextureUtils.h"
 
 #ifdef SK_ENABLE_VELLO_SHADERS
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/graphite/ContextOptionsPriv.h"
+#include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
+#include "src/gpu/graphite/geom/Transform.h"
 #endif
 
 #include <cmath>
