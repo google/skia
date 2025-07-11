@@ -200,6 +200,12 @@ private:
     int fMaxPurgeableQueueSizePurgeAsNeededUnderBudget = 0;
     int fMaxPurgeableQueueSizePurgeAsNeededOverBudget = 0;
     int fMaxResourcesToPurge = 0;
+
+    // Cloned from ProxyCache
+    int fMaxProxyCacheSize = 0;
+    int fMaxProxiesPurgedUniquelyHeld = 0;
+    int fMaxProxiesPurgedNotUsedSince = 0;
+    int fMaxProxiesPurged = 0;
 };
 
 } // namespace skgpu::graphite

@@ -122,7 +122,11 @@ public:
     };
 
     DrawBufferManager(ResourceProvider* resourceProvider, const Caps* caps,
-                      UploadBufferManager* uploadManager, DrawBufferManagerOptions dbmOpts = {});
+                      UploadBufferManager* uploadManager,
+                      int* maxUsedBufferCount,       // TODO(b/407062399): Remove post debugging
+                      uint32_t* maxUniformByteCount, //   ""
+                      uint32_t* maxVertexByteCount,  //   ""
+                      DrawBufferManagerOptions dbmOpts = {});
     ~DrawBufferManager();
 
     // Let possible users check if the manager is already in a bad mapping state and skip any extra
@@ -267,6 +271,13 @@ private:
     // transfer buffers from the UploadManager, remember so that the next Recording will fail.
     bool fMappingFailed = false;
 
+    // TODO(b/407062399): Debugging fields to track pathologic resource situations.
+    // Cloud dumps don't always fetch the DrawBufferManager, but reliably include the Recorder,
+    // so these point to storage fields in the Recorder.
+    int* fMaxUsedBufferCount;
+    uint32_t* fMaxUsedUniformBytes;
+    uint32_t* fMaxUsedVertexBytes;
+
 #if defined(GPU_TEST_UTILS)
     const bool fUseExactBuffSizes;
     const bool fAllowCopyingGpuOnly;
@@ -354,6 +365,10 @@ private:
     // If mapping failed on Buffers created/managed by this StaticBufferManager or by the mapped
     // transfer buffers from the UploadManager, remember so that finalize() will fail.
     bool fMappingFailed = false;
+
+    // TODO(b/407062399): Unused storage to satisfy tracking in UploadBufferManager, but we
+    // don't care about the static uploads.
+    int fTrackingStorage;
 };
 
 } // namespace skgpu::graphite

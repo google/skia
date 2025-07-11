@@ -34,7 +34,12 @@ class TextureProxy;
 // for uploaded client-provided bitmaps (which may require generating mipmaps).
 class ProxyCache {
 public:
-    ProxyCache(uint32_t recorderID);
+    ProxyCache(uint32_t recorderID,
+               // TODO(b/407062399): Remove these parameters after debugging
+               int* maxProxyCacheSize,
+               int* maxProxiesPurgedUniquelyHeld,
+               int* maxProxiesPurgedNotUsedSince,
+               int* maxProxiesPurged);
     ~ProxyCache();
 
     sk_sp<TextureProxy> findOrCreateCachedProxy(Recorder*,
@@ -99,11 +104,12 @@ private:
     SkMessageBus<UniqueKeyInvalidatedMsg_Graphite, uint32_t>::Inbox fInvalidUniqueKeyInbox;
 
     // TODO(b/407062399): Debugging values to track how the ProxyCache behaves under pathologic
-    // situations.
-    int fMaxProxyCacheSize = 0;
-    int fMaxProxiesPurgedUniquelyHeld = 0;
-    int fMaxProxiesPurgedNotUsedSince = 0;
-    int fMaxProxiesPurged = 0;
+    // situations. Cloud dumps don't always fetch the ProxyCache, but reliably include the
+    // ResourceCache, so these point to storage fields in the ResourceCache.
+    int* fMaxProxyCacheSize;
+    int* fMaxProxiesPurgedUniquelyHeld;
+    int* fMaxProxiesPurgedNotUsedSince;
+    int* fMaxProxiesPurged;
 };
 
 } // namespace skgpu::graphite

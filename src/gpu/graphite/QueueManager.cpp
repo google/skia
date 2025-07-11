@@ -26,6 +26,41 @@
 
 namespace skgpu::graphite {
 
+namespace {
+
+// TODO(b/407062399): Can be removed post debugging
+// This is tracked here and not on the Recording because the actual Recording object can be
+// destroyed before the GPU work has completed but we really want a gauge for how much pending work
+// is preventing their resources from being reclaimed. Currently, Chrome always snaps a Recording,
+// inserts it, and then deletes the Recording so the GPU work is what blocks resources becoming
+// purgeable.
+class LiveRecordingTracker {
+public:
+    static LiveRecordingTracker& Get() {
+        static LiveRecordingTracker gTracker{};
+        return gTracker;
+    }
+
+    void incrementLiveCount(int count) {
+        fLiveCount.fetch_add(count, std::memory_order_relaxed);
+    }
+
+    void decrementLiveCount(int count) {
+        fLiveCount.fetch_sub(count, std::memory_order_relaxed);
+    }
+
+    int getLiveCount() const {
+        return fLiveCount.load(std::memory_order_acquire);
+    }
+
+private:
+    LiveRecordingTracker() = default;
+
+    std::atomic<int> fLiveCount{0};
+};
+
+}
+
 // This constant determines how many OutstandingSubmissions are allocated together as a block in
 // the deque. As such it needs to balance allocating too much memory vs. incurring
 // allocation/deallocation thrashing. It should roughly correspond to the max number of outstanding
@@ -222,6 +257,8 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
 
     info.fRecording->priv().deinstantiateVolatileLazyProxies();
 
+    fAddedRecordingsCount++;
+
     // If we got here, the simulated status should be kSuccess or it means we missed returning the
     // simulated error earlier.
     SkASSERT(info.fSimulatedStatus == InsertStatus::kSuccess);
@@ -291,10 +328,16 @@ bool QueueManager::submitToGpu() {
     }
 #endif
 
+    LiveRecordingTracker::Get().incrementLiveCount(fAddedRecordingsCount);
+    fCurrentCommandBuffer->recordResourceCounts();
+
     auto submission = this->onSubmitToGpu();
     if (!submission) {
         return false;
     }
+
+    submission->fAddedRecordingsCount = fAddedRecordingsCount; // to decrement on work completed
+    fAddedRecordingsCount = 0;
 
     new (fOutstandingSubmissions.push_back()) OutstandingSubmission(std::move(submission));
     return true;
@@ -324,11 +367,18 @@ void QueueManager::checkForFinishedWork(SyncToCpu sync) {
         // Make sure we remove before deleting as deletion might try to kick off another submit
         // (though hopefully *not* in Graphite).
         fOutstandingSubmissions.pop_front();
+
+        LiveRecordingTracker::Get().decrementLiveCount((*front)->fAddedRecordingsCount);
+
         // Since we used placement new we are responsible for calling the destructor manually.
         front->~OutstandingSubmission();
         front = (OutstandingSubmission*)fOutstandingSubmissions.front();
     }
     SkASSERT(sync == SyncToCpu::kNo || fOutstandingSubmissions.empty());
+}
+
+int QueueManager::ActiveRecordingCount() {
+    return LiveRecordingTracker::Get().getLiveCount();
 }
 
 void QueueManager::returnCommandBuffer(std::unique_ptr<CommandBuffer> commandBuffer) {

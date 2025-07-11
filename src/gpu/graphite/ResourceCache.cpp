@@ -62,7 +62,11 @@ ResourceCache::ResourceCache(SingleOwner* singleOwner, uint32_t recorderID, size
         : fMaxBytes(maxBytes)
         , fSingleOwner(singleOwner) {
     if (recorderID != SK_InvalidGenID) {
-        fProxyCache = std::make_unique<ProxyCache>(recorderID);
+        fProxyCache = std::make_unique<ProxyCache>(recorderID,
+                                                   &fMaxProxyCacheSize,
+                                                   &fMaxProxiesPurgedUniquelyHeld,
+                                                   &fMaxProxiesPurgedNotUsedSince,
+                                                   &fMaxProxiesPurged);
     }
     // TODO: Maybe when things start using ResourceCache, then like Ganesh the compiler won't
     // complain about not using fSingleOwner in Release builds and we can delete this.

@@ -36,6 +36,10 @@ private:
     std::unique_ptr<CommandBuffer> fCommandBuffer;
     sk_sp<SkRefCnt> fOutstandingAsyncMapCounter;
     QueueManager* fQueueManager;
+
+    // TODO(b/407062399): Can be removed post debugging
+    friend class QueueManager;
+    int fAddedRecordingsCount = 0; // The number of recordings added to this GPU submission
 };
 
 } // namespace skgpu::graphite
