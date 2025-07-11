@@ -157,11 +157,7 @@ static bool check_shader_module([[maybe_unused]] const DawnSharedContext* shared
                 std::string errors;
                 for (size_t index = 0; index < info->messageCount; ++index) {
                     const WGPUCompilationMessage& entry = info->messages[index];
-#if defined(WGPU_BREAKING_CHANGE_STRING_VIEW_OUTPUT_STRUCTS)
                     std::string messageString(entry.message.data, entry.message.length);
-#else   // defined(WGPU_BREAKING_CHANGE_STRING_VIEW_OUTPUT_STRUCTS)
-                    std::string messageString(entry.message);
-#endif  // defined(WGPU_BREAKING_CHANGE_STRING_VIEW_OUTPUT_STRUCTS)
                     errors += "line " + std::to_string(entry.lineNum) + ':' +
                               std::to_string(entry.linePos) + ' ' + messageString + '\n';
                 }
