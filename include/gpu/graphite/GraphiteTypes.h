@@ -34,6 +34,47 @@ using GpuFinishedWithStatsProc = void (*)(GpuFinishedContext finishedContext,
                                           CallbackResult,
                                           const GpuStats&);
 
+// NOTE: This can be converted to just an `enum class InsertStatus {}` once clients are migrated
+// off of assuming `Context::insertRecording()` returns a boolean.
+class InsertStatus {
+public:
+    // Do not refer to V directly; use these constants as if InsertStatus were a class enum, e.g.
+    // InsertStatus::kSuccess.
+    enum V {
+        // Everything successfully added to underlying CommandBuffer
+        kSuccess,
+        // Recording or InsertRecordingInfo invalid, no CB changes
+        kInvalidRecording,
+        // Promise image instantiation failed, no CB changes
+        kPromiseImageInstantiationFailed,
+        // Internal failure, CB partially modified, state unrecoverable or unknown (e.g. dependent
+        // texture uploads for future Recordings may or may not get executed)
+        kAddCommandsFailed,
+        // Internal failure, shader pipeline compilation failed (driver issue, or disk corruption),
+        // state unrecoverable.
+        kAsyncShaderCompilesFailed
+    };
+
+    constexpr InsertStatus() : fValue(kSuccess) {}
+    /*implicit*/ constexpr InsertStatus(V v) : fValue(v) {}
+
+    operator InsertStatus::V() const {
+        return fValue;
+    }
+
+    // Assist migration from old bool return value of insertRecording; kSuccess is true,
+    // all other error statuses are false.
+    // NOTE: This is intentionally not explicit so that InsertStatus can be assigned correctly to
+    // a bool or returned as a bool, since these are not boolean contexts that automatically apply
+    // explicit bool operators (e.g. inside an if condition).
+    operator bool() const {
+        return fValue == kSuccess;
+    }
+
+private:
+    V fValue;
+};
+
 /**
  * The fFinishedProc is called when the Recording has been submitted and finished on the GPU, or
  * when there is a failure that caused it not to be submitted. The callback will always be called
@@ -88,47 +129,17 @@ struct InsertRecordingInfo {
     GpuFinishedContext fFinishedContext = nullptr;
     GpuFinishedProc fFinishedProc = nullptr;
     GpuFinishedWithStatsProc fFinishedWithStatsProc = nullptr;
-};
 
-// NOTE: This can be converted to just an `enum class InsertStatus {}` once clients are migrated
-// off of assuming `Context::insertRecording()` returns a boolean.
-class InsertStatus {
-public:
-    // Do not refer to V directly; use these constants as if InsertStatus were a class enum, e.g.
-    // InsertStatus::kSuccess.
-    enum V {
-        // Everything successfully added to underlying CommandBuffer
-        kSuccess,
-        // Recording or InsertRecordingInfo invalid, no CB changes
-        kInvalidRecording,
-        // Promise image instantiation failed, no CB changes
-        kPromiseImageInstantiationFailed,
-        // Internal failure, CB partially modified, state unrecoverable or unknown (e.g. dependent
-        // texture uploads for future Recordings may or may not get executed)
-        kAddCommandsFailed,
-        // Internal failure, shader pipeline compilation failed (driver issue, or disk corruption),
-        // state unrecoverable.
-        kAsyncShaderCompilesFailed
-    };
-
-    constexpr InsertStatus() : fValue(kSuccess) {}
-    /*implicit*/ constexpr InsertStatus(V v) : fValue(v) {}
-
-    operator InsertStatus::V() const {
-        return fValue;
-    }
-
-    // Assist migration from old bool return value of insertRecording; kSuccess is true,
-    // all other error statuses are false.
-    // NOTE: This is intentionally not explicit so that InsertStatus can be assigned correctly to
-    // a bool or returned as a bool, since these are not boolean contexts that automatically apply
-    // explicit bool operators (e.g. inside an if condition).
-    operator bool() const {
-        return fValue == kSuccess;
-    }
-
-private:
-    V fValue;
+    // For unit testing purposes, this can be used to induce a known failure status from
+    // Context::insertRecording(). When this set to anything other than kSuccess, insertRecording()
+    // will operate as normal until the first condition that would normally return the simulated
+    // status is encountered. At that point, operations are treated as if that condition had failed.
+    // This leaves the Context in a state consistent with encountering the InsertStatus in a normal
+    // application.
+    //
+    // NOTE: If the simulated failure status is one of the later error codes but the inserted
+    // Recording would fail with an earlier error code normally, that error is still returned.
+    InsertStatus fSimulatedStatus = InsertStatus::kSuccess;
 };
 
 /**
