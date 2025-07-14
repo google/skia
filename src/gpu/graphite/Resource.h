@@ -215,6 +215,10 @@ public:
     // We allow the label on a Resource to change when used for a different function. For example
     // when reusing a scratch Texture we can change the label to match callers current use.
     void setLabel(std::string_view label) {
+        if (fLabel == label) {
+            return;
+        }
+
         fLabel = label;
 
         if (!fLabel.empty()) {
