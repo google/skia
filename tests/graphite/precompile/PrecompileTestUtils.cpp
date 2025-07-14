@@ -803,13 +803,11 @@ void PipelineLabelInfoCollector::finalReport() {
 //   2) more than 40% of the generated Pipelines are in kCases
 void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
              skiatest::Reporter* reporter,
-             SkSpan<const PrecompileSettings> precompileSettings,
+             const PrecompileSettings& settings,
              int precompileSettingsIndex,
              SkSpan<const PipelineLabel> cases,
              PipelineLabelInfoCollector* collector) {
     using namespace skgpu::graphite;
-
-    const PrecompileSettings& settings = precompileSettings[precompileSettingsIndex];
 
     precompileContext->priv().globalCache()->resetGraphicsPipelines();
 

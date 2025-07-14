@@ -107,7 +107,7 @@ private:
 
 void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
              skiatest::Reporter* reporter,
-             SkSpan<const PrecompileSettings> precompileSettings,
+             const PrecompileSettings& precompileSettings,
              int precompileSettingsIndex,
              SkSpan<const PipelineLabel> cases,
              PipelineLabelInfoCollector* collector);

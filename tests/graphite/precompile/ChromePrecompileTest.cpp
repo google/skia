@@ -1035,7 +1035,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
             continue;
         }
 
-        RunTest(precompileContext.get(), reporter, { kPrecompileCases }, i,
+        RunTest(precompileContext.get(), reporter, kPrecompileCases[i], i,
                 { kCases },
                 &collector);
     }
