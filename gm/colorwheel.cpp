@@ -41,12 +41,13 @@ static void draw_image(SkCanvas* canvas, const char* resource, int x, int y) {
   background (rendered as a checkerboard).  The JPEG image has a grey
   background and compression artifacts.
  */
-DEF_SIMPLE_GM(colorwheel, canvas, 256, 256) {
+DEF_SIMPLE_GM(colorwheel, canvas, 384, 256) {
     ToolUtils::draw_checkerboard(canvas);
     draw_image(canvas, "images/color_wheel.png", 0, 0);  // top left
-    draw_image(canvas, "images/color_wheel.gif", 128, 0);  // top right
+    draw_image(canvas, "images/color_wheel.gif", 128, 0);  // top middle
     draw_image(canvas, "images/color_wheel.webp", 0, 128);  // bottom left
-    draw_image(canvas, "images/color_wheel.jpg", 128, 128);  // bottom right
+    draw_image(canvas, "images/color_wheel.jpg", 128, 128);  // bottom middle
+    draw_image(canvas, "images/color_wheel.avif", 256, 0);  // top right
 }
 
 DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
