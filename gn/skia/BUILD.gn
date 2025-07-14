@@ -3,9 +3,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-if (is_fuchsia) {
-  import("//build/fuchsia/sdk.gni")
-}
 if (is_wasm) {
   import("../toolchain/wasm.gni")
 }
@@ -77,26 +74,6 @@ config("default") {
     # In Clang 14, this default was changed. We turn this off to (hopefully) make our
     # GMs more consistent in the transition.
     cflags += [ "-ffp-contract=off" ]
-  }
-
-  if (is_fuchsia && using_fuchsia_sdk) {
-    ldflags += [
-      "-v",
-      "--sysroot=" + rebase_path("$fuchsia_sdk_path/arch/$current_cpu/sysroot"),
-    ]
-    cflags += [ "--sysroot=" +
-                rebase_path("$fuchsia_sdk_path/arch/$current_cpu/sysroot") ]
-    if (current_cpu == "x64") {
-      current_cpu = "--target=x86_64-${current_os}"
-    } else if (current_cpu == "arm64") {
-      target_triple = "--target=aarch64-unknown-${current_os}"
-    } else {
-      print("Unknown target CPU for Fuchsia target build.")
-      assert(false)
-    }
-    ldflags += [ target_triple ]
-    cflags += [ target_triple ]
-    asmflags += [ target_triple ]
   }
 
   if (is_win) {

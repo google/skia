@@ -4,16 +4,10 @@
 # found in the LICENSE file.
 
 import("gn/codec.gni")
-import("gn/fuchsia_defines.gni")
 import("gn/pathops.gni")
 import("gn/shared_sources.gni")
 import("gn/skia.gni")
 import("gn/toolchain/wasm.gni")
-
-if (is_fuchsia) {
-  import("//build/fuchsia/sdk.gni")
-  import("build/fuchsia/fuchsia_download_sdk.gni")
-}
 
 if (skia_use_dawn) {
   import("//third_party/externals/dawn/scripts/dawn_features.gni")
@@ -37,7 +31,7 @@ config("skia_public") {
   if (is_component_build) {
     defines += [ "SKIA_DLL" ]
   }
-  if (is_fuchsia || is_linux) {
+  if (is_linux) {
     defines += [ "SK_R32_SHIFT=16" ]
   }
   if (skia_enable_optimize_size) {
@@ -45,9 +39,6 @@ config("skia_public") {
   }
   if (skia_enable_precompile) {
     defines += [ "SK_ENABLE_PRECOMPILE" ]
-  }
-  if (is_fuchsia) {
-    defines += fuchsia_defines
   }
   if (is_wasm) {
     defines += wasm_defines
@@ -415,20 +406,6 @@ optional("fontmgr_fontations_empty") {
   deps = [ ":typeface_fontations" ]
   public = skia_ports_fontmgr_fontations_public
   sources = skia_ports_fontmgr_fontations_sources
-}
-
-optional("fontmgr_fuchsia") {
-  enabled = skia_enable_fontmgr_fuchsia
-  public_defines = [ "SK_FONTMGR_FUCHSIA_AVAILABLE" ]
-  deps = []
-
-  if (is_fuchsia && using_fuchsia_sdk) {
-    deps += [ "//build/fuchsia/fidl:fuchsia.fonts" ]
-  } else {
-    deps = [ "//sdk/fidl/fuchsia.fonts" ]
-  }
-  public = skia_ports_fontmgr_fuchsia_public
-  sources = skia_ports_fontmgr_fuchsia_sources
 }
 
 optional("fontmgr_mac_ct") {
@@ -1034,13 +1011,6 @@ optional("gpu") {
     public += skia_gpu_vk_public
     sources += skia_gpu_vk_private
     configs += [ ":use_skia_vulkan_headers" ]
-    if (is_fuchsia) {
-      if (using_fuchsia_sdk) {
-        public_deps += [ "$fuchsia_sdk_root/pkg:vulkan" ]
-      } else {
-        public_deps += [ "//src/graphics/lib/vulkan" ]
-      }
-    }
     if (is_android) {
       sources += skia_gpu_vk_android_private
     }
@@ -1671,7 +1641,6 @@ skia_source_set("core") {
     ":fontmgr_custom_empty",
     ":fontmgr_fontations_empty",
     ":fontmgr_fontconfig",
-    ":fontmgr_fuchsia",
     ":fontmgr_mac_ct",
     ":fontmgr_win",
     ":fontmgr_win_gdi",
@@ -1838,10 +1807,6 @@ skia_component("skia") {
       "ImageIO.framework",
       "MobileCoreServices.framework",
     ]
-  }
-
-  if (is_fuchsia) {
-    sources += [ "src/ports/SkDebug_stdio.cpp" ]
   }
 
   if (skia_enable_spirv_validation) {
@@ -2305,11 +2270,6 @@ if (skia_enable_tools) {
           "tools/graphite/precompile/PrecompileEffectFactories.h",
         ]
       }
-    }
-
-    if (is_fuchsia && using_fuchsia_sdk) {
-      libs +=
-          [ "${fuchsia_sdk_path}/arch/${target_cpu}/sysroot/lib/libzircon.so" ]
     }
   }  # test_lib("gpu_tool_utils")
 
@@ -2951,13 +2911,6 @@ if (skia_enable_tools) {
         lib_dirs = []
         deps = [ ":skqp_lib" ]
       }
-    }
-  }
-  if (is_fuchsia) {
-    # Build a package repository for skqp on Fuchsia.
-    group("skqp_repo") {
-      testonly = true
-      deps = [ "//build/fuchsia/skqp:skqp_repo" ]
     }
   }
   if (is_android) {

@@ -88234,7 +88234,6 @@
         "skia/bazel",
         "skia/bench",
         "skia/bin",
-        "skia/build/fuchsia",
         "skia/build_overrides",
         "skia/buildtools",
         "skia/client_utils/android",
