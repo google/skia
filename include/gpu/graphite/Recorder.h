@@ -329,6 +329,10 @@ private:
     int fMaxTexturesPerRecording = 0;
     int fMaxAliveRecordings = 0;
     int fMaxCommandBufferResources = 0;
+    int fMaxRecordingsPerCommandBuffer = 0;
+    int fMaxVizRecordingsPerCommandBuffer = 0;
+    int fMaxMainRecordingsPerCommandBuffer = 0;
+    int fMaxAsyncReadRecordingsPerCommandBuffer = 0;
 
     // Cloned from UploadBufferManager for storage
     int fMaxReusedUploadBufferCount = 0;

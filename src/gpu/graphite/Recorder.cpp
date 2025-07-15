@@ -229,6 +229,15 @@ std::unique_ptr<Recording> Recorder::snap() {
     fMaxAliveRecordings = std::max(fMaxAliveRecordings, QueueManager::ActiveRecordingCount() + 1);
     fMaxCommandBufferResources = std::max(fMaxCommandBufferResources,
                                           CommandBuffer::MaxTrackedResources());
+    fMaxRecordingsPerCommandBuffer = std::max(fMaxRecordingsPerCommandBuffer,
+                                              QueueManager::MaxRecordings());
+    fMaxVizRecordingsPerCommandBuffer = std::max(fMaxVizRecordingsPerCommandBuffer,
+                                                 QueueManager::MaxVizRecordings());
+    fMaxMainRecordingsPerCommandBuffer = std::max(fMaxMainRecordingsPerCommandBuffer,
+                                                  QueueManager::MaxMainRecordings());
+    fMaxAsyncReadRecordingsPerCommandBuffer = std::max(fMaxAsyncReadRecordingsPerCommandBuffer,
+                                                       QueueManager::MaxAsyncReadRecordings());
+
     // The scratch resources only need to be tracked until prepareResources() is finished, so
     // Recorder doesn't hold a persistent manager and it can be deleted when snap() returns.
     ScratchResourceManager scratchManager{fResourceProvider, std::move(fProxyReadCounts)};

@@ -97,6 +97,10 @@ private:
     friend class Recorder; // For ActiveRecordingCount()
     // Number of inserted Recordings whose finish procs haven't run yet
     static int ActiveRecordingCount();
+    static int MaxRecordings();
+    static int MaxVizRecordings();
+    static int MaxMainRecordings();
+    static int MaxAsyncReadRecordings();
 
     SkDeque fOutstandingSubmissions;
 
@@ -107,6 +111,9 @@ private:
 
     // TODO(b/407062399): Can be removed post debugging
     int fAddedRecordingsCount = 0;
+    int fAddedVizRecordings = 0;
+    int fAddedMainRecordings = 0;
+    int fAddedAsyncReadRecordings = 0;
 };
 
 } // namespace skgpu::graphite
