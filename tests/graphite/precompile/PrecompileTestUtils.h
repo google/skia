@@ -13,6 +13,8 @@
 #include "include/gpu/graphite/precompile/Precompile.h"
 #include "src/base/SkEnumBitMask.h"
 
+#include <map>
+
 // Print out a final report that includes missed cases in 'kCases'
 //#define FINAL_REPORT
 
@@ -23,6 +25,10 @@
 // Print out all the generated labels and whether they were found in 'kCases'.
 // This is usually used along with the 'kChosenCase' variable.
 //#define PRINT_GENERATED_LABELS
+
+namespace skiatest {
+    class Reporter;
+}
 
 namespace PrecompileTestUtils {
 
