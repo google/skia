@@ -188,7 +188,7 @@
   "moduleExtensions": {
     "//bazel:cipd_deps.bzl%cipd_deps": {
       "general": {
-        "bzlTransitiveDigest": "N/asSZSV+wtV7p+RVLjDzr8W33SFkawEryC0ygNmyn4=",
+        "bzlTransitiveDigest": "XGtP1wMeC7RpTvndnDFoZ9Hw/1hrwqc0KVMevHJf6y0=",
         "usagesDigest": "ZOuoSLNI2UZ4T/vf61+A32qhmZQ4bNxE2xDjQQsrZzE=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
@@ -200,7 +200,7 @@
               "sha256": "7195291488d08f3a10e85b85d8c4816e077015f1c5f196f770003a97aa42caf8",
               "urls": [
                 "https://chrome-infra-packages.appspot.com/dl/gn/gn/linux-amd64/+/git_revision%3A1c4151ff5c1d6fbf7fa800b8d4bb34d3abc03a41",
-                "https://storage.googleapis.com/skia-world-readable/bazel/7195291488d08f3a10e85b85d8c4816e077015f1c5f196f770003a97aa42caf8.zip"
+                "https://cdn.skia.org/bazel/7195291488d08f3a10e85b85d8c4816e077015f1c5f196f770003a97aa42caf8.zip"
               ],
               "type": "zip",
               "build_file_content": "\nexports_files(\n    [\"gn\"],\n    visibility = [\"//visibility:public\"]\n)\n",
@@ -214,7 +214,7 @@
               "sha256": "1123907ac3317530e9dd537d50cd83fd83e852aacc07d286f45753c8fc5287ed",
               "urls": [
                 "https://chrome-infra-packages.appspot.com/dl/gn/gn/mac-arm64/+/git_revision%3A1c4151ff5c1d6fbf7fa800b8d4bb34d3abc03a41",
-                "https://storage.googleapis.com/skia-world-readable/bazel/1123907ac3317530e9dd537d50cd83fd83e852aacc07d286f45753c8fc5287ed.zip"
+                "https://cdn.skia.org/bazel/1123907ac3317530e9dd537d50cd83fd83e852aacc07d286f45753c8fc5287ed.zip"
               ],
               "type": "zip",
               "build_file_content": "\nexports_files(\n    [\"gn\"],\n    visibility = [\"//visibility:public\"]\n)\n",
@@ -228,7 +228,7 @@
               "sha256": "ed96f7d2f49b83b016e4bdbed432e4734a5a133accb025d7c07685e01489ba93",
               "urls": [
                 "https://chrome-infra-packages.appspot.com/dl/gn/gn/mac-amd64/+/git_revision%3A1c4151ff5c1d6fbf7fa800b8d4bb34d3abc03a41",
-                "https://storage.googleapis.com/skia-world-readable/bazel/ed96f7d2f49b83b016e4bdbed432e4734a5a133accb025d7c07685e01489ba93.zip"
+                "https://cdn.skia.org/bazel/ed96f7d2f49b83b016e4bdbed432e4734a5a133accb025d7c07685e01489ba93.zip"
               ],
               "type": "zip",
               "build_file_content": "\nexports_files(\n    [\"gn\"],\n    visibility = [\"//visibility:public\"]\n)\n",
@@ -242,7 +242,7 @@
               "sha256": "36cb96051827d6a3f6f59c5461996fe9490d997bcd2b351687d87dcd4a9b40fa",
               "urls": [
                 "https://chrome-infra-packages.appspot.com/dl/infra/3pp/tools/git/linux-amd64/+/version%3A2.29.2.chromium.6",
-                "https://storage.googleapis.com/skia-world-readable/bazel/36cb96051827d6a3f6f59c5461996fe9490d997bcd2b351687d87dcd4a9b40fa.zip"
+                "https://cdn.skia.org/bazel/36cb96051827d6a3f6f59c5461996fe9490d997bcd2b351687d87dcd4a9b40fa.zip"
               ],
               "type": "zip",
               "build_file_content": "\nfilegroup(\n  name = \"all_files\",\n  # The exclude pattern prevents files with spaces in their names from tripping up Bazel.\n  srcs = glob(include=[\"**/*\"], exclude=[\"**/* *\"]),\n  visibility = [\"//visibility:public\"],\n)\n",
@@ -277,7 +277,7 @@
             "attributes": {
               "urls": [
                 "https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip",
-                "https://storage.googleapis.com/skia-world-readable/bazel/ad7ce5467e18d40050dc51b8e7affc3e635c85bd8c59be62de32352328ed467e.zip"
+                "https://cdn.skia.org/bazel/ad7ce5467e18d40050dc51b8e7affc3e635c85bd8c59be62de32352328ed467e.zip"
               ],
               "sha256": "ad7ce5467e18d40050dc51b8e7affc3e635c85bd8c59be62de32352328ed467e",
               "strip_prefix": "android-ndk-r21e",
