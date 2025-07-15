@@ -1790,6 +1790,10 @@ void check_draw(skiatest::Reporter* reporter,
                                                          &props);
         SkCanvas* canvas = surf->getCanvas();
 
+        // NOTE: The specific coordinates for the clip[R]Rect and draw[R]Rect calls are chosen to
+        // avoid geometrically combining the clip into the geometry, and to avoid covering the
+        // render target entirely, both of which would simplify the pipeline required.
+
         switch (clipType) {
             case ClipType::kNone:
                 break;
@@ -1802,11 +1806,11 @@ void check_draw(skiatest::Reporter* reporter,
                 canvas->clipShader(clipShader, SkClipOp::kDifference);
                 break;
             case ClipType::kAnalytic:
-                canvas->clipRRect(SkRRect::MakeRectXY(SkRect::MakeWH(15, 15), 5, 5));
+                canvas->clipRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(1, 1, 15, 15), 5, 5));
                 break;
             case ClipType::kAnalyticAndShader:
                 SkASSERT(clipShader);
-                canvas->clipRRect(SkRRect::MakeRectXY(SkRect::MakeWH(15, 15), 5, 5));
+                canvas->clipRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(1, 1, 15, 15), 5, 5));
                 canvas->clipShader(clipShader, SkClipOp::kIntersect);
                 break;
         }
@@ -1850,8 +1854,8 @@ void check_draw(skiatest::Reporter* reporter,
                 }
                 break;
             case DrawTypeFlags::kAnalyticRRect:
-                canvas->drawRRect(SkRRect::MakeOval({0, 0, 16, 16}), paint);
-                canvas->drawRRect(SkRRect::MakeRectXY({0, 0, 16, 16}, 4, 4), paint);
+                canvas->drawRRect(SkRRect::MakeOval({0, 0, 15, 15}), paint);
+                canvas->drawRRect(SkRRect::MakeRectXY({0, 0, 15, 15}, 4, 4), paint);
                 break;
             case DrawTypeFlags::kPerEdgeAAQuad:
                 // TODO: add a case that uses the SkCanvas::experimental_DrawEdgeAAImageSet
@@ -1862,7 +1866,7 @@ void check_draw(skiatest::Reporter* reporter,
                     paint.asBlendMode().has_value()) {
                     // The SkPaint reconstructed inside the drawEdgeAAQuad call needs to match
                     // 'paint' for the precompilation checks to work.
-                    canvas->experimental_DrawEdgeAAQuad(SkRect::MakeWH(16, 16),
+                    canvas->experimental_DrawEdgeAAQuad(SkRect::MakeWH(15, 15),
                                                         /* clip= */ nullptr,
                                                         SkCanvas::kAll_QuadAAFlags,
                                                         paint.getColor4f(),
@@ -1870,7 +1874,7 @@ void check_draw(skiatest::Reporter* reporter,
                 }
                 break;
             case DrawTypeFlags::kNonAAFillRect:
-                canvas->drawRect(SkRect::MakeWH(16, 16), paint);
+                canvas->drawRect(SkRect::MakeWH(15, 15), paint);
                 break;
             case DrawTypeFlags::kNonSimpleShape:
                 non_simple_draws(canvas, paint, kDrawData);

@@ -89,17 +89,17 @@ public:
     //    the above scissor.
     //  - The Clip also stores the draw's fill-style invariant clipped bounds which is used in atlas
     //    draws and may differ from the draw bounds.
+    //  - The Clip may contain an analytic clip (geometry or texture mask) that must be included in
+    //    the draw's PaintParams.
+    //  - The draw's Geometry may be intersected geometrically with clip elements, potentially
+    //    impacting the final choice of Renderer.
     //
-    // All clip elements that affect the draw will be returned in `outEffectiveElements` alongside
-    // the bounds. This method does not have any side-effects and the per-clip element state has to
-    // be explicitly updated by calling `updateClipStateForDraw()` which prepares the clip stack for
-    // later rendering.
-    //
-    // The returned clip element list will be empty if the shape is clipped out or if the draw is
-    // unaffected by any of the clip elements.
+    // All remaining clip elements that affect the draw will be returned in `outEffectiveElements`.
+    // The per-clip element state has to be explicitly updated by calling `updateClipStateForDraw()`
+    // which prepares the clip stack for later rendering.
     using ElementList = skia_private::STArray<4, const Element*>;
     Clip visitClipStackForDraw(const Transform&,
-                               const Geometry&,
+                               Geometry*,
                                const SkStrokeRec&,
                                bool msaaSupported,
                                ElementList* outEffectiveElements) const;

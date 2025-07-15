@@ -281,7 +281,7 @@ private:
     // Ignores geometric style on the paint in favor of explicitly provided SkStrokeRec and flags.
     // All overridden SkDevice::draw() functions should bottom-out with calls to drawGeometry().
     void drawGeometry(const Transform&,
-                      const Geometry&,
+                      Geometry&&,
                       const SkPaint&,
                       const SkStrokeRec&,
                       SkEnumBitMask<DrawFlags> = DrawFlags::kNone,

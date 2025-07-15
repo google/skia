@@ -1242,7 +1242,7 @@ void Device::drawAtlasSubRun(const sktext::gpu::AtlasSubRun* subRun,
 }
 
 void Device::drawGeometry(const Transform& localToDevice,
-                          const Geometry& geometry,
+                          Geometry&& geometry,
                           const SkPaint& paint,
                           const SkStrokeRec& style,
                           SkEnumBitMask<DrawFlags> flags,
@@ -1290,7 +1290,7 @@ void Device::drawGeometry(const Transform& localToDevice,
             return;
         } else {
             SKGPU_LOG_W("Path effect failed to apply, drawing original path.");
-            this->drawGeometry(localToDevice, geometry, paint, style,
+            this->drawGeometry(localToDevice, std::move(geometry), paint, style,
                                flags | DrawFlags::kIgnorePathEffect, std::move(primitiveBlender),
                                skipColorXform);
             return;
@@ -1323,7 +1323,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     // draw without updating the clip stack.
     ClipStack::ElementList clipElements;
     Clip clip = fClip.visitClipStackForDraw(localToDevice,
-                                            geometry,
+                                            &geometry,
                                             style,
                                             fMSAASupported,
                                             &clipElements);
