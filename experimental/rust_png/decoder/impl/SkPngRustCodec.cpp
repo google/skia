@@ -805,19 +805,17 @@ int SkPngRustCodec::onGetFrameCount() {
 
         if (fPrivStream->hasLength()) {
             size_t currentLength = fPrivStream->getLength();
-            if (fStreamLengthDuringLastCallToParseAdditionalFrameInfos.has_value()) {
-                size_t oldLength = *fStreamLengthDuringLastCallToParseAdditionalFrameInfos;
-                if (oldLength == currentLength) {
+            if (fMaxStreamLengthSeenWhenParsingAdditionalFrameInfos.has_value()) {
+                size_t oldLength = *fMaxStreamLengthSeenWhenParsingAdditionalFrameInfos;
+                // We use `>=` instead of `==`, because the underlying stream
+                // can be "cleared" - see https://crbug.com/431273809#comment4.
+                if (oldLength >= currentLength) {
                     // Don't retry `parseAdditionalFrameInfos` if the input
-                    // didn't change.
+                    // didn't change (or is smaller than last time).
                     break;
                 }
-                // We expect the input stream's length to be monotonically
-                // increasing (even though the code may not yet rely on that
-                // expectation).
-                SkASSERT_RELEASE(currentLength > oldLength);
             }
-            fStreamLengthDuringLastCallToParseAdditionalFrameInfos = currentLength;
+            fMaxStreamLengthSeenWhenParsingAdditionalFrameInfos = currentLength;
         }
 
         switch (this->parseAdditionalFrameInfos()) {
