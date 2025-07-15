@@ -12,6 +12,7 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontTypes.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/ports/SkTypeface_win.h"
@@ -573,7 +574,7 @@ public:
 protected:
     GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc*) override;
     void generateImage(const SkGlyph&, void* imageBuffer) override;
-    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override;
+    std::optional<GeneratedPath> generatePath(const SkGlyph&) override;
     void generateFontMetrics(SkFontMetrics*) override;
 
 private:
@@ -1320,15 +1321,15 @@ private:
 };
 
 class SkGDIGeometrySink {
-    SkPath* fPath;
+    SkPathBuilder* fBuilder;
     bool fStarted = false;
     POINTFX fCurrent;
 
     void goingTo(const POINTFX pt) {
         if (!fStarted) {
             fStarted = true;
-            fPath->moveTo( SkFIXEDToScalar(fCurrent.x),
-                          -SkFIXEDToScalar(fCurrent.y));
+            fBuilder->moveTo( SkFIXEDToScalar(fCurrent.x),
+                             -SkFIXEDToScalar(fCurrent.y));
         }
         fCurrent = pt;
     }
@@ -1339,7 +1340,7 @@ class SkGDIGeometrySink {
     }
 
 public:
-    SkGDIGeometrySink(SkPath* path) : fPath(path) {}
+    SkGDIGeometrySink(SkPathBuilder* builder) : fBuilder(builder) {}
     void process(const uint8_t* glyphbuf, DWORD total_size);
 
     /** It is possible for the hinted and unhinted versions of the same path to have
@@ -1372,7 +1373,7 @@ void SkGDIGeometrySink::process(const uint8_t* glyphbuf, DWORD total_size) {
                     POINTFX pnt_b = apfx[i];
                     if (this->currentIsNot(pnt_b)) {
                         this->goingTo(pnt_b);
-                        fPath->lineTo( SkFIXEDToScalar(pnt_b.x),
+                        fBuilder->lineTo( SkFIXEDToScalar(pnt_b.x),
                                       -SkFIXEDToScalar(pnt_b.y));
                     }
                 }
@@ -1393,10 +1394,10 @@ void SkGDIGeometrySink::process(const uint8_t* glyphbuf, DWORD total_size) {
 
                     if (this->currentIsNot(pnt_b) || this->currentIsNot(pnt_c)) {
                         this->goingTo(pnt_c);
-                        fPath->quadTo( SkFIXEDToScalar(pnt_b.x),
-                                      -SkFIXEDToScalar(pnt_b.y),
-                                       SkFIXEDToScalar(pnt_c.x),
-                                      -SkFIXEDToScalar(pnt_c.y));
+                        fBuilder->quadTo( SkFIXEDToScalar(pnt_b.x),
+                                         -SkFIXEDToScalar(pnt_b.y),
+                                          SkFIXEDToScalar(pnt_c.x),
+                                         -SkFIXEDToScalar(pnt_c.y));
                     }
                 }
             }
@@ -1406,7 +1407,7 @@ void SkGDIGeometrySink::process(const uint8_t* glyphbuf, DWORD total_size) {
         }
         cur_glyph += th->cb;
         if (this->fStarted) {
-            fPath->close();
+            fBuilder->close();
         }
     }
 }
@@ -1444,8 +1445,8 @@ bool SkGDIGeometrySink::process(const uint8_t* glyphbuf, DWORD total_size,
                     POINTFX pnt_b = {apfx[i].x, hintedPoint->y};
                     if (this->currentIsNot(pnt_b)) {
                         this->goingTo(pnt_b);
-                        fPath->lineTo( SkFIXEDToScalar(pnt_b.x),
-                                      -SkFIXEDToScalar(pnt_b.y));
+                        fBuilder->lineTo( SkFIXEDToScalar(pnt_b.x),
+                                         -SkFIXEDToScalar(pnt_b.y));
                     }
                 }
             }
@@ -1477,10 +1478,10 @@ bool SkGDIGeometrySink::process(const uint8_t* glyphbuf, DWORD total_size,
 
                     if (this->currentIsNot(pnt_b) || this->currentIsNot(pnt_c)) {
                         this->goingTo(pnt_c);
-                        fPath->quadTo( SkFIXEDToScalar(pnt_b.x),
-                                      -SkFIXEDToScalar(pnt_b.y),
-                                       SkFIXEDToScalar(pnt_c.x),
-                                      -SkFIXEDToScalar(pnt_c.y));
+                        fBuilder->quadTo( SkFIXEDToScalar(pnt_b.x),
+                                         -SkFIXEDToScalar(pnt_b.y),
+                                          SkFIXEDToScalar(pnt_c.x),
+                                         -SkFIXEDToScalar(pnt_c.y));
                     }
                 }
             }
@@ -1490,7 +1491,7 @@ bool SkGDIGeometrySink::process(const uint8_t* glyphbuf, DWORD total_size,
         }
         cur_glyph += th->cb;
         if (this->fStarted) {
-            fPath->close();
+            fBuilder->close();
         }
     }
     return true;
@@ -1535,11 +1536,9 @@ DWORD SkScalerContext_GDI::getGDIGlyphPath(SkGlyphID glyph, UINT flags,
     return total_size;
 }
 
-bool SkScalerContext_GDI::generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) {
-    SkASSERT(path);
+std::optional<SkScalerContext::GeneratedPath>
+SkScalerContext_GDI::generatePath(const SkGlyph& glyph) {
     SkASSERT(fDDC);
-
-    path->reset();
 
     SkGlyphID glyphID = glyph.getGlyphID();
 
@@ -1559,11 +1558,12 @@ bool SkScalerContext_GDI::generatePath(const SkGlyph& glyph, SkPath* path, bool*
     AutoSTMalloc<BUFFERSIZE, uint8_t> glyphbuf(BUFFERSIZE);
     DWORD total_size = getGDIGlyphPath(glyphID, format, &glyphbuf);
     if (0 == total_size) {
-        return false;
+        return {};
     }
 
+    SkPathBuilder builder;
     if (fRec.getHinting() != SkFontHinting::kSlight) {
-        SkGDIGeometrySink sink(path);
+        SkGDIGeometrySink sink(&builder);
         sink.process(glyphbuf, total_size);
     } else {
         AutoSTMalloc<BUFFERSIZE, uint8_t> hintedGlyphbuf(BUFFERSIZE);
@@ -1571,20 +1571,20 @@ bool SkScalerContext_GDI::generatePath(const SkGlyph& glyph, SkPath* path, bool*
         DWORD hinted_total_size = getGDIGlyphPath(glyphID, GGO_NATIVE | GGO_GLYPH_INDEX,
                                                   &hintedGlyphbuf);
         if (0 == hinted_total_size) {
-            return false;
+            return {};
         }
 
-        SkGDIGeometrySink sinkXBufYIter(path);
+        SkGDIGeometrySink sinkXBufYIter(&builder);
         if (!sinkXBufYIter.process(glyphbuf, total_size,
                                    GDIGlyphbufferPointIter(hintedGlyphbuf, hinted_total_size)))
         {
             // Both path and sinkXBufYIter are in the state they were in at the time of failure.
-            path->reset();
-            SkGDIGeometrySink sink(path);
+            builder.reset();
+            SkGDIGeometrySink sink(&builder);
             sink.process(glyphbuf, total_size);
         }
     }
-    return true;
+    return {{builder.detach(), false}};
 }
 
 static void logfont_for_name(const char* familyName, LOGFONT* lf) {

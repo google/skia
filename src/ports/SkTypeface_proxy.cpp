@@ -126,8 +126,9 @@ void SkScalerContext_proxy::generateImage(const SkGlyph& glyph, void* imageBuffe
     fRealScalerContext->generateImage(glyph, imageBuffer);
 }
 
-bool SkScalerContext_proxy::generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) {
-    return fRealScalerContext->generatePath(glyph, path, modified);
+std::optional<SkScalerContext::GeneratedPath>
+SkScalerContext_proxy::generatePath(const SkGlyph& glyph) {
+    return fRealScalerContext->generatePath(glyph);
 }
 
 sk_sp<SkDrawable> SkScalerContext_proxy::generateDrawable(const SkGlyph& glyph) {

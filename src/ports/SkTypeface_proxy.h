@@ -30,7 +30,7 @@ public:
 protected:
     SkScalerContext::GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc* alloc) override;
     void generateImage(const SkGlyph& glyph, void* imageBuffer) override;
-    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override;
+    std::optional<GeneratedPath> generatePath(const SkGlyph&) override;
     sk_sp<SkDrawable> generateDrawable(const SkGlyph& glyph) override;
     void generateFontMetrics(SkFontMetrics* metrics) override;
 private:

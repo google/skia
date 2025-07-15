@@ -783,19 +783,20 @@ void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc,
         return;
     }
 
-    SkPath path;
     SkPath devPath;
     bool hairline = false;
-    bool pathModified = false;
 
     SkPackedGlyphID glyphID = glyph.getPackedID();
-    if (generatedPath) {
-        path = std::move(generatedPath->path);
-        pathModified = std::move(generatedPath->modified);
-    } else if (!generatePath(glyph, &path, &pathModified)) {
-        glyph.setPath(alloc, (SkPath*)nullptr, hairline, pathModified);
+
+    if (!generatedPath) {
+        generatedPath = this->generatePath(glyph);
+    }
+    if (!generatedPath) {
+        glyph.setPath(alloc, (SkPath*)nullptr, hairline, false);
         return;
     }
+    SkPath path = std::move(generatedPath->path);
+    bool pathModified = std::move(generatedPath->modified);
 
     if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
         SkFixed dx = glyphID.getSubXFixed();
@@ -1322,9 +1323,8 @@ std::unique_ptr<SkScalerContext> SkScalerContext::MakeEmpty(
             return {glyph.maskFormat()};
         }
         void generateImage(const SkGlyph&, void*) override {}
-        bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override {
-            path->reset();
-            return false;
+        std::optional<GeneratedPath> generatePath(const SkGlyph& glyph) override {
+            return {};
         }
         void generateFontMetrics(SkFontMetrics* metrics) override {
             if (metrics) {

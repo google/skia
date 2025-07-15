@@ -430,12 +430,10 @@ protected:
         bool doBGR, bool verticalLCD, bool a8FromLCD, bool hairline);
     void generateImageFromPath(const SkGlyph& glyph, void* imageBuffer);
 
-    /** Sets the passed path to the glyph outline.
-     *  If this cannot be done the path is set to empty;
+    /** Return the glyph's outline, or if the glyph cannot be converted to one, return {}.
      *  Does not apply subpixel positioning to the path.
-     *  @return false if this glyph does not have any path.
      */
-    [[nodiscard]] virtual bool generatePath(const SkGlyph&, SkPath*, bool* modified) = 0;
+    [[nodiscard]] virtual std::optional<GeneratedPath> generatePath(const SkGlyph&) = 0;
 
     /** Returns the drawable for the glyph (if any).
      *

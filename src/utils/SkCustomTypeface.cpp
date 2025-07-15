@@ -44,6 +44,7 @@
 #include <cstdint>
 #include <cstring>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -312,14 +313,12 @@ protected:
         canvas->drawDrawable(rec.fDrawable.get(), &fMatrix);
     }
 
-    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override {
+    std::optional<SkScalerContext::GeneratedPath> generatePath(const SkGlyph& glyph) override {
         const auto& rec = this->userTF()->fGlyphRecs[glyph.getGlyphID()];
 
         SkASSERT(!rec.isDrawable());
 
-        rec.fPath.transform(fMatrix, path);
-
-        return true;
+        return {{rec.fPath.makeTransform(fMatrix), false}};
     }
 
     sk_sp<SkDrawable> generateDrawable(const SkGlyph& glyph) override {

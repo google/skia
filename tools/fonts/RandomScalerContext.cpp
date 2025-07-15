@@ -31,7 +31,7 @@ public:
 protected:
     GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc*) override;
     void     generateImage(const SkGlyph&, void*) override;
-    bool     generatePath(const SkGlyph&, SkPath*, bool*) override;
+    std::optional<GeneratedPath> generatePath(const SkGlyph&) override;
     sk_sp<SkDrawable> generateDrawable(const SkGlyph&) override;
     void     generateFontMetrics(SkFontMetrics*) override;
 
@@ -137,13 +137,13 @@ void RandomScalerContext::generateImage(const SkGlyph& glyph, void* imageBuffer)
     canvas.drawPath(path, paint); //Need to modify the paint if the devPath is hairline
 }
 
-bool RandomScalerContext::generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) {
+std::optional<SkScalerContext::GeneratedPath>
+RandomScalerContext::generatePath(const SkGlyph& glyph) {
     SkGlyph* shadowProxyGlyph = fProxyGlyphs.find(glyph.getPackedID());
     if (shadowProxyGlyph && shadowProxyGlyph->path()) {
-        path->reset();
-        return false;
+        return {};
     }
-    return fProxy->generatePath(glyph, path, modified);
+    return fProxy->generatePath(glyph);
 }
 
 sk_sp<SkDrawable> RandomScalerContext::generateDrawable(const SkGlyph& glyph) {
