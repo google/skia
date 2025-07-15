@@ -23,4 +23,4 @@ ${INSTALL} --mode=644 -T ${REL}../../bazel-out/k8-opt/bin/modules/canvaskit/vers
 ${INSTALL} --mode=644 -T Dockerfile ${ROOT}/Dockerfile
 }
 
-source ../bash/docker_build.sh
+source ../docker/docker_build.sh
