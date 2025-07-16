@@ -1807,10 +1807,9 @@ static int get_contour_count(const SkPath& path, SkScalar tolerance) {
 
 std::tuple<Poly*, bool> GrTriangulator::pathToPolys(float tolerance, const SkRect& clipBounds, bool* isLinear) {
     int contourCnt = get_contour_count(fPath, tolerance);
-    bool countLeZero = contourCnt <= 0;
-    if (countLeZero || contourCnt > kMaxContourCount) {
+    if (contourCnt <= 0) {
         *isLinear = true;
-        return { nullptr, countLeZero };
+        return { nullptr, true };
     }
 
     if (SkPathFillType_IsInverse(fPath.getFillType())) {

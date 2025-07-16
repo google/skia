@@ -35,8 +35,6 @@ struct SkRect;
 class GrTriangulator {
 public:
     constexpr static int kArenaDefaultChunkSize = 16 * 1024;
-    // Upper limit on contours to prevent OOM errors from fuzzer.
-    constexpr static int kMaxContourCount = 1 << 10;
 
     static int PathToTriangles(const SkPath& path, SkScalar tolerance, const SkRect& clipBounds,
                                GrEagerVertexAllocator* vertexAllocator, bool* isLinear) {
