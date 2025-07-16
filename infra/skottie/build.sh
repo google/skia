@@ -20,7 +20,7 @@ ${INSTALL} --mode=644 -T ${REL}/../../bazel-bin/modules/canvaskit/canvaskit/canv
 ${INSTALL} --mode=644 -T ${REL}/../../bazel-bin/modules/canvaskit/canvaskit/canvaskit.wasm ${ROOT}/canvaskit.wasm
 bazelisk build //modules/canvaskit:version.js --config=ck_full_webgl2_release
 ls -R ${REL}/../../bazel-bin
-${INSTALL} --mode=644 -T ${REL}../../bazel-bin/modules/canvaskit/version.js ${ROOT}/version.js
+cat ${REL}../../bazel-bin/modules/canvaskit/version.js > ${ROOT}/version.js
 ${INSTALL} --mode=644 -T Dockerfile ${ROOT}/Dockerfile
 }
 
