@@ -19,6 +19,65 @@ using namespace skgpu::graphite;
 using namespace PaintOptionsUtils;
 using namespace PrecompileTestUtils;
 
+// Single sampled R w/ just depth
+const RenderPassProperties kR_1_D{DepthStencilFlags::kDepth,
+                                kAlpha_8_SkColorType,
+                                /* fDstCS= */ nullptr,
+                                /* fRequiresMSAA= */ false};
+
+// MSAA R w/ depth and stencil
+const RenderPassProperties kR_4_DS{DepthStencilFlags::kDepthStencil,
+                                 kAlpha_8_SkColorType,
+                                 /* fDstCS= */ nullptr,
+                                 /* fRequiresMSAA= */ true};
+
+// Single sampled BGRA w/ just depth
+const RenderPassProperties kBGRA_1_D{DepthStencilFlags::kDepth,
+                                   kBGRA_8888_SkColorType,
+                                   /* fDstCS= */ nullptr,
+                                   /* fRequiresMSAA= */ false};
+
+// MSAA BGRA w/ just depth
+const RenderPassProperties kBGRA_4_D{DepthStencilFlags::kDepth,
+                                   kBGRA_8888_SkColorType,
+                                   /* fDstCS= */ nullptr,
+                                   /* fRequiresMSAA= */ true};
+
+// MSAA BGRA w/ depth and stencil
+const RenderPassProperties kBGRA_4_DS{DepthStencilFlags::kDepthStencil,
+                                    kBGRA_8888_SkColorType,
+                                    /* fDstCS= */ nullptr,
+                                    /* fRequiresMSAA= */ true};
+
+// The same as kBGRA_1_D but w/ an SRGB colorSpace
+const RenderPassProperties kBGRA_1_D_SRGB{DepthStencilFlags::kDepth,
+                                        kBGRA_8888_SkColorType,
+                                        SkColorSpace::MakeSRGB(),
+                                        /* fRequiresMSAA= */ false};
+
+// The same as kBGRA_1_D but w/ an Adobe RGB colorSpace
+const RenderPassProperties kBGRA_1_D_Adobe{
+  DepthStencilFlags::kDepth, kBGRA_8888_SkColorType,
+  SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kAdobeRGB),
+  /* fRequiresMSAA= */ false};
+
+// The same as kBGRA_4_DS but w/ an SRGB colorSpace
+const RenderPassProperties kBGRA_4_DS_SRGB{DepthStencilFlags::kDepthStencil,
+                                         kBGRA_8888_SkColorType,
+                                         SkColorSpace::MakeSRGB(),
+                                         /* fRequiresMSAA= */ true};
+
+// The same as kBGRA_4_DS but w/ an Adobe RGB colorSpace
+const RenderPassProperties kBGRA_4_DS_Adobe{
+  DepthStencilFlags::kDepthStencil, kBGRA_8888_SkColorType,
+  SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kAdobeRGB),
+  /* fRequiresMSAA= */ true};
+
+constexpr DrawTypeFlags kRRectAndNonAARect = static_cast<DrawTypeFlags>(
+        DrawTypeFlags::kAnalyticRRect | DrawTypeFlags::kNonAAFillRect);
+constexpr DrawTypeFlags kQuadAndNonAARect = static_cast<DrawTypeFlags>(
+        DrawTypeFlags::kPerEdgeAAQuad | DrawTypeFlags::kNonAAFillRect);
+
 namespace {
 // These settings cover 108 of the 255 cases in 'kCases'.
 // They create 136 Pipelines so only modestly over-generate (28 Pipelines).

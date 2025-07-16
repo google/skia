@@ -39,6 +39,12 @@ using ::skgpu::graphite::DrawTypeFlags;
 using ::skgpu::graphite::PaintOptions;
 using ::skgpu::graphite::RenderPassProperties;
 
+// Used in lieu of SkEnumBitMask
+static constexpr DrawTypeFlags operator|(DrawTypeFlags a, DrawTypeFlags b) {
+    return static_cast<DrawTypeFlags>(static_cast<std::underlying_type<DrawTypeFlags>::type>(a) |
+                                      static_cast<std::underlying_type<DrawTypeFlags>::type>(b));
+}
+
 namespace PrecompileTestUtils {
 
 namespace {
@@ -813,18 +819,13 @@ void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
 
     Precompile(precompileContext,
                settings.fPaintOptions,
-               static_cast<DrawTypeFlags>(settings.fDrawTypeFlags.value()),
+               settings.fDrawTypeFlags,
                settings.fRenderPassProps);
 
     if (settings.fAnalyticClipping) {
-        SkASSERT(!(settings.fDrawTypeFlags & DrawTypeFlags::kAnalyticClip));
-
-        SkEnumBitMask<DrawTypeFlags> newFlags = settings.fDrawTypeFlags |
-                                                DrawTypeFlags::kAnalyticClip;
-
         Precompile(precompileContext,
                    settings.fPaintOptions,
-                   static_cast<DrawTypeFlags>(newFlags.value()),
+                   settings.fDrawTypeFlags | DrawTypeFlags::kAnalyticClip,
                    settings.fRenderPassProps);
     }
 

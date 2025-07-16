@@ -21,11 +21,103 @@ using namespace skgpu::graphite;
 using namespace PaintOptionsUtils;
 using namespace PrecompileTestUtils;
 
-constexpr bool kWithAnalyticClip = true;
+// Used in lieu of SkEnumBitMask to avoid adding casts when copying in precompile cases.
+static constexpr DrawTypeFlags operator|(DrawTypeFlags a, DrawTypeFlags b) {
+    return static_cast<DrawTypeFlags>(static_cast<std::underlying_type<DrawTypeFlags>::type>(a) |
+                                      static_cast<std::underlying_type<DrawTypeFlags>::type>(b));
+}
+
+// clang-format on
+
+// =======================================
+//         RenderPassProperties
+// =======================================
+// NOTE: keep in sync with upstream external/skia/tests/graphite/precompile/AndroidPaintOptions.cpp
+// clang-format off
+
+// Single sampled R w/ just depth
+const skgpu::graphite::RenderPassProperties kR_1_D {
+        skgpu::graphite::DepthStencilFlags::kDepth,
+        kAlpha_8_SkColorType,
+        /* fDstCS= */ nullptr,
+        /* fRequiresMSAA= */ false
+};
+
+// Single sampled RGBA w/ just depth
+const skgpu::graphite::RenderPassProperties kRGBA_1_D {
+        skgpu::graphite::DepthStencilFlags::kDepth,
+        kRGBA_8888_SkColorType,
+        /* fDstCS= */ nullptr,
+        /* fRequiresMSAA= */ false
+};
+
+// The same as kRGBA_1_D but w/ an SRGB colorSpace
+const skgpu::graphite::RenderPassProperties kRGBA_1_D_SRGB {
+        skgpu::graphite::DepthStencilFlags::kDepth,
+        kRGBA_8888_SkColorType,
+        SkColorSpace::MakeSRGB(),
+        /* fRequiresMSAA= */ false
+};
+
+// MSAA RGBA w/ depth and stencil
+const skgpu::graphite::RenderPassProperties kRGBA_4_DS {
+        skgpu::graphite::DepthStencilFlags::kDepthStencil,
+        kRGBA_8888_SkColorType,
+        /* fDstCS= */ nullptr,
+        /* fRequiresMSAA= */ true
+};
+
+// The same as kRGBA_4_DS but w/ an SRGB colorSpace
+const skgpu::graphite::RenderPassProperties kRGBA_4_DS_SRGB {
+        skgpu::graphite::DepthStencilFlags::kDepthStencil,
+        kRGBA_8888_SkColorType,
+        SkColorSpace::MakeSRGB(),
+        /* fRequiresMSAA= */ true
+};
+
+// Single sampled RGBA16F w/ just depth
+const skgpu::graphite::RenderPassProperties kRGBA16F_1_D {
+        skgpu::graphite::DepthStencilFlags::kDepth,
+        kRGBA_F16_SkColorType,
+        /* fDstCS= */ nullptr,
+        /* fRequiresMSAA= */ false
+};
+
+// The same as kRGBA16F_1_D but w/ an SRGB colorSpace
+const skgpu::graphite::RenderPassProperties kRGBA16F_1_D_SRGB {
+        skgpu::graphite::DepthStencilFlags::kDepth,
+        kRGBA_F16_SkColorType,
+        SkColorSpace::MakeSRGB(),
+        /* fRequiresMSAA= */ false
+};
+
+// The same as kRGBA16F_1_D but w/ a linear SRGB colorSpace
+const skgpu::graphite::RenderPassProperties kRGBA16F_1_D_Linear {
+        skgpu::graphite::DepthStencilFlags::kDepth,
+        kRGBA_F16_SkColorType,
+        SkColorSpace::MakeSRGBLinear(),
+        /* fRequiresMSAA= */ false
+};
+
+// clang-format on
 
 const RenderPassProperties kCombo_RGBA_1D_4DS[2] = { kRGBA_1_D, kRGBA_4_DS };
 const RenderPassProperties kCombo_RGBA_1D_4DS_SRGB[2] = { kRGBA_1_D_SRGB, kRGBA_4_DS_SRGB };
 const RenderPassProperties kCombo_RGBA_1D_SRGB_w16F[2] = { kRGBA_1_D_SRGB, kRGBA16F_1_D_SRGB };
+
+// =======================================
+//            DrawTypeFlags
+// =======================================
+// NOTE: keep in sync with upstream external/skia/tests/graphite/precompile/AndroidPaintOptions.cpp
+// clang-format off
+
+constexpr bool kWithAnalyticClip = true;
+
+constexpr DrawTypeFlags kRRectAndNonAARect =
+        static_cast<DrawTypeFlags>(DrawTypeFlags::kAnalyticRRect |
+                                   DrawTypeFlags::kNonAAFillRect);
+
+// clang-format on
 
 void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileContext,
                              const std::function<void(skgpu::graphite::PrecompileContext*,
