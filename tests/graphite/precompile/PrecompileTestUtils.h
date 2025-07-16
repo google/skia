@@ -114,47 +114,12 @@ void RunTest(skgpu::graphite::PrecompileContext* precompileContext,
              SkSpan<const PipelineLabel> cases,
              PipelineLabelInfoCollector* collector);
 
-skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16Passthrough();
-skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16Premul();
-skgpu::graphite::PaintOptions MouriMapChunk8x8Effect();
-skgpu::graphite::PaintOptions MouriMapBlur();
-skgpu::graphite::PaintOptions MouriMapToneMap();
-skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver();
-skgpu::graphite::PaintOptions KawaseBlurHighSrc();
-skgpu::graphite::PaintOptions BlurFilterMix();
-
-skgpu::graphite::PaintOptions EdgeExtensionPassthroughSrcover();
-skgpu::graphite::PaintOptions EdgeExtensionPremulSrcover();
-skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPassthroughMatrixCFDitherSrcover();
-skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPassthroughSrcover();
-skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPremulSrcover();
-
-// Specifies the child shader to be created for a RE_LinearEffect
-enum class ChildType {
-    kSolidColor,
-    kHWTexture,
 #if defined(SK_VULKAN)
-    kHWTextureYCbCr247,
-#endif
-};
-
-skgpu::graphite::PaintOptions LinearEffect(const char* parameterStr,
-                                           ChildType childType,
-                                           SkBlendMode blendMode,
-                                           bool paintColorIsOpaque = true,
-                                           bool matrixColorFilter = false,
-                                           bool dither = false);
-
-#if defined(SK_VULKAN)
-skgpu::graphite::PaintOptions ImagePremulYCbCr238Srcover(bool narrow);
-skgpu::graphite::PaintOptions TransparentPaintImagePremulYCbCr238Srcover();
-skgpu::graphite::PaintOptions ImagePremulYCbCr240Srcover();
-skgpu::graphite::PaintOptions TransparentPaintImagePremulYCbCr240Srcover();
-skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16YCbCr247();
 
 // Prints out the VulkanYcbcrConversionInfo retrieved from a Vulkan YCbCr Pipeline label
 // (e.g., base64 part of HardwareImage(3: kEwAAPcAAAAAAAAA)).
 void Base642YCbCr(const char*);
+
 #endif // SK_VULKAN
 
 } // namespace PrecompileTestUtils
