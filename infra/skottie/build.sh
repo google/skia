@@ -14,12 +14,13 @@ copy_release_files()
 {
 INSTALL="install -D --verbose --backup=none"
 REL=$(dirname "$BASH_SOURCE")
-pwd
 bazelisk build //modules/canvaskit:canvaskit --config=ck_full_webgl2_release
-${INSTALL} --mode=644 -T ${REL}/../../bazel-out/k8-opt/bin/modules/canvaskit/canvaskit/canvaskit.js ${ROOT}/canvaskit.js
-${INSTALL} --mode=644 -T ${REL}/../../bazel-out/k8-opt/bin/modules/canvaskit/canvaskit/canvaskit.wasm ${ROOT}/canvaskit.wasm
+ls -R ${REL}/../../bazel-bin
+${INSTALL} --mode=644 -T ${REL}/../../bazel-bin/modules/canvaskit/canvaskit/canvaskit.js ${ROOT}/canvaskit.js
+${INSTALL} --mode=644 -T ${REL}/../../bazel-bin/modules/canvaskit/canvaskit/canvaskit.wasm ${ROOT}/canvaskit.wasm
 bazelisk build //modules/canvaskit:version.js --config=ck_full_webgl2_release
-${INSTALL} --mode=644 -T ${REL}../../bazel-out/k8-opt/bin/modules/canvaskit/version.js ${ROOT}/version.js
+ls -R ${REL}/../../bazel-bin
+${INSTALL} --mode=644 -T ${REL}../../bazel-bin/modules/canvaskit/version.js ${ROOT}/version.js
 ${INSTALL} --mode=644 -T Dockerfile ${ROOT}/Dockerfile
 }
 
