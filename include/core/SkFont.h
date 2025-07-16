@@ -439,7 +439,7 @@ public:
     std::optional<SkPath> getPath(SkGlyphID glyphID) const;
 
 #ifndef SK_HIDE_PATH_EDIT_METHODS
-    [[deprecated]] bool getPath(SkGlyphID glyphID, SkPath* path) const;
+    bool getPath(SkGlyphID glyphID, SkPath* path) const;
 #endif
 
     /** Returns path corresponding to glyph array.
