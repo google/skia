@@ -195,7 +195,9 @@ public:
         }
 
         SkPath path;
-        if (!font.getPath(glyph, &path)) {
+        if (auto result = font.getPath(glyph)) {
+            path = *result;
+        } else {
             // Only glyphs that can be represented as paths are supported for now, color glyphs are
             // ignored.  We could look into converting these to comp-based Lottie fonts if needed.
 

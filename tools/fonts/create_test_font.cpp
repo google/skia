@@ -141,8 +141,7 @@ static void output_path_data(const SkFont& font,
         SkTDArray<unsigned>* charCodes, SkTDArray<SkScalar>* widths) {
     for (SkUnichar index = 0x00; index < 0x7f; ++index) {
         SkGlyphID glyphID = font.unicharToGlyph(index);
-        SkPath path;
-        font.getPath(glyphID, &path);
+        SkPath path = font.getPath(glyphID).value_or(SkPath());
         for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
             *verbs->append() = (SkPath::Verb)verb;
             switch (verb) {

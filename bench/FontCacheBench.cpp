@@ -176,19 +176,18 @@ protected:
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
-        SkPath path;
         for (int loop = 0; loop < loops; ++loop) {
             if (fOneAtATime) {
                 for (size_t i = 0; i < std::size(fGlyphs); ++i) {
-                    fFont.getPath(fGlyphs[i], &path);
+                    (void)fFont.getPath(fGlyphs[i]);
                 }
             } else {
                 fFont.getPaths(fGlyphs,
-                               [](const SkPath* src, const SkMatrix& mx, void* ctx) {
+                               [](const SkPath* src, const SkMatrix& mx, void*) {
                                    if (src) {
-                                       src->transform(mx, static_cast<SkPath*>(ctx));
+                                       (void)src->makeTransform(mx);
                                    }
-                               }, &path);
+                               }, nullptr);
             }
         }
     }

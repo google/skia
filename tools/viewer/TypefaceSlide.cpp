@@ -172,9 +172,8 @@ public:
                                            position.x(), position.y(), notationFont, notationPaint);
                 }
                 // TODO: also handle drawable by using a paint override canvas?
-                SkPath glyphPath;
-                if (fOutline && font.getPath(gid, &glyphPath)) {
-                    SkContourMeasureIter iter(glyphPath, false);
+                if (fOutline) {
+                    SkContourMeasureIter iter(font.getPath(gid).value_or(SkPath()), false);
                     sk_sp<SkContourMeasure> contour;
                     int contourIndex = 0;
                     while ((contour = iter.next())) {

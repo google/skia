@@ -306,8 +306,7 @@ private:
             canvas->drawString(name, min.fLeft, min.fBottom, labelFont, SkPaint());
         }
         for (const GlyphToDraw& glyphToDraw : glyphsToDraw) {
-            SkPath path;
-            font.getPath(glyphToDraw.id, &path);
+            SkPath path = font.getPath(glyphToDraw.id).value_or(SkPath());
             SkPaint::Style style = path.isEmpty() ? SkPaint::kFill_Style : SkPaint::kStroke_Style;
             SkPaint glyphPaint;
             glyphPaint.setStyle(style);

@@ -8,7 +8,8 @@
 #ifndef SkFont_DEFINED
 #define SkFont_DEFINED
 
-#include "include/core/SkPoint.h" // IWYU pragma: keep    (for unspanned apis)
+#include "include/core/SkPath.h"  // IWYU pragma: keep (for SK_HIDE_PATH_EDIT_METHODS)
+#include "include/core/SkPoint.h" // IWYU pragma: keep (for unspanned apis)
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -20,11 +21,11 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 class SkMatrix;
 class SkPaint;
-class SkPath;
 enum class SkFontHinting;
 enum class SkTextEncoding;
 struct SkFontMetrics;
@@ -428,16 +429,18 @@ public:
                                         SkScalar top, SkScalar bottom,
                                         const SkPaint* = nullptr) const;
 
-    /** Modifies path to be the outline of the glyph.
-        If the glyph has an outline, modifies path to be the glyph's outline and returns true.
-        The glyph outline may be empty. Degenerate contours in the glyph outline will be skipped.
-        If glyph is described by a bitmap, returns false and ignores path parameter.
-
-        @param glyphID  index of glyph
-        @param path     pointer to existing SkPath
-        @return         true if glyphID is described by path
+    /*
+     * If the specified glyph can be represented as a path, return its path.
+     * If it is not (e.g. it is represented with a bitmap) return {}.
+     *
+     * Note: an 'empty' glyph (e.g. what a space " " character might map to) can return
+     * a path, but that path may have zero contours.
      */
-    bool getPath(SkGlyphID glyphID, SkPath* path) const;
+    std::optional<SkPath> getPath(SkGlyphID glyphID) const;
+
+#ifndef SK_HIDE_PATH_EDIT_METHODS
+    [[deprecated]] bool getPath(SkGlyphID glyphID, SkPath* path) const;
+#endif
 
     /** Returns path corresponding to glyph array.
 
