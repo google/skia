@@ -1147,7 +1147,9 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
         }
 
         mainBody += "half4 outputCoverage = half4(1);";
-        mainBody += step->fragmentCoverageSkSL();
+        if (step->coverage() != Coverage::kNone) {
+            mainBody += step->fragmentCoverageSkSL();
+        }
 
         if (clipRoot) {
             // The clip block node is invoked with device coords, not local coords like the main
