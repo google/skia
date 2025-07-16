@@ -14,7 +14,6 @@
 
 #include <cstdint>
 
-class GrDirectContext;
 class SkCanvas;
 class SkColorSpace;
 class SkImage;
@@ -45,9 +44,6 @@ public:
     // Call drawPicture on the provided canvas taking care of any required mutex locking.
     void replay(SkCanvas*) const;
 
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
-#endif
     sk_sp<SkImage> onMakeSubset(SkRecorder*, const SkIRect&, RequiredProperties) const override;
 
     // If possible, extract key data based on the underlying drawPicture-call's parameters.

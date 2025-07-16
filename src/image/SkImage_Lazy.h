@@ -24,7 +24,6 @@
 #include <memory>
 
 class GrDirectContext;
-class GrRecordingContext;
 class SharedGenerator;
 class SkBitmap;
 class SkCachedData;
@@ -85,15 +84,6 @@ public:
     // Be careful with this. You need to acquire the mutex, as the generator might be shared
     // among several images.
     sk_sp<SharedGenerator> generator() const;
-
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-    using SkImage_Base::makeColorTypeAndColorSpace;
-    bool isValid(GrRecordingContext*) const override;
-    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
-                                                sk_sp<SkColorSpace>,
-                                                GrDirectContext*) const override;
-#endif
 
 protected:
     virtual bool readPixelsProxy(GrDirectContext*, const SkPixmap&) const { return false; }

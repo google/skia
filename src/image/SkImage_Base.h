@@ -25,7 +25,6 @@ class SkColorSpace;
 class SkPixmap;
 class SkRecorder;
 class SkSurface;
-enum SkColorType : int;
 enum SkYUVColorSpace : int;
 struct SkIRect;
 struct SkISize;
@@ -45,18 +44,6 @@ public:
                                   RequiredProperties) const override;
 
     sk_sp<SkImage> makeSubset(SkRecorder*, const SkIRect&, RequiredProperties) const override;
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-    sk_sp<SkImage> makeColorSpace(GrDirectContext*, sk_sp<SkColorSpace>) const override;
-    sk_sp<SkImage> makeColorTypeAndColorSpace(GrDirectContext* dContext,
-                                              SkColorType targetColorType,
-                                              sk_sp<SkColorSpace> targetCS) const override;
-    sk_sp<SkImage> makeSubset(GrDirectContext* direct, const SkIRect& subset) const override;
-    virtual sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const = 0;
-    virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
-                                                        sk_sp<SkColorSpace>,
-                                                        GrDirectContext*) const = 0;
-    using SkImage::makeColorTypeAndColorSpace;
-#endif
     size_t textureSize() const override { return 0; }
 
     // Methods that we want to use elsewhere in Skia, but not be a part of the public API.

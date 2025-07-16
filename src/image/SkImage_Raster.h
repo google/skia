@@ -24,7 +24,6 @@
 #include <utility>
 
 class GrDirectContext;
-class GrRecordingContext;
 class SkColorSpace;
 class SkData;
 class SkPixmap;
@@ -106,15 +105,6 @@ public:
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kRaster; }
 
     SkBitmap bitmap() const { return fBitmap; }
-
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-    bool isValid(GrRecordingContext*) const override { return true; }
-    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
-                                                sk_sp<SkColorSpace>,
-                                                GrDirectContext*) const override;
-    using SkImage_Base::makeColorTypeAndColorSpace;
-#endif
 private:
     SkBitmap fBitmap;
 };

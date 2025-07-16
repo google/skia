@@ -20,10 +20,6 @@
 #include "src/core/SkBitmapCache.h"
 #include "src/image/SkRescaleAndReadPixels.h"
 
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-#include "src/core/SkColorSpacePriv.h"
-#endif
-
 #include <atomic>
 #include <utility>
 
@@ -80,26 +76,6 @@ bool SkImage_Base::onAsLegacyBitmap(GrDirectContext* dContext, SkBitmap* bitmap)
     return true;
 }
 
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-sk_sp<SkImage> SkImage_Base::makeSubset(GrDirectContext* direct, const SkIRect& subset) const {
-    if (subset.isEmpty()) {
-        return nullptr;
-    }
-
-    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
-    if (!bounds.contains(subset)) {
-        return nullptr;
-    }
-
-    // optimization : return self if the subset == our bounds
-    if (bounds == subset) {
-        return sk_ref_sp(const_cast<SkImage_Base*>(this));
-    }
-
-    return this->onMakeSubset(direct, subset);
-}
-#endif
-
 sk_sp<SkImage> SkImage_Base::makeSubset(SkRecorder* recorder,
                                         const SkIRect& subset,
                                         RequiredProperties requiredProps) const {
@@ -129,37 +105,8 @@ void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
     callback(context, nullptr);
 }
 
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-sk_sp<SkImage> SkImage_Base::makeColorSpace(GrDirectContext* direct,
-                                            sk_sp<SkColorSpace> target) const {
-    return this->makeColorTypeAndColorSpace(direct, this->colorType(), std::move(target));
-}
-#endif
-
 sk_sp<SkImage> SkImage_Base::makeColorSpace(SkRecorder* recorder,
                                             sk_sp<SkColorSpace> target,
                                             RequiredProperties props) const {
     return this->makeColorTypeAndColorSpace(recorder, this->colorType(), std::move(target), props);
 }
-
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-sk_sp<SkImage> SkImage_Base::makeColorTypeAndColorSpace(GrDirectContext* dContext,
-                                                        SkColorType targetColorType,
-                                                        sk_sp<SkColorSpace> targetCS) const {
-    if (kUnknown_SkColorType == targetColorType || !targetCS) {
-        return nullptr;
-    }
-
-    SkColorType colorType = this->colorType();
-    SkColorSpace* colorSpace = this->colorSpace();
-    if (!colorSpace) {
-        colorSpace = sk_srgb_singleton();
-    }
-    if (colorType == targetColorType &&
-        (SkColorSpace::Equals(colorSpace, targetCS.get()) || this->isAlphaOnly())) {
-        return sk_ref_sp(const_cast<SkImage_Base*>(this));
-    }
-
-    return this->onMakeColorTypeAndColorSpace(targetColorType, std::move(targetCS), dContext);
-}
-#endif

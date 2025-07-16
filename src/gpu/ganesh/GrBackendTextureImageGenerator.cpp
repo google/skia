@@ -97,15 +97,6 @@ bool GrBackendTextureImageGenerator::onIsProtected() const {
     return fBackendTexture.isProtected();
 }
 
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-bool GrBackendTextureImageGenerator::onIsValid(GrRecordingContext* context) const {
-    if (!context) {
-        return false;
-    }
-    return !context->abandoned();
-}
-#endif
-
 bool GrBackendTextureImageGenerator::onIsValid(SkRecorder* recorder) const {
     auto gRecorder = AsGaneshRecorder(recorder);
     if (!gRecorder) {

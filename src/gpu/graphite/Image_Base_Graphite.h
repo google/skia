@@ -93,14 +93,6 @@ public:
                                            ReadPixelsCallback,
                                            ReadPixelsContext) const override;
 
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-    bool isValid(GrRecordingContext*) const final { return true; }
-    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const final;
-    using SkImage_Base::makeColorTypeAndColorSpace;
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
-                                                sk_sp<SkColorSpace>,
-                                                GrDirectContext*) const final;
-#endif
 protected:
     Image_Base(const SkImageInfo& info, uint32_t uniqueID);
 

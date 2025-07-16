@@ -14,6 +14,7 @@
 
 class SkColorSpace;
 class GrDirectContext;
+class GrRecordingContext;
 class SkPixmap;
 struct AHardwareBuffer;
 

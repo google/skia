@@ -187,26 +187,10 @@ sk_sp<SkData> SkImage_Lazy::onRefEncoded() const {
     return nullptr;
 }
 
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-bool SkImage_Lazy::isValid(GrRecordingContext* context) const {
-    ScopedGenerator generator(fSharedGenerator);
-    return generator->isValid(context);
-}
-#endif
-
 bool SkImage_Lazy::isValid(SkRecorder* recorder) const {
     ScopedGenerator generator(fSharedGenerator);
     return generator->isValid(recorder);
 }
-
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-sk_sp<SkImage> SkImage_Lazy::onMakeSubset(GrDirectContext*, const SkIRect& subset) const {
-    // neither picture-backed nor codec-backed lazy images need the context to do readbacks.
-    // The subclass for cross-context images *does* use the direct context.
-    auto pixels = this->makeRasterImage(nullptr);
-    return pixels ? pixels->makeSubset(nullptr, subset) : nullptr;
-}
-#endif
 
 sk_sp<SkImage> SkImage_Lazy::onMakeSubset(SkRecorder*,
                                           const SkIRect& subset,
@@ -248,14 +232,6 @@ sk_sp<SkImage> SkImage_Lazy::makeColorTypeAndColorSpace(SkRecorder*,
     }
     return result;
 }
-
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-sk_sp<SkImage> SkImage_Lazy::onMakeColorTypeAndColorSpace(SkColorType targetCT,
-                                                          sk_sp<SkColorSpace> targetCS,
-                                                          GrDirectContext*) const {
-    return this->makeColorTypeAndColorSpace(nullptr, targetCT, targetCS, {});
-}
-#endif
 
 sk_sp<SkImage> SkImage_Lazy::onReinterpretColorSpace(sk_sp<SkColorSpace> newCS) const {
     // TODO: The correct thing is to clone the generator, and modify its color space. That's hard,

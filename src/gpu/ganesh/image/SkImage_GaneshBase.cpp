@@ -166,13 +166,6 @@ bool SkImage_GaneshBase::getROPixels(GrDirectContext* dContext,
     return true;
 }
 
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(GrDirectContext* direct,
-                                                const SkIRect& subset) const {
-    return this->onMakeSubset(direct->asRecorder(), subset, {});
-}
-#endif
-
 sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(SkRecorder* recorder,
                                                 const SkIRect& subset,
                                                 RequiredProperties) const {
@@ -293,21 +286,6 @@ bool SkImage_GaneshBase::onReadPixels(GrDirectContext* dContext,
 
     return sContext->readPixels(dContext, {dstInfo, dstPixels, dstRB}, {srcX, srcY});
 }
-
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-bool SkImage_GaneshBase::isValid(GrRecordingContext* context) const {
-    if (context && context->abandoned()) {
-        return false;
-    }
-    if (fContext->priv().abandoned()) {
-        return false;
-    }
-    if (context && !fContext->priv().matches(context)) {
-        return false;
-    }
-    return true;
-}
-#endif
 
 bool SkImage_GaneshBase::isValid(SkRecorder* recorder) const {
     auto gRecorder = AsGaneshRecorder(recorder);

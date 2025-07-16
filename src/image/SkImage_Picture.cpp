@@ -62,12 +62,6 @@ void SkImage_Picture::replay(SkCanvas* canvas) const {
                         pictureIG->fPaint.getMaybeNull());
 }
 
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-sk_sp<SkImage> SkImage_Picture::onMakeSubset(GrDirectContext*, const SkIRect& subset) const {
-    return this->onMakeSubset(nullptr, subset, {});
-}
-#endif
-
 sk_sp<SkImage> SkImage_Picture::onMakeSubset(SkRecorder*,
                                              const SkIRect& subset,
                                              RequiredProperties) const {

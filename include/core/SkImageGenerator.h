@@ -18,7 +18,6 @@
 #include <cstddef>
 #include <cstdint>
 
-class GrRecordingContext;
 class SkRecorder;
 
 class SK_API SkImageGenerator {
@@ -51,11 +50,6 @@ public:
      *  Can this generator be used to produce images that will be drawable to the specified context
      *  (or to CPU, if context is nullptr)?
      */
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-    bool isValid(GrRecordingContext* context) const {
-        return this->onIsValid(context);
-    }
-#endif
     bool isValid(SkRecorder* recorder) const { return this->onIsValid(recorder); }
 
     /**
@@ -127,9 +121,6 @@ protected:
     virtual sk_sp<SkData> onRefEncodedData() { return nullptr; }
     struct Options {};
     virtual bool onGetPixels(const SkImageInfo&, void*, size_t, const Options&) { return false; }
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-    virtual bool onIsValid(GrRecordingContext*) const { return true; }
-#endif
     virtual bool onIsValid(SkRecorder*) const { return true; }
     virtual bool onIsProtected() const { return false; }
     virtual bool onQueryYUVAInfo(const SkYUVAPixmapInfo::SupportedDataTypes&,

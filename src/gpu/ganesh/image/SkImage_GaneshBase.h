@@ -8,10 +8,8 @@
 #ifndef SkImage_GaneshBase_DEFINED
 #define SkImage_GaneshBase_DEFINED
 
-#include "include/core/SkColorSpace.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "include/private/chromium/SkImageChromium.h"
 #include "include/private/gpu/ganesh/GrImageContext.h"
@@ -26,10 +24,12 @@ class GrBackendFormat;
 class GrBackendTexture;
 class GrCaps;
 class GrContextThreadSafeProxy;
+class GrDirectContext;
 class GrFragmentProcessor;
 class GrSurfaceProxyView;
 class GrTextureProxy;
 class SkBitmap;
+class SkColorSpace;
 class SkImage;
 class SkMatrix;
 class SkRecorder;
@@ -111,22 +111,6 @@ public:
 
 protected:
     SkImage_GaneshBase(sk_sp<GrImageContext>, SkImageInfo, uint32_t uniqueID);
-
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-    bool isValid(GrRecordingContext*) const final;
-    sk_sp<SkImage> makeColorTypeAndColorSpace(GrDirectContext* dContext,
-                                              SkColorType targetColorType,
-                                              sk_sp<SkColorSpace> targetCS) const final {
-        return makeColorTypeAndColorSpace(dContext->asRecorder(), targetColorType, targetCS, {});
-    }
-    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect& subset) const final;
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType ct,
-                                                sk_sp<SkColorSpace> cs,
-                                                GrDirectContext* ctx) const override {
-        return this->onMakeColorTypeAndColorSpace(ctx, ct, cs);
-    }
-#endif
-
     sk_sp<SkImage> onMakeSubset(SkRecorder*, const SkIRect& subset, RequiredProperties) const final;
     sk_sp<SkImage> makeColorTypeAndColorSpace(SkRecorder*,
                                               SkColorType,

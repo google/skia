@@ -17,6 +17,8 @@
 #include <tuple>
 
 class SkData;
+class GrRecordingContext;
+
 #if defined(SK_GRAPHITE)
 namespace skgpu::graphite { class Recorder; }
 #endif

@@ -21,7 +21,6 @@
 #include <optional>
 
 class GrDirectContext;
-class GrRecordingContext;
 class SkBitmap;
 class SkColorSpace;
 class SkData;
@@ -445,9 +444,6 @@ public:
 
         example: https://fiddle.skia.org/c/@Image_isValid
     */
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-    virtual bool isValid(GrRecordingContext* context) const = 0;
-#endif
     virtual bool isValid(SkRecorder*) const = 0;
 
     /** \enum SkImage::CachingHint
@@ -745,30 +741,6 @@ public:
     */
     sk_sp<SkData> refEncodedData() const;
 
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-    /** Returns subset of this image.
-
-        Returns nullptr if any of the following are true:
-          - Subset is empty
-          - Subset is not contained inside the image's bounds
-          - Pixels in the source image could not be read or copied
-          - This image is texture-backed and the provided context is null or does not match
-            the source image's context.
-
-        If the source image was texture-backed, the resulting image will be texture-backed also.
-        Otherwise, the returned image will be raster-backed.
-
-        @param direct  the GrDirectContext of the source image (nullptr is ok if the source image
-                       is not texture-backed).
-        @param subset  bounds of returned SkImage
-        @return        the subsetted image, or nullptr
-
-        example: https://fiddle.skia.org/c/@Image_makeSubset
-    */
-
-    virtual sk_sp<SkImage> makeSubset(GrDirectContext* direct, const SkIRect& subset) const = 0;
-#endif
-
     struct RequiredProperties {
         bool fMipmapped = false;
 
@@ -884,27 +856,6 @@ public:
     */
     virtual bool isLazyGenerated() const = 0;
 
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-    /** Creates SkImage in target SkColorSpace.
-        Returns nullptr if SkImage could not be created.
-
-        Returns original SkImage if it is in target SkColorSpace.
-        Otherwise, converts pixels from SkImage SkColorSpace to target SkColorSpace.
-        If SkImage colorSpace() returns nullptr, SkImage SkColorSpace is assumed to be sRGB.
-
-        If this image is texture-backed, the context parameter is required and must match the
-        context of the source image.
-
-        @param direct  The GrDirectContext in play, if it exists
-        @param target  SkColorSpace describing color range of returned SkImage
-        @return        created SkImage in target SkColorSpace
-
-        example: https://fiddle.skia.org/c/@Image_makeColorSpace
-    */
-    virtual sk_sp<SkImage> makeColorSpace(GrDirectContext* direct,
-                                          sk_sp<SkColorSpace> target) const = 0;
-#endif
-
     /** Creates SkImage in target SkColorSpace.
         Returns nullptr if SkImage could not be created.
 
@@ -922,26 +873,6 @@ public:
     virtual sk_sp<SkImage> makeColorSpace(SkRecorder*,
                                           sk_sp<SkColorSpace> targetColorSpace,
                                           RequiredProperties) const = 0;
-
-#if !defined(SK_DISABLE_LEGACY_NONRECORDER_IMAGE_APIS)
-    /** Experimental.
-        Creates SkImage in target SkColorType and SkColorSpace.
-        Returns nullptr if SkImage could not be created.
-
-        Returns original SkImage if it is in target SkColorType and SkColorSpace.
-
-        If this image is texture-backed, the context parameter is required and must match the
-        context of the source image.
-
-        @param direct           The GrDirectContext in play, if it exists
-        @param targetColorType  SkColorType of returned SkImage
-        @param targetColorSpace SkColorSpace of returned SkImage
-        @return                 created SkImage in target SkColorType and SkColorSpace
-    */
-    virtual sk_sp<SkImage> makeColorTypeAndColorSpace(GrDirectContext* direct,
-                                                      SkColorType targetColorType,
-                                                      sk_sp<SkColorSpace> targetCS) const = 0;
-#endif
 
     /** Experimental.
         Creates SkImage in target SkColorType and SkColorSpace.
