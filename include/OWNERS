@@ -9,5 +9,6 @@ michaelludwig@google.com
 robertphillips@google.com
 
 per-file BUILD.bazel=borenet@google.com
-per-file BUILD.bazel=bungeman@google.com
 per-file BUILD.bazel=kjlubick@google.com
+per-file *.bzl=borenet@google.com
+per-file *.bzl=kjlubick@google.com
