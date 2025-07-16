@@ -266,7 +266,7 @@
     },
     "//toolchain:download_ndk_linux_amd64_toolchain.bzl%download_ndk_linux_amd64_toolchain": {
       "general": {
-        "bzlTransitiveDigest": "JzhSQAnltXn6uKS6cP12vNBEgQEIP1V8e/xzJQ4gfPU=",
+        "bzlTransitiveDigest": "HRwayyrBTWgp5/ZDjirtTA5JGjW1jZZTN8apfZxE3ew=",
         "usagesDigest": "fw3MUpU5hvK9gQcq+mMn8blWwG3G04cq2/bnJ5kyL9Y=",
         "recordedFileInputs": {},
         "recordedDirentsInputs": {},
