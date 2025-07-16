@@ -10,7 +10,6 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
-#include "include/core/SkPathTypes.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
@@ -152,10 +151,7 @@ static void draw_rect_as_path(const SkDrawBase& orig,
                               const SkMatrix& ctm) {
     SkDrawBase draw(orig);
     draw.fCTM = &ctm;
-    SkPath  tmp;
-    tmp.addRect(prePaintRect);
-    tmp.setFillType(SkPathFillType::kWinding);
-    draw.drawPath(tmp, paint, nullptr, true);
+    draw.drawPath(SkPath::Rect(prePaintRect), paint, nullptr, true);
 }
 
 void SkDrawBase::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
@@ -314,9 +310,7 @@ void SkDrawBase::drawRRect(const SkRRect& rrect, const SkPaint& paint) const {
 
 DRAW_PATH:
     // Now fall back to the default case of using a path.
-    SkPath path;
-    path.addRRect(rrect);
-    this->drawPath(path, paint, nullptr, true);
+    this->drawPath(SkPath::RRect(rrect), paint, nullptr, true);
 }
 
 bool SkDrawBase::drawRRectNinePatch(const SkRRect& rrect, const SkPaint& paint) const {

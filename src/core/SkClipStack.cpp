@@ -199,8 +199,11 @@ void SkClipStack::Element::initPath(int saveCount, const SkPath& path, const SkM
 
 void SkClipStack::Element::initAsPath(int saveCount, const SkPath& path, const SkMatrix& m,
                                       SkClipOp op, bool doAA) {
-    path.transform(m, fDeviceSpacePath.init());
-    fDeviceSpacePath->setIsVolatile(true);
+    SkPathBuilder builder(path);
+    builder.transform(m);
+    builder.setIsVolatile(true);
+    fDeviceSpacePath.set(builder.detach());
+
     fDeviceSpaceType = DeviceSpaceType::kPath;
     this->initCommon(saveCount, op, doAA);
 }

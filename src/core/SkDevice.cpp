@@ -14,6 +14,7 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRRect.h"
@@ -120,9 +121,10 @@ void SkDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
     bool antiAlias = paint.isAntiAlias() && (!is_int(localToDevice.getTranslateX()) ||
                                              !is_int(localToDevice.getTranslateY()));
     if (isNonTranslate || complexPaint || antiAlias) {
-        SkPath path = region.getBoundaryPath();
-        path.setIsVolatile(true);
-        return this->drawPath(path, paint, true);
+        SkPathBuilder builder;
+        region.addBoundaryPath(&builder);
+        builder.setIsVolatile(true);
+        return this->drawPath(builder.detach(), paint, true);
     }
 
     SkRegion::Iterator it(region);
@@ -141,13 +143,13 @@ void SkDevice::drawArc(const SkArc& arc, const SkPaint& paint) {
 
 void SkDevice::drawDRRect(const SkRRect& outer,
                           const SkRRect& inner, const SkPaint& paint) {
-    SkPath path;
-    path.addRRect(outer);
-    path.addRRect(inner);
-    path.setFillType(SkPathFillType::kEvenOdd);
-    path.setIsVolatile(true);
+    SkPathBuilder builder;
+    builder.addRRect(outer);
+    builder.addRRect(inner);
+    builder.setFillType(SkPathFillType::kEvenOdd);
+    builder.setIsVolatile(true);
 
-    this->drawPath(path, paint, true);
+    this->drawPath(builder.detach(), paint, true);
 }
 
 void SkDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
