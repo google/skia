@@ -7,7 +7,7 @@
 
 #include "include/core/SkMatrix.h"
 
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRSXform.h"
 #include "include/core/SkSamplingOptions.h"
@@ -1168,10 +1168,10 @@ bool SkMatrix::mapRect(SkRect* dst, const SkRect& src, SkApplyPerspectiveClip pc
         this->mapRectScaleTranslate(dst, src);
         return true;
     } else if (pc == SkApplyPerspectiveClip::kYes && this->hasPerspective()) {
-        SkPath path;
-        path.addRect(src);
-        path.transform(*this);
-        *dst = path.getBounds();
+        SkPathBuilder builder;
+        builder.addRect(src);
+        builder.transform(*this);
+        *dst = builder.computeBounds();
         return false;
     } else {
         SkPoint quad[4];

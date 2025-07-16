@@ -17,6 +17,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -288,10 +289,10 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(SkCanvas* canvas,
                         m.setScaleTranslate(strikeToSourceScale, strikeToSourceScale,
                                             translate.x(), translate.y());
 
-                        SkPath deviceOutline;
-                        path->transform(m, &deviceOutline);
-                        deviceOutline.setIsVolatile(true);
-                        canvas->drawPath(deviceOutline, pathPaint);
+                        SkPathBuilder builder;
+                        builder.addPath(*path, m);
+                        builder.setIsVolatile(true);
+                        canvas->drawPath(builder.detach(), pathPaint);
                     }
                 }
             }
