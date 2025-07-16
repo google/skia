@@ -456,7 +456,7 @@ public:
         fontations_ffi::lookup_glyph_or_zero(fBridgeFontRef, fMappingIndex,
                                              codepointSlice, glyphSlice);
         if (!glyphId) {
-            return false;
+            return {};
         }
         fontations_ffi::BridgeScalerMetrics scalerMetrics;
         if (auto glyphPath = generatePathForGlyphId(glyphId, fScale.y(),
