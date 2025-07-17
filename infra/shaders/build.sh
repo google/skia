@@ -3,11 +3,11 @@
 #
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-# Build the skottie-final image.
+# Build the shaders-final image.
 
 set -x -e
 
-IMAGE_NAME=skottie-final
+IMAGE_NAME=shaders-final
 
 # Copy files into the right locations in ${ROOT}.
 copy_release_files()
