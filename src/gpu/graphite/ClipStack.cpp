@@ -283,18 +283,6 @@ bool intersect_shape(const Transform& otherToDevice, const Shape& otherShape,
     }
 }
 
-Rect snap_scissor(const Rect& a, const Rect& deviceBounds) {
-    // Snapping to 4 pixel boundaries seems to give a good tradeoff between rasterizing slightly
-    // more (but being clipped by the depth test), vs. setting a tight scissor that forces a state
-    // change.
-    // NOTE: This rounds out to the *next* multiple of 4, so that if the input rectangle happens to
-    // land on a multiple of 4 we still create some padding to avoid scissoring just AA outsets.
-    static constexpr int kRes = 4;
-    Rect snapped = a.makeOutset(kRes - 1.f);
-    snapped = Rect::FromVals(snapped.vals() * (1.f / kRes)).makeRoundOut();
-    return Rect::FromVals(snapped.vals() * kRes).makeIntersect(deviceBounds);
-}
-
 } // anonymous namespace
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -599,23 +587,8 @@ void ClipStack::RawElement::drawClip(Device* device) {
 
     SkASSERT(!fUsageBounds.isEmptyNegativeOrNaN());
     // For clip draws, the usage bounds is the scissor.
-    const Rect deviceBounds = Rect::WH(device->width(), device->height());
-    Rect scissor = fUsageBounds; // all joined usage bounds are pre-snapped
-
-    // snappedOuterBounds was the rectangle used in updateForDraw() to query the Z order the clip's
-    // draw will be inserted at. The scissor must enforce that rendering doesn't happen outside of
-    // those bounds.
-    Rect snappedOuterBounds = snap_scissor(fOuterBounds, deviceBounds);
-    scissor.intersect(snappedOuterBounds);
-    // But if the overlap is sufficiently large, just rasterize out to the snapped bounds instead of
-    // adding a tight scissor. A factor of 1/2 is used because that corresponds to the area
-    // change caused by a 45-degree rotation.
-    if (0.5f * snappedOuterBounds.area() < scissor.area()) {
-        scissor = snappedOuterBounds;
-    }
-
-    Rect drawBounds = fOp == SkClipOp::kIntersect ? fUsageBounds : fOuterBounds;
-    drawBounds.intersect(scissor);
+    Rect scissor = fUsageBounds.makeRoundOut();
+    Rect drawBounds = fOuterBounds.makeIntersect(scissor);
     if (!drawBounds.isEmptyNegativeOrNaN()) {
         // Although we are recording this clip draw after all the draws it affects, 'fOrder' was
         // determined at the first usage, so after sorting by DrawOrder the clip draw will be in the
@@ -759,15 +732,10 @@ ClipStack::DrawInfluence ClipStack::RawElement::testForDraw(const TransformedSha
 }
 
 CompressedPaintersOrder ClipStack::RawElement::updateForDraw(const BoundsManager* boundsManager,
-                                                             const Rect& deviceBounds,
                                                              const Rect& drawBounds,
                                                              PaintersDepth drawZ) {
     SkASSERT(!this->isInvalid());
     SkASSERT(!drawBounds.isEmptyNegativeOrNaN());
-
-    // Always record snapped draw bounds to avoid scissor thrashing since these bounds will be used
-    // to determine the scissor applied to the depth-only draw for the clip element.
-    Rect snappedDrawBounds = snap_scissor(drawBounds, deviceBounds);
 
     if (!this->hasPendingDraw()) {
         // No usage yet so we need an order that we will use when drawing to just the depth
@@ -794,15 +762,14 @@ CompressedPaintersOrder ClipStack::RawElement::updateForDraw(const BoundsManager
         // logic, max Z tracking, and the depth test during rasterization are able to
         // resolve everything correctly even if clips have the same order value.
         // See go/clip-stack-order for a detailed analysis of why this works.
-        Rect snappedOuterBounds = snap_scissor(fOuterBounds, deviceBounds);
-        fOrder = boundsManager->getMostRecentDraw(snappedOuterBounds).next();
-        fUsageBounds = snappedDrawBounds;
+        fOrder = boundsManager->getMostRecentDraw(fOuterBounds).next();
+        fUsageBounds = drawBounds;
         fMaxZ = drawZ;
     } else {
         // Earlier draws have already used this element so we cannot change where the
         // depth-only draw will be sorted to, but we need to ensure we cover the new draw's
         // bounds and use a Z value that will clip out its pixels as appropriate.
-        fUsageBounds.join(snappedDrawBounds);
+        fUsageBounds.join(drawBounds);
         if (drawZ > fMaxZ) {
             fMaxZ = drawZ;
         }
@@ -1678,7 +1645,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
         // For intersect clips, the scissor rectangle is just the outer bounds. Cases where the draw
         // can skip setting the scissor because it's contained entirely within it are handled
         // automatically by command generation.
-        scissor = snap_scissor(cs.outerBounds(), deviceBounds);
+        scissor = cs.outerBounds().makeRoundOut();
     } else {
         // For difference clips, a tight scissor could be `subtract(drawBounds, cs.innerBounds(),
         // true)` but this can trigger scissor state thrashing when the draw has analytic AA that
@@ -1804,7 +1771,6 @@ CompressedPaintersOrder ClipStack::updateClipStateForDraw(const Clip& clip,
     SkDEBUGCODE(const SaveRecord& cs = this->currentSaveRecord();)
     SkASSERT(cs.state() != ClipState::kEmpty);
 
-    Rect deviceBounds = this->deviceBounds();
     CompressedPaintersOrder maxClipOrder = DrawOrder::kNoIntersection;
     for (int i = 0; i < effectiveElements.size(); ++i) {
         // ClipStack owns the elements in the `clipState` so it's OK to downcast and cast away
@@ -1812,8 +1778,8 @@ CompressedPaintersOrder ClipStack::updateClipStateForDraw(const Clip& clip,
         // TODO: Enforce the ownership? In debug builds we could invalidate a `ClipStateForDraw` if
         // its element pointers become dangling and assert validity here.
         const RawElement* e = static_cast<const RawElement*>(effectiveElements[i]);
-        CompressedPaintersOrder order =  const_cast<RawElement*>(e)->updateForDraw(
-                boundsManager, deviceBounds, clip.drawBounds(), z);
+        CompressedPaintersOrder order =
+                const_cast<RawElement*>(e)->updateForDraw(boundsManager, clip.drawBounds(), z);
         maxClipOrder = std::max(order, maxClipOrder);
     }
 
