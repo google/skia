@@ -264,15 +264,23 @@ void SkReadBuffer::readRegion(SkRegion* region) {
     (void)this->skip(size);
 }
 
-void SkReadBuffer::readPath(SkPath* path) {
-    size_t size = 0;
-    if (!fError) {
-        size = path->readFromMemory(fCurr, this->available());
-        if (!this->validate((SkAlign4(size) == size) && (0 != size))) {
-            path->reset();
-        }
+std::optional<SkPath> SkReadBuffer::readPath() {
+    if (fError) {
+        return {};
     }
+
+    size_t size = 0;
+    auto path = SkPath::ReadFromMemory(fCurr, this->available(), &size);
+
+    // todo: consider moving this 4-byte-alignment check elsewhere
+    //       i.e. why is that a burden on SkPath?
+    //            why don't we just skipAlign4() or something?
+    (void)this->validate(SkAlign4(size) == size && path.has_value());
+
+    // we move forward, regardless of if the path succeeded
     (void)this->skip(size);
+
+    return path;
 }
 
 bool SkReadBuffer::readArray(void* value, size_t size, size_t elementSize) {

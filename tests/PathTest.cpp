@@ -2761,34 +2761,32 @@ static void write_and_read_back(skiatest::Reporter* reporter,
     writer.writeToMemory(storage.get());
     SkReadBuffer reader(storage.get(), size);
 
-    SkPath readBack;
-    REPORTER_ASSERT(reporter, readBack != p);
-    reader.readPath(&readBack);
-    REPORTER_ASSERT(reporter, readBack == p);
+    auto readBack = reader.readPath();
+    REPORTER_ASSERT(reporter, readBack.has_value() && *readBack == p);
 
-    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(readBack) ==
+    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(*readBack) ==
                               SkPathPriv::GetConvexityOrUnknown(p));
 
     SkRect oval0, oval1;
     SkPathDirection dir0, dir1;
     unsigned start0, start1;
-    REPORTER_ASSERT(reporter, readBack.isOval(nullptr) == p.isOval(nullptr));
+    REPORTER_ASSERT(reporter, readBack->isOval(nullptr) == p.isOval(nullptr));
     if (SkPathPriv::IsOval(p, &oval0, &dir0, &start0) &&
-        SkPathPriv::IsOval(readBack, &oval1, &dir1, &start1)) {
+        SkPathPriv::IsOval(*readBack, &oval1, &dir1, &start1)) {
         REPORTER_ASSERT(reporter, oval0 == oval1);
         REPORTER_ASSERT(reporter, dir0 == dir1);
         REPORTER_ASSERT(reporter, start0 == start1);
     }
-    REPORTER_ASSERT(reporter, readBack.isRRect(nullptr) == p.isRRect(nullptr));
+    REPORTER_ASSERT(reporter, readBack->isRRect(nullptr) == p.isRRect(nullptr));
     SkRRect rrect0, rrect1;
     if (SkPathPriv::IsRRect(p, &rrect0, &dir0, &start0) &&
-        SkPathPriv::IsRRect(readBack, &rrect1, &dir1, &start1)) {
+        SkPathPriv::IsRRect(*readBack, &rrect1, &dir1, &start1)) {
         REPORTER_ASSERT(reporter, rrect0 == rrect1);
         REPORTER_ASSERT(reporter, dir0 == dir1);
         REPORTER_ASSERT(reporter, start0 == start1);
     }
     const SkRect& origBounds = p.getBounds();
-    const SkRect& readBackBounds = readBack.getBounds();
+    const SkRect& readBackBounds = readBack->getBounds();
 
     REPORTER_ASSERT(reporter, origBounds == readBackBounds);
 }
@@ -2816,20 +2814,20 @@ static void test_flattening(skiatest::Reporter* reporter) {
     size_t size2 = p.writeToMemory(buffer);
     REPORTER_ASSERT(reporter, size1 == size2);
 
-    SkPath p2;
-    size_t size3 = p2.readFromMemory(buffer, 1024);
+    size_t size3 = 0;
+    auto p2 = SkPath::ReadFromMemory(buffer, 1024, &size3);
+    REPORTER_ASSERT(reporter, p2.has_value());
     REPORTER_ASSERT(reporter, size1 == size3);
-    REPORTER_ASSERT(reporter, p == p2);
+    REPORTER_ASSERT(reporter, p == *p2);
 
-    size3 = p2.readFromMemory(buffer, 0);
-    REPORTER_ASSERT(reporter, !size3);
+    auto missing = SkPath::ReadFromMemory(buffer, 0, &size3);
+    REPORTER_ASSERT(reporter, !missing.has_value());
 
-    SkPath tooShort;
-    size3 = tooShort.readFromMemory(buffer, size1 - 1);
-    REPORTER_ASSERT(reporter, tooShort.isEmpty());
+    missing = SkPath::ReadFromMemory(buffer, size1 - 1, &size3);
+    REPORTER_ASSERT(reporter, !missing.has_value());
 
     char buffer2[1024];
-    size3 = p2.writeToMemory(buffer2);
+    size3 = p2->writeToMemory(buffer2);
     REPORTER_ASSERT(reporter, size1 == size3);
     REPORTER_ASSERT(reporter, memcmp(buffer, buffer2, size1) == 0);
 
@@ -5227,19 +5225,18 @@ DEF_TEST(PathRefSerialization, reporter) {
     size_t bytesWritten = data->size();
 
     {
-        SkPath readBack;
-        REPORTER_ASSERT(reporter, readBack != path);
-        size_t bytesRead = readBack.readFromMemory(data->data(), bytesWritten);
+        size_t bytesRead = 0;
+        auto readBack = SkPath::ReadFromMemory(data->data(), bytesWritten, &bytesRead);
+        REPORTER_ASSERT(reporter, readBack.has_value());
         REPORTER_ASSERT(reporter, bytesRead == bytesWritten);
-        REPORTER_ASSERT(reporter, readBack == path);
+        REPORTER_ASSERT(reporter, *readBack == path);
     }
 
     // One less byte (rounded down to alignment) than was written will also
     // fail to be deserialized.
     {
-        SkPath readBack;
-        size_t bytesRead = readBack.readFromMemory(data->data(), bytesWritten - 4);
-        REPORTER_ASSERT(reporter, !bytesRead);
+        auto readBack = SkPath::ReadFromMemory(data->data(), bytesWritten - 4);
+        REPORTER_ASSERT(reporter, !readBack.has_value());
     }
 }
 

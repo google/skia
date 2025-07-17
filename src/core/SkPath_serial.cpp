@@ -191,14 +191,15 @@ size_t SkPath::readAsRRect(const void* storage, size_t length) {
     return buffer.pos();
 }
 
+#ifndef SK_HIDE_PATH_EDIT_METHODS
 size_t SkPath::readFromMemory(const void* storage, size_t length) {
-    size_t bytesRead;
-    std::optional<SkPath> path = SkPath::ReadFromMemory(storage, length, &bytesRead);
-    if (path) {
+    size_t bytesRead = 0;
+    if (auto path = SkPath::ReadFromMemory(storage, length, &bytesRead)) {
         *this = path.value();
     }
     return bytesRead;
 }
+#endif
 
 #define RETURN_PATH_AND_BYTES(p, b) \
     do { if (bytesRead) { *bytesRead = b; }; return p; } while (0)

@@ -183,9 +183,10 @@ public:
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer) {
         SkMatrix matrix;
         buffer.readMatrix(&matrix);
-        SkPath path;
-        buffer.readPath(&path);
-        return SkPath2DPathEffect::Make(matrix, path);
+        if (auto path = buffer.readPath()) {
+            return SkPath2DPathEffect::Make(matrix, *path);
+        }
+        return nullptr;
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

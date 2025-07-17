@@ -3,10 +3,9 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Path_serialize, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
-    SkPath path, copy;
-    path.lineTo(6.f / 7, 2.f / 3);
+    SkPath path = SkPath::Line({1, 2}, {3, 4});
     sk_sp<SkData> data = path.serialize();
-    copy.readFromMemory(data->data(), data->size());
-    SkDebugf("path is " "%s" "equal to copy\n", path == copy ? "" : "not ");
+    auto copy = SkPath::ReadFromMemory(data->data(), data->size());
+    SkDebugf("path is " "%s" "equal to copy\n", path == *copy ? "" : "not ");
 }
 }  // END FIDDLE

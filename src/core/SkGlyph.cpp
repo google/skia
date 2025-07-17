@@ -400,11 +400,9 @@ size_t SkGlyph::addPathFromBuffer(SkReadBuffer& buffer, SkArenaAlloc* alloc) {
     if (hasPath) {
         const bool pathIsHairline = buffer.readBool();
         const bool pathIsModified = buffer.readBool();
-        SkPath path;
-        buffer.readPath(&path);
-        if (buffer.isValid()) {
-            if (this->setPath(alloc, &path, pathIsHairline, pathIsModified)) {
-                memoryIncrease += path.approximateBytesUsed();
+        if (auto path = buffer.readPath()) {
+            if (this->setPath(alloc, &path.value(), pathIsHairline, pathIsModified)) {
+                memoryIncrease += path->approximateBytesUsed();
             }
         }
     } else {

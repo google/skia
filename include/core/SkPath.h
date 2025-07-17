@@ -1839,29 +1839,7 @@ public:
     */
     sk_sp<SkData> serialize() const;
 
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
-    /** Initializes SkPath from buffer of size length. Returns zero if the buffer is
-        data is inconsistent, or the length is too small.
-
-        Reads SkPath::FillType, verb array, SkPoint array, conic weight, and
-        additionally reads computed information like SkPath::Convexity and bounds.
-
-        Used only in concert with writeToMemory();
-        the format used for SkPath in memory is not guaranteed.
-
-        @param buffer  storage for SkPath
-        @param length  buffer size in bytes; must be multiple of 4
-        @return        number of bytes read, or zero on failure
-
-        example: https://fiddle.skia.org/c/@Path_readFromMemory
-    */
-    size_t readFromMemory(const void* buffer, size_t length);
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
-    /** Initializes SkPath from buffer of size length. If the buffer data is inconsistent, or the
+    /** Returns a SkPath from buffer of size length. If the buffer data is inconsistent, or the
         length is too small, returns a nullopt.
 
         Reads SkPath::FillType, verb array, SkPoint array, conic weight, and
@@ -1879,6 +1857,10 @@ public:
     */
     static std::optional<SkPath> ReadFromMemory(const void* buffer, size_t length,
                                                 size_t* bytesRead = nullptr);
+
+#ifndef SK_HIDE_PATH_EDIT_METHODS
+    size_t readFromMemory(const void* buffer, size_t length);
+#endif
 
     /** (See skbug.com/40032862)
         Returns a non-zero, globally unique value. A different value is returned

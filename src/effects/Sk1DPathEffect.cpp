@@ -118,12 +118,17 @@ public:
     SkScalar next(SkPathBuilder*, SkScalar, SkPathMeasure&) const override;
 
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer) {
+        sk_sp<SkFlattenable> result;
+
         SkScalar advance = buffer.readScalar();
-        SkPath path;
-        buffer.readPath(&path);
-        SkScalar phase = buffer.readScalar();
-        SkPath1DPathEffect::Style style = buffer.read32LE(SkPath1DPathEffect::kLastEnum_Style);
-        return buffer.isValid() ? SkPath1DPathEffect::Make(path, advance, phase, style) : nullptr;
+        if (auto path = buffer.readPath()) {
+            SkScalar phase = buffer.readScalar();
+            SkPath1DPathEffect::Style style = buffer.read32LE(SkPath1DPathEffect::kLastEnum_Style);
+            if (buffer.isValid()) {
+                result = SkPath1DPathEffect::Make(*path, advance, phase, style);
+            }
+        }
+        return result;
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

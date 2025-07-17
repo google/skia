@@ -36,6 +36,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 
 class SkBlender;
 class SkData;
@@ -123,7 +124,7 @@ public:
     void readRRect(SkRRect* rrect);
     void readRegion(SkRegion* region);
 
-    void readPath(SkPath* path);
+    std::optional<SkPath> readPath();
 
     SkPaint readPaint() {
         return SkPaintPriv::Unflatten(*this);
