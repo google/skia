@@ -797,6 +797,9 @@ bool SkCodecPriv::SelectXformFormat(SkColorType colorType,
         case kRGBA_F16_SkColorType:
             *outFormat = skcms_PixelFormat_RGBA_hhhh;
             break;
+        case kRGBA_1010102_SkColorType:
+            *outFormat = skcms_PixelFormat_RGBA_1010102;
+            break;
         case kBGR_101010x_XR_SkColorType:
             *outFormat = skcms_PixelFormat_BGR_101010x_XR;
             break;
@@ -815,6 +818,7 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Al
     bool needsColorXform = false;
     if (this->usesColorXform()) {
         if (kRGBA_F16_SkColorType == dstInfo.colorType() ||
+                kRGBA_1010102_SkColorType == dstInfo.colorType() ||
                 kBGR_101010x_XR_SkColorType == dstInfo.colorType()) {
             needsColorXform = true;
             if (dstInfo.colorSpace()) {
