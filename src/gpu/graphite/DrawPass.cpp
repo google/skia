@@ -531,7 +531,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
 #if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
     // Accumulate rough pixel area touched by each pipeline as we iterate the SortKeys
-    drawPass->fPipelineDrawAreas.push_back_n(pipelineCache.size(), 0.f);
+    drawPass->fPipelineDrawAreas.push_back_n(pipelineCache.count(), 0.f);
 #endif
 
     TextureTracker textureBindingTracker(&textureDataCache);
