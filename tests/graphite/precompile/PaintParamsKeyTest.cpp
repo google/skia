@@ -1998,6 +1998,7 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
             clipData.fAnalyticClip.fRadius = 5;
         }
 
+        SkDEBUGCODE(paramsGatherer.resetForDraw());
         UniquePaintParamsID paintID =
                 ExtractPaintData(recorder,
                                  &paramsGatherer,

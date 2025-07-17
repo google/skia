@@ -278,5 +278,20 @@ bool RenderPassTask::visitPipelines(const std::function<bool(const GraphicsPipel
     return true;
 }
 
+bool RenderPassTask::visitProxies(const std::function<bool(const TextureProxy*)>& visitor) {
+    for (const std::unique_ptr<DrawPass>& pass : fDrawPasses) {
+        for (const sk_sp<TextureProxy>& proxy : pass->sampledTextures()) {
+            if (!visitor(proxy.get())) {
+                return false;
+            }
+        }
+
+        if ((fTarget && !visitor(fTarget.get())) || (fDstCopy && !visitor(fDstCopy.get()))) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 } // namespace skgpu::graphite

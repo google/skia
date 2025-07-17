@@ -26,6 +26,7 @@
 #include "src/gpu/graphite/dawn/DawnErrorChecker.h"
 #include "src/gpu/graphite/dawn/DawnGraphiteUtils.h"
 #include "src/gpu/graphite/dawn/DawnResourceProvider.h"
+#include "src/gpu/graphite/dawn/DawnSampler.h"
 #include "src/gpu/graphite/dawn/DawnSharedContext.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/SkSLUtil.h"
@@ -516,6 +517,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
                 // within the BindGroupLayout. Assert that we have analyzed the appropriate number
                 // of samplers by equating samplerDescArr size to sampler quantity.
                 SkASSERT(samplerDescArrPtr && samplerDescArr.size() == numTexturesAndSamplers / 2);
+                immutableSamplers.reset(samplerDescArr.size());
 #endif
 
                 for (int i = 0; i < numTexturesAndSamplers;) {
@@ -544,7 +546,7 @@ sk_sp<DawnGraphicsPipeline> DawnGraphicsPipeline::Make(
                         // Static samplers sample from the subsequent texture in the BindGroupLayout
                         immutableSamplerBinding.sampledTextureBinding = i + 1;
 
-                        immutableSamplers.push_back(std::move(dawnImmutableSampler));
+                        immutableSamplers[i/2] = std::move(dawnImmutableSampler);
                         entries[i].nextInChain = &immutableSamplerBinding;
                     } else {
 #endif

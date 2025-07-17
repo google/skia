@@ -59,6 +59,8 @@ public:
 
     bool visitPipelines(const std::function<bool(const GraphicsPipeline*)>& visitor) override;
 
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override;
+
 private:
     RenderPassTask(DrawPassList,
                    const RenderPassDesc&,

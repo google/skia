@@ -142,6 +142,11 @@ public:
         return fPipeline;
     }
 
+    // Returns null if the ith sampler is not an immutable sampler.
+    const VulkanSampler* immutableSampler(int i) const {
+        return fImmutableSamplers[i].get();
+    }
+
     // Update any dynamic state (including none, if dynamic state is not available) that has changed
     // since the previously bound Graphite pipeline.
     void updateDynamicState(const VulkanSharedContext*,

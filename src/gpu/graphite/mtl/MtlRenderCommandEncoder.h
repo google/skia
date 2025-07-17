@@ -119,7 +119,7 @@ public:
         }
     }
 
-    void setBlendColor(float blendConst[4]) {
+    void setBlendColor(std::array<float, 4> blendConst) {
         [(*fCommandEncoder) setBlendColorRed: blendConst[0]
                                        green: blendConst[1]
                                         blue: blendConst[2]

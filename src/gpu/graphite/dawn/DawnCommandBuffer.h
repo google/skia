@@ -53,6 +53,9 @@ private:
 
     ResourceProvider* resourceProvider() const override { return fResourceProvider; }
 
+    const DawnSampler* getSampler(const DrawPassCommands::BindTexturesAndSamplers& command,
+                                  int32_t index);
+
     void onResetCommandBuffer() override;
     bool setNewCommandBufferResources() override;
 
@@ -91,7 +94,7 @@ private:
     bool addDrawPass(const DrawPass*);
 
     bool bindGraphicsPipeline(const GraphicsPipeline*);
-    void setBlendConstants(float* blendConstants);
+    void setBlendConstants(std::array<float, 4> blendConstants);
 
     void bindUniformBuffer(const BindBufferInfo& info, UniformSlot);
     void bindInputBuffer(const Buffer* buffer, size_t offset, uint32_t bindingIndex);

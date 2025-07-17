@@ -8,78 +8,127 @@
 #include "tests/Test.h"
 
 #include "include/gpu/graphite/Context.h"
-#include "include/gpu/graphite/Recorder.h"
+#include "include/gpu/graphite/TextureInfo.h"
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/PipelineData.h"
-#include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/Uniform.h"
+#include "src/gpu/graphite/TextureProxy.h"
 
 using namespace skgpu::graphite;
 
 DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
                                    CtsEnforcement::kApiLevel_202404) {
-    UniformDataCache cache;
+    const Caps* caps = context->priv().caps();
+    ResourceProvider* resourceProvider = context->priv().resourceProvider();
 
-    REPORTER_ASSERT(reporter, cache.count() == 0);
+    // Setup caches
+    UniformDataCache uCache;
+    TextureDataCache tCache;
 
-    // UniformDataBlocks can only be created via a PipelineDataGatherer, but for this test the
-    // layout and contents don't matter other than their bits being the same or different.
+    REPORTER_ASSERT(reporter, uCache.count() == 0);
+    REPORTER_ASSERT(reporter, tCache.bindingCount() == 0);
+
+
+    // Create testing textures and uniforms
     [[maybe_unused]] static constexpr Uniform kUniforms[] = {{"data", SkSLType::kFloat4}};
+    TextureInfo info = caps->getDefaultSampledTextureInfo(kAlpha_8_SkColorType,
+                                                          skgpu::Mipmapped::kNo,
+                                                          skgpu::Protected::kNo,
+                                                          skgpu::Renderable::kYes);
+    REPORTER_ASSERT(reporter, info.isValid());
 
-    // Add a new unique UDB
-    UniformDataCache::Index id1;
-    UniformDataBlock cachedUdb1;
+    sk_sp<TextureProxy> proxyA = TextureProxy::Make(caps,
+                                                    resourceProvider,
+                                                    SkISize::Make(32, 32),
+                                                    info,
+                                                    "TestDataProxyA",
+                                                    skgpu::Budgeted::kYes);
+    sk_sp<TextureProxy> proxyB = TextureProxy::Make(caps,
+                                                    resourceProvider,
+                                                    SkISize::Make(32, 32),
+                                                    info,
+                                                    "TestDataProxyB",
+                                                    skgpu::Budgeted::kYes);
+    REPORTER_ASSERT(reporter, proxyA && proxyB);
+
+    // Block A: Add a new, unique set of uniforms and textures
+    UniformDataCache::Index uID1;
+    TextureDataCache::Index tID1;
     {
         PipelineDataGatherer gatherer{Layout::kStd430};
         SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
+        gatherer.write(SkV4{1.f, 2.f, 3.f, 4.f});
+        gatherer.add(proxyA, {});
 
-        gatherer.write(SkV4{7.f, 8.f, 9.f, 10.f});
-        UniformDataBlock udb1 = gatherer.finishUniformDataBlock();
+        auto [udb, tdb] = gatherer.endRenderStepData(/*performsShading=*/true);
 
-        id1 = cache.insert(udb1);
-        REPORTER_ASSERT(reporter, id1 != UniformDataCache::kInvalidIndex);
+        uID1 = uCache.insert(udb);
+        tID1 = tCache.insert(tdb);
 
-        cachedUdb1 = cache.lookup(id1).fCpuData;
-        REPORTER_ASSERT(reporter, cachedUdb1.data() != udb1.data());  // must be a separate address
-        REPORTER_ASSERT(reporter, cachedUdb1 == udb1);                // but equal contents
+        REPORTER_ASSERT(reporter, uCache.count() == 1);
+        REPORTER_ASSERT(reporter, tCache.bindingCount() == 1);
+        REPORTER_ASSERT(reporter, tCache.uniqueTextureCount() == 1);
 
-        REPORTER_ASSERT(reporter, cache.count() == 1);
+        // Verify lookup
+        REPORTER_ASSERT(reporter, uCache.lookup(uID1).fCpuData == udb);
+        REPORTER_ASSERT(reporter, tCache.lookup(tID1) == tdb);
     }
 
-    // Try to add a duplicate UDB
+    // Block B: Add the exact same data to test de-duplication
     {
         PipelineDataGatherer gatherer{Layout::kStd430};
         SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
+        gatherer.write(SkV4{1.f, 2.f, 3.f, 4.f}); // Same uniform data
+        gatherer.add(proxyA, {});                 // Same texture
 
-        gatherer.write(SkV4{7.f, 8.f, 9.f, 10.f});
-        UniformDataBlock udb2 = gatherer.finishUniformDataBlock();
-        REPORTER_ASSERT(reporter, udb2 == cachedUdb1);  // contents are in fact duplicated
+        auto [udb, tdb] = gatherer.endRenderStepData(/*performsShading=*/true);
 
-        UniformDataCache::Index id2 = cache.insert(udb2);
-        REPORTER_ASSERT(reporter, id2 == id1);  // original clone's index
+        UniformDataCache::Index uID2 = uCache.insert(udb);
+        TextureDataCache::Index tID2 = tCache.insert(tdb);
 
-        UniformDataBlock cachedUdb2 = cache.lookup(id2).fCpuData;
-        REPORTER_ASSERT(reporter, cachedUdb2.data() == cachedUdb1.data());  // original address
+        REPORTER_ASSERT(reporter, uID2 == uID1); // Index should be the same
+        REPORTER_ASSERT(reporter, tID2 == tID1); // Index should be the same
 
-        REPORTER_ASSERT(reporter, cache.count() == 1);
+        REPORTER_ASSERT(reporter, uCache.count() == 1); // Count should NOT increase
+        REPORTER_ASSERT(reporter, tCache.bindingCount() == 1); // Count should NOT increase
     }
 
-    // Add a second new unique UDB
+    // Block C: Add new unique uniforms but the same texture
     {
         PipelineDataGatherer gatherer{Layout::kStd430};
         SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
+        gatherer.write(SkV4{5.f, 6.f, 7.f, 8.f}); // Different uniform data
+        gatherer.add(proxyA, {});                 // Same texture
 
-        gatherer.write(SkV4{11.f, 12.f, 13.f, 14.f});
-        UniformDataBlock udb3 = gatherer.finishUniformDataBlock();
+        auto [udb, tdb] = gatherer.endRenderStepData(/*performsShading=*/true);
 
-        UniformDataCache::Index id3 = cache.insert(udb3);
-        REPORTER_ASSERT(reporter, id3 != UniformDataCache::kInvalidIndex);
-        REPORTER_ASSERT(reporter, id3 != id1);
+        UniformDataCache::Index uID3 = uCache.insert(udb);
+        TextureDataCache::Index tID3 = tCache.insert(tdb);
 
-        UniformDataBlock cachedUdb3 = cache.lookup(id3).fCpuData;
-        REPORTER_ASSERT(reporter, cachedUdb3 == udb3);
+        REPORTER_ASSERT(reporter, uID3 != uID1); // New unique uniform index
+        REPORTER_ASSERT(reporter, tID3 == tID1); // Same texture binding index
 
-        REPORTER_ASSERT(reporter, cache.count() == 2);
+        REPORTER_ASSERT(reporter, uCache.count() == 2);        // Uniform count increases
+        REPORTER_ASSERT(reporter, tCache.bindingCount() == 1); // Texture count does not
     }
 
-    // TODO(robertphillips): expand this test to exercise all the UDB comparison failure modes
+    // Block D: Add the same uniforms but a new unique texture
+    {
+        PipelineDataGatherer gatherer{Layout::kStd430};
+        SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
+        gatherer.write(SkV4{1.f, 2.f, 3.f, 4.f}); // Same uniform data as Block A
+        gatherer.add(proxyB, {});                 // Different texture
+
+        auto [udb, tdb] = gatherer.endRenderStepData(/*performsShading=*/true);
+
+        UniformDataCache::Index uID4 = uCache.insert(udb);
+        TextureDataCache::Index tID4 = tCache.insert(tdb);
+
+        REPORTER_ASSERT(reporter, uID4 == uID1); // Same uniform index
+        REPORTER_ASSERT(reporter, tID4 != tID1); // New unique texture index
+
+        REPORTER_ASSERT(reporter, uCache.count() == 2);        // Uniform count does not increase
+        REPORTER_ASSERT(reporter, tCache.bindingCount() == 2); // Texture count increases
+        REPORTER_ASSERT(reporter, tCache.uniqueTextureCount() == 2);
+    }
 }

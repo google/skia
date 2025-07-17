@@ -214,6 +214,25 @@ bool DawnCommandBuffer::setNewCommandBufferResources() {
     return true;
 }
 
+// Requests a sampler. Dynamic samplers live in the global cache, requiring no tracking, but
+// immutable samplers are created on the current graphics pipeline, and may outlive it, requiring
+// further tracking.
+const DawnSampler* DawnCommandBuffer::getSampler(
+        const DrawPassCommands::BindTexturesAndSamplers& command, int32_t index) {
+    auto desc = command.fSamplers[index];
+    if (desc.isImmutable()) {
+        const DawnSampler* immutableSampler = fActiveGraphicsPipeline->immutableSampler(index);
+        if (immutableSampler) {
+            this->trackResource(sk_ref_sp<Sampler>(immutableSampler));
+        }
+        return immutableSampler;
+    } else {
+        // Use the shared Sampler held in the global cache
+        return static_cast<const DawnSampler*>(
+                fSharedContext->globalCache()->getDynamicSampler(desc));
+    }
+}
+
 bool DawnCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
                                         SkIRect renderPassBounds,
                                         const Texture* colorTexture,
@@ -828,7 +847,7 @@ void DawnCommandBuffer::bindTextureAndSamplers(
     if (command.fNumTexSamplers == 1) {
         const wgpu::YCbCrVkDescriptor& ycbcrDesc =
                 TextureInfoPriv::Get<DawnTextureInfo>(
-                        drawPass.getTexture(command.fTextureIndices[0])->textureInfo())
+                    command.fTextures[0]->texture()->textureInfo())
                         .fYcbcrVkDescriptor;
         usingSingleStaticSampler = DawnDescriptorIsValid(ycbcrDesc);
     }
@@ -840,19 +859,15 @@ void DawnCommandBuffer::bindTextureAndSamplers(
         SkASSERT(fActiveGraphicsPipeline->numFragTexturesAndSamplers() == 2);
         SkASSERT(fActiveGraphicsPipeline->dstReadStrategy() != DstReadStrategy::kTextureCopy);
 
-        const auto* texture =
-                static_cast<const DawnTexture*>(drawPass.getTexture(command.fTextureIndices[0]));
-        const auto* sampler =
-                static_cast<const DawnSampler*>(drawPass.getSampler(command.fSamplerIndices[0]));
+        const auto* texture = static_cast<const DawnTexture*>(command.fTextures[0]->texture());
+        const auto* sampler = this->getSampler(command, 0);
         bindGroup = fResourceProvider->findOrCreateSingleTextureSamplerBindGroup(sampler, texture);
     } else {
         std::vector<wgpu::BindGroupEntry> entries;
 
         for (int i = 0; i < command.fNumTexSamplers; ++i) {
-            const auto* texture = static_cast<const DawnTexture*>(
-                    drawPass.getTexture(command.fTextureIndices[i]));
-            const auto* sampler = static_cast<const DawnSampler*>(
-                    drawPass.getSampler(command.fSamplerIndices[i]));
+            const auto* texture = static_cast<const DawnTexture*>(command.fTextures[i]->texture());
+            const auto* sampler = this->getSampler(command, i);
             auto& wgpuTextureView = texture->sampleTextureView();
             auto& wgpuSampler = sampler->dawnSampler();
 
@@ -989,7 +1004,7 @@ void DawnCommandBuffer::setViewport(SkIRect viewport) {
             viewport.x(), viewport.y(), viewport.width(), viewport.height(), 0, 1);
 }
 
-void DawnCommandBuffer::setBlendConstants(float* blendConstants) {
+void DawnCommandBuffer::setBlendConstants(std::array<float, 4> blendConstants) {
     SkASSERT(fActiveRenderPassEncoder);
     wgpu::Color blendConst = {
             blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]};

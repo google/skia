@@ -13,10 +13,10 @@
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/DrawCommands.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
-#include "src/gpu/graphite/ResourceTypes.h"
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <utility>
 
@@ -31,9 +31,11 @@ class Recorder;
 struct RenderPassDesc;
 class ResourceProvider;
 class RuntimeEffectDictionary;
-class Sampler;
-class Texture;
 class TextureProxy;
+
+enum class DstReadStrategy : uint8_t;
+enum class LoadOp : uint8_t;
+enum class StoreOp : uint8_t;
 
 /**
  * DrawPass is analogous to a subpass, storing the drawing operations in the order they are stored
@@ -85,8 +87,6 @@ public:
     const GraphicsPipeline* getPipeline(size_t index) const {
         return fFullPipelines[index].get();
     }
-    const Texture* getTexture(size_t index) const;
-    const Sampler* getSampler(size_t index) const;
 
     // Proxies are always valid but may not be instantiated until after prepareResources() is called
     SkSpan<const sk_sp<TextureProxy>> sampledTextures() const { return fSampledTextures; }
@@ -113,12 +113,10 @@ private:
     // The pipelines are referenced by index in BindGraphicsPipeline, but that will index into a
     // an array of actual GraphicsPipelines.
     skia_private::TArray<GraphicsPipelineDesc> fPipelineDescs;
-    skia_private::TArray<SamplerDesc> fSamplerDescs;
 
     // These resources all get instantiated during prepareResources.
     skia_private::TArray<sk_sp<GraphicsPipeline>> fFullPipelines;
     skia_private::TArray<sk_sp<TextureProxy>> fSampledTextures;
-    skia_private::TArray<sk_sp<Sampler>> fSamplers;
 
 #if defined(SK_TRACE_GRAPHITE_PIPELINE_USE)
     skia_private::TArray<float> fPipelineDrawAreas;

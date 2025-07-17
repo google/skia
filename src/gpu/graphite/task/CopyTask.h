@@ -14,16 +14,17 @@
 #include "src/gpu/graphite/task/Task.h"
 
 #include <cstddef>
+#include <functional>
 
 namespace skgpu::graphite {
 
 class Buffer;
-class TextureProxy;
 class CommandBuffer;
 class Context;
 class ResourceProvider;
 class RuntimeEffectDictionary;
 class ScratchResourceManager;
+class TextureProxy;
 
 class CopyBufferToBufferTask final : public Task {
 public:
@@ -74,6 +75,10 @@ public:
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override {
+        return visitor(fTextureProxy.get());
+    }
+
 private:
     CopyTextureToBufferTask(sk_sp<TextureProxy>,
                             SkIRect srcRect,
@@ -103,6 +108,10 @@ public:
                             const RuntimeEffectDictionary*) override;
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
+
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override {
+        return visitor(fSrcProxy.get()) && visitor(fDstProxy.get());
+    }
 
 private:
     CopyTextureToTextureTask(sk_sp<TextureProxy> srcProxy,

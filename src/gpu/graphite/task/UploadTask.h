@@ -16,6 +16,8 @@
 #include "src/gpu/graphite/CommandTypes.h"
 
 #include <cstddef>
+#include <cstdint>
+#include <functional>
 #include <memory>
 
 class SkColorInfo;
@@ -24,13 +26,13 @@ struct SkIRect;
 namespace skgpu::graphite {
 
 class Buffer;
-class Recorder;
-class TextureProxy;
 class CommandBuffer;
 class Context;
+class Recorder;
 class ResourceProvider;
 class RuntimeEffectDictionary;
 class ScratchResourceManager;
+class TextureProxy;
 
 struct MipLevel {
     const void* fPixels = nullptr;
@@ -104,6 +106,8 @@ public:
     Task::Status addCommand(Context*, CommandBuffer*, Task::ReplayTargetData) const;
 
 private:
+    friend class UploadTask;
+
     UploadInstance();
     // Copy data is appended directly after the object is created
     UploadInstance(const Buffer*,
@@ -163,6 +167,15 @@ public:
                             const RuntimeEffectDictionary*) override;
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
+
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override {
+        for (int32_t i = 0; i < fInstances.size(); ++i) {
+            if (fInstances[i].isValid() && !visitor(fInstances[i].fTextureProxy.get())) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 private:
     UploadTask(skia_private::TArray<UploadInstance>&&);

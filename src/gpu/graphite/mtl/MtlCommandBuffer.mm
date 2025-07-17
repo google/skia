@@ -418,8 +418,11 @@ void MtlCommandBuffer::addDrawPass(const DrawPass* drawPass) {
             case DrawPassCommands::Type::kBindTexturesAndSamplers: {
                 auto bts = static_cast<DrawPassCommands::BindTexturesAndSamplers*>(cmdPtr);
                 for (int j = 0; j < bts->fNumTexSamplers; ++j) {
-                    this->bindTextureAndSampler(drawPass->getTexture(bts->fTextureIndices[j]),
-                                                drawPass->getSampler(bts->fSamplerIndices[j]),
+                    // immutable samplers don't exist in metal
+                    SkASSERT(!bts->fSamplers[j].isImmutable());
+                    this->bindTextureAndSampler(bts->fTextures[j]->texture(),
+                                                fSharedContext->globalCache()->getDynamicSampler(
+                                                        bts->fSamplers[j]),
                                                 j);
                 }
                 break;
@@ -624,7 +627,7 @@ void MtlCommandBuffer::updateIntrinsicUniforms(SkIRect viewport) {
             bytes.data(), bytes.size_bytes(), MtlGraphicsPipeline::kIntrinsicUniformBufferIndex);
 }
 
-void MtlCommandBuffer::setBlendConstants(float* blendConstants) {
+void MtlCommandBuffer::setBlendConstants(std::array<float, 4> blendConstants) {
     SkASSERT(fActiveRenderCommandEncoder);
 
     fActiveRenderCommandEncoder->setBlendColor(blendConstants);
