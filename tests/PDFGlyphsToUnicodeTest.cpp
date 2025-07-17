@@ -71,7 +71,7 @@ DEF_TEST(SkPDF_ToUnicode, reporter) {
     glyphsInSubset.push_back(13);
     glyphToUnicode.push_back(0x37);  // 13
     for (uint16_t i = 14; i < 0xFE; ++i) {
-        glyphToUnicode.push_back(0);  // Zero from index 0x9 to 0xFD
+        glyphToUnicode.push_back(0);  // Zero from index 14 to 0xFD
     }
     glyphsInSubset.push_back(0xFE);
     glyphToUnicode.push_back(0x1010);
@@ -82,14 +82,17 @@ DEF_TEST(SkPDF_ToUnicode, reporter) {
     glyphsInSubset.push_back(0x101);
     glyphToUnicode.push_back(0x1013);
 
-    glyphToUnicodeEx.set(0x9, SkString("ffi"));
+    glyphToUnicodeEx.set(14, SkString("ffi"));
     glyphToUnicodeEx.set(0xFC, SkString("st"));
 
     SkGlyphID lastGlyphID = SkToU16(glyphToUnicode.size() - 1);
 
     SkDynamicMemoryWStream buffer;
-    for (SkGlyphID v : glyphsInSubset) {
-        subset.set(v);
+    for (SkGlyphID gid : glyphsInSubset) {
+        subset.set(gid);
+    }
+    for (auto&& [gid, str] : glyphToUnicodeEx) {
+        subset.set(gid);
     }
     SkPDFAppendCmapSections(glyphToUnicode.data(), glyphToUnicodeEx, &subset, &buffer, true, 0,
                             std::min<SkGlyphID>(0xFFFF,  lastGlyphID));
@@ -102,8 +105,8 @@ DEF_TEST(SkPDF_ToUnicode, reporter) {
 <0009> <0033>\n\
 endbfchar\n\
 2 beginbfchar\n\
-<0009> <006600660069>\n\
 <00FC> <00730074>\n\
+<000E> <006600660069>\n\
 endbfchar\n\
 4 beginbfrange\n\
 <0005> <0007> <0027>\n\
@@ -126,8 +129,8 @@ endbfrange\n";
 <0009> <0033>\n\
 endbfchar\n\
 2 beginbfchar\n\
-<0009> <006600660069>\n\
 <00FC> <00730074>\n\
+<000E> <006600660069>\n\
 endbfchar\n\
 2 beginbfrange\n\
 <000B> <000D> <0035>\n\
@@ -147,8 +150,9 @@ endbfrange\n";
 <000D> <0037>\n\
 <00FE> <1010>\n\
 endbfchar\n\
-1 beginbfchar\n\
+2 beginbfchar\n\
 <00FC> <00730074>\n\
+<000E> <006600660069>\n\
 endbfchar\n";
 
     REPORTER_ASSERT(reporter, stream_equals(buffer, expectedResultChop2));
