@@ -8,7 +8,11 @@
 #include "include/core/SkTypes.h"
 
 #if defined(SK_GRAPHITE)
+#include "include/core/SkRefCnt.h"
 #include "include/effects/SkRuntimeEffect.h"
+#include "include/gpu/graphite/GraphiteTypes.h"
+#include "include/gpu/graphite/PrecompileContext.h"
+#include "include/gpu/graphite/precompile/PaintOptions.h"
 #include "include/gpu/graphite/precompile/Precompile.h"
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileRuntimeEffect.h"
@@ -21,6 +25,8 @@
 #include "include/gpu/graphite/vk/precompile/VulkanPrecompileShader.h"
 #include "include/gpu/vk/VulkanTypes.h"
 #endif // SK_VULKAN
+
+#include "tests/graphite/precompile/AndroidRuntimeEffectManager.h"
 
 using namespace skgpu::graphite;
 using PrecompileShaders::ImageShaderFlags;
@@ -66,7 +72,7 @@ sk_sp<PrecompileShader> vulkan_ycbcr_image_shader(uint64_t format,
 } // anonymous namespace
 #endif // SK_VULKAN
 
-// Specifies the child shader to be created for a RE_LinearEffect
+// Specifies the child shader to be created for a LinearEffect
 enum class ChildType {
     kSolidColor,
     kHWTexture,
@@ -76,56 +82,6 @@ enum class ChildType {
 };
 
 namespace {
-
-// Note: passing in a name to 'makeEffect' is a difference from Android's factory functions.
-sk_sp<SkRuntimeEffect> makeEffect(const SkString& sksl, const char* name) {
-    SkRuntimeEffect::Options options;
-    options.fName = name;
-
-    auto [effect, error] = SkRuntimeEffect::MakeForShader(sksl, options);
-    if (!effect) {
-        SkDebugf("%s\n", error.c_str());
-    }
-    return effect;
-}
-
-// This assumes there is some Singleton in Android that can provide RE_LinearEffects
-// given some input. For this mock up, the input is just the parameter portion
-// of the RE_LinearEffect Pipeline label (e.g., "UNKNOWN__SRGB__false__UNKNOWN").
-// Presumably, irl, the parameters would be the actual types used to create the label.
-class LinearEffectSingleton {
-public:
-    sk_sp<SkRuntimeEffect> findOrCreate(const char* parameterStr) {
-        SkString name = SkStringPrintf("RE_LinearEffect_%s__Shader",
-                                       parameterStr);
-
-        auto result = fEffects.find(name.c_str());
-        if (result != fEffects.end()) {
-            return result->second;
-        }
-
-        // Each code snippet must be unique, otherwise Skia will internally find a match
-        // and uniquify things. To avoid this we just add an arbitrary alpha constant
-        // to the code.
-        static float arbitraryAlpha = 0.051f;
-        SkString linearEffectCode = SkStringPrintf(
-            "uniform shader child;"
-            "vec4 main(vec2 xy) {"
-                "float3 linear = toLinearSrgb(child.eval(xy).rgb);"
-                "return float4(fromLinearSrgb(linear), %f);"
-            "}",
-            arbitraryAlpha);
-        arbitraryAlpha += 0.05f;
-
-        sk_sp<SkRuntimeEffect> linearEffect = makeEffect(linearEffectCode, name.c_str());
-
-        fEffects.insert({ name.c_str(), linearEffect });
-        return linearEffect;
-    }
-
-private:
-    std::map<std::string, sk_sp<SkRuntimeEffect>> fEffects;
-};
 
 sk_sp<PrecompileShader> create_child_shader(ChildType childType) {
     switch (childType) {
@@ -157,19 +113,14 @@ sk_sp<PrecompileShader> create_child_shader(ChildType childType) {
 
 } // anonymous namespace
 
-skgpu::graphite::PaintOptions LinearEffect(const char* parameterStr,
+skgpu::graphite::PaintOptions LinearEffect(sk_sp<SkRuntimeEffect> linearEffect,
                                            ChildType childType,
                                            SkBlendMode blendMode,
                                            bool paintColorIsOpaque = true,
                                            bool matrixColorFilter = false,
                                            bool dither = false) {
-    static LinearEffectSingleton gLinearEffectSingleton;
-
     PaintOptions paintOptions;
-
-    sk_sp<SkRuntimeEffect> linearEffect = gLinearEffectSingleton.findOrCreate(parameterStr);
     sk_sp<PrecompileShader> child = create_child_shader(childType);
-
     paintOptions.setShaders({ PrecompileRuntimeEffects::MakePrecompileShader(
                                             std::move(linearEffect),
                                             { { std::move(child) } }) });
@@ -186,95 +137,22 @@ skgpu::graphite::PaintOptions LinearEffect(const char* parameterStr,
 // =======================================
 //         PaintOptions
 // =======================================
-// NOTE: keep in sync with upstream external/skia/tests/graphite/precompile/PrecompileTestUtils.cpp
+// NOTE: keep in sync with upstream external/skia/tests/graphite/precompile/AndroidPaintOptions.cpp
 // clang-format off
-
-namespace {
-
-class MouriMap {
-public:
-    MouriMap() {
-        // The following code blocks are just stubs for the Android code. For Skia's testing
-        // purposes they only need to have the same name and number of children as the real code.
-        // When the following PaintOptions are used in Android the real SkSL must be supplied.
-        static const SkString kCrosstalkAndChunk16x16Code(R"(
-            uniform shader img;
-            vec4 main(vec2 xy) {
-                float3 linear = img.eval(0.25 * xy).rgb;
-                return float4(linear, 1.0);
-            }
-        )");
-
-        fCrosstalkAndChunk16x16Effect = makeEffect(kCrosstalkAndChunk16x16Code,
-                                                   "RE_MouriMap_CrossTalkAndChunk16x16Effect");
-
-        static const SkString kChunk8x8Code(R"(
-            uniform shader img;
-            vec4 main(vec2 xy) {
-                return float4(img.eval(0.33 * xy).rgb, 1.0);
-            }
-        )");
-
-        fChunk8x8Effect = makeEffect(kChunk8x8Code, "RE_MouriMap_Chunk8x8Effect");
-
-
-        static const SkString kBlurCode(R"(
-            uniform shader img;
-            vec4 main(vec2 xy) {
-                return float4(img.eval(0.4 * xy).rgb, 0.0);
-            }
-        )");
-
-        fBlurEffect = makeEffect(kBlurCode, "RE_MouriMap_BlurEffect");
-
-        static const SkString kTonemapCode(R"(
-            uniform shader image;
-            uniform shader lux;
-            vec4 main(vec2 xy) {
-                float localMax = lux.eval(xy * 0.4).r;
-                float4 rgba = image.eval(0.5 * xy);
-                float3 linear = rgba.rgb * 0.7;
-
-                return float4(linear, rgba.a);
-            }
-        )");
-
-        fToneMapEffect = makeEffect(kTonemapCode, "RE_MouriMap_TonemapEffect");
-    }
-
-    sk_sp<SkRuntimeEffect> crosstalkAndChunk16x16Effect() const {
-        return fCrosstalkAndChunk16x16Effect;
-    }
-    sk_sp<SkRuntimeEffect> chunk8x8Effect() const { return fChunk8x8Effect; }
-    sk_sp<SkRuntimeEffect> blurEffect() const { return fBlurEffect; }
-    sk_sp<SkRuntimeEffect> toneMapEffect() const { return fToneMapEffect; }
-
-private:
-    sk_sp<SkRuntimeEffect> fCrosstalkAndChunk16x16Effect;
-    sk_sp<SkRuntimeEffect> fChunk8x8Effect;
-    sk_sp<SkRuntimeEffect> fBlurEffect;
-    sk_sp<SkRuntimeEffect> fToneMapEffect;
-};
-
-const MouriMap& MouriMap() {
-    static class MouriMap MouriMap;
-
-    return MouriMap;
-}
-
-} // anonymous namespace
 
 // TODO(b/426601394): Update this to take an SkColorInfo for the input image.
 // The other MouriMap* precompile paint options should use a linear SkColorInfo
 // derived from this same input image.
-skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16Passthrough() {
+skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16Passthrough(
+        RuntimeEffectManager& effectManager) {
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
     sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
                                                            { &ci, 1 },
                                                            {});
 
     sk_sp<PrecompileShader> crosstalk = PrecompileRuntimeEffects::MakePrecompileShader(
-            MouriMap().crosstalkAndChunk16x16Effect(),
+            effectManager.getKnownRuntimeEffect(
+                    RuntimeEffectManager::KnownId::kMouriMap_CrossTalkAndChunk16x16Effect),
             { { std::move(img) } });
 
     PaintOptions paintOptions;
@@ -283,7 +161,8 @@ skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16Passthrough() {
     return paintOptions;
 }
 
-skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16Premul() {
+skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16Premul(
+        RuntimeEffectManager& effectManager) {
     // This usage of kUnpremul is non-obvious. It acts to short circuit the identity-colorspace
     // optimization for runtime effects. In this case, the Pipeline requires a
     // ColorSpaceTransformPremul instead of the (optimized) Passthrough.
@@ -293,7 +172,8 @@ skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16Premul() {
                                                            {});
 
     sk_sp<PrecompileShader> crosstalk = PrecompileRuntimeEffects::MakePrecompileShader(
-            MouriMap().crosstalkAndChunk16x16Effect(),
+            effectManager.getKnownRuntimeEffect(
+                    RuntimeEffectManager::KnownId::kMouriMap_CrossTalkAndChunk16x16Effect),
             { { std::move(img) } });
 
     PaintOptions paintOptions;
@@ -302,14 +182,15 @@ skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16Premul() {
     return paintOptions;
 }
 
-skgpu::graphite::PaintOptions MouriMapChunk8x8Effect() {
+skgpu::graphite::PaintOptions MouriMapChunk8x8Effect(RuntimeEffectManager& effectManager) {
     SkColorInfo ci { kRGBA_F16_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGBLinear() };
     sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
                                                            { &ci, 1 },
                                                            {});
 
     sk_sp<PrecompileShader> chunk8x8 = PrecompileRuntimeEffects::MakePrecompileShader(
-            MouriMap().chunk8x8Effect(),
+            effectManager.getKnownRuntimeEffect(
+                    RuntimeEffectManager::KnownId::kMouriMap_Chunk8x8Effect),
             { { std::move(img) } });
 
     PaintOptions paintOptions;
@@ -318,14 +199,15 @@ skgpu::graphite::PaintOptions MouriMapChunk8x8Effect() {
     return paintOptions;
 }
 
-skgpu::graphite::PaintOptions MouriMapBlur() {
+skgpu::graphite::PaintOptions MouriMapBlur(RuntimeEffectManager& effectManager) {
     SkColorInfo ci { kRGBA_F16_SkColorType, kPremul_SkAlphaType, SkColorSpace::MakeSRGBLinear() };
     sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
                                                            { &ci, 1 },
                                                            {});
 
     sk_sp<PrecompileShader> blur = PrecompileRuntimeEffects::MakePrecompileShader(
-            MouriMap().blurEffect(),
+            effectManager.getKnownRuntimeEffect(
+                    RuntimeEffectManager::KnownId::kMouriMap_BlurEffect),
             { { std::move(img) } });
 
     PaintOptions paintOptions;
@@ -334,7 +216,7 @@ skgpu::graphite::PaintOptions MouriMapBlur() {
     return paintOptions;
 }
 
-skgpu::graphite::PaintOptions MouriMapToneMap() {
+skgpu::graphite::PaintOptions MouriMapToneMap(RuntimeEffectManager& effectManager) {
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
     sk_sp<PrecompileShader> input = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
                                                              { &ci, 1 },
@@ -348,7 +230,8 @@ skgpu::graphite::PaintOptions MouriMapToneMap() {
                                                             {});
 
     sk_sp<PrecompileShader> toneMap = PrecompileRuntimeEffects::MakePrecompileShader(
-            MouriMap().toneMapEffect(),
+            effectManager.getKnownRuntimeEffect(
+                    RuntimeEffectManager::KnownId::kMouriMap_TonemapEffect),
             { { std::move(input) }, { std::move(lux) } });
     sk_sp<PrecompileShader> inLinear =
             toneMap->makeWithWorkingColorSpace(luxCI.refColorSpace());
@@ -360,19 +243,9 @@ skgpu::graphite::PaintOptions MouriMapToneMap() {
 }
 
 
-skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver() {
-    static const SkString kLowSampleBlurCode(R"(
-        uniform shader img;
-
-        half4 main(float2 xy) {
-            half3 c = img.eval(0.55 * xy).rgb;
-            return half4(c, 1.0);
-        }
-    )");
-
-    sk_sp<SkRuntimeEffect> lowSampleBlurEffect = makeEffect(
-            kLowSampleBlurCode,
-            "RE_KawaseBlurDualFilter_LowSampleBlurEffect");
+skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver(RuntimeEffectManager& effectManager) {
+    sk_sp<SkRuntimeEffect> lowSampleBlurEffect = effectManager.getKnownRuntimeEffect(
+            RuntimeEffectManager::KnownId::kKawaseBlurDualFilter_LowSampleBlurEffect);
 
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
     sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
@@ -389,19 +262,9 @@ skgpu::graphite::PaintOptions KawaseBlurLowSrcSrcOver() {
     return paintOptions;
 }
 
-skgpu::graphite::PaintOptions KawaseBlurHighSrc() {
-    SkString kHighSampleBlurCode(R"(
-        uniform shader img;
-
-        half4 main(float2 xy) {
-            half3 c = img.eval(0.6 * xy).rgb;
-            return half4(c * 0.5, 1.0);
-        }
-    )");
-
-    sk_sp<SkRuntimeEffect> highSampleBlurEffect = makeEffect(
-            kHighSampleBlurCode,
-            "RE_KawaseBlurDualFilter_HighSampleBlurEffect");
+skgpu::graphite::PaintOptions KawaseBlurHighSrc(RuntimeEffectManager& effectManager) {
+    sk_sp<SkRuntimeEffect> highSampleBlurEffect = effectManager.getKnownRuntimeEffect(
+            RuntimeEffectManager::KnownId::kKawaseBlurDualFilter_HighSampleBlurEffect);
 
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
     sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
@@ -418,17 +281,9 @@ skgpu::graphite::PaintOptions KawaseBlurHighSrc() {
     return paintOptions;
 }
 
-skgpu::graphite::PaintOptions BlurFilterMix() {
-    static const SkString kMixCode(R"(
-        uniform shader img1;
-        uniform shader img2;
-
-        half4 main(float2 xy) {
-            return half4(mix(img1.eval(xy), img2.eval(xy), 0.5)).rgb1;
-        }
-    )");
-
-    sk_sp<SkRuntimeEffect> mixEffect = makeEffect(kMixCode, "RE_BlurFilter_MixEffect");
+skgpu::graphite::PaintOptions BlurFilterMix(RuntimeEffectManager& effectManager) {
+    sk_sp<SkRuntimeEffect> mixEffect = effectManager.getKnownRuntimeEffect(
+            RuntimeEffectManager::KnownId::kBlurFilter_MixEffect);
 
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
     sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
@@ -498,7 +353,8 @@ PaintOptions TransparentPaintImagePremulYCbCr240Srcover() {
     return paintOptions;
 }
 
-skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16YCbCr247() {
+skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16YCbCr247(
+        RuntimeEffectManager& effectManager) {
     PaintOptions paintOptions;
 
     // HardwareImage(3: kEwAAPcAAAAAAAAA)
@@ -510,7 +366,8 @@ skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16YCbCr247() {
             /*pqCS=*/true);
 
     sk_sp<PrecompileShader> crosstalk = PrecompileRuntimeEffects::MakePrecompileShader(
-            MouriMap().crosstalkAndChunk16x16Effect(),
+            effectManager.getKnownRuntimeEffect(
+                    RuntimeEffectManager::KnownId::kMouriMap_CrossTalkAndChunk16x16Effect),
             { { std::move(img) } });
 
     paintOptions.setShaders({ std::move(crosstalk) });
@@ -521,43 +378,7 @@ skgpu::graphite::PaintOptions MouriMapCrosstalkAndChunk16x16YCbCr247() {
 #endif // SK_VULKAN
 
 
-namespace {
-
-class EdgeExtension {
-public:
-    EdgeExtension() {
-        // The following code block is just a stub for the Android code. For Skia's testing
-        // purposes it only needs to have the same name and number of children as the real code.
-        // When the following PaintOptions are used in Android the real SkSL must be supplied.
-        static const SkString kEdgeExtensionCode(R"(
-            uniform shader img;
-
-            vec4 main(vec2 xy) {
-                float3 sample = img.eval(0.115 * xy).rgb;
-                return float4(sample, 1.0);
-            }
-        )");
-
-        fEdgeExtensionEffect = makeEffect(kEdgeExtensionCode, "RE_EdgeExtensionEffect");
-        SkASSERT(fEdgeExtensionEffect);
-    }
-
-    sk_sp<SkRuntimeEffect> edgeExtensionEffect() const { return fEdgeExtensionEffect; }
-
-private:
-    sk_sp<SkRuntimeEffect> fEdgeExtensionEffect;
-};
-
-const EdgeExtension& EdgeExtensionSingleton() {
-    static class EdgeExtension sEdgeExtension;
-
-    return sEdgeExtension;
-}
-
-} // anonymous namespace
-
-
-skgpu::graphite::PaintOptions EdgeExtensionPassthroughSrcover() {
+skgpu::graphite::PaintOptions EdgeExtensionPassthroughSrcover(RuntimeEffectManager& effectManager) {
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
 
     sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
@@ -565,7 +386,8 @@ skgpu::graphite::PaintOptions EdgeExtensionPassthroughSrcover() {
                                                            {});
 
     sk_sp<PrecompileShader> edgeEffect = PrecompileRuntimeEffects::MakePrecompileShader(
-            EdgeExtensionSingleton().edgeExtensionEffect(),
+            effectManager.getKnownRuntimeEffect(
+                    RuntimeEffectManager::KnownId::kEdgeExtensionEffect),
             { { std::move(img) } });
 
     PaintOptions paintOptions;
@@ -574,7 +396,7 @@ skgpu::graphite::PaintOptions EdgeExtensionPassthroughSrcover() {
     return paintOptions;
 }
 
-skgpu::graphite::PaintOptions EdgeExtensionPremulSrcover() {
+skgpu::graphite::PaintOptions EdgeExtensionPremulSrcover(RuntimeEffectManager& effectManager) {
     // This usage of kUnpremul is non-obvious. It acts to short circuit the identity-colorspace
     // optimization for runtime effects. In this case, the Pipeline requires a
     // ColorSpaceTransformPremul instead of the (optimized) Passthrough.
@@ -585,7 +407,8 @@ skgpu::graphite::PaintOptions EdgeExtensionPremulSrcover() {
                                                            {});
 
     sk_sp<PrecompileShader> edgeEffect = PrecompileRuntimeEffects::MakePrecompileShader(
-            EdgeExtensionSingleton().edgeExtensionEffect(),
+            effectManager.getKnownRuntimeEffect(
+                    RuntimeEffectManager::KnownId::kEdgeExtensionEffect),
             { { std::move(img) } });
 
     PaintOptions paintOptions;
@@ -596,14 +419,16 @@ skgpu::graphite::PaintOptions EdgeExtensionPremulSrcover() {
 
 
 
-skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPassthroughMatrixCFDitherSrcover() {
+skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPassthroughMatrixCFDitherSrcover(
+        RuntimeEffectManager& effectManager) {
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
     sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
                                                            { &ci, 1 },
                                                            {});
 
     sk_sp<PrecompileShader> edgeEffect = PrecompileRuntimeEffects::MakePrecompileShader(
-            EdgeExtensionSingleton().edgeExtensionEffect(),
+            effectManager.getKnownRuntimeEffect(
+                    RuntimeEffectManager::KnownId::kEdgeExtensionEffect),
             { { std::move(img) } });
 
     PaintOptions paintOptions;
@@ -616,14 +441,16 @@ skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPassthroughMatrixCFDi
     return paintOptions;
 }
 
-skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPassthroughSrcover() {
+skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPassthroughSrcover(
+        RuntimeEffectManager& effectManager) {
     SkColorInfo ci { kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr };
     sk_sp<PrecompileShader> img = PrecompileShaders::Image(ImageShaderFlags::kExcludeCubic,
                                                            { &ci, 1 },
                                                            {});
 
     sk_sp<PrecompileShader> edgeEffect = PrecompileRuntimeEffects::MakePrecompileShader(
-            EdgeExtensionSingleton().edgeExtensionEffect(),
+            effectManager.getKnownRuntimeEffect(
+                    RuntimeEffectManager::KnownId::kEdgeExtensionEffect),
             { { std::move(img) } });
 
     PaintOptions paintOptions;
@@ -634,7 +461,8 @@ skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPassthroughSrcover() 
     return paintOptions;
 }
 
-skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPremulSrcover() {
+skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPremulSrcover(
+        RuntimeEffectManager& effectManager) {
     // This usage of kUnpremul is non-obvious. It acts to short circuit the identity-colorspace
     // optimization for runtime effects. In this case, the Pipeline requires a
     // ColorSpaceTransformPremul instead of the (optimized) Passthrough.
@@ -645,7 +473,8 @@ skgpu::graphite::PaintOptions TransparentPaintEdgeExtensionPremulSrcover() {
                                                            {});
 
     sk_sp<PrecompileShader> edgeEffect = PrecompileRuntimeEffects::MakePrecompileShader(
-            EdgeExtensionSingleton().edgeExtensionEffect(),
+            effectManager.getKnownRuntimeEffect(
+                    RuntimeEffectManager::KnownId::kEdgeExtensionEffect),
             { { std::move(img) } });
 
     PaintOptions paintOptions;
@@ -749,9 +578,66 @@ constexpr DrawTypeFlags kRRectAndNonAARect =
 // clang-format on
 
 void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileContext,
+                             RuntimeEffectManager& effectManager,
                              const std::function<void(skgpu::graphite::PrecompileContext*,
                                                       const PrecompileSettings&,
                                                       int index)>& func) {
+    // Easy references to SkRuntimeEffects for various LinearEffects that may be reused in multiple
+    // precompilation scenarios.
+    // clang-format off
+    const auto kUNKNOWN__SRGB__false__UNKNOWN__Shader =
+            effectManager.getOrCreateLinearRuntimeEffect({
+                    /* inputDataspace= */ ui::Dataspace::UNKNOWN, // Default
+                    /* outputDataspace= */  ui::Dataspace::SRGB,   // (deprecated) sRGB sRGB Full range
+                    /* undoPremultipliedAlpha= */ false,
+                    /* fakeOutputDataspace= */ ui::Dataspace::UNKNOWN, // Default
+                    /* type= */ shaders::LinearEffect::SkSLType::Shader,
+            });
+
+    const auto kBT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader =
+            effectManager.getOrCreateLinearRuntimeEffect({
+                    /* inputDataspace= */ ui::Dataspace::BT2020_ITU_PQ, // BT2020 SMPTE 2084 Limited range
+                    /* outputDataspace= */ ui::Dataspace::BT2020, // BT2020 SMPTE_170M Full range
+                    /* undoPremultipliedAlpha= */ false,
+                    /* fakeOutputDataspace= */ ui::Dataspace::UNKNOWN, // Default
+                    /* type= */ shaders::LinearEffect::SkSLType::Shader,
+            });
+
+    const auto k0x188a0000__DISPLAY_P3__false__0x90a0000__Shader =
+            effectManager.getOrCreateLinearRuntimeEffect({
+                    /* inputDataspace= */ static_cast<ui::Dataspace>(0x188a0000), // DCI-P3 sRGB Extended range
+                    /* outputDataspace= */ ui::Dataspace::DISPLAY_P3, // DCI-P3 sRGB Full range
+                    /* undoPremultipliedAlpha= */ false,
+                    /* fakeOutputDataspace= */ static_cast<ui::Dataspace>(0x90a0000), // DCI-P3 gamma 2.2 Full range
+                    /* type= */ shaders::LinearEffect::SkSLType::Shader,
+            });
+
+    const auto kV0_SRGB__V0_SRGB__true__UNKNOWN__Shader =
+            effectManager.getOrCreateLinearRuntimeEffect({
+                    /* inputDataspace= */ ui::Dataspace::V0_SRGB,
+                    /* outputDataspace= */ ui::Dataspace::V0_SRGB,
+                    /* undoPremultipliedAlpha= */ true,
+                    /* fakeOutputDataspace= */ ui::Dataspace::UNKNOWN, // Default
+                    /* type= */ shaders::LinearEffect::SkSLType::Shader,
+            });
+
+    const auto k0x188a0000__V0_SRGB__true__0x9010000__Shader =
+            effectManager.getOrCreateLinearRuntimeEffect({
+                    /* inputDataspace= */ static_cast<ui::Dataspace>(0x188a0000), // DCI-P3 sRGB Extended range
+                    /* outputDataspace= */ ui::Dataspace::V0_SRGB,
+                    /* undoPremultipliedAlpha= */ true,
+                    /* fakeOutputDataspace= */ static_cast<ui::Dataspace>(0x9010000),
+                    /* type= */ shaders::LinearEffect::SkSLType::Shader,
+            });
+
+    // clang-format on
+
+    // =======================================
+    //            Combinations
+    // =======================================
+    // NOTE: keep in sync with upstream
+    // external/skia/tests/graphite/precompile/AndroidPaintOptions.cpp
+    // clang-format off
 
     // For non-Vulkan configs, these settings cover 126 of the 170 cases in 'kCases'.
     // They create 153 Pipelines so only modestly over-generate (27 extra Pipelines - 18%).
@@ -762,7 +648,7 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
     // These are sorted into groups based on (first) PaintOptions creation function and
     // then Render Pass Properties.
     // This helps observe DrawTypeFlags distributions.
-    const PrecompileSettings kPrecompileCases[] = {
+    const PrecompileSettings precompileCases[] = {
         // 100% (1/1) handles: 0
         { Builder().hwImg(kPremul).srcOver(),
           DrawTypeFlags::kNonAAFillRect,
@@ -889,72 +775,72 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
         // TODO(b/426601394): Group these paint option settings into a function that accepts an
         // input image color space so that the intermediate linear color spaces adapt correctly.
         // 100% (1/1) handles 5
-        { MouriMapBlur(),
+        { MouriMapBlur(effectManager),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA16F_1_D_Linear },
 
         // 100% (1/1) handles 55
-        { MouriMapToneMap(),
+        { MouriMapToneMap(effectManager),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA_1_D_SRGB },
 
         // 100% (1/1) handles 7
-        { MouriMapCrosstalkAndChunk16x16Passthrough(),
+        { MouriMapCrosstalkAndChunk16x16Passthrough(effectManager),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA16F_1_D_Linear },
 
         // 100% (1/1) handles 6
-        { MouriMapChunk8x8Effect(),
+        { MouriMapChunk8x8Effect(effectManager),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA16F_1_D_Linear },
 
         // 100% (2/2) handles 52 53
-        { KawaseBlurLowSrcSrcOver(),
+        { KawaseBlurLowSrcSrcOver(effectManager),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA_1_D },
 
         // 100% (1/1) handles 51
-        { KawaseBlurHighSrc(),
+        { KawaseBlurHighSrc(effectManager),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA_1_D },
 
         // 100% (2/2) handles 49 99
-        { BlurFilterMix(),
+        { BlurFilterMix(effectManager),
           kRRectAndNonAARect,
           kRGBA_1_D },
 
         // These two are solid colors drawn w/ a LinearEffect
 
         // 30: 100% (1/1) handles 4
-        { LinearEffect("UNKNOWN__SRGB__false__UNKNOWN",
+        { LinearEffect(kUNKNOWN__SRGB__false__UNKNOWN__Shader,
                        ChildType::kSolidColor,
                        SkBlendMode::kSrcOver),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA16F_1_D_SRGB },
 
         // 100% (1/1) handles 54
-        { LinearEffect("BT2020_ITU_PQ__BT2020__false__UNKNOWN",
+        { LinearEffect(kBT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader,
                        ChildType::kSolidColor,
                        SkBlendMode::kSrc),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA_1_D_SRGB },
 
         // 100% (2/2) handles 2 141
-        { LinearEffect("UNKNOWN__SRGB__false__UNKNOWN",
+        { LinearEffect(kUNKNOWN__SRGB__false__UNKNOWN__Shader,
                        ChildType::kHWTexture,
                        SkBlendMode::kSrcOver),
           DrawTypeFlags::kNonAAFillRect,
           kCombo_RGBA_1D_SRGB_w16F },
 
         // 67% (2/3) handles 26 64 - due to the w/o msaa load variants not being used
-        { LinearEffect("0x188a0000__DISPLAY_P3__false__0x90a0000",
+        { LinearEffect(k0x188a0000__DISPLAY_P3__false__0x90a0000__Shader,
                        ChildType::kHWTexture,
                        SkBlendMode::kSrcOver),
           DrawTypeFlags::kAnalyticRRect,
           kCombo_RGBA_1D_4DS_SRGB },
 
         // 100% (2/2) handles 139 140
-        { LinearEffect("0x188a0000__DISPLAY_P3__false__0x90a0000",
+        { LinearEffect(k0x188a0000__DISPLAY_P3__false__0x90a0000__Shader,
                        ChildType::kHWTexture,
                        SkBlendMode::kSrcOver),
           DrawTypeFlags::kNonAAFillRect,
@@ -962,7 +848,7 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
           kWithAnalyticClip },
 
         // 67% (2/3) handles 11 62 - due to the w/o msaa load variants not being used
-        { LinearEffect("0x188a0000__DISPLAY_P3__false__0x90a0000",
+        { LinearEffect(k0x188a0000__DISPLAY_P3__false__0x90a0000__Shader,
                        ChildType::kHWTexture,
                        SkBlendMode::kSrcOver,
                        /* paintColorIsOpaque= */ false),
@@ -972,7 +858,7 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
         // The next 3 have a RE_LinearEffect and a MatrixFilter along w/ different ancillary
         // additions
         // 100% (1/1) handles 20
-        { LinearEffect("0x188a0000__DISPLAY_P3__false__0x90a0000",
+        { LinearEffect(k0x188a0000__DISPLAY_P3__false__0x90a0000__Shader,
                        ChildType::kHWTexture,
                        SkBlendMode::kSrcOver,
                        /* paintColorIsOpaque= */ true,
@@ -981,7 +867,7 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
           kRGBA_1_D_SRGB },
 
         // 100% (1/1) handles 13
-        { LinearEffect("0x188a0000__DISPLAY_P3__false__0x90a0000",
+        { LinearEffect(k0x188a0000__DISPLAY_P3__false__0x90a0000__Shader,
                        ChildType::kHWTexture,
                        SkBlendMode::kSrcOver,
                        /* paintColorIsOpaque= */ false,
@@ -990,7 +876,7 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
           kRGBA_1_D_SRGB },
 
         // 100% (1/1) handles 18
-        { LinearEffect("0x188a0000__DISPLAY_P3__false__0x90a0000",
+        { LinearEffect(k0x188a0000__DISPLAY_P3__false__0x90a0000__Shader,
                        ChildType::kHWTexture,
                        SkBlendMode::kSrcOver,
                        /* paintColorIsOpaque= */ true,
@@ -1000,7 +886,7 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
           kRGBA_1_D_SRGB },
 
         // 100% (1/1) handles 103
-        { LinearEffect("V0_SRGB__V0_SRGB__true__UNKNOWN",
+        { LinearEffect(kV0_SRGB__V0_SRGB__true__UNKNOWN__Shader,
                        ChildType::kHWTexture,
                        SkBlendMode::kSrcOver,
                        /* paintColorIsOpaque= */ true,
@@ -1010,7 +896,7 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
           kRGBA16F_1_D_SRGB },
 
         // 40: 100% (1/1) handles 114
-        { LinearEffect("V0_SRGB__V0_SRGB__true__UNKNOWN",
+        { LinearEffect(kV0_SRGB__V0_SRGB__true__UNKNOWN__Shader,
                        ChildType::kHWTexture,
                        SkBlendMode::kSrcOver,
                        /* paintColorIsOpaque= */ true,
@@ -1020,7 +906,7 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
           kRGBA_1_D_SRGB },
 
         // 100% (1/1) handles 108
-        { LinearEffect("0x188a0000__V0_SRGB__true__0x9010000",
+        { LinearEffect(k0x188a0000__V0_SRGB__true__0x9010000__Shader,
                        ChildType::kHWTexture,
                        SkBlendMode::kSrcOver,
                        /* paintColorIsOpaque= */ true,
@@ -1030,7 +916,7 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
           kRGBA_1_D_SRGB },
 
         // 100% (1/1) handles 113
-        { LinearEffect("0x188a0000__V0_SRGB__true__0x9010000",
+        { LinearEffect(k0x188a0000__V0_SRGB__true__0x9010000__Shader,
                        ChildType::kHWTexture,
                        SkBlendMode::kSrcOver,
                        /* paintColorIsOpaque= */ true,
@@ -1040,7 +926,7 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
           kRGBA_1_D_SRGB },
 
         // 100% (1/1) handles 120
-        { LinearEffect("0x188a0000__DISPLAY_P3__false__0x90a0000",
+        { LinearEffect(k0x188a0000__DISPLAY_P3__false__0x90a0000__Shader,
                        ChildType::kHWTexture,
                        SkBlendMode::kSrcOver,
                        /* paintColorIsOpaque= */ false),
@@ -1048,7 +934,7 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
           kRGBA_1_D_SRGB },
 
         // 100% (1/1) handles 131
-        { LinearEffect("0x188a0000__DISPLAY_P3__false__0x90a0000",
+        { LinearEffect(k0x188a0000__DISPLAY_P3__false__0x90a0000__Shader,
                        ChildType::kHWTexture,
                        SkBlendMode::kSrcOver,
                        /* paintColorIsOpaque= */ true,
@@ -1084,27 +970,27 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
           kRGBA_4_DS },
 
         // 50: 100% (2/2) handles 96 112
-        { EdgeExtensionPremulSrcover(),
+        { EdgeExtensionPremulSrcover(effectManager),
           kRRectAndNonAARect,
           kRGBA_1_D },
 
         // 100% (1/1) handles: 126
-        { TransparentPaintEdgeExtensionPassthroughMatrixCFDitherSrcover(),
+        { TransparentPaintEdgeExtensionPassthroughMatrixCFDitherSrcover(effectManager),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA_1_D },
 
         // 100% (1/1) handles 97
-        { TransparentPaintEdgeExtensionPassthroughSrcover(),
+        { TransparentPaintEdgeExtensionPassthroughSrcover(effectManager),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA_1_D },
 
         // 100% (1/1) handles 98
-        { TransparentPaintEdgeExtensionPremulSrcover(),
+        { TransparentPaintEdgeExtensionPremulSrcover(effectManager),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA_1_D },
 
         // 100% (2/2) handles 137 138
-        { EdgeExtensionPassthroughSrcover(),
+        { EdgeExtensionPassthroughSrcover(effectManager),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA_1_D,
           kWithAnalyticClip },
@@ -1120,7 +1006,7 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
           kRGBA_1_D_SRGB },
 
         // 100% (1/1) handles 104
-        { MouriMapCrosstalkAndChunk16x16Premul(),
+        { MouriMapCrosstalkAndChunk16x16Premul(effectManager),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA16F_1_D_SRGB },
 
@@ -1200,14 +1086,14 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
         // 247 (kEwAAPcAAAAAAAAA) block ----------------
 
         // 70: 100% (1/1) handles 8
-        { MouriMapCrosstalkAndChunk16x16YCbCr247(),
+        { MouriMapCrosstalkAndChunk16x16YCbCr247(effectManager),
           DrawTypeFlags::kNonAAFillRect,
           kRGBA16F_1_D_SRGB },
 
         // The next 2 have the same PaintOptions but different destination surfaces
 
         // 75% (3/4) handles 21 39 40
-        { LinearEffect("BT2020_ITU_PQ__BT2020__false__UNKNOWN",
+        { LinearEffect(kBT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader,
                        ChildType::kHWTextureYCbCr247,
                        SkBlendMode::kSrcOver,
                        /* paintColorIsOpaque= */ true,
@@ -1218,7 +1104,7 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
           kWithAnalyticClip },
 
         // 100% (1/1) handles 79
-        { LinearEffect("BT2020_ITU_PQ__BT2020__false__UNKNOWN",
+        { LinearEffect(kBT2020_ITU_PQ__BT2020__false__UNKNOWN__Shader,
                        ChildType::kHWTextureYCbCr247,
                        SkBlendMode::kSrcOver,
                        /* paintColorIsOpaque= */ true,
@@ -1229,8 +1115,8 @@ void VisitPrecompileSettings(skgpu::graphite::PrecompileContext* precompileConte
 #endif
     };
 
-    for (size_t i = 0; i < std::size(kPrecompileCases); ++i) {
-        func(precompileContext, kPrecompileCases[i], i);
+    for (size_t i = 0; i < std::size(precompileCases); ++i) {
+        func(precompileContext, precompileCases[i], i);
     }
 }
 

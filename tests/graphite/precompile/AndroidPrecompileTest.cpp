@@ -13,12 +13,14 @@
 #include "src/gpu/graphite/PrecompileContextPriv.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/sksl/SkSLUtil.h"
+#include "tests/graphite/precompile/AndroidRuntimeEffectManager.h"
 #include "tests/graphite/precompile/PrecompileTestUtils.h"
 
 using namespace skgpu::graphite;
 using namespace PrecompileTestUtils;
 
 void VisitPrecompileSettings(skgpu::graphite::PrecompileContext*,
+                             RuntimeEffectManager& effectManager,
                              const std::function<void(skgpu::graphite::PrecompileContext*,
                                                       const PrecompileSettings&,
                                                       int index)>& func);
@@ -648,9 +650,11 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(AndroidPrecompileTest, is_acceptable_context_type
 #endif
 
     PipelineLabelInfoCollector collector({ kCases }, skip);
+    RuntimeEffectManager effectManager;
 
     VisitPrecompileSettings(
          precompileContext.get(),
+         effectManager,
          [&](skgpu::graphite::PrecompileContext* precompileContext,
              const PrecompileSettings& precompileCase,
              int index) {
