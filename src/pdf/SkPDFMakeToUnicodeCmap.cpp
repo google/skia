@@ -225,7 +225,9 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
 
     for (int i = firstGlyphID - glyphOffset; i < limit + 1; ++i) {
         SkGlyphID gid = i + glyphOffset;
-        bool inSubset = i < limit && (subset == nullptr || subset->has(gid));
+        bool inSubset = i < limit &&
+                        (subset == nullptr || subset->has(gid)) &&
+                        !glyphToUnicodeEx.find(gid);
         if (!rangeEmpty) {
             // PDF spec requires bfrange not changing the higher byte,
             // e.g. <1035> <10FF> <2222> is ok, but
@@ -255,8 +257,7 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
         }
     }
 
-    // The spec requires all bfchar entries for a font must come before bfrange
-    // entries.
+    // The spec requires all bfchar entries for a font must come before bfrange entries.
     append_bfchar_section(bfcharEntries, multiByteGlyphs, cmap);
     append_bfchar_section_ex(glyphToUnicodeEx, multiByteGlyphs, firstGlyphID, lastGlyphID, cmap);
     append_bfrange_section(bfrangeEntries, multiByteGlyphs, cmap);
