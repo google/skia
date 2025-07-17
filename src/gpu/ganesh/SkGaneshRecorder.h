@@ -30,6 +30,8 @@ public:
 
 private:
     GrRecordingContext* fGaneshCtx;
+
+    SkCanvas* makeCaptureCanvas(SkCanvas*) override { return nullptr; }
 };
 
 inline SkGaneshRecorder* AsGaneshRecorder(SkRecorder* recorder) {

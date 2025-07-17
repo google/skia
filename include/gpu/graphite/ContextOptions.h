@@ -171,6 +171,15 @@ struct SK_API ContextOptions {
      */
     SkSpan<sk_sp<SkRuntimeEffect>> fUserDefinedKnownRuntimeEffects;
 
+
+    /**
+     * An experimental flag in development. Behavior and performance is subject to change.
+     *
+     * Enables the use of startCapture and endCapture functions. Calling these APIs will capture all
+     * draw calls and surface creation from Recorders spawned from the Context.
+     */
+     bool fEnableCapture = false;
+
     /**
      * Private options that are only meant for testing within Skia's tools.
      */

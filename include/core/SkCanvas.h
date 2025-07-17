@@ -2584,6 +2584,8 @@ private:
     void checkForDeferredSave();
     void internalSetMatrix(const SkM44&);
 
+    virtual void onSurfaceDelete() {}
+
     friend class SkAndroidFrameworkUtils;
     friend class SkCanvasPriv;      // needs to expose android functions for testing outside android
     friend class AutoLayerForImageFilter;

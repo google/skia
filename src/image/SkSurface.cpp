@@ -235,6 +235,8 @@ GrRecordingContext* SkSurface::recordingContext() const {
 
 skgpu::graphite::Recorder* SkSurface::recorder() const { return asConstSB(this)->onGetRecorder(); }
 
+SkRecorder* SkSurface::baseRecorder() const { return asConstSB(this)->onGetBaseRecorder(); }
+
 bool SkSurface::wait(int numSemaphores, const GrBackendSemaphore* waitSemaphores,
                      bool deleteSemaphoresAfterWait) {
     return asSB(this)->onWait(numSemaphores, waitSemaphores, deleteSemaphoresAfterWait);

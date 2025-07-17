@@ -40,6 +40,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/base/SkRectMemcpy.h"
+#include "src/capture/SkCaptureManager.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCPUContextImpl.h"
 #include "src/core/SkCPURecorderImpl.h"
@@ -140,6 +141,9 @@ Context::Context(sk_sp<SharedContext> sharedContext,
                                                        options.fPipelineCallbackContext);
 
     fCPUContext = std::make_unique<skcpu::ContextImpl>();
+    if (options.fEnableCapture) {
+        fSharedContext->setCaptureManager(sk_make_sp<SkCaptureManager>());
+    }
 }
 
 Context::~Context() {
@@ -901,6 +905,19 @@ bool Context::supportsProtectedContent() const {
 
 GpuStatsFlags Context::supportedGpuStats() const {
     return fSharedContext->caps()->supportedGpuStats();
+}
+
+void Context::startCapture() {
+    if (fSharedContext->captureManager()) {
+        fSharedContext->captureManager()->toggleCapture(true);
+    }
+}
+
+void Context::endCapture() {
+    // TODO (b/412351769): Return an SkData block of serialized SKPs and other capture data
+    if (fSharedContext->captureManager()) {
+        fSharedContext->captureManager()->toggleCapture(false);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

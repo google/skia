@@ -271,6 +271,8 @@ private:
     void registerDevice(sk_sp<Device>);
     void deregisterDevice(const Device*);
 
+    SkCanvas* makeCaptureCanvas(SkCanvas*) override;
+
     sk_sp<SharedContext> fSharedContext;
     ResourceProvider* fResourceProvider; // May point to the Context's resource provider
     std::unique_ptr<ResourceProvider> fOwnedResourceProvider; // May be null

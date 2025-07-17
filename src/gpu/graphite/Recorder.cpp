@@ -267,6 +267,13 @@ SkCanvas* Recorder::makeDeferredCanvas(const SkImageInfo& imageInfo,
     return fTargetProxyCanvas.get();
 }
 
+SkCanvas* Recorder::makeCaptureCanvas(SkCanvas* canvas) {
+    if (fSharedContext->captureManager()) {
+        return fSharedContext->captureManager()->makeCaptureCanvas(canvas);
+    }
+    return nullptr;
+}
+
 void Recorder::registerDevice(sk_sp<Device> device) {
     ASSERT_SINGLE_OWNER
 

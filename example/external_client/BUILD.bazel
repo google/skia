@@ -217,6 +217,22 @@ cc_binary(
     ],
 )
 
+cc_binary(
+    name = "use_graphite_metal_capture",
+    srcs = ["src/graphite_metal_capture.cpp"],
+    target_compatible_with = select({
+        "@platforms//os:macos": [],
+        "@platforms//os:ios": [],
+        "//conditions:default": ["@platforms//:incompatible"],
+    }),
+    deps = [
+        ":graphite_metal_context_helper",
+        "@skia//:core",
+        "@skia//:graphite_native_metal",
+        "@skia//:jpeg_encode_codec",
+    ],
+)
+
 objc_library(
     name = "graphite_metal_context_helper",
     srcs = ["src/graphite_metal_context_helper.mm"],

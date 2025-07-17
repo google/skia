@@ -7,7 +7,6 @@
 
 #import "graphite_metal_context_helper.h"
 
-#import "include/gpu/ganesh/mtl/GrMtlTypes.h"
 #import "include/ports/SkCFObject.h"
 
 #import <Metal/Metal.h>

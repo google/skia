@@ -277,6 +277,19 @@ public:
      */
     GpuStatsFlags supportedGpuStats() const;
 
+    /*
+     * TODO (b/412351769): Do not use startCapture() or endCapture() as the feature is still under
+     * development.
+     *
+     * Starts the SkCapture. Must have set ContextOptions::fEnableCapture to start.
+     */
+    void startCapture();
+
+    /*
+     * Ends the SkCapture and returns the collected draws and surface creation.
+     */
+    void endCapture();
+
     // Provides access to functions that aren't part of the public API.
     ContextPriv priv();
     const ContextPriv priv() const;  // NOLINT(readability-const-return-type)

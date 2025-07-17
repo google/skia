@@ -44,4 +44,10 @@ void SharedContext::setRendererProvider(std::unique_ptr<RendererProvider> render
     fRendererProvider = std::move(rendererProvider);
 }
 
+void SharedContext::setCaptureManager(sk_sp<SkCaptureManager> captureManager) {
+    // Should only be called once and be non-null
+    SkASSERT(captureManager && !fCaptureManager);
+    fCaptureManager = captureManager;
+}
+
 } // namespace skgpu::graphite
