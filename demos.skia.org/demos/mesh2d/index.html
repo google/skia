@@ -90,7 +90,7 @@
   </div>
 </div>
 
-<script type="text/javascript" src="canvaskit.js"></script>
+<script type="text/javascript" src="https://unpkg.com/canvaskit-wasm@0.40.0/bin/full/canvaskit.js"></script>
 
 <script type="text/javascript">
   class MeshData {
@@ -584,7 +584,7 @@
 
   const meshScale = 0.75;
 
-  const loadCK = CanvasKitInit({ locateFile: (file) => 'https://demos.skia.org/demo/mesh2d/' + file });
+  const loadCK = CanvasKitInit({ locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.40.0/bin/full/' + file });
   const loadImage = new Promise(resolve => {
     const image = new Image();
     image.addEventListener('load', () => { resolve(image); });

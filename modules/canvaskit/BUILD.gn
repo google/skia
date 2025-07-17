@@ -160,7 +160,8 @@ skia_wasm_lib("canvaskit") {
     sources += [ "../../tools/sksltrace/SkSLTraceUtils.cpp" ]
   }
 
-  ldflags = []
+  ldflags =
+      [ "-sEXPORTED_RUNTIME_METHODS=HEAP32,HEAPU8,HEAPU16,HEAPU32,HEAPF32" ]
   if (is_debug) {
     ldflags += [
       "-O0",

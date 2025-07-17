@@ -33,6 +33,8 @@ BASE_LINKOPTS = [
     "-sDYNAMIC_EXECUTION=0",
     "-sFILESYSTEM=0",
     "-sEXPORTED_FUNCTIONS=['_malloc','_free']",
+    # https://github.com/emscripten-core/emscripten/pull/24079
+    "-sEXPORTED_RUNTIME_METHODS=HEAP32,HEAPU8,HEAPU16,HEAPU32,HEAPF32",
 ]
 
 RELEASE_OPTS = [
