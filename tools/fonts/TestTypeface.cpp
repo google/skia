@@ -251,9 +251,9 @@ public:
     SkTestScalerContext(TestTypeface& face,
                         const SkScalerContextEffects& effects,
                         const SkDescriptor* desc)
-            : SkScalerContext(face, effects, desc) {
-        fRec.getSingleMatrix(&fMatrix);
-    }
+        : SkScalerContext(face, effects, desc)
+        , fMatrix(fRec.getSingleMatrix())
+    {}
 
 protected:
     TestTypeface* getTestTypeface() const {
@@ -288,7 +288,7 @@ protected:
     }
 
 private:
-    SkMatrix fMatrix;
+    const SkMatrix fMatrix;
 };
 
 std::unique_ptr<SkScalerContext> TestTypeface::onCreateScalerContext(

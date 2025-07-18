@@ -168,9 +168,9 @@ public:
         return msg;
     }
 
-    void    getMatrixFrom2x2(SkMatrix*) const;
-    void    getLocalMatrix(SkMatrix*) const;
-    void    getSingleMatrix(SkMatrix*) const;
+    SkMatrix getMatrixFrom2x2() const;
+    SkMatrix getLocalMatrix() const;
+    SkMatrix getSingleMatrix() const;
 
     /** The kind of scale which will be applied by the underlying port (pre-matrix). */
     enum class PreMatrixScale {

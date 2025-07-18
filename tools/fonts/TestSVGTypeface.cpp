@@ -180,8 +180,9 @@ public:
     SkTestSVGScalerContext(TestSVGTypeface& face,
                            const SkScalerContextEffects& effects,
                            const SkDescriptor* desc)
-            : SkScalerContext(face, effects, desc) {
-        fRec.getSingleMatrix(&fMatrix);
+        : SkScalerContext(face, effects, desc)
+        , fMatrix(fRec.getSingleMatrix())
+    {
         SkScalar upem = this->getTestSVGTypeface()->fUpem;
         fMatrix.preScale(1.f / upem, 1.f / upem);
     }

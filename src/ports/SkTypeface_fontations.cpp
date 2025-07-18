@@ -595,8 +595,7 @@ protected:
                 if (upem == 0) {
                     mx.bounds = SkRect::MakeEmpty();
                 } else {
-                    SkMatrix fullTransform;
-                    fRec.getSingleMatrix(&fullTransform);
+                    SkMatrix fullTransform = fRec.getSingleMatrix();
                     fullTransform.preScale(1.f / upem, 1.f / upem);
 
                     sk_fontations::BoundsPainter boundsPainter(*this, fullTransform, upem);
@@ -788,8 +787,7 @@ protected:
             return false;
         }
 
-        SkMatrix scalerMatrix;
-        fRec.getSingleMatrix(&scalerMatrix);
+        SkMatrix scalerMatrix = fRec.getSingleMatrix();
         SkAutoCanvasRestore autoRestore(canvas, true /* doSave */);
 
         // Scale down so that COLR operations can happen in glyph coordinates.

@@ -480,9 +480,7 @@ protected:
                      -fcMatrix->yx, fcMatrix->yy, 0,
                       0           , 0           , 1);
 
-            SkMatrix sm;
-            rec->getMatrixFrom2x2(&sm);
-
+            SkMatrix sm = rec->getMatrixFrom2x2();
             sm.preConcat(fm);
             rec->fPost2x2[0][0] = sm.getScaleX();
             rec->fPost2x2[0][1] = sm.getSkewX();

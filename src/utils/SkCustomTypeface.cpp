@@ -253,9 +253,9 @@ public:
     SkUserScalerContext(SkUserTypeface& face,
                         const SkScalerContextEffects& effects,
                         const SkDescriptor* desc)
-            : SkScalerContext(face, effects, desc) {
-        fRec.getSingleMatrix(&fMatrix);
-    }
+        : SkScalerContext(face, effects, desc)
+        , fMatrix(fRec.getSingleMatrix())
+    {}
 
     const SkUserTypeface* userTF() const {
         return static_cast<SkUserTypeface*>(this->getTypeface());
@@ -364,7 +364,7 @@ protected:
     }
 
 private:
-    SkMatrix fMatrix;
+    const SkMatrix fMatrix;
 };
 
 std::unique_ptr<SkScalerContext> SkUserTypeface::onCreateScalerContext(
