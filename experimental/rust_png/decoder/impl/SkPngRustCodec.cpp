@@ -213,7 +213,8 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> CreateColorProfile(const rust_png::Re
     return SkEncodedInfo::ICCProfile::Make(profile);
 }
 
-SkEncodedInfo CreateEncodedInfo(const rust_png::Reader& reader) {
+// Returns `nullopt` when input errors are encountered.
+std::optional<SkEncodedInfo> CreateEncodedInfo(const rust_png::Reader& reader) {
     rust_png::ColorType rustColor = reader.output_color_type();
     SkEncodedInfo::Color skColor = ToColor(rustColor);
 
@@ -222,9 +223,13 @@ SkEncodedInfo CreateEncodedInfo(const rust_png::Reader& reader) {
         profile = nullptr;
     }
 
-    // `SkPngRustCodec::MakeFromStream` checks image dimensions against
-    // `kMaxPNGSize` before calling `CreateEncodedInfo`.  So here we can
-    // just assert that these casts are safe.
+    // Protect against large PNGs. See http://bugzil.la/251381 for more details.
+    constexpr uint32_t kMaxPNGSize = 1000000;
+    if ((reader.width() > kMaxPNGSize) || (reader.height() > kMaxPNGSize)) {
+        return std::nullopt;
+    }
+    // We checked image dimensions above, so here we can just assert that casts
+    // from `uint32_t` to `int` work ok.
     //
     // We don't use a saturating cast, because this could invalidate `fcTL`
     // checks done within the `png` crate.  For example, the new / truncated
@@ -429,14 +434,8 @@ SkEncodedOrigin GetEncodedOrigin(const rust_png::Reader& reader) {
     return kTopLeft_SkEncodedOrigin;
 }
 
-bool IsValidHeader(const SkEncodedInfo& imageInfo,
-                   const rust_png::Reader& reader) {
-    // Protect against large PNGs. See http://bugzil.la/251381 for more details.
-    constexpr uint32_t kMaxPNGSize = 1000000;
-    if ((reader.width() > kMaxPNGSize) || (reader.height() > kMaxPNGSize)) {
-        return false;
-    }
-
+bool IsValidFctlIfAny(const SkEncodedInfo& imageInfo,
+                      const rust_png::Reader& reader) {
     // Enforce that if an `fcTL` appears before an `IDAT` chunk, then it has the
     // same dimensions as the ones in the earlier `IHDR` chunk.  This
     // corresponds to the restrictions that the spec at
@@ -501,8 +500,14 @@ std::unique_ptr<SkPngRustCodec> SkPngRustCodec::MakeFromStream(std::unique_ptr<S
     }
     rust::Box<rust_png::Reader> reader = resultOfReader->unwrap();
 
-    SkEncodedInfo imageInfo = CreateEncodedInfo(*reader);
-    if (!IsValidHeader(imageInfo, *reader)) {
+    std::optional<SkEncodedInfo> maybeImageInfo = CreateEncodedInfo(*reader);
+    if (!maybeImageInfo.has_value()) {
+        *result = kErrorInInput;
+        return nullptr;
+    }
+    SkEncodedInfo& imageInfo = *maybeImageInfo;
+
+    if (!IsValidFctlIfAny(imageInfo, *reader)) {
         *result = kErrorInInput;
         return nullptr;
     }
