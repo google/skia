@@ -7,6 +7,8 @@
 
 #include "src/gpu/ganesh/gl/GrGLContext.h"
 
+#include <cstdlib>
+
 #include "include/gpu/ganesh/GrContextOptions.h"
 #include "src/gpu/ganesh/gl/GrGLGLSL.h"
 #include "src/sksl/SkSLGLSL.h"
