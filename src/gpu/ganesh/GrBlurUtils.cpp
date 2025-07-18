@@ -111,8 +111,8 @@ static bool draw_mask(skgpu::ganesh::SurfaceDrawContext* sdc,
                       const SkIRect& maskBounds,
                       GrPaint&& paint,
                       GrSurfaceProxyView mask) {
-    SkMatrix inverse;
-    if (!viewMatrix.invert(&inverse)) {
+    auto inverse = viewMatrix.invert();
+    if (!inverse) {
         return false;
     }
 
@@ -124,7 +124,7 @@ static bool draw_mask(skgpu::ganesh::SurfaceDrawContext* sdc,
     paint.setCoverageFragmentProcessor(
             GrTextureEffect::Make(std::move(mask), kUnknown_SkAlphaType, matrix));
 
-    sdc->fillPixelsWithLocalMatrix(clip, std::move(paint), maskBounds, inverse);
+    sdc->fillPixelsWithLocalMatrix(clip, std::move(paint), maskBounds, *inverse);
     return true;
 }
 
@@ -604,7 +604,9 @@ std::unique_ptr<GrFragmentProcessor> MakeRectBlur(GrRecordingContext* context,
         if (!viewMatrix.decomposeScale(&scale, &m)) {
             return nullptr;
         }
-        if (!m.invert(&invM)) {
+        if (auto inv = m.invert()) {
+            invM = *inv;
+        } else {
             return nullptr;
         }
         rect = {srcRect.left() * scale.width(),
@@ -1113,8 +1115,8 @@ static bool direct_filter_mask(GrRecordingContext* context,
         paint.setCoverageFragmentProcessor(std::move(fp));
         sdc->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, srcProxyRect);
     } else {
-        SkMatrix inverse;
-        if (!viewMatrix.invert(&inverse)) {
+        auto inverse = viewMatrix.invert();
+        if (!inverse) {
             return false;
         }
 
@@ -1123,7 +1125,7 @@ static bool direct_filter_mask(GrRecordingContext* context,
         devRRect.rect().makeOutset(extra, extra).roundOut(&proxyBounds);
 
         paint.setCoverageFragmentProcessor(std::move(fp));
-        sdc->fillPixelsWithLocalMatrix(clip, std::move(paint), proxyBounds, inverse);
+        sdc->fillPixelsWithLocalMatrix(clip, std::move(paint), proxyBounds, *inverse);
     }
 
     return true;

@@ -1608,19 +1608,16 @@ SkRect SkCanvas::getLocalClipBounds() const {
         return SkRect::MakeEmpty();
     }
 
-    SkMatrix inverse;
+    auto inverse = fMCRec->fMatrix.asM33().invert();
     // if we can't invert the CTM, we can't return local clip bounds
-    if (!fMCRec->fMatrix.asM33().invert(&inverse)) {
+    if (!inverse) {
         return SkRect::MakeEmpty();
     }
 
-    SkRect bounds;
     // adjust it outwards in case we are antialiasing
     const int margin = 1;
 
-    SkRect r = SkRect::Make(ibounds.makeOutset(margin, margin));
-    inverse.mapRect(&bounds, r);
-    return bounds;
+    return inverse->mapRect(SkRect::Make(ibounds.makeOutset(margin, margin)));
 }
 
 SkIRect SkCanvas::getDeviceClipBounds() const {

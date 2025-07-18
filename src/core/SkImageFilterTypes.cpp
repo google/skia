@@ -398,8 +398,7 @@ SkMatrix Mapping::map<SkMatrix>(const SkMatrix& m, const SkMatrix& matrix) {
     // operates on, and outputs to, the C1 coord space, we want to return a new matrix that is
     // equivalent to 'm' that operates on and outputs to C2. This is the same as mapping the input
     // from C2 to C1 (matrix^-1), then transforming by 'm', and then mapping from C1 to C2 (matrix).
-    SkMatrix inv;
-    SkAssertResult(matrix.invert(&inv));
+    SkMatrix inv = matrix.invert().value();
     inv.postConcat(m);
     inv.postConcat(matrix);
     return inv;
@@ -2007,7 +2006,7 @@ SkSpan<sk_sp<SkShader>> FilterResult::Builder::createInputShaders(
         // into is being sampled in parameter space. Add the inverse of the layerMatrix() (i.e.
         // layer to parameter space) as a local matrix to convert from the parameter-space coords
         // of the outer shader to the layer-space coords of the FilterResult).
-        SkAssertResult(fContext.mapping().layerMatrix().asM33().invert(&layerToParam));
+        layerToParam = fContext.mapping().layerMatrix().asM33().invert().value();
         // Automatically add nonTrivial sampling if the layer-to-parameter space mapping isn't
         // also pixel aligned.
         if (!is_nearly_integer_translation(LayerSpace<SkMatrix>(layerToParam))) {

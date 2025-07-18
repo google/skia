@@ -316,12 +316,11 @@ size_t SkPDFUtils::ColorToDecimal(uint8_t value, char result[5]) {
 }
 
 bool SkPDFUtils::InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox) {
-    SkMatrix inverse;
-    if (!matrix.invert(&inverse)) {
-        return false;
+    if (auto inverse = matrix.invert()) {
+        inverse->mapRect(bbox);
+        return true;
     }
-    inverse.mapRect(bbox);
-    return true;
+    return false;
 }
 
 void SkPDFUtils::PopulateTilingPatternDict(SkPDFDict* pattern,

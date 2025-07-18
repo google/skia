@@ -397,8 +397,8 @@ bool SkDevice::peekPixels(SkPixmap* pmap) {
 //////////////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkShader> make_post_inverse_lm(const SkShader* shader, const SkMatrix& lm) {
-     SkMatrix inverse_lm;
-    if (!shader || !lm.invert(&inverse_lm)) {
+    auto inverse_lm = lm.invert();
+    if (!shader || !inverse_lm) {
         return nullptr;
     }
 
@@ -415,10 +415,10 @@ static sk_sp<SkShader> make_post_inverse_lm(const SkShader* shader, const SkMatr
         shader = nested_shader.get();
     }
 
-    return shader->makeWithLocalMatrix(inverse_lm * prev_local_matrix);
+    return shader->makeWithLocalMatrix(*inverse_lm * prev_local_matrix);
 #endif
 
-    return shader->makeWithLocalMatrix(inverse_lm);
+    return shader->makeWithLocalMatrix(*inverse_lm);
 }
 
 void SkDevice::drawGlyphRunList(SkCanvas* canvas,

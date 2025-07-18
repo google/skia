@@ -329,18 +329,20 @@ GrGeometryProcessor* GrDefaultGeoProcFactory::MakeForDeviceSpace(SkArenaAlloc* a
                                                                  const Coverage& coverage,
                                                                  const LocalCoords& localCoords,
                                                                  const SkMatrix& viewMatrix) {
-    SkMatrix invert = SkMatrix::I();
+    SkMatrix inverse = SkMatrix::I();
     if (LocalCoords::kUnused_Type != localCoords.fType) {
         SkASSERT(LocalCoords::kUsePosition_Type == localCoords.fType);
-        if (!viewMatrix.isIdentity() && !viewMatrix.invert(&invert)) {
+        if (auto inv = viewMatrix.invert()) {
+            inverse = *inv;
+        } else {
             return nullptr;
         }
 
         if (localCoords.hasLocalMatrix()) {
-            invert.postConcat(*localCoords.fMatrix);
+            inverse.postConcat(*localCoords.fMatrix);
         }
     }
 
-    LocalCoords inverted(LocalCoords::kUsePosition_Type, &invert);
+    LocalCoords inverted(LocalCoords::kUsePosition_Type, &inverse);
     return Make(arena, color, coverage, inverted, SkMatrix::I());
 }

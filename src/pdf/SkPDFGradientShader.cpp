@@ -822,14 +822,14 @@ static SkPDFIndirectReference make_function_shader(SkPDFDocument* doc,
                 // The two point radial gradient further references state.fInfo
                 // in translating from x, y coordinates to the t parameter. So, we have
                 // to transform the points and radii according to the calculated matrix.
-                SkShaderBase::GradientInfo infoCopy = info;
-                SkMatrix inverseMapperMatrix;
-                if (!mapperMatrix.invert(&inverseMapperMatrix)) {
+                auto inverseMapperMatrix = mapperMatrix.invert();
+                if (!inverseMapperMatrix) {
                     return SkPDFIndirectReference();
                 }
-                inverseMapperMatrix.mapPoints(infoCopy.fPoint);
-                infoCopy.fRadius[0] = inverseMapperMatrix.mapRadius(info.fRadius[0]);
-                infoCopy.fRadius[1] = inverseMapperMatrix.mapRadius(info.fRadius[1]);
+                SkShaderBase::GradientInfo infoCopy = info;
+                inverseMapperMatrix->mapPoints(infoCopy.fPoint);
+                infoCopy.fRadius[0] = inverseMapperMatrix->mapRadius(info.fRadius[0]);
+                infoCopy.fRadius[1] = inverseMapperMatrix->mapRadius(info.fRadius[1]);
                 twoPointConicalCode(infoCopy, perspectiveInverseOnly, &functionCode);
             } break;
             case SkShaderBase::GradientType::kSweep:

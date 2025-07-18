@@ -462,12 +462,12 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
 }
 
 void SkPDFDevice::drawPaint(const SkPaint& srcPaint) {
-    SkMatrix inverse;
-    if (!this->localToDevice().invert(&inverse)) {
+    auto inverse = this->localToDevice().invert();
+    if (!inverse) {
         return;
     }
     SkRect bbox = this->cs().bounds(this->bounds());
-    inverse.mapRect(&bbox);
+    inverse->mapRect(&bbox);
     bbox.roundOut(&bbox);
     if (this->hasEmptyClip()) {
         return;
@@ -1228,14 +1228,12 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
 
     // Get bounds of clip in current transform space
     // (clip bounds are given in device space).
-    SkMatrix transformInverse;
-    SkMatrix totalMatrix = this->localToDevice();
-
-    if (!totalMatrix.invert(&transformInverse)) {
+    auto transformInverse = this->localToDevice().invert();
+    if (!transformInverse) {
         return false;
     }
     SkRect bounds = this->cs().bounds(this->bounds());
-    transformInverse.mapRect(&bounds);
+    transformInverse->mapRect(&bounds);
 
     // Extend the bounds by the line width (plus some padding)
     // so the edge doesn't cause a visible stroke.
@@ -1252,11 +1250,10 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
 
 SkPDFIndirectReference SkPDFDevice::makeFormXObjectFromDevice(SkIRect bounds, bool alpha) {
     SkMatrix inverseTransform = SkMatrix::I();
-    if (!fInitialTransform.isIdentity()) {
-        if (!fInitialTransform.invert(&inverseTransform)) {
-            SkDEBUGFAIL("Layer initial transform should be invertible.");
-            inverseTransform.reset();
-        }
+    if (auto inv = fInitialTransform.invert()) {
+        inverseTransform = *inv;
+    } else {
+        SkDEBUGFAIL("Layer initial transform should be invertible.");
     }
     const char* colorSpace = alpha ? "DeviceGray" : nullptr;
 

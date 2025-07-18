@@ -78,9 +78,8 @@ public:
         }
 
         // general case
-        SkMatrix inverse;
-        if (mx.invert(&inverse)) {
-            inverse.mapRect(dst, src);
+        if (auto inverse = mx.invert()) {
+            inverse->mapRect(dst, src);
             return true;
         }
         return false;

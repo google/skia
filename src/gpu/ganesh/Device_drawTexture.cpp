@@ -330,7 +330,9 @@ void Device::drawEdgeAAImage(const SkImage* image,
     if (canUseTextureCoordsAsLocalCoords) {
         textureMatrix = SkMatrix::I();
     } else {
-        if (!srcToDst.invert(&textureMatrix)) {
+        if (auto inv = srcToDst.invert()) {
+            textureMatrix = *inv;
+        } else {
             return;
         }
     }
@@ -459,8 +461,8 @@ void Device::drawCoverageMask(const SkSpecialImage* mask,
     // local coords for evaluating the skpaint, whereas the provided 'maskToDevice'
     // just places the coverage mask.
     SkMatrix localToDevice = this->localToDevice();
-    SkMatrix deviceToLocal;
-    if (!localToDevice.invert(&deviceToLocal)) {
+    auto deviceToLocal = localToDevice.invert();
+    if (!deviceToLocal) {
         return;
     }
 
@@ -474,13 +476,13 @@ void Device::drawCoverageMask(const SkSpecialImage* mask,
 
     SkTileMode tileModes[] = {SkTileMode::kDecal, SkTileMode::kDecal};
 
-    SkMatrix deviceToMask;
-    if (!maskToDevice.invert(&deviceToMask)) {
+    auto deviceToMask = maskToDevice.invert();
+    if (!deviceToMask) {
         return;
     }
     // 'textureMaskSpace' needs to map from local coords -> mask coords -> texture coords.
     SkMatrix textureMaskSpace = localToDevice;
-    textureMaskSpace.postConcat(deviceToMask);
+    textureMaskSpace.postConcat(*deviceToMask);
     textureMaskSpace.postTranslate(mask->subset().fLeft, mask->subset().fTop);
 
     SkRect maskSubset = SkRect::Make(mask->subset());
@@ -500,7 +502,7 @@ void Device::drawCoverageMask(const SkSpecialImage* mask,
     SkCanvas::QuadAAFlags aaFlags = (aa == GrAA::kYes) ? SkCanvas::kAll_QuadAAFlags
                                                        : SkCanvas::kNone_QuadAAFlags;
 
-    SkMatrix maskToLocal = SkMatrix::Concat(deviceToLocal, maskToDevice);
+    SkMatrix maskToLocal = SkMatrix::Concat(*deviceToLocal, maskToDevice);
     SkRect maskRect = SkRect::MakeWH(mask->width(), mask->height());
     // 'local' are mask points transformed to get local space. 'localToDevice' may
     // have a perspective transform that 'maskToDevice' doesn't so this is necessary.
@@ -785,11 +787,11 @@ bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float 
         return false;
     }
 
-    SkMatrix deviceToLocal;
-    if (!localToDevice.invert(&deviceToLocal)){
+    auto deviceToLocal = localToDevice.invert();
+    if (!deviceToLocal) {
         return false;
     }
-    float localSigma = deviceToLocal.mapRadius(deviceSigma);
+    float localSigma = deviceToLocal->mapRadius(deviceSigma);
 
     fp = GrBlurUtils::MakeRRectBlur(context, localSigma, deviceSigma, rrect, devRRect);
     if (!fp) {

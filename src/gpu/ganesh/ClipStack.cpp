@@ -493,7 +493,9 @@ ClipStack::RawElement::RawElement(const SkMatrix& localToDevice, const GrShape& 
         , fInnerBounds(SkIRect::MakeEmpty())
         , fOuterBounds(SkIRect::MakeEmpty())
         , fInvalidatedByIndex(-1) {
-    if (!localToDevice.invert(&fDeviceToLocal)) {
+    if (auto inv = localToDevice.invert()) {
+        fDeviceToLocal = *inv;
+    } else {
         // If the transform can't be inverted, it means that two dimensions are collapsed to 0 or
         // 1 dimension, making the device-space geometry effectively empty.
         fShape.reset();

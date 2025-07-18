@@ -142,12 +142,12 @@ void SkDraw::drawAtlas(SkSpan<const SkRSXform> xform,
         mx.setRSXform(xform[i]);
         mx.preTranslate(-textures[i].fLeft, -textures[i].fTop);
         mx.postConcat(*fCTM);
-        SkMatrix inv;
-        if (!mx.invert(&inv)) {
-            return;
-        }
-        if (transformShader->update(inv)) {
-            fill_rect(mx, *fRC, textures[i], blitter);
+        if (auto inv = mx.invert()) {
+            if (transformShader->update(*inv)) {
+                fill_rect(mx, *fRC, textures[i], blitter);
+            }
+        } else {
+            return; // non-invertible
         }
     }
 }

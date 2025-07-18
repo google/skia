@@ -3865,17 +3865,18 @@ struct SkHalfPlane {
 // assumes plane is pre-normalized
 // If we fail in our calculations, we return the empty path
 static SkPath clip(const SkPath& path, const SkHalfPlane& plane) {
-    SkMatrix mx, inv;
+    SkMatrix mx;
     SkPoint p0 = { -plane.fA*plane.fC, -plane.fB*plane.fC };
     mx.setAll( plane.fB, plane.fA, p0.fX,
               -plane.fA, plane.fB, p0.fY,
                       0,        0,     1);
-    if (!mx.invert(&inv)) {
+    auto inv = mx.invert();
+    if (!inv) {
         return SkPath();
     }
 
     SkPath rotated;
-    path.transform(inv, &rotated);
+    path.transform(*inv, &rotated);
     if (!rotated.isFinite()) {
         return SkPath();
     }

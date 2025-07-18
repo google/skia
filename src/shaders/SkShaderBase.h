@@ -117,8 +117,8 @@ public:
     SkMatrix totalMatrix() const { return SkMatrix::Concat(fCTM, fTotalLocalMatrix); }
 
     /** Gets the inverse of totalMatrix(), if invertible. */
-    [[nodiscard]] bool totalInverse(SkMatrix* out) const {
-        return this->totalMatrix().invert(out);
+    std::optional<SkMatrix> totalInverse() const {
+        return this->totalMatrix().invert();
     }
 
     /** Is there a transform that has not yet been applied by a parent shader? */

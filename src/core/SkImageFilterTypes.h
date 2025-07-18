@@ -524,7 +524,13 @@ public:
     }
 
     bool invert(LayerSpace<SkMatrix>* inverse) const {
-        return fData.invert(inverse ? &inverse->fData : nullptr);
+        if (auto inv = fData.invert()) {
+            if (inverse) {
+                inverse->fData = *inv;
+            }
+            return true;
+        }
+        return false;
     }
 
     // Transforms 'r' by the inverse of this matrix if it is invertible and stores it in 'out'.
@@ -623,11 +629,10 @@ public:
         // Z values were 0 (this is true for local 2D geometry, not device space). Instead,
         // derive the 3x3 inverse of the flattened layer-to-device matrix, returning empty
         // if numerical stability meant its 4x4 was invertible but somehow the 3x3 wasn't.
-        SkMatrix devToLayer33;
-        if (!fLayerToDevMatrix.asM33().invert(&devToLayer33)) {
-            return LayerSpace<T>::Empty();
+        if (auto devToLayer33 = fLayerToDevMatrix.asM33().invert()) {
+            return LayerSpace<T>(map(static_cast<const T&>(devGeometry), *devToLayer33));
         }
-        return LayerSpace<T>(map(static_cast<const T&>(devGeometry), devToLayer33));
+        return LayerSpace<T>::Empty();
     }
 
     template<typename T>

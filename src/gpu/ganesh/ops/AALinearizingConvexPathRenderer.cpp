@@ -298,8 +298,8 @@ private:
             const SkMatrix* localCoordsMatrix = nullptr;
             SkMatrix ivm;
             if (fHelper.usesLocalCoords()) {
-                if (!args.fViewMatrix.invert(&ivm)) {
-                    ivm = SkMatrix::I();
+                if (auto inv = args.fViewMatrix.invert()) {
+                    ivm = *inv;
                 }
                 localCoordsMatrix = &ivm;
             }

@@ -586,8 +586,8 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkCoordClampSha
 static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkCTMShader* shader,
                                                            const GrFPArgs& args,
                                                            const SkShaders::MatrixRec& mRec) {
-    SkMatrix ctmInv;
-    if (!shader->ctm().invert(&ctmInv)) {
+    auto ctmInv = shader->ctm().invert();
+    if (!ctmInv) {
         return nullptr;
     }
 
@@ -599,7 +599,7 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkCTMShader* sh
     // In order for the shader to be evaluated with the original CTM, we explicitly evaluate it
     // at sk_FragCoord, and pass that through the inverse of the original CTM. This avoids requiring
     // local coords for the shader and mapping from the draw's local to device and then back.
-    return GrFragmentProcessor::DeviceSpace(GrMatrixEffect::Make(ctmInv, std::move(base)));
+    return GrFragmentProcessor::DeviceSpace(GrMatrixEffect::Make(*ctmInv, std::move(base)));
 }
 
 static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkEmptyShader* shader,

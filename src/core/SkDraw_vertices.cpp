@@ -318,8 +318,8 @@ void SkDraw::drawVertices(const SkVertices* vertices,
     if (vertexCount < 3 || (indexCount > 0 && indexCount < 3) || fRC->isEmpty()) {
         return;
     }
-    SkMatrix ctmInv;
-    if (!fCTM->invert(&ctmInv)) {
+    auto ctmInv = fCTM->invert();
+    if (!ctmInv) {
         return;
     }
 
@@ -348,5 +348,5 @@ void SkDraw::drawVertices(const SkVertices* vertices,
     }
 
     this->drawFixedVertices(
-            vertices, std::move(blender), paint, ctmInv, dev2, dev3, &outerAlloc, skipColorXform);
+            vertices, std::move(blender), paint, *ctmInv, dev2, dev3, &outerAlloc, skipColorXform);
 }

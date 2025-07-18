@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <cstring>
+#include <optional>
 
 struct SkRSXform;
 struct SkSize;
@@ -1196,23 +1197,20 @@ public:
     */
     bool setPolyToPoly(const SkPoint src[], const SkPoint dst[], int count);
 
-    /** Sets inverse to reciprocal matrix, returning true if SkMatrix can be inverted.
-        Geometrically, if SkMatrix maps from source to destination, inverse SkMatrix
-        maps from destination to source. If SkMatrix can not be inverted, inverse is
-        unchanged.
-
-        @param inverse  storage for inverted SkMatrix; may be nullptr
-        @return         true if SkMatrix can be inverted
+    /*
+     * If this matrix is invertible, return its inverse, else return {}.
     */
+    std::optional<SkMatrix> invert() const;
+
+    // deprecated
     [[nodiscard]] bool invert(SkMatrix* inverse) const {
-        // Allow the trivial case to be inlined.
-        if (this->isIdentity()) {
+        if (auto inv = this->invert()) {
             if (inverse) {
-                inverse->reset();
+                *inverse = *inv;
             }
             return true;
         }
-        return this->invertNonIdentity(inverse);
+        return false;
     }
 
     /** Fills affine with identity values in column major order.
@@ -1940,8 +1938,6 @@ private:
     MapPtsProc getMapPtsProc() const {
         return GetMapPtsProc(this->getType());
     }
-
-    [[nodiscard]] bool invertNonIdentity(SkMatrix* inverse) const;
 
     static bool Poly2Proc(const SkPoint[], SkMatrix*);
     static bool Poly3Proc(const SkPoint[], SkMatrix*);

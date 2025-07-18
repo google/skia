@@ -779,8 +779,6 @@ void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc,
         return;
     }
 
-    SkPackedGlyphID glyphID = glyph.getPackedID();
-
     if (!generatedPath) {
         generatedPath = this->generatePath(glyph);
     }
@@ -788,10 +786,12 @@ void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc,
         glyph.setPath(alloc, (SkPath*)nullptr, false, false);
         return;
     }
+
     SkPath path = std::move(generatedPath->path);
     bool pathModified = std::move(generatedPath->modified);
 
     if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
+        SkPackedGlyphID glyphID = glyph.getPackedID();
         SkFixed dx = glyphID.getSubXFixed();
         SkFixed dy = glyphID.getSubYFixed();
         if (dx | dy) {
@@ -802,52 +802,55 @@ void SkScalerContext::internalGetPath(SkGlyph& glyph, SkArenaAlloc* alloc,
 
     if (fRec.fFrameWidth < 0 && fPathEffect == nullptr) {
         glyph.setPath(alloc, &path, false, pathModified);
-    } else {
-        pathModified = true; // It could still end up the same, but it's probably going to change.
-
-        // need the path in user-space, with only the point-size applied
-        // so that our stroking and effects will operate the same way they
-        // would if the user had extracted the path themself, and then
-        // called drawPath
-        const SkMatrix matrix = fRec.getMatrixFrom2x2();
-        SkMatrix inverse;
-
-        if (!matrix.invert(&inverse)) {
-            SkPath empty;
-            glyph.setPath(alloc, &empty, false, pathModified);
-        }
-        auto localPath = path.makeTransform(inverse);
-        // now localPath is only affected by the paint settings, and not the canvas matrix
-
-        SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
-
-        if (fRec.fFrameWidth >= 0) {
-            rec.setStrokeStyle(fRec.fFrameWidth,
-                               SkToBool(fRec.fFlags & kFrameAndFill_Flag));
-            // glyphs are always closed contours, so cap type is ignored,
-            // so we just pass something.
-            rec.setStrokeParams((SkPaint::Cap)fRec.fStrokeCap,
-                                (SkPaint::Join)fRec.fStrokeJoin,
-                                fRec.fMiterLimit);
-        }
-
-        if (fPathEffect) {
-            SkPathBuilder builder;
-            if (fPathEffect->filterPath(&builder, localPath, &rec, nullptr, matrix)) {
-                localPath = builder.detach();
-            }
-        }
-
-        if (rec.needToApply()) {
-            SkPathBuilder builder;
-            if (rec.applyToPath(&builder, localPath)) {
-                localPath = builder.detach();
-            }
-        }
-
-        auto devPath = localPath.makeTransform(matrix);
-        glyph.setPath(alloc, &devPath, rec.isHairlineStyle(), pathModified);
+        return;
     }
+
+    pathModified = true; // It could still end up the same, but it's probably going to change.
+
+    // need the path in user-space, with only the point-size applied
+    // so that our stroking and effects will operate the same way they
+    // would if the user had extracted the path themself, and then
+    // called drawPath
+    SkMatrix matrix = fRec.getMatrixFrom2x2();
+
+    // We apply the inverse, so that localPath is only affected by the paint settings
+    // and not the canvas matrix.
+    auto inverse = matrix.invert();
+    if (!inverse) {
+        SkPath empty;
+        glyph.setPath(alloc, &empty, false, pathModified);
+        return;
+    }
+    auto localPath = path.makeTransform(*inverse);
+
+    SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
+
+    if (fRec.fFrameWidth >= 0) {
+        rec.setStrokeStyle(fRec.fFrameWidth,
+                           SkToBool(fRec.fFlags & kFrameAndFill_Flag));
+        // glyphs are always closed contours, so cap type is ignored,
+        // so we just pass something.
+        rec.setStrokeParams((SkPaint::Cap)fRec.fStrokeCap,
+                            (SkPaint::Join)fRec.fStrokeJoin,
+                            fRec.fMiterLimit);
+    }
+
+    if (fPathEffect) {
+        SkPathBuilder builder;
+        if (fPathEffect->filterPath(&builder, localPath, &rec, nullptr, matrix)) {
+            localPath = builder.detach();
+        }
+    }
+
+    if (rec.needToApply()) {
+        SkPathBuilder builder;
+        if (rec.applyToPath(&builder, localPath)) {
+            localPath = builder.detach();
+        }
+    }
+
+    auto devPath = localPath.makeTransform(matrix);
+    glyph.setPath(alloc, &devPath, rec.isHairlineStyle(), pathModified);
 }
 
 

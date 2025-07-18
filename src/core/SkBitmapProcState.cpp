@@ -231,9 +231,10 @@ bool SkBitmapProcState::init(const SkMatrix& inv, SkAlpha paintAlpha,
         // if it's already pure translate then we won't do this inversion.
 
         if (matrix_only_scale_translate(fInvMatrix)) {
-            SkMatrix forward;
-            if (fInvMatrix.invert(&forward) && just_trans_general(forward)) {
-                fInvMatrix.setTranslate(-forward.getTranslateX(), -forward.getTranslateY());
+            if (auto forward = fInvMatrix.invert()) {
+                if (just_trans_general(*forward)) {
+                    fInvMatrix.setTranslate(-forward->getTranslateX(), -forward->getTranslateY());
+                }
             }
         }
 

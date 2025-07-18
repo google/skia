@@ -1117,15 +1117,15 @@ void AAHairlineOp::onCreateProgramInfo(const GrCaps* caps,
                                        GrXferBarrierFlags renderPassXferBarriers,
                                        GrLoadOp colorLoadOp) {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
-    SkMatrix invert;
-    if (!this->viewMatrix().invert(&invert)) {
+    auto inverse = this->viewMatrix().invert();
+    if (!inverse) {
         return;
     }
 
     // we will transform to identity space if the viewmatrix does not have perspective
     bool hasPerspective = this->viewMatrix().hasPerspective();
     const SkMatrix* geometryProcessorViewM = &SkMatrix::I();
-    const SkMatrix* geometryProcessorLocalM = &invert;
+    const SkMatrix* geometryProcessorLocalM = &inverse.value();
     if (hasPerspective) {
         geometryProcessorViewM = &this->viewMatrix();
         geometryProcessorLocalM = &SkMatrix::I();
@@ -1180,8 +1180,8 @@ void AAHairlineOp::onPrePrepareDraws(GrRecordingContext* context,
 
 void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
     // Setup the viewmatrix and localmatrix for the GrGeometryProcessor.
-    SkMatrix invert;
-    if (!this->viewMatrix().invert(&invert)) {
+    auto inverse = this->viewMatrix().invert();
+    if (!inverse) {
         return;
     }
 
@@ -1190,7 +1190,7 @@ void AAHairlineOp::onPrepareDraws(GrMeshDrawTarget* target) {
     const SkMatrix* toSrc = nullptr;
     if (this->viewMatrix().hasPerspective()) {
         toDevice = &this->viewMatrix();
-        toSrc = &invert;
+        toSrc = &inverse.value();
     }
 
     SkDEBUGCODE(Program predictedPrograms = this->predictPrograms(&target->caps()));

@@ -787,8 +787,12 @@ private:
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override {
         SkMatrix invert;
-        if (fHelper.usesLocalCoords() && !fPaths.back().fViewMatrix.invert(&invert)) {
-            return;
+        if (fHelper.usesLocalCoords()) {
+            if (auto inv = fPaths.back().fViewMatrix.invert()) {
+                invert = *inv;
+            } else {
+                return;
+            }
         }
 
         GrGeometryProcessor* quadProcessor = QuadEdgeEffect::Make(arena, invert,
