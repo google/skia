@@ -207,24 +207,33 @@ bool intersect_shape(const Transform& otherToDevice, const Shape& otherShape,
         }
     }
 
+    // Since `otherShape` is either a rect or a round rect, bounds() is tight to the linear edges.
+    Rect localOtherRect = otherShape.bounds();
+    if (localToOther) {
+        localOtherRect = localToOther->inverseMapRect(localOtherRect);
+        SkASSERT(!localOtherRect.isEmptyNegativeOrNaN());
+    }
+    // Remember the edges that get clipped by the intersection
+    SkEnumBitMask<EdgeAAQuad::Flags> clippedEdges = clipped_edges(shape->bounds(), localOtherRect);
+    if (!shape->isFloodFill()) {
+        // And now it's tight to the intersection with `shape`, sans any corner rounding
+        localOtherRect.intersect(shape->bounds());
+    }
+    // Make sure that the intersected shape does not become subpixel in size, since drawing a
+    // subpixel/hairline shape produces a different result than something that's clipped.
+    float localAARadius = localToDevice.localAARadius(localOtherRect);
+    if (!std::isfinite(localAARadius) || any(localOtherRect.size() <= localAARadius)) {
+        return false;
+    }
+
     SkRRect localOtherRRect;
     if (otherShape.isRect()) {
-        Rect localOtherRect = otherShape.rect();
-        if (localToOther) {
-            localOtherRect = localToOther->inverseMapRect(localOtherRect);
-        }
-
-        if (shape->isRect()) {
+        if (shape->isRect() || shape->isFloodFill()) {
+            SkASSERT(*edgeFlags == EdgeAAQuad::Flags::kAll || !shape->isFloodFill());
             // Assuming that non-AA edges seam with non-AA edges other quads to create a uniform
             // coverage field, we turn on the AA edge flag when coincident or clipped. This will
             // create a nice AA edge from this draw while the other non-AA quad is discarded.
-            *edgeFlags |= clipped_edges(shape->rect(), localOtherRect);
-            localOtherRect.intersect(shape->rect());
-            SkASSERT(!localOtherRect.isEmptyNegativeOrNaN());
-            shape->setRect(localOtherRect);
-            return true;
-        } else if (shape->isFloodFill()) {
-            SkASSERT(*edgeFlags == EdgeAAQuad::Flags::kAll);
+            *edgeFlags |= clippedEdges; // This is a no-op if shape was a flood fill
             shape->setRect(localOtherRect);
             return true;
         } else {
@@ -245,9 +254,7 @@ bool intersect_shape(const Transform& otherToDevice, const Shape& otherShape,
         if (shape->isRect() && *edgeFlags != EdgeAAQuad::Flags::kAll) {
             // When combining a mixed edge AA quad with a rounded rectangle, we require that all
             // non-AA edges be clipped out entirely.
-            SkEnumBitMask<EdgeAAQuad::Flags> clipped = clipped_edges(shape->rect(),
-                                                                     localOtherRRect.rect());
-            if ((clipped | *edgeFlags) != EdgeAAQuad::Flags::kAll) {
+            if ((clippedEdges | *edgeFlags) != EdgeAAQuad::Flags::kAll) {
                 // The intersection shows AA'ed round corners and non-AA'ed edges, which can't be
                 // represented by just Geometry or Shape.
                 return false;
