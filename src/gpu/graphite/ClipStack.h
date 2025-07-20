@@ -144,7 +144,8 @@ private:
     class DrawShape;
 
     // This captures which of the two elements in (A op B) would be required when they are combined,
-    // where op is intersect or difference.
+    // where op is intersect or difference. If A and B are identical, kAOnly is returned over kBOnly
+    // even though both are technically correct.
     enum class SimplifyResult {
         kEmpty,
         kAOnly,
@@ -156,8 +157,8 @@ private:
     // Returns how this element affects the draw after more detailed analysis.
     enum class DrawInfluence {
         kClipsOutDraw,       // The element causes the draw shape to be entirely clipped out
-        kReplacesDraw,       // The element is fully covered, so the draw's shape can be ignored
         kNone,               // The element does not affect the draw
+        kReplacesDraw,       // The element is fully covered, so the draw's shape can be ignored
         kComplexInteraction, // The element affects the draw shape in a complex way
     };
     static DrawInfluence SimplifyForDraw(const TransformedShape& clip,
