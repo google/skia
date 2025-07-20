@@ -1289,10 +1289,26 @@ bool ClipStack::DrawShape::applyStyle(const SkStrokeRec& style, const Rect& devi
         fLocalToDevice = &kIdentity;
         fShapeMatchesGeometry = false;
     } else {
-        // SkStrokeRect::getInflationRadius() returns a device-space inflation for hairlines.
-        float localOutset = style.isHairlineStyle() ? 0.f : style.getInflationRadius();
-        if ((!style.isFillStyle() && style.getWidth() <= localAAOutset) ||
-            (style.isFillStyle() && !fShape.inverted() && any(origSize <= localAAOutset))) {
+        // SkStrokeRec::GetInflationRadius() returns a device-space inflation for hairlines.
+        float localOutset = 0.f;
+        if (!style.isFillStyle() && !style.isHairlineStyle()) {
+            // Rectangles, rounded rectangles, and lines do not produce miters so don't count the
+            // pessimistic limit against their draw bounds.
+            const float effectiveMiterLimit = fShape.isPath() ? style.getMiter() : 1.f;
+            // Rectangles and rounded rectangles don't have caps, so don't count that against their
+            // draw bounds (if we could efficiently know a path was a closed contour, it could
+            // be included here too).
+            const SkPaint::Cap effectiveCap = fShape.isRect() || fShape.isRRect()
+                    ? SkPaint::kButt_Cap : style.getCap();
+            localOutset = SkStrokeRec::GetInflationRadius(style.getJoin(),
+                                                          effectiveMiterLimit,
+                                                          effectiveCap,
+                                                          style.getWidth());
+        }
+
+        if (style.isHairlineStyle() ||
+            (!style.isFillStyle() && style.getWidth() < localAAOutset) ||
+            (style.isFillStyle() && !fShape.inverted() && any(origSize < localAAOutset))) {
             // The geometry is a hairline or projects to a subpixel shape, so rendering will not
             // follow the typical 1/2px outset anti-aliasing that is compatible with clipping.
             // In this case, apply the local AA radius to the shape to have a conservative clip
