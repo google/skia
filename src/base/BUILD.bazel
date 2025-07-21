@@ -1,6 +1,5 @@
 load(
     "//bazel:skia_rules.bzl",
-    "generate_cpp_files_for_headers",
     "skia_cc_library",
     "skia_filegroup",
 )
@@ -116,9 +115,4 @@ skia_cc_library(
         "//tools:__subpackages__",
     ],
     deps = ["@skia_user_config//:user_config"],
-)
-
-generate_cpp_files_for_headers(
-    name = "headers_to_compile",
-    headers = IWYU_HDRS,
 )

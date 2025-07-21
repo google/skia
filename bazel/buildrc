@@ -166,14 +166,6 @@ build:ck_full_webgl2_release_debugger --config=canvaskit_full --config=ck_webgl2
 build:ck_full_webgl2_release_chrome --config=ck_full_webgl2_release
 build:ck_full_cpu_release_chrome --config=ck_full_cpu_release
 
-# We only want to enforce IWYU on debug builds because we have some things that are only
-# necessary to include in debug mode (e.g. SkDEBUGCODE), but very rarely something that is
-# only needed in release mode. Thus our C++ debug includes should be a superset of the
-# release includes.
-build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
-                   --compilation_mode=dbg --keep_going \
-                   --linkopt="SKIA_SKIP_LINKING"
-
 build:use_linux_rbe_pool --config=linux_rbe --remote_download_minimal
 
 build:cpu_only --cc_output_directory_tag=cpu_tests

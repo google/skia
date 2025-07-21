@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_library", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -204,14 +204,5 @@ skia_cc_library(
         "//src/base",
         "//src/core:core_priv",
         "@libwebp",
-    ],
-)
-
-generate_cpp_files_for_headers(
-    name = "headers_to_compile",
-    headers = [
-        "SkICCPriv.h",
-        "SkImageEncoderFns.h",
-        "SkImageEncoderPriv.h",
     ],
 )

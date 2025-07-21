@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -66,12 +66,4 @@ skia_filegroup(
         "SkSVGValue.cpp",
     ],
     visibility = ["//modules/svg:__pkg__"],
-)
-
-generate_cpp_files_for_headers(
-    name = "headers_to_compile",
-    headers = [
-        "SkSVGRectPriv.h",
-        "SkSVGTextPriv.h",
-    ],
 )
