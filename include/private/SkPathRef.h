@@ -324,6 +324,8 @@ public:
      */
     const SkPoint* pointsEnd() const { return this->points() + this->countPoints(); }
 
+    SkSpan<const SkPoint> pointSpan() const { return fPoints; }
+
     const SkScalar* conicWeights() const { return fConicWeights.begin(); }
     const SkScalar* conicWeightsEnd() const { return fConicWeights.end(); }
 

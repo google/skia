@@ -347,6 +347,7 @@ public:
         return gPtsInVerb[verb];
     }
 
+    static bool IsAxisAligned(SkSpan<const SkPoint>);
     static bool IsAxisAligned(const SkPath& path);
 
     static bool AllPointsEq(const SkPoint pts[], int count) {

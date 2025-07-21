@@ -76,6 +76,9 @@ SkPathBuilder& SkPathBuilder::reset() {
     fLastMoveIndex = -1;        // illegal
     fNeedsMoveVerb = true;
 
+    fIsA = kIsA_JustMoves;
+    fConvexity = SkPathConvexity::kUnknown;
+
     return *this;
 }
 
@@ -109,6 +112,8 @@ SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
     fIsA      = is_a(ref);
     fIsAStart = ref->fRRectOrOvalStartIdx;
     fIsACCW   = ref->fRRectOrOvalIsCCW;
+
+    fConvexity = src.getConvexityOrUnknown();
 
     return *this;
 }
@@ -162,6 +167,12 @@ SkPathBuilder& SkPathBuilder::moveTo(SkPoint pt) {
 
     fLastMovePoint = pt;
     fNeedsMoveVerb = false;
+
+    if (fIsA == kIsA_Oval || fIsA == kIsA_RRect) {
+        fIsA = kIsA_MoreThanMoves;
+    }
+    fConvexity = SkPathConvexity::kUnknown;
+
     return *this;
 }
 
@@ -254,19 +265,18 @@ SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
-    auto convexity = SkPathConvexity::kUnknown;
     SkPathFirstDirection dir = SkPathFirstDirection::kUnknown;
 
     switch (fIsA) {
         case kIsA_Oval:
             pr->setIsOval(fIsACCW, fIsAStart);
-            convexity = SkPathConvexity::kConvex;
             dir = fIsACCW ? SkPathFirstDirection::kCCW : SkPathFirstDirection::kCW;
+            SkASSERT(fConvexity == SkPathConvexity::kConvex);
             break;
         case kIsA_RRect:
             pr->setIsRRect(fIsACCW, fIsAStart);
-            convexity = SkPathConvexity::kConvex;
             dir = fIsACCW ? SkPathFirstDirection::kCCW : SkPathFirstDirection::kCW;
+            SkASSERT(fConvexity == SkPathConvexity::kConvex);
             break;
         default: break;
     }
@@ -275,7 +285,7 @@ SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
     //  unknown, convex_cw, convex_ccw, concave
     // Do we ever have direction w/o convexity, or viceversa (inside path)?
     //
-    auto path = SkPath(std::move(pr), fFillType, fIsVolatile, convexity, dir);
+    auto path = SkPath(std::move(pr), fFillType, fIsVolatile, fConvexity, dir);
 
     // This hopefully can go away in the future when Paths are immutable,
     // but if while they are still editable, we need to correctly set this.
@@ -739,13 +749,20 @@ SkPathBuilder& SkPathBuilder::addRect(const SkRect& rect, SkPathDirection dir, u
     const int kVerbs = 5;   // moveTo + 3 lines + close
     this->incReserve(kPts, kVerbs);
 
+    const bool firstShape = (fIsA == kIsA_JustMoves);
+
     RectPointIterator iter(rect, dir, index);
 
     this->moveTo(iter.current());
     this->lineTo(iter.next());
     this->lineTo(iter.next());
     this->lineTo(iter.next());
-    return this->close();
+    this->close();
+
+    if (firstShape) {
+        fConvexity = SkPathConvexity::kConvex;
+    }
+    return *this;
 }
 
 SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, unsigned index) {
@@ -770,7 +787,9 @@ SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, u
         fIsA      = kIsA_Oval;
         fIsACCW   = (dir == SkPathDirection::kCCW);
         fIsAStart = index % 4;
+        fConvexity = SkPathConvexity::kConvex;
     }
+
     return *this;
 }
 
@@ -821,6 +840,7 @@ SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir
         fIsA      = kIsA_RRect;
         fIsACCW   = (dir == SkPathDirection::kCCW);
         fIsAStart = index % 8;
+        fConvexity = SkPathConvexity::kConvex;
     }
     return *this;
 }
@@ -1101,7 +1121,20 @@ SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix, SkApplyPerspecti
 
     matrix.mapPoints(fPts);
 
-    // TODO: handle bounds, convexity, and direction when added.
+    const bool isScaleTrans = matrix.isScaleTranslate();
+
+    // this logic is lifted from SkPath::transform()
+    if (fConvexity == SkPathConvexity::kConvex &&
+        (!isScaleTrans || !SkPathPriv::IsAxisAligned(this->points()))) {
+        // Not safe to still assume we're convex...
+        fConvexity = SkPathConvexity::kUnknown;
+    }
+
+    if (!isScaleTrans && (fIsA == kIsA_Oval || fIsA == kIsA_RRect)) {
+        fIsA = kIsA_MoreThanMoves;
+    }
+
+    // TODO: handle bounds, and direction when added.
 
     return *this;
 }

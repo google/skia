@@ -917,8 +917,9 @@ private:
     SkPathRef::VerbsArray fVerbs;
     SkPathRef::ConicWeightsArray fConicWeights;
 
-    SkPathFillType      fFillType;
-    bool                fIsVolatile;
+    SkPathFillType  fFillType;
+    bool            fIsVolatile;
+    SkPathConvexity fConvexity;
 
     unsigned    fSegmentMask;
     SkPoint     fLastMovePoint;

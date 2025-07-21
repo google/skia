@@ -141,6 +141,7 @@ DEF_TEST(pathbuilder_addRect, reporter) {
             SkRect r2;
             bool   closed = false;
             SkPathDirection dir2;
+            REPORTER_ASSERT(reporter, bp.isConvex());
             REPORTER_ASSERT(reporter, bp.isRect(&r2, &closed, &dir2));
             REPORTER_ASSERT(reporter, r2 == r);
             REPORTER_ASSERT(reporter, closed);
@@ -149,6 +150,14 @@ DEF_TEST(pathbuilder_addRect, reporter) {
             SkPath p;
             p.addRect(r, dir, i);
             REPORTER_ASSERT(reporter, p == bp);
+
+            // do it again, after the detach
+            b.addRect(r, dir, i);
+            b.moveTo(3, 4);
+            b.lineTo(4, 5);
+            bp = b.detach();
+            REPORTER_ASSERT(reporter, !bp.isConvex());
+            REPORTER_ASSERT(reporter, !bp.isRect(&r2, &closed, &dir2));
         }
     }
 }
@@ -205,6 +214,12 @@ DEF_TEST(pathbuilder_addOval, reporter) {
             SkPath p;
             p.addOval(r, dir, i);
             REPORTER_ASSERT(reporter, is_eq(p, bp));
+
+            SkRect bounds;
+            REPORTER_ASSERT(reporter, p.isOval(&bounds));
+            REPORTER_ASSERT(reporter, bp.isOval(&bounds));
+            REPORTER_ASSERT(reporter, p.isConvex());
+            REPORTER_ASSERT(reporter, bp.isConvex());
         }
         auto bp = SkPathBuilder().addOval(r, dir).detach();
         SkPath p;
@@ -767,6 +782,31 @@ DEF_TEST(SkPathBuilder_path_roundtrip, reporter) {
 
         REPORTER_ASSERT(reporter, path == rpath);
         REPORTER_ASSERT(reporter, path.isConvex() == rpath.isConvex());
+
+        // convexity is tricky after a (complex) transform ...
+        {
+            SkMatrix mx = SkMatrix::RotateDeg(30);
+            SkPathBuilder bu(path);
+            bu.transform(mx);
+            auto bupath = bu.detach();
+            SkPath copy = path.makeTransform(mx);
+
+            SkRect r;
+            bool ovals[4] = {
+                path.isOval(&r),
+                rpath.isOval(&r),
+
+                copy.isOval(&r),
+                bupath.isOval(&r),
+            };
+
+            REPORTER_ASSERT(reporter, ovals[0] == ovals[1]);
+            REPORTER_ASSERT(reporter, ovals[2] == false);
+            REPORTER_ASSERT(reporter, ovals[3] == false);
+
+            REPORTER_ASSERT(reporter, bupath.isConvex() == copy.isConvex());
+        }
+
 
         SkRect rect[2];
         SkRRect rrect[2];
