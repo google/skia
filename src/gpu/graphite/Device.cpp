@@ -1373,8 +1373,13 @@ void Device::drawGeometry(const Transform& localToDevice,
     // load ops of the renderpass to more optimally handle the draw (and avoid redundant clears).
     // NOTE: We skip this for fully-lazy render targets because the load ops may impact a larger
     // area than the Device's theoretical bounds.
-    if (geometry.isShape() && geometry.shape().isFloodFill() &&
-        !dependsOnDst && clipElements.empty() && !fDC->target()->isFullyLazy()) {
+    const bool overwritesAllPixels = !dependsOnDst &&
+                                     geometry.isShape() &&
+                                     geometry.shape().isFloodFill() &&
+                                     !fDC->target()->isFullyLazy() &&
+                                     clipElements.empty() &&
+                                     clip.scissor().contains(this->bounds());
+    if (overwritesAllPixels) {
         if (std::optional<SkColor4f> color = extract_paint_color(shading, fDC->colorInfo())) {
             // Fullscreen clear, so nothing has to be rendered at all
             fDC->clear(*color);
