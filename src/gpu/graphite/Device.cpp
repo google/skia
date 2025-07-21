@@ -138,41 +138,55 @@ const SkStrokeRec& DefaultFillStyle() {
     return kFillStyle;
 }
 
-bool blender_depends_on_dst(const SkBlender* blender, bool srcIsTransparent) {
-    std::optional<SkBlendMode> bm = blender ? as_BB(blender)->asBlendMode() : SkBlendMode::kSrcOver;
+bool paint_depends_on_dst(const PaintParams& paintParams) {
+    std::optional<SkBlendMode> bm = paintParams.asFinalBlendMode();
     if (!bm.has_value()) {
+        return true; // Runtime blenders always depend on the dst
+    }
+
+    if (bm == SkBlendMode::kClear || bm == SkBlendMode::kSrc) {
+        // src and clear blending never depend on dst
+        return false;
+    } else if (bm != SkBlendMode::kSrcOver && bm != SkBlendMode::kDstOut) {
+        // any other blend mode besides src-over and dst-out use dst in some way
         return true;
     }
-    if (bm.value() == SkBlendMode::kSrc || bm.value() == SkBlendMode::kClear) {
-        // src and clear blending never depends on dst
-        return false;
-    }
-    if (bm.value() == SkBlendMode::kSrcOver) {
-        // src-over depends on dst if src is transparent (a != 1)
-        return srcIsTransparent;
-    }
-    // TODO: Are their other modes that don't depend on dst that can be trivially detected?
-    return true;
-}
 
-bool paint_depends_on_dst(const PaintParams& paintParams) {
-    const bool srcIsTransparent = !paintParams.color().isOpaque() ||
+    // At this point, we depend on the dst if source alpha != 1, so analyze the paint to
+    // see if it's opaque.
+    bool srcIsTransparent = !paintParams.color().isOpaque() ||
                                   (paintParams.shader() && !paintParams.shader()->isOpaque()) ||
                                   (paintParams.colorFilter() &&
                                         !paintParams.colorFilter()->isAlphaUnchanged());
 
-    if (paintParams.primitiveBlender() &&
-        blender_depends_on_dst(paintParams.primitiveBlender(), srcIsTransparent)) {
-        return true;
+    if (paintParams.primitiveBlender()) {
+        std::optional<SkBlendMode> primBlend = as_BB(paintParams.primitiveBlender())->asBlendMode();
+        // The primitive blender does not blend against the dst color, but it might change whether
+        // or not the src is transparent.
+        if (primBlend && !srcIsTransparent) {
+            // Since dst might be transparent, we can only preserve opacity for cases where the
+            // src coefficient is one and the dst coefficient is zero (when src alpha = 1).
+            srcIsTransparent = primBlend != SkBlendMode::kSrcOver && primBlend != SkBlendMode::kSrc;
+        } else {
+            // Runtime blender or complex blend modifies the final src color so assume it has alpha
+            srcIsTransparent = true;
+        }
     }
 
-    return blender_depends_on_dst(paintParams.finalBlender(), srcIsTransparent);
+    return srcIsTransparent;
 }
 
 /** If the paint can be reduced to a solid flood-fill, determine the correct color to fill with. */
 std::optional<SkColor4f> extract_paint_color(const PaintParams& paint,
                                              const SkColorInfo& dstColorInfo) {
     SkASSERT(!paint_depends_on_dst(paint));
+
+    std::optional<SkBlendMode> bm = paint.asFinalBlendMode();
+    // Since we don't depend on the dst, a dst-out blend mode implies source is
+    // opaque, which causes dst-out to behave like clear.
+    if (bm == SkBlendMode::kClear || bm == SkBlendMode::kDstOut) {
+        return SkColors::kTransparent;
+    }
 
     // PaintParams has already consolidated constant shaders and applied color filters to constant
     // input colors. If the paint still has any of those fields, then we can't extract it.
