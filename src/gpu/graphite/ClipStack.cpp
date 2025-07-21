@@ -210,8 +210,19 @@ bool intersect_shape(const Transform& otherToDevice, const Shape& otherShape,
     // Since `otherShape` is either a rect or a round rect, bounds() is tight to the linear edges.
     Rect localOtherRect = otherShape.bounds();
     if (localToOther) {
-        localOtherRect = localToOther->inverseMapRect(localOtherRect);
-        SkASSERT(!localOtherRect.isEmptyNegativeOrNaN());
+        // In this block, `localOtherRect` is defined in the other coord space and `mapped` is in
+        // the local coord space. At the end of the block, `localOtherRect` is set to `mapped` so
+        // that afterwards it is always defined in local space.
+        Rect mapped = localToOther->inverseMapRect(localOtherRect);
+        // If we don't have enough precision, the other shape might not map back to the geometry.
+        // Allow up to 1/1000th of a pixel in tolerance when mapping between coordinate spaces,
+        // otherwise we'll have to clip the shapes independently.
+        const float otherTol = 0.001f * otherToDevice.localAARadius(localOtherRect);
+        if (localOtherRect.isEmptyNegativeOrNaN() ||
+            !localToOther->mapRect(mapped).nearlyEquals(localOtherRect, otherTol)) {
+            return false;
+        }
+        localOtherRect = mapped;
     }
     // Remember the edges that get clipped by the intersection
     SkEnumBitMask<EdgeAAQuad::Flags> clippedEdges = clipped_edges(shape->bounds(), localOtherRect);
