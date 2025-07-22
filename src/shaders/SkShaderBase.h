@@ -321,12 +321,10 @@ public:
         // Reference to shader, so we don't have to dupe information.
         const SkShaderBase& fShader;
 
-        uint8_t         getPaintAlpha() const { return fPaintAlpha; }
-        const SkMatrix& getTotalInverse() const { return fTotalInverse; }
+        uint8_t getPaintAlpha() const { return fPaintAlpha; }
 
     private:
-        SkMatrix    fTotalInverse;
-        uint8_t     fPaintAlpha;
+        uint8_t fPaintAlpha;
     };
 
     /**
