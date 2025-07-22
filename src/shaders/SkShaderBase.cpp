@@ -113,7 +113,7 @@ SkShaderBase::Context::Context(const SkShaderBase& shader, const ContextRec& rec
 
     // Because the context parameters must be valid at this point, we know that the matrix is
     // invertible.
-    fTotalInverse = rec.fMatrixRec.totalInverse().value();
+    fTotalInverse = rec.fMatrixRec.totalInverse().value_or(SkMatrix());
 
     fPaintAlpha = rec.fPaintAlpha;
 }
