@@ -8,6 +8,7 @@
 #define PathStencilCoverOp_DEFINED
 
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkDebug.h"
@@ -34,7 +35,6 @@ class GrRecordingContext;
 class GrSurfaceProxyView;
 class SkMatrix;
 enum class GrXferBarrierFlags;
-enum class SkPathFillType;
 
 namespace skgpu::ganesh {
 

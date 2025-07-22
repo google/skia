@@ -9,6 +9,7 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
@@ -30,7 +31,6 @@ class SkPDFDict;
 class SkPath;
 class SkShader;
 enum class SkBlendMode;
-enum class SkPathFillType;
 struct SkRect;
 
 namespace SkPDF { struct DateTime; }

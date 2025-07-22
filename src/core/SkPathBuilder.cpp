@@ -66,7 +66,7 @@ SkPathBuilder& SkPathBuilder::reset() {
     fPts.clear();
     fVerbs.clear();
     fConicWeights.clear();
-    fFillType = SkPathFillType::kWinding;
+    fFillType = SkPathFillType::kDefault;
     fIsVolatile = false;
 
     // these are internal state

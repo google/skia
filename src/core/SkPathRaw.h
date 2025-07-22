@@ -22,8 +22,8 @@ struct SkPathRaw {
     SkSpan<const SkPathVerb> fVerbs;
     SkSpan<const float>      fConics;
     SkRect                   fBounds;
-    SkPathFillType           fFillType;
-    bool                     fIsConvex;
+    SkPathFillType           fFillType = SkPathFillType::kDefault;
+    bool                     fIsConvex = false;
 
     bool empty() const { return fVerbs.empty(); }
 
