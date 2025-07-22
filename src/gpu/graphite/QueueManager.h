@@ -94,26 +94,12 @@ private:
 
     std::vector<std::unique_ptr<CommandBuffer>>* getAvailableCommandBufferList(Protected);
 
-    friend class Recorder; // For ActiveRecordingCount()
-    // Number of inserted Recordings whose finish procs haven't run yet
-    static int ActiveRecordingCount();
-    static int MaxRecordings();
-    static int MaxVizRecordings();
-    static int MaxMainRecordings();
-    static int MaxAsyncReadRecordings();
-
     SkDeque fOutstandingSubmissions;
 
     std::vector<std::unique_ptr<CommandBuffer>> fAvailableCommandBuffers;
     std::vector<std::unique_ptr<CommandBuffer>> fAvailableProtectedCommandBuffers;
 
     skia_private::THashMap<uint32_t, uint32_t> fLastAddedRecordingIDs;
-
-    // TODO(b/407062399): Can be removed post debugging
-    int fAddedRecordingsCount = 0;
-    int fAddedVizRecordings = 0;
-    int fAddedMainRecordings = 0;
-    int fAddedAsyncReadRecordings = 0;
 };
 
 } // namespace skgpu::graphite

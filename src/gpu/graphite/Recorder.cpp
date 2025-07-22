@@ -139,9 +139,7 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
         fResourceProvider = fOwnedResourceProvider.get();
     }
     fUploadBufferManager = std::make_unique<UploadBufferManager>(fResourceProvider,
-                                                                 fSharedContext->caps(),
-                                                                 &fMaxReusedUploadBufferCount,
-                                                                 &fMaxUsedUploadBufferCount);
+                                                                 fSharedContext->caps());
 
     DrawBufferManager::DrawBufferManagerOptions dbmOpts = {};
 #if defined(GPU_TEST_UTILS)
@@ -153,9 +151,6 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
     fDrawBufferManager = std::make_unique<DrawBufferManager>(fResourceProvider,
                                                              fSharedContext->caps(),
                                                              fUploadBufferManager.get(),
-                                                             &fMaxUsedDrawBufferCount,
-                                                             &fMaxUsedUniformBytes,
-                                                             &fMaxUsedVertexBytes,
                                                              dbmOpts);
 
     SkASSERT(fResourceProvider);
@@ -206,9 +201,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     // task list.
     std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> nonVolatileLazyProxies;
     std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> volatileLazyProxies;
-    int numTextures = 0;
     fRootTaskList->visitProxies([&](const TextureProxy* proxy) {
-        numTextures++;
         if (proxy->isLazy()) {
             if (proxy->isVolatile()) {
                 volatileLazyProxies.insert(sk_ref_sp(proxy));
@@ -218,21 +211,6 @@ std::unique_ptr<Recording> Recorder::snap() {
         }
         return true;
     });
-
-    fMaxTexturesPerRecording = std::max(fMaxTexturesPerRecording, numTextures);
-    fMaxRootTaskListSize = std::max(fMaxRootTaskListSize, fRootTaskList->size());
-    fMaxRootUploadListSize = std::max(fMaxRootUploadListSize, fRootUploads->size());
-    fMaxAliveRecordings = std::max(fMaxAliveRecordings, QueueManager::ActiveRecordingCount() + 1);
-    fMaxCommandBufferResources = std::max(fMaxCommandBufferResources,
-                                          CommandBuffer::MaxTrackedResources());
-    fMaxRecordingsPerCommandBuffer = std::max(fMaxRecordingsPerCommandBuffer,
-                                              QueueManager::MaxRecordings());
-    fMaxVizRecordingsPerCommandBuffer = std::max(fMaxVizRecordingsPerCommandBuffer,
-                                                 QueueManager::MaxVizRecordings());
-    fMaxMainRecordingsPerCommandBuffer = std::max(fMaxMainRecordingsPerCommandBuffer,
-                                                  QueueManager::MaxMainRecordings());
-    fMaxAsyncReadRecordingsPerCommandBuffer = std::max(fMaxAsyncReadRecordingsPerCommandBuffer,
-                                                       QueueManager::MaxAsyncReadRecordings());
 
     // The scratch resources only need to be tracked until prepareResources() is finished, so
     // Recorder doesn't hold a persistent manager and it can be deleted when snap() returns.

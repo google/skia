@@ -21,13 +21,9 @@ namespace skgpu::graphite {
 static constexpr size_t kReusedBufferSize = 64 << 10;  // 64 KB
 
 UploadBufferManager::UploadBufferManager(ResourceProvider* resourceProvider,
-                                         const Caps* caps,
-                                         int* maxReusedBufferCount,
-                                         int* maxUsedBufferCount)
+                                         const Caps* caps)
         : fResourceProvider(resourceProvider)
-        , fMinAlignment(SkTo<uint32_t>(caps->requiredTransferBufferAlignment()))
-        , fMaxReusedBufferCount(maxReusedBufferCount)
-        , fMaxUsedBufferCount(maxUsedBufferCount) {}
+        , fMinAlignment(SkTo<uint32_t>(caps->requiredTransferBufferAlignment())) {}
 
 UploadBufferManager::~UploadBufferManager() {}
 
@@ -92,8 +88,6 @@ std::tuple<void* /*mappedPtr*/, BindBufferInfo> UploadBufferManager::makeBindInf
             fReusedBuffer = nullptr;
             return {nullptr, BindBufferInfo()};
         }
-
-        fReusedBufferCount++;
     }
 
     BindBufferInfo bindInfo;
@@ -111,10 +105,6 @@ std::tuple<void* /*mappedPtr*/, BindBufferInfo> UploadBufferManager::makeBindInf
 }
 
 void UploadBufferManager::transferToRecording(Recording* recording) {
-    *fMaxReusedBufferCount = std::max(*fMaxReusedBufferCount, fReusedBufferCount);
-    *fMaxUsedBufferCount = std::max(*fMaxUsedBufferCount, (int) fUsedBuffers.size());
-    fReusedBufferCount = 0;
-
     for (sk_sp<Buffer>& buffer : fUsedBuffers) {
         buffer->unmap();
         recording->priv().addResourceRef(std::move(buffer));
@@ -128,10 +118,6 @@ void UploadBufferManager::transferToRecording(Recording* recording) {
 }
 
 void UploadBufferManager::transferToCommandBuffer(CommandBuffer* commandBuffer) {
-    *fMaxReusedBufferCount = std::max(*fMaxReusedBufferCount, fReusedBufferCount);
-    *fMaxUsedBufferCount = std::max(*fMaxUsedBufferCount, (int) fUsedBuffers.size());
-    fReusedBufferCount = 0;
-
     for (sk_sp<Buffer>& buffer : fUsedBuffers) {
         buffer->unmap();
         commandBuffer->trackResource(std::move(buffer));

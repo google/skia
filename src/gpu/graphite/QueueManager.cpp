@@ -26,84 +26,6 @@
 
 namespace skgpu::graphite {
 
-namespace {
-
-// TODO(b/407062399): Can be removed post debugging
-// This is tracked here and not on the Recording because the actual Recording object can be
-// destroyed before the GPU work has completed but we really want a gauge for how much pending work
-// is preventing their resources from being reclaimed. Currently, Chrome always snaps a Recording,
-// inserts it, and then deletes the Recording so the GPU work is what blocks resources becoming
-// purgeable.
-class LiveRecordingTracker {
-public:
-    static LiveRecordingTracker& Get() {
-        static LiveRecordingTracker gTracker{};
-        return gTracker;
-    }
-
-    void incrementLiveCount(int count) {
-        fLiveCount.fetch_add(count, std::memory_order_relaxed);
-    }
-
-    void decrementLiveCount(int count) {
-        fLiveCount.fetch_sub(count, std::memory_order_relaxed);
-    }
-
-    int getLiveCount() const {
-        return fLiveCount.load(std::memory_order_acquire);
-    }
-
-private:
-    LiveRecordingTracker() = default;
-
-    std::atomic<int> fLiveCount{0};
-};
-
-class MaxCountTracker {
-public:
-    static MaxCountTracker& GetAllRecordings() {
-        static MaxCountTracker gTracker{};
-        return gTracker;
-    }
-
-    static MaxCountTracker& GetVizRecordings() {
-        static MaxCountTracker gTracker{};
-        return gTracker;
-    }
-
-    static MaxCountTracker& GetMainRecordings() {
-        static MaxCountTracker gTracker{};
-        return gTracker;
-    }
-
-    static MaxCountTracker& GetAsyncReadRecordings() {
-        static MaxCountTracker gTracker{};
-        return gTracker;
-    }
-
-    void recordCount(int count) {
-        // fetch_max is c++26 :/
-        int oldCount;
-        do {
-            oldCount = fMaxCount.load(std::memory_order_acquire);
-            count = std::max(count, oldCount);
-        } while(!fMaxCount.compare_exchange_weak(oldCount, count,
-                                                 std::memory_order_release,
-                                                 std::memory_order_relaxed));
-    }
-
-    int getMaxCount() const {
-        return fMaxCount.load(std::memory_order_acquire);
-    }
-
-private:
-    MaxCountTracker() = default;
-
-    std::atomic<int> fMaxCount{0};
-};
-
-}  // namespace
-
 // This constant determines how many OutstandingSubmissions are allocated together as a block in
 // the deque. As such it needs to balance allocating too much memory vs. incurring
 // allocation/deallocation thrashing. It should roughly correspond to the max number of outstanding
@@ -300,21 +222,6 @@ InsertStatus QueueManager::addRecording(const InsertRecordingInfo& info, Context
 
     info.fRecording->priv().deinstantiateVolatileLazyProxies();
 
-    fAddedRecordingsCount++;
-    // These heuristics are based on how Chrome currently creates its main/viz recorders.
-    // The viz recorder does not require ordering (no recorder ID), the main recorder does require
-    // ordering (yes recorder ID).
-    // The internal recordings for asyncReads also do not require ordering, but they will not have
-    // target proxy data, whereas the viz recordings always have target proxy data for the deferred
-    // canvases.
-    if (recorderID != SK_InvalidGenID) {
-        fAddedMainRecordings++;
-    } else if (deferredTargetProxy) {
-        fAddedVizRecordings++;
-    } else {
-        fAddedAsyncReadRecordings++;
-    }
-
     // If we got here, the simulated status should be kSuccess or it means we missed returning the
     // simulated error earlier.
     SkASSERT(info.fSimulatedStatus == InsertStatus::kSuccess);
@@ -384,24 +291,10 @@ bool QueueManager::submitToGpu() {
     }
 #endif
 
-    LiveRecordingTracker::Get().incrementLiveCount(fAddedRecordingsCount);
-    MaxCountTracker::GetAllRecordings().recordCount(fAddedRecordingsCount);
-    MaxCountTracker::GetVizRecordings().recordCount(fAddedVizRecordings);
-    MaxCountTracker::GetMainRecordings().recordCount(fAddedMainRecordings);
-    MaxCountTracker::GetAsyncReadRecordings().recordCount(fAddedAsyncReadRecordings);
-
-    fCurrentCommandBuffer->recordResourceCounts();
-
     auto submission = this->onSubmitToGpu();
     if (!submission) {
         return false;
     }
-
-    submission->fAddedRecordingsCount = fAddedRecordingsCount; // to decrement on work completed
-    fAddedRecordingsCount = 0;
-    fAddedVizRecordings = 0;
-    fAddedMainRecordings = 0;
-    fAddedAsyncReadRecordings = 0;
 
     new (fOutstandingSubmissions.push_back()) OutstandingSubmission(std::move(submission));
     return true;
@@ -432,33 +325,11 @@ void QueueManager::checkForFinishedWork(SyncToCpu sync) {
         // (though hopefully *not* in Graphite).
         fOutstandingSubmissions.pop_front();
 
-        LiveRecordingTracker::Get().decrementLiveCount((*front)->fAddedRecordingsCount);
-
         // Since we used placement new we are responsible for calling the destructor manually.
         front->~OutstandingSubmission();
         front = (OutstandingSubmission*)fOutstandingSubmissions.front();
     }
     SkASSERT(sync == SyncToCpu::kNo || fOutstandingSubmissions.empty());
-}
-
-int QueueManager::ActiveRecordingCount() {
-    return LiveRecordingTracker::Get().getLiveCount();
-}
-
-int QueueManager::MaxRecordings() {
-    return MaxCountTracker::GetAllRecordings().getMaxCount();
-}
-
-int QueueManager::MaxVizRecordings() {
-    return MaxCountTracker::GetVizRecordings().getMaxCount();
-}
-
-int QueueManager::MaxMainRecordings() {
-    return MaxCountTracker::GetMainRecordings().getMaxCount();
-}
-
-int QueueManager::MaxAsyncReadRecordings() {
-    return MaxCountTracker::GetAsyncReadRecordings().getMaxCount();
 }
 
 void QueueManager::returnCommandBuffer(std::unique_ptr<CommandBuffer> commandBuffer) {

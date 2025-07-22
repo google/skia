@@ -64,11 +64,6 @@ public:
     // Release all tracked Resources
     void resetCommandBuffer();
 
-    // TODO(b/407062399): Can be removed post debugging
-    void recordResourceCounts() const;
-    // Maximum number of tracked resources (usage or cb ref) by any submitted command buffer
-    static int MaxTrackedResources();
-
     // If any work is needed to create new resources for a fresh command buffer do that here.
     virtual bool setNewCommandBufferResources() = 0;
 

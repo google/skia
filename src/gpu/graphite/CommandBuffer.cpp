@@ -29,52 +29,10 @@
 
 namespace skgpu::graphite {
 
-namespace {
-
-// TODO(b/407062399): Can be removed post debugging
-class ResourceCountTracker {
-public:
-    static ResourceCountTracker& Get() {
-        static ResourceCountTracker gTracker{};
-        return gTracker;
-    }
-
-    void recordCount(int count) {
-        // fetch_max is c++26 :/
-        int oldCount;
-        do {
-            oldCount = fMaxCount.load(std::memory_order_acquire);
-            count = std::max(count, oldCount);
-        } while(!fMaxCount.compare_exchange_weak(oldCount, count,
-                                                 std::memory_order_release,
-                                                 std::memory_order_relaxed));
-    }
-
-    int getMaxCount() const {
-        return fMaxCount.load(std::memory_order_acquire);
-    }
-
-private:
-    ResourceCountTracker() = default;
-
-    std::atomic<int> fMaxCount{0};
-};
-
-} // anonymous namespace
-
 CommandBuffer::CommandBuffer(Protected isProtected) : fIsProtected(isProtected) {}
 
 CommandBuffer::~CommandBuffer() {
     this->releaseResources();
-}
-
-void CommandBuffer::recordResourceCounts() const {
-    ResourceCountTracker::Get().recordCount(fTrackedUsageResources.size() +
-                                            fCommandBufferResources.size());
-}
-
-int CommandBuffer::MaxTrackedResources() {
-    return ResourceCountTracker::Get().getMaxCount();
 }
 
 void CommandBuffer::releaseResources() {

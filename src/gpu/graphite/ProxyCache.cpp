@@ -62,16 +62,7 @@ sk_sp<SkIDChangeListener> make_unique_key_invalidation_listener(const skgpu::Uni
 
 namespace skgpu::graphite {
 
-ProxyCache::ProxyCache(uint32_t recorderID,
-                       int* maxProxyCacheSize,
-                       int* maxProxiesPurgedUniquelyHeld,
-                       int* maxProxiesPurgedNotUsedSince,
-                       int* maxProxiesPurged)
-        : fInvalidUniqueKeyInbox(recorderID)
-        , fMaxProxyCacheSize(maxProxyCacheSize)
-        , fMaxProxiesPurgedUniquelyHeld(maxProxiesPurgedUniquelyHeld)
-        , fMaxProxiesPurgedNotUsedSince(maxProxiesPurgedNotUsedSince)
-        , fMaxProxiesPurged(maxProxiesPurged) {
+ProxyCache::ProxyCache(uint32_t recorderID) : fInvalidUniqueKeyInbox(recorderID) {
     SkASSERT(recorderID != SK_InvalidGenID);
 }
 
@@ -99,8 +90,6 @@ sk_sp<TextureProxy> ProxyCache::findOrCreateCacheEntry(const UniqueKey& key,
     if (newEntry.fProxy) {
         // Success, add it to the cache
         fCache.set(key, newEntry);
-
-        *fMaxProxyCacheSize = std::max(*fMaxProxyCacheSize, fCache.count());
     }
     return newEntry.fProxy;
 }
@@ -178,7 +167,6 @@ sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
 }
 
 void ProxyCache::purgeAll() {
-    *fMaxProxiesPurged = std::max(*fMaxProxiesPurged, fCache.count());
     // removeEntriesAndListeners() without having to copy out all of the keys
     fCache.foreach([](const skgpu::UniqueKey&, const CacheEntry* entry) {
         if (entry->fListener) {
@@ -233,7 +221,6 @@ void ProxyCache::freeUniquelyHeld() {
         }
     });
 
-    *fMaxProxiesPurgedUniquelyHeld = std::max(*fMaxProxiesPurgedUniquelyHeld, toRemove.size());
     this->removeEntriesAndListeners(toRemove);
 }
 
@@ -251,7 +238,6 @@ void ProxyCache::purgeProxiesNotUsedSince(const skgpu::StdSteadyClock::time_poin
         }
     });
 
-    *fMaxProxiesPurgedNotUsedSince = std::max(*fMaxProxiesPurgedNotUsedSince, toRemove.size());
     this->removeEntriesAndListeners(toRemove);
 }
 

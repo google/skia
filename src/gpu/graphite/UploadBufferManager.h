@@ -28,10 +28,7 @@ class ResourceProvider;
 
 class UploadBufferManager {
 public:
-    UploadBufferManager(ResourceProvider*, const Caps*,
-                        // TODO(b/407062399): Remove these fields post debugging
-                        int* maxReusedBufferCount,
-                        int* maxUsedBufferCount);
+    UploadBufferManager(ResourceProvider*, const Caps*);
     ~UploadBufferManager();
 
     std::tuple<TextureUploadWriter, BindBufferInfo> getTextureUploadWriter(
@@ -56,14 +53,6 @@ private:
     uint32_t fReusedBufferOffset = 0;
 
     std::vector<sk_sp<Buffer>> fUsedBuffers;
-
-    // TODO(b/407062399): Debugging fields to track pathologic resource situations.
-    // Cloud dumps don't always fetch the UploadBufferManager, but reliably include the Recorder,
-    // so these point to storage fields in the Recorder.
-    int* fMaxReusedBufferCount;
-    int* fMaxUsedBufferCount;
-
-    int fReusedBufferCount = 0; // reset after each transfer, should be less than fUsedBuffers.count
 };
 
 }  // namespace skgpu::graphite
