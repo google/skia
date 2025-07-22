@@ -68,12 +68,9 @@ private:
 
     Recording(uint32_t uniqueID,
               uint32_t recorderID,
-              std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& nonVolatileLazyProxies,
-              std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& volatileLazyProxies,
               std::unique_ptr<LazyProxyData> targetProxyData,
               skia_private::TArray<sk_sp<RefCntedCallback>>&& finishedProcs);
 
-    bool addCommands(CommandBuffer*, ResourceProvider*);
     void addResourceRef(sk_sp<Resource>);
 
     // Used to verify ordering if recorder ID is not SK_InvalidGenID

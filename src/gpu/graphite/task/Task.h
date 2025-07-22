@@ -63,6 +63,10 @@ public:
 
     // Visit all pipelines or proxies until `visitor` returns false to end early. By default assume
     // the task uses none. Because these are functions are virtual, they cannot be templated.
+    //
+    // WARNING: These visit functions will visit all tasks and their children, including revisiting
+    // anything that was added multiple times. Ideally the task graph should be visited after
+    // prepareResources() has been called because that will clean out cycles and re-references.
     virtual bool visitPipelines(const std::function<bool(const GraphicsPipeline*)>& visitor) {
         return true;
     }

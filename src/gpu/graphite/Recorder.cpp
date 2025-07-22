@@ -197,29 +197,12 @@ std::unique_ptr<Recording> Recorder::snap() {
     // Collect all pending tasks on the deferred recording canvas and any other tracked device.
     this->priv().flushTrackedDevices();
 
-    // Now that all devices have been flushed, extract lazy proxies by traversing tasks on the root
-    // task list.
-    std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> nonVolatileLazyProxies;
-    std::unordered_set<sk_sp<TextureProxy>, Recording::ProxyHash> volatileLazyProxies;
-    fRootTaskList->visitProxies([&](const TextureProxy* proxy) {
-        if (proxy->isLazy()) {
-            if (proxy->isVolatile()) {
-                volatileLazyProxies.insert(sk_ref_sp(proxy));
-            } else {
-                nonVolatileLazyProxies.insert(sk_ref_sp(proxy));
-            }
-        }
-        return true;
-    });
-
     // The scratch resources only need to be tracked until prepareResources() is finished, so
     // Recorder doesn't hold a persistent manager and it can be deleted when snap() returns.
     ScratchResourceManager scratchManager{fResourceProvider, std::move(fProxyReadCounts)};
     std::unique_ptr<Recording> recording(new Recording(fNextRecordingID++,
                                                        fRequireOrderedRecordings ? fUniqueID
                                                                                  : SK_InvalidGenID,
-                                                       std::move(nonVolatileLazyProxies),
-                                                       std::move(volatileLazyProxies),
                                                        std::move(fTargetProxyData),
                                                        std::move(fFinishedProcs)));
     // Allow the buffer managers to add any collected tasks for data transfer or initialization
@@ -240,8 +223,9 @@ std::unique_ptr<Recording> Recorder::snap() {
     // In both the "task failed" case and the "everything is discarded" case, there's no work that
     // needs to be done in insertRecording(). However, we use nullptr as a failure signal, so
     // kDiscard will return a non-null Recording that has no tasks in it.
-    valid &= recording->priv().taskList()->prepareResources(
-            fResourceProvider, &scratchManager, fRuntimeEffectDict.get()) != Task::Status::kFail;
+    valid &= recording->priv().prepareResources(fResourceProvider,
+                                                &scratchManager,
+                                                fRuntimeEffectDict.get());
     if (!valid) {
         recording = nullptr;
         fAtlasProvider->invalidateAtlases();
