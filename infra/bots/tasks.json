@@ -88372,12 +88372,6 @@
       ]
     },
     "Build-Win-MSVC-x86_64-Release-Vulkan": {},
-    "BuildStats-Ubuntu24.04-EMCC-wasm-Release-CanvasKit": {
-      "location_regexes": [
-        "infra/canvaskit/.*",
-        "modules/canvaskit/.*"
-      ]
-    },
     "CodeSize-skottie_tool-Ubuntu24.04-Clang-x86_64-OptimizeForSize": {},
     "CodeSize-skottie_tool_gpu-Ubuntu24.04-Clang-arm-OptimizeForSize-Android": {},
     "Housekeeper-OnDemand-Presubmit": {},

@@ -37,9 +37,6 @@ DawnWorkSubmissionWithAsyncWait::DawnWorkSubmissionWithAsyncWait(
         const DawnSharedContext* sharedContext)
         : GpuWorkSubmission(std::move(cmdBuffer), queueManager), fAsyncWait(sharedContext) {
     queueManager->dawnQueue().OnSubmittedWorkDone(
-            // This is parameter is being removed:
-            // https://github.com/webgpu-native/webgpu-headers/issues/130
-            /*signalValue=*/0,
             [](WGPUQueueWorkDoneStatus, void* userData) {
                 auto asyncWaitPtr = static_cast<DawnAsyncWait*>(userData);
                 asyncWaitPtr->signal();

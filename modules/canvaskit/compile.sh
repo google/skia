@@ -271,4 +271,4 @@ echo "Compiling"
   skia_canvaskit_enable_webgl=${ENABLE_WEBGL} \
   skia_canvaskit_enable_webgpu=${ENABLE_WEBGPU}"
 
-${NINJA} -C ${BUILD_DIR} canvaskit.js
+${NINJA} -C ${BUILD_DIR} canvaskit.js -k 10
