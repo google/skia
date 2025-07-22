@@ -6,7 +6,4 @@
 
 set -e
 
-DATETIME=`date -u "+%Y-%m-%dT%H_%M_%SZ"`
-HASH=`git rev-parse HEAD`
-
-echo "${DATETIME}-${USER}-${HASH:0:7}"
+echo "git-${HASH}"
