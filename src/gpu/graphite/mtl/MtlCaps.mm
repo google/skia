@@ -177,6 +177,10 @@ void MtlCaps::initCaps(const id<MTLDevice> device) {
 
     fComputeSupport = true;
 
+    // Currently no known regressions from clears in metal (including Intel, which does have
+    // poor performance in Vulkan with clears).
+    fAvoidClearLoadOps = false;
+
     // See https://developer.apple.com/metal/Metal-Feature-Set-Tables.pdf, and what Dawn does at
     // https://crsrc.org/c/third_party/dawn/src/dawn/native/metal/PhysicalDeviceMTL.mm?q=maxInterStageShaderVariables
     if (this->isMac() || fFamilyGroup >= 4) {

@@ -1380,7 +1380,9 @@ void Device::drawGeometry(const Transform& localToDevice,
                                      clipElements.empty() &&
                                      clip.scissor().contains(this->bounds());
     if (overwritesAllPixels) {
-        if (std::optional<SkColor4f> color = extract_paint_color(shading, fDC->colorInfo())) {
+        std::optional<SkColor4f> color = fRecorder->priv().caps()->avoidClearLoadOps() ?
+                std::nullopt : extract_paint_color(shading, fDC->colorInfo());
+        if (color.has_value()) {
             // Fullscreen clear, so nothing has to be rendered at all
             fDC->clear(*color);
             return;

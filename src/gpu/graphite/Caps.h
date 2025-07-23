@@ -355,6 +355,11 @@ public:
     }
 
     /**
+     * On some devices, clear load ops perform worse than discarding and drawing.
+     */
+    bool avoidClearLoadOps() const { return fAvoidClearLoadOps; }
+
+    /**
      * Returns the skgpu::Swizzle to use when sampling or reading back from a texture with the
      * passed in SkColorType and TextureInfo.
      */
@@ -524,6 +529,7 @@ protected:
     bool fBufferMapsAreAsync = false;
     bool fMSAARenderToSingleSampledSupport = false;
     bool fDifferentResolveAttachmentSizeSupport = false;
+    bool fAvoidClearLoadOps = false; // On some platforms, discard + draw is faster than a clear
 
     bool fComputeSupport = false;
     bool fSupportsAHardwareBufferImages = false;
