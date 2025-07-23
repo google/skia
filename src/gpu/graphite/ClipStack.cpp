@@ -435,8 +435,6 @@ ClipStack::SimplifyResult ClipStack::Simplify(const TransformedShape& a,
         kII = 0b11
     };
 
-    // NOTE: contains() checks are ordered such that if both a.contains(b) and b.contains(a) are
-    // true, kAOnly is the returned result.
     switch(static_cast<ClipCombo>(((int) a.fOp << 1) | (int) b.fOp)) {
         case ClipCombo::kII:
             // Intersect (A) + Intersect (B)
@@ -500,20 +498,19 @@ ClipStack::SimplifyResult ClipStack::Simplify(const TransformedShape& a,
 ClipStack::DrawInfluence ClipStack::SimplifyForDraw(const TransformedShape& clip,
                                                     const TransformedShape& draw) {
     // Given the asserts below, we can just recast the SimplifyResult returned from
-    // Simplify(A=draw, B=clip). We use the draw as A to treat a draw clipped to itself as
-    // unclipped, since that's simpler than replacing it with the draw's geometry.
+    // Simplify(A=clip, B=draw):
     //
     // If the result is kEmpty, the draw is clipped out.
     static_assert((int) SimplifyResult::kEmpty == (int) DrawInfluence::kClipsOutDraw);
-    // If the result is kAOnly, the clip's shape doesn't impact the draw's coverage at all.
-    static_assert((int) SimplifyResult::kAOnly == (int) DrawInfluence::kNone);
     // If the result is kAOnly, only the clip's shape provides coverage and the draw could be
     // replaced with something that just covers the clip bounds.
-    static_assert((int) SimplifyResult::kBOnly == (int) DrawInfluence::kReplacesDraw);
+    static_assert((int) SimplifyResult::kAOnly == (int) DrawInfluence::kReplacesDraw);
+    // If the result is kBOnly, the clip's shape doesn't impact the draw's coverage at all.
+    static_assert((int) SimplifyResult::kBOnly == (int) DrawInfluence::kNone);
     // If the result is kBoth, the clip and the draw combine in a complex manner
     static_assert((int) SimplifyResult::kBoth == (int) DrawInfluence::kComplexInteraction);
 
-    SimplifyResult result = Simplify(draw, clip);
+    SimplifyResult result = Simplify(clip, draw);
     return static_cast<DrawInfluence>(result);
 }
 
