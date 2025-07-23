@@ -666,7 +666,16 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
         return {};
     }
 
-    bool importAsExternalFormat = hwbFormatProps.format == VK_FORMAT_UNDEFINED;
+    // Import as external if the AHardwareBuffer has an undefined format or if graphite does not
+    // support the provided VkFormat.
+    bool importAsExternalFormat = hwbFormatProps.format == VK_FORMAT_UNDEFINED ||
+                                  !vkCaps.isFormatSupported(hwbFormatProps.format);
+#if defined(SK_DEBUG)
+    if (importAsExternalFormat && hwbFormatProps.format != VK_FORMAT_UNDEFINED) {
+        SKGPU_LOG_D("Ignoring AHardwareBuffer VkFormat(%d) because it is not supported by graphite."
+                    " Falling back to importing as external format.\n", hwbFormatProps.format);
+    }
+#endif
 
     // Start to assemble VulkanTextureInfo which is needed later on to create the VkImage but can
     // sooner help us query VulkanCaps for certain format feature support.
@@ -685,15 +694,16 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
             usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
         }
     }
-    VulkanTextureInfo vkTexInfo { VK_SAMPLE_COUNT_1_BIT,
-                                  Mipmapped::kNo,
-                                  imgCreateflags,
-                                  hwbFormatProps.format,
-                                  tiling,
-                                  usageFlags,
-                                  VK_SHARING_MODE_EXCLUSIVE,
-                                  VK_IMAGE_ASPECT_COLOR_BIT,
-                                  VulkanYcbcrConversionInfo() };
+    VulkanTextureInfo vkTexInfo {
+            VK_SAMPLE_COUNT_1_BIT,
+            Mipmapped::kNo,
+            imgCreateflags,
+            importAsExternalFormat ? VK_FORMAT_UNDEFINED : hwbFormatProps.format,
+            tiling,
+            usageFlags,
+            VK_SHARING_MODE_EXCLUSIVE,
+            VK_IMAGE_ASPECT_COLOR_BIT,
+            VulkanYcbcrConversionInfo() };
 
     if (isRenderable && (importAsExternalFormat || !vkCaps.isRenderable(vkTexInfo))) {
         SKGPU_LOG_W("Renderable texture requested from an AHardwareBuffer which uses a VkFormat "
@@ -705,9 +715,9 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
                                     !vkCaps.isTransferDst(vkTexInfo) ||
                                     !vkCaps.isTexturable(vkTexInfo))) {
         if (isRenderable) {
-            SKGPU_LOG_W("VkFormat %d is either unfamiliar to Skia or doesn't support the necessary"
-                        " format features. Because a renerable texture was requested, we cannot "
-                        "fall back to importing with an external format.\n", hwbFormatProps.format);
+            SKGPU_LOG_W("VkFormat %d does not support the necessary format features. Because a "
+                        "renderable texture was requested, we cannot fall back to importing with "
+                        "an external format.\n", hwbFormatProps.format);
             return {};
         }
         // If the VkFormat does not support the features we need, then import as an external format.

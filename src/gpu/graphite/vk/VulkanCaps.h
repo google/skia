@@ -62,11 +62,15 @@ public:
                               const RendererProvider*) const override;
     UniqueKey makeComputePipelineKey(const ComputePipelineDesc&) const override { return {}; }
 
-    bool isTexturable(const VulkanTextureInfo&) const;
-    bool isRenderable(const VulkanTextureInfo&) const;
 
     bool isRenderable(const TextureInfo&) const override;
     bool isStorage(const TextureInfo&) const override;
+
+    bool isFormatSupported(VkFormat format) const;
+    bool isTexturable(const VulkanTextureInfo&) const;
+    bool isRenderable(const VulkanTextureInfo&) const;
+    bool isTransferSrc(const VulkanTextureInfo&) const;
+    bool isTransferDst(const VulkanTextureInfo&) const;
 
     void buildKeyForTexture(SkISize dimensions,
                             const TextureInfo&,
@@ -112,9 +116,6 @@ public:
     const VkPhysicalDeviceMemoryProperties2& physicalDeviceMemoryProperties2() const {
         return fPhysicalDeviceMemoryProperties2;
     }
-
-    bool isTransferSrc(const VulkanTextureInfo&) const;
-    bool isTransferDst(const VulkanTextureInfo&) const;
 
     bool mustLoadFullImageForMSAA() const { return fMustLoadFullImageForMSAA; }
 
