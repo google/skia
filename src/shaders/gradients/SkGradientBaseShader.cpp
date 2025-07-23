@@ -681,10 +681,12 @@ static sk_sp<SkColorSpace> intermediate_color_space(SkGradientShader::Interpolat
         case ColorSpace::kRec2020:
             return SkColorSpace::MakeRGB(SkNamedTransferFn::kRec2020, SkNamedGamut::kRec2020);
 
-        case ColorSpace::kProphotoRGB:
+        case ColorSpace::kProphotoRGB: {
+            static SkOnce once;
             static skcms_Matrix3x3 lin_proPhoto_to_XYZ_D50;
-            SkNamedPrimaries::kProPhotoRGB.toXYZD50(&lin_proPhoto_to_XYZ_D50);
+            once([] { SkNamedPrimaries::kProPhotoRGB.toXYZD50(&lin_proPhoto_to_XYZ_D50); });
             return SkColorSpace::MakeRGB(SkNamedTransferFn::kProPhotoRGB, lin_proPhoto_to_XYZ_D50);
+        }
 
         case ColorSpace::kA98RGB:
             return SkColorSpace::MakeRGB(SkNamedTransferFn::kA98RGB, SkNamedGamut::kAdobeRGB);
