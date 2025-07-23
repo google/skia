@@ -49,26 +49,6 @@ class PaintParams;
 class Renderer;
 enum class DepthStencilFlags : int;
 
-namespace {
-
-// Discarding content on floating point textures can leave nans as the prior color for a pixel,
-// in which case hardware blending (when enabled) will fail even if the src, dst coefficients
-// and coverage would produce the unmodified src value.
-bool discard_op_should_use_clear(SkColorType ct) {
-    switch(ct) {
-        case kRGBA_F16Norm_SkColorType:
-        case kRGBA_F16_SkColorType:
-        case kRGBA_F32_SkColorType:
-        case kA16_float_SkColorType:
-        case kR16G16_float_SkColorType:
-            return true;
-        default:
-            return false;
-    }
-}
-
-} // anonymous namespace
-
 sk_sp<DrawContext> DrawContext::Make(const Caps* caps,
                                      sk_sp<TextureProxy> target,
                                      SkISize deviceSize,
@@ -99,6 +79,7 @@ sk_sp<DrawContext> DrawContext::Make(const Caps* caps,
 }
 
 namespace {
+
 DstReadStrategy determine_msaa_dstReadStrategy(DstReadStrategy singleSampledStrategy) {
     // TODO(b/390458117): Vulkan is currently the only backend to utilize
     // DstReadStrategy::kReadFromInput. However, it does not yet support reading from multisampled
@@ -108,6 +89,7 @@ DstReadStrategy determine_msaa_dstReadStrategy(DstReadStrategy singleSampledStra
     return singleSampledStrategy == DstReadStrategy::kReadFromInput ? DstReadStrategy::kTextureCopy
                                                                     : singleSampledStrategy;
 }
+
 } // anonymous namespace
 
 DrawContext::DrawContext(const Caps* caps,
@@ -163,15 +145,12 @@ void DrawContext::discard() {
         fComputePathAtlas->reset();
     }
 
-    if (discard_op_should_use_clear(fImageInfo.colorType())) {
-        // In theory the clear color shouldn't matter since a discardable state should be fully
-        // overwritten by later draws, but if a previous call to clear() had injected bad data,
-        // the discard should not inherit it.
-        fPendingClearColor = {0.f, 0.f, 0.f, 0.f};
-        fPendingLoadOp = LoadOp::kClear;
-    } else {
-        fPendingLoadOp = LoadOp::kDiscard;
-    }
+    // NOTE: Historically, we would switch to a clear load op on floating point render targets
+    // because analytic coverage would turn on blending for kSrc draws that filled the target. When
+    // this happened, the discard could introduce NaNs into the dst color values that would cause
+    // pixels to drop. Now we should only be calling discard() in situations that won't trigger
+    // analytic coverage, so we can still benefit from the kDiscard performance.
+    fPendingLoadOp = LoadOp::kDiscard;
 }
 
 void DrawContext::recordDraw(const Renderer* renderer,
