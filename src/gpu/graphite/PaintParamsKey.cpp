@@ -365,13 +365,13 @@ namespace {
     }
 
     if (entry->storesSamplerDescData()) {
-        if (*currentIndex + 1 >= SkTo<int>(keyData.size())) {
+        if (*currentIndex >= SkTo<int>(keyData.size())) {
             return false;
         }
 
         const int dataLength = keyData[(*currentIndex)++];
 
-        if (*currentIndex + dataLength >= SkTo<int>(keyData.size())) {
+        if (*currentIndex + dataLength > SkTo<int>(keyData.size())) {
             return false;
         }
 
