@@ -48,12 +48,10 @@ void SkIRect::join(const SkIRect& r) {
 /////////////////////////////////////////////////////////////////////////////
 
 void SkRect::toQuad(SkPoint quad[4]) const {
-    SkASSERT(quad);
-
-    quad[0].set(fLeft, fTop);
-    quad[1].set(fRight, fTop);
-    quad[2].set(fRight, fBottom);
-    quad[3].set(fLeft, fBottom);
+    quad[0] = this->TL();
+    quad[1] = this->TR();
+    quad[2] = this->BR();
+    quad[3] = this->BL();
 }
 
 #include "src/base/SkVx.h"

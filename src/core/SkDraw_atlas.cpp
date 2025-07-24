@@ -53,8 +53,7 @@ static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
         ctm.mapRect(&dr, r);
         SkScan::FillRect(dr, rc, blitter);
     } else {
-        SkPoint pts[4];
-        r.toQuad(pts);
+        std::array<SkPoint, 4> pts = r.toQuad();
         ctm.mapPoints(pts);
         // todo: great place for SkPathRaw
         SkScan::FillPath(SkPath::Polygon(pts, true), rc, blitter);

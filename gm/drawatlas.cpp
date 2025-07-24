@@ -302,11 +302,10 @@ DEF_SIMPLE_GM(blob_rsxform_distortable, canvas, 500, 100) {
 
 static sk_sp<SkVertices> make_vertices(sk_sp<SkImage> image, const SkRect& r,
                                        SkColor color) {
-    SkPoint pos[4];
-    r.toQuad(pos);
+    const std::array<SkPoint, 4> pos = r.toQuad();
     SkColor colors[4] = { color, color, color, color };
     return SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, 4,
-                                pos, pos, colors);
+                                pos.data(), pos.data(), colors);
 }
 
 /*

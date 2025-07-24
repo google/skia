@@ -552,8 +552,7 @@ void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
     VertexList* contour = contours;
     SkPath::Iter iter(fPath, false);
     if (fPath.isInverseFillType()) {
-        SkPoint quad[4];
-        clipBounds.toQuad(quad);
+        const std::array<SkPoint, 4> quad = clipBounds.toQuad();
         for (int i = 3; i >= 0; i--) {
             this->appendPointToContour(quad[i], contours);
         }

@@ -531,13 +531,13 @@ private:
         fMatrixNames.push_back(SkString("Skew"));
 
         // Perspective
-        SkPoint src[4];
-        SkRect::MakeWH(kColCount * kTileWidth, kRowCount * kTileHeight).toQuad(src);
+        const std::array<SkPoint, 4> src = SkRect::MakeWH(kColCount * kTileWidth,
+                                                          kRowCount * kTileHeight).toQuad();
         SkPoint dst[4] = {{0, 0},
                           {kColCount * kTileWidth + 10.f, 15.f},
                           {kColCount * kTileWidth - 28.f, kRowCount * kTileHeight + 40.f},
                           {25.f, kRowCount * kTileHeight - 15.f}};
-        SkAssertResult(fMatrices[4].setPolyToPoly(src, dst, 4));
+        SkAssertResult(fMatrices[4].setPolyToPoly(src.data(), dst, 4));
         fMatrices[4].preTranslate(0.f, 10.f);
         fMatrixNames.push_back(SkString("Perspective"));
 

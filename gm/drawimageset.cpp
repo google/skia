@@ -122,13 +122,12 @@ private:
         matrices[0].setRotate(30);
         matrices[0].postTranslate(d / 3, 0);
         // perespective
-        SkPoint src[4];
-        SkRect::MakeWH(kM * kTileW, kN * kTileH).toQuad(src);
+        const std::array<SkPoint, 4> src = SkRect::MakeWH(kM * kTileW, kN * kTileH).toQuad();
         SkPoint dst[4] = {{0, 0},
                           {kM * kTileW + 10.f, -5.f},
                           {kM * kTileW - 28.f, kN * kTileH + 40.f},
                           {45.f, kN * kTileH - 25.f}};
-        SkAssertResult(matrices[1].setPolyToPoly(src, dst, 4));
+        SkAssertResult(matrices[1].setPolyToPoly(src.data(), dst, 4));
         matrices[1].postTranslate(d, 50.f);
         // skew
         matrices[2].setRotate(-60.f);
@@ -140,7 +139,7 @@ private:
         dst[0] = {5.f / 4.f * kM * kTileW, 0};
         dst[3] = {2.f / 3.f * kM * kTileW, 1 / 2.f * kN * kTileH};
         dst[2] = {1.f / 3.f * kM * kTileW, 1 / 2.f * kN * kTileH - 0.1f * kTileH};
-        SkAssertResult(matrices[3].setPolyToPoly(src, dst, 4));
+        SkAssertResult(matrices[3].setPolyToPoly(src.data(), dst, 4));
         matrices[3].postTranslate(100.f, d);
         for (auto fm : {SkFilterMode::kNearest, SkFilterMode::kLinear}) {
             SkPaint setPaint;

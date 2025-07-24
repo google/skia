@@ -17,6 +17,7 @@
 #include "include/private/base/SkTFitsIn.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <cstring>
@@ -832,15 +833,22 @@ struct SK_API SkRect {
         return !(a == b);
     }
 
-    /** Returns four points in quad that enclose SkRect ordered as: top-left, top-right,
-        bottom-right, bottom-left.
+    SkPoint TL() const { return {fLeft,  fTop}; }
+    SkPoint TR() const { return {fRight, fTop}; }
+    SkPoint BL() const { return {fLeft,  fBottom}; }
+    SkPoint BR() const { return {fRight, fBottom}; }
 
-        TODO: Consider adding parameter to control whether quad is clockwise or counterclockwise.
-
-        @param quad  storage for corners of SkRect
-
-        example: https://fiddle.skia.org/c/@Rect_toQuad
-    */
+    /** Returns four points in quad that enclose SkRect ordered as: TL() ,TR(), BR(), BL()
+     */
+    std::array<SkPoint, 4> toQuad() const {
+        return {
+            this->TL(),
+            this->TR(),
+            this->BR(),
+            this->BL(),
+        };
+    }
+    // deprected: use array version, and/or we should add a Span version
     void toQuad(SkPoint quad[4]) const;
 
     /** Sets SkRect to (0, 0, 0, 0).

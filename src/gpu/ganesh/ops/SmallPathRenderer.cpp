@@ -574,10 +574,8 @@ private:
         auto texCoords = VertexWriter::TriStripFromUVs(shapeData->fAtlasLocator.getUVs());
 
         if (fUsesDistanceField) {
-            SkPoint pts[4];
             SkPoint3 out[4];
-            translatedBounds.toQuad(pts);
-            ctm.mapPointsToHomogeneous(out, pts);
+            ctm.mapPointsToHomogeneous(out, translatedBounds.toQuad());
 
             vertices << out[0] << color << texCoords.l << texCoords.t;
             vertices << out[3] << color << texCoords.l << texCoords.b;

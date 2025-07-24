@@ -66,8 +66,7 @@ protected:
                 break;
             case kConvexPath_ShapeType:
                 if (fConvexPath.isEmpty()) {
-                    SkPoint points[4];
-                    kRect.toQuad(points);
+                    const std::array<SkPoint, 4> points = kRect.toQuad();
                     fConvexPath = SkPathBuilder().moveTo(points[0])
                                                  .quadTo(points[1], points[2])
                                                  .quadTo(points[3], points[0])

@@ -191,7 +191,9 @@ void SkDevice::drawImageLattice(const SkImage* image, const SkCanvas::Lattice& l
     }
 }
 
-static SkPoint* quad_to_tris(SkPoint tris[6], const SkPoint quad[4]) {
+static SkPoint* quad_to_tris(SkPoint tris[6], SkSpan<const SkPoint> quad) {
+    SkASSERT(quad.size() == 4);
+
     tris[0] = quad[0];
     tris[1] = quad[1];
     tris[2] = quad[2];
@@ -225,8 +227,7 @@ void SkDevice::drawAtlas(SkSpan<const SkRSXform> xform,
         xform[i].toQuad(tex[i].width(), tex[i].height(), tmp);
         vPos = quad_to_tris(vPos, tmp);
 
-        tex[i].toQuad(tmp);
-        vTex = quad_to_tris(vTex, tmp);
+        vTex = quad_to_tris(vTex, tex[i].toQuad());
 
         if (!colors.empty()) {
             SkOpts::memset32(vCol, colors[i], 6);

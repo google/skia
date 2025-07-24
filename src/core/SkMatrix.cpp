@@ -1155,9 +1155,7 @@ bool SkMatrix::mapRect(SkRect* dst, const SkRect& src, SkApplyPerspectiveClip pc
         *dst = builder.computeBounds();
         return false;
     } else {
-        SkPoint quad[4];
-
-        src.toQuad(quad);
+        std::array<SkPoint, 4> quad = src.toQuad();
         this->mapPoints(quad);
         dst->setBoundsNoCheck(quad);
         return this->rectStaysRect();   // might still return true if rotated by 90, etc.
@@ -1744,10 +1742,8 @@ bool SkMatrixPriv::NearlyAffine(const SkMatrix& m,
     // that the transformation is nearly affine.
 
     // We can map the four points simultaneously.
-    SkPoint quad[4];
-    bounds.toQuad(quad);
     SkPoint3 xyw[4];
-    m.mapPointsToHomogeneous(xyw, quad);
+    m.mapPointsToHomogeneous(xyw, bounds.toQuad());
 
     // Since the Jacobian is a 3x3 matrix, the determinant is a scalar triple product,
     // and the initial cross product is constant across all four points.

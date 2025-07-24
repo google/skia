@@ -358,7 +358,7 @@ static void compute_half_planes(const SkMatrix& mx, SkScalar width, SkScalar hei
 }
 
 class HalfPlaneSlide2 : public ClickHandlerSlide {
-    SkPoint fPts[4];
+    std::array<SkPoint, 4> fPts;
     SkPath fPath;
 
 public:
@@ -366,17 +366,14 @@ public:
 
     void load(SkScalar w, SkScalar h) override {
         fPath = make_path();
-        SkRect r = fPath.getBounds();
-        r.toQuad(fPts);
+        fPts = fPath.getBounds().toQuad();
     }
 
     void draw(SkCanvas* canvas) override {
         SkMatrix mx;
         {
-            SkRect r = fPath.getBounds();
-            SkPoint src[4];
-            r.toQuad(src);
-            mx.setPolyToPoly(src, fPts, 4);
+            const std::array<SkPoint, 4> src = fPath.getBounds().toQuad();
+            mx.setPolyToPoly(src.data(), fPts.data(), 4);
         }
 
         SkPaint paint;

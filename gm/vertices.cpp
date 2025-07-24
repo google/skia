@@ -276,9 +276,9 @@ DEF_SIMPLE_GM(vertices_perspective, canvas, 256, 256) {
 
     SkRect r = SkRect::MakeWH(128, 128);
 
-    SkPoint pos[4];
-    r.toQuad(pos);
-    auto verts = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, 4, pos, pos, nullptr);
+    const std::array<SkPoint, 4> pos = r.toQuad();
+    auto verts = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, 4,
+                                      pos.data(), pos.data(), nullptr);
 
     SkMatrix persp;
     persp.setPerspY(SK_Scalar1 / 100);

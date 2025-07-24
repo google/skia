@@ -774,8 +774,7 @@ protected:
                     bounds = p;
                 }
 
-                SkPoint t[4];
-                SkRect::MakeWH(2.f, 2.f).toQuad(t);
+                std::array<SkPoint, 4> t = SkRect::MakeWH(2.f, 2.f).toQuad();
                 SkMatrix::RotateDeg(90.f*i, {1.f, 1.f}).mapPoints(t);
 
                 Vertex vertices[6];
@@ -823,17 +822,15 @@ protected:
             vb = make_vertex_buffer(ctx, /*data=*/nullptr, kNumIBUpdates * 4 * sizeof(Vertex));
             SkASSERT(vb);
             for (int i = 0; i < kNumIBUpdates; ++i) {
-                SkPoint p[4];
                 auto rect = r.makeOffset(100*i, 0);
-                rect.toQuad(p);
+                const std::array<SkPoint, 4> p = rect.toQuad();
                 if (i) {
                     bounds.join(rect);
                 } else {
                     bounds = rect;
                 }
 
-                SkPoint t[4];
-                SkRect::MakeWH(2.f, 2.f).toQuad(t);
+                std::array<SkPoint, 4> t = SkRect::MakeWH(2.f, 2.f).toQuad();
                 SkMatrix::RotateDeg(90.f*i, {1.f, 1.f}).mapPoints(t);
                 Vertex vertices[4]{{p[0], t[0]}, {p[1], t[1]}, {p[2], t[2]}, {p[3], t[3]}};
                 SkAssertResult(

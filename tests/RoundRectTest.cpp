@@ -169,8 +169,7 @@ static void test_9patch_rrect(skiatest::Reporter* reporter,
     if (checkRadii) {
         // This test doesn't hold if the radii will be rescaled by SkRRect
         SkRect ninePatchRadii = { l, t, r, b };
-        SkPoint rquad[4];
-        ninePatchRadii.toQuad(rquad);
+        const std::array<SkPoint, 4> rquad = ninePatchRadii.toQuad();
         for (int i = 0; i < 4; ++i) {
             REPORTER_ASSERT(reporter, rquad[i] == rr.radii((SkRRect::Corner) i));
         }
