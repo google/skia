@@ -1360,6 +1360,12 @@ struct Task {
                 return SkStringPrintf("%.3g %.3g %.3g %.3g %.3g %.3g %.3g",
                                         tf.g, tf.a, tf.b, tf.c, tf.d, tf.e, tf.f);
 
+            case skcms_TFType_PQ:
+                return SkStringPrintf("PQ %.3g", tf.a);
+
+            case skcms_TFType_HLG:
+                return SkStringPrintf("HLGish %.3g %.3g %.3g", tf.a, tf.b, tf.c);
+
             case skcms_TFType_PQish:
                 if (eq(tf, SkNamedTransferFn::kPQ)) { return SkString("PQ"); }
                 return SkStringPrintf("PQish %.3g %.3g %.3g %.3g %.3g %.3g",

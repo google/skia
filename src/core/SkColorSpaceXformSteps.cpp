@@ -65,15 +65,20 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(const SkColorSpace* src, SkAlphaT
     // peak luminance and HDR reference white luminance.
     float scaleFactor = 1.f;
 
-    switch (skcms_TransferFunction_getType(&srcTrfn)) {
+    // TODO(https://issues.skia.org/issues/420956739): Inline the constants for PQ and HLG transfer
+    // functions when the PQish and HLGish transfer functions are no longer in use.
+    static constexpr skcms_TransferFunction kPQish =
+        {-2.0f, -107/128.0f, 1.0f, 32/2523.0f, 2413/128.0f, -2392/128.0f, 8192/1305.0f };
+    static constexpr skcms_TransferFunction kHLGish =
+        {-3.0f, 2.0f, 2.0f, 1/0.17883277f, 0.28466892f, 0.55991073f, 0.0f };
+    skcms_TFType srcTfType = skcms_TransferFunction_getType(&srcTrfn);
+    switch (srcTfType) {
         case skcms_TFType_PQ:
             // PQ is always scaled by a peak luminance of 10,000 nits, then divided by the HDR
             // reference white luminance (a).
             scaleFactor *= 10000.f / srcTrfn.a;
             // Use the default PQish transfer function.
-            // TODO(https://issues.skia.org/issues/420956739): Inline the use of this function when
-            // the PQish functions are no longer used.
-            this->fSrcTF = SkNamedTransferFn::kPQ;
+            this->fSrcTF = kPQish;
             this->fFlags.linearize = true;
             break;
         case skcms_TFType_HLG:
@@ -82,9 +87,7 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(const SkColorSpace* src, SkAlphaT
             scaleFactor *= srcTrfn.b / srcTrfn.a;
             this->fFlags.linearize = true;
             // Use the HLGish transfer function scaled by 1/12.
-            // TODO(https://issues.skia.org/issues/420956739): Inline the use of this function when
-            // the HLGish functions are no longer used.
-            this->fSrcTF = SkNamedTransferFn::kHLG;
+            this->fSrcTF = kHLGish;
             this->fSrcTF.f = 1/12.f - 1.f;
             // If the system gamma is not 1.0, then compute the parameters for the OOTF.
             if (srcTrfn.c != 1.f) {
@@ -101,19 +104,20 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(const SkColorSpace* src, SkAlphaT
             break;
     }
 
-    switch (skcms_TransferFunction_getType(&dstTrfn)) {
+    skcms_TFType dstTfType = skcms_TransferFunction_getType(&dstTrfn);
+    switch (dstTfType) {
         case skcms_TFType_PQ:
             // This is the inverse of the treatment of source PQ.
             scaleFactor /= 10000.f / dstTrfn.a;
             this->fFlags.encode = true;
-            this->fDstTFInv = SkNamedTransferFn::kPQ;
+            this->fDstTFInv = kPQish;
             skcms_TransferFunction_invert(&this->fDstTFInv, &this->fDstTFInv);
             break;
         case skcms_TFType_HLG:
             // This is the inverse of the treatment of source HLG.
             scaleFactor /= dstTrfn.b / dstTrfn.a;
             this->fFlags.encode = true;
-            this->fDstTFInv = SkNamedTransferFn::kHLG;
+            this->fDstTFInv = kHLGish;
             this->fDstTFInv.f = 1/12.f - 1.f;
             skcms_TransferFunction_invert(&this->fDstTFInv, &this->fDstTFInv);
             if (dstTrfn.c != 1.f) {
@@ -182,10 +186,13 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(const SkColorSpace* src, SkAlphaT
          src->transferFnHash() == dst->transferFnHash())
     {
     #ifdef SK_DEBUG
-        skcms_TransferFunction dstTF;
-        dst->transferFn(&dstTF);
-        for (int i = 0; i < 7; i++) {
-            SkASSERT( (&fSrcTF.g)[i] == (&dstTF.g)[i] && "Hash collision" );
+        // PQ and HLG types use PQish and HLGish for fSrcTF, so this check is not valid for them.
+        if (srcTfType != skcms_TFType_PQ && srcTfType != skcms_TFType_HLG) {
+            skcms_TransferFunction dstTF;
+            dst->transferFn(&dstTF);
+            for (int i = 0; i < 7; i++) {
+                SkASSERT( (&fSrcTF.g)[i] == (&dstTF.g)[i] && "Hash collision" );
+            }
         }
     #endif
         this->fFlags.linearize  = false;
