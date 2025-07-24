@@ -931,12 +931,16 @@ private:
     // and may also have a deferred tilemode. If 'enforceDecal' is true, the returned
     // FilterResult will be kDecal sampled and any tiling will already be applied.
     //
+    // If `allowOverscaling` is true, the returned image may be scaled beyond what's requested in
+    // `scale` to remain a multiple of 1/2X steps.
+    //
     // All deferred effects, other than potentially tile mode, will be applied. The FilterResult
     // will also be converted to the color type and color space of 'ctx' so the result is suitable
     // to pass to the blur engine.
     FilterResult rescale(const Context& ctx,
                          const LayerSpace<SkSize>& scale,
-                         bool enforceDecal) const;
+                         bool enforceDecal,
+                         bool allowOverscaling) const;
     // Draw directly to the device, which draws the same image as produced by resolve() but can be
     // useful if multiple operations need to be performed on the canvas.
     //

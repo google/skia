@@ -1616,7 +1616,8 @@ void draw_tiled_border(SkCanvas* canvas,
 
 FilterResult FilterResult::rescale(const Context& ctx,
                                    const LayerSpace<SkSize>& scale,
-                                   bool enforceDecal) const {
+                                   bool enforceDecal,
+                                   bool allowOverscaling) const {
     LayerSpace<SkIRect> visibleLayerBounds = fLayerBounds;
     if (!fImage || !visibleLayerBounds.intersect(ctx.desiredOutput()) ||
         scale.width() <= 0.f || scale.height() <= 0.f) {
@@ -1769,13 +1770,15 @@ FilterResult FilterResult::rescale(const Context& ctx,
     do {
         float sx = 1.f;
         if (xSteps > 0) {
-            sx = xSteps > 1 ? 0.5f : srcRect.width()*finalScaleX / stepBoundsF.width();
+            sx = xSteps > 1 || allowOverscaling
+                    ? 0.5f : srcRect.width()*finalScaleX / stepBoundsF.width();
             xSteps--;
         }
 
         float sy = 1.f;
         if (ySteps > 0) {
-            sy = ySteps > 1 ? 0.5f : srcRect.height()*finalScaleY / stepBoundsF.height();
+            sy = ySteps > 1 || allowOverscaling
+                    ? 0.5f : srcRect.height()*finalScaleY / stepBoundsF.height();
             ySteps--;
         }
 
@@ -2128,10 +2131,18 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
     // For identity scale factors, this rescale() is a no-op when possible, but otherwise it will
     // also handle resolving any color filters or transform similar to a resolve() except that it
     // can defer the tile mode.
+    //
+    // Always allow overscaling for higher quality filtering, and because we can adjust the blur
+    // sigma applied to the low res image to account for any extra scale factor.
     FilterResult lowResImage = fInputs[0].fImage.rescale(
             fContext.withNewDesiredOutput(sampleBounds),
             LayerSpace<SkSize>({sx, sy}),
-            algorithm->supportsOnlyDecalTiling());
+            algorithm->supportsOnlyDecalTiling(),
+#if defined(SK_DISABLE_BLUR_OVERSCALING)
+            /*allowOverscaling=*/false); // for staging only
+#else
+            /*allowOverscaling=*/true);
+#endif
     if (!lowResImage) {
         return {};
     }

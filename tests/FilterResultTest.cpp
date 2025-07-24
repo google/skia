@@ -113,7 +113,7 @@ public:
     static skif::FilterResult Rescale(const skif::Context& ctx,
                                       const skif::FilterResult& image,
                                       const skif::LayerSpace<SkSize> scale) {
-        return image.rescale(ctx, scale, /*enforceDecal=*/false);
+        return image.rescale(ctx, scale, /*enforceDecal=*/false, /*allowOverscaling=*/false);
     }
 
     static void TrackStats(skif::Context* ctx, skif::Stats* stats) {
