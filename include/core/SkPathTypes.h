@@ -12,7 +12,7 @@
 
 #include <cstdint>
 
-enum class SkPathFillType : uint8_t {
+enum class SkPathFillType {
     /** Specifies that "inside" is computed by a non-zero sum of signed edge crossings */
     kWinding,
     /** Specifies that "inside" is computed by an odd number of edge crossings */
@@ -20,9 +20,7 @@ enum class SkPathFillType : uint8_t {
     /** Same as Winding, but draws outside of the path, rather than inside */
     kInverseWinding,
     /** Same as EvenOdd, but draws outside of the path, rather than inside */
-    kInverseEvenOdd,
-
-    kDefault = kWinding,
+    kInverseEvenOdd
 };
 
 static inline bool SkPathFillType_IsEvenOdd(SkPathFillType ft) {
@@ -37,13 +35,11 @@ static inline SkPathFillType SkPathFillType_ConvertToNonInverse(SkPathFillType f
     return static_cast<SkPathFillType>(static_cast<int>(ft) & 1);
 }
 
-enum class SkPathDirection : uint8_t {
+enum class SkPathDirection {
     /** clockwise direction for adding closed contours */
     kCW,
     /** counter-clockwise direction for adding closed contours */
     kCCW,
-
-    kDefault = kCW,
 };
 
 enum SkPathSegmentMask {

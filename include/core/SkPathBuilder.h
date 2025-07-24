@@ -676,7 +676,7 @@ public:
         @param dir    SkPath::Direction to orient the new contour
         @return       reference to SkPathBuilder
      */
-    SkPathBuilder& addRect(const SkRect& rect, SkPathDirection dir = SkPathDirection::kDefault) {
+    SkPathBuilder& addRect(const SkRect& rect, SkPathDirection dir = SkPathDirection::kCW) {
         return this->addRect(rect, dir, 0);
     }
 
@@ -714,7 +714,7 @@ public:
         @param dir    SkPath::Direction to wind SkRRect
         @return       reference to SkPathBuilder
     */
-    SkPathBuilder& addRRect(const SkRRect& rrect, SkPathDirection dir = SkPathDirection::kDefault) {
+    SkPathBuilder& addRRect(const SkRRect& rrect, SkPathDirection dir = SkPathDirection::kCW) {
         // legacy start indices: 6 (CW) and 7 (CCW)
         return this->addRRect(rrect, dir, dir == SkPathDirection::kCW ? 6 : 7);
     }
@@ -730,7 +730,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Path_addOval_2
     */
-    SkPathBuilder& addOval(const SkRect& oval, SkPathDirection dir = SkPathDirection::kDefault) {
+    SkPathBuilder& addOval(const SkRect& oval, SkPathDirection dir = SkPathDirection::kCW) {
         // legacy start index: 1
         return this->addOval(oval, dir, 1);
     }
@@ -748,7 +748,7 @@ public:
         @return        reference to SkPathBuilder
     */
     SkPathBuilder& addCircle(SkScalar x, SkScalar y, SkScalar radius,
-                             SkPathDirection dir = SkPathDirection::kDefault);
+                             SkPathDirection dir = SkPathDirection::kCW);
 
     /** Adds contour created from line array, adding (pts.size() - 1) line segments.
         Contour added starts at pts[0], then adds a line for every additional SkPoint

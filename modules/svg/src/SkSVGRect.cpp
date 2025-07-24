@@ -6,7 +6,6 @@
  */
 
 #include "include/core/SkCanvas.h"
-#include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
@@ -18,6 +17,7 @@
 #include <tuple>
 
 class SkPaint;
+enum class SkPathFillType;
 
 std::tuple<float, float> ResolveOptionalRadii(const SkTLazy<SkSVGLength>& opt_rx,
                                               const SkTLazy<SkSVGLength>& opt_ry,

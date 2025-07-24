@@ -8,7 +8,6 @@
 #ifndef skgpu_graphite_Renderer_DEFINED
 #define skgpu_graphite_Renderer_DEFINED
 
-#include "include/core/SkPathTypes.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
@@ -26,6 +25,8 @@
 #include <string>
 #include <string_view>
 #include <vector>
+
+enum class SkPathFillType;
 
 namespace skgpu { enum class MaskFormat; }
 

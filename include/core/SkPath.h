@@ -82,19 +82,19 @@ public:
                        SkSpan<const SkScalar> conics,
                        SkPathFillType, bool isVolatile = false);
 
-    static SkPath Rect(const SkRect&, SkPathDirection = SkPathDirection::kDefault,
+    static SkPath Rect(const SkRect&, SkPathDirection = SkPathDirection::kCW,
                        unsigned startIndex = 0);
-    static SkPath Oval(const SkRect&, SkPathDirection = SkPathDirection::kDefault);
+    static SkPath Oval(const SkRect&, SkPathDirection = SkPathDirection::kCW);
     static SkPath Oval(const SkRect&, SkPathDirection, unsigned startIndex);
     static SkPath Circle(SkScalar center_x, SkScalar center_y, SkScalar radius,
                          SkPathDirection dir = SkPathDirection::kCW);
-    static SkPath RRect(const SkRRect&, SkPathDirection dir = SkPathDirection::kDefault);
+    static SkPath RRect(const SkRRect&, SkPathDirection dir = SkPathDirection::kCW);
     static SkPath RRect(const SkRRect&, SkPathDirection, unsigned startIndex);
     static SkPath RRect(const SkRect& bounds, SkScalar rx, SkScalar ry,
-                        SkPathDirection dir = SkPathDirection::kDefault);
+                        SkPathDirection dir = SkPathDirection::kCW);
 
     static SkPath Polygon(SkSpan<const SkPoint> pts, bool isClosed,
-                          SkPathFillType fillType = SkPathFillType::kDefault,
+                          SkPathFillType fillType = SkPathFillType::kWinding,
                           bool isVolatile = false);
 
     static SkPath Line(const SkPoint a, const SkPoint b) {

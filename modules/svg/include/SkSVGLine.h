@@ -9,7 +9,6 @@
 #define SkSVGLine_DEFINED
 
 #include "include/core/SkPath.h"
-#include "include/core/SkPathTypes.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkAPI.h"
 #include "modules/svg/include/SkSVGNode.h"
@@ -22,6 +21,7 @@ class SkCanvas;
 class SkPaint;
 class SkSVGLengthContext;
 class SkSVGRenderContext;
+enum class SkPathFillType;
 struct SkPoint;
 
 class SK_API SkSVGLine final : public SkSVGShape {

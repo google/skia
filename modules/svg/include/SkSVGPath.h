@@ -9,7 +9,6 @@
 #define SkSVGPath_DEFINED
 
 #include "include/core/SkPath.h"
-#include "include/core/SkPathTypes.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkAPI.h"
@@ -20,6 +19,7 @@ class SkCanvas;
 class SkPaint;
 class SkSVGLengthContext;
 class SkSVGRenderContext;
+enum class SkPathFillType;
 
 class SK_API SkSVGPath final : public SkSVGShape {
 public:
