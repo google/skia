@@ -24,6 +24,7 @@
 #include "src/core/SkEdge.h"
 #include "src/core/SkEdgeBuilder.h"
 #include "src/core/SkFDot6.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScan.h"
@@ -387,16 +388,16 @@ static SkEdge* sort_edges(SkEdge* list[], int count, SkEdge** last) {
     return list[0];
 }
 
-static void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter* blitter,
+static void sk_fill_path(const SkPathRaw& raw, const SkIRect& clipRect, SkBlitter* blitter,
                          int start_y, int stop_y, bool pathContainedInClip) {
     SkASSERT(blitter);
 
     SkBasicEdgeBuilder builder;
-    int count = builder.buildEdges(path, pathContainedInClip ? nullptr : &clipRect);
+    int count = builder.buildEdges(raw, pathContainedInClip ? nullptr : &clipRect);
     SkEdge** list = builder.edgeList();
 
     if (0 == count) {
-        if (path.isInverseFillType()) {
+        if (raw.isInverseFillType()) {
             /*
              *  Since we are in inverse-fill, our caller has already drawn above
              *  our top (start_y) and will draw below our bottom (stop_y). Thus
@@ -446,17 +447,17 @@ static void sk_fill_path(const SkPath& path, const SkIRect& clipRect, SkBlitter*
     InverseBlitter  ib;
     PrePostProc     proc = nullptr;
 
-    if (path.isInverseFillType()) {
+    if (raw.isInverseFillType()) {
         ib.setBlitter(blitter, clipRect);
         blitter = &ib;
         proc = PrePostInverseBlitterProc;
     }
 
     // count >= 2 is required as the convex walker does not handle missing right edges
-    if (path.isConvex() && (nullptr == proc) && count >= 2) {
+    if (raw.isConvex() && (nullptr == proc) && count >= 2) {
         walk_simple_edges(&headEdge, blitter, start_y, stop_y);
     } else {
-        walk_edges(&headEdge, path.getFillType(), blitter, start_y, stop_y, proc,
+        walk_edges(&headEdge, raw.fillType(), blitter, start_y, stop_y, proc,
                    clipRect.right());
     }
 }
@@ -599,8 +600,7 @@ static SkIRect conservative_round_to_int(const SkRect& src) {
     };
 }
 
-void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
-                      SkBlitter* blitter) {
+void SkScan::FillPathRaw(const SkPathRaw& raw, const SkRegion& origClip, SkBlitter* blitter) {
     if (origClip.isEmpty()) {
         return;
     }
@@ -618,7 +618,7 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
     // don't reference "origClip" any more, just use clipPtr
 
 
-    SkRect bounds = path.getBounds();
+    SkRect bounds = raw.bounds();
     bool irPreClipped = false;
     if (!SkRectPriv::MakeLargeS32().contains(bounds)) {
         if (!bounds.intersect(SkRectPriv::MakeLargeS32())) {
@@ -629,31 +629,35 @@ void SkScan::FillPath(const SkPath& path, const SkRegion& origClip,
 
     SkIRect ir = conservative_round_to_int(bounds);
     if (ir.isEmpty()) {
-        if (path.isInverseFillType()) {
+        if (raw.isInverseFillType()) {
             blitter->blitRegion(*clipPtr);
         }
         return;
     }
 
-    SkScanClipper clipper(blitter, clipPtr, ir, path.isInverseFillType(), irPreClipped);
+    SkScanClipper clipper(blitter, clipPtr, ir, raw.isInverseFillType(), irPreClipped);
 
     blitter = clipper.getBlitter();
     if (blitter) {
         // we have to keep our calls to blitter in sorted order, so we
         // must blit the above section first, then the middle, then the bottom.
-        if (path.isInverseFillType()) {
+        if (raw.isInverseFillType()) {
             sk_blit_above(blitter, ir, *clipPtr);
         }
         SkASSERT(clipper.getClipRect() == nullptr ||
                 *clipper.getClipRect() == clipPtr->getBounds());
-        sk_fill_path(path, clipPtr->getBounds(), blitter, ir.fTop, ir.fBottom,
+        sk_fill_path(raw, clipPtr->getBounds(), blitter, ir.fTop, ir.fBottom,
                      clipper.getClipRect() == nullptr);
-        if (path.isInverseFillType()) {
+        if (raw.isInverseFillType()) {
             sk_blit_below(blitter, ir, *clipPtr);
         }
     } else {
         // what does it mean to not have a blitter if path.isInverseFillType???
     }
+}
+
+void SkScan::FillPath(const SkPath& path, const SkRegion& origClip, SkBlitter* blitter) {
+    FillPathRaw(SkPathPriv::Raw(path), origClip, blitter);
 }
 
 bool SkScan::PathRequiresTiling(const SkIRect& bounds) {
@@ -759,3 +763,21 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
         sk_fill_triangle(pts, clipper.getClipRect(), blitter, ir);
     }
 }
+
+void SkScan::FillPathRaw(const SkPathRaw& raw, const SkRasterClip& clip, SkBlitter* blitter) {
+    if (clip.isEmpty()) {
+        return;
+    }
+
+    if (clip.isBW()) {
+        SkScan::FillPathRaw(raw, clip.bwRgn(), blitter);
+    } else {
+        SkRegion        tmp;
+        SkAAClipBlitter aaBlitter;
+
+        tmp.setRect(clip.getBounds());
+        aaBlitter.init(blitter, &clip.aaRgn());
+        SkScan::FillPathRaw(raw, tmp, &aaBlitter);
+    }
+}
+

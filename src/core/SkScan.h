@@ -15,6 +15,7 @@
 
 class SkBlitter;
 class SkPath;
+struct SkPathRaw;
 class SkRasterClip;
 class SkRegion;
 
@@ -68,6 +69,8 @@ public:
 
     // Needed by SkRegion::setPath
     static void FillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
+    static void FillPathRaw(const SkPathRaw&, const SkRasterClip&, SkBlitter*);
+    static void FillPathRaw(const SkPathRaw&, const SkRegion&, SkBlitter*);
 
 private:
     friend class SkAAClip;

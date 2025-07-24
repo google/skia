@@ -61,10 +61,10 @@ bool SkEdgeClipper::clipLine(SkPoint p0, SkPoint p1, const SkRect& clip) {
         this->appendLine(lines[i], lines[i + 1]);
     }
 
-    *fCurrVerb = SkPath::kDone_Verb;
+    fCurrVerbStop = fCurrVerb;
     fCurrPoint = fPoints;
     fCurrVerb = fVerbs;
-    return SkPath::kDone_Verb != fVerbs[0];
+    return fCurrVerbStop != fCurrVerb;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -243,10 +243,10 @@ bool SkEdgeClipper::clipQuad(const SkPoint srcPts[3], const SkRect& clip) {
         }
     }
 
-    *fCurrVerb = SkPath::kDone_Verb;
+    fCurrVerbStop = fCurrVerb;
     fCurrPoint = fPoints;
     fCurrVerb = fVerbs;
-    return SkPath::kDone_Verb != fVerbs[0];
+    return fCurrVerbStop != fCurrVerb;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -446,23 +446,23 @@ bool SkEdgeClipper::clipCubic(const SkPoint srcPts[4], const SkRect& clip) {
         }
     }
 
-    *fCurrVerb = SkPath::kDone_Verb;
+    fCurrVerbStop = fCurrVerb;
     fCurrPoint = fPoints;
     fCurrVerb = fVerbs;
-    return SkPath::kDone_Verb != fVerbs[0];
+    return fCurrVerbStop != fCurrVerb;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkEdgeClipper::appendLine(SkPoint p0, SkPoint p1) {
-    *fCurrVerb++ = SkPath::kLine_Verb;
+    *fCurrVerb++ = SkPathVerb::kLine;
     fCurrPoint[0] = p0;
     fCurrPoint[1] = p1;
     fCurrPoint += 2;
 }
 
 void SkEdgeClipper::appendVLine(SkScalar x, SkScalar y0, SkScalar y1, bool reverse) {
-    *fCurrVerb++ = SkPath::kLine_Verb;
+    *fCurrVerb++ = SkPathVerb::kLine;
 
     if (reverse) {
         using std::swap;
@@ -474,7 +474,7 @@ void SkEdgeClipper::appendVLine(SkScalar x, SkScalar y0, SkScalar y1, bool rever
 }
 
 void SkEdgeClipper::appendQuad(const SkPoint pts[3], bool reverse) {
-    *fCurrVerb++ = SkPath::kQuad_Verb;
+    *fCurrVerb++ = SkPathVerb::kQuad;
 
     if (reverse) {
         fCurrPoint[0] = pts[2];
@@ -488,7 +488,7 @@ void SkEdgeClipper::appendQuad(const SkPoint pts[3], bool reverse) {
 }
 
 void SkEdgeClipper::appendCubic(const SkPoint pts[4], bool reverse) {
-    *fCurrVerb++ = SkPath::kCubic_Verb;
+    *fCurrVerb++ = SkPathVerb::kCubic;
 
     if (reverse) {
         for (int i = 0; i < 4; i++) {
@@ -500,26 +500,25 @@ void SkEdgeClipper::appendCubic(const SkPoint pts[4], bool reverse) {
     fCurrPoint += 4;
 }
 
-SkPath::Verb SkEdgeClipper::next(SkPoint pts[]) {
-    SkPath::Verb verb = *fCurrVerb;
+std::optional<SkPathVerb> SkEdgeClipper::next(SkPoint pts[]) {
+    SkASSERT(fCurrVerb <= fCurrVerbStop);
+    if (fCurrVerb >= fCurrVerbStop) {
+        return {};
+    }
 
+    auto verb = *fCurrVerb++;
     switch (verb) {
-        case SkPath::kLine_Verb:
+        case SkPathVerb::kLine:
             memcpy(pts, fCurrPoint, 2 * sizeof(SkPoint));
             fCurrPoint += 2;
-            fCurrVerb += 1;
             break;
-        case SkPath::kQuad_Verb:
+        case SkPathVerb::kQuad:
             memcpy(pts, fCurrPoint, 3 * sizeof(SkPoint));
             fCurrPoint += 3;
-            fCurrVerb += 1;
             break;
-        case SkPath::kCubic_Verb:
+        case SkPathVerb::kCubic:
             memcpy(pts, fCurrPoint, 4 * sizeof(SkPoint));
             fCurrPoint += 4;
-            fCurrVerb += 1;
-            break;
-        case SkPath::kDone_Verb:
             break;
         default:
             SkDEBUGFAIL("unexpected verb in quadclippper2 iter");
@@ -560,14 +559,12 @@ void sk_assert_monotonic_x(const SkPoint pts[], int count) {
 }
 #endif
 
-void SkEdgeClipper::ClipPath(const SkPath& path, const SkRect& clip, bool canCullToTheRight,
+void SkEdgeClipper::ClipPath(const SkPathRaw& raw, const SkRect& clip, bool canCullToTheRight,
                              void (*consume)(SkEdgeClipper*, bool newCtr, void* ctx), void* ctx) {
-    SkASSERT(path.isFinite());
-
     SkAutoConicToQuads quadder;
     constexpr float kConicTol = 0.25f;
 
-    SkPathEdgeIter iter(path);
+    SkPathEdgeIter iter(raw);
     SkEdgeClipper clipper(canCullToTheRight);
 
     while (auto e = iter.next()) {

@@ -86,6 +86,7 @@ CORE_TESTS = [
     "PathBuilderTest.cpp",
     "PathCoverageTest.cpp",
     "PathMeasureTest.cpp",
+    "PathRawShapesTest.cpp",
     "PathRawTest.cpp",
     "PictureBBHTest.cpp",
     "PictureShaderTest.cpp",

@@ -16,13 +16,15 @@
 
 #include "tests/Test.h"
 
+namespace {
+
 class SkSPathRawBuilder {
 public:
     SkSPathRawBuilder(SkSpan<SkPoint> ptStore, SkSpan<SkPathVerb> vbStore, SkSpan<float> cnStore)
-        : fPtStorage(ptStore)
-        , fVbStorage(vbStore)
-        , fCnStorage(cnStore)
-        , fPts(0), fCns(0), fVbs(0)
+    : fPtStorage(ptStore)
+    , fVbStorage(vbStore)
+    , fCnStorage(cnStore)
+    , fPts(0), fCns(0), fVbs(0)
     {}
 
     void moveTo(SkPoint);
@@ -50,6 +52,8 @@ private:
         SkASSERT(fCns + n <= fCnStorage.size());
     }
 };
+
+} // namespace
 
 void SkSPathRawBuilder::moveTo(SkPoint p) {
     check_extend_pts(1);
@@ -106,6 +110,7 @@ SkPathRaw SkSPathRawBuilder::raw(SkPathFillType ft, bool isConvex) const {
         SkRect::BoundsOrEmpty(ptSpan),
         ft,
         isConvex,
+        SkPathPriv::ComputeSegmentMask(fVbStorage),
     };
 }
 

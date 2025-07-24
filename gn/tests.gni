@@ -187,6 +187,7 @@ tests_sources = [
   "$_tests/PathBuilderTest.cpp",
   "$_tests/PathCoverageTest.cpp",
   "$_tests/PathMeasureTest.cpp",
+  "$_tests/PathRawShapesTest.cpp",
   "$_tests/PathRawTest.cpp",
   "$_tests/PathTest.cpp",
   "$_tests/PictureBBHTest.cpp",

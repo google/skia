@@ -47,6 +47,8 @@ struct SkPathVerbAnalysis {
 
 class SkPathPriv {
 public:
+    static uint8_t ComputeSegmentMask(SkSpan<const SkPathVerb>);
+
     static SkPathVerbAnalysis AnalyzeVerbs(SkSpan<const uint8_t> verbs);
 
     // skbug.com/40041027: Not a perfect solution for W plane clipping, but 1/16384 is a
@@ -330,6 +332,8 @@ public:
         return gPtsInVerb[verb];
     }
 
+    static int PtsInIter(SkPathVerb verb) { return PtsInIter((unsigned)verb); }
+
     // Returns number of valid points for each verb, not including the "starter"
     // point that the Iterator adds for line/quad/conic/cubic
     static int PtsInVerb(unsigned verb) {
@@ -346,6 +350,8 @@ public:
         SkASSERT(verb < std::size(gPtsInVerb));
         return gPtsInVerb[verb];
     }
+
+    static int PtsInVerb(SkPathVerb verb) { return PtsInVerb((unsigned)verb); }
 
     static bool IsAxisAligned(SkSpan<const SkPoint>);
     static bool IsAxisAligned(const SkPath& path);
@@ -469,6 +475,7 @@ public:
             path.getBounds(),
             path.getFillType(),
             path.isConvex(),
+            SkTo<uint8_t>(path.getSegmentMasks()),
         };
     }
 };
@@ -479,8 +486,8 @@ public:
 // Roughly the same as SkPath::Iter(path, true), but does not return moves or closes
 //
 class SkPathEdgeIter {
-    const uint8_t*  fVerbs;
-    const uint8_t*  fVerbsStop;
+    const SkPathVerb* fVerbs;
+    const SkPathVerb* fVerbsStop;
     const SkPoint*  fPts;
     const SkPoint*  fMoveToPtr;
     const SkScalar* fConicWeights;
@@ -491,6 +498,7 @@ class SkPathEdgeIter {
 
 public:
     SkPathEdgeIter(const SkPath& path);
+    SkPathEdgeIter(const SkPathRaw&);
 
     SkScalar conicWeight() const {
         SkASSERT(fIsConic);
@@ -535,9 +543,9 @@ public:
 
             SkDEBUGCODE(fIsConic = false;)
 
-            const auto v = *fVerbs++;
-            switch (v) {
-                case SkPath::kMove_Verb: {
+            const auto verb = *fVerbs++;
+            switch (verb) {
+                case SkPathVerb::kMove: {
                     if (fNeedsCloseLine) {
                         auto res = closeline();
                         fMoveToPtr = fPts++;
@@ -546,10 +554,11 @@ public:
                     fMoveToPtr = fPts++;
                     fNextIsNewContour = true;
                 } break;
-                case SkPath::kClose_Verb:
+                case SkPathVerb::kClose:
                     if (fNeedsCloseLine) return closeline();
                     break;
                 default: {
+                    unsigned v = static_cast<unsigned>(verb);
                     // Actual edge.
                     const int pts_count = (v+2) / 2,
                               cws_count = (v & (v-1)) / 2;

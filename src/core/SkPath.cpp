@@ -3889,14 +3889,13 @@ static SkPath clip(const SkPath& path, const SkHalfPlane& plane) {
         SkPoint       fPrev = {0,0};
     } rec;
 
-    SkEdgeClipper::ClipPath(rotated, clip, false,
+    SkEdgeClipper::ClipPath(SkPathPriv::Raw(rotated), clip, false,
                             [](SkEdgeClipper* clipper, bool newCtr, void* ctx) {
         Rec* rec = (Rec*)ctx;
 
         bool addLineTo = false;
         SkPoint      pts[4];
-        SkPath::Verb verb;
-        while ((verb = clipper->next(pts)) != SkPath::kDone_Verb) {
+        while (auto verb = clipper->next(pts)) {
             if (newCtr) {
                 rec->fResult.moveTo(pts[0]);
                 rec->fPrev = pts[0];
@@ -3907,16 +3906,16 @@ static SkPath clip(const SkPath& path, const SkHalfPlane& plane) {
                 rec->fResult.lineTo(pts[0]);
             }
 
-            switch (verb) {
-                case SkPath::kLine_Verb:
+            switch (*verb) {
+                case SkPathVerb::kLine:
                     rec->fResult.lineTo(pts[1]);
                     rec->fPrev = pts[1];
                     break;
-                case SkPath::kQuad_Verb:
+                case SkPathVerb::kQuad:
                     rec->fResult.quadTo(pts[1], pts[2]);
                     rec->fPrev = pts[2];
                     break;
-                case SkPath::kCubic_Verb:
+                case SkPathVerb::kCubic:
                     rec->fResult.cubicTo(pts[1], pts[2], pts[3]);
                     rec->fPrev = pts[3];
                     break;
@@ -3984,11 +3983,11 @@ bool SkPathPriv::IsAxisAligned(const SkPath& path) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkPathEdgeIter::SkPathEdgeIter(const SkPath& path) {
-    fMoveToPtr = fPts = path.fPathRef->points();
-    fVerbs = path.fPathRef->verbsBegin();
-    fVerbsStop = path.fPathRef->verbsEnd();
-    fConicWeights = path.fPathRef->conicWeights();
+SkPathEdgeIter::SkPathEdgeIter(const SkPathRaw& raw) {
+    fMoveToPtr = fPts = raw.fPoints.begin();
+    fVerbs = raw.fVerbs.begin();
+    fVerbsStop = raw.fVerbs.end();
+    fConicWeights = raw.fConics.begin();
     if (fConicWeights) {
         fConicWeights -= 1;  // begin one behind
     }
@@ -3997,3 +3996,5 @@ SkPathEdgeIter::SkPathEdgeIter(const SkPath& path) {
     fNextIsNewContour = false;
     SkDEBUGCODE(fIsConic = false;)
 }
+
+SkPathEdgeIter::SkPathEdgeIter(const SkPath& path) : SkPathEdgeIter(SkPathPriv::Raw(path)) {}
