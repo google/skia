@@ -462,6 +462,7 @@ void VulkanPreferredFeatures::addFeaturesToQuery(const VkExtensionProperties* de
     exts.fSamplerFilterMinmaxEXT = false;
     exts.fShaderViewportIndexLayerEXT = false;
     exts.fPushDescriptorKHR = false;
+    exts.fRGBA10x6FormatsEXT = false;
 
     // Set the sType and extensions to enable. Later in addFeaturesToEnable, the availability of
     // device extensions is inferred from this. This is done irrespective of FeaturesToAdd
