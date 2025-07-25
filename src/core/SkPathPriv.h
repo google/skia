@@ -367,6 +367,17 @@ public:
 
     static int LastMoveToIndex(const SkPath& path) { return path.fLastMoveToIndex; }
 
+    struct RectContour {
+        SkRect          fRect;
+        bool            fIsClosed;
+        SkPathDirection fDirection;
+        size_t          fPointsConsumed,
+                        fVerbsConsumed;
+    };
+    static std::optional<RectContour> IsRectContour(SkSpan<const SkPoint> ptSpan,
+                                                    SkSpan<const SkPathVerb> vbSpan,
+                                                    bool allowPartial);
+
     static bool IsRectContour(const SkPath&, bool allowPartial, int* currVerb,
                               const SkPoint** ptsPtr, bool* isClosed, SkPathDirection* direction,
                               SkRect* rect);

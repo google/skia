@@ -369,6 +369,7 @@ skia_filegroup(
         "SkPathBuilder.cpp",
         "SkPathEffect.cpp",
         "SkPathMeasure.cpp",
+        "SkPathPriv.cpp",
         "SkPathRaw.cpp",
         "SkPathRawShapes.cpp",
         "SkPathRef.cpp",
