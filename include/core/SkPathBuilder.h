@@ -25,6 +25,7 @@
 #include <tuple>
 
 class SkRRect;
+struct SkPathRaw;
 
 class SK_API SkPathBuilder {
 public:
@@ -911,6 +912,8 @@ public:
     SkSpan<const uint8_t> verbs() const {
         return fVerbs;
     }
+
+    SkPathBuilder& addRaw(const SkPathRaw&);
 
 private:
     SkPathRef::PointsArray fPts;

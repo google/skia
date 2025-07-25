@@ -21,7 +21,7 @@ namespace SkPathRawShapes {
  */
 
 struct Rect : public SkPathRaw {
-    SkPoint fStorage[5];   // move + 4 lines (+ close)
+    SkPoint fStorage[4];   // move + 3 lines (+ close)
 
     Rect(const SkRect&,
          SkPathDirection = SkPathDirection::kCW,
@@ -29,7 +29,7 @@ struct Rect : public SkPathRaw {
 };
 
 struct Oval : public SkPathRaw {
-    SkPoint fStorage[9];   // move + 4 conics
+    SkPoint fStorage[9];   // move + 4 conics (+ close)
 
     Oval(const SkRect&,
          SkPathDirection = SkPathDirection::kCW,

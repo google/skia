@@ -17,7 +17,6 @@ const SkPathVerb gRectVerbs[] = {
     SkPathVerb::kLine,
     SkPathVerb::kLine,
     SkPathVerb::kLine,
-    SkPathVerb::kLine,
     SkPathVerb::kClose
 };
 
@@ -32,7 +31,6 @@ SkPathRawShapes::Rect::Rect(const SkRect& r, SkPathDirection dir, unsigned index
     fStorage[1] = iter.next();
     fStorage[2] = iter.next();
     fStorage[3] = iter.next();
-    fStorage[4] = fStorage[0];  // add explict 4th line, in case we're stroked
 }
 
 //////////////////

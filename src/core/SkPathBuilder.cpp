@@ -23,6 +23,7 @@
 #include "src/core/SkMatrixPriv.h"
 #include "src/core/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
+#include "src/core/SkPathRawShapes.h"
 
 #include <algorithm>
 #include <cmath>
@@ -743,23 +744,29 @@ namespace {
     };
 } // anonymous namespace
 
+SkPathBuilder& SkPathBuilder::addRaw(const SkPathRaw& raw) {
+    this->incReserve(raw.points().size(), raw.verbs().size());
+
+    for (auto iter = raw.iter(); auto rec = iter.next();) {
+        const auto pts = rec->pts;
+        switch (rec->vrb) {
+            case SkPathVerb::kMove:  this->moveTo( pts[0]); break;
+            case SkPathVerb::kLine:  this->lineTo( pts[1]); break;
+            case SkPathVerb::kQuad:  this->quadTo( pts[1], pts[2]); break;
+            case SkPathVerb::kConic: this->conicTo(pts[1], pts[2], rec->w); break;
+            case SkPathVerb::kCubic: this->cubicTo(pts[1], pts[2], pts[3]); break;
+            case SkPathVerb::kClose: this->close(); break;
+        }
+    }
+    return *this;
+}
 
 SkPathBuilder& SkPathBuilder::addRect(const SkRect& rect, SkPathDirection dir, unsigned index) {
-    const int kPts   = 4;   // moveTo + 3 lines
-    const int kVerbs = 5;   // moveTo + 3 lines + close
-    this->incReserve(kPts, kVerbs);
+    const IsA prevIsA = fIsA;
 
-    const bool firstShape = (fIsA == kIsA_JustMoves);
+    this->addRaw(SkPathRawShapes::Rect(rect, dir, index));
 
-    RectPointIterator iter(rect, dir, index);
-
-    this->moveTo(iter.current());
-    this->lineTo(iter.next());
-    this->lineTo(iter.next());
-    this->lineTo(iter.next());
-    this->close();
-
-    if (firstShape) {
+    if (prevIsA == kIsA_JustMoves) {
         fConvexity = SkPathConvexity::kConvex;
     }
     return *this;
@@ -768,20 +775,7 @@ SkPathBuilder& SkPathBuilder::addRect(const SkRect& rect, SkPathDirection dir, u
 SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, unsigned index) {
     const IsA prevIsA = fIsA;
 
-    const int kPts   = 9;   // moveTo + 4 conics(2 pts each)
-    const int kVerbs = 6;   // moveTo + 4 conics + close
-    this->incReserve(kPts, kVerbs);
-
-    OvalPointIterator ovalIter(oval, dir, index);
-    RectPointIterator rectIter(oval, dir, index + (dir == SkPathDirection::kCW ? 0 : 1));
-
-    // The corner iterator pts are tracking "behind" the oval/radii pts.
-
-    this->moveTo(ovalIter.current());
-    for (unsigned i = 0; i < 4; ++i) {
-        this->conicTo(rectIter.next(), ovalIter.next(), SK_ScalarRoot2Over2);
-    }
-    this->close();
+    this->addRaw(SkPathRawShapes::Oval(oval, dir, index));
 
     if (prevIsA == kIsA_JustMoves) {
         fIsA      = kIsA_Oval;
