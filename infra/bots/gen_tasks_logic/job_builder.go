@@ -105,18 +105,6 @@ func (b *jobBuilder) genTasksForJob() {
 		return
 	}
 
-	// Create docker image.
-	if b.extraConfig("CreateDockerImage") {
-		b.createDockerImage(b.extraConfig("WASM"))
-		return
-	}
-
-	// Push apps from docker image.
-	if b.extraConfig("PushAppsFromSkiaDockerImage") {
-		b.createPushAppsFromSkiaDockerImage()
-		return
-	}
-
 	// Infra tests.
 	if b.extraConfig("InfraTests") {
 		b.infra()
@@ -229,7 +217,7 @@ func (b *jobBuilder) finish() {
 		b.trigger(specs.TRIGGER_NIGHTLY)
 	} else if b.frequency("Weekly") {
 		b.trigger(specs.TRIGGER_WEEKLY)
-	} else if b.extraConfig("Flutter", "CreateDockerImage", "PushAppsFromSkiaDockerImage", "PushBazelAppsFromWASMDockerImage") {
+	} else if b.extraConfig("Flutter", "PushBazelAppsFromWASMDockerImage") {
 		b.trigger(specs.TRIGGER_MAIN_ONLY)
 	} else if b.frequency("OnDemand") || b.role("Canary") {
 		b.trigger(specs.TRIGGER_ON_DEMAND)

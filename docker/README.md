@@ -2,30 +2,6 @@
 
 Docker files for building different Skia targets.
 
-## skia-release
-
-This image is used to build Skia at TOT with SwiftShader.
-
-There is a continuous process that builds this docker image, but if you
-need to manually push a verison, then run the following commands:
-
-    docker build -t skia-release ./docker/skia-release/
-    docker tag skia-release gcr.io/skia-public/skia-release:prod
-    docker push gcr.io/skia-public/skia-release:prod
-
-## skia-wasm-release
-
-This image is used to build the Web Assembly (WASM) libraries of Skia
-at TOT.
-
-There is a continuous process that builds this docker image, but if you
-need to manually push a verison, then run the following commands:
-
-    docker build -t skia-wasm-release ./docker/skia-wasm-release/
-    docker tag skia-wasm-release gcr.io/skia-public/skia-wasm-release:prod
-    docker push gcr.io/skia-public/skia-wasm-release:prod
-
-
 ## skia-with-swift-shader-base
 
 This image is used to build a local checkout of Skia with SwiftShader and run the built
@@ -84,11 +60,3 @@ For testing the image locally, the following flow can be helpful:
     docker run -it binary-size /bin/sh
     # analyze exe "skottie_tool" in build directory out/Release
     docker run -v $SKIA_ROOT/out/Release:/IN -v /tmp/output:/OUT binary-size /opt/binary_size/src/run_binary_size_analysis.py --library /IN/skottie_tool --destdir /OUT
-
-## skia-build-tools
-
-This image contains all the tools needed to build Skia.
-
-To push a new version run:
-
-    make push-skia-build-tools
