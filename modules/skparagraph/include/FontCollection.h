@@ -2,9 +2,6 @@
 #ifndef FontCollection_DEFINED
 #define FontCollection_DEFINED
 
-#include <memory>
-#include <optional>
-#include <set>
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
@@ -12,6 +9,11 @@
 #include "modules/skparagraph/include/ParagraphCache.h"
 #include "modules/skparagraph/include/TextStyle.h"
 #include "src/core/SkTHash.h"
+
+#include <memory>
+#include <optional>
+#include <set>
+#include <string>
 
 namespace skia {
 namespace textlayout {
@@ -33,8 +35,10 @@ public:
 
     sk_sp<SkFontMgr> getFallbackManager() const { return fDefaultFontManager; }
 
-    std::vector<sk_sp<SkTypeface>> findTypefaces(const std::vector<SkString>& familyNames, SkFontStyle fontStyle);
+    std::vector<sk_sp<SkTypeface>> findTypefaces(const std::vector<SkString>& familyNames, SkFontStyle);
     std::vector<sk_sp<SkTypeface>> findTypefaces(const std::vector<SkString>& familyNames, SkFontStyle fontStyle, const std::optional<FontArguments>& fontArgs);
+    sk_sp<SkTypeface> findTypeface(const SkString& family, SkFontStyle,
+                                   const std::optional<FontArguments>&);
 
     sk_sp<SkTypeface> defaultFallback(SkUnichar unicode, SkFontStyle fontStyle, const SkString& locale);
     sk_sp<SkTypeface> defaultEmojiFallback(SkUnichar emojiStart, SkFontStyle fontStyle, const SkString& locale);
@@ -54,12 +58,15 @@ private:
     sk_sp<SkTypeface> matchTypeface(const SkString& familyName, SkFontStyle fontStyle);
 
     struct FamilyKey {
-        FamilyKey(const std::vector<SkString>& familyNames, SkFontStyle style, const std::optional<FontArguments>& args)
-                : fFamilyNames(familyNames), fFontStyle(style), fFontArguments(args) {}
+        FamilyKey(SkString familyName, SkFontStyle style, std::optional<FontArguments> args)
+            : fFamilyName(std::move(familyName))
+            , fFontStyle(style)
+            , fFontArguments(std::move(args))
+        {}
 
         FamilyKey() {}
 
-        std::vector<SkString> fFamilyNames;
+        SkString    fFamilyName;
         SkFontStyle fFontStyle;
         std::optional<FontArguments> fFontArguments;
 
@@ -71,7 +78,7 @@ private:
     };
 
     bool fEnableFontFallback;
-    skia_private::THashMap<FamilyKey, std::vector<sk_sp<SkTypeface>>, FamilyKey::Hasher> fTypefaces;
+    skia_private::THashMap<FamilyKey, sk_sp<SkTypeface>, FamilyKey::Hasher> fTypefaces;
     sk_sp<SkFontMgr> fDefaultFontManager;
     sk_sp<SkFontMgr> fAssetFontManager;
     sk_sp<SkFontMgr> fDynamicFontManager;
