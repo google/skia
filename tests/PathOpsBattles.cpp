@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
 #include "include/pathops/SkPathOps.h"
 #include "src/base/SkFloatBits.h"
 #include "tests/PathOpsExtendedTest.h"
@@ -12,8 +13,6 @@
 
 #include <cstddef>
 #include <iterator>
-
-enum class SkPathFillType;
 
 #define TEST(name) { name, #name }
 

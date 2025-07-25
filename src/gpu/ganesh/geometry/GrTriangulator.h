@@ -11,6 +11,7 @@
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAssert.h"
@@ -23,7 +24,6 @@
 #include <tuple>
 
 class GrEagerVertexAllocator;
-enum class SkPathFillType;
 struct SkRect;
 
 #define TRIANGULATOR_LOGGING 0

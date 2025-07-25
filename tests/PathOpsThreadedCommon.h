@@ -8,6 +8,7 @@
 #define PathOpsThreadedCommon_DEFINED
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkTypes.h"
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkTDArray.h"
@@ -18,7 +19,6 @@
 #define PATH_STR_SIZE 512
 
 class PathOpsThreadedRunnable;
-enum class SkPathFillType;
 
 namespace skiatest {
 class Reporter;
