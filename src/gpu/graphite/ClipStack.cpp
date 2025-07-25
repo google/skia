@@ -1370,7 +1370,16 @@ bool ClipStack::DrawShape::applyStyle(const SkStrokeRec& style, const Rect& devi
             fTransformedShapeBounds.outset(localOutset);
 
             bool inverted = fShape.inverted();
-            fShape.setRect(fTransformedShapeBounds); // it's still local at this point
+#if !defined(SK_DISABLE_CLIP_DRAW_GEOMETRIC_INTERSECTION)
+            if (fShape.isRRect()) {
+                // Try to preserve the rounded corners, which can reduce the chance of clipping
+                // stroked rounded rects that are clipped to a round rect matching their outer edge.
+                fShape.rrect().outset(localOutset, localOutset, &fShape.rrect());
+            } else
+#endif
+            {
+                fShape.setRect(fTransformedShapeBounds); // it's still local at this point
+            }
             fShape.setInverted(inverted);  // preserve original inversion state
             fShapeMatchesGeometry = false;
         }
