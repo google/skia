@@ -70,9 +70,8 @@ private:
                                { fLL.x, fLL.y}};
         static_assert(std::size(src) == std::size(dst));
 
-        SkMatrix m;
-        if (m.setPolyToPoly(src, dst, std::size(src))) {
-            fMatrixNode->setMatrix(m);
+        if (auto m = SkMatrix::PolyToPoly(src, dst)) {
+            fMatrixNode->setMatrix(*m);
         }
     }
 

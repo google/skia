@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
     SkMatrix matrix;
-    matrix.setPolyToPoly(src, dst, 4);
+    matrix.setPolyToPoly(src, dst);
     canvas->drawPoints(SkCanvas::kPolygon_PointMode, src, paint);
     canvas->drawPoints(SkCanvas::kPolygon_PointMode, dst, paint);
     paint.setColor(SK_ColorBLUE);

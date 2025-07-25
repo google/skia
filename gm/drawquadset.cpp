@@ -201,7 +201,7 @@ private:
                           {kColCount * kTileWidth + 10.f, 15.f},
                           {kColCount * kTileWidth - 28.f, kRowCount * kTileHeight + 40.f},
                           {25.f, kRowCount * kTileHeight - 15.f}};
-        SkAssertResult(rowMatrices[4].setPolyToPoly(src.data(), dst, 4));
+        SkAssertResult(rowMatrices[4].setPolyToPoly(src, dst));
         rowMatrices[4].preTranslate(0.f, +10.f);
         static const char* matrixNames[] = { "Identity", "T+S", "Rotate", "Skew", "Perspective" };
         static_assert(std::size(matrixNames) == std::size(rowMatrices), "Count mismatch");

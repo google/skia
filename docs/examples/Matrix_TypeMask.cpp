@@ -22,7 +22,7 @@ debugster("postScale", matrix);
 matrix.postRotate(45);
 debugster("postScale", matrix);
 SkPoint polys[][4] = {{{0, 0}, {0, 1}, {1, 1}, {1, 0}}, {{0, 0}, {0, 1}, {2, 1}, {1, 0}}};
-matrix.setPolyToPoly(polys[0], polys[1], 4);
+matrix.setPolyToPoly(polys[0], polys[1]);
 debugster("setPolyToPoly", matrix);
 }
 }  // END FIDDLE

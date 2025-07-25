@@ -9,8 +9,7 @@ void draw(SkCanvas* canvas) {
     const SkPoint src[] = {{ 0, 0}, {width, 0}, {width * (float)frame, height * (float)frame}, { 0, height}};
     const SkPoint dst[] = { {0, 0}, {width, 0}, {width, height}, {0, height} };
 
-    SkMatrix matrix;
-    matrix.setPolyToPoly(src, dst, 4);
+    const SkMatrix matrix = SkMatrix::PolyToPoly(src, dst).value_or(SkMatrix::I());
 
     SkAutoCanvasRestore acr(canvas, true);
     canvas->concat(matrix);

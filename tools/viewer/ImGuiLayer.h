@@ -67,8 +67,8 @@ struct DragCanvas {
             { fPos.x          , fPos.y + fSize.y },
             { fPos.x + fSize.x, fPos.y + fSize.y },
         };
-        fLocalToScreen.setPolyToPoly(local, screen, 4);
-        fScreenToLocal.setPolyToPoly(screen, local, 4);
+        fLocalToScreen.setPolyToPoly(local, screen);
+        fScreenToLocal.setPolyToPoly(screen, local);
     }
 
     ~DragCanvas() {

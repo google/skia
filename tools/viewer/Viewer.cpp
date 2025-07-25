@@ -1502,9 +1502,7 @@ SkMatrix Viewer::computePerspectiveMatrix() {
         { fPerspectivePoints[2].fX * w, fPerspectivePoints[2].fY * h },
         { fPerspectivePoints[3].fX * w, fPerspectivePoints[3].fY * h }
     };
-    SkMatrix m;
-    m.setPolyToPoly(orthoPts, perspPts, 4);
-    return m;
+    return SkMatrix::PolyToPoly(orthoPts, perspPts).value_or(SkMatrix::I());
 }
 
 SkMatrix Viewer::computePreTouchMatrix() {

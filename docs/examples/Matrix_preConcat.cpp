@@ -6,8 +6,8 @@ void draw(SkCanvas* canvas) {
     SkMatrix matrix, matrix2;
     SkPoint perspect[4] = {{50, 10}, {180, 40}, {236, 176}, {10, 206}};
     const std::array<SkPoint, 4> bitmapBounds = SkRect::Make(source.bounds()).toQuad();
-    matrix.setPolyToPoly(bitmapBounds.data(), perspect, 4);
-    matrix2.setPolyToPoly(perspect, bitmapBounds.data(), 4);
+    matrix.setPolyToPoly(bitmapBounds, perspect);
+    matrix2.setPolyToPoly(perspect, bitmapBounds);
     matrix.preConcat(matrix2);
     canvas->concat(matrix);
     canvas->drawImage(image, 0, 0);

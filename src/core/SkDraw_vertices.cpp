@@ -48,8 +48,8 @@
 
 class SkBlitter;
 
-[[nodiscard]] static bool texture_to_matrix(const VertState& state, const SkPoint verts[],
-                                            const SkPoint texs[], SkMatrix* matrix) {
+std::optional<SkMatrix> texture_to_matrix(const VertState& state, const SkPoint verts[],
+                                          const SkPoint texs[]) {
     SkPoint src[3], dst[3];
 
     src[0] = verts[state.f0];
@@ -58,7 +58,7 @@ class SkBlitter;
     dst[0] = texs[state.f0];
     dst[1] = texs[state.f1];
     dst[2] = texs[state.f2];
-    return matrix->setPolyToPoly(src, dst, 3);
+    return SkMatrix::PolyToPoly(src, dst);
 }
 
 // Convert the SkColors into float colors. The conversion depends on some conditions:
@@ -298,9 +298,9 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
             continue;
         }
 
-        SkMatrix localM;
-        if (!transformShader || (texture_to_matrix(state, positions, texCoords, &localM) &&
-                                 transformShader->update(SkMatrix::Concat(localM, ctmInverse)))) {
+        std::optional<SkMatrix> localM;
+        if (!transformShader || ((localM = texture_to_matrix(state, positions, texCoords)) &&
+                                 transformShader->update(SkMatrix::Concat(*localM, ctmInverse)))) {
             fill_triangle(state, blitter, *fRC, dev2, dev3);
         }
     }

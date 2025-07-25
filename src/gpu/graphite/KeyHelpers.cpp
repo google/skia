@@ -2306,9 +2306,10 @@ static void add_to_key(const KeyContext& keyContext,
                 float scale = sk_ieee_float_divide(1, conicalShader->getDiffRadius());
                 conicalMatrix.postScale(scale, scale);
             } else {
-                SkAssertResult(SkConicalGradient::MapToUnitX(conicalShader->getStartCenter(),
-                                                             conicalShader->getEndCenter(),
-                                                             &conicalMatrix));
+                auto mx = (SkConicalGradient::MapToUnitX(conicalShader->getStartCenter(),
+                                                             conicalShader->getEndCenter()));
+                SkASSERT(mx);
+                conicalMatrix = mx.value_or(SkMatrix::I());
             }
             matrix = conicalMatrix;
         }

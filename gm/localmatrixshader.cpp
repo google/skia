@@ -139,7 +139,7 @@ DEF_SIMPLE_GM(localmatrixshader_persp, canvas, 542, 266) {
                       {image->width() - 28.f, image->height() + 100.f},
                       {0.f, image->height() - 10.f}};
     SkMatrix persp;
-    SkAssertResult(persp.setPolyToPoly(src.data(), dst, 4));
+    SkAssertResult(persp.setPolyToPoly(src, dst));
 
     // combined persp * scale
     SkMatrix perspScale = SkMatrix::Concat(persp, scale);
