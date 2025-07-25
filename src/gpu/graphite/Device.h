@@ -190,16 +190,17 @@ public:
     void replaceClip(const SkIRect& rect) override;
 
     // Drawing
-    void drawPaint(const SkPaint& paint) override;
-    void drawRect(const SkRect& r, const SkPaint& paint) override;
-    void drawOval(const SkRect& oval, const SkPaint& paint) override;
-    void drawRRect(const SkRRect& rr, const SkPaint& paint) override;
-    void drawArc(const SkArc& arc, const SkPaint& paint) override;
+    void drawPaint(const SkPaint&) override;
+    void drawRect(const SkRect& r, const SkPaint&) override;
+    void drawOval(const SkRect& oval, const SkPaint&) override;
+    void drawRRect(const SkRRect& rr, const SkPaint&) override;
+    void drawArc(const SkArc& arc, const SkPaint&) override;
     void drawPoints(SkCanvas::PointMode, SkSpan<const SkPoint>, const SkPaint&) override;
-    void drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable = false) override;
+    void drawPath(const SkPath& path, const SkPaint&, bool pathIsMutable = false) override;
+    void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint&) override;
 
-    // No need to specialize drawDRRect, drawRegion, drawPatch as the default impls all
-    // route to drawPath, drawRect, or drawVertices as desired.
+    // No need to specialize drawRegion or drawPatch as the default impls all route to drawPath,
+    // drawRect, or drawVertices as desired.
 
     void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
                         SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color,
