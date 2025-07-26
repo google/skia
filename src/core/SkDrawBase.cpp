@@ -279,6 +279,16 @@ bool SkDrawTreatAAStrokeAsHairline(SkScalar strokeWidth, const SkMatrix& matrix,
     return false;
 }
 
+void SkDrawBase::drawOval(const SkRect& oval, const SkPaint& paint) const {
+    SkDEBUGCODE(this->validate());
+
+    if (fRC->isEmpty()) {
+        return;
+    }
+
+    this->drawPath(SkPath::Oval(oval), paint, nullptr, true);
+}
+
 void SkDrawBase::drawRRect(const SkRRect& rrect, const SkPaint& paint) const {
     SkDEBUGCODE(this->validate());
 

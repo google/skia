@@ -370,7 +370,7 @@ void SkBitmapDevice::drawRect(const SkRect& r, const SkPaint& paint) {
 }
 
 void SkBitmapDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
-    this->drawPath(SkPath::Oval(oval), paint, true);
+    LOOP_TILER( drawOval(oval, paint), Bounder(oval, paint))
 }
 
 void SkBitmapDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {

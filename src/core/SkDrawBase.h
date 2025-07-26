@@ -49,6 +49,7 @@ public:
     void drawRect(const SkRect& rect, const SkPaint& paint) const {
         this->drawRect(rect, paint, nullptr, nullptr);
     }
+    void drawOval(const SkRect&, const SkPaint&) const;
     void drawRRect(const SkRRect&, const SkPaint&) const;
     // Specialized draw for RRect that only draws if it is nine-patchable.
     bool drawRRectNinePatch(const SkRRect&, const SkPaint&) const;
