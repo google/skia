@@ -513,10 +513,6 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     // TODO: support clamp to border.
     fClampToBorderSupport = false;
 
-    // WebGPU does not expose a discard or dont-care load op, so there's currently no point in
-    // detecting the devices that perform poorly with clear load ops.
-    fAvoidClearLoadOps = false;
-
 #if defined(GPU_TEST_UTILS)
     fDrawBufferCanBeMappedForReadback = false;
 #endif
