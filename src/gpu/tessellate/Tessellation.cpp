@@ -311,7 +311,14 @@ int FindCubicConvex180Chops(const SkPoint pts[], float T[2], bool* areCusps) {
         a = dot(tan0, A);
         b_over_minus_2 = -dot(tan0, B);
         c = dot(tan0, C);
-        discr_over_4 = std::max(b_over_minus_2*b_over_minus_2 - a*c, 0.f);
+        discr_over_4 = b_over_minus_2*b_over_minus_2 - a*c;
+        if (discr_over_4 < -cuspThreshold) {
+            // With the updated discriminant, this line actually wouldn't have cusps (e.g. it never
+            // turns back on itself).
+            return 0;
+        }
+
+        discr_over_4 = std::max(discr_over_4, 0.f);
     }
 
     // Solve our quadratic equation to find where to chop. See the quadratic formula from

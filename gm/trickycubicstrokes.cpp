@@ -11,6 +11,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
@@ -172,4 +173,30 @@ DEF_SIMPLE_GM(trickycubicstrokes, canvas, kTestWidth, kTestHeight) {
 
 DEF_SIMPLE_GM(trickycubicstrokes_roundcaps, canvas, kTestWidth, kTestHeight) {
     draw_test(canvas, SkPaint::kRound_Cap, SkPaint::kRound_Join);
+}
+
+// See b/433057370
+DEF_SIMPLE_GM(trickycubicstrokes_largeradius, canvas, 128, 256) {
+    SkPathBuilder b;
+
+    // Starts as a line with a single tangent direction, with increasing curvature
+    for (int y = 0; y < 2; ++y) {
+        float shift = 210.f * y;
+        float dy = 5.f * y;
+        b.moveTo(159.429f, 149.808f + shift)
+         .cubicTo({232.5f, 149.808f + dy + shift},
+                  {232.5f, 149.808f + dy + shift},
+                  {305.572f, 149.808f + shift});
+    }
+
+    // A large stroke width is required to show the cusp circle artifacts with
+    // the tessellating path renderer
+    SkPaint s;
+    s.setStroke(true);
+    s.setStrokeWidth(200.f);
+    s.setAntiAlias(true);
+    b.setFillType(SkPathFillType::kWinding);
+    canvas->scale(0.5f, 0.5f);
+    canvas->translate(-125.f, 0.f);
+    canvas->drawPath(b.detach(), s);
 }
