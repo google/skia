@@ -474,45 +474,64 @@ void SkPathRef::callGenIDChangeListeners() {
     fGenIDChangeListeners.changed();
 }
 
-SkRRect SkPathRef::getRRect() const {
-    const SkRect& bounds = this->getBounds();
+SkRRect SkPathPriv::DeduceRRectFromContour(const SkRect& bounds, SkSpan<const SkPoint> pts,
+                                           SkSpan<const SkPathVerb> vbs) {
+    SkASSERT(!vbs.empty());
+    SkASSERT(vbs.front() == SkPathVerb::kMove);
+
     SkVector radii[4] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
-    Iter iter(*this);
-    SkPoint pts[4];
-    uint8_t verb = iter.next(pts);
-    SkASSERT(SkPath::kMove_Verb == verb);
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        if (SkPath::kConic_Verb == verb) {
-            SkVector v1_0 = pts[1] - pts[0];
-            SkVector v2_1 = pts[2] - pts[1];
-            SkVector dxdy;
-            if (v1_0.fX) {
-                SkASSERT(!v2_1.fX && !v1_0.fY);
-                dxdy.set(SkScalarAbs(v1_0.fX), SkScalarAbs(v2_1.fY));
-            } else if (!v1_0.fY) {
-                SkASSERT(!v2_1.fX || !v2_1.fY);
-                dxdy.set(SkScalarAbs(v2_1.fX), SkScalarAbs(v2_1.fY));
-            } else {
-                SkASSERT(!v2_1.fY);
-                dxdy.set(SkScalarAbs(v2_1.fX), SkScalarAbs(v1_0.fY));
-            }
-            SkRRect::Corner corner =
-                    pts[1].fX == bounds.fLeft ?
-                        pts[1].fY == bounds.fTop ?
+
+    size_t ptIndex = 0;
+    for (const SkPathVerb verb : vbs) {
+        switch (verb) {
+            case SkPathVerb::kMove:
+                SkASSERT(ptIndex == 0); // we only expect 1 move
+                ptIndex += 1;
+                break;
+            case SkPathVerb::kLine: {
+                // we only expect horizontal or vertical lines
+                SkDEBUGCODE(const SkVector delta = pts[ptIndex] - pts[ptIndex-1];)
+                SkASSERT(delta.fX == 0 || delta.fY == 0);
+                ptIndex += 1;
+            } break;
+            case SkPathVerb::kQuad:  SkASSERT(false); break;
+            case SkPathVerb::kCubic: SkASSERT(false); break;
+            case SkPathVerb::kConic: {
+                SkVector v1_0 = pts[ptIndex] - pts[ptIndex - 1];
+                SkVector v2_1 = pts[ptIndex + 1] - pts[ptIndex];
+                SkVector dxdy;
+                if (v1_0.fX) {
+                    SkASSERT(!v2_1.fX && !v1_0.fY);
+                    dxdy.set(SkScalarAbs(v1_0.fX), SkScalarAbs(v2_1.fY));
+                } else if (!v1_0.fY) {
+                    SkASSERT(!v2_1.fX || !v2_1.fY);
+                    dxdy.set(SkScalarAbs(v2_1.fX), SkScalarAbs(v2_1.fY));
+                } else {
+                    SkASSERT(!v2_1.fY);
+                    dxdy.set(SkScalarAbs(v2_1.fX), SkScalarAbs(v1_0.fY));
+                }
+                SkRRect::Corner corner =
+                    pts[ptIndex].fX == bounds.fLeft ?
+                        pts[ptIndex].fY == bounds.fTop ?
                             SkRRect::kUpperLeft_Corner : SkRRect::kLowerLeft_Corner :
-                    pts[1].fY == bounds.fTop ?
+                        pts[ptIndex].fY == bounds.fTop ?
                             SkRRect::kUpperRight_Corner : SkRRect::kLowerRight_Corner;
-            SkASSERT(!radii[corner].fX && !radii[corner].fY);
-            radii[corner] = dxdy;
-        } else {
-            SkASSERT((verb == SkPath::kLine_Verb
-                    && (!(pts[1].fX - pts[0].fX) || !(pts[1].fY - pts[0].fY)))
-                    || verb == SkPath::kClose_Verb);
+                SkASSERT(!radii[corner].fX && !radii[corner].fY);
+                radii[corner] = dxdy;
+                ptIndex += 2;
+            } break;
+            case SkPathVerb::kClose:
+                break;
         }
     }
     SkRRect rrect;
     rrect.setRectRadii(bounds, radii);
     return rrect;
+}
+
+SkRRect SkPathRef::getRRect() const {
+    return SkPathPriv::DeduceRRectFromContour(this->getBounds(),
+                                              this->pointSpan(), this->verbs());
 }
 
 bool SkPathRef::isRRect(SkRRect* rrect, bool* isCCW, unsigned* start) const {

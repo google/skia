@@ -130,6 +130,14 @@ public:
     static bool IsSimpleRect(const SkPath& path, bool isSimpleFill, SkRect* rect,
                              SkPathDirection* direction, unsigned* start);
 
+    // Asserts the path contour was built from RRect, so it does not return
+    // an optional. This exists so path's can have a flag that they are really
+    // a RRect, without having to actually store the 4 radii... since those can
+    // be deduced from the contour itself.
+    //
+    static SkRRect DeduceRRectFromContour(const SkRect& bounds,
+                                          SkSpan<const SkPoint>, SkSpan<const SkPathVerb>);
+
     /**
      * Creates a path from arc params using the semantics of SkCanvas::drawArc. This function
      * assumes empty ovals and zero sweeps have already been filtered out.
