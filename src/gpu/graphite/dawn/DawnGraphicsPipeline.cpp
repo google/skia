@@ -32,6 +32,7 @@
 #include "src/sksl/SkSLUtil.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
+#include <atomic>
 #include <vector>
 
 namespace skgpu::graphite {
@@ -251,7 +252,7 @@ struct AsyncPipelineCreationBase {
     AsyncPipelineCreationBase(const UniqueKey& key) : fKey(key) {}
 
     wgpu::RenderPipeline fRenderPipeline;
-    bool fFinished = false;
+    std::atomic<bool> fFinished = false;
     UniqueKey fKey; // for logging the wait to resolve a Pipeline future in dawnRenderPipeline
 #if SK_HISTOGRAMS_ENABLED
     // We need these three for the Graphite.PipelineCreationTimes.* histograms (cf.
