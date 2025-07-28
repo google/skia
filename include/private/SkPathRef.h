@@ -11,6 +11,7 @@
 #include "include/core/SkArc.h"
 #include "include/core/SkPathTypes.h" // IWYU pragma: keep
 #include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -27,7 +28,24 @@
 #include <tuple>
 
 class SkMatrix;
-class SkRRect;
+
+struct SkPathRectInfo {
+    SkRect          fRect;
+    SkPathDirection fDirection;
+    unsigned        fStartIndex;
+};
+
+struct SkPathOvalInfo {
+    SkRect          fBounds;
+    SkPathDirection fDirection;
+    unsigned        fStartIndex;
+};
+
+struct SkPathRRectInfo {
+    SkRRect         fRRect;
+    SkPathDirection fDirection;
+    unsigned        fStartIndex;
+};
 
 /**
  * Holds the path verbs and points. It is versioned by a generation ID. None of its public methods
@@ -219,45 +237,29 @@ public:
      */
     uint32_t getSegmentMasks() const { return fSegmentMask; }
 
-    /** Returns true if the path is an oval.
-     *
-     * @param rect      returns the bounding rect of this oval. It's a circle
-     *                  if the height and width are the same.
-     * @param isCCW     is the oval CCW (or CW if false).
-     * @param start     indicates where the contour starts on the oval (see
-     *                  SkPath::addOval for intepretation of the index).
-     *
-     * @return true if this path is an oval.
-     *              Tracking whether a path is an oval is considered an
-     *              optimization for performance and so some paths that are in
-     *              fact ovals can report false.
+    /** Returns Info struct if the path is an oval, else return {}.
+     *  Tracking whether a path is an oval is considered an
+     *  optimization for performance and so some paths that are in
+     *  fact ovals can report {}.
      */
-    bool isOval(SkRect* rect, bool* isCCW, unsigned* start) const {
+    std::optional<SkPathOvalInfo> isOval() const {
         if (fType == PathType::kOval) {
-            if (rect) {
-                *rect = this->getBounds();
-            }
-            if (isCCW) {
-                *isCCW = SkToBool(fRRectOrOvalIsCCW);
-            }
-            if (start) {
-                *start = fRRectOrOvalStartIdx;
-            }
+            return {{
+                this->getBounds(),
+                fRRectOrOvalIsCCW ? SkPathDirection::kCCW : SkPathDirection::kCW,
+                fRRectOrOvalStartIdx,
+            }};
         }
-
-        return fType == PathType::kOval;
+        return {};
     }
 
-    bool isRRect(SkRRect* rrect, bool* isCCW, unsigned* start) const;
+    std::optional<SkPathRRectInfo> isRRect() const;
 
-    bool isArc(SkArc* arc) const {
+    std::optional<SkArc> isArc() const {
         if (fType == PathType::kArc) {
-            if (arc) {
-                *arc = SkArc::Make(fArcOval, fArcStartAngle, fArcSweepAngle, fArcType);
-            }
+            return SkArc::Make(fArcOval, fArcStartAngle, fArcSweepAngle, fArcType);
         }
-
-        return fType == PathType::kArc;
+        return {};
     }
 
     bool hasComputedBounds() const {

@@ -478,11 +478,8 @@ public:
             // The fill is ignored (zero area) and the stroke is converted to a rrect.
             return true;
         }
-        SkRect rect;
-        unsigned start;
-        SkPathDirection dir;
-        if (SkPathPriv::IsSimpleRect(fPath, false, &rect, &dir, &start)) {
-            return RectGeo(rect).strokeAndFillIsConvertedToFill(paint);
+        if (auto info = SkPathPriv::IsSimpleRect(fPath, false)) {
+            return RectGeo(info->fRect).strokeAndFillIsConvertedToFill(paint);
         }
         return false;
     }

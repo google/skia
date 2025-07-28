@@ -501,15 +501,33 @@ bool SkPath::isRect(SkRect* rect, bool* isClosed, SkPathDirection* direction) co
 }
 
 bool SkPath::isOval(SkRect* bounds) const {
-    return SkPathPriv::IsOval(*this, bounds, nullptr, nullptr);
+    if (auto info = fPathRef->isOval()) {
+        if (bounds) {
+            *bounds = info->fBounds;
+        }
+        return true;
+    }
+    return false;
 }
 
 bool SkPath::isRRect(SkRRect* rrect) const {
-    return SkPathPriv::IsRRect(*this, rrect, nullptr, nullptr);
+    if (auto info = fPathRef->isRRect()) {
+        if (rrect) {
+            *rrect = info->fRRect;
+        }
+        return true;
+    }
+    return false;
 }
 
 bool SkPath::isArc(SkArc* arc) const {
-    return fPathRef->isArc(arc);
+    if (auto maybeArc = fPathRef->isArc()) {
+        if (arc) {
+            *arc = *maybeArc;
+        }
+        return true;
+    }
+    return false;
 }
 
 int SkPath::countPoints() const {
@@ -3166,10 +3184,9 @@ int SkPath::ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPo
     return conic.chopIntoQuadsPOW2(pts, pow2);
 }
 
-bool SkPathPriv::IsSimpleRect(const SkPath& path, bool isSimpleFill, SkRect* rect,
-                              SkPathDirection* direction, unsigned* start) {
+std::optional<SkPathRectInfo> SkPathPriv::IsSimpleRect(const SkPath& path, bool isSimpleFill) {
     if (path.getSegmentMasks() != SkPath::kLine_SegmentMask) {
-        return false;
+        return {};
     }
     SkPoint rectPts[5];
     int rectPtCnt = 0;
@@ -3178,14 +3195,14 @@ bool SkPathPriv::IsSimpleRect(const SkPath& path, bool isSimpleFill, SkRect* rec
         switch (v) {
             case SkPathVerb::kMove:
                 if (0 != rectPtCnt) {
-                    return false;
+                    return {};
                 }
                 rectPts[0] = verbPts[0];
                 ++rectPtCnt;
                 break;
             case SkPathVerb::kLine:
                 if (5 == rectPtCnt) {
-                    return false;
+                    return {};
                 }
                 rectPts[rectPtCnt] = verbPts[1];
                 ++rectPtCnt;
@@ -3200,17 +3217,17 @@ bool SkPathPriv::IsSimpleRect(const SkPath& path, bool isSimpleFill, SkRect* rec
             case SkPathVerb::kQuad:
             case SkPathVerb::kConic:
             case SkPathVerb::kCubic:
-                return false;
+                return {};
         }
     }
     if (needsClose) {
-        return false;
+        return {};
     }
     if (rectPtCnt < 5) {
-        return false;
+        return {};
     }
     if (rectPts[0] != rectPts[4]) {
-        return false;
+        return {};
     }
     // Check for two cases of rectangles: pts 0 and 3 form a vertical edge or a horizontal edge (
     // and pts 1 and 2 the opposite vertical or horizontal edge).
@@ -3219,19 +3236,22 @@ bool SkPathPriv::IsSimpleRect(const SkPath& path, bool isSimpleFill, SkRect* rec
         rectPts[0].fY == rectPts[1].fY && rectPts[3].fY == rectPts[2].fY) {
         // Make sure it has non-zero width and height
         if (rectPts[0].fX == rectPts[1].fX || rectPts[0].fY == rectPts[3].fY) {
-            return false;
+            return {};
         }
         vec03IsVertical = true;
     } else if (rectPts[0].fY == rectPts[3].fY && rectPts[1].fY == rectPts[2].fY &&
                rectPts[0].fX == rectPts[1].fX && rectPts[3].fX == rectPts[2].fX) {
         // Make sure it has non-zero width and height
         if (rectPts[0].fY == rectPts[1].fY || rectPts[0].fX == rectPts[3].fX) {
-            return false;
+            return {};
         }
         vec03IsVertical = false;
     } else {
-        return false;
+        return {};
     }
+
+    SkPathRectInfo info;
+
     // Set sortFlags so that it has the low bit set if pt index 0 is on right edge and second bit
     // set if it is on the bottom edge.
     unsigned sortFlags =
@@ -3239,27 +3259,27 @@ bool SkPathPriv::IsSimpleRect(const SkPath& path, bool isSimpleFill, SkRect* rec
             ((rectPts[0].fY < rectPts[2].fY) ? 0b00 : 0b10);
     switch (sortFlags) {
         case 0b00:
-            rect->setLTRB(rectPts[0].fX, rectPts[0].fY, rectPts[2].fX, rectPts[2].fY);
-            *direction = vec03IsVertical ? SkPathDirection::kCW : SkPathDirection::kCCW;
-            *start = 0;
+            info.fRect.setLTRB(rectPts[0].fX, rectPts[0].fY, rectPts[2].fX, rectPts[2].fY);
+            info.fDirection = vec03IsVertical ? SkPathDirection::kCW : SkPathDirection::kCCW;
+            info.fStartIndex = 0;
             break;
         case 0b01:
-            rect->setLTRB(rectPts[2].fX, rectPts[0].fY, rectPts[0].fX, rectPts[2].fY);
-            *direction = vec03IsVertical ? SkPathDirection::kCCW : SkPathDirection::kCW;
-            *start = 1;
+            info.fRect.setLTRB(rectPts[2].fX, rectPts[0].fY, rectPts[0].fX, rectPts[2].fY);
+            info.fDirection = vec03IsVertical ? SkPathDirection::kCCW : SkPathDirection::kCW;
+            info.fStartIndex = 1;
             break;
         case 0b10:
-            rect->setLTRB(rectPts[0].fX, rectPts[2].fY, rectPts[2].fX, rectPts[0].fY);
-            *direction = vec03IsVertical ? SkPathDirection::kCCW : SkPathDirection::kCW;
-            *start = 3;
+            info.fRect.setLTRB(rectPts[0].fX, rectPts[2].fY, rectPts[2].fX, rectPts[0].fY);
+            info.fDirection = vec03IsVertical ? SkPathDirection::kCCW : SkPathDirection::kCW;
+            info.fStartIndex = 3;
             break;
         case 0b11:
-            rect->setLTRB(rectPts[2].fX, rectPts[2].fY, rectPts[0].fX, rectPts[0].fY);
-            *direction = vec03IsVertical ? SkPathDirection::kCW : SkPathDirection::kCCW;
-            *start = 2;
+            info.fRect.setLTRB(rectPts[2].fX, rectPts[2].fY, rectPts[0].fX, rectPts[0].fY);
+            info.fDirection = vec03IsVertical ? SkPathDirection::kCW : SkPathDirection::kCCW;
+            info.fStartIndex = 2;
             break;
     }
-    return true;
+    return info;
 }
 
 bool SkPathPriv::DrawArcIsConvex(SkScalar sweepAngle,

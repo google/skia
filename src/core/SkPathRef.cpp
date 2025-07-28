@@ -529,24 +529,17 @@ SkRRect SkPathPriv::DeduceRRectFromContour(const SkRect& bounds, SkSpan<const Sk
     return rrect;
 }
 
-SkRRect SkPathRef::getRRect() const {
-    return SkPathPriv::DeduceRRectFromContour(this->getBounds(),
-                                              this->pointSpan(), this->verbs());
-}
-
-bool SkPathRef::isRRect(SkRRect* rrect, bool* isCCW, unsigned* start) const {
+std::optional<SkPathRRectInfo> SkPathRef::isRRect() const {
     if (fType == PathType::kRRect) {
-        if (rrect) {
-            *rrect = this->getRRect();
-        }
-        if (isCCW) {
-            *isCCW = SkToBool(fRRectOrOvalIsCCW);
-        }
-        if (start) {
-            *start = fRRectOrOvalStartIdx;
-        }
+        return {{
+            SkPathPriv::DeduceRRectFromContour(this->getBounds(),
+                                               this->pointSpan(),
+                                               this->verbs()),
+            fRRectOrOvalIsCCW ? SkPathDirection::kCCW : SkPathDirection::kCW,
+            fRRectOrOvalStartIdx,
+        }};
     }
-    return fType == PathType::kRRect;
+    return {};
 }
 
 ///////////////////////////////////////////////////////////////////////////////

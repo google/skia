@@ -123,12 +123,11 @@ public:
     }
 
     /**
-     * This returns true for a rect that has a move followed by 3 or 4 lines and a close. If
+     * This returns the info for a rect that has a move followed by 3 or 4 lines and a close. If
      * 'isSimpleFill' is true, an uncloseed rect will also be accepted as long as it starts and
      * ends at the same corner. This does not permit degenerate line or point rectangles.
      */
-    static bool IsSimpleRect(const SkPath& path, bool isSimpleFill, SkRect* rect,
-                             SkPathDirection* direction, unsigned* start);
+    static std::optional<SkPathRectInfo> IsSimpleRect(const SkPath& path, bool isSimpleFill);
 
     // Asserts the path contour was built from RRect, so it does not return
     // an optional. This exists so path's can have a flag that they are really
@@ -247,59 +246,16 @@ public:
         return path.hasComputedBounds();
     }
 
-    /** Returns true if constructed by addCircle(), addOval(); and in some cases,
-     addRoundRect(), addRRect(). SkPath constructed with conicTo() or rConicTo() will not
-     return true though SkPath draws oval.
-
-     rect receives bounds of oval.
-     dir receives SkPathDirection of oval: kCW_Direction if clockwise, kCCW_Direction if
-     counterclockwise.
-     start receives start of oval: 0 for top, 1 for right, 2 for bottom, 3 for left.
-
-     rect, dir, and start are unmodified if oval is not found.
-
-     Triggers performance optimizations on some GPU surface implementations.
-
-     @param rect   storage for bounding SkRect of oval; may be nullptr
-     @param dir    storage for SkPathDirection; may be nullptr
-     @param start  storage for start of oval; may be nullptr
-     @return       true if SkPath was constructed by method that reduces to oval
+    /** Returns the oval info if this path was created as an oval or circle, else returns {}.
      */
-    static bool IsOval(const SkPath& path, SkRect* rect, SkPathDirection* dir, unsigned* start) {
-        bool isCCW = false;
-        bool result = path.fPathRef->isOval(rect, &isCCW, start);
-        if (dir && result) {
-            *dir = isCCW ? SkPathDirection::kCCW : SkPathDirection::kCW;
-        }
-        return result;
+    static std::optional<SkPathOvalInfo> IsOval(const SkPath& path) {
+        return path.fPathRef->isOval();
     }
 
-    /** Returns true if constructed by addRoundRect(), addRRect(); and if construction
-     is not empty, not SkRect, and not oval. SkPath constructed with other calls
-     will not return true though SkPath draws SkRRect.
-
-     rrect receives bounds of SkRRect.
-     dir receives SkPathDirection of oval: kCW_Direction if clockwise, kCCW_Direction if
-     counterclockwise.
-     start receives start of SkRRect: 0 for top, 1 for right, 2 for bottom, 3 for left.
-
-     rrect, dir, and start are unmodified if SkRRect is not found.
-
-     Triggers performance optimizations on some GPU surface implementations.
-
-     @param rrect  storage for bounding SkRect of SkRRect; may be nullptr
-     @param dir    storage for SkPathDirection; may be nullptr
-     @param start  storage for start of SkRRect; may be nullptr
-     @return       true if SkPath contains only SkRRect
+    /** Returns the rrect info if this path was created as one, else returns {}.
      */
-    static bool IsRRect(const SkPath& path, SkRRect* rrect, SkPathDirection* dir,
-                        unsigned* start) {
-        bool isCCW = false;
-        bool result = path.fPathRef->isRRect(rrect, &isCCW, start);
-        if (dir && result) {
-            *dir = isCCW ? SkPathDirection::kCCW : SkPathDirection::kCW;
-        }
-        return result;
+    static std::optional<SkPathRRectInfo> IsRRect(const SkPath& path) {
+        return path.fPathRef->isRRect();
     }
 
     /**

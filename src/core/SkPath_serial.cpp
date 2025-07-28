@@ -68,15 +68,20 @@ static SerializationType extract_serializationtype(uint32_t packed) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 size_t SkPath::writeToMemoryAsRRect(void* storage) const {
-    SkRect oval;
     SkRRect rrect;
-    bool isCCW;
+    SkPathDirection firstDir;
     unsigned start;
-    if (fPathRef->isOval(&oval, &isCCW, &start)) {
-        rrect.setOval(oval);
+
+    if (auto oinfo = fPathRef->isOval()) {
+        rrect.setOval(oinfo->fBounds);
+        firstDir = oinfo->fDirection;
         // Convert to rrect start indices.
-        start *= 2;
-    } else if (!fPathRef->isRRect(&rrect, &isCCW, &start)) {
+        start = oinfo->fStartIndex * 2;
+    } else if (auto rinfo = fPathRef->isRRect()) {
+        rrect = rinfo->fRRect;
+        firstDir = rinfo->fDirection;
+        start = rinfo->fStartIndex;
+    } else {
         return 0;
     }
 
@@ -86,9 +91,8 @@ size_t SkPath::writeToMemoryAsRRect(void* storage) const {
         return sizeNeeded;
     }
 
-    int firstDir = isCCW ? (int)SkPathFirstDirection::kCCW : (int)SkPathFirstDirection::kCW;
     int32_t packed = (fFillType << kFillType_SerializationShift) |
-                     (firstDir << kDirection_SerializationShift) |
+                     ((int)firstDir << kDirection_SerializationShift) |
                      (SerializationType::kRRect << kType_SerializationShift) |
                      kCurrent_Version;
 

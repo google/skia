@@ -59,33 +59,35 @@ uint32_t GrShape::stateKey() const {
 bool GrShape::simplifyPath(unsigned flags) {
     SkASSERT(this->isPath());
 
-    SkRect rect;
-    SkRRect rrect;
     SkPoint pts[2];
-
-    SkPathDirection dir;
-    unsigned start;
 
     if (fPath.isEmpty()) {
         this->setType(Type::kEmpty);
         return false;
-    } else if (fPath.isLine(pts)) {
+    }
+    if (fPath.isLine(pts)) {
         this->simplifyLine(pts[0], pts[1], flags);
         return false;
-    } else if (SkPathPriv::IsRRect(fPath, &rrect, &dir, &start)) {
-        this->simplifyRRect(rrect, dir, start, flags);
+    }
+    if (auto info = SkPathPriv::IsRRect(fPath)) {
+        this->simplifyRRect(info->fRRect, info->fDirection, info->fStartIndex, flags);
         return true;
-    } else if (SkPathPriv::IsOval(fPath, &rect, &dir, &start)) {
+    }
+    if (auto info = SkPathPriv::IsOval(fPath)) {
         // Convert to rrect indexing since oval is not represented explicitly
-        this->simplifyRRect(SkRRect::MakeOval(rect), dir, start * 2, flags);
+        this->simplifyRRect(SkRRect::MakeOval(info->fBounds),
+                            info->fDirection, info->fStartIndex * 2, flags);
         return true;
-    } else if (SkPathPriv::IsSimpleRect(fPath, (flags & kSimpleFill_Flag), &rect, &dir, &start)) {
+    }
+    if (auto info = SkPathPriv::IsSimpleRect(fPath, (flags & kSimpleFill_Flag))) {
         // When there is a path effect we restrict rect detection to the narrower API that
         // gives us the starting position. Otherwise, we will retry with the more aggressive
         // isRect().
-        this->simplifyRect(rect, dir, start, flags);
+        this->simplifyRect(info->fRect, info->fDirection, info->fStartIndex, flags);
         return true;
-    } else if (flags & kIgnoreWinding_Flag) {
+    }
+    if (flags & kIgnoreWinding_Flag) {
+        SkRect rect;
         // Attempt isRect() since we don't have to preserve any winding info
         bool closed;
         if (fPath.isRect(&rect, &closed) && (closed || (flags & kSimpleFill_Flag))) {
