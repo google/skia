@@ -33,6 +33,7 @@ class SkRRect;
 class SkWStream;
 enum class SkPathConvexity;
 enum class SkPathFirstDirection;
+struct SkPathRaw;
 struct SkPathVerbAnalysis;
 
 // WIP -- define this locally, and fix call-sites to use SkPathBuilder (skbug.com/40040287)
@@ -1966,6 +1967,8 @@ private:
 
     void setFirstDirection(SkPathFirstDirection) const;
     SkPathFirstDirection getFirstDirection() const;
+
+    void addRaw(const SkPathRaw&);
 
     /** Returns the comvexity type, computing if needed. Never returns kUnknown.
         @return  path's convexity type (convex or concave)

@@ -8,6 +8,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 
 #include "src/core/SkPathRaw.h"
@@ -108,3 +109,22 @@ DEF_TEST(pathrawshapes_oval, reporter) {
         check_path_is_raw(reporter, path, shape);
     }
 }
+
+DEF_TEST(pathrawshapes_rrect, reporter) {
+    const SkRect r = {0, 0, 4, 4};
+    const SkRRect rr = SkRRect::MakeRectXY(r, 1, 1);
+
+    for (auto dir : gDirections) {
+        SkPathRawShapes::RRect shape(rr, dir);
+
+        REPORTER_ASSERT(reporter, shape.bounds() == r);
+        REPORTER_ASSERT(reporter, shape.isConvex());
+        REPORTER_ASSERT(reporter, shape.segmentMasks() == (kLine_SkPathSegmentMask |
+                                                           kConic_SkPathSegmentMask));
+
+        const SkPath path = SkPath::RRect(rr, dir);
+
+        check_path_is_raw(reporter, path, shape);
+    }
+}
+

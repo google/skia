@@ -36,6 +36,16 @@ struct Oval : public SkPathRaw {
          unsigned index = 1);
 };
 
+struct RRect : public SkPathRaw {
+    SkPoint fStorage[13];   // worse case: move + 4 conics + 4 lines (+ close)
+
+    RRect(const SkRRect&, SkPathDirection dir, unsigned index);
+    RRect(const SkRRect& rr, SkPathDirection dir)
+        : RRect(rr, dir, (dir == SkPathDirection::kCW ? 6 : 7)) {}
+    RRect(const SkRRect& rr)
+        : RRect(rr, SkPathDirection::kCW, 6) {}
+};
+
 } // namespace
 
 #endif

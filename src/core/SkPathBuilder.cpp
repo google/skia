@@ -668,82 +668,6 @@ SkPathBuilder& SkPathBuilder::arcTo(SkPoint rad, SkScalar angle, SkPathBuilder::
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-namespace {
-    template <unsigned N> class PointIterator {
-    public:
-        PointIterator(SkPathDirection dir, unsigned startIndex)
-            : fCurrent(startIndex % N)
-            , fAdvance(dir == SkPathDirection::kCW ? 1 : N - 1)
-        {}
-
-        const SkPoint& current() const {
-            SkASSERT(fCurrent < N);
-            return fPts[fCurrent];
-        }
-
-        const SkPoint& next() {
-            fCurrent = (fCurrent + fAdvance) % N;
-            return this->current();
-        }
-
-    protected:
-        SkPoint fPts[N];
-
-    private:
-        unsigned fCurrent;
-        unsigned fAdvance;
-    };
-
-    class RectPointIterator : public PointIterator<4> {
-    public:
-        RectPointIterator(const SkRect& rect, SkPathDirection dir, unsigned startIndex)
-        : PointIterator(dir, startIndex) {
-
-            fPts[0] = SkPoint::Make(rect.fLeft, rect.fTop);
-            fPts[1] = SkPoint::Make(rect.fRight, rect.fTop);
-            fPts[2] = SkPoint::Make(rect.fRight, rect.fBottom);
-            fPts[3] = SkPoint::Make(rect.fLeft, rect.fBottom);
-        }
-    };
-
-    class OvalPointIterator : public PointIterator<4> {
-    public:
-        OvalPointIterator(const SkRect& oval, SkPathDirection dir, unsigned startIndex)
-        : PointIterator(dir, startIndex) {
-
-            const SkScalar cx = oval.centerX();
-            const SkScalar cy = oval.centerY();
-
-            fPts[0] = SkPoint::Make(cx, oval.fTop);
-            fPts[1] = SkPoint::Make(oval.fRight, cy);
-            fPts[2] = SkPoint::Make(cx, oval.fBottom);
-            fPts[3] = SkPoint::Make(oval.fLeft, cy);
-        }
-    };
-
-    class RRectPointIterator : public PointIterator<8> {
-    public:
-        RRectPointIterator(const SkRRect& rrect, SkPathDirection dir, unsigned startIndex)
-            : PointIterator(dir, startIndex)
-        {
-            const SkRect& bounds = rrect.getBounds();
-            const SkScalar L = bounds.fLeft;
-            const SkScalar T = bounds.fTop;
-            const SkScalar R = bounds.fRight;
-            const SkScalar B = bounds.fBottom;
-
-            fPts[0] = SkPoint::Make(L + rrect.radii(SkRRect::kUpperLeft_Corner).fX, T);
-            fPts[1] = SkPoint::Make(R - rrect.radii(SkRRect::kUpperRight_Corner).fX, T);
-            fPts[2] = SkPoint::Make(R, T + rrect.radii(SkRRect::kUpperRight_Corner).fY);
-            fPts[3] = SkPoint::Make(R, B - rrect.radii(SkRRect::kLowerRight_Corner).fY);
-            fPts[4] = SkPoint::Make(R - rrect.radii(SkRRect::kLowerRight_Corner).fX, B);
-            fPts[5] = SkPoint::Make(L + rrect.radii(SkRRect::kLowerLeft_Corner).fX, B);
-            fPts[6] = SkPoint::Make(L, B - rrect.radii(SkRRect::kLowerLeft_Corner).fY);
-            fPts[7] = SkPoint::Make(L, T + rrect.radii(SkRRect::kUpperLeft_Corner).fY);
-        }
-    };
-} // anonymous namespace
-
 SkPathBuilder& SkPathBuilder::addRaw(const SkPathRaw& raw) {
     this->incReserve(raw.points().size(), raw.verbs().size());
 
@@ -789,6 +713,7 @@ SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, u
 
 SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir, unsigned index) {
     const IsA prevIsA = fIsA;
+
     const SkRect& bounds = rrect.getBounds();
 
     if (rrect.isRect() || rrect.isEmpty()) {
@@ -798,36 +723,7 @@ SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir
         // degenerate(oval) => line points are collapsing
         this->addOval(bounds, dir, index / 2);
     } else {
-        // we start with a conic on odd indices when moving CW vs. even indices when moving CCW
-        const bool startsWithConic = ((index & 1) == (dir == SkPathDirection::kCW));
-        const SkScalar weight = SK_ScalarRoot2Over2;
-
-        const int kVerbs = startsWithConic
-            ? 9   // moveTo + 4x conicTo + 3x lineTo + close
-            : 10; // moveTo + 4x lineTo + 4x conicTo + close
-        this->incReserve(kVerbs);
-
-        RRectPointIterator rrectIter(rrect, dir, index);
-        // Corner iterator indices follow the collapsed radii model,
-        // adjusted such that the start pt is "behind" the radii start pt.
-        const unsigned rectStartIndex = index / 2 + (dir == SkPathDirection::kCW ? 0 : 1);
-        RectPointIterator rectIter(bounds, dir, rectStartIndex);
-
-        this->moveTo(rrectIter.current());
-        if (startsWithConic) {
-            for (unsigned i = 0; i < 3; ++i) {
-                this->conicTo(rectIter.next(), rrectIter.next(), weight);
-                this->lineTo(rrectIter.next());
-            }
-            this->conicTo(rectIter.next(), rrectIter.next(), weight);
-            // final lineTo handled by close().
-        } else {
-            for (unsigned i = 0; i < 4; ++i) {
-                this->lineTo(rrectIter.next());
-                this->conicTo(rectIter.next(), rrectIter.next(), weight);
-            }
-        }
-        this->close();
+        this->addRaw(SkPathRawShapes::RRect(rrect, dir, index));
     }
 
     if (prevIsA == kIsA_JustMoves) {
