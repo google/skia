@@ -89,10 +89,10 @@ static std::string identify_transfer_fn(SkColorSpace* cs) {
                     .c_str();
 
         case skcms_TFType_PQ:
-            return SkStringPrintf("PQ %.3g", tf.a);
+            return SkStringPrintf("PQ %.3g", tf.a).c_str();
 
         case skcms_TFType_HLG:
-            return SkStringPrintf("HLG %.3g %.3g %.3g", tf.a, tf.b, tf.c);
+            return SkStringPrintf("HLG %.3g %.3g %.3g", tf.a, tf.b, tf.c).c_str();
 
         case skcms_TFType_PQish:
             if (eq(tf, SkNamedTransferFn::kPQ)) {
