@@ -58,7 +58,6 @@ use_repo(
     "com_github_stretchr_testify",
     "com_github_trietmn_go_wiki",
     "com_github_vektra_mockery_v2",
-    "com_google_cloud_go_pubsub",
     "com_google_cloud_go_storage",
     "org_chromium_go_luci",
     "org_golang_google_api",

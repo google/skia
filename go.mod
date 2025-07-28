@@ -3,7 +3,6 @@ module go.skia.org/skia
 go 1.24.2
 
 require (
-	cloud.google.com/go/pubsub v1.47.0
 	cloud.google.com/go/storage v1.50.0
 	github.com/flynn/json5 v0.0.0-20160717195620-7620272ed633
 	github.com/golang/glog v1.2.5
@@ -13,7 +12,7 @@ require (
 	github.com/trietmn/go-wiki v1.0.1
 	github.com/vektra/mockery/v2 v2.52.2
 	go.chromium.org/luci v0.0.0-20240206071351-fb32c458db6e
-	go.skia.org/infra v0.0.0-20250725002007-8aa65434c8ed
+	go.skia.org/infra v0.0.0-20250725235449-4695e6b7d184
 	golang.org/x/exp v0.0.0-20250210185358-939b2ce775ac
 	google.golang.org/api v0.229.0
 	google.golang.org/protobuf v1.36.6
@@ -32,6 +31,7 @@ require (
 	cloud.google.com/go/logging v1.13.0 // indirect
 	cloud.google.com/go/longrunning v0.6.6 // indirect
 	cloud.google.com/go/monitoring v1.24.0 // indirect
+	cloud.google.com/go/pubsub v1.47.0 // indirect
 	cloud.google.com/go/secretmanager v1.14.5 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.25.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.50.0 // indirect
