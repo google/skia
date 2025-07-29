@@ -339,7 +339,7 @@ private:
         const SkColor boundsColors[2] = { SK_ColorRED, SK_ColorBLUE };
 
         SkFontMgr* fm = fFM.get();
-        int count = std::min(fm->countFamilies(), 32);
+        int count = fm->countFamilies();
         if (count == 0) {
             *errorMsg = "No families in SkFontMgr under test.";
             return DrawResult::kSkip;
@@ -350,14 +350,19 @@ private:
 
         canvas->translate(10, 120);
 
-        for (int i = 0; i < count; ++i) {
+        int typefacesVisited = 0;
+        for (int i = 0; i < count && typefacesVisited < 32; ++i) {
             sk_sp<SkFontStyleSet> set(fm->createStyleSet(i));
-            for (int j = 0; j < set->count() && j < 3; ++j) {
+            int stylesVisited = 0;
+            for (int j = 0; j < set->count() && typefacesVisited < 32 && stylesVisited < 3; ++j) {
                 font.setTypeface(sk_sp<SkTypeface>(set->createTypeface(j)));
                 // Fonts with lots of glyphs are interesting, but can take a long time to find
                 // the glyphs which make up the maximum extent.
                 SkTypeface* typeface = font.getTypeface();
                 if (typeface && 0 < typeface->countGlyphs() && typeface->countGlyphs() < 1000) {
+                    ++typefacesVisited;
+                    ++stylesVisited;
+
                     SkColor color = boundsColors[index & 1];
                     SkRect drawBounds = show_bounds(canvas, font, x, y, color, fLabelBounds);
                     x += drawBounds.width() + 20;
