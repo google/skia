@@ -158,6 +158,23 @@ skia_cc_library(
 )
 
 skia_cc_library(
+    name = "fontmgr_android_parser",
+    srcs = [
+        #"SkFontMgr_android_parser.cpp",
+    ],
+    hdrs = [
+        "SkFontMgr_android_parser.h",
+    ],
+    visibility = ["//:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/base",
+        "//src/core:core_priv",
+        "@expat",
+    ],
+)
+
+skia_cc_library(
     name = "fontmgr_android",
     srcs = [
         "SkFontMgr_android.cpp",

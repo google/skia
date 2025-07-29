@@ -292,6 +292,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{
 				"//src/ports:freetype_support",
 			}},
+		{Var: "skia_ports_fontmgr_android_parser_sources",
+			Rules: []string{
+				"//src/ports:fontmgr_android_parser",
+			}},
 		{Var: "skia_ports_fontmgr_android_public",
 			Rules: []string{
 				"//include/ports:android_fontmgr_hdrs",
