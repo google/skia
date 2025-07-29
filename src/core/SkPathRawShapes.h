@@ -12,6 +12,7 @@
 #include "include/core/SkPoint.h"
 #include "src/core/SkPathRaw.h"
 
+class SkRRect;
 struct SkRect;
 
 namespace SkPathRawShapes {
