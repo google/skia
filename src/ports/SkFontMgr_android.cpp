@@ -51,7 +51,6 @@ public:
     }
 
     const SkString fFamilyName;
-    const STArray<4, SkFixed, true> fAxes;
     const STArray<4, SkLanguage, true> fLang;
     const FontVariant fVariantStyle;
 
