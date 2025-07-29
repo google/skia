@@ -98,24 +98,24 @@ DEF_BENCH( return new PathOpsSimplifyBench("rects", makerects()); )
 
 template <size_t N> struct ArrayPath {
     SkPoint fPts[N];
-    uint8_t fVbs[N];
+    SkPathVerb fVbs[N];
     int fPIndex = 0, fVIndex = 0;
 
     void moveTo(float x, float y) {
-        fVbs[fVIndex++] = (uint8_t)SkPathVerb::kMove;
+        fVbs[fVIndex++] = SkPathVerb::kMove;
         fPts[fPIndex++] = {x, y};
     }
     void lineTo(float x, float y) {
-        fVbs[fVIndex++] = (uint8_t)SkPathVerb::kLine;
+        fVbs[fVIndex++] = SkPathVerb::kLine;
         fPts[fPIndex++] = {x, y};
     }
     void quadTo(float x, float y, float x1, float y1) {
-        fVbs[fVIndex++] = (uint8_t)SkPathVerb::kQuad;
+        fVbs[fVIndex++] = SkPathVerb::kQuad;
         fPts[fPIndex++] = {x, y};
         fPts[fPIndex++] = {x1, y1};
     }
     void cubicTo(float x, float y, float x1, float y1, float x2, float y2) {
-        fVbs[fVIndex++] = (uint8_t)SkPathVerb::kCubic;
+        fVbs[fVIndex++] = SkPathVerb::kCubic;
         fPts[fPIndex++] = {x, y};
         fPts[fPIndex++] = {x1, y1};
         fPts[fPIndex++] = {x2, y2};
@@ -188,9 +188,9 @@ protected:
             case MakeType::kArray: {
             //    ArrayPath<N*12> arrays;
             //    run_builder(arrays, false, N);
-                return SkPath::Make({fArrays.fPts, fArrays.fPIndex},
-                                    {fArrays.fVbs, fArrays.fVIndex},
-                                    {}, SkPathFillType::kWinding);
+                return SkPath::Raw({fArrays.fPts, fArrays.fPIndex},
+                                   {fArrays.fVbs, fArrays.fVIndex},
+                                   {}, SkPathFillType::kWinding);
             }
         }
         return SkPath();

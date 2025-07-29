@@ -60,7 +60,7 @@ struct SkPathVerbAnalysis;
 class SK_API SkPath {
 public:
     /**
-     *  Create a new path with the specified segments.
+     *  Create a new path with the specified spans.
      *
      *  The points and weights arrays are read in order, based on the sequence of verbs.
      *
@@ -78,10 +78,10 @@ public:
      *  with a Move verb, followed by 0 or more segments: Line, Quad, Conic, Cubic, followed
      *  by an optional Close.
      */
-    static SkPath Make(SkSpan<const SkPoint> pts,
-                       SkSpan<const uint8_t> verbs,
-                       SkSpan<const SkScalar> conics,
-                       SkPathFillType, bool isVolatile = false);
+    static SkPath Raw(SkSpan<const SkPoint> pts,
+                      SkSpan<const SkPathVerb> verbs,
+                      SkSpan<const SkScalar> conics,
+                      SkPathFillType, bool isVolatile = false);
 
     static SkPath Rect(const SkRect&, SkPathDirection = SkPathDirection::kDefault,
                        unsigned startIndex = 0);
@@ -100,6 +100,16 @@ public:
 
     static SkPath Line(const SkPoint a, const SkPoint b) {
         return Polygon({a, b}, false);
+    }
+
+    // Deprecated: use Raw()
+    static SkPath Make(SkSpan<const SkPoint> pts,
+                       SkSpan<const uint8_t> verbs,
+                       SkSpan<const SkScalar> conics,
+                       SkPathFillType fillType,
+                       bool isVolatile = false) {
+        return Raw(pts, {reinterpret_cast<const SkPathVerb*>(verbs.data()), verbs.size()},
+                   conics, fillType, isVolatile);
     }
 
     /** Constructs an empty SkPath. By default, SkPath has no verbs, no SkPoint, and no weights.
@@ -2012,8 +2022,7 @@ private:
     // SkPathPriv::AnalyzeVerbs().
     static SkPath MakeInternal(const SkPathVerbAnalysis& analsis,
                                const SkPoint points[],
-                               const uint8_t verbs[],
-                               int verbCount,
+                               SkSpan<const SkPathVerb> verbs,
                                const SkScalar conics[],
                                SkPathFillType fillType,
                                bool isVolatile);

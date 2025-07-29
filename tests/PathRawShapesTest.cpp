@@ -22,13 +22,7 @@ const SkPathDirection gDirections[] = {
 };
 
 static SkPath path_from_raw(const SkPathRaw& raw) {
-    // Need to update SkPath::Make() to take <SkPathVerb> directly
-    const SkSpan<const uint8_t> verbs = {
-        reinterpret_cast<const uint8_t*>(raw.verbs().data()),
-        raw.verbs().size(),
-    };
-
-    return SkPath::Make(raw.points(), verbs, raw.conics(), raw.fillType());
+    return SkPath::Raw(raw.points(), raw.verbs(), raw.conics(), raw.fillType());
 }
 
 static void check_path_is_raw(skiatest::Reporter* reporter,

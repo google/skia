@@ -37,20 +37,20 @@ static bool isClockwise(const SkPoint& a, const SkPoint& b) { return a.cross(b) 
 class PathRecorder {
 public:
     SkPath getPath() const {
-        return SkPath::Make(fPoints, fVerbs, {}, SkPathFillType::kWinding);
+        return SkPath::Raw(fPoints, fVerbs, {}, SkPathFillType::kWinding);
     }
 
     void moveTo(SkPoint p) {
-        fVerbs.push_back(SkPath::kMove_Verb);
+        fVerbs.push_back(SkPathVerb::kMove);
         fPoints.push_back(p);
     }
 
     void lineTo(SkPoint p) {
-        fVerbs.push_back(SkPath::kLine_Verb);
+        fVerbs.push_back(SkPathVerb::kLine);
         fPoints.push_back(p);
     }
 
-    void close() { fVerbs.push_back(SkPath::kClose_Verb); }
+    void close() { fVerbs.push_back(SkPathVerb::kClose); }
 
     void rewind() {
         fVerbs.clear();
@@ -77,12 +77,12 @@ public:
         }
     }
 
-    const std::vector<uint8_t>& verbs() const { return fVerbs; }
+    SkSpan<const SkPathVerb> verbs() const { return fVerbs; }
 
-    const std::vector<SkPoint>& points() const { return fPoints; }
+    SkSpan<const SkPoint> points() const { return fPoints; }
 
 private:
-    std::vector<uint8_t> fVerbs;
+    std::vector<SkPathVerb> fVerbs;
     std::vector<SkPoint> fPoints;
 };
 
@@ -304,21 +304,18 @@ void SkPathStroker2::join(const PathSegment& prev, const PathSegment& curr) {
 }
 
 void SkPathStroker2::appendPathReversed(const PathRecorder& path, PathRecorder* result) {
-    const int numVerbs = path.countVerbs();
-    const int numPoints = path.countPoints();
-    const std::vector<uint8_t>& verbs = path.verbs();
-    const std::vector<SkPoint>& points = path.points();
+    const SkSpan<const SkPathVerb> verbs = path.verbs();
+    const SkSpan<const SkPoint> points = path.points();
 
-    for (int i = numVerbs - 1, j = numPoints; i >= 0; i--) {
-        auto verb = static_cast<SkPath::Verb>(verbs[i]);
-        switch (verb) {
-            case SkPath::kLine_Verb: {
+    for (size_t i = verbs.size(), j = points.size(); i --> 0;) {
+        switch (verbs[i]) {
+            case SkPathVerb::kLine: {
                 j -= 1;
                 SkASSERT(j >= 1);
                 result->lineTo(points[j - 1]);
                 break;
             }
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 // Ignore
                 break;
             default:

@@ -67,8 +67,8 @@ public:
     // See https://bugs.chromium.org/p/skia/issues/detail?id=13817 for how these sizes were
     // determined.
     using PointsArray = skia_private::STArray<4, SkPoint>;
-    using VerbsArray = skia_private::STArray<4, uint8_t>;
-    using ConicWeightsArray = skia_private::STArray<2, SkScalar>;
+    using VerbsArray = skia_private::STArray<4, SkPathVerb>;
+    using ConicWeightsArray = skia_private::STArray<2, float>;
 
     enum class PathType : uint8_t {
         kGeneral,
@@ -77,7 +77,7 @@ public:
         kArc,
     };
 
-    SkPathRef(SkSpan<const SkPoint> points, SkSpan<const uint8_t> verbs,
+    SkPathRef(SkSpan<const SkPoint> points, SkSpan<const SkPathVerb> verbs,
               SkSpan<const SkScalar> weights, unsigned segmentMask)
         : fPoints(points)
         , fVerbs(verbs)
@@ -125,7 +125,7 @@ public:
          * return value is a pointer to where the points for the verb should be written.
          * 'weight' is only used if 'verb' is kConic_Verb
          */
-        SkPoint* growForVerb(int /*SkPath::Verb*/ verb, SkScalar weight = 0) {
+        SkPoint* growForVerb(SkPathVerb verb, SkScalar weight = 0) {
             SkDEBUGCODE(fPathRef->validate();)
             return fPathRef->growForVerb(verb, weight);
         }
@@ -137,7 +137,7 @@ public:
          * If 'verb' is kConic_Verb, 'weights' will return a pointer to the
          * space for the conic weights (indexed normally).
          */
-        SkPoint* growForRepeatedVerb(int /*SkPath::Verb*/ verb,
+        SkPoint* growForRepeatedVerb(SkPathVerb verb,
                                      int numVbs,
                                      SkScalar** weights = nullptr) {
             return fPathRef->growForRepeatedVerb(verb, numVbs, weights);
@@ -183,34 +183,6 @@ public:
 
     private:
         SkPathRef* fPathRef;
-    };
-
-    class SK_API Iter {
-    public:
-        Iter();
-        Iter(const SkPathRef&);
-
-        void setPathRef(const SkPathRef&);
-
-        /** Return the next verb in this iteration of the path. When all
-            segments have been visited, return kDone_Verb.
-
-            If any point in the path is non-finite, return kDone_Verb immediately.
-
-            @param  pts The points representing the current verb and/or segment
-                        This must not be NULL.
-            @return The verb for the current segment
-        */
-        uint8_t next(SkPoint pts[4]);
-        uint8_t peek() const;
-
-        SkScalar conicWeight() const { return *fConicWeights; }
-
-    private:
-        const SkPoint*  fPts;
-        const uint8_t*  fVerbs;
-        const uint8_t*  fVerbStop;
-        const SkScalar* fConicWeights;
     };
 
 public:
@@ -306,16 +278,15 @@ public:
     /**
      * Returns a pointer one beyond the first logical verb (last verb in memory order).
      */
-    const uint8_t* verbsBegin() const { return fVerbs.begin(); }
+    const uint8_t* verbsBegin() const { return (const uint8_t*)fVerbs.begin(); }
 
     /**
      * Returns a const pointer to the first verb in memory (which is the last logical verb).
      */
-    const uint8_t* verbsEnd() const { return fVerbs.end(); }
+    const uint8_t* verbsEnd() const { return (const uint8_t*)fVerbs.end(); }
 
-    SkSpan<const SkPathVerb> verbs() const {
-        return {reinterpret_cast<const SkPathVerb*>(fVerbs.begin()), fVerbs.size()};
-    }
+    SkSpan<const SkPathVerb> verbs() const { return fVerbs; }
+
     /**
      * Returns a const pointer to the first point.
      */
@@ -334,8 +305,8 @@ public:
     /**
      * Convenience methods for getting to a verb or point by index.
      */
-    uint8_t atVerb(int index) const { return fVerbs[index]; }
-    const SkPoint& atPoint(int index) const { return fPoints[index]; }
+    SkPathVerb atVerb(int index) const { return fVerbs[index]; }
+    SkPoint atPoint(int index) const { return fPoints[index]; }
 
     bool operator== (const SkPathRef& ref) const;
 
@@ -479,14 +450,14 @@ private:
      * verb. If 'verb' is kConic_Verb, 'weights' will return a pointer to the
      * uninitialized conic weights.
      */
-    SkPoint* growForRepeatedVerb(int /*SkPath::Verb*/ verb, int numVbs, SkScalar** weights);
+    SkPoint* growForRepeatedVerb(SkPathVerb, int numVbs, SkScalar** weights);
 
     /**
      * Increases the verb count 1, records the new verb, and creates room for the requisite number
      * of additional points. A pointer to the first point is returned. Any new points are
      * uninitialized.
      */
-    SkPoint* growForVerb(int /*SkPath::Verb*/ verb, SkScalar weight);
+    SkPoint* growForVerb(SkPathVerb, SkScalar weight);
 
     /**
      * Concatenates all verbs from 'path' onto our own verbs array. Increases the point count by the
@@ -499,7 +470,7 @@ private:
     /**
      * Private, non-const-ptr version of the public function verbsMemBegin().
      */
-    uint8_t* verbsBeginWritable() { return fVerbs.begin(); }
+    uint8_t* verbsBeginWritable() { return (uint8_t*)fVerbs.begin(); }
 
     /**
      * Called the first time someone calls CreateEmpty to actually create the singleton.

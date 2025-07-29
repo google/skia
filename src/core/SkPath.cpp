@@ -398,15 +398,15 @@ bool SkPath::isLastContourClosed() const {
     if (0 == verbCount) {
         return false;
     }
-    return kClose_Verb == fPathRef->atVerb(verbCount - 1);
+    return SkPathVerb::kClose == fPathRef->atVerb(verbCount - 1);
 }
 
 bool SkPath::isLine(SkPoint line[2]) const {
     int verbCount = fPathRef->countVerbs();
 
     if (2 == verbCount) {
-        SkASSERT(kMove_Verb == fPathRef->atVerb(0));
-        if (kLine_Verb == fPathRef->atVerb(1)) {
+        SkASSERT(SkPathVerb::kMove == fPathRef->verbs()[0]);
+        if (SkPathVerb::kLine == fPathRef->verbs()[1]) {
             SkASSERT(2 == fPathRef->countPoints());
             if (line) {
                 const SkPoint* pts = fPathRef->points();
@@ -687,7 +687,7 @@ SkPath& SkPath::moveTo(SkScalar x, SkScalar y) {
     // remember our index
     fLastMoveToIndex = fPathRef->countPoints();
 
-    ed.growForVerb(kMove_Verb)->set(x, y);
+    ed.growForVerb(SkPathVerb::kMove)->set(x, y);
 
     return this->dirtyAfterEdit();
 }
@@ -725,7 +725,7 @@ SkPath& SkPath::lineTo(SkScalar x, SkScalar y) {
     this->injectMoveToIfNeeded();
 
     SkPathRef::Editor ed(&fPathRef);
-    ed.growForVerb(kLine_Verb)->set(x, y);
+    ed.growForVerb(SkPathVerb::kLine)->set(x, y);
 
     return this->dirtyAfterEdit();
 }
@@ -743,7 +743,7 @@ SkPath& SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
     this->injectMoveToIfNeeded();
 
     SkPathRef::Editor ed(&fPathRef);
-    SkPoint* pts = ed.growForVerb(kQuad_Verb);
+    SkPoint* pts = ed.growForVerb(SkPathVerb::kQuad);
     pts[0].set(x1, y1);
     pts[1].set(x2, y2);
 
@@ -773,7 +773,7 @@ SkPath& SkPath::conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
         this->injectMoveToIfNeeded();
 
         SkPathRef::Editor ed(&fPathRef);
-        SkPoint* pts = ed.growForVerb(kConic_Verb, w);
+        SkPoint* pts = ed.growForVerb(SkPathVerb::kConic, w);
         pts[0].set(x1, y1);
         pts[1].set(x2, y2);
 
@@ -797,7 +797,7 @@ SkPath& SkPath::cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
     this->injectMoveToIfNeeded();
 
     SkPathRef::Editor ed(&fPathRef);
-    SkPoint* pts = ed.growForVerb(kCubic_Verb);
+    SkPoint* pts = ed.growForVerb(SkPathVerb::kCubic);
     pts[0].set(x1, y1);
     pts[1].set(x2, y2);
     pts[2].set(x3, y3);
@@ -817,23 +817,19 @@ SkPath& SkPath::rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
 SkPath& SkPath::close() {
     SkDEBUGCODE(this->validate();)
 
-    int count = fPathRef->countVerbs();
-    if (count > 0) {
-        switch (fPathRef->atVerb(count - 1)) {
-            case kLine_Verb:
-            case kQuad_Verb:
-            case kConic_Verb:
-            case kCubic_Verb:
-            case kMove_Verb: {
+    if (!fPathRef->verbs().empty()) {
+        switch (fPathRef->verbs().back()) {
+            case SkPathVerb::kLine:
+            case SkPathVerb::kQuad:
+            case SkPathVerb::kConic:
+            case SkPathVerb::kCubic:
+            case SkPathVerb::kMove: {
                 SkPathRef::Editor ed(&fPathRef);
-                ed.growForVerb(kClose_Verb);
+                ed.growForVerb(SkPathVerb::kClose);
                 break;
             }
-            case kClose_Verb:
+            case SkPathVerb::kClose:
                 // don't add a close if it's the first verb or a repeat
-                break;
-            default:
-                SkDEBUGFAIL("unexpected verb");
                 break;
         }
     }
@@ -876,17 +872,17 @@ SkPath& SkPath::addPoly(SkSpan<const SkPoint> pts, bool close) {
 
     fLastMoveToIndex = fPathRef->countPoints();
 
-    // +close makes room for the extra kClose_Verb
+    // +close makes room for the extra SkPathVerb::kClose
     SkPathRef::Editor ed(&fPathRef, count+close, count);
 
-    ed.growForVerb(kMove_Verb)->set(pts[0].fX, pts[0].fY);
+    ed.growForVerb(SkPathVerb::kMove)->set(pts[0].fX, pts[0].fY);
     if (count > 1) {
-        SkPoint* p = ed.growForRepeatedVerb(kLine_Verb, count - 1);
+        SkPoint* p = ed.growForRepeatedVerb(SkPathVerb::kLine, count - 1);
         memcpy(p, &pts[1], (count-1) * sizeof(SkPoint));
     }
 
     if (close) {
-        ed.growForVerb(kClose_Verb);
+        ed.growForVerb(SkPathVerb::kClose);
         fLastMoveToIndex ^= ~fLastMoveToIndex >> (8 * sizeof(fLastMoveToIndex) - 1);
     }
 
@@ -3398,7 +3394,7 @@ bool SkPath::IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkPathVerbAnalysis SkPathPriv::AnalyzeVerbs(SkSpan<const uint8_t> vbs) {
+SkPathVerbAnalysis SkPathPriv::AnalyzeVerbs(SkSpan<const SkPathVerb> vbs) {
     SkPathVerbAnalysis info = {false, 0, 0, 0};
     bool needMove = true;
     bool invalid = false;
@@ -3412,7 +3408,7 @@ SkPathVerbAnalysis SkPathPriv::AnalyzeVerbs(SkSpan<const uint8_t> vbs) {
         invalid = true;
     } else {
         for (auto v : vbs) {
-            switch ((SkPathVerb)v) {
+            switch (v) {
                 case SkPathVerb::kMove:
                     needMove = false;
                     info.points += 1;
@@ -3452,10 +3448,8 @@ SkPathVerbAnalysis SkPathPriv::AnalyzeVerbs(SkSpan<const uint8_t> vbs) {
     return info;
 }
 
-SkPath SkPath::Make(SkSpan<const SkPoint> pts,
-                    SkSpan<const uint8_t> vbs,
-                    SkSpan<const SkScalar> ws,
-                    SkPathFillType ft, bool isVolatile) {
+SkPath SkPath::Raw(SkSpan<const SkPoint> pts, SkSpan<const SkPathVerb> vbs,
+                   SkSpan<const float> ws, SkPathFillType ft, bool isVolatile) {
     if (vbs.empty()) {
         return SkPath();
     }
@@ -3466,7 +3460,7 @@ SkPath SkPath::Make(SkSpan<const SkPoint> pts,
         return SkPath();
     }
 
-    return MakeInternal(info, pts.data(), vbs.data(), vbs.size(), ws.data(), ft, isVolatile);
+    return MakeInternal(info, pts.data(), vbs, ws.data(), ft, isVolatile);
 }
 
 SkPath SkPath::Rect(const SkRect& r, SkPathDirection dir, unsigned startIndex) {
@@ -3507,14 +3501,13 @@ SkPath SkPath::Polygon(SkSpan<const SkPoint> pts, bool isClosed,
 
 SkPath SkPath::MakeInternal(const SkPathVerbAnalysis& analysis,
                             const SkPoint points[],
-                            const uint8_t verbs[],
-                            int verbCount,
+                            SkSpan<const SkPathVerb> verbs,
                             const SkScalar conics[],
                             SkPathFillType fillType,
                             bool isVolatile) {
   return SkPath(sk_sp<SkPathRef>(new SkPathRef(
                                      SkSpan(points, analysis.points),
-                                     SkSpan(verbs, verbCount),
+                                     verbs,
                                      SkSpan(conics, analysis.weights),
                                      analysis.segmentMask)),
                 fillType, isVolatile, SkPathConvexity::kUnknown, SkPathFirstDirection::kUnknown);

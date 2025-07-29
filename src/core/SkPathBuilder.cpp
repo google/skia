@@ -164,7 +164,7 @@ SkPathBuilder& SkPathBuilder::moveTo(SkPoint pt) {
     fLastMoveIndex = SkToInt(fPts.size());
 
     fPts.push_back(pt);
-    fVerbs.push_back((uint8_t)SkPathVerb::kMove);
+    fVerbs.push_back(SkPathVerb::kMove);
 
     fLastMovePoint = pt;
     fNeedsMoveVerb = false;
@@ -181,7 +181,7 @@ SkPathBuilder& SkPathBuilder::lineTo(SkPoint pt) {
     this->ensureMove();
 
     fPts.push_back(pt);
-    fVerbs.push_back((uint8_t)SkPathVerb::kLine);
+    fVerbs.push_back(SkPathVerb::kLine);
 
     fSegmentMask |= kLine_SkPathSegmentMask;
     return *this;
@@ -193,7 +193,7 @@ SkPathBuilder& SkPathBuilder::quadTo(SkPoint pt1, SkPoint pt2) {
     SkPoint* p = fPts.push_back_n(2);
     p[0] = pt1;
     p[1] = pt2;
-    fVerbs.push_back((uint8_t)SkPathVerb::kQuad);
+    fVerbs.push_back(SkPathVerb::kQuad);
 
     fSegmentMask |= kQuad_SkPathSegmentMask;
     return *this;
@@ -205,7 +205,7 @@ SkPathBuilder& SkPathBuilder::conicTo(SkPoint pt1, SkPoint pt2, SkScalar w) {
     SkPoint* p = fPts.push_back_n(2);
     p[0] = pt1;
     p[1] = pt2;
-    fVerbs.push_back((uint8_t)SkPathVerb::kConic);
+    fVerbs.push_back(SkPathVerb::kConic);
     fConicWeights.push_back(w);
 
     fSegmentMask |= kConic_SkPathSegmentMask;
@@ -219,7 +219,7 @@ SkPathBuilder& SkPathBuilder::cubicTo(SkPoint pt1, SkPoint pt2, SkPoint pt3) {
     p[0] = pt1;
     p[1] = pt2;
     p[2] = pt3;
-    fVerbs.push_back((uint8_t)SkPathVerb::kCubic);
+    fVerbs.push_back(SkPathVerb::kCubic);
 
     fSegmentMask |= kCubic_SkPathSegmentMask;
     return *this;
@@ -227,10 +227,10 @@ SkPathBuilder& SkPathBuilder::cubicTo(SkPoint pt1, SkPoint pt2, SkPoint pt3) {
 
 SkPathBuilder& SkPathBuilder::close() {
     // If this is a 2nd 'close', we just ignore it
-    if (!fVerbs.empty() && fVerbs.back() != (uint8_t)SkPathVerb::kClose) {
+    if (!fVerbs.empty() && fVerbs.back() != SkPathVerb::kClose) {
         this->ensureMove();
 
-        fVerbs.push_back((uint8_t)SkPathVerb::kClose);
+        fVerbs.push_back(SkPathVerb::kClose);
 
         // fLastMovePoint stays where it is -- the previous moveTo
         fNeedsMoveVerb = true;
@@ -290,12 +290,11 @@ SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
 
     // This hopefully can go away in the future when Paths are immutable,
     // but if while they are still editable, we need to correctly set this.
-    const uint8_t* start = path.fPathRef->verbsBegin();
-    const uint8_t* stop  = path.fPathRef->verbsEnd();
-    if (start < stop) {
+    SkSpan<const SkPathVerb> verbs = path.fPathRef->verbs();
+    if (!verbs.empty()) {
         SkASSERT(fLastMoveIndex >= 0);
         // peek at the last verb, to know if our last contour is closed
-        const bool isClosed = (stop[-1] == (uint8_t)SkPathVerb::kClose);
+        const bool isClosed = (verbs.back() == SkPathVerb::kClose);
         path.fLastMoveToIndex = isClosed ? ~fLastMoveIndex : fLastMoveIndex;
     }
 

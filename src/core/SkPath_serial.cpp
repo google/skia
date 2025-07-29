@@ -244,7 +244,7 @@ std::optional<SkPath> SkPath::ReadFromMemory(const void* storage, size_t length,
 
     const SkPoint* points = buffer.skipCount<SkPoint>(counts.pts);
     const SkScalar* conics = buffer.skipCount<SkScalar>(counts.cnx);
-    const uint8_t* verbs = buffer.skipCount<uint8_t>(counts.vbs);
+    const SkPathVerb* verbs = buffer.skipCount<SkPathVerb>(counts.vbs);
     buffer.skipToAlign4();
     if (!buffer.isValid()) {
         RETURN_PATH_AND_BYTES(std::nullopt, 0);
@@ -265,18 +265,20 @@ std::optional<SkPath> SkPath::ReadFromMemory(const void* storage, size_t length,
 
     SkAutoMalloc reversedStorage;
     if (!verbsAreForward) SK_UNLIKELY {
-      uint8_t* tmpVerbs = (uint8_t*)reversedStorage.reset(counts.vbs);
+        SkPathVerb* tmpVerbs = (SkPathVerb*)reversedStorage.reset(counts.vbs);
         for (unsigned i = 0; i < counts.vbs; ++i) {
             tmpVerbs[i] = verbs[counts.vbs - i - 1];
         }
         verbs = tmpVerbs;
     }
 
-    SkPathVerbAnalysis analysis = SkPathPriv::AnalyzeVerbs({verbs, counts.vbs});
+    SkSpan<const SkPathVerb> verbSpan{verbs, counts.vbs};
+    SkPathVerbAnalysis analysis = SkPathPriv::AnalyzeVerbs(verbSpan);
+
     if (!analysis.valid || analysis.points != counts.pts || analysis.weights != counts.cnx) {
         RETURN_PATH_AND_BYTES(std::nullopt, 0);
     }
-    path = SkPathPriv::MakePath(analysis, points, verbs, counts.vbs, conics,
+    path = SkPathPriv::MakePath(analysis, points, verbSpan, conics,
                                 extract_filltype(packed), false);
 
     RETURN_PATH_AND_BYTES(path,buffer.pos());
