@@ -26,7 +26,11 @@ skia_cc_library(
     deps = [
         "//:core",
         "//:ganesh_gl",
-        "//bazel/external/egl",
-        "//bazel/external/glesv2",
-    ],
+    ] + select({
+        "@platforms//os:android": [],
+        "//conditions:default": [
+            "//bazel/external/egl",
+            "//bazel/external/glesv2",
+        ],
+    }),
 )
