@@ -299,12 +299,19 @@ optional("android_utils") {
   ]
 }
 
+optional("fontmgr_android_parser") {
+  enabled = true
+
+  deps = [ "//third_party/expat" ]
+  sources = skia_ports_fontmgr_android_parser_sources
+}
+
 optional("fontmgr_android") {
   enabled = skia_enable_fontmgr_android
 
   deps = [
+    ":fontmgr_android_parser",
     ":typeface_proxy",
-    "//third_party/expat",
   ]
   public_defines = [ "SK_FONTMGR_ANDROID_AVAILABLE" ]
   public = skia_ports_fontmgr_android_public
@@ -317,7 +324,10 @@ optional("fontmgr_android") {
 optional("fontmgr_android_ndk") {
   enabled = skia_enable_fontmgr_android_ndk
 
-  deps = [ ":typeface_proxy" ]
+  deps = [
+    ":fontmgr_android_parser",
+    ":typeface_proxy",
+  ]
   libs = [ "android" ]
   public_defines = [ "SK_FONTMGR_ANDROID_NDK_AVAILABLE" ]
   public = skia_ports_fontmgr_android_ndk_public

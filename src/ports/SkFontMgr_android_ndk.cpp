@@ -6,11 +6,11 @@
  */
 
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkFontScanner.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/ports/SkFontMgr_android_ndk.h"
-#include "include/ports/SkFontScanner_FreeType.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkTSearch.h"
@@ -18,6 +18,7 @@
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkOSFile.h"
 #include "src/core/SkTHash.h"
+#include "src/ports/SkFontMgr_android_parser.h"
 #include "src/ports/SkTypeface_proxy.h"
 
 #include <android/api-level.h>
@@ -397,7 +398,7 @@ class SkFontMgr_AndroidNDK : public SkFontMgr {
 
 public:
     SkFontMgr_AndroidNDK(const AndroidFontAPI& androidFontAPI, bool const cacheFontFiles,
-                          std::unique_ptr<SkFontScanner> scanner)
+                         std::unique_ptr<SkFontScanner> scanner)
         : fAPI(androidFontAPI)
         , fScanner(std::move(scanner))
     {
@@ -407,11 +408,14 @@ public:
             return;
         }
 
+        SkTDArray<FontFamily*> xmlFamilies;
+        SkFontMgr_Android_Parser::GetSystemFontFamilies(xmlFamilies);
+
         skia_private::THashMap<SkString, std::unique_ptr<SkStreamAsset>> streamForPath;
 
         if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: Iterating over AFonts\n"); }
         while (SkAFont font = fontIter.next()) {
-            sk_sp<SkTypeface_AndroidNDK> typeface = this->make(std::move(font), streamForPath);
+            sk_sp<SkTypeface_AndroidNDK> typeface = this->make(font, streamForPath);
             if (!typeface) {
                 continue;
             }
@@ -429,9 +433,56 @@ public:
                 }
             }
 
-            // There nothing in the NDK to indicate how to handle generic font names like 'serif',
-            // 'sans-serif`, 'monospace', etc.
+            // The NDK does not report aliases like 'serif', 'sans-serif`, 'monospace', etc.
+            // If a font matches an entry in fonts.xml, add the fonts.xml family name as well.
+            for (FontFamily* xmlFamily : xmlFamilies) {
+                if (xmlFamily->fNames.empty()) {
+                    continue;
+                }
+
+                for (const FontFileInfo& xmlFont : xmlFamily->fFonts) {
+                    SkString pathName(xmlFamily->fBasePath);
+                    pathName.append(xmlFont.fFileName);
+                    if (!pathName.equals(font.getFontFilePath())) {
+                        continue;
+                    }
+
+                    if (font.getCollectionIndex() != static_cast<size_t>(xmlFont.fIndex)) {
+                        continue;
+                    }
+
+                    auto&& xmlVariation = xmlFont.fVariationDesignPosition;
+                    if (font.getAxisCount() != static_cast<size_t>(xmlVariation.size())) {
+                        continue;
+                    }
+                    using Coordinate = SkFontArguments::VariationPosition::Coordinate;
+                    auto&& fontHasCoord = [&font](const Coordinate& c) -> bool {
+                        for (size_t i = 0; i < font.getAxisCount(); ++i) {
+                            if (font.getAxisTag(i) == c.axis && font.getAxisValue(i) == c.value) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    };
+                    if (!std::all_of(xmlVariation.begin(), xmlVariation.end(), fontHasCoord)) {
+                        continue;
+                    }
+
+                    if (xmlFont.fWeight != 0 && xmlFont.fWeight != font.getWeight()) {
+                        continue;
+                    }
+
+                    for (auto&& xmlName : xmlFamily->fNames) {
+                        this->addSystemTypeface(typeface, xmlName);
+                    }
+                }
+            }
         }
+        for (FontFamily* p : xmlFamilies) {
+            delete p;
+        }
+        xmlFamilies.reset();
+
 
         if (fStyleSets.empty()) {
             if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: No fonts!"); }
@@ -486,7 +537,7 @@ protected:
         return sset->matchStyle(style);
     }
 
-    sk_sp<SkTypeface_AndroidNDK> make(SkAFont font, skia_private::THashMap<SkString,
+    sk_sp<SkTypeface_AndroidNDK> make(const SkAFont& font, skia_private::THashMap<SkString,
                                       std::unique_ptr<SkStreamAsset>>& streamForPath) const {
         SkString filePath(font.getFontFilePath());
 
@@ -782,7 +833,7 @@ private:
 }  // namespace
 
 sk_sp<SkFontMgr> SkFontMgr_New_AndroidNDK(bool cacheFontFiles,
-                                           std::unique_ptr<SkFontScanner> scanner)
+                                          std::unique_ptr<SkFontScanner> scanner)
 {
     AndroidFontAPI const * const androidFontAPI = GetAndroidFontAPI();
     if (!androidFontAPI) {
