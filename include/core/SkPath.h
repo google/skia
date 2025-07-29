@@ -148,19 +148,6 @@ public:
         return *this;
     }
 
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
-    /** Returns a copy of this path in the current state, and resets the path to empty. */
-    SkPath detach() {
-        SkPath result = *this;
-        this->reset();
-        return result;
-    }
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
-
     /** Constructs a copy of an existing path.
         SkPath assignment makes two paths identical by value. Internally, assignment
         shares pointer values. The underlying verb array, SkPoint array and weights
@@ -211,9 +198,6 @@ public:
     */
     bool isInterpolatable(const SkPath& compare) const;
 
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
     /** Interpolates between SkPath with SkPoint array of equal size.
         Copy verb array and weights to out, and set out SkPoint array to a weighted
         average of this SkPoint array and ending SkPoint array, using the formula:
@@ -223,22 +207,17 @@ private:
         one (this Point_Array); will work with values outside of this
         range.
 
-        interpolate() returns false and leaves out unchanged if SkPoint array is not
-        the same size as ending SkPoint array. Call isInterpolatable() to check SkPath
-        compatibility prior to calling interpolate().
+        interpolate() returns an empty SkPath if SkPoint array is not the same size
+        as ending SkPoint array. Call isInterpolatable() to check SkPath compatibility
+        prior to calling makeInterpolate().
 
         @param ending  SkPoint array averaged with this SkPoint array
         @param weight  contribution of this SkPoint array, and
                        one minus contribution of ending SkPoint array
-        @param out     SkPath replaced by interpolated averages
-        @return        true if SkPath contain same number of SkPoint
+        @return        SkPath replaced by interpolated averages
 
         example: https://fiddle.skia.org/c/@Path_interpolate
     */
-    bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
     SkPath makeInterpolate(const SkPath& ending, SkScalar weight) const;
 
     /** Returns SkPathFillType, the rule used to fill SkPath.
@@ -246,19 +225,6 @@ public:
         @return  current SkPathFillType setting
     */
     SkPathFillType getFillType() const { return (SkPathFillType)fFillType; }
-
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
-    /** Sets SkPathFillType, the rule used to fill SkPath. While there is no
-        check that ft is legal, values outside of SkPathFillType are not supported.
-    */
-    void setFillType(SkPathFillType ft) {
-        fFillType = SkToU8(ft);
-    }
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
 
     /** Creates an SkPath with the same properties and data, and with SkPathFillType
         set to newFillType.
@@ -271,19 +237,6 @@ public:
         @return  true if FillType is kInverseWinding or kInverseEvenOdd
     */
     bool isInverseFillType() const { return SkPathFillType_IsInverse(this->getFillType()); }
-
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
-    /** Replaces SkPathFillType with its inverse. The inverse of SkPathFillType describes the area
-        unmodified by the original SkPathFillType.
-    */
-    void toggleInverseFillType() {
-        fFillType ^= 2;
-    }
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
 
     /** Creates an SkPath with the same properties and data, and with SkPathFillType
         replaced with its inverse.  The inverse of SkPathFillType describes the area unmodified
@@ -332,35 +285,6 @@ public:
     */
     bool isArc(SkArc* arc) const;
 
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
-    /** Sets SkPath to its initial state.
-        Removes verb array, SkPoint array, and weights, and sets FillType to kWinding.
-        Internal storage associated with SkPath is released.
-
-        @return  reference to SkPath
-
-        example: https://fiddle.skia.org/c/@Path_reset
-    */
-    SkPath& reset();
-
-    /** Sets SkPath to its initial state, preserving internal storage.
-        Removes verb array, SkPoint array, and weights, and sets FillType to kWinding.
-        Internal storage associated with SkPath is retained.
-
-        Use rewind() instead of reset() if SkPath storage will be reused and performance
-        is critical.
-
-        @return  reference to SkPath
-
-        example: https://fiddle.skia.org/c/@Path_rewind
-    */
-    SkPath& rewind();
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
-
     /** Returns if SkPath is empty.
         Empty SkPath may have FillType but has no SkPoint, SkPath::Verb, or conic weight.
         SkPath() constructs empty SkPath; reset() and rewind() make SkPath empty.
@@ -398,12 +322,9 @@ public:
         return SkToBool(fIsVolatile);
     }
 
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
-    /** Specifies whether SkPath is volatile; whether it will be altered or discarded
-        by the caller after it is drawn. SkPath by default have volatile set false, allowing
-        Skia to attach a cache of data which speeds repeated drawing.
+    /** Return a copy of SkPath with isVolatile indicating whether it will be altered
+        or discarded by the caller after it is drawn. SkPath by default have volatile
+        set false, allowing Skia to attach a cache of data which speeds repeated drawing.
 
         Mark temporary paths, discarded or modified after use, as volatile
         to inform Skia that the path need not be cached.
@@ -415,15 +336,8 @@ private:
         GPU surface SkPath draws are affected by volatile for some shadows and concave geometries.
 
         @param isVolatile  true if caller will alter SkPath after drawing
-        @return            reference to SkPath
+        @return            SkPath
     */
-    SkPath& setIsVolatile(bool isVolatile) {
-        fIsVolatile = isVolatile;
-        return *this;
-    }
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
     SkPath makeIsVolatile(bool isVolatile) const;
 
     /** Tests if line between SkPoint pair is degenerate.
@@ -539,26 +453,6 @@ public:
     */
     size_t approximateBytesUsed() const;
 
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
-    /** Exchanges the verb array, SkPoint array, weights, and SkPath::FillType with other.
-        Cached state is also exchanged. swap() internally exchanges pointers, so
-        it is lightweight and does not allocate memory.
-
-        swap() usage has largely been replaced by operator=(const SkPath& path).
-        SkPath do not copy their content on assignment until they are written to,
-        making assignment as efficient as swap().
-
-        @param other  SkPath exchanged by value
-
-        example: https://fiddle.skia.org/c/@Path_swap
-    */
-    void swap(SkPath& other);
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
-
     /** Returns minimum and maximum axes values of SkPoint array.
         Returns (0, 0, 0, 0) if SkPath contains no points. Returned bounds width and height may
         be larger or smaller than area affected when SkPath is drawn.
@@ -617,9 +511,255 @@ public:
     */
     bool conservativelyContainsRect(const SkRect& rect) const;
 
+    /** \enum SkPath::ArcSize
+        Four oval parts with radii (rx, ry) start at last SkPath SkPoint and ends at (x, y).
+        ArcSize and Direction select one of the four oval parts.
+    */
+    enum ArcSize {
+        kSmall_ArcSize, //!< smaller of arc pair
+        kLarge_ArcSize, //!< larger of arc pair
+    };
+
+    /** Approximates conic with quad array. Conic is constructed from start SkPoint p0,
+        control SkPoint p1, end SkPoint p2, and weight w.
+        Quad array is stored in pts; this storage is supplied by caller.
+        Maximum quad count is 2 to the pow2.
+        Every third point in array shares last SkPoint of previous quad and first SkPoint of
+        next quad. Maximum pts storage size is given by:
+        (1 + 2 * (1 << pow2)) * sizeof(SkPoint).
+
+        Returns quad count used the approximation, which may be smaller
+        than the number requested.
+
+        conic weight determines the amount of influence conic control point has on the curve.
+        w less than one represents an elliptical section. w greater than one represents
+        a hyperbolic section. w equal to one represents a parabolic section.
+
+        Two quad curves are sufficient to approximate an elliptical conic with a sweep
+        of up to 90 degrees; in this case, set pow2 to one.
+
+        @param p0    conic start SkPoint
+        @param p1    conic control SkPoint
+        @param p2    conic end SkPoint
+        @param w     conic weight
+        @param pts   storage for quad array
+        @param pow2  quad count, as power of two, normally 0 to 5 (1 to 32 quad curves)
+        @return      number of quad curves written to pts
+    */
+    static int ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
+                                   SkScalar w, SkPoint pts[], int pow2);
+
+    /** Returns true if SkPath is equivalent to SkRect when filled.
+        If false: rect, isClosed, and direction are unchanged.
+        If true: rect, isClosed, and direction are written to if not nullptr.
+
+        rect may be smaller than the SkPath bounds. SkPath bounds may include kMove_Verb points
+        that do not alter the area drawn by the returned rect.
+
+        @param rect       storage for bounds of SkRect; may be nullptr
+        @param isClosed   storage set to true if SkPath is closed; may be nullptr
+        @param direction  storage set to SkRect direction; may be nullptr
+        @return           true if SkPath contains SkRect
+
+        example: https://fiddle.skia.org/c/@Path_isRect
+    */
+    bool isRect(SkRect* rect, bool* isClosed = nullptr, SkPathDirection* direction = nullptr) const;
+
+    /** \enum SkPath::AddPathMode
+        AddPathMode chooses how addPath() appends. Adding one SkPath to another can extend
+        the last contour or start a new contour.
+    */
+    enum AddPathMode {
+        /** Contours are appended to the destination path as new contours.
+        */
+        kAppend_AddPathMode,
+        /** Extends the last contour of the destination path with the first countour
+            of the source path, connecting them with a line.  If the last contour is
+            closed, a new empty contour starting at its start point is extended instead.
+            If the destination path is empty, the result is the source path.
+            The last path of the result is closed only if the last path of the source is.
+        */
+        kExtend_AddPathMode,
+    };
+
+    /** Returns SkPath with SkPoint array offset by (dx, dy).
+
+        @param dx  offset added to SkPoint array x-axis coordinates
+        @param dy  offset added to SkPoint array y-axis coordinates
+    */
+    SkPath makeOffset(SkScalar dx, SkScalar dy) const {
+        SkPath dst;
+        this->offset(dx, dy, &dst);
+        return dst;
+    }
+
+    /** Return a copy of SkPath with verb array, SkPoint array, and weight transformed
+        by matrix. makeTransform may change verbs and increase their number.
+
+        @param matrix  SkMatrix to apply to SkPath
+        @param pc      whether to apply perspective clipping
+        @return        SkPath
+    */
+    SkPath makeTransform(const SkMatrix& m,
+                         SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const {
+        SkPath dst;
+        this->transform(m, &dst, pc);
+        return dst;
+    }
+
+    SkPath makeScale(SkScalar sx, SkScalar sy) const {
+        return this->makeTransform(SkMatrix::Scale(sx, sy), SkApplyPerspectiveClip::kNo);
+    }
+
+    /** Returns last point on SkPath in lastPt. Returns false if SkPoint array is empty,
+        storing (0, 0) if lastPt is not nullptr.
+
+        @param lastPt  storage for final SkPoint in SkPoint array; may be nullptr
+        @return        true if SkPoint array contains one or more SkPoint
+
+        example: https://fiddle.skia.org/c/@Path_getLastPt
+    */
+    bool getLastPt(SkPoint* lastPt) const;
+
+    /** \enum SkPath::SegmentMask
+        SegmentMask constants correspond to each drawing Verb type in SkPath; for
+        instance, if SkPath only contains lines, only the kLine_SegmentMask bit is set.
+    */
+    enum SegmentMask {
+        kLine_SegmentMask  = kLine_SkPathSegmentMask,
+        kQuad_SegmentMask  = kQuad_SkPathSegmentMask,
+        kConic_SegmentMask = kConic_SkPathSegmentMask,
+        kCubic_SegmentMask = kCubic_SkPathSegmentMask,
+    };
+
+    /** Returns a mask, where each set bit corresponds to a SegmentMask constant
+        if SkPath contains one or more verbs of that type.
+        Returns zero if SkPath contains no lines, or curves: quads, conics, or cubics.
+
+        getSegmentMasks() returns a cached result; it is very fast.
+
+        @return  SegmentMask bits or zero
+    */
+    uint32_t getSegmentMasks() const;
+
+    /** \enum SkPath::Verb
+        Verb instructs SkPath how to interpret one or more SkPoint and optional conic weight;
+        manage contour, and terminate SkPath.
+    */
+    enum Verb {
+        kMove_Verb  = static_cast<int>(SkPathVerb::kMove),
+        kLine_Verb  = static_cast<int>(SkPathVerb::kLine),
+        kQuad_Verb  = static_cast<int>(SkPathVerb::kQuad),
+        kConic_Verb = static_cast<int>(SkPathVerb::kConic),
+        kCubic_Verb = static_cast<int>(SkPathVerb::kCubic),
+        kClose_Verb = static_cast<int>(SkPathVerb::kClose),
+        kDone_Verb  = kClose_Verb + 1
+    };
+
 #ifdef SK_HIDE_PATH_EDIT_METHODS
 private:
 #endif
+    /** Returns a copy of this path in the current state, and resets the path to empty. */
+    SkPath detach() {
+        SkPath result = *this;
+        this->reset();
+        return result;
+    }
+
+    /** Interpolates between SkPath with SkPoint array of equal size.
+        Copy verb array and weights to out, and set out SkPoint array to a weighted
+        average of this SkPoint array and ending SkPoint array, using the formula:
+        (Path Point * weight) + ending Point * (1 - weight).
+
+        weight is most useful when between zero (ending SkPoint array) and
+        one (this Point_Array); will work with values outside of this
+        range.
+
+        interpolate() returns false and leaves out unchanged if SkPoint array is not
+        the same size as ending SkPoint array. Call isInterpolatable() to check SkPath
+        compatibility prior to calling interpolate().
+
+        @param ending  SkPoint array averaged with this SkPoint array
+        @param weight  contribution of this SkPoint array, and
+                       one minus contribution of ending SkPoint array
+        @param out     SkPath replaced by interpolated averages
+        @return        true if SkPath contain same number of SkPoint
+
+        example: https://fiddle.skia.org/c/@Path_interpolate
+    */
+    bool interpolate(const SkPath& ending, SkScalar weight, SkPath* out) const;
+
+    /** Sets SkPathFillType, the rule used to fill SkPath. While there is no
+        check that ft is legal, values outside of SkPathFillType are not supported.
+    */
+    void setFillType(SkPathFillType ft) {
+        fFillType = SkToU8(ft);
+    }
+
+    /** Replaces SkPathFillType with its inverse. The inverse of SkPathFillType describes the area
+        unmodified by the original SkPathFillType.
+    */
+    void toggleInverseFillType() {
+        fFillType ^= 2;
+    }
+
+    /** Sets SkPath to its initial state.
+        Removes verb array, SkPoint array, and weights, and sets FillType to kWinding.
+        Internal storage associated with SkPath is released.
+
+        @return  reference to SkPath
+
+        example: https://fiddle.skia.org/c/@Path_reset
+    */
+    SkPath& reset();
+
+    /** Sets SkPath to its initial state, preserving internal storage.
+        Removes verb array, SkPoint array, and weights, and sets FillType to kWinding.
+        Internal storage associated with SkPath is retained.
+
+        Use rewind() instead of reset() if SkPath storage will be reused and performance
+        is critical.
+
+        @return  reference to SkPath
+
+        example: https://fiddle.skia.org/c/@Path_rewind
+    */
+    SkPath& rewind();
+
+    /** Specifies whether SkPath is volatile; whether it will be altered or discarded
+        by the caller after it is drawn. SkPath by default have volatile set false, allowing
+        Skia to attach a cache of data which speeds repeated drawing.
+
+        Mark temporary paths, discarded or modified after use, as volatile
+        to inform Skia that the path need not be cached.
+
+        Mark animating SkPath volatile to improve performance.
+        Mark unchanging SkPath non-volatile to improve repeated rendering.
+
+        raster surface SkPath draws are affected by volatile for some shadows.
+        GPU surface SkPath draws are affected by volatile for some shadows and concave geometries.
+
+        @param isVolatile  true if caller will alter SkPath after drawing
+        @return            reference to SkPath
+    */
+    SkPath& setIsVolatile(bool isVolatile) {
+        fIsVolatile = isVolatile;
+        return *this;
+    }
+
+    /** Exchanges the verb array, SkPoint array, weights, and SkPath::FillType with other.
+        Cached state is also exchanged. swap() internally exchanges pointers, so
+        it is lightweight and does not allocate memory.
+
+        swap() usage has largely been replaced by operator=(const SkPath& path).
+        SkPath do not copy their content on assignment until they are written to,
+        making assignment as efficient as swap().
+
+        @param other  SkPath exchanged by value
+
+        example: https://fiddle.skia.org/c/@Path_swap
+    */
+    void swap(SkPath& other);
 
     /** Grows SkPath verb array, SkPoint array, and conics to contain additional space.
         May improve performance and use less memory by
@@ -973,21 +1113,6 @@ private:
         return this->arcTo(p1.fX, p1.fY, p2.fX, p2.fY, radius);
     }
 
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
-    /** \enum SkPath::ArcSize
-        Four oval parts with radii (rx, ry) start at last SkPath SkPoint and ends at (x, y).
-        ArcSize and Direction select one of the four oval parts.
-    */
-    enum ArcSize {
-        kSmall_ArcSize, //!< smaller of arc pair
-        kLarge_ArcSize, //!< larger of arc pair
-    };
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
-
     /** Appends arc to SkPath. Arc is implemented by one or more conics weighted to
         describe part of oval with radii (rx, ry) rotated by xAxisRotate degrees. Arc
         curves from last SkPath SkPoint to (x, y), choosing one of four possible routes:
@@ -1085,59 +1210,6 @@ private:
         example: https://fiddle.skia.org/c/@Path_close
     */
     SkPath& close();
-
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
-
-    /** Approximates conic with quad array. Conic is constructed from start SkPoint p0,
-        control SkPoint p1, end SkPoint p2, and weight w.
-        Quad array is stored in pts; this storage is supplied by caller.
-        Maximum quad count is 2 to the pow2.
-        Every third point in array shares last SkPoint of previous quad and first SkPoint of
-        next quad. Maximum pts storage size is given by:
-        (1 + 2 * (1 << pow2)) * sizeof(SkPoint).
-
-        Returns quad count used the approximation, which may be smaller
-        than the number requested.
-
-        conic weight determines the amount of influence conic control point has on the curve.
-        w less than one represents an elliptical section. w greater than one represents
-        a hyperbolic section. w equal to one represents a parabolic section.
-
-        Two quad curves are sufficient to approximate an elliptical conic with a sweep
-        of up to 90 degrees; in this case, set pow2 to one.
-
-        @param p0    conic start SkPoint
-        @param p1    conic control SkPoint
-        @param p2    conic end SkPoint
-        @param w     conic weight
-        @param pts   storage for quad array
-        @param pow2  quad count, as power of two, normally 0 to 5 (1 to 32 quad curves)
-        @return      number of quad curves written to pts
-    */
-    static int ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
-                                   SkScalar w, SkPoint pts[], int pow2);
-
-    /** Returns true if SkPath is equivalent to SkRect when filled.
-        If false: rect, isClosed, and direction are unchanged.
-        If true: rect, isClosed, and direction are written to if not nullptr.
-
-        rect may be smaller than the SkPath bounds. SkPath bounds may include kMove_Verb points
-        that do not alter the area drawn by the returned rect.
-
-        @param rect       storage for bounds of SkRect; may be nullptr
-        @param isClosed   storage set to true if SkPath is closed; may be nullptr
-        @param direction  storage set to SkRect direction; may be nullptr
-        @return           true if SkPath contains SkRect
-
-        example: https://fiddle.skia.org/c/@Path_isRect
-    */
-    bool isRect(SkRect* rect, bool* isClosed = nullptr, SkPathDirection* direction = nullptr) const;
-
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
 
     /** Adds a new contour to the path, defined by the rect, and wound in the
         specified direction. The verbs added to the path will be:
@@ -1313,29 +1385,6 @@ private:
     */
     SkPath& addPoly(SkSpan<const SkPoint> pts, bool close);
 
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
-    /** \enum SkPath::AddPathMode
-        AddPathMode chooses how addPath() appends. Adding one SkPath to another can extend
-        the last contour or start a new contour.
-    */
-    enum AddPathMode {
-        /** Contours are appended to the destination path as new contours.
-        */
-        kAppend_AddPathMode,
-        /** Extends the last contour of the destination path with the first countour
-            of the source path, connecting them with a line.  If the last contour is
-            closed, a new empty contour starting at its start point is extended instead.
-            If the destination path is empty, the result is the source path.
-            The last path of the result is closed only if the last path of the source is.
-        */
-        kExtend_AddPathMode,
-    };
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
-
     /** Appends src to SkPath, offset by (dx, dy).
 
         If mode is kAppend_AddPathMode, src verb array, SkPoint array, and conic weights are
@@ -1392,17 +1441,6 @@ private:
     */
     SkPath& reverseAddPath(const SkPath& src);
 
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
-    SkPath makeOffset(SkScalar dx, SkScalar dy) const {
-        SkPath dst;
-        this->offset(dx, dy, &dst);
-        return dst;
-    }
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
     /** Offsets SkPoint array by (dx, dy). Offset SkPath replaces dst.
         If dst is nullptr, SkPath is replaced by offset data.
 
@@ -1450,34 +1488,7 @@ private:
         this->transform(matrix, this, pc);
         return *this;
     }
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-public:
-#endif
 
-    SkPath makeTransform(const SkMatrix& m,
-                         SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const {
-        SkPath dst;
-        this->transform(m, &dst, pc);
-        return dst;
-    }
-
-    SkPath makeScale(SkScalar sx, SkScalar sy) const {
-        return this->makeTransform(SkMatrix::Scale(sx, sy), SkApplyPerspectiveClip::kNo);
-    }
-
-    /** Returns last point on SkPath in lastPt. Returns false if SkPoint array is empty,
-        storing (0, 0) if lastPt is not nullptr.
-
-        @param lastPt  storage for final SkPoint in SkPoint array; may be nullptr
-        @return        true if SkPoint array contains one or more SkPoint
-
-        example: https://fiddle.skia.org/c/@Path_getLastPt
-    */
-    bool getLastPt(SkPoint* lastPt) const;
-
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
     /** Sets last point to (x, y). If SkPoint array is empty, append kMove_Verb to
         verb array and append (x, y) to SkPoint array.
 
@@ -1496,45 +1507,39 @@ private:
     void setLastPt(const SkPoint& p) {
         this->setLastPt(p.fX, p.fY);
     }
+
 #ifdef SK_HIDE_PATH_EDIT_METHODS
 public:
 #endif
-
-
-    /** \enum SkPath::SegmentMask
-        SegmentMask constants correspond to each drawing Verb type in SkPath; for
-        instance, if SkPath only contains lines, only the kLine_SegmentMask bit is set.
-    */
-    enum SegmentMask {
-        kLine_SegmentMask  = kLine_SkPathSegmentMask,
-        kQuad_SegmentMask  = kQuad_SkPathSegmentMask,
-        kConic_SegmentMask = kConic_SkPathSegmentMask,
-        kCubic_SegmentMask = kCubic_SkPathSegmentMask,
-    };
-
-    /** Returns a mask, where each set bit corresponds to a SegmentMask constant
-        if SkPath contains one or more verbs of that type.
-        Returns zero if SkPath contains no lines, or curves: quads, conics, or cubics.
-
-        getSegmentMasks() returns a cached result; it is very fast.
-
-        @return  SegmentMask bits or zero
-    */
-    uint32_t getSegmentMasks() const;
-
-    /** \enum SkPath::Verb
-        Verb instructs SkPath how to interpret one or more SkPoint and optional conic weight;
-        manage contour, and terminate SkPath.
-    */
-    enum Verb {
-        kMove_Verb  = static_cast<int>(SkPathVerb::kMove),
-        kLine_Verb  = static_cast<int>(SkPathVerb::kLine),
-        kQuad_Verb  = static_cast<int>(SkPathVerb::kQuad),
-        kConic_Verb = static_cast<int>(SkPathVerb::kConic),
-        kCubic_Verb = static_cast<int>(SkPathVerb::kCubic),
-        kClose_Verb = static_cast<int>(SkPathVerb::kClose),
-        kDone_Verb  = kClose_Verb + 1
-    };
+#ifdef SK_SUPPORT_UNSPANNED_APIS
+    static SkPath Make(const SkPoint points[], int pointCount,
+                       const uint8_t verbs[], int verbCount,
+                       const SkScalar conics[], int conicWeightCount,
+                       SkPathFillType fillType, bool isVolatile = false) {
+        return Make({points, pointCount},
+                    {verbs, verbCount},
+                    {conics, conicWeightCount},
+                    fillType, isVolatile);
+    }
+    static SkPath Polygon(const SkPoint pts[], int count, bool isClosed,
+                          SkPathFillType fillType = SkPathFillType::kWinding,
+                          bool isVolatile = false) {
+        return Polygon({pts, count}, isClosed, fillType, isVolatile);
+    }
+    int getPoints(SkPoint points[], int max) const {
+        return (int)this->getPoints({points, max});
+    }
+    int getVerbs(uint8_t verbs[], int max) const {
+        return (int)this->getVerbs({verbs, max});
+    }
+    SkPath& addRoundRect(const SkRect& rect, const SkScalar radii[],
+                         SkPathDirection dir = SkPathDirection::kCW) {
+        return this->addRoundRect(rect, {radii, radii ? 8 : 0}, dir);
+    }
+    SkPath& addPoly(const SkPoint pts[], int count, bool close) {
+        return this->addPoly({pts, count}, close);
+    }
+#endif
 
     /** \class SkPath::Iter
         Iterates through verb array, and associated SkPoint array and conic weight.
@@ -1632,36 +1637,6 @@ public:
 
         Verb autoClose(SkPoint pts[2]);
     };
-
-#ifdef SK_SUPPORT_UNSPANNED_APIS
-    static SkPath Make(const SkPoint points[], int pointCount,
-                       const uint8_t verbs[], int verbCount,
-                       const SkScalar conics[], int conicWeightCount,
-                       SkPathFillType fillType, bool isVolatile = false) {
-        return Make({points, pointCount},
-                    {verbs, verbCount},
-                    {conics, conicWeightCount},
-                    fillType, isVolatile);
-    }
-    static SkPath Polygon(const SkPoint pts[], int count, bool isClosed,
-                          SkPathFillType fillType = SkPathFillType::kWinding,
-                          bool isVolatile = false) {
-        return Polygon({pts, count}, isClosed, fillType, isVolatile);
-    }
-    int getPoints(SkPoint points[], int max) const {
-        return (int)this->getPoints({points, max});
-    }
-    int getVerbs(uint8_t verbs[], int max) const {
-        return (int)this->getVerbs({verbs, max});
-    }
-    SkPath& addRoundRect(const SkRect& rect, const SkScalar radii[],
-                         SkPathDirection dir = SkPathDirection::kCW) {
-        return this->addRoundRect(rect, {radii, radii ? 8 : 0}, dir);
-    }
-    SkPath& addPoly(const SkPoint pts[], int count, bool close) {
-        return this->addPoly({pts, count}, close);
-    }
-#endif
 
 private:
     /** \class SkPath::RangeIter
