@@ -194,8 +194,17 @@ uint32_t TextureFormatChannelMask(TextureFormat format) {
 }
 
 bool TextureFormatAutoClamps(TextureFormat format) {
+    // Floating point formats, extended range formats, and non-normalized integer formats do not
+    // auto-clamp. Everything behaves like an unsigned normalized number.
+    return !(TextureFormatIsFloatingPoint(format) ||
+             format == TextureFormat::kBGR10_XR ||
+             format == TextureFormat::kBGRA10x6_XR ||
+             format == TextureFormat::kS8);
+}
+
+bool TextureFormatIsFloatingPoint(TextureFormat format) {
     switch (format) {
-        // Floating point formats don't auto clamp
+        // Floating point formats
         case TextureFormat::kR16F:           [[fallthrough]];
         case TextureFormat::kR32F:
         case TextureFormat::kRG16F:
@@ -205,16 +214,9 @@ bool TextureFormatAutoClamps(TextureFormat format) {
         case TextureFormat::kRGBA16F:
         case TextureFormat::kRGBA32F:
         case TextureFormat::kD32F:
-        case TextureFormat::kD32F_S8:        return false;
+        case TextureFormat::kD32F_S8:        return true;
 
-        // Extended range formats don't clamp to [0,1]
-        case TextureFormat::kBGR10_XR:
-        case TextureFormat::kBGRA10x6_XR:    return false;
-
-        // Non-normalized integral formats don't clamp to [0,1]
-        case TextureFormat::kS8:             return false;
-
-        // Everything else is unorm or unorm-srgb (we don't bother checking for renderability)
+        // Everything else is unorm, unorm-srgb, fixed point, or integral
         case TextureFormat::kUnsupported:    [[fallthrough]];
         case TextureFormat::kR8:
         case TextureFormat::kR16:
@@ -227,6 +229,7 @@ bool TextureFormatAutoClamps(TextureFormat format) {
         case TextureFormat::kR5_G6_B5:
         case TextureFormat::kRGB16:
         case TextureFormat::kRGB8_sRGB:
+        case TextureFormat::kBGR10_XR:
         case TextureFormat::kRGBA8:
         case TextureFormat::kRGBA16:
         case TextureFormat::kRGB10_A2:
@@ -236,6 +239,7 @@ bool TextureFormatAutoClamps(TextureFormat format) {
         case TextureFormat::kBGRA8_sRGB:
         case TextureFormat::kABGR4:
         case TextureFormat::kARGB4:
+        case TextureFormat::kBGRA10x6_XR:
         case TextureFormat::kRGB8_ETC2:
         case TextureFormat::kRGB8_ETC2_sRGB:
         case TextureFormat::kRGB8_BC1:
@@ -245,8 +249,9 @@ bool TextureFormatAutoClamps(TextureFormat format) {
         case TextureFormat::kYUV8_P3_420:
         case TextureFormat::kYUV10x6_P2_420:
         case TextureFormat::kExternal:
+        case TextureFormat::kS8:
         case TextureFormat::kD16:
-        case TextureFormat::kD24_S8:          return true;
+        case TextureFormat::kD24_S8:          return false;
     }
     SkUNREACHABLE;
 }

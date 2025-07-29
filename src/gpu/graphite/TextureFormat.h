@@ -150,6 +150,8 @@ bool TextureFormatIsMultiplanar(TextureFormat);
 // True if writes to a color attachment of this format automatically clamp to [0,1].
 bool TextureFormatAutoClamps(TextureFormat);
 
+bool TextureFormatIsFloatingPoint(TextureFormat);
+
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_TextureFormat_DEFINED

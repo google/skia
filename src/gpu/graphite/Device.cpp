@@ -79,6 +79,7 @@
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/SpecialImage_Graphite.h"
+#include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureProxyView.h"
@@ -1529,9 +1530,18 @@ void Device::drawGeometry(const Transform& localToDevice,
             return;
         } else {
             // This paint does not depend on the destination and covers the entire surface, so
-            // discard everything previously recorded and proceed with the draw.
-            fDC->discard();
-
+            // discard everything previously recorded and proceed with the draw. However, if we are
+            // here because of a paint with src-over blending that just happens to be opaque, the
+            // discarded dst can still be accessed. For non-floating point formats, that is fine,
+            // but float formats can have NaNs after a discard that cause blending to fail. To
+            // avoid that scenario, we clear to a known value instead.
+            if (shading.asFinalBlendMode() == SkBlendMode::kSrcOver &&
+                TextureFormatIsFloatingPoint(
+                        TextureInfoPriv::ViewFormat(fDC->target()->textureInfo()))) {
+                fDC->clear(SkColors::kMagenta); // This color doesn't matter
+            } else {
+                fDC->discard();
+            }
             // But then continue to render the flood fill with shading
         }
     }
