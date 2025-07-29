@@ -1494,13 +1494,13 @@ if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
              "@crates//:cxx_cc",
 
              rebase_path(
-                     "//bazel-bin/external/rules_rust++crate+crates__cxx-1.0.158/libcxx_cc.a",
+                     "//bazel-bin/external/rules_rust++crate+crates__cxx-1.0.161/libcxx_cc.a",
                      root_build_dir) + "=libcxx_cc.a",
 
              # we want the `cxx.h` header to not simply be copied into the
              # output directory, but in the same path as the Bazel build uses.
              rebase_path(
-                     "//bazel-bin/external/rules_rust++crate+crates__cxx-1.0.158/_virtual_includes/cxx_cc/third_party/rust/cxx/v1/cxx.h",
+                     "//bazel-bin/external/rules_rust++crate+crates__cxx-1.0.161/_virtual_includes/cxx_cc/third_party/rust/cxx/v1/cxx.h",
                      root_build_dir) + "=third_party/rust/cxx/v1/cxx.h",
            ] + bazel_args
   }

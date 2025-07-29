@@ -101,8 +101,9 @@ crate.spec(
     version = "1.16.0",
 )
 crate.spec(
+    # If this is updated, be sure to update BUILD.gn also
     package = "cxx",
-    version = "1.0.158",
+    version = "1.0.161",
 )
 crate.annotation(
     # We want a custom build rule so we can use a different include path
@@ -129,7 +130,7 @@ crate.spec(
 )
 crate.spec(
     package = "png",
-    version = "0.18.0-rc",
+    version = "=0.18.0-rc",
 )
 crate.spec(
     features = [
