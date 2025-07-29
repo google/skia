@@ -851,10 +851,7 @@
   {"name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts_Fontations"},
   {"name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts_FreeType_ASAN_Upload"},
   {"name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-OldestSupportedSkpVersion"},
-  {
-    "name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNG",
-    "cq_config": {}
-  },
+  {"name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNG"},
   {"name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SK_USE_DISCARDABLE_SCALEDIMAGECACHE"},
   {"name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-SafeStack"},
   {"name": "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-Wuffs"},
