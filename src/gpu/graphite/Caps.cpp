@@ -44,6 +44,7 @@ void Caps::finishInitialization(const ContextOptions& options) {
     }
 #endif
     fGlyphCacheTextureMaximumBytes = options.fGlyphCacheTextureMaximumBytes;
+    fMinMSAAPathSize = options.fMinimumPathSizeForMSAA;
     fMinDistanceFieldFontSize = options.fMinDistanceFieldFontSize;
     fGlyphsAsPathsFontSize = options.fGlyphsAsPathsFontSize;
     fMaxPathAtlasTextureSize = options.fMaxPathAtlasTextureSize;

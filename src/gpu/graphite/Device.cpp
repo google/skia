@@ -1462,7 +1462,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     auto [renderer, pathAtlas] = this->chooseRenderer(localToDevice,
                                                       geometry,
                                                       style,
-                                                      clip.drawBounds(),
+                                                      clip.transformedShapeBounds(),
                                                       /*requireMSAA=*/false);
     if (!renderer && !pathAtlas) {
         SKGPU_LOG_W("Skipping draw with no supported renderer or PathAtlas.");
@@ -1733,7 +1733,7 @@ void Device::drawClipShape(const Transform& localToDevice,
     auto [renderer, pathAtlas] = this->chooseRenderer(localToDevice,
                                                       geometry,
                                                       DefaultFillStyle(),
-                                                      clip.drawBounds(),
+                                                      clip.transformedShapeBounds(),
                                                       /*requireMSAA=*/true);
     if (!renderer) {
         SKGPU_LOG_W("Skipping clip with no supported path renderer.");
@@ -1877,7 +1877,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
     //       compute renderer cannot render the shape efficiently yet (based on the result of
     //       `isSuitableForAtlasing`).
     //    2. Fall back to CPU raster AA if hardware MSAA is disabled or it was explicitly requested
-    //       via ContextOptions.
+    //       via ContextOptions (including if the path is small enough).
     //    3. Otherwise use tessellation.
 #if defined(GPU_TEST_UTILS)
     PathRendererStrategy strategy = fRecorder->priv().caps()->requestedPathRendererStrategy();
@@ -1904,10 +1904,12 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
 
     // Fall back to CPU rendered paths when multisampling is disabled and the compute atlas is not
     // available.
-    // TODO: enable other uses of the software path renderer
+    const float minPathSizeForMSAA = fRecorder->priv().caps()->minPathSizeForMSAA();
+    const bool useRasterAtlasByDefault =
+            !fMSAASupported || all(drawBounds.size() <= minPathSizeForMSAA);
     if (!pathAtlas && atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kRaster) &&
         (strategy == PathRendererStrategy::kRasterAA ||
-         (strategy == PathRendererStrategy::kDefault && !fMSAASupported))) {
+         (strategy == PathRendererStrategy::kDefault && useRasterAtlasByDefault))) {
         // NOTE: RasterPathAtlas doesn't implement `PathAtlas::isSuitableForAtlasing` as it doesn't
         // reject paths (unlike ComputePathAtlas).
         pathAtlas = atlasProvider->getRasterPathAtlas();

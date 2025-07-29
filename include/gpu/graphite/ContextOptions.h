@@ -58,6 +58,14 @@ struct SK_API ContextOptions {
     std::optional<SkISize> fInternalMSAATileSize = std::nullopt;
 
     /**
+     * If set, paths that are smaller than this size (in device space) will avoid MSAA techniques,
+     * even if MSAA is otherwise enabled via `fInternalMultisampleCount`. This should be smaller
+     * than `fGlyphsAsPathsFontSize` or large glyphs will not correctly avoid higher memory
+     * overhead.
+     */
+    float fMinimumPathSizeForMSAA = 0;
+
+    /**
      * Will the client make sure to only ever be executing one thread that uses the Context and all
      * derived classes (e.g. Recorders, Recordings, etc.) at a time. If so we can possibly make some
      * objects (e.g. VulkanMemoryAllocator) not thread safe to improve single thread performance.
@@ -170,7 +178,6 @@ struct SK_API ContextOptions {
      * This includes adding, removing or reordering the effects provided here.
      */
     SkSpan<sk_sp<SkRuntimeEffect>> fUserDefinedKnownRuntimeEffects;
-
 
     /**
      * An experimental flag in development. Behavior and performance is subject to change.

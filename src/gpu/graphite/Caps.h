@@ -415,6 +415,7 @@ public:
      */
     virtual DstReadStrategy getDstReadStrategy() const;
 
+    float minPathSizeForMSAA() const { return fMinMSAAPathSize; }
     float minDistanceFieldFontSize() const { return fMinDistanceFieldFontSize; }
     float glyphsAsPathsFontSize() const { return fGlyphsAsPathsFontSize; }
 
@@ -554,6 +555,7 @@ protected:
 #endif
     size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
 
+    float fMinMSAAPathSize = 0;
     float fMinDistanceFieldFontSize = 18;
     float fGlyphsAsPathsFontSize = 324;
 
