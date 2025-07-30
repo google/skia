@@ -260,7 +260,7 @@ void SkRgnBuilder::copyToRgn(SkRegion::RunType runs[]) const {
     *runs = SkRegion_kRunTypeSentinel;
 }
 
-static unsigned verb_to_initial_last_index(unsigned verb) {
+static unsigned verb_to_initial_last_index(SkPathVerb verb) {
     static const uint8_t gPathVerbToInitialLastIndex[] = {
         0,  //  kMove_Verb
         1,  //  kLine_Verb
@@ -268,13 +268,13 @@ static unsigned verb_to_initial_last_index(unsigned verb) {
         2,  //  kConic_Verb
         3,  //  kCubic_Verb
         0,  //  kClose_Verb
-        0   //  kDone_Verb
     };
-    SkASSERT((unsigned)verb < std::size(gPathVerbToInitialLastIndex));
-    return gPathVerbToInitialLastIndex[verb];
+    const unsigned index = static_cast<unsigned>(verb);
+    SkASSERT(index < std::size(gPathVerbToInitialLastIndex));
+    return gPathVerbToInitialLastIndex[index];
 }
 
-static unsigned verb_to_max_edges(unsigned verb) {
+static unsigned verb_to_max_edges(SkPathVerb verb) {
     static const uint8_t gPathVerbToMaxEdges[] = {
         0,  //  kMove_Verb
         1,  //  kLine_Verb
@@ -282,23 +282,23 @@ static unsigned verb_to_max_edges(unsigned verb) {
         2,  //  kConic_VerbB
         3,  //  kCubic_Verb
         0,  //  kClose_Verb
-        0   //  kDone_Verb
     };
-    SkASSERT((unsigned)verb < std::size(gPathVerbToMaxEdges));
-    return gPathVerbToMaxEdges[verb];
+    const unsigned index = static_cast<unsigned>(verb);
+    SkASSERT(index < std::size(gPathVerbToMaxEdges));
+    return gPathVerbToMaxEdges[index];
 }
 
 // If returns 0, ignore itop and ibot
 static int count_path_runtype_values(const SkPath& path, int* itop, int* ibot) {
-    SkPath::Iter    iter(path, true);
-    SkPoint         pts[4];
-    SkPath::Verb    verb;
-
     int maxEdges = 0;
     SkScalar    top = SkIntToScalar(SK_MaxS16);
     SkScalar    bot = SkIntToScalar(SK_MinS16);
 
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+    SkPath::Iter iter(path, true);
+    while (auto rec = iter.next()) {
+        const SkPathVerb verb = rec->fVerb;
+        const SkSpan<const SkPoint> pts = rec->fPoints;
+
         maxEdges += verb_to_max_edges(verb);
 
         int lastIndex = verb_to_initial_last_index(verb);
@@ -310,7 +310,7 @@ static int count_path_runtype_values(const SkPath& path, int* itop, int* ibot) {
                     bot = pts[i].fY;
                 }
             }
-        } else if (SkPath::kMove_Verb == verb) {
+        } else if (SkPathVerb::kMove == verb) {
             if (top > pts[0].fY) {
                 top = pts[0].fY;
             } else if (bot < pts[0].fY) {

@@ -1613,35 +1613,30 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst, SkApplyPerspectiveCl
             src = &clipped;
         }
 
-        SkPath::Iter    iter(*src, false);
-        SkPoint         pts[4];
-        SkPath::Verb    verb;
-
-        while ((verb = iter.next(pts)) != kDone_Verb) {
-            switch (verb) {
-                case kMove_Verb:
+        SkPath::Iter iter(*src, false);
+        while (auto rec = iter.next()) {
+            const SkSpan<const SkPoint> pts = rec->fPoints;
+            switch (rec->fVerb) {
+                case SkPathVerb::kMove:
                     tmp.moveTo(pts[0]);
                     break;
-                case kLine_Verb:
+                case SkPathVerb::kLine:
                     tmp.lineTo(pts[1]);
                     break;
-                case kQuad_Verb:
+                case SkPathVerb::kQuad:
                     // promote the quad to a conic
                     tmp.conicTo(pts[1], pts[2],
-                                SkConic::TransformW(pts, SK_Scalar1, matrix));
+                                SkConic::TransformW(pts.data(), SK_Scalar1, matrix));
                     break;
-                case kConic_Verb:
+                case SkPathVerb::kConic:
                     tmp.conicTo(pts[1], pts[2],
-                                SkConic::TransformW(pts, iter.conicWeight(), matrix));
+                                SkConic::TransformW(pts.data(), rec->fConicWeight, matrix));
                     break;
-                case kCubic_Verb:
-                    subdivide_cubic_to(&tmp, pts);
+                case SkPathVerb::kCubic:
+                    subdivide_cubic_to(&tmp, pts.data());
                     break;
-                case kClose_Verb:
+                case SkPathVerb::kClose:
                     tmp.close();
-                    break;
-                default:
-                    SkDEBUGFAIL("unknown verb");
                     break;
             }
         }
@@ -1852,6 +1847,27 @@ SkPath::Verb SkPath::Iter::next(SkPoint ptsParam[4]) {
     return (Verb)verb;
 }
 
+static inline uint8_t SkPathIterPointsPerVerb(SkPathVerb verb) {
+    static const uint8_t gCounts[] = { 1, 2, 3, 3, 4, 0 };
+    unsigned index = static_cast<unsigned>(verb);
+    SkASSERT(index < std::size(gCounts));
+    return gCounts[index];
+}
+
+std::optional<SkPath::IterRec> SkPath::Iter::next() {
+    auto legacyVerb = this->next(fStorage.data());
+    if (legacyVerb == kDone_Verb) {
+        return {};
+    }
+
+    SkPathVerb verb = static_cast<SkPathVerb>(legacyVerb);
+    return {{
+        verb,
+        {fStorage.data(), SkPathIterPointsPerVerb(verb)},
+        verb == SkPathVerb::kConic ? *fConicWeights : 1,
+    }};
+}
+
 void SkPath::RawIter::setPath(const SkPath& path) {
     SkPathPriv::Iterate iterate(path);
     fIter = iterate.begin();
@@ -1878,6 +1894,19 @@ SkPath::Verb SkPath::RawIter::next(SkPoint pts[4]) {
     memcpy(pts, iterPts, sizeof(SkPoint) * numPts);
     ++fIter;
     return (Verb) verb;
+}
+
+std::optional<SkPath::IterRec> SkPath::RawIter::next() {
+    if (fIter == fEnd) {
+        return {};
+    }
+
+    auto [verb, iterPts, weights] = *fIter++;
+    return {{
+        verb,
+        {iterPts, SkPathIterPointsPerVerb(verb)},
+        verb == SkPathVerb::kConic ? *weights : 1
+    }};
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1919,9 +1948,6 @@ static void append_params(SkString* str, const char label[], const SkPoint pts[]
 
 void SkPath::dump(SkWStream* wStream, bool dumpAsHex) const {
     SkScalarAsStringType asType = dumpAsHex ? kHex_SkScalarAsStringType : kDec_SkScalarAsStringType;
-    Iter    iter(*this, false);
-    SkPoint pts[4];
-    Verb    verb;
 
     SkString builder;
     char const * const gFillTypeStrs[] = {
@@ -1932,29 +1958,28 @@ void SkPath::dump(SkWStream* wStream, bool dumpAsHex) const {
     };
     builder.printf("path.setFillType(SkPathFillType::k%s);\n",
             gFillTypeStrs[(int) this->getFillType()]);
-    while ((verb = iter.next(pts)) != kDone_Verb) {
-        switch (verb) {
-            case kMove_Verb:
-                append_params(&builder, "path.moveTo", &pts[0], 1, asType);
+
+    Iter iter(*this, false);
+    while (auto rec = iter.next()) {
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
+                append_params(&builder, "path.moveTo", &rec->fPoints[0], 1, asType);
                 break;
-            case kLine_Verb:
-                append_params(&builder, "path.lineTo", &pts[1], 1, asType);
+            case SkPathVerb::kLine:
+                append_params(&builder, "path.lineTo", &rec->fPoints[1], 1, asType);
                 break;
-            case kQuad_Verb:
-                append_params(&builder, "path.quadTo", &pts[1], 2, asType);
+            case SkPathVerb::kQuad:
+                append_params(&builder, "path.quadTo", &rec->fPoints[1], 2, asType);
                 break;
-            case kConic_Verb:
-                append_params(&builder, "path.conicTo", &pts[1], 2, asType, iter.conicWeight());
+            case SkPathVerb::kConic:
+                append_params(&builder, "path.conicTo", &rec->fPoints[1], 2, asType,
+                              rec->fConicWeight);
                 break;
-            case kCubic_Verb:
-                append_params(&builder, "path.cubicTo", &pts[1], 3, asType);
+            case SkPathVerb::kCubic:
+                append_params(&builder, "path.cubicTo", &rec->fPoints[1], 3, asType);
                 break;
-            case kClose_Verb:
+            case SkPathVerb::kClose:
                 builder.append("path.close();\n");
-                break;
-            default:
-                SkDebugf("  path: UNKNOWN VERB %d, aborting dump...\n", verb);
-                verb = kDone_Verb;  // stop the loop
                 break;
         }
         if (!wStream && builder.size()) {
@@ -2674,9 +2699,9 @@ static int winding_mono_cubic(const SkPoint pts[], SkScalar x, SkScalar y, int* 
     return xt < x ? dir : 0;
 }
 
-static int winding_cubic(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurveCount) {
+static int winding_cubic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, int* onCurveCount) {
     SkPoint dst[10];
-    int n = SkChopCubicAtYExtrema(pts, dst);
+    int n = SkChopCubicAtYExtrema(pts.data(), dst);
     int w = 0;
     for (int i = 0; i <= n; ++i) {
         w += winding_mono_cubic(&dst[i * 3], x, y, onCurveCount);
@@ -2764,9 +2789,9 @@ static bool is_mono_quad(SkScalar y0, SkScalar y1, SkScalar y2) {
     }
 }
 
-static int winding_conic(const SkPoint pts[], SkScalar x, SkScalar y, SkScalar weight,
+static int winding_conic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, SkScalar weight,
                          int* onCurveCount) {
-    SkConic conic(pts, weight);
+    SkConic conic(pts.data(), weight);
     SkConic chopped[2];
     // If the data points are very large, the conic may not be monotonic but may also
     // fail to chop. Then, the chopper does not split the original conic in two.
@@ -2778,7 +2803,7 @@ static int winding_conic(const SkPoint pts[], SkScalar x, SkScalar y, SkScalar w
     return w;
 }
 
-static int winding_mono_quad(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurveCount) {
+static int winding_mono_quad(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, int* onCurveCount) {
     SkScalar y0 = pts[0].fY;
     SkScalar y2 = pts[2].fY;
 
@@ -2833,22 +2858,23 @@ static int winding_mono_quad(const SkPoint pts[], SkScalar x, SkScalar y, int* o
     return xt < x ? dir : 0;
 }
 
-static int winding_quad(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurveCount) {
-    SkPoint dst[5];
-    int     n = 0;
+static int winding_quad(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, int* onCurveCount) {
+    SkPoint               spanStorage[5];
+    SkSpan<const SkPoint> span = pts;
+    int                   n = 0;
 
     if (!is_mono_quad(pts[0].fY, pts[1].fY, pts[2].fY)) {
-        n = SkChopQuadAtYExtrema(pts, dst);
-        pts = dst;
+        n = SkChopQuadAtYExtrema(pts.data(), spanStorage);
+        span = spanStorage;
     }
-    int w = winding_mono_quad(pts, x, y, onCurveCount);
+    int w = winding_mono_quad(span, x, y, onCurveCount);
     if (n > 0) {
-        w += winding_mono_quad(&pts[2], x, y, onCurveCount);
+        w += winding_mono_quad(span.subspan(2), x, y, onCurveCount);
     }
     return w;
 }
 
-static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurveCount) {
+static int winding_line(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, int* onCurveCount) {
     SkScalar x0 = pts[0].fX;
     SkScalar y0 = pts[0].fY;
     SkScalar x1 = pts[1].fX;
@@ -2888,7 +2914,7 @@ static int winding_line(const SkPoint pts[], SkScalar x, SkScalar y, int* onCurv
     return dir;
 }
 
-static void tangent_cubic(const SkPoint pts[], SkScalar x, SkScalar y,
+static void tangent_cubic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y,
         SkTDArray<SkVector>* tangents) {
     if (!between(pts[0].fY, y, pts[1].fY) && !between(pts[1].fY, y, pts[2].fY)
              && !between(pts[2].fY, y, pts[3].fY)) {
@@ -2899,7 +2925,7 @@ static void tangent_cubic(const SkPoint pts[], SkScalar x, SkScalar y,
         return;
     }
     SkPoint dst[10];
-    int n = SkChopCubicAtYExtrema(pts, dst);
+    int n = SkChopCubicAtYExtrema(pts.data(), dst);
     for (int i = 0; i <= n; ++i) {
         SkPoint* c = &dst[i * 3];
         SkScalar t;
@@ -2916,7 +2942,7 @@ static void tangent_cubic(const SkPoint pts[], SkScalar x, SkScalar y,
     }
 }
 
-static void tangent_conic(const SkPoint pts[], SkScalar x, SkScalar y, SkScalar w,
+static void tangent_conic(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y, SkScalar w,
             SkTDArray<SkVector>* tangents) {
     if (!between(pts[0].fY, y, pts[1].fY) && !between(pts[1].fY, y, pts[2].fY)) {
         return;
@@ -2938,12 +2964,12 @@ static void tangent_conic(const SkPoint pts[], SkScalar x, SkScalar y, SkScalar 
         if (!SkScalarNearlyEqual(x, xt)) {
             continue;
         }
-        SkConic conic(pts, w);
+        SkConic conic(pts.data(), w);
         tangents->push_back(conic.evalTangentAt(t));
     }
 }
 
-static void tangent_quad(const SkPoint pts[], SkScalar x, SkScalar y,
+static void tangent_quad(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y,
         SkTDArray<SkVector>* tangents) {
     if (!between(pts[0].fY, y, pts[1].fY) && !between(pts[1].fY, y, pts[2].fY)) {
         return;
@@ -2965,11 +2991,11 @@ static void tangent_quad(const SkPoint pts[], SkScalar x, SkScalar y,
         if (!SkScalarNearlyEqual(x, xt)) {
             continue;
         }
-        tangents->push_back(SkEvalQuadTangentAt(pts, t));
+        tangents->push_back(SkEvalQuadTangentAt(pts.data(), t));
     }
 }
 
-static void tangent_line(const SkPoint pts[], SkScalar x, SkScalar y,
+static void tangent_line(SkSpan<const SkPoint> pts, SkScalar x, SkScalar y,
         SkTDArray<SkVector>* tangents) {
     SkScalar y0 = pts[0].fY;
     SkScalar y1 = pts[1].fY;
@@ -3006,32 +3032,27 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
     }
 
     SkPath::Iter iter(*this, true);
-    bool done = false;
     int w = 0;
     int onCurveCount = 0;
-    do {
-        SkPoint pts[4];
-        switch (iter.next(pts)) {
-            case SkPath::kMove_Verb:
-            case SkPath::kClose_Verb:
+    while (auto rec = iter.next()) {
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
+            case SkPathVerb::kClose:
                 break;
-            case SkPath::kLine_Verb:
-                w += winding_line(pts, x, y, &onCurveCount);
+            case SkPathVerb::kLine:
+                w += winding_line(rec->fPoints, x, y, &onCurveCount);
                 break;
-            case SkPath::kQuad_Verb:
-                w += winding_quad(pts, x, y, &onCurveCount);
+            case SkPathVerb::kQuad:
+                w += winding_quad(rec->fPoints, x, y, &onCurveCount);
                 break;
-            case SkPath::kConic_Verb:
-                w += winding_conic(pts, x, y, iter.conicWeight(), &onCurveCount);
+            case SkPathVerb::kConic:
+                w += winding_conic(rec->fPoints, x, y, iter.conicWeight(), &onCurveCount);
                 break;
-            case SkPath::kCubic_Verb:
-                w += winding_cubic(pts, x, y, &onCurveCount);
-                break;
-            case SkPath::kDone_Verb:
-                done = true;
+            case SkPathVerb::kCubic:
+                w += winding_cubic(rec->fPoints, x, y, &onCurveCount);
                 break;
        }
-    } while (!done);
+    }
     bool evenOddFill = SkPathFillType::kEvenOdd        == this->getFillType()
                     || SkPathFillType::kInverseEvenOdd == this->getFillType();
     if (evenOddFill) {
@@ -3049,29 +3070,24 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
     // If the point touches an even number of curves, and the fill is winding, check for
     // coincidence. Count coincidence as places where the on curve points have identical tangents.
     iter.setPath(*this, true);
-    done = false;
     SkTDArray<SkVector> tangents;
-    do {
-        SkPoint pts[4];
+    while (auto rec = iter.next()) {
         int oldCount = tangents.size();
-        switch (iter.next(pts)) {
-            case SkPath::kMove_Verb:
-            case SkPath::kClose_Verb:
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
+            case SkPathVerb::kClose:
                 break;
-            case SkPath::kLine_Verb:
-                tangent_line(pts, x, y, &tangents);
+            case SkPathVerb::kLine:
+                tangent_line(rec->fPoints, x, y, &tangents);
                 break;
-            case SkPath::kQuad_Verb:
-                tangent_quad(pts, x, y, &tangents);
+            case SkPathVerb::kQuad:
+                tangent_quad(rec->fPoints, x, y, &tangents);
                 break;
-            case SkPath::kConic_Verb:
-                tangent_conic(pts, x, y, iter.conicWeight(), &tangents);
+            case SkPathVerb::kConic:
+                tangent_conic(rec->fPoints, x, y, iter.conicWeight(), &tangents);
                 break;
-            case SkPath::kCubic_Verb:
-                tangent_cubic(pts, x, y, &tangents);
-                break;
-            case SkPath::kDone_Verb:
-                done = true;
+            case SkPathVerb::kCubic:
+                tangent_cubic(rec->fPoints, x, y, &tangents);
                 break;
        }
        if (tangents.size() > oldCount) {
@@ -3092,7 +3108,7 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
                 }
             }
         }
-    } while (!done);
+    }
     return SkToBool(tangents.size()) ^ isInverse;
 }
 

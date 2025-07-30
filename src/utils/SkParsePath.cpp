@@ -268,40 +268,39 @@ SkString SkParsePath::ToSVGString(const SkPath& path, PathEncoding encoding) {
         current_point = pts[count - 1] * rel_selector;
     };
 
-    SkPath::Iter    iter(path, false);
-    SkPoint         pts[4];
+    SkPath::Iter iter(path, false);
 
-    for (;;) {
-        switch (iter.next(pts)) {
-            case SkPath::kConic_Verb: {
+    while (auto rec = iter.next()) {
+        SkSpan<const SkPoint> pts = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kConic: {
                 const SkScalar tol = SK_Scalar1 / 1024; // how close to a quad
                 SkAutoConicToQuads quadder;
-                const SkPoint* quadPts = quadder.computeQuads(pts, iter.conicWeight(), tol);
+                const SkPoint* quadPts = quadder.computeQuads(pts.data(), iter.conicWeight(), tol);
                 for (int i = 0; i < quadder.countQuads(); ++i) {
                     append_command('Q', &quadPts[i*2 + 1], 2);
                 }
             } break;
-           case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 append_command('M', &pts[0], 1);
                 break;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 append_command('L', &pts[1], 1);
                 break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 append_command('Q', &pts[1], 2);
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 append_command('C', &pts[1], 3);
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 stream.write("Z", 1);
                 break;
-            case SkPath::kDone_Verb: {
-                SkString str;
-                str.resize(stream.bytesWritten());
-                stream.copyTo(str.data());
-                return str;
-            }
         }
     }
+
+    SkString str;
+    str.resize(stream.bytesWritten());
+    stream.copyTo(str.data());
+    return str;
 }

@@ -1541,6 +1541,12 @@ public:
     }
 #endif
 
+    struct IterRec {
+        SkPathVerb            fVerb;
+        SkSpan<const SkPoint> fPoints;
+        float                 fConicWeight;
+    };
+
     /** \class SkPath::Iter
         Iterates through verb array, and associated SkPoint array and conic weight.
         Provides options to treat open contours as closed, and to ignore
@@ -1594,6 +1600,8 @@ public:
         */
         Verb next(SkPoint pts[4]);
 
+        std::optional<IterRec> next();
+
         /** Returns conic weight if next() returned kConic_Verb.
 
             If next() has not been called, or next() did not return kConic_Verb,
@@ -1625,15 +1633,16 @@ public:
         bool isClosedContour() const;
 
     private:
-        const SkPoint*  fPts;
-        const uint8_t*  fVerbs;
-        const uint8_t*  fVerbStop;
-        const SkScalar* fConicWeights;
-        SkPoint         fMoveTo;
-        SkPoint         fLastPt;
-        bool            fForceClose;
-        bool            fNeedClose;
-        bool            fCloseLine;
+        const SkPoint*          fPts;
+        const uint8_t*          fVerbs;
+        const uint8_t*          fVerbStop;
+        const SkScalar*         fConicWeights;
+        SkPoint                 fMoveTo;
+        SkPoint                 fLastPt;
+        std::array<SkPoint, 4>  fStorage;
+        bool                    fForceClose;
+        bool                    fNeedClose;
+        bool                    fCloseLine;
 
         Verb autoClose(SkPoint pts[2]);
     };
@@ -1750,6 +1759,8 @@ public:
             @return     next SkPath::Verb from verb array
         */
         Verb next(SkPoint[4]);
+
+        std::optional<IterRec> next();
 
         /** Returns next SkPath::Verb, but does not advance RawIter.
 

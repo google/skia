@@ -202,15 +202,16 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
         // We'll break the rect into four lines, culling each separately.
         SkPath::Iter iter(srcPath, false);
 
-        SkPoint pts[4];  // Rects are all moveTo and lineTo, so we'll only use pts[0] and pts[1].
-        SkAssertResult(SkPath::kMove_Verb == iter.next(pts));
+        std::optional<SkPath::IterRec> it = iter.next();
+        SkASSERT(it.has_value() && it->fVerb == SkPathVerb::kMove);
 
         double accum = 0;  // Sum of unculled edge lengths to keep the phase correct.
                            // Intentionally a double to minimize the risk of overflow and drift.
-        while (iter.next(pts) == SkPath::kLine_Verb) {
+        while ((it = iter.next()) && (it->fVerb == SkPathVerb::kLine)) {
             // Notice this vector v and accum work with the original unclipped length.
-            SkVector v = pts[1] - pts[0];
+            SkVector v = it->fPoints[1] - it->fPoints[0];
 
+            SkPoint pts[2] = {it->fPoints[0], it->fPoints[1]};
             if (clip_line(pts, bounds, intervalLength, std::fmod(accum, intervalLength))) {
                 // pts[0] may have just been changed by clip_line().
                 // If that's not where we ended the previous lineTo(), we need to moveTo() there.
