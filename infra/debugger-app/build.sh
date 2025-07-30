@@ -16,16 +16,16 @@ INSTALL="install -D --verbose --backup=none"
 REL=$(dirname "$BASH_SOURCE")
 
 bazelisk build //modules/canvaskit:canvaskit --config=ck_full_webgl2_release_debugger
-ls -R ${REL}/../../bazel-bin
+
 ${INSTALL} --mode=644 -T ${REL}/../../bazel-bin/modules/canvaskit/canvaskit/canvaskit.js ${ROOT}/canvaskit.js
 ${INSTALL} --mode=644 -T ${REL}/../../bazel-bin/modules/canvaskit/canvaskit/canvaskit.wasm ${ROOT}/canvaskit.wasm
 
 bazelisk build //modules/canvaskit:version.js --config=ck_full_webgl2_release_debugger
-ls -R ${REL}/../../bazel-bin
 cat ${REL}/../../bazel-bin/modules/canvaskit/version.js > ${ROOT}/version.js
 
-${INSTALL} --mode=644 -T ${REL}/../../modules/canvaskit/npm_build/types/index.d.ts ${ROOT}/index.d.ts
+cat ${REL}/../../modules/canvaskit/npm_build/types/index.d.ts > ${ROOT}/index.d.ts
 ${INSTALL} --mode=644 -T Dockerfile ${ROOT}/Dockerfile
+ls -ahl ${ROOT}
 }
 
 source ../docker/docker_build.sh
