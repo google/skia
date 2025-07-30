@@ -412,6 +412,8 @@ public:
      */
     bool usePipelineLibraries() const { return fUsePipelineLibraries; }
 
+    bool supportsHostImageCopy() const { return fSupportsHostImageCopy; }
+
     skgpu::ShaderErrorHandler* shaderErrorHandler() const { return fShaderErrorHandler; }
 
     /**
@@ -580,6 +582,11 @@ protected:
     bool fUseBasicDynamicState = false;
     bool fUseVertexInputDynamicState = false;
     bool fUsePipelineLibraries = false;
+
+    // Whether it's possible to upload data to images using the CPU (host) instead of the device.
+    // Under certain circumstances, it's more efficient to upload data in this way instead of
+    // through a staging buffer.
+    bool fSupportsHostImageCopy = false;
 
 private:
     virtual bool onIsTexturable(const TextureInfo&) const = 0;

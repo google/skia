@@ -953,11 +953,21 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite
     MipLevel mipLevel;
     mipLevel.fPixels = srcPixels.addr();
     mipLevel.fRowBytes = srcPixels.rowBytes();
+    UploadSource uploadSource = UploadSource::Make(context->priv().caps(),
+                                                   *srcProxy,
+                                                   srcPixels.info().colorInfo(),
+                                                   srcPixels.info().colorInfo(),
+                                                   {mipLevel},
+                                                   SkIRect::MakeWH(kDim, kDim));
+    if (!uploadSource.isValid()) {
+        ERRORF(reporter, "Could not create UploadSource");
+        return;
+    }
     UploadInstance upload = UploadInstance::Make(recorder.get(),
                                                  srcProxy,
                                                  srcPixels.info().colorInfo(),
                                                  srcPixels.info().colorInfo(),
-                                                 {mipLevel},
+                                                 uploadSource,
                                                  SkIRect::MakeWH(kDim, kDim),
                                                  std::make_unique<ImageUploadContext>());
     if (!upload.isValid()) {

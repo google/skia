@@ -262,10 +262,20 @@ std::tuple<TextureProxyView, SkColorType> MakeBitmapProxyView(Recorder* recorder
     // Add upload to the root upload list. These bitmaps are uploaded to unique textures so there is
     // no need to coordinate resource sharing. It is better to then group them into a single task
     // at the start of the Recording.
-    if (!recorder->priv().rootUploadList()->recordUpload(
-            recorder, proxy, colorInfo, colorInfo, texels,
-            SkIRect::MakeSize(bmpToUpload.dimensions()),
-            std::make_unique<ImageUploadContext>())) {
+    const SkIRect dimensions = SkIRect::MakeSize(bmpToUpload.dimensions());
+    UploadSource uploadSource = UploadSource::Make(
+            recorder->priv().caps(), *proxy, colorInfo, colorInfo, texels, dimensions);
+    if (!uploadSource.isValid()) {
+        SKGPU_LOG_E("MakeBitmapProxyView: Could not create UploadSource");
+        return {};
+    }
+    if (!recorder->priv().rootUploadList()->recordUpload(recorder,
+                                                         proxy,
+                                                         colorInfo,
+                                                         colorInfo,
+                                                         uploadSource,
+                                                         dimensions,
+                                                         std::make_unique<ImageUploadContext>())) {
         SKGPU_LOG_E("MakeBitmapProxyView: Could not create UploadInstance");
         return {};
     }

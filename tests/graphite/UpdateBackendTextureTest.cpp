@@ -267,7 +267,11 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(UpdateBackendTextureFinishedProcT
                                                        finishedProc,
                                                        &finishCtx);
 
-    REPORTER_ASSERT(reporter, !finishCtx.fFinishedUpdate);
+    // Vulkan may use VK_EXT_host_image_copy to upload the texture data right away, so finished may
+    // already be called.
+    if (!caps->supportsHostImageCopy()) {
+        REPORTER_ASSERT(reporter, !finishCtx.fFinishedUpdate);
+    }
 
     std::unique_ptr<Recording> recording = recorder->snap();
     if (!recording) {
@@ -278,7 +282,9 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(UpdateBackendTextureFinishedProcT
     insertInfo.fRecording = recording.get();
     context->insertRecording(insertInfo);
 
-    REPORTER_ASSERT(reporter, !finishCtx.fFinishedUpdate);
+    if (!caps->supportsHostImageCopy()) {
+        REPORTER_ASSERT(reporter, !finishCtx.fFinishedUpdate);
+    }
 
     testContext->syncedSubmit(context);
     REPORTER_ASSERT(reporter, finishCtx.fFinishedUpdate);

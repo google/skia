@@ -101,6 +101,11 @@ public:
                                                   const VulkanTexture* depthStencilTexture) const;
     void addCachedFramebuffer(sk_sp<VulkanFramebuffer>);
 
+    bool canUploadOnHost(const UploadSource&) const override;
+    // Once upload is finished, the image will be in the VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    // layout.
+    bool uploadDataOnHost(const UploadSource& source, const SkIRect& dstRect) override;
+
 private:
     VulkanTexture(const VulkanSharedContext* sharedContext,
                   SkISize dimensions,

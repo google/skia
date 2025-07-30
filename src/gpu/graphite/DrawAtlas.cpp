@@ -180,8 +180,18 @@ bool DrawAtlas::recordUploads(DrawContext* dc, Recorder* recorder) {
 
                 // Src and dst colorInfo are the same
                 SkColorInfo colorInfo(fColorType, kUnknown_SkAlphaType, nullptr);
-                if (!dc->recordUpload(recorder, sk_ref_sp(proxy), colorInfo, colorInfo, levels,
-                                      dstRect, /*ConditionalUploadContext=*/nullptr)) {
+                const UploadSource uploadSource = UploadSource::Make(
+                        recorder->priv().caps(), *proxy, colorInfo, colorInfo, levels, dstRect);
+                if (!uploadSource.isValid()) {
+                    return false;
+                }
+                if (!dc->recordUpload(recorder,
+                                      sk_ref_sp(proxy),
+                                      colorInfo,
+                                      colorInfo,
+                                      uploadSource,
+                                      dstRect,
+                                      /*ConditionalUploadContext=*/nullptr)) {
                     return false;
                 }
             }

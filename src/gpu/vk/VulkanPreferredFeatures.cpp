@@ -442,7 +442,8 @@ void VulkanPreferredFeatures::addFeaturesToQuery(const VkExtensionProperties* de
 
     // For now, pretend these extensions are not supported. This de-risks using this API by users
     // who didn't previously enable them. Those already in use by Skia will be re-enabled shortly
-    // after. Those not yet in use by Skia will be enabled in the future when they start to get used.
+    // after. Those not yet in use by Skia will be enabled in the future when they start to get
+    // used.
 #if defined(SK_DISABLE_GRAPHICS_PIPELINE_LIBRARY)
     exts.fPipelineLibraryKHR = false;
     exts.fGraphicsPipelineLibraryEXT = false;
@@ -450,8 +451,10 @@ void VulkanPreferredFeatures::addFeaturesToQuery(const VkExtensionProperties* de
     exts.fSynchronization2KHR = false;
     exts.fDynamicRenderingKHR = false;
     exts.fDynamicRenderingLocalReadKHR = false;
+#if defined(SK_DISABLE_HOST_IMAGE_COPY)
     exts.fHostImageCopyEXT = false;
     exts.fCopyCommands2KHR = false;
+#endif
     exts.fShaderDrawParametersKHR = false;
     exts.fDrawIndirectCountKHR = false;
     exts.fSamplerMirrorClampToEdgeKHR = false;

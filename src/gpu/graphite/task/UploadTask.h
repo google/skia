@@ -22,10 +22,12 @@
 
 class SkColorInfo;
 struct SkIRect;
+enum class SkTextureCompressionType;
 
 namespace skgpu::graphite {
 
 class Buffer;
+class Caps;
 class CommandBuffer;
 class Context;
 class Recorder;
@@ -74,22 +76,69 @@ public:
 };
 
 /**
+ * A set of `MipLevel`s, comprising the source data for an upload operation.
+ *
+ * While preparing the upload source, this class additionally caches some needed information, such
+ * as whether the upload can be done on the host.
+ */
+class UploadSource {
+public:
+    static UploadSource Make(const Caps*,
+                             const TextureProxy& textureProxy,
+                             const SkColorInfo& srcColorInfo,
+                             const SkColorInfo& dstColorInfo,
+                             SkSpan<const MipLevel> levels,
+                             const SkIRect& dstRect);
+    static UploadSource MakeCompressed(const Caps*,
+                                       const TextureProxy& textureProxy,
+                                       const void* data,
+                                       size_t dataSize);
+
+    UploadSource(UploadSource&&);
+    UploadSource& operator=(UploadSource&&);
+    ~UploadSource();
+
+    bool isValid() const { return !fLevels.empty(); }
+
+    SkSpan<const MipLevel> levels() const { return fLevels; }
+    bool canUploadOnHost() const { return fCanUploadOnHost; }
+    bool isRGB888Format() const { return fIsRGB888Format; }
+    SkTextureCompressionType compression() const { return fCompression; }
+    size_t bytesPerPixel() const { return fBytesPerPixel; }
+
+private:
+    static UploadSource Invalid() { return {}; }
+
+    UploadSource();
+
+    skia_private::STArray<16, MipLevel> fLevels;
+
+    // Whether the texture supports uploads directly from host memory.
+    bool fCanUploadOnHost = false;
+    // Whether the texture is RGB888, which is typically emulated by RGBA8888.
+    bool fIsRGB888Format = false;
+    // Compression type, if any.
+    SkTextureCompressionType fCompression;
+    // Bytes per pixel or block (if compressed)
+    size_t fBytesPerPixel = 0;
+};
+
+/**
  * An UploadInstance represents a single set of uploads from a buffer to texture that
  * can be processed in a single command.
  */
 class UploadInstance {
 public:
     static UploadInstance Make(Recorder*,
-                               sk_sp<TextureProxy> targetProxy,
+                               sk_sp<TextureProxy> textureProxy,
                                const SkColorInfo& srcColorInfo,
                                const SkColorInfo& dstColorInfo,
-                               SkSpan<const MipLevel> levels,
+                               const UploadSource& source,
                                const SkIRect& dstRect,
                                std::unique_ptr<ConditionalUploadContext>);
     static UploadInstance MakeCompressed(Recorder*,
-                                         sk_sp<TextureProxy> targetProxy,
-                                         const void* data,
-                                         size_t dataSize);
+                                         sk_sp<TextureProxy> textureProxy,
+                                         const UploadSource& source);
 
     static UploadInstance Invalid() { return {}; }
 
@@ -137,7 +186,7 @@ public:
                       sk_sp<TextureProxy> targetProxy,
                       const SkColorInfo& srcColorInfo,
                       const SkColorInfo& dstColorInfo,
-                      SkSpan<const MipLevel> levels,
+                      const UploadSource& source,
                       const SkIRect& dstRect,
                       std::unique_ptr<ConditionalUploadContext>);
 

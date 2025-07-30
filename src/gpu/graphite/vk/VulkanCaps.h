@@ -151,6 +151,8 @@ private:
         bool fGraphicsPipelineLibrary = false;
         // From VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT:
         bool fMultisampledRenderToSingleSampled = false;
+        // From VkPhysicalDeviceHostImageCopyFeatures:
+        bool fHostImageCopy = false;
     };
     EnabledFeatures getEnabledFeatures(const VkPhysicalDeviceFeatures2* features,
                                        uint32_t physicalDeviceVersion);
@@ -159,6 +161,8 @@ private:
         VkPhysicalDeviceProperties2 fBase;
         VkPhysicalDeviceDriverProperties fDriver;
         VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT fGpl;
+        VkPhysicalDeviceHostImageCopyPropertiesEXT fHic;
+        bool fHicHasShaderReadOnlyDstLayout = false;
     };
     void getProperties(const skgpu::VulkanInterface* vkInterface,
                        VkPhysicalDevice physDev,
@@ -212,7 +216,7 @@ private:
 
         bool isSampleCountSupported(int requestedCount) const;
 
-        VkSampleCountFlags fSampleCounts;
+        VkSampleCountFlags fSampleCounts = 0;
     };
 
     // Struct that determines and stores useful information about VkFormats.
@@ -233,12 +237,31 @@ private:
         bool isStorage(VkImageTiling) const;
         bool isTransferSrc(VkImageTiling) const;
         bool isTransferDst(VkImageTiling) const;
+        bool isEfficientWithHostImageCopy(VkImageTiling, Protected) const;
 
         std::unique_ptr<ColorTypeInfo[]> fColorTypeInfos;
         int fColorTypeInfoCount = 0;
 
         VkFormatProperties fFormatProperties;
         SupportedSampleCounts fSupportedSampleCounts;
+        /*
+         * The VK_IMAGE_USAGE_HOST_TRANSFER_BIT flag may cause the image to be put in a suboptimal
+         * physical layout.  In practice, images that could have had framebuffer compression end up
+         * with framebuffer compression disabled.  Using `VkHostImageCopyDevicePerformanceQuery`, we
+         * can determine if the layout is going to be suboptimal and avoid this flag.
+         *
+         * `fIsEfficientWithHostImageCopy` indicates whether the VK_IMAGE_USAGE_HOST_TRANSFER_BIT is
+         * efficient for this format with the following assumptions:
+         *
+         * - Image tiling is VK_IMAGE_TILING_OPTIMAL (note that VK_IMAGE_TILING_LINEAR is always
+         *   efficient for host image copy).
+         * - Image type is 2D.
+         * - Image create flags is 0.
+         * - Image usage flags is a subset of VK_IMAGE_USAGE_SAMPLED_BIT |
+         *                                    VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+         *                                    VK_IMAGE_USAGE_TRANSFER_DST_BIT
+         */
+        bool fIsEfficientWithHostImageCopy;
 
         // Indicates that a format is only supported if we are wrapping a texture with it.
         SkDEBUGCODE(bool fIsWrappedOnly = false;)

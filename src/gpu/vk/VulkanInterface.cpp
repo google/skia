@@ -261,6 +261,15 @@ VulkanInterface::VulkanInterface(VulkanGetProc getProc,
         ACQUIRE_PROC_SUFFIX(GetDeviceFaultInfo, EXT, VK_NULL_HANDLE, device);
     }
 
+    // Functions for VK_EXT_host_image_copy or Vulkan 1.4
+    if (physicalDeviceVersion >= VK_API_VERSION_1_4) {
+        ACQUIRE_PROC(TransitionImageLayout, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(CopyMemoryToImage, VK_NULL_HANDLE, device);
+    } else if (extensions->hasExtension(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME, 1)) {
+        ACQUIRE_PROC_SUFFIX(TransitionImageLayout, EXT, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(CopyMemoryToImage, EXT, VK_NULL_HANDLE, device);
+    }
+
 #ifdef SK_BUILD_FOR_ANDROID
     // Functions for VK_ANDROID_external_memory_android_hardware_buffer
     if (extensions->hasExtension(
@@ -487,6 +496,22 @@ bool VulkanInterface::validate(uint32_t instanceVersion,
     // Functions for VK_EXT_vertex_input_dynamic_state
     if (extensions->hasExtension(VK_EXT_VERTEX_INPUT_DYNAMIC_STATE_EXTENSION_NAME, 1)) {
         if (nullptr == fFunctions.fCmdSetVertexInput) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    // Functions for VK_EXT_device_fault
+    if (extensions->hasExtension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fGetDeviceFaultInfo) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    // Functions for VK_EXT_host_image_copy or Vulkan 1.4
+    if (physicalDeviceVersion >= VK_API_VERSION_1_4 ||
+        extensions->hasExtension(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fTransitionImageLayout ||
+            nullptr == fFunctions.fCopyMemoryToImage) {
             RETURN_FALSE_INTERFACE
         }
     }
