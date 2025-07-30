@@ -1180,12 +1180,13 @@ void TextLine::getRectsForRange(TextRange textRange0,
 {
     const Run* lastRun = nullptr;
     auto startBox = boxes.size();
-    this->iterateThroughVisualRuns(true,
-        [textRange0, rectHeightStyle, rectWidthStyle, &boxes, &lastRun, startBox, this]
+    const bool includeGhostSpaces = rectWidthStyle != RectWidthStyle::kExcludeTrailingSpaces;
+    this->iterateThroughVisualRuns(includeGhostSpaces,
+        [textRange0, rectHeightStyle, rectWidthStyle, &boxes, &lastRun, startBox, &includeGhostSpaces, this]
         (const Run* run, SkScalar runOffsetInLine, TextRange textRange, SkScalar* runWidthInLine) {
         *runWidthInLine = this->iterateThroughSingleRunByStyles(
         TextAdjustment::GraphemeGluster, run, runOffsetInLine, textRange, StyleType::kNone,
-        [run, runOffsetInLine, textRange0, rectHeightStyle, rectWidthStyle, &boxes, &lastRun, startBox, this]
+        [run, runOffsetInLine, textRange0, rectHeightStyle, rectWidthStyle, &boxes, &lastRun, startBox, &includeGhostSpaces, this]
         (TextRange textRange, const TextStyle& style, const TextLine::ClipContext& lineContext) {
 
             auto intersect = textRange * textRange0;
@@ -1197,7 +1198,7 @@ void TextLine::getRectsForRange(TextRange textRange0,
 
             // Found a run that intersects with the text
             auto context = this->measureTextInsideOneRun(
-                    intersect, run, runOffsetInLine, 0, true, TextAdjustment::GraphemeGluster);
+                    intersect, run, runOffsetInLine, 0, includeGhostSpaces, TextAdjustment::GraphemeGluster);
             SkRect clip = context.clip;
             clip.offset(lineContext.fTextShift - context.fTextShift, 0);
 
@@ -1268,7 +1269,7 @@ void TextLine::getRectsForRange(TextRange textRange0,
             // Separate trailing spaces and move them in the default order of the paragraph
             // in case the run order and the paragraph order don't match
             SkRect trailingSpaces = SkRect::MakeEmpty();
-            if (this->trimmedText().end <this->textWithNewlines().end && // Line has trailing space
+            if (includeGhostSpaces && this->trimmedText().end <this->textWithNewlines().end && // Line has trailing space
                 this->textWithNewlines().end == intersect.end &&         // Range is at the end of the line
                 this->trimmedText().end > intersect.start)               // Range has more than just spaces
             {
@@ -1340,7 +1341,7 @@ void TextLine::getRectsForRange(TextRange textRange0,
             if (!merge(clip)) {
                 boxes.emplace_back(clip, context.run->getTextDirection());
             }
-            if (!nearlyZero(trailingSpaces.width()) && !merge(trailingSpaces)) {
+            if (includeGhostSpaces && !nearlyZero(trailingSpaces.width()) && !merge(trailingSpaces)) {
                 boxes.emplace_back(trailingSpaces, paragraphStyle.getTextDirection());
             }
 

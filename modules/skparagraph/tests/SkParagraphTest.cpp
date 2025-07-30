@@ -8481,3 +8481,363 @@ UNIX_ONLY_TEST(SkParagraph_ICU4X_EmojiRuns, reporter) {
     SkUnicode_Emoji(SkUnicodes::ICU4X::Make(), reporter);
 }
 #endif
+
+// Exclude trailing spaces test
+UNIX_ONLY_TEST(SkParagraph_ExcludeTrailingSpacesLTR, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const char* text = "Hello World     ";
+    const size_t text_length = strlen(text);
+    TestCanvas canvas("SkParagraph_ExcludeTrailingSpacesLTR.png");
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kLtr);
+    paragraph_style.setTextAlign(TextAlign::kLeft);
+    paragraph_style.turnHintingOff();
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20.0f);
+    text_style.setColor(SK_ColorBLACK);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+    builder.pushStyle(text_style);
+    builder.addText(text);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(200);
+
+    // Test with kTight (includes trailing spaces)
+    std::vector<TextBox> boxes_tight = paragraph->getRectsForRange(
+            0, text_length, RectHeightStyle::kTight, RectWidthStyle::kTight);
+
+    // Test with kExcludeTrailingSpaces
+    std::vector<TextBox> boxes_exclude = paragraph->getRectsForRange(
+            0, text_length, RectHeightStyle::kTight, RectWidthStyle::kExcludeTrailingSpaces);
+
+    // The boxes excluding trailing spaces should be narrower than tight boxes
+    REPORTER_ASSERT(reporter, !boxes_tight.empty());
+    REPORTER_ASSERT(reporter, !boxes_exclude.empty());
+
+    // Calculate total width for both
+    SkScalar tight_width = 0;
+    SkScalar exclude_width = 0;
+
+    for (const auto& box : boxes_tight) {
+        tight_width += box.rect.width();
+    }
+
+    for (const auto& box : boxes_exclude) {
+        exclude_width += box.rect.width();
+    }
+
+    // Width excluding trailing spaces should be less than tight width
+    REPORTER_ASSERT(reporter, exclude_width < tight_width);
+
+    // Paint both for visual comparison
+    canvas.drawRects(SK_ColorBLUE, boxes_tight);
+    canvas.drawRects(SK_ColorRED, boxes_exclude);
+}
+
+UNIX_ONLY_TEST(SkParagraph_ExcludeTrailingSpacesRTL, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const char* text = "Hello World     ";
+    const size_t text_length = strlen(text);
+    TestCanvas canvas("SkParagraph_ExcludeTrailingSpacesRTL.png");
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kRtl);
+    paragraph_style.setTextAlign(TextAlign::kRight);
+    paragraph_style.turnHintingOff();
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20.0f);
+    text_style.setColor(SK_ColorBLACK);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+    builder.pushStyle(text_style);
+    builder.addText(text);  // Text with trailing spaces
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(200);
+
+    // Test with kTight (includes trailing spaces)
+    std::vector<TextBox> boxes_tight = paragraph->getRectsForRange(
+            0, text_length, RectHeightStyle::kTight, RectWidthStyle::kTight);
+
+    // Test with kExcludeTrailingSpaces
+    std::vector<TextBox> boxes_exclude = paragraph->getRectsForRange(
+            0, text_length, RectHeightStyle::kTight, RectWidthStyle::kExcludeTrailingSpaces);
+
+    REPORTER_ASSERT(reporter, !boxes_tight.empty());
+    REPORTER_ASSERT(reporter, !boxes_exclude.empty());
+
+    // Calculate total width for both
+    SkScalar tight_width = 0;
+    SkScalar exclude_width = 0;
+
+    for (const auto& box : boxes_tight) {
+        tight_width += box.rect.width();
+    }
+
+    for (const auto& box : boxes_exclude) {
+        exclude_width += box.rect.width();
+    }
+
+    // Width excluding trailing spaces should be less than tight width
+    REPORTER_ASSERT(reporter, exclude_width < tight_width);
+
+    // Paint both for visual comparison
+    canvas.drawRects(SK_ColorBLUE, boxes_tight);
+    canvas.drawRects(SK_ColorRED, boxes_exclude);
+}
+
+UNIX_ONLY_TEST(SkParagraph_ExcludeTrailingSpacesMultiLine, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const char* text = "Line one with spaces   \nLine two with spaces   \nLast line   ";
+    const size_t text_length = strlen(text);
+    TestCanvas canvas("SkParagraph_ExcludeTrailingSpacesMultiLine.png");
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kLtr);
+    paragraph_style.setTextAlign(TextAlign::kLeft);
+    paragraph_style.turnHintingOff();
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20.0f);
+    text_style.setColor(SK_ColorBLACK);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+    builder.pushStyle(text_style);
+    builder.addText(text);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(150);  // Force multi-line layout
+
+    std::vector<TextBox> boxes_tight = paragraph->getRectsForRange(
+            0, text_length, RectHeightStyle::kTight, RectWidthStyle::kTight);
+
+    std::vector<TextBox> boxes_exclude = paragraph->getRectsForRange(
+            0, text_length, RectHeightStyle::kTight, RectWidthStyle::kExcludeTrailingSpaces);
+
+    REPORTER_ASSERT(reporter, !boxes_tight.empty());
+    REPORTER_ASSERT(reporter, !boxes_exclude.empty());
+
+    // Calculate total width for both to verify exclusion works
+    SkScalar tight_total_width = 0;
+    SkScalar exclude_total_width = 0;
+
+    for (const auto& box : boxes_tight) {
+        tight_total_width += box.rect.width();
+    }
+
+    for (const auto& box : boxes_exclude) {
+        exclude_total_width += box.rect.width();
+    }
+
+    // Total width excluding trailing spaces should be less than tight width
+    REPORTER_ASSERT(reporter, exclude_total_width < tight_total_width);
+
+    canvas.drawRects(SK_ColorBLUE, boxes_tight);
+    canvas.drawRects(SK_ColorRED, boxes_exclude);
+}
+
+UNIX_ONLY_TEST(SkParagraph_ExcludeTrailingSpacesPartialRange, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+    TestCanvas canvas("SkParagraph_ExcludeTrailingSpacesPartialRange.png");
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kLtr);
+    paragraph_style.setTextAlign(TextAlign::kLeft);
+    paragraph_style.turnHintingOff();
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20.0f);
+    text_style.setColor(SK_ColorBLACK);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+    builder.pushStyle(text_style);
+    builder.addText("Hello World     More text");
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(300);
+
+    // Test range that includes trailing spaces but not the end of text
+    std::vector<TextBox> boxes_tight =
+            paragraph->getRectsForRange(0, 16, RectHeightStyle::kTight, RectWidthStyle::kTight);
+
+    std::vector<TextBox> boxes_exclude = paragraph->getRectsForRange(
+            0, 16, RectHeightStyle::kTight, RectWidthStyle::kExcludeTrailingSpaces);
+
+    REPORTER_ASSERT(reporter, !boxes_tight.empty());
+    REPORTER_ASSERT(reporter, !boxes_exclude.empty());
+
+    // When range includes trailing spaces at the end of the range,
+    // kExcludeTrailingSpaces should be narrower than kTight
+    SkScalar tight_width = 0;
+    SkScalar exclude_width = 0;
+
+    for (const auto& box : boxes_tight) {
+        tight_width += box.rect.width();
+    }
+
+    for (const auto& box : boxes_exclude) {
+        exclude_width += box.rect.width();
+    }
+
+    REPORTER_ASSERT(reporter, exclude_width < tight_width);
+    canvas.drawRects(SK_ColorBLUE, boxes_tight);
+    canvas.drawRects(SK_ColorRED, boxes_exclude);
+}
+
+UNIX_ONLY_TEST(SkParagraph_ExcludeTrailingSpacesEmptyRange, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const char* text = "Test     ";
+    const size_t text_length = strlen(text);
+    const size_t trimmed_length = 4;
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kLtr);
+    paragraph_style.turnHintingOff();
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20.0f);
+    text_style.setColor(SK_ColorBLACK);
+
+    ParagraphBuilderImpl builder(paragraph_style, fontCollection, get_unicode());
+    builder.pushStyle(text_style);
+    builder.addText(text);
+    builder.pop();
+
+    auto paragraph = builder.Build();
+    paragraph->layout(200);
+
+    // Test empty range
+    std::vector<TextBox> boxes_empty = paragraph->getRectsForRange(
+            0, 0, RectHeightStyle::kTight, RectWidthStyle::kExcludeTrailingSpaces);
+
+    REPORTER_ASSERT(reporter, boxes_empty.empty());
+
+    // Test range with only spaces
+    std::vector<TextBox> boxes_spaces =
+            paragraph->getRectsForRange(trimmed_length,
+                                        text_length,
+                                        RectHeightStyle::kTight,
+                                        RectWidthStyle::kExcludeTrailingSpaces);
+
+    if (!boxes_spaces.empty()) {
+        SkScalar total_width = 0;
+        for (const auto& box : boxes_spaces) {
+            total_width += box.rect.width();
+        }
+        REPORTER_ASSERT(reporter, SkScalarNearlyZero(total_width));
+    }
+}
+
+UNIX_ONLY_TEST(SkParagraph_ExcludeTrailingSpacesWidthValidation, reporter) {
+    sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
+    SKIP_IF_FONTS_NOT_FOUND(reporter, fontCollection)
+
+    const char* text = "Hello World     ";  // Text with trailing spaces
+    const size_t text_length = strlen(text);
+    TestCanvas canvas("SkParagraph_ExcludeTrailingSpacesWidthValidation.png");
+
+    ParagraphStyle paragraph_style;
+    paragraph_style.setTextDirection(TextDirection::kLtr);
+    paragraph_style.setTextAlign(TextAlign::kLeft);
+    paragraph_style.turnHintingOff();
+
+    TextStyle text_style;
+    text_style.setFontFamilies({SkString("Roboto")});
+    text_style.setFontSize(20.0f);
+    text_style.setColor(SK_ColorBLACK);
+
+    // Create paragraph with trailing spaces
+    ParagraphBuilderImpl builder_with_spaces(paragraph_style, fontCollection, get_unicode());
+    builder_with_spaces.pushStyle(text_style);
+    builder_with_spaces.addText(text, text_length);
+    builder_with_spaces.pop();
+    auto paragraph_with_spaces = builder_with_spaces.Build();
+    paragraph_with_spaces->layout(300);
+
+    // Get boxes for text with spaces using kTight
+    std::vector<TextBox> boxes_tight = paragraph_with_spaces->getRectsForRange(
+            0, text_length, RectHeightStyle::kTight, RectWidthStyle::kTight);
+
+    // Get boxes for text with spaces using kExcludeTrailingSpaces
+    std::vector<TextBox> boxes_exclude = paragraph_with_spaces->getRectsForRange(
+            0, text_length, RectHeightStyle::kTight, RectWidthStyle::kExcludeTrailingSpaces);
+
+    // Get boxes for text without trailing spaces
+    std::vector<TextBox> boxes_without_spaces = paragraph_with_spaces->getRectsForRange(
+            0, 11, RectHeightStyle::kTight, RectWidthStyle::kTight);
+
+    // Get boxes for only spaces
+    std::vector<TextBox> boxes_spaces_only = paragraph_with_spaces->getRectsForRange(
+            11, 16, RectHeightStyle::kTight, RectWidthStyle::kTight);
+
+    REPORTER_ASSERT(reporter, !boxes_tight.empty());
+    REPORTER_ASSERT(reporter, !boxes_exclude.empty());
+    REPORTER_ASSERT(reporter, !boxes_without_spaces.empty());
+    REPORTER_ASSERT(reporter, !boxes_spaces_only.empty());
+
+    // Calculate total widths
+    SkScalar tight_width = 0;
+    SkScalar exclude_width = 0;
+    SkScalar without_spaces_width = 0;
+    SkScalar spaces_only_width = 0;
+
+    for (const auto& box : boxes_tight) {
+        tight_width += box.rect.width();
+    }
+
+    for (const auto& box : boxes_exclude) {
+        exclude_width += box.rect.width();
+    }
+
+    for (const auto& box : boxes_without_spaces) {
+        without_spaces_width += box.rect.width();
+    }
+
+    for (const auto& box : boxes_spaces_only) {
+        spaces_only_width += box.rect.width();
+    }
+
+    // Calculate the difference between kTight and kExcludeTrailingSpaces
+    SkScalar width_difference = tight_width - exclude_width;
+
+    // The key assertion: the difference should equal the width of trailing spaces
+    REPORTER_ASSERT(reporter,
+                    SkScalarNearlyEqual(width_difference, spaces_only_width, EPSILON100),
+                    "Width difference (%.2f) should equal trailing spaces width (%.2f)",
+                    width_difference,
+                    spaces_only_width);
+
+    // Additional verification: kExcludeTrailingSpaces should equal text without spaces
+    REPORTER_ASSERT(
+            reporter,
+            SkScalarNearlyEqual(exclude_width, without_spaces_width, EPSILON100),
+            "Exclude trailing spaces width (%.2f) should equal text without spaces width (%.2f)",
+            exclude_width,
+            without_spaces_width);
+
+    // Visual validation
+    canvas.drawRects(SK_ColorBLUE, boxes_tight);   // Blue for kTight
+    canvas.drawRects(SK_ColorRED, boxes_exclude);  // Red for kExcludeTrailingSpaces
+}

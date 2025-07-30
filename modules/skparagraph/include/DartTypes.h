@@ -46,7 +46,11 @@ enum class RectWidthStyle {
 
     // Extends the width of the last rect of each line to match the position of
     // the widest rect over all the lines.
-    kMax
+    kMax,
+
+    // Provide tight bounding boxes that fit widths to the runs of each line
+    // independently, excluding trailing spaces of the line.
+    kExcludeTrailingSpaces,
 };
 
 enum class TextAlign {
