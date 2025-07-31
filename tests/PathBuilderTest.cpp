@@ -842,3 +842,62 @@ DEF_TEST(SkPathBuilder_path_roundtrip, reporter) {
                       .close()
                       .detach());
 }
+
+static void check_move(skiatest::Reporter* reporter, SkPathRaw::Iter* iter,
+                       SkScalar x0, SkScalar y0) {
+    auto rec = iter->next().value();
+    REPORTER_ASSERT(reporter, rec.vrb == SkPathVerb::kMove);
+    REPORTER_ASSERT(reporter, rec.pts[0].fX == x0);
+    REPORTER_ASSERT(reporter, rec.pts[0].fY == y0);
+}
+
+static void check_line(skiatest::Reporter* reporter, SkPathRaw::Iter* iter,
+                       SkScalar x1, SkScalar y1) {
+    auto rec = iter->next().value();
+    REPORTER_ASSERT(reporter, rec.vrb == SkPathVerb::kLine);
+    REPORTER_ASSERT(reporter, rec.pts[1].fX == x1);
+    REPORTER_ASSERT(reporter, rec.pts[1].fY == y1);
+}
+
+static void check_close(skiatest::Reporter* reporter, SkPathRaw::Iter* iter) {
+    auto rec = iter->next().value();
+    REPORTER_ASSERT(reporter, rec.vrb == SkPathVerb::kClose);
+}
+
+static void check_done(skiatest::Reporter* reporter, SkPathBuilder* p, SkPathRaw::Iter* iter) {
+    REPORTER_ASSERT(reporter, !iter->next().has_value());
+}
+
+static void check_done_and_reset(skiatest::Reporter* reporter, SkPathBuilder* p,
+                                 SkPathRaw::Iter* iter) {
+    check_done(reporter, p, iter);
+    p->reset();
+}
+
+DEF_TEST(SkPathBuilder_rMoveTo, reporter) {
+    SkPathBuilder p;
+    p.moveTo(10, 11);
+    p.lineTo(20, 21);
+    p.close();
+    p.rMoveTo({30, 31});
+    SkPathRaw::Iter iter = SkPathRaw::Iter(p.points(), p.verbs(), {} /* no conics */);
+    check_move(reporter, &iter, 10, 11);
+    check_line(reporter, &iter, 20, 21);
+    check_close(reporter, &iter);
+    check_move(reporter, &iter, 10 + 30, 11 + 31);
+    check_done_and_reset(reporter, &p, &iter);
+
+    p.moveTo(10, 11);
+    p.lineTo(20, 21);
+    p.rMoveTo({30, 31});
+    iter = SkPathRaw::Iter(p.points(), p.verbs(), {} /* no conics */);
+    check_move(reporter, &iter, 10, 11);
+    check_line(reporter, &iter, 20, 21);
+    check_move(reporter, &iter, 20 + 30, 21 + 31);
+    check_done_and_reset(reporter, &p, &iter);
+
+    p.rMoveTo({30, 31});
+    iter = SkPathRaw::Iter(p.points(), p.verbs(), {} /* no conics */);
+    check_move(reporter, &iter, 30, 31);
+    check_done_and_reset(reporter, &p, &iter);
+}
