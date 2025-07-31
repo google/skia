@@ -80,10 +80,9 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::Make(Recorder* recorder,
         return MakeRect(recorder, localToDevice, deviceSigma, srcRRect.rect());
     }
 
-    SkRRect devRRect;
-    const bool devRRectIsValid = srcRRect.transform(localToDevice, &devRRect);
-    if (devRRectIsValid && SkRRectPriv::IsCircle(devRRect)) {
-        return MakeCircle(recorder, localToDevice, deviceSigma, srcRRect.rect(), devRRect.rect());
+    const auto devRRect = srcRRect.transform(localToDevice);
+    if (devRRect.has_value() && SkRRectPriv::IsCircle(*devRRect)) {
+        return MakeCircle(recorder, localToDevice, deviceSigma, srcRRect.rect(), devRRect->rect());
     }
 
     // A local-space circle transformed by a rotation matrix will fail SkRRect::transform since it
@@ -99,9 +98,9 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::Make(Recorder* recorder,
         return MakeCircle(recorder, localToDevice, deviceSigma, srcRect, devRect);
     }
 
-    if (devRRectIsValid && SkRRectPriv::IsSimpleCircular(devRRect) &&
+    if (devRRect.has_value() && SkRRectPriv::IsSimpleCircular(*devRRect) &&
         localToDevice.isScaleTranslate()) {
-        return MakeRRect(recorder, localToDevice, deviceSigma, srcRRect, devRRect);
+        return MakeRRect(recorder, localToDevice, deviceSigma, srcRRect, *devRRect);
     }
 
     return std::nullopt;

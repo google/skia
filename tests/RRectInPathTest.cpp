@@ -206,10 +206,9 @@ static void test_empty_crbug_458524(skiatest::Reporter* reporter) {
             rr.setRectXY(bounds, rad, rad);
             path_contains_rrect_check(reporter, rr, dir, start);
 
-            SkRRect other;
             SkMatrix matrix;
             matrix.setScale(0, 1);
-            rr.transform(matrix, &other);
+            (void)rr.transform(matrix);
             path_contains_rrect_check(reporter, rr, dir, start);
         }
     }

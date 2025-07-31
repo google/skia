@@ -623,9 +623,8 @@ void ClipStack::RawElement::simplify(const SkIRect& deviceBounds, bool forceAA) 
         } else if (fShape.isRRect()) {
             // Can't transform in place and must still check transform result since some very
             // ill-formed scale+translate matrices can cause invalid rrect radii.
-            SkRRect src;
-            if (fShape.rrect().transform(fLocalToDevice, &src)) {
-                fShape.rrect() = src;
+            if (auto rr = fShape.rrect().transform(fLocalToDevice)) {
+                fShape.rrect() = *rr;
                 fLocalToDevice.setIdentity();
                 fDeviceToLocal.setIdentity();
 

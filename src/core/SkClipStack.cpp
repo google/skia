@@ -165,7 +165,8 @@ void SkClipStack::Element::initRect(int saveCount, const SkRect& rect, const SkM
 
 void SkClipStack::Element::initRRect(int saveCount, const SkRRect& rrect, const SkMatrix& m,
                                      SkClipOp op, bool doAA) {
-    if (rrect.transform(m, &fDeviceSpaceRRect)) {
+    if (auto rr = rrect.transform(m)) {
+        fDeviceSpaceRRect = *rr;
         SkRRect::Type type = fDeviceSpaceRRect.getType();
         if (SkRRect::kRect_Type == type || SkRRect::kEmpty_Type == type) {
             fDeviceSpaceType = DeviceSpaceType::kRect;

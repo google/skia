@@ -254,7 +254,9 @@ bool intersect_shape(const Transform& otherToDevice, const Shape& otherShape,
     } else {
         SkASSERT(otherShape.isRRect());
         if (localToOther) {
-            if (!otherShape.rrect().transform(localToOther->inverse().asM33(), &localOtherRRect)) {
+            if (auto rr = otherShape.rrect().transform(localToOther->inverse().asM33())) {
+                localOtherRRect = *rr;
+            } else {
                 // Transformation produced invalid geometry
                 return false;
             }
@@ -573,20 +575,19 @@ ClipStack::RawElement::RawElement(const Rect& deviceBounds,
         } else if (fShape.isRRect()) {
             // Can't transform in place and must still check transform result since some very
             // ill-formed scale+translate matrices can cause invalid rrect radii.
-            SkRRect xformed;
-            if (fShape.rrect().transform(fLocalToDevice, &xformed)) {
+            if (auto xformed = fShape.rrect().transform(fLocalToDevice)) {
                 if (snapping == PixelSnapping::kYes) {
                     // The rounded corners will still be anti-aliased, but snap the horizontal and
                     // vertical edges to pixel values.
-                    xformed.setRectRadii(SkRect::Make(xformed.rect().round()),
-                                         xformed.radii().data());
+                    xformed->setRectRadii(SkRect::Make(xformed->rect().round()),
+                                          xformed->radii().data());
                 }
-                fShape.setRRect(xformed);
+                fShape.setRRect(*xformed);
                 fLocalToDevice = Transform::Identity();
                 // Refresh outer bounds to match the transformed round rect in case
                 // SkRRect::transform produces slightly different results from Transform::mapRect.
                 fOuterBounds = fShape.bounds().makeIntersect(deviceBounds);
-                fInnerBounds = Rect{SkRRectPriv::InnerBounds(xformed)}.makeIntersect(fOuterBounds);
+                fInnerBounds = Rect{SkRRectPriv::InnerBounds(*xformed)}.makeIntersect(fOuterBounds);
             }
         }
     }

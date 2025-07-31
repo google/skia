@@ -154,12 +154,10 @@ inline GrPrimitiveType point_mode_to_primitive_type(SkCanvas::PointMode mode) {
 std::unique_ptr<GrFragmentProcessor> make_inverse_rrect_fp(const SkMatrix& viewMatrix,
                                                            const SkRRect& rrect, GrAA aa,
                                                            const GrShaderCaps& shaderCaps) {
-    SkTCopyOnFirstWrite<SkRRect> devRRect(rrect);
-    if (viewMatrix.isIdentity() || rrect.transform(viewMatrix, devRRect.writable())) {
+    if (auto rr = rrect.transform(viewMatrix)) {
         auto edgeType = (aa == GrAA::kYes) ? GrClipEdgeType::kInverseFillAA
                                            : GrClipEdgeType::kInverseFillBW;
-        auto [success, fp] = GrRRectEffect::Make(/*inputFP=*/nullptr, edgeType, *devRRect,
-                                                 shaderCaps);
+        auto [success, fp] = GrRRectEffect::Make(/*inputFP=*/nullptr, edgeType, *rr, shaderCaps);
         return (success) ? std::move(fp) : nullptr;
     }
     return nullptr;

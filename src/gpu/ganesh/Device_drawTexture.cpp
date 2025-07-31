@@ -728,10 +728,9 @@ bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float 
 
     std::unique_ptr<GrFragmentProcessor> fp;
 
-    SkRRect devRRect;
-    bool devRRectIsValid = rrect.transform(localToDevice, &devRRect);
+    auto devRRect = rrect.transform(localToDevice);
 
-    bool devRRectIsCircle = devRRectIsValid && SkRRectPriv::IsCircle(devRRect);
+    bool devRRectIsCircle = devRRect.has_value() && SkRRectPriv::IsCircle(*devRRect);
 
     bool canBeRect = rrect.isRect() && localToDevice.preservesRightAngles();
     bool canBeCircle = (SkRRectPriv::IsCircle(rrect) && localToDevice.isSimilarity()) ||
@@ -744,7 +743,7 @@ bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float 
         } else {
             SkRect devBounds;
             if (devRRectIsCircle) {
-                devBounds = devRRect.getBounds();
+                devBounds = devRRect->getBounds();
             } else {
                 SkPoint center = localToDevice.mapPoint(rrect.getBounds().center());
                 SkScalar radius = localToDevice.mapVector(0, rrect.width()/2.f).length();
@@ -783,7 +782,7 @@ bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float 
     if (!localToDevice.rectStaysRect()) {
         return false;
     }
-    if (!devRRectIsValid || !SkRRectPriv::AllCornersCircular(devRRect)) {
+    if (!devRRect.has_value() || !SkRRectPriv::AllCornersCircular(*devRRect)) {
         return false;
     }
 
@@ -793,7 +792,7 @@ bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float 
     }
     float localSigma = deviceToLocal->mapRadius(deviceSigma);
 
-    fp = GrBlurUtils::MakeRRectBlur(context, localSigma, deviceSigma, rrect, devRRect);
+    fp = GrBlurUtils::MakeRRectBlur(context, localSigma, deviceSigma, rrect, *devRRect);
     if (!fp) {
         return false;
     }

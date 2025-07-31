@@ -344,7 +344,9 @@ GrDrawOp::ClipResult FillRRectOpImpl::clipToShape(skgpu::ganesh::SurfaceDrawCont
             if (shape.isRect()) {
                 clipRRect.setRect(clipToView.mapRect(shape.rect()));
             } else {
-                if (!shape.rrect().transform(clipToView, &clipRRect)) {
+                if (auto rr = shape.rrect().transform(clipToView)) {
+                    clipRRect = *rr;
+                } else {
                     // Transforming the rrect failed. This shouldn't generally happen except in
                     // cases of fp32 overflow.
                     return ClipResult::kFail;

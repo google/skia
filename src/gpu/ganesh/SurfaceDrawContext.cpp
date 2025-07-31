@@ -1225,10 +1225,9 @@ bool SurfaceDrawContext::drawFastShadow(const GrClip* clip,
         }
 
         // Compute the transformed shadow rrect
-        SkRRect spotShadowRRect;
         SkMatrix shadowTransform;
         shadowTransform.setScaleTranslate(spotScale, spotScale, spotOffset.fX, spotOffset.fY);
-        rrect.transform(shadowTransform, &spotShadowRRect);
+        SkRRect spotShadowRRect = rrect.transform(shadowTransform).value_or(SkRRect());
         SkScalar spotRadius = spotShadowRRect.getSimpleRadii().fX;
 
         // Compute the insetWidth
