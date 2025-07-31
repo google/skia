@@ -5745,15 +5745,15 @@ DEF_TEST(path_last_move_to_index, r) {
 }
 
 static void test_edger(skiatest::Reporter* r,
-                       const std::initializer_list<SkPath::Verb>& in,
-                       const std::initializer_list<SkPath::Verb>& expected) {
+                       const std::initializer_list<SkPathVerb>& in,
+                       const std::initializer_list<SkPathVerb>& expected) {
     SkPath path;
     SkScalar x = 0, y = 0;
     for (auto v : in) {
         switch (v) {
-            case SkPath::kMove_Verb: path.moveTo(x++, y++); break;
-            case SkPath::kLine_Verb: path.lineTo(x++, y++); break;
-            case SkPath::kClose_Verb: path.close(); break;
+            case SkPathVerb::kMove: path.moveTo(x++, y++); break;
+            case SkPathVerb::kLine: path.lineTo(x++, y++); break;
+            case SkPathVerb::kClose: path.close(); break;
             default: SkASSERT(false);
         }
     }
@@ -5911,9 +5911,9 @@ static void test_addPath_and_injected_moveTo(skiatest::Reporter* reporter) {
 }
 
 DEF_TEST(pathedger, r) {
-    auto M = SkPath::kMove_Verb;
-    auto L = SkPath::kLine_Verb;
-    auto C = SkPath::kClose_Verb;
+    auto M = SkPathVerb::kMove;
+    auto L = SkPathVerb::kLine;
+    auto C = SkPathVerb::kClose;
 
     test_edger(r, { M }, {});
     test_edger(r, { M, M }, {});

@@ -110,8 +110,8 @@ static void test_undetected_paths(skiatest::Reporter* reporter) {
     // factory made corporate paths produced by SkPath.
     SkPath exactPath;
     exactPath.addCircle(0, 0, 10);
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == SkPathPriv::VerbData(exactPath)[0]);
-    REPORTER_ASSERT(reporter, SkPath::kConic_Verb == SkPathPriv::VerbData(exactPath)[1]);
+    REPORTER_ASSERT(reporter, SkPathVerb::kMove == SkPathPriv::VerbData(exactPath)[0]);
+    REPORTER_ASSERT(reporter, SkPathVerb::kConic == SkPathPriv::VerbData(exactPath)[1]);
     const SkScalar weight = SkPathPriv::ConicWeightData(exactPath)[0];
 
     SkPath path;

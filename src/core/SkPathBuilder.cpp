@@ -863,34 +863,31 @@ SkPathBuilder& SkPathBuilder::privateReversePathTo(const SkPath& path) {
         return *this;
     }
 
-    const uint8_t* verbs = path.fPathRef->verbsEnd();
-    const uint8_t* verbsBegin = path.fPathRef->verbsBegin();
+    const SkPathVerb* verbs = path.fPathRef->verbsEnd();
+    const SkPathVerb* verbsBegin = path.fPathRef->verbsBegin();
     const SkPoint*  pts = path.fPathRef->pointsEnd() - 1;
     const SkScalar* conicWeights = path.fPathRef->conicWeightsEnd();
 
     while (verbs > verbsBegin) {
-        uint8_t v = *--verbs;
+        SkPathVerb v = *--verbs;
         pts -= SkPathPriv::PtsInVerb(v);
         switch (v) {
-            case SkPath::Verb::kMove_Verb:
+            case SkPathVerb::kMove:
                 // if the path has multiple contours, stop after reversing the last
                 return *this;
-            case SkPath::Verb::kLine_Verb:
+            case SkPathVerb::kLine:
                 this->lineTo(pts[0]);
                 break;
-            case SkPath::Verb::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 this->quadTo(pts[1], pts[0]);
                 break;
-            case SkPath::Verb::kConic_Verb:
+            case SkPathVerb::kConic:
                 this->conicTo(pts[1], pts[0], *--conicWeights);
                 break;
-            case SkPath::Verb::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 this->cubicTo(pts[2], pts[1], pts[0]);
                 break;
-            case SkPath::Verb::kClose_Verb:
-                break;
-            default:
-                SkDEBUGFAIL("bad verb");
+            case SkPathVerb::kClose:
                 break;
         }
     }
@@ -898,15 +895,15 @@ SkPathBuilder& SkPathBuilder::privateReversePathTo(const SkPath& path) {
 }
 
 SkPathBuilder& SkPathBuilder::privateReverseAddPath(const SkPath& src) {
-    const uint8_t* verbsBegin = src.fPathRef->verbsBegin();
-    const uint8_t* verbs = src.fPathRef->verbsEnd();
+    const SkPathVerb* verbsBegin = src.fPathRef->verbsBegin();
+    const SkPathVerb* verbs = src.fPathRef->verbsEnd();
     const SkPoint* pts = src.fPathRef->pointsEnd();
     const SkScalar* conicWeights = src.fPathRef->conicWeightsEnd();
 
     bool needMove = true;
     bool needClose = false;
     while (verbs > verbsBegin) {
-        uint8_t v = *--verbs;
+        SkPathVerb v = *--verbs;
         int n = SkPathPriv::PtsInVerb(v);
 
         if (needMove) {
@@ -939,8 +936,6 @@ SkPathBuilder& SkPathBuilder::privateReverseAddPath(const SkPath& src) {
             case SkPathVerb::kClose:
                 needClose = true;
                 break;
-            default:
-                SkDEBUGFAIL("unexpected verb");
         }
     }
     return *this;

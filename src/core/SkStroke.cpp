@@ -453,30 +453,28 @@ void SkPathStroker::line_to(const SkPoint& currPt, const SkVector& normal) {
 
 static bool has_valid_tangent(const SkPath::Iter* iter) {
     SkPath::Iter copy = *iter;
-    SkPath::Verb verb;
-    SkPoint pts[4];
-    while ((verb = copy.next(pts))) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
+    while (auto rec = copy.next()) {
+        SkSpan<const SkPoint> pts = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
                 return false;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 if (pts[0] == pts[1]) {
                     continue;
                 }
                 return true;
-            case SkPath::kQuad_Verb:
-            case SkPath::kConic_Verb:
+            case SkPathVerb::kQuad:
+            case SkPathVerb::kConic:
                 if (pts[0] == pts[1] && pts[0] == pts[2]) {
                     continue;
                 }
                 return true;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 if (pts[0] == pts[1] && pts[0] == pts[2] && pts[0] == pts[3]) {
                     continue;
                 }
                 return true;
-            case SkPath::kClose_Verb:
-            case SkPath::kDone_Verb:
+            case SkPathVerb::kClose:
                 return false;
         }
     }
@@ -1461,32 +1459,32 @@ void SkStroke::strokePath(const SkPath& src, SkPathBuilder* dst) const {
 
     SkPathStroker   stroker(src, radius, fMiterLimit, this->getCap(), this->getJoin(),
                             fResScale, ignoreCenter);
-    SkPath::Iter    iter(src, false);
-    SkPath::Verb    lastSegment = SkPath::kMove_Verb;
 
-    for (;;) {
-        SkPoint  pts[4];
-        switch (iter.next(pts)) {
-            case SkPath::kMove_Verb:
+    SkPath::Iter iter(src, false);
+    SkPathVerb   lastSegment = SkPathVerb::kMove;
+    while (auto rec = iter.next()) {
+        SkSpan<const SkPoint> pts = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
                 stroker.moveTo(pts[0]);
                 break;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 stroker.lineTo(pts[1], &iter);
-                lastSegment = SkPath::kLine_Verb;
+                lastSegment = SkPathVerb::kLine;
                 break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 stroker.quadTo(pts[1], pts[2]);
-                lastSegment = SkPath::kQuad_Verb;
+                lastSegment = SkPathVerb::kQuad;
                 break;
-            case SkPath::kConic_Verb: {
-                stroker.conicTo(pts[1], pts[2], iter.conicWeight());
-                lastSegment = SkPath::kConic_Verb;
+            case SkPathVerb::kConic: {
+                stroker.conicTo(pts[1], pts[2], rec->fConicWeight);
+                lastSegment = SkPathVerb::kConic;
             } break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 stroker.cubicTo(pts[1], pts[2], pts[3]);
-                lastSegment = SkPath::kCubic_Verb;
+                lastSegment = SkPathVerb::kCubic;
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 if (SkPaint::kButt_Cap != this->getCap()) {
                     /* If the stroke consists of a moveTo followed by a close, treat it
                        as if it were followed by a zero-length line. Lines without length
@@ -1500,18 +1498,15 @@ void SkStroke::strokePath(const SkPath& src, SkPathBuilder* dst) const {
                        zero-length line. Lines without length can have square & round end caps. */
                     if (stroker.isCurrentContourEmpty()) {
                 ZERO_LENGTH:
-                        lastSegment = SkPath::kLine_Verb;
+                        lastSegment = SkPathVerb::kLine;
                         break;
                     }
                 }
-                stroker.close(lastSegment == SkPath::kLine_Verb);
+                stroker.close(lastSegment == SkPathVerb::kLine);
                 break;
-            case SkPath::kDone_Verb:
-                goto DONE;
         }
     }
-DONE:
-    stroker.done(dst, lastSegment == SkPath::kLine_Verb);
+    stroker.done(dst, lastSegment == SkPathVerb::kLine);
 
     if (fDoFill && !ignoreCenter) {
         if (SkPathPriv::ComputeFirstDirection(src) == SkPathFirstDirection::kCCW) {

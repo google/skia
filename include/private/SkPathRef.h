@@ -278,12 +278,12 @@ public:
     /**
      * Returns a pointer one beyond the first logical verb (last verb in memory order).
      */
-    const uint8_t* verbsBegin() const { return (const uint8_t*)fVerbs.begin(); }
+    const SkPathVerb* verbsBegin() const { return fVerbs.begin(); }
 
     /**
      * Returns a const pointer to the first verb in memory (which is the last logical verb).
      */
-    const uint8_t* verbsEnd() const { return (const uint8_t*)fVerbs.end(); }
+    const SkPathVerb* verbsEnd() const { return fVerbs.end(); }
 
     SkSpan<const SkPathVerb> verbs() const { return fVerbs; }
 

@@ -561,8 +561,8 @@ private:
         for (SkScalar dist = 0; dist <= total; dist += delta) {
             ++ribs;
         }
-        const uint8_t* verbs = SkPathPriv::VerbData(path);
-        if (path.countVerbs() < 2 || SkPath::kMove_Verb != verbs[0]) {
+        const SkPathVerb* verbs = SkPathPriv::VerbData(path);
+        if (path.countVerbs() < 2 || SkPathVerb::kMove != verbs[0]) {
             SkASSERT(0);
             return;
         }
