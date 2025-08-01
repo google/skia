@@ -455,7 +455,13 @@ public:
      *  If the matrix does not preserve axis-alignment (e.g. rotates, skews, etc.)
      *  then this returns {}.
      */
-    std::optional<SkRRect> transform(const SkMatrix&) const;
+    std::optional<SkRRect> transform(const SkMatrix& matrix) const {
+        SkRRect rr;
+        if (this->transform(matrix, &rr)) {
+            return rr;
+        }
+        return {};
+    }
 
     // Deprecated: use optional form
     bool transform(const SkMatrix& matrix, SkRRect* dst) const;
