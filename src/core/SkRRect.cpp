@@ -16,6 +16,8 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkBuffer.h"
+#include "src/core/SkPathPriv.h"
+#include "src/core/SkPathRawShapes.h"
 #include "src/core/SkRRectPriv.h"
 #include "src/core/SkRectPriv.h"
 #include "src/core/SkScaleToSides.h"
@@ -24,6 +26,11 @@
 #include <algorithm>
 #include <cstring>
 #include <iterator>
+
+// TODO: when this flag is present in clients, remove these 3 lines
+#ifndef SK_SUPPORT_LEGACY_RRECT_TRANSFORM
+    #define SK_SUPPORT_LEGACY_RRECT_TRANSFORM
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -433,7 +440,35 @@ void SkRRect::computeType() {
     }
 }
 
+std::optional<SkRRect> SkRRect::transform(const SkMatrix& matrix) const {
+    if (matrix.isIdentity()) {
+        return *this;
+    }
+
+    if (!matrix.preservesAxisAlignment()) {
+        return {};
+    }
+
+    const SkRect newRect = matrix.mapRect(fRect);
+    if (!newRect.isFinite()) {
+        return {};
+    }
+
+    switch (this->getType()) {
+        case kEmpty_Type: return MakeEmpty();
+        case kRect_Type:  return MakeRect(newRect);
+        case kOval_Type:  return MakeOval(newRect);
+        default:
+            break;
+    }
+
+    SkPathRawShapes::RRect raw(*this);
+    matrix.mapPoints(raw.fStorage);
+    return SkPathPriv::DeduceRRectFromContour(newRect, raw.fPoints, raw.fVerbs);
+}
+
 bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
+#ifdef SK_SUPPORT_LEGACY_RRECT_TRANSFORM
     if (nullptr == dst) {
         return false;
     }
@@ -562,6 +597,15 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
 
     SkASSERT(dst->isValid());
     return true;
+#else
+    if (auto rr = this->transform(matrix)) {
+        if (dst) {
+            *dst = *rr;
+        }
+        return true;
+    }
+    return false;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
