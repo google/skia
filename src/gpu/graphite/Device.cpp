@@ -489,7 +489,7 @@ sk_sp<Device> Device::Make(Recorder* recorder,
 // TODO: These could be exposed as context options or surface options, and we may want to have
 // different strategies in place for a base device vs. a layer's device.
 static constexpr int kGridCellSize = 16;
-static constexpr int kMaxBruteForceN = 512;
+static constexpr int kMaxBruteForceN = 64;
 static constexpr int kMaxGridSize = 32;
 
 Device::Device(Recorder* recorder, sk_sp<DrawContext> dc)
