@@ -105,6 +105,14 @@ public:
         return IsClosedSingleContour(path.fPathRef->verbs());
     }
 
+    /*
+     *  If we're transforming a known shape (oval or rrect), this computes what happens to its
+     *  - winding direction
+     *  - start index
+     */
+    static std::pair<SkPathDirection, unsigned>
+    TransformDirAndStart(const SkMatrix&, bool isRRect, SkPathDirection dir, unsigned start);
+
     // In some scenarios (e.g. fill or convexity checking all but the last leading move to are
     // irrelevant to behavior). SkPath::injectMoveToIfNeeded should ensure that this is always at
     // least 1.

@@ -972,12 +972,15 @@ void SkPathBuilder::setLastPt(SkScalar x, SkScalar y) {
 }
 
 SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix, SkApplyPerspectiveClip pc) {
-    if (matrix.isIdentity()) {
+    if (matrix.isIdentity() || this->isEmpty()) {
         return *this;
     }
 
     if (matrix.hasPerspective()) {
         SkPath src = this->detach();
+
+        // remember this from before the detach()
+        this->setFillType(src.getFillType());
 
         // Apply perspective clip if needed.
         if (pc == SkApplyPerspectiveClip::kYes) {
@@ -987,8 +990,6 @@ SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix, SkApplyPerspecti
             }
         }
 
-        // Convert to a format more amenable to perspective.
-        *this = SkPathBuilder(fFillType);
         for (auto [verb, pts, wt] : SkPathPriv::Iterate(src)) {
             switch (verb) {
                 case SkPathVerb::kMove:
@@ -999,12 +1000,10 @@ SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix, SkApplyPerspecti
                     break;
                 case SkPathVerb::kQuad:
                     // promote the quad to a conic
-                    this->conicTo(pts[1], pts[2],
-                                  SkConic::TransformW(pts, SK_Scalar1, matrix));
+                    this->conicTo(pts[1], pts[2], SkConic::TransformW(pts, SK_Scalar1, matrix));
                     break;
                 case SkPathVerb::kConic:
-                    this->conicTo(pts[1], pts[2],
-                                  SkConic::TransformW(pts, wt[0], matrix));
+                    this->conicTo(pts[1], pts[2], SkConic::TransformW(pts, wt[0], matrix));
                     break;
                 case SkPathVerb::kCubic:
                     subdivide_cubic_to(this, pts);
@@ -1014,24 +1013,29 @@ SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix, SkApplyPerspecti
                     break;
             }
         }
-    }
+    } else {
 
+        // Can we maintain our special case shape?
+        if (!matrix.rectStaysRect() || !SkPathPriv::IsAxisAligned(fPts)) {
+            fIsA = IsA::kIsA_MoreThanMoves;
+            // lose convexity (just to be numerically safe)
+            if (fConvexity == SkPathConvexity::kConvex) {
+                fConvexity = SkPathConvexity::kUnknown;
+            }
+        }
+
+        // If we're still a special case, check if we need to reverse our winding
+        if (fIsA == IsA::kIsA_Oval || fIsA == IsA::kIsA_RRect) {
+            auto [dir, start] = SkPathPriv::TransformDirAndStart(matrix, fIsA == IsA::kIsA_RRect,
+                                                                 fIsACCW ? SkPathDirection::kCCW
+                                                                         : SkPathDirection::kCW,
+                                                                 fIsAStart);
+            fIsACCW = (dir == SkPathDirection::kCCW);
+            fIsAStart = start;
+        }
+
+    }
     matrix.mapPoints(fPts);
-
-    const bool isScaleTrans = matrix.isScaleTranslate();
-
-    // this logic is lifted from SkPath::transform()
-    if (fConvexity == SkPathConvexity::kConvex &&
-        (!isScaleTrans || !SkPathPriv::IsAxisAligned(this->points()))) {
-        // Not safe to still assume we're convex...
-        fConvexity = SkPathConvexity::kUnknown;
-    }
-
-    if (!isScaleTrans && (fIsA == kIsA_Oval || fIsA == kIsA_RRect)) {
-        fIsA = kIsA_MoreThanMoves;
-    }
-
-    // TODO: handle bounds, and direction when added.
 
     return *this;
 }
