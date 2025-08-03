@@ -3607,8 +3607,8 @@ static SkPath clip(const SkPath& path, const SkHalfPlane& plane) {
         return SkPath();
     }
 
-    SkPath rotated;
-    path.transform(*inv, &rotated);
+    SkPathBuilder rotated(path);
+    rotated.transform(*inv);
     if (!rotated.isFinite()) {
         return SkPath();
     }

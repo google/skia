@@ -924,6 +924,9 @@ public:
     SkSpan<const SkPathVerb> verbs() const {
         return fVerbs;
     }
+    SkSpan<const float> conicWeights() const {
+        return fConicWeights;
+    }
 
     SkPathBuilder& addRaw(const SkPathRaw&);
 

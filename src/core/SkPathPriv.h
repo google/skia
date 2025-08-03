@@ -436,6 +436,18 @@ public:
             SkTo<uint8_t>(path.getSegmentMasks()),
         };
     }
+
+    static SkPathRaw Raw(const SkPathBuilder& builder) {
+        return {
+            builder.points(),
+            builder.verbs(),
+            builder.conicWeights(),
+            builder.computeBounds(),
+            builder.fillType(),
+            builder.fConvexity == SkPathConvexity::kConvex,
+            SkTo<uint8_t>(builder.fSegmentMask),
+        };
+    }
 };
 
 // Lightweight variant of SkPath::Iter that only returns segments (e.g. lines/conics).
