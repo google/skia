@@ -547,10 +547,8 @@ void GrTriangulator::generateCubicPoints(const SkPoint& p0, const SkPoint& p1, c
 void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
                                     VertexList* contours, bool* isLinear) const {
     SkScalar toleranceSqd = tolerance * tolerance;
-    SkPoint pts[4];
     *isLinear = true;
     VertexList* contour = contours;
-    SkPath::Iter iter(fPath, false);
     if (fPath.isInverseFillType()) {
         const std::array<SkPoint, 4> quad = clipBounds.toQuad();
         for (int i = 3; i >= 0; i--) {
@@ -559,55 +557,55 @@ void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
         contour++;
     }
     SkAutoConicToQuads converter;
-    SkPath::Verb verb;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kConic_Verb: {
+    SkPath::Iter iter(fPath, false);
+    while (auto rec = iter.next()) {
+        SkSpan<const SkPoint> pts = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kConic: {
                 *isLinear = false;
                 if (toleranceSqd == 0) {
                     this->appendPointToContour(pts[2], contour);
                     break;
                 }
                 SkScalar weight = iter.conicWeight();
-                const SkPoint* quadPts = converter.computeQuads(pts, weight, toleranceSqd);
+                const SkPoint* quadPts = converter.computeQuads(pts.data(), weight, toleranceSqd);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     this->appendQuadraticToContour(quadPts, toleranceSqd, contour);
                     quadPts += 2;
                 }
                 break;
             }
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 if (contour->fHead) {
                     contour++;
                 }
                 this->appendPointToContour(pts[0], contour);
                 break;
-            case SkPath::kLine_Verb: {
+            case SkPathVerb::kLine: {
                 this->appendPointToContour(pts[1], contour);
                 break;
             }
-            case SkPath::kQuad_Verb: {
+            case SkPathVerb::kQuad: {
                 *isLinear = false;
                 if (toleranceSqd == 0) {
                     this->appendPointToContour(pts[2], contour);
                     break;
                 }
-                this->appendQuadraticToContour(pts, toleranceSqd, contour);
+                this->appendQuadraticToContour(pts.data(), toleranceSqd, contour);
                 break;
             }
-            case SkPath::kCubic_Verb: {
+            case SkPathVerb::kCubic: {
                 *isLinear = false;
                 if (toleranceSqd == 0) {
                     this->appendPointToContour(pts[3], contour);
                     break;
                 }
-                int pointsLeft = GrPathUtils::cubicPointCount(pts, tolerance);
+                int pointsLeft = GrPathUtils::cubicPointCount(pts.data(), tolerance);
                 this->generateCubicPoints(pts[0], pts[1], pts[2], pts[3], toleranceSqd, contour,
                                           pointsLeft);
                 break;
             }
-            case SkPath::kClose_Verb:
-            case SkPath::kDone_Verb:
+            case SkPathVerb::kClose:
                 break;
         }
     }
@@ -1777,23 +1775,21 @@ static int get_contour_count(const SkPath& path, SkScalar tolerance) {
     bool hasPoints = false;
 
     SkPath::Iter iter(path, false);
-    SkPath::Verb verb;
-    SkPoint pts[4];
     bool first = true;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
+    while (auto rec = iter.next()) {
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
                 if (!first) {
                     ++contourCnt;
                 }
                 [[fallthrough]];
-            case SkPath::kLine_Verb:
-            case SkPath::kConic_Verb:
-            case SkPath::kQuad_Verb:
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kLine:
+            case SkPathVerb::kConic:
+            case SkPathVerb::kQuad:
+            case SkPathVerb::kCubic:
                 hasPoints = true;
                 break;
-            default:
+            case SkPathVerb::kClose:
                 break;
         }
         first = false;

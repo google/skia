@@ -56,8 +56,6 @@ GrFPResult GrConvexPolyEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP
     }
 
     SkScalar        edges[3 * kMaxEdges];
-    SkPoint         pts[4];
-    SkPath::Verb    verb;
     SkPath::Iter    iter(path, true);
 
     // SkPath considers itself convex so long as there is a convex contour within it,
@@ -65,12 +63,13 @@ GrFPResult GrConvexPolyEffect::Make(std::unique_ptr<GrFragmentProcessor> inputFP
     // Iterate here to consume any degenerate contours and only process the points
     // on the actual convex contour.
     int n = 0;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
-            case SkPath::kClose_Verb:
+    while (auto rec = iter.next()) {
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
+            case SkPathVerb::kClose:
                 break;
-            case SkPath::kLine_Verb: {
+            case SkPathVerb::kLine: {
+                SkSpan<const SkPoint> pts = rec->fPoints;
                 if (n >= kMaxEdges) {
                     return GrFPFailure(std::move(inputFP));
                 }

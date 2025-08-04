@@ -150,9 +150,10 @@ private:
     using INHERITED = Sk1DPathEffect;
 };
 
-static bool morphpoints(SkPoint dst[], const SkPoint src[], int count,
+static bool morphpoints(SkSpan<SkPoint> dst, SkSpan<const SkPoint> src,
                         SkPathMeasure& meas, SkScalar dist) {
-    for (int i = 0; i < count; i++) {
+    SkASSERT(dst.size() >= src.size());
+    for (size_t i = 0; i < src.size(); i++) {
         SkPoint pos;
         SkVector tangent;
 
@@ -184,41 +185,40 @@ but that seems like a cop-out. Another answer is to get Rob Johnson to figure it
 static void morphpath(SkPathBuilder* dst, const SkPath& src, SkPathMeasure& meas,
                       SkScalar dist) {
     SkPath::Iter    iter(src, false);
-    SkPoint         srcP[4], dstP[3];
-    SkPath::Verb    verb;
+    SkPoint         dstP[3], scratch[3];
 
-    while ((verb = iter.next(srcP)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                if (morphpoints(dstP, srcP, 1, meas, dist)) {
+    while (auto rec = iter.next()) {
+        SkSpan<const SkPoint> srcP = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
+                if (morphpoints(dstP, srcP, meas, dist)) {
                     dst->moveTo(dstP[0]);
                 }
                 break;
-            case SkPath::kLine_Verb:
-                srcP[2] = srcP[1];
-                srcP[1].set(SkScalarAve(srcP[0].fX, srcP[2].fX),
-                            SkScalarAve(srcP[0].fY, srcP[2].fY));
+            case SkPathVerb::kLine:
+                scratch[0] = srcP[0];
+                scratch[1].set(SkScalarAve(srcP[0].fX, srcP[1].fX),
+                               SkScalarAve(srcP[0].fY, srcP[1].fY));
+                scratch[2] = srcP[1];
+                srcP = scratch; // now we look like a quad
                 [[fallthrough]];
-            case SkPath::kQuad_Verb:
-                if (morphpoints(dstP, &srcP[1], 2, meas, dist)) {
+            case SkPathVerb::kQuad:
+                if (morphpoints(dstP, srcP.subspan(1), meas, dist)) {
                     dst->quadTo(dstP[0], dstP[1]);
                 }
                 break;
-            case SkPath::kConic_Verb:
-                if (morphpoints(dstP, &srcP[1], 2, meas, dist)) {
+            case SkPathVerb::kConic:
+                if (morphpoints(dstP, srcP.subspan(1), meas, dist)) {
                     dst->conicTo(dstP[0], dstP[1], iter.conicWeight());
                 }
                 break;
-            case SkPath::kCubic_Verb:
-                if (morphpoints(dstP, &srcP[1], 3, meas, dist)) {
+            case SkPathVerb::kCubic:
+                if (morphpoints(dstP, srcP.subspan(1), meas, dist)) {
                     dst->cubicTo(dstP[0], dstP[1], dstP[2]);
                 }
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 dst->close();
-                break;
-            default:
-                SkDEBUGFAIL("unknown verb");
                 break;
         }
     }
