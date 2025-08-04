@@ -7,11 +7,15 @@
 
 #include "src/base/SkTime.h"
 
-#include <chrono>
-#include <ratio>
-
 #if !defined(__has_feature)
     #define  __has_feature(x) 0
+#endif
+
+#if __has_feature(memory_sanitizer)
+#include <time.h>
+#else
+#include <chrono>
+#include <ratio>
 #endif
 
 double SkTime::GetNSecs() {
