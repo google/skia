@@ -251,6 +251,7 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw,
 
 void TessellateStrokesRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                                            PipelineDataGatherer* gatherer) const {
+    SkDEBUGCODE(gatherer->checkRewind());
     // TODO: Implement perspective
     SkASSERT(params.transform().type() < Transform::Type::kPerspective);
 

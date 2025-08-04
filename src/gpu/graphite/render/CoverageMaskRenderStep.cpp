@@ -212,6 +212,7 @@ void CoverageMaskRenderStep::writeVertices(DrawWriter* dw,
 
 void CoverageMaskRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                                       PipelineDataGatherer* gatherer) const {
+    SkDEBUGCODE(gatherer->checkRewind());
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     const CoverageMaskShape& coverageMask = params.geometry().coverageMaskShape();

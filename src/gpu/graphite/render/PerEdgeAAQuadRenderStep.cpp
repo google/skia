@@ -21,6 +21,7 @@
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/geom/EdgeAAQuad.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/geom/Rect.h"
@@ -295,8 +296,9 @@ void PerEdgeAAQuadRenderStep::writeVertices(DrawWriter* writer,
 }
 
 void PerEdgeAAQuadRenderStep::writeUniformsAndTextures(const DrawParams&,
-                                                       PipelineDataGatherer*) const {
+                                                       PipelineDataGatherer* gatherer) const {
     // All data is uploaded as instance attributes, so no uniforms are needed.
+    SkDEBUGCODE(gatherer->checkRewind());
 }
 
 }  // namespace skgpu::graphite

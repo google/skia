@@ -86,6 +86,7 @@ void AnalyticBlurRenderStep::writeVertices(DrawWriter* writer,
 
 void AnalyticBlurRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                                       PipelineDataGatherer* gatherer) const {
+    SkDEBUGCODE(gatherer->checkRewind());
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     gatherer->write(params.transform().matrix());

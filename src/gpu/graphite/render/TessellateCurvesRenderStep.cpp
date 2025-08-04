@@ -170,6 +170,7 @@ void TessellateCurvesRenderStep::writeVertices(DrawWriter* dw,
 
 void TessellateCurvesRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                                           PipelineDataGatherer* gatherer) const {
+    SkDEBUGCODE(gatherer->checkRewind());
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     gatherer->write(params.transform().matrix());
