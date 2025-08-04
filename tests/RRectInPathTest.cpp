@@ -93,7 +93,7 @@ static void path_contains_rrect_check(skiatest::Reporter* reporter, const SkRect
 class ForceIsRRect_Private {
 public:
     ForceIsRRect_Private(SkPath* path, SkPathDirection dir, unsigned start) {
-        path->fPathRef->setIsRRect(dir == SkPathDirection::kCCW, start);
+        path->fPathRef->setIsRRect(dir, start);
         path->setConvexity(SkPathConvexity::kConvex);
     }
 };

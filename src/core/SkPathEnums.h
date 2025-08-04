@@ -10,6 +10,8 @@
 #ifndef SkPathEnums_DEFINED
 #define SkPathEnums_DEFINED
 
+#include "include/core/SkPathTypes.h"
+
 enum class SkPathConvexity {
     kConvex,
     kConcave,
@@ -21,5 +23,10 @@ enum class SkPathFirstDirection {
     kCCW,        // == SkPathDirection::kCCW
     kUnknown,
 };
+
+static inline SkPathFirstDirection SkPathDirectionToFirst(SkPathDirection dir) {
+    return dir == SkPathDirection::kCW ? SkPathFirstDirection::kCW
+                                       : SkPathFirstDirection::kCCW;
+}
 
 #endif

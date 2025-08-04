@@ -110,9 +110,9 @@ SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
     fLastMovePoint = fPts.empty() ? SkPoint{0, 0} : fPts[fLastMoveIndex];
     fNeedsMoveVerb = src.fLastMoveToIndex < 0;
 
-    fIsA      = is_a(ref);
-    fIsAStart = ref->fRRectOrOvalStartIdx;
-    fIsACCW   = ref->fRRectOrOvalIsCCW;
+    fIsA            = is_a(ref);
+    fIsAStart       = ref->fRRectOrOvalStartIdx;
+    fIsADirection   = ref->fRRectOrOvalDirection;
 
     fConvexity = src.getConvexityOrUnknown();
 
@@ -283,13 +283,13 @@ SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
 
     switch (fIsA) {
         case kIsA_Oval:
-            pr->setIsOval(fIsACCW, fIsAStart);
-            dir = fIsACCW ? SkPathFirstDirection::kCCW : SkPathFirstDirection::kCW;
+            pr->setIsOval(fIsADirection, fIsAStart);
+            dir = SkPathDirectionToFirst(fIsADirection);
             SkASSERT(fConvexity == SkPathConvexity::kConvex);
             break;
         case kIsA_RRect:
-            pr->setIsRRect(fIsACCW, fIsAStart);
-            dir = fIsACCW ? SkPathFirstDirection::kCCW : SkPathFirstDirection::kCW;
+            pr->setIsRRect(fIsADirection, fIsAStart);
+            dir = SkPathDirectionToFirst(fIsADirection);
             SkASSERT(fConvexity == SkPathConvexity::kConvex);
             break;
         default: break;
@@ -714,10 +714,10 @@ SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, u
     this->addRaw(SkPathRawShapes::Oval(oval, dir, index));
 
     if (prevIsA == kIsA_JustMoves) {
-        fIsA      = kIsA_Oval;
-        fIsACCW   = (dir == SkPathDirection::kCCW);
-        fIsAStart = index % 4;
-        fConvexity = SkPathConvexity::kConvex;
+        fIsA          = kIsA_Oval;
+        fIsADirection = dir;
+        fIsAStart     = index % 4;
+        fConvexity    = SkPathConvexity::kConvex;
     }
 
     return *this;
@@ -739,10 +739,10 @@ SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir
     }
 
     if (prevIsA == kIsA_JustMoves) {
-        fIsA      = kIsA_RRect;
-        fIsACCW   = (dir == SkPathDirection::kCCW);
-        fIsAStart = index % 8;
-        fConvexity = SkPathConvexity::kConvex;
+        fIsA          = kIsA_RRect;
+        fIsADirection = dir;
+        fIsAStart     = index % 8;
+        fConvexity    = SkPathConvexity::kConvex;
     }
     return *this;
 }
@@ -1027,10 +1027,9 @@ SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix, SkApplyPerspecti
         // If we're still a special case, check if we need to reverse our winding
         if (fIsA == IsA::kIsA_Oval || fIsA == IsA::kIsA_RRect) {
             auto [dir, start] = SkPathPriv::TransformDirAndStart(matrix, fIsA == IsA::kIsA_RRect,
-                                                                 fIsACCW ? SkPathDirection::kCCW
-                                                                         : SkPathDirection::kCW,
+                                                                 fIsADirection,
                                                                  fIsAStart);
-            fIsACCW = (dir == SkPathDirection::kCCW);
+            fIsADirection = dir;
             fIsAStart = start;
         }
 

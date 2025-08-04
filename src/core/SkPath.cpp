@@ -1019,7 +1019,7 @@ SkPath& SkPath::addRRect(const SkRRect &rrect, SkPathDirection dir, unsigned sta
 
         if (isRRect) {
             SkPathRef::Editor ed(&fPathRef);
-            ed.setIsRRect(dir == SkPathDirection::kCCW, startIndex % 8);
+            ed.setIsRRect(dir, startIndex % 8);
         }
     }
 
@@ -1085,7 +1085,7 @@ SkPath& SkPath::addOval(const SkRect &oval, SkPathDirection dir, unsigned startP
 
     if (isOval) {
         SkPathRef::Editor ed(&fPathRef);
-        ed.setIsOval(SkPathDirection::kCCW == dir, startPointIndex % 4);
+        ed.setIsOval(dir, startPointIndex % 4);
     }
     return *this;
 }

@@ -88,7 +88,7 @@ public:
         fSegmentMask = segmentMask;
         fType = PathType::kGeneral;
         // The next two values don't matter unless fType is kOval or kRRect
-        fRRectOrOvalIsCCW = false;
+        fRRectOrOvalDirection = SkPathDirection::kCW;
         fRRectOrOvalStartIdx = 0xAC;
         fArcOval.setEmpty();
         fArcStartAngle = fArcSweepAngle = 0.0f;
@@ -167,12 +167,12 @@ public:
          */
         SkPathRef* pathRef() { return fPathRef; }
 
-        void setIsOval(bool isCCW, unsigned start) {
-            fPathRef->setIsOval(isCCW, start);
+        void setIsOval(SkPathDirection dir, unsigned start) {
+            fPathRef->setIsOval(dir, start);
         }
 
-        void setIsRRect(bool isCCW, unsigned start) {
-            fPathRef->setIsRRect(isCCW, start);
+        void setIsRRect(SkPathDirection dir, unsigned start) {
+            fPathRef->setIsRRect(dir, start);
         }
 
         void setIsArc(const SkArc& arc) {
@@ -218,7 +218,7 @@ public:
         if (fType == PathType::kOval) {
             return {{
                 this->getBounds(),
-                fRRectOrOvalIsCCW ? SkPathDirection::kCCW : SkPathDirection::kCW,
+                fRRectOrOvalDirection,
                 fRRectOrOvalStartIdx,
             }};
         }
@@ -352,7 +352,7 @@ private:
         fSegmentMask = 0;
         fType = PathType::kGeneral;
         // The next two values don't matter unless fType is kOval or kRRect
-        fRRectOrOvalIsCCW = false;
+        fRRectOrOvalDirection = SkPathDirection::kCW;
         fRRectOrOvalStartIdx = 0xAC;
         fArcOval.setEmpty();
         fArcStartAngle = fArcSweepAngle = 0.0f;
@@ -477,15 +477,15 @@ private:
      */
     friend SkPathRef* sk_create_empty_pathref();
 
-    void setIsOval(bool isCCW, unsigned start) {
+    void setIsOval(SkPathDirection dir, unsigned start) {
         fType = PathType::kOval;
-        fRRectOrOvalIsCCW = isCCW;
+        fRRectOrOvalDirection = dir;
         fRRectOrOvalStartIdx = SkToU8(start);
     }
 
-    void setIsRRect(bool isCCW, unsigned start) {
+    void setIsRRect(SkPathDirection dir, unsigned start) {
         fType = PathType::kRRect;
-        fRRectOrOvalIsCCW = isCCW;
+        fRRectOrOvalDirection = dir;
         fRRectOrOvalStartIdx = SkToU8(start);
     }
 
@@ -539,10 +539,10 @@ private:
     // We should just store an SkArc, but alignment would cost us 8 more bytes.
     SkArc::Type fArcType;
 
-    mutable bool     fIsFinite;    // only meaningful if bounds are valid
+    mutable bool    fIsFinite;    // only meaningful if bounds are valid
     // Both the circle and rrect special cases have a notion of direction and starting point
     // The next two variables store that information for either.
-    bool     fRRectOrOvalIsCCW;
+    SkPathDirection fRRectOrOvalDirection;
 
     friend class PathRefTest_Private;
     friend class ForceIsRRect_Private; // unit test isRRect
