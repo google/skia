@@ -6654,12 +6654,22 @@ LOWP_STAGE_GP(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx)
     __m128 val2 = __lsx_vfmadd_s((__m128)v_tmp2, _23, (__m128)v_tmp1);
     __m128 val3 = __lsx_vfmadd_s((__m128)v_tmp2, _45, (__m128)v_tmp1);
     __m128 val4 = __lsx_vfmadd_s((__m128)v_tmp2, _67, (__m128)v_tmp1);
-    I32 qx = cast<I32>((join<F>(__lsx_vfrintrm_s(val1), __lsx_vfrintrm_s(val2)))) - 32768,
-    qy = cast<I32>((join<F>(__lsx_vfrintrm_s(val3), __lsx_vfrintrm_s(val4)))) - 32768;
+    F fx = join<F>(__lsx_vfrintrm_s(val1), __lsx_vfrintrm_s(val2)),
+      fy = join<F>(__lsx_vfrintrm_s(val3), __lsx_vfrintrm_s(val4));
 #else
-    I32 qx = cast<I32>(floor_(65536.0f * x + 0.5f)) - 32768,
-        qy = cast<I32>(floor_(65536.0f * y + 0.5f)) - 32768;
+    F fx = floor_(65536.0f * x + 0.5f),
+      fy = floor_(65536.0f * y + 0.5f);
 #endif
+    // Explicitly clamp values before cast. kInt32Min adjusted for shift to get
+    // quantized sample value.
+    static constexpr float kInt32Max = static_cast<float>(std::numeric_limits<int32_t>::max()),
+    kInt32Min = static_cast<float>(std::numeric_limits<int32_t>::min()) + 32768.0f;
+
+    fx = max(min(fx, kInt32Max), kInt32Min);
+    fy = max(min(fy, kInt32Max), kInt32Min);
+
+    I32 qx = cast<I32>(fx) - 32768,
+        qy = cast<I32>(fy) - 32768;
 
     // Calculate screen coordinates sx & sy by flooring qx and qy.
     I32 sx = qx >> 16,
