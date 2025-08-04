@@ -2889,9 +2889,9 @@ static void test_transform(skiatest::Reporter* reporter) {
         SkPath p1;
         p1.moveTo(SkPoint::Make(0, 0));
 
-        p.transform(matrix, &p1, SkApplyPerspectiveClip::kNo);
+        p.transform(matrix, &p1);
         REPORTER_ASSERT(reporter, matrix.invert(&matrix));
-        p1.transform(matrix, nullptr, SkApplyPerspectiveClip::kNo);
+        p1.transform(matrix, nullptr);
         SkRect pBounds = p.getBounds();
         SkRect p1Bounds = p1.getBounds();
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fLeft, p1Bounds.fLeft));

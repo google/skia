@@ -1135,7 +1135,7 @@ void SkMatrix::mapRectScaleTranslate(SkRect* dst, const SkRect& src) const {
     sort_as_rect(skvx::float4::Load(&src.fLeft) * scale + trans).store(&dst->fLeft);
 }
 
-bool SkMatrix::mapRect(SkRect* dst, const SkRect& src, SkApplyPerspectiveClip pc) const {
+bool SkMatrix::mapRect(SkRect* dst, const SkRect& src) const {
     SkASSERT(dst);
 
     if (this->getType() <= kTranslate_Mask) {
@@ -1148,7 +1148,7 @@ bool SkMatrix::mapRect(SkRect* dst, const SkRect& src, SkApplyPerspectiveClip pc
     if (this->isScaleTranslate()) {
         this->mapRectScaleTranslate(dst, src);
         return true;
-    } else if (pc == SkApplyPerspectiveClip::kYes && this->hasPerspective()) {
+    } else if (this->hasPerspective()) {
         SkPathBuilder builder;
         builder.addRect(src);
         builder.transform(*this);

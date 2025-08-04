@@ -600,16 +600,27 @@ public:
         @param pc      whether to apply perspective clipping
         @return        SkPath
     */
-    SkPath makeTransform(const SkMatrix& m,
-                         SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const {
+    SkPath makeTransform(const SkMatrix& matrix) const {
         SkPath dst;
-        this->transform(m, &dst, pc);
+        this->transform(matrix, &dst);
         return dst;
     }
 
     SkPath makeScale(SkScalar sx, SkScalar sy) const {
-        return this->makeTransform(SkMatrix::Scale(sx, sy), SkApplyPerspectiveClip::kNo);
+        return this->makeTransform(SkMatrix::Scale(sx, sy));
     }
+
+#ifdef SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
+    void transform(const SkMatrix& matrix, SkPath* dst, SkApplyPerspectiveClip) const {
+        this->transform(matrix, dst);
+    }
+    void transform(const SkMatrix& matrix, SkApplyPerspectiveClip) {
+        this->transform(matrix);
+    }
+    SkPath makeTransform(const SkMatrix& m, SkApplyPerspectiveClip) const {
+        return this->makeTransform(m);
+    }
+#endif
 
     /** Returns last point on SkPath in lastPt. Returns false if SkPoint array is empty,
         storing (0, 0) if lastPt is not nullptr.
@@ -1473,8 +1484,7 @@ private:
 
         example: https://fiddle.skia.org/c/@Path_transform
     */
-    void transform(const SkMatrix& matrix, SkPath* dst,
-                   SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const;
+    void transform(const SkMatrix& matrix, SkPath* dst) const;
 
     /** Transforms verb array, SkPoint array, and weight by matrix.
         transform may change verbs and increase their number.
@@ -1483,9 +1493,8 @@ private:
         @param matrix  SkMatrix to apply to SkPath
         @param pc      whether to apply perspective clipping
     */
-    SkPath& transform(const SkMatrix& matrix,
-                      SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) {
-        this->transform(matrix, this, pc);
+    SkPath& transform(const SkMatrix& matrix) {
+        this->transform(matrix, this);
         return *this;
     }
 

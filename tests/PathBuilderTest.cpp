@@ -713,9 +713,9 @@ DEF_TEST(SkPathBuilder_transform, reporter) {
 
         SkPathBuilder b1 = SkPathBuilder(b.snapshot())
             .moveTo(SkPoint::Make(0, 0))
-            .transform(matrix, SkApplyPerspectiveClip::kNo);
+            .transform(matrix);
         REPORTER_ASSERT(reporter, matrix.invert(&matrix));
-        b1.transform(matrix, SkApplyPerspectiveClip::kNo);
+        b1.transform(matrix);
         SkRect pBounds = b.snapshot().getBounds();
         SkRect p1Bounds = b1.detach().getBounds();
         REPORTER_ASSERT(reporter, SkScalarNearlyEqual(pBounds.fLeft, p1Bounds.fLeft));

@@ -855,8 +855,13 @@ public:
         @param matrix  SkMatrix to apply to SkPath
         @param pc      whether to apply perspective clipping
     */
-    SkPathBuilder& transform(const SkMatrix& matrix,
-                             SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes);
+    SkPathBuilder& transform(const SkMatrix& matrix);
+
+#ifdef SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
+    SkPathBuilder& transform(const SkMatrix& matrix, SkApplyPerspectiveClip) {
+        return this->transform(matrix);
+    }
+#endif
 
     /*
      *  Returns true if the builder is empty, or all of its points are finite.

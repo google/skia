@@ -1583,7 +1583,7 @@ static void subdivide_cubic_to(SkPath* path, const SkPoint pts[4],
     }
 }
 
-void SkPath::transform(const SkMatrix& matrix, SkPath* dst, SkApplyPerspectiveClip pc) const {
+void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
     if (matrix.isIdentity()) {
         if (dst != nullptr && dst != this) {
             *dst = *this;
@@ -1602,9 +1602,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst, SkApplyPerspectiveCl
 
         SkPath clipped;
         const SkPath* src = this;
-        if (pc == SkApplyPerspectiveClip::kYes &&
-            SkPathPriv::PerspectiveClip(*this, matrix, &clipped))
-        {
+        if (SkPathPriv::PerspectiveClip(*this, matrix, &clipped)) {
             src = &clipped;
         }
 

@@ -28,16 +28,16 @@ struct SkSize;
 // Remove when clients are updated to live without this
 #define SK_SUPPORT_LEGACY_MATRIX_RECTTORECT
 
-/**
- *  When we transform points through a matrix containing perspective (the bottom row is something
- *  other than 0,0,1), the bruteforce math can produce confusing results (since we might divide
- *  by 0, or a negative w value). By default, methods that map rects and paths will apply
- *  perspective clipping, but this can be changed by specifying kYes to those methods.
- */
+#ifndef SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
+    #define SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
+#endif
+
+#ifdef SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
 enum class SkApplyPerspectiveClip {
     kNo,    //!< Don't pre-clip the geometry before applying the (perspective) matrix
     kYes,   //!< Do pre-clip the geometry before applying the (perspective) matrix
 };
+#endif
 
 /** \class SkMatrix
     SkMatrix holds a 3x3 matrix for transforming coordinates. This allows mapping
@@ -1528,8 +1528,19 @@ public:
 
         example: https://fiddle.skia.org/c/@Matrix_mapRect
     */
-    bool mapRect(SkRect* dst, const SkRect& src,
-                 SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const;
+    bool mapRect(SkRect* dst, const SkRect& src) const;
+
+#ifdef SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
+    bool mapRect(SkRect* dst, const SkRect& src, SkApplyPerspectiveClip) const {
+        return this->mapRect(dst, src);
+    }
+    bool mapRect(SkRect* rect, SkApplyPerspectiveClip) const {
+        return this->mapRect(rect, *rect);
+    }
+    SkRect mapRect(const SkRect& src, SkApplyPerspectiveClip) const {
+        return this->mapRect(src);
+    }
+#endif
 
     /** Sets rect to bounds of rect corners mapped by SkMatrix.
         Returns true if mapped corners are computed rect corners.
@@ -1540,8 +1551,8 @@ public:
         @param pc    whether to apply perspective clipping
         @return      true if result is equivalent to mapped rect
     */
-    bool mapRect(SkRect* rect, SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const {
-        return this->mapRect(rect, *rect, pc);
+    bool mapRect(SkRect* rect) const {
+        return this->mapRect(rect, *rect);
     }
 
     /** Returns bounds of src corners mapped by SkMatrix.
@@ -1549,10 +1560,9 @@ public:
         @param src  rectangle to map
         @return     mapped bounds
     */
-    SkRect mapRect(const SkRect& src,
-                   SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const {
+    SkRect mapRect(const SkRect& src) const {
         SkRect dst;
-        (void)this->mapRect(&dst, src, pc);
+        (void)this->mapRect(&dst, src);
         return dst;
     }
 

@@ -335,7 +335,7 @@ DEF_TEST(M44_mapRect, reporter) {
 
         const SkPath path = SkPathBuilder()
             .addRect(src)
-            .transform(m.asM33(), SkApplyPerspectiveClip::kYes)
+            .transform(m.asM33())
             .detach();
         assertRectsNearlyEqual(actual, path.getBounds(), epsilon);
     };
