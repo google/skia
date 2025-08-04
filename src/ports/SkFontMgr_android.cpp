@@ -309,16 +309,22 @@ protected:
         return sset->matchStyle(style);
     }
 
+    enum class NameType { Self, Fallback };
     static sk_sp<SkTypeface_AndroidSystem> find_family_style_character(
             const SkString& familyName,
-            const TArray<NameToFamily, true>& fallbackNameToFamilyMap,
+            const TArray<NameToFamily, true>& nameToFamilyMap,
+            NameType nameType,
             const SkFontStyle& style, bool elegant,
             const SkString& langTag, SkUnichar character)
     {
-        for (int i = 0; i < fallbackNameToFamilyMap.size(); ++i) {
-            SkFontStyleSet_Android* family = fallbackNameToFamilyMap[i].styleSet;
-            if (familyName != family->fFallbackFor) {
-                continue;
+        for (auto&& nameToFamily : nameToFamilyMap) {
+            SkFontStyleSet_Android* family = nameToFamily.styleSet;
+            if (!familyName.isEmpty()) {
+                const SkString& name = nameType == NameType::Self ? nameToFamily.name
+                                                                  : family->fFallbackFor;
+                if (familyName != name) {
+                    continue;
+                }
             }
             sk_sp<SkTypeface_AndroidSystem> face(family->matchAStyle(style));
 
@@ -350,7 +356,7 @@ protected:
         // The variant 'default' means 'compact and elegant'.
         // As a result, it is not possible to know the variant context from the font alone.
         // TODO: add 'is_elegant' and 'is_compact' bits to 'style' request.
-
+        sk_sp<SkTypeface_AndroidSystem> matchingTypeface;
         SkString familyNameString(familyName);
         for (const SkString& currentFamilyName : { familyNameString, SkString() }) {
             // The first time match anything elegant, second time anything not elegant.
@@ -358,10 +364,17 @@ protected:
                 for (int bcp47Index = bcp47Count; bcp47Index --> 0;) {
                     SkLanguage lang(bcp47[bcp47Index]);
                     while (!lang.getTag().isEmpty()) {
-                        sk_sp<SkTypeface_AndroidSystem> matchingTypeface =
-                            find_family_style_character(currentFamilyName, fFallbackNameToFamilyMap,
-                                                        style, SkToBool(elegant),
-                                                        lang.getTag(), character);
+#ifndef SK_FONTMGR_ANDROID_IGNORE_FALLBACK_FIX
+                        matchingTypeface = find_family_style_character(
+                            currentFamilyName, fNameToFamilyMap, NameType::Self,
+                            style, SkToBool(elegant), lang.getTag(), character);
+                        if (matchingTypeface) {
+                            return matchingTypeface;
+                        }
+#endif
+                        matchingTypeface = find_family_style_character(
+                            currentFamilyName, fFallbackNameToFamilyMap, NameType::Fallback,
+                            style, SkToBool(elegant), lang.getTag(), character);
                         if (matchingTypeface) {
                             return matchingTypeface;
                         }
@@ -369,10 +382,17 @@ protected:
                         lang = lang.getParent();
                     }
                 }
-                sk_sp<SkTypeface_AndroidSystem> matchingTypeface =
-                    find_family_style_character(currentFamilyName, fFallbackNameToFamilyMap,
-                                                style, SkToBool(elegant),
-                                                SkString(), character);
+#ifndef SK_FONTMGR_ANDROID_IGNORE_FALLBACK_FIX
+                matchingTypeface = find_family_style_character(
+                    currentFamilyName, fNameToFamilyMap, NameType::Self,
+                    style, SkToBool(elegant), SkString(), character);
+                if (matchingTypeface) {
+                    return matchingTypeface;
+                }
+#endif
+                matchingTypeface = find_family_style_character(
+                    currentFamilyName, fFallbackNameToFamilyMap, NameType::Fallback,
+                    style, SkToBool(elegant), SkString(), character);
                 if (matchingTypeface) {
                     return matchingTypeface;
                 }
