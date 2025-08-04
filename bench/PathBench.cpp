@@ -519,6 +519,49 @@ private:
     using INHERITED = RandomPathBench;
 };
 
+class PathTransformPerspectiveBench : public Benchmark {
+public:
+    PathTransformPerspectiveBench(bool useBuilder) : fUseBuilder(useBuilder) {}
+
+protected:
+    const char* onGetName() override {
+        return fUseBuilder ? "transform_perspective_builder" : "transform_perspective_path";
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == Backend::kNonRendering;
+    }
+
+    void onDelayedSetup() override {
+        const SkRect r = {0, 0, 100, 100};
+        fBuilderSrc.addOval(r);
+        fBuilderSrc.addOval(r.makeInset(10, 10));
+        fPathSrc = fBuilderSrc.snapshot();
+
+        fMatrix[6] = 1;
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        if (fUseBuilder) {
+            for (int i = 0; i < loops; ++i) {
+                fBuilderSrc.transform(fMatrix);
+                (void)fBuilderSrc.snapshot();
+            }
+        } else {
+            for (int i = 0; i < loops; ++i) {
+                (void)fPathSrc.makeTransform(fMatrix);
+            }
+        }
+    }
+
+private:
+    SkPath          fPathSrc;
+    SkPathBuilder   fBuilderSrc;
+
+    SkMatrix fMatrix;
+    bool fUseBuilder;
+};
+
 class PathEqualityBench : public RandomPathBench {
 public:
     PathEqualityBench() { }
@@ -1207,6 +1250,9 @@ DEF_BENCH( return new PathCopyBench(); )
 DEF_BENCH( return new PathTransformBench(true); )
 DEF_BENCH( return new PathTransformBench(false); )
 DEF_BENCH( return new PathEqualityBench(); )
+
+DEF_BENCH( return new PathTransformPerspectiveBench(true); )
+DEF_BENCH( return new PathTransformPerspectiveBench(false); )
 
 DEF_BENCH( return new SkBench_AddPathTest(SkBench_AddPathTest::kAdd_AddType); )
 DEF_BENCH( return new SkBench_AddPathTest(SkBench_AddPathTest::kAddTrans_AddType); )
