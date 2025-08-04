@@ -440,3 +440,42 @@ DEF_BENCH(return new BlitMaskBench(SkCanvas::kPoints_PointMode,
 DEF_BENCH(return new BlitMaskBench(SkCanvas::kPoints_PointMode,
                                    BlitMaskBench::KMaskShader,
                                    "maskshader");)
+
+class RectBoundsBench : public Benchmark {
+    SkString             fName;
+    std::vector<SkPoint> fPoints;
+
+public:
+    RectBoundsBench(size_t count)
+        : fName(SkStringPrintf("rect_bounds_%zu", count))
+        , fPoints(count)
+    {}
+
+protected:
+
+    const char* onGetName() override {
+        return fName.c_str();
+    }
+
+    void onDelayedSetup() override {
+        SkRandom rand;
+        for (auto& p : fPoints) {
+            float x = rand.nextF();
+            float y = rand.nextF();
+            p = {x, y};
+        }
+    }
+
+    bool isSuitableFor(Backend backend) override {
+        return backend == Backend::kNonRendering;
+    }
+
+    void onDraw(int loops, SkCanvas*) override {
+        for (int i = 0; i < loops; ++i) {
+            (void)SkRect::Bounds(fPoints);
+        }
+    }
+};
+
+DEF_BENCH(return new RectBoundsBench(4);)
+DEF_BENCH(return new RectBoundsBench(400);)
