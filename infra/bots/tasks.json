@@ -88359,7 +88359,6 @@
         "src/codec/SkWuffs.*"
       ]
     },
-    "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_WebGPU": {},
     "Build-Win-Clang-x86-Debug": {},
     "Build-Win-Clang-x86_64-Release-Direct3D": {},
     "Build-Win-Clang-x86_64-Release-Vulkan": {},
@@ -88418,16 +88417,6 @@
     "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All": {},
     "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs": {},
     "Test-Ubuntu24.04-Clang-GCE-CPU-AVX2-x86_64-Debug-All-RustPNG": {},
-    "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
-      ]
-    },
-    "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
-      ]
-    },
     "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D": {},
     "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Dawn_D3D12": {
       "location_regexes": [
