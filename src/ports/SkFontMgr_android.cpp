@@ -364,14 +364,12 @@ protected:
                 for (int bcp47Index = bcp47Count; bcp47Index --> 0;) {
                     SkLanguage lang(bcp47[bcp47Index]);
                     while (!lang.getTag().isEmpty()) {
-#ifndef SK_FONTMGR_ANDROID_IGNORE_FALLBACK_FIX
                         matchingTypeface = find_family_style_character(
                             currentFamilyName, fNameToFamilyMap, NameType::Self,
                             style, SkToBool(elegant), lang.getTag(), character);
                         if (matchingTypeface) {
                             return matchingTypeface;
                         }
-#endif
                         matchingTypeface = find_family_style_character(
                             currentFamilyName, fFallbackNameToFamilyMap, NameType::Fallback,
                             style, SkToBool(elegant), lang.getTag(), character);
@@ -382,14 +380,12 @@ protected:
                         lang = lang.getParent();
                     }
                 }
-#ifndef SK_FONTMGR_ANDROID_IGNORE_FALLBACK_FIX
                 matchingTypeface = find_family_style_character(
                     currentFamilyName, fNameToFamilyMap, NameType::Self,
                     style, SkToBool(elegant), SkString(), character);
                 if (matchingTypeface) {
                     return matchingTypeface;
                 }
-#endif
                 matchingTypeface = find_family_style_character(
                     currentFamilyName, fFallbackNameToFamilyMap, NameType::Fallback,
                     style, SkToBool(elegant), SkString(), character);
