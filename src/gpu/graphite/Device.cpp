@@ -1667,6 +1667,14 @@ void Device::drawGeometry(const Transform& localToDevice,
         DisjointStencilIndex setIndex = fDisjointStencilSet->add(order.paintOrder(),
                                                                  clip.drawBounds());
         order.dependsOnStencil(setIndex);
+    } else if (!dependsOnDst && renderer->coverage() == Coverage::kNone && style.isFillStyle() &&
+               ((geometry.isEdgeAAQuad() && geometry.edgeAAQuad().isRect()) ||
+                (geometry.isShape() && geometry.shape().isRect()))) {
+        // Sort this draw front to back since it will not blend against what came before it.
+        // We could do this for all opaque/non-blending draws but that can hurt the performance of
+        // the std::sort in DrawPass::Make if it has to effectively reverse a large list. For now,
+        // limit it to filled rectangles (here and for the later non-AA inner fill).
+        order.reverseDepthAsStencil();
     }
 
     // TODO(b/330864257): This is an extra traversal of all paint effects, that can be avoided when
@@ -1702,6 +1710,10 @@ void Device::drawGeometry(const Transform& localToDevice,
                 SkASSERT(!dependsOnDst && renderer->useNonAAInnerFill());
                 DrawOrder orderWithoutCoverage{order.depth()};
                 orderWithoutCoverage.dependsOnPaintersOrder(clipOrder);
+                // The regular draw has analytic coverage, so isn't being sorted front to back, but
+                // we do want to sort the inner fill to maximize overdraw reduction
+                orderWithoutCoverage.reverseDepthAsStencil();
+
                 fDC->recordDraw(fRecorder->priv().rendererProvider()->nonAABounds(),
                                 localToDevice, Geometry(Shape(innerFillBounds)),
                                 clip, orderWithoutCoverage, &shading, nullptr);

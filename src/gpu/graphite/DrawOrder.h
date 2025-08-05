@@ -42,6 +42,8 @@ public:
     MonotonicValue next() const { return fIndex + 1; }
 
 private:
+    friend class DrawOrder; // For depth/stencil co-opting
+
     constexpr MonotonicValue(uint16_t index) : fIndex(index) {}
 
     uint16_t fIndex;
@@ -129,6 +131,14 @@ public:
     PaintersDepth           depth()        const { return fDepth;        }
 
     float depthAsFloat() const { return fDepth.bits() / (float) PaintersDepth::Last().bits(); }
+
+    // Coopt the stencil index to encode the draw's actual painter's depth in decreasing order,
+    // for use enforcing F2B order (since the compressed painter's order handles B2F).
+    DrawOrder& reverseDepthAsStencil() {
+        SkASSERT(fStencilIndex == kUnassigned); // can't have a real stencil index
+        fStencilIndex = DisjointStencilIndex::Last().bits() - fDepth.bits();
+        return *this;
+    }
 
     DrawOrder& dependsOnPaintersOrder(CompressedPaintersOrder prevDraw) {
         // A draw must be ordered after all previous draws that it depends on
