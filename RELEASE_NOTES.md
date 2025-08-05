@@ -2,6 +2,40 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 140
+-------------
+  * `Context::insertRecording` now returns an object that behaves like an enum or a true/false bool
+    to assist migrating from the old bool return type to something that provides more details as
+    to why the Recording couldn't be played back.
+
+    This shouldn't break any existing usage of `insertRecording` but migrating to check against
+    `InsertStatus::kSuccess` is recommended to avoid future breaking changes.
+  * `SkImage::isValid(GrRecordingContext*)` has been deprecated in favor of the `SkRecorder*` version.
+    To migrate do something like `image->isValid(ctx->asRecorder())`.
+
+    `SkImage::makeSubset(GrDirectContext*, ...)` has been deprecated in favor of the `SkRecorder*`
+    version. To migrate, do something like `image->makeSubset(ctx->asRecorder, ..., {})`
+
+    `SkImage::makeColorSpace(GrDirectContext*, ...)` has been deprecated in favor of the `SkRecorder*`
+    version. To migrate, do something like `image->makeColorSpace(ctx->asRecorder, ..., {})`
+
+    `SkImage::makeColorTypeAndColorSpace(GrDirectContext*, ...)` has been deprecated in favor of the
+    `SkRecorder*` version. To migrate, do something like
+    `image->makeColorTypeAndColorSpace(ctx->asRecorder, ..., {})`
+
+    In the case you are working with CPU-backed images, `skcpu::Recorder::TODO()` should work until
+    a `skcpu::Context` and `skcpu::Recorder` can be used properly.
+  * `skia_ports_fontmgr_android_sources` has been split with the new `skia_ports_fontmgr_android_parser_sources` containing the parser sources.
+    `skia_ports_fontmgr_android_ndk_sources` now depends on `skia_ports_fontmgr_android_parser_sources`.
+  * Virtuals in `SkTypeface` subclasses (5 of them) now take SkSpan instead of ptr/count. This
+    is part of the larger change where public APIs are being converted to take SkSpan where
+    applicable.
+
+    No real functionality change, but this new signature allows some of the methods to perform
+    range-checking, whereas before they could not.
+
+* * *
+
 Milestone 139
 -------------
   * A new `kAnalyticClip` value has been added to the `DrawTypeFlags` enum.
