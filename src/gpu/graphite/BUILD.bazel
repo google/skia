@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -157,14 +157,15 @@ split_srcs_and_hdrs(
     files = GRAPHITE_FILES,
 )
 
-PRECOMPILE_FILES = [
-    "PrecompileInternal.h",
-    "PublicPrecompile.cpp",
-]
-
-split_srcs_and_hdrs(
-    name = "precompile",
-    files = PRECOMPILE_FILES,
+skia_filegroup(
+    name = "precompile_srcs",
+    srcs = [
+        "PrecompileInternal.h",
+        "PublicPrecompile.cpp",
+    ],
+    visibility = [
+        "//src/gpu/graphite/precompile:__pkg__",
+    ],
 )
 
 skia_cc_library(
@@ -196,6 +197,7 @@ skia_cc_library(
     ],
     visibility = [
         "//src/gpu/graphite/mtl:__pkg__",
+        "//src/gpu/graphite/precompile:__pkg__",
         "//src/gpu/graphite/vk:__pkg__",
     ],
     deps = [
@@ -239,6 +241,7 @@ skia_cc_library(
     visibility = [
         "//dm:__pkg__",
         "//src/gpu/graphite/mtl:__pkg__",
+        "//src/gpu/graphite/precompile:__pkg__",
         "//src/gpu/graphite/vk:__pkg__",
         "//tools:__subpackages__",
     ],

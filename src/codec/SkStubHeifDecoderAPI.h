@@ -12,6 +12,7 @@
 // even when libheif is not available.  It, of course, does nothing and fails to decode.
 
 #include <memory>
+#include <vector>
 #include <stddef.h>
 #include <stdint.h>
 

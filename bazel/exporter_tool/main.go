@@ -267,7 +267,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{
 				"//src/gpu/graphite/precompile:_precompile_hdrs",
 				"//src/gpu/graphite/precompile:_precompile_srcs",
-				"//src/gpu/graphite:precompile_hdrs",
 				"//src/gpu/graphite:precompile_srcs",
 			}},
 	}},

@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,17 +6,24 @@ package(
 
 licenses(["notice"])
 
+PUBLIC_HEADERS = [
+    "GrBackendDrawableInfo.h",
+    "GrVkBackendSemaphore.h",
+    "GrVkBackendSurface.h",
+    "GrVkDirectContext.h",
+    "GrVkTypes.h",
+]
+
 skia_filegroup(
     name = "public_hdrs",
-    srcs = [
-        "GrBackendDrawableInfo.h",
-        "GrVkBackendSemaphore.h",
-        "GrVkBackendSurface.h",
-        "GrVkDirectContext.h",
-        "GrVkTypes.h",
-    ],
+    srcs = PUBLIC_HEADERS,
     visibility = [
         "//include/gpu/ganesh:__pkg__",
         "//src/gpu/ganesh/vk:__pkg__",
     ],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = PUBLIC_HEADERS,
 )

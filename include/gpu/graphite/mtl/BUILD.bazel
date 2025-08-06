@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,16 +6,23 @@ package(
 
 licenses(["notice"])
 
+PUBLIC_HEADERS = [
+    "MtlBackendContext.h",
+    "MtlGraphiteTypes.h",
+    "MtlGraphiteTypesUtils.h",
+    "MtlGraphiteTypes_cpp.h",
+    "MtlGraphiteUtils.h",
+]
+
 skia_filegroup(
     name = "public_hdrs",
-    srcs = [
-        "MtlBackendContext.h",
-        "MtlGraphiteTypes.h",
-        "MtlGraphiteTypesUtils.h",
-        "MtlGraphiteTypes_cpp.h",
-        "MtlGraphiteUtils.h",
-    ],
+    srcs = PUBLIC_HEADERS,
     visibility = [
         "//src/gpu/graphite/mtl:__pkg__",
     ],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = PUBLIC_HEADERS,
 )

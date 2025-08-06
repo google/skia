@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,23 +6,30 @@ package(
 
 licenses(["notice"])
 
+PUBLIC_HEADERS = [
+    "GrBackendSemaphore.h",
+    "GrBackendSurface.h",
+    "GrContextOptions.h",
+    "GrContextThreadSafeProxy.h",
+    "GrDirectContext.h",
+    "GrDriverBugWorkarounds.h",
+    "GrDriverBugWorkaroundsAutogen.h",
+    "GrExternalTextureGenerator.h",
+    "GrRecordingContext.h",
+    "GrTypes.h",
+    "GrYUVABackendTextures.h",
+    "SkImageGanesh.h",
+    "SkMeshGanesh.h",
+    "SkSurfaceGanesh.h",
+]
+
 skia_filegroup(
     name = "ganesh_hdrs",
-    srcs = [
-        "GrBackendSemaphore.h",
-        "GrBackendSurface.h",
-        "GrContextOptions.h",
-        "GrContextThreadSafeProxy.h",
-        "GrDirectContext.h",
-        "GrDriverBugWorkarounds.h",
-        "GrDriverBugWorkaroundsAutogen.h",
-        "GrExternalTextureGenerator.h",
-        "GrRecordingContext.h",
-        "GrTypes.h",
-        "GrYUVABackendTextures.h",
-        "SkImageGanesh.h",
-        "SkMeshGanesh.h",
-        "SkSurfaceGanesh.h",
-    ],
+    srcs = PUBLIC_HEADERS,
     visibility = ["//src/gpu/ganesh:__subpackages__"],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = PUBLIC_HEADERS,
 )

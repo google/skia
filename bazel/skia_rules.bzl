@@ -13,6 +13,12 @@ load("@rules_cc//cc:cc_test.bzl", "cc_test")
 load("@rules_cc//cc:objc_library.bzl", "objc_library")
 load("@skia_user_config//:copts.bzl", "DEFAULT_COPTS", "DEFAULT_OBJC_COPTS")
 load("@skia_user_config//:linkopts.bzl", "DEFAULT_LINKOPTS")
+load(
+    "//bazel:generate_cpp_files_for_headers.bzl",
+    _generate_cpp_files_for_headers = "generate_cpp_files_for_headers",
+)
+
+generate_cpp_files_for_headers = _generate_cpp_files_for_headers
 
 def select_multi(values_map, default_cases = None):
     """select() but allowing multiple matches of the keys.
