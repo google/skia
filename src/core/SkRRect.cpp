@@ -27,6 +27,11 @@
 #include <cstring>
 #include <iterator>
 
+// TODO: when this flag is present in clients, remove these 3 lines
+#ifndef SK_SUPPORT_LEGACY_RRECT_TRANSFORM
+    #define SK_SUPPORT_LEGACY_RRECT_TRANSFORM
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkRRect::setOval(const SkRect& oval) {
