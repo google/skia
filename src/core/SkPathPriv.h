@@ -300,10 +300,6 @@ public:
         return true;
     }
 
-    static bool AllPointsEq(const SkPoint pts[], int count) {
-        return AllPointsEq({pts, count});
-    }
-
     static int LastMoveToIndex(const SkPath& path) { return path.fLastMoveToIndex; }
 
     struct RectContour {
@@ -478,6 +474,7 @@ public:
         return SkPathVerb(e);
     }
 
+    // todo: return as optional? fPts become span?
     struct Result {
         const SkPoint*  fPts;   // points for the segment, or null if done
         Edge            fEdge;

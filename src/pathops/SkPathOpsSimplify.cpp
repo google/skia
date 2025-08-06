@@ -150,9 +150,6 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* writer) {
 static bool path_is_trivial(const SkPath& path) {
     SkPath::Iter iter(path, true);
 
-    SkPath::Verb verb;
-    SkPoint points[4];
-
     class Trivializer {
         SkPoint prevPt{0,0};
         SkVector prevVec{0,0};
@@ -177,24 +174,24 @@ static bool path_is_trivial(const SkPath& path) {
         }
     } triv;
 
-    while ((verb = iter.next(points)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
+    while (auto rec = iter.next()) {
+        SkSpan<const SkPoint> points = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
                 triv.moveTo(points[0]);
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 if (!triv.addTrivialContourPoint(points[3])) { return false; }
                 [[fallthrough]];
-            case SkPath::kConic_Verb:
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kConic:
+            case SkPathVerb::kQuad:
                 if (!triv.addTrivialContourPoint(points[2])) { return false; }
                 [[fallthrough]];
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 if (!triv.addTrivialContourPoint(points[1])) { return false; }
                 if (!triv.addTrivialContourPoint(points[0])) { return false; }
                 break;
-            case SkPath::kClose_Verb:
-            case SkPath::kDone_Verb:
+            case SkPathVerb::kClose:
                 break;
         }
     }

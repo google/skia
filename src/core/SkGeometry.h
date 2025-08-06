@@ -11,6 +11,7 @@
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkVx.h"
@@ -525,11 +526,14 @@ public:
         return pts;
     }
 
-    const SkPoint* computeQuads(const SkPoint pts[3], SkScalar weight,
-                                SkScalar tol) {
+    const SkPoint* computeQuads(SkSpan<const SkPoint> pts, SkScalar weight, SkScalar tol) {
         SkConic conic;
-        conic.set(pts, weight);
+        conic.set(pts.data(), weight);
         return computeQuads(conic, tol);
+    }
+
+    const SkPoint* computeQuads(const SkPoint pts[3], SkScalar weight, SkScalar tol) {
+        return this->computeQuads({pts, 3}, weight, tol);
     }
 
     int countQuads() const { return fQuadCount; }

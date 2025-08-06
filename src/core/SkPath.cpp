@@ -292,7 +292,7 @@ bool SkPath::conservativelyContainsRect(const SkRect& rect) const {
             int pointCount = SkPathPriv::PtsInVerb((unsigned) verb);
             SkASSERT(pointCount > 0);
 
-            if (!SkPathPriv::AllPointsEq(pts, pointCount + 1)) {
+            if (!SkPathPriv::AllPointsEq({pts, pointCount + 1})) {
                 SkASSERT(moveCnt);
                 int nextPt = pointCount;
                 segmentCount++;

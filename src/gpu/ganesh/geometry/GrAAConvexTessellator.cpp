@@ -422,22 +422,22 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     while (auto e = iter.next()) {
         switch (e.fEdge) {
             case SkPathEdgeIter::Edge::kLine:
-                if (!SkPathPriv::AllPointsEq(e.fPts, 2)) {
+                if (!SkPathPriv::AllPointsEq({e.fPts, 2})) {
                     this->lineTo(m, e.fPts[1], kSharp_CurveState);
                 }
                 break;
             case SkPathEdgeIter::Edge::kQuad:
-                if (!SkPathPriv::AllPointsEq(e.fPts, 3)) {
+                if (!SkPathPriv::AllPointsEq({e.fPts, 3})) {
                     this->quadTo(m, e.fPts);
                 }
                 break;
             case SkPathEdgeIter::Edge::kCubic:
-                if (!SkPathPriv::AllPointsEq(e.fPts, 4)) {
+                if (!SkPathPriv::AllPointsEq({e.fPts, 4})) {
                     this->cubicTo(m, e.fPts);
                 }
                 break;
             case SkPathEdgeIter::Edge::kConic:
-                if (!SkPathPriv::AllPointsEq(e.fPts, 3)) {
+                if (!SkPathPriv::AllPointsEq({e.fPts, 3})) {
                     this->conicTo(m, e.fPts, iter.conicWeight());
                 }
                 break;
