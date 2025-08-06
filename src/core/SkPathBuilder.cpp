@@ -77,7 +77,7 @@ SkPathBuilder& SkPathBuilder::reset() {
     fLastMoveIndex = -1;        // illegal
     fNeedsMoveVerb = true;
 
-    fType      = SkPathIsAType::kGeneral;
+    fIsA = kIsA_JustMoves;
     fConvexity = SkPathConvexity::kUnknown;
 
     return *this;
@@ -86,6 +86,19 @@ SkPathBuilder& SkPathBuilder::reset() {
 SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
     this->reset().setFillType(src.getFillType());
     this->setIsVolatile(src.isVolatile());
+
+    auto is_a = [](const sk_sp<SkPathRef>& p) -> IsA {
+        if (p->fVerbs.empty()) {
+            return IsA::kIsA_JustMoves;
+        }
+        switch (p->fType) {
+            case SkPathRef::PathType::kGeneral: return IsA::kIsA_MoreThanMoves;
+            case SkPathRef::PathType::kOval:    return IsA::kIsA_Oval;
+            case SkPathRef::PathType::kRRect:   return IsA::kIsA_RRect;
+            case SkPathRef::PathType::kArc:     return IsA::kIsA_MoreThanMoves;  // TODO: isArc
+        }
+        SkUNREACHABLE;
+    };
 
     const sk_sp<SkPathRef>& ref = src.fPathRef;
     fVerbs        = ref->fVerbs;
@@ -97,8 +110,9 @@ SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
     fLastMovePoint = fPts.empty() ? SkPoint{0, 0} : fPts[fLastMoveIndex];
     fNeedsMoveVerb = src.fLastMoveToIndex < 0;
 
-    fType = ref->fType;
-    fIsA  = ref->fIsA;
+    fIsA            = is_a(ref);
+    fIsAStart       = ref->fRRectOrOvalStartIdx;
+    fIsADirection   = ref->fRRectOrOvalDirection;
 
     fConvexity = src.getConvexityOrUnknown();
 
@@ -116,7 +130,7 @@ std::tuple<SkPoint*, SkScalar*> SkPathBuilder::growForVerbsInPath(const SkPathRe
     if (int numVerbs = path.countVerbs()) {
          // TODO(borenet): If the current builder is empty or JustMoves, we can use the type of the
          // path. If the path is empty, we can keep the current type.
-        fType = SkPathIsAType::kGeneral;
+        fIsA = SkPathBuilder::IsA::kIsA_MoreThanMoves;
         memcpy(fVerbs.push_back_n(numVerbs), path.fVerbs.begin(), numVerbs * sizeof(fVerbs[0]));
     }
 
@@ -155,7 +169,9 @@ SkPathBuilder& SkPathBuilder::moveTo(SkPoint pt) {
     fLastMovePoint = pt;
     fNeedsMoveVerb = false;
 
-    fType = SkPathIsAType::kGeneral;
+    if (fIsA == kIsA_Oval || fIsA == kIsA_RRect) {
+        fIsA = kIsA_MoreThanMoves;
+    }
     fConvexity = SkPathConvexity::kUnknown;
 
     return *this;
@@ -265,25 +281,16 @@ SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
 SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
     SkPathFirstDirection dir = SkPathFirstDirection::kUnknown;
 
-    switch (fType) {
-        case SkPathIsAType::kOval:
-            pr->setIsOval(fIsA.fRRectOrOval.fDirection, fIsA.fRRectOrOval.fStartIndex);
-            dir = SkPathDirectionToFirst(fIsA.fRRectOrOval.fDirection);
+    switch (fIsA) {
+        case kIsA_Oval:
+            pr->setIsOval(fIsADirection, fIsAStart);
+            dir = SkPathDirectionToFirst(fIsADirection);
             SkASSERT(fConvexity == SkPathConvexity::kConvex);
             break;
-        case SkPathIsAType::kRRect:
-            pr->setIsRRect(fIsA.fRRectOrOval.fDirection, fIsA.fRRectOrOval.fStartIndex);
-            dir = SkPathDirectionToFirst(fIsA.fRRectOrOval.fDirection);
+        case kIsA_RRect:
+            pr->setIsRRect(fIsADirection, fIsAStart);
+            dir = SkPathDirectionToFirst(fIsADirection);
             SkASSERT(fConvexity == SkPathConvexity::kConvex);
-            break;
-        case SkPathIsAType::kArc: [[fallthrough]];
-        case SkPathIsAType::kArcWedge:
-            pr->setIsArc(SkArc::Make(
-                fIsA.fArc.fArcOval,
-                fIsA.fArc.fStartAngle,
-                fIsA.fArc.fSweepAngle,
-                SkPathIsATypeToArcType(fType)
-            ));
             break;
         default: break;
     }
@@ -691,53 +698,51 @@ SkPathBuilder& SkPathBuilder::addRaw(const SkPathRaw& raw) {
 }
 
 SkPathBuilder& SkPathBuilder::addRect(const SkRect& rect, SkPathDirection dir, unsigned index) {
-    const bool wasEmpty = this->isEmpty();
+    const IsA prevIsA = fIsA;
 
     this->addRaw(SkPathRawShapes::Rect(rect, dir, index));
 
-    if (wasEmpty) {
-        // now we're a rect
+    if (prevIsA == kIsA_JustMoves) {
         fConvexity = SkPathConvexity::kConvex;
     }
     return *this;
 }
 
 SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, unsigned index) {
-    const bool wasEmpty = this->isEmpty();
+    const IsA prevIsA = fIsA;
 
     this->addRaw(SkPathRawShapes::Oval(oval, dir, index));
 
-    if (wasEmpty) {
-        fType                         = SkPathIsAType::kOval;
-        fIsA.fRRectOrOval.fDirection  = dir;
-        fIsA.fRRectOrOval.fStartIndex = index % 4;
-        fConvexity = SkPathConvexity::kConvex;
+    if (prevIsA == kIsA_JustMoves) {
+        fIsA          = kIsA_Oval;
+        fIsADirection = dir;
+        fIsAStart     = index % 4;
+        fConvexity    = SkPathConvexity::kConvex;
     }
 
     return *this;
 }
 
 SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir, unsigned index) {
+    const IsA prevIsA = fIsA;
+
     const SkRect& bounds = rrect.getBounds();
 
     if (rrect.isRect() || rrect.isEmpty()) {
         // degenerate(rect) => radii points are collapsing
-        return this->addRect(bounds, dir, (index + 1) / 2);
-    }
-    if (rrect.isOval()) {
+        this->addRect(bounds, dir, (index + 1) / 2);
+    } else if (rrect.isOval()) {
         // degenerate(oval) => line points are collapsing
-        return this->addOval(bounds, dir, index / 2);
+        this->addOval(bounds, dir, index / 2);
+    } else {
+        this->addRaw(SkPathRawShapes::RRect(rrect, dir, index));
     }
 
-    const bool wasEmpty = this->isEmpty();
-
-    this->addRaw(SkPathRawShapes::RRect(rrect, dir, index));
-
-    if (wasEmpty) {
-        fType                         = SkPathIsAType::kRRect;
-        fIsA.fRRectOrOval.fDirection  = dir;
-        fIsA.fRRectOrOval.fStartIndex = index % 8;
-        fConvexity = SkPathConvexity::kConvex;
+    if (prevIsA == kIsA_JustMoves) {
+        fIsA          = kIsA_RRect;
+        fIsADirection = dir;
+        fIsAStart     = index % 8;
+        fConvexity    = SkPathConvexity::kConvex;
     }
     return *this;
 }
@@ -1009,7 +1014,7 @@ SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix) {
 
         // Can we maintain our special case shape?
         if (!matrix.rectStaysRect() || !SkPathPriv::IsAxisAligned(fPts)) {
-            fType = SkPathIsAType::kGeneral;
+            fIsA = IsA::kIsA_MoreThanMoves;
             // lose convexity (just to be numerically safe)
             if (fConvexity == SkPathConvexity::kConvex) {
                 fConvexity = SkPathConvexity::kUnknown;
@@ -1017,13 +1022,12 @@ SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix) {
         }
 
         // If we're still a special case, check if we need to reverse our winding
-        if (fType == SkPathIsAType::kOval || fType == SkPathIsAType::kRRect) {
-            auto [dir, start] =
-            SkPathPriv::TransformDirAndStart(matrix, fType == SkPathIsAType::kRRect,
-                                             fIsA.fRRectOrOval.fDirection,
-                                             fIsA.fRRectOrOval.fStartIndex);
-            fIsA.fRRectOrOval.fDirection  = dir;
-            fIsA.fRRectOrOval.fStartIndex = start;
+        if (fIsA == IsA::kIsA_Oval || fIsA == IsA::kIsA_RRect) {
+            auto [dir, start] = SkPathPriv::TransformDirAndStart(matrix, fIsA == IsA::kIsA_RRect,
+                                                                 fIsADirection,
+                                                                 fIsAStart);
+            fIsADirection = dir;
+            fIsAStart = start;
         }
 
     }
