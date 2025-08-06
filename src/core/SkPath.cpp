@@ -931,7 +931,7 @@ static bool arc_is_lone_point(const SkRect& oval, SkScalar startAngle, SkScalar 
 // Return the unit vectors pointing at the start/stop points for the given start/sweep angles
 //
 static void angles_to_unit_vectors(SkScalar startAngle, SkScalar sweepAngle,
-                                   SkVector* startV, SkVector* stopV, SkRotationDirection* dir) {
+                                   SkVector* startV, SkVector* stopV, SkPathDirection* dir) {
     SkScalar startRad = SkDegreesToRadians(startAngle),
              stopRad  = SkDegreesToRadians(startAngle + sweepAngle);
 
@@ -961,7 +961,7 @@ static void angles_to_unit_vectors(SkScalar startAngle, SkScalar sweepAngle,
             } while (*startV == *stopV);
         }
     }
-    *dir = sweepAngle > 0 ? kCW_SkRotationDirection : kCCW_SkRotationDirection;
+    *dir = sweepAngle > 0 ? SkPathDirection::kCW : SkPathDirection::kCCW;
 }
 
 /**
@@ -969,7 +969,7 @@ static void angles_to_unit_vectors(SkScalar startAngle, SkScalar sweepAngle,
  *  ignore singlePt and append the specified number of conics.
  */
 static int build_arc_conics(const SkRect& oval, const SkVector& start, const SkVector& stop,
-                            SkRotationDirection dir, SkConic conics[SkConic::kMaxConicsForArc],
+                            SkPathDirection dir, SkConic conics[SkConic::kMaxConicsForArc],
                             SkPoint* singlePt) {
     SkMatrix    matrix;
 
@@ -1115,7 +1115,7 @@ SkPath& SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAng
     }
 
     SkVector startV, stopV;
-    SkRotationDirection dir;
+    SkPathDirection dir;
     angles_to_unit_vectors(startAngle, sweepAngle, &startV, &stopV, &dir);
 
     SkPoint singlePt;

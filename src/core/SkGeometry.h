@@ -8,6 +8,7 @@
 #ifndef SkGeometry_DEFINED
 #define SkGeometry_DEFINED
 
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
@@ -318,11 +319,6 @@ SkCubicType SkClassifyCubic(const SkPoint p[4], double t[2] = nullptr, double s[
 
 ///////////////////////////////////////////////////////////////////////////////
 
-enum SkRotationDirection {
-    kCW_SkRotationDirection,
-    kCCW_SkRotationDirection
-};
-
 struct SkConic {
     SkConic() {}
     SkConic(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2, SkScalar w) {
@@ -410,7 +406,7 @@ struct SkConic {
     enum {
         kMaxConicsForArc = 5
     };
-    static int BuildUnitArc(const SkVector& start, const SkVector& stop, SkRotationDirection,
+    static int BuildUnitArc(const SkVector& start, const SkVector& stop, SkPathDirection,
                             const SkMatrix*, SkConic conics[kMaxConicsForArc]);
 };
 

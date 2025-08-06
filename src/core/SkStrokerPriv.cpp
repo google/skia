@@ -110,16 +110,16 @@ static void RoundJoiner(SkPathBuilder* outer, SkPathBuilder* inner,
     if (angleType == kNearlyLine_AngleType)
         return;
 
-    SkVector            before = beforeUnitNormal;
-    SkVector            after = afterUnitNormal;
-    SkRotationDirection dir = kCW_SkRotationDirection;
+    SkVector before     = beforeUnitNormal;
+    SkVector after      = afterUnitNormal;
+    SkPathDirection dir = SkPathDirection::kCW;
 
     if (!is_clockwise(before, after)) {
         using std::swap;
         swap(outer, inner);
         before.negate();
         after.negate();
-        dir = kCCW_SkRotationDirection;
+        dir = SkPathDirection::kCCW;
     }
 
     SkMatrix    matrix;
