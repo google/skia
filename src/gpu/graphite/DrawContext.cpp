@@ -145,7 +145,11 @@ void DrawContext::recordDraw(const Renderer* renderer,
                              DrawOrder ordering,
                              const PaintParams* paint,
                              const StrokeStyle* stroke) {
-    SkASSERT(SkIRect::MakeSize(this->imageInfo().dimensions()).contains(clip.scissor()));
+    SkASSERTF(SkIRect::MakeSize(this->imageInfo().dimensions()).contains(clip.scissor()),
+              "Image %dx%d, scissor %d,%d,%d,%d",
+              this->imageInfo().width(), this->imageInfo().height(),
+              clip.scissor().left(), clip.scissor().top(),
+              clip.scissor().right(), clip.scissor().bottom());
     fPendingDraws->recordDraw(renderer, localToDevice, geometry, clip, ordering, paint, stroke);
 }
 
