@@ -333,7 +333,7 @@ public:
         }
         localized_string->fString =
                 SkString(localizedName.string.data(), localizedName.string.size());
-#ifdef SK_FONTATIONS_ADD_FONTATIONS_TO_NAMES
+#ifdef SK_FONTATIONS_ADD_FONTATIONS_TO_LOCALIZED_NAMES
         // TODO(b/307906051): Remove the suffix before shipping.
         localized_string->fString.append(" (Fontations)");
 #endif
