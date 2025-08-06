@@ -10,6 +10,7 @@
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -99,6 +100,31 @@ private:
     SkPath onRevalidateEffect(const sk_sp<GeometryNode>&, const SkMatrix&) override;
 
     const sk_sp<Transform> fTransform;
+
+    using INHERITED = GeometryEffect;
+};
+
+/**
+ * Overrides the child geometry fill type.
+ */
+class FillTypeOverride final : public GeometryEffect {
+public:
+    static sk_sp<FillTypeOverride> Make(sk_sp<GeometryNode> child, SkPathFillType ft) {
+        return child ? sk_sp<FillTypeOverride>(new FillTypeOverride(std::move(child), ft))
+                     : nullptr;
+    }
+
+    SG_ATTRIBUTE(FillType, SkPathFillType, fFillType)
+
+private:
+    FillTypeOverride(sk_sp<GeometryNode> child, SkPathFillType ft)
+        : INHERITED(std::move(child))
+        , fFillType(ft)
+    {}
+
+    SkPath onRevalidateEffect(const sk_sp<GeometryNode>&, const SkMatrix&) override;
+
+    SkPathFillType fFillType = SkPathFillType::kDefault;
 
     using INHERITED = GeometryEffect;
 };

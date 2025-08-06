@@ -13,6 +13,7 @@
 #include "include/core/SkPath.h"
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkStrokeRec.h"
@@ -22,6 +23,7 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
+#include "modules/sksg/include/SkSGGeometryNode.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
 #include "src/core/SkPathPriv.h"
 
@@ -101,6 +103,13 @@ SkPath GeometryTransform::onRevalidateEffect(const sk_sp<GeometryNode>& child, c
 
     SkPath path = child->asPath();
     path.transform(m);
+
+    return path;
+}
+
+SkPath FillTypeOverride::onRevalidateEffect(const sk_sp<GeometryNode>& child, const SkMatrix&) {
+    SkPath path = child->asPath();
+    path.setFillType(fFillType);
 
     return path;
 }
