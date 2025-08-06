@@ -63,6 +63,7 @@ bool MetalWindowContext_mac::onInitializeContext() {
     fMetalLayer.magnificationFilter = kCAFilterNearest;
     NSColorSpace* cs = fMainView.window.colorSpace;
     fMetalLayer.colorspace = cs.CGColorSpace;
+    fMetalLayer.framebufferOnly = false;
 
     fMainView.layer = fMetalLayer;
     fMainView.wantsLayer = YES;

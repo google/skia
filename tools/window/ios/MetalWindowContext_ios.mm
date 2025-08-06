@@ -70,6 +70,7 @@ bool MetalWindowContext_ios::onInitializeContext() {
     fMetalLayer = (CAMetalLayer*)fMetalView.layer;
     fMetalLayer.device = fDevice.get();
     fMetalLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    fMetalLayer.framebufferOnly = false;
     fMetalLayer.drawableSize = frameRect.size;
     fMetalLayer.frame = frameRect;
 
