@@ -10,6 +10,7 @@ if (skia_enable_skottie) {
     defines = [
       "SK_ENABLE_SKOTTIE",
       "SK_ENABLE_SKOTTIE_SKSLEFFECT",
+      "SK_ENABLE_SKOTTIE_FILLRULE",
     ]
     include_dirs = [ "include" ]
   }
