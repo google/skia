@@ -45,6 +45,10 @@
 #include <memory>
 #include <utility>
 
+namespace {
+[[maybe_unused]] static inline const constexpr bool kVerboseTypefaceTest = false;
+}
+
 static void TypefaceStyle_test(skiatest::Reporter* reporter,
                                uint16_t weight, uint16_t width, SkData* data)
 {
@@ -256,6 +260,34 @@ DEF_TEST(TypefacePostScriptName, reporter) {
     REPORTER_ASSERT(reporter, hasName == hasName2);
     if (hasName) {
         REPORTER_ASSERT(reporter, postScriptName == SkString("Em"));
+    }
+}
+
+DEF_TEST(TypefaceNameIter, reporter) {
+    sk_sp<SkTypeface> typeface(ToolUtils::CreateTypefaceFromResource("fonts/SpiderSymbol.ttf"));
+    if (!typeface) {
+        // Not all SkFontMgr can MakeFromStream().
+        return;
+    }
+
+    constexpr const char* expectedNames[] = { "SpiderSymbol", "Symbole de l'Araignée" };
+    std::vector<bool> found(std::size(expectedNames));
+    sk_sp<SkTypeface::LocalizedStrings> otherNames(typeface->createFamilyNameIterator());
+    SkTypeface::LocalizedString otherName;
+    while (otherNames->next(&otherName)) {
+        if constexpr (kVerboseTypefaceTest) {
+            SkDebugf("TypefaceNameIter %s, %s\n",
+                     otherName.fString.c_str(), otherName.fLanguage.c_str());
+        }
+        for (size_t i = 0; i < std::size(expectedNames); ++i) {
+            if (otherName.fString.equals(expectedNames[i])) {
+                found[i] = true;
+                break;
+            }
+        }
+    }
+    for (size_t i = 0; i < std::size(expectedNames); ++i) {
+        REPORTER_ASSERT(reporter, found[i], "Missing: %s", expectedNames[i]);
     }
 }
 
