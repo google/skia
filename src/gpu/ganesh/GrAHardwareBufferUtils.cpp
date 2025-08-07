@@ -17,15 +17,7 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #endif
 
-// TODO: remove this once Android is using the AHardwareBufferUtils version of
-// GetSkColorTypeFromBufferFormat
-#include "include/android/AHardwareBufferUtils.h"
-
 namespace GrAHardwareBufferUtils {
-
-SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat) {
-    return AHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferFormat);
-}
 
 #if !defined(SK_DISABLE_LEGACY_ANDROID_HW_UTILS)
 GrBackendFormat GetBackendFormat(GrDirectContext* dContext, AHardwareBuffer* hardwareBuffer,

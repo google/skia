@@ -22,10 +22,6 @@ extern "C" {
 
 namespace GrAHardwareBufferUtils {
 
-// TODO: remove this function once Android has been updated to call the AHardwareBufferUtils
-// version
-SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat);
-
 #if !defined(SK_DISABLE_LEGACY_ANDROID_HW_UTILS)
 GrBackendFormat GetBackendFormat(GrDirectContext* dContext, AHardwareBuffer* hardwareBuffer,
                                  uint32_t bufferFormat, bool requireKnownFormat);
