@@ -598,8 +598,10 @@ private:
         static constexpr SkRect kNormRect = {0, 0, 512, 512};
 
         fPaths = {
-            p0.transform(SkMatrix::MakeRectToRect(b0, kNormRect, SkMatrix::kCenter_ScaleToFit)),
-            p1.transform(SkMatrix::MakeRectToRect(b1, kNormRect, SkMatrix::kCenter_ScaleToFit)),
+            p0.transform(SkMatrix::RectToRectOrIdentity(b0, kNormRect,
+                                                        SkMatrix::kCenter_ScaleToFit)),
+            p1.transform(SkMatrix::RectToRectOrIdentity(b1, kNormRect,
+                                                        SkMatrix::kCenter_ScaleToFit)),
         };
 
 
@@ -610,7 +612,7 @@ private:
         const SkRect dst_rect = SkRect::MakeSize(fSize)
             .makeInset(fSize.width() * .05f, fSize.height() * .05f);
         fPathTransform =
-            SkMatrix::MakeRectToRect(kNormRect, dst_rect, SkMatrix::kCenter_ScaleToFit);
+            SkMatrix::RectToRectOrIdentity(kNormRect, dst_rect, SkMatrix::kCenter_ScaleToFit);
     }
 
     void drawControls() {

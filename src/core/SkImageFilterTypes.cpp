@@ -1543,7 +1543,7 @@ void draw_tiled_border(SkCanvas* canvas,
     // 8 draws should be batchable with the primary fill that had used `paint`.
     auto drawEdge = [&](const SkRect& src, const SkRect& dst) {
         canvas->save();
-        canvas->concat(SkMatrix::RectToRect(src, dst));
+        canvas->concat(SkMatrix::RectToRectOrIdentity(src, dst));
         canvas->drawRect(src, paint);
         canvas->restore();
     };
@@ -1946,7 +1946,7 @@ FilterResult FilterResult::MakeFromImage(const Context& ctx,
 
     SkRect imageBounds = SkRect::Make(image->dimensions());
     if (!imageBounds.contains(srcRect)) {
-        SkMatrix srcToDst = SkMatrix::RectToRect(srcRect, SkRect(dstRect));
+        SkMatrix srcToDst = SkMatrix::RectToRectOrIdentity(srcRect, SkRect(dstRect));
         if (!srcRect.intersect(imageBounds)) {
             return {}; // No overlap, so return an empty/transparent image
         }

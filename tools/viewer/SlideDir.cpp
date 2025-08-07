@@ -120,8 +120,8 @@ private:
 
 SkMatrix SlideMatrix(const sk_sp<Slide>& slide, const SkRect& dst) {
     const auto slideSize = slide->getDimensions();
-    return SkMatrix::RectToRect(SkRect::MakeIWH(slideSize.width(), slideSize.height()), dst,
-                                SkMatrix::kCenter_ScaleToFit);
+    return SkMatrix::RectToRectOrIdentity(SkRect::MakeIWH(slideSize.width(), slideSize.height()),
+                                          dst, SkMatrix::kCenter_ScaleToFit);
 }
 
 } // namespace
@@ -191,8 +191,8 @@ public:
         }
 
         // Map coords to slide space.
-        const auto xform = SkMatrix::RectToRect(fRect, SkRect::MakeSize(fDir->fWinSize),
-                                                SkMatrix::kCenter_ScaleToFit);
+        const auto xform = SkMatrix::RectToRectOrIdentity(fRect, SkRect::MakeSize(fDir->fWinSize),
+                                                          SkMatrix::kCenter_ScaleToFit);
         const auto pt = xform.mapPoint({x, y});
 
         return fTarget->fSlide->onMouse(pt.x(), pt.y(), state, modifiers);

@@ -1330,8 +1330,8 @@ Result SkottieSrc::draw(SkCanvas* canvas, GraphiteTestContext*) const {
             {
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->clipRect(dest, true);
-                canvas->concat(SkMatrix::RectToRect(SkRect::MakeSize(animation->size()), dest,
-                                                    SkMatrix::kCenter_ScaleToFit));
+                canvas->concat(SkMatrix::RectToRectOrIdentity(SkRect::MakeSize(animation->size()),
+                                                              dest, SkMatrix::kCenter_ScaleToFit));
                 animation->seek(t);
                 animation->render(canvas);
             }

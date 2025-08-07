@@ -143,30 +143,40 @@ static void test_set9(skiatest::Reporter* reporter) {
 
 static void test_matrix_recttorect(skiatest::Reporter* reporter) {
     SkRect src, dst;
-    SkMatrix matrix;
 
     src.setLTRB(0, 0, 10, 10);
     dst = src;
-    matrix = SkMatrix::RectToRect(src, dst);
-    REPORTER_ASSERT(reporter, SkMatrix::kIdentity_Mask == matrix.getType());
-    REPORTER_ASSERT(reporter, matrix.rectStaysRect());
+    auto matrix = SkMatrix::Rect2Rect(src, dst);
+    REPORTER_ASSERT(reporter, matrix.has_value());
+    REPORTER_ASSERT(reporter, SkMatrix::kIdentity_Mask == matrix->getType());
+    REPORTER_ASSERT(reporter, matrix->rectStaysRect());
 
     dst.offset(1, 1);
-    matrix = SkMatrix::RectToRect(src, dst);
-    REPORTER_ASSERT(reporter, SkMatrix::kTranslate_Mask == matrix.getType());
-    REPORTER_ASSERT(reporter, matrix.rectStaysRect());
+    matrix = SkMatrix::Rect2Rect(src, dst);
+    REPORTER_ASSERT(reporter, matrix.has_value());
+    REPORTER_ASSERT(reporter, SkMatrix::kTranslate_Mask == matrix->getType());
+    REPORTER_ASSERT(reporter, matrix->rectStaysRect());
 
     dst.fRight += 1;
-    matrix = SkMatrix::RectToRect(src, dst);
+    matrix = SkMatrix::Rect2Rect(src, dst);
+    REPORTER_ASSERT(reporter, matrix.has_value());
     REPORTER_ASSERT(reporter,
-                    (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask) == matrix.getType());
-    REPORTER_ASSERT(reporter, matrix.rectStaysRect());
+                    (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask) == matrix->getType());
+    REPORTER_ASSERT(reporter, matrix->rectStaysRect());
 
     dst = src;
     dst.fRight = src.fRight * 2;
-    matrix = SkMatrix::RectToRect(src, dst);
-    REPORTER_ASSERT(reporter, SkMatrix::kScale_Mask == matrix.getType());
-    REPORTER_ASSERT(reporter, matrix.rectStaysRect());
+    matrix = SkMatrix::Rect2Rect(src, dst);
+    REPORTER_ASSERT(reporter, matrix.has_value());
+    REPORTER_ASSERT(reporter, SkMatrix::kScale_Mask == matrix->getType());
+    REPORTER_ASSERT(reporter, matrix->rectStaysRect());
+
+    // Now test handling failure (when src is empty)
+    src = SkRect::MakeXYWH(10, 20, 0, 0);
+    matrix = SkMatrix::Rect2Rect(src, dst);
+    REPORTER_ASSERT(reporter, !matrix.has_value());
+    SkMatrix mx = SkMatrix::RectToRectOrIdentity(src, dst);
+    REPORTER_ASSERT(reporter, SkMatrix::kIdentity_Mask == mx.getType());
 }
 
 static void test_flatten(skiatest::Reporter* reporter, const SkMatrix& m) {
@@ -1121,9 +1131,9 @@ DEF_TEST(Matrix_rectStaysRect_zeroScale, r) {
     // RectToRect() is like scaling. It fails if the source rect is empty, but if the dst rect is
     // empty it's as if it had a zero scale factor, so it's type mask should reflect that.
     const SkRect src = {0.f,0.f,10.f,10.f};
-    REPORTER_ASSERT(r, !SkMatrix::RectToRect(src, {0.f,0.f,0.f,0.f}).rectStaysRect());
-    REPORTER_ASSERT(r, !SkMatrix::RectToRect(src, {0.f,0.f,0.f,20.f}).rectStaysRect());
-    REPORTER_ASSERT(r, !SkMatrix::RectToRect(src, {0.f,0.f,20.f,0.f}).rectStaysRect());
+    REPORTER_ASSERT(r, !SkMatrix::Rect2Rect(src, {0.f,0.f,0.f,0.f})->rectStaysRect());
+    REPORTER_ASSERT(r, !SkMatrix::Rect2Rect(src, {0.f,0.f,0.f,20.f})->rectStaysRect());
+    REPORTER_ASSERT(r, !SkMatrix::Rect2Rect(src, {0.f,0.f,20.f,0.f})->rectStaysRect());
 
     {
         SkMatrix rectMatrix = SkMatrix::I(); // trivially

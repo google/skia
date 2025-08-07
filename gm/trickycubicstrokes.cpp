@@ -139,15 +139,12 @@ static void draw_test(SkCanvas* canvas, SkPaint::Cap cap, SkPaint::Join join) {
         }
         strokeBounds.outset(kStrokeWidth, kStrokeWidth);
 
-        SkMatrix matrix;
-        if (fillMode == CellFillMode::kStretch) {
-            matrix = SkMatrix::RectToRect(strokeBounds, cellRect, SkMatrix::kCenter_ScaleToFit);
-        } else {
-            matrix.setTranslate(cellRect.x() + kStrokeWidth +
+        SkMatrix matrix = (fillMode == CellFillMode::kStretch) ?
+            SkMatrix::RectToRectOrIdentity(strokeBounds, cellRect, SkMatrix::kCenter_ScaleToFit) :
+            SkMatrix::Translate(cellRect.x() + kStrokeWidth +
                                 (cellRect.width() - strokeBounds.width()) / 2,
                                 cellRect.y() + kStrokeWidth +
                                 (cellRect.height() - strokeBounds.height()) / 2);
-        }
 
         SkAutoCanvasRestore acr(canvas, true);
         canvas->concat(matrix);

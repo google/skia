@@ -558,9 +558,11 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    const auto scale_matrix = SkMatrix::RectToRect(SkRect::MakeSize(anim->size()),
-                                                   SkRect::MakeIWH(FLAGS_width, FLAGS_height),
-                                                   SkMatrix::kCenter_ScaleToFit);
+    // Since we've already checked anim->size(), this will succeed.
+    const SkMatrix scale_matrix = SkMatrix::Rect2Rect(SkRect::MakeSize(anim->size()),
+                                                      SkRect::MakeIWH(FLAGS_width, FLAGS_height),
+                                                      SkMatrix::kCenter_ScaleToFit).value();
+
     logger->report();
 
     const auto t0 = SkTPin(FLAGS_t0, 0.0, 1.0),

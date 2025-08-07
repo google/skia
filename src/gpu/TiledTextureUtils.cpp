@@ -275,7 +275,7 @@ TiledTextureUtils::ImageDrawMode TiledTextureUtils::OptimizeSampleArea(const SkI
         return ImageDrawMode::kSkip;
     }
 
-    *outSrcToDst = SkMatrix::RectToRect(origSrcRect, origDstRect);
+    *outSrcToDst = SkMatrix::RectToRectOrIdentity(origSrcRect, origDstRect);
 
     SkRect src = origSrcRect;
     SkRect dst = origDstRect;

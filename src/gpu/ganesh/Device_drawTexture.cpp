@@ -411,7 +411,7 @@ void Device::drawSpecial(SkSpecialImage* special,
 
     SkRect src = SkRect::Make(special->subset());
     SkRect dst = SkRect::MakeWH(special->width(), special->height());
-    SkMatrix srcToDst = SkMatrix::RectToRect(src, dst);
+    SkMatrix srcToDst = SkMatrix::RectToRectOrIdentity(src, dst);
 
     SkSamplingOptions sampling = SkSamplingOptions(downgrade_to_filter(origSampling));
     GrAA aa = fSurfaceDrawContext->chooseAA(paint);

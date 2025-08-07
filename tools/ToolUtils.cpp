@@ -276,8 +276,7 @@ SkPath make_star(const SkRect& bounds, int numPts, int step) {
         builder.lineTo(x, y);
     }
     SkPath path = builder.detach();
-    path.transform(SkMatrix::RectToRect(path.getBounds(), bounds));
-    return path;
+    return path.makeTransform(SkMatrix::RectToRectOrIdentity(path.getBounds(), bounds));
 }
 
 static inline void norm_to_rgb(SkBitmap* bm, int x, int y, const SkVector3& norm) {

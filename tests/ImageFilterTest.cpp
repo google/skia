@@ -2242,7 +2242,7 @@ DEF_TEST(ImageSourceBounds, reporter) {
 
     SkRect clippedSrc = src;
     SkAssertResult(clippedSrc.intersect(SkRect::Make(image->dimensions())));
-    SkRect clippedDst = SkMatrix::RectToRect(src, dst).mapRect(clippedSrc);
+    SkRect clippedDst = SkMatrix::RectToRectOrIdentity(src, dst).mapRect(clippedSrc);
 
     REPORTER_ASSERT(reporter,
                     clippedDst.roundOut() ==

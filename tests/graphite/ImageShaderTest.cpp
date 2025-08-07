@@ -54,7 +54,7 @@ void test_draw(skiatest::Reporter* reporter,
                                                       {/*fMipmapped=*/false});
 
     SkPaint p;
-    SkMatrix srcToDst = SkMatrix::RectToRect(srcRect, dstRect);
+    SkMatrix srcToDst = SkMatrix::RectToRectOrIdentity(srcRect, dstRect);
     p.setShader(SkImageShader::MakeSubset(
             std::move(image), srcRect, tileMode, tileMode, samplingOptions, &srcToDst));
     canvas->drawRect(dstRect, p);

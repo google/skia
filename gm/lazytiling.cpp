@@ -228,7 +228,8 @@ protected:
                 SkRect contentRect = SkRect::MakeXYWH(x+kContentSize/2, y+kContentSize/2,
                                                       kContentSize, kContentSize);
 
-                SkMatrix texMatrix = SkMatrix::RectToRect(contentRect, SkRect::Make(fContentRect));
+                SkMatrix texMatrix = SkMatrix::RectToRectOrIdentity(contentRect,
+                                                                    SkRect::Make(fContentRect));
 
                 draw_texture(rContext->priv().caps(),
                              sdc,

@@ -497,7 +497,7 @@ public:
 
     static LayerSpace<SkMatrix> RectToRect(const LayerSpace<SkRect>& from,
                                            const LayerSpace<SkRect>& to) {
-        return LayerSpace<SkMatrix>(SkMatrix::RectToRect(SkRect(from), SkRect(to)));
+        return LayerSpace<SkMatrix>(SkMatrix::RectToRectOrIdentity(SkRect(from), SkRect(to)));
     }
 
     // Parrot a limited selection of the SkMatrix API while preserving coordinate space.

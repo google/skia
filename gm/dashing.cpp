@@ -135,7 +135,8 @@ static SkPath make_path_oval(const SkRect& bounds) {
 
 static SkPath make_path_star(const SkRect& bounds) {
     SkPath path = make_unit_star(5);
-    SkMatrix matrix = SkMatrix::RectToRect(path.getBounds(), bounds, SkMatrix::kCenter_ScaleToFit);
+    SkMatrix matrix = SkMatrix::RectToRectOrIdentity(path.getBounds(), bounds,
+                                                     SkMatrix::kCenter_ScaleToFit);
     return path.makeTransform(matrix);
 }
 

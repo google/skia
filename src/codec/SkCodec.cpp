@@ -353,9 +353,12 @@ bool zero_rect(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
     if (dimensions != srcDimensions) {
         SkRect src = SkRect::Make(srcDimensions);
         SkRect dst = SkRect::Make(dimensions);
-        SkMatrix map = SkMatrix::RectToRect(src, dst);
+        auto map = SkMatrix::Rect2Rect(src, dst);
+        if (!map) {
+            return false;
+        }
         SkRect asRect = SkRect::Make(prevRect);
-        if (!map.mapRect(&asRect)) {
+        if (!map->mapRect(&asRect)) {
             return false;
         }
         asRect.roundOut(&prevRect);

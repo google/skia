@@ -24,7 +24,8 @@ DEF_SIMPLE_GM(crbug_1113794, canvas, 600, 200) {
     static constexpr SkScalar kDash[2] = {10.f, 10.f};
     paint.setPathEffect(SkDashPathEffect::Make(kDash, 0.f));
 
-    SkMatrix viewBox = SkMatrix::RectToRect(SkRect::MakeWH(100, 100), SkRect::MakeWH(600, 200));
+    SkMatrix viewBox = SkMatrix::RectToRectOrIdentity(SkRect::MakeWH(100, 100),
+                                                      SkRect::MakeWH(600, 200));
     canvas->concat(viewBox);
 
     canvas->drawPath(path, paint);

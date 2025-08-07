@@ -3,7 +3,7 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Matrix_get9, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
-    SkMatrix matrix = SkMatrix::RectToRect({0, 0, 1, 1}, {3, 4, 7, 9});
+    SkMatrix matrix = SkMatrix::Rect2Rect({0, 0, 1, 1}, {3, 4, 7, 9}).value();
     SkScalar b[9];
     matrix.get9(b);
     SkDebugf("{%g, %g, %g},\n{%g, %g, %g},\n{%g, %g, %g}\n", b[0], b[1], b[2],

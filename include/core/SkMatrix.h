@@ -98,6 +98,8 @@ public:
     [[nodiscard]] static SkMatrix Translate(SkVector t) { return Translate(t.x(), t.y()); }
     [[nodiscard]] static SkMatrix Translate(SkIVector t) { return Translate(t.x(), t.y()); }
 
+    [[nodiscard]] static SkMatrix ScaleTranslate(float sx, float sy, float tx, float ty);
+
     /** Sets SkMatrix to rotate by |deg| about a pivot point at (0, 0).
 
         @param deg  rotation angle in degrees (positive rotates clockwise)
@@ -141,25 +143,6 @@ public:
         kCenter_ScaleToFit, //!< scales and aligns to center
         kEnd_ScaleToFit,    //!< scales and aligns to right and bottom
     };
-
-    /** Returns SkMatrix set to scale and translate src to dst. ScaleToFit selects
-        whether mapping completely fills dst or preserves the aspect ratio, and how to
-        align src within dst. Returns the identity SkMatrix if src is empty. If dst is
-        empty, returns SkMatrix set to:
-
-            | 0 0 0 |
-            | 0 0 0 |
-            | 0 0 1 |
-
-        @param src  SkRect to map from
-        @param dst  SkRect to map to
-        @param mode How to handle the mapping
-        @return     SkMatrix mapping src to dst
-    */
-    [[nodiscard]] static SkMatrix RectToRect(const SkRect& src, const SkRect& dst,
-                                             ScaleToFit mode = kFill_ScaleToFit) {
-        return MakeRectToRect(src, dst, mode);
-    }
 
     /** Sets SkMatrix to:
 
@@ -1138,46 +1121,38 @@ public:
     */
     SkMatrix& postConcat(const SkMatrix& other);
 
-#ifndef SK_SUPPORT_LEGACY_MATRIX_RECTTORECT
-private:
-#endif
-    /** Sets SkMatrix to scale and translate src SkRect to dst SkRect. stf selects whether
-        mapping completely fills dst or preserves the aspect ratio, and how to align
-        src within dst. Returns false if src is empty, and sets SkMatrix to identity.
-        Returns true if dst is empty, and sets SkMatrix to:
+    /** If possible, return a matrix that will transform the src rect to the dst rect.
+     *  If the src is empty, this will return {}.
+     *  If the dst is empty, this will return the zero matrix (degenerate).
+     */
+    static std::optional<SkMatrix> Rect2Rect(const SkRect& src, const SkRect& dst,
+                                             ScaleToFit = kFill_ScaleToFit);
 
-            | 0 0 0 |
-            | 0 0 0 |
-            | 0 0 1 |
-
-        @param src  SkRect to map from
-        @param dst  SkRect to map to
-        @return     true if SkMatrix can represent SkRect mapping
-
-        example: https://fiddle.skia.org/c/@Matrix_setRectToRect
-    */
-    bool setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf);
-
-    /** Returns SkMatrix set to scale and translate src SkRect to dst SkRect. stf selects
-        whether mapping completely fills dst or preserves the aspect ratio, and how to
-        align src within dst. Returns the identity SkMatrix if src is empty. If dst is
-        empty, returns SkMatrix set to:
-
-            | 0 0 0 |
-            | 0 0 0 |
-            | 0 0 1 |
-
-        @param src  SkRect to map from
-        @param dst  SkRect to map to
-        @return     SkMatrix mapping src to dst
-    */
-    static SkMatrix MakeRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf) {
-        SkMatrix m;
-        m.setRectToRect(src, dst, stf);
-        return m;
+    static SkMatrix RectToRectOrIdentity(const SkRect& src, const SkRect& dst,
+                                         ScaleToFit stf = kFill_ScaleToFit) {
+        return Rect2Rect(src, dst, stf).value_or(SkMatrix::I());
     }
-#ifndef SK_SUPPORT_LEGACY_MATRIX_RECTTORECT
-public:
+
+#ifdef SK_SUPPORT_LEGACY_MATRIX_RECTTORECT
+    bool setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf) {
+        if (auto mx = Rect2Rect(src, dst, stf)) {
+            *this = *mx;
+            return true;
+        }
+        return false;
+    }
+
+    static SkMatrix MakeRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf) {
+        if (auto mx = Rect2Rect(src, dst, stf)) {
+            return *mx;
+        }
+        return SkMatrix::I();
+    }
+
+    [[nodiscard]] static SkMatrix RectToRect(const SkRect& src, const SkRect& dst,
+                                             ScaleToFit mode = kFill_ScaleToFit) {
+        return MakeRectToRect(src, dst, mode);
+    }
 #endif
 
     /** Compute a matrix from two polygons, such that if the matrix was applied
@@ -1777,29 +1752,7 @@ public:
         @param ty  vertical translation to store
     */
     void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty) {
-        fMat[kMScaleX] = sx;
-        fMat[kMSkewX]  = 0;
-        fMat[kMTransX] = tx;
-
-        fMat[kMSkewY]  = 0;
-        fMat[kMScaleY] = sy;
-        fMat[kMTransY] = ty;
-
-        fMat[kMPersp0] = 0;
-        fMat[kMPersp1] = 0;
-        fMat[kMPersp2] = 1;
-
-        int mask = 0;
-        if (sx != 1 || sy != 1) {
-            mask |= kScale_Mask;
-        }
-        if (tx != 0.0f || ty != 0.0f) {
-            mask |= kTranslate_Mask;
-        }
-        if (sx != 0 && sy != 0) {
-            mask |= kRectStaysRect_Mask;
-        }
-        this->setTypeMask(mask);
+        *this = SkMatrix::ScaleTranslate(sx, sy, tx, ty);
     }
 
     /** Returns true if all elements of the matrix are finite. Returns false if any

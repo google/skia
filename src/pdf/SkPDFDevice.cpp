@@ -1613,7 +1613,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
     // First, figure out the src->dst transform and subset the image if needed.
     SkIRect bounds = imageSubset.image()->bounds();
     SkRect srcRect = src ? *src : SkRect::Make(bounds);
-    SkMatrix transform = SkMatrix::RectToRect(srcRect, dst);
+    SkMatrix transform = SkMatrix::RectToRectOrIdentity(srcRect, dst);
     SkMatrix originalTransform = transform;
     if (src && *src != SkRect::Make(bounds)) {
         if (!srcRect.intersect(SkRect::Make(bounds))) {

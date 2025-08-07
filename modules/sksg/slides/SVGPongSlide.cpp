@@ -142,8 +142,7 @@ public:
 
         // Handle everything in a normalized 1x1 space.
         fContentMatrix = sksg::Matrix<SkMatrix>::Make(
-            SkMatrix::RectToRect(SkRect::MakeWH(1, 1),
-                                 SkRect::MakeWH(w, h)));
+            SkMatrix::RectToRectOrIdentity(SkRect::MakeWH(1, 1), SkRect::MakeWH(w, h)));
         auto root = sksg::TransformEffect::Make(std::move(group), fContentMatrix);
         fScene = sksg::Scene::Make(std::move(root));
 
@@ -170,8 +169,8 @@ public:
 
     void resize(SkScalar w, SkScalar h) override {
         if (fContentMatrix) {
-            fContentMatrix->setMatrix(SkMatrix::RectToRect(SkRect::MakeWH(1, 1),
-                                                           SkRect::MakeWH(w, h)));
+            fContentMatrix->setMatrix(SkMatrix::Rect2Rect(SkRect::MakeWH(1, 1),
+                                                          SkRect::MakeWH(w, h)).value());
         }
     }
 

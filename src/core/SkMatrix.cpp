@@ -539,55 +539,63 @@ SkMatrix& SkMatrix::postSkew(SkScalar sx, SkScalar sy) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkMatrix::setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit align) {
+SkMatrix SkMatrix::ScaleTranslate(float sx, float sy, float tx, float ty) {
+    uint8_t mask = 0;
+    if (sx != 1 || sy != 1) {
+        mask |= SkMatrix::kScale_Mask;
+    }
+    if (tx != 0.0f || ty != 0.0f) {
+        mask |= SkMatrix::kTranslate_Mask;
+    }
+    if (sx != 0 && sy != 0) {
+        mask |= SkMatrix::kRectStaysRect_Mask;
+    }
+    return SkMatrix(sx,  0, tx,
+                     0, sy, ty,
+                     0,  0,  1,
+                     mask);
+}
+
+std::optional<SkMatrix> SkMatrix::Rect2Rect(const SkRect& src, const SkRect& dst, ScaleToFit stf) {
     if (src.isEmpty()) {
-        this->reset();
-        return false;
+        return {};
     }
 
-    if (dst.isEmpty()) {
-        sk_bzero(fMat, 8 * sizeof(SkScalar));
-        fMat[kMPersp2] = 1;
-        this->setTypeMask(kScale_Mask);
-    } else {
-        SkScalar    tx, sx = sk_ieee_float_divide(dst.width(), src.width());
-        SkScalar    ty, sy = sk_ieee_float_divide(dst.height(), src.height());
-        bool        xLarger = false;
+    SkScalar tx, sx = sk_ieee_float_divide(dst.width(), src.width());
+    SkScalar ty, sy = sk_ieee_float_divide(dst.height(), src.height());
+    bool     xLarger = false;
 
-        if (align != kFill_ScaleToFit) {
-            if (sx > sy) {
-                xLarger = true;
-                sx = sy;
-            } else {
-                sy = sx;
-            }
+    if (stf != kFill_ScaleToFit) {
+        if (sx > sy) {
+            xLarger = true;
+            sx = sy;
+        } else {
+            sy = sx;
         }
-
-        tx = dst.fLeft - src.fLeft * sx;
-        ty = dst.fTop - src.fTop * sy;
-        if (align == kCenter_ScaleToFit || align == kEnd_ScaleToFit) {
-            SkScalar diff;
-
-            if (xLarger) {
-                diff = dst.width() - src.width() * sy;
-            } else {
-                diff = dst.height() - src.height() * sy;
-            }
-
-            if (align == kCenter_ScaleToFit) {
-                diff = SkScalarHalf(diff);
-            }
-
-            if (xLarger) {
-                tx += diff;
-            } else {
-                ty += diff;
-            }
-        }
-
-        this->setScaleTranslate(sx, sy, tx, ty);
     }
-    return true;
+
+    tx = dst.fLeft - src.fLeft * sx;
+    ty = dst.fTop - src.fTop * sy;
+    if (stf == kCenter_ScaleToFit || stf == kEnd_ScaleToFit) {
+        SkScalar diff;
+
+        if (xLarger) {
+            diff = dst.width() - src.width() * sy;
+        } else {
+            diff = dst.height() - src.height() * sy;
+        }
+
+        if (stf == kCenter_ScaleToFit) {
+            diff = SkScalarHalf(diff);
+        }
+
+        if (xLarger) {
+            tx += diff;
+        } else {
+            ty += diff;
+        }
+    }
+    return ScaleTranslate(sx, sy, tx, ty);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

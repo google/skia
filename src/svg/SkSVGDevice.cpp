@@ -1067,7 +1067,8 @@ void SkSVGDevice::drawImageRect(const SkImage* image, const SkRect* src, const S
     }
 
     SkMatrix adjustedMatrix = this->localToDevice()
-                            * SkMatrix::RectToRect(src ? *src : SkRect::Make(bm.bounds()), dst);
+                            * SkMatrix::RectToRectOrIdentity(src ? *src : SkRect::Make(bm.bounds()),
+                                                             dst);
 
     drawBitmapCommon(MxCp(&adjustedMatrix, cs), bm, paint);
 }

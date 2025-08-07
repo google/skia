@@ -103,7 +103,7 @@ public:
     void fillRectToRectWithFP(const SkRect& srcRect,
                               const SkIRect& dstRect,
                               std::unique_ptr<GrFragmentProcessor> fp) {
-        SkMatrix lm = SkMatrix::RectToRect(SkRect::Make(dstRect), srcRect);
+        SkMatrix lm = SkMatrix::RectToRectOrIdentity(SkRect::Make(dstRect), srcRect);
         this->fillRectWithFP(dstRect, lm, std::move(fp));
     }
 

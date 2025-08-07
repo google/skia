@@ -282,7 +282,7 @@ void snap_src_and_dst_rect_to_pixels(const Transform& localToDevice,
 
     // Assume snapping will succeed and always update 'src' to match; in the event snapping
     // returns the original dst rect, then the recalculated src rect is a no-op.
-    SkMatrix dstToSrc = SkMatrix::RectToRect(*dstRect, *srcRect);
+    SkMatrix dstToSrc = SkMatrix::RectToRectOrIdentity(*dstRect, *srcRect);
     *dstRect = snap_rect_to_pixels(localToDevice, *dstRect).asSkRect();
     *srcRect = dstToSrc.mapRect(*dstRect);
 }

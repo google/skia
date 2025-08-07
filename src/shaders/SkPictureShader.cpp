@@ -235,7 +235,8 @@ SkPictureShader::CachedImageInfo SkPictureShader::CachedImageInfo::Make(
 
     return {true,
             tileScale,
-            SkMatrix::RectToRect(bounds, SkRect::MakeIWH(tileSize.width(), tileSize.height())),
+            SkMatrix::RectToRectOrIdentity(bounds,
+                                           SkRect::MakeIWH(tileSize.width(), tileSize.height())),
             SkImageInfo::Make(tileSize, imgCT, kPremul_SkAlphaType, imgCS),
             props};
 }

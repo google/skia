@@ -70,8 +70,8 @@ protected:
             SkCanvas* c = content->getCanvas();
             c->clear(SkColors::kDkGray);
 
-            SkMatrix toScreenBounds = SkMatrix::RectToRect(SkRect::Make(kFullSize),
-                                                           SkRect::Make(screenBounds));
+            SkMatrix toScreenBounds = SkMatrix::RectToRectOrIdentity(SkRect::Make(kFullSize),
+                                                                     SkRect::Make(screenBounds));
             c->concat(toScreenBounds);
 
             // Now render everything to `c` as if it were a kFullSize image.
@@ -103,8 +103,8 @@ protected:
             // For viewer, the offscreen passes operate at full resolution, but we draw smaller to
             // fit into the window. This lets overall frame times match nanobench, but it looks like
             // what dm produces.
-            SkMatrix toViewBounds = SkMatrix::RectToRect(SkRect::Make(screenBounds),
-                                                         SkRect::Make(kNonBenchSize));
+            SkMatrix toViewBounds = SkMatrix::RectToRectOrIdentity(SkRect::Make(screenBounds),
+                                                                   SkRect::Make(kNonBenchSize));
             canvas->concat(toViewBounds);
         }
 

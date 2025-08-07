@@ -69,7 +69,7 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
     const SkScalar underlineY = iBox.bottom() +
         (kVerticalSpacing + SkScalarSqrt(3) / 2) * accentSize;
     SkAutoCanvasRestore acr(canvas, true);
-    canvas->concat(SkMatrix::RectToRect(skiaBox, viewBox));
+    canvas->concat(SkMatrix::RectToRectOrIdentity(skiaBox, viewBox));
 
     canvas->drawCircle(iBox.centerX(),
                        iBox.y() - (0.5f + kVerticalSpacing) * accentSize,

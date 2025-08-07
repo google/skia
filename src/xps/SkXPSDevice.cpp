@@ -1996,7 +1996,7 @@ void SkXPSDevice::drawImageRect(const SkImage* image,
 
     SkRect bitmapBounds = SkRect::Make(bitmap.bounds());
     SkRect srcBounds = src ? *src : bitmapBounds;
-    SkMatrix matrix = SkMatrix::RectToRect(srcBounds, dst);
+    SkMatrix matrix = SkMatrix::RectToRectOrIdentity(srcBounds, dst);
     SkRect actualDst;
     if (!src || bitmapBounds.contains(*src)) {
         actualDst = dst;

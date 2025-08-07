@@ -222,9 +222,9 @@ public:
                      * SkMatrix::Scale    (tprop.fScale.fX*0.01f, tprop.fScale.fY*0.01f)
                      * SkMatrix::Translate(tprop.fAnchorPoint.fX, tprop.fAnchorPoint.fY);
 
-        const auto viewer_matrix = SkMatrix::RectToRect(SkRect::MakeSize(anim_size),
-                                                        SkRect::MakeSize(win_size),
-                                                        SkMatrix::kCenter_ScaleToFit);
+        const auto viewer_matrix = SkMatrix::RectToRectOrIdentity(SkRect::MakeSize(anim_size),
+                                                                  SkRect::MakeSize(win_size),
+                                                                  SkMatrix::kCenter_ScaleToFit);
 
         SkAutoCanvasRestore acr(canvas, true);
         canvas->concat(viewer_matrix);
@@ -611,8 +611,8 @@ void SkottieSlide::draw(SkCanvas* canvas) {
             draw_stats_box(canvas, fAnimationStats);
         }
         if (fShowAnimationInval) {
-            const auto t = SkMatrix::RectToRect(SkRect::MakeSize(fAnimation->size()), dstR,
-                                                SkMatrix::kCenter_ScaleToFit);
+            const auto t = SkMatrix::RectToRectOrIdentity(SkRect::MakeSize(fAnimation->size()), dstR,
+                                                          SkMatrix::kCenter_ScaleToFit);
             SkPaint fill, stroke;
             fill.setAntiAlias(true);
             fill.setColor(0x40ff0000);

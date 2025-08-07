@@ -36,7 +36,7 @@ static inline bool GrRectsTouchOrOverlap(const SkRect& a, const SkRect& b) {
  */
 static inline void GrMapRectPoints(const SkRect& inRect, const SkRect& outRect,
                                    const SkPoint inPts[], SkPoint outPts[], int ptCount) {
-    SkMatrix::RectToRect(inRect, outRect).mapPoints({outPts, ptCount}, {inPts, ptCount});
+    SkMatrix::RectToRectOrIdentity(inRect, outRect).mapPoints({outPts, ptCount}, {inPts, ptCount});
 }
 
 /**
