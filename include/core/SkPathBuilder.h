@@ -949,19 +949,12 @@ private:
     int         fLastMoveIndex; // only needed until SkPath is immutable
     bool        fNeedsMoveVerb;
 
-    enum IsA {
-        kIsA_JustMoves,     // we only have 0 or more moves
-        kIsA_MoreThanMoves, // we have verbs other than just move
-        kIsA_Oval,          // we are 0 or more moves followed by an oval
-        kIsA_RRect,         // we are 0 or more moves followed by a rrect
-    };
-    IsA fIsA      = kIsA_JustMoves;
-    int fIsAStart = -1;     // tracks direction iff fIsA is not unknown
-    SkPathDirection fIsADirection = SkPathDirection::kCW;   // just so it has a value
+    SkPathIsAType fType = SkPathIsAType::kGeneral;
+    SkPathIsAData fIsA {};
 
     // called right before we add a (non-move) verb
     void ensureMove() {
-        fIsA = kIsA_MoreThanMoves;
+        fType = SkPathIsAType::kGeneral;
         if (fNeedsMoveVerb) {
             this->moveTo(fLastMovePoint);
         }

@@ -29,22 +29,88 @@
 
 class SkMatrix;
 
+/*
+ *  These "info" structs are used to return identifying information, when a path
+ *  is queried if it is a special "shape". (e.g. isOval(), isRRect())
+ */
+
 struct SkPathRectInfo {
     SkRect          fRect;
     SkPathDirection fDirection;
-    unsigned        fStartIndex;
+    uint8_t         fStartIndex;
 };
 
 struct SkPathOvalInfo {
     SkRect          fBounds;
     SkPathDirection fDirection;
-    unsigned        fStartIndex;
+    uint8_t         fStartIndex;
 };
 
 struct SkPathRRectInfo {
     SkRRect         fRRect;
     SkPathDirection fDirection;
-    unsigned        fStartIndex;
+    uint8_t         fStartIndex;
+};
+
+struct SkPathArcInfo {
+    SkRect  fArcOval;
+    float   fStartAngle,
+            fSweepAngle;
+};
+
+/*
+ *  Paths can be tagged with a "Type" -- the IsAType
+ *  This signals that it was built from a high-level shape: oval, rrect, arc, wedge.
+ *  We try to retain this tag, but still build the explicitly line/quad/conic/cubic
+ *  structure need to represent that shape. Thus a user of path can always just look
+ *  at the points and verbs, and draw it correctly.
+ *
+ *  The GPU backend sometimes will sniff the path for this tag/type, and may have a
+ *  more optimal way to draw the shape if they know its "really" an oval or whatever.
+ *
+ *  Path's can also identify as a "rect" -- but we don't store any special tag for this.
+ *
+ *  Here are the special "types" we have APIs for (e.g. isRRect()) and what we store:
+ *
+ *      kGeneral  : no identifying shape, no extra data
+ *      (Rect)    : no tag, but isRect() will examing the points/verbs, and try to
+ *                  deduce that it represents a rect.
+ *      kOval     : the path bounds is also the oval's bounds -- we store the direction
+ *                  and start_index (important for dashing). see SkPathMakers.h
+ *      kRRect    : same as kOval for implicit bounds, direction and start_index.
+ *                  Note: we don't store its radii -- we deduce those when isRRect() is
+ *                        called, by examining the points/verbs.
+ *      kArc      : store the oval's bounds and start/sweep angles that for the arc.
+ *      kArcWedge : same as kArc, but we note that we're a wedge (see SkArc::Type)
+ */
+enum class SkPathIsAType : uint8_t {
+    kGeneral,
+    kOval,
+    kRRect,
+    kArc,
+    kArcWedge,
+};
+
+static inline bool SkPathIsAArc(SkPathIsAType t) {
+    return t == SkPathIsAType::kArc || t == SkPathIsAType::kArcWedge;
+}
+
+static inline SkPathIsAType SkArcTypeToIsAType(SkArc::Type t) {
+    return t == SkArc::Type::kArc ? SkPathIsAType::kArc : SkPathIsAType::kArcWedge;
+}
+
+static inline SkArc::Type SkPathIsATypeToArcType(SkPathIsAType t) {
+    SkASSERT(SkPathIsAArc(t));
+    return t == SkPathIsAType::kArc ? SkArc::Type::kArc : SkArc::Type::kWedge;
+}
+
+union SkPathIsAData {
+    // no extra data for kGeneral (or deduced Rect)
+    struct RRectOrOval {
+        uint8_t         fStartIndex;
+        SkPathDirection fDirection;
+    } fRRectOrOval;
+    SkPathArcInfo fArc;
 };
 
 /**
@@ -70,13 +136,6 @@ public:
     using VerbsArray = skia_private::STArray<4, SkPathVerb>;
     using ConicWeightsArray = skia_private::STArray<2, float>;
 
-    enum class PathType : uint8_t {
-        kGeneral,
-        kOval,
-        kRRect,
-        kArc,
-    };
-
     SkPathRef(SkSpan<const SkPoint> points, SkSpan<const SkPathVerb> verbs,
               SkSpan<const SkScalar> weights, unsigned segmentMask)
         : fPoints(points)
@@ -86,13 +145,7 @@ public:
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fGenerationID = 0;        // recompute
         fSegmentMask = segmentMask;
-        fType = PathType::kGeneral;
-        // The next two values don't matter unless fType is kOval or kRRect
-        fRRectOrOvalDirection = SkPathDirection::kCW;
-        fRRectOrOvalStartIdx = 0xAC;
-        fArcOval.setEmpty();
-        fArcStartAngle = fArcSweepAngle = 0.0f;
-        fArcType = SkArc::Type::kArc;
+        fType = SkPathIsAType::kGeneral;
         SkDEBUGCODE(fEditorsAttached.store(0);)
 
         this->computeBounds();  // do this now, before we worry about multiple owners/threads
@@ -215,11 +268,11 @@ public:
      *  fact ovals can report {}.
      */
     std::optional<SkPathOvalInfo> isOval() const {
-        if (fType == PathType::kOval) {
+        if (fType == SkPathIsAType::kOval) {
             return {{
                 this->getBounds(),
-                fRRectOrOvalDirection,
-                fRRectOrOvalStartIdx,
+                fIsA.fRRectOrOval.fDirection,
+                fIsA.fRRectOrOval.fStartIndex,
             }};
         }
         return {};
@@ -228,8 +281,9 @@ public:
     std::optional<SkPathRRectInfo> isRRect() const;
 
     std::optional<SkArc> isArc() const {
-        if (fType == PathType::kArc) {
-            return SkArc::Make(fArcOval, fArcStartAngle, fArcSweepAngle, fArcType);
+        if (SkPathIsAArc(fType)) {
+            return SkArc::Make(fIsA.fArc.fArcOval, fIsA.fArc.fStartAngle, fIsA.fArc.fSweepAngle,
+                               SkPathIsATypeToArcType(fType));
         }
         return {};
     }
@@ -350,13 +404,8 @@ private:
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fGenerationID = kEmptyGenID;
         fSegmentMask = 0;
-        fType = PathType::kGeneral;
-        // The next two values don't matter unless fType is kOval or kRRect
-        fRRectOrOvalDirection = SkPathDirection::kCW;
-        fRRectOrOvalStartIdx = 0xAC;
-        fArcOval.setEmpty();
-        fArcStartAngle = fArcSweepAngle = 0.0f;
-        fArcType = SkArc::Type::kArc;
+        fType = SkPathIsAType::kGeneral;
+
         if (numPoints > 0) {
             fPoints.reserve_exact(numPoints);
         }
@@ -423,7 +472,7 @@ private:
         fGenerationID = 0;
 
         fSegmentMask = 0;
-        fType = PathType::kGeneral;
+        fType = SkPathIsAType::kGeneral;
     }
 
     /** Resets the path ref with verbCount verbs and pointCount points, all uninitialized. Also
@@ -478,29 +527,28 @@ private:
     friend SkPathRef* sk_create_empty_pathref();
 
     void setIsOval(SkPathDirection dir, unsigned start) {
-        fType = PathType::kOval;
-        fRRectOrOvalDirection = dir;
-        fRRectOrOvalStartIdx = SkToU8(start);
+        fType = SkPathIsAType::kOval;
+        fIsA.fRRectOrOval.fDirection  = dir;
+        fIsA.fRRectOrOval.fStartIndex = SkToU8(start);
     }
 
     void setIsRRect(SkPathDirection dir, unsigned start) {
-        fType = PathType::kRRect;
-        fRRectOrOvalDirection = dir;
-        fRRectOrOvalStartIdx = SkToU8(start);
+        fType = SkPathIsAType::kRRect;
+        fIsA.fRRectOrOval.fDirection  = dir;
+        fIsA.fRRectOrOval.fStartIndex = SkToU8(start);
     }
 
     void setIsArc(const SkArc& arc) {
-        fType = PathType::kArc;
-        fArcOval = arc.fOval;
-        fArcStartAngle = arc.fStartAngle;
-        fArcSweepAngle = arc.fSweepAngle;
-        fArcType = arc.fType;
+        fType = SkArcTypeToIsAType(arc.fType);
+        fIsA.fArc.fArcOval    = arc.fOval;
+        fIsA.fArc.fStartAngle = arc.fStartAngle;
+        fIsA.fArc.fSweepAngle = arc.fSweepAngle;
     }
 
     // called only by the editor. Note that this is not a const function.
     SkPoint* getWritablePoints() {
         SkDEBUGCODE(this->validate();)
-        fType = PathType::kGeneral;
+        fType = SkPathIsAType::kGeneral;
         return fPoints.begin();
     }
 
@@ -516,7 +564,6 @@ private:
     ConicWeightsArray fConicWeights;
 
     mutable SkRect   fBounds;
-    SkRect           fArcOval;
 
     enum {
         kEmptyGenID = 1, // GenID reserved for path ref with zero points and zero verbs.
@@ -526,23 +573,13 @@ private:
 
     SkDEBUGCODE(std::atomic<int> fEditorsAttached;) // assert only one editor in use at any time.
 
-    SkScalar    fArcStartAngle;
-    SkScalar    fArcSweepAngle;
+    // based on fType
+    SkPathIsAData fIsA {};
 
-    PathType fType;
-
-    mutable uint8_t  fBoundsIsDirty;
-
-    uint8_t  fRRectOrOvalStartIdx;
-    uint8_t  fSegmentMask;
-    // If the path is an arc, these four variables store that information.
-    // We should just store an SkArc, but alignment would cost us 8 more bytes.
-    SkArc::Type fArcType;
-
+    SkPathIsAType   fType;
+    uint8_t         fSegmentMask;
+    mutable bool    fBoundsIsDirty;
     mutable bool    fIsFinite;    // only meaningful if bounds are valid
-    // Both the circle and rrect special cases have a notion of direction and starting point
-    // The next two variables store that information for either.
-    SkPathDirection fRRectOrOvalDirection;
 
     friend class PathRefTest_Private;
     friend class ForceIsRRect_Private; // unit test isRRect
