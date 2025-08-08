@@ -161,7 +161,7 @@
     },
     {
       "build_file": "//bazel/external/vulkan_headers:BUILD.bazel",
-      "commit": "a01329f307fa6067da824de9f587f292d761680b",
+      "commit": "2e0a6e699e35c9609bde2ca4abb0d380c0378639",
       "name": "vulkan_headers",
       "remote": "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Headers"
     },
@@ -173,7 +173,7 @@
     },
     {
       "build_file": "//bazel/external/vulkan_utility_libraries:BUILD.bazel",
-      "commit": "b149d5c52c06836ab333ba571791f79a9fb8eb50",
+      "commit": "4f4c0b6c61223b703f1c753a404578d7d63932ad",
       "name": "vulkan_utility_libraries",
       "remote": "https://chromium.googlesource.com/external/github.com/KhronosGroup/Vulkan-Utility-Libraries"
     },
