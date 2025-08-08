@@ -62,39 +62,23 @@ static bool is_degenerate(const SkPath& path) {
     return path.countVerbs() <= 1;
 }
 
-class SkAutoDisableDirectionCheck {
+class SkAutoAddSimpleShape {
 public:
-    SkAutoDisableDirectionCheck(SkPath* path) : fPath(path) {
-        fSaved = static_cast<SkPathFirstDirection>(fPath->getFirstDirection());
+    SkAutoAddSimpleShape(SkPath* path) : fPath(path) {
+        fIsDegenerate = is_degenerate(*path);
+        fSavedFirstDirection = static_cast<SkPathFirstDirection>(fPath->getFirstDirection());
     }
 
-    ~SkAutoDisableDirectionCheck() {
-        fPath->setFirstDirection(fSaved);
+    ~SkAutoAddSimpleShape() {
+        fPath->setConvexity(fIsDegenerate ? SkPathConvexity::kConvex
+                                          : SkPathConvexity::kUnknown);
+        fPath->setFirstDirection(fSavedFirstDirection);
     }
 
 private:
     SkPath*                 fPath;
-    SkPathFirstDirection    fSaved;
-};
-
-/*  This class  notes if the path was originally degenerate, and if so, sets
-    isConvex to true. Thus it can only be used if the contour being added is
-    convex.
- */
-class SkAutoPathBoundsUpdate {
-public:
-    SkAutoPathBoundsUpdate(SkPath* path) : fPath(path) {
-        fDegenerate = is_degenerate(*path);
-    }
-
-    ~SkAutoPathBoundsUpdate() {
-        fPath->setConvexity(fDegenerate ? SkPathConvexity::kConvex
-                                        : SkPathConvexity::kUnknown);
-    }
-
-private:
-    SkPath* fPath;
-    bool    fDegenerate;
+    bool                    fIsDegenerate;
+    SkPathFirstDirection    fSavedFirstDirection;
 };
 
 ////////////////////////////////////////////////////////////////////////////
@@ -814,8 +798,7 @@ SkPath& SkPath::addRect(const SkRect &rect, SkPathDirection dir, unsigned startI
     assert_known_direction(dir);
     this->setFirstDirection(this->hasOnlyMoveTos() ? (SkPathFirstDirection)dir
                                                    : SkPathFirstDirection::kUnknown);
-    SkAutoDisableDirectionCheck addc(this);
-    SkAutoPathBoundsUpdate apbu(this);
+    SkAutoAddSimpleShape addc(this);
 
     this->addRaw(SkPathRawShapes::Rect(rect, dir, startIndex));
 
@@ -971,8 +954,7 @@ SkPath& SkPath::addRRect(const SkRRect &rrect, SkPathDirection dir, unsigned sta
         this->setFirstDirection(this->hasOnlyMoveTos() ? (SkPathFirstDirection)dir
                                                        : SkPathFirstDirection::kUnknown);
 
-        SkAutoPathBoundsUpdate apbu(this);
-        SkAutoDisableDirectionCheck addc(this);
+        SkAutoAddSimpleShape addc(this);
 
         this->addRaw(SkPathRawShapes::RRect(rrect, dir, startIndex));
 
@@ -1037,8 +1019,7 @@ SkPath& SkPath::addOval(const SkRect &oval, SkPathDirection dir, unsigned startP
         this->setFirstDirection(SkPathFirstDirection::kUnknown);
     }
 
-    SkAutoDisableDirectionCheck addc(this);
-    SkAutoPathBoundsUpdate apbu(this);
+    SkAutoAddSimpleShape addc(this);
 
     this->addRaw(SkPathRawShapes::Oval(oval, dir, startPointIndex));
 
