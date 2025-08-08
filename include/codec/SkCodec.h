@@ -1001,7 +1001,12 @@ private:
     };
     XformTime                          fXformTime;
     XformFormat                        fDstXformFormat; // Based on fDstInfo.
-    skcms_ICCProfile                   fDstProfile;
+    skcms_ICCProfile                   fDstProfileStorage;
+    // This tracks either fDstProfileStorage or the ICC profile in fEncodedInfo.
+    // For the latter case it is important to not make a profile copy because skcms_Transform
+    // only performs a shallow pointer comparison to decide whether it can skip the color space
+    // transformation.
+    const skcms_ICCProfile*            fDstProfile = &fDstProfileStorage;
     skcms_AlphaFormat                  fDstXformAlphaFormat;
 
     // Only meaningful during scanline decodes.

@@ -825,19 +825,21 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Al
                 kBGR_101010x_XR_SkColorType == dstInfo.colorType()) {
             needsColorXform = true;
             if (dstInfo.colorSpace()) {
-                dstInfo.colorSpace()->toProfile(&fDstProfile);
+                dstInfo.colorSpace()->toProfile(&fDstProfileStorage);
+                fDstProfile = &fDstProfileStorage;
             } else {
                 // Use the srcProfile to avoid conversion.
                 const auto* srcProfile = fEncodedInfo.profile();
-                fDstProfile = srcProfile ? *srcProfile : *skcms_sRGB_profile();
+                fDstProfile = srcProfile ? srcProfile : skcms_sRGB_profile();
             }
         } else if (dstInfo.colorSpace()) {
-            dstInfo.colorSpace()->toProfile(&fDstProfile);
+            dstInfo.colorSpace()->toProfile(&fDstProfileStorage);
+            fDstProfile = &fDstProfileStorage;
             const auto* srcProfile = fEncodedInfo.profile();
             if (!srcProfile) {
                 srcProfile = skcms_sRGB_profile();
             }
-            if (!skcms_ApproximatelyEqualProfiles(srcProfile, &fDstProfile) ) {
+            if (!skcms_ApproximatelyEqualProfiles(srcProfile, fDstProfile) ) {
                 needsColorXform = true;
             }
         }
@@ -869,7 +871,7 @@ void SkCodec::applyColorXform(void* dst, const void* src, int count) const {
     // It is okay for srcProfile to be null. This will use sRGB.
     const auto* srcProfile = fEncodedInfo.profile();
     SkAssertResult(skcms_Transform(src, fSrcXformFormat, skcms_AlphaFormat_Unpremul, srcProfile,
-                                   dst, fDstXformFormat, fDstXformAlphaFormat, &fDstProfile,
+                                   dst, fDstXformFormat, fDstXformAlphaFormat, fDstProfile,
                                    count));
 }
 
