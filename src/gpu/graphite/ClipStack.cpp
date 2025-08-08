@@ -1417,6 +1417,7 @@ void ClipStack::DrawShape::applyScissor(const Rect& scissor) {
     // Apply the scissor to the outer bounds because it restricts rasterization and will allow
     // the SaveRecord::testForDraw() case to detect no clip influence if only the scissor is
     // needed.
+    SkASSERT(scissor == Rect(scissor.asSkIRect())); // `scissor` must be integer valued
     fScissor.intersect(scissor); // For first call, fScissor is infinite so this is assignment
     fOuterBounds.intersect(scissor);
     fInnerBounds.intersect(scissor);
@@ -1442,7 +1443,12 @@ Clip ClipStack::DrawShape::toClip(Geometry* geometry,
     }
 
     Rect drawBounds = fShape.inverted() ? fScissor : fOuterBounds;
-    SkASSERT(fScissor.contains(drawBounds));
+    // If the draw isn't clipped out (empty drawBounds), it should be in the scissor rect
+    SkASSERT(drawBounds.isEmptyNegativeOrNaN() || fScissor.contains(drawBounds));
+    // If the scissor is empty, the draw bounds must also be empty
+    SkASSERT(!fScissor.isEmptyNegativeOrNaN() || drawBounds.isEmptyNegativeOrNaN());
+    // fScissor.asSkIRect() must be equivalent
+    SkASSERT(fScissor == Rect(fScissor.asSkIRect()));
     return Clip(drawBounds, fTransformedShapeBounds,
                 fScissor.asSkIRect(), analyticClip, clipShader);
 }
@@ -1799,10 +1805,15 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
 #if !defined(SK_DISABLE_CLIP_DRAW_GEOMETRIC_INTERSECTION)
                 // Second try to tighten the scissor, which is lighter weight than adding an
                 // analytic clip pipeline variation or triggering MSAA.
-                if (e.clipType() == ClipState::kDeviceRect &&
-                    e.shape().rect().nearlyEquals(e.shape().rect().makeRound())) {
-                    draw.applyScissor(e.shape().rect());
-                    continue;
+                if (e.clipType() == ClipState::kDeviceRect) {
+                    Rect scissor = e.shape().rect().makeRound();
+                    if (e.shape().rect().nearlyEquals(scissor)) {
+                        // Pass in `scissor` since these need to be integral values while
+                        // nearlyEquals allows the original rect coordinates to be slightly
+                        // different (causing problems later with asSkIRect()).
+                        draw.applyScissor(scissor);
+                        continue;
+                    }
                 }
 #endif
                 // // Third try to handle the clip analytically in the shader
