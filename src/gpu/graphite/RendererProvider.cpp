@@ -64,7 +64,7 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     initFromStep(&fConvexTessellatedWedges,
                  std::make_unique<TessellateWedgesRenderStep>(
                         RenderStep::RenderStepID::kTessellateWedges_Convex,
-                        infinitySupport, kDirectDepthGreaterPass, bufferManager),
+                        infinitySupport, kDirectDepthLessPass, bufferManager),
                  DrawTypeFlags::kNonSimpleShape);
     initFromStep(&fTessellatedStrokes,
                  std::make_unique<TessellateStrokesRenderStep>(infinitySupport),
@@ -107,7 +107,7 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     initFromStep(&fNonAABoundsFill,
                  std::make_unique<CoverBoundsRenderStep>(
                         RenderStep::RenderStepID::kCoverBounds_NonAAFill,
-                        kDirectDepthGreaterPass),
+                        kDirectDepthLessPass),
                  DrawTypeFlags::kNonAAFillRect);
     initFromStep(&fCircularArc,
                  std::make_unique<CircularArcRenderStep>(bufferManager),

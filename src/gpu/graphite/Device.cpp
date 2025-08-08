@@ -1627,7 +1627,7 @@ void Device::drawGeometry(const Transform& localToDevice,
 #if defined(SK_DEBUG)
     // Renderers and their component RenderSteps have flexibility in defining their
     // DepthStencilSettings. However, the clipping and ordering managed between Device and ClipStack
-    // requires that only GREATER or GEQUAL depth tests are used for draws recorded through the
+    // requires that only LESS or LEQUAL depth tests are used for draws recorded through the
     // client-facing, painters-order-oriented API. We assert here vs. in Renderer's constructor to
     // allow internal-oriented Renderers that are never selected for a "regular" draw call to have
     // more flexibility in their settings.
@@ -1636,8 +1636,8 @@ void Device::drawGeometry(const Transform& localToDevice,
         auto dss = step->depthStencilSettings();
         SkASSERT((!step->performsShading() || dss.fDepthTestEnabled) &&
                  (!dss.fDepthTestEnabled ||
-                  dss.fDepthCompareOp == CompareOp::kGreater ||
-                  dss.fDepthCompareOp == CompareOp::kGEqual));
+                  dss.fDepthCompareOp == CompareOp::kLess ||
+                  dss.fDepthCompareOp == CompareOp::kLEqual));
     }
 #endif
 

@@ -379,10 +379,10 @@ private:
         // At least one step needs to actually shade.
         SkASSERT(fStepFlags & RenderStep::Flags::kPerformsShading);
         // A render step using non-AA inner fills with a second draw should not also be part of a
-        // multi-step renderer (to keep reasoning simple) and must use the GREATER depth test.
+        // multi-step renderer (to keep reasoning simple) and must use the LESS depth test.
         SkASSERT(!this->useNonAAInnerFill() ||
                  (fStepCount == 1 && fSteps[0]->depthStencilSettings().fDepthTestEnabled &&
-                  fSteps[0]->depthStencilSettings().fDepthCompareOp == CompareOp::kGreater));
+                  fSteps[0]->depthStencilSettings().fDepthCompareOp == CompareOp::kLess));
     }
 
     // For RendererProvider to manage initialization; it will never expose a Renderer that is only

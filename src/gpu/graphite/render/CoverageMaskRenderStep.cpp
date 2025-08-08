@@ -68,7 +68,7 @@ CoverageMaskRenderStep::CoverageMaskRenderStep()
                      Flags::kAppendInstances,
                      /*uniforms=*/{{"maskToDeviceRemainder", SkSLType::kFloat3x3}},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthGreaterPass,
+                     kDirectDepthLessPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
                      // Draw bounds and mask bounds are in normalized relative to the mask texture,

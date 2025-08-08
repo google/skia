@@ -63,7 +63,7 @@ BitmapTextRenderStep::BitmapTextRenderStep(skgpu::MaskFormat variant)
                                    {"deviceToLocal"     , SkSLType::kFloat4x4},
                                    {"atlasSizeInv"      , SkSLType::kFloat2}},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthGEqualPass,
+                     kDirectDepthLEqualPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
                      {{"size", VertexAttribType::kUShort2, SkSLType::kUShort2},

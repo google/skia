@@ -41,7 +41,7 @@ AnalyticBlurRenderStep::AnalyticBlurRenderStep()
                       {"shapeType", SkSLType::kInt},
                       {"depth", SkSLType::kFloat}},
                      PrimitiveType::kTriangles,
-                     kDirectDepthGreaterPass,
+                     kDirectDepthLessPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
                      {{"position", VertexAttribType::kFloat2, SkSLType::kFloat2},

@@ -51,7 +51,10 @@ RenderPassDesc RenderPassDesc::Make(const Caps* caps,
 
     RenderPassDesc desc;
     desc.fClearColor = clearColor;
-    desc.fClearDepth = 0.f; // Depth and stencil is currently always cleared to 0 if it's used
+    // Depth and stencil is currently always cleared to 1.f or 0 if it's used. Depth is 1.0 and
+    // counts down as painter's order increases due to HW preference for historic OpenGL defaults
+    // of a fast hi-z clear value of 1.0 with depth test of lesser.
+    desc.fClearDepth = 1.f;
     desc.fClearStencil = 0;
     desc.fWriteSwizzle = writeSwizzle;
     desc.fDstReadStrategy = dstReadStrategy;

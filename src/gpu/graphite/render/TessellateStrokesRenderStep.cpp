@@ -96,7 +96,7 @@ TessellateStrokesRenderStep::TessellateStrokesRenderStep(bool infinitySupport)
                                    {"translate", SkSLType::kFloat2},
                                    {"maxScale", SkSLType::kFloat}},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthGreaterPass,
+                     kDirectDepthLessPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/kAttributes[infinitySupport])
         , fInfinitySupport(infinitySupport) {}

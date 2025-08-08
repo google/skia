@@ -111,7 +111,7 @@ VerticesRenderStep::VerticesRenderStep(PrimitiveType type, bool hasColor, bool h
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4},
                                    {"depth", SkSLType::kFloat}},
                      type,
-                     kDirectDepthGEqualPass,
+                     kDirectDepthLEqualPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/kAttributes[2*hasTexCoords + hasColor],
                      /*varyings=*/   kVaryings[hasColor])

@@ -130,7 +130,12 @@ public:
     DisjointStencilIndex    stencilIndex() const { return fStencilIndex; }
     PaintersDepth           depth()        const { return fDepth;        }
 
-    float depthAsFloat() const { return fDepth.bits() / (float) PaintersDepth::Last().bits(); }
+    // While the PaintersDepth is a monotonically increasing value, the depth buffer prefers to
+    // use LESS and LEQUAL comparisons starting with a clear value of 1.f, so we normalize and flip
+    // the floating point value to count down from 1.0.
+    float depthAsFloat() const {
+        return 1.f - fDepth.bits() / (float) PaintersDepth::Last().bits();
+    }
 
     // Coopt the stencil index to encode the draw's actual painter's depth in decreasing order,
     // for use enforcing F2B order (since the compressed painter's order handles B2F).

@@ -14,25 +14,25 @@ namespace skgpu::graphite {
 
 /**
  * DepthStencilSettings reusable by RenderSteps that can shade directly in a single pass, using
- * GREATER or GEQUAL depth tests depending on if they allow self-intersections.
+ * LESS or LEQUAL depth tests depending on if they allow self-intersections.
  */
 
-static constexpr DepthStencilSettings kDirectDepthGreaterPass = {
+static constexpr DepthStencilSettings kDirectDepthLessPass = {
         /*front=*/       {},
         /*back=*/        {},
         /*stencilRef=*/  0,
         /*stencilTest=*/ false,
-        /*depthCompare=*/CompareOp::kGreater,
+        /*depthCompare=*/CompareOp::kLess,
         /*depthTest=*/   true,
         /*depthWrite=*/  true
 };
 
-static constexpr DepthStencilSettings kDirectDepthGEqualPass = {
+static constexpr DepthStencilSettings kDirectDepthLEqualPass = {
         /*front=*/       {},
         /*back=*/        {},
         /*stencilRef=*/  0,
         /*stencilTest=*/ false,
-        /*depthCompare=*/CompareOp::kGEqual,
+        /*depthCompare=*/CompareOp::kLEqual,
         /*depthTest=*/   true,
         /*depthWrite=*/  true
 };
@@ -79,7 +79,7 @@ constexpr DepthStencilSettings kWindingStencilPass = {
         /*back=*/        kDecrementCCW,
         /*stencilRef=*/  0,
         /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kGreater,
+        /*depthCompare=*/CompareOp::kLess,
         /*depthTest=*/   true,
         /*depthWrite=*/  false // The depth write will be handled by the covering pass
 };
@@ -91,7 +91,7 @@ constexpr DepthStencilSettings kEvenOddStencilPass = {
         /*back=*/        kToggle,
         /*stencilRef=*/  0,
         /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kGreater,
+        /*depthCompare=*/CompareOp::kLess,
         /*depthTest=*/   true,
         /*depthWrite=*/  false // The depth write will be handled by the covering pass
 };
@@ -131,7 +131,7 @@ constexpr DepthStencilSettings kRegularCoverPass = {
         /*back=*/        kPassNonZero,
         /*stencilRef=*/  0,
         /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kGreater,
+        /*depthCompare=*/CompareOp::kLess,
         /*depthTest=*/   true,
         /*depthWrite=*/  true
 };
@@ -143,7 +143,7 @@ constexpr DepthStencilSettings kInverseCoverPass = {
         /*back=*/        kPassZero,
         /*stencilRef=*/  0,
         /*stencilTest=*/ true,
-        /*depthCompare=*/CompareOp::kGreater,
+        /*depthCompare=*/CompareOp::kLess,
         /*depthTest=*/   true,
         /*depthWrite=*/  true
 };

@@ -132,7 +132,7 @@ CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
                      Flags::kAppendInstances,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthGreaterPass,
+                     kDirectDepthLessPass,
                      /*staticAttrs=*/{
                              {"position", VertexAttribType::kFloat3, SkSLType::kFloat3},
                      },

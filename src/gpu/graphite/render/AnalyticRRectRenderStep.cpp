@@ -369,7 +369,7 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
                      Flags::kUseNonAAInnerFill | Flags::kAppendInstances,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthGreaterPass,
+                     kDirectDepthLessPass,
                      /*staticAttrs=*/{
                              {"cornerID", VertexAttribType::kUInt, SkSLType::kUInt},
                              {"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
