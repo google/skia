@@ -211,20 +211,16 @@ void SkPathRef::CreateTransformedCopy(sk_sp<SkPathRef>* dst,
 
     (*dst)->fSegmentMask = src.fSegmentMask;
 
-    // It's an oval only if it stays a rect. Technically if scale is uniform, then it would stay an
-    // arc. For now, don't bother handling that (we'd also need to fixup the angles for negative
-    // scale, etc.)
-    bool rectStaysRect = matrix.rectStaysRect();
-    const SkPathIsAType newType =
-            (rectStaysRect && !SkPathIsAArc(src.fType)) ? src.fType : SkPathIsAType::kGeneral;
+    // It's an oval/rrect only if rect stays rect.
+    const SkPathIsAType newType = matrix.rectStaysRect() ? src.fType : SkPathIsAType::kGeneral;
+
     (*dst)->fType = newType;
     if (newType == SkPathIsAType::kOval || newType == SkPathIsAType::kRRect) {
         auto [dir, start] =
         SkPathPriv::TransformDirAndStart(matrix, newType == SkPathIsAType::kRRect,
-                                         src.fIsA.fRRectOrOval.fDirection,
-                                         src.fIsA.fRRectOrOval.fStartIndex);
-        (*dst)->fIsA.fRRectOrOval.fDirection  = dir;
-        (*dst)->fIsA.fRRectOrOval.fStartIndex = start;
+                                         src.fIsA.fDirection, src.fIsA.fStartIndex);
+        (*dst)->fIsA.fDirection  = dir;
+        (*dst)->fIsA.fStartIndex = start;
     }
 
     if (dst->get() == &src) {
@@ -520,11 +516,9 @@ SkRRect SkPathPriv::DeduceRRectFromContour(const SkRect& bounds, SkSpan<const Sk
 std::optional<SkPathRRectInfo> SkPathRef::isRRect() const {
     if (fType == SkPathIsAType::kRRect) {
         return {{
-            SkPathPriv::DeduceRRectFromContour(this->getBounds(),
-                                               this->pointSpan(),
-                                               this->verbs()),
-            fIsA.fRRectOrOval.fDirection,
-            fIsA.fRRectOrOval.fStartIndex,
+            SkPathPriv::DeduceRRectFromContour(this->getBounds(), this->pointSpan(), this->verbs()),
+            fIsA.fDirection,
+            fIsA.fStartIndex,
         }};
     }
     return {};
@@ -537,19 +531,12 @@ bool SkPathRef::isValid() const {
         case SkPathIsAType::kGeneral:
             break;
         case SkPathIsAType::kOval:
-            if (fIsA.fRRectOrOval.fStartIndex >= 4) {
+            if (fIsA.fStartIndex >= 4) {
                 return false;
             }
             break;
         case SkPathIsAType::kRRect:
-            if (fIsA.fRRectOrOval.fStartIndex >= 8) {
-                return false;
-            }
-            break;
-        case SkPathIsAType::kArc: [[fallthrough]];
-        case SkPathIsAType::kArcWedge:
-            if (!(fIsA.fArc.fArcOval.isFinite() &&
-                  SkIsFinite(fIsA.fArc.fStartAngle, fIsA.fArc.fSweepAngle))) {
+            if (fIsA.fStartIndex >= 8) {
                 return false;
             }
             break;

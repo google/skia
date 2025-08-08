@@ -52,12 +52,6 @@ struct SkPathRRectInfo {
     uint8_t         fStartIndex;
 };
 
-struct SkPathArcInfo {
-    SkRect  fArcOval;
-    float   fStartAngle,
-            fSweepAngle;
-};
-
 /*
  *  Paths can be tagged with a "Type" -- the IsAType
  *  This signals that it was built from a high-level shape: oval, rrect, arc, wedge.
@@ -80,37 +74,16 @@ struct SkPathArcInfo {
  *      kRRect    : same as kOval for implicit bounds, direction and start_index.
  *                  Note: we don't store its radii -- we deduce those when isRRect() is
  *                        called, by examining the points/verbs.
- *      kArc      : store the oval's bounds and start/sweep angles that for the arc.
- *      kArcWedge : same as kArc, but we note that we're a wedge (see SkArc::Type)
  */
 enum class SkPathIsAType : uint8_t {
     kGeneral,
     kOval,
     kRRect,
-    kArc,
-    kArcWedge,
 };
 
-static inline bool SkPathIsAArc(SkPathIsAType t) {
-    return t == SkPathIsAType::kArc || t == SkPathIsAType::kArcWedge;
-}
-
-static inline SkPathIsAType SkArcTypeToIsAType(SkArc::Type t) {
-    return t == SkArc::Type::kArc ? SkPathIsAType::kArc : SkPathIsAType::kArcWedge;
-}
-
-static inline SkArc::Type SkPathIsATypeToArcType(SkPathIsAType t) {
-    SkASSERT(SkPathIsAArc(t));
-    return t == SkPathIsAType::kArc ? SkArc::Type::kArc : SkArc::Type::kWedge;
-}
-
-union SkPathIsAData {
-    // no extra data for kGeneral (or deduced Rect)
-    struct RRectOrOval {
-        uint8_t         fStartIndex;
-        SkPathDirection fDirection;
-    } fRRectOrOval;
-    SkPathArcInfo fArc;
+struct SkPathIsAData {
+    uint8_t         fStartIndex;
+    SkPathDirection fDirection;
 };
 
 /**
@@ -228,10 +201,6 @@ public:
             fPathRef->setIsRRect(dir, start);
         }
 
-        void setIsArc(const SkArc& arc) {
-            fPathRef->setIsArc(arc);
-        }
-
         void setBounds(const SkRect& rect) { fPathRef->setBounds(rect); }
 
     private:
@@ -271,22 +240,14 @@ public:
         if (fType == SkPathIsAType::kOval) {
             return {{
                 this->getBounds(),
-                fIsA.fRRectOrOval.fDirection,
-                fIsA.fRRectOrOval.fStartIndex,
+                fIsA.fDirection,
+                fIsA.fStartIndex,
             }};
         }
         return {};
     }
 
     std::optional<SkPathRRectInfo> isRRect() const;
-
-    std::optional<SkArc> isArc() const {
-        if (SkPathIsAArc(fType)) {
-            return SkArc::Make(fIsA.fArc.fArcOval, fIsA.fArc.fStartAngle, fIsA.fArc.fSweepAngle,
-                               SkPathIsATypeToArcType(fType));
-        }
-        return {};
-    }
 
     bool hasComputedBounds() const {
         return !fBoundsIsDirty;
@@ -528,21 +489,14 @@ private:
 
     void setIsOval(SkPathDirection dir, unsigned start) {
         fType = SkPathIsAType::kOval;
-        fIsA.fRRectOrOval.fDirection  = dir;
-        fIsA.fRRectOrOval.fStartIndex = SkToU8(start);
+        fIsA.fDirection  = dir;
+        fIsA.fStartIndex = SkToU8(start);
     }
 
     void setIsRRect(SkPathDirection dir, unsigned start) {
         fType = SkPathIsAType::kRRect;
-        fIsA.fRRectOrOval.fDirection  = dir;
-        fIsA.fRRectOrOval.fStartIndex = SkToU8(start);
-    }
-
-    void setIsArc(const SkArc& arc) {
-        fType = SkArcTypeToIsAType(arc.fType);
-        fIsA.fArc.fArcOval    = arc.fOval;
-        fIsA.fArc.fStartAngle = arc.fStartAngle;
-        fIsA.fArc.fSweepAngle = arc.fSweepAngle;
+        fIsA.fDirection  = dir;
+        fIsA.fStartIndex = SkToU8(start);
     }
 
     // called only by the editor. Note that this is not a const function.

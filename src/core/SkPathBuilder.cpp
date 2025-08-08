@@ -266,26 +266,18 @@ SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
     SkPathFirstDirection dir = SkPathFirstDirection::kUnknown;
 
     switch (fType) {
+        case SkPathIsAType::kGeneral:
+            break;
         case SkPathIsAType::kOval:
-            pr->setIsOval(fIsA.fRRectOrOval.fDirection, fIsA.fRRectOrOval.fStartIndex);
-            dir = SkPathDirectionToFirst(fIsA.fRRectOrOval.fDirection);
+            pr->setIsOval(fIsA.fDirection, fIsA.fStartIndex);
+            dir = SkPathDirectionToFirst(fIsA.fDirection);
             SkASSERT(fConvexity == SkPathConvexity::kConvex);
             break;
         case SkPathIsAType::kRRect:
-            pr->setIsRRect(fIsA.fRRectOrOval.fDirection, fIsA.fRRectOrOval.fStartIndex);
-            dir = SkPathDirectionToFirst(fIsA.fRRectOrOval.fDirection);
+            pr->setIsRRect(fIsA.fDirection, fIsA.fStartIndex);
+            dir = SkPathDirectionToFirst(fIsA.fDirection);
             SkASSERT(fConvexity == SkPathConvexity::kConvex);
             break;
-        case SkPathIsAType::kArc: [[fallthrough]];
-        case SkPathIsAType::kArcWedge:
-            pr->setIsArc(SkArc::Make(
-                fIsA.fArc.fArcOval,
-                fIsA.fArc.fStartAngle,
-                fIsA.fArc.fSweepAngle,
-                SkPathIsATypeToArcType(fType)
-            ));
-            break;
-        default: break;
     }
 
     // Wonder if we can combine convexity and dir internally...
@@ -708,9 +700,9 @@ SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, u
     this->addRaw(SkPathRawShapes::Oval(oval, dir, index));
 
     if (wasEmpty) {
-        fType                         = SkPathIsAType::kOval;
-        fIsA.fRRectOrOval.fDirection  = dir;
-        fIsA.fRRectOrOval.fStartIndex = index % 4;
+        fType            = SkPathIsAType::kOval;
+        fIsA.fDirection  = dir;
+        fIsA.fStartIndex = index % 4;
         fConvexity = SkPathConvexity::kConvex;
     }
 
@@ -734,9 +726,9 @@ SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir
     this->addRaw(SkPathRawShapes::RRect(rrect, dir, index));
 
     if (wasEmpty) {
-        fType                         = SkPathIsAType::kRRect;
-        fIsA.fRRectOrOval.fDirection  = dir;
-        fIsA.fRRectOrOval.fStartIndex = index % 8;
+        fType            = SkPathIsAType::kRRect;
+        fIsA.fDirection  = dir;
+        fIsA.fStartIndex = index % 8;
         fConvexity = SkPathConvexity::kConvex;
     }
     return *this;
@@ -1020,10 +1012,9 @@ SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix) {
         if (fType == SkPathIsAType::kOval || fType == SkPathIsAType::kRRect) {
             auto [dir, start] =
             SkPathPriv::TransformDirAndStart(matrix, fType == SkPathIsAType::kRRect,
-                                             fIsA.fRRectOrOval.fDirection,
-                                             fIsA.fRRectOrOval.fStartIndex);
-            fIsA.fRRectOrOval.fDirection  = dir;
-            fIsA.fRRectOrOval.fStartIndex = start;
+                                             fIsA.fDirection, fIsA.fStartIndex);
+            fIsA.fDirection  = dir;
+            fIsA.fStartIndex = start;
         }
 
     }
