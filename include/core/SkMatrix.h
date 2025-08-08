@@ -1139,6 +1139,7 @@ public:
             *this = *mx;
             return true;
         }
+        this->reset();
         return false;
     }
 

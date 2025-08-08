@@ -177,6 +177,14 @@ static void test_matrix_recttorect(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, !matrix.has_value());
     SkMatrix mx = SkMatrix::RectToRectOrIdentity(src, dst);
     REPORTER_ASSERT(reporter, SkMatrix::kIdentity_Mask == mx.getType());
+
+    {
+        SkMatrix m = SkMatrix::Translate(20, 20);
+        REPORTER_ASSERT(reporter, !m.setRectToRect(SkRect::MakeEmpty(), SkRect::MakeWH(10, 20),
+                                                   SkMatrix::kCenter_ScaleToFit));
+        // setRectToRect failures are expected to reset the matrix.
+        REPORTER_ASSERT(reporter, m.isIdentity());
+    }
 }
 
 static void test_flatten(skiatest::Reporter* reporter, const SkMatrix& m) {
