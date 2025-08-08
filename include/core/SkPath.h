@@ -773,24 +773,16 @@ private:
     */
     void incReserve(int extraPtCount, int extraVerbCount = 0, int extraConicCount = 0);
 
-    /** Adds beginning of contour at SkPoint (x, y).
-
-        @param x  x-axis value of contour start
-        @param y  y-axis value of contour start
-        @return   reference to SkPath
-
-        example: https://fiddle.skia.org/c/@Path_moveTo
-    */
-    SkPath& moveTo(SkScalar x, SkScalar y);
-
-    /** Adds beginning of contour at SkPoint p.
-
-        @param p  contour start
-        @return   reference to SkPath
-    */
-    SkPath& moveTo(const SkPoint& p) {
+    /** Specifies the beginning of contour. If the previous verb was a "move" verb,
+     *  then this just replaces the point value of that move, otherwise it appends a new
+     *  "move" verb to the path using the point.
+     *
+     *  Thus, each contour can only have 1 move verb in it (the last one specified).
+     */
+    SkPath& moveTo(SkPoint p) {
         return this->moveTo(p.fX, p.fY);
     }
+    SkPath& moveTo(SkScalar x, SkScalar y);
 
     /** Adds beginning of contour relative to last point.
         If SkPath is empty, starts contour at (dx, dy).

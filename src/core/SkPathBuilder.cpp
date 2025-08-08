@@ -146,17 +146,26 @@ SkRect SkPathBuilder::computeBounds() const {
  */
 
 SkPathBuilder& SkPathBuilder::moveTo(SkPoint pt) {
-    // only needed while SkPath is mutable
-    fLastMoveIndex = SkToInt(fPts.size());
+    if (!fVerbs.empty() && fVerbs.back() == SkPathVerb::kMove) {
+        fPts.back() = pt;
 
-    fPts.push_back(pt);
-    fVerbs.push_back(SkPathVerb::kMove);
+        SkASSERT(fType != SkPathIsAType::kOval && fType != SkPathIsAType::kRRect);
+        SkASSERT(fNeedsMoveVerb == false);
+        SkASSERT(fConvexity == SkPathConvexity::kUnknown);
+        SkASSERT(fLastMoveIndex == SkToInt(fPts.size()) - 1);
+    } else {
+        fLastMoveIndex = SkToInt(fPts.size());
 
+        fPts.push_back(pt);
+        fVerbs.push_back(SkPathVerb::kMove);
+
+        fNeedsMoveVerb = false;
+        if (fType == SkPathIsAType::kOval || fType == SkPathIsAType::kRRect) {
+            fType = SkPathIsAType::kGeneral;
+        }
+        fConvexity = SkPathConvexity::kUnknown;
+    }
     fLastMovePoint = pt;
-    fNeedsMoveVerb = false;
-
-    fType = SkPathIsAType::kGeneral;
-    fConvexity = SkPathConvexity::kUnknown;
 
     return *this;
 }

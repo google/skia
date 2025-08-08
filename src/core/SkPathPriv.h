@@ -113,23 +113,6 @@ public:
     static std::pair<SkPathDirection, unsigned>
     TransformDirAndStart(const SkMatrix&, bool isRRect, SkPathDirection dir, unsigned start);
 
-    // In some scenarios (e.g. fill or convexity checking all but the last leading move to are
-    // irrelevant to behavior). SkPath::injectMoveToIfNeeded should ensure that this is always at
-    // least 1.
-    static int LeadingMoveToCount(SkSpan<const SkPathVerb> verbs) {
-        const int N = SkToInt(verbs.size());
-        for (int i = 0; i < N; i++) {
-            if (verbs[i] != SkPathVerb::kMove) {
-                return i;
-            }
-        }
-        return N; // path is all move verbs
-    }
-
-    static int LeadingMoveToCount(const SkPath& path) {
-        return LeadingMoveToCount(path.fPathRef->verbs());
-    }
-
     static void AddGenIDChangeListener(const SkPath& path, sk_sp<SkIDChangeListener> listener) {
         path.fPathRef->addGenIDChangeListener(std::move(listener));
     }

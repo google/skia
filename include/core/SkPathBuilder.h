@@ -130,20 +130,17 @@ public:
     */
     SkPathBuilder& reset();
 
-    /** Adds beginning of contour at SkPoint p.
+    /** Specifies the beginning of contour. If the previous verb was a "move" verb,
+     *  then this just replaces the point value of that move, otherwise it appends a new
+     *  "move" verb to the builder using the point.
+     *
+     *  Thus, each contour can only have 1 move verb in it (the last one specified).
+     */
+    SkPathBuilder& moveTo(SkPoint point);
 
-        @param p  contour start
-        @return   reference to SkPathBuilder
-    */
-    SkPathBuilder& moveTo(SkPoint pt);
-
-    /** Adds beginning of contour at SkPoint (x, y).
-
-        @param x  x-axis value of contour start
-        @param y  y-axis value of contour start
-        @return   reference to SkPathBuilder
-    */
-    SkPathBuilder& moveTo(SkScalar x, SkScalar y) { return this->moveTo(SkPoint::Make(x, y)); }
+    SkPathBuilder& moveTo(SkScalar x, SkScalar y) {
+        return this->moveTo(SkPoint::Make(x, y));
+    }
 
     /** Adds line from last point to SkPoint p. If SkPathBuilder is empty, or last SkPath::Verb is
         kClose_Verb, last point is set to (0, 0) before adding line.

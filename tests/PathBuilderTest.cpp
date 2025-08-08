@@ -582,9 +582,31 @@ static void assertIsDone(skiatest::Reporter* reporter, SkPathPriv::RangeIter* it
     REPORTER_ASSERT(reporter, *iter == SkPathPriv::Iterate(*p).end(), "Iterator is not done yet");
 }
 
+DEF_TEST(SkPathBuilder_multipleMoveTos, reporter) {
+    SkPathBuilder pb;
+    REPORTER_ASSERT(reporter, pb.isEmpty());
+
+    auto check_last_pt = [&](float x, float y) {
+        auto lastPt = pb.getLastPt();
+        REPORTER_ASSERT(reporter, lastPt.has_value());
+        return *lastPt == SkPoint{x, y};
+    };
+
+    pb.moveTo(1, 2);
+    REPORTER_ASSERT(reporter, pb.points().size() == 1);
+    REPORTER_ASSERT(reporter, check_last_pt(1, 2));
+    REPORTER_ASSERT(reporter, pb.computeBounds() == SkRect::MakeXYWH(1, 2, 0, 0));
+
+    pb.moveTo(3, 4);
+    pb.moveTo(5, 6);
+    pb.moveTo(7, 8);
+    REPORTER_ASSERT(reporter, pb.points().size() == 1);
+    REPORTER_ASSERT(reporter, check_last_pt(7, 8));
+    REPORTER_ASSERT(reporter, pb.computeBounds() == SkRect::MakeXYWH(7, 8, 0, 0));
+}
+
 DEF_TEST(SkPathBuilder_lineToMoveTo, reporter) {
     SkPathBuilder pb;
-    pb.moveTo(5, -1);
     pb.moveTo(20, 3);
     pb.lineTo(7, 11);
     pb.lineTo(8, 12);
@@ -594,7 +616,6 @@ DEF_TEST(SkPathBuilder_lineToMoveTo, reporter) {
     SkPath result = pb.detach();
 
     auto iter = SkPathPriv::Iterate(result).begin();
-    assertIsMoveTo(reporter, &iter, 5, -1);
     assertIsMoveTo(reporter, &iter, 20, 3);
     assertIsLineTo(reporter, &iter, 7, 11);
     assertIsLineTo(reporter, &iter, 8, 12);

@@ -36,7 +36,6 @@ DEF_TEST(SkPath_RangeIter, r) {
         Verb::kConic,
         Verb::kLine,
         Verb::kClose,
-        Verb::kMove,
         Verb::kMove
     };
 
