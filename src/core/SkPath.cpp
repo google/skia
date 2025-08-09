@@ -58,26 +58,22 @@ static float poly_eval(float A, float B, float C, float D, float t) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-static bool is_degenerate(const SkPath& path) {
-    return path.countVerbs() <= 1;
-}
-
 class SkAutoAddSimpleShape {
 public:
     SkAutoAddSimpleShape(SkPath* path) : fPath(path) {
-        fIsDegenerate = is_degenerate(*path);
+        fIsEffectivelyEmpty = SkPathPriv::IsEffectivelyEmpty(*path);
         fSavedFirstDirection = static_cast<SkPathFirstDirection>(fPath->getFirstDirection());
     }
 
     ~SkAutoAddSimpleShape() {
-        fPath->setConvexity(fIsDegenerate ? SkPathConvexity::kConvex
-                                          : SkPathConvexity::kUnknown);
+        fPath->setConvexity(fIsEffectivelyEmpty ? SkPathConvexity::kConvex
+                                                : SkPathConvexity::kUnknown);
         fPath->setFirstDirection(fSavedFirstDirection);
     }
 
 private:
     SkPath*                 fPath;
-    bool                    fIsDegenerate;
+    bool                    fIsEffectivelyEmpty;
     SkPathFirstDirection    fSavedFirstDirection;
 };
 
@@ -1327,7 +1323,10 @@ SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMo
         return *this;
     }
 
-    if (this->isEmpty() && matrix.isIdentity()) {
+    const bool canReplaceThis = (mode == kAppend_AddPathMode &&
+                                 SkPathPriv::IsEffectivelyEmpty(*this))
+                              || this->countVerbs() == 0;
+    if (canReplaceThis && matrix.isIdentity()) {
         const uint8_t fillType = fFillType;
         *this = srcPath;
         fFillType = fillType;

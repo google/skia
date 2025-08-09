@@ -797,7 +797,10 @@ SkPathBuilder& SkPathBuilder::addPath(const SkPath& src, const SkMatrix& matrix,
         return *this;
     }
 
-    if (this->isEmpty() && matrix.isIdentity()) {
+    const bool canReplaceThis = (mode == SkPath::AddPathMode::kAppend_AddPathMode &&
+                                 SkPathPriv::IsEffectivelyEmpty(*this))
+                              || this->verbs().empty();
+    if (canReplaceThis && matrix.isIdentity()) {
         const SkPathFillType fillType = fFillType;
         *this = src;
         fFillType = fillType;

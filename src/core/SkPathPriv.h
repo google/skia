@@ -335,6 +335,19 @@ public:
         return (static_cast<int>(fill) & 2) != 0;
     }
 
+    /*
+     *  We are effectively empty if we have zero or one verbs.
+     *  Zero obviously means we're empty.
+     *  One means we only have a MoveTo -- but no segments, so this is effectively
+     *  empty (e.g. when adding another contour, this moveTo will be overwritten).
+     */
+    static bool IsEffectivelyEmpty(const SkPath& path) {
+        return path.countVerbs() <= 1;
+    }
+    static bool IsEffectivelyEmpty(const SkPathBuilder& builder) {
+        return builder.verbs().size() <= 1;
+    }
+
     /** Returns equivalent SkPath::FillType representing SkPath fill inside its bounds.
      .
 

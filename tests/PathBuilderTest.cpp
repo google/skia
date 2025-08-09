@@ -473,6 +473,48 @@ static void test_addPath_and_injected_moveTo(skiatest::Reporter* reporter) {
     test_before_after_lineto(path3c, {20,50}, {20,50});
 }
 
+static void test_addPath_convexity(skiatest::Reporter* reporter) {
+    auto circle = SkPath::Circle(10, 10, 10);
+    REPORTER_ASSERT(reporter, circle.isConvex());
+
+    auto path_add = [&](bool startWithMove, SkPath::AddPathMode mode) {
+        SkPath path;
+        if (startWithMove) {
+            path.moveTo(0, 0);
+        }
+        path.addPath(circle, mode);
+        return path;
+    };
+
+    auto builder_add = [&](bool startWithMove, SkPath::AddPathMode mode) {
+        SkPathBuilder builder;
+        if (startWithMove) {
+            builder.moveTo(0, 0);
+        }
+        builder.addPath(circle, mode);
+        return builder.detach();
+    };
+
+    const struct Expect {
+        bool                fStartWithMove;
+        SkPath::AddPathMode fMode;
+        bool                fShouldBeConvex;
+    } expectations[] = {
+        { false, SkPath::AddPathMode::kAppend_AddPathMode,  true  },
+        { true,  SkPath::AddPathMode::kAppend_AddPathMode,  true  },
+        { false, SkPath::AddPathMode::kExtend_AddPathMode,  true  },
+        { true,  SkPath::AddPathMode::kExtend_AddPathMode,  false },
+    };
+
+    for (auto e : expectations) {
+        auto path = path_add(e.fStartWithMove, e.fMode);
+        REPORTER_ASSERT(reporter, path.isConvex() == e.fShouldBeConvex);
+
+        path = builder_add(e.fStartWithMove, e.fMode);
+        REPORTER_ASSERT(reporter, path.isConvex() == e.fShouldBeConvex);
+    }
+}
+
 DEF_TEST(pathbuilder_addPath, reporter) {
     const auto p = SkPath()
         .moveTo(10, 10)
@@ -494,6 +536,8 @@ DEF_TEST(pathbuilder_addPath, reporter) {
     test_addEmptyPath(reporter, SkPath::kExtend_AddPathMode);
     test_addEmptyPath(reporter, SkPath::kAppend_AddPathMode);
     test_addPath_and_injected_moveTo(reporter);
+
+    test_addPath_convexity(reporter);
 }
 
 DEF_TEST(pathbuilder_addpath_crbug_1153516, r) {
