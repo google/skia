@@ -22,10 +22,10 @@ sk_sp<PrecompileShader> PrecompileShaders::VulkanYCbCrImage(
         return nullptr;
     }
 
-    sk_sp<PrecompileImageShader> shader(new PrecompileImageShader(shaderFlags,
+    sk_sp<PrecompileImageShader> shader = sk_make_sp<PrecompileImageShader>(shaderFlags,
                                                                   colorInfos,
                                                                   tileModes,
-                                                                  /* raw= */false));
+                                                                  /* raw= */false);
 
     shader->setImmutableSamplerInfo(
             VulkanYcbcrConversion::ToImmutableSamplerInfo(YCbCrConversionInfo));

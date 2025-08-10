@@ -22,6 +22,9 @@ namespace skgpu::graphite {
 
 class Caps;
 enum class DstReadStrategy : uint8_t;
+class FloatStorageManager;
+class PaintParamsKeyBuilder;
+class PipelineDataGatherer;
 class Recorder;
 class RuntimeEffectDictionary;
 class ShaderCodeDictionary;
@@ -50,16 +53,25 @@ class KeyContext {
 public:
     // Constructor for the pre-compile code path (i.e., no Recorder)
     KeyContext(const Caps* caps,
+               FloatStorageManager* floatStorageManager,
+               PaintParamsKeyBuilder* paintParamsKeyBuilder,
+               PipelineDataGatherer* pipelineDataGatherer,
                ShaderCodeDictionary* dict,
                RuntimeEffectDictionary* rtEffectDict,
                const SkColorInfo& dstColorInfo)
-            : fDictionary(dict)
+            : fFloatStorageManager(floatStorageManager)
+            , fPaintParamsKeyBuilder(paintParamsKeyBuilder)
+            , fPipelineDataGatherer(pipelineDataGatherer)
+            , fDictionary(dict)
             , fRTEffectDict(rtEffectDict)
             , fDstColorInfo(dstColorInfo)
             , fCaps(caps) {}
 
     // Constructor for the ExtractPaintData code path (i.e., with a Recorder)
     KeyContext(Recorder*,
+               FloatStorageManager* floatStorageManager,
+               PaintParamsKeyBuilder* paintParamsKeyBuilder,
+               PipelineDataGatherer* pipelineDataGatherer,
                const SkM44& local2Dev,
                const SkColorInfo& dstColorInfo,
                SkEnumBitMask<KeyGenFlags> initialFlags,
@@ -74,6 +86,9 @@ public:
     const SkM44& local2Dev() const { return fLocal2Dev; }
     const SkMatrix* localMatrix() const { return fLocalMatrix; }
 
+    FloatStorageManager* floatStorageManager() const { return fFloatStorageManager; }
+    PaintParamsKeyBuilder* paintParamsKeyBuilder() const { return fPaintParamsKeyBuilder; }
+    PipelineDataGatherer* pipelineDataGatherer() const { return fPipelineDataGatherer; }
     ShaderCodeDictionary* dict() const { return fDictionary; }
     RuntimeEffectDictionary* rtEffectDict() const { return fRTEffectDict; }
 
@@ -85,6 +100,9 @@ public:
 
 protected:
     Recorder* fRecorder = nullptr;
+    FloatStorageManager* fFloatStorageManager;
+    PaintParamsKeyBuilder* fPaintParamsKeyBuilder;
+    PipelineDataGatherer* fPipelineDataGatherer;
     SkM44 fLocal2Dev;
     SkMatrix* fLocalMatrix = nullptr;
     ShaderCodeDictionary* fDictionary;

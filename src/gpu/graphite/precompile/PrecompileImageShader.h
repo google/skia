@@ -87,10 +87,7 @@ private:
 
     int numIntrinsicCombinations() const override;
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override;
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override;
 };
 
 } // namespace skgpu::graphite

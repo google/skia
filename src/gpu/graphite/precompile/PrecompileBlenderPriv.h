@@ -26,11 +26,8 @@ public:
 
     int numCombinations() const { return fPrecompileBlender->numCombinations(); }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const {
-        fPrecompileBlender->addToKey(keyContext, builder, gatherer, desiredCombination);
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const {
+        fPrecompileBlender->addToKey(keyContext, desiredCombination);
     }
 
 private:

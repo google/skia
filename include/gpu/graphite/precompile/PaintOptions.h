@@ -32,7 +32,6 @@ enum class TextureFormat : uint8_t;
 class KeyContext;
 class PaintOptionsPriv;
 class PaintParamsKeyBuilder;
-class PipelineDataGatherer;
 struct RenderPassDesc;
 class UniquePaintParamsID;
 
@@ -174,8 +173,6 @@ private:
     // 'desiredCombination' must be less than the result of the numCombinations call
     void createKey(const KeyContext&,
                    TextureFormat,
-                   PaintParamsKeyBuilder*,
-                   PipelineDataGatherer*,
                    int desiredCombination,
                    bool addPrimitiveBlender,
                    bool addAnalyticClip,
@@ -188,7 +185,6 @@ private:
                                const RenderPassDesc&)> ProcessCombination;
 
     void buildCombinations(const KeyContext&,
-                           PipelineDataGatherer*,
                            DrawTypeFlags,
                            bool addPrimitiveBlender,
                            Coverage,

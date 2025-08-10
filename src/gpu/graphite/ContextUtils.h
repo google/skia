@@ -27,6 +27,7 @@ namespace graphite {
 class Caps;
 class ComputeStep;
 enum class Coverage;
+class FloatStorageManager;
 class Geometry;
 class PaintParams;
 class PaintParamsKeyBuilder;
@@ -44,6 +45,7 @@ class UniquePaintParamsID;
 enum class Layout : uint8_t;
 
 UniquePaintParamsID ExtractPaintData(Recorder*,
+                                     FloatStorageManager* floatStorageManager,
                                      PipelineDataGatherer* gatherer,
                                      PaintParamsKeyBuilder* builder,
                                      const Layout layout,

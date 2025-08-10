@@ -52,20 +52,15 @@ private:
     // The PrecompileImageFilter classes do not use the PrecompileBase::addToKey virtual since
     // they, in general, do not themselves contribute to a given SkPaint/Pipeline but, rather,
     // create separate SkPaints/Pipelines from whole cloth (in onCreatePipelines).
-    void addToKey(const KeyContext& /* keyContext */,
-                  PaintParamsKeyBuilder* /* builder */,
-                  PipelineDataGatherer* /* gatherer */,
-                  int /* desiredCombination */) const final {
+    void addToKey(const KeyContext& /* keyContext */, int /* desiredCombination */) const final {
         SkASSERT(false);
     }
 
     virtual void onCreatePipelines(const KeyContext&,
-                                   PipelineDataGatherer*,
                                    const RenderPassDesc&,
                                    const PaintOptions::ProcessCombination&) const = 0;
 
     void createPipelines(const KeyContext&,
-                         PipelineDataGatherer*,
                          const RenderPassDesc&,
                          const PaintOptions::ProcessCombination&);
 

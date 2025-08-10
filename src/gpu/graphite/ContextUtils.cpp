@@ -42,6 +42,7 @@
 namespace skgpu::graphite {
 
 UniquePaintParamsID ExtractPaintData(Recorder* recorder,
+                                     FloatStorageManager* floatStorageManager,
                                      PipelineDataGatherer* gatherer,
                                      PaintParamsKeyBuilder* builder,
                                      const Layout layout,
@@ -53,13 +54,16 @@ UniquePaintParamsID ExtractPaintData(Recorder* recorder,
     SkDEBUGCODE(gatherer->checkReset());
 
     KeyContext keyContext(recorder,
+                          floatStorageManager,
+                          builder,
+                          gatherer,
                           local2Dev,
                           targetColorInfo,
                           geometry.isShape() || geometry.isEdgeAAQuad()
                                   ? KeyGenFlags::kDefault
                                   : KeyGenFlags::kDisableSamplingOptimization,
                           p.color());
-    p.toKey(keyContext, builder, gatherer);
+    p.toKey(keyContext);
 
     return recorder->priv().shaderCodeDictionary()->findOrCreate(builder);
 }

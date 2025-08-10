@@ -15,7 +15,6 @@ namespace skgpu::graphite {
 
 class KeyContext;
 class PaintParamsKeyBuilder;
-class PipelineDataGatherer;
 class PrecompileBasePriv;
 
 /** \class PrecompileBase
@@ -51,10 +50,7 @@ protected:
         return this->numIntrinsicCombinations() * this->numChildCombinations();
     }
 
-    virtual void addToKey(const KeyContext&,
-                          PaintParamsKeyBuilder*,
-                          PipelineDataGatherer*,
-                          int desiredCombination) const = 0;
+    virtual void addToKey(const KeyContext&, int desiredCombination) const = 0;
 
     // This returns the desired option along with the child options.
     template<typename T>
@@ -64,11 +60,7 @@ protected:
     // In general, derived classes should use AddToKey to select the desired child option from
     // a span and then have it added to the key with its reduced/nested child option.
     template<typename T>
-    static void AddToKey(const KeyContext&,
-                         PaintParamsKeyBuilder*,
-                         PipelineDataGatherer*,
-                         SkSpan<const sk_sp<T>> options,
-                         int desiredOption);
+    static void AddToKey(const KeyContext&, SkSpan<const sk_sp<T>> options, int desiredOption);
 
 private:
     friend class PrecompileBasePriv;

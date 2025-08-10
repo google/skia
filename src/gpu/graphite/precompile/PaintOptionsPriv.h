@@ -41,15 +41,13 @@ public:
 
     void buildCombinations(
             const KeyContext& keyContext,
-            PipelineDataGatherer* gatherer,
             DrawTypeFlags drawTypes,
             bool withPrimitiveBlender,
             Coverage coverage,
             const RenderPassDesc& renderPassDesc,
             const ProcessCombination& processCombination) const {
-        fPaintOptions->buildCombinations(
-                keyContext, gatherer, drawTypes, withPrimitiveBlender, coverage,
-                renderPassDesc, processCombination);
+        fPaintOptions->buildCombinations(keyContext, drawTypes, withPrimitiveBlender, coverage,
+                                         renderPassDesc, processCombination);
     }
 
 private:

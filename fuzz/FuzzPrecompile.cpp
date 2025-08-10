@@ -307,18 +307,18 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
 
     SkColorInfo ci = SkColorInfo(kRGBA_8888_SkColorType, kPremul_SkAlphaType,
                                  SkColorSpace::MakeSRGB());
-
-    std::unique_ptr<RuntimeEffectDictionary> rtDict = std::make_unique<RuntimeEffectDictionary>();
-    KeyContext precompileKeyContext(recorder->priv().caps(), dict, rtDict.get(), ci);
-
-    DrawTypeFlags kDrawType = DrawTypeFlags::kSimpleShape;
-    SkPath path = make_path();
-
     Layout layout = context->backend() == skgpu::BackendApi::kMetal ? Layout::kMetal
                                                                     : Layout::kStd140;
 
+    FloatStorageManager floatStorageManager;
     PaintParamsKeyBuilder builder(dict);
     PipelineDataGatherer gatherer(layout);
+    std::unique_ptr<RuntimeEffectDictionary> rtDict = std::make_unique<RuntimeEffectDictionary>();
+    KeyContext precompileKeyContext(recorder->priv().caps(), &floatStorageManager,
+                                    &builder, &gatherer, dict, rtDict.get(), ci);
+
+    DrawTypeFlags kDrawType = DrawTypeFlags::kSimpleShape;
+    SkPath path = make_path();
 
     auto [paint, paintOptions] = create_random_paint(fuzz, depth);
 
@@ -335,6 +335,7 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
                                                              coverage)
                                    : false;
     UniquePaintParamsID paintID = ExtractPaintData(recorder.get(),
+                                                   &floatStorageManager,
                                                    &gatherer,
                                                    &builder,
                                                    layout,
@@ -352,7 +353,6 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
 
     std::vector<UniquePaintParamsID> precompileIDs;
     paintOptions.priv().buildCombinations(precompileKeyContext,
-                                          &gatherer,
                                           DrawTypeFlags::kNone,
                                           /* withPrimitiveBlender= */ false,
                                           coverage,

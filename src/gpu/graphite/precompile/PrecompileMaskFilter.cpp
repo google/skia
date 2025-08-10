@@ -25,10 +25,7 @@ PrecompileMaskFilter::~PrecompileMaskFilter() = default;
 // The PrecompileMaskFilter-derived classes do not use the PrecompileBase::addToKey virtual since
 // they, in general, do not themselves contribute to a given SkPaint/Pipeline but, rather,
 // create separate SkPaints/Pipelines from whole cloth (in createPipelines).
-void PrecompileMaskFilter::addToKey(const KeyContext& keyContext,
-                                    PaintParamsKeyBuilder* builder,
-                                    PipelineDataGatherer* gatherer,
-                                    int desiredCombination) const {
+void PrecompileMaskFilter::addToKey(const KeyContext& keyContext, int desiredCombination) const {
     SkASSERT(false);
 }
 
@@ -42,7 +39,6 @@ public:
 private:
     void createPipelines(
             const KeyContext& keyContext,
-            PipelineDataGatherer* gatherer,
             const PaintOptions& paintOptions,
             const RenderPassDesc& renderPassDescIn,
             const PaintOptionsPriv::ProcessCombination& processCombination) const override {
@@ -64,7 +60,7 @@ private:
                 skgpu::Swizzle("a000"),
                 caps->getDstReadStrategy());
 
-        PrecompileImageFiltersPriv::CreateBlurImageFilterPipelines(keyContext, gatherer,
+        PrecompileImageFiltersPriv::CreateBlurImageFilterPipelines(keyContext,
                                                                    coverageRenderPassDesc,
                                                                    processCombination);
 
@@ -78,7 +74,6 @@ private:
             restoreOptions.setMaskFilters({});
             restoreOptions.priv().buildCombinations(
                     keyContext,
-                    gatherer,
                     static_cast<DrawTypeFlags>(InternalDrawTypeFlags::kCoverageMask),
                     /* withPrimitiveBlender= */ false,
                     Coverage::kSingleChannel,
@@ -97,7 +92,6 @@ private:
 
             coverageOptions.priv().buildCombinations(
                     keyContext,
-                    gatherer,
                     DrawTypeFlags::kAnalyticRRect,
                     /* withPrimitiveBlender= */ false,
                     Coverage::kSingleChannel,

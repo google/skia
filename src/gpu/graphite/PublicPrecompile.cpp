@@ -131,7 +131,15 @@ void Precompile(PrecompileContext* precompileContext,
                                          caps->getDstReadStrategy());
 
             SkColorInfo ci(rpp.fDstCT, kPremul_SkAlphaType, rpp.fDstCS);
-            KeyContext keyContext(caps, dict, rtEffectDict.get(), ci);
+
+            // The PipelineDataGatherer and FloatStorageManager are only used to accumulate uniform
+            // data. In the pre-compile case we don't need to record the uniform data but the
+            // process of generating it is required to create the correct key.
+            FloatStorageManager floatStorageManager;
+            PipelineDataGatherer gatherer(Layout::kMetal);
+            PaintParamsKeyBuilder builder(dict);
+            KeyContext keyContext(caps, &floatStorageManager, &builder, &gatherer, dict,
+                                  rtEffectDict.get(), ci);
 
             for (Coverage coverage : { Coverage::kNone, Coverage::kSingleChannel }) {
                 PrecompileCombinations(
@@ -271,13 +279,8 @@ void PrecompileCombinations(const RendererProvider* rendererProvider,
         return;
     }
 
-    // Since the precompilation path's uniforms aren't used and don't change the key,
-    // the exact layout doesn't matter
-    PipelineDataGatherer gatherer(Layout::kMetal);
-
     options.priv().buildCombinations(
         keyContext,
-        &gatherer,
         drawTypes,
         withPrimitiveBlender,
         coverage,

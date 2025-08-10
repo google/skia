@@ -341,8 +341,14 @@ void log_run(const char* label,
              "ClipType clipType = %s;\n"
              "DrawTypeFlags drawTypeFlags = %s;\n"
              "//-----------------------\n",
-             label, seed,
-             to_str(s), to_str(bm), to_str(cf), to_str(mf), to_str(imageFilter), to_str(clipType),
+             label,
+             seed,
+             to_str(s),
+             to_str(bm),
+             to_str(cf),
+             to_str(mf),
+             to_str(imageFilter),
+             to_str(clipType),
              to_str(drawTypeFlags));
 }
 
@@ -1027,10 +1033,10 @@ std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> create_bm_blender(SkRandom
 }
 
 std::pair<sk_sp<SkBlender>, sk_sp<PrecompileBlender>> create_arithmetic_blender() {
-    sk_sp<SkBlender> b = SkBlenders::Arithmetic(/* k1= */ 0.5,
-                                                /* k2= */ 0.5,
-                                                /* k3= */ 0.5,
-                                                /* k4= */ 0.5,
+    sk_sp<SkBlender> b = SkBlenders::Arithmetic(/* k1= */ 0.5f,
+                                                /* k2= */ 0.5f,
+                                                /* k3= */ 0.5f,
+                                                /* k4= */ 0.5f,
                                                 /* enforcePremul= */ true);
     sk_sp<PrecompileBlender> o = PrecompileBlenders::Arithmetic();
 
@@ -1914,17 +1920,6 @@ void check_draw(skiatest::Reporter* reporter,
 
 }
 
-KeyContext create_key_context(Context* context, RuntimeEffectDictionary* rtDict) {
-    ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
-
-    SkColorInfo destColorInfo = SkColorInfo(kRGBA_8888_SkColorType, kPremul_SkAlphaType,
-                                            SkColorSpace::MakeSRGB());
-    return KeyContext(context->priv().caps(),
-                      dict,
-                      rtDict,
-                      destColorInfo);
-}
-
 // This subtest compares the output of ExtractPaintData (applied to an SkPaint) and
 // PaintOptions::buildCombinations (applied to a matching PaintOptions). The actual check
 // performed is that the UniquePaintParamsID created by ExtractPaintData is contained in the
@@ -1948,12 +1943,7 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
                               uint32_t seed,
                               SkRandom* rand,
                               bool verbose) {
-
-    ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
-
-    PaintParamsKeyBuilder builder(dict);
     PipelineDataGatherer paramsGatherer(Layout::kMetal);
-    PipelineDataGatherer precompileGatherer(Layout::kMetal);
 
     for (bool withPrimitiveBlender: {false, true}) {
 
@@ -2001,8 +1991,9 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
         SkDEBUGCODE(paramsGatherer.resetForDraw());
         UniquePaintParamsID paintID =
                 ExtractPaintData(recorder,
+                                 precompileKeyContext.floatStorageManager(),
                                  &paramsGatherer,
-                                 &builder,
+                                 precompileKeyContext.paintParamsKeyBuilder(),
                                  Layout::kMetal,
                                  {},
                                  PaintParams(paint,
@@ -2018,7 +2009,6 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
 
         std::vector<UniquePaintParamsID> precompileIDs;
         paintOptions.priv().buildCombinations(precompileKeyContext,
-                                              &precompileGatherer,
                                               hasAnalyticClip ? DrawTypeFlags::kAnalyticClip
                                                               : DrawTypeFlags::kNone,
                                               withPrimitiveBlender,
@@ -2054,11 +2044,11 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
 #ifdef SK_DEBUG
         if (result == precompileIDs.end()) {
             SkDebugf("From paint: ");
-            dict->dump(paintID);
+            precompileKeyContext.dict()->dump(paintID);
 
             SkDebugf("From combination builder [%d]:", static_cast<int>(precompileIDs.size()));
             for (auto iter: precompileIDs) {
-                dict->dump(iter);
+                precompileKeyContext.dict()->dump(iter);
             }
         }
 #endif
@@ -2185,9 +2175,9 @@ void run_test(skiatest::Reporter* reporter,
     // a SkCanvas::clipShader call).
     paintOptions.priv().setClipShaders({clipShaderOption});
 
-    extract_vs_build_subtest(reporter, context, testContext, precompileKeyContext, recorder.get(),
-                             paint, paintOptions, s, bm, cf, mf, imageFilter, clipType,
-                             clipShader, dt, seed, &rand, verbose);
+    extract_vs_build_subtest(reporter, context, testContext, precompileKeyContext,
+                             recorder.get(), paint, paintOptions, s, bm, cf, mf, imageFilter,
+                             clipType, clipShader, dt, seed, &rand, verbose);
     precompile_vs_real_draws_subtest(reporter, context, precompileContext,
                                      testContext, recorder.get(),
                                      paint, paintOptions, clipType, clipShader, dt, verbose);
@@ -2203,6 +2193,20 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTestReduced,
                                                CtsEnforcement::kNever) {
     std::unique_ptr<PrecompileContext> precompileContext = context->makePrecompileContext();
     std::unique_ptr<RuntimeEffectDictionary> rtDict = std::make_unique<RuntimeEffectDictionary>();
+
+    FloatStorageManager floatStorageManager;
+    ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+    PaintParamsKeyBuilder builder(dict);
+    PipelineDataGatherer gatherer(Layout::kMetal);
+    KeyContext keyContext(context->priv().caps(),
+                          &floatStorageManager,
+                          &builder,
+                          &gatherer,
+                          dict,
+                          rtDict.get(),
+                          SkColorInfo(kRGBA_8888_SkColorType,
+                                      kPremul_SkAlphaType,
+                                      SkColorSpace::MakeSRGB()));
 
 #if 1
     //----------------------
@@ -2239,7 +2243,7 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTestReduced,
              context,
              precompileContext.get(),
              testContext,
-             create_key_context(context, rtDict.get()),
+             keyContext,
              shaderType,
              blenderType,
              colorFilterType,
@@ -2267,7 +2271,19 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PaintParamsKeyTest,
     std::unique_ptr<PrecompileContext> precompileContext = context->makePrecompileContext();
     std::unique_ptr<RuntimeEffectDictionary> rtDict = std::make_unique<RuntimeEffectDictionary>();
 
-    KeyContext precompileKeyContext(create_key_context(context, rtDict.get()));
+    FloatStorageManager floatStorageManager;
+    ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
+    PaintParamsKeyBuilder builder(dict);
+    PipelineDataGatherer gatherer(Layout::kMetal);
+    KeyContext precompileKeyContext(context->priv().caps(),
+                                    &floatStorageManager,
+                                    &builder,
+                                    &gatherer,
+                                    dict,
+                                    rtDict.get(),
+                                    SkColorInfo(kRGBA_8888_SkColorType,
+                                                kPremul_SkAlphaType,
+                                                SkColorSpace::MakeSRGB()));
 
     ShaderType shaders[] = {
             ShaderType::kImage,
