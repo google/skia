@@ -202,7 +202,7 @@ public:
                     this->addLine(pts);
                     break;
                 case SkPathVerb::kConic:
-                    this->addConic(rec->fConicWeight, pts, srcSpaceTolSqd, srcSpaceTol);
+                    this->addConic(rec->conicWeight(), pts, srcSpaceTolSqd, srcSpaceTol);
                     break;
                 case SkPathVerb::kQuad:
                     this->addQuad(pts, srcSpaceTolSqd, srcSpaceTol);

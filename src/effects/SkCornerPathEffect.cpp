@@ -115,7 +115,7 @@ public:
                         dst->moveTo(pts[0]);
                         prevIsValid = true;
                     }
-                    dst->conicTo(pts[1], pts[2], iter.conicWeight());
+                    dst->conicTo(pts[1], pts[2], rec->conicWeight());
                     lastCorner = pts[2];
                     firstStep.set(0, 0);
                     break;

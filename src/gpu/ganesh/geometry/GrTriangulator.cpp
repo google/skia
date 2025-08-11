@@ -567,8 +567,8 @@ void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
                     this->appendPointToContour(pts[2], contour);
                     break;
                 }
-                SkScalar weight = iter.conicWeight();
-                const SkPoint* quadPts = converter.computeQuads(pts.data(), weight, toleranceSqd);
+                const SkPoint* quadPts = converter.computeQuads(pts.data(), rec->conicWeight(),
+                                                                toleranceSqd);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     this->appendQuadraticToContour(quadPts, toleranceSqd, contour);
                     quadPts += 2;

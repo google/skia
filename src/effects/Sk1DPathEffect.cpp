@@ -209,7 +209,7 @@ static void morphpath(SkPathBuilder* dst, const SkPath& src, SkPathMeasure& meas
                 break;
             case SkPathVerb::kConic:
                 if (morphpoints(dstP, srcP.subspan(1), meas, dist)) {
-                    dst->conicTo(dstP[0], dstP[1], iter.conicWeight());
+                    dst->conicTo(dstP[0], dstP[1], rec->conicWeight());
                 }
                 break;
             case SkPathVerb::kCubic:

@@ -3113,12 +3113,8 @@ static void test_iter(skiatest::Reporter* reporter) {
     p.reset();
     p.addRRect(rr);
     iter.setPath(p, false);
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == iter.next(pts));
-    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == iter.next(pts));
-    return;
-    REPORTER_ASSERT(reporter, SkPath::kLine_Verb == iter.next(pts));
-    REPORTER_ASSERT(reporter, SkPath::kConic_Verb == iter.next(pts));
-    REPORTER_ASSERT(reporter, SK_ScalarRoot2Over2 == iter.conicWeight());
+    REPORTER_ASSERT(reporter, SkPathVerb::kMove == iter.next()->fVerb);
+    REPORTER_ASSERT(reporter, SkPathVerb::kLine == iter.next()->fVerb);
 }
 
 static void test_range_iter(skiatest::Reporter* reporter) {

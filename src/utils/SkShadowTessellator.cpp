@@ -987,7 +987,7 @@ bool SkAmbientShadowTessellator::computePathPolygon(const SkPath& path, const Sk
                 this->handleCubic(ctm, pts);
                 break;
             case SkPathVerb::kConic:
-                this->handleConic(ctm, pts, iter.conicWeight());
+                this->handleConic(ctm, pts, rec->conicWeight());
                 break;
             case SkPathVerb::kMove:
                 if (verbSeen) {
@@ -1089,7 +1089,6 @@ bool SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
     static constexpr SkScalar kD = 0.03051757812f;
 
     SkPoint curvePoint;
-    SkScalar w;
     bool closeSeen = false;
     bool verbSeen = false;
     while (auto rec = iter.next()) {
@@ -1113,9 +1112,9 @@ bool SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
                 this->addToClip(clipPts[2]);
                 this->handleQuad(shadowTransform, pts);
                 break;
-            case SkPathVerb::kConic:
+            case SkPathVerb::kConic: {
                 ctm.mapPoints({clipPts, 3}, {pts, 3});
-                w = iter.conicWeight();
+                const float w = rec->conicWeight();
                 // point at t = 1/2
                 curvePoint.fX = 0.25f*clipPts[0].fX + w*0.5f*clipPts[1].fX + 0.25f*clipPts[2].fX;
                 curvePoint.fY = 0.25f*clipPts[0].fY + w*0.5f*clipPts[1].fY + 0.25f*clipPts[2].fY;
@@ -1123,7 +1122,7 @@ bool SkSpotShadowTessellator::computeClipAndPathPolygons(const SkPath& path, con
                 this->addToClip(curvePoint);
                 this->addToClip(clipPts[2]);
                 this->handleConic(shadowTransform, pts, w);
-                break;
+            } break;
             case SkPathVerb::kCubic:
                 ctm.mapPoints({clipPts, 4}, {pts, 4});
                 // point at t = 5/16

@@ -276,7 +276,7 @@ SkString SkParsePath::ToSVGString(const SkPath& path, PathEncoding encoding) {
             case SkPathVerb::kConic: {
                 const SkScalar tol = SK_Scalar1 / 1024; // how close to a quad
                 SkAutoConicToQuads quadder;
-                const SkPoint* quadPts = quadder.computeQuads(pts.data(), iter.conicWeight(), tol);
+                const SkPoint* quadPts = quadder.computeQuads(pts.data(), rec->conicWeight(), tol);
                 for (int i = 0; i < quadder.countQuads(); ++i) {
                     append_command('Q', &quadPts[i*2 + 1], 2);
                 }

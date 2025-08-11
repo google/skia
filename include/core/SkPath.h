@@ -1535,6 +1535,11 @@ public:
         SkPathVerb            fVerb;
         SkSpan<const SkPoint> fPoints;
         float                 fConicWeight;
+
+        float conicWeight() const {
+            SkASSERT(fVerb == SkPathVerb::kConic);
+            return fConicWeight;
+        }
     };
 
     /** \class SkPath::Iter

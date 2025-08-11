@@ -372,9 +372,8 @@ bool get_segments(const SkPath& path,
                 if (!SkPathPriv::AllPointsEq(src)) {
                     SkPoint dst[3];
                     m.mapPoints(dst, src);
-                    SkScalar weight = rec->fConicWeight;
                     SkAutoConicToQuads converter;
-                    const SkPoint* quadPts = converter.computeQuads(dst, weight, 0.25f);
+                    const SkPoint* quadPts = converter.computeQuads(dst, rec->conicWeight(), 0.25f);
                     for (int i = 0; i < converter.countQuads(); ++i) {
                         update_degenerate_test(&degenerateData, quadPts[2*i + 1]);
                         update_degenerate_test(&degenerateData, quadPts[2*i + 2]);

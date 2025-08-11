@@ -517,28 +517,27 @@ void DrawCommand::MakeJsonPath(SkJSONWriter& writer, const SkPath& path) {
     }
     writer.beginArray(DEBUGCANVAS_ATTRIBUTE_VERBS);
     SkPath::Iter iter(path, false);
-    SkPoint      pts[4];
-    SkPath::Verb verb;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        if (verb == SkPath::kClose_Verb) {
+    while (auto rec = iter.next()) {
+        if (rec->fVerb == SkPathVerb::kClose) {
             writer.appendNString(DEBUGCANVAS_VERB_CLOSE);
             continue;
         }
         writer.beginObject();  // verb
-        switch (verb) {
-            case SkPath::kLine_Verb: {
+        SkSpan<const SkPoint> pts = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kLine: {
                 writer.appendName(DEBUGCANVAS_VERB_LINE);
                 MakeJsonPoint(writer, pts[1]);
                 break;
             }
-            case SkPath::kQuad_Verb: {
+            case SkPathVerb::kQuad: {
                 writer.beginArray(DEBUGCANVAS_VERB_QUAD);
                 MakeJsonPoint(writer, pts[1]);
                 MakeJsonPoint(writer, pts[2]);
                 writer.endArray();  // quad coords
                 break;
             }
-            case SkPath::kCubic_Verb: {
+            case SkPathVerb::kCubic: {
                 writer.beginArray(DEBUGCANVAS_VERB_CUBIC);
                 MakeJsonPoint(writer, pts[1]);
                 MakeJsonPoint(writer, pts[2]);
@@ -546,21 +545,20 @@ void DrawCommand::MakeJsonPath(SkJSONWriter& writer, const SkPath& path) {
                 writer.endArray();  // cubic coords
                 break;
             }
-            case SkPath::kConic_Verb: {
+            case SkPathVerb::kConic: {
                 writer.beginArray(DEBUGCANVAS_VERB_CONIC);
                 MakeJsonPoint(writer, pts[1]);
                 MakeJsonPoint(writer, pts[2]);
-                writer.appendFloat(iter.conicWeight());
+                writer.appendFloat(rec->conicWeight());
                 writer.endArray();  // conic coords
                 break;
             }
-            case SkPath::kMove_Verb: {
+            case SkPathVerb::kMove: {
                 writer.appendName(DEBUGCANVAS_VERB_MOVE);
                 MakeJsonPoint(writer, pts[0]);
                 break;
             }
-            case SkPath::kClose_Verb:
-            case SkPath::kDone_Verb:
+            case SkPathVerb::kClose:
                 // Unreachable
                 break;
         }

@@ -120,8 +120,8 @@ static int contains_edge(const SkPoint pts[4], SkPathVerb verb, SkScalar weight,
     return winding;  // note winding indicates containership, not contour direction
 }
 
-static SkScalar conic_weight(const SkPath::Iter& iter, SkPathVerb verb) {
-    return SkPathVerb::kConic == verb ? iter.conicWeight() : 1;
+static float conic_weight(const SkPath::IterRec& rec) {
+    return rec.fVerb == SkPathVerb::kConic ? rec.conicWeight() : 1;
 }
 
 static SkPoint left_edge(const SkPoint pts[4], SkPathVerb verb, SkScalar weight) {
@@ -278,11 +278,12 @@ public:
                 continue;
             }
             if (edge == Edge::kCompare) {
-                winding += contains_edge(pts.data(), verb, conic_weight(iter, verb), contour.fMinXY);
+                winding += contains_edge(pts.data(), verb, conic_weight(*rec),
+                                         contour.fMinXY);
                 continue;
             }
             SkASSERT(edge == Edge::kInitial);
-            SkPoint minXY = left_edge(pts.data(), verb, conic_weight(iter, verb));
+            SkPoint minXY = left_edge(pts.data(), verb, conic_weight(*rec));
             if (minXY.fX > contour.fMinXY.fX) {
                 continue;
             }

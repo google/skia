@@ -107,7 +107,7 @@ private:
                 } break;
                 case SkPathVerb::kConic: {
                     // We should only ever encounter conics from circles/ellipses.
-                    SkASSERT(SkScalarNearlyEqual(iter.conicWeight(), SK_ScalarRoot2Over2));
+                    SkASSERT(SkScalarNearlyEqual(rec->conicWeight(), SK_ScalarRoot2Over2));
 
                     // http://spencermortensen.com/articles/bezier-circle/
                     static constexpr float kCubicCircleCoeff = 1 - 0.551915024494f;
