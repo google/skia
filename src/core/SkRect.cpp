@@ -47,13 +47,6 @@ void SkIRect::join(const SkIRect& r) {
 
 /////////////////////////////////////////////////////////////////////////////
 
-void SkRect::toQuad(SkPoint quad[4]) const {
-    quad[0] = this->TL();
-    quad[1] = this->TR();
-    quad[2] = this->BR();
-    quad[3] = this->BL();
-}
-
 std::optional<SkRect> SkRect::Bounds(SkSpan<const SkPoint> points) {
     if (points.empty()) {
         return SkRect::MakeEmpty();

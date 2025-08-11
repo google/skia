@@ -287,7 +287,7 @@ protected:
             }
         } else {
             //  Haven't been split yet, so fill in based on the rect
-            baseRect.toQuad(points);
+            baseRect.copyToQuad(points);
         }
 
         // Consider the first line against the 4 quad edges in tile, which should have 0,1, or 2

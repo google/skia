@@ -136,7 +136,7 @@ static void draw_scale_key(SkCanvas* canvas, float y) {
 static void draw_scale_factors(SkCanvas* canvas, const skif::Mapping& mapping, const SkRect& rect) {
     SkPoint testPoints[5];
     testPoints[0] = {rect.centerX(), rect.centerY()};
-    rect.toQuad(testPoints + 1);
+    rect.copyToQuad({&testPoints[1], 4});
     for (int i = 0; i < 5; ++i) {
         float scale = SkMatrixPriv::DifferentialAreaScale(
                 mapping.layerToDevice().asM33(),
