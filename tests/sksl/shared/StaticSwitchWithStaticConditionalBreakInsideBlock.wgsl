@@ -17,7 +17,6 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
               break;
             }
           }
-          // fallthrough
         }
         x = 1.0;
       }

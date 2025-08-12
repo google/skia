@@ -28,7 +28,6 @@ fn switch_with_continue_in_loop_bi(x: i32) -> bool {
               }
             }
           }
-          // fallthrough
         }
         val = val + i32(1);
       }
@@ -84,7 +83,6 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
               }
             }
           }
-          // fallthrough
         }
         _0_val = _0_val + i32(1);
       }
