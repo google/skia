@@ -91,10 +91,8 @@ protected:
             case PathIterType::kIter:
                 for (int i = 0; i < loops; ++i) {
                     SkPath::Iter iter(fPath, true);
-                    SkPath::Verb verb;
-                    SkPoint      pts[4];
-                    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-                        handle(verb, pts);
+                    while (auto rec = iter.next()) {
+                        handle((int)rec->fVerb, rec->fPoints.data());
                     }
                 }
                 break;
