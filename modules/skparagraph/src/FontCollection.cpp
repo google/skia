@@ -17,15 +17,19 @@ namespace skia {
 namespace textlayout {
 
 bool FontCollection::FamilyKey::operator==(const FontCollection::FamilyKey& other) const {
-    return fFamilyName == other.fFamilyName &&
+    return fFamilyNames == other.fFamilyNames &&
            fFontStyle == other.fFontStyle &&
            fFontArguments == other.fFontArguments;
 }
 
 size_t FontCollection::FamilyKey::Hasher::operator()(const FontCollection::FamilyKey& key) const {
-    return std::hash<std::string>()(key.fFamilyName.c_str())    ^
-           std::hash<uint32_t>()(key.fFontStyle.weight())       ^
-           std::hash<uint32_t>()(key.fFontStyle.slant())        ^
+    size_t hash = 0;
+    for (const SkString& family : key.fFamilyNames) {
+        hash ^= std::hash<std::string>()(family.c_str());
+    }
+    return hash ^
+           std::hash<uint32_t>()(key.fFontStyle.weight()) ^
+           std::hash<uint32_t>()(key.fFontStyle.slant()) ^
            std::hash<std::optional<FontArguments>>()(key.fFontArguments);
 }
 
@@ -81,53 +85,51 @@ std::vector<sk_sp<SkFontMgr>> FontCollection::getFontManagerOrder() const {
     return order;
 }
 
-sk_sp<SkTypeface> FontCollection::findTypeface(const SkString& familyName, SkFontStyle fontStyle,
-                                               const std::optional<FontArguments>& fontArgs) {
-    // Look inside the font collections cache first
-    FamilyKey familyKey(familyName, fontStyle, fontArgs);
-    auto found = fTypefaces.find(familyKey);
-    if (found) {
-        return *found;
-    }
-
-    sk_sp<SkTypeface> match = matchTypeface(familyName, fontStyle);
-
-    if (match && fontArgs) {
-        match = fontArgs->CloneTypeface(match);
-    }
-    if (!match) {
-        for (const SkString& name : fDefaultFamilyNames) {
-            match = matchTypeface(name, fontStyle);
-            if (match) {
-                break;
-            }
-        }
-    }
-    if (!match) {
-        for (const auto& manager : this->getFontManagerOrder()) {
-            match = manager->legacyMakeTypeface(nullptr, fontStyle);
-            if (match) {
-                break;
-            }
-        }
-    }
-    if (match) {
-        fTypefaces.set(familyKey, match);
-    }
-    return match;
-}
-
 std::vector<sk_sp<SkTypeface>> FontCollection::findTypefaces(const std::vector<SkString>& familyNames, SkFontStyle fontStyle) {
     return findTypefaces(familyNames, fontStyle, std::nullopt);
 }
 
 std::vector<sk_sp<SkTypeface>> FontCollection::findTypefaces(const std::vector<SkString>& familyNames, SkFontStyle fontStyle, const std::optional<FontArguments>& fontArgs) {
+    // Look inside the font collections cache first
+    FamilyKey familyKey(familyNames, fontStyle, fontArgs);
+    auto found = fTypefaces.find(familyKey);
+    if (found) {
+        return *found;
+    }
+
     std::vector<sk_sp<SkTypeface>> typefaces;
     for (const SkString& familyName : familyNames) {
-        if (auto match = this->findTypeface(familyName, fontStyle, fontArgs)) {
+        sk_sp<SkTypeface> match = matchTypeface(familyName, fontStyle);
+        if (match && fontArgs) {
+            match = fontArgs->CloneTypeface(match);
+        }
+        if (match) {
             typefaces.emplace_back(std::move(match));
         }
     }
+
+    if (typefaces.empty()) {
+        sk_sp<SkTypeface> match;
+        for (const SkString& familyName : fDefaultFamilyNames) {
+            match = matchTypeface(familyName, fontStyle);
+            if (match) {
+                break;
+            }
+        }
+        if (!match) {
+            for (const auto& manager : this->getFontManagerOrder()) {
+                match = manager->legacyMakeTypeface(nullptr, fontStyle);
+                if (match) {
+                    break;
+                }
+            }
+        }
+        if (match) {
+            typefaces.emplace_back(std::move(match));
+        }
+    }
+
+    fTypefaces.set(familyKey, typefaces);
     return typefaces;
 }
 
