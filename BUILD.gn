@@ -726,7 +726,7 @@ if (skia_compile_sksl_tests) {
     include_dirs = [ "." ]
     deps = [
       ":run_sksllex",
-      "//third_party/externals/dawn/src/tint/api:api",
+      "//third_party/dawn:tint",
       "//third_party/externals/spirv-tools:spvtools",
       "//third_party/externals/spirv-tools:spvtools_val",
       "//third_party/spirv-cross:spirv_cross",
