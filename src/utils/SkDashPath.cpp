@@ -167,16 +167,16 @@ static bool clip_line(SkPoint pts[2], const SkRect& bounds, SkScalar intervalLen
 }
 
 // Handles only lines and rects.
-// If cull_path() returns true, dstPath is the new smaller path,
-// otherwise dstPath may have been changed but you should ignore it.
+// If cull_path() returns true, builder is the new smaller path,
+// otherwise builder may have been changed but you should ignore it.
 static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
-                      const SkRect* cullRect, SkScalar intervalLength, SkPath* dstPath) {
+                      const SkRect* cullRect, SkScalar intervalLength, SkPathBuilder* builder) {
     if (!cullRect) {
         SkPoint pts[2];
         if (srcPath.isLine(pts) && pts[0] == pts[1]) {
             adjust_zero_length_line(pts);
-            dstPath->moveTo(pts[0]);
-            dstPath->lineTo(pts[1]);
+            builder->moveTo(pts[0]);
+            builder->lineTo(pts[1]);
             return true;
         }
         return false;
@@ -190,8 +190,8 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
         SkPoint pts[2];
         if (srcPath.isLine(pts)) {
             if (clip_line(pts, bounds, intervalLength, 0)) {
-                dstPath->moveTo(pts[0]);
-                dstPath->lineTo(pts[1]);
+                builder->moveTo(pts[0]);
+                builder->lineTo(pts[1]);
                 return true;
             }
             return false;
@@ -215,18 +215,18 @@ static bool cull_path(const SkPath& srcPath, const SkStrokeRec& rec,
             if (clip_line(pts, bounds, intervalLength, std::fmod(accum, intervalLength))) {
                 // pts[0] may have just been changed by clip_line().
                 // If that's not where we ended the previous lineTo(), we need to moveTo() there.
-                SkPoint last;
-                if (!dstPath->getLastPt(&last) || last != pts[0]) {
-                    dstPath->moveTo(pts[0]);
+                auto maybeLast = builder->getLastPt();
+                if (!maybeLast || *maybeLast != pts[0]) {
+                    builder->moveTo(pts[0]);
                 }
-                dstPath->lineTo(pts[1]);
+                builder->lineTo(pts[1]);
             }
 
             // We either just traveled v.fX horizontally or v.fY vertically.
             SkASSERT(v.fX == 0 || v.fY == 0);
             accum += SkScalarAbs(v.fX + v.fY);
         }
-        return !dstPath->isEmpty();
+        return !builder->isEmpty();
     }
 
     return false;
@@ -324,9 +324,10 @@ bool SkDashPath::InternalFilter(SkPathBuilder* dst, const SkPath& src, SkStrokeR
     const SkScalar* intervals = aIntervals.data();
     SkScalar        dashCount = 0;
 
+    SkPathBuilder builder;
     SkPath cullPathStorage;
     const SkPath* srcPtr = &src;
-    if (cull_path(src, *rec, cullRect, intervalLength, &cullPathStorage)) {
+    if (cull_path(src, *rec, cullRect, intervalLength, &builder)) {
         // if rect is closed, starts in a dash, and ends in a dash, add the initial join
         // potentially a better fix is described here: skbug.com/40038693
         if (src.isRect(nullptr) && src.isLastContourClosed() && is_even(initialDashIndex)) {
@@ -364,14 +365,18 @@ bool SkDashPath::InternalFilter(SkPathBuilder* dst, const SkPath& src, SkStrokeR
                 const SkScalar kTinyOffset = SK_ScalarNearlyZero;
                 // scale vector to make start of tiny right angle
                 v *= kTinyOffset;
-                cullPathStorage.moveTo(midPoint - v);
-                cullPathStorage.lineTo(midPoint);
+                builder.moveTo(midPoint - v);
+                builder.lineTo(midPoint);
                 v = midPoint - src.getPoint(next);
                 // scale vector to make end of tiny right angle
                 v *= kTinyOffset;
-                cullPathStorage.lineTo(midPoint - v);
+                builder.lineTo(midPoint - v);
             }
         }
+
+        // If PathMeasure took a SkPathRaw, we could pass it the raw from src or the builder,
+        // and not need to first 'detach' a path from the builder.
+        cullPathStorage = builder.detach();
         srcPtr = &cullPathStorage;
     }
 
