@@ -75,7 +75,10 @@ skia_cc_library(
         "//src/gpu",
         "//src/gpu/graphite",
         "//src/gpu/vk",
-    ],
+    ] + select({
+        "//bazel/common_config_settings:debug_build": ["//src/sksl/codegen:spirv_validator"],
+        "//conditions:default": [],
+    }),
 )
 
 skia_cc_library(
@@ -106,5 +109,8 @@ skia_cc_library(
         "//src/gpu",
         "//src/gpu/graphite:graphite_TEST_UTIL",
         "//src/gpu/vk",
-    ],
+    ] + select({
+        "//bazel/common_config_settings:debug_build": ["//src/sksl/codegen:spirv_validator"],
+        "//conditions:default": [],
+    }),
 )

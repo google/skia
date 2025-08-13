@@ -1221,6 +1221,10 @@ optional("graphite") {
       public += skia_graphite_vk_precompile_public
       sources += skia_graphite_vk_precompile_sources
     }
+    if (is_debug) {
+      sources += skia_sksl_validate_spirv_sources
+      deps += [ "//third_party/externals/spirv-tools:spvtools" ]
+    }
   }
   if (skia_enable_precompile) {
     public += skia_graphite_precompile_public

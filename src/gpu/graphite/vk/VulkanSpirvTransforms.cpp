@@ -11,6 +11,12 @@
 #include "src/sksl/codegen/SkSLCodeGenTypes.h"
 #include "src/sksl/spirv.h"
 
+#ifdef SK_DEBUG
+#include "src/gpu/graphite/Log.h"
+#include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/codegen/SkSLSPIRVValidator.h"
+#endif
+
 #include <cstdint>
 #include <vector>
 
@@ -499,8 +505,14 @@ SkSL::NativeShader TransformSPIRV(const SkSL::NativeShader& spirv,
     SpirvTransformer transformer(spirv.fBinary, options, &result.fBinary);
     transformer.transform();
 
-    // It would be good to validate the transformed SPIR-V here in debug builds, though validation
-    // layers already do that. It needs setting up usage of SPIR-V Tools by this file.
+#ifdef SK_DEBUG
+    // Validate the SPIR-V after performing any transformations. This is rather costly, so only
+    // do this on debug builds.
+    static SkSL::Compiler compiler;
+    if (!SkSL::ValidateSPIRV(compiler.errorReporter(), {spirv.fBinary})) {
+        SKGPU_LOG_E("SPIR-V transformations yielded invalid SPIR-V.");
+    }
+#endif
 
     return result;
 }
