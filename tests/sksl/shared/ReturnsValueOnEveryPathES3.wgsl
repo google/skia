@@ -135,6 +135,7 @@ fn switch_with_break_in_loop_b() -> bool {
               }
             }
           }
+          // fallthrough
         }
         return true;
       }
@@ -160,6 +161,7 @@ fn switch_with_continue_in_loop_b() -> bool {
               }
             }
           }
+          // fallthrough
         }
         return true;
       }
@@ -178,6 +180,7 @@ fn switch_with_if_that_returns_b() -> bool {
           } else {
             return true;
           }
+          // fallthrough
         }
         return true;
       }
@@ -194,6 +197,7 @@ fn switch_with_one_sided_if_then_fallthrough_b() -> bool {
           if _globalUniforms.unknownInput == 123.0 {
             return false;
           }
+          // fallthrough
         }
         return true;
       }

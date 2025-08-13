@@ -27,6 +27,7 @@ fn switch_with_continue_in_while_loop_bi(x: i32) -> bool {
               break;
             }
           }
+          // fallthrough
         }
         val = val + i32(1);
       }
@@ -78,6 +79,7 @@ fn switch_with_break_in_do_while_loop_bi(x: i32) -> bool {
               break if i >= 10;
             }
           }
+          // fallthrough
         }
         val = val + i32(1);
       }
@@ -103,6 +105,7 @@ fn switch_with_continue_in_do_while_loop_bi(x: i32) -> bool {
               break if i >= 10;
             }
           }
+          // fallthrough
         }
         val = val + i32(1);
       }
@@ -155,6 +158,7 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
               break;
             }
           }
+          // fallthrough
         }
         _0_val = _0_val + i32(1);
       }

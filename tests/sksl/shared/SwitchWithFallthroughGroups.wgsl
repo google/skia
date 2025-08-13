@@ -16,6 +16,7 @@ fn switch_fallthrough_groups_bi(value: i32) -> bool {
         var _skTemp0: bool = false;
         if value == -1 {
           ok = false;
+          // fallthrough
         }
         return false;
       }
@@ -23,9 +24,11 @@ fn switch_fallthrough_groups_bi(value: i32) -> bool {
         var _skTemp1: bool = false;
         if value == 1 {
           ok = true;
-          _skTemp1 = true;  }
+          _skTemp1 = true;  // fallthrough
+        }
         if _skTemp1 || value == 2 {
           ;
+          // fallthrough
         }
         break;
       }
@@ -33,15 +36,19 @@ fn switch_fallthrough_groups_bi(value: i32) -> bool {
         var _skTemp2: bool = false;
         if value == 4 {
           ok = false;
-          _skTemp2 = true;  }
+          _skTemp2 = true;  // fallthrough
+        }
         if _skTemp2 || value == 5 {
           ;
-          _skTemp2 = true;  }
+          _skTemp2 = true;  // fallthrough
+        }
         if _skTemp2 || value == 6 {
           ;
-          _skTemp2 = true;  }
+          _skTemp2 = true;  // fallthrough
+        }
         if _skTemp2 || value == 7 {
           ;
+          // fallthrough
         }
         break;
       }
