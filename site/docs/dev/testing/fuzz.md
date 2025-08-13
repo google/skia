@@ -98,3 +98,5 @@ The Skia-specific code to build the fuzzers is found in [oss-fuzz/projects/skia]
 and the build status can be found [here](https://oss-fuzz-build-logs.storage.googleapis.com/index.html#skia).
 When everything is working smoothly, the version of Skia that is fuzzed should be updated about
 2/day.
+
+See <https://skia.googlesource.com/skia/+/refs/heads/main/fuzz/README.md> for more details.
