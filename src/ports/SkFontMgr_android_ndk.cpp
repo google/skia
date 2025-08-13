@@ -11,9 +11,11 @@
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/ports/SkFontMgr_android_ndk.h"
+#include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkTSearch.h"
+#include "src/base/SkTSort.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkFontDescriptor.h"
 #include "src/core/SkOSFile.h"
@@ -453,54 +455,7 @@ public:
 
         if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: Iterating over AFonts\n"); }
         while (SkAFont font = fontIter.next()) {
-
-            // The NDK does not report aliases like 'serif', 'sans-serif`, 'monospace', etc.
-            // If a font matches an entry in fonts.xml, add the fonts.xml family name as well.
-            TArray<SkString> extraFamilyNames;
-            for (FontFamily* xmlFamily : xmlFamilies) {
-                if (xmlFamily->fNames.empty()) {
-                    continue;
-                }
-
-                for (const FontFileInfo& xmlFont : xmlFamily->fFonts) {
-                    SkString pathName(xmlFamily->fBasePath);
-                    pathName.append(xmlFont.fFileName);
-                    if (!pathName.equals(font.getFontFilePath())) {
-                        continue;
-                    }
-
-                    if (font.getCollectionIndex() != static_cast<size_t>(xmlFont.fIndex)) {
-                        continue;
-                    }
-
-                    auto&& xmlVariation = xmlFont.fVariationDesignPosition;
-                    if (font.getAxisCount() != static_cast<size_t>(xmlVariation.size())) {
-                        continue;
-                    }
-                    using Coordinate = SkFontArguments::VariationPosition::Coordinate;
-                    auto&& fontHasCoord = [&font](const Coordinate& c) -> bool {
-                        for (size_t i = 0; i < font.getAxisCount(); ++i) {
-                            if (font.getAxisTag(i) == c.axis && font.getAxisValue(i) == c.value) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    };
-                    if (!std::all_of(xmlVariation.begin(), xmlVariation.end(), fontHasCoord)) {
-                        continue;
-                    }
-
-                    if (xmlFont.fWeight != 0 && xmlFont.fWeight != font.getWeight()) {
-                        continue;
-                    }
-
-                    for (auto&& xmlName : xmlFamily->fNames) {
-                        extraFamilyNames.push_back(xmlName);
-                    }
-                }
-            }
-
-            sk_sp<SkTypeface_AndroidNDK> typeface = this->make(font, std::move(extraFamilyNames),
+            sk_sp<SkTypeface_AndroidNDK> typeface = this->make(font, xmlFamilies,
                                                                streamForPath);
             if (!typeface) {
                 continue;
@@ -578,9 +533,102 @@ protected:
         return sset->matchStyle(style);
     }
 
+    static TArray<SkString> GetExtraFamilyNames(const SkAFont& font, const SkTypeface& typeface,
+                                                const SkTDArray<FontFamily*>& xmlFamilies)
+    {
+        // The NDK does not report aliases like 'serif', 'sans-serif`, 'monospace', etc.
+        // If a font matches an entry in fonts.xml, add the fonts.xml family name as well.
+
+        // In Android <= 14 AFont reports the variation as specified in fonts.xml.
+        // In Android >= 15 AFont does not report any axis which is set to default.
+
+        using Coordinate = SkFontArguments::VariationPosition::Coordinate;
+        auto coordinateLess = [](const Coordinate& a, const Coordinate& b) -> bool {
+            return a.axis != b.axis ? a.axis < b.axis : a.value < b.value;
+        };
+        auto coordinateEqual = [](const Coordinate& a, const Coordinate& b) -> bool {
+            return a.axis == b.axis && a.value == b.value;
+        };
+        auto getVariation = [](const SkTypeface& typeface, AutoSTArray<4, Coordinate>& storage) {
+            if (storage.size() < 4) {
+                storage.reset(4);
+            }
+            int numAxes = typeface.getVariationDesignPosition(SkSpan(storage));
+            if (SkToInt(storage.size()) < numAxes) {
+                storage.reset(numAxes);
+                numAxes = typeface.getVariationDesignPosition(SkSpan(storage));
+            }
+            if (numAxes < 0) {
+                numAxes = 0;
+            }
+            return SkSpan<Coordinate>(storage.data(), numAxes);
+        };
+        AutoSTArray<4, Coordinate> variationStorage;
+        SkSpan<Coordinate> variation = getVariation(typeface, variationStorage);
+        SkTQSort(variation.begin(), variation.end(), coordinateLess);
+
+        AutoSTArray<4, Coordinate> xmlVariationStorage;
+
+        TArray<SkString> extraFamilyNames;
+        for (FontFamily* xmlFamily : xmlFamilies) {
+            if (xmlFamily->fNames.empty()) {
+                continue;
+            }
+
+            for (const FontFileInfo& xmlFont : xmlFamily->fFonts) {
+                SkString pathName(xmlFamily->fBasePath);
+                pathName.append(xmlFont.fFileName);
+                if (!pathName.equals(font.getFontFilePath())) {
+                    continue;
+                }
+
+                if (font.getCollectionIndex() != static_cast<size_t>(xmlFont.fIndex)) {
+                    continue;
+                }
+
+                if (!xmlFont.fTypeface) {
+                    xmlFont.fTypeface = typeface.makeClone(SkFontArguments()
+                        .setCollectionIndex(xmlFont.fIndex)
+                        .setVariationDesignPosition(SkFontArguments::VariationPosition{
+                            xmlFont.fVariationDesignPosition.data(),
+                            xmlFont.fVariationDesignPosition.size()
+                        })
+                    );
+                }
+                if (!xmlFont.fTypeface) {
+                    SkDEBUGFAIL("Cannot create clone.");
+                    continue;
+                }
+
+                SkSpan<Coordinate> xmlVariation = getVariation(*xmlFont.fTypeface,
+                                                               xmlVariationStorage);
+                if (variation.size() != xmlVariation.size()) {
+                    SkDEBUGFAIL("Clone does not have same number of axes.");
+                    continue;
+                }
+
+                SkTQSort(xmlVariation.begin(), xmlVariation.end(), coordinateLess);
+                if (!std::equal(variation.begin(), variation.end(),
+                                xmlVariation.begin(), coordinateEqual))
+                {
+                    continue;
+                }
+
+                if (xmlFont.fWeight != 0 && xmlFont.fWeight != font.getWeight()) {
+                    continue;
+                }
+
+                for (auto&& xmlName : xmlFamily->fNames) {
+                    extraFamilyNames.push_back(xmlName);
+                }
+            }
+        }
+        return extraFamilyNames;
+    }
+
     sk_sp<SkTypeface_AndroidNDK> make(
         const SkAFont& font,
-        TArray<SkString>&& extraFamilyNames,
+        const SkTDArray<FontFamily*>& xmlFamilies,
         skia_private::THashMap<SkString, std::unique_ptr<SkStreamAsset>>& streamForPath) const
     {
         SkString filePath(font.getFontFilePath());
@@ -656,6 +704,8 @@ protected:
 
         // The family name(s) are not reported.
         // This would be very helpful for aliases, like "sans-serif", "Arial", etc.
+        TArray<SkString> extraFamilyNames = GetExtraFamilyNames(font, *proxy, xmlFamilies);
+
         SkString familyName;
         proxy->getFamilyName(&familyName);
 
