@@ -18,7 +18,6 @@ fn _skslMain(_stageOut: ptr<function, FSOut>) {
           if _globalUniforms.unknownInput == 2.0 {
             break;
           }
-          // fallthrough
         }
         value = 1.0;
       }
