@@ -1095,6 +1095,11 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		// These images are very large
 		skip(ALL, "image", "gen_platf", "rgb24largepal.bmp")
 		skip(ALL, "image", "gen_platf", "pal8oversizepal.bmp")
+
+		if b.extraConfig("ANGLE") && b.matchGpu("IntelUHDGraphics630") {
+			// b/405918638
+			skip(ALL, "tests", ALL, "TransferPixelsToTextureTest")
+		}
 	}
 
 	// These PNGs have CRC errors. The platform generators seem to draw
