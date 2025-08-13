@@ -11,6 +11,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkPathRaw.h"
 #include "src/core/SkPathRawShapes.h"
 
@@ -25,51 +26,21 @@ static SkPath path_from_raw(const SkPathRaw& raw) {
     return SkPath::Raw(raw.points(), raw.verbs(), raw.conics(), raw.fillType());
 }
 
+template <typename T> bool span_eq(SkSpan<T> a, SkSpan<T> b) {
+    if (a.size() != b.size()) {
+        return false;
+    }
+    return std::equal(a.begin(), a.end(), b.begin());
+}
+
 static void check_path_is_raw(skiatest::Reporter* reporter,
                               const SkPath& path, const SkPathRaw& raw) {
-    size_t pIndex = 0, vIndex = 0, cIndex = 0;
-    SkPath::RawIter iter(path);
-    bool done = false;
+    auto praw = SkPathPriv::Raw(path);
 
-    while (!done) {
-        SkPoint pts[4];
-        switch (iter.next(pts)) {
-            case SkPath::kMove_Verb:
-                REPORTER_ASSERT(reporter, raw.points()[pIndex++] == pts[0]);
-                REPORTER_ASSERT(reporter, raw.verbs()[vIndex++] == SkPathVerb::kMove);
-                break;
-            case SkPath::kLine_Verb:
-                REPORTER_ASSERT(reporter, raw.points()[pIndex++] == pts[1]);
-                REPORTER_ASSERT(reporter, raw.verbs()[vIndex++] == SkPathVerb::kLine);
-                break;
-            case SkPath::kQuad_Verb:
-                REPORTER_ASSERT(reporter, raw.points()[pIndex++] == pts[1]);
-                REPORTER_ASSERT(reporter, raw.points()[pIndex++] == pts[2]);
-                REPORTER_ASSERT(reporter, raw.verbs()[vIndex++] == SkPathVerb::kQuad);
-                break;
-            case SkPath::kConic_Verb:
-                REPORTER_ASSERT(reporter, raw.points()[pIndex++] == pts[1]);
-                REPORTER_ASSERT(reporter, raw.points()[pIndex++] == pts[2]);
-                REPORTER_ASSERT(reporter, raw.verbs()[vIndex++] == SkPathVerb::kConic);
-                REPORTER_ASSERT(reporter, raw.conics()[cIndex++] == iter.conicWeight());
-                break;
-            case SkPath::kCubic_Verb:
-                REPORTER_ASSERT(reporter, raw.points()[pIndex++] == pts[1]);
-                REPORTER_ASSERT(reporter, raw.points()[pIndex++] == pts[2]);
-                REPORTER_ASSERT(reporter, raw.points()[pIndex++] == pts[3]);
-                REPORTER_ASSERT(reporter, raw.verbs()[vIndex++] == SkPathVerb::kCubic);
-                break;
-            case SkPath::kClose_Verb:
-                REPORTER_ASSERT(reporter, raw.verbs()[vIndex++] == SkPathVerb::kClose);
-                break;
-            case SkPath::kDone_Verb:
-                done = true;
-                break;
-        }
-    }
-    REPORTER_ASSERT(reporter, pIndex == raw.points().size());
-    REPORTER_ASSERT(reporter, vIndex == raw.verbs().size());
-    REPORTER_ASSERT(reporter, cIndex == raw.conics().size());
+    REPORTER_ASSERT(reporter, span_eq(praw.fPoints, raw.fPoints));
+    REPORTER_ASSERT(reporter, span_eq(praw.fVerbs,  raw.fVerbs));
+    REPORTER_ASSERT(reporter, span_eq(praw.fConics, raw.fConics));
+    REPORTER_ASSERT(reporter, praw.fBounds == raw.fBounds);
 }
 
 DEF_TEST(pathrawshapes_rect, reporter) {
