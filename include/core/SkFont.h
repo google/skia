@@ -49,10 +49,10 @@ public:
     */
     SkFont();
 
-    /** Constructs SkFont with default values with SkTypeface and size in points.
+    /** Constructs SkFont with default values with SkTypeface and size.
 
         @param typeface  font and style used to draw and measure text
-        @param size      typographic height of text
+        @param size      EM size in local coordinate units
         @return          initialized SkFont
     */
     SkFont(sk_sp<SkTypeface> typeface, SkScalar size);
@@ -70,7 +70,7 @@ public:
         and expanded fonts. Horizontal skew emulates oblique fonts.
 
         @param typeface  font and style used to draw and measure text
-        @param size      typographic height of text
+        @param size      EM size in local coordinate units
         @param scaleX    text horizontal scale
         @param skewX     additional shear on x-axis relative to y-axis
         @return          initialized SkFont
@@ -197,7 +197,7 @@ public:
     /** Returns a font with the same attributes of this font, but with the specified size.
         Returns nullptr if size is less than zero, infinite, or NaN.
 
-        @param size  typographic height of text
+        @param size  EM size in local coordinate units
         @return      initialized SkFont
      */
     SkFont makeWithSize(SkScalar size) const;
@@ -211,9 +211,10 @@ public:
         return fTypeface.get();
     }
 
-    /** Returns text size in points.
+    /** Return EM size in local coordinate units.
+        See https://skia.org/docs/user/coordinates/#local-coordinates .
 
-        @return  typographic height of text
+        @return  EM size in local coordinate units
     */
     SkScalar    getSize() const { return fSize; }
 
@@ -248,10 +249,11 @@ public:
     */
     void setTypeface(sk_sp<SkTypeface> tf);
 
-    /** Sets text size in points.
+    /** Sets the EM size in local coordinate units.
+        See https://skia.org/docs/user/coordinates/#local-coordinates .
         Has no effect if textSize is not greater than or equal to zero.
 
-        @param textSize  typographic height of text
+        @param textSize  EM size in local coordinate units
     */
     void setSize(SkScalar textSize);
 
