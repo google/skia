@@ -1370,12 +1370,27 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 		skip("vkmsaa4", "gm", ALL, "shadow_utils")
 	}
 
-	if b.gpu("RadeonR9M470X") && b.extraConfig("ANGLE") {
-		// skbug.com/40045379 - ANGLE D3D9 ES2 has flaky texture sampling that leads to fuzzy diff errors
-		skip(ALL, "tests", ALL, "FilterResult")
-		// skbug.com/40044914 - Flaky failures on ANGLE D3D9 ES2
-		skip(ALL, "tests", ALL, "SkRuntimeEffectSimple_Ganesh")
-		skip(ALL, "tests", ALL, "TestSweepGradientZeroXGanesh")
+	if b.gpu("RadeonR9M470X") && !b.extraConfig("Graphite") {
+		// Currently, RadeonR9M470X implies Win11/AlphaR2
+		if b.extraConfig("ANGLE") {
+			// skbug.com/40045379 - ANGLE D3D9 ES2 has flaky texture sampling that leads to fuzzy diff errors
+			skip(ALL, "tests", ALL, "FilterResult")
+			// skbug.com/40044914 - Flaky failures on ANGLE D3D9 ES2
+			skip(ALL, "tests", ALL, "SkRuntimeEffectSimple_Ganesh")
+			skip(ALL, "tests", ALL, "TestSweepGradientZeroXGanesh")
+
+			// b/438680092
+			skip(ALL, "tests", ALL, "SkSLPrefixExpressionsES2_Ganesh")
+			skip(ALL, "tests", ALL, "SkSLForLoopMultipleInitES3_Ganesh")
+			skip(ALL, "tests", ALL, "SkSLLoopFloat_Ganesh")
+		} else if b.extraConfig("Vulkan") {
+			// No suppressions for Vulkan yet
+		} else {
+			// b/438680092
+			skip(ALL, "tests", ALL, "SkSLPrefixExpressionsES2_Ganesh")
+			skip(ALL, "tests", ALL, "SkSLForLoopMultipleInitES3_Ganesh")
+			skip(ALL, "tests", ALL, "SkSLLoopFloat_Ganesh")
+		}
 	}
 
 	if b.extraConfig("Vulkan") && b.gpu("RadeonVega6") {
