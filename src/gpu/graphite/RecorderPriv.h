@@ -12,6 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/base/SkDebug.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
 
@@ -82,6 +83,7 @@ public:
     UploadList* rootUploadList() { return fRecorder->fRootUploads.get(); }
     DrawBufferManager* drawBufferManager() { return fRecorder->fDrawBufferManager.get(); }
     UploadBufferManager* uploadBufferManager() { return fRecorder->fUploadBufferManager.get(); }
+    sk_sp<FloatStorageManager> refFloatStorageManager() { return fRecorder->fFloatStorageManager; }
 
     AtlasProvider* atlasProvider() { return fRecorder->fAtlasProvider.get(); }
     TokenTracker* tokenTracker() { return fRecorder->fTokenTracker.get(); }

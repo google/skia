@@ -18,12 +18,14 @@
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkTHash.h"
+#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawList.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
 
+#include <optional>
 #include <type_traits>
 #include <variant>
 
@@ -457,7 +459,7 @@ private:
  * Aggregates gradient color and stop information into a single buffer to be bound once for a
  * DrawPass. It de-duplicates gradient data by caching based on the SkGradientBaseShader pointer.
  */
-class FloatStorageManager {
+class FloatStorageManager : public SkRefCnt {
 public:
     FloatStorageManager() = default;
 
@@ -466,24 +468,43 @@ public:
         fGradientOffsetCache.reset();
     }
 
-    // All accumulated gradient data.
-    SkSpan<const float> data() const { return fGradientStorage; }
-
     // Checks if data already exists for the requested gradient shader. If so, it returns
     // a nullptr and the existing offset. If not, it allocates space, caches the offset,
     // and returns a pointer to the start of the new data and the calculated offset.
     std::pair<float*, int> allocateGradientData(int numStops, const SkGradientBaseShader* shader) {
-        int* existingOffset = fGradientOffsetCache.find(shader);
+        SkASSERT(!this->isFinalized());
+        int* existingOffset = fGradientOffsetCache.find(shader->uniqueID());
         if (existingOffset) {
             return {nullptr, *existingOffset};
         }
-
         auto [ptr, offset] = this->allocateFloatData(numStops * 5); // 4 for color, 1 for offset
-        fGradientOffsetCache.set(shader, offset);
+        fGradientOffsetCache.set(shader->uniqueID(), offset);
 
         return {ptr, offset};
     }
 
+    bool finalize(DrawBufferManager* bufferMgr) {
+        SkASSERT(!this->isFinalized());
+        if (!fGradientStorage.empty()) {
+            auto [writer, bufferInfo] = bufferMgr->getSsboWriter(fGradientStorage.size(),
+                                                                 sizeof(float));
+            if (writer) {
+                writer.write(fGradientStorage.data(), fGradientStorage.size_bytes());
+                fBufferInfo = bufferInfo;
+                this->reset();
+            } else {
+                return false;
+            }
+        } else {
+            fBufferInfo = BindBufferInfo();
+        }
+        return true;
+    }
+
+    BindBufferInfo getBufferInfo() { return fBufferInfo.value(); }
+    bool hasData() const { return fBufferInfo.has_value() &&
+                                  fBufferInfo.value().fBuffer != nullptr; }
+    SkDEBUGCODE(bool isFinalized() const { return fBufferInfo.has_value(); })
 private:
     // Allocates space for a given number of floats and returns a pointer to the start
     // of the new allocation and its offset from the beginning of the buffer.
@@ -499,8 +520,10 @@ private:
     // storage buffer can be bound once and accessed at random.
     SkTDArray<float> fGradientStorage;
 
-    // We use the shader's address as a key to de-duplicate gradient data.
-    skia_private::THashMap<const SkGradientBaseShader*, int> fGradientOffsetCache;
+    // We use the shader's unique ID as a key to de-duplicate gradient data.
+    skia_private::THashMap<uint32_t, int> fGradientOffsetCache;
+
+    std::optional<BindBufferInfo> fBufferInfo = std::nullopt;
 };
 
 } // namespace skgpu::graphite

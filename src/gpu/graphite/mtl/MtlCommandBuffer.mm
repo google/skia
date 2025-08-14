@@ -11,6 +11,7 @@
 #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -357,6 +358,12 @@ void MtlCommandBuffer::addDrawPass(const DrawPass* drawPass) {
         // commands. When the DrawPass is partially offscreen individual draw commands will be
         // culled while preserving state changing commands.
         return;
+    }
+
+    // If there is gradient data to bind, it must be done prior to draws.
+    if (drawPass->floatStorageManager()->hasData()) {
+        this->bindUniformBuffer(drawPass->floatStorageManager()->getBufferInfo(),
+                                UniformSlot::kGradient);
     }
 
     drawPass->addResourceRefs(this);

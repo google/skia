@@ -51,6 +51,7 @@ class BackendTexture;
 class Context;
 class Device;
 class DrawBufferManager;
+class FloatStorageManager;
 class ImageProvider;
 class ProxyReadCountMap;
 class RecorderPriv;
@@ -285,6 +286,7 @@ private:
 
     std::unique_ptr<DrawBufferManager> fDrawBufferManager;
     std::unique_ptr<UploadBufferManager> fUploadBufferManager;
+    sk_sp<FloatStorageManager> fFloatStorageManager;
     std::unique_ptr<ProxyReadCountMap> fProxyReadCounts;
 
     // Iterating over tracked devices in flushTrackedDevices() needs to be re-entrant and support

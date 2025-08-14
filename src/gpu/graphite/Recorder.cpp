@@ -34,6 +34,7 @@
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/Device.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/QueueManager.h"
 #include "src/gpu/graphite/RecorderPriv.h"
@@ -114,6 +115,7 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
         , fRuntimeEffectDict(std::make_unique<RuntimeEffectDictionary>())
         , fRootTaskList(new TaskList)
         , fRootUploads(new UploadList)
+        , fFloatStorageManager(sk_make_sp<FloatStorageManager>())
         , fProxyReadCounts(new ProxyReadCountMap)
         , fUniqueID(next_id())
         , fRequireOrderedRecordings(options.fRequireOrderedRecordings.has_value()
@@ -207,7 +209,8 @@ std::unique_ptr<Recording> Recorder::snap() {
                                                        std::move(fFinishedProcs)));
     // Allow the buffer managers to add any collected tasks for data transfer or initialization
     // before moving the root task list to the Recording.
-    bool valid = fDrawBufferManager->transferToRecording(recording.get());
+    bool valid = fFloatStorageManager->finalize(fDrawBufferManager.get());
+    valid &= fDrawBufferManager->transferToRecording(recording.get());
 
     // We create the Recording's full task list even if the DrawBufferManager failed because it is
     // a convenient way to ensure everything else is unmapped and reset for the next Recording.
@@ -238,6 +241,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     // Remaining cleanup that must always happen regardless of success or failure
     fRuntimeEffectDict->reset();
     fProxyReadCounts = std::make_unique<ProxyReadCountMap>();
+    fFloatStorageManager = sk_make_sp<FloatStorageManager>();
     if (!fRequireOrderedRecordings) {
         fAtlasProvider->invalidateAtlases();
     }
