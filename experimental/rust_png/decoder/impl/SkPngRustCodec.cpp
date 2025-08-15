@@ -146,9 +146,11 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> CreateColorProfile(const rust_png::Re
     }
 
     // Next, check for presence of `gAMA` and `cHRM` chunks.
-    float gamma = 0.0;
-    const bool got_gamma = reader.try_get_gama(gamma);
-    if (!got_gamma) {
+    float gamma = 0;
+    // Unlike libpng, image-rs does not seem to validate the gamma value.
+    // So we check explicitly for zero, which is an invalid value encountered in the wild.
+    // TODO: upstream?
+    if (!reader.try_get_gama(gamma) || gamma <= 0) {
         // We ignore whether `chRM` is present or not.
         //
         // This preserves the behavior decided in Chromium's 83587041dc5f1428c09
