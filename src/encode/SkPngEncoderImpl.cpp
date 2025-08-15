@@ -150,6 +150,7 @@ bool SkPngEncoderMgr::setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
     }
 
     png_color_8 sigBit;
+    bool sigBitSet = true;
     switch (srcInfo.colorType()) {
         case kRGBA_F16Norm_SkColorType:
         case kRGBA_F16_SkColorType:
@@ -209,12 +210,14 @@ bool SkPngEncoderMgr::setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
             break;
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-            default:
             sigBit.red = 8;
             sigBit.green = 8;
             sigBit.blue = 8;
             sigBit.alpha = 8;
             break;
+        default:
+            SkDEBUGFAIL("Unable to set sigBit for src colortype, unhandled value\n");
+            sigBitSet = false;
     }
 
     png_set_IHDR(fPngPtr,
@@ -226,7 +229,9 @@ bool SkPngEncoderMgr::setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
                  PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_BASE,
                  PNG_FILTER_TYPE_BASE);
-    png_set_sBIT(fPngPtr, fInfoPtr, &sigBit);
+    if (sigBitSet) {
+        png_set_sBIT(fPngPtr, fInfoPtr, &sigBit);
+    }
 
     int filters = (int)options.fFilterFlags & (int)SkPngEncoder::FilterFlag::kAll;
     SkASSERT(filters == (int)options.fFilterFlags);
