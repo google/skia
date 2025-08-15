@@ -228,14 +228,18 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
     float numParametricSegments;
     if (w < 0) {
         if (p0 == p1 && p2 == p3) {
-            numParametricSegments = 1; // a line
+            numParametricSegments = 1; // a line (or a circle if p1 == p2)
         } else {
             numParametricSegments = $wangs_formula_cubic(p0, p1, p2, p3, affineMatrix);
         }
     } else {
-        numParametricSegments = $wangs_formula_conic(affineMatrix * p0,
-                                                     affineMatrix * p1,
-                                                     affineMatrix * p2, w);
+        if (p0 == p1 || p1 == p2) {
+            numParametricSegments = 1; // a line (or a square if p0 == p2)
+        } else {
+            numParametricSegments = $wangs_formula_conic(affineMatrix * p0,
+                                                         affineMatrix * p1,
+                                                         affineMatrix * p2, w);
+        }
     }
 
     // Matches skgpu::tess::StrokeParams
@@ -260,14 +264,37 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
         lastControlPoint = affineMatrix * lastControlPoint;
     }
 
-    // Find the starting and ending tangents.
+    // Find the starting and ending tangents (of the curve) and the tangent of the previous curve
+    // that connects to it.
     float2 tan0 = $robust_normalize_diff((p0 == p1) ? ((p1 == p2) ? p3 : p2) : p1, p0);
     float2 tan1 = $robust_normalize_diff(p3, (p3 == p2) ? ((p2 == p1) ? p0 : p1) : p2);
+    float2 prevTan = $robust_normalize_diff(p0, lastControlPoint);
     if (tan0 == float2(0)) {
-        // The stroke is a point. This special case tells us to draw a stroke-width circle as a
-        // 180 degree point stroke instead.
-        tan0 = float2(1,0);
-        tan1 = float2(-1,0);
+        // The stroke is a point, which is a special case for square or circle caps.
+        joinType = 0;
+        if (w < 0) {
+            // This is a special case representing a stroke-width circle, so treat it as a 180
+            // degree point stroke instead.
+            tan0 = float2(1,0);
+            tan1 = float2(-1,0);
+        } else {
+            // This is a special case representing a stroke-width square, or half-square cap
+            // (depending on the value of lastControlPoint).
+            w = -1;
+            tan0 = prevTan;
+            tan1 = prevTan;
+            if (prevTan == float2(0.0, 0.0)) {
+                // A square cap, so adjust both p0,p1 and p2,p3 to shift by the stroke radius in
+                // opposite directions along the X axis
+                p2 = p3 = p0 + strokeRadius * float2(1.0, 0.0);
+                p0 = p1 = p0 - strokeRadius * float2(1.0, 0.0);
+                prevTan = tan0 = tan1 = float2(1.0, 0.0);
+            } else {
+                // A half-square, so behave as a lineTo from p0 to a strokeRadius outset away from
+                // the prior tangent point
+                p2 = p3 = p0 + strokeRadius * prevTan;
+            }
+        }
     }
 
     // Determine how many edges to give to the join. We emit the first and final edges
@@ -280,7 +307,7 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
         // +2 because we emit the beginning and ending edges twice (see above comments).
         numEdgesInJoin = sign(joinType) + (1 + 2);
     } else {
-        float2 prevTan = $robust_normalize_diff(p0, lastControlPoint);
+        // NOTE: for circles, prevTan = (0,0), but this still works out to 180 degrees here
         float joinRads = acos($cosine_between_unit_vectors(prevTan, tan0));
         float numRadialSegmentsInJoin = max(ceil(joinRads * numRadialSegmentsPerRadian), 1);
         // +2 because we emit the beginning and ending edges twice (see above comment).
@@ -302,7 +329,7 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
         // means the join is disabled, and to disable it with the existing code we can leave
         // tan0 equal to tan1.
         if (lastControlPoint != p0) {
-            tan0 = $robust_normalize_diff(p0, lastControlPoint);
+            tan0 = prevTan;
         }
         turn = cross_length_2d(tan0, tan1);
     }
@@ -334,6 +361,7 @@ $pure float4 tessellate_stroked_curve(float edgeID, float maxEdges,
             // nearly equivalent this could theoretically result in bad seaming and/or cracks on the
             // side we don't put it on. If the tangents are nearly equivalent then we leave the join
             // double-sided.
+            // NOTE: For square caps, the construction of tan0/tan1 ensure we emit a full width edge
             const float sinEpsilon = 1e-2;  // ~= sin(180deg / 3000)
             bool tangentsNearlyParallel =
                     (abs(turn) * inversesqrt(dot(tan0, tan0) * dot(tan1, tan1))) < sinEpsilon;
