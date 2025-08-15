@@ -1402,7 +1402,7 @@ public:
                  y = this->getTranslateY();
         if (this->hasPerspective()) {
             SkScalar w = fMat[kMPersp2];
-            if (w) { w = 1 / w; }
+            if ((bool)w) { w = 1 / w; }
             x *= w;
             y *= w;
         }
