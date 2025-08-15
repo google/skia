@@ -1736,12 +1736,37 @@ FilterResult FilterResult::rescale(const Context& ctx,
         }
     }
 
+    if (deferPeriodicTiling) {
+        // The periodic tiling effect will be manually rendered into the lower resolution image so
+        // that clamp tiling can be used at each decimation.
+        image.fTileMode = SkTileMode::kClamp;
+    } else {
+        // When not deferring periodic tiling, it provides a better user behavior for animating
+        // sigma values and matrix scale factors to not overscale to the next factor of 1/2 and just
+        // scale the requisite amount between 1/2 and 1 for the final step.
+        //
+        // This can lead to some slight flickering when content animates underneath a fixed blur
+        // region, but this scenario is most likely to occur with backdrop filters. Backdrop filters
+        // generally use kMirror for their boundary condition so would hit the periodic tiling case
+        // anyways.
+        //
+        // The long term solution to address all of these issues is to be able to track bounds and
+        // image placement in floating point, and blend over and underscaled images into an image
+        // of the exact required size.
+        allowOverscaling = false;
+    }
+
     // For now, if we are deferring periodic tiling, we need to ensure that the low-res image bounds
     // are pixel aligned. This is because the tiling is applied at the pixel level in SkImageShader,
     // and we need the period of the low-res image to align with the original high-resolution period
     // If/when SkImageShader supports shader-tiling over fractional bounds, this can relax.
-    float finalScaleX = xSteps > 0 ? scale.width() : 1.f;
-    float finalScaleY = ySteps > 0 ? scale.height() : 1.f;
+    float finalScaleX = xSteps > 0 ? (allowOverscaling ? (1.f / (1 << xSteps))
+                                                       : scale.width())
+                                   : 1.f;
+    float finalScaleY = ySteps > 0 ? (allowOverscaling ? (1.f / (1 << ySteps))
+                                                       : scale.height())
+                                   : 1.f;
+#if defined(SK_DISABLE_BLUR_OVERSCALING)
     if (deferPeriodicTiling) {
         PixelSpace<SkRect> dstBoundsF = scale_about_center(stepBoundsF, finalScaleX, finalScaleY);
         // Use a pixel bounds that's smaller than what was requested to ensure any post-blur amount
@@ -1761,30 +1786,37 @@ FilterResult FilterResult::rescale(const Context& ctx,
         // Recompute how many steps are needed, as we may need to do one more step from the round-in
         xSteps = downscale_step_count(finalScaleX);
         ySteps = downscale_step_count(finalScaleY);
-
-        // The periodic tiling effect will be manually rendered into the lower resolution image so
-        // that clamp tiling can be used at each decimation.
-        image.fTileMode = SkTileMode::kClamp;
     }
+#endif
 
     do {
         float sx = 1.f;
         if (xSteps > 0) {
-            sx = xSteps > 1 || allowOverscaling
-                    ? 0.5f : srcRect.width()*finalScaleX / stepBoundsF.width();
+            sx = xSteps > 1 ? 0.5f : srcRect.width()*finalScaleX / stepBoundsF.width();
             xSteps--;
         }
 
         float sy = 1.f;
         if (ySteps > 0) {
-            sy = ySteps > 1 || allowOverscaling
-                    ? 0.5f : srcRect.height()*finalScaleY / stepBoundsF.height();
+            sy = ySteps > 1 ? 0.5f : srcRect.height()*finalScaleY / stepBoundsF.height();
             ySteps--;
         }
 
         // Downscale relative to the center of the image, which better distributes any sort of
         // sampling errors across the image (vs. emphasizing the bottom right edges).
         PixelSpace<SkRect> dstBoundsF = scale_about_center(stepBoundsF, sx, sy);
+#if !defined(SK_DISABLE_BLUR_OVERSCALING)
+        const bool finalXStep = xSteps == 0 && sx != 1.f;
+        const bool finalYStep = ySteps == 0 && sy != 1.f;
+        if (deferPeriodicTiling && (finalXStep || finalYStep)) {
+            PixelSpace<SkIRect> dstPixels = dstBoundsF.roundOut();
+            dstBoundsF = PixelSpace<SkRect>({
+                finalXStep ? (float) dstPixels.left()   : dstBoundsF.left(),
+                finalYStep ? (float) dstPixels.top()    : dstBoundsF.top(),
+                finalXStep ? (float) dstPixels.right()  : dstBoundsF.right(),
+                finalYStep ? (float) dstPixels.bottom() : dstBoundsF.bottom()});
+        }
+#endif
 
         // NOTE: Rounding out is overly conservative when dstBoundsF has an odd integer width/height
         // but with coordinates at 1/2. In this case, we could create a pixel grid that has a
