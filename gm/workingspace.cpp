@@ -16,6 +16,7 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/core/SkColorFilterPriv.h"
+#include "src/shaders/SkWorkingColorSpaceShader.h"
 
 static sk_sp<SkShader> color_shader(SkColor4f color) {
     // Why not use SkShaders::Color? We want a shader that inhibits any paint optimization by any
@@ -45,7 +46,9 @@ static sk_sp<SkShader> raw_shader(SkColor4f color) {
 
 static sk_sp<SkShader> managed_shader(SkColor4f color) {
     return SkRuntimeEffect::MakeForShader(SkString("layout(color) uniform half4 c;"
-                                                   "half4 main(float2 xy) { return c; }"))
+                                                   "half4 main(float2 xy) {"
+                                                       "return half4(c.rgb*c.a, c.a);"
+                                                   "}"))
             .effect->makeShader(SkData::MakeWithCopy(&color, sizeof(SkColor4f)), {});
 }
 
@@ -180,4 +183,84 @@ DEF_SIMPLE_GM_CAN_FAIL(workingspace, canvas, errorMsg, 200, 350) {
     cell(linear(gradient_shader()), nullptr);  // Red to green, via bright yellow
 
     return skiagm::DrawResult::kOk;
+}
+
+// When color conversion and alpha type is handled correctly from all input types (e.g. image,
+// color, and runtime effect), this should produce a 2x3 grid of squares in the same green color.
+//
+// * For CPU/Ganesh, the bottom row (all workInUnpremul cases) render incorrectly because all inputs
+//   still produce premul values and the wrapped shader is assumed to produce a premul value.
+// * For Graphite, solid color and image inputs correctly convert to unpremul alpha but other shader
+//   types produce premul values w/o any extra conversion to unpremul. Only the bottom-middle cell
+//   renders incorrectly.
+DEF_SIMPLE_GM(workingspace_input_output, canvas, 256, 256) {
+    // unpremul, sRGB input color to the runtime shader that is then wrapped in a workingspace
+    SkColor4f inputColor = {0.2f, 0.4f, 0.7f, 0.5f};
+
+    // These should produce the same value, barring colortype encoding precision
+    sk_sp<SkShader> childColor = SkShaders::Color(inputColor, nullptr);
+    sk_sp<SkShader> childUniform = managed_shader(inputColor);
+    sk_sp<SkShader> childImage = color_shader(inputColor);
+
+    // The input working space will be the linear space with the current surface's gamut
+    sk_sp<SkColorSpace> inputCS = canvas->imageInfo().refColorSpace();
+    if (inputCS) {
+        inputCS = inputCS->makeLinearGamma();
+    } else {
+        inputCS = SkColorSpace::MakeSRGBLinear();
+    }
+
+    // The output space will be a colorspin of the input gamut with a 2.2 gamma
+    sk_sp<SkColorSpace> outputCS = inputCS->makeColorSpin();
+    skcms_Matrix3x3 outputGamut;
+    outputCS->toXYZD50(&outputGamut);
+    outputCS = SkColorSpace::MakeRGB(SkNamedTransferFn::k2Dot2, outputGamut);
+
+    SkRect rect = {0.f, 0.f, 32.f, 32.f};
+    const float padding = 4.f;
+
+    canvas->translate(padding, padding);
+    for (bool workInUnpremul : {false, true}) {
+        const char* manualUnpremul = workInUnpremul ? "false" : "true";
+        SkString sksl = SkStringPrintf(
+                "uniform shader child;"
+                "half4 main(float2 xy) {"
+                    "half4 inRGBA = child.eval(xy);" // This is in inputCS w/ inputAlpha type
+                    "if (%s) {" // do manual unpremul if not `workInUnpremul`
+                        "inRGBA.rgb /= inRGBA.a + 0.00001;"
+                    "}"
+                    // the "effect" to apply in the linear unpremul working space
+                    "half4 scaled = half4(saturate(inRGBA.rgb * 1.5), inRGBA.a);"
+                    // manual color spin and 2.2 gamma to inline the conversion from
+                    // inputCS to outputCS.
+                    "half4 outRGBA = half4(pow(scaled.bgr, half3(2.2)), scaled.a);"
+                    "if (%s) {" // do manual premul if not `workInUnpremul`
+                        "outRGBA.rgb *= outRGBA.a;"
+                    "}"
+                    "return outRGBA;"
+                "}",
+                manualUnpremul, manualUnpremul);
+
+        auto rte = SkRuntimeEffect::MakeForShader(sksl);
+        SkASSERTF(rte.effect, "Failed to create runtime effect: %s", rte.errorText.c_str());
+
+        canvas->save();
+        for (auto&& child : {childColor, childUniform, childImage}) {
+            SkRuntimeShaderBuilder builder{rte.effect};
+            builder.child("child") = child;
+            sk_sp<SkShader> rteShader = builder.makeShader();
+
+            SkPaint p;
+            p.setAntiAlias(true);
+            // The option that takes a workInUnpremul parameter isn't public yet
+            p.setShader(SkWorkingColorSpaceShader::Make(std::move(rteShader),
+                                                        inputCS,
+                                                        outputCS,
+                                                        workInUnpremul));
+            canvas->drawRect(rect, p);
+            canvas->translate(rect.width() + padding, 0.f);
+        }
+        canvas->restore();
+        canvas->translate(0.f, rect.height() + padding);
+    }
 }

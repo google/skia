@@ -72,7 +72,8 @@ public:
      *     sk_sp<PrecompileShader> combinedOptions = WorkingColorSpace({ source1, source2 },
      *                                                                 { colorSpace });
      */
-    sk_sp<PrecompileShader> makeWithWorkingColorSpace(sk_sp<SkColorSpace>) const;
+    sk_sp<PrecompileShader> makeWithWorkingColorSpace(sk_sp<SkColorSpace> inputCS,
+                                                      sk_sp<SkColorSpace> outputCS=nullptr) const;
 
     // Provides access to functions that aren't part of the public API.
     PrecompileShaderPriv priv();
@@ -244,8 +245,20 @@ namespace PrecompileShaders {
     // WorkingColorSpaceShaders (i.e., pass SkSpans to the factory function vs just creating a
     // single option). This entry point allows that use case.
     // Note: PrecompileShader::makeWithWorkingColorSpace can still be used and works as expected.
-    SK_API sk_sp<PrecompileShader> WorkingColorSpace(SkSpan<const sk_sp<PrecompileShader>> shaders,
-                                                     SkSpan<const sk_sp<SkColorSpace>> colorSpaces);
+
+    // This variant creates the cross product of `inputSpaces` and `outputSpaces`.
+    // An empty list is interpreted as matching either the dst color space (for `inputSpaces`) or
+    // matching the input space (for `outputSpaces`).
+    SK_API sk_sp<PrecompileShader> WorkingColorSpace(
+            SkSpan<const sk_sp<PrecompileShader>> shaders,
+            SkSpan<const sk_sp<SkColorSpace>> inputSpaces,
+            SkSpan<const sk_sp<SkColorSpace>> outputSpaces = {});
+
+    // This variant takes a span of input and output color spaces pairs explicitly.
+    SK_API sk_sp<PrecompileShader> WorkingColorSpaceExplicit(
+            SkSpan<const sk_sp<PrecompileShader>> shaders,
+            SkSpan<const std::pair</*input =*/sk_sp<SkColorSpace>,
+                                   /*output=*/sk_sp<SkColorSpace>>> inputAndOutputSpaces);
 
 } // namespace PrecompileShaders
 

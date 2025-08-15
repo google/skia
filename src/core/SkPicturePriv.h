@@ -124,6 +124,8 @@ public:
     // v105: Unclamped matrix color filter
     // v106: SaveLayer supports custom backdrop tile modes
     // v107: Combine SkColorShader and SkColorShader4
+    // v108: Serialize stable keys of runtime effects
+    // v109: Extend SkWorkingColorSpaceShader to have alpha type + output control
 
     enum Version {
         kPictureShaderFilterParam_Version   = 82,
@@ -153,6 +155,7 @@ public:
         kSaveLayerBackdropTileMode          = 106,
         kCombineColorShaders                = 107,
         kSerializeStableKeys                = 108,
+        kWorkingColorSpaceOutput            = 109,
 
         // Only SKPs within the min/current picture version range (inclusive) can be read.
         //
@@ -177,7 +180,7 @@ public:
         //
         // Contact the Infra Gardener if the above steps do not work for you.
         kMin_Version     = kPictureShaderFilterParam_Version,
-        kCurrent_Version = kSerializeStableKeys
+        kCurrent_Version = kWorkingColorSpaceOutput
     };
 };
 

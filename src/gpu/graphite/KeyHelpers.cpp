@@ -1558,16 +1558,20 @@ void NotifyImagesInUse(Recorder* recorder, DrawContext* drawContext, const SkBle
 
 //--------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------
-static SkPMColor4f map_color(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
+static SkPMColor4f map_color(const SkColor4f& c,
+                             SkColorSpace* src,
+                             SkColorSpace* dst,
+                             SkAlphaType dstAlphaType) {
     SkPMColor4f color = {c.fR, c.fG, c.fB, c.fA};
-    SkColorSpaceXformSteps(src, kUnpremul_SkAlphaType, dst, kPremul_SkAlphaType).apply(color.vec());
+    SkColorSpaceXformSteps(src, kUnpremul_SkAlphaType, dst, dstAlphaType).apply(color.vec());
     return color;
 }
 static void add_to_key(const KeyContext& keyContext, const SkBlendModeColorFilter* filter) {
     SkASSERT(filter);
 
     SkPMColor4f color = map_color(filter->color(), sk_srgb_singleton(),
-                                  keyContext.dstColorInfo().colorSpace());
+                                  keyContext.dstColorInfo().colorSpace(),
+                                  keyContext.dstColorInfo().alphaType());
 
     AddBlendModeColorFilter(keyContext, filter->mode(), color);
 }
@@ -1785,7 +1789,8 @@ static void add_to_key(const KeyContext& keyContext, const SkColorShader* shader
     SkASSERT(shader);
 
     SkPMColor4f color = map_color(shader->color(), sk_srgb_singleton(),
-                                  keyContext.dstColorInfo().colorSpace());
+                                  keyContext.dstColorInfo().colorSpace(),
+                                  keyContext.dstColorInfo().alphaType());
 
     SolidColorShaderBlock::AddBlock(keyContext, color);
 }
@@ -2363,20 +2368,25 @@ static void add_to_key(const KeyContext& keyContext,
         dstCS = SkColorSpace::MakeSRGB();
     }
 
-    sk_sp<SkColorSpace> workingCS = shader->workingSpace();
-    SkColorInfo workingInfo(dstInfo.colorType(), dstAT, workingCS);
+    // It requires C++20 to use an auto structured binding and then reference them in the lambda.
+    sk_sp<SkColorSpace> inputCS, outputCS;
+    SkAlphaType workingAT;
+    std::tie(inputCS, outputCS, workingAT) = shader->workingSpace(dstCS, dstAT);
+
+    SkColorInfo workingInfo(dstInfo.colorType(), workingAT, inputCS);
     KeyContextWithColorInfo workingContext(keyContext, workingInfo);
 
-    // Compose the inner shader (in the working space) with a (working->dst) transform:
+    // Compose the inner shader (in the input space) with a (output->dst) transform, under the
+    // assumption that the child shader handles conversion between input and output CS/alpha types.
     Compose(keyContext,
-            /* addInnerToKey= */ [&]() -> void {
-                AddToKey(workingContext, shader->shader().get());
-            },
-            /* addOuterToKey= */ [&]() -> void {
-                ColorSpaceTransformBlock::ColorSpaceTransformData data(
-                        workingCS.get(), dstAT, dstCS.get(), dstAT);
-                ColorSpaceTransformBlock::AddBlock(keyContext, data);
-            });
+        /* addInnerToKey= */ [&]() -> void {
+            AddToKey(workingContext, shader->shader().get());
+        },
+        /* addOuterToKey= */ [&]() -> void {
+            ColorSpaceTransformBlock::ColorSpaceTransformData data(
+                    outputCS.get(), workingAT, dstCS.get(), dstAT);
+            ColorSpaceTransformBlock::AddBlock(keyContext, data);
+        });
 }
 static void notify_in_use(Recorder* recorder,
                           DrawContext* drawContext,

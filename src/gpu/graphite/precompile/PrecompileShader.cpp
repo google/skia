@@ -55,12 +55,15 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithColorFilter(
     return PrecompileShaders::ColorFilter({ sk_ref_sp(this) }, { std::move(cf) });
 }
 
-sk_sp<PrecompileShader> PrecompileShader::makeWithWorkingColorSpace(sk_sp<SkColorSpace> cs) const {
-    if (!cs) {
+sk_sp<PrecompileShader> PrecompileShader::makeWithWorkingColorSpace(
+        sk_sp<SkColorSpace> inputCS, sk_sp<SkColorSpace> outputCS) const {
+    if (!inputCS && !outputCS) {
         return sk_ref_sp(this);
     }
 
-    return PrecompileShaders::WorkingColorSpace({ sk_ref_sp(this) }, { std::move(cs) });
+    return PrecompileShaders::WorkingColorSpaceExplicit(
+            { sk_ref_sp(this) },
+            { { std::move(inputCS), std::move(outputCS) } });
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -861,13 +864,33 @@ sk_sp<PrecompileShader> PrecompileShaders::ColorFilter(
 class PrecompileWorkingColorSpaceShader final : public PrecompileShader {
 public:
     PrecompileWorkingColorSpaceShader(SkSpan<const sk_sp<PrecompileShader>> shaders,
-                                      SkSpan<const sk_sp<SkColorSpace>> colorSpaces)
+                                      SkSpan<const std::pair<sk_sp<SkColorSpace>,
+                                                             sk_sp<SkColorSpace>>> colorSpaces)
             : fShaders(shaders.begin(), shaders.end())
             , fColorSpaces(colorSpaces.begin(), colorSpaces.end()) {
-        fNumShaderCombos = 0;
-        for (const auto& s : fShaders) {
-            fNumShaderCombos += s->priv().numCombinations();
+        if (colorSpaces.empty()) {
+            fColorSpaces.push_back({nullptr, nullptr}); // encode identity
         }
+        this->updateNumShaderCombos();
+    }
+
+    PrecompileWorkingColorSpaceShader(SkSpan<const sk_sp<PrecompileShader>> shaders,
+                                      SkSpan<const sk_sp<SkColorSpace>> inputSpaces,
+                                      SkSpan<const sk_sp<SkColorSpace>> outputSpaces)
+            : fShaders(shaders.begin(), shaders.end()) {
+        static const sk_sp<SkColorSpace> kNullCS;
+        SkSpan<const sk_sp<SkColorSpace>> nullSpan{&kNullCS, 1};
+        if (inputSpaces.empty())  { inputSpaces  = nullSpan; }
+        if (outputSpaces.empty()) { outputSpaces = nullSpan; }
+
+        fColorSpaces.reserve(inputSpaces.size() * outputSpaces.size());
+        for (const sk_sp<SkColorSpace>& iCS : inputSpaces) {
+            for (const sk_sp<SkColorSpace>& oCS : outputSpaces) {
+                fColorSpaces.push_back({iCS, oCS});
+            }
+        }
+
+        this->updateNumShaderCombos();
     }
 
 private:
@@ -880,6 +903,16 @@ private:
         int desiredColorSpaceCombination = desiredCombination / fNumShaderCombos;
         SkASSERT(desiredColorSpaceCombination < (int) fColorSpaces.size());
 
+        // Check for an identity working colorspace (that is detected up front with
+        // makeWithColorSpace, but due to return type mismatches, can't be handled as easily with
+        // the WorkingColorSpace() factory).
+        if (!fColorSpaces[desiredColorSpaceCombination].first &&
+            !fColorSpaces[desiredColorSpaceCombination].second) {
+            // So just add the desired shader direction
+            AddToKey<PrecompileShader>(keyContext, fShaders, desiredShaderCombination);
+            return;
+        }
+
         const SkColorInfo& dstInfo = keyContext.dstColorInfo();
         const SkAlphaType dstAT = dstInfo.alphaType();
         sk_sp<SkColorSpace> dstCS = dstInfo.refColorSpace();
@@ -887,8 +920,19 @@ private:
             dstCS = SkColorSpace::MakeSRGB();
         }
 
-        sk_sp<SkColorSpace> workingCS = fColorSpaces[desiredColorSpaceCombination];
-        SkColorInfo workingInfo(dstInfo.colorType(), dstAT, workingCS);
+        sk_sp<SkColorSpace> inputCS = fColorSpaces[desiredColorSpaceCombination].first;
+        if (!inputCS) {
+            inputCS = dstCS;
+        }
+        sk_sp<SkColorSpace> outputCS = fColorSpaces[desiredColorSpaceCombination].second;
+        if (!outputCS) {
+            outputCS = inputCS;
+        }
+
+        // SkWorkingColorSpaceShader's workInUnpremul is not exposed yet in the public API so
+        // precompile can assume that it'll always use dstAT.
+        const SkAlphaType workingAT = dstAT;
+        SkColorInfo workingInfo(dstInfo.colorType(), workingAT, inputCS);
         KeyContextWithColorInfo workingContext(keyContext, workingInfo);
 
         Compose(keyContext,
@@ -897,21 +941,39 @@ private:
                 },
                 /* addOuterToKey= */ [&]() -> void {
                     ColorSpaceTransformBlock::ColorSpaceTransformData data(
-                            workingCS.get(), dstAT, dstCS.get(), dstAT);
+                            outputCS.get(), workingAT, dstCS.get(), dstAT);
                     ColorSpaceTransformBlock::AddBlock(keyContext, data);
                 });
     }
 
+    void updateNumShaderCombos() {
+        fNumShaderCombos = 0;
+        for (const auto& s : fShaders) {
+            fNumShaderCombos += s->priv().numCombinations();
+        }
+    }
+
     std::vector<sk_sp<PrecompileShader>> fShaders;
-    std::vector<sk_sp<SkColorSpace>>     fColorSpaces;
+    std::vector<std::pair</*input =*/sk_sp<SkColorSpace>,
+                          /*output=*/sk_sp<SkColorSpace>>> fColorSpaces;
     int fNumShaderCombos;
 };
 
 sk_sp<PrecompileShader> PrecompileShaders::WorkingColorSpace(
         SkSpan<const sk_sp<PrecompileShader>> shaders,
-        SkSpan<const sk_sp<SkColorSpace>> colorSpaces) {
+        SkSpan<const sk_sp<SkColorSpace>> inputSpaces,
+        SkSpan<const sk_sp<SkColorSpace>> outputSpaces) {
     return sk_make_sp<PrecompileWorkingColorSpaceShader>(std::move(shaders),
-                                                         std::move(colorSpaces));
+                                                         std::move(inputSpaces),
+                                                         std::move(outputSpaces));
+}
+
+sk_sp<PrecompileShader> PrecompileShaders::WorkingColorSpaceExplicit(
+        SkSpan<const sk_sp<PrecompileShader>> shaders,
+        SkSpan<const std::pair</*input =*/sk_sp<SkColorSpace>,
+                               /*output=*/sk_sp<SkColorSpace>>> inputAndOutputSpaces) {
+    return sk_make_sp<PrecompileWorkingColorSpaceShader>(std::move(shaders),
+                                                         std::move(inputAndOutputSpaces));
 }
 
 //--------------------------------------------------------------------------------------------------
