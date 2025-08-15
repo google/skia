@@ -833,16 +833,20 @@ void SkPath::addRaw(const SkPathRaw& raw) {
     this->incReserve(raw.points().size(), raw.verbs().size());
 
     for (auto iter = raw.iter(); auto rec = iter.next();) {
-        const auto pts = rec->pts;
-        switch (rec->vrb) {
+        const auto pts = rec->fPoints;
+        switch (rec->fVerb) {
             case SkPathVerb::kMove:  this->moveTo( pts[0]); break;
             case SkPathVerb::kLine:  this->lineTo( pts[1]); break;
             case SkPathVerb::kQuad:  this->quadTo( pts[1], pts[2]); break;
-            case SkPathVerb::kConic: this->conicTo(pts[1], pts[2], rec->w); break;
+            case SkPathVerb::kConic: this->conicTo(pts[1], pts[2], rec->fConicWeight); break;
             case SkPathVerb::kCubic: this->cubicTo(pts[1], pts[2], pts[3]); break;
             case SkPathVerb::kClose: this->close(); break;
         }
     }
+}
+
+SkPathIter SkPath::iter() const {
+    return { fPathRef->fPoints, fPathRef->verbs(), fPathRef->fConicWeights };
 }
 
 static bool arc_is_lone_point(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,

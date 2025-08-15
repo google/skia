@@ -311,8 +311,6 @@ int gather_lines_and_quads(const SkPath& path,
                            PtArray* conics,
                            IntArray* quadSubdivCnts,
                            FloatArray* conicWeights) {
-    SkPath::Iter iter(path, false);
-
     int totalQuadCount = 0;
     bool persp = m.hasPerspective();
 
@@ -368,6 +366,7 @@ int gather_lines_and_quads(const SkPath& path,
     };
 
     SkPoint pathPts[4] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
+    auto iter = path.iter();
     while (auto rec = iter.next()) {
         std::copy(rec->fPoints.begin(), rec->fPoints.end(), pathPts);
         switch (rec->fVerb) {
