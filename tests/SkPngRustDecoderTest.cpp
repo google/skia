@@ -686,3 +686,19 @@ DEF_TEST(RustPngCodec_f16_trc_tables, r) {
     auto [image, result] = codec->getImage(dstInfo);
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
 }
+
+DEF_TEST(RustPngCodec_invalid_profile, r) {
+    // This image has an gamma value of 0. For parity with Blink, we want to disregard
+    // the ICC profile in this case and create the codec without it. This is different
+    // than libpng SkPngCodec behavior, which will default to an SRGB icc profile.
+    std::unique_ptr<SkCodec> codec =
+        SkPngRustDecoderDecode(r, "images/png-zero-gamma-color-profile.png");
+    REPORTER_ASSERT(r, codec);
+
+    // There should be no ICC profile.
+    REPORTER_ASSERT(r, !codec->getICCProfile());
+
+    // This should not crash.
+    auto [image, result] = codec->getImage(codec->getInfo());
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+}
