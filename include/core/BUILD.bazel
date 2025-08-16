@@ -61,7 +61,6 @@ PUBLIC_HEADERS = [
     "SkPath.h",
     "SkPathBuilder.h",
     "SkPathEffect.h",
-    "SkPathIter.h",
     "SkPathMeasure.h",
     "SkPathTypes.h",
     "SkPathUtils.h",

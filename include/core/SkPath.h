@@ -9,7 +9,6 @@
 #define SkPath_DEFINED
 
 #include "include/core/SkMatrix.h"
-#include "include/core/SkPathIter.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -1531,8 +1530,6 @@ public:
         return this->addPoly({pts, count}, close);
     }
 #endif
-
-    SkPathIter iter() const;
 
     struct IterRec {
         SkPathVerb            fVerb;

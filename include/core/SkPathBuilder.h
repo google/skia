@@ -10,7 +10,6 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkPathIter.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -932,8 +931,6 @@ public:
     }
 
     SkPathBuilder& addRaw(const SkPathRaw&);
-
-    SkPathIter iter() const;
 
 private:
     SkPathRef::PointsArray fPts;
