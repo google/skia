@@ -111,14 +111,9 @@ template <typename D, typename S>
 SI D cast(const S& v) {
 #if N == 1
     return (D)v;
-#elif defined(__clang__)
-    return __builtin_convertvector(v, D);
 #else
-    D d;
-    for (int i = 0; i < N; i++) {
-        d[i] = v[i];
-    }
-    return d;
+    return __builtin_convertvector(v, D);
+
 #endif
 }
 
@@ -156,8 +151,13 @@ SI F F_from_Half(U16 half) {
 #elif defined(USING_AVX512F)
     return (F)_mm512_cvtph_ps((__m256i)half);
 #elif defined(USING_AVX_F16C)
+#if defined(__clang__)
+    typedef _Float16 __attribute__((vector_size(16))) F16;
+    return __builtin_convertvector((F16)half, F);
+#else
     typedef int16_t __attribute__((vector_size(16))) I16;
     return __builtin_ia32_vcvtph2ps256((I16)half);
+#endif // defined(__clang))
 #else
     U32 wide = cast<U32>(half);
     // A half is 1-5-10 sign-exponent-mantissa, with 15 exponent bias.
