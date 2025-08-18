@@ -2323,6 +2323,7 @@ SkTypeface::FactoryId SkFontScanner_FreeType::getFactoryId() const {
     static constexpr SkFourByteTag wghtTag = SkSetFourByteTag('w', 'g', 'h', 't');
     static constexpr SkFourByteTag wdthTag = SkSetFourByteTag('w', 'd', 't', 'h');
     static constexpr SkFourByteTag slntTag = SkSetFourByteTag('s', 'l', 'n', 't');
+    static constexpr SkFourByteTag italTag = SkSetFourByteTag('i', 't', 'a', 'l');
     int weight = SkFontStyle::kNormal_Weight;
     int width = SkFontStyle::kNormal_Width;
     SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
@@ -2332,6 +2333,8 @@ SkTypeface::FactoryId SkFontScanner_FreeType::getFactoryId() const {
         slant = style->slant();
     }
 
+    std::optional<SkFixed> slnt_value;
+    std::optional<SkFixed> ital_value;
     for (int i = 0; i < axisDefinitions.size(); ++i) {
         const SkFontParameters::Variation::Axis& axisDefinition = axisDefinitions[i];
         const SkScalar axisMin = axisDefinition.min;
@@ -2400,19 +2403,34 @@ SkTypeface::FactoryId SkFontScanner_FreeType::getFactoryId() const {
                     width = SkFontDescriptor::SkFontStyleWidthForWidthAxisValue(wdthValue);
                 }
             }
-            if (axisDefinition.tag == slntTag && slant != SkFontStyle::kItalic_Slant) {
-                // https://docs.microsoft.com/en-us/typography/opentype/spec/dvaraxistag_slnt
-                // "Scale interpretation: Values can be interpreted as the angle,
-                // in counter-clockwise degrees, of oblique slant from whatever
-                // the designer considers to be upright for that font design."
-                if (axisValues[i] == 0) {
-                    slant = SkFontStyle::kUpright_Slant;
-                } else {
-                    slant = SkFontStyle::kOblique_Slant;
-                }
+            if (axisDefinition.tag == slntTag) {
+                slnt_value = axisValues[i];
+            }
+            if (axisDefinition.tag == italTag) {
+                ital_value = axisValues[i];
             }
         }
         // TODO: warn on defaulted axis?
+    }
+    // Value > 0 => +, value == 0 => 0, no value => _
+    // slnt\ital  _      0      +
+    //       _   init  !ital   ital
+    //       0  !oblq   uprt   ital
+    //       +   oblq   oblq   ital
+    if (ital_value && ital_value.value() != 0) {
+        slant = SkFontStyle::kItalic_Slant;
+    } else if (slnt_value && slnt_value.value() != 0) {
+        slant = SkFontStyle::kOblique_Slant;
+    } else if (ital_value && ital_value.value() == 0.0 && slnt_value && slnt_value.value() == 0.0) {
+        slant = SkFontStyle::kUpright_Slant;
+    } else if (ital_value && ital_value.value() == 0.0 && !slnt_value) {
+        if (slant == SkFontStyle::kItalic_Slant) {
+            slant = SkFontStyle::kUpright_Slant;
+        }
+    } else if (!ital_value && slnt_value && slnt_value.value() == 0.0) {
+        if (slant == SkFontStyle::kOblique_Slant) {
+            slant = SkFontStyle::kUpright_Slant;
+        }
     }
 
     if (style) {
