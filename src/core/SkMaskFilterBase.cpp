@@ -284,9 +284,13 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath,
         return false;
     }
 #endif
-    if (!SkDraw::DrawToMask(devPath, clip.getBounds(), this, &matrix, &srcM,
-                            SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode,
-                            style)) {
+    if (!skcpu::DrawToMask(devPath,
+                           clip.getBounds(),
+                           this,
+                           &matrix,
+                           &srcM,
+                           SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode,
+                           style)) {
         return false;
     }
     SkAutoMaskFreeImage autoSrc(srcM.image());

@@ -30,6 +30,8 @@ enum class SkFontHinting;
 enum class SkTextEncoding;
 struct SkFontMetrics;
 
+namespace skcpu { class GlyphRunListPainter; }
+
 /** \class SkFont
     SkFont controls options applied when drawing and measuring text.
 */
@@ -565,7 +567,7 @@ private:
     bool hasSomeAntiAliasing() const;
 
     friend class SkFontPriv;
-    friend class SkGlyphRunListPainterCPU;
+    friend class skcpu::GlyphRunListPainter;
     friend class SkStrikeSpec;
     friend class SkRemoteGlyphCacheTest;
 };

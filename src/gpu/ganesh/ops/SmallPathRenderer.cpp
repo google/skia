@@ -464,7 +464,7 @@ private:
             paint.setStyle(SkPaint::kFill_Style);
             paint.setAntiAlias(true);
 
-            SkDraw draw;
+            skcpu::Draw draw;
 
             SkRasterClip rasterClip;
             rasterClip.setRect(devPathBounds);
@@ -542,7 +542,7 @@ private:
         paint.setStyle(SkPaint::kFill_Style);
         paint.setAntiAlias(true);
 
-        SkDraw draw;
+        skcpu::Draw draw;
 
         SkRasterClip rasterClip;
         rasterClip.setRect(devPathBounds);

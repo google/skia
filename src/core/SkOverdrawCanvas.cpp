@@ -23,6 +23,7 @@
 #include "include/private/base/SkTDArray.h"
 #include "src/base/SkZip.h"
 #include "src/core/SkDevice.h"
+#include "src/core/SkDraw.h"
 #include "src/core/SkDrawShadowInfo.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkGlyphRunPainter.h"
@@ -58,7 +59,7 @@ SkOverdrawCanvas::SkOverdrawCanvas(SkCanvas* canvas)
 }
 
 namespace {
-class TextDevice : public SkNoPixelsDevice, public SkGlyphRunListPainterCPU::BitmapDevicePainter {
+class TextDevice : public SkNoPixelsDevice, public skcpu::BitmapDevicePainter {
 public:
     TextDevice(SkCanvas* overdrawCanvas, const SkSurfaceProps& props)
             : SkNoPixelsDevice{SkIRect::MakeWH(32767, 32767), props},
@@ -90,7 +91,7 @@ public:
 
 private:
     SkCanvas* const fOverdrawCanvas;
-    SkGlyphRunListPainterCPU fPainter;
+    skcpu::GlyphRunListPainter fPainter;
 };
 }  // namespace
 

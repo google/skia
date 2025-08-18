@@ -21,7 +21,7 @@ class DrawPathBench : public Benchmark {
     SkPath      fPath;
     SkRasterClip fRC;
     SkAutoPixmapStorage fPixmap;
-    SkDraw      fDraw;
+    skcpu::Draw fDraw;
     bool        fDrawCoverage;
 public:
     DrawPathBench(bool drawCoverage) : fDrawCoverage(drawCoverage) {

@@ -127,8 +127,6 @@ public:
     SkRecorder* baseRecorder() const override { return fRecorder; }
 
 private:
-    friend class SkDraw;
-    friend class SkDrawBase;
     friend class SkDrawTiler;
     friend class SkSurface_Raster;
 
@@ -154,7 +152,7 @@ private:
     skcpu::RecorderImpl* fRecorder = nullptr;
     SkBitmap fBitmap;
     SkRasterClipStack fRCStack;
-    SkGlyphRunListPainterCPU fGlyphPainter;
+    skcpu::GlyphRunListPainter fGlyphPainter;
 };
 
 #endif // SkBitmapDevice_DEFINED

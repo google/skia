@@ -32,7 +32,7 @@
 #include "src/core/SkBlitter_A8.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkDescriptor.h"
-#include "src/core/SkDrawBase.h"
+#include "src/core/SkDraw.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMaskFilterBase.h"
@@ -576,7 +576,7 @@ void SkScalerContext::GenerateImageFromPath(
     }
     sk_bzero(dst.writable_addr(), dst.computeByteSize());
 
-    SkDrawBase  draw;
+    skcpu::Draw draw;
     draw.fBlitterChooser = SkA8Blitter_Choose;
     draw.fDst            = dst;
     draw.fRC             = &clip;

@@ -188,7 +188,7 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
                                                         ? SkStrokeRec::kHairline_InitStyle
                                                         : SkStrokeRec::kFill_InitStyle;
 
-        // TODO: it seems like we could create an SkDraw here and set its fMatrix field rather
+        // TODO: it seems like we could create an skcpu::Draw here and set its fMatrix field rather
         // than explicitly transforming the path to device space.
         SkPath devPath;
 
@@ -197,9 +197,13 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
         devPath.transform(viewMatrix);
 
         SkMaskBuilder srcM, dstM;
-        if (!SkDraw::DrawToMask(devPath, clipBounds, filter, &viewMatrix, &srcM,
-                                SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode,
-                                fillOrHairline)) {
+        if (!skcpu::DrawToMask(devPath,
+                               clipBounds,
+                               filter,
+                               &viewMatrix,
+                               &srcM,
+                               SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode,
+                               fillOrHairline)) {
             return {};
         }
         SkAutoMaskFreeImage autoSrc(srcM.image());

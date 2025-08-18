@@ -54,7 +54,7 @@
 #include "src/base/SkTLazy.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkDevice.h"
-#include "src/core/SkDrawBase.h"
+#include "src/core/SkDraw.h"
 #include "src/core/SkImageFilterTypes.h"  // IWYU pragma: keep
 #include "src/core/SkImageInfoPriv.h"
 #include "src/core/SkLatticeIter.h"
@@ -529,7 +529,7 @@ void Device::drawPoints(SkCanvas::PointMode mode, SkSpan<const SkPoint> pts, con
         paint.getMaskFilter() ||
         fSurfaceDrawContext->chooseAAType(aa) == GrAAType::kCoverage) {
         SkRasterClip rc(this->devClipBounds());
-        SkDrawBase draw;
+        skcpu::Draw draw;
         // don't need to set fBlitterChoose, as it should never get used
         draw.fDst = SkPixmap(SkImageInfo::MakeUnknown(this->width(), this->height()), nullptr, 0);
         draw.fCTM = &this->localToDevice();

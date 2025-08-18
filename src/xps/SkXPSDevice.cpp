@@ -1570,14 +1570,13 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
                                             : SkStrokeRec::kHairline_InitStyle;
         //[Pixel-path -> Mask]
         SkMaskBuilder rasteredMask;
-        if (SkDraw::DrawToMask(
-                        *pixelPath,
-                        clipIRect,
-                        filter,  //just to compute how much to draw.
-                        &matrix,
-                        &rasteredMask,
-                        SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode,
-                        style)) {
+        if (skcpu::DrawToMask(*pixelPath,
+                              clipIRect,
+                              filter,  //just to compute how much to draw.
+                              &matrix,
+                              &rasteredMask,
+                              SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode,
+                              style)) {
 
             SkAutoMaskFreeImage rasteredAmi(rasteredMask.image());
             mask = &rasteredMask;

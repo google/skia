@@ -68,7 +68,7 @@ class SkDrawTiler {
     SkIRect         fSrcBounds;
 
     // Used for tiling and non-tiling
-    SkDraw          fDraw;
+    skcpu::Draw fDraw;
 
     // fTileMatrix... are only used if fNeedTiling
     SkTLazy<SkMatrix> fTileMatrix;
@@ -142,7 +142,7 @@ public:
 
     bool needsTiling() const { return fNeedsTiling; }
 
-    const SkDraw* next() {
+    const skcpu::Draw* next() {
         if (fDone) {
             return nullptr;
         }
@@ -196,14 +196,14 @@ private:
 // drawing. If null is passed, the tiler has to visit everywhere. The bounds is expected to be
 // in local coordinates, as the tiler itself will transform that into device coordinates.
 //
-#define LOOP_TILER(code, boundsPtr)                         \
-    SkDrawTiler priv_tiler(this, boundsPtr);                \
-    while (const SkDraw* priv_draw = priv_tiler.next()) {   \
-        priv_draw->code;                                    \
+#define LOOP_TILER(code, boundsPtr)                            \
+    SkDrawTiler priv_tiler(this, boundsPtr);                   \
+    while (const skcpu::Draw* priv_draw = priv_tiler.next()) { \
+        priv_draw->code;                                       \
     }
 
-// Helper to create an SkDraw from a device
-class SkBitmapDevice::BDDraw : public SkDraw {
+// Helper to create an skcpu::Draw from a device
+class SkBitmapDevice::BDDraw : public skcpu::Draw {
 public:
     BDDraw(SkBitmapDevice* dev) {
         // we need fDst to be set, and if we're actually drawing, to dirty the genID
@@ -388,7 +388,7 @@ void SkBitmapDevice::drawPath(const SkPath& path,
     if (tiler.needsTiling()) {
         pathIsMutable = false;
     }
-    while (const SkDraw* draw = tiler.next()) {
+    while (const skcpu::Draw* draw = tiler.next()) {
         draw->drawPath(path, paint, nullptr, pathIsMutable);
     }
 }
@@ -581,7 +581,7 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src,
 
     SkBitmap resultBM;
     if (SkSpecialImages::AsBitmap(src, &resultBM)) {
-        SkDraw draw;
+        skcpu::Draw draw;
         if (!this->accessPixels(&draw.fDst)) {
           return; // no pixels to draw to so skip it
         }
@@ -603,7 +603,7 @@ void SkBitmapDevice::drawCoverageMask(const SkSpecialImage* mask,
         return;
     }
 
-    SkDraw draw;
+    skcpu::Draw draw;
     if (!this->accessPixels(&draw.fDst)) {
       return; // no pixels to draw to so skip it
     }
@@ -622,7 +622,7 @@ bool SkBitmapDevice::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint
     // tiles, we just return false and fall back to the general mask filter path as we
     // don't want to be in the scenario where only a subset fail/succeed.
     if (!tiler.needsTiling()) {
-        if (const SkDraw* draw = tiler.next()) {
+        if (const skcpu::Draw* draw = tiler.next()) {
             return draw->drawRRectNinePatch(rrect, paint);
         }
     }

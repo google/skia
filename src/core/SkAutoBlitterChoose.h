@@ -11,7 +11,7 @@
 #include "include/private/base/SkMacros.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkBlitter.h"
-#include "src/core/SkDrawBase.h"
+#include "src/core/SkDraw.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkSurfacePriv.h"
 
@@ -22,7 +22,7 @@ class SkPixmap;
 class SkAutoBlitterChoose : SkNoncopyable {
 public:
     SkAutoBlitterChoose() {}
-    SkAutoBlitterChoose(const SkDrawBase& draw,
+    SkAutoBlitterChoose(const skcpu::Draw& draw,
                         const SkMatrix* ctm,
                         const SkPaint& paint,
                         SkDrawCoverage drawCoverage = SkDrawCoverage::kNo) {
@@ -32,7 +32,7 @@ public:
     SkBlitter*  operator->() { return fBlitter; }
     SkBlitter*  get() const { return fBlitter; }
 
-    SkBlitter* choose(const SkDrawBase& draw,
+    SkBlitter* choose(const skcpu::Draw& draw,
                       const SkMatrix* ctm,
                       const SkPaint& paint,
                       SkDrawCoverage drawCoverage = SkDrawCoverage::kNo) {

@@ -26,6 +26,7 @@
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkSpan_impl.h"
 #include "include/private/base/SkTArray.h"
+#include "src/core/SkDraw.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkScalerContext.h"
@@ -205,20 +206,20 @@ prepare_for_direct_bitmap_drawing(SkStrike* strike,
 }
 }  // namespace
 
-// -- SkGlyphRunListPainterCPU ---------------------------------------------------------------------
-SkGlyphRunListPainterCPU::SkGlyphRunListPainterCPU(const SkSurfaceProps& props,
-                                                   SkColorType colorType,
-                                                   SkColorSpace* cs)
+namespace skcpu {
+GlyphRunListPainter::GlyphRunListPainter(const SkSurfaceProps& props,
+                                         SkColorType colorType,
+                                         SkColorSpace* cs)
         : fDeviceProps{props}
         , fBitmapFallbackProps{props.cloneWithPixelGeometry(kUnknown_SkPixelGeometry)}
         , fColorType{colorType}
         , fScalerContextFlags{compute_scaler_context_flags(cs)} {}
 
-void SkGlyphRunListPainterCPU::drawForBitmapDevice(SkCanvas* canvas,
-                                                   const BitmapDevicePainter* bitmapDevice,
-                                                   const sktext::GlyphRunList& glyphRunList,
-                                                   const SkPaint& paint,
-                                                   const SkMatrix& drawMatrix) {
+void GlyphRunListPainter::drawForBitmapDevice(SkCanvas* canvas,
+                                              const BitmapDevicePainter* bitmapDevice,
+                                              const sktext::GlyphRunList& glyphRunList,
+                                              const SkPaint& paint,
+                                              const SkMatrix& drawMatrix) {
     STArray<64, const SkGlyph*> acceptedPackedGlyphIDs;
     STArray<64, SkPoint> acceptedPositions;
     STArray<64, SkGlyphID> rejectedGlyphIDs;
@@ -418,3 +419,4 @@ void SkGlyphRunListPainterCPU::drawForBitmapDevice(SkCanvas* canvas,
         //  rejects in a more sophisticated stage.
     }
 }
+}  // namespace skcpu

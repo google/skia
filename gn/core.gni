@@ -362,8 +362,6 @@ skia_core_sources = [
   "$_src/core/SkDocument.cpp",
   "$_src/core/SkDraw.cpp",
   "$_src/core/SkDraw.h",
-  "$_src/core/SkDrawBase.cpp",
-  "$_src/core/SkDrawBase.h",
   "$_src/core/SkDrawProcs.h",
   "$_src/core/SkDrawShadowInfo.cpp",
   "$_src/core/SkDrawShadowInfo.h",
