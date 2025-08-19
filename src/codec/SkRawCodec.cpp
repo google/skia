@@ -453,7 +453,13 @@ private:
 class SkDngStream : public dng_stream {
 public:
     // Will NOT take the ownership of the stream.
-    SkDngStream(SkRawStream* stream) : fStream(stream) {}
+    SkDngStream(SkRawStream* stream)
+        // The default constructor sets offsetInOriginalFile to invalid (-1), however
+        // this results in dng_negative hitting a bug path that causes a crash due to
+        // unsigned overflow occuring. This offset doesn't seem to serve any purpose,
+        // so just pretend we're always at the start of the file to avoid the crash
+        : dng_stream((dng_abort_sniffer*) nullptr, dng_stream::kDefaultBufferSize, 0)
+        , fStream(stream) {}
 
     ~SkDngStream() override {}
 
