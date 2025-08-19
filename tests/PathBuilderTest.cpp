@@ -945,24 +945,28 @@ DEF_TEST(SkPathBuilder_rMoveTo, reporter) {
     p.lineTo(20, 21);
     p.close();
     p.rMoveTo({30, 31});
+    p.lineTo(30, 40);
     SkPathIter iter(p.points(), p.verbs(), {} /* no conics */);
     check_move(reporter, &iter, 10, 11);
     check_line(reporter, &iter, 20, 21);
     check_close(reporter, &iter);
     check_move(reporter, &iter, 10 + 30, 11 + 31);
+    check_line(reporter, &iter, 30, 40);
     check_done_and_reset(reporter, &p, &iter);
 
     p.moveTo(10, 11);
     p.lineTo(20, 21);
     p.rMoveTo({30, 31});
+    p.lineTo(30, 40);
     iter = p.iter();    //(p.points(), p.verbs(), {} /* no conics */);
     check_move(reporter, &iter, 10, 11);
     check_line(reporter, &iter, 20, 21);
     check_move(reporter, &iter, 20 + 30, 21 + 31);
+    check_line(reporter, &iter, 30, 40);
     check_done_and_reset(reporter, &p, &iter);
 
     p.rMoveTo({30, 31});
     iter = p.iter();//SkPathRaw::Iter(p.points(), p.verbs(), {} /* no conics */);
-    check_move(reporter, &iter, 30, 31);
+    //  PathIter, for compat, is snuffing out trailing moves
     check_done_and_reset(reporter, &p, &iter);
 }

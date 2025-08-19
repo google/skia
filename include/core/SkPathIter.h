@@ -32,7 +32,14 @@ public:
     SkPathIter(SkSpan<const SkPoint> pts, SkSpan<const SkPathVerb> vbs, SkSpan<const float> cns)
         : pIndex(0), vIndex(0), cIndex(0)
         , fPoints(pts), fVerbs(vbs), fConics(cns)
-    {}
+    {
+        // For compat older iterators, we trim off a trailing Move.
+        // SkPathData is defined to never create this pattern, so perhaps in the future
+        // this check can be removed (or replaced by an assert)
+        if (!vbs.empty() && vbs.back() == SkPathVerb::kMove) {
+            fVerbs = vbs.first(vbs.size() - 1);
+        }
+    }
 
     /*  Holds the current verb, and its associated points
      *  move:  pts[0]
