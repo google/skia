@@ -365,7 +365,7 @@ float tone_map_inverse(float y) {
 float hdr_trfn_eval(const skcms_TransferFunction& fn, float x) {
     if (skcms_TransferFunction_isHLGish(&fn) || skcms_TransferFunction_isHLG(&fn)) {
         // For HLG this curve is the inverse OETF and then a per-channel OOTF.
-        x = skcms_TransferFunction_eval(&SkNamedTransferFn::kHLG, x) / 12.f;
+        x = skcms_TransferFunction_eval(&SkNamedTransferFn::kHLG, x);
         x *= std::pow(x, 0.2);
     } else if (skcms_TransferFunction_isPQish(&fn) || skcms_TransferFunction_isPQ(&fn)) {
         // For PQ this is the EOTF, scaled so that 1,000 nits maps to 1.0.
