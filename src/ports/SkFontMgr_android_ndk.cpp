@@ -133,6 +133,13 @@ static SkSpan<Coordinate> Sort(SkSpan<Coordinate> variation) {
 
 }  // namespace variation
 
+static void normalizeAsciiCase(char* s, size_t len) {
+    std::transform(s, s+len, s, [](char c){ return (c < 'A' || 'Z' < c) ? c : c + 'a' - 'A'; });
+}
+static void normalizeAsciiCase(SkString& s) {
+    normalizeAsciiCase(s.data(), s.size());
+}
+
 struct AndroidFontAPI {
     ASystemFontIterator* (*ASystemFontIterator_open)();
     void (*ASystemFontIterator_close)(ASystemFontIterator*);
@@ -274,48 +281,79 @@ private:
     ASystemFontIterator* const fIterator;
 };
 
-class SkLanguage {
+class SkALanguage {
 public:
-    SkLanguage() { }
-    SkLanguage(const SkString& tag) : fTag(tag) { }
-    SkLanguage(const char* tag) : fTag(tag) { }
-    SkLanguage(const char* tag, size_t len) : fTag(tag, len) { }
-    SkLanguage(const SkLanguage&) = default;
-    SkLanguage& operator=(const SkLanguage& b) = default;
-
-    /** Gets a BCP 47 language identifier for this SkLanguage.
-        @return a BCP 47 language identifier representing this language
-    */
-    const SkString& getTag() const { return fTag; }
-
-    /** Performs BCP 47 fallback to return an SkLanguage one step more general.
-        @return an SkLanguage one step more general
-    */
-    SkLanguage getParent() const {
-        SkASSERT(!fTag.isEmpty());
-        const char* tag = fTag.c_str();
-
-        // strip off the rightmost "-.*"
-        const char* parentTagEnd = strrchr(tag, '-');
-        if (parentTagEnd == nullptr) {
-            return SkLanguage();
+    SkALanguage() {}
+    SkALanguage(const char* tag) : SkALanguage(SkSpan<const char>(tag, tag ? strlen(tag) : 0)) {}
+    SkALanguage(SkSpan<const char> tag) {
+        fLanguage = consumeSubtag(tag);
+        if (fLanguage.equals("und", 3)) {
+            fLanguage = SkString();
         }
-        size_t parentTagLen = parentTagEnd - tag;
-        return SkLanguage(tag, parentTagLen);
+        fScript = consumeSubtag(tag);
+        fRegion = consumeSubtag(tag);
+    }
+    SkALanguage(const SkALanguage&) = default;
+    SkALanguage& operator=(const SkALanguage& b) = default;
+
+    SkALanguage lessSpecific() const {
+        SkALanguage lessSpecific(*this);
+        if (!lessSpecific.fRegion.isEmpty()) {
+            lessSpecific.fRegion = SkString();
+            return lessSpecific;
+        }
+        if (!lessSpecific.fScript.isEmpty()) {
+            lessSpecific.fScript = SkString();
+            return lessSpecific;
+          }
+
+        if (!lessSpecific.fLanguage.isEmpty()) {
+            lessSpecific.fLanguage = SkString();
+            return lessSpecific;
+        }
+        return lessSpecific;
     }
 
-    bool operator==(const SkLanguage& b) const {
-        return fTag == b.fTag;
+    bool isEmpty() const {
+        return fLanguage.isEmpty() && fScript.isEmpty() && fRegion.isEmpty();
     }
-    bool operator!=(const SkLanguage& b) const {
-        return fTag != b.fTag;
+
+    bool startsWith(const SkALanguage& that) {
+        return (that.fLanguage.isEmpty() || fLanguage == that.fLanguage) &&
+               (that.fScript.isEmpty() || fScript == that.fScript) &&
+               (that.fRegion.isEmpty() || fRegion == that.fRegion);
     }
+
+    const SkString& getLanguage() const { return fLanguage; }
+    const SkString& getScript() const { return fScript; }
+    const SkString& getRegion() const { return fRegion; }
+
 
     using sk_is_trivially_relocatable = std::true_type;
 private:
-    //! BCP 47 language identifier
-    SkString fTag;
-    static_assert(::sk_is_trivially_relocatable<decltype(fTag)>::value);
+    SkString consumeSubtag(SkSpan<const char>& tag) {
+        if (tag.size() == 0) {
+            return SkString();
+        }
+        const char* subtagEnd = static_cast<const char*>(memchr(tag.data(), '-', tag.size()));
+        if (!subtagEnd) {
+            SkString ret(tag.data(), tag.size());
+            tag = SkSpan<const char>();
+            return ret;
+        }
+        size_t subtagLength = subtagEnd - tag.data();
+        SkString ret(tag.data(), subtagLength);
+        normalizeAsciiCase(ret);
+        tag = tag.subspan(subtagLength + 1);
+        return ret;
+    }
+    SkString fLanguage;
+    SkString fScript;
+    SkString fRegion;
+    // variants, extensions, and privateuses are ignored as no known font configuration uses them.
+    static_assert(::sk_is_trivially_relocatable<decltype(fLanguage)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fScript)>::value);
+    static_assert(::sk_is_trivially_relocatable<decltype(fRegion)>::value);
 };
 
 class SkTypeface_AndroidNDK : public SkTypeface_proxy {
@@ -360,7 +398,7 @@ public:
                                              bool isFixedPitch,
                                              const SkString& familyName,
                                              TArray<SkString>&& extraFamilyNames,
-                                             TArray<SkLanguage>&& lang,
+                                             TArray<SkALanguage>&& lang,
                                              const AutoAxis& autoAxis) {
         SkASSERT(realTypeface);
         return sk_sp<SkTypeface_AndroidNDK>(new SkTypeface_AndroidNDK(std::move(realTypeface),
@@ -378,7 +416,7 @@ private:
                           bool isFixedPitch,
                           const SkString& familyName,
                           TArray<SkString>&& extraFamilyNames,
-                          TArray<SkLanguage>&& lang,
+                          TArray<SkALanguage>&& lang,
                           const AutoAxis& autoAxis)
         : SkTypeface_proxy(std::move(realTypeface), style, isFixedPitch)
         , fFamilyName(familyName)
@@ -413,7 +451,7 @@ private:
                 fixedPitch,
                 fFamilyName,
                 TArray<SkString>(fExtraFamilyNames),
-                TArray<SkLanguage>(),
+                TArray<SkALanguage>(),
                 AutoAxis());
     }
 
@@ -460,7 +498,7 @@ private:
 public:
     const SkString fFamilyName;
     const TArray<SkString> fExtraFamilyNames;
-    const STArray<4, SkLanguage> fLang;
+    const STArray<4, SkALanguage> fLang;
     const AutoAxis fAutoAxis;
 };
 
@@ -728,9 +766,10 @@ class SkFontMgr_AndroidNDK : public SkFontMgr {
         }
         if (!nameToFamily) {
             sk_sp<SkFontStyleSet_AndroidNDK> newSet(new SkFontStyleSet_AndroidNDK(fCache));
-            SkAutoAsciiToLC tolc(name.c_str());
+            SkString normalizedName(name);
+            normalizeAsciiCase(normalizedName);
             nameToFamily = &fNameToFamilyMap.emplace_back(
-                NameToFamily{name, SkString(tolc.lc(), tolc.length()), newSet.get()});
+                NameToFamily{name, normalizedName, newSet.get()});
             fStyleSets.push_back(std::move(newSet));
         }
         if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: Adding member to %s\n", name.c_str()); }
@@ -816,9 +855,10 @@ protected:
         if (!familyName) {
             return nullptr;
         }
-        SkAutoAsciiToLC tolc(familyName);
+        SkString normalizedFamilyName(familyName, strlen(familyName));
+        normalizeAsciiCase(normalizedFamilyName);
         for (int i = 0; i < fNameToFamilyMap.size(); ++i) {
-            if (fNameToFamilyMap[i].normalizedName.equals(tolc.lc())) {
+            if (fNameToFamilyMap[i].normalizedName == normalizedFamilyName) {
                 return sk_ref_sp(fNameToFamilyMap[i].styleSet);
             }
         }
@@ -996,7 +1036,7 @@ protected:
         SkString familyName;
         proxy->getFamilyName(&familyName);
 
-        STArray<4, SkLanguage> skLangs;
+        STArray<4, SkALanguage> skLangs;
         const char* aLangs = font.getLocale();
         if (aLangs) {
             if constexpr (kSkFontMgrVerbose) {
@@ -1011,7 +1051,7 @@ protected:
                 }
                 const size_t size = end - begin;
                 if (size) {
-                    skLangs.emplace_back(begin, size);
+                    skLangs.emplace_back(SkSpan(begin, size));
                 }
                 if (*end == '\0') {
                     break;
@@ -1022,7 +1062,11 @@ protected:
         }
         if constexpr (kSkFontMgrVerbose) {
             for (auto&& lang : skLangs) {
-                SkDebugf("SKIA: %s Lang %s\n", familyName.c_str(), lang.getTag().c_str());
+                SkDebugf("SKIA: %s Lang %s Script %s Region %s\n",
+                         familyName.c_str(),
+                         lang.getLanguage().c_str(),
+                         lang.getScript().c_str(),
+                         lang.getRegion().c_str());
             }
         }
 
@@ -1038,13 +1082,13 @@ protected:
 
 
     static bool has_locale_and_character(SkTypeface_AndroidNDK* face,
-                                         const SkString& langTag,
+                                         const SkALanguage& langTag,
                                          SkUnichar character,
                                          const char* scope, size_t* step) {
         ++*step;
         if (!langTag.isEmpty() &&
-            std::none_of(face->fLang.begin(), face->fLang.end(), [&](SkLanguage lang) {
-                return lang.getTag().startsWith(langTag.c_str());
+            std::none_of(face->fLang.begin(), face->fLang.end(), [&](SkALanguage lang) {
+                return lang.startsWith(langTag);
             }))
         {
             return false;
@@ -1057,8 +1101,11 @@ protected:
         if constexpr (kSkFontMgrVerbose) {
             SkString foundName;
             face->getFamilyName(&foundName);
-            SkDebugf("SKIA: Found U+%" PRIx32 " in \"%s\" lang \"%s\" scope %s step %zu.\n",
-                     character, foundName.c_str(), langTag.c_str(), scope, *step);
+            SkDebugf("SKIA: Found U+%" PRIx32 " in \"%s\" lang \"%s\" "
+                     "script \"%s\" region \"%s\" scope %s step %zu.\n",
+                     character, foundName.c_str(), langTag.getLanguage().c_str(),
+                     langTag.getScript().c_str(), langTag.getRegion().c_str(), scope, *step);
+
         }
         return true;
     }
@@ -1066,7 +1113,7 @@ protected:
     sk_sp<SkTypeface> findByCharacterLocaleFamily(
         SkTypeface_AndroidNDK* familyFace,
         const SkFontStyle& style,
-        const SkString& langTag,
+        const SkALanguage& langTag,
         SkUnichar character) const
     {
         size_t step = 0;
@@ -1127,19 +1174,26 @@ protected:
         }
 
         for (int bcp47Index = bcp47Count; bcp47Index --> 0;) {
-            SkLanguage lang(bcp47[bcp47Index]);
-            while (!lang.getTag().isEmpty()) {
+            SkALanguage lang(bcp47[bcp47Index]);
+            if constexpr (kSkFontMgrVerbose) {
+                SkDebugf("SKIA: Matching against %s Lang %s Script %s Region %s\n",
+                         familyName ? familyName : "",
+                         lang.getLanguage().c_str(),
+                         lang.getScript().c_str(),
+                         lang.getRegion().c_str());
+            }
+            while (!lang.isEmpty()) {
                 sk_sp<SkTypeface> typeface =
-                    findByCharacterLocaleFamily(afamilyFace, style, lang.getTag(), character);
+                    findByCharacterLocaleFamily(afamilyFace, style, lang, character);
                 if (typeface) {
                     return typeface;
                 }
-                lang = lang.getParent();
+                lang = lang.lessSpecific();
             }
         }
 
         sk_sp<SkTypeface> typeface =
-            findByCharacterLocaleFamily(afamilyFace, style, SkString(), character);
+            findByCharacterLocaleFamily(afamilyFace, style, SkALanguage(), character);
         if (typeface) {
             return typeface;
         }
