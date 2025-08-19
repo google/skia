@@ -44,8 +44,9 @@ public:
 
 private:
     DawnSharedContext(const DawnBackendContext&,
-                      std::unique_ptr<const DawnCaps> caps,
+                      std::unique_ptr<const DawnCaps>,
                       wgpu::ShaderModule noopFragment,
+                      SkExecutor*,
                       SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
 
     wgpu::Instance     fInstance;

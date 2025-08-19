@@ -5,16 +5,13 @@
  * found in the LICENSE file.
  */
 
-#include "include/core/SkExecutor.h"
-#include "include/gpu/ganesh/GrContextOptions.h"
 #include "tools/flags/CommonFlagsGanesh.h"
 
-DEFINE_int(gpuThreads,
-             2,
-             "Create this many extra threads to assist with GPU work, "
-             "including software path rendering. Defaults to two.");
+#include "include/core/SkExecutor.h"
+#include "include/gpu/ganesh/GrContextOptions.h"
 
 // Defined in CommonFlagsConfig
+DECLARE_int(gpuThreads);
 DECLARE_int(internalSamples);
 
 namespace CommonFlags {

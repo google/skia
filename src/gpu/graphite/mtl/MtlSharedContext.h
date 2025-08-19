@@ -42,8 +42,9 @@ public:
 private:
 
     MtlSharedContext(sk_cfp<id<MTLDevice>>,
-                     sk_sp<skgpu::MtlMemoryAllocator> memoryAllocator,
+                     sk_sp<skgpu::MtlMemoryAllocator>,
                      std::unique_ptr<const MtlCaps>,
+                     SkExecutor*,
                      SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
 
     sk_sp<skgpu::MtlMemoryAllocator> fMemoryAllocator;

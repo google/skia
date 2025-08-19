@@ -18,6 +18,7 @@
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
 
 class SkCaptureManager;
+class SkExecutor;
 
 namespace skgpu {
 class SingleOwner;
@@ -68,6 +69,7 @@ public:
 protected:
     SharedContext(std::unique_ptr<const Caps>,
                   BackendApi,
+                  SkExecutor* executor,
                   SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
 
 private:
