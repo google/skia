@@ -287,16 +287,30 @@ void populate_subpass_dependencies(const VulkanSharedContext* context,
     // one to every RenderPass which has an input attachment on the main subpass. This is useful
     // because it means that as we perform draw calls, if we encounter a draw that uses a blend
     // operation requiring a dst read, we can avoid having to switch RenderPasses.
-    if (!context->vulkanCaps().supportsRasterizationOrderColorAttachmentAccess()) {
+
+    const bool hasRasterizationOrderColorAttachmentAccess =
+            context->vulkanCaps().supportsRasterizationOrderColorAttachmentAccess();
+    const bool hasNonCoherentAdvancedBlend = context->vulkanCaps().blendEquationSupport() ==
+                                             Caps::BlendEquationSupport::kAdvancedNoncoherent;
+
+    if (!hasRasterizationOrderColorAttachmentAccess || hasNonCoherentAdvancedBlend) {
         SubpassDependency& selfDependency = deps.push_back();
         selfDependency = defaultSubpassDependency;
         selfDependency.srcSubpass = mainSubpassIdx;
         selfDependency.dstSubpass = mainSubpassIdx;
         selfDependency.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
         selfDependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        selfDependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
         selfDependency.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-        selfDependency.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
-        selfDependency.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+        selfDependency.dstAccessMask = 0;
+
+        if (!hasRasterizationOrderColorAttachmentAccess) {
+            selfDependency.dstStageMask |= VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+            selfDependency.dstAccessMask |= VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
+        }
+        if (hasNonCoherentAdvancedBlend) {
+            selfDependency.dstAccessMask |= VK_ACCESS_COLOR_ATTACHMENT_READ_NONCOHERENT_BIT_EXT;
+        }
     }
 
     // If loading MSAA from resolve, enforce that subpass goes first with a subpass dependency.
