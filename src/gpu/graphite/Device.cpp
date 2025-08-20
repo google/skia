@@ -982,7 +982,7 @@ void Device::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPain
     skvx::float4 gap = Rect(inner.rect()).vals() - strokeRect.vals();
     const float tolerance = 0.001f * this->localToDeviceTransform().localAARadius(strokeRect);
     const float strokeWidth = gap[0];
-    if (!all((gap > tolerance) & abs(gap - strokeWidth) <= tolerance)) {
+    if (!all((gap > tolerance) & (abs(gap - strokeWidth) <= tolerance))) {
         // Either not approximately equal insets on all sides, or it would create a hairline stroke
         // which is something that should be requested via paint style.
         //
