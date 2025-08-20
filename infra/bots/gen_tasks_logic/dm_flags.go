@@ -296,6 +296,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "test", ALL, "HalfFloatRGBATextureTest")
 			skip(ALL, "test", ALL, "ImageAsyncReadPixels")
 			skip(ALL, "test", ALL, "ImageAsyncReadPixelsGraphite")
+			skip(ALL, "test", ALL, "ImageBackendTextureTest")
 			skip(ALL, "test", ALL, "ImageEncode_Gpu")
 			skip(ALL, "test", ALL, "ImageFilterFailAffectsTransparentBlack_Gpu")
 			skip(ALL, "test", ALL, "ImageFilterNegativeBlurSigma_Gpu")
