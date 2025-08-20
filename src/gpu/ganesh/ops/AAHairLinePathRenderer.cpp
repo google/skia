@@ -311,8 +311,6 @@ int gather_lines_and_quads(const SkPath& path,
                            PtArray* conics,
                            IntArray* quadSubdivCnts,
                            FloatArray* conicWeights) {
-    SkPath::Iter iter(path, false);
-
     int totalQuadCount = 0;
     bool persp = m.hasPerspective();
 
@@ -360,6 +358,22 @@ int gather_lines_and_quads(const SkPath& path,
         }
     };
 
+    // common code for handline lines
+    auto handleLineVerb = [&](SkSpan<const SkPoint> pathPts) {
+        SkPoint devPts[2];
+        m.mapPoints(devPts, pathPts);
+        if (SkIRect::Intersects(devClipBounds, safeIBounds({devPts, 2}))) {
+            SkPoint* pts = lines->push_back_n(2);
+            pts[0] = devPts[0];
+            pts[1] = devPts[1];
+            if (verbsInContour == 0 && pts[0] == pts[1]) {
+                seenZeroLengthVerb = true;
+                zeroVerbPt = pts[0];
+            }
+        }
+        verbsInContour++;
+    };
+
     // Applies the view matrix to quad src points and calls the above helper.
     auto addSrcChoppedQuad = [&](const SkPoint srcSpaceQuadPts[3], bool isContourStart) {
         SkPoint devPts[3];
@@ -368,12 +382,12 @@ int gather_lines_and_quads(const SkPath& path,
     };
 
     SkPoint pathPts[4] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
-    for (;;) {
-        SkPath::Verb verb = iter.next(pathPts);
-        switch (verb) {
-            case SkPath::kConic_Verb:
+    for (auto iter = path.iter(); auto rec = iter.next();) {
+        std::copy(rec->fPoints.begin(), rec->fPoints.end(), pathPts);
+        switch (rec->fVerb) {
+            case SkPathVerb::kConic:
                 if (convertConicsToQuads) {
-                    SkScalar weight = iter.conicWeight();
+                    SkScalar weight = rec->conicWeight();
                     SkAutoConicToQuads converter;
                     const SkPoint* quadPts = converter.computeQuads(pathPts, weight, 0.25f);
                     for (int i = 0; i < converter.countQuads(); ++i) {
@@ -384,7 +398,7 @@ int gather_lines_and_quads(const SkPath& path,
                     // We chop the conics to create tighter clipping to hide error
                     // that appears near max curvature of very thin conics. Thin
                     // hyperbolas with high weight still show error.
-                    int conicCnt = chop_conic(pathPts, dst, iter.conicWeight());
+                    int conicCnt = chop_conic(pathPts, dst, rec->conicWeight());
                     for (int i = 0; i < conicCnt; ++i) {
                         SkPoint devPts[4];
                         SkPoint* chopPnts = dst[i].fPts;
@@ -415,7 +429,7 @@ int gather_lines_and_quads(const SkPath& path,
                 }
                 verbsInContour++;
                 break;
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 // New contour (and last one was unclosed). If it was just a zero length drawing
                 // operation, and we're supposed to draw caps, then add a tiny line.
                 if (seenZeroLengthVerb && verbsInContour == 1 && capLength > 0) {
@@ -426,22 +440,10 @@ int gather_lines_and_quads(const SkPath& path,
                 verbsInContour = 0;
                 seenZeroLengthVerb = false;
                 break;
-            case SkPath::kLine_Verb: {
-                SkPoint devPts[2];
-                m.mapPoints(devPts, {pathPts, 2});
-                if (SkIRect::Intersects(devClipBounds, safeIBounds({devPts, 2}))) {
-                    SkPoint* pts = lines->push_back_n(2);
-                    pts[0] = devPts[0];
-                    pts[1] = devPts[1];
-                    if (verbsInContour == 0 && pts[0] == pts[1]) {
-                        seenZeroLengthVerb = true;
-                        zeroVerbPt = pts[0];
-                    }
-                }
-                verbsInContour++;
+            case SkPathVerb::kLine:
+                handleLineVerb({pathPts, 2});
                 break;
-            }
-            case SkPath::kQuad_Verb: {
+            case SkPathVerb::kQuad: {
                 SkPoint choppedPts[5];
                 // Chopping the quad helps when the quad is either degenerate or nearly degenerate.
                 // When it is degenerate it allows the approximation with lines to work since the
@@ -455,7 +457,7 @@ int gather_lines_and_quads(const SkPath& path,
                 verbsInContour++;
                 break;
             }
-            case SkPath::kCubic_Verb: {
+            case SkPathVerb::kCubic: {
                 SkPoint devPts[4];
                 m.mapPoints(devPts, {pathPts, 4});
                 if (SkIRect::Intersects(devClipBounds, safeIBounds({devPts, 4}))) {
@@ -480,7 +482,10 @@ int gather_lines_and_quads(const SkPath& path,
                 verbsInContour++;
                 break;
             }
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
+                if (pathPts[0] != pathPts[1]) {
+                    handleLineVerb({pathPts, 2});
+                }
                 // Contour is closed, so we don't need to grow the starting line, unless it's
                 // *just* a zero length subpath. (SVG Spec 11.4, 'stroke').
                 if (capLength > 0) {
@@ -501,17 +506,16 @@ int gather_lines_and_quads(const SkPath& path,
                     }
                 }
                 break;
-            case SkPath::kDone_Verb:
-                if (seenZeroLengthVerb && verbsInContour == 1 && capLength > 0) {
-                    // Path ended with a dangling (moveTo, line|quad|etc). If the final verb is
-                    // degenerate, we need to draw a line.
-                    SkPoint* pts = lines->push_back_n(2);
-                    pts[0] = SkPoint::Make(zeroVerbPt.fX - capLength, zeroVerbPt.fY);
-                    pts[1] = SkPoint::Make(zeroVerbPt.fX + capLength, zeroVerbPt.fY);
-                }
-                return totalQuadCount;
         }
     }
+    if (seenZeroLengthVerb && verbsInContour == 1 && capLength > 0) {
+        // Path ended with a dangling (moveTo, line|quad|etc). If the final verb is
+        // degenerate, we need to draw a line.
+        SkPoint* pts = lines->push_back_n(2);
+        pts[0] = SkPoint::Make(zeroVerbPt.fX - capLength, zeroVerbPt.fY);
+        pts[1] = SkPoint::Make(zeroVerbPt.fX + capLength, zeroVerbPt.fY);
+    }
+    return totalQuadCount;
 }
 
 struct LineVertex {
