@@ -150,11 +150,13 @@ void AddDitherBlock(const KeyContext& keyContext, SkColorType ct) {
     DitherShaderBlock::AddBlock(keyContext, data);
 }
 
-void PaintParams::addPaintColorToKey(const KeyContext& keyContext) const {
+bool PaintParams::addPaintColorToKey(const KeyContext& keyContext) const {
     if (fShader) {
         AddToKey(keyContext, fShader.get());
+        return fShader->isOpaque();
     } else {
         RGBPaintColorBlock::AddBlock(keyContext);
+        return true; // rgb1, always opaque
     }
 }
 
@@ -163,13 +165,12 @@ void PaintParams::addPaintColorToKey(const KeyContext& keyContext) const {
  * with a primitive color emitted by certain draw geometry calls (drawVertices, drawAtlas, etc.).
  * Dst: primitiveColor Src: Paint color/shader output
  */
-void PaintParams::handlePrimitiveColor(const KeyContext& keyContext) const {
+bool PaintParams::handlePrimitiveColor(const KeyContext& keyContext) const {
     /**
      * If no primitive blending is required, simply add the paint color.
     */
     if (!fPrimitiveBlender) {
-        this->addPaintColorToKey(keyContext);
-        return;
+        return this->addPaintColorToKey(keyContext);
     }
 
     /**
@@ -183,7 +184,7 @@ void PaintParams::handlePrimitiveColor(const KeyContext& keyContext) const {
 
     if (canSkipBlendStep) {
         AddPrimitiveColor(keyContext, fSkipColorXform);
-        return;
+        return false;
     }
 
     Blend(keyContext,
@@ -196,21 +197,21 @@ void PaintParams::handlePrimitiveColor(const KeyContext& keyContext) const {
         /* addDstToKey= */ [&] () -> void {
             AddPrimitiveColor(keyContext, fSkipColorXform);
         });
+    return false;
 }
 
 // Apply the paint's alpha value.
-void PaintParams::handlePaintAlpha(const KeyContext& keyContext) const {
-
+bool PaintParams::handlePaintAlpha(const KeyContext& keyContext) const {
     if (!fShader && !fPrimitiveBlender) {
         // If there is no shader and no primitive blending the input to the colorFilter stage
         // is just the premultiplied paint color.
         SkPMColor4f paintColor = PaintParams::Color4fPrepForDst(fColor,
                                                                 keyContext.dstColorInfo()).premul();
         SolidColorShaderBlock::AddBlock(keyContext, paintColor);
-        return;
+        return fColor.isOpaque();
     }
 
-    if (fColor.fA != 1.0f) {
+    if (!fColor.isOpaque()) {
         Blend(keyContext,
               /* addBlendToKey= */ [&] () -> void {
                   AddFixedBlendMode(keyContext, SkBlendMode::kSrcIn);
@@ -221,41 +222,46 @@ void PaintParams::handlePaintAlpha(const KeyContext& keyContext) const {
               /* addDstToKey= */ [&]() -> void {
                   AlphaOnlyPaintColorBlock::AddBlock(keyContext);
               });
+        return false;
     } else {
-        this->handlePrimitiveColor(keyContext);
+        return this->handlePrimitiveColor(keyContext);
     }
 }
 
-void PaintParams::handleColorFilter(const KeyContext& keyContext) const {
+bool PaintParams::handleColorFilter(const KeyContext& keyContext) const {
     if (fColorFilter) {
+        bool srcIsOpaque = false;
         Compose(keyContext,
                 /* addInnerToKey= */ [&]() -> void {
-                    this->handlePaintAlpha(keyContext);
+                    srcIsOpaque = this->handlePaintAlpha(keyContext);
                 },
                 /* addOuterToKey= */ [&]() -> void {
                     AddToKey(keyContext, fColorFilter.get());
                 });
+        return srcIsOpaque && fColorFilter->isAlphaUnchanged();
     } else {
-        this->handlePaintAlpha(keyContext);
+        return this->handlePaintAlpha(keyContext);
     }
 }
 
-void PaintParams::handleDithering(const KeyContext& keyContext) const {
+bool PaintParams::handleDithering(const KeyContext& keyContext) const {
 
 #ifndef SK_IGNORE_GPU_DITHER
     SkColorType ct = keyContext.dstColorInfo().colorType();
     if (should_dither(*this, ct)) {
+        bool srcIsOpaque = false;
         Compose(keyContext,
                 /* addInnerToKey= */ [&]() -> void {
-                    this->handleColorFilter(keyContext);
+                    srcIsOpaque = this->handleColorFilter(keyContext);
                 },
                 /* addOuterToKey= */ [&]() -> void {
                     AddDitherBlock(keyContext, ct);
                 });
+        return srcIsOpaque;
     } else
 #endif
     {
-        this->handleColorFilter(keyContext);
+        return this->handleColorFilter(keyContext);
     }
 }
 
