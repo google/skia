@@ -93,21 +93,75 @@ static void test_container_apis(skiatest::Reporter* reporter) {
     TContainer container;
     // The default constructor may or may not init to empty, depending on the type of container.
 
-    container.reset((TCount)1);
-    REPORTER_ASSERT(reporter, container.get());
-    REPORTER_ASSERT(reporter, container.get() == container.data());
+    auto fillToN = [](TContainer& c, int n) -> void {
+        for (int i = 0; i < n; ++i) {
+            c[i] = n;
+        }
+    };
+    auto isFillToN = [](const TContainer& c, int n) -> bool {
+        for (int i = 0; i < n; ++i) {
+            if (c[i] != n) { return false; }
+        }
+        return true;
+    };
 
-    container.reset((TCount)kStackPreallocCount);
-    REPORTER_ASSERT(reporter, container.get());
-    REPORTER_ASSERT(reporter, container.get() == container.data());
+    {
+        container.reset((TCount)1);
+        fillToN(container, 1);
+        REPORTER_ASSERT(reporter, container.get());
+        REPORTER_ASSERT(reporter, container.get() == container.data());
+        REPORTER_ASSERT(reporter, isFillToN(container, 1));
+        TContainer m(std::move(container));
+        REPORTER_ASSERT(reporter, isFillToN(m, 1));
+    }
 
-    container.reset((TCount)kStackPreallocCount + 1);
-    REPORTER_ASSERT(reporter, container.get());
-    REPORTER_ASSERT(reporter, container.get() == container.data());
+    {
+        container.reset((TCount)kStackPreallocCount);
+        fillToN(container, kStackPreallocCount);
+        REPORTER_ASSERT(reporter, container.get());
+        REPORTER_ASSERT(reporter, container.get() == container.data());
+        REPORTER_ASSERT(reporter, isFillToN(container, kStackPreallocCount));
+        TContainer m(std::move(container));
+        REPORTER_ASSERT(reporter, isFillToN(m, kStackPreallocCount));
+    }
 
-    container.reset((TCount)0);
-    REPORTER_ASSERT(reporter, !container.get());
-    REPORTER_ASSERT(reporter, !container.data());
+    {
+        container.reset((TCount)kStackPreallocCount + 1);
+        fillToN(container, kStackPreallocCount + 1);
+        REPORTER_ASSERT(reporter, container.get());
+        REPORTER_ASSERT(reporter, container.get() == container.data());
+        REPORTER_ASSERT(reporter, isFillToN(container, kStackPreallocCount + 1));
+        TContainer m(std::move(container));
+        REPORTER_ASSERT(reporter, isFillToN(m, kStackPreallocCount + 1));
+    }
+
+    {
+        container.reset((TCount)0);
+        REPORTER_ASSERT(reporter, !container.get());
+        REPORTER_ASSERT(reporter, !container.data());
+        TContainer m(std::move(container));
+        REPORTER_ASSERT(reporter, !m.get());
+        REPORTER_ASSERT(reporter, !m.data());
+    }
+}
+
+DEF_TEST(TemplateContainerAPIsTrim, reporter) {
+    AutoSTArray<kStackPreallocCount, int> c;
+    c.trimTo(100);
+    REPORTER_ASSERT(reporter, c.size() == 0);
+    c.trimTo(1);
+    REPORTER_ASSERT(reporter, c.size() == 0);
+    c.trimTo(0);
+    REPORTER_ASSERT(reporter, c.size() == 0);
+
+    c.reset(1);
+    REPORTER_ASSERT(reporter, c.size() == 1);
+    c.trimTo(2);
+    REPORTER_ASSERT(reporter, c.size() == 1);
+    c.trimTo(1);
+    REPORTER_ASSERT(reporter, c.size() == 1);
+    c.trimTo(0);
+    REPORTER_ASSERT(reporter, c.size() == 0);
 }
 
 DEF_TEST(TemplateContainerAPIs, reporter) {

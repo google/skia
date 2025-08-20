@@ -102,17 +102,17 @@ template <typename T> class AutoTArray  {
 public:
     AutoTArray() {}
     // Allocate size number of T elements
-    explicit AutoTArray(size_t size) {
-        fSize = check_size_bytes_too_big<T>(size);
-        fData.reset(size > 0 ? new T[size] : nullptr);
-    }
+    explicit AutoTArray(size_t size)
+        : fData(size > 0 ? new T[check_size_bytes_too_big<T>(size)] : nullptr)
+        , fSize(size) {}
 
     // TODO: remove when all uses are gone.
     explicit AutoTArray(int size) : AutoTArray(SkToSizeT(size)) {}
 
-    AutoTArray(AutoTArray&& other) : fData(std::move(other.fData)) {
-        fSize = std::exchange(other.fSize, 0);
-    }
+    AutoTArray(AutoTArray&& other)
+        : fData(std::move(other.fData))
+        , fSize(std::exchange(other.fSize, 0)) {}
+
     AutoTArray& operator=(AutoTArray&& other) {
         if (this != &other) {
             fData = std::move(other.fData);
@@ -122,6 +122,7 @@ public:
     }
 
     // Reallocates given a new count. Reallocation occurs even if new count equals old count.
+    [[clang::reinitializes]]
     void reset(size_t count = 0) {
         *this = AutoTArray(count);
     }
@@ -166,17 +167,30 @@ private:
     size_t fSize = 0;
 };
 
-/** Like AutoTArray with room for kCountRequested elements preallocated on
- *  the Stack. If count exceeds the space of the preallocation, the elements
- *  will live on the heap. Once this goes out of scope, the elements will be
- *  cleaned up "auto"matically.
+/** Like AutoTArray with storage for some number of elements "nested within". The requested number
+ *  of elements to fit in the storage is specified by kCountRequested. kCount is the actual number
+ *  of elements that will fit in the storage. If the runtime number of elements exceeds the space of
+ *  the storage, the elements will live on the heap.
  */
 template <int kCountRequested, typename T> class AutoSTArray {
 public:
-    AutoSTArray(AutoSTArray&&) = delete;
     AutoSTArray(const AutoSTArray&) = delete;
-    AutoSTArray& operator=(AutoSTArray&&) = delete;
     AutoSTArray& operator=(const AutoSTArray&) = delete;
+
+    AutoSTArray(AutoSTArray&& that) {
+        if (that.fArray == nullptr) {
+            fArray = nullptr;
+            fCount = 0;
+        } else if (that.fArray == (T*) that.fStorage) {
+            fArray = (T*) fStorage;
+            fCount = that.fCount;
+            std::uninitialized_move(that.fArray, that.fArray + that.fCount, fArray);
+        } else {
+            fArray = std::exchange(that.fArray, nullptr);
+            fCount = std::exchange(that.fCount, 0);
+        }
+    }
+    AutoSTArray& operator=(AutoSTArray&&) = delete;
 
     /** Initialize with no objects */
     AutoSTArray() {
@@ -184,8 +198,7 @@ public:
         fCount = 0;
     }
 
-    /** Allocate count number of T elements
-     */
+    /** Allocate count number of T elements */
     AutoSTArray(int count) {
         fArray = nullptr;
         fCount = 0;
@@ -197,18 +210,17 @@ public:
     }
 
     /** Destroys previous objects in the array and default constructs count number of objects */
+    [[clang::reinitializes]]
     void reset(int count) {
-        T* start = fArray;
-        T* iter = start + fCount;
+        T* start = begin();
+        T* iter = end();
         while (iter > start) {
             (--iter)->~T();
         }
 
         SkASSERT(count >= 0);
         if (fCount != count) {
-            if (fCount > kCount) {
-                // 'fArray' was allocated last time so free it now
-                SkASSERT((T*) fStorage != fArray);
+            if (fArray != (T*) fStorage) {
                 sk_free(fArray);
             }
 
@@ -223,19 +235,31 @@ public:
             fCount = count;
         }
 
-        iter = fArray;
-        T* stop = fArray + count;
+        iter = begin();
+        T* stop = end();
         while (iter < stop) {
             new (iter++) T;
         }
     }
 
-    /** Return the number of T elements in the array
-     */
+    /* Removes elements with index >= count */
+    void trimTo(int count) {
+        SkASSERT(count >= 0);
+        if (count >= fCount) {
+            return;
+        }
+        T* start = begin() + count;
+        T* iter = end();
+        while (iter > start) {
+            (--iter)->~T();
+        }
+        fCount = count;
+    }
+
+    /** Return the number of T elements in the array */
     int count() const { return fCount; }
 
-    /** Return the array of T elements. Will be NULL if count == 0
-     */
+    /** Return the array of T elements. Will be nullptr if count == 0 */
     T* get() const { return fArray; }
 
     T* begin() { return fArray; }
@@ -246,8 +270,7 @@ public:
 
     const T* end() const { return fArray + fCount; }
 
-    /** Return the nth element in the array
-     */
+    /** Return the nth element in the array */
     T&  operator[](int index) const {
         return fArray[sk_collection_check_bounds(index, fCount)];
     }
@@ -274,9 +297,11 @@ private:
     // Thus, we can expand how many elements are stored on the stack to make use of this
     // (e.g. 1 extra element for 4 byte T if kCountRequested was even).
     static_assert(alignof(int) <= alignof(T*) || alignof(int) <= alignof(T));
+public:
     static constexpr int kCount =
             SkAlignTo(kMinCount*sizeof(T) + sizeof(int), std::max(alignof(T*), alignof(T))) / sizeof(T);
 
+private:
     T* fArray;
     alignas(T) std::byte fStorage[kCount * sizeof(T)];
     int fCount;
@@ -306,6 +331,7 @@ public:
     }
 
     /** Resize the memory area pointed to by the current ptr without preserving contents. */
+    [[clang::reinitializes]]
     T* reset(size_t count = 0) {
         fPtr.reset(count ? (T*)sk_malloc_throw(count, sizeof(T)) : nullptr);
         return this->get();
@@ -354,10 +380,20 @@ public:
         }
     }
 
-    AutoSTMalloc(AutoSTMalloc&&) = delete;
     AutoSTMalloc(const AutoSTMalloc&) = delete;
-    AutoSTMalloc& operator=(AutoSTMalloc&&) = delete;
     AutoSTMalloc& operator=(const AutoSTMalloc&) = delete;
+
+    AutoSTMalloc(AutoSTMalloc&& that) {
+        if (that.fPtr == nullptr) {
+            fPtr = nullptr;
+        } else if (that.fPtr == that.fTStorage) {
+            fPtr = fTStorage;
+            memcpy(fPtr, that.fPtr, kCount * sizeof(T));
+        } else {
+            fPtr = std::exchange(that.fPtr, nullptr);
+        }
+    }
+    AutoSTMalloc& operator=(AutoSTMalloc&&) = delete;
 
     ~AutoSTMalloc() {
         if (fPtr != fTStorage) {
@@ -366,6 +402,7 @@ public:
     }
 
     // doesn't preserve contents
+    [[clang::reinitializes]]
     T* reset(size_t count) {
         if (fPtr != fTStorage) {
             sk_free(fPtr);
@@ -427,12 +464,17 @@ private:
     // Stack frame size is limited for SK_BUILD_FOR_GOOGLE3. 4k is less than the actual max, but some functions
     // have multiple large stack allocations.
     static constexpr size_t kMaxBytes = 4 * 1024;
-    static constexpr size_t kCount = kCountRequested * sizeof(T) > kMaxBytes
+    static constexpr size_t kMinCount = kCountRequested * sizeof(T) > kMaxBytes
         ? kMaxBytes / sizeof(T)
         : kCountWithPadding;
 #else
-    static constexpr size_t kCount = kCountWithPadding;
+    static constexpr size_t kMinCount = kCountWithPadding;
 #endif
+
+public:
+    static constexpr size_t kCount = kMinCount;
+
+private:
 
     T*          fPtr;
     union {
