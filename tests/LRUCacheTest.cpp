@@ -48,24 +48,38 @@ DEF_TEST(LRUCacheSequential, r) {
 }
 
 DEF_TEST(LRUCacheRandom, r) {
+    struct MoveOnlyKey {
+        explicit MoveOnlyKey(int value) : fValue(value) {}
+        MoveOnlyKey(const MoveOnlyKey&) = delete;
+        MoveOnlyKey& operator=(const MoveOnlyKey&) = delete;
+        MoveOnlyKey(MoveOnlyKey&&) = default;
+        MoveOnlyKey& operator=(MoveOnlyKey&&) = delete;
+
+        bool operator==(const MoveOnlyKey& that) const {
+            return fValue == that.fValue;
+        }
+        int fValue;
+    };
     int instances = 0;
     {
         int seq[] = { 0, 1, 2, 3, 4, 1, 6, 2, 7, 5, 3, 2, 2, 3, 1, 7 };
         int expected[] = { 7, 1, 3, 2, 5 };
         static const int kSize = 5;
-        SkLRUCache<int, std::unique_ptr<Value>> test(kSize);
+        SkLRUCache<MoveOnlyKey, std::unique_ptr<Value>> test(kSize);
         for (int i = 0; i < (int) (sizeof(seq) / sizeof(int)); i++) {
             int k = seq[i];
-            if (!test.find(k)) {
-                test.insert(k, std::make_unique<Value>(k, &instances));
+            MoveOnlyKey key(k);
+            if (!test.find(key)) {
+                test.insert(std::move(key), std::make_unique<Value>(k, &instances));
             }
         }
         REPORTER_ASSERT(r, kSize == instances);
         REPORTER_ASSERT(r, kSize == test.count());
         for (int i = 0; i < kSize; i++) {
             int k = expected[i];
-            REPORTER_ASSERT(r, test.find(k));
-            REPORTER_ASSERT(r, k == (*test.find(k))->fValue);
+            MoveOnlyKey key(k);
+            REPORTER_ASSERT(r, test.find(key));
+            REPORTER_ASSERT(r, k == (*test.find(key))->fValue);
         }
     }
     REPORTER_ASSERT(r, 0 == instances);

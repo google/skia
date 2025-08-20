@@ -24,11 +24,12 @@ template <typename K, typename V, typename HashK = SkGoodHash, typename PurgeCB 
 class SkLRUCache {
 private:
     struct Entry {
-        Entry(const K& key, V&& value)
-            : fKey(key)
-            , fValue(std::move(value)) {}
+        template<typename K1, typename V1>
+        Entry(K1&& key, V1&& value)
+            : fKey(std::forward<K1>(key))
+            , fValue(std::forward<V1>(value)) {}
 
-        K fKey;
+        const K fKey;
         V fValue;
 
         SK_DECLARE_INTERNAL_LLIST_INTERFACE(Entry);
@@ -66,10 +67,7 @@ public:
         return &entry->fValue;
     }
 
-    V* insert(const K& key, V value) {
-        SkASSERT(!this->find(key));
-
-        Entry* entry = new Entry(key, std::move(value));
+    V* insert(Entry* entry) {
         fMap.set(entry);
         fLRU.addToHead(entry);
         while (fMap.count() > fMaxCount) {
@@ -78,20 +76,26 @@ public:
         return &entry->fValue;
     }
 
-    V* insert_or_update(const K& key, V value) {
+    template<typename K1, typename V1>
+    V* insert(K1&& key, V1&& value) {
+        SkASSERT(!this->find(key));
+        return this->insert(new Entry(std::forward<K1>(key), std::forward<V1>(value)));
+    }
+
+    template<typename K1, typename V1>
+    V* insert_or_update(K1&& key, V1&& value) {
         if (V* found = this->find(key)) {
-            *found = std::move(value);
+            *found = std::forward<V1>(value);
             return found;
-        } else {
-            return this->insert(key, std::move(value));
         }
+        return this->insert(new Entry(std::forward<K1>(key), std::forward<V1>(value)));
     }
 
     int count() const {
         return fMap.count();
     }
 
-    template <typename Fn>  // f(K*, V*)
+    template <typename Fn>  // f(const K*, V*)
     void foreach(Fn&& fn) {
         typename SkTInternalLList<Entry>::Iter iter;
         for (Entry* e = iter.init(fLRU, SkTInternalLList<Entry>::Iter::kHead_IterStart); e;
