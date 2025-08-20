@@ -345,11 +345,6 @@ void populate_main_subpass_desc(const VulkanCaps& caps,
     mainSubpassDesc.pColorAttachments = &colorRef;
     mainSubpassDesc.pResolveAttachments = &resolveRef;
     mainSubpassDesc.pDepthStencilAttachment = &depthStencilRef;
-
-    if (caps.supportsRasterizationOrderColorAttachmentAccess()) {
-        mainSubpassDesc.flags =
-                VK_SUBPASS_DESCRIPTION_RASTERIZATION_ORDER_ATTACHMENT_COLOR_ACCESS_BIT_EXT;
-    }
 }
 
 void populate_subpass_descs(const VulkanCaps& caps,
@@ -372,6 +367,12 @@ void populate_subpass_descs(const VulkanCaps& caps,
     VkSubpassDescription& mainSubpassDesc = descs.push_back();
     mainSubpassDesc = {};
     populate_main_subpass_desc(caps, mainSubpassDesc, colorRef, resolveRef, depthStencilRef);
+
+    if (caps.supportsRasterizationOrderColorAttachmentAccess()) {
+        for (VkSubpassDescription& desc : descs) {
+            desc.flags = VK_SUBPASS_DESCRIPTION_RASTERIZATION_ORDER_ATTACHMENT_COLOR_ACCESS_BIT_EXT;
+        }
+    }
 }
 
 } // anonymous namespace
