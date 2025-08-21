@@ -146,7 +146,7 @@ crate.spec(
 )
 crate.spec(
     package = "read-fonts",
-    version = "0.31.1",
+    version = "0.32",
 )
 crate.spec(
     package = "regex",
@@ -154,7 +154,7 @@ crate.spec(
 )
 crate.spec(
     package = "skrifa",
-    version = "0.33.1",
+    version = "0.34",
 )
 crate.spec(
     package = "thiserror",
