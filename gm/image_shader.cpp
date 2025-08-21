@@ -20,6 +20,7 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
@@ -29,6 +30,8 @@
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "tools/DecodeUtils.h"
+#include "tools/ToolUtils.h"
 
 #include <utility>
 
@@ -239,4 +242,23 @@ DEF_SIMPLE_GM(textureimage_and_shader, canvas, 100, 50) {
     surface->getCanvas()->clear(SK_ColorRED);
     surface->getCanvas()->drawPaint(paint);
     canvas->drawImage(surface->makeImageSnapshot(), 50, 0);
+}
+
+DEF_SIMPLE_GM(imageshader_tinyscale, canvas, 1000, 1000) {
+    // 128x128px image with red/black/green/blue quadrants.
+    auto img = ToolUtils::GetResourceAsImage("images/gainmap_gcontainer_only.jpg");
+
+    // A small scale amplifies the sampling coords in image space.
+    static constexpr float kScale = 0.01f;
+    const auto m = SkMatrix::Translate(500, 500) *
+                   SkMatrix::Scale(kScale, kScale);
+
+    // In clamp mode we should see no repeating patterns, just the viewport filled
+    // with four-colored quadrants.
+    SkPaint p;
+    p.setShader(img->makeShader(SkTileMode::kClamp,
+                                SkTileMode::kClamp,
+                                SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone),
+                                &m));
+    canvas->drawPaint(p);
 }
