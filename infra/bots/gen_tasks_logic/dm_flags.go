@@ -344,6 +344,7 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "test", ALL, "SpecialImage_Gpu")
 			skip(ALL, "test", ALL, "SRGBReadWritePixels")
 			skip(ALL, "test", ALL, "SurfaceAsyncReadPixels")
+			skip(ALL, "test", ALL, "SurfaceBackendTextureTest")
 			skip(ALL, "test", ALL, "SurfaceClear_Gpu")
 			skip(ALL, "test", ALL, "SurfaceContextReadPixels")
 			skip(ALL, "test", ALL, "SurfaceContextWritePixelsMipped")
