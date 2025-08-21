@@ -40,8 +40,8 @@ sk_sp<SkPicture> SkCaptureCanvas::snapPicture() {
     if (!fCapturing) {
         return nullptr;
     }
+    this->detachRecordingCanvas(); // remove the stale recording canvas before the recorder finishes
     auto skp = fRecorder.finishRecordingAsPicture();
-    this->detachRecordingCanvas();  // remove the stale recording canvas
     this->attachRecordingCanvas();
     return skp;
 }
@@ -55,6 +55,10 @@ void SkCaptureCanvas::attachRecordingCanvas() {
 void SkCaptureCanvas::detachRecordingCanvas() {
     SkASSERT(this->fList.size() == 2);
     this->removeCanvas(fRecorder.getRecordingCanvas());
+}
+
+void SkCaptureCanvas::onSurfaceDelete() {
+    // TODO (b/412351769): signal to the capture manager that this canvas's surface has been deleted
 }
 
 //////////////////// Function forwarding ///////////////////////
@@ -304,8 +308,4 @@ void SkCaptureCanvas::onDrawEdgeAAImageSet2(const ImageSetEntry set[],
     this->pollCapturingStatus();
     this->SkNWayCanvas::onDrawEdgeAAImageSet2(
             set, count, dstClips, preViewMatrices, sampling, paint, constraint);
-}
-
-void SkCaptureCanvas::onSurfaceDelete() {
-    // TODO (b/412351769): signal to the capture manager that this canvas's surface has been deleted
 }

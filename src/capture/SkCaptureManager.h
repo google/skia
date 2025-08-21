@@ -8,6 +8,7 @@
 #ifndef SkCaptureManager_DEFINED
 #define SkCaptureManager_DEFINED
 
+#include "include/core/SkPicture.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkTArray.h"
 
@@ -21,8 +22,13 @@ public:
     SkCaptureManager();
 
     SkCanvas* makeCaptureCanvas(SkCanvas* canvas);
+    void snapPictures();
+    void serializeCapture();
 
     void toggleCapture(bool capturing) {
+        if (capturing != fIsCurrentlyCapturing && !capturing) {
+            this->snapPictures();
+        }
         fIsCurrentlyCapturing = capturing;
     }
 
@@ -30,10 +36,10 @@ public:
         return fIsCurrentlyCapturing;
     }
 
-
 private:
     std::atomic<bool> fIsCurrentlyCapturing = false;
     skia_private::TArray<std::unique_ptr<SkCaptureCanvas>> fTrackedCanvases;
+    skia_private::TArray<sk_sp<SkPicture>>  fPictures;
 };
 
 #endif  // SkCaptureManager_DEFINED

@@ -917,6 +917,7 @@ void Context::endCapture() {
     // TODO (b/412351769): Return an SkData block of serialized SKPs and other capture data
     if (fSharedContext->captureManager()) {
         fSharedContext->captureManager()->toggleCapture(false);
+        fSharedContext->captureManager()->serializeCapture();
     }
 }
 

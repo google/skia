@@ -8,6 +8,7 @@
 #include "src/capture/SkCaptureManager.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/private/base/SkDebug.h"
 #include "src/capture/SkCaptureCanvas.h"
 
 #include <memory>
@@ -19,4 +20,21 @@ SkCanvas* SkCaptureManager::makeCaptureCanvas(SkCanvas* canvas) {
     auto rawCanvasPtr = newCanvas.get();
     fTrackedCanvases.emplace_back(std::move(newCanvas));
     return rawCanvasPtr;
+}
+
+void SkCaptureManager::snapPictures() {
+    for (auto& canvas : fTrackedCanvases) {
+        if (canvas) {
+            auto picture = canvas->snapPicture();
+            if (picture) {
+                fPictures.emplace_back(picture);
+            }
+        }
+    }
+}
+
+void SkCaptureManager::serializeCapture() {
+    // TODO (412351769): return a serialized file via SkData, for now this will print the contents
+    // of the capture for inspection.
+    SkDebugf("Tracked canvases: %d. SkPictures: %d\n", fTrackedCanvases.size(), fPictures.size());
 }
