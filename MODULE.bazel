@@ -103,7 +103,7 @@ crate.spec(
 crate.spec(
     # If this is updated, be sure to update BUILD.gn also
     package = "cxx",
-    version = "1.0.161",
+    version = "1.0.168",
 )
 crate.annotation(
     # We want a custom build rule so we can use a different include path
