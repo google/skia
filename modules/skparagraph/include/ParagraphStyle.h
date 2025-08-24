@@ -84,7 +84,9 @@ struct ParagraphStyle {
                this->fEllipsisUtf16 == rhs.fEllipsisUtf16 &&
                this->fTextDirection == rhs.fTextDirection && this->fTextAlign == rhs.fTextAlign &&
                this->fDefaultTextStyle == rhs.fDefaultTextStyle &&
-               this->fReplaceTabCharacters == rhs.fReplaceTabCharacters;
+               this->fReplaceTabCharacters == rhs.fReplaceTabCharacters &&
+               this->fFakeMissingFontStyles == rhs.fFakeMissingFontStyles;
+
     }
 
     const StrutStyle& getStrutStyle() const { return fStrutStyle; }
@@ -121,6 +123,9 @@ struct ParagraphStyle {
     bool hintingIsOn() const { return fHintingIsOn; }
     void turnHintingOff() { fHintingIsOn = false; }
 
+    bool fakeMissingFontStyles() const { return fFakeMissingFontStyles; }
+    void setFakeMissingFontStyles(bool value) { fFakeMissingFontStyles = value; }
+
     bool getReplaceTabCharacters() const { return fReplaceTabCharacters; }
     void setReplaceTabCharacters(bool value) { fReplaceTabCharacters = value; }
 
@@ -139,6 +144,7 @@ private:
     TextHeightBehavior fTextHeightBehavior;
     bool fHintingIsOn;
     bool fReplaceTabCharacters;
+    bool fFakeMissingFontStyles;
     bool fApplyRoundingHack = true;
 };
 }  // namespace textlayout
