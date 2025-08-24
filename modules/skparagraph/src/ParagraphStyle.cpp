@@ -27,6 +27,7 @@ ParagraphStyle::ParagraphStyle() {
     fTextHeightBehavior = TextHeightBehavior::kAll;
     fHintingIsOn = true;
     fReplaceTabCharacters = false;
+    fFakeMissingFontStyles = true;
 }
 
 TextAlign ParagraphStyle::effective_align() const {
