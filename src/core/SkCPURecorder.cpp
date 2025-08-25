@@ -14,8 +14,8 @@
 namespace skcpu {
 
 Recorder* Recorder::TODO() {
-    static std::unique_ptr<Recorder> gRecorder = ContextImpl::TODO()->makeRecorder();
-    return gRecorder.get();
+    static Recorder* gRecorder = ContextImpl::TODO()->makeRecorder().release();
+    return gRecorder;
 }
 
 }  // namespace skcpu

@@ -25,8 +25,8 @@ std::unique_ptr<Recorder> Context::makeRecorder() const {
 }
 
 const ContextImpl* ContextImpl::TODO() {
-    static auto gContext = Context::Make();
-    return static_cast<const ContextImpl*>(gContext.get());
+    static const ContextImpl* gContext = static_cast<const ContextImpl*>(Context::Make().release());
+    return gContext;
 }
 
 }  // namespace skcpu
