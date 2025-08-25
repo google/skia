@@ -123,4 +123,5 @@ skia_skottie_sources = [
   "$_modules/skottie/src/text/TextShaper.cpp",
   "$_modules/skottie/src/text/TextValue.cpp",
   "$_modules/skottie/src/text/TextValue.h",
+  "$_modules/skottie/src/text/Unicode.cpp",
 ]

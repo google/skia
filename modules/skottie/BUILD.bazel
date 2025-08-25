@@ -119,6 +119,7 @@ skia_cc_library(
         "//modules/sksg",
         "//modules/sksg:sksg_priv",
         "//modules/skshaper:skshaper_core",
+        "//modules/skunicode:skunicode_core",
         "//src/base",
         "//src/codec:codec_support_priv",
         "//src/core:core_priv",

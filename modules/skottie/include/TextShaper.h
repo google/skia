@@ -15,6 +15,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTypeTraits.h"
 #include "include/utils/SkTextUtils.h"
+#include "modules/skunicode/include/SkUnicode.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -194,6 +195,9 @@ public:
 private:
     Shaper() = delete;
 };
+
+// Returns an SkUnicode wrapper which suppresses mid-word line breaks.
+sk_sp<SkUnicode> SK_API MakeStrictLinebreakUnicode(sk_sp<SkUnicode>);
 
 } // namespace skottie
 
