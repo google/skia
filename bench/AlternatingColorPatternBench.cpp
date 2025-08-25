@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkString.h"
 #include "include/effects/SkGradientShader.h"
 
@@ -125,10 +126,12 @@ protected:
                     fRects[count].setXYWH(SkIntToScalar(x), SkIntToScalar(y),
                                           SkIntToScalar(w), SkIntToScalar(h));
                 } else {
-                    fPaths[count].moveTo(SkIntToScalar(x), SkIntToScalar(y));
-                    fPaths[count].rLineTo(SkIntToScalar(w), 0);
-                    fPaths[count].rLineTo(0, SkIntToScalar(h));
-                    fPaths[count].rLineTo(SkIntToScalar(-w + 1), 0);
+                    SkPathBuilder builder;
+                    builder.moveTo(SkIntToScalar(x), SkIntToScalar(y));
+                    builder.rLineTo(SkIntToScalar(w), 0);
+                    builder.rLineTo(0, SkIntToScalar(h));
+                    builder.rLineTo(SkIntToScalar(-w + 1), 0);
+                    fPaths[count] = builder.detach();
                 }
                 if (0 == count % 2) {
                     fColors[count]  = fPattern1.fColor;

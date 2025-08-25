@@ -244,15 +244,16 @@ using PathStrokeList = StrokeTessellator::PathStrokeList;
 using MakePathStrokesFn = std::vector<PathStrokeList>(*)();
 
 static std::vector<PathStrokeList> make_simple_cubic_path() {
-    auto path = SkPath().moveTo(0, 0);
+    SkPathBuilder builder;
+    builder.moveTo(0, 0);
     for (int i = 0; i < kNumCubicsInChalkboard/2; ++i) {
-        path.cubicTo(100, 0, 50, 100, 100, 100);
-        path.cubicTo(0, -100, 200, 100, 0, 0);
+        builder.cubicTo(100, 0, 50, 100, 100, 100);
+        builder.cubicTo(0, -100, 200, 100, 0, 0);
     }
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
     stroke.setStrokeStyle(8);
     stroke.setStrokeParams(SkPaint::kButt_Cap, SkPaint::kMiter_Join, 4);
-    return {{path, stroke, SK_PMColor4fWHITE}};
+    return {{builder.detach(), stroke, SK_PMColor4fWHITE}};
 }
 
 // Generates a list of paths that resemble the MotionMark benchmark.

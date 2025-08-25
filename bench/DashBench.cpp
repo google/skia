@@ -25,9 +25,8 @@
  *  3. hline, vline, diagonal, rect, oval
  *  4. dots [1,1] ([N,N] where N=strokeWidth?) or arbitrary (e.g. [2,1] or [1,2,3,2])
  */
-static void path_hline(SkPath* path) {
-    path->moveTo(SkIntToScalar(10), SkIntToScalar(10));
-    path->lineTo(SkIntToScalar(600), SkIntToScalar(10));
+static SkPath path_hline() {
+    return SkPath::Line({10, 10}, {600, 10});
 }
 
 class DashBench : public Benchmark {
@@ -53,8 +52,8 @@ public:
         fPts[1].set(SkIntToScalar(600), SkIntToScalar(10));
     }
 
-    virtual void makePath(SkPath* path) {
-        path_hline(path);
+    virtual SkPath makePath() {
+        return path_hline();
     }
 
 protected:
@@ -69,8 +68,7 @@ protected:
         paint.setStrokeWidth(SkIntToScalar(fWidth));
         paint.setAntiAlias(false);
 
-        SkPath path;
-        this->makePath(&path);
+        SkPath path = this->makePath();
 
         paint.setPathEffect(SkDashPathEffect::Make(fIntervals, 0));
 
@@ -137,39 +135,43 @@ private:
     using INHERITED = DashBench;
 };
 
-static void make_unit_star(SkPath* path, int n) {
+static SkPath make_unit_star(int n) {
     SkScalar rad = -SK_ScalarPI / 2;
     const SkScalar drad = (n >> 1) * SK_ScalarPI * 2 / n;
 
-    path->moveTo(0, -SK_Scalar1);
+    SkPathBuilder builder;
+    builder.moveTo(0, -SK_Scalar1);
     for (int i = 1; i < n; i++) {
         rad += drad;
-        path->lineTo(SkScalarCos(rad), SkScalarSin(rad));
+        builder.lineTo(SkScalarCos(rad), SkScalarSin(rad));
     }
-    path->close();
+    builder.close();
+    return builder.detach();
 }
 
-static void make_poly(SkPath* path) {
-    make_unit_star(path, 9);
-    const SkMatrix matrix = SkMatrix::Scale(100, 100);
-    path->transform(matrix);
+static SkPath make_poly() {
+    return make_unit_star(9).makeTransform(SkMatrix::Scale(100, 100));
 }
 
-static void make_quad(SkPath* path) {
+static SkPath make_quad() {
     SkScalar x0 = SkIntToScalar(10);
     SkScalar y0 = SkIntToScalar(10);
-    path->moveTo(x0, y0);
-    path->quadTo(x0,                    y0 + 400 * SK_Scalar1,
-                 x0 + 600 * SK_Scalar1, y0 + 400 * SK_Scalar1);
+    SkPathBuilder builder;
+    builder.moveTo(x0, y0);
+    builder.quadTo(x0,                    y0 + 400 * SK_Scalar1,
+                   x0 + 600 * SK_Scalar1, y0 + 400 * SK_Scalar1);
+    return builder.detach();
 }
 
-static void make_cubic(SkPath* path) {
+static SkPath make_cubic() {
     SkScalar x0 = SkIntToScalar(10);
     SkScalar y0 = SkIntToScalar(10);
-    path->moveTo(x0, y0);
-    path->cubicTo(x0,                    y0 + 400 * SK_Scalar1,
-                  x0 + 600 * SK_Scalar1, y0 + 400 * SK_Scalar1,
-                  x0 + 600 * SK_Scalar1, y0);
+    SkPathBuilder builder;
+    builder.moveTo(x0, y0);
+    builder.cubicTo(x0,                    y0 + 400 * SK_Scalar1,
+                    x0 + 600 * SK_Scalar1, y0 + 400 * SK_Scalar1,
+                    x0 + 600 * SK_Scalar1, y0);
+    return builder.detach();
 }
 
 class MakeDashBench : public Benchmark {
@@ -178,9 +180,9 @@ class MakeDashBench : public Benchmark {
     sk_sp<SkPathEffect> fPE;
 
 public:
-    MakeDashBench(void (*proc)(SkPath*), const char name[])  {
+    MakeDashBench(SkPath(*proc)(), const char name[])  {
         fName.printf("makedash_%s", name);
-        proc(&fPath);
+        fPath = proc();
 
         SkScalar vals[] = { SkIntToScalar(4), SkIntToScalar(4) };
         fPE = SkDashPathEffect::Make(vals, 0);

@@ -61,40 +61,40 @@ static SkPoint rand_pt(SkRandom& rand) {
 }
 
 static SkPath line_path_maker() {
-    SkPath path;
+    SkPathBuilder builder;
     SkRandom rand;
-    path.moveTo(rand_pt(rand));
+    builder.moveTo(rand_pt(rand));
     for (int i = 0; i < N; ++i) {
-        path.lineTo(rand_pt(rand));
+        builder.lineTo(rand_pt(rand));
     }
-    return path;
+    return builder.detach();
 }
 static SkPath quad_path_maker() {
-    SkPath path;
+    SkPathBuilder builder;
     SkRandom rand;
-    path.moveTo(rand_pt(rand));
+    builder.moveTo(rand_pt(rand));
     for (int i = 0; i < N; ++i) {
-        path.quadTo(rand_pt(rand), rand_pt(rand));
+        builder.quadTo(rand_pt(rand), rand_pt(rand));
     }
-    return path;
+    return builder.detach();
 }
 static SkPath conic_path_maker() {
-    SkPath path;
+    SkPathBuilder builder;
     SkRandom rand;
-    path.moveTo(rand_pt(rand));
+    builder.moveTo(rand_pt(rand));
     for (int i = 0; i < N; ++i) {
-        path.conicTo(rand_pt(rand), rand_pt(rand), rand.nextUScalar1());
+        builder.conicTo(rand_pt(rand), rand_pt(rand), rand.nextUScalar1());
     }
-    return path;
+    return builder.detach();
 }
 static SkPath cubic_path_maker() {
-    SkPath path;
+    SkPathBuilder builder;
     SkRandom rand;
-    path.moveTo(rand_pt(rand));
+    builder.moveTo(rand_pt(rand));
     for (int i = 0; i < N; ++i) {
-        path.cubicTo(rand_pt(rand), rand_pt(rand), rand_pt(rand));
+        builder.cubicTo(rand_pt(rand), rand_pt(rand), rand_pt(rand));
     }
-    return path;
+    return builder.detach();
 }
 
 static SkPaint paint_maker() {

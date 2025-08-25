@@ -7,6 +7,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/gpu/ganesh/GrEagerVertexAllocator.h"
 #include "src/gpu/ganesh/geometry/GrInnerFanTriangulator.h"
@@ -39,33 +40,34 @@ public:
 protected:
     void onDelayedSetup() override {
         for (int i = 0; i < kNumTigerPaths; ++i) {
-            SkPath& path = fPaths.push_back();
+            SkPathBuilder builder;
             const std::vector<SkPoint>& pts = kTigerPaths[i].fPoints;
             int ptsIdx = 0;
             for (const char* v = kTigerPaths[i].fVerbs; *v; ++v) {
                 switch (*v) {
                     case 'm':
-                        path.moveTo(pts[ptsIdx]);
+                        builder.moveTo(pts[ptsIdx]);
                         ++ptsIdx;
                         break;
                     case 'l':
-                        path.lineTo(pts[ptsIdx]);
+                        builder.lineTo(pts[ptsIdx]);
                         ++ptsIdx;
                         break;
                     case 'q':
-                        path.quadTo(pts[ptsIdx], pts[ptsIdx + 1]);
+                        builder.quadTo(pts[ptsIdx], pts[ptsIdx + 1]);
                         ptsIdx += 2;
                         break;
                     case 'c':
-                        path.cubicTo(pts[ptsIdx], pts[ptsIdx + 1], pts[ptsIdx + 2]);
+                        builder.cubicTo(pts[ptsIdx], pts[ptsIdx + 1], pts[ptsIdx + 2]);
                         ptsIdx += 3;
                         break;
                     case 'z':
-                        path.close();
+                        builder.close();
                         break;
                 }
             }
             SkASSERT(ptsIdx == (int)pts.size());
+            fPaths.push_back(builder.detach());
         }
     }
 

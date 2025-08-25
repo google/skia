@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkString.h"
 
 struct BezierRec {
@@ -66,12 +67,13 @@ public:
         fWidth = SkIntToScalar(w);
         fName.printf("draw_stroke_bezier_%s_%s_%s_%g", proc(nullptr, 0), gCapName[c], gJoinName[j], w);
 
-        fRec.fQuad.moveTo(20, 20);
-        fRec.fQuad.quadTo(60, 20, 60, 60);
-        fRec.fQuad.quadTo(20, 60, 20, 100);
-        fRec.fCubic.moveTo(20, 20);
-        fRec.fCubic.cubicTo(40, 20, 60, 40, 60, 60);
-        fRec.fCubic.cubicTo(40, 60, 20, 80, 20, 100);
+        SkPathBuilder builder;
+
+        builder.moveTo(20, 20).quadTo(60, 20, 60, 60).quadTo(20, 60, 20, 100);
+        fRec.fQuad = builder.detach();
+
+        builder.moveTo(20, 20).cubicTo(40, 20, 60, 40, 60, 60).cubicTo(40, 60, 20, 80, 20, 100);
+        fRec.fCubic = builder.detach();
     }
 
 protected:
