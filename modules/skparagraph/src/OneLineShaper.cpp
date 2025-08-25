@@ -657,17 +657,19 @@ bool OneLineShaper::shape() {
                 font.setHinting(block.fStyle.getFontHinting());
                 font.setSubpixel(block.fStyle.getSubpixel());
 
-                // Apply fake bold and/or italic settings to the font if the
-                // typeface's attributes do not match the intended font style.
-                int wantedWeight = block.fStyle.getFontStyle().weight();
-                bool fakeBold =
-                    wantedWeight >= SkFontStyle::kSemiBold_Weight &&
-                    wantedWeight - font.getTypeface()->fontStyle().weight() >= 200;
-                bool fakeItalic =
-                    block.fStyle.getFontStyle().slant() == SkFontStyle::kItalic_Slant &&
-                    font.getTypeface()->fontStyle().slant() != SkFontStyle::kItalic_Slant;
-                font.setEmbolden(fakeBold);
-                font.setSkewX(fakeItalic ? -SK_Scalar1 / 4 : 0);
+                if (fParagraph->paragraphStyle().fakeMissingFontStyles()) {
+                  // Apply fake bold and/or italic settings to the font if the
+                  // typeface's attributes do not match the intended font style.
+                  int wantedWeight = block.fStyle.getFontStyle().weight();
+                  bool fakeBold =
+                      wantedWeight >= SkFontStyle::kSemiBold_Weight &&
+                      wantedWeight - font.getTypeface()->fontStyle().weight() >= 200;
+                  bool fakeItalic =
+                      block.fStyle.getFontStyle().slant() == SkFontStyle::kItalic_Slant &&
+                      font.getTypeface()->fontStyle().slant() != SkFontStyle::kItalic_Slant;
+                  font.setEmbolden(fakeBold);
+                  font.setSkewX(fakeItalic ? -SK_Scalar1 / 4 : 0);
+                }
 
                 // Walk through all the currently unresolved blocks
                 // (ignoring those that appear later)
