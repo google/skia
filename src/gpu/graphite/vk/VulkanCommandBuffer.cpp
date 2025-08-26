@@ -1068,15 +1068,6 @@ void VulkanCommandBuffer::bindGraphicsPipeline(const GraphicsPipeline* graphicsP
     // descriptor sets with any new bindGraphicsPipeline DrawPassCommand.
     fBindUniformBuffers = true;
 
-    if (graphicsPipeline->dstReadStrategy() == DstReadStrategy::kTextureCopy &&
-        graphicsPipeline->numFragTexturesAndSamplers() == 1) {
-        // The only texture-sampler that the pipeline declares must be the dstCopy, which means
-        // there are no other textures that will trigger BindTextureAndSampler commands in a
-        // DrawPass (e.g. solid-color + dst-read-requiring blend). Configure the texture binding
-        // up front in this case.
-        this->recordTextureAndSamplerDescSet(/*drawPass=*/nullptr, /*command=*/nullptr);
-    }
-
     fActiveGraphicsPipeline->updateDynamicState(
             fSharedContext, fPrimaryCommandBuffer, previousGraphicsPipeline);
 }
