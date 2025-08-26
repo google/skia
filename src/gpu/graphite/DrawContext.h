@@ -79,7 +79,9 @@ public:
                     const Clip& clip,
                     DrawOrder ordering,
                     const PaintParams* paint,
-                    const StrokeStyle* stroke);
+                    const StrokeStyle* stroke,
+                    bool dependsOnDst,
+                    bool dstReadReq);
 
     bool recordUpload(Recorder* recorder,
                       sk_sp<TextureProxy> targetProxy,

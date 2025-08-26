@@ -12,6 +12,7 @@
 #include "include/core/SkColorType.h"
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/Renderer.h"
 
 namespace skgpu::graphite {
 
@@ -34,7 +35,8 @@ public:
                 SkBlendMode primitiveBlendMode,
                 bool skipColorXform,
                 const std::pair<sk_sp<PrecompileShader>, int>& clipShader,
-                bool dstReadRequired,
+                Coverage coverage,
+                TextureFormat targetFormat,
                 bool dither,
                 bool analyticClip);
 
@@ -59,7 +61,8 @@ private:
     bool fHasPrimitiveBlender;
     bool fSkipColorXform;
     std::pair<sk_sp<PrecompileShader>, int> fClipShader;
-    bool fDstReadRequired;
+    Coverage fRendererCoverage;
+    TextureFormat fTargetFormat;
     bool fDither;
     bool fAnalyticClip;
 };

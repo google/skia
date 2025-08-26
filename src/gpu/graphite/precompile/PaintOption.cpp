@@ -12,6 +12,7 @@
 #include "include/gpu/graphite/precompile/PrecompileColorFilter.h"
 #include "include/gpu/graphite/precompile/PrecompileShader.h"
 #include "src/core/SkColorSpacePriv.h"
+#include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/PaintParams.h"
@@ -31,7 +32,8 @@ PaintOption::PaintOption(bool opaquePaintColor,
                          SkBlendMode primitiveBlendMode,
                          bool skipColorXform,
                          const std::pair<sk_sp<PrecompileShader>, int>& clipShader,
-                         bool dstReadRequired,
+                         Coverage coverage,
+                         TextureFormat targetFormat,
                          bool dither,
                          bool analyticClip)
         : fOpaquePaintColor(opaquePaintColor)
@@ -42,7 +44,8 @@ PaintOption::PaintOption(bool opaquePaintColor,
         , fHasPrimitiveBlender(hasPrimitiveBlender)
         , fSkipColorXform(skipColorXform)
         , fClipShader(clipShader)
-        , fDstReadRequired(dstReadRequired)
+        , fRendererCoverage(coverage)
+        , fTargetFormat(targetFormat)
         , fDither(dither)
         , fAnalyticClip(analyticClip) {
     if (!fHasPrimitiveBlender) {
@@ -63,8 +66,18 @@ void PaintOption::toKey(const KeyContext& keyContext) const {
     std::optional<SkBlendMode> finalBlendMode =
             this->finalBlender() ? this->finalBlender()->priv().asBlendMode()
                                  : SkBlendMode::kSrcOver;
+
+    Coverage finalCoverage = fRendererCoverage;
+    if ((fClipShader.first || fAnalyticClip) && fRendererCoverage == Coverage::kNone) {
+        finalCoverage = Coverage::kSingleChannel;
+    }
+    bool dstReadReq = !CanUseHardwareBlending(keyContext.caps(),
+                                              fTargetFormat,
+                                              finalBlendMode,
+                                              finalCoverage);
+
     if (finalBlendMode) {
-        if (!fDstReadRequired) {
+        if (!dstReadReq) {
             AddFixedBlendMode(keyContext, *finalBlendMode);
         } else {
             AddBlendMode(keyContext, *finalBlendMode);

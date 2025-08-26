@@ -15,6 +15,7 @@
 #include "src/effects/colorfilters/SkColorFilterBase.h"
 #include "src/gpu/Blend.h"
 #include "src/gpu/DitherUtils.h"
+#include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
 #include "src/gpu/graphite/Log.h"
@@ -48,13 +49,29 @@ bool should_dither(const PaintParams& p, SkColorType dstCT) {
     return p.shader() && !as_SB(p.shader())->isConstant();
 }
 
+bool blendmode_depends_on_dst(SkBlendMode blendMode, bool srcIsOpaque) {
+    if (blendMode == SkBlendMode::kSrc || blendMode == SkBlendMode::kClear) {
+        // src and clear blending never depends on dst
+        return false;
+    }
+
+    if (blendMode == SkBlendMode::kSrcOver || blendMode == SkBlendMode::kDstOut) {
+        // src-over depends on dst if src is transparent (a != 1)
+        // dst-out simplifies to kClear if a == 1
+        return !srcIsOpaque;
+    }
+
+    return true;
+}
+
 } // anonymous namespace
 
 PaintParams::PaintParams(const SkPaint& paint,
                          sk_sp<SkBlender> primitiveBlender,
                          const NonMSAAClip& nonMSAAClip,
                          sk_sp<SkShader> clipShader,
-                         bool dstReadRequired,
+                         Coverage coverage,
+                         TextureFormat targetFormat,
                          bool skipColorXform)
         : fColor(paint.getColor4f())
         , fFinalBlender(paint.refBlender())
@@ -63,7 +80,8 @@ PaintParams::PaintParams(const SkPaint& paint,
         , fPrimitiveBlender(std::move(primitiveBlender))
         , fNonMSAAClip(nonMSAAClip)
         , fClipShader(std::move(clipShader))
-        , fDstReadRequired(dstReadRequired)
+        , fRendererCoverage(coverage)
+        , fTargetFormat(targetFormat)
         , fSkipColorXform(skipColorXform)
         , fDither(paint.isDither()) {
     if (!fPrimitiveBlender) {
@@ -187,16 +205,26 @@ bool PaintParams::handlePrimitiveColor(const KeyContext& keyContext) const {
         return false;
     }
 
+    bool srcIsOpaque = false;
     Blend(keyContext,
         /* addBlendToKey= */ [&] () -> void {
             AddToKey(keyContext, fPrimitiveBlender.get());
         },
         /* addSrcToKey= */ [&] () -> void {
-            this->addPaintColorToKey(keyContext);
+            srcIsOpaque = this->addPaintColorToKey(keyContext);
         },
         /* addDstToKey= */ [&] () -> void {
             AddPrimitiveColor(keyContext, fSkipColorXform);
         });
+    std::optional<SkBlendMode> primBlend = as_BB(fPrimitiveBlender.get())->asBlendMode();
+    if (primBlend.has_value() && srcIsOpaque) {
+        // If the input paint/shader is opaque, the result is only opaque if the primitive blend
+        // mode is kSrc or kSrcOver. All other modes can introduce transparency.
+        return primBlend.value() == SkBlendMode::kSrc || primBlend.value() == SkBlendMode::kSrcOver;
+    }
+
+    // If the input was already transparent, or if it's a runtime/complex blend mode,
+    // the result cannot be considered opaque.
     return false;
 }
 
@@ -222,6 +250,7 @@ bool PaintParams::handlePaintAlpha(const KeyContext& keyContext) const {
               /* addDstToKey= */ [&]() -> void {
                   AlphaOnlyPaintColorBlock::AddBlock(keyContext);
               });
+        // The result is guaranteed to be non-opaque because we're blending with fColor's alpha.
         return false;
     } else {
         return this->handlePrimitiveColor(keyContext);
@@ -322,30 +351,51 @@ void PaintParams::handleClipping(const KeyContext& keyContext) const {
     }
 }
 
-void PaintParams::toKey(const KeyContext& keyContext) const {
+std::optional<PaintParams::Result> PaintParams::toKey(const KeyContext& keyContext) const {
     // Root Node 0 is the source color, which is the output of all effects post dithering
-    this->handleDithering(keyContext);
+    bool isOpaque = this->handleDithering(keyContext);
 
     // Root Node 1 is the final blender
     std::optional<SkBlendMode> finalBlendMode = this->asFinalBlendMode();
-    if (finalBlendMode) {
-        if (!fDstReadRequired) {
+    bool usesAdvancedBlend = finalBlendMode.has_value() &&
+                             (int)finalBlendMode.value() > (int)SkBlendMode::kLastCoeffMode;
+
+    Coverage finalCoverage = fRendererCoverage;
+    if ((fClipShader || !fNonMSAAClip.isEmpty()) && fRendererCoverage == Coverage::kNone) {
+        finalCoverage = Coverage::kSingleChannel;
+    }
+
+    bool dependsOnDst = fClipShader || !fNonMSAAClip.isEmpty();
+    bool dstReadReq = !CanUseHardwareBlending(keyContext.recorder()->priv().caps(),
+                                              fTargetFormat,
+                                              finalBlendMode,
+                                              finalCoverage);
+
+    if (finalBlendMode.has_value()) {
+        if (!dstReadReq) {
             // With no shader blending, be as explicit as possible about the final blend
-            AddFixedBlendMode(keyContext, *finalBlendMode);
+            AddFixedBlendMode(keyContext, finalBlendMode.value());
         } else {
             // With shader blending, use AddBlendMode() to select the more universal blend functions
             // when possible. Technically we could always use a fixed blend mode but would then
             // over-generate when encountering certain classes of blends. This is most problematic
             // on devices that wouldn't support dual-source blending, so help them out by at least
             // not requiring lots of pipelines.
-            AddBlendMode(keyContext, *finalBlendMode);
+            AddBlendMode(keyContext, finalBlendMode.value());
         }
+
+        // Blend modes can be analyzed to determine if specific src colors still depend on the dst.
+        dependsOnDst |= blendmode_depends_on_dst(finalBlendMode.value(), isOpaque);
     } else {
         AddToKey(keyContext, fFinalBlender.get());
+        // Cannot inspect runtime blenders to pessimistically assume they will always use the dst.
+        dependsOnDst = true;
     }
 
     // Optional Root Node 2 is the clip
     this->handleClipping(keyContext);
+
+    return Result{dependsOnDst, dstReadReq, usesAdvancedBlend};
 }
 
 // TODO(b/330864257): Can be deleted once keys are determined by the Device draw.
