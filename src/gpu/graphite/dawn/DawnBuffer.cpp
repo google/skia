@@ -277,8 +277,7 @@ void DawnBuffer::onMap() {
             wgpu::CallbackMode::WaitAnyOnly,
             [this](wgpu::MapAsyncStatus s, wgpu::StringView m) { this->mapCallback(s, m); });
 
-    wgpu::Device device = static_cast<const DawnSharedContext*>(sharedContext())->device();
-    wgpu::Instance instance = device.GetAdapter().GetInstance();
+    wgpu::Instance instance = static_cast<const DawnSharedContext*>(sharedContext())->instance();
     [[maybe_unused]] auto status = instance.WaitAny(1, &mapWaitInfo, /*timeoutNS=*/0);
 
     if (status != wgpu::WaitStatus::Success) {

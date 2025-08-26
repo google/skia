@@ -189,10 +189,7 @@ static bool check_shader_module([[maybe_unused]] const DawnSharedContext* shared
                             handlerPtr);
             });
 
-    const auto& instance = static_cast<const DawnSharedContext*>(sharedContext)
-                                   ->device()
-                                   .GetAdapter()
-                                   .GetInstance();
+    const auto& instance = static_cast<const DawnSharedContext*>(sharedContext)->instance();
     [[maybe_unused]] auto status =
             instance.WaitAny(1, &waitInfo, /*timeoutNS=*/std::numeric_limits<uint64_t>::max());
     SkASSERT(status == wgpu::WaitStatus::Success);

@@ -111,7 +111,7 @@ SkEnumBitMask<DawnErrorType> DawnErrorChecker::popErrorScopes() {
             wgpu::CallbackMode::WaitAnyOnly, errorCallback, &errorState);
 
     wgpu::WaitStatus status = wgpu::WaitStatus::Success;
-    wgpu::Instance instance = fSharedContext->device().GetAdapter().GetInstance();
+    wgpu::Instance instance = fSharedContext->instance();
 
     status = instance.WaitAny(internalFuture, /*timeout=*/std::numeric_limits<uint64_t>::max());
     if (status != wgpu::WaitStatus::Success) {
