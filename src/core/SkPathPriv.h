@@ -426,14 +426,15 @@ public:
     }
 
     static SkPathRaw Raw(const SkPath& path) {
+        const SkPathRef* ref = path.fPathRef.get();
         return {
-            path.fPathRef->fPoints,
-            path.fPathRef->verbs(),
-            path.fPathRef->fConicWeights,
-            path.getBounds(),
+            ref->pointSpan(),
+            ref->verbs(),
+            ref->conicSpan(),
+            ref->getBounds(),
             path.getFillType(),
             path.isConvex(),
-            SkTo<uint8_t>(path.getSegmentMasks()),
+            SkTo<uint8_t>(ref->getSegmentMasks()),
         };
     }
 

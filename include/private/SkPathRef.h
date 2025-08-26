@@ -313,9 +313,11 @@ public:
     const SkPoint* pointsEnd() const { return this->points() + this->countPoints(); }
 
     SkSpan<const SkPoint> pointSpan() const { return fPoints; }
+    SkSpan<const float> conicSpan() const { return fConicWeights; }
 
     const SkScalar* conicWeights() const { return fConicWeights.begin(); }
     const SkScalar* conicWeightsEnd() const { return fConicWeights.end(); }
+
 
     /**
      * Convenience methods for getting to a verb or point by index.

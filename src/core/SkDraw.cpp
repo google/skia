@@ -911,14 +911,16 @@ void Draw::drawDevPath(const SkPath& devPath,
         }
     }
 
-    void (*proc)(const SkPath&, const SkRasterClip&, SkBlitter*);
     if (doFill) {
+        void (*proc)(const SkPath&, const SkRasterClip&, SkBlitter*);
         if (paint.isAntiAlias()) {
             proc = SkScan::AntiFillPath;
         } else {
             proc = SkScan::FillPath;
         }
+        proc(devPath, *fRC, blitter);
     } else {  // hairline
+        void (*proc)(const SkPathRaw&, const SkRasterClip&, SkBlitter*);
         if (paint.isAntiAlias()) {
             switch (paint.getStrokeCap()) {
                 case SkPaint::kButt_Cap:
@@ -944,9 +946,8 @@ void Draw::drawDevPath(const SkPath& devPath,
                     break;
             }
         }
+        proc(SkPathPriv::Raw(devPath), *fRC, blitter);
     }
-
-    proc(devPath, *fRC, blitter);
 }
 
 void Draw::drawPath(const SkPath& origSrcPath,

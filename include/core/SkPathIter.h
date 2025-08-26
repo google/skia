@@ -51,6 +51,13 @@ public:
      */
     std::optional<Rec> next();
 
+    std::optional<SkPathVerb> peekNextVerb() const {
+        if (vIndex < fVerbs.size()) {
+            return fVerbs[vIndex];
+        }
+        return {};
+    }
+
 private:
     size_t                   pIndex, vIndex, cIndex;
     SkSpan<const SkPoint>    fPoints;

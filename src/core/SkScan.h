@@ -60,12 +60,13 @@ public:
     static void AntiHairLine(const SkPoint[], int count, const SkRasterClip&, SkBlitter*);
     static void HairRect(const SkRect&, const SkRasterClip&, SkBlitter*);
     static void AntiHairRect(const SkRect&, const SkRasterClip&, SkBlitter*);
-    static void HairPath(const SkPath&, const SkRasterClip&, SkBlitter*);
-    static void AntiHairPath(const SkPath&, const SkRasterClip&, SkBlitter*);
-    static void HairSquarePath(const SkPath&, const SkRasterClip&, SkBlitter*);
-    static void AntiHairSquarePath(const SkPath&, const SkRasterClip&, SkBlitter*);
-    static void HairRoundPath(const SkPath&, const SkRasterClip&, SkBlitter*);
-    static void AntiHairRoundPath(const SkPath&, const SkRasterClip&, SkBlitter*);
+
+    static void HairPath(const SkPathRaw&, const SkRasterClip&, SkBlitter*);
+    static void AntiHairPath(const SkPathRaw&, const SkRasterClip&, SkBlitter*);
+    static void HairSquarePath(const SkPathRaw&, const SkRasterClip&, SkBlitter*);
+    static void AntiHairSquarePath(const SkPathRaw&, const SkRasterClip&, SkBlitter*);
+    static void HairRoundPath(const SkPathRaw&, const SkRasterClip&, SkBlitter*);
+    static void AntiHairRoundPath(const SkPathRaw&, const SkRasterClip&, SkBlitter*);
 
     // Needed by SkRegion::setPath
     static void FillPath(const SkPath&, const SkRegion& clip, SkBlitter*);
