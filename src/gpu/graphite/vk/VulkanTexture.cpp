@@ -200,7 +200,6 @@ void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
                                                 VkImageLayout newLayout,
                                                 VkAccessFlags dstAccessMask,
                                                 VkPipelineStageFlags dstStageMask,
-                                                bool byRegion,
                                                 uint32_t newQueueFamilyIndex) const {
 
     SkASSERT(newLayout == this->currentLayout() ||
@@ -290,7 +289,7 @@ void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
         { aspectFlags, 0, numMipLevels, 0, 1 }           // subresourceRange
     };
     SkASSERT(srcAccessMask == imageMemoryBarrier.srcAccessMask);
-    cmdBuffer->addImageMemoryBarrier(this, srcStageMask, dstStageMask, byRegion,
+    cmdBuffer->addImageMemoryBarrier(this, srcStageMask, dstStageMask, /*byRegion=*/false,
                                      &imageMemoryBarrier);
 
     skgpu::MutableTextureStates::SetVkImageLayout(this->mutableState(), newLayout);

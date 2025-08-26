@@ -269,7 +269,6 @@ void VulkanCommandBuffer::prepareSurfaceForStateUpdate(SkSurface* targetSurface,
                                          newLayout,
                                          dstAccess,
                                          dstStage,
-                                         false,
                                          newQueueFamilyIndex);
 }
 
@@ -457,8 +456,7 @@ bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc& rpDesc,
             vulkanTexture->setImageLayout(this,
                                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                           VK_ACCESS_SHADER_READ_BIT,
-                                          VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                                          false);
+                                          VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
         }
     }
     if (fDstCopy.first) {
@@ -467,8 +465,7 @@ bool VulkanCommandBuffer::onAddRenderPass(const RenderPassDesc& rpDesc,
         vulkanTexture->setImageLayout(this,
                                       VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
                                       VK_ACCESS_SHADER_READ_BIT,
-                                      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                                      false);
+                                      VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
     }
     this->setViewport(viewport);
 
@@ -654,7 +651,7 @@ void assign_color_texture_layout(VulkanCommandBuffer* cmdBuf,
         access |= VK_ACCESS_INPUT_ATTACHMENT_READ_BIT;
     }
 
-    colorTexture->setImageLayout(cmdBuf, layout, access, stageFlags, /*byRegion=*/false);
+    colorTexture->setImageLayout(cmdBuf, layout, access, stageFlags);
 }
 
 void assign_resolve_texture_layout(VulkanCommandBuffer* cmdBuf,
@@ -678,7 +675,7 @@ void assign_resolve_texture_layout(VulkanCommandBuffer* cmdBuf,
         access |= VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     }
 
-    resolveTexture->setImageLayout(cmdBuf, layout, access, stageFlags, /*byRegion=*/false);
+    resolveTexture->setImageLayout(cmdBuf, layout, access, stageFlags);
 }
 
 void setup_texture_layouts(VulkanCommandBuffer* cmdBuf,
@@ -701,8 +698,7 @@ void setup_texture_layouts(VulkanCommandBuffer* cmdBuf,
                                             VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL,
                                             VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT |
                                             VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
-                                            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-                                            /*byRegion=*/false);
+                                            VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT);
     }
 }
 
@@ -1600,8 +1596,7 @@ bool VulkanCommandBuffer::onCopyTextureToBuffer(const Texture* texture,
     const_cast<VulkanTexture*>(srcTexture)->setImageLayout(this,
                                                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                                            VK_ACCESS_TRANSFER_READ_BIT,
-                                                           VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                           false);
+                                                           VK_PIPELINE_STAGE_TRANSFER_BIT);
     // Set current access mask for buffer
     const_cast<VulkanBuffer*>(dstBuffer)->setBufferAccess(this,
                                                           VK_ACCESS_TRANSFER_WRITE_BIT,
@@ -1655,8 +1650,7 @@ bool VulkanCommandBuffer::onCopyBufferToTexture(const Buffer* buffer,
     const_cast<VulkanTexture*>(dstTexture)->setImageLayout(this,
                                                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                                            VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                           VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                           false);
+                                                           VK_PIPELINE_STAGE_TRANSFER_BIT);
 
     this->submitPipelineBarriers();
 
@@ -1689,14 +1683,12 @@ bool VulkanCommandBuffer::onCopyTextureToTexture(const Texture* src,
     const_cast<VulkanTexture*>(srcTexture)->setImageLayout(this,
                                                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
                                                            VK_ACCESS_TRANSFER_READ_BIT,
-                                                           VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                           false);
+                                                           VK_PIPELINE_STAGE_TRANSFER_BIT);
     // Enable editing of the destination texture so we can change its layout so it can be copied to.
     const_cast<VulkanTexture*>(dstTexture)->setImageLayout(this,
                                                            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                                            VK_ACCESS_TRANSFER_WRITE_BIT,
-                                                           VK_PIPELINE_STAGE_TRANSFER_BIT,
-                                                           false);
+                                                           VK_PIPELINE_STAGE_TRANSFER_BIT);
 
     this->submitPipelineBarriers();
 

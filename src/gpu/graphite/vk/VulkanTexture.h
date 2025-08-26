@@ -66,9 +66,8 @@ public:
     void setImageLayout(VulkanCommandBuffer* buffer,
                         VkImageLayout newLayout,
                         VkAccessFlags dstAccessMask,
-                        VkPipelineStageFlags dstStageMask,
-                        bool byRegion) const {
-        this->setImageLayoutAndQueueIndex(buffer, newLayout, dstAccessMask, dstStageMask, byRegion,
+                        VkPipelineStageFlags dstStageMask) const {
+        this->setImageLayoutAndQueueIndex(buffer, newLayout, dstAccessMask, dstStageMask,
                                           VK_QUEUE_FAMILY_IGNORED);
     }
 
@@ -76,7 +75,6 @@ public:
                                      VkImageLayout newLayout,
                                      VkAccessFlags dstAccessMask,
                                      VkPipelineStageFlags dstStageMask,
-                                     bool byRegion,
                                      uint32_t newQueueFamilyIndex) const;
 
     // This simply updates our internal tracking of the image layout and does not actually perform
