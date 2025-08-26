@@ -385,17 +385,15 @@ VkAccessFlags VulkanTexture::LayoutToSrcAccessMask(const VkImageLayout layout) {
     // VK_MEMORY_OUTPUT_SHADER_WRITE_BIT.
 
     // We can only directly access the host memory if we are in preinitialized or general layout,
-    // and the image is linear.
-    // TODO: Add check for linear here so we are not always adding host to general, and we should
-    //       only be in preinitialized if we are linear
+    // and the image is linear. However, device access to images written by the host happens after
+    // vkQueueSubmit, which implicitly makes host writes _visible_ to the device, i.e.
+    // VK_ACCESS_HOST_WRITE_BIT is unnecessary. Host data is made _available_ to the device via
+    // vkFlushMappedMemoryRanges.
     VkAccessFlags flags = 0;
     if (VK_IMAGE_LAYOUT_GENERAL == layout) {
         flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT |
                 VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT |
-                VK_ACCESS_TRANSFER_WRITE_BIT |
-                VK_ACCESS_HOST_WRITE_BIT;
-    } else if (VK_IMAGE_LAYOUT_PREINITIALIZED == layout) {
-        flags = VK_ACCESS_HOST_WRITE_BIT;
+                VK_ACCESS_TRANSFER_WRITE_BIT;
     } else if (VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL == layout) {
         flags = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
     } else if (VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL == layout) {
@@ -404,7 +402,8 @@ VkAccessFlags VulkanTexture::LayoutToSrcAccessMask(const VkImageLayout layout) {
         flags = VK_ACCESS_TRANSFER_WRITE_BIT;
     } else if (VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL == layout ||
                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL == layout ||
-               VK_IMAGE_LAYOUT_PRESENT_SRC_KHR == layout) {
+               VK_IMAGE_LAYOUT_PRESENT_SRC_KHR == layout ||
+               VK_IMAGE_LAYOUT_PREINITIALIZED == layout) {
         // There are no writes that need to be made available
         flags = 0;
     }
