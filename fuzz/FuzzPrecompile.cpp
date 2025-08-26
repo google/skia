@@ -313,9 +313,9 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
     FloatStorageManager floatStorageManager;
     PaintParamsKeyBuilder builder(dict);
     PipelineDataGatherer gatherer(layout);
-    std::unique_ptr<RuntimeEffectDictionary> rtDict = std::make_unique<RuntimeEffectDictionary>();
+    sk_sp<RuntimeEffectDictionary> rtDict = sk_make_sp<RuntimeEffectDictionary>();
     KeyContext precompileKeyContext(recorder->priv().caps(), &floatStorageManager,
-                                    &builder, &gatherer, dict, rtDict.get(), ci);
+                                    &builder, &gatherer, dict, rtDict, ci);
 
     DrawTypeFlags kDrawType = DrawTypeFlags::kSimpleShape;
     SkPath path = make_path();

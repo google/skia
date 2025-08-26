@@ -65,7 +65,7 @@ void compile(const RendererProvider* rendererProvider,
                                                                : UniquePaintParamsID::Invalid();
 
             sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
-                    keyContext.rtEffectDict(),
+                    keyContext.rtEffectDict().get(),
                     { s->renderStepID(), paintID },
                     renderPassDesc,
                     PipelineCreationFlags::kForPrecompilation);
@@ -91,7 +91,7 @@ void Precompile(PrecompileContext* precompileContext,
     ResourceProvider* resourceProvider = precompileContext->priv().resourceProvider();
     const Caps* caps = precompileContext->priv().caps();
 
-    auto rtEffectDict = std::make_unique<RuntimeEffectDictionary>();
+    sk_sp<RuntimeEffectDictionary> rtEffectDict = sk_make_sp<RuntimeEffectDictionary>();
 
     for (const RenderPassProperties& rpp : renderPassProperties) {
         // TODO: Allow the client to pass in mipmapping and protection too?
@@ -139,7 +139,7 @@ void Precompile(PrecompileContext* precompileContext,
             PipelineDataGatherer gatherer(Layout::kMetal);
             PaintParamsKeyBuilder builder(dict);
             KeyContext keyContext(caps, &floatStorageManager, &builder, &gatherer, dict,
-                                  rtEffectDict.get(), ci);
+                                  rtEffectDict, ci);
 
             for (Coverage coverage : { Coverage::kNone, Coverage::kSingleChannel }) {
                 PrecompileCombinations(
@@ -163,7 +163,7 @@ void Precompile(PrecompileContext* precompileContext,
                 const RenderStep* renderStep =
                     rendererProvider->lookup(RenderStep::RenderStepID::kCoverBounds_InverseCover);
                 sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
-                        keyContext.rtEffectDict(),
+                        keyContext.rtEffectDict().get(),
                         { renderStep->renderStepID(), UniquePaintParamsID::Invalid() },
                         renderPassDesc,
                         PipelineCreationFlags::kForPrecompilation);

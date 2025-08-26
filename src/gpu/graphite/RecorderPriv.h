@@ -59,12 +59,8 @@ public:
 
     ResourceProvider* resourceProvider() { return fRecorder->fResourceProvider; }
 
-    const RuntimeEffectDictionary* runtimeEffectDictionary() const {
-        return fRecorder->fRuntimeEffectDict.get();
-    }
-    RuntimeEffectDictionary* runtimeEffectDictionary() {
-        return fRecorder->fRuntimeEffectDict.get();
-    }
+    sk_sp<RuntimeEffectDictionary> runtimeEffectDictionary();
+
     const ShaderCodeDictionary* shaderCodeDictionary() const {
         return fRecorder->fSharedContext->shaderCodeDictionary();
     }

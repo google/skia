@@ -477,7 +477,7 @@ UploadTask::~UploadTask() {}
 
 Task::Status UploadTask::prepareResources(ResourceProvider* resourceProvider,
                                           ScratchResourceManager*,
-                                          const RuntimeEffectDictionary*) {
+                                          sk_sp<const RuntimeEffectDictionary>) {
     for (int i = 0; i < fInstances.size(); ++i) {
         // No upload should be invalidated before prepareResources() is called.
         SkASSERT(fInstances[i].isValid());

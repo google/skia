@@ -277,7 +277,8 @@ private:
     sk_sp<SharedContext> fSharedContext;
     ResourceProvider* fResourceProvider; // May point to the Context's resource provider
     std::unique_ptr<ResourceProvider> fOwnedResourceProvider; // May be null
-    std::unique_ptr<RuntimeEffectDictionary> fRuntimeEffectDict;
+
+    sk_sp<RuntimeEffectDictionary> fRuntimeEffectDict;
 
     // NOTE: These are stored by pointer to allow them to be forward declared.
     std::unique_ptr<TaskList> fRootTaskList;

@@ -49,7 +49,7 @@ CopyBufferToBufferTask::~CopyBufferToBufferTask() = default;
 
 Task::Status CopyBufferToBufferTask::prepareResources(ResourceProvider*,
                                                       ScratchResourceManager*,
-                                                      const RuntimeEffectDictionary*) {
+                                                      sk_sp<const RuntimeEffectDictionary>) {
     return Status::kSuccess;
 }
 
@@ -94,7 +94,7 @@ CopyTextureToBufferTask::~CopyTextureToBufferTask() {}
 
 Task::Status CopyTextureToBufferTask::prepareResources(ResourceProvider* resourceProvider,
                                                        ScratchResourceManager*,
-                                                       const RuntimeEffectDictionary*) {
+                                                       sk_sp<const RuntimeEffectDictionary>) {
     // If the source texture hasn't been instantiated yet, it means there was no prior task that
     // could have initialized its contents so a readback to a buffer does not make sense.
     SkASSERT(fTextureProxy->isInstantiated() || fTextureProxy->isLazy());
@@ -153,7 +153,7 @@ CopyTextureToTextureTask::~CopyTextureToTextureTask() {}
 
 Task::Status CopyTextureToTextureTask::prepareResources(ResourceProvider* resourceProvider,
                                                         ScratchResourceManager*,
-                                                        const RuntimeEffectDictionary*) {
+                                                        sk_sp<const RuntimeEffectDictionary>) {
     // Do not instantiate the src proxy. If the source texture hasn't been instantiated yet, it
     // means there was no prior task that could have initialized its contents so propagating the
     // undefined contents to the dst does not make sense.

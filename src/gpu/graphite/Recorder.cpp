@@ -112,7 +112,7 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
                    const RecorderOptions& options,
                    const Context* context)
         : fSharedContext(std::move(sharedContext))
-        , fRuntimeEffectDict(std::make_unique<RuntimeEffectDictionary>())
+        , fRuntimeEffectDict(sk_make_sp<RuntimeEffectDictionary>())
         , fRootTaskList(new TaskList)
         , fRootUploads(new UploadList)
         , fFloatStorageManager(sk_make_sp<FloatStorageManager>())
@@ -228,7 +228,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     // kDiscard will return a non-null Recording that has no tasks in it.
     valid &= recording->priv().prepareResources(fResourceProvider,
                                                 &scratchManager,
-                                                fRuntimeEffectDict.get());
+                                                fRuntimeEffectDict);
     if (!valid) {
         recording = nullptr;
         fAtlasProvider->invalidateAtlases();
@@ -239,7 +239,7 @@ std::unique_ptr<Recording> Recorder::snap() {
     fResourceProvider->forceProcessReturnedResources();
 
     // Remaining cleanup that must always happen regardless of success or failure
-    fRuntimeEffectDict->reset();
+    fRuntimeEffectDict = sk_make_sp<RuntimeEffectDictionary>();
     fProxyReadCounts = std::make_unique<ProxyReadCountMap>();
     fFloatStorageManager = sk_make_sp<FloatStorageManager>();
     if (!fRequireOrderedRecordings) {
@@ -520,6 +520,10 @@ void Recorder::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     fResourceProvider->dumpMemoryStatistics(traceMemoryDump);
     // TODO: What is the graphite equivalent for the text blob cache and how do we print out its
     // used bytes here (see Ganesh implementation).
+}
+
+sk_sp<RuntimeEffectDictionary> RecorderPriv::runtimeEffectDictionary() {
+    return fRecorder->fRuntimeEffectDict;
 }
 
 void RecorderPriv::addPendingRead(const TextureProxy* proxy) {

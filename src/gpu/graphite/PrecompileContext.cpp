@@ -62,7 +62,7 @@ void PrecompileContext::reportPipelineStats(StatOptions option) {
 
 bool PrecompileContext::precompile(sk_sp<SkData> serializedPipelineKey) {
 #if defined(SK_ENABLE_PRECOMPILE)
-    auto rtEffectDict = std::make_unique<RuntimeEffectDictionary>();
+    sk_sp<RuntimeEffectDictionary> rtEffectDict = sk_make_sp<RuntimeEffectDictionary>();
 
     GraphicsPipelineDesc pipelineDesc;
     RenderPassDesc renderPassDesc;
@@ -85,6 +85,7 @@ bool PrecompileContext::precompile(sk_sp<SkData> serializedPipelineKey) {
         return false;
     }
 
+    // Precompiling a serialized pipeline key shouldn't ever add a new runtime effect
     SkASSERT(rtEffectDict->empty());
 
     return true;

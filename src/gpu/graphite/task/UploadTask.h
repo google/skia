@@ -164,7 +164,7 @@ public:
 
     Status prepareResources(ResourceProvider*,
                             ScratchResourceManager*,
-                            const RuntimeEffectDictionary*) override;
+                            sk_sp<const RuntimeEffectDictionary>) override;
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 

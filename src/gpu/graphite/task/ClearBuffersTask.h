@@ -33,7 +33,7 @@ public:
 
     Status prepareResources(ResourceProvider*,
                             ScratchResourceManager*,
-                            const RuntimeEffectDictionary*) override {
+                            sk_sp<const RuntimeEffectDictionary>) override {
         return Status::kSuccess;
     }
 

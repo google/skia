@@ -20,6 +20,7 @@
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Resource.h"
+#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -200,7 +201,7 @@ const Texture* RecordingPriv::setupDeferredTarget(ResourceProvider* resourceProv
 
 bool RecordingPriv::prepareResources(ResourceProvider* resourceProvider,
                                      ScratchResourceManager* scratchManager,
-                                     RuntimeEffectDictionary* rteDict) {
+                                     sk_sp<const RuntimeEffectDictionary> rteDict) {
     Task::Status status = fRecording->fRootTaskList->prepareResources(
             resourceProvider, scratchManager, rteDict);
     if (status == Task::Status::kSuccess) {

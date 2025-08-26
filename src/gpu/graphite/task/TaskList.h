@@ -42,7 +42,7 @@ public:
     // Automatically removes tasks from its list if they return kDiscard.
     Task::Status prepareResources(ResourceProvider*,
                                   ScratchResourceManager*,
-                                  const RuntimeEffectDictionary*);
+                                  sk_sp<const RuntimeEffectDictionary>);
     Task::Status addCommands(Context*, CommandBuffer*, Task::ReplayTargetData);
 
     bool visitPipelines(const std::function<bool(const GraphicsPipeline*)>& visitor);

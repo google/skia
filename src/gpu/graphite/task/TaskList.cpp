@@ -39,7 +39,7 @@ Status TaskList::visitTasks(Fn fn) {
 
 Status TaskList::prepareResources(ResourceProvider* resourceProvider,
                                   ScratchResourceManager* scratchManager,
-                                  const RuntimeEffectDictionary* runtimeDict) {
+                                  sk_sp<const RuntimeEffectDictionary> runtimeDict) {
     TRACE_EVENT1("skia.gpu", TRACE_FUNC, "# tasks", fTasks.size());
     scratchManager->pushScope();
     Status status = this->visitTasks([&](Task* task) {

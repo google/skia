@@ -41,6 +41,7 @@
 #include "src/gpu/graphite/Resource.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/Texture.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniquePaintParamsID.h"
@@ -635,13 +636,13 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 }
 
 bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
-                                const RuntimeEffectDictionary* runtimeDict,
+                                sk_sp<const RuntimeEffectDictionary> runtimeDict,
                                 const RenderPassDesc& renderPassDesc) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
     fFullPipelines.reserve(fPipelineDescs.size());
     for (const GraphicsPipelineDesc& pipelineDesc : fPipelineDescs) {
-        auto pipeline = resourceProvider->findOrCreateGraphicsPipeline(runtimeDict,
+        auto pipeline = resourceProvider->findOrCreateGraphicsPipeline(runtimeDict.get(),
                                                                        pipelineDesc,
                                                                        renderPassDesc);
         if (!pipeline) {

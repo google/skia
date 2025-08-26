@@ -588,14 +588,14 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(CombinationBuilderTest, reporter, context,
                                    CtsEnforcement::kNever) {
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
 
-    auto rtEffectDict = std::make_unique<RuntimeEffectDictionary>();
+    sk_sp<RuntimeEffectDictionary> rtEffectDict = sk_make_sp<RuntimeEffectDictionary>();
 
     SkColorInfo ci(kRGBA_8888_SkColorType, kPremul_SkAlphaType, nullptr);
     FloatStorageManager floatStorageManager;
     PaintParamsKeyBuilder builder(dict);
     PipelineDataGatherer gatherer(Layout::kMetal);
     KeyContext keyContext(context->priv().caps(), &floatStorageManager, &builder, &gatherer, dict,
-                          rtEffectDict.get(), ci);
+                          rtEffectDict, ci);
 
     RenderPassDesc unusedRenderPassDesc;
 

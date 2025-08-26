@@ -126,7 +126,7 @@ RenderPassTask::~RenderPassTask() = default;
 
 Task::Status RenderPassTask::prepareResources(ResourceProvider* resourceProvider,
                                               ScratchResourceManager* scratchManager,
-                                              const RuntimeEffectDictionary* runtimeDict) {
+                                              sk_sp<const RuntimeEffectDictionary> runtimeDict) {
     SkASSERT(fTarget);
 
     bool instantiated;
