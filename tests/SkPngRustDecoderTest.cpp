@@ -638,9 +638,12 @@ DEF_TEST(RustPngCodec_png_cicp, r) {
     if (!profile) {
         return;
     }
+    auto cs = SkColorSpace::Make(*profile);
+    skcms_TransferFunction tf;
+    cs->transferFn(&tf);
 
-    REPORTER_ASSERT(r, skcms_TransferFunction_isPQish(&profile->trc[0].parametric) ||
-                       skcms_TransferFunction_isPQ(&profile->trc[0].parametric));
+    REPORTER_ASSERT(r, skcms_TransferFunction_isPQish(&tf) ||
+                       skcms_TransferFunction_isPQ(&tf));
 }
 
 DEF_TEST(RustPngCodec_green15x15, r) {
