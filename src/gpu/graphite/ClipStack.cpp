@@ -309,11 +309,7 @@ Rect snap_scissor(const Rect& a, const Rect& deviceBounds) {
     // change.
     // NOTE: This rounds out to the *next* multiple of 4, so that if the input rectangle happens to
     // land on a multiple of 4 we still create some padding to avoid scissoring just AA outsets.
-#if defined(SK_DISABLE_CLIP_DRAW_GEOMETRIC_INTERSECTION)
-    static constexpr int kRes = 1;
-#else
     static constexpr int kRes = 4;
-#endif
     Rect snapped = a.makeOutset(kRes - 1.f);
     snapped = Rect::FromVals(snapped.vals() * (1.f / kRes)).makeRoundOut();
     return Rect::FromVals(snapped.vals() * kRes).makeIntersect(deviceBounds);
@@ -630,14 +626,12 @@ void ClipStack::RawElement::drawClip(Device* device) {
     // those bounds.
     Rect snappedOuterBounds = snap_scissor(fOuterBounds, deviceBounds);
     scissor.intersect(snappedOuterBounds);
-#if !defined(SK_DISABLE_CLIP_DRAW_GEOMETRIC_INTERSECTION)
     // But if the overlap is sufficiently large, just rasterize out to the snapped bounds instead of
     // adding a tight scissor. A factor of 1/2 is used because that corresponds to the area
     // change caused by a 45-degree rotation.
     if (0.5f * snappedOuterBounds.area() < scissor.area()) {
         scissor = snappedOuterBounds;
     }
-#endif
 
     Rect drawBounds = fOp == SkClipOp::kIntersect ? scissor : fOuterBounds.makeIntersect(scissor);
     if (!drawBounds.isEmptyNegativeOrNaN()) {
@@ -1244,21 +1238,12 @@ public:
         // contains check, but that would cause path rendering draws to potentially change in hard
         // to predict ways.
         SkClipOp op = fShape.inverted() ? SkClipOp::kDifference : SkClipOp::kIntersect;
-        // TODO(michaelludwig): Once staging is completed, this is equivalent to shapeCanBeModified
-        bool deepContainsCheck = fShapeMatchesGeometry;
-#if !defined(SK_DISABLE_CLIP_DRAW_GEOMETRIC_INTERSECTION)
-        deepContainsCheck &= fShapeCompatibleWithIntersectShape;
-#endif
         return TransformedShape{*fLocalToDevice, fShape, fOuterBounds, fInnerBounds, op,
-                                /*containsChecksOnlyBounds=*/!deepContainsCheck};
+                                /*containsChecksOnlyBounds=*/!this->shapeCanBeModified()};
     }
 
     bool shapeCanBeModified() const {
-#if defined(SK_DISABLE_CLIP_DRAW_GEOMETRIC_INTERSECTION)
-        return false;
-#else
         return fShapeCompatibleWithIntersectShape && fShapeMatchesGeometry;
-#endif
     }
 
     bool applyStyle(const SkStrokeRec& style, const Rect& deviceBounds);
@@ -1371,13 +1356,11 @@ bool ClipStack::DrawShape::applyStyle(const SkStrokeRec& style, const Rect& devi
             fTransformedShapeBounds.outset(localOutset);
 
             bool inverted = fShape.inverted();
-#if !defined(SK_DISABLE_CLIP_DRAW_GEOMETRIC_INTERSECTION)
             if (fShape.isRRect()) {
                 // Try to preserve the rounded corners, which can reduce the chance of clipping
                 // stroked rounded rects that are clipped to a round rect matching their outer edge.
                 fShape.rrect().outset(localOutset, localOutset, &fShape.rrect());
             } else
-#endif
             {
                 fShape.setRect(fTransformedShapeBounds); // it's still local at this point
             }
@@ -1391,12 +1374,7 @@ bool ClipStack::DrawShape::applyStyle(const SkStrokeRec& style, const Rect& devi
     fOuterBounds = fTransformedShapeBounds;
     fInnerBounds = Rect::InfiniteInverted();
 
-    // TODO(michaelludwig): Once staging is completed, this is equivalent to shapeCanBeModified()
-    bool computeInnerBounds = fShapeMatchesGeometry;
-#if !defined(SK_DISABLE_CLIP_DRAW_GEOMETRIC_INTERSECTION)
-    computeInnerBounds &= fShapeCompatibleWithIntersectShape;
-#endif
-    if (computeInnerBounds && fLocalToDevice->type() <= Transform::Type::kRectStaysRect) {
+    if (this->shapeCanBeModified() && fLocalToDevice->type() <= Transform::Type::kRectStaysRect) {
         if (fShape.isRect()) {
             fInnerBounds = fOuterBounds;
         } else if (fShape.isRRect()) {
@@ -1802,7 +1780,6 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                 if (e.op() == SkClipOp::kIntersect && draw.intersectClipElement(e)) {
                     continue;
                 }
-#if !defined(SK_DISABLE_CLIP_DRAW_GEOMETRIC_INTERSECTION)
                 // Second try to tighten the scissor, which is lighter weight than adding an
                 // analytic clip pipeline variation or triggering MSAA.
                 if (e.clipType() == ClipState::kDeviceRect) {
@@ -1815,7 +1792,6 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                         continue;
                     }
                 }
-#endif
                 // // Third try to handle the clip analytically in the shader
                 if (nonMSAAClip.fAnalyticClip.isEmpty()) {
                     nonMSAAClip.fAnalyticClip = can_apply_analytic_clip(e.shape(),
