@@ -7,6 +7,7 @@
 
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -44,16 +45,17 @@ static void test_strokecubic(skiatest::Reporter* reporter) {
 
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(0.394537568f);
-    SkPath path;
-    path.moveTo(cubicVals[0]);
-    path.cubicTo(cubicVals[1], cubicVals[2], cubicVals[3]);
-    skpathutils::FillPathWithPaint(path, paint);
-    path.reset();
-    path.moveTo(SkBits2Float(hexCubicVals[0]), SkBits2Float(hexCubicVals[1]));
-    path.cubicTo(SkBits2Float(hexCubicVals[2]), SkBits2Float(hexCubicVals[3]),
-            SkBits2Float(hexCubicVals[4]), SkBits2Float(hexCubicVals[5]),
-            SkBits2Float(hexCubicVals[6]), SkBits2Float(hexCubicVals[7]));
-    skpathutils::FillPathWithPaint(path, paint);
+
+    SkPathBuilder builder;
+    builder.moveTo(cubicVals[0]);
+    builder.cubicTo(cubicVals[1], cubicVals[2], cubicVals[3]);
+    skpathutils::FillPathWithPaint(builder.detach(), paint);
+
+    builder.moveTo(SkBits2Float(hexCubicVals[0]), SkBits2Float(hexCubicVals[1]));
+    builder.cubicTo(SkBits2Float(hexCubicVals[2]), SkBits2Float(hexCubicVals[3]),
+                    SkBits2Float(hexCubicVals[4]), SkBits2Float(hexCubicVals[5]),
+                    SkBits2Float(hexCubicVals[6]), SkBits2Float(hexCubicVals[7]));
+    skpathutils::FillPathWithPaint(builder.detach(), paint);
 }
 
 static void test_strokerect(skiatest::Reporter* reporter) {
@@ -173,15 +175,15 @@ static void test_big_stroke(skiatest::Reporter* reporter) {
     paint.setStyle(SkPaint::kStrokeAndFill_Style);
     paint.setStrokeWidth(1.49679073e+10f);
 
-    SkPath path;
-    path.moveTo(SkBits2Float(0x46380000), SkBits2Float(0xc6380000));  // 11776, -11776
-    path.lineTo(SkBits2Float(0x46a00000), SkBits2Float(0xc6a00000));  // 20480, -20480
-    path.lineTo(SkBits2Float(0x468c0000), SkBits2Float(0xc68c0000));  // 17920, -17920
-    path.lineTo(SkBits2Float(0x46100000), SkBits2Float(0xc6100000));  // 9216, -9216
-    path.lineTo(SkBits2Float(0x46380000), SkBits2Float(0xc6380000));  // 11776, -11776
-    path.close();
+    SkPathBuilder builder;
+    builder.moveTo(SkBits2Float(0x46380000), SkBits2Float(0xc6380000));  // 11776, -11776
+    builder.lineTo(SkBits2Float(0x46a00000), SkBits2Float(0xc6a00000));  // 20480, -20480
+    builder.lineTo(SkBits2Float(0x468c0000), SkBits2Float(0xc68c0000));  // 17920, -17920
+    builder.lineTo(SkBits2Float(0x46100000), SkBits2Float(0xc6100000));  // 9216, -9216
+    builder.lineTo(SkBits2Float(0x46380000), SkBits2Float(0xc6380000));  // 11776, -11776
+    builder.close();
 
-    (void)skpathutils::FillPathWithPaint(path, paint);
+    (void)skpathutils::FillPathWithPaint(builder.detach(), paint);
 }
 
 DEF_TEST(Stroke, reporter) {

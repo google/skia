@@ -23,18 +23,19 @@
 #include <utility>
 
 static void test_small_segment3(skiatest::Reporter* reporter) {
-    SkPath path;
     const SkPoint pts[] = {
         { 0, 0 },
         { 100000000000.0f, 100000000000.0f }, { 0, 0 }, { 10, 10 },
         { 10, 10 }, { 0, 0 }, { 10, 10 }
     };
 
-    path.moveTo(pts[0]);
+    SkPathBuilder builder;
+    builder.moveTo(pts[0]);
     for (size_t i = 1; i < std::size(pts); i += 3) {
-        path.cubicTo(pts[i], pts[i + 1], pts[i + 2]);
+        builder.cubicTo(pts[i], pts[i + 1], pts[i + 2]);
     }
 
+    SkPath path = builder.detach();
     SkPathMeasure meas(path, false);
     meas.getLength();
 
@@ -55,23 +56,22 @@ static void test_small_segment3(skiatest::Reporter* reporter) {
 }
 
 static void test_small_segment2() {
-    SkPath path;
     const SkPoint pts[] = {
         { 0, 0 },
         { 100000000000.0f, 100000000000.0f }, { 0, 0 },
         { 10, 10 }, { 0, 0 },
     };
 
-    path.moveTo(pts[0]);
+    SkPathBuilder builder;
+    builder.moveTo(pts[0]);
     for (size_t i = 1; i < std::size(pts); i += 2) {
-        path.quadTo(pts[i], pts[i + 1]);
+        builder.quadTo(pts[i], pts[i + 1]);
     }
-    SkPathMeasure meas(path, false);
+    SkPathMeasure meas(builder.detach(), false);
     meas.getLength();
 }
 
 static void test_small_segment() {
-    SkPath path;
     const SkPoint pts[] = {
         { 100000, 100000},
         // big jump between these points, makes a big segment
@@ -80,11 +80,7 @@ static void test_small_segment() {
         { SK_Scalar1, SK_Scalar1 },
     };
 
-    path.moveTo(pts[0]);
-    for (size_t i = 1; i < std::size(pts); ++i) {
-        path.lineTo(pts[i]);
-    }
-    SkPathMeasure meas(path, false);
+    SkPathMeasure meas(SkPath::Polygon(pts, false), false);
 
     /*  this would assert (before a fix) because we added a segment with
         the same length as the prev segment, due to the follow (bad) pattern

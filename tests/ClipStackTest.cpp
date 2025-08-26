@@ -8,6 +8,7 @@
 #include "include/core/SkClipOp.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
@@ -32,12 +33,12 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     s.save();
     REPORTER_ASSERT(reporter, 1 == s.getSaveCount());
 
-    SkPath p;
-    p.moveTo(5, 6);
-    p.lineTo(7, 8);
-    p.lineTo(5, 9);
-    p.close();
-    s.clipPath(p, SkMatrix::I(), SkClipOp::kIntersect, doAA);
+    SkPathBuilder builder;
+    builder.moveTo(5, 6);
+    builder.lineTo(7, 8);
+    builder.lineTo(5, 9);
+    builder.close();
+    s.clipPath(builder.snapshot(), SkMatrix::I(), SkClipOp::kIntersect, doAA);
 
     s.save();
     REPORTER_ASSERT(reporter, 2 == s.getSaveCount());
@@ -114,8 +115,8 @@ static void test_assign_and_comparison(skiatest::Reporter* reporter) {
     s.save();
     REPORTER_ASSERT(reporter, 1 == s.getSaveCount());
 
-    p.addRect(r);
-    s.clipPath(p, SkMatrix::I(), SkClipOp::kIntersect, doAA);
+    builder.addRect(r);
+    s.clipPath(builder.detach(), SkMatrix::I(), SkClipOp::kIntersect, doAA);
     REPORTER_ASSERT(reporter, s != copy);
 }
 

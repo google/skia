@@ -104,18 +104,17 @@ static void writePng(const SkConic& c, const SkConic ch[2], const char* name) {
     paint.setStyle(SkPaint::kStroke_Style);
     canvas.translate(-bounds.fLeft, -bounds.fTop);
     canvas.drawColor(SK_ColorWHITE);
-    SkPath path;
-    path.moveTo(conic.fPts[0]);
-    path.conicTo(conic.fPts[1], conic.fPts[2], conic.fW);
+    SkPathBuilder builder;
+    builder.moveTo(conic.fPts[0]);
+    builder.conicTo(conic.fPts[1], conic.fPts[2], conic.fW);
     paint.setARGB(0x80, 0xFF, 0, 0);
-    canvas.drawPath(path, paint);
-    path.reset();
-    path.moveTo(chopped[0].fPts[0]);
-    path.conicTo(chopped[0].fPts[1], chopped[0].fPts[2], chopped[0].fW);
-    path.moveTo(chopped[1].fPts[0]);
-    path.conicTo(chopped[1].fPts[1], chopped[1].fPts[2], chopped[1].fW);
+    canvas.drawPath(builder.detach(), paint);
+    builder.moveTo(chopped[0].fPts[0]);
+    builder.conicTo(chopped[0].fPts[1], chopped[0].fPts[2], chopped[0].fW);
+    builder.moveTo(chopped[1].fPts[0]);
+    builder.conicTo(chopped[1].fPts[1], chopped[1].fPts[2], chopped[1].fW);
     paint.setARGB(0x80, 0, 0, 0xFF);
-    canvas.drawPath(path, paint);
+    canvas.drawPath(builder.detach(), paint);
     SkString filename("c:\\Users\\caryclark\\Documents\\");
     filename.appendf("%s.png", name);
     ToolUtils::EncodeImageToPngFile(filename.c_str(), bitmap);
@@ -142,21 +141,21 @@ static void writeDPng(const SkDConic& dC, const char* name) {
     paint.setStyle(SkPaint::kStroke_Style);
     canvas.translate(SkDoubleToScalar(-bounds.fLeft), SkDoubleToScalar(-bounds.fTop));
     canvas.drawColor(SK_ColorWHITE);
-    SkPath path;
-    path.moveTo(dConic.fPts[0].asSkPoint());
-    path.conicTo(dConic.fPts[1].asSkPoint(), dConic.fPts[2].asSkPoint(), dConic.fWeight);
+    SkPathBuilder builder;
+    builder.moveTo(dConic.fPts[0].asSkPoint());
+    builder.conicTo(dConic.fPts[1].asSkPoint(), dConic.fPts[2].asSkPoint(), dConic.fWeight);
     paint.setARGB(0x80, 0xFF, 0, 0);
-    canvas.drawPath(path, paint);
-    path.reset();
+    canvas.drawPath(builder.detach(), paint);
+
     const int chops = 2;
     for (int tIndex = 0; tIndex < chops; ++tIndex) {
         SkDConic chopped = dConic.subDivide(tIndex / (double) chops,
                 (tIndex + 1) / (double) chops);
-        path.moveTo(chopped.fPts[0].asSkPoint());
-        path.conicTo(chopped.fPts[1].asSkPoint(), chopped.fPts[2].asSkPoint(), chopped.fWeight);
+        builder.moveTo(chopped.fPts[0].asSkPoint());
+        builder.conicTo(chopped.fPts[1].asSkPoint(), chopped.fPts[2].asSkPoint(), chopped.fWeight);
     }
     paint.setARGB(0x80, 0, 0, 0xFF);
-    canvas.drawPath(path, paint);
+    canvas.drawPath(builder.detach(), paint);
     SkString filename("c:\\Users\\caryclark\\Documents\\");
     filename.appendf("%s.png", name);
     ToolUtils::EncodeImageToPngFile(filename.c_str(), bitmap);
@@ -284,15 +283,15 @@ static void writeFrames() {
             SkDConic dConic = {{{ {dC.fPts[0].fX * scale, dC.fPts[0].fY * scale },
                 {dC.fPts[1].fX * scale, dC.fPts[1].fY * scale },
                 {dC.fPts[2].fX * scale, dC.fPts[2].fY * scale }}}, dC.fWeight };
-            SkPath path;
-            path.moveTo(dConic.fPts[0].asSkPoint());
-            path.conicTo(dConic.fPts[1].asSkPoint(), dConic.fPts[2].asSkPoint(), dConic.fWeight);
+            SkPathBuilder builder;
+            builder.moveTo(dConic.fPts[0].asSkPoint());
+            builder.conicTo(dConic.fPts[1].asSkPoint(), dConic.fPts[2].asSkPoint(), dConic.fWeight);
             if (fIndex < 2) {
                 paint.setARGB(0x80, 0xFF, 0, 0);
             } else {
                 paint.setARGB(0x80, 0, 0, 0xFF);
             }
-            canvas.drawPath(path, paint);
+            canvas.drawPath(builder.detach(), paint);
         }
         SkString filename("c:\\Users\\caryclark\\Documents\\");
         filename.appendf("f%d.png", index);
