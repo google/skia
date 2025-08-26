@@ -8,7 +8,6 @@
 
 import json
 
-PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'env',
