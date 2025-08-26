@@ -1766,28 +1766,6 @@ FilterResult FilterResult::rescale(const Context& ctx,
     float finalScaleY = ySteps > 0 ? (allowOverscaling ? (1.f / (1 << ySteps))
                                                        : scale.height())
                                    : 1.f;
-#if defined(SK_DISABLE_BLUR_OVERSCALING)
-    if (deferPeriodicTiling) {
-        PixelSpace<SkRect> dstBoundsF = scale_about_center(stepBoundsF, finalScaleX, finalScaleY);
-        // Use a pixel bounds that's smaller than what was requested to ensure any post-blur amount
-        // is lower than the max supported. In the event that roundIn() would collapse to an empty
-        // rect, use a 1x1 bounds that contains the center point.
-        PixelSpace<SkIRect> innerDstPixels = dstBoundsF.roundIn();
-        int dstCenterX = sk_float_floor2int(0.5f * dstBoundsF.right()  + 0.5f * dstBoundsF.left());
-        int dstCenterY = sk_float_floor2int(0.5f * dstBoundsF.bottom() + 0.5f * dstBoundsF.top());
-        dstBoundsF = PixelSpace<SkRect>({(float) std::min(dstCenterX,   innerDstPixels.left()),
-                                         (float) std::min(dstCenterY,   innerDstPixels.top()),
-                                         (float) std::max(dstCenterX+1, innerDstPixels.right()),
-                                         (float) std::max(dstCenterY+1, innerDstPixels.bottom())});
-
-        finalScaleX = dstBoundsF.width() / srcRect.width();
-        finalScaleY = dstBoundsF.height() / srcRect.height();
-
-        // Recompute how many steps are needed, as we may need to do one more step from the round-in
-        xSteps = downscale_step_count(finalScaleX);
-        ySteps = downscale_step_count(finalScaleY);
-    }
-#endif
 
     do {
         float sx = 1.f;
@@ -1805,7 +1783,6 @@ FilterResult FilterResult::rescale(const Context& ctx,
         // Downscale relative to the center of the image, which better distributes any sort of
         // sampling errors across the image (vs. emphasizing the bottom right edges).
         PixelSpace<SkRect> dstBoundsF = scale_about_center(stepBoundsF, sx, sy);
-#if !defined(SK_DISABLE_BLUR_OVERSCALING)
         const bool finalXStep = xSteps == 0 && sx != 1.f;
         const bool finalYStep = ySteps == 0 && sy != 1.f;
         if (deferPeriodicTiling && (finalXStep || finalYStep)) {
@@ -1816,7 +1793,6 @@ FilterResult FilterResult::rescale(const Context& ctx,
                 finalXStep ? (float) dstPixels.right()  : dstBoundsF.right(),
                 finalYStep ? (float) dstPixels.bottom() : dstBoundsF.bottom()});
         }
-#endif
 
         // NOTE: Rounding out is overly conservative when dstBoundsF has an odd integer width/height
         // but with coordinates at 1/2. In this case, we could create a pixel grid that has a
@@ -2170,11 +2146,7 @@ FilterResult FilterResult::Builder::blur(const LayerSpace<SkSize>& sigma) {
             fContext.withNewDesiredOutput(sampleBounds),
             LayerSpace<SkSize>({sx, sy}),
             algorithm->supportsOnlyDecalTiling(),
-#if defined(SK_DISABLE_BLUR_OVERSCALING)
-            /*allowOverscaling=*/false); // for staging only
-#else
             /*allowOverscaling=*/true);
-#endif
     if (!lowResImage) {
         return {};
     }
