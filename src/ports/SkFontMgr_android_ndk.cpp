@@ -1038,6 +1038,18 @@ protected:
 
         STArray<4, SkALanguage> skLangs;
         const char* aLangs = font.getLocale();
+        // HACK: For backwards compatibility NotoSansSymbols-Regular-Subsetted needs "und-Zsym".
+        // Base Android appears to hack this into its fallback list for similar reasons.
+        {
+            SkString postscriptName;
+            proxy->getPostScriptName(&postscriptName);
+            if (postscriptName.equals("NotoSansSymbols-Regular-Subsetted") &&
+                (!aLangs || aLangs[0] == '\0') &&
+                proxy->unicharToGlyph(0x2603) != 0)
+            {
+                aLangs = "und-Zsym";
+            }
+        }
         if (aLangs) {
             if constexpr (kSkFontMgrVerbose) {
                 SkDebugf("SKIA: %s ALangs %s\n", familyName.c_str(), aLangs);
