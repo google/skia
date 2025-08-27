@@ -277,7 +277,7 @@ class SKUNICODE_API SkUnicode : public SkRefCnt {
 
             SkBidiIterator::Position pos16 = 0;
             while (pos16 <= iter->getLength()) {
-                uint16_t nextPos16 = start16 - utf16;
+                uint16_t nextPos16 = SkToU16(start16 - utf16);
                 auto level = iter->getLevelAt(nextPos16);
                 if (nextPos16 == 0) {
                     currentLevel = level;
