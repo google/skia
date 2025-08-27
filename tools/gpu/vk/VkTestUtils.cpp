@@ -207,6 +207,7 @@ static bool should_include_extension(const char* extensionName) {
             VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME,
             VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME,
             VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
+            VK_EXT_LAYER_SETTINGS_EXTENSION_NAME,
             VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME,
             VK_EXT_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_EXTENSION_NAME,
             VK_EXT_RGBA10X6_FORMATS_EXTENSION_NAME,
@@ -607,9 +608,13 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
     *debugMessenger = VK_NULL_HANDLE;
 
 #ifdef SK_ENABLE_VK_LAYERS
-    for (size_t i = 0; i < instanceExtensionNames.size() && !hasDebugExtension; ++i) {
+    bool hasLayerSettingsExt = false;
+    for (size_t i = 0; i < instanceExtensionNames.size()
+                       && !hasDebugExtension && !hasLayerSettingsExt; ++i) {
         if (!strcmp(instanceExtensionNames[i], VK_EXT_DEBUG_UTILS_EXTENSION_NAME)) {
             hasDebugExtension = true;
+        } else if (!strcmp(instanceExtensionNames[i], VK_EXT_LAYER_SETTINGS_EXTENSION_NAME)) {
+            hasLayerSettingsExt = true;
         }
     }
 
@@ -647,7 +652,7 @@ bool CreateVkBackendContext(PFN_vkGetInstanceProcAddr getInstProc,
     layerSettingsCreateInfo.sType = VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT;
     layerSettingsCreateInfo.settingCount = static_cast<uint32_t>(std::size(layerSettings));
     layerSettingsCreateInfo.pSettings = layerSettings;
-    if (hasDebugExtension) {
+    if (hasDebugExtension && hasLayerSettingsExt) {
         instance_create.pNext = &layerSettingsCreateInfo;
     }
 #endif
