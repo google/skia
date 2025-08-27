@@ -41,6 +41,8 @@ void compile(const RendererProvider* rendererProvider,
              const RenderPassDesc& renderPassDesc,
              bool withPrimitiveBlender,
              Coverage coverage) {
+    const skgpu::graphite::Caps* caps = resourceProvider->caps();
+
     for (const Renderer* r : rendererProvider->renderers()) {
         if (!(r->drawTypes() & drawTypes)) {
             continue;
@@ -64,9 +66,14 @@ void compile(const RendererProvider* rendererProvider,
             UniquePaintParamsID paintID = s->performsShading() ? uniqueID
                                                                : UniquePaintParamsID::Invalid();
 
+            GraphicsPipelineDesc pipelineDesc { s->renderStepID(), paintID };
+            skgpu::UniqueKey pipelineKey = caps->makeGraphicsPipelineKey(pipelineDesc,
+                                                                         renderPassDesc);
+
             sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
                     keyContext.rtEffectDict().get(),
-                    { s->renderStepID(), paintID },
+                    pipelineKey,
+                    pipelineDesc,
                     renderPassDesc,
                     PipelineCreationFlags::kForPrecompilation);
             if (!pipeline) {
@@ -162,9 +169,16 @@ void Precompile(PrecompileContext* precompileContext,
                 // pipelines.
                 const RenderStep* renderStep =
                     rendererProvider->lookup(RenderStep::RenderStepID::kCoverBounds_InverseCover);
+
+                GraphicsPipelineDesc pipelineDesc { renderStep->renderStepID(),
+                                                    UniquePaintParamsID::Invalid() };
+                skgpu::UniqueKey pipelineKey = caps->makeGraphicsPipelineKey(pipelineDesc,
+                                                                             renderPassDesc);
+
                 sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
                         keyContext.rtEffectDict().get(),
-                        { renderStep->renderStepID(), UniquePaintParamsID::Invalid() },
+                        pipelineKey,
+                        pipelineDesc,
                         renderPassDesc,
                         PipelineCreationFlags::kForPrecompilation);
                 if (!pipeline) {

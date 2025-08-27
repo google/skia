@@ -63,11 +63,12 @@ void PrecompileContext::reportPipelineStats(StatOptions option) {
 bool PrecompileContext::precompile(sk_sp<SkData> serializedPipelineKey) {
 #if defined(SK_ENABLE_PRECOMPILE)
     sk_sp<RuntimeEffectDictionary> rtEffectDict = sk_make_sp<RuntimeEffectDictionary>();
+    const Caps* caps = fSharedContext->caps();
 
     GraphicsPipelineDesc pipelineDesc;
     RenderPassDesc renderPassDesc;
 
-    if (!DataToPipelineDesc(fSharedContext->caps(),
+    if (!DataToPipelineDesc(caps,
                             fSharedContext->shaderCodeDictionary(),
                             serializedPipelineKey.get(),
                             &pipelineDesc,
@@ -75,8 +76,11 @@ bool PrecompileContext::precompile(sk_sp<SkData> serializedPipelineKey) {
         return false;
     }
 
+    UniqueKey pipelineKey = caps->makeGraphicsPipelineKey(pipelineDesc, renderPassDesc);
+
     sk_sp<GraphicsPipeline> pipeline = fResourceProvider->findOrCreateGraphicsPipeline(
             rtEffectDict.get(),
+            pipelineKey,
             pipelineDesc,
             renderPassDesc,
             PipelineCreationFlags::kForPrecompilation);
