@@ -2601,23 +2601,93 @@ static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     return 0;
 }
 
+// See ITU-T H.273 Table 3 for the full list of codes.
+const uint8_t kTransferCicpIdPQ = 16;
+const uint8_t kTransferCicpIdHLG = 18;
+
+static bool has_cicp_pq_trc(const skcms_ICCProfile* profile) {
+    return profile->has_CICP
+        && profile->CICP.transfer_characteristics == kTransferCicpIdPQ;
+}
+
+static bool has_cicp_hlg_trc(const skcms_ICCProfile* profile) {
+    return profile->has_CICP
+        && profile->CICP.transfer_characteristics == kTransferCicpIdHLG;
+}
+
+// Set tf to be the PQ transfer function, scaled such that 1.0 will map to 10,000 / 203.
+static void set_reference_pq_ish_trc(skcms_TransferFunction* tf) {
+    // Initialize such that 1.0 maps to 1.0.
+    skcms_TransferFunction_makePQish(tf,
+        -107/128.0f, 1.0f, 32/2523.0f, 2413/128.0f, -2392/128.0f, 8192/1305.0f);
+
+    // Distribute scaling factor W by scaling A and B with X ^ (1/F):
+    // ((A + Bx^C) / (D + Ex^C))^F * W = ((A + Bx^C) / (D + Ex^C) * W^(1/F))^F
+    // See https://crbug.com/1058580#c32 for discussion.
+    const float w = 10000.0f / 203.0f;
+    const float ws = powf_(w, 1.0f / tf->f);
+    tf->a = ws * tf->a;
+    tf->b = ws * tf->b;
+}
+
+// Set tf to be the HLG inverse OETF, scaled such that 1.0 will map to 1.0.
+// While this is one version of HLG, there are many others. A better version
+// would be to use the 1,000 nit reference version, but that will require
+// adding opt-optical transform support.
+static void set_sdr_hlg_ish_trc(skcms_TransferFunction* tf) {
+    skcms_TransferFunction_makeHLGish(tf,
+        2.0f, 2.0f, 1/0.17883277f, 0.28466892f, 0.55991073f);
+    tf->f = 1.0f / 12.0f - 1.0f;
+}
+
 static bool prep_for_destination(const skcms_ICCProfile* profile,
                                  skcms_Matrix3x3* fromXYZD50,
                                  skcms_TransferFunction* invR,
                                  skcms_TransferFunction* invG,
-                                 skcms_TransferFunction* invB) {
-    // skcms_Transform() supports B2A destinations...
-    if (profile->has_B2A) { return true; }
-    // ...and destinations with parametric transfer functions and an XYZD50 gamut matrix.
-    return profile->has_trc
-        && profile->has_toXYZD50
+                                 skcms_TransferFunction* invB,
+                                 bool* dst_using_B2A) {
+    const bool has_xyzd50 =
+        profile->has_toXYZD50 &&
+        skcms_Matrix3x3_invert(&profile->toXYZD50, fromXYZD50);
+    *dst_using_B2A = false;
+
+    // CICP-specified PQ or HLG transfer functions take precedence.
+    // TODO: Add the ability to parse CICP primaries to not require
+    // the XYZD50 matrix.
+    if (has_cicp_pq_trc(profile) && has_xyzd50) {
+        skcms_TransferFunction trc_pq;
+        set_reference_pq_ish_trc(&trc_pq);
+        skcms_TransferFunction_invert(&trc_pq, invR);
+        skcms_TransferFunction_invert(&trc_pq, invG);
+        skcms_TransferFunction_invert(&trc_pq, invB);
+        return true;
+    }
+    if (has_cicp_hlg_trc(profile) && has_xyzd50) {
+        skcms_TransferFunction trc_hlg;
+        set_sdr_hlg_ish_trc(&trc_hlg);
+        skcms_TransferFunction_invert(&trc_hlg, invR);
+        skcms_TransferFunction_invert(&trc_hlg, invG);
+        skcms_TransferFunction_invert(&trc_hlg, invB);
+        return true;
+    }
+
+    // Then prefer the B2A transformation.
+    // skcms_Transform() supports B2A destinations.
+    if (profile->has_B2A) {
+        *dst_using_B2A = true;
+        return true;
+    }
+
+    // Finally use parametric transfer functions.
+    // TODO: Reject non sRGB-ish transfer functions here.
+    return has_xyzd50
+        && profile->has_trc
         && profile->trc[0].table_entries == 0
         && profile->trc[1].table_entries == 0
         && profile->trc[2].table_entries == 0
         && skcms_TransferFunction_invert(&profile->trc[0].parametric, invR)
         && skcms_TransferFunction_invert(&profile->trc[1].parametric, invG)
-        && skcms_TransferFunction_invert(&profile->trc[2].parametric, invB)
-        && skcms_Matrix3x3_invert(&profile->toXYZD50, fromXYZD50);
+        && skcms_TransferFunction_invert(&profile->trc[2].parametric, invB);
 }
 
 bool skcms_Transform(const void*             src,
@@ -2677,6 +2747,10 @@ bool skcms_Transform(const void*             src,
             add_op_ctx(oa[i].op, oa[i].arg);
         }
     };
+
+    // If the source has a TRC that is specified by CICP and not the TRC
+    // entries, then store it here for future use.
+    skcms_TransferFunction src_cicp_trc;
 
     // These are always parametric curves of some sort.
     skcms_Curve dst_curves[3];
@@ -2751,15 +2825,28 @@ bool skcms_Transform(const void*             src,
 
     if (dstProfile != srcProfile) {
 
+        // Track whether or not the A2B or B2A transforms are used. the CICP
+        // values take precedence over A2B and B2A.
+        bool src_using_A2B = false;
+        bool dst_using_B2A = false;
+
         if (!prep_for_destination(dstProfile,
                                   &from_xyz,
                                   &dst_curves[0].parametric,
                                   &dst_curves[1].parametric,
-                                  &dst_curves[2].parametric)) {
+                                  &dst_curves[2].parametric,
+                                  &dst_using_B2A)) {
             return false;
         }
 
-        if (srcProfile->has_A2B) {
+        if (has_cicp_pq_trc(srcProfile) && srcProfile->has_toXYZD50) {
+            set_reference_pq_ish_trc(&src_cicp_trc);
+            add_op_ctx(Op::pq_rgb, &src_cicp_trc);
+        } else if (has_cicp_hlg_trc(srcProfile) && srcProfile->has_toXYZD50) {
+            set_sdr_hlg_ish_trc(&src_cicp_trc);
+            add_op_ctx(Op::hlg_rgb, &src_cicp_trc);
+        } else if (srcProfile->has_A2B) {
+            src_using_A2B = true;
             if (srcProfile->A2B.input_channels) {
                 add_curve_ops(srcProfile->A2B.input_curves,
                               (int)srcProfile->A2B.input_channels);
@@ -2797,9 +2884,9 @@ bool skcms_Transform(const void*             src,
         // A2B sources are in XYZD50 by now, but TRC sources are still in their original gamut.
         assert (srcProfile->has_A2B || srcProfile->has_toXYZD50);
 
-        if (dstProfile->has_B2A) {
+        if (dst_using_B2A) {
             // B2A needs its input in XYZD50, so transform TRC sources now.
-            if (!srcProfile->has_A2B) {
+            if (!src_using_A2B) {
                 add_op_ctx(Op::matrix_3x3, &srcProfile->toXYZD50);
             }
 
@@ -2840,7 +2927,7 @@ bool skcms_Transform(const void*             src,
                 { 0.0f, 1.0f, 0.0f },
                 { 0.0f, 0.0f, 1.0f },
             }};
-            const skcms_Matrix3x3* to_xyz = srcProfile->has_A2B ? &I : &srcProfile->toXYZD50;
+            const skcms_Matrix3x3* to_xyz = src_using_A2B ? &I : &srcProfile->toXYZD50;
 
             // There's a chance the source and destination gamuts are identical,
             // in which case we can skip the gamut transform.
@@ -2950,7 +3037,8 @@ static void assert_usable_as_destination(const skcms_ICCProfile* profile) {
 #else
     skcms_Matrix3x3 fromXYZD50;
     skcms_TransferFunction invR, invG, invB;
-    assert(prep_for_destination(profile, &fromXYZD50, &invR, &invG, &invB));
+    bool useB2A = false;
+    assert(prep_for_destination(profile, &fromXYZD50, &invR, &invG, &invB, &useB2A));
 #endif
 }
 
