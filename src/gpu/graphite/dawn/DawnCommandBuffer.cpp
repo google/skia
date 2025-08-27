@@ -639,14 +639,17 @@ bool DawnCommandBuffer::endRenderPass() {
     return blitSucceeded;
 }
 
-bool DawnCommandBuffer::addDrawPass(const DrawPass* drawPass) {
+bool DawnCommandBuffer::addDrawPass(DrawPass* drawPass) {
     // If there is gradient data to bind, it must be done prior to draws.
     if (drawPass->floatStorageManager()->hasData()) {
         this->bindUniformBuffer(drawPass->floatStorageManager()->getBufferInfo(),
                                 UniformSlot::kGradient);
     }
 
-    drawPass->addResourceRefs(this);
+    if (!drawPass->addResourceRefs(fResourceProvider, this)) SK_UNLIKELY {
+        return false;
+    }
+
     for (auto [type, cmdPtr] : drawPass->commands()) {
         switch (type) {
             case DrawPassCommands::Type::kBindGraphicsPipeline: {

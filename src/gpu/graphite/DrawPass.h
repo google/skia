@@ -97,7 +97,7 @@ public:
     // Not valid until after prepareResources() is called
     SkSpan<const sk_sp<GraphicsPipeline>> pipelines() const { return fFullPipelines; }
 
-    void addResourceRefs(CommandBuffer*) const;
+    [[nodiscard]] bool addResourceRefs(ResourceProvider*, CommandBuffer*);
 
 private:
     class SortKey;

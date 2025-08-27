@@ -45,7 +45,7 @@ constexpr int kGlobalGraphicsPipelineCacheSizeLimit = 256;
 constexpr int kGlobalComputePipelineCacheSizeLimit = 256;
 #endif
 
-} // anonymous namespce
+} // anonymous namespace
 
 namespace skgpu::graphite {
 

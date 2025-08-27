@@ -689,13 +689,16 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
     return true;
 }
 
-void DrawPass::addResourceRefs(CommandBuffer* commandBuffer) const {
+bool DrawPass::addResourceRefs(ResourceProvider* resourceProvider,
+                               CommandBuffer* commandBuffer) {
     for (int i = 0; i < fFullPipelines.size(); ++i) {
         commandBuffer->trackResource(fFullPipelines[i]);
     }
     for (int i = 0; i < fSampledTextures.size(); ++i) {
         commandBuffer->trackCommandBufferResource(fSampledTextures[i]->refTexture());
     }
+
+    return true;
 }
 
 } // namespace skgpu::graphite

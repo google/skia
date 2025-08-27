@@ -91,7 +91,7 @@ private:
                         const SkIRect& dstBounds);
     bool endRenderPass();
 
-    bool addDrawPass(const DrawPass*);
+    [[nodiscard]] bool addDrawPass(DrawPass*);
 
     bool bindGraphicsPipeline(const GraphicsPipeline*);
     void setBlendConstants(std::array<float, 4> blendConstants);
