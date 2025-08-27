@@ -440,9 +440,21 @@ void SkPath::validateRef() const {
 #endif
 bool SkPath::isRect(SkRect* rect, bool* isClosed, SkPathDirection* direction) const {
     SkDEBUGCODE(this->validate();)
-    int currVerb = 0;
-    const SkPoint* pts = fPathRef->points();
-    return SkPathPriv::IsRectContour(*this, false, &currVerb, &pts, isClosed, direction, rect);
+    SkSpan<const SkPoint> pts = {fPathRef->points(), fPathRef->countPoints()};
+    SkSpan<const SkPathVerb> vbs = fPathRef->verbs();
+    if (auto rc = SkPathPriv::IsRectContour(pts, vbs, false)) {
+        if (rect) {
+            *rect = rc->fRect;
+        }
+        if (isClosed) {
+            *isClosed = rc->fIsClosed;
+        }
+        if (direction) {
+            *direction = rc->fDirection;
+        }
+        return true;
+    }
+    return false;
 }
 
 bool SkPath::isOval(SkRect* bounds) const {

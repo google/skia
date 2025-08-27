@@ -205,53 +205,27 @@ std::optional<SkPathPriv::RectContour> SkPathPriv::IsRectContour(SkSpan<const Sk
     }};
 }
 
-bool SkPathPriv::IsRectContour(const SkPath& path, bool allowPartial, int* currVerb,
-                               const SkPoint** ptsPtr, bool* isClosed, SkPathDirection* direction,
-                               SkRect* rect) {
-    // This crazy signature passes us a path, and a pointer into ints points-array.
-    // We want to construct a span that safely describes that pointer, so we 'deduce' its
-    // offset into the path's points.
-    const SkPoint* pathPoints = path.fPathRef->points();
-    const size_t npoints = path.fPathRef->countPoints();
-    const size_t ptIndex = *ptsPtr - pathPoints;
-    SkASSERT(ptIndex <= npoints);
-    SkSpan<const SkPoint> pts = { *ptsPtr, npoints - ptIndex };
-
-    SkDEBUGCODE(const size_t nverbs = path.fPathRef->verbs().size();)
-    SkASSERT((unsigned)*currVerb <= nverbs);
-    SkSpan<const SkPathVerb> vbs = path.fPathRef->verbs().subspan(*currVerb);
-
-    if (auto rc = IsRectContour(pts, vbs, allowPartial)) {
-        if (rect) {
-            *rect = rc->fRect;
-        }
-        if (isClosed) {
-            *isClosed = rc->fIsClosed;
-        }
-        if (direction) {
-            *direction = rc->fDirection;
-        }
-
-        SkASSERT(ptIndex + rc->fPointsConsumed <= npoints);
-        *ptsPtr += rc->fPointsConsumed;
-
-        SkASSERT(*currVerb + rc->fVerbsConsumed <= nverbs);
-        *currVerb += rc->fVerbsConsumed;
-        return true;
-    }
-    return false;
-}
-
-bool SkPathPriv::IsNestedFillRects(const SkPath& path, SkRect rects[2], SkPathDirection dirs[2]) {
-    SkDEBUGCODE(path.validate();)
-    int currVerb = 0;
-    const SkPoint* pts = path.fPathRef->points();
+bool SkPathPriv::IsNestedFillRects(const SkPathRaw& raw, SkRect rects[2], SkPathDirection dirs[2]) {
     SkPathDirection testDirs[2];
     SkRect testRects[2];
-    if (!IsRectContour(path, true, &currVerb, &pts, nullptr, &testDirs[0], &testRects[0])) {
+
+    SkSpan<const SkPoint> pts = raw.points();
+    SkSpan<const SkPathVerb> vbs = raw.verbs();
+
+    auto rc = IsRectContour(pts, vbs, true);
+    if (!rc) {
         return false;
     }
-    if (IsRectContour(path, false, &currVerb, &pts, nullptr, &testDirs[1], &testRects[1])) {
+
+    testDirs[0] = rc->fDirection;
+    testRects[0] = rc->fRect;
+    pts = pts.subspan(rc->fPointsConsumed);
+    vbs = vbs.subspan(rc->fVerbsConsumed);
+
+    rc = IsRectContour(pts, vbs, false);
+    if (rc) {
+        testDirs[1] = rc->fDirection;
+        testRects[1] = rc->fRect;
         if (testRects[0].contains(testRects[1])) {
             if (rects) {
                 rects[0] = testRects[0];
@@ -277,4 +251,3 @@ bool SkPathPriv::IsNestedFillRects(const SkPath& path, SkRect rects[2], SkPathDi
     }
     return false;
 }
-
