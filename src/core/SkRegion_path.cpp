@@ -23,6 +23,7 @@
 #include "src/base/SkSafeMath.h"
 #include "src/base/SkTSort.h"
 #include "src/core/SkBlitter.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkRegionPriv.h"
 #include "src/core/SkScan.h"
 
@@ -419,7 +420,7 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
         return this->setEmpty();
     }
 
-    SkScan::FillPath(path, clip, &builder);
+    SkScan::FillPath(SkPathPriv::Raw(path), clip, &builder);
     builder.done();
 
     int count = builder.computeRunCount();

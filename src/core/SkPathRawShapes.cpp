@@ -183,3 +183,20 @@ SkPathRawShapes::RRect::RRect(const SkRRect& rrect, SkPathDirection dir, unsigne
         set_as_rrect(this, fStorage, rrect, dir, index);
     }
 }
+
+/////////////////////////////
+
+const SkPathVerb gTriangle_Verbs[] = {
+    SkPathVerb::kMove,
+    SkPathVerb::kLine,
+    SkPathVerb::kLine,
+    SkPathVerb::kClose
+};
+
+SkPathRawShapes::Triangle::Triangle(SkSpan<const SkPoint> threePoints, const SkRect& bounds)
+    : SkPathRaw{threePoints, gTriangle_Verbs, {}, bounds,
+                SkPathFillType::kDefault, true, kLine_SkPathSegmentMask}
+{
+    SkASSERT(threePoints.size() == 3);
+    SkASSERT(SkRect::Bounds(threePoints).value() == bounds);
+}

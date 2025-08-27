@@ -56,7 +56,7 @@ static void fill_rect(const SkMatrix& ctm, const SkRasterClip& rc,
         ctm.mapPoints(raw.fStorage);
         if (auto bounds = SkRect::Bounds(raw.fStorage)) {
             raw.fBounds = *bounds;
-            SkScan::FillPathRaw(raw, rc, blitter);
+            SkScan::FillPath(raw, rc, blitter);
         }
     }
 }

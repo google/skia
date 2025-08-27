@@ -28,3 +28,10 @@ uint8_t SkPathPriv::ComputeSegmentMask(SkSpan<const SkPathVerb> verbs) {
     }
     return SkTo<uint8_t>(mask);
 }
+
+std::optional<SkRect> SkPathRaw::isRect() const {
+    if (auto rc = SkPathPriv::IsRectContour(fPoints, fVerbs, false)) {
+        return rc->fRect;
+    }
+    return {};
+}

@@ -38,6 +38,8 @@ struct SkPathRaw {
     bool empty() const { return fVerbs.empty(); }
     bool isInverseFillType() const { return SkPathFillType_IsInverse(fFillType); }
 
+    std::optional<SkRect> isRect() const;
+
     SkPathIter iter() const { return {fPoints, fVerbs, fConics}; }
 };
 

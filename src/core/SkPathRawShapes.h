@@ -47,6 +47,10 @@ struct RRect : public SkPathRaw {
         : RRect(rr, SkPathDirection::kCW, 6) {}
 };
 
+struct Triangle : public SkPathRaw {
+    Triangle(SkSpan<const SkPoint> threePoints, const SkRect& bounds);
+};
+
 } // namespace
 
 #endif

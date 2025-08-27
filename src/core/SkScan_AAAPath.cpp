@@ -22,6 +22,7 @@
 #include "src/core/SkBlitter.h"
 #include "src/core/SkEdgeBuilder.h"
 #include "src/core/SkMask.h"
+#include "src/core/SkPathRaw.h"
 #include "src/core/SkScan.h"
 #include "src/core/SkScanPriv.h"
 
@@ -1600,7 +1601,7 @@ static void aaa_walk_edges(SkAnalyticEdge*  prevHead,
     }
 }
 
-static void aaa_fill_path(const SkPath& path,
+static void aaa_fill_path(const SkPathRaw& path,
                           const SkIRect& clipRect,
                           AdditiveBlitter* blitter,
                           int start_y,
@@ -1674,7 +1675,7 @@ static void aaa_fill_path(const SkPath& path,
         // If we're using mask, then we have to limit the bound within the path bounds.
         // Otherwise, the edge drift may access an invalid address inside the mask.
         SkIRect ir;
-        path.getBounds().roundOut(&ir);
+        path.bounds().roundOut(&ir);
         leftBound  = std::max(leftBound, SkIntToFixed(ir.fLeft));
         rightBound = std::min(rightBound, SkIntToFixed(ir.fRight));
     }
@@ -1685,11 +1686,11 @@ static void aaa_fill_path(const SkPath& path,
     } else {
         // We skip intersection computation if there are many points which probably already
         // give us enough fractional scan lines.
-        bool skipIntersect = path.countPoints() > (stop_y - start_y) * 2;
+        bool skipIntersect = path.points().size() > SkToSizeT((stop_y - start_y) * 2);
 
         aaa_walk_edges(&headEdge,
                        &tailEdge,
-                       path.getFillType(),
+                       path.fillType(),
                        blitter,
                        start_y,
                        stop_y,
@@ -1703,24 +1704,24 @@ static void aaa_fill_path(const SkPath& path,
 
 // Check if the path is a rect and fat enough after clipping; if so, blit it.
 static inline bool try_blit_fat_anti_rect(SkBlitter* blitter,
-                                          const SkPath& path,
+                                          const SkPathRaw& raw,
                                           const SkIRect& clip) {
-    SkRect rect;
-    if (!path.isRect(&rect)) {
-        return false; // not rect
+    std::optional<SkRect> rect = raw.isRect();
+    if (!rect) {
+        return false;
     }
-    if (!rect.intersect(SkRect::Make(clip))) {
+    if (!rect->intersect(SkRect::Make(clip))) {
         return true; // The intersection is empty. Hence consider it done.
     }
-    SkIRect bounds = rect.roundOut();
+    SkIRect bounds = rect->roundOut();
     if (bounds.width() < 3) {
         return false; // not fat
     }
-    blitter->blitFatAntiRect(rect);
+    blitter->blitFatAntiRect(*rect);
     return true;
 }
 
-void SkScan::AAAFillPath(const SkPath&  path,
+void SkScan::AAAFillPath(const SkPathRaw&  path,
                          SkBlitter*     blitter,
                          const SkIRect& ir,
                          const SkIRect& clipBounds,
