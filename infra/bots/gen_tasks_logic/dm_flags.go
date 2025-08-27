@@ -175,7 +175,17 @@ func (b *taskBuilder) dmFlags(internalHardwareLabel string) {
 	sampleCount := 0
 	glPrefix := ""
 	if b.extraConfig("SwiftShader") {
-		configs = append(configs, "vk", "vkdmsaa")
+		if b.extraConfig("Graphite") {
+			configs = append(configs, "grvk")
+			// b/441484662
+			skip(ALL, "test", ALL, "BigImage")
+			skip(ALL, "test", ALL, "PaintParamsKey")
+			skip(ALL, "test", ALL, "AndroidPrecompile")
+			skip(ALL, "test", ALL, "MultisampleRetain")
+			skip(ALL, "gm", ALL, "lcd")
+		} else {
+			configs = append(configs, "vk", "vkdmsaa")
+		}
 		// skbug.com/40043920
 		skip(ALL, "test", ALL, "GrThreadSafeCache16Verts")
 		// b/296440036

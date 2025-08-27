@@ -180,7 +180,11 @@ func (b *taskBuilder) nanobenchFlags(doUpload bool) {
 			configs = []string{"gles"}
 		}
 		if b.extraConfig("SwiftShader") {
-			configs = []string{"vk", "vkdmsaa"}
+			if b.extraConfig("Graphite") {
+				configs = []string{"grvk"}
+			} else {
+				configs = []string{"vk", "vkdmsaa"}
+			}
 		}
 	}
 
