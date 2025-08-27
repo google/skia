@@ -10,11 +10,13 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skshaper/include/SkShaper_factory.h"
 
-#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
+#if defined(SK_SHAPER_UNICODE_AVAILABLE)
+#include "modules/skunicode/include/SkUnicode.h"
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE)
 #include "modules/skshaper/include/SkShaper_harfbuzz.h"
 #include "modules/skshaper/include/SkShaper_skunicode.h"
-#include "modules/skunicode/include/SkUnicode.h"
-#endif
+#endif  // defined(SK_SHAPER_HARFBUZZ_AVAILABLE)
+#endif  // defined(SK_SHAPER_UNICODE_AVAILABLE)
 
 #if defined(SK_SHAPER_CORETEXT_AVAILABLE)
 #include "modules/skshaper/include/SkShaper_coretext.h"
