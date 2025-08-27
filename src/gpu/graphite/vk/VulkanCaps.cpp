@@ -872,7 +872,7 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
         auto& info = this->getFormatInfo(format);
         info.init(interface, *this, physDev, format);
         if (info.isTexturable(VK_IMAGE_TILING_OPTIMAL)) {
-            info.fColorTypeInfoCount = 1;
+            info.fColorTypeInfoCount = 2;
             info.fColorTypeInfos = std::make_unique<ColorTypeInfo[]>(info.fColorTypeInfoCount);
             int ctIdx = 0;
             // Format: VK_FORMAT_B8G8R8A8_UNORM, Surface: kBGRA_8888
@@ -881,6 +881,56 @@ void VulkanCaps::initFormatTable(const skgpu::VulkanInterface* interface,
                 auto& ctInfo = info.fColorTypeInfos[ctIdx++];
                 ctInfo.fColorType = ct;
                 ctInfo.fTransferColorType = ct;
+                ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
+            }
+            // TODO: This is currently brittle, but add kExternalFormatColorType as a valid color
+            // type for VK_FORMAT_B8G8R8A8_UNORM in order to pass texture format + color type
+            // compatibility checks.
+            //
+            // b/431290055 exposed an issue where we could end up using an SkColorType that is not
+            // compatible with the BackendTexture's VkFormat. In this case, the driver reported that
+            // an AHardwareBuffer with the format AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM (only
+            // present in Android framework builds) could be treated as VK_FORMAT_B8G8R8A8_UNORM.
+            // This is not an officially supported equivalency per the spec (
+            // https://docs.vulkan.org/spec/latest/chapters/memory.html#memory-external-android-hardware-buffer-formats),
+            // but clients would benefit from having the driver's suggested VkFormat be used rather
+            // than falling back to importing the AHwBuf using its external format (which is less
+            // performant).
+            //
+            // Using the driver-recommended VkFormat led to failing Skia checks which rely upon
+            // surfaces + images having an SkColorType that is compatible with a texture's native
+            // format. When *creating* a Surface or Image from an AHwBuf-based BackendTexture, its
+            // color type is determined by the *AHwBuf format* (using
+            // `AHardwareBufferUtils::GetSkColorTypeFromBufferFormat`). However, when
+            // *validating* the surface/image, Skia checks whether the color type is compatible with
+            // the texture's *VkFormat* (which is distinct from an AndroidHardwareBuffer format).
+            //
+            // Ideally, we would simply add the AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM -->
+            // VK_FORMAT_B8G8R8A8_UNORM mapping to `GetSkColorTypeFromBufferFormat`. However, this
+            // utility is public and shared b/w both ganesh and graphite. Adding this introduced
+            // nontrivial complexity in ganesh (e.g., its SkImages::DeferredFromAHardwareBuffer API
+            // does not know the AHwBuf format at creation). This could be worked around, but the
+            // change would be more invasive and no clients have requested that we allow the use of
+            // a driver's non-spec reported VkFormat equivalency in ganesh. Therefore, we simply
+            // default to assigning kExternalFormatColorType for
+            // AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM and add it as a supported color type for
+            // VK_FORMAT_B8G8R8A8_UNORM here in the Caps table. This should allow BackendTextures
+            // based on AHwBufs with this format to pass validity checks and theoretically still be
+            // used normally (see below for explanation as to why this works).
+            //
+            // Format: VK_FORMAT_B8G8R8A8_UNORM, Surface: kRGBA_8888
+            {
+                auto& ctInfo = info.fColorTypeInfos[ctIdx++];
+                // `Caps::areColorTypeAndTextureInfoCompatible` consults the fColorType field, so
+                // make sure it aligns with the color type we expect to see for AHardwareBuffers
+                // that use AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM (kExternalFormatColorType).
+                ctInfo.fColorType = kExternalFormatColorType;
+                // fTransferColorType is currently not referenced, but the actual color type
+                // (e.g. for readbacks) should be kBGRA_8888_SkColorType so use that here. Simply
+                // omit assigning any read/write swizzles because we actually already know the
+                // texture format is compatible with kBGRA_8888_SkColorType.
+                constexpr SkColorType transferColorType = SkColorType::kBGRA_8888_SkColorType;
+                ctInfo.fTransferColorType = transferColorType;
                 ctInfo.fFlags = ColorTypeInfo::kUploadData_Flag | ColorTypeInfo::kRenderable_Flag;
             }
         }

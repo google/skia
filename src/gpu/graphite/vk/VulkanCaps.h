@@ -282,8 +282,9 @@ private:
     VkPhysicalDeviceMemoryProperties2 fPhysicalDeviceMemoryProperties2;
 
     // ColorTypeInfo struct for use w/ external formats.
-    const ColorTypeInfo fExternalFormatColorTypeInfo = {SkColorType::kRGBA_8888_SkColorType,
-                                                        SkColorType::kRGBA_8888_SkColorType,
+    static constexpr SkColorType kExternalFormatColorType = SkColorType::kRGBA_8888_SkColorType;
+    const ColorTypeInfo fExternalFormatColorTypeInfo = {kExternalFormatColorType,
+                                                        kExternalFormatColorType,
                                                         /*flags=*/0,
                                                         skgpu::Swizzle::RGBA(),
                                                         skgpu::Swizzle::RGBA()};
