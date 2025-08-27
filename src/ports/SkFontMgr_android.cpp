@@ -237,7 +237,7 @@ public:
     SkFontMgr_Android(const SkFontMgr_Android_CustomFonts* custom,
                       std::unique_ptr<SkFontScanner> scanner)
         : fScanner(std::move(scanner)) {
-        SkTDArray<FontFamily*> families;
+        std::vector<std::unique_ptr<FontFamily>> families;
         if (custom && SkFontMgr_Android_CustomFonts::kPreferSystem != custom->fSystemFontUse) {
             SkString base(custom->fBasePath);
             SkFontMgr_Android_Parser::GetCustomFontFamilies(
@@ -255,10 +255,6 @@ public:
         }
         this->buildNameToFamilyMap(families, custom ? custom->fIsolated : false);
         this->findDefaultStyleSet();
-        for (FontFamily* p : families) {
-            delete p;
-        }
-        families.reset();
     }
 
 protected:
@@ -467,10 +463,11 @@ private:
         }
         fStyleSets.emplace_back(std::move(newSet));
     }
-    void buildNameToFamilyMap(const SkTDArray<FontFamily*>& families, const bool isolated) {
+    void buildNameToFamilyMap(std::vector<std::unique_ptr<FontFamily>>& families,
+                              const bool isolated) {
         StreamForPathCache streamForPath;
         int familyIndex = 0;
-        for (FontFamily* family : families) {
+        for (std::unique_ptr<FontFamily>& family : families) {
             addFamily(*family, isolated, familyIndex++, streamForPath);
             for (const auto& [unused, fallbackFamily] : family->fallbackFamilies) {
                 addFamily(*fallbackFamily, isolated, familyIndex++, streamForPath);

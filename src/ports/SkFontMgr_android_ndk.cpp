@@ -71,6 +71,7 @@ using namespace skia_private;
 
 #include <cinttypes>
 #include <memory>
+#include <vector>
 
 #include <dlfcn.h>
 
@@ -789,15 +790,14 @@ public:
             return;
         }
 
-        SkTDArray<FontFamily*> xmlFamilies;
+        std::vector<std::unique_ptr<FontFamily>> xmlFamilies;
         SkFontMgr_Android_Parser::GetSystemFontFamilies(xmlFamilies);
 
         skia_private::THashMap<SkString, std::unique_ptr<SkStreamAsset>> streamForPath;
 
         if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: Iterating over AFonts\n"); }
         while (SkAFont font = fontIter.next()) {
-            sk_sp<SkTypeface_AndroidNDK> typeface = this->make(font, xmlFamilies,
-                                                               streamForPath);
+            sk_sp<SkTypeface_AndroidNDK> typeface = this->make(font, xmlFamilies, streamForPath);
             if (!typeface) {
                 continue;
             }
@@ -815,11 +815,6 @@ public:
                 }
             }
         }
-        for (FontFamily* p : xmlFamilies) {
-            delete p;
-        }
-        xmlFamilies.reset();
-
 
         if (fStyleSets.empty()) {
             if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: No fonts!"); }
@@ -878,8 +873,9 @@ protected:
         return sset->matchStyle(style);
     }
 
-    static TArray<SkString> GetExtraFamilyNames(const SkAFont& font, const SkTypeface& typeface,
-                                                const SkTDArray<FontFamily*>& xmlFamilies)
+    static TArray<SkString> GetExtraFamilyNames(
+        const SkAFont& font, const SkTypeface& typeface,
+        const SkSpan<const std::unique_ptr<FontFamily>> xmlFamilies)
     {
         // The NDK does not report aliases like 'serif', 'sans-serif`, 'monospace', etc.
         // If a font matches an entry in fonts.xml, add the fonts.xml family name as well.
@@ -893,7 +889,7 @@ protected:
         variation::Storage xmlVariationStorage;
 
         TArray<SkString> extraFamilyNames;
-        for (FontFamily* xmlFamily : xmlFamilies) {
+        for (const std::unique_ptr<FontFamily>& xmlFamily : xmlFamilies) {
             if (xmlFamily->fNames.empty()) {
                 continue;
             }
@@ -951,7 +947,7 @@ protected:
 
     sk_sp<SkTypeface_AndroidNDK> make(
         const SkAFont& font,
-        const SkTDArray<FontFamily*>& xmlFamilies,
+        const SkSpan<const std::unique_ptr<FontFamily>> xmlFamilies,
         skia_private::THashMap<SkString, std::unique_ptr<SkStreamAsset>>& streamForPath) const
     {
         SkString filePath(font.getFontFilePath());

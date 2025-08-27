@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include <memory>
+#include <vector>
 
 using namespace skia_private;
 
@@ -96,7 +97,7 @@ struct TagHandler {
 
 /** Represents the current parsing state. */
 struct FamilyData {
-    FamilyData(XML_Parser parser, SkTDArray<FontFamily*>& families,
+    FamilyData(XML_Parser parser, std::vector<std::unique_ptr<FontFamily>>& families,
                const SkString& basePath, bool isFallback, const char* filename,
                const TagHandler* topLevelHandler)
         : fParser(parser)
@@ -113,7 +114,7 @@ struct FamilyData {
     { }
 
     XML_Parser fParser;                         // The expat parser doing the work, owned by caller
-    SkTDArray<FontFamily*>& fFamilies;          // The array to append families, owned by caller
+    std::vector<std::unique_ptr<FontFamily>>& fFamilies; // Collection of families, owned by caller
     std::unique_ptr<FontFamily> fCurrentFamily; // The family being created, owned by this
     FontFileInfo* fCurrentFontInfo;             // The info being created, owned by fCurrentFamily
     int fVersion;                               // The version of the file parsed.
@@ -321,7 +322,7 @@ static const TagHandler familyHandler = {
         }
     },
     /*end*/[](FamilyData* self, const char* tag) {
-        *self->fFamilies.append() = self->fCurrentFamily.release();
+        self->fFamilies.push_back(std::move(self->fCurrentFamily));
     },
     /*tag*/[](FamilyData* self, const char* tag, const char** attributes) -> const TagHandler* {
         size_t len = strlen(tag);
@@ -334,11 +335,10 @@ static const TagHandler familyHandler = {
 };
 
 static FontFamily* find_family(FamilyData* self, const SkString& familyName) {
-    for (int i = 0; i < self->fFamilies.size(); i++) {
-        FontFamily* candidate = self->fFamilies[i];
-        for (int j = 0; j < candidate->fNames.size(); j++) {
-            if (candidate->fNames[j] == familyName) {
-                return candidate;
+    for (std::unique_ptr<FontFamily>& candidate : self->fFamilies) {
+        for (const SkString& candidateName : candidate->fNames) {
+            if (candidateName == familyName) {
+                return &*candidate;
             }
         }
     }
@@ -381,7 +381,8 @@ static const TagHandler aliasHandler = {
         }
 
         if (weight) {
-            FontFamily* family = new FontFamily(targetFamily->fBasePath, self->fIsFallback);
+            std::unique_ptr<FontFamily> family(
+                    new FontFamily(targetFamily->fBasePath, self->fIsFallback));
             family->fNames.push_back().set(aliasName);
 
             for (int i = 0; i < targetFamily->fFonts.size(); i++) {
@@ -389,7 +390,7 @@ static const TagHandler aliasHandler = {
                     family->fFonts.push_back(targetFamily->fFonts[i]);
                 }
             }
-            *self->fFamilies.append() = family;
+            self->fFamilies.push_back(std::move(family));
         } else {
             targetFamily->fNames.push_back().set(aliasName);
         }
@@ -528,7 +529,7 @@ static const TagHandler familyHandler = {
         }
     },
     /*end*/[](FamilyData* self, const char* tag) {
-        *self->fFamilies.append() = self->fCurrentFamily.release();
+        self->fFamilies.push_back(std::move(self->fCurrentFamily));
     },
     /*tag*/[](FamilyData* self, const char* tag, const char** attributes) -> const TagHandler* {
         size_t len = strlen(tag);
@@ -651,7 +652,8 @@ static const XML_Memory_Handling_Suite sk_XML_alloc = {
  * This function parses the given filename and stores the results in the given
  * families array. Returns the version of the file, negative if the file does not exist.
  */
-static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& families,
+static int parse_config_file(const char* filename,
+                             std::vector<std::unique_ptr<FontFamily>>& families,
                              const SkString& basePath, bool isFallback)
 {
     SkFILEStream file(filename);
@@ -708,10 +710,10 @@ static int parse_config_file(const char* filename, SkTDArray<FontFamily*>& famil
 }
 
 /** Returns the version of the system font file actually found, negative if none. */
-static int append_system_font_families(SkTDArray<FontFamily*>& fontFamilies,
+static int append_system_font_families(std::vector<std::unique_ptr<FontFamily>>& fontFamilies,
                                        const SkString& basePath)
 {
-    int initialCount = fontFamilies.size();
+    size_t initialCount = fontFamilies.size();
     int version = parse_config_file(LMP_SYSTEM_FONTS_FILE, fontFamilies, basePath, false);
     if (version < 0 || fontFamilies.size() == initialCount) {
         version = parse_config_file(OLD_SYSTEM_FONTS_FILE, fontFamilies, basePath, false);
@@ -726,9 +728,10 @@ static int append_system_font_families(SkTDArray<FontFamily*>& fontFamilies,
  * directory for those files,add all of their entries to the fallback chain, and
  * include the locale as part of each entry.
  */
-static void append_fallback_font_families_for_locale(SkTDArray<FontFamily*>& fallbackFonts,
-                                                     const char* dir,
-                                                     const SkString& basePath)
+static void append_fallback_font_families_for_locale(
+        std::vector<std::unique_ptr<FontFamily>>& fallbackFonts,
+        const char* dir,
+        const SkString& basePath)
 {
     SkOSFile::Iter iter(dir, nullptr);
     SkString fileName;
@@ -753,19 +756,19 @@ static void append_fallback_font_families_for_locale(SkTDArray<FontFamily*>& fal
         SkString absoluteFilename;
         absoluteFilename.printf("%s/%s", dir, fileName.c_str());
 
-        SkTDArray<FontFamily*> langSpecificFonts;
+        std::vector<std::unique_ptr<FontFamily>> langSpecificFonts;
         parse_config_file(absoluteFilename.c_str(), langSpecificFonts, basePath, true);
 
-        for (int i = 0; i < langSpecificFonts.size(); ++i) {
-            FontFamily* family = langSpecificFonts[i];
+        for (std::unique_ptr<FontFamily>& family : langSpecificFonts) {
             family->fLanguages.emplace_back(locale);
-            *fallbackFonts.append() = family;
+            fallbackFonts.push_back(std::move(family));
         }
     }
 }
 
-static void append_system_fallback_font_families(SkTDArray<FontFamily*>& fallbackFonts,
-                                                 const SkString& basePath)
+static void append_system_fallback_font_families(
+    std::vector<std::unique_ptr<FontFamily>>& fallbackFonts,
+    const SkString& basePath)
 {
     parse_config_file(FALLBACK_FONTS_FILE, fallbackFonts, basePath, true);
     append_fallback_font_families_for_locale(fallbackFonts,
@@ -773,10 +776,11 @@ static void append_system_fallback_font_families(SkTDArray<FontFamily*>& fallbac
                                              basePath);
 }
 
-static void mixin_vendor_fallback_font_families(SkTDArray<FontFamily*>& fallbackFonts,
-                                                const SkString& basePath)
+static void mixin_vendor_fallback_font_families(
+        std::vector<std::unique_ptr<FontFamily>>& fallbackFonts,
+        const SkString& basePath)
 {
-    SkTDArray<FontFamily*> vendorFonts;
+    std::vector<std::unique_ptr<FontFamily>> vendorFonts;
     parse_config_file(VENDOR_FONTS_FILE, vendorFonts, basePath, true);
     append_fallback_font_families_for_locale(vendorFonts,
                                              LOCALE_FALLBACK_FONTS_VENDOR_DIR,
@@ -785,28 +789,30 @@ static void mixin_vendor_fallback_font_families(SkTDArray<FontFamily*>& fallback
     // This loop inserts the vendor fallback fonts in the correct order in the
     // overall fallbacks list.
     int currentOrder = -1;
-    for (int i = 0; i < vendorFonts.size(); ++i) {
-        FontFamily* family = vendorFonts[i];
+    for (std::unique_ptr<FontFamily>& family : vendorFonts) {
         int order = family->fOrder;
         if (order < 0) {
             if (currentOrder < 0) {
                 // Default case - just add it to the end of the fallback list
-                *fallbackFonts.append() = family;
+                fallbackFonts.push_back(std::move(family));
             } else {
                 // no order specified on this font, but we're incrementing the order
                 // based on an earlier order insertion request
-                *fallbackFonts.insert(currentOrder++) = family;
+                fallbackFonts.insert(fallbackFonts.begin() + currentOrder, std::move(family));
+                ++currentOrder;
             }
         } else {
             // Add the font into the fallback list in the specified order. Set
             // currentOrder for correct placement of other fonts in the vendor list.
-            *fallbackFonts.insert(order) = family;
+            fallbackFonts.insert(fallbackFonts.begin() + order, std::move(family));
             currentOrder = order + 1;
         }
     }
 }
 
-void SkFontMgr_Android_Parser::GetSystemFontFamilies(SkTDArray<FontFamily*>& fontFamilies) {
+void SkFontMgr_Android_Parser::GetSystemFontFamilies(
+        std::vector<std::unique_ptr<FontFamily>>& fontFamilies)
+{
     // Version 21 of the system font configuration does not need any fallback configuration files.
     SkString basePath(getenv("ANDROID_ROOT"));
     basePath.append(SK_FONT_FILE_PREFIX, sizeof(SK_FONT_FILE_PREFIX) - 1);
@@ -816,17 +822,20 @@ void SkFontMgr_Android_Parser::GetSystemFontFamilies(SkTDArray<FontFamily*>& fon
     }
 
     // Append all the fallback fonts to system fonts
-    SkTDArray<FontFamily*> fallbackFonts;
+    std::vector<std::unique_ptr<FontFamily>> fallbackFonts;
     append_system_fallback_font_families(fallbackFonts, basePath);
     mixin_vendor_fallback_font_families(fallbackFonts, basePath);
-    fontFamilies.append(fallbackFonts.size(), fallbackFonts.begin());
+    fontFamilies.insert(fontFamilies.end(),
+                        std::make_move_iterator(fallbackFonts.begin()),
+                        std::make_move_iterator(fallbackFonts.end()));
 }
 
-void SkFontMgr_Android_Parser::GetCustomFontFamilies(SkTDArray<FontFamily*>& fontFamilies,
-                                                     const SkString& basePath,
-                                                     const char* fontsXml,
-                                                     const char* fallbackFontsXml,
-                                                     const char* langFallbackFontsDir)
+void SkFontMgr_Android_Parser::GetCustomFontFamilies(
+        std::vector<std::unique_ptr<FontFamily>>& fontFamilies,
+        const SkString& basePath,
+        const char* fontsXml,
+        const char* fallbackFontsXml,
+        const char* langFallbackFontsDir)
 {
     if (fontsXml) {
         parse_config_file(fontsXml, fontFamilies, basePath, false);
