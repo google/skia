@@ -1034,16 +1034,38 @@ protected:
 
         STArray<4, SkALanguage> skLangs;
         const char* aLangs = font.getLocale();
-        // HACK: For backwards compatibility NotoSansSymbols-Regular-Subsetted needs "und-Zsym".
-        // Base Android appears to hack this into its fallback list for similar reasons.
         {
             SkString postscriptName;
             proxy->getPostScriptName(&postscriptName);
-            if (postscriptName.equals("NotoSansSymbols-Regular-Subsetted") &&
+
+            // HACK: For backwards compatibility NotoSansSymbols-Regular-Subsetted needs "und-Zsym".
+            // Base Android appears to hack this into its fallback list for similar reasons.
+            static constexpr char kNotoSansSymbols[] = "NotoSansSymbols-Regular-Subsetted";
+            if (postscriptName.equals(kNotoSansSymbols, std::size(kNotoSansSymbols)-1) &&
                 (!aLangs || aLangs[0] == '\0') &&
                 proxy->unicharToGlyph(0x2603) != 0)
             {
+                if constexpr (kSkFontMgrVerbose) {
+                    SkDebugf("SKIA: Hacking in und-Zsym for NotoSansSymbols-Regular-Subsetted\n");
+                }
                 aLangs = "und-Zsym";
+            }
+
+            // HACK: Some Android versions have a variable Roboto font named Roboto but also use
+            // a font named RobotoStatic (which does not claim to be Roboto) for the 400 weight.
+            // If RobotoStatic is found but does not have the name "Roboto", add it.
+            // Fixed in U "[2nd attempt] Revive use of VF font for regular style of roboto font"
+            // https://android.googlesource.com/platform/frameworks/base/+/89abe560d722a6f4136b7a05d80f23b269413aad
+            static constexpr char kRobotoStatic[] = "RobotoStatic-Regular";
+            static constexpr char kRoboto[] = "Roboto";
+            if (postscriptName.equals(kRobotoStatic, std::size(kRobotoStatic)-1) &&
+                std::none_of(extraFamilyNames.begin(), extraFamilyNames.end(),
+                             [](SkString& n){return n.equals(kRoboto, std::size(kRoboto)-1);}))
+            {
+                if constexpr (kSkFontMgrVerbose) {
+                    SkDebugf("SKIA: Hacking in Roboto for RobotoStatic-Regular\n");
+                }
+                extraFamilyNames.push_back(SkString(kRoboto, std::size(kRoboto)-1));
             }
         }
         if (aLangs) {
