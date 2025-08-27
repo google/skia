@@ -15,6 +15,7 @@
 #include "src/base/SkUTF.h"
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <string>
 #include <vector>
@@ -277,7 +278,10 @@ class SKUNICODE_API SkUnicode : public SkRefCnt {
 
             SkBidiIterator::Position pos16 = 0;
             while (pos16 <= iter->getLength()) {
-                uint16_t nextPos16 = SkToU16(start16 - utf16);
+                const auto nextPos16 = SkTo<SkBidiIterator::Position>(start16 - utf16);
+                // The pointer difference is bound by utf16Units, and cannot overflow nextPos16.
+                static_assert(std::numeric_limits<decltype(utf16Units)>::max() <=
+                              std::numeric_limits<decltype(nextPos16)>::max());
                 auto level = iter->getLevelAt(nextPos16);
                 if (nextPos16 == 0) {
                     currentLevel = level;
