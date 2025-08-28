@@ -252,6 +252,7 @@ std::optional<SkEncodedInfo> CreateEncodedInfo(const rust_png::Reader& reader) {
 SkCodec::Result ToSkCodecResult(rust_png::DecodingResult rustResult) {
     switch (rustResult) {
         case rust_png::DecodingResult::Success:
+        case rust_png::DecodingResult::EndOfFrame:
             return SkCodec::kSuccess;
         case rust_png::DecodingResult::FormatError:
             return SkCodec::kErrorInInput;
@@ -713,49 +714,95 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
 
 void SkPngRustCodec::expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
                                                 SkSpan<const uint8_t> srcRow,
-                                                const DecodingState& decodingState) {
+                                                const DecodingState& decodingState,
+                                                bool colorXFormNeeded) {
     SkASSERT_RELEASE(fReader->interlaced());
     std::vector<uint8_t> decodedInterlacedFullWidthRow;
     std::vector<uint8_t> xformedInterlacedRow;
+    if (colorXFormNeeded) {
+        // Copy (potentially shorter for initial Adam7 passes) `srcRow` into a
+        // full-frame-width `decodedInterlacedFullWidthRow`.  This is needed because
+        // `applyXformRow` requires full-width rows as input (can't change
+        // `SkSwizzler::fSrcWidth` after `initializeXforms`).
+        decodedInterlacedFullWidthRow.resize(this->getEncodedRowBytes(), 0x00);
+        SkASSERT_RELEASE(decodedInterlacedFullWidthRow.size() >= srcRow.size());
+        memcpy(decodedInterlacedFullWidthRow.data(), srcRow.data(), srcRow.size());
 
-    // Copy (potentially shorter for initial Adam7 passes) `srcRow` into a
-    // full-frame-width `decodedInterlacedFullWidthRow`.  This is needed because
-    // `applyXformRow` requires full-width rows as input (can't change
-    // `SkSwizzler::fSrcWidth` after `initializeXforms`).
-    //
-    // TODO(https://crbug.com/399891492): Having `Reader.read_row` API (see
-    // https://github.com/image-rs/image-png/pull/493) would help avoid
-    // an extra copy here.
-    decodedInterlacedFullWidthRow.resize(this->getEncodedRowBytes(), 0x00);
-    SkASSERT_RELEASE(decodedInterlacedFullWidthRow.size() >= srcRow.size());
-    memcpy(decodedInterlacedFullWidthRow.data(), srcRow.data(), srcRow.size());
-
-    xformedInterlacedRow.resize(decodingState.fDstRowSize, 0x00);
-    this->applyXformRow(xformedInterlacedRow, decodedInterlacedFullWidthRow);
+        xformedInterlacedRow.resize(decodingState.fDstRowSize, 0x00);
+        this->applyXformRow(xformedInterlacedRow, decodedInterlacedFullWidthRow);
+    }
 
     SkSafeMath safe;
     uint8_t dstBytesPerPixel = safe.castTo<uint8_t>(this->dstInfo().bytesPerPixel());
     SkASSERT_RELEASE(safe.ok());               // Checked in `startDecoding`.
     SkASSERT_RELEASE(dstBytesPerPixel < 32u);  // Checked in `startDecoding`.
-    fReader->expand_last_interlaced_row(rust::Slice<uint8_t>(dstFrame),
-                                        decodingState.fDstRowStride,
-                                        rust::Slice<const uint8_t>(xformedInterlacedRow),
-                                        dstBytesPerPixel * 8u);
+    if (colorXFormNeeded) {
+        fReader->expand_last_interlaced_row(rust::Slice<uint8_t>(dstFrame),
+                                            decodingState.fDstRowStride,
+                                            rust::Slice<const uint8_t>(xformedInterlacedRow),
+                                            dstBytesPerPixel * 8u);
+    } else {
+        fReader->expand_last_interlaced_row(rust::Slice<uint8_t>(dstFrame),
+                                            decodingState.fDstRowStride,
+                                            rust::Slice<const uint8_t>(srcRow),
+                                            dstBytesPerPixel * 8u);
+    }
 }
 
-SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
-                                                  int* rowsDecodedPtr) {
+// Given the dstInfo and the rust colortype/bits per component, determines if we
+// can use rust_png::Reader::read_row to decode directly into dst.
+bool SkPngRustCodec::canReadRow() {
+    // Check alpha types
+    if (this->dstInfo().alphaType() != kUnpremul_SkAlphaType) {
+        return false;
+    }
+
+    // Check color types
+    rust_png::ColorType color_type = fReader->output_color_type();
+    uint8_t bits_per_component =  fReader->output_bits_per_component();
+    switch (this->dstInfo().colorType()) {
+        case kRGBA_8888_SkColorType:
+            if (color_type != rust_png::ColorType::Rgba
+                || bits_per_component != 8) {
+                return false;
+            }
+            break;
+        case kGray_8_SkColorType:
+            if (color_type != rust_png::ColorType::Grayscale
+                || bits_per_component != 8) {
+                return false;
+            }
+            break;
+        default:
+            return false;
+    }
+
+    // Check profiles
+    if (!!this->getEncodedInfo().profile() != !!this->dstInfo().colorSpace()) {
+        return false;
+    }
+    if (this->getEncodedInfo().profile()) {
+        SkASSERT(this->dstInfo().colorSpace());
+        skcms_ICCProfile dstProfile;
+        this->dstInfo().colorSpace()->toProfile(&dstProfile);
+        if (!skcms_ApproximatelyEqualProfiles(this->getEncodedInfo().profile(), &dstProfile)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+SkCodec::Result SkPngRustCodec::incrementalDecodeColorXForm(DecodingState& decodingState,
+                                                            int* rowsDecodedPtr) {
+    SkASSERT(!this->canReadRow());
     this->initializeXformParams();
 
     int rowsDecoded = 0;
     bool interlaced = fReader->interlaced();
-    while (true) {
-        // TODO(https://crbug.com/357876243): Avoid an unconditional buffer hop
-        // through buffer owned by `fReader` (e.g. when we can decode directly
-        // into `dst`, because the pixel format received from `fReader` is
-        // similar enough to `dstInfo`).
-        rust::Slice<const uint8_t> decodedRow;
 
+    while (true) {
+        rust::Slice<const uint8_t> decodedRow;
         fStreamIsPositionedAtStartOfFrameData = false;
         Result result = ToSkCodecResult(fReader->next_interlaced_row(decodedRow));
         if (result != kSuccess) {
@@ -786,10 +833,13 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
 
         if (interlaced) {
             if (decodingState.fPreblendBuffer.empty()) {
-                this->expandDecodedInterlacedRow(decodingState.fDst, decodedRow, decodingState);
-            } else {
                 this->expandDecodedInterlacedRow(
-                        decodingState.fPreblendBuffer, decodedRow, decodingState);
+                    decodingState.fDst, decodedRow, decodingState, /*colorXFormNeeded=*/true);
+            } else {
+                this->expandDecodedInterlacedRow(decodingState.fPreblendBuffer,
+                                                 decodedRow,
+                                                 decodingState,
+                                                 /*colorXFormNeeded=*/true);
             }
             // `rowsDecoded` is not incremented, because full, contiguous rows
             // are not decoded until pass 6 (or 7 depending on how you look) of
@@ -812,6 +862,86 @@ SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
     }
 }
 
+SkCodec::Result SkPngRustCodec::incrementalDecode(DecodingState& decodingState,
+                                                  int* rowsDecodedPtr) {
+    SkASSERT(this->canReadRow());
+    int rowsDecoded = 0;
+    bool interlaced = fReader->interlaced();
+    rust::Slice<uint8_t> dstSlice;
+    // If we have interlaced rows we have to copy into a temp buffer.
+    std::vector<uint8_t> fullWidthRow;
+    if (interlaced) {
+        fullWidthRow.resize(this->getEncodedRowBytes());
+        dstSlice = rust::Slice<uint8_t>(fullWidthRow);
+    }
+
+    while (true) {
+        if (!interlaced) {
+            dstSlice = decodingState.fPreblendBuffer.empty()
+                          ? rust::Slice<uint8_t>(decodingState.fDst)
+                          : rust::Slice<uint8_t>(decodingState.fPreblendBuffer);
+        }
+        fStreamIsPositionedAtStartOfFrameData = false;
+
+        rust_png::DecodingResult rustResult = fReader->read_row(dstSlice);
+        Result result = ToSkCodecResult(rustResult);
+
+        if (result != kSuccess) {
+            if (result == kIncompleteInput && rowsDecodedPtr) {
+                *rowsDecodedPtr = rowsDecoded;
+            }
+            return result;
+        }
+
+        // No more rows.
+        if (rustResult == rust_png::DecodingResult::EndOfFrame) {
+            if (interlaced && !decodingState.fPreblendBuffer.empty()) {
+                blendAllRows(decodingState.fDst,
+                             decodingState.fPreblendBuffer,
+                             decodingState.fDstRowSize,
+                             decodingState.fDstRowStride,
+                             this->dstInfo().colorType(),
+                             this->dstInfo().alphaType());
+                }
+
+            if (!interlaced) {
+                // All of the original `fDst` should be filled out at this point.
+                SkASSERT_RELEASE(decodingState.fDst.empty());
+            }
+            // `static_cast` is ok, because `startDecoding` already validated `fFrameIndex`.
+            fFrameHolder.markFrameAsFullyReceived(static_cast<size_t>(this->options().fFrameIndex));
+            return kSuccess;
+        }
+
+        // Expand interlaced rows or blend into previous frame if needed.
+        if (interlaced) {
+            if (decodingState.fPreblendBuffer.empty()) {
+                this->expandDecodedInterlacedRow(
+                    decodingState.fDst, dstSlice, decodingState, /*colorXFormNeeded=*/false);
+            } else {
+                this->expandDecodedInterlacedRow(decodingState.fPreblendBuffer,
+                                                 dstSlice,
+                                                 decodingState,
+                                                 /*colorXFormNeeded=*/false);
+            }
+            // `rowsDecoded` is not incremented, because full, contiguous rows
+            // are not decoded until pass 6 (or 7 depending on how you look) of
+            // Adam7 interlacing scheme.
+        } else {
+            if (!decodingState.fPreblendBuffer.empty()) {
+                blendRow(decodingState.fDst,
+                         decodingState.fPreblendBuffer,
+                         this->dstInfo().colorType(),
+                         this->dstInfo().alphaType());
+            }
+            // Increment our pointer to dst memory.
+            decodingState.fDst = decodingState.fDst.subspan(
+                std::min(decodingState.fDstRowStride, decodingState.fDst.size()));
+            rowsDecoded++;
+        }
+    }
+}
+
 SkCodec::Result SkPngRustCodec::onGetPixels(const SkImageInfo& dstInfo,
                                             void* pixels,
                                             size_t rowBytes,
@@ -823,7 +953,12 @@ SkCodec::Result SkPngRustCodec::onGetPixels(const SkImageInfo& dstInfo,
         return result;
     }
 
-    return this->incrementalDecode(decodingState, rowsDecoded);
+    if (this->canReadRow()) {
+        result = this->incrementalDecode(decodingState, rowsDecoded);
+    } else {
+        result = this->incrementalDecodeColorXForm(decodingState, rowsDecoded);
+    }
+    return result;
 }
 
 SkCodec::Result SkPngRustCodec::onStartIncrementalDecode(const SkImageInfo& dstInfo,
@@ -847,7 +982,12 @@ SkCodec::Result SkPngRustCodec::onIncrementalDecode(int* rowsDecoded) {
         return kInvalidParameters;
     }
 
-    Result result = this->incrementalDecode(*fIncrementalDecodingState, rowsDecoded);
+    Result result;
+    if (this->canReadRow()) {
+        result = this->incrementalDecode(*fIncrementalDecodingState, rowsDecoded);
+    } else {
+        result = this->incrementalDecodeColorXForm(*fIncrementalDecodingState, rowsDecoded);
+    }
     if (result != kIncompleteInput) {
         // After successfully reading the whole row (`kSuccess`), and after a
         // fatal error (only recoverable error is `kIncompleteInput`) our client

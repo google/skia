@@ -37,6 +37,7 @@ mod ffi {
         /// `SkCodec::Result::kIncompleteInput`.
         IncompleteInput,
         OtherIoError,
+        EndOfFrame,
     }
 
     /// FFI-friendly equivalent of `png::DisposeOp`.
@@ -189,6 +190,9 @@ mod ffi {
             row: &[u8],
             bits_per_pixel: u8,
         );
+        unsafe fn read_row(
+            self: &mut Reader,
+            output_buffer: &mut [u8]) -> DecodingResult;
 
         fn new_writer(
             output: UniquePtr<WriteTrait>,
@@ -662,8 +666,6 @@ impl Reader {
 
     /// Decodes the next row - see
     /// https://docs.rs/png/latest/png/struct.Reader.html#method.next_interlaced_row
-    ///
-    /// TODO(https://crbug.com/399891492): Consider using `read_row` to avoid an extra copy.
     fn next_interlaced_row<'a>(&'a mut self, row: &mut &'a [u8]) -> ffi::DecodingResult {
         let result = self.reader.next_interlaced_row();
         if let Ok(maybe_row) = result.as_ref() {
@@ -687,6 +689,19 @@ impl Reader {
             panic!("This function should only be called after decoding an interlaced row");
         };
         png::expand_interlaced_row(img, img_row_stride, row, adam7info, bits_per_pixel);
+    }
+
+    /// Decodes the next row directly into a caller-provided buffer - see
+    /// https://docs.rs/png/0.18.0-rc.3/png/struct.Reader.html#method.read_row
+    fn read_row(&mut self, output_buffer: &mut [u8]) -> ffi::DecodingResult {
+        match self.reader.read_row(output_buffer) {
+            Ok(Some(info)) => {
+                self.last_interlace_info = Some(info);
+                ffi::DecodingResult::Success
+            }
+            Ok(None) => ffi::DecodingResult::EndOfFrame,
+            Err(e) => ffi::DecodingResult::from(Some(&e)),
+        }
     }
 }
 

@@ -72,11 +72,15 @@ private:
     // transformations, and then expanding it into the `frame`.
     void expandDecodedInterlacedRow(SkSpan<uint8_t> dstFrame,
                                     SkSpan<const uint8_t> srcRow,
-                                    const DecodingState& decodingState);
+                                    const DecodingState& decodingState,
+                                    bool colorXFormNeeded);
 
     // Helper for row-by-row decoding which is used from `onGetPixels` and/or
     // `onIncrementalDecode`.
     Result incrementalDecode(DecodingState& decodingState, int* rowsDecoded);
+    // The same as incrementalDecode but uses a color transformation. Should only
+    // be used if this->canReadRows() is false.
+    Result incrementalDecodeColorXForm(DecodingState& decodingState, int* rowsDecoded);
 
     // Helper for reading until the start of the next `fdAT` sequence.
     Result readToStartOfNextFrame();
@@ -113,6 +117,8 @@ private:
     IsAnimated onIsAnimated() override;
     const SkFrameHolder* getFrameHolder() const override;
     std::unique_ptr<SkStream> getEncodedData() const override;
+    // Determines whether or not we can read from the rust decoder directly into dst.
+    bool canReadRow();
 
     // SkPngCodecBase overrides:
     std::optional<SkSpan<const PaletteColorEntry>> onTryGetPlteChunk() override;
