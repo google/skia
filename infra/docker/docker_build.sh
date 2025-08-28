@@ -13,4 +13,4 @@ mkdir -p ${ROOT}
 
 copy_release_files
 
-docker build -t ${IMAGE_NAME} ${ROOT}
+docker build -t ${IMAGE_NAME} ${ROOT} --progress=plain

@@ -1,4 +1,12 @@
 # Dockerfile for building Skia in release mode, using CMake.
+#
+# When updating this, you probably want to test locally.
+# After building with ./build.sh, run
+#  docker run --volume $SKIA_ROOT:/SRC --volume /tmp/cmake_out:/OUT cmake-release /SRC/infra/cmake/build_skia.sh
+# to test it out. Then to deploy it,
+#   - Land the change
+#   - Use Louhi to manually build a new version
+#   - Update infra/bots/recipe_modules/build/cmake.py to use the new version.
 FROM launcher.gcr.io/google/debian12
 
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
@@ -23,7 +31,9 @@ RUN cd /opt \
 
 ADD https://github.com/Kitware/CMake/releases/download/v3.31.8/cmake-3.31.8-linux-x86_64.sh /tmp/install_cmake.sh
 
-RUN chmod +x /tmp/install_cmake.sh && /tmp/install_cmake.sh --skip-license
+RUN mkdir /opt/cmake && \
+    chmod +x /tmp/install_cmake.sh && \
+    /tmp/install_cmake.sh --skip-license --prefix=/opt/cmake
 
-ENV PATH="/opt/depot_tools:${PATH}"
+ENV PATH="/opt/depot_tools:/opt/cmake/bin:${PATH}"
 
