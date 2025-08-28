@@ -890,6 +890,8 @@ void Draw::drawDevPath(const SkPath& devPath,
                        SkDrawCoverage drawCoverage,
                        SkBlitter* customBlitter,
                        bool doFill) const {
+    SkASSERT(devPath.isFinite());
+
     if (SkPathPriv::TooBigForMath(devPath)) {
         return;
     }
@@ -1026,6 +1028,9 @@ void Draw::drawPath(const SkPath& origSrcPath,
 
     // transform the path into device space
     pathPtr->transform(*matrix, devPathPtr);
+    if (!devPathPtr->isFinite()) {
+        return;
+    }
 
 #if defined(SK_BUILD_FOR_FUZZER)
     if (devPathPtr->countPoints() > 1000) {

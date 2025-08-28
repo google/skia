@@ -65,6 +65,46 @@ static void test_big_aa_rect(skiatest::Reporter* reporter) {
     }
 }
 
+/*
+ *  We check for finite paths (i.e. no coords that are Inf or NaN) before we try to
+ *  rasterize... except we (before) didn't check after we applied the CTM
+ *  (in SkDraw::drawPath). That could allow a (post-ctm) non-finite path down into
+ *  the scan-converters, which is not supported (e.g. we assume we can compute intermediate
+ *  values during clipping).
+ *
+ *  The fix was to check isFinite() after applying the CTM. With this, trying to draw
+ *  this path will assert (e.g. in SkLineClipper).
+ */
+static void test_big_hairpath(skiatest::Reporter* reporter) {
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
+    SkCanvas* canvas = surf->getCanvas();
+
+    // big, but still (barely) finite
+    constexpr float big = std::numeric_limits<float>::max() / 3;
+    const SkPoint pts[] = {
+        {0, 0}, {big, 20}, {20, big},
+    };
+    // big enough to turn 'big' into Inf
+    canvas->scale(4, 4);
+
+    // The makeToggleInverseFillType() is needed, as it allows us to skip-past the
+    // quickReject() logic in SkCanvas. The presence of an invere-fill skips those
+    // allowing the path to go down to SkDraw (where the CTM is applied).
+    //
+    // Other possible ways to skip that quickReject... imagefilter, some patheffects
+    //
+    SkPath path = SkPath::Polygon(pts, true)
+                  .makeToggleInverseFillType();
+
+    SkPaint paint;
+    paint.setStroke(true);
+    paint.setStrokeWidth(0);
+    for (bool aa : {false, true}) {
+        paint.setAntiAlias(aa);
+        canvas->drawPath(path, paint);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 static void moveToH(SkPath* path, const uint32_t raw[]) {
@@ -423,4 +463,5 @@ DEF_TEST(DrawPath, reporter) {
     test_crbug_1239558(reporter);
     test_big_aa_rect(reporter);
     test_halfway();
+    test_big_hairpath(reporter);
 }
