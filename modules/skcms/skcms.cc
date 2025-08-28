@@ -2645,11 +2645,13 @@ static bool prep_for_destination(const skcms_ICCProfile* profile,
                                  skcms_TransferFunction* invR,
                                  skcms_TransferFunction* invG,
                                  skcms_TransferFunction* invB,
-                                 bool* dst_using_B2A) {
+                                 bool* dst_using_B2A,
+                                 bool* dst_using_hlg_ootf) {
     const bool has_xyzd50 =
         profile->has_toXYZD50 &&
         skcms_Matrix3x3_invert(&profile->toXYZD50, fromXYZD50);
     *dst_using_B2A = false;
+    *dst_using_hlg_ootf = false;
 
     // CICP-specified PQ or HLG transfer functions take precedence.
     // TODO: Add the ability to parse CICP primaries to not require
@@ -2668,6 +2670,7 @@ static bool prep_for_destination(const skcms_ICCProfile* profile,
         skcms_TransferFunction_invert(&trc_hlg, invR);
         skcms_TransferFunction_invert(&trc_hlg, invG);
         skcms_TransferFunction_invert(&trc_hlg, invB);
+        *dst_using_hlg_ootf = true;
         return true;
     }
 
@@ -2758,7 +2761,11 @@ bool skcms_Transform(const void*             src,
     dst_curves[1].table_entries =
     dst_curves[2].table_entries = 0;
 
-    skcms_Matrix3x3        from_xyz;
+    // This will store the XYZD50 to destination gamut conversion matrix, if it is needed.
+    skcms_Matrix3x3        dst_from_xyz;
+
+    // This will store the full source to destination gamut conversion matrix, if it is needed.
+    skcms_Matrix3x3        dst_from_src;
 
     switch (srcFmt >> 1) {
         default: return false;
@@ -2828,14 +2835,17 @@ bool skcms_Transform(const void*             src,
         // Track whether or not the A2B or B2A transforms are used. the CICP
         // values take precedence over A2B and B2A.
         bool src_using_A2B = false;
+        bool src_using_hlg_ootf = false;
         bool dst_using_B2A = false;
+        bool dst_using_hlg_ootf = false;
 
         if (!prep_for_destination(dstProfile,
-                                  &from_xyz,
+                                  &dst_from_xyz,
                                   &dst_curves[0].parametric,
                                   &dst_curves[1].parametric,
                                   &dst_curves[2].parametric,
-                                  &dst_using_B2A)) {
+                                  &dst_using_B2A,
+                                  &dst_using_hlg_ootf)) {
             return false;
         }
 
@@ -2843,6 +2853,7 @@ bool skcms_Transform(const void*             src,
             set_reference_pq_ish_trc(&src_cicp_trc);
             add_op_ctx(Op::pq_rgb, &src_cicp_trc);
         } else if (has_cicp_hlg_trc(srcProfile) && srcProfile->has_toXYZD50) {
+            src_using_hlg_ootf = true;
             set_sdr_hlg_ish_trc(&src_cicp_trc);
             add_op_ctx(Op::hlg_rgb, &src_cicp_trc);
         } else if (srcProfile->has_A2B) {
@@ -2888,6 +2899,10 @@ bool skcms_Transform(const void*             src,
             // B2A needs its input in XYZD50, so transform TRC sources now.
             if (!src_using_A2B) {
                 add_op_ctx(Op::matrix_3x3, &srcProfile->toXYZD50);
+                // Apply the HLG OOTF in XYZD50 space, if needed.
+                if (src_using_hlg_ootf) {
+                    add_op(Op::hlg_ootf_scale);
+                }
             }
 
             if (dstProfile->pcs == skcms_Signature_Lab) {
@@ -2920,22 +2935,34 @@ bool skcms_Transform(const void*             src,
             }
         } else {
             // This is a TRC destination.
-            // We'll concat any src->xyz matrix with our xyz->dst matrix into one src->dst matrix.
-            // (A2B sources are already in XYZD50, making that src->xyz matrix I.)
-            static const skcms_Matrix3x3 I = {{
-                { 1.0f, 0.0f, 0.0f },
-                { 0.0f, 1.0f, 0.0f },
-                { 0.0f, 0.0f, 1.0f },
-            }};
-            const skcms_Matrix3x3* to_xyz = src_using_A2B ? &I : &srcProfile->toXYZD50;
 
-            // There's a chance the source and destination gamuts are identical,
-            // in which case we can skip the gamut transform.
-            if (0 != memcmp(&dstProfile->toXYZD50, to_xyz, sizeof(skcms_Matrix3x3))) {
-                // Concat the entire gamut transform into from_xyz,
-                // now slightly misnamed but it's a handy spot to stash the result.
-                from_xyz = skcms_Matrix3x3_concat(&from_xyz, to_xyz);
-                add_op_ctx(Op::matrix_3x3, &from_xyz);
+            // Transform to the destination gamut.
+            if (src_using_hlg_ootf != dst_using_hlg_ootf) {
+                // If just the src or the dst has an HLG OOTF then we will apply the OOTF in XYZD50
+                // space. If both the src and dst has an HLG OOTF then they will cancel.
+                if (!src_using_A2B) {
+                    add_op_ctx(Op::matrix_3x3, &srcProfile->toXYZD50);
+                }
+                if (src_using_hlg_ootf) {
+                    add_op(Op::hlg_ootf_scale);
+                }
+                if (dst_using_hlg_ootf) {
+                    add_op(Op::hlginv_ootf_scale);
+                }
+                add_op_ctx(Op::matrix_3x3, &dst_from_xyz);
+            } else if (src_using_A2B) {
+                // If the source is A2B then we are already in XYZD50. Just apply the xyz->dst
+                // matrix.
+                add_op_ctx(Op::matrix_3x3, &dst_from_xyz);
+            } else {
+                const skcms_Matrix3x3* to_xyz = &srcProfile->toXYZD50;
+                // There's a chance the source and destination gamuts are identical,
+                // in which case we can skip the gamut transform.
+                if (0 != memcmp(&dstProfile->toXYZD50, to_xyz, sizeof(skcms_Matrix3x3))) {
+                    // Concat the entire gamut transform into dst_from_src.
+                    dst_from_src = skcms_Matrix3x3_concat(&dst_from_xyz, to_xyz);
+                    add_op_ctx(Op::matrix_3x3, &dst_from_src);
+                }
             }
 
             // Encode back to dst RGB using its parametric transfer functions.
@@ -3038,7 +3065,8 @@ static void assert_usable_as_destination(const skcms_ICCProfile* profile) {
     skcms_Matrix3x3 fromXYZD50;
     skcms_TransferFunction invR, invG, invB;
     bool useB2A = false;
-    assert(prep_for_destination(profile, &fromXYZD50, &invR, &invG, &invB, &useB2A));
+    bool useHlgOotf = false;
+    assert(prep_for_destination(profile, &fromXYZD50, &invR, &invG, &invB, &useB2A, &useHlgOotf));
 #endif
 }
 
