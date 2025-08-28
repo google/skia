@@ -596,12 +596,12 @@ private:
 sk_sp<SkTypeface> adjustForStyle(sk_sp<SkTypeface_AndroidNDK>&& typeface, SkFontStyle style,
                                  TypefaceCache& cache) {
     if (!typeface) {
-        return typeface;
+        return std::move(typeface);
     }
 
     SkFontStyle typefaceStyle = typeface->fontStyle();
     if (typefaceStyle == style || typeface->fAutoAxis.none()) {
-        return typeface;
+        return std::move(typeface);
     }
 
     SkFontArguments::VariationPosition::Coordinate coord[4];
@@ -636,7 +636,7 @@ sk_sp<SkTypeface> adjustForStyle(sk_sp<SkTypeface_AndroidNDK>&& typeface, SkFont
         }
     }
     if (numCoords == 0) {
-        return typeface;
+        return std::move(typeface);
     }
 
     TypefaceCache::Request request(typeface->uniqueID(), style);
@@ -659,7 +659,7 @@ sk_sp<SkTypeface> adjustForStyle(sk_sp<SkTypeface_AndroidNDK>&& typeface, SkFont
             typeface->getFamilyName(&familyName);
             SkDebugf("Failed to clone \"%s\"\n", familyName.c_str());
         }
-        return typeface;
+        return std::move(typeface);
     }
 
     variation::Storage variationStorage;
@@ -852,9 +852,9 @@ protected:
         }
         SkString normalizedFamilyName(familyName, strlen(familyName));
         normalizeAsciiCase(normalizedFamilyName);
-        for (int i = 0; i < fNameToFamilyMap.size(); ++i) {
-            if (fNameToFamilyMap[i].normalizedName == normalizedFamilyName) {
-                return sk_ref_sp(fNameToFamilyMap[i].styleSet);
+        for (const NameToFamily& nameToFamily : fNameToFamilyMap) {
+            if (nameToFamily.normalizedName == normalizedFamilyName) {
+                return sk_ref_sp(nameToFamily.styleSet);
             }
         }
         return nullptr;
@@ -1153,11 +1153,9 @@ protected:
         }
 
         // Look through the styles that match in each family.
-        for (int i = 0; i < fNameToFamilyMap.size(); ++i) {
-            SkFontStyleSet_AndroidNDK* family = fNameToFamilyMap[i].styleSet;
-            sk_sp<SkTypeface_AndroidNDK> face(family->matchAStyle(style));
-            auto aface = static_cast<SkTypeface_AndroidNDK*>(face.get());
-            if (has_locale_and_character(aface, langTag, character, "style", &step)) {
+        for (const NameToFamily& nameToFamily : fNameToFamilyMap) {
+            sk_sp<SkTypeface_AndroidNDK> face(nameToFamily.styleSet->matchAStyle(style));
+            if (has_locale_and_character(face.get(), langTag, character, "style", &step)) {
                 return adjustForStyle(std::move(face), style, *fCache);
             }
         }
@@ -1174,13 +1172,10 @@ protected:
         // While Android internally depends on all fonts in a family having the same characters
         // mapped, this cannot be relied upon when guessing at the families by name.
 
-        for (int i = 0; i < fNameToFamilyMap.size(); ++i) {
-            SkFontStyleSet_AndroidNDK* family = fNameToFamilyMap[i].styleSet;
-            for (int j = 0; j < family->count(); ++j) {
-                sk_sp<SkTypeface_AndroidNDK> face(family->createATypeface(j));
-                auto aface = static_cast<SkTypeface_AndroidNDK*>(face.get());
-                if (has_locale_and_character(aface, langTag, character, "anything", &step)) {
-                    return adjustForStyle(std::move(face), style, *fCache);
+        for (const NameToFamily& nameToFamily : fNameToFamilyMap) {
+            for (const sk_sp<SkTypeface_AndroidNDK>& face : nameToFamily.styleSet->fStyles) {
+                if (has_locale_and_character(face.get(), langTag, character, "anything", &step)) {
+                    return adjustForStyle(sk_sp(face), style, *fCache);
                 }
             }
         }
@@ -1203,8 +1198,9 @@ protected:
             afamilyFace = static_cast<SkTypeface_AndroidNDK*>(familyFace.get());
         }
 
-        for (int bcp47Index = bcp47Count; bcp47Index --> 0;) {
-            SkALanguage lang(bcp47[bcp47Index]);
+        SkSpan langtags(bcp47, bcp47Count);
+        for (auto&& langtag = langtags.rbegin(); langtag != langtags.rend(); ++langtag) {
+            SkALanguage lang(*langtag);
             if constexpr (kSkFontMgrVerbose) {
                 SkDebugf("SKIA: Matching against %s Lang %s Script %s Region %s\n",
                          familyName ? familyName : "",
