@@ -155,57 +155,59 @@ struct AndroidFontAPI {
     size_t (*AFont_getAxisCount)(const AFont*);
     uint32_t (*AFont_getAxisTag)(const AFont*, uint32_t axisIndex);
     float (*AFont_getAxisValue)(const AFont*, uint32_t axisIndex);
-};
 
 #if __ANDROID_API__ >= SK_FONTMGR_ANDROID_NDK_API_LEVEL
 
-static const AndroidFontAPI* GetAndroidFontAPI() {
-    static AndroidFontAPI androidFontAPI {
-        ASystemFontIterator_open,
-        ASystemFontIterator_close,
-        ASystemFontIterator_next,
+    static std::optional<AndroidFontAPI> Make() {
+        static AndroidFontAPI api {
+            ::ASystemFontIterator_open,
+            ::ASystemFontIterator_close,
+            ::ASystemFontIterator_next,
 
-        AFont_close,
-        AFont_getFontFilePath,
-        AFont_getWeight,
-        AFont_isItalic,
-        AFont_getLocale,
-        AFont_getCollectionIndex,
-        AFont_getAxisCount,
-        AFont_getAxisTag,
-        AFont_getAxisValue,
-    };
-    if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: GetAndroidFontAPI direct\n"); }
-    return &androidFontAPI;
-}
+            ::AFont_close,
+            ::AFont_getFontFilePath,
+            ::AFont_getWeight,
+            ::AFont_isItalic,
+            ::AFont_getLocale,
+            ::AFont_getCollectionIndex,
+            ::AFont_getAxisCount,
+            ::AFont_getAxisTag,
+            ::AFont_getAxisValue,
+        };
+        if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: GetAndroidFontAPI direct\n"); }
+        return api;
+    }
 
 #else
 
-static const AndroidFontAPI* GetAndroidFontAPI() {
-    struct OptionalAndroidFontAPI : AndroidFontAPI {
-        bool valid = false;
-    };
-    static OptionalAndroidFontAPI androidFontAPI = [](){
-        using DLHandle = std::unique_ptr<void, SkFunctionObject<dlclose>>;
-        OptionalAndroidFontAPI api;
+private:
+    AndroidFontAPI() {}
+    std::unique_ptr<void, SkFunctionObject<dlclose>> self;
+public:
+    AndroidFontAPI(const AndroidFontAPI&) = delete;
+    AndroidFontAPI& operator=(const AndroidFontAPI&) = delete;
+    AndroidFontAPI(AndroidFontAPI&&) = default;
+    AndroidFontAPI& operator=(AndroidFontAPI&&) = default;
 
+    static std::optional<AndroidFontAPI> Make() {
         if (android_get_device_api_level() < SK_FONTMGR_ANDROID_NDK_API_LEVEL) {
-            return api;
+            return std::nullopt;
         }
 
-        DLHandle self(dlopen("libandroid.so", RTLD_LAZY | RTLD_LOCAL));
-        if (!self) {
-            return api;
+        AndroidFontAPI api;
+        api.self.reset(dlopen("libandroid.so", RTLD_LAZY | RTLD_LOCAL));
+        if (!api.self) {
+            return std::nullopt;
         }
 
 #define SK_DLSYM_ANDROID_FONT_API(NAME)                           \
         do {                                                      \
-            *(void**)(&api.NAME) = dlsym(self.get(), #NAME);      \
+            *(void**)(&api.NAME) = dlsym(api.self.get(), #NAME);  \
             if (!api.NAME) {                                      \
                 if constexpr (kSkFontMgrVerbose) {                \
                     SkDebugf("SKIA: Failed to load: " #NAME "\n");\
                 }                                                 \
-                return api;                                       \
+                return std::nullopt;                              \
             }                                                     \
         } while (0)
 
@@ -222,17 +224,14 @@ static const AndroidFontAPI* GetAndroidFontAPI() {
         SK_DLSYM_ANDROID_FONT_API(AFont_getAxisCount);
         SK_DLSYM_ANDROID_FONT_API(AFont_getAxisTag);
         SK_DLSYM_ANDROID_FONT_API(AFont_getAxisValue);
-
 #undef SK_DLSYM_ANDROID_FONT_API
 
-        api.valid = true;
+        if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: GetAndroidFontAPI dlsym\n"); }
         return api;
-    }();
-    if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: GetAndroidFontAPI dlsym\n"); }
-    return androidFontAPI.valid ? &androidFontAPI : nullptr;
-};
+    }
 
 #endif
+};
 
 struct SkAFont {
     SkAFont(const AndroidFontAPI& api, AFont* font) : fAPI(api), fFont(font) {}
@@ -778,9 +777,9 @@ class SkFontMgr_AndroidNDK : public SkFontMgr {
     }
 
 public:
-    SkFontMgr_AndroidNDK(const AndroidFontAPI& androidFontAPI, bool const cacheFontFiles,
+    SkFontMgr_AndroidNDK(AndroidFontAPI&& fontAPI, bool const cacheFontFiles,
                          std::unique_ptr<SkFontScanner> scanner)
-        : fAPI(androidFontAPI)
+        : fAPI(std::move(fontAPI))
         , fScanner(std::move(scanner))
         , fCache(new TypefaceCache())
     {
@@ -1267,7 +1266,7 @@ protected:
 
 
 private:
-    const AndroidFontAPI& fAPI;
+    AndroidFontAPI fAPI;
     std::unique_ptr<SkFontScanner> fScanner;
 
     TArray<NameToFamily> fNameToFamilyMap;
@@ -1298,9 +1297,9 @@ private:
 sk_sp<SkFontMgr> SkFontMgr_New_AndroidNDK(bool cacheFontFiles,
                                           std::unique_ptr<SkFontScanner> scanner)
 {
-    AndroidFontAPI const * const androidFontAPI = GetAndroidFontAPI();
-    if (!androidFontAPI) {
+    std::optional<AndroidFontAPI> fontAPI = AndroidFontAPI::Make();
+    if (!fontAPI) {
         return nullptr;
     }
-    return sk_sp(new SkFontMgr_AndroidNDK(*androidFontAPI, cacheFontFiles, std::move(scanner)));
+    return sk_sp(new SkFontMgr_AndroidNDK(*std::move(fontAPI), cacheFontFiles, std::move(scanner)));
 }
