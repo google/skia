@@ -55,7 +55,9 @@ GraphicsPipeline::PipelineInfo::PipelineInfo(
 #endif
 
 #if defined(SK_TRACE_GRAPHITE_PIPELINE_USE) || defined(GPU_TEST_UTILS)
-    fLabel = shaderInfo.fsLabel();
+    // For pipelines that shade, the FS label includes the same info as the VS label. But for
+    // depth-only clip draws there is no FS label, so switch to the VS label.
+    fLabel = shaderInfo.fsLabel().empty() ? shaderInfo.vsLabel() : shaderInfo.fsLabel();
 #endif
 }
 
