@@ -51,11 +51,13 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
                                                     skgpu::Budgeted::kYes);
     REPORTER_ASSERT(reporter, proxyA && proxyB);
 
-    // Block A: Add a new, unique set of uniforms and textures
+    // Block A: Add a new, unique set of uniforms and textures for a render step
     UniformDataCache::Index uID1;
     TextureDataCache::Index tID1;
     {
         PipelineDataGatherer gatherer{Layout::kStd430};
+        gatherer.setRenderStepManagerActive(); // Set active manager for render step data
+
         SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
         gatherer.write(SkV4{1.f, 2.f, 3.f, 4.f});
         gatherer.add(proxyA, {});
@@ -74,9 +76,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
         REPORTER_ASSERT(reporter, tCache.lookup(tID1) == tdb);
     }
 
-    // Block B: Add the exact same data to test de-duplication
+    // Block B: Add the exact same render step data to test de-duplication
     {
         PipelineDataGatherer gatherer{Layout::kStd430};
+        gatherer.setRenderStepManagerActive();
+
         SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
         gatherer.write(SkV4{1.f, 2.f, 3.f, 4.f}); // Same uniform data
         gatherer.add(proxyA, {});                 // Same texture
@@ -89,20 +93,23 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
         REPORTER_ASSERT(reporter, uID2 == uID1); // Index should be the same
         REPORTER_ASSERT(reporter, tID2 == tID1); // Index should be the same
 
-        REPORTER_ASSERT(reporter, uCache.count() == 1); // Count should NOT increase
+        REPORTER_ASSERT(reporter, uCache.count() == 1);        // Count should NOT increase
         REPORTER_ASSERT(reporter, tCache.bindingCount() == 1); // Count should NOT increase
     }
 
-    // Block C: Add new unique uniforms but the same texture
+    // Block C: Add new unique render step uniforms but the same texture
+    UniformDataCache::Index uID3;
     {
         PipelineDataGatherer gatherer{Layout::kStd430};
+        gatherer.setRenderStepManagerActive();
+
         SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
         gatherer.write(SkV4{5.f, 6.f, 7.f, 8.f}); // Different uniform data
         gatherer.add(proxyA, {});                 // Same texture
 
         auto [udb, tdb] = gatherer.endRenderStepData(/*performsShading=*/true);
 
-        UniformDataCache::Index uID3 = uCache.insert(udb);
+        uID3 = uCache.insert(udb);
         TextureDataCache::Index tID3 = tCache.insert(tdb);
 
         REPORTER_ASSERT(reporter, uID3 != uID1); // New unique uniform index
@@ -112,9 +119,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
         REPORTER_ASSERT(reporter, tCache.bindingCount() == 1); // Texture count does not
     }
 
-    // Block D: Add the same uniforms but a new unique texture
+    // Block D: Add the same render step uniforms but a new unique texture
     {
         PipelineDataGatherer gatherer{Layout::kStd430};
+        gatherer.setRenderStepManagerActive();
+
         SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
         gatherer.write(SkV4{1.f, 2.f, 3.f, 4.f}); // Same uniform data as Block A
         gatherer.add(proxyB, {});                 // Different texture
@@ -130,5 +139,73 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
         REPORTER_ASSERT(reporter, uCache.count() == 2);        // Uniform count does not increase
         REPORTER_ASSERT(reporter, tCache.bindingCount() == 2); // Texture count increases
         REPORTER_ASSERT(reporter, tCache.uniqueTextureCount() == 2);
+    }
+
+    // Block E: Add a unique paint uniform.
+    UniformDataCache::Index uID5;
+    {
+        PipelineDataGatherer gatherer{Layout::kStd430};
+        // Starts in paint mode by default, no state change needed.
+        SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
+        gatherer.write(SkV4{10.f, 20.f, 30.f, 40.f}); // New unique paint uniform data
+
+        UniformDataBlock udb = gatherer.endPaintData();
+        uID5 = uCache.insert(udb);
+
+        REPORTER_ASSERT(reporter, uID5 != uID1 && uID5 != uID3); // New unique uniform index
+        REPORTER_ASSERT(reporter, uCache.count() == 3);          // Uniform count increases
+    }
+
+    // Block F: Add the same paint uniform to test de-duplication.
+    {
+        PipelineDataGatherer gatherer{Layout::kStd430};
+        SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
+        gatherer.write(SkV4{10.f, 20.f, 30.f, 40.f}); // Same paint uniform data as Block E
+
+        UniformDataBlock udb = gatherer.endPaintData();
+        UniformDataCache::Index uID6 = uCache.insert(udb);
+
+        REPORTER_ASSERT(reporter, uID6 == uID5);        // Index should be the same
+        REPORTER_ASSERT(reporter, uCache.count() == 3); // Count should NOT increase
+    }
+
+    // Block G: Test paint and render step uniforms together.
+    {
+        PipelineDataGatherer gatherer{Layout::kStd430};
+
+        // 1. Add paint data
+        {
+            SkDEBUGCODE(UniformExpectationsValidator paintUev(&gatherer, kUniforms);)
+            gatherer.write(SkV4{10.f, 20.f, 30.f, 40.f});   // Same paint uniform as Block E
+            gatherer.add(proxyA, {});
+
+            UniformDataBlock paintUdb = gatherer.endPaintData();
+            UniformDataCache::Index paintUID = uCache.insert(paintUdb);
+
+            REPORTER_ASSERT(reporter, paintUID == uID5);    // Should de-duplicate with Block E
+            REPORTER_ASSERT(reporter, uCache.count() == 3); // Count should NOT increase
+        }
+
+        // 2. Add render step data
+        {
+            gatherer.setRenderStepManagerActive();    // Switch to render step mode
+            SkDEBUGCODE(UniformExpectationsValidator rsUev(&gatherer, kUniforms);)
+            gatherer.write(SkV4{1.f, 2.f, 3.f, 4.f}); // Same render step uniform as Block A
+            gatherer.add(proxyB, {});
+
+            auto [rsUdb, combinedTdb] = gatherer.endRenderStepData(/*performsShading=*/true);
+
+            UniformDataCache::Index rsUID = uCache.insert(rsUdb);
+            REPORTER_ASSERT(reporter, rsUID == uID1);       // Should de-duplicate with Block A
+            REPORTER_ASSERT(reporter, uCache.count() == 3); // Count should NOT increase
+
+            // 3. Check combined texture data
+            REPORTER_ASSERT(reporter, combinedTdb.numTextures() == 2);
+            TextureDataCache::Index combinedTID = tCache.insert(combinedTdb);
+
+            REPORTER_ASSERT(reporter, combinedTID != tID1);              // New binding
+            REPORTER_ASSERT(reporter, tCache.bindingCount() == 3);       // Count increases
+            REPORTER_ASSERT(reporter, tCache.uniqueTextureCount() == 2); // Still 2 unique proxies
+        }
     }
 }

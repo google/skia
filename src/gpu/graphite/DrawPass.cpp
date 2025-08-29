@@ -449,6 +449,7 @@ std::unique_ptr<DrawPass> DrawPass::Make(Recorder* recorder,
 
         // Create a sort key for every render step in this draw, extracting out any
         // RenderStep-specific data.
+        gatherer.setRenderStepManagerActive();
         for (int stepIndex = 0; stepIndex < draw.renderer()->numRenderSteps(); ++stepIndex) {
             gatherer.rewindForRenderStep();
 
