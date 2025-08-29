@@ -131,17 +131,16 @@ static constexpr skcms_TransferFunction kRec2020 = {
         2.22222f, 0.909672f, 0.0903276f, 0.222222f, 0.0812429f, 0, 0};
 
 ////////////////////////////////////////////////////////////////////////////////
-// Color primaries defined by ITU-T H.273, table 3. Names are given by the first
-// specification referenced in the value's row.
+// Transfer function defined by ITU-T H.273, table 3. Names are given by the
+// first specification referenced in the value's row. The equations in table 3
+// "either indicates the reference [OETF] ... or indicates the inverse of the
+// reference EOTF". The transfer functions provided are reference EOTFs.
 
-// Rec. ITU-R BT.709-6, value 1.
-static constexpr skcms_TransferFunction kRec709 = {2.222222222222f,
-                                                   0.909672415686f,
-                                                   0.090327584314f,
-                                                   0.222222222222f,
-                                                   0.081242858299f,
-                                                   0.f,
-                                                   0.f};
+// Rec. ITU-R BT.709-6, value 1. This follows note 1, which reads: "In the cases
+// of [...] TransferCharacteristics equal to 1, 6, 14 or 15 [...], although the
+// value is defined in terms of a reference [OETF], a suggested corresponding
+// reference [EOTF] has been specified in Rec. ITU-R BT.1886-0."
+static constexpr skcms_TransferFunction kRec709 = {2.4f, 0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
 
 // Rec. ITU-R BT.470-6 System M (historical) assumed display gamma 2.2, value 4.
 static constexpr skcms_TransferFunction kRec470SystemM = {2.2f, 1.f, 0.f, 0.f, 0.f, 0.f, 0.f};
