@@ -3,7 +3,7 @@
   "direct": [
     {
       "build_file": "//bazel/external/dawn:BUILD.bazel",
-      "commit": "029eb3459232f0507d737c0ba3e8e82be3572251",
+      "commit": "b03da099c360d8f021e4de2a3dd0cfb63cbc74d9",
       "name": "dawn",
       "remote": "https://dawn.googlesource.com/dawn.git"
     },
