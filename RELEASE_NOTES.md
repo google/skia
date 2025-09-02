@@ -2,6 +2,28 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 141
+-------------
+  * `GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat` is replaced by
+    `AHardwareBufferUtils::GetSkColorTypeFromBufferFormat`, which is shared between Graphite and Ganesh.
+  * Graphite's `ContextOptions` struct now has an `fExecutor` member. This allows clients to give Graphite threads on which it can perform work. Initially, this facility will be used to compile Pipelines in parallel.
+  * Change `SkNamedTransferFn::kHLG` and `SkNamedTransferFn::kPQ` to use the
+    new skcms representations.
+
+    This will have the side-effect of changing `SkColorSpace::MakeCICP` to
+    use the new representations.
+  * ##`SkPath::asArc() removed`
+
+    This method reported true if the path was internally recognized as an "Arc" segment.
+    This functionality is now removed, so the method has also been removed.
+  * `SkShader::makeWithWorkingColorSpace()` now accepts an optional output
+    colorspace parameter. If it is null (the default), it's assumed to be the same
+    as the input or working colorspace parameter. This allows shaders to actively
+    participate in colorspace conversion and inform Skia about the space changes
+    that they apply.
+
+* * *
+
 Milestone 140
 -------------
   * `Context::insertRecording` now returns an object that behaves like an enum or a true/false bool
