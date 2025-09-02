@@ -87112,7 +87112,6 @@
         "src/codec/SkWuffs.*"
       ]
     },
-    "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_WebGPU": {},
     "Build-Win-Clang-x86-Debug": {},
     "Build-Win-Clang-x86_64-Release-Direct3D": {},
     "Build-Win-Clang-x86_64-Release-Vulkan": {},
@@ -87176,16 +87175,6 @@
         "(include|src)/gpu/graphite/vk/.*",
         "(include|src)/sksl/generated/.*",
         "tests/graphite/.*"
-      ]
-    },
-    "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
-      ]
-    },
-    "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
       ]
     },
     "Test-Win10-MSVC-Golo-GPU-QuadroP400-x86_64-Release-All-Direct3D": {},

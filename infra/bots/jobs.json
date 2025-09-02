@@ -4,7 +4,6 @@
     "name": "BazelBuild-all_tests-release-linux_x64",
     "cq_config": {}
   },
-
   {"name": "BazelBuild-android_math_test-for_android_arm64_release-linux_x64"},
   {"name": "BazelBuild-core-release-linux_x64"},
   {"name": "BazelBuild-cpu_8888_benchmark_android_test-for_android_arm64_release-linux_x64"},
@@ -341,10 +340,7 @@
   {"name": "Build-Ubuntu24.04-EMCC-asmjs-Release-PathKit"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_CPU"},
-  {
-    "name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_WebGPU",
-    "cq_config": {}
-  },
+  {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_WebGPU"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-PathKit"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Release-CanvasKit"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Release-CanvasKit_CPU"},
@@ -535,8 +531,7 @@
   {"name": "Perf-ChromeOS-Clang-Guybrush-GPU-RadeonVega3-x86_64-Release-All"},
   {"name": "Perf-ChromeOS-Clang-Octopus-GPU-IntelUHDGraphics600-x86_64-Release-All"},
   {"name": "Perf-ChromeOS-Clang-Trogdor-GPU-Adreno618-arm64-Release-All"},
-  {
-    "name": "Perf-Mac11-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Graphite_Native_Metal"},
+  {"name": "Perf-Mac11-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Graphite_Native_Metal"},
   {"name": "Perf-Mac11-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"},
   {"name": "Perf-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All"},
   {"name": "Perf-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All-Graphite_Native_Metal"},
@@ -873,11 +868,11 @@
   {
     "name": "Test-Ubuntu24.04-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_Graphite",
     "cq_config": {
-        "location_regexes": [
-            "(include|src)/gpu/graphite/vk/.*",
-            "(include|src)/sksl/generated/.*",
-            "tests/graphite/.*"
-        ]
+      "location_regexes": [
+        "(include|src)/gpu/graphite/vk/.*",
+        "(include|src)/sksl/generated/.*",
+        "tests/graphite/.*"
+      ]
     }
   },
   {"name": "Test-Ubuntu24.04-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader"},
@@ -899,23 +894,9 @@
   {"name": "Test-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-GL_ColorSpaces"},
   {"name": "Test-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"},
   {"name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit"},
-  {
-    "name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit",
-    "cq_config": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
-      ]
-    }
-  },
+  {"name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit"},
   {"name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-PathKit"},
-  {
-    "name": "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit",
-    "cq_config": {
-      "location_regexes": [
-        "modules/canvaskit/.*"
-      ]
-    }
-  },
+  {"name": "Test-Ubuntu24.04-EMCC-GCE-GPU-AVX2-wasm-Release-All-CanvasKit"},
   {"name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"},
   {"name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-ANGLE"},
   {"name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-BonusConfigs"},
