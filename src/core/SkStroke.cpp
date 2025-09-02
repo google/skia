@@ -1509,7 +1509,8 @@ void SkStroke::strokePath(const SkPath& src, SkPathBuilder* dst) const {
     stroker.done(dst, lastSegment == SkPathVerb::kLine);
 
     if (fDoFill && !ignoreCenter) {
-        if (SkPathPriv::ComputeFirstDirection(src) == SkPathFirstDirection::kCCW) {
+        auto d = SkPathPriv::ComputeFirstDirection(SkPathPriv::Raw(src));
+        if (d == SkPathFirstDirection::kCCW) {
             dst->privateReverseAddPath(src);
         } else {
             dst->addPath(src);

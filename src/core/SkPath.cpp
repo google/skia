@@ -2300,7 +2300,7 @@ SkPathConvexity SkPath::computeConvexity() const {
 
 class ContourIter {
 public:
-    ContourIter(const SkPathRef& pathRef);
+    ContourIter(SkSpan<const SkPoint>, SkSpan<const SkPathVerb>, SkSpan<const float> conicWeights);
 
     bool done() const { return fDone; }
     // if !done() then these may be called
@@ -2318,12 +2318,13 @@ private:
     SkDEBUGCODE(int fContourCounter;)
 };
 
-ContourIter::ContourIter(const SkPathRef& pathRef) {
-    fStopVerbs = pathRef.verbsEnd();
+ContourIter::ContourIter(SkSpan<const SkPoint> pts, SkSpan<const SkPathVerb> vbs,
+                         SkSpan<const float> conicWeights) {
+    fStopVerbs = vbs.end();
     fDone = false;
-    fCurrPt = pathRef.points();
-    fCurrVerb = pathRef.verbsBegin();
-    fCurrConicWeight = pathRef.conicWeights();
+    fCurrPt = pts.data();
+    fCurrVerb = vbs.data();
+    fCurrConicWeight = conicWeights.data();
     fCurrPtCount = 0;
     SkDEBUGCODE(fContourCounter = 0;)
     this->next();
@@ -2461,23 +2462,11 @@ static SkPathFirstDirection crossToDir(SkScalar cross) {
  *  that is outer most (or at least has the global y-max) before we can consider
  *  its cross product.
  */
-SkPathFirstDirection SkPathPriv::ComputeFirstDirection(const SkPath& path) {
-    auto d = path.getFirstDirection();
-    if (d != SkPathFirstDirection::kUnknown) {
-        return d;
-    }
-
-    // We don't want to pay the cost for computing convexity if it is unknown,
-    // so we call getConvexityOrUnknown() instead of isConvex().
-    if (path.getConvexityOrUnknown() == SkPathConvexity::kConvex) {
-        SkASSERT(d == SkPathFirstDirection::kUnknown);
-        return d;
-    }
-
-    ContourIter iter(*path.fPathRef);
+SkPathFirstDirection SkPathPriv::ComputeFirstDirection(const SkPathRaw& raw) {
+    ContourIter iter(raw.points(), raw.verbs(), raw.conics());
 
     // initialize with our logical y-min
-    SkScalar ymax = path.getBounds().fTop;
+    SkScalar ymax = raw.bounds().fTop;
     SkScalar ymaxCross = 0;
 
     for (; !iter.done(); iter.next()) {
@@ -2541,11 +2530,28 @@ SkPathFirstDirection SkPathPriv::ComputeFirstDirection(const SkPath& path) {
             ymaxCross = cross;
         }
     }
-    if (ymaxCross) {
-        d = crossToDir(ymaxCross);
+
+    return ymaxCross ? crossToDir(ymaxCross) : SkPathFirstDirection::kUnknown;
+}
+
+SkPathFirstDirection SkPathPriv::ComputeFirstDirection(const SkPath& path) {
+    auto d = path.getFirstDirection();
+    if (d != SkPathFirstDirection::kUnknown) {
+        return d;
+    }
+
+    // We don't want to pay the cost for computing convexity if it is unknown,
+    // so we call getConvexityOrUnknown() instead of isConvex().
+    if (path.getConvexityOrUnknown() == SkPathConvexity::kConvex) {
+        SkASSERT(d == SkPathFirstDirection::kUnknown);
+        return d;
+    }
+
+    d = ComputeFirstDirection(SkPathPriv::Raw(path));
+    if (d != SkPathFirstDirection::kUnknown) {
         path.setFirstDirection(d);
     }
-    return d;   // may still be kUnknown
+    return d;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
