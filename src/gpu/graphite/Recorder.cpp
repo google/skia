@@ -354,8 +354,7 @@ bool Recorder::updateBackendTexture(const BackendTexture& backendTex,
     // If the texture has MIP levels then we require that the full set is overwritten.
     int numExpectedLevels = 1;
     if (backendTex.info().mipmapped() == Mipmapped::kYes) {
-        numExpectedLevels = SkMipmap::ComputeLevelCount(backendTex.dimensions().width(),
-                                                        backendTex.dimensions().height()) + 1;
+        numExpectedLevels = SkMipmap::ComputeLevelCount(backendTex.dimensions()) + 1;
     }
     if (numLevels != numExpectedLevels) {
         return false;

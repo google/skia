@@ -1263,7 +1263,7 @@ bool GrGLGpu::uploadCompressedTexData(SkTextureCompressionType compressionType,
 
     int numMipLevels = 1;
     if (mipmapped == skgpu::Mipmapped::kYes) {
-        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height())+1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions)+1;
     }
 
     this->unbindXferBuffer(GrGpuBufferType::kXferCpuToGpu);
@@ -3943,7 +3943,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
 
     int numMipLevels = 1;
     if (mipmapped == skgpu::Mipmapped::kYes) {
-        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions) + 1;
     }
 
     // Compressed formats go through onCreateCompressedBackendTexture

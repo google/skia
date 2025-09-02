@@ -69,7 +69,7 @@ bool VulkanTexture::MakeVkImage(const VulkanSharedContext* sharedContext,
 
     uint32_t numMipLevels = 1;
     if (vkInfo.fMipmapped == Mipmapped::kYes) {
-        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions) + 1;
     }
 
     uint32_t width = static_cast<uint32_t>(dimensions.fWidth);
@@ -274,7 +274,7 @@ void VulkanTexture::setImageLayoutAndQueueIndex(VulkanCommandBuffer* cmdBuffer,
     uint32_t numMipLevels = 1;
     SkISize dimensions = this->dimensions();
     if (this->mipmapped() == Mipmapped::kYes) {
-        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions) + 1;
     }
     VkImageMemoryBarrier imageMemoryBarrier = {
         VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,          // sType
@@ -420,8 +420,7 @@ const VulkanImageView* VulkanTexture::getImageView(VulkanImageView::Usage usage)
     auto sharedContext = static_cast<const VulkanSharedContext*>(this->sharedContext());
     const auto& vkTexInfo = this->vulkanTextureInfo();
     int miplevels = vkTexInfo.fMipmapped == Mipmapped::kYes
-                    ? SkMipmap::ComputeLevelCount(this->dimensions().width(),
-                                                  this->dimensions().height()) + 1
+                    ? SkMipmap::ComputeLevelCount(this->dimensions()) + 1
                     : 1;
     auto imageView = VulkanImageView::Make(sharedContext,
                                            fImage,

@@ -129,7 +129,7 @@ static CompressedImageObjects make_compressed_image(SkCanvas* canvas,
     sk_sp<SkData> tmp = SkData::MakeUninitialized(totalSize);
     char* pixels = (char*) tmp->writable_data();
 
-    int numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+    int numMipLevels = SkMipmap::ComputeLevelCount(dimensions) + 1;
 
     size_t offset = 0;
 
@@ -324,8 +324,7 @@ private:
     void drawCell(SkCanvas* canvas, SkImage* image, SkIVector offset) {
 
         SkISize levelDimensions = fImgDimensions;
-        int numMipLevels = SkMipmap::ComputeLevelCount(levelDimensions.width(),
-                                                       levelDimensions.height()) + 1;
+        int numMipLevels = SkMipmap::ComputeLevelCount(levelDimensions) + 1;
 
         SkSamplingOptions sampling(SkCubicResampler::Mitchell());
 

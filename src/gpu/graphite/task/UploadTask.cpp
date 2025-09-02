@@ -125,8 +125,7 @@ UploadInstance UploadInstance::Make(Recorder* recorder,
 #ifdef SK_DEBUG
     unsigned int numExpectedLevels = 1;
     if (textureProxy->textureInfo().mipmapped() == Mipmapped::kYes) {
-        numExpectedLevels = SkMipmap::ComputeLevelCount(textureProxy->dimensions().width(),
-                                                        textureProxy->dimensions().height()) + 1;
+        numExpectedLevels = SkMipmap::ComputeLevelCount(textureProxy->dimensions()) + 1;
     }
     SkASSERT(mipLevelCount == 1 || mipLevelCount == numExpectedLevels);
 #endif

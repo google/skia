@@ -227,7 +227,7 @@ static std::unique_ptr<const char[]> make_compressed_data(SkTextureCompressionTy
 
     int numMipLevels = 1;
     if (mipmapped == skgpu::Mipmapped::kYes) {
-        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions) + 1;
     }
 
     TArray<size_t> mipMapOffsets(numMipLevels);
