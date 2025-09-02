@@ -18,7 +18,6 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkSharedMutex.h"
-#include "src/base/SkTSearch.h"
 #include "src/base/SkTSort.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkChecksum.h"
@@ -28,11 +27,15 @@
 #include "src/ports/SkFontMgr_android_parser.h"
 #include "src/ports/SkTypeface_proxy.h"
 
+#include <unicode/uchar.h>
+#include <unicode/ustring.h>
+
 #if defined(SK_BUILD_FOR_ANDROID)
 #include <android/api-level.h>
 #else
 #define __ANDROID_API__ 0
 #define __ANDROID_API_R__ 30
+#define __ANDROID_API_S__ 31
 int android_get_device_api_level() { return __ANDROID_API__; };
 #endif
 
@@ -134,13 +137,6 @@ static SkSpan<Coordinate> Sort(SkSpan<Coordinate> variation) {
 
 }  // namespace variation
 
-static void normalizeAsciiCase(char* s, size_t len) {
-    std::transform(s, s+len, s, [](char c){ return (c < 'A' || 'Z' < c) ? c : c + 'a' - 'A'; });
-}
-static void normalizeAsciiCase(SkString& s) {
-    normalizeAsciiCase(s.data(), s.size());
-}
-
 struct AndroidFontAPI {
     ASystemFontIterator* (*ASystemFontIterator_open)();
     void (*ASystemFontIterator_close)(ASystemFontIterator*);
@@ -232,6 +228,200 @@ public:
 
 #endif
 };
+
+struct AndroidIcuAPI {
+    /* The result is case folded UTF-8. This is normalized case, it isn't upper or lower case. */
+    SkString casefold(SkSpan<const char> s) const {
+        return fHasICU ? this->icuCaseFold(s) : this->cToWLower(s);
+    }
+
+private:
+    int32_t (*u_strFoldCase)(UChar *dest, int32_t destCapacity, const UChar *src, int32_t srcLength,
+                             uint32_t options, UErrorCode *pErrorCode) = nullptr;
+    UChar* (*u_strFromUTF8)(UChar *dest, int32_t destCapacity, int32_t *pDestLength,
+                            const char *src, int32_t srcLength, UErrorCode *pErrorCode) = nullptr;
+    char * (*u_strToUTF8)(char *dest, int32_t destCapacity, int32_t *pDestLength,
+                          const UChar *src, int32_t srcLength, UErrorCode *pErrorCode) = nullptr;
+    bool fHasICU = false;
+
+    SkString cToWLower(SkSpan<const char> s) const {
+        // Find length of result
+        size_t retLen = 0;
+        bool isDifferent = false;
+        const char* src = s.begin();
+        while (src != s.end()) {
+            SkUnichar uni = SkUTF::NextUTF8(&src, s.end());
+            if (uni < 0) {
+                return SkString(s.data(), s.size());
+            }
+            // On Android 2.3 (API 9) and later wchar_t is 32 bit, UTF-32 like.
+            // towlower only provides simple case folding, but this should be fine for Android 11.
+            wint_t wlow = towlower(uni);
+            char buffer[SkUTF::kMaxBytesInUTF8Sequence];
+            size_t buflen = SkUTF::ToUTF8(wlow, buffer);
+            if (buflen == 0) {
+                return SkString(s.data(), s.size());
+            }
+            isDifferent |= wlow != SkToU32(uni);
+            retLen += buflen;
+        }
+
+        // No change needed
+        if (!isDifferent) {
+            if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: TL \"%s\" unchanged\n", s.data()); }
+            return SkString(s.data(), s.size());
+        }
+
+        // Create result
+        SkString ret(retLen);
+        src = s.begin();
+        char* dst = ret.begin();
+        while (src != s.end()) {
+            SkUnichar uni = SkUTF::NextUTF8(&src, s.end());
+            wint_t wlow = towlower(uni);
+            char buffer[SkUTF::kMaxBytesInUTF8Sequence];
+            size_t buflen = SkUTF::ToUTF8(wlow, buffer);
+            memcpy(dst, buffer, buflen);
+            dst += buflen;
+        }
+
+        if constexpr (kSkFontMgrVerbose) {
+            SkDebugf("SKIA: TL \"%s\" to \"%s\"\n", s.data(), ret.c_str());
+        }
+        return ret;
+    }
+
+    SkString icuCaseFold(SkSpan<const char> s) const {
+        if (!SkTFitsIn<int32_t>(s.size())) {
+            return SkString(s.data(), s.size());
+        }
+
+        using Storage = AutoSTMalloc<32, UChar>;
+        UErrorCode error = U_ZERO_ERROR;
+
+        // Convert to UTF-16
+        int32_t uStrSize = 0;
+        Storage uStr(Storage::kCount);
+        this->u_strFromUTF8(uStr, Storage::kCount, &uStrSize, s.data(), s.size(), &error);
+        if (error == U_BUFFER_OVERFLOW_ERROR) {
+            error = U_ZERO_ERROR;
+        }
+        if (U_FAILURE(error)) {
+            if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: CF UTF-16 length\n"); }
+            return SkString(s.data(), s.size());
+        }
+        if (SkTo<int32_t>(Storage::kCount) < uStrSize) {
+            uStr.reset(uStrSize);
+            int32_t uStrSizePrev = uStrSize;
+            this->u_strFromUTF8(uStr, uStrSize, &uStrSize, s.data(), s.size(), &error);
+            if (U_FAILURE(error) || uStrSizePrev < uStrSize) {
+                if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: CF UTF-16 wrong length\n"); }
+                return SkString(s.data(), s.size());
+            }
+        }
+
+        // Case fold
+        Storage uStrFolded(Storage::kCount);
+        int32_t uStrFoldedSize = this->u_strFoldCase(uStrFolded, Storage::kCount, uStr, uStrSize,
+                                                     U_FOLD_CASE_EXCLUDE_SPECIAL_I, &error);
+        if (error == U_BUFFER_OVERFLOW_ERROR) {
+            error = U_ZERO_ERROR;
+        }
+        if (U_FAILURE(error)) {
+            if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: CF folded length\n"); }
+            return SkString(s.data(), s.size());
+        }
+        if (SkTo<int32_t>(Storage::kCount) < uStrFoldedSize) {
+            uStrFolded.reset(uStrFoldedSize);
+            int32_t uStrFoldedSizePrev = uStrFoldedSize;
+            uStrFoldedSize = this->u_strFoldCase(uStrFolded, uStrFoldedSize, uStr, uStrSize,
+                                                 U_FOLD_CASE_EXCLUDE_SPECIAL_I, &error);
+            if (U_FAILURE(error) || uStrFoldedSizePrev < uStrFoldedSize) {
+                if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: CF folded wrong length\n"); }
+                return SkString(s.data(), s.size());
+            }
+        }
+
+        // Convert to UTF-8
+        SkString ret;
+        int32_t retSize = 0;
+        this->u_strToUTF8(nullptr, 0, &retSize, uStrFolded, uStrFoldedSize, &error);
+        if (error == U_BUFFER_OVERFLOW_ERROR) {
+            error = U_ZERO_ERROR;
+        }
+        if (U_FAILURE(error)) {
+            if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: CF UTF-8 length\n"); }
+            return SkString(s.data(), s.size());
+        }
+        ret.resize(retSize);
+        int32_t retSizePrev = retSize;
+        this->u_strToUTF8(ret.data(), retSize, &retSize, uStrFolded, uStrFoldedSize, &error);
+        if (U_FAILURE(error) || retSizePrev != retSize) {
+            if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: CF UTF-8 wrong length\n"); }
+            return SkString(s.data(), s.size());
+        }
+
+        // Return result
+        if constexpr (kSkFontMgrVerbose) {
+            SkDebugf("SKIA: CF \"%s\" to \"%s\"\n", s.data(), ret.c_str());
+        }
+        return ret;
+    }
+
+#if __ANDROID_API__ >= __ANDROID_API_S__
+public:
+    AndroidIcuAPI()
+        : u_strFoldCase(::u_strFoldCase)
+        , u_strFromUTF8(::u_strFromUTF8)
+        , u_strToUTF8(::u_strToUTF8)
+        , fHasICU(true)
+    {
+        if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: GetAndroidIcuAPI direct\n"); }
+    }
+
+#else
+
+private:
+    std::unique_ptr<void, SkFunctionObject<dlclose>> fSelf;
+public:
+    AndroidIcuAPI(const AndroidIcuAPI&) = delete;
+    AndroidIcuAPI& operator=(const AndroidIcuAPI&) = delete;
+    AndroidIcuAPI(AndroidIcuAPI&&) = default;
+    AndroidIcuAPI& operator=(AndroidIcuAPI&&) = default;
+
+    AndroidIcuAPI() {
+        fSelf.reset(dlopen("libicu.so", RTLD_LAZY | RTLD_LOCAL));
+        if (!fSelf) {
+            return;
+        }
+
+#define SK_DLSYM_ANDROID_ICU_API(NAME)                            \
+        do {                                                      \
+            *(void**)(&NAME) = dlsym(fSelf.get(), #NAME);         \
+            if (!NAME) {                                          \
+                if constexpr (kSkFontMgrVerbose) {                \
+                    SkDebugf("SKIA: Failed to load: " #NAME "\n");\
+                }                                                 \
+                return;                                           \
+            }                                                     \
+        } while (0)
+
+        SK_DLSYM_ANDROID_ICU_API(u_strFoldCase);
+        SK_DLSYM_ANDROID_ICU_API(u_strFromUTF8);
+        SK_DLSYM_ANDROID_ICU_API(u_strToUTF8);
+#undef SK_DLSYM_ANDROID_ICU_API
+
+        fHasICU = true;
+        if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: GetAndroidIcuAPI dlsym\n"); }
+    }
+#endif
+};
+
+// bcp47 is ascii only and only does 1:1 replacements for case folding.
+static void normalizeAsciiCase(SkSpan<char> s) {
+    std::transform(s.begin(), s.end(), s.begin(),
+                   [](char c){ return (c < 'A' || 'Z' < c) ? c : c + 'a' - 'A'; });
+}
 
 struct SkAFont {
     SkAFont(const AndroidFontAPI& api, AFont* font) : fAPI(api), fFont(font) {}
@@ -343,7 +533,7 @@ private:
         }
         size_t subtagLength = subtagEnd - tag.data();
         SkString ret(tag.data(), subtagLength);
-        normalizeAsciiCase(ret);
+        normalizeAsciiCase({ret.begin(), ret.size()});
         tag = tag.subspan(subtagLength + 1);
         return ret;
     }
@@ -758,16 +948,15 @@ struct NameToFamily {
 class SkFontMgr_AndroidNDK : public SkFontMgr {
     void addSystemTypeface(sk_sp<SkTypeface_AndroidNDK> typeface, const SkString& name) {
         NameToFamily* nameToFamily = nullptr;
+        SkString normalizedName(fICU.casefold({name.data(), name.size()}));
         for (NameToFamily& current : fNameToFamilyMap) {
-            if (current.name == name) {
+            if (current.normalizedName == normalizedName) {
                 nameToFamily = &current;
                 break;
             }
         }
         if (!nameToFamily) {
             sk_sp<SkFontStyleSet_AndroidNDK> newSet(new SkFontStyleSet_AndroidNDK(fCache));
-            SkString normalizedName(name);
-            normalizeAsciiCase(normalizedName);
             nameToFamily = &fNameToFamilyMap.emplace_back(
                 NameToFamily{name, normalizedName, newSet.get()});
             fStyleSets.push_back(std::move(newSet));
@@ -849,8 +1038,7 @@ protected:
         if (!familyName) {
             return nullptr;
         }
-        SkString normalizedFamilyName(familyName, strlen(familyName));
-        normalizeAsciiCase(normalizedFamilyName);
+        SkString normalizedFamilyName(fICU.casefold({familyName, strlen(familyName)}));
         for (const NameToFamily& nameToFamily : fNameToFamilyMap) {
             if (nameToFamily.normalizedName == normalizedFamilyName) {
                 return sk_ref_sp(nameToFamily.styleSet);
@@ -1267,6 +1455,7 @@ protected:
 
 private:
     AndroidFontAPI fAPI;
+    AndroidIcuAPI fICU;
     std::unique_ptr<SkFontScanner> fScanner;
 
     TArray<NameToFamily> fNameToFamilyMap;

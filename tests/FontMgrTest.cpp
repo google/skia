@@ -185,6 +185,12 @@ DEF_TEST(FontMgr_MatchFamilyStyle, reporter) {
     sk_sp<SkTypeface> typeface(fm->matchFamilyStyle("Non Existing Family Name", FS::Normal()));
     REPORTER_ASSERT(reporter, !typeface);
 
+    // Test a long name with many interesting case folding code points.
+    using FS = SkFontStyle;
+    sk_sp<SkTypeface> typeface1(fm->matchFamilyStyle("ῢ ΰ ῤ ῦ ῧ Ῠ Ῡ Ὺ Ύ Ῥ ῲ ῳ ῴ ῶ ῷ Ὸ Ό Ὼ Ώ ῼ",
+                                                     FS::Normal()));
+    REPORTER_ASSERT(reporter, !typeface1);
+
     // TODO: enable after determining if a default font should be required.
     if ((false)) {
         sk_sp<SkTypeface> def(fm->matchFamilyStyle(nullptr, FS::Normal()));

@@ -329,6 +329,9 @@ optional("fontmgr_android_ndk") {
     ":typeface_proxy",
   ]
   libs = [ "android" ]
+  if (defined(ndk_api) && ndk_api >= 31) {
+    libs += [ "icu" ]
+  }
   public_defines = [ "SK_FONTMGR_ANDROID_NDK_AVAILABLE" ]
   public = skia_ports_fontmgr_android_ndk_public
   sources = skia_ports_fontmgr_android_ndk_sources
