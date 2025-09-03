@@ -23,11 +23,8 @@ import (
 	"go.skia.org/infra/go/sklog"
 	"go.skia.org/infra/promk/go/pushgateway"
 	"go.skia.org/infra/task_driver/go/lib/auth_steps"
-	"go.skia.org/infra/task_driver/go/lib/checkout"
-	"go.skia.org/infra/task_driver/go/lib/gerrit_steps"
 	"go.skia.org/infra/task_driver/go/lib/os_steps"
 	"go.skia.org/infra/task_driver/go/td"
-	"go.skia.org/infra/task_scheduler/go/types"
 )
 
 const (
@@ -155,13 +152,6 @@ func main() {
 	client, _, err := auth_steps.InitHttpClient(ctx, *local, gerrit.AuthScope)
 	if err != nil {
 		td.Fatal(ctx, err)
-	}
-	var g gerrit.GerritInterface
-	if !*dryRun {
-		g, err = gerrit.NewGerrit("https://skia-review.googlesource.com", client)
-		if err != nil {
-			td.Fatal(ctx, err)
-		}
 	}
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -291,47 +281,4 @@ func main() {
 	}
 	// Report that the asset creation was successful.
 	_ = pg.Push(ctx, creatingSKPsFailureMetricName, metricValue_NoFailure)
-	if *dryRun {
-		return
-	}
-
-	// Retrieve the new SKP version.
-	versionFileSubPath := filepath.Join("infra", "bots", "assets", "skp", "VERSION")
-	skpVersion, err := os_steps.ReadFile(ctx, filepath.Join(skiaDir, versionFileSubPath))
-	if err != nil {
-		td.Fatal(ctx, err)
-	}
-
-	// Sync a new checkout of Skia to create the CL.
-	tmpSkia := filepath.Join(tmp, "skia")
-	co, err := checkout.EnsureGitCheckout(ctx, tmpSkia, types.RepoState{
-		Repo:     "https://skia.googlesource.com/skia.git",
-		Revision: "origin/main",
-	})
-	if err != nil {
-		td.Fatal(ctx, err)
-	}
-	baseRev, err := co.FullHash(ctx, "HEAD")
-	if err != nil {
-		td.Fatal(ctx, err)
-	}
-
-	// Write the new SKP version.
-	if err := os_steps.WriteFile(ctx, filepath.Join(co.Dir(), versionFileSubPath), skpVersion, os.ModePerm); err != nil {
-		td.Fatal(ctx, err)
-	}
-
-	// Regenerate tasks.json.
-	if _, err := exec.RunCwd(ctx, tmpSkia, "go", "run", "./infra/bots/gen_tasks.go"); err != nil {
-		td.Fatal(ctx, err)
-	}
-
-	// Upload a CL.
-	commitMsg := `Update SKP version
-
-Automatic commit by the RecreateSKPs bot.
-`
-	if err := gerrit_steps.UploadCL(ctx, g, co, "skia", "main", baseRev, "", commitMsg, []string{"rmistry@google.com"}, false); err != nil {
-		td.Fatal(ctx, err)
-	}
 }

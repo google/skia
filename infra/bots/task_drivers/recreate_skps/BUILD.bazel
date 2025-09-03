@@ -22,11 +22,8 @@ go_library(
         "@org_skia_go_infra//go/sklog",
         "@org_skia_go_infra//promk/go/pushgateway",
         "@org_skia_go_infra//task_driver/go/lib/auth_steps",
-        "@org_skia_go_infra//task_driver/go/lib/checkout",
-        "@org_skia_go_infra//task_driver/go/lib/gerrit_steps",
         "@org_skia_go_infra//task_driver/go/lib/os_steps",
         "@org_skia_go_infra//task_driver/go/td",
-        "@org_skia_go_infra//task_scheduler/go/types",
     ],
 )
 
