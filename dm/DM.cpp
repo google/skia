@@ -66,10 +66,6 @@
     #include <unistd.h>
 #endif
 
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
-    #include <binder/IPCThreadState.h>
-#endif
-
 #if defined(SK_BUILD_FOR_MAC)
     #include "include/utils/mac/SkCGUtils.h"
     #include "src/utils/mac/SkUniqueCFRef.h"
@@ -1578,9 +1574,6 @@ TestHarness CurrentTestHarness() {
 #endif // !SK_DISABLE_LEGACY_TESTS
 
 int main(int argc, char** argv) {
-#if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
-    android::ProcessState::self()->startThreadPool();
-#endif
     CommandLineFlags::Parse(argc, argv);
 
     initializeEventTracingForTools();

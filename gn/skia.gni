@@ -57,7 +57,6 @@ declare_args() {
   skia_use_jpeg_gainmaps = is_skia_dev_build
   skia_use_libavif = false
   skia_use_libgrapheme = false
-  skia_use_libheif = is_skia_dev_build
   skia_use_libjpeg_turbo_decode = true
   skia_use_libjpeg_turbo_encode = true
   skia_use_no_jpeg_encode = false

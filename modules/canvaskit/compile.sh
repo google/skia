@@ -220,7 +220,6 @@ echo "Compiling"
   skia_use_expat=${USE_EXPAT} \
   skia_use_fontconfig=false \
   skia_use_freetype=true \
-  skia_use_libheif=false \
   skia_use_libjpeg_turbo_decode=${DO_DECODE} \
   skia_use_libjpeg_turbo_encode=${ENCODE_JPEG} \
   skia_use_no_jpeg_encode=${NO_ENCODE_JPEG} \

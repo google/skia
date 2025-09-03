@@ -46,10 +46,6 @@
 #include "include/codec/SkGifDecoder.h"
 #endif
 
-#if defined(SK_HAS_HEIF_LIBRARY)
-#include "include/android/SkHeifDecoder.h"
-#endif
-
 #if defined(SK_CODEC_DECODES_ICO)
 #include "include/codec/SkIcoDecoder.h"
 #endif
@@ -118,9 +114,6 @@ static std::vector<Decoder>* get_decoders_for_editing() {
 #endif
 #if defined(SK_CODEC_DECODES_JPEGXL)
             decoders->push_back(SkJpegxlDecoder::Decoder());
-#endif
-#if defined(SK_HAS_HEIF_LIBRARY)
-            decoders->push_back(SkHeifDecoder::Decoder());
 #endif
 #if defined(SK_CODEC_DECODES_RAW)
             decoders->push_back(SkRawDecoder::Decoder());

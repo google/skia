@@ -138,10 +138,6 @@
 #include "include/codec/SkAvifDecoder.h"
 #endif
 
-#ifdef SK_HAS_HEIF_LIBRARY
-#include "include/android/SkHeifDecoder.h"
-#endif
-
 #ifdef SK_CODEC_DECODES_JPEGXL
 #include "include/codec/SkJpegxlDecoder.h"
 #endif

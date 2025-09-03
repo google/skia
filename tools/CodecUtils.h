@@ -20,10 +20,6 @@
 #include "include/codec/SkGifDecoder.h"
 #endif
 
-#if defined(SK_HAS_HEIF_LIBRARY)
-#include "include/android/SkHeifDecoder.h"
-#endif
-
 #if defined(SK_CODEC_DECODES_ICO)
 #include "include/codec/SkIcoDecoder.h"
 #endif
@@ -70,9 +66,6 @@ inline void RegisterAllAvailable() {
 #endif
 #if defined(SK_CODEC_DECODES_GIF)
     SkCodecs::Register(SkGifDecoder::Decoder());
-#endif
-#if defined(SK_HAS_HEIF_LIBRARY)
-    SkCodecs::Register(SkHeifDecoder::Decoder());
 #endif
 #if defined(SK_CODEC_DECODES_ICO)
     SkCodecs::Register(SkIcoDecoder::Decoder());

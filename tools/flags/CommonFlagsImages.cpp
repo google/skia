@@ -34,12 +34,6 @@ bool CollectImages(const CommandLineFlags::StringArray& images, TArray<SkString>
         "WBMP",
         "ICO",
 #endif
-#ifdef SK_HAS_HEIF_LIBRARY
-        "heic",
-#if !defined(SK_BUILD_FOR_WIN)
-        "HEIC",
-#endif
-#endif
 #ifdef SK_CODEC_DECODES_RAW
         "arw",
         "cr2",
