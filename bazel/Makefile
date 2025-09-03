@@ -6,6 +6,9 @@ generate_go:
        bazel/device_specific_configs bazel/exporter bazel/deps_parser tools/gpu/gl/interface \
 			 tools/testrunners/common/make_tarball tools/testrunners/common/android/adb_test_runner
 
+.PHONY: gazelle
+gazelle: generate_go
+
 .PHONY: generate_cmake
 generate_cmake:
 	cd .. && bazelisk build //bazel/exporter_tool && ${EXPORTER_TOOL} \
