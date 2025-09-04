@@ -57404,7 +57404,7 @@
         {
           "name": "skia/bots/skp",
           "path": "skp",
-          "version": "version:293"
+          "version": "skp_min_version:293"
         }
       ],
       "command": [
