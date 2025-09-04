@@ -175,7 +175,6 @@ mod ffi {
             blend_op: &mut BlendOp,
             duration_ms: &mut u32,
         );
-        fn output_buffer_size(self: &Reader) -> usize;
         fn output_color_type(self: &Reader) -> ColorType;
         fn output_bits_per_component(self: &Reader) -> u8;
         fn next_frame_info(self: &mut Reader) -> DecodingResult;
@@ -646,10 +645,6 @@ impl Reader {
         } else {
             1000 * frame_control.delay_num as u32 / frame_control.delay_den as u32
         };
-    }
-
-    fn output_buffer_size(&self) -> usize {
-        self.reader.output_buffer_size()
     }
 
     fn output_color_type(&self) -> ffi::ColorType {
