@@ -22,11 +22,10 @@ def compile_swiftshader(api, extra_tokens, swiftshader_root, ninja_root, cc, cxx
       '-DSWIFTSHADER_WARNINGS_AS_ERRORS=OFF',
       '-DREACTOR_ENABLE_MEMORY_SANITIZER_INSTRUMENTATION=OFF',  # Way too slow.
   ]
-  cmake_bin = str(api.vars.workdir.joinpath('cmake_linux', 'bin'))
   env = {
       'CC': cc,
       'CXX': cxx,
-      'PATH': api.path.pathsep.join([str(ninja_root), "%(PATH)s", cmake_bin]),
+      'PATH': api.path.pathsep.join([str(ninja_root), "%(PATH)s"]),
       # We arrange our MSAN/TSAN prebuilts a little differently than
       # SwiftShader's CMakeLists.txt expects, so we'll just keep our custom
       # setup (everything mentioning libcxx below) and point SwiftShader's

@@ -18410,7 +18410,8 @@
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
           "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin"
+          "cipd_bin_packages/cpython3/bin",
+          "cmake_linux/bin"
         ],
         "VPYTHON_DEFAULT_SPEC": [
           "skia/.vpython3"
@@ -18508,7 +18509,8 @@
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
           "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin"
+          "cipd_bin_packages/cpython3/bin",
+          "cmake_linux/bin"
         ],
         "VPYTHON_DEFAULT_SPEC": [
           "skia/.vpython3"
@@ -18606,7 +18608,8 @@
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
           "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin"
+          "cipd_bin_packages/cpython3/bin",
+          "cmake_linux/bin"
         ],
         "VPYTHON_DEFAULT_SPEC": [
           "skia/.vpython3"
@@ -21189,7 +21192,8 @@
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
           "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin"
+          "cipd_bin_packages/cpython3/bin",
+          "cmake_linux/bin"
         ],
         "VPYTHON_DEFAULT_SPEC": [
           "skia/.vpython3"
@@ -21287,7 +21291,8 @@
           "cipd_bin_packages",
           "cipd_bin_packages/bin",
           "cipd_bin_packages/cpython3",
-          "cipd_bin_packages/cpython3/bin"
+          "cipd_bin_packages/cpython3/bin",
+          "cmake_linux/bin"
         ],
         "VPYTHON_DEFAULT_SPEC": [
           "skia/.vpython3"

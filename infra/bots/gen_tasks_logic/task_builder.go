@@ -256,6 +256,20 @@ func (b *taskBuilder) shellsOutToBazel() bool {
 	return b.extraConfig("Vello", "Fontations", "RustPNG")
 }
 
+func (b *taskBuilder) usesCMake() {
+	archToPkg := map[string]string{
+		"Ubuntu24.04": "cmake_linux",
+		"Mac":         "cmake_mac",
+		"Win":         "cmake_win",
+	}
+	pkg, ok := archToPkg[b.parts["os"]]
+	if !ok {
+		panic("Unsupported OS for cmake: " + b.parts["os"])
+	}
+	b.cipd(b.MustGetCipdPackageFromAsset(pkg))
+	b.addToPATH(pkg + "/bin")
+}
+
 // usesGit adds attributes to tasks which use git.
 func (b *taskBuilder) usesGit() {
 	b.cache(CACHES_GIT...)
