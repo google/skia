@@ -60,6 +60,8 @@
 
 #if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
 #include "include/codec/SkPngDecoder.h"
+#elif defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+#include "experimental/rust_png/decoder/SkPngRustDecoder.h"
 #endif
 
 #if defined(SK_CODEC_DECODES_RAW)
@@ -86,6 +88,8 @@ static std::vector<Decoder>* get_decoders_for_editing() {
         if (decoders->empty()) {
 #if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
             decoders->push_back(SkPngDecoder::Decoder());
+#elif defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+            decoders->push_back(SkPngRustDecoder::Decoder());
 #endif
 #if defined(SK_CODEC_DECODES_JPEG)
             decoders->push_back(SkJpegDecoder::Decoder());
