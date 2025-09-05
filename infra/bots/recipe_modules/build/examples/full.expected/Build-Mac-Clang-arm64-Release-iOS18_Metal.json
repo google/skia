@@ -179,7 +179,7 @@
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
       "IPHONEOS_DEPLOYMENT_TARGET": "18.2",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
     },
     "name": "ccache stats-start"
   },
@@ -198,7 +198,7 @@
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
       "IPHONEOS_DEPLOYMENT_TARGET": "18.2",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
     },
     "name": "gn gen"
   },
@@ -216,7 +216,7 @@
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
       "IPHONEOS_DEPLOYMENT_TARGET": "18.2",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
     },
     "name": "ninja"
   },
@@ -233,7 +233,7 @@
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
       "IPHONEOS_DEPLOYMENT_TARGET": "18.2",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
     },
     "name": "ccache stats-end"
   },

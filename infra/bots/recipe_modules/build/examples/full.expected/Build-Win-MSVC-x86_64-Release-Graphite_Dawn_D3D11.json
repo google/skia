@@ -35,7 +35,7 @@
     "cwd": "[START_DIR]\\cache\\work\\skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>;RECIPE_REPO[depot_tools]",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools];[START_DIR]\\cache\\work\\skia\\third_party\\ninja",
       "PYTHONPATH": "[START_DIR]\\cache\\work\\skia\\third_party\\externals;%(PYTHONPATH)s"
     },
     "name": "gn gen"
@@ -49,7 +49,7 @@
     "cwd": "[START_DIR]\\cache\\work\\skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>;RECIPE_REPO[depot_tools]",
+      "PATH": "<PATH>;RECIPE_REPO[depot_tools];[START_DIR]\\cache\\work\\skia\\third_party\\ninja",
       "PYTHONPATH": "[START_DIR]\\cache\\work\\skia\\third_party\\externals;%(PYTHONPATH)s"
     },
     "name": "ninja"

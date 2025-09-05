@@ -5,7 +5,6 @@
 
 from . import util
 
-
 def compile_swiftshader(api, extra_tokens, swiftshader_root, ninja_root, cc, cxx, out):
   """Build SwiftShader with CMake.
 
@@ -371,7 +370,14 @@ def compile_fn(api, checkout_root, out_dir):
   args, env, ccache = get_compile_flags(api, checkout_root, out_dir, workdir)
   gn_args = finalize_gn_flags(args)
   gn = skia_dir.joinpath('bin', 'gn')
-  ninja = skia_dir.joinpath('third_party', 'ninja', 'ninja')
+  ninja_root = skia_dir.joinpath('third_party', 'ninja')
+  ninja = skia_dir.joinpath(ninja_root, 'ninja')
+
+  # Putting ninja on the path makes it easier for subcommands to find it
+  # (e.g. when building Dawn via CMake+ninja)
+  # Importantly, this needs to go *after* depot_tools, so we append it
+  existing_path = env.get('PATH', '%(PATH)s')
+  env['PATH'] = api.path.pathsep.join([existing_path, str(ninja_root)])
 
   with api.context(cwd=skia_dir):
     with api.env(env):
