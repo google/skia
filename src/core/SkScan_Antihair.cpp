@@ -940,6 +940,16 @@ void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
     SkScalar rx = SkScalarHalf(strokeSize.fX);
     SkScalar ry = SkScalarHalf(strokeSize.fY);
 
+    // If we're empty on either axis, we remove the outset amount, to be sure
+    // we stroke the same way a polygon would (i.e. it would just see a "line"
+    // and not extend it for the miter join).
+    if (r.width() == 0) {
+        ry = 0;
+    }
+    if (r.height() == 0) {
+        rx = 0;
+    }
+
     // outset by the radius
     FDot8 outerL = SkScalarToFDot8(r.fLeft - rx);
     FDot8 outerT = SkScalarToFDot8(r.fTop - ry);
@@ -949,6 +959,7 @@ void SkScan::AntiFrameRect(const SkRect& r, const SkPoint& strokeSize,
     SkIRect outer;
     // set outer to the outer rect of the outer section
     outer.setLTRB(FDot8Floor(outerL), FDot8Floor(outerT), FDot8Ceil(outerR), FDot8Ceil(outerB));
+
 
     SkBlitterClipper clipper;
     if (clip) {

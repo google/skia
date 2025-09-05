@@ -739,6 +739,17 @@ void SkScan::FrameRect(const SkRect& r, const SkPoint& strokeSize,
     outer.setLTRB(r.fLeft - rx, r.fTop - ry, r.fRight + rx, r.fBottom + ry);
 
     if (r.width() <= dx || r.height() <= dy) {
+        // If we're empty on either axis, we remove the outset amount, to be sure
+        // we stroke the same way a polygon would (i.e. it would just see a "line"
+        // and not extend it for the miter join).
+        if (r.width() == 0) {
+            outer.fTop = r.fTop;
+            outer.fBottom = r.fBottom;
+        }
+        if (r.height() == 0) {
+            outer.fLeft = r.fLeft;
+            outer.fRight = r.fRight;
+        }
         SkScan::FillRect(outer, clip, blitter);
         return;
     }
