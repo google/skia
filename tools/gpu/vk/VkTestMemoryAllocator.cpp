@@ -56,8 +56,7 @@ sk_sp<skgpu::VulkanMemoryAllocator> VkTestMemoryAllocator::Make(
     SKGPU_COPY_FUNCTION_KHR(GetPhysicalDeviceMemoryProperties2);
 
     VmaAllocatorCreateInfo info;
-    info.flags = VMA_ALLOCATOR_CREATE_EXTERNALLY_SYNCHRONIZED_BIT |
-                 VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
+    info.flags = VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
 
     info.physicalDevice = physicalDevice;
     info.device = device;
