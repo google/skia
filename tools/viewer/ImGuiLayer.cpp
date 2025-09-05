@@ -195,7 +195,7 @@ void ImGuiLayer::onPaint(SkSurface* surface) {
                 drawCmd->UserCallback(drawList, drawCmd);
             } else {
                 intptr_t idIndex = (intptr_t)drawCmd->TextureId;
-                if (idIndex < fSkiaWidgetFuncs.size()) {
+                if (0 <= idIndex && idIndex < fSkiaWidgetFuncs.size()) {
                     // Small image IDs are actually indices into a list of callbacks. We directly
                     // examing the vertex data to deduce the image rectangle, then reconfigure the
                     // canvas to be clipped and translated so that the callback code gets to use
