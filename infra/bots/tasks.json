@@ -18379,7 +18379,7 @@
         {
           "name": "skia/bots/cmake_linux",
           "path": "cmake_linux",
-          "version": "version:3"
+          "version": "version:5"
         }
       ],
       "command": [
@@ -18477,7 +18477,7 @@
         {
           "name": "skia/bots/cmake_linux",
           "path": "cmake_linux",
-          "version": "version:3"
+          "version": "version:5"
         }
       ],
       "command": [
@@ -18575,7 +18575,7 @@
         {
           "name": "skia/bots/cmake_linux",
           "path": "cmake_linux",
-          "version": "version:3"
+          "version": "version:5"
         }
       ],
       "command": [
@@ -21158,7 +21158,7 @@
         {
           "name": "skia/bots/cmake_linux",
           "path": "cmake_linux",
-          "version": "version:3"
+          "version": "version:5"
         }
       ],
       "command": [
@@ -21256,7 +21256,7 @@
         {
           "name": "skia/bots/cmake_linux",
           "path": "cmake_linux",
-          "version": "version:3"
+          "version": "version:5"
         }
       ],
       "command": [
