@@ -339,12 +339,11 @@
   {"name": "Build-Ubuntu24.04-Clang-x86_64-Release-Wuffs"},
   {"name": "Build-Ubuntu24.04-EMCC-asmjs-Debug-PathKit"},
   {"name": "Build-Ubuntu24.04-EMCC-asmjs-Release-PathKit"},
-  {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit"},
-  {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_CPU"},
   {
-    "name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_WebGPU",
+    "name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit",
     "cq_config": {}
   },
+  {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_CPU"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-PathKit"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Release-CanvasKit"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Release-CanvasKit_CPU"},
