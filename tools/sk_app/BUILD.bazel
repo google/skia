@@ -44,13 +44,13 @@ skia_objc_library(
     srcs = [
         "CommandSet.cpp",
         "Window.cpp",
-        "//tools/sk_app/mac:srcs",
     ],
     hdrs = [
         "Application.h",
         "CommandSet.h",
         "Window.h",
     ],
+    non_arc_srcs = ["//tools/sk_app/mac:non_arc_srcs"],
     deps = [
         "//tools/fonts:font_tool_utils",
         "//tools/skui",

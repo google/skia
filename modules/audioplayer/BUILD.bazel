@@ -8,9 +8,9 @@ licenses(["notice"])
 
 skia_objc_library(
     name = "audioplayer_mac",
-    srcs = ["SkAudioPlayer_mac.mm"],
     hdrs = ["SkAudioPlayer.h"],
     features = ["layering_check"],
+    non_arc_srcs = ["SkAudioPlayer_mac.mm"],
     sdk_frameworks = ["AVFoundation"],
     deps = ["//:core"],
 )

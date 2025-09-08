@@ -7,7 +7,7 @@ package(
 licenses(["notice"])
 
 skia_filegroup(
-    name = "srcs",
+    name = "non_arc_srcs",
     testonly = True,
     srcs = [
         "Window_mac.h",

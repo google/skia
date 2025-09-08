@@ -67,8 +67,8 @@ skia_cc_library(
 
 skia_objc_library(
     name = "autorelease_pool_objc",
-    srcs = ["AutoreleasePool.mm"],
     hdrs = ["AutoreleasePool.h"],
+    non_arc_srcs = ["AutoreleasePool.mm"],
     visibility = ["//tools/gpu:__pkg__"],
     deps = ["//src/base"],
 )
