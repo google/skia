@@ -20,10 +20,7 @@
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
-#include "src/gpu/graphite/GraphicsPipelineHandle.h"
 #include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/PipelineCreationTask.h"
-#include "src/gpu/graphite/PipelineManager.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ResourceCache.h"
@@ -55,36 +52,10 @@ ResourceProvider::~ResourceProvider() {
     fResourceCache->shutdown();
 }
 
-GraphicsPipelineHandle ResourceProvider::createGraphicsPipelineHandle(
-        const GraphicsPipelineDesc& pipelineDesc,
-        const RenderPassDesc& renderPassDesc,
-        SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags) {
-
-    PipelineManager* pipelineManager = fSharedContext->pipelineManager();
-
-    return pipelineManager->createHandle(this,
-                                         pipelineDesc,
-                                         renderPassDesc,
-                                         pipelineCreationFlags);
-}
-
-void ResourceProvider::startPipelineCreationTask(sk_sp<const RuntimeEffectDictionary> runtimeDict,
-                                                 const GraphicsPipelineHandle& handle) {
-    PipelineManager* pipelineManager = fSharedContext->pipelineManager();
-
-    pipelineManager->startPipelineCreationTask(this, std::move(runtimeDict), handle);
-}
-
-sk_sp<GraphicsPipeline> ResourceProvider::resolveHandle(const GraphicsPipelineHandle& handle) {
-    PipelineManager* pipelineManager = fSharedContext->pipelineManager();
-
-    return pipelineManager->resolveHandle(handle);
-}
-
 sk_sp<GraphicsPipeline> ResourceProvider::findGraphicsPipeline(
         const UniqueKey& pipelineKey,
         SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags,
-        uint32_t *compilationID) {
+        uint32_t* compilationID) {
 
     auto globalCache = fSharedContext->globalCache();
 

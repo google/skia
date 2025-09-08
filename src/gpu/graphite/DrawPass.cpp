@@ -8,7 +8,6 @@
 
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/PipelineCreationTask.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/Resource.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/ResourceProvider.h"
@@ -42,30 +41,24 @@ bool DrawPass::prepareResources(ResourceProvider* resourceProvider,
                                 const RenderPassDesc& renderPassDesc) {
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
 
-    fPipelineHandles.reserve(fPipelineDescs.size());
+    const Caps* caps = resourceProvider->caps();
+
+    fFullPipelines.reserve(fPipelineDescs.size());
     for (const GraphicsPipelineDesc& pipelineDesc : fPipelineDescs) {
-        fPipelineHandles.push_back(
-                resourceProvider->createGraphicsPipelineHandle(pipelineDesc,
-                                                               renderPassDesc,
-                                                               PipelineCreationFlags::kNone));
-        resourceProvider->startPipelineCreationTask(runtimeDict, fPipelineHandles.back());
-    }
-
-    // The DrawPass may be long lived on a Recording and we no longer need the GraphicPipelineDescs
-    // once we've created pipeline handles, so we drop the storage for them here.
-    fPipelineDescs.clear();
-
-    // TODO(robertphillips): move this resolvePipeline loop to addResourceRefs
-    fFullPipelines.reserve(fPipelineHandles.size());
-    for (const GraphicsPipelineHandle& handle : fPipelineHandles) {
-        sk_sp<GraphicsPipeline> pipeline = resourceProvider->resolveHandle(handle);
+        UniqueKey pipelineKey = caps->makeGraphicsPipelineKey(pipelineDesc, renderPassDesc);
+        auto pipeline = resourceProvider->findOrCreateGraphicsPipeline(runtimeDict.get(),
+                                                                       pipelineKey,
+                                                                       pipelineDesc,
+                                                                       renderPassDesc);
         if (!pipeline) {
             SKGPU_LOG_W("Failed to create GraphicsPipeline for draw in RenderPass. Dropping pass!");
             return false;
         }
         fFullPipelines.push_back(std::move(pipeline));
     }
-    fPipelineHandles.clear();
+    // The DrawPass may be long lived on a Recording and we no longer need the GraphicPipelineDescs
+    // once we've created pipelines, so we drop the storage for them here.
+    fPipelineDescs.clear();
 
     for (int i = 0; i < fSampledTextures.size(); ++i) {
         // It should not have been possible to draw an Image that has an invalid texture info

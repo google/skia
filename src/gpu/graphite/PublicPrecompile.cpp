@@ -15,10 +15,8 @@
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
-#include "src/gpu/graphite/GraphicsPipelineHandle.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/PipelineCreationTask.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/PrecompileContextPriv.h"
 #include "src/gpu/graphite/PrecompileInternal.h"
@@ -43,6 +41,7 @@ void compile(const RendererProvider* rendererProvider,
              const RenderPassDesc& renderPassDesc,
              bool withPrimitiveBlender,
              Coverage coverage) {
+    const skgpu::graphite::Caps* caps = resourceProvider->caps();
 
     for (const Renderer* r : rendererProvider->renderers()) {
         if (!(r->drawTypes() & drawTypes)) {
@@ -67,11 +66,20 @@ void compile(const RendererProvider* rendererProvider,
             UniquePaintParamsID paintID = s->performsShading() ? uniqueID
                                                                : UniquePaintParamsID::Invalid();
 
-            GraphicsPipelineHandle handle = resourceProvider->createGraphicsPipelineHandle(
-                    { s->renderStepID(), paintID },
+            GraphicsPipelineDesc pipelineDesc { s->renderStepID(), paintID };
+            skgpu::UniqueKey pipelineKey = caps->makeGraphicsPipelineKey(pipelineDesc,
+                                                                         renderPassDesc);
+
+            sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
+                    keyContext.rtEffectDict().get(),
+                    pipelineKey,
+                    pipelineDesc,
                     renderPassDesc,
                     PipelineCreationFlags::kForPrecompilation);
-            resourceProvider->startPipelineCreationTask(keyContext.rtEffectDict(), handle);
+            if (!pipeline) {
+                SKGPU_LOG_W("Failed to create GraphicsPipeline in precompile!");
+                return;
+            }
         }
     }
 }
@@ -162,11 +170,21 @@ void Precompile(PrecompileContext* precompileContext,
                 const RenderStep* renderStep =
                     rendererProvider->lookup(RenderStep::RenderStepID::kCoverBounds_InverseCover);
 
-                GraphicsPipelineHandle handle = resourceProvider->createGraphicsPipelineHandle(
-                        { renderStep->renderStepID(), UniquePaintParamsID::Invalid() },
+                GraphicsPipelineDesc pipelineDesc { renderStep->renderStepID(),
+                                                    UniquePaintParamsID::Invalid() };
+                skgpu::UniqueKey pipelineKey = caps->makeGraphicsPipelineKey(pipelineDesc,
+                                                                             renderPassDesc);
+
+                sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
+                        keyContext.rtEffectDict().get(),
+                        pipelineKey,
+                        pipelineDesc,
                         renderPassDesc,
                         PipelineCreationFlags::kForPrecompilation);
-                resourceProvider->startPipelineCreationTask(keyContext.rtEffectDict(), handle);
+                if (!pipeline) {
+                    SKGPU_LOG_W("Failed to create \"CoverBoundsRenderStep[InverseCover] + (empty)\""
+                                " precompile Pipeline!");
+                }
             }
 
             if (drawTypes & DrawTypeFlags::kBitmapText_Color) {
