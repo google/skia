@@ -702,7 +702,7 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
 
         if (frame->getBlend() == SkCodecAnimation::Blend::kSrcOver) {
             if (fReader->interlaced()) {
-                decodingState->fPreblendBuffer.resize(imageSize, 0x00);
+                decodingState->fPreblendBuffer.resize(decodingState->fDst.size(), 0x00);
             } else {
                 decodingState->fPreblendBuffer.resize(rowSize, 0x00);
             }
