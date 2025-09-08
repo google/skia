@@ -1981,8 +1981,7 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
             clipData.fAnalyticClip.fRadius = 5;
         }
 
-        PaintParams paintParams = PaintParams(recorder->priv().caps(),
-                                              paint,
+        PaintParams paintParams = PaintParams(paint,
                                               primitiveBlender,
                                               clipData,
                                               std::move(modifiedClipShader),
@@ -1998,9 +1997,10 @@ void extract_vs_build_subtest(skiatest::Reporter* reporter,
                               precompileKeyContext.dstColorInfo(),
                               KeyGenFlags::kDisableSamplingOptimization,
                               paintParams.color());
-        auto keyResult = paintParams.toKey(keyContext);
-        UniquePaintParamsID paintID = keyResult.has_value() ? std::get<0>(*keyResult)
-                                                            : UniquePaintParamsID::Invalid();
+        paintParams.toKey(keyContext);
+        UniquePaintParamsID paintID =
+                recorder->priv().shaderCodeDictionary()->findOrCreate(
+                        precompileKeyContext.paintParamsKeyBuilder());
 
         RenderPassDesc unusedRenderPassDesc;
         std::vector<UniquePaintParamsID> precompileIDs;
