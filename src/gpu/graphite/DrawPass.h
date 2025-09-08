@@ -14,12 +14,6 @@
 #include "src/gpu/graphite/DrawCommands.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 
-#include <array>
-#include <cstddef>
-#include <cstdint>
-#include <memory>
-#include <utility>
-
 struct SkImageInfo;
 
 namespace skgpu::graphite {
@@ -28,7 +22,6 @@ class CommandBuffer;
 class DrawList;
 class FloatStorageManager;
 class GraphicsPipeline;
-class Recorder;
 struct RenderPassDesc;
 class ResourceProvider;
 class RuntimeEffectDictionary;
@@ -53,16 +46,6 @@ enum class StoreOp : uint8_t;
 class DrawPass {
 public:
     ~DrawPass();
-
-    // Create a DrawPass that renders the DrawList into `target` with the given load/store ops and
-    // clear color.
-    static std::unique_ptr<DrawPass> Make(Recorder*,
-                                          std::unique_ptr<DrawList>,
-                                          sk_sp<TextureProxy> target,
-                                          const SkImageInfo& targetInfo,
-                                          std::pair<LoadOp, StoreOp>,
-                                          std::array<float, 4> clearColor,
-                                          const DstReadStrategy dstReadStrategy);
 
     // Defined relative to the top-left corner of the surface the DrawPass renders to, and is
     // contained within its dimensions.
@@ -100,7 +83,7 @@ public:
     [[nodiscard]] bool addResourceRefs(ResourceProvider*, CommandBuffer*);
 
 private:
-    class SortKey;
+    friend class DrawList; // For the constructor
 
     DrawPass(sk_sp<TextureProxy> target,
              std::pair<LoadOp, StoreOp> ops,

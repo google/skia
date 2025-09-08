@@ -175,9 +175,18 @@ static constexpr int kStencilOpCount = 1 + (int)StencilOp::kDecClamp;
 // These barrier types are not utilized by all backends, but we define them at this level anyhow
 // since it impacts the logic used to group & sort draws.
 enum class BarrierType : uint8_t {
+    kNone,
     kAdvancedNoncoherentBlend,
     kReadDstFromInput,
 };
+
+enum class DstUsage : uint8_t {
+    kNone            = 0,
+    kDependsOnDst    = 0b001,
+    kDstReadRequired = 0b010,
+    kAdvancedBlend   = 0b100,
+};
+SK_MAKE_BITMASK_OPS(DstUsage)
 
 enum class RenderStateFlags : unsigned {
     kNone                   = 0b0000,
