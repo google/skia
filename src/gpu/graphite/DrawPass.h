@@ -13,6 +13,7 @@
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/graphite/DrawCommands.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/GraphicsPipelineHandle.h"
 
 struct SkImageInfo;
 
@@ -98,13 +99,16 @@ private:
     std::pair<LoadOp, StoreOp> fOps;
     std::array<float, 4> fClearColor;
 
-    // The pipelines are referenced by index in BindGraphicsPipeline, but that will index into a
-    // an array of actual GraphicsPipelines.
+    // The pipelines are referenced by index in BindGraphicsPipeline, but that will index into
+    // an array of actual GraphicsPipelines (i.e., fFullPipelines).
     skia_private::TArray<GraphicsPipelineDesc> fPipelineDescs;
 
     // These resources all get instantiated during prepareResources.
-    skia_private::TArray<sk_sp<GraphicsPipeline>> fFullPipelines;
+    skia_private::TArray<GraphicsPipelineHandle> fPipelineHandles;
     skia_private::TArray<sk_sp<TextureProxy>> fSampledTextures;
+
+    // These get resolved (from the GraphicsPipelineHandles) in prepareResources
+    skia_private::TArray<sk_sp<GraphicsPipeline>> fFullPipelines;
 
     sk_sp<FloatStorageManager> fFloatStorageManager;
 
