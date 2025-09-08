@@ -47,7 +47,9 @@ DEF_SIMPLE_GM(colorwheel, canvas, 384, 256) {
     draw_image(canvas, "images/color_wheel.gif", 128, 0);  // top middle
     draw_image(canvas, "images/color_wheel.webp", 0, 128);  // bottom left
     draw_image(canvas, "images/color_wheel.jpg", 128, 128);  // bottom middle
+#if defined(SK_CODEC_DECODES_AVIF)
     draw_image(canvas, "images/color_wheel.avif", 256, 0);  // top right
+#endif
 }
 
 DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {

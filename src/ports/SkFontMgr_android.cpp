@@ -36,6 +36,9 @@ using namespace skia_private;
 class SkData;
 
 namespace {
+
+[[maybe_unused]] static inline const constexpr bool kSkFontMgrVerbose = false;
+
 class SkTypeface_AndroidSystem : public SkTypeface_proxy {
 public:
     static sk_sp<SkTypeface_AndroidSystem> Make(sk_sp<SkTypeface> realTypeface,
@@ -499,15 +502,18 @@ static char const * const gSystemFontUseStrings[] = {
 
 }  // namespace
 
-sk_sp<SkFontMgr> SkFontMgr_New_Android(const SkFontMgr_Android_CustomFonts* custom, std::unique_ptr<SkFontScanner> scanner) {
+sk_sp<SkFontMgr> SkFontMgr_New_Android(const SkFontMgr_Android_CustomFonts* custom,
+                                       std::unique_ptr<SkFontScanner> scanner) {
     if (custom) {
         SkASSERT(0 <= custom->fSystemFontUse);
         SkASSERT(custom->fSystemFontUse < std::size(gSystemFontUseStrings));
-        SkDEBUGF("SystemFontUse: %s BasePath: %s Fonts: %s FallbackFonts: %s\n",
-                 gSystemFontUseStrings[custom->fSystemFontUse],
-                 custom->fBasePath,
-                 custom->fFontsXml,
-                 custom->fFallbackFontsXml);
+        if constexpr (kSkFontMgrVerbose) {
+            SkDEBUGF("SystemFontUse: %s BasePath: %s Fonts: %s FallbackFonts: %s\n",
+                     gSystemFontUseStrings[custom->fSystemFontUse],
+                     custom->fBasePath,
+                     custom->fFontsXml,
+                     custom->fFallbackFontsXml);
+        }
     }
     return sk_make_sp<SkFontMgr_Android>(custom, std::move(scanner));
 }

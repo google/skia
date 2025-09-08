@@ -71,13 +71,11 @@ void get_text_path(const SkFont&,
                    const SkPoint* positions = nullptr);
 
 /**
- *  Returns true iff all of the pixels between the two images are identical.
- *
- *  If the configs differ, return false.
+ *  Returns true iff the configs and all of the pixels between the two are identical.
  */
 bool equal_pixels(const SkPixmap&, const SkPixmap&);
 bool equal_pixels(const SkBitmap&, const SkBitmap&);
-bool equal_pixels(const SkImage* a, const SkImage* b);
+bool equal_pixels(const SkImage*,  const SkImage*);
 
 /** Returns a newly created CheckerboardShader. */
 sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int size);
