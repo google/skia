@@ -15,7 +15,9 @@
 #if defined(SK_ENABLE_PRECOMPILE)
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/GraphicsPipelineHandle.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/PipelineCreationTask.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/RuntimeEffectDictionary.h"
@@ -76,21 +78,11 @@ bool PrecompileContext::precompile(sk_sp<SkData> serializedPipelineKey) {
         return false;
     }
 
-    UniqueKey pipelineKey = caps->makeGraphicsPipelineKey(pipelineDesc, renderPassDesc);
-
-    sk_sp<GraphicsPipeline> pipeline = fResourceProvider->findOrCreateGraphicsPipeline(
-            rtEffectDict.get(),
-            pipelineKey,
+    GraphicsPipelineHandle handle = fResourceProvider->createGraphicsPipelineHandle(
             pipelineDesc,
             renderPassDesc,
             PipelineCreationFlags::kForPrecompilation);
-    if (!pipeline) {
-        SKGPU_LOG_W("Failed to create GraphicsPipeline in precompile!");
-        return false;
-    }
-
-    // Precompiling a serialized pipeline key shouldn't ever add a new runtime effect
-    SkASSERT(rtEffectDict->empty());
+    fResourceProvider->startPipelineCreationTask(rtEffectDict, handle);
 
     return true;
 #else
