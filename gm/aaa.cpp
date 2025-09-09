@@ -54,20 +54,6 @@ DEF_SIMPLE_GM(analytic_antialias_convex, canvas, W, H) {
     pb.close();
     canvas->drawPath(pb.detach(), p);
 
-    // The following path reveals a subtle SkAnalyticQuadraticEdge::updateQuadratic bug:
-    // we should not use any snapped y for the intermediate values whose error may accumulate;
-    // snapping should only be allowed once before updateLine.
-    pb.moveTo(SkBits2Float(0x434ba71e), SkBits2Float(0x438a06d0));  // 203.653f, 276.053f
-    pb.lineTo(SkBits2Float(0x43492a74), SkBits2Float(0x4396d70d));  // 201.166f, 301.68f
-    // 200.921f, 304.207f, 196.939f, 303.82f, 0.707107f
-    pb.conicTo(SkBits2Float(0x4348ebaf), SkBits2Float(0x43981a75),
-            SkBits2Float(0x4344f079), SkBits2Float(0x4397e900), SkBits2Float(0x3f3504f3));
-    pb.close();
-    SkPath path = pb.detach();
-    // Manually setting convexity is required. Otherwise, this path will be considered concave.
-    SkPathPriv::SetConvexity(path, SkPathConvexity::kConvex);
-    canvas->drawPath(path, p);
-
     // skbug.com/40038820
     y += 200;
     canvas->save();
