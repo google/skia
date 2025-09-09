@@ -9,7 +9,6 @@
 #include "include/core/SkCanvas.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/utils/SkPaintFilterCanvas.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkDevice.h"
 #include "src/image/SkSurface_Base.h"
 #include "src/shaders/SkShaderBase.h"
@@ -54,7 +53,7 @@ SkCanvas* SkAndroidFrameworkUtils::getBaseWrappedCanvas(SkCanvas* canvas) {
 bool SkAndroidFrameworkUtils::ShaderAsALinearGradient(SkShader* shader,
                                                       LinearGradientInfo* info) {
     SkASSERT(shader);
-    SkTLazy<SkShaderBase::GradientInfo> baseInfo;
+    std::optional<SkShaderBase::GradientInfo> baseInfo;
     if (info) {
         baseInfo.init();
         baseInfo->fColorCount = info->fColorCount;

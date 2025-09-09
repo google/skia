@@ -31,8 +31,8 @@ GrStyledShape& GrStyledShape::operator=(const GrStyledShape& that) {
     fInheritedKey.reset(that.fInheritedKey.count());
     sk_careful_memcpy(fInheritedKey.get(), that.fInheritedKey.get(),
                       sizeof(uint32_t) * fInheritedKey.count());
-    if (that.fInheritedPathForListeners.isValid()) {
-        fInheritedPathForListeners.set(*that.fInheritedPathForListeners);
+    if (that.fInheritedPathForListeners.has_value()) {
+        fInheritedPathForListeners = *that.fInheritedPathForListeners;
     } else {
         fInheritedPathForListeners.reset();
     }
@@ -62,8 +62,8 @@ GrStyledShape GrStyledShape::MakeFilled(const GrStyledShape& original, FillInver
     }
     GrStyledShape result;
     SkASSERT(result.fStyle.isSimpleFill());
-    if (original.fInheritedPathForListeners.isValid()) {
-        result.fInheritedPathForListeners.set(*original.fInheritedPathForListeners);
+    if (original.fInheritedPathForListeners.has_value()) {
+        result.fInheritedPathForListeners = *original.fInheritedPathForListeners;
     }
 
     result.fShape = original.fShape;
@@ -300,8 +300,8 @@ void GrStyledShape::setInheritedKey(const GrStyledShape &parent, GrStyle::Apply 
 }
 
 const SkPath* GrStyledShape::originalPathForListeners() const {
-    if (fInheritedPathForListeners.isValid()) {
-        return fInheritedPathForListeners.get();
+    if (fInheritedPathForListeners.has_value()) {
+        return &fInheritedPathForListeners.value();
     } else if (fShape.isPath() && !fShape.path().isVolatile()) {
         return &fShape.path();
     }
@@ -335,8 +335,8 @@ GrStyledShape::GrStyledShape(const GrStyledShape& that)
     fInheritedKey.reset(that.fInheritedKey.count());
     sk_careful_memcpy(fInheritedKey.get(), that.fInheritedKey.get(),
                       sizeof(uint32_t) * fInheritedKey.count());
-    if (that.fInheritedPathForListeners.isValid()) {
-        fInheritedPathForListeners.set(*that.fInheritedPathForListeners);
+    if (that.fInheritedPathForListeners.has_value()) {
+        fInheritedPathForListeners = *that.fInheritedPathForListeners;
     }
 }
 
@@ -352,9 +352,9 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
     }
 
     SkPathEffect* pe = parent.fStyle.pathEffect();
-    SkTLazy<SkPath> tmpPath;
+    std::optional<SkPath> tmpPath;
     const GrStyledShape* parentForKey = &parent;
-    SkTLazy<GrStyledShape> tmpParent;
+    std::optional<GrStyledShape> tmpParent;
 
     // Start out as an empty path that is filled in by the applied style
     fShape.setPath(SkPath());
@@ -364,15 +364,15 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
         if (parent.fShape.isPath()) {
             srcForPathEffect = &parent.fShape.path();
         } else {
-            srcForPathEffect = tmpPath.init();
-            parent.asPath(tmpPath.get());
+            srcForPathEffect = &tmpPath.emplace();
+            parent.asPath(&tmpPath.value());
         }
         // Should we consider bounds? Would have to include in key, but it'd be nice to know
         // if the bounds actually modified anything before including in key.
         SkStrokeRec strokeRec = parent.fStyle.strokeRec();
         if (!parent.fStyle.applyPathEffectToPath(&fShape.path(), &strokeRec, *srcForPathEffect,
                                                  scale)) {
-            tmpParent.init(*srcForPathEffect, GrStyle(strokeRec, nullptr));
+            tmpParent.emplace(*srcForPathEffect, GrStyle(strokeRec, nullptr));
             *this = tmpParent->applyStyle(apply, scale);
             return;
         }
@@ -387,25 +387,25 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
             // We detect that case here and change parentForKey to a temporary that represents
             // the simpler shape so that applying both path effect and the strokerec all at
             // once produces the same key.
-            tmpParent.init(fShape.path(), GrStyle(strokeRec, nullptr));
+            tmpParent.emplace(fShape.path(), GrStyle(strokeRec, nullptr));
             tmpParent->setInheritedKey(parent, GrStyle::Apply::kPathEffectOnly, scale);
-            if (!tmpPath.isValid()) {
-                tmpPath.init();
+            if (!tmpPath.has_value()) {
+                tmpPath.emplace();
             }
-            tmpParent->asPath(tmpPath.get());
+            tmpParent->asPath(&tmpPath.value());
             SkStrokeRec::InitStyle fillOrHairline;
             // The parent shape may have simplified away the strokeRec, check for that here.
             if (tmpParent->style().applies()) {
-                SkAssertResult(tmpParent.get()->style().applyToPath(&fShape.path(), &fillOrHairline,
-                                                                    *tmpPath.get(), scale));
+                SkAssertResult(tmpParent->style().applyToPath(&fShape.path(), &fillOrHairline,
+                                                              tmpPath.value(), scale));
             } else if (tmpParent->style().isSimpleFill()) {
                 fillOrHairline = SkStrokeRec::kFill_InitStyle;
             } else {
-                SkASSERT(tmpParent.get()->style().isSimpleHairline());
+                SkASSERT(tmpParent->style().isSimpleHairline());
                 fillOrHairline = SkStrokeRec::kHairline_InitStyle;
             }
             fStyle.resetToInitStyle(fillOrHairline);
-            parentForKey = tmpParent.get();
+            parentForKey = &tmpParent.value();
         } else {
             fStyle = GrStyle(strokeRec, nullptr);
         }
@@ -414,8 +414,8 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
         if (parent.fShape.isPath()) {
             srcForParentStyle = &parent.fShape.path();
         } else {
-            srcForParentStyle = tmpPath.init();
-            parent.asPath(tmpPath.get());
+            srcForParentStyle = &tmpPath.emplace();
+            parent.asPath(&tmpPath.value());
         }
         SkStrokeRec::InitStyle fillOrHairline;
         SkASSERT(parent.fStyle.applies());
@@ -425,10 +425,10 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
         fStyle.resetToInitStyle(fillOrHairline);
     }
 
-    if (parent.fInheritedPathForListeners.isValid()) {
-        fInheritedPathForListeners.set(*parent.fInheritedPathForListeners);
+    if (parent.fInheritedPathForListeners.has_value()) {
+        fInheritedPathForListeners = *parent.fInheritedPathForListeners;
     } else if (parent.fShape.isPath() && !parent.fShape.path().isVolatile()) {
-        fInheritedPathForListeners.set(parent.fShape.path());
+        fInheritedPathForListeners = parent.fShape.path();
     }
     this->simplify();
     this->setInheritedKey(*parentForKey, apply, scale);

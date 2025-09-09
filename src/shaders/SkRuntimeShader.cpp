@@ -152,11 +152,11 @@ sk_sp<SkFlattenable> SkRuntimeShader::CreateProc(SkReadBuffer& buffer) {
 
     sk_sp<SkData> uniforms = buffer.readByteArrayAsData();
 
-    SkTLazy<SkMatrix> localM;
+    std::optional<SkMatrix> localM;
     if (buffer.isVersionLT(SkPicturePriv::kNoShaderLocalMatrix)) {
         uint32_t flags = buffer.read32();
         if (flags & kHasLegacyLocalMatrix_Flag) {
-            buffer.readMatrix(localM.init());
+            buffer.readMatrix(&localM.emplace());
         }
     }
 
@@ -182,5 +182,5 @@ sk_sp<SkFlattenable> SkRuntimeShader::CreateProc(SkReadBuffer& buffer) {
         }
     }
 
-    return effect->makeShader(std::move(uniforms), SkSpan(children), localM.getMaybeNull());
+    return effect->makeShader(std::move(uniforms), SkSpan(children), SkOptAddressOrNull(localM));
 }

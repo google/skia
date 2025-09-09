@@ -18,10 +18,10 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkDeque.h"
-#include "src/base/SkTLazy.h"
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <utility>
 
 // Because a single save/restore state can have multiple clips, this class
@@ -189,7 +189,7 @@ public:
     private:
         friend class SkClipStack;
 
-        SkTLazy<SkPath> fDeviceSpacePath;
+        std::optional<SkPath> fDeviceSpacePath;
         SkRRect fDeviceSpaceRRect;
         sk_sp<SkShader> fShader;
         int fSaveCount;  // save count of stack when this element was added.

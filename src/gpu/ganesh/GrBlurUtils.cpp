@@ -46,7 +46,6 @@
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkFloatBits.h"
 #include "src/base/SkSafeMath.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkBlurMaskFilterImpl.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkDraw.h"
@@ -1387,7 +1386,7 @@ static void draw_shape_with_mask_filter(GrRecordingContext* rContext,
     SkASSERT(maskFilter);
 
     const GrStyledShape* shape = &origShape;
-    SkTLazy<GrStyledShape> tmpShape;
+    std::optional<GrStyledShape> tmpShape;
 
     if (origShape.style().applies()) {
         SkScalar styleScale =  GrStyle::MatrixToScaleFactor(viewMatrix);
@@ -1395,12 +1394,12 @@ static void draw_shape_with_mask_filter(GrRecordingContext* rContext,
             return;
         }
 
-        tmpShape.init(origShape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, styleScale));
+        tmpShape.emplace(origShape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, styleScale));
         if (tmpShape->isEmpty()) {
             return;
         }
 
-        shape = tmpShape.get();
+        shape = &tmpShape.value();
     }
 
     if (direct_filter_mask(rContext, maskFilter, sdc, std::move(paint), clip, viewMatrix, *shape)) {

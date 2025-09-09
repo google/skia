@@ -20,7 +20,6 @@
 #include "modules/skcms/skcms.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/base/SkRectMemcpy.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkColorSpaceXformSteps.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpContexts.h"
@@ -443,10 +442,10 @@ bool GrConvertPixels(const GrPixmap& dst, const GrCPixmap& src, bool flipY) {
                                                   &dstIsNormalized,
                                                   &dstIsSRGB);
 
-    SkTLazy<SkColorSpaceXformSteps> steps;
+    std::optional<SkColorSpaceXformSteps> steps;
     skgpu::Swizzle loadStoreSwizzle;
     if (alphaOrCSConversion) {
-        steps.init(src.colorSpace(), src.alphaType(), dst.colorSpace(), dst.alphaType());
+        steps.emplace(src.colorSpace(), src.alphaType(), dst.colorSpace(), dst.alphaType());
     } else {
         loadStoreSwizzle = skgpu::Swizzle::Concat(loadSwizzle, storeSwizzle);
     }

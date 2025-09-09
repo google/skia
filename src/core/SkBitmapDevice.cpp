@@ -29,7 +29,6 @@
 #include "include/core/SkTileMode.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTo.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkCPURecorderImpl.h"
 #include "src/core/SkDraw.h"
 #include "src/core/SkImagePriv.h"
@@ -71,9 +70,9 @@ class SkDrawTiler {
     skcpu::Draw fDraw;
 
     // fTileMatrix... are only used if fNeedTiling
-    SkTLazy<SkMatrix> fTileMatrix;
-    SkRasterClip      fTileRC;
-    SkIPoint          fOrigin;
+    std::optional<SkMatrix> fTileMatrix;
+    SkRasterClip            fTileRC;
+    SkIPoint                fOrigin;
 
     bool            fDone, fNeedsTiling;
 
@@ -184,9 +183,9 @@ private:
         SkASSERT_RELEASE(success);
         // now don't use bounds, since fDst has the clipped dimensions.
 
-        fTileMatrix.init(fDevice->localToDevice());
+        fTileMatrix = fDevice->localToDevice();
         fTileMatrix->postTranslate(-fOrigin.x(), -fOrigin.y());
-        fDraw.fCTM = fTileMatrix.get();
+        fDraw.fCTM = &fTileMatrix.value();
         fDevice->fRCStack.rc().translate(-fOrigin.x(), -fOrigin.y(), &fTileRC);
         fTileRC.op(SkIRect::MakeSize(fDraw.fDst.dimensions()), SkClipOp::kIntersect);
     }

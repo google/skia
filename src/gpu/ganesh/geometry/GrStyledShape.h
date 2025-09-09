@@ -16,13 +16,13 @@
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTemplates.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkPathEnums.h"
 #include "src/core/SkPathPriv.h"
 #include "src/gpu/ganesh/GrStyle.h"
 #include "src/gpu/ganesh/geometry/GrShape.h"
 
 #include <cstdint>
+#include <optional>
 
 struct SkArc;
 class SkIDChangeListener;
@@ -314,7 +314,7 @@ private:
     bool    fClosed     = false;
     bool    fSimplified = false;
 
-    SkTLazy<SkPath>            fInheritedPathForListeners;
+    std::optional<SkPath>                  fInheritedPathForListeners;
     skia_private::AutoSTArray<8, uint32_t> fInheritedKey;
 };
 #endif

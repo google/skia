@@ -869,7 +869,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient_fp(const SkConicalGrad
     // The 2 point conical gradient can reject a pixel so it does change opacity even if the input
     // was opaque. Thus, all of these layout FPs disable that optimization.
     std::unique_ptr<GrFragmentProcessor> fp;
-    SkTLazy<SkMatrix> matrix;
+    std::optional<SkMatrix> matrix;
     switch (shader->getType()) {
         case SkConicalGradient::Type::kStrip: {
             static const SkRuntimeEffect* kEffect =
@@ -924,8 +924,8 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient_fp(const SkConicalGrad
             // to have |dr| = 1, so manually compute the final gradient matrix here.
 
             // Map center to (0, 0)
-            matrix.set(SkMatrix::Translate(-shader->getStartCenter().fX,
-                                           -shader->getStartCenter().fY));
+            matrix = SkMatrix::Translate(-shader->getStartCenter().fX,
+                                         -shader->getStartCenter().fY);
             // scale |diffRadius| to 1
             matrix->postScale(1 / dr, 1 / dr);
         } break;
@@ -1022,7 +1022,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient_fp(const SkConicalGrad
         } break;
     }
     return GrGradientShader::MakeGradientFP(
-            *shader, args, mRec, std::move(fp), matrix.getMaybeNull());
+            *shader, args, mRec, std::move(fp), SkOptAddressOrNull(matrix));
 }
 
 static std::unique_ptr<GrFragmentProcessor> make_gradient_fp(const SkLinearGradient* shader,

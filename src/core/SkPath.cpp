@@ -21,7 +21,6 @@
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkFloatBits.h"
-#include "src/base/SkTLazy.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkCubicClipper.h"
 #include "src/core/SkEdgeClipper.h"
@@ -1351,9 +1350,10 @@ SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMo
 
     // Detect if we're trying to add ourself
     const SkPath* src = &srcPath;
-    SkTLazy<SkPath> tmp;
+    std::optional<SkPath> tmp;
     if (this == src) {
-        src = tmp.set(srcPath);
+        tmp = srcPath;
+        src = &tmp.value();
     }
 
     if (kAppend_AddPathMode == mode && !matrix.hasPerspective()) {
@@ -1458,9 +1458,10 @@ SkPath& SkPath::reversePathTo(const SkPath& path) {
 SkPath& SkPath::reverseAddPath(const SkPath& srcPath) {
     // Detect if we're trying to add ourself
     const SkPath* src = &srcPath;
-    SkTLazy<SkPath> tmp;
+    std::optional<SkPath> tmp;
     if (this == src) {
-        src = tmp.set(srcPath);
+        tmp = srcPath;
+        src = &tmp.value();
     }
 
     const SkPathVerb* verbsBegin = src->fPathRef->verbsBegin();

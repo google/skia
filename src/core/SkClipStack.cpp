@@ -33,7 +33,7 @@ SkClipStack::Element::Element(const Element& that) {
             break;
         case DeviceSpaceType::kPath:
             fShader.reset();
-            fDeviceSpacePath.set(that.getDeviceSpacePath());
+            fDeviceSpacePath = that.getDeviceSpacePath();
             break;
         case DeviceSpaceType::kShader:
             fDeviceSpacePath.reset();
@@ -203,7 +203,7 @@ void SkClipStack::Element::initAsPath(int saveCount, const SkPath& path, const S
     SkPathBuilder builder(path);
     builder.transform(m);
     builder.setIsVolatile(true);
-    fDeviceSpacePath.set(builder.detach());
+    fDeviceSpacePath = builder.detach();
 
     fDeviceSpaceType = DeviceSpaceType::kPath;
     this->initCommon(saveCount, op, doAA);
@@ -261,7 +261,7 @@ void SkClipStack::Element::checkEmpty() const {
     SkASSERT(!fIsIntersectionOfRects);
     SkASSERT(kEmptyGenID == fGenID);
     SkASSERT(fDeviceSpaceRRect.isEmpty());
-    SkASSERT(!fDeviceSpacePath.isValid());
+    SkASSERT(!fDeviceSpacePath.has_value());
     SkASSERT(!fShader);
 }
 

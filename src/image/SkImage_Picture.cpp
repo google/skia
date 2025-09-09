@@ -59,7 +59,7 @@ void SkImage_Picture::replay(SkCanvas* canvas) const {
     canvas->clear(SkColors::kTransparent);
     canvas->drawPicture(pictureIG->fPicture,
                         &pictureIG->fMatrix,
-                        pictureIG->fPaint.getMaybeNull());
+                        SkOptAddressOrNull(pictureIG->fPaint));
 }
 
 sk_sp<SkImage> SkImage_Picture::onMakeSubset(SkRecorder*,
@@ -75,7 +75,7 @@ sk_sp<SkImage> SkImage_Picture::onMakeSubset(SkRecorder*,
                                                        : SkImages::BitDepth::kU8;
 
     return SkImage_Picture::Make(pictureIG->fPicture, subset.size(),
-                                 &matrix, pictureIG->fPaint.getMaybeNull(),
+                                 &matrix, SkOptAddressOrNull(pictureIG->fPaint),
                                  bitDepth, this->refColorSpace(), pictureIG->fProps);
 }
 
@@ -86,7 +86,7 @@ bool SkImage_Picture::getImageKeyValues(
     SkAutoMutexExclusive mutex(sharedGenerator->fMutex);
 
     auto pictureIG = static_cast<SkPictureImageGenerator*>(sharedGenerator->fGenerator.get());
-    if (pictureIG->fPaint.getMaybeNull()) {
+    if (pictureIG->fPaint.has_value()) {
         // A full paint complicates the potential key too much.
         return false;
     }

@@ -21,7 +21,6 @@
 #include "include/private/base/SkTDArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMatrixPriv.h"
@@ -831,9 +830,9 @@ private:
 
             // We avoid initializing the path unless we have to
             const SkPath* pathPtr = &args.fPath;
-            SkTLazy<SkPath> tmpPath;
+            std::optional<SkPath> tmpPath;
             if (viewMatrix->hasPerspective()) {
-                SkPath* tmpPathPtr = tmpPath.init(*pathPtr);
+                SkPath* tmpPathPtr = &tmpPath.emplace(*pathPtr);
                 tmpPathPtr->setIsVolatile(true);
                 tmpPathPtr->transform(*viewMatrix);
                 viewMatrix = &SkMatrix::I();

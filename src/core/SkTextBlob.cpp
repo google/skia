@@ -20,7 +20,6 @@
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkSafeMath.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkFontPriv.h"
 #include "src/core/SkGlyph.h"
 #include "src/core/SkReadBuffer.h"
@@ -926,10 +925,10 @@ int get_glyph_run_intercepts(const sktext::GlyphRun& glyphRun,
 
 int SkTextBlob::getIntercepts(const SkScalar bounds[2], SkScalar intervals[],
                               const SkPaint* paint) const {
-    SkTLazy<SkPaint> defaultPaint;
+    std::optional<SkPaint> defaultPaint;
     if (paint == nullptr) {
-        defaultPaint.init();
-        paint = defaultPaint.get();
+        defaultPaint.emplace();
+        paint = &defaultPaint.value();
     }
 
     sktext::GlyphRunBuilder builder;
