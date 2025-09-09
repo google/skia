@@ -647,17 +647,21 @@ SkCodec::Result SkPngRustCodec::startDecoding(const SkImageInfo& dstInfo,
     const SkFrame* frame = fFrameHolder.getFrame(options.fFrameIndex);
     SkASSERT_RELEASE(frame);
 
-    // https://www.w3.org/TR/png-3/#11PLTE says that for color type 3
-    // (indexed-color), the PLTE chunk is required.  OTOH, `Codec_InvalidImages`
-    // expects that we will succeed in this case and produce *some* output.
-    if (this->getEncodedInfo().color() == SkEncodedInfo::kPalette_Color &&
-        !fReader->has_plte_chunk()) {
-        return kInvalidInput;
-    }
-
     Result result = this->seekToStartOfFrame(options.fFrameIndex);
     if (result != kSuccess) {
         return result;
+    }
+
+    // https://www.w3.org/TR/png-3/#11PLTE says that for color type 3
+    // (indexed-color), the PLTE chunk is required.  OTOH, `Codec_InvalidImages`
+    // expects that we will succeed in this case and produce *some* output.
+    //
+    // This check needs to happen after `seekToStartOfFrame`, because the act
+    // of seeking-and/or-rewinding may reset whether `fReader` has encountered
+    // an PLTE chunk yet or not.
+    if (this->getEncodedInfo().color() == SkEncodedInfo::kPalette_Color &&
+        !fReader->has_plte_chunk()) {
+        return kInvalidInput;
     }
 
     result = this->initializeXforms(dstInfo, options, frame->width());
