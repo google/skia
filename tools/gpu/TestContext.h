@@ -14,7 +14,6 @@
 #include "include/private/base/SkNoncopyable.h"
 #include "include/private/base/SkTemplates.h"
 #include "src/base/SkScopeExit.h"
-#include "tools/gpu/FenceSync.h"
 
 class GrDirectContext;
 struct GrContextOptions;
