@@ -496,9 +496,7 @@ bool StencilMaskHelper::drawShape(const GrShape& shape,
         this->drawRect(shape.rect(), matrix, op, aa);
         return true;
     } else {
-        SkPath p;
-        shape.asPath(&p);
-        return this->drawPath(p, matrix, op, aa);
+        return this->drawPath(shape.asPath(), matrix, op, aa);
     }
 }
 

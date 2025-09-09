@@ -406,8 +406,7 @@ void Device::android_utils_clipAsRgn(SkRegion* region) const {
         if (e.fShape.isRect() && e.fLocalToDevice.isIdentity()) {
             tmp.setRect(e.fShape.rect().roundOut());
         } else {
-            SkPath tmpPath;
-            e.fShape.asPath(&tmpPath);
+            SkPath tmpPath = e.fShape.asPath();
             tmpPath.transform(e.fLocalToDevice);
             tmp.setPath(tmpPath, deviceBounds);
         }

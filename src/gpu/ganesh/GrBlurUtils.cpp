@@ -189,9 +189,7 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
 
         // TODO: it seems like we could create an skcpu::Draw here and set its fMatrix field rather
         // than explicitly transforming the path to device space.
-        SkPath devPath;
-
-        shape.asPath(&devPath);
+        SkPath devPath = shape.asPath();
 
         devPath.transform(viewMatrix);
 

@@ -1385,8 +1385,7 @@ bool AAHairLinePathRenderer::onDrawPath(const DrawPathArgs& args) {
                               "AAHairlinePathRenderer::onDrawPath");
     SkASSERT(args.fSurfaceDrawContext->numSamples() <= 1);
 
-    SkPath path;
-    args.fShape->asPath(&path);
+    SkPath path = args.fShape->asPath();
     GrOp::Owner op =
             AAHairlineOp::Make(args.fContext, std::move(args.fPaint), *args.fViewMatrix, path,
                                args.fShape->style(), *args.fClipConservativeBounds,

@@ -433,8 +433,7 @@ bool AALinearizingConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(!args.fShape->isEmpty());
     SkASSERT(!args.fShape->style().pathEffect());
 
-    SkPath path;
-    args.fShape->asPath(&path);
+    SkPath path = args.fShape->asPath();
     bool fill = args.fShape->style().isSimpleFill();
     const SkStrokeRec& stroke = args.fShape->style().strokeRec();
     SkScalar strokeWidth = fill ? -1.0f : stroke.getWidth();

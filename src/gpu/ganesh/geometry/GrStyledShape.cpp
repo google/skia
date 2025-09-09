@@ -364,8 +364,7 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
         if (parent.fShape.isPath()) {
             srcForPathEffect = &parent.fShape.path();
         } else {
-            srcForPathEffect = &tmpPath.emplace();
-            parent.asPath(&tmpPath.value());
+            srcForPathEffect = &tmpPath.emplace(parent.asPath());
         }
         // Should we consider bounds? Would have to include in key, but it'd be nice to know
         // if the bounds actually modified anything before including in key.
@@ -392,7 +391,7 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
             if (!tmpPath.has_value()) {
                 tmpPath.emplace();
             }
-            tmpParent->asPath(&tmpPath.value());
+            tmpPath = tmpParent->asPath();
             SkStrokeRec::InitStyle fillOrHairline;
             // The parent shape may have simplified away the strokeRec, check for that here.
             if (tmpParent->style().applies()) {
@@ -414,8 +413,7 @@ GrStyledShape::GrStyledShape(const GrStyledShape& parent, GrStyle::Apply apply, 
         if (parent.fShape.isPath()) {
             srcForParentStyle = &parent.fShape.path();
         } else {
-            srcForParentStyle = &tmpPath.emplace();
-            parent.asPath(&tmpPath.value());
+            srcForParentStyle = &tmpPath.emplace(parent.asPath());
         }
         SkStrokeRec::InitStyle fillOrHairline;
         SkASSERT(parent.fStyle.applies());

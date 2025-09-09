@@ -302,8 +302,7 @@ bool GrShape::conservativeContains(const SkRect& rect) const {
             return fPath.conservativelyContainsRect(rect);
         case Type::kArc:
             if (fArc.fType == SkArc::Type::kWedge) {
-                SkPath arc;
-                this->asPath(&arc);
+                SkPath arc = this->asPath();
                 return arc.conservativelyContainsRect(rect);
             } else {
                 return false;
@@ -422,48 +421,48 @@ uint32_t GrShape::segmentMask() const {
     SkUNREACHABLE;
 }
 
-void GrShape::asPath(SkPath* out, bool simpleFill) const {
+SkPath GrShape::asPath(bool simpleFill) const {
+    SkPath out;
     if (!this->isPath() && !this->isArc()) {
         // When not a path, we need to set fill type on the path to match invertedness.
         // All the non-path geometries produce equivalent shapes with either even-odd or winding
         // so we can use the default fill type.
-        out->reset();
-        out->setFillType(kDefaultFillType);
+        out.setFillType(kDefaultFillType);
         if (fInverted) {
-            out->toggleInverseFillType();
+            out.toggleInverseFillType();
         }
     } // Else when we're already a path, that will assign the fill type directly to 'out'.
 
     switch (this->type()) {
         case Type::kEmpty:
-            return;
+            return out;
         case Type::kPoint:
             // A plain moveTo() or moveTo+close() does not match the expected path for a
             // point that is being dashed (see SkDashPath's handling of zero-length segments).
-            out->moveTo(fPoint);
-            out->lineTo(fPoint);
-            return;
+            out.moveTo(fPoint);
+            out.lineTo(fPoint);
+            return out;
         case Type::kRect:
-            out->addRect(fRect, this->dir(), this->startIndex());
-            return;
+            out.addRect(fRect, this->dir(), this->startIndex());
+            return out;
         case Type::kRRect:
-            out->addRRect(fRRect, this->dir(), this->startIndex());
-            return;
+            out.addRRect(fRRect, this->dir(), this->startIndex());
+            return out;
         case Type::kPath:
-            *out = fPath;
-            return;
+            out = fPath;
+            return out;
         case Type::kArc:
-            SkPathPriv::CreateDrawArcPath(out, fArc, simpleFill);
+            SkPathPriv::CreateDrawArcPath(&out, fArc, simpleFill);
             // CreateDrawArcPath resets the output path and configures its fill type, so we just
             // have to ensure invertedness is correct.
             if (fInverted) {
-                out->toggleInverseFillType();
+                out.toggleInverseFillType();
             }
-            return;
+            return out;
         case Type::kLine:
-            out->moveTo(fLine.fP1);
-            out->lineTo(fLine.fP2);
-            return;
+            out.moveTo(fLine.fP1);
+            out.lineTo(fLine.fP2);
+            return out;
     }
     SkUNREACHABLE;
 }

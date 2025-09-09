@@ -657,8 +657,7 @@ bool DefaultPathRenderer::internalDrawPath(skgpu::ganesh::SurfaceDrawContext* sd
     auto context = sdc->recordingContext();
 
     SkASSERT(GrAAType::kCoverage != aaType);
-    SkPath path;
-    shape.asPath(&path);
+    SkPath path = shape.asPath();
 
     SkScalar hairlineCoverage;
     uint8_t newCoverage = 0xff;
@@ -823,8 +822,7 @@ PathRenderer::CanDrawPath DefaultPathRenderer::onCanDrawPath(const CanDrawPathAr
         return CanDrawPath::kNo;
     }
 
-    SkPath path;
-    args.fShape->asPath(&path);
+    SkPath path = args.fShape->asPath();
     int verbCount = path.countVerbs();
     // Don't use this path renderer if we exceed the max verb count.
     if (verbCount > kMaxGPUPathRendererVerbs) {

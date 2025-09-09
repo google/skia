@@ -269,8 +269,7 @@ GrFPResult analytic_clip_fp(const skgpu::ganesh::ClipStack::Element& e,
     // A convex hull can be transformed into device space (this will handle rect shapes with a
     // non-identity transform).
     if (e.fShape.segmentMask() == SkPath::kLine_SegmentMask && e.fShape.convex()) {
-        SkPath devicePath;
-        e.fShape.asPath(&devicePath);
+        SkPath devicePath = e.fShape.asPath();
         devicePath.transform(e.fLocalToDevice);
         return GrConvexPolyEffect::Make(std::move(fp), edgeType, devicePath);
     }
@@ -290,8 +289,7 @@ GrFPResult clip_atlas_fp(const skgpu::ganesh::SurfaceDrawContext* sdc,
     if (e.fAA != GrAA::kYes) {
         return GrFPFailure(std::move(inputFP));
     }
-    SkPath path;
-    e.fShape.asPath(&path);
+    SkPath path = e.fShape.asPath();
     SkASSERT(!path.isInverseFillType());
     if (e.fOp == SkClipOp::kDifference) {
         // Toggling fill type does not affect the path's "generationID" key.
