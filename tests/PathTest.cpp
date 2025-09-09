@@ -5557,9 +5557,9 @@ struct Xforms {
     }
 };
 
-static bool conditional_convex(const SkPath& path, bool is_convex) {
-    SkPathConvexity c = SkPathPriv::GetConvexityOrUnknown(path);
-    return is_convex ? (c == SkPathConvexity::kConvex) : (c != SkPathConvexity::kConvex);
+static bool nocompute_isconvex(const SkPath& path) {
+    SkPathConvexity convexity = SkPathPriv::GetConvexityOrUnknown(path);
+    return SkPathConvexity_IsConvex(convexity);
 }
 
 // expect axis-aligned shape to survive assignment, identity and scale/translate matrices
@@ -5575,39 +5575,39 @@ void survive(SkPath* path, const Xforms& x, bool isAxisAligned, skiatest::Report
     // a path's isa and convexity should survive assignment
     path2 = *path;
     REPORTER_ASSERT(reporter, isa_proc(path2));
-    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(path2) == SkPathConvexity::kConvex);
+    REPORTER_ASSERT(reporter, nocompute_isconvex(path2));
 
     // a path's isa and convexity should identity transform
     path->transform(x.fIM, &path2);
     path->transform(x.fIM);
     REPORTER_ASSERT(reporter, isa_proc(path2));
-    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(path2) == SkPathConvexity::kConvex);
+    REPORTER_ASSERT(reporter, nocompute_isconvex(path2));
     REPORTER_ASSERT(reporter, isa_proc(*path));
-    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(*path) == SkPathConvexity::kConvex);
+    REPORTER_ASSERT(reporter, nocompute_isconvex(*path));
 
     // a path's isa should survive translation, convexity depends on axis alignment
     path->transform(x.fTM, &path2);
     path->transform(x.fTM);
     REPORTER_ASSERT(reporter, isa_proc(path2));
     REPORTER_ASSERT(reporter, isa_proc(*path));
-    REPORTER_ASSERT(reporter, conditional_convex(path2, isAxisAligned));
-    REPORTER_ASSERT(reporter, conditional_convex(*path, isAxisAligned));
+    REPORTER_ASSERT(reporter, nocompute_isconvex(path2) == isAxisAligned);
+    REPORTER_ASSERT(reporter, nocompute_isconvex(*path) == isAxisAligned);
 
     // a path's isa should survive scaling, convexity depends on axis alignment
     path->transform(x.fSM, &path2);
     path->transform(x.fSM);
     REPORTER_ASSERT(reporter, isa_proc(path2));
     REPORTER_ASSERT(reporter, isa_proc(*path));
-    REPORTER_ASSERT(reporter, conditional_convex(path2, isAxisAligned));
-    REPORTER_ASSERT(reporter, conditional_convex(*path, isAxisAligned));
+    REPORTER_ASSERT(reporter, nocompute_isconvex(path2) == isAxisAligned);
+    REPORTER_ASSERT(reporter, nocompute_isconvex(*path) == isAxisAligned);
 
     // For security, post-rotation, we can't assume we're still convex. It might prove to be,
     // in fact, still be convex, be we can't have cached that setting, hence the call to
     // getConvexityOrUnknown() instead of getConvexity().
     path->transform(x.fRM, &path2);
     path->transform(x.fRM);
-    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(path2) != SkPathConvexity::kConvex);
-    REPORTER_ASSERT(reporter, SkPathPriv::GetConvexityOrUnknown(*path) != SkPathConvexity::kConvex);
+    REPORTER_ASSERT(reporter, !nocompute_isconvex(path2));
+    REPORTER_ASSERT(reporter, !nocompute_isconvex(*path));
 
     if (isAxisAligned) {
         REPORTER_ASSERT(reporter, !isa_proc(path2));
@@ -5893,15 +5893,18 @@ DEF_TEST(path_moveto_addrect, r) {
 
             // addRect should mark the path as known convex automatically (i.e. it wasn't set
             // to unknown after edits)
-            SkPathConvexity origConvexity = SkPathPriv::GetConvexityOrUnknown(path);
-            REPORTER_ASSERT(r, origConvexity == SkPathConvexity::kConvex);
+            REPORTER_ASSERT(r, nocompute_isconvex(path));
 
             // but it should also agree with the regular convexity computation
             SkPathPriv::ForceComputeConvexity(path);
             REPORTER_ASSERT(r, path.isConvex());
 
-            SkRect query = rect.makeInset(10.f, 0.f);
-            REPORTER_ASSERT(r, path.conservativelyContainsRect(query));
+            const SkRect query = rect.makeInset(10.f, 0.f);
+            const bool contains = path.conservativelyContainsRect(query);
+            // if the rect we used to build the path was empty, then "containing" something
+            // else is poorly defined -- so we only assert we contain the query if we're
+            // non-empty (i.e. path with some area)
+            REPORTER_ASSERT(r, rect.isEmpty() || contains);
         }
     }
 }

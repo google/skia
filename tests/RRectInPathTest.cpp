@@ -94,7 +94,7 @@ class ForceIsRRect_Private {
 public:
     ForceIsRRect_Private(SkPath* path, SkPathDirection dir, unsigned start) {
         path->fPathRef->setIsRRect(dir, start);
-        path->setConvexity(SkPathConvexity::kConvex);
+        path->setConvexity(SkPathDirection_ToConvexity(dir));
     }
 };
 

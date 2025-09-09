@@ -272,20 +272,16 @@ SkPathBuilder& SkPathBuilder::rCubicTo(SkPoint p1, SkPoint p2, SkPoint p3) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
-    SkPathFirstDirection dir = SkPathFirstDirection::kUnknown;
-
     switch (fType) {
         case SkPathIsAType::kGeneral:
             break;
         case SkPathIsAType::kOval:
             pr->setIsOval(fIsA.fDirection, fIsA.fStartIndex);
-            dir = SkPathDirectionToFirst(fIsA.fDirection);
-            SkASSERT(fConvexity == SkPathConvexity::kConvex);
+            SkASSERT(SkPathConvexity_IsConvex(fConvexity));
             break;
         case SkPathIsAType::kRRect:
             pr->setIsRRect(fIsA.fDirection, fIsA.fStartIndex);
-            dir = SkPathDirectionToFirst(fIsA.fDirection);
-            SkASSERT(fConvexity == SkPathConvexity::kConvex);
+            SkASSERT(SkPathConvexity_IsConvex(fConvexity));
             break;
     }
 
@@ -293,7 +289,7 @@ SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
     //  unknown, convex_cw, convex_ccw, concave
     // Do we ever have direction w/o convexity, or viceversa (inside path)?
     //
-    auto path = SkPath(std::move(pr), fFillType, fIsVolatile, fConvexity, dir);
+    auto path = SkPath(std::move(pr), fFillType, fIsVolatile, fConvexity);
 
     // This hopefully can go away in the future when Paths are immutable,
     // but if while they are still editable, we need to correctly set this.
@@ -702,7 +698,7 @@ SkPathBuilder& SkPathBuilder::addRect(const SkRect& rect, SkPathDirection dir, u
 
     if (wasEmpty) {
         // now we're a rect
-        fConvexity = SkPathConvexity::kConvex;
+        fConvexity = SkPathDirection_ToConvexity(dir);
     }
     return *this;
 }
@@ -716,7 +712,7 @@ SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, u
         fType            = SkPathIsAType::kOval;
         fIsA.fDirection  = dir;
         fIsA.fStartIndex = index % 4;
-        fConvexity = SkPathConvexity::kConvex;
+        fConvexity = SkPathDirection_ToConvexity(dir);
     }
 
     return *this;
@@ -742,7 +738,7 @@ SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir
         fType            = SkPathIsAType::kRRect;
         fIsA.fDirection  = dir;
         fIsA.fStartIndex = index % 8;
-        fConvexity = SkPathConvexity::kConvex;
+        fConvexity = SkPathDirection_ToConvexity(dir);
     }
     return *this;
 }
@@ -1019,7 +1015,7 @@ SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix) {
         if (!matrix.rectStaysRect() || !SkPathPriv::IsAxisAligned(fPts)) {
             fType = SkPathIsAType::kGeneral;
             // lose convexity (just to be numerically safe)
-            if (fConvexity == SkPathConvexity::kConvex) {
+            if (SkPathConvexity_IsConvex(fConvexity)) {
                 fConvexity = SkPathConvexity::kUnknown;
             }
         }
