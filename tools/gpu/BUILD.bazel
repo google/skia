@@ -14,6 +14,7 @@ skia_cc_library(
         "BackendSurfaceFactory.h",
         "BackendTextureImageFactory.cpp",
         "BackendTextureImageFactory.h",
+        "CompressedTexture.cpp",
         "ContextType.cpp",
         "ContextType.h",
         "FlushFinishTracker.cpp",
@@ -23,6 +24,7 @@ skia_cc_library(
         "ProtectedUtils.h",
     ],
     hdrs = [
+        "CompressedTexture.h",
         "ContextType.h",
     ],
     visibility = [

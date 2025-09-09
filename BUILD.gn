@@ -2136,6 +2136,8 @@ if (skia_enable_tools) {
       "tools/gpu/BackendSurfaceFactory.h",
       "tools/gpu/BackendTextureImageFactory.cpp",
       "tools/gpu/BackendTextureImageFactory.h",
+      "tools/gpu/CompressedTexture.cpp",
+      "tools/gpu/CompressedTexture.h",
       "tools/gpu/ContextType.cpp",
       "tools/gpu/ContextType.h",
       "tools/gpu/FlushFinishTracker.cpp",

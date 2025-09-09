@@ -28,12 +28,12 @@
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/image/SkImage_Base.h"
 #include "third_party/etc1/etc1.h"
+#include "tools/gpu/CompressedTexture.h"
 #include "tools/gpu/ProxyUtils.h"
 
 #if defined(SK_GRAPHITE)
@@ -159,7 +159,7 @@ static CompressedImageObjects make_compressed_image(SkCanvas* canvas,
                 return {nullptr, nullptr};
             }
         } else {
-            GrTwoColorBC1Compress(bm.pixmap(), kColors[i%7], &pixels[offset]);
+            sk_gpu_test::TwoColorBC1Compress(bm.pixmap(), kColors[i%7], &pixels[offset]);
         }
 
         offset += levelSize;
