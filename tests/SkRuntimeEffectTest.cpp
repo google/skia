@@ -38,7 +38,6 @@
 #include "include/sksl/SkSLDebugTrace.h"
 #include "include/sksl/SkSLVersion.h"
 #include "src/base/SkStringView.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
@@ -463,7 +462,7 @@ public:
             ERRORF(fReporter, "Effect didn't compile: %s", errorText.c_str());
             return;
         }
-        fBuilder.init(std::move(effect));
+        fBuilder.emplace(std::move(effect));
     }
 
     SkRuntimeShaderBuilder::BuilderUniform uniform(const char* name) {
@@ -531,7 +530,7 @@ private:
     GrRecordingContext*             fGrContext;
     const GraphiteInfo*             fGraphite;
     SkISize                         fSize;
-    SkTLazy<SkRuntimeShaderBuilder> fBuilder;
+    std::optional<SkRuntimeShaderBuilder> fBuilder;
 };
 
 class TestBlend {
@@ -551,7 +550,7 @@ public:
             ERRORF(fReporter, "Effect didn't compile: %s", errorText.c_str());
             return;
         }
-        fBuilder.init(std::move(effect));
+        fBuilder.emplace(std::move(effect));
     }
 
     SkSurface* surface() {
@@ -592,7 +591,7 @@ private:
     sk_sp<SkSurface>               fSurface;
     GrRecordingContext*            fGrContext;
     const GraphiteInfo*            fGraphite;
-    SkTLazy<SkRuntimeBlendBuilder> fBuilder;
+    std::optional<SkRuntimeBlendBuilder> fBuilder;
 };
 
 // Produces a shader which will paint these opaque colors in a 2x2 rectangle:

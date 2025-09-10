@@ -18,13 +18,13 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skshaper/include/SkShaper.h"
-#include "src/base/SkTLazy.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <vector>
 
 class SkSVGLengthContext;
@@ -218,8 +218,8 @@ private:
     size_t                          fCurrentCharIndex = 0;
 
     // cached for access from SkShaper callbacks.
-    SkTLazy<SkPaint>                fCurrentFill;
-    SkTLazy<SkPaint>                fCurrentStroke;
+    std::optional<SkPaint>          fCurrentFill;
+    std::optional<SkPaint>          fCurrentStroke;
 
     bool                            fPrevCharSpace = true; // WS filter state
     bool                            fForcePrimitiveShaping = false;

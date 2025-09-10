@@ -19,8 +19,8 @@
 
 class SkPaint;
 
-std::tuple<float, float> ResolveOptionalRadii(const SkTLazy<SkSVGLength>& opt_rx,
-                                              const SkTLazy<SkSVGLength>& opt_ry,
+std::tuple<float, float> ResolveOptionalRadii(const std::optional<SkSVGLength>& opt_rx,
+                                              const std::optional<SkSVGLength>& opt_ry,
                                               const SkSVGLengthContext& lctx) {
     // https://www.w3.org/TR/SVG2/shapes.html#RectElement
     //
@@ -41,15 +41,15 @@ std::tuple<float, float> ResolveOptionalRadii(const SkTLazy<SkSVGLength>& opt_rx
     //     3. If both rx and ry were set to lengths or percentages, absolute values are generated
     //        individually, resolving rx percentages against the used width, and resolving ry
     //        percentages against the used height.
-    const float rx = opt_rx.isValid()
+    const float rx = opt_rx.has_value()
         ? lctx.resolve(*opt_rx, SkSVGLengthContext::LengthType::kHorizontal)
         : 0;
-    const float ry = opt_ry.isValid()
+    const float ry = opt_ry.has_value()
         ? lctx.resolve(*opt_ry, SkSVGLengthContext::LengthType::kVertical)
         : 0;
 
-    return std::make_tuple(opt_rx.isValid() ? rx : ry,
-                           opt_ry.isValid() ? ry : rx);
+    return std::make_tuple(opt_rx.has_value() ? rx : ry,
+                           opt_ry.has_value() ? ry : rx);
 }
 
 SkSVGRect::SkSVGRect() : INHERITED(SkSVGTag::kRect) {}

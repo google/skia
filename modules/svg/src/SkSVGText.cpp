@@ -31,7 +31,6 @@
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/src/SkSVGTextPriv.h"
-#include "src/base/SkTLazy.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkTextBlobPriv.h"
 
@@ -507,8 +506,8 @@ SkShaper::RunHandler::Buffer SkSVGTextContext::runBuffer(const RunInfo& ri) {
 
     fRuns.push_back({
         ri.fFont,
-        fCurrentFill.isValid()   ? std::make_unique<SkPaint>(*fCurrentFill)   : nullptr,
-        fCurrentStroke.isValid() ? std::make_unique<SkPaint>(*fCurrentStroke) : nullptr,
+        fCurrentFill.has_value()   ? std::make_unique<SkPaint>(*fCurrentFill)   : nullptr,
+        fCurrentStroke.has_value() ? std::make_unique<SkPaint>(*fCurrentStroke) : nullptr,
         std::make_unique<SkGlyphID[]         >(ri.glyphCount),
         std::make_unique<SkPoint[]           >(ri.glyphCount),
         std::make_unique<PositionAdjustment[]>(ri.glyphCount),

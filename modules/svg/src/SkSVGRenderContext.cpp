@@ -361,7 +361,7 @@ void SkSVGRenderContext::applyClip(const SkSVGFuncIRI& clip) {
     this->saveOnce();
 
     fCanvas->clipPath(clipPath, true);
-    fClipPath.set(clipPath);
+    fClipPath = clipPath;
 }
 
 void SkSVGRenderContext::applyMask(const SkSVGFuncIRI& mask) {
@@ -396,18 +396,17 @@ void SkSVGRenderContext::applyMask(const SkSVGFuncIRI& mask) {
     // Restoring triggers srcIn-compositing the content against the mask.
 }
 
-SkTLazy<SkPaint> SkSVGRenderContext::commonPaint(const SkSVGPaint& paint_selector,
+std::optional<SkPaint> SkSVGRenderContext::commonPaint(const SkSVGPaint& paint_selector,
                                                  float paint_opacity) const {
     if (paint_selector.type() == SkSVGPaint::Type::kNone) {
-        return SkTLazy<SkPaint>();
+        return std::optional<SkPaint>();
     }
 
-    SkTLazy<SkPaint> p;
-    p.init();
+    SkPaint p;
 
     switch (paint_selector.type()) {
     case SkSVGPaint::Type::kColor:
-        p->setColor(this->resolveSvgColor(paint_selector.color()));
+        p.setColor(this->resolveSvgColor(paint_selector.color()));
         break;
     case SkSVGPaint::Type::kIRI: {
         // Our property inheritance is borked as it follows the render path and not the tree
@@ -430,42 +429,42 @@ SkTLazy<SkPaint> SkSVGRenderContext::commonPaint(const SkSVGPaint& paint_selecto
                                      fTextShapingFactory);
 
         const auto node = this->findNodeById(paint_selector.iri());
-        if (!node || !node->asPaint(local_ctx, p.get())) {
+        if (!node || !node->asPaint(local_ctx, &p)) {
             // Use the fallback color.
-            p->setColor(this->resolveSvgColor(paint_selector.color()));
+            p.setColor(this->resolveSvgColor(paint_selector.color()));
         }
     } break;
     default:
         SkUNREACHABLE;
     }
 
-    p->setAntiAlias(true); // TODO: shape-rendering support
+    p.setAntiAlias(true); // TODO: shape-rendering support
 
     // We observe 3 opacity components:
     //   - initial paint server opacity (e.g. color stop opacity)
     //   - paint-specific opacity (e.g. 'fill-opacity', 'stroke-opacity')
     //   - deferred opacity override (optimization for leaf nodes 'opacity')
-    p->setAlphaf(SkTPin(p->getAlphaf() * paint_opacity * fDeferredPaintOpacity, 0.0f, 1.0f));
+    p.setAlphaf(SkTPin(p.getAlphaf() * paint_opacity * fDeferredPaintOpacity, 0.0f, 1.0f));
 
     return p;
 }
 
-SkTLazy<SkPaint> SkSVGRenderContext::fillPaint() const {
+std::optional<SkPaint> SkSVGRenderContext::fillPaint() const {
     const auto& props = fPresentationContext->fInherited;
     auto p = this->commonPaint(*props.fFill, *props.fFillOpacity);
 
-    if (p.isValid()) {
+    if (p.has_value()) {
         p->setStyle(SkPaint::kFill_Style);
     }
 
     return p;
 }
 
-SkTLazy<SkPaint> SkSVGRenderContext::strokePaint() const {
+std::optional<SkPaint> SkSVGRenderContext::strokePaint() const {
     const auto& props = fPresentationContext->fInherited;
     auto p = this->commonPaint(*props.fStroke, *props.fStrokeOpacity);
 
-    if (p.isValid()) {
+    if (p.has_value()) {
         p->setStyle(SkPaint::kStroke_Style);
         p->setStrokeWidth(fLengthContext->resolve(*props.fStrokeWidth,
                                                   SkSVGLengthContext::LengthType::kOther));

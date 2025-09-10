@@ -13,7 +13,8 @@
 #include "modules/svg/include/SkSVGHiddenContainer.h"
 #include "modules/svg/include/SkSVGNode.h"
 #include "modules/svg/include/SkSVGTypes.h"
-#include "src/base/SkTLazy.h"
+
+#include <optional>
 
 class SkPaint;
 class SkSVGRenderContext;
@@ -40,11 +41,11 @@ protected:
 
 private:
     struct PatternAttributes {
-        SkTLazy<SkSVGLength>        fX,
+        std::optional<SkSVGLength>  fX,
                                     fY,
                                     fWidth,
                                     fHeight;
-        SkTLazy<SkSVGTransformType> fPatternTransform;
+        std::optional<SkSVGTransformType> fPatternTransform;
     };
 
     const SkSVGPattern* resolveHref(const SkSVGRenderContext&, PatternAttributes*) const;

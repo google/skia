@@ -25,13 +25,13 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skshaper/include/SkShaper_factory.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "src/base/SkTLazy.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
 
 #include <algorithm>
 #include <memory>
 #include <numeric>
+#include <optional>
 #include <utility>
 
 #if !defined(SK_DISABLE_LEGACY_SHAPER_FACTORY)
@@ -235,7 +235,7 @@ public:
         };
 
         // Only compute the extent box when needed.
-        SkTLazy<SkRect> ebox;
+        std::optional<SkRect> ebox;
 
         // Vertical adjustments.
         float v_offset = -fDesc.fLineShift;
@@ -249,24 +249,24 @@ public:
             break;
         case Shaper::VAlign::kHybridTop:
         case Shaper::VAlign::kVisualTop:
-            ebox.init(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridTop));
+            ebox.emplace(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridTop));
             v_offset += fBox.fTop - ebox->fTop;
             break;
         case Shaper::VAlign::kHybridCenter:
         case Shaper::VAlign::kVisualCenter:
-            ebox.init(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridCenter));
+            ebox.emplace(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridCenter));
             v_offset += fBox.centerY() - ebox->centerY();
             break;
         case Shaper::VAlign::kHybridBottom:
         case Shaper::VAlign::kVisualBottom:
-            ebox.init(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridBottom));
+            ebox.emplace(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridBottom));
             v_offset += fBox.fBottom - ebox->fBottom;
             break;
         }
 
         if (shaped_size) {
-            if (!ebox.isValid()) {
-                ebox.init(extent_box(true));
+            if (!ebox.has_value()) {
+                ebox.emplace(extent_box(true));
             }
             *shaped_size = SkSize::Make(ebox->width(), ebox->height());
         }
@@ -628,16 +628,16 @@ public:
             break;
         case Shaper::Capitalization::kUpperCase:
             if (unicode) {
-                *fText.writable() = unicode->toUpper(*fText);
+                fText = unicode->toUpper(fText);
             }
             break;
         }
     }
 
-    operator const SkString&() const { return *fText; }
+    operator const SkString&() const { return fText; }
 
 private:
-    SkTCopyOnFirstWrite<SkString> fText;
+    SkString fText;
 };
 
 } // namespace

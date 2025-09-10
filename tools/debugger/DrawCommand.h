@@ -33,11 +33,11 @@
 #include "include/core/SkVertices.h"
 #include "include/private/base/SkTDArray.h"
 #include "include/private/base/SkTemplates.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkDrawShadowInfo.h"
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 
 class DebugLayerManager;
 class SkBitmap;
@@ -300,7 +300,7 @@ private:
     SkScalar             fLeft;
     SkScalar             fTop;
     SkSamplingOptions    fSampling;
-    SkTLazy<SkPaint>     fPaint;
+    std::optional<SkPaint> fPaint;
 
     using INHERITED = DrawCommand;
 };
@@ -322,7 +322,7 @@ private:
     SkCanvas::Lattice    fLattice;
     SkRect               fDst;
     SkFilterMode         fFilter;
-    SkTLazy<SkPaint>     fPaint;
+    std::optional<SkPaint> fPaint;
 
     using INHERITED = DrawCommand;
 };
@@ -345,7 +345,7 @@ private:
     SkRect                      fSrc;
     SkRect                      fDst;
     SkSamplingOptions           fSampling;
-    SkTLazy<SkPaint>            fPaint;
+    std::optional<SkPaint>      fPaint;
     SkCanvas::SrcRectConstraint fConstraint;
 
     using INHERITED = DrawCommand;
@@ -375,7 +375,7 @@ private:
     SkRect                      fSrc;
     SkRect                      fDst;
     SkSamplingOptions           fSampling;
-    SkTLazy<SkPaint>            fPaint;
+    std::optional<SkPaint>      fPaint;
     SkCanvas::SrcRectConstraint fConstraint;
 
     using INHERITED = DrawCommand;
@@ -464,9 +464,9 @@ public:
     bool render(SkCanvas* canvas) const override;
 
 private:
-    sk_sp<const SkPicture> fPicture;
-    SkTLazy<SkMatrix>      fMatrix;
-    SkTLazy<SkPaint>       fPaint;
+    sk_sp<const SkPicture>  fPicture;
+    std::optional<SkMatrix> fMatrix;
+    std::optional<SkPaint>  fPaint;
 
     using INHERITED = DrawCommand;
 };
@@ -631,8 +631,8 @@ private:
     SkTDArray<SkColor>   fColors;
     SkBlendMode          fBlendMode;
     SkSamplingOptions    fSampling;
-    SkTLazy<SkRect>      fCull;
-    SkTLazy<SkPaint>     fPaint;
+    std::optional<SkRect>  fCull;
+    std::optional<SkPaint> fPaint;
 
     using INHERITED = DrawCommand;
 };
@@ -653,8 +653,8 @@ public:
     void toJSON(SkJSONWriter& writer, UrlDataManager& urlDataManager) const override;
 
 private:
-    SkTLazy<SkRect>            fBounds;
-    SkTLazy<SkPaint>           fPaint;
+    std::optional<SkRect>      fBounds;
+    std::optional<SkPaint>     fPaint;
     sk_sp<const SkImageFilter> fBackdrop;
     uint32_t                   fSaveLayerFlags;
     SkScalar                   fBackdropScale;
@@ -707,8 +707,8 @@ public:
     void execute(SkCanvas* canvas) const override;
 
 private:
-    sk_sp<SkDrawable> fDrawable;
-    SkTLazy<SkMatrix> fMatrix;
+    sk_sp<SkDrawable>       fDrawable;
+    std::optional<SkMatrix> fMatrix;
 
     using INHERITED = DrawCommand;
 };
@@ -750,7 +750,7 @@ private:
     skia_private::AutoTArray<SkPoint>                 fDstClips;
     skia_private::AutoTArray<SkMatrix>                fPreViewMatrices;
     SkSamplingOptions                                 fSampling;
-    SkTLazy<SkPaint>                                  fPaint;
+    std::optional<SkPaint>                            fPaint;
     SkCanvas::SrcRectConstraint                       fConstraint;
 
     using INHERITED = DrawCommand;

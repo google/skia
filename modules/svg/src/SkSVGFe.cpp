@@ -22,10 +22,10 @@ sk_sp<SkImageFilter> SkSVGFe::makeImageFilter(const SkSVGRenderContext& ctx,
 
 SkRect SkSVGFe::resolveBoundaries(const SkSVGRenderContext& ctx,
                                   const SkSVGFilterContext& fctx) const {
-    const auto x = fX.isValid() ? *fX : SkSVGLength(0, SkSVGLength::Unit::kPercentage);
-    const auto y = fY.isValid() ? *fY : SkSVGLength(0, SkSVGLength::Unit::kPercentage);
-    const auto w = fWidth.isValid() ? *fWidth : SkSVGLength(100, SkSVGLength::Unit::kPercentage);
-    const auto h = fHeight.isValid() ? *fHeight : SkSVGLength(100, SkSVGLength::Unit::kPercentage);
+    const auto x = fX.has_value() ? *fX : SkSVGLength(0, SkSVGLength::Unit::kPercentage);
+    const auto y = fY.has_value() ? *fY : SkSVGLength(0, SkSVGLength::Unit::kPercentage);
+    const auto w = fWidth.has_value() ? *fWidth : SkSVGLength(100, SkSVGLength::Unit::kPercentage);
+    const auto h = fHeight.has_value() ? *fHeight : SkSVGLength(100, SkSVGLength::Unit::kPercentage);
 
     return ctx.resolveOBBRect(x, y, w, h, fctx.primitiveUnits());
 }
@@ -79,10 +79,10 @@ SkRect SkSVGFe::resolveFilterSubregion(const SkSVGRenderContext& ctx,
     const SkRect boundaries = this->resolveBoundaries(ctx, fctx);
 
     // Compute and return the fully resolved subregion.
-    return SkRect::MakeXYWH(fX.isValid() ? boundaries.fLeft : defaultSubregion.fLeft,
-                            fY.isValid() ? boundaries.fTop : defaultSubregion.fTop,
-                            fWidth.isValid() ? boundaries.width() : defaultSubregion.width(),
-                            fHeight.isValid() ? boundaries.height() : defaultSubregion.height());
+    return SkRect::MakeXYWH(fX.has_value() ? boundaries.fLeft : defaultSubregion.fLeft,
+                            fY.has_value() ? boundaries.fTop : defaultSubregion.fTop,
+                            fWidth.has_value() ? boundaries.width() : defaultSubregion.width(),
+                            fHeight.has_value() ? boundaries.height() : defaultSubregion.height());
 }
 
 SkSVGColorspace SkSVGFe::resolveColorspace(const SkSVGRenderContext& ctx,

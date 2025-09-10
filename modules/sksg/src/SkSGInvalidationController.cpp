@@ -8,7 +8,6 @@
 #include "modules/sksg/include/SkSGInvalidationController.h"
 
 #include "include/core/SkRect.h"
-#include "src/base/SkTLazy.h"
 
 namespace sksg {
 
@@ -19,14 +18,10 @@ void InvalidationController::inval(const SkRect& r, const SkMatrix& ctm) {
         return;
     }
 
-    SkTCopyOnFirstWrite<SkRect> rect(r);
+    SkRect rect = ctm.mapRect(r);
 
-    if (!ctm.isIdentity()) {
-        ctm.mapRect(rect.writable());
-    }
-
-    fRects.push_back(*rect);
-    fBounds.join(*rect);
+    fRects.push_back(rect);
+    fBounds.join(rect);
 }
 
 void InvalidationController::reset() {

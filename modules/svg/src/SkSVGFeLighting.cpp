@@ -126,7 +126,7 @@ sk_sp<SkImageFilter> SkSVGFeSpecularLighting::makeSpotLight(const SkSVGRenderCon
                                                             const SkSVGFilterContext& fctx,
                                                             const SkSVGFeSpotLight* light) const {
     const auto& limitingConeAngle = light->getLimitingConeAngle();
-    const float cutoffAngle = limitingConeAngle.isValid() ? *limitingConeAngle : 180.f;
+    const float cutoffAngle = limitingConeAngle.value_or(180.f);
 
     return SkImageFilters::SpotLitSpecular(
             this->resolveXYZ(ctx, fctx, light->getX(), light->getY(), light->getZ()),
@@ -178,7 +178,7 @@ sk_sp<SkImageFilter> SkSVGFeDiffuseLighting::makeSpotLight(const SkSVGRenderCont
                                                            const SkSVGFilterContext& fctx,
                                                            const SkSVGFeSpotLight* light) const {
     const auto& limitingConeAngle = light->getLimitingConeAngle();
-    const float cutoffAngle = limitingConeAngle.isValid() ? *limitingConeAngle : 180.f;
+    const float cutoffAngle = limitingConeAngle.value_or(180.f);
 
     return SkImageFilters::SpotLitDiffuse(
             this->resolveXYZ(ctx, fctx, light->getX(), light->getY(), light->getZ()),

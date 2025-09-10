@@ -15,6 +15,7 @@
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGTypes.h"
 
+#include <optional>
 #include <utility>
 
 class SkMatrix;
@@ -76,8 +77,8 @@ enum class SkSVGTag {
 private:                                                                     \
     bool set##attr_name(SkSVGAttributeParser::ParseResult<                   \
                             SkSVGProperty<attr_type, attr_inherited>>&& pr) {\
-        if (pr.isValid()) { this->set##attr_name(std::move(*pr)); }          \
-        return pr.isValid();                                                 \
+        if (pr.has_value()) { this->set##attr_name(std::move(*pr)); }        \
+        return pr.has_value();                                               \
     }                                                                        \
                                                                              \
 public:                                                                      \
@@ -199,13 +200,13 @@ private:
     private:                                                                  \
         bool set##attr_name(                                                  \
                 const SkSVGAttributeParser::ParseResult<attr_type>& pr) {     \
-            if (pr.isValid()) { this->set##attr_name(*pr); }                  \
-            return pr.isValid();                                              \
+            if (pr.has_value()) { this->set##attr_name(*pr); }                \
+            return pr.has_value();                                            \
         }                                                                     \
         bool set##attr_name(                                                  \
                 SkSVGAttributeParser::ParseResult<attr_type>&& pr) {          \
-            if (pr.isValid()) { this->set##attr_name(std::move(*pr)); }       \
-            return pr.isValid();                                              \
+            if (pr.has_value()) { this->set##attr_name(std::move(*pr)); }     \
+            return pr.has_value();                                            \
         }                                                                     \
     public:                                                                   \
         void set##attr_name(const attr_type& a) { set_cp(a); }                \
@@ -223,12 +224,12 @@ private:
 
 #define SVG_OPTIONAL_ATTR(attr_name, attr_type)                                   \
     private:                                                                      \
-        SkTLazy<attr_type> f##attr_name;                                          \
+        std::optional<attr_type> f##attr_name;                                          \
     public:                                                                       \
-        const SkTLazy<attr_type>& get##attr_name() const { return f##attr_name; } \
+        const std::optional<attr_type>& get##attr_name() const { return f##attr_name; } \
     _SVG_ATTR_SETTERS(                                                            \
             attr_name, attr_type, attr_default,                                   \
-            [this](const attr_type& a) { this->f##attr_name.set(a); },            \
-            [this](attr_type&& a) { this->f##attr_name.set(std::move(a)); })
+            [this](const attr_type& a) { this->f##attr_name = a; },            \
+            [this](attr_type&& a) { this->f##attr_name = std::move(a); })
 
 #endif // SkSVGNode_DEFINED
