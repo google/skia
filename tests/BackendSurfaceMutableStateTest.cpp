@@ -31,7 +31,7 @@
 #include "src/gpu/ganesh/vk/GrVkImage.h"
 #include "src/gpu/ganesh/vk/GrVkTexture.h"
 #include "tests/CtsEnforcement.h"
-#include "tools/gpu/ProxyUtils.h"
+#include "tools/ganesh/ProxyUtils.h"
 
 #include <vulkan/vulkan_core.h>
 #include <cstdint>

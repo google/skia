@@ -69,7 +69,7 @@ skia_objc_library(
     name = "autorelease_pool_objc",
     hdrs = ["AutoreleasePool.h"],
     non_arc_srcs = ["AutoreleasePool.mm"],
-    visibility = ["//tools/gpu:__pkg__"],
+    visibility = ["//tools/ganesh:__pkg__"],
     deps = ["//src/base"],
 )
 
@@ -82,27 +82,6 @@ skia_cc_library(
         "//tools/debugger:__pkg__",
     ],
     deps = ["//:core"],
-)
-
-skia_cc_library(
-    name = "ddl_utils",
-    testonly = True,
-    srcs = [
-        "DDLPromiseImageHelper.cpp",
-        "DDLPromiseImageHelper.h",
-        "DDLTileHelper.cpp",
-        "DDLTileHelper.h",
-    ],
-    hdrs = [
-        "DDLPromiseImageHelper.h",
-        "DDLTileHelper.h",
-    ],
-    visibility = ["//dm:__pkg__"],
-    deps = [
-        "//:core",
-        "//src/codec:codec_support_priv",
-        "//src/gpu/ganesh:ganesh_TEST_UTIL",
-    ],
 )
 
 skia_cc_library(

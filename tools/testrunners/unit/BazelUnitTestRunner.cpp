@@ -22,8 +22,8 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "tools/ganesh/TestContext.h"
 #include "tools/gpu/ContextType.h"
-#include "tools/gpu/TestContext.h"
 #endif
 
 #include <ctime>

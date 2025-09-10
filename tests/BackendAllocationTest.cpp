@@ -51,9 +51,9 @@
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
 #include "tools/ToolUtils.h"
+#include "tools/ganesh/ProxyUtils.h"
 #include "tools/gpu/ContextType.h"
 #include "tools/gpu/ManagedBackendTexture.h"
-#include "tools/gpu/ProxyUtils.h"
 
 #include <array>
 #include <functional>
@@ -69,7 +69,7 @@
 #include "src/gpu/ganesh/gl/GrGLContext.h"
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
-#include "tools/gpu/gl/GLTestContext.h"
+#include "tools/ganesh/gl/GLTestContext.h"
 #endif
 
 #if defined(SK_METAL)

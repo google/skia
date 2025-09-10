@@ -10,7 +10,7 @@
 
 #include "include/core/SkColorSpace.h"
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/gpu/GrContextFactory.h"
+#include "tools/ganesh/GrContextFactory.h"
 
 DECLARE_string(config);
 

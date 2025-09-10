@@ -44,7 +44,7 @@
 #include "tests/Test.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/fonts/RandomScalerContext.h"
-#include "tools/gpu/ganesh/GrAtlasTools.h"
+#include "tools/ganesh/GrAtlasTools.h"
 
 #ifdef SK_BUILD_FOR_WIN
     #include "include/ports/SkTypeface_win.h"

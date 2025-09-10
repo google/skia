@@ -39,8 +39,8 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/fonts/FontToolUtils.h"
-#include "tools/gpu/ganesh/AtlasTextOpTools.h"
-#include "tools/gpu/ganesh/GrAtlasTools.h"
+#include "tools/ganesh/AtlasTextOpTools.h"
+#include "tools/ganesh/GrAtlasTools.h"
 
 #include <cstddef>
 #include <cstdint>

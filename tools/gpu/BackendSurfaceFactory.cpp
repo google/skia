@@ -7,12 +7,14 @@
 
 #include "tools/gpu/BackendSurfaceFactory.h"
 
+#if defined(SK_GANESH)
 #include "include/core/SkSurface.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "tools/gpu/ManagedBackendTexture.h"
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Surface.h"
@@ -25,7 +27,7 @@
 #endif
 
 namespace sk_gpu_test {
-
+#if defined(SK_GANESH)
 sk_sp<SkSurface> MakeBackendTextureSurface(GrDirectContext* dContext,
                                            const SkImageInfo& ii,
                                            GrSurfaceOrigin origin,
@@ -114,6 +116,7 @@ sk_sp<SkSurface> MakeBackendRenderTargetSurface(GrDirectContext* dContext,
     auto ii = SkImageInfo::Make(dimensions, colorType, kPremul_SkAlphaType, std::move(colorSpace));
     return MakeBackendRenderTargetSurface(dContext, ii, origin, sampleCnt, isProtected, props);
 }
+#endif  // SK_GANESH
 
 #ifdef SK_GRAPHITE
 sk_sp<SkSurface> MakeBackendTextureSurface(skgpu::graphite::Recorder* recorder,

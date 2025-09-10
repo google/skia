@@ -63,7 +63,7 @@ skia_cc_binary(
         "//src/core:core_priv",
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
         "//tools/flags:cmd_flags",
-        "//tools/gpu:ganesh_gl_utils",
+        "//tools/ganesh:ganesh_gl_utils",
     ],
 )
 

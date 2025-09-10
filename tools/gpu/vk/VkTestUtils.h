@@ -15,7 +15,7 @@
 #include <functional>
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "include/gpu/vk/VulkanPreferredFeatures.h"
-#include "tools/gpu/vk/GrVulkanDefines.h"
+#include "tools/gpu/vk/VulkanDefines.h"
 
 namespace skgpu {
 struct VulkanBackendContext;

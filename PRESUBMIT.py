@@ -337,7 +337,7 @@ def _CheckBazelBUILDFiles(input_api, output_api):
     excluded_paths = ["infra/", "bazel/rbe/", "bazel/external/", "bazel/common_config_settings/",
                       "modules/canvaskit/go/", "experimental/", "bazel/platform", "third_party/",
                       "tests/", "resources/", "bazel/deps_parser/", "bazel/exporter_tool/",
-                      "tools/gpu/gl/interface/", "bazel/utils/", "include/config/",
+                      "tools/ganesh/gl/interface/", "bazel/utils/", "include/config/",
                       "bench/", "example/external_client/"]
     is_excluded = any(affected_file_path.startswith(os.path.normpath(n)) for n in excluded_paths)
     if is_bazel and not is_excluded:

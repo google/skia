@@ -23,7 +23,7 @@
 #include "src/gpu/ganesh/GrPaint.h"
 #include "src/gpu/ganesh/SurfaceDrawContext.h"
 #include "src/gpu/ganesh/effects/GrPorterDuffXferProcessor.h"
-#include "tools/gpu/TestOps.h"
+#include "tools/ganesh/TestOps.h"
 
 #include <memory>
 #include <utility>

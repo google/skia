@@ -33,7 +33,7 @@
 #include "src/image/SkImage_Base.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
-#include "tools/gpu/ProxyUtils.h"
+#include "tools/ganesh/ProxyUtils.h"
 
 #include <string.h>
 #include <utility>

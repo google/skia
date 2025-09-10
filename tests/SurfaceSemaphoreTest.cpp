@@ -31,8 +31,8 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/ganesh/TestContext.h"
 #include "tools/gpu/ContextType.h"
-#include "tools/gpu/TestContext.h"
 
 #include <cstring>
 #include <cstdint>

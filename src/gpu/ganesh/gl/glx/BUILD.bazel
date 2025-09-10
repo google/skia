@@ -41,7 +41,7 @@ skia_cc_library(
         "-lXdmcp",  # dep of xcb
     ],
     visibility = [
-        "//tools/gpu:__pkg__",
+        "//tools/ganesh:__pkg__",
         "//tools/window:__pkg__",
     ],
     deps = [

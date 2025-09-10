@@ -84,7 +84,7 @@ func main() {
 		td.Fatal(ctx, err)
 	}
 
-	if err := bazelRun(ctx, skiaPath, "//tools/gpu/gl/interface:generate_gl_interfaces", *bazelFlags.AdditionalArgs...); err != nil {
+	if err := bazelRun(ctx, skiaPath, "//tools/ganesh/gl/interface:generate_gl_interfaces", *bazelFlags.AdditionalArgs...); err != nil {
 		td.Fatal(ctx, err)
 	}
 

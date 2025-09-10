@@ -25,7 +25,7 @@
 #include "src/gpu/ganesh/SurfaceFillContext.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/ProxyUtils.h"
+#include "tools/ganesh/ProxyUtils.h"
 
 #include <cstddef>
 #include <cstdint>

@@ -12,13 +12,14 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 
 #ifdef SK_VULKAN
-#include "tools/gpu/vk/VkTestContext.h"
-#include <mutex>
+#include "tools/ganesh/vk/VkTestContext.h"
 #endif
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "tools/graphite/ContextFactory.h"
 #endif
+
+#include <mutex>
 
 using sk_gpu_test::ContextInfo;
 using sk_gpu_test::GrContextFactory;

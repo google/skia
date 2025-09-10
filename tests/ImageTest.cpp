@@ -73,9 +73,9 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
+#include "tools/ganesh/ProxyUtils.h"
+#include "tools/ganesh/TestContext.h"
 #include "tools/gpu/ManagedBackendTexture.h"
-#include "tools/gpu/ProxyUtils.h"
-#include "tools/gpu/TestContext.h"
 
 #include <algorithm>
 #include <cmath>

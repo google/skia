@@ -11,6 +11,6 @@ skia_filegroup(
     srcs = ["GrGLMakeEGLInterface.h"],
     visibility = [
         "//src/gpu/ganesh/gl/egl:__pkg__",
-        "//tools/gpu/gl/egl:__pkg__",
+        "//tools/ganesh/gl/egl:__pkg__",
     ],
 )

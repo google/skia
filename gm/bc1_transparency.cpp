@@ -17,7 +17,7 @@
 #include "src/gpu/ganesh/GrImageContextPriv.h"
 #include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/image/SkImage_Base.h"
-#include "tools/gpu/ProxyUtils.h"
+#include "tools/ganesh/ProxyUtils.h"
 
 constexpr int kImgWidth  = 16;
 constexpr int kImgHeight = 8;

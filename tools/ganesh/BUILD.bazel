@@ -1,0 +1,120 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_objc_library")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_cc_library(
+    name = "common_ganesh_utils",
+    testonly = True,
+    srcs = [
+        "GrTest.cpp",
+        "MemoryCache.cpp",
+        "MemoryCache.h",
+        "ProtectedUtils_Ganesh.cpp",
+        "ProxyUtils.cpp",
+        "ProxyUtils.h",
+        "TestCanvas.cpp",
+        "TestContext.cpp",
+        "TestContext.h",
+        "TestOps.cpp",
+        "TestOps.h",
+        "//tools/ganesh/mock:srcs",
+    ],
+    hdrs = [
+        "//tools/ganesh:GpuTimer.h",
+        "//tools/ganesh:TestCanvas.h",
+        "//tools/ganesh/mock:hdrs",
+    ],
+    deps = [
+        "//src/gpu/ganesh:ganesh_TEST_UTIL",
+        "//tools/gpu:shared_utils",
+    ],
+)
+
+# OpenGL needed for CreatePlatformGLTestContext_mac.cpp (which is included as a filegroup).
+skia_objc_library(
+    name = "ganesh_gl_utils_frameworks",
+    sdk_frameworks = ["OpenGL"],
+    deps = [],
+)
+
+skia_cc_library(
+    name = "ganesh_gl_utils",
+    testonly = True,
+    srcs = [
+        "GrContextFactory.cpp",
+        "//tools/ganesh/gl:private_hdrs",
+        "//tools/ganesh/gl:srcs",
+    ],
+    hdrs = [
+        "GrContextFactory.h",
+    ],
+    visibility = [
+        "//bench:__subpackages__",
+        "//dm:__pkg__",
+        "//modules/skottie:__pkg__",
+        "//tools:__subpackages__",
+    ],
+    deps = [
+        ":common_ganesh_utils",
+        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
+    ] + select({
+        "@platforms//os:macos": [
+            ":ganesh_gl_utils_frameworks",
+            "//src/gpu/ganesh/gl/mac:mac_factory_TEST_UTIL",
+            "//tools:autorelease_pool_objc",
+        ],
+        "//bazel/common_config_settings:linux_x64": [
+            "//src/gpu/ganesh/gl/glx:glx_factory_TEST_UTIL",
+        ],
+        "//conditions:default": ["//tools:autorelease_pool"],
+    }),
+)
+
+skia_cc_library(
+    name = "ganesh_vulkan_utils",
+    testonly = True,
+    srcs = [
+        "GrContextFactory.cpp",
+        "//src/ports:load_dynamic_library",
+        "//tools/ganesh/vk:private_hdrs",
+        "//tools/ganesh/vk:srcs",
+    ],
+    target_compatible_with = select({
+        # We should not be compiling Vulkan tests for macOS.
+        "@platforms//os:macos": ["@platforms//:incompatible"],
+        "//conditions:default": [],
+    }),
+    visibility = [
+        "//bench:__subpackages__",
+        "//tools:__subpackages__",
+    ],
+    deps = [
+        ":common_ganesh_utils",
+        "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
+        "//third_party/vulkanmemoryallocator",
+        "//tools:autorelease_pool",
+    ],
+)
+
+skia_cc_library(
+    name = "ddl_utils",
+    testonly = True,
+    srcs = [
+        "//tools/ganesh:DDLPromiseImageHelper.cpp",
+        "//tools/ganesh:DDLTileHelper.cpp",
+    ],
+    hdrs = [
+        "//tools/ganesh:DDLPromiseImageHelper.h",
+        "//tools/ganesh:DDLTileHelper.h",
+    ],
+    visibility = ["//dm:__pkg__"],
+    deps = [
+        "//:core",
+        "//src/codec:codec_support_priv",
+        "//src/gpu/ganesh:ganesh_TEST_UTIL",
+    ],
+)

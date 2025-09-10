@@ -33,8 +33,8 @@
 #include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/image/SkImage_Base.h"
 #include "third_party/etc1/etc1.h"
+#include "tools/ganesh/ProxyUtils.h"
 #include "tools/gpu/CompressedTexture.h"
-#include "tools/gpu/ProxyUtils.h"
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Image.h"

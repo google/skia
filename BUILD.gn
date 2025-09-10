@@ -2142,51 +2142,23 @@ if (skia_enable_tools) {
       "tools/gpu/ContextType.h",
       "tools/gpu/FlushFinishTracker.cpp",
       "tools/gpu/FlushFinishTracker.h",
-      "tools/gpu/GrContextFactory.cpp",
-      "tools/gpu/GrContextFactory.h",
-      "tools/gpu/GrTest.cpp",
       "tools/gpu/ManagedBackendTexture.cpp",
       "tools/gpu/ManagedBackendTexture.h",
-      "tools/gpu/MemoryCache.cpp",
-      "tools/gpu/MemoryCache.h",
-      "tools/gpu/ProtectedUtils.cpp",
       "tools/gpu/ProtectedUtils.h",
-      "tools/gpu/ProxyUtils.cpp",
-      "tools/gpu/ProxyUtils.h",
-      "tools/gpu/TestCanvas.cpp",
-      "tools/gpu/TestCanvas.h",
-      "tools/gpu/TestContext.cpp",
-      "tools/gpu/TestOps.cpp",
-      "tools/gpu/TestOps.h",
       "tools/gpu/YUVUtils.cpp",
       "tools/gpu/YUVUtils.h",
-      "tools/gpu/mock/MockTestContext.cpp",
       "tools/text/gpu/TextBlobTools.cpp",
     ]
 
     libs = []
     frameworks = []
 
-    if (skia_use_gl) {
-      sources += [ "tools/gpu/gl/GLTestContext.cpp" ]
-      if (is_ios) {
-        sources += [ "tools/gpu/gl/iOS/CreatePlatformGLTestContext_iOS.mm" ]
-        frameworks += [ "OpenGLES.framework" ]
-      } else if (is_mac) {
-        sources += [ "tools/gpu/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
-      }
-      if (skia_use_angle) {
-        deps += [ "//third_party/angle2" ]
-        sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
-      }
-    }
-
     if (skia_use_gl && target_cpu != "wasm") {
       if (is_android || skia_use_egl) {
-        sources += [ "tools/gpu/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
+        sources += [ "tools/ganesh/gl/egl/CreatePlatformGLTestContext_egl.cpp" ]
         libs += [ "EGL" ]
       } else if (is_linux) {
-        sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
+        sources += [ "tools/ganesh/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
         libs += [
           "GLU",
           "GL",
@@ -2194,9 +2166,9 @@ if (skia_enable_tools) {
         ]
       } else if (is_win) {
         sources += [
-          "tools/gpu/gl/win/CreatePlatformGLTestContext_win.cpp",
-          "tools/gpu/gl/win/SkWGL.h",
-          "tools/gpu/gl/win/SkWGL_win.cpp",
+          "tools/ganesh/gl/win/CreatePlatformGLTestContext_win.cpp",
+          "tools/ganesh/gl/win/SkWGL.h",
+          "tools/ganesh/gl/win/SkWGL_win.cpp",
         ]
         libs += [ "Gdi32.lib" ]
         if (target_cpu != "arm64") {
@@ -2206,8 +2178,6 @@ if (skia_enable_tools) {
     }
 
     if (skia_use_vulkan) {
-      sources += [ "tools/gpu/vk/VkTestContext.h" ]
-      sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
       sources += [ "tools/gpu/vk/VkTestHelper.h" ]
       sources += [ "tools/gpu/vk/VkTestHelper.cpp" ]
       sources += [ "tools/gpu/vk/VkTestMemoryAllocator.h" ]
@@ -2218,30 +2188,63 @@ if (skia_enable_tools) {
       sources += [ "tools/gpu/vk/VkYcbcrSamplerHelper.cpp" ]
       all_dependent_configs += [ ":vulkan_memory_allocator" ]
     }
-    if (skia_use_metal) {
-      sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
-    }
-    if (skia_use_direct3d) {
-      sources += [ "tools/gpu/d3d/D3DTestContext.cpp" ]
-      sources += [ "tools/gpu/d3d/D3DTestUtils.cpp" ]
-    }
     if (skia_use_dawn) {
       public_deps += [ "//third_party/externals/dawn/include/dawn:headers" ]
       if (is_clang) {
         cflags_cc = [ "-Wno-microsoft-cast" ]
       }
     }
-    if (!skia_enable_ganesh) {
-      sources -= [ "tools/gpu/GrTest.cpp" ]
-      sources -= [ "tools/gpu/TestOps.cpp" ]
-      sources -= [ "tools/gpu/TestOps.h" ]
-    } else {
+    if (skia_enable_ganesh) {
       sources += [
-        "tools/gpu/ganesh/AtlasTextOpTools.cpp",
-        "tools/gpu/ganesh/AtlasTextOpTools.h",
-        "tools/gpu/ganesh/GrAtlasTools.cpp",
-        "tools/gpu/ganesh/GrAtlasTools.h",
+        "tools/ganesh/AtlasTextOpTools.cpp",
+        "tools/ganesh/AtlasTextOpTools.h",
+        "tools/ganesh/DDLPromiseImageHelper.cpp",
+        "tools/ganesh/DDLPromiseImageHelper.h",
+        "tools/ganesh/DDLTileHelper.cpp",
+        "tools/ganesh/DDLTileHelper.h",
+        "tools/ganesh/GrAtlasTools.cpp",
+        "tools/ganesh/GrAtlasTools.h",
+        "tools/ganesh/GrContextFactory.cpp",
+        "tools/ganesh/GrContextFactory.h",
+        "tools/ganesh/GrTest.cpp",
+        "tools/ganesh/MemoryCache.cpp",
+        "tools/ganesh/MemoryCache.h",
+        "tools/ganesh/ProtectedUtils_Ganesh.cpp",
+        "tools/ganesh/ProxyUtils.cpp",
+        "tools/ganesh/ProxyUtils.h",
+        "tools/ganesh/TestCanvas.cpp",
+        "tools/ganesh/TestCanvas.h",
+        "tools/ganesh/TestContext.cpp",
+        "tools/ganesh/TestOps.cpp",
+        "tools/ganesh/TestOps.h",
+        "tools/ganesh/mock/MockTestContext.cpp",
       ]
+      if (skia_use_gl) {
+        sources += [ "tools/ganesh/gl/GLTestContext.cpp" ]
+        if (is_ios) {
+          sources +=
+              [ "tools/ganesh/gl/iOS/CreatePlatformGLTestContext_iOS.mm" ]
+          frameworks += [ "OpenGLES.framework" ]
+        } else if (is_mac) {
+          sources +=
+              [ "tools/ganesh/gl/mac/CreatePlatformGLTestContext_mac.cpp" ]
+        }
+        if (skia_use_angle) {
+          deps += [ "//third_party/angle2" ]
+          sources += [ "tools/ganesh/gl/angle/GLTestContext_angle.cpp" ]
+        }
+      }
+      if (skia_use_vulkan) {
+        sources += [ "tools/ganesh/vk/VkTestContext.h" ]
+        sources += [ "tools/ganesh/vk/VkTestContext.cpp" ]
+      }
+      if (skia_use_metal) {
+        sources += [ "tools/ganesh/mtl/MtlTestContext.mm" ]
+      }
+      if (skia_use_direct3d) {
+        sources += [ "tools/ganesh/d3d/D3DTestContext.cpp" ]
+        sources += [ "tools/ganesh/d3d/D3DTestUtils.cpp" ]
+      }
     }
     if (skia_enable_graphite) {
       sources += [
@@ -2339,10 +2342,6 @@ if (skia_enable_tools) {
     sources = [
       "tools/AndroidSkDebugToStdOut.cpp",
       "tools/AutoreleasePool.h",
-      "tools/DDLPromiseImageHelper.cpp",
-      "tools/DDLPromiseImageHelper.h",
-      "tools/DDLTileHelper.cpp",
-      "tools/DDLTileHelper.h",
       "tools/DecodeUtils.cpp",
       "tools/DecodeUtils.h",
       "tools/EncodeUtils.cpp",

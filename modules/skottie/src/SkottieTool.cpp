@@ -42,8 +42,8 @@
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "tools/ganesh/GrContextFactory.h"
 #include "tools/gpu/ContextType.h"
-#include "tools/gpu/GrContextFactory.h"
 #endif
 
 #if !defined(CPU_ONLY) && !defined(GPU_ONLY)

@@ -7,7 +7,7 @@
  */
 
 #include "include/gpu/ganesh/gl/GrGLInterface.h"
-#include "tools/gpu/gl/win/SkWGL.h"
+#include "tools/ganesh/gl/win/SkWGL.h"
 #include "tools/window/GLWindowContext.h"
 #include "tools/window/win/WindowContextFactory_win.h"
 

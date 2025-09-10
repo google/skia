@@ -28,6 +28,7 @@ namespace skgpu::graphite {
 
 namespace ProtectedUtils {
 
+#ifdef SK_GANESH
 /*
  * These factories create Surfaces and Images with an explicitly specified protected status.
  * If the Surface/Image cannot be created with the specified protected status nullptr will
@@ -46,6 +47,7 @@ sk_sp<SkImage> CreateProtectedSkImage(GrDirectContext*,
                                       SkISize size,
                                       SkColor4f color,
                                       bool isProtected);
+#endif
 
 #ifdef SK_GRAPHITE
 sk_sp<SkSurface> CreateProtectedSkSurface(skgpu::graphite::Recorder*,

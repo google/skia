@@ -28,7 +28,7 @@
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
-#include "tools/gpu/TestOps.h"
+#include "tools/ganesh/TestOps.h"
 
 #include <memory>
 #include <utility>

@@ -1,0 +1,23 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "hdrs",
+    srcs = [
+        "MockTestContext.h",
+    ],
+    visibility = ["//tools/ganesh:__pkg__"],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "MockTestContext.cpp",
+    ],
+    visibility = ["//tools/ganesh:__pkg__"],
+)

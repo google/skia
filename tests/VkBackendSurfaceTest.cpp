@@ -33,8 +33,8 @@
 #include "src/gpu/ganesh/vk/GrVkTexture.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
+#include "tools/ganesh/ProxyUtils.h"
 #include "tools/gpu/ManagedBackendTexture.h"
-#include "tools/gpu/ProxyUtils.h"
 
 #include <vulkan/vulkan_core.h>
 
