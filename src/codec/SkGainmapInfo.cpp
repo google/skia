@@ -46,37 +46,13 @@ static void write_positive_rational_be(SkDynamicMemoryWStream& s, float x) {
     SkWStreamWriteU32BE(&s, denominator);
 }
 
-static bool read_u16_be(SkStream* s, uint16_t* value) {
-    if (!s->readU16(value)) {
-        return false;
-    }
-    *value = SkEndian_SwapBE16(*value);
-    return true;
-}
-
-static bool read_u32_be(SkStream* s, uint32_t* value) {
-    if (!s->readU32(value)) {
-        return false;
-    }
-    *value = SkEndian_SwapBE32(*value);
-    return true;
-}
-
-static bool read_s32_be(SkStream* s, int32_t* value) {
-    if (!s->readS32(value)) {
-        return false;
-    }
-    *value = SkEndian_SwapBE32(*value);
-    return true;
-}
-
 static bool read_rational_be(SkStream* s, float* value) {
     int32_t numerator = 0;
     uint32_t denominator = 0;
-    if (!read_s32_be(s, &numerator)) {
+    if (!SkStreamReadS32BE(s, &numerator)) {
         return false;
     }
-    if (!read_u32_be(s, &denominator)) {
+    if (!SkStreamReadU32BE(s, &denominator)) {
         return false;
     }
     *value = static_cast<float>(static_cast<double>(numerator) / static_cast<double>(denominator));
@@ -86,10 +62,10 @@ static bool read_rational_be(SkStream* s, float* value) {
 static bool read_positive_rational_be(SkStream* s, float* value) {
     uint32_t numerator = 0;
     uint32_t denominator = 0;
-    if (!read_u32_be(s, &numerator)) {
+    if (!SkStreamReadU32BE(s, &numerator)) {
         return false;
     }
-    if (!read_u32_be(s, &denominator)) {
+    if (!SkStreamReadU32BE(s, &denominator)) {
         return false;
     }
     *value = static_cast<float>(static_cast<double>(numerator) / static_cast<double>(denominator));
@@ -99,7 +75,7 @@ static bool read_positive_rational_be(SkStream* s, float* value) {
 static bool read_iso_gainmap_version(SkStream* s) {
     // Ensure minimum version is 0.
     uint16_t minimum_version = 0;
-    if (!read_u16_be(s, &minimum_version)) {
+    if (!SkStreamReadU16BE(s, &minimum_version)) {
         SkCodecPrintf("Failed to read ISO 21496-1 minimum version.\n");
         return false;
     }
@@ -110,7 +86,7 @@ static bool read_iso_gainmap_version(SkStream* s) {
 
     // Ensure writer version is present. No value is invalid.
     uint16_t writer_version = 0;
-    if (!read_u16_be(s, &writer_version)) {
+    if (!SkStreamReadU16BE(s, &writer_version)) {
         SkCodecPrintf("Failed to read ISO 21496-1 version.\n");
         return false;
     }
