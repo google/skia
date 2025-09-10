@@ -13,8 +13,6 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTileMode.h"
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-
 class SkCanvas;
 struct SkIRect;
 struct SkRect;
@@ -83,7 +81,5 @@ public:
 
     static bool ShaderAsALinearGradient(SkShader* shader, LinearGradientInfo*);
 };
-
-#endif // SK_BUILD_FOR_ANDROID_ANDROID
 
 #endif // SkAndroidFrameworkUtils_DEFINED

@@ -9,13 +9,14 @@
 #include "include/core/SkCanvas.h"
 #include "include/private/base/SkTemplates.h"
 #include "include/utils/SkPaintFilterCanvas.h"
+#include "src/base/SkTLazy.h"
 #include "src/core/SkDevice.h"
 #include "src/image/SkSurface_Base.h"
 #include "src/shaders/SkShaderBase.h"
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-
 #include <log/log.h>
+#endif
 
 #if defined(SK_GANESH)
 bool SkAndroidFrameworkUtils::clipWithStencil(SkCanvas* canvas) {
@@ -24,7 +25,9 @@ bool SkAndroidFrameworkUtils::clipWithStencil(SkCanvas* canvas) {
 #endif
 
 void SkAndroidFrameworkUtils::SafetyNetLog(const char* bugNumber) {
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     android_errorWriteLog(0x534e4554, bugNumber);
+#endif
 }
 
 sk_sp<SkSurface> SkAndroidFrameworkUtils::getSurfaceFromCanvas(SkCanvas* canvas) {
@@ -55,12 +58,13 @@ bool SkAndroidFrameworkUtils::ShaderAsALinearGradient(SkShader* shader,
     SkASSERT(shader);
     std::optional<SkShaderBase::GradientInfo> baseInfo;
     if (info) {
-        baseInfo.init();
+        baseInfo.emplace();
         baseInfo->fColorCount = info->fColorCount;
         baseInfo->fColors = info->fColors;
         baseInfo->fColorOffsets = info->fColorOffsets;
     }
-    if (as_SB(shader)->asGradient(baseInfo.getMaybeNull()) != SkShaderBase::GradientType::kLinear) {
+    if (as_SB(shader)->asGradient(SkOptAddressOrNull(baseInfo)) !=
+        SkShaderBase::GradientType::kLinear) {
         return false;
     }
     if (info) {
@@ -72,5 +76,3 @@ bool SkAndroidFrameworkUtils::ShaderAsALinearGradient(SkShader* shader,
     }
     return true;
 }
-
-#endif // SK_BUILD_FOR_ANDROID_FRAMEWORK
