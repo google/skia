@@ -220,7 +220,8 @@ public:
                      s.fDstColorType,
                      s.fDstCS,
                      SkColors::kTransparent,
-                     s.fSurfaceProps}
+                     s.fSurfaceProps,
+                     s.fDstBounds}
             , fMatrix(m)
             , fChildren(c)
             , fSampleUsages(u) {}

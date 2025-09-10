@@ -192,6 +192,7 @@
     M(mirror_x)   M(repeat_x)                                                  \
     M(mirror_y)   M(repeat_y)                                                  \
     M(negate_x)                                                                \
+    M(bilerp_clamp_8888_force_highp)                                           \
     M(bicubic_clamp_8888)                                                      \
     M(bilinear_setup)                                                          \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)                \

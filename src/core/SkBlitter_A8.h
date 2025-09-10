@@ -43,6 +43,7 @@ SkBlitter* SkA8Blitter_Choose(const SkPixmap& dst,
                               SkArenaAlloc*,
                               SkDrawCoverage,
                               sk_sp<SkShader> clipShader,
-                              const SkSurfaceProps&);
+                              const SkSurfaceProps&,
+                              const SkRect&);
 
 #endif // SkBlitter_A8_DEFINED

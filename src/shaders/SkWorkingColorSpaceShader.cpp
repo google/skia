@@ -75,7 +75,8 @@ bool SkWorkingColorSpaceShader::appendStages(const SkStageRec& rec,
                              rec.fDstColorType,
                              fInputSpace.get(),
                              paintColorInWorkingSpace,
-                             rec.fSurfaceProps};
+                             rec.fSurfaceProps,
+                             rec.fDstBounds};
 
     if (!as_SB(fShader)->appendStages(workingRec, mRec)) {
         return false;

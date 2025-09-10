@@ -5046,11 +5046,11 @@ HIGHP_STAGE(gauss_a_to_rgba, NoCtx) {
     b = a;
 }
 
-// A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
-HIGHP_STAGE(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx) {
+SI void bilerp_clamp_large(const SkRasterPipelineContexts::GatherCtx* ctx,
+                           F* r, F* g, F* b, F* a) {
     // (cx,cy) are the center of our sample.
-    F cx = r,
-      cy = g;
+    F cx = *r,
+      cy = *g;
 
     // All sample points are at the same fractional offset (fx,fy).
     // They're the 4 corners of a logical 1x1 pixel surrounding (x,y) at (0.5,0.5) offsets.
@@ -5058,7 +5058,7 @@ HIGHP_STAGE(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx) {
       fy = fract(cy + 0.5f);
 
     // We'll accumulate the color of all four samples into {r,g,b,a} directly.
-    r = g = b = a = F0;
+    *r = *g = *b = *a = F0;
 
     for (float py = -0.5f; py <= +0.5f; py += 1.0f)
     for (float px = -0.5f; px <= +0.5f; px += 1.0f) {
@@ -5081,11 +5081,22 @@ HIGHP_STAGE(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx) {
           sy = (py > 0) ? fy : 1.0f - fy,
           area = sx * sy;
 
-        r += sr * area;
-        g += sg * area;
-        b += sb * area;
-        a += sa * area;
+        *r += sr * area;
+        *g += sg * area;
+        *b += sb * area;
+        *a += sa * area;
     }
+}
+
+// A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
+HIGHP_STAGE(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx) {
+    bilerp_clamp_large(ctx, &r, &g, &b, &a);
+}
+
+// A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
+// This version exists to allow a shader to force high precision.
+HIGHP_STAGE(bilerp_clamp_8888_force_highp, const SkRasterPipelineContexts::GatherCtx* ctx) {
+    bilerp_clamp_large(ctx, &r, &g, &b, &a);
 }
 
 // A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
@@ -6654,22 +6665,12 @@ LOWP_STAGE_GP(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx)
     __m128 val2 = __lsx_vfmadd_s((__m128)v_tmp2, _23, (__m128)v_tmp1);
     __m128 val3 = __lsx_vfmadd_s((__m128)v_tmp2, _45, (__m128)v_tmp1);
     __m128 val4 = __lsx_vfmadd_s((__m128)v_tmp2, _67, (__m128)v_tmp1);
-    F fx = join<F>(__lsx_vfrintrm_s(val1), __lsx_vfrintrm_s(val2)),
-      fy = join<F>(__lsx_vfrintrm_s(val3), __lsx_vfrintrm_s(val4));
+    I32 qx = cast<I32>((join<F>(__lsx_vfrintrm_s(val1), __lsx_vfrintrm_s(val2)))) - 32768,
+    qy = cast<I32>((join<F>(__lsx_vfrintrm_s(val3), __lsx_vfrintrm_s(val4)))) - 32768;
 #else
-    F fx = floor_(65536.0f * x + 0.5f),
-      fy = floor_(65536.0f * y + 0.5f);
+    I32 qx = cast<I32>(floor_(65536.0f * x + 0.5f)) - 32768,
+        qy = cast<I32>(floor_(65536.0f * y + 0.5f)) - 32768;
 #endif
-    // Explicitly clamp values before cast. kInt32Min adjusted for shift to get
-    // quantized sample value.
-    static constexpr float kInt32Max = static_cast<float>(std::numeric_limits<int32_t>::max()),
-    kInt32Min = static_cast<float>(std::numeric_limits<int32_t>::min()) + 32768.0f;
-
-    fx = max(min(fx, kInt32Max), kInt32Min);
-    fy = max(min(fy, kInt32Max), kInt32Min);
-
-    I32 qx = cast<I32>(fx) - 32768,
-        qy = cast<I32>(fy) - 32768;
 
     // Calculate screen coordinates sx & sy by flooring qx and qy.
     I32 sx = qx >> 16,

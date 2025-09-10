@@ -717,8 +717,28 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixR
         && !sampling.useCubic && sampling.filter == SkFilterMode::kLinear
         && sampling.mipmap != SkMipmapMode::kLinear
         && fTileModeX == SkTileMode::kClamp && fTileModeY == SkTileMode::kClamp) {
+        // Check bounding box of points we will sample to see if we can use lowp
+        // and not over/under flow.
+        bool shouldUseHighPBilerp = false;
+        if (!rec.fDstBounds.isEmpty()) {
+            std::array<SkPoint, 4> quad = rec.fDstBounds.toQuad();
+            baseInv.mapPoints(quad);
+            SkRect deviceImageSpace;
+            deviceImageSpace.setBounds(quad);
+            for (float val : SkSpan<const float>(deviceImageSpace.asScalars(), 4)) {
+                if (val > INT16_MAX || val < INT16_MIN || !std::isfinite(val)) {
+                    shouldUseHighPBilerp = true;
+                    break;
+                }
+            }
+        }
 
-        p->append(SkRasterPipelineOp::bilerp_clamp_8888, upper.gather);
+        if (shouldUseHighPBilerp) {
+            p->append(SkRasterPipelineOp::bilerp_clamp_8888_force_highp, upper.gather);
+        } else {
+            p->append(SkRasterPipelineOp::bilerp_clamp_8888, upper.gather);
+        }
+
         if (ct == kBGRA_8888_SkColorType) {
             p->append(SkRasterPipelineOp::swap_rb);
         }

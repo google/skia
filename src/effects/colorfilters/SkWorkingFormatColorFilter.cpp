@@ -66,7 +66,8 @@ bool SkWorkingFormatColorFilter::appendStages(const SkStageRec& rec, bool shader
                              rec.fDstColorType,
                              workingCS.get(),
                              rec.fPaintColor,
-                             rec.fSurfaceProps};
+                             rec.fSurfaceProps,
+                             rec.fDstBounds};
 
     dstToWorking->apply(rec.fPipeline);
     if (!as_CFB(fChild)->appendStages(workingRec, shaderIsOpaque)) {

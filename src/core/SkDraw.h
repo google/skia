@@ -182,7 +182,8 @@ public:
                                       SkArenaAlloc*,
                                       SkDrawCoverage drawCoverage,
                                       sk_sp<SkShader> clipShader,
-                                      const SkSurfaceProps&);
+                                      const SkSurfaceProps&,
+                                      const SkRect& devBounds);
 
     /* If dstOrNull is null, computes a dst by mapping the bitmap's bounds through the matrix. */
     void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,

@@ -289,7 +289,8 @@ void Draw::drawFixedVertices(const SkVertices* vertices,
                                                  *ctm,
                                                  outerAlloc,
                                                  fRC->clipShader(),
-                                                 props);
+                                                 props,
+                                                 SkRect::MakeEmpty());
     if (!blitter) {
         return;
     }

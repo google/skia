@@ -153,7 +153,8 @@ public:
                              SkArenaAlloc*,
                              SkDrawCoverage,
                              sk_sp<SkShader> clipShader,
-                             const SkSurfaceProps& props);
+                             const SkSurfaceProps& props,
+                             const SkRect& devBounds);
 
     static SkBlitter* ChooseSprite(const SkPixmap& dst,
                                    const SkPaint&,

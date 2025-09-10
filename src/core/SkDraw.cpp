@@ -302,7 +302,8 @@ void Draw::drawPoints(SkCanvas::PointMode mode,
 
     PtProcRec rec;
     if (!device && rec.init(mode, paint, fCTM, fRC)) {
-        SkAutoBlitterChoose blitter(*this, nullptr, paint);
+        // Can't easily get bounds of points so don't try.
+        SkAutoBlitterChoose blitter(*this, nullptr, paint, SkRect::MakeEmpty());
 
         SkPoint             devPts[MAX_DEV_PTS];
         SkBlitter*          bltr = blitter.get();
@@ -492,7 +493,7 @@ void Draw::drawDevMask(const SkMask& srcM,
     }
     SkAutoMaskFreeImage ami(dstM.image());
 
-    SkAutoBlitterChoose blitterChooser(*this, paintMatrix, paint);
+    SkAutoBlitterChoose blitterChooser(*this, paintMatrix, paint, SkRect::Make(dstM.bounds()));
     SkBlitter* blitter = blitterChooser.get();
 
     SkAAClipBlitterWrapper wrapper;
@@ -622,7 +623,7 @@ void Draw::drawPaint(const SkPaint& paint) const {
     SkIRect devRect;
     devRect.setWH(fDst.width(), fDst.height());
 
-    SkAutoBlitterChoose blitter(*this, nullptr, paint);
+    SkAutoBlitterChoose blitter(*this, nullptr, paint, SkRect::Make(devRect));
     SkScan::FillIRect(devRect, *fRC, blitter.get());
 }
 
@@ -754,7 +755,7 @@ void Draw::drawRect(const SkRect& prePaintRect,
         return;
     }
 
-    SkAutoBlitterChoose blitterStorage(*this, matrix, paint);
+    SkAutoBlitterChoose blitterStorage(*this, matrix, paint, devRect);
     const SkRasterClip& clip = *fRC;
     SkBlitter* blitter = blitterStorage.get();
 
@@ -867,7 +868,7 @@ bool Draw::drawRRectNinePatch(const SkRRect& rrect, const SkPaint& paint) const 
     SkASSERT(paint.getMaskFilter());
 
     if (auto rr = rrect.transform(*fCTM)) {
-        SkAutoBlitterChoose blitter(*this, nullptr, paint);
+        SkAutoBlitterChoose blitter(*this, nullptr, paint, rrect.getBounds());
         SkResourceCache* cache = nullptr;  // TODO(kjlubick) get this from fCtx
         const SkMaskFilterBase* maskFilter = as_MFB(paint.getMaskFilter());
         if (rrect.getType() == SkRRect::kRect_Type) {
@@ -898,7 +899,7 @@ void Draw::drawDevPath(const SkPath& devPath,
     SkBlitter* blitter = nullptr;
     SkAutoBlitterChoose blitterStorage;
     if (nullptr == customBlitter) {
-        blitter = blitterStorage.choose(*this, nullptr, paint, drawCoverage);
+        blitter = blitterStorage.choose(*this, nullptr, paint, devPath.getBounds(), drawCoverage);
     } else {
         blitter = customBlitter;
     }
