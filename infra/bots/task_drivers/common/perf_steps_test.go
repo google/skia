@@ -234,7 +234,7 @@ func TestUploadToPerf_OutputsZip_Success(t *testing.T) {
 				// Make sure we use UTC instead of the system timezone. The GCS path reflects the fact that
 				// we convert from UTC+1 to UTC.
 				fakeNow := time.Date(2022, time.January, 31, 2, 2, 3, 0, time.FixedZone("UTC+1", 60*60))
-				ctx = now.TimeTravelingContext(fakeNow).WithContext(ctx)
+				ctx = now.TimeTravelingContext(ctx, fakeNow)
 
 				// We don't need to assert the exact number of times that os_steps.TempDir() is called
 				// because said function produces a "Creating TempDir" task driver step, and we check the
@@ -307,7 +307,7 @@ func TestUploadToPerf_OutputsDirectory_Success(t *testing.T) {
 				// Make sure we use UTC instead of the system timezone. The GCS path reflects the fact that
 				// we convert from UTC+1 to UTC.
 				fakeNow := time.Date(2022, time.January, 31, 2, 2, 3, 0, time.FixedZone("UTC+1", 60*60))
-				ctx = now.TimeTravelingContext(fakeNow).WithContext(ctx)
+				ctx = now.TimeTravelingContext(ctx, fakeNow)
 
 				err := UploadToPerf(ctx, gcsClient, benchmarkInfo, outputsDir)
 				assert.NoError(t, err)

@@ -63,7 +63,7 @@ func TestRun_Success(t *testing.T) {
 				// Make sure we use UTC instead of the system timezone. The GCS path reflects the fact that
 				// we convert from UTC+1 to UTC.
 				fakeNow := time.Date(2022, time.January, 31, 2, 2, 3, 0, time.FixedZone("UTC+1", 60*60))
-				ctx = now.TimeTravelingContext(fakeNow).WithContext(ctx)
+				ctx = now.TimeTravelingContext(ctx, fakeNow)
 				ctx = td.WithExecRunFn(ctx, commandCollector.Run)
 				var bazelCacheDirPath string
 				ctx, bazelCacheDirPath = common.WithEnoughSpaceOnBazelCachePartitionTestOnlyContext(ctx)
