@@ -409,6 +409,8 @@ SkPathBuilder& SkPathBuilder::arcTo(const SkRect& oval, SkScalar startAngle, SkS
         return *this;
     }
 
+    startAngle = SkScalarMod(startAngle, 360.0f);
+
     if (fVerbs.empty()) {
         forceMoveTo = true;
     }

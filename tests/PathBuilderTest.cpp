@@ -824,6 +824,34 @@ DEF_TEST(SkPathBuilder_transform, reporter) {
     }
 }
 
+DEF_TEST(SkPathBuilder_Path_arcTo, reporter) {
+
+    auto check_both_methods = [reporter](const SkRect& r, float start, float sweep) {
+        SkPath path;
+        path.arcTo(r, start, sweep, true);
+
+        SkPathBuilder builder;
+        builder.arcTo(r, start, sweep, true);
+
+        auto bupath = builder.snapshot();
+        REPORTER_ASSERT(reporter, bupath == path);
+    };
+
+    // this specific case was known to fail before
+    const SkRect r = {-18, -18, 18, 18};
+    float start = 375, sweep = 320;
+
+    check_both_methods(r, start, sweep);
+
+    // so now try a lot of other variants
+    SkRandom rand;
+    for (int i = 0; i < 1000; ++i) {
+        start = rand.nextSScalar1() * 1000;
+        sweep = rand.nextSScalar1() * 1000;
+        check_both_methods(r, start, sweep);
+    }
+}
+
 DEF_TEST(SkPathBuilder_cleaning, reporter) {
     // Test that we safely handle meaningless verbs, like repeated kClose
     SkPathBuilder b;
