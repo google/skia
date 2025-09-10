@@ -80,8 +80,10 @@ static void decal_nofilter_scale(uint32_t dst[], SkFixed fx, SkFixed dx, int cou
     }
 }
 
+using TileProc = unsigned (*)(SkFixed, int);
+
 // A generic implementation for unfiltered scale+translate, templated on tiling method.
-template <unsigned (*tilex)(SkFixed, int), unsigned (*tiley)(SkFixed, int), bool tryDecal>
+template <TileProc tilex, TileProc tiley, bool tryDecal>
 static void nofilter_scale(const SkBitmapProcState& s,
                            uint32_t xy[], int count, int x, int y) {
     SkASSERT(s.fInvMatrix.isScaleTranslate());
@@ -127,7 +129,7 @@ static void nofilter_scale(const SkBitmapProcState& s,
     }
 }
 
-template <unsigned (*tilex)(SkFixed, int), unsigned (*tiley)(SkFixed, int)>
+template <TileProc tilex, TileProc tiley>
 static void nofilter_affine(const SkBitmapProcState& s,
                             uint32_t xy[], int count, int x, int y) {
     SkASSERT(!s.fInvMatrix.hasPerspective());
@@ -178,7 +180,7 @@ static unsigned extract_low_bits_general(SkFixed fx, int max) {
 // distances are already normalized to between 0 and 1.0.
 //
 // See also SK_OPTS_NS::decode_packed_coordinates_and_weight for unpacking this value.
-template <unsigned (*tile)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int)>
+template <TileProc tile, TileProc extract_low_bits>
 SK_NO_SANITIZE("signed-integer-overflow")
 static uint32_t pack(SkFixed f, unsigned max, SkFixed one) {
     uint32_t packed = tile(f, max);                      // low coordinate in high bits
@@ -187,7 +189,7 @@ static uint32_t pack(SkFixed f, unsigned max, SkFixed one) {
     return packed;
 }
 
-template <unsigned (*tilex)(SkFixed, int), unsigned (*tiley)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int), bool tryDecal>
+template <TileProc tilex, TileProc tiley, TileProc extract_low_bits, bool tryDecal>
 static void filter_scale(const SkBitmapProcState& s,
                          uint32_t xy[], int count, int x, int y) {
     SkASSERT(s.fInvMatrix.isScaleTranslate());
@@ -224,7 +226,7 @@ static void filter_scale(const SkBitmapProcState& s,
     }
 }
 
-template <unsigned (*tilex)(SkFixed, int), unsigned (*tiley)(SkFixed, int), unsigned (*extract_low_bits)(SkFixed, int)>
+template <TileProc tilex, TileProc tiley, TileProc extract_low_bits>
 static void filter_affine(const SkBitmapProcState& s,
                           uint32_t xy[], int count, int x, int y) {
     SkASSERT(!s.fInvMatrix.hasPerspective());
