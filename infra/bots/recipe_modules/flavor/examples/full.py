@@ -265,3 +265,12 @@ def GenTests(api):
     api.step_data('Scale CPU 4 to 0.600000 (attempt 2)', retcode=1)+
     api.step_data('Scale CPU 4 to 0.600000 (attempt 3)', retcode=1)
   )
+
+  internalBuilder = (
+      'Test-Android-Clang-InternalDevice-GPU-SomeGPU-arm-Release-All')
+  yield (
+    api.test('internal_hardware_label') +
+    api.properties(**(
+        defaultProps(internalBuilder) | {'internal_hardware_label': '6'}
+    ))
+  )

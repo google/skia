@@ -16,12 +16,12 @@ import (
 	"strings"
 )
 
-// parts represents the key/value pairs which make up task and job names.
-type parts map[string]string
+// Parts represents the key/value pairs which make up task and job names.
+type Parts map[string]string
 
-// equal returns true if the given part of this job's name equals any of the
+// Equal returns true if the given part of this job's name equals any of the
 // given values. Panics if no values are provided.
-func (p parts) equal(part string, eq ...string) bool {
+func (p Parts) Equal(part string, eq ...string) bool {
 	if len(eq) == 0 {
 		log.Fatal("No values provided for equal!")
 	}
@@ -34,69 +34,69 @@ func (p parts) equal(part string, eq ...string) bool {
 	return false
 }
 
-// role returns true if the role for this job equals any of the given values.
-func (p parts) role(eq ...string) bool {
-	return p.equal("role", eq...)
+// Role returns true if the Role for this job equals any of the given values.
+func (p Parts) Role(eq ...string) bool {
+	return p.Equal("role", eq...)
 }
 
-// os returns true if the OS for this job equals any of the given values.
-func (p parts) os(eq ...string) bool {
-	return p.equal("os", eq...)
+// Os returns true if the OS for this job equals any of the given values.
+func (p Parts) Os(eq ...string) bool {
+	return p.Equal("os", eq...)
 }
 
-// compiler returns true if the compiler for this job equals any of the given
+// Compiler returns true if the Compiler for this job equals any of the given
 // values.
-func (p parts) compiler(eq ...string) bool {
-	return p.equal("compiler", eq...)
+func (p Parts) Compiler(eq ...string) bool {
+	return p.Equal("compiler", eq...)
 }
 
-// model returns true if the model for this job equals any of the given values.
-func (p parts) model(eq ...string) bool {
-	return p.equal("model", eq...)
+// Model returns true if the Model for this job equals any of the given values.
+func (p Parts) Model(eq ...string) bool {
+	return p.Equal("model", eq...)
 }
 
-// frequency returns true if the frequency for this job equals any of the given
+// Frequency returns true if the Frequency for this job equals any of the given
 // values.
-func (p parts) frequency(eq ...string) bool {
-	return p.equal("frequency", eq...)
+func (p Parts) Frequency(eq ...string) bool {
+	return p.Equal("frequency", eq...)
 }
 
-// cpu returns true if the task's cpu_or_gpu is "CPU" and the CPU for this
-// task equals any of the given values. If no values are provided, cpu returns
+// CPU returns true if the task's cpu_or_gpu is "CPU" and the CPU for this
+// task equals any of the given values. If no values are provided, CPU returns
 // true if this task runs on CPU.
-func (p parts) cpu(eq ...string) bool {
+func (p Parts) CPU(eq ...string) bool {
 	if p["cpu_or_gpu"] == "CPU" {
 		if len(eq) == 0 {
 			return true
 		}
-		return p.equal("cpu_or_gpu_value", eq...)
+		return p.Equal("cpu_or_gpu_value", eq...)
 	}
 	return false
 }
 
-// gpu returns true if the task's cpu_or_gpu is "GPU" and the GPU for this task
-// equals any of the given values. If no values are provided, gpu returns true
+// GPU returns true if the task's cpu_or_gpu is "GPU" and the GPU for this task
+// equals any of the given values. If no values are provided, GPU returns true
 // if this task runs on GPU.
-func (p parts) gpu(eq ...string) bool {
+func (p Parts) GPU(eq ...string) bool {
 	if p["cpu_or_gpu"] == "GPU" {
 		if len(eq) == 0 {
 			return true
 		}
-		return p.equal("cpu_or_gpu_value", eq...)
+		return p.Equal("cpu_or_gpu_value", eq...)
 	}
 	return false
 }
 
-// arch returns true if the architecture for this job equals any of the
+// Arch returns true if the architecture for this job equals any of the
 // given values.
-func (p parts) arch(eq ...string) bool {
-	return p.equal("arch", eq...) || p.equal("target_arch", eq...)
+func (p Parts) Arch(eq ...string) bool {
+	return p.Equal("arch", eq...) || p.Equal("target_arch", eq...)
 }
 
-// extraConfig returns true if any of the extra_configs for this job equals
+// ExtraConfig returns true if any of the extra_configs for this job equals
 // any of the given values. If the extra_config starts with "SK_",
 // it is considered to be a single config.
-func (p parts) extraConfig(eq ...string) bool {
+func (p Parts) ExtraConfig(eq ...string) bool {
 	if len(eq) == 0 {
 		log.Fatal("No values provided for extraConfig()!")
 	}
@@ -123,17 +123,17 @@ func (p parts) extraConfig(eq ...string) bool {
 	return false
 }
 
-// noExtraConfig returns true if there are no extra_configs for this job.
-func (p parts) noExtraConfig(eq ...string) bool {
+// NoExtraConfig returns true if there are no extra_configs for this job.
+func (p Parts) NoExtraConfig(eq ...string) bool {
 	ec := p["extra_config"]
 	return ec == ""
 }
 
-// matchPart returns true if the given part of this job's name matches any of
+// MatchPart returns true if the given part of this job's name matches any of
 // the given regular expressions. Note that a regular expression might match any
 // substring, so if you need an exact match on the entire string you'll need to
 // use `^` and `$`. Panics if no regular expressions are provided.
-func (p parts) matchPart(part string, re ...string) bool {
+func (p Parts) MatchPart(part string, re ...string) bool {
 	if len(re) == 0 {
 		log.Fatal("No regular expressions provided for matchPart()!")
 	}
@@ -146,76 +146,76 @@ func (p parts) matchPart(part string, re ...string) bool {
 	return false
 }
 
-// matchRole returns true if the role for this job matches any of the given
+// MatchRole returns true if the role for this job matches any of the given
 // regular expressions.
-func (p parts) matchRole(re ...string) bool {
-	return p.matchPart("role", re...)
+func (p Parts) MatchRole(re ...string) bool {
+	return p.MatchPart("role", re...)
 }
 
-func (p parts) project(re ...string) bool {
-	return p.matchPart("project", re...)
+func (p Parts) Project(re ...string) bool {
+	return p.MatchPart("project", re...)
 }
 
-// matchOs returns true if the OS for this job matches any of the given regular
+// MatchOs returns true if the OS for this job matches any of the given regular
 // expressions.
-func (p parts) matchOs(re ...string) bool {
-	return p.matchPart("os", re...)
+func (p Parts) MatchOs(re ...string) bool {
+	return p.MatchPart("os", re...)
 }
 
-// matchCompiler returns true if the compiler for this job matches any of the
+// MatchCompiler returns true if the compiler for this job matches any of the
 // given regular expressions.
-func (p parts) matchCompiler(re ...string) bool {
-	return p.matchPart("compiler", re...)
+func (p Parts) MatchCompiler(re ...string) bool {
+	return p.MatchPart("compiler", re...)
 }
 
-// matchModel returns true if the model for this job matches any of the given
+// MatchModel returns true if the model for this job matches any of the given
 // regular expressions.
-func (p parts) matchModel(re ...string) bool {
-	return p.matchPart("model", re...)
+func (p Parts) MatchModel(re ...string) bool {
+	return p.MatchPart("model", re...)
 }
 
-// matchCpu returns true if the task's cpu_or_gpu is "CPU" and the CPU for this
+// MatchCpu returns true if the task's cpu_or_gpu is "CPU" and the CPU for this
 // task matches any of the given regular expressions. If no regular expressions
 // are provided, cpu returns true if this task runs on CPU.
-func (p parts) matchCpu(re ...string) bool {
+func (p Parts) MatchCpu(re ...string) bool {
 	if p["cpu_or_gpu"] == "CPU" {
 		if len(re) == 0 {
 			return true
 		}
-		return p.matchPart("cpu_or_gpu_value", re...)
+		return p.MatchPart("cpu_or_gpu_value", re...)
 	}
 	return false
 }
 
-// matchGpu returns true if the task's cpu_or_gpu is "GPU" and the GPU for this task
+// MatchGpu returns true if the task's cpu_or_gpu is "GPU" and the GPU for this task
 // matches any of the given regular expressions. If no regular expressions are
 // provided, gpu returns true if this task runs on GPU.
-func (p parts) matchGpu(re ...string) bool {
+func (p Parts) MatchGpu(re ...string) bool {
 	if p["cpu_or_gpu"] == "GPU" {
 		if len(re) == 0 {
 			return true
 		}
-		return p.matchPart("cpu_or_gpu_value", re...)
+		return p.MatchPart("cpu_or_gpu_value", re...)
 	}
 	return false
 }
 
-// matchArch returns true if the architecture for this job matches any of the
+// MatchArch returns true if the architecture for this job matches any of the
 // given regular expressions.
-func (p parts) matchArch(re ...string) bool {
-	return p.matchPart("arch", re...) || p.matchPart("target_arch", re...)
+func (p Parts) MatchArch(re ...string) bool {
+	return p.MatchPart("arch", re...) || p.MatchPart("target_arch", re...)
 }
 
-// matchBazelHost returns true if the Bazel host for this job matches any of the
+// MatchBazelHost returns true if the Bazel host for this job matches any of the
 // given regular expressions.
-func (p parts) matchBazelHost(re ...string) bool {
-	return p.matchPart("host", re...)
+func (p Parts) MatchBazelHost(re ...string) bool {
+	return p.MatchPart("host", re...)
 }
 
-// matchExtraConfig returns true if any of the extra_configs for this job matches
+// MatchExtraConfig returns true if any of the extra_configs for this job matches
 // any of the given regular expressions. If the extra_config starts with "SK_",
 // it is considered to be a single config.
-func (p parts) matchExtraConfig(re ...string) bool {
+func (p Parts) MatchExtraConfig(re ...string) bool {
 	if len(re) == 0 {
 		log.Fatal("No regular expressions provided for matchExtraConfig()!")
 	}
@@ -243,43 +243,43 @@ func (p parts) matchExtraConfig(re ...string) bool {
 	return false
 }
 
-// debug returns true if this task runs in debug mode.
-func (p parts) debug() bool {
+// Debug returns true if this task runs in Debug mode.
+func (p Parts) Debug() bool {
 	return p["configuration"] == "Debug"
 }
 
-// release returns true if this task runs in release mode.
-func (p parts) release() bool {
+// Release returns true if this task runs in Release mode.
+func (p Parts) Release() bool {
 	return p["configuration"] == "Release"
 }
 
-// isLinux returns true if the task runs on Linux.
-func (p parts) isLinux() bool {
-	return p.matchOs("Debian", "Ubuntu") ||
-		p.matchExtraConfig("Debian", "Ubuntu") ||
-		p.matchBazelHost("linux", "on_rpi") ||
-		p.role("Housekeeper", "Canary", "Upload")
+// IsLinux returns true if the task runs on Linux.
+func (p Parts) IsLinux() bool {
+	return p.MatchOs("Debian", "Ubuntu") ||
+		p.MatchExtraConfig("Debian", "Ubuntu") ||
+		p.MatchBazelHost("linux", "on_rpi") ||
+		p.Role("Housekeeper", "Canary", "Upload")
 
 }
 
-// isWindows returns true if the task runs on Windows.
-func (p parts) isWindows() bool {
-	return !p.role("Upload") && (p.matchOs("Win") || p.matchExtraConfig("Win") || p.matchBazelHost("windows"))
+// IsWindows returns true if the task runs on Windows.
+func (p Parts) IsWindows() bool {
+	return !p.Role("Upload") && (p.MatchOs("Win") || p.MatchExtraConfig("Win") || p.MatchBazelHost("windows"))
 }
 
-// isMac returns true if the task runs on Mac.
-func (p parts) isMac() bool {
-	return !p.role("Upload") && (p.matchOs("Mac") || p.matchExtraConfig("Mac") || p.matchBazelHost("darwin"))
+// IsMac returns true if the task runs on Mac.
+func (p Parts) IsMac() bool {
+	return !p.Role("Upload") && (p.MatchOs("Mac") || p.MatchExtraConfig("Mac") || p.MatchBazelHost("darwin"))
 }
 
-// bazelBuildParts returns all parts from the BazelBuild schema. All parts are required.
-func (p parts) bazelBuildParts() (label string, config string, host string) {
+// BazelBuildParts returns all parts from the BazelBuild schema. All parts are required.
+func (p Parts) BazelBuildParts() (label string, config string, host string) {
 	return p["label"], p["config"], p["host"]
 }
 
-// bazelTestParts returns all parts from the BazelTest schema. task_driver, label, build_config,
+// BazelTestParts returns all parts from the BazelTest schema. task_driver, label, build_config,
 // and host are required; test_config is optional.
-func (p parts) bazelTestParts() (taskDriver string, label string, buildConfig string, host string, testConfig string) {
+func (p Parts) BazelTestParts() (taskDriver string, label string, buildConfig string, host string, testConfig string) {
 	return p["task_driver"], p["label"], p["build_config"], p["host"], p["test_config"]
 }
 
