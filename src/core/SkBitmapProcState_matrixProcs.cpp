@@ -189,6 +189,17 @@ static uint32_t pack(SkFixed f, unsigned max, SkFixed one) {
     return packed;
 }
 
+static constexpr int32_t max_hi = INT16_MAX;
+static constexpr int32_t min_hi = INT16_MIN;
+static constexpr SkFixed3232 max_fx = SkIntToFixed3232(INT16_MAX);
+static constexpr SkFixed3232 min_fx = SkIntToFixed3232(0xFFFF8000ULL);
+
+static constexpr SkFixed sk_fixed3232_saturate2fixed(SkFixed3232 x) {
+    x = (x >> 32) < max_hi ? x : max_fx;
+    x = (x >> 32) > min_hi ? x : min_fx;
+    return SkFixed3232ToFixed(x);
+}
+
 template <TileProc tilex, TileProc tiley, TileProc extract_low_bits, bool tryDecal>
 static void filter_scale(const SkBitmapProcState& s,
                          uint32_t xy[], int count, int x, int y) {
@@ -201,7 +212,8 @@ static void filter_scale(const SkBitmapProcState& s,
         const SkBitmapProcStateAutoMapper mapper(s, x, y);
         const unsigned maxY = s.fPixmap.height() - 1;
         // compute our two Y values up front
-        *xy++ = pack<tiley, extract_low_bits>(mapper.fixedY(), maxY, s.fFilterOneY);
+        *xy++ = pack<tiley, extract_low_bits>(
+            sk_fixed3232_saturate2fixed(mapper.fixed3232Y()), maxY, s.fFilterOneY);
         // now initialize fx
         fx = mapper.fixed3232X();
     }
@@ -212,7 +224,7 @@ static void filter_scale(const SkBitmapProcState& s,
         (unsigned)SkFixed3232ToInt(fx               ) < maxX &&
         (unsigned)SkFixed3232ToInt(fx + dx*(count-1)) < maxX) {
         while (count --> 0) {
-            SkFixed fixedFx = SkFixed3232ToFixed(fx);
+            SkFixed fixedFx = sk_fixed3232_saturate2fixed(fx);
             SkASSERT((fixedFx >> (16 + 14)) == 0);
             *xy++ = (fixedFx >> 12 << 14) | ((fixedFx >> 16) + 1);
             fx += dx;
@@ -221,7 +233,8 @@ static void filter_scale(const SkBitmapProcState& s,
     }
 
     while (count --> 0) {
-        *xy++ = pack<tilex, extract_low_bits>(SkFixed3232ToFixed(fx), maxX, s.fFilterOneX);
+        *xy++ = pack<tilex, extract_low_bits>(
+            sk_fixed3232_saturate2fixed(fx), maxX, s.fFilterOneX);
         fx += dx;
     }
 }
