@@ -1345,10 +1345,9 @@ public:
                    SkScalar       sweepAngle,
                    bool           useCenter,
                    const SkPaint& paint) override {
-        SkPath path;
         bool fillNoPathEffect = SkPaint::kFill_Style == paint.getStyle() && !paint.getPathEffect();
-        SkPathPriv::CreateDrawArcPath(
-                &path, SkArc::Make(oval, startAngle, sweepAngle, useCenter), fillNoPathEffect);
+        SkPath path = SkPathPriv::CreateDrawArcPath(
+                SkArc::Make(oval, startAngle, sweepAngle, useCenter), fillNoPathEffect);
         this->drawPath(path, paint);
     }
 

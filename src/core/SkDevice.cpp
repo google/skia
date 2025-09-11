@@ -135,9 +135,8 @@ void SkDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
 }
 
 void SkDevice::drawArc(const SkArc& arc, const SkPaint& paint) {
-    SkPath path;
     bool isFillNoPathEffect = SkPaint::kFill_Style == paint.getStyle() && !paint.getPathEffect();
-    SkPathPriv::CreateDrawArcPath(&path, arc, isFillNoPathEffect);
+    SkPath path = SkPathPriv::CreateDrawArcPath(arc, isFillNoPathEffect);
     this->drawPath(path, paint, true);
 }
 

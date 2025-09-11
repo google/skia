@@ -422,9 +422,7 @@ public:
     ArcGeo(const SkArc& arc) : fArc(arc) {}
 
     SkPath path() const override {
-        SkPath path;
-        SkPathPriv::CreateDrawArcPath(&path, fArc, false);
-        return path;
+        return SkPathPriv::CreateDrawArcPath(fArc, false);
     }
 
     GrStyledShape makeShape(const SkPaint& paint) const override {

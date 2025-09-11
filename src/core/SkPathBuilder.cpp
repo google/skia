@@ -198,10 +198,15 @@ SkPathBuilder& SkPathBuilder::conicTo(SkPoint pt1, SkPoint pt2, SkScalar w) {
     SkPoint* p = fPts.push_back_n(2);
     p[0] = pt1;
     p[1] = pt2;
-    fVerbs.push_back(SkPathVerb::kConic);
-    fConicWeights.push_back(w);
+    if (w == 1) {
+        fVerbs.push_back(SkPathVerb::kQuad);
+        fSegmentMask |= kQuad_SkPathSegmentMask;
+    } else {
+        fVerbs.push_back(SkPathVerb::kConic);
+        fConicWeights.push_back(w);
+        fSegmentMask |= kConic_SkPathSegmentMask;
+    }
 
-    fSegmentMask |= kConic_SkPathSegmentMask;
     return *this;
 }
 
