@@ -63,6 +63,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_codec_rust_png_public",
 			Rules: []string{
 				"//experimental/rust_png/decoder:hdrs",
+				"//include/encode:rust_png_public_hdrs",
 			},
 		},
 		{Var: "skia_codec_rust_png",
@@ -131,7 +132,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{"//src/encode:jpeg_encode_srcs",
 				"//src/encode:jpeg_encode_hdrs"}},
 		{Var: "skia_encode_rust_png_public",
-			Rules: []string{"//experimental/rust_png/encoder:hdrs"}},
+			Rules: []string{
+				"//experimental/rust_png/encoder:hdrs",
+				"//include/codec:rust_png_public_hdrs",
+			}},
 		{Var: "skia_encode_rust_png_srcs",
 			Rules: []string{
 				"//experimental/rust_png/encoder:srcs",

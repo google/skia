@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/rust_png/decoder/SkPngRustDecoder.h"
+#include "include/codec/SkPngRustDecoder.h"
 
 #include <utility>
 

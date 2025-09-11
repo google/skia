@@ -12,7 +12,7 @@
 #include <optional>
 #include <utility>
 
-#include "experimental/rust_png/encoder/SkPngRustEncoder.h"
+#include "include/encode/SkPngRustEncoder.h"
 #include "experimental/rust_png/ffi/FFI.rs.h"
 #include "experimental/rust_png/ffi/UtilsForFFI.h"
 #include "include/core/SkSpan.h"

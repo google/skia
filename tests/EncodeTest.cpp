@@ -41,11 +41,11 @@
 #endif
 
 #if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
-#include "experimental/rust_png/decoder/SkPngRustDecoder.h"
+#include "include/codec/SkPngRustDecoder.h"
 #endif
 
 #if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
-#include "experimental/rust_png/encoder/SkPngRustEncoder.h"
+#include "include/encode/SkPngRustEncoder.h"
 #endif
 
 #include <png.h>

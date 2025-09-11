@@ -5,7 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/rust_png/decoder/SkPngRustDecoder.h"
+#include "include/codec/SkPngRustDecoder.h"
+
+#include <memory>
+#include <utility>
+
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
 #include "include/core/SkBitmap.h"
@@ -20,9 +24,6 @@
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
-
-#include <memory>
-#include <utility>
 
 #define REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, actualResult) \
     REPORTER_ASSERT(r,                                           \
