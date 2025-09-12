@@ -10,6 +10,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPixmap.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
@@ -43,7 +44,6 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(MultisampleRetainTest, reporter, context,
     paint.setColor(SkColors::kBlue);
     paint.setStyle(SkPaint::Style::kStroke_Style);
 
-    SkPath path;
     constexpr int kPathPoints[][2] = {
         {9, 8},
         {9, 12},
@@ -51,10 +51,12 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(MultisampleRetainTest, reporter, context,
         {10, 32},
     };
 
-    path.moveTo(kPathPoints[0][0], kPathPoints[0][1]);
+    SkPathBuilder builder;
+    builder.moveTo(kPathPoints[0][0], kPathPoints[0][1]);
     for (size_t i = 0; i < std::size(kPathPoints); ++i) {
-        path.lineTo(kPathPoints[i][0], kPathPoints[i][1]);
+        builder.lineTo(kPathPoints[i][0], kPathPoints[i][1]);
     }
+    SkPath path = builder.detach();
 
     surfaceCanvas->drawPath(path, paint);
 
@@ -107,10 +109,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(MultisampleClearThenLoad, reporter, context,
     paint.setAntiAlias(true);
 
     // Note: The path is not a line, since that's optimized not to take the multisampling path.
-    SkPath path;
-    path.moveTo(0, 0);
-    path.lineTo(15, 15);
-    path.lineTo(33, 33);
+    SkPath path = SkPathBuilder()
+                  .moveTo(0, 0)
+                  .lineTo(15, 15)
+                  .lineTo(33, 33)
+                  .detach();
 
     surfaceCanvas->drawPath(path, paint);
 
@@ -120,10 +123,11 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(MultisampleClearThenLoad, reporter, context,
 
     // Draw another path. Because the contents of the surface need to be retained, this render pass
     // will use LoadOp::Load.
-    SkPath path2;
-    path2.moveTo(33, 0);
-    path2.lineTo(15, 15);
-    path2.lineTo(0, 33);
+    SkPath path2 = SkPathBuilder()
+                   .moveTo(33, 0)
+                   .lineTo(15, 15)
+                   .lineTo(0, 33)
+                   .detach();
 
     surfaceCanvas->drawPath(path2, paint);
 

@@ -50,7 +50,6 @@ static void flower(SkCanvas* canvas, const SkPath& path, SkScalar intervals[2],
 }
 
 DEF_SIMPLE_GM(dashcubics, canvas, 865, 750) {
-        SkPath path;
         const char* d = "M 337,98 C 250,141 250,212 250,212 C 250,212 250,212 250,212"
         "C 250,212 250,212 250,212 C 250,212 250,141 163,98 C 156,195 217,231 217,231"
         "C 217,231 217,231 217,231 C 217,231 217,231 217,231 C 217,231 156,195 75,250"
@@ -61,8 +60,8 @@ DEF_SIMPLE_GM(dashcubics, canvas, 865, 750) {
         "C 344,195 283,231 283,231 C 283,231 283,231 283,231 C 283,231 283,231 283,231"
         "C 283,231 344,195 338,98";
 
-        SkParsePath::FromSVGString(d, &path);
-            canvas->translate(-35.f, -55.f);
+        SkPath path = SkParsePath::FromSVGString(d).value_or(SkPath());
+        canvas->translate(-35.f, -55.f);
         for (int x = 0; x < 2; ++x) {
             for (int y = 0; y < 2; ++y) {
                 canvas->save();
@@ -79,28 +78,28 @@ public:
     TrimGM() {}
 
     void onOnceBeforeDraw() override {
-        SkAssertResult(SkParsePath::FromSVGString(
+        std::optional<SkPath> path;
+        SkAssertResult((path = SkParsePath::FromSVGString(
             "M   0,100 C  10, 50 190, 50 200,100"
             "M 200,100 C 210,150 390,150 400,100"
             "M 400,100 C 390, 50 210, 50 200,100"
-            "M 200,100 C 190,150  10,150   0,100",
-            &fPaths.push_back()));
+            "M 200,100 C 190,150  10,150   0,100")));
+        fPaths.push_back(*path);
 
-        SkAssertResult(SkParsePath::FromSVGString(
+        SkAssertResult((path = SkParsePath::FromSVGString(
             "M   0, 75 L 200, 75"
             "M 200, 91 L 200, 91"
             "M 200,108 L 200,108"
-            "M 200,125 L 400,125",
-            &fPaths.push_back()));
+            "M 200,125 L 400,125")));
+        fPaths.push_back(*path);
 
-        SkAssertResult(SkParsePath::FromSVGString(
+        SkAssertResult((path = SkParsePath::FromSVGString(
             "M   0,100 L  50, 50"
             "M  50, 50 L 150,150"
             "M 150,150 L 250, 50"
             "M 250, 50 L 350,150"
-            "M 350,150 L 400,100",
-            &fPaths.push_back()));
-
+            "M 350,150 L 400,100")));
+        fPaths.push_back(*path);
     }
 
 protected:

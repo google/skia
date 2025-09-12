@@ -102,10 +102,10 @@ DEF_SIMPLE_GM(arcto, canvas, 500, 600) {
     };
     int cIndex = 0;
     for (const char* arcstr : arcstrs) {
-        SkPath path;
-        SkParsePath::FromSVGString(arcstr, &path);
-        paint.setColor(colors[cIndex++]);
-        canvas->drawPath(path, paint);
+        if (auto path = SkParsePath::FromSVGString(arcstr)) {
+            paint.setColor(colors[cIndex++]);
+            canvas->drawPath(*path, paint);
+        }
     }
 
     // test that zero length arcs still draw round cap
@@ -240,7 +240,6 @@ DEF_SIMPLE_GM(parsedpaths, canvas, kParsePathTestDimension, kParsePathTestDimens
             }
             int count = 3;
             do {
-                SkPath path;
                 SkString spec;
                 uint32_t y = rand.nextRangeU(30, 70);
                 uint32_t x = rand.nextRangeU(30, 70);
@@ -248,11 +247,12 @@ DEF_SIMPLE_GM(parsedpaths, canvas, kParsePathTestDimension, kParsePathTestDimens
                 for (uint32_t i = rand.nextRangeU(0, 10); i--; ) {
                     spec.append(make_random_svg_path(&rand));
                 }
-                SkAssertResult(SkParsePath::FromSVGString(spec.c_str(), &path));
+                auto path = SkParsePath::FromSVGString(spec.c_str());
+                SkAssertResult(path.has_value());
                 paint.setColor(rand.nextU());
                 canvas->save();
                 canvas->clipRect(SkRect::MakeIWH(100, 100));
-                canvas->drawPath(path, paint);
+                canvas->drawPath(*path, paint);
                 canvas->restore();
                 if (GENERATE_SVG_REFERENCE) {
                     str.printf("<path d='\n");
@@ -307,8 +307,7 @@ DEF_SIMPLE_GM(bug583299, canvas, 300, 300) {
   p.setAntiAlias(true);
   p.setColor(0xFF008200);
   p.setStrokeCap(SkPaint::kSquare_Cap);
-  SkPath path;
-  SkParsePath::FromSVGString(d, &path);
+  SkPath path = SkParsePath::FromSVGString(d).value_or(SkPath());
   SkPathMeasure meas(path, false);
   SkScalar length = meas.getLength();
   SkScalar intervals[] = {0, length };

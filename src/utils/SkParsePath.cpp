@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
@@ -103,10 +104,10 @@ static const char* find_flag(const char str[], bool* value) {
     return str;
 }
 
-bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
+std::optional<SkPath> SkParsePath::FromSVGString(const char data[]) {
     // We will write all data to this local path and only write it
     // to result if the whole parsing succeeds.
-    SkPath path;
+    SkPathBuilder builder;
     SkPoint first = {0, 0};
     SkPoint c = {0, 0};
     SkPoint lastc = {0, 0};
@@ -122,7 +123,7 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
     for (;;) {
         if (!data) {
             // Truncated data
-            return false;
+            return {};
         }
         data = skip_ws(data);
         if (data[0] == '\0') {
@@ -131,7 +132,7 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
         char ch = data[0];
         if (is_digit(ch) || ch == '-' || ch == '+' || ch == '.') {
             if (op == '\0' || op == 'Z') {
-                return false;
+                return {};
             }
         } else if (is_sep(ch)) {
             data = skip_sep(data);
@@ -151,14 +152,14 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
                 // find_points might have failed, so this might be the
                 // previous point. However, data will be set to nullptr
                 // if it failed, so we will check this at the top of the loop.
-                path.moveTo(points[0]);
+                builder.moveTo(points[0]);
                 previousOp = '\0';
                 op = 'L';
                 c = points[0];
                 break;
             case 'L':  // Line
                 data = find_points(data, points, 1, relative, &c);
-                path.lineTo(points[0]);
+                builder.lineTo(points[0]);
                 c = points[0];
                 break;
             case 'H':  // Horizontal Line
@@ -167,12 +168,12 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
                 // be set to nullptr and this lineTo is bogus but will
                 // be ultimately ignored when the next time through the loop
                 // detects that and bails out.
-                path.lineTo(scratch, c.fY);
+                builder.lineTo(scratch, c.fY);
                 c.fX = scratch;
                 break;
             case 'V':  // Vertical Line
                 data = find_scalar(data, &scratch, relative, c.fY);
-                path.lineTo(c.fX, scratch);
+                builder.lineTo(c.fX, scratch);
                 c.fY = scratch;
                 break;
             case 'C':  // Cubic Bezier Curve
@@ -186,7 +187,7 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
                     points[0].fY -= lastc.fY - c.fY;
                 }
             cubicCommon:
-                path.cubicTo(points[0], points[1], points[2]);
+                builder.cubicTo(points[0], points[1], points[2]);
                 lastc = points[1];
                 c = points[2];
                 break;
@@ -201,7 +202,7 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
                     points[0].fY -= lastc.fY - c.fY;
                 }
             quadraticCommon:
-                path.quadTo(points[0], points[1]);
+                builder.quadTo(points[0], points[1]);
                 lastc = points[0];
                 c = points[1];
                 break;
@@ -218,26 +219,25 @@ bool SkParsePath::FromSVGString(const char data[], SkPath* result) {
                         && (data = find_flag(data, &sweep))
                         && (data = skip_sep(data))
                         && (data = find_points(data, &points[0], 1, relative, &c))) {
-                    path.arcTo(radii, angle, (SkPath::ArcSize) largeArc,
+                    builder.arcTo(radii, angle, (SkPathBuilder::ArcSize) largeArc,
                             (SkPathDirection) !sweep, points[0]);
-                    path.getLastPt(&c);
+                    c = builder.points().back();
                 }
                 } break;
             case 'Z':  // Close Path
-                path.close();
+                builder.close();
                 c = first;
                 break;
             default:
-                return false;
+                return {};
         }
         if (previousOp == 0) {
             first = c;
         }
         previousOp = op;
     }
-    // we're good, go ahead and swap in the result
-    result->swap(path);
-    return true;
+
+    return builder.detach();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

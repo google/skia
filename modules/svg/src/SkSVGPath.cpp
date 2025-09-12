@@ -26,7 +26,11 @@ bool SkSVGPath::parseAndSetAttribute(const char* n, const char* v) {
 
 template <>
 bool SkSVGAttributeParser::parse<SkPath>(SkPath* path) {
-    return SkParsePath::FromSVGString(fCurPos, path);
+    if (auto result = SkParsePath::FromSVGString(fCurPos)) {
+        *path = *result;
+        return true;
+    }
+    return false;
 }
 
 void SkSVGPath::onDraw(SkCanvas* canvas, const SkSVGLengthContext&, const SkPaint& paint,

@@ -12,6 +12,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRRect.h"
@@ -71,10 +72,9 @@ static void fill_and_stroke(SkCanvas* canvas, const SkPath& p1, const SkPath& p2
 static void test_drawSameRectOvals(skiatest::Reporter*, SkCanvas* canvas) {
     // Drawing ovals with similar bounds but different points order should not crash.
 
-    SkPath oval1, oval2;
     const SkRect rect = SkRect::MakeWH(100, 50);
-    oval1.addOval(rect, SkPathDirection::kCW);
-    oval2.addOval(rect, SkPathDirection::kCCW);
+    SkPath oval1 = SkPath::Oval(rect, SkPathDirection::kCW),
+           oval2 = SkPath::Oval(rect, SkPathDirection::kCCW);
 
     fill_and_stroke(canvas, oval1, oval2, nullptr);
 
@@ -110,11 +110,8 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(GrDrawCollapsedPath,
     SkPaint paint;
     paint.setAntiAlias(true);
 
-    SkPath path;
-    path.moveTo(0, 0);
-    path.lineTo(50, 0);
-    path.lineTo(0, 50);
-    path.close();
+    const SkPoint pts[] = { {0, 0}, {50, 0}, {0, 50} };
+    SkPath path = SkPath::Polygon(pts, true);
 
     SkMatrix m;
     m.setAll( 0.966006875f   , -0.125156224f  , 72.0899811f,
@@ -139,9 +136,10 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(PathTest_CrBug1232834,
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
 
-    SkPath path;
-    path.moveTo(9.0072E15f, 60);
-    path.cubicTo(0, 3.40282e+38f, 0, 3.40282e+38f, 0, 0);
+    SkPath path = SkPathBuilder()
+                  .moveTo(9.0072E15f, 60)
+                  .cubicTo(0, 3.40282e+38f, 0, 3.40282e+38f, 0, 0)
+                  .detach();
 
     surface->getCanvas()->drawPath(path, paint);
     dContext->flushAndSubmit(surface.get(), GrSyncCpu::kNo);

@@ -108,13 +108,18 @@ class ZeroLenStrokesGM : public skiagm::GM {
     SkPath fCubicPath, fQuadPath, fLinePath;
 protected:
     void onOnceBeforeDraw() override {
+        auto parse_assert_result = [](const char str[]) {
+            auto path = SkParsePath::FromSVGString(str);
+            SkAssertResult(path.has_value());
+            return *path;
+        };
 
-        SkAssertResult(SkParsePath::FromSVGString("M0,0h0M10,0h0M20,0h0", &fMoveHfPath));
-        SkAssertResult(SkParsePath::FromSVGString("M0,0zM10,0zM20,0z", &fMoveZfPath));
-        SkAssertResult(SkParsePath::FromSVGString("M0,0h25", &fDashedfPath));
-        SkAssertResult(SkParsePath::FromSVGString("M 0 0 C 0 0 0 0 0 0", &fCubicPath));
-        SkAssertResult(SkParsePath::FromSVGString("M 0 0 Q 0 0 0 0", &fQuadPath));
-        SkAssertResult(SkParsePath::FromSVGString("M 0 0 L 0 0", &fLinePath));
+        fMoveHfPath = parse_assert_result("M0,0h0M10,0h0M20,0h0");
+        fMoveZfPath = parse_assert_result("M0,0zM10,0zM20,0z");
+        fDashedfPath = parse_assert_result("M0,0h25");
+        fCubicPath = parse_assert_result("M 0 0 C 0 0 0 0 0 0");
+        fQuadPath = parse_assert_result("M 0 0 Q 0 0 0 0");
+        fLinePath = parse_assert_result("M 0 0 L 0 0");
 
         for (int i = 0; i < 3; ++i) {
             fRefPath[0].addCircle(i * 10.f, 0, 5);
