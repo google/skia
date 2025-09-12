@@ -553,9 +553,8 @@ JSString ToSVGString(const SkPath& path) {
 }
 
 SkPathOrNull MakePathFromSVGString(std::string str) {
-    SkPath path;
-    if (SkParsePath::FromSVGString(str.c_str(), &path)) {
-        return emscripten::val(path);
+    if (auto path = SkParsePath::FromSVGString(str.c_str())) {
+        return emscripten::val(*path);
     }
     return emscripten::val::null();
 }

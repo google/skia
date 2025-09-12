@@ -10,13 +10,12 @@
 #include "include/utils/SkParsePath.h"
 
 void FuzzParsePath(const uint8_t* data, size_t size) {
-    SkPath path;
     // Put into a SkString first because we are not sure if the input
     // data is null-terminated or not.
     SkString input((const char*) data, size);
-    if (SkParsePath::FromSVGString(input.c_str(), &path)) {
-        SkString output1 = SkParsePath::ToSVGString(path, SkParsePath::PathEncoding::Absolute);
-        SkString output2 = SkParsePath::ToSVGString(path, SkParsePath::PathEncoding::Relative);
+    if (auto path = SkParsePath::FromSVGString(input.c_str())) {
+        SkString output1 = SkParsePath::ToSVGString(*path, SkParsePath::PathEncoding::Absolute);
+        SkString output2 = SkParsePath::ToSVGString(*path, SkParsePath::PathEncoding::Relative);
         // Do something with the output so it is not optimized away.
         if (output1.startsWith("Impossible") || output2.startsWith("Impossible")) {
             SK_ABORT("invalid SVG created");

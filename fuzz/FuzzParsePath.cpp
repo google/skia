@@ -114,7 +114,6 @@ SkString MakeRandomParsePathPiece(Fuzz* fuzz) {
 }
 
 DEF_FUZZ(ParsePath, fuzz) {
-    SkPath path;
     SkString spec;
     uint8_t count;
     fuzz->nextRange(&count, 0, 40);
@@ -122,7 +121,7 @@ DEF_FUZZ(ParsePath, fuzz) {
         spec.append(MakeRandomParsePathPiece(fuzz));
     }
     SkDebugf("SkParsePath::FromSVGString(%s, &path);\n",spec.c_str());
-    if (!SkParsePath::FromSVGString(spec.c_str(), &path)){
+    if (!SkParsePath::FromSVGString(spec.c_str())){
         SkDebugf("Could not decode path\n");
     }
 }

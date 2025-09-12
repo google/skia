@@ -585,17 +585,17 @@ static void test_crbug_170666() {
 
 static void test_tiny_path_convexity(skiatest::Reporter* reporter, const char* pathBug,
         SkScalar tx, SkScalar ty, SkScalar scale) {
-    SkPath smallPath;
-    SkAssertResult(SkParsePath::FromSVGString(pathBug, &smallPath));
-    bool smallConvex = smallPath.isConvex();
-    SkPath largePath;
-    SkAssertResult(SkParsePath::FromSVGString(pathBug, &largePath));
+    auto smallPath = SkParsePath::FromSVGString(pathBug);
+    SkAssertResult(smallPath.has_value());
+    bool smallConvex = smallPath->isConvex();
+    auto largePath = SkParsePath::FromSVGString(pathBug);
+    SkAssertResult(largePath.has_value());
     SkMatrix matrix;
     matrix.reset();
     matrix.preTranslate(100, 100);
     matrix.preScale(scale, scale);
-    largePath.transform(matrix);
-    bool largeConvex = largePath.isConvex();
+    largePath = largePath->makeTransform(matrix);
+    bool largeConvex = largePath->isConvex();
     REPORTER_ASSERT(reporter, smallConvex == largeConvex);
 }
 
@@ -1110,9 +1110,8 @@ static void check_direction(skiatest::Reporter* reporter, const SkPath& path,
 
 static void test_direction(skiatest::Reporter* reporter) {
     size_t i;
-    SkPath path;
     REPORTER_ASSERT(reporter,
-                    SkPathPriv::ComputeFirstDirection(path) == SkPathFirstDirection::kUnknown);
+                    SkPathPriv::ComputeFirstDirection(SkPath()) == SkPathFirstDirection::kUnknown);
 
     static const char* gDegen[] = {
         "M 10 10",
@@ -1123,11 +1122,10 @@ static void test_direction(skiatest::Reporter* reporter) {
         "M 10 10 C 10 10 10 10 10 10",
     };
     for (i = 0; i < std::size(gDegen); ++i) {
-        path.reset();
-        bool valid = SkParsePath::FromSVGString(gDegen[i], &path);
-        REPORTER_ASSERT(reporter, valid);
+        auto path = SkParsePath::FromSVGString(gDegen[i]);
+        REPORTER_ASSERT(reporter, path.has_value());
         REPORTER_ASSERT(reporter,
-                        SkPathPriv::ComputeFirstDirection(path) == SkPathFirstDirection::kUnknown);
+                        SkPathPriv::ComputeFirstDirection(*path) == SkPathFirstDirection::kUnknown);
     }
 
     static const char* gCW[] = {
@@ -1140,10 +1138,9 @@ static void test_direction(skiatest::Reporter* reporter) {
         "M 20 10 L 0 10 Q 10 10 20 0",  // left, degenerate serif
     };
     for (i = 0; i < std::size(gCW); ++i) {
-        path.reset();
-        bool valid = SkParsePath::FromSVGString(gCW[i], &path);
-        REPORTER_ASSERT(reporter, valid);
-        check_direction(reporter, path, SkPathFirstDirection::kCW);
+        auto path = SkParsePath::FromSVGString(gCW[i]);
+        REPORTER_ASSERT(reporter, path.has_value());
+        check_direction(reporter, *path, SkPathFirstDirection::kCW);
     }
 
     static const char* gCCW[] = {
@@ -1156,15 +1153,14 @@ static void test_direction(skiatest::Reporter* reporter) {
         "M 10 10 L 30 10 Q 20 10 10 0",  // right, degenerate serif
     };
     for (i = 0; i < std::size(gCCW); ++i) {
-        path.reset();
-        bool valid = SkParsePath::FromSVGString(gCCW[i], &path);
-        REPORTER_ASSERT(reporter, valid);
-        check_direction(reporter, path, SkPathFirstDirection::kCCW);
+        auto path = SkParsePath::FromSVGString(gCCW[i]);
+        REPORTER_ASSERT(reporter, path.has_value());
+        check_direction(reporter, *path, SkPathFirstDirection::kCCW);
     }
 
     // Test two donuts, each wound a different direction. Only the outer contour
     // determines the cheap direction
-    path.reset();
+    SkPath path;
     path.addCircle(0, 0, SkIntToScalar(2), SkPathDirection::kCW);
     path.addCircle(0, 0, SkIntToScalar(1), SkPathDirection::kCCW);
     check_direction(reporter, path, SkPathFirstDirection::kCW);
@@ -2876,7 +2872,6 @@ static void test_transform(skiatest::Reporter* reporter) {
 }
 
 static void test_zero_length_paths(skiatest::Reporter* reporter) {
-    SkPath  p;
     uint8_t verbs[32];
 
     struct SUPPRESS_VISIBILITY_WARNING zeroPathTestData {
@@ -2931,13 +2926,12 @@ static void test_zero_length_paths(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < std::size(gZeroLengthTests); ++i) {
-        p.reset();
-        bool valid = SkParsePath::FromSVGString(gZeroLengthTests[i].testPath, &p);
-        REPORTER_ASSERT(reporter, valid);
-        REPORTER_ASSERT(reporter, !p.isEmpty());
-        REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultPts == (size_t)p.countPoints());
-        REPORTER_ASSERT(reporter, gZeroLengthTests[i].resultBound == p.getBounds());
-        REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultVerbs == (size_t)p.getVerbs(verbs));
+        auto p = SkParsePath::FromSVGString(gZeroLengthTests[i].testPath);
+        REPORTER_ASSERT(reporter, p.has_value());
+        REPORTER_ASSERT(reporter, !p->isEmpty());
+        REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultPts == (size_t)p->countPoints());
+        REPORTER_ASSERT(reporter, gZeroLengthTests[i].resultBound == p->getBounds());
+        REPORTER_ASSERT(reporter, gZeroLengthTests[i].numResultVerbs == (size_t)p->getVerbs(verbs));
         for (size_t j = 0; j < gZeroLengthTests[i].numResultVerbs; ++j) {
             REPORTER_ASSERT(reporter, gZeroLengthTests[i].resultVerbs[j] == verbs[j]);
         }
@@ -2952,23 +2946,27 @@ struct SegmentInfo {
 #define kCurveSegmentMask   (SkPath::kQuad_SegmentMask | SkPath::kCubic_SegmentMask)
 
 static void test_segment_masks(skiatest::Reporter* reporter) {
-    SkPath p, p2;
+    SkPathBuilder builder;
+    builder.moveTo(0, 0);
+    builder.quadTo(100, 100, 200, 200);
 
-    p.moveTo(0, 0);
-    p.quadTo(100, 100, 200, 200);
+    SkPath p = builder.snapshot();
     REPORTER_ASSERT(reporter, SkPath::kQuad_SegmentMask == p.getSegmentMasks());
     REPORTER_ASSERT(reporter, !p.isEmpty());
-    p2 = p;
+
+    SkPath p2 = p;
     REPORTER_ASSERT(reporter, p2.getSegmentMasks() == p.getSegmentMasks());
-    p.cubicTo(100, 100, 200, 200, 300, 300);
+
+    builder.cubicTo(100, 100, 200, 200, 300, 300);
+    p = builder.detach();
     REPORTER_ASSERT(reporter, kCurveSegmentMask == p.getSegmentMasks());
     REPORTER_ASSERT(reporter, !p.isEmpty());
     p2 = p;
     REPORTER_ASSERT(reporter, p2.getSegmentMasks() == p.getSegmentMasks());
 
-    p.reset();
-    p.moveTo(0, 0);
-    p.cubicTo(100, 100, 200, 200, 300, 300);
+    builder.moveTo(0, 0);
+    builder.cubicTo(100, 100, 200, 200, 300, 300);
+    p = builder.detach();
     REPORTER_ASSERT(reporter, SkPath::kCubic_SegmentMask == p.getSegmentMasks());
     p2 = p;
     REPORTER_ASSERT(reporter, p2.getSegmentMasks() == p.getSegmentMasks());
@@ -3036,10 +3034,9 @@ static void test_iter(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < std::size(gIterTests); ++i) {
-        p.reset();
-        bool valid = SkParsePath::FromSVGString(gIterTests[i].testPath, &p);
-        REPORTER_ASSERT(reporter, valid);
-        iter.setPath(p, gIterTests[i].forceClose);
+        auto path = SkParsePath::FromSVGString(gIterTests[i].testPath);
+        REPORTER_ASSERT(reporter, path.has_value());
+        iter.setPath(*path, gIterTests[i].forceClose);
         int j = 0, l = 0;
         do {
             REPORTER_ASSERT(reporter, iter.next(pts) == gIterTests[i].resultVerbs[j]);
@@ -5159,21 +5156,15 @@ DEF_TEST(AndroidArc, reporter) {
          "M50 0A50 50,0,1,1,50 100A50 50,0,1,1,50 0"
     };
     for (auto test : tests) {
-        SkPath aPath;
-        SkAssertResult(SkParsePath::FromSVGString(test, &aPath));
-        SkASSERT(aPath.isConvex());
+        const auto aPath = SkParsePath::FromSVGString(test);
+        SkAssertResult(aPath.has_value());
+        SkASSERT(aPath->isConvex());
         for (SkScalar scale = 1; scale < 1000; scale *= 1.1f) {
-            SkPath scalePath = aPath;
-            SkMatrix matrix;
-            matrix.setScale(scale, scale);
-            scalePath.transform(matrix);
+            auto scalePath = aPath->makeTransform(SkMatrix::Scale(scale, scale));
             SkASSERT(scalePath.isConvex());
         }
         for (SkScalar scale = 1; scale < .001; scale /= 1.1f) {
-            SkPath scalePath = aPath;
-            SkMatrix matrix;
-            matrix.setScale(scale, scale);
-            scalePath.transform(matrix);
+            auto scalePath = aPath->makeTransform(SkMatrix::Scale(scale, scale));
             SkASSERT(scalePath.isConvex());
         }
     }

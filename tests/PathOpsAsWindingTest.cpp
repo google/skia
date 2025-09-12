@@ -368,8 +368,7 @@ void bug13496_1(skiatest::Reporter* reporter) {
             "2.15 -0.98 1.87 -1.12L1.87 -4.15C2.34 -4.73 2.75 -5.09 3.42 -5.09C4.31 -5.09 4.81 "
             "-4.46 4.81 -3.09Z";
 
-    SkPath path;
-    SkParsePath::FromSVGString(originalPathStr.c_str(), &path);
+    SkPath path = SkParsePath::FromSVGString(originalPathStr.c_str()).value_or(SkPath());
 
     SkPath simplifiedPath;
     Simplify(path, &simplifiedPath);
@@ -396,8 +395,7 @@ void bug13496_2(skiatest::Reporter* reporter) {
             "L3 1"
             "Z";
 
-    SkPath path;
-    SkParsePath::FromSVGString(originalPathStr.c_str(), &path);
+    SkPath path = SkParsePath::FromSVGString(originalPathStr.c_str()).value_or(SkPath());
 
     SkPath simplifiedPath;
     Simplify(path, &simplifiedPath);
@@ -424,8 +422,7 @@ void bug13496_3(skiatest::Reporter* reporter) {
             "L3 1"
             "Z";
 
-    SkPath path;
-    SkParsePath::FromSVGString(originalPathStr.c_str(), &path);
+    SkPath path = SkParsePath::FromSVGString(originalPathStr.c_str()).value_or(SkPath());
 
     SkPath simplifiedPath;
     Simplify(path, &simplifiedPath);
