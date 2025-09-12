@@ -31,7 +31,7 @@ vars = {
 #     ./tools/git-sync-deps
 deps = {
   "buildtools"                                   : "https://chromium.googlesource.com/chromium/src/buildtools.git@729495f2ffa69080907780591fa2a630b2556e98",
-  "third_party/externals/angle2"                 : "https://chromium.googlesource.com/angle/angle.git@f27d171991de9e9dec298393fed007f587fecd74",
+  "third_party/externals/angle2"                 : "https://chromium.googlesource.com/angle/angle.git@46444b3df88c93d1a83babfd5abadde28e650abe",
   "third_party/externals/brotli"                 : "https://skia.googlesource.com/external/github.com/google/brotli.git@6d03dfbedda1615c4cba1211f8d81735575209c8",
   "third_party/externals/d3d12allocator"         : "https://skia.googlesource.com/external/github.com/GPUOpen-LibrariesAndSDKs/D3D12MemoryAllocator.git@169895d529dfce00390a20e69c2f516066fe7a3b",
   # Dawn requires jinja2 and markupsafe for the code generator, tint for SPIRV compilation, and abseil for string formatting.
