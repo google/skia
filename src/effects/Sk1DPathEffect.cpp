@@ -227,7 +227,7 @@ static void morphpath(SkPathBuilder* dst, const SkPath& src, SkPathMeasure& meas
 SkScalar SkPath1DPathEffectImpl::next(SkPathBuilder* builder, SkScalar distance,
                                       SkPathMeasure& meas) const {
 #if defined(SK_BUILD_FOR_FUZZER)
-    if (dst->countPoints() > 100000) {
+    if (builder->countPoints() > 100000) {
         return fAdvance;
     }
 #endif
