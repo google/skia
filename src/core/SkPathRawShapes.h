@@ -15,11 +15,13 @@
 class SkRRect;
 struct SkRect;
 
-namespace SkPathRawShapes {
-
-/*
- *  The defaults were chosen to make those in SkPathBuilder.h
+/**
+ *  These classes provide their own stack-based storage for path data, making them efficient
+ *  alternatives to SkPath for known geometries, avoiding heap allocations.
+ *
+ *  The defaults were chosen to match those in SkPathBuilder.h
  */
+namespace SkPathRawShapes {
 
 struct Rect : public SkPathRaw {
     SkPoint fStorage[4];   // move + 3 lines (+ close)
@@ -51,6 +53,6 @@ struct Triangle : public SkPathRaw {
     Triangle(SkSpan<const SkPoint> threePoints, const SkRect& bounds);
 };
 
-} // namespace
+}  // namespace SkPathRawShapes
 
 #endif

@@ -53,6 +53,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
+#include <functional>
 #include <initializer_list>
 #include <memory>
 #include <vector>
@@ -2943,35 +2944,62 @@ struct SegmentInfo {
     int    fPointCount;
 };
 
-#define kCurveSegmentMask   (SkPath::kQuad_SegmentMask | SkPath::kCubic_SegmentMask)
-
 static void test_segment_masks(skiatest::Reporter* reporter) {
-    SkPathBuilder builder;
-    builder.moveTo(0, 0);
-    builder.quadTo(100, 100, 200, 200);
+    auto check_mask = [reporter](const char* desc,
+                                 uint32_t expectedMask,
+                                 const std::function<void(SkPathBuilder&)>& build) {
+        skiatest::ReporterContext context(reporter, desc);
+        SkPathBuilder builder;
+        build(builder);
+        SkPath path = builder.detach();
+        REPORTER_ASSERT(reporter, path.getSegmentMasks() == expectedMask);
+    };
 
-    SkPath p = builder.snapshot();
-    REPORTER_ASSERT(reporter, SkPath::kQuad_SegmentMask == p.getSegmentMasks());
-    REPORTER_ASSERT(reporter, !p.isEmpty());
+    check_mask("empty", 0, [](SkPathBuilder& builder) {
+        // empty
+    });
 
-    SkPath p2 = p;
-    REPORTER_ASSERT(reporter, p2.getSegmentMasks() == p.getSegmentMasks());
+    check_mask("move-only", 0, [](SkPathBuilder& builder) { builder.moveTo(0, 0); });
 
-    builder.cubicTo(100, 100, 200, 200, 300, 300);
-    p = builder.detach();
-    REPORTER_ASSERT(reporter, kCurveSegmentMask == p.getSegmentMasks());
-    REPORTER_ASSERT(reporter, !p.isEmpty());
-    p2 = p;
-    REPORTER_ASSERT(reporter, p2.getSegmentMasks() == p.getSegmentMasks());
+    check_mask("line", SkPath::kLine_SegmentMask, [](SkPathBuilder& builder) {
+        builder.moveTo(0, 0);
+        builder.lineTo(1, 1);
+    });
 
-    builder.moveTo(0, 0);
-    builder.cubicTo(100, 100, 200, 200, 300, 300);
-    p = builder.detach();
-    REPORTER_ASSERT(reporter, SkPath::kCubic_SegmentMask == p.getSegmentMasks());
-    p2 = p;
-    REPORTER_ASSERT(reporter, p2.getSegmentMasks() == p.getSegmentMasks());
+    check_mask("quad", SkPath::kQuad_SegmentMask, [](SkPathBuilder& builder) {
+        builder.moveTo(0, 0);
+        builder.quadTo(1, 1, 2, 2);
+    });
 
-    REPORTER_ASSERT(reporter, !p.isEmpty());
+    check_mask("conic", SkPath::kConic_SegmentMask, [](SkPathBuilder& builder) {
+        builder.moveTo(0, 0);
+        builder.conicTo(1, 1, 2, 2, 0.5f);
+    });
+
+    check_mask("cubic", SkPath::kCubic_SegmentMask, [](SkPathBuilder& builder) {
+        builder.moveTo(0, 0);
+        builder.cubicTo(1, 1, 2, 2, 3, 3);
+    });
+
+    check_mask("quad-cubic",
+               SkPath::kQuad_SegmentMask | SkPath::kCubic_SegmentMask,
+               [](SkPathBuilder& builder) {
+                   builder.moveTo(0, 0);
+                   builder.quadTo(1, 1, 2, 2);
+                   builder.cubicTo(3, 3, 4, 4, 5, 5);
+               });
+
+    check_mask("all",
+               SkPath::kLine_SegmentMask | SkPath::kQuad_SegmentMask | SkPath::kConic_SegmentMask |
+                       SkPath::kCubic_SegmentMask,
+               [](SkPathBuilder& builder) {
+                   builder.moveTo(0, 0);
+                   builder.lineTo(1, 1);
+                   builder.quadTo(2, 2, 3, 3);
+                   builder.conicTo(4, 4, 5, 5, 0.5f);
+                   builder.cubicTo(6, 6, 7, 7, 8, 8);
+                   builder.close();
+               });
 }
 
 static void test_iter(skiatest::Reporter* reporter) {
@@ -4933,7 +4961,8 @@ DEF_TEST(Paths, reporter) {
     check_convex_bounds(reporter, p, bounds);
     // we have quads or cubics
     REPORTER_ASSERT(reporter,
-                    p.getSegmentMasks() & (kCurveSegmentMask | SkPath::kConic_SegmentMask));
+                    p.getSegmentMasks() & (SkPath::kQuad_SegmentMask | SkPath::kCubic_SegmentMask |
+                                           SkPath::kConic_SegmentMask));
     REPORTER_ASSERT(reporter, !p.isEmpty());
 
     p.reset();

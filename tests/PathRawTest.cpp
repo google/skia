@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 Google Inc.
+ * Copyright 2025 Google LLC
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -10,11 +10,12 @@
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
-
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPathRaw.h"
 
 #include "tests/Test.h"
+
+#include <functional>
 
 namespace {
 
@@ -104,13 +105,13 @@ void SkSPathRawBuilder::close() {
 SkPathRaw SkSPathRawBuilder::raw(SkPathFillType ft, bool isConvex) const {
     const auto ptSpan = fPtStorage.first(fPts);
     return {
-        ptSpan,
-        fVbStorage.first(fVbs),
-        fCnStorage.first(fCns),
-        SkRect::BoundsOrEmpty(ptSpan),
-        ft,
-        isConvex,
-        SkPathPriv::ComputeSegmentMask(fVbStorage),
+            ptSpan,
+            fVbStorage.first(fVbs),
+            fCnStorage.first(fCns),
+            SkRect::BoundsOrEmpty(ptSpan),
+            ft,
+            isConvex,
+            SkPathPriv::ComputeSegmentMask(fVbStorage.first(fVbs)),
     };
 }
 
@@ -224,4 +225,75 @@ DEF_TEST(pathraw_iter, reporter) {
     raw = SkPathPriv::Raw(path);
 
     check_iter(reporter, raw, p, verbs, cns);
+}
+
+DEF_TEST(pathraw_segmentmask, reporter) {
+    auto check_mask = [reporter](const char* desc,
+                                 uint32_t expectedMask,
+                                 const std::function<void(SkSPathRawBuilder&)>& build) {
+        skiatest::ReporterContext context(reporter, desc);
+        // Make these buffers plenty big to hold any of the paths in the tests
+        SkPoint pts[20];
+        SkPathVerb vbs[20];
+        float cns[10];
+        SkSPathRawBuilder bu(pts, vbs, cns);
+        build(bu);
+        auto raw = bu.raw(SkPathFillType::kWinding);
+        REPORTER_ASSERT(reporter, raw.fSegmentMask == expectedMask);
+    };
+
+    check_mask("move-only", 0, [](SkSPathRawBuilder& bu) { bu.moveTo({0, 0}); });
+
+    check_mask("line", SkPath::kLine_SegmentMask, [](SkSPathRawBuilder& bu) {
+        bu.moveTo({0, 0});
+        bu.lineTo({1, 1});
+    });
+
+    check_mask("quad", SkPath::kQuad_SegmentMask, [](SkSPathRawBuilder& bu) {
+        bu.moveTo({0, 0});
+        bu.quadTo({1, 1}, {2, 2});
+    });
+
+    check_mask("conic", SkPath::kConic_SegmentMask, [](SkSPathRawBuilder& bu) {
+        bu.moveTo({0, 0});
+        bu.conicTo({1, 1}, {2, 2}, 0.5f);
+    });
+
+    check_mask("cubic", SkPath::kCubic_SegmentMask, [](SkSPathRawBuilder& bu) {
+        bu.moveTo({0, 0});
+        bu.cubicTo({1, 1}, {2, 2}, {3, 3});
+    });
+
+    check_mask("line-quad",
+               SkPath::kLine_SegmentMask | SkPath::kQuad_SegmentMask,
+               [](SkSPathRawBuilder& bu) {
+                   bu.moveTo({0, 0});
+                   bu.lineTo({1, 1});
+                   bu.quadTo({2, 2}, {3, 3});
+               });
+
+    check_mask("conic-cubic",
+               SkPath::kConic_SegmentMask | SkPath::kCubic_SegmentMask,
+               [](SkSPathRawBuilder& bu) {
+                   bu.moveTo({0, 0});
+                   bu.conicTo({1, 1}, {2, 2}, 0.5f);
+                   bu.cubicTo({3, 3}, {4, 4}, {5, 5});
+               });
+
+    check_mask("all",
+               SkPath::kLine_SegmentMask | SkPath::kQuad_SegmentMask | SkPath::kConic_SegmentMask |
+                       SkPath::kCubic_SegmentMask,
+               [](SkSPathRawBuilder& bu) {
+                   bu.moveTo({0, 0});
+                   bu.lineTo({1, 1});
+                   bu.quadTo({2, 2}, {3, 3});
+                   bu.conicTo({4, 4}, {5, 5}, 0.5f);
+                   bu.cubicTo({6, 6}, {7, 7}, {8, 8});
+                   bu.close();
+               });
+
+    check_mask("empty path", 0, [](SkSPathRawBuilder& bu) {
+        bu.moveTo({0, 0});
+        bu.close();
+    });
 }
