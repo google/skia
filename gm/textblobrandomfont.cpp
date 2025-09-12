@@ -23,11 +23,14 @@
 #include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTextBlob.h"
 #include "include/core/SkTypeface.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/fonts/RandomScalerContext.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
+#endif
 
 #include <string.h>
 #include <utility>
@@ -101,12 +104,14 @@ protected:
     SkISize getISize() override { return SkISize::Make(kWidth, kHeight); }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        GrDirectContext* dContext = GrAsDirectContext(canvas->recordingContext());
-        bool isGPU = SkToBool(dContext);
+        bool isGPU = false;
+
+#if defined(SK_GANESH)
+        isGPU = isGPU || SkToBool(GrAsDirectContext(canvas->recordingContext()));
+#endif
 
 #if defined(SK_GRAPHITE)
-        skgpu::graphite::Recorder* recorder = canvas->recorder();
-        isGPU = isGPU || SkToBool(recorder);
+        isGPU = isGPU || SkToBool(canvas->recorder());
 #endif
 
         if (!isGPU) {
@@ -152,10 +157,12 @@ protected:
         surface->draw(canvas, 0, 0);
         yOffset += stride;
 
-        if (dContext) {
+#if defined(SK_GANESH)
+        if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
             // free gpu resources and verify
             dContext->freeGpuResources();
         }
+#endif
 
         canvas->rotate(-0.05f);
         canvas->drawTextBlob(fBlob, 10, yOffset, paint);

@@ -24,17 +24,19 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/ganesh/GrBackendSurface.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/GrTypes.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkTo.h"
 #include "src/base/SkMathPriv.h"
 #include "src/core/SkYUVMath.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/gpu/YUVUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrTypes.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "src/gpu/ganesh/GrDirectContextPriv.h"
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Surface.h"
@@ -144,9 +146,11 @@ protected:
             case Source::kTextures: type = sk_gpu_test::LazyYUVImage::Type::kFromTextures; break;
             case Source::kImages:   type = sk_gpu_test::LazyYUVImage::Type::kFromImages;   break;
         }
+#if defined(SK_GANESH)
         if (context) {
             return fLazyYUVImage->refImage(context, type);
         }
+#endif
 #if defined(SK_GRAPHITE)
         return fLazyYUVImage->refImage(recorder, type);
 #endif
@@ -164,6 +168,7 @@ protected:
                                             kRGBA_8888_SkColorType,
                                             kPremul_SkAlphaType);
         sk_sp<SkSurface> resultSurface;
+#if defined(SK_GANESH)
         if (dContext) {
             resultSurface = SkSurfaces::RenderTarget(dContext,
                                                      skgpu::Budgeted::kYes,
@@ -173,6 +178,7 @@ protected:
                                                      nullptr,
                                                      /*shouldCreateWithMips=*/true);
         }
+#endif
 #if defined(SK_GRAPHITE)
         if (recorder) {
             resultSurface = SkSurfaces::RenderTarget(recorder, resultInfo, skgpu::Mipmapped::kYes);
@@ -187,9 +193,10 @@ protected:
     }
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg, GraphiteTestContext*) override {
-        auto dContext = GrAsDirectContext(canvas->recordingContext());
         auto* recorder = canvas->recorder();
 
+#if defined(SK_GANESH)
+        auto dContext = GrAsDirectContext(canvas->recordingContext());
         if (!recorder && (!dContext || dContext->abandoned())) {
             *errorMsg = "DirectContext or graphite::Recorder required to create YUV images";
             return DrawResult::kSkip;
@@ -203,6 +210,9 @@ protected:
             *errorMsg = "YUV Image from SkImage planes not supported with Ganesh.";
             return DrawResult::kSkip;
         }
+#else
+        constexpr GrDirectContext* dContext = nullptr;
+#endif
 
         if (!fLazyYUVImage) {
             fLazyYUVImage = CreatePlanes("images/mandrill_128.png");
@@ -224,6 +234,7 @@ protected:
             return DrawResult::kFail;
         }
 
+#if defined(SK_GANESH)
         if (dContext) {
             // Some backends (e.g., Vulkan) require all work be completed for backend textures
             // before they are deleted. Since we don't know when we'll next have access to a
@@ -231,6 +242,7 @@ protected:
             dContext->flush();
             dContext->submit(GrSyncCpu::kYes);
         }
+#endif
 
         return DrawResult::kOk;
     }

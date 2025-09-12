@@ -14,15 +14,18 @@
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/GrRecordingContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "src/base/SkScopeExit.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/gpu/YUVUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
@@ -75,6 +78,7 @@ std::variant<sk_sp<SkImage>, skiagm::DrawResult> convert_image_to_source<ReadSou
         return skiagm::DrawResult::kFail;
     }
 #endif
+#if defined(SK_GANESH)
     auto dContext = GrAsDirectContext(canvas->recordingContext());
     if (!dContext && canvas->recordingContext()) {
         *errorMsg = "Not supported in DDL mode";
@@ -92,6 +96,7 @@ std::variant<sk_sp<SkImage>, skiagm::DrawResult> convert_image_to_source<ReadSou
         *errorMsg = "Could not create Ganesh image";
         return skiagm::DrawResult::kFail;
     }
+#endif
     return image;
 }
 
@@ -109,10 +114,12 @@ std::variant<sk_sp<SkSurface>, skiagm::DrawResult> convert_image_to_source<ReadS
     }
     if (!surface) {
         *errorMsg = "Could not create surface for image.";
+#if defined(SK_GANESH)
         // When testing abandoned GrContext we expect surface creation to fail.
         if (canvas->recordingContext() && canvas->recordingContext()->abandoned()) {
             return skiagm::DrawResult::kSkip;
         }
+#endif
         return skiagm::DrawResult::kFail;
     }
     SkPaint paint;
@@ -178,6 +185,7 @@ protected:
                                            rescaleMode,
                                            AsyncCallback,
                                            asyncContext);
+#if defined(SK_GANESH)
             if (direct) {
                 direct->submit();
             }
@@ -186,7 +194,9 @@ protected:
                 SkASSERT(direct);
                 direct->checkAsyncWorkCompletion();
             }
+#endif
         }
+        SkASSERT(asyncContext->fCalled);
         if (!asyncContext->fResult) {
             return nullptr;
         }
@@ -281,6 +291,7 @@ protected:
                                                      AsyncCallback,
                                                      &asyncContext);
             }
+#if defined(SK_GANESH)
             if (direct) {
                 direct->submit();
             }
@@ -289,7 +300,9 @@ protected:
                 SkASSERT(direct);
                 direct->checkAsyncWorkCompletion();
             }
+#endif
         }
+        SkASSERT(asyncContext.fCalled);
         if (!asyncContext.fResult) {
             return nullptr;
         }
@@ -334,9 +347,13 @@ protected:
                                        int pad = 0) {
         SkASSERT(canvas->imageInfo().colorType() != kUnknown_SkColorType);
 
-        auto direct = GrAsDirectContext(canvas->recordingContext());
-        auto recorder = canvas->recorder();
+        GrDirectContext* direct = nullptr;
+#if defined(SK_GANESH)
+        direct = GrAsDirectContext(canvas->recordingContext());
         SkASSERT(direct || !canvas->recordingContext());
+#endif
+
+        auto recorder = canvas->recorder();
 
         SkYUVColorSpace yuvColorSpace = kRec601_SkYUVColorSpace;
         canvas->save();
@@ -538,11 +555,14 @@ public:
             return skiagm::DrawResult::kSkip;
         }
 
-        auto dContext = GrAsDirectContext(surface->recordingContext());
+        GrDirectContext* dContext = nullptr;
+#if defined(SK_GANESH)
+        dContext = GrAsDirectContext(surface->recordingContext());
         if (!dContext && surface->recordingContext()) {
             *errorMsg = "Not supported in DDL mode";
             return skiagm::DrawResult::kSkip;
         }
+#endif
 
         auto image = ToolUtils::GetResourceAsImage("images/yellow_rose.webp");
         if (!image) {
@@ -590,11 +610,13 @@ public:
             return skiagm::DrawResult::kSkip;
         }
 
+#if defined(SK_GANESH)
         auto dContext = GrAsDirectContext(canvas->recordingContext());
         if (!dContext && canvas->recordingContext()) {
             *errorMsg = "Not supported in DDL mode";
             return skiagm::DrawResult::kSkip;
         }
+#endif
 
         static constexpr int kBorder = 5;
         static constexpr int kInner = 5;
@@ -607,10 +629,12 @@ public:
         auto surface = canvas->makeSurface(surfaceII);
         if (!surface) {
             *errorMsg = "Could not create surface for image.";
+#if defined(SK_GANESH)
             // When testing abandoned GrContext we expect surface creation to fail.
             if (canvas->recordingContext() && canvas->recordingContext()->abandoned()) {
                 return skiagm::DrawResult::kSkip;
             }
+#endif
             return skiagm::DrawResult::kFail;
         }
         surface->getCanvas()->clear(SK_ColorRED);
@@ -659,11 +683,14 @@ public:
     SkISize getISize() override { return {512, 512}; }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
-        auto dContext = GrAsDirectContext(canvas->recordingContext());
+        GrDirectContext* dContext = nullptr;
+#if defined(SK_GANESH)
+        dContext = GrAsDirectContext(canvas->recordingContext());
         if (!dContext && canvas->recordingContext()) {
             *errorMsg = "Not supported in DDL mode";
             return skiagm::DrawResult::kSkip;
         }
+#endif
 
         if (canvas->recorder()) {
             *errorMsg = "Reading to unpremul not supported in Graphite.";

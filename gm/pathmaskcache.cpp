@@ -14,9 +14,12 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
-#include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/private/base/SkTArray.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
+#endif
 
 using namespace skia_private;
 
@@ -108,10 +111,12 @@ protected:
         }
     }
 
+#if defined(SK_GANESH)
     void modifyGrContextOptions(GrContextOptions* options) override {
         options->fGpuPathRenderers = GpuPathRenderers::kNone;
         options->fAllowPathMaskCaching = true;
     }
+#endif
 
 private:
     using INHERITED = GM;

@@ -22,7 +22,10 @@
 #include "include/effects/SkCornerPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkDiscretePathEffect.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
+#endif
 
 #include <initializer_list>
 
@@ -248,11 +251,13 @@ protected:
 
     SkISize getISize() override { return SkISize::Make(800, 600); }
 
+#if defined(SK_GANESH)
     // CTM-aware path effects are not supported by Ganesh
     DrawResult onGpuSetup(SkCanvas* canvas, SkString*, GraphiteTestContext*) override {
         auto dctx = GrAsDirectContext(canvas->recordingContext());
         return dctx == nullptr ? DrawResult::kOk : DrawResult::kSkip;
     }
+#endif
 
     void onDraw(SkCanvas* canvas) override {
         const float strokeWidth = 16;

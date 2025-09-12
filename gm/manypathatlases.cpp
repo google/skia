@@ -7,13 +7,18 @@
 
 #include "gm/gm.h"
 
+#include "include/core/SkCanvas.h"
+#include "include/core/SkClipOp.h"
 #include "include/core/SkPath.h"
+#include "tools/ToolUtils.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrDrawingManager.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "tools/ToolUtils.h"
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/ContextOptions.h"
@@ -35,10 +40,12 @@ private:
     }
     SkISize getISize() override { return SkISize::Make(128, 128); }
 
+#if defined(SK_GANESH)
     void modifyGrContextOptions(GrContextOptions* ctxOptions) override {
         // This will test the case where the atlas runs out of room if fMaxAtlasSize is small.
         ctxOptions->fMaxTextureAtlasSize = fMaxAtlasSize;
     }
+#endif
 
 #if defined(SK_GRAPHITE)
     void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions* options) const override {
@@ -50,12 +57,14 @@ private:
     void onDraw(SkCanvas* canvas) override {
         canvas->clear(SkColors::kYellow);
 
+#if defined(SK_GANESH)
         // Flush the context to make the DAG empty. This will test the case where we try to add an
         // atlas task to an empty DAG.
         auto dContext = GrAsDirectContext(canvas->recordingContext());
         if (dContext) {
             dContext->flush();
         }
+#endif
 
         SkPath clip = SkPath().moveTo(-50, 20)
                               .cubicTo(-50, -20, 50, -20, 50, 40)

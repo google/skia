@@ -17,10 +17,13 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Surface.h"
@@ -66,14 +69,16 @@ const MakerT makers[] = {
         // SkImage_Ganesh
         [](SkCanvas* c, const SkImageInfo& info) -> sk_sp<SkImage> {
             sk_sp<SkSurface> surface;
-            if (c->recordingContext()) {
-                surface =
-                        SkSurfaces::RenderTarget(c->recordingContext(), skgpu::Budgeted::kNo, info);
-            } else {
-#if defined(SK_GRAPHITE)
-                surface = SkSurfaces::RenderTarget(c->recorder(), info);
-#endif
+#if defined(SK_GANESH)
+            if (auto rc = c->recordingContext()) {
+                surface = SkSurfaces::RenderTarget(rc, skgpu::Budgeted::kNo, info);
             }
+#endif
+#if defined(SK_GRAPHITE)
+            if (auto r = c->recorder()) {
+                surface = SkSurfaces::RenderTarget(r, info);
+            }
+#endif
             return make_mask(surface ? surface : SkSurfaces::Raster(info));
         },
 

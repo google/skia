@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-// This test only works with the GPU backend.
+// This test only works with the Ganesh backend.
 
 #include "gm/gm.h"
 #include "include/core/SkBlendMode.h"

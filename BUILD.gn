@@ -2450,6 +2450,12 @@ if (skia_enable_tools) {
     if (!skia_enable_ganesh) {
       sources -= ganesh_gm_sources
     }
+    if (!skia_enable_graphite) {
+      sources -= graphite_gm_sources
+    }
+    if (!skia_enable_ganesh && !skia_enable_graphite) {
+      sources -= gpu_gm_sources
+    }
     if (skia_use_fontations) {
       sources += fontations_gm_sources
     }

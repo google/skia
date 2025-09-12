@@ -17,14 +17,8 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/ganesh/GrContextOptions.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkGeometry.h"
-#include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrDrawingManager.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 
 static constexpr float kStrokeWidth = 30;
 static constexpr int kCellSize = 200;

@@ -9,14 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
 #include "include/core/SkPoint.h"
-#include "include/gpu/ganesh/GrContextOptions.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/base/SkRandom.h"
-#include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "src/gpu/ganesh/GrDrawingManager.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
-#include "src/gpu/ganesh/ops/TessellationPathRenderer.h"
 
 static constexpr float kStrokeWidth = 100;
 static constexpr int kTestWidth = 120 * 4;

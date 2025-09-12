@@ -10,7 +10,10 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrContextOptions.h"
+#endif
 
 namespace skiagm {
 
@@ -19,10 +22,12 @@ private:
     SkString getName() const override { return SkString("batchedconvexpaths"); }
     SkISize getISize() override { return SkISize::Make(512, 512); }
 
+#if defined(SK_GANESH)
     void modifyGrContextOptions(GrContextOptions* ctxOptions) override {
         // Ensure our paths don't go through the atlas path renderer.
         ctxOptions->fGpuPathRenderers &= ~GpuPathRenderers::kAtlas;
     }
+#endif
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
         canvas->clear(SK_ColorBLACK);

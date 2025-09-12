@@ -29,9 +29,12 @@
 #include "include/core/SkTypes.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tools/DecodeUtils.h"
 #include "tools/ToolUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#endif
 
 #include <utility>
 
@@ -64,7 +67,10 @@ static sk_sp<SkImage> make_texture(GrRecordingContext* ctx,
     if (!ctx) {
         return nullptr;
     }
-    auto surface(SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info));
+    sk_sp<SkSurface> surface;
+#if defined(SK_GANESH)
+    surface = SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info);
+#endif
     if (!surface) {
         return nullptr;
     }

@@ -18,7 +18,10 @@
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
 #include "include/gpu/GpuTypes.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#endif
 
 namespace skiagm {
 
@@ -190,6 +193,7 @@ protected:
         // created with MIPs then asking for a mipmapped image will cause a copy to a mipped
         // texture.
         sk_sp<SkSurface> surface;
+#if defined(SK_GANESH)
         if (auto rc = canvas->recordingContext()) {
             surface = SkSurfaces::RenderTarget(rc,
                                                skgpu::Budgeted::kYes,
@@ -202,7 +206,9 @@ protected:
                 // We could be in an abandoned context situation.
                 return;
             }
-        } else {
+        } else
+#endif
+        {
             surface = canvas->makeSurface(ii);
             if (!surface) {  // could be a recording canvas.
                 surface = SkSurfaces::Raster(ii);

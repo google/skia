@@ -19,11 +19,14 @@
 #include "include/effects/SkRuntimeEffect.h"
 #include "src/base/SkRandom.h"
 #include "src/core/SkRuntimeEffectPriv.h"
-#include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
+
+#if defined(SK_GANESH)
+#include "src/gpu/ganesh/GrCaps.h"
+#include "src/gpu/ganesh/GrRecordingContextPriv.h"
+#endif
 
 static constexpr int kBoxSize     = 100;
 static constexpr int kPadding     = 5;
@@ -158,16 +161,6 @@ static void plot(SkCanvas* canvas,
     next_column(canvas);
 }
 
-static void plot_es3(SkCanvas* canvas,
-                     const char* fn,
-                     float xMin,
-                     float xMax,
-                     float yMin,
-                     float yMax,
-                     const char* label = nullptr) {
-    plot(canvas, fn, xMin, xMax, yMin, yMax, label, /*requireES3=*/true);
-}
-
 // The OpenGL ES Shading Language, Version 1.00, Section 8.1
 DEF_SIMPLE_GM(runtime_intrinsics_trig,
               canvas,
@@ -201,6 +194,17 @@ DEF_SIMPLE_GM(runtime_intrinsics_trig,
     next_row(canvas);
 }
 
+#if defined(SK_GANESH)
+static void plot_es3(SkCanvas* canvas,
+                     const char* fn,
+                     float xMin,
+                     float xMax,
+                     float yMin,
+                     float yMax,
+                     const char* label = nullptr) {
+    plot(canvas, fn, xMin, xMax, yMin, yMax, label, /*requireES3=*/true);
+}
+
 // The OpenGL ES Shading Language, Version 3.00, Section 8.1
 DEF_SIMPLE_GPU_GM_CAN_FAIL(runtime_intrinsics_trig_es3,
                            ctx, canvas, errorMsg,
@@ -228,6 +232,7 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(runtime_intrinsics_trig_es3,
 
     return skiagm::DrawResult::kOk;
 }
+#endif  // SK_GANESH
 
 // The OpenGL ES Shading Language, Version 1.00, Section 8.2
 DEF_SIMPLE_GM(runtime_intrinsics_exponential,
@@ -312,6 +317,7 @@ DEF_SIMPLE_GM(runtime_intrinsics_common,
     next_row(canvas);
 }
 
+#if defined(SK_GANESH)
 // The OpenGL ES Shading Language, Version 3.00, Section 8.1
 DEF_SIMPLE_GPU_GM_CAN_FAIL(runtime_intrinsics_common_es3,
                            ctx, canvas, errorMsg,
@@ -370,7 +376,7 @@ DEF_SIMPLE_GPU_GM_CAN_FAIL(runtime_intrinsics_common_es3,
 
     return skiagm::DrawResult::kOk;
 }
-
+#endif  // SK_GANESH
 
 // The OpenGL ES Shading Language, Version 1.00, Section 8.4
 DEF_SIMPLE_GM(runtime_intrinsics_geometric,

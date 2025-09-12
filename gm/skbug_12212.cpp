@@ -13,16 +13,22 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTextBlob.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tools/fonts/FontToolUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#endif
 
 DEF_SIMPLE_GM_BG(skbug_12212, canvas, 400, 400, SK_ColorCYAN) {
     // Create an Alpha_8 surface to draw into (strangely, with RGB pixel geometry).
     auto imageInfo = SkImageInfo::Make(/*width=*/400, /*height=*/400, kAlpha_8_SkColorType,
                                        kPremul_SkAlphaType);
     SkSurfaceProps props(/*flags=*/0, kRGB_H_SkPixelGeometry);
-    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(
+    sk_sp<SkSurface> surface;
+#if defined(SK_GANESH)
+    surface = SkSurfaces::RenderTarget(
             canvas->recordingContext(), skgpu::Budgeted::kNo, imageInfo, /*sampleCount=*/0, &props);
+#endif
     if (!surface) {
         surface = SkSurfaces::Raster(imageInfo, &props);
     }

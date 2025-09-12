@@ -22,10 +22,13 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
 #include "modules/skcms/skcms.h"
 #include "tools/Resources.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#endif
 
 #include <string.h>
 #include <memory>
@@ -158,10 +161,13 @@ protected:
                 if (!image) {
                     continue;
                 }
-                auto dContext = GrAsDirectContext(canvas->recordingContext());
+                GrDirectContext* dContext = nullptr;
+#if defined(SK_GANESH)
+                dContext = GrAsDirectContext(canvas->recordingContext());
                 if (dContext) {
                     image = SkImages::TextureFromImage(dContext, image);
                 }
+#endif
                 if (image) {
                     for (SkColorType dstColorType : colorTypes) {
                         for (SkAlphaType dstAlphaType : alphaTypes) {

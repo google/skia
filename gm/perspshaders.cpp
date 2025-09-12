@@ -25,9 +25,12 @@
 #include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkGradientShader.h"
-#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "tools/DecodeUtils.h"
 #include "tools/ToolUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrRecordingContext.h"
+#endif
 
 static sk_sp<SkImage> make_image(SkCanvas* origCanvas, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
@@ -147,7 +150,13 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (!fImage || !fImage->isValid(canvas->recordingContext()->asRecorder())) {
+#if defined(SK_GANESH)
+        if (fImage && !fImage->isValid(canvas->recordingContext()->asRecorder())) {
+            fImage = nullptr;
+        }
+#endif
+
+        if (!fImage) {
             fImage = make_image(canvas, kCellSize, kCellSize);
         }
 

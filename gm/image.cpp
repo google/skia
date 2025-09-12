@@ -31,9 +31,6 @@
 #include "include/effects/SkGradientShader.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
-#include "include/gpu/ganesh/SkImageGanesh.h"
-#include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkMalloc.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkColorPriv.h"
@@ -44,6 +41,12 @@
 #include "tools/GpuToolUtils.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "include/gpu/ganesh/SkImageGanesh.h"
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#endif
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Image.h"
@@ -178,8 +181,10 @@ protected:
         SkImageInfo info = SkImageInfo::MakeN32Premul(W, H);
         sk_sp<SkSurface> surf0(SkSurfaces::WrapPixels(info, fBuffer, RB));
         sk_sp<SkSurface> surf1(SkSurfaces::Raster(info));
-        sk_sp<SkSurface> surf2(
-                SkSurfaces::RenderTarget(canvas->recordingContext(), skgpu::Budgeted::kNo, info));
+        sk_sp<SkSurface> surf2;
+#if defined(SK_GANESH)
+        surf2 = SkSurfaces::RenderTarget(canvas->recordingContext(), skgpu::Budgeted::kNo, info);
+#endif
 
         test_surface(canvas, surf0.get(), true);
         canvas->translate(80, 0);
@@ -279,9 +284,11 @@ static sk_sp<SkImage> make_gpu(const SkImageInfo& info,
                                skgpu::graphite::Recorder* recorder,
                                void (*draw)(SkCanvas*)) {
     sk_sp<SkSurface> surface;
+#if defined(SK_GANESH)
     if (ctx) {
         surface = SkSurfaces::RenderTarget(ctx, skgpu::Budgeted::kNo, info);
     }
+#endif
 #if defined(SK_GRAPHITE)
     if (recorder) {
         surface = SkSurfaces::RenderTarget(recorder, info);
@@ -341,9 +348,12 @@ DEF_GM( return new ScalePixelsGM(true); )
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
+    bool isGPU = false;
 
+#if defined(SK_GANESH)
     GrDirectContext* dContext = GrAsDirectContext(canvas->recordingContext());
-    bool isGPU = SkToBool(dContext);
+    isGPU = isGPU || SkToBool(dContext);
+#endif
 
 #if defined(SK_GRAPHITE)
     skgpu::graphite::Recorder* recorder = canvas->recorder();
@@ -409,13 +419,16 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
             // Create a texture image
             [&]() -> sk_sp<SkImage> {
                 sk_sp<SkSurface> surface;
+#if defined(SK_GANESH)
                 if (dContext) {
                     surface = SkSurfaces::RenderTarget(dContext, skgpu::Budgeted::kYes, ii);
-                } else {
-#if defined(SK_GRAPHITE)
-                    surface = SkSurfaces::RenderTarget(recorder, ii);
-#endif
                 }
+#endif
+#if defined(SK_GRAPHITE)
+                if (recorder) {
+                    surface = SkSurfaces::RenderTarget(recorder, ii);
+                }
+#endif
 
                 if (!surface) {
                     return nullptr;
@@ -431,16 +444,19 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
         if (image) {
             for (auto mm : { false, true }) {
                 sk_sp<SkImage> texImage;
+#if defined(SK_GANESH)
                 if (dContext) {
                     texImage = SkImages::TextureFromImage(dContext,
                                                           image,
                                                           mm ? skgpu::Mipmapped::kYes
                                                              : skgpu::Mipmapped::kNo);
-                } else {
-#if defined(SK_GRAPHITE)
-                    texImage = SkImages::TextureFromImage(recorder, image, {mm});
-#endif
                 }
+#endif
+#if defined(SK_GRAPHITE)
+                if (recorder) {
+                    texImage = SkImages::TextureFromImage(recorder, image, {mm});
+                }
+#endif
                 if (texImage) {
                     canvas->drawImage(texImage, 0, mm ? kSize + kPad : 0);
                 }

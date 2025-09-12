@@ -13,8 +13,11 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkTiledImageUtils.h"
 #include "include/core/SkTypes.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
+#endif
 
 // This test exercises Ganesh's drawing of tiled bitmaps. In particular, that the offsets and the
 // extents of the tiles don't cause gaps between tiles.
@@ -28,6 +31,7 @@ static void draw_tile_bitmap_with_fractional_offset(SkCanvas* canvas, bool verti
     const int kBitmapLongEdge = 7 * kTileSize;
     const int kBitmapShortEdge = 1 * kTileSize;
 
+#if defined(SK_GANESH)
     if (auto dContext = GrAsDirectContext(canvas->recordingContext())) {
         // To trigger tiling, we also need the image to be more than 50% of the cache, so we
         // ensure the cache is sized to make that true.
@@ -37,6 +41,7 @@ static void draw_tile_bitmap_with_fractional_offset(SkCanvas* canvas, bool verti
         const size_t newMaxResourceBytes = kBitmapBytes + (kBitmapBytes / 2);
         dContext->setResourceCacheLimit(newMaxResourceBytes);
     }
+#endif
 
     // Construct our bitmap as either very wide or very tall
     SkBitmap bmp;
@@ -67,12 +72,14 @@ static void draw_tile_bitmap_with_fractional_offset(SkCanvas* canvas, bool verti
 
 // In Graphite, it is always the client's responsibility to manually do tiled image draws, so we
 // only run the non-manual tests in Ganesh.
+#if defined(SK_GANESH)
 DEF_SIMPLE_GPU_GM_BG(bitmaptiled_fractional_horizontal, rContext, canvas, 1124, 365, SK_ColorBLACK) {
     draw_tile_bitmap_with_fractional_offset(canvas, /* vertical= */ false, /* manual= */ false);
 }
 DEF_SIMPLE_GPU_GM_BG(bitmaptiled_fractional_vertical, rContext, canvas, 365, 1124, SK_ColorBLACK) {
     draw_tile_bitmap_with_fractional_offset(canvas, /* vertical= */ true, /* manual= */ false);
 }
+#endif
 
 DEF_SIMPLE_GM_BG(bitmaptiled_fractional_horizontal_manual, canvas, 1124, 365, SK_ColorBLACK) {
     draw_tile_bitmap_with_fractional_offset(canvas, /* vertical= */ false, /* manual= */ true);

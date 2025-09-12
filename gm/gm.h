@@ -73,6 +73,7 @@ class GraphiteTestContext;
 #define DEF_GM_REGISTERER_FN(FN) \
     static skiagm::GMRegistererFnRegistry SK_MACRO_APPEND_COUNTER(REG_)(FN)
 
+// TODO: Rename these macros from GPU to GANESH
 #if defined(SK_GANESH)
 // A Simple GpuGM makes direct GPU calls. Its onDraw hook that includes GPU objects as params, and
 // is only invoked on GPU configs. Non-GPU configs automatically draw a GPU-only message and abort.

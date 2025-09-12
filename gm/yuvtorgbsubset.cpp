@@ -19,10 +19,13 @@
 #include "include/core/SkString.h"
 #include "include/core/SkYUVAInfo.h"
 #include "include/core/SkYUVAPixmaps.h"
-#include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/core/SkCanvasPriv.h"
-#include "src/gpu/ganesh/SkGr.h"
 #include "tools/gpu/YUVUtils.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrDirectContext.h"
+#include "src/gpu/ganesh/SkGr.h"
+#endif
 
 #include <memory>
 #include <utility>
@@ -79,11 +82,16 @@ protected:
     }
 
     DrawResult onGpuSetup(SkCanvas* canvas, SkString* errorMsg, GraphiteTestContext*) override {
-        auto context = GrAsDirectContext(canvas->recordingContext());
         skgpu::graphite::Recorder* recorder = nullptr;
+        GrDirectContext* context = nullptr;
+
 #if defined(SK_GRAPHITE)
         recorder = canvas->recorder();
 #endif
+#if defined(SK_GANESH)
+        context = GrAsDirectContext(canvas->recordingContext());
+#endif
+
         if (!context && !recorder) {
             return DrawResult::kSkip;
         }
@@ -96,11 +104,13 @@ protected:
 #if defined(SK_GRAPHITE)
         if (recorder) {
             fYUVImage = lazyYUV->refImage(recorder, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
-        } else
+        }
 #endif
-        {
+#if defined(SK_GANESH)
+        if (context) {
             fYUVImage = lazyYUV->refImage(context, sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
         }
+#endif
 
         return DrawResult::kOk;
     }
