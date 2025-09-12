@@ -436,6 +436,7 @@ void SkRRect::computeType() {
 }
 
 std::optional<SkRRect> SkRRect::transform(const SkMatrix& matrix) const {
+// TODO(b/441005851): Resolve Android RenderEngine's shader prewarming regressions before removing.
 #ifdef SK_SUPPORT_LEGACY_RRECT_TRANSFORM
     SkRRect newrr;
     if (this->transform(matrix, &newrr)) {
@@ -471,6 +472,7 @@ std::optional<SkRRect> SkRRect::transform(const SkMatrix& matrix) const {
 }
 
 bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
+// TODO(b/441005851): Resolve Android RenderEngine's shader prewarming regressions before removing.
 #ifdef SK_SUPPORT_LEGACY_RRECT_TRANSFORM
     if (nullptr == dst) {
         return false;
