@@ -22,6 +22,9 @@ namespace skgpu::graphite {
 
 class Caps;
 enum class DstReadStrategy : uint8_t;
+class FloatStorageManager;
+class PaintParamsKeyBuilder;
+class PipelineDataGatherer;
 class Recorder;
 class RuntimeEffectDictionary;
 class ShaderCodeDictionary;
@@ -49,23 +52,26 @@ SK_MAKE_BITMASK_OPS(KeyGenFlags)
 class KeyContext {
 public:
     // Constructor for the pre-compile code path (i.e., no Recorder)
-    KeyContext(const Caps* caps,
-               ShaderCodeDictionary* dict,
-               RuntimeEffectDictionary* rtEffectDict,
-               const SkColorInfo& dstColorInfo)
-            : fDictionary(dict)
-            , fRTEffectDict(rtEffectDict)
-            , fDstColorInfo(dstColorInfo)
-            , fCaps(caps) {}
+    KeyContext(const Caps*,
+               FloatStorageManager*,
+               PaintParamsKeyBuilder*,
+               PipelineDataGatherer*,
+               ShaderCodeDictionary*,
+               sk_sp<RuntimeEffectDictionary>,
+               const SkColorInfo& dstColorInfo);
 
     // Constructor for the ExtractPaintData code path (i.e., with a Recorder)
     KeyContext(Recorder*,
+               FloatStorageManager*,
+               PaintParamsKeyBuilder*,
+               PipelineDataGatherer*,
                const SkM44& local2Dev,
                const SkColorInfo& dstColorInfo,
                SkEnumBitMask<KeyGenFlags> initialFlags,
                const SkColor4f& paintColor);
 
     KeyContext(const KeyContext&);
+    ~KeyContext();
 
     Recorder* recorder() const { return fRecorder; }
 
@@ -74,8 +80,12 @@ public:
     const SkM44& local2Dev() const { return fLocal2Dev; }
     const SkMatrix* localMatrix() const { return fLocalMatrix; }
 
+    FloatStorageManager* floatStorageManager() const { return fFloatStorageManager; }
+    PaintParamsKeyBuilder* paintParamsKeyBuilder() const { return fPaintParamsKeyBuilder; }
+    PipelineDataGatherer* pipelineDataGatherer() const { return fPipelineDataGatherer; }
     ShaderCodeDictionary* dict() const { return fDictionary; }
-    RuntimeEffectDictionary* rtEffectDict() const { return fRTEffectDict; }
+
+    sk_sp<RuntimeEffectDictionary> rtEffectDict() const;
 
     const SkColorInfo& dstColorInfo() const { return fDstColorInfo; }
 
@@ -85,10 +95,13 @@ public:
 
 protected:
     Recorder* fRecorder = nullptr;
+    FloatStorageManager* fFloatStorageManager;
+    PaintParamsKeyBuilder* fPaintParamsKeyBuilder;
+    PipelineDataGatherer* fPipelineDataGatherer;
     SkM44 fLocal2Dev;
     SkMatrix* fLocalMatrix = nullptr;
     ShaderCodeDictionary* fDictionary;
-    RuntimeEffectDictionary* fRTEffectDict;
+    sk_sp<RuntimeEffectDictionary> fRTEffectDict;
     SkColorInfo fDstColorInfo;
     // Although stored as premul the paint color is actually comprised of an opaque RGB portion
     // and a separate alpha portion. The two portions will never be used together but are stored

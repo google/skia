@@ -221,7 +221,7 @@ DEF_GM(return new ImageFilterMatrixWLocalMatrix();)
 class ImageFilterComposedTransform : public skiagm::GM {
 public:
 
-    // Start at 70 degrees since that highlighted the issue in skbug.com/10888
+    // Start at 70 degrees since that highlighted the issue in skbug.com/40042261
     ImageFilterComposedTransform() : fDegrees(70.f) {}
 
 protected:

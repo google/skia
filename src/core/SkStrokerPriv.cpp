@@ -7,41 +7,41 @@
 #include "src/core/SkStrokerPriv.h"
 
 #include "include/core/SkMatrix.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/private/base/SkAssert.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkPointPriv.h"
 
 #include <utility>
 
-static void ButtCapper(SkPath* path, const SkPoint& pivot, const SkVector& normal,
-                       const SkPoint& stop, SkPath*) {
-    path->lineTo(stop.fX, stop.fY);
+static void ButtCapper(SkPathBuilder* sink, const SkPoint& pivot, const SkVector& normal,
+                       const SkPoint& stop, bool) {
+    sink->lineTo(stop.fX, stop.fY);
 }
 
-static void RoundCapper(SkPath* path, const SkPoint& pivot, const SkVector& normal,
-                        const SkPoint& stop, SkPath*) {
+static void RoundCapper(SkPathBuilder* sink, const SkPoint& pivot, const SkVector& normal,
+                        const SkPoint& stop, bool) {
     SkVector parallel;
     SkPointPriv::RotateCW(normal, &parallel);
 
     SkPoint projectedCenter = pivot + parallel;
 
-    path->conicTo(projectedCenter + normal, projectedCenter, SK_ScalarRoot2Over2);
-    path->conicTo(projectedCenter - normal, stop, SK_ScalarRoot2Over2);
+    sink->conicTo(projectedCenter + normal, projectedCenter, SK_ScalarRoot2Over2);
+    sink->conicTo(projectedCenter - normal, stop, SK_ScalarRoot2Over2);
 }
 
-static void SquareCapper(SkPath* path, const SkPoint& pivot, const SkVector& normal,
-                         const SkPoint& stop, SkPath* otherPath) {
+static void SquareCapper(SkPathBuilder* sink, const SkPoint& pivot, const SkVector& normal,
+                         const SkPoint& stop, bool extendLastPt) {
     SkVector parallel;
     SkPointPriv::RotateCW(normal, &parallel);
 
-    if (otherPath) {
-        path->setLastPt(pivot.fX + normal.fX + parallel.fX, pivot.fY + normal.fY + parallel.fY);
-        path->lineTo(pivot.fX - normal.fX + parallel.fX, pivot.fY - normal.fY + parallel.fY);
+    if (extendLastPt) {
+        sink->setLastPt(pivot.fX + normal.fX + parallel.fX, pivot.fY + normal.fY + parallel.fY);
+        sink->lineTo(pivot.fX - normal.fX + parallel.fX, pivot.fY - normal.fY + parallel.fY);
     } else {
-        path->lineTo(pivot.fX + normal.fX + parallel.fX, pivot.fY + normal.fY + parallel.fY);
-        path->lineTo(pivot.fX - normal.fX + parallel.fX, pivot.fY - normal.fY + parallel.fY);
-        path->lineTo(stop.fX, stop.fY);
+        sink->lineTo(pivot.fX + normal.fX + parallel.fX, pivot.fY + normal.fY + parallel.fY);
+        sink->lineTo(pivot.fX - normal.fX + parallel.fX, pivot.fY - normal.fY + parallel.fY);
+        sink->lineTo(stop.fX, stop.fY);
     }
 }
 
@@ -69,7 +69,7 @@ static AngleType Dot2AngleType(SkScalar dot) {
     }
 }
 
-static void HandleInnerJoin(SkPath* inner, const SkPoint& pivot, const SkVector& after) {
+static void HandleInnerJoin(SkPathBuilder* inner, const SkPoint& pivot, const SkVector& after) {
 #if 1
     /*  In the degenerate case that the stroke radius is larger than our segments
         just connecting the two inner segments may "show through" as a funny
@@ -83,7 +83,8 @@ static void HandleInnerJoin(SkPath* inner, const SkPoint& pivot, const SkVector&
     inner->lineTo(pivot.fX - after.fX, pivot.fY - after.fY);
 }
 
-static void BluntJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnitNormal,
+static void BluntJoiner(SkPathBuilder* outer, SkPathBuilder* inner,
+                        const SkVector& beforeUnitNormal,
                         const SkPoint& pivot, const SkVector& afterUnitNormal,
                         SkScalar radius, SkScalar invMiterLimit, bool, bool) {
     SkVector    after;
@@ -99,7 +100,8 @@ static void BluntJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
     HandleInnerJoin(inner, pivot, after);
 }
 
-static void RoundJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnitNormal,
+static void RoundJoiner(SkPathBuilder* outer, SkPathBuilder* inner,
+                        const SkVector& beforeUnitNormal,
                         const SkPoint& pivot, const SkVector& afterUnitNormal,
                         SkScalar radius, SkScalar invMiterLimit, bool, bool) {
     SkScalar    dotProd = SkPoint::DotProduct(beforeUnitNormal, afterUnitNormal);
@@ -108,16 +110,16 @@ static void RoundJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
     if (angleType == kNearlyLine_AngleType)
         return;
 
-    SkVector            before = beforeUnitNormal;
-    SkVector            after = afterUnitNormal;
-    SkRotationDirection dir = kCW_SkRotationDirection;
+    SkVector before     = beforeUnitNormal;
+    SkVector after      = afterUnitNormal;
+    SkPathDirection dir = SkPathDirection::kCW;
 
     if (!is_clockwise(before, after)) {
         using std::swap;
         swap(outer, inner);
         before.negate();
         after.negate();
-        dir = kCCW_SkRotationDirection;
+        dir = SkPathDirection::kCCW;
     }
 
     SkMatrix    matrix;
@@ -136,7 +138,8 @@ static void RoundJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnit
 
 #define kOneOverSqrt2   (0.707106781f)
 
-static void MiterJoiner(SkPath* outer, SkPath* inner, const SkVector& beforeUnitNormal,
+static void MiterJoiner(SkPathBuilder* outer, SkPathBuilder* inner,
+                        const SkVector& beforeUnitNormal,
                         const SkPoint& pivot, const SkVector& afterUnitNormal,
                         SkScalar radius, SkScalar invMiterLimit,
                         bool prevIsLine, bool currIsLine) {

@@ -38,7 +38,6 @@
 #include "include/sksl/SkSLDebugTrace.h"
 #include "include/sksl/SkSLVersion.h"
 #include "src/base/SkStringView.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkColorSpacePriv.h"
 #include "src/core/SkRuntimeEffectPriv.h"
@@ -463,7 +462,7 @@ public:
             ERRORF(fReporter, "Effect didn't compile: %s", errorText.c_str());
             return;
         }
-        fBuilder.init(std::move(effect));
+        fBuilder.emplace(std::move(effect));
     }
 
     SkRuntimeShaderBuilder::BuilderUniform uniform(const char* name) {
@@ -487,7 +486,7 @@ public:
         // with a `source` blend mode. However, there are a few devices where the background can
         // leak through when we paint with MSAA on. (This seems to be a driver/hardware bug.)
         // Graphite, at present, uses MSAA to do `drawPaint`. To avoid flakiness in this test on
-        // those devices, we explicitly clear the canvas here. (skia:13761)
+        // those devices, we explicitly clear the canvas here. (skbug.com/40044848)
         canvas->clear(SK_ColorBLACK);
 
         SkPaint paint;
@@ -531,7 +530,7 @@ private:
     GrRecordingContext*             fGrContext;
     const GraphiteInfo*             fGraphite;
     SkISize                         fSize;
-    SkTLazy<SkRuntimeShaderBuilder> fBuilder;
+    std::optional<SkRuntimeShaderBuilder> fBuilder;
 };
 
 class TestBlend {
@@ -551,7 +550,7 @@ public:
             ERRORF(fReporter, "Effect didn't compile: %s", errorText.c_str());
             return;
         }
-        fBuilder.init(std::move(effect));
+        fBuilder.emplace(std::move(effect));
     }
 
     SkSurface* surface() {
@@ -592,7 +591,7 @@ private:
     sk_sp<SkSurface>               fSurface;
     GrRecordingContext*            fGrContext;
     const GraphiteInfo*            fGraphite;
-    SkTLazy<SkRuntimeBlendBuilder> fBuilder;
+    std::optional<SkRuntimeBlendBuilder> fBuilder;
 };
 
 // Produces a shader which will paint these opaque colors in a 2x2 rectangle:
@@ -651,7 +650,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r,
     effect.build("vec4 main(float2 p) { return float4(p - 0.5, 0, 1); }");
     effect.test({0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF});
 
-    // Mutating coords should work. (skbug.com/10918)
+    // Mutating coords should work. (skbug.com/40042292)
     effect.build("vec4 main(vec2 p) { p -= 0.5; return vec4(p, 0, 1); }");
     effect.test({0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFF00FFFF});
     effect.build("void moveCoords(inout vec2 p) { p -= 0.5; }"
@@ -702,7 +701,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r,
     effect.test({0xFF0000FF, 0xFFFF0000, 0xFF00FF00, 0xFFFFFFFF});
 
     // Bind an image shader, but don't use it - ensure that we don't assert or generate bad shaders.
-    // (skbug.com/12429)
+    // (skbug.com/40043510)
     effect.build("uniform shader child;"
                  "half4 main(float2 p) { return half4(0, 1, 0, 1); }");
     effect.child("child") = rgbwShader;
@@ -712,7 +711,7 @@ static void test_RuntimeEffect_Shaders(skiatest::Reporter* r,
     // Helper functions
     //
 
-    // Test case for inlining in the pipeline-stage and fragment-shader passes (skbug.com/10526):
+    // Test case for inlining in the pipeline-stage and fragment-shader passes (skbug.com/40041860):
     effect.build("float2 helper(float2 x) { return x + 1; }"
                  "half4 main(float2 p) { float2 v = helper(p); return half4(half2(v), 0, 1); }");
     effect.test(0xFF00FFFF);
@@ -1220,7 +1219,7 @@ DEF_TEST(SkRuntimeShaderBuilderReuse, r) {
     sk_sp<SkRuntimeEffect> effect = SkRuntimeEffect::MakeForShader(SkString(kSource)).effect;
     REPORTER_ASSERT(r, effect);
 
-    // Test passes if this sequence doesn't assert.  skbug.com/10667
+    // Test passes if this sequence doesn't assert.  skbug.com/40042013
     SkRuntimeShaderBuilder b(std::move(effect));
     b.uniform("x") = 0.0f;
     auto shader_0 = b.makeShader();
@@ -1277,7 +1276,7 @@ DEF_TEST(SkRuntimeShaderBuilderSetUniforms, r) {
 DEF_TEST(SkRuntimeEffectThreaded, r) {
     // This tests that we can safely use SkRuntimeEffect::MakeForShader from more than one thread,
     // and also that programs don't refer to shared structures owned by the compiler.
-    // skbug.com/10589
+    // skbug.com/40041933
     static constexpr char kSource[] = "half4 main(float2 p) { return sk_FragCoord.xyxy; }";
 
     std::thread threads[16];

@@ -390,12 +390,10 @@ void SurfaceDrawContext::drawPaint(const GrClip* clip,
         this->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), r, r);
     } else {
         // Use the inverse view matrix to arrive at appropriate local coordinates for the paint.
-        SkMatrix localMatrix;
-        if (!viewMatrix.invert(&localMatrix)) {
-            return;
+        if (auto localMatrix = viewMatrix.invert()) {
+            SkIRect bounds = SkIRect::MakeSize(this->asSurfaceProxy()->dimensions());
+            this->fillPixelsWithLocalMatrix(clip, std::move(paint), bounds, *localMatrix);
         }
-        SkIRect bounds = SkIRect::MakeSize(this->asSurfaceProxy()->dimensions());
-        this->fillPixelsWithLocalMatrix(clip, std::move(paint), bounds, localMatrix);
     }
 }
 
@@ -480,7 +478,7 @@ SurfaceDrawContext::QuadOptimization SurfaceDrawContext::attemptQuadOptimization
                 // through to attempt the draw->native clear optimization. Pick an AA value such
                 // that any geometric clipping doesn't need to change aa or edge flags (since we
                 // know this is on pixel boundaries, it will draw the same regardless).
-                // See skbug.com/13114 for more details.
+                // See skbug.com/40044221 for more details.
                 result = GrClip::PreClipResult(SkRRect::MakeRect(rtRect), drawUsesAA);
             }
             break;
@@ -716,7 +714,7 @@ void SurfaceDrawContext::drawRect(const GrClip* clip,
         // Only use the StrokeRectOp for non-empty rectangles. Empty rectangles will be processed by
         // GrStyledShape to handle stroke caps and dashing properly.
         //
-        // http://skbug.com/12206 -- there is a double-blend issue with the bevel version of
+        // skbug.com/40043303 -- there is a double-blend issue with the bevel version of
         // AAStrokeRectOp, and if we increase the AA bloat for MSAA it becomes more pronounced.
         // Don't use the bevel version with DMSAA.
         GrAAType aaType = (fCanUseDynamicMSAA &&
@@ -751,7 +749,7 @@ void SurfaceDrawContext::fillRectToRect(const GrClip* clip,
         this->caps()->drawInstancedSupport()                                      &&
         aa == GrAA::kYes) {  // If aa is kNo when using dmsaa, the rect is axis aligned. Don't use
                              // FillRRectOp because it might require dual source blending.
-                             // http://skbug.com/11756
+                             // skbug.com/40042830
         QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr/*stencil*/, &quad,
                                                              &paint);
         if (opt < QuadOptimization::kClipApplied) {
@@ -765,12 +763,12 @@ void SurfaceDrawContext::fillRectToRect(const GrClip* clip,
             (!paint.usesLocalCoords() || quad.fLocal.asRect(&croppedLocal))) {
             // The cropped quad is still a rect, and our view matrix preserves rects. Map it back
             // to pre-matrix space.
-            SkMatrix inverse;
-            if (!viewMatrix.invert(&inverse)) {
+            auto inverse = viewMatrix.invert();
+            if (!inverse) {
                 return;
             }
-            SkASSERT(inverse.rectStaysRect());
-            inverse.mapRect(&croppedRect);
+            SkASSERT(inverse->rectStaysRect());
+            inverse->mapRect(&croppedRect);
             if (opt == QuadOptimization::kClipApplied) {
                 optimizedClip = nullptr;
             }
@@ -819,7 +817,7 @@ OpsTask::CanDiscardPreviousOps SurfaceDrawContext::canDiscardPreviousOpsOnFullCl
     // needing a stencil buffer then there may be a prior op that writes to the stencil buffer.
     // Although the clear will ignore the stencil buffer, following draw ops may not so we can't get
     // rid of all the preceding ops. Beware! If we ever add any ops that have a side effect beyond
-    // modifying the stencil buffer we will need a more elaborate tracking system (skbug.com/7002).
+    // modifying the stencil buffer we will need a more elaborate tracking system (skbug.com/40038231).
     return OpsTask::CanDiscardPreviousOps(!fNeedsStencil);
 }
 
@@ -986,10 +984,9 @@ void SurfaceDrawContext::drawMesh(const GrClip* clip,
 void SurfaceDrawContext::drawAtlas(const GrClip* clip,
                                    GrPaint&& paint,
                                    const SkMatrix& viewMatrix,
-                                   int spriteCount,
-                                   const SkRSXform xform[],
-                                   const SkRect texRect[],
-                                   const SkColor colors[]) {
+                                   SkSpan<const SkRSXform> xform,
+                                   SkSpan<const SkRect> texRect,
+                                   SkSpan<const SkColor> colors) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -997,7 +994,8 @@ void SurfaceDrawContext::drawAtlas(const GrClip* clip,
 
     GrAAType aaType = this->chooseAAType(GrAA::kNo);
     GrOp::Owner op = DrawAtlasOp::Make(fContext, std::move(paint), viewMatrix,
-                                       aaType, spriteCount, xform, texRect, colors);
+                                       aaType, xform.size(), xform.data(),
+                                       texRect.data(), colors.data());
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -1027,7 +1025,7 @@ void SurfaceDrawContext::drawRRect(const GrClip* origClip,
     // clip can be ignored. The following test attempts to mitigate the stencil clip cost but only
     // works for axis-aligned round rects. This also only works for filled rrects since the stroke
     // width outsets beyond the rrect itself.
-    // TODO: skbug.com/10462 - There was mixed performance wins and regressions when this
+    // TODO: skbug.com/40041797 - There was mixed performance wins and regressions when this
     // optimization was turned on outside of Android Framework. I (michaelludwig) believe this is
     // do to the overhead in determining if an SkClipStack is just a rrect. Once that is improved,
     // re-enable this and see if we avoid the regressions.
@@ -1147,7 +1145,7 @@ bool SurfaceDrawContext::drawFastShadow(const GrClip* clip,
     bool directional = SkToBool(rec.fFlags & kDirectionalLight_ShadowFlag);
     if (!directional) {
         // transform light
-        viewMatrix.mapPoints((SkPoint*)&devLightPos.fX, 1);
+        viewMatrix.mapPoints({(SkPoint*)&devLightPos.fX, 1});
     }
 
     // 1/scale
@@ -1218,9 +1216,8 @@ bool SurfaceDrawContext::drawFastShadow(const GrClip* clip,
         spotOffset.fX += spotScale*viewMatrix[SkMatrix::kMTransX];
         spotOffset.fY += spotScale*viewMatrix[SkMatrix::kMTransY];
         // This offset is in dev space, need to transform it into source space.
-        SkMatrix ctmInverse;
-        if (viewMatrix.invert(&ctmInverse)) {
-            ctmInverse.mapPoints(&spotOffset, 1);
+        if (auto ctmInverse = viewMatrix.invert()) {
+            spotOffset = ctmInverse->mapPoint(spotOffset);
         } else {
             // Since the matrix is a similarity, this should never happen, but just in case...
             SkDebugf("Matrix is degenerate. Will not render spot shadow correctly!\n");
@@ -1228,10 +1225,9 @@ bool SurfaceDrawContext::drawFastShadow(const GrClip* clip,
         }
 
         // Compute the transformed shadow rrect
-        SkRRect spotShadowRRect;
         SkMatrix shadowTransform;
         shadowTransform.setScaleTranslate(spotScale, spotScale, spotOffset.fX, spotOffset.fY);
-        rrect.transform(shadowTransform, &spotShadowRRect);
+        SkRRect spotShadowRRect = rrect.transform(shadowTransform).value_or(SkRRect());
         SkScalar spotRadius = spotShadowRRect.getSimpleRadii().fX;
 
         // Compute the insetWidth
@@ -1332,8 +1328,7 @@ void SurfaceDrawContext::drawRegion(const GrClip* clip,
     }
     bool complexStyle = !style.isSimpleFill();
     if (complexStyle || GrAA::kYes == aa) {
-        SkPath path;
-        region.getBoundaryPath(&path);
+        SkPath path = region.getBoundaryPath();
         path.setIsVolatile(true);
 
         return this->drawPath(clip, std::move(paint), aa, viewMatrix, path, style);
@@ -1745,8 +1740,8 @@ bool SurfaceDrawContext::drawSimpleShape(const GrClip* clip,
             // for and outsets thin non-aa rects to 1px, the path renderer could be skipped.
             SkScalar coverage;
             if (aaType == GrAAType::kCoverage ||
-                !SkDrawTreatAAStrokeAsHairline(shape.style().strokeRec().getWidth(), viewMatrix,
-                                               &coverage)) {
+                !skcpu::DrawTreatAAStrokeAsHairline(
+                        shape.style().strokeRec().getWidth(), viewMatrix, &coverage)) {
                 this->drawStrokedLine(clip, std::move(*paint), aa, viewMatrix, linePts,
                                       shape.style().strokeRec());
                 return true;

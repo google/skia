@@ -75,7 +75,7 @@ static SkScalar sect_clamp_with_vertical(const SkPoint src[2], SkScalar x) {
     // Our caller expects y to be between src[0].fY and src[1].fY (unsorted), but due to the
     // numerics of floats/doubles, we might have computed a value slightly outside of that,
     // so we have to manually clamp afterwards.
-    // See skbug.com/7491
+    // See skbug.com/40038736
     return pin_unsorted(y, src[0].fY, src[1].fY);
 }
 

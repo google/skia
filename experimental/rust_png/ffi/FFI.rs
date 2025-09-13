@@ -37,6 +37,7 @@ mod ffi {
         /// `SkCodec::Result::kIncompleteInput`.
         IncompleteInput,
         OtherIoError,
+        EndOfFrame,
     }
 
     /// FFI-friendly equivalent of `png::DisposeOp`.
@@ -54,9 +55,30 @@ mod ffi {
 
     /// FFI-friendly simplification of `png::Compression`.
     enum Compression {
+        /// In png-0.18.0-rc `Fastest` level would fall back to `Level1WithUpFilter` when using
+        /// `StreamWriter`.  See also code links below:
+        /// * In 0.18-rc2 `Fastest` initially maps to `FdeflateUltraFast`, but in the end falls back to `flate2`
+        ///   when using `StreamWriter`:
+        ///     - https://github.com/image-rs/image-png/blob/9294c26dc3ca7622f791e880810b575193fb6c29/src/common.rs#L414
+        ///     - https://github.com/image-rs/image-png/blob/33afddab77449bcd93b1783d2d0ca8ba744cc3c3/src/encoder.rs#L1402
+        ///     - https://github.com/image-rs/image-png/blob/33afddab77449bcd93b1783d2d0ca8ba744cc3c3/src/common.rs#L413
+        /// * In 0.18-rc2 `Fastest` maps to `Up`:
+        ///   https://github.com/image-rs/image-png/blob/9294c26dc3ca7622f791e880810b575193fb6c29/src/filter.rs#L47
+        ///
+        /// In newer versions, `Fastest` may map to `fdeflate` backend.
+        /// We export `Level1WithUpFilter` as an explicit, separate level to preserve the M136
+        /// behavior that was tested in a field trial and approved for shipping.
+        ///
+        /// TODO(https://crbug.com/406072770): Revisit this in the future and only use the built-in
+        /// levels in the long term.
+        Level1WithUpFilter,
+        /// Maps to `png::Compression::Fastest`.
         Fastest,
+        /// Maps to `png::Compression::Fast`.
         Fast,
+        /// Maps to `png::Compression::Balanced`.
         Balanced,
+        /// Maps to `png::Compression::High`.
         High,
     }
 
@@ -153,7 +175,6 @@ mod ffi {
             blend_op: &mut BlendOp,
             duration_ms: &mut u32,
         );
-        fn output_buffer_size(self: &Reader) -> usize;
         fn output_color_type(self: &Reader) -> ColorType;
         fn output_bits_per_component(self: &Reader) -> u8;
         fn next_frame_info(self: &mut Reader) -> DecodingResult;
@@ -168,6 +189,9 @@ mod ffi {
             row: &[u8],
             bits_per_pixel: u8,
         );
+        unsafe fn read_row(
+            self: &mut Reader,
+            output_buffer: &mut [u8]) -> DecodingResult;
 
         fn new_writer(
             output: UniquePtr<WriteTrait>,
@@ -265,6 +289,10 @@ impl From<Option<&png::DecodingError>> for ffi::DecodingResult {
 impl ffi::Compression {
     fn apply<'a, W: Write>(&self, encoder: &mut png::Encoder<'a, W>) {
         match self {
+            &Self::Level1WithUpFilter => {
+                encoder.set_deflate_compression(png::DeflateCompression::Level(1));
+                encoder.set_filter(png::Filter::Up);
+            },
             &Self::Fastest => encoder.set_compression(png::Compression::Fastest),
             &Self::Fast => encoder.set_compression(png::Compression::Fast),
             &Self::Balanced => encoder.set_compression(png::Compression::Balanced),
@@ -411,6 +439,7 @@ impl Reader {
             if cfg!(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION) {
                 options.set_ignore_checksums(true);
             }
+            options.set_ignore_text_chunk(true);
             png::Decoder::new_with_options(input, options)
         };
 
@@ -618,10 +647,6 @@ impl Reader {
         };
     }
 
-    fn output_buffer_size(&self) -> usize {
-        self.reader.output_buffer_size()
-    }
-
     fn output_color_type(&self) -> ffi::ColorType {
         self.reader.output_color_type().0.into()
     }
@@ -636,8 +661,6 @@ impl Reader {
 
     /// Decodes the next row - see
     /// https://docs.rs/png/latest/png/struct.Reader.html#method.next_interlaced_row
-    ///
-    /// TODO(https://crbug.com/399891492): Consider using `read_row` to avoid an extra copy.
     fn next_interlaced_row<'a>(&'a mut self, row: &mut &'a [u8]) -> ffi::DecodingResult {
         let result = self.reader.next_interlaced_row();
         if let Ok(maybe_row) = result.as_ref() {
@@ -661,6 +684,19 @@ impl Reader {
             panic!("This function should only be called after decoding an interlaced row");
         };
         png::expand_interlaced_row(img, img_row_stride, row, adam7info, bits_per_pixel);
+    }
+
+    /// Decodes the next row directly into a caller-provided buffer - see
+    /// https://docs.rs/png/0.18.0-rc.3/png/struct.Reader.html#method.read_row
+    fn read_row(&mut self, output_buffer: &mut [u8]) -> ffi::DecodingResult {
+        match self.reader.read_row(output_buffer) {
+            Ok(Some(info)) => {
+                self.last_interlace_info = Some(info);
+                ffi::DecodingResult::Success
+            }
+            Ok(None) => ffi::DecodingResult::EndOfFrame,
+            Err(e) => ffi::DecodingResult::from(Some(&e)),
+        }
     }
 }
 

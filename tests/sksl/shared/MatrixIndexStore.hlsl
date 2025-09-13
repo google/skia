@@ -1,9 +1,9 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _9_colorGreen : packoffset(c0);
-    float4 _9_colorRed : packoffset(c1);
-    row_major float3x3 _9_testMatrix3x3 : packoffset(c2);
-    row_major float4x4 _9_testMatrix4x4 : packoffset(c5);
+    float4 _13_colorGreen : packoffset(c0);
+    float4 _13_colorRed : packoffset(c1);
+    row_major float3x3 _13_testMatrix3x3 : packoffset(c2);
+    row_major float4x4 _13_testMatrix4x4 : packoffset(c5);
 };
 
 
@@ -23,7 +23,7 @@ bool test3x3_b()
         _matrix[index] = values;
         values += 3.0f.xxx;
     }
-    return (all(bool3(_matrix[0].x == _9_testMatrix3x3[0].x, _matrix[0].y == _9_testMatrix3x3[0].y, _matrix[0].z == _9_testMatrix3x3[0].z)) && all(bool3(_matrix[1].x == _9_testMatrix3x3[1].x, _matrix[1].y == _9_testMatrix3x3[1].y, _matrix[1].z == _9_testMatrix3x3[1].z))) && all(bool3(_matrix[2].x == _9_testMatrix3x3[2].x, _matrix[2].y == _9_testMatrix3x3[2].y, _matrix[2].z == _9_testMatrix3x3[2].z));
+    return (all(bool3(_matrix[0].x == _13_testMatrix3x3[0].x, _matrix[0].y == _13_testMatrix3x3[0].y, _matrix[0].z == _13_testMatrix3x3[0].z)) && all(bool3(_matrix[1].x == _13_testMatrix3x3[1].x, _matrix[1].y == _13_testMatrix3x3[1].y, _matrix[1].z == _13_testMatrix3x3[1].z))) && all(bool3(_matrix[2].x == _13_testMatrix3x3[2].x, _matrix[2].y == _13_testMatrix3x3[2].y, _matrix[2].z == _13_testMatrix3x3[2].z));
 }
 
 bool test4x4_b()
@@ -35,36 +35,36 @@ bool test4x4_b()
         _matrix[index] = values;
         values += 4.0f.xxxx;
     }
-    return ((all(bool4(_matrix[0].x == _9_testMatrix4x4[0].x, _matrix[0].y == _9_testMatrix4x4[0].y, _matrix[0].z == _9_testMatrix4x4[0].z, _matrix[0].w == _9_testMatrix4x4[0].w)) && all(bool4(_matrix[1].x == _9_testMatrix4x4[1].x, _matrix[1].y == _9_testMatrix4x4[1].y, _matrix[1].z == _9_testMatrix4x4[1].z, _matrix[1].w == _9_testMatrix4x4[1].w))) && all(bool4(_matrix[2].x == _9_testMatrix4x4[2].x, _matrix[2].y == _9_testMatrix4x4[2].y, _matrix[2].z == _9_testMatrix4x4[2].z, _matrix[2].w == _9_testMatrix4x4[2].w))) && all(bool4(_matrix[3].x == _9_testMatrix4x4[3].x, _matrix[3].y == _9_testMatrix4x4[3].y, _matrix[3].z == _9_testMatrix4x4[3].z, _matrix[3].w == _9_testMatrix4x4[3].w));
+    return ((all(bool4(_matrix[0].x == _13_testMatrix4x4[0].x, _matrix[0].y == _13_testMatrix4x4[0].y, _matrix[0].z == _13_testMatrix4x4[0].z, _matrix[0].w == _13_testMatrix4x4[0].w)) && all(bool4(_matrix[1].x == _13_testMatrix4x4[1].x, _matrix[1].y == _13_testMatrix4x4[1].y, _matrix[1].z == _13_testMatrix4x4[1].z, _matrix[1].w == _13_testMatrix4x4[1].w))) && all(bool4(_matrix[2].x == _13_testMatrix4x4[2].x, _matrix[2].y == _13_testMatrix4x4[2].y, _matrix[2].z == _13_testMatrix4x4[2].z, _matrix[2].w == _13_testMatrix4x4[2].w))) && all(bool4(_matrix[3].x == _13_testMatrix4x4[3].x, _matrix[3].y == _13_testMatrix4x4[3].y, _matrix[3].z == _13_testMatrix4x4[3].z, _matrix[3].w == _13_testMatrix4x4[3].w));
 }
 
-float4 main(float2 _126)
+float4 main(float2 _129)
 {
-    bool _133 = false;
+    bool _136 = false;
     if (test3x3_b())
     {
-        _133 = test4x4_b();
+        _136 = test4x4_b();
     }
     else
     {
-        _133 = false;
+        _136 = false;
     }
-    float4 _134 = 0.0f.xxxx;
-    if (_133)
+    float4 _137 = 0.0f.xxxx;
+    if (_136)
     {
-        _134 = _9_colorGreen;
+        _137 = _13_colorGreen;
     }
     else
     {
-        _134 = _9_colorRed;
+        _137 = _13_colorRed;
     }
-    return _134;
+    return _137;
 }
 
 void frag_main()
 {
-    float2 _22 = 0.0f.xx;
-    sk_FragColor = main(_22);
+    float2 _26 = 0.0f.xx;
+    sk_FragColor = main(_26);
 }
 
 SPIRV_Cross_Output main()

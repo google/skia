@@ -56,7 +56,7 @@ static void stroke_pe(SkPaint* paint) {
 static void dash_pe(SkPaint* paint) {
     SkScalar inter[] = { 20, 10, 10, 10 };
     paint->setStrokeWidth(12);
-    paint->setPathEffect(SkDashPathEffect::Make(inter, std::size(inter), 0));
+    paint->setPathEffect(SkDashPathEffect::Make(inter, 0));
     compose_pe(paint);
 }
 
@@ -310,7 +310,7 @@ static void make_fan(Rec* rec, int texWidth, int texHeight) {
     SkMatrix m;
     m.setScale(SkIntToScalar(100), SkIntToScalar(100));
     m.postTranslate(SkIntToScalar(110), SkIntToScalar(110));
-    m.mapPoints(v, rec->fCount);
+    m.mapPoints({v, rec->fCount});
 }
 
 static void make_strip(Rec* rec, int texWidth, int texHeight) {
@@ -345,7 +345,7 @@ static void make_strip(Rec* rec, int texWidth, int texHeight) {
     SkMatrix m;
     m.setScale(SkIntToScalar(100), SkIntToScalar(100));
     m.postTranslate(SkIntToScalar(110), SkIntToScalar(110));
-    m.mapPoints(v, rec->fCount);
+    m.mapPoints({v, rec->fCount});
 }
 
 static void mesh_slide(SkCanvas* canvas) {

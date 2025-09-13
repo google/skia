@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _10_colorGreen : packoffset(c0);
-    float4 _10_colorRed : packoffset(c1);
+    float4 _14_colorGreen : packoffset(c0);
+    float4 _14_colorRed : packoffset(c1);
 };
 
 
@@ -16,33 +16,33 @@ bool TrueFalse_b()
 {
     int x = 1;
     int y = 1;
-    bool _38 = false;
+    bool _41 = false;
     if (true)
     {
-        int _35 = 1 + 1;
-        y = _35;
-        _38 = _35 == 3;
+        int _38 = 1 + 1;
+        y = _38;
+        _41 = _38 == 3;
     }
     else
     {
-        _38 = false;
+        _41 = false;
     }
-    if (_38)
+    if (_41)
     {
         return false;
     }
     else
     {
-        bool _47 = false;
+        bool _50 = false;
         if (true)
         {
-            _47 = y == 2;
+            _50 = y == 2;
         }
         else
         {
-            _47 = false;
+            _50 = false;
         }
-        return _47;
+        return _50;
     }
 }
 
@@ -50,33 +50,33 @@ bool FalseTrue_b()
 {
     int x = 1;
     int y = 1;
-    bool _56 = false;
+    bool _59 = false;
     if (1 == 2)
     {
-        int _54 = 1 + 1;
-        y = _54;
-        _56 = _54 == 2;
+        int _57 = 1 + 1;
+        y = _57;
+        _59 = _57 == 2;
     }
     else
     {
-        _56 = false;
+        _59 = false;
     }
-    if (_56)
+    if (_59)
     {
         return false;
     }
     else
     {
-        bool _64 = false;
+        bool _67 = false;
         if (true)
         {
-            _64 = y == 1;
+            _67 = y == 1;
         }
         else
         {
-            _64 = false;
+            _67 = false;
         }
-        return _64;
+        return _67;
     }
 }
 
@@ -84,93 +84,93 @@ bool FalseFalse_b()
 {
     int x = 1;
     int y = 1;
-    bool _73 = false;
+    bool _76 = false;
     if (1 == 2)
     {
-        int _71 = 1 + 1;
-        y = _71;
-        _73 = _71 == 3;
+        int _74 = 1 + 1;
+        y = _74;
+        _76 = _74 == 3;
     }
     else
     {
-        _73 = false;
+        _76 = false;
     }
-    if (_73)
+    if (_76)
     {
         return false;
     }
     else
     {
-        bool _81 = false;
+        bool _84 = false;
         if (true)
         {
-            _81 = y == 1;
+            _84 = y == 1;
         }
         else
         {
-            _81 = false;
+            _84 = false;
         }
-        return _81;
+        return _84;
     }
 }
 
-float4 main(float2 _83)
+float4 main(float2 _86)
 {
     int _RESERVED_IDENTIFIER_FIXUP_2_y = 1;
-    int _88 = 1 + 1;
-    _RESERVED_IDENTIFIER_FIXUP_2_y = _88;
+    int _91 = 1 + 1;
+    _RESERVED_IDENTIFIER_FIXUP_2_y = _91;
     bool _RESERVED_IDENTIFIER_FIXUP_0_TrueTrue = false;
-    if (_88 == 2)
+    if (_91 == 2)
     {
-        _RESERVED_IDENTIFIER_FIXUP_0_TrueTrue = _88 == 2;
+        _RESERVED_IDENTIFIER_FIXUP_0_TrueTrue = _91 == 2;
     }
     else
     {
         _RESERVED_IDENTIFIER_FIXUP_0_TrueTrue = false;
     }
-    bool _98 = false;
+    bool _101 = false;
     if (_RESERVED_IDENTIFIER_FIXUP_0_TrueTrue)
     {
-        _98 = TrueFalse_b();
+        _101 = TrueFalse_b();
     }
     else
     {
-        _98 = false;
+        _101 = false;
     }
-    bool _102 = false;
-    if (_98)
+    bool _105 = false;
+    if (_101)
     {
-        _102 = FalseTrue_b();
+        _105 = FalseTrue_b();
     }
     else
     {
-        _102 = false;
+        _105 = false;
     }
-    bool _106 = false;
-    if (_102)
+    bool _109 = false;
+    if (_105)
     {
-        _106 = FalseFalse_b();
+        _109 = FalseFalse_b();
     }
     else
     {
-        _106 = false;
+        _109 = false;
     }
-    float4 _107 = 0.0f.xxxx;
-    if (_106)
+    float4 _110 = 0.0f.xxxx;
+    if (_109)
     {
-        _107 = _10_colorGreen;
+        _110 = _14_colorGreen;
     }
     else
     {
-        _107 = _10_colorRed;
+        _110 = _14_colorRed;
     }
-    return _107;
+    return _110;
 }
 
 void frag_main()
 {
-    float2 _20 = 0.0f.xx;
-    sk_FragColor = main(_20);
+    float2 _24 = 0.0f.xx;
+    sk_FragColor = main(_24);
 }
 
 SPIRV_Cross_Output main()

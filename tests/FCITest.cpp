@@ -102,7 +102,7 @@ DEF_TEST(FontConfigInterface_MatchStyleNamedInstance, reporter) {
 
             // Intentionally go through manually creating the typeface so that SkFontStyle is
             // derived from data inside the font, not from the FcPattern that is the FontConfig
-            // match result, see https://crbug.com/skia/12881
+            // match result, see skbug.com/40043982
             std::unique_ptr<SkFontScanner> scanner = ToolUtils::TestFontScanner();
             REPORTER_ASSERT(reporter, scanner != nullptr, "Could not create a font scanner.");
             auto mgr = SkFontMgr_New_FCI(fciDirect, std::move(scanner));
@@ -133,10 +133,9 @@ DEF_TEST(FontConfigInterface_MatchStyleNamedInstance, reporter) {
                        family_from_typeface.c_str());
             }
 
-            int numAxes = typeface->getVariationDesignPosition(nullptr, 0);
-            std::vector<SkFontArguments::VariationPosition::Coordinate> coords;
-            coords.resize(numAxes);
-            typeface->getVariationDesignPosition(coords.data(), numAxes);
+            const size_t numAxes = typeface->getVariationDesignPosition({});
+            std::vector<SkFontArguments::VariationPosition::Coordinate> coords(numAxes);
+            typeface->getVariationDesignPosition(coords);
 
             REPORTER_ASSERT(reporter,
                             coords.size() == 1,
@@ -151,5 +150,4 @@ DEF_TEST(FontConfigInterface_MatchStyleNamedInstance, reporter) {
                             "The weight axis must match the weight from the request.");
         }
   }
-
 }

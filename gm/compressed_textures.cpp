@@ -28,13 +28,13 @@
 #include "src/core/SkCompressedDataUtils.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/ganesh/GrCaps.h"
-#include "src/gpu/ganesh/GrDataUtils.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
 #include "src/gpu/ganesh/GrRecordingContextPriv.h"
 #include "src/gpu/ganesh/image/SkImage_GaneshBase.h"
 #include "src/image/SkImage_Base.h"
 #include "third_party/etc1/etc1.h"
-#include "tools/gpu/ProxyUtils.h"
+#include "tools/ganesh/ProxyUtils.h"
+#include "tools/gpu/CompressedTexture.h"
 
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Image.h"
@@ -129,7 +129,7 @@ static CompressedImageObjects make_compressed_image(SkCanvas* canvas,
     sk_sp<SkData> tmp = SkData::MakeUninitialized(totalSize);
     char* pixels = (char*) tmp->writable_data();
 
-    int numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+    int numMipLevels = SkMipmap::ComputeLevelCount(dimensions) + 1;
 
     size_t offset = 0;
 
@@ -159,7 +159,7 @@ static CompressedImageObjects make_compressed_image(SkCanvas* canvas,
                 return {nullptr, nullptr};
             }
         } else {
-            GrTwoColorBC1Compress(bm.pixmap(), kColors[i%7], &pixels[offset]);
+            sk_gpu_test::TwoColorBC1Compress(bm.pixmap(), kColors[i%7], &pixels[offset]);
         }
 
         offset += levelSize;
@@ -268,7 +268,7 @@ protected:
 
         if (fType == Type::kNonMultipleOfFour) {
             if (dContext && dContext->backend() == GrBackendApi::kDirect3D) {
-                // skbug.com/10541 - Are non-multiple-of-four BC1 textures supported in D3D?
+                // skbug.com/40041877 - Are non-multiple-of-four BC1 textures supported in D3D?
                 return DrawResult::kSkip;
             }
 #if defined(SK_GRAPHITE)
@@ -324,8 +324,7 @@ private:
     void drawCell(SkCanvas* canvas, SkImage* image, SkIVector offset) {
 
         SkISize levelDimensions = fImgDimensions;
-        int numMipLevels = SkMipmap::ComputeLevelCount(levelDimensions.width(),
-                                                       levelDimensions.height()) + 1;
+        int numMipLevels = SkMipmap::ComputeLevelCount(levelDimensions) + 1;
 
         SkSamplingOptions sampling(SkCubicResampler::Mitchell());
 

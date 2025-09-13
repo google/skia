@@ -20,6 +20,7 @@
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RecordingPriv.h"
 #include "src/gpu/graphite/Resource.h"
+#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -39,15 +40,11 @@ namespace skgpu::graphite {
 
 Recording::Recording(uint32_t uniqueID,
                      uint32_t recorderID,
-                     std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& nonVolatileLazyProxies,
-                     std::unordered_set<sk_sp<TextureProxy>, ProxyHash>&& volatileLazyProxies,
                      std::unique_ptr<LazyProxyData> targetProxyData,
                      TArray<sk_sp<RefCntedCallback>>&& finishedProcs)
         : fUniqueID(uniqueID)
         , fRecorderID(recorderID)
         , fRootTaskList(new TaskList)
-        , fNonVolatileLazyProxies(std::move(nonVolatileLazyProxies))
-        , fVolatileLazyProxies(std::move(volatileLazyProxies))
         , fTargetProxyData(std::move(targetProxyData))
         , fFinishedProcs(std::move(finishedProcs)) {}
 
@@ -200,6 +197,27 @@ const Texture* RecordingPriv::setupDeferredTarget(ResourceProvider* resourceProv
         return nullptr;
     }
     return surfaceTexture->texture();
+}
+
+bool RecordingPriv::prepareResources(ResourceProvider* resourceProvider,
+                                     ScratchResourceManager* scratchManager,
+                                     sk_sp<const RuntimeEffectDictionary> rteDict) {
+    Task::Status status = fRecording->fRootTaskList->prepareResources(
+            resourceProvider, scratchManager, rteDict);
+    if (status == Task::Status::kSuccess) {
+        fRecording->fRootTaskList->visitProxies([&](const TextureProxy* proxy) {
+            if (proxy->isLazy()) {
+                if (proxy->isVolatile()) {
+                    fRecording->fVolatileLazyProxies.insert(sk_ref_sp(proxy));
+                } else {
+                    fRecording->fNonVolatileLazyProxies.insert(sk_ref_sp(proxy));
+                }
+            }
+            return true;
+        });
+    }
+
+    return status != Task::Status::kFail;
 }
 
 bool RecordingPriv::addCommands(Context* context,

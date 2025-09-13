@@ -14,7 +14,8 @@ EMSDK_ROOT = os.path.join('third_party', 'externals', 'emsdk')
 
 EMSDK_PATH = os.path.join(EMSDK_ROOT, 'emsdk.py')
 
-EMSDK_VERSION = '3.1.44'
+# This should match what's in //MODULE.bazel
+EMSDK_VERSION = '4.0.7'
 
 def main():
     if sysconfig.get_platform() in ['linux-aarch64', 'linux-arm64']:

@@ -40,7 +40,7 @@ SkPictureBackedGlyphDrawable::MakeFromBuffer(SkReadBuffer& buffer) {
     sk_sp<SkData> pictureData = buffer.readByteArrayAsData();
 
     // Return nullptr if invalid or there an empty drawable, which is represented by nullptr.
-    if (!buffer.isValid() || pictureData->size() == 0) {
+    if (!buffer.isValid() || pictureData->empty()) {
         return nullptr;
     }
 
@@ -68,7 +68,7 @@ void SkPictureBackedGlyphDrawable::FlattenDrawable(SkWriteBuffer& buffer, SkDraw
     sk_sp<SkData> data = picture->serialize();
 
     // If the picture is too big, or there is no picture, then drop by sending an empty byte array.
-    if (!SkTFitsIn<uint32_t>(data->size()) || data->size() == 0) {
+    if (!SkTFitsIn<uint32_t>(data->size()) || data->empty()) {
         buffer.writeByteArray(nullptr, 0);
         return;
     }
@@ -400,11 +400,9 @@ size_t SkGlyph::addPathFromBuffer(SkReadBuffer& buffer, SkArenaAlloc* alloc) {
     if (hasPath) {
         const bool pathIsHairline = buffer.readBool();
         const bool pathIsModified = buffer.readBool();
-        SkPath path;
-        buffer.readPath(&path);
-        if (buffer.isValid()) {
-            if (this->setPath(alloc, &path, pathIsHairline, pathIsModified)) {
-                memoryIncrease += path.approximateBytesUsed();
+        if (auto path = buffer.readPath()) {
+            if (this->setPath(alloc, &path.value(), pathIsHairline, pathIsModified)) {
+                memoryIncrease += path->approximateBytesUsed();
             }
         }
     } else {
@@ -453,27 +451,26 @@ static std::tuple<SkScalar, SkScalar> calculate_path_gap(
     };
 
     // Handle all the different verbs for the path.
-    SkPoint pts[4];
-    auto addLine = [&](SkScalar offset) {
+    auto addLine = [&](SkSpan<const SkPoint> pts, SkScalar offset) {
         SkScalar t = sk_ieee_float_divide(offset - pts[0].fY, pts[1].fY - pts[0].fY);
         if (0 <= t && t < 1) {   // this handles divide by zero above
             expandGap(pts[0].fX + t * (pts[1].fX - pts[0].fX));
         }
     };
 
-    auto addQuad = [&](SkScalar offset) {
+    auto addQuad = [&](SkSpan<const SkPoint> pts, SkScalar offset) {
         SkScalar intersectionStorage[2];
         auto intersections = SkBezierQuad::IntersectWithHorizontalLine(
-                SkSpan(pts, 3), offset, intersectionStorage);
+                pts, offset, intersectionStorage);
         for (SkScalar x : intersections) {
             expandGap(x);
         }
     };
 
-    auto addCubic = [&](SkScalar offset) {
+    auto addCubic = [&](SkSpan<const SkPoint> pts, SkScalar offset) {
         float intersectionStorage[3];
         auto intersections = SkBezierCubic::IntersectWithHorizontalLine(
-                SkSpan{pts, 4}, offset, intersectionStorage);
+                pts, offset, intersectionStorage);
 
         for(double intersection : intersections) {
             expandGap(intersection);
@@ -481,64 +478,60 @@ static std::tuple<SkScalar, SkScalar> calculate_path_gap(
     };
 
     // Handle when a verb's points are in the gap between top and bottom.
-    auto addPts = [&expandGap, &pts, topOffset, bottomOffset](int ptCount) {
-        for (int i = 0; i < ptCount; ++i) {
-            if (topOffset < pts[i].fY && pts[i].fY < bottomOffset) {
-                expandGap(pts[i].fX);
+    auto addPts = [&expandGap, topOffset, bottomOffset](SkSpan<const SkPoint> pts) {
+        for (const SkPoint p : pts) {
+            if (topOffset < p.fY && p.fY < bottomOffset) {
+                expandGap(p.fX);
             }
         }
     };
 
     SkPath::Iter iter(path, false);
-    SkPath::Verb verb;
-    while (SkPath::kDone_Verb != (verb = iter.next(pts))) {
-        switch (verb) {
-            case SkPath::kMove_Verb: {
+    while (auto rec = iter.next()) {
+        const SkSpan<const SkPoint> pts = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove: {
                 break;
             }
-            case SkPath::kLine_Verb: {
+            case SkPathVerb::kLine: {
                 auto [lineTop, lineBottom] = std::minmax({pts[0].fY, pts[1].fY});
 
                 // The y-coordinates of the points intersect the top and bottom offsets.
                 if (topOffset <= lineBottom && lineTop <= bottomOffset) {
-                    addLine(topOffset);
-                    addLine(bottomOffset);
-                    addPts(2);
+                    addLine(pts, topOffset);
+                    addLine(pts, bottomOffset);
+                    addPts(pts);
                 }
                 break;
             }
-            case SkPath::kQuad_Verb: {
+            case SkPathVerb::kQuad: {
                 auto [quadTop, quadBottom] = std::minmax({pts[0].fY, pts[1].fY, pts[2].fY});
 
                 // The y-coordinates of the points intersect the top and bottom offsets.
                 if (topOffset <= quadBottom && quadTop <= bottomOffset) {
-                    addQuad(topOffset);
-                    addQuad(bottomOffset);
-                    addPts(3);
+                    addQuad(pts, topOffset);
+                    addQuad(pts, bottomOffset);
+                    addPts(pts);
                 }
                 break;
             }
-            case SkPath::kConic_Verb: {
+            case SkPathVerb::kConic: {
                 SkDEBUGFAIL("There should be no conic primitives in glyph outlines.");
                 break;
             }
-            case SkPath::kCubic_Verb: {
+            case SkPathVerb::kCubic: {
                 auto [cubicTop, cubicBottom] =
                         std::minmax({pts[0].fY, pts[1].fY, pts[2].fY, pts[3].fY});
 
                 // The y-coordinates of the points intersect the top and bottom offsets.
                 if (topOffset <= cubicBottom && cubicTop <= bottomOffset) {
-                    addCubic(topOffset);
-                    addCubic(bottomOffset);
-                    addPts(4);
+                    addCubic(pts, topOffset);
+                    addCubic(pts, bottomOffset);
+                    addPts(pts);
                 }
                 break;
             }
-            case SkPath::kClose_Verb: {
-                break;
-            }
-            default: {
-                SkDEBUGFAIL("Unknown path verb generating glyph underline.");
+            case SkPathVerb::kClose: {
                 break;
             }
         }

@@ -8,10 +8,15 @@
 #ifndef skgpu_graphite_Device_DEFINED
 #define skgpu_graphite_Device_DEFINED
 
-#include "include/core/SkImage.h"
-#include "include/core/SkRecorder.h"
-#include "include/gpu/GpuTypes.h"
+#include "include/core/SkBlender.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkColor.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSamplingOptions.h"
 #include "include/gpu/graphite/Recorder.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkSpan_impl.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/core/SkDevice.h"
 #include "src/gpu/graphite/ClipStack.h"
@@ -22,23 +27,58 @@
 #include "src/text/gpu/SubRunContainer.h"
 #include "src/text/gpu/SubRunControl.h"
 
-enum class SkBackingFit;
+#include <cstdint>
+#include <memory>
+#include <string_view>
+#include <utility>
+
+class SkColorInfo;
+class SkDrawable;
+class SkImage;
+class SkMatrix;
+class SkMesh;
+class SkPaint;
+class SkPath;
+class SkPixmap;
+class SkRRect;
+class SkRecorder;
+class SkRegion;
+class SkShader;
+class SkSpecialImage;
 class SkStrokeRec;
+class SkSurface;
+class SkSurfaceProps;
+class SkVertices;
+enum SkColorType : int;
+enum class SkBackingFit;
+enum class SkBlendMode;
+enum class SkClipOp;
+struct SkArc;
+struct SkISize;
+struct SkImageInfo;
+struct SkPoint;
+struct SkRSXform;
+
+namespace skgpu {
+enum class Budgeted : bool;
+enum class Mipmapped : bool;
+}
+namespace skif { class Backend; }
+namespace sktext {
+class GlyphRunList;
+namespace gpu { class Slug; }
+}
 
 namespace skgpu::graphite {
 
-class PathAtlas;
 class BoundsManager;
 class Clip;
-class Context;
 class DrawContext;
 class Geometry;
 class Image;
-enum class LoadOp : uint8_t;
-class PaintParams;
+class PathAtlas;
 class Renderer;
 class Shape;
-class StrokeStyle;
 class Task;
 class TextureProxy;
 class TextureProxyView;
@@ -79,7 +119,13 @@ public:
 
     // Ensures clip elements are drawn that will clip previous draw calls, snaps all pending work
     // from the DrawContext as a RenderPassTask and records it in the Device's recorder.
-    void flushPendingWorkToRecorder();
+    //
+    // The behavior of this function depends on whether a drawContext is provided:
+    // - If a drawContext is provided, then any flushed tasks will be added to that drawContext's
+    //   task list. Note, no lastTask will be recorded in this case.
+    // - Else, flushed tasks are added to the root task list, and if this device is a scratch
+    //   device, the last task will be recorded.
+    void flushPendingWork(DrawContext*);
 
     const Transform& localToDeviceTransform();
 
@@ -144,17 +190,17 @@ public:
     void replaceClip(const SkIRect& rect) override;
 
     // Drawing
-    void drawPaint(const SkPaint& paint) override;
-    void drawRect(const SkRect& r, const SkPaint& paint) override;
-    void drawOval(const SkRect& oval, const SkPaint& paint) override;
-    void drawRRect(const SkRRect& rr, const SkPaint& paint) override;
-    void drawArc(const SkArc& arc, const SkPaint& paint) override;
-    void drawPoints(SkCanvas::PointMode mode, size_t count,
-                    const SkPoint[], const SkPaint& paint) override;
-    void drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable = false) override;
+    void drawPaint(const SkPaint&) override;
+    void drawRect(const SkRect& r, const SkPaint&) override;
+    void drawOval(const SkRect& oval, const SkPaint&) override;
+    void drawRRect(const SkRRect& rr, const SkPaint&) override;
+    void drawArc(const SkArc& arc, const SkPaint&) override;
+    void drawPoints(SkCanvas::PointMode, SkSpan<const SkPoint>, const SkPaint&) override;
+    void drawPath(const SkPath& path, const SkPaint&, bool pathIsMutable = false) override;
+    void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint&) override;
 
-    // No need to specialize drawDRRect, drawRegion, drawPatch as the default impls all
-    // route to drawPath, drawRect, or drawVertices as desired.
+    // No need to specialize drawRegion or drawPatch as the default impls all route to drawPath,
+    // drawRect, or drawVertices as desired.
 
     void drawEdgeAAQuad(const SkRect& rect, const SkPoint clip[4],
                         SkCanvas::QuadAAFlags aaFlags, const SkColor4f& color,
@@ -180,8 +226,8 @@ public:
     // TODO: Implement these using per-edge AA quads and an inlined image shader program.
     void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                           const SkRect& dst, SkFilterMode, const SkPaint&) override {}
-    void drawAtlas(const SkRSXform[], const SkRect[], const SkColor[], int count, sk_sp<SkBlender>,
-                   const SkPaint&) override {}
+    void drawAtlas(SkSpan<const SkRSXform>, SkSpan<const SkRect>, SkSpan<const SkColor>,
+                   sk_sp<SkBlender>, const SkPaint&) override {}
 
     void drawDrawable(SkCanvas*, SkDrawable*, const SkMatrix*) override {}
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override {}
@@ -236,7 +282,7 @@ private:
     // Ignores geometric style on the paint in favor of explicitly provided SkStrokeRec and flags.
     // All overridden SkDevice::draw() functions should bottom-out with calls to drawGeometry().
     void drawGeometry(const Transform&,
-                      const Geometry&,
+                      Geometry&&,
                       const SkPaint&,
                       const SkStrokeRec&,
                       SkEnumBitMask<DrawFlags> = DrawFlags::kNone,
@@ -278,18 +324,10 @@ private:
     std::pair<const Renderer*, PathAtlas*> chooseRenderer(const Transform& localToDevice,
                                                           const Geometry&,
                                                           const SkStrokeRec&,
+                                                          const Rect& drawBounds,
                                                           bool requireMSAA) const;
 
-    // TODO(b/390458117): Vulkan must fall back from reading the dst as an input to using dst copies
-    // when we encounter draws that report needing to use MSAA (even when the target reports being
-    // single-sampeld). Sequential draws are not guaranteed to all require this fallback or not.
-    // If going from using the texture copy fallback to reading the dst as an input attachment, we
-    // must perform a flush so that the dst copy is completed prior to reading from it. Flushing
-    // every time we use kReadFromInput would lead to performing unnecessary flushes which is not
-    // optimal. Therefore, store + consult the prior strategy used to determine if we require a
-    // flush. Once b/390458117 is implemented, fPriorDrawDstReadStrategy can be removed.
-    DstReadStrategy fPriorDrawDstReadStrategy = DstReadStrategy::kNoneRequired;
-    bool needsFlushBeforeDraw(int numNewRenderSteps, DstReadStrategy, bool requiresMSAA);
+    bool needsFlushBeforeDraw(int numNewRenderSteps, DstReadStrategy);
 
     // Flush internal work, such as pending clip draws and atlas uploads, into the Device's DrawTask
     void internalFlush();

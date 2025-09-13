@@ -178,8 +178,8 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
-      "MACOSX_DEPLOYMENT_TARGET": "10.15",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "MACOSX_DEPLOYMENT_TARGET": "11.0",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja",
       "PYTHONPATH": "[START_DIR]/cache/work/skia/third_party/externals:%(PYTHONPATH)s"
     },
     "name": "ccache stats-start"
@@ -198,8 +198,8 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
-      "MACOSX_DEPLOYMENT_TARGET": "10.15",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "MACOSX_DEPLOYMENT_TARGET": "11.0",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja",
       "PYTHONPATH": "[START_DIR]/cache/work/skia/third_party/externals:%(PYTHONPATH)s"
     },
     "name": "gn gen"
@@ -217,8 +217,8 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
-      "MACOSX_DEPLOYMENT_TARGET": "10.15",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "MACOSX_DEPLOYMENT_TARGET": "11.0",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja",
       "PYTHONPATH": "[START_DIR]/cache/work/skia/third_party/externals:%(PYTHONPATH)s"
     },
     "name": "ninja"
@@ -235,8 +235,8 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "50G",
       "CHROME_HEADLESS": "1",
-      "MACOSX_DEPLOYMENT_TARGET": "10.15",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]",
+      "MACOSX_DEPLOYMENT_TARGET": "11.0",
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja",
       "PYTHONPATH": "[START_DIR]/cache/work/skia/third_party/externals:%(PYTHONPATH)s"
     },
     "name": "ccache stats-end"

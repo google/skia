@@ -408,14 +408,13 @@ DEF_SIMPLE_GM(clip_shader_persp, canvas, 1370, 1030) {
     // Scale factor always applied to the image shader so that it tiles
     SkMatrix scale = SkMatrix::Scale(1.f / 4.f, 1.f / 4.f);
     // The perspective matrix applied wherever needed
-    SkPoint src[4];
-    SkRect::Make(img->dimensions()).toQuad(src);
+    const std::array<SkPoint, 4> src = SkRect::Make(img->dimensions()).toQuad();
     SkPoint dst[4] = {{0, 80.f},
                       {img->width() + 28.f, -100.f},
                       {img->width() - 28.f, img->height() + 100.f},
                       {0.f, img->height() - 80.f}};
     SkMatrix persp;
-    SkAssertResult(persp.setPolyToPoly(src, dst, 4));
+    SkAssertResult(persp.setPolyToPoly(src, dst));
 
     SkMatrix perspScale = SkMatrix::Concat(persp, scale);
 
@@ -486,8 +485,8 @@ DEF_SIMPLE_GM(clip_shader_difference, canvas, 512, 512) {
     canvas->clear(SK_ColorGRAY);
 
     SkRect rect = SkRect::MakeWH(256, 256);
-    SkMatrix local = SkMatrix::RectToRect(SkRect::MakeWH(image->width(), image->height()),
-                                          SkRect::MakeWH(64, 64));
+    SkMatrix local = SkMatrix::RectToRectOrIdentity(SkRect::MakeWH(image->width(), image->height()),
+                                                    SkRect::MakeWH(64, 64));
     auto shader = image->makeShader(SkTileMode::kRepeat, SkTileMode::kRepeat,
                                     SkSamplingOptions(), &local);
 

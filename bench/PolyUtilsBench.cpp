@@ -78,8 +78,7 @@ protected:
             case Type::kOffsetSimple:
                 if (SkIsSimplePolygon(poly.begin(), poly.size())) {
                     SkTDArray<SkPoint> result;
-                    SkRect bounds;
-                    bounds.setBounds(poly.begin(), poly.size());
+                    const auto bounds = SkRect::BoundsOrEmpty(poly);
                     for (int i = 0; i < loops; i++) {
                         (void)SkOffsetSimplePolygon(poly.begin(), poly.size(), bounds, 10,
                                                     &result);

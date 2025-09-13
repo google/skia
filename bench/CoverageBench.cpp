@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkColorPriv.h"
 #include "src/core/SkDraw.h"
@@ -21,7 +22,7 @@ class DrawPathBench : public Benchmark {
     SkPath      fPath;
     SkRasterClip fRC;
     SkAutoPixmapStorage fPixmap;
-    SkDraw      fDraw;
+    skcpu::Draw fDraw;
     bool        fDrawCoverage;
 public:
     DrawPathBench(bool drawCoverage) : fDrawCoverage(drawCoverage) {
@@ -36,9 +37,11 @@ protected:
     void onDelayedSetup() override {
         fPaint.setAntiAlias(true);
 
-        fPath.moveTo(0, 0);
-        fPath.quadTo(500, 0, 500, 500);
-        fPath.quadTo(250, 0, 0, 500);
+        SkPathBuilder builder;
+        builder.moveTo(0, 0);
+        builder.quadTo(500, 0, 500, 500);
+        builder.quadTo(250, 0, 0, 500);
+        fPath = builder.detach();
 
         fPixmap.alloc(SkImageInfo::MakeA8(500, 500));
         if (!fDrawCoverage) {

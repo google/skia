@@ -25,8 +25,6 @@
 #include "src/gpu/ganesh/SkGr.h"
 #include "src/gpu/ganesh/image/GrImageUtils.h"
 #include "src/utils/SkOSPath.h"
-#include "tools/DDLPromiseImageHelper.h"
-#include "tools/DDLTileHelper.h"
 #include "tools/EncodeUtils.h"
 #include "tools/SkSharingProc.h"
 #include "tools/flags/CommandLineFlags.h"
@@ -34,9 +32,11 @@
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/flags/CommonFlagsGanesh.h"
 #include "tools/fonts/FontToolUtils.h"
+#include "tools/ganesh/DDLPromiseImageHelper.h"
+#include "tools/ganesh/DDLTileHelper.h"
+#include "tools/ganesh/GpuTimer.h"
+#include "tools/ganesh/GrContextFactory.h"
 #include "tools/gpu/FlushFinishTracker.h"
-#include "tools/gpu/GpuTimer.h"
-#include "tools/gpu/GrContextFactory.h"
 
 #if defined(SK_ENABLE_SVG)
 #include "modules/skshaper/utils/FactoryHelpers.h"

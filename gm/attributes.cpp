@@ -27,7 +27,7 @@
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/gpu/ganesh/ops/GrDrawOp.h"
 #include "src/gpu/ganesh/ops/GrOp.h"
-#include "tools/gpu/ProxyUtils.h"
+#include "tools/ganesh/ProxyUtils.h"
 
 #include <memory>
 #include <vector>

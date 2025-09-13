@@ -8,7 +8,6 @@
 
 import calendar
 
-PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'recipe_engine/file',

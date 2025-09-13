@@ -111,7 +111,7 @@ struct ShaderCaps {
     bool fCanUseMinAndAbsTogether = true;
     bool fCanUseFractForNegativeValues = true;
     bool fMustForceNegatedAtanParamToFloat = false;
-    bool fMustForceNegatedLdexpParamToMultiply = false;  // http://skbug.com/12076
+    bool fMustForceNegatedLdexpParamToMultiply = false;  // skbug.com/40043167
     // Returns whether a device incorrectly implements atan(y,x) as atan(y/x)
     bool fAtan2ImplementedAsAtanYOverX = false;
     // If this returns true some operation (could be a no op) must be called between floor and abs
@@ -136,11 +136,11 @@ struct ShaderCaps {
     // statement is made for the type.
     bool fNoDefaultPrecisionForExternalSamplers = false;
     // ARM GPUs calculate `matrix * vector` in SPIR-V at full precision, even when the inputs are
-    // RelaxedPrecision. Rewriting the multiply as a sum of vector*scalar fixes this. (skia:11769)
+    // RelaxedPrecision. Rewriting the multiply as a sum of vector*scalar fixes this. (skbug.com/40042841)
     bool fRewriteMatrixVectorMultiply = false;
-    // Rewrites matrix equality comparisons to avoid an Adreno driver bug. (skia:11308)
+    // Rewrites matrix equality comparisons to avoid an Adreno driver bug. (skbug.com/40042682)
     bool fRewriteMatrixComparisons = false;
-    // Strips const from function parameters in the GLSL code generator. (skia:13858)
+    // Strips const from function parameters in the GLSL code generator. (skbug.com/40044949)
     bool fRemoveConstFromFunctionParameters = false;
     // On some Android devices colors aren't accurate enough for the double lookup in the
     // Perlin noise shader. This workaround aggressively snaps colors to multiples of 1/255.
@@ -153,6 +153,13 @@ struct ShaderCaps {
     // array function parameter, so fForceStd430ArrayLayout will make all array strides conform
     // to std430 stride alignment rules.
     bool fForceStd430ArrayLayout = false;
+    // Some NVIDIA drivers fail to create a pipeline if RelaxedPrecision is applied to
+    // OpImageSampleImplicitLod when sampling from a YCbCr image. This workaround simply disables
+    // RelaxedPrecision for that op regardless of image kind. (skbug.com/421927604)
+    bool fCannotUseRelaxedPrecisionOnImageSample = false;
+    // Clamp, Min, Max, intrinsics all appear to be broken on Intel UHD630, so shaders for these
+    // devices will break these intrinsics into individual scalar commands.
+    bool fVectorClampMinMaxSupport = true;
 
     const char* fVersionDeclString = "";
 

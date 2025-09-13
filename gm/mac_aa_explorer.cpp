@@ -15,6 +15,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "src/utils/mac/SkUniqueCFRef.h"
 #include "tools/fonts/FontToolUtils.h"
 
 #include <string.h>
@@ -83,14 +84,18 @@ static void test_mac_fonts(SkCanvas* canvas, SkScalar size, SkScalar xpos) {
         auto surf = SkSurfaces::Raster(ii);
         SkPixmap pm;
         surf->peekPixels(&pm);
-        CGContextRef ctx = make_cg_ctx(pm);
-        CGContextSelectFont(ctx, "Times", size, kCGEncodingMacRoman);
+        SkUniqueCFRef<CGContextRef> ctx(make_cg_ctx(pm));
+        SkUniqueCFRef<CTFontRef> ctFont(CTFontCreateWithName(CFSTR("Times"), size, nullptr));
+        UniChar uni = 'A';
+        CGGlyph glyph;
+        CTFontGetGlyphsForCharacters(ctFont.get(), &uni, &glyph, 1);
 
         SkScalar x = 1;
         for (bool smooth : {false, true}) {
             surf->getCanvas()->clear(ct == kAlpha_8_SkColorType ? 0 : 0xFFFFFFFF);
-            CGContextSetShouldSmoothFonts(ctx, smooth);
-            CGContextShowTextAtPoint(ctx, 2 + xpos, 2, "A", 1);
+            CGContextSetShouldSmoothFonts(ctx.get(), smooth);
+            CGPoint point = {2 + xpos, 2};
+            CTFontDrawGlyphs(ctFont.get(), &glyph, &point, 1, ctx.get());
 
             surf->draw(canvas, x, y);
             x += pm.width();

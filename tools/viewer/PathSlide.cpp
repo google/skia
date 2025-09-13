@@ -51,8 +51,7 @@ static void test_cubic() {
 
 static void test_cubic2() {
     const char* str = "M2242 -590088L-377758 9.94099e+07L-377758 9.94099e+07L2242 -590088Z";
-    SkPath path;
-    SkParsePath::FromSVGString(str, &path);
+    SkPath path = SkParsePath::FromSVGString(str).value_or(SkPath());
 
     {
         SkRect r = path.getBounds();
@@ -132,9 +131,7 @@ public:
         paint.setStrokeWidth(fStroke);
 
         if (fShowHairline) {
-            SkPath fill;
-
-            skpathutils::FillPathWithPaint(path, paint, &fill);
+            SkPath fill = skpathutils::FillPathWithPaint(path, paint);
             paint.setStrokeWidth(0);
             canvas->drawPath(fill, paint);
         } else {
@@ -241,7 +238,7 @@ public:
             return false;
     }
     void draw(SkCanvas* canvas) override {
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, fPts, fPtsPaint);
 
         SkPath path;
         this->makePath(&path);
@@ -363,14 +360,13 @@ public:
             canvas->drawPath(path, fStrokePaint);
         }
         if (fShowHidden) {
-            SkPath hidden;
-            skpathutils::FillPathWithPaint(path, fStrokePaint, &hidden);
+            SkPath hidden = skpathutils::FillPathWithPaint(path, fStrokePaint);
             canvas->drawPath(hidden, fHiddenPaint);
         }
         if (fShowSkeleton) {
             canvas->drawPath(path, fSkeletonPaint);
         }
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, fPts, fPtsPaint);
     }
 
 protected:
@@ -625,8 +621,8 @@ public:
 
         paint.setColor(SK_ColorGRAY);
         paint.setStroke(true);
-        canvas->drawPath(SkPathBuilder().addPolygon(fPts, 4, false).detach(), paint);
-        canvas->drawPath(SkPathBuilder().addPolygon(fQuad, 3, false).detach(), paint);
+        canvas->drawPath(SkPathBuilder().addPolygon({fPts, 4}, false).detach(), paint);
+        canvas->drawPath(SkPathBuilder().addPolygon({fQuad, 3}, false).detach(), paint);
 
         for (SkPoint p : fPts) {
             Dot(canvas, p, 7, SK_ColorBLACK);

@@ -1,0 +1,89 @@
+// Skia CPU Backend Dataflow Diagram
+// This helps show how data flows through the CPU backend during a draw.
+//
+// LEGEND:
+//
+// Colors:
+//   - Blue: Actors/Processors (Objects that perform actions)
+//   - Yellow: Data/Configuration (Objects that hold information)
+//
+// Line Styles:
+//   - Solid: Data Flow (Objects passed in as parameters in function calls)
+//   - Dashed: Owns (An object holds a smart pointer (sk_sp) to another)
+//   - Dotted: Borrows (An object holds a raw pointer or temporary view of another)
+
+digraph SkiaCPUBackend {
+    rankdir=TB;
+    splines=ortho;
+    node [shape=box, style="rounded"];
+
+    subgraph cluster_api {
+        label="API Layer";
+        style="rounded";
+        SkCanvas [label="SkCanvas\n(e.g., drawPath)", style=filled, fillcolor=lightblue];
+        SkSurface [label="SkSurface", style=filled, fillcolor=lightblue];
+        SkPath [label="SkPath", style=filled, fillcolor=lightyellow];
+        SkPathRef [label="SkPathRef\n(Heap-allocated Geometry)", style=filled, fillcolor=lightyellow];
+        SkImage [label="SkImage\n(Immutable Pixels)", style=filled, fillcolor=lightyellow];
+
+        SkPaintRecord [
+            label="{SkPaint | { Color | Style | Stroke Width } | { Stroke Cap | Stroke Join | Stroke Miter Limit } | { <blender> SkBlender | <colorfilter> SkColorFilter | <patheffect> SkPathEffect } | { <maskfilter> SkMaskFilter\n(blur) | <shader> SkShader\n(gradients, etc) | <imagefilter> SkImageFilter\n(shadows, etc) }}",
+            shape=record,
+            style=filled,
+            fillcolor=lightyellow
+        ];
+    }
+
+    subgraph cluster_font_management {
+        label="Font Management";
+        style="rounded";
+        SkFontMgr [label="SkFontMgr\n(Font Discovery)", style=filled, fillcolor=lightblue];
+        SkTypeface [label="SkTypeface\n(Font Data)", style=filled, fillcolor=lightyellow];
+        SkFont [label="SkFont\n(Text Style)", style=filled, fillcolor=lightyellow];
+    }
+
+    subgraph cluster_cpu_backend {
+        label="CPU Backend";
+        style="rounded";
+        SkDevice [label="SkBitmapDevice\n(Stateful)", style=filled, fillcolor=lightblue];
+        SkDraw [label="SkDraw\n(Stateless Orchestrator)", style=filled, fillcolor=lightblue];
+        SkScan [label="SkScan\n(Shape -> Scanlines)", style=filled, fillcolor=lightblue];
+        SkRasterPipelineBlitter [label="SkRasterPipelineBlitter", style=filled, fillcolor=lightblue];
+        SkRasterPipeline [label="SkRasterPipeline\n(Pixel Processing Stages)", style=filled, fillcolor=lightblue];
+        SkImage_Raster [label="SkImage_Raster\n(subclass)", style=filled, fillcolor=lightyellow];
+        SkBitmap [label="SkBitmap\n(Pixel Accessor)", style=filled, fillcolor=lightyellow];
+        SkPixmap [label="SkPixmap\n(Pixel View)", style=filled, fillcolor=lightyellow];
+        SkPixelRef [label="SkPixelRef\n(Pixel Owner)", style=filled, fillcolor=lightyellow];
+    }
+
+    // Relationships
+    SkSurface -> SkCanvas [style=dashed];
+    SkSurface -> SkImage;
+    SkCanvas -> SkDevice;
+    SkPath -> SkCanvas;
+    SkPath -> SkPathRef [style=dashed];
+    SkPaintRecord -> SkCanvas;
+    SkFont -> SkCanvas;
+    SkImage -> SkCanvas;
+
+    SkFontMgr -> SkTypeface;
+    SkFont -> SkTypeface [style=dashed];
+
+    SkDevice -> SkDraw;
+    SkDevice -> SkBitmap [style=dashed];
+
+    SkDraw -> SkScan;
+    SkDraw -> SkRasterPipelineBlitter;
+
+    SkScan -> SkRasterPipelineBlitter;
+
+    SkRasterPipelineBlitter -> SkRasterPipeline;
+    SkRasterPipeline -> SkPixmap;
+
+    // Pixel Ownership Story
+    SkImage -> SkImage_Raster [style=dashed];
+    SkImage_Raster -> SkBitmap [style=dashed];
+    SkBitmap -> SkPixelRef [style=dashed];
+    SkBitmap -> SkPixmap [style=dashed];
+    SkPixmap -> SkPixelRef [style=dotted];
+}

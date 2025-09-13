@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _18_colorGreen : packoffset(c0);
-    float4 _18_colorRed : packoffset(c1);
+    float4 _22_colorGreen : packoffset(c0);
+    float4 _22_colorRed : packoffset(c1);
 };
 
 
@@ -14,52 +14,52 @@ struct SPIRV_Cross_Output
 
 static float4x4 MATRIXFIVE = float4x4(0.0f.xxxx, 0.0f.xxxx, 0.0f.xxxx, 0.0f.xxxx);
 
-bool verify_const_globals_biih44(int _35, int _36, float4x4 _37)
+bool verify_const_globals_biih44(int _38, int _39, float4x4 _40)
 {
-    bool _48 = false;
-    if (_35 == 7)
+    bool _51 = false;
+    if (_38 == 7)
     {
-        _48 = _36 == 10;
+        _51 = _39 == 10;
     }
     else
     {
-        _48 = false;
+        _51 = false;
     }
-    bool _68 = false;
-    if (_48)
+    bool _71 = false;
+    if (_51)
     {
-        _68 = ((all(bool4(_37[0].x == float4(5.0f, 0.0f, 0.0f, 0.0f).x, _37[0].y == float4(5.0f, 0.0f, 0.0f, 0.0f).y, _37[0].z == float4(5.0f, 0.0f, 0.0f, 0.0f).z, _37[0].w == float4(5.0f, 0.0f, 0.0f, 0.0f).w)) && all(bool4(_37[1].x == float4(0.0f, 5.0f, 0.0f, 0.0f).x, _37[1].y == float4(0.0f, 5.0f, 0.0f, 0.0f).y, _37[1].z == float4(0.0f, 5.0f, 0.0f, 0.0f).z, _37[1].w == float4(0.0f, 5.0f, 0.0f, 0.0f).w))) && all(bool4(_37[2].x == float4(0.0f, 0.0f, 5.0f, 0.0f).x, _37[2].y == float4(0.0f, 0.0f, 5.0f, 0.0f).y, _37[2].z == float4(0.0f, 0.0f, 5.0f, 0.0f).z, _37[2].w == float4(0.0f, 0.0f, 5.0f, 0.0f).w))) && all(bool4(_37[3].x == float4(0.0f, 0.0f, 0.0f, 5.0f).x, _37[3].y == float4(0.0f, 0.0f, 0.0f, 5.0f).y, _37[3].z == float4(0.0f, 0.0f, 0.0f, 5.0f).z, _37[3].w == float4(0.0f, 0.0f, 0.0f, 5.0f).w));
+        _71 = ((all(bool4(_40[0].x == float4(5.0f, 0.0f, 0.0f, 0.0f).x, _40[0].y == float4(5.0f, 0.0f, 0.0f, 0.0f).y, _40[0].z == float4(5.0f, 0.0f, 0.0f, 0.0f).z, _40[0].w == float4(5.0f, 0.0f, 0.0f, 0.0f).w)) && all(bool4(_40[1].x == float4(0.0f, 5.0f, 0.0f, 0.0f).x, _40[1].y == float4(0.0f, 5.0f, 0.0f, 0.0f).y, _40[1].z == float4(0.0f, 5.0f, 0.0f, 0.0f).z, _40[1].w == float4(0.0f, 5.0f, 0.0f, 0.0f).w))) && all(bool4(_40[2].x == float4(0.0f, 0.0f, 5.0f, 0.0f).x, _40[2].y == float4(0.0f, 0.0f, 5.0f, 0.0f).y, _40[2].z == float4(0.0f, 0.0f, 5.0f, 0.0f).z, _40[2].w == float4(0.0f, 0.0f, 5.0f, 0.0f).w))) && all(bool4(_40[3].x == float4(0.0f, 0.0f, 0.0f, 5.0f).x, _40[3].y == float4(0.0f, 0.0f, 0.0f, 5.0f).y, _40[3].z == float4(0.0f, 0.0f, 0.0f, 5.0f).z, _40[3].w == float4(0.0f, 0.0f, 0.0f, 5.0f).w));
     }
     else
     {
-        _68 = false;
+        _71 = false;
     }
-    return _68;
+    return _71;
 }
 
-float4 main(float2 _70)
+float4 main(float2 _73)
 {
     MATRIXFIVE = float4x4(float4(5.0f, 0.0f, 0.0f, 0.0f), float4(0.0f, 5.0f, 0.0f, 0.0f), float4(0.0f, 0.0f, 5.0f, 0.0f), float4(0.0f, 0.0f, 0.0f, 5.0f));
-    int _72 = 7;
-    int _73 = 10;
-    float4x4 _74 = float4x4(float4(5.0f, 0.0f, 0.0f, 0.0f), float4(0.0f, 5.0f, 0.0f, 0.0f), float4(0.0f, 0.0f, 5.0f, 0.0f), float4(0.0f, 0.0f, 0.0f, 5.0f));
-    float4 _76 = 0.0f.xxxx;
-    if (verify_const_globals_biih44(_72, _73, _74))
+    int _75 = 7;
+    int _76 = 10;
+    float4x4 _77 = float4x4(float4(5.0f, 0.0f, 0.0f, 0.0f), float4(0.0f, 5.0f, 0.0f, 0.0f), float4(0.0f, 0.0f, 5.0f, 0.0f), float4(0.0f, 0.0f, 0.0f, 5.0f));
+    float4 _79 = 0.0f.xxxx;
+    if (verify_const_globals_biih44(_75, _76, _77))
     {
-        _76 = _18_colorGreen;
+        _79 = _22_colorGreen;
     }
     else
     {
-        _76 = _18_colorRed;
+        _79 = _22_colorRed;
     }
-    return _76;
+    return _79;
 }
 
 void frag_main()
 {
-    float2 _27 = 0.0f.xx;
-    float4 _29 = main(_27);
-    sk_FragColor = _29;
+    float2 _31 = 0.0f.xx;
+    float4 _33 = main(_31);
+    sk_FragColor = _33;
 }
 
 SPIRV_Cross_Output main()

@@ -55,7 +55,7 @@ void SkBlitter::blitFatAntiRect(const SkRect& rect) {
     SkIRect bounds = rect.roundOut();
     SkASSERT(bounds.width() >= 3);
 
-    // skbug.com/7813
+    // skbug.com/40039068
     // To ensure consistency of the threaded backend (a rect that's considered fat in the init-once
     // phase must also be considered fat in the draw phase), we have to deal with rects with small
     // heights because the horizontal tiling in the threaded backend may change the height.
@@ -267,8 +267,6 @@ void SkBlitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 }
 
 /////////////////////// these are not virtual, just helpers
-
-#if defined(SK_SUPPORT_LEGACY_ALPHA_BITMAP_AS_COVERAGE)
 void SkBlitter::blitMaskRegion(const SkMask& mask, const SkRegion& clip) {
     if (clip.quickReject(mask.fBounds)) {
         return;
@@ -282,7 +280,6 @@ void SkBlitter::blitMaskRegion(const SkMask& mask, const SkRegion& clip) {
         clipper.next();
     }
 }
-#endif
 
 void SkBlitter::blitRectRegion(const SkIRect& rect, const SkRegion& clip) {
     SkRegion::Cliperator clipper(clip, rect);
@@ -660,7 +657,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
                              SkArenaAlloc* alloc,
                              SkDrawCoverage drawCoverage,
                              sk_sp<SkShader> clipShader,
-                             const SkSurfaceProps& props) {
+                             const SkSurfaceProps& props,
+                             const SkRect& devBounds) {
     SkASSERT(alloc);
 
     if (kUnknown_SkColorType == device.colorType()) {
@@ -713,7 +711,8 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
     }
 
     auto CreateSkRPBlitter = [&]() -> SkBlitter* {
-        auto blitter = SkCreateRasterPipelineBlitter(device, *paint, ctm, alloc, clipShader, props);
+        auto blitter = SkCreateRasterPipelineBlitter(
+                device, *paint, ctm, alloc, clipShader, props, devBounds);
         return blitter ? blitter
                        : alloc->make<SkNullBlitter>();
     };

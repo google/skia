@@ -734,10 +734,10 @@ SkCodec::Result SkWuffsCodec::onIncrementalDecodeTwoPass() {
             paint.setBlendMode(SkBlendMode::kSrc);
         }
 
-        SkDraw draw;
+        skcpu::Draw draw;
         draw.fDst.reset(dstInfo(), fIncrDecDst, fIncrDecRowBytes);
-        SkMatrix matrix = SkMatrix::RectToRect(SkRect::Make(this->dimensions()),
-                                               SkRect::Make(this->dstInfo().dimensions()));
+        SkMatrix matrix = SkMatrix::RectToRectOrIdentity(SkRect::Make(this->dimensions()),
+                                                        SkRect::Make(this->dstInfo().dimensions()));
         draw.fCTM = &matrix;
         SkRasterClip rc(SkIRect::MakeSize(this->dstInfo().dimensions()));
         draw.fRC = &rc;

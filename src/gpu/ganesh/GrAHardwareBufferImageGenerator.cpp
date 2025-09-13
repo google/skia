@@ -206,14 +206,6 @@ GrSurfaceProxyView GrAHardwareBufferImageGenerator::onGenerateTexture(
                                     /*label=*/"AHardwareBufferImageGenerator_GenerateTexture");
 }
 
-bool GrAHardwareBufferImageGenerator::onIsValid(GrRecordingContext* context) const {
-    if (nullptr == context) {
-        return false; //CPU backend is not supported, because hardware buffer can be swizzled
-    }
-    return GrBackendApi::kOpenGL == context->backend() ||
-           GrBackendApi::kVulkan == context->backend();
-}
-
 bool GrAHardwareBufferImageGenerator::onIsValid(SkRecorder* recorder) const {
     if (!recorder) {
         return false;
@@ -221,7 +213,10 @@ bool GrAHardwareBufferImageGenerator::onIsValid(SkRecorder* recorder) const {
     if (recorder->type() != SkRecorder::Type::kGanesh) {
         return false;
     }
-    return this->onIsValid(static_cast<SkGaneshRecorder*>(recorder)->recordingContext());
+    auto ctx = static_cast<SkGaneshRecorder*>(recorder)->recordingContext();
+    SkASSERT(ctx);
+    return GrBackendApi::kOpenGL == ctx->backend() ||
+           GrBackendApi::kVulkan == ctx->backend();
 }
 
 #endif //SK_BUILD_FOR_ANDROID_FRAMEWORK

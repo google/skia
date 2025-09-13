@@ -140,7 +140,7 @@ static void draw_outset_line(SkCanvas* canvas, const SkMatrix& local, const SkPo
                              const SkPaint& paint) {
     static constexpr SkScalar kLineOutset = 10.f;
     SkPoint mapped[2];
-    local.mapPoints(mapped, pts, 2);
+    local.mapPoints({mapped, 2}, {pts, 2});
     SkVector v = mapped[1] - mapped[0];
     v.setLength(v.length() + kLineOutset);
     canvas->drawLine(mapped[1] - v, mapped[0] + v, paint);
@@ -287,7 +287,7 @@ protected:
             }
         } else {
             //  Haven't been split yet, so fill in based on the rect
-            baseRect.toQuad(points);
+            baseRect.copyToQuad(points);
         }
 
         // Consider the first line against the 4 quad edges in tile, which should have 0,1, or 2
@@ -531,13 +531,13 @@ private:
         fMatrixNames.push_back(SkString("Skew"));
 
         // Perspective
-        SkPoint src[4];
-        SkRect::MakeWH(kColCount * kTileWidth, kRowCount * kTileHeight).toQuad(src);
+        const std::array<SkPoint, 4> src = SkRect::MakeWH(kColCount * kTileWidth,
+                                                          kRowCount * kTileHeight).toQuad();
         SkPoint dst[4] = {{0, 0},
                           {kColCount * kTileWidth + 10.f, 15.f},
                           {kColCount * kTileWidth - 28.f, kRowCount * kTileHeight + 40.f},
                           {25.f, kRowCount * kTileHeight - 15.f}};
-        SkAssertResult(fMatrices[4].setPolyToPoly(src, dst, 4));
+        SkAssertResult(fMatrices[4].setPolyToPoly(src, dst));
         fMatrices[4].preTranslate(0.f, 10.f);
         fMatrixNames.push_back(SkString("Perspective"));
 
@@ -742,10 +742,9 @@ public:
 
         // This acts like the whole image is rendered over the entire tile grid, so derive local
         // coordinates from 'rect', based on the grid to image transform.
-        SkMatrix gridToImage = SkMatrix::RectToRect(SkRect::MakeWH(kColCount * kTileWidth,
-                                                                   kRowCount * kTileHeight),
-                                                    SkRect::MakeWH(fImage->width(),
-                                                                   fImage->height()));
+        SkMatrix gridToImage = SkMatrix::RectToRectOrIdentity(
+                                    SkRect::MakeWH(kColCount * kTileWidth, kRowCount * kTileHeight),
+                                    SkRect::MakeWH(fImage->width(), fImage->height()));
         SkRect localRect = gridToImage.mapRect(rect);
 
         // drawTextureSet automatically derives appropriate local quad from localRect if clipPtr
@@ -829,7 +828,7 @@ private:
             if (fResetEachQuad) {
                 // Apply a local transform in the shader to map from the tile rectangle to (0,0,w,h)
                 static const SkRect kTarget = SkRect::MakeWH(kTileWidth, kTileHeight);
-                SkMatrix local = SkMatrix::RectToRect(kTarget, rect);
+                SkMatrix local = SkMatrix::RectToRectOrIdentity(kTarget, rect);
                 paint->setShader(fShader->makeWithLocalMatrix(local));
             } else {
                 paint->setShader(fShader);
@@ -927,10 +926,9 @@ public:
 
         // This acts like the whole image is rendered over the entire tile grid, so derive local
         // coordinates from 'rect', based on the grid to image transform.
-        SkMatrix gridToImage = SkMatrix::RectToRect(SkRect::MakeWH(kColCount * kTileWidth,
-                                                                   kRowCount * kTileHeight),
-                                                    SkRect::MakeWH(fImage->width(),
-                                                                   fImage->height()));
+        SkMatrix gridToImage = SkMatrix::RectToRectOrIdentity(
+                                SkRect::MakeWH(kColCount * kTileWidth, kRowCount * kTileHeight),
+                                SkRect::MakeWH(fImage->width(), fImage->height()));
         SkRect localRect = gridToImage.mapRect(rect);
 
         // drawTextureSet automatically derives appropriate local quad from localRect if clipPtr

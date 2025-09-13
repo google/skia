@@ -83,7 +83,7 @@ void draw_paths(SkCanvas* canvas, ShadowMode mode) {
     static constexpr SkScalar kHeight = 50.f;
 
     // transform light position relative to canvas to handle tiling
-    SkPoint lightXY = canvas->getTotalMatrix().mapXY(250, 400);
+    SkPoint lightXY = canvas->getTotalMatrix().mapPoint({250, 400});
     SkPoint3 lightPos = { lightXY.fX, lightXY.fY, 500 };
 
     canvas->translate(3 * kPad, 3 * kPad);

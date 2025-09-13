@@ -4,6 +4,7 @@
     "name": "BazelBuild-all_tests-release-linux_x64",
     "cq_config": {}
   },
+
   {"name": "BazelBuild-android_math_test-for_android_arm64_release-linux_x64"},
   {"name": "BazelBuild-core-release-linux_x64"},
   {"name": "BazelBuild-cpu_8888_benchmark_android_test-for_android_arm64_release-linux_x64"},
@@ -13,10 +14,6 @@
   },
   {"name": "BazelBuild-dm-release-linux_x64"},
   {"name": "BazelBuild-fontations-release-linux_x64"},
-  {
-    "name": "BazelBuild-full_library-enforce_iwyu-linux_x64",
-    "cq_config": {}
-  },
   {"name": "BazelBuild-full_library-for_windows_x64_release-windows_x64"},
   {
     "name": "BazelBuild-full_library-release-linux_x64",
@@ -26,10 +23,6 @@
   {"name": "BazelBuild-hello_bazel_world_android_test-for_android_arm64_release-linux_x64"},
   {
     "name": "BazelBuild-modules_canvaskit-ck_full_webgl2_debug-linux_x64",
-    "cq_config": {}
-  },
-  {
-    "name": "BazelBuild-skottie_tool_gpu-enforce_iwyu-linux_x64",
     "cq_config": {}
   },
   {"name": "BazelBuild-use_ganesh_gl-for_windows_x64_release-windows_x64"},
@@ -114,8 +107,6 @@
     }
   },
   {"name": "Build-Mac-Clang-arm64-Debug-iOS_Metal"},
-  {"name": "Build-Mac-Clang-arm64-Debug-iOS_iOS12"},
-  {"name": "Build-Mac-Clang-arm64-Debug-iOS_iOS12_Metal"},
   {"name": "Build-Mac-Clang-arm64-Release"},
   {"name": "Build-Mac-Clang-arm64-Release-ANGLE"},
   {"name": "Build-Mac-Clang-arm64-Release-Graphite_Dawn_Metal"},
@@ -150,8 +141,6 @@
     "name": "Build-Mac-Clang-arm64-Release-iOS_Metal",
     "cq_config": {}
   },
-  {"name": "Build-Mac-Clang-arm64-Release-iOS_iOS12"},
-  {"name": "Build-Mac-Clang-arm64-Release-iOS_iOS12_Metal"},
   {"name": "Build-Mac-Clang-x64-Release-iOS"},
   {"name": "Build-Mac-Clang-x86_64-Debug"},
   {"name": "Build-Mac-Clang-x86_64-Debug-ANGLE"},
@@ -350,12 +339,11 @@
   {"name": "Build-Ubuntu24.04-Clang-x86_64-Release-Wuffs"},
   {"name": "Build-Ubuntu24.04-EMCC-asmjs-Debug-PathKit"},
   {"name": "Build-Ubuntu24.04-EMCC-asmjs-Release-PathKit"},
-  {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit"},
-  {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_CPU"},
   {
-    "name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_WebGPU",
+    "name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit",
     "cq_config": {}
   },
+  {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_CPU"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Debug-PathKit"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Release-CanvasKit"},
   {"name": "Build-Ubuntu24.04-EMCC-wasm-Release-CanvasKit_CPU"},
@@ -443,15 +431,7 @@
   {"name": "BuildStats-Ubuntu24.04-EMCC-asmjs-Release-PathKit"},
   {"name": "BuildStats-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit"},
   {"name": "BuildStats-Ubuntu24.04-EMCC-wasm-Debug-CanvasKit_CPU"},
-  {
-    "name": "BuildStats-Ubuntu24.04-EMCC-wasm-Release-CanvasKit",
-    "cq_config": {
-      "location_regexes": [
-        "infra/canvaskit/.*",
-        "modules/canvaskit/.*"
-      ]
-    }
-  },
+  {"name": "BuildStats-Ubuntu24.04-EMCC-wasm-Release-CanvasKit"},
   {"name": "BuildStats-Ubuntu24.04-EMCC-wasm-Release-CanvasKit_CPU"},
   {"name": "BuildStats-Ubuntu24.04-EMCC-wasm-Release-PathKit"},
   {"name": "Canary-Android"},
@@ -508,7 +488,6 @@
   {"name": "Perf-Android-Clang-GalaxyS24-GPU-Adreno750-arm64-Release-All-Android"},
   {"name": "Perf-Android-Clang-GalaxyS24-GPU-Adreno750-arm64-Release-All-Android_Vulkan"},
   {"name": "Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android"},
-  {"name": "Perf-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android_Vulkan"},
   {"name": "Perf-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Release-All-Android"},
   {"name": "Perf-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Release-All-Android_Vulkan"},
   {"name": "Perf-Android-Clang-JioNext-CPU-SnapdragonQM215-arm-Release-All-Android"},
@@ -556,15 +535,8 @@
   {"name": "Perf-ChromeOS-Clang-Octopus-GPU-IntelUHDGraphics600-x86_64-Release-All"},
   {"name": "Perf-ChromeOS-Clang-Trogdor-GPU-Adreno618-arm64-Release-All"},
   {
-    "name": "Perf-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Graphite_Native_Metal",
-    "cq_config": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*"
-      ]
-    }
-  },
-  {"name": "Perf-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"},
+    "name": "Perf-Mac11-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Graphite_Native_Metal"},
+  {"name": "Perf-Mac11-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"},
   {"name": "Perf-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All"},
   {"name": "Perf-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All-Graphite_Native_Metal"},
   {"name": "Perf-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All-Metal"},
@@ -576,15 +548,6 @@
   {
     "name": "Perf-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Dawn_Metal",
     "cq_config": {}
-  },
-  {
-    "name": "Perf-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Dawn_Metal_TintIR",
-    "cq_config": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*"
-      ]
-    }
   },
   {"name": "Perf-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Native_Metal"},
   {"name": "Perf-Mac15-Clang-MacBookPro15.1-CPU-AppleIntel-x86_64-Release-All"},
@@ -617,9 +580,6 @@
   {"name": "Perf-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-ASAN_Vulkan"},
   {"name": "Perf-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-SkottieTracing"},
   {"name": "Perf-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"},
-  {"name": "Perf-Ubuntu24.04-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All"},
-  {"name": "Perf-Ubuntu24.04-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Graphite_Native_Vulkan"},
-  {"name": "Perf-Ubuntu24.04-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Vulkan"},
   {"name": "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"},
   {"name": "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE"},
   {"name": "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"},
@@ -651,8 +611,6 @@
   {"name": "Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All-Metal"},
   {"name": "Perf-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All"},
   {"name": "Perf-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-Metal"},
-  {"name": "Perf-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-iOS12"},
-  {"name": "Perf-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-iOS12_Metal"},
   {"name": "Perf-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Release-All"},
   {"name": "Perf-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Release-All-Metal"},
   {"name": "Perf-iOS18-Clang-iPhone15Pro-GPU-AppleA17-arm64-Release-All"},
@@ -672,9 +630,7 @@
   {"name": "Test-Android-Clang-GalaxyS24-GPU-Adreno750-arm64-Release-All-Android"},
   {"name": "Test-Android-Clang-GalaxyS24-GPU-Adreno750-arm64-Release-All-Android_Vulkan"},
   {"name": "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android"},
-  {"name": "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Debug-All-Android_Vulkan"},
   {"name": "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android"},
-  {"name": "Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All-Android_Vulkan"},
   {"name": "Test-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Debug-All-Android"},
   {"name": "Test-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Debug-All-Android_Protected"},
   {"name": "Test-Android-Clang-GalaxyS9-GPU-MaliG72-arm64-Debug-All-Android_Vulkan"},
@@ -751,22 +707,11 @@
   {"name": "Test-ChromeOS-Clang-Octopus-GPU-IntelUHDGraphics600-x86_64-Release-All"},
   {"name": "Test-ChromeOS-Clang-Trogdor-GPU-Adreno618-arm64-Debug-All"},
   {"name": "Test-ChromeOS-Clang-Trogdor-GPU-Adreno618-arm64-Release-All"},
-  {
-    "name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Graphite_Native_Metal",
-    "cq_config": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*",
-        "dm/.+",
-        "src/shaders/.*"
-      ]
-    }
-  },
-  {"name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal"},
-  {"name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal_ColorSpaces"},
-  {"name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"},
-  {"name": "Test-Mac10.15.7-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal_ColorSpaces"},
-  {"name": "Test-Mac10.15.7-Clang-VMware7.1-CPU-AVX-x86_64-Debug-All-NativeFonts"},
+  {"name": "Test-Mac11-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Graphite_Native_Metal"},
+  {"name": "Test-Mac11-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal"},
+  {"name": "Test-Mac11-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal_ColorSpaces"},
+  {"name": "Test-Mac11-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal"},
+  {"name": "Test-Mac11-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-Metal_ColorSpaces"},
   {"name": "Test-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All"},
   {"name": "Test-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All-ANGLE"},
   {"name": "Test-Mac13-Clang-MacBookPro15.3-GPU-AppleM3-arm64-Debug-All-Graphite_Native_Metal"},
@@ -804,17 +749,6 @@
   },
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-ASAN_Graphite_Native_Metal_ColorSpaces"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn_Metal_FakeWGPU"},
-  {
-    "name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn_Metal_TintIR",
-    "cq_config": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*",
-        "dm/.+",
-        "DEPS"
-      ]
-    }
-  },
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Dawn_Metal_Vello"},
   {
     "name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Graphite_Native_Metal",
@@ -824,7 +758,6 @@
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-Metal"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Debug-All-NativeFonts"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Dawn_Metal"},
-  {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Dawn_Metal_TintIR"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Native_Metal"},
   {"name": "Test-Mac14-Clang-MacMini9.1-GPU-AppleM1-arm64-Release-All-Graphite_Native_Metal_ColorSpaces"},
   {
@@ -936,7 +869,18 @@
   {"name": "Test-Ubuntu24.04-Clang-GCE-CPU-Rome-x86_64-Debug-All"},
   {"name": "Test-Ubuntu24.04-Clang-GCE-CPU-Rome-x86_64-Release-All"},
   {"name": "Test-Ubuntu24.04-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader"},
+  {
+    "name": "Test-Ubuntu24.04-Clang-GCE-GPU-SwiftShader-x86_64-Debug-All-SwiftShader_Graphite",
+    "cq_config": {
+        "location_regexes": [
+            "(include|src)/gpu/graphite/vk/.*",
+            "(include|src)/sksl/generated/.*",
+            "tests/graphite/.*"
+        ]
+    }
+  },
   {"name": "Test-Ubuntu24.04-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader"},
+  {"name": "Test-Ubuntu24.04-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader_Graphite"},
   {"name": "Test-Ubuntu24.04-Clang-NUC11TZi5-CPU-AVX2-x86_64-Release-All"},
   {"name": "Test-Ubuntu24.04-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Debug-All"},
   {"name": "Test-Ubuntu24.04-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Debug-All-ASAN_Vulkan"},
@@ -953,14 +897,6 @@
   {"name": "Test-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All"},
   {"name": "Test-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-GL_ColorSpaces"},
   {"name": "Test-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"},
-  {"name": "Test-Ubuntu24.04-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All"},
-  {"name": "Test-Ubuntu24.04-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-ASAN_Vulkan"},
-  {"name": "Test-Ubuntu24.04-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-DDL3_ASAN_Vulkan"},
-  {"name": "Test-Ubuntu24.04-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan"},
-  {"name": "Test-Ubuntu24.04-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-DDL3_TSAN_Vulkan"},
-  {"name": "Test-Ubuntu24.04-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-TSAN_Graphite_Dawn_Vulkan"},
-  {"name": "Test-Ubuntu24.04-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-TSAN_Graphite_Native_Vulkan"},
-  {"name": "Test-Ubuntu24.04-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-TSAN_Vulkan"},
   {"name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit"},
   {
     "name": "Test-Ubuntu24.04-EMCC-GCE-CPU-AVX2-wasm-Release-All-CanvasKit",
@@ -1078,12 +1014,8 @@
   {"name": "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All-Metal"},
   {"name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Debug-All"},
   {"name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Debug-All-Metal"},
-  {"name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Debug-All-iOS12"},
-  {"name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Debug-All-iOS12_Metal"},
   {"name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All"},
   {"name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-Metal"},
-  {"name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-iOS12"},
-  {"name": "Test-iOS-Clang-iPhone8-GPU-AppleA11-arm64-Release-All-iOS12_Metal"},
   {"name": "Test-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Debug-All"},
   {"name": "Test-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Debug-All-Metal"},
   {"name": "Test-iOS18-Clang-iPhone11-GPU-AppleA13-arm64-Release-All"},

@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _21_colorGreen : packoffset(c0);
-    float4 _21_colorRed : packoffset(c1);
+    float4 _25_colorGreen : packoffset(c0);
+    float4 _25_colorRed : packoffset(c1);
 };
 
 
@@ -12,10 +12,10 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-bool return_in_one_case_bi(int _38)
+bool return_in_one_case_bi(int _41)
 {
     int val = 0;
-    switch (_38)
+    switch (_41)
     {
         case 1:
         {
@@ -31,7 +31,7 @@ bool return_in_one_case_bi(int _38)
     return val == 1;
 }
 
-bool return_in_default_bi(int _53)
+bool return_in_default_bi(int _56)
 {
     do
     {
@@ -39,9 +39,9 @@ bool return_in_default_bi(int _53)
     } while(false);
 }
 
-bool return_in_every_case_bi(int _59)
+bool return_in_every_case_bi(int _62)
 {
-    switch (_59)
+    switch (_62)
     {
         case 1:
         {
@@ -54,10 +54,10 @@ bool return_in_every_case_bi(int _59)
     }
 }
 
-bool return_in_every_case_no_default_bi(int _65)
+bool return_in_every_case_no_default_bi(int _68)
 {
     int val = 0;
-    switch (_65)
+    switch (_68)
     {
         case 1:
         {
@@ -68,15 +68,15 @@ bool return_in_every_case_no_default_bi(int _65)
             return true;
         }
     }
-    int _72 = 0 + 1;
-    val = _72;
-    return _72 == 1;
+    int _75 = 0 + 1;
+    val = _75;
+    return _75 == 1;
 }
 
-bool case_has_break_before_return_bi(int _74)
+bool case_has_break_before_return_bi(int _77)
 {
     int val = 0;
-    switch (_74)
+    switch (_77)
     {
         case 1:
         {
@@ -91,14 +91,14 @@ bool case_has_break_before_return_bi(int _74)
             return true;
         }
     }
-    int _82 = 0 + 1;
-    val = _82;
-    return _82 == 1;
+    int _85 = 0 + 1;
+    val = _85;
+    return _85 == 1;
 }
 
-bool case_has_break_after_return_bi(int _84)
+bool case_has_break_after_return_bi(int _87)
 {
-    switch (_84)
+    switch (_87)
     {
         case 1:
         {
@@ -115,33 +115,10 @@ bool case_has_break_after_return_bi(int _84)
     }
 }
 
-bool no_return_in_default_bi(int _91)
+bool no_return_in_default_bi(int _94)
 {
     int val = 0;
-    switch (_91)
-    {
-        case 1:
-        {
-            return false;
-        }
-        case 2:
-        {
-            return true;
-        }
-        default:
-        {
-            break;
-        }
-    }
-    int _99 = 0 + 1;
-    val = _99;
-    return _99 == 1;
-}
-
-bool empty_default_bi(int _101)
-{
-    int val = 0;
-    switch (_101)
+    switch (_94)
     {
         case 1:
         {
@@ -156,14 +133,37 @@ bool empty_default_bi(int _101)
             break;
         }
     }
-    int _109 = 0 + 1;
-    val = _109;
-    return _109 == 1;
+    int _102 = 0 + 1;
+    val = _102;
+    return _102 == 1;
 }
 
-bool return_with_fallthrough_bi(int _111)
+bool empty_default_bi(int _104)
 {
-    switch (_111)
+    int val = 0;
+    switch (_104)
+    {
+        case 1:
+        {
+            return false;
+        }
+        case 2:
+        {
+            return true;
+        }
+        default:
+        {
+            break;
+        }
+    }
+    int _112 = 0 + 1;
+    val = _112;
+    return _112 == 1;
+}
+
+bool return_with_fallthrough_bi(int _114)
+{
+    switch (_114)
     {
         case 1:
         case 2:
@@ -177,10 +177,10 @@ bool return_with_fallthrough_bi(int _111)
     }
 }
 
-bool fallthrough_ends_in_break_bi(int _118)
+bool fallthrough_ends_in_break_bi(int _121)
 {
     int val = 0;
-    switch (_118)
+    switch (_121)
     {
         case 1:
         case 2:
@@ -192,29 +192,29 @@ bool fallthrough_ends_in_break_bi(int _118)
             return false;
         }
     }
-    int _126 = 0 + 1;
-    val = _126;
-    return _126 == 1;
+    int _129 = 0 + 1;
+    val = _129;
+    return _129 == 1;
 }
 
-bool fallthrough_to_default_with_break_bi(int _128)
+bool fallthrough_to_default_with_break_bi(int _131)
 {
     int val = 0;
-    switch (_128)
+    switch (_131)
     {
         default:
         {
             break;
         }
     }
-    int _136 = 0 + 1;
-    val = _136;
-    return _136 == 1;
+    int _139 = 0 + 1;
+    val = _139;
+    return _139 == 1;
 }
 
-bool fallthrough_to_default_with_return_bi(int _138)
+bool fallthrough_to_default_with_return_bi(int _141)
 {
-    switch (_138)
+    switch (_141)
     {
         default:
         {
@@ -223,10 +223,10 @@ bool fallthrough_to_default_with_return_bi(int _138)
     }
 }
 
-bool fallthrough_with_loop_break_bi(int _145)
+bool fallthrough_with_loop_break_bi(int _148)
 {
     int val = 0;
-    switch (_145)
+    switch (_148)
     {
         case 1:
         {
@@ -244,10 +244,10 @@ bool fallthrough_with_loop_break_bi(int _145)
     }
 }
 
-bool fallthrough_with_loop_continue_bi(int _166)
+bool fallthrough_with_loop_continue_bi(int _169)
 {
     int val = 0;
-    switch (_166)
+    switch (_169)
     {
         case 1:
         {
@@ -264,157 +264,157 @@ bool fallthrough_with_loop_continue_bi(int _166)
     }
 }
 
-float4 main(float2 _187)
+float4 main(float2 _190)
 {
-    int _194 = int(_21_colorGreen.y);
-    int x = _194;
-    int _195 = _194;
-    bool _201 = false;
-    if (return_in_one_case_bi(_195))
+    int _197 = int(_25_colorGreen.y);
+    int x = _197;
+    int _198 = _197;
+    bool _204 = false;
+    if (return_in_one_case_bi(_198))
     {
-        int _199 = _194;
-        _201 = return_in_default_bi(_199);
+        int _202 = _197;
+        _204 = return_in_default_bi(_202);
     }
     else
     {
-        _201 = false;
+        _204 = false;
     }
-    bool _206 = false;
-    if (_201)
+    bool _209 = false;
+    if (_204)
     {
-        int _204 = _194;
-        _206 = return_in_every_case_bi(_204);
+        int _207 = _197;
+        _209 = return_in_every_case_bi(_207);
     }
     else
     {
-        _206 = false;
+        _209 = false;
     }
-    bool _211 = false;
-    if (_206)
+    bool _214 = false;
+    if (_209)
     {
-        int _209 = _194;
-        _211 = return_in_every_case_no_default_bi(_209);
+        int _212 = _197;
+        _214 = return_in_every_case_no_default_bi(_212);
     }
     else
     {
-        _211 = false;
+        _214 = false;
     }
-    bool _216 = false;
-    if (_211)
+    bool _219 = false;
+    if (_214)
     {
-        int _214 = _194;
-        _216 = case_has_break_before_return_bi(_214);
+        int _217 = _197;
+        _219 = case_has_break_before_return_bi(_217);
     }
     else
     {
-        _216 = false;
+        _219 = false;
     }
-    bool _221 = false;
-    if (_216)
+    bool _224 = false;
+    if (_219)
     {
-        int _219 = _194;
-        _221 = case_has_break_after_return_bi(_219);
+        int _222 = _197;
+        _224 = case_has_break_after_return_bi(_222);
     }
     else
     {
-        _221 = false;
+        _224 = false;
     }
-    bool _226 = false;
-    if (_221)
+    bool _229 = false;
+    if (_224)
     {
-        int _224 = _194;
-        _226 = no_return_in_default_bi(_224);
+        int _227 = _197;
+        _229 = no_return_in_default_bi(_227);
     }
     else
     {
-        _226 = false;
+        _229 = false;
     }
-    bool _231 = false;
-    if (_226)
+    bool _234 = false;
+    if (_229)
     {
-        int _229 = _194;
-        _231 = empty_default_bi(_229);
+        int _232 = _197;
+        _234 = empty_default_bi(_232);
     }
     else
     {
-        _231 = false;
+        _234 = false;
     }
-    bool _236 = false;
-    if (_231)
+    bool _239 = false;
+    if (_234)
     {
-        int _234 = _194;
-        _236 = return_with_fallthrough_bi(_234);
+        int _237 = _197;
+        _239 = return_with_fallthrough_bi(_237);
     }
     else
     {
-        _236 = false;
+        _239 = false;
     }
-    bool _241 = false;
-    if (_236)
+    bool _244 = false;
+    if (_239)
     {
-        int _239 = _194;
-        _241 = fallthrough_ends_in_break_bi(_239);
+        int _242 = _197;
+        _244 = fallthrough_ends_in_break_bi(_242);
     }
     else
     {
-        _241 = false;
+        _244 = false;
     }
-    bool _246 = false;
-    if (_241)
+    bool _249 = false;
+    if (_244)
     {
-        int _244 = _194;
-        _246 = fallthrough_to_default_with_break_bi(_244);
+        int _247 = _197;
+        _249 = fallthrough_to_default_with_break_bi(_247);
     }
     else
     {
-        _246 = false;
+        _249 = false;
     }
-    bool _251 = false;
-    if (_246)
+    bool _254 = false;
+    if (_249)
     {
-        int _249 = _194;
-        _251 = fallthrough_to_default_with_return_bi(_249);
+        int _252 = _197;
+        _254 = fallthrough_to_default_with_return_bi(_252);
     }
     else
     {
-        _251 = false;
+        _254 = false;
     }
-    bool _256 = false;
-    if (_251)
+    bool _259 = false;
+    if (_254)
     {
-        int _254 = _194;
-        _256 = fallthrough_with_loop_break_bi(_254);
+        int _257 = _197;
+        _259 = fallthrough_with_loop_break_bi(_257);
     }
     else
     {
-        _256 = false;
+        _259 = false;
     }
-    bool _261 = false;
-    if (_256)
+    bool _264 = false;
+    if (_259)
     {
-        int _259 = _194;
-        _261 = fallthrough_with_loop_continue_bi(_259);
+        int _262 = _197;
+        _264 = fallthrough_with_loop_continue_bi(_262);
     }
     else
     {
-        _261 = false;
+        _264 = false;
     }
-    float4 _262 = 0.0f.xxxx;
-    if (_261)
+    float4 _265 = 0.0f.xxxx;
+    if (_264)
     {
-        _262 = _21_colorGreen;
+        _265 = _25_colorGreen;
     }
     else
     {
-        _262 = _21_colorRed;
+        _265 = _25_colorRed;
     }
-    return _262;
+    return _265;
 }
 
 void frag_main()
 {
-    float2 _31 = 0.0f.xx;
-    sk_FragColor = main(_31);
+    float2 _35 = 0.0f.xx;
+    sk_FragColor = main(_35);
 }
 
 SPIRV_Cross_Output main()

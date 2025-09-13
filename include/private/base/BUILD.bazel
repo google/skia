@@ -14,8 +14,7 @@ skia_filegroup(
     srcs = SHARED_GPU_HEADERS,
 )
 
-# Headers with no corresponding .cpp files
-IWYU_HDRS = [
+PRIVATE_HEADERS = [
     "SkAPI.h",
     "SkASAN.h",
     "SkAlign.h",
@@ -44,20 +43,18 @@ IWYU_HDRS = [
     "SkThreadAnnotations.h",
     "SkTo.h",
     "SkTypeTraits.h",
+    "SkContainers.h",
+    "SkDeque.h",
+    "SkFloatingPoint.h",
+    "SkMalloc.h",
+    "SkSemaphore.h",
+    "SkTDArray.h",
+    "SkThreadID.h",
 ]
 
 skia_filegroup(
     name = "private_hdrs",
-    srcs = IWYU_HDRS + [
-        "SkContainers.h",
-        "SkDeque.h",
-        "SkFloatingPoint.h",
-        "SkMalloc.h",
-        "SkSemaphore.h",
-        "SkTDArray.h",
-        "SkThreadID.h",
-        ":shared_gpu_private_hdrs",
-    ],
+    srcs = PRIVATE_HEADERS + SHARED_GPU_HEADERS,
     visibility = [
         "//src/base:__pkg__",
         "//src/opts:__pkg__",
@@ -66,5 +63,5 @@ skia_filegroup(
 
 generate_cpp_files_for_headers(
     name = "headers_to_compile",
-    headers = IWYU_HDRS + SHARED_GPU_HEADERS,
+    headers = PRIVATE_HEADERS + SHARED_GPU_HEADERS,
 )

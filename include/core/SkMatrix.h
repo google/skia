@@ -9,8 +9,10 @@
 #define SkMatrix_DEFINED
 
 #include "include/core/SkPoint.h"
+#include "include/core/SkPoint3.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMacros.h"
@@ -18,24 +20,24 @@
 
 #include <cstdint>
 #include <cstring>
+#include <optional>
 
-struct SkPoint3;
 struct SkRSXform;
 struct SkSize;
 
 // Remove when clients are updated to live without this
 #define SK_SUPPORT_LEGACY_MATRIX_RECTTORECT
 
-/**
- *  When we transform points through a matrix containing perspective (the bottom row is something
- *  other than 0,0,1), the bruteforce math can produce confusing results (since we might divide
- *  by 0, or a negative w value). By default, methods that map rects and paths will apply
- *  perspective clipping, but this can be changed by specifying kYes to those methods.
- */
+#ifndef SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
+    #define SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
+#endif
+
+#ifdef SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
 enum class SkApplyPerspectiveClip {
     kNo,    //!< Don't pre-clip the geometry before applying the (perspective) matrix
     kYes,   //!< Do pre-clip the geometry before applying the (perspective) matrix
 };
+#endif
 
 /** \class SkMatrix
     SkMatrix holds a 3x3 matrix for transforming coordinates. This allows mapping
@@ -96,6 +98,8 @@ public:
     [[nodiscard]] static SkMatrix Translate(SkVector t) { return Translate(t.x(), t.y()); }
     [[nodiscard]] static SkMatrix Translate(SkIVector t) { return Translate(t.x(), t.y()); }
 
+    [[nodiscard]] static SkMatrix ScaleTranslate(float sx, float sy, float tx, float ty);
+
     /** Sets SkMatrix to rotate by |deg| about a pivot point at (0, 0).
 
         @param deg  rotation angle in degrees (positive rotates clockwise)
@@ -139,25 +143,6 @@ public:
         kCenter_ScaleToFit, //!< scales and aligns to center
         kEnd_ScaleToFit,    //!< scales and aligns to right and bottom
     };
-
-    /** Returns SkMatrix set to scale and translate src to dst. ScaleToFit selects
-        whether mapping completely fills dst or preserves the aspect ratio, and how to
-        align src within dst. Returns the identity SkMatrix if src is empty. If dst is
-        empty, returns SkMatrix set to:
-
-            | 0 0 0 |
-            | 0 0 0 |
-            | 0 0 1 |
-
-        @param src  SkRect to map from
-        @param dst  SkRect to map to
-        @param mode How to handle the mapping
-        @return     SkMatrix mapping src to dst
-    */
-    [[nodiscard]] static SkMatrix RectToRect(const SkRect& src, const SkRect& dst,
-                                             ScaleToFit mode = kFill_ScaleToFit) {
-        return MakeRectToRect(src, dst, mode);
-    }
 
     /** Sets SkMatrix to:
 
@@ -529,14 +514,14 @@ public:
     */
     SkMatrix& setTranslateY(SkScalar v) { return this->set(kMTransY, v); }
 
-    /** Sets input x-axis perspective factor, which causes mapXY() to vary input x-axis values
+    /** Sets input x-axis perspective factor, which causes mapPoints() to vary input x-axis values
         inversely proportional to input y-axis values.
 
         @param v  perspective factor
     */
     SkMatrix& setPerspX(SkScalar v) { return this->set(kMPersp0, v); }
 
-    /** Sets input y-axis perspective factor, which causes mapXY() to vary input y-axis values
+    /** Sets input y-axis perspective factor, which causes mapPoints() to vary input y-axis values
         inversely proportional to input x-axis values.
 
         @param v  perspective factor
@@ -1136,82 +1121,73 @@ public:
     */
     SkMatrix& postConcat(const SkMatrix& other);
 
-#ifndef SK_SUPPORT_LEGACY_MATRIX_RECTTORECT
-private:
-#endif
-    /** Sets SkMatrix to scale and translate src SkRect to dst SkRect. stf selects whether
-        mapping completely fills dst or preserves the aspect ratio, and how to align
-        src within dst. Returns false if src is empty, and sets SkMatrix to identity.
-        Returns true if dst is empty, and sets SkMatrix to:
+    /** If possible, return a matrix that will transform the src rect to the dst rect.
+     *  If the src is empty, this will return {}.
+     *  If the dst is empty, this will return the zero matrix (degenerate).
+     */
+    static std::optional<SkMatrix> Rect2Rect(const SkRect& src, const SkRect& dst,
+                                             ScaleToFit = kFill_ScaleToFit);
 
-            | 0 0 0 |
-            | 0 0 0 |
-            | 0 0 1 |
-
-        @param src  SkRect to map from
-        @param dst  SkRect to map to
-        @return     true if SkMatrix can represent SkRect mapping
-
-        example: https://fiddle.skia.org/c/@Matrix_setRectToRect
-    */
-    bool setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf);
-
-    /** Returns SkMatrix set to scale and translate src SkRect to dst SkRect. stf selects
-        whether mapping completely fills dst or preserves the aspect ratio, and how to
-        align src within dst. Returns the identity SkMatrix if src is empty. If dst is
-        empty, returns SkMatrix set to:
-
-            | 0 0 0 |
-            | 0 0 0 |
-            | 0 0 1 |
-
-        @param src  SkRect to map from
-        @param dst  SkRect to map to
-        @return     SkMatrix mapping src to dst
-    */
-    static SkMatrix MakeRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf) {
-        SkMatrix m;
-        m.setRectToRect(src, dst, stf);
-        return m;
+    static SkMatrix RectToRectOrIdentity(const SkRect& src, const SkRect& dst,
+                                         ScaleToFit stf = kFill_ScaleToFit) {
+        return Rect2Rect(src, dst, stf).value_or(SkMatrix::I());
     }
-#ifndef SK_SUPPORT_LEGACY_MATRIX_RECTTORECT
-public:
+
+#ifdef SK_SUPPORT_LEGACY_MATRIX_RECTTORECT
+    bool setRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf) {
+        if (auto mx = Rect2Rect(src, dst, stf)) {
+            *this = *mx;
+            return true;
+        }
+        this->reset();
+        return false;
+    }
+
+    static SkMatrix MakeRectToRect(const SkRect& src, const SkRect& dst, ScaleToFit stf) {
+        if (auto mx = Rect2Rect(src, dst, stf)) {
+            return *mx;
+        }
+        return SkMatrix::I();
+    }
+
+    [[nodiscard]] static SkMatrix RectToRect(const SkRect& src, const SkRect& dst,
+                                             ScaleToFit mode = kFill_ScaleToFit) {
+        return MakeRectToRect(src, dst, mode);
+    }
 #endif
 
-    /** Sets SkMatrix to map src to dst. count must be zero or greater, and four or less.
+    /** Compute a matrix from two polygons, such that if the matrix was applied
+     *  to the src polygon, it would produce the dst polygon.
+     *
+     *  If the size of the two spans are not equal, or if they are > 4, return {}.
+     *  If the resulting matrix is non-invertible, return {}.
+     *
+     *  example: https://fiddle.skia.org/c/@Matrix_setPolyToPoly
+     */
+    static std::optional<SkMatrix> PolyToPoly(SkSpan<const SkPoint> src, SkSpan<const SkPoint> dst);
 
-        If count is zero, sets SkMatrix to identity and returns true.
-        If count is one, sets SkMatrix to translate and returns true.
-        If count is two or more, sets SkMatrix to map SkPoint if possible; returns false
-        if SkMatrix cannot be constructed. If count is four, SkMatrix may include
-        perspective.
+    bool setPolyToPoly(SkSpan<const SkPoint> src, SkSpan<const SkPoint> dst) {
+        if (auto mx = PolyToPoly(src, dst)) {
+            *this = *mx;
+            return true;
+        }
+        return false;
+    }
 
-        @param src    SkPoint to map from
-        @param dst    SkPoint to map to
-        @param count  number of SkPoint in src and dst
-        @return       true if SkMatrix was constructed successfully
-
-        example: https://fiddle.skia.org/c/@Matrix_setPolyToPoly
+    /*
+     * If this matrix is invertible, return its inverse, else return {}.
     */
-    bool setPolyToPoly(const SkPoint src[], const SkPoint dst[], int count);
+    std::optional<SkMatrix> invert() const;
 
-    /** Sets inverse to reciprocal matrix, returning true if SkMatrix can be inverted.
-        Geometrically, if SkMatrix maps from source to destination, inverse SkMatrix
-        maps from destination to source. If SkMatrix can not be inverted, inverse is
-        unchanged.
-
-        @param inverse  storage for inverted SkMatrix; may be nullptr
-        @return         true if SkMatrix can be inverted
-    */
+    // deprecated
     [[nodiscard]] bool invert(SkMatrix* inverse) const {
-        // Allow the trivial case to be inlined.
-        if (this->isIdentity()) {
+        if (auto inv = this->invert()) {
             if (inverse) {
-                inverse->reset();
+                *inverse = *inv;
             }
             return true;
         }
-        return this->invertNonIdentity(inverse);
+        return false;
     }
 
     /** Fills affine with identity values in column major order.
@@ -1295,13 +1271,14 @@ public:
 
         src and dst may point to the same storage.
 
-        @param dst    storage for mapped SkPoint
-        @param src    SkPoint to transform
-        @param count  number of SkPoint to transform
+        @param dst    span where the transformed points are written
+        @param src    spen where the points are read from
+
+        Note: min(dst.size(), src.size()) is the number of points that will be written to dst.
 
         example: https://fiddle.skia.org/c/@Matrix_mapPoints
     */
-    void mapPoints(SkPoint dst[], const SkPoint src[], int count) const;
+    void mapPoints(SkSpan<SkPoint> dst, SkSpan<const SkPoint> src) const;
 
     /** Maps pts SkPoint array of length count in place. SkPoint are mapped by multiplying
         each SkPoint by SkMatrix. Given:
@@ -1323,11 +1300,10 @@ public:
             Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
                           |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 
-        @param pts    storage for mapped SkPoint
-        @param count  number of SkPoint to transform
+        @param pts    span of points to be transformed in-place
     */
-    void mapPoints(SkPoint pts[], int count) const {
-        this->mapPoints(pts, pts, count);
+    void mapPoints(SkSpan<SkPoint> pts) const {
+        this->mapPoints(pts, pts);
     }
 
     /** Maps src SkPoint3 array of length count to dst SkPoint3 array, which must of length count or
@@ -1343,18 +1319,34 @@ public:
             Matrix * src = |D E F| |y| = |Ax+By+Cz Dx+Ey+Fz Gx+Hy+Iz|
                            |G H I| |z|
 
-        @param dst    storage for mapped SkPoint3 array
-        @param src    SkPoint3 array to transform
-        @param count  items in SkPoint3 array to transform
+        @param dst    span where the transformed points are written
+        @param src    spen where the points are read from
+
+        Note: min(dst.size(), src.size()) is the number of points that will be written to dst.
 
         example: https://fiddle.skia.org/c/@Matrix_mapHomogeneousPoints
     */
-    void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const;
+    void mapHomogeneousPoints(SkSpan<SkPoint3> dst, SkSpan<const SkPoint3> src) const;
+
+    SkPoint3 mapHomogeneousPoint(SkPoint3 src) const {
+        SkPoint3 dst;
+        this->mapHomogeneousPoints({&dst, 1}, {&src, 1});
+        return dst;
+    }
 
     /**
      *  Returns homogeneous points, starting with 2D src points (with implied w = 1).
+     *
+     *  Note: min(dst.size(), src.size()) is the number of points that will be written to dst.
+
      */
-    void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint src[], int count) const;
+    void mapPointsToHomogeneous(SkSpan<SkPoint3> dst, SkSpan<const SkPoint> src) const;
+
+    SkPoint3 mapPointToHomogeneous(SkPoint src) const {
+        SkPoint3 dst;
+        this->mapPointsToHomogeneous({&dst, 1}, {&src, 1});
+        return dst;
+    }
 
     /** Returns SkPoint pt multiplied by SkMatrix. Given:
 
@@ -1369,56 +1361,27 @@ public:
                           |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 
         @param p  SkPoint to map
-        @return   mapped SkPoint
+        @return mapped SkPoint
     */
-    SkPoint mapPoint(SkPoint pt) const {
-        SkPoint result;
-        this->mapXY(pt.x(), pt.y(), &result);
-        return result;
+    SkPoint mapPoint(SkPoint p) const {
+        if (this->hasPerspective()) {
+            return this->mapPointPerspective(p);
+        } else {
+            return this->mapPointAffine(p);
+        }
     }
 
-    /** Maps SkPoint (x, y) to result. SkPoint is mapped by multiplying by SkMatrix. Given:
-
-                     | A B C |        | x |
-            Matrix = | D E F |,  pt = | y |
-                     | G H I |        | 1 |
-
-        result is computed as:
-
-                          |A B C| |x|                               Ax+By+C   Dx+Ey+F
-            Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-                          |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
-
-        @param x       x-axis value of SkPoint to map
-        @param y       y-axis value of SkPoint to map
-        @param result  storage for mapped SkPoint
-
-        example: https://fiddle.skia.org/c/@Matrix_mapXY
-    */
-    void mapXY(SkScalar x, SkScalar y, SkPoint* result) const;
-
-    /** Returns SkPoint (x, y) multiplied by SkMatrix. Given:
-
-                     | A B C |        | x |
-            Matrix = | D E F |,  pt = | y |
-                     | G H I |        | 1 |
-
-        result is computed as:
-
-                          |A B C| |x|                               Ax+By+C   Dx+Ey+F
-            Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
-                          |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
-
-        @param x  x-axis value of SkPoint to map
-        @param y  y-axis value of SkPoint to map
-        @return   mapped SkPoint
-    */
-    SkPoint mapXY(SkScalar x, SkScalar y) const {
-        SkPoint result;
-        this->mapXY(x,y, &result);
-        return result;
+    /*
+     *  If the caller knows the matrix has no perspective, this will inline the
+     *  math, making it more efficient than calling mapPoint().
+     */
+    SkPoint mapPointAffine(SkPoint p) const {
+        SkASSERT(!this->hasPerspective());
+        return {
+            (p.fX * fMat[0] + p.fY * fMat[1]) + fMat[2],
+            (p.fX * fMat[3] + p.fY * fMat[4]) + fMat[5],
+        };
     }
-
 
     /** Returns (0, 0) multiplied by SkMatrix. Given:
 
@@ -1439,7 +1402,7 @@ public:
                  y = this->getTranslateY();
         if (this->hasPerspective()) {
             SkScalar w = fMat[kMPersp2];
-            if (w) { w = 1 / w; }
+            if ((bool)w) { w = 1 / w; }
             x *= w;
             y *= w;
         }
@@ -1469,13 +1432,14 @@ public:
 
         src and dst may point to the same storage.
 
-        @param dst    storage for mapped vectors
-        @param src    vectors to transform
-        @param count  number of vectors to transform
+         @param dst    span where the transformed vectors are written
+         @param src    spen where the vectors are read from
+
+        Note: min(dst.size(), src.size()) is the number of points that will be written to dst.
 
         example: https://fiddle.skia.org/c/@Matrix_mapVectors
     */
-    void mapVectors(SkVector dst[], const SkVector src[], int count) const;
+    void mapVectors(SkSpan<SkVector> dst, SkSpan<const SkVector> src) const;
 
     /** Maps vecs vector array of length count in place, multiplying each vector by
         SkMatrix, treating SkMatrix translation as zero. Given:
@@ -1498,32 +1462,9 @@ public:
                            |G H I| |1|                           Gx+Hy+I   Gx+Hy+I
 
         @param vecs   vectors to transform, and storage for mapped vectors
-        @param count  number of vectors to transform
     */
-    void mapVectors(SkVector vecs[], int count) const {
-        this->mapVectors(vecs, vecs, count);
-    }
-
-    /** Maps vector (dx, dy) to result. Vector is mapped by multiplying by SkMatrix,
-        treating SkMatrix translation as zero. Given:
-
-                     | A B 0 |         | dx |
-            Matrix = | D E 0 |,  vec = | dy |
-                     | G H I |         |  1 |
-
-        each result vector is computed as:
-
-                       |A B 0| |dx|                                        A*dx+B*dy     D*dx+E*dy
-        Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , -----------
-                       |G H I| | 1|                                       G*dx+H*dy+I   G*dx+*dHy+I
-
-        @param dx      x-axis value of vector to map
-        @param dy      y-axis value of vector to map
-        @param result  storage for mapped vector
-    */
-    void mapVector(SkScalar dx, SkScalar dy, SkVector* result) const {
-        SkVector vec = { dx, dy };
-        this->mapVectors(result, &vec, 1);
+    void mapVectors(SkSpan<SkVector> vecs) const {
+        this->mapVectors(vecs, vecs);
     }
 
     /** Returns vector (dx, dy) multiplied by SkMatrix, treating SkMatrix translation as zero.
@@ -1543,10 +1484,12 @@ public:
         @param dy  y-axis value of vector to map
         @return    mapped vector
     */
-    SkVector mapVector(SkScalar dx, SkScalar dy) const {
-        SkVector vec = { dx, dy };
-        this->mapVectors(&vec, &vec, 1);
+    SkVector mapVector(SkVector vec) const {
+        this->mapVectors({&vec, 1});
         return vec;
+    }
+    SkVector mapVector(SkScalar dx, SkScalar dy) const {
+        return this->mapVector({dx, dy});
     }
 
     /** Sets dst to bounds of src corners mapped by SkMatrix.
@@ -1561,8 +1504,19 @@ public:
 
         example: https://fiddle.skia.org/c/@Matrix_mapRect
     */
-    bool mapRect(SkRect* dst, const SkRect& src,
-                 SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const;
+    bool mapRect(SkRect* dst, const SkRect& src) const;
+
+#ifdef SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
+    bool mapRect(SkRect* dst, const SkRect& src, SkApplyPerspectiveClip) const {
+        return this->mapRect(dst, src);
+    }
+    bool mapRect(SkRect* rect, SkApplyPerspectiveClip) const {
+        return this->mapRect(rect, *rect);
+    }
+    SkRect mapRect(const SkRect& src, SkApplyPerspectiveClip) const {
+        return this->mapRect(src);
+    }
+#endif
 
     /** Sets rect to bounds of rect corners mapped by SkMatrix.
         Returns true if mapped corners are computed rect corners.
@@ -1573,8 +1527,8 @@ public:
         @param pc    whether to apply perspective clipping
         @return      true if result is equivalent to mapped rect
     */
-    bool mapRect(SkRect* rect, SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const {
-        return this->mapRect(rect, *rect, pc);
+    bool mapRect(SkRect* rect) const {
+        return this->mapRect(rect, *rect);
     }
 
     /** Returns bounds of src corners mapped by SkMatrix.
@@ -1582,10 +1536,9 @@ public:
         @param src  rectangle to map
         @return     mapped bounds
     */
-    SkRect mapRect(const SkRect& src,
-                   SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes) const {
+    SkRect mapRect(const SkRect& src) const {
         SkRect dst;
-        (void)this->mapRect(&dst, src, pc);
+        (void)this->mapRect(&dst, src);
         return dst;
     }
 
@@ -1619,8 +1572,7 @@ public:
     */
     void mapRectToQuad(SkPoint dst[4], const SkRect& rect) const {
         // This could potentially be faster if we only transformed each x and y of the rect once.
-        rect.toQuad(dst);
-        this->mapPoints(dst, 4);
+        this->mapPoints({dst, 4}, rect.toQuad());
     }
 
     /** Sets dst to bounds of src corners mapped by SkMatrix. If matrix contains
@@ -1801,29 +1753,7 @@ public:
         @param ty  vertical translation to store
     */
     void setScaleTranslate(SkScalar sx, SkScalar sy, SkScalar tx, SkScalar ty) {
-        fMat[kMScaleX] = sx;
-        fMat[kMSkewX]  = 0;
-        fMat[kMTransX] = tx;
-
-        fMat[kMSkewY]  = 0;
-        fMat[kMScaleY] = sy;
-        fMat[kMTransY] = ty;
-
-        fMat[kMPersp0] = 0;
-        fMat[kMPersp1] = 0;
-        fMat[kMPersp2] = 1;
-
-        int mask = 0;
-        if (sx != 1 || sy != 1) {
-            mask |= kScale_Mask;
-        }
-        if (tx != 0.0f || ty != 0.0f) {
-            mask |= kTranslate_Mask;
-        }
-        if (sx != 0 && sy != 0) {
-            mask |= kRectStaysRect_Mask;
-        }
-        this->setTypeMask(mask);
+        *this = SkMatrix::ScaleTranslate(sx, sy, tx, ty);
     }
 
     /** Returns true if all elements of the matrix are finite. Returns false if any
@@ -1832,6 +1762,43 @@ public:
         @return  true if matrix has only finite elements
     */
     bool isFinite() const { return SkIsFinite(fMat, 9); }
+
+#ifdef SK_SUPPORT_UNSPANNED_APIS
+    bool setPolyToPoly(const SkPoint src[], const SkPoint dst[], int count) {
+        return this->setPolyToPoly({src, count}, {dst, count});
+    }
+
+    void mapPoints(SkPoint dst[], const SkPoint src[], int count) const {
+        this->mapPoints({dst, count}, {src, count});
+    }
+    void mapPoints(SkPoint pts[], int count) const {
+        this->mapPoints(pts, pts, count);
+    }
+
+    void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint3 src[], int count) const {
+        this->mapHomogeneousPoints({dst, count}, {src, count});
+    }
+    void mapHomogeneousPoints(SkPoint3 dst[], const SkPoint src[], int count) const {
+        this->mapPointsToHomogeneous({dst, count}, {src, count});
+    }
+
+    void mapVectors(SkVector dst[], const SkVector src[], int count) const {
+        this->mapVectors({dst, count}, {src, count});
+    }
+    void mapVectors(SkVector vecs[], int count) const {
+        this->mapVectors({vecs, count});
+    }
+    void mapXY(SkScalar x, SkScalar y, SkPoint* result) const {
+        *result = this->mapPoint({x, y});
+    }
+    SkPoint mapXY(SkScalar x, SkScalar y) const {
+        return this->mapPoint({x, y});
+    }
+    void mapVector(SkScalar dx, SkScalar dy, SkVector* result) const {
+        SkVector vec = { dx, dy };
+        this->mapVectors({result, 1}, {&vec, 1});
+    }
+#endif
 
 private:
     /** Set if the matrix will map a rectangle to another rectangle. This
@@ -1921,17 +1888,12 @@ private:
         }
     }
 
-    typedef void (*MapXYProc)(const SkMatrix& mat, SkScalar x, SkScalar y,
-                                 SkPoint* result);
-
-    static MapXYProc GetMapXYProc(TypeMask mask) {
-        SkASSERT((mask & ~kAllMasks) == 0);
-        return gMapXYProcs[mask & kAllMasks];
-    }
-
-    MapXYProc getMapXYProc() const {
-        return GetMapXYProc(this->getType());
-    }
+    /*
+     *  If the caller knows the matrix perspective, this dos the extra work to
+     *  correctly compute the mapping. mapPoint() calls this, but only after
+     *  checking if the matrix includes perspective.
+     */
+    SkPoint mapPointPerspective(SkPoint pt) const;
 
     typedef void (*MapPtsProc)(const SkMatrix& mat, SkPoint dst[],
                                   const SkPoint src[], int count);
@@ -1945,21 +1907,9 @@ private:
         return GetMapPtsProc(this->getType());
     }
 
-    [[nodiscard]] bool invertNonIdentity(SkMatrix* inverse) const;
-
     static bool Poly2Proc(const SkPoint[], SkMatrix*);
     static bool Poly3Proc(const SkPoint[], SkMatrix*);
     static bool Poly4Proc(const SkPoint[], SkMatrix*);
-
-    static void Identity_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-    static void Trans_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-    static void Scale_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-    static void ScaleTrans_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-    static void Rot_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-    static void RotTrans_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-    static void Persp_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
-
-    static const MapXYProc gMapXYProcs[];
 
     static void Identity_pts(const SkMatrix&, SkPoint[], const SkPoint[], int);
     static void Trans_pts(const SkMatrix&, SkPoint dst[], const SkPoint[], int);

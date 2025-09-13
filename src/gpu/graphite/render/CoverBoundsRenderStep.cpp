@@ -8,6 +8,8 @@
 #include "src/gpu/graphite/render/CoverBoundsRenderStep.h"
 
 #include "include/core/SkM44.h"
+#include "include/private/base/SkDebug.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/base/SkVx.h"
 #include "src/core/SkSLTypeShared.h"
 #include "src/gpu/BufferWriter.h"
@@ -16,6 +18,7 @@
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/geom/Rect.h"
 #include "src/gpu/graphite/geom/Shape.h"
@@ -26,7 +29,9 @@ namespace skgpu::graphite {
 CoverBoundsRenderStep::CoverBoundsRenderStep(RenderStep::RenderStepID renderStepID,
                                              DepthStencilSettings dsSettings)
         : RenderStep(renderStepID,
-                     Flags::kPerformsShading | Flags::kAppendInstances,
+                     Flags::kPerformsShading |
+                     Flags::kAppendInstances |
+                     Flags::kInverseFillsScissor,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
                      dsSettings,
@@ -77,8 +82,9 @@ void CoverBoundsRenderStep::writeVertices(DrawWriter* writer,
 }
 
 void CoverBoundsRenderStep::writeUniformsAndTextures(const DrawParams&,
-                                                     PipelineDataGatherer*) const {
+                                                     PipelineDataGatherer* gatherer) const {
     // All data is uploaded as instance attributes, so no uniforms are needed.
+    SkDEBUGCODE(gatherer->checkRewind());
 }
 
 }  // namespace skgpu::graphite

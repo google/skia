@@ -73,10 +73,9 @@
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
-#include "tools/gpu/FenceSync.h"
+#include "tools/ganesh/ProxyUtils.h"
+#include "tools/ganesh/TestContext.h"
 #include "tools/gpu/ManagedBackendTexture.h"
-#include "tools/gpu/ProxyUtils.h"
-#include "tools/gpu/TestContext.h"
 
 #include <algorithm>
 #include <cmath>
@@ -112,7 +111,7 @@ static void assert_equal(skiatest::Reporter* reporter, GrDirectContext* dContext
     REPORTER_ASSERT(reporter, widthA == b->width());
     REPORTER_ASSERT(reporter, heightA == b->height());
 
-    // see https://bug.skia.org/3965
+    // see skbug.com/40035123
     //REPORTER_ASSERT(reporter, a->isOpaque() == b->isOpaque());
 
     SkAutoPixmapStorage pmapA, pmapB;
@@ -233,7 +232,7 @@ static void test_encode(skiatest::Reporter* reporter, GrDirectContext* dContext,
 
     // Now see if we can instantiate an image from a subset of the surface/origEncoded
 
-    decoded = SkImages::DeferredFromEncodedData(origEncoded)->makeSubset(nullptr, ir);
+    decoded = SkImages::DeferredFromEncodedData(origEncoded)->makeSubset(nullptr, ir, {});
     REPORTER_ASSERT(reporter, decoded);
     assert_equal(reporter, dContext, image, &ir, decoded.get());
 }
@@ -688,18 +687,16 @@ DEF_GANESH_TEST(AbandonedContextImage, reporter, options, CtsEnforcement::kApiLe
 
         auto rsurf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
 
-        REPORTER_ASSERT(reporter, img->isValid(factory->get(type)));
-        REPORTER_ASSERT(reporter, img->isValid(rsurf->getCanvas()->recordingContext()));
+        REPORTER_ASSERT(reporter, img->isValid(factory->get(type)->asRecorder()));
 
         factory->get(type)->abandonContext();
-        REPORTER_ASSERT(reporter, !img->isValid(factory->get(type)));
-        REPORTER_ASSERT(reporter, !img->isValid(rsurf->getCanvas()->recordingContext()));
+        REPORTER_ASSERT(reporter, !img->isValid(factory->get(type)->asRecorder()));
         // This shouldn't crash.
         rsurf->getCanvas()->drawImage(img, 0, 0);
 
         // Give up all other refs on the context.
         factory.reset(nullptr);
-        REPORTER_ASSERT(reporter, !img->isValid(rsurf->getCanvas()->recordingContext()));
+
         // This shouldn't crash.
         rsurf->getCanvas()->drawImage(img, 0, 0);
     }
@@ -1351,7 +1348,7 @@ DEF_TEST(Image_makeColorSpace, r) {
     *srgbBitmap.getAddr32(0, 0) = SkSwizzle_RGBA_to_PMColor(0xFF604020);
     srgbBitmap.setImmutable();
     sk_sp<SkImage> srgbImage = srgbBitmap.asImage();
-    sk_sp<SkImage> p3Image = srgbImage->makeColorSpace(nullptr, p3);
+    sk_sp<SkImage> p3Image = srgbImage->makeColorSpace(nullptr, p3, {});
     SkBitmap p3Bitmap;
     bool success = p3Image->asLegacyBitmap(&p3Bitmap);
 
@@ -1362,7 +1359,7 @@ DEF_TEST(Image_makeColorSpace, r) {
     REPORTER_ASSERT(r, almost_equal(0x40, SkGetPackedG32(*p3Bitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x5E, SkGetPackedB32(*p3Bitmap.getAddr32(0, 0))));
 
-    sk_sp<SkImage> adobeImage = srgbImage->makeColorSpace(nullptr, adobeGamut);
+    sk_sp<SkImage> adobeImage = srgbImage->makeColorSpace(nullptr, adobeGamut, {});
     SkBitmap adobeBitmap;
     success = adobeImage->asLegacyBitmap(&adobeBitmap);
     REPORTER_ASSERT(r, success);
@@ -1371,7 +1368,7 @@ DEF_TEST(Image_makeColorSpace, r) {
     REPORTER_ASSERT(r, almost_equal(0x4C, SkGetPackedB32(*adobeBitmap.getAddr32(0, 0))));
 
     srgbImage = ToolUtils::GetResourceAsImage("images/1x1.png");
-    p3Image = srgbImage->makeColorSpace(nullptr, p3);
+    p3Image = srgbImage->makeColorSpace(nullptr, p3, {});
     success = p3Image->asLegacyBitmap(&p3Bitmap);
     REPORTER_ASSERT(r, success);
     REPORTER_ASSERT(r, almost_equal(0x8B, SkGetPackedR32(*p3Bitmap.getAddr32(0, 0))));
@@ -1673,7 +1670,7 @@ DEF_TEST(image_subset_encode_skbug_7752, reporter) {
         REPORTER_ASSERT(reporter, ToolUtils::equal_pixels(img.get(), img2.get()));
     };
     check_roundtrip(image); // should trivially pass
-    check_roundtrip(image->makeSubset(nullptr, {0, 0, W/2, H/2}));
-    check_roundtrip(image->makeSubset(nullptr, {W/2, H/2, W, H}));
-    check_roundtrip(image->makeColorSpace(nullptr, SkColorSpace::MakeSRGBLinear()));
+    check_roundtrip(image->makeSubset(nullptr, {0, 0, W / 2, H / 2}, {}));
+    check_roundtrip(image->makeSubset(nullptr, {W / 2, H / 2, W, H}, {}));
+    check_roundtrip(image->makeColorSpace(nullptr, SkColorSpace::MakeSRGBLinear(), {}));
 }

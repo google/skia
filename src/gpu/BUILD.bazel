@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_library", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -63,6 +63,7 @@ skia_cc_library(
         ":shared_hdrs",
         "//include/gpu:shared_gpu_hdrs",
         "//src/gpu/tessellate:tessellate_hdrs",
+        "//src/sksl/codegen:codegen_shared_exported",
         "//src/utils:shader_utils_hdrs",
     ],
     visibility = [
@@ -73,19 +74,5 @@ skia_cc_library(
         "//:core",
         "//src/base",
         "//src/core:core_priv",
-    ],
-)
-
-generate_cpp_files_for_headers(
-    name = "headers_to_compile",
-    headers = [
-        "AsyncReadTypes.h",
-        "BufferWriter.h",
-        "GpuRefCnt.h",
-        "GpuTypesPriv.h",
-        "KeyBuilder.h",
-        "MutableTextureStatePriv.h",
-        "SkRenderEngineAbortf.h",
-        "SwizzlePriv.h",
     ],
 )

@@ -90,8 +90,6 @@ public:
         int possibleWindow = sk_float_floor2int(sigma * 3 * sqrt(2 * SK_FloatPI) / 4 + 0.5f);
         return std::max(1, possibleWindow);
     }
-
-    // TODO: Bring in anything needed for the single-channel box blur from SkMaskBlurFilter
 };
 
 class SkBlurEngine::Algorithm {

@@ -2,7 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-PYTHON_VERSION_COMPATIBILITY = 'PY3'
 
 DEPS = [
   'build',
@@ -86,7 +85,6 @@ TEST_BUILDERS = [
   'Build-Mac-Clang-arm64-Release-Graphite_Native_Metal',
   'Build-Mac-Clang-arm64-Release-Graphite_Native_Dawn_Metal',
   'Build-Mac-Clang-x86_64-Release-Graphite_Native_Metal_Vello',
-  'Build-Mac-Clang-arm64-Debug-iOS_iOS12',
   'Build-Mac-Clang-x86_64-Debug-ASAN',
   'Build-Mac-Clang-x86_64-Debug-Metal',
   'Build-Mac-Clang-arm64-Release-iOS18_Metal',

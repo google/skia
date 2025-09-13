@@ -14,12 +14,13 @@
 
 class SkColorSpace;
 class GrDirectContext;
+class GrRecordingContext;
 class SkPixmap;
 struct AHardwareBuffer;
 
 namespace SkImages {
 
-/** (See Skia bug 7447)
+/** (See skbug.com/40038695)
     Creates SkImage from Android hardware buffer.
     Returned SkImage takes a reference on the buffer.
     Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.

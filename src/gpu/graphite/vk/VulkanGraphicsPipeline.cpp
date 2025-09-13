@@ -26,10 +26,12 @@
 #include "src/gpu/graphite/vk/VulkanRenderPass.h"
 #include "src/gpu/graphite/vk/VulkanResourceProvider.h"
 #include "src/gpu/graphite/vk/VulkanSharedContext.h"
+#include "src/gpu/graphite/vk/VulkanSpirvTransforms.h"
 #include "src/gpu/vk/VulkanUtilsPriv.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
 #include "src/sksl/ir/SkSLProgram.h"
+#include "src/utils/SkShaderUtils.h"
 
 namespace skgpu::graphite {
 
@@ -93,60 +95,77 @@ static inline VkFormat attrib_type_to_vkformat(VertexAttribType type) {
     SK_ABORT("Unknown vertex attrib type");
 }
 
-static void setup_vertex_input_state(
+// A helper to derive the vertex input state either for version 1 or 2 of the Vulkan structs.
+template <typename VertexInputBindingDescription, typename VertexInputAttributeDescription>
+static void get_vertex_input_state(
         VkVertexInputRate appendVertexRate,
         const SkSpan<const Attribute>& staticAttrs,
         const SkSpan<const Attribute>& appendAttrs,
-        VkPipelineVertexInputStateCreateInfo* vertexInputInfo,
-        skia_private::STArray<2, VkVertexInputBindingDescription, true>* bindingDescs,
-        skia_private::STArray<16, VkVertexInputAttributeDescription>* attributeDescs) {
-    // Setup attribute & binding descriptions
+        skia_private::STArray<2, VertexInputBindingDescription>& bindingDescs,
+        skia_private::STArray<16, VertexInputAttributeDescription>& attributeDescs,
+        const VertexInputBindingDescription& defaultBindingDesc,
+        const VertexInputAttributeDescription& defaultAttributeDesc) {
     int attribIndex = 0;
     size_t staticAttributeOffset = 0;
     for (auto attrib : staticAttrs) {
-        VkVertexInputAttributeDescription vkAttrib;
+        VertexInputAttributeDescription vkAttrib = defaultAttributeDesc;
         vkAttrib.location = attribIndex++;
         vkAttrib.binding = VulkanGraphicsPipeline::kStaticDataBufferIndex;
         vkAttrib.format = attrib_type_to_vkformat(attrib.cpuType());
         vkAttrib.offset = staticAttributeOffset;
         staticAttributeOffset += attrib.sizeAlign4();
-        attributeDescs->push_back(vkAttrib);
+        attributeDescs.push_back(vkAttrib);
     }
 
     size_t appendAttributeOffset = 0;
     for (auto attrib : appendAttrs) {
-        VkVertexInputAttributeDescription vkAttrib;
+        VertexInputAttributeDescription vkAttrib = defaultAttributeDesc;
         vkAttrib.location = attribIndex++;
         vkAttrib.binding = VulkanGraphicsPipeline::kAppendDataBufferIndex;
         vkAttrib.format = attrib_type_to_vkformat(attrib.cpuType());
         vkAttrib.offset = appendAttributeOffset;
         appendAttributeOffset += attrib.sizeAlign4();
-        attributeDescs->push_back(vkAttrib);
+        attributeDescs.push_back(vkAttrib);
     }
 
-    if (bindingDescs && !staticAttrs.empty()) {
-        bindingDescs->push_back() = {
-                VulkanGraphicsPipeline::kStaticDataBufferIndex,
-                (uint32_t) staticAttributeOffset,
-                VK_VERTEX_INPUT_RATE_VERTEX
-        };
+    if (!staticAttrs.empty()) {
+        VertexInputBindingDescription vkBinding = defaultBindingDesc;
+        vkBinding.binding = VulkanGraphicsPipeline::kStaticDataBufferIndex;
+        vkBinding.stride = (uint32_t)staticAttributeOffset;
+        vkBinding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        bindingDescs.push_back(vkBinding);
     }
-    if (bindingDescs && !appendAttrs.empty()) {
-        bindingDescs->push_back() = {
-                VulkanGraphicsPipeline::kAppendDataBufferIndex,
-                (uint32_t) appendAttributeOffset,
-                appendVertexRate
-        };
+    if (!appendAttrs.empty()) {
+        VertexInputBindingDescription vkBinding = defaultBindingDesc;
+        vkBinding.binding = VulkanGraphicsPipeline::kAppendDataBufferIndex;
+        vkBinding.stride = (uint32_t)appendAttributeOffset;
+        vkBinding.inputRate = appendVertexRate;
+        bindingDescs.push_back(vkBinding);
     }
+}
+
+static void setup_vertex_input_state(
+        VkVertexInputRate appendVertexRate,
+        const SkSpan<const Attribute>& staticAttrs,
+        const SkSpan<const Attribute>& appendAttrs,
+        VkPipelineVertexInputStateCreateInfo* vertexInputInfo,
+        skia_private::STArray<2, VkVertexInputBindingDescription>& bindingDescs,
+        skia_private::STArray<16, VkVertexInputAttributeDescription>& attributeDescs) {
+    // Setup attribute & binding descriptions
+    get_vertex_input_state(appendVertexRate,
+                           staticAttrs,
+                           appendAttrs,
+                           bindingDescs,
+                           attributeDescs,
+                           /*defaultBindingDesc=*/{},
+                           /*defaultAttributeDesc=*/{});
 
     *vertexInputInfo = {};
     vertexInputInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo->vertexBindingDescriptionCount = bindingDescs ? bindingDescs->size() : 0;
-    vertexInputInfo->pVertexBindingDescriptions =
-            bindingDescs && !bindingDescs->empty() ? bindingDescs->begin() : VK_NULL_HANDLE;
-    vertexInputInfo->vertexAttributeDescriptionCount = attributeDescs ? attributeDescs->size() : 0;
-    vertexInputInfo->pVertexAttributeDescriptions =
-            attributeDescs && !attributeDescs->empty() ? attributeDescs->begin() : VK_NULL_HANDLE;
+    vertexInputInfo->vertexBindingDescriptionCount = bindingDescs.size();
+    vertexInputInfo->pVertexBindingDescriptions = bindingDescs.begin();
+    vertexInputInfo->vertexAttributeDescriptionCount = attributeDescs.size();
+    vertexInputInfo->pVertexAttributeDescriptions = attributeDescs.begin();
 }
 
 static VkPrimitiveTopology primitive_type_to_vk_topology(PrimitiveType primitiveType) {
@@ -161,12 +180,20 @@ static VkPrimitiveTopology primitive_type_to_vk_topology(PrimitiveType primitive
     SkUNREACHABLE;
 }
 
-static void setup_input_assembly_state(PrimitiveType primitiveType,
+static void setup_input_assembly_state(const Caps& caps,
+                                       PrimitiveType primitiveType,
                                        VkPipelineInputAssemblyStateCreateInfo* inputAssemblyInfo) {
     *inputAssemblyInfo = {};
     inputAssemblyInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-    inputAssemblyInfo->primitiveRestartEnable = false;
-    inputAssemblyInfo->topology = primitive_type_to_vk_topology(primitiveType);
+    inputAssemblyInfo->primitiveRestartEnable = VK_FALSE;
+    if (caps.useBasicDynamicState()) {
+        // Note: when topology is dynamic state, the topology _class_ still needs to be specified.
+        inputAssemblyInfo->topology = primitiveType == PrimitiveType::kPoints
+                                              ? VK_PRIMITIVE_TOPOLOGY_POINT_LIST
+                                              : VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    } else {
+        inputAssemblyInfo->topology = primitive_type_to_vk_topology(primitiveType);
+    }
 }
 
 static VkStencilOp stencil_op_to_vk_stencil_op(StencilOp op) {
@@ -225,33 +252,41 @@ static void setup_stencil_op_state(VkStencilOpState* opState,
     opState->passOp = stencil_op_to_vk_stencil_op(face.fDepthStencilPassOp);
     opState->depthFailOp = stencil_op_to_vk_stencil_op(face.fDepthFailOp);
     opState->compareOp = compare_op_to_vk_compare_op(face.fCompareOp);
-    opState->compareMask = face.fReadMask; // TODO - check this.
+    opState->compareMask = face.fReadMask;
+    // Note: On some old ARM driver versions, dynamic state for stencil write mask doesn't work
+    // correctly in the presence of discard or alpha to coverage, if the static state provided
+    // when creating the pipeline has a value of 0.  However, both alphaToCoverageEnable and
+    // rasterizerDiscardEnable are always false in Graphite, so no driver bug workaround is
+    // necessary at the moment.
     opState->writeMask = face.fWriteMask;
     opState->reference = referenceValue;
 }
 
-static void setup_depth_stencil_state(const DepthStencilSettings& stencilSettings,
+static void setup_depth_stencil_state(const Caps& caps,
+                                      const DepthStencilSettings& stencilSettings,
                                       VkPipelineDepthStencilStateCreateInfo* stencilInfo) {
     SkASSERT(stencilSettings.fDepthTestEnabled ||
              stencilSettings.fDepthCompareOp == CompareOp::kAlways);
 
     *stencilInfo = {};
     stencilInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-    stencilInfo->depthTestEnable = stencilSettings.fDepthTestEnabled;
-    stencilInfo->depthWriteEnable = stencilSettings.fDepthWriteEnabled;
-    stencilInfo->depthCompareOp = compare_op_to_vk_compare_op(stencilSettings.fDepthCompareOp);
-    stencilInfo->depthBoundsTestEnable = VK_FALSE; // Default value TODO - Confirm
-    stencilInfo->stencilTestEnable = stencilSettings.fStencilTestEnabled;
-    if (stencilSettings.fStencilTestEnabled) {
-        setup_stencil_op_state(&stencilInfo->front,
-                               stencilSettings.fFrontStencil,
-                               stencilSettings.fStencilReferenceValue);
-        setup_stencil_op_state(&stencilInfo->back,
-                               stencilSettings.fBackStencil,
-                               stencilSettings.fStencilReferenceValue);
+    if (!caps.useBasicDynamicState()) {
+        stencilInfo->depthTestEnable = stencilSettings.fDepthTestEnabled;
+        stencilInfo->depthWriteEnable = stencilSettings.fDepthWriteEnabled;
+        stencilInfo->depthCompareOp = compare_op_to_vk_compare_op(stencilSettings.fDepthCompareOp);
+        stencilInfo->depthBoundsTestEnable = VK_FALSE;
+        stencilInfo->stencilTestEnable = stencilSettings.fStencilTestEnabled;
+        if (stencilSettings.fStencilTestEnabled) {
+            setup_stencil_op_state(&stencilInfo->front,
+                                   stencilSettings.fFrontStencil,
+                                   stencilSettings.fStencilReferenceValue);
+            setup_stencil_op_state(&stencilInfo->back,
+                                   stencilSettings.fBackStencil,
+                                   stencilSettings.fStencilReferenceValue);
+        }
+        stencilInfo->minDepthBounds = 0.0f;
+        stencilInfo->maxDepthBounds = 1.0f;
     }
-    stencilInfo->minDepthBounds = 0.0f;
-    stencilInfo->maxDepthBounds = 1.0f;
 }
 
 static void setup_viewport_scissor_state(VkPipelineViewportStateCreateInfo* viewportInfo) {
@@ -369,7 +404,8 @@ static VkBlendOp blend_equation_to_vk_blend_op(skgpu::BlendEquation equation) {
     return gTable[(int)equation];
 }
 
-static void setup_color_blend_state(const skgpu::BlendInfo& blendInfo,
+static void setup_color_blend_state(const VulkanCaps& caps,
+                                    const skgpu::BlendInfo& blendInfo,
                                     VkPipelineColorBlendStateCreateInfo* colorBlendInfo,
                                     VkPipelineColorBlendAttachmentState* attachmentState) {
     skgpu::BlendEquation equation = blendInfo.fEquation;
@@ -401,9 +437,15 @@ static void setup_color_blend_state(const skgpu::BlendInfo& blendInfo,
     colorBlendInfo->attachmentCount = 1;
     colorBlendInfo->pAttachments = attachmentState;
     // colorBlendInfo->blendConstants is set dynamically
+
+    if (caps.supportsRasterizationOrderColorAttachmentAccess()) {
+        colorBlendInfo->flags =
+                VK_PIPELINE_COLOR_BLEND_STATE_CREATE_RASTERIZATION_ORDER_ATTACHMENT_ACCESS_BIT_EXT;
+    }
 }
 
-static void setup_raster_state(bool isWireframe,
+static void setup_raster_state(const Caps& caps,
+                               bool isWireframe,
                                VkPipelineRasterizationStateCreateInfo* rasterInfo) {
     *rasterInfo = {};
     rasterInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -613,15 +655,131 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
     return result == VK_SUCCESS ? layout : VK_NULL_HANDLE;
 }
 
-static void setup_dynamic_state(VkPipelineDynamicStateCreateInfo* dynamicInfo,
-                                VkDynamicState* dynamicStates) {
-    *dynamicInfo = {};
+static VkResult create_shaders_pipeline(const VulkanSharedContext* sharedContext,
+                                        VkPipelineCache pipelineCache,
+                                        VkGraphicsPipelineCreateInfo& completePipelineInfo,
+                                        VkPipelineLibraryCreateInfoKHR& shadersLibraryInfo,
+                                        VkGraphicsPipelineLibraryCreateInfoEXT& libraryInfo,
+                                        VkPipeline* shadersPipeline) {
+    // Provide state that only pertains to the shaders subset to create the library.
+    VkGraphicsPipelineCreateInfo shadersPipelineCreateInfo = {};
+    shadersPipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    shadersPipelineCreateInfo.flags = 0;
+    shadersPipelineCreateInfo.stageCount = completePipelineInfo.stageCount;
+    shadersPipelineCreateInfo.pStages = completePipelineInfo.pStages;
+    shadersPipelineCreateInfo.pViewportState = completePipelineInfo.pViewportState;
+    shadersPipelineCreateInfo.pRasterizationState = completePipelineInfo.pRasterizationState;
+    shadersPipelineCreateInfo.pMultisampleState = completePipelineInfo.pMultisampleState;
+    shadersPipelineCreateInfo.pDepthStencilState = completePipelineInfo.pDepthStencilState;
+    shadersPipelineCreateInfo.pDynamicState = completePipelineInfo.pDynamicState;
+    shadersPipelineCreateInfo.layout = completePipelineInfo.layout;
+    shadersPipelineCreateInfo.renderPass = completePipelineInfo.renderPass;
+    shadersPipelineCreateInfo.subpass = completePipelineInfo.subpass;
+
+    // Specify that this is the shaders subset of the pipeline.
+    libraryInfo.flags = VK_GRAPHICS_PIPELINE_LIBRARY_PRE_RASTERIZATION_SHADERS_BIT_EXT |
+                        VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_SHADER_BIT_EXT;
+    shadersPipelineCreateInfo.flags |= VK_PIPELINE_CREATE_LIBRARY_BIT_KHR;
+    skgpu::AddToPNextChain(&shadersPipelineCreateInfo, &libraryInfo);
+
+    // Create the library.
+    VkResult result;
+    {
+        TRACE_EVENT0_ALWAYS("skia.shaders", "VkCreateGraphicsPipeline - shaders");
+        VULKAN_CALL_RESULT(sharedContext,
+                           result,
+                           CreateGraphicsPipelines(sharedContext->device(),
+                                                   pipelineCache,
+                                                   /*createInfoCount=*/1,
+                                                   &shadersPipelineCreateInfo,
+                                                   /*pAllocator=*/nullptr,
+                                                   shadersPipeline));
+    }
+    if (result != VK_SUCCESS) {
+        return result;
+    }
+
+    // The complete pipeline doesn't need all the state anymore, it inherits them from the
+    // shaders library.
+    completePipelineInfo.stageCount = 0;
+    completePipelineInfo.pStages = nullptr;
+    completePipelineInfo.pViewportState = nullptr;
+    completePipelineInfo.pRasterizationState = nullptr;
+    completePipelineInfo.pDepthStencilState = nullptr;
+
+    // The complete pipeline provides the vertex input and fragment output interface state.
+    // It's important that these states are not built into a separate library, because some
+    // drivers can generate more efficient blend code if they have information about the
+    // fragment shader.
+    libraryInfo.flags = VK_GRAPHICS_PIPELINE_LIBRARY_VERTEX_INPUT_INTERFACE_BIT_EXT |
+                        VK_GRAPHICS_PIPELINE_LIBRARY_FRAGMENT_OUTPUT_INTERFACE_BIT_EXT;
+    skgpu::AddToPNextChain(&completePipelineInfo, &libraryInfo);
+
+    // Tell the complete pipeline to link with the shaders library:
+    shadersLibraryInfo.libraryCount = 1;
+    shadersLibraryInfo.pLibraries = shadersPipeline;
+    AddToPNextChain(&completePipelineInfo, &shadersLibraryInfo);
+
+    return VK_SUCCESS;
+}
+
+using VkDynamicStateList = std::array<VkDynamicState, 22>;
+static void setup_dynamic_state(const Caps& caps,
+                                VkPipelineDynamicStateCreateInfo* dynamicInfo,
+                                VkDynamicStateList* dynamicStates) {
+    uint32_t count = 0;
+
+    // The following state is always dynamic in Graphite
+    (*dynamicStates)[count++] = VK_DYNAMIC_STATE_VIEWPORT;
+    (*dynamicStates)[count++] = VK_DYNAMIC_STATE_SCISSOR;
+    (*dynamicStates)[count++] = VK_DYNAMIC_STATE_BLEND_CONSTANTS;
+
+    if (caps.useBasicDynamicState()) {
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_LINE_WIDTH;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_BIAS;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_BOUNDS;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_STENCIL_COMPARE_MASK;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_STENCIL_WRITE_MASK;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_STENCIL_REFERENCE;
+
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_BOUNDS_TEST_ENABLE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_BIAS_ENABLE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_COMPARE_OP;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_DEPTH_WRITE_ENABLE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_STENCIL_OP;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_STENCIL_TEST_ENABLE;
+
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_PRIMITIVE_RESTART_ENABLE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY;
+
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_CULL_MODE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_FRONT_FACE;
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_RASTERIZER_DISCARD_ENABLE;
+    }
+    if (caps.useVertexInputDynamicState()) {
+        (*dynamicStates)[count++] = VK_DYNAMIC_STATE_VERTEX_INPUT_EXT;
+    }
+
+    // VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT_EXT and VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT_EXT are not
+    // used because Graphite only sets one scissor and viewport.
+    //
+    // VK_DYNAMIC_STATE_LOGIC_OP_EXT and VK_DYNAMIC_STATE_PATCH_CONTROL_POINTS_EXT are irrelevant to
+    // Graphite.
+    //
+    // VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE is not used because it will be eventually made
+    // obsolete with VK_EXT_vertex_input_dynamic_state and VK_EXT_graphics_pipeline_library.
+    //
+    // Dynamic state from VK_EXT_extended_dynamic_state3 is not yet used.  They _could_ be useful,
+    // but very few bits are universal and lots of the interesting bits are covered by
+    // VK_EXT_graphics_pipeline_library already.  Still, state like
+    // VK_DYNAMIC_STATE_DEPTH_CLAMP_ENABLE_EXT or VK_DYNAMIC_STATE_POLYGON_MODE_EXT could be used in
+    // the future.
+
+    memset(dynamicInfo, 0, sizeof(VkPipelineDynamicStateCreateInfo));
     dynamicInfo->sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicStates[0] = VK_DYNAMIC_STATE_VIEWPORT;
-    dynamicStates[1] = VK_DYNAMIC_STATE_SCISSOR;
-    dynamicStates[2] = VK_DYNAMIC_STATE_BLEND_CONSTANTS;
-    dynamicInfo->dynamicStateCount = 3;
-    dynamicInfo->pDynamicStates = dynamicStates;
+    dynamicInfo->dynamicStateCount = count;
+    dynamicInfo->pDynamicStates = dynamicStates->data();
 }
 
 VulkanProgramInfo::~VulkanProgramInfo() {
@@ -678,6 +836,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                              step,
                              pipelineDesc.paintParamsID(),
                              useStorageBuffers,
+                             renderPassDesc.fColorAttachment.fFormat,
                              renderPassDesc.fWriteSwizzle,
                              renderPassDesc.fDstReadStrategy,
                              &descContainer);
@@ -711,7 +870,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
 
     const std::string& fsSkSL = shaderInfo->fragmentSkSL();
     const bool hasFragmentSkSL = !fsSkSL.empty();
-    std::string vsSPIRV, fsSPIRV;
+    SkSL::NativeShader vsSPIRV, fsSPIRV;
     SkSL::Program::Interface vsInterface, fsInterface;
     if (hasFragmentSkSL) {
         if (!skgpu::SkSLToSPIRV(sharedContext->caps()->shaderCaps(),
@@ -723,6 +882,22 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
                                 errorHandler)) {
             return nullptr;
         }
+
+        // Apply transformations to the fragment shader SPIR-V if needed.
+        //
+        // SkSL->SPIR-V compilations are relatively costly. In anticipation of caching those
+        // operations, we allow certain transformations to be applied directly on to compiled
+        // SPIR-V. This allows the SkSL to be compiled only once, and the SPIR-V from the cache can
+        // simply be directly modified afterwards as needed. This is why transform options exist
+        // independently from flags used in SkSL->SPIRV compilation.
+        SPIRVTransformOptions options;
+        options.fMultisampleInputLoad =
+                renderPassDesc.fSampleCount > 1 &&
+                shaderInfo->dstReadStrategy() == DstReadStrategy::kReadFromInput;
+        if (options.fMultisampleInputLoad) {
+            fsSPIRV = TransformSPIRV(fsSPIRV, options);
+        }
+
         if(!program->setFragmentShader(CreateVulkanShaderModule(
                 sharedContext, fsSPIRV, VK_SHADER_STAGE_FRAGMENT_BIT))) {
             return nullptr;
@@ -763,83 +938,117 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::Make(
     // if there will be a load-MSAA subpass, the index changes. Ideally with
     // VK_dynamic_rendering_local_read, we can reuse pipelines across subpasses for layer elision.
     int subpassIndex = RenderPassDescWillLoadMSAAFromResolve(renderPassDesc) ? 1 : 0;
-    VkPipeline vkPipeline = MakePipeline(sharedContext,
-                                         rsrcProvider,
-                                         *program,
-                                         subpassIndex,
-                                         step->primitiveType(),
-                                         step->appendsVertices() ? VK_VERTEX_INPUT_RATE_VERTEX :
-                                                                   VK_VERTEX_INPUT_RATE_INSTANCE,
-                                         step->staticAttributes(),
-                                         step->appendAttributes(),
-                                         step->depthStencilSettings(),
-                                         shaderInfo->blendInfo(),
-                                         renderPassDesc);
+    VertexInputBindingDescriptions vertexBindingDescriptions;
+    VertexInputAttributeDescriptions vertexAttributeDescriptions;
+    VkPipeline shadersPipeline = VK_NULL_HANDLE;
+    VkPipeline vkPipeline = MakePipeline(
+            sharedContext,
+            rsrcProvider,
+            *program,
+            subpassIndex,
+            step->primitiveType(),
+            step->appendsVertices() ? VK_VERTEX_INPUT_RATE_VERTEX : VK_VERTEX_INPUT_RATE_INSTANCE,
+            step->staticAttributes(),
+            step->appendAttributes(),
+            vertexBindingDescriptions,
+            vertexAttributeDescriptions,
+            step->depthStencilSettings(),
+            shaderInfo->blendInfo(),
+            renderPassDesc,
+            &shadersPipeline);
 
     sk_sp<VulkanGraphicsPipeline> pipeline;
     if (vkPipeline) {
         PipelineInfo pipelineInfo{ *shaderInfo, pipelineCreationFlags,
                                     pipelineKey.hash(), compilationID };
 #if defined(GPU_TEST_UTILS)
-        pipelineInfo.fNativeVertexShader   = "SPIR-V disassembly not available";
-        pipelineInfo.fNativeFragmentShader = "SPIR-V disassmebly not available";
+        pipelineInfo.fNativeVertexShader = SkShaderUtils::SpirvAsHexStream(vsSPIRV.fBinary);
+        pipelineInfo.fNativeFragmentShader = SkShaderUtils::SpirvAsHexStream(fsSPIRV.fBinary);
 #endif
 
         pipeline = sk_sp<VulkanGraphicsPipeline>(
-            new VulkanGraphicsPipeline(sharedContext,
-                                       pipelineInfo,
-                                       program->releaseLayout(),
-                                       vkPipeline,
-                                       /*ownsPipelineLayout=*/true,
-                                       std::move(immutableSamplers)));
+                new VulkanGraphicsPipeline(sharedContext,
+                                           pipelineInfo,
+                                           program->releaseLayout(),
+                                           vkPipeline,
+                                           shadersPipeline,
+                                           /*ownsPipelineLayout=*/true,
+                                           std::move(immutableSamplers),
+                                           step->renderStepID(),
+                                           step->primitiveType(),
+                                           step->depthStencilSettings(),
+                                           std::move(vertexBindingDescriptions),
+                                           std::move(vertexAttributeDescriptions)));
     }
 
     return pipeline;
 }
 
-VkPipeline VulkanGraphicsPipeline::MakePipeline(const VulkanSharedContext* sharedContext,
-                                                VulkanResourceProvider* rsrcProvider,
-                                                const VulkanProgramInfo& program,
-                                                int subpassIndex,
-                                                PrimitiveType primitiveType,
-                                                VkVertexInputRate appendInputRate,
-                                                SkSpan<const Attribute> staticAttrs,
-                                                SkSpan<const Attribute> appendAttrs,
-                                                const DepthStencilSettings& depthStencilSettings,
-                                                const BlendInfo& blendInfo,
-                                                const RenderPassDesc& renderPassDesc) {
+VkPipeline VulkanGraphicsPipeline::MakePipeline(
+        const VulkanSharedContext* sharedContext,
+        VulkanResourceProvider* rsrcProvider,
+        const VulkanProgramInfo& program,
+        int subpassIndex,
+        PrimitiveType primitiveType,
+        VkVertexInputRate appendInputRate,
+        SkSpan<const Attribute> staticAttrs,
+        SkSpan<const Attribute> appendAttrs,
+        VertexInputBindingDescriptions& vertexBindingDescriptions,
+        VertexInputAttributeDescriptions& vertexAttributeDescriptions,
+        const DepthStencilSettings& depthStencilSettings,
+        const BlendInfo& blendInfo,
+        const RenderPassDesc& renderPassDesc,
+        VkPipeline* shadersPipeline) {
     SkASSERT(program.layout() && program.vs()); // but a fragment shader isn't required
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
-    skia_private::STArray<2, VkVertexInputBindingDescription, true> bindingDescs;
+    skia_private::STArray<2, VkVertexInputBindingDescription> bindingDescs;
     skia_private::STArray<16, VkVertexInputAttributeDescription> attributeDescs;
-    setup_vertex_input_state(appendInputRate,
-                             staticAttrs,
-                             appendAttrs,
-                             &vertexInputInfo,
-                             &bindingDescs,
-                             &attributeDescs);
+    if (sharedContext->caps()->useVertexInputDynamicState()) {
+        VkVertexInputBindingDescription2EXT defaultBindingDesc = {};
+        defaultBindingDesc.sType = VK_STRUCTURE_TYPE_VERTEX_INPUT_BINDING_DESCRIPTION_2_EXT;
+        defaultBindingDesc.divisor = 1;
+
+        VkVertexInputAttributeDescription2EXT defaultAttributeDesc = {};
+        defaultAttributeDesc.sType = VK_STRUCTURE_TYPE_VERTEX_INPUT_ATTRIBUTE_DESCRIPTION_2_EXT;
+
+        get_vertex_input_state(appendInputRate,
+                               staticAttrs,
+                               appendAttrs,
+                               vertexBindingDescriptions,
+                               vertexAttributeDescriptions,
+                               defaultBindingDesc,
+                               defaultAttributeDesc);
+    } else {
+        setup_vertex_input_state(appendInputRate,
+                                 staticAttrs,
+                                 appendAttrs,
+                                 &vertexInputInfo,
+                                 bindingDescs,
+                                 attributeDescs);
+    }
 
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
-    setup_input_assembly_state(primitiveType, &inputAssemblyInfo);
+    setup_input_assembly_state(*sharedContext->caps(), primitiveType, &inputAssemblyInfo);
 
     VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
-    setup_depth_stencil_state(depthStencilSettings, &depthStencilInfo);
+    setup_depth_stencil_state(*sharedContext->caps(), depthStencilSettings, &depthStencilInfo);
 
     VkPipelineViewportStateCreateInfo viewportInfo;
     setup_viewport_scissor_state(&viewportInfo);
 
     VkPipelineMultisampleStateCreateInfo multisampleInfo;
-    setup_multisample_state(renderPassDesc.fColorAttachment.fSampleCount, &multisampleInfo);
+    setup_multisample_state(renderPassDesc.fSampleCount, &multisampleInfo);
 
     // We will only have one color blend attachment per pipeline.
     VkPipelineColorBlendAttachmentState attachmentStates[1];
     VkPipelineColorBlendStateCreateInfo colorBlendInfo;
-    setup_color_blend_state(blendInfo, &colorBlendInfo, attachmentStates);
+    setup_color_blend_state(
+            sharedContext->vulkanCaps(), blendInfo, &colorBlendInfo, attachmentStates);
 
     VkPipelineRasterizationStateCreateInfo rasterInfo;
     // TODO: Check for wire frame mode once that is an available context option within graphite.
-    setup_raster_state(/*isWireframe=*/false, &rasterInfo);
+    setup_raster_state(*sharedContext->caps(), /*isWireframe=*/false, &rasterInfo);
 
     VkPipelineShaderStageCreateInfo pipelineShaderStages[2];
     setup_shader_stage_info(VK_SHADER_STAGE_VERTEX_BIT,
@@ -851,9 +1060,9 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(const VulkanSharedContext* share
                                 &pipelineShaderStages[1]);
     }
 
-    VkDynamicState dynamicStates[3];
+    VkDynamicStateList dynamicStates;
     VkPipelineDynamicStateCreateInfo dynamicInfo;
-    setup_dynamic_state(&dynamicInfo, dynamicStates);
+    setup_dynamic_state(*sharedContext->caps(), &dynamicInfo, &dynamicStates);
 
     sk_sp<VulkanRenderPass> compatibleRenderPass =
             rsrcProvider->findOrCreateRenderPass(renderPassDesc, /*compatibleOnly=*/true);
@@ -868,7 +1077,8 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(const VulkanSharedContext* share
     pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineCreateInfo.stageCount = program.fs() ? 2 : 1;
     pipelineCreateInfo.pStages = &pipelineShaderStages[0];
-    pipelineCreateInfo.pVertexInputState = &vertexInputInfo;
+    pipelineCreateInfo.pVertexInputState =
+            sharedContext->caps()->useVertexInputDynamicState() ? nullptr : &vertexInputInfo;
     pipelineCreateInfo.pInputAssemblyState = &inputAssemblyInfo;
     pipelineCreateInfo.pTessellationState = nullptr;
     pipelineCreateInfo.pViewportState = &viewportInfo;
@@ -882,6 +1092,32 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(const VulkanSharedContext* share
     pipelineCreateInfo.subpass = subpassIndex;
     pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineCreateInfo.basePipelineIndex = -1;
+
+    VkPipelineLibraryCreateInfoKHR shadersLibraryInfo = {};
+    shadersLibraryInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR;
+
+    VkGraphicsPipelineLibraryCreateInfoEXT libraryInfo = {};
+    libraryInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_LIBRARY_CREATE_INFO_EXT;
+
+    if (shadersPipeline && sharedContext->caps()->usePipelineLibraries()) {
+        // When using VK_EXT_graphics_pipeline_library, create the "shaders" subset of the pipeline,
+        // and then create the full pipeline (with the vertex input and fragment output state)
+        // immediately afterwards using the shaders library, which is a cheap operation.
+        // This is typically what vendors without dynamic blend state do in their GL drivers.
+        //
+        // This can be further optimized by the front-end creating fewer shaders pipelines, and only
+        // create multiple full pipelines out of them as needed.
+        VkResult result = create_shaders_pipeline(sharedContext,
+                                                  rsrcProvider->pipelineCache(),
+                                                  pipelineCreateInfo,
+                                                  shadersLibraryInfo,
+                                                  libraryInfo,
+                                                  shadersPipeline);
+        if (result != VK_SUCCESS) {
+            SKGPU_LOG_E("Failed to create pipeline library. Error: %d\n", result);
+            return VK_NULL_HANDLE;
+        }
+    }
 
     VkPipeline vkPipeline;
     VkResult result;
@@ -908,7 +1144,7 @@ std::unique_ptr<VulkanProgramInfo> VulkanGraphicsPipeline::CreateLoadMSAAProgram
         const VulkanSharedContext* sharedContext) {
     SkSL::ProgramSettings settings;
     settings.fForceNoRTFlip = true;
-    std::string vsSPIRV, fsSPIRV;
+    SkSL::NativeShader vsSPIRV, fsSPIRV;
     ShaderErrorHandler* errorHandler = sharedContext->caps()->shaderErrorHandler();
 
     std::string vertShaderText;
@@ -1000,28 +1236,41 @@ sk_sp<VulkanGraphicsPipeline> VulkanGraphicsPipeline::MakeLoadMSAAPipeline(
     // shader modules or layout. The pipeline layout will not be owned by the created
     // VulkanGraphicsPipeline either, as it's owned by the resource provider.
     SkASSERT(RenderPassDescWillLoadMSAAFromResolve(renderPassDesc));
+    VertexInputBindingDescriptions vertexBindingDescriptions;
+    VertexInputAttributeDescriptions vertexAttributeDescriptions;
     VkPipeline vkPipeline = MakePipeline(sharedContext,
                                          rsrcProvider,
                                          loadMSAAProgram,
-                                         /*subpassIndex=*/0, // loading to MSAA is always first
+                                         /*subpassIndex=*/0,  // loading to MSAA is always first
                                          PrimitiveType::kTriangleStrip,
                                          /*appendInputRate=*/{},
                                          /*staticAttrs=*/{},
                                          /*appendAttrs=*/{},
+                                         vertexBindingDescriptions,
+                                         vertexAttributeDescriptions,
                                          /*depthStencilSettings=*/{},
                                          /*blendInfo=*/{},
-                                         renderPassDesc);
+                                         renderPassDesc,
+                                         /*shadersPipeline=*/nullptr);
     if (!vkPipeline) {
         return nullptr;
     }
 
-    return sk_sp<VulkanGraphicsPipeline>(new VulkanGraphicsPipeline(
-        sharedContext,
-        /*pipelineInfo=*/{}, // leave empty for an internal pipeline
-        loadMSAAProgram.layout(),
-        vkPipeline,
-        /*ownsPipelineLayout=*/false,
-        /*immutableSamplers=*/{}));
+    SkASSERT(vertexBindingDescriptions.empty());
+    SkASSERT(vertexAttributeDescriptions.empty());
+    return sk_sp<VulkanGraphicsPipeline>(
+            new VulkanGraphicsPipeline(sharedContext,
+                                       /*pipelineInfo=*/{},  // leave empty for an internal pipeline
+                                       loadMSAAProgram.layout(),
+                                       vkPipeline,
+                                       /*shadersPipeline=*/VK_NULL_HANDLE,
+                                       /*ownsPipelineLayout=*/false,
+                                       /*immutableSamplers=*/{},
+                                       RenderStep::RenderStepID::kInvalid,
+                                       PrimitiveType::kTriangleStrip,
+                                       /*depthStencilSettings=*/{},
+                                       /*vertexBindingDescriptions=*/{},
+                                       /*vertexAttributeDescriptions=*/{}));
 }
 
 VulkanGraphicsPipeline::VulkanGraphicsPipeline(
@@ -1029,16 +1278,32 @@ VulkanGraphicsPipeline::VulkanGraphicsPipeline(
         const PipelineInfo& pipelineInfo,
         VkPipelineLayout pipelineLayout,
         VkPipeline pipeline,
+        VkPipeline shadersPipeline,
         bool ownsPipelineLayout,
-        skia_private::TArray<sk_sp<VulkanSampler>>&& immutableSamplers)
+        skia_private::TArray<sk_sp<VulkanSampler>>&& immutableSamplers,
+        RenderStep::RenderStepID renderStepID,
+        PrimitiveType primitiveType,
+        const DepthStencilSettings& depthStencilSettings,
+        VertexInputBindingDescriptions&& vertexBindingDescriptions,
+        VertexInputAttributeDescriptions&& vertexAttributeDescriptions)
     : GraphicsPipeline(sharedContext, pipelineInfo)
     , fPipelineLayout(pipelineLayout)
     , fPipeline(pipeline)
+    , fShadersPipeline(shadersPipeline)
     , fOwnsPipelineLayout(ownsPipelineLayout)
-    , fImmutableSamplers(std::move(immutableSamplers)) {}
+    , fImmutableSamplers(std::move(immutableSamplers))
+    , fPrimitiveType(primitiveType)
+    , fDepthStencilSettings(depthStencilSettings)
+    , fRenderStepID(renderStepID)
+    , fVertexBindingDescriptions(std::move(vertexBindingDescriptions))
+    , fVertexAttributeDescriptions(std::move(vertexAttributeDescriptions)) {}
 
 void VulkanGraphicsPipeline::freeGpuData() {
     auto sharedCtxt = static_cast<const VulkanSharedContext*>(this->sharedContext());
+    if (fShadersPipeline != VK_NULL_HANDLE) {
+        VULKAN_CALL(sharedCtxt->interface(),
+                    DestroyPipeline(sharedCtxt->device(), fShadersPipeline, nullptr));
+    }
     if (fPipeline != VK_NULL_HANDLE) {
         VULKAN_CALL(sharedCtxt->interface(),
             DestroyPipeline(sharedCtxt->device(), fPipeline, nullptr));
@@ -1046,6 +1311,154 @@ void VulkanGraphicsPipeline::freeGpuData() {
     if (fOwnsPipelineLayout && fPipelineLayout != VK_NULL_HANDLE) {
         VULKAN_CALL(sharedCtxt->interface(),
                     DestroyPipelineLayout(sharedCtxt->device(), fPipelineLayout, nullptr));
+    }
+}
+
+void VulkanGraphicsPipeline::updateDynamicState(const VulkanSharedContext* sharedContext,
+                                                VkCommandBuffer commandBuffer,
+                                                const VulkanGraphicsPipeline* previous) const {
+    // The front-end currently is unaware of dynamic state, so we have no choice but to calculate
+    // the diff between pipelines and update the state as needed.  This is not quite so efficient,
+    // but will need awareness from the front-end to optimize.
+    if (sharedContext->caps()->useBasicDynamicState()) {
+        const DepthStencilSettings& depthStencil = fDepthStencilSettings;
+        const DepthStencilSettings::Face& frontStencil = depthStencil.fFrontStencil;
+        const DepthStencilSettings::Face& backStencil = depthStencil.fBackStencil;
+
+        const DepthStencilSettings* pastDepthStencil =
+                previous ? &previous->fDepthStencilSettings : nullptr;
+        const DepthStencilSettings::Face* pastFrontStencil =
+                previous ? &pastDepthStencil->fFrontStencil : nullptr;
+        const DepthStencilSettings::Face* pastBackStencil =
+                previous ? &pastDepthStencil->fBackStencil : nullptr;
+
+        const bool frontStencilReadMaskDirty =
+                previous == nullptr || pastFrontStencil->fReadMask != frontStencil.fReadMask;
+        if (frontStencilReadMaskDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetStencilCompareMask(
+                                commandBuffer, VK_STENCIL_FACE_FRONT_BIT, frontStencil.fReadMask));
+        }
+        const bool backStencilReadMaskDirty =
+                previous == nullptr || pastBackStencil->fReadMask != backStencil.fReadMask;
+        if (backStencilReadMaskDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetStencilCompareMask(
+                                commandBuffer, VK_STENCIL_FACE_BACK_BIT, backStencil.fReadMask));
+        }
+        const bool frontStencilWriteMaskDirty =
+                previous == nullptr || pastFrontStencil->fWriteMask != frontStencil.fWriteMask;
+        if (frontStencilWriteMaskDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetStencilWriteMask(
+                                commandBuffer, VK_STENCIL_FACE_FRONT_BIT, frontStencil.fWriteMask));
+        }
+        const bool backStencilWriteMaskDirty =
+                previous == nullptr || pastBackStencil->fWriteMask != backStencil.fWriteMask;
+        if (backStencilWriteMaskDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetStencilWriteMask(
+                                commandBuffer, VK_STENCIL_FACE_BACK_BIT, backStencil.fWriteMask));
+        }
+        const bool stencilReferenceDirty =
+                previous == nullptr ||
+                pastDepthStencil->fStencilReferenceValue != depthStencil.fStencilReferenceValue;
+        if (stencilReferenceDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetStencilReference(commandBuffer,
+                                               VK_STENCIL_FACE_FRONT_AND_BACK,
+                                               depthStencil.fStencilReferenceValue));
+        }
+        const bool depthCompareOpDirty =
+                previous == nullptr ||
+                pastDepthStencil->fDepthCompareOp != depthStencil.fDepthCompareOp;
+        if (depthCompareOpDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetDepthCompareOp(
+                                commandBuffer,
+                                compare_op_to_vk_compare_op(depthStencil.fDepthCompareOp)));
+        }
+        const bool depthTestEnabledDirty =
+                previous == nullptr ||
+                pastDepthStencil->fDepthTestEnabled != depthStencil.fDepthTestEnabled;
+        if (depthTestEnabledDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetDepthTestEnable(commandBuffer, depthStencil.fDepthTestEnabled));
+        }
+        const bool depthWriteEnabledDirty =
+                previous == nullptr ||
+                pastDepthStencil->fDepthWriteEnabled != depthStencil.fDepthWriteEnabled;
+        if (depthWriteEnabledDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetDepthWriteEnable(commandBuffer, depthStencil.fDepthWriteEnabled));
+        }
+        const bool stencilTestEnabledDirty =
+                previous == nullptr ||
+                pastDepthStencil->fStencilTestEnabled != depthStencil.fStencilTestEnabled;
+        if (stencilTestEnabledDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetStencilTestEnable(commandBuffer, depthStencil.fStencilTestEnabled));
+        }
+        const bool frontStencilOpsDirty =
+                previous == nullptr ||
+                pastFrontStencil->fDepthStencilPassOp != frontStencil.fDepthStencilPassOp ||
+                pastFrontStencil->fStencilFailOp != frontStencil.fStencilFailOp ||
+                pastFrontStencil->fDepthFailOp != frontStencil.fDepthFailOp ||
+                pastFrontStencil->fCompareOp != frontStencil.fCompareOp;
+        if (frontStencilOpsDirty) {
+            VULKAN_CALL(
+                    sharedContext->interface(),
+                    CmdSetStencilOp(commandBuffer,
+                                    VK_STENCIL_FACE_FRONT_BIT,
+                                    /*failOp=*/
+                                    stencil_op_to_vk_stencil_op(frontStencil.fStencilFailOp),
+                                    /*passOp=*/
+                                    stencil_op_to_vk_stencil_op(frontStencil.fDepthStencilPassOp),
+                                    /*depthFailOp=*/
+                                    stencil_op_to_vk_stencil_op(frontStencil.fDepthFailOp),
+                                    /*compareOp=*/
+                                    compare_op_to_vk_compare_op(frontStencil.fCompareOp)));
+        }
+        const bool backStencilOpsDirty =
+                previous == nullptr ||
+                pastBackStencil->fDepthStencilPassOp != backStencil.fDepthStencilPassOp ||
+                pastBackStencil->fStencilFailOp != backStencil.fStencilFailOp ||
+                pastBackStencil->fDepthFailOp != backStencil.fDepthFailOp ||
+                pastBackStencil->fCompareOp != backStencil.fCompareOp;
+        if (backStencilOpsDirty) {
+            VULKAN_CALL(
+                    sharedContext->interface(),
+                    CmdSetStencilOp(commandBuffer,
+                                    VK_STENCIL_FACE_BACK_BIT,
+                                    /*failOp=*/
+                                    stencil_op_to_vk_stencil_op(backStencil.fStencilFailOp),
+                                    /*passOp=*/
+                                    stencil_op_to_vk_stencil_op(backStencil.fDepthStencilPassOp),
+                                    /*depthFailOp=*/
+                                    stencil_op_to_vk_stencil_op(backStencil.fDepthFailOp),
+                                    /*compareOp=*/
+                                    compare_op_to_vk_compare_op(backStencil.fCompareOp)));
+        }
+        const bool primitiveTypeDirty =
+                previous == nullptr || previous->fPrimitiveType != fPrimitiveType;
+        if (primitiveTypeDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetPrimitiveTopology(commandBuffer,
+                                                primitive_type_to_vk_topology(fPrimitiveType)));
+        }
+    }
+    if (sharedContext->caps()->useVertexInputDynamicState()) {
+        const bool vertexInputDirty =
+                previous == nullptr || previous->fRenderStepID != fRenderStepID;
+
+        if (vertexInputDirty) {
+            VULKAN_CALL(sharedContext->interface(),
+                        CmdSetVertexInput(commandBuffer,
+                                          fVertexBindingDescriptions.size(),
+                                          fVertexBindingDescriptions.begin(),
+                                          fVertexAttributeDescriptions.size(),
+                                          fVertexAttributeDescriptions.begin()));
+        }
     }
 }
 

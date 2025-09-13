@@ -6,11 +6,12 @@ void draw(SkCanvas* canvas) {
    SkPath path;
    path.conicTo(1, 2, 3, 4, .5f);
    SkPath::Iter iter(path, false);
-   SkPoint p[4];
-   SkDebugf("first verb is " "%s" "move\n", SkPath::kMove_Verb == iter.next(p) ? "" : "not ");
-   SkDebugf("next verb is " "%s" "conic\n", SkPath::kConic_Verb == iter.next(p) ? "" : "not ");
+   SkDebugf("first verb is " "%s" "move\n", SkPathVerb::kMove == iter.next()->fVerb ? "" : "not ");
+   auto rec = iter.next();
+   SkDebugf("next verb is " "%s" "conic\n", SkPathVerb::kConic == rec->fVerb ? "" : "not ");
+   SkSpan<const SkPoint> p = rec->fPoints;
    SkDebugf("conic points: {%g,%g}, {%g,%g}, {%g,%g}\n", p[0].fX, p[0].fY, p[1].fX, p[1].fY,
                 p[2].fX, p[2].fY);
-   SkDebugf("conic weight: %g\n", iter.conicWeight());
+   SkDebugf("conic weight: %g\n", rec->conicWeight());
 }
 }  // END FIDDLE

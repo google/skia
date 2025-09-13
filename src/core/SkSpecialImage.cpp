@@ -9,7 +9,6 @@
 
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
-#include "include/core/SkColorType.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPoint.h"
@@ -18,13 +17,6 @@
 #include "src/core/SkNextID.h"
 #include "src/image/SkImage_Base.h"
 #include "src/shaders/SkImageShader.h"
-
-// Currently, the raster imagefilters can only handle certain imageinfos. Call this to know if
-// a given info is supported.
-static bool valid_for_imagefilters(const SkImageInfo& info) {
-    // no support for other swizzles/depths yet
-    return info.colorType() == kN32_SkColorType;
-}
 
 SkSpecialImage::SkSpecialImage(const SkIRect& subset,
                                uint32_t uniqueID,
@@ -47,7 +39,7 @@ void SkSpecialImage::draw(SkCanvas* canvas,
                                                   : SkCanvas::kFast_SrcRectConstraint);
 }
 
-// TODO(skbug.com/12784): Once bitmap images work with SkImageShader::MakeSubset(), this does not
+// TODO(skbug.com/40043877): Once bitmap images work with SkImageShader::MakeSubset(), this does not
 // need to be virtual anymore.
 sk_sp<SkShader> SkSpecialImage::asShader(SkTileMode tileMode,
                                          const SkSamplingOptions& sampling,
@@ -102,7 +94,7 @@ public:
                              const SkMatrix& lm,
                              bool strict) const override {
         if (strict) {
-            // TODO(skbug.com/12784): SkImage::makeShader() doesn't support a subset yet, but
+            // TODO(skbug.com/40043877): SkImage::makeShader() doesn't support a subset yet, but
             // SkBitmap supports subset views so create the shader from the subset bitmap instead of
             // fBitmap.
             SkBitmap subsetBM;
@@ -133,19 +125,7 @@ sk_sp<SkSpecialImage> MakeFromRaster(const SkIRect& subset,
     if (!bm.pixelRef()) {
         return nullptr;
     }
-
-    const SkBitmap* srcBM = &bm;
-    SkBitmap tmp;
-    // ImageFilters only handle N32 at the moment, so force our src to be that
-    if (!valid_for_imagefilters(bm.info())) {
-        if (!tmp.tryAllocPixels(bm.info().makeColorType(kN32_SkColorType)) ||
-            !bm.readPixels(tmp.info(), tmp.getPixels(), tmp.rowBytes(), 0, 0))
-        {
-            return nullptr;
-        }
-        srcBM = &tmp;
-    }
-    return sk_make_sp<SkSpecialImage_Raster>(subset, *srcBM, props);
+    return sk_make_sp<SkSpecialImage_Raster>(subset, bm, props);
 }
 
 sk_sp<SkSpecialImage> CopyFromRaster(const SkIRect& subset,
@@ -156,20 +136,14 @@ sk_sp<SkSpecialImage> CopyFromRaster(const SkIRect& subset,
     if (!bm.pixelRef()) {
         return nullptr;
     }
-
     SkBitmap tmp;
     SkImageInfo info = bm.info().makeDimensions(subset.size());
-    // As in MakeFromRaster, must force src to N32 for ImageFilters
-    if (!valid_for_imagefilters(bm.info())) {
-        info = info.makeColorType(kN32_SkColorType);
-    }
     if (!tmp.tryAllocPixels(info)) {
         return nullptr;
     }
     if (!bm.readPixels(tmp.info(), tmp.getPixels(), tmp.rowBytes(), subset.x(), subset.y())) {
         return nullptr;
     }
-
     // Since we're making a copy of the raster, the resulting special image is the exact size
     // of the requested subset of the original and no longer needs to be offset by subset's left
     // and top, since those were relative to the original's buffer.

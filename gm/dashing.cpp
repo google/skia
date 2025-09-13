@@ -38,7 +38,7 @@ static void drawline(SkCanvas* canvas, int on, int off, const SkPaint& paint,
         SkIntToScalar(off),
     };
 
-    p.setPathEffect(SkDashPathEffect::Make(intervals, 2, phase));
+    p.setPathEffect(SkDashPathEffect::Make(intervals, phase));
     canvas->drawLine(startX, startY, finalX, finalY, p);
 }
 
@@ -135,7 +135,8 @@ static SkPath make_path_oval(const SkRect& bounds) {
 
 static SkPath make_path_star(const SkRect& bounds) {
     SkPath path = make_unit_star(5);
-    SkMatrix matrix = SkMatrix::RectToRect(path.getBounds(), bounds, SkMatrix::kCenter_ScaleToFit);
+    SkMatrix matrix = SkMatrix::RectToRectOrIdentity(path.getBounds(), bounds,
+                                                     SkMatrix::kCenter_ScaleToFit);
     return path.makeTransform(matrix);
 }
 
@@ -174,7 +175,7 @@ class Dashing2GM : public skiagm::GM {
                 vals[i] = SkIntToScalar(*intervals++);
             }
             SkScalar phase = vals[0] / 2;
-            paint.setPathEffect(SkDashPathEffect::Make(vals, count, phase));
+            paint.setPathEffect(SkDashPathEffect::Make({vals, count}, phase));
 
             for (size_t x = 0; x < std::size(gProc); ++x) {
                 SkPath path;
@@ -213,7 +214,7 @@ class Dashing3GM : public skiagm::GM {
 
         SkScalar intervals[2] = { dashLength, dashLength };
 
-        p.setPathEffect(SkDashPathEffect::Make(intervals, 2, phase));
+        p.setPathEffect(SkDashPathEffect::Make(intervals, phase));
 
         SkPoint pts[2];
 
@@ -221,7 +222,7 @@ class Dashing3GM : public skiagm::GM {
             pts[0].set(0, SkIntToScalar(y));
             pts[1].set(lineLength, SkIntToScalar(y));
 
-            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p);
+            canvas->drawPoints(SkCanvas::kLines_PointMode, pts, p);
         }
 
         p.setAntiAlias(true);
@@ -230,7 +231,7 @@ class Dashing3GM : public skiagm::GM {
             pts[0].set(SkIntToScalar(x), 0);
             pts[1].set(SkIntToScalar(x), lineLength);
 
-            canvas->drawPoints(SkCanvas::kLines_PointMode, 2, pts, p);
+            canvas->drawPoints(SkCanvas::kLines_PointMode, pts, p);
         }
     }
 
@@ -494,7 +495,7 @@ DEF_SIMPLE_GM(longpathdash, canvas, 612, 612) {
     p.setStroke(true);
     p.setStrokeWidth(1);
     const SkScalar intervals[] = { 1, 1 };
-    p.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 0));
+    p.setPathEffect(SkDashPathEffect::Make(intervals, 0));
 
     canvas->translate(50, 50);
     canvas->drawPath(lines, p);
@@ -507,7 +508,7 @@ DEF_SIMPLE_GM(longlinedash, canvas, 512, 512) {
     p.setStrokeWidth(80);
 
     const SkScalar intervals[] = { 2, 2 };
-    p.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 0));
+    p.setPathEffect(SkDashPathEffect::Make(intervals, 0));
     canvas->drawRect(SkRect::MakeXYWH(-10000, 100, 20000, 20), p);
 }
 
@@ -526,7 +527,7 @@ DEF_SIMPLE_GM(dashbigrects, canvas, 256, 256) {
     p.setStrokeCap(SkPaint::kButt_Cap);
 
     constexpr SkScalar intervals[] = { kOnOffInterval, kOnOffInterval };
-    p.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 0));
+    p.setPathEffect(SkDashPathEffect::Make(intervals, 0));
 
     constexpr float gWidthHeights[] = {
         1000000000.0f * kOnOffInterval + kOnOffInterval/2.0f,
@@ -577,7 +578,7 @@ DEF_SIMPLE_GM(dashtextcaps, canvas, 512, 512) {
     SkFont font(ToolUtils::DefaultPortableTypeface(), 100);
 
     const SkScalar intervals[] = { 12, 12 };
-    p.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 0));
+    p.setPathEffect(SkDashPathEffect::Make(intervals, 0));
     canvas->drawString("Sausages", 10, 90, font, p);
     canvas->drawLine(8, 120, 456, 120, p);
 }
@@ -585,7 +586,7 @@ DEF_SIMPLE_GM(dashtextcaps, canvas, 512, 512) {
 DEF_SIMPLE_GM(dash_line_zero_off_interval, canvas, 160, 330) {
     static constexpr SkScalar kIntervals[] = {5.f, 0.f, 2.f, 0.f};
     SkPaint dashPaint;
-    dashPaint.setPathEffect(SkDashPathEffect::Make(kIntervals, std::size(kIntervals), 0.f));
+    dashPaint.setPathEffect(SkDashPathEffect::Make(kIntervals, 0.f));
     SkASSERT(dashPaint.getPathEffect());
     dashPaint.setStroke(true);
     dashPaint.setStrokeWidth(20.f);
@@ -622,7 +623,7 @@ DEF_SIMPLE_GM(thin_aa_dash_lines, canvas, 330, 110) {
     SkPaint paint;
     static constexpr SkScalar kScale = 100.f;
     static constexpr SkScalar kIntervals[] = {10/kScale, 5/kScale};
-    paint.setPathEffect(SkDashPathEffect::Make(kIntervals, std::size(kIntervals), 0.f));
+    paint.setPathEffect(SkDashPathEffect::Make(kIntervals, 0.f));
     paint.setAntiAlias(true);
     paint.setStrokeWidth(0.25f/kScale);
     // substep moves the subpixel offset every iteration.
@@ -658,7 +659,7 @@ DEF_SIMPLE_GM(path_effect_empty_result, canvas, 100, 100) {
     path.close();
 
     float dashes[] = {2.f, 2.f};
-    p.setPathEffect(SkDashPathEffect::Make(dashes, 2, 0.f));
+    p.setPathEffect(SkDashPathEffect::Make(dashes, 0.f));
 
     canvas->drawPath(path, p);
 }

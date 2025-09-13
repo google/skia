@@ -659,7 +659,7 @@ sk_sp<SkShader> SkBitmap::makeShader(const SkSamplingOptions& sampling,
 sk_sp<SkShader> SkBitmap::makeShader(SkTileMode tmx, SkTileMode tmy,
                                      const SkSamplingOptions& sampling,
                                      const SkMatrix& lm) const {
-    if (!lm.invert(nullptr)) {
+    if (!lm.invert()) {
         return nullptr;
     }
     return SkImageShader::Make(SkMakeImageFromRasterBitmap(*this, kIfMutable_SkCopyPixelsMode),
@@ -669,7 +669,7 @@ sk_sp<SkShader> SkBitmap::makeShader(SkTileMode tmx, SkTileMode tmy,
 sk_sp<SkShader> SkBitmap::makeShader(SkTileMode tmx, SkTileMode tmy,
                                      const SkSamplingOptions& sampling,
                                      const SkMatrix* lm) const {
-    if (lm && !lm->invert(nullptr)) {
+    if (lm && !lm->invert()) {
         return nullptr;
     }
     return SkImageShader::Make(SkMakeImageFromRasterBitmap(*this, kIfMutable_SkCopyPixelsMode),

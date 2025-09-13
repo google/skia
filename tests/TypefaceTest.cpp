@@ -45,6 +45,10 @@
 #include <memory>
 #include <utility>
 
+namespace {
+[[maybe_unused]] static inline const constexpr bool kVerboseTypefaceTest = false;
+}
+
 static void TypefaceStyle_test(skiatest::Reporter* reporter,
                                uint16_t weight, uint16_t width, SkData* data)
 {
@@ -120,7 +124,7 @@ DEF_TEST(TypefaceStyle, reporter) {
     }
 }
 
-void TestSkTypefaceGlyphToUnicodeMap(SkTypeface& typeface, SkUnichar* codepoints) {
+void TestSkTypefaceGlyphToUnicodeMap(SkTypeface& typeface, SkSpan<SkUnichar> codepoints) {
     typeface.getGlyphToUnicodeMap(codepoints);
 }
 
@@ -176,7 +180,7 @@ DEF_TEST(TypefaceStyleVariable, reporter) {
 
     // Ensure that the font supports variable stuff
     Variation::Coordinate varPos[2];
-    int numAxes = typeface->getVariationDesignPosition(varPos, std::size(varPos));
+    int numAxes = typeface->getVariationDesignPosition(varPos);
     if (numAxes <= 0) {
         // Not all SkTypeface can get the variation.
         return;
@@ -259,6 +263,34 @@ DEF_TEST(TypefacePostScriptName, reporter) {
     }
 }
 
+DEF_TEST(TypefaceNameIter, reporter) {
+    sk_sp<SkTypeface> typeface(ToolUtils::CreateTypefaceFromResource("fonts/SpiderSymbol.ttf"));
+    if (!typeface) {
+        // Not all SkFontMgr can MakeFromStream().
+        return;
+    }
+
+    constexpr const char* expectedNames[] = { "SpiderSymbol", "Symbole de l'Araignée" };
+    std::vector<bool> found(std::size(expectedNames));
+    sk_sp<SkTypeface::LocalizedStrings> otherNames(typeface->createFamilyNameIterator());
+    SkTypeface::LocalizedString otherName;
+    while (otherNames->next(&otherName)) {
+        if constexpr (kVerboseTypefaceTest) {
+            SkDebugf("TypefaceNameIter %s, %s\n",
+                     otherName.fString.c_str(), otherName.fLanguage.c_str());
+        }
+        for (size_t i = 0; i < std::size(expectedNames); ++i) {
+            if (otherName.fString.equals(expectedNames[i])) {
+                found[i] = true;
+                break;
+            }
+        }
+    }
+    for (size_t i = 0; i < std::size(expectedNames); ++i) {
+        REPORTER_ASSERT(reporter, found[i], "Missing: %s", expectedNames[i]);
+    }
+}
+
 DEF_TEST(TypefaceRoundTrip, reporter) {
     sk_sp<SkTypeface> typeface(ToolUtils::CreateTypefaceFromResource("fonts/7630.otf"));
     if (!typeface) {
@@ -311,7 +343,7 @@ DEF_TEST(TypefaceAxes, reporter) {
             return;  // Not all SkFontMgr can makeFromStream().
         }
 
-        int actualCount = typeface->getVariationDesignPosition(nullptr, 0);
+        int actualCount = typeface->getVariationDesignPosition({});
         if (actualCount == -1) {
             return;  // The number of axes is unknown.
         }
@@ -322,7 +354,7 @@ DEF_TEST(TypefaceAxes, reporter) {
         REPORTER_ASSERT(reporter, typeface->getBounds().isEmpty());
 
         std::unique_ptr<Variation::Coordinate[]> actual(new Variation::Coordinate[actualCount]);
-        actualCount = typeface->getVariationDesignPosition(actual.get(), actualCount);
+        actualCount = typeface->getVariationDesignPosition({actual.get(), actualCount});
         if (actualCount == -1) {
             return;  // The position cannot be determined.
         }
@@ -447,14 +479,14 @@ DEF_TEST(TypefaceVariationIndex, reporter) {
         return;
     }
 
-    int count = typeface->getVariationDesignPosition(nullptr, 0);
+    int count = typeface->getVariationDesignPosition({});
     if (!(count == 1)) {
         REPORT_FAILURE(reporter, "count == 1", SkString());
         return;
     }
 
     SkFontArguments::VariationPosition::Coordinate positionRead[1];
-    count = typeface->getVariationDesignPosition(positionRead, std::size(positionRead));
+    count = typeface->getVariationDesignPosition(positionRead);
     if (count == -1) {
         return;
     }
@@ -497,7 +529,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
             return;  // Not all SkFontMgr can makeFromStream().
         }
 
-        int actualCount = typeface->getVariationDesignParameters(nullptr, 0);
+        int actualCount = typeface->getVariationDesignParameters({});
         if (actualCount == -1) {
             return;  // The number of axes is unknown.
         }
@@ -505,7 +537,7 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
                                   actualCount == alsoAcceptedAxisTagCount);
 
         std::unique_ptr<Axis[]> actual(new Axis[actualCount]);
-        actualCount = typeface->getVariationDesignParameters(actual.get(), actualCount);
+        actualCount = typeface->getVariationDesignParameters({actual.get(), actualCount});
         if (actualCount == -1) {
             return;  // The position cannot be determined.
         }
@@ -698,7 +730,8 @@ DEF_TEST(Typeface_glyph_to_char, reporter) {
         originalCodepoints[i] = SkUTF::NextUTF8(&text, textEnd);
     }
     std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[codepointCount]);
-    font.unicharsToGlyphs(originalCodepoints.get(), codepointCount, glyphs.get());
+    font.unicharsToGlyphs({originalCodepoints.get(), codepointCount},
+                          {glyphs.get(), codepointCount});
     if (std::any_of(glyphs.get(), glyphs.get()+codepointCount, [](SkGlyphID g){ return g == 0;})) {
         ERRORF(reporter, "Unexpected typeface \"%s\". Expected full support for emoji_sample_text.",
                familyName.c_str());
@@ -759,7 +792,7 @@ DEF_TEST(CustomTypeface_invalid_glyphid, reporter) {
 
     SkGlyphID glyph_ids[] = {0, 1};
     SkRect bounds[2];
-    custom_font.getBounds(glyph_ids, 2, bounds, nullptr);
+    custom_font.getBounds(glyph_ids, bounds, nullptr);
 
     REPORTER_ASSERT(reporter, bounds[0] == SkRect::MakeLTRB(10, 20, 30, 40));
     REPORTER_ASSERT(reporter, bounds[1] == SkRect::MakeLTRB(0, 0, 0, 0));

@@ -7,10 +7,14 @@
 
 #include "src/gpu/ganesh/GrStyle.h"
 
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
+#include "include/core/SkSpan.h"
 #include "src/utils/SkDashPathPriv.h"
 
 #include <cstring>
+#include <optional>
 
 int GrStyle::KeySize(const GrStyle &style, Apply apply, uint32_t flags) {
     static_assert(sizeof(uint32_t) == sizeof(SkScalar));
@@ -107,20 +111,19 @@ void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply, SkScala
 
 void GrStyle::initPathEffect(sk_sp<SkPathEffect> pe) {
     SkASSERT(!fPathEffect);
-    SkASSERT(SkPathEffectBase::DashType::kNone == fDashInfo.fType);
+    SkASSERT(DashType::kNone == fDashInfo.fType);
     SkASSERT(0 == fDashInfo.fIntervals.count());
     if (!pe) {
         return;
     }
-    SkPathEffectBase::DashInfo info;
-    if (SkPathEffectBase::DashType::kDash == as_PEB(pe)->asADash(&info)) {
+    if (auto info = as_PEB(pe)->asADash()) {
         SkStrokeRec::Style recStyle = fStrokeRec.getStyle();
         if (recStyle != SkStrokeRec::kFill_Style && recStyle != SkStrokeRec::kStrokeAndFill_Style) {
-            fDashInfo.fType = SkPathEffectBase::DashType::kDash;
-            fDashInfo.fIntervals.reset(info.fCount);
-            fDashInfo.fPhase = info.fPhase;
-            info.fIntervals = fDashInfo.fIntervals.get();
-            as_PEB(pe)->asADash(&info);
+            fDashInfo.fType = DashType::kDash;
+            fDashInfo.fIntervals.reset(info->fIntervals.size());
+            memcpy(fDashInfo.fIntervals.data(), info->fIntervals.data(),
+                   info->fIntervals.size_bytes());
+            fDashInfo.fPhase = info->fPhase;
             fPathEffect = std::move(pe);
         }
     } else {
@@ -133,31 +136,32 @@ bool GrStyle::applyPathEffect(SkPath* dst, SkStrokeRec* strokeRec, const SkPath&
         return false;
     }
 
-    // TODO: [skbug.com/11957] Plumb CTM callers and pass it to filterPath().
+    // TODO: [skbug.com/40043046] Plumb CTM callers and pass it to filterPath().
     SkASSERT(!fPathEffect->needsCTM());
 
-    if (SkPathEffectBase::DashType::kDash == fDashInfo.fType) {
+    SkPathBuilder builder;  // todo: change our api to take builder
+
+    if (DashType::kDash == fDashInfo.fType) {
         // We apply the dash ourselves here rather than using the path effect. This is so that
         // we can control whether the dasher applies the strokeRec for special cases. Our keying
         // depends on the strokeRec being applied separately.
         SkASSERT(!fPathEffect->needsCTM());  // Make sure specified PE doesn't need CTM
         SkScalar phase = fDashInfo.fPhase;
-        const SkScalar* intervals = fDashInfo.fIntervals.get();
-        int intervalCnt = fDashInfo.fIntervals.count();
         SkScalar initialLength;
-        int initialIndex;
+        size_t initialIndex;
         SkScalar intervalLength;
-        SkDashPath::CalcDashParameters(phase, intervals, intervalCnt, &initialLength,
+        SkDashPath::CalcDashParameters(phase, fDashInfo.fIntervals, &initialLength,
                                        &initialIndex, &intervalLength);
-        if (!SkDashPath::InternalFilter(dst, src, strokeRec,
-                                        nullptr, intervals, intervalCnt,
+        if (!SkDashPath::InternalFilter(&builder, src, strokeRec,
+                                        nullptr, fDashInfo.fIntervals,
                                         initialLength, initialIndex, intervalLength, phase,
                                         SkDashPath::StrokeRecApplication::kDisallow)) {
             return false;
         }
-    } else if (!fPathEffect->filterPath(dst, src, strokeRec, nullptr)) {
+    } else if (!fPathEffect->filterPath(&builder, src, strokeRec, nullptr, SkMatrix::I())) {
         return false;
     }
+    *dst = builder.detach();
     dst->setIsVolatile(true);
     return true;
 }
@@ -186,10 +190,13 @@ bool GrStyle::applyToPath(SkPath* dst, SkStrokeRec::InitStyle* style, const SkPa
     } else if (fPathEffect) {
         return false;
     }
+    // todo: change our signature to take pathbuilder, or return an optional<SkPath>
     if (strokeRec.needToApply()) {
-        if (!strokeRec.applyToPath(dst, *pathForStrokeRec)) {
+        SkPathBuilder builder;
+        if (!strokeRec.applyToPath(&builder, *pathForStrokeRec)) {
             return false;
         }
+        *dst = builder.detach();
         dst->setIsVolatile(true);
         *style = SkStrokeRec::kFill_InitStyle;
     } else if (!fPathEffect) {

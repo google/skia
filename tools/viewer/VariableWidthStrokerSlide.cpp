@@ -854,8 +854,8 @@ void SkVarWidthStroker::appendPathReversed(const SkPath& path, SkPath* result) {
     std::vector<SkPoint> points;
     verbs.resize(numVerbs);
     points.resize(numPoints);
-    path.getVerbs(verbs.data(), numVerbs);
-    path.getPoints(points.data(), numPoints);
+    path.getVerbs(verbs);
+    path.getPoints(points);
 
     for (int i = numVerbs - 1, j = numPoints; i >= 0; i--) {
         auto verb = static_cast<SkPath::Verb>(verbs[i]);
@@ -1121,8 +1121,7 @@ public:
 
         if (fShowSkeleton) {
             canvas->drawPath(path, fSkeletonPaint);
-            canvas->drawPoints(SkCanvas::kPoints_PointMode, fPathPts.size(), fPathPts.data(),
-                               fPtsPaint);
+            canvas->drawPoints(SkCanvas::kPoints_PointMode, fPathPts, fPtsPaint);
         }
 
         if (fShowStrokePoints) {
@@ -1240,12 +1239,10 @@ private:
             }
         }
 
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, pointsVec.size(), pointsVec.data(),
-                           fStrokePointsPaint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, pointsVec, fStrokePointsPaint);
         fStrokePointsPaint.setColor(SK_ColorBLUE);
         fStrokePointsPaint.setStrokeWidth(3);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, ctrlPts.size(), ctrlPts.data(),
-                           fStrokePointsPaint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, ctrlPts, fStrokePointsPaint);
         fStrokePointsPaint.setColor(SK_ColorBLACK);
         fStrokePointsPaint.setStrokeWidth(5);
     }

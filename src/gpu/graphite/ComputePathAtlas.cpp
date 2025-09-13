@@ -4,24 +4,29 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/graphite/ComputePathAtlas.h"
 
 #include "include/gpu/graphite/Recorder.h"
-#include "src/core/SkTraceEvent.h"
+#include "src/core/SkIPoint16.h"
 #include "src/gpu/graphite/AtlasProvider.h"
-#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/Log.h"
-#include "src/gpu/graphite/RasterPathUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/TextureUtils.h"
-#include "src/gpu/graphite/geom/Transform.h"
 
 #ifdef SK_ENABLE_VELLO_SHADERS
+#include "src/core/SkTraceEvent.h"
+#include "src/gpu/graphite/ContextOptionsPriv.h"
+#include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
+#include "src/gpu/graphite/geom/Transform.h"
 #endif
+
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+
+enum SkColorType : int;
 
 namespace skgpu::graphite {
 namespace {

@@ -24,7 +24,6 @@
 #include <memory>
 
 class GrDirectContext;
-class GrRecordingContext;
 class SharedGenerator;
 class SkBitmap;
 class SkCachedData;
@@ -34,8 +33,6 @@ class SkRecorder;
 class SkSurface;
 enum SkColorType : int;
 struct SkIRect;
-
-namespace skgpu { namespace graphite { class Recorder; } }
 
 class SkImage_Lazy : public SkImage_Base {
 public:
@@ -53,8 +50,11 @@ public:
     SkImage_Lazy(Validator* validator);
 
     // From SkImage.h
-    bool isValid(GrRecordingContext*) const override;
     bool isValid(SkRecorder*) const override;
+    sk_sp<SkImage> makeColorTypeAndColorSpace(SkRecorder*,
+                                              SkColorType targetColorType,
+                                              sk_sp<SkColorSpace> targetColorSpace,
+                                              RequiredProperties) const override;
 
     // From SkImage_Base.h
     bool onHasMipmaps() const override {
@@ -67,27 +67,24 @@ public:
     bool onReadPixels(GrDirectContext*, const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
     sk_sp<SkData> onRefEncoded() const override;
-    sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const override;
-    sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
-                                const SkIRect&,
-                                RequiredProperties) const override;
+
+    sk_sp<SkImage> onMakeSubset(SkRecorder*, const SkIRect&, RequiredProperties) const override;
 
     sk_sp<SkSurface> onMakeSurface(SkRecorder*, const SkImageInfo&) const override;
 
     bool getROPixels(GrDirectContext*, SkBitmap*, CachingHint) const override;
     SkImage_Base::Type type() const override { return SkImage_Base::Type::kLazy; }
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
-                                                GrDirectContext*) const override;
+
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
 
     void addUniqueIDListener(sk_sp<SkIDChangeListener>) const;
     sk_sp<SkCachedData> getPlanes(const SkYUVAPixmapInfo::SupportedDataTypes& supportedDataTypes,
                                   SkYUVAPixmaps* pixmaps) const;
 
-
     // Be careful with this. You need to acquire the mutex, as the generator might be shared
     // among several images.
     sk_sp<SharedGenerator> generator() const;
+
 protected:
     virtual bool readPixelsProxy(GrDirectContext*, const SkPixmap&) const { return false; }
 

@@ -12,6 +12,8 @@
 #include "include/core/SkPictureRecorder.h"
 #include "include/utils/SkNWayCanvas.h"
 
+class SkCaptureManager;
+
 /**
  * SkCaptureCanvas is designed to service a subset of client capture. It wraps a base canvas and
  * manages the life cycle of the recording canvases used for capture. When capture starts, it will
@@ -21,7 +23,7 @@
  */
 class SkCaptureCanvas : public SkNWayCanvas {
 public:
-    SkCaptureCanvas(SkCanvas*);
+    SkCaptureCanvas(SkCanvas*, SkCaptureManager*);
     ~SkCaptureCanvas() override;
 
     sk_sp<SkPicture> snapPicture();
@@ -109,9 +111,12 @@ private:
     void attachRecordingCanvas();
     void detachRecordingCanvas();
 
+    void onSurfaceDelete() override;
+
     bool fCapturing = false;
-    std::unique_ptr<SkPictureRecorder> fRecorder;
+    SkPictureRecorder fRecorder;
     SkCanvas* fBaseCanvas = nullptr;
+    SkCaptureManager* fManager = nullptr;
 
     // Hide NWay management functions as clients shouldn't be using these directly.
     void addCanvas(SkCanvas* canvas) override {SkNWayCanvas::addCanvas(canvas);}

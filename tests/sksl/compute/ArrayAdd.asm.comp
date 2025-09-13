@@ -1,61 +1,72 @@
                OpCapability Shader
-          %1 = OpExtInstImport "GLSL.std.450"
+          %5 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %main "main" %sk_GlobalInvocationID
                OpExecutionMode %main LocalSize 256 1 1
-               OpName %inputBlock "inputBlock"
+
+               ; Debug Information
+               OpName %inputBlock "inputBlock"      ; id %10
                OpMemberName %inputBlock 0 "offset"
                OpMemberName %inputBlock 1 "src"
-               OpName %outputBlock "outputBlock"
+               OpName %outputBlock "outputBlock"    ; id %13
                OpMemberName %outputBlock 0 "dest"
-               OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"
-               OpName %main "main"
+               OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"    ; id %15
+               OpName %main "main"                                      ; id %6
+
+               ; Annotations
                OpDecorate %_runtimearr_int ArrayStride 4
                OpMemberDecorate %inputBlock 0 Offset 0
                OpMemberDecorate %inputBlock 1 Offset 4
                OpDecorate %inputBlock BufferBlock
-               OpDecorate %3 Binding 0
-               OpDecorate %3 DescriptorSet 0
+               OpDecorate %7 Binding 0
+               OpDecorate %7 DescriptorSet 0
                OpMemberDecorate %outputBlock 0 Offset 0
                OpDecorate %outputBlock BufferBlock
-               OpDecorate %9 Binding 1
-               OpDecorate %9 DescriptorSet 0
+               OpDecorate %12 Binding 1
+               OpDecorate %12 DescriptorSet 0
                OpDecorate %sk_GlobalInvocationID BuiltIn GlobalInvocationId
-       %uint = OpTypeInt 32 0
+
+               ; Types, variables and constants
         %int = OpTypeInt 32 1
-%_runtimearr_int = OpTypeRuntimeArray %int
- %inputBlock = OpTypeStruct %uint %_runtimearr_int
+%_ptr_Input_int = OpTypePointer Input %int
+       %uint = OpTypeInt 32 0
+%_runtimearr_int = OpTypeRuntimeArray %int          ; ArrayStride 4
+ %inputBlock = OpTypeStruct %uint %_runtimearr_int  ; BufferBlock
 %_ptr_Uniform_inputBlock = OpTypePointer Uniform %inputBlock
-          %3 = OpVariable %_ptr_Uniform_inputBlock Uniform
-%outputBlock = OpTypeStruct %_runtimearr_int
+          %7 = OpVariable %_ptr_Uniform_inputBlock Uniform  ; Binding 0, DescriptorSet 0
+%outputBlock = OpTypeStruct %_runtimearr_int                ; BufferBlock
 %_ptr_Uniform_outputBlock = OpTypePointer Uniform %outputBlock
-          %9 = OpVariable %_ptr_Uniform_outputBlock Uniform
+         %12 = OpVariable %_ptr_Uniform_outputBlock Uniform     ; Binding 1, DescriptorSet 0
      %v3uint = OpTypeVector %uint 3
 %_ptr_Input_v3uint = OpTypePointer Input %v3uint
-%sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input    ; BuiltIn GlobalInvocationId
        %void = OpTypeVoid
-         %16 = OpTypeFunction %void
+         %19 = OpTypeFunction %void
       %int_1 = OpConstant %int 1
 %_ptr_Uniform_int = OpTypePointer Uniform %int
       %int_0 = OpConstant %int 0
 %_ptr_Uniform_uint = OpTypePointer Uniform %uint
-       %main = OpFunction %void None %16
-         %17 = OpLabel
-         %19 = OpLoad %v3uint %sk_GlobalInvocationID
-         %20 = OpCompositeExtract %uint %19 0
-         %21 = OpAccessChain %_ptr_Uniform_int %3 %int_1 %20
-         %23 = OpLoad %int %21
-         %24 = OpLoad %v3uint %sk_GlobalInvocationID
-         %25 = OpCompositeExtract %uint %24 0
-         %27 = OpAccessChain %_ptr_Uniform_uint %3 %int_0
-         %29 = OpLoad %uint %27
-         %30 = OpIAdd %uint %25 %29
-         %31 = OpAccessChain %_ptr_Uniform_int %3 %int_1 %30
-         %32 = OpLoad %int %31
-         %33 = OpIAdd %int %23 %32
-         %34 = OpLoad %v3uint %sk_GlobalInvocationID
-         %35 = OpCompositeExtract %uint %34 0
-         %36 = OpAccessChain %_ptr_Uniform_int %9 %int_0 %35
-               OpStore %36 %33
-               OpReturn
+
+
+               ; Function main
+       %main = OpFunction %void None %19
+
+         %20 = OpLabel
+         %22 =   OpLoad %v3uint %sk_GlobalInvocationID
+         %23 =   OpCompositeExtract %uint %22 0
+         %24 =   OpAccessChain %_ptr_Uniform_int %7 %int_1 %23
+         %26 =   OpLoad %int %24
+         %27 =   OpLoad %v3uint %sk_GlobalInvocationID
+         %28 =   OpCompositeExtract %uint %27 0
+         %30 =   OpAccessChain %_ptr_Uniform_uint %7 %int_0
+         %32 =   OpLoad %uint %30
+         %33 =   OpIAdd %uint %28 %32
+         %34 =   OpAccessChain %_ptr_Uniform_int %7 %int_1 %33
+         %35 =   OpLoad %int %34
+         %36 =   OpIAdd %int %26 %35
+         %37 =   OpLoad %v3uint %sk_GlobalInvocationID
+         %38 =   OpCompositeExtract %uint %37 0
+         %39 =   OpAccessChain %_ptr_Uniform_int %12 %int_0 %38
+                 OpStore %39 %36
+                 OpReturn
                OpFunctionEnd

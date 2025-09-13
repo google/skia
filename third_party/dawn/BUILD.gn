@@ -1,0 +1,45 @@
+config("tint_api_config") {
+  include_dirs = [
+    "../externals/dawn",
+    "../externals/dawn/include",
+  ]
+
+  defines = [
+    "TINT_BUILD_WGSL_READER=1",
+    "TINT_BUILD_WGSL_WRITER=1",
+  ]
+
+  # The build script produces libtint_combined.a in the root output directory.
+  lib_dirs = [ "$root_out_dir" ]
+  libs = [ "tint_combined" ]
+}
+
+# This action invokes a python script to build Tint using CMake. We use
+# CMake instead of the GN rules because Dawn/Tint's GN rules require Chromium's
+# toolchain, which we, Skia, do not want to have a dependency on.
+# The result is a single static library that can be linked into Skia.
+action("tint_cmake") {
+  script = "build_tint.py"
+
+  sources = [ "build_tint.py" ]
+
+  # The script will place the final library in this location.
+  outputs = [ "$root_out_dir/libtint_combined.a" ]
+
+  # The script also generates a depfile that lists all of Tint's sources. This
+  # allows Ninja to know when to re-run the build script.
+  depfile = "$target_gen_dir/tint_combined.a.d"
+
+  # Pass the output path and depfile path to the script so it knows where to
+  # place the library and the dependency file.
+  args = [
+    rebase_path(outputs[0], root_build_dir),
+    rebase_path(depfile, root_build_dir),
+  ]
+}
+
+group("tint") {
+  deps = [ ":tint_cmake" ]
+
+  public_configs = [ ":tint_api_config" ]
+}

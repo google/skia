@@ -82,11 +82,14 @@ skia_cc_library(
         "//tools:tool_utils",
         "//tools/flags:cmd_flags",
     ] + select({
-        "@platforms//os:android": ["@skia//:fontmgr_android_freetype"],
+        "@platforms//os:android": [
+            "//src/ports:freetype_support",
+            "@skia//:fontmgr_android",
+        ],
         "@platforms//os:linux": [
             "//src/ports:fontations_support",
             "//src/ports:freetype_support",
-            "@skia//:fontmgr_fontconfig_freetype",
+            "@skia//:fontmgr_fontconfig",
         ],
         "@platforms//os:macos": ["@skia//:fontmgr_coretext"],
         "//conditions:default": ["//src/ports:fontmgr_fontations_empty"],

@@ -24,7 +24,7 @@ import shutil
 # side. By using DevTools to watch what happens when the Download Family button is pressed, and
 # then using sha256sum to verify the file in the .zip (with the nice name) matches the
 # indecipherable url, one can find the following link. I mirrored this to
-# https://storage.googleapis.com/skia-cdn/google-web-fonts/NotoNaskhArabic-Regular.ttf
+# https://cdn.skia.org/google-web-fonts/NotoNaskhArabic-Regular.ttf
 # in case the gstatic links "expire" at some point.
 # We cannot easily look at the .woff2 links from
 # https://fonts.googleapis.com/css2?family=Noto%20Naskh%20Arabic

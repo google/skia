@@ -40,8 +40,7 @@ void draw(SkCanvas* canvas) {
 
     canvas->drawPath(path, p);
 
-    SkPath fillpath;
-    skpathutils::FillPathWithPaint(path, p, &fillpath);
+    SkPath fillpath = skpathutils::FillPathWithPaint(path, p);
 
     SkPaint fillp;
     fillp.setColor(SK_ColorBLACK);

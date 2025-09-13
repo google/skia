@@ -33,7 +33,7 @@ std::tuple<GrSurfaceProxyView, GrColorType> SkImage_RasterPinnable::asView(
         // We ignore the mipmap request here. If the pinned view isn't mipmapped then we will
         // fallback to bilinear. The pin API is used by Android Framework which does not expose
         // mipmapping. Moreover, we're moving towards requiring that images be made with mip levels
-        // if mipmapping is desired (skbug.com/10411)
+        // if mipmapping is desired (skbug.com/40041743)
         mipmapped = skgpu::Mipmapped::kNo;
         if (policy != GrImageTexGenPolicy::kDraw) {
             return {skgpu::ganesh::CopyView(

@@ -73,6 +73,7 @@ void MiddleOutFanRenderStep::writeVertices(DrawWriter* writer,
 
 void MiddleOutFanRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                                       PipelineDataGatherer* gatherer) const {
+    SkDEBUGCODE(gatherer->checkRewind());
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     gatherer->write(params.transform().matrix());

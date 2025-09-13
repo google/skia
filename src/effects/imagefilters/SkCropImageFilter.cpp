@@ -51,7 +51,7 @@ private:
     bool onAffectsTransparentBlack() const override { return fTileMode != SkTileMode::kDecal; }
 
     // Disable recursing in affectsTransparentBlack() if we hit a Crop.
-    // TODO(skbug.com/14611): Automatically infer this from the output bounds being finite.
+    // TODO(skbug.com/40045513): Automatically infer this from the output bounds being finite.
     bool ignoreInputsAffectsTransparentBlack() const override { return true; }
 
     skif::FilterResult onFilterImage(const skif::Context& context) const override;

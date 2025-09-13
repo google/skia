@@ -5,7 +5,6 @@
 
 # Recipe which runs the Skia gold_upload tests.
 
-PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'gold_upload',

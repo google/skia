@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_Renderer_DEFINED
 #define skgpu_graphite_Renderer_DEFINED
 
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
@@ -21,11 +22,10 @@
 
 #include <array>
 #include <initializer_list>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
-
-enum class SkPathFillType;
 
 namespace skgpu { enum class MaskFormat; }
 
@@ -112,6 +112,12 @@ enum class Coverage { kNone, kSingleChannel, kLCD };
 class RenderStep {
 public:
     virtual ~RenderStep() = default;
+
+    // Returns an empty result if no state change is necessary, otherwise returns the scissor rect
+    // that should be active for all draws recorded by a subsequent call to writeVertices().
+    std::optional<SkIRect> getScissor(const DrawParams&,
+                                      SkIRect currentScissor,
+                                      SkIRect deviceBounds) const;
 
     // The DrawWriter is configured with the vertex and instance strides of the RenderStep, and its
     // primitive type. The recorded draws will be executed with a graphics pipeline compatible with
@@ -243,19 +249,21 @@ public:
     //    - Does each DrawList::Draw have extra space (e.g. 8 bytes) that steps can cache data in?
 protected:
 enum class Flags : unsigned {
-    kNone                   = 0b000000000000,
-    kFixed                  = 0b000000000001,   // Uses explicit DrawWriter::draw functions
-    kAppendVertices         = 0b000000000010,   // Appends vertices
-    kAppendInstances        = 0b000000000100,   // Appends instances with static vertex count
-    kAppendDynamicInstances = 0b000000001000,   // Appends instances with a flexible vertex count
-    kRequiresMSAA           = 0b000000010000,
-    kPerformsShading        = 0b000000100000,
-    kHasTextures            = 0b000001000000,
-    kEmitsCoverage          = 0b000010000000,
-    kLCDCoverage            = 0b000100000000,
-    kEmitsPrimitiveColor    = 0b001000000000,
-    kOutsetBoundsForAA      = 0b010000000000,
-    kUseNonAAInnerFill      = 0b100000000000,
+    kNone                   = 0x0000,
+    kFixed                  = 0x0001, // Uses explicit DrawWriter::draw functions
+    kAppendVertices         = 0x0002, // Appends vertices
+    kAppendInstances        = 0x0004, // Appends instances with static vertex count
+    kAppendDynamicInstances = 0x0008, // Appends instances with a flexible vertex count
+    kRequiresMSAA           = 0x0010, // MSAA is required for anti-aliasing
+    kPerformsShading        = 0x0020, // This step is responsible for shading/color output
+    kHasTextures            = 0x0040, // Adds textures via overridden texturesAndSamplersSkSL()
+    kEmitsCoverage          = 0x0080, // Adds analytic coverage via fragmentCoverageSkSL()
+    kLCDCoverage            = 0x0100, // The added analytic coverage is LCD, not single channel
+    kEmitsPrimitiveColor    = 0x0200, // Injects primitive color via fragmentColorSkSL()
+    kOutsetBoundsForAA      = 0x0400, // Drawn geometry will be outset beyond shape's bounds for AA
+    kUseNonAAInnerFill      = 0x0800, // Opt into Device recording extra inner fill draws
+    kIgnoreInverseFill      = 0x1000, // Rasterization treats all shapes as non-inverted for scissor
+    kInverseFillsScissor    = 0x2000, // Rasterization of inverse fills scissor geometrically
 };
 SK_DECL_BITMASK_OPS_FRIENDS(Flags)
 
@@ -371,10 +379,10 @@ private:
         // At least one step needs to actually shade.
         SkASSERT(fStepFlags & RenderStep::Flags::kPerformsShading);
         // A render step using non-AA inner fills with a second draw should not also be part of a
-        // multi-step renderer (to keep reasoning simple) and must use the GREATER depth test.
+        // multi-step renderer (to keep reasoning simple) and must use the LESS depth test.
         SkASSERT(!this->useNonAAInnerFill() ||
                  (fStepCount == 1 && fSteps[0]->depthStencilSettings().fDepthTestEnabled &&
-                  fSteps[0]->depthStencilSettings().fDepthCompareOp == CompareOp::kGreater));
+                  fSteps[0]->depthStencilSettings().fDepthCompareOp == CompareOp::kLess));
     }
 
     // For RendererProvider to manage initialization; it will never expose a Renderer that is only

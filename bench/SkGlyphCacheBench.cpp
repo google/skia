@@ -14,13 +14,14 @@
 #include "include/core/SkGraphics.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/chromium/SkChromeRemoteGlyphCache.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkStrikeSpec.h"
 #include "src/core/SkTaskGroup.h"
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 #include "tools/text/SkTextBlobTrace.h"
+
+#include <optional>
 
 using namespace skia_private;
 
@@ -219,7 +220,7 @@ class DiffCanvasBench : public Benchmark {
     std::function<std::unique_ptr<SkStreamAsset>()> fDataProvider;
     std::vector<SkTextBlobTrace::Record> fTrace;
     sk_sp<DiscardableManager> fDiscardableManager;
-    SkTLazy<SkStrikeServer> fServer;
+    std::optional<SkStrikeServer> fServer;
 
     const char* onGetName() override { return fBenchName.c_str(); }
 
@@ -242,7 +243,7 @@ class DiffCanvasBench : public Benchmark {
     void onDelayedSetup() override {
         auto stream = fDataProvider();
         fDiscardableManager = sk_make_sp<DiscardableManager>();
-        fServer.init(fDiscardableManager.get());
+        fServer.emplace(fDiscardableManager.get());
         fTrace = SkTextBlobTrace::CreateBlobTrace(stream.get(), nullptr);
     }
 

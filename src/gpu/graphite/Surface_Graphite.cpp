@@ -123,6 +123,13 @@ sk_sp<const SkCapabilities> Surface::onCapabilities() {
 
 TextureProxy* Surface::backingTextureProxy() const { return fDevice->target(); }
 
+// Note, devices flushed with this method add their tasks to the provided drawContext's task list,
+// but no last task is tracked. If no drawContext is provided, the task is added to the root task
+// list and if the device is a scratch device, the last task is recorded.
+void Surface::flushToDrawContext(DrawContext* drawContext) {
+    this->fDevice->flushPendingWork(drawContext);
+}
+
 sk_sp<Surface> Surface::Make(Recorder* recorder,
                              const SkImageInfo& info,
                              std::string_view label,
@@ -163,7 +170,7 @@ void Flush(SkSurface* surface) {
         return;
     }
     auto gs = static_cast<Surface*>(surface);
-    gs->fDevice->flushPendingWorkToRecorder();
+    gs->fDevice->flushPendingWork(/*drawContext=*/nullptr);
 }
 
 } // namespace skgpu::graphite

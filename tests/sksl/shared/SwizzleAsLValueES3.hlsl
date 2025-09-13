@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _12_colorGreen : packoffset(c0);
-    float4 _12_colorRed : packoffset(c1);
+    float4 _15_colorGreen : packoffset(c0);
+    float4 _15_colorRed : packoffset(c1);
 };
 
 
@@ -20,62 +20,62 @@ int Z_i()
     return 0;
 }
 
-float4 main(float2 _31)
+float4 main(float2 _34)
 {
     gAccessCount = 0;
-    int _41 = Z_i();
+    int _44 = Z_i();
     float4 array[1] = { 0.0f.xxxx };
-    array[_41] = _12_colorGreen * 0.5f;
-    int _45 = Z_i();
-    array[_45].w = 2.0f;
-    int _50 = Z_i();
-    array[_50].y *= 4.0f;
-    int _56 = Z_i();
-    float3 _66 = mul(float3x3(float3(0.5f, 0.0f, 0.0f), float3(0.0f, 0.5f, 0.0f), float3(0.0f, 0.0f, 0.5f)), array[_56].yzw);
-    array[_56] = float4(array[_56].x, _66.x, _66.y, _66.z);
-    int _69 = Z_i();
-    float4 _76 = array[_69].zywx + float4(0.25f, 0.0f, 0.0f, 0.75f);
-    array[_69] = float4(_76.w, _76.y, _76.x, _76.z);
-    int _79 = Z_i();
-    int _83 = Z_i();
-    float _90 = 0.0f;
-    if (array[_83].w <= 1.0f)
+    array[_44] = _15_colorGreen * 0.5f;
+    int _48 = Z_i();
+    array[_48].w = 2.0f;
+    int _53 = Z_i();
+    array[_53].y *= 4.0f;
+    int _59 = Z_i();
+    float3 _69 = mul(float3x3(float3(0.5f, 0.0f, 0.0f), float3(0.0f, 0.5f, 0.0f), float3(0.0f, 0.0f, 0.5f)), array[_59].yzw);
+    array[_59] = float4(array[_59].x, _69.x, _69.y, _69.z);
+    int _72 = Z_i();
+    float4 _79 = array[_72].zywx + float4(0.25f, 0.0f, 0.0f, 0.75f);
+    array[_72] = float4(_79.w, _79.y, _79.x, _79.z);
+    int _82 = Z_i();
+    int _86 = Z_i();
+    float _93 = 0.0f;
+    if (array[_86].w <= 1.0f)
     {
-        int _94 = Z_i();
-        _90 = array[_94].z;
+        int _97 = Z_i();
+        _93 = array[_97].z;
     }
     else
     {
-        int _98 = Z_i();
-        _90 = float(_98);
+        int _101 = Z_i();
+        _93 = float(_101);
     }
-    array[_79].x += _90;
-    bool _114 = false;
+    array[_82].x += _93;
+    bool _117 = false;
     if (gAccessCount == 8)
     {
-        _114 = all(bool4(array[0].x == float4(1.0f, 1.0f, 0.25f, 1.0f).x, array[0].y == float4(1.0f, 1.0f, 0.25f, 1.0f).y, array[0].z == float4(1.0f, 1.0f, 0.25f, 1.0f).z, array[0].w == float4(1.0f, 1.0f, 0.25f, 1.0f).w));
+        _117 = all(bool4(array[0].x == float4(1.0f, 1.0f, 0.25f, 1.0f).x, array[0].y == float4(1.0f, 1.0f, 0.25f, 1.0f).y, array[0].z == float4(1.0f, 1.0f, 0.25f, 1.0f).z, array[0].w == float4(1.0f, 1.0f, 0.25f, 1.0f).w));
     }
     else
     {
-        _114 = false;
+        _117 = false;
     }
-    float4 _115 = 0.0f.xxxx;
-    if (_114)
+    float4 _118 = 0.0f.xxxx;
+    if (_117)
     {
-        _115 = _12_colorGreen;
+        _118 = _15_colorGreen;
     }
     else
     {
-        _115 = _12_colorRed;
+        _118 = _15_colorRed;
     }
-    return _115;
+    return _118;
 }
 
 void frag_main()
 {
-    float2 _22 = 0.0f.xx;
-    float4 _24 = main(_22);
-    sk_FragColor = _24;
+    float2 _25 = 0.0f.xx;
+    float4 _27 = main(_25);
+    sk_FragColor = _27;
 }
 
 SPIRV_Cross_Output main()

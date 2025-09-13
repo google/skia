@@ -585,6 +585,10 @@ bool OneLineShaper::iterateThroughShapingRegions(const ShapeVisitor& shape) {
         sk_sp<SkTypeface> typeface = typefaces.empty() ? nullptr : typefaces.front();
         SkFont font(typeface, placeholder.fTextStyle.getFontSize());
 
+        font.setEdging(placeholder.fTextStyle.getFontEdging());
+        font.setHinting(placeholder.fTextStyle.getFontHinting());
+        font.setSubpixel(placeholder.fTextStyle.getSubpixel());
+
         // "Shape" the placeholder
         uint8_t bidiLevel = (bidiIndex < fParagraph->fBidiRegions.size())
             ? fParagraph->fBidiRegions[bidiIndex].level
@@ -649,21 +653,23 @@ bool OneLineShaper::shape() {
 
                 // Create one more font to try
                 SkFont font(std::move(typeface), block.fStyle.getFontSize());
-                font.setEdging(SkFont::Edging::kAntiAlias);
-                font.setHinting(SkFontHinting::kSlight);
-                font.setSubpixel(true);
+                font.setEdging(block.fStyle.getFontEdging());
+                font.setHinting(block.fStyle.getFontHinting());
+                font.setSubpixel(block.fStyle.getSubpixel());
 
-                // Apply fake bold and/or italic settings to the font if the
-                // typeface's attributes do not match the intended font style.
-                int wantedWeight = block.fStyle.getFontStyle().weight();
-                bool fakeBold =
-                    wantedWeight >= SkFontStyle::kSemiBold_Weight &&
-                    wantedWeight - font.getTypeface()->fontStyle().weight() >= 200;
-                bool fakeItalic =
-                    block.fStyle.getFontStyle().slant() == SkFontStyle::kItalic_Slant &&
-                    font.getTypeface()->fontStyle().slant() != SkFontStyle::kItalic_Slant;
-                font.setEmbolden(fakeBold);
-                font.setSkewX(fakeItalic ? -SK_Scalar1 / 4 : 0);
+                if (fParagraph->paragraphStyle().fakeMissingFontStyles()) {
+                  // Apply fake bold and/or italic settings to the font if the
+                  // typeface's attributes do not match the intended font style.
+                  int wantedWeight = block.fStyle.getFontStyle().weight();
+                  bool fakeBold =
+                      wantedWeight >= SkFontStyle::kSemiBold_Weight &&
+                      wantedWeight - font.getTypeface()->fontStyle().weight() >= 200;
+                  bool fakeItalic =
+                      block.fStyle.getFontStyle().slant() == SkFontStyle::kItalic_Slant &&
+                      font.getTypeface()->fontStyle().slant() != SkFontStyle::kItalic_Slant;
+                  font.setEmbolden(fakeBold);
+                  font.setSkewX(fakeItalic ? -SK_Scalar1 / 4 : 0);
+                }
 
                 // Walk through all the currently unresolved blocks
                 // (ignoring those that appear later)

@@ -500,16 +500,18 @@ public:
         auto str16 = SkUnicode::convertUtf8ToUtf16(str.c_str(), str.size());
 
         UErrorCode icu_err = U_ZERO_ERROR;
-        const auto upper16len = sk_u_strToUpper(nullptr, 0, (UChar*)(str16.c_str()), str16.size(),
-                                                locale, &icu_err);
+        const auto upper16len = sk_u_strToUpper(
+            nullptr, 0,
+            reinterpret_cast<const UChar*>(str16.c_str()), str16.size(),
+            locale, &icu_err);
         if (icu_err != U_BUFFER_OVERFLOW_ERROR || upper16len <= 0) {
             return SkString();
         }
 
         AutoSTArray<128, uint16_t> upper16(upper16len);
         icu_err = U_ZERO_ERROR;
-        sk_u_strToUpper((UChar*)(upper16.get()), SkToS32(upper16.size()),
-                        (UChar*)(str16.c_str()), str16.size(),
+        sk_u_strToUpper(reinterpret_cast<UChar*>(upper16.get()), SkToS32(upper16.size()),
+                        reinterpret_cast<const UChar*>(str16.c_str()), str16.size(),
                         locale, &icu_err);
         SkASSERT(!U_FAILURE(icu_err));
 
@@ -529,7 +531,8 @@ public:
 
         // Convert to UTF16 since we want the results in utf16
         auto utf16 = convertUtf8ToUtf16(utf8, utf8Units);
-        return SkUnicode_icu::extractWords((uint16_t*)utf16.c_str(), utf16.size(), locale, results);
+        return SkUnicode_icu::extractWords(reinterpret_cast<uint16_t*>(utf16.data()), utf16.size(),
+                                           locale, results);
     }
 
     bool getUtf8Words(const char utf8[],
@@ -539,8 +542,9 @@ public:
         // Convert to UTF16 since we want the results in utf16
         auto utf16 = convertUtf8ToUtf16(utf8, utf8Units);
         std::vector<Position> utf16Results;
-        if (!SkUnicode_icu::extractWords(
-                    (uint16_t*)utf16.c_str(), utf16.size(), locale, &utf16Results)) {
+        if (!SkUnicode_icu::extractWords(reinterpret_cast<uint16_t*>(utf16.data()), utf16.size(),
+                                         locale, &utf16Results))
+        {
             return false;
         }
 

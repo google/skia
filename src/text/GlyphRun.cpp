@@ -166,8 +166,7 @@ static SkRect glyphrun_source_bounds(
 
     // Use conservative bounds. All glyph have a box of fontBounds size.
     if (scaledRotations.empty()) {
-        SkRect bounds;
-        bounds.setBounds(positions.data(), SkCount(positions));
+        SkRect bounds = SkRect::BoundsOrEmpty(positions);
         bounds.fLeft   += fontBounds.left();
         bounds.fTop    += fontBounds.top();
         bounds.fRight  += fontBounds.right();
@@ -338,7 +337,7 @@ SkSpan<const SkGlyphID> GlyphRunBuilder::textToGlyphIDs(
         int count = font.countText(bytes, byteLength, encoding);
         if (count > 0) {
             fScratchGlyphIDs.resize(count);
-            font.textToGlyphs(bytes, byteLength, encoding, fScratchGlyphIDs.data(), count);
+            font.textToGlyphs(bytes, byteLength, encoding, fScratchGlyphIDs);
             return SkSpan(fScratchGlyphIDs);
         } else {
             return SkSpan<const SkGlyphID>();

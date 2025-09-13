@@ -79,7 +79,7 @@ public:
      */
     std::unique_ptr<PrecompileContext> makePrecompileContext();
 
-    bool insertRecording(const InsertRecordingInfo&);
+    InsertStatus insertRecording(const InsertRecordingInfo&);
     bool submit(SyncToCpu = SyncToCpu::kNo);
 
     /** Returns true if there is work that was submitted to the GPU that has not finished. */
@@ -276,6 +276,19 @@ public:
      * Gets the types of GPU stats supported by this Context.
      */
     GpuStatsFlags supportedGpuStats() const;
+
+    /*
+     * TODO (b/412351769): Do not use startCapture() or endCapture() as the feature is still under
+     * development.
+     *
+     * Starts the SkCapture. Must have set ContextOptions::fEnableCapture to start.
+     */
+    void startCapture();
+
+    /*
+     * Ends the SkCapture and returns the collected draws and surface creation.
+     */
+    void endCapture();
 
     // Provides access to functions that aren't part of the public API.
     ContextPriv priv();

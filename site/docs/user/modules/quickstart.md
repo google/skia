@@ -256,7 +256,7 @@ CanvasKit and the font file are ready.
 
 <!--?prettify?-->
 ``` js
-const loadFont = fetch('https://storage.googleapis.com/skia-cdn/misc/Roboto-Regular.ttf')
+const loadFont = fetch('https://cdn.skia.org/misc/Roboto-Regular.ttf')
   .then((response) => response.arrayBuffer());
 
 Promise.all([ckLoaded, loadFont]).then(([CanvasKit, robotoData]) => {
@@ -286,7 +286,7 @@ Promise.all([ckLoaded, loadFont]).then(([CanvasKit, robotoData]) => {
 <canvas id=foo3 width=300 height=300></canvas>
 
 <script type="text/javascript">
-const loadFont = fetch('https://storage.googleapis.com/skia-cdn/misc/Roboto-Regular.ttf')
+const loadFont = fetch('https://cdn.skia.org/misc/Roboto-Regular.ttf')
   .then((response) => response.arrayBuffer());
 
 Promise.all([ckLoaded, loadFont]).then(([CanvasKit, robotoData]) => {

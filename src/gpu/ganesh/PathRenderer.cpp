@@ -31,8 +31,7 @@ void PathRenderer::StencilPathArgs::validate() const {
     SkASSERT(fViewMatrix);
     SkASSERT(fShape);
     SkASSERT(fShape->style().isSimpleFill());
-    SkPath path;
-    fShape->asPath(&path);
+    SkPath path = fShape->asPath();
     SkASSERT(!path.isInverseFillType());
 }
 #endif
@@ -40,8 +39,7 @@ void PathRenderer::StencilPathArgs::validate() const {
 //////////////////////////////////////////////////////////////////////////////
 
 PathRenderer::StencilSupport PathRenderer::getStencilSupport(const GrStyledShape& shape) const {
-    SkDEBUGCODE(SkPath path;)
-    SkDEBUGCODE(shape.asPath(&path);)
+    SkDEBUGCODE(SkPath path = shape.asPath();)
     SkASSERT(shape.style().isSimpleFill());
     SkASSERT(!path.isInverseFillType());
     return this->onGetStencilSupport(shape);
@@ -64,8 +62,7 @@ bool PathRenderer::drawPath(const DrawPathArgs& args) {
     canArgs.fHasUserStencilSettings = !args.fUserStencilSettings->isUnused();
     SkASSERT(CanDrawPath::kNo != this->canDrawPath(canArgs));
     if (!args.fUserStencilSettings->isUnused()) {
-        SkPath path;
-        args.fShape->asPath(&path);
+        SkPath path = args.fShape->asPath();
         SkASSERT(args.fShape->style().isSimpleFill());
         SkASSERT(kNoRestriction_StencilSupport == this->getStencilSupport(*args.fShape));
     }

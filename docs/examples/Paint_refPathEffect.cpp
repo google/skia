@@ -5,7 +5,7 @@ REG_FIDDLE(Paint_refPathEffect, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint1, paint2;
     SkScalar intervals[] = {1, 2};
-    paint1.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 10));
+    paint1.setPathEffect(SkDashPathEffect::Make(intervals, 10));
     SkDebugf("path effect unique: %s\n", paint1.getPathEffect()->unique() ? "true" : "false");
     paint2.setPathEffect(paint1.refPathEffect());
     SkDebugf("path effect unique: %s\n", paint1.getPathEffect()->unique() ? "true" : "false");

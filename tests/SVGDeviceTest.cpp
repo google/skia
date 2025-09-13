@@ -138,23 +138,23 @@ void test_whitespace_pos(skiatest::Reporter* reporter,
     check_text_node(reporter, dom, dom.finishParsing(), offset, 0, txt, expected);
 
     {
-        AutoTMalloc<SkScalar> xpos(len);
+        AutoTArray<SkScalar> xpos(len);
         for (int i = 0; i < SkToInt(len); ++i) {
             xpos[i] = SkIntToScalar(txt[i]);
         }
 
-        auto blob = SkTextBlob::MakeFromPosTextH(txt, len, &xpos[0], offset.y(), font);
+        auto blob = SkTextBlob::MakeFromPosTextH(txt, len, xpos, offset.y(), font);
         MakeDOMCanvas(&dom)->drawTextBlob(blob, 0, 0, paint);
     }
     check_text_node(reporter, dom, dom.finishParsing(), offset, 1, txt, expected);
 
     {
-        AutoTMalloc<SkPoint> pos(len);
+        AutoTArray<SkPoint> pos(len);
         for (int i = 0; i < SkToInt(len); ++i) {
             pos[i] = SkPoint::Make(SkIntToScalar(txt[i]), 150 - SkIntToScalar(txt[i]));
         }
 
-        auto blob = SkTextBlob::MakeFromPosText(txt, len, &pos[0], font);
+        auto blob = SkTextBlob::MakeFromPosText(txt, len, pos, font);
         MakeDOMCanvas(&dom)->drawTextBlob(blob, 0, 0, paint);
     }
     check_text_node(reporter, dom, dom.finishParsing(), offset, 2, txt, expected);
@@ -415,7 +415,7 @@ DEF_TEST(SVGDevice_textpath, reporter) {
 
     // We also use paths in the presence of path effects.
     SkScalar intervals[] = {10, 5};
-    paint.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 0));
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, 0));
     check_text(0, /*expect_path=*/true);
 }
 
@@ -575,7 +575,7 @@ DEF_TEST(SVGDevice_rect_with_path_effect, reporter) {
     SkDOM dom;
 
     SkScalar intervals[] = {0, 20};
-    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
+    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 0);
 
     SkPaint paint;
     paint.setPathEffect(pathEffect);
@@ -595,7 +595,7 @@ DEF_TEST(SVGDevice_rrect_with_path_effect, reporter) {
     SkDOM dom;
 
     SkScalar intervals[] = {0, 20};
-    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
+    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 0);
 
     SkPaint paint;
     paint.setPathEffect(pathEffect);
@@ -615,7 +615,7 @@ DEF_TEST(SVGDevice_oval_with_path_effect, reporter) {
     SkDOM dom;
 
     SkScalar intervals[] = {0, 20};
-    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
+    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 0);
 
     SkPaint paint;
     paint.setPathEffect(pathEffect);
@@ -643,12 +643,12 @@ DEF_TEST(SVGDevice_path_effect, reporter) {
 
     // Produces a line of three red dots.
     SkScalar intervals[] = {0, 20};
-    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 2, 0);
+    sk_sp<SkPathEffect> pathEffect = SkDashPathEffect::Make(intervals, 0);
     paint.setPathEffect(pathEffect);
-    SkPoint points[] = {{50, 15}, {100, 15}, {150, 15} };
+    const SkPoint points[] = {{50, 15}, {100, 15}, {150, 15} };
     {
         auto svgCanvas = MakeDOMCanvas(&dom);
-        svgCanvas->drawPoints(SkCanvas::kLines_PointMode, 3, points, paint);
+        svgCanvas->drawPoints(SkCanvas::kLines_PointMode, points, paint);
     }
     const auto* rootElement = dom.finishParsing();
     REPORTER_ASSERT(reporter, rootElement, "root element not found");

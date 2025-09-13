@@ -69,6 +69,8 @@ public:
     bool isArc()   const { return fType == Type::kArc;   }
     bool isPath()  const { return fType == Type::kPath;  }
 
+    bool isFloodFill() const { return this->isEmpty() && this->inverted(); }
+
     bool isVolatilePath() const {
         return fType == Type::kPath && this->path().isVolatile();
     }
@@ -117,6 +119,12 @@ public:
     const SkRRect& rrect() const { SkASSERT(this->isRRect()); return fRRect;           }
     const SkArc&   arc()   const { SkASSERT(this->isArc());   return fArc;             }
     const SkPath&  path()  const { SkASSERT(this->isPath());  return fPath;            }
+
+    // Non-const access to the more complex types
+    Rect&    rect()  { SkASSERT(this->isRect());  return fRect;  }
+    SkRRect& rrect() { SkASSERT(this->isRRect()); return fRRect; }
+    SkArc&   arc()   { SkASSERT(this->isArc());   return fArc;   }
+    SkPath&  path()  { SkASSERT(this->isPath());  return fPath;  }
 
     // Update the geometry stored in the Shape and update its associated type to match. This
     // performs no simplification, so calling setRRect() with a round rect that has isRect() return

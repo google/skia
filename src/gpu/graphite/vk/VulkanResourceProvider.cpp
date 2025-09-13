@@ -425,26 +425,27 @@ sk_sp<VulkanDescriptorSet> VulkanResourceProvider::findOrCreateUniformBuffersDes
 }
 
 sk_sp<VulkanRenderPass> VulkanResourceProvider::findOrCreateRenderPass(
-            const RenderPassDesc& renderPassDesc,
-            bool compatibleOnly) {
+        const RenderPassDesc& originalRenderPassDesc, bool compatibleOnly) {
     static constexpr Budgeted kBudgeted = Budgeted::kYes;
     static constexpr Shareable kShareable = Shareable::kYes;
     static const ResourceType kType = GraphiteResourceKey::GenerateResourceType();
 
-    VulkanRenderPass::Metadata rpMetadata{renderPassDesc, compatibleOnly};
+    const RenderPassDesc renderPassDesc =
+            compatibleOnly ? MakePipelineCompatibleRenderPass(originalRenderPassDesc)
+                           : originalRenderPassDesc;
+
     GraphiteResourceKey key;
     {
-        GraphiteResourceKey::Builder builder(&key, kType, rpMetadata.keySize());
-
-        int startingIdx = 0;
-        rpMetadata.addToKey(builder, startingIdx);
+        GraphiteResourceKey::Builder builder(&key, kType, 1);
+        builder[0] = VulkanRenderPass::GetRenderPassKey(renderPassDesc,
+                                                        /*compatibleForPipelineKey=*/false);
     }
     if (Resource* resource = fResourceCache->findAndRefResource(key, kBudgeted, kShareable)) {
         return sk_sp<VulkanRenderPass>(static_cast<VulkanRenderPass*>(resource));
     }
 
     sk_sp<VulkanRenderPass> renderPass =
-            VulkanRenderPass::Make(this->vulkanSharedContext(), rpMetadata);
+            VulkanRenderPass::Make(this->vulkanSharedContext(), renderPassDesc);
     if (!renderPass) {
         return nullptr;
     }
@@ -617,9 +618,10 @@ sk_sp<VulkanGraphicsPipeline> VulkanResourceProvider::findOrCreateLoadMSAAPipeli
     }
 
     // Check to see if we already have a suitable pipeline that we can use.
-    VulkanRenderPass::Metadata rpMetadata{renderPassDesc, /*compatibleOnly=*/true};
+    const uint32_t compatibleRenderPassHash =
+            VulkanRenderPass::GetRenderPassKey(renderPassDesc, /*compatibleForPipelineKey=*/true);
     for (int i = 0; i < fLoadMSAAPipelines.size(); i++) {
-        if (rpMetadata == fLoadMSAAPipelines.at(i).first) {
+        if (compatibleRenderPassHash == fLoadMSAAPipelines.at(i).first) {
             return fLoadMSAAPipelines.at(i).second;
         }
     }
@@ -641,7 +643,7 @@ sk_sp<VulkanGraphicsPipeline> VulkanResourceProvider::findOrCreateLoadMSAAPipeli
         return nullptr;
     }
 
-    fLoadMSAAPipelines.push_back(std::make_pair(rpMetadata, pipeline));
+    fLoadMSAAPipelines.push_back(std::make_pair(compatibleRenderPassHash, pipeline));
     return pipeline;
 }
 
@@ -664,13 +666,23 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
         return {};
     }
 
-    bool importAsExternalFormat = hwbFormatProps.format == VK_FORMAT_UNDEFINED;
+    // Import as external if the AHardwareBuffer has an undefined format or if graphite does not
+    // support the provided VkFormat.
+    bool importAsExternalFormat = hwbFormatProps.format == VK_FORMAT_UNDEFINED ||
+                                  !vkCaps.isFormatSupported(hwbFormatProps.format);
+#if defined(SK_DEBUG)
+    if (importAsExternalFormat && hwbFormatProps.format != VK_FORMAT_UNDEFINED) {
+        SKGPU_LOG_D("Ignoring AHardwareBuffer VkFormat(%d) because it is not supported by graphite."
+                    " Falling back to importing as external format.\n", hwbFormatProps.format);
+    }
+#endif
 
     // Start to assemble VulkanTextureInfo which is needed later on to create the VkImage but can
     // sooner help us query VulkanCaps for certain format feature support.
-    // TODO: Allow client to pass in tiling mode. For external formats, this is required to be
-    // optimal. For AHB that have a known Vulkan format, we can query VulkanCaps to determine if
-    // optimal is a valid decision given the format features.
+    //
+    // Note that the optimal tiling is always the right choice, including for external formats
+    // (which always require optimal) and AHBs (where the real layout is determined by AHB usage
+    // flags, and optimal tiling would automatically mean linear if it has to).
     VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
     VkImageCreateFlags imgCreateflags = isProtectedContent ? VK_IMAGE_CREATE_PROTECTED_BIT : 0;
     VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -682,15 +694,16 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
             usageFlags |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
         }
     }
-    VulkanTextureInfo vkTexInfo { VK_SAMPLE_COUNT_1_BIT,
-                                  Mipmapped::kNo,
-                                  imgCreateflags,
-                                  hwbFormatProps.format,
-                                  tiling,
-                                  usageFlags,
-                                  VK_SHARING_MODE_EXCLUSIVE,
-                                  VK_IMAGE_ASPECT_COLOR_BIT,
-                                  VulkanYcbcrConversionInfo() };
+    VulkanTextureInfo vkTexInfo {
+            VK_SAMPLE_COUNT_1_BIT,
+            Mipmapped::kNo,
+            imgCreateflags,
+            importAsExternalFormat ? VK_FORMAT_UNDEFINED : hwbFormatProps.format,
+            tiling,
+            usageFlags,
+            VK_SHARING_MODE_EXCLUSIVE,
+            VK_IMAGE_ASPECT_COLOR_BIT,
+            VulkanYcbcrConversionInfo() };
 
     if (isRenderable && (importAsExternalFormat || !vkCaps.isRenderable(vkTexInfo))) {
         SKGPU_LOG_W("Renderable texture requested from an AHardwareBuffer which uses a VkFormat "
@@ -702,9 +715,9 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
                                     !vkCaps.isTransferDst(vkTexInfo) ||
                                     !vkCaps.isTexturable(vkTexInfo))) {
         if (isRenderable) {
-            SKGPU_LOG_W("VkFormat %d is either unfamiliar to Skia or doesn't support the necessary"
-                        " format features. Because a renerable texture was requested, we cannot "
-                        "fall back to importing with an external format.\n", hwbFormatProps.format);
+            SKGPU_LOG_W("VkFormat %d does not support the necessary format features. Because a "
+                        "renderable texture was requested, we cannot fall back to importing with "
+                        "an external format.\n", hwbFormatProps.format);
             return {};
         }
         // If the VkFormat does not support the features we need, then import as an external format.

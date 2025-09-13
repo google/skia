@@ -48,8 +48,8 @@
 
 class SkBlitter;
 
-[[nodiscard]] static bool texture_to_matrix(const VertState& state, const SkPoint verts[],
-                                            const SkPoint texs[], SkMatrix* matrix) {
+std::optional<SkMatrix> texture_to_matrix(const VertState& state, const SkPoint verts[],
+                                          const SkPoint texs[]) {
     SkPoint src[3], dst[3];
 
     src[0] = verts[state.f0];
@@ -58,7 +58,7 @@ class SkBlitter;
     dst[0] = texs[state.f0];
     dst[1] = texs[state.f1];
     dst[2] = texs[state.f2];
-    return matrix->setPolyToPoly(src, dst, 3);
+    return SkMatrix::PolyToPoly(src, dst);
 }
 
 // Convert the SkColors into float colors. The conversion depends on some conditions:
@@ -184,14 +184,15 @@ static void fill_triangle(const VertState& state, SkBlitter* blitter, const SkRa
     }
 }
 
-void SkDraw::drawFixedVertices(const SkVertices* vertices,
-                               sk_sp<SkBlender> blender,
-                               const SkPaint& paint,
-                               const SkMatrix& ctmInverse,
-                               const SkPoint* dev2,
-                               const SkPoint3* dev3,
-                               SkArenaAlloc* outerAlloc,
-                               bool skipColorXform) const {
+namespace skcpu {
+void Draw::drawFixedVertices(const SkVertices* vertices,
+                             sk_sp<SkBlender> blender,
+                             const SkPaint& paint,
+                             const SkMatrix& ctmInverse,
+                             const SkPoint* dev2,
+                             const SkPoint3* dev3,
+                             SkArenaAlloc* outerAlloc,
+                             bool skipColorXform) const {
     SkVerticesPriv info(vertices->priv());
 
     const int vertexCount = info.vertexCount();
@@ -288,7 +289,8 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
                                                  *ctm,
                                                  outerAlloc,
                                                  fRC->clipShader(),
-                                                 props);
+                                                 props,
+                                                 SkRect::MakeEmpty());
     if (!blitter) {
         return;
     }
@@ -298,18 +300,18 @@ void SkDraw::drawFixedVertices(const SkVertices* vertices,
             continue;
         }
 
-        SkMatrix localM;
-        if (!transformShader || (texture_to_matrix(state, positions, texCoords, &localM) &&
-                                 transformShader->update(SkMatrix::Concat(localM, ctmInverse)))) {
+        std::optional<SkMatrix> localM;
+        if (!transformShader || ((localM = texture_to_matrix(state, positions, texCoords)) &&
+                                 transformShader->update(SkMatrix::Concat(*localM, ctmInverse)))) {
             fill_triangle(state, blitter, *fRC, dev2, dev3);
         }
     }
 }
 
-void SkDraw::drawVertices(const SkVertices* vertices,
-                          sk_sp<SkBlender> blender,
-                          const SkPaint& paint,
-                          bool skipColorXform) const {
+void Draw::drawVertices(const SkVertices* vertices,
+                        sk_sp<SkBlender> blender,
+                        const SkPaint& paint,
+                        bool skipColorXform) const {
     SkVerticesPriv info(vertices->priv());
     const int vertexCount = info.vertexCount();
     const int indexCount = info.indexCount();
@@ -318,8 +320,8 @@ void SkDraw::drawVertices(const SkVertices* vertices,
     if (vertexCount < 3 || (indexCount > 0 && indexCount < 3) || fRC->isEmpty()) {
         return;
     }
-    SkMatrix ctmInv;
-    if (!fCTM->invert(&ctmInv)) {
+    auto ctmInv = fCTM->invert();
+    if (!ctmInv) {
         return;
     }
 
@@ -333,23 +335,21 @@ void SkDraw::drawVertices(const SkVertices* vertices,
 
     if (fCTM->hasPerspective()) {
         dev3 = outerAlloc.makeArray<SkPoint3>(vertexCount);
-        fCTM->mapHomogeneousPoints(dev3, info.positions(), vertexCount);
+        fCTM->mapPointsToHomogeneous({dev3, vertexCount}, {info.positions(), vertexCount});
         // similar to the bounds check for 2d points (below)
         if (!SkIsFinite((const SkScalar*)dev3, vertexCount * 3)) {
             return;
         }
     } else {
         dev2 = outerAlloc.makeArray<SkPoint>(vertexCount);
-        fCTM->mapPoints(dev2, info.positions(), vertexCount);
+        fCTM->mapPoints({dev2, vertexCount}, {info.positions(), vertexCount});
 
-        SkRect bounds;
-        // this also sets bounds to empty if we see a non-finite value
-        bounds.setBounds(dev2, vertexCount);
-        if (bounds.isEmpty()) {
+        if (SkRect::BoundsOrEmpty({dev2, vertexCount}).isEmpty()) {
             return;
         }
     }
 
     this->drawFixedVertices(
-            vertices, std::move(blender), paint, ctmInv, dev2, dev3, &outerAlloc, skipColorXform);
+            vertices, std::move(blender), paint, *ctmInv, dev2, dev3, &outerAlloc, skipColorXform);
 }
+}  // namespace skcpu

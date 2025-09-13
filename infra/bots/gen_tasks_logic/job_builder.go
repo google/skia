@@ -13,7 +13,7 @@ import (
 // jobBuilder provides helpers for creating a job.
 type jobBuilder struct {
 	*builder
-	parts
+	Parts
 	Name string
 	Spec *specs.JobSpec
 }
@@ -26,7 +26,7 @@ func newJobBuilder(b *builder, name string) *jobBuilder {
 	}
 	return &jobBuilder{
 		builder: b,
-		parts:   p,
+		Parts:   p,
 		Name:    name,
 		Spec:    &specs.JobSpec{},
 	}
@@ -43,9 +43,12 @@ func (b *jobBuilder) trigger(trigger string) {
 }
 
 // Create a taskBuilder and run the given function for it.
-func (b *jobBuilder) addTask(name string, fn func(*taskBuilder)) {
+func (b *jobBuilder) addTask(name string, fn func(*TaskBuilder)) {
 	tb := newTaskBuilder(b, name)
 	fn(tb)
+	if b.cfg.AddTaskCallback != nil {
+		b.cfg.AddTaskCallback(tb)
+	}
 	b.MustAddTask(tb.Name, tb.Spec)
 	// Add the task to the Job's dependency set, removing any which are
 	// accounted for by the new task's dependencies.
@@ -66,7 +69,7 @@ func (b *jobBuilder) uploadCIPDAssetToCAS(asset string) string {
 	if !ok {
 		log.Fatalf("No isolate task for asset %q", asset)
 	}
-	b.addTask(cfg.uploadTaskName, func(b *taskBuilder) {
+	b.addTask(cfg.uploadTaskName, func(b *TaskBuilder) {
 		b.cipd(b.MustGetCipdPackageFromAsset(asset))
 		b.cmd("/bin/cp", "-rL", cfg.path, "${ISOLATED_OUTDIR}")
 		b.linuxGceDimensions(MACHINE_TYPE_SMALL)
@@ -90,7 +93,7 @@ func (b *jobBuilder) genTasksForJob() {
 	}
 
 	// Isolate CIPD assets.
-	if b.matchExtraConfig("Isolate") {
+	if b.MatchExtraConfig("Isolate") {
 		for asset, cfg := range ISOLATE_ASSET_MAPPING {
 			if cfg.uploadTaskName == b.Name {
 				b.uploadCIPDAssetToCAS(asset)
@@ -100,25 +103,13 @@ func (b *jobBuilder) genTasksForJob() {
 	}
 
 	// RecreateSKPs.
-	if b.extraConfig("RecreateSKPs") {
+	if b.ExtraConfig("RecreateSKPs") {
 		b.recreateSKPs()
 		return
 	}
 
-	// Create docker image.
-	if b.extraConfig("CreateDockerImage") {
-		b.createDockerImage(b.extraConfig("WASM"))
-		return
-	}
-
-	// Push apps from docker image.
-	if b.extraConfig("PushAppsFromSkiaDockerImage") {
-		b.createPushAppsFromSkiaDockerImage()
-		return
-	}
-
 	// Infra tests.
-	if b.extraConfig("InfraTests") {
+	if b.ExtraConfig("InfraTests") {
 		b.infra()
 		return
 	}
@@ -147,24 +138,24 @@ func (b *jobBuilder) genTasksForJob() {
 	}
 
 	// Compile bots.
-	if b.role("Build") {
+	if b.Role("Build") {
 		b.compile()
 		return
 	}
 
 	// BuildStats bots. This computes things like binary size.
-	if b.role("BuildStats") {
+	if b.Role("BuildStats") {
 		b.buildstats()
 		return
 	}
 
-	if b.role("CodeSize") {
+	if b.Role("CodeSize") {
 		b.codesize()
 		return
 	}
 
 	// Valgrind runs at a low priority so that it doesn't occupy all the bots.
-	if b.extraConfig("Valgrind") {
+	if b.ExtraConfig("Valgrind") {
 		// Priority of 0.085 should result in Valgrind tasks with a blamelist of ~10 commits having the
 		// same score as other tasks with a blamelist of 1 commit, when we have insufficient bot
 		// capacity to run more frequently.
@@ -172,8 +163,8 @@ func (b *jobBuilder) genTasksForJob() {
 	}
 
 	// Test bots.
-	if b.role("Test") {
-		if b.extraConfig("WasmGMTests") {
+	if b.Role("Test") {
+		if b.ExtraConfig("WasmGMTests") {
 			b.runWasmGMTests()
 			return
 		}
@@ -182,40 +173,40 @@ func (b *jobBuilder) genTasksForJob() {
 	}
 
 	// Canary bots.
-	if b.role("Canary") {
-		if b.project("G3") {
+	if b.Role("Canary") {
+		if b.Project("G3") {
 			b.g3FrameworkCanary()
 			return
-		} else if b.project("Android") {
+		} else if b.Project("Android") {
 			b.canary("android-master-autoroll", "Canary-Android-Topic", "https://googleplex-android-review.googlesource.com/q/topic:")
 			return
-		} else if b.project("Chromium") {
+		} else if b.Project("Chromium") {
 			b.canary("skia-autoroll", "Canary-Chromium-CL", "https://chromium-review.googlesource.com/c/")
 			return
-		} else if b.project("Flutter") {
+		} else if b.Project("Flutter") {
 			b.canary("skia-flutter-autoroll", "Canary-Flutter-PR", "https://github.com/flutter/engine/pull/")
 			return
 		}
 	}
 
-	if b.extraConfig("Puppeteer") {
+	if b.ExtraConfig("Puppeteer") {
 		// TODO(kjlubick) make this a new role
 		b.puppeteer()
 		return
 	}
 
 	// Perf bots.
-	if b.role("Perf") {
+	if b.Role("Perf") {
 		b.perf()
 		return
 	}
 
-	if b.role("BazelBuild") {
+	if b.Role("BazelBuild") {
 		b.bazelBuild()
 		return
 	}
 
-	if b.role("BazelTest") {
+	if b.Role("BazelTest") {
 		b.bazelTest()
 		return
 	}
@@ -225,13 +216,13 @@ func (b *jobBuilder) genTasksForJob() {
 
 func (b *jobBuilder) finish() {
 	// Add the Job spec.
-	if b.frequency("Nightly") {
+	if b.Frequency("Nightly") {
 		b.trigger(specs.TRIGGER_NIGHTLY)
-	} else if b.frequency("Weekly") {
+	} else if b.Frequency("Weekly") {
 		b.trigger(specs.TRIGGER_WEEKLY)
-	} else if b.extraConfig("Flutter", "CreateDockerImage", "PushAppsFromSkiaDockerImage", "PushBazelAppsFromWASMDockerImage") {
+	} else if b.ExtraConfig("Flutter", "PushBazelAppsFromWASMDockerImage") {
 		b.trigger(specs.TRIGGER_MAIN_ONLY)
-	} else if b.frequency("OnDemand") || b.role("Canary") {
+	} else if b.Frequency("OnDemand") || b.Role("Canary") {
 		b.trigger(specs.TRIGGER_ON_DEMAND)
 	} else {
 		b.trigger(specs.TRIGGER_ANY_BRANCH)

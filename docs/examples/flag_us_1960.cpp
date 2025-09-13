@@ -14,11 +14,9 @@ void draw(SkCanvas* canvas) {
     canvas->drawIRect({0, 0, 2964, 2100}, paint);
     paint.setColor(SkColorSetARGB(0xFF, 0xFF, 0xFF, 0xFF));
     paint.setAntiAlias(true);
-    SkPath star;
-    SkParsePath::FromSVGString(
+    SkPath star = SkParsePath::FromSVGString(
             "M 0 -120 L 70.5342 97.0819 L -114.127 -37.082 L 114.127 -37.0821 L -70.5342 "
-            "97.0819 Z",
-            &star);
+            "97.0819 Z").value_or(SkPath());
     for (int x = 1; x < 12; ++x) {
         for (int y = 1; y < 10; ++y) {
             if ((x + y) % 2 == 0) {

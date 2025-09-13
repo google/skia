@@ -117,7 +117,7 @@ public:
                 }
                 SkScalar advance;
                 SkRect glyphBounds;
-                font.getWidths(&glyph, 1, &advance, &glyphBounds);
+                font.getWidthsBounds({&glyph, 1}, {&advance, 1}, {&glyphBounds, 1}, nullptr);
                 SkRect advanceBounds = SkRect::MakeWH(advance, 1);
                 SkRect glyphAndAdvanceBounds = glyphBounds;
                 glyphAndAdvanceBounds.join(advanceBounds);
@@ -148,7 +148,7 @@ public:
                 }
                 SkScalar advance;
                 SkRect glyphBounds;
-                font.getWidths(&gid, 1, &advance, &glyphBounds);
+                font.getWidthsBounds({&gid, 1}, {&advance, 1}, {&glyphBounds, 1}, nullptr);
                 SkRect advanceBounds = SkRect::MakeWH(advance, 1);
                 SkRect glyphAndAdvanceBounds = glyphBounds;
                 glyphAndAdvanceBounds.join(advanceBounds);
@@ -163,7 +163,7 @@ public:
                     canvas->drawRect(advanceBounds.makeOffset(position), metricPaint);
                 }
 
-                canvas->drawGlyphs(1, &gid, &position, origin, font, paint);
+                canvas->drawGlyphs({&gid, 1}, {&position, 1}, origin, font, paint);
 
                 if (fGlyphNumbers) {
                     SkString gidStr;
@@ -172,9 +172,8 @@ public:
                                            position.x(), position.y(), notationFont, notationPaint);
                 }
                 // TODO: also handle drawable by using a paint override canvas?
-                SkPath glyphPath;
-                if (fOutline && font.getPath(gid, &glyphPath)) {
-                    SkContourMeasureIter iter(glyphPath, false);
+                if (fOutline) {
+                    SkContourMeasureIter iter(font.getPath(gid).value_or(SkPath()), false);
                     sk_sp<SkContourMeasure> contour;
                     int contourIndex = 0;
                     while ((contour = iter.next())) {

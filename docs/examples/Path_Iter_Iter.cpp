@@ -4,10 +4,9 @@
 REG_FIDDLE(Path_Iter_Iter, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPath::Iter iter;
-    SkPoint points[4];
-    SkDebugf("iter is " "%s" "done\n", SkPath::kDone_Verb == iter.next(points) ? "" : "not ");
+    SkDebugf("iter is " "%s" "done\n", !iter.next() ? "" : "not ");
     SkPath path;
     iter.setPath(path, false);
-    SkDebugf("iter is " "%s" "done\n", SkPath::kDone_Verb == iter.next(points) ? "" : "not ");
+    SkDebugf("iter is " "%s" "done\n", !iter.next() ? "" : "not ");
 }
 }  // END FIDDLE

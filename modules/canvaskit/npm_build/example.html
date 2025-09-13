@@ -54,9 +54,8 @@
 <script type="text/javascript" src="/build/canvaskit.js"></script>
 
 <script type="text/javascript" charset="utf-8" async>
-
-  var CanvasKit = null;
-  var cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
+  let CanvasKit = null;
+  const cdn = 'https://cdn.skia.org/misc/';
 
   const ckLoaded = CanvasKitInit({locateFile: (file) => '/build/'+file});
 
@@ -68,7 +67,7 @@
     if (navigator.gpu && CK.webgpu) {
       const adapter = await navigator.gpu.requestAdapter();
       const device = await adapter.requestDevice();
-      var gpu = CK.MakeGPUDeviceContext(device);
+      const gpu = CK.MakeGPUDeviceContext(device);
       if (!gpu) {
         console.error('Failed to initialize WebGPU device context');
       }

@@ -197,7 +197,7 @@ void PathCurveTessellator::prepareWithTriangles(
                     // Cull completely horizontal or vertical triangles. GrTriangulator can't always
                     // get these breadcrumb edges right when they run parallel to the sweep
                     // direction because their winding is undefined by its current definition.
-                    // FIXME(skia:12060): This seemed safe, but if there is a view matrix it will
+                    // FIXME(skbug.com/40043149): This seemed safe, but if there is a view matrix it will
                     // introduce T-junctions.
                     continue;
                 }

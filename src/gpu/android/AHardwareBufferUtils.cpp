@@ -11,10 +11,6 @@
 
 #include <android/hardware_buffer.h>
 
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-#include <vndk/hardware_buffer.h>
-#endif
-
 namespace AHardwareBufferUtils {
 
 SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat) {
@@ -39,16 +35,12 @@ SkColorType GetSkColorTypeFromBufferFormat(uint32_t bufferFormat) {
         case AHARDWAREBUFFER_FORMAT_R8_UNORM:
             return kAlpha_8_SkColorType;
 #endif
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-        case AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM:
-            return kBGRA_8888_SkColorType;
-#endif
         default:
             // Given that we only use this texture as a source, colorType will not impact how Skia
-            // uses the texture.  The only potential affect this is anticipated to have is that for
+            // uses the texture. The only potential affect this is anticipated to have is that for
             // some format types if we are not bound as an OES texture we may get invalid results
             // for SKP capture if we read back the texture.
-            return kRGBA_8888_SkColorType;
+            return kExternalFormatColorType;
     }
 }
 

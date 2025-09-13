@@ -96,7 +96,7 @@ TessellateStrokesRenderStep::TessellateStrokesRenderStep(bool infinitySupport)
                                    {"translate", SkSLType::kFloat2},
                                    {"maxScale", SkSLType::kFloat}},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthGreaterPass,
+                     kDirectDepthLessPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/kAttributes[infinitySupport])
         , fInfinitySupport(infinitySupport) {}
@@ -150,75 +150,64 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw,
     writer.updateStrokeParamsAttrib({params.strokeStyle().halfWidth(),
                                      params.strokeStyle().joinLimit()});
 
-    // TODO: If PatchWriter can handle adding caps to its deferred patches, and we can convert
-    // hairlines to use round caps instead of square, then StrokeIterator can be deleted entirely.
-    // Besides being simpler, PatchWriter already has what it needs from the shader matrix and
-    // stroke params, so we don't have to re-extract them here.
-    SkMatrix shaderMatrix = params.transform();
-    SkStrokeRec stroke{SkStrokeRec::kHairline_InitStyle};
-    stroke.setStrokeStyle(params.strokeStyle().width());
-    stroke.setStrokeParams(params.strokeStyle().cap(),
-                           params.strokeStyle().join(),
-                           params.strokeStyle().miterLimit());
-    StrokeIterator strokeIter(path, &stroke, &shaderMatrix);
-    while (strokeIter.next()) {
-        using Verb = StrokeIterator::Verb;
-        const SkPoint* p = strokeIter.pts();
-        int numChops;
+    for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
+        switch (verb) {
+            case SkPathVerb::kMove:
+                // This automatically joins the last contour with the first contour (deferred) if
+                // the contour is closed. If the contour is not closed, it automatically adds
+                // additional patches for the end cap of the last patch and the beginning cap of the
+                // deferred patch. This does nothing if this is the beginning of the first contour.
+                writer.writeDeferredStrokePatch(pts[0], params.strokeStyle().cap());
+                break;
 
-        // TODO: The cusp detection logic should be moved into PatchWriter and shared between
-        // this and StrokeTessellator.cpp, but that will require updating a lot of SkGeometry to
-        // operate on float2 (skvx) instead of the legacy SkNx or SkPoint.
-        switch (strokeIter.verb()) {
-            case Verb::kContourFinished:
-                writer.writeDeferredStrokePatch();
+            case SkPathVerb::kClose:
+                // Draws a line back to the starting point of the contour and writes any deferred
+                // patch with a join (instead of caps). Or if the contour was empty, draws a cap.
+                // Since any deferred patch is consumed, the next moveTo's writeDeferredStrokePatch
+                // will do nothing but record the beginning of the new contour.
+                writer.closeDeferredStrokePatch(params.strokeStyle().cap());
                 break;
-            case Verb::kCircle:
-                // Round cap or else an empty stroke that is specified to be drawn as a circle.
-                writer.writeCircle(p[0]);
-                [[fallthrough]];
-            case Verb::kMoveWithinContour:
-                // A regular kMove invalidates the previous control point; the stroke iterator
-                // tells us a new value to use.
-                writer.updateJoinControlPointAttrib(p[0]);
+
+            case SkPathVerb::kLine:
+                writer.writeLine(pts[0], pts[1]);
                 break;
-            case Verb::kLine:
-                writer.writeLine(p[0], p[1]);
-                break;
-            case Verb::kQuad:
-                if (ConicHasCusp(p)) {
-                    // The cusp is always at the midtandent.
-                    SkPoint cusp = SkEvalQuadAt(p, SkFindQuadMidTangent(p));
+
+            case SkPathVerb::kQuad:
+                if (ConicHasCusp(pts)) {
+                    // The cusp is always at the midtangent.
+                    SkPoint cusp = SkEvalQuadAt(pts, SkFindQuadMidTangent(pts));
                     writer.writeCircle(cusp);
                     // A quad can only have a cusp if it's flat with a 180-degree turnaround.
-                    writer.writeLine(p[0], cusp);
-                    writer.writeLine(cusp, p[2]);
+                    writer.writeLine(pts[0], cusp);
+                    writer.writeLine(cusp, pts[2]);
                 } else {
-                    writer.writeQuadratic(p);
+                    writer.writeQuadratic(pts);
                 }
                 break;
-            case Verb::kConic:
-                if (ConicHasCusp(p)) {
-                    // The cusp is always at the midtandent.
-                    SkConic conic(p, strokeIter.w());
+
+            case SkPathVerb::kConic:
+                if (ConicHasCusp(pts)) {
+                    // The cusp is always at the midtangent.
+                    SkConic conic(pts, *w);
                     SkPoint cusp = conic.evalAt(conic.findMidTangent());
                     writer.writeCircle(cusp);
                     // A conic can only have a cusp if it's flat with a 180-degree turnaround.
-                    writer.writeLine(p[0], cusp);
-                    writer.writeLine(cusp, p[2]);
+                    writer.writeLine(pts[0], cusp);
+                    writer.writeLine(cusp, pts[2]);
                 } else {
-                    writer.writeConic(p, strokeIter.w());
+                    writer.writeConic(pts, *w);
                 }
                 break;
-            case Verb::kCubic:
+
+            case SkPathVerb::kCubic: {
                 SkPoint chops[10];
                 float T[2];
                 bool areCusps;
-                numChops = FindCubicConvex180Chops(p, T, &areCusps);
+                int numChops = FindCubicConvex180Chops(pts, T, &areCusps);
                 if (numChops == 0) {
-                    writer.writeCubic(p);
+                    writer.writeCubic(pts);
                 } else if (numChops == 1) {
-                    SkChopCubicAt(p, chops, T[0]);
+                    SkChopCubicAt(pts, chops, T[0]);
                     if (areCusps) {
                         writer.writeCircle(chops[3]);
                         // In a perfect world, these 3 points would be be equal after chopping
@@ -229,7 +218,7 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw,
                     writer.writeCubic(chops + 3);
                 } else {
                     SkASSERT(numChops == 2);
-                    SkChopCubicAt(p, chops, T[0], T[1]);
+                    SkChopCubicAt(pts, chops, T[0], T[1]);
                     if (areCusps) {
                         writer.writeCircle(chops[3]);
                         writer.writeCircle(chops[6]);
@@ -245,12 +234,17 @@ void TessellateStrokesRenderStep::writeVertices(DrawWriter* dw,
                     }
                 }
                 break;
+            }
         }
     }
+
+    // Finish the last contour (next moveTo point doesn't matter)
+    writer.writeDeferredStrokePatch({0.f, 0.f}, params.strokeStyle().cap());
 }
 
 void TessellateStrokesRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                                            PipelineDataGatherer* gatherer) const {
+    SkDEBUGCODE(gatherer->checkRewind());
     // TODO: Implement perspective
     SkASSERT(params.transform().type() < Transform::Type::kPerspective);
 

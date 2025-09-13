@@ -315,7 +315,7 @@ GrSurfaceProxyView LockTextureProxyView(GrRecordingContext* rContext,
                 if (!mippedView) {
                     // We failed to make a mipped proxy with the base copied into it. This could
                     // have been from failure to make the proxy or failure to do the copy. Thus we
-                    // will fall back to just using the non mipped proxy; See skbug.com/7094.
+                    // will fall back to just using the non mipped proxy; See skbug.com/40038328.
                     return view;
                 }
                 proxyProvider->removeUniqueKeyFromProxy(view.asTextureProxy());
@@ -793,8 +793,6 @@ public:
         // GrBlurUtils supports all tile modes and color types
         return this;
     }
-
-    bool useLegacyFilterResultBlur() const override { return false; }
 
     // SkShaderBlurAlgorithm
     sk_sp<SkDevice> makeDevice(const SkImageInfo& imageInfo) const override {

@@ -45,7 +45,7 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "common_mac_srcs",
+    name = "common_mac_non_arc_srcs",
     srcs = [
         "mac/MacWindowInfo.h",
         "mac/RasterWindowContext_mac.mm",
@@ -89,7 +89,7 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "mac_ganesh_gl_srcs",
+    name = "mac_ganesh_gl_non_arc_srcs",
     srcs = [
         "mac/GaneshGLWindowContext_mac.mm",
         "mac/MacWindowGLUtils.h",
@@ -104,7 +104,7 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "common_metal_srcs",
+    name = "common_metal_non_arc_srcs",
     srcs = [
         "MetalWindowContext.mm",
     ],
@@ -118,7 +118,7 @@ skia_filegroup(
 )
 
 skia_filegroup(
-    name = "mac_ganesh_metal_srcs",
+    name = "mac_ganesh_metal_non_arc_srcs",
     srcs = [
         "mac/GaneshMetalWindowContext_mac.mm",
     ],
@@ -196,11 +196,7 @@ skia_objc_library(
     testonly = True,
     srcs = [
         "common_ganesh_gl_srcs",
-        ":common_mac_srcs",
-        ":common_metal_srcs",
         ":common_srcs",
-        ":mac_ganesh_gl_srcs",
-        ":mac_ganesh_metal_srcs",
     ],
     hdrs = [
         ":common_hdrs",
@@ -208,6 +204,12 @@ skia_objc_library(
         ":common_metal_hdrs",
         ":mac_ganesh_gl_hdrs",
         ":mac_ganesh_metal_hdrs",
+    ],
+    non_arc_srcs = [
+        ":common_mac_non_arc_srcs",
+        ":mac_ganesh_gl_non_arc_srcs",
+        ":mac_ganesh_metal_non_arc_srcs",
+        ":common_metal_non_arc_srcs",
     ],
     sdk_frameworks = [
         "QuartzCore",

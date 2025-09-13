@@ -19,7 +19,6 @@
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/FenceSync.h"
 
 struct GrContextOptions;
 

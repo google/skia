@@ -29,14 +29,12 @@ SkString VulkanTextureInfo::toBackendString() const {
 
 TextureFormat VulkanTextureInfo::viewFormat() const {
     if (fYcbcrConversionInfo.isValid()) {
-        if (fYcbcrConversionInfo.fFormat == VK_FORMAT_UNDEFINED) {
-            return TextureFormat::kExternal;
-        } else {
-            return VkFormatToTextureFormat(fYcbcrConversionInfo.fFormat);
-        }
-    } else {
-        return VkFormatToTextureFormat(fFormat);
+        return fYcbcrConversionInfo.fFormat == VK_FORMAT_UNDEFINED
+                ? TextureFormat::kExternal
+                : VkFormatToTextureFormat(fYcbcrConversionInfo.fFormat);
     }
+
+    return VkFormatToTextureFormat(fFormat);
 }
 
 bool VulkanTextureInfo::isCompatible(const TextureInfo& that, bool requireExact) const {

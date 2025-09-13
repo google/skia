@@ -181,7 +181,7 @@ void SampleFitCubicToCircle::draw(SkCanvas* canvas) {
     endpointsPaint.setAntiAlias(true);
     SkPoint points[2] = {{(float)fCubicX[0], (float)fCubicY[0]},
                          {(float)fCubicX[3], (float)fCubicY[3]}};
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, 2, points, endpointsPaint);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, points, endpointsPaint);
 
     SkPaint textPaint;
     textPaint.setColor(SK_ColorWHITE);

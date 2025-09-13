@@ -135,7 +135,7 @@ protected:
         SkMatrix m;
         m.setRotate(1);
         for (int i = 0; i < 100000; ++i) {
-            fV = m.mapXY(5, 6);
+            fV = m.mapPoint({5, 6});
         }
     }
 private:

@@ -50,7 +50,7 @@ static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint, const SkFo
     if (strokeWidth > 0) {
         p.setStyle(SkPaint::kFill_Style);
         canvas->drawSimpleText("P", 1, SkTextEncoding::kUTF8, loc.fX, loc.fY - 225, font, p);
-        canvas->drawTextBlob(SkTextBlob::MakeFromPosText("P", 1, &loc, font), 0, 0, p);
+        canvas->drawTextBlob(SkTextBlob::MakeFromPosText("P", 1, {&loc, 1}, font), 0, 0, p);
     }
 
     p.setColor(SK_ColorRED);
@@ -58,7 +58,7 @@ static void draw_text_stroked(SkCanvas* canvas, const SkPaint& paint, const SkFo
     p.setStrokeWidth(strokeWidth);
 
     canvas->drawSimpleText("P", 1, SkTextEncoding::kUTF8, loc.fX, loc.fY - 225, font, p);
-    canvas->drawTextBlob(SkTextBlob::MakeFromPosText("P", 1, &loc, font), 0, 0, p);
+    canvas->drawTextBlob(SkTextBlob::MakeFromPosText("P", 1, {&loc, 1}, font), 0, 0, p);
 }
 
 static void draw_text_set(SkCanvas* canvas, const SkPaint& paint, const SkFont& font) {
@@ -74,7 +74,7 @@ static void draw_text_set(SkCanvas* canvas, const SkPaint& paint, const SkFont& 
 
     canvas->translate(200, 0);
     SkPaint p(paint);
-    p.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), phase));
+    p.setPathEffect(SkDashPathEffect::Make(intervals, phase));
     draw_text_stroked(canvas, p, font, 10);
 }
 

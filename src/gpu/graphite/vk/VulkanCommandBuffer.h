@@ -72,6 +72,9 @@ private:
     void prepareSurfaceForStateUpdate(SkSurface* targetSurface,
                                       const MutableTextureState* newState) override;
 
+    const Sampler* getSampler(const DrawPassCommands::BindTexturesAndSamplers* command,
+                              int32_t index);
+
     bool onAddRenderPass(const RenderPassDesc&,
                          SkIRect renderPassBounds,
                          const Texture* colorTexture,
@@ -91,7 +94,7 @@ private:
 
     void endRenderPass();
 
-    void addDrawPass(const DrawPass*);
+    [[nodiscard]] bool addDrawPass(DrawPass*);
 
     // Track descriptor changes for binding prior to draw calls
     void recordBufferBindingInfo(const BindBufferInfo& info, UniformSlot);
@@ -114,7 +117,7 @@ private:
     void bindGraphicsPipeline(const GraphicsPipeline*);
     void pushConstants(const PushConstantInfo&, VkPipelineLayout compatibleLayout);
 
-    void setBlendConstants(float* blendConstants);
+    void setBlendConstants(std::array<float, 4> blendConstants);
     void bindInputBuffer(const Buffer* buffer, VkDeviceSize offset, uint32_t binding);
     void bindIndexBuffer(const Buffer* indexBuffer, size_t offset);
     void bindIndirectBuffer(const Buffer* indirectBuffer, size_t offset);
@@ -227,9 +230,9 @@ private:
     VkBuffer fBoundIndirectBuffer = VK_NULL_HANDLE;
     size_t fBoundIndirectBufferOffset = 0;
 
-    float fCachedBlendConstant[4];
+    std::array<float, 4> fCachedBlendConstant;
 };
 
 } // namespace skgpu::graphite
 
-#endif // skgpu_graphite_VulkanCommandBuffer_DEFINED
+#endif  // skgpu_graphite_VulkanCommandBuffer_DEFINED

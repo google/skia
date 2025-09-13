@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
     canvas->drawRect(rect[1], paint);
     paint.setColor(SK_ColorWHITE);
     canvas->drawString("Here", rect[0].fLeft + 10, rect[0].fBottom - 10, font, paint);
-    canvas->concat(SkMatrix::RectToRect(rect[0], rect[1]));
+    canvas->concat(SkMatrix::Rect2Rect(rect[0], rect[1]).value());
     canvas->drawString("There", rect[0].fLeft + 10, rect[0].fBottom - 10, font, paint);
 }
 }  // END FIDDLE

@@ -210,20 +210,14 @@ alias(
 )
 
 alias(
-    name = "fontmgr_fontconfig_freetype",
-    actual = "//src/ports:fontmgr_fontconfig_freetype",
+    name = "fontmgr_fontconfig",
+    actual = "//src/ports:fontmgr_fontconfig",
     visibility = ["//visibility:public"],
 )
 
 alias(
-    name = "fontmgr_fontconfig_fontations",
-    actual = "//src/ports:fontmgr_fontconfig_fontations",
-    visibility = ["//visibility:public"],
-)
-
-alias(
-    name = "fontmgr_android_freetype",
-    actual = "//src/ports:fontmgr_android_freetype",
+    name = "fontmgr_android",
+    actual = "//src/ports:fontmgr_android",
     visibility = ["//visibility:public"],
 )
 

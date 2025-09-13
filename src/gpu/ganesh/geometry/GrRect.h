@@ -15,7 +15,7 @@
 /** Returns true if the rectangles have a nonzero area of overlap. It assumed that rects can be
     infinitely small but not "inverted". */
 static inline bool GrRectsOverlap(const SkRect& a, const SkRect& b) {
-    // See skbug.com/6607 about the isFinite() checks.
+    // See skbug.com/40037824 about the isFinite() checks.
     SkASSERT(!a.isFinite() || (a.fLeft <= a.fRight && a.fTop <= a.fBottom));
     SkASSERT(!b.isFinite() || (b.fLeft <= b.fRight && b.fTop <= b.fBottom));
     return a.fRight > b.fLeft && a.fBottom > b.fTop && b.fRight > a.fLeft && b.fBottom > a.fTop;
@@ -24,7 +24,7 @@ static inline bool GrRectsOverlap(const SkRect& a, const SkRect& b) {
 /** Returns true if the rectangles overlap or share an edge or corner. It assumed that rects can be
     infinitely small but not "inverted". */
 static inline bool GrRectsTouchOrOverlap(const SkRect& a, const SkRect& b) {
-    // See skbug.com/6607 about the isFinite() checks.
+    // See skbug.com/40037824 about the isFinite() checks.
     SkASSERT(!a.isFinite() || (a.fLeft <= a.fRight && a.fTop <= a.fBottom));
     SkASSERT(!b.isFinite() || (b.fLeft <= b.fRight && b.fTop <= b.fBottom));
     return a.fRight >= b.fLeft && a.fBottom >= b.fTop && b.fRight >= a.fLeft && b.fBottom >= a.fTop;
@@ -36,7 +36,7 @@ static inline bool GrRectsTouchOrOverlap(const SkRect& a, const SkRect& b) {
  */
 static inline void GrMapRectPoints(const SkRect& inRect, const SkRect& outRect,
                                    const SkPoint inPts[], SkPoint outPts[], int ptCount) {
-    SkMatrix::RectToRect(inRect, outRect).mapPoints(outPts, inPts, ptCount);
+    SkMatrix::RectToRectOrIdentity(inRect, outRect).mapPoints({outPts, ptCount}, {inPts, ptCount});
 }
 
 /**

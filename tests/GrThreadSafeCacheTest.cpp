@@ -72,7 +72,7 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
-#include "tools/gpu/ProxyUtils.h"
+#include "tools/ganesh/ProxyUtils.h"
 
 #include <chrono>
 #include <cstddef>

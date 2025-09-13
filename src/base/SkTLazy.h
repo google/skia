@@ -13,6 +13,14 @@
 #include <optional>
 #include <utility>
 
+template <typename T> T* SkOptAddressOrNull(std::optional<T>& object) {
+    return object.has_value() ? &object.value() :  nullptr;
+}
+
+template <typename T> const T* SkOptAddressOrNull(const std::optional<T>& object) {
+    return object.has_value() ? &object.value() :  nullptr;
+}
+
 /**
  *  Efficient way to defer allocating/initializing a class until it is needed
  *  (if ever).

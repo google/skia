@@ -98,7 +98,7 @@ extern bool gForceHighPrecisionRasterPipeline;
 #include "src/gpu/ganesh/GrCaps.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/SkGr.h"
-#include "tools/gpu/GrContextFactory.h"
+#include "tools/ganesh/GrContextFactory.h"
 
 using namespace skia_private;
 

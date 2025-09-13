@@ -57,8 +57,6 @@
 #include "src/utils/SkJSONWriter.h"
 #include "src/utils/SkMultiPictureDocumentPriv.h"
 #include "src/utils/SkOSPath.h"
-#include "tools/DDLPromiseImageHelper.h"
-#include "tools/DDLTileHelper.h"
 #include "tools/EncodeUtils.h"
 #include "tools/GpuToolUtils.h"
 #include "tools/Resources.h"
@@ -67,9 +65,11 @@
 #include "tools/UrlDataManager.h"
 #include "tools/debugger/DebugCanvas.h"
 #include "tools/fonts/FontToolUtils.h"
+#include "tools/ganesh/DDLPromiseImageHelper.h"
+#include "tools/ganesh/DDLTileHelper.h"
+#include "tools/ganesh/MemoryCache.h"
+#include "tools/ganesh/TestCanvas.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
-#include "tools/gpu/MemoryCache.h"
-#include "tools/gpu/TestCanvas.h"
 
 #if defined(SK_BUILD_FOR_ANDROID)
 #include "include/ports/SkImageGeneratorNDK.h"
@@ -1163,7 +1163,7 @@ Result SKPSrc::draw(SkCanvas* canvas, GraphiteTestContext*) const {
     procs.fImageProc = [](const void* data, size_t size, void* ctx) -> sk_sp<SkImage> {
         sk_sp<SkData> tmpData = SkData::MakeWithoutCopy(data, size);
         sk_sp<SkImage> image = SkImages::DeferredFromEncodedData(std::move(tmpData));
-        image = image->makeRasterImage(); // force decoding
+        image = image->makeRasterImage(nullptr); // force decoding
 
         if (image) {
             DeserializationContext* context = reinterpret_cast<DeserializationContext*>(ctx);
@@ -1330,8 +1330,8 @@ Result SkottieSrc::draw(SkCanvas* canvas, GraphiteTestContext*) const {
             {
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->clipRect(dest, true);
-                canvas->concat(SkMatrix::RectToRect(SkRect::MakeSize(animation->size()), dest,
-                                                    SkMatrix::kCenter_ScaleToFit));
+                canvas->concat(SkMatrix::RectToRectOrIdentity(SkRect::MakeSize(animation->size()),
+                                                              dest, SkMatrix::kCenter_ScaleToFit));
                 animation->seek(t);
                 animation->render(canvas);
             }

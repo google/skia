@@ -6,58 +6,67 @@ package(
 
 licenses(["notice"])
 
+SKSL_PRIVATE_HDRS = ["SkSLSampleUsage.h"]
+
+CORE_PRIV_HDRS = [
+    # Files listed here will be available to Skia internals via the core_priv target.
+    "SkIDChangeListener.h",
+    "SkGainmapShader.h",
+    "SkGainmapInfo.h",
+]
+
+CORE_SRCS = [
+    # We really don't want these headers to be used outside of SkPath and SkPathBuilder
+    # so we add it to core under srcs instead to enforce that.
+    "SkPathRef.h",
+    "SkWeakRefCnt.h",
+]
+
+DECODE_SRCS_HDRS = [
+    "SkEncodedInfo.h",
+    "SkExif.h",
+]
+
+JPEG_DECODE_SRCS_HDRS = [
+    "SkJpegMetadataDecoder.h",
+    "SkXmp.h",
+]
+
 # In own skia_filegroup for mapping to the //gn/sksl.gni file.
 skia_filegroup(
     name = "sksl_private_hdrs",
-    srcs = [
-        "SkSLSampleUsage.h",
-    ],
+    srcs = SKSL_PRIVATE_HDRS,
 )
 
 skia_filegroup(
     name = "core_priv_hdrs",
-    srcs = [
-        # Files listed here will be available to Skia internals via the core_priv target.
-        "SkIDChangeListener.h",
-        "SkSLSampleUsage.h",
-        "SkGainmapShader.h",
-        "SkGainmapInfo.h",
-    ],
+    srcs = CORE_PRIV_HDRS + SKSL_PRIVATE_HDRS,
     visibility = ["//src/core:__pkg__"],
 )
 
 skia_filegroup(
     name = "core_srcs",
-    srcs = [
-        # We really don't want this header to be used outside of SkPath and SkPathBuilder
-        # so we add it to core under srcs instead to enforce that.
-        "SkPathRef.h",
-        "SkWeakRefCnt.h",
-    ],
+    srcs = CORE_SRCS,
     visibility = ["//src/core:__pkg__"],
 )
 
 skia_filegroup(
     name = "decode_srcs",
-    srcs = [
-        "SkEncodedInfo.h",
-        "SkExif.h",
-    ],
+    srcs = DECODE_SRCS_HDRS,
     visibility = ["//src/codec:__pkg__"],
 )
 
 skia_filegroup(
     name = "jpeg_decode_srcs",
-    srcs = [
-        "SkJpegMetadataDecoder.h",
-    ],
+    srcs = JPEG_DECODE_SRCS_HDRS,
     visibility = ["//src/codec:__pkg__"],
 )
 
 generate_cpp_files_for_headers(
     name = "headers_to_compile",
-    headers = [
-        "SkIDChangeListener.h",
-        "SkWeakRefCnt.h",
-    ],
+    headers = SKSL_PRIVATE_HDRS +
+              CORE_PRIV_HDRS +
+              CORE_SRCS +
+              DECODE_SRCS_HDRS +
+              JPEG_DECODE_SRCS_HDRS,
 )

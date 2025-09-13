@@ -93,22 +93,6 @@ describe('PathKit\'s Path Behavior', function() {
     }
 
     describe('bounds and rect', function(){
-        it('dynamically updates getBounds()', function(done){
-            LoadPathKit.then(catchException(done, () => {
-                // Based on test_bounds_crbug_513799
-                let path = PathKit.NewPath();
-                expect(path.getBounds()).toEqual(PathKit.LTRBRect(0, 0, 0, 0));
-                path.moveTo(-5, -8);
-                expect(path.getBounds()).toEqual(PathKit.LTRBRect(-5, -8, -5, -8));
-                path.rect(1, 2, 2, 2);
-                expect(path.getBounds()).toEqual(PathKit.LTRBRect(-5, -8, 3, 4));
-                path.moveTo(1, 2);
-                expect(path.getBounds()).toEqual(PathKit.LTRBRect(-5, -8, 3, 4));
-                path.delete();
-                done();
-            }));
-        });
-
         it('has getBounds() and computeTightBounds()', function(done){
             LoadPathKit.then(catchException(done, () => {
                 // Based on PathOpsTightBoundsIllBehaved

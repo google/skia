@@ -229,7 +229,7 @@ public:
     uint32_t segmentMask() const;
 
     // Convert the shape into a path that describes the same geometry.
-    void asPath(SkPath* out, bool simpleFill = true) const;
+    SkPath asPath(bool simpleFill = true) const;
 
     using sk_is_trivially_relocatable = std::true_type;
 

@@ -40,7 +40,7 @@ GrGLGpu::ProgramCache::ProgramCache(int runtimeProgramCacheSize)
 GrGLGpu::ProgramCache::~ProgramCache() {}
 
 void GrGLGpu::ProgramCache::abandon() {
-    fMap.foreach([](GrProgramDesc*, std::unique_ptr<Entry>* e) {
+    fMap.foreach([](const GrProgramDesc*, std::unique_ptr<Entry>* e) {
         if ((*e)->fProgram) {
             (*e)->fProgram->abandon();
         }

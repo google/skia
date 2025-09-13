@@ -14,7 +14,6 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
-#include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
@@ -167,31 +166,21 @@ bool SkImage_GaneshBase::getROPixels(GrDirectContext* dContext,
     return true;
 }
 
-sk_sp<SkImage> SkImage_GaneshBase::makeSubset(GrDirectContext* direct,
-                                              const SkIRect& subset) const {
-    if (!fContext->priv().matches(direct)) {
+sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(SkRecorder* recorder,
+                                                const SkIRect& subset,
+                                                RequiredProperties) const {
+    auto gRecorder = AsGaneshRecorder(recorder);
+    if (!gRecorder) {
+        if (recorder) {
+            SkDEBUGFAIL("Wrong recorder type; need Ganesh Recorder made from direct context");
+        }
         return nullptr;
     }
-
-    if (subset.isEmpty()) {
+    auto direct = gRecorder->directContext();
+    if (!direct) {
+        SkDEBUGFAIL("Cannot take subset of Ganesh image w/o a directContext");
         return nullptr;
     }
-
-    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
-    if (!bounds.contains(subset)) {
-        return nullptr;
-    }
-
-    // optimization : return self if the subset == our bounds
-    if (bounds == subset) {
-        return sk_ref_sp(const_cast<SkImage_GaneshBase*>(this));
-    }
-
-    return this->onMakeSubset(direct, subset);
-}
-
-sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(GrDirectContext* direct,
-                                                const SkIRect& subset) const {
     if (!fContext->priv().matches(direct)) {
         return nullptr;
     }
@@ -216,13 +205,6 @@ sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(GrDirectContext* direct,
                                       kNeedNewImageUniqueID,
                                       std::move(copyView),
                                       this->imageInfo().colorInfo());
-}
-
-sk_sp<SkImage> SkImage_GaneshBase::onMakeSubset(skgpu::graphite::Recorder*,
-                                                const SkIRect&,
-                                                RequiredProperties) const {
-    SkDEBUGFAIL("Cannot convert Ganesh-backed image to Graphite");
-    return nullptr;
 }
 
 sk_sp<SkImage> SkImage_GaneshBase::makeColorTypeAndColorSpace(SkRecorder* recorder,
@@ -258,7 +240,7 @@ sk_sp<SkImage> SkImage_GaneshBase::makeColorTypeAndColorSpace(SkRecorder* record
         return sk_ref_sp(const_cast<SkImage_GaneshBase*>(this));
     }
 
-    return this->onMakeColorTypeAndColorSpace(targetColorType, std::move(targetCS), dContext);
+    return this->onMakeColorTypeAndColorSpace(dContext, targetColorType, std::move(targetCS));
 }
 
 sk_sp<SkSurface> SkImage_GaneshBase::onMakeSurface(SkRecorder* recorder,
@@ -305,8 +287,13 @@ bool SkImage_GaneshBase::onReadPixels(GrDirectContext* dContext,
     return sContext->readPixels(dContext, {dstInfo, dstPixels, dstRB}, {srcX, srcY});
 }
 
-bool SkImage_GaneshBase::isValid(GrRecordingContext* context) const {
-    if (context && context->abandoned()) {
+bool SkImage_GaneshBase::isValid(SkRecorder* recorder) const {
+    auto gRecorder = AsGaneshRecorder(recorder);
+    if (!gRecorder) {
+        return false;
+    }
+    auto context = gRecorder->recordingContext();
+    if (!context || context->abandoned()) {
         return false;
     }
     if (fContext->priv().abandoned()) {
@@ -316,14 +303,6 @@ bool SkImage_GaneshBase::isValid(GrRecordingContext* context) const {
         return false;
     }
     return true;
-}
-
-bool SkImage_GaneshBase::isValid(SkRecorder* recorder) const {
-    auto gRecorder = AsGaneshRecorder(recorder);
-    if (!gRecorder) {
-        return false;
-    }
-    return this->isValid(gRecorder->recordingContext());
 }
 
 sk_sp<GrTextureProxy> SkImage_GaneshBase::MakePromiseImageLazyProxy(
@@ -447,7 +426,7 @@ sk_sp<SkImage> SubsetTextureFrom(GrDirectContext* context,
     if (context == nullptr || img == nullptr) {
         return nullptr;
     }
-    auto subsetImg = img->makeSubset(context, subset);
+    auto subsetImg = img->makeSubset(context->asRecorder(), subset, {});
     return SkImages::TextureFromImage(context, subsetImg.get());
 }
 

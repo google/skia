@@ -195,7 +195,9 @@ public:
         }
 
         SkPath path;
-        if (!font.getPath(glyph, &path)) {
+        if (auto result = font.getPath(glyph)) {
+            path = *result;
+        } else {
             // Only glyphs that can be represented as paths are supported for now, color glyphs are
             // ignored.  We could look into converting these to comp-based Lottie fonts if needed.
 
@@ -203,8 +205,7 @@ public:
             std::cerr << "Glyph ID %d could not be converted to a path, discarding.";
         }
 
-        float width;
-        font.getWidths(&glyph, 1, &width);
+        float width = font.getWidth(glyph);
 
         // Lottie glyph shapes are always defined at a normalized size of 100.
         const float scale = 100 / font.getSize();

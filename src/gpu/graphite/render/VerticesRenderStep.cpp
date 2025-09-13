@@ -111,7 +111,7 @@ VerticesRenderStep::VerticesRenderStep(PrimitiveType type, bool hasColor, bool h
                      /*uniforms=*/{{"localToDevice", SkSLType::kFloat4x4},
                                    {"depth", SkSLType::kFloat}},
                      type,
-                     kDirectDepthGEqualPass,
+                     kDirectDepthLEqualPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/kAttributes[2*hasTexCoords + hasColor],
                      /*varyings=*/   kVaryings[hasColor])
@@ -208,6 +208,7 @@ void VerticesRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                                   PipelineDataGatherer* gatherer) const {
     // Vertices are transformed on the GPU. Store PaintDepth as a uniform to avoid copying the
     // same depth for each vertex.
+    SkDEBUGCODE(gatherer->checkRewind());
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
     gatherer->write(params.transform().matrix());
     gatherer->write(params.order().depthAsFloat());

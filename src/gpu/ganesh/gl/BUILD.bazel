@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -136,12 +136,5 @@ skia_cc_library(
         "//src/gpu",
         "//src/gpu/ganesh:ganesh_TEST_UTIL",
         "//src/sksl/codegen:glsl",
-    ],
-)
-
-generate_cpp_files_for_headers(
-    name = "headers_to_compile",
-    headers = [
-        "GrGLBackendSurfacePriv.h",
     ],
 )

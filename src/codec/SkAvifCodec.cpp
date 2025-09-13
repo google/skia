@@ -205,9 +205,11 @@ SkCodec::Result SkAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
     }
 
     const SkColorType dstColorType = dstInfo.colorType();
-    if (dstColorType != kRGBA_8888_SkColorType && dstColorType != kRGBA_F16_SkColorType) {
+    if (dstColorType != kRGBA_8888_SkColorType
+        && dstColorType != kBGRA_8888_SkColorType
+        && dstColorType != kRGBA_F16_SkColorType) {
         // TODO(vigneshv): Check if more color types need to be supported.
-        // Currently android supports at least RGB565 and BGRA8888 which is not
+        // Currently android supports at least RGB565 which is not
         // supported here.
         return kUnimplemented;
     }
@@ -230,6 +232,9 @@ SkCodec::Result SkAvifCodec::onGetPixels(const SkImageInfo& dstInfo,
 
     if (dstColorType == kRGBA_8888_SkColorType) {
         rgbImage.depth = 8;
+    } else if (dstColorType == kBGRA_8888_SkColorType){
+        rgbImage.depth = 8;
+        rgbImage.format = AVIF_RGB_FORMAT_BGRA;
     } else if (dstColorType == kRGBA_F16_SkColorType) {
         rgbImage.depth = 16;
         rgbImage.isFloat = AVIF_TRUE;

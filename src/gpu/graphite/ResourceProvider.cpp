@@ -20,10 +20,14 @@
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
+#include "src/gpu/graphite/GraphicsPipelineHandle.h"
 #include "src/gpu/graphite/Log.h"
+#include "src/gpu/graphite/PipelineCreationTask.h"
+#include "src/gpu/graphite/PipelineManager.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ResourceCache.h"
+#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/Texture.h"
@@ -51,26 +55,62 @@ ResourceProvider::~ResourceProvider() {
     fResourceCache->shutdown();
 }
 
-sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
-        const RuntimeEffectDictionary* runtimeDict,
+GraphicsPipelineHandle ResourceProvider::createGraphicsPipelineHandle(
         const GraphicsPipelineDesc& pipelineDesc,
         const RenderPassDesc& renderPassDesc,
         SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags) {
 
-    auto globalCache = fSharedContext->globalCache();
-    UniqueKey pipelineKey = fSharedContext->caps()->makeGraphicsPipelineKey(pipelineDesc,
-                                                                            renderPassDesc);
+    PipelineManager* pipelineManager = fSharedContext->pipelineManager();
 
-    uint32_t compilationID = 0;
+    return pipelineManager->createHandle(this,
+                                         pipelineDesc,
+                                         renderPassDesc,
+                                         pipelineCreationFlags);
+}
+
+void ResourceProvider::startPipelineCreationTask(sk_sp<const RuntimeEffectDictionary> runtimeDict,
+                                                 const GraphicsPipelineHandle& handle) {
+    PipelineManager* pipelineManager = fSharedContext->pipelineManager();
+
+    pipelineManager->startPipelineCreationTask(this, std::move(runtimeDict), handle);
+}
+
+sk_sp<GraphicsPipeline> ResourceProvider::resolveHandle(const GraphicsPipelineHandle& handle) {
+    PipelineManager* pipelineManager = fSharedContext->pipelineManager();
+
+    return pipelineManager->resolveHandle(handle);
+}
+
+sk_sp<GraphicsPipeline> ResourceProvider::findGraphicsPipeline(
+        const UniqueKey& pipelineKey,
+        SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags,
+        uint32_t *compilationID) {
+
+    auto globalCache = fSharedContext->globalCache();
+
     sk_sp<GraphicsPipeline> pipeline = globalCache->findGraphicsPipeline(pipelineKey,
                                                                          pipelineCreationFlags,
-                                                                         &compilationID);
-    if (pipeline && pipeline->didAsyncCompilationFail()) {
+                                                                         compilationID);
+    if (pipeline && pipeline->didAsyncCompilationFail()) SK_UNLIKELY {
         // If the pipeline failed, remove it from the cache and fall through to retry
         globalCache->removeGraphicsPipeline(pipeline.get());
         pipeline.reset();
     }
 
+    return pipeline;
+}
+
+sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
+        const RuntimeEffectDictionary* runtimeDict,
+        const UniqueKey& pipelineKey,
+        const GraphicsPipelineDesc& pipelineDesc,
+        const RenderPassDesc& renderPassDesc,
+        SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags) {
+
+    uint32_t compilationID = 0;
+    sk_sp<GraphicsPipeline> pipeline = this->findGraphicsPipeline(pipelineKey,
+                                                                  pipelineCreationFlags,
+                                                                  &compilationID);
     if (!pipeline) {
         // Haven't encountered this pipeline, so create a new one. Since pipelines are shared
         // across Recorders, we could theoretically create equivalent pipelines on different
@@ -100,6 +140,8 @@ sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
                                                 pipelineCreationFlags,
                                                 compilationID);
         if (pipeline) {
+            auto globalCache = fSharedContext->globalCache();
+
             globalCache->invokePipelineCallback(fSharedContext, pipelineDesc, renderPassDesc);
             // TODO: Should we store a null pipeline if we failed to create one so that subsequent
             // usage immediately sees that the pipeline cannot be created, vs. retrying every time?
@@ -352,6 +394,10 @@ void ResourceProvider::freeGpuResources() {
 void ResourceProvider::purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime) {
     this->onPurgeResourcesNotUsedSince(purgeTime);
     fResourceCache->purgeResourcesNotUsedSince(purgeTime);
+}
+
+const Caps* ResourceProvider::caps() const {
+    return fSharedContext->caps();
 }
 
 }  // namespace skgpu::graphite

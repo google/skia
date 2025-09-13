@@ -7,6 +7,8 @@
 
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontTypes.h"
 #include "include/core/SkImageFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPoint.h"
@@ -15,11 +17,13 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTileMode.h"
 #include "include/core/SkTypes.h"
 #include "include/effects/SkImageFilters.h"
 #include "include/private/base/SkTPin.h"
 #include "src/base/SkRandom.h"
 #include "tools/DecodeUtils.h"
+#include "tools/fonts/FontToolUtils.h"
 #include "tools/timer/TimeUtils.h"
 
 static const SkScalar kBlurMax = 7.0f;
@@ -192,7 +196,73 @@ private:
     SkScalar fBlurSigma;
 };
 
+class AnimatedBackdropBlur final : public skiagm::GM {
+public:
+    SkString getName() const override { return SkString("animated-backdrop-blur"); }
+
+    SkISize getISize() override { return {512, 1024}; }
+
+    void onOnceBeforeDraw() override {
+        fFont = SkFont(ToolUtils::DefaultPortableTypeface(), 20);
+        fImage = ToolUtils::GetResourceAsImage("images/color_wheel.png");
+        const SkRect crop{0, 100, 512, 400};
+        fFilter = SkImageFilters::Crop(crop, SkTileMode::kDecal,
+                        SkImageFilters::Blur(30, 30,
+                                SkImageFilters::Crop(crop, SkTileMode::kMirror, nullptr)));
+
+        fLayerRec = SkCanvas::SaveLayerRec(nullptr, nullptr, fFilter.get(), 0);
+    }
+
+    void onDraw(SkCanvas* canvas) override {
+        static constexpr const char* txts[] = {
+            "Lorem ipsum dolor sit amet,",
+            "consectetur adipiscing elit,",
+            "sed do eiusmod tempor incididunt",
+            "ut labore et dolore magna aliqua.",
+            "",
+            "",
+            "Ut enim ad minim veniam,",
+            "quis nostrud exercitation ullamco laboris",
+            "nisi ut aliquip ex ea commodo consequat.",
+            "",
+            "",
+            "Duis aute irure dolor in reprehenderit",
+            "in voluptate velit esse cillum dolore",
+            "eu fugiat nulla pariatur."
+        };
+
+        SkPaint paint;
+        float voffset = fVOffset;
+        for (const auto& txt : txts) {
+            canvas->drawSimpleText(
+                txt, strlen(txt), SkTextEncoding::kUTF8, 0, voffset, fFont, paint);
+            voffset += fFont.getSize();
+        }
+
+        float dstHeight = fImage->height() * 128.f / fImage->width();
+        canvas->drawImageRect(fImage.get(), SkRect::MakeXYWH(16.f, fVOffset, 128.f, dstHeight),
+                              SkFilterMode::kLinear);
+
+        canvas->saveLayer(fLayerRec);
+        canvas->restore();
+    }
+
+    bool onAnimate(double nanos) override {
+        fVOffset = TimeUtils::PingPong(nanos * 1e-9, 6, 0, 350, 0);
+
+        return true;
+    }
+
+private:
+    sk_sp<SkImageFilter>   fFilter;
+    sk_sp<SkImage>         fImage;
+    SkCanvas::SaveLayerRec fLayerRec;
+    SkFont                 fFont;
+    float                  fVOffset = 0;
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 DEF_GM(return new AnimatedImageBlurs;)
 DEF_GM(return new AnimatedTiledImageBlur;)
+DEF_GM(return new AnimatedBackdropBlur;)

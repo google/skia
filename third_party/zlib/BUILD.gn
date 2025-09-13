@@ -88,8 +88,6 @@ if (skia_use_system_zlib) {
         defines += [ "ARMV8_OS_MACOS" ]
       } else if (is_ios) {
         defines += [ "ARMV8_OS_IOS" ]
-      } else if (is_fuchsia) {
-        defines += [ "ARMV8_OS_FUCHSIA" ]
       } else if (is_win) {
         defines += [ "ARMV8_OS_WINDOWS" ]
       } else {

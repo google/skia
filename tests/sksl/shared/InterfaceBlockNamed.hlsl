@@ -1,6 +1,6 @@
 cbuffer testBlock : register(b456, space0)
 {
-    float _3_x : packoffset(c0);
+    float _7_x : packoffset(c0);
 };
 
 
@@ -13,7 +13,7 @@ struct SPIRV_Cross_Output
 
 void frag_main()
 {
-    sk_FragColor = _3_x.xxxx;
+    sk_FragColor = _7_x.xxxx;
 }
 
 SPIRV_Cross_Output main()

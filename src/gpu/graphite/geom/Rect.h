@@ -36,6 +36,8 @@ public:
     AI Rect(float l, float t, float r, float b) : fVals(NegateBotRight({l,t,r,b})) {}
     AI Rect(float2 topLeft, float2 botRight) : fVals(topLeft, -botRight) {}
     AI Rect(const SkRect& r) : fVals(NegateBotRight(float4::Load(r.asScalars()))) {}
+    AI Rect(const SkIRect& r)
+            : fVals(NegateBotRight(skvx::cast<float>(skvx::int4::Load(r.asInt32s())))) {}
 
     AI static Rect LTRB(float4 ltrb) {
         return Rect(NegateBotRight(ltrb));

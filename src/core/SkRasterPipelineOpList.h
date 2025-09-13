@@ -182,7 +182,7 @@
     M(colorburn) M(colordodge) M(softlight)                                    \
     M(hue) M(saturation) M(color) M(luminosity)                                \
     M(matrix_3x3) M(matrix_3x4) M(matrix_4x5) M(matrix_4x3)                    \
-    M(parametric) M(gamma_) M(PQish) M(HLGish) M(HLGinvish)                    \
+    M(parametric) M(gamma_) M(PQish) M(HLGish) M(HLGinvish) M(ootf)            \
     M(rgb_to_hsl) M(hsl_to_rgb)                                                \
     M(css_lab_to_xyz) M(css_oklab_to_linear_srgb)                              \
     M(css_oklab_gamut_map_to_linear_srgb)                                      \
@@ -192,6 +192,7 @@
     M(mirror_x)   M(repeat_x)                                                  \
     M(mirror_y)   M(repeat_y)                                                  \
     M(negate_x)                                                                \
+    M(bilerp_clamp_8888_force_highp)                                           \
     M(bicubic_clamp_8888)                                                      \
     M(bilinear_setup)                                                          \
     M(bilinear_nx) M(bilinear_px) M(bilinear_ny) M(bilinear_py)                \

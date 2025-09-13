@@ -31,7 +31,7 @@ static bool one_contour(const SkPath& path) {
     SkSTArenaAlloc<256> allocator;
     int verbCount = path.countVerbs();
     uint8_t* verbs = (uint8_t*) allocator.makeArrayDefault<uint8_t>(verbCount);
-    (void) path.getVerbs(verbs, verbCount);
+    (void) path.getVerbs({verbs, verbCount});
     for (int index = 1; index < verbCount; ++index) {
         if (verbs[index] == SkPath::kMove_Verb) {
             return false;

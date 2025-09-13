@@ -458,9 +458,7 @@ static XPS_POINT xps_point(const SkPoint& point) {
 }
 
 static XPS_POINT xps_point(const SkPoint& point, const SkMatrix& matrix) {
-    SkPoint skTransformedPoint;
-    matrix.mapXY(point.fX, point.fY, &skTransformedPoint);
-    return xps_point(skTransformedPoint);
+    return xps_point(matrix.mapPoint(point));
 }
 
 static XPS_SPREAD_METHOD xps_spread_method(SkTileMode tileMode) {
@@ -483,12 +481,10 @@ static XPS_SPREAD_METHOD xps_spread_method(SkTileMode tileMode) {
 static void transform_offsets(SkScalar* stopOffsets, const int numOffsets,
                               const SkPoint& start, const SkPoint& end,
                               const SkMatrix& transform) {
-    SkPoint startTransformed;
-    transform.mapXY(start.fX, start.fY, &startTransformed);
-    SkPoint endTransformed;
-    transform.mapXY(end.fX, end.fY, &endTransformed);
+    SkPoint startTransformed = transform.mapPoint(start);
+    SkPoint endTransformed = transform.mapPoint(end);
 
-    //Manhattan distance between transformed start and end.
+    // Manhattan distance between transformed start and end.
     SkScalar startToEnd = (endTransformed.fX - startTransformed.fX)
                         + (endTransformed.fY - startTransformed.fY);
     if (SkScalarNearlyZero(startToEnd)) {
@@ -503,8 +499,7 @@ static void transform_offsets(SkScalar* stopOffsets, const int numOffsets,
         stop.fX = (end.fX - start.fX) * stopOffsets[i];
         stop.fY = (end.fY - start.fY) * stopOffsets[i];
 
-        SkPoint stopTransformed;
-        transform.mapXY(stop.fX, stop.fY, &stopTransformed);
+        SkPoint stopTransformed = transform.mapPoint(stop);
 
         //Manhattan distance between transformed start and stop.
         SkScalar startToStop = (stopTransformed.fX - startTransformed.fX)
@@ -924,7 +919,7 @@ HRESULT SkXPSDevice::createXpsRadialGradient(SkShaderBase::GradientInfo info,
 
         vec[0].set(radius, 0);
         vec[1].set(0, radius);
-        localMatrix.mapVectors(vec, 2);
+        localMatrix.mapVectors(vec);
 
         SkScalar d0 = vec[0].length();
         SkScalar d1 = vec[1].length();
@@ -1128,9 +1123,7 @@ HRESULT SkXPSDevice::createXpsQuad(const SkPoint (&points)[4],
     return S_OK;
 }
 
-void SkXPSDevice::drawPoints(SkCanvas::PointMode mode,
-                             size_t count, const SkPoint points[],
-                             const SkPaint& paint) {
+void SkXPSDevice::drawPoints(SkCanvas::PointMode, SkSpan<const SkPoint>, const SkPaint&) {
     //TODO
 }
 
@@ -1226,7 +1219,7 @@ void SkXPSDevice::internalDrawRect(const SkRect& r,
             { r.fRight, r.fTop },
         };
         if (!xpsTransformsPath && transformRect) {
-            this->localToDevice().mapPoints(points, std::size(points));
+            this->localToDevice().mapPoints(points);
         }
         HRV(this->createXpsQuad(points, stroke, fill, &rectFigure));
     }
@@ -1577,14 +1570,13 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
                                             : SkStrokeRec::kHairline_InitStyle;
         //[Pixel-path -> Mask]
         SkMaskBuilder rasteredMask;
-        if (SkDraw::DrawToMask(
-                        *pixelPath,
-                        clipIRect,
-                        filter,  //just to compute how much to draw.
-                        &matrix,
-                        &rasteredMask,
-                        SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode,
-                        style)) {
+        if (skcpu::DrawToMask(*pixelPath,
+                              clipIRect,
+                              filter,  //just to compute how much to draw.
+                              &matrix,
+                              &rasteredMask,
+                              SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode,
+                              style)) {
 
             SkAutoMaskFreeImage rasteredAmi(rasteredMask.image());
             mask = &rasteredMask;
@@ -2003,7 +1995,7 @@ void SkXPSDevice::drawImageRect(const SkImage* image,
 
     SkRect bitmapBounds = SkRect::Make(bitmap.bounds());
     SkRect srcBounds = src ? *src : bitmapBounds;
-    SkMatrix matrix = SkMatrix::RectToRect(srcBounds, dst);
+    SkMatrix matrix = SkMatrix::RectToRectOrIdentity(srcBounds, dst);
     SkRect actualDst;
     if (!src || bitmapBounds.contains(*src)) {
         actualDst = dst;

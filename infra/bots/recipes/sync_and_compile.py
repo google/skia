@@ -5,7 +5,6 @@
 
 # Recipe module for compiling Skia when we need to get a full Skia checkout.
 
-PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'build',

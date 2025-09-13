@@ -10,7 +10,6 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tools/gpu/ContextType.h"
-#include "tools/gpu/FenceSync.h"
 
 struct GrContextOptions;
 

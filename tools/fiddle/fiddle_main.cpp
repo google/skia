@@ -22,8 +22,8 @@
 #include "src/gpu/ganesh/GrTexture.h"
 
 #include "tools/flags/CommandLineFlags.h"
+#include "tools/ganesh/gl/GLTestContext.h"
 #include "tools/gpu/ManagedBackendTexture.h"
-#include "tools/gpu/gl/GLTestContext.h"
 
 #if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG)
 #include "include/codec/SkPngDecoder.h"

@@ -73,7 +73,8 @@ public:
                                                          SkCanvas::SrcRectConstraint,
                                                          bool sharpenMM,
                                                          size_t cacheSize,
-                                                         size_t maxTextureSize);
+                                                         size_t maxTextureSize,
+                                                         bool renderLazyPictureTilesOnGPU = true);
 };
 
 } // namespace skgpu

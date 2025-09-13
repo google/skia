@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _9_colorGreen : packoffset(c0);
-    float4 _9_colorRed : packoffset(c1);
+    float4 _13_colorGreen : packoffset(c0);
+    float4 _13_colorRed : packoffset(c1);
 };
 
 
@@ -12,46 +12,46 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float2 swizzle_lvalue_h2hhh2h(float _24, float _25, inout float2 _26, float _27)
+float2 swizzle_lvalue_h2hhh2h(float _28, float _29, inout float2 _30, float _31)
 {
-    _26 = float2(_26.y, _26.x);
-    return float2(_24 + _25, _27);
+    _30 = float2(_30.y, _30.x);
+    return float2(_28 + _29, _31);
 }
 
-void func_vh4(inout float4 _39)
+void func_vh4(inout float4 _43)
 {
-    float _43 = 1.0f;
-    float _45 = 2.0f;
-    float2 _48 = _39.xz;
-    float _50 = 5.0f;
-    float2 _51 = swizzle_lvalue_h2hhh2h(_43, _45, _48, _50);
-    _39 = float4(_48.x, _39.y, _48.y, _39.w);
-    float2 t = _51;
-    _39 = float4(_39.x, _51.x, _39.z, _51.y);
+    float _47 = 1.0f;
+    float _49 = 2.0f;
+    float2 _52 = _43.xz;
+    float _54 = 5.0f;
+    float2 _55 = swizzle_lvalue_h2hhh2h(_47, _49, _52, _54);
+    _43 = float4(_52.x, _43.y, _52.y, _43.w);
+    float2 t = _55;
+    _43 = float4(_43.x, _55.x, _43.z, _55.y);
 }
 
-float4 main(float2 _58)
+float4 main(float2 _62)
 {
     float4 result = float4(0.0f, 1.0f, 2.0f, 3.0f);
-    float4 _63 = float4(0.0f, 1.0f, 2.0f, 3.0f);
-    func_vh4(_63);
-    result = _63;
-    float4 _71 = 0.0f.xxxx;
-    if (all(bool4(_63.x == float4(2.0f, 3.0f, 0.0f, 5.0f).x, _63.y == float4(2.0f, 3.0f, 0.0f, 5.0f).y, _63.z == float4(2.0f, 3.0f, 0.0f, 5.0f).z, _63.w == float4(2.0f, 3.0f, 0.0f, 5.0f).w)))
+    float4 _67 = float4(0.0f, 1.0f, 2.0f, 3.0f);
+    func_vh4(_67);
+    result = _67;
+    float4 _75 = 0.0f.xxxx;
+    if (all(bool4(_67.x == float4(2.0f, 3.0f, 0.0f, 5.0f).x, _67.y == float4(2.0f, 3.0f, 0.0f, 5.0f).y, _67.z == float4(2.0f, 3.0f, 0.0f, 5.0f).z, _67.w == float4(2.0f, 3.0f, 0.0f, 5.0f).w)))
     {
-        _71 = _9_colorGreen;
+        _75 = _13_colorGreen;
     }
     else
     {
-        _71 = _9_colorRed;
+        _75 = _13_colorRed;
     }
-    return _71;
+    return _75;
 }
 
 void frag_main()
 {
-    float2 _19 = 0.0f.xx;
-    sk_FragColor = main(_19);
+    float2 _23 = 0.0f.xx;
+    sk_FragColor = main(_23);
 }
 
 SPIRV_Cross_Output main()

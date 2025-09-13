@@ -159,7 +159,7 @@ sk_sp<SkFlattenable> SkImageShader::CreateProc(SkReadBuffer& buffer) {
     bool raw = buffer.isVersionLT(SkPicturePriv::Version::kRawImageShaders) ? false
                                                                             : buffer.readBool();
 
-    // TODO(skbug.com/12784): Subset is not serialized yet; it's only used by special images so it
+    // TODO(skbug.com/40043877): Subset is not serialized yet; it's only used by special images so it
     // will never be written to an SKP.
 
     return raw ? SkImageShader::MakeRaw(std::move(img), tmx, tmy, sampling, &localMatrix)
@@ -175,7 +175,7 @@ void SkImageShader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeImage(fImage.get());
     SkASSERT(fClampAsIfUnpremul == false);
 
-    // TODO(skbug.com/12784): Subset is not serialized yet; it's only used by special images so it
+    // TODO(skbug.com/40043877): Subset is not serialized yet; it's only used by special images so it
     // will never be written to an SKP.
     SkASSERT(!needs_subset(fImage.get(), fSubset));
 
@@ -215,7 +215,7 @@ static bool legacy_shader_can_handle(const SkMatrix& inv) {
 
 SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
                                                     SkArenaAlloc* alloc) const {
-    SkASSERT(!needs_subset(fImage.get(), fSubset)); // TODO(skbug.com/12784)
+    SkASSERT(!needs_subset(fImage.get(), fSubset)); // TODO(skbug.com/40043877)
     if (fImage->alphaType() == kUnpremul_SkAlphaType) {
         return nullptr;
     }
@@ -266,8 +266,8 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
-    SkMatrix inv;
-    if (!rec.fMatrixRec.totalInverse(&inv) || !legacy_shader_can_handle(inv)) {
+    auto inv = rec.fMatrixRec.totalInverse();
+    if (!inv || !legacy_shader_can_handle(*inv)) {
         return nullptr;
     }
 
@@ -388,7 +388,7 @@ SkRect SkModifyPaintAndDstForDrawImageRect(const SkImage* image,
     SkRect imgBounds = SkRect::Make(image->bounds());
 
     SkASSERT(src.isFinite() && dst.isFinite() && dst.isSorted());
-    SkMatrix localMatrix = SkMatrix::RectToRect(src, dst);
+    SkMatrix localMatrix = SkMatrix::RectToRectOrIdentity(src, dst);
     if (!imgBounds.contains(src)) {
         if (!src.intersect(imgBounds)) {
             return SkRect::MakeEmpty(); // Nothing to draw for this entry
@@ -507,7 +507,7 @@ static SkSamplingOptions tweak_sampling(SkSamplingOptions sampling, const SkMatr
 }
 
 bool SkImageShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixRec& mRec) const {
-    SkASSERT(!needs_subset(fImage.get(), fSubset));  // TODO(skbug.com/12784)
+    SkASSERT(!needs_subset(fImage.get(), fSubset));  // TODO(skbug.com/40043877)
 
     // We only support certain sampling options in stages so far
     auto sampling = fSampling;
@@ -521,9 +521,11 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixR
     SkMatrix baseInv;
     // If the total matrix isn't valid then we will always access the base MIP level.
     if (mRec.totalMatrixIsValid()) {
-        if (!mRec.totalInverse(&baseInv)) {
+        auto inv = mRec.totalInverse();
+        if (!inv) {
             return false;
         }
+        baseInv = *inv;
         baseInv.normalizePerspective();
     }
 
@@ -715,8 +717,28 @@ bool SkImageShader::appendStages(const SkStageRec& rec, const SkShaders::MatrixR
         && !sampling.useCubic && sampling.filter == SkFilterMode::kLinear
         && sampling.mipmap != SkMipmapMode::kLinear
         && fTileModeX == SkTileMode::kClamp && fTileModeY == SkTileMode::kClamp) {
+        // Check bounding box of points we will sample to see if we can use lowp
+        // and not over/under flow.
+        bool shouldUseHighPBilerp = false;
+        if (!rec.fDstBounds.isEmpty()) {
+            std::array<SkPoint, 4> quad = rec.fDstBounds.toQuad();
+            baseInv.mapPoints(quad);
+            SkRect deviceImageSpace;
+            deviceImageSpace.setBounds(quad);
+            for (float val : SkSpan<const float>(deviceImageSpace.asScalars(), 4)) {
+                if (val > INT16_MAX || val < INT16_MIN || !std::isfinite(val)) {
+                    shouldUseHighPBilerp = true;
+                    break;
+                }
+            }
+        }
 
-        p->append(SkRasterPipelineOp::bilerp_clamp_8888, upper.gather);
+        if (shouldUseHighPBilerp) {
+            p->append(SkRasterPipelineOp::bilerp_clamp_8888_force_highp, upper.gather);
+        } else {
+            p->append(SkRasterPipelineOp::bilerp_clamp_8888, upper.gather);
+        }
+
         if (ct == kBGRA_8888_SkColorType) {
             p->append(SkRasterPipelineOp::swap_rb);
         }

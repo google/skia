@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/DrawTypes.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 
 #include <string_view>
 #include <tuple>
@@ -21,6 +22,7 @@ namespace skgpu::graphite {
 class Buffer;
 class Caps;
 class CommandBuffer;
+class Recorder;
 class Recording;
 class ResourceProvider;
 
@@ -40,10 +42,9 @@ private:
     friend class DrawBufferManager; // to access makeBindInfo
     friend class StaticBufferManager; // to access makeBindInfo
 
-
-    std::tuple<void*/*mappedPtr*/, BindBufferInfo> makeBindInfo(size_t requiredBytes,
-                                                                size_t requiredAlignment,
-                                                                std::string_view label);
+    std::tuple<void* /*mappedPtr*/, BindBufferInfo> makeBindInfo(size_t requiredBytes,
+                                                                 size_t requiredAlignment,
+                                                                 std::string_view label);
 
     ResourceProvider* fResourceProvider;
 

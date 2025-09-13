@@ -71,8 +71,7 @@ void GrSWMaskHelper::drawShape(const GrStyledShape& shape, const SkMatrix& matri
     translatedMatrix.postTranslate(fTranslate.fX, fTranslate.fY);
     fDraw.fCTM = &translatedMatrix;
 
-    SkPath path;
-    shape.asPath(&path);
+    SkPath path = shape.asPath();
     if (0xFF == alpha) {
         SkASSERT(0xFF == paint.getAlpha());
         fDraw.drawPathCoverage(path, paint);
@@ -108,8 +107,7 @@ void GrSWMaskHelper::drawShape(const GrShape& shape, const SkMatrix& matrix,
     }
 
     // A complex, or inverse-filled shape, so go through drawPath.
-    SkPath path;
-    shape.asPath(&path);
+    SkPath path = shape.asPath();
     if (0xFF == alpha) {
         SkASSERT(0xFF == paint.getAlpha());
         fDraw.drawPathCoverage(path, paint);

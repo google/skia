@@ -141,13 +141,13 @@ public:
     // (effectively breaks reference cycles, assuming appropriate return value scoping).
     BorrowedNode findNodeById(const SkSVGIRI&) const;
 
-    SkTLazy<SkPaint> fillPaint() const;
-    SkTLazy<SkPaint> strokePaint() const;
+    std::optional<SkPaint> fillPaint() const;
+    std::optional<SkPaint> strokePaint() const;
 
     SkSVGColorType resolveSvgColor(const SkSVGColor&) const;
 
     // The local computed clip path (not inherited).
-    const SkPath* clipPath() const { return fClipPath.getMaybeNull(); }
+    const SkPath* clipPath() const { return SkOptAddressOrNull(fClipPath); }
 
     const sk_sp<skresources::ResourceProvider>& resourceProvider() const {
         return fResourceProvider;
@@ -203,7 +203,7 @@ private:
     void applyClip(const SkSVGFuncIRI&);
     void applyMask(const SkSVGFuncIRI&);
 
-    SkTLazy<SkPaint> commonPaint(const SkSVGPaint&, float opacity) const;
+    std::optional<SkPaint> commonPaint(const SkSVGPaint&, float opacity) const;
 
     const sk_sp<SkFontMgr>&                       fFontMgr;
     const sk_sp<SkShapers::Factory>&              fTextShapingFactory;
@@ -217,7 +217,7 @@ private:
     int                                           fCanvasSaveCount;
 
     // clipPath, if present for the current context (not inherited).
-    SkTLazy<SkPath>                               fClipPath;
+    std::optional<SkPath>                         fClipPath;
 
     // Deferred opacity optimization for leaf nodes.
     float                                         fDeferredPaintOpacity = 1;

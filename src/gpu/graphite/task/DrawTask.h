@@ -13,15 +13,17 @@
 #include "src/gpu/graphite/task/Task.h"
 #include "src/gpu/graphite/task/TaskList.h"
 
+#include <functional>
 #include <utility>
 
 namespace skgpu::graphite {
 
-class TextureProxy;
 class CommandBuffer;
 class Context;
+class GraphicsPipeline;
 class ResourceProvider;
 class RuntimeEffectDictionary;
+class TextureProxy;
 
 /**
  * DrawTask is a collection of subtasks that are executed in order to produce some intended
@@ -35,9 +37,17 @@ public:
 
     Status prepareResources(ResourceProvider*,
                             ScratchResourceManager*,
-                            const RuntimeEffectDictionary*) override;
+                            sk_sp<const RuntimeEffectDictionary>) override;
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
+
+    bool visitPipelines(const std::function<bool(const GraphicsPipeline*)>& visitor) override {
+        return fChildTasks.visitPipelines(visitor);
+    }
+
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override {
+        return fChildTasks.visitProxies(visitor);
+    }
 
 private:
     friend class DrawContext; // for "addTask"

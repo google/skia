@@ -7,13 +7,13 @@ void draw(SkCanvas* canvas) {
   paint.setStyle(SkPaint::kStroke_Style);
   paint.setStrokeWidth(10);
   SkPoint points[] = {{64, 32}, {96, 96}, {32, 96}};
-  canvas->drawPoints(SkCanvas::kPoints_PointMode, 3, points, paint);
+  canvas->drawPoints(SkCanvas::kPoints_PointMode, points, paint);
   canvas->translate(128, 0);
-  canvas->drawPoints(SkCanvas::kLines_PointMode, 3, points, paint);
+  canvas->drawPoints(SkCanvas::kLines_PointMode, points, paint);
   canvas->translate(0, 128);
-  canvas->drawPoints(SkCanvas::kPolygon_PointMode, 3, points, paint);
+  canvas->drawPoints(SkCanvas::kPolygon_PointMode, points, paint);
   SkPath path;
-  path.addPoly(points, 3, false);
+  path.addPoly(points, false);
   canvas->translate(-128, 0);
   canvas->drawPath(path, paint);
 }

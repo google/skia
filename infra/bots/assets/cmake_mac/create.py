@@ -20,9 +20,9 @@ sys.path.insert(0, INFRA_BOTS_DIR)
 import utils
 
 
-VERSION = '3.13.4'
+VERSION = '3.31.8'
 URL = ('https://github.com/Kitware/CMake/releases/download/v%s/'
-       'cmake-%s-Darwin-x86_64.tar.gz') % (VERSION, VERSION)
+       'cmake-%s-macos-universal.tar.gz') % (VERSION, VERSION)
 
 
 def create_asset(target_dir):
@@ -30,8 +30,13 @@ def create_asset(target_dir):
   with utils.tmp_dir():
     subprocess.check_call(['wget', URL, '--output-document=cmake.tar.gz'])
     subprocess.check_call(['tar', '--extract', '--gunzip', '--file',
-                           'cmake.tar.gz', '--directory', target_dir,
-                           '--strip-components', '1'])
+                           'cmake.tar.gz'])
+    cmake_dir = os.path.join('cmake-%s-macos-universal' % VERSION,
+                             'CMake.app', 'Contents')
+    # Move the bin and share directories into the target directory.
+    for d in ['bin', 'share']:
+      subprocess.check_call(
+          ['mv', os.path.join(cmake_dir, d), target_dir])
 
 
 def main():

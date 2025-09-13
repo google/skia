@@ -152,7 +152,7 @@ protected:
 private:
     bool isColorNoOp() const {
         // TODO: GrLoadOp::kDiscard (i.e., storing a discard) should also be grounds for skipping
-        // execution. We currently don't because of Vulkan. See http://skbug.com/9373.
+        // execution. We currently don't because of Vulkan. See skbug.com/40040696.
         return fOpChains.empty() && GrLoadOp::kLoad == fColorLoadOp;
     }
 

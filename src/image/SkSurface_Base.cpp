@@ -22,7 +22,6 @@
 
 #include <atomic>
 #include <cstdint>
-#include <memory>
 
 class GrRecordingContext;
 class SkPaint;
@@ -39,6 +38,7 @@ SkSurface_Base::~SkSurface_Base() {
     // in case the canvas outsurvives us, we null the callback
     if (fCachedCanvas) {
         fCachedCanvas->setSurfaceBase(nullptr);
+        fCachedCanvas->onSurfaceDelete();
     }
 }
 

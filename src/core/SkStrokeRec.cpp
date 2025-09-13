@@ -104,7 +104,7 @@ void SkStrokeRec::setStrokeStyle(SkScalar width, bool strokeAndFill) {
     SkScalar gDebugStrokerError;
 #endif
 
-bool SkStrokeRec::applyToPath(SkPath* dst, const SkPath& src) const {
+bool SkStrokeRec::applyToPath(SkPathBuilder* dst, const SkPath& src) const {
     if (fWidth <= 0) {  // hairline or fill
         return false;
     }
@@ -155,7 +155,7 @@ SkScalar SkStrokeRec::GetInflationRadius(SkPaint::Join join, SkScalar miterLimit
     } else if (0 == strokeWidth) {
         // FIXME: We need a "matrixScale" parameter here in order to properly handle hairlines.
         // Their with is determined in device space, unlike other strokes.
-        // http://skbug.com/8157
+        // skbug.com/40039419
         return SK_Scalar1;
     }
 

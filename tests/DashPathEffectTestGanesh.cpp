@@ -40,7 +40,7 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(DashPathEffectTest_2PiInterval,
     paint.setStrokeWidth(dashWidth);
 
     constexpr float intervals[2] = {90.0f, 10.0f};
-    paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 25.0f));
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, 25.0f));
     canvas->drawCircle(centerX, centerY, r, paint);
 
     // Check that we drew the second dash, which starts at the top of the circle.

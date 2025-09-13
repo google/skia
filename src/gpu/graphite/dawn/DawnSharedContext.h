@@ -31,6 +31,7 @@ public:
     const DawnCaps* dawnCaps() const { return static_cast<const DawnCaps*>(this->caps()); }
     const wgpu::Device& device() const { return fDevice; }
     const wgpu::Queue& queue() const { return fQueue; }
+    const wgpu::Instance& instance() const { return fInstance; }
     const wgpu::ShaderModule& noopFragment() const { return fNoopFragment; }
 
     bool hasTick() const { return fTick; }
@@ -44,8 +45,9 @@ public:
 
 private:
     DawnSharedContext(const DawnBackendContext&,
-                      std::unique_ptr<const DawnCaps> caps,
+                      std::unique_ptr<const DawnCaps>,
                       wgpu::ShaderModule noopFragment,
+                      SkExecutor*,
                       SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
 
     wgpu::Instance     fInstance;

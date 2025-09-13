@@ -103,7 +103,7 @@ bool SkImageFilter_Base::affectsTransparentBlack() const {
     if (this->onAffectsTransparentBlack()) {
         return true;
     } else if (this->ignoreInputsAffectsTransparentBlack()) {
-        // TODO(skbug.com/14611): Automatically infer this from output bounds being finite
+        // TODO(skbug.com/40045513): Automatically infer this from output bounds being finite
         return false;
     }
     for (int i = 0; i < this->countInputs(); i++) {

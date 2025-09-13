@@ -587,30 +587,33 @@ private:
     }
 
     void updateAnimatingPaths() {
-        SkPath p0, p1;
-        SkAssertResult(SkParsePath::FromSVGString(fSelectedPaths[0]->fSVGString, &p0));
-        SkAssertResult(SkParsePath::FromSVGString(fSelectedPaths[1]->fSVGString, &p1));
+        auto p0 = SkParsePath::FromSVGString(fSelectedPaths[0]->fSVGString);
+        auto p1 = SkParsePath::FromSVGString(fSelectedPaths[1]->fSVGString);
+        SkAssertResult(p0.has_value());
+        SkAssertResult(p1.has_value());
 
-        const SkRect b0 = p0.computeTightBounds(),
-                     b1 = p1.computeTightBounds();
+        const SkRect b0 = p0->computeTightBounds(),
+                     b1 = p1->computeTightBounds();
 
         // Transform all paths to a normalized size, such that they occupy roughly the same space.
         static constexpr SkRect kNormRect = {0, 0, 512, 512};
 
         fPaths = {
-            p0.transform(SkMatrix::MakeRectToRect(b0, kNormRect, SkMatrix::kCenter_ScaleToFit)),
-            p1.transform(SkMatrix::MakeRectToRect(b1, kNormRect, SkMatrix::kCenter_ScaleToFit)),
+            p0->makeTransform(SkMatrix::RectToRectOrIdentity(b0, kNormRect,
+                                                            SkMatrix::kCenter_ScaleToFit)),
+            p1->makeTransform(SkMatrix::RectToRectOrIdentity(b1, kNormRect,
+                                                            SkMatrix::kCenter_ScaleToFit)),
         };
 
 
         // Scale and center such that the path animation fills 90% of the view.
-        SkRect bounds = p0.computeTightBounds();
-        bounds.join(p1.computeTightBounds());
+        SkRect bounds = fPaths.first.computeTightBounds();
+        bounds.join(fPaths.second.computeTightBounds());
 
         const SkRect dst_rect = SkRect::MakeSize(fSize)
             .makeInset(fSize.width() * .05f, fSize.height() * .05f);
         fPathTransform =
-            SkMatrix::MakeRectToRect(kNormRect, dst_rect, SkMatrix::kCenter_ScaleToFit);
+            SkMatrix::RectToRectOrIdentity(kNormRect, dst_rect, SkMatrix::kCenter_ScaleToFit);
     }
 
     void drawControls() {

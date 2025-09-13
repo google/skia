@@ -16,7 +16,7 @@ void draw(SkCanvas* canvas) {
         SkRect rect;
         rect.set(rectPts[0], rectPts[1]);
         canvas->drawRect(rect, paint);
-        rotator.mapPoints(rectPts, 2);
+        rotator.mapPoints(rectPts);
     }
 }
 }  // END FIDDLE

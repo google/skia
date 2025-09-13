@@ -166,38 +166,6 @@ build:ck_full_webgl2_release_debugger --config=canvaskit_full --config=ck_webgl2
 build:ck_full_webgl2_release_chrome --config=ck_full_webgl2_release
 build:ck_full_cpu_release_chrome --config=ck_full_cpu_release
 
-# config when building //infra/debugger-app:debugger_container.
-# This is invoked in a Louhi flow.
-build:debugger_app_container --config=ck_full_webgl2_release_debugger \
-                             --workspace_status_command=bazel/get_workspace_status.sh \
-                             --@io_bazel_rules_docker//transitions:enable=false
-
-# config when building //infra/jsfiddle:jsfiddle_container.
-# This is invoked in a Louhi flow.
-build:jsfiddle_container --config=ck_full_webgl2_release \
-                         --workspace_status_command=bazel/get_workspace_status.sh \
-                         --@io_bazel_rules_docker//transitions:enable=false
-
-# config when building //infra/shaders:shaders_container.
-# This is invoked in a Louhi flow.
-build:shaders_container --config=ck_full_webgl2_release \
-                        --workspace_status_command=bazel/get_workspace_status.sh \
-                        --@io_bazel_rules_docker//transitions:enable=false
-
-# config when building //infra/skottie:skottie_container.
-# This is invoked in a Louhi flow.
-build:skottie_container --config=ck_full_webgl2_release \
-                        --workspace_status_command=bazel/get_workspace_status.sh \
-                        --@io_bazel_rules_docker//transitions:enable=false
-
-# We only want to enforce IWYU on debug builds because we have some things that are only
-# necessary to include in debug mode (e.g. SkDEBUGCODE), but very rarely something that is
-# only needed in release mode. Thus our C++ debug includes should be a superset of the
-# release includes.
-build:enforce_iwyu --features=skia_enforce_iwyu --cc_output_directory_tag=iwyu \
-                   --compilation_mode=dbg --keep_going \
-                   --linkopt="SKIA_SKIP_LINKING"
-
 build:use_linux_rbe_pool --config=linux_rbe --remote_download_minimal
 
 build:cpu_only --cc_output_directory_tag=cpu_tests

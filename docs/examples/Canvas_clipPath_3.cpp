@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     SkPath path;
     SkPoint poly[] = {{20, 20}, { 80, 20}, { 80,  80}, {40,  80},
                       {40, 40}, {100, 40}, {100, 100}, {20, 100}};
-    path.addPoly(poly, std::size(poly), true);
+    path.addPoly(poly, true);
     path.setFillType(SkPathFillType::kWinding);
     canvas->save();
     canvas->clipPath(path, SkClipOp::kIntersect);

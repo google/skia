@@ -16,7 +16,7 @@
 #include "tools/fonts/FontToolUtils.h"
 
 // This GM shows off a flaw in delta-based rasterizers (DAA, CCPR, etc.).
-// See also the bottom of dashing4 and skia:6886.
+// See also the bottom of dashing4 and skbug.com/40038110.
 
 static const int K = 49;
 
@@ -35,8 +35,8 @@ DEF_SIMPLE_GM(daa, canvas, K+350, 5*K) {
 
         SkPoint tri1[] = {{0,0},{K,K},{0,K},{0,0}};
         SkPoint tri2[] = {{0,0},{K,K},{K,0},{0,0}};
-        SkPath path = SkPathBuilder().addPolygon(tri1, std::size(tri1), false)
-                                     .addPolygon(tri2, std::size(tri2), false)
+        SkPath path = SkPathBuilder().addPolygon(tri1, false)
+                                     .addPolygon(tri2, false)
                                      .detach();
 
         paint.setColor(SK_ColorGREEN);

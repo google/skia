@@ -120,6 +120,9 @@ DEF_TEST(HDR_ICC, r) {
             REPORTER_ASSERT(r, parsed.CICP.matrix_coefficients == 0);
             REPORTER_ASSERT(r, parsed.CICP.video_full_range_flag == 1);
         }
+        // Disable the CICP tag so we can test the A2B transform (otherwise the CICP takes
+        // precedence).
+        parsed.has_CICP = false;
 
         skcms_ICCProfile dst_parsed;
         REPORTER_ASSERT(

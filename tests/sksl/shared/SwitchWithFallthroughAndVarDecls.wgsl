@@ -22,26 +22,21 @@ fn _skslMain(coords: vec2<f32>) -> vec4<f32> {
           var _skTemp1: bool = false;
           if _skTemp0 == 0 {
             ;
-            _skTemp1 = true;  // fallthrough
-          }
+            _skTemp1 = true;  }
           if _skTemp1 || _skTemp0 == 1 {
             ;
-            _skTemp1 = true;  // fallthrough
-          }
+            _skTemp1 = true;  }
           if _skTemp1 || _skTemp0 == 2 {
             b = ONE;
-            _skTemp1 = true;  // fallthrough
-          }
+            _skTemp1 = true;  }
           if _skTemp1 || _skTemp0 == 3 {
             {
               let d: f32 = f32(b);
               c = i32(d);
             }
-            _skTemp1 = true;  // fallthrough
-          }
+            _skTemp1 = true;  }
           if _skTemp1 || _skTemp0 == 4 {
             a = bool(c);
-            // fallthrough
           }
           ok = a;
         }

@@ -1,7 +1,7 @@
 cbuffer _UniformBuffer : register(b0, space0)
 {
-    float4 _7_colorGreen : packoffset(c0);
-    float4 _7_colorRed : packoffset(c1);
+    float4 _11_colorGreen : packoffset(c0);
+    float4 _11_colorRed : packoffset(c1);
 };
 
 
@@ -12,59 +12,59 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-float4 main(float2 _21)
+float4 main(float2 _25)
 {
-    float f = _7_colorGreen.y;
-    int _36 = int(_7_colorGreen.y);
-    int i = _36;
-    uint _43 = uint(_7_colorGreen.y);
-    uint u = _43;
-    bool _50 = _7_colorGreen.y != 0.0f;
-    bool b = _50;
-    float f1 = _7_colorGreen.y;
-    float _53 = float(_36);
-    float f2 = _53;
-    float _55 = float(_43);
-    float f3 = _55;
-    float _57 = float(_50);
-    float f4 = _57;
-    int _60 = int(_7_colorGreen.y);
-    int i1 = _60;
-    int i2 = _36;
-    int _63 = int(_43);
-    int i3 = _63;
-    int _65 = int(_50);
-    int i4 = _65;
-    uint _68 = uint(_7_colorGreen.y);
-    uint u1 = _68;
-    uint _70 = uint(_36);
-    uint u2 = _70;
-    uint u3 = _43;
-    uint _73 = uint(_50);
-    uint u4 = _73;
-    bool _77 = _7_colorGreen.y != 0.0f;
-    bool b1 = _77;
-    bool _79 = _36 != 0;
-    bool b2 = _79;
-    bool _81 = _43 != 0u;
-    bool b3 = _81;
-    bool b4 = _50;
-    float4 _112 = 0.0f.xxxx;
-    if ((((((((((((((((_7_colorGreen.y + _53) + _55) + _57) + float(_60)) + float(_36)) + float(_63)) + float(_65)) + float(_68)) + float(_70)) + float(_43)) + float(_73)) + float(_77)) + float(_79)) + float(_81)) + float(_50)) == 16.0f)
+    float f = _11_colorGreen.y;
+    int _39 = int(_11_colorGreen.y);
+    int i = _39;
+    uint _46 = uint(_11_colorGreen.y);
+    uint u = _46;
+    bool _53 = _11_colorGreen.y != 0.0f;
+    bool b = _53;
+    float f1 = _11_colorGreen.y;
+    float _56 = float(_39);
+    float f2 = _56;
+    float _58 = float(_46);
+    float f3 = _58;
+    float _60 = float(_53);
+    float f4 = _60;
+    int _63 = int(_11_colorGreen.y);
+    int i1 = _63;
+    int i2 = _39;
+    int _66 = int(_46);
+    int i3 = _66;
+    int _68 = int(_53);
+    int i4 = _68;
+    uint _71 = uint(_11_colorGreen.y);
+    uint u1 = _71;
+    uint _73 = uint(_39);
+    uint u2 = _73;
+    uint u3 = _46;
+    uint _76 = uint(_53);
+    uint u4 = _76;
+    bool _80 = _11_colorGreen.y != 0.0f;
+    bool b1 = _80;
+    bool _82 = _39 != 0;
+    bool b2 = _82;
+    bool _84 = _46 != 0u;
+    bool b3 = _84;
+    bool b4 = _53;
+    float4 _115 = 0.0f.xxxx;
+    if ((((((((((((((((_11_colorGreen.y + _56) + _58) + _60) + float(_63)) + float(_39)) + float(_66)) + float(_68)) + float(_71)) + float(_73)) + float(_46)) + float(_76)) + float(_80)) + float(_82)) + float(_84)) + float(_53)) == 16.0f)
     {
-        _112 = _7_colorGreen;
+        _115 = _11_colorGreen;
     }
     else
     {
-        _112 = _7_colorRed;
+        _115 = _11_colorRed;
     }
-    return _112;
+    return _115;
 }
 
 void frag_main()
 {
-    float2 _17 = 0.0f.xx;
-    sk_FragColor = main(_17);
+    float2 _21 = 0.0f.xx;
+    sk_FragColor = main(_21);
 }
 
 SPIRV_Cross_Output main()

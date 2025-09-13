@@ -290,7 +290,8 @@ SkBlitter* SkA8Blitter_Choose(const SkPixmap& dst,
                               SkArenaAlloc* alloc,
                               SkDrawCoverage drawCoverage,
                               sk_sp<SkShader> clipShader,
-                              const SkSurfaceProps&) {
+                              const SkSurfaceProps&,
+                              const SkRect&) {
     if (dst.colorType() != SkColorType::kAlpha_8_SkColorType) {
         return nullptr;
     }

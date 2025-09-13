@@ -39,7 +39,7 @@ void SkTextUtils::GetPath(const void* text, size_t length, SkTextEncoding encodi
                           SkScalar x, SkScalar y, const SkFont& font, SkPath* path) {
     SkAutoToGlyphs ag(font, text, length, encoding);
     AutoTArray<SkPoint> pos(ag.count());
-    font.getPos(ag.glyphs(), ag.count(), pos.get(), {x, y});
+    font.getPos(ag, pos, {x, y});
 
     struct Rec {
         SkPath* fDst;
@@ -47,7 +47,7 @@ void SkTextUtils::GetPath(const void* text, size_t length, SkTextEncoding encodi
     } rec = { path, pos.get() };
 
     path->reset();
-    font.getPaths(ag.glyphs(), ag.count(), [](const SkPath* src, const SkMatrix& mx, void* ctx) {
+    font.getPaths(ag, [](const SkPath* src, const SkMatrix& mx, void* ctx) {
         Rec* rec = (Rec*)ctx;
         if (src) {
             SkMatrix m(mx);

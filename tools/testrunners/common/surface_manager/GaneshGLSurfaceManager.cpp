@@ -12,8 +12,8 @@
 #include "include/gpu/ganesh/GrTypes.h"
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/private/base/SkAssert.h"
+#include "tools/ganesh/GrContextFactory.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
-#include "tools/gpu/GrContextFactory.h"
 #include "tools/testrunners/common/surface_manager/SurfaceManager.h"
 
 #include <string>

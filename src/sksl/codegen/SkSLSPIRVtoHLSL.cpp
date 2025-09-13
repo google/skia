@@ -17,9 +17,8 @@
 
 namespace SkSL {
 
-void SPIRVtoHLSL(const std::string& spirv, std::string* hlsl) {
-    spirv_cross::CompilerHLSL hlslCompiler((const uint32_t*)spirv.c_str(),
-                                           spirv.size() / sizeof(uint32_t));
+void SPIRVtoHLSL(SkSpan<const uint32_t> spirv, std::string* hlsl) {
+    spirv_cross::CompilerHLSL hlslCompiler(spirv.data(), spirv.size());
 
     spirv_cross::CompilerGLSL::Options optionsGLSL;
     // Force all uninitialized variables to be 0, otherwise they will fail to compile

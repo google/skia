@@ -8,6 +8,7 @@
 #include "modules/svg/include/SkSVGPath.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPathTypes.h"
 #include "include/utils/SkParsePath.h"
 #include "modules/svg/include/SkSVGAttribute.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
@@ -15,7 +16,6 @@
 #include "modules/svg/include/SkSVGTypes.h"
 
 class SkPaint;
-enum class SkPathFillType;
 
 SkSVGPath::SkSVGPath() : INHERITED(SkSVGTag::kPath) { }
 
@@ -26,7 +26,11 @@ bool SkSVGPath::parseAndSetAttribute(const char* n, const char* v) {
 
 template <>
 bool SkSVGAttributeParser::parse<SkPath>(SkPath* path) {
-    return SkParsePath::FromSVGString(fCurPos, path);
+    if (auto result = SkParsePath::FromSVGString(fCurPos)) {
+        *path = *result;
+        return true;
+    }
+    return false;
 }
 
 void SkSVGPath::onDraw(SkCanvas* canvas, const SkSVGLengthContext&, const SkPaint& paint,

@@ -564,7 +564,7 @@ sk_sp<GrVkPipeline> GrVkPipeline::Make(GrVkGpu* gpu,
     {
         TRACE_EVENT0_ALWAYS("skia.shaders", "CreateGraphicsPipeline");
 #if defined(SK_ENABLE_SCOPED_LSAN_SUPPRESSIONS)
-        // skia:8712
+        // skbug.com/40040003
         __lsan::ScopedDisabler lsanDisabler;
 #endif
 

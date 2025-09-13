@@ -31,7 +31,7 @@ class SkiaMicrographygirlsvgDesktopPageSet(story.StorySet):
       archive_data_file='data/skia_micrographygirlsvg_desktop.json')
 
     urls_list = [
-      # Why: skbug.com/10752
+      # Why: skbug.com/40042116
       ('https://storage.googleapis.com/skia-recreateskps-bot-hosted-pages/'
        'micrography.svg'),
     ]

@@ -41,9 +41,9 @@ void FuzzCOLRv1(const uint8_t* data, size_t size) {
 
     for (int i = 0; i < std::min(numGlyphs, 10); ++i) {
         SkPoint origin = SkPoint::Make(10, 108);
-        SkPoint position = SkPoint::Make(0, 0);
-        SkGlyphID glyphId = i;
-        canvas->drawGlyphs(1, &glyphId, &position, origin, colrv1Font, paint);
+        SkPoint position[] = {SkPoint::Make(0, 0)};
+        SkGlyphID glyphId[] = {SkTo<SkGlyphID>(i)};
+        canvas->drawGlyphs(glyphId, position, origin, colrv1Font, paint);
     }
 }
 

@@ -380,7 +380,7 @@ SkCodec::Result SkBmpCodec::ReadHeader(SkStream* stream, bool inIco,
                     // images in kMask mode, we will use the alpha mask.  Additionally, V3
                     // bmp-in-ico expect us to use the alpha mask.
                     //
-                    // skbug.com/4116: We should perhaps also apply the alpha mask in kStandard
+                    // skbug.com/40035265: We should perhaps also apply the alpha mask in kStandard
                     //                 mode.  We just haven't seen any images that expect this
                     //                 behavior.
                     //
@@ -628,6 +628,9 @@ SkBmpCodec::SkBmpCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
 {}
 
 bool SkBmpCodec::onRewind() {
+    if (!this->rewindStream()) {
+        return false;
+    }
     return SkBmpCodec::ReadHeader(this->stream(), this->inIco(), nullptr) == kSuccess;
 }
 

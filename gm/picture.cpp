@@ -86,7 +86,7 @@ private:
 
 // Exercise drawing a picture with a cull rect of non-zero top-left corner.
 //
-// See skbug.com/9334, which would fail
+// See skbug.com/40040654, which would fail
 // ```
 //   dm -m picture_cull_rect --config serialize-8888
 // ```

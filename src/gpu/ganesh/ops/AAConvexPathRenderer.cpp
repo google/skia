@@ -21,7 +21,6 @@
 #include "include/private/base/SkTDArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/base/SkTLazy.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkGeometry.h"
 #include "src/core/SkMatrixPriv.h"
@@ -331,7 +330,6 @@ bool get_segments(const SkPath& path,
                   SkPoint* fanPt,
                   int* vCount,
                   int* iCount) {
-    SkPath::Iter iter(path, true);
     // This renderer over-emphasizes very thin path regions. We use the distance
     // to the path from the sample to compute coverage. Every pixel intersected
     // by the path will be hit and the maximum distance is sqrt(2)/2. We don't
@@ -345,36 +343,36 @@ bool get_segments(const SkPath& path,
         return false;
     }
 
-    for (;;) {
-        SkPoint pts[4];
-        SkPath::Verb verb = iter.next(pts);
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                m.mapPoints(pts, 1);
-                update_degenerate_test(&degenerateData, pts[0]);
+    SkPath::Iter iter(path, true);
+    while (auto rec = iter.next()) {
+        SkSpan<const SkPoint> src = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
+                update_degenerate_test(&degenerateData, m.mapPoint(src[0]));
                 break;
-            case SkPath::kLine_Verb: {
-                if (!SkPathPriv::AllPointsEq(pts, 2)) {
-                    m.mapPoints(&pts[1], 1);
-                    update_degenerate_test(&degenerateData, pts[1]);
-                    add_line_to_segment(pts[1], segments);
+            case SkPathVerb::kLine: {
+                if (!SkPathPriv::AllPointsEq(src)) {
+                    SkPoint dst = m.mapPoint(src[1]);
+                    update_degenerate_test(&degenerateData, dst);
+                    add_line_to_segment(dst, segments);
                 }
                 break;
             }
-            case SkPath::kQuad_Verb:
-                if (!SkPathPriv::AllPointsEq(pts, 3)) {
-                    m.mapPoints(pts, 3);
-                    update_degenerate_test(&degenerateData, pts[1]);
-                    update_degenerate_test(&degenerateData, pts[2]);
-                    add_quad_segment(pts, segments);
+            case SkPathVerb::kQuad:
+                if (!SkPathPriv::AllPointsEq(src)) {
+                    SkPoint dst[3];
+                    m.mapPoints(dst, src);
+                    update_degenerate_test(&degenerateData, dst[1]);
+                    update_degenerate_test(&degenerateData, dst[2]);
+                    add_quad_segment(dst, segments);
                 }
                 break;
-            case SkPath::kConic_Verb: {
-                if (!SkPathPriv::AllPointsEq(pts, 3)) {
-                    m.mapPoints(pts, 3);
-                    SkScalar weight = iter.conicWeight();
+            case SkPathVerb::kConic: {
+                if (!SkPathPriv::AllPointsEq(src)) {
+                    SkPoint dst[3];
+                    m.mapPoints(dst, src);
                     SkAutoConicToQuads converter;
-                    const SkPoint* quadPts = converter.computeQuads(pts, weight, 0.25f);
+                    const SkPoint* quadPts = converter.computeQuads(dst, rec->conicWeight(), 0.25f);
                     for (int i = 0; i < converter.countQuads(); ++i) {
                         update_degenerate_test(&degenerateData, quadPts[2*i + 1]);
                         update_degenerate_test(&degenerateData, quadPts[2*i + 2]);
@@ -383,25 +381,26 @@ bool get_segments(const SkPath& path,
                 }
                 break;
             }
-            case SkPath::kCubic_Verb: {
-                if (!SkPathPriv::AllPointsEq(pts, 4)) {
-                    m.mapPoints(pts, 4);
-                    update_degenerate_test(&degenerateData, pts[1]);
-                    update_degenerate_test(&degenerateData, pts[2]);
-                    update_degenerate_test(&degenerateData, pts[3]);
-                    add_cubic_segments(pts, dir, segments);
+            case SkPathVerb::kCubic: {
+                if (!SkPathPriv::AllPointsEq(src)) {
+                    SkPoint dst[4];
+                    m.mapPoints(dst, src);
+                    update_degenerate_test(&degenerateData, dst[1]);
+                    update_degenerate_test(&degenerateData, dst[2]);
+                    update_degenerate_test(&degenerateData, dst[3]);
+                    add_cubic_segments(dst, dir, segments);
                 }
                 break;
             }
-            case SkPath::kDone_Verb:
-                if (degenerateData.isDegenerate()) {
-                    return false;
-                } else {
-                    return compute_vectors(segments, fanPt, dir, vCount, iCount);
-                }
-            default:
+            case SkPathVerb::kClose:
                 break;
         }
+    }
+
+    if (degenerateData.isDegenerate()) {
+        return false;
+    } else {
+        return compute_vectors(segments, fanPt, dir, vCount, iCount);
     }
 }
 
@@ -787,8 +786,12 @@ private:
                              GrXferBarrierFlags renderPassXferBarriers,
                              GrLoadOp colorLoadOp) override {
         SkMatrix invert;
-        if (fHelper.usesLocalCoords() && !fPaths.back().fViewMatrix.invert(&invert)) {
-            return;
+        if (fHelper.usesLocalCoords()) {
+            if (auto inv = fPaths.back().fViewMatrix.invert()) {
+                invert = *inv;
+            } else {
+                return;
+            }
         }
 
         GrGeometryProcessor* quadProcessor = QuadEdgeEffect::Make(arena, invert,
@@ -827,9 +830,9 @@ private:
 
             // We avoid initializing the path unless we have to
             const SkPath* pathPtr = &args.fPath;
-            SkTLazy<SkPath> tmpPath;
+            std::optional<SkPath> tmpPath;
             if (viewMatrix->hasPerspective()) {
-                SkPath* tmpPathPtr = tmpPath.init(*pathPtr);
+                SkPath* tmpPathPtr = &tmpPath.emplace(*pathPtr);
                 tmpPathPtr->setIsVolatile(true);
                 tmpPathPtr->transform(*viewMatrix);
                 viewMatrix = &SkMatrix::I();
@@ -967,8 +970,7 @@ bool AAConvexPathRenderer::onDrawPath(const DrawPathArgs& args) {
     SkASSERT(args.fSurfaceDrawContext->numSamples() <= 1);
     SkASSERT(!args.fShape->isEmpty());
 
-    SkPath path;
-    args.fShape->asPath(&path);
+    SkPath path = args.fShape->asPath();
 
     GrOp::Owner op = AAConvexPathOp::Make(args.fContext, std::move(args.fPaint),
                                           *args.fViewMatrix,

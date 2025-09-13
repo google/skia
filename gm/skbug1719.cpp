@@ -16,10 +16,10 @@
 #include "include/core/SkScalar.h"
 
 /**
- * This test exercises bug 1719. An anti-aliased blurred path is rendered through a soft clip. On
- * the GPU a scratch texture was used to hold the original path mask as well as the blurred path
- * result. The same texture is then incorrectly used to generate the soft clip mask for the draw.
- * Thus the same texture is used for both the blur mask and soft mask in a single draw.
+ * This test exercises skbug.com/40032817. An anti-aliased blurred path is rendered through a soft
+ * clip. On the GPU a scratch texture was used to hold the original path mask as well as the blurred
+ * path result. The same texture is then incorrectly used to generate the soft clip mask for the
+ * draw. Thus the same texture is used for both the blur mask and soft mask in a single draw.
  *
  * The correct image should look like a thin stroked round rect.
  */

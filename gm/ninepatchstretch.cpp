@@ -17,6 +17,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/gpu/ganesh/GrRecordingContext.h"
 #include "tools/ToolUtils.h"
 
 static sk_sp<SkSurface> make_surface(SkCanvas* root, int N) {
@@ -66,7 +67,7 @@ protected:
     SkISize getISize() override { return SkISize::Make(760, 800); }
 
     void onDraw(SkCanvas* canvas) override {
-        if (!fImage || !fImage->isValid(canvas->recordingContext())) {
+        if (!fImage || !fImage->isValid(canvas->recordingContext()->asRecorder())) {
             fImage = make_image(canvas, &fCenter);
         }
 

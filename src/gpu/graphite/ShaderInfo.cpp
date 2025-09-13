@@ -12,6 +12,7 @@
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
+#include "src/gpu/graphite/TextureFormat.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/sksl/SkSLString.h"
 #include "src/sksl/SkSLUtil.h"
@@ -192,8 +193,12 @@ std::string emit_intrinsic_constants(const ResourceBindingRequirements& bindingR
     std::string result;
     auto offsetter = UniformOffsetCalculator::ForTopLevel(bindingReqs.fUniformBufferLayout);
 
-    if (bindingReqs.fUseVulkanPushConstantsForIntrinsicConstants) {
-        result = "layout (vulkan, push_constant) uniform IntrinsicUniforms {\n";
+    if (bindingReqs.fUsePushConstantsForIntrinsicConstants) {
+        SkASSERT(bindingReqs.fBackendApi == BackendApi::kVulkan ||
+                 bindingReqs.fBackendApi == BackendApi::kDawn);
+        result = SkSL::String::printf(
+                "layout (%s, push_constant) uniform IntrinsicUniforms {\n",
+                bindingReqs.fBackendApi == BackendApi::kVulkan ? "vulkan" : "webgpu");
     } else {
         result = get_uniform_header(bindingReqs.fUniformsSetIdx,
                                     bindingReqs.fIntrinsicBufferBinding,
@@ -201,7 +206,7 @@ std::string emit_intrinsic_constants(const ResourceBindingRequirements& bindingR
     }
     result += get_uniforms(&offsetter, kIntrinsicUniforms, -1, /* wrotePaintColor= */ nullptr);
     result.append("};\n\n");
-    SkASSERTF(bindingReqs.fUseVulkanPushConstantsForIntrinsicConstants ||
+    SkASSERTF(bindingReqs.fUsePushConstantsForIntrinsicConstants ||
               result.find('[') == std::string::npos,
               "Arrays are not supported in intrinsic uniforms");
     return result;
@@ -750,6 +755,7 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
                                              const RenderStep* step,
                                              UniquePaintParamsID paintID,
                                              bool useStorageBuffers,
+                                             TextureFormat targetFormat,
                                              skgpu::Swizzle writeSwizzle,
                                              DstReadStrategy dstReadStrategy,
                                              skia_private::TArray<SamplerDesc>* outDescs) {
@@ -767,6 +773,13 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
                            shadingSsboIndex,
                            hasFragShader ? dstReadStrategy : DstReadStrategy::kNoneRequired));
 
+    // De-compressed shader tree from a PaintParamsKey. There can be 1 or 2 root nodes, the first
+    // being the paint effects (rooted with a BlendCompose for the final paint blend) and the
+    // optional second being any analytic clip effect (geometric or shader treated as coverage).
+    SkSpan<const ShaderNode*> rootNodes;
+    // All shader nodes and arrays of children pointers are held in this arena
+    SkArenaAlloc shaderNodeAlloc{256};
+
     // The fragment shader must be generated before the vertex shader, because we determine
     // properties of the entire program while generating the fragment shader.
     if (hasFragShader) {
@@ -775,13 +788,14 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
                                      step,
                                      paintID,
                                      useStorageBuffers,
+                                     targetFormat,
                                      writeSwizzle,
-                                     outDescs);
+                                     outDescs,
+                                     shaderNodeAlloc,
+                                     &rootNodes);
     }
 
-    result->generateVertexSkSL(caps,
-                               step,
-                               useStorageBuffers);
+    result->generateVertexSkSL(caps, step, useStorageBuffers, rootNodes);
 
     return result;
 }
@@ -831,8 +845,11 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
                                       const RenderStep* step,
                                       UniquePaintParamsID paintID,
                                       bool useStorageBuffers,
+                                      TextureFormat targetFormat,
                                       Swizzle writeSwizzle,
-                                      skia_private::TArray<SamplerDesc>* outDescs) {
+                                      skia_private::TArray<SamplerDesc>* outDescs,
+                                      SkArenaAlloc& shaderNodeAlloc,
+                                      SkSpan<const ShaderNode*>* rootNodes) {
     PaintParamsKey key = dict->lookup(paintID);
     SkASSERT(key.isValid());  // invalid keys should have been caught by invalid paint ID earlier
 
@@ -841,31 +858,33 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     // Two varyings are reserved for 1) the SSBO indices and 2) local coordinates.
     constexpr int kFixedVaryings = 2;
     const int availableVaryings = caps->maxVaryings() - kFixedVaryings - step->varyings().size();
-    fRootNodes = key.getRootNodes(caps, dict, &fShaderNodeAlloc, availableVaryings);
+    *rootNodes = key.getRootNodes(caps, dict, &shaderNodeAlloc, availableVaryings);
+    fNeedsLocalCoords = !rootNodes->empty() && SkToBool((*rootNodes)[0]->requiredFlags() &
+                                                        SnippetRequirementFlags::kLocalCoords);
 
     // TODO(b/366220690): aggregateSnippetData() goes away entirely once the VulkanGraphicsPipeline
     // is updated to use the extracted SamplerDescs directly.
-    for (const ShaderNode* root : fRootNodes) {
+    for (const ShaderNode* root : *rootNodes) {
         this->aggregateSnippetData(root);
     }
 
 #if defined(SK_DEBUG)
     // Validate the root node structure of the key.
-    SkASSERT(fRootNodes.size() == 2 || fRootNodes.size() == 3);
+    SkASSERT(rootNodes->size() == 2 || rootNodes->size() == 3);
     // First node produces the source color (all snippets return a half4), so we just require that
     // its signature takes no extra args or just local coords.
-    const ShaderSnippet* srcSnippet = dict->getEntry(fRootNodes[0]->codeSnippetId());
+    const ShaderSnippet* srcSnippet = dict->getEntry((*rootNodes)[0]->codeSnippetId());
     // TODO(b/349997190): Once SkEmptyShader doesn't use the passthrough snippet, we can assert
     // that srcSnippet->needsPriorStageOutput() is false.
     SkASSERT(!srcSnippet->needsBlenderDstColor());
     // Second node is the final blender, so it must take both the src color and dst color, and not
     // any local coordinate.
-    const ShaderSnippet* blendSnippet = dict->getEntry(fRootNodes[1]->codeSnippetId());
+    const ShaderSnippet* blendSnippet = dict->getEntry((*rootNodes)[1]->codeSnippetId());
     SkASSERT(blendSnippet->needsPriorStageOutput() && blendSnippet->needsBlenderDstColor());
     SkASSERT(!blendSnippet->needsLocalCoords());
 
     const ShaderSnippet* clipSnippet =
-            fRootNodes.size() > 2 ? dict->getEntry(fRootNodes[2]->codeSnippetId()) : nullptr;
+            rootNodes->size() > 2 ? dict->getEntry((*rootNodes)[2]->codeSnippetId()) : nullptr;
     SkASSERT(!clipSnippet ||
              (!clipSnippet->needsPriorStageOutput() && !clipSnippet->needsBlenderDstColor()));
 #endif
@@ -875,16 +894,16 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     SkASSERT(step->performsShading());
 
     // Check for unexpected corruption / illegal instructions occurring in the wild.
-    SkASSERTF_RELEASE(fRootNodes.size() == 2 || fRootNodes.size() == 3,
+    SkASSERTF_RELEASE(rootNodes->size() == 2 || rootNodes->size() == 3,
                       "root node size = %zu, label = %s",
-                      fRootNodes.size(),
+                      rootNodes->size(),
                       label.c_str());
 
     // Extract the root nodes for clarity
-    const ShaderNode* const srcColorRoot = fRootNodes[0];
-    const ShaderNode* const finalBlendRoot = fRootNodes[1];
+    const ShaderNode* const srcColorRoot = (*rootNodes)[0];
+    const ShaderNode* const finalBlendRoot = (*rootNodes)[1];
     const int32_t finalBlendRootSnippetId = finalBlendRoot->codeSnippetId();
-    const ShaderNode* const clipRoot = fRootNodes.size() > 2 ? fRootNodes[2] : nullptr;
+    const ShaderNode* const clipRoot = rootNodes->size() > 2 ? (*rootNodes)[2] : nullptr;
 
     // Determine the algorithm for final blending: direct HW blending, coverage-modified HW
     // blending (w/ or w/o dual-source blending) or via dst-read requirement.
@@ -900,7 +919,8 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
         finalBlendRootSnippetId >= kFixedBlendIDOffset) {
         finalBlendMode = static_cast<SkBlendMode>(finalBlendRootSnippetId - kFixedBlendIDOffset);
     }
-    const bool useHardwareBlending = CanUseHardwareBlending(caps, finalBlendMode, finalCoverage);
+    const bool useHardwareBlending =
+            CanUseHardwareBlending(caps, targetFormat, finalBlendMode, finalCoverage);
     if (useHardwareBlending) {
         // If we can use hardware blending, update the dstReadStrategy to be kNoneRequired to ensure
         // that ShaderInfo properly informs PipelineInfo of the pipeline's dst read requirement.
@@ -927,7 +947,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     const bool useDstSampler = fDstReadStrategy == DstReadStrategy::kTextureCopy ||
                                fDstReadStrategy == DstReadStrategy::kTextureSample;
 
-    const std::vector<LiftedExpression> liftedExpr = collect_lifted_expressions(fRootNodes);
+    const std::vector<LiftedExpression> liftedExpr = collect_lifted_expressions(*rootNodes);
 
     // The uniforms are mangled by having their index in 'fEntries' as a suffix (i.e., "_%d")
     const ResourceBindingRequirements& bindingReqs = caps->resourceBindingRequirements();
@@ -939,7 +959,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     if (useShadingStorageBuffer) {
         preamble = emit_paint_params_storage_buffer(bindingReqs.fUniformsSetIdx,
                                                     bindingReqs.fPaintParamsBufferBinding,
-                                                    fRootNodes,
+                                                    *rootNodes,
                                                     &numPaintUniforms,
                                                     &numUnliftedPaintUniforms,
                                                     &wrotePaintColor);
@@ -948,7 +968,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
         preamble = emit_paint_params_uniforms(bindingReqs.fUniformsSetIdx,
                                               bindingReqs.fPaintParamsBufferBinding,
                                               bindingReqs.fUniformBufferLayout,
-                                              fRootNodes,
+                                              *rootNodes,
                                               &numPaintUniforms,
                                               &numUnliftedPaintUniforms,
                                               &wrotePaintColor);
@@ -1010,7 +1030,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
 
     {
         int binding = 0;
-        preamble += emit_textures_and_samplers(bindingReqs, fRootNodes, &binding, outDescs);
+        preamble += emit_textures_and_samplers(bindingReqs, *rootNodes, &binding, outDescs);
         int paintTextureCount = binding;
         if (step->hasTextures()) {
             preamble += step->texturesAndSamplersSkSL(bindingReqs, &binding);
@@ -1043,7 +1063,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
     // Emit preamble declarations and helper functions required for snippets. In the default case
     // this adds functions that bind a node's specific mangled uniforms to the snippet's
     // implementation in the SkSL modules.
-    emit_preambles(*this, fRootNodes, /*treeLabel=*/"", &preamble);
+    emit_preambles(*this, *rootNodes, /*treeLabel=*/"", &preamble);
 
     std::string mainBody = "void main() {";
 
@@ -1058,7 +1078,7 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
         mainBody += "half4 primitiveColor;";
         mainBody += step->fragmentColorSkSL();
     } else {
-        SkASSERT(!(fRootNodes[0]->requiredFlags() & SnippetRequirementFlags::kPrimitiveColor));
+        SkASSERT(!((*rootNodes)[0]->requiredFlags() & SnippetRequirementFlags::kPrimitiveColor));
     }
 
     // Using kDefaultArgs as the initial value means it will refer to undefined variables, but the
@@ -1127,7 +1147,9 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
         }
 
         mainBody += "half4 outputCoverage = half4(1);";
-        mainBody += step->fragmentCoverageSkSL();
+        if (step->coverage() != Coverage::kNone) {
+            mainBody += step->fragmentCoverageSkSL();
+        }
 
         if (clipRoot) {
             // The clip block node is invoked with device coords, not local coords like the main
@@ -1229,7 +1251,8 @@ void ShaderInfo::generateFragmentSkSL(const Caps* caps,
 
 void ShaderInfo::generateVertexSkSL(const Caps* caps,
                                     const RenderStep* step,
-                                    bool useStorageBuffers) {
+                                    bool useStorageBuffers,
+                                    SkSpan<const ShaderNode*> rootNodes) {
     const bool hasStepUniforms = step->numUniforms() > 0;
     const bool useStepStorageBuffer = useStorageBuffers && hasStepUniforms;
     const bool useShadingStorageBuffer = useStorageBuffers && step->performsShading();
@@ -1277,7 +1300,7 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
         }
     }
 
-    const std::vector<LiftedExpression> liftedExpr = collect_lifted_expressions(fRootNodes);
+    const std::vector<LiftedExpression> liftedExpr = collect_lifted_expressions(rootNodes);
 
     if (fHasLiftedPaintUniforms) {
         int unusedNumPaintUniforms = 0;
@@ -1286,7 +1309,7 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
         if (useShadingStorageBuffer) {
             sksl += emit_paint_params_storage_buffer(bindingReqs.fUniformsSetIdx,
                                                      bindingReqs.fPaintParamsBufferBinding,
-                                                     fRootNodes,
+                                                     rootNodes,
                                                      &unusedNumPaintUniforms,
                                                      &unusedNumUnliftedPaintUniforms,
                                                      &unusedWrotePaintColor);
@@ -1294,7 +1317,7 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
             sksl += emit_paint_params_uniforms(bindingReqs.fUniformsSetIdx,
                                                bindingReqs.fPaintParamsBufferBinding,
                                                bindingReqs.fUniformBufferLayout,
-                                               fRootNodes,
+                                               rootNodes,
                                                &unusedNumPaintUniforms,
                                                &unusedNumUnliftedPaintUniforms,
                                                &unusedWrotePaintColor);
@@ -1374,11 +1397,6 @@ void ShaderInfo::generateVertexSkSL(const Caps* caps,
         fVSLabel += " (w/ local coords)";
     }
     fHasStepUniforms = hasStepUniforms;
-}
-
-bool ShaderInfo::needsLocalCoords() const {
-    return !fRootNodes.empty() &&
-           SkToBool(fRootNodes[0]->requiredFlags() & SnippetRequirementFlags::kLocalCoords);
 }
 
 void ShaderInfo::aggregateSnippetData(const ShaderNode* node) {

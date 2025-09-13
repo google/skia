@@ -194,8 +194,7 @@ PathRenderer::CanDrawPath TessellationPathRenderer::onCanDrawPath(
 bool TessellationPathRenderer::onDrawPath(const DrawPathArgs& args) {
     auto sdc = args.fSurfaceDrawContext;
 
-    SkPath path;
-    args.fShape->asPath(&path);
+    SkPath path = args.fShape->asPath();
 
     // onDrawPath() should only be called if ChopPathIfNecessary() succeeded.
     SkAssertResult(ChopPathIfNecessary(*args.fViewMatrix, *args.fShape,
@@ -266,8 +265,7 @@ void TessellationPathRenderer::onStencilPath(const StencilPathArgs& args) {
     SkRect pathDevBounds;
     args.fViewMatrix->mapRect(&pathDevBounds, args.fShape->bounds());
 
-    SkPath path;
-    args.fShape->asPath(&path);
+    SkPath path = args.fShape->asPath();
 
     float n4 = wangs_formula::worst_case_cubic_p4(tess::kPrecision,
                                                   pathDevBounds.width(),

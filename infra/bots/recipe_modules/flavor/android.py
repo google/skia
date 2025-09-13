@@ -289,10 +289,12 @@ class AndroidFlavor(default.DefaultFlavor):
 
 
   def install(self):
+    if self.m.vars.internal_hardware_label == '6':
+      self._adb('adb connect', 'connect', 'variable_lab_dut_hostname')
     self._adb('mkdir ' + self.device_dirs.resource_dir,
               'shell', 'mkdir', '-p', self.device_dirs.resource_dir)
     if self.m.vars.builder_cfg.get('model') in ('GalaxyS20', 'GalaxyS9'):
-      # See skia:10184, should be moot once upgraded to Android 11?
+      # See skbug.com/40041532, should be moot once upgraded to Android 11?
       self._adb('cp libGLES_mali.so to ' + self.device_dirs.bin_dir,
                  'shell', 'cp',
                 '/vendor/lib64/egl/libGLES_mali.so',

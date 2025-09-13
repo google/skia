@@ -61,7 +61,7 @@ void test_inversion_repeat_vertex(SkCanvas* canvas, const SkPaint& paint) {
     const SkPoint pts[] = {
         {80,50}, {40,80}, {60,20}, {20,20}, {39.99f,80}, {80,50},
     };
-    canvas->drawPath(SkPath::Polygon(pts, std::size(pts), false,
+    canvas->drawPath(SkPath::Polygon(pts, false,
                                      SkPathFillType::kWinding, true), paint);
     canvas->restore();
 }
@@ -118,7 +118,7 @@ void test_twist(SkCanvas* canvas, const SkPaint& paint) {
         {-2.9186885356903076172f, 2.811046600341796875f},
         {0.49999994039535522461f, -1.4124038219451904297f},
     };
-    canvas->drawPath(SkPath::Polygon(pts, std::size(pts), false), paint);
+    canvas->drawPath(SkPath::Polygon(pts, false), paint);
     canvas->restore();
 }
 

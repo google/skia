@@ -25,7 +25,7 @@
 #include "include/private/chromium/SkImageChromium.h"
 #include "src/core/SkTaskGroup.h"
 #include "src/gpu/ganesh/image/SkImage_Ganesh.h"
-#include "tools/gpu/GrContextFactory.h"
+#include "tools/ganesh/GrContextFactory.h"
 
 #include <atomic>
 #include <memory>

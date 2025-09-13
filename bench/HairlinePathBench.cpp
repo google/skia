@@ -9,6 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "src/base/SkRandom.h"
@@ -40,7 +41,7 @@ public:
     }
 
     virtual void appendName(SkString*) = 0;
-    virtual void makePath(SkPath*) = 0;
+    virtual SkPath makePath() = 0;
 
 protected:
     const char* onGetName() override {
@@ -57,11 +58,9 @@ protected:
 
         paint.setAntiAlias(fFlags & kAA_Flag ? true : false);
 
-        SkPath path;
-        this->makePath(&path);
+        SkPath path = this->makePath();
         if (fFlags & kBig_Flag) {
-            const SkMatrix m = SkMatrix::Scale(3, 3);
-            path.transform(m);
+            path = path.makeTransform(SkMatrix::Scale(3, 3));
         }
 
         for (int i = 0; i < loops; i++) {
@@ -85,8 +84,9 @@ public:
     void appendName(SkString* name) override {
         name->append("line");
     }
-    void makePath(SkPath* path) override {
+    SkPath makePath() override {
         SkRandom rand;
+        SkPathBuilder builder;
         int size = std::size(points);
         int hSize = size / 2;
         for (int i = 0; i < kMaxPathSize; ++i) {
@@ -98,13 +98,14 @@ public:
             int base1 = 2 * rand.nextULessThan(hSize);
             int base2 = 2 * rand.nextULessThan(hSize);
             int base3 = 2 * rand.nextULessThan(hSize);
-            path->moveTo(SkIntToScalar(points[base1] + xTrans),
-                         SkIntToScalar(points[base1+1] + yTrans));
-            path->lineTo(SkIntToScalar(points[base2] + xTrans),
-                         SkIntToScalar(points[base2+1] + yTrans));
-            path->lineTo(SkIntToScalar(points[base3] + xTrans),
-                         SkIntToScalar(points[base3+1] + yTrans));
+            builder.moveTo(SkIntToScalar(points[base1] + xTrans),
+                           SkIntToScalar(points[base1+1] + yTrans));
+            builder.lineTo(SkIntToScalar(points[base2] + xTrans),
+                           SkIntToScalar(points[base2+1] + yTrans));
+            builder.lineTo(SkIntToScalar(points[base3] + xTrans),
+                           SkIntToScalar(points[base3+1] + yTrans));
         }
+        return builder.detach();
     }
 private:
     using INHERITED = HairlinePathBench;
@@ -117,8 +118,9 @@ public:
     void appendName(SkString* name) override {
         name->append("quad");
     }
-    void makePath(SkPath* path) override {
+    SkPath makePath() override {
         SkRandom rand;
+        SkPathBuilder builder;
         int size = std::size(points);
         int hSize = size / 2;
         for (int i = 0; i < kMaxPathSize; ++i) {
@@ -130,13 +132,14 @@ public:
             int base1 = 2 * rand.nextULessThan(hSize);
             int base2 = 2 * rand.nextULessThan(hSize);
             int base3 = 2 * rand.nextULessThan(hSize);
-            path->moveTo(SkIntToScalar(points[base1] + xTrans),
-                         SkIntToScalar(points[base1+1] + yTrans));
-            path->quadTo(SkIntToScalar(points[base2] + xTrans),
-                         SkIntToScalar(points[base2+1] + yTrans),
-                         SkIntToScalar(points[base3] + xTrans),
-                         SkIntToScalar(points[base3+1] + yTrans));
+            builder.moveTo(SkIntToScalar(points[base1] + xTrans),
+                           SkIntToScalar(points[base1+1] + yTrans));
+            builder.quadTo(SkIntToScalar(points[base2] + xTrans),
+                           SkIntToScalar(points[base2+1] + yTrans),
+                           SkIntToScalar(points[base3] + xTrans),
+                           SkIntToScalar(points[base3+1] + yTrans));
         }
+        return builder.detach();
     }
 private:
     using INHERITED = HairlinePathBench;
@@ -149,9 +152,10 @@ public:
     void appendName(SkString* name) override {
         name->append("conic");
     }
-    void makePath(SkPath* path) override {
+    SkPath makePath() override {
         SkRandom rand;
         SkRandom randWeight;
+        SkPathBuilder builder;
         int size = std::size(points);
         int hSize = size / 2;
         for (int i = 0; i < kMaxPathSize; ++i) {
@@ -164,14 +168,15 @@ public:
             int base2 = 2 * rand.nextULessThan(hSize);
             int base3 = 2 * rand.nextULessThan(hSize);
             float weight = randWeight.nextRangeF(0.0f, 2.0f);
-            path->moveTo(SkIntToScalar(points[base1] + xTrans),
-                         SkIntToScalar(points[base1+1] + yTrans));
-            path->conicTo(SkIntToScalar(points[base2] + xTrans),
-                          SkIntToScalar(points[base2+1] + yTrans),
-                         SkIntToScalar(points[base3] + xTrans),
-                         SkIntToScalar(points[base3+1] + yTrans),
-                         weight);
+            builder.moveTo(SkIntToScalar(points[base1] + xTrans),
+                           SkIntToScalar(points[base1+1] + yTrans));
+            builder.conicTo(SkIntToScalar(points[base2] + xTrans),
+                            SkIntToScalar(points[base2+1] + yTrans),
+                            SkIntToScalar(points[base3] + xTrans),
+                            SkIntToScalar(points[base3+1] + yTrans),
+                            weight);
         }
+        return builder.detach();
     }
 
 private:
@@ -185,8 +190,9 @@ public:
     void appendName(SkString* name) override {
         name->append("cubic");
     }
-    void makePath(SkPath* path) override {
+    SkPath makePath() override {
         SkRandom rand;
+        SkPathBuilder builder;
         int size = std::size(points);
         int hSize = size / 2;
         for (int i = 0; i < kMaxPathSize; ++i) {
@@ -199,15 +205,16 @@ public:
             int base2 = 2 * rand.nextULessThan(hSize);
             int base3 = 2 * rand.nextULessThan(hSize);
             int base4 = 2 * rand.nextULessThan(hSize);
-            path->moveTo(SkIntToScalar(points[base1] + xTrans),
-                         SkIntToScalar(points[base1+1] + yTrans));
-            path->cubicTo(SkIntToScalar(points[base2] + xTrans),
-                         SkIntToScalar(points[base2+1] + yTrans),
-                         SkIntToScalar(points[base3] + xTrans),
-                         SkIntToScalar(points[base3+1] + yTrans),
-                         SkIntToScalar(points[base4] + xTrans),
-                         SkIntToScalar(points[base4+1] + yTrans));
+            builder.moveTo(SkIntToScalar(points[base1] + xTrans),
+                           SkIntToScalar(points[base1+1] + yTrans));
+            builder.cubicTo(SkIntToScalar(points[base2] + xTrans),
+                            SkIntToScalar(points[base2+1] + yTrans),
+                            SkIntToScalar(points[base3] + xTrans),
+                            SkIntToScalar(points[base3+1] + yTrans),
+                            SkIntToScalar(points[base4] + xTrans),
+                            SkIntToScalar(points[base4+1] + yTrans));
         }
+        return builder.detach();
     }
 private:
     using INHERITED = HairlinePathBench;

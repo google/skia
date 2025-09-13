@@ -181,6 +181,16 @@ public:
         this->removeRef<RefType::kCommandBuffer>();
     }
 
+    // Whether the resource is currently in use by the GPU: any resource that is used in a command
+    // buffer is considered in use by the GPU.
+    //
+    // NOTE: This is currently only correct for textures, hence the name. Once the rest of the
+    // resources use the command buffer ref instead of usage ref appropriately, this can be made
+    // more generaic.
+    bool isTextureBusyOnGPU() const {
+        return (fRefs.load(std::memory_order_acquire) & RefMask(RefType::kCommandBuffer)) != 0;
+    }
+
     Ownership ownership() const { return fOwnership; }
 
     Budgeted budgeted() const { return fBudgeted; }
@@ -215,6 +225,10 @@ public:
     // We allow the label on a Resource to change when used for a different function. For example
     // when reusing a scratch Texture we can change the label to match callers current use.
     void setLabel(std::string_view label) {
+        if (fLabel == label) {
+            return;
+        }
+
         fLabel = label;
 
         if (!fLabel.empty()) {

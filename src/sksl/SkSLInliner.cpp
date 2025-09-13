@@ -678,7 +678,7 @@ bool Inliner::isSafeToInline(const FunctionDefinition* functionDef, const Progra
 
     for (const Variable* param : functionDef->declaration().parameters()) {
         // We don't allow inlining functions with parameters that are written-to, if they...
-        // - are `out` parameters (see skia:11326 for rationale.)
+        // - are `out` parameters (see skbug.com/40042700 for rationale.)
         // - are arrays or structures (introducing temporary copies is non-trivial)
         if ((param->modifierFlags() & ModifierFlag::kOut) ||
             param->type().isArray() ||
@@ -1011,7 +1011,7 @@ bool Inliner::candidateCanBeInlined(const InlineCandidate& candidate,
 
     // Even if the function is safe, the arguments we are passing may not be. In particular, we
     // can't make copies of opaque values, so we need to reject inline candidates that would need to
-    // do this. Every call has different arguments, so this part is not cacheable. (skia:13824)
+    // do this. Every call has different arguments, so this part is not cacheable. (skbug.com/40044923)
     const FunctionCall& call = candidate.fCandidateExpr->get()->as<FunctionCall>();
     const ExpressionArray& arguments = call.arguments();
     for (int i = 0; i < arguments.size(); ++i) {

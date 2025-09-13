@@ -33,7 +33,7 @@ skia_cc_library(
     ],
     defines = ["SK_DISABLE_LEGACY_GL_MAKE_NATIVE_INTERFACE"],
     visibility = [
-        "//tools/gpu:__pkg__",
+        "//tools/ganesh:__pkg__",
         "//tools/window:__pkg__",
     ],
     deps = [

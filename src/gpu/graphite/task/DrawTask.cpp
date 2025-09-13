@@ -20,7 +20,7 @@ DrawTask::~DrawTask() = default;
 
 Task::Status DrawTask::prepareResources(ResourceProvider* resourceProvider,
                                         ScratchResourceManager* scratchManager,
-                                        const RuntimeEffectDictionary* rteDict) {
+                                        sk_sp<const RuntimeEffectDictionary> rteDict) {
     const int pendingReadCount = scratchManager->pendingReadCount(fTarget.get());
     if (pendingReadCount) {
         // This DrawTask defines the content of a scratch device that has incremented the pending

@@ -8,11 +8,13 @@
 #ifndef skgpu_graphite_DescriptorTypes_DEFINED
 #define skgpu_graphite_DescriptorTypes_DEFINED
 
-#include "include/private/base/SkTArray.h"
 #include "src/base/SkEnumBitMask.h"
-#include "src/gpu/graphite/Sampler.h"
+
+#include <cstdint>
 
 namespace skgpu::graphite {
+
+class Sampler;
 
 /**
  * Types of descriptors supported within graphite

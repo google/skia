@@ -24,7 +24,7 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "src/gpu/ganesh/GrGpu.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
+#include "tools/ganesh/GrContextFactory.h"
 
 #include <android/hardware_buffer.h>
 #include <cinttypes>

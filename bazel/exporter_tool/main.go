@@ -63,6 +63,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 		{Var: "skia_codec_rust_png_public",
 			Rules: []string{
 				"//experimental/rust_png/decoder:hdrs",
+				"//include/encode:rust_png_public_hdrs",
 			},
 		},
 		{Var: "skia_codec_rust_png",
@@ -118,13 +119,6 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/text:text_hdrs",
 				"//src/text:text_srcs",
 			}},
-		{Var: "skia_pathops_public",
-			Rules: []string{"//include/pathops:public_hdrs"}},
-		{Var: "skia_pathops_sources",
-			Rules: []string{
-				"//src/pathops:_pathops_hdrs",
-				"//src/pathops:_pathops_srcs",
-			}},
 		{Var: "skia_encode_public",
 			Rules: []string{"//include/encode:encode_hdrs"}},
 		{Var: "skia_encode_srcs",
@@ -138,7 +132,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{"//src/encode:jpeg_encode_srcs",
 				"//src/encode:jpeg_encode_hdrs"}},
 		{Var: "skia_encode_rust_png_public",
-			Rules: []string{"//experimental/rust_png/encoder:hdrs"}},
+			Rules: []string{
+				"//experimental/rust_png/encoder:hdrs",
+				"//include/codec:rust_png_public_hdrs",
+			}},
 		{Var: "skia_encode_rust_png_srcs",
 			Rules: []string{
 				"//experimental/rust_png/encoder:srcs",
@@ -201,6 +198,93 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/effects/imagefilters:srcs",
 			}}},
 	},
+	{GNI: "gn/graphite.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_graphite_public",
+			Rules: []string{
+				"//include/gpu/graphite:public_hdrs",
+			}},
+		{Var: "skia_graphite_sources",
+			Rules: []string{
+				"//src/gpu/graphite/compute:core_hdrs",
+				"//src/gpu/graphite/compute:core_srcs",
+				"//src/gpu/graphite/geom:core_hdrs",
+				"//src/gpu/graphite/geom:core_srcs",
+				"//src/gpu/graphite/render:core_hdrs",
+				"//src/gpu/graphite/render:core_srcs",
+				"//src/gpu/graphite/task:core_hdrs",
+				"//src/gpu/graphite/task:core_srcs",
+				"//src/gpu/graphite/text:core_hdrs",
+				"//src/gpu/graphite/text:core_srcs",
+				"//src/gpu/graphite:_graphite_hdrs",
+				"//src/gpu/graphite:_graphite_srcs",
+			}},
+		{Var: "skia_graphite_android_private",
+			Rules: []string{
+				"//src/gpu/graphite/surface:android_srcs",
+				"//include/android:graphite_android_hdrs",
+			}},
+		{Var: "skia_graphite_dawn_public",
+			Rules: []string{
+				"//include/gpu/graphite/dawn:public_hdrs",
+			}},
+		{Var: "skia_graphite_dawn_sources",
+			Rules: []string{
+				"//src/gpu/graphite/dawn:_dawn_hdrs",
+				"//src/gpu/graphite/dawn:_dawn_srcs",
+			}},
+		{Var: "skia_graphite_mtl_public",
+			Rules: []string{
+				"//include/gpu/graphite/mtl:public_hdrs",
+			}},
+		{Var: "skia_graphite_mtl_sources",
+			Rules: []string{
+				"//src/gpu/graphite/mtl:mtl_hdrs",
+				"//src/gpu/graphite/mtl:mtl_srcs",
+			}},
+		{Var: "skia_graphite_vk_public",
+			Rules: []string{
+				"//include/gpu/graphite/vk:public_hdrs",
+			}},
+		{Var: "skia_graphite_vk_precompile_public",
+			Rules: []string{
+				"//include/gpu/graphite/vk/precompile:public_hdrs",
+			}},
+		{Var: "skia_graphite_vk_precompile_sources",
+			Rules: []string{
+				"//src/gpu/graphite/vk/precompile:vk_precompile_srcs",
+			}},
+		{Var: "skia_graphite_vk_sources",
+			Rules: []string{
+				"//src/gpu/graphite/vk:vk_hdrs",
+				"//src/gpu/graphite/vk:vk_srcs",
+			}},
+		{Var: "skia_graphite_vello_sources",
+			Rules: []string{
+				"//src/gpu/graphite/compute:vello_hdrs",
+				"//src/gpu/graphite/compute:vello_srcs",
+			}},
+		{Var: "skia_graphite_precompile_public",
+			Rules: []string{
+				"//include/gpu/graphite/precompile:public_hdrs",
+			}},
+		{Var: "skia_graphite_precompile_sources",
+			Rules: []string{
+				"//src/gpu/graphite/precompile:_precompile_hdrs",
+				"//src/gpu/graphite/precompile:_precompile_srcs",
+				"//src/gpu/graphite:precompile_srcs",
+			}},
+	}},
+	{GNI: "gn/pathops.gni", Vars: []exporter.GNIFileListExportDesc{
+		{Var: "skia_pathops_public",
+			Rules: []string{
+				"//include/pathops:public_hdrs",
+			}},
+		{Var: "skia_pathops_sources",
+			Rules: []string{
+				"//src/pathops:_pathops_hdrs",
+				"//src/pathops:_pathops_srcs",
+			}}},
+	},
 	{GNI: "gn/ports.gni", Vars: []exporter.GNIFileListExportDesc{
 		{Var: "skia_ports_sources",
 			Rules: []string{
@@ -211,13 +295,17 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			Rules: []string{
 				"//src/ports:freetype_support",
 			}},
+		{Var: "skia_ports_fontmgr_android_parser_sources",
+			Rules: []string{
+				"//src/ports:fontmgr_android_parser",
+			}},
 		{Var: "skia_ports_fontmgr_android_public",
 			Rules: []string{
 				"//include/ports:android_fontmgr_hdrs",
 			}},
 		{Var: "skia_ports_fontmgr_android_sources",
 			Rules: []string{
-				"//src/ports:fontmgr_android_freetype",
+				"//src/ports:fontmgr_android",
 			}},
 		{Var: "skia_ports_fontmgr_android_ndk_public",
 			Rules: []string{
@@ -225,7 +313,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_ports_fontmgr_android_ndk_sources",
 			Rules: []string{
-				"//src/ports:fontmgr_android_ndk_freetype",
+				"//src/ports:fontmgr_android_ndk",
 			}},
 		{Var: "skia_ports_fontmgr_custom_sources",
 			Rules: []string{
@@ -272,8 +360,7 @@ var gniExportDescs = []exporter.GNIExportDesc{
 			}},
 		{Var: "skia_ports_fontmgr_fontconfig_sources",
 			Rules: []string{
-				"//src/ports:fontconfig_support",
-				"//src/ports:fontmgr_fontconfig_freetype",
+				"//src/ports:fontmgr_fontconfig",
 			}},
 		{Var: "skia_ports_fontmgr_fontations_public",
 			Rules: []string{
@@ -455,6 +542,10 @@ var gniExportDescs = []exporter.GNIExportDesc{
 				"//src/utils:float_to_decimal",
 				"//src/utils:utils_skslc_hdrs",
 				"//src/utils:utils_skslc_srcs",
+			}},
+		{Var: "skia_clipstack_utils_sources",
+			Rules: []string{
+				"//src/utils:clip_stack_utils",
 			}},
 	},
 	},

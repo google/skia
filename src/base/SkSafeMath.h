@@ -51,6 +51,15 @@ public:
         return a + b;
     }
 
+    int mulInt(int x, int y) {
+        int64_t result = (int64_t)x * (int64_t)y;
+        if (result > std::numeric_limits<int>::max() || result < std::numeric_limits<int>::min()) {
+            fOK = false;
+            return x;
+        }
+        return (int)result;
+    }
+
     size_t alignUp(size_t x, size_t alignment) {
         SkASSERT(alignment && !(alignment & (alignment - 1)));
         return add(x, alignment - 1) & ~(alignment - 1);

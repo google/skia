@@ -497,7 +497,7 @@ public:
 
     static LayerSpace<SkMatrix> RectToRect(const LayerSpace<SkRect>& from,
                                            const LayerSpace<SkRect>& to) {
-        return LayerSpace<SkMatrix>(SkMatrix::RectToRect(SkRect(from), SkRect(to)));
+        return LayerSpace<SkMatrix>(SkMatrix::RectToRectOrIdentity(SkRect(from), SkRect(to)));
     }
 
     // Parrot a limited selection of the SkMatrix API while preserving coordinate space.
@@ -524,7 +524,13 @@ public:
     }
 
     bool invert(LayerSpace<SkMatrix>* inverse) const {
-        return fData.invert(inverse ? &inverse->fData : nullptr);
+        if (auto inv = fData.invert()) {
+            if (inverse) {
+                inverse->fData = *inv;
+            }
+            return true;
+        }
+        return false;
     }
 
     // Transforms 'r' by the inverse of this matrix if it is invertible and stores it in 'out'.
@@ -623,11 +629,10 @@ public:
         // Z values were 0 (this is true for local 2D geometry, not device space). Instead,
         // derive the 3x3 inverse of the flattened layer-to-device matrix, returning empty
         // if numerical stability meant its 4x4 was invertible but somehow the 3x3 wasn't.
-        SkMatrix devToLayer33;
-        if (!fLayerToDevMatrix.asM33().invert(&devToLayer33)) {
-            return LayerSpace<T>::Empty();
+        if (auto devToLayer33 = fLayerToDevMatrix.asM33().invert()) {
+            return LayerSpace<T>(map(static_cast<const T&>(devGeometry), *devToLayer33));
         }
-        return LayerSpace<T>(map(static_cast<const T&>(devGeometry), devToLayer33));
+        return LayerSpace<T>::Empty();
     }
 
     template<typename T>
@@ -926,12 +931,16 @@ private:
     // and may also have a deferred tilemode. If 'enforceDecal' is true, the returned
     // FilterResult will be kDecal sampled and any tiling will already be applied.
     //
+    // If `allowOverscaling` is true, the returned image may be scaled beyond what's requested in
+    // `scale` to remain a multiple of 1/2X steps.
+    //
     // All deferred effects, other than potentially tile mode, will be applied. The FilterResult
     // will also be converted to the color type and color space of 'ctx' so the result is suitable
     // to pass to the blur engine.
     FilterResult rescale(const Context& ctx,
                          const LayerSpace<SkSize>& scale,
-                         bool enforceDecal) const;
+                         bool enforceDecal,
+                         bool allowOverscaling) const;
     // Draw directly to the device, which draws the same image as produced by resolve() but can be
     // useful if multiple operations need to be performed on the canvas.
     //
@@ -1107,10 +1116,6 @@ public:
 
     // TODO: Once all Backends provide a blur engine, maybe just have Backend extend it.
     virtual const SkBlurEngine* getBlurEngine() const = 0;
-
-    // TODO: Can be removed once all blur engines rely on FilterResult::rescale and not their own
-    // rescale implementations.
-    virtual bool useLegacyFilterResultBlur() const { return true; }
 
     // Properties controlling the pixel data for offscreen surfaces rendered to during filtering.
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }

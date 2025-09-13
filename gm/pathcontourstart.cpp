@@ -40,7 +40,7 @@ protected:
         fDashPaint.setStyle(SkPaint::kStroke_Style);
         fDashPaint.setStrokeWidth(6);
         fDashPaint.setColor(0xff008000);
-        fDashPaint.setPathEffect(SkDashPathEffect::Make(intervals.begin(), intervals.size(), 0));
+        fDashPaint.setPathEffect(SkDashPathEffect::Make(intervals, 0));
 
         fPointsPaint.setColor(0xff800000);
         fPointsPaint.setStrokeWidth(3);
@@ -108,8 +108,8 @@ private:
 
             const int n = path.countPoints();
             AutoTArray<SkPoint> points(n);
-            path.getPoints(points.get(), n);
-            canvas->drawPoints(SkCanvas::kPoints_PointMode, n, points.get(), fPointsPaint);
+            path.getPoints(points);
+            canvas->drawPoints(SkCanvas::kPoints_PointMode, points, fPointsPaint);
 
             canvas->translate(0, kImageHeight / 8);
         }

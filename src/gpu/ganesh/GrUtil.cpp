@@ -77,5 +77,5 @@ bool GrIsStrokeHairlineOrEquivalent(const GrStyle& style,
         return true;
     }
     return stroke.getStyle() == SkStrokeRec::kStroke_Style &&
-           SkDrawTreatAAStrokeAsHairline(stroke.getWidth(), matrix, outCoverage);
+           skcpu::DrawTreatAAStrokeAsHairline(stroke.getWidth(), matrix, outCoverage);
 }

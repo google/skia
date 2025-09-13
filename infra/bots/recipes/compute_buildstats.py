@@ -7,7 +7,6 @@
 import ast
 import json
 
-PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'checkout',

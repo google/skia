@@ -72,7 +72,7 @@
       "CC": "[START_DIR]/clang_linux/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "[START_DIR]/clang_linux/bin/clang++",
-      "PATH": "[START_DIR]/cache/work/skia/third_party/ninja:<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin",
+      "PATH": "[START_DIR]/cache/work/skia/third_party/ninja:<PATH>:RECIPE_REPO[depot_tools]",
       "SWIFTSHADER_MSAN_INSTRUMENTED_LIBCXX_PATH": "/totally/phony/path"
     },
     "name": "swiftshader cmake"
@@ -89,7 +89,7 @@
       "CC": "[START_DIR]/clang_linux/bin/clang",
       "CHROME_HEADLESS": "1",
       "CXX": "[START_DIR]/clang_linux/bin/clang++",
-      "PATH": "[START_DIR]/cache/work/skia/third_party/ninja:<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cmake_linux/bin",
+      "PATH": "[START_DIR]/cache/work/skia/third_party/ninja:<PATH>:RECIPE_REPO[depot_tools]",
       "SWIFTSHADER_MSAN_INSTRUMENTED_LIBCXX_PATH": "/totally/phony/path"
     },
     "name": "swiftshader ninja"
@@ -106,7 +106,7 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "75G",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
     },
     "name": "ccache stats-start"
   },
@@ -124,7 +124,7 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "75G",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
     },
     "name": "gn gen"
   },
@@ -141,7 +141,7 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "75G",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
     },
     "name": "ninja"
   },
@@ -157,7 +157,7 @@
       "CCACHE_MAXFILES": "0",
       "CCACHE_MAXSIZE": "75G",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
     },
     "name": "ccache stats-end"
   },

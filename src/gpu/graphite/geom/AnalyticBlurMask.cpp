@@ -8,11 +8,18 @@
 #include "src/gpu/graphite/geom/AnalyticBlurMask.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkBlendMode.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImageFilter.h"
+#include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
+#include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
+#include "include/effects/SkImageFilters.h"
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkAssert.h"
@@ -23,9 +30,12 @@
 #include "src/core/SkRRectPriv.h"
 #include "src/gpu/BlurUtils.h"
 #include "src/gpu/ResourceKey.h"
+#include "src/gpu/SkBackingFit.h"
 #include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/Image_Graphite.h" // IWYU pragma: keep
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/geom/Transform.h"
 #include "src/sksl/SkSLUtil.h"
 
@@ -70,10 +80,9 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::Make(Recorder* recorder,
         return MakeRect(recorder, localToDevice, deviceSigma, srcRRect.rect());
     }
 
-    SkRRect devRRect;
-    const bool devRRectIsValid = srcRRect.transform(localToDevice, &devRRect);
-    if (devRRectIsValid && SkRRectPriv::IsCircle(devRRect)) {
-        return MakeCircle(recorder, localToDevice, deviceSigma, srcRRect.rect(), devRRect.rect());
+    const auto devRRect = srcRRect.transform(localToDevice);
+    if (devRRect.has_value() && SkRRectPriv::IsCircle(*devRRect)) {
+        return MakeCircle(recorder, localToDevice, deviceSigma, srcRRect.rect(), devRRect->rect());
     }
 
     // A local-space circle transformed by a rotation matrix will fail SkRRect::transform since it
@@ -89,9 +98,9 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::Make(Recorder* recorder,
         return MakeCircle(recorder, localToDevice, deviceSigma, srcRect, devRect);
     }
 
-    if (devRRectIsValid && SkRRectPriv::IsSimpleCircular(devRRect) &&
+    if (devRRect.has_value() && SkRRectPriv::IsSimpleCircular(*devRRect) &&
         localToDevice.isScaleTranslate()) {
-        return MakeRRect(recorder, localToDevice, deviceSigma, srcRRect, devRRect);
+        return MakeRRect(recorder, localToDevice, deviceSigma, srcRRect, *devRRect);
     }
 
     return std::nullopt;
@@ -373,13 +382,28 @@ std::optional<AnalyticBlurMask> AnalyticBlurMask::MakeRRect(Recorder* recorder,
         UniqueKey::Builder builder(&key, kRRectBlurDomain, kKeySize, "BlurredRRectNinePatch");
         memcpy(&builder[0], &params, sizeof(DerivedParams));
     }
+
     sk_sp<TextureProxy> ninePatch = recorder->priv().proxyCache()->findOrCreateCachedProxy(
             recorder, key, &params,
-            [](const void* context) {
+            [](Recorder* r, const void* context) -> sk_sp<Image> {
                 const DerivedParams* params = static_cast<const DerivedParams*>(context);
-                return CreateRRectBlurMask(params->fRRectToDraw,
-                                           params->fDimensions,
-                                           params->fDevSigma);
+
+                const SkImageInfo rrectII = SkImageInfo::MakeA8(params->fDimensions.width(),
+                                                                params->fDimensions.height());
+                sk_sp<Surface> surface = Surface::MakeScratch(r, rrectII, "BlurredRRectNinePatch",
+                                                              Budgeted::kYes, Mipmapped::kNo,
+                                                              SkBackingFit::kExact); // for now...
+                if (!surface) {
+                    return nullptr;
+                }
+                // Use an image filter directly, not a mask filter, so we don't get stuck in a loop
+                SkPaint blurRRectPaint;
+                blurRRectPaint.setImageFilter(SkImageFilters::Blur(params->fDevSigma,
+                                                                   params->fDevSigma,
+                                                                   nullptr));
+                blurRRectPaint.setBlendMode(SkBlendMode::kSrc);
+                surface->getCanvas()->drawRRect(params->fRRectToDraw, blurRRectPaint);
+                return surface->asImage();
             });
 
     if (!ninePatch) {

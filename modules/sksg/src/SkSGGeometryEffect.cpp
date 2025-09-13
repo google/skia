@@ -11,7 +11,9 @@
 #include "include/core/SkClipOp.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkStrokeRec.h"
@@ -21,7 +23,7 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTo.h"
+#include "modules/sksg/include/SkSGGeometryNode.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
 #include "src/core/SkPathPriv.h"
 
@@ -76,7 +78,9 @@ SkPath TrimEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child, const Sk
     if (const auto trim = SkTrimPathEffect::Make(fStart, fStop, fMode)) {
         SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
         SkASSERT(!trim->needsCTM());
-        SkAssertResult(trim->filterPath(&path, path, &rec, nullptr));
+        SkPathBuilder builder;
+        SkAssertResult(trim->filterPath(&builder, path, &rec, nullptr, SkMatrix::I()));
+        return builder.detach();
     }
 
     return path;
@@ -103,6 +107,13 @@ SkPath GeometryTransform::onRevalidateEffect(const sk_sp<GeometryNode>& child, c
     return path;
 }
 
+SkPath FillTypeOverride::onRevalidateEffect(const sk_sp<GeometryNode>& child, const SkMatrix&) {
+    SkPath path = child->asPath();
+    path.setFillType(fFillType);
+
+    return path;
+}
+
 namespace  {
 
 sk_sp<SkPathEffect> make_dash(const std::vector<float>& intervals, float phase) {
@@ -123,7 +134,7 @@ sk_sp<SkPathEffect> make_dash(const std::vector<float>& intervals, float phase) 
         std::copy(intervals.begin(), intervals.end(), storage.begin() + intervals.size());
     }
 
-    return SkDashPathEffect::Make(intervals_ptr, SkToInt(intervals_count), phase);
+    return SkDashPathEffect::Make({intervals_ptr, intervals_count}, phase);
 }
 
 } // namespace
@@ -134,7 +145,9 @@ SkPath DashEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child, const Sk
     if (const auto dash_patheffect = make_dash(fIntervals, fPhase)) {
         SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
         SkASSERT(!dash_patheffect->needsCTM());
-        dash_patheffect->filterPath(&path, path, &rec, nullptr);
+        SkPathBuilder builder;
+        dash_patheffect->filterPath(&builder, path, &rec);
+        return builder.detach();
     }
 
     return path;
@@ -146,7 +159,9 @@ SkPath RoundEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child, const S
     if (const auto round = SkCornerPathEffect::Make(fRadius)) {
         SkStrokeRec rec(SkStrokeRec::kHairline_InitStyle);
         SkASSERT(!round->needsCTM());
-        SkAssertResult(round->filterPath(&path, path, &rec, nullptr));
+        SkPathBuilder builder;
+        SkAssertResult(round->filterPath(&builder, path, &rec));
+        return builder.detach();
     }
 
     return path;
@@ -168,8 +183,7 @@ SkPath OffsetEffect::onRevalidateEffect(const sk_sp<GeometryNode>& child, const 
         paint.setStrokeMiter(fMiterLimit);
         paint.setStrokeJoin(fJoin);
 
-        SkPath fill_path;
-        skpathutils::FillPathWithPaint(path, paint, &fill_path, nullptr);
+        SkPath fill_path = skpathutils::FillPathWithPaint(path, paint);
 
         if (fOffset > 0) {
             Op(path, fill_path, kUnion_SkPathOp, &path);

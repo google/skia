@@ -154,7 +154,7 @@ sk_sp<SkImage> MultiFrameImageAsset::generateFrame(float t) {
             }
         } else {
             // When the image size is OK, just force-decode.
-            image = image->makeRasterImage();
+            image = image->makeRasterImage(nullptr);
         }
 
         return image;

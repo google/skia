@@ -131,7 +131,9 @@ protected:
                                           -0.14f * rrect.rect().height());
                     }
                     if (kEffect_Type == fType) {
-                        fRRects[curRRect].transform(canvas->getLocalToDeviceAs3x3(), &rrect);
+                        if (auto rr = fRRects[curRRect].transform(canvas->getLocalToDeviceAs3x3())){
+                            rrect = *rr;
+                        }
 
                         GrClipEdgeType edgeType = (GrClipEdgeType) et;
                         const auto& caps = *rContext->priv().caps()->shaderCaps();

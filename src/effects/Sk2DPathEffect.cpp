@@ -10,6 +10,7 @@
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -36,15 +37,15 @@ protected:
         next() will receive u and v values within these bounds,
         and then a call to end() will signal the end of processing.
     */
-    virtual void begin(const SkIRect& uvBounds, SkPath* dst) const {}
-    virtual void next(const SkPoint& loc, int u, int v, SkPath* dst) const {}
-    virtual void end(SkPath* dst) const {}
+    virtual void begin(const SkIRect& uvBounds, SkPathBuilder* dst) const {}
+    virtual void next(const SkPoint& loc, int u, int v, SkPathBuilder* dst) const {}
+    virtual void end(SkPathBuilder* dst) const {}
 
     /** Low-level virtual called per span of locations in the u-direction.
         The default implementation calls next() repeatedly with each
         location.
     */
-    virtual void nextSpan(int x, int y, int ucount, SkPath* path) const {
+    virtual void nextSpan(int x, int y, int ucount, SkPathBuilder* builder) const {
         if (!fMatrixIsInvertible) {
             return;
         }
@@ -59,8 +60,8 @@ protected:
 
         src.set(SkIntToScalar(x) + SK_ScalarHalf, SkIntToScalar(y) + SK_ScalarHalf);
         do {
-            mat.mapPoints(&dst, &src, 1);
-            this->next(dst, x++, y, path);
+            dst = mat.mapPoint(src);
+            this->next(dst, x++, y, builder);
             src.fX += SK_Scalar1;
         } while (--ucount > 0);
     }
@@ -71,7 +72,7 @@ protected:
         buffer.writeMatrix(fMatrix);
     }
 
-    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+    bool onFilterPath(SkPathBuilder* dst, const SkPath& src, SkStrokeRec* rec,
                       const SkRect* cullRect, const SkMatrix&) const override {
         if (!fMatrixIsInvertible) {
             return false;
@@ -126,7 +127,7 @@ public:
         SkASSERT(width >= 0);
     }
 
-    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+    bool onFilterPath(SkPathBuilder* dst, const SkPath& src, SkStrokeRec* rec,
                       const SkRect* cullRect, const SkMatrix& ctm) const override {
         if (this->INHERITED::onFilterPath(dst, src, rec, cullRect, ctm)) {
             rec->setStrokeStyle(fWidth);
@@ -135,13 +136,13 @@ public:
         return false;
     }
 
-    void nextSpan(int u, int v, int ucount, SkPath* dst) const override {
+    void nextSpan(int u, int v, int ucount, SkPathBuilder* dst) const override {
         if (ucount > 1) {
             SkPoint    src[2], dstP[2];
 
             src[0].set(SkIntToScalar(u) + SK_ScalarHalf, SkIntToScalar(v) + SK_ScalarHalf);
             src[1].set(SkIntToScalar(u+ucount) + SK_ScalarHalf, SkIntToScalar(v) + SK_ScalarHalf);
-            this->getMatrix().mapPoints(dstP, src, 2);
+            this->getMatrix().mapPoints(dstP, src);
 
             dst->moveTo(dstP[0]);
             dst->lineTo(dstP[1]);
@@ -175,16 +176,17 @@ class SkPath2DPathEffectImpl : public Sk2DPathEffect {
 public:
     SkPath2DPathEffectImpl(const SkMatrix& m, const SkPath& p) : INHERITED(m), fPath(p) {}
 
-    void next(const SkPoint& loc, int u, int v, SkPath* dst) const override {
+    void next(const SkPoint& loc, int u, int v, SkPathBuilder* dst) const override {
         dst->addPath(fPath, loc.fX, loc.fY);
     }
 
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer) {
         SkMatrix matrix;
         buffer.readMatrix(&matrix);
-        SkPath path;
-        buffer.readPath(&path);
-        return SkPath2DPathEffect::Make(matrix, path);
+        if (auto path = buffer.readPath()) {
+            return SkPath2DPathEffect::Make(matrix, *path);
+        }
+        return nullptr;
     }
 
     void flatten(SkWriteBuffer& buffer) const override {

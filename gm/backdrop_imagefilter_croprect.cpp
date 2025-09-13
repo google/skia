@@ -99,7 +99,7 @@ DEF_SIMPLE_GM(backdrop_imagefilter_croprect_rotated, canvas, 600, 500) {
 // This draws correctly if there's a blurred red rectangle inside a cyan rectangle, above a blurred
 // green rectangle inside a larger magenta rectangle. All rectangles and the blur direction are
 // under consistent perspective.
-// NOTE: Currently renders incorrectly, see skbug.com/9074
+// NOTE: Currently renders incorrectly, see skbug.com/40040358
 DEF_SIMPLE_GM(backdrop_imagefilter_croprect_persp, canvas, 600, 500) {
     SkMatrix persp = SkMatrix::I();
     persp.setPerspY(0.001f);

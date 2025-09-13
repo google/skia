@@ -33,6 +33,10 @@ class SkRRect;
 class SkRasterClip;
 enum SkBlurStyle : int;
 
+namespace skcpu {
+class Draw;
+}
+
 class SkMaskFilterBase : public SkMaskFilter {
 public:
     /** Returns the format of the resulting mask that this subclass will return
@@ -170,8 +174,7 @@ protected:
                                                        SkResourceCache*) const;
 
 private:
-    friend class SkDraw;
-    friend class SkDrawBase;
+    friend class skcpu::Draw;
 
     /** Helper method that, given a path in device space, will rasterize it into a kA8_Format mask
      and then call filterMask(). If this returns true, the specified blitter will be called
@@ -194,6 +197,12 @@ private:
                      const SkRasterClip&,
                      SkBlitter*,
                      SkResourceCache*) const;
+
+    FilterReturn filterRects(SkSpan<const SkRect> devRects,
+                     const SkMatrix& ctm,
+                     const SkRasterClip& clip,
+                     SkBlitter* blitter,
+                     SkResourceCache* cache) const;
 };
 
 inline SkMaskFilterBase* as_MFB(SkMaskFilter* mf) {

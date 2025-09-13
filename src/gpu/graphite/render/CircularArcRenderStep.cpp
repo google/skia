@@ -13,6 +13,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkPoint_impl.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/core/SkSLTypeShared.h"
@@ -23,6 +24,7 @@
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/geom/Shape.h"
 #include "src/gpu/graphite/geom/Transform.h"
@@ -130,7 +132,7 @@ CircularArcRenderStep::CircularArcRenderStep(StaticBufferManager* bufferManager)
                      Flags::kAppendInstances,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthGreaterPass,
+                     kDirectDepthLessPass,
                      /*staticAttrs=*/{
                              {"position", VertexAttribType::kFloat3, SkSLType::kFloat3},
                      },
@@ -385,8 +387,9 @@ void CircularArcRenderStep::writeVertices(DrawWriter* writer,
 }
 
 void CircularArcRenderStep::writeUniformsAndTextures(const DrawParams&,
-                                                     PipelineDataGatherer*) const {
+                                                     PipelineDataGatherer* gatherer) const {
     // All data is uploaded as instance attributes, so no uniforms are needed.
+    SkDEBUGCODE(gatherer->checkRewind());
 }
 
 }  // namespace skgpu::graphite

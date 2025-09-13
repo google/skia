@@ -14,7 +14,6 @@
 #include "include/core/SkPicture.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSurfaceProps.h"
-#include "src/base/SkTLazy.h"
 
 #include <cstddef>
 
@@ -29,10 +28,10 @@ protected:
     bool onGetPixels(const SkImageInfo&, void* pixels, size_t rowBytes, const Options&) override;
 
 private:
-    sk_sp<SkPicture>     fPicture;
-    SkMatrix             fMatrix;
-    SkTLazy<SkPaint>     fPaint;
-    const SkSurfaceProps fProps;
+    sk_sp<SkPicture>        fPicture;
+    SkMatrix                fMatrix;
+    std::optional<SkPaint>  fPaint;
+    const SkSurfaceProps    fProps;
 
     friend class SkImage_Picture;
 };

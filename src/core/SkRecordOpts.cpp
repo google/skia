@@ -156,7 +156,7 @@ static bool effectively_srcover(const SkPaint* paint) {
 struct SaveLayerDrawRestoreNooper {
     // Note that we use IsSingleDraw here, to avoid matching drawAtlas, drawVertices, etc...
     // Those operations (can) draw multiple, overlapping primitives that blend with each other.
-    // Applying this operation to them changes their behavior. (skbug.com/14554)
+    // Applying this operation to them changes their behavior. (skbug.com/40045501)
     typedef Pattern<Is<SaveLayer>, IsSingleDraw, Is<Restore>> Match;
 
     bool onMatch(SkRecord* record, Match* match, int begin, int end) {

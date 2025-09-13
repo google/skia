@@ -5,43 +5,43 @@ struct SPIRV_Cross_Output
     float4 sk_FragColor : SV_Target0;
 };
 
-void d_vi(int _24)
+void d_vi(int _27)
 {
     int b = 4;
 }
 
-void c_vi(int _28)
+void c_vi(int _31)
 {
-    int _31 = _28;
-    d_vi(_31);
+    int _34 = _31;
+    d_vi(_34);
 }
 
-void b_vi(int _33)
+void b_vi(int _36)
 {
-    int _36 = _33;
-    c_vi(_36);
+    int _39 = _36;
+    c_vi(_39);
 }
 
-void a_vi(int _38)
+void a_vi(int _41)
 {
-    int _41 = _38;
-    b_vi(_41);
-    int _44 = _38;
+    int _44 = _41;
     b_vi(_44);
+    int _47 = _41;
+    b_vi(_47);
 }
 
-float4 main(float2 _47)
+float4 main(float2 _50)
 {
     int i = 0;
-    int _51 = i;
-    a_vi(_51);
+    int _54 = i;
+    a_vi(_54);
     return 0.0f.xxxx;
 }
 
 void frag_main()
 {
-    float2 _18 = 0.0f.xx;
-    sk_FragColor = main(_18);
+    float2 _22 = 0.0f.xx;
+    sk_FragColor = main(_22);
 }
 
 SPIRV_Cross_Output main()

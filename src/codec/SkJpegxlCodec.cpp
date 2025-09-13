@@ -289,6 +289,9 @@ SkCodec::Result SkJpegxlCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst
 }
 
 bool SkJpegxlCodec::onRewind() {
+    if (!this->rewindStream()) {
+        return false;
+    }
     JxlDecoderRewind(fCodec->fDecoder.get());
     return true;
 }

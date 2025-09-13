@@ -9,7 +9,7 @@
 # has been mounted at /OUT
 
 # For example:
-# docker run -v $SKIA_ROOT:/SRC -v /tmp/cmake_out:/OUT gcr.io/skia-public/cmake-release:3.13.1_v1 /SRC/infra/cmake/build_skia.sh
+# docker run --volume $SKIA_ROOT:/SRC --volume /tmp/cmake_out:/OUT gcr.io/skia-public/cmake-release:latest /SRC/infra/cmake/build_skia.sh
 
 
 set -xe

@@ -25,7 +25,7 @@ void draw(SkCanvas* canvas) {
 
   const float intervals[] = { 12, 6 };
   p.setStrokeWidth(5);
-  p.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 0));
+  p.setPathEffect(SkDashPathEffect::Make(intervals, 0));
   canvas->drawLine({256,0}, {256, 256}, p);
 }
 }  // END FIDDLE

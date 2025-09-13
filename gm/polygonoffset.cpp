@@ -519,8 +519,7 @@ protected:
             } else {
                 GetSimplePolygon(index, SkPathDirection::kCW, &data, &numPts);
             }
-            SkRect bounds;
-            bounds.setBounds(data.get(), numPts);
+            SkRect bounds = SkRect::BoundsOrEmpty({data.get(), numPts});
             if (!fConvexOnly) {
                 bounds.outset(kMaxOutset, kMaxOutset);
             }
@@ -576,7 +575,7 @@ protected:
                 result = SkInsetConvexPolygon(data.get(), numPts, offset, &offsetPoly);
             } else {
                 SkRect bounds;
-                bounds.setBoundsCheck(data.get(), numPts);
+                bounds.setBoundsCheck({data.get(), numPts});
                 result = SkOffsetSimplePolygon(data.get(), numPts, bounds, offset, &offsetPoly);
             }
             if (result) {

@@ -36,14 +36,13 @@ void draw(SkCanvas* canvas) {
                         (i + doFill * std::size(gJoins)) * (H + 2 * kStrokeWidth));
                 const SkRect& rect = gRects[j];
 
-                SkPath path, fillPath;
-                path.addRect(rect);
+                SkPath path = SkPath::Rect(rect);
                 SkPaint paint;
 
                 paint.setStrokeWidth(kStrokeWidth);
                 paint.setStyle(style);
                 paint.setStrokeJoin(join);
-                skpathutils::FillPathWithPaint(path, paint, &fillPath);
+                SkPath fillPath = skpathutils::FillPathWithPaint(path, paint);
 
                 paint.setAntiAlias(true);
                 paint.setColor(0xFF8C8A8C);
@@ -57,10 +56,9 @@ void draw(SkCanvas* canvas) {
                 paint.setStrokeWidth(3);
                 paint.setStrokeJoin(SkPaint::kMiter_Join);
                 int n = fillPath.countPoints();
-                SkPoint* points = new SkPoint[n];
-                fillPath.getPoints(points, n);
-                canvas->drawPoints(SkCanvas::kPoints_PointMode, n, points, paint);
-                delete[] points;
+                std::vector<SkPoint> points(n);
+                fillPath.getPoints(points);
+                canvas->drawPoints(SkCanvas::kPoints_PointMode, points, paint);
             }
         }
     }

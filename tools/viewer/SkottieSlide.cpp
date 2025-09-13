@@ -18,9 +18,11 @@
 #include "modules/skottie/include/Skottie.h"
 #include "modules/skottie/include/SkottieProperty.h"
 #include "modules/skottie/include/SlotManager.h"
+#include "modules/skottie/include/TextShaper.h"
 #include "modules/skottie/utils/SkottieUtils.h"
 #include "modules/skottie/utils/TextEditor.h"
 #include "modules/skresources/include/SkResources.h"
+#include "modules/skshaper/utils/FactoryHelpers.h"
 #include "src/base/SkTime.h"
 #include "src/core/SkOSFile.h"
 #include "src/utils/SkOSPath.h"
@@ -169,6 +171,16 @@ private:
     std::vector<std::unique_ptr<skottie::TextPropertyHandle>> fTextProps;
 };
 
+sk_sp<SkShapers::Factory> make_shapers_factory() {
+#if defined(SK_SHAPER_UNICODE_AVAILABLE)
+    return sk_make_sp<SkShapers::HarfbuzzFactory>(
+        skottie::MakeStrictLinebreakUnicode(
+            SkShapers::BestAvailableUnicode()));
+#else
+    return nullptr;
+#endif
+}
+
 } // namespace
 
 class SkottieSlide::TransformTracker : public skottie::PropertyObserver {
@@ -222,9 +234,9 @@ public:
                      * SkMatrix::Scale    (tprop.fScale.fX*0.01f, tprop.fScale.fY*0.01f)
                      * SkMatrix::Translate(tprop.fAnchorPoint.fX, tprop.fAnchorPoint.fY);
 
-        const auto viewer_matrix = SkMatrix::RectToRect(SkRect::MakeSize(anim_size),
-                                                        SkRect::MakeSize(win_size),
-                                                        SkMatrix::kCenter_ScaleToFit);
+        const auto viewer_matrix = SkMatrix::RectToRectOrIdentity(SkRect::MakeSize(anim_size),
+                                                                  SkRect::MakeSize(win_size),
+                                                                  SkMatrix::kCenter_ScaleToFit);
 
         SkAutoCanvasRestore acr(canvas, true);
         canvas->concat(viewer_matrix);
@@ -539,7 +551,8 @@ void SkottieSlide::init() {
            .setFontManager(ToolUtils::TestFontMgr())
            .setPrecompInterceptor(std::move(precomp_interceptor))
            .setResourceProvider(resource_provider)
-           .setPropertyObserver(text_tracker);
+           .setPropertyObserver(text_tracker)
+           .setTextShapingFactory(make_shapers_factory());
 
     fAnimation = builder.makeFromFile(fPath.c_str());
     fAnimationStats = builder.getStats();
@@ -611,8 +624,8 @@ void SkottieSlide::draw(SkCanvas* canvas) {
             draw_stats_box(canvas, fAnimationStats);
         }
         if (fShowAnimationInval) {
-            const auto t = SkMatrix::RectToRect(SkRect::MakeSize(fAnimation->size()), dstR,
-                                                SkMatrix::kCenter_ScaleToFit);
+            const auto t = SkMatrix::RectToRectOrIdentity(SkRect::MakeSize(fAnimation->size()), dstR,
+                                                          SkMatrix::kCenter_ScaleToFit);
             SkPaint fill, stroke;
             fill.setAntiAlias(true);
             fill.setColor(0x40ff0000);

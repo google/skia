@@ -7,12 +7,12 @@ _TEST_GCS_MIRROR = False
 # https://skia.googlesource.com/skia/+/8ad66c2340713234df6b249e793415233337a103/bazel/gcs_mirror/gcs_mirror.go#140).
 _SUPPORTED_SUFFIXES = [".tar.gz", ".tgz", ".tar.xz", ".deb", ".zip"]
 
-_GCS_MIRROR_PREFIX = "https://storage.googleapis.com/skia-world-readable/bazel"
+_GCS_MIRROR_PREFIX = "https://cdn.skia.org/bazel"
 
 def gcs_mirror_url(url, sha256, ext = None):
     """Takes the URL of an external resource and computes its GCS mirror URL.
 
-    We store backup copies of external resources in the skia-world-readable GCS bucket. This macro
+    We store backup copies of external resources in cdn.skia.org. This macro
     returns a list with two elements: the original URL, and the mirrored URL.
 
     To mirror a new URL, please use the `gcs_mirror` utility found at

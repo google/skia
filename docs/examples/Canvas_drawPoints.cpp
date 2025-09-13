@@ -14,14 +14,14 @@ void draw(SkCanvas* canvas) {
                                    SkPaint::kBevel_Join };
     int joinIndex = 0;
     SkPath path;
-    path.addPoly(points, 3, false);
+    path.addPoly(points, false);
     for (const auto cap : { SkPaint::kRound_Cap, SkPaint::kSquare_Cap, SkPaint::kButt_Cap } ) {
         paint.setStrokeCap(cap);
         paint.setStrokeJoin(join[joinIndex++]);
         for (const auto mode : { SkCanvas::kPoints_PointMode,
                                  SkCanvas::kLines_PointMode,
                                  SkCanvas::kPolygon_PointMode } ) {
-            canvas->drawPoints(mode, 3, points, paint);
+            canvas->drawPoints(mode, points, paint);
             canvas->translate(64, 0);
         }
         canvas->drawPath(path, paint);

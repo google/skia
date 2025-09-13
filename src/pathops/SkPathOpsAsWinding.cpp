@@ -49,17 +49,27 @@ struct Contour {
     bool fReverse{false};
 };
 
-static const int kPtCount[] = { 1, 1, 2, 2, 3, 0 };
-static const int kPtIndex[] = { 0, 1, 1, 1, 1, 0 };
+static int VerbPtCount(SkPathVerb verb) {
+    static const int kPtCount[] = { 1, 1, 2, 2, 3, 0 };
+    unsigned index = static_cast<unsigned>(verb);
+    SkASSERT(index < std::size(kPtCount));
+    return kPtCount[index];
+}
+
+static int VerbPtIndex(SkPathVerb verb) {
+    static const int kPtIndex[] = { 0, 1, 1, 1, 1, 0 };
+    unsigned index = static_cast<unsigned>(verb);
+    SkASSERT(index < std::size(kPtIndex));
+    return kPtIndex[index];
+}
 
 static Contour::Direction to_direction(SkScalar dy) {
     return dy > 0 ? Contour::Direction::kCCW : dy < 0 ? Contour::Direction::kCW :
             Contour::Direction::kNone;
 }
 
-static int contains_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight, const SkPoint& edge) {
-    SkRect bounds;
-    bounds.setBounds(pts, kPtCount[verb] + 1);
+static int contains_edge(const SkPoint pts[4], SkPathVerb verb, SkScalar weight, const SkPoint& edge) {
+    SkRect bounds = SkRect::BoundsOrEmpty({pts, VerbPtCount(verb) + 1});
     if (bounds.fTop > edge.fY) {
         return 0;
     }
@@ -73,11 +83,11 @@ static int contains_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight, con
     double tVals[3];
     Contour::Direction directions[3];
     // must intersect horz ray with curve in case it intersects more than once
-    int count = (*CurveIntercept[verb * 2])(pts, weight, edge.fY, tVals);
+    int count = (*CurveIntercept[(int)verb * 2])(pts, weight, edge.fY, tVals);
     SkASSERT(between(0, count, 3));
     // remove results to the right of edge
     for (int index = 0; index < count; ) {
-        SkScalar intersectX = (*CurvePointAtT[verb])(pts, weight, tVals[index]).fX;
+        SkScalar intersectX = (*CurvePointAtT[(int)verb])(pts, weight, tVals[index]).fX;
         if (intersectX < edge.fX) {
             ++index;
             continue;
@@ -87,7 +97,7 @@ static int contains_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight, con
             continue;
         }
         // if intersect x equals edge x, we need to determine if pts is to the left or right of edge
-        if (pts[0].fX < edge.fX && pts[kPtCount[verb]].fX < edge.fX) {
+        if (pts[0].fX < edge.fX && pts[VerbPtCount(verb)].fX < edge.fX) {
             ++index;
             continue;
         }
@@ -98,7 +108,7 @@ static int contains_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight, con
     }
     // use first derivative to determine if intersection is contributing +1 or -1 to winding
     for (int index = 0; index < count; ++index) {
-        directions[index] = to_direction((*CurveSlopeAtT[verb])(pts, weight, tVals[index]).fY);
+        directions[index] = to_direction((*CurveSlopeAtT[(int)verb])(pts, weight, tVals[index]).fY);
     }
     for (int index = 0; index < count; ++index) {
         // skip intersections that end at edge and go up
@@ -110,18 +120,18 @@ static int contains_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight, con
     return winding;  // note winding indicates containership, not contour direction
 }
 
-static SkScalar conic_weight(const SkPath::Iter& iter, SkPath::Verb verb) {
-    return SkPath::kConic_Verb == verb ? iter.conicWeight() : 1;
+static float conic_weight(const SkPath::IterRec& rec) {
+    return rec.fVerb == SkPathVerb::kConic ? rec.conicWeight() : 1;
 }
 
-static SkPoint left_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight) {
-    SkASSERT(SkPath::kLine_Verb <= verb && verb <= SkPath::kCubic_Verb);
+static SkPoint left_edge(const SkPoint pts[4], SkPathVerb verb, SkScalar weight) {
+    SkASSERT(SkPathVerb::kLine <= verb && verb <= SkPathVerb::kCubic);
     SkPoint result;
     double t SK_INIT_TO_AVOID_WARNING;
     int roots = 0;
-    if (SkPath::kLine_Verb == verb) {
+    if (SkPathVerb::kLine == verb) {
         result = pts[0].fX < pts[1].fX ? pts[0] : pts[1];
-    } else if (SkPath::kQuad_Verb == verb) {
+    } else if (SkPathVerb::kQuad == verb) {
         SkDQuad quad;
         quad.set(pts);
         if (!quad.monotonicInX()) {
@@ -132,7 +142,7 @@ static SkPoint left_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight) {
         } else {
             result = pts[0].fX < pts[2].fX ? pts[0] : pts[2];
         }
-    } else if (SkPath::kConic_Verb == verb) {
+    } else if (SkPathVerb::kConic == verb) {
         SkDConic conic;
         conic.set(pts, weight);
         if (!conic.monotonicInX()) {
@@ -144,7 +154,7 @@ static SkPoint left_edge(SkPoint pts[4], SkPath::Verb verb, SkScalar weight) {
             result = pts[0].fX < pts[2].fX ? pts[0] : pts[2];
         }
     } else {
-        SkASSERT(SkPath::kCubic_Verb == verb);
+        SkASSERT(SkPathVerb::kCubic == verb);
         SkDCubic cubic;
         cubic.set(pts);
         if (!cubic.monotonicInX()) {
@@ -189,11 +199,12 @@ public:
                     containers->emplace_back(bounds, lastStart, verbStart);
                     lastStart = verbStart;
                }
-               bounds.setBounds(&pts[kPtIndex[SkPath::kMove_Verb]], kPtCount[SkPath::kMove_Verb]);
+                bounds.setBounds({&pts[VerbPtIndex(SkPathVerb::kMove)],
+                                  VerbPtCount(SkPathVerb::kMove)});
             }
             if (SkPathVerb::kLine <= verb && verb <= SkPathVerb::kCubic) {
                 SkRect verbBounds;
-                verbBounds.setBounds(&pts[kPtIndex[(int)verb]], kPtCount[(int)verb]);
+                verbBounds.setBounds({&pts[VerbPtIndex(verb)], VerbPtCount(verb)});
                 bounds.joinPossiblyEmptyRect(verbBounds);
             }
             ++verbStart;
@@ -206,61 +217,58 @@ public:
     Contour::Direction getDirection(Contour& contour) {
         SkPath::Iter iter(fPath, true);
         int verbCount = -1;
-        SkPath::Verb verb;
-        SkPoint pts[4];
 
         SkScalar total_signed_area = 0;
-        do {
-            verb = iter.next(pts);
+        while (auto rec = iter.next()) {
             if (++verbCount < contour.fVerbStart) {
                 continue;
             }
             if (verbCount >= contour.fVerbEnd) {
                 continue;
             }
-            if (SkPath::kLine_Verb > verb || verb > SkPath::kCubic_Verb) {
+            if (SkPathVerb::kLine > rec->fVerb || rec->fVerb > SkPathVerb::kCubic) {
                 continue;
             }
 
-            switch (verb)
-            {
-                case SkPath::kLine_Verb:
+            SkSpan<const SkPoint> pts = rec->fPoints;
+            switch (rec->fVerb) {
+                case SkPathVerb::kLine:
                     total_signed_area += (pts[0].fY - pts[1].fY) * (pts[0].fX + pts[1].fX);
                     break;
-                case SkPath::kQuad_Verb:
-                case SkPath::kConic_Verb:
+                case SkPathVerb::kQuad:
+                case SkPathVerb::kConic:
                     total_signed_area += (pts[0].fY - pts[2].fY) * (pts[0].fX + pts[2].fX);
                     break;
-                case SkPath::kCubic_Verb:
+                case SkPathVerb::kCubic:
                     total_signed_area += (pts[0].fY - pts[3].fY) * (pts[0].fX + pts[3].fX);
                     break;
                 default:
                     break;
             }
-        } while (SkPath::kDone_Verb != verb);
+        }
 
         return total_signed_area < 0 ? Contour::Direction::kCCW: Contour::Direction::kCW;
     }
 
     int nextEdge(Contour& contour, Edge edge) {
         SkPath::Iter iter(fPath, true);
-        SkPoint pts[4];
-        SkPath::Verb verb;
         int verbCount = -1;
         int winding = 0;
-        do {
-            verb = iter.next(pts);
+        while (auto rec = iter.next()) {
+            const SkPathVerb verb = rec->fVerb;
             if (++verbCount < contour.fVerbStart) {
                 continue;
             }
             if (verbCount >= contour.fVerbEnd) {
                 continue;
             }
-            if (SkPath::kLine_Verb > verb || verb > SkPath::kCubic_Verb) {
+            if (SkPathVerb::kLine > verb || verb > SkPathVerb::kCubic) {
                 continue;
             }
+
+            SkSpan<const SkPoint> pts = rec->fPoints;
             bool horizontal = true;
-            for (int index = 1; index <= kPtCount[verb]; ++index) {
+            for (int index = 1; index <= VerbPtCount(verb); ++index) {
                 if (pts[0].fY != pts[index].fY) {
                     horizontal = false;
                     break;
@@ -270,11 +278,12 @@ public:
                 continue;
             }
             if (edge == Edge::kCompare) {
-                winding += contains_edge(pts, verb, conic_weight(iter, verb), contour.fMinXY);
+                winding += contains_edge(pts.data(), verb, conic_weight(*rec),
+                                         contour.fMinXY);
                 continue;
             }
             SkASSERT(edge == Edge::kInitial);
-            SkPoint minXY = left_edge(pts, verb, conic_weight(iter, verb));
+            SkPoint minXY = left_edge(pts.data(), verb, conic_weight(*rec));
             if (minXY.fX > contour.fMinXY.fX) {
                 continue;
             }
@@ -284,7 +293,7 @@ public:
                 }
             }
             contour.fMinXY = minXY;
-        } while (SkPath::kDone_Verb != verb);
+        }
         return winding;
     }
 

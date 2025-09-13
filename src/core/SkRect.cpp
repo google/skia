@@ -47,58 +47,91 @@ void SkIRect::join(const SkIRect& r) {
 
 /////////////////////////////////////////////////////////////////////////////
 
-void SkRect::toQuad(SkPoint quad[4]) const {
-    SkASSERT(quad);
+std::optional<SkRect> SkRect::Bounds(SkSpan<const SkPoint> points) {
+    if (points.empty()) {
+        return SkRect::MakeEmpty();
+    }
 
-    quad[0].set(fLeft, fTop);
-    quad[1].set(fRight, fTop);
-    quad[2].set(fRight, fBottom);
-    quad[3].set(fLeft, fBottom);
+    /*
+     *  Both of these variants compute the same numerics.
+     *
+     *  But, the "simple" one (no explicit skvx) runs faster (most of the time) on 64bit
+     *  machines, and the tricky skvx version runs faster (most of the time) on 32bit machines.
+     *
+     *  Hence the if/else
+     */
+
+    if constexpr (sizeof(void*) == 8) {
+        float L = points[0].fX, T = points[0].fY, R = points[0].fX, B = points[0].fY;
+        float nx = 0, ny = 0;
+        for (auto p : points) {
+            L = std::fminf(p.fX, L);
+            T = std::fminf(p.fY, T);
+            R = std::fmaxf(p.fX, R);
+            B = std::fmaxf(p.fY, B);
+
+            // we do this to look for infinities or nans
+            nx *= p.fX;
+            ny *= p.fY;
+        }
+
+        // if this is true, all our values were finite
+        if (nx == 0 && ny == 0) {
+            return {{L, T, R, B}};
+        }
+    } else {
+        auto count = points.size();
+        auto pts = points.data();
+
+        skvx::float4 min, max;
+        if (count & 1) {
+            min = max = skvx::float2::Load(pts).xyxy();
+            pts   += 1;
+            count -= 1;
+        } else {
+            min = max = skvx::float4::Load(pts);
+            pts   += 2;
+            count -= 2;
+        }
+
+        skvx::float4 accum = min * 0;
+        while (count) {
+            skvx::float4 xy = skvx::float4::Load(pts);
+            accum = accum * xy;
+            min = skvx::min(min, xy);
+            max = skvx::max(max, xy);
+            pts   += 2;
+            count -= 2;
+        }
+
+        const bool all_finite = all(accum * 0 == 0);
+        if (all_finite) {
+            return MakeLTRB(std::min(min[0], min[2]), std::min(min[1], min[3]),
+                            std::max(max[0], max[2]), std::max(max[1], max[3]));
+        }
+    }
+
+    /*
+     *  If we got here, we were not empty, and at least one of the span values was
+     *  either an Infinity or NaN -- so we return failure (no finite bounds)
+     */
+    return {};
 }
 
-#include "src/base/SkVx.h"
-
-bool SkRect::setBoundsCheck(const SkPoint pts[], int count) {
-    SkASSERT((pts && count > 0) || count == 0);
-
-    if (count <= 0) {
-        this->setEmpty();
+bool SkRect::setBoundsCheck(SkSpan<const SkPoint> pts) {
+    if (auto bounds = Bounds(pts)) {
+        *this = bounds.value();
         return true;
-    }
-
-    skvx::float4 min, max;
-    if (count & 1) {
-        min = max = skvx::float2::Load(pts).xyxy();
-        pts   += 1;
-        count -= 1;
     } else {
-        min = max = skvx::float4::Load(pts);
-        pts   += 2;
-        count -= 2;
+        *this = MakeEmpty();
+        return false;
     }
-
-    skvx::float4 accum = min * 0;
-    while (count) {
-        skvx::float4 xy = skvx::float4::Load(pts);
-        accum = accum * xy;
-        min = skvx::min(min, xy);
-        max = skvx::max(max, xy);
-        pts   += 2;
-        count -= 2;
-    }
-
-    const bool all_finite = all(accum * 0 == 0);
-    if (all_finite) {
-        this->setLTRB(std::min(min[0], min[2]), std::min(min[1], min[3]),
-                      std::max(max[0], max[2]), std::max(max[1], max[3]));
-    } else {
-        this->setEmpty();
-    }
-    return all_finite;
 }
 
-void SkRect::setBoundsNoCheck(const SkPoint pts[], int count) {
-    if (!this->setBoundsCheck(pts, count)) {
+void SkRect::setBoundsNoCheck(SkSpan<const SkPoint> pts) {
+    if (auto bounds = Bounds(pts)) {
+        *this = bounds.value();
+    } else {
         this->setLTRB(SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN);
     }
 }

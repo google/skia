@@ -10,7 +10,7 @@
 #include "include/core/SkPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 
-// Reproduces skbug.com/9331, drawing differently in debug and release builds.
+// Reproduces skbug.com/40040651, drawing differently in debug and release builds.
 DEF_SIMPLE_GM(bug9331, canvas, 256, 256) {
     SkRect clip = {0, 0, 200, 150};
     {
@@ -27,7 +27,7 @@ DEF_SIMPLE_GM(bug9331, canvas, 256, 256) {
         paint.setColor(color);
         paint.setStyle(SkPaint::kStroke_Style);
         paint.setStrokeWidth(10);
-        paint.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), phase));
+        paint.setPathEffect(SkDashPathEffect::Make(intervals, phase));
 
         canvas->save();
             canvas->clipRect(clip);

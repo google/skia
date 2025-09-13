@@ -25,7 +25,6 @@ class SkColorSpace;
 class SkPixmap;
 class SkRecorder;
 class SkSurface;
-enum SkColorType : int;
 enum SkYUVColorSpace : int;
 struct SkIRect;
 struct SkISize;
@@ -35,31 +34,16 @@ enum {
     kNeedNewImageUniqueID = 0
 };
 
-namespace skgpu::graphite {
-class Recorder;
-}
-
 class SkImage_Base : public SkImage {
 public:
     ~SkImage_Base() override;
 
     // From SkImage.h
-    sk_sp<SkImage> makeColorSpace(GrDirectContext*, sk_sp<SkColorSpace>) const override;
     sk_sp<SkImage> makeColorSpace(SkRecorder*,
                                   sk_sp<SkColorSpace>,
                                   RequiredProperties) const override;
-    sk_sp<SkImage> makeColorTypeAndColorSpace(GrDirectContext* dContext,
-                                              SkColorType targetColorType,
-                                              sk_sp<SkColorSpace> targetCS) const override;
-    sk_sp<SkImage> makeColorTypeAndColorSpace(SkRecorder*,
-                                              SkColorType,
-                                              sk_sp<SkColorSpace>,
-                                              RequiredProperties) const override;
-    sk_sp<SkImage> makeSubset(GrDirectContext* direct, const SkIRect& subset) const override;
-    sk_sp<SkImage> makeSubset(skgpu::graphite::Recorder*,
-                              const SkIRect&,
-                              RequiredProperties) const override;
 
+    sk_sp<SkImage> makeSubset(SkRecorder*, const SkIRect&, RequiredProperties) const override;
     size_t textureSize() const override { return 0; }
 
     // Methods that we want to use elsewhere in Skia, but not be a part of the public API.
@@ -75,10 +59,7 @@ public:
                               int srcY,
                               CachingHint) const = 0;
 
-    virtual bool readPixelsGraphite(skgpu::graphite::Recorder*,
-                                    const SkPixmap& dst,
-                                    int srcX,
-                                    int srcY) const {
+    virtual bool readPixelsGraphite(SkRecorder*, const SkPixmap& dst, int srcX, int srcY) const {
         return false;
     }
 
@@ -127,7 +108,7 @@ public:
     virtual bool getROPixels(GrDirectContext*, SkBitmap*,
                              CachingHint = kAllow_CachingHint) const = 0;
 
-    virtual sk_sp<SkImage> onMakeSubset(GrDirectContext*, const SkIRect&) const = 0;
+    virtual sk_sp<SkImage> onMakeSubset(SkRecorder*, const SkIRect&, RequiredProperties) const = 0;
 
     virtual sk_sp<SkData> onRefEncoded() const { return nullptr; }
 
@@ -183,9 +164,6 @@ public:
         fAddedToRasterCache.store(true);
     }
 
-    virtual sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType, sk_sp<SkColorSpace>,
-                                                        GrDirectContext*) const = 0;
-
     virtual sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const = 0;
 
     // on failure, returns nullptr
@@ -193,10 +171,6 @@ public:
     virtual sk_sp<SkImage> onMakeWithMipmaps(sk_sp<SkMipmap>) const {
         return nullptr;
     }
-
-    virtual sk_sp<SkImage> onMakeSubset(skgpu::graphite::Recorder*,
-                                        const SkIRect&,
-                                        RequiredProperties) const = 0;
 
 protected:
     SkImage_Base(const SkImageInfo& info, uint32_t uniqueID);

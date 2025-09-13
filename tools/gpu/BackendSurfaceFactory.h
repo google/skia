@@ -12,23 +12,29 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/ganesh/GrTypes.h"
 #include "src/core/SkColorData.h"
 
-class GrDirectContext;
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrTypes.h"
+#endif
+
 class SkSurface;
 class SkSurfaceProps;
 enum SkColorType : int;
 struct SkImageInfo;
 
-#ifdef SK_GRAPHITE
+#if defined(SK_GANESH)
+class GrDirectContext;
+#endif
+
+#if defined(SK_GRAPHITE)
 namespace skgpu::graphite {
     class Recorder;
 }
 #endif
 
 namespace sk_gpu_test {
-
+#if defined(SK_GANESH)
 sk_sp<SkSurface> MakeBackendTextureSurface(GrDirectContext*,
                                            const SkImageInfo&,
                                            GrSurfaceOrigin,
@@ -63,6 +69,7 @@ sk_sp<SkSurface> MakeBackendRenderTargetSurface(GrDirectContext*,
                                                 sk_sp<SkColorSpace> = nullptr,
                                                 GrProtected = GrProtected::kNo,
                                                 const SkSurfaceProps* = nullptr);
+#endif  // SK_GANESH
 
 #ifdef SK_GRAPHITE
 /*

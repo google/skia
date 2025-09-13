@@ -160,7 +160,7 @@ bool GrTriangulator::Line::intersect(const Line& other, SkPoint* point) const {
     double scale = 1.0 / denom;
     point->fX = double_to_clamped_scalar((fB * other.fC - other.fB * fC) * scale);
     point->fY = double_to_clamped_scalar((other.fA * fC - fA * other.fC) * scale);
-     round(point);
+    round(point);
     return point->isFinite();
 }
 
@@ -547,68 +547,65 @@ void GrTriangulator::generateCubicPoints(const SkPoint& p0, const SkPoint& p1, c
 void GrTriangulator::pathToContours(float tolerance, const SkRect& clipBounds,
                                     VertexList* contours, bool* isLinear) const {
     SkScalar toleranceSqd = tolerance * tolerance;
-    SkPoint pts[4];
     *isLinear = true;
     VertexList* contour = contours;
-    SkPath::Iter iter(fPath, false);
     if (fPath.isInverseFillType()) {
-        SkPoint quad[4];
-        clipBounds.toQuad(quad);
+        const std::array<SkPoint, 4> quad = clipBounds.toQuad();
         for (int i = 3; i >= 0; i--) {
             this->appendPointToContour(quad[i], contours);
         }
         contour++;
     }
     SkAutoConicToQuads converter;
-    SkPath::Verb verb;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kConic_Verb: {
+    SkPath::Iter iter(fPath, false);
+    while (auto rec = iter.next()) {
+        SkSpan<const SkPoint> pts = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kConic: {
                 *isLinear = false;
                 if (toleranceSqd == 0) {
                     this->appendPointToContour(pts[2], contour);
                     break;
                 }
-                SkScalar weight = iter.conicWeight();
-                const SkPoint* quadPts = converter.computeQuads(pts, weight, toleranceSqd);
+                const SkPoint* quadPts = converter.computeQuads(pts.data(), rec->conicWeight(),
+                                                                toleranceSqd);
                 for (int i = 0; i < converter.countQuads(); ++i) {
                     this->appendQuadraticToContour(quadPts, toleranceSqd, contour);
                     quadPts += 2;
                 }
                 break;
             }
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 if (contour->fHead) {
                     contour++;
                 }
                 this->appendPointToContour(pts[0], contour);
                 break;
-            case SkPath::kLine_Verb: {
+            case SkPathVerb::kLine: {
                 this->appendPointToContour(pts[1], contour);
                 break;
             }
-            case SkPath::kQuad_Verb: {
+            case SkPathVerb::kQuad: {
                 *isLinear = false;
                 if (toleranceSqd == 0) {
                     this->appendPointToContour(pts[2], contour);
                     break;
                 }
-                this->appendQuadraticToContour(pts, toleranceSqd, contour);
+                this->appendQuadraticToContour(pts.data(), toleranceSqd, contour);
                 break;
             }
-            case SkPath::kCubic_Verb: {
+            case SkPathVerb::kCubic: {
                 *isLinear = false;
                 if (toleranceSqd == 0) {
                     this->appendPointToContour(pts[3], contour);
                     break;
                 }
-                int pointsLeft = GrPathUtils::cubicPointCount(pts, tolerance);
+                int pointsLeft = GrPathUtils::cubicPointCount(pts.data(), tolerance);
                 this->generateCubicPoints(pts[0], pts[1], pts[2], pts[3], toleranceSqd, contour,
                                           pointsLeft);
                 break;
             }
-            case SkPath::kClose_Verb:
-            case SkPath::kDone_Verb:
+            case SkPathVerb::kClose:
                 break;
         }
     }
@@ -879,6 +876,21 @@ bool GrTriangulator::setBottom(Edge* edge, Vertex* v, EdgeList* activeEdges, Ver
     return this->mergeCollinearEdges(edge, activeEdges, current, c);
 }
 
+/*
+ * NOTE: Also used in mergeEdgesBelow()
+ * Merges two adjacent, collinear edges. This is a complex operation with two main cases:
+ *
+ * 1. Coincident endpoints: If the edges share the exact same top/bottom vertex, one edge's winding
+ *    is absorbed into the other. The now-unused "zombie" edge is fully disconnected and also
+ *    explicitly removed from the activeEdges list to prevent state corruption that can lead to
+ *    null-pointer dereferences (b/419397557, b/421959607).
+ *
+ * 2. Non-coincident (overlapping) endpoints: One edge is shortened to meet the endpoint of the
+ *    other by modifying it in-place. This is a fragile operation that relies on the stability of
+ *    the floating point comparisons to succeed. To combat this, the geometric checks (`isLeftOf`,
+ *    etc.) use an adaptive, per-edge epsilon. This tries to ensure that the decision to merge is
+ *    mathematically sound, even with pathological floating-point coordinates.
+ */
 bool GrTriangulator::mergeEdgesAbove(Edge* edge, Edge* other, EdgeList* activeEdges,
                                      Vertex** current, const Comparator& c) const {
     if (!edge || !other) {
@@ -893,6 +905,9 @@ bool GrTriangulator::mergeEdgesAbove(Edge* edge, Edge* other, EdgeList* activeEd
         }
         other->fWinding += edge->fWinding;
         edge->disconnect();
+        if (activeEdges) {
+            activeEdges->remove(edge);
+        }
         edge->fTop = edge->fBottom = nullptr;
     } else if (c.sweep_lt(edge->fTop->fPoint, other->fTop->fPoint)) {
         if (!rewind(activeEdges, current, edge->fTop, c)) {
@@ -914,6 +929,7 @@ bool GrTriangulator::mergeEdgesAbove(Edge* edge, Edge* other, EdgeList* activeEd
     return true;
 }
 
+// NOTE: See mergeEdgesAbove() comment
 bool GrTriangulator::mergeEdgesBelow(Edge* edge, Edge* other, EdgeList* activeEdges,
                                      Vertex** current, const Comparator& c) const {
     if (!edge || !other) {
@@ -928,6 +944,9 @@ bool GrTriangulator::mergeEdgesBelow(Edge* edge, Edge* other, EdgeList* activeEd
         }
         other->fWinding += edge->fWinding;
         edge->disconnect();
+        if (activeEdges) {
+            activeEdges->remove(edge);
+        }
         edge->fTop = edge->fBottom = nullptr;
     } else if (c.sweep_lt(edge->fBottom->fPoint, other->fBottom->fPoint)) {
         if (!rewind(activeEdges, current, other->fTop, c)) {
@@ -1756,23 +1775,21 @@ static int get_contour_count(const SkPath& path, SkScalar tolerance) {
     bool hasPoints = false;
 
     SkPath::Iter iter(path, false);
-    SkPath::Verb verb;
-    SkPoint pts[4];
     bool first = true;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
+    while (auto rec = iter.next()) {
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
                 if (!first) {
                     ++contourCnt;
                 }
                 [[fallthrough]];
-            case SkPath::kLine_Verb:
-            case SkPath::kConic_Verb:
-            case SkPath::kQuad_Verb:
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kLine:
+            case SkPathVerb::kConic:
+            case SkPathVerb::kQuad:
+            case SkPathVerb::kCubic:
                 hasPoints = true;
                 break;
-            default:
+            case SkPathVerb::kClose:
                 break;
         }
         first = false;

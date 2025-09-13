@@ -19,7 +19,7 @@
       "  File \"RECIPE_REPO[recipe_engine]/recipe_engine/internal/property_invoker.py\", in _invoke_with_properties",
       "    return callable_obj(*props, **additional_args)",
       "           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
-      "  File \"RECIPE_REPO[skia]/infra/bots/recipe_modules/build/examples/full.py\", line 23, in RunSteps",
+      "  File \"RECIPE_REPO[skia]/infra/bots/recipe_modules/build/examples/full.py\", line 22, in RunSteps",
       "    api.build(checkout_root=checkout_root, out_dir=out_dir)",
       "  File \"RECIPE_REPO[skia]/infra/bots/recipe_modules/build/api.py\", line 49, in __call__",
       "    self.compile_fn(self.m, checkout_root, out_dir)",

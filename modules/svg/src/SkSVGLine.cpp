@@ -8,12 +8,12 @@
 #include "modules/svg/include/SkSVGLine.h"
 
 #include "include/core/SkCanvas.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "modules/svg/include/SkSVGAttributeParser.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 
 class SkPaint;
-enum class SkPathFillType;
 
 SkSVGLine::SkSVGLine() : INHERITED(SkSVGTag::kLine) {}
 

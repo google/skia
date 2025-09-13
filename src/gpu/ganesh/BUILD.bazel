@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -392,43 +392,5 @@ skia_cc_library(
         "//src/core:core_priv",
         "//src/gpu",
         "//src/sksl/codegen:gpu",
-    ],
-)
-
-generate_cpp_files_for_headers(
-    name = "headers_to_compile",
-    headers = [
-        "GrAppliedClip.h",
-        "GrAutoLocaleSetter.h",
-        "GrBackendSemaphorePriv.h",
-        "GrBackendSurfacePriv.h",
-        "GrBaseContextPriv.h",
-        "GrClip.h",
-        "GrCpuBuffer.h",
-        "GrDeferredUpload.h",
-        "GrDrawIndirectCommand.h",
-        "GrDstProxyView.h",
-        "GrFPArgs.h",
-        "GrGpuResourceCacheAccess.h",
-        "GrGpuResourcePriv.h",
-        "GrNativeRect.h",
-        "GrNonAtomicRef.h",
-        "GrOpsTypes.h",
-        "GrPixmap.h",
-        "GrSimpleMesh.h",
-        "GrSurfaceProxyPriv.h",
-        "GrTextureProxyCacheAccess.h",
-        "GrTextureProxyPriv.h",
-        "GrTracing.h",
-        "GrTTopoSort.h",
-        "GrUserStencilSettings.h",
-        "GrWindowRectangles.h",
-        "GrWaitRenderTask.h",
-        "SkGaneshRecorder.h",
-
-        # Trips an assertion in IWYU
-        # /tmp/iwyu/iwyu.cc:2003: Assertion failed:
-        #   TODO(csilvers): for objc and clang lang extensions
-        # "GrColor.h",
     ],
 )

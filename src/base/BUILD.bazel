@@ -11,51 +11,49 @@ package(
 
 licenses(["notice"])
 
-# Headers with no corresponding .cpp files
-IWYU_HDRS = [
+PRIVATE_HEADERS = [
+    "SkArenaAlloc.h",
     "SkArenaAllocList.h",
+    "SkAutoMalloc.h",
+    "SkBase64.h",
+    "SkBezierCurves.h",
     "SkBitmaskEnum.h",
+    "SkBlockAllocator.h",
+    "SkBuffer.h",
+    "SkCubics.h",
     "SkEndian.h",
     "SkEnumBitMask.h",
     "SkFixedArray.h",
     "SkFloatBits.h",
+    "SkHalf.h",
     "SkLeanWindows.h",
     "SkMSAN.h",
+    "SkMathPriv.h",
     "SkNoDestructor.h",
+    "SkQuads.h",
     "SkRandom.h",
     "SkRectMemcpy.h",
+    "SkSafeMath.h",
     "SkScopeExit.h",
+    "SkSharedMutex.h",
+    "SkSpinlock.h",
     "SkStringView.h",
     "SkTBlockList.h",
     "SkTDPQueue.h",
     "SkTInternalLList.h",
     "SkTLazy.h",
+    "SkTSearch.h",
     "SkTSort.h",
+    "SkTime.h",
+    "SkUTF.h",
+    "SkUtils.h",
+    "SkVx.h",
     "SkZip.h",
 ]
 
 skia_filegroup(
     name = "private_hdrs",
-    srcs = IWYU_HDRS + [
-        "SkArenaAlloc.h",
-        "SkAutoMalloc.h",
-        "SkBase64.h",
-        "SkBezierCurves.h",
-        "SkBlockAllocator.h",
-        "SkBuffer.h",
-        "SkCubics.h",
-        "SkHalf.h",
-        "SkMathPriv.h",
-        "SkQuads.h",
-        "SkSafeMath.h",
-        "SkSharedMutex.h",
-        "SkSpinlock.h",
-        "SkTSearch.h",
-        "SkTime.h",
-        "SkUTF.h",
-        "SkUtils.h",
-        "SkVx.h",  # Causes IWYU to crash when compiling.
-    ],
+    srcs = PRIVATE_HEADERS,
 )
 
 # In a separate file group because these files are exported to sksl.gni:skslc_deps.
@@ -120,5 +118,5 @@ skia_cc_library(
 
 generate_cpp_files_for_headers(
     name = "headers_to_compile",
-    headers = IWYU_HDRS,
+    headers = PRIVATE_HEADERS,
 )

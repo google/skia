@@ -21,7 +21,8 @@ GrVkSamplerYcbcrConversion* GrVkSamplerYcbcrConversion::Create(
     }
 
     VkSamplerYcbcrConversionCreateInfo ycbcrCreateInfo;
-    skgpu::SetupSamplerYcbcrConversionInfo(&ycbcrCreateInfo, info);
+    std::optional<VkFilter> requiredSamplerFilter;
+    skgpu::SetupSamplerYcbcrConversionInfo(&ycbcrCreateInfo, &requiredSamplerFilter, info);
 
 #ifdef SK_BUILD_FOR_ANDROID
     VkExternalFormatANDROID externalFormat;
@@ -51,7 +52,8 @@ GrVkSamplerYcbcrConversion* GrVkSamplerYcbcrConversion::Create(
         return nullptr;
     }
 
-    return new GrVkSamplerYcbcrConversion(gpu, conversion, GenerateKey(info));
+    return new GrVkSamplerYcbcrConversion(
+            gpu, conversion, requiredSamplerFilter, GenerateKey(info));
 }
 
 void GrVkSamplerYcbcrConversion::freeGPUData() const {

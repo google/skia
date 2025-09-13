@@ -136,10 +136,11 @@ void TestSVGTypeface::onFilterRec(SkScalerContextRec* rec) const {
     rec->setHinting(SkFontHinting::kNone);
 }
 
-void TestSVGTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
+void TestSVGTypeface::getGlyphToUnicodeMap(SkSpan<SkUnichar> glyphToUnicode) const {
     SkDEBUGCODE(unsigned glyphCount = this->countGlyphs());
     fCMap.foreach ([=](const SkUnichar& c, const SkGlyphID& g) {
         SkASSERT(g < glyphCount);
+        SkASSERT(g < glyphToUnicode.size());
         glyphToUnicode[g] = c;
     });
 }
@@ -156,8 +157,9 @@ void TestSVGTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* serializ
     *serialize = true;
 }
 
-void TestSVGTypeface::onCharsToGlyphs(const SkUnichar uni[], int count, SkGlyphID glyphs[]) const {
-    for (int i = 0; i < count; i++) {
+void TestSVGTypeface::onCharsToGlyphs(SkSpan<const SkUnichar> uni, SkSpan<SkGlyphID> glyphs) const {
+    SkASSERT(uni.size() == glyphs.size());
+    for (size_t i = 0; i < uni.size(); i++) {
         SkGlyphID* g = fCMap.find(uni[i]);
         glyphs[i]    = g ? *g : 0;
     }
@@ -178,8 +180,9 @@ public:
     SkTestSVGScalerContext(TestSVGTypeface& face,
                            const SkScalerContextEffects& effects,
                            const SkDescriptor* desc)
-            : SkScalerContext(face, effects, desc) {
-        fRec.getSingleMatrix(&fMatrix);
+        : SkScalerContext(face, effects, desc)
+        , fMatrix(fRec.getSingleMatrix())
+    {
         SkScalar upem = this->getTestSVGTypeface()->fUpem;
         fMatrix.preScale(1.f / upem, 1.f / upem);
     }
@@ -191,7 +194,7 @@ protected:
 
     SkVector computeAdvance(SkGlyphID glyphID) {
         auto advance = this->getTestSVGTypeface()->getAdvance(glyphID);
-        return fMatrix.mapXY(advance.fX, advance.fY);
+        return fMatrix.mapPoint(advance);
     }
 
     GlyphMetrics generateMetrics(const SkGlyph& glyph, SkArenaAlloc*) override {
@@ -241,11 +244,10 @@ protected:
         glyphData.render(&canvas);
     }
 
-    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override {
+    std::optional<SkScalerContext::GeneratedPath> generatePath(const SkGlyph& glyph) override {
         // Should never get here since generateMetrics always sets the path to not exist.
         SK_ABORT("Path requested, but it should have been indicated that there isn't one.");
-        path->reset();
-        return false;
+        return {};
     }
 
     struct SVGGlyphDrawable : public SkDrawable {
@@ -800,7 +802,7 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
                 SkGlyphID gid = i;
                 SkScalar  advance;
                 SkRect    bounds;
-                font.getWidthsBounds(&gid, 1, &advance, &bounds, nullptr);
+                font.getWidthsBounds({&gid, 1}, {&advance, 1}, {&bounds, 1}, nullptr);
                 SkIRect ibounds = bounds.roundOut();
                 if (!SkTFitsIn<int8_t>(ibounds.fLeft) || !SkTFitsIn<int8_t>(ibounds.fTop) ||
                     !SkTFitsIn<uint8_t>(ibounds.width()) || !SkTFitsIn<uint8_t>(ibounds.height()) ||
@@ -839,7 +841,7 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
             SkGlyphID gid = i;
             SkScalar  advance;
             SkRect    bounds;
-            font.getWidthsBounds(&gid, 1, &advance, &bounds, nullptr);
+            font.getWidthsBounds({&gid, 1}, {&advance, 1}, {&bounds, 1}, nullptr);
             SkIRect ibounds = bounds.roundOut();
             if (ibounds.isEmpty()) {
                 continue;
@@ -967,8 +969,7 @@ void TestSVGTypeface::exportTtxCbdt(SkWStream* out, SkSpan<unsigned> strikeSizes
                 "lastGlyphIndex=\"1\">\n");
         for (int i = 0; i < fGlyphCount; ++i) {
             SkGlyphID gid = i;
-            SkRect    bounds;
-            font.getBounds(&gid, 1, &bounds, nullptr);
+            SkRect    bounds = font.getBounds(gid, nullptr);
             if (bounds.isEmpty()) {
                 continue;
             }
@@ -1075,7 +1076,7 @@ void TestSVGTypeface::exportTtxSbix(SkWStream* out, SkSpan<unsigned> strikeSizes
             SkGlyphID gid = i;
             SkScalar  advance;
             SkRect    bounds;
-            font.getWidthsBounds(&gid, 1, &advance, &bounds, nullptr);
+            font.getWidthsBounds({&gid, 1}, {&advance, 1}, {&bounds, 1}, nullptr);
             SkIRect ibounds = bounds.roundOut();
             if (ibounds.isEmpty()) {
                 continue;
@@ -1198,38 +1199,36 @@ void convertCubicToQuads(const SkPoint p[4], SkScalar tolScale, TArray<SkPoint, 
     }
 }
 
-void path_to_quads(const SkPath& path, SkPath* quadPath) {
-    quadPath->reset();
+SkPath path_to_quads(const SkPath& path) {
+    SkPathBuilder quadPath;
     TArray<SkPoint, true> qPts;
     SkAutoConicToQuads      converter;
     const SkPoint*          quadPts;
     for (auto [verb, pts, w] : SkPathPriv::Iterate(path)) {
         switch (verb) {
-            case SkPathVerb::kMove: quadPath->moveTo(pts[0].fX, pts[0].fY); break;
-            case SkPathVerb::kLine: quadPath->lineTo(pts[1].fX, pts[1].fY); break;
+            case SkPathVerb::kMove: quadPath.moveTo(pts[0]); break;
+            case SkPathVerb::kLine: quadPath.lineTo(pts[1]); break;
             case SkPathVerb::kQuad:
-                quadPath->quadTo(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
+                quadPath.quadTo(pts[1].fX, pts[1].fY, pts[2].fX, pts[2].fY);
                 break;
             case SkPathVerb::kCubic:
                 qPts.clear();
                 convertCubicToQuads(pts, SK_Scalar1, &qPts);
                 for (int i = 0; i < qPts.size(); i += 3) {
-                    quadPath->quadTo(
+                    quadPath.quadTo(
                             qPts[i + 1].fX, qPts[i + 1].fY, qPts[i + 2].fX, qPts[i + 2].fY);
                 }
                 break;
             case SkPathVerb::kConic:
                 quadPts = converter.computeQuads(pts, *w, SK_Scalar1);
                 for (int i = 0; i < converter.countQuads(); ++i) {
-                    quadPath->quadTo(quadPts[i * 2 + 1].fX,
-                                     quadPts[i * 2 + 1].fY,
-                                     quadPts[i * 2 + 2].fX,
-                                     quadPts[i * 2 + 2].fY);
+                    quadPath.quadTo(quadPts[i * 2 + 1], quadPts[i * 2 + 2]);
                 }
                 break;
-            case SkPathVerb::kClose: quadPath->close(); break;
+            case SkPathVerb::kClose: quadPath.close(); break;
         }
     }
+    return quadPath.detach();
 }
 
 class SkCOLRCanvas : public SkNoDrawCanvas {
@@ -1260,8 +1259,7 @@ public:
     }
     SkIRect writePath(const SkPath& path, bool layer) {
         // Convert to quads.
-        SkPath quads;
-        path_to_quads(path, &quads);
+        SkPath quads = path_to_quads(path);
 
         SkRect  bounds  = quads.computeTightBounds();
         SkIRect ibounds = bounds.roundOut();
@@ -1344,10 +1342,9 @@ public:
                    SkScalar       sweepAngle,
                    bool           useCenter,
                    const SkPaint& paint) override {
-        SkPath path;
         bool fillNoPathEffect = SkPaint::kFill_Style == paint.getStyle() && !paint.getPathEffect();
-        SkPathPriv::CreateDrawArcPath(
-                &path, SkArc::Make(oval, startAngle, sweepAngle, useCenter), fillNoPathEffect);
+        SkPath path = SkPathPriv::CreateDrawArcPath(
+                SkArc::Make(oval, startAngle, sweepAngle, useCenter), fillNoPathEffect);
         this->drawPath(path, paint);
     }
 
@@ -1363,7 +1360,9 @@ public:
 
         // Apply the path effect.
         if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style) {
-            bool fill = skpathutils::FillPathWithPaint(path, paint, &path);
+            SkPathBuilder builder;
+            bool fill = skpathutils::FillPathWithPaint(path, paint, &builder);
+            path = builder.detach();
 
             paint.setPathEffect(nullptr);
             if (fill) {

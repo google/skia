@@ -58,7 +58,7 @@ static void testOvalSet(const OvalSet& set, const SkPath& oval, SkOpBuilder* bui
     if (builder) {
         builder->resolve(result);
     } else if (region) {
-        region->getBoundaryPath(result);
+        *result = region->getBoundaryPath();
     }
 }
 
@@ -633,8 +633,7 @@ const char ovalsAsQuads[] = "M 146.4187316894531 136.5"
 
 DEF_TEST(PathOpsOvalsAsQuads, reporter) {
     if ((false)) { // don't execute this for now
-        SkPath path;
-        SkParsePath::FromSVGString(ovalsAsQuads, &path);
+        SkPath path = SkParsePath::FromSVGString(ovalsAsQuads).value_or(SkPath());
         Simplify(path, &path);
     }
 }
@@ -643,7 +642,7 @@ DEF_TEST(PathOps64OvalsAsQuads, reporter) {
     if ((false)) { // don't execute this for now
         SkPath path, result;
         SkOpBuilder builder;
-        SkParsePath::FromSVGString(ovalsAsQuads, &path);
+        path = SkParsePath::FromSVGString(ovalsAsQuads).value_or(SkPath());
         OvalSet set = {{0, 0, 0, 0}, 2, 3, 9, 100, 100};
         testOvalSet(set, path, &builder, nullptr, &result);
     }

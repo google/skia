@@ -9,7 +9,7 @@ import("canvaskit.gni")
 # These targets depend on components that are only declared if
 # `skia_enable_tools` is true.
 if (skia_enable_tools) {
-  component("viewer_wasm") {
+  skia_component("viewer_wasm") {
     testonly = true
     include_dirs = [ "../.." ]
     sources = [
@@ -49,7 +49,7 @@ if (skia_enable_tools) {
     ]
   }
 
-  component("gm_wasm") {
+  skia_component("gm_wasm") {
     testonly = true
     include_dirs = [ "../.." ]
     deps = [
@@ -61,7 +61,7 @@ if (skia_enable_tools) {
   }
 }
 
-component("debugger") {
+skia_component("debugger") {
   include_dirs = [ "../.." ]
   sources = [
     "../../tools/SkSharingProc.cpp",
@@ -202,7 +202,7 @@ skia_wasm_lib("canvaskit") {
       # Modules from html5_webgpu for JS<->WASM interop
       "-sEXPORTED_RUNTIME_METHODS=WebGPU,JsValStore",
 
-      # TODO(skia:13429): The closure compiler doesn't play well with optimized builds and ASYNCIFY.
+      # TODO(skbug.com/40044518): The closure compiler doesn't play well with optimized builds and ASYNCIFY.
       "--closure=0",
     ]
   } else if (skia_canvaskit_enable_webgl) {
@@ -349,6 +349,11 @@ skia_wasm_lib("canvaskit") {
     "-sINITIAL_MEMORY=128MB",
     "-sWASM",
     "-sSTRICT=1",
+    "-sEXPORTED_RUNTIME_METHODS=HEAP32,HEAPU8,HEAPU16,HEAPU32,HEAPF32",
+
+    # INCOMING_MODULE_JS_API is set to empty by default.
+    # https://github.com/emscripten-core/emscripten/blob/8dc91db45bf96c174531006839472a3924d105aa/src/settings.js#L1204
+    "-sINCOMING_MODULE_JS_API=onRuntimeInitialized",
   ]
 
   defines = [

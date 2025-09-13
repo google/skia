@@ -154,36 +154,36 @@ Skia's [Lottie animation](https://skia.org/docs/user/modules/skottie) support.
     ShaderExample1(CanvasKit);
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/lego_loader.json').then((resp) => {
+  fetch('https://cdn.skia.org/misc/lego_loader.json').then((resp) => {
     resp.text().then((str) => {
       legoJSON = str;
       SkottieExample(CanvasKit, 'sk_legos', legoJSON, [-183, -100, 483, 400]);
     });
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/drinks.json').then((resp) => {
+  fetch('https://cdn.skia.org/misc/drinks.json').then((resp) => {
     resp.text().then((str) => {
       drinksJSON = str;
       SkottieExample(CanvasKit, 'sk_drinks', drinksJSON, fullBounds);
     });
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/confetti.json').then((resp) => {
+  fetch('https://cdn.skia.org/misc/confetti.json').then((resp) => {
     resp.text().then((str) => {
       confettiJSON = str;
       SkottieExample(CanvasKit, 'sk_party', confettiJSON, fullBounds);
     });
   });
 
-  fetch('https://storage.googleapis.com/skia-cdn/misc/onboarding.json').then((resp) => {
+  fetch('https://cdn.skia.org/misc/onboarding.json').then((resp) => {
     resp.text().then((str) => {
       onboardingJSON = str;
       SkottieExample(CanvasKit, 'sk_onboarding', onboardingJSON, fullBounds);
     });
   });
 
-  const loadBrickTex = fetch('https://storage.googleapis.com/skia-cdn/misc/brickwork-texture.jpg').then((response) => response.arrayBuffer());
-  const loadBrickBump = fetch('https://storage.googleapis.com/skia-cdn/misc/brickwork_normal-map.jpg').then((response) => response.arrayBuffer());
+  const loadBrickTex = fetch('https://cdn.skia.org/misc/brickwork-texture.jpg').then((response) => response.arrayBuffer());
+  const loadBrickBump = fetch('https://cdn.skia.org/misc/brickwork_normal-map.jpg').then((response) => response.arrayBuffer());
   Promise.all([ckLoaded, loadBrickTex, loadBrickBump]).then((results) => {Camera3D(...results)});
 
   function preventScrolling(canvas) {
@@ -324,14 +324,14 @@ Skia's [Lottie animation](https://skia.org/docs/user/modules/skottie) support.
       return;
     }
     let robotoData = null;
-    fetch('https://storage.googleapis.com/skia-cdn/google-web-fonts/Roboto-Regular.ttf').then((resp) => {
+    fetch('https://cdn.skia.org/google-web-fonts/Roboto-Regular.ttf').then((resp) => {
       resp.arrayBuffer().then((buffer) => {
         robotoData = buffer;
       });
     });
 
     let emojiData = null;
-    fetch('https://storage.googleapis.com/skia-cdn/misc/NotoColorEmoji.ttf').then((resp) => {
+    fetch('https://cdn.skia.org/misc/NotoColorEmoji.ttf').then((resp) => {
       resp.arrayBuffer().then((buffer) => {
         emojiData = buffer;
       });

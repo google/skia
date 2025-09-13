@@ -27,7 +27,7 @@ void SkClipStack_AsPath(const SkClipStack& cs, SkPath* path) {
         }
         SkPath operand;
         if (element->getDeviceSpaceType() != SkClipStack::Element::DeviceSpaceType::kEmpty) {
-            element->asDeviceSpacePath(&operand);
+            operand = element->asDeviceSpacePath();
         }
 
         SkClipOp elementOp = element->getOp();

@@ -432,7 +432,10 @@ pub fn get_font_style(
             const wght: Tag = Tag::new(b"wght");
             const wdth: Tag = Tag::new(b"wdth");
             const slnt: Tag = Tag::new(b"slnt");
+            const ital: Tag = Tag::new(b"ital");
 
+            let mut slnt_value = None;
+            let mut ital_value = None;
             for user_coord in coords.filtered_user_coords.iter() {
                 match user_coord.selector {
                     wght => skia_weight = user_coord.value.round() as i32,
@@ -450,16 +453,29 @@ pub fn get_font_style(
                             _ => 9,
                         }
                     }
-                    slnt => {
-                        if skia_slant != SKIA_SLANT_ITALIC {
-                            if user_coord.value == 0.0 {
-                                skia_slant = SKIA_SLANT_UPRIGHT;
-                            } else {
-                                skia_slant = SKIA_SLANT_OBLIQUE
-                            }
-                        }
-                    }
+                    slnt => slnt_value = Some(user_coord.value),
+                    ital => ital_value = Some(user_coord.value),
                     _ => (),
+                }
+            }
+            // Value > 0 => +, value == 0 => 0, no value => _
+            // slnt\ital  _      0      +
+            //       _   init  !ital   ital
+            //       0  !oblq   uprt   ital
+            //       +   oblq   oblq   ital
+            if ital_value.is_some_and(|x| x != 0.0) {
+                skia_slant = SKIA_SLANT_ITALIC;
+            } else if slnt_value.is_some_and(|x| x != 0.0) {
+                skia_slant = SKIA_SLANT_OBLIQUE;
+            } else if ital_value.is_some_and(|x| x == 0.0) && slnt_value.is_some_and(|x| x == 0.0) {
+                skia_slant = SKIA_SLANT_UPRIGHT;
+            } else if ital_value.is_some_and(|x| x == 0.0) && slnt_value.is_none() {
+                if skia_slant == SKIA_SLANT_ITALIC {
+                   skia_slant = SKIA_SLANT_UPRIGHT;
+                }
+            } else if ital_value.is_none() && slnt_value.is_some_and(|x| x == 0.0) {
+                if skia_slant == SKIA_SLANT_OBLIQUE {
+                   skia_slant = SKIA_SLANT_UPRIGHT;
                 }
             }
 

@@ -20,9 +20,10 @@
 
 class GrDirectContext;
 class SkCanvas;
+class SkRecorder;
+class SkString;
 class SkSurface;
 class SkSurfaceProps;
-class SkString;
 
 namespace skgpu::graphite {
 class Context;
@@ -140,6 +141,7 @@ public:
     GrDirectContext* directContext() const;
     skgpu::graphite::Context* graphiteContext() const;
     skgpu::graphite::Recorder* graphiteRecorder() const;
+    SkRecorder* baseRecorder() const;
 
     using GpuTimerCallback = std::function<void(uint64_t ns)>;
 

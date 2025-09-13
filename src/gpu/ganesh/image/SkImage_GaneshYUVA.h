@@ -62,10 +62,9 @@ public:
     bool onHasMipmaps() const override;
     bool onIsProtected() const override;
 
-    using SkImage_GaneshBase::onMakeColorTypeAndColorSpace;
-    sk_sp<SkImage> onMakeColorTypeAndColorSpace(SkColorType,
-                                                sk_sp<SkColorSpace>,
-                                                GrDirectContext*) const final;
+    sk_sp<SkImage> onMakeColorTypeAndColorSpace(GrDirectContext*,
+                                                SkColorType,
+                                                sk_sp<SkColorSpace>) const final;
 
     sk_sp<SkImage> onReinterpretColorSpace(sk_sp<SkColorSpace>) const final;
 

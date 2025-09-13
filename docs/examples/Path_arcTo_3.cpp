@@ -7,19 +7,18 @@ void draw(SkCanvas* canvas) {
     path.moveTo({156, 20});
     path.arcTo({200, 20}, {170, 20}, 50);
     SkPath::Iter iter(path, false);
-    SkPoint p[4];
-    SkPath::Verb verb;
-    while (SkPath::kDone_Verb != (verb = iter.next(p))) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
+    while (auto rec = iter.next()) {
+        SkSpan<const SkPoint> p = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
                 SkDebugf("move to (%g,%g)\n", p[0].fX, p[0].fY);
                 break;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 SkDebugf("line (%g,%g),(%g,%g)\n", p[0].fX, p[0].fY, p[1].fX, p[1].fY);
                 break;
-            case SkPath::kConic_Verb:
+            case SkPathVerb::kConic:
                 SkDebugf("conic (%g,%g),(%g,%g),(%g,%g) weight %g\n",
-                          p[0].fX, p[0].fY, p[1].fX, p[1].fY, p[2].fX, p[2].fY, iter.conicWeight());
+                          p[0].fX, p[0].fY, p[1].fX, p[1].fY, p[2].fX, p[2].fY, rec->conicWeight());
                 break;
             default:
                 SkDebugf("unexpected verb\n");

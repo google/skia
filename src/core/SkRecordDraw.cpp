@@ -10,11 +10,13 @@
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkBlender.h"
+#include "include/core/SkColor.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkMesh.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkRRect.h"
+#include "include/core/SkRSXform.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkRegion.h"
@@ -37,6 +39,7 @@
 #include "src/utils/SkPatchUtils.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <optional>
 #include <vector>
 
@@ -153,14 +156,17 @@ DRAW(DrawPaint, drawPaint(r.paint))
 DRAW(DrawPath, drawPath(r.path, r.paint))
 DRAW(DrawPatch, drawPatch(r.cubics, r.colors, r.texCoords, r.bmode, r.paint))
 DRAW(DrawPicture, drawPicture(r.picture.get(), &r.matrix, r.paint))
-DRAW(DrawPoints, drawPoints(r.mode, r.count, r.pts, r.paint))
+DRAW(DrawPoints, drawPoints(r.mode, {r.pts, r.count}, r.paint))
 DRAW(DrawRRect, drawRRect(r.rrect, r.paint))
 DRAW(DrawRect, drawRect(r.rect, r.paint))
 DRAW(DrawRegion, drawRegion(r.region, r.paint))
 DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint))
 DRAW(DrawSlug, drawSlug(r.slug.get(), r.paint))
-DRAW(DrawAtlas, drawAtlas(r.atlas.get(), r.xforms, r.texs, r.colors, r.count, r.mode, r.sampling,
-                          r.cull, r.paint))
+DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
+                          {r.xforms, r.count},
+                          {r.texs, r.count},
+                          {r.colors, r.colors ? r.count : 0},
+                          r.mode, r.sampling, r.cull, r.paint))
 DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint))
 DRAW(DrawMesh, drawMesh(r.mesh, r.blender, r.paint))
 DRAW(DrawShadowRec, private_draw_shadow_rec(r.path, r.rec))
@@ -449,8 +455,7 @@ private:
                                            : this->adjustAndMap(op.path.getBounds(), &op.paint);
     }
     Bounds bounds(const DrawPoints& op) const {
-        SkRect dst;
-        dst.setBounds(op.pts, op.count);
+        SkRect dst = SkRect::BoundsOrEmpty({op.pts, op.count});
 
         // Pad the bounding box a little to make sure hairline points' bounds aren't empty.
         SkScalar stroke = std::max(op.paint.getStrokeWidth(), 0.01f);
@@ -459,8 +464,7 @@ private:
         return this->adjustAndMap(dst, &op.paint);
     }
     Bounds bounds(const DrawPatch& op) const {
-        SkRect dst;
-        dst.setBounds(op.cubics, SkPatchUtils::kNumCtrlPts);
+        const auto dst = SkRect::BoundsOrEmpty({op.cubics, (size_t)SkPatchUtils::kNumCtrlPts});
         return this->adjustAndMap(dst, &op.paint);
     }
     Bounds bounds(const DrawVertices& op) const {
@@ -510,10 +514,7 @@ private:
         return this->adjustAndMap(op.rect, nullptr);
     }
     Bounds bounds(const DrawEdgeAAQuad& op) const {
-        SkRect bounds = op.rect;
-        if (op.clip) {
-            bounds.setBounds(op.clip, 4);
-        }
+        const auto bounds = op.clip ? SkRect::BoundsOrEmpty({op.clip, 4}) : op.rect;
         return this->adjustAndMap(bounds, nullptr);
     }
     Bounds bounds(const DrawEdgeAAImageSet& op) const {
@@ -522,7 +523,7 @@ private:
         for (int i = 0; i < op.count; ++i) {
             SkRect entryBounds = op.set[i].fDstRect;
             if (op.set[i].fHasClip) {
-                entryBounds.setBounds(op.dstClips + clipIndex, 4);
+                entryBounds = SkRect::BoundsOrEmpty({op.dstClips + clipIndex, 4});
                 clipIndex += 4;
             }
             if (op.set[i].fMatrixIndex >= 0) {
@@ -548,11 +549,11 @@ private:
 
     bool adjustForSaveLayerPaints(SkRect* rect, int savesToIgnore = 0) const {
         for (int i = fSaveStack.size() - 1 - savesToIgnore; i >= 0; i--) {
-            SkMatrix inverse;
-            if (!fSaveStack[i].ctm.invert(&inverse)) {
+            auto inverse = fSaveStack[i].ctm.invert();
+            if (!inverse) {
                 return false;
             }
-            inverse.mapRect(rect);
+            inverse->mapRect(rect);
             if (!AdjustForPaint(fSaveStack[i].paint, rect)) {
                 return false;
             }

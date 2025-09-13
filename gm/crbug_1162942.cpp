@@ -33,8 +33,7 @@ DEF_SIMPLE_GM(crbug_1162942, canvas, 620, 200) {
                       {SkBits2Float(0x0), SkBits2Float(0x43FF7FFA)},
                       {SkBits2Float(0xB83B055E), SkBits2Float(0x42500003)},
                       {SkBits2Float(0x3F39776F), SkBits2Float(0x4250000D)}};
-    SkRect bounds;
-    bounds.setBounds(pts, 4);
+    const auto bounds = SkRect::BoundsOrEmpty(pts);
 
     canvas->clear(SK_ColorWHITE);
 

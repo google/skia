@@ -20,43 +20,33 @@ DEF_TEST(AsADashTest_noneDash, reporter) {
     sk_sp<SkPathEffect> pe(SkCornerPathEffect::Make(1.0));
     SkPathEffectBase::DashInfo info;
 
-    SkPathEffectBase::DashType dashType = as_PEB(pe)->asADash(&info);
-    REPORTER_ASSERT(reporter, SkPathEffectBase::DashType::kNone == dashType);
+    auto dashInfo = as_PEB(pe)->asADash();
+    REPORTER_ASSERT(reporter, !dashInfo.has_value());
 }
 
 DEF_TEST(AsADashTest_nullInfo, reporter) {
-    SkScalar inIntervals[] = { 4.0, 2.0, 1.0, 3.0 };
+    const SkScalar inIntervals[] = { 4.0, 2.0, 1.0, 3.0 };
     const SkScalar phase = 2.0;
-    sk_sp<SkPathEffect> pe(SkDashPathEffect::Make(inIntervals, 4, phase));
+    sk_sp<SkPathEffect> pe(SkDashPathEffect::Make(inIntervals, phase));
 
-    SkPathEffectBase::DashType dashType = as_PEB(pe)->asADash(nullptr);
-    REPORTER_ASSERT(reporter, SkPathEffectBase::DashType::kDash == dashType);
+    auto dashInfo = as_PEB(pe)->asADash();
+    REPORTER_ASSERT(reporter, dashInfo.has_value());
 }
 
 DEF_TEST(AsADashTest_usingDash, reporter) {
-    SkScalar inIntervals[] = { 4.0, 2.0, 1.0, 3.0 };
+    const SkScalar inIntervals[] = { 4.0, 2.0, 1.0, 3.0 };
     SkScalar totalIntSum = 10.0;
     const SkScalar phase = 2.0;
 
-    sk_sp<SkPathEffect> pe(SkDashPathEffect::Make(inIntervals, 4, phase));
+    sk_sp<SkPathEffect> pe(SkDashPathEffect::Make(inIntervals, phase));
 
-    SkPathEffectBase::DashInfo info;
+    auto info = as_PEB(pe)->asADash();
+    REPORTER_ASSERT(reporter, info.has_value());
+    REPORTER_ASSERT(reporter, 4 == info->fIntervals.size());
+    REPORTER_ASSERT(reporter, SkScalarMod(phase, totalIntSum) == info->fPhase);
 
-    SkPathEffectBase::DashType dashType = as_PEB(pe)->asADash(&info);
-    REPORTER_ASSERT(reporter, SkPathEffectBase::DashType::kDash == dashType);
-    REPORTER_ASSERT(reporter, 4 == info.fCount);
-    REPORTER_ASSERT(reporter, SkScalarMod(phase, totalIntSum) == info.fPhase);
-
-    // Since it is a kDash_DashType, allocate space for the intervals and recall asADash
-    AutoTArray<SkScalar> intervals(info.fCount);
-    info.fIntervals = intervals.get();
-    as_PEB(pe)->asADash(&info);
-    REPORTER_ASSERT(reporter, inIntervals[0] == info.fIntervals[0]);
-    REPORTER_ASSERT(reporter, inIntervals[1] == info.fIntervals[1]);
-    REPORTER_ASSERT(reporter, inIntervals[2] == info.fIntervals[2]);
-    REPORTER_ASSERT(reporter, inIntervals[3] == info.fIntervals[3]);
-
-    // Make sure nothing else has changed on us
-    REPORTER_ASSERT(reporter, 4 == info.fCount);
-    REPORTER_ASSERT(reporter, SkScalarMod(phase, totalIntSum) == info.fPhase);
+    REPORTER_ASSERT(reporter, inIntervals[0] == info->fIntervals[0]);
+    REPORTER_ASSERT(reporter, inIntervals[1] == info->fIntervals[1]);
+    REPORTER_ASSERT(reporter, inIntervals[2] == info->fIntervals[2]);
+    REPORTER_ASSERT(reporter, inIntervals[3] == info->fIntervals[3]);
 }

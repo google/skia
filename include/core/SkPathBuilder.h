@@ -10,21 +10,23 @@
 
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathIter.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/base/SkTArray.h"
-#include "include/private/base/SkTo.h"
 
-#include <initializer_list>
+#include <cstdint>
 #include <optional>
 #include <tuple>
 
 class SkRRect;
+struct SkPathRaw;
 
 class SK_API SkPathBuilder {
 public:
@@ -129,20 +131,17 @@ public:
     */
     SkPathBuilder& reset();
 
-    /** Adds beginning of contour at SkPoint p.
+    /** Specifies the beginning of contour. If the previous verb was a "move" verb,
+     *  then this just replaces the point value of that move, otherwise it appends a new
+     *  "move" verb to the builder using the point.
+     *
+     *  Thus, each contour can only have 1 move verb in it (the last one specified).
+     */
+    SkPathBuilder& moveTo(SkPoint point);
 
-        @param p  contour start
-        @return   reference to SkPathBuilder
-    */
-    SkPathBuilder& moveTo(SkPoint pt);
-
-    /** Adds beginning of contour at SkPoint (x, y).
-
-        @param x  x-axis value of contour start
-        @param y  y-axis value of contour start
-        @return   reference to SkPathBuilder
-    */
-    SkPathBuilder& moveTo(SkScalar x, SkScalar y) { return this->moveTo(SkPoint::Make(x, y)); }
+    SkPathBuilder& moveTo(SkScalar x, SkScalar y) {
+        return this->moveTo(SkPoint::Make(x, y));
+    }
 
     /** Adds line from last point to SkPoint p. If SkPathBuilder is empty, or last SkPath::Verb is
         kClose_Verb, last point is set to (0, 0) before adding line.
@@ -349,22 +348,24 @@ public:
 
     /** Append a series of lineTo(...)
 
-        @param pts    array of SkPoint
-        @param count  number of SkPoint
-        @return       reference to SkPathBuilder.
+        @param pts    span of SkPoint
+        @return reference to SkPathBuilder.
     */
-    SkPathBuilder& polylineTo(const SkPoint pts[], int count);
-
-    /** Append a series of lineTo(...)
-
-        @param list  list of SkPoint
-        @return      reference to SkPathBuilder.
-    */
-    SkPathBuilder& polylineTo(const std::initializer_list<SkPoint>& list) {
-        return this->polylineTo(list.begin(), SkToInt(list.size()));
-    }
+    SkPathBuilder& polylineTo(SkSpan<const SkPoint> pts);
 
     // Relative versions of segments, relative to the previous position.
+
+    /** Adds beginning of contour relative to last point.
+        If SkPathBuilder is empty, starts contour at (dx, dy).
+        Otherwise, start contour at last point offset by (dx, dy).
+        Function name stands for "relative move to".
+
+        @param pt  vector offset from last point to contour start
+        @return    reference to SkPathBuilder
+
+        example: https://fiddle.skia.org/c/@Path_rMoveTo
+    */
+    SkPathBuilder& rMoveTo(SkPoint pt);
 
     /** Adds line from last point to vector given by pt. If SkPathBuilder is empty, or last
         SkPath::Verb is kClose_Verb, last point is set to (0, 0) before adding line.
@@ -528,6 +529,40 @@ public:
         return this->rCubicTo({x1, y1}, {x2, y2}, {x3, y3});
     }
 
+    enum ArcSize {
+        kSmall_ArcSize, //!< smaller of arc pair
+        kLarge_ArcSize, //!< larger of arc pair
+    };
+
+    /** Appends arc to SkPathBuilder, relative to last SkPath SkPoint. Arc is implemented by one or
+        more conic, weighted to describe part of oval with radii (rx, ry) rotated by
+        xAxisRotate degrees. Arc curves from last SkPathBuilder SkPoint to relative end SkPoint:
+        (dx, dy), choosing one of four possible routes: clockwise or
+        counterclockwise, and smaller or larger. If SkPathBuilder is empty, the start arc SkPoint
+        is (0, 0).
+
+        Arc sweep is always less than 360 degrees. arcTo() appends line to end SkPoint
+        if either radii are zero, or if last SkPath SkPoint equals end SkPoint.
+        arcTo() scales radii (rx, ry) to fit last SkPath SkPoint and end SkPoint if both are
+        greater than zero but too small to describe an arc.
+
+        arcTo() appends up to four conic curves.
+        arcTo() implements the functionality of svg arc, although SVG "sweep-flag" value is
+        opposite the integer value of sweep; SVG "sweep-flag" uses 1 for clockwise, while
+        kCW_Direction cast to int is zero.
+
+        @param rx           radius before x-axis rotation
+        @param ry           radius before x-axis rotation
+        @param xAxisRotate  x-axis rotation in degrees; positive values are clockwise
+        @param largeArc     chooses smaller or larger arc
+        @param sweep        chooses clockwise or counterclockwise arc
+        @param dx           x-axis offset end of arc from last SkPath SkPoint
+        @param dy           y-axis offset end of arc from last SkPath SkPoint
+        @return             reference to SkPath
+    */
+    SkPathBuilder& rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, ArcSize largeArc,
+                          SkPathDirection sweep, SkScalar dx, SkScalar dy);
+
     // Arcs
 
     /** Appends arc to the builder. Arc added is part of ellipse
@@ -568,11 +603,6 @@ public:
         @return        reference to SkPath
     */
     SkPathBuilder& arcTo(SkPoint p1, SkPoint p2, SkScalar radius);
-
-    enum ArcSize {
-        kSmall_ArcSize, //!< smaller of arc pair
-        kLarge_ArcSize, //!< larger of arc pair
-    };
 
     /** Appends arc to SkPath. Arc is implemented by one or more conic weighted to describe
         part of oval with radii (r.fX, r.fY) rotated by xAxisRotate degrees. Arc curves
@@ -657,7 +687,7 @@ public:
         @param dir    SkPath::Direction to orient the new contour
         @return       reference to SkPathBuilder
      */
-    SkPathBuilder& addRect(const SkRect& rect, SkPathDirection dir = SkPathDirection::kCW) {
+    SkPathBuilder& addRect(const SkRect& rect, SkPathDirection dir = SkPathDirection::kDefault) {
         return this->addRect(rect, dir, 0);
     }
 
@@ -695,7 +725,7 @@ public:
         @param dir    SkPath::Direction to wind SkRRect
         @return       reference to SkPathBuilder
     */
-    SkPathBuilder& addRRect(const SkRRect& rrect, SkPathDirection dir = SkPathDirection::kCW) {
+    SkPathBuilder& addRRect(const SkRRect& rrect, SkPathDirection dir = SkPathDirection::kDefault) {
         // legacy start indices: 6 (CW) and 7 (CCW)
         return this->addRRect(rrect, dir, dir == SkPathDirection::kCW ? 6 : 7);
     }
@@ -711,7 +741,7 @@ public:
 
         example: https://fiddle.skia.org/c/@Path_addOval_2
     */
-    SkPathBuilder& addOval(const SkRect& oval, SkPathDirection dir = SkPathDirection::kCW) {
+    SkPathBuilder& addOval(const SkRect& oval, SkPathDirection dir = SkPathDirection::kDefault) {
         // legacy start index: 1
         return this->addOval(oval, dir, 1);
     }
@@ -729,36 +759,18 @@ public:
         @return        reference to SkPathBuilder
     */
     SkPathBuilder& addCircle(SkScalar x, SkScalar y, SkScalar radius,
-                             SkPathDirection dir = SkPathDirection::kCW);
+                             SkPathDirection dir = SkPathDirection::kDefault);
 
-    /** Adds contour created from line array, adding (count - 1) line segments.
+    /** Adds contour created from line array, adding (pts.size() - 1) line segments.
         Contour added starts at pts[0], then adds a line for every additional SkPoint
         in pts array. If close is true, appends kClose_Verb to SkPath, connecting
         pts[count - 1] and pts[0].
 
-        If count is zero, append kMove_Verb to path.
-        Has no effect if count is less than one.
-
         @param pts    array of line sharing end and start SkPoint
-        @param count  length of SkPoint array
         @param close  true to add line connecting contour end and start
         @return       reference to SkPath
     */
-    SkPathBuilder& addPolygon(const SkPoint pts[], int count, bool close);
-
-    /** Adds contour created from list. Contour added starts at list[0], then adds a line
-        for every additional SkPoint in list. If close is true, appends kClose_Verb to SkPath,
-        connecting last and first SkPoint in list.
-
-        If list is empty, append kMove_Verb to path.
-
-        @param list   array of SkPoint
-        @param close  true to add line connecting contour end and start
-        @return       reference to SkPath
-    */
-    SkPathBuilder& addPolygon(const std::initializer_list<SkPoint>& list, bool close) {
-        return this->addPolygon(list.begin(), SkToInt(list.size()), close);
-    }
+    SkPathBuilder& addPolygon(SkSpan<const SkPoint> pts, bool close);
 
     /** Appends src to SkPathBuilder, offset by (dx, dy).
 
@@ -841,8 +853,18 @@ public:
         @param matrix  SkMatrix to apply to SkPath
         @param pc      whether to apply perspective clipping
     */
-    SkPathBuilder& transform(const SkMatrix& matrix,
-                             SkApplyPerspectiveClip pc = SkApplyPerspectiveClip::kYes);
+    SkPathBuilder& transform(const SkMatrix& matrix);
+
+#ifdef SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
+    SkPathBuilder& transform(const SkMatrix& matrix, SkApplyPerspectiveClip) {
+        return this->transform(matrix);
+    }
+#endif
+
+    /*
+     *  Returns true if the builder is empty, or all of its points are finite.
+     */
+    bool isFinite() const;
 
     /** Replaces SkPathFillType with its inverse. The inverse of SkPathFillType describes the area
         unmodified by the original SkPathFillType.
@@ -890,32 +912,49 @@ public:
     */
     bool isInverseFillType() const { return SkPathFillType_IsInverse(fFillType); }
 
+#ifdef SK_SUPPORT_UNSPANNED_APIS
+    SkPathBuilder& addPolygon(const SkPoint pts[], int count, bool close) {
+        return this->addPolygon({pts, count}, close);
+    }
+    SkPathBuilder& polylineTo(const SkPoint pts[], int count) {
+        return this->polylineTo({pts, count});
+    }
+#endif
+
+    SkSpan<const SkPoint> points() const {
+        return fPts;
+    }
+    SkSpan<const SkPathVerb> verbs() const {
+        return fVerbs;
+    }
+    SkSpan<const float> conicWeights() const {
+        return fConicWeights;
+    }
+
+    SkPathBuilder& addRaw(const SkPathRaw&);
+
+    SkPathIter iter() const;
+
 private:
     SkPathRef::PointsArray fPts;
     SkPathRef::VerbsArray fVerbs;
     SkPathRef::ConicWeightsArray fConicWeights;
 
-    SkPathFillType      fFillType;
-    bool                fIsVolatile;
+    SkPathFillType  fFillType;
+    bool            fIsVolatile;
+    SkPathConvexity fConvexity;
 
     unsigned    fSegmentMask;
     SkPoint     fLastMovePoint;
     int         fLastMoveIndex; // only needed until SkPath is immutable
     bool        fNeedsMoveVerb;
 
-    enum IsA {
-        kIsA_JustMoves,     // we only have 0 or more moves
-        kIsA_MoreThanMoves, // we have verbs other than just move
-        kIsA_Oval,          // we are 0 or more moves followed by an oval
-        kIsA_RRect,         // we are 0 or more moves followed by a rrect
-    };
-    IsA fIsA      = kIsA_JustMoves;
-    int fIsAStart = -1;     // tracks direction iff fIsA is not unknown
-    bool fIsACCW  = false;  // tracks direction iff fIsA is not unknown
+    SkPathIsAType fType = SkPathIsAType::kGeneral;
+    SkPathIsAData fIsA {};
 
     // called right before we add a (non-move) verb
     void ensureMove() {
-        fIsA = kIsA_MoreThanMoves;
+        fType = SkPathIsAType::kGeneral;
         if (fNeedsMoveVerb) {
             this->moveTo(fLastMovePoint);
         }
@@ -931,6 +970,8 @@ private:
     std::tuple<SkPoint*, SkScalar*> growForVerbsInPath(const SkPathRef& path);
 
     friend class SkPathPriv;
+    friend class SkStroke;
+    friend class SkPathStroker;
 };
 
 #endif

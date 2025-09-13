@@ -77,7 +77,7 @@ static void test_skbug4406(skiatest::Reporter* reporter) {
     paint.setAntiAlias(true);
     canvas.drawRect(r, paint);
 
-    // paint black with stroke rect (that asserts in bug 4406)
+    // paint black with stroke rect (that asserts in skbug.com/40035555)
     // over the filled rect, it should cover it
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setColor(0xff000000);
@@ -91,7 +91,7 @@ static void test_skbug4406(skiatest::Reporter* reporter) {
     paint.setStrokeWidth(1);
     paint.setAntiAlias(true);
     canvas.drawRect(r, paint);
-    // paint black with stroke rect (that asserts in bug 4406)
+    // paint black with stroke rect (that asserts in skbug.com/40035555)
     // over the filled rect, it doesnt cover it completelly with thinner stroke
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setColor(0xff000000);
@@ -142,13 +142,13 @@ DEF_TEST(Rect_setbounds, reporter) {
     const SkRect zeror = { 0, 0, 0, 0 };
     for (const SkPoint* pts : { p0, p1, p2, p3 }) {
         for (int n = 1; n <= 4; ++n) {
-            bool isfinite = r.setBoundsCheck(pts, n);
+            bool isfinite = r.setBoundsCheck({pts, n});
             REPORTER_ASSERT(reporter, !isfinite);
             REPORTER_ASSERT(reporter, r == zeror);
 
-            r.setBoundsNoCheck(pts, n);
+            r.setBoundsNoCheck({pts, n});
             if (r.isFinite())
-                r.setBoundsNoCheck(pts, n);
+                r.setBoundsNoCheck({pts, n});
             REPORTER_ASSERT(reporter, !r.isFinite());
         }
     }

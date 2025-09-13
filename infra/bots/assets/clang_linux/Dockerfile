@@ -18,29 +18,44 @@ RUN grep deb /etc/apt/sources.list | \
 RUN apt-get update && \
     apt-get install -y --no-install-recommends  \
            ca-certificates=20200601~deb10u2 gnupg=2.2.12-1+deb10u2 \
-           build-essential=12.6 cmake=3.13.4-1 make=4.2.1-1.2 python3=3.7.3-1 \
+           build-essential=12.6 make=4.2.1-1.2 python3=3.7.3-1 \
            zlib1g=1:1.2.11.dfsg-1+deb10u2 wget=1.20.1-1.1 unzip=6.0-23+deb10u3 \
            git=1:2.20.1-2+deb10u3 clang=1:7.0-47 lld=1:7.0-47 && \
     rm -rf /var/lib/apt/lists/*
-# Install a newer ninja release. It seems the older version in the debian repos
-# randomly crashes when compiling llvm.
-RUN wget "https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-linux.zip" && \
-    echo "d2fea9ff33b3ef353161ed906f260d565ca55b8ca0568fa07b1d2cab90a84a07 ninja-linux.zip" \
+
+# Install a newer ninja release.
+RUN wget "https://github.com/ninja-build/ninja/releases/download/v1.12.1/ninja-linux.zip" && \
+    echo "6f98805688d19672bd699fbbfa2c2cf0fc054ac3df1f0e6a47664d963d530255 ninja-linux.zip" \
         | sha256sum -c  && \
     unzip ninja-linux.zip -d /usr/local/bin && \
     rm ninja-linux.zip
 
+# Install a newer CMake release
+RUN wget "https://github.com/Kitware/CMake/releases/download/v3.30.3/cmake-3.30.3-linux-x86_64.tar.gz" && \
+    echo "4a5864e9ff0d7945731fe6d14afb61490bf0ec154527bc3af0456bd8fa90decb cmake-3.30.3-linux-x86_64.tar.gz" \
+        | sha256sum -c && \
+    tar --strip-components=1 -xvzf cmake-3.30.3-linux-x86_64.tar.gz -C /usr/local && \
+    rm cmake-3.30.3-linux-x86_64.tar.gz
+
 ENV TARGET_DIR=/tmp/clang_output
-ENV CLANG_RELEASE=llvmorg-15.0.1
+ENV CLANG_RELEASE=llvmorg-18.1.8
 
 RUN mkdir -p /tmp/clang && cd /tmp/clang && \
     git clone --depth 1 -b ${CLANG_RELEASE} https://llvm.googlesource.com/llvm-project
 
-# As of October 21, 2022, iwyu 0.19 (for clang 15) was not yet a branch, so we just checkout
-# tip of tree at that time
+# As of August 30, 2024, iwyu 0.22 (for clang 18) is a branch. Unfortunately, this branch requires
+# python 3.9. Commit "Loosen Python version requirements for functools.cache" [0] restored support
+# for python 3.2+. However, clang internally made an incompatable change, which iwyu picked up with
+# "[clang compat] Update InclusionDirective override" [1] which came before it. So we must
+# checkout 0.22 and cherry-pick the python fix.
+# [0] https://github.com/include-what-you-use/include-what-you-use/commit/88e414728702390ed8eebf11d14b992a01df1ee0
+# [1] https://github.com/include-what-you-use/include-what-you-use/commit/f27fafa378a70b975aeaa9a1428b275a1edcfe5a
 RUN git clone https://github.com/include-what-you-use/include-what-you-use.git /tmp/iwyu && \
     cd /tmp/iwyu && \
-    git checkout 6d416d5f90755dd76d55c0f33f9ac0de6dd27b5f
+    git checkout 377eaef70cdda47368939f4d9beabfabe3f628f0 && \
+    git config user.email "sk_asset_create@example.com" && \
+    git config user.name "SkAsset Create" && \
+    git cherry-pick 88e414728702390ed8eebf11d14b992a01df1ee0
 
 WORKDIR /tmp/clang/llvm-project
 
@@ -56,7 +71,7 @@ RUN mkdir ${TARGET_DIR} out && \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=${TARGET_DIR} \
     -DLLVM_ENABLE_PROJECTS="clang;lld;clang-tools-extra" \
-    -DLLVM_ENABLE_RUNTIMES="all" \
+    -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind;compiler-rt" \
     -DLLVM_INSTALL_TOOLCHAIN_ONLY=ON \
     -DLLVM_USE_LINKER=lld \
     -DLLVM_ENABLE_UNWIND_TABLES=OFF \
@@ -78,7 +93,7 @@ ENV CXX=${TARGET_DIR}/bin/clang++
 RUN mkdir tsan_out && \
     cmake -G Ninja -S runtimes -B tsan_out \
     -DCMAKE_BUILD_TYPE=Release \
-    -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" \
+    -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind;compiler-rt" \
     -DLLVM_USE_SANITIZER=Thread
 
 RUN ninja -C tsan_out cxx cxxabi
@@ -90,7 +105,7 @@ RUN cp -r tsan_out/lib ${TARGET_DIR}/tsan
 RUN mkdir msan_out && \
     cmake -GNinja -S runtimes -B msan_out \
     -DCMAKE_BUILD_TYPE=Release \
-    -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" \
+    -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi;libunwind;compiler-rt" \
     -DLLVM_USE_SANITIZER=MemoryWithOrigins
 
 RUN ninja -C msan_out cxx cxxabi

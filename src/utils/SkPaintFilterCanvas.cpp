@@ -12,6 +12,7 @@
 #include "include/core/SkPaint.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRSXform.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSurface.h" // IWYU pragma: keep
 #include "include/core/SkSurfaceProps.h"

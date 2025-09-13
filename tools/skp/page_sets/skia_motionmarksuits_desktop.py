@@ -32,7 +32,7 @@ class SkiaMotionmarksuitsDesktopPageSet(story.StorySet):
       archive_data_file='data/skia_motionmarksuits_desktop.json')
 
     urls_list = [
-      # Why: from skbug.com/12292
+      # Why: from skbug.com/40043378
       ('https://storage.googleapis.com/skia-recreateskps-bot-hosted-pages/'
        'desk_motionmarksuits.svg'),
     ]

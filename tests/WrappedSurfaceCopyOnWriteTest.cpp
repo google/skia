@@ -41,8 +41,8 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
+#include "tools/ganesh/ProxyUtils.h"
 #include "tools/gpu/BackendSurfaceFactory.h"
-#include "tools/gpu/ProxyUtils.h"
 
 #include <functional>
 #include <memory>

@@ -30,9 +30,9 @@ DEF_SIMPLE_GM(drawlines_with_local_matrix, canvas, 500, 500) {
     auto drawLine = [&](float x0, float y0, float x1, float y1, float w) {
         SkPoint p[2] = {{x0, y0}, {x1, y1}};
         white.setStrokeWidth(w);
-        canvas->drawPoints(SkCanvas::kLines_PointMode, 2, p, white);
+        canvas->drawPoints(SkCanvas::kLines_PointMode, p, white);
         grad.setStrokeWidth(w - 4);
-        canvas->drawPoints(SkCanvas::kLines_PointMode, 2, p, grad);
+        canvas->drawPoints(SkCanvas::kLines_PointMode, p, grad);
     };
 
     drawLine(20, 20, 200, 120, 20);

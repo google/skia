@@ -86,7 +86,7 @@ static sk_sp<SkImage> overdraw_text_grid(bool useCTM) {
     return surface->makeImageSnapshot();
 }
 
-// This GM tests the underlying problem from skbug.com/13732. Text drawn through an overdraw
+// This GM tests the underlying problem from skbug.com/40044818. Text drawn through an overdraw
 // canvas would have the CTM applied twice. If everything is working, both images generated should
 // look identical. When the bug was present, the second image would have the lines "double spaced",
 // because the translations were applied twice.

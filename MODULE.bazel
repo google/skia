@@ -58,7 +58,6 @@ use_repo(
     "com_github_stretchr_testify",
     "com_github_trietmn_go_wiki",
     "com_github_vektra_mockery_v2",
-    "com_google_cloud_go_pubsub",
     "com_google_cloud_go_storage",
     "org_chromium_go_luci",
     "org_golang_google_api",
@@ -99,11 +98,12 @@ crate = use_extension("@rules_rust//crate_universe:extensions.bzl", "crate")
 crate.spec(
     features = ["derive"],
     package = "bytemuck",
-    version = "1.16.0",
+    version = "=1.23.2",
 )
 crate.spec(
+    # If this is updated, be sure to update BUILD.gn also
     package = "cxx",
-    version = "1.0.158",
+    version = "=1.0.168",
 )
 crate.annotation(
     # We want a custom build rule so we can use a different include path
@@ -116,7 +116,7 @@ crate.annotation(
 )
 crate.spec(
     package = "font-types",
-    version = "0.9",
+    version = "=0.9",
 )
 crate.spec(
     features = [
@@ -130,7 +130,7 @@ crate.spec(
 )
 crate.spec(
     package = "png",
-    version = "0.18.0-rc",
+    version = "=0.18.0-rc",
 )
 crate.spec(
     features = [
@@ -138,27 +138,27 @@ crate.spec(
         "msl-out",
     ],
     package = "naga",
-    version = "0.20.0",
+    version = "=0.20.0",
 )
 crate.spec(
     package = "peniko",
-    version = "0.1.1",
+    version = "=0.1.1",
 )
 crate.spec(
     package = "read-fonts",
-    version = "0.29.1",
+    version = "=0.34",
 )
 crate.spec(
     package = "regex",
-    version = "1.8.1",
+    version = "=1.11.1",
 )
 crate.spec(
     package = "skrifa",
-    version = "0.31.1",
+    version = "=0.36",
 )
 crate.spec(
     package = "thiserror",
-    version = "1.0.60",
+    version = "=1.0.69",
 )
 crate.from_specs(
     # by default, intel macs are not included in this list, but we have CI hardware
@@ -182,7 +182,7 @@ cargo_bindeps = use_extension("@rules_rust//crate_universe:extension.bzl", "crat
 cargo_bindeps.spec(
     artifact = "bin",
     package = "cxxbridge-cmd",
-    version = "1.0.158",
+    version = "=1.0.168",
 )
 cargo_bindeps.annotation(
     crate = "cxxbridge-cmd",

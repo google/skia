@@ -57,7 +57,7 @@ static void stroke_pe(SkPaint* paint) {
 static void dash_pe(SkPaint* paint) {
     SkScalar inter[] = { 20, 10, 10, 10 };
     paint->setStrokeWidth(12);
-    paint->setPathEffect(SkDashPathEffect::Make(inter, std::size(inter), 0));
+    paint->setPathEffect(SkDashPathEffect::Make(inter, 0));
     compose_pe(paint);
 }
 
@@ -189,7 +189,7 @@ public:
 
     bool onNeedsCTM() const final { return true; }
 
-    bool onFilterPath(SkPath* dst,
+    bool onFilterPath(SkPathBuilder* dst,
                       const SkPath& src,
                       SkStrokeRec* rec,
                       const SkRect* cullR,

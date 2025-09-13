@@ -169,7 +169,7 @@ GrD3DDescriptorHeap::CPUHandle GrD3DCpuDescriptorManager::HeapPool::allocateHand
     std::unique_ptr<GrD3DCpuDescriptorManager::Heap> heap =
             GrD3DCpuDescriptorManager::Heap::Make(gpu, fHeapType, fMaxAvailableDescriptors);
     // TODO: handle failed heap creation and/or memory restrictions better
-    // skbug.com/11959
+    // skbug.com/40043048
     SkASSERT(heap);
 
     fDescriptorHeaps.push_back(std::move(heap));

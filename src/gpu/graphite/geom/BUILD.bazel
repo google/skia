@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_filegroup", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -39,17 +39,4 @@ skia_filegroup(
     name = "geom_srcs",
     srcs = [":core_srcs"],
     visibility = ["//src/gpu/graphite:__pkg__"],
-)
-
-generate_cpp_files_for_headers(
-    name = "headers_to_compile",
-    headers = [
-        "BoundsManager.h",
-        "CoverageMaskShape.h",
-        "EdgeAAQuad.h",
-        "Geometry.h",
-        "Rect.h",
-        "SubRunData.h",
-        "Transform.h",
-    ],
 )

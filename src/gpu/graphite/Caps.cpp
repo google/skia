@@ -4,19 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/graphite/Caps.h"
 
 #include "include/core/SkCapabilities.h"
-#include "include/core/SkPaint.h"
-#include "include/core/SkTextureCompressionType.h"
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/gpu/graphite/ContextOptions.h"
 #include "include/gpu/graphite/TextureInfo.h"
-#include "src/core/SkBlenderBase.h"
-#include "src/gpu/graphite/GraphiteResourceKey.h"
+#include "include/private/base/SkTo.h"
+#include "src/gpu/graphite/ContextOptionsPriv.h"
 #include "src/gpu/graphite/ResourceTypes.h"
 #include "src/sksl/SkSLUtil.h"
+
+#include <algorithm>
 
 namespace skgpu::graphite {
 
@@ -45,6 +44,7 @@ void Caps::finishInitialization(const ContextOptions& options) {
     }
 #endif
     fGlyphCacheTextureMaximumBytes = options.fGlyphCacheTextureMaximumBytes;
+    fMinMSAAPathSize = options.fMinimumPathSizeForMSAA;
     fMinDistanceFieldFontSize = options.fMinDistanceFieldFontSize;
     fGlyphsAsPathsFontSize = options.fGlyphsAsPathsFontSize;
     fMaxPathAtlasTextureSize = options.fMaxPathAtlasTextureSize;

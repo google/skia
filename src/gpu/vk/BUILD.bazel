@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_library", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -12,6 +12,7 @@ VK_FILES = [
     "VulkanInterface.h",
     "VulkanMemory.cpp",
     "VulkanMemory.h",
+    "VulkanPreferredFeatures.cpp",
     "VulkanUtilsPriv.cpp",
     "VulkanUtilsPriv.h",
     "VulkanMutableTextureStatePriv.h",
@@ -21,13 +22,6 @@ VK_FILES = [
 split_srcs_and_hdrs(
     name = "_vk",
     files = VK_FILES,
-)
-
-generate_cpp_files_for_headers(
-    name = "headers_to_compile",
-    headers = [
-        "VulkanMutableTextureStatePriv.h",
-    ],
 )
 
 skia_cc_library(

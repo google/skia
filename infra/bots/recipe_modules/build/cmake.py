@@ -4,7 +4,8 @@
 
 from . import util
 
-DOCKER_IMAGE = 'gcr.io/skia-public/cmake-release:3.29.0_v1'
+# This git revision refers to the Skia version of the cmake-release/Dockerfile that was built.
+DOCKER_IMAGE = 'gcr.io/skia-public/cmake-release:git-376aa231c94dd9fabb170903dcfb8e95f2da502c'
 INNER_BUILD_SCRIPT = '/SRC/skia/infra/cmake/build_skia.sh'
 
 

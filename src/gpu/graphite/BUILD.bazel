@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_cc_library", "split_srcs_and_hdrs")
+load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_filegroup", "split_srcs_and_hdrs")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -65,6 +65,7 @@ GRAPHITE_FILES = [
     "GraphicsPipeline.cpp",
     "GraphicsPipeline.h",
     "GraphicsPipelineDesc.h",
+    "GraphicsPipelineHandle.h",
     "GraphiteResourceKey.cpp",
     "GraphiteResourceKey.h",
     "ImageFactories.cpp",
@@ -86,7 +87,10 @@ GRAPHITE_FILES = [
     "PaintParamsKey.h",
     "PathAtlas.cpp",
     "PathAtlas.h",
+    "PipelineCreationTask.h",
     "PipelineData.h",
+    "PipelineManager.cpp",
+    "PipelineManager.h",
     "ProxyCache.cpp",
     "ProxyCache.h",
     "QueueManager.cpp",
@@ -157,18 +161,15 @@ split_srcs_and_hdrs(
     files = GRAPHITE_FILES,
 )
 
-PRECOMPILE_FILES = [
-    "FactoryFunctions.cpp",
-    "FactoryFunctions.h",
-    "PrecompileInternal.h",
-    "PublicPrecompile.cpp",
-    "SerializationUtils.cpp",
-    "SerializationUtils.h",
-]
-
-split_srcs_and_hdrs(
-    name = "precompile",
-    files = PRECOMPILE_FILES,
+skia_filegroup(
+    name = "precompile_srcs",
+    srcs = [
+        "PrecompileInternal.h",
+        "PublicPrecompile.cpp",
+    ],
+    visibility = [
+        "//src/gpu/graphite/precompile:__pkg__",
+    ],
 )
 
 skia_cc_library(
@@ -200,6 +201,7 @@ skia_cc_library(
     ],
     visibility = [
         "//src/gpu/graphite/mtl:__pkg__",
+        "//src/gpu/graphite/precompile:__pkg__",
         "//src/gpu/graphite/vk:__pkg__",
     ],
     deps = [
@@ -208,17 +210,6 @@ skia_cc_library(
         "//src/core:core_priv",
         "//src/gpu",
         "//src/sksl/codegen:gpu",
-    ],
-)
-
-generate_cpp_files_for_headers(
-    name = "headers_to_compile",
-    headers = [
-        "ContextOptionsPriv.h",
-        "ContextPriv.h",
-        "RecorderOptionsPriv.h",
-        "RecordingPriv.h",
-        "RecorderPriv.h",
     ],
 )
 
@@ -254,6 +245,7 @@ skia_cc_library(
     visibility = [
         "//dm:__pkg__",
         "//src/gpu/graphite/mtl:__pkg__",
+        "//src/gpu/graphite/precompile:__pkg__",
         "//src/gpu/graphite/vk:__pkg__",
         "//tools:__subpackages__",
     ],

@@ -220,7 +220,7 @@ void add_to_text_blob_w_len(SkTextBlobBuilder* builder,
         return;
     }
     auto run   = builder->allocRun(font, count, x, y);
-    font.textToGlyphs(text, len, encoding, run.glyphs, count);
+    font.textToGlyphs(text, len, encoding, {run.glyphs, count});
 }
 
 void add_to_text_blob(SkTextBlobBuilder* builder,
@@ -242,7 +242,7 @@ void get_text_path(const SkFont&  font,
     AutoTArray<SkPoint> computedPos;
     if (pos == nullptr) {
         computedPos.reset(count);
-        font.getPos(atg.glyphs(), count, &computedPos[0]);
+        font.getPos(atg, computedPos);
         pos = computedPos.get();
     }
 
@@ -250,8 +250,7 @@ void get_text_path(const SkFont&  font,
         SkPath*        fDst;
         const SkPoint* fPos;
     } rec = {dst, pos};
-    font.getPaths(atg.glyphs(),
-                  atg.count(),
+    font.getPaths(atg,
                   [](const SkPath* src, const SkMatrix& mx, void* ctx) {
                       Rec* rec = (Rec*)ctx;
                       if (src) {
@@ -277,8 +276,7 @@ SkPath make_star(const SkRect& bounds, int numPts, int step) {
         builder.lineTo(x, y);
     }
     SkPath path = builder.detach();
-    path.transform(SkMatrix::RectToRect(path.getBounds(), bounds));
-    return path;
+    return path.makeTransform(SkMatrix::RectToRectOrIdentity(path.getBounds(), bounds));
 }
 
 static inline void norm_to_rgb(SkBitmap* bm, int x, int y, const SkVector3& norm) {
@@ -453,14 +451,10 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
 
 bool equal_pixels(const SkPixmap& a, const SkPixmap& b) {
     if (a.width() != b.width() || a.height() != b.height()) {
-        SkDebugf("[ToolUtils::equal_pixels] Dimensions do not match (%d x %d) != (%d x %d)\n",
-                 a.width(), a.height(), b.width(), b.height());
         return false;
     }
 
     if (a.colorType() != b.colorType()) {
-        SkDebugf("[ToolUtils::equal_pixels] colorType does not match %d != %d\n",
-                 (int) a.colorType(), (int) b.colorType());
         return false;
     }
 
@@ -468,7 +462,6 @@ bool equal_pixels(const SkPixmap& a, const SkPixmap& b) {
         const char* aptr = (const char*)a.addr(0, y);
         const char* bptr = (const char*)b.addr(0, y);
         if (0 != memcmp(aptr, bptr, a.width() * a.info().bytesPerPixel())) {
-            SkDebugf("[ToolUtils::equal_pixels] row %d does not match byte for byte\n", y);
             return false;
         }
     }
@@ -478,11 +471,9 @@ bool equal_pixels(const SkPixmap& a, const SkPixmap& b) {
 bool equal_pixels(const SkBitmap& bm0, const SkBitmap& bm1) {
     SkPixmap pm0, pm1;
     if (!bm0.peekPixels(&pm0)) {
-        SkDebugf("Could not read pixels from A\n");
         return false;
     }
     if (!bm1.peekPixels(&pm1)) {
-        SkDebugf("Could not read pixels from B\n");
         return false;
     }
     return equal_pixels(pm0, pm1);
@@ -492,16 +483,14 @@ bool equal_pixels(const SkImage* a, const SkImage* b) {
     SkASSERT_RELEASE(a);
     SkASSERT_RELEASE(b);
     // ensure that peekPixels will succeed
-    auto imga = a->makeRasterImage();
-    auto imgb = b->makeRasterImage();
+    auto imga = a->makeRasterImage(nullptr);
+    auto imgb = b->makeRasterImage(nullptr);
 
     SkPixmap pm0, pm1;
     if (!imga->peekPixels(&pm0)) {
-        SkDebugf("Could not read pixels from A\n");
         return false;
     }
     if (!imgb->peekPixels(&pm1)) {
-        SkDebugf("Could not read pixels from B\n");
         return false;
     }
     return equal_pixels(pm0, pm1);
@@ -523,7 +512,7 @@ VariationSliders::VariationSliders(SkTypeface* typeface,
         return;
     }
 
-    int numAxes = typeface->getVariationDesignParameters(nullptr, 0);
+    int numAxes = typeface->getVariationDesignParameters({});
     if (numAxes < 0) {
         return;
     }
@@ -531,7 +520,7 @@ VariationSliders::VariationSliders(SkTypeface* typeface,
     std::unique_ptr<SkFontParameters::Variation::Axis[]> copiedAxes =
             std::make_unique<SkFontParameters::Variation::Axis[]>(numAxes);
 
-    numAxes = typeface->getVariationDesignParameters(copiedAxes.get(), numAxes);
+    numAxes = typeface->getVariationDesignParameters({copiedAxes.get(), numAxes});
     if (numAxes < 0) {
         return;
     }

@@ -8,7 +8,7 @@
 #include "include/core/SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
 
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "src/utils/SkFloatUtils.h"
 #include "src/utils/win/SkDWriteGeometrySink.h"
 #include "src/utils/win/SkObjBase.h"
@@ -16,8 +16,8 @@
 #include <dwrite.h>
 #include <d2d1.h>
 
-SkDWriteGeometrySink::SkDWriteGeometrySink(SkPath* path)
-    : fRefCount{1}, fPath{path}, fStarted{false}, fCurrent{0,0} {}
+SkDWriteGeometrySink::SkDWriteGeometrySink(SkPathBuilder* builder)
+    : fRefCount{1}, fBuilder{builder}, fStarted{false}, fCurrent{0,0} {}
 
 SkDWriteGeometrySink::~SkDWriteGeometrySink() { }
 
@@ -50,10 +50,10 @@ SK_STDMETHODIMP_(ULONG) SkDWriteGeometrySink::Release(void) {
 SK_STDMETHODIMP_(void) SkDWriteGeometrySink::SetFillMode(D2D1_FILL_MODE fillMode) {
     switch (fillMode) {
     case D2D1_FILL_MODE_ALTERNATE:
-        fPath->setFillType(SkPathFillType::kEvenOdd);
+        fBuilder->setFillType(SkPathFillType::kEvenOdd);
         break;
     case D2D1_FILL_MODE_WINDING:
-        fPath->setFillType(SkPathFillType::kWinding);
+        fBuilder->setFillType(SkPathFillType::kWinding);
         break;
     default:
         SkDEBUGFAIL("Unknown D2D1_FILL_MODE.");
@@ -79,7 +79,7 @@ SK_STDMETHODIMP_(void) SkDWriteGeometrySink::AddLines(const D2D1_POINT_2F *point
     for (const D2D1_POINT_2F *end = &points[pointsCount]; points < end; ++points) {
         if (this->currentIsNot(*points)) {
             this->goingTo(*points);
-            fPath->lineTo(points->x, points->y);
+            fBuilder->lineTo(points->x, points->y);
         }
     }
 }
@@ -126,12 +126,12 @@ SK_STDMETHODIMP_(void) SkDWriteGeometrySink::AddBeziers(const D2D1_BEZIER_SEGMEN
             this->goingTo(beziers->point3);
             Point quadraticP1;
             if (check_quadratic(cubic, quadraticP1)) {
-                fPath->quadTo(    quadraticP1.x,     quadraticP1.y,
-                              beziers->point3.x, beziers->point3.y);
+                fBuilder->quadTo(quadraticP1.x,     quadraticP1.y,
+                                 beziers->point3.x, beziers->point3.y);
             } else {
-                fPath->cubicTo(beziers->point1.x, beziers->point1.y,
-                               beziers->point2.x, beziers->point2.y,
-                               beziers->point3.x, beziers->point3.y);
+                fBuilder->cubicTo(beziers->point1.x, beziers->point1.y,
+                                  beziers->point2.x, beziers->point2.y,
+                                  beziers->point3.x, beziers->point3.y);
             }
         }
     }
@@ -139,7 +139,7 @@ SK_STDMETHODIMP_(void) SkDWriteGeometrySink::AddBeziers(const D2D1_BEZIER_SEGMEN
 
 SK_STDMETHODIMP_(void) SkDWriteGeometrySink::EndFigure(D2D1_FIGURE_END figureEnd) {
     if (fStarted) {
-        fPath->close();
+        fBuilder->close();
     }
 }
 
@@ -147,8 +147,8 @@ SK_STDMETHODIMP SkDWriteGeometrySink::Close() {
     return S_OK;
 }
 
-HRESULT SkDWriteGeometrySink::Create(SkPath* path, IDWriteGeometrySink** geometryToPath) {
-    *geometryToPath = new SkDWriteGeometrySink(path);
+HRESULT SkDWriteGeometrySink::Create(SkPathBuilder* builder, IDWriteGeometrySink** geometryToPath) {
+    *geometryToPath = new SkDWriteGeometrySink(builder);
     return S_OK;
 }
 

@@ -18,12 +18,16 @@
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkColorData.h"
 #include "src/core/SkTHash.h"
-#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawList.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/shaders/gradients/SkGradientBaseShader.h"
+
+#include <optional>
+#include <type_traits>
+#include <variant>
 
 namespace skgpu::graphite {
 
@@ -154,62 +158,77 @@ private:
     SkSpan<const SampledTexture> fTextures;
 };
 
-// Add a block of data to the cache and return a stable pointer to the contents (assuming that a
-// resettable gatherer had accumulated the input data pointer).
-//
-// If an identical block of data is already in the cache, that existing pointer is returned, making
-// pointer comparison suitable when comparing data blocks retrieved from the cache.
-//
-// T must define a Hash struct function, an operator==, and a static Make(T, SkArenaAlloc*)
-// factory that's used to copy the data into an arena allocation owned by the PipelineDataCache.
-template<typename T>
-class PipelineDataCache {
+template <typename K,                  // Initial type inserted into the map from K->Index
+          typename V = K,              // Value type stored in contiguous memory (map from Index->V)
+          typename S = std::monostate, // Storage with persist(K) -> K function if not monostate
+          typename H = SkGoodHash>     // Hash function applied to K
+class DenseBiMap {
 public:
-    PipelineDataCache() = default;
+    using Index = uint32_t;
+    // 1 << SkNextLog2_portable(DrawList::kMaxRenderSteps);
+    static constexpr Index kInvalidIndex = 4096;
 
-    T insert(T dataBlock) {
-        const T* existing = fData.find(dataBlock);
-        if (existing) {
-            return *existing;
-        } else {
-            // Need to make a copy of dataBlock into the arena
-            T copy = T::Make(dataBlock, &fArena);
-            fData.add(copy);
-            return copy;
+    Index insert(K data) {
+        Index* index = fDataToIndex.find(data);
+        if (!index) {
+            // First time we've seen this piece of data.
+            SkASSERT(SkToU32(fIndexToData.size()) < kInvalidIndex);
+            // Persist it in storage if S is not monostate.
+            if constexpr (!std::is_same_v<S, std::monostate>) {
+                data = fStorage.persist(data);
+            } else {
+                static_assert(std::is_trivially_copyable<K>::value);
+            }
+
+            index = fDataToIndex.set(data, static_cast<Index>(fIndexToData.size()));
+            fIndexToData.emplace_back(data); // constructs V in place from single K argument
+        }
+        return *index;
+    }
+
+    const V& lookup(Index index) const { return fIndexToData[index]; }
+
+    V& lookup(Index index) { return fIndexToData[index]; }
+
+    skia_private::TArray<V>&& detach() { return std::move(fIndexToData); }
+
+    const skia_private::TArray<V>& get() const { return fIndexToData; }
+
+    void reset() {
+        fIndexToData.clear();
+        fDataToIndex.reset();
+        if constexpr (!std::is_same_v<S, std::monostate>) {
+            fStorage.~S();
+            new (&fStorage) S();
         }
     }
 
-    // The number of unique T objects in the cache
-    int count() const {
-        return fData.count();
-    }
+    int count() const { return fIndexToData.size(); }
 
-    // Call fn on every item in the set.  You may not mutate anything.
-    template <typename Fn>  // f(T), f(const T&)
-    void foreach(Fn&& fn) const {
-        fData.foreach(fn);
-    }
+    template <typename SV = S>
+    typename std::enable_if<!std::is_same_v<SV, std::monostate>, const SV&>::type
+    storage() const { return fStorage; }
+
+    template <typename SV = S>
+    typename std::enable_if<!std::is_same_v<SV, std::monostate>, SV&>::type
+    storage() { return fStorage; }
 
 private:
-    skia_private::THashSet<T, typename T::Hash> fData;
-    // Holds the data that is pointed to by the span keys in fData
-    SkArenaAlloc fArena{0};
+    skia_private::THashMap<K, Index, H> fDataToIndex;
+    skia_private::TArray<V> fIndexToData;
+
+    S fStorage;
 };
 
-// A TextureDataCache only lives for a single Recording. When a Recording is snapped it is pulled
-// off of the Recorder and goes with the Recording as a record of the required Textures and
-// Samplers.
-using TextureDataCache = PipelineDataCache<TextureDataBlock>;
+// A GraphicsPipelineCache is used to de-duplicate GraphicsPipelineDescs when they will all be
+// used with the same as-yet-undeterminied RenderPassDesc. Once collected the indices can then be
+// used to map to the resolved GraphicsPipelines after resources have been prepared.
+using GraphicsPipelineCache = DenseBiMap<GraphicsPipelineDesc>;
 
 // A UniformDataCache is used to deduplicate uniform data blocks uploaded to uniform / storage
 // buffers for a DrawPass pipeline.
-// TODO: This is just a combination of PipelineDataCache and DrawPass's DenseBiMap, ideally we can
-// merge those two classes rather than defining this new class.
 class UniformDataCache {
 public:
-    using Index = uint32_t;
-    static constexpr Index kInvalidIndex{1 << SkNextLog2_portable(DrawList::kMaxRenderSteps)};
-
     // Tracks uniform data on the CPU and then its transition to storage in a GPU buffer (UBO or
     // SSBO).
     struct Entry {
@@ -220,135 +239,209 @@ public:
         Entry(UniformDataBlock cpuData) : fCpuData(cpuData) {}
     };
 
+private:
+    struct UniformCopier {
+        UniformDataBlock persist(UniformDataBlock data) {
+            return UniformDataBlock::Make(data, &fArena);
+        }
+        SkArenaAlloc fArena{0};
+    };
+    using UniformDataMap =
+            DenseBiMap<UniformDataBlock, Entry, UniformCopier, UniformDataBlock::Hash>;
+
+    UniformDataMap fUniforms;
+
+public:
+    using Index = UniformDataMap::Index;
+    static constexpr Index kInvalidIndex = UniformDataMap::kInvalidIndex;
+
     UniformDataCache() = default;
 
-    Index insert(const UniformDataBlock& dataBlock) {
-        Index* index = fDataToIndex.find(dataBlock);
-        if (!index) {
-            // Need to make a copy of dataBlock into the arena
-            UniformDataBlock copy = UniformDataBlock::Make(dataBlock, &fArena);
-            SkASSERT(SkToU32(fIndexToData.size()) < kInvalidIndex);
-            index = fDataToIndex.set(copy, static_cast<Index>(fIndexToData.size()));
-            fIndexToData.push_back(Entry{copy});
+    void reset() { fUniforms.reset(); }
+
+    Index insert(UniformDataBlock dataBlock) { return fUniforms.insert(dataBlock); }
+
+    const Entry& lookup(Index index) const { return fUniforms.lookup(index); }
+
+    Entry& lookup(Index index) { return fUniforms.lookup(index); }
+
+#if defined(GPU_TEST_UTILS)
+    int count() { return fUniforms.count(); }
+#endif
+};
+
+// A TextureDataCache is used to deduplicate sets of texture bindings and collect the list of
+// unique texture proxies that are referenced by all inserted bindings.
+class TextureDataCache {
+    struct TakeTextureRef {
+        TextureProxy* persist(TextureProxy* proxy) {
+            // This ref will be adopted by the sk_sp() value stored in the TextureProxyCache.
+            proxy->ref();
+            return proxy;
         }
-        return *index;
+    };
+    using TextureProxyCache = DenseBiMap<TextureProxy*, sk_sp<TextureProxy>, TakeTextureRef>;
+
+    struct TextureCopier {
+        TextureDataBlock persist(TextureDataBlock textures) {
+            // Insert every referenced texture into fUniqueTextures to hand off to DrawPass.
+            for (int i = 0; i < textures.numTextures(); ++i) {
+                (void) fUniqueTextures.insert(textures.texture(i).first.get());
+            }
+
+            // Confirm that we're getting the right value back.
+#if defined(SK_DEBUG)
+            auto t = TextureDataBlock::Make(textures, &fArena);
+            SkASSERT(textures == t);
+            return t;
+#else
+            return TextureDataBlock::Make(textures, &fArena);
+#endif
+        }
+
+        SkArenaAlloc fArena{0};
+        TextureProxyCache fUniqueTextures;
+    };
+    using TextureDataMap = DenseBiMap<TextureDataBlock,
+                                      TextureDataBlock,
+                                      TextureCopier,
+                                      TextureDataBlock::Hash>;
+    TextureDataMap fTextures;
+
+public:
+    using Index = TextureDataMap::Index;
+    static constexpr Index kInvalidIndex = TextureDataMap::kInvalidIndex;
+
+    TextureDataCache() = default;
+
+    void reset() { fTextures.reset(); }
+
+    Index insert(TextureDataBlock dataBlock) { return fTextures.insert(dataBlock); }
+
+    TextureDataBlock lookup(Index index) const { return fTextures.lookup(index); }
+
+    skia_private::TArray<sk_sp<TextureProxy>> detachTextures() {
+        return fTextures.storage().fUniqueTextures.detach();
     }
 
-    const Entry& lookup(Index index) const {
-        SkASSERT(index < kInvalidIndex);
-        return fIndexToData[index];
-    }
-
-    Entry& lookup(Index index) {
-        SkASSERT(index < kInvalidIndex);
-        return fIndexToData[index];
+    const skia_private::TArray<TextureDataBlock>& getBindings() const {
+        return fTextures.get();
     }
 
 #if defined(GPU_TEST_UTILS)
-    int count() { return fIndexToData.size(); }
+    int bindingCount() { return fTextures.count(); }
+    int uniqueTextureCount() { return fTextures.storage().fUniqueTextures.count(); }
 #endif
-
-private:
-    skia_private::THashMap<UniformDataBlock, Index, UniformDataBlock::Hash> fDataToIndex;
-    skia_private::TArray<Entry> fIndexToData;
-
-    // Holds the de-duplicated data.
-    SkArenaAlloc fArena{0};
 };
 
-// The PipelineDataGatherer is just used to collect information for a given PaintParams object.
-//   The UniformData is added to a cache and uniquified. Only that unique ID is passed around.
-//   The TextureData is also added to a cache and uniquified. Only that ID is passed around.
-
-// TODO: The current plan for fixing uniform padding is for the PipelineDataGatherer to hold a
-// persistent uniformManager. A stretch goal for this system would be for this combination
-// to accumulate all the uniforms and then rearrange them to minimize padding. This would,
-// obviously, vastly complicate uniform accumulation.
 class PipelineDataGatherer {
 public:
-    PipelineDataGatherer(Layout layout) : fUniformManager(layout) {}
+    PipelineDataGatherer(Layout layout)
+            : fPaintUniformManager(layout)
+            , fRenderStepUniformManager(layout)
+            , fActiveManager(&fPaintUniformManager) {}
 
-    void resetWithNewLayout(Layout layout) {
-        fUniformManager.resetWithNewLayout(layout);
+    // Fully resets both uniforms (paint and renderstep)and textures
+    void resetForDraw() {
+        fPaintUniformManager.reset();
+        fRenderStepUniformManager.reset();
         fTextures.clear();
+        fPaintTextureCount = 0;
+        fActiveManager = &fPaintUniformManager;
     }
 
 #if defined(SK_DEBUG)
     // Check that the gatherer has been reset to its initial state prior to collecting new data.
     void checkReset() const {
+        SkASSERT(fActiveManager == &fPaintUniformManager);
         SkASSERT(fTextures.empty());
-        SkASSERT(fUniformManager.isReset());
+        SkASSERT(fPaintUniformManager.isReset());
+        SkASSERT(fRenderStepUniformManager.isReset());
+        SkASSERT(fPaintTextureCount == 0);
+    }
+
+    void checkRewind() const {
+        SkASSERT(fActiveManager == &fRenderStepUniformManager);
+        SkASSERT(fTextures.size() == fPaintTextureCount);
+        SkASSERT(fRenderStepUniformManager.isReset());
     }
 #endif // SK_DEBUG
 
+    // Mark the end of extracting paint uniforms and textures from the current draw's PaintParams.
+    UniformDataBlock endPaintData() {
+        // Save the end of the paint textures for rewind(), but return the current state of the
+        // uniforms.
+        // TODO: Once paint and renderstep uniforms are combined, endPaintData() will return void
+        // and this will just save the state of the UniformManager to rewind to.
+        fPaintTextureCount = fTextures.size();
+        return UniformDataBlock::Wrap(&fPaintUniformManager);
+    }
+
+    // Mark the end of extract uniforms and textures from the RenderStep that will be combined with
+    // the already extracted paint data.
+    //
+    // The returned TextureDataBlock represents the list of sampled textures to be bound for the
+    // GPU draw call. If `performsShading` is true, this will be the combined set of textures for
+    // both paint and render step. If `performsShading` is false, the TextureDataBlock represents
+    // just the step's required textures.
+    //
+    // TODO: For now, the returned UniformDataBlock is always just the render step's uniforms since
+    // the paint's uniforms are returned by endPaintData(). Once uniform data is combined then the
+    // returned UniformDataBlock will follow the same pattern as the TextureDataBlock.
+    std::pair<UniformDataBlock, TextureDataBlock> endRenderStepData(bool performsShading) {
+        SkSpan<const TextureDataBlock::SampledTexture> textures{fTextures};
+        if (!performsShading) {
+            textures = textures.subspan(fPaintTextureCount);
+        }
+        return {UniformDataBlock::Wrap(&fRenderStepUniformManager), TextureDataBlock(textures)};
+    }
+
+    // Rewind the PipelineDataGatherer to collect new uniforms and textures for another RenderStep
+    // that depends on the already extracted PaintParams uniforms and textures.
+    void rewindForRenderStep() {
+        fTextures.resize_back(fPaintTextureCount);
+        // TODO: Eventually this will not reset the uniform manager, but set its current byte offset
+        // and required alignment to what was saved in endPaintData().
+        fRenderStepUniformManager.reset();
+    }
+
+    // Append a sampled texture that will be bound with a sampler matching `samplerDesc`. Textures
+    // are bound in the order that they are added to the gatherer.
     void add(sk_sp<TextureProxy> proxy, const SamplerDesc& samplerDesc) {
         fTextures.push_back({std::move(proxy), samplerDesc});
     }
-    bool hasTextures() const { return !fTextures.empty(); }
 
-    TextureDataBlock textureDataBlock() { return TextureDataBlock(SkSpan(fTextures)); }
+    // A depth only draw precludes setting the renderstep manager in endPaintData()
+    void setRenderStepManagerActive() { fActiveManager = &fRenderStepUniformManager; }
 
     // Mimic the type-safe API available in UniformManager
-    template <typename T> void write(const T& t) { fUniformManager.write(t); }
-    template <typename T> void writeHalf(const T& t) { fUniformManager.writeHalf(t); }
-    template <typename T> void writeArray(SkSpan<const T> t) { fUniformManager.writeArray(t); }
+    template <typename T> void write(const T& t) { fActiveManager->write(t); }
+    template <typename T> void writeHalf(const T& t) { fActiveManager->writeHalf(t); }
+    template <typename T> void writeArray(SkSpan<const T> t) { fActiveManager->writeArray(t); }
     template <typename T> void writeHalfArray(SkSpan<const T> t) {
-        fUniformManager.writeHalfArray(t);
+        fActiveManager->writeHalfArray(t);
     }
 
-    void write(const Uniform& u, const void* data) { fUniformManager.write(u, data); }
+    void write(const Uniform& u, const void* data) { fActiveManager->write(u, data); }
 
-    void writePaintColor(const SkPMColor4f& color) { fUniformManager.writePaintColor(color); }
+    void writePaintColor(const SkPMColor4f& color) { fActiveManager->writePaintColor(color); }
 
-    void beginStruct(int baseAligment) { fUniformManager.beginStruct(baseAligment); }
-    void endStruct() { fUniformManager.endStruct(); }
-
-    bool hasUniforms() const { return fUniformManager.size(); }
-
-    bool hasGradientBufferData() const { return !fGradientStorage.empty(); }
-
-    SkSpan<const float> gradientBufferData() const { return fGradientStorage; }
-
-    // Returns the uniform data written so far. Will automatically pad the end of the data as needed
-    // to the overall required alignment, and so should only be called when all writing is done.
-    UniformDataBlock finishUniformDataBlock() { return UniformDataBlock::Wrap(&fUniformManager); }
-
-    // Checks if data already exists for the requested gradient shader, and returns a nullptr
-    // and the offset the data begins at. If it doesn't exist, it allocates the data for the
-    // required number of stops and caches the start index, returning the data pointer
-    // and index offset the data will begin at.
-    std::pair<float*, int> allocateGradientData(int numStops, const SkGradientBaseShader* shader) {
-        int* existingOfffset = fGradientOffsetCache.find(shader);
-        if (existingOfffset) {
-            return std::make_pair(nullptr, *existingOfffset);
-        }
-
-        auto dataPair = this->allocateFloatData(numStops * 5);
-        fGradientOffsetCache.set(shader, dataPair.second);
-
-        return dataPair;
-    }
+    void beginStruct(int baseAligment) { fActiveManager->beginStruct(baseAligment); }
+    void endStruct() { fActiveManager->endStruct(); }
 
 private:
-    // Allocates the data for the requested number of bytes and returns the
-    // pointer and buffer index offset the data will begin at.
-    std::pair<float*, int> allocateFloatData(int size) {
-        int lastSize = fGradientStorage.size();
-        fGradientStorage.resize(lastSize + size);
-        float* startPtr = fGradientStorage.begin() + lastSize;
-
-        return std::make_pair(startPtr, lastSize);
-    }
-
     SkDEBUGCODE(friend class UniformExpectationsValidator;)
 
-    UniformManager fUniformManager;
+    // Uniforms and textures are reset between draws but the PipelineDataGatherer is responsible
+    // for combining one set of extracted "paint" uniforms+textures with N "renderstep" uniforms
+    // and textures.
+    // TODO: Right now paint uniforms and renderstep uniforms are bound separately so rewind() only
+    // applies to the textures.
+    UniformManager fPaintUniformManager;
+    UniformManager fRenderStepUniformManager;
+    UniformManager* fActiveManager;
     skia_private::TArray<TextureDataBlock::SampledTexture> fTextures;
-
-    SkTDArray<float>  fGradientStorage;
-    // Storing the address of the shader as a proxy for comparing
-    // the colors and offsets arrays to keep lookup fast.
-    skia_private::THashMap<const SkGradientBaseShader*, int> fGradientOffsetCache;
+    int fPaintTextureCount = 0;
 };
 
 #ifdef SK_DEBUG
@@ -358,11 +451,11 @@ public:
                                  SkSpan<const Uniform> expectedUniforms,
                                  bool isSubstruct=false)
             : fGatherer(gatherer) {
-        fGatherer->fUniformManager.setExpectedUniforms(expectedUniforms, isSubstruct);
+        fGatherer->fActiveManager->setExpectedUniforms(expectedUniforms, isSubstruct);
     }
 
     ~UniformExpectationsValidator() {
-        fGatherer->fUniformManager.doneWithExpectedUniforms();
+        fGatherer->fActiveManager->doneWithExpectedUniforms();
     }
 
 private:
@@ -374,6 +467,77 @@ private:
     UniformExpectationsValidator &operator=(const UniformExpectationsValidator &) = delete;
 };
 #endif // SK_DEBUG
+
+/**
+ * Aggregates gradient color and stop information into a single buffer to be bound once for a
+ * DrawPass. It de-duplicates gradient data by caching based on the SkGradientBaseShader pointer.
+ */
+class FloatStorageManager : public SkRefCnt {
+public:
+    FloatStorageManager() = default;
+
+    void reset() {
+        fGradientStorage.clear();
+        fGradientOffsetCache.reset();
+    }
+
+    // Checks if data already exists for the requested gradient shader. If so, it returns
+    // a nullptr and the existing offset. If not, it allocates space, caches the offset,
+    // and returns a pointer to the start of the new data and the calculated offset.
+    std::pair<float*, int> allocateGradientData(int numStops, const SkGradientBaseShader* shader) {
+        SkASSERT(!this->isFinalized());
+        int* existingOffset = fGradientOffsetCache.find(shader->uniqueID());
+        if (existingOffset) {
+            return {nullptr, *existingOffset};
+        }
+        auto [ptr, offset] = this->allocateFloatData(numStops * 5); // 4 for color, 1 for offset
+        fGradientOffsetCache.set(shader->uniqueID(), offset);
+
+        return {ptr, offset};
+    }
+
+    bool finalize(DrawBufferManager* bufferMgr) {
+        SkASSERT(!this->isFinalized());
+        if (!fGradientStorage.empty()) {
+            auto [writer, bufferInfo] = bufferMgr->getSsboWriter(fGradientStorage.size(),
+                                                                 sizeof(float));
+            if (writer) {
+                writer.write(fGradientStorage.data(), fGradientStorage.size_bytes());
+                fBufferInfo = bufferInfo;
+                this->reset();
+            } else {
+                return false;
+            }
+        } else {
+            fBufferInfo = BindBufferInfo();
+        }
+        return true;
+    }
+
+    BindBufferInfo getBufferInfo() { return fBufferInfo.value(); }
+    bool hasData() const { return fBufferInfo.has_value() &&
+                                  fBufferInfo.value().fBuffer != nullptr; }
+    SkDEBUGCODE(bool isFinalized() const { return fBufferInfo.has_value(); })
+private:
+    // Allocates space for a given number of floats and returns a pointer to the start
+    // of the new allocation and its offset from the beginning of the buffer.
+    std::pair<float*, int> allocateFloatData(int floatCount) {
+        int currentSize = fGradientStorage.size();
+        fGradientStorage.resize(currentSize + floatCount);
+        float* startPtr = fGradientStorage.begin() + currentSize;
+
+        return {startPtr, currentSize};
+    }
+
+    // NOTE: This storage aggregates all data required by all draws within a DrawPass so that its
+    // storage buffer can be bound once and accessed at random.
+    SkTDArray<float> fGradientStorage;
+
+    // We use the shader's unique ID as a key to de-duplicate gradient data.
+    skia_private::THashMap<uint32_t, int> fGradientOffsetCache;
+
+    std::optional<BindBufferInfo> fBufferInfo = std::nullopt;
+};
 
 } // namespace skgpu::graphite
 

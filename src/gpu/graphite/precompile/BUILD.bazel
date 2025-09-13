@@ -1,0 +1,68 @@
+load("//bazel:skia_rules.bzl", "skia_cc_library", "split_srcs_and_hdrs")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+PRECOMPILE_FILES = [
+    "PaintOption.cpp",
+    "PaintOption.h",
+    "PaintOptions.cpp",
+    "PaintOptionsPriv.h",
+    "PrecompileBaseComplete.h",
+    "PrecompileBasePriv.h",
+    "PrecompileBlender.cpp",
+    "PrecompileBlenderPriv.h",
+    "PrecompileColorFilter.cpp",
+    "PrecompileColorFiltersPriv.h",
+    "PrecompileImageFilter.cpp",
+    "PrecompileImageFilterPriv.h",
+    "PrecompileImageFiltersPriv.h",
+    "PrecompileImageShader.h",
+    "PrecompileMaskFilter.cpp",
+    "PrecompileRuntimeEffect.cpp",
+    "PrecompileShader.cpp",
+    "PrecompileShaderPriv.h",
+    "PrecompileShadersPriv.h",
+    "SerializationUtils.cpp",
+    "SerializationUtils.h",
+]
+
+split_srcs_and_hdrs(
+    name = "_precompile",
+    files = PRECOMPILE_FILES,
+)
+
+skia_cc_library(
+    name = "precompile",
+    srcs = [
+        ":_precompile_hdrs",
+        ":_precompile_srcs",
+        "//src/gpu/graphite:precompile_srcs",
+    ],
+    hdrs = ["//include/gpu/graphite/precompile:public_hdrs"],
+    deps = [
+        "//:core",
+        "//src/gpu",
+        "//src/gpu/graphite",
+    ],
+)
+
+skia_cc_library(
+    name = "precompile_TEST_UTIL",
+    testonly = True,
+    srcs = [
+        ":_precompile_hdrs",
+        ":_precompile_srcs",
+        "//src/gpu/graphite:precompile_srcs",
+    ],
+    hdrs = ["//include/gpu/graphite/precompile:public_hdrs"],
+    visibility = ["//tools:__subpackages__"],
+    deps = [
+        "//:core",
+        "//src/gpu",
+        "//src/gpu/graphite:graphite_TEST_UTIL",
+    ],
+)

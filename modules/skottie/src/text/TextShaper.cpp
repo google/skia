@@ -25,13 +25,13 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skshaper/include/SkShaper_factory.h"
 #include "modules/skunicode/include/SkUnicode.h"
-#include "src/base/SkTLazy.h"
 #include "src/base/SkUTF.h"
 #include "src/core/SkFontPriv.h"
 
 #include <algorithm>
 #include <memory>
 #include <numeric>
+#include <optional>
 #include <utility>
 
 #if !defined(SK_DISABLE_LEGACY_SHAPER_FACTORY)
@@ -159,8 +159,9 @@ public:
 
             // Compute the cumulative whitespace advance.
             fAdvanceBuffer.resize(ws_count);
-            fLineRuns.back().fFont.getWidths(fLineGlyphs.data() + fLineGlyphCount - ws_count,
-                                             SkToInt(ws_count), fAdvanceBuffer.data(), nullptr);
+            fLineRuns.back().fFont.getWidths(
+                     {fLineGlyphs.data() + fLineGlyphCount - ws_count, ws_count},
+                     {fAdvanceBuffer.data(), ws_count});
 
             const auto ws_advance = std::accumulate(fAdvanceBuffer.begin(),
                                                     fAdvanceBuffer.end(),
@@ -234,7 +235,7 @@ public:
         };
 
         // Only compute the extent box when needed.
-        SkTLazy<SkRect> ebox;
+        std::optional<SkRect> ebox;
 
         // Vertical adjustments.
         float v_offset = -fDesc.fLineShift;
@@ -248,24 +249,24 @@ public:
             break;
         case Shaper::VAlign::kHybridTop:
         case Shaper::VAlign::kVisualTop:
-            ebox.init(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridTop));
+            ebox.emplace(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridTop));
             v_offset += fBox.fTop - ebox->fTop;
             break;
         case Shaper::VAlign::kHybridCenter:
         case Shaper::VAlign::kVisualCenter:
-            ebox.init(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridCenter));
+            ebox.emplace(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridCenter));
             v_offset += fBox.centerY() - ebox->centerY();
             break;
         case Shaper::VAlign::kHybridBottom:
         case Shaper::VAlign::kVisualBottom:
-            ebox.init(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridBottom));
+            ebox.emplace(extent_box(fDesc.fVAlign == Shaper::VAlign::kHybridBottom));
             v_offset += fBox.fBottom - ebox->fBottom;
             break;
         }
 
         if (shaped_size) {
-            if (!ebox.isValid()) {
-                ebox.init(extent_box(true));
+            if (!ebox.has_value()) {
+                ebox.emplace(extent_box(true));
             }
             *shaped_size = SkSize::Make(ebox->width(), ebox->height());
         }
@@ -402,7 +403,7 @@ private:
             // is exactly the same as AE.  E.g. are 'acute' glyphs anchored separately for fonts
             // in which they're distinct?
             fAdvanceBuffer.resize(run.fSize);
-            fFont.getWidths(glyphs, SkToInt(run.fSize), fAdvanceBuffer.data());
+            fFont.getWidths({glyphs, run.fSize}, {fAdvanceBuffer.data(), run.fSize});
         }
 
         // In fragmented mode we immediately push the glyphs to fResult,
@@ -627,16 +628,16 @@ public:
             break;
         case Shaper::Capitalization::kUpperCase:
             if (unicode) {
-                *fText.writable() = unicode->toUpper(*fText);
+                fText = unicode->toUpper(fText);
             }
             break;
         }
     }
 
-    operator const SkString&() const { return *fText; }
+    operator const SkString&() const { return fText; }
 
 private:
-    SkTCopyOnFirstWrite<SkString> fText;
+    SkString fText;
 };
 
 } // namespace
@@ -693,8 +694,7 @@ SkRect Shaper::ShapedGlyphs::computeBounds(BoundsType btype) const {
 
         switch (btype) {
         case BoundsType::kConservative: {
-            SkRect run_bounds;
-            run_bounds.setBounds(fGlyphPos.data() + offset, SkToInt(run.fSize));
+            SkRect run_bounds = SkRect::BoundsOrEmpty({fGlyphPos.data() + offset, run.fSize});
             run_bounds.fLeft   += font_bounds.left();
             run_bounds.fTop    += font_bounds.top();
             run_bounds.fRight  += font_bounds.right();
@@ -704,8 +704,7 @@ SkRect Shaper::ShapedGlyphs::computeBounds(BoundsType btype) const {
         } break;
         case BoundsType::kTight: {
             glyphBounds.reset(SkToInt(run.fSize));
-            run.fFont.getBounds(fGlyphIDs.data() + offset,
-                                SkToInt(run.fSize), glyphBounds.data(), nullptr);
+            run.fFont.getBounds({fGlyphIDs.data() + offset, run.fSize}, glyphBounds, nullptr);
 
             for (size_t i = 0; i < run.fSize; ++i) {
                 bounds.join(glyphBounds[SkToInt(i)].makeOffset(fGlyphPos[offset + i]));
@@ -724,9 +723,8 @@ void Shaper::ShapedGlyphs::draw(SkCanvas* canvas,
                                 const SkPaint& paint) const {
     size_t offset = 0;
     for (const auto& run : fRuns) {
-        canvas->drawGlyphs(SkToInt(run.fSize),
-                           fGlyphIDs.data() + offset,
-                           fGlyphPos.data() + offset,
+        canvas->drawGlyphs({fGlyphIDs.data() + offset, run.fSize},
+                           {fGlyphPos.data() + offset, run.fSize},
                            origin,
                            run.fFont,
                            paint);

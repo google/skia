@@ -82,7 +82,7 @@ protected:
     }
 
     GrPixmapBase(GrImageInfo info, sk_sp<SkData> storage, size_t rowBytes)
-            : GrPixmapBase(std::move(info), const_cast<void*>(storage->data()), rowBytes) {
+            : GrPixmapBase(std::move(info), storage->writable_data(), rowBytes) {
         fPixelStorage = std::move(storage);
     }
 

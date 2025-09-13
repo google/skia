@@ -26,6 +26,6 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(skbug12214, r, contextInfo, CtsEnforcement::kAp
             SkSurfaces::RenderTarget(contextInfo.directContext(), skgpu::Budgeted::kNo, imageInfo);
     sk_sp<SkSurface> surface2 = SkSurfaces::Raster(imageInfo);
 
-    // The test succeeds if this draw does not crash. (See skia:12214)
+    // The test succeeds if this draw does not crash. (See skbug.com/40043311)
     surface1->draw(surface2->getCanvas(), /*x=*/0, /*y=*/0);
 }

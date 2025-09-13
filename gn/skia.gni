@@ -17,7 +17,6 @@ declare_args() {
   skia_enable_android_utils = is_skia_dev_build
   skia_enable_discrete_gpu = true
   skia_enable_fontmgr_empty = false
-  skia_enable_fontmgr_fuchsia = is_fuchsia
   skia_enable_fontmgr_win = is_win
   skia_enable_gpu_debug_layers = is_skia_dev_build && is_debug
   skia_enable_optimize_size = false
@@ -36,7 +35,6 @@ declare_args() {
   skia_print_sksl_shaders = false
   skia_print_native_shaders = false
   skia_tools_require_resources = false
-  skia_update_fuchsia_sdk = false
   skia_use_angle = false
   skia_use_client_icu = false
   skia_use_bidi = false
@@ -51,15 +49,14 @@ declare_args() {
   skia_use_fontconfig = is_linux
   skia_use_fontations = false
   skia_use_fonthost_mac = is_mac || is_ios
-  skia_use_freetype = is_android || is_fuchsia || is_linux || is_wasm
+  skia_use_freetype = is_android || is_linux || is_wasm
   skia_use_harfbuzz = true
-  skia_use_gl = !is_fuchsia
-  skia_use_icu = !is_fuchsia
+  skia_use_gl = true
+  skia_use_icu = true
   skia_use_icu4x = false
   skia_use_jpeg_gainmaps = is_skia_dev_build
   skia_use_libavif = false
   skia_use_libgrapheme = false
-  skia_use_libheif = is_skia_dev_build
   skia_use_libjpeg_turbo_decode = true
   skia_use_libjpeg_turbo_encode = true
   skia_use_no_jpeg_encode = false
@@ -74,6 +71,7 @@ declare_args() {
   skia_use_metal = false
   skia_use_ndk_images = is_android && defined(ndk_api) && ndk_api >= 30
   skia_use_perfetto = is_linux || is_mac || is_android
+  skia_enable_pipeline_label_tracing = false
 
   # Currently only supported in Android framework
   skia_android_framework_use_perfetto = false
@@ -91,8 +89,7 @@ declare_args() {
   # See: https://libcxx.llvm.org/UsingLibcxx.html#enabling-the-safe-libc-mode
   skia_use_safe_libcxx = false
 
-  # deprecated, we will eventually use just skia_enable_ganesh
-  skia_enable_gpu = true
+  skia_enable_ganesh = true
   skia_enable_graphite = false
   skia_use_zlib = true
 
@@ -108,15 +105,6 @@ declare_args() {
 }
 
 declare_args() {
-  skia_enable_ganesh = skia_enable_gpu
-}
-
-declare_args() {
-  # This is now a no-op. TODO(kjlubick) remove after Flutter stops using this.
-  skia_enable_sksl_tracing = false
-}
-
-declare_args() {
   if (is_mac) {
     skia_gl_standard = "gl"
   } else if (is_ios) {
@@ -127,11 +115,7 @@ declare_args() {
     skia_gl_standard = ""
   }
 
-  if (is_fuchsia) {
-    skia_use_vulkan = true
-  } else {
-    skia_use_vulkan = false
-  }
+  skia_use_vulkan = false
 
   skia_build_fuzzers = is_clang && is_linux && target_cpu == "x64"
   skia_use_libfuzzer_defaults = true
@@ -154,17 +138,15 @@ declare_args() {
 declare_args() {
   skia_enable_fontmgr_android = skia_use_expat && skia_use_freetype
   skia_enable_fontmgr_android_ndk = is_android && skia_use_freetype
-  skia_enable_fontmgr_custom_directory =
-      skia_use_freetype && !is_fuchsia && !is_wasm
-  skia_enable_fontmgr_custom_embedded = skia_use_freetype && !is_fuchsia
+  skia_enable_fontmgr_custom_directory = skia_use_freetype && !is_wasm
+  skia_enable_fontmgr_custom_embedded = skia_use_freetype
   skia_enable_fontmgr_custom_empty = skia_use_freetype && !is_wasm
   skia_enable_fontmgr_fontconfig = skia_use_freetype && skia_use_fontconfig
   skia_enable_fontmgr_win_gdi = is_win && !skia_enable_winuwp
   skia_enable_fontmgr_FontConfigInterface =
       skia_use_freetype && skia_use_fontconfig
   skia_enable_spirv_validation = is_skia_dev_build && is_debug && !skia_use_dawn
-  skia_use_dng_sdk =
-      !is_fuchsia && !is_wasm && skia_use_libjpeg_turbo_decode && skia_use_zlib
+  skia_use_dng_sdk = !is_wasm && skia_use_libjpeg_turbo_decode && skia_use_zlib
   skia_enable_vulkan_debug_layers = skia_enable_gpu_debug_layers
   skia_enable_direct3d_debug_layer = skia_enable_gpu_debug_layers
   skia_enable_metal_debug_info = skia_enable_gpu_debug_layers

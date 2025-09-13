@@ -61,7 +61,7 @@ DEF_SIMPLE_GM(alpha_image, canvas, 256, 256) {
     canvas->drawImage(image.get(), 144, 144, SkSamplingOptions(), &paint);
 }
 
-// Created to demonstrate skbug.com/10556 - GPU backend was failing to apply paint alpha to
+// Created to demonstrate skbug.com/40041892 - GPU backend was failing to apply paint alpha to
 // alpha-only image shaders. The two boxes should look the same.
 DEF_SIMPLE_GM(alpha_image_alpha_tint, canvas, 152, 80) {
     canvas->clear(SK_ColorGRAY);
@@ -89,7 +89,7 @@ DEF_SIMPLE_GM(alpha_image_alpha_tint, canvas, 152, 80) {
 
 #if defined(SK_SUPPORT_LEGACY_ALPHA_BITMAP_AS_COVERAGE)
 // For a long time, the CPU backend treated A8 bitmaps as coverage, rather than alpha. This was
-// inconsistent with the GPU backend (skbug.com/9692). When this was fixed, it altered behavior
+// inconsistent with the GPU backend (skbug.com/40041022). When this was fixed, it altered behavior
 // for some Android apps (b/231400686). This GM verifies that our Android framework workaround
 // produces the old result (mandrill with a round-rect border).
 DEF_SIMPLE_GM(alpha_bitmap_is_coverage_ANDROID, canvas, 128, 128) {

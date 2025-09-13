@@ -267,6 +267,9 @@ SkISize SkJpegCodec::onGetScaledDimensions(float desiredScale) const {
 }
 
 bool SkJpegCodec::onRewind() {
+    if (!this->rewindStream()) {
+        return false;
+    }
     JpegDecoderMgr* decoderMgr = nullptr;
     if (kSuccess != ReadHeader(this->stream(), nullptr, &decoderMgr, nullptr)) {
         return fDecoderMgr->returnFalse("onRewind");

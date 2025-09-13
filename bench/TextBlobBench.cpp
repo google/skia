@@ -36,8 +36,8 @@ public:
         fGlyphs.resize(fFont.countText(text, strlen(text), SkTextEncoding::kUTF8));
         fXPos.resize(fGlyphs.size());
 
-        fFont.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, fGlyphs.begin(), fGlyphs.size());
-        fFont.getXPos(&fGlyphs[0], fGlyphs.size(), fXPos.begin());
+        fFont.textToGlyphs(text, strlen(text), SkTextEncoding::kUTF8, fGlyphs);
+        fFont.getXPos(fGlyphs, fXPos);
     }
 
     sk_sp<SkTextBlob> makeBlob() {

@@ -33,7 +33,7 @@
 #include "src/image/SkImage_Base.h"
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
-#include "tools/gpu/ProxyUtils.h"
+#include "tools/ganesh/ProxyUtils.h"
 
 #include <string.h>
 #include <utility>
@@ -94,7 +94,8 @@ static sk_sp<SkImage> make_text_image(const char* text, SkColor color) {
 
     SkRect bounds;
     font.measureText(text, strlen(text), SkTextEncoding::kUTF8, &bounds);
-    const SkMatrix mat = SkMatrix::RectToRect(bounds, SkRect::MakeWH(kLabelSize, kLabelSize));
+    const SkMatrix mat = SkMatrix::RectToRectOrIdentity(bounds,
+                                                        SkRect::MakeWH(kLabelSize, kLabelSize));
 
     const SkImageInfo ii = SkImageInfo::MakeN32Premul(kLabelSize, kLabelSize);
     sk_sp<SkSurface> surf = SkSurfaces::Raster(ii);

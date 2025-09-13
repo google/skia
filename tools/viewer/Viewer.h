@@ -15,8 +15,9 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "modules/skcms/skcms.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "tools/gpu/MemoryCache.h"
+#include "tools/ganesh/MemoryCache.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/CommandSet.h"
 #include "tools/sk_app/Window.h"
@@ -26,8 +27,8 @@
 #include "tools/viewer/TouchGesture.h"
 #include "tools/window/DisplayParams.h"
 
-#include <cstdint>
 #include <atomic>
+#include <cstdint>
 #include <functional>
 #include <string>
 
@@ -265,8 +266,8 @@ private:
         SkString            fKeyString;
         SkString            fKeyDescription;
 
-        SkFourByteTag            fShaderType;
-        std::string              fShader[kGrShaderTypeCount];
+        SkFourByteTag       fShaderType;
+        SkSL::NativeShader  fShader[kGrShaderTypeCount];
         SkSL::Program::Interface fInterfaces[kGrShaderTypeCount];
     };
 

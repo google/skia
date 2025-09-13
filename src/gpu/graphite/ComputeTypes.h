@@ -8,7 +8,8 @@
 #ifndef skgpu_graphite_ComputeTypes_DEFINED
 #define skgpu_graphite_ComputeTypes_DEFINED
 
-#include "src/gpu/graphite/ResourceTypes.h"
+#include <cstddef>
+#include <cstdint>
 
 namespace skgpu::graphite {
 

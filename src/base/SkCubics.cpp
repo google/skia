@@ -129,7 +129,7 @@ int SkCubics::RootsValidT(double A, double B, double C, double D,
     int foundRoots = 0;
     for (int index = 0; index < realRoots; ++index) {
         double tValue = allRoots[index];
-        if (tValue >= 1.0 && tValue <= 1.00005) {
+        if (tValue <= 1.00005 && (tValue >= 1.0 || sk_doubles_nearly_equal_ulps(tValue, 1.0))) {
             // Make sure we do not already have 1 (or something very close) in the list of roots.
             if ((foundRoots < 1 || !sk_doubles_nearly_equal_ulps(solution[0], 1)) &&
                 (foundRoots < 2 || !sk_doubles_nearly_equal_ulps(solution[1], 1))) {

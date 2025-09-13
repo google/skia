@@ -55,7 +55,6 @@ public:
     ~GrBackendTextureImageGenerator() override;
 
 protected:
-    bool onIsValid(GrRecordingContext*) const override;
     bool onIsValid(SkRecorder*) const override;
     bool onIsProtected() const override;
 

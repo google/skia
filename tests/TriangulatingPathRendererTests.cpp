@@ -416,7 +416,7 @@ CreatePathFn kNonEdgeAAPaths[] = {
         return path;
     },
 
-    // Reduction from skbug.com/7911 that causes a crash due to splitting a
+    // Reduction from skbug.com/40039164 that causes a crash due to splitting a
     // zombie edge.
     []() -> SkPath {
         SkPath path;
@@ -1355,11 +1355,10 @@ DEF_TEST(Triangulator_Crbug1262444, r) {
                     0x3f7b9e2e));  // 1.8242f, 0.968309f, 1.82743f, 0.974786f, 1.8242f, 0.982882f
     path.close();
 
-    float kTol = 0.25f;
     SkRect clipBounds = SkRect::MakeLTRB(0, 0, 14, 14);
     SimplerVertexAllocator alloc;
-
-    int vertexCount = GrAATriangulator::PathToAATriangles(path, kTol, clipBounds, &alloc);
+    int vertexCount = GrAATriangulator::PathToAATriangles(
+            path, GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
     REPORTER_ASSERT(r, vertexCount == 0);
 }
 
@@ -1469,6 +1468,107 @@ DEF_TEST(Triangulator_Crbug337080025, r) {
     int vertexCount = GrAATriangulator::PathToAATriangles(
             path, GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
     REPORTER_ASSERT(r, vertexCount == 0);
+}
+
+// From b/421959607, fixes regression from b/40577206 (crbug.com/844873 above)
+//
+// TODO: b/425655494. The purpose of this test is to reproduce the nullptr dereference found by the
+// fuzzer. Although this test should successfully terminate on Release builds, it is disabled for
+// Debug builds because it triggers the ordering asserts in validate_edge_list()
+//
+// Attempted to solve this ordering issue by adding a variable epsilon in
+// https://skia-review.googlesource.com/c/skia/+/1004396, but this had to be removed as it caused
+// regressions in the fuzzer.
+#ifndef SK_DEBUG
+DEF_TEST(Triangulator_bug421959607, r) {
+    SkPath path;
+    path.setFillType(SkPathFillType::kWinding);
+    path.moveTo(SkBits2Float(0x529423dc),    // 3.1812839e+11f
+                SkBits2Float(0xd1f322c7));   // -1.30532565e+11f
+    path.conicTo(SkBits2Float(0x20777b4a),   // 2.09625067e-19f
+                 SkBits2Float(0x203553b2),   // 1.53589888e-19f
+                 SkBits2Float(0x20777b4a),   // 2.09625067e-19f
+                 SkBits2Float(0x203553b2),   // 1.53589888e-19f
+                 SkBits2Float(0x3f3504f3));  // 0.707106769f
+    path.conicTo(SkBits2Float(0x20777b4a),   // 2.09625067e-19f
+                 SkBits2Float(0x203553b2),   // 1.53589888e-19f
+                 SkBits2Float(0x529423dc),   // 3.1812839e+11f
+                 SkBits2Float(0xd1f322c7),   // -1.30532565e+11f
+                 SkBits2Float(0x3f3504f3));  // 0.707106769f
+    path.conicTo(SkBits2Float(0x531423dc),   // 6.3625678e+11f
+                 SkBits2Float(0xd27322c7),   // -2.6106513e+11f
+                 SkBits2Float(0x531423dc),   // 6.3625678e+11f
+                 SkBits2Float(0xd27322c7),   // -2.6106513e+11f
+                 SkBits2Float(0x3f3504f3));  // 0.707106769f
+    path.conicTo(SkBits2Float(0x531423dc),   // 6.3625678e+11f
+                 SkBits2Float(0xd27322c7),   // -2.6106513e+11f
+                 SkBits2Float(0x529423dc),   // 3.1812839e+11f
+                 SkBits2Float(0xd1f322c7),   // -1.30532565e+11f
+                 SkBits2Float(0x3f3504f3));  // 0.707106769f
+    path.close();
+    path.moveTo(SkBits2Float(0x20784999),    // 2.10307685e-19f
+                SkBits2Float(0x2034ff0c));   // 1.5330981e-19f
+    path.cubicTo(SkBits2Float(0xcdec0781),   // -494989344
+                 SkBits2Float(0x4d41b13b),   // 203101104
+                 SkBits2Float(0x20777b4a),   // 2.09625067e-19f
+                 SkBits2Float(0x203553b2),   // 1.53589888e-19f
+                 SkBits2Float(0x55144bd5),   // 1.01908386e+13f
+                 SkBits2Float(0xd4736460));  // -4.18144426e+12f
+    path.close();
+    SkRect clipBounds = SkRect::MakeLTRB(0, 0, 128, 160);
+    SimplerVertexAllocator alloc;
+
+    int vertexCount = GrAATriangulator::PathToAATriangles(
+            path, GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
+    REPORTER_ASSERT(r, vertexCount);
+}
+#endif
+
+DEF_TEST(Triangulator_bug424666603, r) {
+    SkPath path;
+    path.setFillType(SkPathFillType::kWinding);
+    path.moveTo(SkBits2Float(0x524ae681),
+                SkBits2Float(0xd277c639));  // 2.17862652e+11f, -2.66045637e+11f
+    path.conicTo(SkBits2Float(0x2009b044),
+                 SkBits2Float(0x9fbc6c7a),
+                 SkBits2Float(0x2009b044),
+                 SkBits2Float(0x9fbc6c7a),
+                 SkBits2Float(0x3f3504f3));  // 1.16626728e-19f, -7.98005565e-20f, 1.16626728e-19f,
+                                             // -7.98005565e-20f, 0.707106769f
+    path.conicTo(SkBits2Float(0x2009b044),
+                 SkBits2Float(0x9fbc6c7a),
+                 SkBits2Float(0x524ae681),
+                 SkBits2Float(0xd277c639),
+                 SkBits2Float(0x3f3504f3));  // 1.16626728e-19f, -7.98005565e-20f, 2.17862652e+11f,
+                                             // -2.66045637e+11f, 0.707106769f
+    path.conicTo(SkBits2Float(0x52cae681),
+                 SkBits2Float(0xd2f7c639),
+                 SkBits2Float(0x52cae681),
+                 SkBits2Float(0xd2f7c639),
+                 SkBits2Float(0x3f3504f3));  // 4.35725304e+11f, -5.32091273e+11f, 4.35725304e+11f,
+                                             // -5.32091273e+11f, 0.707106769f
+    path.conicTo(SkBits2Float(0x52cae681),
+                 SkBits2Float(0xd2f7c639),
+                 SkBits2Float(0x524ae681),
+                 SkBits2Float(0xd277c639),
+                 SkBits2Float(0x3f3504f3));  // 4.35725304e+11f, -5.32091273e+11f, 2.17862652e+11f,
+                                             // -2.66045637e+11f, 0.707106769f
+    path.close();
+    path.moveTo(SkBits2Float(0x200a3d8d),
+                SkBits2Float(0x9fbdc58a));  // 1.17094201e-19f, -8.03714145e-20f
+    path.cubicTo(SkBits2Float(0xcda1a399),
+                 SkBits2Float(0x4dc56333),
+                 SkBits2Float(0x2009b044),
+                 SkBits2Float(0x9fbc6c7a),
+                 SkBits2Float(0x5507077d),
+                 SkBits2Float(0xd524e482));  // -338981664, 413951584, 1.16626728e-19f,
+                                             // -7.98005565e-20f, 9.27913948e+12f, -1.13313338e+13f
+    path.close();
+    SkRect clipBounds = SkRect::MakeLTRB(0, 0, 128, 160);
+    SimplerVertexAllocator alloc;
+    int vertexCount = GrAATriangulator::PathToAATriangles(
+            path, GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
+    REPORTER_ASSERT(r, vertexCount);
 }
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE

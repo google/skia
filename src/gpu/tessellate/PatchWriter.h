@@ -160,6 +160,17 @@ struct AttribValue {
         return *this;
     }
 
+    const T& operator*() const {
+        if constexpr (Required) {
+            return fV;
+        } else if constexpr (Optional) {
+            SkASSERT(std::get<1>(fV));
+            return std::get<0>(fV);
+        } else {
+            SkUNREACHABLE;
+        }
+    }
+
     DataType fV;
 };
 
@@ -178,18 +189,43 @@ VertexWriter& operator<<(VertexWriter& w, const AttribValue<A, T, Required, Opti
 // Stores state and deferred patch data when TrackJoinControlPoints is used for a PatchWriter.
 template <size_t Stride>
 struct PatchStorage {
-    float fN_p4    = -1.f; // The parametric segment value to restore on LinearTolerances
-    bool  fMustDefer = true;  // True means next patch must be deferred
+    SkPoint fFirstControlPoint; // This is the first control point of the contour, e.g. moveTo
+    SkPoint fLastControlPoint;  // The last control point written within the contour
+
+    // The signs of fCurveType and fN_p4 encode some special states:
+    //  - If both are negative, then nothing has been written that needs to be deferred
+    //  - If fN_p4 == 0, the caller has explicitly managed the join and nothing is deferred
+    //  - If fN_p4 < 0 and fCurveType >= 0, then a degenerate verb has been recorded so caps should
+    //    be written when the deferred patch is ended.
+    //  - If fN_p4 > 0 and fCurveType >= 0, then this is a full deferred patch
+    float fCurveType = -1.f;  // The explicit curve type passed to writePatch()
+    float fN_p4      = -1.f;  // The parametric segment value to restore on LinearTolerances
 
     // Holds an entire patch, except with an undefined join control point.
     char fData[Stride];
 
-    bool hasPending() const {
-        return fN_p4 >= 0.f;
+    void disableDeferral() {
+        fN_p4 = std::max(fN_p4, 0.f); // do nothing if we already have a deferred patch recorded
     }
-    void reset() {
+
+    bool mustDefer() const {
+        return fN_p4 < 0.f;
+    }
+
+    bool hasVerb() const {
+        return fCurveType >= 0.f;
+    }
+
+    bool hasPending() const {
+        // fN_p4 = 0 shouldn't happen naturally from Wang's formula and is used to disable deferring
+        // patches if the join is defined manually via updateJoinControlPointAttrib()
+        return fN_p4 > 0.f;
+    }
+
+    void reset(SkPoint moveTo) {
+        fCurveType = -1.f;
         fN_p4 = -1.f;
-        fMustDefer = true;
+        fFirstControlPoint = fLastControlPoint = moveTo;
     }
 };
 
@@ -289,8 +325,9 @@ public:
 
     ~PatchWriter() {
         if constexpr (kTrackJoinControlPoints) {
-            // flush any pending patch
-            this->writeDeferredStrokePatch();
+            // There shouldn't be any deferred flush; PatchWriter doesn't know the cap style that
+            // needs to be applied. Callers are responsible for calling writeDeferredStrokePatch()
+            SkASSERT(!fDeferredPatch.hasPending());
         }
     }
 
@@ -306,13 +343,49 @@ public:
 
     // Completes a closed contour of a stroke by rewriting a deferred patch with now-available
     // join control point information. Automatically resets the join control point attribute.
-    ENABLE_IF(kTrackJoinControlPoints) writeDeferredStrokePatch() {
+    // If `cap` is provided, instead of joining the last patch to the deferred patch, it ends the
+    // contour by adding caps to the end of the last and start of the deferred.
+    //
+    // `moveTo` represents the start of the next contour.
+    ENABLE_IF(kTrackJoinControlPoints) writeDeferredStrokePatch(SkPoint moveTo,
+                                                                std::optional<SkPaint::Cap> cap) {
         if (fDeferredPatch.hasPending()) {
-            SkASSERT(!fDeferredPatch.fMustDefer);
-            // Overwrite join control point with updated value, which is the first attribute
+            SkASSERT(fDeferredPatch.hasVerb());
+            SkPoint join;
+            if (!cap.has_value()) {
+                // When the contour is closed, there are no caps. We just have to update the join
+                // attribute to reflect the last patch and write the deferred patch.
+                join = *fJoin;
+            } else {
+                // When the contour is not closed, the last patch and the deferred patch both need
+                // to have caps added to them. Set the join point to the first control point since
+                // all caps either don't require joins or are oriented to join with that point.
+                join = fDeferredPatch.fFirstControlPoint;
+
+                if (cap == SkPaint::kRound_Cap) {
+                    // Also add circles for the start and end (these don't join with anything)
+                    this->writeCircle(fDeferredPatch.fLastControlPoint);
+                    this->writeCircle(fDeferredPatch.fFirstControlPoint);
+                    // Since these caps are full circles, there's no need to correct the deferred
+                    // patch's join attribute. The circle will cover up the butt-end just fine.
+                } else if (cap == SkPaint::kSquare_Cap) {
+                    // First write a square cap that joins against the last recorded join point
+                    this->writeSquare(fDeferredPatch.fLastControlPoint, *fJoin);
+                    // Next write a square cap that joins against the incoming tangent point of the
+                    // first contour.
+                    float4 p01 = float4::Load(fDeferredPatch.fData);
+                    float4 p23 = float4::Load(fDeferredPatch.fData + 4*sizeof(float));
+                    float2 last = fDeferredPatch.fCurveType == kCubicCurveType
+                            ? p23.zw() : p23.xy();
+                    float2 capPt = TangentPoint(p01.xy(), p01.zw(), p23.xy(), last);
+                    this->writeSquare(p01.xy(), capPt);
+                }
+            }
+
+            // Overwrite join control point with the updated value, which is the first attribute
             // after the 4 control points.
             memcpy(SkTAddOffset<void>(fDeferredPatch.fData, 4 * sizeof(SkPoint)),
-                   &fJoin, sizeof(SkPoint));
+                   &join, sizeof(SkPoint));
             // Assuming that the stroke parameters aren't changing within a contour, we only have
             // to set the parametric segments in order to recover the LinearTolerances state at the
             // time the deferred patch was recorded.
@@ -320,20 +393,61 @@ public:
             if (VertexWriter vw = fPatchAllocator.append(fTolerances)) {
                 vw << VertexWriter::Array<char>(fDeferredPatch.fData, PatchStride(fAttribs));
             }
+        } else {
+            // Either nothing has been recorded yet or it was all degenerate (in which case we
+            // should record a cap).
+            if (cap.has_value() && fDeferredPatch.hasVerb()) {
+                switch (*cap) {
+                    case SkPaint::kButt_Cap:
+                        // No actual cap geometry to produce
+                        break;
+                    case SkPaint::kRound_Cap:
+                        this->writeCircle(fDeferredPatch.fFirstControlPoint);
+                        break;
+                    case SkPaint::kSquare_Cap: {
+                        // Write a square with no joining direction to get a full square (vs. a cap)
+                        this->writeSquare(fDeferredPatch.fFirstControlPoint, std::nullopt);
+                        break;
+                    }
+                }
+                // Neither writeCircle() or writeSquare() should add anything that was deferred.
+                SkASSERT(!fDeferredPatch.hasPending());
+            }
         }
 
-        fDeferredPatch.reset();
+        // Remember the first control point in the event we need to produce a cap, or a close()
+        fDeferredPatch.reset(moveTo);
     }
 
-    // Updates the stroke's join control point that will be written out with each patch. This is
-    // automatically adjusted when appending various geometries (e.g. Conic/Cubic), but sometimes
-    // must be set explicitly.
+    ENABLE_IF(kTrackJoinControlPoints) closeDeferredStrokePatch(SkPaint::Cap cap) {
+        // Write a line from the last control point to the first control point, and then
+        // write the deferred patch, which will use the join information generated by the lineTo
+        this->writeLine(fDeferredPatch.fLastControlPoint, fDeferredPatch.fFirstControlPoint);
+        if (fDeferredPatch.hasPending()) {
+            // This will be true if the prior writeLine() was not degenerate or there was other
+            // non-degenerate patches written previously. In this case we should join, so don't pass
+            // the cap style in.
+            this->writeDeferredStrokePatch(fDeferredPatch.fFirstControlPoint, std::nullopt);
+        } else {
+            // Explicitly closing empty geometry will produce caps. This is handled by
+            // writeDeferredStrokePatch so it can catch the equivalent case of
+            // "moveTo(p0); lineTo(p0); moveTo(p1)" which never includes a close verb but also
+            // produces cap geometry.
+            SkASSERT(fDeferredPatch.hasVerb());
+            this->writeDeferredStrokePatch(fDeferredPatch.fFirstControlPoint, cap);
+        }
+    }
+
+    // DEPRECATED: Only used by Ganesh with StrokeIter that manages caps on its own. When used this
+    // way, the moveTo point is always ignored and we only ever want to produce joins.
+    ENABLE_IF(JoinAttrib::kEnabled) writeDeferredStrokePatch() {
+        this->writeDeferredStrokePatch({0.f, 0.f}, std::nullopt);
+    }
+    // DEPRECATED
     ENABLE_IF(JoinAttrib::kEnabled) updateJoinControlPointAttrib(SkPoint lastControlPoint) {
         SkASSERT(fAttribs & PatchAttribs::kJoinControlPoint); // must be runtime enabled as well
         fJoin = lastControlPoint;
-        if constexpr (kTrackJoinControlPoints) {
-            fDeferredPatch.fMustDefer = false;
-        }
+        fDeferredPatch.disableDeferral(); // fJoin is valid, so no need to defer next real patch
     }
 
     // Updates the fan point that will be written out with each patch (i.e., the point that wedges
@@ -461,6 +575,10 @@ public:
 
     // Write a line that is automatically converted into an equivalent cubic.
     AI void writeLine(float4 p0p1) {
+        if constexpr (kDiscardFlatCurves) {
+            return;
+        }
+
         // No chopping needed, a line only ever requires one segment (the minimum required already).
         fTolerances.setParametricSegments(1.f);
         if constexpr (kReplicateLineEndPoints) {
@@ -501,11 +619,27 @@ public:
     AI void writeCircle(SkPoint p) {
         // This does not use writePatch() because it uses its own location as the join attribute
         // value instead of fJoin and never defers.
-        fTolerances.setParametricSegments(0.f);
+        fTolerances.setParametricSegments(1.f);
         if (VertexWriter vw = fPatchAllocator.append(fTolerances)) {
             vw << VertexWriter::Repeat<4>(p); // p0,p1,p2,p3 = p -> 4 copies
             this->emitPatchAttribs(std::move(vw), {fAttribs, p}, kCubicCurveType);
         }
+    }
+
+    // Writes either a square in isolation, or a half-square that will be oriented and joined
+    // with `joinTo` (e.g. it will be a cap extending the stroke radius from `p` opposite of
+    // the join control point). It is encoded as a conic with identical control points (vs. circles
+    // which are cubics with identical control points).
+    AI void writeSquare(SkPoint p, std::optional<SkPoint> joinTo) {
+        fTolerances.setParametricSegments(1.f);
+        if (VertexWriter vw = fPatchAllocator.append(fTolerances)) {
+            vw << VertexWriter::Repeat<3>(p) // p0,p1,p2 = p -> 3 copies
+               << float2{1.f, SK_FloatInfinity}; // conic with w = 1
+            this->emitPatchAttribs(std::move(vw), {fAttribs, joinTo.value_or(p)}, kConicCurveType);
+        }
+    }
+    AI void writeSquare(float2 p, float2 joinTo) {
+        this->writeSquare(SkPoint{p[0], p[1]}, SkPoint{joinTo[0], joinTo[1]});
     }
 
 private:
@@ -517,14 +651,16 @@ private:
                      << CurveTypeAttrib{fAttribs, explicitCurveType} << fSsboIndex;
     }
 
-    AI VertexWriter appendPatch() {
+    AI VertexWriter appendPatch(float explicitCurveType) {
         if constexpr (kTrackJoinControlPoints) {
-            if (fDeferredPatch.fMustDefer) {
-                SkASSERT(!fDeferredPatch.hasPending());
+            // Can switch to !hasPending() once updateJoinControlPointAttrib goes away.
+            if (fDeferredPatch.mustDefer()) {
                 SkASSERT(PatchStride(fAttribs) <= kMaxStride);
                 // Save the computed parametric segment tolerance value so that we can pass that to
                 // the PatchAllocator when flushing the deferred patch.
+                fDeferredPatch.fCurveType = explicitCurveType;
                 fDeferredPatch.fN_p4 = fTolerances.numParametricSegments_p4();
+                SkASSERT(!fDeferredPatch.mustDefer() && fDeferredPatch.hasPending());
                 return {fDeferredPatch.fData, PatchStride(fAttribs)};
             }
         }
@@ -532,7 +668,19 @@ private:
     }
 
     AI void writePatch(float2 p0, float2 p1, float2 p2, float2 p3, float explicitCurveType) {
-        if (VertexWriter vw = this->appendPatch()) {
+        if constexpr (kTrackJoinControlPoints) {
+            // Store this even if we don't write a patch to remember we should add caps
+            fDeferredPatch.fCurveType = explicitCurveType;
+        }
+
+        float2 last = explicitCurveType == kCubicCurveType ? p3 : p2;
+        if (all(p0 == p1 & p1 == p2 & p2 == last)) {
+            // Degenerate patch, so skip writing. In a regular fill or stroke, this won't affect
+            // rendering. If there is a subsequent close verb, we may add a cap later.
+            return;
+        }
+
+        if (VertexWriter vw = this->appendPatch(explicitCurveType)) {
             // NOTE: fJoin will be undefined if we're writing to a deferred patch. If that's the
             // case, correct data will overwrite it when the contour is closed (this is fine since a
             // deferred patch writes to CPU memory instead of directly to the GPU buffer).
@@ -541,17 +689,9 @@ private:
 
             // Automatically update join control point for next patch.
             if constexpr (kTrackJoinControlPoints) {
-                if (explicitCurveType == kCubicCurveType && any(p3 != p2)) {
-                    // p2 is control point defining the tangent vector into the next patch.
-                    p2.store(&fJoin);
-                } else if (any(p2 != p1)) {
-                    // p1 is the control point defining the tangent vector.
-                    p1.store(&fJoin);
-                } else {
-                    // p0 is the control point defining the tangent vector.
-                    p0.store(&fJoin);
-                }
-                fDeferredPatch.fMustDefer = false;
+                last.store(&fDeferredPatch.fLastControlPoint);
+                // Points are ordered in reverse order to get outgoing tangent control point
+                TangentPoint(last, p2, p1, p0).store(&fJoin);
             }
         }
     }
@@ -572,8 +712,10 @@ private:
 
     int accountForCurve(float n4) {
         if (n4 <= kMaxParametricSegments_p4) {
-            // Record n^4 and return 0 to signal no chopping
-            fTolerances.setParametricSegments(n4);
+            // Record n^4 and return 0 to signal no chopping, but don't let n go below 1 as that
+            // will cause problems when we take the log of it (particularly reaching 0, which can
+            // happen for control points that are incredibly close to each other).
+            fTolerances.setParametricSegments(std::max(1.f, n4));
             return 0;
         } else {
             // Clamp to max allowed segmentation for a patch and return required number of chops
@@ -724,6 +866,16 @@ private:
     writeTriangleStack(MiddleOutPolygonTriangulator::PoppedTriangleStack&& stack) {
         for (auto [p0, p1, p2] : stack) {
             this->writeTriangle(p0, p1, p2);
+        }
+    }
+
+    static float2 TangentPoint(float2 p0, float2 p1, float2 p2, float2 p3) {
+        if (any(p0 != p1)) {
+            return p1;
+        } else if (any(p2 != p1)) {
+            return p2;
+        } else {
+            return p3;
         }
     }
 

@@ -8,7 +8,6 @@
 
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageInfo.h"
-#include "include/core/SkRecorder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
 #include "include/gpu/GpuTypes.h"
@@ -98,21 +97,12 @@ bool GrBackendTextureImageGenerator::onIsProtected() const {
     return fBackendTexture.isProtected();
 }
 
-bool GrBackendTextureImageGenerator::onIsValid(GrRecordingContext* context) const {
-    if (!context) {
-        return false;
-    }
-    return context->abandoned();
-}
-
 bool GrBackendTextureImageGenerator::onIsValid(SkRecorder* recorder) const {
-    if (!recorder) {
+    auto gRecorder = AsGaneshRecorder(recorder);
+    if (!gRecorder) {
         return false;
     }
-    if (recorder->type() != SkRecorder::Type::kGanesh) {
-        return false;
-    }
-    return this->onIsValid(static_cast<SkGaneshRecorder*>(recorder)->recordingContext());
+    return !gRecorder->recordingContext()->abandoned();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

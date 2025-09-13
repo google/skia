@@ -14,8 +14,8 @@ void draw(SkCanvas* canvas) {
     canvas->drawIRect({0, 0, 2964, 2100}, paint);
     paint.setColor(SkColorSetARGB(0xFF, 0xFF, 0xFF, 0xFF));
     paint.setAntiAlias(true);
-    SkPath star;
-    SkParsePath::FromSVGString("M 0 -150 L 88 121 L -143 -46 L 143 -46 L -88 121 Z", &star);
+    SkPath star = SkParsePath::FromSVGString("M 0 -150 L 88 121 L -143 -46 L 143 -46 L -88 121 Z")
+                  .value_or(SkPath());
     for (int i = 0; i < 13; ++i) {
         SkMatrix matrix = SkMatrix::Translate(1482, 1050);
         matrix.preRotate((360.0 / 13) * i);

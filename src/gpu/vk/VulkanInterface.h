@@ -194,7 +194,7 @@ public:
         VkPtr<PFN_vkCmdEndRenderPass> fCmdEndRenderPass;
         VkPtr<PFN_vkCmdExecuteCommands> fCmdExecuteCommands;
 
-        // Functions for VK_KHR_get_physical_device_properties2 or vulkan 1.1
+        // Functions for VK_KHR_get_physical_device_properties2 or Vulkan 1.1
         VkPtr<PFN_vkGetPhysicalDeviceFeatures2> fGetPhysicalDeviceFeatures2;
         VkPtr<PFN_vkGetPhysicalDeviceProperties2> fGetPhysicalDeviceProperties2;
         VkPtr<PFN_vkGetPhysicalDeviceFormatProperties2> fGetPhysicalDeviceFormatProperties2;
@@ -203,25 +203,28 @@ public:
         VkPtr<PFN_vkGetPhysicalDeviceMemoryProperties2> fGetPhysicalDeviceMemoryProperties2;
         VkPtr<PFN_vkGetPhysicalDeviceSparseImageFormatProperties2> fGetPhysicalDeviceSparseImageFormatProperties2;
 
-        // Functions for VK_KHR_get_memory_requirements2 or vulkan 1.1
+        // Functions for VK_KHR_get_memory_requirements2 or Vulkan 1.1
         VkPtr<PFN_vkGetImageMemoryRequirements2> fGetImageMemoryRequirements2;
         VkPtr<PFN_vkGetBufferMemoryRequirements2> fGetBufferMemoryRequirements2;
         VkPtr<PFN_vkGetImageSparseMemoryRequirements2> fGetImageSparseMemoryRequirements2;
 
-        //Functions for VK_KHR_bind_memory2
+        // Functions for VK_KHR_bind_memory2 or Vulkan 1.1
         VkPtr<PFN_vkBindBufferMemory2> fBindBufferMemory2;
         VkPtr<PFN_vkBindImageMemory2> fBindImageMemory2;
 
-        // Functions for VK_KHR_maintenance1 or vulkan 1.1
+        // Functions for VK_KHR_create_renderpass2 or Vulkan 1.2
+        VkPtr<PFN_vkCreateRenderPass2> fCreateRenderPass2;
+
+        // Functions for VK_KHR_maintenance1 or Vulkan 1.1
         VkPtr<PFN_vkTrimCommandPool> fTrimCommandPool;
 
-        // Functions for VK_KHR_maintenance3 or vulkan 1.1
+        // Functions for VK_KHR_maintenance3 or Vulkan 1.1
         VkPtr<PFN_vkGetDescriptorSetLayoutSupport> fGetDescriptorSetLayoutSupport;
 
         // Functions for VK_KHR_external_memory_capabilities
         VkPtr<PFN_vkGetPhysicalDeviceExternalBufferProperties> fGetPhysicalDeviceExternalBufferProperties;
 
-        // Functions for VK_EXT_extended_dynamic_state or 1.3
+        // Functions for VK_EXT_extended_dynamic_state or Vulkan 1.3
         VkPtr<PFN_vkCmdBindVertexBuffers2> fCmdBindVertexBuffers2;
         VkPtr<PFN_vkCmdSetCullMode> fCmdSetCullMode;
         VkPtr<PFN_vkCmdSetDepthBoundsTestEnable> fCmdSetDepthBoundsTestEnable;
@@ -235,7 +238,7 @@ public:
         VkPtr<PFN_vkCmdSetStencilTestEnable> fCmdSetStencilTestEnable;
         VkPtr<PFN_vkCmdSetViewportWithCount> fCmdSetViewportWithCount;
 
-        // Functions for VK_EXT_extended_dynamic_state2 or 1.3
+        // Functions for VK_EXT_extended_dynamic_state2 or Vulkan 1.3
         VkPtr<PFN_vkCmdSetDepthBiasEnable> fCmdSetDepthBiasEnable;
         VkPtr<PFN_vkCmdSetPrimitiveRestartEnable> fCmdSetPrimitiveRestartEnable;
         VkPtr<PFN_vkCmdSetRasterizerDiscardEnable> fCmdSetRasterizerDiscardEnable;
@@ -249,6 +252,11 @@ public:
 
         // Functions for VK_EXT_device_fault
         VkPtr<PFN_vkGetDeviceFaultInfoEXT> fGetDeviceFaultInfo;
+
+        // Functions for VK_EXT_host_image_copy or Vulkan 1.4
+        // vkCopyImageToImage and vkCopyImageToMemory are not used by Skia.
+        VkPtr<PFN_vkTransitionImageLayout> fTransitionImageLayout;
+        VkPtr<PFN_vkCopyMemoryToImage> fCopyMemoryToImage;
 
 #ifdef SK_BUILD_FOR_ANDROID
         // Functions for VK_ANDROID_external_memory_android_hardware_buffer

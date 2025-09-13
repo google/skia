@@ -214,6 +214,25 @@ bool DawnCommandBuffer::setNewCommandBufferResources() {
     return true;
 }
 
+// Requests a sampler. Dynamic samplers live in the global cache, requiring no tracking, but
+// immutable samplers are created on the current graphics pipeline, and may outlive it, requiring
+// further tracking.
+const DawnSampler* DawnCommandBuffer::getSampler(
+        const DrawPassCommands::BindTexturesAndSamplers& command, int32_t index) {
+    auto desc = command.fSamplers[index];
+    if (desc.isImmutable()) {
+        const DawnSampler* immutableSampler = fActiveGraphicsPipeline->immutableSampler(index);
+        if (immutableSampler) {
+            this->trackResource(sk_ref_sp<Sampler>(immutableSampler));
+        }
+        return immutableSampler;
+    } else {
+        // Use the shared Sampler held in the global cache
+        return static_cast<const DawnSampler*>(
+                fSharedContext->globalCache()->getDynamicSampler(desc));
+    }
+}
+
 bool DawnCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
                                         SkIRect renderPassBounds,
                                         const Texture* colorTexture,
@@ -228,8 +247,17 @@ bool DawnCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
             return true;
         }
 
-    // Update the intrinsic constant buffer before starting a render pass.
-    if (!this->updateIntrinsicUniforms(viewport)) SK_UNLIKELY {
+
+    UniformManager intrinsicValues{Layout::kStd140};
+    CollectIntrinsicUniforms(fSharedContext->caps(), viewport, fDstReadBounds, &intrinsicValues);
+    const auto uniformData = UniformDataBlock::Wrap(&intrinsicValues);
+    const bool usePushConstant = fSharedContext->dawnCaps()
+                                         ->resourceBindingRequirements()
+                                         .fUsePushConstantsForIntrinsicConstants;
+
+    // If push constant is not supported, update the intrinsic constant buffer before starting a
+    // render pass.
+    if (!usePushConstant && !this->updateIntrinsicUniformsAsUBO(uniformData)) SK_UNLIKELY {
         return false;
     }
 
@@ -239,6 +267,11 @@ bool DawnCommandBuffer::onAddRenderPass(const RenderPassDesc& renderPassDesc,
                                colorTexture,
                                resolveTexture,
                                depthStencilTexture)) SK_UNLIKELY {
+        return false;
+    }
+
+    // If push constant is supported, update the intrinsic constants after starting a render pass.
+    if (usePushConstant && !this->updateIntrinsicUniformsAsPushConstant(uniformData)) SK_UNLIKELY {
         return false;
     }
 
@@ -308,7 +341,7 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
     // Set up color attachment.
 #if !defined(__EMSCRIPTEN__)
     wgpu::DawnRenderPassColorAttachmentRenderToSingleSampled mssaRenderToSingleSampledDesc;
-    wgpu::RenderPassDescriptorExpandResolveRect wgpuPartialRect = {};
+    wgpu::RenderPassDescriptorResolveRect wgpuPartialRect = {};
 #endif
 
 #if WGPU_TIMESTAMP_WRITES_DEFINED
@@ -372,29 +405,43 @@ bool DawnCommandBuffer::beginRenderPass(const RenderPassDesc& renderPassDesc,
             // But it also means we might have to load the resolve texture into the MSAA color attachment
 
             if (fSharedContext->dawnCaps()->emulateLoadStoreResolve()) {
-                // TODO(b/399640773): Remove this once Dawn natively supports the partial resolve
-                // feature with different resolve & color offsets.
                 emulateLoadStoreResolveTexture = true;
             } else if (resolveInfo.fLoadOp == LoadOp::kLoad) {
                 std::optional<wgpu::LoadOp> resolveLoadOp =
                         fSharedContext->dawnCaps()->resolveTextureLoadOp();
                 if (resolveLoadOp.has_value()) {
                     wgpuColorAttachment.loadOp = *resolveLoadOp;
-#if !defined(__EMSCRIPTEN__)
-                    if (fSharedContext->dawnCaps()->supportsPartialLoadResolve()) {
-                        SkASSERT(resolveOffset.isZero());
-                        wgpuPartialRect.x = renderPassBounds.x();
-                        wgpuPartialRect.y = renderPassBounds.y();
-                        wgpuPartialRect.width = renderPassBounds.width();
-                        wgpuPartialRect.height = renderPassBounds.height();
-                        wgpuRenderPass.nextInChain = &wgpuPartialRect;
-                    }
-#endif
                 } else {
                     // No Dawn built-in support, we need to manually load the resolve texture.
                     emulateLoadStoreResolveTexture = true;
                 }
             }
+
+            if (!emulateLoadStoreResolveTexture) {
+#if !defined(__EMSCRIPTEN__)
+                if (fSharedContext->dawnCaps()->supportsPartialLoadResolve()) {
+                    SkIRect msaaArea = renderPassBounds;
+                    SkAssertResult(msaaArea.intersect(SkIRect::MakeSize(
+                            colorTexture->dimensions())));
+                    wgpuPartialRect.colorOffsetX = msaaArea.x();
+                    wgpuPartialRect.colorOffsetY = msaaArea.y();
+
+                    SkIRect resolveArea = renderPassBounds;
+                    resolveArea.offset(resolveOffset);
+                    SkAssertResult(resolveArea.intersect(SkIRect::MakeSize(
+                            resolveTexture->dimensions())));
+                    wgpuPartialRect.resolveOffsetX = resolveArea.x();
+                    wgpuPartialRect.resolveOffsetY = resolveArea.y();
+                    wgpuPartialRect.width = resolveArea.width();
+                    wgpuPartialRect.height = resolveArea.height();
+                    wgpuRenderPass.nextInChain = &wgpuPartialRect;
+                } else
+#endif
+                {
+                    SkASSERT(resolveOffset.isZero());
+                }
+            }
+
             // TODO: If the color resolve texture is read-only we can use a private (vs. memoryless)
             // msaa attachment that's coupled to the framebuffer and the StoreAndMultisampleResolve
             // action instead of loading as a draw.
@@ -592,8 +639,17 @@ bool DawnCommandBuffer::endRenderPass() {
     return blitSucceeded;
 }
 
-bool DawnCommandBuffer::addDrawPass(const DrawPass* drawPass) {
-    drawPass->addResourceRefs(this);
+bool DawnCommandBuffer::addDrawPass(DrawPass* drawPass) {
+    // If there is gradient data to bind, it must be done prior to draws.
+    if (drawPass->floatStorageManager()->hasData()) {
+        this->bindUniformBuffer(drawPass->floatStorageManager()->getBufferInfo(),
+                                UniformSlot::kGradient);
+    }
+
+    if (!drawPass->addResourceRefs(fResourceProvider, this)) SK_UNLIKELY {
+        return false;
+    }
+
     for (auto [type, cmdPtr] : drawPass->commands()) {
         switch (type) {
             case DrawPassCommands::Type::kBindGraphicsPipeline: {
@@ -800,7 +856,7 @@ void DawnCommandBuffer::bindTextureAndSamplers(
     if (command.fNumTexSamplers == 1) {
         const wgpu::YCbCrVkDescriptor& ycbcrDesc =
                 TextureInfoPriv::Get<DawnTextureInfo>(
-                        drawPass.getTexture(command.fTextureIndices[0])->textureInfo())
+                    command.fTextures[0]->texture()->textureInfo())
                         .fYcbcrVkDescriptor;
         usingSingleStaticSampler = DawnDescriptorIsValid(ycbcrDesc);
     }
@@ -812,19 +868,15 @@ void DawnCommandBuffer::bindTextureAndSamplers(
         SkASSERT(fActiveGraphicsPipeline->numFragTexturesAndSamplers() == 2);
         SkASSERT(fActiveGraphicsPipeline->dstReadStrategy() != DstReadStrategy::kTextureCopy);
 
-        const auto* texture =
-                static_cast<const DawnTexture*>(drawPass.getTexture(command.fTextureIndices[0]));
-        const auto* sampler =
-                static_cast<const DawnSampler*>(drawPass.getSampler(command.fSamplerIndices[0]));
+        const auto* texture = static_cast<const DawnTexture*>(command.fTextures[0]->texture());
+        const auto* sampler = this->getSampler(command, 0);
         bindGroup = fResourceProvider->findOrCreateSingleTextureSamplerBindGroup(sampler, texture);
     } else {
         std::vector<wgpu::BindGroupEntry> entries;
 
         for (int i = 0; i < command.fNumTexSamplers; ++i) {
-            const auto* texture = static_cast<const DawnTexture*>(
-                    drawPass.getTexture(command.fTextureIndices[i]));
-            const auto* sampler = static_cast<const DawnSampler*>(
-                    drawPass.getSampler(command.fSamplerIndices[i]));
+            const auto* texture = static_cast<const DawnTexture*>(command.fTextures[i]->texture());
+            const auto* sampler = this->getSampler(command, i);
             auto& wgpuTextureView = texture->sampleTextureView();
             auto& wgpuSampler = sampler->dawnSampler();
 
@@ -891,10 +943,12 @@ void DawnCommandBuffer::syncUniformBuffers() {
         std::array<std::pair<const DawnBuffer*, uint32_t>, kNumBuffers> boundBuffersAndSizes;
 
         std::array<bool, kNumBuffers> enabled = {
-            true,                                         // intrinsic uniforms are always enabled
-            fActiveGraphicsPipeline->hasStepUniforms(),   // render step uniforms
-            fActiveGraphicsPipeline->hasPaintUniforms(),  // paint uniforms
-            fActiveGraphicsPipeline->hasGradientBuffer(), // gradient SSBO
+                !fSharedContext->dawnCaps()
+                         ->resourceBindingRequirements()
+                         .fUsePushConstantsForIntrinsicConstants,  // intrinsic uniforms
+                fActiveGraphicsPipeline->hasStepUniforms(),            // render step uniforms
+                fActiveGraphicsPipeline->hasPaintUniforms(),           // paint uniforms
+                fActiveGraphicsPipeline->hasGradientBuffer(),          // gradient SSBO
         };
 
         for (int i = 0; i < kNumBuffers; ++i) {
@@ -926,12 +980,10 @@ void DawnCommandBuffer::setScissor(const Scissor& scissor) {
     fActiveRenderPassEncoder.SetScissorRect(rect.x(), rect.y(), rect.width(), rect.height());
 }
 
-bool DawnCommandBuffer::updateIntrinsicUniforms(SkIRect viewport) {
-    UniformManager intrinsicValues{Layout::kStd140};
-    CollectIntrinsicUniforms(fSharedContext->caps(), viewport, fDstReadBounds, &intrinsicValues);
+bool DawnCommandBuffer::updateIntrinsicUniformsAsUBO(UniformDataBlock uniformData) {
+    BindBufferInfo binding =
+            fResourceProvider->findOrCreateIntrinsicBindBufferInfo(this, uniformData);
 
-    BindBufferInfo binding = fResourceProvider->findOrCreateIntrinsicBindBufferInfo(
-            this, UniformDataBlock::Wrap(&intrinsicValues));
     if (!binding) {
         return false;
     } else if (binding == fBoundUniforms[DawnGraphicsPipeline::kIntrinsicUniformBufferIndex]) {
@@ -943,13 +995,25 @@ bool DawnCommandBuffer::updateIntrinsicUniforms(SkIRect viewport) {
     return true;
 }
 
+bool DawnCommandBuffer::updateIntrinsicUniformsAsPushConstant(UniformDataBlock uniformData) {
+#if !defined(__EMSCRIPTEN__)
+    SkASSERT(fActiveRenderPassEncoder);
+    SkASSERT(uniformData.size() <= DawnGraphicsPipeline::kIntrinsicUniformSize);
+    fActiveRenderPassEncoder.SetImmediateData(0, uniformData.data(), uniformData.size());
+    return true;
+#else
+    SkASSERT(false); // No push constant support in WASM yet
+    return false;
+#endif
+}
+
 void DawnCommandBuffer::setViewport(SkIRect viewport) {
     SkASSERT(fActiveRenderPassEncoder);
     fActiveRenderPassEncoder.SetViewport(
             viewport.x(), viewport.y(), viewport.width(), viewport.height(), 0, 1);
 }
 
-void DawnCommandBuffer::setBlendConstants(float* blendConstants) {
+void DawnCommandBuffer::setBlendConstants(std::array<float, 4> blendConstants) {
     SkASSERT(fActiveRenderPassEncoder);
     wgpu::Color blendConst = {
             blendConstants[0], blendConstants[1], blendConstants[2], blendConstants[3]};

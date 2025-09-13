@@ -44,7 +44,7 @@ public:
                 SkRect src = { 0, 0, SkIntToScalar(bm.width()), SkIntToScalar(bm.height()) };
                 SkRect dst = { -150, -150, 150, 150 };
                 fShaders.push_back(bm.makeShader(SkSamplingOptions(SkFilterMode::kLinear),
-                                                 SkMatrix::RectToRect(src, dst)));
+                                                 SkMatrix::RectToRectOrIdentity(src, dst)));
             }
         }
     }

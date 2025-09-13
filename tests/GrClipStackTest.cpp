@@ -1222,12 +1222,12 @@ DEF_TEST(ClipStack_ScaleTranslate, r) {
 
     // RRect -> matrix is applied up front
     SkRRect localRRect = SkRRect::MakeRectXY(rect, 2.f, 2.f);
-    SkRRect deviceRRect;
-    SkAssertResult(localRRect.transform(lm, &deviceRRect));
+    auto deviceRRect = localRRect.transform(lm);
+    SkAssertResult(deviceRRect.has_value());
     run_test_case(r, TestCase::Build("st+rrect", kDeviceBounds)
                               .actual().rrect(localRRect, lm, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .expect().rrect(deviceRRect, GrAA::kYes, SkClipOp::kIntersect)
+                              .expect().rrect(*deviceRRect, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
                               .state(ClipState::kDeviceRRect)
                               .finishTest());
@@ -1261,12 +1261,12 @@ DEF_TEST(ClipStack_PreserveAxisAlignment, r) {
 
     // RRect -> matrix is applied up front
     SkRRect localRRect = SkRRect::MakeRectXY(rect, 2.f, 2.f);
-    SkRRect deviceRRect;
-    SkAssertResult(localRRect.transform(lm, &deviceRRect));
+    auto deviceRRect = localRRect.transform(lm);
+    SkAssertResult(deviceRRect.has_value());
     run_test_case(r, TestCase::Build("r90+rrect", kDeviceBounds)
                               .actual().rrect(localRRect, lm, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
-                              .expect().rrect(deviceRRect, GrAA::kYes, SkClipOp::kIntersect)
+                              .expect().rrect(*deviceRRect, GrAA::kYes, SkClipOp::kIntersect)
                                        .finishElements()
                               .state(ClipState::kDeviceRRect)
                               .finishTest());
@@ -1747,7 +1747,7 @@ DEF_TEST(ClipStack_ReplaceClip, r) {
                     "RRect element state not restored properly after replace clip undone");
 }
 
-// Try to overflow the number of allowed window rects (see skbug.com/10989)
+// Try to overflow the number of allowed window rects (see skbug.com/40042371)
 DEF_TEST(ClipStack_DiffRects, r) {
     using ClipStack = skgpu::ganesh::ClipStack;
     using SurfaceDrawContext = skgpu::ganesh::SurfaceDrawContext;

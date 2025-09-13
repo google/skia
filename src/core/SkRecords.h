@@ -349,7 +349,7 @@ RECORD(DrawMesh, kDraw_Tag|kHasPaint_Tag|kMultiDraw_Tag,
 RECORD(DrawShadowRec, kDraw_Tag,
        PreCachedPath path;
        SkDrawShadowRec rec)
-RECORD(DrawAnnotation, 0,  // TODO: kDraw_Tag, skia:5548
+RECORD(DrawAnnotation, 0,  // TODO: kDraw_Tag, skbug.com/40036727
        SkRect rect;
        SkString key;
        sk_sp<SkData> value)

@@ -18,6 +18,7 @@
 #include "third_party/vello/cpp/vello.h"
 
 #include <string_view>
+#include <tuple>
 
 namespace skgpu::graphite {
 
@@ -262,7 +263,7 @@ public:
         // directly to the DispatchGroupBuilder. The format must still be queried to describe the
         // ComputeStep's binding layout. This method could be improved to enable conditional
         // querying of optional/dynamic parameters.
-        return {{}, T};
+        return {SkISize{}, T};
     }
 
 protected:

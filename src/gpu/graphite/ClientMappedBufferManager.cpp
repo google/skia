@@ -7,7 +7,7 @@
 
 #include "src/gpu/graphite/ClientMappedBufferManager.h"
 
-//////////////////////////////////////////////////////////////////////////////
+#include "src/core/SkMessageBus.h"
 
 DECLARE_SKMESSAGEBUS_MESSAGE(skgpu::graphite::ClientMappedBufferManager::BufferFinishedMessage,
                              skgpu::graphite::Context::ContextID,

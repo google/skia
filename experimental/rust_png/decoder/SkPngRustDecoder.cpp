@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/rust_png/decoder/SkPngRustDecoder.h"
+#include "include/codec/SkPngRustDecoder.h"
 
 #include <utility>
 
@@ -27,6 +27,10 @@ bool IsPng(const void* buff, size_t bytesRead) {
 std::unique_ptr<SkCodec> Decode(std::unique_ptr<SkStream> stream,
                                 SkCodec::Result* result,
                                 SkCodecs::DecodeContext) {
+    SkCodec::Result resultStorage;
+    if (!result) {
+        result = &resultStorage;
+    }
     return SkPngRustCodec::MakeFromStream(std::move(stream), result);
 }
 

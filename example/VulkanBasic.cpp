@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
     skgpu::VulkanBackendContext backendContext;
     VkDebugUtilsMessengerEXT debugMessenger;
     std::unique_ptr<skgpu::VulkanExtensions> extensions(new skgpu::VulkanExtensions());
-    std::unique_ptr<VkPhysicalDeviceFeatures2> features(new VkPhysicalDeviceFeatures2);
+    std::unique_ptr<sk_gpu_test::TestVkFeatures> features(new sk_gpu_test::TestVkFeatures);
 
     // First we need to create a VulkanBackendContext so that we can make a Vulkan GrDirectContext.
     // The vast majority of this chunk of code is setting up the VkInstance and VkDevice objects.
@@ -55,16 +55,15 @@ int main(int argc, char** argv) {
     // should not depend on that function. We may arbitrarily change it as it is meant only for Skia
     // internal testing. Additionally it may do some odd things that a normal Vulkan user wouldn't
     // do because it is only meant for Skia testing.
+    //
+    // When creating a device on your own, make sure to use skgpu::VulkanPreferredFeatures to let
+    // Skia add features and extensions it would like to take advantage of. Performance may suffer
+    // otherwise, or some functionality may not be accessible.
     {
         PFN_vkGetInstanceProcAddr instProc;
         if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc)) {
             return 1;
         }
-
-        memset(features.get(), 0, sizeof(VkPhysicalDeviceFeatures2));
-        features->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-        features->pNext = nullptr;
-        // Fill in features you want to enable here
 
         backendContext.fInstance = VK_NULL_HANDLE;
         backendContext.fDevice = VK_NULL_HANDLE;

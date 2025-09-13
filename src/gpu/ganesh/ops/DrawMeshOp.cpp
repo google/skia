@@ -897,7 +897,7 @@ void MeshOp::Mesh::writeVertices(skgpu::VertexWriter& writer,
             SkPoint pos = fVertices->priv().positions()[i];
             if (transform) {
                 SkASSERT(!fViewMatrix.hasPerspective());
-                fViewMatrix.mapPoints(&pos, 1);
+                pos = fViewMatrix.mapPoint(pos);
             }
             writer << pos;
             if (SkMeshSpecificationPriv::HasColors(spec)) {
@@ -962,7 +962,7 @@ static SkMeshSpecification* make_vertices_spec(bool hasColors, bool hasTex) {
         attributes.push_back({Attribute::Type::kUByte4_unorm, size, SkString{"color"}});
         varyings.push_back({Varying::Type::kHalf4, SkString{"color"}});
         vs += "v.color = a.color;\n";
-        // Using float4 for the output color to work around skbug.com/12761
+        // Using float4 for the output color to work around skbug.com/40043854
         fs += "main(const Varyings v, out float4 color) {\n"
               "color = float4(v.color.bgr*v.color.a, v.color.a);\n";
         size += 4;

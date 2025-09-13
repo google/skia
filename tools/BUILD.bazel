@@ -67,9 +67,9 @@ skia_cc_library(
 
 skia_objc_library(
     name = "autorelease_pool_objc",
-    srcs = ["AutoreleasePool.mm"],
     hdrs = ["AutoreleasePool.h"],
-    visibility = ["//tools/gpu:__pkg__"],
+    non_arc_srcs = ["AutoreleasePool.mm"],
+    visibility = ["//tools/ganesh:__pkg__"],
     deps = ["//src/base"],
 )
 
@@ -82,27 +82,6 @@ skia_cc_library(
         "//tools/debugger:__pkg__",
     ],
     deps = ["//:core"],
-)
-
-skia_cc_library(
-    name = "ddl_utils",
-    testonly = True,
-    srcs = [
-        "DDLPromiseImageHelper.cpp",
-        "DDLPromiseImageHelper.h",
-        "DDLTileHelper.cpp",
-        "DDLTileHelper.h",
-    ],
-    hdrs = [
-        "DDLPromiseImageHelper.h",
-        "DDLTileHelper.h",
-    ],
-    visibility = ["//dm:__pkg__"],
-    deps = [
-        "//:core",
-        "//src/codec:codec_support_priv",
-        "//src/gpu/ganesh:ganesh_TEST_UTIL",
-    ],
 )
 
 skia_cc_library(
@@ -308,55 +287,37 @@ skia_cc_library(
     name = "full_build",
     testonly = True,
     srcs = [
-        # These are *not* skia_cc_library targets because we'd have to set the deps
-        # for them, which is redundent. Thus we just compile them as a list of files
-        # and the deps specified below should be sufficient for them.
+        "//include/codec:headers_to_compile",
         "//include/core:headers_to_compile",
+        "//include/docs:headers_to_compile",
         "//include/effects:headers_to_compile",
         "//include/encode:headers_to_compile",
-        "//include/gpu/ganesh:headers_to_compile",
         "//include/gpu:headers_to_compile",
+        "//include/gpu/ganesh:headers_to_compile",
+        "//include/gpu/ganesh/gl:headers_to_compile",
+        "//include/gpu/ganesh/mock:headers_to_compile",
+        "//include/gpu/ganesh/vk:headers_to_compile",
+        "//include/gpu/graphite:headers_to_compile",
+        "//include/gpu/graphite/precompile:headers_to_compile",
+        "//include/gpu/graphite/vk:headers_to_compile",
+        "//include/gpu/graphite/vk/precompile:headers_to_compile",
         "//include/gpu/vk:headers_to_compile",
-        "//include/private/base:headers_to_compile",
-        "//include/private/chromium:headers_to_compile",
-        "//include/private/gpu/ganesh:headers_to_compile",
+        "//include/pathops:headers_to_compile",
+        "//include/ports:headers_to_compile",
         "//include/private:headers_to_compile",
-        "//modules/svg/src:headers_to_compile",
+        "//include/private/base:headers_to_compile",
+        "//include/sksl:headers_to_compile",
+        "//include/svg:headers_to_compile",
+        "//include/utils:headers_to_compile",
         "//src/base:headers_to_compile",
         "//src/codec:headers_to_compile",
         "//src/core:headers_to_compile",
-        "//src/encode:headers_to_compile",
-        "//src/gpu/ganesh/effects:headers_to_compile",
-        "//src/gpu/ganesh/geometry:headers_to_compile",
-        "//src/gpu/ganesh/gl:headers_to_compile",
-        "//src/gpu/ganesh/mock:headers_to_compile",
-        "//src/gpu/ganesh/ops:headers_to_compile",
-        "//src/gpu/ganesh/tessellate:headers_to_compile",
-        "//src/gpu/ganesh:headers_to_compile",
-        "//src/gpu/graphite/geom:headers_to_compile",
-        "//src/gpu/graphite:headers_to_compile",
-        "//src/gpu/tessellate:headers_to_compile",
-        "//src/gpu/vk:headers_to_compile",
-        "//src/gpu:headers_to_compile",
-        "//src/pdf:headers_to_compile",
-        "//include/docs:headers_to_compile",
     ],
     copts = [
-        # Since we are generating .cpp files for headers, some variables/functions which
-        # were properly declared static could be mis-interpreted to be unused. We don't
-        # want to fail on that. Therefore, we do not want warnings about those unused
-        # things to be flagged.
-        "-Wno-unused-function",
-        "-Wno-unused-template",
-        "-Wno-unused-const-variable",
-        "-Wno-invalid-constexpr",
-    ] + select({
-        "@platforms//os:windows": [
-            "-D_CRT_USE_BUILTIN_OFFSETOF",
-        ],
-        "//conditions:default": [],
-    }),
-    # This is not intended to be used for tests or anything, just for IWYU
+        # We don't want errors like "unused symbol"
+        "-Wno-error",
+    ],
+    # This is not intended to be used for tests or anything, just for a smoke test build
     visibility = ["//visibility:private"],
     deps = [
         "//:bmp_decode_codec",
@@ -387,8 +348,11 @@ skia_cc_library(
         "//:webp_decode_codec",
         "//:webp_encode_codec",
         "//modules/jsonreader",
+        "//src/codec:android_codec",
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
         "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
+        "//src/gpu/graphite:graphite_TEST_UTIL",
+        "//src/gpu/graphite/precompile:precompile_TEST_UTIL",
         "//src/gpu/graphite/vk:graphite_native_vulkan_TEST_UTIL",
         "//tools/sksltrace:sksltraceutils",
     ],

@@ -6,55 +6,60 @@ package(
 
 licenses(["notice"])
 
+ENCODE_HDRS = ["SkEncoder.h"]
+
 skia_filegroup(
     name = "encode_hdrs",
-    srcs = [
-        "SkEncoder.h",
-    ],
+    srcs = ENCODE_HDRS,
     visibility = [
         "//experimental/rust_png/encoder:__pkg__",
         "//src/encode:__pkg__",
     ],
 )
 
+ICC_HDRS = ["SkICC.h"]
+
 skia_filegroup(
     name = "icc_hdrs",
-    srcs = [
-        "SkICC.h",
-    ],
+    srcs = ICC_HDRS,
     visibility = ["//src/encode:__pkg__"],
 )
+
+JPEG_HDRS = ["SkJpegEncoder.h"]
 
 skia_filegroup(
     name = "jpeg_hdrs",
-    srcs = [
-        "SkJpegEncoder.h",
-    ],
+    srcs = JPEG_HDRS,
     visibility = ["//src/encode:__pkg__"],
 )
+
+PNG_HDRS = ["SkPngEncoder.h"]
 
 skia_filegroup(
     name = "png_hdrs",
-    srcs = [
-        "SkPngEncoder.h",
-    ],
+    srcs = PNG_HDRS,
     visibility = ["//src/encode:__pkg__"],
 )
 
 skia_filegroup(
+    name = "rust_png_public_hdrs",
+    srcs = ["SkPngRustEncoder.h"],
+    visibility = ["//experimental/rust_png/encoder:__pkg__"],
+)
+
+WEBP_HDRS = ["SkWebpEncoder.h"]
+
+skia_filegroup(
     name = "webp_hdrs",
-    srcs = [
-        "SkWebpEncoder.h",
-    ],
+    srcs = WEBP_HDRS,
     visibility = ["//src/encode:__pkg__"],
 )
 
 generate_cpp_files_for_headers(
     name = "headers_to_compile",
-    headers = [
-        "SkEncoder.h",
-        "SkJpegEncoder.h",
-        "SkPngEncoder.h",
-        "SkWebpEncoder.h",
-    ],
+    headers = ENCODE_HDRS +
+              ICC_HDRS +
+              JPEG_HDRS +
+              PNG_HDRS +
+              WEBP_HDRS,
 )

@@ -47,7 +47,7 @@
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/TestUtils.h"
-#include "tools/gpu/ProxyUtils.h"
+#include "tools/ganesh/ProxyUtils.h"
 
 #include <cstdint>
 #include <initializer_list>
@@ -58,7 +58,7 @@ using namespace skia_private;
 
 struct GrContextOptions;
 
-// skbug.com/5932
+// skbug.com/40037130
 static void test_basic_draw_as_src(skiatest::Reporter* reporter, GrDirectContext* dContext,
                                    const GrSurfaceProxyView& rectView, GrColorType colorType,
                                    SkAlphaType alphaType, uint32_t expectedPixelValues[]) {

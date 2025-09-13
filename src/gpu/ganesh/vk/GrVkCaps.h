@@ -153,27 +153,6 @@ public:
     // supported.
     bool supportsSwapchain() const { return fSupportsSwapchain; }
 
-    // Returns whether the device supports the ability to extend VkPhysicalDeviceProperties struct.
-    bool supportsPhysicalDeviceProperties2() const { return fSupportsPhysicalDeviceProperties2; }
-    // Returns whether the device supports the ability to extend VkMemoryRequirements struct.
-    bool supportsMemoryRequirements2() const { return fSupportsMemoryRequirements2; }
-
-    // Returns whether the device supports the ability to extend the vkBindMemory call.
-    bool supportsBindMemory2() const { return fSupportsBindMemory2; }
-
-    // Returns whether or not the device suports the various API maintenance fixes to Vulkan 1.0. In
-    // Vulkan 1.1 all these maintenance are part of the core spec.
-    bool supportsMaintenance1() const { return fSupportsMaintenance1; }
-    bool supportsMaintenance2() const { return fSupportsMaintenance2; }
-    bool supportsMaintenance3() const { return fSupportsMaintenance3; }
-
-    // Returns true if the device supports passing in a flag to say we are using dedicated GPU when
-    // allocating memory. For some devices this allows them to return more optimized memory knowning
-    // they will never need to suballocate amonst multiple objects.
-    bool supportsDedicatedAllocation() const { return fSupportsDedicatedAllocation; }
-
-    // Returns true if the device supports importing of external memory into Vulkan memory.
-    bool supportsExternalMemory() const { return fSupportsExternalMemory; }
     // Returns true if the device supports importing Android hardware buffers into Vulkan memory.
     bool supportsAndroidHWBExternalMemory() const { return fSupportsAndroidHWBExternalMemory; }
 
@@ -306,16 +285,6 @@ public:
 #endif
 
 private:
-    enum VkVendor {
-        kAMD_VkVendor = 4098,
-        kARM_VkVendor = 5045,
-        kGoogle_VkVendor = 0x1AE0,
-        kImagination_VkVendor = 4112,
-        kIntel_VkVendor = 32902,
-        kNvidia_VkVendor = 4318,
-        kQualcomm_VkVendor = 20803,
-    };
-
     enum class IntelGPUType {
         // 9th gen
         kSkyLake,
@@ -490,15 +459,6 @@ private:
 
     bool fSupportsSwapchain = false;
 
-    bool fSupportsPhysicalDeviceProperties2 = false;
-    bool fSupportsMemoryRequirements2 = false;
-    bool fSupportsBindMemory2 = false;
-    bool fSupportsMaintenance1 = false;
-    bool fSupportsMaintenance2 = false;
-    bool fSupportsMaintenance3 = false;
-
-    bool fSupportsDedicatedAllocation = false;
-    bool fSupportsExternalMemory = false;
     bool fSupportsAndroidHWBExternalMemory = false;
 
     bool fSupportsYcbcrConversion = false;

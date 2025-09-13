@@ -150,6 +150,7 @@ bool SkPngEncoderMgr::setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
     }
 
     png_color_8 sigBit;
+    bool sigBitSet = true;
     switch (srcInfo.colorType()) {
         case kRGBA_F16Norm_SkColorType:
         case kRGBA_F16_SkColorType:
@@ -188,13 +189,15 @@ bool SkPngEncoderMgr::setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
             sigBit.alpha = 8;
             break;
         case kRGBA_1010102_SkColorType:
+        case kBGRA_1010102_SkColorType:
             sigBit.red = 10;
             sigBit.green = 10;
             sigBit.blue = 10;
             sigBit.alpha = 2;
             break;
         case kBGR_101010x_XR_SkColorType:
-            case kRGB_101010x_SkColorType:
+        case kRGB_101010x_SkColorType:
+        case kBGR_101010x_SkColorType:
             sigBit.red = 10;
             sigBit.green = 10;
             sigBit.blue = 10;
@@ -207,12 +210,14 @@ bool SkPngEncoderMgr::setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
             break;
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-            default:
             sigBit.red = 8;
             sigBit.green = 8;
             sigBit.blue = 8;
             sigBit.alpha = 8;
             break;
+        default:
+            SkDEBUGFAIL("Unable to set sigBit for src colortype, unhandled value\n");
+            sigBitSet = false;
     }
 
     png_set_IHDR(fPngPtr,
@@ -224,7 +229,9 @@ bool SkPngEncoderMgr::setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
                  PNG_INTERLACE_NONE,
                  PNG_COMPRESSION_TYPE_BASE,
                  PNG_FILTER_TYPE_BASE);
-    png_set_sBIT(fPngPtr, fInfoPtr, &sigBit);
+    if (sigBitSet) {
+        png_set_sBIT(fPngPtr, fInfoPtr, &sigBit);
+    }
 
     int filters = (int)options.fFilterFlags & (int)SkPngEncoder::FilterFlag::kAll;
     SkASSERT(filters == (int)options.fFilterFlags);
@@ -398,7 +405,7 @@ bool SkPngEncoderMgr::writeInfo(const SkImageInfo& srcInfo, const SkPngEncoderBa
   if (dstInfo.color() == SkEncodedInfo::kRGBA_Color) {
       SkASSERT(dstRowInfo);
       if (dstRowInfo->isOpaque()) {
-        png_set_filler(fPngPtr, 0, PNG_FILLER_AFTER);
+          png_set_filler(fPngPtr, 0, PNG_FILLER_AFTER);
       }
   }
   return true;
@@ -418,6 +425,13 @@ bool SkPngEncoderImpl::onEncodeRow(SkSpan<const uint8_t> row) {
 
     // `png_bytep` is `uint8_t*` rather than `const uint8_t*`.
     png_bytep rowPtr = const_cast<png_bytep>(row.data());
+
+    // Swap to big endian if we are storing more than a byte per color channel
+    // (SkColorTypes are little endian by default).
+    // By this point our data will either be 8888 or 16161616, so we only check that case.
+    if (png_get_bit_depth(fEncoderMgr->pngPtr(), fEncoderMgr->infoPtr()) == 16) {
+        png_set_swap(fEncoderMgr->pngPtr());
+    }
 
     png_write_rows(fEncoderMgr->pngPtr(), &rowPtr, 1);
     return true;

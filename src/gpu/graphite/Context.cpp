@@ -40,6 +40,7 @@
 #include "include/private/base/SkTo.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/base/SkRectMemcpy.h"
+#include "src/capture/SkCaptureManager.h"
 #include "src/core/SkAutoPixmapStorage.h"
 #include "src/core/SkCPUContextImpl.h"
 #include "src/core/SkCPURecorderImpl.h"
@@ -64,6 +65,7 @@
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/RuntimeEffectDictionary.h"
 #include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/Surface_Graphite.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -75,19 +77,20 @@
 #include "src/image/SkSurface_Base.h"
 #include "src/sksl/SkSLGraphiteModules.h"
 
-#include <chrono>
-#include <cstdint>
-#include <memory>
-#include <vector>
 #include <algorithm>
 #include <array>
 #include <atomic>
+#include <chrono>
+#include <cstdint>
 #include <cstring>
 #include <forward_list>
 #include <functional>
+#include <memory>
+#include <optional>
 #include <string_view>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 #if defined(GPU_TEST_UTILS)
 #include "src/gpu/graphite/ContextOptionsPriv.h"
@@ -139,6 +142,9 @@ Context::Context(sk_sp<SharedContext> sharedContext,
                                                        options.fPipelineCallbackContext);
 
     fCPUContext = std::make_unique<skcpu::ContextImpl>();
+    if (options.fEnableCapture) {
+        fSharedContext->setCaptureManager(sk_make_sp<SkCaptureManager>());
+    }
 }
 
 Context::~Context() {
@@ -158,6 +164,11 @@ Context::PixelTransferResult::~PixelTransferResult() = default;
 
 bool Context::finishInitialization() {
     SkASSERT(!fSharedContext->rendererProvider()); // Can only initialize once
+
+    if (!fSharedContext->globalCache()->initializeDynamicSamplers(fResourceProvider.get(),
+                                                                  fSharedContext->caps())) {
+        return false;
+    }
 
     StaticBufferManager bufferManager{fResourceProvider.get(), fSharedContext->caps()};
     std::unique_ptr<RendererProvider> renderers{
@@ -208,15 +219,20 @@ std::unique_ptr<PrecompileContext> Context::makePrecompileContext() {
 std::unique_ptr<Recorder> Context::makeInternalRecorder() const {
     ASSERT_SINGLE_OWNER
 
-    // Unlike makeRecorder(), this Recorder is meant to be short-lived and go
-    // away before a Context public API function returns to the caller. As such
-    // it shares the Context's resource provider (no separate budget) and does
-    // not get tracked. The internal drawing performed with an internal recorder
-    // should not require a client image provider.
-    return std::unique_ptr<Recorder>(new Recorder(fSharedContext, {}, this));
+    // Unlike makeRecorder(), this Recorder is meant to be short-lived and go away before a Context
+    // public API function returns to the caller. As such it shares the Context's resource provider
+    // (no separate budget) and does not get tracked. The internal drawing performed with an
+    // internal recorder should not require a client image provider.
+    //
+    // Explicitly overrides fRequiresOrderedRecordings to false so that these Recorders do not
+    // inherit any global policy from the ContextOptions. Since they will only produce one Recording
+    // there's no need to require subsequent recordings be ordered.
+    RecorderOptions options = {};
+    options.fRequireOrderedRecordings = false;
+    return std::unique_ptr<Recorder>(new Recorder(fSharedContext, options, this));
 }
 
-bool Context::insertRecording(const InsertRecordingInfo& info) {
+InsertStatus Context::insertRecording(const InsertRecordingInfo& info) {
     ASSERT_SINGLE_OWNER
 
     return fQueueManager->addRecording(info, this);
@@ -367,6 +383,7 @@ void Context::asyncReadPixels(std::unique_ptr<Recorder> recorder,
             recorder = this->makeInternalRecorder();
         }
         sk_sp<SkImage> flattened = CopyAsDraw(recorder.get(),
+                                              /*drawContext=*/nullptr,
                                               params.fSrcImage,
                                               params.fSrcRect,
                                               params.fDstImageInfo.colorInfo(),
@@ -889,6 +906,20 @@ bool Context::supportsProtectedContent() const {
 
 GpuStatsFlags Context::supportedGpuStats() const {
     return fSharedContext->caps()->supportedGpuStats();
+}
+
+void Context::startCapture() {
+    if (fSharedContext->captureManager()) {
+        fSharedContext->captureManager()->toggleCapture(true);
+    }
+}
+
+void Context::endCapture() {
+    // TODO (b/412351769): Return an SkData block of serialized SKPs and other capture data
+    if (fSharedContext->captureManager()) {
+        fSharedContext->captureManager()->toggleCapture(false);
+        fSharedContext->captureManager()->serializeCapture();
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////

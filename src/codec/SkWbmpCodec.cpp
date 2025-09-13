@@ -97,6 +97,9 @@ static bool read_header(SkStream* stream, SkISize* size) {
 }
 
 bool SkWbmpCodec::onRewind() {
+    if (!this->rewindStream()) {
+        return false;
+    }
     return read_header(this->stream(), nullptr);
 }
 

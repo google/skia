@@ -6,12 +6,13 @@
  */
 
 #include "include/core/SkColor.h"
-#include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkBlitter.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkScan.h"
 #include "tests/Test.h"
 
@@ -32,24 +33,23 @@ struct FakeBlitter : public SkBlitter {
     int m_blitCount;
 };
 
-// https://crbug.com/skia/40031085
+// skbug.com/40031085
 // Lines which is not clipped by boundary based clipping,
 // but skipped after tessellation, should be cleared by the blitter.
 DEF_TEST(FillPathInverse, reporter) {
     FakeBlitter blitter;
     SkIRect clip;
-    SkPath path;
+    SkPathBuilder builder(SkPathFillType::kInverseWinding);
     int height = 100;
     int width  = 200;
     int expected_lines = 5;
     clip.setLTRB(0, height - expected_lines, width, height);
-    path.moveTo(0.0f, 0.0f)
-        .quadTo(SkIntToScalar(width/2), SkIntToScalar(height),
-              SkIntToScalar(width), 0.0f)
-        .close()
-        .setFillType(SkPathFillType::kInverseWinding);
+    builder.moveTo(0.0f, 0.0f)
+           .quadTo(SkIntToScalar(width/2), SkIntToScalar(height),
+                   SkIntToScalar(width), 0.0f)
+           .close();
     SkRegion rgn(clip);
-    SkScan::FillPath(path, rgn, &blitter);
+    SkScan::FillPath(SkPathPriv::Raw(builder), rgn, &blitter);
 
     REPORTER_ASSERT(reporter, blitter.m_blitCount == expected_lines);
 }

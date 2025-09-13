@@ -12,6 +12,7 @@
 #include "include/gpu/GpuTypes.h"
 #include "src/core/SkMipmap.h"
 #include "src/gpu/ResourceKey.h"
+#include "src/gpu/graphite/Image_Graphite.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/Texture.h"
 #include "src/gpu/graphite/TextureProxy.h"
@@ -71,6 +72,28 @@ uint32_t ProxyCache::UniqueKeyHash::operator()(const UniqueKey& key) const {
     return key.hash();
 }
 
+template <typename CreateEntryFn>
+sk_sp<TextureProxy> ProxyCache::findOrCreateCacheEntry(const UniqueKey& key,
+                                                       std::string_view label,
+                                                       CreateEntryFn fn) {
+    this->processInvalidKeyMsgs();
+
+    if (CacheEntry* cached = fCache.find(key)) {
+        SkASSERT(cached->fProxy);
+        if (Resource* resource = cached->fProxy->texture()) {
+            resource->updateAccessTime();
+        }
+        return cached->fProxy;
+    }
+
+    CacheEntry newEntry = fn(label.empty() ? key.tag() : label);
+    if (newEntry.fProxy) {
+        // Success, add it to the cache
+        fCache.set(key, newEntry);
+    }
+    return newEntry.fProxy;
+}
+
 sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
                                                         const SkBitmap& bitmap,
                                                         std::string_view label) {
@@ -85,40 +108,71 @@ sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
 
 sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
                                                         const UniqueKey& key,
-                                                        BitmapGeneratorContext context,
+                                                        GeneratorContext context,
                                                         BitmapGeneratorFn generator,
                                                         std::string_view label) {
-    this->processInvalidKeyMsgs();
-
-    if (sk_sp<TextureProxy>* cached = fCache.find(key)) {
-        if (Resource* resource = (*cached)->texture()) {
-            resource->updateAccessTime();
+    return this->findOrCreateCacheEntry(key, label, [&](std::string_view finalLabel) {
+        SkBitmap bitmap = generator(context);
+        if (bitmap.empty()) {
+            return CacheEntry{};
         }
-        return *cached;
-    }
 
-    SkBitmap bitmap = generator(context);
-    if (bitmap.empty()) {
-        return nullptr;
-    }
-    auto [ view, ct ] = MakeBitmapProxyView(recorder, bitmap, nullptr, Mipmapped::kNo,
-                                            Budgeted::kYes, label.empty() ? key.tag() : label);
-    if (view) {
+        auto [ view, ct ] = MakeBitmapProxyView(recorder, bitmap, nullptr, Mipmapped::kNo,
+                                                Budgeted::kYes, finalLabel);
+        if (!view) {
+            return CacheEntry{};
+        }
         // Since if the bitmap is held by more than just this function call (e.g. it likely came
         // from findOrCreateCachedProxy() that takes an existing SkBitmap), it's worth adding a
         // listener to remove them from the cache automatically when no one holds on to it anymore.
-        // Skip adding a listener for immutable bitmaps since those should never be invalidated.
-        const bool addListener = !bitmap.isImmutable() && !bitmap.pixelRef()->unique();
+        // NOTE: We add listeners even if the bitmap is immutable because the listener triggers when
+        // the bitmap is destroyed. We avoid leaking listeners when the proxy cache is purged due
+        // to unuse by marking old listeners for cleanup.
+        sk_sp<SkIDChangeListener> listener = nullptr;
+        const bool addListener = !bitmap.pixelRef()->unique();
         if (addListener) {
-            auto listener = make_unique_key_invalidation_listener(key, recorder->priv().uniqueID());
-            bitmap.pixelRef()->addGenIDChangeListener(std::move(listener));
+            listener = make_unique_key_invalidation_listener(key, recorder->priv().uniqueID());
+            bitmap.pixelRef()->addGenIDChangeListener(listener);
         }
-        fCache.set(key, view.refProxy());
-    }
-    return view.refProxy();
+
+        return CacheEntry{view.refProxy(), std::move(listener)};
+    });
+}
+
+sk_sp<TextureProxy> ProxyCache::findOrCreateCachedProxy(Recorder* recorder,
+                                                        const UniqueKey& key,
+                                                        GeneratorContext context,
+                                                        GPUGeneratorFn fn,
+                                                        std::string_view label) {
+    return this->findOrCreateCacheEntry(key, label, [&](std::string_view finalLabel) {
+        sk_sp<Image> textureImage = fn(recorder, context);
+        if (!textureImage) {
+            return CacheEntry{};
+        }
+
+        // Force `textureImage`'s TextureProxy to be instantiated so that it's not treated by a
+        // Recorder as a scratch image that can have a temporary scratch texture assignment.
+        textureImage->textureProxyView().proxy()->instantiate(recorder->priv().resourceProvider());
+        // Flush pending work defining the image's content, which also adds these tasks to the root
+        // task list.
+        // TODO(b/409888039): These added tasks need to be preserved so that later Recordings that
+        // get cache hits in the ProxyCache can also initialize the texture if they are added out
+        // of order relative to this triggering Recording.
+        textureImage->notifyInUse(recorder, /*drawContext=*/nullptr);
+
+        // GPU created proxys never have SkIDChangeListeners.
+        return CacheEntry{textureImage->textureProxyView().refProxy(),
+                          /*listener=*/nullptr};
+    });
 }
 
 void ProxyCache::purgeAll() {
+    // removeEntriesAndListeners() without having to copy out all of the keys
+    fCache.foreach([](const skgpu::UniqueKey&, const CacheEntry* entry) {
+        if (entry->fListener) {
+            entry->fListener->markShouldDeregister();
+        }
+    });
     fCache.reset();
 }
 
@@ -128,9 +182,13 @@ void ProxyCache::processInvalidKeyMsgs() {
 
     if (!invalidKeyMsgs.empty()) {
         for (int i = 0; i < invalidKeyMsgs.size(); ++i) {
-            // TODO: this should stop crbug.com/1480570 for now but more investigation needs to be
-            // done into how we're getting into the situation where an invalid key has been
-            // purged from the cache prior to processing of the invalid key messages.
+            // NOTE(crbug.com/1480570): A change listener is only invoked once, so we shouldn't see
+            // an invalid message added twice for the same entry. However, we can remove the entry
+            // due to other reasons while the bitmap listener owner is still alive. While we mark
+            // the listener to de-register itself, there is still a race where we could decide to
+            // remove the entry on one thread but haven't de-registered it yet, then another thread
+            // cleans up the bitmap and posts a message, then the first thread removes the entry the
+            // posted message also wants to remove.
             if (fCache.find(invalidKeyMsgs[i].key())) {
                 fCache.remove(invalidKeyMsgs[i].key());
             }
@@ -138,38 +196,49 @@ void ProxyCache::processInvalidKeyMsgs() {
     }
 }
 
+void ProxyCache::removeEntriesAndListeners(SkSpan<const UniqueKey> toRemove) {
+    // This assumes that the entry removal is coming from not polling the invalid key
+    // messages, so it's necessary to mark the listeners as done. Removing the listeners also means
+    // we don't leak change listeners if the bitmap is ever re-cached.
+    for (const UniqueKey& k : toRemove) {
+        CacheEntry* e = fCache.find(k);
+        if (e->fListener) {
+            e->fListener->markShouldDeregister();
+        }
+        fCache.remove(k);
+    }
+}
+
 void ProxyCache::freeUniquelyHeld() {
     this->processInvalidKeyMsgs();
 
-    std::vector<skgpu::UniqueKey> toRemove;
+    skia_private::TArray<skgpu::UniqueKey> toRemove;
 
-    fCache.foreach([&](const skgpu::UniqueKey& key, const sk_sp<TextureProxy>* proxy) {
-        if ((*proxy)->unique()) {
+    fCache.foreach([&](const skgpu::UniqueKey& key, const CacheEntry* entry) {
+        SkASSERT(entry->fProxy);
+        if (entry->fProxy->unique()) {
             toRemove.push_back(key);
         }
     });
 
-    for (const skgpu::UniqueKey& k : toRemove) {
-        fCache.remove(k);
-    }
+    this->removeEntriesAndListeners(toRemove);
 }
 
 void ProxyCache::purgeProxiesNotUsedSince(const skgpu::StdSteadyClock::time_point* purgeTime) {
     this->processInvalidKeyMsgs();
 
-    std::vector<skgpu::UniqueKey> toRemove;
+    skia_private::TArray<skgpu::UniqueKey> toRemove;
 
-    fCache.foreach([&](const skgpu::UniqueKey& key, const sk_sp<TextureProxy>* proxy) {
-        if (Resource* resource = (*proxy)->texture();
+    fCache.foreach([&](const skgpu::UniqueKey& key, const CacheEntry* entry) {
+        SkASSERT(entry->fProxy);
+        if (Resource* resource = entry->fProxy->texture();
             resource &&
             (!purgeTime || resource->lastAccessTime() < *purgeTime)) {
             toRemove.push_back(key);
         }
     });
 
-    for (const skgpu::UniqueKey& k : toRemove) {
-        fCache.remove(k);
-    }
+    this->removeEntriesAndListeners(toRemove);
 }
 
 #if defined(GPU_TEST_UTILS)
@@ -183,8 +252,9 @@ sk_sp<TextureProxy> ProxyCache::find(const SkBitmap& bitmap) {
 
     make_bitmap_key(&key, bitmap);
 
-    if (sk_sp<TextureProxy>* cached = fCache.find(key)) {
-        return *cached;
+    if (CacheEntry* cached = fCache.find(key)) {
+        SkASSERT(cached->fProxy);
+        return cached->fProxy;
     }
 
     return nullptr;

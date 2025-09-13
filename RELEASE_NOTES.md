@@ -2,6 +2,80 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 141
+-------------
+  * `GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat` is replaced by
+    `AHardwareBufferUtils::GetSkColorTypeFromBufferFormat`, which is shared between Graphite and Ganesh.
+  * Graphite's `ContextOptions` struct now has an `fExecutor` member. This allows clients to give Graphite threads on which it can perform work. Initially, this facility will be used to compile Pipelines in parallel.
+  * Change `SkNamedTransferFn::kHLG` and `SkNamedTransferFn::kPQ` to use the
+    new skcms representations.
+
+    This will have the side-effect of changing `SkColorSpace::MakeCICP` to
+    use the new representations.
+  * ##`SkPath::asArc() removed`
+
+    This method reported true if the path was internally recognized as an "Arc" segment.
+    This functionality is now removed, so the method has also been removed.
+  * `SkShader::makeWithWorkingColorSpace()` now accepts an optional output
+    colorspace parameter. If it is null (the default), it's assumed to be the same
+    as the input or working colorspace parameter. This allows shaders to actively
+    participate in colorspace conversion and inform Skia about the space changes
+    that they apply.
+
+* * *
+
+Milestone 140
+-------------
+  * `Context::insertRecording` now returns an object that behaves like an enum or a true/false bool
+    to assist migrating from the old bool return type to something that provides more details as
+    to why the Recording couldn't be played back.
+
+    This shouldn't break any existing usage of `insertRecording` but migrating to check against
+    `InsertStatus::kSuccess` is recommended to avoid future breaking changes.
+  * `SkImage::isValid(GrRecordingContext*)` has been deprecated in favor of the `SkRecorder*` version.
+    To migrate do something like `image->isValid(ctx->asRecorder())`.
+
+    `SkImage::makeSubset(GrDirectContext*, ...)` has been deprecated in favor of the `SkRecorder*`
+    version. To migrate, do something like `image->makeSubset(ctx->asRecorder, ..., {})`
+
+    `SkImage::makeColorSpace(GrDirectContext*, ...)` has been deprecated in favor of the `SkRecorder*`
+    version. To migrate, do something like `image->makeColorSpace(ctx->asRecorder, ..., {})`
+
+    `SkImage::makeColorTypeAndColorSpace(GrDirectContext*, ...)` has been deprecated in favor of the
+    `SkRecorder*` version. To migrate, do something like
+    `image->makeColorTypeAndColorSpace(ctx->asRecorder, ..., {})`
+
+    In the case you are working with CPU-backed images, `skcpu::Recorder::TODO()` should work until
+    a `skcpu::Context` and `skcpu::Recorder` can be used properly.
+  * `skia_ports_fontmgr_android_sources` has been split with the new `skia_ports_fontmgr_android_parser_sources` containing the parser sources.
+    `skia_ports_fontmgr_android_ndk_sources` now depends on `skia_ports_fontmgr_android_parser_sources`.
+  * Virtuals in `SkTypeface` subclasses (5 of them) now take SkSpan instead of ptr/count. This
+    is part of the larger change where public APIs are being converted to take SkSpan where
+    applicable.
+
+    No real functionality change, but this new signature allows some of the methods to perform
+    range-checking, whereas before they could not.
+
+* * *
+
+Milestone 139
+-------------
+  * A new `kAnalyticClip` value has been added to the `DrawTypeFlags` enum.
+    This allows Precompilation clients to have an analytic clip added to
+    the Pipeline generated from the PaintOptions.
+  * SK_DNG_VERSION has been added to SkUserConfig.h to indicate the dng_sdk version
+    being compiled against. SkRawCodec has been updated to support both DNG SDK versions
+    1.4 and 1.7.1
+  * `SkFontMgr_New_FontConfig` with 1 parameter has been deprecated and will be removed in a future
+    release. Clients will need to call the other version providing an SkFontScanner (e.g.
+    `SkFontScanner_Make_FreeType()`)
+  * The Vulkan implementation of Ganesh now requires Vulkan 1.1 as the minimum Vulkan version.
+  * Support for iOS12 is removed.
+  * Support for macOS 10.15 is removed.
+  * New public API: `VulkanPreferredFeatures` to automatically query and add Vulkan extensions and features that Skia would benefit from having available. Clients that use this API to allow Skia to enable its preferred extensions and features are then automatically opted in to future Skia support for leveraging more of these and do not need to manually turn on newly-supported features. This class is found in `VulkanBackendContext.h`.
+
+* * *
+
 Milestone 138
 -------------
   * The Precompile API has been extended to support Vulkan YCbCr Images.
@@ -920,7 +994,7 @@ Milestone 109
     "output-file.sksl". By default, sksl-minify expects a shader, but you can also pass command
     line options `--colorfilter` or `--blender` if your program is a color-filter or a blender.
     A compile error will be printed to stdout if an error is found in the program.
-  * The order of SkShader local matrix concatenation has been reversed. See skbug.com/13749
+  * The order of SkShader local matrix concatenation has been reversed. See skbug.com/40044836
   * PromiseImages have been added to Graphite. This supports both volatile and non-volatile Promise Images.
     See the comment for SkImage::MakeGraphitePromiseTexture for more details.
   * Graphite has loosened the immutability requirements of SkImages - through a new SkSurface API and careful

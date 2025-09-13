@@ -186,7 +186,7 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(ComposeFailureWithInputElision,
 }
 
 DEF_TEST(ColorFilter_OpaqueShaderPaintAlpha, r) {
-    // skbug.com/14627: Prior to the fix, CPU backend would produce gray, not white. (It told the
+    // skbug.com/40045529: Prior to the fix, CPU backend would produce gray, not white. (It told the
     // color filter that the shader output was opaque, ignoring the effect of paint alpha).
     SkPaint paint;
     paint.setShader(SkShaders::Color(SK_ColorWHITE));

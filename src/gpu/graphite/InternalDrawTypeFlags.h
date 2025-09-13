@@ -21,11 +21,7 @@ enum InternalDrawTypeFlags : uint16_t {
     // blur-filtering and raster/compute path atlasing.
     kCoverageMask  = DrawTypeFlags::kLast << 1,
 
-    // Corresponds to the AnalyticBlurRenderStep. It can perform an analytic blur for rects,
-    // rrects, and circles.
-    kAnalyticBlur = DrawTypeFlags::kLast << 2,
-
-    kLastInternal = kAnalyticBlur,
+    kLastInternal = kCoverageMask,
 };
 static_assert(kLastInternal <= (1 << 15), "DrawTypeFlags do not fit in 16 bits");
 

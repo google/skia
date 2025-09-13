@@ -181,7 +181,6 @@ filegroup(
 filegroup(
     name = "compile_linux_amd64_files",
     srcs = [
-        "linux_trampolines/IWYU_mapping.imp",
         "linux_trampolines/clang_trampoline_linux.sh",
         "@clang_linux_amd64//:compile_files",
     ],

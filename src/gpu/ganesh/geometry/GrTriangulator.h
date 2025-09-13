@@ -11,6 +11,7 @@
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
 
 #include "include/core/SkPath.h"
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAssert.h"
@@ -23,7 +24,6 @@
 #include <tuple>
 
 class GrEagerVertexAllocator;
-enum class SkPathFillType;
 struct SkRect;
 
 #define TRIANGULATOR_LOGGING 0
@@ -378,6 +378,7 @@ struct GrTriangulator::Line {
         fB *= scale;
         fC *= scale;
     }
+
     bool nearParallel(const Line& o) const {
         return fabs(o.fA - fA) < 0.00001 && fabs(o.fB - fB) < 0.00001;
     }
@@ -425,8 +426,7 @@ struct GrTriangulator::Edge {
         , fRightPolyNext(nullptr)
         , fUsedInLeftPoly(false)
         , fUsedInRightPoly(false)
-        , fLine(top, bottom) {
-        }
+        , fLine(top, bottom) {}
     int      fWinding;          // 1 == edge goes downward; -1 = edge goes upward.
     Vertex*  fTop;              // The top vertex in vertex-sort-order (sweep_lt).
     Vertex*  fBottom;           // The bottom vertex in vertex-sort-order.
@@ -453,8 +453,9 @@ struct GrTriangulator::Edge {
         // longer on the ideal line.
         return (p == fTop->fPoint || p == fBottom->fPoint) ? 0.0 : fLine.dist(p);
     }
+
     bool isRightOf(const Vertex& v) const { return this->dist(v.fPoint) < 0.0; }
-    bool isLeftOf(const Vertex& v) const { return this->dist(v.fPoint) > 0.0; }
+    bool isLeftOf(const Vertex& v) const { return this->dist(v.fPoint)  > 0.0; }
     void recompute() { fLine = Line(fTop, fBottom); }
     void insertAbove(Vertex*, const Comparator&);
     void insertBelow(Vertex*, const Comparator&);

@@ -109,12 +109,12 @@ void SkGradientBaseShader::flatten(SkWriteBuffer& buffer) const {
         colorCount--;
     }
 
-    buffer.writeColor4fArray(colors, colorCount);
+    buffer.writeColor4fArray({colors, colorCount});
     if (colorSpaceData) {
         buffer.writeDataAsByteArray(colorSpaceData.get());
     }
     if (positions) {
-        buffer.writeScalarArray(positions, colorCount);
+        buffer.writeScalarArray({positions, colorCount});
     }
 }
 
@@ -145,7 +145,7 @@ bool SkGradientBaseShader::DescriptorScope::unflatten(SkReadBuffer& buffer,
     fColorCount = buffer.getArrayCount();
 
     if (!(validate_array(buffer, fColorCount, &fColorStorage) &&
-          buffer.readColor4fArray(fColorStorage.begin(), fColorCount))) {
+          buffer.readColor4fArray({fColorStorage.begin(), fColorCount}))) {
         return false;
     }
     fColors = fColorStorage.begin();
@@ -158,7 +158,7 @@ bool SkGradientBaseShader::DescriptorScope::unflatten(SkReadBuffer& buffer,
     }
     if (SkToBool(flags & kHasPosition_GSF)) {
         if (!(validate_array(buffer, fColorCount, &fPositionStorage) &&
-              buffer.readScalarArray(fPositionStorage.begin(), fColorCount))) {
+              buffer.readScalarArray({fPositionStorage.begin(), fColorCount}))) {
             return false;
         }
         fPositions = fPositionStorage.begin();
@@ -546,7 +546,7 @@ void SkGradientBaseShader::AppendInterpolatedToDstStages(SkRasterPipeline* p,
         dstColorSpace = sk_srgb_singleton();
     }
     SkAlphaType intermediateAlphaType = colorIsPremul ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
-    // TODO(skia:13108): Get dst alpha type correctly
+    // TODO(skbug.com/40044213): Get dst alpha type correctly
     SkAlphaType dstAlphaType = kPremul_SkAlphaType;
 
     if (colorsAreOpaque) {
@@ -669,7 +669,7 @@ static sk_sp<SkColorSpace> intermediate_color_space(SkGradientShader::Interpolat
             // The "standard" conversion to these spaces starts with XYZD65. That requires extra
             // effort to conjure. The author also has reference code for going directly from linear
             // sRGB, so we use that.
-            // TODO(skia:13108): Even better would be to have an LMS color space, because the first
+            // TODO(skbug.com/40044213): Even better would be to have an LMS color space, because the first
             // part of the conversion is a matrix multiply, which could be absorbed into the
             // color space xform.
             return SkColorSpace::MakeSRGBLinear();
@@ -681,10 +681,12 @@ static sk_sp<SkColorSpace> intermediate_color_space(SkGradientShader::Interpolat
         case ColorSpace::kRec2020:
             return SkColorSpace::MakeRGB(SkNamedTransferFn::kRec2020, SkNamedGamut::kRec2020);
 
-        case ColorSpace::kProphotoRGB:
+        case ColorSpace::kProphotoRGB: {
+            static SkOnce once;
             static skcms_Matrix3x3 lin_proPhoto_to_XYZ_D50;
-            SkNamedPrimaries::kProPhotoRGB.toXYZD50(&lin_proPhoto_to_XYZ_D50);
+            once([] { SkNamedPrimaries::kProPhotoRGB.toXYZD50(&lin_proPhoto_to_XYZ_D50); });
             return SkColorSpace::MakeRGB(SkNamedTransferFn::kProPhotoRGB, lin_proPhoto_to_XYZ_D50);
+        }
 
         case ColorSpace::kA98RGB:
             return SkColorSpace::MakeRGB(SkNamedTransferFn::kA98RGB, SkNamedGamut::kAdobeRGB);
@@ -948,7 +950,7 @@ SkColor4fXformer::SkColor4fXformer(const SkGradientBaseShader* shader,
                     if ((i == 0 && shader->fFirstStopIsImplicit) ||
                         (i == colorCount - 2 && shader->fLastStopIsImplicit)) {
                         // Do nothing. We don't want to introduce a full revolution for these stops
-                        // Full rationale at skbug.com/13941
+                        // Full rationale at skbug.com/40044215
                     } else if (0 < h2 - h1 && h2 - h1 < 180) {
                         h2 -= 360;  // i.e. h1 += 360
                         delta -= 360;

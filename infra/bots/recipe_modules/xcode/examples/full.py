@@ -3,7 +3,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-PYTHON_VERSION_COMPATIBILITY = 'PY3'
 
 DEPS = [
   'recipe_engine/properties',
@@ -19,7 +18,7 @@ def RunSteps(api):
 
 def GenTests(api):
   yield api.test('xcode-test') + api.properties(
-    buildername='Build-Mac-Clang-arm64-Debug-iOS_iOS12',
+    buildername='Build-Mac-Clang-arm64-Debug-iOS',
     repository='https://skia.googlesource.com/skia.git',
     revision='abc123',
     path_config='kitchen',

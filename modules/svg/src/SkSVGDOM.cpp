@@ -67,7 +67,7 @@ namespace {
 bool SetIRIAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                       const char* stringValue) {
     auto parseResult = SkSVGAttributeParser::parse<SkSVGIRI>(stringValue);
-    if (!parseResult.isValid()) {
+    if (!parseResult.has_value()) {
         return false;
     }
 
@@ -86,7 +86,7 @@ bool SetStringAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
 bool SetTransformAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                            const char* stringValue) {
     auto parseResult = SkSVGAttributeParser::parse<SkSVGTransformType>(stringValue);
-    if (!parseResult.isValid()) {
+    if (!parseResult.has_value()) {
         return false;
     }
 
@@ -97,7 +97,7 @@ bool SetTransformAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
 bool SetLengthAttribute(const sk_sp<SkSVGNode>& node, SkSVGAttribute attr,
                         const char* stringValue) {
     auto parseResult = SkSVGAttributeParser::parse<SkSVGLength>(stringValue);
-    if (!parseResult.isValid()) {
+    if (!parseResult.has_value()) {
         return false;
     }
 
@@ -121,7 +121,7 @@ bool SetObjectBoundingBoxUnitsAttribute(const sk_sp<SkSVGNode>& node,
                                         SkSVGAttribute attr,
                                         const char* stringValue) {
     auto parseResult = SkSVGAttributeParser::parse<SkSVGObjectBoundingBoxUnits>(stringValue);
-    if (!parseResult.isValid()) {
+    if (!parseResult.has_value()) {
         return false;
     }
 

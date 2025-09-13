@@ -12,6 +12,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkPoint_impl.h"
 #include "src/base/SkEnumBitMask.h"
@@ -25,6 +26,7 @@
 #include "src/gpu/graphite/DrawParams.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/DrawWriter.h"
+#include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/geom/EdgeAAQuad.h"
 #include "src/gpu/graphite/geom/Geometry.h"
 #include "src/gpu/graphite/geom/Rect.h"
@@ -367,7 +369,7 @@ AnalyticRRectRenderStep::AnalyticRRectRenderStep(StaticBufferManager* bufferMana
                      Flags::kUseNonAAInnerFill | Flags::kAppendInstances,
                      /*uniforms=*/{},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthGreaterPass,
+                     kDirectDepthLessPass,
                      /*staticAttrs=*/{
                              {"cornerID", VertexAttribType::kUInt, SkSLType::kUInt},
                              {"position", VertexAttribType::kFloat2, SkSLType::kFloat2},
@@ -637,8 +639,9 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
 }
 
 void AnalyticRRectRenderStep::writeUniformsAndTextures(const DrawParams&,
-                                                       PipelineDataGatherer*) const {
+                                                       PipelineDataGatherer* gatherer) const {
     // All data is uploaded as instance attributes, so no uniforms are needed.
+    SkDEBUGCODE(gatherer->checkRewind());
 }
 
 }  // namespace skgpu::graphite

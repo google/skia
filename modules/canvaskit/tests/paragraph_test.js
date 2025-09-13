@@ -1233,7 +1233,7 @@ describe('Paragraph Behavior', function() {
         builder.delete();
     });
 
-    // This helped find and resolve skbug.com/13247
+    // This helped find and resolve skbug.com/40044329
     gm('paragraph_saved_to_skpicture', (canvas) => {
         if (!CanvasKit.Paragraph) {
             console.warn('Skipping test because not compiled with paragraph');

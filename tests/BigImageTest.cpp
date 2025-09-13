@@ -185,7 +185,7 @@ bool check_pixels(skiatest::Reporter* reporter,
                   const SkString& label,
                   int rot) {
     static const float kTols[4]    = { 0.008f, 0.008f, 0.008f, 0.008f };   // ~ 2/255
-    static const float kRotTols[4] = { 0.024f, 0.024f, 0.024f, 0.024f };   // ~ 6/255
+    static const float kRotTols[4] = { 0.028f, 0.028f, 0.028f, 0.028f };   // ~ 7/255
 
     auto error = std::function<ComparePixmapsErrorReporter>(
             [&](int x, int y, const float diffs[4]) {

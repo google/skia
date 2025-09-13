@@ -63,7 +63,7 @@ protected:
         paint.setMaskFilter(nullptr);
         paint.setStyle(SkPaint::kStroke_Style);
         float intervals[] = { 5.0f, 5.0f };
-        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2.5f));
         canvas->drawRegion(fRegion, paint);
 
         canvas->restore();

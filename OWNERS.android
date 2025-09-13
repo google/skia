@@ -1,6 +1,6 @@
 # Bug component: 1346
 # This file uses '*' instead of naming specific owners because we are unable to
-# list the autoroller as an owner (see b/199385287 and skbug.com/12454), so this
+# list the autoroller as an owner (see b/199385287 and skbug.com/40043536), so this
 # would prevent the autoroller from working. Please get a review from one of the
 # following:
 # - jmbetancourt@google.com

@@ -34,16 +34,15 @@ private:
         static constexpr char txt[] = "TEST";
         SkGlyphID glyphs[16];
         float     widths[16];
-        const auto glyph_count = font.textToGlyphs(txt, strlen(txt), SkTextEncoding::kUTF8,
-                                                   glyphs, std::size(glyphs));
-        font.getWidths(glyphs, glyph_count, widths);
+        const auto glyph_count = font.textToGlyphs(txt, strlen(txt), SkTextEncoding::kUTF8, glyphs);
+        font.getWidths({glyphs, glyph_count}, {widths, glyph_count});
 
         SkTextBlobBuilder builder;
         const auto& buf = builder.allocRunRSXform(font, glyph_count);
         std::copy(glyphs, glyphs + glyph_count, buf.glyphs);
 
         float x = 0;
-        for (int i = 0; i < glyph_count; ++i) {
+        for (size_t i = 0; i < glyph_count; ++i) {
             buf.xforms()[i] = {
                 1, 0,
                 x, 0,

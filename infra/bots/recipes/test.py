@@ -8,7 +8,6 @@
 
 import json
 
-PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'env',
@@ -103,7 +102,7 @@ def test_steps(api):
     ])
   if svgs:
     # svg_dir is the root of the SVG corpus. Within that directory,
-    # the *.svg inputs are in the 'svg' subdirectory. See skbug.com/11229
+    # the *.svg inputs are in the 'svg' subdirectory. See skbug.com/40042605
     args.extend(['--svgs', api.flavor.device_path_join(
       api.flavor.device_dirs.svg_dir, "svg")])
   if lotties:

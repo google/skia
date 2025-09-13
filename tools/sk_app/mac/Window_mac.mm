@@ -83,8 +83,8 @@ bool Window_mac::initWindow() {
     constexpr int initialHeight = 960;
     NSRect windowRect = NSMakeRect(100, 100, initialWidth, initialHeight);
 
-    NSUInteger windowStyle = (NSTitledWindowMask | NSClosableWindowMask | NSResizableWindowMask |
-                              NSMiniaturizableWindowMask);
+    NSUInteger windowStyle = (NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
+                              NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable);
 
     fWindow = [[NSWindow alloc] initWithContentRect:windowRect styleMask:windowStyle
                                 backing:NSBackingStoreBuffered defer:NO];
@@ -296,7 +296,9 @@ static skui::ModifierKey get_modifiers(const NSEvent* event) {
         modifiers |= skui::ModifierKey::kOption;
     }
 
-    if ((NSKeyDown == [event type] || NSKeyUp == [event type]) && ![event isARepeat]) {
+    if ((NSEventTypeKeyDown == [event type] || NSEventTypeKeyUp == [event type]) &&
+        ![event isARepeat])
+    {
         modifiers |= skui::ModifierKey::kFirstPress;
     }
 

@@ -8,6 +8,7 @@
 #ifndef SkGaneshRecorder_DEFINED
 #define SkGaneshRecorder_DEFINED
 
+#include "include/core/SkCPURecorder.h"
 #include "include/core/SkRecorder.h"
 #include "include/gpu/ganesh/GrRecordingContext.h"
 
@@ -23,8 +24,14 @@ public:
 
     GrDirectContext* directContext() const { return GrAsDirectContext(fGaneshCtx); }
 
+    skcpu::Recorder* cpuRecorder() override {
+        return skcpu::Recorder::TODO();
+    }
+
 private:
     GrRecordingContext* fGaneshCtx;
+
+    SkCanvas* makeCaptureCanvas(SkCanvas*) override { return nullptr; }
 };
 
 inline SkGaneshRecorder* AsGaneshRecorder(SkRecorder* recorder) {

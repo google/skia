@@ -1,66 +1,81 @@
                OpCapability Shader
-          %1 = OpExtInstImport "GLSL.std.450"
+          %5 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint GLCompute %main "main" %sk_GlobalInvocationID %sk_LocalInvocationID %sk_LocalInvocationIndex %sk_NumWorkgroups %sk_WorkgroupID
                OpExecutionMode %main LocalSize 64 1 1
-               OpName %outputs "outputs"
+
+               ; Debug Information
+               OpName %outputs "outputs"            ; id %11
                OpMemberName %outputs 0 "outputBuffer"
-               OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"
-               OpName %sk_LocalInvocationID "sk_LocalInvocationID"
-               OpName %sk_LocalInvocationIndex "sk_LocalInvocationIndex"
-               OpName %sk_NumWorkgroups "sk_NumWorkgroups"
-               OpName %sk_WorkgroupID "sk_WorkgroupID"
-               OpName %helper_I "helper_I"
-               OpName %main "main"
+               OpName %sk_GlobalInvocationID "sk_GlobalInvocationID"    ; id %13
+               OpName %sk_LocalInvocationID "sk_LocalInvocationID"      ; id %16
+               OpName %sk_LocalInvocationIndex "sk_LocalInvocationIndex"    ; id %17
+               OpName %sk_NumWorkgroups "sk_NumWorkgroups"                  ; id %19
+               OpName %sk_WorkgroupID "sk_WorkgroupID"                      ; id %20
+               OpName %helper_I "helper_I"                                  ; id %6
+               OpName %main "main"                                          ; id %7
+
+               ; Annotations
                OpDecorate %_runtimearr_uint ArrayStride 4
                OpMemberDecorate %outputs 0 Offset 0
                OpDecorate %outputs BufferBlock
-               OpDecorate %4 Binding 0
-               OpDecorate %4 DescriptorSet 0
+               OpDecorate %8 Binding 0
+               OpDecorate %8 DescriptorSet 0
                OpDecorate %sk_GlobalInvocationID BuiltIn GlobalInvocationId
                OpDecorate %sk_LocalInvocationID BuiltIn LocalInvocationId
                OpDecorate %sk_LocalInvocationIndex BuiltIn LocalInvocationIndex
                OpDecorate %sk_NumWorkgroups BuiltIn NumWorkgroups
                OpDecorate %sk_WorkgroupID BuiltIn WorkgroupId
+
+               ; Types, variables and constants
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
        %uint = OpTypeInt 32 0
-%_runtimearr_uint = OpTypeRuntimeArray %uint
-    %outputs = OpTypeStruct %_runtimearr_uint
+%_runtimearr_uint = OpTypeRuntimeArray %uint        ; ArrayStride 4
+    %outputs = OpTypeStruct %_runtimearr_uint       ; BufferBlock
 %_ptr_Uniform_outputs = OpTypePointer Uniform %outputs
-          %4 = OpVariable %_ptr_Uniform_outputs Uniform
+          %8 = OpVariable %_ptr_Uniform_outputs Uniform     ; Binding 0, DescriptorSet 0
      %v3uint = OpTypeVector %uint 3
 %_ptr_Input_v3uint = OpTypePointer Input %v3uint
-%sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input
-%sk_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input
+%sk_GlobalInvocationID = OpVariable %_ptr_Input_v3uint Input    ; BuiltIn GlobalInvocationId
+%sk_LocalInvocationID = OpVariable %_ptr_Input_v3uint Input     ; BuiltIn LocalInvocationId
 %_ptr_Input_uint = OpTypePointer Input %uint
-%sk_LocalInvocationIndex = OpVariable %_ptr_Input_uint Input
-%sk_NumWorkgroups = OpVariable %_ptr_Input_v3uint Input
-%sk_WorkgroupID = OpVariable %_ptr_Input_v3uint Input
-         %17 = OpTypeFunction %uint
+%sk_LocalInvocationIndex = OpVariable %_ptr_Input_uint Input    ; BuiltIn LocalInvocationIndex
+%sk_NumWorkgroups = OpVariable %_ptr_Input_v3uint Input         ; BuiltIn NumWorkgroups
+%sk_WorkgroupID = OpVariable %_ptr_Input_v3uint Input           ; BuiltIn WorkgroupId
+         %21 = OpTypeFunction %uint
        %void = OpTypeVoid
-         %31 = OpTypeFunction %void
-        %int = OpTypeInt 32 1
+         %35 = OpTypeFunction %void
       %int_0 = OpConstant %int 0
 %_ptr_Uniform_uint = OpTypePointer Uniform %uint
-   %helper_I = OpFunction %uint None %17
-         %18 = OpLabel
-         %19 = OpLoad %v3uint %sk_NumWorkgroups
-         %20 = OpCompositeExtract %uint %19 0
-         %21 = OpLoad %v3uint %sk_WorkgroupID
-         %22 = OpCompositeExtract %uint %21 0
-         %23 = OpIAdd %uint %20 %22
-         %24 = OpLoad %v3uint %sk_LocalInvocationID
-         %25 = OpCompositeExtract %uint %24 0
-         %26 = OpIAdd %uint %23 %25
-         %27 = OpLoad %v3uint %sk_GlobalInvocationID
-         %28 = OpCompositeExtract %uint %27 0
-         %29 = OpIAdd %uint %26 %28
-               OpReturnValue %29
+
+
+               ; Function helper_I
+   %helper_I = OpFunction %uint None %21
+
+         %22 = OpLabel
+         %23 =   OpLoad %v3uint %sk_NumWorkgroups
+         %24 =   OpCompositeExtract %uint %23 0
+         %25 =   OpLoad %v3uint %sk_WorkgroupID
+         %26 =   OpCompositeExtract %uint %25 0
+         %27 =   OpIAdd %uint %24 %26
+         %28 =   OpLoad %v3uint %sk_LocalInvocationID
+         %29 =   OpCompositeExtract %uint %28 0
+         %30 =   OpIAdd %uint %27 %29
+         %31 =   OpLoad %v3uint %sk_GlobalInvocationID
+         %32 =   OpCompositeExtract %uint %31 0
+         %33 =   OpIAdd %uint %30 %32
+                 OpReturnValue %33
                OpFunctionEnd
-       %main = OpFunction %void None %31
-         %32 = OpLabel
-         %33 = OpFunctionCall %uint %helper_I
-         %36 = OpLoad %uint %sk_LocalInvocationIndex
-         %37 = OpAccessChain %_ptr_Uniform_uint %4 %int_0 %36
-               OpStore %37 %33
-               OpReturn
+
+
+               ; Function main
+       %main = OpFunction %void None %35
+
+         %36 = OpLabel
+         %37 =   OpFunctionCall %uint %helper_I
+         %39 =   OpLoad %uint %sk_LocalInvocationIndex
+         %40 =   OpAccessChain %_ptr_Uniform_uint %8 %int_0 %39
+                 OpStore %40 %37
+                 OpReturn
                OpFunctionEnd

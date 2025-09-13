@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     const SkPoint points[] = {{20, 20}, {70, 20}, {40, 90}};
     for (bool close : { false, true } ) {
         SkPath path;
-        path.addPoly(points, std::size(points), close);
+        path.addPoly(points, close);
         for (auto style : {SkPaint::kStroke_Style, SkPaint::kFill_Style,
                 SkPaint::kStrokeAndFill_Style} ) {
             paint.setStyle(style);

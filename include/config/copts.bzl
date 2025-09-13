@@ -83,6 +83,7 @@ WARNINGS = [
     "-Wno-return-std-move-in-c++11",
     "-Wno-shadow-field-in-constructor",
     "-Wno-shadow-uncaptured-local",
+    "-Wno-switch-default",  # Warns even when all values are covered
     "-Wno-undefined-func-template",
     "-Wno-unused-parameter",  # It is common to have unused parameters in src/
     "-Wno-zero-as-null-pointer-constant",  # VK_NULL_HANDLE is defined as 0
@@ -152,7 +153,7 @@ WARNINGS = [
     "-Wno-unknown-warning-option",
 ] + select({
     "@platforms//os:windows": [
-        # skbug.com/14203
+        # skbug.com/40045281
         "-Wno-nonportable-system-include-path",
         "-Wno-unknown-argument",
         # Clang warns even when all enum values are covered.

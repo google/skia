@@ -422,22 +422,22 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     while (auto e = iter.next()) {
         switch (e.fEdge) {
             case SkPathEdgeIter::Edge::kLine:
-                if (!SkPathPriv::AllPointsEq(e.fPts, 2)) {
+                if (!SkPathPriv::AllPointsEq({e.fPts, 2})) {
                     this->lineTo(m, e.fPts[1], kSharp_CurveState);
                 }
                 break;
             case SkPathEdgeIter::Edge::kQuad:
-                if (!SkPathPriv::AllPointsEq(e.fPts, 3)) {
+                if (!SkPathPriv::AllPointsEq({e.fPts, 3})) {
                     this->quadTo(m, e.fPts);
                 }
                 break;
             case SkPathEdgeIter::Edge::kCubic:
-                if (!SkPathPriv::AllPointsEq(e.fPts, 4)) {
+                if (!SkPathPriv::AllPointsEq({e.fPts, 4})) {
                     this->cubicTo(m, e.fPts);
                 }
                 break;
             case SkPathEdgeIter::Edge::kConic:
-                if (!SkPathPriv::AllPointsEq(e.fPts, 3)) {
+                if (!SkPathPriv::AllPointsEq({e.fPts, 3})) {
                     this->conicTo(m, e.fPts, iter.conicWeight());
                 }
                 break;
@@ -966,7 +966,7 @@ void GrAAConvexTessellator::lineTo(const SkPoint& p, CurveState curve) {
 }
 
 void GrAAConvexTessellator::lineTo(const SkMatrix& m, const SkPoint& p, CurveState curve) {
-    this->lineTo(m.mapXY(p.fX, p.fY), curve);
+    this->lineTo(m.mapPoint(p), curve);
 }
 
 void GrAAConvexTessellator::quadTo(const SkPoint pts[3]) {
@@ -985,13 +985,13 @@ void GrAAConvexTessellator::quadTo(const SkPoint pts[3]) {
 
 void GrAAConvexTessellator::quadTo(const SkMatrix& m, const SkPoint srcPts[3]) {
     SkPoint pts[3];
-    m.mapPoints(pts, srcPts, 3);
+    m.mapPoints({pts, 3}, {srcPts, 3});
     this->quadTo(pts);
 }
 
 void GrAAConvexTessellator::cubicTo(const SkMatrix& m, const SkPoint srcPts[4]) {
     SkPoint pts[4];
-    m.mapPoints(pts, srcPts, 4);
+    m.mapPoints({pts, 4}, {srcPts, 4});
     int maxCount = GrPathUtils::cubicPointCount(pts, kCubicTolerance);
     fPointBuffer.resize(maxCount);
     SkPoint* target = fPointBuffer.begin();
@@ -1010,7 +1010,7 @@ void GrAAConvexTessellator::cubicTo(const SkMatrix& m, const SkPoint srcPts[4]) 
 
 void GrAAConvexTessellator::conicTo(const SkMatrix& m, const SkPoint srcPts[3], SkScalar w) {
     SkPoint pts[3];
-    m.mapPoints(pts, srcPts, 3);
+    m.mapPoints({pts, 3}, {srcPts, 3});
     SkAutoConicToQuads quadder;
     const SkPoint* quads = quadder.computeQuads(pts, w, kConicTolerance);
     SkPoint lastPoint = *(quads++);

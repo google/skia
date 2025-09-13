@@ -75,10 +75,11 @@ private:
     const std::vector<SkColorInfo> fColorInfos;
     const std::vector<SkTileMode> fTileModes;
 
-    // If true, use the destination color space from the KeyContext provided to addToKey.
+    // If true, use the destination ColorInfo from the KeyContext provided to addToKey.
     // This is true if and only if the client has provided a list of color infos. Otherwise, we
-    // always use an sRGB destination per the default SkColorInfo lists defined above.
-    const bool fUseDstColorSpace;
+    // always use an sRGB destination (as per the default SkColorInfo lists defined above) and
+    // the source's alphaType.
+    const bool fUseDstColorInfo;
 
     // Whether this precompiles raw image shaders.
     const bool fRaw;
@@ -86,10 +87,7 @@ private:
 
     int numIntrinsicCombinations() const override;
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override;
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override;
 };
 
 } // namespace skgpu::graphite

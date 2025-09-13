@@ -198,8 +198,7 @@ bool shape_contains_rect(const GrShape& a, const SkMatrix& aToDevice, const SkMa
     }
 
     for (int i = 0; i < 4; ++i) {
-        SkPoint cornerInA = deviceQuad.point(i);
-        deviceToA.mapPoints(&cornerInA, 1);
+        SkPoint cornerInA = deviceToA.mapPoint(deviceQuad.point(i));
         if (!a.conservativeContains(cornerInA)) {
             return false;
         }
@@ -270,8 +269,7 @@ GrFPResult analytic_clip_fp(const skgpu::ganesh::ClipStack::Element& e,
     // A convex hull can be transformed into device space (this will handle rect shapes with a
     // non-identity transform).
     if (e.fShape.segmentMask() == SkPath::kLine_SegmentMask && e.fShape.convex()) {
-        SkPath devicePath;
-        e.fShape.asPath(&devicePath);
+        SkPath devicePath = e.fShape.asPath();
         devicePath.transform(e.fLocalToDevice);
         return GrConvexPolyEffect::Make(std::move(fp), edgeType, devicePath);
     }
@@ -291,8 +289,7 @@ GrFPResult clip_atlas_fp(const skgpu::ganesh::SurfaceDrawContext* sdc,
     if (e.fAA != GrAA::kYes) {
         return GrFPFailure(std::move(inputFP));
     }
-    SkPath path;
-    e.fShape.asPath(&path);
+    SkPath path = e.fShape.asPath();
     SkASSERT(!path.isInverseFillType());
     if (e.fOp == SkClipOp::kDifference) {
         // Toggling fill type does not affect the path's "generationID" key.
@@ -494,7 +491,9 @@ ClipStack::RawElement::RawElement(const SkMatrix& localToDevice, const GrShape& 
         , fInnerBounds(SkIRect::MakeEmpty())
         , fOuterBounds(SkIRect::MakeEmpty())
         , fInvalidatedByIndex(-1) {
-    if (!localToDevice.invert(&fDeviceToLocal)) {
+    if (auto inv = localToDevice.invert()) {
+        fDeviceToLocal = *inv;
+    } else {
         // If the transform can't be inverted, it means that two dimensions are collapsed to 0 or
         // 1 dimension, making the device-space geometry effectively empty.
         fShape.reset();
@@ -553,7 +552,7 @@ bool ClipStack::RawElement::contains(const RawElement& e) const {
                     == e.fShape.rrect();
         } else if (fShape.isPath() && e.fShape.isPath()) {
             return fShape.path().getGenerationID() == e.fShape.path().getGenerationID() ||
-                   (fShape.path().getPoints(nullptr, 0) <= kMaxPathComparePoints &&
+                   (fShape.path().countPoints() <= kMaxPathComparePoints &&
                     fShape.path() == e.fShape.path());
         } // else fall through to shape_contains_rect
     }
@@ -622,9 +621,8 @@ void ClipStack::RawElement::simplify(const SkIRect& deviceBounds, bool forceAA) 
         } else if (fShape.isRRect()) {
             // Can't transform in place and must still check transform result since some very
             // ill-formed scale+translate matrices can cause invalid rrect radii.
-            SkRRect src;
-            if (fShape.rrect().transform(fLocalToDevice, &src)) {
-                fShape.rrect() = src;
+            if (auto rr = fShape.rrect().transform(fLocalToDevice)) {
+                fShape.rrect() = *rr;
                 fLocalToDevice.setIdentity();
                 fDeviceToLocal.setIdentity();
 

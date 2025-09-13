@@ -37,7 +37,7 @@ class SkiaGujuratiwikiDesktopPageSet(story.StorySet):
       archive_data_file='data/skia_gujuratiwiki_desktop.json')
 
     urls_list = [
-      # skbug.com/11819
+      # skbug.com/40042887
       'https://en.wikipedia.org/wiki/Gujarati_phonology',
     ]
 

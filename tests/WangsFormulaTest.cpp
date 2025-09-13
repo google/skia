@@ -25,13 +25,13 @@
 
 namespace skgpu::tess {
 
-const SkPoint kSerp[4] = {
+const SkPoint kSerp[] = {
         {285.625f, 499.687f}, {411.625f, 808.188f}, {1064.62f, 135.688f}, {1042.63f, 585.187f}};
 
-const SkPoint kLoop[4] = {
+const SkPoint kLoop[] = {
         {635.625f, 614.687f}, {171.625f, 236.188f}, {1064.62f, 135.688f}, {516.625f, 570.187f}};
 
-const SkPoint kQuad[4] = {
+const SkPoint kQuad[] = {
         {460.625f, 557.187f}, {707.121f, 209.688f}, {779.628f, 577.687f}};
 
 static float wangs_formula_quadratic_reference_impl(float precision, const SkPoint p[3]) {
@@ -268,13 +268,13 @@ DEF_TEST(wangs_formula_log2, r) {
 
     for_random_matrices(&rand, [&](const SkMatrix& m) {
         SkPoint pts[4];
-        m.mapPoints(pts, kSerp, 4);
+        m.mapPoints(pts, kSerp);
         check_cubic_log2(pts);
 
-        m.mapPoints(pts, kLoop, 4);
+        m.mapPoints(pts, kLoop);
         check_cubic_log2(pts);
 
-        m.mapPoints(pts, kQuad, 3);
+        m.mapPoints({pts, 3}, {kQuad, 3});
         check_quadratic_log2(pts);
     });
 
@@ -291,7 +291,7 @@ DEF_TEST(wangs_formula_log2, r) {
 DEF_TEST(wangs_formula_vectorXforms, r) {
     auto check_cubic_log2_with_transform = [&](const SkPoint* pts, const SkMatrix& m){
         SkPoint ptsXformed[4];
-        m.mapPoints(ptsXformed, pts, 4);
+        m.mapPoints({ptsXformed, 4}, {pts, 4});
         int expected = wangs_formula::cubic_log2(kPrecision, ptsXformed);
         int actual = wangs_formula::cubic_log2(kPrecision, pts, wangs_formula::VectorXform(m));
         REPORTER_ASSERT(r, actual == expected);
@@ -299,7 +299,7 @@ DEF_TEST(wangs_formula_vectorXforms, r) {
 
     auto check_quadratic_log2_with_transform = [&](const SkPoint* pts, const SkMatrix& m) {
         SkPoint ptsXformed[3];
-        m.mapPoints(ptsXformed, pts, 3);
+        m.mapPoints({ptsXformed, 3}, {pts, 3});
         int expected = wangs_formula::quadratic_log2(kPrecision, ptsXformed);
         int actual = wangs_formula::quadratic_log2(kPrecision, pts, wangs_formula::VectorXform(m));
         REPORTER_ASSERT(r, actual == expected);
@@ -339,7 +339,7 @@ DEF_TEST(wangs_formula_worst_case_cubic, r) {
     }
     auto check_worst_case_cubic = [&](const SkPoint* pts) {
         SkRect bbox;
-        bbox.setBoundsNoCheck(pts, 4);
+        bbox.setBoundsNoCheck({pts, 4});
         float worst = wangs_formula::worst_case_cubic(kPrecision, bbox.width(), bbox.height());
         int worst_log2 = wangs_formula::worst_case_cubic_log2(kPrecision, bbox.width(),
                                                                bbox.height());
@@ -509,7 +509,7 @@ DEF_TEST(wangs_formula_conic_matches_reference, r) {
 DEF_TEST(wangs_formula_conic_vectorXforms, r) {
     auto check_conic_with_transform = [&](const SkPoint* pts, float w, const SkMatrix& m) {
         SkPoint ptsXformed[3];
-        m.mapPoints(ptsXformed, pts, 3);
+        m.mapPoints({ptsXformed, 3}, {pts, 3});
         float expected = wangs_formula::conic(kPrecision, ptsXformed, w);
         float actual = wangs_formula::conic(kPrecision, pts, w, wangs_formula::VectorXform(m));
         REPORTER_ASSERT(r, SkScalarNearlyEqual(actual, expected));

@@ -269,34 +269,31 @@ SkPathOrNull EMSCRIPTEN_KEEPALIVE ResolveBuilder(SkOpBuilder& builder) {
 
 void EMSCRIPTEN_KEEPALIVE ToCanvas(const SkPath& path, emscripten::val /* Path2D or Canvas*/ ctx) {
     SkPath::Iter iter(path, false);
-    SkPoint pts[4];
-    SkPath::Verb verb;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
+    while (auto rec = iter.next()) {
+        SkSpan<const SkPoint> pts = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
                 ctx.call<void>("moveTo", pts[0].x(), pts[0].y());
                 break;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 ctx.call<void>("lineTo", pts[1].x(), pts[1].y());
                 break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 ctx.call<void>("quadraticCurveTo", pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y());
                 break;
-            case SkPath::kConic_Verb:
+            case SkPathVerb::kConic:
                 SkPoint quads[5];
                 // approximate with 2^1=2 quads.
-                SkPath::ConvertConicToQuads(pts[0], pts[1], pts[2], iter.conicWeight(), quads, 1);
+                SkPath::ConvertConicToQuads(pts[0], pts[1], pts[2], rec->fConicWeight, quads, 1);
                 ctx.call<void>("quadraticCurveTo", quads[1].x(), quads[1].y(), quads[2].x(), quads[2].y());
                 ctx.call<void>("quadraticCurveTo", quads[3].x(), quads[3].y(), quads[4].x(), quads[4].y());
                 break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 ctx.call<void>("bezierCurveTo", pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y(),
                                                    pts[3].x(), pts[3].y());
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 ctx.call<void>("closePath");
-                break;
-            case SkPath::kDone_Verb:
                 break;
         }
     }
@@ -373,7 +370,7 @@ JSString GetFillTypeString(const SkPath& path) {
 
 bool ApplyDash(SkPath& path, SkScalar on, SkScalar off, SkScalar phase) {
     SkScalar intervals[] = { on, off };
-    auto pe = SkDashPathEffect::Make(intervals, 2, phase);
+    auto pe = SkDashPathEffect::Make(intervals, phase);
     if (!pe) {
         SkDebugf("Invalid args to dash()\n");
         return false;

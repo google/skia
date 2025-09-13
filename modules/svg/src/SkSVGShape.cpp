@@ -12,7 +12,6 @@
 #include "modules/svg/include/SkSVGAttribute.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/svg/include/SkSVGTypes.h"
-#include "src/base/SkTLazy.h"
 
 class SkSVGNode;
 enum class SkSVGTag;
@@ -26,11 +25,11 @@ void SkSVGShape::onRender(const SkSVGRenderContext& ctx) const {
              strokePaint = ctx.strokePaint();
 
     // TODO: this approach forces duplicate geometry resolution in onDraw(); refactor to avoid.
-    if (fillPaint.isValid()) {
+    if (fillPaint.has_value()) {
         this->onDraw(ctx.canvas(), ctx.lengthContext(), *fillPaint, fillType);
     }
 
-    if (strokePaint.isValid()) {
+    if (strokePaint.has_value()) {
         this->onDraw(ctx.canvas(), ctx.lengthContext(), *strokePaint, fillType);
     }
 }

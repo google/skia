@@ -217,8 +217,8 @@ char* SkAnalyticEdgeBuilder::allocEdges(size_t n, size_t* size) {
 }
 
 // TODO: maybe get rid of buildPoly() entirely?
-int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, bool canCullToTheRight) {
-    size_t maxEdgeCount = path.countPoints();
+int SkEdgeBuilder::buildPoly(const SkPathRaw& raw, const SkIRect* iclip, bool canCullToTheRight) {
+    size_t maxEdgeCount = raw.fPoints.size();
     if (iclip) {
         // clipping can turn 1 line into (up to) kMaxClippedLineSegments, since
         // we turn portions that are clipped out on the left/right into vertical
@@ -230,7 +230,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, bool canC
         }
     }
 
-    SkPathEdgeIter iter(path);
+    SkPathEdgeIter iter(raw);
     if (iclip) {
         SkRect clip = this->recoverClip(*iclip);
 
@@ -267,7 +267,7 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, bool canC
     return fList.size();
 }
 
-int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullToTheRight) {
+int SkEdgeBuilder::build(const SkPathRaw& raw, const SkIRect* iclip, bool canCullToTheRight) {
     if (iclip) {
         SkRect clip = this->recoverClip(*iclip);
         struct Rec {
@@ -275,22 +275,21 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
             bool           fIsFinite;
         } rec = { this, true };
 
-        SkEdgeClipper::ClipPath(path, clip, canCullToTheRight,
+        SkEdgeClipper::ClipPath(raw, clip, canCullToTheRight,
                                 [](SkEdgeClipper* clipper, bool, void* ctx) {
             Rec* rec = (Rec*)ctx;
             SkPoint      pts[4];
-            SkPath::Verb verb;
 
-            while ((verb = clipper->next(pts)) != SkPath::kDone_Verb) {
-                const int count = SkPathPriv::PtsInIter(verb);
+            while (auto verb = clipper->next(pts)) {
+                const int count = SkPathPriv::PtsInIter(*verb);
                 if (!SkIsFinite(&pts[0].fX, count*2)) {
                     rec->fIsFinite = false;
                     return;
                 }
-                switch (verb) {
-                    case SkPath::kLine_Verb:  rec->fBuilder->addLine (pts); break;
-                    case SkPath::kQuad_Verb:  rec->fBuilder->addQuad (pts); break;
-                    case SkPath::kCubic_Verb: rec->fBuilder->addCubic(pts); break;
+                switch (*verb) {
+                    case SkPathVerb::kLine:  rec->fBuilder->addLine (pts); break;
+                    case SkPathVerb::kQuad:  rec->fBuilder->addQuad (pts); break;
+                    case SkPathVerb::kCubic: rec->fBuilder->addCubic(pts); break;
                     default: break;
                 }
             }
@@ -299,7 +298,7 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
         return rec.fIsFinite ? fList.size() : 0;
     }
 
-    SkPathEdgeIter iter(path);
+    SkPathEdgeIter iter(raw);
     SkAutoConicToQuads quadder;
     constexpr float kConicTol = 0.25f;
     SkPoint monoY[10];
@@ -344,16 +343,16 @@ int SkEdgeBuilder::build(const SkPath& path, const SkIRect* iclip, bool canCullT
     return fList.size();
 }
 
-int SkEdgeBuilder::buildEdges(const SkPath& path,
+int SkEdgeBuilder::buildEdges(const SkPathRaw& raw,
                               const SkIRect* shiftedClip) {
     // If we're convex, then we need both edges, even if the right edge is past the clip.
-    const bool canCullToTheRight = !path.isConvex();
+    const bool canCullToTheRight = !raw.isConvex();
 
     // We can use our buildPoly() optimization if all the segments are lines.
     // (Edges are homogeneous and stored contiguously in memory, no need for indirection.)
-    const int count = SkPath::kLine_SegmentMask == path.getSegmentMasks()
-        ? this->buildPoly(path, shiftedClip, canCullToTheRight)
-        : this->build    (path, shiftedClip, canCullToTheRight);
+    const int count = SkPath::kLine_SegmentMask == raw.segmentMasks()
+        ? this->buildPoly(raw, shiftedClip, canCullToTheRight)
+        : this->build    (raw, shiftedClip, canCullToTheRight);
 
     SkASSERT(count >= 0);
 
@@ -362,4 +361,8 @@ int SkEdgeBuilder::buildEdges(const SkPath& path,
         SkASSERT(count != 1);
     }
     return count;
+}
+
+int SkEdgeBuilder::buildEdges(const SkPath& path, const SkIRect* shiftedClip) {
+    return buildEdges(SkPathPriv::Raw(path), shiftedClip);
 }

@@ -121,7 +121,8 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&,
                                          const SkMatrix& ctm,
                                          SkArenaAlloc*,
                                          sk_sp<SkShader> clipShader,
-                                         const SkSurfaceProps& props);
+                                         const SkSurfaceProps& props,
+                                         const SkRect& devBounds);
 // Use this if you've pre-baked a shader pipeline, including modulating with paint alpha.
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap&, const SkPaint&,
                                          const SkRasterPipeline& shaderPipeline,

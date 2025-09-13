@@ -8,16 +8,13 @@
 #ifndef skgpu_graphite_DrawTypes_DEFINED
 #define skgpu_graphite_DrawTypes_DEFINED
 
-#include "include/gpu/graphite/GraphiteTypes.h"
-
+#include "include/private/base/SkAssert.h"
 #include "src/base/SkEnumBitMask.h"
-#include "src/gpu/graphite/ResourceTypes.h"
 
-#include <array>
+#include <cstddef>
+#include <cstdint>
 
 namespace skgpu::graphite {
-
-class Buffer;
 
 /**
  * Geometric primitives used for drawing.

@@ -55,7 +55,7 @@ public:
                 this->checkGlobalVariableSizeLimit(pe.as<GlobalVarDeclaration>());
                 break;
             case ProgramElement::Kind::kInterfaceBlock:
-                // TODO(skia:13664): Enforce duplicate checks universally. This is currently not
+                // TODO(skbug.com/40044753): Enforce duplicate checks universally. This is currently not
                 // possible without changes to the binding index assignment logic in graphite.
                 this->checkBindUniqueness(pe.as<InterfaceBlock>());
                 break;
@@ -93,7 +93,7 @@ public:
         int32_t set = var->layout().fSet;
         int32_t binding = var->layout().fBinding;
         if (binding != -1) {
-            // TODO(skia:13664): This should map a `set` value of -1 to the default settings value
+            // TODO(skbug.com/40044753): This should map a `set` value of -1 to the default settings value
             // used by codegen backends to prevent duplicates that may arise from the effective
             // default set value.
             uint64_t key = ((uint64_t)set << 32) + binding;

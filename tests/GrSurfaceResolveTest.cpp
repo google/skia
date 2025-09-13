@@ -45,7 +45,6 @@
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
 #include "tests/TestUtils.h"
-#include "tools/gpu/FenceSync.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
 #include <functional>

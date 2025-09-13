@@ -1,4 +1,4 @@
-#Fuzzing
+# Fuzzing
 In this folder, we keep our _fuzzers_ (bits of code that takes a randomized input and executes code
 randomly, focusing on specific APIs). For example, we have a codec fuzzer which takes a mutated
 png/jpeg or similar file and attempts to turn it into an `SkImage`. We also have a canvas fuzzer
@@ -26,11 +26,9 @@ are automatically run.
 describes how to test the OSS-Fuzz build and fuzzers locally using Docker.
 
 When enabling a fuzzer in OSS-Fuzz, we typically need to follow these steps:
-  1. *Add a seed corpus to `gs://skia-fuzzer/oss-fuzz/` (in the
-     [skia-public project](https://console.cloud.google.com/storage/browser/skia-fuzzer?project=skia-public)).
-     Make sure the corpus file is public-readable. It is easiest to add this permission via the web
-     UI. This is done by granting the allUsers "name" the Reader role to the zip file. See the infra
-     team if you do not have access to this bucket.
+  1. *Add a seed corpus to `gs://skia-cdn/oss-fuzz/` (in the
+     [Skia Buildbots project](https://console.cloud.google.com/storage/browser/skia-cdn?project=google.com:skia-buildbots)).
+     One needs to get "breakglass" permissions to upload to this bucket.
   2. *Update [the Dockerfile](https://github.com/google/oss-fuzz/blob/master/projects/skia/Dockerfile)
      to download the seed corpus to the build image.
   3. Update [build.sh](https://github.com/google/oss-fuzz/blob/628264df27f53cc60fcb27406a2da05d2197c025/projects/skia/build.sh#L99)

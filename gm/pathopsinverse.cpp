@@ -128,7 +128,7 @@ DEF_SIMPLE_GM(pathops_skbug_10155, canvas, 256, 256) {
 
     for (int i = 0; i < 2; i++)
     {
-        SkParsePath::FromSVGString(svgStr[i], &path[i]);
+        path[i] = SkParsePath::FromSVGString(svgStr[i]).value_or(SkPath());
         builder.add(path[i], kUnion_SkPathOp);
     }
 

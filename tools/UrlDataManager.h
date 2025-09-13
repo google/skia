@@ -17,12 +17,6 @@
 #include <unordered_map>
 #include <vector>
 
-/*
- * A simple class which allows clients to add opaque data types, and returns a url where this data
- * will be hosted.  Its up to the owner of this class to actually serve the data.
- */
-bool operator==(const SkData& a, const SkData& b);
-
 class UrlDataManager {
 public:
     UrlDataManager(SkString rootUrl);

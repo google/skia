@@ -264,15 +264,23 @@ void SkReadBuffer::readRegion(SkRegion* region) {
     (void)this->skip(size);
 }
 
-void SkReadBuffer::readPath(SkPath* path) {
-    size_t size = 0;
-    if (!fError) {
-        size = path->readFromMemory(fCurr, this->available());
-        if (!this->validate((SkAlign4(size) == size) && (0 != size))) {
-            path->reset();
-        }
+std::optional<SkPath> SkReadBuffer::readPath() {
+    if (fError) {
+        return {};
     }
+
+    size_t size = 0;
+    auto path = SkPath::ReadFromMemory(fCurr, this->available(), &size);
+
+    // todo: consider moving this 4-byte-alignment check elsewhere
+    //       i.e. why is that a burden on SkPath?
+    //            why don't we just skipAlign4() or something?
+    (void)this->validate(SkAlign4(size) == size && path.has_value());
+
+    // we move forward, regardless of if the path succeeded
     (void)this->skip(size);
+
+    return path;
 }
 
 bool SkReadBuffer::readArray(void* value, size_t size, size_t elementSize) {
@@ -285,24 +293,24 @@ bool SkReadBuffer::readByteArray(void* value, size_t size) {
     return this->readArray(value, size, sizeof(uint8_t));
 }
 
-bool SkReadBuffer::readColorArray(SkColor* colors, size_t size) {
-    return this->readArray(colors, size, sizeof(SkColor));
+bool SkReadBuffer::readColorArray(SkSpan<SkColor> colors) {
+    return this->readArray(colors.data(), colors.size(), sizeof(SkColor));
 }
 
-bool SkReadBuffer::readColor4fArray(SkColor4f* colors, size_t size) {
-    return this->readArray(colors, size, sizeof(SkColor4f));
+bool SkReadBuffer::readColor4fArray(SkSpan<SkColor4f> colors) {
+    return this->readArray(colors.data(), colors.size(), sizeof(SkColor4f));
 }
 
-bool SkReadBuffer::readIntArray(int32_t* values, size_t size) {
-    return this->readArray(values, size, sizeof(int32_t));
+bool SkReadBuffer::readIntArray(SkSpan<int32_t> values) {
+    return this->readArray(values.data(), values.size(), sizeof(int32_t));
 }
 
-bool SkReadBuffer::readPointArray(SkPoint* points, size_t size) {
-    return this->readArray(points, size, sizeof(SkPoint));
+bool SkReadBuffer::readPointArray(SkSpan<SkPoint> points) {
+    return this->readArray(points.data(), points.size(), sizeof(SkPoint));
 }
 
-bool SkReadBuffer::readScalarArray(SkScalar* values, size_t size) {
-    return this->readArray(values, size, sizeof(SkScalar));
+bool SkReadBuffer::readScalarArray(SkSpan<SkScalar> values) {
+    return this->readArray(values.data(), values.size(), sizeof(SkScalar));
 }
 
 const void* SkReadBuffer::skipByteArray(size_t* size) {
@@ -396,7 +404,7 @@ static sk_sp<SkImage> add_mipmaps(sk_sp<SkImage> img, sk_sp<SkData> data,
     if (!buffer.isValid()) {
         return img;
     }
-    sk_sp<SkImage> raster = img->makeRasterImage();
+    sk_sp<SkImage> raster = img->makeRasterImage(nullptr);
     if (!raster) {
         return img;
     }
@@ -430,7 +438,7 @@ sk_sp<SkImage> SkReadBuffer::readImage() {
         SkIRect subset;
         this->readIRect(&subset);
         if (image) {
-            image = image->makeSubset(nullptr, subset);
+            image = image->makeSubset(nullptr, subset, {});
         }
     }
 

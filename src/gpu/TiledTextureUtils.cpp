@@ -66,7 +66,9 @@ SkIRect determine_clipped_src_rect(SkIRect clippedSrcIRect,
                                    const SkISize& imageDimensions,
                                    const SkRect* srcRectPtr) {
     SkMatrix inv = SkMatrix::Concat(viewMatrix, srcToDstRect);
-    if (!inv.invert(&inv)) {
+    if (auto inverse = inv.invert()) {
+        inv = *inverse;
+    } else {
         return SkIRect::MakeEmpty();
     }
     SkRect clippedSrcRect = SkRect::Make(clippedSrcIRect);
@@ -273,7 +275,7 @@ TiledTextureUtils::ImageDrawMode TiledTextureUtils::OptimizeSampleArea(const SkI
         return ImageDrawMode::kSkip;
     }
 
-    *outSrcToDst = SkMatrix::RectToRect(origSrcRect, origDstRect);
+    *outSrcToDst = SkMatrix::RectToRectOrIdentity(origSrcRect, origDstRect);
 
     SkRect src = origSrcRect;
     SkRect dst = origDstRect;
@@ -369,7 +371,8 @@ std::tuple<bool, size_t> TiledTextureUtils::DrawAsTiledImageRect(
         SkCanvas::SrcRectConstraint constraint,
         bool sharpenMM,
         size_t cacheSize,
-        size_t maxTextureSize) {
+        size_t maxTextureSize,
+        bool renderLazyPictureTilesOnGPU) {
     if (canvas->isClipEmpty()) {
         return {true, 0};
     }
@@ -427,9 +430,15 @@ std::tuple<bool, size_t> TiledTextureUtils::DrawAsTiledImageRect(
             // If it's a Picture-backed image we should subset the SkPicture directly rather than
             // converting to a Bitmap and then subsetting. Rendering to a bitmap will use a Raster
             // surface, and the SkPicture could have GPU data.
-            if (as_IB(image)->type() == SkImage_Base::Type::kLazyPicture) {
+            //
+            // If we render a subset of a very large SkPicture into a GPU texture "tile", it'll
+            // require intermediate coordinates that need high precision. If we don't have that,
+            // bite the bullet and render the lazy picture tiles on the CPU and upload the data
+            // instead.
+            if (renderLazyPictureTilesOnGPU &&
+                as_IB(image)->type() == SkImage_Base::Type::kLazyPicture) {
                 auto imageProc = [&](SkIRect iTileR) {
-                    return image->makeSubset(nullptr, iTileR);
+                    return image->makeSubset(nullptr, iTileR, {});
                 };
 
                 size_t tiles = draw_tiled_image(canvas,

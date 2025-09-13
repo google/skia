@@ -1,0 +1,17 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "public_hdrs",
+    srcs = [
+        "DawnBackendContext.h",
+        "DawnGraphiteTypes.h",
+        "DawnTypes.h",
+        "DawnUtils.h",
+    ],
+)

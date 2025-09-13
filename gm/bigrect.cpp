@@ -85,7 +85,7 @@ DEF_SIMPLE_GM(bigrect, canvas, 325, 125) {
 
             SkPaint paint;
             paint.setColor(SK_ColorBLUE);
-            // These are the three parameters that affect the behavior of SkDraw::drawRect.
+            // These are the three parameters that affect the behavior of skcpu::Draw::drawRect.
             if (i & 1) {
                 paint.setStyle(SkPaint::kFill_Style);
             } else {

@@ -9,6 +9,7 @@
 
 #include "include/core/SkPoint.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/TextureInfo.h"
 #include "include/private/base/SkAssert.h"
@@ -29,6 +30,8 @@
 #include <utility>
 
 namespace skgpu::graphite {
+
+class GraphicsPipeline;
 
 namespace {
 
@@ -123,7 +126,7 @@ RenderPassTask::~RenderPassTask() = default;
 
 Task::Status RenderPassTask::prepareResources(ResourceProvider* resourceProvider,
                                               ScratchResourceManager* scratchManager,
-                                              const RuntimeEffectDictionary* runtimeDict) {
+                                              sk_sp<const RuntimeEffectDictionary> runtimeDict) {
     SkASSERT(fTarget);
 
     bool instantiated;
@@ -261,6 +264,34 @@ Task::Status RenderPassTask::addCommands(Context* context,
     } else {
         return Status::kFail;
     }
+}
+
+bool RenderPassTask::visitPipelines(const std::function<bool(const GraphicsPipeline*)>& visitor) {
+    for (const std::unique_ptr<DrawPass>& pass : fDrawPasses) {
+        for (const sk_sp<GraphicsPipeline>& pipeline : pass->pipelines()) {
+            if (!visitor(pipeline.get())) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool RenderPassTask::visitProxies(const std::function<bool(const TextureProxy*)>& visitor) {
+    for (const std::unique_ptr<DrawPass>& pass : fDrawPasses) {
+        for (const sk_sp<TextureProxy>& proxy : pass->sampledTextures()) {
+            if (!visitor(proxy.get())) {
+                return false;
+            }
+        }
+
+        if ((fTarget && !visitor(fTarget.get())) || (fDstCopy && !visitor(fDstCopy.get()))) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 } // namespace skgpu::graphite

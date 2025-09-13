@@ -899,7 +899,7 @@ void SkCanvas::internalSaveLayer(const SaveLayerRec& rec,
     restorePaint.setImageFilter(nullptr);        // the image filter is held separately
     // Smooth non-axis-aligned layer edges; this automatically downgrades to non-AA for aligned
     // layer restores. This is done to match legacy behavior where the post-applied MatrixTransform
-    // bilerp also smoothed cropped edges. See skbug.com/11252
+    // bilerp also smoothed cropped edges. See skbug.com/40042614
     restorePaint.setAntiAlias(true);
 
     sk_sp<SkImageFilter> paintFilter = rec.fPaint ? rec.fPaint->refImageFilter() : nullptr;
@@ -1401,7 +1401,7 @@ void SkCanvas::androidFramework_setDeviceClipRestriction(const SkIRect& rect) {
     // of renderable pixels, so once set, the restriction will be respected until the canvas
     // save stack is restored past the point this function was invoked. Unfortunately, the current
     // implementation relies on the clip stack of the underyling SkDevices, which leads to some
-    // awkward behavioral interactions (see skbug.com/12252).
+    // awkward behavioral interactions (see skbug.com/40043342).
     //
     // Namely, a canvas restore() could undo the clip restriction's rect, and if
     // setDeviceClipRestriction were called at a nested save level, there's no way to undo just the
@@ -1608,19 +1608,16 @@ SkRect SkCanvas::getLocalClipBounds() const {
         return SkRect::MakeEmpty();
     }
 
-    SkMatrix inverse;
+    auto inverse = fMCRec->fMatrix.asM33().invert();
     // if we can't invert the CTM, we can't return local clip bounds
-    if (!fMCRec->fMatrix.asM33().invert(&inverse)) {
+    if (!inverse) {
         return SkRect::MakeEmpty();
     }
 
-    SkRect bounds;
     // adjust it outwards in case we are antialiasing
     const int margin = 1;
 
-    SkRect r = SkRect::Make(ibounds.makeOutset(margin, margin));
-    inverse.mapRect(&bounds, r);
-    return bounds;
+    return inverse->mapRect(SkRect::Make(ibounds.makeOutset(margin, margin)));
 }
 
 SkIRect SkCanvas::getDeviceClipBounds() const {
@@ -1730,9 +1727,11 @@ void SkCanvas::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     this->onDrawRRect(rrect, paint);
 }
 
-void SkCanvas::drawPoints(PointMode mode, size_t count, const SkPoint pts[], const SkPaint& paint) {
+void SkCanvas::drawPoints(PointMode mode, SkSpan<const SkPoint> pts, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
-    this->onDrawPoints(mode, count, pts, paint);
+    if (!pts.empty()) {
+        this->onDrawPoints(mode, pts.size(), pts.data(), paint);
+    }
 }
 
 void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode,
@@ -1830,18 +1829,21 @@ void SkCanvas::drawImageLattice(const SkImage* image, const Lattice& lattice, co
     }
 }
 
-void SkCanvas::drawAtlas(const SkImage* atlas, const SkRSXform xform[], const SkRect tex[],
-                         const SkColor colors[], int count, SkBlendMode mode,
+void SkCanvas::drawAtlas(const SkImage* atlas, SkSpan<const SkRSXform> xform,
+                         SkSpan<const SkRect> tex, SkSpan<const SkColor> colors, SkBlendMode mode,
                          const SkSamplingOptions& sampling, const SkRect* cull,
                          const SkPaint* paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(atlas);
-    if (count <= 0) {
+    size_t count = std::min(xform.size(), tex.size());
+    if (!colors.empty()) {
+        count = std::min(count, colors.size());
+    }
+    if (count == 0) {
         return;
     }
-    SkASSERT(atlas);
-    SkASSERT(tex);
-    this->onDrawAtlas2(atlas, xform, tex, colors, count, mode, sampling, cull, paint);
+    this->onDrawAtlas2(atlas, xform.data(), tex.data(), colors.data(), count, mode, sampling,
+                       cull, paint);
 }
 
 void SkCanvas::drawAnnotation(const SkRect& rect, const char key[], SkData* value) {
@@ -1954,20 +1956,20 @@ void SkCanvas::onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
      *        an optimization opportunity.
      */
     if (paint.getImageFilter() || paint.getMaskFilter()) {
-        if (count == 2) {
-            boundsStorage.set(pts[0], pts[1]);
-        } else {
-            boundsStorage.setBounds(pts, SkToInt(count));
-        }
-        if (this->internalQuickReject(boundsStorage, strokePaint)) {
+        auto bounds = SkRect::Bounds({pts, count});
+        if (!bounds) {
             return;
         }
+        if (this->internalQuickReject(bounds.value(), strokePaint)) {
+            return;
+        }
+        boundsStorage = bounds.value();
         boundsPtr = &boundsStorage;
     }
 
     auto layer = this->aboutToDraw(strokePaint, boundsPtr);
     if (layer) {
-        this->topDevice()->drawPoints(mode, count, pts, layer->paint());
+        this->topDevice()->drawPoints(mode, {pts, count}, layer->paint());
     }
 }
 
@@ -2223,7 +2225,7 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     }
 }
 
-// Clean-up the paint to match the drawing semantics for drawImage et al. (skbug.com/7804).
+// Clean-up the paint to match the drawing semantics for drawImage et al. (skbug.com/40039059).
 static SkPaint clean_paint_for_drawImage(const SkPaint* paint) {
     SkPaint cleaned;
     if (paint) {
@@ -2484,17 +2486,17 @@ void SkCanvas::drawSimpleText(const void* text, size_t byteLength, SkTextEncodin
     }
 }
 
-void SkCanvas::drawGlyphs(int count, const SkGlyphID* glyphs, const SkPoint* positions,
-                          const uint32_t* clusters, int textByteCount, const char* utf8text,
+void SkCanvas::drawGlyphs(SkSpan<const SkGlyphID> glyphs, SkSpan<const SkPoint> positions,
+                          SkSpan<const uint32_t> clusters, SkSpan<const char> utf8text,
                           SkPoint origin, const SkFont& font, const SkPaint& paint) {
-    if (count <= 0) { return; }
+    if (glyphs.empty()) { return; }
 
     sktext::GlyphRun glyphRun {
             font,
-            SkSpan(positions, count),
-            SkSpan(glyphs, count),
-            SkSpan(utf8text, textByteCount),
-            SkSpan(clusters, count),
+            positions,
+            glyphs,
+            utf8text,
+            clusters,
             SkSpan<SkVector>()
     };
 
@@ -2503,14 +2505,14 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID* glyphs, const SkPoint* pos
     this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
-void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkPoint positions[],
+void SkCanvas::drawGlyphs(SkSpan<const SkGlyphID> glyphs, SkSpan<const SkPoint> positions,
                           SkPoint origin, const SkFont& font, const SkPaint& paint) {
-    if (count <= 0) { return; }
+    if (glyphs.empty()) { return; }
 
     sktext::GlyphRun glyphRun {
         font,
-        SkSpan(positions, count),
-        SkSpan(glyphs, count),
+        positions,
+        glyphs,
         SkSpan<const char>(),
         SkSpan<const uint32_t>(),
         SkSpan<SkVector>()
@@ -2521,17 +2523,17 @@ void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkPoint pos
     this->onDrawGlyphRunList(glyphRunList, paint);
 }
 
-void SkCanvas::drawGlyphs(int count, const SkGlyphID glyphs[], const SkRSXform xforms[],
-                          SkPoint origin, const SkFont& font, const SkPaint& paint) {
-    if (count <= 0) { return; }
+void SkCanvas::drawGlyphsRSXform(SkSpan<const SkGlyphID> glyphs, SkSpan<const SkRSXform> xforms,
+                                 SkPoint origin, const SkFont& font, const SkPaint& paint) {
+    if (glyphs.empty()) { return; }
 
     auto [positions, rotateScales] =
-            fScratchGlyphRunBuilder->convertRSXForm(SkSpan(xforms, count));
+            fScratchGlyphRunBuilder->convertRSXForm(xforms);
 
     sktext::GlyphRun glyphRun {
             font,
             positions,
-            SkSpan(glyphs, count),
+            glyphs,
             SkSpan<const char>(),
             SkSpan<const uint32_t>(),
             rotateScales
@@ -2600,18 +2602,22 @@ void SkCanvas::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
 void SkCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode bmode,
                            const SkPaint& paint) {
+    auto bounds = SkRect::Bounds({cubics, (size_t)SkPatchUtils::kNumCtrlPts});
+    if (!bounds) {
+        return; // we don't draw if the bounds are not finite
+    }
+
     // drawPatch has the same behavior restrictions as drawVertices
     SkPaint simplePaint = clean_paint_for_drawVertices(paint);
 
     // Since a patch is always within the convex hull of the control points, we discard it when its
     // bounding rectangle is completely outside the current clip.
-    SkRect bounds;
-    bounds.setBounds(cubics, SkPatchUtils::kNumCtrlPts);
-    if (this->internalQuickReject(bounds, simplePaint)) {
+    if (this->internalQuickReject(bounds.value(), simplePaint)) {
         return;
     }
 
-    auto layer = this->aboutToDraw(simplePaint, &bounds);
+    auto r = bounds.value();
+    auto layer = this->aboutToDraw(simplePaint, &r);
     if (layer) {
         this->topDevice()->drawPatch(cubics, colors, texCoords, SkBlender::Mode(bmode),
                                      layer->paint());
@@ -2667,8 +2673,8 @@ void SkCanvas::onDrawAtlas2(const SkImage* atlas, const SkRSXform xform[], const
     SkASSERT(!realPaint.getMaskFilter());
     auto layer = this->aboutToDraw(realPaint);
     if (layer) {
-        this->topDevice()->drawAtlas(xform, tex, colors, count, SkBlender::Mode(bmode),
-                                     layer->paint());
+        this->topDevice()->drawAtlas({xform, count}, {tex, count}, {colors, colors ? count : 0},
+                                     SkBlender::Mode(bmode), layer->paint());
     }
 }
 
@@ -2793,15 +2799,15 @@ void SkCanvas::drawColor(const SkColor4f& c, SkBlendMode mode) {
 }
 
 void SkCanvas::drawPoint(SkScalar x, SkScalar y, const SkPaint& paint) {
-    const SkPoint pt = { x, y };
-    this->drawPoints(kPoints_PointMode, 1, &pt, paint);
+    const SkPoint pt[1] = {{ x, y }};
+    this->drawPoints(kPoints_PointMode, pt, paint);
 }
 
 void SkCanvas::drawLine(SkScalar x0, SkScalar y0, SkScalar x1, SkScalar y1, const SkPaint& paint) {
     SkPoint pts[2];
     pts[0].set(x0, y0);
     pts[1].set(x1, y1);
-    this->drawPoints(kLines_PointMode, 2, pts, paint);
+    this->drawPoints(kLines_PointMode, pts, paint);
 }
 
 void SkCanvas::drawCircle(SkScalar cx, SkScalar cy, SkScalar radius, const SkPaint& paint) {

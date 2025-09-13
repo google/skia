@@ -3,8 +3,11 @@ EXPORTER_RULES=-rule='//src/...' -rule='//modules/...' -rule='//include/...' -ru
 
 generate_go:
 	cd .. && bazelisk run //infra:gazelle -- update infra/bots/task_drivers modules/canvaskit/go \
-       bazel/device_specific_configs bazel/exporter bazel/deps_parser tools/gpu/gl/interface \
+       bazel/device_specific_configs bazel/exporter bazel/deps_parser tools/ganesh/gl/interface \
 			 tools/testrunners/common/make_tarball tools/testrunners/common/android/adb_test_runner
+
+.PHONY: gazelle
+gazelle: generate_go
 
 .PHONY: generate_cmake
 generate_cmake:

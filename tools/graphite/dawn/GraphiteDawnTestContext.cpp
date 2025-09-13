@@ -30,8 +30,7 @@ DawnTestContext::~DawnTestContext() {
     tick();
 }
 
-std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType backend,
-                                                           bool useTintIR) {
+std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType backend) {
     static std::unique_ptr<dawn::native::Instance> sInstance;
     static SkOnce sOnce;
 
@@ -47,11 +46,9 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
             // Robustness impacts performance and is always disabled when running Graphite in
             // Chrome, so this keeps Skia's tests operating closer to real-use behavior.
             "disable_robustness",
-            // Must be last to correctly respond to `useTintIR` parameter.
-            "use_tint_ir",
     };
     wgpu::DawnTogglesDescriptor togglesDesc;
-    togglesDesc.enabledToggleCount  = std::size(kToggles) - (useTintIR ? 0 : 1);
+    togglesDesc.enabledToggleCount  = std::size(kToggles);
     togglesDesc.enabledToggles      = kToggles;
 
     // Creation of Instance is cheap but calling EnumerateAdapters can be expensive the first time,
@@ -62,7 +59,9 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
         dawnProcSetProcs(&backendProcs);
         wgpu::InstanceDescriptor desc{};
         // need for WaitAny with timeout > 0
-        desc.capabilities.timedWaitAnyEnable = true;
+        static const auto kTimedWaitAny = wgpu::InstanceFeatureName::TimedWaitAny;
+        desc.requiredFeatureCount = 1;
+        desc.requiredFeatures = &kTimedWaitAny;
         sInstance = std::make_unique<dawn::native::Instance>(&desc);
     });
 
@@ -162,6 +161,11 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
     desc.requiredFeatureCount  = features.size();
     desc.requiredFeatures      = features.data();
     desc.nextInChain           = &togglesDesc;
+
+    wgpu::Limits limits = {};
+    adapter.GetLimits(&limits);
+    desc.requiredLimits = &limits;
+
     desc.SetDeviceLostCallback(
             wgpu::CallbackMode::AllowSpontaneous,
             [](const wgpu::Device&, wgpu::DeviceLostReason reason, wgpu::StringView message) {
@@ -174,7 +178,7 @@ std::unique_ptr<GraphiteTestContext> DawnTestContext::Make(wgpu::BackendType bac
         SkDebugf("Device error: %.*s\n", static_cast<int>(message.length), message.data);
     });
 
-    wgpu::Device device = wgpu::Device::Acquire(matchedAdaptor.CreateDevice(&desc));
+    wgpu::Device device = adapter.CreateDevice(&desc);
     SkASSERT(device);
 
     skgpu::graphite::DawnBackendContext backendContext;

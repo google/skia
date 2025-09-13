@@ -4,19 +4,25 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef skgpu_graphite_DrawAtlas_DEFINED
 #define skgpu_graphite_DrawAtlas_DEFINED
 
-#include <cmath>
+#include "include/core/SkPoint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkDebug.h"
+#include "src/gpu/AtlasTypes.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include "src/core/SkTHash.h"
-#include "src/gpu/AtlasTypes.h"
-
 class SkAutoPixmapStorage;
+enum SkColorType : int;
 
 namespace skgpu::graphite {
 
@@ -176,7 +182,24 @@ public:
     }
 
 #if defined(GPU_TEST_UTILS)
+    template <typename F>
+    int iteratePlots(F&& func) const {
+        int count = 0;
+        PlotList::Iter plotIter;
+        for (uint32_t pageIndex = 0; pageIndex < this->maxPages(); ++pageIndex) {
+            plotIter.init(fPages[pageIndex].fPlotList, PlotList::Iter::kHead_IterStart);
+            while (Plot* plot = plotIter.get()) {
+                if (func(plot)) {
+                    count++;
+                }
+                plotIter.next();
+            }
+        }
+        return count;
+    }
+
     int numAllocatedPlots() const;
+    int numNonEmptyPlots() const;
 #endif
 
 private:

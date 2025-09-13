@@ -34,7 +34,7 @@
 #include "src/core/SkBlitter_A8.h"
 #include "src/core/SkBlurMask.h"
 #include "src/core/SkCachedData.h"
-#include "src/core/SkDrawBase.h"
+#include "src/core/SkDraw.h"
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskCache.h"
 #include "src/core/SkMaskFilterBase.h"
@@ -163,7 +163,7 @@ template <typename Proc> bool draw_into_mask(SkMaskBuilder* mask, const SkRect& 
 
     SkMatrix ctm = SkMatrix::Translate(-SkIntToScalar(dx), -SkIntToScalar(dy));
 
-    SkDrawBase draw;
+    skcpu::Draw draw;
     draw.fBlitterChooser = SkA8Blitter_Choose;
     draw.fCTM = &ctm;
     draw.fDst = pm;
@@ -178,7 +178,7 @@ template <typename Proc> bool draw_into_mask(SkMaskBuilder* mask, const SkRect& 
 
 static bool draw_rects_into_mask(SkSpan<const SkRect> rects, SkMaskBuilder* mask) {
     SkASSERT(rects.size() == 1 || rects.size() == 2);
-    return draw_into_mask(mask, rects[0], [&](SkDrawBase& draw, const SkPaint& paint) {
+    return draw_into_mask(mask, rects[0], [&](skcpu::Draw& draw, const SkPaint& paint) {
         if (rects.size() == 1) {
             draw.drawRect(rects[0], paint);
         } else {
@@ -193,7 +193,7 @@ static bool draw_rects_into_mask(SkSpan<const SkRect> rects, SkMaskBuilder* mask
 }
 
 static bool draw_rrect_into_mask(const SkRRect& rrect, SkMaskBuilder* mask) {
-    return draw_into_mask(mask, rrect.rect(), [&](SkDrawBase& draw, const SkPaint& paint) {
+    return draw_into_mask(mask, rrect.rect(), [&](skcpu::Draw& draw, const SkPaint& paint) {
         draw.drawRRect(rrect, paint);
     });
 }

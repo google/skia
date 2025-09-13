@@ -68,7 +68,7 @@ struct MSKPPlayer::DrawLayerCmd : Cmd {
     SkRect                      fDstRect;
     SkSamplingOptions           fSampling;
     SkCanvas::SrcRectConstraint fConstraint;
-    SkTLazy<SkPaint>            fPaint;
+    std::optional<SkPaint>      fPaint;
 
     bool isFullRedraw(SkCanvas* canvas) const override { return false; }
     void draw(SkCanvas* canvas, const LayerMap&, LayerStateMap*) const override;
@@ -109,7 +109,7 @@ void MSKPPlayer::DrawLayerCmd::draw(SkCanvas* canvas,
         layer.fCmds[cmd]->draw(layerCanvas, layerMap, layerStateMap);
     }
     layerState->fCurrCmd = fLayerCmdCnt;
-    const SkPaint* paint = fPaint.isValid() ? fPaint.get() : nullptr;
+    const SkPaint* paint = SkOptAddressOrNull(fPaint);
     canvas->drawImageRect(layerState->fSurface->makeImageSnapshot(),
                           fSrcRect,
                           fDstRect,
@@ -191,7 +191,7 @@ protected:
                       size_t count,
                       const SkPoint pts[],
                       const SkPaint& paint) override {
-        fRecorder.getRecordingCanvas()->drawPoints(mode, count, pts, paint);
+        fRecorder.getRecordingCanvas()->drawPoints(mode, {pts, count}, paint);
     }
 
     void onDrawImage2(const SkImage* image,
@@ -218,7 +218,7 @@ protected:
             drawLayer->fSampling = sampling;
             drawLayer->fConstraint = constraint;
             if (paint) {
-                drawLayer->fPaint.init(*paint);
+                drawLayer->fPaint.emplace(*paint);
             }
             fDst->fCmds.push_back(std::move(drawLayer));
             fNextDrawImageFromLayerID = -1;
@@ -245,10 +245,9 @@ protected:
                       const SkRect* cull,
                       const SkPaint* paint) override {
         fRecorder.getRecordingCanvas()->drawAtlas(image,
-                                                  rsxForms,
-                                                  src,
-                                                  colors,
-                                                  count,
+                                                  {rsxForms, count},
+                                                  {src, count},
+                                                  {colors, colors ? count : 0},
                                                   mode,
                                                   sampling,
                                                   cull,

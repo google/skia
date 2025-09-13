@@ -16,6 +16,8 @@
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
 #include "src/gpu/graphite/Resource.h"
+#include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/Sampler.h"
 #include "src/gpu/graphite/SharedContext.h"
 
 #if defined(SK_ENABLE_PRECOMPILE)
@@ -43,20 +45,22 @@ constexpr int kGlobalGraphicsPipelineCacheSizeLimit = 256;
 constexpr int kGlobalComputePipelineCacheSizeLimit = 256;
 #endif
 
-} // anonymous namespce
+} // anonymous namespace
 
 namespace skgpu::graphite {
 
 GlobalCache::GlobalCache()
         : fGraphicsPipelineCache(kGlobalGraphicsPipelineCacheSizeLimit, &fStats)
-        , fComputePipelineCache(kGlobalComputePipelineCacheSizeLimit) {}
+        , fComputePipelineCache(kGlobalComputePipelineCacheSizeLimit)
+        , fDynamicSamplers({}) {}
 
 GlobalCache::~GlobalCache() {
     // These should have been cleared out earlier by deleteResources().
-    SkDEBUGCODE(SkAutoSpinlock lock{ fSpinLock });
+    SkDEBUGCODE(SkAutoSpinlock lock{fSpinLock});
     SkASSERT(fGraphicsPipelineCache.count() == 0);
     SkASSERT(fComputePipelineCache.count() == 0);
     SkASSERT(fStaticResource.empty());
+    SkASSERT(fDynamicSamplers[0] == nullptr);
 }
 
 void GlobalCache::setPipelineCallback(PipelineCallback callback, PipelineCallbackContext context) {
@@ -119,11 +123,63 @@ void GlobalCache::invokePipelineCallback(SharedContext* sharedContext,
 }
 
 void GlobalCache::deleteResources() {
-    SkAutoSpinlock lock{ fSpinLock };
+    SkAutoSpinlock lock{fSpinLock};
+
+    for (int i = 0; i < kNumDynamicSamplers; ++i) {
+        fDynamicSamplers[i] = nullptr;
+    }
 
     fGraphicsPipelineCache.reset();
     fComputePipelineCache.reset();
     fStaticResource.clear();
+}
+
+bool GlobalCache::initializeDynamicSamplers(ResourceProvider* resourceProvider, const Caps* caps) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    SkASSERT(fDynamicSamplers[0] == nullptr); // Must not already be initialized
+
+    static constexpr SkTileMode kTileModes[] = {SkTileMode::kClamp,
+                                                SkTileMode::kRepeat,
+                                                SkTileMode::kMirror,
+                                                SkTileMode::kDecal};
+    // Manually unroll the SkSamplingOptions that can be dynamic samplers to avoid nesting so many
+    // loops to create SamplerDescs. Cubic SkSamplingOptions do not need to contribute to this list.
+    // TODO: Support anisotropic filters
+    static constexpr SkSamplingOptions kSamplingOptions[] = {
+        {SkFilterMode::kNearest, SkMipmapMode::kNone},
+        {SkFilterMode::kLinear,  SkMipmapMode::kNone},
+        {SkFilterMode::kNearest, SkMipmapMode::kNearest},
+        {SkFilterMode::kLinear,  SkMipmapMode::kNearest},
+        {SkFilterMode::kNearest, SkMipmapMode::kLinear},
+        {SkFilterMode::kLinear,  SkMipmapMode::kLinear}
+    };
+
+    const bool supportsClampToBorder = caps->clampToBorderSupport();
+    for (auto samplingOption : kSamplingOptions) {
+        for (auto tileX : kTileModes) {
+            for (auto tileY : kTileModes) {
+                if (!supportsClampToBorder && (tileX == SkTileMode::kDecal ||
+                                               tileY == SkTileMode::kDecal)) {
+                    continue;
+                }
+
+                SamplerDesc dynamicDesc{samplingOption, {tileX, tileY}};
+                SkASSERT(!dynamicDesc.isImmutable() && dynamicDesc.asSpan().size() == 1);
+                sk_sp<Sampler> sampler =
+                        resourceProvider->findOrCreateCompatibleSampler(dynamicDesc);
+                if (!sampler) {
+                    return false;
+                }
+
+                // We already hold the spin lock, so add directly to fStaticResource
+                fStaticResource.emplace_back(sampler);
+                fDynamicSamplers[dynamicDesc.desc()] = sampler.get();
+            }
+        }
+    }
+
+    return true;
 }
 
 void GlobalCache::LogPurge(void* context, const UniqueKey& key, sk_sp<GraphicsPipeline>* p) {

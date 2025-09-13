@@ -15,7 +15,7 @@
 #include "include/docs/SkMultiPictureDocument.h"
 #include "include/gpu/graphite/PrecompileContext.h"
 #include "tools/flags/CommonFlagsConfig.h"
-#include "tools/gpu/MemoryCache.h"
+#include "tools/ganesh/MemoryCache.h"
 
 #include <functional>
 

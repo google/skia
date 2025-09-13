@@ -55,25 +55,23 @@ sk_sp<PrecompileShader> PrecompileShader::makeWithColorFilter(
     return PrecompileShaders::ColorFilter({ sk_ref_sp(this) }, { std::move(cf) });
 }
 
-sk_sp<PrecompileShader> PrecompileShader::makeWithWorkingColorSpace(sk_sp<SkColorSpace> cs) const {
-    if (!cs) {
+sk_sp<PrecompileShader> PrecompileShader::makeWithWorkingColorSpace(
+        sk_sp<SkColorSpace> inputCS, sk_sp<SkColorSpace> outputCS) const {
+    if (!inputCS && !outputCS) {
         return sk_ref_sp(this);
     }
 
-    return PrecompileShaders::WorkingColorSpace({ sk_ref_sp(this) }, { std::move(cs) });
+    return PrecompileShaders::WorkingColorSpaceExplicit(
+            { sk_ref_sp(this) },
+            { { std::move(inputCS), std::move(outputCS) } });
 }
 
 //--------------------------------------------------------------------------------------------------
 class PrecompileEmptyShader final : public PrecompileShader {
 private:
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
-
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination == 0); // The empty shader only ever has one combination
-
-        builder->addBlock(BuiltInCodeSnippetID::kPriorOutput);
+        keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kPriorOutput);
     }
 };
 
@@ -89,15 +87,10 @@ private:
         return true;
     }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
-
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination == 0); // The color shader only ever has one combination
-
         // The white PMColor is just a placeholder for the actual paint params color
-        SolidColorShaderBlock::AddBlock(keyContext, builder, gatherer, SK_PMColor4fWHITE);
+        SolidColorShaderBlock::AddBlock(keyContext, SK_PMColor4fWHITE);
     }
 };
 
@@ -136,10 +129,7 @@ private:
         return fBlenderOptions.numCombinations() * fNumDstCombos * fNumSrcCombos;
     }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < this->numCombinations());
 
         const int desiredDstCombination = desiredCombination % fNumDstCombos;
@@ -155,30 +145,27 @@ private:
         if (blender->priv().asBlendMode()) {
             // Coefficient and HSLC blends, and other fixed SkBlendMode blenders use the
             // BlendCompose block to organize the children.
-            BlendComposeBlock::BeginBlock(keyContext, builder, gatherer);
+            BlendComposeBlock::BeginBlock(keyContext);
         } else {
             // Runtime blenders are wrapped in the kBlend runtime shader, although functionally
             // it is identical to the BlendCompose snippet.
             const SkRuntimeEffect* blendEffect =
                     GetKnownRuntimeEffect(SkKnownRuntimeEffects::StableKey::kBlend);
 
-            RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer,
-                                           { sk_ref_sp(blendEffect) });
+            RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(blendEffect) });
         }
 
-        AddToKey<PrecompileShader>(keyContext, builder, gatherer, fSrcOptions,
-                                   desiredSrcCombination);
-        AddToKey<PrecompileShader>(keyContext, builder, gatherer, fDstOptions,
-                                   desiredDstCombination);
+        AddToKey<PrecompileShader>(keyContext, fSrcOptions, desiredSrcCombination);
+        AddToKey<PrecompileShader>(keyContext, fDstOptions, desiredDstCombination);
 
         if (blender->priv().asBlendMode()) {
             SkASSERT(blenderCombination == 0);
-            AddBlendMode(keyContext, builder, gatherer, *blender->priv().asBlendMode());
+            AddBlendMode(keyContext, *blender->priv().asBlendMode());
         } else {
-            blender->priv().addToKey(keyContext, builder, gatherer, blenderCombination);
+            blender->priv().addToKey(keyContext, blenderCombination);
         }
 
-        builder->endBlock();  // BlendComposeBlock or RuntimeEffectBlock
+        keyContext.paintParamsKeyBuilder()->endBlock();  // BlendComposeBlock or RuntimeEffectBlock
     }
 
     PrecompileBlenderList fBlenderOptions;
@@ -219,10 +206,7 @@ private:
         return fNumShaderCombos;
     }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < fNumShaderCombos);
 
         constexpr SkRect kIgnored { 0, 0, 256, 256 }; // ignored bc we're precompiling
@@ -230,9 +214,9 @@ private:
         // TODO: update CoordClampShaderBlock so this is optional
         CoordClampShaderBlock::CoordClampData data(kIgnored);
 
-        CoordClampShaderBlock::BeginBlock(keyContext, builder, gatherer, data);
-            AddToKey<PrecompileShader>(keyContext, builder, gatherer, fShaders, desiredCombination);
-        builder->endBlock();
+        CoordClampShaderBlock::BeginBlock(keyContext, data);
+            AddToKey<PrecompileShader>(keyContext, fShaders, desiredCombination);
+        keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
     std::vector<sk_sp<PrecompileShader>> fShaders;
@@ -258,7 +242,7 @@ PrecompileImageShader::PrecompileImageShader(SkEnumBitMask<ImageShaderFlags> fla
                                      ? DefaultColorInfos()
                                      : NonAlphaOnlyDefaultColorInfos())
     , fTileModes(std::vector<SkTileMode>(tileModes.begin(), tileModes.end()))
-    , fUseDstColorSpace(!colorInfos.empty())
+    , fUseDstColorInfo(!colorInfos.empty())
     , fRaw(raw) {}
 
 void PrecompileImageShader::setImmutableSamplerInfo(const ImmutableSamplerInfo& samplerInfo) {
@@ -273,10 +257,7 @@ int PrecompileImageShader::numIntrinsicCombinations() const {
     return fColorInfos.size() * (fTileModes.size() + fNumExtraSamplingTilingCombos);
 }
 
-void PrecompileImageShader::addToKey(const KeyContext& keyContext,
-                                     PaintParamsKeyBuilder* builder,
-                                     PipelineDataGatherer* gatherer,
-                                     int desiredCombination) const {
+void PrecompileImageShader::addToKey(const KeyContext& keyContext, int desiredCombination) const {
     SkASSERT(this->numChildCombinations() == 1);
     SkASSERT(desiredCombination < this->numIntrinsicCombinations());
 
@@ -331,43 +312,43 @@ void PrecompileImageShader::addToKey(const KeyContext& keyContext,
             SwizzleClassToReadEnum(readSwizzle));
 
     if (!fRaw) {
-        const SkColorSpace* dstColorSpace = fUseDstColorSpace
-                                                    ? keyContext.dstColorInfo().colorSpace()
-                                                    : sk_srgb_singleton();
+        const SkColorSpace* dstColorSpace = sk_srgb_singleton();
+        SkAlphaType dstAT = colorInfo.alphaType();
+        if (fUseDstColorInfo) {
+            dstColorSpace = keyContext.dstColorInfo().colorSpace();
+            dstAT = keyContext.dstColorInfo().alphaType();
+        }
         colorXformData.fSteps = SkColorSpaceXformSteps(
                 colorInfo.colorSpace(), colorInfo.alphaType(),
-                dstColorSpace, colorInfo.alphaType());
+                dstColorSpace, dstAT);
 
         if (alphaOnly) {
-            Blend(keyContext, builder, gatherer,
+            Blend(keyContext,
                   /* addBlendToKey= */ [&] () -> void {
-                      AddFixedBlendMode(keyContext, builder, gatherer, SkBlendMode::kDstIn);
+                      AddFixedBlendMode(keyContext, SkBlendMode::kDstIn);
                   },
                   /* addSrcToKey= */ [&] () -> void {
-                      Compose(keyContext, builder, gatherer,
+                      Compose(keyContext,
                               /* addInnerToKey= */ [&]() -> void {
-                                  ImageShaderBlock::AddBlock(keyContext, builder, gatherer,
-                                                             imgData);
+                                  ImageShaderBlock::AddBlock(keyContext, imgData);
                               },
                               /* addOuterToKey= */ [&]() -> void {
-                                  ColorSpaceTransformBlock::AddBlock(keyContext, builder,
-                                                                     gatherer, colorXformData);
+                                  ColorSpaceTransformBlock::AddBlock(keyContext, colorXformData);
                               });
                   },
                   /* addDstToKey= */ [&]() -> void {
-                      RGBPaintColorBlock::AddBlock(keyContext, builder, gatherer);
+                      RGBPaintColorBlock::AddBlock(keyContext);
                   });
             return;
         }
     }
 
-    Compose(keyContext, builder, gatherer,
+    Compose(keyContext,
             /* addInnerToKey= */ [&]() -> void {
-                ImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+                ImageShaderBlock::AddBlock(keyContext, imgData);
             },
             /* addOuterToKey= */ [&]() -> void {
-                ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer,
-                                                   colorXformData);
+                ColorSpaceTransformBlock::AddBlock(keyContext, colorXformData);
             });
 }
 
@@ -444,10 +425,7 @@ private:
         return fNumTilingModes * fColorInfos.size();
     }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < this->numIntrinsicCombinations());
 
         int desiredTiling = desiredCombination % fNumTilingModes;
@@ -485,7 +463,6 @@ private:
         imgData.fYUVtoRGBMatrix.setAll(1, 0, 0, 0, 1, 0, 0, 0, 0);
         imgData.fYUVtoRGBTranslate = { 0, 0, 0 };
 
-        static sk_sp<SkColorSpace> srgbSpinColorSpace = sk_srgb_singleton()->makeColorSpin();
         const SkColorInfo& colorInfo = fColorInfos[desiredColorInfo];
 
         const Caps* caps = keyContext.caps();
@@ -503,13 +480,12 @@ private:
                 colorInfo.colorSpace(), colorInfo.alphaType(),
                 dstColorSpace, colorInfo.alphaType());
 
-        Compose(keyContext, builder, gatherer,
+        Compose(keyContext,
                 /* addInnerToKey= */ [&]() -> void {
-                    YUVImageShaderBlock::AddBlock(keyContext, builder, gatherer, imgData);
+                    YUVImageShaderBlock::AddBlock(keyContext, imgData);
                 },
                 /* addOuterToKey= */ [&]() -> void {
-                    ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer,
-                                                       colorXformData);
+                    ColorSpaceTransformBlock::AddBlock(keyContext, colorXformData);
                 });
     }
 
@@ -536,10 +512,7 @@ public:
     PrecompilePerlinNoiseShader() {}
 
 private:
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
 
         SkASSERT(desiredCombination == 0); // The Perlin noise shader only ever has one combination
 
@@ -547,7 +520,7 @@ private:
         static const PerlinNoiseShaderBlock::PerlinNoiseData kIgnoredNoiseData(
                 PerlinNoiseShaderBlock::Type::kFractalNoise, { 0.0f, 0.0f }, 2, {1, 1});
 
-        PerlinNoiseShaderBlock::AddBlock(keyContext, builder, gatherer, kIgnoredNoiseData);
+        PerlinNoiseShaderBlock::AddBlock(keyContext, kIgnoredNoiseData);
     }
 
 };
@@ -613,10 +586,7 @@ private:
 
     int numIntrinsicCombinations() const override { return fNumStopVariants; }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(this->numChildCombinations() == 1);
         SkASSERT(desiredCombination < fNumStopVariants);
 
@@ -638,12 +608,12 @@ private:
                 intermediateCS.get(), kPremul_SkAlphaType,
                 dstCS, kPremul_SkAlphaType);
 
-        Compose(keyContext, builder, gatherer,
+        Compose(keyContext,
                 /* addInnerToKey= */ [&]() -> void {
-                    GradientShaderBlocks::AddBlock(keyContext, builder, gatherer, gradData);
+                    GradientShaderBlocks::AddBlock(keyContext, gradData);
                 },
                 /* addOuterToKey= */  [&]() -> void {
-                    ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, csData);
+                    ColorSpaceTransformBlock::AddBlock(keyContext, csData);
                 });
     }
 
@@ -771,10 +741,7 @@ private:
 
     int numChildCombinations() const override { return fNumWrappedCombos; }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < this->numCombinations());
 
         int desiredLMCombination, desiredWrappedCombination;
@@ -795,14 +762,13 @@ private:
             }
             LocalMatrixShaderBlock::LMShaderData lmShaderData(matrix);
 
-            LocalMatrixShaderBlock::BeginBlock(keyContext, builder, gatherer, matrix);
+            LocalMatrixShaderBlock::BeginBlock(keyContext, matrix);
         }
 
-        AddToKey<PrecompileShader>(keyContext, builder, gatherer, fWrapped,
-                                   desiredWrappedCombination);
+        AddToKey<PrecompileShader>(keyContext, fWrapped, desiredWrappedCombination);
 
         if (desiredLMCombination == kWithLocalMatrix) {
-            builder->endBlock();
+            keyContext.paintParamsKeyBuilder()->endBlock();
         }
     }
 
@@ -865,23 +831,19 @@ public:
 private:
     int numChildCombinations() const override { return fNumShaderCombos * fNumColorFilterCombos; }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < this->numCombinations());
 
         int desiredShaderCombination = desiredCombination % fNumShaderCombos;
         int desiredColorFilterCombination = desiredCombination / fNumShaderCombos;
         SkASSERT(desiredColorFilterCombination < fNumColorFilterCombos);
 
-        Compose(keyContext, builder, gatherer,
+        Compose(keyContext,
                 /* addInnerToKey= */ [&]() -> void {
-                    AddToKey<PrecompileShader>(keyContext, builder, gatherer, fShaders,
-                                               desiredShaderCombination);
+                    AddToKey<PrecompileShader>(keyContext, fShaders, desiredShaderCombination);
                 },
                 /* addOuterToKey= */ [&]() -> void {
-                    AddToKey<PrecompileColorFilter>(keyContext, builder, gatherer, fColorFilters,
+                    AddToKey<PrecompileColorFilter>(keyContext, fColorFilters,
                                                     desiredColorFilterCombination);
                 });
     }
@@ -902,27 +864,54 @@ sk_sp<PrecompileShader> PrecompileShaders::ColorFilter(
 class PrecompileWorkingColorSpaceShader final : public PrecompileShader {
 public:
     PrecompileWorkingColorSpaceShader(SkSpan<const sk_sp<PrecompileShader>> shaders,
-                                      SkSpan<const sk_sp<SkColorSpace>> colorSpaces)
+                                      SkSpan<const std::pair<sk_sp<SkColorSpace>,
+                                                             sk_sp<SkColorSpace>>> colorSpaces)
             : fShaders(shaders.begin(), shaders.end())
             , fColorSpaces(colorSpaces.begin(), colorSpaces.end()) {
-        fNumShaderCombos = 0;
-        for (const auto& s : fShaders) {
-            fNumShaderCombos += s->priv().numCombinations();
+        if (colorSpaces.empty()) {
+            fColorSpaces.push_back({nullptr, nullptr}); // encode identity
         }
+        this->updateNumShaderCombos();
+    }
+
+    PrecompileWorkingColorSpaceShader(SkSpan<const sk_sp<PrecompileShader>> shaders,
+                                      SkSpan<const sk_sp<SkColorSpace>> inputSpaces,
+                                      SkSpan<const sk_sp<SkColorSpace>> outputSpaces)
+            : fShaders(shaders.begin(), shaders.end()) {
+        static const sk_sp<SkColorSpace> kNullCS;
+        SkSpan<const sk_sp<SkColorSpace>> nullSpan{&kNullCS, 1};
+        if (inputSpaces.empty())  { inputSpaces  = nullSpan; }
+        if (outputSpaces.empty()) { outputSpaces = nullSpan; }
+
+        fColorSpaces.reserve(inputSpaces.size() * outputSpaces.size());
+        for (const sk_sp<SkColorSpace>& iCS : inputSpaces) {
+            for (const sk_sp<SkColorSpace>& oCS : outputSpaces) {
+                fColorSpaces.push_back({iCS, oCS});
+            }
+        }
+
+        this->updateNumShaderCombos();
     }
 
 private:
     int numChildCombinations() const override { return fNumShaderCombos * fColorSpaces.size(); }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < this->numCombinations());
 
         int desiredShaderCombination = desiredCombination % fNumShaderCombos;
         int desiredColorSpaceCombination = desiredCombination / fNumShaderCombos;
         SkASSERT(desiredColorSpaceCombination < (int) fColorSpaces.size());
+
+        // Check for an identity working colorspace (that is detected up front with
+        // makeWithColorSpace, but due to return type mismatches, can't be handled as easily with
+        // the WorkingColorSpace() factory).
+        if (!fColorSpaces[desiredColorSpaceCombination].first &&
+            !fColorSpaces[desiredColorSpaceCombination].second) {
+            // So just add the desired shader direction
+            AddToKey<PrecompileShader>(keyContext, fShaders, desiredShaderCombination);
+            return;
+        }
 
         const SkColorInfo& dstInfo = keyContext.dstColorInfo();
         const SkAlphaType dstAT = dstInfo.alphaType();
@@ -931,32 +920,60 @@ private:
             dstCS = SkColorSpace::MakeSRGB();
         }
 
-        sk_sp<SkColorSpace> workingCS = fColorSpaces[desiredColorSpaceCombination];
-        SkColorInfo workingInfo(dstInfo.colorType(), dstAT, workingCS);
+        sk_sp<SkColorSpace> inputCS = fColorSpaces[desiredColorSpaceCombination].first;
+        if (!inputCS) {
+            inputCS = dstCS;
+        }
+        sk_sp<SkColorSpace> outputCS = fColorSpaces[desiredColorSpaceCombination].second;
+        if (!outputCS) {
+            outputCS = inputCS;
+        }
+
+        // SkWorkingColorSpaceShader's workInUnpremul is not exposed yet in the public API so
+        // precompile can assume that it'll always use dstAT.
+        const SkAlphaType workingAT = dstAT;
+        SkColorInfo workingInfo(dstInfo.colorType(), workingAT, inputCS);
         KeyContextWithColorInfo workingContext(keyContext, workingInfo);
 
-        Compose(keyContext, builder, gatherer,
+        Compose(keyContext,
                 /* addInnerToKey= */ [&]() -> void {
-                    AddToKey<PrecompileShader>(keyContext, builder, gatherer, fShaders,
-                                               desiredShaderCombination);
+                    AddToKey<PrecompileShader>(workingContext, fShaders, desiredShaderCombination);
                 },
                 /* addOuterToKey= */ [&]() -> void {
                     ColorSpaceTransformBlock::ColorSpaceTransformData data(
-                            workingCS.get(), dstAT, dstCS.get(), dstAT);
-                    ColorSpaceTransformBlock::AddBlock(keyContext, builder, gatherer, data);
+                            outputCS.get(), workingAT, dstCS.get(), dstAT);
+                    ColorSpaceTransformBlock::AddBlock(keyContext, data);
                 });
     }
 
+    void updateNumShaderCombos() {
+        fNumShaderCombos = 0;
+        for (const auto& s : fShaders) {
+            fNumShaderCombos += s->priv().numCombinations();
+        }
+    }
+
     std::vector<sk_sp<PrecompileShader>> fShaders;
-    std::vector<sk_sp<SkColorSpace>>     fColorSpaces;
+    std::vector<std::pair</*input =*/sk_sp<SkColorSpace>,
+                          /*output=*/sk_sp<SkColorSpace>>> fColorSpaces;
     int fNumShaderCombos;
 };
 
 sk_sp<PrecompileShader> PrecompileShaders::WorkingColorSpace(
         SkSpan<const sk_sp<PrecompileShader>> shaders,
-        SkSpan<const sk_sp<SkColorSpace>> colorSpaces) {
+        SkSpan<const sk_sp<SkColorSpace>> inputSpaces,
+        SkSpan<const sk_sp<SkColorSpace>> outputSpaces) {
     return sk_make_sp<PrecompileWorkingColorSpaceShader>(std::move(shaders),
-                                                         std::move(colorSpaces));
+                                                         std::move(inputSpaces),
+                                                         std::move(outputSpaces));
+}
+
+sk_sp<PrecompileShader> PrecompileShaders::WorkingColorSpaceExplicit(
+        SkSpan<const sk_sp<PrecompileShader>> shaders,
+        SkSpan<const std::pair</*input =*/sk_sp<SkColorSpace>,
+                               /*output=*/sk_sp<SkColorSpace>>> inputAndOutputSpaces) {
+    return sk_make_sp<PrecompileWorkingColorSpaceShader>(std::move(shaders),
+                                                         std::move(inputAndOutputSpaces));
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -986,19 +1003,16 @@ public:
 private:
     int numChildCombinations() const override { return fNumWrappedCombos; }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < fNumWrappedCombos);
 
         LocalMatrixShaderBlock::LMShaderData kIgnoredLMShaderData(SkMatrix::I());
 
-        LocalMatrixShaderBlock::BeginBlock(keyContext, builder, gatherer, kIgnoredLMShaderData);
+        LocalMatrixShaderBlock::BeginBlock(keyContext, kIgnoredLMShaderData);
 
-            AddToKey<PrecompileShader>(keyContext, builder, gatherer, fWrapped, desiredCombination);
+        AddToKey<PrecompileShader>(keyContext, fWrapped, desiredCombination);
 
-        builder->endBlock();
+        keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
     std::vector<sk_sp<PrecompileShader>> fWrapped;
@@ -1025,10 +1039,7 @@ private:
 
     int numChildCombinations() const override { return fNumWrappedCombos; }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < this->numCombinations());
 
         using namespace SkKnownRuntimeEffects;
@@ -1050,9 +1061,9 @@ private:
 
         KeyContextForRuntimeEffect childContext(keyContext, effect, /*child=*/0);
 
-        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(effect) });
-            fWrapped->priv().addToKey(childContext, builder, gatherer, desiredWrappedCombination);
-        builder->endBlock();
+        RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
+            fWrapped->priv().addToKey(childContext, desiredWrappedCombination);
+        keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
     sk_sp<PrecompileShader> fWrapped;
@@ -1088,10 +1099,7 @@ private:
 
     int numChildCombinations() const override { return fNumWrappedCombos; }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
 
         int desiredTextureCombination = 0;
 
@@ -1117,17 +1125,16 @@ private:
 
         KeyContextForRuntimeEffect childContext(keyContext, effect, /*child=*/0);
 
-        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(effect) });
-            fWrapped->priv().addToKey(childContext, builder, gatherer, desiredWrappedCombination);
+        RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
+            fWrapped->priv().addToKey(childContext, desiredWrappedCombination);
             if (stableKey != SkKnownRuntimeEffects::StableKey::kMatrixConvUniforms) {
                 SkASSERT(effect->children().size() == 2);
                 KeyContextForRuntimeEffect kernelContext(keyContext, effect, /*child=*/1);
-                fRawImageShader->priv().addToKey(kernelContext, builder, gatherer,
-                                                 desiredTextureCombination);
+                fRawImageShader->priv().addToKey(kernelContext, desiredTextureCombination);
             } else {
                 SkASSERT(effect->children().size() == 1);
             }
-        builder->endBlock();
+        keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
     sk_sp<PrecompileShader> fWrapped;
@@ -1156,10 +1163,7 @@ public:
 private:
     int numChildCombinations() const override { return fNumWrappedCombos; }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < fNumWrappedCombos);
 
         const SkRuntimeEffect* effect = GetKnownRuntimeEffect(fStableKey);
@@ -1167,9 +1171,9 @@ private:
 
         KeyContextForRuntimeEffect childContext(keyContext, effect, /*child=*/0);
 
-        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(effect) });
-            fWrapped->priv().addToKey(childContext, builder, gatherer, desiredCombination);
-        builder->endBlock();
+        RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
+            fWrapped->priv().addToKey(childContext, desiredCombination);
+        keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
     sk_sp<PrecompileShader> fWrapped;
@@ -1203,10 +1207,7 @@ public:
 private:
     int numChildCombinations() const override { return fNumDisplacementCombos * fNumColorCombos; }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < this->numChildCombinations());
 
         const int desiredDisplacementCombination = desiredCombination % fNumDisplacementCombos;
@@ -1220,12 +1221,10 @@ private:
         KeyContextForRuntimeEffect displContext(keyContext, effect, /*child=*/0);
         KeyContextForRuntimeEffect colorContext(keyContext, effect, /*child=*/1);
 
-        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { sk_ref_sp(effect) });
-            fDisplacement->priv().addToKey(displContext, builder, gatherer,
-                                           desiredDisplacementCombination);
-            fColor->priv().addToKey(colorContext, builder, gatherer,
-                                    desiredColorCombination);
-        builder->endBlock();
+        RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(effect) });
+            fDisplacement->priv().addToKey(displContext, desiredDisplacementCombination);
+            fColor->priv().addToKey(colorContext, desiredColorCombination);
+        keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
     sk_sp<PrecompileShader> fDisplacement;
@@ -1251,10 +1250,7 @@ public:
 private:
     int numChildCombinations() const override { return fNumWrappedCombos; }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
         SkASSERT(desiredCombination < fNumWrappedCombos);
 
         const SkRuntimeEffect* normalEffect =
@@ -1267,13 +1263,11 @@ private:
         KeyContextForRuntimeEffect lightingContext(keyContext, lightingEffect, /*child=*/0);
         KeyContextForRuntimeEffect normalContext(lightingContext, normalEffect, /*child=*/0);
 
-        RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer,
-                                       { sk_ref_sp(lightingEffect) });
-            RuntimeEffectBlock::BeginBlock(lightingContext, builder, gatherer,
-                                           { sk_ref_sp(normalEffect) });
-                fWrapped->priv().addToKey(normalContext, builder, gatherer, desiredCombination);
-            builder->endBlock();
-        builder->endBlock();
+        RuntimeEffectBlock::BeginBlock(keyContext, { sk_ref_sp(lightingEffect) });
+            RuntimeEffectBlock::BeginBlock(lightingContext, { sk_ref_sp(normalEffect) });
+                fWrapped->priv().addToKey(normalContext, desiredCombination);
+            keyContext.paintParamsKeyBuilder()->endBlock();
+        keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
     sk_sp<PrecompileShader> fWrapped;

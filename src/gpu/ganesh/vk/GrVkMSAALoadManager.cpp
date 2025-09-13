@@ -32,10 +32,11 @@
 #include "src/gpu/ganesh/vk/GrVkUniformHandler.h"
 #include "src/gpu/ganesh/vk/GrVkUtil.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
-#include <stdint.h>
 #include <string.h>
+#include <cstdint>
 #include <string>
 #include <utility>
 
@@ -74,7 +75,7 @@ bool GrVkMSAALoadManager::createMSAALoadProgram(GrVkGpu* gpu) {
             "}");
 
     SkSL::ProgramSettings settings;
-    std::string spirv;
+    SkSL::NativeShader spirv;
     SkSL::Program::Interface interface;
     if (!GrCompileVkShaderModule(gpu, vertShaderText, VK_SHADER_STAGE_VERTEX_BIT,
                                  &fVertShaderModule, &fShaderStageInfo[0], settings, &spirv,

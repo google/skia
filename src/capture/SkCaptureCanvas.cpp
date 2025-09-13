@@ -7,24 +7,25 @@
 
 #include "src/capture/SkCaptureCanvas.h"
 
-#include <memory>
 #include "include/core/SkPicture.h"
 #include "include/core/SkRasterHandleAllocator.h"
 #include "include/core/SkRefCnt.h"
 #include "include/private/base/SkAssert.h"
 #include "include/utils/SkNWayCanvas.h"
+#include "src/capture/SkCaptureManager.h"
 #include "src/core/SkCanvasPriv.h"
 
-SkCaptureCanvas::SkCaptureCanvas(SkCanvas* canvas)
+SkCaptureCanvas::SkCaptureCanvas(SkCanvas* canvas, SkCaptureManager* manager)
         : SkNWayCanvas(canvas->imageInfo().width(), canvas->imageInfo().height()) {
     fBaseCanvas = canvas;
+    fManager = manager;
     this->addCanvas(canvas);
 }
 
 SkCaptureCanvas::~SkCaptureCanvas() = default;
 
 void SkCaptureCanvas::pollCapturingStatus() {
-    bool shouldPoll = false;  // TODO: = SkCanvasPriv::TopDevice(fBaseCanvas)->recorder()->...
+    bool shouldPoll = fManager->isCurrentlyCapturing();
     if (fCapturing != shouldPoll) {
         if (shouldPoll) {
             this->attachRecordingCanvas();
@@ -39,21 +40,25 @@ sk_sp<SkPicture> SkCaptureCanvas::snapPicture() {
     if (!fCapturing) {
         return nullptr;
     }
-    auto skp = fRecorder->finishRecordingAsPicture();
-    this->detachRecordingCanvas();  // remove the stale recording canvas
+    this->detachRecordingCanvas(); // remove the stale recording canvas before the recorder finishes
+    auto skp = fRecorder.finishRecordingAsPicture();
     this->attachRecordingCanvas();
     return skp;
 }
 
 void SkCaptureCanvas::attachRecordingCanvas() {
     SkASSERT(this->fList.size() == 1);
-    this->addCanvas(fRecorder->beginRecording(fBaseCanvas->imageInfo().width(),
+    this->addCanvas(fRecorder.beginRecording(fBaseCanvas->imageInfo().width(),
                                               fBaseCanvas->imageInfo().height()));
 }
 
 void SkCaptureCanvas::detachRecordingCanvas() {
     SkASSERT(this->fList.size() == 2);
-    this->removeCanvas(fRecorder->getRecordingCanvas());
+    this->removeCanvas(fRecorder.getRecordingCanvas());
+}
+
+void SkCaptureCanvas::onSurfaceDelete() {
+    // TODO (b/412351769): signal to the capture manager that this canvas's surface has been deleted
 }
 
 //////////////////// Function forwarding ///////////////////////

@@ -8,6 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathUtils.h"
 #include "include/core/SkPoint.h"
 #include "include/private/base/SkAssert.h"
@@ -57,12 +58,13 @@ const RenderNode* Draw::onNodeAt(const SkPoint& p) const {
         return this;
     }
 
-    SkPath stroke_path;
+    SkPathBuilder stroke_path;
     if (!skpathutils::FillPathWithPaint(fGeometry->asPath(), paint, &stroke_path)) {
         return nullptr;
     }
 
-    return stroke_path.contains(p.x(), p.y()) ? this : nullptr;
+    // todo: can we shared code (via SkPathRaw) for the impl of contains() in builder?
+    return stroke_path.detach().contains(p.x(), p.y()) ? this : nullptr;
 }
 
 SkRect Draw::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {

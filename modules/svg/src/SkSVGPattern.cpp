@@ -46,8 +46,8 @@ const SkSVGPattern* SkSVGPattern::hrefTarget(const SkSVGRenderContext& ctx) cons
 }
 
 template <typename T>
-int inherit_if_needed(const SkTLazy<T>& src, SkTLazy<T>& dst) {
-    if (!dst.isValid()) {
+int inherit_if_needed(const std::optional<T>& src, std::optional<T>& dst) {
+    if (!dst.has_value()) {
         dst = src;
         return 1;
     }
@@ -99,18 +99,16 @@ bool SkSVGPattern::onAsPaint(const SkSVGRenderContext& ctx, SkPaint* paint) cons
     const auto* contentNode = this->resolveHref(ctx, &attrs);
 
     const auto tile = ctx.lengthContext().resolveRect(
-            attrs.fX.isValid()      ? *attrs.fX      : SkSVGLength(0),
-            attrs.fY.isValid()      ? *attrs.fY      : SkSVGLength(0),
-            attrs.fWidth.isValid()  ? *attrs.fWidth  : SkSVGLength(0),
-            attrs.fHeight.isValid() ? *attrs.fHeight : SkSVGLength(0));
+            attrs.fX.has_value()      ? *attrs.fX      : SkSVGLength(0),
+            attrs.fY.has_value()      ? *attrs.fY      : SkSVGLength(0),
+            attrs.fWidth.has_value()  ? *attrs.fWidth  : SkSVGLength(0),
+            attrs.fHeight.has_value() ? *attrs.fHeight : SkSVGLength(0));
 
     if (tile.isEmpty()) {
         return false;
     }
 
-    const SkMatrix* patternTransform = attrs.fPatternTransform.isValid()
-            ? attrs.fPatternTransform.get()
-            : nullptr;
+    const SkMatrix* patternTransform = SkOptAddressOrNull(attrs.fPatternTransform);
 
     SkPictureRecorder recorder;
     SkSVGRenderContext recordingContext(ctx, recorder.beginRecording(tile));

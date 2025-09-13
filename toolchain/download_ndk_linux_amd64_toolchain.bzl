@@ -12,7 +12,7 @@ def _download_ndk_linux_amd64_toolchain_impl(ctx):
         name = "ndk_linux_amd64",
         urls = [
             "https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip",
-            "https://storage.googleapis.com/skia-world-readable/bazel/ad7ce5467e18d40050dc51b8e7affc3e635c85bd8c59be62de32352328ed467e.zip",
+            "https://cdn.skia.org/bazel/ad7ce5467e18d40050dc51b8e7affc3e635c85bd8c59be62de32352328ed467e.zip",
         ],
         sha256 = "ad7ce5467e18d40050dc51b8e7affc3e635c85bd8c59be62de32352328ed467e",
         strip_prefix = "android-ndk-r21e",

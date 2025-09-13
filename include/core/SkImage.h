@@ -21,7 +21,6 @@
 #include <optional>
 
 class GrDirectContext;
-class GrRecordingContext;
 class SkBitmap;
 class SkColorSpace;
 class SkData;
@@ -42,8 +41,6 @@ enum class SkTileMode;
 
 struct SkIPoint;
 struct SkSamplingOptions;
-
-namespace skgpu::graphite { class Recorder; }
 
 namespace SkImages {
 
@@ -435,8 +432,8 @@ public:
     virtual size_t textureSize() const = 0;
 
     /** Returns true if SkImage can be drawn on either raster surface or GPU surface.
-        If context is nullptr, tests if SkImage draws on raster surface;
-        otherwise, tests if SkImage draws on GPU surface associated with context.
+        If recorder is nullptr, tests if SkImage draws on raster surface;
+        otherwise, tests if SkImage draws on the associated GPU surface.
 
         SkImage backed by GPU texture may become invalid if associated context is
         invalid. lazy image may be invalid and may not draw to raster surface or
@@ -447,7 +444,6 @@ public:
 
         example: https://fiddle.skia.org/c/@Image_isValid
     */
-    virtual bool isValid(GrRecordingContext* context) const = 0;
     virtual bool isValid(SkRecorder*) const = 0;
 
     /** \enum SkImage::CachingHint
@@ -745,29 +741,8 @@ public:
     */
     sk_sp<SkData> refEncodedData() const;
 
-    /** Returns subset of this image.
-
-        Returns nullptr if any of the following are true:
-          - Subset is empty
-          - Subset is not contained inside the image's bounds
-          - Pixels in the source image could not be read or copied
-          - This image is texture-backed and the provided context is null or does not match
-            the source image's context.
-
-        If the source image was texture-backed, the resulting image will be texture-backed also.
-        Otherwise, the returned image will be raster-backed.
-
-        @param direct  the GrDirectContext of the source image (nullptr is ok if the source image
-                       is not texture-backed).
-        @param subset  bounds of returned SkImage
-        @return        the subsetted image, or nullptr
-
-        example: https://fiddle.skia.org/c/@Image_makeSubset
-    */
-    virtual sk_sp<SkImage> makeSubset(GrDirectContext* direct, const SkIRect& subset) const = 0;
-
     struct RequiredProperties {
-        bool fMipmapped;
+        bool fMipmapped = false;
 
         bool operator==(const RequiredProperties& other) const {
             return fMipmapped == other.fMipmapped;
@@ -798,7 +773,7 @@ public:
         @param RequiredProperties  properties the returned SkImage must possess (e.g. mipmaps)
         @return                    the subsetted image, or nullptr
     */
-    virtual sk_sp<SkImage> makeSubset(skgpu::graphite::Recorder*,
+    virtual sk_sp<SkImage> makeSubset(SkRecorder*,
                                       const SkIRect& subset,
                                       RequiredProperties) const = 0;
 
@@ -888,25 +863,6 @@ public:
         Otherwise, converts pixels from SkImage SkColorSpace to target SkColorSpace.
         If SkImage colorSpace() returns nullptr, SkImage SkColorSpace is assumed to be sRGB.
 
-        If this image is texture-backed, the context parameter is required and must match the
-        context of the source image.
-
-        @param direct  The GrDirectContext in play, if it exists
-        @param target  SkColorSpace describing color range of returned SkImage
-        @return        created SkImage in target SkColorSpace
-
-        example: https://fiddle.skia.org/c/@Image_makeColorSpace
-    */
-    virtual sk_sp<SkImage> makeColorSpace(GrDirectContext* direct,
-                                          sk_sp<SkColorSpace> target) const = 0;
-
-    /** Creates SkImage in target SkColorSpace.
-        Returns nullptr if SkImage could not be created.
-
-        Returns original SkImage if it is in target SkColorSpace.
-        Otherwise, converts pixels from SkImage SkColorSpace to target SkColorSpace.
-        If SkImage colorSpace() returns nullptr, SkImage SkColorSpace is assumed to be sRGB.
-
         If this image is graphite-backed, the recorder parameter is required.
 
         @param targetColorSpace    SkColorSpace describing color range of returned SkImage
@@ -917,24 +873,6 @@ public:
     virtual sk_sp<SkImage> makeColorSpace(SkRecorder*,
                                           sk_sp<SkColorSpace> targetColorSpace,
                                           RequiredProperties) const = 0;
-
-    /** Experimental.
-        Creates SkImage in target SkColorType and SkColorSpace.
-        Returns nullptr if SkImage could not be created.
-
-        Returns original SkImage if it is in target SkColorType and SkColorSpace.
-
-        If this image is texture-backed, the context parameter is required and must match the
-        context of the source image.
-
-        @param direct           The GrDirectContext in play, if it exists
-        @param targetColorType  SkColorType of returned SkImage
-        @param targetColorSpace SkColorSpace of returned SkImage
-        @return                 created SkImage in target SkColorType and SkColorSpace
-    */
-    virtual sk_sp<SkImage> makeColorTypeAndColorSpace(GrDirectContext* direct,
-                                                      SkColorType targetColorType,
-                                                      sk_sp<SkColorSpace> targetCS) const = 0;
 
     /** Experimental.
         Creates SkImage in target SkColorType and SkColorSpace.

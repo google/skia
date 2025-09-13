@@ -39,7 +39,7 @@
 #include "src/gpu/ganesh/gl/GrGLDefines.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tests/Test.h"
-#include "tools/gpu/GrContextFactory.h"
+#include "tools/ganesh/GrContextFactory.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 
 #include <android/hardware_buffer.h>
@@ -453,8 +453,6 @@ public:
         }
 
         delete fExtensions;
-
-        sk_gpu_test::FreeVulkanFeaturesStructs(fFeatures);
         delete fFeatures;
     }
 
@@ -517,8 +515,8 @@ private:
     VkImage fImage = VK_NULL_HANDLE;
     VkDeviceMemory fMemory = VK_NULL_HANDLE;
 
-    skgpu::VulkanExtensions*            fExtensions = nullptr;
-    VkPhysicalDeviceFeatures2*          fFeatures = nullptr;
+    skgpu::VulkanExtensions* fExtensions = nullptr;
+    sk_gpu_test::TestVkFeatures* fFeatures = nullptr;
     VkDebugUtilsMessengerEXT fDebugMessenger = VK_NULL_HANDLE;
     PFN_vkDestroyDebugUtilsMessengerEXT fDestroyDebugCallback = nullptr;
 
@@ -538,10 +536,7 @@ bool VulkanTestHelper::init(skiatest::Reporter* reporter) {
     }
 
     fExtensions = new skgpu::VulkanExtensions();
-    fFeatures = new VkPhysicalDeviceFeatures2;
-    memset(fFeatures, 0, sizeof(VkPhysicalDeviceFeatures2));
-    fFeatures->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    fFeatures->pNext = nullptr;
+    fFeatures = new sk_gpu_test::TestVkFeatures;
 
     fBackendContext.fInstance = VK_NULL_HANDLE;
     fBackendContext.fDevice = VK_NULL_HANDLE;

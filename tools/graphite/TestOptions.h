@@ -23,7 +23,6 @@ struct TestOptions {
 #if defined(SK_DAWN)
         return fDisableTintSymbolRenaming ||
                fNeverYieldToWebGPU ||
-               fUseTintIR ||
                fUseWGPUTextureView;
 #else
         return false;
@@ -35,7 +34,6 @@ struct TestOptions {
 #if defined(SK_DAWN)
     bool fDisableTintSymbolRenaming = false;
     bool fNeverYieldToWebGPU = false;
-    bool fUseTintIR = false;
     bool fUseWGPUTextureView = false;
 #endif
 };

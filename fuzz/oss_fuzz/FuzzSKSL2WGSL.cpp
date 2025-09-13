@@ -9,6 +9,7 @@
 #include "src/sksl/SkSLCompiler.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/codegen/SkSLWGSLCodeGenerator.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
@@ -21,7 +22,7 @@ bool FuzzSKSL2WGSL(const uint8_t *data, size_t size) {
             compiler.convertProgram(SkSL::ProgramKind::kFragment,
                                     std::string(reinterpret_cast<const char*>(data), size),
                                     settings);
-    std::string output;
+    SkSL::NativeShader output;
     if (!program || !SkSL::ToWGSL(*program, SkSL::ShaderCapsFactory::Default(), &output)) {
         return false;
     }

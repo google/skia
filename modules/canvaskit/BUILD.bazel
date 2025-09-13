@@ -22,7 +22,6 @@ BASE_LINKOPTS = [
     "-fno-rtti",
     "--no-entry",
     "-sALLOW_MEMORY_GROWTH",
-    "-sUSE_PTHREADS=0",  # Disable pthreads
     "-sMODULARIZE",
     "-sDISABLE_EXCEPTION_CATCHING",  # Disable all exception catching
     "-sNODEJS_CATCH_EXIT=0",  # We don't have a 'main' so disable exit() catching
@@ -33,6 +32,9 @@ BASE_LINKOPTS = [
     "-sDYNAMIC_EXECUTION=0",
     "-sFILESYSTEM=0",
     "-sEXPORTED_FUNCTIONS=['_malloc','_free']",
+    # https://github.com/emscripten-core/emscripten/pull/24079
+    "-sEXPORTED_RUNTIME_METHODS=HEAP32,HEAPU8,HEAPU16,HEAPU32,HEAPF32",
+    "-sINCOMING_MODULE_JS_API=onRuntimeInitialized",
 ]
 
 RELEASE_OPTS = [

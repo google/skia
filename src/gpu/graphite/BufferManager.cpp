@@ -4,25 +4,34 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
-#include "src/gpu/graphite/BufferManager.h"
-
+#include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/Recording.h"
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMath.h"
+#include "include/private/base/SkTemplates.h"
+#include "include/private/base/SkTo.h"
+#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
-#include "src/gpu/graphite/ContextPriv.h"
+#include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/QueueManager.h"
 #include "src/gpu/graphite/RecordingPriv.h"
+#include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceProvider.h"
-#include "src/gpu/graphite/SharedContext.h"
 #include "src/gpu/graphite/UploadBufferManager.h"
 #include "src/gpu/graphite/task/ClearBuffersTask.h"
 #include "src/gpu/graphite/task/CopyTask.h"
+#include "src/gpu/graphite/task/Task.h"
 #include "src/gpu/graphite/task/TaskList.h"
 
+#include <algorithm>
+#include <cstddef>
+#include <cstring>
 #include <limits>
 #include <numeric>
 #include <optional>
+#include <tuple>
 
 namespace skgpu::graphite {
 
@@ -398,7 +407,7 @@ ScratchBuffer DrawBufferManager::getScratchStorage(size_t requiredBytes) {
 #if defined(GPU_TEST_UTILS)
             fUseExactBuffSizes ? info.fCurBlockSize :
 #endif
-                               sufficient_block_size(requiredBytes32, info.fCurBlockSize);
+                                 sufficient_block_size(requiredBytes32, info.fCurBlockSize);
 
     sk_sp<Buffer> buffer = this->findReusableSbo(bufferSize);
     if (!buffer) {
@@ -588,8 +597,8 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
         info->fOffset = offset.value();
     }
 
-     // A transfer buffer is not necessary if the caller does not intend to upload CPU data to it.
-    bool useTransferBuffer = supportCpuUpload && !fCaps->drawBufferCanBeMapped();
+    // A transfer buffer is not necessary if the caller does not intend to upload CPU data to it.
+    const bool useTransferBuffer = supportCpuUpload && !fCaps->drawBufferCanBeMapped();
     if (!info->fBuffer) {
         // Create the first buffer with the full fCurBlockSize, but create subsequent buffers with a
         // smaller size if fCurBlockSize has increased from the minimum. This way if we use just a
@@ -598,16 +607,20 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
         const uint32_t blockSize = overflowedBuffer
                                            ? std::max(info->fCurBlockSize / 4, info->fMinBlockSize)
                                            : info->fCurBlockSize;
-        const uint32_t bufferSize = sufficient_block_size(requiredBytes, blockSize);
+        const uint32_t bufferSize =
+#if defined(GPU_TEST_UTILS)
+            fUseExactBuffSizes ? info->fCurBlockSize :
+#endif
+                                 sufficient_block_size(requiredBytes, blockSize);
 
         // This buffer can be GPU-only if
         //     a) the caller does not intend to ever upload CPU data to the buffer; or
         //     b) CPU data will get uploaded to fBuffer only via a transfer buffer
         info->fBuffer = fResourceProvider->findOrCreateBuffer(
-            bufferSize,
-            info->fType,
-            this->getGpuAccessPattern(useTransferBuffer || !supportCpuUpload),
-            std::move(label));
+                bufferSize,
+                info->fType,
+                this->getGpuAccessPattern(useTransferBuffer || !supportCpuUpload),
+                std::move(label));
         info->fOffset = 0;
         if (!info->fBuffer) {
             this->onFailedBuffer();
@@ -620,7 +633,6 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
                 fUploadManager->makeBindInfo(info->fBuffer->size(),
                                              fCaps->requiredTransferBufferAlignment(),
                                              "TransferForDataBuffer");
-
         if (!info->fTransferBuffer) {
             this->onFailedBuffer();
             return {};

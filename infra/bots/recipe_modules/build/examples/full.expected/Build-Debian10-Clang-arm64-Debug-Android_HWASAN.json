@@ -53,20 +53,20 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
     },
     "name": "gn gen"
   },
   {
     "cmd": [
-      "ninja",
+      "[START_DIR]/cache/work/skia/third_party/ninja/ninja",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian10-Clang-arm64-Debug-Android_HWASAN/Debug"
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
     },
     "name": "ninja"
   },

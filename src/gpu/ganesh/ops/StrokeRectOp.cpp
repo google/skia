@@ -350,8 +350,7 @@ bool compute_aa_rects(const GrCaps& caps,
                       SkVector* devHalfStrokeSize) {
     SkVector devStrokeSize;
     if (strokeWidth > 0) {
-        devStrokeSize.set(strokeWidth, strokeWidth);
-        viewMatrix.mapVectors(&devStrokeSize, 1);
+        devStrokeSize = viewMatrix.mapVector({strokeWidth, strokeWidth});
         devStrokeSize.setAbs(devStrokeSize);
     } else {
         devStrokeSize.set(SK_Scalar1, SK_Scalar1);

@@ -18,8 +18,8 @@
 
  /***
   *
-  * This GM reproduces Skia bug 2904, in which a tiled bitmap shader was failing to draw correctly
-  * when fractional image scaling was ignored by the high quality bitmap scaler.
+  * This GM reproduces skbug.com/40034014, in which a tiled bitmap shader was failing to draw
+  * correctly when fractional image scaling was ignored by the high quality bitmap scaler.
   *
   ***/
 

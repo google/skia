@@ -231,12 +231,11 @@ cc_library(
         "//conditions:default": [],
     }),
     hdrs = LIBJPEG_HEADERS,
-    copts = [
-        # There are some #include "neon-compat.h" etc that need this search path
-        "-Iexternal/libjpeg_turbo/simd/arm/",
-        "-Iexternal/+cpp_modules+libjpeg_turbo/simd/arm/",
+    includes = [
+        # There are some #include "neon-compat.h" etc that need this on the search path
+        "simd/arm",
+        "src",
     ],
-    includes = ["src"],
     local_defines = JPEGTURBO_DEFINES,
     textual_hdrs = JPEGTURBO_TEXT_HDRS,
     visibility = ["//visibility:public"],

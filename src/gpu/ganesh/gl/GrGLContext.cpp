@@ -7,6 +7,8 @@
 
 #include "src/gpu/ganesh/gl/GrGLContext.h"
 
+#include <cstdlib>
+
 #include "include/gpu/ganesh/GrContextOptions.h"
 #include "src/gpu/ganesh/gl/GrGLGLSL.h"
 #include "src/sksl/SkSLGLSL.h"
@@ -57,7 +59,7 @@ std::unique_ptr<GrGLContext> GrGLContext::Make(sk_sp<const GrGLInterface> interf
     // extension, and require that it be enabled to work with ESSL3. Other devices require the ES2
     // extension to be enabled, even when using ESSL3. Some devices appear to only support the ES2
     // extension. As an extreme (optional) solution, we can fallback to using ES2 shading language
-    // if we want to prioritize external texture support. skbug.com/7713
+    // if we want to prioritize external texture support. skbug.com/40038974
     if (GR_IS_GR_GL_ES(interface->fStandard) &&
         options.fPreferExternalImagesOverES3 &&
         !options.fDisableDriverCorrectnessWorkarounds &&

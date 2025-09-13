@@ -34,9 +34,9 @@ DEF_SIMPLE_GM(skbug_5321, canvas, 128, 128) {
     SkTextBlobBuilder builder;
 
     auto rec = builder.allocRunPosH(font, glyph_count, y);
-    font.textToGlyphs(text, byteLength, SkTextEncoding::kUTF8, rec.glyphs, glyph_count);
+    font.textToGlyphs(text, byteLength, SkTextEncoding::kUTF8, {rec.glyphs, glyph_count});
 
-    font.getWidths(rec.glyphs, glyph_count, rec.pos);
+    font.getWidths({rec.glyphs, glyph_count}, {rec.pos, glyph_count});
     for (int i = 0; i < glyph_count; ++i) {
         SkScalar w = rec.pos[i];
         rec.pos[i] = x;

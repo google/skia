@@ -162,13 +162,13 @@ DEF_TEST(CanvasState_test_complex_layers, reporter) {
             canvas->drawColor(SK_ColorRED);
 
             for (size_t k = 0; k < std::size(layerAlpha); ++k) {
-                SkTLazy<SkPaint> paint;
+                std::optional<SkPaint> paint;
                 if (layerAlpha[k] != 0xFF) {
-                    paint.init()->setAlpha(layerAlpha[k]);
+                    paint.emplace().setAlpha(layerAlpha[k]);
                 }
 
                 // draw a rect within the layer's bounds and again outside the layer's bounds
-                canvas->saveLayer(SkCanvas::SaveLayerRec(&rect, paint.getMaybeNull()));
+                canvas->saveLayer(SkCanvas::SaveLayerRec(&rect, SkOptAddressOrNull(paint)));
 
                 if (j) {
                     // Capture from the first Skia.

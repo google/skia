@@ -39,7 +39,7 @@ Status TaskList::visitTasks(Fn fn) {
 
 Status TaskList::prepareResources(ResourceProvider* resourceProvider,
                                   ScratchResourceManager* scratchManager,
-                                  const RuntimeEffectDictionary* runtimeDict) {
+                                  sk_sp<const RuntimeEffectDictionary> runtimeDict) {
     TRACE_EVENT1("skia.gpu", TRACE_FUNC, "# tasks", fTasks.size());
     scratchManager->pushScope();
     Status status = this->visitTasks([&](Task* task) {
@@ -56,6 +56,24 @@ Status TaskList::addCommands(Context* context,
     return this->visitTasks([&](Task* task) {
         return task->addCommands(context, commandBuffer, replayData);
     });
+}
+
+bool TaskList::visitPipelines(const std::function<bool(const GraphicsPipeline*)>& visitor) {
+    Status status = this->visitTasks([&](Task* task) {
+        return task->visitPipelines(visitor) ? Status::kSuccess : Status::kFail;
+    });
+    // Map back to simple bool (treat kDiscard as true too, no pipelines to visit means all
+    // pipelines were visited).
+    return status != Status::kFail;
+}
+
+bool TaskList::visitProxies(const std::function<bool(const TextureProxy*)>& visitor) {
+    Status status = this->visitTasks([&](Task* task) {
+        return task->visitProxies(visitor) ? Status::kSuccess : Status::kFail;
+    });
+    // Map back to simple bool (treat kDiscard as true too, no pipelines to visit means all
+    // pipelines were visited).
+    return status != Status::kFail;
 }
 
 } // namespace skgpu::graphite

@@ -37,9 +37,6 @@ DawnWorkSubmissionWithAsyncWait::DawnWorkSubmissionWithAsyncWait(
         const DawnSharedContext* sharedContext)
         : GpuWorkSubmission(std::move(cmdBuffer), queueManager), fAsyncWait(sharedContext) {
     queueManager->dawnQueue().OnSubmittedWorkDone(
-            // This is parameter is being removed:
-            // https://github.com/webgpu-native/webgpu-headers/issues/130
-            /*signalValue=*/0,
             [](WGPUQueueWorkDoneStatus, void* userData) {
                 auto asyncWaitPtr = static_cast<DawnAsyncWait*>(userData);
                 asyncWaitPtr->signal();
@@ -74,22 +71,14 @@ private:
 DawnWorkSubmissionWithFuture::DawnWorkSubmissionWithFuture(std::unique_ptr<CommandBuffer> cmdBuffer,
                                                            DawnQueueManager* queueManager)
         : GpuWorkSubmission(std::move(cmdBuffer), queueManager) {
-#if defined(WGPU_BREAKING_CHANGE_QUEUE_WORK_DONE_CALLBACK_MESSAGE)
     fSubmittedWorkDoneFuture = queueManager->dawnQueue().OnSubmittedWorkDone(
             wgpu::CallbackMode::WaitAnyOnly, [](wgpu::QueueWorkDoneStatus, wgpu::StringView) {});
-#else  // defined(WGPU_BREAKING_CHANGE_QUEUE_WORK_DONE_CALLBACK_MESSAGE)
-    fSubmittedWorkDoneFuture = queueManager->dawnQueue().OnSubmittedWorkDone(
-            wgpu::CallbackMode::WaitAnyOnly, [](wgpu::QueueWorkDoneStatus) {});
-#endif  // defined(WGPU_BREAKING_CHANGE_QUEUE_WORK_DONE_CALLBACK_MESSAGE)
 }
 
 bool DawnWorkSubmissionWithFuture::onIsFinished(const SharedContext* sharedContext) {
     wgpu::FutureWaitInfo waitInfo{};
     waitInfo.future = fSubmittedWorkDoneFuture;
-    const auto& instance = static_cast<const DawnSharedContext*>(sharedContext)
-                                   ->device()
-                                   .GetAdapter()
-                                   .GetInstance();
+    const auto& instance = static_cast<const DawnSharedContext*>(sharedContext)->instance();
     if (instance.WaitAny(1, &waitInfo, /*timeoutNS=*/0) != wgpu::WaitStatus::Success) {
         return false;
     }
@@ -100,10 +89,7 @@ bool DawnWorkSubmissionWithFuture::onIsFinished(const SharedContext* sharedConte
 void DawnWorkSubmissionWithFuture::onWaitUntilFinished(const SharedContext* sharedContext) {
     wgpu::FutureWaitInfo waitInfo{};
     waitInfo.future = fSubmittedWorkDoneFuture;
-    const auto& instance = static_cast<const DawnSharedContext*>(sharedContext)
-                                   ->device()
-                                   .GetAdapter()
-                                   .GetInstance();
+    const auto& instance = static_cast<const DawnSharedContext*>(sharedContext)->instance();
     [[maybe_unused]] auto status =
             instance.WaitAny(1, &waitInfo, /*timeoutNS=*/std::numeric_limits<uint64_t>::max());
     SkASSERT(status == wgpu::WaitStatus::Success);

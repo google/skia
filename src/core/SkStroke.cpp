@@ -8,9 +8,12 @@
 #include "src/core/SkStroke.h"
 
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "include/private/base/SkMacros.h"
 #include "include/private/base/SkTo.h"
@@ -22,6 +25,7 @@
 
 #include <algorithm>
 #include <array>
+#include <optional>
 
 enum {
     kTangent_RecursiveLimit,
@@ -164,6 +168,21 @@ struct SkQuadConstruct {    // The state of the quad stroke under construction.
    }
 };
 
+static bool isZeroLengthSincePoint(SkSpan<const SkPoint> span, int startPtIndex) {
+    int count = SkToInt(span.size()) - startPtIndex;
+    if (count < 2) {
+        return true;
+    }
+    const SkPoint* pts = span.data() + startPtIndex;
+    const SkPoint& first = *pts;
+    for (int index = 1; index < count; ++index) {
+        if (first != pts[index]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 class SkPathStroker {
 public:
     SkPathStroker(const SkPath& src,
@@ -181,16 +200,17 @@ public:
     void cubicTo(const SkPoint&, const SkPoint&, const SkPoint&);
     void close(bool isLine) { this->finishContour(true, isLine); }
 
-    void done(SkPath* dst, bool isLine) {
+    void done(SkPathBuilder* dst, bool isLine) {
         this->finishContour(false, isLine);
-        dst->swap(fOuter);
+        *dst = fOuter;
+        fOuter.reset(); // is this needed? we used to "swap" it with dst
     }
 
     SkScalar getResScale() const { return fResScale; }
 
     bool isCurrentContourEmpty() const {
-        return fInner.isZeroLengthSincePoint(0) &&
-               fOuter.isZeroLengthSincePoint(fFirstOuterPtIndexInContour);
+        return isZeroLengthSincePoint(fInner.points(), 0) &&
+               isZeroLengthSincePoint(fOuter.points(), fFirstOuterPtIndexInContour);
     }
 
 private:
@@ -211,7 +231,7 @@ private:
     SkStrokerPriv::CapProc  fCapper;
     SkStrokerPriv::JoinProc fJoiner;
 
-    SkPath  fInner, fOuter, fCusper; // outer is our working answer, inner is temp
+    SkPathBuilder  fInner, fOuter, fCusper; // outer is our working answer, inner is temp
 
     enum StrokeType {
         kOuter_StrokeType = 1,      // use sign-opposite values later to flip perpendicular axis
@@ -333,8 +353,6 @@ void SkPathStroker::postJoinTo(const SkPoint& currPt, const SkVector& normal,
 
 void SkPathStroker::finishContour(bool close, bool currIsLine) {
     if (fSegmentCount > 0) {
-        SkPoint pt;
-
         if (close) {
             fJoiner(&fOuter, &fInner, fPrevUnitNormal, fPrevPt,
                     fFirstUnitNormal, fRadius, fInvMiterLimit,
@@ -344,35 +362,32 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
             if (fCanIgnoreCenter) {
                 // If we can ignore the center just make sure the larger of the two paths
                 // is preserved and don't add the smaller one.
-                if (fInner.getBounds().contains(fOuter.getBounds())) {
-                    fInner.swap(fOuter);
+                if (fInner.computeBounds().contains(fOuter.computeBounds())) {
+                    fOuter = fInner;
                 }
             } else {
                 // now add fInner as its own contour
-                fInner.getLastPt(&pt);
-                fOuter.moveTo(pt);
-                fOuter.reversePathTo(fInner);
-                fOuter.close();
+                if (auto pt = fInner.getLastPt()) {
+                    fOuter.moveTo(*pt);
+                    fOuter.privateReversePathTo(fInner.detach()); // todo: take builder or raw
+                    fOuter.close();
+                }
             }
         } else {    // add caps to start and end
             // cap the end
-            fInner.getLastPt(&pt);
-            fCapper(&fOuter, fPrevPt, fPrevNormal, pt,
-                    currIsLine ? &fInner : nullptr);
-            fOuter.reversePathTo(fInner);
-            // cap the start
-            fCapper(&fOuter, fFirstPt, -fFirstNormal, fFirstOuterPt,
-                    fPrevIsLine ? &fInner : nullptr);
-            fOuter.close();
+            if (auto pt = fInner.getLastPt()) {
+                fCapper(&fOuter, fPrevPt, fPrevNormal, *pt, currIsLine);
+                fOuter.privateReversePathTo(fInner.detach());
+                // cap the start
+                fCapper(&fOuter, fFirstPt, -fFirstNormal, fFirstOuterPt, fPrevIsLine);
+                fOuter.close();
+            }
         }
         if (!fCusper.isEmpty()) {
-            fOuter.addPath(fCusper);
-            fCusper.rewind();
+            fOuter.addPath(fCusper.detach());
         }
     }
-    // since we may re-use fInner, we rewind instead of reset, to save on
-    // reallocating its internal storage.
-    fInner.rewind();
+    fInner.reset();
     fSegmentCount = -1;
     fFirstOuterPtIndexInContour = fOuter.countPoints();
 }
@@ -438,30 +453,28 @@ void SkPathStroker::line_to(const SkPoint& currPt, const SkVector& normal) {
 
 static bool has_valid_tangent(const SkPath::Iter* iter) {
     SkPath::Iter copy = *iter;
-    SkPath::Verb verb;
-    SkPoint pts[4];
-    while ((verb = copy.next(pts))) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
+    while (auto rec = copy.next()) {
+        SkSpan<const SkPoint> pts = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
                 return false;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 if (pts[0] == pts[1]) {
                     continue;
                 }
                 return true;
-            case SkPath::kQuad_Verb:
-            case SkPath::kConic_Verb:
+            case SkPathVerb::kQuad:
+            case SkPathVerb::kConic:
                 if (pts[0] == pts[1] && pts[0] == pts[2]) {
                     continue;
                 }
                 return true;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 if (pts[0] == pts[1] && pts[0] == pts[2] && pts[0] == pts[3]) {
                     continue;
                 }
                 return true;
-            case SkPath::kClose_Verb:
-            case SkPath::kDone_Verb:
+            case SkPathVerb::kClose:
                 return false;
         }
     }
@@ -1150,8 +1163,8 @@ SkPathStroker::ResultType SkPathStroker::compareQuadQuad(const SkPoint quad[3],
 
 void SkPathStroker::addDegenerateLine(const SkQuadConstruct* quadPts) {
     const SkPoint* quad = quadPts->fQuad;
-    SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
-    path->lineTo(quad[2]);
+    auto sink = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
+    sink->lineTo(quad[2]);
 }
 
 bool SkPathStroker::cubicMidOnLine(const SkPoint cubic[4], const SkQuadConstruct* quadPts) const {
@@ -1179,9 +1192,9 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
     if (fFoundTangents) {
         ResultType resultType = this->compareQuadCubic(cubic, quadPts);
         if (kQuad_ResultType == resultType) {
-            SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
+            auto sink = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
             const SkPoint* stroke = quadPts->fQuad;
-            path->quadTo(stroke[1], stroke[2]);
+            sink->quadTo(stroke[1], stroke[2]);
             DEBUG_CUBIC_RECURSION_TRACK_DEPTH(fRecursionDepth);
             return true;
         }
@@ -1234,8 +1247,8 @@ bool SkPathStroker::conicStroke(const SkConic& conic, SkQuadConstruct* quadPts) 
     ResultType resultType = this->compareQuadConic(conic, quadPts);
     if (kQuad_ResultType == resultType) {
         const SkPoint* stroke = quadPts->fQuad;
-        SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
-        path->quadTo(stroke[1], stroke[2]);
+        auto sink = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
+        sink->quadTo(stroke[1], stroke[2]);
         return true;
     }
     if (kDegenerate_ResultType == resultType) {
@@ -1268,8 +1281,8 @@ bool SkPathStroker::quadStroke(const SkPoint quad[3], SkQuadConstruct* quadPts) 
     ResultType resultType = this->compareQuadQuad(quad, quadPts);
     if (kQuad_ResultType == resultType) {
         const SkPoint* stroke = quadPts->fQuad;
-        SkPath* path = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
-        path->quadTo(stroke[1], stroke[2]);
+        auto sink = fStrokeType == kOuter_StrokeType ? &fOuter : &fInner;
+        sink->quadTo(stroke[1], stroke[2]);
         return true;
     }
     if (kDegenerate_ResultType == resultType) {
@@ -1414,38 +1427,10 @@ void SkStroke::setJoin(SkPaint::Join join) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// If src==dst, then we use a tmp path to record the stroke, and then swap
-// its contents with src when we're done.
-class AutoTmpPath {
-public:
-    AutoTmpPath(const SkPath& src, SkPath** dst) : fSrc(src) {
-        if (&src == *dst) {
-            *dst = &fTmpDst;
-            fSwapWithSrc = true;
-        } else {
-            (*dst)->reset();
-            fSwapWithSrc = false;
-        }
-    }
-
-    ~AutoTmpPath() {
-        if (fSwapWithSrc) {
-            fTmpDst.swap(*const_cast<SkPath*>(&fSrc));
-        }
-    }
-
-private:
-    SkPath          fTmpDst;
-    const SkPath&   fSrc;
-    bool            fSwapWithSrc;
-};
-
-void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
+void SkStroke::strokePath(const SkPath& src, SkPathBuilder* dst) const {
     SkASSERT(dst);
 
     SkScalar radius = SkScalarHalf(fWidth);
-
-    AutoTmpPath tmp(src, &dst);
 
     if (radius <= 0) {
         return;
@@ -1474,32 +1459,32 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
 
     SkPathStroker   stroker(src, radius, fMiterLimit, this->getCap(), this->getJoin(),
                             fResScale, ignoreCenter);
-    SkPath::Iter    iter(src, false);
-    SkPath::Verb    lastSegment = SkPath::kMove_Verb;
 
-    for (;;) {
-        SkPoint  pts[4];
-        switch (iter.next(pts)) {
-            case SkPath::kMove_Verb:
+    SkPath::Iter iter(src, false);
+    SkPathVerb   lastSegment = SkPathVerb::kMove;
+    while (auto rec = iter.next()) {
+        SkSpan<const SkPoint> pts = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
                 stroker.moveTo(pts[0]);
                 break;
-            case SkPath::kLine_Verb:
+            case SkPathVerb::kLine:
                 stroker.lineTo(pts[1], &iter);
-                lastSegment = SkPath::kLine_Verb;
+                lastSegment = SkPathVerb::kLine;
                 break;
-            case SkPath::kQuad_Verb:
+            case SkPathVerb::kQuad:
                 stroker.quadTo(pts[1], pts[2]);
-                lastSegment = SkPath::kQuad_Verb;
+                lastSegment = SkPathVerb::kQuad;
                 break;
-            case SkPath::kConic_Verb: {
-                stroker.conicTo(pts[1], pts[2], iter.conicWeight());
-                lastSegment = SkPath::kConic_Verb;
+            case SkPathVerb::kConic: {
+                stroker.conicTo(pts[1], pts[2], rec->conicWeight());
+                lastSegment = SkPathVerb::kConic;
             } break;
-            case SkPath::kCubic_Verb:
+            case SkPathVerb::kCubic:
                 stroker.cubicTo(pts[1], pts[2], pts[3]);
-                lastSegment = SkPath::kCubic_Verb;
+                lastSegment = SkPathVerb::kCubic;
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 if (SkPaint::kButt_Cap != this->getCap()) {
                     /* If the stroke consists of a moveTo followed by a close, treat it
                        as if it were followed by a zero-length line. Lines without length
@@ -1513,22 +1498,20 @@ void SkStroke::strokePath(const SkPath& src, SkPath* dst) const {
                        zero-length line. Lines without length can have square & round end caps. */
                     if (stroker.isCurrentContourEmpty()) {
                 ZERO_LENGTH:
-                        lastSegment = SkPath::kLine_Verb;
+                        lastSegment = SkPathVerb::kLine;
                         break;
                     }
                 }
-                stroker.close(lastSegment == SkPath::kLine_Verb);
+                stroker.close(lastSegment == SkPathVerb::kLine);
                 break;
-            case SkPath::kDone_Verb:
-                goto DONE;
         }
     }
-DONE:
-    stroker.done(dst, lastSegment == SkPath::kLine_Verb);
+    stroker.done(dst, lastSegment == SkPathVerb::kLine);
 
     if (fDoFill && !ignoreCenter) {
-        if (SkPathPriv::ComputeFirstDirection(src) == SkPathFirstDirection::kCCW) {
-            dst->reverseAddPath(src);
+        auto d = SkPathPriv::ComputeFirstDirection(SkPathPriv::Raw(src));
+        if (d == SkPathFirstDirection::kCCW) {
+            dst->privateReverseAddPath(src);
         } else {
             dst->addPath(src);
         }
@@ -1566,7 +1549,8 @@ static SkPathDirection reverse_direction(SkPathDirection dir) {
     return gOpposite[(int)dir];
 }
 
-static void addBevel(SkPath* path, const SkRect& r, const SkRect& outer, SkPathDirection dir) {
+static void addBevel(SkPathBuilder* path, const SkRect& r, const SkRect& outer,
+                     SkPathDirection dir) {
     SkPoint pts[8];
 
     if (SkPathDirection::kCW == dir) {
@@ -1588,10 +1572,10 @@ static void addBevel(SkPath* path, const SkRect& r, const SkRect& outer, SkPathD
         pts[1].set(outer.fLeft, r.fBottom);
         pts[0].set(outer.fLeft, r.fTop);
     }
-    path->addPoly(pts, 8, true);
+    path->addPolygon(pts, true);
 }
 
-void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
+void SkStroke::strokeRect(const SkRect& origRect, SkPathBuilder* dst,
                           SkPathDirection dir) const {
     SkASSERT(dst != nullptr);
     dst->reset();
@@ -1628,7 +1612,7 @@ void SkStroke::strokeRect(const SkRect& origRect, SkPath* dst,
             addBevel(dst, rect, r, dir);
             break;
         case SkPaint::kRound_Join:
-            dst->addRoundRect(r, radius, radius, dir);
+            dst->addRRect(SkRRect::MakeRectXY(r, radius, radius), dir);
             break;
         default:
             break;

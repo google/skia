@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_filegroup")
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_filegroup")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,23 +6,30 @@ package(
 
 licenses(["notice"])
 
+PUBLIC_HEADERS = [
+    "BackendSemaphore.h",
+    "BackendTexture.h",
+    "Context.h",
+    "ContextOptions.h",
+    "GraphiteTypes.h",
+    "Image.h",
+    "ImageProvider.h",
+    "LogPriority.h",
+    "PrecompileContext.h",
+    "Recorder.h",
+    "Recording.h",
+    "Surface.h",
+    "TextureInfo.h",
+    "YUVABackendTextures.h",
+]
+
 skia_filegroup(
     name = "public_hdrs",
-    srcs = [
-        "BackendSemaphore.h",
-        "BackendTexture.h",
-        "Context.h",
-        "ContextOptions.h",
-        "GraphiteTypes.h",
-        "Image.h",
-        "ImageProvider.h",
-        "LogPriority.h",
-        "PrecompileContext.h",
-        "Recorder.h",
-        "Recording.h",
-        "Surface.h",
-        "TextureInfo.h",
-        "YUVABackendTextures.h",
-    ],
+    srcs = PUBLIC_HEADERS,
     visibility = ["//src/gpu/graphite:__subpackages__"],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = PUBLIC_HEADERS,
 )

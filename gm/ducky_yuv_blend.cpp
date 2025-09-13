@@ -17,7 +17,7 @@
 #include "tools/gpu/YUVUtils.h"
 
 // Modeled on the layout test css3/blending/background-blend-mode-image-image.html to reproduce
-// skbug.com/9619
+// skbug.com/40040948
 DEF_SIMPLE_GM_CAN_FAIL(ducky_yuv_blend, canvas, errorMsg, 560, 1130) {
     sk_sp<SkImage> duckyBG = ToolUtils::GetResourceAsImage("images/ducky.png");
     sk_sp<SkImage> duckyFG[2] = {ToolUtils::GetResourceAsImage("images/ducky.jpg"), nullptr};

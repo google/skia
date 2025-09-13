@@ -54,7 +54,7 @@
 #if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
-#include "tools/gpu/GrContextFactory.h"
+#include "tools/ganesh/GrContextFactory.h"
 #endif
 
 #ifdef SK_GL
@@ -406,7 +406,7 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
             int count;
             fuzz->nextRange(&count, 0, (int)std::size(intervals));
             fuzz->nextN(intervals, count);
-            return SkDashPathEffect::Make(intervals, count, phase);
+            return SkDashPathEffect::Make({intervals, count}, phase);
         }
         case 8: {
             SkScalar segLength, dev;
@@ -968,19 +968,19 @@ static sk_sp<SkTextBlob> make_fuzz_textblob(Fuzz* fuzz) {
                 fuzz->next(&x, &y);
                 // TODO: Test other variations of this.
                 buffer = &textBlobBuilder.allocRun(font, glyphCount, x, y);
-                (void)font.textToGlyphs(textPtr, textLen, encoding, buffer->glyphs, glyphCount);
+                (void)font.textToGlyphs(textPtr, textLen, encoding, {buffer->glyphs, glyphCount});
                 break;
             case 1:
                 fuzz->next(&y);
                 // TODO: Test other variations of this.
                 buffer = &textBlobBuilder.allocRunPosH(font, glyphCount, y);
-                (void)font.textToGlyphs(textPtr, textLen, encoding, buffer->glyphs, glyphCount);
+                (void)font.textToGlyphs(textPtr, textLen, encoding, {buffer->glyphs, glyphCount});
                 fuzz->nextN(buffer->pos, glyphCount);
                 break;
             case 2:
                 // TODO: Test other variations of this.
                 buffer = &textBlobBuilder.allocRunPos(font, glyphCount);
-                (void)font.textToGlyphs(textPtr, textLen, encoding, buffer->glyphs, glyphCount);
+                (void)font.textToGlyphs(textPtr, textLen, encoding, {buffer->glyphs, glyphCount});
                 fuzz->nextN(buffer->pos, glyphCount * 2);
                 break;
             default:
@@ -1180,7 +1180,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 fuzz->nextRange(&count, 0, kMaxCount);
                 SkPoint pts[kMaxCount];
                 fuzz->nextN(pts, count);
-                canvas->drawPoints(pointMode, count, pts, paint);
+                canvas->drawPoints(pointMode, {pts, count}, paint);
                 break;
             }
             case 25: {

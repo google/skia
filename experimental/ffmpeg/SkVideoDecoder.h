@@ -19,6 +19,7 @@ extern "C" {
 }
 
 class SkStream;
+class GrRecordingContext;
 
 class SkVideoDecoder {
 public:

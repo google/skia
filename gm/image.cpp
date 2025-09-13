@@ -28,6 +28,7 @@
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
+#include "include/effects/SkGradientShader.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/gpu/ganesh/GrDirectContext.h"
@@ -529,26 +530,52 @@ DEF_SIMPLE_GM_CAN_FAIL(image_subset, canvas, errorMsg, 440, 220) {
         return skiagm::DrawResult::kFail;
     }
 
-    GrDirectContext* dContext = GrAsDirectContext(canvas->recordingContext());
-#if defined(SK_GRAPHITE)
-    auto recorder = canvas->recorder();
-#endif
+    auto recorder = canvas->baseRecorder();
 
     canvas->drawImage(img, 10, 10);
 
-    sk_sp<SkImage> subset;
-
-#if defined(SK_GRAPHITE)
-    if (recorder) {
-        subset = img->makeSubset(recorder, {100, 100, 200, 200}, {});
-    } else
-#endif
-    {
-        subset = img->makeSubset(dContext, {100, 100, 200, 200});
-    }
+    sk_sp<SkImage> subset = img->makeSubset(recorder, {100, 100, 200, 200}, {});
 
     canvas->drawImage(subset, 220, 10);
     subset = serial_deserial(subset.get());
     canvas->drawImage(subset, 220+110, 10);
     return skiagm::DrawResult::kOk;
+}
+
+DEF_SIMPLE_GM(crbug_404394639, canvas, 500, 500) {
+    // Define SkImage with height > 32768.
+    const int SOURCE_WIDTH = 500;
+    const int SOURCE_HEIGHT = 40000;
+    SkImageInfo source_info = SkImageInfo::MakeN32Premul(SOURCE_WIDTH, SOURCE_HEIGHT);
+
+    auto surf =  SkSurfaces::Raster(source_info);
+    SkCanvas* canv = surf->getCanvas();
+
+    SkPoint pts[] = {SkPoint::Make(0, 0), SkPoint::Make(0, SOURCE_HEIGHT)};
+    SkColor4f colors[] = {SkColor4f::FromColor(SK_ColorCYAN), SkColor4f::FromColor(SK_ColorMAGENTA)};
+    sk_sp<SkShader> gradient_shader = SkGradientShader::MakeLinear(
+        pts,
+        colors,
+        nullptr,
+        nullptr,
+        2,
+        SkTileMode::kClamp,
+        0
+    );
+
+    SkPaint paint;
+    paint.setShader(gradient_shader);
+
+    canv->drawRect(SkRect::MakeXYWH(0, 0, SOURCE_WIDTH, SOURCE_HEIGHT), paint);
+
+    // Create an immutable source image.
+    sk_sp<SkImage> large_source_image = surf->makeImageSnapshot();
+
+    SkSamplingOptions sampling(SkFilterMode::kLinear);
+    sk_sp<SkImage> scaled_image = large_source_image->makeScaled(
+        large_source_image->imageInfo().makeWH(500, 500),
+        sampling
+    );
+    // Image shouldn't be different based on compiler.
+    canvas->drawImage(scaled_image, 0, 0);
 }

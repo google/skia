@@ -113,17 +113,14 @@ public:
 private:
     int numChildCombinations() const override { return fNumChildCombinations; }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const override {
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const override {
 
         SkASSERT(desiredCombination < this->numCombinations());
 
         SkSpan<const SkRuntimeEffect::Child> childInfo = fEffect->children();
 
-        if (!RuntimeEffectBlock::BeginBlock(keyContext, builder, gatherer, { fEffect })) {
-            RuntimeEffectBlock::AddNoOpEffect(keyContext, builder, gatherer, fEffect.get());
+        if (!RuntimeEffectBlock::BeginBlock(keyContext, { fEffect })) {
+            RuntimeEffectBlock::AddNoOpEffect(keyContext, fEffect.get());
             return;
         }
 
@@ -144,7 +141,7 @@ private:
 
             SkASSERT(precompilebase_is_valid_as_child(option.get()));
             if (option) {
-                option->priv().addToKey(childContext, builder, gatherer, childOptions);
+                option->priv().addToKey(childContext, childOptions);
             } else {
                 SkASSERT(childOptions == 0);
 
@@ -152,26 +149,26 @@ private:
                 switch (childInfo[rowIndex].type) {
                     case SkRuntimeEffect::ChildType::kShader:
                         // A missing shader returns transparent black
-                        SolidColorShaderBlock::AddBlock(childContext, builder, gatherer,
-                                                        SK_PMColor4fTRANSPARENT);
+                        SolidColorShaderBlock::AddBlock(childContext, SK_PMColor4fTRANSPARENT);
                         break;
 
                     case SkRuntimeEffect::ChildType::kColorFilter:
                         // A "passthrough" shader returns the input color as-is.
-                        builder->addBlock(BuiltInCodeSnippetID::kPriorOutput);
+                        keyContext.paintParamsKeyBuilder()->addBlock(
+                                BuiltInCodeSnippetID::kPriorOutput);
                         break;
 
                     case SkRuntimeEffect::ChildType::kBlender:
                         // A "passthrough" blender performs `blend_src_over(src, dest)`.
-                        AddFixedBlendMode(childContext, builder, gatherer, SkBlendMode::kSrcOver);
+                        AddFixedBlendMode(childContext, SkBlendMode::kSrcOver);
                         break;
                 }
             }
         }
 
-        RuntimeEffectBlock::HandleIntrinsics(keyContext, builder, gatherer, fEffect.get());
+        RuntimeEffectBlock::HandleIntrinsics(keyContext, fEffect.get());
 
-        builder->endBlock();
+        keyContext.paintParamsKeyBuilder()->endBlock();
     }
 
     sk_sp<SkRuntimeEffect> fEffect;

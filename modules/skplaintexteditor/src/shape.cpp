@@ -238,7 +238,7 @@ static void set_character_bounds(void* context,
     SkFontMetrics metrics;
     font.getMetrics(&metrics);
     std::unique_ptr<float[]> advances(new float[glyphCount]);
-    font.getWidths(glyphs, glyphCount, advances.get());
+    font.getWidths({glyphs, glyphCount}, {advances.get(), glyphCount});
 
     // Loop over each cluster in this run.
     size_t clusterStart = 0;

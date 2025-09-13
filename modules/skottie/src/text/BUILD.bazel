@@ -46,6 +46,7 @@ skia_filegroup(
     name = "text_shaper_srcs",
     srcs = [
         "TextShaper.cpp",
+        "Unicode.cpp",
     ],
     visibility = ["//modules/skottie:__pkg__"],
 )

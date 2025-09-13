@@ -12,7 +12,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
-#include "tools/gpu/GrContextFactory.h"
+#include "tools/ganesh/GrContextFactory.h"
 #if defined(SK_GRAPHITE)
 #include "tools/graphite/ContextFactory.h"
 #endif

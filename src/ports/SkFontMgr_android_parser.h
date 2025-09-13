@@ -10,7 +10,9 @@
 
 #include "include/core/SkFontArguments.h"
 #include "include/core/SkFontMgr.h"
+#include "include/core/SkRefCnt.h"
 #include "include/core/SkString.h"
+#include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
@@ -18,6 +20,7 @@
 
 #include <climits>
 #include <limits>
+#include <vector>
 
 /** \class SkLanguage
 
@@ -74,6 +77,7 @@ struct FontFileInfo {
     enum class Style { kAuto, kNormal, kItalic } fStyle;
     skia_private::TArray<SkFontArguments::VariationPosition::Coordinate, true>
             fVariationDesignPosition;
+    mutable sk_sp<SkTypeface> fTypeface;
 };
 
 /**
@@ -105,10 +109,10 @@ struct FontFamily {
 namespace SkFontMgr_Android_Parser {
 
 /** Parses system font configuration files and appends result to fontFamilies. */
-void GetSystemFontFamilies(SkTDArray<FontFamily*>& fontFamilies);
+void GetSystemFontFamilies(std::vector<std::unique_ptr<FontFamily>>& fontFamilies);
 
 /** Parses font configuration files and appends result to fontFamilies. */
-void GetCustomFontFamilies(SkTDArray<FontFamily*>& fontFamilies,
+void GetCustomFontFamilies(std::vector<std::unique_ptr<FontFamily>>& fontFamilies,
                            const SkString& basePath,
                            const char* fontsXml,
                            const char* fallbackFontsXml,

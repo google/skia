@@ -14,6 +14,6 @@
 
 DEF_SIMPLE_GM(makeRasterImage, canvas, 128,128) {
     if (auto img = ToolUtils::GetResourceAsImage("images/color_wheel.png")) {
-        canvas->drawImage(img->makeRasterImage(), 0,0);
+        canvas->drawImage(img->makeRasterImage(nullptr), 0,0);
     }
 }

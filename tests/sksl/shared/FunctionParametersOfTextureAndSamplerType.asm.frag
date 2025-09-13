@@ -1,18 +1,26 @@
                OpCapability Shader
-          %1 = OpExtInstImport "GLSL.std.450"
+          %5 = OpExtInstImport "GLSL.std.450"
                OpMemoryModel Logical GLSL450
                OpEntryPoint Fragment %main "main" %sk_FragColor %c
                OpExecutionMode %main OriginUpperLeft
-               OpName %sk_FragColor "sk_FragColor"
-               OpName %aTexture "aTexture"
-               OpName %aSampledTexture "aSampledTexture"
-               OpName %aSecondSampledTexture "aSecondSampledTexture"
-               OpName %c "c"
-               OpName %helpers_helper_h4ZT_aSampledTexture "helpers_helper_h4ZT_aSampledTexture"
-               OpName %helpers_helper_h4ZT_aSecondSampledTexture "helpers_helper_h4ZT_aSecondSampledTexture"
-               OpName %helper_h4TZ_aSampledTexture "helper_h4TZ_aSampledTexture"
-               OpName %helper_h4TZ_aSecondSampledTexture "helper_h4TZ_aSecondSampledTexture"
-               OpName %main "main"
+
+               ; Debug Information
+               OpName %sk_FragColor "sk_FragColor"  ; id %11
+               OpName %aTexture "aTexture"          ; id %15
+               OpName %aSampledTexture "aSampledTexture"    ; id %18
+               OpName %aSecondSampledTexture "aSecondSampledTexture"    ; id %22
+               OpName %c "c"                                            ; id %23
+               OpName %helpers_helper_h4ZT_aSampledTexture "helpers_helper_h4ZT_aSampledTexture"    ; id %6
+               OpName %helpers_helper_h4ZT_aSecondSampledTexture "helpers_helper_h4ZT_aSecondSampledTexture"    ; id %7
+               OpName %helper_h4TZ_aSampledTexture "helper_h4TZ_aSampledTexture"                                ; id %8
+               OpName %helper_h4TZ_aSecondSampledTexture "helper_h4TZ_aSecondSampledTexture"                    ; id %9
+               OpName %main "main"                                                                              ; id %10
+
+               ; Annotations
+               OpDecorate %helpers_helper_h4ZT_aSampledTexture RelaxedPrecision
+               OpDecorate %helpers_helper_h4ZT_aSecondSampledTexture RelaxedPrecision
+               OpDecorate %helper_h4TZ_aSampledTexture RelaxedPrecision
+               OpDecorate %helper_h4TZ_aSecondSampledTexture RelaxedPrecision
                OpDecorate %sk_FragColor RelaxedPrecision
                OpDecorate %sk_FragColor Location 0
                OpDecorate %sk_FragColor Index 0
@@ -25,61 +33,87 @@
                OpDecorate %aSecondSampledTexture Binding 3
                OpDecorate %aSecondSampledTexture DescriptorSet 0
                OpDecorate %c Location 1
-               OpDecorate %26 RelaxedPrecision
-               OpDecorate %31 RelaxedPrecision
+               OpDecorate %29 RelaxedPrecision
+               OpDecorate %30 RelaxedPrecision
+               OpDecorate %34 RelaxedPrecision
+               OpDecorate %35 RelaxedPrecision
+
+               ; Types, variables and constants
+        %int = OpTypeInt 32 1
+%_ptr_Input_int = OpTypePointer Input %int
       %float = OpTypeFloat 32
     %v4float = OpTypeVector %float 4
 %_ptr_Output_v4float = OpTypePointer Output %v4float
-%sk_FragColor = OpVariable %_ptr_Output_v4float Output
-         %12 = OpTypeImage %float 2D 0 0 0 2 Rgba8
-%_ptr_UniformConstant_12 = OpTypePointer UniformConstant %12
-   %aTexture = OpVariable %_ptr_UniformConstant_12 UniformConstant
-         %15 = OpTypeImage %float 2D 0 0 0 1 Unknown
-         %16 = OpTypeSampledImage %15
+%sk_FragColor = OpVariable %_ptr_Output_v4float Output  ; RelaxedPrecision, Location 0, Index 0
+         %16 = OpTypeImage %float 2D 0 0 0 2 Rgba8
 %_ptr_UniformConstant_16 = OpTypePointer UniformConstant %16
-%aSampledTexture = OpVariable %_ptr_UniformConstant_16 UniformConstant
-%aSecondSampledTexture = OpVariable %_ptr_UniformConstant_16 UniformConstant
+   %aTexture = OpVariable %_ptr_UniformConstant_16 UniformConstant  ; Binding 1, DescriptorSet 0
+         %19 = OpTypeImage %float 2D 0 0 0 1 Unknown
+         %20 = OpTypeSampledImage %19
+%_ptr_UniformConstant_20 = OpTypePointer UniformConstant %20
+%aSampledTexture = OpVariable %_ptr_UniformConstant_20 UniformConstant  ; RelaxedPrecision, Binding 2, DescriptorSet 0
+%aSecondSampledTexture = OpVariable %_ptr_UniformConstant_20 UniformConstant    ; RelaxedPrecision, Binding 3, DescriptorSet 0
     %v2float = OpTypeVector %float 2
 %_ptr_Input_v2float = OpTypePointer Input %v2float
-          %c = OpVariable %_ptr_Input_v2float Input
-         %22 = OpTypeFunction %v4float %_ptr_UniformConstant_12
+          %c = OpVariable %_ptr_Input_v2float Input     ; Location 1
+         %26 = OpTypeFunction %v4float %_ptr_UniformConstant_16
        %void = OpTypeVoid
-         %40 = OpTypeFunction %void
-%helpers_helper_h4ZT_aSampledTexture = OpFunction %v4float None %22
-         %23 = OpFunctionParameter %_ptr_UniformConstant_12
-         %24 = OpLabel
-         %26 = OpLoad %16 %aSampledTexture
-         %27 = OpLoad %v2float %c
-         %25 = OpImageSampleImplicitLod %v4float %26 %27
-               OpReturnValue %25
+         %44 = OpTypeFunction %void
+
+
+               ; Function helpers_helper_h4ZT_aSampledTexture
+%helpers_helper_h4ZT_aSampledTexture = OpFunction %v4float None %26     ; RelaxedPrecision
+         %27 = OpFunctionParameter %_ptr_UniformConstant_16
+
+         %28 = OpLabel
+         %30 =   OpLoad %20 %aSampledTexture        ; RelaxedPrecision
+         %31 =   OpLoad %v2float %c
+         %29 =   OpImageSampleImplicitLod %v4float %30 %31  ; RelaxedPrecision
+                 OpReturnValue %29
                OpFunctionEnd
-%helpers_helper_h4ZT_aSecondSampledTexture = OpFunction %v4float None %22
-         %28 = OpFunctionParameter %_ptr_UniformConstant_12
-         %29 = OpLabel
-         %31 = OpLoad %16 %aSecondSampledTexture
-         %32 = OpLoad %v2float %c
-         %30 = OpImageSampleImplicitLod %v4float %31 %32
-               OpReturnValue %30
+
+
+               ; Function helpers_helper_h4ZT_aSecondSampledTexture
+%helpers_helper_h4ZT_aSecondSampledTexture = OpFunction %v4float None %26   ; RelaxedPrecision
+         %32 = OpFunctionParameter %_ptr_UniformConstant_16
+
+         %33 = OpLabel
+         %35 =   OpLoad %20 %aSecondSampledTexture  ; RelaxedPrecision
+         %36 =   OpLoad %v2float %c
+         %34 =   OpImageSampleImplicitLod %v4float %35 %36  ; RelaxedPrecision
+                 OpReturnValue %34
                OpFunctionEnd
-%helper_h4TZ_aSampledTexture = OpFunction %v4float None %22
-         %33 = OpFunctionParameter %_ptr_UniformConstant_12
-         %34 = OpLabel
-         %35 = OpFunctionCall %v4float %helpers_helper_h4ZT_aSampledTexture %33
-               OpReturnValue %35
+
+
+               ; Function helper_h4TZ_aSampledTexture
+%helper_h4TZ_aSampledTexture = OpFunction %v4float None %26     ; RelaxedPrecision
+         %37 = OpFunctionParameter %_ptr_UniformConstant_16
+
+         %38 = OpLabel
+         %39 =   OpFunctionCall %v4float %helpers_helper_h4ZT_aSampledTexture %37
+                 OpReturnValue %39
                OpFunctionEnd
-%helper_h4TZ_aSecondSampledTexture = OpFunction %v4float None %22
-         %36 = OpFunctionParameter %_ptr_UniformConstant_12
-         %37 = OpLabel
-         %38 = OpFunctionCall %v4float %helpers_helper_h4ZT_aSecondSampledTexture %36
-               OpReturnValue %38
-               OpFunctionEnd
-       %main = OpFunction %void None %40
+
+
+               ; Function helper_h4TZ_aSecondSampledTexture
+%helper_h4TZ_aSecondSampledTexture = OpFunction %v4float None %26   ; RelaxedPrecision
+         %40 = OpFunctionParameter %_ptr_UniformConstant_16
+
          %41 = OpLabel
-         %42 = OpFunctionCall %v4float %helper_h4TZ_aSampledTexture %aTexture
-               OpStore %sk_FragColor %42
-         %43 = OpFunctionCall %v4float %helper_h4TZ_aSecondSampledTexture %aTexture
-               OpStore %sk_FragColor %43
-         %44 = OpFunctionCall %v4float %helper_h4TZ_aSampledTexture %aTexture
-               OpStore %sk_FragColor %44
-               OpReturn
+         %42 =   OpFunctionCall %v4float %helpers_helper_h4ZT_aSecondSampledTexture %40
+                 OpReturnValue %42
+               OpFunctionEnd
+
+
+               ; Function main
+       %main = OpFunction %void None %44
+
+         %45 = OpLabel
+         %46 =   OpFunctionCall %v4float %helper_h4TZ_aSampledTexture %aTexture
+                 OpStore %sk_FragColor %46
+         %47 =   OpFunctionCall %v4float %helper_h4TZ_aSecondSampledTexture %aTexture
+                 OpStore %sk_FragColor %47
+         %48 =   OpFunctionCall %v4float %helper_h4TZ_aSampledTexture %aTexture
+                 OpStore %sk_FragColor %48
+                 OpReturn
                OpFunctionEnd

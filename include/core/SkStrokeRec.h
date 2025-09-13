@@ -17,6 +17,7 @@
 #include <cstdint>
 
 class SkPath;
+class SkPathBuilder;
 
 SK_BEGIN_REQUIRE_DENSE
 class SK_API SkStrokeRec {
@@ -96,7 +97,7 @@ public:
      *
      *  src and dst may be the same path.
      */
-    bool applyToPath(SkPath* dst, const SkPath& src) const;
+    bool applyToPath(SkPathBuilder* dst, const SkPath& src) const;
 
     /**
      *  Apply these stroke parameters to a paint.

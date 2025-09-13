@@ -9,7 +9,9 @@
 #define SkPathRef_DEFINED
 
 #include "include/core/SkArc.h"
+#include "include/core/SkPathTypes.h" // IWYU pragma: keep
 #include "include/core/SkPoint.h"
+#include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
@@ -26,7 +28,63 @@
 #include <tuple>
 
 class SkMatrix;
-class SkRRect;
+
+/*
+ *  These "info" structs are used to return identifying information, when a path
+ *  is queried if it is a special "shape". (e.g. isOval(), isRRect())
+ */
+
+struct SkPathRectInfo {
+    SkRect          fRect;
+    SkPathDirection fDirection;
+    uint8_t         fStartIndex;
+};
+
+struct SkPathOvalInfo {
+    SkRect          fBounds;
+    SkPathDirection fDirection;
+    uint8_t         fStartIndex;
+};
+
+struct SkPathRRectInfo {
+    SkRRect         fRRect;
+    SkPathDirection fDirection;
+    uint8_t         fStartIndex;
+};
+
+/*
+ *  Paths can be tagged with a "Type" -- the IsAType
+ *  This signals that it was built from a high-level shape: oval, rrect, arc, wedge.
+ *  We try to retain this tag, but still build the explicitly line/quad/conic/cubic
+ *  structure need to represent that shape. Thus a user of path can always just look
+ *  at the points and verbs, and draw it correctly.
+ *
+ *  The GPU backend sometimes will sniff the path for this tag/type, and may have a
+ *  more optimal way to draw the shape if they know its "really" an oval or whatever.
+ *
+ *  Path's can also identify as a "rect" -- but we don't store any special tag for this.
+ *
+ *  Here are the special "types" we have APIs for (e.g. isRRect()) and what we store:
+ *
+ *      kGeneral  : no identifying shape, no extra data
+ *      (Rect)    : no tag, but isRect() will examing the points/verbs, and try to
+ *                  deduce that it represents a rect.
+ *      kOval     : the path bounds is also the oval's bounds -- we store the direction
+ *                  and start_index (important for dashing). see SkPathMakers.h
+ *      kRRect    : same as kOval for implicit bounds, direction and start_index.
+ *                  Note: we don't store its radii -- we deduce those when isRRect() is
+ *                        called, by examining the points/verbs.
+ */
+enum class SkPathIsAType : uint8_t {
+    kGeneral,
+    kOval,
+    kRRect,
+};
+
+struct SkPathIsAData {
+    uint8_t         fStartIndex;
+    SkPathDirection fDirection;
+};
 
 /**
  * Holds the path verbs and points. It is versioned by a generation ID. None of its public methods
@@ -48,17 +106,10 @@ public:
     // See https://bugs.chromium.org/p/skia/issues/detail?id=13817 for how these sizes were
     // determined.
     using PointsArray = skia_private::STArray<4, SkPoint>;
-    using VerbsArray = skia_private::STArray<4, uint8_t>;
-    using ConicWeightsArray = skia_private::STArray<2, SkScalar>;
+    using VerbsArray = skia_private::STArray<4, SkPathVerb>;
+    using ConicWeightsArray = skia_private::STArray<2, float>;
 
-    enum class PathType : uint8_t {
-        kGeneral,
-        kOval,
-        kRRect,
-        kArc,
-    };
-
-    SkPathRef(SkSpan<const SkPoint> points, SkSpan<const uint8_t> verbs,
+    SkPathRef(SkSpan<const SkPoint> points, SkSpan<const SkPathVerb> verbs,
               SkSpan<const SkScalar> weights, unsigned segmentMask)
         : fPoints(points)
         , fVerbs(verbs)
@@ -67,13 +118,7 @@ public:
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fGenerationID = 0;        // recompute
         fSegmentMask = segmentMask;
-        fType = PathType::kGeneral;
-        // The next two values don't matter unless fType is kOval or kRRect
-        fRRectOrOvalIsCCW = false;
-        fRRectOrOvalStartIdx = 0xAC;
-        fArcOval.setEmpty();
-        fArcStartAngle = fArcSweepAngle = 0.0f;
-        fArcType = SkArc::Type::kArc;
+        fType = SkPathIsAType::kGeneral;
         SkDEBUGCODE(fEditorsAttached.store(0);)
 
         this->computeBounds();  // do this now, before we worry about multiple owners/threads
@@ -106,7 +151,7 @@ public:
          * return value is a pointer to where the points for the verb should be written.
          * 'weight' is only used if 'verb' is kConic_Verb
          */
-        SkPoint* growForVerb(int /*SkPath::Verb*/ verb, SkScalar weight = 0) {
+        SkPoint* growForVerb(SkPathVerb verb, SkScalar weight = 0) {
             SkDEBUGCODE(fPathRef->validate();)
             return fPathRef->growForVerb(verb, weight);
         }
@@ -118,7 +163,7 @@ public:
          * If 'verb' is kConic_Verb, 'weights' will return a pointer to the
          * space for the conic weights (indexed normally).
          */
-        SkPoint* growForRepeatedVerb(int /*SkPath::Verb*/ verb,
+        SkPoint* growForRepeatedVerb(SkPathVerb verb,
                                      int numVbs,
                                      SkScalar** weights = nullptr) {
             return fPathRef->growForRepeatedVerb(verb, numVbs, weights);
@@ -148,50 +193,18 @@ public:
          */
         SkPathRef* pathRef() { return fPathRef; }
 
-        void setIsOval(bool isCCW, unsigned start) {
-            fPathRef->setIsOval(isCCW, start);
+        void setIsOval(SkPathDirection dir, unsigned start) {
+            fPathRef->setIsOval(dir, start);
         }
 
-        void setIsRRect(bool isCCW, unsigned start) {
-            fPathRef->setIsRRect(isCCW, start);
-        }
-
-        void setIsArc(const SkArc& arc) {
-            fPathRef->setIsArc(arc);
+        void setIsRRect(SkPathDirection dir, unsigned start) {
+            fPathRef->setIsRRect(dir, start);
         }
 
         void setBounds(const SkRect& rect) { fPathRef->setBounds(rect); }
 
     private:
         SkPathRef* fPathRef;
-    };
-
-    class SK_API Iter {
-    public:
-        Iter();
-        Iter(const SkPathRef&);
-
-        void setPathRef(const SkPathRef&);
-
-        /** Return the next verb in this iteration of the path. When all
-            segments have been visited, return kDone_Verb.
-
-            If any point in the path is non-finite, return kDone_Verb immediately.
-
-            @param  pts The points representing the current verb and/or segment
-                        This must not be NULL.
-            @return The verb for the current segment
-        */
-        uint8_t next(SkPoint pts[4]);
-        uint8_t peek() const;
-
-        SkScalar conicWeight() const { return *fConicWeights; }
-
-    private:
-        const SkPoint*  fPts;
-        const uint8_t*  fVerbs;
-        const uint8_t*  fVerbStop;
-        const SkScalar* fConicWeights;
     };
 
 public:
@@ -218,46 +231,23 @@ public:
      */
     uint32_t getSegmentMasks() const { return fSegmentMask; }
 
-    /** Returns true if the path is an oval.
-     *
-     * @param rect      returns the bounding rect of this oval. It's a circle
-     *                  if the height and width are the same.
-     * @param isCCW     is the oval CCW (or CW if false).
-     * @param start     indicates where the contour starts on the oval (see
-     *                  SkPath::addOval for intepretation of the index).
-     *
-     * @return true if this path is an oval.
-     *              Tracking whether a path is an oval is considered an
-     *              optimization for performance and so some paths that are in
-     *              fact ovals can report false.
+    /** Returns Info struct if the path is an oval, else return {}.
+     *  Tracking whether a path is an oval is considered an
+     *  optimization for performance and so some paths that are in
+     *  fact ovals can report {}.
      */
-    bool isOval(SkRect* rect, bool* isCCW, unsigned* start) const {
-        if (fType == PathType::kOval) {
-            if (rect) {
-                *rect = this->getBounds();
-            }
-            if (isCCW) {
-                *isCCW = SkToBool(fRRectOrOvalIsCCW);
-            }
-            if (start) {
-                *start = fRRectOrOvalStartIdx;
-            }
+    std::optional<SkPathOvalInfo> isOval() const {
+        if (fType == SkPathIsAType::kOval) {
+            return {{
+                this->getBounds(),
+                fIsA.fDirection,
+                fIsA.fStartIndex,
+            }};
         }
-
-        return fType == PathType::kOval;
+        return {};
     }
 
-    bool isRRect(SkRRect* rrect, bool* isCCW, unsigned* start) const;
-
-    bool isArc(SkArc* arc) const {
-        if (fType == PathType::kArc) {
-            if (arc) {
-                *arc = SkArc::Make(fArcOval, fArcStartAngle, fArcSweepAngle, fArcType);
-            }
-        }
-
-        return fType == PathType::kArc;
-    }
+    std::optional<SkPathRRectInfo> isRRect() const;
 
     bool hasComputedBounds() const {
         return !fBoundsIsDirty;
@@ -303,12 +293,14 @@ public:
     /**
      * Returns a pointer one beyond the first logical verb (last verb in memory order).
      */
-    const uint8_t* verbsBegin() const { return fVerbs.begin(); }
+    const SkPathVerb* verbsBegin() const { return fVerbs.begin(); }
 
     /**
      * Returns a const pointer to the first verb in memory (which is the last logical verb).
      */
-    const uint8_t* verbsEnd() const { return fVerbs.end(); }
+    const SkPathVerb* verbsEnd() const { return fVerbs.end(); }
+
+    SkSpan<const SkPathVerb> verbs() const { return fVerbs; }
 
     /**
      * Returns a const pointer to the first point.
@@ -320,14 +312,18 @@ public:
      */
     const SkPoint* pointsEnd() const { return this->points() + this->countPoints(); }
 
+    SkSpan<const SkPoint> pointSpan() const { return fPoints; }
+    SkSpan<const float> conicSpan() const { return fConicWeights; }
+
     const SkScalar* conicWeights() const { return fConicWeights.begin(); }
     const SkScalar* conicWeightsEnd() const { return fConicWeights.end(); }
+
 
     /**
      * Convenience methods for getting to a verb or point by index.
      */
-    uint8_t atVerb(int index) const { return fVerbs[index]; }
-    const SkPoint& atPoint(int index) const { return fPoints[index]; }
+    SkPathVerb atVerb(int index) const { return fVerbs[index]; }
+    SkPoint atPoint(int index) const { return fPoints[index]; }
 
     bool operator== (const SkPathRef& ref) const;
 
@@ -337,7 +333,7 @@ public:
      * Gets an ID that uniquely identifies the contents of the path ref. If two path refs have the
      * same ID then they have the same verbs and points. However, two path refs may have the same
      * contents but different genIDs.
-     * skbug.com/1762 for background on why fillType is necessary (for now).
+     * skbug.com/40032862 for background on why fillType is necessary (for now).
      */
     uint32_t genID(uint8_t fillType) const;
 
@@ -371,13 +367,8 @@ private:
         fBoundsIsDirty = true;    // this also invalidates fIsFinite
         fGenerationID = kEmptyGenID;
         fSegmentMask = 0;
-        fType = PathType::kGeneral;
-        // The next two values don't matter unless fType is kOval or kRRect
-        fRRectOrOvalIsCCW = false;
-        fRRectOrOvalStartIdx = 0xAC;
-        fArcOval.setEmpty();
-        fArcStartAngle = fArcSweepAngle = 0.0f;
-        fArcType = SkArc::Type::kArc;
+        fType = SkPathIsAType::kGeneral;
+
         if (numPoints > 0) {
             fPoints.reserve_exact(numPoints);
         }
@@ -395,7 +386,7 @@ private:
 
     // Return true if the computed bounds are finite.
     static bool ComputePtBounds(SkRect* bounds, const SkPathRef& ref) {
-        return bounds->setBoundsCheck(ref.points(), ref.countPoints());
+        return bounds->setBoundsCheck({ref.points(), ref.countPoints()});
     }
 
     // called, if dirty, by getBounds()
@@ -444,7 +435,7 @@ private:
         fGenerationID = 0;
 
         fSegmentMask = 0;
-        fType = PathType::kGeneral;
+        fType = SkPathIsAType::kGeneral;
     }
 
     /** Resets the path ref with verbCount verbs and pointCount points, all uninitialized. Also
@@ -471,14 +462,14 @@ private:
      * verb. If 'verb' is kConic_Verb, 'weights' will return a pointer to the
      * uninitialized conic weights.
      */
-    SkPoint* growForRepeatedVerb(int /*SkPath::Verb*/ verb, int numVbs, SkScalar** weights);
+    SkPoint* growForRepeatedVerb(SkPathVerb, int numVbs, SkScalar** weights);
 
     /**
      * Increases the verb count 1, records the new verb, and creates room for the requisite number
      * of additional points. A pointer to the first point is returned. Any new points are
      * uninitialized.
      */
-    SkPoint* growForVerb(int /*SkPath::Verb*/ verb, SkScalar weight);
+    SkPoint* growForVerb(SkPathVerb, SkScalar weight);
 
     /**
      * Concatenates all verbs from 'path' onto our own verbs array. Increases the point count by the
@@ -491,37 +482,29 @@ private:
     /**
      * Private, non-const-ptr version of the public function verbsMemBegin().
      */
-    uint8_t* verbsBeginWritable() { return fVerbs.begin(); }
+    uint8_t* verbsBeginWritable() { return (uint8_t*)fVerbs.begin(); }
 
     /**
      * Called the first time someone calls CreateEmpty to actually create the singleton.
      */
     friend SkPathRef* sk_create_empty_pathref();
 
-    void setIsOval(bool isCCW, unsigned start) {
-        fType = PathType::kOval;
-        fRRectOrOvalIsCCW = isCCW;
-        fRRectOrOvalStartIdx = SkToU8(start);
+    void setIsOval(SkPathDirection dir, unsigned start) {
+        fType = SkPathIsAType::kOval;
+        fIsA.fDirection  = dir;
+        fIsA.fStartIndex = SkToU8(start);
     }
 
-    void setIsRRect(bool isCCW, unsigned start) {
-        fType = PathType::kRRect;
-        fRRectOrOvalIsCCW = isCCW;
-        fRRectOrOvalStartIdx = SkToU8(start);
-    }
-
-    void setIsArc(const SkArc& arc) {
-        fType = PathType::kArc;
-        fArcOval = arc.fOval;
-        fArcStartAngle = arc.fStartAngle;
-        fArcSweepAngle = arc.fSweepAngle;
-        fArcType = arc.fType;
+    void setIsRRect(SkPathDirection dir, unsigned start) {
+        fType = SkPathIsAType::kRRect;
+        fIsA.fDirection  = dir;
+        fIsA.fStartIndex = SkToU8(start);
     }
 
     // called only by the editor. Note that this is not a const function.
     SkPoint* getWritablePoints() {
         SkDEBUGCODE(this->validate();)
-        fType = PathType::kGeneral;
+        fType = SkPathIsAType::kGeneral;
         return fPoints.begin();
     }
 
@@ -537,7 +520,6 @@ private:
     ConicWeightsArray fConicWeights;
 
     mutable SkRect   fBounds;
-    SkRect           fArcOval;
 
     enum {
         kEmptyGenID = 1, // GenID reserved for path ref with zero points and zero verbs.
@@ -547,23 +529,13 @@ private:
 
     SkDEBUGCODE(std::atomic<int> fEditorsAttached;) // assert only one editor in use at any time.
 
-    SkScalar    fArcStartAngle;
-    SkScalar    fArcSweepAngle;
+    // based on fType
+    SkPathIsAData fIsA {};
 
-    PathType fType;
-
-    mutable uint8_t  fBoundsIsDirty;
-
-    uint8_t  fRRectOrOvalStartIdx;
-    uint8_t  fSegmentMask;
-    // If the path is an arc, these four variables store that information.
-    // We should just store an SkArc, but alignment would cost us 8 more bytes.
-    SkArc::Type fArcType;
-
-    mutable bool     fIsFinite;    // only meaningful if bounds are valid
-    // Both the circle and rrect special cases have a notion of direction and starting point
-    // The next two variables store that information for either.
-    bool     fRRectOrOvalIsCCW;
+    SkPathIsAType   fType;
+    uint8_t         fSegmentMask;
+    mutable bool    fBoundsIsDirty;
+    mutable bool    fIsFinite;    // only meaningful if bounds are valid
 
     friend class PathRefTest_Private;
     friend class ForceIsRRect_Private; // unit test isRRect

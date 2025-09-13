@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
+
+#ifdef SK_SUPPORT_PDF
+
 #include "include/core/SkBlendMode.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColor.h"
@@ -13,7 +17,6 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
-#include "include/core/SkTypes.h"
 #include "include/docs/SkPDFDocument.h"
 #include "include/docs/SkPDFJpegHelpers.h"
 #include "include/private/base/SkCPUTypes.h"
@@ -55,3 +58,5 @@ DEF_TEST(SkPDF_OpaqueSrcModeToSrcOver, r) {
     REPORTER_ASSERT(r, srcMode.bytesWritten() > srcOverMode.bytesWritten());
     // The two PDFs should not be equal because they have a non-opaque alpha.
 }
+
+#endif // SK_SUPPORT_PDF

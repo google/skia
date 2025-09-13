@@ -13,10 +13,12 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
+#include "include/ports/SkFontScanner_FreeType.h"
 #include "include/private/base/SkMalloc.h"
 #include "include/private/base/SkMutex.h"
 #include "include/private/base/SkTPin.h"
@@ -474,7 +476,7 @@ public:
 protected:
     GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc*) override;
     void generateImage(const SkGlyph&, void*) override;
-    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override;
+    std::optional<GeneratedPath> generatePath(const SkGlyph& glyph) override;
     sk_sp<SkDrawable> generateDrawable(const SkGlyph&) override;
     void generateFontMetrics(SkFontMetrics*) override;
 
@@ -640,24 +642,27 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> SkTypeface_FreeType::onGetAdvancedMet
     return info;
 }
 
-void SkTypeface_FreeType::getGlyphToUnicodeMap(SkUnichar* dstArray) const {
+void SkTypeface_FreeType::getGlyphToUnicodeMap(SkSpan<SkUnichar> dstArray) const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
         return;
     }
 
-    FT_Long numGlyphs = face->num_glyphs;
-    if (!dstArray) { SkASSERT(numGlyphs == 0); }
-    sk_bzero(dstArray, sizeof(SkUnichar) * numGlyphs);
+    const size_t numGlyphs = std::min(dstArray.size(), (size_t)face->num_glyphs);
+    if (numGlyphs == 0) {
+        return;
+    }
+    sk_bzero(dstArray.data(), dstArray.size_bytes());
 
     FT_UInt glyphIndex;
     SkUnichar charCode = FT_Get_First_Char(face, &glyphIndex);
     while (glyphIndex) {
-        SkASSERT(glyphIndex < SkToUInt(numGlyphs));
-        // Use the first character that maps to this glyphID. https://crbug.com/359065
-        if (0 == dstArray[glyphIndex]) {
-            dstArray[glyphIndex] = charCode;
+        if (glyphIndex < numGlyphs) {
+            // Use the first character that maps to this glyphID. https://crbug.com/359065
+            if (0 == dstArray[glyphIndex]) {
+                dstArray[glyphIndex] = charCode;
+            }
         }
         charCode = FT_Get_Next_Char(face, charCode, &glyphIndex);
     }
@@ -744,7 +749,7 @@ std::unique_ptr<SkScalerContext> SkTypeface_FreeType::onCreateScalerContextAsPro
  *  cannot.
  */
 static int GetVariationDesignPosition(FT_Face face,
-    SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount)
+                              SkSpan<SkFontArguments::VariationPosition::Coordinate> coordinates)
 {
     if (!(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
         return 0;
@@ -756,7 +761,7 @@ static int GetVariationDesignPosition(FT_Face face,
     }
     UniqueVoidPtr autoFreeVariations(variations);
 
-    if (!coordinates || coordinateCount < SkToInt(variations->num_axis)) {
+    if (coordinates.size() < variations->num_axis) {
         return variations->num_axis;
     }
 
@@ -787,7 +792,7 @@ std::unique_ptr<SkFontData> SkTypeface_FreeType::cloneFontData(const SkFontArgum
     int axisCount = axisDefinitions.size();
 
     AutoSTMalloc<4, SkFontArguments::VariationPosition::Coordinate> currentPosition(axisCount);
-    int currentAxisCount = GetVariationDesignPosition(face, currentPosition, axisCount);
+    int currentAxisCount = GetVariationDesignPosition(face, {currentPosition, axisCount});
 
     SkString name;
     AutoSTMalloc<4, SkFixed> axisValues(axisCount);
@@ -867,18 +872,19 @@ int SkTypeface_FreeType::onGetUPEM() const {
     return GetUnitsPerEm(face);
 }
 
-bool SkTypeface_FreeType::onGetKerningPairAdjustments(const SkGlyphID glyphs[],
-                                      int count, int32_t adjustments[]) const {
+bool SkTypeface_FreeType::onGetKerningPairAdjustments(SkSpan<const SkGlyphID> glyphs,
+                                                      SkSpan<int32_t> adjustments) const {
+    SkASSERT(glyphs.size() == adjustments.size() + 1);
+
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face || !FT_HAS_KERNING(face)) {
         return false;
     }
 
-    for (int i = 0; i < count - 1; ++i) {
+    for (size_t i = 0; i < adjustments.size(); ++i) {
         FT_Vector delta;
-        FT_Error err = FT_Get_Kerning(face, glyphs[i], glyphs[i+1],
-                                      FT_KERNING_UNSCALED, &delta);
+        FT_Error err = FT_Get_Kerning(face, glyphs[i], glyphs[i+1], FT_KERNING_UNSCALED, &delta);
         if (err) {
             return false;
         }
@@ -1209,7 +1215,7 @@ SkScalerContext::GlyphMetrics SkScalerContext_FreeType::generateMetrics(const Sk
 
     FT_Bool haveLayers = false;
 #ifdef FT_COLOR_H
-    // See https://skbug.com/12945, if the face isn't marked scalable then paths cannot be loaded.
+    // See https://skbug.com/40044044, if the face isn't marked scalable then paths cannot be loaded.
     if (FT_IS_SCALABLE(fFace)) {
         SkRect bounds = SkRect::MakeEmpty();
 #ifdef TT_SUPPORT_COLRV1
@@ -1499,16 +1505,14 @@ sk_sp<SkDrawable> SkScalerContext_FreeType::generateDrawable(const SkGlyph& glyp
     return nullptr;
 }
 
-bool SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) {
-    SkASSERT(path);
-
+std::optional<SkScalerContext::GeneratedPath>
+SkScalerContext_FreeType::generatePath(const SkGlyph& glyph) {
     SkAutoMutexExclusive  ac(f_t_mutex());
 
     SkGlyphID glyphID = glyph.getGlyphID();
     // FT_IS_SCALABLE is documented to mean the face contains outline glyphs.
     if (!FT_IS_SCALABLE(fFace) || this->setupSize()) {
-        path->reset();
-        return false;
+        return {};
     }
 
     uint32_t flags = fLoadGlyphFlags;
@@ -1517,14 +1521,14 @@ bool SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path, 
 
     FT_Error err = FT_Load_Glyph(fFace, glyphID, flags);
     if (err != 0 || fFace->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
-        path->reset();
-        return false;
+        return {};
     }
-    *modified |= emboldenIfNeeded(fFace, fFace->glyph, glyphID);
 
-    if (!fUtils.generateGlyphPath(fFace, path)) {
-        path->reset();
-        return false;
+    bool modified = emboldenIfNeeded(fFace, fFace->glyph, glyphID);
+
+    SkPathBuilder builder;
+    if (!fUtils.generateGlyphPath(fFace, &builder)) {
+        return {};
     }
 
     // The path's origin from FreeType is always the horizontal layout origin.
@@ -1534,10 +1538,10 @@ bool SkScalerContext_FreeType::generatePath(const SkGlyph& glyph, SkPath* path, 
         vector.x = fFace->glyph->metrics.vertBearingX - fFace->glyph->metrics.horiBearingX;
         vector.y = -fFace->glyph->metrics.vertBearingY - fFace->glyph->metrics.horiBearingY;
         FT_Vector_Transform(&vector, &fMatrix22);
-        path->offset(SkFDot6ToScalar(vector.x), -SkFDot6ToScalar(vector.y));
-        *modified = true;
+        builder.offset(SkFDot6ToScalar(vector.x), -SkFDot6ToScalar(vector.y));
+        modified = true;
     }
-    return true;
+    return {{builder.detach(), modified}};
 }
 
 void SkScalerContext_FreeType::generateFontMetrics(SkFontMetrics* metrics) {
@@ -1742,13 +1746,17 @@ SkTypeface_FreeType::~SkTypeface_FreeType() {
 // Just made up, so we don't end up storing 1000s of entries
 constexpr int kMaxC2GCacheCount = 512;
 
-void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
-                                          SkGlyphID glyphs[]) const {
+void SkTypeface_FreeType::onCharsToGlyphs(SkSpan<const SkUnichar> uni,
+                                          SkSpan<SkGlyphID> glyphs) const {
     // Try the cache first, *before* accessing freetype lib/face, as that
     // can be very slow. If we do need to compute a new glyphID, then
     // access those freetype objects and continue the loop.
 
-    int i;
+    SkASSERT(uni.size() == glyphs.size());
+
+    const size_t count = uni.size();
+
+    size_t i;
     {
         // Optimistically use a shared lock.
         SkAutoSharedMutexShared ama(fC2GCacheMutex);
@@ -1770,7 +1778,7 @@ void SkTypeface_FreeType::onCharsToGlyphs(const SkUnichar uni[], int count,
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
-        sk_bzero(glyphs, count * sizeof(glyphs[0]));
+        sk_bzero(glyphs.data(), glyphs.size_bytes());
         return;
     }
 
@@ -1821,18 +1829,18 @@ bool SkTypeface_FreeType::onGlyphMaskNeedsCurrentColor() const {
 }
 
 int SkTypeface_FreeType::onGetVariationDesignPosition(
-    SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
+                          SkSpan<SkFontArguments::VariationPosition::Coordinate> coordinates) const
 {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
         return -1;
     }
-    return GetVariationDesignPosition(face, coordinates, coordinateCount);
+    return GetVariationDesignPosition(face, coordinates);
 }
 
 int SkTypeface_FreeType::onGetVariationDesignParameters(
-    SkFontParameters::Variation::Axis parameters[], int parameterCount) const
+    SkSpan<SkFontParameters::Variation::Axis> parameters) const
 {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
@@ -1850,7 +1858,7 @@ int SkTypeface_FreeType::onGetVariationDesignParameters(
     }
     UniqueVoidPtr autoFreeVariations(variations);
 
-    if (!parameters || parameterCount < SkToInt(variations->num_axis)) {
+    if (parameters.size() < variations->num_axis) {
         return variations->num_axis;
     }
 
@@ -1868,7 +1876,7 @@ int SkTypeface_FreeType::onGetVariationDesignParameters(
     return variations->num_axis;
 }
 
-int SkTypeface_FreeType::onGetTableTags(SkFontTableTag tags[]) const {
+int SkTypeface_FreeType::onGetTableTags(SkSpan<SkFontTableTag> tags) const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
     if (!face) {
@@ -1884,16 +1892,15 @@ int SkTypeface_FreeType::onGetTableTags(SkFontTableTag tags[]) const {
         return 0;
     }
 
-    if (tags) {
-        for (FT_ULong tableIndex = 0; tableIndex < tableCount; ++tableIndex) {
-            FT_ULong tableTag;
-            FT_ULong tablelength;
-            error = FT_Sfnt_Table_Info(face, tableIndex, &tableTag, &tablelength);
-            if (error) {
-                return 0;
-            }
-            tags[tableIndex] = static_cast<SkFontTableTag>(tableTag);
+    const size_t count = std::min<size_t>(tableCount, tags.size());
+    for (size_t tableIndex = 0; tableIndex < count; ++tableIndex) {
+        FT_ULong tableTag;
+        FT_ULong tablelength;
+        error = FT_Sfnt_Table_Info(face, tableIndex, &tableTag, &tablelength);
+        if (error) {
+            return 0;
         }
+        tags[tableIndex] = static_cast<SkFontTableTag>(tableTag);
     }
     return tableCount;
 }
@@ -2230,7 +2237,8 @@ bool SkFontScanner_FreeType::scanInstance(SkStreamAsset* stream,
             if (position) {
                 position->reset(numAxes);
                 auto coordinates = position->data();
-                if (GetVariationDesignPosition(face.get(), coordinates, numAxes) != (int)numAxes) {
+                if (GetVariationDesignPosition(face.get(),
+                                               {coordinates, numAxes}) != (int)numAxes) {
                     return false;
                 }
             }
@@ -2315,6 +2323,7 @@ SkTypeface::FactoryId SkFontScanner_FreeType::getFactoryId() const {
     static constexpr SkFourByteTag wghtTag = SkSetFourByteTag('w', 'g', 'h', 't');
     static constexpr SkFourByteTag wdthTag = SkSetFourByteTag('w', 'd', 't', 'h');
     static constexpr SkFourByteTag slntTag = SkSetFourByteTag('s', 'l', 'n', 't');
+    static constexpr SkFourByteTag italTag = SkSetFourByteTag('i', 't', 'a', 'l');
     int weight = SkFontStyle::kNormal_Weight;
     int width = SkFontStyle::kNormal_Width;
     SkFontStyle::Slant slant = SkFontStyle::kUpright_Slant;
@@ -2324,6 +2333,8 @@ SkTypeface::FactoryId SkFontScanner_FreeType::getFactoryId() const {
         slant = style->slant();
     }
 
+    std::optional<SkFixed> slnt_value;
+    std::optional<SkFixed> ital_value;
     for (int i = 0; i < axisDefinitions.size(); ++i) {
         const SkFontParameters::Variation::Axis& axisDefinition = axisDefinitions[i];
         const SkScalar axisMin = axisDefinition.min;
@@ -2392,19 +2403,34 @@ SkTypeface::FactoryId SkFontScanner_FreeType::getFactoryId() const {
                     width = SkFontDescriptor::SkFontStyleWidthForWidthAxisValue(wdthValue);
                 }
             }
-            if (axisDefinition.tag == slntTag && slant != SkFontStyle::kItalic_Slant) {
-                // https://docs.microsoft.com/en-us/typography/opentype/spec/dvaraxistag_slnt
-                // "Scale interpretation: Values can be interpreted as the angle,
-                // in counter-clockwise degrees, of oblique slant from whatever
-                // the designer considers to be upright for that font design."
-                if (axisValues[i] == 0) {
-                    slant = SkFontStyle::kUpright_Slant;
-                } else {
-                    slant = SkFontStyle::kOblique_Slant;
-                }
+            if (axisDefinition.tag == slntTag) {
+                slnt_value = axisValues[i];
+            }
+            if (axisDefinition.tag == italTag) {
+                ital_value = axisValues[i];
             }
         }
         // TODO: warn on defaulted axis?
+    }
+    // Value > 0 => +, value == 0 => 0, no value => _
+    // slnt\ital  _      0      +
+    //       _   init  !ital   ital
+    //       0  !oblq   uprt   ital
+    //       +   oblq   oblq   ital
+    if (ital_value && ital_value.value() != 0) {
+        slant = SkFontStyle::kItalic_Slant;
+    } else if (slnt_value && slnt_value.value() != 0) {
+        slant = SkFontStyle::kOblique_Slant;
+    } else if (ital_value && ital_value.value() == 0.0 && slnt_value && slnt_value.value() == 0.0) {
+        slant = SkFontStyle::kUpright_Slant;
+    } else if (ital_value && ital_value.value() == 0.0 && !slnt_value) {
+        if (slant == SkFontStyle::kItalic_Slant) {
+            slant = SkFontStyle::kUpright_Slant;
+        }
+    } else if (!ital_value && slnt_value && slnt_value.value() == 0.0) {
+        if (slant == SkFontStyle::kOblique_Slant) {
+            slant = SkFontStyle::kUpright_Slant;
+        }
     }
 
     if (style) {

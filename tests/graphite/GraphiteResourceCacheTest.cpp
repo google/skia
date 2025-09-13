@@ -208,8 +208,13 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest,
     }
     const Resource* imageResourcePtr = imageProxy->texture();
     REPORTER_ASSERT(reporter, imageResourcePtr);
-    // There is an extra resource for the buffer that is uploading the data to the texture
-    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 3);
+    // There is an extra resource for the buffer that is uploading the data to the texture. If host
+    // image copy is supported, the buffer may or may not be used based on other parameters.
+    const int buffersUsedForUpload = resourceCache->getResourceCount() - 2;
+    REPORTER_ASSERT(reporter, buffersUsedForUpload <= 1);
+    REPORTER_ASSERT(reporter,
+                    context->priv().caps()->supportsHostImageCopy() || buffersUsedForUpload == 1);
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2 + buffersUsedForUpload);
     REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 1);
     REPORTER_ASSERT(reporter, imageResourcePtr->budgeted() == Budgeted::kNo);
 
@@ -227,10 +232,11 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest,
     imageGpu.reset();
     resourceCache->forceProcessReturnedResources();
 
-    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 3);
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 2 + buffersUsedForUpload);
     // Remapping async buffers before returning them to the cache can extend buffer lifetime.
     if (!context->priv().caps()->bufferMapsAreAsync()) {
-        REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 3);
+        REPORTER_ASSERT(reporter,
+                        resourceCache->numFindableResources() == 2 + buffersUsedForUpload);
     }
     REPORTER_ASSERT(reporter, imageResourcePtr->budgeted() == Budgeted::kYes);
 
@@ -254,10 +260,11 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_ALL_CONTEXTS(GraphiteBudgetedResourcesTest,
     }
     const Resource* surfaceResourcePtr = surfaceProxy->texture();
 
-    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 4);
+    REPORTER_ASSERT(reporter, resourceCache->getResourceCount() == 3 + buffersUsedForUpload);
     // Remapping async buffers before returning them to the cache can extend buffer lifetime.
     if (!context->priv().caps()->bufferMapsAreAsync()) {
-        REPORTER_ASSERT(reporter, resourceCache->numFindableResources() == 3);
+        REPORTER_ASSERT(reporter,
+                        resourceCache->numFindableResources() == 2 + buffersUsedForUpload);
     }
     REPORTER_ASSERT(reporter, surfaceResourcePtr->budgeted() == Budgeted::kNo);
 

@@ -197,11 +197,9 @@ fn fallthrough_with_loop_break_bi(x: i32) -> bool {
               }
             }
           }
-          _skTemp0 = true;  // fallthrough
-        }
+          _skTemp0 = true;  }
         if _skTemp0 || x == 2 {
           ;
-          // fallthrough
         }
         return true;
       }
@@ -228,11 +226,9 @@ fn fallthrough_with_loop_continue_bi(x: i32) -> bool {
               }
             }
           }
-          _skTemp1 = true;  // fallthrough
-        }
+          _skTemp1 = true;  }
         if _skTemp1 || x == 2 {
           ;
-          // fallthrough
         }
         return true;
       }

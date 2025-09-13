@@ -368,8 +368,7 @@ void bug13496_1(skiatest::Reporter* reporter) {
             "2.15 -0.98 1.87 -1.12L1.87 -4.15C2.34 -4.73 2.75 -5.09 3.42 -5.09C4.31 -5.09 4.81 "
             "-4.46 4.81 -3.09Z";
 
-    SkPath path;
-    SkParsePath::FromSVGString(originalPathStr.c_str(), &path);
+    SkPath path = SkParsePath::FromSVGString(originalPathStr.c_str()).value_or(SkPath());
 
     SkPath simplifiedPath;
     Simplify(path, &simplifiedPath);
@@ -396,8 +395,7 @@ void bug13496_2(skiatest::Reporter* reporter) {
             "L3 1"
             "Z";
 
-    SkPath path;
-    SkParsePath::FromSVGString(originalPathStr.c_str(), &path);
+    SkPath path = SkParsePath::FromSVGString(originalPathStr.c_str()).value_or(SkPath());
 
     SkPath simplifiedPath;
     Simplify(path, &simplifiedPath);
@@ -424,8 +422,7 @@ void bug13496_3(skiatest::Reporter* reporter) {
             "L3 1"
             "Z";
 
-    SkPath path;
-    SkParsePath::FromSVGString(originalPathStr.c_str(), &path);
+    SkPath path = SkParsePath::FromSVGString(originalPathStr.c_str()).value_or(SkPath());
 
     SkPath simplifiedPath;
     Simplify(path, &simplifiedPath);
@@ -465,7 +462,7 @@ DEF_TEST(PathOpsAsWinding, reporter) {
     // if test has only one contour
     test.reset();
     SkPoint ell[] = {{0, 0}, {4, 0}, {4, 1}, {1, 1}, {1, 4}, {0, 4}};
-    test.addPoly(ell, std::size(ell), true);
+    test.addPoly(ell, true);
     test.setFillType(SkPathFillType::kEvenOdd);
     REPORTER_ASSERT(reporter, AsWinding(test, &result));
     REPORTER_ASSERT(reporter, !result.isConvex());
@@ -480,7 +477,7 @@ DEF_TEST(PathOpsAsWinding, reporter) {
     REPORTER_ASSERT(reporter, test == result);
     // test two contours that do not overlap but share bounds
     test.reset();
-    test.addPoly(ell, std::size(ell), true);
+    test.addPoly(ell, true);
     test.addRect({2, 2, 3, 3});
     test.setFillType(SkPathFillType::kEvenOdd);
     REPORTER_ASSERT(reporter, AsWinding(test, &result));

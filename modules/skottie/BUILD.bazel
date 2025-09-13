@@ -31,7 +31,7 @@ skia_cc_binary(
         "//tools/flags:cmd_flags",
     ] + select({
         "@platforms//os:linux": [
-            "@skia//:fontmgr_fontconfig_freetype",
+            "@skia//:fontmgr_fontconfig",
             "@skia//:freetype_support",
         ],
         "@platforms//os:macos": ["//:fontmgr_coretext"],
@@ -63,7 +63,7 @@ skia_cc_binary(
         "//src/core:core_priv",
         "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
         "//tools/flags:cmd_flags",
-        "//tools/gpu:ganesh_gl_utils",
+        "//tools/ganesh:ganesh_gl_utils",
     ],
 )
 
@@ -87,7 +87,7 @@ skia_cc_binary(
         "//tools/flags:cmd_flags",
     ] + select({
         "@platforms//os:linux": [
-            "@skia//:fontmgr_fontconfig_freetype",
+            "@skia//:fontmgr_fontconfig",
             "@skia//:freetype_support",
         ],
         "@platforms//os:macos": ["//:fontmgr_coretext"],
@@ -119,6 +119,7 @@ skia_cc_library(
         "//modules/sksg",
         "//modules/sksg:sksg_priv",
         "//modules/skshaper:skshaper_core",
+        "//modules/skunicode:skunicode_core",
         "//src/base",
         "//src/codec:codec_support_priv",
         "//src/core:core_priv",

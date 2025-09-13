@@ -472,7 +472,7 @@ static void test_chop_quad_at_midtangent(skiatest::Reporter* reporter, const SkP
     constexpr float kTolerance = 1e-3f;
     for (const SkMatrix& m : kSkewMatrices) {
         SkPoint mapped[3];
-        m.mapPoints(mapped, pts, 3);
+        m.mapPoints({mapped, 3}, {pts, 3});
         float fullRotation = SkMeasureQuadRotation(pts);
         SkPoint chopped[5];
         SkChopQuadAtMidTangent(pts, chopped);
@@ -494,7 +494,7 @@ static void test_chop_cubic_at_midtangent(skiatest::Reporter* reporter, const Sk
     }
     for (int i = 0; i < n; ++i) {
         SkPoint mapped[4];
-        kSkewMatrices[i].mapPoints(mapped, pts, 4);
+        kSkewMatrices[i].mapPoints({mapped, 4}, {pts, 4});
         float fullRotation = SkMeasureNonInflectCubicRotation(mapped);
         SkPoint chopped[7];
         SkChopCubicAtMidTangent(mapped, chopped);

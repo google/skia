@@ -5,11 +5,16 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/rust_png/decoder/SkPngRustDecoder.h"
+#include "include/codec/SkPngRustDecoder.h"
+
+#include <memory>
+#include <utility>
+
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkCodecAnimation.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkColor.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkData.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
@@ -19,9 +24,6 @@
 #include "tests/FakeStreams.h"
 #include "tests/Test.h"
 #include "tools/Resources.h"
-
-#include <memory>
-#include <utility>
 
 #define REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, actualResult) \
     REPORTER_ASSERT(r,                                           \
@@ -637,8 +639,12 @@ DEF_TEST(RustPngCodec_png_cicp, r) {
     if (!profile) {
         return;
     }
+    auto cs = SkColorSpace::Make(*profile);
+    skcms_TransferFunction tf;
+    cs->transferFn(&tf);
 
-    REPORTER_ASSERT(r, skcms_TransferFunction_isPQish(&profile->trc[0].parametric));
+    REPORTER_ASSERT(r, skcms_TransferFunction_isPQish(&tf) ||
+                       skcms_TransferFunction_isPQ(&tf));
 }
 
 DEF_TEST(RustPngCodec_green15x15, r) {
@@ -668,4 +674,35 @@ DEF_TEST(RustPngCodec_exif_orientation, r) {
     }
 
     REPORTER_ASSERT(r, codec->getOrigin() == kRightTop_SkEncodedOrigin);
+}
+
+DEF_TEST(RustPngCodec_f16_trc_tables, r) {
+    std::unique_ptr<SkCodec> codec = SkPngRustDecoderDecode(r, "images/f16-trc-tables.png");
+    REPORTER_ASSERT(r, codec);
+
+    const SkImageInfo info = codec->getInfo();
+    REPORTER_ASSERT(r, info.colorSpace());
+
+    // Decoding to F16 without color space conversion.
+    const SkImageInfo dstInfo = info.makeColorType(kRGBA_F16_SkColorType)
+                                    .makeColorSpace(nullptr);
+    // This should not crash.
+    auto [image, result] = codec->getImage(dstInfo);
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+}
+
+DEF_TEST(RustPngCodec_invalid_profile, r) {
+    // This image has an gamma value of 0. For parity with Blink, we want to disregard
+    // the ICC profile in this case and create the codec without it. This is different
+    // than libpng SkPngCodec behavior, which will default to an SRGB icc profile.
+    std::unique_ptr<SkCodec> codec =
+        SkPngRustDecoderDecode(r, "images/png-zero-gamma-color-profile.png");
+    REPORTER_ASSERT(r, codec);
+
+    // There should be no ICC profile.
+    REPORTER_ASSERT(r, !codec->getICCProfile());
+
+    // This should not crash.
+    auto [image, result] = codec->getImage(codec->getInfo());
+    REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
 }

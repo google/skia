@@ -21,10 +21,10 @@
 #include "tools/Resources.h"
 #include "tools/fonts/FontToolUtils.h"
 #ifdef SK_GL
-#include "tools/gpu/gl/GLTestContext.h"
+#include "tools/ganesh/gl/GLTestContext.h"
 #endif
 #ifdef SK_VULKAN
-#include "tools/gpu/vk/VkTestContext.h"
+#include "tools/ganesh/vk/VkTestContext.h"
 #endif
 
 #ifdef SK_GRAPHITE

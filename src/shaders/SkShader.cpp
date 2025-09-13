@@ -7,7 +7,6 @@
 #include "include/core/SkShader.h"
 
 #include "include/core/SkColorFilter.h"
-#include "include/core/SkColorSpace.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
 #include "src/shaders/SkColorFilterShader.h"
@@ -45,6 +44,8 @@ sk_sp<SkShader> SkShader::makeWithColorFilter(sk_sp<SkColorFilter> filter) const
     return SkColorFilterShader::Make(sk_ref_sp(this), 1.0f, std::move(filter));
 }
 
-sk_sp<SkShader> SkShader::makeWithWorkingColorSpace(sk_sp<SkColorSpace> workingSpace) const {
-    return SkWorkingColorSpaceShader::Make(sk_ref_sp(this), std::move(workingSpace));
+sk_sp<SkShader> SkShader::makeWithWorkingColorSpace(sk_sp<SkColorSpace> inputCS,
+                                                    sk_sp<SkColorSpace> outputCS) const {
+    return SkWorkingColorSpaceShader::Make(
+            sk_ref_sp(this), std::move(inputCS), std::move(outputCS), /*workInUnpremul=*/false);
 }

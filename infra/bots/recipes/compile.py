@@ -6,7 +6,6 @@
 # Recipe module for compiling Skia when the checkout has already been done
 # (e.g. repo brought in via CAS)
 
-PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'build',

@@ -283,7 +283,7 @@ void GrGLRenderTarget::bindInternal(GrGLenum fboTarget, bool useMultisampleFBO) 
             GL_CALL_RET(status, CheckFramebufferStatus(fboTarget));
             if (status != GR_GL_FRAMEBUFFER_COMPLETE) {
                 // This can fail if the context has been asynchronously abandoned (see
-                // skbug.com/5200).
+                // skbug.com/40036375).
                 SkDebugf("WARNING: failed to attach stencil.\n");
             }
         }

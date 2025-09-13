@@ -14,6 +14,10 @@
 #include "tools/window/DisplayParams.h"
 #include "tools/window/WindowContext.h"
 
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Recorder.h"
+#endif
+
 using skwindow::DisplayParams;
 
 namespace sk_app {
@@ -182,6 +186,17 @@ skgpu::graphite::Recorder* Window::graphiteRecorder() const {
     }
     return fWindowContext->graphiteRecorder();
 #else
+    return nullptr;
+#endif
+}
+
+SkRecorder* Window::baseRecorder() const {
+#if defined(SK_GRAPHITE)
+    return this->graphiteRecorder();
+#else
+    if (auto direct = this->directContext()) {
+        return direct->asRecorder();
+    }
     return nullptr;
 #endif
 }

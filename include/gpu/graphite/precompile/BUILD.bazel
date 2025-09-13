@@ -1,0 +1,30 @@
+load("//bazel:skia_rules.bzl", "generate_cpp_files_for_headers", "skia_filegroup")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+PUBLIC_HEADERS = [
+    "PaintOptions.h",
+    "Precompile.h",
+    "PrecompileBase.h",
+    "PrecompileBlender.h",
+    "PrecompileColorFilter.h",
+    "PrecompileImageFilter.h",
+    "PrecompileMaskFilter.h",
+    "PrecompileRuntimeEffect.h",
+    "PrecompileShader.h",
+]
+
+skia_filegroup(
+    name = "public_hdrs",
+    srcs = PUBLIC_HEADERS,
+    visibility = ["//src/gpu/graphite/precompile:__pkg__"],
+)
+
+generate_cpp_files_for_headers(
+    name = "headers_to_compile",
+    headers = PUBLIC_HEADERS,
+)

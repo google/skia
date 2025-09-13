@@ -4,9 +4,9 @@
 REG_FIDDLE(Matrix_063, 256, 256, false, 3) {
 void draw(SkCanvas* canvas) {
     SkMatrix matrix;
-    SkPoint bitmapBounds[4], perspect[4] = {{50, 10}, {180, 40}, {236, 176}, {10, 206}};
-    SkRect::Make(image->bounds()).toQuad(bitmapBounds);
-    matrix.setPolyToPoly(bitmapBounds, perspect, 4);
+    SkPoint perspect[4] = {{50, 10}, {180, 40}, {236, 176}, {10, 206}};
+    const std::array<SkPoint, 4> bitmapBounds = SkRect::Make(image->bounds()).toQuad();
+    matrix.setPolyToPoly(bitmapBounds, perspect);
     matrix.postScale(1, 0.5f);
     canvas->concat(matrix);
     canvas->drawImage(image, 0, 0);

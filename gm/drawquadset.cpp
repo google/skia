@@ -149,14 +149,14 @@ static void draw_tile_boundaries(SkCanvas* canvas, const SkMatrix& local) {
     paint.setStrokeWidth(0.f);
     for (int x = 1; x < kColCount; ++x) {
         SkPoint pts[] = {{x * kTileWidth, 0}, {x * kTileWidth, kRowCount * kTileHeight}};
-        local.mapPoints(pts, 2);
+        local.mapPoints(pts);
         SkVector v = pts[1] - pts[0];
         v.setLength(v.length() + kLineOutset);
         canvas->drawLine(pts[1] - v, pts[0] + v, paint);
     }
     for (int y = 1; y < kRowCount; ++y) {
         SkPoint pts[] = {{0, y * kTileHeight}, {kTileWidth * kColCount, y * kTileHeight}};
-        local.mapPoints(pts, 2);
+        local.mapPoints(pts);
         SkVector v = pts[1] - pts[0];
         v.setLength(v.length() + kLineOutset);
         canvas->drawLine(pts[1] - v, pts[0] + v, paint);
@@ -195,13 +195,13 @@ private:
         rowMatrices[3].setSkew(.5f, .25f);
         rowMatrices[3].preTranslate(-30.f, 0.f);
         // Perspective
-        SkPoint src[4];
-        SkRect::MakeWH(kColCount * kTileWidth, kRowCount * kTileHeight).toQuad(src);
+        const std::array<SkPoint, 4> src = SkRect::MakeWH(kColCount * kTileWidth,
+                                                          kRowCount * kTileHeight).toQuad();
         SkPoint dst[4] = {{0, 0},
                           {kColCount * kTileWidth + 10.f, 15.f},
                           {kColCount * kTileWidth - 28.f, kRowCount * kTileHeight + 40.f},
                           {25.f, kRowCount * kTileHeight - 15.f}};
-        SkAssertResult(rowMatrices[4].setPolyToPoly(src, dst, 4));
+        SkAssertResult(rowMatrices[4].setPolyToPoly(src, dst));
         rowMatrices[4].preTranslate(0.f, +10.f);
         static const char* matrixNames[] = { "Identity", "T+S", "Rotate", "Skew", "Perspective" };
         static_assert(std::size(matrixNames) == std::size(rowMatrices), "Count mismatch");

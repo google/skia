@@ -2,7 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-PYTHON_VERSION_COMPATIBILITY = "PY3"
 
 DEPS = [
   'flavor',
@@ -265,4 +264,13 @@ def GenTests(api):
     api.step_data('Scale CPU 4 to 0.600000', retcode=1)+
     api.step_data('Scale CPU 4 to 0.600000 (attempt 2)', retcode=1)+
     api.step_data('Scale CPU 4 to 0.600000 (attempt 3)', retcode=1)
+  )
+
+  internalBuilder = (
+      'Test-Android-Clang-InternalDevice-GPU-SomeGPU-arm-Release-All')
+  yield (
+    api.test('internal_hardware_label') +
+    api.properties(**(
+        defaultProps(internalBuilder) | {'internal_hardware_label': '6'}
+    ))
   )

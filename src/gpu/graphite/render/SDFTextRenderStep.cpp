@@ -59,7 +59,7 @@ SDFTextRenderStep::SDFTextRenderStep()
                                    {"atlasSizeInv", SkSLType::kFloat2},
                                    {"gammaParams", SkSLType::kHalf2}},
                      PrimitiveType::kTriangleStrip,
-                     kDirectDepthGEqualPass,
+                     kDirectDepthLEqualPass,
                      /*staticAttrs=*/ {},
                      /*appendAttrs=*/
                      {{"size", VertexAttribType::kUShort2, SkSLType::kUShort2},
@@ -141,6 +141,7 @@ void SDFTextRenderStep::writeVertices(DrawWriter* dw,
 
 void SDFTextRenderStep::writeUniformsAndTextures(const DrawParams& params,
                                                  PipelineDataGatherer* gatherer) const {
+    SkDEBUGCODE(gatherer->checkRewind());
     SkDEBUGCODE(UniformExpectationsValidator uev(gatherer, this->uniforms());)
 
     const SubRunData& subRunData = params.geometry().subRunData();

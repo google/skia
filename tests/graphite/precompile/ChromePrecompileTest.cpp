@@ -12,15 +12,75 @@
 #include "include/gpu/graphite/PrecompileContext.h"
 #include "src/gpu/graphite/PrecompileContextPriv.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
+#include "tests/graphite/precompile/PaintOptionsBuilder.h"
 #include "tests/graphite/precompile/PrecompileTestUtils.h"
 
 using namespace skgpu::graphite;
+using namespace PaintOptionsUtils;
 using namespace PrecompileTestUtils;
 
-namespace {
+// Single sampled R w/ just depth
+const RenderPassProperties kR_1_D{DepthStencilFlags::kDepth,
+                                kAlpha_8_SkColorType,
+                                /* fDstCS= */ nullptr,
+                                /* fRequiresMSAA= */ false};
 
-// These settings cover 113 of the 255 cases in 'kCases'.
-// They create 141 Pipelines so only modestly over-generate (28 Pipelines).
+// MSAA R w/ depth and stencil
+const RenderPassProperties kR_4_DS{DepthStencilFlags::kDepthStencil,
+                                 kAlpha_8_SkColorType,
+                                 /* fDstCS= */ nullptr,
+                                 /* fRequiresMSAA= */ true};
+
+// Single sampled BGRA w/ just depth
+const RenderPassProperties kBGRA_1_D{DepthStencilFlags::kDepth,
+                                   kBGRA_8888_SkColorType,
+                                   /* fDstCS= */ nullptr,
+                                   /* fRequiresMSAA= */ false};
+
+// MSAA BGRA w/ just depth
+const RenderPassProperties kBGRA_4_D{DepthStencilFlags::kDepth,
+                                   kBGRA_8888_SkColorType,
+                                   /* fDstCS= */ nullptr,
+                                   /* fRequiresMSAA= */ true};
+
+// MSAA BGRA w/ depth and stencil
+const RenderPassProperties kBGRA_4_DS{DepthStencilFlags::kDepthStencil,
+                                    kBGRA_8888_SkColorType,
+                                    /* fDstCS= */ nullptr,
+                                    /* fRequiresMSAA= */ true};
+
+// The same as kBGRA_1_D but w/ an SRGB colorSpace
+const RenderPassProperties kBGRA_1_D_SRGB{DepthStencilFlags::kDepth,
+                                        kBGRA_8888_SkColorType,
+                                        SkColorSpace::MakeSRGB(),
+                                        /* fRequiresMSAA= */ false};
+
+// The same as kBGRA_1_D but w/ an Adobe RGB colorSpace
+const RenderPassProperties kBGRA_1_D_Adobe{
+  DepthStencilFlags::kDepth, kBGRA_8888_SkColorType,
+  SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kAdobeRGB),
+  /* fRequiresMSAA= */ false};
+
+// The same as kBGRA_4_DS but w/ an SRGB colorSpace
+const RenderPassProperties kBGRA_4_DS_SRGB{DepthStencilFlags::kDepthStencil,
+                                         kBGRA_8888_SkColorType,
+                                         SkColorSpace::MakeSRGB(),
+                                         /* fRequiresMSAA= */ true};
+
+// The same as kBGRA_4_DS but w/ an Adobe RGB colorSpace
+const RenderPassProperties kBGRA_4_DS_Adobe{
+  DepthStencilFlags::kDepthStencil, kBGRA_8888_SkColorType,
+  SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kAdobeRGB),
+  /* fRequiresMSAA= */ true};
+
+constexpr DrawTypeFlags kRRectAndNonAARect = static_cast<DrawTypeFlags>(
+        DrawTypeFlags::kAnalyticRRect | DrawTypeFlags::kNonAAFillRect);
+constexpr DrawTypeFlags kQuadAndNonAARect = static_cast<DrawTypeFlags>(
+        DrawTypeFlags::kPerEdgeAAQuad | DrawTypeFlags::kNonAAFillRect);
+
+namespace {
+// These settings cover 108 of the 255 cases in 'kCases'.
+// They create 136 Pipelines so only modestly over-generate (28 Pipelines).
 //
 // The order here is:
 //    First all the kBitmapText_Mask draws
@@ -29,59 +89,126 @@ namespace {
 // the name of the PaintOptions creation function.
 const PrecompileSettings kPrecompileCases[] = {
 //-----------------
-/*  0 */ { BlendPorterDuffCFSrcover(),         DrawTypeFlags::kBitmapText_Mask,  kBGRA_1_D },
-/*  1 */ { SolidSrcover(),                     DrawTypeFlags::kBitmapText_Mask,  kBGRA_1_D },
+/*  0 */ { Builder().srcOver(),
+           DrawTypeFlags::kBitmapText_Mask,
+           kBGRA_1_D },
 //-----------------
-/*  2 */ { SolidSrcover(),                     DrawTypeFlags::kBitmapText_Mask,  kBGRA_4_D },
+/*  1 */ { Builder().srcOver(),
+           DrawTypeFlags::kBitmapText_Mask,
+           kBGRA_4_D },
 //-----------------
-/*  3 */ { SolidSrcover(),                     DrawTypeFlags::kBitmapText_Mask,  kBGRA_4_DS },
-/*  4 */ { LinearGradSmSrcover(),              DrawTypeFlags::kBitmapText_Mask,  kBGRA_4_DS },
-/*  5 */ { BlendPorterDuffCFSrcover(),         DrawTypeFlags::kBitmapText_Mask,  kBGRA_4_DS },
+/*  2 */ { Builder().srcOver(),
+           DrawTypeFlags::kBitmapText_Mask,
+           kBGRA_4_DS },
+/*  3 */ { Builder().linearGrad(kSmall).srcOver(),
+           DrawTypeFlags::kBitmapText_Mask,
+           kBGRA_4_DS },
 
 //-----------------
-/*  6 */ { TransparentPaintSrcover(),          DrawTypeFlags::kBitmapText_Color, kBGRA_1_D },
-/*  7 */ { SolidSrcover(),                     DrawTypeFlags::kBitmapText_Color, kBGRA_1_D_Adobe },
+/*  4 */ { Builder().transparent().srcOver(),
+           DrawTypeFlags::kBitmapText_Color,
+           kBGRA_1_D },
+/*  5 */ { Builder().srcOver(),
+           DrawTypeFlags::kBitmapText_Color,
+           kBGRA_1_D_Adobe },
 //-----------------
-/*  8 */ { SolidSrcover(),                     DrawTypeFlags::kBitmapText_Color, kBGRA_4_DS_Adobe },
+/*  6 */ { Builder().srcOver(),
+           DrawTypeFlags::kBitmapText_Color,
+           kBGRA_4_DS_Adobe },
 
 //-----------------
-/*  9 */ { SolidSrcover(),                     kRRectAndNonAARect,               kR_1_D },
-/* 10 */ { ImageAlphaHWOnlySrcover(),          DrawTypeFlags::kPerEdgeAAQuad,    kR_1_D },
-/* 11 */ { ImageAlphaNoCubicSrc(),             DrawTypeFlags::kNonAAFillRect,    kR_1_D },
+/*  7 */ { Builder().srcOver(),
+           kRRectAndNonAARect,
+           kR_1_D },
+/*  8 */ { Builder().hwImg(kAlpha).srcOver(),
+           DrawTypeFlags::kPerEdgeAAQuad,
+           kR_1_D },
+/*  9 */ { Builder().hwImg(kAlpha, kRepeat).src(),
+           DrawTypeFlags::kNonAAFillRect,
+           kR_1_D },
 
 //-----------------
-/* 12 */ { ImagePremulClampNoCubicDstin(),     kQuadAndNonAARect,                kBGRA_1_D },
-/* 13 */ { ImagePremulHWOnlyMatrixCFSrcover(), DrawTypeFlags::kNonAAFillRect,    kBGRA_1_D },
-/* 14 */ { ImagePremulHWOnlyPorterDuffCFSrcover(), DrawTypeFlags::kPerEdgeAAQuad,kBGRA_1_D },
-/* 15 */ { ImagePremulNoCubicSrcover(),        DrawTypeFlags::kAnalyticRRect,    kBGRA_1_D },
-/* 16 */ { ImagePremulNoCubicSrcSrcover(),     kQuadAndNonAARect,                kBGRA_1_D },
-/* 17 */ { LinearGradSmSrcover(),              DrawTypeFlags::kNonAAFillRect,    kBGRA_1_D },
-/* 18 */ { SolidSrcSrcover(),                  DrawTypeFlags::kSimpleShape,      kBGRA_1_D },
-/* 19 */ { TransparentPaintImagePremulHWAndClampSrcover(),kQuadAndNonAARect,     kBGRA_1_D },
-/* 20 */ { LinearGradSRGBSmMedDitherSrcover(), kRRectAndNonAARect,               kBGRA_1_D_Adobe },
-/* 21 */ { ImageHWOnlySRGBSrcover(),           kRRectAndNonAARect,               kBGRA_1_D_SRGB },
-/* 22 */ { ImageSRGBNoCubicSrc(),              kQuadAndNonAARect,                kBGRA_1_D_SRGB },
-/* 23 */ { YUVImageSRGBNoCubicSrcover(),       DrawTypeFlags::kSimpleShape,      kBGRA_1_D_SRGB },
+/* 10 */ { Builder().hwImg(kPremul, kClamp).dstIn(),
+           kQuadAndNonAARect,
+           kBGRA_1_D },
+/* 11 */ { Builder().hwImg(kPremul).matrixCF().srcOver(),
+           DrawTypeFlags::kNonAAFillRect,
+           kBGRA_1_D },
+/* 12 */ { Builder().hwImg(kPremul).porterDuffCF().srcOver(),
+           DrawTypeFlags::kPerEdgeAAQuad,
+           kBGRA_1_D },
+/* 13 */ { Builder().hwImg(kPremul, kClamp).srcOver(),
+           DrawTypeFlags::kAnalyticRRect,
+           kBGRA_1_D },
+/* 14 */ { Builder().hwImg(kPremul).src().srcOver(),
+           kQuadAndNonAARect,
+           kBGRA_1_D },
+/* 15 */ { Builder().linearGrad(kSmall).srcOver(),
+           DrawTypeFlags::kNonAAFillRect,
+           kBGRA_1_D },
+/* 16 */ { Builder().src().srcOver(),
+           DrawTypeFlags::kSimpleShape,
+           kBGRA_1_D },
+/* 17 */ { Builder().transparent().hwImg(kPremul, kClamp).srcOver(),
+           kQuadAndNonAARect,
+           kBGRA_1_D },
+/* 18 */ { Builder().linearGrad(kComplex).dither().srcOver(),
+           kRRectAndNonAARect,
+           kBGRA_1_D_Adobe },
+/* 19 */ { Builder().hwImg(kSRGB).srcOver(),
+           kRRectAndNonAARect,
+           kBGRA_1_D_SRGB },
+/* 20 */ { Builder().hwImg(kSRGB).src(),
+           kQuadAndNonAARect,
+           kBGRA_1_D_SRGB },
+/* 21 */ { Builder().yuv(kNoCubic).srcOver(),
+           DrawTypeFlags::kSimpleShape,
+           kBGRA_1_D_SRGB },
 
 //-----------------
-/* 24 */ { ImagePremulHWOnlyDstin(),           DrawTypeFlags::kPerEdgeAAQuad,    kBGRA_4_D },
-/* 25 */ { ImagePremulHWOnlySrcover(),         kQuadAndNonAARect,                kBGRA_4_D },
-/* 26 */ { SolidSrcSrcover(),                  kRRectAndNonAARect,               kBGRA_4_D },
-/* 27 */ { BlendPorterDuffCFSrcover(),         DrawTypeFlags::kNonAAFillRect,    kBGRA_4_DS },
-/* 28 */ { ImagePremulHWOnlyDstin(),           DrawTypeFlags::kPerEdgeAAQuad,    kBGRA_4_DS },
-/* 29 */ { ImagePremulHWOnlyMatrixCFSrcover(), DrawTypeFlags::kNonAAFillRect,    kBGRA_4_DS },
-/* 30 */ { ImagePremulNoCubicSrcover(),        kQuadAndNonAARect,                kBGRA_4_DS },
-/* 31 */ { SolidClearSrcSrcover(),             DrawTypeFlags::kNonAAFillRect,    kBGRA_4_DS },
-/* 32 */ { SolidSrcover(),                     DrawTypeFlags::kNonSimpleShape,   kBGRA_4_DS },
-/* 33 */ { SolidSrcover(),                     DrawTypeFlags::kAnalyticRRect,    kBGRA_4_DS },
-/* 34 */ { TransparentPaintImagePremulHWOnlySrcover(), DrawTypeFlags::kPerEdgeAAQuad, kBGRA_4_DS },
-/* 35 */ { LinearGradSRGBSmMedDitherSrcover(), kRRectAndNonAARect,               kBGRA_4_DS_Adobe },
-/* 36 */ { ImageHWOnlySRGBSrcover(),           DrawTypeFlags::kAnalyticRRect,    kBGRA_4_DS_SRGB },
-/* 37 */ { YUVImageSRGBSrcover2(),             DrawTypeFlags::kSimpleShape,      kBGRA_4_DS_SRGB },
+/* 22 */ { Builder().hwImg(kPremul).dstIn(),
+           DrawTypeFlags::kPerEdgeAAQuad,
+           kBGRA_4_D },
+/* 23 */ { Builder().hwImg(kPremul).srcOver(),
+           kQuadAndNonAARect,
+           kBGRA_4_D },
+/* 24 */ { Builder().src().srcOver(),
+           kRRectAndNonAARect,
+           kBGRA_4_D },
+/* 25 */ { Builder().hwImg(kPremul).dstIn(),
+           DrawTypeFlags::kPerEdgeAAQuad,
+           kBGRA_4_DS },
+/* 26 */ { Builder().hwImg(kPremul).matrixCF().srcOver(),
+           DrawTypeFlags::kNonAAFillRect,
+           kBGRA_4_DS },
+/* 27 */ { Builder().hwImg(kPremul, kClamp).srcOver(),
+           kQuadAndNonAARect,
+           kBGRA_4_DS },
+/* 28 */ { Builder().clear().src().srcOver(),
+           DrawTypeFlags::kNonAAFillRect,
+           kBGRA_4_DS },
+/* 29 */ { Builder().srcOver(),
+           DrawTypeFlags::kNonSimpleShape,
+           kBGRA_4_DS },
+/* 30 */ { Builder().srcOver(),
+           DrawTypeFlags::kAnalyticRRect,
+           kBGRA_4_DS },
+/* 31 */ { Builder().transparent().hwImg(kPremul).srcOver(),
+           DrawTypeFlags::kPerEdgeAAQuad,
+           kBGRA_4_DS },
+/* 32 */ { Builder().linearGrad(kComplex).dither().srcOver(),
+           kRRectAndNonAARect,
+           kBGRA_4_DS_Adobe },
+/* 33 */ { Builder().hwImg(kSRGB).srcOver(),
+           DrawTypeFlags::kAnalyticRRect,
+           kBGRA_4_DS_SRGB },
+/* 34 */ { Builder().yuv(kHWAndShader).srcOver(),
+           DrawTypeFlags::kSimpleShape,
+           kBGRA_4_DS_SRGB },
 };
 
-// Case 36 is the only case that solely covers Pipeline labels with the "w/ msaa load" sub-string.
-#define MSAA_ONLY_CASE 36
+// Case 33 is the only case that solely covers Pipeline labels with the "w/ msaa load" sub-string.
+#define MSAA_ONLY_CASE 33
 
 //
 // These Pipelines are candidates for inclusion in Chrome's precompile. They were generated
@@ -280,13 +407,13 @@ static const PipelineLabel kCases[] = {
 //--------
 /*  59 */ { 4, "RP((R8+D16 x1).a000) + "
                "PerEdgeAAQuadRenderStep + "
-               "LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] RGBPaintColor DstIn ] ] SrcOver" },
+               "LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] SrcOver" },
 /*  60 */ { 4, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
                "SolidColor SrcOver" },
 /*   X */ { 4, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransform ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformSRGB ] ] ] Src" },
 /*  62 */ { 4, "RP((R8+D16 x1).a000) + "
                "AnalyticRRectRenderStep + "
                "SolidColor SrcOver" },
@@ -381,10 +508,10 @@ static const PipelineLabel kCases[] = {
 //--------
 /*  91 */ { 3, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ BlendCompose [ Compose [ Image(0) ColorSpaceTransform ] RGBPaintColor DstIn ] ] Src" },
+               "LocalMatrix [ BlendCompose [ Compose [ Image(0) ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] Src" },
 /*   X */ { 3, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur16 [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] Src" },
 //--------
 /*   ? */ { 3, "RP((BGRA8+D24_S8 x4->1).rgba) + "                    //-----------------------------
                "TessellateWedgesRenderStep[Convex] + "
@@ -486,13 +613,13 @@ static const PipelineLabel kCases[] = {
 //--------
 /* 124 */ { 2, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] RGBPaintColor DstIn ] ] Src" },
+               "LocalMatrix [ BlendCompose [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] RGBPaintColor DstIn ] ] Src" },
 /*   X */ { 2, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur4 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransform ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur4 [ LocalMatrix [ Compose [ ImageShaderClamp(0) ColorSpaceTransformSRGB ] ] ] Src" },
 /*   X */ { 2, "RP((R8+D16 x1).a000) + "
                "CoverBoundsRenderStep[NonAAFill] + "
-               "KnownRuntimeEffect_1DBlur4 [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransform ] ] ] Src" },
+               "KnownRuntimeEffect_1DBlur4 [ LocalMatrix [ Compose [ CoordNormalize [ HardwareImage(0) ] ColorSpaceTransformSRGB ] ] ] Src" },
 //--------
 /*   X */ { 2, "RP((BGRA8+D24_S8 x4->1).rgba) + "
                "TessellateWedgesRenderStep[Convex] + "
@@ -967,7 +1094,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(ChromePrecompileTest, is_dawn_metal_context_type,
             continue;
         }
 
-        RunTest(precompileContext.get(), reporter, { kPrecompileCases }, i,
+        RunTest(precompileContext.get(), reporter, kPrecompileCases[i], i,
                 { kCases },
                 &collector);
     }

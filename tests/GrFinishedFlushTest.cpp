@@ -24,7 +24,6 @@
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 #include "tests/CtsEnforcement.h"
 #include "tests/Test.h"
-#include "tools/gpu/FenceSync.h"
 #include "tools/gpu/ManagedBackendTexture.h"
 
 #include <chrono>

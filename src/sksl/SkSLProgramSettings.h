@@ -66,7 +66,7 @@ struct ProgramSettings {
     bool fValidateSPIRV = true;
     // If true, any synthetic uniforms must use push constant syntax
     bool fUseVulkanPushConstantsForGaneshRTAdjust = false;
-    // TODO(skia:11209) - Replace this with a "promised" capabilities?
+    // TODO(skbug.com/40042585) - Replace this with a "promised" capabilities?
     // Sets a maximum SkSL version. Compilation will fail if the program uses features that aren't
     // allowed at the requested version. For instance, a valid program must have fully-unrollable
     // `for` loops at version 100, but any loop structure is allowed at version 300.
@@ -104,7 +104,7 @@ struct ProgramConfig {
     }
 
     bool strictES2Mode() const {
-        // TODO(skia:11209): Remove the first condition - so this is just based on #version.
+        // TODO(skbug.com/40042585): Remove the first condition - so this is just based on #version.
         //                   Make it more generic (eg, isVersionLT) checking.
         return fSettings.fMaxVersionAllowed == Version::k100 &&
                fRequiredSkSLVersion == Version::k100 &&

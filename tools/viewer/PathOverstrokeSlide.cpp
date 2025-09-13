@@ -168,8 +168,7 @@ public:
         hairp.setStyle(SkPaint::kStroke_Style);
 
         if (fDrawFillPath) {
-            SkPath fillpath;
-            skpathutils::FillPathWithPaint(path, p, &fillpath);
+            SkPath fillpath = skpathutils::FillPathWithPaint(path, p);
 
             canvas->drawPath(fillpath, hairp);
 

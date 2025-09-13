@@ -178,7 +178,7 @@ void Canvas_DrawGlyphs(JNIEnv* env, jobject, jlong native_instance, jcharArray j
         auto* compositePositions = env->GetFloatArrayElements(jPos, nullptr);
         auto* positions = reinterpret_cast<SkPoint*>(compositePositions);
         auto* glyphs = env->GetCharArrayElements(jglyphs, nullptr);
-        canvas->drawGlyphs(count, glyphs, positions, {xOrigin, yOrigin}, *font, *paint);
+        canvas->drawGlyphs({glyphs, count}, {positions, count}, {xOrigin, yOrigin}, *font, *paint);
 
         env->ReleaseCharArrayElements(jglyphs, glyphs, 0);
         env->ReleaseFloatArrayElements(jPos, compositePositions, 0);

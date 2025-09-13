@@ -4,21 +4,32 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef skgpu_graphite_ClipAtlasManager_DEFINED
 #define skgpu_graphite_ClipAtlasManager_DEFINED
 
-#include "include/gpu/graphite/TextureInfo.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkRefCnt.h"
+#include "include/private/base/SkTDArray.h"
 #include "src/base/SkTInternalLList.h"
+#include "src/core/SkTHash.h"
 #include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/graphite/ClipStack.h"
 #include "src/gpu/graphite/DrawAtlas.h"
-#include "src/gpu/graphite/geom/Rect.h"
+
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string_view>
+
+struct SkIPoint;
 
 namespace skgpu::graphite {
 
+class Caps;
+class DrawContext;
 class Recorder;
+class TextureProxy;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 /** The ClipAtlasManager manages the lifetime of and access to rasterized clip masks.

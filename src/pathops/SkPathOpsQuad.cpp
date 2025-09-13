@@ -165,7 +165,7 @@ and using the roots
       t2 = C / Q
 */
 // this does not discard real roots <= 0 or >= 1
-// TODO(skbug.com/14063) Deduplicate with SkQuads::RootsReal
+// TODO(skbug.com/40045140) Deduplicate with SkQuads::RootsReal
 int SkDQuad::RootsReal(const double A, const double B, const double C, double s[2]) {
     if (!A) {
         return handle_zero(B, C, s);

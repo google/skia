@@ -24,9 +24,7 @@
 #include <EGL/eglext.h>
 #include <GLES/gl.h>
 #include <GLES/glext.h>
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-#include <vndk/hardware_buffer.h>
-#endif
+
 #define PROT_CONTENT_EXT_STR "EGL_EXT_protected_content"
 #define EGL_PROTECTED_CONTENT_EXT 0x32C0
 
@@ -54,10 +52,6 @@ GrBackendFormat GetGLBackendFormat(GrDirectContext* dContext,
 #if __ANDROID_API__ >= 33
         case AHARDWAREBUFFER_FORMAT_R8_UNORM:
             return GrBackendFormats::MakeGL(GR_GL_R8, GR_GL_TEXTURE_EXTERNAL);
-#endif
-#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-        case AHARDWAREBUFFER_FORMAT_B8G8R8A8_UNORM:
-            return GrBackendFormats::MakeGL(GR_GL_BGRA8, GR_GL_TEXTURE_EXTERNAL);
 #endif
         default:
             if (requireKnownFormat) {

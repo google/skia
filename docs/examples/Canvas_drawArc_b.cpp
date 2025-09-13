@@ -9,7 +9,7 @@ void draw(SkCanvas* canvas) {
     paint.setStrokeWidth(4);
     SkRect oval = { 4, 4, 60, 60};
     float intervals[] = { 5, 5 };
-    paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, 2.5f));
     for (auto degrees : { 270, 360, 540, 720 } ) {
         canvas->drawArc(oval, 0, degrees, false, paint);
         canvas->translate(64, 0);

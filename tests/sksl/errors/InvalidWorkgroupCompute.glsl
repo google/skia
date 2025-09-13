@@ -2,7 +2,7 @@
 
 error: 8: modifier 'workgroup' is not permitted on an interface block field
    workgroup float bar;
-   ^^^^^^^^^^^^^^^^^^^^
+   ^^^^^^^^^^^^^^^^^^^
 error: 11: 'workgroup' is not permitted here
 layout (r32f) workgroup readonly texture2D rtex;
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

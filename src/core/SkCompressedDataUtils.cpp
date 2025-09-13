@@ -257,7 +257,7 @@ size_t SkCompressedDataSize(SkTextureCompressionType type, SkISize dimensions,
 
     int numMipLevels = 1;
     if (mipmapped) {
-        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions) + 1;
     }
 
     size_t totalSize = 0;

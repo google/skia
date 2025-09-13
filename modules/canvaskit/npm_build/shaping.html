@@ -24,12 +24,12 @@
 <script type="text/javascript" charset="utf-8">
 
   let CanvasKit = null;
-  const cdn = 'https://storage.googleapis.com/skia-cdn/misc/';
+  const cdn = 'https://cdn.skia.org/misc/';
 
   const ckLoaded = CanvasKitInit({locateFile: (file) => '/build/'+file});
   const loadFont = fetch(cdn + 'Roboto-Regular.ttf').then((response) => response.arrayBuffer());
   // This font works with interobang.
-  //const loadFont = fetch('https://storage.googleapis.com/skia-cdn/google-web-fonts/SourceSansPro-Regular.ttf').then((response) => response.arrayBuffer());
+  //const loadFont = fetch('https://cdn.skia.org/google-web-fonts/SourceSansPro-Regular.ttf').then((response) => response.arrayBuffer());
 
   document.getElementById('input').value = 'An aegis protected the fox!?';
 

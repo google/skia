@@ -60,4 +60,19 @@ protected:
 
 DEF_GM(return new ScaledRectsGM;)
 
+DEF_SIMPLE_GM(cliplargerect, canvas, 256, 256) {
+    canvas->save();
+    canvas->clipIRect({0, 0, 120, 256});
+    canvas->save();
+    canvas->translate(1e24f, 0.f);
+    canvas->clear(SK_ColorGREEN);
+    canvas->restore();
+    canvas->restore();
+
+    SkPaint line;
+    line.setStyle(SkPaint::kStroke_Style);
+    line.setColor(SK_ColorBLACK);
+    canvas->drawLine(120.f, 0.f, 120.f, 256.f, line);
+}
+
 }  // namespace skiagm

@@ -31,7 +31,7 @@ ParagraphPainter::DecorationStyle::DecorationStyle(
             {fDashPathEffect->fOnLength, fDashPathEffect->fOffLength,
              fDashPathEffect->fOnLength, fDashPathEffect->fOffLength};
         fPaint.setPathEffect(SkPathEffect::MakeCompose(
-            SkDashPathEffect::Make(intervals.data(), intervals.size(), 0.0f),
+            SkDashPathEffect::Make(intervals, 0.0f),
             SkDiscretePathEffect::Make(0, 0)));
     }
 }

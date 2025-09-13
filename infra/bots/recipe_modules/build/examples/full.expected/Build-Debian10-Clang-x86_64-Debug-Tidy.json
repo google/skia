@@ -53,7 +53,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "[START_DIR]/clang_linux/bin:<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/clang_linux/bin:<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
     },
     "name": "gn gen"
   },
@@ -66,7 +66,7 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "PATH": "[START_DIR]/clang_linux/bin:<PATH>:RECIPE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/clang_linux/bin:<PATH>:RECIPE_REPO[depot_tools]:[START_DIR]/cache/work/skia/third_party/ninja"
     },
     "name": "ninja"
   },

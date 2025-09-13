@@ -163,10 +163,9 @@ protected:
         {
             // dashing
             SkScalar intervals[] = { kStrokeWidth, kStrokeWidth };
-            int intervalCount = (int) std::size(intervals);
             SkPaint p;
             p.setColor(SK_ColorWHITE);
-            p.setPathEffect(SkDashPathEffect::Make(intervals, intervalCount, kStrokeWidth));
+            p.setPathEffect(SkDashPathEffect::Make(intervals, kStrokeWidth));
 
             fPaints.push_back(p);
         }
@@ -279,9 +278,7 @@ static void draw_path(SkCanvas* canvas, const SkPoint& p0, const SkPoint& p1, Sk
     canvas->drawLine(p0, p1, paint);
 
     // Show outline and control points
-    SkPath fillPath;
-    SkPath path = SkPath::Line(p0, p1);
-    skpathutils::FillPathWithPaint(path, paint, &fillPath);
+    SkPath fillPath = skpathutils::FillPathWithPaint(SkPath::Line(p0, p1), paint);
 
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(0);
@@ -293,8 +290,8 @@ static void draw_path(SkCanvas* canvas, const SkPoint& p0, const SkPoint& p1, Sk
     paint.setStrokeCap(SkPaint::kSquare_Cap);
     int n = fillPath.countPoints();
     AutoTArray<SkPoint> points(n);
-    fillPath.getPoints(points.get(), n);
-    canvas->drawPoints(SkCanvas::kPoints_PointMode, n, points.get(), paint);
+    fillPath.getPoints(points);
+    canvas->drawPoints(SkCanvas::kPoints_PointMode, points, paint);
 }
 
 DEF_SIMPLE_GM(strokedline_caps, canvas, 1400, 740) {

@@ -278,9 +278,6 @@ void SkStrike::dump() const {
     SkAutoMutexExclusive lock{fStrikeLock};
     const SkTypeface* face = fScalerContext->getTypeface();
     const SkScalerContextRec& rec = fScalerContext->getRec();
-    SkMatrix matrix;
-    rec.getSingleMatrix(&matrix);
-    matrix.preScale(SkScalarInvert(rec.fTextSize), SkScalarInvert(rec.fTextSize));
     SkString name;
     face->getFamilyName(&name);
 

@@ -8,11 +8,13 @@
 #ifndef SkPDFDevice_DEFINED
 #define SkPDFDevice_DEFINED
 
+#include "include/core/SkCPURecorder.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkStream.h"
 #include "src/core/SkClipStack.h"
 #include "src/core/SkClipStackDevice.h"
@@ -22,7 +24,6 @@
 #include "src/pdf/SkPDFTag.h"
 #include "src/pdf/SkPDFTypes.h"
 
-#include <cstddef>
 #include <memory>
 
 class SkBitmap;
@@ -31,9 +32,10 @@ class SkData;
 class SkDevice;
 class SkImage;
 class SkMesh;
-class SkPDFDocument;
 class SkPaint;
 class SkPath;
+class SkPDFDocument;
+class SkRecorder;
 class SkRRect;
 class SkSpecialImage;
 class SkSurface;
@@ -84,9 +86,7 @@ public:
      *  operations, and are handling any looping from the paint.
      */
     void drawPaint(const SkPaint& paint) override;
-    void drawPoints(SkCanvas::PointMode mode,
-                    size_t count, const SkPoint[],
-                    const SkPaint& paint) override;
+    void drawPoints(SkCanvas::PointMode, SkSpan<const SkPoint>, const SkPaint&) override;
     void drawRect(const SkRect& r, const SkPaint& paint) override;
     void drawOval(const SkRect& oval, const SkPaint& paint) override;
     void drawRRect(const SkRRect& rr, const SkPaint& paint) override;
@@ -123,6 +123,11 @@ public:
     std::unique_ptr<SkStreamAsset> content();
 
     const SkMatrix& initialTransform() const { return fInitialTransform; }
+
+    SkRecorder* baseRecorder() const override {
+        // TODO(kjlubick) the creation of this should likely involve a CPU context.
+        return skcpu::Recorder::TODO();
+    }
 
 private:
     // TODO(vandebo): push most of SkPDFDevice's state into a core object in

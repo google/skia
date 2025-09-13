@@ -89,8 +89,12 @@ public:
             , fNewTopValue(newTopValue) {
         }
 
-        PoppedTriangleStack(PoppedTriangleStack&& that) {
-            memcpy(this, &that, sizeof(*this));
+        PoppedTriangleStack(PoppedTriangleStack&& that)
+            : fMiddleOut(that.fMiddleOut)
+            , fLastPoint(that.fLastPoint)
+            , fEnd(that.fEnd)
+            , fNewTopVertex(that.fNewTopVertex)
+            , fNewTopValue(that.fNewTopValue) {
             that.fMiddleOut = nullptr;  // Don't do a stack update during our destructor.
         }
 

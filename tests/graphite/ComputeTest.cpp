@@ -11,13 +11,16 @@
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Recording.h"
+#include "include/gpu/graphite/TextureInfo.h"
 #include "src/gpu/graphite/Buffer.h"
+#include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ComputePipelineDesc.h"
 #include "src/gpu/graphite/ComputeTypes.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/UniformManager.h"
 #include "src/gpu/graphite/compute/ComputeStep.h"
 #include "src/gpu/graphite/compute/DispatchGroup.h"
@@ -123,7 +126,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_SingleDispatchTest,
 
     class TestComputeStep : public ComputeStep {
     public:
-        // TODO(skia:40045541): SkSL doesn't support std430 layout well, so the buffers
+        // TODO(skbug.com/40045541): SkSL doesn't support std430 layout well, so the buffers
         // below all pack their data into vectors to be compatible with SPIR-V/WGSL.
         TestComputeStep() : ComputeStep(
                 /*name=*/"TestArrayMultiply",
@@ -265,7 +268,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_DispatchGroupTest,
 
     class TestComputeStep1 : public ComputeStep {
     public:
-        // TODO(skia:40045541): SkSL doesn't support std430 layout well, so the buffers
+        // TODO(skbug.com/40045541): SkSL doesn't support std430 layout well, so the buffers
         // below all pack their data into vectors to be compatible with SPIR-V/WGSL.
         TestComputeStep1() : ComputeStep(
                 /*name=*/"TestArrayMultiplyFirstPass",
@@ -950,11 +953,21 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_StorageTextureReadAndWrite
     MipLevel mipLevel;
     mipLevel.fPixels = srcPixels.addr();
     mipLevel.fRowBytes = srcPixels.rowBytes();
+    UploadSource uploadSource = UploadSource::Make(context->priv().caps(),
+                                                   *srcProxy,
+                                                   srcPixels.info().colorInfo(),
+                                                   srcPixels.info().colorInfo(),
+                                                   {mipLevel},
+                                                   SkIRect::MakeWH(kDim, kDim));
+    if (!uploadSource.isValid()) {
+        ERRORF(reporter, "Could not create UploadSource");
+        return;
+    }
     UploadInstance upload = UploadInstance::Make(recorder.get(),
                                                  srcProxy,
                                                  srcPixels.info().colorInfo(),
                                                  srcPixels.info().colorInfo(),
-                                                 {mipLevel},
+                                                 uploadSource,
                                                  SkIRect::MakeWH(kDim, kDim),
                                                  std::make_unique<ImageUploadContext>());
     if (!upload.isValid()) {

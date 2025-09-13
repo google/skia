@@ -14,6 +14,8 @@
 #include "src/sksl/SkSLString.h"
 
 #include <cstddef>
+#include <iomanip>
+#include <sstream>
 
 using namespace skia_private;
 
@@ -251,6 +253,25 @@ void VisitLineByLine(const std::string& text,
     for (int i = 0; i < lines.size(); ++i) {
         visitFn(i + 1, lines[i].c_str());
     }
+}
+
+std::string SpirvAsHexStream(SkSpan<const uint32_t> spirv) {
+    std::ostringstream result;
+    result << "Paste the following SPIR-V binary in https://www.khronos.org/spir/visualizer/\n";
+    result << "      or pass to `spirv-dis` (optionally with `--comment --nested-indent`)\n";
+
+    constexpr size_t kIndicesPerRow = 10;
+    size_t rowOffset = 0;
+    for (size_t index = 0; index < spirv.size(); ++index, ++rowOffset) {
+        if (rowOffset == kIndicesPerRow) {
+            result << "\n";
+            rowOffset = 0;
+        }
+        result << "0x" << std::uppercase << std::setfill('0') << std::setw(8) << std::hex
+               << spirv[index] << ",";
+    }
+
+    return result.str();
 }
 
 std::string BuildShaderErrorMessage(const char* shader, const char* errors) {

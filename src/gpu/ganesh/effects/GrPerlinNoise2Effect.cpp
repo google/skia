@@ -94,7 +94,7 @@ SkString GrPerlinNoise2Effect::Impl::emitHelper(EmitArgs& args) {
     }
 
     // NOTE: We need to explicitly pass half4(1) as input color here, because the helper function
-    // can't see fInputColor (which is "_input" in the FP's outer function). skbug.com/10506
+    // can't see fInputColor (which is "_input" in the FP's outer function). skbug.com/40041839
     SkString sampleX = this->invokeChild(0, "half4(1)", args, "half2(floorVal.x + 0.5, 0.5)");
     SkString sampleY = this->invokeChild(0, "half4(1)", args, "half2(floorVal.z + 0.5, 0.5)");
     noiseCode.appendf("half2 latticeIdx = half2(%s.a, %s.a);", sampleX.c_str(), sampleY.c_str());

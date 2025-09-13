@@ -971,7 +971,7 @@ std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
     // If/when we add filtering of the gradient this can be removed.
     static const SkRuntimeEffect* effect = SkMakeRuntimeEffect(SkRuntimeEffect::MakeForShader,
         "half4 main(float2 coord) {"
-            "return half4(half(coord.x) + 0.00001, 1, 0, 0);" // y = 1 for always valid
+            "return half4(half(coord.x + 0.00001), 1, 0, 0);" // y = 1 for always valid
         "}"
     );
     // The linear gradient never rejects a pixel so it doesn't change opacity

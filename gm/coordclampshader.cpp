@@ -22,7 +22,7 @@ DEF_SIMPLE_GM(coordclampshader, canvas, 1074, 795) {
         return;
     }
     // The mandrill_512 image has a bottom row of mostly black pixels. Remove it.
-    image = image->makeSubset(nullptr, SkIRect::MakeWH(image->width(), image->height() - 1));
+    image = image->makeSubset(nullptr, SkIRect::MakeWH(image->width(), image->height() - 1), {});
     image = image->withDefaultMipmaps();
 
     auto imageShader = image->makeShader(SkFilterMode::kLinear);

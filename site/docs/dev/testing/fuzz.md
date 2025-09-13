@@ -88,3 +88,15 @@ avoid OOMs, avoid unnecessarily slow code).
     // This define adds in guards to abort when we think some code path will take a long time or
     // use a lot of RAM. It is set by default when either of the above defines are set.
     SK_BUILD_FOR_FUZZER
+
+## OSS-Fuzz
+The infrastructure that our fuzzers run on is called [OSS-Fuzz](https://google.github.io/oss-fuzz/)
+([GitHub](https://github.com/google/oss-fuzz/tree/master)). There is an automated system that
+rebuilds Skia and certain fuzzers and then runs said fuzzers, [filing bugs](https://issues.oss-fuzz.com/issues?q=status:open%20componentid:1638179%20project:skia).
+
+The Skia-specific code to build the fuzzers is found in [oss-fuzz/projects/skia](https://github.com/google/oss-fuzz/tree/master/projects/skia)
+and the build status can be found [here](https://oss-fuzz-build-logs.storage.googleapis.com/index.html#skia).
+When everything is working smoothly, the version of Skia that is fuzzed should be updated about
+2/day.
+
+See <https://skia.googlesource.com/skia/+/refs/heads/main/fuzz/README.md> for more details.

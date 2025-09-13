@@ -440,10 +440,11 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     SkASSERT(limitsSucceeded);
     wgpu::Limits& limits = supportedLimits.limits;
 #else
-    wgpu::Limits limits;
+    wgpu::CompatibilityModeLimits compatLimits;
+    wgpu::Limits limits{.nextInChain = &compatLimits};
     wgpu::DawnTexelCopyBufferRowAlignmentLimits alignmentLimits{};
     if (backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnTexelCopyBufferRowAlignment)) {
-        limits.nextInChain = &alignmentLimits;
+        compatLimits.nextInChain = &alignmentLimits;
     }
     [[maybe_unused]] wgpu::Status status = backendContext.fDevice.GetLimits(&limits);
     SkASSERT(status == wgpu::Status::Success);
@@ -467,11 +468,18 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     }
 #endif
 
+    fResourceBindingReqs.fBackendApi = BackendApi::kDawn;
     fResourceBindingReqs.fUniformBufferLayout = Layout::kStd140;
     // The WGSL generator assumes tightly packed std430 layout for SSBOs which is also the default
     // for all types outside the uniform address space in WGSL.
     fResourceBindingReqs.fStorageBufferLayout = Layout::kStd430;
     fResourceBindingReqs.fSeparateTextureAndSamplerBinding = true;
+
+#if !defined(__EMSCRIPTEN__)
+    // We need 32 bytes push constant for 2 vectors worth of intrinsic data.
+    fResourceBindingReqs.fUsePushConstantsForIntrinsicConstants =
+            limits.maxImmediateSize >= DawnGraphicsPipeline::kIntrinsicUniformSize;
+#endif
 
     fResourceBindingReqs.fUniformsSetIdx = DawnGraphicsPipeline::kUniformBufferBindGroupIndex;
     fResourceBindingReqs.fTextureSamplerSetIdx = DawnGraphicsPipeline::kTextureBindGroupIndex;
@@ -489,8 +497,8 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     fStorageBufferSupport = info.backendType != wgpu::BackendType::OpenGL &&
                             info.backendType != wgpu::BackendType::OpenGLES &&
                             info.backendType != wgpu::BackendType::Vulkan &&
-                            limits.maxStorageBuffersInVertexStage >= 4 &&
-                            limits.maxStorageBuffersInFragmentStage >= 4;
+                            compatLimits.maxStorageBuffersInVertexStage >= 4 &&
+                            compatLimits.maxStorageBuffersInFragmentStage >= 4;
 #else
     // WASM doesn't provide a way to query the backend, so can't tell if we are on a backend that
     // needs to have SSBOs disabled. Pessimistically assume we could be. Once the above conditions
@@ -526,25 +534,30 @@ void DawnCaps::initCaps(const DawnBackendContext& backendContext, const ContextO
     }
 #endif
 
-    if (fSupportedTransientAttachmentUsage == wgpu::TextureUsage::None) {
-        // Without transient attachments, we currently emulate load/resolve using separate render
-        // passes, so that mismatched MSAA & resolve attachments' sizes can work. This helps
-        // reuse MSAA textures better to reduce memory usage.
-        // TODO(b/399640773): Avoid this when Dawn implements the partial resolve feature
-        // that can support mismatched sized MSAA & resolve attachments.
-        fEmulateLoadStoreResolve = true;
-        fDifferentResolveAttachmentSizeSupport = true;
-    }
-
 #if !defined(__EMSCRIPTEN__)
-    if (!fEmulateLoadStoreResolve) {
-        if (backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnLoadResolveTexture)) {
-            fSupportedResolveTextureLoadOp = wgpu::LoadOp::ExpandResolveTexture;
-        }
+    if (backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnLoadResolveTexture)) {
+        fSupportedResolveTextureLoadOp = wgpu::LoadOp::ExpandResolveTexture;
         fSupportsPartialLoadResolve =
                 backendContext.fDevice.HasFeature(wgpu::FeatureName::DawnPartialLoadResolveTexture);
+        fDifferentResolveAttachmentSizeSupport = fSupportsPartialLoadResolve;
     }
 #endif
+
+    if (!fSupportsPartialLoadResolve &&
+        fSupportedTransientAttachmentUsage == wgpu::TextureUsage::None) {
+        // If the device doesn't support partial resolve nor transient attachments, we will emulate
+        // load/resolve using separate render passes. This helps reuse MSAA textures better to
+        // reduce memory usage.
+        fEmulateLoadStoreResolve = true;
+        fDifferentResolveAttachmentSizeSupport = true;
+
+        // On hardware that doesn't support transient attachments or partial resolve, we
+        // force-disable the ExpandResolveTexture loadOp. This is done because, under emulation,
+        // ExpandResolveTexture isn't used, and fully disabling it prevents the precompilation API
+        // from generating duplicate pipeline permutations (one for load resolve texture, one for
+        // others).
+        fSupportedResolveTextureLoadOp = std::nullopt;
+    }
 
     if (backendContext.fDevice.HasFeature(wgpu::FeatureName::TimestampQuery)) {
         // Native Dawn has an API for writing timestamps on command buffers. WebGPU only supports
@@ -1074,9 +1087,7 @@ bool DawnCaps::extractGraphicsDescs(const UniqueKey& key,
     SkASSERT(RenderStep::IsValidRenderStepID(rawKeyData[0]));
     RenderStep::RenderStepID renderStepID = static_cast<RenderStep::RenderStepID>(rawKeyData[0]);
 
-    SkDEBUGCODE(const RenderStep* renderStep = rendererProvider->lookup(renderStepID);)
     *pipelineDesc = GraphicsPipelineDesc(renderStepID, UniquePaintParamsID(rawKeyData[1]));
-    SkASSERT(renderStep->performsShading() == pipelineDesc->paintParamsID().isValid());
 
     const uint32_t rpDescBits = rawKeyData[2];
     TextureFormat colorFormat =

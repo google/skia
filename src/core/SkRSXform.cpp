@@ -14,7 +14,7 @@ void SkRSXform::toQuad(SkScalar width, SkScalar height, SkPoint quad[4]) const {
     quad[2].set(width, height);
     quad[3].set(0, height);
     SkMatrix m;
-    m.setRSXform(*this).mapPoints(quad, quad, 4);
+    m.setRSXform(*this).mapPoints({quad, 4});
 #else
     const SkScalar m00 = fSCos;
     const SkScalar m01 = -fSSin;

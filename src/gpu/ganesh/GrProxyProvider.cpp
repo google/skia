@@ -490,7 +490,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createProxy(const GrBackendFormat& format
 
     if (skgpu::Mipmapped::kYes == mipmapped) {
         // SkMipmap doesn't include the base level in the level count so we have to add 1
-        int mipCount = SkMipmap::ComputeLevelCount(dimensions.fWidth, dimensions.fHeight) + 1;
+        int mipCount = SkMipmap::ComputeLevelCount(dimensions) + 1;
         if (1 == mipCount) {
             mipmapped = skgpu::Mipmapped::kNo;
         }

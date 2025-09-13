@@ -67,16 +67,27 @@ static void unit_to_points_matrix(const SkPoint pts[2], SkMatrix* matrix) {
     matrix->postTranslate(pts[0].fX, pts[0].fY);
 }
 
+static bool is_premul(const SkShaderBase::GradientInfo& info) {
+    return SkToBool(info.fGradientFlags & SkGradientShader::kInterpolateColorsInPremul_Flag);
+}
+
+enum NumComponents {
+    Three = 3,
+    Four = 4,
+    Max = Four,
+};
+
 /* Assumes t - startOffset is on the stack and does a linear interpolation on t
    between startOffset and endOffset from prevColor to curColor (for each color
-   component), leaving the result in component order on the stack. It assumes
-   there are always 3 components per color.
-   @param range       endOffset - startOffset
-   @param beginColor  The previous color.
-   @param endColor    The current color.
-   @param result      The result ps function.
+   component), leaving the result in component order on the stack.
+   @param range         endOffset - startOffset
+   @param beginColor    The previous color.
+   @param endColor      The current color.
+   @param numComponents The number of components (3 or 4 if alpha is needed).
+   @param result        The result ps function.
  */
-static void interpolate_color_code(SkScalar range, SkColor4f prevColor, SkColor4f curColor,
+static void interpolate_color_code(SkScalar range, NumComponents numComponents,
+                                   SkColor4f prevColor, SkColor4f curColor,
                                    SkDynamicMemoryWStream* result) {
     SkASSERT(range != SkIntToScalar(0));
 
@@ -85,20 +96,18 @@ static void interpolate_color_code(SkScalar range, SkColor4f prevColor, SkColor4
        C{r,g,b}(t, section) = t - offset_(section-1) + t * Multiplier{r,g,b}.
      */
 
-    static const int kColorComponents = 3;
-
     // Figure out how to scale each color component.
-    SkScalar multiplier[kColorComponents];
-    for (int i = 0; i < kColorComponents; i++) {
+    SkScalar multiplier[NumComponents::Max];
+    for (int i = 0; i < numComponents; i++) {
         multiplier[i] = (curColor[i] - prevColor[i]) / range;
     }
 
     // Calculate when we no longer need to keep a copy of the input parameter t.
     // If the last component to use t is i, then dupInput[0..i - 1] = true
     // and dupInput[i .. components] = false.
-    bool dupInput[kColorComponents];
-    dupInput[kColorComponents - 1] = false;
-    for (int i = kColorComponents - 2; i >= 0; i--) {
+    bool dupInput[NumComponents::Max];
+    dupInput[numComponents - 1] = false;
+    for (int i = numComponents - 2; i >= 0; i--) {
         dupInput[i] = dupInput[i + 1] || multiplier[i + 1] != 0;
     }
 
@@ -106,7 +115,7 @@ static void interpolate_color_code(SkScalar range, SkColor4f prevColor, SkColor4
         result->writeText("pop ");
     }
 
-    for (int i = 0; i < kColorComponents; i++) {
+    for (int i = 0; i < numComponents; i++) {
         // If the next components needs t and this component will consume a
         // copy, make another copy.
         if (dupInput[i] && multiplier[i] != 0) {
@@ -133,7 +142,28 @@ static void interpolate_color_code(SkScalar range, SkColor4f prevColor, SkColor4
     }
 }
 
+// Convert { r, g, b, a } to a == 0 ? {0 0 0} : { r/a, g/a, b/a }
+static void unpremul(const SkShaderBase::GradientInfo& info, SkDynamicMemoryWStream* function) {
+    // Preview Version 11.0 (1069.7.1) aborts the function if the predicate is like
+    // "dup 0 eq" or any other use of "eq" with "a".
+    function->writeText("dup abs 0.00001 lt"
+                        "{ pop pop pop pop 0 0 0 }"
+                        "{"
+                        " dup"         // r g b a a
+                        " 3 1 roll"    // r g a b a
+                        " div"         // r g a b/a
+                        " 4 1 roll"    // b/a r g a
+                        " dup"         // b/a r g a a
+                        " 3 1 roll"    // b/a r a g a
+                        " div"         // b/a r a g/a
+                        " 4 1 roll"    // g/a b/a r a
+                        " div"         // g/a b/a r/a
+                        " 3 1 roll"    // r/a g/a b/a
+                        "} ifelse\n");
+}
+
 static void write_gradient_ranges(const SkShaderBase::GradientInfo& info, SkSpan<size_t> rangeEnds,
+                                  NumComponents numComponents,
                                   bool top, bool first, SkDynamicMemoryWStream* result) {
     SkASSERT(!rangeEnds.empty());
 
@@ -163,16 +193,16 @@ static void write_gradient_ranges(const SkShaderBase::GradientInfo& info, SkSpan
         SkScalar rangeBegin = info.fColorOffsets[rangeBeginIndex];
         SkPDFUtils::AppendScalar(rangeBegin, result);
         result->writeText(" sub ");  // consume t, put t - startOffset on the stack.
-        interpolate_color_code(rangeEnd - rangeBegin,
+        interpolate_color_code(rangeEnd - rangeBegin, numComponents,
                                info.fColors[rangeBeginIndex], info.fColors[rangeEndIndex], result);
         result->writeText("\n");
     } else {
         size_t loCount = rangeEnds.size() / 2;
         SkSpan<size_t> loSpan = rangeEnds.subspan(0, loCount);
-        write_gradient_ranges(info, loSpan, false, true, result);
+        write_gradient_ranges(info, loSpan, numComponents, false, true, result);
 
         SkSpan<size_t> hiSpan = rangeEnds.subspan(loCount, rangeEnds.size() - loCount);
-        write_gradient_ranges(info, hiSpan, false, false, result);
+        write_gradient_ranges(info, hiSpan, numComponents, false, false, result);
     }
 
     if (top) {
@@ -241,6 +271,9 @@ static void gradient_function_code(const SkShaderBase::GradientInfo& info,
     // After finding a hit the stack is [r g b 0].
     // The 0 is consumed just before returning.
 
+    const bool premul = is_premul(info);
+    NumComponents numComponents = premul ? NumComponents::Four : NumComponents::Three;
+
     // The initial range has no previous and contains a solid color.
     // Any t <= 0 will be handled by this initial range, so later t == 0 indicates a hit was found.
     result->writeText("dup 0 le {pop ");
@@ -249,6 +282,10 @@ static void gradient_function_code(const SkShaderBase::GradientInfo& info,
     SkPDFUtils::AppendColorComponentF(info.fColors[0].fG, result);
     result->writeText(" ");
     SkPDFUtils::AppendColorComponentF(info.fColors[0].fB, result);
+    if (numComponents == NumComponents::Four) {
+        result->writeText(" ");
+        SkPDFUtils::AppendColorComponentF(info.fColors[0].fA, result);
+    }
     result->writeText(" 0} if\n");
 
     // Optimize out ranges which don't make any visual difference.
@@ -257,8 +294,12 @@ static void gradient_function_code(const SkShaderBase::GradientInfo& info,
     for (int i = 1; i < info.fColorCount; ++i) {
         // Ignoring the alpha, is this range the same solid color as the next range?
         // This optimizes gradients where sometimes only the color or only the alpha is changing.
-        auto eqIgnoringAlpha = [](SkColor4f a, SkColor4f b) {
-            return a.makeOpaque() == b.makeOpaque();
+        auto eqIgnoringAlpha = [&](SkColor4f a, SkColor4f b) {
+            if (premul) {
+                return a == b;
+            } else {
+                return a.makeOpaque() == b.makeOpaque();
+            }
         };
         bool constantColorBothSides =
             eqIgnoringAlpha(info.fColors[i-1], info.fColors[i]) &&// This range is a solid color.
@@ -275,7 +316,8 @@ static void gradient_function_code(const SkShaderBase::GradientInfo& info,
     }
 
     // If a cap on depth is needed, loop here.
-    write_gradient_ranges(info, SkSpan(rangeEnds.get(), rangeEndsCount), true, true, result);
+    write_gradient_ranges(info, SkSpan(rangeEnds.get(), rangeEndsCount),
+                          numComponents, true, true, result);
 
     // Clamp the final color.
     result->writeText("0 gt {");
@@ -284,7 +326,15 @@ static void gradient_function_code(const SkShaderBase::GradientInfo& info,
     SkPDFUtils::AppendColorComponentF(info.fColors[info.fColorCount - 1].fG, result);
     result->writeText(" ");
     SkPDFUtils::AppendColorComponentF(info.fColors[info.fColorCount - 1].fB, result);
+    if (numComponents == NumComponents::Four) {
+        result->writeText(" ");
+        SkPDFUtils::AppendColorComponentF(info.fColors[info.fColorCount - 1].fA, result);
+    }
     result->writeText("} if\n");
+
+    if (premul) {
+        unpremul(info, result);
+    }
 }
 
 static std::unique_ptr<SkPDFDict> createInterpolationFunction(const SkColor4f& color1,
@@ -697,7 +747,8 @@ static SkPDFIndirectReference make_function_shader(SkPDFDocument* doc,
                               state.fType == SkShaderBase::GradientType::kConical) &&
                              (info.fTileMode == SkTileMode::kClamp ||
                               info.fTileMode == SkTileMode::kDecal) &&
-                             !finalMatrix.hasPerspective();
+                             !finalMatrix.hasPerspective() &&
+                             !is_premul(info);
 
     enum class ShadingType : int32_t {
         Function = 1,
@@ -822,14 +873,14 @@ static SkPDFIndirectReference make_function_shader(SkPDFDocument* doc,
                 // The two point radial gradient further references state.fInfo
                 // in translating from x, y coordinates to the t parameter. So, we have
                 // to transform the points and radii according to the calculated matrix.
-                SkShaderBase::GradientInfo infoCopy = info;
-                SkMatrix inverseMapperMatrix;
-                if (!mapperMatrix.invert(&inverseMapperMatrix)) {
+                auto inverseMapperMatrix = mapperMatrix.invert();
+                if (!inverseMapperMatrix) {
                     return SkPDFIndirectReference();
                 }
-                inverseMapperMatrix.mapPoints(infoCopy.fPoint, 2);
-                infoCopy.fRadius[0] = inverseMapperMatrix.mapRadius(info.fRadius[0]);
-                infoCopy.fRadius[1] = inverseMapperMatrix.mapRadius(info.fRadius[1]);
+                SkShaderBase::GradientInfo infoCopy = info;
+                inverseMapperMatrix->mapPoints(infoCopy.fPoint);
+                infoCopy.fRadius[0] = inverseMapperMatrix->mapRadius(info.fRadius[0]);
+                infoCopy.fRadius[1] = inverseMapperMatrix->mapRadius(info.fRadius[1]);
                 twoPointConicalCode(infoCopy, perspectiveInverseOnly, &functionCode);
             } break;
             case SkShaderBase::GradientType::kSweep:
@@ -860,7 +911,7 @@ static SkPDFIndirectReference make_function_shader(SkPDFDocument* doc,
 
 static SkPDFIndirectReference find_pdf_shader(SkPDFDocument* doc,
                                               SkPDFGradientShader::Key key,
-                                              bool keyHasAlpha);
+                                              bool makeAlphaShader);
 
 static std::unique_ptr<SkPDFDict> get_gradient_resource_dict(SkPDFIndirectReference functionShader,
                                                    SkPDFIndirectReference gState) {
@@ -931,6 +982,7 @@ static SkPDFIndirectReference create_smask_graphic_state(SkPDFDocument* doc,
         float alpha = luminosityState.fInfo.fColors[i].fA;
         luminosityState.fInfo.fColors[i] = SkColor4f{alpha, alpha, alpha, 1.0f};
     }
+    luminosityState.fInfo.fGradientFlags &= ~SkGradientShader::kInterpolateColorsInPremul_Flag;
     luminosityState.fHash = hash(luminosityState);
 
     SkASSERT(!gradient_has_alpha(luminosityState));
@@ -953,12 +1005,15 @@ static SkPDFIndirectReference make_alpha_function_shader(SkPDFDocument* doc,
                                                          const SkPDFGradientShader::Key& state) {
     SkASSERT(state.fType != SkShaderBase::GradientType::kNone);
     SkPDFGradientShader::Key opaqueState = clone_key(state);
-    for (int i = 0; i < opaqueState.fInfo.fColorCount; i++) {
-        opaqueState.fInfo.fColors[i].fA = 1.0f;
-    }
-    opaqueState.fHash = hash(opaqueState);
+    const bool keepAlpha = is_premul(opaqueState.fInfo);
+    if (!keepAlpha) {
+        for (int i = 0; i < opaqueState.fInfo.fColorCount; i++) {
+            opaqueState.fInfo.fColors[i].fA = 1.0f;
+        }
+        opaqueState.fHash = hash(opaqueState);
 
-    SkASSERT(!gradient_has_alpha(opaqueState));
+        SkASSERT(!gradient_has_alpha(opaqueState));
+    }
     SkRect bbox = SkRect::Make(state.fBBox);
     SkPDFIndirectReference colorShader = find_pdf_shader(doc, std::move(opaqueState), false);
     if (!colorShader) {
@@ -997,10 +1052,17 @@ static SkPDFGradientShader::Key make_key(const SkShader* shader,
     key.fInfo.fColors = key.fColors.get();
     key.fInfo.fColorOffsets = key.fStops.get();
     as_SB(shader)->asGradient(&key.fInfo);
-    if (SkToBool(key.fInfo.fGradientFlags & SkGradientShader::kInterpolateColorsInPremul_Flag)) {
+    if (is_premul(key.fInfo)) {
+        bool changedByPremul = false;
         for (auto&& c : SkSpan(key.fInfo.fColors, key.fInfo.fColorCount)) {
+            if (c.fA != 1.0) {
+                changedByPremul = true;
+            }
             SkRGBA4f<kPremul_SkAlphaType> pm = c.premul();
             c = SkColor4f{pm.fR, pm.fG, pm.fB, pm.fA};
+        }
+        if (!changedByPremul) {
+            key.fInfo.fGradientFlags &= ~SkGradientShader::kInterpolateColorsInPremul_Flag;
         }
     }
     key.fHash = hash(key);
@@ -1009,14 +1071,13 @@ static SkPDFGradientShader::Key make_key(const SkShader* shader,
 
 static SkPDFIndirectReference find_pdf_shader(SkPDFDocument* doc,
                                               SkPDFGradientShader::Key key,
-                                              bool keyHasAlpha) {
-    SkASSERT(gradient_has_alpha(key) == keyHasAlpha);
+                                              bool makeAlphaShader) {
     auto& gradientPatternMap = doc->fGradientPatternMap;
     if (SkPDFIndirectReference* ptr = gradientPatternMap.find(key)) {
         return *ptr;
     }
     SkPDFIndirectReference pdfShader;
-    if (keyHasAlpha) {
+    if (makeAlphaShader) {
         pdfShader = make_alpha_function_shader(doc, key);
     } else {
         pdfShader = make_function_shader(doc, key);
@@ -1032,6 +1093,6 @@ SkPDFIndirectReference SkPDFGradientShader::Make(SkPDFDocument* doc,
     SkASSERT(shader);
     SkASSERT(as_SB(shader)->asGradient() != SkShaderBase::GradientType::kNone);
     SkPDFGradientShader::Key key = make_key(shader, canvasTransform, bbox);
-    bool alpha = gradient_has_alpha(key);
-    return find_pdf_shader(doc, std::move(key), alpha);
+    const bool makeAlphaShader = gradient_has_alpha(key);
+    return find_pdf_shader(doc, std::move(key), makeAlphaShader);
 }

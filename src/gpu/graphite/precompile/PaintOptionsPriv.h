@@ -27,21 +27,27 @@ public:
         fPaintOptions->setClipShaders(std::move(clipShaders));
     }
 
+    void setPrimitiveBlendMode(SkBlendMode primitiveBlendMode) {
+        fPaintOptions->setPrimitiveBlendMode(primitiveBlendMode);
+    }
+
+    void setSkipColorXform(bool skipColorXform) {
+        fPaintOptions->setSkipColorXform(skipColorXform);
+    }
+
     int numCombinations() const {
         return fPaintOptions->numCombinations();
     }
 
     void buildCombinations(
             const KeyContext& keyContext,
-            PipelineDataGatherer* gatherer,
             DrawTypeFlags drawTypes,
             bool withPrimitiveBlender,
             Coverage coverage,
             const RenderPassDesc& renderPassDesc,
             const ProcessCombination& processCombination) const {
-        fPaintOptions->buildCombinations(
-                keyContext, gatherer, drawTypes, withPrimitiveBlender, coverage,
-                renderPassDesc, processCombination);
+        fPaintOptions->buildCombinations(keyContext, drawTypes, withPrimitiveBlender, coverage,
+                                         renderPassDesc, processCombination);
     }
 
 private:

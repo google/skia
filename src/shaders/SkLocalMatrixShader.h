@@ -43,7 +43,7 @@ public:
 
     bool isOpaque() const override { return as_SB(fWrappedShader)->isOpaque(); }
 
-    bool isConstant() const override;
+    bool isConstant(SkColor4f* color = nullptr) const override;
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
     ShaderType type() const override { return ShaderType::kLocalMatrix; }
 
@@ -88,7 +88,7 @@ public:
 
     bool isOpaque() const override { return fProxyShader->isOpaque(); }
 
-    bool isConstant() const override;
+    bool isConstant(SkColor4f* color = nullptr) const override;
     GradientType asGradient(GradientInfo* info, SkMatrix* localMatrix) const override;
 
     ShaderType type() const override { return ShaderType::kCTM; }

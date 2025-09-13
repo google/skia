@@ -119,8 +119,7 @@ DEF_GM( return new EmptyPathGM; )
 
 //////////////////////////////////////////////////////////////////////////////
 
-static constexpr int kPtsCount = 3;
-static constexpr SkPoint kPts[kPtsCount] = {
+static constexpr SkPoint kPts[] = {
     {40, 40},
     {80, 40},
     {120, 40},
@@ -181,7 +180,7 @@ class EmptyStrokeGM : public GM {
         dotPaint.setStrokeWidth(7);
 
         for (auto proc : kProcs) {
-            canvas->drawPoints(SkCanvas::kPoints_PointMode, kPtsCount, kPts, dotPaint);
+            canvas->drawPoints(SkCanvas::kPoints_PointMode, kPts, dotPaint);
             canvas->drawPath(proc(), strokePaint);
             canvas->translate(0, 40);
         }

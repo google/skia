@@ -176,7 +176,7 @@ void PathOpSubmitter::flatten(SkWriteBuffer& buffer) const {
 
     buffer.writeInt(fIsAntiAliased);
     buffer.writeScalar(fStrikeToSourceScale);
-    buffer.writePointArray(fPositions.data(), SkCount(fPositions));
+    buffer.writePointArray(fPositions);
     for (IDOrPath& idOrPath : fIDsOrPaths) {
         buffer.writeInt(idOrPath.fGlyphID);
     }
@@ -437,7 +437,7 @@ void DrawableOpSubmitter::flatten(SkWriteBuffer& buffer) const {
     fStrikePromise.flatten(buffer);
 
     buffer.writeScalar(fStrikeToSourceScale);
-    buffer.writePointArray(fPositions.data(), SkCount(fPositions));
+    buffer.writePointArray(fPositions);
     for (IDOrDrawable idOrDrawable : fIDsOrDrawables) {
         buffer.writeInt(idOrDrawable.fGlyphID);
     }
@@ -1283,22 +1283,17 @@ make_sdft_strike_spec(const SkFont& font, const SkPaint& paint,
 
     // Check for dashing and adjust the intervals.
     if (SkPathEffect* pathEffect = paint.getPathEffect(); pathEffect != nullptr) {
-        SkPathEffectBase::DashInfo dashInfo;
-        if (as_PEB(pathEffect)->asADash(&dashInfo) == SkPathEffectBase::DashType::kDash) {
-            if (dashInfo.fCount > 0) {
-                // Allocate the intervals.
-                std::vector<SkScalar> scaledIntervals(dashInfo.fCount);
-                dashInfo.fIntervals = scaledIntervals.data();
-                // Call again to get the interval data.
-                (void)as_PEB(pathEffect)->asADash(&dashInfo);
-                for (SkScalar& interval : scaledIntervals) {
-                    interval /= strikeToSourceScale;
-                }
-                auto scaledDashes = SkDashPathEffect::Make(scaledIntervals.data(),
-                                                           scaledIntervals.size(),
-                                                           dashInfo.fPhase / strikeToSourceScale);
-                dfPaint.setPathEffect(scaledDashes);
+        if (auto info = as_PEB(pathEffect)->asADash()) {
+            SkSpan<const SkScalar> src = info->fIntervals;
+            SkASSERT(src.size() > 1);
+            // Allocate the intervals.
+            std::vector<SkScalar> scaledIntervals(src.size());
+            for (size_t i = 0; i < src.size(); ++i) {
+                scaledIntervals[i] = src[i] / strikeToSourceScale;
             }
+            auto scaledDashes = SkDashPathEffect::Make(scaledIntervals,
+                                                       info->fPhase / strikeToSourceScale);
+            dfPaint.setPathEffect(scaledDashes);
         }
     }
 
@@ -1559,7 +1554,7 @@ SubRunContainerOwner SubRunContainer::MakeInAlloc(
                 //  large, then the M may return 0 because its dimensions are > 65535, but
                 //  the small character produces regular result because its largest dimension
                 //  is < 65535. This will create an improper scale factor causing the M to be
-                //  too large to fit in the atlas. Tracked by skia:13714.
+                //  too large to fit in the atlas. Tracked by skbug.com/40044801.
                 return maxDimension;
             };
 
@@ -1643,7 +1638,7 @@ SkSpan<SkPoint> MakePointsFromBuffer(SkReadBuffer& buffer, SubRunAllocator* allo
                          BagOfBytes::WillCountFit<SkPoint>(glyphCount))) { return {}; }
 
     SkPoint* positionsData = alloc->makePODArray<SkPoint>(glyphCount);
-    if (!buffer.readPointArray(positionsData, glyphCount)) { return {}; }
+    if (!buffer.readPointArray({positionsData, glyphCount})) { return {}; }
     return {positionsData, glyphCount};
 }
 

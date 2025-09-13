@@ -12,6 +12,7 @@
 #include "include/core/SkFontParameters.h"
 #include "include/core/SkFontStyle.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/core/SkTypes.h"
@@ -28,7 +29,6 @@ class SkDescriptor;
 class SkDrawable;
 class SkFontDescriptor;
 class SkGlyph;
-class SkPath;
 class SkReadBuffer;
 class SkStreamAsset;
 class SkTypefaceProxy;
@@ -46,7 +46,7 @@ public:
 protected:
     GlyphMetrics generateMetrics(const SkGlyph&, SkArenaAlloc*) override;
     void generateImage(const SkGlyph&, void*) override;
-    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override;
+    std::optional<GeneratedPath> generatePath(const SkGlyph&) override;
     sk_sp<SkDrawable> generateDrawable(const SkGlyph&) override;
     void generateFontMetrics(SkFontMetrics* metrics) override;
     SkTypefaceProxy* getProxyTypeface() const;
@@ -118,12 +118,11 @@ protected:
     bool onGlyphMaskNeedsCurrentColor() const override {
         return fGlyphMaskNeedsCurrentColor;
     }
-    int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
-                                     int coordinateCount) const override {
+    int onGetVariationDesignPosition(
+                         SkSpan<SkFontArguments::VariationPosition::Coordinate>) const override {
         SK_ABORT("Should never be called.");
     }
-    int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
-                                       int parameterCount) const override {
+    int onGetVariationDesignParameters(SkSpan<SkFontParameters::Variation::Axis>) const override {
         SK_ABORT("Should never be called.");
     }
     void onGetFamilyName(SkString* familyName) const override {
@@ -136,7 +135,7 @@ protected:
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
         SK_ABORT("Should never be called.");
     }
-    int onGetTableTags(SkFontTableTag tags[]) const override {
+    int onGetTableTags(SkSpan<SkFontTableTag>) const override {
         SK_ABORT("Should never be called.");
     }
     size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override {
@@ -155,7 +154,7 @@ protected:
     void onGetFontDescriptor(SkFontDescriptor*, bool*) const override {
         SK_ABORT("Should never be called.");
     }
-    void getGlyphToUnicodeMap(SkUnichar*) const override {
+    void getGlyphToUnicodeMap(SkSpan<SkUnichar>) const override {
         SK_ABORT("Should never be called.");
     }
 
@@ -166,7 +165,7 @@ protected:
     std::unique_ptr<SkAdvancedTypefaceMetrics> onGetAdvancedMetrics() const override {
         SK_ABORT("Should never be called.");
     }
-    void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override {
+    void onCharsToGlyphs(SkSpan<const SkUnichar>, SkSpan<SkGlyphID>) const override {
         SK_ABORT("Should never be called.");
     }
     int onCountGlyphs() const override {

@@ -24,12 +24,11 @@
 #include <cstdint>
 #include <initializer_list>
 
-static SkRRect path_contains_rrect(skiatest::Reporter* reporter, const SkPath& path,
-                                   SkPathDirection* dir, unsigned* start) {
-    SkRRect out;
-    REPORTER_ASSERT(reporter, SkPathPriv::IsRRect(path, &out, dir, start));
+static SkPathRRectInfo path_contains_rrect(skiatest::Reporter* reporter, const SkPath& path) {
+    std::optional<SkPathRRectInfo> info = SkPathPriv::IsRRect(path);
+    REPORTER_ASSERT(reporter, info.has_value());
     SkPath recreatedPath;
-    recreatedPath.addRRect(out, *dir, *start);
+    recreatedPath.addRRect(info->fRRect, info->fDirection, info->fStartIndex);
     REPORTER_ASSERT(reporter, path == recreatedPath);
     // Test that rotations/mirrors of the rrect path are still rrect paths and the returned
     // parameters for the transformed paths are correct.
@@ -40,17 +39,14 @@ static SkRRect path_contains_rrect(skiatest::Reporter* reporter, const SkPath& p
         SkMatrix::Scale(-1, -1),
     };
     for (auto& m : kMatrices) {
-        SkPath xformed;
-        path.transform(m, &xformed);
-        SkRRect xrr = SkRRect::MakeRect(SkRect::MakeEmpty());
-        SkPathDirection xd = SkPathDirection::kCCW;
-        unsigned xs = ~0U;
-        REPORTER_ASSERT(reporter, SkPathPriv::IsRRect(xformed, &xrr, &xd, &xs));
+        SkPath xformed = path.makeTransform(m);
+        std::optional<SkPathRRectInfo> xinfo = SkPathPriv::IsRRect(xformed);
+        REPORTER_ASSERT(reporter, xinfo.has_value());
         recreatedPath.reset();
-        recreatedPath.addRRect(xrr, xd, xs);
+        recreatedPath.addRRect(xinfo->fRRect, xinfo->fDirection, xinfo->fStartIndex);
         REPORTER_ASSERT(reporter, recreatedPath == xformed);
     }
-    return out;
+    return *info;
 }
 
 static SkRRect inner_path_contains_rrect(skiatest::Reporter* reporter, const SkRRect& in,
@@ -65,11 +61,9 @@ static SkRRect inner_path_contains_rrect(skiatest::Reporter* reporter, const SkR
     }
     SkPath path;
     path.addRRect(in, dir, start);
-    SkPathDirection outDir;
-    unsigned outStart;
-    SkRRect rrect = path_contains_rrect(reporter, path, &outDir, &outStart);
-    REPORTER_ASSERT(reporter, outDir == dir && outStart == start);
-    return rrect;
+    SkPathRRectInfo rrect = path_contains_rrect(reporter, path);
+    REPORTER_ASSERT(reporter, rrect.fDirection == dir && rrect.fStartIndex == start);
+    return rrect.fRRect;
 }
 
 static void path_contains_rrect_check(skiatest::Reporter* reporter, const SkRRect& in,
@@ -99,17 +93,16 @@ static void path_contains_rrect_check(skiatest::Reporter* reporter, const SkRect
 class ForceIsRRect_Private {
 public:
     ForceIsRRect_Private(SkPath* path, SkPathDirection dir, unsigned start) {
-        path->fPathRef->setIsRRect(dir == SkPathDirection::kCCW, start);
+        path->fPathRef->setIsRRect(dir, start);
+        path->setConvexity(SkPathDirection_ToConvexity(dir));
     }
 };
 
 static void force_path_contains_rrect(skiatest::Reporter* reporter, SkPath& path,
                                       SkPathDirection dir, unsigned start) {
     ForceIsRRect_Private force_rrect(&path, dir, start);
-    SkPathDirection outDir;
-    unsigned outStart;
-    path_contains_rrect(reporter, path, &outDir, &outStart);
-    REPORTER_ASSERT(reporter, outDir == dir && outStart == start);
+    SkPathRRectInfo out = path_contains_rrect(reporter, path);
+    REPORTER_ASSERT(reporter, out.fDirection == dir && out.fStartIndex == start);
 }
 
 static void test_undetected_paths(skiatest::Reporter* reporter) {
@@ -118,8 +111,8 @@ static void test_undetected_paths(skiatest::Reporter* reporter) {
     // factory made corporate paths produced by SkPath.
     SkPath exactPath;
     exactPath.addCircle(0, 0, 10);
-    REPORTER_ASSERT(reporter, SkPath::kMove_Verb == SkPathPriv::VerbData(exactPath)[0]);
-    REPORTER_ASSERT(reporter, SkPath::kConic_Verb == SkPathPriv::VerbData(exactPath)[1]);
+    REPORTER_ASSERT(reporter, SkPathVerb::kMove == SkPathPriv::VerbData(exactPath)[0]);
+    REPORTER_ASSERT(reporter, SkPathVerb::kConic == SkPathPriv::VerbData(exactPath)[1]);
     const SkScalar weight = SkPathPriv::ConicWeightData(exactPath)[0];
 
     SkPath path;
@@ -214,10 +207,9 @@ static void test_empty_crbug_458524(skiatest::Reporter* reporter) {
             rr.setRectXY(bounds, rad, rad);
             path_contains_rrect_check(reporter, rr, dir, start);
 
-            SkRRect other;
             SkMatrix matrix;
             matrix.setScale(0, 1);
-            rr.transform(matrix, &other);
+            (void)rr.transform(matrix);
             path_contains_rrect_check(reporter, rr, dir, start);
         }
     }
@@ -329,7 +321,7 @@ static void test_round_rect_basic(skiatest::Reporter* reporter) {
             test_9patch_rrect(reporter, rect, 10, 9, 8, 7, true);
 
             {
-                // Test out the rrect from skia:3466
+                // Test out the rrect from skbug.com/40034587
                 SkRect rect2 = SkRect::MakeLTRB(0.358211994f, 0.755430222f, 0.872866154f,
                                                 0.806214333f);
 

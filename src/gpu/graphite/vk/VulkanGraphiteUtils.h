@@ -14,6 +14,7 @@
 #include "src/gpu/graphite/DescriptorData.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/vk/VulkanInterface.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 
 #include <string>
 
@@ -64,7 +65,7 @@ struct RenderPassDesc;
 enum class TextureFormat : uint8_t;
 
 VkShaderModule CreateVulkanShaderModule(const VulkanSharedContext*,
-                                        const std::string& spirv,
+                                        const SkSL::NativeShader& spirv,
                                         VkShaderStageFlagBits);
 
 VkDescriptorType DsTypeEnumToVkDs(DescriptorType);
@@ -75,9 +76,23 @@ void DescriptorDataToVkDescSetLayout(const VulkanSharedContext*,
 TextureFormat VkFormatToTextureFormat(VkFormat);
 VkFormat TextureFormatToVkFormat(TextureFormat);
 
+VkImageAspectFlags GetVkImageAspectFlags(TextureFormat);
+
 VkShaderStageFlags PipelineStageFlagsToVkShaderStageFlags(SkEnumBitMask<PipelineStageFlags>);
 
+// When multisampling is used, Graphite never retains the multisampled data at the end of the render
+// pass. It is always resolved to the single sampled color attachment. If the next multisampled
+// render pass requires the single sampled data to be loaded (for example to blend with), then the
+// MSAA data is initialized from the resolve attachment. In that case,
+// RenderPassDescWillLoadMSAAFromResolve returns true.
+// When VK_EXT_multisampled_render_to_single_sampled is available, this load is automatically done
+// by the driver/hardware (in which case RenderPassDescWillImplicitlyLoadMSAA returns true).
+// Otherwise Graphite has to manually do that with a draw call.
 bool RenderPassDescWillLoadMSAAFromResolve(const RenderPassDesc& renderPassDesc);
+bool RenderPassDescWillImplicitlyLoadMSAA(const RenderPassDesc& renderPassDesc);
+// Adjust the load/store ops of the render pass to something common, since they do not affect the
+// pipeline and the render pass remains compatible.
+RenderPassDesc MakePipelineCompatibleRenderPass(const RenderPassDesc& renderPassDesc);
 
 namespace BackendTextures {
 VkImage GetVkImage(const BackendTexture&);

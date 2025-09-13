@@ -22,7 +22,7 @@ namespace skgpu { enum class ContextType; }
 #endif
 
 #if defined(SK_GANESH)
-#include "tools/gpu/GrContextFactory.h" // IWYU pragma: export (because it is used by a macro)
+#include "tools/ganesh/GrContextFactory.h"  // IWYU pragma: export (because it is used by a macro)
 #else
 namespace sk_gpu_test { class ContextInfo; }
 #endif

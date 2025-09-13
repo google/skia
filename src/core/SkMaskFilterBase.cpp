@@ -228,6 +228,33 @@ bool SkMaskFilterBase::filterRRect(const SkRRect& devRRect,
     return true;
 }
 
+SkMaskFilterBase::FilterReturn SkMaskFilterBase::filterRects(SkSpan<const SkRect> devRects,
+                                                             const SkMatrix& matrix,
+                                                             const SkRasterClip& clip,
+                                                             SkBlitter* blitter,
+                                                             SkResourceCache* cache) const {
+    std::optional<NinePatch> patch;
+
+    FilterReturn filterReturn = this->filterRectsToNine(
+        devRects, matrix, clip.getBounds(), &patch, cache);
+    switch (filterReturn) {
+        case FilterReturn::kFalse:
+            SkASSERT(!patch.has_value());
+            break;
+
+        case FilterReturn::kTrue:
+            draw_nine(patch->fMask, patch->fOuterRect, patch->fCenter, 1 == devRects.size(), clip,
+                      blitter);
+            break;
+
+        case FilterReturn::kUnimplemented:
+            SkASSERT(!patch.has_value());
+            // fall out
+            break;
+    }
+    return filterReturn;
+}
+
 bool SkMaskFilterBase::filterPath(const SkPath& devPath,
                                   const SkMatrix& matrix,
                                   const SkRasterClip& clip,
@@ -240,22 +267,12 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath,
         rectCount = countNestedRects(devPath, rects);
     }
     if (rectCount > 0) {
-        std::optional<NinePatch> patch;
-
-        switch (this->filterRectsToNine(
-                SkSpan(rects, rectCount), matrix, clip.getBounds(), &patch, cache)) {
+        switch (this->filterRects(SkSpan(rects, rectCount), matrix, clip, blitter, cache)) {
             case FilterReturn::kFalse:
-                SkASSERT(!patch.has_value());
                 return false;
-
             case FilterReturn::kTrue:
-                draw_nine(patch->fMask, patch->fOuterRect, patch->fCenter, 1 == rectCount, clip,
-                          blitter);
                 return true;
-
             case FilterReturn::kUnimplemented:
-                SkASSERT(!patch.has_value());
-                // fall out
                 break;
         }
     }
@@ -267,9 +284,13 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath,
         return false;
     }
 #endif
-    if (!SkDraw::DrawToMask(devPath, clip.getBounds(), this, &matrix, &srcM,
-                            SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode,
-                            style)) {
+    if (!skcpu::DrawToMask(devPath,
+                           clip.getBounds(),
+                           this,
+                           &matrix,
+                           &srcM,
+                           SkMaskBuilder::kComputeBoundsAndRenderImage_CreateMode,
+                           style)) {
         return false;
     }
     SkAutoMaskFreeImage autoSrc(srcM.image());

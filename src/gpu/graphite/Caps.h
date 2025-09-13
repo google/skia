@@ -4,35 +4,30 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef skgpu_graphite_Caps_DEFINED
 #define skgpu_graphite_Caps_DEFINED
 
-#include <optional>
-#include <string>
-#include <string_view>
-#include <utility>
-
-#include "include/core/SkImageInfo.h"
+#include "include/core/SkColorType.h"
 #include "include/core/SkRefCnt.h"
+#include "include/core/SkSize.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
 #include "src/base/SkEnumBitMask.h"
 #include "src/gpu/ResourceKey.h"
 #include "src/gpu/Swizzle.h"
 #include "src/gpu/graphite/ResourceTypes.h"
-#include "src/gpu/graphite/TextureProxy.h"
 #include "src/text/gpu/SubRunControl.h"
 
-#if defined(GPU_TEST_UTILS)
-#include "src/gpu/graphite/ContextOptionsPriv.h"
-#endif
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
 
-enum class SkBlendMode;
-enum class SkTextureCompressionType;
 class SkCapabilities;
-class SkStream;
-class SkWStream;
+enum class SkTextureCompressionType;
 
 namespace SkSL { struct ShaderCaps; }
 
@@ -40,17 +35,22 @@ namespace skgpu { class ShaderErrorHandler; }
 
 namespace skgpu::graphite {
 
-struct AttachmentDesc;
-enum class BufferType : int;
-struct ContextOptions;
 class ComputePipelineDesc;
 class GraphicsPipelineDesc;
 class GraphiteResourceKey;
 class RendererProvider;
-struct RenderPassDesc;
 class TextureInfo;
+enum class DepthStencilFlags : int;
+enum class PathRendererStrategy;
+enum class TextureFormat : uint8_t;
+struct AttachmentDesc;
+struct ContextOptions;
+struct RenderPassDesc;
 
 struct ResourceBindingRequirements {
+    /* The API of the backend currently in use. */
+    BackendApi fBackendApi = BackendApi::kUnsupported;
+
     /* The required data layout rules for the contents of a uniform buffer. */
     Layout fUniformBufferLayout = Layout::kInvalid;
 
@@ -66,9 +66,9 @@ struct ResourceBindingRequirements {
 
     /**
      * Whether intrinsic constant information is stored as push constants (rather than normal UBO).
-     * Currently only relevant or possibly true for Vulkan.
+     * Currently only relevant or possibly true for Dawn or Vulkan.
      */
-    bool fUseVulkanPushConstantsForIntrinsicConstants = false;
+    bool fUsePushConstantsForIntrinsicConstants  = false;
 
     /**
      * Whether compute shader textures use separate index ranges from other resources (i.e. buffers)
@@ -312,6 +312,11 @@ public:
     /* Returns whether multisampled render to single sampled is supported. */
     bool msaaRenderToSingleSampledSupport() const { return fMSAARenderToSingleSampledSupport; }
 
+    /* Returns whether multisampled render to single sampled is supported for a given texture. */
+    virtual bool msaaTextureRenderToSingleSampledSupport(const TextureInfo& info) const {
+        return this->msaaRenderToSingleSampledSupport();
+    }
+
     /**
      * Returns whether a render pass can have MSAA/depth/stencil attachments and a resolve
      * attachment with mismatched sizes. Note: the MSAA attachment and the depth/stencil attachment
@@ -366,6 +371,49 @@ public:
      */
     skgpu::Swizzle getWriteSwizzle(SkColorType, const TextureInfo&) const;
 
+    /**
+     * Includes the following dynamic state:
+     *
+     * * Line width, depth bias, depth bounds, stencil compare mask, stencil write mask and stencil
+     *   reference.
+     *   This set corresponds to Vulkan 1.0 dynamic state.  Blend constants does not depend on this
+     *   flag as it is always dynamic with all graphite backends.
+     *
+     * * Depth test enable, depth write enable, depth compare op, depth bounds test enable, depth
+     *   bias enable, stencil test enable and stencil op.
+     *   This set corresponds to depth and stencil related state from VK_EXT_extended_dynamic_state
+     *   and VK_EXT_extended_dynamic_state2.
+     *
+     * * Primitive topology and primitive restart enable.
+     *   Note that the primitive topology _class_ is not dynamic.
+     *   This set corresponds to input assembly state from VK_EXT_extended_dynamic_state and
+     *   VK_EXT_extended_dynamic_state2.
+     *
+     * * Cull mode, front face and rasterizer discard.
+     *   This set corresponds to rasterizer state from VK_EXT_extended_dynamic_state and
+     *   VK_EXT_extended_dynamic_state2.
+     */
+    bool useBasicDynamicState() const { return fUseBasicDynamicState; }
+    /**
+     * Whether all vertex input state is dynamic.
+     * This set corresponds to state from VK_EXT_vertex_input_dynamic_state.  This state is
+     * equivalently pulled out of the shaders pipeline via VK_EXT_graphics_pipeline_library
+     * (usePipelineLibraries()).
+     */
+    bool useVertexInputDynamicState() const { return fUseVertexInputDynamicState; }
+    /**
+     * Whether VK_EXT_graphics_pipeline_library should be used.  In this case, the "shaders" subset
+     * of the pipeline is compiled separately, then fast-linked with the vertex input and fragment
+     * output state to create the final library.  Currently, this is a detail of the Vulkan backend,
+     * which helps VkPipelineCache hits (because the shaders pipeline hits the cache, and blend
+     * state is patched in).  However, this is most useful once exposed to the front-end, such that
+     * it can track the (fewer) shaders pipeline separately, have the complete pipelines point to
+     * the shaders pipeline, avoid unnecessary cache look ups, and more.  (skbug.com/414645289)
+     */
+    bool usePipelineLibraries() const { return fUsePipelineLibraries; }
+
+    bool supportsHostImageCopy() const { return fSupportsHostImageCopy; }
+
     skgpu::ShaderErrorHandler* shaderErrorHandler() const { return fShaderErrorHandler; }
 
     /**
@@ -374,6 +422,7 @@ public:
      */
     virtual DstReadStrategy getDstReadStrategy() const;
 
+    float minPathSizeForMSAA() const { return fMinMSAAPathSize; }
     float minDistanceFieldFontSize() const { return fMinDistanceFieldFontSize; }
     float glyphsAsPathsFontSize() const { return fGlyphsAsPathsFontSize; }
 
@@ -513,6 +562,7 @@ protected:
 #endif
     size_t fGlyphCacheTextureMaximumBytes = 2048 * 1024 * 4;
 
+    float fMinMSAAPathSize = 0;
     float fMinDistanceFieldFontSize = 18;
     float fGlyphsAsPathsFontSize = 324;
 
@@ -524,6 +574,19 @@ protected:
     bool fRequireOrderedRecordings = false;
 
     bool fSetBackendLabels = false;
+
+    // Dynamic state.  The granularity is less fine than Vulkan's, but there is still some
+    // granularity to allow for some dynamic state to be disabled due to driver bugs without having
+    // to disable everything.  Eventually, these can be used to create fewer pipelines in the first
+    // place (b/414645289).
+    bool fUseBasicDynamicState = false;
+    bool fUseVertexInputDynamicState = false;
+    bool fUsePipelineLibraries = false;
+
+    // Whether it's possible to upload data to images using the CPU (host) instead of the device.
+    // Under certain circumstances, it's more efficient to upload data in this way instead of
+    // through a staging buffer.
+    bool fSupportsHostImageCopy = false;
 
 private:
     virtual bool onIsTexturable(const TextureInfo&) const = 0;

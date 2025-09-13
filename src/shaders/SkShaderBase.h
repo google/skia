@@ -117,8 +117,8 @@ public:
     SkMatrix totalMatrix() const { return SkMatrix::Concat(fCTM, fTotalLocalMatrix); }
 
     /** Gets the inverse of totalMatrix(), if invertible. */
-    [[nodiscard]] bool totalInverse(SkMatrix* out) const {
-        return this->totalMatrix().invert(out);
+    std::optional<SkMatrix> totalInverse() const {
+        return this->totalMatrix().invert();
     }
 
     /** Is there a transform that has not yet been applied by a parent shader? */
@@ -186,14 +186,17 @@ class SkShaderBase : public SkShader {
 public:
     ~SkShaderBase() override;
 
+    uint32_t uniqueID() const { return fUniqueID; }
+
     sk_sp<SkShader> makeInvertAlpha() const;
     sk_sp<SkShader> makeWithCTM(const SkMatrix&) const;  // owns its own ctm
 
     /**
-     *  Returns true if the shader is guaranteed to produce only a single color.
+     *  Returns true if the shader is guaranteed to produce only a single color
+     *  If the color parameter is non-null, it is filled in with that color.
      *  Subclasses can override this to allow loop-hoisting optimization.
      */
-    virtual bool isConstant() const { return false; }
+    virtual bool isConstant(SkColor4f* color = nullptr) const { return false; }
 
     enum class ShaderType {
 #define M(type) k##type,
@@ -320,12 +323,10 @@ public:
         // Reference to shader, so we don't have to dupe information.
         const SkShaderBase& fShader;
 
-        uint8_t         getPaintAlpha() const { return fPaintAlpha; }
-        const SkMatrix& getTotalInverse() const { return fTotalInverse; }
+        uint8_t getPaintAlpha() const { return fPaintAlpha; }
 
     private:
-        SkMatrix    fTotalInverse;
-        uint8_t     fPaintAlpha;
+        uint8_t fPaintAlpha;
     };
 
     /**
@@ -375,7 +376,7 @@ public:
     }
     static void RegisterFlattenables();
 
-    /** DEPRECATED. skbug.com/8941
+    /** DEPRECATED. skbug.com/40040221
      *  If this shader can be represented by another shader + a localMatrix, return that shader and
      *  the localMatrix. If not, return nullptr and ignore the localMatrix parameter.
      */
@@ -406,6 +407,9 @@ protected:
     virtual bool onAsLuminanceColor(SkColor4f*) const {
         return false;
     }
+
+private:
+    const uint32_t fUniqueID;
 
     friend class SkShaders::MatrixRec;
 };

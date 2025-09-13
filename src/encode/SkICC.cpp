@@ -222,10 +222,12 @@ uint32_t get_cicp_trfn(const skcms_TransferFunction& fn) {
                 return kCICPTrfnLinear;
             }
             break;
+        case skcms_TFType_PQ:
         case skcms_TFType_PQish:
             // All PQ transfer functions are mapped to the single PQ value,
             // ignoring their SDR white level.
             return kCICPTrfnPQ;
+        case skcms_TFType_HLG:
         case skcms_TFType_HLGish:
             // All HLG transfer functions are mapped to the single HLG value.
             return kCICPTrfnHLG;
@@ -361,11 +363,11 @@ float tone_map_inverse(float y) {
 // Evaluate PQ and HLG transfer functions without tonemapping. The maximum returned value is
 // kToneMapInputMax.
 float hdr_trfn_eval(const skcms_TransferFunction& fn, float x) {
-    if (skcms_TransferFunction_isHLGish(&fn)) {
+    if (skcms_TransferFunction_isHLGish(&fn) || skcms_TransferFunction_isHLG(&fn)) {
         // For HLG this curve is the inverse OETF and then a per-channel OOTF.
-        x = skcms_TransferFunction_eval(&SkNamedTransferFn::kHLG, x) / 12.f;
+        x = skcms_TransferFunction_eval(&SkNamedTransferFn::kHLG, x);
         x *= std::pow(x, 0.2);
-    } else if (skcms_TransferFunction_isPQish(&fn)) {
+    } else if (skcms_TransferFunction_isPQish(&fn) || skcms_TransferFunction_isPQ(&fn)) {
         // For PQ this is the EOTF, scaled so that 1,000 nits maps to 1.0.
         x = 10.f * skcms_TransferFunction_eval(&SkNamedTransferFn::kPQ, x);
         x = std::min(x, 1.f);
@@ -656,7 +658,7 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_ICCProfile* profile, const char* des
     size_t last_tag_offset = sizeof(header) + tag_table_size;
     size_t last_tag_size = 0;
     for (const auto& tag : tags) {
-        if (!tag.second->isEmpty()) {
+        if (!tag.second->empty()) {
             last_tag_offset = last_tag_offset + last_tag_size;
             last_tag_size = tag.second->size();
         }
@@ -671,7 +673,7 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_ICCProfile* profile, const char* des
 
     // Write the tags.
     for (const auto& tag : tags) {
-        if (tag.second->isEmpty()) continue;
+        if (tag.second->empty()) continue;
         memcpy(ptr, tag.second->data(), tag.second->size());
         ptr += tag.second->size();
     }
@@ -705,7 +707,8 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Ma
     }
 
     // Populate A2B (PQ and HLG only).
-    if (skcms_TransferFunction_isPQish(&fn) || skcms_TransferFunction_isHLGish(&fn)) {
+    if (skcms_TransferFunction_isPQish(&fn) || skcms_TransferFunction_isHLGish(&fn) ||
+        skcms_TransferFunction_isPQ(&fn) || skcms_TransferFunction_isHLG(&fn)) {
         // Populate a 1D curve to perform per-channel conversion to linear and tone mapping.
         constexpr uint32_t kTrcTableSize = 65;
         trc_table.resize(kTrcTableSize);
@@ -735,7 +738,7 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Ma
                     }
 
                     // For HLG, mix the channels according to the OOTF.
-                    if (skcms_TransferFunction_isHLGish(&fn)) {
+                    if (skcms_TransferFunction_isHLGish(&fn) || skcms_TransferFunction_isHLG(&fn)) {
                         // Scale to [0, 1].
                         for (auto& c : rgb) {
                             c /= kToneMapInputMax;
@@ -806,7 +809,8 @@ sk_sp<SkData> SkWriteICCProfile(const skcms_TransferFunction& fn, const skcms_Ma
     }
 
     // Populate CICP.
-    if (skcms_TransferFunction_isHLGish(&fn) || skcms_TransferFunction_isPQish(&fn)) {
+    if (skcms_TransferFunction_isHLGish(&fn) || skcms_TransferFunction_isPQish(&fn) ||
+        skcms_TransferFunction_isHLG(&fn) || skcms_TransferFunction_isPQ(&fn)) {
         profile.has_CICP = true;
         profile.CICP.color_primaries = get_cicp_primaries(toXYZD50);
         profile.CICP.transfer_characteristics = get_cicp_trfn(fn);

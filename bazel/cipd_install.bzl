@@ -28,7 +28,7 @@ def cipd_download_urls(cipd_package, sha256, tag):
     # results in a valid file name.
     cipd_url += tag.replace(":", "%3A")
 
-    mirror_url = "https://storage.googleapis.com/skia-world-readable/bazel/"
+    mirror_url = "https://cdn.skia.org/bazel/"
     mirror_url += sha256
     mirror_url += ".zip"
 

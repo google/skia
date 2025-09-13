@@ -288,14 +288,18 @@ const char* SkDOM::AttrIter::next(const char** value) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-const SkDOM::Node* SkDOM::build(SkStream& docStream) {
+const SkDOM::Node* SkDOM::build(SkStream& docStream, int* errorOnLineNumber) {
     SkDOMParser parser(&fAlloc);
-    if (!parser.parse(docStream))
-    {
-        SkDEBUGCODE(SkDebugf("xml parse error, line %d\n", parser.fParserError.getLineNumber());)
+    if (!parser.parse(docStream)) {
+        if (errorOnLineNumber) {
+            *errorOnLineNumber = parser.fParserError.getLineNumber();
+        }
         fRoot = nullptr;
         fAlloc.reset();
         return nullptr;
+    }
+    if (errorOnLineNumber) {
+        *errorOnLineNumber = -1;    // success
     }
     fRoot = parser.getRoot();
     return fRoot;

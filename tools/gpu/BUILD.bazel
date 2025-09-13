@@ -1,4 +1,4 @@
-load("//bazel:skia_rules.bzl", "skia_cc_library", "skia_objc_library")
+load("//bazel:skia_rules.bzl", "skia_cc_library")
 
 package(
     default_applicable_licenses = ["//:license"],
@@ -6,6 +6,7 @@ package(
 
 licenses(["notice"])
 
+# GPU utilities shared by Graphite and Ganesh testing
 skia_cc_library(
     name = "shared_utils",
     testonly = True,
@@ -14,155 +15,30 @@ skia_cc_library(
         "BackendSurfaceFactory.h",
         "BackendTextureImageFactory.cpp",
         "BackendTextureImageFactory.h",
+        "CompressedTexture.cpp",
         "ContextType.cpp",
-        "ContextType.h",
         "FlushFinishTracker.cpp",
         "FlushFinishTracker.h",
         "ManagedBackendTexture.cpp",
         "ManagedBackendTexture.h",
-        "ProtectedUtils.h",
     ],
     hdrs = [
+        "CompressedTexture.h",
         "ContextType.h",
+        "ProtectedUtils.h",
     ],
     visibility = [
         "//bench:__subpackages__",
         "//modules/skottie:__pkg__",
         "//tools:__subpackages__",
+        "//tools/ganesh:__subpackages__",
     ],
     deps = [
         "//:core",
         "//src/base",
         "//src/core:core_priv",
-        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
-    ],
-)
-
-# OpenGL needed for CreatePlatformGLTestContext_mac.cpp (which is included as a filegroup).
-skia_objc_library(
-    name = "ganesh_gl_utils_frameworks",
-    sdk_frameworks = ["OpenGL"],
-    deps = [],
-)
-
-skia_cc_library(
-    name = "ganesh_gl_utils",
-    testonly = True,
-    srcs = [
-        "BackendSurfaceFactory.cpp",
-        "BackendSurfaceFactory.h",
-        "BackendTextureImageFactory.cpp",
-        "BackendTextureImageFactory.h",
-        "ContextType.cpp",
-        "ContextType.h",
-        "FenceSync.h",
-        "FlushFinishTracker.cpp",
-        "FlushFinishTracker.h",
-        "GpuTimer.h",
-        "GrContextFactory.cpp",
-        "GrContextFactory.h",
-        "GrTest.cpp",
-        "ManagedBackendTexture.cpp",
-        "ManagedBackendTexture.h",
-        "MemoryCache.cpp",
-        "MemoryCache.h",
-        "ProtectedUtils.cpp",
-        "ProtectedUtils.h",
-        "ProxyUtils.cpp",
-        "ProxyUtils.h",
-        "TestCanvas.cpp",
-        "TestCanvas.h",
-        "TestContext.cpp",
-        "TestContext.h",
-        "TestOps.cpp",
-        "TestOps.h",
-        "//tools/gpu/gl:private_hdrs",
-        "//tools/gpu/gl:srcs",
-        "//tools/gpu/mock:private_hdrs",
-        "//tools/gpu/mock:srcs",
-    ],
-    hdrs = [
-        "GrContextFactory.h",
-        "TestCanvas.h",
-    ],
-    visibility = [
-        "//bench:__subpackages__",
-        "//dm:__pkg__",
-        "//modules/skottie:__pkg__",
-        "//tools:__subpackages__",
-    ],
-    deps = [
-        "//:core",
-        "//src/base",
-        "//src/core:core_priv",
-        "//src/gpu/ganesh/gl:ganesh_gl_TEST_UTIL",
-    ] + select({
-        "@platforms//os:macos": [
-            ":ganesh_gl_utils_frameworks",
-            "//src/gpu/ganesh/gl/mac:mac_factory_TEST_UTIL",
-            "//tools:autorelease_pool_objc",
-        ],
-        "//bazel/common_config_settings:linux_x64": [
-            "//src/gpu/ganesh/gl/glx:glx_factory_TEST_UTIL",
-        ],
-        "//conditions:default": ["//tools:autorelease_pool"],
-    }),
-)
-
-skia_cc_library(
-    name = "ganesh_vulkan_utils",
-    testonly = True,
-    srcs = [
-        "BackendSurfaceFactory.cpp",
-        "BackendSurfaceFactory.h",
-        "BackendTextureImageFactory.cpp",
-        "BackendTextureImageFactory.h",
-        "ContextType.cpp",
-        "ContextType.h",
-        "FenceSync.h",
-        "FlushFinishTracker.cpp",
-        "FlushFinishTracker.h",
-        "GpuTimer.h",
-        "GrContextFactory.cpp",
-        "GrContextFactory.h",
-        "GrTest.cpp",
-        "ManagedBackendTexture.cpp",
-        "ManagedBackendTexture.h",
-        "MemoryCache.cpp",
-        "MemoryCache.h",
-        "ProtectedUtils.cpp",
-        "ProtectedUtils.h",
-        "ProxyUtils.cpp",
-        "ProxyUtils.h",
-        "TestContext.cpp",
-        "TestContext.h",
-        "TestOps.cpp",
-        "TestOps.h",
-        "//src/ports:load_dynamic_library",
-        "//tools/gpu/mock:private_hdrs",
-        "//tools/gpu/mock:srcs",
-        "//tools/gpu/vk:private_hdrs",
-        "//tools/gpu/vk:srcs",
-    ],
-    hdrs = [
-        "GrContextFactory.h",
-    ],
-    target_compatible_with = select({
-        # We should not be compiling Vulkan tests for macOS.
-        "@platforms//os:macos": ["@platforms//:incompatible"],
-        "//conditions:default": [],
-    }),
-    visibility = [
-        "//bench:__subpackages__",
-        "//tools:__subpackages__",
-    ],
-    deps = [
-        "//:core",
-        "//src/base",
-        "//src/core:core_priv",
-        "//src/gpu/ganesh/vk:ganesh_vulkan_TEST_UTIL",
-        "//tests:test_type",
-        "//third_party/vulkanmemoryallocator",
-        "//tools:autorelease_pool",
+        # Currently the cpp/h files in this target are not cleanly separated into pure shared,
+        # ganesh, and graphite pieces. So we still rely on Ganesh macros and includes.
+        "//src/gpu/ganesh:ganesh_TEST_UTIL",
     ],
 )

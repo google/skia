@@ -17,6 +17,7 @@
 #include "src/base/SkRandom.h"
 
 #include <stddef.h>
+#include <vector>
 
 namespace skiagm {
 
@@ -29,14 +30,14 @@ protected:
 
     SkISize getISize() override { return SkISize::Make(640, 490); }
 
-    static void fill_pts(SkPoint pts[], size_t n, SkRandom* rand) {
-        for (size_t i = 0; i < n; i++) {
+    static void fill_pts(SkSpan<SkPoint> pts, SkRandom* rand) {
+        for (auto& p : pts) {
             // Compute these independently and store in variables, rather
             // than in the parameter-passing expression, to get consistent
             // evaluation order across compilers.
             SkScalar y = rand->nextUScalar1() * 480;
             SkScalar x = rand->nextUScalar1() * 640;
-            pts[i].set(x, y);
+            p.set(x, y);
         }
     }
 
@@ -56,15 +57,13 @@ protected:
         p2.setStrokeCap(SkPaint::kRound_Cap);
         p2.setStrokeWidth(SkIntToScalar(6));
 
-        SkPoint* pts = new SkPoint[n];
-        fill_pts(pts, n, &rand);
+        std::vector<SkPoint> pts(n);
+        fill_pts(pts, &rand);
 
-        canvas->drawPoints(SkCanvas::kPolygon_PointMode, n, pts, p0);
-        canvas->drawPoints(SkCanvas::kLines_PointMode, n, pts, p1);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, n, pts, p2);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, n, pts, p3);
-
-        delete[] pts;
+        canvas->drawPoints(SkCanvas::kPolygon_PointMode, pts, p0);
+        canvas->drawPoints(SkCanvas::kLines_PointMode, pts, p1);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, pts, p2);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, pts, p3);
     }
 
 private:
@@ -98,11 +97,11 @@ DEF_SIMPLE_GM(points_maskfilter, canvas, 512, 256) {
 
         paint.setMaskFilter(mf);
         paint.setColor(SK_ColorBLACK);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, N, pts, paint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, pts, paint);
 
         paint.setMaskFilter(nullptr);
         paint.setColor(SK_ColorRED);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, N, pts, paint);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, pts, paint);
 
         canvas->translate(256, 0);
     }

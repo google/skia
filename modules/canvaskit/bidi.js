@@ -72,8 +72,8 @@
 
     if (!CanvasKit['TextDirection']) {
       CanvasKit['TextDirection'] = {
-        'LTR': 1,
-        'RTL': 0,
+        LTR: { value: 1 },
+        RTL: { value: 0 },
       }
     }
 });

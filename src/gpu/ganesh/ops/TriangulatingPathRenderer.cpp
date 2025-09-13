@@ -271,9 +271,7 @@ public:
 private:
     SkPath getPath() const {
         SkASSERT(!fShape.style().applies());
-        SkPath path;
-        fShape.asPath(&path);
-        return path;
+        return fShape.asPath();
     }
 
     static void CreateKey(skgpu::UniqueKey* key,
@@ -315,8 +313,7 @@ private:
         vmi.mapRect(&clipBounds);
 
         SkASSERT(!shape.style().applies());
-        SkPath path;
-        shape.asPath(&path);
+        SkPath path = shape.asPath();
 
         return GrTriangulator::PathToTriangles(path, tol, clipBounds, allocator, isLinear);
     }
@@ -620,8 +617,7 @@ TriangulatingPathRenderer::TriangulatingPathRenderer()
 }
 
 PathRenderer::CanDrawPath TriangulatingPathRenderer::onCanDrawPath(
-        const CanDrawPathArgs& args) const {
-
+            const CanDrawPathArgs& args) const {
     // Don't use this path renderer with dynamic MSAA. DMSAA tries to not rely on caching.
     if (args.fSurfaceProps->flags() & SkSurfaceProps::kDynamicMSAA_Flag) {
         return CanDrawPath::kNo;
@@ -633,6 +629,14 @@ PathRenderer::CanDrawPath TriangulatingPathRenderer::onCanDrawPath(
     if (!args.fShape->style().isSimpleFill() || args.fShape->knownToBeConvex()) {
         return CanDrawPath::kNo;
     }
+
+    SkPath path = args.fShape->asPath();
+    int verbCount = path.countVerbs();
+    // Don't use this path renderer if we exceed the max verb count.
+    if (verbCount > kMaxGPUPathRendererVerbs) {
+        return CanDrawPath::kNo;
+    }
+
     switch (args.fAAType) {
         case GrAAType::kNone:
         case GrAAType::kMSAA:
@@ -646,9 +650,7 @@ PathRenderer::CanDrawPath TriangulatingPathRenderer::onCanDrawPath(
         case GrAAType::kCoverage:
             // Use analytic AA if we don't have MSAA. In this case, we do not cache, so we accept
             // paths without keys.
-            SkPath path;
-            args.fShape->asPath(&path);
-            if (path.countVerbs() > fMaxVerbCount) {
+            if (verbCount > fMaxVerbCount) {
                 return CanDrawPath::kNo;
             }
             break;

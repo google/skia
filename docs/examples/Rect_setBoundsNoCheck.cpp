@@ -6,7 +6,7 @@ void draw(SkCanvas* canvas) {
     SkPoint points[] = {{3, 4}, {1, 2}, {SK_ScalarInfinity, 6}, {SK_ScalarNaN, 8}};
     for (int count = 0; count <= (int) std::size(points); ++count) {
         SkRect rect;
-        rect.setBoundsNoCheck(points, count);
+        rect.setBoundsNoCheck({points, count});
         if (count > 0) {
             SkDebugf("added: %3g, %g ", points[count - 1].fX,  points[count - 1].fY);
         } else {

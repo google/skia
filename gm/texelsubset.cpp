@@ -28,7 +28,7 @@
 #include "src/gpu/ganesh/effects/GrTextureEffect.h"
 #include "tools/DecodeUtils.h"
 #include "tools/Resources.h"
-#include "tools/gpu/TestOps.h"
+#include "tools/ganesh/TestOps.h"
 
 #include <memory>
 #include <utility>
@@ -124,11 +124,11 @@ protected:
         SkRect a = SkRect::Make(texelSubset);
         SkRect b = fUpscale ? a.makeInset (.31f * a.width(), .31f * a.height())
                             : a.makeOutset(.25f * a.width(), .25f * a.height());
-        textureMatrices.push_back() = SkMatrix::RectToRect(a, b);
+        textureMatrices.push_back() = SkMatrix::RectToRectOrIdentity(a, b);
 
         b = fUpscale ? a.makeInset (.25f * a.width(), .35f * a.height())
                      : a.makeOutset(.20f * a.width(), .35f * a.height());
-        textureMatrices.push_back() = SkMatrix::RectToRect(a, b);
+        textureMatrices.push_back() = SkMatrix::RectToRectOrIdentity(a, b);
         textureMatrices.back().preRotate(45.f, a.centerX(), a.centerY());
         textureMatrices.back().postSkew(.05f, -.05f);
 

@@ -13,8 +13,13 @@
 #include "include/core/SkSize.h"
 
 #include "include/gpu/graphite/GraphiteTypes.h"
+#include "src/capture/SkCaptureManager.h"
 #include "src/gpu/graphite/GlobalCache.h"
+#include "src/gpu/graphite/PipelineManager.h"
 #include "src/gpu/graphite/ShaderCodeDictionary.h"
+
+class SkCaptureManager;
+class SkExecutor;
 
 namespace skgpu {
 class SingleOwner;
@@ -45,6 +50,8 @@ public:
     GlobalCache* globalCache() { return &fGlobalCache; }
     const GlobalCache* globalCache() const { return &fGlobalCache; }
 
+    PipelineManager* pipelineManager() { return &fPipelineManager; }
+
     const RendererProvider* rendererProvider() const { return fRendererProvider.get(); }
 
     ShaderCodeDictionary* shaderCodeDictionary() { return &fShaderDictionary; }
@@ -60,23 +67,30 @@ public:
 
     virtual void deviceTick(Context*) {}
 
+    SkCaptureManager* captureManager() { return fCaptureManager.get(); }
+
 protected:
     SharedContext(std::unique_ptr<const Caps>,
                   BackendApi,
+                  SkExecutor* executor,
                   SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
 
 private:
-    friend class Context; // for setRendererProvider()
+    friend class Context; // for setRendererProvider() and setCaptureManager()
 
     // Must be created out-of-band to allow RenderSteps to use a QueueManager.
     void setRendererProvider(std::unique_ptr<RendererProvider> rendererProvider);
+
+    void setCaptureManager(sk_sp<SkCaptureManager> captureManager);
 
     std::unique_ptr<const Caps> fCaps; // Provided by backend subclass
 
     BackendApi fBackend;
     GlobalCache fGlobalCache;
+    PipelineManager fPipelineManager;
     std::unique_ptr<RendererProvider> fRendererProvider;
     ShaderCodeDictionary fShaderDictionary;
+    sk_sp<SkCaptureManager> fCaptureManager;
 };
 
 } // namespace skgpu::graphite

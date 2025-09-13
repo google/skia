@@ -74,7 +74,7 @@ namespace {
 
 // FontConfig was thread antagonistic until 2.10.91 with known thread safety issues until 2.13.93.
 // Before that, lock with a global mutex.
-// See https://bug.skia.org/1497 and cl/339089311 for background.
+// See skbug.com/40032593 and cl/339089311 for background.
 static SkMutex& f_c_mutex() {
     static SkMutex& mutex = *(new SkMutex);
     return mutex;
@@ -480,9 +480,7 @@ protected:
                      -fcMatrix->yx, fcMatrix->yy, 0,
                       0           , 0           , 1);
 
-            SkMatrix sm;
-            rec->getMatrixFrom2x2(&sm);
-
+            SkMatrix sm = rec->getMatrixFrom2x2();
             sm.preConcat(fm);
             rec->fPost2x2[0][0] = sm.getScaleX();
             rec->fPost2x2[0][1] = sm.getSkewX();

@@ -12,7 +12,6 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
-#include "include/private/base/SkTLogic.h"
 #include "src/core/SkReadBuffer.h"
 #include "src/core/SkWriteBuffer.h"
 #include "src/gpu/AtlasTypes.h"
@@ -73,7 +72,7 @@ void VertexFiller::flatten(SkWriteBuffer &buffer) const {
     buffer.writeBool(fCanDrawDirect);
     buffer.writeMatrix(fCreationMatrix);
     buffer.writeRect(fCreationBounds);
-    buffer.writePointArray(fLeftTop.data(), SkCount(fLeftTop));
+    buffer.writePointArray(fLeftTop);
 }
 
 SkMatrix VertexFiller::viewDifference(const SkMatrix &positionMatrix) const {

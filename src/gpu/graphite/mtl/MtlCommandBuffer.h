@@ -89,12 +89,12 @@ private:
                          const Texture* depthStencilTexture);
     void endRenderPass();
 
-    void addDrawPass(const DrawPass*);
+    [[nodiscard]] bool addDrawPass(DrawPass*);
 
     void updateIntrinsicUniforms(SkIRect viewport);
 
     void bindGraphicsPipeline(const GraphicsPipeline*);
-    void setBlendConstants(float* blendConstants);
+    void setBlendConstants(std::array<float, 4> blendConstants);
 
     void bindUniformBuffer(const BindBufferInfo& info, UniformSlot);
     void bindInputBuffer(const Buffer* buffer, size_t offset, uint32_t bindingIndex);

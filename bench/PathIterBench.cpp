@@ -16,12 +16,14 @@
 #include "src/core/SkPathPriv.h"
 
 enum class PathIterType {
-    kIter,
-    kRaw,
+    kOldIter,
+    kNewIter,
+    kPriv,
     kEdge,
+    kPathIter,
 };
 const char* gPathIterNames[] = {
-    "iter", "raw", "edge"
+    "olditer", "newiter", "priv", "edge", "pathiter",
 };
 
 static int rand_pts(SkRandom& rand, SkPoint pts[4]) {
@@ -47,25 +49,26 @@ public:
     PathIterBench(PathIterType t) : fType(t) {
         fName.printf("pathiter_%s", gPathIterNames[static_cast<unsigned>(t)]);
 
+        SkPathBuilder builder;
+        builder.moveTo({0, 0});
+
         SkRandom rand;
         for (int i = 0; i < 1000; ++i) {
             SkPoint pts[4];
             int n = rand_pts(rand, pts);
             switch (n) {
-                case 1:
-                    fPath.moveTo(pts[0]);
-                    break;
                 case 2:
-                    fPath.lineTo(pts[1]);
+                    builder.lineTo(pts[1]);
                     break;
                 case 3:
-                    fPath.quadTo(pts[1], pts[2]);
+                    builder.quadTo(pts[1], pts[2]);
                     break;
                 case 4:
-                    fPath.cubicTo(pts[1], pts[2], pts[3]);
+                    builder.cubicTo(pts[1], pts[2], pts[3]);
                     break;
             }
         }
+        fPath = builder.detach();
     }
 
     bool isSuitableFor(Backend backend) override {
@@ -87,18 +90,29 @@ protected:
         };
 
         switch (fType) {
-            case PathIterType::kIter:
+            case PathIterType::kNewIter:
                 for (int i = 0; i < loops; ++i) {
-                    SkPath::Iter iter(fPath, true);
-                    SkPath::Verb verb;
-                    SkPoint      pts[4];
-                    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-                        handle(verb, pts);
+                    SkPath::Iter iter(fPath, false);
+                    while (auto rec = iter.next()) {
+                        handle((int)rec->fVerb, rec->fPoints.data());
                     }
                 }
                 break;
-            case PathIterType::kRaw:
+            case PathIterType::kOldIter:
                 for (int i = 0; i < loops; ++i) {
+                    SkPath::Iter iter(fPath, false);
+                    for (;;) {
+                        SkPoint pts[4];
+                        auto verb = iter.next(pts);
+                        if (verb == SkPath::kDone_Verb) {
+                            break;
+                        }
+                        handle((int)verb, pts);
+                    }
+                }
+                break;
+            case PathIterType::kPriv:
+                for (int i = 0; i < loops; ++i)  {
                     for (auto [verb, pts, w] : SkPathPriv::Iterate(fPath)) {
                         handle((SkPath::Verb)verb, pts);
                     }
@@ -112,6 +126,14 @@ protected:
                     }
                 }
                 break;
+            case PathIterType::kPathIter:
+                for (int i = 0; i < loops; ++i) {
+                    auto iter = fPath.iter();
+                    while (auto r = iter.next()) {
+                        handle((int)r->fVerb, r->fPoints.data());
+                    }
+                }
+                break;
         }
     }
 
@@ -121,6 +143,8 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////////
 
-DEF_BENCH( return new PathIterBench(PathIterType::kIter); )
-DEF_BENCH( return new PathIterBench(PathIterType::kRaw); )
+DEF_BENCH( return new PathIterBench(PathIterType::kNewIter); )
+DEF_BENCH( return new PathIterBench(PathIterType::kOldIter); )
+DEF_BENCH( return new PathIterBench(PathIterType::kPriv); )
+DEF_BENCH( return new PathIterBench(PathIterType::kPathIter); )
 DEF_BENCH( return new PathIterBench(PathIterType::kEdge); )

@@ -100,8 +100,8 @@ void calc_dash_scaling(SkScalar* parallelScale, SkScalar* perpScale,
 
     SkVector vecSrcPerp;
     SkPointPriv::RotateCW(vecSrc, &vecSrcPerp);
-    viewMatrix.mapVectors(&vecSrc, 1);
-    viewMatrix.mapVectors(&vecSrcPerp, 1);
+    vecSrc = viewMatrix.mapVector(vecSrc);
+    vecSrcPerp = viewMatrix.mapVector(vecSrcPerp);
 
     // parallelScale tells how much to scale along the line parallel to the dash line
     // perpScale tells how much to scale in the direction perpendicular to the dash line
@@ -122,7 +122,7 @@ void align_to_x_axis(const SkPoint pts[2], SkMatrix* rotMatrix, SkPoint ptsRot[2
     vec.scale(inv);
     rotMatrix->setSinCos(-vec.fY, vec.fX, pts[0].fX, pts[0].fY);
     if (ptsRot) {
-        rotMatrix->mapPoints(ptsRot, pts, 2);
+        rotMatrix->mapPoints({ptsRot, 2}, {pts, 2});
         // correction for numerical issues if map doesn't make ptsRot exactly horizontal
         ptsRot[1].fY = pts[0].fY;
     }
@@ -437,7 +437,7 @@ private:
                     startPts[1].fY = startPts[0].fY;
                     startPts[1].fX = std::min(startPts[0].fX + draw.fIntervals[0] - draw.fPhase,
                                               draw.fPtsRot[1].fX);
-                    startRect.setBounds(startPts, 2);
+                    startRect = SkRect::BoundsOrEmpty(startPts);
                     startRect.outset(strokeAdj, halfSrcStroke);
 
                     hasStartRect = true;
@@ -473,7 +473,7 @@ private:
                     endPts[0].fY = endPts[1].fY;
                     endPts[0].fX = endPts[1].fX - endingInterval;
 
-                    endRect.setBounds(endPts, 2);
+                    endRect = SkRect::BoundsOrEmpty(endPts);
                     endRect.outset(strokeAdj, halfSrcStroke);
 
                     hasEndRect = true;
@@ -549,14 +549,14 @@ private:
                 // one giant dash
                 draw.fPtsRot[0].fX -= hasStartRect ? startAdj : 0;
                 draw.fPtsRot[1].fX += hasEndRect ? endAdj : 0;
-                startRect.setBounds(draw.fPtsRot, 2);
+                startRect = SkRect::BoundsOrEmpty(draw.fPtsRot);
                 startRect.outset(strokeAdj, halfSrcStroke);
                 hasStartRect = true;
                 hasEndRect = false;
                 lineDone = true;
 
                 SkPoint devicePts[2];
-                args.fSrcRotInv.mapPoints(devicePts, draw.fPtsRot, 2);
+                args.fSrcRotInv.mapPoints(devicePts, draw.fPtsRot);
                 SkScalar lineLength = SkPoint::Distance(devicePts[0], devicePts[1]);
                 if (hasCap) {
                     lineLength += 2.f * halfDevStroke;
@@ -576,7 +576,7 @@ private:
 
             if (!lineDone) {
                 SkPoint devicePts[2];
-                args.fSrcRotInv.mapPoints(devicePts, draw.fPtsRot, 2);
+                args.fSrcRotInv.mapPoints(devicePts, draw.fPtsRot);
                 draw.fLineLength = SkPoint::Distance(devicePts[0], devicePts[1]);
                 if (hasCap) {
                     draw.fLineLength += 2.f * halfDevStroke;
@@ -1338,7 +1338,7 @@ GR_DRAW_OP_TEST_DEFINE(DashOpImpl) {
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(SkIntToScalar(1));
     p.setStrokeCap(cap);
-    p.setPathEffect(GrTest::TestDashPathEffect::Make(intervals, 2, phase));
+    p.setPathEffect(GrTest::TestDashPathEffect::Make(intervals, phase));
 
     GrStyle style(p);
 

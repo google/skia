@@ -1090,7 +1090,7 @@ public:
 
         fRoundCaps = false;
 
-        viewMatrix.mapPoints(&center, 1);
+        center = viewMatrix.mapPoint(center);
         radius = viewMatrix.mapRadius(radius);
         SkScalar strokeWidth = viewMatrix.mapRadius(stroke.getWidth());
 
@@ -1141,8 +1141,8 @@ public:
             stopPoint.fX = SkScalarCos(endAngle);
 
             // Adjust the start and end points based on the view matrix (to handle rotated arcs)
-            startPoint = viewMatrix.mapVector(startPoint.fX, startPoint.fY);
-            stopPoint = viewMatrix.mapVector(stopPoint.fX, stopPoint.fY);
+            startPoint = viewMatrix.mapVector(startPoint);
+            stopPoint = viewMatrix.mapVector(stopPoint);
             startPoint.normalize();
             stopPoint.normalize();
 
@@ -1571,7 +1571,7 @@ public:
             : GrMeshDrawOp(ClassID())
             , fHelper(processorSet, GrAAType::kCoverage) {
         SkASSERT(circle_stays_circle(viewMatrix));
-        viewMatrix.mapPoints(&center, 1);
+        center = viewMatrix.mapPoint(center);
         radius = viewMatrix.mapRadius(radius);
         strokeWidth = viewMatrix.mapRadius(strokeWidth);
 
@@ -1585,7 +1585,7 @@ public:
             start.fY = SkScalarSin(startAngle);
             start.fX = SkScalarCos(startAngle);
         }
-        viewMatrix.mapVectors(&start, 1);
+        start = viewMatrix.mapVector(start);
         startAngle = SkScalarATan2(start.fY, start.fX);
         reflection = (viewMatrix.getScaleX() * viewMatrix.getScaleY() -
                       viewMatrix.getSkewX() * viewMatrix.getSkewY()) < 0;
@@ -1883,8 +1883,7 @@ public:
                             const SkStrokeRec& stroke) {
         DeviceSpaceParams params;
         // do any matrix crunching before we reset the draw state for device coords
-        params.fCenter = SkPoint::Make(ellipse.centerX(), ellipse.centerY());
-        viewMatrix.mapPoints(&params.fCenter, 1);
+        params.fCenter = viewMatrix.mapPoint(ellipse.center());
         SkScalar ellipseXRadius = SkScalarHalf(ellipse.width());
         SkScalar ellipseYRadius = SkScalarHalf(ellipse.height());
         params.fXRadius = SkScalarAbs(viewMatrix[SkMatrix::kMScaleX] * ellipseXRadius +

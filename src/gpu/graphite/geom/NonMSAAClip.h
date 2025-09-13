@@ -8,6 +8,7 @@
 #ifndef skgpu_graphite_geom_NonMSAAClip_DEFINED
 #define skgpu_graphite_geom_NonMSAAClip_DEFINED
 
+#include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/geom/Rect.h"
 
 namespace skgpu::graphite {

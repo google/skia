@@ -18,11 +18,10 @@
 static void test_to_from(skiatest::Reporter* reporter, const SkPath& path) {
     SkString str = SkParsePath::ToSVGString(path);
 
-    SkPath path2;
-    bool success = SkParsePath::FromSVGString(str.c_str(), &path2);
-    REPORTER_ASSERT(reporter, success);
+    auto path2 = SkParsePath::FromSVGString(str.c_str());
+    REPORTER_ASSERT(reporter, path2.has_value());
 
-    SkString str2 = SkParsePath::ToSVGString(path2);
+    SkString str2 = SkParsePath::ToSVGString(*path2);
     REPORTER_ASSERT(reporter, str == str2);
 #if 0 // closed paths are not equal, the iter explicitly gives the closing
       // edge, even if it is not in the path.
@@ -49,14 +48,13 @@ static struct {
 
 DEF_TEST(ParsePath, reporter) {
     for (size_t i = 0; i < std::size(gRec); i++) {
-        SkPath  path;
-        bool success = SkParsePath::FromSVGString(gRec[i].fStr, &path);
-        REPORTER_ASSERT(reporter, success);
+        auto path = SkParsePath::FromSVGString(gRec[i].fStr);
+        REPORTER_ASSERT(reporter, path.has_value());
         const SkRect& expectedBounds = gRec[i].fBounds;
-        const SkRect& pathBounds = path.getBounds();
+        const SkRect& pathBounds = path->getBounds();
         REPORTER_ASSERT(reporter, expectedBounds == pathBounds);
 
-        test_to_from(reporter, path);
+        test_to_from(reporter, *path);
     }
 
     SkRect r;
@@ -73,11 +71,8 @@ DEF_TEST(ParsePath, reporter) {
 static void testInvalidPath(skiatest::Reporter* reporter, const std::string& name,
                             const std::string& input) {
     skiatest::ReporterContext subtest(reporter, name);
-    SkPath path;
-    bool success = SkParsePath::FromSVGString(input.c_str(), &path);
-    REPORTER_ASSERT(reporter, !success);
-    // We should not modify the input path on a failure.
-    REPORTER_ASSERT(reporter, path.isEmpty());
+    auto path = SkParsePath::FromSVGString(input.c_str());
+    REPORTER_ASSERT(reporter, !path.has_value());
 }
 
 DEF_TEST(ParsePath_InvalidDoesNotCrash, r) {
@@ -125,20 +120,20 @@ DEF_TEST(ParsePathOptionalCommand, r) {
         { "c-1.49.71-2.12 2.5-1.4 4 .71 1.49 2.5 2.12 4 1.4z", 4, 7 },
     };
 
-    SkPath path;
     for (size_t i = 0; i < std::size(gTests); ++i) {
-        REPORTER_ASSERT(r, SkParsePath::FromSVGString(gTests[i].fStr, &path));
-        REPORTER_ASSERT(r, path.countVerbs() == gTests[i].fVerbs);
-        REPORTER_ASSERT(r, path.countPoints() == gTests[i].fPoints);
+        auto path = SkParsePath::FromSVGString(gTests[i].fStr);
+        REPORTER_ASSERT(r, path.has_value());
+        REPORTER_ASSERT(r, path->countVerbs() == gTests[i].fVerbs);
+        REPORTER_ASSERT(r, path->countPoints() == gTests[i].fPoints);
     }
 }
 
 DEF_TEST(ParsePathArcFlags, r) {
     const char* arcs = "M10 10a2.143 2.143 0 100-4.285 2.143 2.143 0 000 4.286";
-    SkPath path;
-    REPORTER_ASSERT(r, SkParsePath::FromSVGString(arcs, &path));
+    auto path = SkParsePath::FromSVGString(arcs);
+    REPORTER_ASSERT(r, path.has_value());
     // Arcs decompose to two conics.
-    REPORTER_ASSERT(r, path.countVerbs() == 5);
+    REPORTER_ASSERT(r, path->countVerbs() == 5);
     // One for move, 2x per conic.
-    REPORTER_ASSERT(r, path.countPoints() == 9);
+    REPORTER_ASSERT(r, path->countPoints() == 9);
 }

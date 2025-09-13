@@ -26,8 +26,7 @@ void draw(SkCanvas* canvas) {
     p.setStyle(SkPaint::kStroke_Style);
     p.setStrokeWidth(WIDTH);
 
-    SkPath fillpath;
-    skpathutils::FillPathWithPaint(path, p, &fillpath);
+    SkPath fillpath = skpathutils::FillPathWithPaint(path, p);
 
     SkPaint fillp;
     fillp.setColor(SK_ColorBLACK);

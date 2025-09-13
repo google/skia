@@ -14,11 +14,11 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkAssert.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
-#include "src/base/SkTLazy.h"  // IWYU pragma: keep
 
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <optional>
 
 SkSVGNode::SkSVGNode(SkSVGTag t) : fTag(t) {
     // Uninherited presentation attributes need a non-null default value.
@@ -83,7 +83,7 @@ void SkSVGNode::setAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
 }
 
 template <typename T>
-void SetInheritedByDefault(SkTLazy<T>& presentation_attribute, const T& value) {
+void SetInheritedByDefault(std::optional<T>& presentation_attribute, const T& value) {
     if (value.type() != T::Type::kInherit) {
         presentation_attribute.set(value);
     } else {

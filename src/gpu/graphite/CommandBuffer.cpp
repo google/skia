@@ -4,21 +4,28 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/graphite/CommandBuffer.h"
 
+#include "include/core/SkSamplingOptions.h"
+#include "include/core/SkSize.h"
+#include "include/core/SkTileMode.h"
+#include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/base/SkDebug.h"
 #include "src/core/SkTraceEvent.h"
 #include "src/gpu/RefCntedCallback.h"
 #include "src/gpu/graphite/Buffer.h"
-#include "src/gpu/graphite/ComputePipeline.h"
 #include "src/gpu/graphite/DrawPass.h"
-#include "src/gpu/graphite/GraphicsPipeline.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/RenderPassDesc.h"
+#include "src/gpu/graphite/Resource.h"
 #include "src/gpu/graphite/ResourceProvider.h"
-#include "src/gpu/graphite/Sampler.h"
+#include "src/gpu/graphite/ResourceTypes.h"
+#include "src/gpu/graphite/Sampler.h"  // IWYU pragma: keep
 #include "src/gpu/graphite/Texture.h"
-#include "src/gpu/graphite/TextureProxy.h"
+
+#include <algorithm>
+#include <atomic>
+#include <cstdint>
 
 namespace skgpu::graphite {
 

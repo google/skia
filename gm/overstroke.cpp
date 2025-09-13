@@ -16,7 +16,7 @@
  * The old Nvidia Path Renderer used to yield correct results, so a possible
  * direction of attack is to use the GPU and a completely different algorithm.
  *
- * See crbug.com/589769 skbug.com/5405 skbug.com/5406
+ * See crbug.com/589769 skbug.com/40036571 skbug.com/40036572
  */
 
 #include "gm/gm.h"
@@ -143,10 +143,10 @@ void draw_quad_fillpath(SkCanvas *canvas) {
     SkPaint fillp = make_normal_paint();
     fillp.setColor(SK_ColorMAGENTA);
 
-    SkPath fillpath;
+    SkPathBuilder fillpath;
     skpathutils::FillPathWithPaint(path, p, &fillpath);
 
-    canvas->drawPath(fillpath, fillp);
+    canvas->drawPath(fillpath.detach(), fillp);
 }
 
 void draw_stroked_quad(SkCanvas *canvas) {
@@ -180,10 +180,10 @@ void draw_cubic_fillpath(SkCanvas *canvas) {
     SkPaint fillp = make_normal_paint();
     fillp.setColor(SK_ColorMAGENTA);
 
-    SkPath fillpath;
+    SkPathBuilder fillpath;
     skpathutils::FillPathWithPaint(path, p, &fillpath);
 
-    canvas->drawPath(fillpath, fillp);
+    canvas->drawPath(fillpath.detach(), fillp);
 }
 
 void draw_stroked_cubic(SkCanvas *canvas) {
@@ -218,8 +218,7 @@ void draw_oval_fillpath(SkCanvas *canvas) {
     SkPaint fillp = make_normal_paint();
     fillp.setColor(SK_ColorMAGENTA);
 
-    SkPath fillpath;
-    skpathutils::FillPathWithPaint(path, p, &fillpath);
+    SkPath fillpath = skpathutils::FillPathWithPaint(path, p);
 
     canvas->drawPath(fillpath, fillp);
 }

@@ -228,7 +228,7 @@ DEF_TEST(AndroidCodec_HLG, r) {
 
     skcms_TransferFunction tf;
     cs->transferFn(&tf);
-    REPORTER_ASSERT(r, skcms_TransferFunction_isHLGish(&tf));
+    REPORTER_ASSERT(r, skcms_TransferFunction_isHLGish(&tf) || skcms_TransferFunction_isHLG(&tf));
 
     skcms_Matrix3x3 matrix;
     cs->toXYZD50(&matrix);
@@ -264,7 +264,7 @@ DEF_TEST(AndroidCodec_PQ, r) {
 
     skcms_TransferFunction tf;
     cs->transferFn(&tf);
-    REPORTER_ASSERT(r, skcms_TransferFunction_isPQish(&tf));
+    REPORTER_ASSERT(r, skcms_TransferFunction_isPQish(&tf) || skcms_TransferFunction_isPQ(&tf));
 
     skcms_Matrix3x3 matrix;
     cs->toXYZD50(&matrix);

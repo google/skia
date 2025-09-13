@@ -15,13 +15,13 @@ Download the Android NDK
 
 ```
 ./bin/fetch-sk
-./bin/sk asset download android_ndk_linux /tmp/ndk
+./bin/sk asset download android_ndk_linux ~/ndk
 ```
 
 After this is set up once, build skpbench for your target cpu (assumed to be arm64 here for a Pixel 3)
 
 ```
-bin/gn gen out/arm64 --args='ndk="/tmp/ndk" target_cpu="arm64" is_debug=false'
+bin/gn gen out/arm64 --args='ndk="~/ndk" target_cpu="arm64" is_debug=false'
 ninja -C out/arm64 skpbench
 ```
 

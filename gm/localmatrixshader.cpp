@@ -133,14 +133,13 @@ DEF_SIMPLE_GM(localmatrixshader_persp, canvas, 542, 266) {
     SkMatrix scale = SkMatrix::Scale(1.f / 5.f, 1.f / 5.f);
 
     // perspective matrix
-    SkPoint src[4];
-    imgRect.toQuad(src);
+    const std::array<SkPoint, 4> src = imgRect.toQuad();
     SkPoint dst[4] = {{0, 10.f},
                       {image->width() + 28.f, -100.f},
                       {image->width() - 28.f, image->height() + 100.f},
                       {0.f, image->height() - 10.f}};
     SkMatrix persp;
-    SkAssertResult(persp.setPolyToPoly(src, dst, 4));
+    SkAssertResult(persp.setPolyToPoly(src, dst));
 
     // combined persp * scale
     SkMatrix perspScale = SkMatrix::Concat(persp, scale);

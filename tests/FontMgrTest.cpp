@@ -47,14 +47,13 @@ DEF_TEST(FontMgr_Font, reporter) {
     sk_bzero(glyphs, sizeof(glyphs));
 
     // Check that no glyphs are copied with insufficient storage.
-    int count = font.textToGlyphs("Hello", 5, SkTextEncoding::kUTF8, glyphs, 2);
+    size_t count = font.textToGlyphs("Hello", 5, SkTextEncoding::kUTF8, {glyphs, 2});
     REPORTER_ASSERT(reporter, 5 == count);
     for (const auto glyph : glyphs) { REPORTER_ASSERT(reporter, glyph == 0); }
 
-    SkAssertResult(font.textToGlyphs("Hello", 5, SkTextEncoding::kUTF8, glyphs,
-                                     std::size(glyphs)) == count);
+    SkAssertResult(font.textToGlyphs("Hello", 5, SkTextEncoding::kUTF8, glyphs) == count);
 
-    for (int i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) {
         REPORTER_ASSERT(reporter, 0 != glyphs[i]);
     }
     REPORTER_ASSERT(reporter, glyphs[0] != glyphs[1]); // 'h' != 'e'
@@ -117,7 +116,7 @@ DEF_TEST(FontMgr_Iter, reporter) {
             set->getStyle(j, &fs, &sname);
 
             if (FLAGS_verboseFontMgr) {
-                SkDebugf("\t[%d] %s [%3d %d %d]", j, sname.c_str(),
+                SkDebugf("\t[%d] \"%s\" [%3d %d %d]\n", j, sname.c_str(),
                          fs.weight(), fs.width(), fs.slant());
             }
 
@@ -131,10 +130,18 @@ DEF_TEST(FontMgr_Iter, reporter) {
             face1->getFamilyName(&name1);
             SkFontStyle s1 = face1->fontStyle();
 
+            sk_sp<SkTypeface::LocalizedStrings> otherNames(face1->createFamilyNameIterator());
+            SkTypeface::LocalizedString otherName;
+            while (otherNames->next(&otherName)) {
+                if (FLAGS_verboseFontMgr) {
+                    SkDebugf("\t\"%s\" aka \"%s\"\n", name1.c_str(), otherName.fString.c_str());
+                }
+            }
+
             SkString resource1;
             face1->getResourceName(&resource1);
             if (FLAGS_verboseFontMgr) {
-                SkDebugf(" \"%s\" \"%s\"\n", name1.c_str(), resource1.c_str());
+                SkDebugf("\t\"%s\" from resource \"%s\"\n", name1.c_str(), resource1.c_str());
             }
 
             // Note that fs != s1 is fine, though probably rare.
@@ -178,6 +185,12 @@ DEF_TEST(FontMgr_MatchFamilyStyle, reporter) {
     sk_sp<SkTypeface> typeface(fm->matchFamilyStyle("Non Existing Family Name", FS::Normal()));
     REPORTER_ASSERT(reporter, !typeface);
 
+    // Test a long name with many interesting case folding code points.
+    using FS = SkFontStyle;
+    sk_sp<SkTypeface> typeface1(fm->matchFamilyStyle("ῢ ΰ ῤ ῦ ῧ Ῠ Ῡ Ὺ Ύ Ῥ ῲ ῳ ῴ ῶ ῷ Ὸ Ό Ὼ Ώ ῼ",
+                                                     FS::Normal()));
+    REPORTER_ASSERT(reporter, !typeface1);
+
     // TODO: enable after determining if a default font should be required.
     if ((false)) {
         sk_sp<SkTypeface> def(fm->matchFamilyStyle(nullptr, FS::Normal()));
@@ -206,12 +219,12 @@ DEF_TEST(FontMgr_MatchStyleCSS3, reporter) {
             return nullptr;
         }
         void onGetFontDescriptor(SkFontDescriptor*, bool*) const override { }
-        void onCharsToGlyphs(const SkUnichar* chars, int count, SkGlyphID glyphs[]) const override {
-            sk_bzero(glyphs, count * sizeof(glyphs[0]));
+        void onCharsToGlyphs(SkSpan<const SkUnichar>, SkSpan<SkGlyphID> glyphs) const override {
+            sk_bzero(glyphs.data(), glyphs.size_bytes());
         }
         int onCountGlyphs() const override { return 0; }
         void getPostScriptGlyphNames(SkString*) const override {}
-        void getGlyphToUnicodeMap(SkUnichar*) const override {}
+        void getGlyphToUnicodeMap(SkSpan<SkUnichar>) const override {}
         int onGetUPEM() const override { return 0; }
         class EmptyLocalizedStrings : public SkTypeface::LocalizedStrings {
         public:
@@ -226,17 +239,15 @@ DEF_TEST(FontMgr_MatchStyleCSS3, reporter) {
         }
         bool onGlyphMaskNeedsCurrentColor() const override { return false; }
         int onGetVariationDesignPosition(
-                SkFontArguments::VariationPosition::Coordinate coordinates[],
-                int coordinateCount) const override
+                             SkSpan<SkFontArguments::VariationPosition::Coordinate>) const override
         {
             return 0;
         }
-        int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
-                                           int parameterCount) const override
+        int onGetVariationDesignParameters(SkSpan<SkFontParameters::Variation::Axis>) const override
         {
             return -1;
         }
-        int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
+        int onGetTableTags(SkSpan<SkFontTableTag>) const override { return 0; }
         size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override {
             return 0;
         }

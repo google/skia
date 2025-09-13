@@ -9,7 +9,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPathBuilder.h"
 
-// Repro case for http://skbug.com/9453
+// Repro case for skbug.com/40040760
 DEF_SIMPLE_GM(inverseclip, canvas, 400, 400) {
     SkPathBuilder clip;
     clip.setFillType(SkPathFillType::kInverseWinding);

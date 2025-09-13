@@ -19,19 +19,12 @@
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkFixed.h"
 #include "src/base/SkArenaAlloc.h"
-#include "src/core/SkMatrixPriv.h"
 
 #include <cstddef>
 #include <cstdint>
 
 class SkImage_Base;
 enum class SkTileMode;
-
-typedef SkFixed3232    SkFractionalInt;
-#define SkScalarToFractionalInt(x)  SkScalarToFixed3232(x)
-#define SkFractionalIntToFixed(x)   SkFixed3232ToFixed(x)
-#define SkFixedToFractionalInt(x)   SkFixedToFixed3232(x)
-#define SkFractionalIntToInt(x)     SkFixed3232ToInt(x)
 
 struct SkBitmapProcState {
     SkBitmapProcState(const SkImage_Base* image, SkTileMode tmx, SkTileMode tmy);
@@ -41,17 +34,17 @@ struct SkBitmapProcState {
             && this->chooseProcs();
     }
 
-    typedef void (*ShaderProc32)(const void* ctx, int x, int y, SkPMColor[], int count);
+    using ShaderProc32 = void (*)(const void* ctx, int x, int y, SkPMColor[], int count);
 
-    typedef void (*MatrixProc)(const SkBitmapProcState&,
-                               uint32_t bitmapXY[],
-                               int count,
-                               int x, int y);
+    using MatrixProc = void (*)(const SkBitmapProcState&,
+                                uint32_t bitmapXY[],
+                                int count,
+                                int x, int y);
 
-    typedef void (*SampleProc32)(const SkBitmapProcState&,
-                                 const uint32_t[],
-                                 int count,
-                                 SkPMColor colors[]);
+    using SampleProc32 = void (*)(const SkBitmapProcState&,
+                                  const uint32_t[],
+                                  int count,
+                                  SkPMColor colors[]);
 
     const SkImage_Base*     fImage;
 
@@ -62,14 +55,13 @@ struct SkBitmapProcState {
     SkTileMode              fTileModeY;
     bool                    fBilerp;
 
-    SkMatrixPriv::MapXYProc fInvProc;           // chooseProcs
-    SkFractionalInt     fInvSxFractionalInt;
-    SkFractionalInt     fInvKyFractionalInt;
+    SkFixed3232             fInvSx;
+    SkFixed3232             fInvKy;
 
-    SkFixed             fFilterOneX;
-    SkFixed             fFilterOneY;
+    SkFixed                 fFilterOneX;
+    SkFixed                 fFilterOneY;
 
-    uint16_t            fAlphaScale;        // chooseProcs
+    uint16_t                fAlphaScale;        // chooseProcs
 
     /** Given the byte size of the index buffer to be passed to the matrix proc,
         return the maximum number of resulting pixels that can be computed
@@ -94,9 +86,8 @@ struct SkBitmapProcState {
     SampleProc32 getSampleProc32() const { return fSampleProc32; }
 
 private:
-    enum {
-        kBMStateSize = 136  // found by inspection. if too small, we will call new/delete
-    };
+    // found by inspection. If this is too small, we will allocate on the heap.
+    static constexpr size_t kBMStateSize = 136;
     SkSTArenaAlloc<kBMStateSize> fAlloc;
 
     ShaderProc32        fShaderProc32;      // chooseProcs
@@ -142,7 +133,7 @@ private:
     #define pack_two_shorts(pri, sec)   PACK_TWO_SHORTS(pri, sec)
 #endif
 
-// Helper class for mapping the middle of pixel (x, y) into SkFractionalInt bitmap space.
+// Helper class for mapping the middle of pixel (x, y) into SkFixed3232 bitmap space.
 // Discussion:
 // Overall, this code takes a point in destination space, and uses the center of the pixel
 // at (x, y) to determine the sample point in source space. It then adjusts the pixel by different
@@ -162,10 +153,10 @@ class SkBitmapProcStateAutoMapper {
 public:
     SkBitmapProcStateAutoMapper(const SkBitmapProcState& s, int x, int y,
                                 SkPoint* scalarPoint = nullptr) {
-        SkPoint pt;
-        s.fInvProc(s.fInvMatrix,
-                   SkIntToScalar(x) + SK_ScalarHalf,
-                   SkIntToScalar(y) + SK_ScalarHalf, &pt);
+        SkPoint pt = s.fInvMatrix.mapPoint({
+            SkIntToScalar(x) + SK_ScalarHalf,
+            SkIntToScalar(y) + SK_ScalarHalf,
+        });
 
         SkFixed biasX = 0, biasY = 0;
         if (s.fBilerp) {
@@ -181,10 +172,10 @@ public:
         }
 
         // punt to unsigned for defined underflow behavior
-        fX = (SkFractionalInt)((uint64_t)SkScalarToFractionalInt(pt.x()) -
-                               (uint64_t)SkFixedToFractionalInt(biasX));
-        fY = (SkFractionalInt)((uint64_t)SkScalarToFractionalInt(pt.y()) -
-                               (uint64_t)SkFixedToFractionalInt(biasY));
+        fX = (SkFixed3232)((uint64_t)SkScalarToFixed3232(pt.x()) -
+                           (uint64_t)SkFixedToFixed3232(biasX));
+        fY = (SkFixed3232)((uint64_t)SkScalarToFixed3232(pt.y()) -
+                           (uint64_t)SkFixedToFixed3232(biasY));
 
         if (scalarPoint) {
             scalarPoint->set(pt.x() - SkFixedToScalar(biasX),
@@ -192,17 +183,17 @@ public:
         }
     }
 
-    SkFractionalInt fractionalIntX() const { return fX; }
-    SkFractionalInt fractionalIntY() const { return fY; }
+    SkFixed3232 fixed3232X() const { return fX; }
+    SkFixed3232 fixed3232Y() const { return fY; }
 
-    SkFixed fixedX() const { return SkFractionalIntToFixed(fX); }
-    SkFixed fixedY() const { return SkFractionalIntToFixed(fY); }
+    SkFixed fixedX() const { return SkFixed3232ToFixed(fX); }
+    SkFixed fixedY() const { return SkFixed3232ToFixed(fY); }
 
-    int intX() const { return SkFractionalIntToInt(fX); }
-    int intY() const { return SkFractionalIntToInt(fY); }
+    int intX() const { return SkFixed3232ToInt(fX); }
+    int intY() const { return SkFixed3232ToInt(fY); }
 
 private:
-    SkFractionalInt fX, fY;
+    SkFixed3232 fX, fY;
 };
 
 namespace sktests {

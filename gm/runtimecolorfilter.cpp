@@ -129,10 +129,10 @@ DEF_SIMPLE_GM(runtimecolorfilter_vertices_atlas_and_patch, canvas, 404, 404) {
     const SkRect r = SkRect::MakeWH(128, 128);
 
     // Make a vertices that draws the same as SkRect 'r'.
-    SkPoint pos[4];
-    r.toQuad(pos);
+    const std::array<SkPoint, 4> pos = r.toQuad();
     constexpr SkColor kColors[] = {SK_ColorBLUE, SK_ColorGREEN, SK_ColorCYAN, SK_ColorYELLOW};
-    auto verts = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, 4, pos, pos, kColors);
+    auto verts = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode, 4,
+                                      pos.data(), pos.data(), kColors);
 
     // Make an image from the vertices to do equivalent drawAtlas, drawPatch using an image shader.
     auto info = SkImageInfo::Make({128, 128},
@@ -184,10 +184,9 @@ DEF_SIMPLE_GM(runtimecolorfilter_vertices_atlas_and_patch, canvas, 404, 404) {
         SkPaint paint = makePaint(useCF, /*useShader=*/false);
         constexpr SkColor kColor = SK_ColorWHITE;
         canvas->drawAtlas(atlas.get(),
-                          &xform,
-                          &r,
-                          &kColor,
-                          1,
+                          {&xform, 1},
+                          {&r, 1},
+                          {&kColor, 1},
                           SkBlendMode::kModulate,
                           SkFilterMode::kNearest,
                           nullptr,
@@ -198,7 +197,7 @@ DEF_SIMPLE_GM(runtimecolorfilter_vertices_atlas_and_patch, canvas, 404, 404) {
         SkAutoCanvasRestore acr(canvas, true);
         canvas->translate(x, 0);
         SkPaint paint = makePaint(useCF, /*useShader=*/true);
-        canvas->drawPatch(cubics, nullptr, pos, SkBlendMode::kModulate, paint);
+        canvas->drawPatch(cubics, nullptr, pos.data(), SkBlendMode::kModulate, paint);
     };
 
     drawVertices(                0,  /*useCF=*/false, /*useShader=*/false);

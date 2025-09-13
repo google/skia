@@ -7,11 +7,15 @@ void draw(SkCanvas* canvas) {
     const SkRect dsts[] = { {0, 0, 0, 0}, {5, 6, 8, 9} };
     for (auto src : srcs) {
         for (auto dst : dsts) {
-             SkMatrix matrix = SkMatrix::RectToRect(src, dst);
-             SkDebugf("src: %g, %g, %g, %g  dst: %g, %g, %g, %g\n",
-                      src.fLeft, src.fTop, src.fRight, src.fBottom,
-                      dst.fLeft, dst.fTop, dst.fRight, dst.fBottom);
-             matrix.dump();
+             if (auto matrix = SkMatrix::Rect2Rect(src, dst)) {
+                SkDebugf("src: %g, %g, %g, %g  dst: %g, %g, %g, %g\n",
+                         src.fLeft, src.fTop, src.fRight, src.fBottom,
+                         dst.fLeft, dst.fTop, dst.fRight, dst.fBottom);
+                matrix->dump();
+            } else {
+                SkDebugf("can't map with src: %g %g %g %g\n",
+                         src.fLeft, src.fTop, src.fRight, src.fBottom);
+            }
         }
     }
 }

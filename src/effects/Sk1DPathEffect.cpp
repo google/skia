@@ -10,6 +10,7 @@
 #include "include/core/SkFlattenable.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkPoint.h"
@@ -31,7 +32,7 @@ struct SkRect;
 class Sk1DPathEffect : public SkPathEffectBase {
 public:
 protected:
-    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*,
+    bool onFilterPath(SkPathBuilder* builder, const SkPath& src, SkStrokeRec*, const SkRect*,
                       const SkMatrix&) const override {
         SkPathMeasure   meas(src, false);
         do {
@@ -39,7 +40,7 @@ protected:
             SkScalar    length = meas.getLength();
             SkScalar    distance = this->begin(length);
             while (distance < length && --governor >= 0) {
-                SkScalar delta = this->next(dst, distance, meas);
+                SkScalar delta = this->next(builder, distance, meas);
                 if (delta <= 0) {
                     break;
                 }
@@ -61,7 +62,7 @@ protected:
         Return the distance to travel for the next call. If return <= 0, then that
         contour is done.
     */
-    virtual SkScalar next(SkPath* dst, SkScalar dist, SkPathMeasure&) const = 0;
+    virtual SkScalar next(SkPathBuilder* dst, SkScalar dist, SkPathMeasure&) const = 0;
 
 private:
     // For simplicity, assume fast bounds cannot be computed
@@ -104,25 +105,30 @@ public:
         fStyle = style;
     }
 
-    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+    bool onFilterPath(SkPathBuilder* builder, const SkPath& src, SkStrokeRec* rec,
                       const SkRect* cullRect, const SkMatrix& ctm) const override {
         rec->setFillStyle();
-        return this->INHERITED::onFilterPath(dst, src, rec, cullRect, ctm);
+        return this->INHERITED::onFilterPath(builder, src, rec, cullRect, ctm);
     }
 
     SkScalar begin(SkScalar contourLength) const override {
         return fInitialOffset;
     }
 
-    SkScalar next(SkPath*, SkScalar, SkPathMeasure&) const override;
+    SkScalar next(SkPathBuilder*, SkScalar, SkPathMeasure&) const override;
 
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer& buffer) {
+        sk_sp<SkFlattenable> result;
+
         SkScalar advance = buffer.readScalar();
-        SkPath path;
-        buffer.readPath(&path);
-        SkScalar phase = buffer.readScalar();
-        SkPath1DPathEffect::Style style = buffer.read32LE(SkPath1DPathEffect::kLastEnum_Style);
-        return buffer.isValid() ? SkPath1DPathEffect::Make(path, advance, phase, style) : nullptr;
+        if (auto path = buffer.readPath()) {
+            SkScalar phase = buffer.readScalar();
+            SkPath1DPathEffect::Style style = buffer.read32LE(SkPath1DPathEffect::kLastEnum_Style);
+            if (buffer.isValid()) {
+                result = SkPath1DPathEffect::Make(*path, advance, phase, style);
+            }
+        }
+        return result;
     }
 
     void flatten(SkWriteBuffer& buffer) const override {
@@ -144,9 +150,10 @@ private:
     using INHERITED = Sk1DPathEffect;
 };
 
-static bool morphpoints(SkPoint dst[], const SkPoint src[], int count,
+static bool morphpoints(SkSpan<SkPoint> dst, SkSpan<const SkPoint> src,
                         SkPathMeasure& meas, SkScalar dist) {
-    for (int i = 0; i < count; i++) {
+    SkASSERT(dst.size() >= src.size());
+    for (size_t i = 0; i < src.size(); i++) {
         SkPoint pos;
         SkVector tangent;
 
@@ -164,7 +171,7 @@ static bool morphpoints(SkPoint dst[], const SkPoint src[], int count,
         matrix.setSinCos(tangent.fY, tangent.fX, 0, 0);
         matrix.preTranslate(-sx, 0);
         matrix.postTranslate(pos.fX, pos.fY);
-        matrix.mapPoints(&dst[i], &pt, 1);
+        dst[i] = matrix.mapPoint(pt);
     }
     return true;
 }
@@ -175,53 +182,52 @@ Need differentially more subdivisions when the follow-path is curvy. Not sure ho
 determine that, but we need it. I guess a cheap answer is let the caller tell us,
 but that seems like a cop-out. Another answer is to get Rob Johnson to figure it out.
 */
-static void morphpath(SkPath* dst, const SkPath& src, SkPathMeasure& meas,
+static void morphpath(SkPathBuilder* dst, const SkPath& src, SkPathMeasure& meas,
                       SkScalar dist) {
     SkPath::Iter    iter(src, false);
-    SkPoint         srcP[4], dstP[3];
-    SkPath::Verb    verb;
+    SkPoint         dstP[3], scratch[3];
 
-    while ((verb = iter.next(srcP)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                if (morphpoints(dstP, srcP, 1, meas, dist)) {
+    while (auto rec = iter.next()) {
+        SkSpan<const SkPoint> srcP = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kMove:
+                if (morphpoints(dstP, srcP, meas, dist)) {
                     dst->moveTo(dstP[0]);
                 }
                 break;
-            case SkPath::kLine_Verb:
-                srcP[2] = srcP[1];
-                srcP[1].set(SkScalarAve(srcP[0].fX, srcP[2].fX),
-                            SkScalarAve(srcP[0].fY, srcP[2].fY));
+            case SkPathVerb::kLine:
+                scratch[0] = srcP[0];
+                scratch[1].set(SkScalarAve(srcP[0].fX, srcP[1].fX),
+                               SkScalarAve(srcP[0].fY, srcP[1].fY));
+                scratch[2] = srcP[1];
+                srcP = scratch; // now we look like a quad
                 [[fallthrough]];
-            case SkPath::kQuad_Verb:
-                if (morphpoints(dstP, &srcP[1], 2, meas, dist)) {
+            case SkPathVerb::kQuad:
+                if (morphpoints(dstP, srcP.subspan(1), meas, dist)) {
                     dst->quadTo(dstP[0], dstP[1]);
                 }
                 break;
-            case SkPath::kConic_Verb:
-                if (morphpoints(dstP, &srcP[1], 2, meas, dist)) {
-                    dst->conicTo(dstP[0], dstP[1], iter.conicWeight());
+            case SkPathVerb::kConic:
+                if (morphpoints(dstP, srcP.subspan(1), meas, dist)) {
+                    dst->conicTo(dstP[0], dstP[1], rec->conicWeight());
                 }
                 break;
-            case SkPath::kCubic_Verb:
-                if (morphpoints(dstP, &srcP[1], 3, meas, dist)) {
+            case SkPathVerb::kCubic:
+                if (morphpoints(dstP, srcP.subspan(1), meas, dist)) {
                     dst->cubicTo(dstP[0], dstP[1], dstP[2]);
                 }
                 break;
-            case SkPath::kClose_Verb:
+            case SkPathVerb::kClose:
                 dst->close();
-                break;
-            default:
-                SkDEBUGFAIL("unknown verb");
                 break;
         }
     }
 }
 
-SkScalar SkPath1DPathEffectImpl::next(SkPath* dst, SkScalar distance,
+SkScalar SkPath1DPathEffectImpl::next(SkPathBuilder* builder, SkScalar distance,
                                       SkPathMeasure& meas) const {
 #if defined(SK_BUILD_FOR_FUZZER)
-    if (dst->countPoints() > 100000) {
+    if (builder->countPoints() > 100000) {
         return fAdvance;
     }
 #endif
@@ -229,17 +235,17 @@ SkScalar SkPath1DPathEffectImpl::next(SkPath* dst, SkScalar distance,
         case SkPath1DPathEffect::kTranslate_Style: {
             SkPoint pos;
             if (meas.getPosTan(distance, &pos, nullptr)) {
-                dst->addPath(fPath, pos.fX, pos.fY);
+                builder->addPath(fPath, pos.fX, pos.fY);
             }
         } break;
         case SkPath1DPathEffect::kRotate_Style: {
             SkMatrix matrix;
             if (meas.getMatrix(distance, &matrix)) {
-                dst->addPath(fPath, matrix);
+                builder->addPath(fPath, matrix);
             }
         } break;
         case SkPath1DPathEffect::kMorph_Style:
-            morphpath(dst, fPath, meas, distance);
+            morphpath(builder, fPath, meas, distance);
             break;
     }
     return fAdvance;

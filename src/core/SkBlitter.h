@@ -139,9 +139,7 @@ public:
     }
 
     ///@name non-virtual helpers
-#if defined(SK_SUPPORT_LEGACY_ALPHA_BITMAP_AS_COVERAGE)
     void blitMaskRegion(const SkMask& mask, const SkRegion& clip);
-#endif
     void blitRectRegion(const SkIRect& rect, const SkRegion& clip);
     void blitRegion(const SkRegion& clip);
     ///@}
@@ -155,7 +153,8 @@ public:
                              SkArenaAlloc*,
                              SkDrawCoverage,
                              sk_sp<SkShader> clipShader,
-                             const SkSurfaceProps& props);
+                             const SkSurfaceProps& props,
+                             const SkRect& devBounds);
 
     static SkBlitter* ChooseSprite(const SkPixmap& dst,
                                    const SkPaint&,

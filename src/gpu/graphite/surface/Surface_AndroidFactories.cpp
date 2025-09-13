@@ -15,6 +15,10 @@
 #include "include/gpu/graphite/BackendTexture.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/gpu/graphite/Surface.h"
+#include "src/gpu/graphite/Caps.h"
+#include "src/gpu/graphite/RecorderPriv.h"
+#include "src/gpu/graphite/TextureFormat.h"
+#include "src/gpu/graphite/TextureInfoPriv.h"
 
 #include <android/hardware_buffer.h>
 
@@ -65,8 +69,21 @@ sk_sp<SkSurface> WrapAndroidHardwareBuffer(Recorder* recorder,
         return nullptr;
     }
 
-    SkColorType colorType =
-            AHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
+    // Skia determines that the AHwBuf should be imported using an external format.
+    // In this case - even though we can never write to a texture using an external format - Skia
+    // validity checks will expect the usage of kExternalFormatColorType (see VulkanCaps's
+    // fExternalFormatColorTypeInfo), so enforce that here.
+    const bool textureUsesExternalFormat =
+            TextureInfoPriv::ViewFormat(backendTexture.info()) == TextureFormat::kExternal;
+    SkColorType colorType = textureUsesExternalFormat
+            ? AHardwareBufferUtils::kExternalFormatColorType
+            : AHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
+
+    // Ensure that we have not somehow ended up in a situation where the determined color type is
+    // incompatible with the texture's format.
+    SkASSERT(textureUsesExternalFormat ||
+             recorder->priv().caps()->areColorTypeAndTextureInfoCompatible(colorType,
+                                                                           backendTexture.info()));
 
     // Will call 'releaseP' if SkSurface creation fails.
     return SkSurfaces::WrapBackendTexture(recorder,

@@ -4,12 +4,11 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/graphite/DrawList.h"
 
-#include "src/gpu/BufferWriter.h"
+#include "include/core/SkTypes.h"
 #include "src/gpu/graphite/Renderer.h"
-#include "src/gpu/graphite/geom/Shape.h"
+#include "src/gpu/graphite/geom/Geometry.h"
 
 namespace skgpu::graphite {
 
@@ -28,7 +27,9 @@ void DrawList::recordDraw(const Renderer* renderer,
                           const Clip& clip,
                           DrawOrder ordering,
                           const PaintParams* paint,
-                          const StrokeStyle* stroke) {
+                          const StrokeStyle* stroke,
+                          bool dependsOnDst,
+                          bool dstReadReq) {
     SkASSERT(localToDevice.valid());
     SkASSERT(!geometry.isEmpty() && !clip.drawBounds().isEmptyNegativeOrNaN());
     SkASSERT(!(renderer->depthStencilFlags() & DepthStencilFlags::kStencil) ||
@@ -36,14 +37,14 @@ void DrawList::recordDraw(const Renderer* renderer,
 
     // TODO: Add validation that the renderer's expected shape type and stroke params match provided
 
-    fDraws.emplace_back(renderer, this->deduplicateTransform(localToDevice),
-                        geometry, clip, ordering, paint, stroke);
+    fDraws.emplace_back(renderer, this->deduplicateTransform(localToDevice), geometry, clip,
+                        ordering, paint, stroke, dependsOnDst, dstReadReq);
 
     // Accumulate renderer information for each draw added to this list
     fRenderStepCount += renderer->numRenderSteps();
     fRequiresMSAA |= renderer->requiresMSAA();
     fDepthStencilFlags |= renderer->depthStencilFlags();
-    if (paint && paint->dstReadRequired()) {
+    if (paint && dstReadReq) {
         // For paints that read from the dst, update the bounds. It may later be determined that the
         // DstReadStrategy does not require them, but they are inexpensive to track.
         fDstReadBounds.join(clip.drawBounds());

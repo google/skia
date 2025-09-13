@@ -153,7 +153,7 @@ static void check_readback(GrDirectContext* dContext, sk_sp<SkImage> img,
                            const SkColor4f& expectedColor,
                            skiatest::Reporter* reporter, const char* label) {
 #ifdef SK_BUILD_FOR_IOS
-    // reading back ETC2 is broken on Metal/iOS (skbug.com/9839)
+    // reading back ETC2 is broken on Metal/iOS (skbug.com/40041169)
     if (dContext->backend() == GrBackendApi::kMetal) {
       return;
     }
@@ -227,7 +227,7 @@ static std::unique_ptr<const char[]> make_compressed_data(SkTextureCompressionTy
 
     int numMipLevels = 1;
     if (mipmapped == skgpu::Mipmapped::kYes) {
-        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions) + 1;
     }
 
     TArray<size_t> mipMapOffsets(numMipLevels);

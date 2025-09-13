@@ -10,6 +10,7 @@
 #include "include/gpu/ShaderErrorHandler.h"
 #include "include/private/base/SkDebug.h"
 #include "src/sksl/SkSLCompiler.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/ir/SkSLProgram.h"
 #include "src/utils/SkShaderUtils.h"
 
@@ -19,12 +20,12 @@
 namespace skgpu {
 
 bool SkSLToBackend(const SkSL::ShaderCaps* caps,
-                   bool (*toBackend)(SkSL::Program&, const SkSL::ShaderCaps*, std::string*),
+                   bool (*toBackend)(SkSL::Program&, const SkSL::ShaderCaps*, SkSL::NativeShader*),
                    const char* backendLabel,
                    const std::string& sksl,
                    SkSL::ProgramKind programKind,
                    const SkSL::ProgramSettings& settings,
-                   std::string* output,
+                   SkSL::NativeShader* output,
                    SkSL::ProgramInterface* outInterface,
                    ShaderErrorHandler* errorHandler) {
 #ifdef SK_DEBUG
@@ -65,7 +66,12 @@ bool SkSLToBackend(const SkSL::ShaderCaps* caps,
         }
         if (printBackendSL) {
             SkDebugf("%s:\n", backendLabel);
-            SkShaderUtils::PrintLineByLine(*output);
+            if (output->isBinary()) {
+                const std::string asHex = SkShaderUtils::SpirvAsHexStream(output->fBinary);
+                SkShaderUtils::PrintLineByLine(asHex);
+            } else {
+                SkShaderUtils::PrintLineByLine(output->fText);
+            }
         }
     }
 

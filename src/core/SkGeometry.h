@@ -8,8 +8,10 @@
 #ifndef SkGeometry_DEFINED
 #define SkGeometry_DEFINED
 
+#include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkFloatingPoint.h"
 #include "src/base/SkVx.h"
@@ -318,11 +320,6 @@ SkCubicType SkClassifyCubic(const SkPoint p[4], double t[2] = nullptr, double s[
 
 ///////////////////////////////////////////////////////////////////////////////
 
-enum SkRotationDirection {
-    kCW_SkRotationDirection,
-    kCCW_SkRotationDirection
-};
-
 struct SkConic {
     SkConic() {}
     SkConic(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2, SkScalar w) {
@@ -410,7 +407,7 @@ struct SkConic {
     enum {
         kMaxConicsForArc = 5
     };
-    static int BuildUnitArc(const SkVector& start, const SkVector& stop, SkRotationDirection,
+    static int BuildUnitArc(const SkVector& start, const SkVector& stop, SkPathDirection,
                             const SkMatrix*, SkConic conics[kMaxConicsForArc]);
 };
 
@@ -529,11 +526,14 @@ public:
         return pts;
     }
 
-    const SkPoint* computeQuads(const SkPoint pts[3], SkScalar weight,
-                                SkScalar tol) {
+    const SkPoint* computeQuads(SkSpan<const SkPoint> pts, SkScalar weight, SkScalar tol) {
         SkConic conic;
-        conic.set(pts, weight);
+        conic.set(pts.data(), weight);
         return computeQuads(conic, tol);
+    }
+
+    const SkPoint* computeQuads(const SkPoint pts[3], SkScalar weight, SkScalar tol) {
+        return this->computeQuads({pts, 3}, weight, tol);
     }
 
     int countQuads() const { return fQuadCount; }

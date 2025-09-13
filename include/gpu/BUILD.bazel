@@ -6,19 +6,19 @@ package(
 
 licenses(["notice"])
 
+PUBLIC_HEADERS = [
+    "GpuTypes.h",
+    "MutableTextureState.h",
+    "ShaderErrorHandler.h",
+]
+
 skia_filegroup(
     name = "shared_gpu_hdrs",
-    srcs = [
-        "GpuTypes.h",
-        "MutableTextureState.h",
-        "ShaderErrorHandler.h",
-    ],
+    srcs = PUBLIC_HEADERS,
     visibility = ["//src/gpu:__subpackages__"],
 )
 
 generate_cpp_files_for_headers(
     name = "headers_to_compile",
-    headers = [
-        "MutableTextureState.h",
-    ],
+    headers = PUBLIC_HEADERS,
 )

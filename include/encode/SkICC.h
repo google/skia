@@ -26,7 +26,7 @@ SK_API sk_sp<SkData> SkWriteICCProfile(const skcms_ICCProfile*, const char* desc
 // Utility function for populating the grid_16 member of skcms_A2B and skcms_B2A
 // structures. This converts a point in XYZD50 to its representation in grid_16_lab.
 // It will write 6 bytes. The behavior of this function matches how skcms will decode
-// values, but might not match the specification, see https://crbug.com/skia/13807.
+// values, but might not match the specification, see skbug.com/40044907.
 SK_API void SkICCFloatXYZD50ToGrid16Lab(const float* float_xyz, uint8_t* grid16_lab);
 
 // Utility function for popluating the table_16 member of skcms_Curve structure.

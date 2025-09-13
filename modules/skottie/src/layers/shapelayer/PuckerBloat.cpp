@@ -80,16 +80,15 @@ private:
         };
 
         // Normalize all verbs to cubic representation.
-        SkPoint pts[4];
-        SkPath::Verb verb;
         SkPath::Iter iter(input, true);
-        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-            switch (verb) {
-                case SkPath::kMove_Verb:
+        while (auto rec = iter.next()) {
+            SkSpan<const SkPoint> pts = rec->fPoints;
+            switch (rec->fVerb) {
+                case SkPathVerb::kMove:
                     commit_contour();
                     contour_start = pts[0];
                     break;
-                case SkPath::kLine_Verb: {
+                case SkPathVerb::kLine: {
                     // Empirically, straight lines are treated as cubics with control points
                     // located length/100 away from extremities.
                     static constexpr float kCtrlPosFraction = 1.f / 100;
@@ -101,13 +100,14 @@ private:
                             line_end
                     });
                 } break;
-                case SkPath::kQuad_Verb:
-                    SkConvertQuadToCubic(pts, pts);
-                    cubics.push_back({pts[1], pts[2], pts[3]});
-                    break;
-                case SkPath::kConic_Verb: {
+                case SkPathVerb::kQuad: {
+                    SkPoint quad[4];
+                    SkConvertQuadToCubic(pts.data(), quad);
+                    cubics.push_back({quad[1], quad[2], quad[3]});
+                } break;
+                case SkPathVerb::kConic: {
                     // We should only ever encounter conics from circles/ellipses.
-                    SkASSERT(SkScalarNearlyEqual(iter.conicWeight(), SK_ScalarRoot2Over2));
+                    SkASSERT(SkScalarNearlyEqual(rec->conicWeight(), SK_ScalarRoot2Over2));
 
                     // http://spencermortensen.com/articles/bezier-circle/
                     static constexpr float kCubicCircleCoeff = 1 - 0.551915024494f;
@@ -122,13 +122,11 @@ private:
                         conic_end
                     });
                 } break;
-                case SkPath::kCubic_Verb:
+                case SkPathVerb::kCubic:
                     cubics.push_back({pts[1], pts[2], pts[3]});
                     break;
-                case SkPath::kClose_Verb:
+                case SkPathVerb::kClose:
                     commit_contour();
-                    break;
-                default:
                     break;
             }
         }

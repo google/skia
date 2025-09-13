@@ -56,9 +56,9 @@ sk_sp<SkTextBlob> MakeFancyBlob(const SkPaint& paint, const SkFont& font, const 
     const size_t textLen = strlen(text);
     const int glyphCount = font.countText(text, textLen, SkTextEncoding::kUTF8);
     AutoTArray<SkGlyphID> glyphs(glyphCount);
-    font.textToGlyphs(text, textLen, SkTextEncoding::kUTF8, glyphs.get(), glyphCount);
+    font.textToGlyphs(text, textLen, SkTextEncoding::kUTF8, glyphs);
     AutoTArray<SkScalar> widths(glyphCount);
-    font.getWidths(glyphs.get(), glyphCount, widths.get());
+    font.getWidths(glyphs, widths);
 
     SkTextBlobBuilder blobBuilder;
     int glyphIndex = 0;
@@ -151,31 +151,31 @@ DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-static sk_sp<SkTextBlob> make_text(const SkFont& font, const SkGlyphID glyphs[], int count) {
-    return SkTextBlob::MakeFromText(glyphs, count * sizeof(SkGlyphID), font,
+static sk_sp<SkTextBlob> make_text(const SkFont& font, SkSpan<const SkGlyphID> glyphs) {
+    return SkTextBlob::MakeFromText(glyphs.data(), glyphs.size() * sizeof(SkGlyphID), font,
                                     SkTextEncoding::kGlyphID);
 }
 
-static sk_sp<SkTextBlob> make_posh(const SkFont& font, const SkGlyphID glyphs[], int count,
+static sk_sp<SkTextBlob> make_posh(const SkFont& font, SkSpan<const SkGlyphID> glyphs,
                                    SkScalar spacing) {
+    const auto count = glyphs.size();
     AutoTArray<SkScalar> xpos(count);
-    font.getXPos(glyphs, count, xpos.get());
-    for (int i = 1; i < count; ++i) {
+    font.getXPos(glyphs, xpos);
+    for (size_t i = 1; i < count; ++i) {
         xpos[i] += spacing * i;
     }
-    return SkTextBlob::MakeFromPosTextH(glyphs, count * sizeof(SkGlyphID), xpos.get(), 0, font,
-                                        SkTextEncoding::kGlyphID);
+    return SkTextBlob::MakeFromPosHGlyphs(glyphs, {xpos.get(), count}, 0, font);
 }
 
-static sk_sp<SkTextBlob> make_pos(const SkFont& font, const SkGlyphID glyphs[], int count,
+static sk_sp<SkTextBlob> make_pos(const SkFont& font, SkSpan<const SkGlyphID> glyphs,
                                   SkScalar spacing) {
+    const auto count = glyphs.size();
     AutoTArray<SkPoint> pos(count);
-    font.getPos(glyphs, count, pos.get());
-    for (int i = 1; i < count; ++i) {
+    font.getPos(glyphs, pos);
+    for (size_t i = 1; i < count; ++i) {
         pos[i].fX += spacing * i;
     }
-    return SkTextBlob::MakeFromPosText(glyphs, count * sizeof(SkGlyphID), pos.get(), font,
-                                       SkTextEncoding::kGlyphID);
+    return SkTextBlob::MakeFromPosGlyphs(glyphs, pos, font);
 }
 
 // widen the gaps with a margin (on each side of the gap), elimnating segments that go away
@@ -245,15 +245,15 @@ DEF_SIMPLE_GM(textblob_intercepts, canvas, 940, 800) {
     font.setEdging(SkFont::Edging::kAntiAlias);
     const int count = font.countText(text, length, SkTextEncoding::kUTF8);
     AutoTArray<SkGlyphID> glyphs(count);
-    font.textToGlyphs(text, length, SkTextEncoding::kUTF8, glyphs.get(), count);
+    font.textToGlyphs(text, length, SkTextEncoding::kUTF8, glyphs);
 
-    auto b0 = make_text(font, glyphs.get(), count);
+    auto b0 = make_text(font, glyphs);
 
     canvas->translate(20, 120);
     draw_blob_adorned(canvas, b0);
     for (SkScalar spacing = 0; spacing < 30; spacing += 20) {
-        auto b1 = make_posh(font, glyphs.get(), count, spacing);
-        auto b2 = make_pos( font, glyphs.get(), count, spacing);
+        auto b1 = make_posh(font, glyphs, spacing);
+        auto b2 = make_pos( font, glyphs, spacing);
         canvas->translate(0, 150);
         draw_blob_adorned(canvas, b1);
         canvas->translate(0, 150);

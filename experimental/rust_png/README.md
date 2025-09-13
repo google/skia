@@ -12,11 +12,9 @@ https://docs.google.com/document/d/1glx5ue5JDlCld5WzWgTOGK3wsMErQFnkY5N5Dsbi91Y/
 
 To build and test the code from this directory from Chromium:
 
-1. `gn args out/...` and set `enable_rust_png = true`
 1. `autoninja -C out/... gfx_unittests blink_platform_unittests chrome`
-1. `out/.../gfx_unittests --gtest_filter=RustEnabled*`
-1. `out/.../blink_platform_unittests --gtest_filter=RustEnabled*`
-1. `out/.../chrome --enable-features=RustyPng`
+1. `out/.../gfx_unittests --gtest_filter=*PNG*`
+1. `out/.../blink_platform_unittests --gtest_filter=*PNG*`
 
 ## Skia build instructions
 

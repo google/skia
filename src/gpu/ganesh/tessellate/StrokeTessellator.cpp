@@ -155,6 +155,9 @@ void write_fixed_count_patches(StrokeWriter&& patchWriter,
             }
         }
     }
+
+    // Flush any last recorded contour
+    patchWriter.writeDeferredStrokePatch();
 }
 
 }  // namespace

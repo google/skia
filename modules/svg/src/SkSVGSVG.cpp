@@ -39,7 +39,7 @@ bool SkSVGSVG::onPrepareToRender(SkSVGRenderContext* ctx) const {
     auto contentMatrix = SkMatrix::Translate(viewPortRect.x(), viewPortRect.y());
     auto viewPort      = SkSize::Make(viewPortRect.width(), viewPortRect.height());
 
-    if (fViewBox.isValid()) {
+    if (fViewBox.has_value()) {
         const SkRect& viewBox = *fViewBox;
 
         // An empty viewbox disables rendering.
@@ -69,32 +69,32 @@ void SkSVGSVG::onSetAttribute(SkSVGAttribute attr, const SkSVGValue& v) {
     switch (attr) {
     case SkSVGAttribute::kX:
         if (const auto* x = v.as<SkSVGLengthValue>()) {
-            this->setX(*x);
+            this->setX(SkSVGLength(*x));
         }
         break;
     case SkSVGAttribute::kY:
         if (const auto* y = v.as<SkSVGLengthValue>()) {
-            this->setY(*y);
+            this->setY(SkSVGLength(*y));
         }
         break;
     case SkSVGAttribute::kWidth:
         if (const auto* w = v.as<SkSVGLengthValue>()) {
-            this->setWidth(*w);
+            this->setWidth(SkSVGLength(*w));
         }
         break;
     case SkSVGAttribute::kHeight:
         if (const auto* h = v.as<SkSVGLengthValue>()) {
-            this->setHeight(*h);
+            this->setHeight(SkSVGLength(*h));
         }
         break;
     case SkSVGAttribute::kViewBox:
         if (const auto* vb = v.as<SkSVGViewBoxValue>()) {
-            this->setViewBox(*vb);
+            this->setViewBox(SkSVGViewBoxType(*vb));
         }
         break;
     case SkSVGAttribute::kPreserveAspectRatio:
         if (const auto* par = v.as<SkSVGPreserveAspectRatioValue>()) {
-            this->setPreserveAspectRatio(*par);
+            this->setPreserveAspectRatio(SkSVGPreserveAspectRatio(*par));
         }
         break;
     default:

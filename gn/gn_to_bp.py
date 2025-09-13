@@ -191,6 +191,8 @@ gensrcs {
 
 cc_library_static {
     name: "libskia_skcms",
+    host_supported: true,
+    sdk_version: "current",
     srcs: [
         $skcms_srcs
     ],
@@ -313,7 +315,6 @@ cc_defaults {
     name: "skia_deps",
     defaults: ["skia_renderengine_deps"],
     shared_libs: [
-        "libdng_sdk",
         "libjpeg",
         "libpiex",
         "libexpat",
@@ -336,14 +337,23 @@ cc_defaults {
       android: {
         shared_libs: [
             "libmediandk", // Needed to link libcrabbyavif_ffi in some configurations.
+            "libdng_sdk",
         ],
         whole_static_libs: [
             "libcrabbyavif_ffi",
         ],
       },
+      host_linux: {
+        static_libs: [
+          "libdng_sdk",
+        ],
+      },
       darwin: {
         host_ldlibs: [
             "-framework AppKit",
+        ],
+        static_libs: [
+          "libdng_sdk",
         ],
       },
       windows: {
@@ -526,12 +536,11 @@ def generate_args(target_os, enable_gpu, renderengine = False):
     # files.
     'target_cpu':                           '"none"',
 
-    'skia_use_libheif':                     'false',
-
     # Use the custom FontMgr, as the framework will handle fonts.
     'skia_enable_fontmgr_custom_directory': 'false',
     'skia_enable_fontmgr_custom_embedded':  'false',
     'skia_enable_fontmgr_android':          'false',
+    'skia_enable_fontmgr_android_ndk':      'false',
     'skia_enable_fontmgr_win':              'false',
     'skia_enable_fontmgr_win_gdi':          'false',
     'skia_use_fonthost_mac':                'false',
@@ -642,12 +651,12 @@ nanobench_includes = strip_slashes(nanobench_target['include_dirs'])
 skcms_srcs = strip_slashes(js['targets']['//modules/skcms:skcms']['sources'])
 
 
-gn_to_bp_utils.GrabDependentValues(js, '//:gm', 'sources', gm_srcs, '//:skia')
-gn_to_bp_utils.GrabDependentValues(js, '//:tests', 'sources', test_srcs, '//:skia')
+gn_to_bp_utils.GrabDependentValues(js, '//:gm', 'sources', gm_srcs, ['//:skia', '//:pathops'])
+gn_to_bp_utils.GrabDependentValues(js, '//:tests', 'sources', test_srcs, ['//:skia', '//:pathops'])
 gn_to_bp_utils.GrabDependentValues(js, '//:dm', 'sources',
-                                   dm_srcs, ['//:skia', '//:gm', '//:tests'])
+                                   dm_srcs, ['//:skia', '//:gm', '//:tests', '//:pathops'])
 gn_to_bp_utils.GrabDependentValues(js, '//:nanobench', 'sources',
-                                   nanobench_srcs, ['//:skia', '//:gm'])
+                                   nanobench_srcs, ['//:skia', '//:gm', '//:pathops'])
 
 # skcms is a little special, kind of a second-party library.
 local_includes.add("modules/skcms")

@@ -10,11 +10,13 @@
 #include "modules/skshaper/include/SkShaper.h"
 #include "modules/skshaper/include/SkShaper_factory.h"
 
-#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
+#if defined(SK_SHAPER_UNICODE_AVAILABLE)
+#include "modules/skunicode/include/SkUnicode.h"
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE)
 #include "modules/skshaper/include/SkShaper_harfbuzz.h"
 #include "modules/skshaper/include/SkShaper_skunicode.h"
-#include "modules/skunicode/include/SkUnicode.h"
-#endif
+#endif  // defined(SK_SHAPER_HARFBUZZ_AVAILABLE)
+#endif  // defined(SK_SHAPER_UNICODE_AVAILABLE)
 
 #if defined(SK_SHAPER_CORETEXT_AVAILABLE)
 #include "modules/skshaper/include/SkShaper_coretext.h"
@@ -33,24 +35,32 @@
 #endif
 
 namespace SkShapers {
-#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
-class HarfbuzzFactory final : public Factory {
-public:
-    HarfbuzzFactory() {
+#if defined(SK_SHAPER_UNICODE_AVAILABLE)
+static inline sk_sp<SkUnicode> BestAvailableUnicode() {
+    sk_sp<SkUnicode> uc;
 #if defined(SK_UNICODE_ICU_IMPLEMENTATION)
-        fUnicode = SkUnicodes::ICU::Make();
+    uc = SkUnicodes::ICU::Make();
 #endif
 #if defined(SK_UNICODE_ICU4X_IMPLEMENTATION)
-        if (!fUnicode) {
-            fUnicode = SkUnicodes::ICU4X::Make();
-        }
+    if (!uc) {
+        uc = SkUnicodes::ICU4X::Make();
+    }
 #endif
 #if defined(SK_UNICODE_LIBGRAPHEME_IMPLEMENTATION)
-        if (!fUnicode) {
-            fUnicode = SkUnicodes::Libgrapheme::Make();
-        }
-#endif
+    if (!uc) {
+        uc = SkUnicodes::Libgrapheme::Make();
     }
+#endif
+    return uc;
+}
+
+#if defined(SK_SHAPER_HARFBUZZ_AVAILABLE)
+class HarfbuzzFactory final : public Factory {
+public:
+    HarfbuzzFactory(sk_sp<SkUnicode> uc = nullptr)
+        : fUnicode(uc ? std::move(uc) : BestAvailableUnicode())
+    {}
+
     std::unique_ptr<SkShaper> makeShaper(sk_sp<SkFontMgr> fallback) override {
         return SkShapers::HB::ShaperDrivenWrapper(fUnicode, fallback);
     }
@@ -72,7 +82,8 @@ public:
 private:
     sk_sp<SkUnicode> fUnicode;
 };
-#endif  // defined(SK_SHAPER_HARFBUZZ_AVAILABLE) && defined(SK_SHAPER_UNICODE_AVAILABLE)
+#endif  // defined(SK_SHAPER_HARFBUZZ_AVAILABLE)
+#endif  // defined(SK_SHAPER_UNICODE_AVAILABLE)
 
 #if defined(SK_SHAPER_CORETEXT_AVAILABLE)
 class CoreTextFactory final : public Factory {

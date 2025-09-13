@@ -8,6 +8,7 @@
 #ifndef SkShaderUtils_DEFINED
 #define SkShaderUtils_DEFINED
 
+#include "include/core/SkSpan.h"
 #include "include/private/base/SkDebug.h"
 
 #include <cstdint>
@@ -29,6 +30,9 @@ inline void PrintLineByLine(const std::string& text) {
         SkDebugf("%4i\t%s\n", lineNumber, lineText);
     });
 }
+
+// Prints binary shaders one line at the time. This ensures they don't get truncated by the adb log.
+std::string SpirvAsHexStream(SkSpan<const uint32_t> spirv);
 
 // Combines raw shader and error text into an easier-to-read error message with line numbers.
 std::string BuildShaderErrorMessage(const char* shader, const char* errors);

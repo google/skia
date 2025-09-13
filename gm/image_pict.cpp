@@ -276,8 +276,6 @@ protected:
     }
 
     bool makeCaches(SkCanvas* canvas) {
-        auto dContext = GrAsDirectContext(canvas->recordingContext());
-
         {
             auto gen = fFactory(canvas, fPicture);
             if (!gen) {
@@ -306,22 +304,15 @@ protected:
                 return false;
             }
 
-            if (dContext) {
-                 if (fUseTexture) {
-                    auto textureGen = std::unique_ptr<GrTextureGenerator>(
+            auto recorder = canvas->baseRecorder();
+            if (fUseTexture) {
+                auto textureGen = std::unique_ptr<GrTextureGenerator>(
                         static_cast<GrTextureGenerator*>(gen.release()));
-                    fImageSubset = SkImages::DeferredFromTextureGenerator(std::move(textureGen))
-                            ->makeSubset(dContext, subset);
-                } else {
-                    fImageSubset = SkImages::DeferredFromGenerator(std::move(gen))
-                            ->makeSubset(dContext, subset);
-                }
+                fImageSubset = SkImages::DeferredFromTextureGenerator(std::move(textureGen))
+                                       ->makeSubset(recorder, subset, {});
             } else {
-#if defined(SK_GRAPHITE)
-                auto recorder = canvas->recorder();
                 fImageSubset = SkImages::DeferredFromGenerator(std::move(gen))
                                        ->makeSubset(recorder, subset, {});
-#endif
             }
             if (!fImageSubset) {
                 return false;

@@ -12,6 +12,10 @@
 
 #include <Cocoa/Cocoa.h>
 
+// All of NSOpenGL is deprecated.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 namespace skwindow {
 
 static inline NSOpenGLPixelFormat* GetGLPixelFormat(int sampleCount) {
@@ -47,5 +51,7 @@ static inline NSOpenGLPixelFormat* GetGLPixelFormat(int sampleCount) {
 }
 
 }  // namespace skwindow
+
+#pragma clang diagnostic pop
 
 #endif

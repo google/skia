@@ -70,8 +70,8 @@
       }
     }
 
-    // Maybe use https://storage.googleapis.com/skia-cdn/google-web-fonts/NotoSans-Regular.ttf
-    const textFont = new CanvasKit.Font(null, 12);
+    // Maybe use https://cdn.skia.org/google-web-fonts/NotoSans-Regular.ttf
+    const textFont = new CanvasKit.Font(CanvasKit.Typeface.GetDefault(), 12);
 
     const choice = document.getElementById("numbers_impl");
 

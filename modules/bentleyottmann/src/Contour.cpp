@@ -14,38 +14,35 @@
 
 namespace contour {
 Contours Contours::Make(SkPath path) {
-    SkPoint pts[4];
     SkPath::Iter iter(path, false);
-    SkPath::Verb verb;
     Contours contours;
-    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kConic_Verb: {
+    while (auto rec = iter.next()) {
+        SkSpan<const SkPoint> pts = rec->fPoints;
+        switch (rec->fVerb) {
+            case SkPathVerb::kConic: {
                 SK_ABORT("Not implemented");
                 break;
             }
-            case SkPath::kMove_Verb:
+            case SkPathVerb::kMove:
                 contours.closeContourIfNeeded();
                 contours.moveToStartOfContour(pts[0]);
                 break;
-            case SkPath::kLine_Verb: {
+            case SkPathVerb::kLine: {
                 contours.addPointToCurrentContour(pts[1]);
                 break;
             }
-            case SkPath::kQuad_Verb: {
+            case SkPathVerb::kQuad: {
                 SK_ABORT("Not implemented");
                 break;
             }
-            case SkPath::kCubic_Verb: {
+            case SkPathVerb::kCubic: {
                 SK_ABORT("Not implemented");
                 break;
             }
-            case SkPath::kClose_Verb: {
+            case SkPathVerb::kClose: {
                 contours.closeContourIfNeeded();
                 break;
             }
-            case SkPath::kDone_Verb:
-                SK_ABORT("The while loop above failed.");
         }
     }
 

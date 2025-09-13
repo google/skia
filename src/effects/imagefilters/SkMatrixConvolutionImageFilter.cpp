@@ -94,7 +94,7 @@ private:
         // is unique in that it might not produce unbounded output, but we can't calculate the
         // fast bounds because the kernel is applied in device space and no transform is provided
         // with that API.
-        // TODO(skbug.com/14617): Accept a matrix in computeFastBounds() so that we can handle the
+        // TODO(skbug.com/40045519): Accept a matrix in computeFastBounds() so that we can handle the
         // layer-space kernel case.
 
         // That issue aside, a matrix convolution can affect transparent black when it has a
@@ -289,7 +289,7 @@ sk_sp<SkFlattenable> SkMatrixConvolutionImageFilter::CreateProc(SkReadBuffer& bu
         return nullptr;
     }
     AutoSTArray<16, SkScalar> kernel(count);
-    if (!buffer.readScalarArray(kernel.get(), count)) {
+    if (!buffer.readScalarArray(kernel)) {
         return nullptr;
     }
     SkScalar gain = buffer.readScalar();
@@ -320,7 +320,7 @@ void SkMatrixConvolutionImageFilter::flatten(SkWriteBuffer& buffer) const {
     this->SkImageFilter_Base::flatten(buffer);
     buffer.writeInt(fKernelSize.width());
     buffer.writeInt(fKernelSize.height());
-    buffer.writeScalarArray(fKernel.data(), fKernel.size());
+    buffer.writeScalarArray(fKernel);
     buffer.writeScalar(fGain);
     buffer.writeScalar(fBias);
     buffer.writeInt(fKernelOffset.x());

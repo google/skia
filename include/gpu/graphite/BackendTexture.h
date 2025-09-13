@@ -8,11 +8,14 @@
 #ifndef skgpu_graphite_BackendTexture_DEFINED
 #define skgpu_graphite_BackendTexture_DEFINED
 
-#include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
-#include "include/gpu/graphite/GraphiteTypes.h"
 #include "include/gpu/graphite/TextureInfo.h"
+#include "include/private/base/SkAPI.h"
 #include "include/private/base/SkAnySubclass.h"
+
+#include <cstddef>
+
+namespace skgpu { enum class BackendApi : unsigned int; }
 
 namespace skgpu::graphite {
 

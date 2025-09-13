@@ -350,7 +350,7 @@ bool Compiler::optimize(Program& program) {
                          program.fUsage.get());
 #endif
 
-        // Unreachable code can confuse some drivers, so it's worth removing. (skia:12012)
+        // Unreachable code can confuse some drivers, so it's worth removing. (skbug.com/40043094)
         Transform::EliminateUnreachableCode(program);
 
         while (Transform::EliminateDeadFunctions(program)) {

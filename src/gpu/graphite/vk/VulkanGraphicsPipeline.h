@@ -13,8 +13,10 @@
 #include "include/gpu/vk/VulkanTypes.h"
 #include "include/private/base/SkTArray.h"
 #include "src/gpu/Blend.h"
+#include "src/gpu/graphite/Attribute.h"
 #include "src/gpu/graphite/DrawTypes.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
+#include "src/gpu/graphite/Renderer.h"
 #include "src/gpu/graphite/vk/VulkanGraphiteUtils.h"
 #include "src/gpu/graphite/vk/VulkanSampler.h"
 
@@ -140,13 +142,35 @@ public:
         return fPipeline;
     }
 
+    // Returns null if the ith sampler is not an immutable sampler.
+    const VulkanSampler* immutableSampler(int i) const {
+        return fImmutableSamplers[i].get();
+    }
+
+    // Update any dynamic state (including none, if dynamic state is not available) that has changed
+    // since the previously bound Graphite pipeline.
+    void updateDynamicState(const VulkanSharedContext*,
+                            VkCommandBuffer commandBuffer,
+                            const VulkanGraphicsPipeline* previous) const;
+
 private:
+    using VertexInputBindingDescriptions =
+            skia_private::STArray<2, VkVertexInputBindingDescription2EXT>;
+    using VertexInputAttributeDescriptions =
+            skia_private::STArray<16, VkVertexInputAttributeDescription2EXT>;
+
     VulkanGraphicsPipeline(const VulkanSharedContext* sharedContext,
                            const PipelineInfo& pipelineInfo,
                            VkPipelineLayout,
                            VkPipeline,
+                           VkPipeline,
                            bool ownsPipelineLayout,
-                           skia_private::TArray<sk_sp<VulkanSampler>>&& immutableSamplers);
+                           skia_private::TArray<sk_sp<VulkanSampler>>&& immutableSamplers,
+                           RenderStep::RenderStepID renderStepID,
+                           PrimitiveType primitiveType,
+                           const DepthStencilSettings& depthStencilSettings,
+                           VertexInputBindingDescriptions&& vertexBindingDescriptions,
+                           VertexInputAttributeDescriptions&& vertexAttributeDescriptions);
 
     void freeGpuData() override;
 
@@ -160,16 +184,37 @@ private:
                                    VkVertexInputRate appendInputRate,
                                    SkSpan<const Attribute> staticAttrs,
                                    SkSpan<const Attribute> appendAttrs,
+                                   VertexInputBindingDescriptions& vertexBindingDescriptions,
+                                   VertexInputAttributeDescriptions& vertexAttributeDescriptions,
                                    const DepthStencilSettings&,
                                    const BlendInfo&,
-                                   const RenderPassDesc&);
+                                   const RenderPassDesc&,
+                                   VkPipeline*);
 
     VkPipelineLayout fPipelineLayout = VK_NULL_HANDLE;
     VkPipeline fPipeline = VK_NULL_HANDLE;
+    VkPipeline fShadersPipeline = VK_NULL_HANDLE;
     bool fOwnsPipelineLayout = true;
 
     // Hold a ref to immutable samplers used such that their lifetime is properly managed.
     const skia_private::TArray<sk_sp<VulkanSampler>> fImmutableSamplers;
+
+    // State that needs to be set dynamically.  When a new pipeline is bound, only the diff with the
+    // previous pipeline is set.  This is not optimal, and eventually the front-end should calculate
+    // this diff and set the state directly instead of the graphics pipeline tracking it, at which
+    // point these members can be removed (b/414645289).
+    //
+    // Render step ID is used to quickly determine if the vertex attribute description needs an
+    // update.  A few render steps have identical vertex attribute structures, so updating the
+    // vertex attribute descriptions on render step ID change can be slightly suboptimal.  This can
+    // be further optimized by having a "render step ID -> unique vertex attribute structure" table
+    // in the future.
+    PrimitiveType fPrimitiveType;
+    DepthStencilSettings fDepthStencilSettings;
+    RenderStep::RenderStepID fRenderStepID;
+    // The Vulkan vertex attribute descriptions are cached to avoid recomputing them every time.
+    VertexInputBindingDescriptions fVertexBindingDescriptions;
+    VertexInputAttributeDescriptions fVertexAttributeDescriptions;
 };
 
 } // namespace skgpu::graphite

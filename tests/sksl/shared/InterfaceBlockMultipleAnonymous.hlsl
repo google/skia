@@ -1,11 +1,11 @@
 cbuffer testBlockA : register(b1, space0)
 {
-    float2 _3_x : packoffset(c0);
+    float2 _7_x : packoffset(c0);
 };
 
 cbuffer testBlockB : register(b2, space0)
 {
-    float2 _8_y : packoffset(c0);
+    float2 _12_y : packoffset(c0);
 };
 
 
@@ -18,7 +18,7 @@ struct SPIRV_Cross_Output
 
 void frag_main()
 {
-    sk_FragColor = float4(_3_x, _8_y);
+    sk_FragColor = float4(_7_x, _12_y);
 }
 
 SPIRV_Cross_Output main()

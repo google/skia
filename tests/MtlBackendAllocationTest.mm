@@ -107,7 +107,7 @@ DEF_GANESH_TEST_FOR_METAL_CONTEXT(MtlBackendAllocationTest, reporter, ctxInfo) {
             continue;
         }
 
-        // skbug.com/9086 (Metal caps may not be handling RGBA32 correctly)
+        // skbug.com/40040379 (Metal caps may not be handling RGBA32 correctly)
         if (GrColorType::kRGBA_F32 == combo.fColorType) {
             continue;
         }

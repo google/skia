@@ -12,7 +12,7 @@
 #include "include/core/SkTypes.h"
 #include "include/effects/SkDashPathEffect.h"
 
-// Repro case for skia:7674.  Requires lots of RAM to run, and currently triggers UB:
+// Repro case for skbug.com/40038934.  Requires lots of RAM to run, and currently triggers UB:
 // //include/private/base/SkTDArray.h:382:26:
 //   runtime error: signed integer overflow: 2147483644 + 4 cannot be represented in type 'int'
 
@@ -21,7 +21,7 @@
     p.setAntiAlias(false);
     float intervals[] = { 0, 10e9f };
     p.setStyle(SkPaint::kStroke_Style);
-    p.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 0));
+    p.setPathEffect(SkDashPathEffect::Make(intervals, 0));
 
     int quadratic_at[] = {
         13, 68, 258, 1053, 1323, 2608, 10018, 15668, 59838, 557493, 696873, 871098, 4153813,

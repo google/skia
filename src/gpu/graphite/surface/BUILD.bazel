@@ -1,0 +1,15 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+# Filegroup for gni exporting
+skia_filegroup(
+    name = "android_srcs",
+    srcs = [
+        "Surface_AndroidFactories.cpp",
+    ],
+)

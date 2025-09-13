@@ -1,4 +1,4 @@
-RWByteAddressBuffer _8 : register(u0, space0);
+RWByteAddressBuffer _12 : register(u0, space0);
 
 static float4 gl_Position;
 static int gl_VertexIndex;
@@ -14,7 +14,7 @@ struct SPIRV_Cross_Output
 
 void vert_main()
 {
-    gl_Position = float4(asfloat(_8.Load2(gl_VertexIndex * 8 + 0)), 1.0f, 1.0f);
+    gl_Position = float4(asfloat(_12.Load2(gl_VertexIndex * 8 + 0)), 1.0f, 1.0f);
 }
 
 SPIRV_Cross_Output main(SPIRV_Cross_Input stage_input)

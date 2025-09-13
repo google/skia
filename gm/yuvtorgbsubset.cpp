@@ -34,7 +34,7 @@ namespace skiagm {
 //////////////////////////////////////////////////////////////////////////////
 
 // This GM tests subsetting YUV multiplanar images where the U and V
-// planes have different resolution from Y. See skbug:8959
+// planes have different resolution from Y. See skbug.com/40040241
 
 class YUVtoRGBSubsetEffect : public GM {
 public:
@@ -107,14 +107,9 @@ protected:
 
     void onGpuTeardown() override { fYUVImage.reset(); }
 
-    DrawResult onDraw(SkCanvas* canvas,
-                      SkString* errorMsg) override {
-        auto context = GrAsDirectContext(canvas->recordingContext());
-        skgpu::graphite::Recorder* recorder = nullptr;
-#if defined(SK_GRAPHITE)
-        recorder = canvas->recorder();
-#endif
-        if (!context && !recorder) {
+    DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
+        SkRecorder* recorder = canvas->baseRecorder();
+        if (!recorder) {
             *errorMsg = kErrorMsg_DrawSkippedGpuOnly;
             return DrawResult::kSkip;
         }
@@ -157,15 +152,7 @@ protected:
                 paint.setColor(SK_ColorBLACK);
                 canvas->drawRect(rect, paint);
                 if (subset) {
-                    sk_sp<SkImage> subsetImg;
-#if defined(SK_GRAPHITE)
-                    if (recorder) {
-                        subsetImg = fYUVImage->makeSubset(recorder, *subset, {false});
-                    } else
-#endif
-                    {
-                        subsetImg = fYUVImage->makeSubset(context, *subset);
-                    }
+                    sk_sp<SkImage> subsetImg = fYUVImage->makeSubset(recorder, *subset, {false});
                     SkASSERT(subsetImg);
                     paint.setShader(subsetImg->makeShader(tm, tm,
                                                           sampling, SkMatrix::Translate(2, 2)));

@@ -1,0 +1,33 @@
+load("//bazel:skia_rules.bzl", "skia_filegroup")
+
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
+skia_filegroup(
+    name = "private_hdrs",
+    srcs = [
+        "GLTestContext.h",
+    ] + select({
+        "@platforms//os:windows": ["//tools/ganesh/gl/win:private_hdrs"],
+        "//conditions:default": [],
+    }),
+    visibility = ["//tools/ganesh:__pkg__"],
+)
+
+skia_filegroup(
+    name = "srcs",
+    srcs = [
+        "GLTestContext.cpp",
+    ] + select({
+        "//bazel/common_config_settings:linux_x64": ["//tools/ganesh/gl/glx:srcs"],
+        "@platforms//os:android": ["//tools/ganesh/gl/egl:srcs"],
+        "@platforms//os:ios": ["//tools/ganesh/gl/iOS:srcs"],
+        "@platforms//os:macos": ["//tools/ganesh/gl/mac:srcs"],
+        "@platforms//os:windows": ["//tools/ganesh/gl/win:srcs"],
+        "//conditions:default": ["//tools/ganesh/gl/none:srcs"],
+    }),
+    visibility = ["//tools/ganesh:__pkg__"],
+)

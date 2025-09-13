@@ -69,6 +69,7 @@
 #include "src/gpu/ganesh/gl/builders/GrGLShaderStringBuilder.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/ir/SkSLProgram.h"
 
 #include <algorithm>
@@ -351,7 +352,7 @@ public:
     }
 
     void abandon() {
-        fSamplers.foreach([](uint32_t* key, Sampler* sampler) { sampler->abandon(); });
+        fSamplers.foreach([](const uint32_t* key, Sampler* sampler) { sampler->abandon(); });
         fTextureUnitStates.reset();
         fNumTextureUnits = 0;
     }
@@ -1262,7 +1263,7 @@ bool GrGLGpu::uploadCompressedTexData(SkTextureCompressionType compressionType,
 
     int numMipLevels = 1;
     if (mipmapped == skgpu::Mipmapped::kYes) {
-        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height())+1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions)+1;
     }
 
     this->unbindXferBuffer(GrGpuBufferType::kXferCpuToGpu);
@@ -1431,7 +1432,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                         GR_GL_COLOR_ATTACHMENT0,
                                         GR_GL_RENDERBUFFER,
                                         rtIDs->fMSColorRenderbufferID));
-// See skbug.com/12644
+// See skbug.com/40043725
 #if !IS_TSAN
         if (!this->glCaps().skipErrorChecks()) {
             GrGLenum status;
@@ -1459,7 +1460,7 @@ bool GrGLGpu::createRenderTargetObjects(const GrGLTexture::Desc& desc,
                                  desc.fTarget,
                                  desc.fID,
                                  0));
-// See skbug.com/12644
+// See skbug.com/40043725
 #if !IS_TSAN
     if (!this->glCaps().skipErrorChecks()) {
         GrGLenum status;
@@ -3372,7 +3373,7 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
     std::string fragmentSkSL{fshaderTxt.c_str(), fshaderTxt.size()};
 
     auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
-    std::string glsl[kGrShaderTypeCount];
+    SkSL::NativeShader glsl[kGrShaderTypeCount];
     SkSL::ProgramSettings settings;
     SkSL::Program::Interface interface;
     skgpu::SkSLToGLSL(shaderCaps, vertexSkSL, SkSL::ProgramKind::kVertex, settings,
@@ -3556,7 +3557,7 @@ bool GrGLGpu::createMipmapProgram(int progIdx) {
     std::string fragmentSkSL{fshaderTxt.c_str(), fshaderTxt.size()};
 
     auto errorHandler = this->getContext()->priv().getShaderErrorHandler();
-    std::string glsl[kGrShaderTypeCount];
+    SkSL::NativeShader glsl[kGrShaderTypeCount];
     SkSL::ProgramSettings settings;
     SkSL::Program::Interface interface;
 
@@ -3942,7 +3943,7 @@ GrBackendTexture GrGLGpu::onCreateBackendTexture(SkISize dimensions,
 
     int numMipLevels = 1;
     if (mipmapped == skgpu::Mipmapped::kYes) {
-        numMipLevels = SkMipmap::ComputeLevelCount(dimensions.width(), dimensions.height()) + 1;
+        numMipLevels = SkMipmap::ComputeLevelCount(dimensions) + 1;
     }
 
     // Compressed formats go through onCreateCompressedBackendTexture

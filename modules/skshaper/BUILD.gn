@@ -24,7 +24,7 @@ if (skia_enable_skshaper) {
     }
   }
 
-  component("skshaper") {
+  skia_component("skshaper") {
     check_includes = false
     public_configs = [ ":public_config" ]
     public = skia_shaper_public
@@ -55,7 +55,7 @@ if (skia_enable_skshaper) {
         "//third_party/harfbuzz",
       ]
     }
-    configs += [ "../../:skia_private" ]
+    configs = [ "../../:skia_private" ]
   }
 
   if (defined(is_skia_standalone) && skia_enable_tools) {

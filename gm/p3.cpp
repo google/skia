@@ -388,7 +388,7 @@ DEF_SIMPLE_GM(p3_ovals, canvas, 450, 320) {
         paint.setColor4f({ 1,0,0,1 }, p3.get());
         paint.setStyle(SkPaint::kStroke_Style);
         float intervals[] = { 70, 10 };
-        paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 0));
+        paint.setPathEffect(SkDashPathEffect::Make(intervals, 0));
         paint.setStrokeWidth(10);
 
         canvas->drawCircle(40, 40, 30, paint);

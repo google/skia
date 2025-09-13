@@ -1,5 +1,43 @@
+load("//bazel:skia_rules.bzl", "split_srcs_and_hdrs")
+
 package(
     default_applicable_licenses = ["//:license"],
 )
 
 licenses(["notice"])
+
+DAWN_FILES = [
+    "DawnAsyncWait.cpp",
+    "DawnAsyncWait.h",
+    "DawnBackendTexture.cpp",
+    "DawnBuffer.cpp",
+    "DawnBuffer.h",
+    "DawnCaps.cpp",
+    "DawnCaps.h",
+    "DawnCommandBuffer.cpp",
+    "DawnCommandBuffer.h",
+    "DawnComputePipeline.cpp",
+    "DawnComputePipeline.h",
+    "DawnErrorChecker.cpp",
+    "DawnErrorChecker.h",
+    "DawnGraphicsPipeline.cpp",
+    "DawnGraphicsPipeline.h",
+    "DawnGraphiteUtils.cpp",
+    "DawnGraphiteUtils.h",
+    "DawnQueueManager.cpp",
+    "DawnQueueManager.h",
+    "DawnResourceProvider.cpp",
+    "DawnResourceProvider.h",
+    "DawnSampler.cpp",
+    "DawnSampler.h",
+    "DawnSharedContext.cpp",
+    "DawnSharedContext.h",
+    "DawnTexture.cpp",
+    "DawnTexture.h",
+    "DawnTextureInfo.cpp",
+]
+
+split_srcs_and_hdrs(
+    name = "_dawn",
+    files = DAWN_FILES,
+)

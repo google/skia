@@ -57,6 +57,9 @@ sk_sp<VulkanSampler> VulkanSampler::Make(
         }
         SkUNREACHABLE;
     }();
+    if (ycbcrConversion && ycbcrConversion->requiredFilter().has_value()) {
+        minMagFilter = ycbcrConversion->requiredFilter().value();
+    }
 
     VkSamplerMipmapMode mipmapMode = [&] {
       switch (desc.samplingOptions().mipmap) {

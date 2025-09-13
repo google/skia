@@ -12,6 +12,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPathUtils.h"
@@ -61,6 +62,46 @@ static void test_big_aa_rect(skiatest::Reporter* reporter) {
         REPORTER_ASSERT(reporter, 0xFFFFFFFF == pixel[0]);
     } else {
         REPORTER_ASSERT(reporter, false, "readPixels failed");
+    }
+}
+
+/*
+ *  We check for finite paths (i.e. no coords that are Inf or NaN) before we try to
+ *  rasterize... except we (before) didn't check after we applied the CTM
+ *  (in SkDraw::drawPath). That could allow a (post-ctm) non-finite path down into
+ *  the scan-converters, which is not supported (e.g. we assume we can compute intermediate
+ *  values during clipping).
+ *
+ *  The fix was to check isFinite() after applying the CTM. With this, trying to draw
+ *  this path will assert (e.g. in SkLineClipper).
+ */
+static void test_big_hairpath(skiatest::Reporter* reporter) {
+    auto surf = SkSurfaces::Raster(SkImageInfo::MakeN32Premul(100, 100));
+    SkCanvas* canvas = surf->getCanvas();
+
+    // big, but still (barely) finite
+    constexpr float big = std::numeric_limits<float>::max() / 3;
+    const SkPoint pts[] = {
+        {0, 0}, {big, 20}, {20, big},
+    };
+    // big enough to turn 'big' into Inf
+    canvas->scale(4, 4);
+
+    // The makeToggleInverseFillType() is needed, as it allows us to skip-past the
+    // quickReject() logic in SkCanvas. The presence of an invere-fill skips those
+    // allowing the path to go down to SkDraw (where the CTM is applied).
+    //
+    // Other possible ways to skip that quickReject... imagefilter, some patheffects
+    //
+    SkPath path = SkPath::Polygon(pts, true)
+                  .makeToggleInverseFillType();
+
+    SkPaint paint;
+    paint.setStroke(true);
+    paint.setStrokeWidth(0);
+    for (bool aa : {false, true}) {
+        paint.setAntiAlias(aa);
+        canvas->drawPath(path, paint);
     }
 }
 
@@ -252,7 +293,7 @@ static void test_crbug_140642() {
      */
 
     const SkScalar vals[] = { 27734, 35660, 2157846850.0f, 247 };
-    auto dontAssert = SkDashPathEffect::Make(vals, 4, -248.135982067f);
+    auto dontAssert = SkDashPathEffect::Make(vals, -248.135982067f);
 }
 
 static void test_crbug_124652() {
@@ -262,7 +303,7 @@ static void test_crbug_124652() {
         large values can "swamp" small ones.
      */
     SkScalar intervals[2] = {837099584, 33450};
-    auto dontAssert = SkDashPathEffect::Make(intervals, 2, -10);
+    auto dontAssert = SkDashPathEffect::Make(intervals, -10);
 }
 
 static void test_bigcubic() {
@@ -341,14 +382,13 @@ static void test_infinite_dash(skiatest::Reporter* reporter) {
     path.lineTo(5000000, 0);
 
     SkScalar intervals[] = { 0.2f, 0.2f };
-    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 2, 0));
+    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 0));
 
-    SkPath filteredPath;
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setPathEffect(dash);
 
-    skpathutils::FillPathWithPaint(path, paint, &filteredPath);
+    (void)skpathutils::FillPathWithPaint(path, paint);
     // If we reach this, we passed.
     REPORTER_ASSERT(reporter, true);
 }
@@ -361,15 +401,15 @@ static void test_crbug_165432(skiatest::Reporter* reporter) {
     path.lineTo(10000000, 0);
 
     SkScalar intervals[] = { 0.5f, 0.5f };
-    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 2, 0));
+    sk_sp<SkPathEffect> dash(SkDashPathEffect::Make(intervals, 0));
 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setPathEffect(dash);
 
-    SkPath filteredPath;
+    SkPathBuilder filteredPath;
     SkStrokeRec rec(paint);
-    REPORTER_ASSERT(reporter, !dash->filterPath(&filteredPath, path, &rec, nullptr));
+    REPORTER_ASSERT(reporter, !dash->filterPath(&filteredPath, path, &rec));
     REPORTER_ASSERT(reporter, filteredPath.isEmpty());
 }
 
@@ -423,4 +463,5 @@ DEF_TEST(DrawPath, reporter) {
     test_crbug_1239558(reporter);
     test_big_aa_rect(reporter);
     test_halfway();
+    test_big_hairpath(reporter);
 }

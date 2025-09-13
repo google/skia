@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     paint.setStrokeCap(SkPaint::kSquare_Cap);
     float intervals[] = { 5, 21.75f };
     paint.setStyle(SkPaint::kStroke_Style);
-    paint.setPathEffect(SkDashPathEffect::Make(intervals, std::size(intervals), 0));
+    paint.setPathEffect(SkDashPathEffect::Make(intervals, 0));
     SkPath path;
     path.addRect({20, 20, 100, 100}, SkPathDirection::kCW);
     canvas->drawPath(path, paint);

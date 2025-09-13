@@ -20,6 +20,7 @@ namespace skgpu::graphite {
 
 class Context;
 class Device;
+class DrawContext;
 class Image;
 class Recorder;
 class TextureProxy;
@@ -90,6 +91,8 @@ public:
     sk_sp<Image> makeImageCopy(const SkIRect* subset, Mipmapped) const;
     TextureProxy* backingTextureProxy() const;
 
+    void flushToDrawContext(DrawContext*);
+
 private:
     // Regular and scratch surfaces differ by initial clear and if they are registered or not,
     // otherwise are constructed the same.
@@ -119,7 +122,6 @@ private:
 // work when looping in a benchmark, as the controlling code expects.
 void Flush(sk_sp<SkSurface> surface);
 void Flush(SkSurface* surface);
-
 } // namespace skgpu::graphite
 
 #endif // skgpu_graphite_Surface_Graphite_DEFINED

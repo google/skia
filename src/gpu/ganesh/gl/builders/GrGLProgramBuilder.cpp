@@ -36,10 +36,12 @@
 #include "src/gpu/ganesh/glsl/GrGLSLVertexGeoBuilder.h"
 #include "src/sksl/SkSLProgramKind.h"
 #include "src/sksl/SkSLProgramSettings.h"
+#include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/utils/SkShaderUtils.h"
 
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <utility>
 
 #define GL_CALL(X) GR_GL_CALL(this->gpu()->glInterface(), X)
@@ -103,7 +105,7 @@ const GrCaps* GrGLProgramBuilder::caps() const {
     return fGpu->caps();
 }
 
-bool GrGLProgramBuilder::compileAndAttachShaders(const std::string& glsl,
+bool GrGLProgramBuilder::compileAndAttachShaders(const SkSL::NativeShader& glsl,
                                                  GrGLuint programId,
                                                  GrGLenum type,
                                                  SkTDArray<GrGLuint>* shaderIds,
@@ -170,7 +172,7 @@ static constexpr SkFourByteTag kGLPB_Tag = SkSetFourByteTag('G', 'L', 'P', 'B');
 
 void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Interface& interface,
                                             GrGLuint programID,
-                                            const std::string shaders[],
+                                            const SkSL::NativeShader shaders[],
                                             bool isSkSL,
                                             SkSL::ProgramSettings* settings) {
     if (!this->gpu()->getContext()->priv().getPersistentCache()) {
@@ -212,8 +214,8 @@ void GrGLProgramBuilder::storeShaderInCache(const SkSL::Program::Interface& inte
             meta.fAttributeNames.emplace_back(attr.name());
         }
 
-        auto data = GrPersistentCacheUtils::PackCachedShaders(isSkSL ? kSKSL_Tag : kGLSL_Tag,
-                                                              shaders, &interface, 1, &meta);
+        auto data = GrPersistentCacheUtils::PackCachedShaders(
+                isSkSL ? kSKSL_Tag : kGLSL_Tag, shaders, &interface, 1, &meta);
         this->gpu()->getContext()->priv().getPersistentCache()->store(*key, *data, description);
     }
 }
@@ -254,12 +256,12 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
 
     bool cached = fCached.get() != nullptr;
     bool usedProgramBinaries = false;
-    std::string glsl[kGrShaderTypeCount];
+    SkSL::NativeShader glsl[kGrShaderTypeCount];
     const std::string* sksl[kGrShaderTypeCount] = {
         &fVS.fCompilerString,
         &fFS.fCompilerString,
     };
-    std::string cached_sksl[kGrShaderTypeCount];
+    SkSL::NativeShader cached_sksl[kGrShaderTypeCount];
     if (precompiledProgram) {
         // This is very similar to when we get program binaries. We even set that flag, as it's
         // used to prevent other compile work later, and to force re-querying uniform locations.
@@ -307,15 +309,16 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
 
             case kGLSL_Tag:
                 // Source cache hit, we don't need to compile the SkSL->GLSL
-                GrPersistentCacheUtils::UnpackCachedShaders(&reader, glsl, &interface, 1);
+                GrPersistentCacheUtils::UnpackCachedShaders(
+                        &reader, glsl, /*areShadersBinary=*/false, &interface, 1);
                 break;
 
             case kSKSL_Tag:
                 // SkSL cache hit, this should only happen in tools overriding the generated SkSL
                 if (GrPersistentCacheUtils::UnpackCachedShaders(
-                            &reader, cached_sksl, &interface, 1)) {
+                            &reader, cached_sksl, /*areShadersBinary=*/false, &interface, 1)) {
                     for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                        sksl[i] = &cached_sksl[i];
+                        sksl[i] = &cached_sksl[i].fText;
                     }
                 }
                 break;
@@ -336,7 +339,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         /*
            Fragment Shader
         */
-        if (glsl[kFragment_GrShaderType].empty()) {
+        if (glsl[kFragment_GrShaderType].fText.empty()) {
             // Don't have cached GLSL, need to compile SkSL->GLSL
             if (fFS.fForceHighPrecision) {
                 settings.fForceHighPrecision = true;
@@ -367,7 +370,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         /*
            Vertex Shader
         */
-        if (glsl[kVertex_GrShaderType].empty()) {
+        if (glsl[kVertex_GrShaderType].fText.empty()) {
             // Don't have cached GLSL, need to compile SkSL->GLSL
             SkSL::Program::Interface unusedInterface;
             if (!skgpu::SkSLToGLSL(this->gpu()->caps()->shaderCaps(),
@@ -416,7 +419,7 @@ sk_sp<GrGLProgram> GrGLProgramBuilder::finalize(const GrGLPrecompiledProgram* pr
         if (fGpu->getContext()->priv().options().fShaderCacheStrategy ==
                 GrContextOptions::ShaderCacheStrategy::kSkSL) {
             for (int i = 0; i < kGrShaderTypeCount; ++i) {
-                glsl[i] = SkShaderUtils::PrettyPrint(*sksl[i]);
+                glsl[i].fText = SkShaderUtils::PrettyPrint(*sksl[i]);
             }
             isSkSL = true;
         }
@@ -480,9 +483,10 @@ bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
     GrPersistentCacheUtils::ShaderMetadata meta;
     meta.fSettings = &settings;
 
-    std::string shaders[kGrShaderTypeCount];
+    SkSL::NativeShader shaders[kGrShaderTypeCount];
     SkSL::Program::Interface interface;
-    if (!GrPersistentCacheUtils::UnpackCachedShaders(&reader, shaders, &interface, 1, &meta)) {
+    if (!GrPersistentCacheUtils::UnpackCachedShaders(
+                &reader, shaders, /*areShadersBinary=*/false, &interface, 1, &meta)) {
         return false;
     }
 
@@ -495,7 +499,7 @@ bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
     SkTDArray<GrGLuint> shadersToDelete;
 
     auto compileShader = [&](SkSL::ProgramKind kind, const std::string& sksl, GrGLenum type) {
-        std::string glsl;
+        SkSL::NativeShader glsl;
         SkSL::Program::Interface unusedInterface;
         if (!skgpu::SkSLToGLSL(glGpu->caps()->shaderCaps(),
                                sksl,
@@ -522,10 +526,10 @@ bool GrGLProgramBuilder::PrecompileProgram(GrDirectContext* dContext,
     };
 
     if (!compileShader(SkSL::ProgramKind::kFragment,
-                       shaders[kFragment_GrShaderType],
+                       shaders[kFragment_GrShaderType].fText,
                        GR_GL_FRAGMENT_SHADER) ||
         !compileShader(SkSL::ProgramKind::kVertex,
-                       shaders[kVertex_GrShaderType],
+                       shaders[kVertex_GrShaderType].fText,
                        GR_GL_VERTEX_SHADER)) {
         cleanup_program(glGpu, programID, shadersToDelete);
         return false;

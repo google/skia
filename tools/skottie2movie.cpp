@@ -18,7 +18,7 @@
 
 #include "tools/CodecUtils.h"
 #include "tools/flags/CommandLineFlags.h"
-#include "tools/gpu/GrContextFactory.h"
+#include "tools/ganesh/GrContextFactory.h"
 
 #include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/gpu/ganesh/GrTypes.h"

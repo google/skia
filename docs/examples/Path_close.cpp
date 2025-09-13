@@ -8,7 +8,7 @@ void draw(SkCanvas* canvas) {
     paint.setStrokeCap(SkPaint::kRound_Cap);
     SkPath path;
     const SkPoint points[] = {{20, 20}, {70, 20}, {40, 90}};
-    path.addPoly(points, std::size(points), false);
+    path.addPoly(points, false);
     for (int loop = 0; loop < 2; ++loop) {
         for (auto style : {SkPaint::kStroke_Style, SkPaint::kFill_Style,
                 SkPaint::kStrokeAndFill_Style} ) {

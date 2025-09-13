@@ -153,8 +153,7 @@ void GetLocalBounds(const SkPath& path, const SkDrawShadowRec& rec, const SkMatr
                                                       rec.fLightPos.fZ, rec.fLightRadius,
                                                       &spotBlur, &spotScale, &spotOffset);
         } else {
-            SkPoint devLightPos = SkPoint::Make(rec.fLightPos.fX, rec.fLightPos.fY);
-            ctm.mapPoints(&devLightPos, 1);
+            SkPoint devLightPos = ctm.mapPoint({rec.fLightPos.fX, rec.fLightPos.fY});
             SkDrawShadowMetrics::GetSpotParams(occluderZ, devLightPos.fX, devLightPos.fY,
                                                rec.fLightPos.fZ, rec.fLightRadius,
                                                &spotBlur, &spotScale, &spotOffset);
@@ -172,9 +171,8 @@ void GetLocalBounds(const SkPath& path, const SkDrawShadowRec& rec, const SkMatr
                                                       rec.fLightPos.fZ, rec.fLightRadius,
                                                       &spotBlur, &spotScale, &spotOffset);
             // light dir is in device space, so need to map spot offset back into local space
-            SkMatrix inverse;
-            if (ctm.invert(&inverse)) {
-                inverse.mapVectors(&spotOffset, 1);
+            if (auto inverse = ctm.invert()) {
+                spotOffset = inverse->mapVector(spotOffset);
             }
         } else {
             SkDrawShadowMetrics::GetSpotParams(occluderZ, rec.fLightPos.fX, rec.fLightPos.fY,
@@ -205,9 +203,8 @@ void GetLocalBounds(const SkPath& path, const SkDrawShadowRec& rec, const SkMatr
     // if perspective, transform back to src space
     if (ctm.hasPerspective()) {
         // TODO: create tighter mapping from dev rect back to src rect
-        SkMatrix inverse;
-        if (ctm.invert(&inverse)) {
-            inverse.mapRect(bounds);
+        if (auto inverse = ctm.invert()) {
+            inverse->mapRect(bounds);
         }
     }
 }

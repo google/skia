@@ -12,8 +12,7 @@ void draw(SkCanvas* canvas) {
             "L 200 218 "
             "L 24 78 "
             "Z";
-    SkPath path;
-    SkParsePath::FromSVGString(pathString, &path);
+    SkPath path = SkParsePath::FromSVGString(pathString).value_or(SkPath());
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);

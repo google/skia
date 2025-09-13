@@ -131,17 +131,16 @@ static constexpr skcms_TransferFunction kRec2020 = {
         2.22222f, 0.909672f, 0.0903276f, 0.222222f, 0.0812429f, 0, 0};
 
 ////////////////////////////////////////////////////////////////////////////////
-// Color primaries defined by ITU-T H.273, table 3. Names are given by the first
-// specification referenced in the value's row.
+// Transfer function defined by ITU-T H.273, table 3. Names are given by the
+// first specification referenced in the value's row. The equations in table 3
+// "either indicates the reference [OETF] ... or indicates the inverse of the
+// reference EOTF". The transfer functions provided are reference EOTFs.
 
-// Rec. ITU-R BT.709-6, value 1.
-static constexpr skcms_TransferFunction kRec709 = {2.222222222222f,
-                                                   0.909672415686f,
-                                                   0.090327584314f,
-                                                   0.222222222222f,
-                                                   0.081242858299f,
-                                                   0.f,
-                                                   0.f};
+// Rec. ITU-R BT.709-6, value 1. This follows note 1, which reads: "In the cases
+// of [...] TransferCharacteristics equal to 1, 6, 14 or 15 [...], although the
+// value is defined in terms of a reference [OETF], a suggested corresponding
+// reference [EOTF] has been specified in Rec. ITU-R BT.1886-0."
+static constexpr skcms_TransferFunction kRec709 = {2.4f, 1.f, 0.f, 0.f, 0.f, 0.f, 0.f};
 
 // Rec. ITU-R BT.470-6 System M (historical) assumed display gamma 2.2, value 4.
 static constexpr skcms_TransferFunction kRec470SystemM = {2.2f, 1.f, 0.f, 0.f, 0.f, 0.f, 0.f};
@@ -175,7 +174,7 @@ static constexpr skcms_TransferFunction kRec2020_12bit = kRec709;
 
 // Rec. ITU-R BT.2100-2 perceptual quantization (PQ) system, value 16.
 static constexpr skcms_TransferFunction kPQ =
-    {-2.0f, -107/128.0f, 1.0f, 32/2523.0f, 2413/128.0f, -2392/128.0f, 8192/1305.0f };
+    {-5.0f, 203.f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
 // SMPTE ST 428-1, value 17.
 static constexpr skcms_TransferFunction kSMPTE_ST_428_1 = {
@@ -183,7 +182,7 @@ static constexpr skcms_TransferFunction kSMPTE_ST_428_1 = {
 
 // Rec. ITU-R BT.2100-2 hybrid log-gamma (HLG) system, value 18.
 static constexpr skcms_TransferFunction kHLG =
-    {-3.0f, 2.0f, 2.0f, 1/0.17883277f, 0.28466892f, 0.55991073f, 0.0f };
+    {-6.0f, 203.f, 1000.0f, 1.2f, 0.0f, 0.0f, 0.0f };
 
 // Mapping between transfer function names and the number of the corresponding
 // row in ITU-T H.273, table 3.  As above, the constants are named based on the

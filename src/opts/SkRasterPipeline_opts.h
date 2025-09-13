@@ -279,7 +279,7 @@ namespace SK_OPTS_NS {
     SI V<T> gather(const T* ptr, U32 ix) {
         // The compiler assumes ptr is aligned, which caused crashes on some
         // arm32 chips because a register was marked as "aligned to 32 bits"
-        // incorrectly. https://crbug.com/skia/409859319
+        // incorrectly. skbug.com/409859319
         SkASSERTF(reinterpret_cast<uintptr_t>(ptr) % alignof(T) == 0,
                  "Should use gather_unaligned");
         return V<T>{ptr[ix[0]], ptr[ix[1]], ptr[ix[2]], ptr[ix[3]]};
@@ -2846,6 +2846,17 @@ HIGHP_STAGE(HLGinvish, const skcms_TransferFunction* ctx) {
     b = fn(b);
 }
 
+HIGHP_STAGE(ootf, const float* ctx) {
+    F Y = ctx[0] * r + ctx[1] * g + ctx[2] * b;
+
+    U32 sign;
+    Y = strip_sign(Y, &sign);
+    F Y_to_gamma_minus_one = apply_sign(approx_powf(Y, ctx[3]), sign);
+    r = r * Y_to_gamma_minus_one;
+    g = g * Y_to_gamma_minus_one;
+    b = b * Y_to_gamma_minus_one;
+}
+
 HIGHP_STAGE(load_a8, const SkRasterPipelineContexts::MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<const uint8_t>(ctx, dx,dy);
 
@@ -5035,11 +5046,11 @@ HIGHP_STAGE(gauss_a_to_rgba, NoCtx) {
     b = a;
 }
 
-// A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
-HIGHP_STAGE(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx) {
+SI void bilerp_clamp_large(const SkRasterPipelineContexts::GatherCtx* ctx,
+                           F* r, F* g, F* b, F* a) {
     // (cx,cy) are the center of our sample.
-    F cx = r,
-      cy = g;
+    F cx = *r,
+      cy = *g;
 
     // All sample points are at the same fractional offset (fx,fy).
     // They're the 4 corners of a logical 1x1 pixel surrounding (x,y) at (0.5,0.5) offsets.
@@ -5047,7 +5058,7 @@ HIGHP_STAGE(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx) {
       fy = fract(cy + 0.5f);
 
     // We'll accumulate the color of all four samples into {r,g,b,a} directly.
-    r = g = b = a = F0;
+    *r = *g = *b = *a = F0;
 
     for (float py = -0.5f; py <= +0.5f; py += 1.0f)
     for (float px = -0.5f; px <= +0.5f; px += 1.0f) {
@@ -5070,11 +5081,22 @@ HIGHP_STAGE(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx) {
           sy = (py > 0) ? fy : 1.0f - fy,
           area = sx * sy;
 
-        r += sr * area;
-        g += sg * area;
-        b += sb * area;
-        a += sa * area;
+        *r += sr * area;
+        *g += sg * area;
+        *b += sb * area;
+        *a += sa * area;
     }
+}
+
+// A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
+HIGHP_STAGE(bilerp_clamp_8888, const SkRasterPipelineContexts::GatherCtx* ctx) {
+    bilerp_clamp_large(ctx, &r, &g, &b, &a);
+}
+
+// A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
+// This version exists to allow a shader to force high precision.
+HIGHP_STAGE(bilerp_clamp_8888_force_highp, const SkRasterPipelineContexts::GatherCtx* ctx) {
+    bilerp_clamp_large(ctx, &r, &g, &b, &a);
 }
 
 // A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
@@ -5981,7 +6003,7 @@ SI void store(T* ptr, V v) {
     SI V gather(const T* ptr, U32 ix) {
         // The compiler assumes ptr is aligned, which caused crashes on some
         // arm32 chips because a register was marked as "aligned to 32 bits"
-        // incorrectly. https://crbug.com/skia/409859319
+        // incorrectly. skbug.com/409859319
         SkASSERTF(reinterpret_cast<uintptr_t>(ptr) % alignof(T) == 0,
                  "Should use gather_unaligned");
         return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],

@@ -41,7 +41,7 @@
 #include "src/gpu/ganesh/gl/GrGLGpu.h"
 #include "src/gpu/ganesh/gl/GrGLUtil.h"
 #include "tests/CtsEnforcement.h"
-#include "tools/gpu/gl/GLTestContext.h"
+#include "tools/ganesh/gl/GLTestContext.h"
 
 struct GrContextOptions;
 

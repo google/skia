@@ -4,18 +4,25 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #include "src/gpu/graphite/ClipAtlasManager.h"
 
 #include "include/core/SkBitmap.h"
+#include "include/core/SkClipOp.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkSize.h"
 #include "include/gpu/graphite/Recorder.h"
-#include "include/private/base/SkFixed.h"
-#include "src/base/SkFloatBits.h"
-#include "src/gpu/graphite/AtlasProvider.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkMalloc.h"
+#include "include/private/base/SkPoint_impl.h"
+#include "include/private/base/SkTArray.h"
+#include "src/core/SkAutoPixmapStorage.h"
+#include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/ProxyCache.h"
 #include "src/gpu/graphite/RasterPathUtils.h"
 #include "src/gpu/graphite/RecorderPriv.h"
 #include "src/gpu/graphite/TextureProxy.h"
+#include "src/gpu/graphite/geom/Shape.h"
 
 namespace skgpu::graphite {
 

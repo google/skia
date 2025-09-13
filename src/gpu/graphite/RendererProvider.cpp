@@ -64,7 +64,7 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     initFromStep(&fConvexTessellatedWedges,
                  std::make_unique<TessellateWedgesRenderStep>(
                         RenderStep::RenderStepID::kTessellateWedges_Convex,
-                        infinitySupport, kDirectDepthGreaterPass, bufferManager),
+                        infinitySupport, kDirectDepthLessPass, bufferManager),
                  DrawTypeFlags::kNonSimpleShape);
     initFromStep(&fTessellatedStrokes,
                  std::make_unique<TessellateStrokesRenderStep>(infinitySupport),
@@ -107,23 +107,29 @@ RendererProvider::RendererProvider(const Caps* caps, StaticBufferManager* buffer
     initFromStep(&fNonAABoundsFill,
                  std::make_unique<CoverBoundsRenderStep>(
                         RenderStep::RenderStepID::kCoverBounds_NonAAFill,
-                        kDirectDepthGreaterPass),
+                        kDirectDepthLessPass),
                  DrawTypeFlags::kNonAAFillRect);
     initFromStep(&fCircularArc,
                  std::make_unique<CircularArcRenderStep>(bufferManager),
                  DrawTypeFlags::kCircularArc);
     initFromStep(&fAnalyticBlur,
                  std::make_unique<AnalyticBlurRenderStep>(),
-                 static_cast<DrawTypeFlags>(InternalDrawTypeFlags::kAnalyticBlur));
+                 DrawTypeFlags::kDropShadows);
 
     // vertices
     for (PrimitiveType primType : {PrimitiveType::kTriangles, PrimitiveType::kTriangleStrip}) {
         for (bool color : {false, true}) {
             for (bool texCoords : {false, true}) {
+                DrawTypeFlags dtFlags = DrawTypeFlags::kDrawVertices;
+                if (primType == PrimitiveType::kTriangles && color && !texCoords) {
+                    // Android uses this drawVertices combination for drop shadows
+                    dtFlags = static_cast<DrawTypeFlags>(dtFlags | DrawTypeFlags::kDropShadows);
+                }
+
                 int index = 4*(primType == PrimitiveType::kTriangleStrip) + 2*color + texCoords;
                 initFromStep(&fVertices[index],
                              std::make_unique<VerticesRenderStep>(primType, color, texCoords),
-                             DrawTypeFlags::kDrawVertices);
+                             dtFlags);
             }
         }
     }

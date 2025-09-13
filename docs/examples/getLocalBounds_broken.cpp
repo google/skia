@@ -10,7 +10,7 @@ void draw(SkCanvas* canvas) {
              bounds.fBottom);
     SkPoint clipPoints[] = {{30, 130}, {120, 130}, {120, 230}};
     SkPath clipPath;
-    clipPath.addPoly(clipPoints, std::size(clipPoints), true);
+    clipPath.addPoly(clipPoints, true);
     canvas->clipPath(clipPath);
     bounds = canvas->getLocalClipBounds();
     SkDebugf("left:%g  top:%g  right:%g  bottom:%g\n", bounds.fLeft, bounds.fTop, bounds.fRight,

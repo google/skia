@@ -21,6 +21,7 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkSerialProcs.h"
 #include "include/core/SkShader.h"
+#include "include/core/SkSpan.h"
 #include "include/private/base/SkAlign.h"
 #include "include/private/base/SkAssert.h"
 #include "src/core/SkBlenderBase.h"
@@ -35,6 +36,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 
 class SkBlender;
 class SkData;
@@ -122,7 +124,7 @@ public:
     void readRRect(SkRRect* rrect);
     void readRegion(SkRegion* region);
 
-    void readPath(SkPath* path);
+    std::optional<SkPath> readPath();
 
     SkPaint readPaint() {
         return SkPaintPriv::Unflatten(*this);
@@ -145,11 +147,11 @@ public:
 
     // binary data and arrays
     bool readByteArray(void* value, size_t size);
-    bool readColorArray(SkColor* colors, size_t size);
-    bool readColor4fArray(SkColor4f* colors, size_t size);
-    bool readIntArray(int32_t* values, size_t size);
-    bool readPointArray(SkPoint* points, size_t size);
-    bool readScalarArray(SkScalar* values, size_t size);
+    bool readColorArray(SkSpan<SkColor>);
+    bool readColor4fArray(SkSpan<SkColor4f>);
+    bool readIntArray(SkSpan<int32_t>);
+    bool readPointArray(SkSpan<SkPoint>);
+    bool readScalarArray(SkSpan<SkScalar>);
 
     const void* skipByteArray(size_t* size);
 

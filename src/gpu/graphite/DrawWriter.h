@@ -4,16 +4,27 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-
 #ifndef skgpu_graphite_DrawWriter_DEFINED
 #define skgpu_graphite_DrawWriter_DEFINED
 
+#include "include/private/base/SkAlign.h"
+#include "include/private/base/SkAssert.h"
+#include "include/private/base/SkContainers.h"
+#include "include/private/base/SkDebug.h"
+#include "include/private/base/SkTFitsIn.h"
+#include "include/private/base/SkTo.h"
 #include "src/base/SkAutoMalloc.h"
+#include "src/base/SkEnumBitMask.h"
 #include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/BufferManager.h"
 #include "src/gpu/graphite/DrawTypes.h"
+#include "src/gpu/graphite/ResourceTypes.h"
 
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
 #include <optional>
+#include <utility>
 
 namespace skgpu::graphite {
 
@@ -206,6 +217,10 @@ public:
         SkASSERT(indexCount > 0);
         this->bindAndFlush(vertices, indices, instances, indexCount, instanceCount);
     }
+
+#if defined(GPU_TEST_UTILS)
+    BindBufferInfo getLastAppendedBuffer() { return fAppend; }
+#endif
 
 private:
     // Both of these pointers must outlive the DrawWriter.

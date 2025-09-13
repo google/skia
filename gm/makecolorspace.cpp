@@ -125,7 +125,7 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
             sk_sp<SkImage> image565 =
                     image->makeColorTypeAndColorSpace(recorder, kRGB_565_SkColorType, rec2020, {});
             if (image565) {
-                if (!lazy || image565->isTextureBacked() || image565->makeRasterImage()) {
+                if (!lazy || image565->isTextureBacked() || image565->makeRasterImage(nullptr)) {
                     canvas->drawImage(image565, 128, 0);
                 }
             }
@@ -135,7 +135,7 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
             sk_sp<SkImage> imageGray = image->makeColorTypeAndColorSpace(
                     recorder, kGray_8_SkColorType, image->refColorSpace(), {});
             if (imageGray) {
-                if (!lazy || imageGray->isTextureBacked() || imageGray->makeRasterImage()) {
+                if (!lazy || imageGray->isTextureBacked() || imageGray->makeRasterImage(nullptr)) {
                     canvas->drawImage(imageGray, 256, 0);
                 }
             }
@@ -183,15 +183,17 @@ DEF_SIMPLE_GM_CAN_FAIL(reinterpretcolorspace, canvas, errorMsg, 128 * 3, 128 * 3
     // Lazy images
     canvas->drawImage(image, 0.0f, 0.0f);
     canvas->drawImage(image->reinterpretColorSpace(spin), 128.0f, 0.0f);
-    canvas->drawImage(image->makeColorSpace(nullptr, spin)->reinterpretColorSpace(srgb), 256.0f, 0.0f);
+    canvas->drawImage(
+            image->makeColorSpace(nullptr, spin, {})->reinterpretColorSpace(srgb), 256.0f, 0.0f);
 
     canvas->translate(0.0f, 128.0f);
 
     // Raster images
-    image = image->makeRasterImage();
+    image = image->makeRasterImage(nullptr);
     canvas->drawImage(image, 0.0f, 0.0f);
     canvas->drawImage(image->reinterpretColorSpace(spin), 128.0f, 0.0f);
-    canvas->drawImage(image->makeColorSpace(nullptr, spin)->reinterpretColorSpace(srgb), 256.0f, 0.0f);
+    canvas->drawImage(
+            image->makeColorSpace(nullptr, spin, {})->reinterpretColorSpace(srgb), 256.0f, 0.0f);
 
     canvas->translate(0.0f, 128.0f);
 

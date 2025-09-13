@@ -18,10 +18,10 @@
 #include "include/private/base/SkAssert.h"
 #include "include/private/base/SkDebug.h"
 #include "include/private/base/SkDeque.h"
-#include "src/base/SkTLazy.h"
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <utility>
 
 // Because a single save/restore state can have multiple clips, this class
@@ -138,7 +138,7 @@ public:
         bool isReplaceOp() const { return fIsReplace; }
 
         //!< Call to get the element as a path, regardless of its type.
-        void asDeviceSpacePath(SkPath* path) const;
+        SkPath asDeviceSpacePath() const;
 
         //!< Call if getType() is not kPath to get the element as a round rect.
         const SkRRect& asDeviceSpaceRRect() const {
@@ -149,9 +149,6 @@ public:
         /** If getType() is not kEmpty this indicates whether the clip shape should be anti-aliased
             when it is rasterized. */
         bool isAA() const { return fDoAA; }
-
-        //!< Inverts the fill of the clip shape. Note that a kEmpty element remains kEmpty.
-        void invertShapeFillType();
 
         /** The GenID can be used by clip stack clients to cache representations of the clip. The
             ID corresponds to the set of clip elements up to and including this element within the
@@ -192,7 +189,7 @@ public:
     private:
         friend class SkClipStack;
 
-        SkTLazy<SkPath> fDeviceSpacePath;
+        std::optional<SkPath> fDeviceSpacePath;
         SkRRect fDeviceSpaceRRect;
         sk_sp<SkShader> fShader;
         int fSaveCount;  // save count of stack when this element was added.

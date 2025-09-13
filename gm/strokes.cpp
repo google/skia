@@ -108,13 +108,18 @@ class ZeroLenStrokesGM : public skiagm::GM {
     SkPath fCubicPath, fQuadPath, fLinePath;
 protected:
     void onOnceBeforeDraw() override {
+        auto parse_assert_result = [](const char str[]) {
+            auto path = SkParsePath::FromSVGString(str);
+            SkAssertResult(path.has_value());
+            return *path;
+        };
 
-        SkAssertResult(SkParsePath::FromSVGString("M0,0h0M10,0h0M20,0h0", &fMoveHfPath));
-        SkAssertResult(SkParsePath::FromSVGString("M0,0zM10,0zM20,0z", &fMoveZfPath));
-        SkAssertResult(SkParsePath::FromSVGString("M0,0h25", &fDashedfPath));
-        SkAssertResult(SkParsePath::FromSVGString("M 0 0 C 0 0 0 0 0 0", &fCubicPath));
-        SkAssertResult(SkParsePath::FromSVGString("M 0 0 Q 0 0 0 0", &fQuadPath));
-        SkAssertResult(SkParsePath::FromSVGString("M 0 0 L 0 0", &fLinePath));
+        fMoveHfPath = parse_assert_result("M0,0h0M10,0h0M20,0h0");
+        fMoveZfPath = parse_assert_result("M0,0zM10,0zM20,0z");
+        fDashedfPath = parse_assert_result("M0,0h25");
+        fCubicPath = parse_assert_result("M 0 0 C 0 0 0 0 0 0");
+        fQuadPath = parse_assert_result("M 0 0 Q 0 0 0 0");
+        fLinePath = parse_assert_result("M 0 0 L 0 0");
 
         for (int i = 0; i < 3; ++i) {
             fRefPath[0].addCircle(i * 10.f, 0, 5);
@@ -145,9 +150,8 @@ protected:
             canvas->drawPath(fMoveZfPath, strokePaint);
             dashPaint = strokePaint;
             const SkScalar intervals[] = { 0, 10 };
-            dashPaint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 0));
-            SkPath fillPath;
-            skpathutils::FillPathWithPaint(fDashedfPath, dashPaint, &fillPath);
+            dashPaint.setPathEffect(SkDashPathEffect::Make(intervals, 0));
+            (void)skpathutils::FillPathWithPaint(fDashedfPath, dashPaint);
             canvas->translate(0, 20);
             canvas->drawPath(fDashedfPath, dashPaint);
             canvas->translate(0, 20);
@@ -413,8 +417,7 @@ protected:
                 strokePaint.setStrokeWidth(SK_Scalar1 * j * j);
                 canvas->drawPath(orig, strokePaint);
                 canvas->drawPath(orig, origPaint);
-                SkPath fill;
-                skpathutils::FillPathWithPaint(orig, strokePaint, &fill);
+                SkPath fill = skpathutils::FillPathWithPaint(orig, strokePaint);
                 canvas->drawPath(fill, fillPaint);
                 canvas->translate(dx + strokePaint.getStrokeWidth(), 0);
             }
@@ -449,7 +452,7 @@ private:
     using INHERITED = skiagm::GM;
 };
 
-// Test stroking for curves that produce degenerate tangents when t is 0 or 1 (see bug 4191)
+// Test stroking for curves that produce degenerate tangents when t is 0 or 1 (skbug.com/40035337)
 class Strokes5GM : public skiagm::GM {
 public:
     Strokes5GM() {}
@@ -520,7 +523,7 @@ DEF_SIMPLE_GM(zerolinedash, canvas, 256, 256) {
     paint.setStrokeJoin(SkPaint::kBevel_Join);
 
     SkScalar dash_pattern[] = {1, 5};
-    paint.setPathEffect(SkDashPathEffect::Make(dash_pattern, 2, 0));
+    paint.setPathEffect(SkDashPathEffect::Make(dash_pattern, 0));
 
     canvas->drawLine(100, 100, 100, 100, paint);
 }
@@ -557,7 +560,7 @@ DEF_SIMPLE_GM(longrect_dash, canvas, 250, 250) {
 
 DEF_SIMPLE_GM(inner_join_geometry, canvas, 1000, 700) {
     // These paths trigger cases where we must add inner join geometry.
-    // skbug.com/11964
+    // skbug.com/40043052
     const SkPoint pathPoints[] = {
         /*moveTo*/  /*lineTo*/  /*lineTo*/
         {119,  71}, {129, 151}, {230,  24},
@@ -583,11 +586,10 @@ DEF_SIMPLE_GM(inner_join_geometry, canvas, 1000, 700) {
 
     canvas->translate(0, 50);
     for (size_t i = 0; i < std::size(pathPoints) / 3; i++) {
-        auto path = SkPath::Polygon(pathPoints + i * 3, 3, false);
+        auto path = SkPath::Polygon({pathPoints + i * 3, 3}, false);
         canvas->drawPath(path, pathPaint);
 
-        SkPath fillPath;
-        skpathutils::FillPathWithPaint(path, pathPaint, &fillPath);
+        SkPath fillPath = skpathutils::FillPathWithPaint(path, pathPaint);
         canvas->drawPath(fillPath, skeletonPaint);
 
         canvas->translate(200, 0);

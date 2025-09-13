@@ -34,7 +34,7 @@ ComputeTask::~ComputeTask() = default;
 
 Task::Status ComputeTask::prepareResources(ResourceProvider* provider,
                                            ScratchResourceManager* scratchManager,
-                                           const RuntimeEffectDictionary* rtd) {
+                                           sk_sp<const RuntimeEffectDictionary> rtd) {
     for (auto& child : fChildTasks) {
         if (child) {
             Status status = child->prepareResources(provider, scratchManager, rtd);

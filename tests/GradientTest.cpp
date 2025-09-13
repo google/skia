@@ -490,10 +490,9 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
 
         for (const auto& config : gConfigs) {
             SkAutoCanvasRestore acr(canvas, false);
-            SkTLazy<SkMatrix> localMatrix;
+            std::optional<SkMatrix> localMatrix;
             if (config.fLocalMatrix) {
-                localMatrix.init();
-                localMatrix->set9(config.fLocalMatrix);
+                localMatrix.emplace().set9(config.fLocalMatrix);
             }
 
             paint.setShader(SkGradientShader::MakeLinear(config.fPts,
@@ -502,7 +501,7 @@ static void test_linear_fuzzer(skiatest::Reporter*) {
                                                          config.fCount,
                                                          config.fTileMode,
                                                          config.fFlags,
-                                                         localMatrix.getMaybeNull()));
+                                                         SkOptAddressOrNull(localMatrix)));
             if (config.fGlobalMatrix) {
                 SkMatrix m;
                 m.set9(config.fGlobalMatrix);

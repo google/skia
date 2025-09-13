@@ -185,7 +185,6 @@ struct ImmutableSamplerInfo {
     uint64_t fFormat = 0;
 };
 
-
 /**
  * Struct used to describe how a Texture/TextureProxy/TextureProxyView is sampled.
  */
@@ -220,6 +219,7 @@ struct SamplerDesc {
     }
     constexpr SamplerDesc() = default;
     constexpr SamplerDesc(const SamplerDesc&) = default;
+    constexpr SamplerDesc& operator=(const SamplerDesc&) = default;
 
 #if defined(GPU_TEST_UTILS)
     constexpr SamplerDesc(uint32_t desc, uint32_t format, uint32_t extFormatMSB)

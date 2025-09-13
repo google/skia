@@ -147,8 +147,8 @@ void TestTypeface::onFilterRec(SkScalerContextRec* rec) const {
     rec->setHinting(SkFontHinting::kNone);
 }
 
-void TestTypeface::getGlyphToUnicodeMap(SkUnichar* glyphToUnicode) const {
-    unsigned glyphCount = fTestFont->fCharCodesCount;
+void TestTypeface::getGlyphToUnicodeMap(SkSpan<SkUnichar> glyphToUnicode) const {
+    unsigned glyphCount = std::min(fTestFont->fCharCodesCount, glyphToUnicode.size());
     for (unsigned gid = 0; gid < glyphCount; ++gid) {
         glyphToUnicode[gid] = SkTo<SkUnichar>(fTestFont->fCharCodes[gid]);
     }
@@ -229,8 +229,9 @@ TestTypeface::Register::Register() {
 }
 static TestTypeface::Register registerer;
 
-void TestTypeface::onCharsToGlyphs(const SkUnichar* uni, int count, SkGlyphID glyphs[]) const {
-    for (int i = 0; i < count; ++i) {
+void TestTypeface::onCharsToGlyphs(SkSpan<const SkUnichar> uni, SkSpan<SkGlyphID> glyphs) const {
+    SkASSERT(uni.size() == glyphs.size());
+    for (size_t i = 0; i < uni.size(); ++i) {
         glyphs[i] = fTestFont->glyphForUnichar(uni[i]);
     }
 }
@@ -250,9 +251,9 @@ public:
     SkTestScalerContext(TestTypeface& face,
                         const SkScalerContextEffects& effects,
                         const SkDescriptor* desc)
-            : SkScalerContext(face, effects, desc) {
-        fRec.getSingleMatrix(&fMatrix);
-    }
+        : SkScalerContext(face, effects, desc)
+        , fMatrix(fRec.getSingleMatrix())
+    {}
 
 protected:
     TestTypeface* getTestTypeface() const {
@@ -263,7 +264,7 @@ protected:
         GlyphMetrics mx(glyph.maskFormat());
 
         SkPoint advance = this->getTestTypeface()->getAdvance(glyph.getGlyphID());
-        mx.advance = fMatrix.mapXY(advance.fX, advance.fY);
+        mx.advance = fMatrix.mapPoint(advance);
 
         // Always generates from paths, so SkScalerContext::makeGlyph will figure the bounds.
         mx.computeFromPath = true;
@@ -274,9 +275,11 @@ protected:
         this->generateImageFromPath(glyph, imageBuffer);
     }
 
-    bool generatePath(const SkGlyph& glyph, SkPath* path, bool* modified) override {
-        *path = this->getTestTypeface()->getPath(glyph.getGlyphID()).makeTransform(fMatrix);
-        return true;
+    std::optional<GeneratedPath> generatePath(const SkGlyph& glyph) override {
+        return {{
+            this->getTestTypeface()->getPath(glyph.getGlyphID()).makeTransform(fMatrix),
+            false
+        }};
     }
 
     void generateFontMetrics(SkFontMetrics* metrics) override {
@@ -285,7 +288,7 @@ protected:
     }
 
 private:
-    SkMatrix fMatrix;
+    const SkMatrix fMatrix;
 };
 
 std::unique_ptr<SkScalerContext> TestTypeface::onCreateScalerContext(

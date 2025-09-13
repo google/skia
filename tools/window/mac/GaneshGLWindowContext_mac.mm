@@ -22,6 +22,10 @@ using skwindow::DisplayParams;
 using skwindow::MacWindowInfo;
 using skwindow::internal::GLWindowContext;
 
+// All of NSOpenGL is deprecated.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 namespace {
 
 class GLWindowContext_mac : public GLWindowContext {
@@ -134,6 +138,8 @@ void GLWindowContext_mac::resize(int w, int h) {
 }
 
 }  // anonymous namespace
+
+#pragma clang diagnostic pop
 
 namespace skwindow {
 

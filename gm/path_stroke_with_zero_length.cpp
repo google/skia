@@ -156,8 +156,7 @@ static skiagm::DrawResult draw_zero_length_capped_paths(SkCanvas* canvas, bool a
                     pathStr.append(verb);
                 }
 
-                SkPath path;
-                SkParsePath::FromSVGString(pathStr.c_str(), &path);
+                SkPath path = SkParsePath::FromSVGString(pathStr.c_str()).value_or(SkPath());
 
                 surface->getCanvas()->clear(SK_ColorTRANSPARENT);
                 surface->getCanvas()->drawPath(path, paint);
@@ -231,8 +230,7 @@ static skiagm::DrawResult draw_zero_length_capped_paths_dbl_contour(SkCanvas* ca
                         ++expectedCaps;
                     }
 
-                    SkPath path;
-                    SkParsePath::FromSVGString(pathStr.c_str(), &path);
+                    SkPath path = SkParsePath::FromSVGString(pathStr.c_str()).value_or(SkPath());
 
                     surface->getCanvas()->clear(SK_ColorTRANSPARENT);
                     surface->getCanvas()->drawPath(path, paint);

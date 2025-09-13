@@ -31,7 +31,7 @@ static sk_sp<SkImage> make_image1() {
 
 static sk_sp<SkImage> make_image2() {
     return ToolUtils::GetResourceAsImage("images/brickwork-texture.jpg")
-            ->makeSubset(nullptr, {0, 0, 128, 128});
+            ->makeSubset(nullptr, {0, 0, 128, 128}, {});
 }
 
 namespace skiagm {

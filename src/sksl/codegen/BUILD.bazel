@@ -35,6 +35,10 @@ skia_filegroup(
     name = "codegen_shared_exported",
     srcs = [
         "SkSLCodeGenTypes.h",
+        "SkSLNativeShader.h",
+    ],
+    visibility = [
+        "//src/gpu:__pkg__",
     ],
 )
 
@@ -45,6 +49,7 @@ skia_cc_library(
     ],
     hdrs = [
         "SkSLPipelineStageCodeGenerator.h",
+        ":codegen_shared_exported",
     ],
     features = ["layering_check"],
     visibility = [
@@ -136,10 +141,12 @@ skia_cc_library(
         "SkSLSPIRVCodeGenerator.cpp",
         ":codegen_shared_priv",
         "//src/sksl:gpu_hdrs",
+        "//src/utils:shader_utils_srcs",
     ],
     hdrs = [
         "SkSLSPIRVCodeGenerator.h",
         ":codegen_shared_exported",
+        "//src/utils:shader_utils_hdrs",
     ],
     features = ["layering_check"],
     visibility = [

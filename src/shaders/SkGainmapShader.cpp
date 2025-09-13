@@ -118,8 +118,8 @@ sk_sp<SkShader> SkGainmapShader::Make(const sk_sp<const SkImage>& baseImage,
                     : baseColorSpace->makeLinearGamma();
 
     // Compute the sampling transformation matrices.
-    const SkMatrix baseRectToDstRect = SkMatrix::RectToRect(baseRect, dstRect);
-    const SkMatrix gainmapRectToDstRect = SkMatrix::RectToRect(gainmapRect, dstRect);
+    const SkMatrix baseRectToDstRect = SkMatrix::RectToRectOrIdentity(baseRect, dstRect);
+    const SkMatrix gainmapRectToDstRect = SkMatrix::RectToRectOrIdentity(gainmapRect, dstRect);
 
     // Compute the weight parameter that will be used to blend between the images.
     float W = 0.f;

@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	gcsBucketAndPrefix = "gs://skia-world-readable/bazel/"
+	gcsBucketAndPrefix = "gs://skia-cdn/bazel/"
 )
 
 func main() {
@@ -72,12 +72,12 @@ func main() {
 		if err := processOneDownload(workDir, *url, *sha256Hash, *addSuffix, *noSuffix); err != nil {
 			fatalf("Error while processing entry: %s", err)
 		}
-		fmt.Printf("https://storage.googleapis.com/skia-world-readable/bazel/%s%s%s\n", *sha256Hash, getSuffix(*url), *addSuffix)
+		fmt.Printf("https://cdn.skia.org/bazel/%s%s%s\n", *sha256Hash, getSuffix(*url), *addSuffix)
 	} else {
 		if err := processOneLocalFile(*file, *sha256Hash); err != nil {
 			fatalf("Error while processing entry: %s", err)
 		}
-		fmt.Printf("https://storage.googleapis.com/skia-world-readable/bazel/%s%s\n", *sha256Hash, getSuffix(*file))
+		fmt.Printf("https://cdn.skia.org/bazel/%s%s\n", *sha256Hash, getSuffix(*file))
 	}
 }
 

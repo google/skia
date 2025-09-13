@@ -64,7 +64,7 @@ private:
                                       const std::string& sksl,
                                       const SkSL::ProgramSettings& settings,
                                       SkSL::Program::Interface* outInterface,
-                                      std::string* outHLSL);
+                                      SkSL::NativeShader* outHLSL);
 
     GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
     const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
@@ -86,11 +86,18 @@ inline bool SkSLToHLSL(const SkSL::ShaderCaps* caps,
                        const std::string& sksl,
                        SkSL::ProgramKind programKind,
                        const SkSL::ProgramSettings& settings,
-                       std::string* hlsl,
+                       SkSL::NativeShader* hlsl,
                        SkSL::ProgramInterface* outInterface,
                        ShaderErrorHandler* errorHandler) {
-    return SkSLToBackend(caps, &SkSL::ToHLSL, "HLSL",
-                         sksl, programKind, settings, hlsl, outInterface, errorHandler);
+    return SkSLToBackend(caps,
+                         &SkSL::ToHLSL,
+                         "HLSL",
+                         sksl,
+                         programKind,
+                         settings,
+                         hlsl,
+                         outInterface,
+                         errorHandler);
 }
 
 }  // namespace skgpu

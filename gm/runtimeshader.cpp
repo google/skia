@@ -226,7 +226,7 @@ public:
 DEF_GM(return new SpiralRT;)
 
 // Test case for sampling with both unmodified input coordinates, and explicit coordinates.
-// The first version of skbug.com/11869 suffered a bug where all samples of a child were treated
+// The first version of skbug.com/40042955 suffered a bug where all samples of a child were treated
 // as pass-through if *at least one* used the unmodified coordinates. This was detected & tracked
 // in b/181092919. This GM is similar, and demonstrates the bug before the fix was applied.
 class UnsharpRT : public RuntimeShaderGM {
@@ -754,7 +754,7 @@ static sk_sp<SkShader> lit_shader_linear(sk_sp<SkShader> normals) {
 DEF_SIMPLE_GM(paint_alpha_normals_rt, canvas, 512,512) {
     // Various draws, with non-opaque paint alpha. This demonstrates several issues around how
     // paint alpha is applied differently on CPU (globally, after all shaders) and GPU (per shader,
-    // inconsistently). See: skbug.com/11942
+    // inconsistently). See: skbug.com/40043035
     //
     // When this works, it will be a demo of applying paint alpha to fade out a complex effect.
     auto draw_shader = [=](int x, int y, sk_sp<SkShader> shader) {
@@ -859,7 +859,7 @@ DEF_SIMPLE_GM(lit_shader_linear_rt, canvas, 512, 256) {
     canvas->drawImage(surface->makeImageSnapshot(), 0, 0);
 }
 
-// skbug.com/13598 GPU was double applying the local matrix.
+// skbug.com/40044685 GPU was double applying the local matrix.
 DEF_SIMPLE_GM(local_matrix_shader_rt, canvas, 256, 256) {
     SkString passthrough(R"(
         uniform shader s;

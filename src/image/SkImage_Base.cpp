@@ -18,7 +18,6 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkDebug.h"
 #include "src/core/SkBitmapCache.h"
-#include "src/core/SkColorSpacePriv.h"
 #include "src/image/SkRescaleAndReadPixels.h"
 
 #include <atomic>
@@ -77,25 +76,7 @@ bool SkImage_Base::onAsLegacyBitmap(GrDirectContext* dContext, SkBitmap* bitmap)
     return true;
 }
 
-sk_sp<SkImage> SkImage_Base::makeSubset(GrDirectContext* direct, const SkIRect& subset) const {
-    if (subset.isEmpty()) {
-        return nullptr;
-    }
-
-    const SkIRect bounds = SkIRect::MakeWH(this->width(), this->height());
-    if (!bounds.contains(subset)) {
-        return nullptr;
-    }
-
-    // optimization : return self if the subset == our bounds
-    if (bounds == subset) {
-        return sk_ref_sp(const_cast<SkImage_Base*>(this));
-    }
-
-    return this->onMakeSubset(direct, subset);
-}
-
-sk_sp<SkImage> SkImage_Base::makeSubset(skgpu::graphite::Recorder* recorder,
+sk_sp<SkImage> SkImage_Base::makeSubset(SkRecorder* recorder,
                                         const SkIRect& subset,
                                         RequiredProperties requiredProps) const {
     if (subset.isEmpty()) {
@@ -124,43 +105,8 @@ void SkImage_Base::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace,
     callback(context, nullptr);
 }
 
-sk_sp<SkImage> SkImage_Base::makeColorSpace(GrDirectContext* direct,
-                                            sk_sp<SkColorSpace> target) const {
-    return this->makeColorTypeAndColorSpace(direct, this->colorType(), std::move(target));
-}
-
 sk_sp<SkImage> SkImage_Base::makeColorSpace(SkRecorder* recorder,
                                             sk_sp<SkColorSpace> target,
                                             RequiredProperties props) const {
     return this->makeColorTypeAndColorSpace(recorder, this->colorType(), std::move(target), props);
-}
-
-sk_sp<SkImage> SkImage_Base::makeColorTypeAndColorSpace(GrDirectContext* dContext,
-                                                        SkColorType targetColorType,
-                                                        sk_sp<SkColorSpace> targetCS) const {
-    if (kUnknown_SkColorType == targetColorType || !targetCS) {
-        return nullptr;
-    }
-
-    SkColorType colorType = this->colorType();
-    SkColorSpace* colorSpace = this->colorSpace();
-    if (!colorSpace) {
-        colorSpace = sk_srgb_singleton();
-    }
-    if (colorType == targetColorType &&
-        (SkColorSpace::Equals(colorSpace, targetCS.get()) || this->isAlphaOnly())) {
-        return sk_ref_sp(const_cast<SkImage_Base*>(this));
-    }
-
-    return this->onMakeColorTypeAndColorSpace(targetColorType, std::move(targetCS), dContext);
-}
-
-sk_sp<SkImage> SkImage_Base::makeColorTypeAndColorSpace(SkRecorder* recorder,
-                                                        SkColorType ct,
-                                                        sk_sp<SkColorSpace> cs,
-                                                        RequiredProperties) const {
-    // Default to the ganesh version which should be backend agnostic if this
-    // image is, for example, a raster backed image. The graphite subclass overrides
-    // this method and things work correctly.
-    return this->makeColorTypeAndColorSpace(nullptr, ct, std::move(cs));
 }

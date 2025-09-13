@@ -11,7 +11,7 @@
 #include "include/private/base/SkMacros.h"
 #include "src/base/SkArenaAlloc.h"
 #include "src/core/SkBlitter.h"
-#include "src/core/SkDrawBase.h"
+#include "src/core/SkDraw.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkSurfacePriv.h"
 
@@ -22,19 +22,21 @@ class SkPixmap;
 class SkAutoBlitterChoose : SkNoncopyable {
 public:
     SkAutoBlitterChoose() {}
-    SkAutoBlitterChoose(const SkDrawBase& draw,
+    SkAutoBlitterChoose(const skcpu::Draw& draw,
                         const SkMatrix* ctm,
                         const SkPaint& paint,
+                        const SkRect& devBounds,
                         SkDrawCoverage drawCoverage = SkDrawCoverage::kNo) {
-        this->choose(draw, ctm, paint, drawCoverage);
+        this->choose(draw, ctm, paint, devBounds, drawCoverage);
     }
 
     SkBlitter*  operator->() { return fBlitter; }
     SkBlitter*  get() const { return fBlitter; }
 
-    SkBlitter* choose(const SkDrawBase& draw,
+    SkBlitter* choose(const skcpu::Draw& draw,
                       const SkMatrix* ctm,
                       const SkPaint& paint,
+                      const SkRect& devBounds,
                       SkDrawCoverage drawCoverage = SkDrawCoverage::kNo) {
         SkASSERT(!fBlitter);
         fBlitter = draw.fBlitterChooser(draw.fDst,
@@ -43,7 +45,8 @@ public:
                                         &fAlloc,
                                         drawCoverage,
                                         draw.fRC->clipShader(),
-                                        SkSurfacePropsCopyOrDefault(draw.fProps));
+                                        SkSurfacePropsCopyOrDefault(draw.fProps),
+                                        devBounds);
         return fBlitter;
     }
 

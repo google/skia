@@ -192,31 +192,26 @@ public:
         SkScalar srcSpaceTolSqd = srcSpaceTol * srcSpaceTol;
 
         SkPath::Iter iter(path, false);
-        SkPoint pts[4];
-
-        bool done = false;
-        while (!done) {
-            SkPath::Verb verb = iter.next(pts);
-            switch (verb) {
-                case SkPath::kMove_Verb:
+        while (auto rec = iter.next()) {
+            const SkPoint* pts = rec->fPoints.data();
+            switch (rec->fVerb) {
+                case SkPathVerb::kMove:
                     this->moveTo(pts[0]);
                     break;
-                case SkPath::kLine_Verb:
+                case SkPathVerb::kLine:
                     this->addLine(pts);
                     break;
-                case SkPath::kConic_Verb:
-                    this->addConic(iter.conicWeight(), pts, srcSpaceTolSqd, srcSpaceTol);
+                case SkPathVerb::kConic:
+                    this->addConic(rec->conicWeight(), pts, srcSpaceTolSqd, srcSpaceTol);
                     break;
-                case SkPath::kQuad_Verb:
+                case SkPathVerb::kQuad:
                     this->addQuad(pts, srcSpaceTolSqd, srcSpaceTol);
                     break;
-                case SkPath::kCubic_Verb:
+                case SkPathVerb::kCubic:
                     this->addCubic(pts, srcSpaceTolSqd, srcSpaceTol);
                     break;
-                case SkPath::kClose_Verb:
+                case SkPathVerb::kClose:
                     break;
-                case SkPath::kDone_Verb:
-                    done = true;
             }
         }
     }
@@ -225,11 +220,8 @@ public:
         bool first = true;
 
         SkPath::Iter iter(path, false);
-        SkPath::Verb verb;
-
-        SkPoint pts[4];
-        while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-            if (SkPath::kMove_Verb == verb && !first) {
+        while (auto rec = iter.next()) {
+            if (SkPathVerb::kMove == rec->fVerb && !first) {
                 return true;
             }
             first = false;
@@ -665,8 +657,7 @@ bool DefaultPathRenderer::internalDrawPath(skgpu::ganesh::SurfaceDrawContext* sd
     auto context = sdc->recordingContext();
 
     SkASSERT(GrAAType::kCoverage != aaType);
-    SkPath path;
-    shape.asPath(&path);
+    SkPath path = shape.asPath();
 
     SkScalar hairlineCoverage;
     uint8_t newCoverage = 0xff;
@@ -830,6 +821,14 @@ PathRenderer::CanDrawPath DefaultPathRenderer::onCanDrawPath(const CanDrawPathAr
     if (args.fCaps->avoidLineDraws() && isHairline) {
         return CanDrawPath::kNo;
     }
+
+    SkPath path = args.fShape->asPath();
+    int verbCount = path.countVerbs();
+    // Don't use this path renderer if we exceed the max verb count.
+    if (verbCount > kMaxGPUPathRendererVerbs) {
+        return CanDrawPath::kNo;
+    }
+
     // This is the fallback renderer for when a path is too complicated for the others to draw.
     return CanDrawPath::kAsBackup;
 }

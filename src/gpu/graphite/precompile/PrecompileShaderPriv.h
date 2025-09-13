@@ -30,11 +30,8 @@ public:
 
     int numCombinations() const { return fPrecompileShader->numCombinations(); }
 
-    void addToKey(const KeyContext& keyContext,
-                  PaintParamsKeyBuilder* builder,
-                  PipelineDataGatherer* gatherer,
-                  int desiredCombination) const {
-        fPrecompileShader->addToKey(keyContext, builder, gatherer, desiredCombination);
+    void addToKey(const KeyContext& keyContext, int desiredCombination) const {
+        fPrecompileShader->addToKey(keyContext, desiredCombination);
     }
 
 private:

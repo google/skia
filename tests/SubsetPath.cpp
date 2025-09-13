@@ -95,10 +95,10 @@ SubsetContours::SubsetContours(const SkPath& path)
 }
 
 SkPath SubsetContours::getSubsetPath() const {
-    SkPath result;
+    SkPathBuilder result;
     result.setFillType(fPath.getFillType());
     if (!fSelected.size()) {
-        return result;
+        return result.detach();
     }
     int contourCount = 0;
     bool enabled = fSelected[0];
@@ -143,10 +143,10 @@ SkPath SubsetContours::getSubsetPath() const {
                 continue;
             default:
                 SkDEBUGFAIL("bad verb");
-                return result;
+                return result.detach();
         }
     }
-    return result;
+    return result.detach();
 }
 
 SubsetVerbs::SubsetVerbs(const SkPath& path)
@@ -176,10 +176,10 @@ SubsetVerbs::SubsetVerbs(const SkPath& path)
 }
 
 SkPath SubsetVerbs::getSubsetPath() const {
-    SkPath result;
+    SkPathBuilder result;
     result.setFillType(fPath.getFillType());
     if (!fSelected.size()) {
-        return result;
+        return result.detach();
     }
     int verbIndex = 0;
     bool addMoveTo = true;
@@ -226,9 +226,9 @@ SkPath SubsetVerbs::getSubsetPath() const {
                 continue;
             default:
                 SkDEBUGFAIL("bad verb");
-                return result;
+                return result.detach();
         }
         addLineTo = !enabled;
     }
-    return result;
+    return result.detach();
 }

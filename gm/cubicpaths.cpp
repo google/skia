@@ -24,7 +24,7 @@
 #include "tools/ToolUtils.h"
 #include "tools/fonts/FontToolUtils.h"
 
-// https://bug.skia.org/1316 shows that this cubic, when slightly clipped, creates big
+// skbug.com/40032398 shows that this cubic, when slightly clipped, creates big
 // (incorrect) changes to its control points.
 class ClippedCubicGM : public skiagm::GM {
     SkString getName() const override { return SkString("clippedcubic"); }

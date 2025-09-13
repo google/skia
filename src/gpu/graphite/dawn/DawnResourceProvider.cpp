@@ -436,7 +436,7 @@ DawnResourceProvider::BlitWithDrawEncoder DawnResourceProvider::findOrCreateBlit
         static constexpr char kShaderSrc[] =
             "struct VertexOutput {"
                 "@builtin(position) position: vec4f,"
-                "@location(1) @interpolate(flat) srcOffset: vec2i,"
+                "@location(1) @interpolate(flat, either) srcOffset: vec2i,"
             "};"
             "var<private> fullscreenTriPositions : array<vec2<f32>, 3> = array<vec2<f32>, 3>("
                 "vec2(-1.0, -1.0), vec2(-1.0, 3.0), vec2(3.0, -1.0));"
