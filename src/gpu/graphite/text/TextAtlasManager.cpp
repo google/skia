@@ -283,7 +283,7 @@ bool TextAtlasManager::recordUploads(DrawContext* dc) {
 void TextAtlasManager::addGlyphToBulkAndSetUseToken(BulkUsePlotUpdater* updater,
                                                     MaskFormat format,
                                                     Glyph* glyph,
-                                                    AtlasToken token) {
+                                                    Token token) {
     SkASSERT(glyph);
     if (updater->add(glyph->fAtlasLocator)) {
         this->getAtlas(format)->setLastUseToken(glyph->fAtlasLocator, token);

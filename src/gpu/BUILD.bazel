@@ -45,6 +45,7 @@ SHARED_FILES = [
     "SwizzlePriv.h",
     "TiledTextureUtils.cpp",
     "TiledTextureUtils.h",
+    "Token.h",
 ]
 
 split_srcs_and_hdrs(

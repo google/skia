@@ -52,7 +52,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(
     SkASSERT(this->opsRenderPass());
 
     while (fCurrDraw != fDraws.end() && fCurrDraw->fOp == op) {
-        skgpu::AtlasToken drawToken = fTokenTracker->nextFlushToken();
+        skgpu::Token drawToken = fTokenTracker->nextFlushToken();
         while (fCurrUpload != fInlineUploads.end() &&
                fCurrUpload->fUploadBeforeToken == drawToken) {
             this->opsRenderPass()->inlineUpload(this, fCurrUpload->fUpload);
@@ -104,7 +104,7 @@ void GrOpFlushState::reset() {
     fASAPUploads.reset();
     fInlineUploads.reset();
     fDraws.reset();
-    fBaseDrawToken = skgpu::AtlasToken::InvalidToken();
+    fBaseDrawToken = skgpu::Token::InvalidToken();
 }
 
 void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload,
@@ -149,12 +149,12 @@ void GrOpFlushState::doUpload(GrDeferredTextureUploadFn& upload,
     upload(wp);
 }
 
-skgpu::AtlasToken GrOpFlushState::addInlineUpload(GrDeferredTextureUploadFn&& upload) {
+skgpu::Token GrOpFlushState::addInlineUpload(GrDeferredTextureUploadFn&& upload) {
     return fInlineUploads.append(&fArena, std::move(upload), fTokenTracker->nextDrawToken())
             .fUploadBeforeToken;
 }
 
-skgpu::AtlasToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& upload) {
+skgpu::Token GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& upload) {
     fASAPUploads.append(&fArena, std::move(upload));
     return fTokenTracker->nextFlushToken();
 }
@@ -169,7 +169,7 @@ void GrOpFlushState::recordDraw(
     SkDEBUGCODE(fOpArgs->validate());
     bool firstDraw = fDraws.begin() == fDraws.end();
     auto& draw = fDraws.append(&fArena);
-    skgpu::AtlasToken token = fTokenTracker->issueDrawToken();
+    skgpu::Token token = fTokenTracker->issueDrawToken();
     for (int i = 0; i < geomProc->numTextureSamplers(); ++i) {
         SkASSERT(geomProcProxies && geomProcProxies[i]);
         geomProcProxies[i]->ref();

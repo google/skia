@@ -133,7 +133,7 @@ public:
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
-    void setLastUseToken(const skgpu::AtlasLocator& atlasLocator, skgpu::AtlasToken token) {
+    void setLastUseToken(const skgpu::AtlasLocator& atlasLocator, skgpu::Token token) {
         SkASSERT(this->hasID(atlasLocator.plotLocator()));
         uint32_t plotIdx = atlasLocator.plotIndex();
         SkASSERT(plotIdx < fNumPlots);
@@ -147,7 +147,7 @@ public:
     uint32_t numActivePages() { return fNumActivePages; }
 
     void setLastUseTokenBulk(const skgpu::BulkUsePlotUpdater& updater,
-                             skgpu::AtlasToken token) {
+                             skgpu::Token token) {
         int count = updater.count();
         for (int i = 0; i < count; i++) {
             const skgpu::BulkUsePlotUpdater::PlotData& pd = updater.plotData(i);
@@ -161,7 +161,7 @@ public:
         }
     }
 
-    void compact(skgpu::AtlasToken startTokenForNextFlush);
+    void compact(skgpu::Token startTokenForNextFlush);
 
     void instantiate(GrOnFlushResourceProvider*);
 
@@ -227,7 +227,7 @@ private:
     uint64_t                      fAtlasGeneration;
 
     // nextFlushToken() value at the end of the previous flush
-    skgpu::AtlasToken fPrevFlushToken;
+    skgpu::Token fPrevFlushToken;
 
     // the number of flushes since this atlas has been last used
     int                   fFlushesSinceLastUse;

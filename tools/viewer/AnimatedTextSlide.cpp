@@ -20,6 +20,7 @@
 
 #if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
+#include "src/gpu/AtlasTypes.h"
 #include "src/gpu/ganesh/GrDirectContextPriv.h"
 
 using MaskFormat = skgpu::MaskFormat;

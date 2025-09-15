@@ -19,15 +19,14 @@
 #include "src/base/SkTInternalLList.h"
 #include "src/core/SkIPoint16.h"
 #include "src/gpu/RectanizerSkyline.h"
+#include "src/gpu/Token.h"
 
 #include <array>
 #include <cstdint>
 #include <cstring>
 #include <utility>
 
-class GrOpFlushState;
 class SkAutoPixmapStorage;
-class TestingUploadTarget;
 namespace skgpu::graphite { class RecorderPriv; }
 
 /**
@@ -143,90 +142,6 @@ public:
 
 private:
     uint64_t fGeneration{1};
-};
-
-/**
- * AtlasToken is used to sequence uploads relative to each other and to batches of draws.
- */
-class AtlasToken {
-public:
-    static AtlasToken InvalidToken() { return AtlasToken(0); }
-
-    AtlasToken(const AtlasToken&) = default;
-    AtlasToken& operator=(const AtlasToken&) = default;
-
-    bool operator==(const AtlasToken& that) const {
-        return fSequenceNumber == that.fSequenceNumber;
-    }
-    bool operator!=(const AtlasToken& that) const { return !(*this == that); }
-    bool operator<(const AtlasToken that) const {
-        return fSequenceNumber < that.fSequenceNumber;
-    }
-    bool operator<=(const AtlasToken that) const {
-        return fSequenceNumber <= that.fSequenceNumber;
-    }
-    bool operator>(const AtlasToken that) const {
-        return fSequenceNumber > that.fSequenceNumber;
-    }
-    bool operator>=(const AtlasToken that) const {
-        return fSequenceNumber >= that.fSequenceNumber;
-    }
-
-    AtlasToken& operator++() {
-        ++fSequenceNumber;
-        return *this;
-    }
-    AtlasToken operator++(int) {
-        auto old = fSequenceNumber;
-        ++fSequenceNumber;
-        return AtlasToken(old);
-    }
-
-    AtlasToken next() const { return AtlasToken(fSequenceNumber + 1); }
-
-    /** Is this token in the [start, end] inclusive interval? */
-    bool inInterval(const AtlasToken& start, const AtlasToken& end) {
-        return *this >= start && *this <= end;
-    }
-
-private:
-    AtlasToken() = delete;
-    explicit AtlasToken(uint64_t sequenceNumber) : fSequenceNumber(sequenceNumber) {}
-    uint64_t fSequenceNumber;
-};
-
-/**
- * The TokenTracker encapsulates the incrementing and distribution of AtlasTokens.
- */
-class TokenTracker {
-public:
-    /**
-     * Gets the token one beyond the last token that has been flushed,
-     * either in GrDrawingManager::flush() or Device::flushPendingWorkToRecorder()
-     */
-    AtlasToken nextFlushToken() const { return fCurrentFlushToken.next(); }
-
-    /**
-     * Gets the next draw token. This can be used to record that the next draw
-     * issued will use a resource (e.g. texture) while preparing that draw.
-     * Not used by Graphite.
-     */
-    AtlasToken nextDrawToken() const { return fCurrentDrawToken.next(); }
-
-private:
-    // Only these classes get to increment the token counters
-    friend class ::GrOpFlushState;
-    friend class ::TestingUploadTarget;
-    friend class skgpu::graphite::RecorderPriv;
-
-    // Issues the next token for a draw.
-    AtlasToken issueDrawToken() { return ++fCurrentDrawToken; }
-
-    // Advances the next token for a flush.
-    AtlasToken issueFlushToken() { return ++fCurrentFlushToken; }
-
-    AtlasToken fCurrentDrawToken = AtlasToken::InvalidToken();
-    AtlasToken fCurrentFlushToken = AtlasToken::InvalidToken();
 };
 
 /**
@@ -475,10 +390,10 @@ public:
      * use lastUse to determine when we can evict a plot from the cache, i.e. if the last use
      * has already flushed through the gpu then we can reuse the plot.
      */
-    skgpu::AtlasToken lastUploadToken() const { return fLastUpload; }
-    skgpu::AtlasToken lastUseToken() const { return fLastUse; }
-    void setLastUploadToken(skgpu::AtlasToken token) { fLastUpload = token; }
-    void setLastUseToken(skgpu::AtlasToken token) { fLastUse = token; }
+    skgpu::Token lastUploadToken() const { return fLastUpload; }
+    skgpu::Token lastUseToken() const { return fLastUse; }
+    void setLastUploadToken(skgpu::Token token) { fLastUpload = token; }
+    void setLastUseToken(skgpu::Token token) { fLastUse = token; }
 
     int flushesSinceLastUsed() { return fFlushesSinceLastUse; }
     void resetFlushesSinceLastUsed() { fFlushesSinceLastUse = 0; }
@@ -516,9 +431,9 @@ public:
 private:
     ~Plot() override;
 
-    skgpu::AtlasToken fLastUpload;
-    skgpu::AtlasToken fLastUse;
-    int               fFlushesSinceLastUse;
+    skgpu::Token fLastUpload;
+    skgpu::Token fLastUse;
+    int          fFlushesSinceLastUse;
 
     struct {
         const uint32_t fPageIndex : 16;

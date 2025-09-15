@@ -146,13 +146,12 @@ public:
     }
 
     /** To ensure the atlas does not evict a given entry, the client must set the last use token. */
-    void setLastUseToken(const AtlasLocator& atlasLocator, AtlasToken token) {
+    void setLastUseToken(const AtlasLocator& atlasLocator, Token token) {
         Plot* plot = this->findPlot(atlasLocator);
         this->internalSetLastUseToken(plot, atlasLocator.pageIndex(), token);
     }
 
-    void setLastUseTokenBulk(const BulkUsePlotUpdater& updater,
-                             AtlasToken token) {
+    void setLastUseTokenBulk(const BulkUsePlotUpdater& updater, Token token) {
         int count = updater.count();
         for (int i = 0; i < count; i++) {
             const BulkUsePlotUpdater::PlotData& pd = updater.plotData(i);
@@ -165,7 +164,7 @@ public:
         }
     }
 
-    void compact(AtlasToken startTokenForNextFlush);
+    void compact(Token startTokenForNextFlush);
 
     // Mark all plots with any content as full. Used only with Vello because it can't do
     // new renders to a texture without a clear.
@@ -173,7 +172,7 @@ public:
 
     // Will try to clear out any GPU resources that aren't needed for any pending uploads or draws.
     // TODO: Delete backing data for Plots that don't have pending uploads.
-    void freeGpuResources(AtlasToken token);
+    void freeGpuResources(Token token);
 
     void evictAllPlots();
 
@@ -233,7 +232,7 @@ private:
         return fPages[pageIdx].fPlotArray[plotIdx].get();
     }
 
-    void internalSetLastUseToken(Plot* plot, uint32_t pageIdx, AtlasToken token) {
+    void internalSetLastUseToken(Plot* plot, uint32_t pageIdx, Token token) {
         this->makeMRU(plot, pageIdx);
         plot->setLastUseToken(token);
     }
@@ -267,7 +266,7 @@ private:
 
     // nextFlushToken() value at the end of the previous DrawPass
     // TODO: rename
-    AtlasToken fPrevFlushToken;
+    Token fPrevFlushToken;
 
     // the number of flushes since this atlas has been last used
     // TODO: rename

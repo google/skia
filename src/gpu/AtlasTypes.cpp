@@ -17,8 +17,8 @@ namespace skgpu {
 
 Plot::Plot(int pageIndex, int plotIndex, AtlasGenerationCounter* generationCounter,
            int offX, int offY, int width, int height, SkColorType colorType, size_t bpp)
-        : fLastUpload(AtlasToken::InvalidToken())
-        , fLastUse(AtlasToken::InvalidToken())
+        : fLastUpload(Token::InvalidToken())
+        , fLastUse(Token::InvalidToken())
         , fFlushesSinceLastUse(0)
         , fPageIndex(pageIndex)
         , fPlotIndex(plotIndex)
@@ -161,8 +161,8 @@ void Plot::resetRects(bool freeData) {
     fRectanizer.reset();
     fGenID = fGenerationCounter->next();
     fPlotLocator = PlotLocator(fPageIndex, fPlotIndex, fGenID);
-    fLastUpload = AtlasToken::InvalidToken();
-    fLastUse = AtlasToken::InvalidToken();
+    fLastUpload = Token::InvalidToken();
+    fLastUse = Token::InvalidToken();
 
     if (freeData) {
         sk_free(fData);

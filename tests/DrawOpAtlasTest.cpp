@@ -98,12 +98,12 @@ public:
     const skgpu::TokenTracker* tokenTracker() final { return &fTokenTracker; }
     skgpu::TokenTracker* writeableTokenTracker() { return &fTokenTracker; }
 
-    skgpu::AtlasToken addInlineUpload(GrDeferredTextureUploadFn&&) final {
+    skgpu::Token addInlineUpload(GrDeferredTextureUploadFn&&) final {
         SkASSERT(0); // this test shouldn't invoke this code path
         return fTokenTracker.nextDrawToken();
     }
 
-    skgpu::AtlasToken addASAPUpload(GrDeferredTextureUploadFn&& upload) final {
+    skgpu::Token addASAPUpload(GrDeferredTextureUploadFn&& upload) final {
         return fTokenTracker.nextFlushToken();
     }
 
