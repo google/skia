@@ -13,6 +13,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -50,10 +51,11 @@ protected:
     SkISize getISize() override { return SkISize::Make(720, 550); }
 
     void onOnceBeforeDraw() override {
-        SkPath tri;
-        tri.moveTo(5.f, 5.f);
-        tri.lineTo(100.f, 20.f);
-        tri.lineTo(15.f, 100.f);
+        SkPath tri = SkPathBuilder()
+                     .moveTo(5.f, 5.f)
+                     .lineTo(100.f, 20.f)
+                     .lineTo(15.f, 100.f)
+                     .detach();
 
         fPaths.push_back(tri);
         fPaths.emplace_back();
@@ -62,7 +64,7 @@ protected:
         tri.close();
         fPaths.push_back(tri);
 
-        SkPath ngon;
+        SkPathBuilder ngon;
         constexpr SkScalar kRadius = 50.f;
         const SkPoint center = { kRadius, kRadius };
         for (int i = 0; i < GrConvexPolyEffect::kMaxEdges; ++i) {
@@ -77,16 +79,11 @@ protected:
             }
         }
 
-        fPaths.push_back(ngon);
-        SkMatrix scaleM;
-        scaleM.setScale(1.1f, 0.4f);
-        ngon.transform(scaleM);
-        fPaths.push_back(ngon);
+        SkPath path = ngon.detach();
+        fPaths.push_back(path);
+        fPaths.push_back(path.makeTransform(SkMatrix::Scale(1.1f, 0.4f)));
 
-        SkPath linePath;
-        linePath.moveTo(5.f, 5.f);
-        linePath.lineTo(6.f, 6.f);
-        fPaths.push_back(linePath);
+        fPaths.push_back(SkPath::Line({5.f, 5.f}, {6.f, 6.f}));
     }
 
     DrawResult onDraw(GrRecordingContext* rContext, SkCanvas* canvas, SkString* errorMsg) override {

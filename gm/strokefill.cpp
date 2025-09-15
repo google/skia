@@ -22,16 +22,17 @@
 #include "tools/ToolUtils.h"
 
 DEF_SIMPLE_GM(bug339297, canvas, 640, 480) {
-    SkPath path;
-    path.moveTo(-469515, -10354890);
-    path.cubicTo(771919.62f, -10411179, 2013360.1f, -10243774, 3195542.8f, -9860664);
-    path.lineTo(3195550, -9860655);
-    path.lineTo(3195539, -9860652);
-    path.lineTo(3195539, -9860652);
-    path.lineTo(3195539, -9860652);
-    path.cubicTo(2013358.1f, -10243761, 771919.25f, -10411166, -469513.84f, -10354877);
-    path.lineTo(-469515, -10354890);
-    path.close();
+    SkPath path = SkPathBuilder()
+                  .moveTo(-469515, -10354890)
+                  .cubicTo(771919.62f, -10411179, 2013360.1f, -10243774, 3195542.8f, -9860664)
+                  .lineTo(3195550, -9860655)
+                  .lineTo(3195539, -9860652)
+                  .lineTo(3195539, -9860652)
+                  .lineTo(3195539, -9860652)
+                  .cubicTo(2013358.1f, -10243761, 771919.25f, -10411166, -469513.84f, -10354877)
+                  .lineTo(-469515, -10354890)
+                  .close()
+                  .detach();
 
     canvas->translate(258, 10365663);
 
@@ -48,16 +49,17 @@ DEF_SIMPLE_GM(bug339297, canvas, 640, 480) {
 }
 
 DEF_SIMPLE_GM(bug339297_as_clip, canvas, 640, 480) {
-    SkPath path;
-    path.moveTo(-469515, -10354890);
-    path.cubicTo(771919.62f, -10411179, 2013360.1f, -10243774, 3195542.8f, -9860664);
-    path.lineTo(3195550, -9860655);
-    path.lineTo(3195539, -9860652);
-    path.lineTo(3195539, -9860652);
-    path.lineTo(3195539, -9860652);
-    path.cubicTo(2013358.1f, -10243761, 771919.25f, -10411166, -469513.84f, -10354877);
-    path.lineTo(-469515, -10354890);
-    path.close();
+    SkPath path = SkPathBuilder()
+                  .moveTo(-469515, -10354890)
+                  .cubicTo(771919.62f, -10411179, 2013360.1f, -10243774, 3195542.8f, -9860664)
+                  .lineTo(3195550, -9860655)
+                  .lineTo(3195539, -9860652)
+                  .lineTo(3195539, -9860652)
+                  .lineTo(3195539, -9860652)
+                  .cubicTo(2013358.1f, -10243761, 771919.25f, -10411166, -469513.84f, -10354877)
+                  .lineTo(-469515, -10354890)
+                  .close()
+                  .detach();
 
     canvas->translate(258, 10365663);
 
@@ -80,13 +82,16 @@ DEF_SIMPLE_GM(bug6987, canvas, 200, 200) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(0.0001f);
     paint.setAntiAlias(true);
-    SkPath path;
+
+    SkPath path = SkPathBuilder()
+                  .moveTo(0.0005f, 0.0004f)
+                  .lineTo(0.0008f, 0.0010f)
+                  .lineTo(0.0002f, 0.0010f)
+                  .close()
+                  .detach();
+
     canvas->save();
     canvas->scale(50000.0f, 50000.0f);
-    path.moveTo(0.0005f, 0.0004f);
-    path.lineTo(0.0008f, 0.0010f);
-    path.lineTo(0.0002f, 0.0010f);
-    path.close();
     canvas->drawPath(path, paint);
     canvas->restore();
 }

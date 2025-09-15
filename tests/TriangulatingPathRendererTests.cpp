@@ -11,6 +11,7 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -72,14 +73,13 @@ struct GrContextOptions;
  * These tests pass by not crashing, hanging or asserting in Debug.
  */
 
-using CreatePathFn = SkPath(*)();
+using CreatePathFn = void(*)(SkPathBuilder&);
 
 CreatePathFn kNonEdgeAAPaths[] = {
     // Tests active edges made inactive by splitting.
     // Also tests active edge list forced into an invalid ordering by
     // splitting (mopped up in cleanup_active_edges()).
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(229.127044677734375f,  67.34100341796875f);
         path.lineTo(187.8097381591796875f, -6.7729740142822265625f);
         path.lineTo(171.411407470703125f,  50.94266510009765625f);
@@ -87,13 +87,11 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo(208.4683990478515625f, 30.284009933471679688f);
         path.lineTo(171.411407470703125f,  50.94266510009765625f);
         path.lineTo(187.8097381591796875f, -6.7729740142822265625f);
-        return path;
     },
 
     // Intersections which fall exactly on the current vertex, and require
     // a restart of the intersection checking.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(314.483551025390625f, 486.246002197265625f);
         path.lineTo(385.41949462890625f,  532.8087158203125f);
         path.lineTo(373.232879638671875f, 474.05938720703125f);
@@ -101,12 +99,10 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo(349.951507568359375f, 509.52734375f);
         path.lineTo(373.232879638671875f, 474.05938720703125f);
         path.lineTo(385.41949462890625f,  532.8087158203125f);
-        return path;
     },
 
     // Tests active edges which are removed by splitting.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(343.107391357421875f, 613.62176513671875f);
         path.lineTo(426.632415771484375f, 628.5740966796875f);
         path.lineTo(392.3460693359375f,   579.33544921875f);
@@ -114,14 +110,12 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo(384.869873046875f,    621.097900390625f);
         path.lineTo(392.3460693359375f,   579.33544921875f);
         path.lineTo(426.632415771484375f, 628.5740966796875f);
-        return path;
     },
 
     // Collinear edges merged in set_top().
     // Also, an intersection between left and right enclosing edges which
     // falls above the current vertex.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(545.95751953125f,    791.69854736328125f);
         path.lineTo(612.05816650390625f, 738.494140625f);
         path.lineTo(552.4056396484375f,  732.0460205078125f);
@@ -129,12 +123,10 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo(579.00787353515625f, 765.0963134765625f);
         path.lineTo(552.4056396484375f,  732.0460205078125f);
         path.lineTo(612.05816650390625f, 738.494140625f);
-        return path;
     },
 
     // Tests active edges which are made inactive by set_top().
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(819.2725830078125f,  751.77447509765625f);
         path.lineTo(820.70904541015625f, 666.933837890625f);
         path.lineTo(777.57049560546875f, 708.63592529296875f);
@@ -142,11 +134,9 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo(819.99078369140625f, 709.3541259765625f);
         path.lineTo(777.57049560546875f, 708.63592529296875f);
         path.lineTo(820.70904541015625f, 666.933837890625f);
-        return path;
     },
 
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(823.33209228515625f, 749.052734375f);
         path.lineTo(823.494873046875f,   664.20013427734375f);
         path.lineTo(780.9871826171875f,  706.5450439453125f);
@@ -154,11 +144,9 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo(823.4134521484375f,  706.6263427734375f);
         path.lineTo(780.9871826171875f,  706.5450439453125f);
         path.lineTo(823.494873046875f,   664.20013427734375f);
-        return path;
     },
 
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(954.862548828125f,   562.8349609375f);
         path.lineTo(899.32818603515625f, 498.679443359375f);
         path.lineTo(895.017578125f,      558.52435302734375f);
@@ -166,11 +154,9 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo(927.0953369140625f,  530.7572021484375f);
         path.lineTo(895.017578125f,      558.52435302734375f);
         path.lineTo(899.32818603515625f, 498.679443359375f);
-        return path;
     },
 
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(958.5330810546875f,  547.35516357421875f);
         path.lineTo(899.93109130859375f, 485.989013671875f);
         path.lineTo(898.54901123046875f, 545.97308349609375f);
@@ -178,11 +164,9 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo(929.2320556640625f,  516.67205810546875f);
         path.lineTo(898.54901123046875f, 545.97308349609375f);
         path.lineTo(899.93109130859375f, 485.989013671875f);
-        return path;
     },
 
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(389.8609619140625f,   369.326873779296875f);
         path.lineTo(470.6290283203125f,   395.33697509765625f);
         path.lineTo(443.250030517578125f, 341.9478759765625f);
@@ -190,35 +174,29 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo(430.244964599609375f, 382.3319091796875f);
         path.lineTo(443.250030517578125f, 341.9478759765625f);
         path.lineTo(470.6290283203125f,   395.33697509765625f);
-        return path;
     },
 
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(20, 20);
         path.lineTo(50, 80);
         path.lineTo(20, 80);
         path.moveTo(80, 50);
         path.lineTo(50, 50);
         path.lineTo(20, 50);
-        return path;
     },
 
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(257.19439697265625f, 320.876617431640625f);
         path.lineTo(190.113037109375f,   320.58978271484375f);
         path.lineTo(203.64404296875f,    293.8145751953125f);
         path.moveTo(203.357177734375f,   360.896026611328125f);
         path.lineTo(216.88824462890625f, 334.120819091796875f);
         path.lineTo(230.41925048828125f, 307.345611572265625f);
-        return path;
     },
 
     // A degenerate segments case, where both upper and lower segments of
     // a split edge must remain active.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(231.9331207275390625f, 306.2012939453125f);
         path.lineTo(191.4859161376953125f, 306.04547119140625f);
         path.lineTo(231.0659332275390625f, 300.2642822265625f);
@@ -228,12 +206,10 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo(150.8942108154296875f, 304.900146484375f);
         path.lineTo(179.708892822265625f,  297.849029541015625f);
         path.lineTo(190.4742279052734375f, 299.11895751953125f);
-        return path;
     },
 
     // Handle the case where edge.dist(edge.fTop) != 0.0.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(                  0.0f,  400.0f);
         path.lineTo(                138.0f,  202.0f);
         path.lineTo(                  0.0f,  202.0f);
@@ -245,13 +221,11 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.lineTo( 15.617521286010742188f, 261.2901611328125f);
         path.lineTo( 10.3829498291015625f,   252.565765380859375f);
         path.lineTo(-16.165292739868164062f, 222.646026611328125f);
-        return path;
     },
 
     // A degenerate segments case which exercises inactive edges being
     // made active by splitting.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(690.62127685546875f, 509.25555419921875f);
         path.lineTo(99.336181640625f,    511.71405029296875f);
         path.lineTo(708.362548828125f,   512.4349365234375f);
@@ -263,13 +237,11 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.lineTo(719.1549072265625f,  514.50372314453125f);
         path.lineTo(689.59063720703125f, 512.0628662109375f);
         path.lineTo(679.78216552734375f, 507.447845458984375f);
-        return path;
     },
 
     // Tests vertices which become "orphaned" (ie., no connected edges)
     // after simplification.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(217.326019287109375f, 166.4752960205078125f);
         path.lineTo(226.279266357421875f, 170.929473876953125f);
         path.lineTo(234.3973388671875f,   177.0623626708984375f);
@@ -277,23 +249,19 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo(196.23638916015625f,  174.0722198486328125f);
         path.lineTo(416.15277099609375f,  180.138214111328125f);
         path.lineTo(192.651947021484375f, 304.0228271484375f);
-        return path;
     },
 
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(    0.0f,   0.0f);
         path.lineTo(10000.0f,   0.0f);
         path.lineTo(    0.0f,  -1.0f);
         path.lineTo(10000.0f,   0.000001f);
         path.lineTo(    0.0f, -30.0f);
-        return path;
     },
 
     // Reduction of Nebraska-StateSeal.svg. Floating point error causes the
     // same edge to be added to more than one poly on the same side.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(170.8199920654296875,   491.86700439453125);
         path.lineTo(173.7649993896484375,    489.7340087890625);
         path.lineTo(174.1450958251953125,  498.545989990234375);
@@ -304,28 +272,24 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo( 169.555267333984375,   490.70111083984375);
         path.lineTo(173.7649993896484375,    489.7340087890625);
         path.lineTo(  170.82000732421875,   491.86700439453125);
-        return path;
     },
 
     // A shape with a vertex collinear to the right hand edge.
     // This messes up find_enclosing_edges.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(80, 20);
         path.lineTo(80, 60);
         path.lineTo(20, 60);
         path.moveTo(80, 50);
         path.lineTo(80, 80);
         path.lineTo(20, 80);
-        return path;
     },
 
     // Exercises the case where an edge becomes collinear with *two* of its
     // adjacent neighbour edges after splitting.
     // This is a reduction from
     // http://mooooo.ooo/chebyshev-sine-approximation/horner_ulp.svg
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(  351.99298095703125,         348.23046875);
         path.lineTo(  351.91876220703125,         347.33984375);
         path.lineTo(  351.91876220703125,          346.1953125);
@@ -356,12 +320,10 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.lineTo(        352.47265625,         346.75390625);
         path.lineTo(  351.67266845703125,  346.756622314453125);
         path.lineTo(  351.66876220703125,  345.612091064453125);
-        return path;
     },
 
     // A path which contains out-of-range colinear intersections.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(                   0, 63.39080047607421875);
         path.lineTo(-0.70804601907730102539, 63.14350128173828125);
         path.lineTo(-7.8608899287380243391e-17, 64.14080047607421875);
@@ -371,35 +333,29 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo(21.434900283813476562, -0.24732701480388641357);
         path.lineTo(-0.70804601907730102539, 63.14350128173828125);
         path.lineTo(0.70804601907730102539,  63.6381988525390625);
-        return path;
     },
 
     // A path which results in infs and nans when conics are converted to quads.
-    []() -> SkPath {
-         SkPath path;
+    [](SkPathBuilder& path) {
          path.moveTo(-2.20883e+37f, -1.02892e+37f);
          path.conicTo(-2.00958e+38f, -9.36107e+37f, -1.7887e+38f, -8.33215e+37f, 0.707107f);
          path.conicTo(-1.56782e+38f, -7.30323e+37f, 2.20883e+37f, 1.02892e+37f, 0.707107f);
          path.conicTo(2.00958e+38f, 9.36107e+37f, 1.7887e+38f, 8.33215e+37f, 0.707107f);
          path.conicTo(1.56782e+38f, 7.30323e+37f, -2.20883e+37f, -1.02892e+37f, 0.707107f);
-         return path;
-    },
+     },
 
     // A quad which generates a huge number of points (>2B) when uniformly
     // linearized. This should not hang or OOM.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(10, 0);
         path.lineTo(0, 0);
         path.quadTo(10, 0, 0, 8315084722602508288);
-        return path;
     },
 
     // A path which hangs during simplification. It produces an edge which is
     // to the left of its own endpoints, which causes an infinite loop in the
     // right-enclosing-edge splitting.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(0.75001740455627441406,     23.051967620849609375);
         path.lineTo(5.8471612930297851562,      22.731662750244140625);
         path.lineTo(10.749670028686523438,      22.253145217895507812);
@@ -413,13 +369,11 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.lineTo(-1.4210854715202003717e-14, 21.713298797607421875);
         path.lineTo(0.75001740455627441406,     21.694292068481445312);
         path.lineTo(0.75001740455627441406,     23.051967620849609375);
-        return path;
     },
 
     // Reduction from skbug.com/40039164 that causes a crash due to splitting a
     // zombie edge.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(                   0, 1.0927740941146660348e+24);
         path.lineTo(2.9333931225865729333e+32,             16476101);
         path.lineTo(1.0927731573659435417e+24, 1.0927740941146660348e+24);
@@ -427,12 +381,10 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.lineTo(1.0927740941146660348e+24, 1.0927740941146660348e+24);
         path.lineTo(1.3061803026169399536e-33, 1.0927740941146660348e+24);
         path.lineTo(4.7195362919941370727e-16, -8.4247545146051822591e+32);
-        return path;
     },
 
     // From crbug.com/844873. Crashes trying to merge a zombie edge.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo( 316.000579833984375, -4338355948977389568);
         path.lineTo(1.5069369808623501312e+20, 75180972320904708096.0);
         path.lineTo(1.5069369808623501312e+20, 75180972320904708096.0);
@@ -443,81 +395,67 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.lineTo(1.5069369808623501312e+20, 75180972320904708096.0);
         path.lineTo(1.5069369808623501312e+20, 75180972320904708096.0);
         path.lineTo(       354.208984375, -4338355948977389568.0);
-        return path;
     },
 
     // From crbug.com/844873. Hangs repeatedly splitting alternate vertices.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(10, -1e+20f);
         path.lineTo(11, 25000);
         path.lineTo(10, 25000);
         path.lineTo(11, 25010);
-        return path;
     },
 
     // Reduction from circular_arcs_stroke_and_fill_round GM which
     // repeatedly splits on the opposite edge from case 34 above.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(               16.25, 26.495191574096679688);
         path.lineTo(32.420825958251953125, 37.377376556396484375);
         path.lineTo(25.176382064819335938, 39.31851959228515625);
         path.moveTo(                  20,                   20);
         path.lineTo(28.847436904907226562, 37.940830230712890625);
         path.lineTo(25.17638397216796875, 39.31851959228515625);
-        return path;
     },
 
     // Reduction from crbug.com/843135 where an intersection is found
     // below the bottom of both intersected edges.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(-2791476679359332352,  2608107002026524672);
         path.lineTo(                   0, 11.95427703857421875);
         path.lineTo(-2781824066779086848,  2599088532777598976);
         path.lineTo(          -7772.6875,                 7274);
-        return path;
     },
 
     // Reduction from crbug.com/843135. Exercises a case where an intersection is missed.
     // This causes bad ordering in the active edge list.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(-1.0662557646016024569e+23, 9.9621425197286319718e+22);
         path.lineTo(                -121806400,                 113805032);
         path.lineTo(                -120098872,                 112209680);
         path.lineTo( 6.2832999862817380468e-36,     2.9885697364807128906);
-        return path;
     },
 
     // Reduction from crbug.com/851409. Exercises collinear last vertex.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(2072553216, 0);
         path.lineTo(2072553216, 1);
         path.lineTo(2072553472, -13.5);
         path.lineTo(2072553216, 0);
         path.lineTo(2072553472, -6.5);
-        return path;
     },
 
     // Another reduction from crbug.com/851409. Exercises two sequential collinear edges.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(2072553216, 0);
         path.lineTo(2072553216, 1);
         path.lineTo(2072553472, -13);
         path.lineTo(2072553216, 0);
         path.lineTo(2072553472, -6);
         path.lineTo(2072553472, -13);
-        return path;
     },
 
     // Reduction from crbug.com/860655. Cause is three collinear edges discovered during
     // sanitize_contours pass, before the vertices have been found coincident.
-    []() -> SkPath {
-        SkPath path;
+    [](SkPathBuilder& path) {
         path.moveTo(   32572426382475264,    -3053391034974208);
         path.lineTo(           521289856,            -48865776);
         path.lineTo(           130322464,            -12215873);
@@ -527,7 +465,6 @@ CreatePathFn kNonEdgeAAPaths[] = {
         path.moveTo(   32572426382475264,    -3053391034974208);
         path.lineTo(   32114477642022912,    -3010462031544320);
         path.lineTo(   32111784697528320,    -3010209702215680);
-        return path;
     },
 };
 
@@ -890,7 +827,9 @@ DEF_GANESH_TEST_FOR_ALL_CONTEXTS(TriangulatingPathRendererTests,
     sdc->discard();
 
     for (CreatePathFn createPath : kNonEdgeAAPaths) {
-        test_path(ctx, sdc.get(), createPath());
+        SkPathBuilder builder;
+        createPath(builder);
+        test_path(ctx, sdc.get(), builder.detach());
     }
     SkMatrix nonInvertibleMatrix = SkMatrix::Scale(0, 0);
     std::unique_ptr<GrFragmentProcessor> fp(create_linear_gradient_processor(sdc.get(),
@@ -1165,8 +1104,10 @@ DEF_TEST(GrInnerFanTriangulator, r) {
             .lineTo(2,0).lineTo(2,1).lineTo(0,1)
             .moveTo(1,0).lineTo(3,0).lineTo(3,1).lineTo(1,1).close());
     for (int i = 0; i < (int)std::size(kNonEdgeAAPaths); ++i) {
+        SkPathBuilder builder;
+        kNonEdgeAAPaths[i](builder);
         verify_simple_inner_polygons(r, SkStringPrintf("kNonEdgeAAPaths[%i]", i).c_str(),
-                                     kNonEdgeAAPaths[i]());
+                                     builder.detach());
     }
     SkRandom rand;
     for (int i = 0; i < 50; ++i) {

@@ -21,6 +21,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPixmap.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
@@ -235,7 +236,7 @@ struct PlaneData {
 
 // Add a portion of a circle to 'path'. The points 'o1' and 'o2' are on the border of the circle
 // and have tangents 'v1' and 'v2'.
-static void add_arc(SkPath* path,
+static void add_arc(SkPathBuilder* path,
                     const SkPoint& o1, const SkVector& v1,
                     const SkPoint& o2, const SkVector& v2,
                     SkTDArray<SkRect>* circles, bool takeLongWayRound) {
@@ -283,8 +284,6 @@ static SkPath create_splat(const SkPoint& o, SkScalar innerRadius, SkScalar oute
         return SkPath();
     }
 
-    SkPath p;
-
     int numDivisions = 2 * numLobes;
     SkScalar fullLobeDegrees = 360.0f / numLobes;
     SkScalar outDegrees = ratio * fullLobeDegrees / (ratio + 1.0f);
@@ -299,6 +298,7 @@ static SkPath create_splat(const SkPoint& o, SkScalar innerRadius, SkScalar oute
                                             o.fX + innerRadius, o.fY + innerRadius));
     }
 
+    SkPathBuilder p;
     p.moveTo(o.fX + innerRadius * curV.fX, o.fY + innerRadius * curV.fY);
 
     for (int i = 0; i < numDivisions; ++i) {
@@ -331,7 +331,7 @@ static SkPath create_splat(const SkPoint& o, SkScalar innerRadius, SkScalar oute
 
     p.close();
 
-    return p;
+    return p.detach();
 }
 
 static SkBitmap make_bitmap(SkColorType colorType, const SkPath& path,
