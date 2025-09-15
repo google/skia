@@ -11,6 +11,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
@@ -70,15 +71,17 @@ static void draw(SkCanvas* canvas, bool doClose) {
             SkPath      fPath;
             const char* fName;
         };
+        SkPathBuilder builder;
+        builder.moveTo(25*SK_Scalar1, 15*SK_Scalar1);
+        builder.lineTo(75*SK_Scalar1, 15*SK_Scalar1);
         PathAndName path;
-        path.fPath.moveTo(25*SK_Scalar1, 15*SK_Scalar1);
-        path.fPath.lineTo(75*SK_Scalar1, 15*SK_Scalar1);
         if (doClose) {
-            path.fPath.close();
+            builder.close();
             path.fName = "moveTo-line-close";
         } else {
             path.fName = "moveTo-line";
         }
+        path.fPath = builder.detach();
 
         SkPaint titlePaint;
         titlePaint.setColor(SK_ColorBLACK);

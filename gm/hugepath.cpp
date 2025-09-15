@@ -22,18 +22,13 @@ DEF_SIMPLE_GM(path_huge_crbug_800804, canvas, 50, 600) {
     // exercise various special-cases (e.g. hairlines or not)
     const float widths[] = { 0.9f, 1.0f, 1.1f };
 
-    SkPath path;
     for (float w : widths) {
         paint.setStrokeWidth(w);
 
-        path.reset();
-        path.moveTo(-1000,12345678901234567890.f);
-        path.lineTo(10.5f,200);
+        SkPath path = SkPath::Line({-1000,12345678901234567890.f}, {10.5f,200});
         canvas->drawPath(path, paint);
 
-        path.reset();
-        path.moveTo(30.5f,400);
-        path.lineTo(1000,-9.8765432109876543210e+19f);
+        path = SkPath::Line({30.5f,400}, {1000,-9.8765432109876543210e+19f});
         canvas->drawPath(path, paint);
 
         canvas->translate(3, 0);

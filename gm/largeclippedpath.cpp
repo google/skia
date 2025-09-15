@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 
 constexpr int kSize = 1000;
 
@@ -26,8 +27,7 @@ static void draw_clipped_flower(SkCanvas* canvas, SkPathFillType fillType) {
         clip.addRect(x * kCellSize, 0, (x + 1) * kCellSize, kSize, SkPathDirection(x & 1));
     }
     canvas->clipPath(clip);
-    SkPath flower;
-    flower.setFillType(fillType);
+    SkPathBuilder flower(fillType);
     flower.moveTo(1, 0);
     constexpr static int kNumPetals = 9;
     for (int i = 1; i <= kNumPetals; ++i) {
@@ -42,7 +42,7 @@ static void draw_clipped_flower(SkCanvas* canvas, SkPathFillType fillType) {
     SkPaint p;
     p.setAntiAlias(true);
     p.setColor(SK_ColorMAGENTA);
-    canvas->drawPath(flower, p);
+    canvas->drawPath(flower.detach(), p);
 }
 
 DEF_SIMPLE_GM(largeclippedpath_winding, canvas, kSize, kSize) {

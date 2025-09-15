@@ -11,6 +11,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
@@ -109,29 +110,30 @@ protected:
 
     void drawTriangleBoxes(SkCanvas* canvas, const std::vector<SkPoint>& points,
                            const std::vector<std::array<int, 3>>& triangles) {
-        SkPath path;
-        path.setFillType(SkPathFillType::kEvenOdd);
-        path.setIsVolatile(true);
+        SkPathBuilder builder(SkPathFillType::kEvenOdd);
+        builder.setIsVolatile(true);
         for (const std::array<int, 3>& triangle : triangles) {
-            path.moveTo(points[triangle[0]]);
-            path.lineTo(points[triangle[1]]);
-            path.lineTo(points[triangle[2]]);
-            path.close();
+            builder.moveTo(points[triangle[0]]);
+            builder.lineTo(points[triangle[1]]);
+            builder.lineTo(points[triangle[2]]);
+            builder.close();
         }
-        SkScalar scale = kBoxSize / std::max(path.getBounds().height(), path.getBounds().width());
-        path.transform(SkMatrix::Scale(scale, scale));
+        const SkRect bounds = builder.computeBounds();
+        SkScalar scale = kBoxSize / std::max(bounds.height(), bounds.width());
+        builder.transform(SkMatrix::Scale(scale, scale));
+        SkPath path = builder.detach();
 
         this->drawRow(canvas, path);
         canvas->translate(0, kBoxSize + kPadSize);
 
         SkMatrix rot;
         rot.setRotate(45, path.getBounds().centerX(), path.getBounds().centerY());
-        path.transform(rot);
+        path = path.makeTransform(rot);
         this->drawRow(canvas, path);
         canvas->translate(0, kBoxSize + kPadSize);
 
         rot.setRotate(-45 - 69.38111f, path.getBounds().centerX(), path.getBounds().centerY());
-        path.transform(rot);
+        path = path.makeTransform(rot);
         this->drawRow(canvas, path);
         canvas->translate(0, kBoxSize + kPadSize);
     }

@@ -13,23 +13,22 @@
 #include "src/base/SkFloatBits.h"
 
 static SkPath get_path() {
-    SkPath path;
-    path.setFillType(SkPathFillType::kWinding);
-    path.moveTo(SkBits2Float(0x45034ec4), SkBits2Float(0x42e7fb80));  // 2100.92f, 115.991f
-    path.quadTo(SkBits2Float(0x4500f46c),
-                SkBits2Float(0x43333300),
-                SkBits2Float(0x4500f46c),
-                SkBits2Float(0x431f0ec0));  // 2063.28f, 179.199f, 2063.28f, 159.058f
-    path.quadTo(SkBits2Float(0x4500f46c),
-                SkBits2Float(0x430ad7c0),
-                SkBits2Float(0x45019462),
-                SkBits2Float(0x42fed580));  // 2063.28f, 138.843f, 2073.27f, 127.417f
-    path.quadTo(SkBits2Float(0x45023458),
-                SkBits2Float(0x42e7fb80),
-                SkBits2Float(0x45034ec4),
-                SkBits2Float(0x42e7fb80));  // 2083.27f, 115.991f, 2100.92f, 115.991f
-    path.close();
-    return path;
+    SkPathBuilder builder(SkPathFillType::kWinding);
+    builder.moveTo(SkBits2Float(0x45034ec4), SkBits2Float(0x42e7fb80));  // 2100.92f, 115.991f
+    builder.quadTo(SkBits2Float(0x4500f46c),
+                   SkBits2Float(0x43333300),
+                   SkBits2Float(0x4500f46c),
+                   SkBits2Float(0x431f0ec0));  // 2063.28f, 179.199f, 2063.28f, 159.058f
+    builder.quadTo(SkBits2Float(0x4500f46c),
+                   SkBits2Float(0x430ad7c0),
+                   SkBits2Float(0x45019462),
+                   SkBits2Float(0x42fed580));  // 2063.28f, 138.843f, 2073.27f, 127.417f
+    builder.quadTo(SkBits2Float(0x45023458),
+                   SkBits2Float(0x42e7fb80),
+                   SkBits2Float(0x45034ec4),
+                   SkBits2Float(0x42e7fb80));  // 2083.27f, 115.991f, 2100.92f, 115.991f
+    builder.close();
+    return builder.detach();
 }
 
 // Reproduces the underlying problem from skbug.com/40043963.
@@ -73,10 +72,10 @@ DEF_SIMPLE_GM(bug12866, canvas, 128, 64) {
 DEF_SIMPLE_GM(bug40810065, canvas, 256, 512) {
     canvas->scale(2.f, 2.f);
 
-    SkPath path1;
+    SkPathBuilder path1;
     path1.moveTo(108.87f, 3.78f);
     path1.cubicTo(201.1f, -128.61f, 34.21f, 82.54f, 134.14f, 126.01f);
-    SkPath path2;
+    SkPathBuilder path2;
     path2.moveTo(108.87f, 3.78f);
     path2.cubicTo(201.f, -128.61f, 34.21f, 82.54f, 134.14f, 126.f);
 
@@ -89,12 +88,12 @@ DEF_SIMPLE_GM(bug40810065, canvas, 256, 512) {
 
     canvas->save();
     canvas->translate(-75.f, 50.f);
-    canvas->drawPath(path1, stroke);
+    canvas->drawPath(path1.detach(), stroke);
     canvas->restore();
 
     canvas->save();
     canvas->translate(-20.f, 100.f);
-    canvas->drawPath(path2, stroke);
+    canvas->drawPath(path2.detach(), stroke);
     canvas->restore();
 }
 

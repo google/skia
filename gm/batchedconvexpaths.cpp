@@ -10,6 +10,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 
 #if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrContextOptions.h"
@@ -35,14 +36,14 @@ private:
             SkAutoCanvasRestore acr(canvas, true);
 
             int numPoints = (i + 3) * 3;
-            SkPath path;
-            path.moveTo(1, 0);
+            SkPathBuilder builder;
+            builder.moveTo(1, 0);
             for (float j = 1; j < numPoints; j += 3) {
                 constexpr float k2PI = SK_ScalarPI * 2;
-                path.cubicTo(cosf(j/numPoints * k2PI), sinf(j/numPoints * k2PI),
-                             cosf((j+1)/numPoints * k2PI), sinf((j+1)/numPoints * k2PI),
-                             j+2 == numPoints ? 1 : cosf((j+2)/numPoints * k2PI),
-                             j+2 == numPoints ? 0 : sinf((j+2)/numPoints * k2PI));
+                builder.cubicTo(cosf(j/numPoints * k2PI), sinf(j/numPoints * k2PI),
+                                cosf((j+1)/numPoints * k2PI), sinf((j+1)/numPoints * k2PI),
+                                j+2 == numPoints ? 1 : cosf((j+2)/numPoints * k2PI),
+                                j+2 == numPoints ? 0 : sinf((j+2)/numPoints * k2PI));
             }
             float scale = 256 - i*24;
             canvas->translate(scale + (256 - scale) * .33f, scale + (256 - scale) * .33f);
@@ -53,7 +54,7 @@ private:
             paint.setAlphaf(0.3f);
             paint.setAntiAlias(true);
 
-            canvas->drawPath(path, paint);
+            canvas->drawPath(builder.detach(), paint);
         }
         return DrawResult::kOk;
     }

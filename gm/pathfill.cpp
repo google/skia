@@ -417,12 +417,13 @@ DEF_SIMPLE_GM(rotatedcubicpath, canvas, 200, 200) {
     p.setStyle(SkPaint::kFill_Style);
 
     canvas->translate(50, 50);
-    SkPath path;
-    path.moveTo(48,-23);
-    path.cubicTo(48,-29.5, 6,-30, 6,-30);
-    path.cubicTo(6,-30, 2,0, 2,0);
-    path.cubicTo(2,0, 44,-21.5, 48,-23);
-    path.close();
+    SkPath path = SkPathBuilder()
+                  .moveTo(48,-23)
+                  .cubicTo(48,-29.5, 6,-30, 6,-30)
+                  .cubicTo(6,-30, 2,0, 2,0)
+                  .cubicTo(2,0, 44,-21.5, 48,-23)
+                  .close()
+                  .detach();
 
     p.setColor(SK_ColorBLUE);
     canvas->drawPath(path, p);
@@ -441,179 +442,195 @@ DEF_GM( return new PathInverseFillGM; )
 DEF_SIMPLE_GM(bug7792, canvas, 800, 800) {
     // from skbug.com/40039046 bug description
     SkPaint p;
-    SkPath path;
-    path.moveTo(10, 10);
-    path.moveTo(75, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(75, 150);
+    SkPath path = SkPathBuilder()
+                  .moveTo(10, 10)
+                  .moveTo(75, 75)
+                  .lineTo(150, 75)
+                  .lineTo(150, 150)
+                  .lineTo(75, 150)
+                  .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c3
     canvas->translate(200, 0);
-    path.reset();
-    path.moveTo(75, 50);
-    path.moveTo(100, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(75, 150);
-    path.lineTo(75, 50);
-    path.close();
+    path = SkPathBuilder()
+          .moveTo(75, 50)
+          .moveTo(100, 75)
+          .lineTo(150, 75)
+          .lineTo(150, 150)
+          .lineTo(75, 150)
+          .lineTo(75, 50)
+          .close()
+          .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c9
     canvas->translate(200, 0);
-    path.reset();
-    path.moveTo(10, 10);
-    path.moveTo(75, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(75, 150);
-    path.close();
+    path = SkPathBuilder()
+           .moveTo(10, 10)
+           .moveTo(75, 75)
+           .lineTo(150, 75)
+           .lineTo(150, 150)
+           .lineTo(75, 150)
+           .close()
+           .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c11
     canvas->translate(-200 * 2, 200);
-    path.reset();
-    path.moveTo(75, 150);
-    path.lineTo(75, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(75, 150);
-    path.moveTo(75, 150);
+    path = SkPathBuilder()
+           .moveTo(75, 150)
+           .lineTo(75, 75)
+           .lineTo(150, 75)
+           .lineTo(150, 150)
+           .lineTo(75, 150)
+           .moveTo(75, 150)
+           .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c14
     canvas->translate(200, 0);
-    path.reset();
-    path.moveTo(250, 75);
-    path.moveTo(250, 75);
-    path.moveTo(250, 75);
-    path.moveTo(100, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(75, 150);
-    path.lineTo(75, 75);
-    path.close();
-    path.lineTo(0, 0);
-    path.close();
+    path = SkPathBuilder()
+           .moveTo(250, 75)
+           .moveTo(250, 75)
+           .moveTo(250, 75)
+           .moveTo(100, 75)
+           .lineTo(150, 75)
+           .lineTo(150, 150)
+           .lineTo(75, 150)
+           .lineTo(75, 75)
+           .close()
+           .lineTo(0, 0)
+           .close()
+           .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c15
     canvas->translate(200, 0);
-    path.reset();
-    path.moveTo(75, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(75, 150);
-    path.moveTo(250, 75);
+    path = SkPathBuilder()
+           .moveTo(75, 75)
+           .lineTo(150, 75)
+           .lineTo(150, 150)
+           .lineTo(75, 150)
+           .moveTo(250, 75)
+           .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c17
     canvas->translate(-200 * 2, 200);
-    path.reset();
-    path.moveTo(75, 10);
-    path.moveTo(75, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(75, 150);
-    path.lineTo(75, 10);
-    path.close();
+    path = SkPathBuilder()
+           .moveTo(75, 10)
+           .moveTo(75, 75)
+           .lineTo(150, 75)
+           .lineTo(150, 150)
+           .lineTo(75, 150)
+           .lineTo(75, 10)
+           .close()
+           .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c19
     canvas->translate(200, 0);
-    path.reset();
-    path.moveTo(75, 75);
-    path.lineTo(75, 75);
-    path.lineTo(75, 75);
-    path.lineTo(75, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(75, 150);
-    path.close();
-    path.moveTo(10, 10);
-    path.lineTo(30, 10);
-    path.lineTo(10, 30);
+    path = SkPathBuilder()
+           .moveTo(75, 75)
+           .lineTo(75, 75)
+           .lineTo(75, 75)
+           .lineTo(75, 75)
+           .lineTo(150, 75)
+           .lineTo(150, 150)
+           .lineTo(75, 150)
+           .close()
+           .moveTo(10, 10)
+           .lineTo(30, 10)
+           .lineTo(10, 30)
+           .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c23
     canvas->translate(200, 0);
-    path.reset();
-    path.moveTo(75, 75);
-    path.lineTo(75, 75);
-    path.moveTo(75, 75);
-    path.lineTo(75, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(75, 150);
-    path.close();
+    path = SkPathBuilder()
+           .moveTo(75, 75)
+           .lineTo(75, 75)
+           .moveTo(75, 75)
+           .lineTo(75, 75)
+           .lineTo(150, 75)
+           .lineTo(150, 150)
+           .lineTo(75, 150)
+           .close()
+           .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c29
     canvas->translate(-200 * 2, 200);
-    path.reset();
-    path.moveTo(75, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(75, 150);
-    path.lineTo(75, 250);
-    path.moveTo(75, 75);
-    path.close();
+    path = SkPathBuilder()
+           .moveTo(75, 75)
+           .lineTo(150, 75)
+           .lineTo(150, 150)
+           .lineTo(75, 150)
+           .lineTo(75, 250)
+           .moveTo(75, 75)
+           .close()
+           .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c31
     canvas->translate(200, 0);
-    path.reset();
-    path.moveTo(75, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(75, 150);
-    path.lineTo(75, 10);
-    path.moveTo(75, 75);
-    path.close();
+    path = SkPathBuilder()
+           .moveTo(75, 75)
+           .lineTo(150, 75)
+           .lineTo(150, 150)
+           .lineTo(75, 150)
+           .lineTo(75, 10)
+           .moveTo(75, 75)
+           .close()
+           .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c36
     canvas->translate(200, 0);
-    path.reset();
-    path.moveTo(75, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(10, 150);
-    path.moveTo(75, 75);
-    path.lineTo(75, 75);
+    path = SkPathBuilder()
+           .moveTo(75, 75)
+           .lineTo(150, 75)
+           .lineTo(150, 150)
+           .lineTo(10, 150)
+           .moveTo(75, 75)
+           .lineTo(75, 75)
+           .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c39
     canvas->translate(200, -200 * 3);
-    path.reset();
-    path.moveTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(75, 150);
-    path.lineTo(75, 100);
+    path = SkPathBuilder()
+           .moveTo(150, 75)
+           .lineTo(150, 150)
+           .lineTo(75, 150)
+           .lineTo(75, 100)
+           .detach();
     canvas->drawPath(path, p);
     // from zero_length_paths_aa
     canvas->translate(0, 200);
-    path.reset();
-    path.moveTo(150, 100);
-    path.lineTo(150, 100);
-    path.lineTo(150, 150);
-    path.lineTo(75, 150);
-    path.lineTo(75, 100);
-    path.lineTo(75, 75);
-    path.lineTo(150, 75);
-    path.close();
+    path = SkPathBuilder()
+           .moveTo(150, 100)
+           .lineTo(150, 100)
+           .lineTo(150, 150)
+           .lineTo(75, 150)
+           .lineTo(75, 100)
+           .lineTo(75, 75)
+           .lineTo(150, 75)
+           .close()
+           .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c41
     canvas->translate(0, 200);
-    path.reset();
-    path.moveTo(75, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(140, 150);
-    path.lineTo(140, 75);
-    path.moveTo(75, 75);
-    path.close();
+    path = SkPathBuilder()
+           .moveTo(75, 75)
+           .lineTo(150, 75)
+           .lineTo(150, 150)
+           .lineTo(140, 150)
+           .lineTo(140, 75)
+           .moveTo(75, 75)
+           .close()
+           .detach();
     canvas->drawPath(path, p);
     // from skbug.com/40039046#c53
     canvas->translate(0, 200);
-    path.reset();
-    path.moveTo(75, 75);
-    path.lineTo(150, 75);
-    path.lineTo(150, 150);
-    path.lineTo(140, 150);
-    path.lineTo(140, 75);
-    path.moveTo(75, 75);
-    path.close();
+    path = SkPathBuilder()
+           .moveTo(75, 75)
+           .lineTo(150, 75)
+           .lineTo(150, 150)
+           .lineTo(140, 150)
+           .lineTo(140, 75)
+           .moveTo(75, 75)
+           .close()
+           .detach();
     canvas->drawPath(path, p);
 }
 
@@ -632,8 +649,6 @@ DEF_SIMPLE_GM(path_stroke_clip_crbug1070835, canvas, 25, 50) {
 
     canvas->scale(4.16666651f/2, 4.16666651f/2);
 
-    SkPath path;
-
     SkPoint pts[] = {
     {11, 12},
     {11, 18.0751324f},
@@ -649,10 +664,13 @@ DEF_SIMPLE_GM(path_stroke_clip_crbug1070835, canvas, 25, 50) {
     {10.9999981f, 5.92486572f},
     {11, 11.9999971f},
     };
-    path.moveTo(pts[0]).cubicTo(pts[1], pts[2], pts[3])
-                       .cubicTo(pts[4], pts[5], pts[6])
-                       .cubicTo(pts[7], pts[8], pts[9])
-                       .cubicTo(pts[10],pts[11],pts[12]);
+    SkPath path = SkPathBuilder()
+                  .moveTo(pts[0])
+                  .cubicTo(pts[1], pts[2], pts[3])
+                  .cubicTo(pts[4], pts[5], pts[6])
+                  .cubicTo(pts[7], pts[8], pts[9])
+                  .cubicTo(pts[10],pts[11],pts[12])
+                  .detach();
 
     canvas->drawPath(path, p);
 
@@ -682,17 +700,18 @@ DEF_SIMPLE_GM(path_skbug_11859, canvas, 512, 512) {
     paint.setColor(SK_ColorRED);
     paint.setAntiAlias(true);
 
-    SkPath path;
-    path.moveTo(258, -2);
-    path.lineTo(258, 258);
-    path.lineTo(237, 258);
-    path.lineTo(240, -2);
-    path.lineTo(258, -2);
-    path.moveTo(-2, -2);
-    path.lineTo(240, -2);
-    path.lineTo(238, 131);
-    path.lineTo(-2, 131);
-    path.lineTo(-2, -2);
+    SkPath path = SkPathBuilder()
+                  .moveTo(258, -2)
+                  .lineTo(258, 258)
+                  .lineTo(237, 258)
+                  .lineTo(240, -2)
+                  .lineTo(258, -2)
+                  .moveTo(-2, -2)
+                  .lineTo(240, -2)
+                  .lineTo(238, 131)
+                  .lineTo(-2, 131)
+                  .lineTo(-2, -2)
+                  .detach();
 
     canvas->scale(2, 2);
     canvas->drawPath(path, paint);
@@ -700,9 +719,12 @@ DEF_SIMPLE_GM(path_skbug_11859, canvas, 512, 512) {
 
 DEF_SIMPLE_GM(path_skbug_11886, canvas, 256, 256) {
     SkPoint m = {0.f, 770.f};
-    SkPath path;
-    path.moveTo(m);
-    path.cubicTo(m + SkPoint{0.f, 1.f}, m + SkPoint{20.f, -750.f}, m + SkPoint{83.f, -746.f});
+    SkPath path = SkPathBuilder()
+                  .moveTo(m)
+                  .cubicTo(m + SkPoint{0.f, 1.f},
+                           m + SkPoint{20.f, -750.f},
+                           m + SkPoint{83.f, -746.f})
+                  .detach();
     SkPaint paint;
     paint.setAntiAlias(true);
     canvas->drawPath(path, paint);

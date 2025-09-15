@@ -75,23 +75,22 @@ DEF_SIMPLE_GM_BG_NAME(pathreverse, canvas, 640, 480, SK_ColorWHITE,
                       SkString("path-reverse")) {
         SkRect r = { 10, 10, 100, 60 };
 
-        SkPath path;
+        SkPathBuilder builder;
 
-        path.addRect(r); test_rev(canvas, path);
-
-        canvas->translate(0, 100);
-        path.offset(20, 20);
-        path.addRect(r); test_rev(canvas, path);
+        builder.addRect(r); test_rev(canvas, builder.snapshot());
 
         canvas->translate(0, 100);
-        path.reset();
-        path.moveTo(10, 10); path.lineTo(30, 30);
-        path.addOval(r);
+        builder.offset(20, 20);
+        builder.addRect(r); test_rev(canvas, builder.detach());
+
+        canvas->translate(0, 100);
+        builder.moveTo(10, 10); builder.lineTo(30, 30);
+        builder.addOval(r);
         r.offset(50, 20);
-        path.addOval(r);
-        test_rev(canvas, path);
+        builder.addOval(r);
+        test_rev(canvas, builder.detach());
 
-        path = hiragino_maru_goth_pro_e();
+        SkPath path = hiragino_maru_goth_pro_e();
         canvas->translate(0, 100);
         test_rev(canvas, path);
 }

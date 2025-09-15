@@ -552,12 +552,7 @@ protected:
         }
 
         {
-            SkPath path;
-            path.moveTo(data.get()[0]);
-            for (int i = 1; i < numPts; ++i) {
-                path.lineTo(data.get()[i]);
-            }
-            path.close();
+            SkPath path = SkPath::Polygon({data.get(), numPts}, true);
             canvas->save();
             canvas->translate(center.fX, center.fY);
             canvas->drawPath(path, paint);
@@ -579,12 +574,7 @@ protected:
                 result = SkOffsetSimplePolygon(data.get(), numPts, bounds, offset, &offsetPoly);
             }
             if (result) {
-                SkPath path;
-                path.moveTo(offsetPoly[0]);
-                for (int j = 1; j < offsetPoly.size(); ++j) {
-                    path.lineTo(offsetPoly[j]);
-                }
-                path.close();
+                SkPath path = SkPath::Polygon(offsetPoly, true);
 
                 paint.setColor(ToolUtils::color_to_565(colors[i]));
                 canvas->save();

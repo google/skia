@@ -264,9 +264,7 @@ protected:
         const float pxInflate = 0.5f;
         sk_sp<SkPathEffect> pathEffect(new StrokeLineInflated(strokeWidth, pxInflate));
 
-        SkPath path;
-        path.moveTo(100, 100);
-        path.lineTo(200, 200);
+        SkPath path = SkPath::Line({100, 100}, {200, 200});
 
         // Draw the inflated path, and a scaled version, in blue.
         SkPaint paint;

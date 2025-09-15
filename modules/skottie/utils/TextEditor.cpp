@@ -13,6 +13,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSpan.h"
@@ -33,15 +34,16 @@ SkPath make_cursor_path() {
     constexpr float kWidth  = 0.2f,
                     kHeight = 0.75f;
 
-    SkPath p;
+    SkPathBuilder p;
 
+    p.moveTo(0, 0);
     p.lineTo(kWidth  , 0);
     p.moveTo(kWidth/2, 0);
     p.lineTo(kWidth/2, kHeight);
     p.moveTo(0       , kHeight);
     p.lineTo(kWidth  , kHeight);
 
-    return p;
+    return p.detach();
 }
 
 size_t next_utf8(const SkString& str, size_t index) {

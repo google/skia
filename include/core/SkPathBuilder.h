@@ -646,6 +646,10 @@ public:
     */
     SkPathBuilder& addArc(const SkRect& oval, SkScalar startAngleDeg, SkScalar sweepAngleDeg);
 
+    SkPathBuilder& addLine(SkPoint a, SkPoint b) {
+        return this->moveTo(a).lineTo(b);
+    }
+
     /** Adds a new contour to the SkPathBuilder, defined by the rect, and wound in the
         specified direction. The verbs added to the path will be:
 

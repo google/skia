@@ -18,6 +18,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkPoint.h"
@@ -76,10 +77,12 @@ static void draw_vector_logo(SkCanvas* canvas, const SkRect& viewBox) {
                        accentSize / 2,
                        paint);
 
-    path.reset();
-    path.moveTo(iBox.centerX() - accentSize / 2, iBox.bottom() + kVerticalSpacing * accentSize);
-    path.rLineTo(accentSize, 0);
-    path.lineTo(iBox.centerX(), underlineY);
+    path = SkPathBuilder()
+           .moveTo(iBox.centerX() - accentSize / 2,
+                   iBox.bottom() + kVerticalSpacing * accentSize)
+           .rLineTo(accentSize, 0)
+           .lineTo(iBox.centerX(), underlineY)
+           .detach();
     canvas->drawPath(path, paint);
 
     SkRect underlineRect = SkRect::MakeLTRB(iBox.centerX() - iBox.width() * accentSize * 3,

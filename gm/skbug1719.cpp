@@ -13,6 +13,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkScalar.h"
 
 /**
@@ -29,37 +30,38 @@ DEF_SIMPLE_GM_BG(skbug1719, canvas, 300, 100, 0xFF303030) {
         // The data is lifted from an SKP that exhibited the bug.
 
         // This is a round rect.
-        SkPath clipPath;
-        clipPath.moveTo(832.f, 654.f);
-        clipPath.lineTo(1034.f, 654.f);
-        clipPath.cubicTo(1038.4183f, 654.f, 1042.f, 657.58173f, 1042.f, 662.f);
-        clipPath.lineTo(1042.f, 724.f);
-        clipPath.cubicTo(1042.f, 728.41827f, 1038.4183f, 732.f, 1034.f, 732.f);
-        clipPath.lineTo(832.f, 732.f);
-        clipPath.cubicTo(827.58173f, 732.f, 824.f, 728.41827f, 824.f, 724.f);
-        clipPath.lineTo(824.f, 662.f);
-        clipPath.cubicTo(824.f, 657.58173f, 827.58173f, 654.f, 832.f, 654.f);
-        clipPath.close();
+        SkPath clipPath = SkPathBuilder()
+                          .moveTo(832.f, 654.f)
+                          .lineTo(1034.f, 654.f)
+                          .cubicTo(1038.4183f, 654.f, 1042.f, 657.58173f, 1042.f, 662.f)
+                          .lineTo(1042.f, 724.f)
+                          .cubicTo(1042.f, 728.41827f, 1038.4183f, 732.f, 1034.f, 732.f)
+                          .lineTo(832.f, 732.f)
+                          .cubicTo(827.58173f, 732.f, 824.f, 728.41827f, 824.f, 724.f)
+                          .lineTo(824.f, 662.f)
+                          .cubicTo(824.f, 657.58173f, 827.58173f, 654.f, 832.f, 654.f)
+                          .close()
+                          .detach();
 
         // This is a round rect nested inside a rect.
-        SkPath drawPath;
-        drawPath.moveTo(823.f, 653.f);
-        drawPath.lineTo(1043.f, 653.f);
-        drawPath.lineTo(1043.f, 733.f);
-        drawPath.lineTo(823.f, 733.f);
-        drawPath.lineTo(823.f, 653.f);
-        drawPath.close();
-        drawPath.moveTo(832.f, 654.f);
-        drawPath.lineTo(1034.f, 654.f);
-        drawPath.cubicTo(1038.4183f, 654.f, 1042.f, 657.58173f, 1042.f, 662.f);
-        drawPath.lineTo(1042.f, 724.f);
-        drawPath.cubicTo(1042.f, 728.41827f, 1038.4183f, 732.f, 1034.f, 732.f);
-        drawPath.lineTo(832.f, 732.f);
-        drawPath.cubicTo(827.58173f, 732.f, 824.f, 728.41827f, 824.f, 724.f);
-        drawPath.lineTo(824.f, 662.f);
-        drawPath.cubicTo(824.f, 657.58173f, 827.58173f, 654.f, 832.f, 654.f);
-        drawPath.close();
-        drawPath.setFillType(SkPathFillType::kEvenOdd);
+        SkPath drawPath = SkPathBuilder(SkPathFillType::kEvenOdd)
+                          .moveTo(823.f, 653.f)
+                          .lineTo(1043.f, 653.f)
+                          .lineTo(1043.f, 733.f)
+                          .lineTo(823.f, 733.f)
+                          .lineTo(823.f, 653.f)
+                          .close()
+                          .moveTo(832.f, 654.f)
+                          .lineTo(1034.f, 654.f)
+                          .cubicTo(1038.4183f, 654.f, 1042.f, 657.58173f, 1042.f, 662.f)
+                          .lineTo(1042.f, 724.f)
+                          .cubicTo(1042.f, 728.41827f, 1038.4183f, 732.f, 1034.f, 732.f)
+                          .lineTo(832.f, 732.f)
+                          .cubicTo(827.58173f, 732.f, 824.f, 728.41827f, 824.f, 724.f)
+                          .lineTo(824.f, 662.f)
+                          .cubicTo(824.f, 657.58173f, 827.58173f, 654.f, 832.f, 654.f)
+                          .close()
+                          .detach();
 
         SkPaint paint;
         paint.setAntiAlias(true);

@@ -474,7 +474,7 @@ private:
 };
 
 DEF_SIMPLE_GM(longpathdash, canvas, 612, 612) {
-    SkPath lines;
+    SkPathBuilder lines;
     for (int x = 32; x < 256; x += 16) {
         for (SkScalar a = 0; a < 3.141592f * 2; a += 0.03141592f) {
             SkPoint pts[2] = {
@@ -498,7 +498,7 @@ DEF_SIMPLE_GM(longpathdash, canvas, 612, 612) {
     p.setPathEffect(SkDashPathEffect::Make(intervals, 0));
 
     canvas->translate(50, 50);
-    canvas->drawPath(lines, p);
+    canvas->drawPath(lines.detach(), p);
 }
 
 DEF_SIMPLE_GM(longlinedash, canvas, 512, 512) {
@@ -557,13 +557,13 @@ DEF_SIMPLE_GM(longwavyline, canvas, 512, 512) {
     p.setStroke(true);
     p.setStrokeWidth(2);
 
-    SkPath wavy;
+    SkPathBuilder wavy;
     wavy.moveTo(-10000, 100);
     for (SkScalar i = -10000; i < 10000; i += 20) {
         wavy.quadTo(i + 5, 95, i + 10, 100);
         wavy.quadTo(i + 15, 105, i + 20, 100);
     }
-    canvas->drawPath(wavy, p);
+    canvas->drawPath(wavy.detach(), p);
 }
 
 DEF_SIMPLE_GM(dashtextcaps, canvas, 512, 512) {
@@ -647,7 +647,7 @@ DEF_SIMPLE_GM(path_effect_empty_result, canvas, 100, 100) {
     p.setStroke(true);
     p.setStrokeWidth(1);
 
-    SkPath path;
+    SkPathBuilder path;
     float r = 70;
     float l = 70;
     float t = 70;
@@ -661,7 +661,7 @@ DEF_SIMPLE_GM(path_effect_empty_result, canvas, 100, 100) {
     float dashes[] = {2.f, 2.f};
     p.setPathEffect(SkDashPathEffect::Make(dashes, 0.f));
 
-    canvas->drawPath(path, p);
+    canvas->drawPath(path.detach(), p);
 }
 
 //////////////////////////////////////////////////////////////////////////////

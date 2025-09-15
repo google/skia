@@ -10,6 +10,7 @@
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -78,18 +79,19 @@ protected:
 
 
         TArray<SkPath> paths;
-        paths.push_back();
-        paths.back().moveTo(0.f, 0.f);
-        paths.back().lineTo(98.f, 100.f);
-        paths.back().lineTo(100.f, 100.f);
-        paths.back().conicTo(150.f, 50.f, 100.f, 0.f, 0.6f);
-        paths.back().conicTo(148.f, 50.f, 100.f, 100.f, 0.6f);
-        paths.back().conicTo(50.f, 30.f, 0.f, 100.f, 0.9f);
+        paths.push_back(SkPathBuilder()
+                        .moveTo(0.f, 0.f)
+                        .lineTo(98.f, 100.f)
+                        .lineTo(100.f, 100.f)
+                        .conicTo(150.f, 50.f, 100.f, 0.f, 0.6f)
+                        .conicTo(148.f, 50.f, 100.f, 100.f, 0.6f)
+                        .conicTo(50.f, 30.f, 0.f, 100.f, 0.9f)
+                        .detach());
 
-        paths.push_back();
-        paths.back().addCircle(30.f, 30.f, 30.f);
-        paths.back().addRect(SkRect::MakeXYWH(45.f, 45.f, 50.f, 60.f));
-        paths.back().setFillType(SkPathFillType::kEvenOdd);
+        paths.push_back(SkPathBuilder(SkPathFillType::kEvenOdd)
+                        .addCircle(30.f, 30.f, 30.f)
+                        .addRect(SkRect::MakeXYWH(45.f, 45.f, 50.f, 60.f))
+                        .detach());
 
         canvas->translate(kPad, kPad);
 
