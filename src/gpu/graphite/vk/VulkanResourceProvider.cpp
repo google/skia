@@ -733,7 +733,7 @@ BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* h
     externalFormat.sType = VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID;
     externalFormat.pNext = nullptr;
     externalFormat.externalFormat = 0;  // If this is zero it is as if we aren't using this struct.
-    if (importAsExternalFormat) {
+    if (importAsExternalFormat || skgpu::VkFormatNeedsYcbcrSampler(hwbFormatProps.format)) {
         GetYcbcrConversionInfoFromFormatProps(&ycbcrInfo, hwbFormatProps);
         if (!ycbcrInfo.isValid()) {
             SKGPU_LOG_W("Failed to create valid YCbCr conversion information from hardware buffer"
