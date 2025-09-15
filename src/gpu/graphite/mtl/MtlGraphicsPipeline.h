@@ -40,7 +40,6 @@ public:
     inline static constexpr unsigned int kGradientBufferIndex = 5;
 
     static sk_sp<MtlGraphicsPipeline> Make(const MtlSharedContext*,
-                                           MtlResourceProvider*,
                                            const RuntimeEffectDictionary*,
                                            const UniqueKey&,
                                            const GraphicsPipelineDesc&,
@@ -49,7 +48,6 @@ public:
                                            uint32_t compilationID);
 
     static sk_sp<MtlGraphicsPipeline> MakeLoadMSAAPipeline(const MtlSharedContext*,
-                                                           MtlResourceProvider*,
                                                            const RenderPassDesc&);
 
     ~MtlGraphicsPipeline() override {}

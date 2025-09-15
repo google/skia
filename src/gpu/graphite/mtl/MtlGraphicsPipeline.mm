@@ -18,7 +18,6 @@
 #include "src/gpu/graphite/ShaderInfo.h"
 #include "src/gpu/graphite/TextureInfoPriv.h"
 #include "src/gpu/graphite/mtl/MtlGraphiteUtils.h"
-#include "src/gpu/graphite/mtl/MtlResourceProvider.h"
 #include "src/gpu/graphite/mtl/MtlSharedContext.h"
 #include "src/gpu/mtl/MtlUtilsPriv.h"
 #include "src/sksl/SkSLCompiler.h"
@@ -269,7 +268,6 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
 
 sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
         const MtlSharedContext* sharedContext,
-        MtlResourceProvider* resourceProvider,
         const RuntimeEffectDictionary* runtimeDict,
         const UniqueKey& pipelineKey,
         const GraphicsPipelineDesc& pipelineDesc,
@@ -331,7 +329,7 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
             sharedContext, shaderInfo->fsLabel(), fsMSL.fText, errorHandler);
 
     sk_cfp<id<MTLDepthStencilState>> dss =
-            resourceProvider->findOrCreateCompatibleDepthStencilState(step->depthStencilSettings());
+            sharedContext->getCompatibleDepthStencilState(step->depthStencilSettings());
 
     PipelineInfo pipelineInfo{ *shaderInfo, pipelineCreationFlags,
                                pipelineKey.hash(), compilationID };
@@ -359,7 +357,6 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::Make(
 
 sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::MakeLoadMSAAPipeline(
         const MtlSharedContext* sharedContext,
-        MtlResourceProvider* resourceProvider,
         const RenderPassDesc& renderPassDesc) {
     static const char* kLoadMSAAShaderText =
             "#include <metal_stdlib>\n"
@@ -389,8 +386,10 @@ sk_sp<MtlGraphicsPipeline> MtlGraphicsPipeline::MakeLoadMSAAPipeline(
                                               kLoadMSAAShaderText,
                                               sharedContext->caps()->shaderErrorHandler());
     BlendInfo noBlend{}; // default is equivalent to kSrc blending
+
+    static constexpr DepthStencilSettings kIgnoreDSS;
     sk_cfp<id<MTLDepthStencilState>> ignoreDS =
-            resourceProvider->findOrCreateCompatibleDepthStencilState({});
+            sharedContext->getCompatibleDepthStencilState(kIgnoreDSS);
 
     std::string pipelineLabel = "LoadMSAAFromResolve + ";
     pipelineLabel += renderPassDesc.toString().c_str();

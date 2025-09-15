@@ -30,9 +30,6 @@ public:
 
     sk_sp<MtlGraphicsPipeline> findOrCreateLoadMSAAPipeline(const RenderPassDesc&);
 
-    sk_cfp<id<MTLDepthStencilState>> findOrCreateCompatibleDepthStencilState(
-            const DepthStencilSettings&);
-
 private:
     const MtlSharedContext* mtlSharedContext();
 
@@ -52,8 +49,6 @@ private:
     BackendTexture onCreateBackendTexture(SkISize dimensions, const TextureInfo&) override;
     void onDeleteBackendTexture(const BackendTexture&) override;
 
-    skia_private::THashMap<DepthStencilSettings, sk_cfp<id<MTLDepthStencilState>>>
-            fDepthStencilStates;
     skia_private::THashMap<uint32_t, sk_sp<MtlGraphicsPipeline>> fLoadMSAAPipelines;
 };
 
