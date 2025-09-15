@@ -151,6 +151,7 @@ skia_core_public = [
 skia_core_sources = [
   "$_include/private/SkGainmapInfo.h",
   "$_include/private/SkGainmapShader.h",
+  "$_include/private/SkHdrMetadata.h",
   "$_include/private/SkIDChangeListener.h",
   "$_include/private/SkSLSampleUsage.h",
   "$_include/private/base/SingleOwner.h",

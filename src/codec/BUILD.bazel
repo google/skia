@@ -33,6 +33,7 @@ ANY_DECODER_SRCS = [
     "SkEncodedInfo.cpp",
     "SkExif.cpp",
     "SkGainmapInfo.cpp",
+    "SkHdrMetadata.cpp",
     "SkImageGenerator_FromEncoded.cpp",
     "SkMaskSwizzler.cpp",
     "SkParseEncodedOrigin.cpp",
