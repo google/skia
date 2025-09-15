@@ -40,8 +40,7 @@ SkPath SkSVGContainer::onAsPath(const SkSVGRenderContext& ctx) const {
         Op(path, childPath, kUnion_SkPathOp, &path);
     }
 
-    this->mapToParent(&path);
-    return path;
+    return this->mapToParent(path);
 }
 
 SkRect SkSVGContainer::onTransformableObjectBoundingBox(const SkSVGRenderContext& ctx) const {

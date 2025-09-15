@@ -30,9 +30,9 @@ protected:
 
     void onSetAttribute(SkSVGAttribute, const SkSVGValue&) override;
 
-    void mapToParent(SkPath*) const;
+    SkPath mapToParent(const SkPath&) const;
 
-    void mapToParent(SkRect*) const;
+    SkRect mapToParent(const SkRect&) const;
 
     SkRect onObjectBoundingBox(const SkSVGRenderContext& ) const final;
 

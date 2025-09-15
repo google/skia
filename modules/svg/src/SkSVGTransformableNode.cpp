@@ -40,13 +40,13 @@ void SkSVGTransformableNode::onSetAttribute(SkSVGAttribute attr, const SkSVGValu
     }
 }
 
-void SkSVGTransformableNode::mapToParent(SkPath* path) const {
+SkPath SkSVGTransformableNode::mapToParent(const SkPath& path) const {
     // transforms the path to parent node coordinates.
-    path->transform(fTransform);
+    return path.makeTransform(fTransform);
 }
 
-void SkSVGTransformableNode::mapToParent(SkRect* rect) const {
-    *rect = fTransform.mapRect(*rect);
+SkRect SkSVGTransformableNode::mapToParent(const SkRect& rect) const {
+    return fTransform.mapRect(rect);
 }
 
 SkRect SkSVGTransformableNode::onTransformableObjectBoundingBox(const SkSVGRenderContext&) const {
@@ -57,7 +57,7 @@ SkRect SkSVGTransformableNode::onObjectBoundingBox(const SkSVGRenderContext& ctx
     SkRect obb = this->onTransformableObjectBoundingBox(ctx);
 
     if (ctx.currentOBBScope().fNode != this && !fTransform.isIdentity()) {
-        this->mapToParent(&obb);
+        obb = this->mapToParent(obb);
     }
     return obb;
 }

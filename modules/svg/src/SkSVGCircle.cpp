@@ -47,10 +47,7 @@ SkPath SkSVGCircle::onAsPath(const SkSVGRenderContext& ctx) const {
     SkScalar r;
     std::tie(pos, r) = this->resolve(ctx.lengthContext());
 
-    SkPath path = SkPath::Circle(pos.x(), pos.y(), r);
-    this->mapToParent(&path);
-
-    return path;
+    return this->mapToParent(SkPath::Circle(pos.x(), pos.y(), r));
 }
 
 SkRect SkSVGCircle::onTransformableObjectBoundingBox(const SkSVGRenderContext& ctx) const {
