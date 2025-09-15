@@ -42,6 +42,7 @@ skia_codec_shared = [
   "$_src/codec/SkExif.cpp",
   "$_src/codec/SkFrameHolder.h",
   "$_src/codec/SkGainmapInfo.cpp",
+  "$_src/codec/SkHdrMetadata.cpp",
   "$_src/codec/SkImageGenerator_FromEncoded.cpp",
   "$_src/codec/SkMaskSwizzler.cpp",
   "$_src/codec/SkMaskSwizzler.h",
