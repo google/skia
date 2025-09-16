@@ -172,6 +172,8 @@ private:
 
     void applyDriverCorrectnessWorkarounds(const PhysicalDeviceProperties&);
 
+    void initShaderCaps(const EnabledFeatures, const uint32_t vendorID);
+
     void initFormatTable(const skgpu::VulkanInterface*,
                          VkPhysicalDevice,
                          const VkPhysicalDeviceProperties&);
