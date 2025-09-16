@@ -11,8 +11,8 @@ package gen_tasks_logic
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -334,7 +334,7 @@ type JobInfo struct {
 func LoadConfig() *Config {
 	cfgDir := getCallingDirName()
 	var cfg Config
-	LoadJson(filepath.Join(cfgDir, "cfg.json"), &cfg)
+	LoadJSON(filepath.Join(cfgDir, "cfg.json"), &cfg)
 	return &cfg
 }
 
@@ -348,10 +348,9 @@ func CheckoutRoot() string {
 	return root
 }
 
-// LoadJson loads JSON from the given file and unmarshals it into the given
-// destination.
-func LoadJson(filename string, dest interface{}) {
-	b, err := ioutil.ReadFile(filename)
+// LoadJSON loads JSON from the given file and unmarshals it into the given destination.
+func LoadJSON(filename string, dest interface{}) {
+	b, err := os.ReadFile(filename)
 	if err != nil {
 		log.Fatalf("Unable to read %q: %s", filename, err)
 	}
@@ -376,6 +375,37 @@ func In(s string, a []string) bool {
 // file which is the sibling of the calling gen_tasks.go file. If cfg is nil, it
 // is similarly loaded from a cfg.json file which is the sibling of the calling
 // gen_tasks.go file.
+func FormatJobsJSON(jobsFilePath string) []*JobInfo {
+	var jobsWithInfo []*JobInfo
+	LoadJSON(jobsFilePath, &jobsWithInfo)
+
+	// Deduplicate jobs based on the "name" key.
+	seen := make(map[string]bool)
+	uniqueJobs := make([]*JobInfo, 0)
+	for _, job := range jobsWithInfo {
+		if _, ok := seen[job.Name]; !ok {
+			seen[job.Name] = true
+			uniqueJobs = append(uniqueJobs, job)
+		}
+	}
+	jobsWithInfo = uniqueJobs
+
+	// Sort the jobs by the "name" key.
+	sort.Slice(jobsWithInfo, func(i, j int) bool {
+		return jobsWithInfo[i].Name < jobsWithInfo[j].Name
+	})
+
+	// Pretty print and write back to jobs.json.
+	updatedJobsJson, err := json.MarshalIndent(jobsWithInfo, "", "  ")
+	if err != nil {
+		log.Fatalf("Unable to marshal jobs.json: %s", err)
+	}
+	if err := os.WriteFile(jobsFilePath, updatedJobsJson, 0644); err != nil {
+		log.Fatalf("Unable to write jobs.json: %s", err)
+	}
+	return jobsWithInfo
+}
+
 func GenTasks(cfg *Config) {
 	b := specs.MustNewTasksCfgBuilder()
 
@@ -384,9 +414,9 @@ func GenTasks(cfg *Config) {
 	relpathTargetDir := getThisDirName()
 	relpathBaseDir := getCallingDirName()
 
-	// Parse jobs.json.
-	var jobsWithInfo []*JobInfo
-	LoadJson(filepath.Join(relpathBaseDir, "jobs.json"), &jobsWithInfo)
+	// Format and load jobs.json.
+	jobsFilePath := filepath.Join(relpathBaseDir, "jobs.json")
+	jobsWithInfo := FormatJobsJSON(jobsFilePath)
 	// Create a slice with only job names.
 	jobs := []string{}
 	for _, j := range jobsWithInfo {
@@ -395,7 +425,7 @@ func GenTasks(cfg *Config) {
 
 	if cfg == nil {
 		cfg = new(Config)
-		LoadJson(filepath.Join(relpathBaseDir, "cfg.json"), cfg)
+		LoadJSON(filepath.Join(relpathBaseDir, "cfg.json"), cfg)
 	}
 
 	// Create the JobNameSchema.
