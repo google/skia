@@ -309,18 +309,20 @@ SkPath SkPathBuilder::make(sk_sp<SkPathRef> pr) const {
     return path;
 }
 
-SkPath SkPathBuilder::snapshot() const {
+SkPath SkPathBuilder::snapshot(const SkMatrix* mx) const {
     return this->make(sk_sp<SkPathRef>(new SkPathRef(fPts,
                                                      fVerbs,
                                                      fConicWeights,
-                                                     fSegmentMask)));
+                                                     fSegmentMask,
+                                                     mx)));
 }
 
-SkPath SkPathBuilder::detach() {
+SkPath SkPathBuilder::detach(const SkMatrix* mx) {
     auto path = this->make(sk_sp<SkPathRef>(new SkPathRef(std::move(fPts),
                                                           std::move(fVerbs),
                                                           std::move(fConicWeights),
-                                                          fSegmentMask)));
+                                                          fSegmentMask,
+                                                          mx)));
     this->reset();
     return path;
 }

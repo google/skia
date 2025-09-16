@@ -1493,16 +1493,16 @@ void SkPath::offset(SkScalar dx, SkScalar dy, SkPath* dst) const {
     this->transform(matrix, dst);
 }
 
-static void subdivide_cubic_to(SkPath* path, const SkPoint pts[4],
+static void subdivide_cubic_to(SkPathBuilder* builder, const SkPoint pts[4],
                                int level = 2) {
     if (--level >= 0) {
         SkPoint tmp[7];
 
         SkChopCubicAtHalf(pts, tmp);
-        subdivide_cubic_to(path, &tmp[0], level);
-        subdivide_cubic_to(path, &tmp[3], level);
+        subdivide_cubic_to(builder, &tmp[0], level);
+        subdivide_cubic_to(builder, &tmp[3], level);
     } else {
-        path->cubicTo(pts[1], pts[2], pts[3]);
+        builder->cubicTo(pts[1], pts[2], pts[3]);
     }
 }
 
@@ -1520,8 +1520,6 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
     }
 
     if (matrix.hasPerspective()) {
-        SkPath  tmp;
-        tmp.fFillType = fFillType;
 
         SkPath clipped;
         const SkPath* src = this;
@@ -1529,6 +1527,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
             src = &clipped;
         }
 
+        SkPathBuilder tmp(this->getFillType());
         SkPath::Iter iter(*src, false);
         while (auto rec = iter.next()) {
             const SkSpan<const SkPoint> pts = rec->fPoints;
@@ -1556,10 +1555,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
                     break;
             }
         }
-
-        dst->swap(tmp);
-        SkPathRef::Editor ed(&dst->fPathRef);
-        matrix.mapPoints({ed.writablePoints(), ed.pathRef()->countPoints()});
+        *dst = tmp.detach(&matrix);
     } else {
         SkPathConvexity convexity = this->getConvexityOrUnknown();
 
@@ -3439,7 +3435,8 @@ SkPath SkPath::MakeInternal(const SkPathVerbAnalysis& analysis,
                                      SkSpan(points, analysis.points),
                                      verbs,
                                      SkSpan(conics, analysis.weights),
-                                     analysis.segmentMask)),
+                                     analysis.segmentMask,
+                                     nullptr)),
                 fillType, isVolatile, SkPathConvexity::kUnknown);
 }
 
@@ -3518,8 +3515,7 @@ struct SkHalfPlane {
 };
 
 // assumes plane is pre-normalized
-// If we fail in our calculations, we return the empty path
-static SkPath clip(const SkPath& path, const SkHalfPlane& plane) {
+static std::optional<SkPath> clip(const SkPath& path, const SkHalfPlane& plane) {
     SkMatrix mx;
     SkPoint p0 = { -plane.fA*plane.fC, -plane.fB*plane.fC };
     mx.setAll( plane.fB, plane.fA, p0.fX,
@@ -3527,13 +3523,12 @@ static SkPath clip(const SkPath& path, const SkHalfPlane& plane) {
                       0,        0,     1);
     auto inv = mx.invert();
     if (!inv) {
-        return SkPath();
+        return {};
     }
 
-    SkPathBuilder rotated(path);
-    rotated.transform(*inv);
+    SkPath rotated = path.makeTransform(*inv);
     if (!rotated.isFinite()) {
-        return SkPath();
+        return {};
     }
 
     SkScalar big = SK_ScalarMax;
@@ -3581,9 +3576,9 @@ static SkPath clip(const SkPath& path, const SkHalfPlane& plane) {
     }, &rec);
 
     rec.fResult.setFillType(path.getFillType());
-    SkPath result = rec.fResult.detach().makeTransform(mx);
+    SkPath result = rec.fResult.detach(&mx);
     if (!result.isFinite()) {
-        result = SkPath();
+        return {};
     }
     return result;
 }
@@ -3604,7 +3599,11 @@ bool SkPathPriv::PerspectiveClip(const SkPath& path, const SkMatrix& matrix, SkP
             case SkHalfPlane::kAllPositive:
                 return false;
             case SkHalfPlane::kMixed: {
-                *clippedPath = clip(path, plane);
+                if (auto result = clip(path, plane)) {
+                    *clippedPath = *result;
+                } else {
+                    *clippedPath = SkPath(); // clipped out (or failed)
+                }
                 return true;
             }
             default: break; // handled outside of the switch

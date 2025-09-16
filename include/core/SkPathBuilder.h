@@ -86,16 +86,18 @@ public:
     /** Returns an SkPath representing the current state of the SkPathBuilder. The builder is
         unchanged after returning the path.
 
+        @param mx if present, applied to the points after they are copied into the resulting path.
         @return  SkPath representing the current state of the builder.
      */
-    SkPath snapshot() const;
+    SkPath snapshot(const SkMatrix* mx = nullptr) const;
 
     /** Returns an SkPath representing the current state of the SkPathBuilder. The builder is
         reset to empty after returning the path.
 
+        @param mx if present, applied to the points after they are copied into the resulting path.
         @return  SkPath representing the current state of the builder.
      */
-    SkPath detach();
+    SkPath detach(const SkMatrix* mx = nullptr);
 
     /** Sets SkPathFillType, the rule used to fill SkPath. While there is no
         check that ft is legal, values outside of SkPathFillType are not supported.

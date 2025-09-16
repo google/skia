@@ -9,6 +9,7 @@
 #define SkPathRef_DEFINED
 
 #include "include/core/SkArc.h"
+#include "include/core/SkMatrix.h"
 #include "include/core/SkPathTypes.h" // IWYU pragma: keep
 #include "include/core/SkPoint.h"
 #include "include/core/SkRRect.h"
@@ -110,7 +111,7 @@ public:
     using ConicWeightsArray = skia_private::STArray<2, float>;
 
     SkPathRef(SkSpan<const SkPoint> points, SkSpan<const SkPathVerb> verbs,
-              SkSpan<const SkScalar> weights, unsigned segmentMask)
+              SkSpan<const SkScalar> weights, unsigned segmentMask, const SkMatrix* mx)
         : fPoints(points)
         , fVerbs(verbs)
         , fConicWeights(weights)
@@ -120,7 +121,9 @@ public:
         fSegmentMask = segmentMask;
         fType = SkPathIsAType::kGeneral;
         SkDEBUGCODE(fEditorsAttached.store(0);)
-
+        if (mx && !mx->isIdentity()) {
+            mx->mapPoints(fPoints);
+        }
         this->computeBounds();  // do this now, before we worry about multiple owners/threads
         SkDEBUGCODE(this->validate();)
     }
