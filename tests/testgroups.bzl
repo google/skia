@@ -40,6 +40,7 @@ CORE_TESTS = [
     "DrawBitmapRectTest.cpp",
     "DrawPathTest.cpp",
     "EmptyPathTest.cpp",
+    "ExecutorTest.cpp",
     "F16StagesTest.cpp",
     "FillPathTest.cpp",
     "FitsInTest.cpp",

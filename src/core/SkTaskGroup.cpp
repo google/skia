@@ -14,11 +14,21 @@
 SkTaskGroup::SkTaskGroup(SkExecutor& executor) : fPending(0), fExecutor(executor) {}
 
 void SkTaskGroup::add(std::function<void(void)> fn) {
+    this->add(std::move(fn), /* workList= */ 0);
+}
+
+void SkTaskGroup::add(std::function<void(void)> fn, int workList) {
     fPending.fetch_add(+1, std::memory_order_relaxed);
     fExecutor.add([this, fn{std::move(fn)}] {
-        fn();
-        fPending.fetch_add(-1, std::memory_order_release);
-    });
+                      fn();
+                      fPending.fetch_add(-1, std::memory_order_release);
+                  },
+                  workList);
+}
+
+void SkTaskGroup::discardAllPendingWork() {
+    int numDiscarded = fExecutor.discardAllPendingWork();
+    fPending.fetch_add(-numDiscarded, std::memory_order_release);
 }
 
 void SkTaskGroup::batch(int N, std::function<void(int)> fn) {
