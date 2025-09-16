@@ -27,6 +27,7 @@ class PipelineCreationTask;
 struct RenderPassDesc;
 class ResourceProvider;
 class RuntimeEffectDictionary;
+class SharedContext;
 
 class PipelineManager {
 public:
@@ -34,7 +35,7 @@ public:
     ~PipelineManager();
 
     GraphicsPipelineHandle createHandle(
-            ResourceProvider*,
+            SharedContext*,
             const GraphicsPipelineDesc&,
             const RenderPassDesc&,
             SkEnumBitMask<PipelineCreationFlags>);

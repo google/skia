@@ -215,6 +215,11 @@ sk_sp<GraphicsPipeline> GlobalCache::findGraphicsPipeline(
 
     sk_sp<GraphicsPipeline>* entry = fGraphicsPipelineCache.find(key);
     if (entry) {
+        if ((*entry)->didAsyncCompilationFail()) SK_UNLIKELY {
+            // If the pipeline failed, remove it from the cache and let it be regenerated.
+            this->removeGraphicsPipeline((*entry).get());
+            return nullptr;
+        }
 #if defined(GPU_TEST_UTILS)
         ++fStats.fGraphicsCacheHits;
 #endif
@@ -355,8 +360,8 @@ sk_sp<GraphicsPipeline> GlobalCache::addGraphicsPipeline(const UniqueKey& key,
     return *entry;
 }
 
+// Requires that the caller must have locked 'fSpinLock'
 void GlobalCache::removeGraphicsPipeline(const GraphicsPipeline* pipeline) {
-    SkAutoSpinlock lock{fSpinLock};
 
     skia_private::STArray<1, skgpu::UniqueKey> toRemove;
     // This is only called when a pipeline failed to compile, so it is not performance critical.

@@ -60,11 +60,6 @@ public:
     // Otherwise, the passed-in pipeline is held by the GlobalCache and also returned back.
     sk_sp<GraphicsPipeline> addGraphicsPipeline(const UniqueKey&,
                                                 sk_sp<GraphicsPipeline>) SK_EXCLUDES(fSpinLock);
-    // Remove the GraphicsPipeline from the cache, if possible. This does nothing if the pipeline
-    // is not held in the cache. This removes based on actual pipeline object, not by key. When
-    // pipeline compilation has transient failures, it is possible for multiple GraphicsPipelines to
-    // be created that have the same key.
-    void removeGraphicsPipeline(const GraphicsPipeline*) SK_EXCLUDES(fSpinLock);
 
     void purgePipelinesNotUsedSince(
             StdSteadyClock::time_point purgeTime) SK_EXCLUDES(fSpinLock);
@@ -150,6 +145,12 @@ public:
 
 private:
     static constexpr int kNumDynamicSamplers = 1 << SamplerDesc::kImmutableSamplerInfoShift;
+
+    // Remove the GraphicsPipeline from the cache, if possible. This does nothing if the pipeline
+    // is not held in the cache. This removes based on actual pipeline object, not by key. When
+    // pipeline compilation has transient failures, it is possible for multiple GraphicsPipelines to
+    // be created that have the same key.
+    void removeGraphicsPipeline(const GraphicsPipeline*) SK_REQUIRES(fSpinLock);
 
     struct KeyHash {
         uint32_t operator()(const UniqueKey& key) const { return key.hash(); }
