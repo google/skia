@@ -36,15 +36,14 @@ public:
                                                 Discardable) const override;
 
     TextureInfo getDefaultSampledTextureInfo(SkColorType,
-                                             Mipmapped mipmapped,
+                                             Mipmapped,
                                              Protected,
                                              Renderable) const override;
 
-    TextureInfo getTextureInfoForSampledCopy(const TextureInfo& textureInfo,
-                                             Mipmapped mipmapped) const override;
+    TextureInfo getTextureInfoForSampledCopy(const TextureInfo&, Mipmapped) const override;
 
     TextureInfo getDefaultCompressedTextureInfo(SkTextureCompressionType,
-                                                Mipmapped mipmapped,
+                                                Mipmapped,
                                                 Protected) const override;
 
     TextureInfo getDefaultStorageTextureInfo(SkColorType) const override;
@@ -66,7 +65,7 @@ public:
     bool isRenderable(const TextureInfo&) const override;
     bool isStorage(const TextureInfo&) const override;
 
-    bool isFormatSupported(VkFormat format) const;
+    bool isFormatSupported(VkFormat) const;
     bool isTexturable(const VulkanTextureInfo&) const;
     bool isRenderable(const VulkanTextureInfo&) const;
     bool isTransferSrc(const VulkanTextureInfo&) const;
@@ -154,7 +153,7 @@ private:
         // From VkPhysicalDeviceHostImageCopyFeatures:
         bool fHostImageCopy = false;
     };
-    EnabledFeatures getEnabledFeatures(const VkPhysicalDeviceFeatures2* features,
+    EnabledFeatures getEnabledFeatures(const VkPhysicalDeviceFeatures2*,
                                        uint32_t physicalDeviceVersion);
 
     struct PhysicalDeviceProperties {
@@ -164,12 +163,12 @@ private:
         VkPhysicalDeviceHostImageCopyPropertiesEXT fHic;
         bool fHicHasShaderReadOnlyDstLayout = false;
     };
-    void getProperties(const skgpu::VulkanInterface* vkInterface,
-                       VkPhysicalDevice physDev,
+    void getProperties(const skgpu::VulkanInterface*,
+                       VkPhysicalDevice,
                        uint32_t physicalDeviceVersion,
-                       const skgpu::VulkanExtensions* extensions,
-                       const EnabledFeatures& features,
-                       PhysicalDeviceProperties* props);
+                       const skgpu::VulkanExtensions*,
+                       const EnabledFeatures&,
+                       PhysicalDeviceProperties*);
 
     void applyDriverCorrectnessWorkarounds(const PhysicalDeviceProperties&);
 
@@ -204,7 +203,7 @@ private:
      * depend on whether the application has created the image with the
      * VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT flag.
      */
-    bool msaaTextureRenderToSingleSampledSupport(const TextureInfo& info) const override;
+    bool msaaTextureRenderToSingleSampledSupport(const TextureInfo&) const override;
 
     // Struct that determines and stores which sample count quantities a VkFormat supports.
     struct SupportedSampleCounts {
