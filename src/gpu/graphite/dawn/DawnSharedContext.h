@@ -43,12 +43,22 @@ public:
 
     void deviceTick(Context*) override;
 
+    const wgpu::BindGroupLayout& getUniformBuffersBindGroupLayout() const {
+        return fUniformBuffersBindGroupLayout;
+    }
+    const wgpu::BindGroupLayout& getSingleTextureSamplerBindGroupLayout() const {
+        return fSingleTextureSamplerBindGroupLayout;
+    }
+
 private:
     DawnSharedContext(const DawnBackendContext&,
                       std::unique_ptr<const DawnCaps>,
                       wgpu::ShaderModule noopFragment,
                       SkExecutor*,
                       SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
+
+    void createUniformBuffersBindGroupLayout();
+    void createSingleTextureSamplerBindGroupLayout();
 
     wgpu::Instance     fInstance;
     wgpu::Device       fDevice;
@@ -57,6 +67,9 @@ private:
     // A noop fragment shader, it is used to workaround dawn a validation error(dawn doesn't allow
     // a pipeline with a color attachment but without a fragment shader).
     wgpu::ShaderModule fNoopFragment;
+
+    wgpu::BindGroupLayout fUniformBuffersBindGroupLayout;
+    wgpu::BindGroupLayout fSingleTextureSamplerBindGroupLayout;
 };
 
 } // namespace skgpu::graphite

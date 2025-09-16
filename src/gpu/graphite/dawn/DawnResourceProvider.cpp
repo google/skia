@@ -636,93 +636,6 @@ sk_sp<DawnBuffer> DawnResourceProvider::findOrCreateDawnBuffer(size_t size,
     return sk_sp<DawnBuffer>(ptr);
 }
 
-const wgpu::BindGroupLayout& DawnResourceProvider::getOrCreateUniformBuffersBindGroupLayout() {
-    SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
-
-    if (fUniformBuffersBindGroupLayout) {
-        return fUniformBuffersBindGroupLayout;
-    }
-
-    std::array<wgpu::BindGroupLayoutEntry, 4> entries;
-    entries[0].binding = DawnGraphicsPipeline::kIntrinsicUniformBufferIndex;
-    entries[0].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
-    entries[0].buffer.type = wgpu::BufferBindingType::Uniform;
-    entries[0].buffer.hasDynamicOffset = true;
-    entries[0].buffer.minBindingSize = 0;
-
-    entries[1].binding = DawnGraphicsPipeline::kRenderStepUniformBufferIndex;
-    entries[1].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
-    entries[1].buffer.type = fSharedContext->caps()->storageBufferSupport()
-                                     ? wgpu::BufferBindingType::ReadOnlyStorage
-                                     : wgpu::BufferBindingType::Uniform;
-    entries[1].buffer.hasDynamicOffset = true;
-    entries[1].buffer.minBindingSize = 0;
-
-    entries[2].binding = DawnGraphicsPipeline::kPaintUniformBufferIndex;
-    entries[2].visibility = wgpu::ShaderStage::Vertex | wgpu::ShaderStage::Fragment;
-    entries[2].buffer.type = fSharedContext->caps()->storageBufferSupport()
-                                     ? wgpu::BufferBindingType::ReadOnlyStorage
-                                     : wgpu::BufferBindingType::Uniform;
-    entries[2].buffer.hasDynamicOffset = true;
-    entries[2].buffer.minBindingSize = 0;
-
-    // Gradient buffer will only be used when storage buffers are preferred, else large
-    // gradients use a texture fallback, set binding type as a uniform when not in use to
-    // satisfy any binding type restricions for non-supported ssbo devices.
-    entries[3].binding = DawnGraphicsPipeline::kGradientBufferIndex;
-    entries[3].visibility = wgpu::ShaderStage::Fragment;
-    entries[3].buffer.type = fSharedContext->caps()->storageBufferSupport()
-                                     ? wgpu::BufferBindingType::ReadOnlyStorage
-                                     : wgpu::BufferBindingType::Uniform;
-    entries[3].buffer.hasDynamicOffset = true;
-    entries[3].buffer.minBindingSize = 0;
-
-    wgpu::BindGroupLayoutDescriptor groupLayoutDesc;
-    if (fSharedContext->caps()->setBackendLabels()) {
-        groupLayoutDesc.label = "Uniform buffers bind group layout";
-    }
-
-    groupLayoutDesc.entryCount = entries.size();
-    groupLayoutDesc.entries = entries.data();
-    fUniformBuffersBindGroupLayout =
-            this->dawnSharedContext()->device().CreateBindGroupLayout(&groupLayoutDesc);
-
-    return fUniformBuffersBindGroupLayout;
-}
-
-const wgpu::BindGroupLayout&
-DawnResourceProvider::getOrCreateSingleTextureSamplerBindGroupLayout() {
-    SKGPU_ASSERT_SINGLE_OWNER(fSingleOwner)
-
-    if (fSingleTextureSamplerBindGroupLayout) {
-        return fSingleTextureSamplerBindGroupLayout;
-    }
-
-    std::array<wgpu::BindGroupLayoutEntry, 2> entries;
-
-    entries[0].binding = 0;
-    entries[0].visibility = wgpu::ShaderStage::Fragment;
-    entries[0].sampler.type = wgpu::SamplerBindingType::Filtering;
-
-    entries[1].binding = 1;
-    entries[1].visibility = wgpu::ShaderStage::Fragment;
-    entries[1].texture.sampleType = wgpu::TextureSampleType::Float;
-    entries[1].texture.viewDimension = wgpu::TextureViewDimension::e2D;
-    entries[1].texture.multisampled = false;
-
-    wgpu::BindGroupLayoutDescriptor groupLayoutDesc;
-    if (fSharedContext->caps()->setBackendLabels()) {
-        groupLayoutDesc.label = "Single texture + sampler bind group layout";
-    }
-
-    groupLayoutDesc.entryCount = entries.size();
-    groupLayoutDesc.entries = entries.data();
-    fSingleTextureSamplerBindGroupLayout =
-            this->dawnSharedContext()->device().CreateBindGroupLayout(&groupLayoutDesc);
-
-    return fSingleTextureSamplerBindGroupLayout;
-}
-
 const wgpu::Buffer& DawnResourceProvider::getOrCreateNullBuffer() {
     if (!fNullBuffer) {
         wgpu::BufferDescriptor desc;
@@ -779,7 +692,7 @@ const wgpu::BindGroup& DawnResourceProvider::findOrCreateUniformBuffersBindGroup
     }
 
     wgpu::BindGroupDescriptor desc;
-    desc.layout = this->getOrCreateUniformBuffersBindGroupLayout();
+    desc.layout = this->dawnSharedContext()->getUniformBuffersBindGroupLayout();
     desc.entryCount = entries.size();
     desc.entries = entries.data();
 
@@ -808,7 +721,7 @@ const wgpu::BindGroup& DawnResourceProvider::findOrCreateSingleTextureSamplerBin
     entries[1].textureView = texture->sampleTextureView();
 
     wgpu::BindGroupDescriptor desc;
-    desc.layout = getOrCreateSingleTextureSamplerBindGroupLayout();
+    desc.layout = this->dawnSharedContext()->getSingleTextureSamplerBindGroupLayout();
     desc.entryCount = entries.size();
     desc.entries = entries.data();
 
