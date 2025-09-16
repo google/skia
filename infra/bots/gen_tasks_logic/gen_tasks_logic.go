@@ -1088,13 +1088,9 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			} else if b.IsLinux() {
 				gpu, ok := map[string]string{
 					// Intel drivers come from CIPD, so no need to specify the version here.
-					"IntelHD2000":  "8086:0102",
 					"IntelHD405":   "8086:22b1",
-					"IntelIris640": "8086:5926-24.2.8",
 					"QuadroP400":   "10de:1cb3-510.60.02",
-					"RTX3060":      "10de:2489-470.182.03",
 					"IntelIrisXe":  "8086:9a49",
-					"RadeonVega6":  "1002:1636",
 					"RadeonVega8":  "1002:1638-23.2.1",
 				}[b.Parts["cpu_or_gpu_value"]]
 				if !ok {
