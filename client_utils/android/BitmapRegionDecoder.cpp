@@ -26,6 +26,7 @@ std::unique_ptr<BitmapRegionDecoder> BitmapRegionDecoder::Make(sk_sp<SkData> dat
         case SkEncodedImageFormat::kPNG:
         case SkEncodedImageFormat::kWEBP:
         case SkEncodedImageFormat::kHEIF:
+        case SkEncodedImageFormat::kAVIF:
             break;
         default:
             return nullptr;
