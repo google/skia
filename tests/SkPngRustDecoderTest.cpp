@@ -785,3 +785,25 @@ DEF_TEST(RustPngCodec_subset, r) {
     test_subset_decode(r, "images/baby_tux.png");
     test_subset_decode(r, "images/plane_interlaced.png");
 }
+
+DEF_TEST(RustPngCodec_interlaced_animated_blending, r) {
+    std::unique_ptr<SkCodec> codec =
+        SkPngRustDecoderDecode(r, "images/interlaced-multiframe-with-blending.png");
+    REPORTER_ASSERT(r, codec);
+
+    // Use incrementalDecode for each frame of this image. This should not crash.
+    SkBitmap bm;
+    SkImageInfo info = codec->getInfo();
+    bm.allocPixels(info);
+    REPORTER_ASSERT(r, codec->getFrameCount() == 4);
+    for (int i = 0; i < codec->getFrameCount(); ++i) {
+        SkCodec::Options options;
+        options.fFrameIndex = i;
+        options.fPriorFrame = i - 1;
+        SkCodec::Result result;
+        result = codec->startIncrementalDecode(info, bm.getPixels(), bm.rowBytes(), &options);
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+        codec->incrementalDecode();
+        REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
+    }
+}

@@ -875,7 +875,7 @@ DEF_TEST(Codec_Empty, r) {
     test_invalid(r, "invalid_images/ossfuzz6347");
 }
 
-#ifdef PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
+#if defined(SK_CODEC_DECODES_PNG_WITH_LIBPNG) && defined(PNG_READ_UNKNOWN_CHUNKS_SUPPORTED)
 
 #ifndef SK_PNG_DISABLE_TESTS   // reading chunks does not work properly with older versions.
                                // It does not appear that anyone in Google3 is reading chunks.
@@ -1034,7 +1034,7 @@ DEF_TEST(Codec_pngChunkReader, r) {
     REPORTER_ASSERT(r, chunkReader.allHaveBeenSeen());
 }
 #endif // SK_PNG_DISABLE_TESTS
-#endif // PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
+#endif // PNG_READ_UNKNOWN_CHUNKS_SUPPORTED and SK_CODEC_DECODES_PNG_WITH_LIBPNG
 
 // Stream that can only peek up to a limit
 class LimitedPeekingMemStream : public SkStream {
