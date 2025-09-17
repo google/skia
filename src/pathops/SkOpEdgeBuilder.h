@@ -20,16 +20,6 @@ class SkPath;
 
 class SkOpEdgeBuilder {
 public:
-    SkOpEdgeBuilder(const SkPathWriter& path, SkOpContourHead* contours2,
-            SkOpGlobalState* globalState)
-        : fGlobalState(globalState)
-        , fPath(path.nativePath())
-        , fContourBuilder(contours2)
-        , fContoursHead(contours2)
-        , fAllowOpenContours(true) {
-        init();
-    }
-
     SkOpEdgeBuilder(const SkPath& path, SkOpContourHead* contours2, SkOpGlobalState* globalState)
         : fGlobalState(globalState)
         , fPath(&path)

@@ -8,6 +8,7 @@
 #define SkPathWriter_DEFINED
 
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/private/base/SkTArray.h"
@@ -21,7 +22,7 @@ class SkOpPtT;
 
 class SkPathWriter {
 public:
-    SkPathWriter(SkPath& path);
+    SkPathWriter(SkPathFillType);
     void assemble();
     void conicTo(const SkPoint& pt1, const SkOpPtT* pt2, SkScalar weight);
     void cubicTo(const SkPoint& pt1, const SkPoint& pt2, const SkOpPtT* pt3);
@@ -31,7 +32,7 @@ public:
     bool hasMove() const { return !fFirstPtT; }
     void init();
     bool isClosed() const;
-    const SkPath* nativePath() const { return fPathPtr; }
+    SkPath nativePath() { return fBuilder.detach(); }
     void quadTo(const SkPoint& pt1, const SkOpPtT* pt2);
 
 private:
@@ -45,10 +46,10 @@ private:
     bool someAssemblyRequired();
     SkPoint update(const SkOpPtT* pt);
 
+    SkPathBuilder fBuilder;
     SkPath fCurrent;  // contour under construction
     skia_private::TArray<SkPath> fPartials;   // contours with mismatched starts and ends
     SkTDArray<const SkOpPtT*> fEndPtTs;  // possible pt values for partial starts and ends
-    SkPath* fPathPtr;  // closed contours are written here
     const SkOpPtT* fDefer[2];  // [0] deferred move, [1] deferred line
     const SkOpPtT* fFirstPtT;  // first in current contour
 };

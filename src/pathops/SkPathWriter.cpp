@@ -9,6 +9,7 @@
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkMath.h"
 #include "src/base/SkTSort.h"
+#include "src/core/SkPathPriv.h"
 #include "src/pathops/SkOpSegment.h"
 #include "src/pathops/SkOpSpan.h"
 #include "src/pathops/SkPathOpsDebug.h"
@@ -16,10 +17,7 @@
 
 using namespace skia_private;
 
-// wrap path to keep track of whether the contour is initialized and non-empty
-SkPathWriter::SkPathWriter(SkPath& path)
-    : fPathPtr(&path)
-{
+SkPathWriter::SkPathWriter(SkPathFillType ft) : fBuilder(ft) {
     init();
 }
 
@@ -32,7 +30,7 @@ void SkPathWriter::close() {
     SkDebugf("path.close();\n");
 #endif
     fCurrent.close();
-    fPathPtr->addPath(fCurrent);
+    fBuilder.addPath(fCurrent);
     fCurrent.reset();
     init();
 }
@@ -228,8 +226,7 @@ void SkPathWriter::assemble() {
     // lengthen any partial contour adjacent to a simple segment
     for (int pIndex = 0; pIndex < endCount; pIndex++) {
         SkOpPtT* opPtT = const_cast<SkOpPtT*>(runs[pIndex]);
-        SkPath p;
-        SkPathWriter partWriter(p);
+        SkPathWriter partWriter(SkPathFillType::kDefault);
         do {
             if (!zero_or_one(opPtT->fT)) {
                 break;
@@ -356,16 +353,17 @@ void SkPathWriter::assemble() {
         do {
             const SkPath& contour = fPartials[rIndex];
             if (!first) {
-                SkPoint prior, next;
-                if (!fPathPtr->getLastPt(&prior)) {
+                auto prior = fBuilder.getLastPt();
+                if (!prior) {
                     return;
                 }
+                SkPoint next;
                 if (forward) {
                     next = contour.getPoint(0);
                 } else {
                     SkAssertResult(contour.getLastPt(&next));
                 }
-                if (prior != next) {
+                if (*prior != next) {
                     /* TODO: if there is a gap between open path written so far and path to come,
                        connect by following segments from one to the other, rather than introducing
                        a diagonal to connect the two.
@@ -373,11 +371,11 @@ void SkPathWriter::assemble() {
                 }
             }
             if (forward) {
-                fPathPtr->addPath(contour,
+                fBuilder.addPath(contour,
                         first ? SkPath::kAppend_AddPathMode : SkPath::kExtend_AddPathMode);
             } else {
                 SkASSERT(!first);
-                fPathPtr->reversePathTo(contour);
+                SkPathPriv::ReversePathTo(&fBuilder, contour);
             }
             if (first) {
                 first = false;
@@ -388,7 +386,7 @@ void SkPathWriter::assemble() {
                 sIndex == ((rIndex != eIndex) ^ forward ? eIndex : ~eIndex));
 #endif
             if (sIndex == ((rIndex != eIndex) ^ forward ? eIndex : ~eIndex)) {
-                fPathPtr->close();
+                fBuilder.close();
                 break;
             }
             if (forward) {

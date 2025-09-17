@@ -105,8 +105,8 @@ bool SkOpBuilder::FixWinding(SkPath* path) {
         path->setFillType(fillType);
         return true;
     }
-    SkPath empty;
-    SkPathWriter woundPath(empty);
+
+    SkPathWriter woundPath(fillType);
     SkOpContour* test = &contourHead;
     do {
         if (!test->count()) {
@@ -118,8 +118,7 @@ bool SkOpBuilder::FixWinding(SkPath* path) {
             test->toPath(&woundPath);
         }
     } while ((test = test->next()));
-    *path = *woundPath.nativePath();
-    path->setFillType(fillType);
+    *path = woundPath.nativePath();
     return true;
 }
 

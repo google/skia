@@ -358,15 +358,12 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     contourList->dumpSegments("aligned");
 #endif
     // construct closed contours
-    SkPath original = *result;
-    result->reset();
-    result->setFillType(fillType);
-    SkPathWriter wrapper(*result);
+    SkPathWriter wrapper(fillType);
     if (!bridgeOp(contourList, op, xorMask, xorOpMask, &wrapper)) {
-        *result = original;
         return false;
     }
     wrapper.assemble();  // if some edges could not be resolved, assemble remaining
+    *result = wrapper.nativePath();
 #if DEBUG_T_SECT_LOOP_COUNT
     static SkMutex& debugWorstLoop = *(new SkMutex);
     {

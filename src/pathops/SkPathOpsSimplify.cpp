@@ -266,14 +266,13 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
     contour.dumpSegments("aligned");
 #endif
     // construct closed contours
-    result->reset();
-    result->setFillType(fillType);
-    SkPathWriter wrapper(*result);
+    SkPathWriter wrapper(fillType);
     if (builder.xorMask() == kWinding_PathOpsMask ? !bridgeWinding(contourList, &wrapper)
             : !bridgeXor(contourList, &wrapper)) {
         return false;
     }
     wrapper.assemble();  // if some edges could not be resolved, assemble remaining
+    *result = wrapper.nativePath();
     return true;
 }
 
