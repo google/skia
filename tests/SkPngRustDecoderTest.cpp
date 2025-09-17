@@ -691,6 +691,18 @@ DEF_TEST(RustPngCodec_f16_trc_tables, r) {
     REPORTER_ASSERT_SUCCESSFUL_CODEC_RESULT(r, result);
 }
 
+DEF_TEST(RustPngCodec_crbug445556737, r) {
+    sk_sp<SkImage> image = DecodeLastFrame(r, "images/crbug445556737.png");
+    if (!image) {
+        return;
+    }
+
+    // The main test verification is that there are no assertion failures nor
+    // other crashes.  Cursory verification below is supplementary/secondary.
+    REPORTER_ASSERT(r, image->height() == 5);
+    REPORTER_ASSERT(r, image->width() == 5);
+}
+
 DEF_TEST(RustPngCodec_invalid_profile, r) {
     // This image has an gamma value of 0. For parity with Blink, we want to disregard
     // the ICC profile in this case and create the codec without it. This is different

@@ -420,8 +420,8 @@ void blendAllRows(SkSpan<uint8_t> dstFrame,
     while (srcFrame.size() >= rowSize) {
         blendRow(dstFrame, srcFrame.first(rowSize), color, alpha);
 
-        dstFrame = dstFrame.subspan(rowStride);
-        srcFrame = srcFrame.subspan(rowStride);
+        srcFrame = srcFrame.subspan(std::min(rowStride, srcFrame.size()));
+        dstFrame = dstFrame.subspan(std::min(rowStride, dstFrame.size()));
     }
 }
 
