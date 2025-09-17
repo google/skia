@@ -807,7 +807,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 			task_os = "Win"
 		} else if b.ExtraConfig("WasmGMTests") {
 			task_os = DEFAULT_OS_LINUX_GCE
-		} else if b.Compiler("GCC") || b.Os("Ubuntu18") {
+		} else if b.Compiler("GCC") {
 			// GCC compiles are now on a Docker container. We use the same OS and
 			// version to compile as to test.
 			ec = append([]string{"Docker"}, ec...)
@@ -912,7 +912,6 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 			"Mac15":       "Mac-15.3",
 			"Mokey":       "Android",
 			"MokeyGo32":   "Android",
-			"Ubuntu18":    "Ubuntu-18.04",
 			"Ubuntu20.04": UBUNTU_20_04_OS,
 			"Ubuntu22.04": UBUNTU_22_04_OS,
 			"Ubuntu24.04": UBUNTU_24_04_OS,
@@ -925,7 +924,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 		if !ok {
 			log.Fatalf("Entry %q not found in OS mapping.", os)
 		}
-		if (os == "Debian11" || os == "Ubuntu18") && b.ExtraConfig("Docker") {
+		if os == "Debian11" && b.ExtraConfig("Docker") {
 			d["os"] = DEFAULT_OS_LINUX_GCE
 			d["gce"] = "1"
 		}
@@ -1087,7 +1086,7 @@ func (b *TaskBuilder) defaultSwarmDimensions() {
 				gpu, ok := map[string]string{
 					// Intel drivers come from CIPD, so no need to specify the version here.
 					"IntelHD405":  "8086:22b1",
-					"QuadroP400":  "10de:1cb3-510.60.02",
+					"QuadroP400":  "10de:1cb3-550.163.01",
 					"IntelIrisXe": "8086:9a49",
 					"RadeonVega8": "1002:1638-23.2.1",
 				}[b.Parts["cpu_or_gpu_value"]]
@@ -2157,7 +2156,7 @@ func (b *jobBuilder) runWasmGMTests() {
 			"--changelist_id", specs.PLACEHOLDER_ISSUE,
 			"--patchset_order", specs.PLACEHOLDER_PATCHSET,
 			"--tryjob_id", specs.PLACEHOLDER_BUILDBUCKET_BUILD_ID,
-			// TODO(kjlubick, nifong) Make these not hard coded if we change the configs we test on.
+			// TODO(kjlubick) Make these not hard coded if we change the configs we test on.
 			"--webgl_version", "2", // 0 means CPU ; this flag controls cpu_or_gpu and extra_config
 			"--gold_key", "alpha_type:Premul",
 			"--gold_key", "arch:wasm",
@@ -2167,7 +2166,7 @@ func (b *jobBuilder) runWasmGMTests() {
 			"--gold_key", "configuration:Release",
 			"--gold_key", "cpu_or_gpu_value:QuadroP400",
 			"--gold_key", "model:Golo",
-			"--gold_key", "os:Ubuntu18",
+			"--gold_key", "os:Ubuntu24.04",
 		)
 	})
 }

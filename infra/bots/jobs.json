@@ -334,33 +334,6 @@
     "name": "Build-Mac-Clang-x86_64-Release-TSAN_Metal"
   },
   {
-    "name": "Build-Ubuntu18-Clang-x86_64-Debug-Docker"
-  },
-  {
-    "name": "Build-Ubuntu18-Clang-x86_64-Debug-Docker_Graphite_Native_Vulkan"
-  },
-  {
-    "name": "Build-Ubuntu18-Clang-x86_64-Debug-Docker_Vulkan"
-  },
-  {
-    "name": "Build-Ubuntu18-Clang-x86_64-Release-Docker"
-  },
-  {
-    "name": "Build-Ubuntu18-Clang-x86_64-Release-Docker_Graphite_Native_Vulkan"
-  },
-  {
-    "name": "Build-Ubuntu18-Clang-x86_64-Release-Docker_SK_CPU_LIMIT_SSE41"
-  },
-  {
-    "name": "Build-Ubuntu18-Clang-x86_64-Release-Docker_SK_USE_PADDED_BLUR_UPSCALE"
-  },
-  {
-    "name": "Build-Ubuntu18-Clang-x86_64-Release-Docker_TSAN"
-  },
-  {
-    "name": "Build-Ubuntu18-Clang-x86_64-Release-Docker_Vulkan"
-  },
-  {
     "name": "Build-Ubuntu22.04-Clang-arm-Debug-Chromebook_GLES"
   },
   {
@@ -628,6 +601,9 @@
   },
   {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-SK_FORCE_RASTER_PIPELINE_BLITTER"
+  },
+  {
+    "name": "Build-Ubuntu24.04-Clang-x86_64-Release-SK_USE_PADDED_BLUR_UPSCALE"
   },
   {
     "name": "Build-Ubuntu24.04-Clang-x86_64-Release-Static"
@@ -1167,49 +1143,25 @@
     "name": "Perf-Mac15-Clang-MacBookPro15.1-GPU-IntelUHDGraphics630-x86_64-Release-All-Metal"
   },
   {
-    "name": "Perf-Ubuntu18-Clang-Golo-CPU-AVX2-x86_64-Release-All"
-  },
-  {
-    "name": "Perf-Ubuntu18-Clang-Golo-CPU-AVX2-x86_64-Release-All-BonusConfigs"
-  },
-  {
-    "name": "Perf-Ubuntu18-Clang-Golo-CPU-AVX2-x86_64-Release-All-ColorSpaces"
-  },
-  {
-    "name": "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
-  },
-  {
-    "name": "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DMSAAStats"
-  },
-  {
-    "name": "Perf-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
-  },
-  {
-    "name": "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_CanvasPerf_WebGL1"
-  },
-  {
-    "name": "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_CanvasPerf_WebGL2"
-  },
-  {
-    "name": "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_RenderSKP_WebGL1"
-  },
-  {
-    "name": "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_RenderSKP_WebGL2"
-  },
-  {
-    "name": "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_SkottieFrames_WebGL1"
-  },
-  {
-    "name": "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_SkottieFrames_WebGL2"
-  },
-  {
-    "name": "Perf-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-SkottieWASM"
-  },
-  {
-    "name": "Perf-Ubuntu18-none-Golo-GPU-QuadroP400-x86_64-Release-All-LottieWeb"
-  },
-  {
     "name": "Perf-Ubuntu22.04-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Release-All-Vulkan"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-Clang-Golo-CPU-AVX2-x86_64-Release-All"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-Clang-Golo-CPU-AVX2-x86_64-Release-All-BonusConfigs"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-Clang-Golo-CPU-AVX2-x86_64-Release-All-ColorSpaces"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DMSAAStats"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
   },
   {
     "name": "Perf-Ubuntu24.04-Clang-NUC11TZi5-CPU-AVX2-x86_64-Release-All"
@@ -1240,6 +1192,30 @@
   },
   {
     "name": "Perf-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_CanvasPerf_WebGL1"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_CanvasPerf_WebGL2"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_RenderSKP_WebGL1"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_RenderSKP_WebGL2"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_SkottieFrames_WebGL1"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_SkottieFrames_WebGL2"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-SkottieWASM"
+  },
+  {
+    "name": "Perf-Ubuntu24.04-none-Golo-GPU-QuadroP400-x86_64-Release-All-LottieWeb"
   },
   {
     "name": "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
@@ -1778,75 +1754,6 @@
     "name": "Test-Mac15-Clang-MacBookPro15.1-GPU-IntelUHDGraphics630-x86_64-Release-All-Metal"
   },
   {
-    "name": "Test-Ubuntu18-Clang-Golo-CPU-AVX2-x86_64-Debug-All-NativeFonts"
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-CPU-AVX2-x86_64-Release-All"
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1"
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan"
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan",
-    "cq_config": {}
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Native_Vulkan",
-    "cq_config": {
-      "location_regexes": [
-        "(tests|src/gpu)/graphite/.*",
-        "src/sksl/generated/.*",
-        "dm/.+",
-        "DEPS"
-      ]
-    }
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-PreAbandonGpuContext"
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan",
-    "cq_config": {}
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
-    "cq_config": {}
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN"
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan"
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan_TestPrecompile",
-    "cq_config": {
-      "location_regexes": [
-        "(include|src)/gpu/graphite/.*Precompile.*",
-        "(include|src)/gpu/graphite/precompile/.*",
-        "(tests|tools)/graphite/precompile/.*"
-      ]
-    }
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext"
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-SK_USE_PADDED_BLUR_UPSCALE"
-  },
-  {
-    "name": "Test-Ubuntu18-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
-  },
-  {
-    "name": "Test-Ubuntu18-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-WasmGMTests_WebGL2"
-  },
-  {
     "name": "Test-Ubuntu22.04-Clang-ThinkCenter-GPU-RadeonVega8-x86_64-Debug-All-Vulkan"
   },
   {
@@ -1962,6 +1869,72 @@
     "name": "Test-Ubuntu24.04-Clang-GCE-GPU-SwiftShader-x86_64-Release-All-SwiftShader_Graphite"
   },
   {
+    "name": "Test-Ubuntu24.04-Clang-Golo-CPU-AVX2-x86_64-Debug-All-NativeFonts"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-CPU-AVX2-x86_64-Release-All"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1_Vulkan"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3_Vulkan",
+    "cq_config": {}
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Graphite_Native_Vulkan",
+    "cq_config": {
+      "location_regexes": [
+        "(tests|src/gpu)/graphite/.*",
+        "src/sksl/generated/.*",
+        "dm/.+",
+        "DEPS"
+      ]
+    }
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-PreAbandonGpuContext"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan",
+    "cq_config": {}
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All",
+    "cq_config": {}
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Graphite_Native_Vulkan_TestPrecompile",
+    "cq_config": {
+      "location_regexes": [
+        "(include|src)/gpu/graphite/.*Precompile.*",
+        "(include|src)/gpu/graphite/precompile/.*",
+        "(tests|tools)/graphite/precompile/.*"
+      ]
+    }
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-SK_USE_PADDED_BLUR_UPSCALE"
+  },
+  {
+    "name": "Test-Ubuntu24.04-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan"
+  },
+  {
     "name": "Test-Ubuntu24.04-Clang-NUC11TZi5-CPU-AVX2-x86_64-Release-All"
   },
   {
@@ -2030,6 +2003,9 @@
         "modules/canvaskit/.*"
       ]
     }
+  },
+  {
+    "name": "Test-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-WasmGMTests_WebGL2"
   },
   {
     "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"

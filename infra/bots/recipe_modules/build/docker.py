@@ -35,10 +35,6 @@ def compile_fn(api, checkout_root, out_dir):
       image_name = 'gcc-debian11'
     elif target_arch == 'x86':
       image_name = 'gcc-debian11-x86'
-  elif os == 'Ubuntu18':
-    # The Docker image contains GCC, but if we're building using Clang the CIPD
-    # package will be provided as part of the task and mounted to the container.
-    image_name = 'gcc-ubuntu18'
 
   if not image_name:
     raise Exception('Not implemented: ' + api.vars.builder_name)
