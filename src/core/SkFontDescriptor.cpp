@@ -14,6 +14,7 @@
 #include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTo.h"
 #include "src/core/SkStreamPriv.h"
+#include "src/utils/SkFloatUtils.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -271,7 +272,7 @@ void SkFontDescriptor::serialize(SkWStream* stream) const {
 }
 
 SkFontStyle::Width SkFontDescriptor::SkFontStyleWidthForWidthAxisValue(SkScalar width) {
-    int usWidth = SkScalarRoundToInt(SkScalarInterpFunc(width, &width_for_usWidth[1], usWidths, 9));
+    int usWidth = SkScalarRoundToInt(SkFloatInterpFunc(width, &width_for_usWidth[1], usWidths, 9));
     return static_cast<SkFontStyle::Width>(usWidth);
 }
 
