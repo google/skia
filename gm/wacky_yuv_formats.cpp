@@ -1255,16 +1255,20 @@ protected:
 
                     SkBitmap readBack;
                     readBack.allocPixels(yuv->imageInfo());
+#if defined(SK_GRAPHITE)
                     if (recorder->type() == SkRecorder::Type::kGraphite) {
                         SkAssertResult(
                                 as_IB(yuv)->readPixelsGraphite(recorder, readBack.pixmap(), 0, 0));
-                    }
+                    } else
+#endif
+                    {
 #if defined(SK_GANESH)
-                    else {
                         auto dContext = GrAsDirectContext(canvas->recordingContext());
                         SkAssertResult(yuv->readPixels(dContext, readBack.pixmap(), 0, 0));
-                    }
+#else
+                        SkASSERT(false);
 #endif
+                    }
                     canvas->drawImage(readBack.asImage(), x, y);
                 }
                 x += kTileWidthHeight + kPad;
@@ -1291,6 +1295,7 @@ DEF_GM(return new YUVMakeColorSpaceGM();)
 #include "src/core/SkAutoPixmapStorage.h"
 #include "tools/Resources.h"
 
+#if defined(SK_GANESH)
 static void draw_diff(SkCanvas* canvas, SkScalar x, SkScalar y,
                       const SkImage* a, const SkImage* b) {
     auto sh = SkShaders::Blend(SkBlendMode::kDifference,
@@ -1311,7 +1316,6 @@ static void draw_diff(SkCanvas* canvas, SkScalar x, SkScalar y,
     canvas->restore();
 }
 
-#if defined(SK_GANESH)
 // Exercises SkColorMatrix_RGB2YUV for yuv colorspaces, showing the planes, and the
 // resulting (recombined) images (gpu only for now).
 //

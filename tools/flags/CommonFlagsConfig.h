@@ -8,9 +8,15 @@
 #ifndef SK_COMMON_FLAGS_CONFIG_H
 #define SK_COMMON_FLAGS_CONFIG_H
 
+#include "include/core/SkAlphaType.h"
 #include "include/core/SkColorSpace.h"
+#include "include/core/SkColorType.h"
 #include "tools/flags/CommandLineFlags.h"
+
+#if defined(SK_GANESH)
 #include "tools/ganesh/GrContextFactory.h"
+#include "tools/gpu/ContextType.h"
+#endif
 
 DECLARE_string(config);
 
@@ -44,6 +50,10 @@ private:
     sk_sp<SkColorSpace>            fColorSpace;
     skia_private::TArray<SkString> fViaParts;
 };
+
+#if defined(SK_GANESH)
+
+// TODO: This should be "Ganesh" not "Gpu".
 
 // SkCommandLineConfigGpu is a SkCommandLineConfig that extracts information out of the backend
 // part of the tag. It is constructed tags that have:
@@ -106,6 +116,7 @@ private:
     bool                fReducedShaders;
     SurfType            fSurfType;
 };
+#endif  // SK_GANESH
 
 #if defined(SK_GRAPHITE)
 

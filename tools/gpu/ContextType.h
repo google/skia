@@ -8,11 +8,17 @@
 #ifndef ContextType_DEFINED
 #define ContextType_DEFINED
 
+#include "include/core/SkTypes.h"
+
+#if defined(SK_GANESH)
 enum class GrBackendApi : unsigned;
+#endif
 
 namespace skgpu {
 
+#if defined(SK_GRAPHITE)
 enum class BackendApi : unsigned;
+#endif
 
 // The availability of context types is subject to platform and build configuration
 // restrictions.
@@ -49,17 +55,22 @@ bool IsDawnBackend(skgpu::ContextType type);
 
 bool IsRenderingContext(skgpu::ContextType type);
 
+#if defined(SK_GANESH)
 namespace ganesh {
 
 GrBackendApi ContextTypeBackend(skgpu::ContextType type);
 
 }  // namespace ganesh
+#endif
 
+#if defined(SK_GRAPHITE)
 namespace graphite {
 
 skgpu::BackendApi ContextTypeBackend(skgpu::ContextType type);
 
 }  // namespace graphite
+#endif
+
 }  // namespace skgpu
 
 #endif

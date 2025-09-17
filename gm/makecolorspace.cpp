@@ -105,9 +105,8 @@ DEF_SIMPLE_GM_BG(makecolortypeandspace, canvas, 128 * 3, 128 * 4, SK_ColorWHITE)
     auto rec2020 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kRec2020);
 
     // Use the lazy images on the first iteration, and concrete (raster/GPU) images on the second
-    GrDirectContext* direct = nullptr;
 #if defined(SK_GANESH)
-    direct = GrAsDirectContext(canvas->recordingContext());
+    GrDirectContext* direct = GrAsDirectContext(canvas->recordingContext());
 #endif
     auto recorder = canvas->baseRecorder();
     SkASSERT(recorder);

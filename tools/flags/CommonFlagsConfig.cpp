@@ -315,6 +315,8 @@ static bool parse_option_bool(const SkString& value, bool* outBool) {
     }
     return false;
 }
+
+#if defined(SK_GANESH)
 static bool parse_option_gpu_api(const SkString&                      value,
                                  SkCommandLineConfigGpu::ContextType* outContextType,
                                  bool*                                outFakeGLESVersion2) {
@@ -385,6 +387,24 @@ static bool parse_option_gpu_api(const SkString&                      value,
     return false;
 }
 
+static bool parse_option_gpu_surf_type(const SkString&                   value,
+                                       SkCommandLineConfigGpu::SurfType* surfType) {
+    if (value.equals("default")) {
+        *surfType = SkCommandLineConfigGpu::SurfType::kDefault;
+        return true;
+    }
+    if (value.equals("betex")) {
+        *surfType = SkCommandLineConfigGpu::SurfType::kBackendTexture;
+        return true;
+    }
+    if (value.equals("bert")) {
+        *surfType = SkCommandLineConfigGpu::SurfType::kBackendRenderTarget;
+        return true;
+    }
+    return false;
+}
+#endif  // SK_GANESH
+
 static bool parse_option_gpu_color(const SkString& value,
                                    SkColorType*    outColorType,
                                    SkAlphaType*    alphaType) {
@@ -417,23 +437,6 @@ static bool parse_option_gpu_color(const SkString& value,
         return false;
     }
     return true;
-}
-
-static bool parse_option_gpu_surf_type(const SkString&                   value,
-                                       SkCommandLineConfigGpu::SurfType* surfType) {
-    if (value.equals("default")) {
-        *surfType = SkCommandLineConfigGpu::SurfType::kDefault;
-        return true;
-    }
-    if (value.equals("betex")) {
-        *surfType = SkCommandLineConfigGpu::SurfType::kBackendTexture;
-        return true;
-    }
-    if (value.equals("bert")) {
-        *surfType = SkCommandLineConfigGpu::SurfType::kBackendRenderTarget;
-        return true;
-    }
-    return false;
 }
 
 // Extended options take form --config item[key1=value1,key2=value2,...]
@@ -474,6 +477,7 @@ public:
         return parse_option_gpu_color(*optionValue, outColorType, alphaType);
     }
 
+#if defined(SK_GANESH)
     bool get_option_gpu_api(const char*                          optionKey,
                             SkCommandLineConfigGpu::ContextType* outContextType,
                             bool*                                outFakeGLESVersion2,
@@ -484,6 +488,17 @@ public:
         }
         return parse_option_gpu_api(*optionValue, outContextType, outFakeGLESVersion2);
     }
+
+    bool get_option_gpu_surf_type(const char*                       optionKey,
+                                  SkCommandLineConfigGpu::SurfType* outSurfType,
+                                  bool                              optional = true) const {
+        SkString* optionValue = fOptionsMap.find(SkString(optionKey));
+        if (optionValue == nullptr) {
+            return optional;
+        }
+        return parse_option_gpu_surf_type(*optionValue, outSurfType);
+    }
+#endif
 
 #if defined(SK_GRAPHITE)
     bool get_option_graphite_api(const char*                               optionKey,
@@ -541,16 +556,6 @@ public:
     }
 #endif
 
-    bool get_option_gpu_surf_type(const char*                       optionKey,
-                                  SkCommandLineConfigGpu::SurfType* outSurfType,
-                                  bool                              optional = true) const {
-        SkString* optionValue = fOptionsMap.find(SkString(optionKey));
-        if (optionValue == nullptr) {
-            return optional;
-        }
-        return parse_option_gpu_surf_type(*optionValue, outSurfType);
-    }
-
     bool get_option_int(const char* optionKey, int* outInt, bool optional = true) const {
         SkString* optionValue = fOptionsMap.find(SkString(optionKey));
         if (optionValue == nullptr) {
@@ -571,6 +576,7 @@ private:
     THashMap<SkString, SkString> fOptionsMap;
 };
 
+#if defined(SK_GANESH)
 SkCommandLineConfigGpu::SkCommandLineConfigGpu(const SkString&         tag,
                                                const TArray<SkString>& viaParts,
                                                ContextType             contextType,
@@ -687,6 +693,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString&         ta
                                       reducedShaders,
                                       surfType);
 }
+#endif
 
 #if defined(SK_GRAPHITE)
 
@@ -794,9 +801,11 @@ void ParseConfigs(const CommandLineFlags::StringArray& configs,
             }
         }
         SkCommandLineConfig* parsedConfig = nullptr;
+#if defined(SK_GANESH)
         if (extendedBackend.equals("gpu")) {
             parsedConfig = parse_command_line_config_gpu(tag, vias, extendedOptions);
         }
+#endif
 #if defined(SK_GRAPHITE)
         if (extendedBackend.equals("graphite")) {
             parsedConfig = parse_command_line_config_graphite(tag, vias, extendedOptions);

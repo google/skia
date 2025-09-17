@@ -7,8 +7,11 @@
 
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
-#include "include/gpu/ganesh/GrTypes.h"
 #include "tools/gpu/ContextType.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrTypes.h"
+#endif
 
 const char* skgpu::ContextTypeName(skgpu::ContextType type) {
     switch (type) {
@@ -89,6 +92,7 @@ bool skgpu::IsRenderingContext(ContextType type) {
     return type != ContextType::kMock;
 }
 
+#if defined(SK_GANESH)
 GrBackendApi skgpu::ganesh::ContextTypeBackend(skgpu::ContextType type) {
     switch (type) {
         case skgpu::ContextType::kGL:
@@ -124,7 +128,9 @@ GrBackendApi skgpu::ganesh::ContextTypeBackend(skgpu::ContextType type) {
     }
     SkUNREACHABLE;
 }
+#endif
 
+#if defined(SK_GRAPHITE)
 skgpu::BackendApi skgpu::graphite::ContextTypeBackend(ContextType type) {
     switch (type) {
         case skgpu::ContextType::kGL:
@@ -158,3 +164,4 @@ skgpu::BackendApi skgpu::graphite::ContextTypeBackend(ContextType type) {
     }
     SkUNREACHABLE;
 }
+#endif

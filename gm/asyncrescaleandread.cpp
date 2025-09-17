@@ -331,7 +331,15 @@ protected:
         } else
 #endif
         {
-            return lazyYUVImage->refImage(direct, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
+            // Without SK_GANESH the compiler doesn't see that direct is related to
+            // GrRecordingContext.
+            GrRecordingContext* context =
+#if defined(SK_GANESH)
+                direct;
+#else
+                nullptr;
+#endif
+            return lazyYUVImage->refImage(context, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
         }
     }
 

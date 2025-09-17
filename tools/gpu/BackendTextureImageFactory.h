@@ -9,7 +9,10 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/GpuTypes.h"
+
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrTypes.h"
+#endif
 
 class SkColorSpace;
 class SkImage;

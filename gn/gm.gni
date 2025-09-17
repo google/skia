@@ -402,7 +402,6 @@ gm_sources = [
   "$_gm/variedtext.cpp",
   "$_gm/vertices.cpp",
   "$_gm/verylargebitmap.cpp",
-  "$_gm/wacky_yuv_formats.cpp",
   "$_gm/widebuttcaps.cpp",
   "$_gm/windowrectangles.cpp",
   "$_gm/workingspace.cpp",
@@ -454,6 +453,7 @@ graphite_gm_sources = [
 gpu_gm_sources = [
   "$_gm/compositor_quads.cpp",
   "$_gm/imagefromyuvtextures.cpp",
+  "$_gm/wacky_yuv_formats.cpp",
   "$_gm/yuv420_odd_dim.cpp",
   "$_gm/yuvtorgbsubset.cpp",
 ]
