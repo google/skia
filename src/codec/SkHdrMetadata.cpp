@@ -161,6 +161,10 @@ bool MasteringDisplayColorVolume::operator==(const MasteringDisplayColorVolume& 
            fMinimumDisplayMasteringLuminance == other.fMinimumDisplayMasteringLuminance;
 }
 
+Metadata Metadata::MakeEmpty() {
+    return Metadata();
+}
+
 bool Metadata::getContentLightLevelInformation(ContentLightLevelInformation* clli) const {
     if (!fContentLightLevelInformation.has_value()) {
         return false;

@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkGainmapInfo.h"
+#include "include/private/SkHdrMetadata.h"
 
 #include <cstddef>
 #include <memory>
@@ -37,10 +38,15 @@ public:
 
     std::optional<SkGainmapInfo> getGainmapInfo() const { return fGainmapInfo; }
 
+    const skhdr::Metadata& getHdrMetadata() const {
+        return fHdrMetadata;
+    }
+
 private:
     sk_sp<SkPngChunkReader> fChunkReader = nullptr;
     std::optional<SkGainmapInfo> fGainmapInfo;
     std::unique_ptr<SkStream> fGainmapStream = nullptr;
+    skhdr::Metadata fHdrMetadata;
 };
 
 #endif  // SkPngCompositeChunkReader_DEFINED

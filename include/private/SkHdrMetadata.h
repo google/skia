@@ -127,6 +127,11 @@ struct SK_API MasteringDisplayColorVolume {
 class SK_API Metadata {
   public:
     /**
+     * Return a container with no metadata.
+     */
+    static Metadata MakeEmpty();
+
+    /**
      * If there does not exists Content Light Level Information metadata, then return false.
      * Otherwise return true and if `clli` is non-nullptr then write the metadata to `clli`.
      */

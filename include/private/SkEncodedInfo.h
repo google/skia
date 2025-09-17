@@ -15,6 +15,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkTypes.h"
+#include "include/private/SkHdrMetadata.h"
 #include "include/private/base/SkTo.h"
 #include "modules/skcms/skcms.h"
 
@@ -118,6 +119,13 @@ public:
     static SkEncodedInfo Make(int width, int height, Color color,
             Alpha alpha, int bitsPerComponent, std::unique_ptr<ICCProfile> profile,
             int colorDepth) {
+        return Make(width, height, color, alpha, bitsPerComponent, colorDepth, std::move(profile),
+                    skhdr::Metadata::MakeEmpty());
+    }
+
+    static SkEncodedInfo Make(int width, int height, Color color,
+            Alpha alpha, int bitsPerComponent, int colorDepth, std::unique_ptr<ICCProfile> profile,
+            const skhdr::Metadata& hdrMetadata) {
         SkASSERT(1 == bitsPerComponent ||
                  2 == bitsPerComponent ||
                  4 == bitsPerComponent ||
@@ -172,7 +180,8 @@ public:
                              alpha,
                              SkToU8(bitsPerComponent),
                              SkToU8(colorDepth),
-                             std::move(profile));
+                             std::move(profile),
+                             hdrMetadata);
     }
 
     /*
@@ -246,12 +255,9 @@ public:
 
     // Explicit copy method, to avoid accidental copying.
     SkEncodedInfo copy() const {
-        auto copy = SkEncodedInfo::Make(
-                fWidth, fHeight, fColor, fAlpha, fBitsPerComponent, nullptr, fColorDepth);
-        if (fProfile) {
-            copy.fProfile = std::make_unique<ICCProfile>(*fProfile);
-        }
-        return copy;
+        return SkEncodedInfo(
+                fWidth, fHeight, fColor, fAlpha, fBitsPerComponent, fColorDepth,
+                fProfile ? std::make_unique<ICCProfile>(*fProfile) : nullptr, fHdrMetadata);
     }
 
     // Return number of bits of R/G/B channel
@@ -259,9 +265,16 @@ public:
         return fColorDepth;
     }
 
+    // Return the HDR metadata associated with this image. Note that even SDR images can include
+    // HDR metadata (e.g, indicating how to inverse tone map when displayed on an HDR display).
+    const skhdr::Metadata& getHdrMetadata() const {
+        return fHdrMetadata;
+    }
+
 private:
     SkEncodedInfo(int width, int height, Color color, Alpha alpha,
-            uint8_t bitsPerComponent, uint8_t colorDepth, std::unique_ptr<ICCProfile> profile)
+            uint8_t bitsPerComponent, uint8_t colorDepth, std::unique_ptr<ICCProfile> profile,
+            const skhdr::Metadata& hdrMetadata)
         : fWidth(width)
         , fHeight(height)
         , fColor(color)
@@ -269,6 +282,7 @@ private:
         , fBitsPerComponent(bitsPerComponent)
         , fColorDepth(colorDepth)
         , fProfile(std::move(profile))
+        , fHdrMetadata(hdrMetadata)
     {}
 
     int                         fWidth;
@@ -278,6 +292,7 @@ private:
     uint8_t                     fBitsPerComponent;
     uint8_t                     fColorDepth;
     std::unique_ptr<ICCProfile> fProfile;
+    skhdr::Metadata             fHdrMetadata;
 };
 
 #endif

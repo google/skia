@@ -84,7 +84,7 @@ public:
                    const SkImageInfo& srcInfo,
                    const SkPngEncoder::Options& options);
     bool setColorSpace(const SkImageInfo& info, const SkPngEncoder::Options& options);
-    bool setV0Gainmap(const SkPngEncoder::Options& options);
+    bool setHdrMetadata(const SkPngEncoder::Options& options);
     bool writeInfo(const SkImageInfo& srcInfo,const SkPngEncoderBase::TargetInfo& targetInfo);
 
     png_structp pngPtr() { return fPngPtr; }
@@ -310,18 +310,50 @@ bool SkPngEncoderMgr::setColorSpace(const SkImageInfo& info, const SkPngEncoder:
     return true;
 }
 
-bool SkPngEncoderMgr::setV0Gainmap(const SkPngEncoder::Options& options) {
+bool SkPngEncoderMgr::setHdrMetadata(const SkPngEncoder::Options& options) {
 #ifdef PNG_STORE_UNKNOWN_CHUNKS_SUPPORTED
     if (setjmp(png_jmpbuf(fPngPtr))) {
         return false;
     }
 
-    // We require some gainmap information.
-    if (!options.fGainmapInfo) {
-        return false;
+    // List all chunks that might be included.
+    const char* hdrChunkNames = "gmAP\0"
+                                "gdAT\0"
+                                "mDCV\0"
+                                "cLLI\0";
+    constexpr int numHdrChunkNames = 4;
+    png_set_keep_unknown_chunks(fPngPtr, PNG_HANDLE_CHUNK_ALWAYS,
+                                (png_const_bytep)hdrChunkNames, numHdrChunkNames);
+
+    // In the below `png_unknown_chunk` structures, the `data` member is a non-const pointer,
+    // even though it will not be written to. In fact, `data` will be copied by the call to
+    // `png_set_unknown_chunks`, so it is safe for it to be deallocated immediately after
+    // the call.
+    skhdr::ContentLightLevelInformation clli;
+    if (options.fHdrMetadata.getContentLightLevelInformation(&clli)) {
+        auto data = clli.serializePngChunk();
+        png_unknown_chunk chunk = {
+            {'c', 'L', 'L', 'I', 0},
+            reinterpret_cast<png_byte*>(data->writable_data()),
+            data->size(),
+            PNG_HAVE_IHDR,
+        };
+        png_set_unknown_chunks(fPngPtr, fInfoPtr, &chunk, 1);
     }
 
-    if (options.fGainmap) {
+    skhdr::MasteringDisplayColorVolume mdcv;
+    if (options.fHdrMetadata.getMasteringDisplayColorVolume(&mdcv)) {
+        auto data = mdcv.serialize();
+        png_unknown_chunk chunk = {
+            {'m', 'D', 'C', 'V', 0},
+            reinterpret_cast<png_byte*>(data->writable_data()),
+            data->size(),
+            PNG_HAVE_IHDR,
+        };
+        png_set_unknown_chunks(fPngPtr, fInfoPtr, &chunk, 1);
+    }
+
+    if (options.fGainmapInfo && options.fGainmap) {
         sk_sp<SkData> gainmapVersion = SkGainmapInfo::SerializeVersion();
         SkDynamicMemoryWStream gainmapStream;
 
@@ -358,34 +390,32 @@ bool SkPngEncoderMgr::setV0Gainmap(const SkPngEncoder::Options& options) {
         // The base image contains chunks for both the gainmap versioning (for possible
         // forward-compat, and as a cheap way to check a gainmap might exist) as
         // well as the gainmap data.
-        std::array<png_unknown_chunk, 2> chunks;
-        auto& gmapChunk = chunks.at(0);
-        std::strcpy(reinterpret_cast<char*>(gmapChunk.name), "gmAP\0");
-        gmapChunk.data = reinterpret_cast<png_byte*>(gainmapVersion->writable_data());
-        gmapChunk.size = gainmapVersion->size();
-        gmapChunk.location = PNG_HAVE_IHDR;
+        png_unknown_chunk gmapChunk = {
+            {'g', 'm', 'A', 'P', 0},
+            reinterpret_cast<png_byte*>(gainmapVersion->writable_data()),
+            gainmapVersion->size(),
+            PNG_HAVE_IHDR,
+        };
+        png_set_unknown_chunks(fPngPtr, fInfoPtr, &gmapChunk, 1);
 
-        auto& gdatChunk = chunks.at(1);
-        std::strcpy(reinterpret_cast<char*>(gdatChunk.name), "gdAT\0");
-        gdatChunk.data = reinterpret_cast<png_byte*>(gainmapData->writable_data());
-        gdatChunk.size = gainmapData->size();
-        gdatChunk.location = PNG_HAVE_IHDR;
-
-        png_set_keep_unknown_chunks(fPngPtr, PNG_HANDLE_CHUNK_ALWAYS,
-                                    (png_const_bytep)"gmAP\0gdAT\0", chunks.size());
-        png_set_unknown_chunks(fPngPtr, fInfoPtr, chunks.data(), chunks.size());
-    } else {
+        png_unknown_chunk gdatChunk = {
+            {'g', 'd', 'A', 'T', 0},
+            reinterpret_cast<png_byte*>(gainmapData->writable_data()),
+            gainmapData->size(),
+            PNG_HAVE_IHDR,
+        };
+        png_set_unknown_chunks(fPngPtr, fInfoPtr, &gdatChunk, 1);
+    } else if (options.fGainmapInfo) {
         // If there is no gainmap provided for encoding, but we have info, then
         // we're currently encoding the gainmap pixels, so we need to encode the
         // gainmap metadata to interpret those pixels.
         sk_sp<SkData> data = options.fGainmapInfo->serialize();
-        png_unknown_chunk chunk;
-        std::strcpy(reinterpret_cast<char*>(chunk.name), "gmAP\0");
-        chunk.data = reinterpret_cast<png_byte*>(data->writable_data());
-        chunk.size = data->size();
-        chunk.location = PNG_HAVE_IHDR;
-        png_set_keep_unknown_chunks(fPngPtr, PNG_HANDLE_CHUNK_ALWAYS,
-                                    (png_const_bytep)"gmAP\0", 1);
+        png_unknown_chunk chunk = {
+            {'g', 'm', 'A', 'P', 0},
+            reinterpret_cast<png_byte*>(data->writable_data()),
+            data->size(),
+            PNG_HAVE_IHDR,
+        };
         png_set_unknown_chunks(fPngPtr, fInfoPtr, &chunk, 1);
     }
 #endif
@@ -471,7 +501,7 @@ std::unique_ptr<SkEncoder> Make(SkWStream* dst, const SkPixmap& src, const Optio
         return nullptr;
     }
 
-    if (options.fGainmapInfo && !encoderMgr->setV0Gainmap(options)) {
+    if (!encoderMgr->setHdrMetadata(options)) {
         return nullptr;
     }
 

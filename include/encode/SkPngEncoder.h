@@ -10,6 +10,7 @@
 
 #include "include/core/SkDataTable.h"
 #include "include/core/SkRefCnt.h"
+#include "include/private/SkHdrMetadata.h"
 #include "include/private/base/SkAPI.h"
 
 // TODO(kjlubick) update clients to directly include this
@@ -81,6 +82,11 @@ struct Options {
      */
     const skcms_ICCProfile* fICCProfile = nullptr;
     const char* fICCProfileDescription = nullptr;
+
+    /**
+     * Container for any HDR metadata to include in the encoded image.
+     */
+    skhdr::Metadata fHdrMetadata;
 
     /**
      * If non-null, then a gainmap and its metadata will be encoded as png chunks.
