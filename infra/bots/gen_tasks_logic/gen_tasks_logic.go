@@ -549,7 +549,6 @@ func GenTasks(cfg *Config) {
 			"skia/infra/bots/run_recipe.py",
 			"skia/platform_tools/ios/bin",
 			"skia/resources",
-			"skia/tools/valgrind.supp",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
@@ -625,7 +624,6 @@ func GenTasks(cfg *Config) {
 			"skia/infra/bots/run_recipe.py",
 			"skia/platform_tools/ios/bin",
 			"skia/resources",
-			"skia/tools/valgrind.supp",
 		},
 		Excludes: []string{rbe.ExcludeGitDir},
 	})
@@ -718,7 +716,7 @@ func (b *TaskBuilder) kitchenTaskNoBundle(recipe string, outputDir string) {
 	}
 
 	// Attempts.
-	if !b.Role("Build", "Upload") && b.ExtraConfig("ASAN", "HWASAN", "MSAN", "TSAN", "Valgrind") {
+	if !b.Role("Build", "Upload") && b.ExtraConfig("ASAN", "HWASAN", "MSAN", "TSAN") {
 		// Sanitizers often find non-deterministic issues that retries would hide.
 		b.attempts(1)
 	} else {
@@ -778,7 +776,7 @@ func (b *jobBuilder) deriveCompileTaskName() string {
 		if val := b.Parts["extra_config"]; val != "" {
 			ec = strings.Split(val, "_")
 			ignore := []string{
-				"AbandonGpuContext", "PreAbandonGpuContext", "Valgrind",
+				"AbandonGpuContext", "PreAbandonGpuContext",
 				"FailFlushTimeCallbacks", "ReleaseAndAbandonGpuContext",
 				"NativeFonts", "GDI", "NoGPUThreads", "DDL1", "DDL3",
 				"DDLRecord", "BonusConfigs", "ColorSpaces", "GL",
@@ -1816,14 +1814,7 @@ func (b *jobBuilder) dm() {
 		b.expiration(20 * time.Hour)
 
 		b.timeout(4 * time.Hour)
-		if b.ExtraConfig("Valgrind") {
-			b.timeout(9 * time.Hour)
-			b.expiration(48 * time.Hour)
-			b.asset("valgrind")
-			// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
-			// to ensure there are always bots free for CQ tasks.
-			b.dimension("valgrind:1")
-		} else if b.ExtraConfig("MSAN") {
+		if b.ExtraConfig("MSAN") {
 			b.timeout(9 * time.Hour)
 		} else if b.Arch("x86") && b.Debug() {
 			// skbug.com/40037952
@@ -2033,14 +2024,7 @@ func (b *jobBuilder) perf() {
 		b.expiration(20 * time.Hour)
 		b.timeout(4 * time.Hour)
 
-		if b.ExtraConfig("Valgrind") {
-			b.timeout(9 * time.Hour)
-			b.expiration(48 * time.Hour)
-			b.asset("valgrind")
-			// Since Valgrind runs on the same bots as the CQ, we restrict Valgrind to a subset of the bots
-			// to ensure there are always bots free for CQ tasks.
-			b.dimension("valgrind:1")
-		} else if b.ExtraConfig("MSAN") {
+		if b.ExtraConfig("MSAN") {
 			b.timeout(9 * time.Hour)
 		} else if b.Parts["arch"] == "x86" && b.Parts["configuration"] == "Debug" {
 			// skbug.com/40037952

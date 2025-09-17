@@ -133,35 +133,35 @@ Run the steps to perform a pure-git checkout without DEPS.
 [DEPS](/infra/bots/recipe_modules/flavor/__init__.py#6): [recipe\_engine/context][recipe_engine/recipe_modules/context], [recipe\_engine/file][recipe_engine/recipe_modules/file], [recipe\_engine/json][recipe_engine/recipe_modules/json], [recipe\_engine/path][recipe_engine/recipe_modules/path], [recipe\_engine/platform][recipe_engine/recipe_modules/platform], [recipe\_engine/raw\_io][recipe_engine/recipe_modules/raw_io], [recipe\_engine/step][recipe_engine/recipe_modules/step], [env](#recipe_modules-env), [run](#recipe_modules-run), [vars](#recipe_modules-vars), [xcode](#recipe_modules-xcode)
 
 
-#### **class [SkiaFlavorApi](/infra/bots/recipe_modules/flavor/api.py#54)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
+#### **class [SkiaFlavorApi](/infra/bots/recipe_modules/flavor/api.py#49)([RecipeApi][recipe_engine/wkt/RecipeApi]):**
 
-&mdash; **def [cleanup\_steps](/infra/bots/recipe_modules/flavor/api.py#122)(self):**
+&mdash; **def [cleanup\_steps](/infra/bots/recipe_modules/flavor/api.py#115)(self):**
 
-&mdash; **def [copy\_directory\_contents\_to\_device](/infra/bots/recipe_modules/flavor/api.py#80)(self, host_dir, device_dir):**
+&mdash; **def [copy\_directory\_contents\_to\_device](/infra/bots/recipe_modules/flavor/api.py#73)(self, host_dir, device_dir):**
 
-&mdash; **def [copy\_directory\_contents\_to\_host](/infra/bots/recipe_modules/flavor/api.py#83)(self, device_dir, host_dir):**
+&mdash; **def [copy\_directory\_contents\_to\_host](/infra/bots/recipe_modules/flavor/api.py#76)(self, device_dir, host_dir):**
 
-&mdash; **def [copy\_file\_to\_device](/infra/bots/recipe_modules/flavor/api.py#86)(self, host_path, device_path):**
+&mdash; **def [copy\_file\_to\_device](/infra/bots/recipe_modules/flavor/api.py#79)(self, host_path, device_path):**
 
-&mdash; **def [create\_clean\_device\_dir](/infra/bots/recipe_modules/flavor/api.py#92)(self, path):**
+&mdash; **def [create\_clean\_device\_dir](/infra/bots/recipe_modules/flavor/api.py#85)(self, path):**
 
-&mdash; **def [create\_clean\_host\_dir](/infra/bots/recipe_modules/flavor/api.py#89)(self, path):**
+&mdash; **def [create\_clean\_host\_dir](/infra/bots/recipe_modules/flavor/api.py#82)(self, path):**
 
-&mdash; **def [device\_path\_join](/infra/bots/recipe_modules/flavor/api.py#77)(self, \*args):**
+&mdash; **def [device\_path\_join](/infra/bots/recipe_modules/flavor/api.py#70)(self, \*args):**
 
-&mdash; **def [get\_flavor](/infra/bots/recipe_modules/flavor/api.py#55)(self, vars_api, app_name):**
+&mdash; **def [get\_flavor](/infra/bots/recipe_modules/flavor/api.py#50)(self, vars_api, app_name):**
 
 Return a flavor utils object specific to the given builder.
 
-&mdash; **def [install](/infra/bots/recipe_modules/flavor/api.py#101)(self, skps=False, images=False, lotties=False, svgs=False, resources=False, texttraces=False):**
+&mdash; **def [install](/infra/bots/recipe_modules/flavor/api.py#94)(self, skps=False, images=False, lotties=False, svgs=False, resources=False, texttraces=False):**
 
-&mdash; **def [read\_file\_on\_device](/infra/bots/recipe_modules/flavor/api.py#95)(self, path, \*\*kwargs):**
+&mdash; **def [read\_file\_on\_device](/infra/bots/recipe_modules/flavor/api.py#88)(self, path, \*\*kwargs):**
 
-&mdash; **def [remove\_file\_on\_device](/infra/bots/recipe_modules/flavor/api.py#98)(self, path):**
+&mdash; **def [remove\_file\_on\_device](/infra/bots/recipe_modules/flavor/api.py#91)(self, path):**
 
-&mdash; **def [setup](/infra/bots/recipe_modules/flavor/api.py#68)(self, app_name):**
+&mdash; **def [setup](/infra/bots/recipe_modules/flavor/api.py#61)(self, app_name):**
 
-&mdash; **def [step](/infra/bots/recipe_modules/flavor/api.py#74)(self, name, cmd, \*\*kwargs):**
+&mdash; **def [step](/infra/bots/recipe_modules/flavor/api.py#67)(self, name, cmd, \*\*kwargs):**
 ### *recipe_modules* / [git](/infra/bots/recipe_modules/git)
 
 [DEPS](/infra/bots/recipe_modules/git/__init__.py#6): [recipe\_engine/path][recipe_engine/recipe_modules/path], [env](#recipe_modules-env)

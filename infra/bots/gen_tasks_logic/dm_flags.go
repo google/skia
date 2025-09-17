@@ -991,18 +991,6 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 	skip("r8", "image", ALL, ALL)
 	skip("r8", "colorImage", ALL, ALL)
 
-	if b.ExtraConfig("Valgrind") {
-		// These take 18+ hours to run.
-		skip("pdf", "gm", ALL, "fontmgr_iter")
-		skip("pdf", ALL, ALL, "PANO_20121023_214540.jpg")
-		skip("pdf", "skp", ALL, "worldjournal")
-		skip("pdf", "skp", ALL, "desk_baidu.skp")
-		skip("pdf", "skp", ALL, "desk_wikipedia.skp")
-		skip(ALL, "svg", ALL, ALL)
-		// skbug.com/40040468 and skbug.com/40040128
-		skip(ALL, "test", ALL, "InitialTextureClear")
-	}
-
 	if b.Model("TecnoSpark3Pro", "Wembley") {
 		// skbug.com/40040743
 		skip(ALL, "test", ALL, "InitialTextureClear")
@@ -1420,15 +1408,6 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 		match = append(match, "~^fast_constraint_red_is_allowed$")
 		match = append(match, "~^strict_constraint_batch_no_red_allowed$")
 		match = append(match, "~^strict_constraint_no_red_allowed$")
-	}
-
-	if b.ExtraConfig("Valgrind") { // skbug.com/40034131
-		match = append(match, "~Threaded")
-	}
-
-	if b.ExtraConfig("Valgrind") && b.ExtraConfig("PreAbandonGpuContext") {
-		// skbug.com/40037788
-		match = append(match, "~multipicturedraw_")
 	}
 
 	if b.Model("AndroidOne") {

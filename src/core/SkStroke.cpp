@@ -403,7 +403,7 @@ SkPathStroker::SkPathStroker(const SkPath& src,
         , fCanIgnoreCenter(canIgnoreCenter) {
 
     /*  This is only used when join is miter_join, but we initialize it here
-        so that it is always defined, to fis valgrind warnings.
+        so that it is always defined, to fix sanitizer warnings.
     */
     fInvMiterLimit = 0;
 

@@ -205,7 +205,7 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 		args = append(args, "--gpuThreads", "0")
 	}
 
-	if b.Debug() || b.ExtraConfig("ASAN") || b.ExtraConfig("Valgrind") {
+	if b.Debug() || b.ExtraConfig("ASAN") {
 		args = append(args, "--loops", "1")
 		args = append(args, "--samples", "1")
 		// Ensure that the bot framework does not think we have timed out.
@@ -355,14 +355,13 @@ func (b *TaskBuilder) nanobenchFlags(doUpload bool) {
 		b.asset("skp")
 		b.recipeProp("skps", "true")
 	}
-	if !b.ExtraConfig("Valgrind") {
-		b.asset("svg")
-		b.recipeProp("svgs", "true")
-	}
 	if b.CPU() && b.MatchOs("Android") {
 		// TODO(borenet): Where do these come from?
 		b.recipeProp("textTraces", "true")
 	}
+
+	b.asset("svg")
+	b.recipeProp("svgs", "true")
 
 	// These properties are plumbed through nanobench and into Perf results.
 	nanoProps := map[string]string{
