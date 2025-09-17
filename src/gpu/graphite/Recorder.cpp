@@ -14,6 +14,7 @@
 #include "include/core/SkPixmap.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSurface.h"
 #include "include/core/SkTypes.h"
 #include "include/gpu/GpuTypes.h"
 #include "include/gpu/graphite/BackendTexture.h"
@@ -286,6 +287,12 @@ SkCanvas* Recorder::makeCaptureCanvas(SkCanvas* canvas) {
         return fSharedContext->captureManager()->makeCaptureCanvas(canvas);
     }
     return nullptr;
+}
+
+void Recorder::createCaptureBreakpoint(SkSurface* surface) {
+   if (fSharedContext->captureManager()) {
+        fSharedContext->captureManager()->snapPicture(surface);
+    }
 }
 
 void Recorder::registerDevice(sk_sp<Device> device) {

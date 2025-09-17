@@ -83,10 +83,15 @@ int main(int argc, char *argv[]) {
 
     canvas->drawRRect(rrect, paint);
 
+    // Triggers a breakpoint in the capture
+    auto contentImg = surface->makeImageSnapshot();
+
+    canvas->drawCircle(5, 5, 2.5, paint);
+
     // Canvas B
-    // TODO (b/412351769): take image snapshot from canvas A and draw into B
     canvasB->clear(SK_ColorMAGENTA);
     paint.setColor(SK_ColorBLACK);
+    canvasB->drawImage(contentImg, 0, 0);
     canvasB->drawCircle(10, 10, 5, paint);
 
     printf("ready to snap the GPU calls\n");

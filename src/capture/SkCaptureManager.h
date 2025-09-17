@@ -16,6 +16,7 @@
 
 class SkCanvas;
 class SkCaptureCanvas;
+class SkSurface;
 
 class SkCaptureManager : public SkRefCnt {
 public:
@@ -23,6 +24,7 @@ public:
 
     SkCanvas* makeCaptureCanvas(SkCanvas* canvas);
     void snapPictures();
+    void snapPicture(SkSurface*);
     void serializeCapture();
 
     void toggleCapture(bool capturing) {
