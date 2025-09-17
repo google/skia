@@ -1678,9 +1678,8 @@ HRESULT SkXPSDevice::clip(IXpsOMVisual* xpsVisual) {
     if (this->cs().isWideOpen()) {
         return S_OK;
     }
-    SkPath clipPath;
     // clipPath.addRect(this->devClipBounds()));
-    SkClipStack_AsPath(this->cs(), &clipPath);
+    SkPath clipPath = SkClipStack_AsPath(this->cs());
     // TODO: handle all the kinds of paths, like drawPath does
     return this->clipToPath(xpsVisual, clipPath, XPS_FILL_RULE_EVENODD);
 }

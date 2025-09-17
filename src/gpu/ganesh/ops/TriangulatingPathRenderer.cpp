@@ -388,12 +388,11 @@ private:
     void createAAMesh(GrMeshDrawTarget* target) {
         SkASSERT(!fVertexData);
         SkASSERT(fAntiAlias);
-        SkPath path = this->getPath();
+        SkPath path = this->getPath().makeTransform(fViewMatrix);
         if (path.isEmpty()) {
             return;
         }
         SkRect clipBounds = SkRect::Make(fDevClipBounds);
-        path.transform(fViewMatrix);
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         sk_sp<const GrBuffer> vertexBuffer;
         int firstVertex;

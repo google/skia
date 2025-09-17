@@ -438,8 +438,7 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     }
     // Convert to path to handle non-90-degree rotations.
     SkPath path = SkPath::Rect(rect).makeTransform(this->localToDevice());
-    SkPath clip;
-    SkClipStack_AsPath(this->cs(), &clip);
+    SkPath clip = SkClipStack_AsPath(this->cs());
     Op(clip, path, kIntersect_SkPathOp, &path);
     // PDF wants a rectangle only.
     SkRect transformedRect = pageXform.mapRect(path.getBounds());
@@ -703,7 +702,7 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
             pathPtr = &modifiedPath;
             pathIsMutable = true;
         }
-        pathPtr->transform(matrix);
+        *pathPtr = pathPtr->makeTransform(matrix);
         if (paint->getShader()) {
             transform_shader(paint.writable(), matrix);
         }
@@ -864,13 +863,12 @@ static bool contains(const SkRect& r, SkPoint p) {
 void SkPDFDevice::drawGlyphRunAsPath(
         const sktext::GlyphRun& glyphRun, SkPoint offset, const SkPaint& runPaint) {
     const SkFont& font = glyphRun.font();
-    SkPath path;
 
     struct Rec {
-        SkPath* fPath;
+        SkPathBuilder fBuilder;
         SkPoint fOffset;
         const SkPoint* fPos;
-    } rec = {&path, offset, glyphRun.positions().data()};
+    } rec = {{}, offset, glyphRun.positions().data()};
 
     font.getPaths(glyphRun.glyphsIDs(),
                   [](const SkPath* path, const SkMatrix& mx, void* ctx) {
@@ -879,11 +877,12 @@ void SkPDFDevice::drawGlyphRunAsPath(
                           SkMatrix total = mx;
                           total.postTranslate(rec->fPos->fX + rec->fOffset.fX,
                                               rec->fPos->fY + rec->fOffset.fY);
-                          rec->fPath->addPath(*path, total);
+                          rec->fBuilder.addPath(*path, total);
                       }
                       rec->fPos += 1; // move to the next glyph's position
                   }, &rec);
-    this->internalDrawPath(this->cs(), this->localToDevice(), path, runPaint, true);
+    this->internalDrawPath(this->cs(), this->localToDevice(),
+                           rec.fBuilder.detach(), runPaint, true);
 
     SkFont transparentFont = glyphRun.font();
     transparentFont.setEmbolden(false); // Stop Recursion
@@ -1235,7 +1234,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
 
     // Clip is in device space. Transform path and shader into device space.
     SkRect bounds = this->cs().bounds(this->bounds());
-    pathPtr->transform(this->localToDevice(), &modifiedPath);
+    modifiedPath = pathPtr->makeTransform(this->localToDevice());
     if (!calculate_inverse_path(bounds, modifiedPath, &modifiedPath)) {
         return false;
     }
@@ -1878,8 +1877,8 @@ void SkPDFDevice::drawDevice(SkDevice* device, const SkSamplingOptions& sampling
     if (!content) {
         return;
     }
-    SkPath shape = SkPath::Rect(SkRect::Make(device->imageInfo().dimensions()));
-    shape.transform(matrix);
+    SkPath shape = SkPath::Rect(SkRect::Make(device->imageInfo().dimensions()))
+                   .makeTransform(matrix);
     if (content.needShape()) {
         content.setShape(shape);
     }

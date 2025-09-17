@@ -269,8 +269,7 @@ GrFPResult analytic_clip_fp(const skgpu::ganesh::ClipStack::Element& e,
     // A convex hull can be transformed into device space (this will handle rect shapes with a
     // non-identity transform).
     if (e.fShape.segmentMask() == SkPath::kLine_SegmentMask && e.fShape.convex()) {
-        SkPath devicePath = e.fShape.asPath();
-        devicePath.transform(e.fLocalToDevice);
+        SkPath devicePath = e.fShape.asPath().makeTransform(e.fLocalToDevice);
         return GrConvexPolyEffect::Make(std::move(fp), edgeType, devicePath);
     }
 

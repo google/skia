@@ -832,11 +832,10 @@ private:
             const SkPath* pathPtr = &args.fPath;
             std::optional<SkPath> tmpPath;
             if (viewMatrix->hasPerspective()) {
-                SkPath* tmpPathPtr = &tmpPath.emplace(*pathPtr);
-                tmpPathPtr->setIsVolatile(true);
-                tmpPathPtr->transform(*viewMatrix);
+                tmpPath.emplace(pathPtr->makeTransform(*viewMatrix));
+                tmpPath->setIsVolatile(true);
+                pathPtr = &tmpPath.value();
                 viewMatrix = &SkMatrix::I();
-                pathPtr = tmpPathPtr;
             }
 
             int vertexCount;

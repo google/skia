@@ -123,8 +123,7 @@ static void append_clip(const SkClipStack& clipStack,
     }
 
     if (is_complex_clip(clipStack)) {
-        SkPath clipPath;
-        SkClipStack_AsPath(clipStack, &clipPath);
+        SkPath clipPath = SkClipStack_AsPath(clipStack);
         if (Op(clipPath, SkPath::Rect(outsetBounds), kIntersect_SkPathOp, &clipPath)) {
             append_clip_path(clipPath, wStream);
         }

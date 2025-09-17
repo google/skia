@@ -16,6 +16,6 @@ class SkPath;
 // Return the resolved clipstack as a single path.
 // Note: uses SkPathOps as part of its implementation.
 //
-void SkClipStack_AsPath(const SkClipStack& cs, SkPath* path);
+SkPath SkClipStack_AsPath(const SkClipStack&);
 
 #endif
