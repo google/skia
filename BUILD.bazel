@@ -148,10 +148,9 @@ alias(
 )
 
 alias(
-    # TODO(kjlubick, lukasza): Add `deprecation` note to prefer the
-    # `png_decode_libpng` target.
     name = "png_decode_codec",
     actual = ":png_decode_libpng",
+    deprecation = "Please use the `png_decode_libpng` target instead.",
     visibility = ["//visibility:public"],
 )
 
@@ -168,10 +167,9 @@ alias(
 )
 
 alias(
-    # TODO(kjlubick, lukasza): Add `deprecation` note to prefer the
-    # `png_encode_libpng` target.
     name = "png_encode_codec",
     actual = ":png_encode_libpng",
+    deprecation = "Please use the `png_encode_libpng` target instead.",
     visibility = ["//visibility:public"],
 )
 
