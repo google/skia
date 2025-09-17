@@ -1,9 +1,10 @@
 # Rust PNG decoder
 
-This directory contains experimental code for
+This directory contains helpers, simplifications, and wrappers for exposing the
+`png` Rust crate to other Skia code:
 
-* Providing `SkCodec` API for decoding PNG images using Rust `png` crate.
-* Providing `SkEncoder` API for encoding PNG images using Rust `png` crate.
+* to `SkPngRustCodec`
+* to `SkPngRustEncoderImpl`
 
 See the following document for more details:
 https://docs.google.com/document/d/1glx5ue5JDlCld5WzWgTOGK3wsMErQFnkY5N5Dsbi91Y/edit?usp=sharing
@@ -25,7 +26,7 @@ supported yet):
 
 ```
 $ cd skia-repo-root
-$ bazelisk build experimental/rust_png/...
+$ bazelisk build //src/codec:rust_png_decoder //src/encode:rust_png_encoder rust/png/...
 ```
 
 ### gn / ninja

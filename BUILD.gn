@@ -1460,30 +1460,29 @@ if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
   action("rust_png_ffi_bazel_build") {
     script = "gn/bazel_build.py"
     sources = [
-      "experimental/rust_png/ffi/BUILD.bazel",
-      "experimental/rust_png/ffi/FFI.h",
-      "experimental/rust_png/ffi/FFI.rs",
+      "rust/png/BUILD.bazel",
+      "rust/png/FFI.h",
+      "rust/png/FFI.rs",
     ]
     outputs = [
       "$root_out_dir/librust_png_ffi_rs.a",
-      "$root_out_dir/experimental/rust_png/ffi/FFI.rs.h",
-      "$root_out_dir/experimental/rust_png/ffi/FFI.rs.cc",
+      "$root_out_dir/rust/png/FFI.rs.h",
+      "$root_out_dir/rust/png/FFI.rs.cc",
     ]
-    args =
-        [
-          "//experimental/rust_png/ffi:*",
+    args = [
+             "//rust/png:*",
 
-          rebase_path("//bazel-bin/experimental/rust_png/ffi/libffi_rs.a",
-                      root_build_dir) + "=librust_png_ffi_rs.a",
+             rebase_path("//bazel-bin/rust/png/libffi_rs.a", root_build_dir) +
+                 "=librust_png_ffi_rs.a",
 
-          # we want the `cxx`-generated headers to not simply be copied into
-          # the output directory, but in the same path as the Bazel build
-          # uses.
-          rebase_path("//bazel-bin/experimental/rust_png/ffi/FFI.rs.h",
-                      root_build_dir) + "=experimental/rust_png/ffi/FFI.rs.h",
-          rebase_path("//bazel-bin/experimental/rust_png/ffi/FFI.rs.cc",
-                      root_build_dir) + "=experimental/rust_png/ffi/FFI.rs.cc",
-        ] + bazel_args
+             # we want the `cxx`-generated headers to not simply be copied into
+             # the output directory, but in the same path as the Bazel build
+             # uses.
+             rebase_path("//bazel-bin/rust/png/FFI.rs.h", root_build_dir) +
+                 "=rust/png/FFI.rs.h",
+             rebase_path("//bazel-bin/rust/png/FFI.rs.cc", root_build_dir) +
+                 "=rust/png/FFI.rs.cc",
+           ] + bazel_args
   }
   action("rust_png_cxx_core_bazel_build") {
     script = "gn/bazel_build.py"
@@ -1513,7 +1512,7 @@ if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
   }
   config("rust_png_cxx_bridge_public_config") {
     include_dirs = [
-      # This is where `experimental/rust_png/ffi/FFI.rs.h` and
+      # This is where `rust/png/FFI.rs.h` and
       # `third_party/rust/cxx/v1/cxx.h` were put by Bazel
       "$root_out_dir",
     ]
@@ -1521,14 +1520,14 @@ if (skia_use_rust_png_decode || skia_use_rust_png_encode) {
   config("rust_png_cxx_bridge_private_config") {
     include_dirs = [
       # This entry is needed so that `FFI.rs.cc` can resolve
-      # `#include "experimental/rust_png/ffi/FFI.h"`
+      # `#include "rust/png/FFI.h"`
       ".",
     ]
   }
   skia_source_set("rust_png_cxx_bridge") {
     deps = [ ":rust_png_ffi_bazel_build" ]
-    public = [ "${root_out_dir}/experimental/rust_png/ffi/FFI.rs.h" ]
-    sources = [ "${root_out_dir}/experimental/rust_png/ffi/FFI.rs.cc" ]
+    public = [ "${root_out_dir}/rust/png/FFI.rs.h" ]
+    sources = [ "${root_out_dir}/rust/png/FFI.rs.cc" ]
     libs = [ "$root_out_dir/librust_png_ffi_rs.a" ]
     public_configs = [ ":rust_png_cxx_bridge_public_config" ]
     configs = [ ":rust_png_cxx_bridge_private_config" ]
@@ -2989,8 +2988,8 @@ if (skia_enable_tools) {
 
       deps = [
         ":skia",
-        "modules/skottie:skottie",
-        "tools/window:window",
+        "modules/skottie",
+        "tools/window",
       ]
     }
   }
@@ -3197,7 +3196,7 @@ if (skia_enable_tools) {
         "modules/skparagraph:slides",
         "modules/skresources",
         "modules/sksg:slides",
-        "modules/skshaper:skshaper",
+        "modules/skshaper",
         "modules/skunicode",
         "//third_party/delaunator",
         "//third_party/imgui",
@@ -3502,7 +3501,7 @@ if (skia_enable_tools) {
       sources = [ "modules/skottie/fuzz/FuzzSkottieJSON.cpp" ]
       deps = [
         "modules/jsonreader",
-        "modules/skottie:skottie",
+        "modules/skottie",
         "modules/svg",
       ]
     }

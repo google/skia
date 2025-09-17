@@ -11,10 +11,7 @@ ENCODE_HDRS = ["SkEncoder.h"]
 skia_filegroup(
     name = "encode_hdrs",
     srcs = ENCODE_HDRS,
-    visibility = [
-        "//experimental/rust_png/encoder:__pkg__",
-        "//src/encode:__pkg__",
-    ],
+    visibility = ["//src/encode:__pkg__"],
 )
 
 ICC_HDRS = ["SkICC.h"]
@@ -44,7 +41,7 @@ skia_filegroup(
 skia_filegroup(
     name = "rust_png_public_hdrs",
     srcs = ["SkPngRustEncoder.h"],
-    visibility = ["//experimental/rust_png/encoder:__pkg__"],
+    visibility = ["//src/encode:__pkg__"],
 )
 
 WEBP_HDRS = ["SkWebpEncoder.h"]

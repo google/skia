@@ -92,7 +92,7 @@ mod ffi {
     }
 
     unsafe extern "C++" {
-        include!("experimental/rust_png/ffi/FFI.h");
+        include!("rust/png/FFI.h");
 
         type ReadAndSeekTraits;
         fn read(self: Pin<&mut ReadAndSeekTraits>, buffer: &mut [u8]) -> usize;

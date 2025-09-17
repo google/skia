@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef SkRustPngFfiUtils_DEFINED
-#define SkRustPngFfiUtils_DEFINED
+#ifndef SkRustPngUtilsForFFI_DEFINED
+#define SkRustPngUtilsForFFI_DEFINED
 
 #include "include/core/SkSpan.h"
 
@@ -27,4 +27,4 @@ template <typename T> SkSpan<T> ToSkSpan(rust::Slice<T> slice) {
     return SkSpan<T>(slice.data(), slice.size());
 }
 
-#endif  // SkRustPngFfiUtils_DEFINED
+#endif  // SkRustPngUtilsForFFI_DEFINED

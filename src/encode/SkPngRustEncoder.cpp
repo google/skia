@@ -9,8 +9,8 @@
 
 #include <memory>
 
-#include "experimental/rust_png/encoder/impl/SkPngRustEncoderImpl.h"
 #include "include/encode/SkEncoder.h"
+#include "src/encode/SkPngRustEncoderImpl.h"
 
 namespace SkPngRustEncoder {
 

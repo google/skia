@@ -6,6 +6,12 @@ load(
     "skia_filegroup",
 )
 
+package(
+    default_applicable_licenses = ["//:license"],
+)
+
+licenses(["notice"])
+
 skia_filegroup(
     name = "rs_srcs",
     srcs = ["FFI.rs"],
@@ -24,7 +30,10 @@ skia_cc_library(
     name = "utils",
     hdrs = ["UtilsForFFI.h"],
     features = ["layering_check"],
-    visibility = ["//experimental/rust_png:__subpackages__"],
+    visibility = [
+        "//src/codec:__pkg__",
+        "//src/encode:__pkg__",
+    ],
     deps = ["//:core"],
 )
 
@@ -33,7 +42,8 @@ skia_cc_library(
     hdrs = ["FFI.h"],
     features = ["layering_check"],
     visibility = [
-        "//experimental/rust_png:__subpackages__",
+        "//src/codec:__pkg__",
+        "//src/encode:__pkg__",
     ],
 )
 
@@ -41,7 +51,8 @@ rust_cxx_bridge(
     name = "cxx_bridge",
     src = "FFI.rs",
     visibility = [
-        "//experimental/rust_png:__subpackages__",
+        "//src/codec:__pkg__",
+        "//src/encode:__pkg__",
     ],
     deps = [":ffi_cpp"],
 )
@@ -51,7 +62,8 @@ rust_static_library(
     srcs = [":rs_srcs"],
     rustc_flags = ["-Dwarnings"],
     visibility = [
-        "//experimental/rust_png:__subpackages__",
+        "//src/codec:__pkg__",
+        "//src/encode:__pkg__",
     ],
     deps = [
         ":ffi_cpp",

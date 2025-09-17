@@ -10,7 +10,7 @@
 #include <memory>
 #include <vector>
 
-#include "experimental/rust_png/ffi/FFI.rs.h"
+#include "rust/png/FFI.rs.h"
 #include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkPngCodecBase.h"
 #include "third_party/rust/cxx/v1/cxx.h"

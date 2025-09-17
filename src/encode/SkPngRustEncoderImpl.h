@@ -9,7 +9,7 @@
 
 #include <memory>
 
-#include "experimental/rust_png/ffi/FFI.rs.h"
+#include "rust/png/FFI.rs.h"
 #include "src/encode/SkPngEncoderBase.h"
 #include "third_party/rust/cxx/v1/cxx.h"
 

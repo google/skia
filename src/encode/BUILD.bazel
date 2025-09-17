@@ -93,7 +93,6 @@ skia_cc_library(
         "//include/encode:encode_hdrs",
     ],
     features = ["layering_check"],
-    visibility = ["//experimental/rust_png/encoder:__subpackages__"],
     deps = [
         ":icc_support",
         "//:core",
@@ -120,10 +119,6 @@ skia_cc_library(
     srcs = [":png_encode_base_srcs"],
     hdrs = [":png_encode_base_hdrs"],
     features = ["layering_check"],
-    visibility = [
-        "//:__pkg__",
-        "//experimental/rust_png/encoder:__pkg__",
-    ],
     deps = [
         ":encoder_common",
         "//:core",
@@ -160,6 +155,38 @@ skia_cc_library(
         "//src/codec:any_decoder",
         "//src/core:core_priv",
         "@libpng",
+    ],
+)
+
+skia_filegroup(
+    name = "rust_png_srcs",
+    srcs = [
+        "SkPngRustEncoder.cpp",
+        "SkPngRustEncoderImpl.cpp",
+        "SkPngRustEncoderImpl.h",
+    ],
+)
+
+skia_cc_library(
+    name = "rust_png_encoder",
+    srcs = [":rust_png_srcs"],
+    hdrs = [
+        "//include/encode:encode_hdrs",
+        "//include/encode:rust_png_public_hdrs",
+    ],
+    defines = ["SK_CODEC_ENCODES_PNG_WITH_RUST"],
+    features = ["layering_check"],
+    visibility = ["//:__pkg__"],
+    deps = [
+        ":encoder_common",
+        ":png_encode_base",
+        "//:core",
+        "//rust/png:cxx_bridge",
+        "//rust/png:ffi_cpp",
+        "//rust/png:utils",
+        "//src/base",
+        "//src/codec:any_decoder",
+        "@crates//:cxx_cc",
     ],
 )
 

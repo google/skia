@@ -5,14 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "experimental/rust_png/decoder/impl/SkPngRustCodec.h"
+#include "src/codec/SkPngRustCodec.h"
 
 #include <limits>
 #include <memory>
 #include <utility>
 
-#include "experimental/rust_png/ffi/FFI.rs.h"
-#include "experimental/rust_png/ffi/UtilsForFFI.h"
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkStream.h"
 #include "include/private/SkEncodedInfo.h"
@@ -20,6 +18,8 @@
 #include "include/private/base/SkSafe32.h"
 #include "include/private/base/SkTemplates.h"
 #include "modules/skcms/skcms.h"
+#include "rust/png/FFI.rs.h"
+#include "rust/png/UtilsForFFI.h"
 #include "src/base/SkAutoMalloc.h"
 #include "src/base/SkSafeMath.h"
 #include "src/codec/SkFrameHolder.h"

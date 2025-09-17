@@ -28,7 +28,7 @@ enum class SkEncodedImageFormat;
 template <typename T> class SkSpan;
 
 // This class implements functionality shared between `SkPngCodec` and
-// `SkPngRustCodec` (the latter is from `experimental/rust_png`).
+// `SkPngRustCodec`.
 class SkPngCodecBase : public SkCodec {
 public:
     ~SkPngCodecBase() override;

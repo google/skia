@@ -9,8 +9,8 @@
 
 #include <utility>
 
-#include "experimental/rust_png/decoder/impl/SkPngRustCodec.h"
 #include "include/core/SkStream.h"
+#include "src/codec/SkPngRustCodec.h"
 
 namespace SkPngRustDecoder {
 
