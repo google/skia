@@ -889,13 +889,11 @@ protected:
 #if defined(SK_GRAPHITE)
                     if (recorder) {
                         fImages[opaque][cs][format] = lazyYUV->refImage(recorder, fImageType);
-                    }
+                    } else
 #endif
-#if defined(SK_GANESH)
-                    if (dContext) {
+                    {
                         fImages[opaque][cs][format] = lazyYUV->refImage(dContext, fImageType);
                     }
-#endif
                 }
                 origin = (origin + 1) % 8;
             }
@@ -1153,14 +1151,12 @@ protected:
                 if (recorder) {
                     fImages[opaque][i++] = lazyYUV->refImage(
                             recorder, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
-                }
+                } else
 #endif
-#if defined(SK_GANESH)
-                if (context) {
+                {
                     fImages[opaque][i++] = lazyYUV->refImage(
                             context, sk_gpu_test::LazyYUVImage::Type::kFromTextures);
                 }
-#endif
             }
         }
 
