@@ -175,6 +175,8 @@ mod ffi {
             blend_op: &mut BlendOp,
             duration_ms: &mut u32,
         );
+        fn has_sbit_chunk(self: &Reader) -> bool;
+        fn get_sbit_chunk(self: &Reader) -> &[u8];
         fn output_color_type(self: &Reader) -> ColorType;
         fn output_bits_per_component(self: &Reader) -> u8;
         fn next_frame_info(self: &mut Reader) -> DecodingResult;
@@ -645,6 +647,17 @@ impl Reader {
         } else {
             1000 * frame_control.delay_num as u32 / frame_control.delay_den as u32
         };
+    }
+
+    /// Returns whether the `sBIT` chunk exists.
+    fn has_sbit_chunk(&self) -> bool {
+        self.reader.info().sbit.is_some()
+    }
+
+    /// Returns contents of the `sBIT` chunk.  Panics if there is no `sBIT`
+    /// chunk.
+    fn get_sbit_chunk(&self) -> &[u8] {
+        self.reader.info().sbit.as_ref().unwrap().as_ref()
     }
 
     fn output_color_type(&self) -> ffi::ColorType {

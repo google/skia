@@ -1280,7 +1280,7 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
     REPORTER_ASSERT(r, md5(bm1) == md5(bm2));
 }
 
-DEF_TEST(Codec_PngRoundTrip, r) {
+DEF_TEST(Codec_pngRoundTrip, r) {
     auto codec = SkCodec::MakeFromStream(GetResourceAsStream("images/mandrill_512_q075.jpg"));
 
     SkColorType colorTypesOpaque[] = {

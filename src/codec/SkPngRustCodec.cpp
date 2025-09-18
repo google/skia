@@ -24,6 +24,7 @@
 #include "src/base/SkSafeMath.h"
 #include "src/codec/SkFrameHolder.h"
 #include "src/codec/SkParseEncodedOrigin.h"
+#include "src/codec/SkPngPriv.h"
 #include "src/codec/SkSwizzler.h"
 #include "src/core/SkRasterPipeline.h"
 #include "src/core/SkRasterPipelineOpList.h"
@@ -35,17 +36,27 @@
 
 namespace {
 
-SkEncodedInfo::Color ToColor(rust_png::ColorType colorType) {
-    // TODO(https://crbug.com/359279096): Take `sBIT` chunk into account to
-    // sometimes return `kXAlpha_Color` or `k565_Color`.  This may require
-    // a small PR to expose `sBIT` chunk from the `png` crate.
-
+SkEncodedInfo::Color ToColor(rust_png::ColorType colorType, const rust_png::Reader& reader) {
     switch (colorType) {
         case rust_png::ColorType::Grayscale:
             return SkEncodedInfo::kGray_Color;
         case rust_png::ColorType::Rgb:
+            if (reader.has_sbit_chunk()) {
+                SkSpan<const uint8_t> sBit = ToSkSpan(reader.get_sbit_chunk());
+                SkASSERT_RELEASE(sBit.size() == 3); // Verified in `png` crate in `fn parse_sbit`.
+                if (sBit[0] == 5 && sBit[1] == 6 && sBit[2] == 5) {
+                    return SkEncodedInfo::k565_Color;
+                }
+            }
             return SkEncodedInfo::kRGB_Color;
         case rust_png::ColorType::GrayscaleAlpha:
+            if (reader.has_sbit_chunk()) {
+                SkSpan<const uint8_t> sBit = ToSkSpan(reader.get_sbit_chunk());
+                SkASSERT_RELEASE(sBit.size() == 2); // Verified in `png` crate in `fn parse_sbit`.
+                if (sBit[0] == kGraySigBit_GrayAlphaIsJustAlpha && sBit[1] == 8) {
+                    return SkEncodedInfo::kXAlpha_Color;
+                }
+            }
             return SkEncodedInfo::kGrayAlpha_Color;
         case rust_png::ColorType::Rgba:
             return SkEncodedInfo::kRGBA_Color;
@@ -218,7 +229,7 @@ std::unique_ptr<SkEncodedInfo::ICCProfile> CreateColorProfile(const rust_png::Re
 // Returns `nullopt` when input errors are encountered.
 std::optional<SkEncodedInfo> CreateEncodedInfo(const rust_png::Reader& reader) {
     rust_png::ColorType rustColor = reader.output_color_type();
-    SkEncodedInfo::Color skColor = ToColor(rustColor);
+    SkEncodedInfo::Color skColor = ToColor(rustColor, reader);
 
     std::unique_ptr<SkEncodedInfo::ICCProfile> profile = CreateColorProfile(reader);
     if (!SkPngCodecBase::isCompatibleColorProfileAndType(profile.get(), skColor)) {
