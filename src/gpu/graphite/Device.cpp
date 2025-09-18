@@ -1621,6 +1621,7 @@ void Device::drawGeometry(const Transform& localToDevice,
         }
         // Since addShape() was successful we should have a valid Renderer now.
         SkASSERT(renderer && renderer->numRenderSteps() == 1 && !renderer->emitsPrimitiveColor());
+        fAtlasedPathCount++;
     }
 
 #if defined(SK_DEBUG)
@@ -1916,9 +1917,11 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
 
     // Fall back to CPU rendered paths when multisampling is disabled and the compute atlas is not
     // available.
+    static constexpr int kMaxSmallPathAtlasCount = 256;
     const float minPathSizeForMSAA = fRecorder->priv().caps()->minPathSizeForMSAA();
-    const bool useRasterAtlasByDefault =
-            !fMSAASupported || all(drawBounds.size() <= minPathSizeForMSAA);
+    const bool useRasterAtlasByDefault = !fMSAASupported ||
+                                         (fAtlasedPathCount < kMaxSmallPathAtlasCount &&
+                                          all(drawBounds.size() <= minPathSizeForMSAA));
     if (!pathAtlas && atlasProvider->isAvailable(AtlasProvider::PathAtlasFlags::kRaster) &&
         (strategy == PathRendererStrategy::kRasterAA ||
          (strategy == PathRendererStrategy::kDefault && useRasterAtlasByDefault))) {
@@ -2054,6 +2057,7 @@ void Device::internalFlush() {
     fColorDepthBoundsManager->reset();
     fDisjointStencilSet->reset();
     fCurrentDepth = DrawOrder::kClearDepth;
+    fAtlasedPathCount = 0;
 
      // Any cleanup in the AtlasProvider
     fRecorder->priv().atlasProvider()->compact();
