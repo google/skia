@@ -116,6 +116,10 @@ config("skia_private") {
     defines += [ "SK_PRINT_NATIVE_SHADERS" ]
   }
 
+  if (skia_dump_tasks) {
+    defines += [ "SK_DUMP_TASKS" ]
+  }
+
   # Temporary staging flag:
   defines += [ "SK_ENABLE_AVX512_OPTS" ]
 }

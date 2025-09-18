@@ -12,6 +12,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/gpu/graphite/Recorder.h"
 #include "include/private/base/SkDebug.h"
+#include "src/gpu/graphite/DebugUtils.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/ResourceProvider.h"
 #include "src/gpu/graphite/SharedContext.h"
@@ -53,7 +54,7 @@ class UploadList;
 class RecorderPriv {
 public:
     void add(sk_sp<Task>);
-    void flushTrackedDevices();
+    void flushTrackedDevices(SK_DUMP_TASKS_CODE(const char* flushSource));
 
     const Caps* caps() const { return fRecorder->fSharedContext->caps(); }
 

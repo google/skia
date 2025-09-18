@@ -41,6 +41,7 @@ GRAPHITE_FILES = [
     "ContextPriv.h",
     "ContextUtils.cpp",
     "ContextUtils.h",
+    "DebugUtils.h",
     "DescriptorData.h",
     "Device.cpp",
     "Device.h",

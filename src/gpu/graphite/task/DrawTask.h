@@ -67,6 +67,32 @@ private:
     // produce several DrawTasks (in which case they will see an instantiated proxy so should still
     // prepare their own resources instead of discarding themselves).
     bool fPrepared = false;
+
+#if defined(SK_DUMP_TASKS)
+    void dump(int index, const char* prefix) const override {
+        if (index >= 0) {
+            SkDebugf("%s%d: Draw Task (target=%p)\n", prefix, index, fTarget.get());
+        } else {
+            SkDebugf("%sDraw Task (target=%p)\n", prefix, fTarget.get());
+        }
+
+        std::string childPrefix = prefix;
+        SkASSERT((strlen(prefix) & 3) == 0);
+        static constexpr uint32_t kPrefixIncrement = 4;
+        if (strlen(prefix) >= kPrefixIncrement) {
+            const char* lastBranch = prefix + strlen(prefix) - kPrefixIncrement;
+            if (strcmp(lastBranch, "│   ") == 0) {
+                childPrefix.replace(strlen(prefix) - kPrefixIncrement, kPrefixIncrement, "│   ");
+            } else if (strcmp(lastBranch, "└── ") == 0) {
+                childPrefix.replace(strlen(prefix) - kPrefixIncrement, kPrefixIncrement, "    ");
+            }
+        }
+
+        fChildTasks.visit([&](const Task* task, bool isLast) {
+            task->dump(-1, (childPrefix + (isLast ? "└── " : "│   ")).c_str());
+        });
+    }
+#endif
 };
 
 } // namespace skgpu::graphite

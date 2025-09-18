@@ -61,6 +61,8 @@ public:
 
     bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override;
 
+    SK_DUMP_TASKS_CODE(const char* getTaskName() const override { return "RenderPass Task"; })
+
 private:
     RenderPassTask(DrawPassList,
                    const RenderPassDesc&,

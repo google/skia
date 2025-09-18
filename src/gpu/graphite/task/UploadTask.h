@@ -226,6 +226,8 @@ public:
         return true;
     }
 
+    SK_DUMP_TASKS_CODE(const char* getTaskName() const override { return "Upload Task"; })
+
 private:
     UploadTask(skia_private::TArray<UploadInstance>&&);
     UploadTask(UploadInstance);
