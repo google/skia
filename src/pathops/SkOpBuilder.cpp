@@ -139,8 +139,7 @@ void SkOpBuilder::reset() {
 /* OPTIMIZATION: Union doesn't need to be all-or-nothing. A run of three or more convex
    paths with union ops could be locally resolved and still improve over doing the
    ops one at a time. */
-bool SkOpBuilder::resolve(SkPath* result) {
-    SkPath original = *result;
+std::optional<SkPath> SkOpBuilder::resolve() {
     int count = fOps.size();
     bool allUnion = true;
     SkPathFirstDirection firstDir = SkPathFirstDirection::kUnknown;
@@ -175,37 +174,35 @@ bool SkOpBuilder::resolve(SkPath* result) {
         }
     }
     if (!allUnion) {
-        *result = fPathRefs[0];
+        SkPath result = fPathRefs[0];
         for (int index = 1; index < count; ++index) {
-            if (!Op(*result, fPathRefs[index], fOps[index], result)) {
+            if (!Op(result, fPathRefs[index], fOps[index], &result)) {
                 reset();
-                *result = original;
-                return false;
+                return {};
             }
         }
         reset();
-        return true;
+        return result;
     }
     SkPath sum;
     for (int index = 0; index < count; ++index) {
         if (!Simplify(fPathRefs[index], &fPathRefs[index])) {
             reset();
-            *result = original;
-            return false;
+            return {};
         }
         if (!fPathRefs[index].isEmpty()) {
             // convert the even odd result back to winding form before accumulating it
             if (!FixWinding(&fPathRefs[index])) {
-                *result = original;
-                return false;
+                return {};
             }
             sum.addPath(fPathRefs[index]);
         }
     }
     reset();
-    bool success = Simplify(sum, result);
-    if (!success) {
-        *result = original;
+
+    SkPath result;
+    if (Simplify(sum, &result)) {
+        return result;
     }
-    return success;
+    return {};
 }

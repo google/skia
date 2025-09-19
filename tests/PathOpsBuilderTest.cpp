@@ -15,44 +15,49 @@
 
 DEF_TEST(PathOpsBuilder, reporter) {
     SkOpBuilder builder;
-    SkPath result;
-    REPORTER_ASSERT(reporter, builder.resolve(&result));
-    REPORTER_ASSERT(reporter, result.isEmpty());
+    auto result = builder.resolve();
+    REPORTER_ASSERT(reporter, result.has_value());
+    REPORTER_ASSERT(reporter, result->isEmpty());
 
-    builder.add(result, kDifference_SkPathOp);
-    REPORTER_ASSERT(reporter, builder.resolve(&result));
-    REPORTER_ASSERT(reporter, result.isEmpty());
+    builder.add(*result, kDifference_SkPathOp);
+    result = builder.resolve();
+    REPORTER_ASSERT(reporter, result.has_value());
+    REPORTER_ASSERT(reporter, result->isEmpty());
 
-    builder.add(result, kUnion_SkPathOp);
-    REPORTER_ASSERT(reporter, builder.resolve(&result));
-    REPORTER_ASSERT(reporter, result.isEmpty());
+    builder.add(*result, kUnion_SkPathOp);
+    result = builder.resolve();
+    REPORTER_ASSERT(reporter, result.has_value());
+    REPORTER_ASSERT(reporter, result->isEmpty());
 
     SkPath rectPath;
     rectPath.setFillType(SkPathFillType::kEvenOdd);
     rectPath.addRect(0, 1, 2, 3, SkPathDirection::kCW);
     builder.add(rectPath, kUnion_SkPathOp);
-    REPORTER_ASSERT(reporter, builder.resolve(&result));
+    result = builder.resolve();
+    REPORTER_ASSERT(reporter, result.has_value());
     bool closed;
     SkPathDirection dir;
-    REPORTER_ASSERT(reporter, result.isRect(nullptr, &closed, &dir));
+    REPORTER_ASSERT(reporter, result->isRect(nullptr, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
     REPORTER_ASSERT(reporter, dir == SkPathDirection::kCCW);
-    int pixelDiff = comparePaths(reporter, __FUNCTION__, rectPath, result);
+    int pixelDiff = comparePaths(reporter, __FUNCTION__, rectPath, *result);
     REPORTER_ASSERT(reporter, pixelDiff == 0);
 
     rectPath.reset();
     rectPath.setFillType(SkPathFillType::kEvenOdd);
     rectPath.addRect(0, 1, 2, 3, SkPathDirection::kCCW);
     builder.add(rectPath, kUnion_SkPathOp);
-    REPORTER_ASSERT(reporter, builder.resolve(&result));
-    REPORTER_ASSERT(reporter, result.isRect(nullptr, &closed, &dir));
+    result = builder.resolve();
+    REPORTER_ASSERT(reporter, result.has_value());
+    REPORTER_ASSERT(reporter, result->isRect(nullptr, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
     REPORTER_ASSERT(reporter, dir == SkPathDirection::kCCW);
     REPORTER_ASSERT(reporter, rectPath == result);
 
     builder.add(rectPath, kDifference_SkPathOp);
-    REPORTER_ASSERT(reporter, builder.resolve(&result));
-    REPORTER_ASSERT(reporter, result.isEmpty());
+    result = builder.resolve();
+    REPORTER_ASSERT(reporter, result.has_value());
+    REPORTER_ASSERT(reporter, result->isEmpty());
 
     SkPath rect2, rect3;
     rect2.addRect(2, 1, 4, 3, SkPathDirection::kCW);
@@ -60,12 +65,13 @@ DEF_TEST(PathOpsBuilder, reporter) {
     builder.add(rectPath, kUnion_SkPathOp);
     builder.add(rect2, kUnion_SkPathOp);
     builder.add(rect3, kUnion_SkPathOp);
-    REPORTER_ASSERT(reporter, builder.resolve(&result));
-    REPORTER_ASSERT(reporter, result.isRect(nullptr, &closed, &dir));
+    result = builder.resolve();
+    REPORTER_ASSERT(reporter, result.has_value());
+    REPORTER_ASSERT(reporter, result->isRect(nullptr, &closed, &dir));
     REPORTER_ASSERT(reporter, closed);
     SkRect expected;
     expected.setLTRB(0, 1, 5, 3);
-    REPORTER_ASSERT(reporter, result.getBounds() == expected);
+    REPORTER_ASSERT(reporter, result->getBounds() == expected);
 
     SkPath circle1, circle2, circle3;
     circle1.addCircle(5, 6, 4, SkPathDirection::kCW);
@@ -77,8 +83,9 @@ DEF_TEST(PathOpsBuilder, reporter) {
     builder.add(circle1, kUnion_SkPathOp);
     builder.add(circle2, kUnion_SkPathOp);
     builder.add(circle3, kDifference_SkPathOp);
-    REPORTER_ASSERT(reporter, builder.resolve(&result));
-    pixelDiff = comparePaths(reporter, __FUNCTION__, opCompare, result);
+    result = builder.resolve();
+    REPORTER_ASSERT(reporter, result.has_value());
+    pixelDiff = comparePaths(reporter, __FUNCTION__, opCompare, *result);
     REPORTER_ASSERT(reporter, pixelDiff == 0);
 }
 
@@ -96,11 +103,10 @@ DEF_TEST(BuilderIssue3838, reporter) {
     path.lineTo(200, 250);
     path.lineTo(200, 170);
     path.close();
-    SkPath path2;
     SkOpBuilder builder;
     builder.add(path, kUnion_SkPathOp);
-    builder.resolve(&path2);
-    int pixelDiff = comparePaths(reporter, __FUNCTION__, path, path2);
+    auto path2 = builder.resolve();
+    int pixelDiff = comparePaths(reporter, __FUNCTION__, path, path2.value());
     REPORTER_ASSERT(reporter, pixelDiff == 0);
 }
 
@@ -112,9 +118,8 @@ DEF_TEST(BuilderIssue3838_2, reporter) {
     builder.add(path, kUnion_SkPathOp);
     builder.add(path, kUnion_SkPathOp);
 
-    SkPath result;
-    builder.resolve(&result);
-    int pixelDiff = comparePaths(reporter, __FUNCTION__, path, result);
+    auto result = builder.resolve();
+    int pixelDiff = comparePaths(reporter, __FUNCTION__, path, result.value());
     REPORTER_ASSERT(reporter, pixelDiff == 0);
 }
 
@@ -133,9 +138,8 @@ DEF_TEST(BuilderIssue3838_3, reporter) {
 
     SkOpBuilder builder;
     builder.add(path, kUnion_SkPathOp);
-    SkPath result;
-    builder.resolve(&result);
-    int pixelDiff = comparePaths(reporter, __FUNCTION__, path, result);
+    auto result = builder.resolve();
+    int pixelDiff = comparePaths(reporter, __FUNCTION__, path, result.value());
     REPORTER_ASSERT(reporter, pixelDiff == 0);
 }
 
@@ -150,8 +154,7 @@ DEF_TEST(BuilderIssue502792_2, reporter) {
     SkOpBuilder builder;
     builder.add(path, kUnion_SkPathOp);
     builder.add(pathB, kDifference_SkPathOp);
-    SkPath result;
-    builder.resolve(&result);
+    (void)builder.resolve();
 }
 
 DEF_TEST(Fuzz846, reporter) {
@@ -270,8 +273,7 @@ DEF_TEST(Fuzz846, reporter) {
     SkOpBuilder builder;
     builder.add(clipCircle, kUnion_SkPathOp);
     builder.add(clipRect, kDifference_SkPathOp);
-    SkPath result;
-    builder.resolve(&result);
+    (void)builder.resolve();
 }
 
 DEF_TEST(Issue569540, reporter) {
@@ -301,8 +303,7 @@ DEF_TEST(Issue569540, reporter) {
     SkOpBuilder builder;
     builder.add(path1, kUnion_SkPathOp);
     builder.add(path2, kUnion_SkPathOp);
-    SkPath result;
-    builder.resolve(&result);
+    (void)builder.resolve();
 }
 
 DEF_TEST(SkOpBuilderFuzz665, reporter) {
@@ -323,8 +324,7 @@ path.lineTo(SkBits2Float(0x42e33333), SkBits2Float(0x42940000));  // 113.6f, 74
     SkOpBuilder builder;
     builder.add(path1, kUnion_SkPathOp);
     builder.add(path2, kUnion_SkPathOp);
-    SkPath result;
-    builder.resolve(&result);
+    (void)builder.resolve();
 }
 
 DEF_TEST(SkOpBuilder618991, reporter) {
@@ -345,7 +345,7 @@ DEF_TEST(SkOpBuilder618991, reporter) {
     SkOpBuilder builder;
     builder.add(path0, SkPathOp::kUnion_SkPathOp);
     builder.add(path1, SkPathOp::kUnion_SkPathOp);
-    builder.resolve(&path0);
+    (void)builder.resolve();
 }
 
 DEF_TEST(SkOpBuilderKFuzz1, reporter) {
@@ -359,8 +359,8 @@ path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
 path.cubicTo(SkBits2Float(0x80d3f924), SkBits2Float(0xcecece4f), SkBits2Float(0xcececece), SkBits2Float(0xcececece), SkBits2Float(0x9a9a9ace), SkBits2Float(0x9a9a9a9a));  // -1.94667e-38f, -1.73481e+09f, -1.73483e+09f, -1.73483e+09f, -6.3943e-23f, -6.39427e-23f
 path.moveTo(SkBits2Float(0x9a9a019a), SkBits2Float(0xa59a9a9a));  // -6.36955e-23f, -2.68195e-16f
     SkPath path1(path);
-SkOpBuilder builder;
+    SkOpBuilder builder;
     builder.add(path0, SkPathOp::kUnion_SkPathOp);
     builder.add(path1, SkPathOp::kUnion_SkPathOp);
-    builder.resolve(&path);
+    (void)builder.resolve();
 }

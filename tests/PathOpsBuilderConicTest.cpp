@@ -56,7 +56,9 @@ static void testOvalSet(const OvalSet& set, const SkPath& oval, SkOpBuilder* bui
         }
     }
     if (builder) {
-        builder->resolve(result);
+        if (auto res = builder->resolve()) {
+            *result = *res;
+        }
     } else if (region) {
         *result = region->getBoundaryPath();
     }

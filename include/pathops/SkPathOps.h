@@ -12,8 +12,9 @@
 #include "include/private/base/SkTArray.h"
 #include "include/private/base/SkTDArray.h"
 
-struct SkRect;
+#include <optional>
 
+struct SkRect;
 
 // FIXME: move everything below into the SkPath class
 /**
@@ -75,19 +76,25 @@ static inline bool TightBounds(const SkPath& path, SkRect* result) {
     return false;
 }
 
-/** Set the result with fill type winding to area equivalent to path.
-    Returns true if successful. Does not detect if path contains contours which
+/** Returns a path with fill type winding to area equivalent to the input.
+    Does not detect if path contains contours which
     contain self-crossings or cross other contours; in these cases, may return
-    true even though result does not fill same area as path.
+    a result even though it does not fill same area as the input.
 
-    Returns true if operation was able to produce a result;
-    otherwise, result is unmodified. The result may be the input.
+    If it fails to compute a result, returns {}.
 
     @param path The path typically with fill type set to even odd.
-    @param result The equivalent path with fill type set to winding.
-    @return True if winding path was set.
   */
-bool SK_API AsWinding(const SkPath& path, SkPath* result);
+std::optional<SkPath> SK_API AsWinding(const SkPath& path);
+
+// DEPRECATED
+static inline bool AsWinding(const SkPath& path, SkPath* result) {
+    if (auto res = AsWinding(path)) {
+        *result = *res;
+        return true;
+    }
+    return false;
+}
 
 /** Perform a series of path operations, optimized for unioning many paths together.
   */
@@ -104,10 +111,18 @@ public:
     /** Computes the sum of all paths and operands, and resets the builder to its
         initial state.
 
-        @param result The product of the operands.
-        @return True if the operation succeeded.
+        @return result The product of the operands, {} on failure.
       */
-    bool resolve(SkPath* result);
+    std::optional<SkPath> resolve();
+
+    // DEPRECATED
+    bool resolve(SkPath* result) {
+        if (auto res = this->resolve()) {
+            *result = *res;
+            return true;
+        }
+        return false;
+    }
 
 private:
     skia_private::TArray<SkPath> fPathRefs;

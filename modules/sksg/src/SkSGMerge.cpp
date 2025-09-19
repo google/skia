@@ -77,7 +77,9 @@ SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
 
     auto append = [&](const SkPath& path) {
         if (in_builder) {
-            builder.resolve(&fMerged);
+            if (auto result = builder.resolve()) {
+                fMerged = *result;
+            }
             in_builder = false;
         }
 
@@ -107,7 +109,9 @@ SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     }
 
     if (in_builder) {
-        builder.resolve(&fMerged);
+        if (auto result = builder.resolve()) {
+            fMerged = *result;
+        }
     }
 
     SkPathPriv::ShrinkToFit(&fMerged);

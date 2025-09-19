@@ -123,7 +123,7 @@ DEF_SIMPLE_GM(pathops_skbug_10155, canvas, 256, 256) {
         "M474.94 26.9405C474.93 26.9482 474.917 26.9576 474.901 26.9683L477.689 31.1186C477.789 31.0512 477.888 30.9804 477.985 30.9059L474.94 26.9405L474.94 26.9405Z"
     };
 
-    SkPath path[2], resultPath;
+    SkPath path[2];
     SkOpBuilder builder;
 
     for (int i = 0; i < 2; i++)
@@ -132,7 +132,7 @@ DEF_SIMPLE_GM(pathops_skbug_10155, canvas, 256, 256) {
         builder.add(path[i], kUnion_SkPathOp);
     }
 
-    builder.resolve(&resultPath);
+    SkPath resultPath = builder.resolve().value_or(SkPath());
 
     auto r = path[0].getBounds();
     canvas->translate(30, 30);

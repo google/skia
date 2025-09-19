@@ -12,6 +12,8 @@
 #include "include/pathops/SkPathOps.h"
 #include "src/pathops/SkPathOpsCommon.h"
 
+#include <utility>
+
 const uint8_t MAX_OPS = 20;
 
 DEF_FUZZ(Pathop, fuzz) {
@@ -94,7 +96,7 @@ DEF_FUZZ(Pathop, fuzz) {
             if (isSame) {
                 result = path;
             }
-            AsWinding(path, &result);
+            std::ignore = AsWinding(path);
             break;
         }
         case 4: {
