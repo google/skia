@@ -43,8 +43,7 @@ static void draw_huge_path(SkCanvas* canvas, int w, int h, bool manual) {
     auto can = surf->getCanvas();
 
     SkPaint paint;
-    SkPath path;
-    path.addRoundRect(SkRect::MakeXYWH(4, 4, w - 8, h - 8), 12, 12);
+    SkPath path = SkPath::RRect(SkRect::MakeXYWH(4, 4, w - 8, h - 8), 12, 12);
 
     canvas->save();
     canvas->clipRect(SkRect::MakeXYWH(4, 4, 64, 64));

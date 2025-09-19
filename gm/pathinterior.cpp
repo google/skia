@@ -10,6 +10,7 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
@@ -70,30 +71,30 @@ protected:
                     for (int innerRR = 0; innerRR <= 1; ++innerRR) {
                         for (int outerCW = 0; outerCW <= 1; ++outerCW) {
                             for (int innerCW = 0; innerCW <= 1; ++innerCW) {
-                                SkPath path;
-                                path.setFillType(doEvenOdd ? SkPathFillType::kEvenOdd : SkPathFillType::kWinding);
+                                SkPathBuilder builder(doEvenOdd ? SkPathFillType::kEvenOdd
+                                                                : SkPathFillType::kWinding);
                                 SkPathDirection outerDir = outerCW ? SkPathDirection::kCW : SkPathDirection::kCCW;
                                 SkPathDirection innerDir = innerCW ? SkPathDirection::kCW : SkPathDirection::kCCW;
 
                                 SkRect r = insetFirst ? inset(rect) : rect;
                                 if (outerRR) {
-                                    path.addRoundRect(r, RAD, RAD, outerDir);
+                                    builder.addRRect(SkRRect::MakeRectXY(r, RAD, RAD), outerDir);
                                 } else {
-                                    path.addRect(r, outerDir);
+                                    builder.addRect(r, outerDir);
                                 }
                                 r = insetFirst ? rect : inset(rect);
                                 if (innerRR) {
-                                    path.addRoundRect(r, RAD, RAD, innerDir);
+                                    builder.addRRect(SkRRect::MakeRectXY(r, RAD, RAD), innerDir);
                                 } else {
-                                    path.addRect(r, innerDir);
+                                    builder.addRect(r, innerDir);
                                 }
 
                                 SkScalar dx = (i / 8) * rect.width() * 6 / 5;
                                 SkScalar dy = (i % 8) * rect.height() * 6 / 5;
                                 i++;
-                                path.offset(dx, dy);
+                                builder.offset(dx, dy);
 
-                                this->show(canvas, path);
+                                this->show(canvas, builder.detach());
                             }
                         }
                     }

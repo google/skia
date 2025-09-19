@@ -62,7 +62,6 @@ protected:
     SkISize getISize() override { return SkISize::Make(1200, 900); }
 
     void onDraw(SkCanvas* canvas) override {
-        SkPath one, two;
         int yPos = 0;
         for (int oneFill = 0; oneFill <= 1; ++oneFill) {
             SkPathFillType oneF = oneFill ? SkPathFillType::kInverseEvenOdd
@@ -70,12 +69,8 @@ protected:
             for (int twoFill = 0; twoFill <= 1; ++twoFill) {
                 SkPathFillType twoF = twoFill ? SkPathFillType::kInverseEvenOdd
                         : SkPathFillType::kEvenOdd;
-                one.reset();
-                one.setFillType(oneF);
-                one.addRect(10, 10, 70, 70);
-                two.reset();
-                two.setFillType(twoF);
-                two.addRect(40, 40, 100, 100);
+                SkPath one = SkPath::Rect({10, 10, 70, 70}).makeFillType(oneF);
+                SkPath two = SkPath::Rect({40, 40, 100, 100}).makeFillType(twoF);
                 canvas->save();
                 canvas->translate(0, SkIntToScalar(yPos));
                 canvas->clipRect(SkRect::MakeWH(110, 110), true);

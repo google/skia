@@ -11,6 +11,7 @@
 #include "include/core/SkMaskFilter.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathEffect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -171,11 +172,13 @@ DEF_SIMPLE_GM(inverse_fill_filters, canvas, 384, 128) {
 }
 
 DEF_SIMPLE_GM(inverse_windingmode_filters, canvas, 256, 100) {
-    SkPath path;
-    path.addRect({10, 10, 30, 30}, SkPathDirection::kCW);
-    path.addRect({20, 20, 40, 40}, SkPathDirection::kCW);
-    path.addRect({10, 60, 30, 80}, SkPathDirection::kCW);
-    path.addRect({20, 70, 40, 90}, SkPathDirection::kCCW);
+    SkPath path = SkPathBuilder()
+                  .addRect({10, 10, 30, 30}, SkPathDirection::kCW)
+                  .addRect({20, 20, 40, 40}, SkPathDirection::kCW)
+                  .addRect({10, 60, 30, 80}, SkPathDirection::kCW)
+                  .addRect({20, 70, 40, 90}, SkPathDirection::kCCW)
+                  .detach();
+
     SkPaint strokePaint;
     strokePaint.setStyle(SkPaint::kStroke_Style);
     SkRect clipRect = {0, 0, 51, 99};

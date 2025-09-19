@@ -12,6 +12,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
+#include "src/core/SkPathPriv.h"
 
 /* The hiragino_maru_goth_pro_e path was generated with Mac-specific code:
  *
@@ -63,11 +64,11 @@ static void test_path(SkCanvas* canvas, const SkPath& path) {
 static void test_rev(SkCanvas* canvas, const SkPath& path) {
     test_path(canvas, path);
 
-    SkPath rev;
-    rev.reverseAddPath(path);
+    SkPathBuilder rev;
+    SkPathPriv::ReverseAddPath(&rev, path);
     canvas->save();
     canvas->translate(150, 0);
-    test_path(canvas, rev);
+    test_path(canvas, rev.detach());
     canvas->restore();
 }
 

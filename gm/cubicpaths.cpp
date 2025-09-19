@@ -108,14 +108,13 @@ class ClippedCubic2GM : public skiagm::GM {
         builder.close();
         fPath = builder.detach();
 
-        fFlipped = fPath;
         SkMatrix matrix;
         matrix.reset();
         matrix.setScaleX(0);
         matrix.setScaleY(0);
         matrix.setSkewX(1);
         matrix.setSkewY(1);
-        fFlipped.transform(matrix);
+        fFlipped = fPath.makeTransform(matrix);
     }
 
     SkPath fPath;

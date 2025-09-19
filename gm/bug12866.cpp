@@ -106,9 +106,9 @@ DEF_SIMPLE_GM_BG(bug41422450, canvas, 863, 473, SK_ColorWHITE) {
               0, 0, 0, 1};
     canvas->concat(mat);
 
-    SkPath strokePath;
     SkRect circle = SkRect::MakeLTRB(-3299135.5f, -12312541.0f, 9897407.0f, 884000.812f);
-    strokePath.arcTo(circle, 59.9999962f, 59.9999962f, true);
+
+    SkPath strokePath = SkPathBuilder().arcTo(circle, 59.9999962f, 59.9999962f, true).detach();
 
     SkPaint strokePaint;
     strokePaint.setStyle(SkPaint::kStroke_Style);

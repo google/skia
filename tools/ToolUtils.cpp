@@ -231,11 +231,10 @@ void add_to_text_blob(SkTextBlobBuilder* builder,
     add_to_text_blob_w_len(builder, text, strlen(text), SkTextEncoding::kUTF8, font, x, y);
 }
 
-void get_text_path(const SkFont&  font,
+SkPath get_text_path(const SkFont&  font,
                    const void*    text,
                    size_t         length,
                    SkTextEncoding encoding,
-                   SkPath*        dst,
                    const SkPoint  pos[]) {
     SkAutoToGlyphs        atg(font, text, length, encoding);
     const int             count = atg.count();
@@ -247,20 +246,21 @@ void get_text_path(const SkFont&  font,
     }
 
     struct Rec {
-        SkPath*        fDst;
+        SkPathBuilder  fBuilder;
         const SkPoint* fPos;
-    } rec = {dst, pos};
+    } rec = {{}, pos};
     font.getPaths(atg,
                   [](const SkPath* src, const SkMatrix& mx, void* ctx) {
                       Rec* rec = (Rec*)ctx;
                       if (src) {
                           SkMatrix tmp(mx);
                           tmp.postTranslate(rec->fPos->fX, rec->fPos->fY);
-                          rec->fDst->addPath(*src, tmp);
+                          rec->fBuilder.addPath(*src, tmp);
                       }
                       rec->fPos += 1;
                   },
                   &rec);
+    return rec.fBuilder.detach();
 }
 
 SkPath make_star(const SkRect& bounds, int numPts, int step) {

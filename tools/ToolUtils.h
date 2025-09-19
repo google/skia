@@ -63,12 +63,11 @@ const char* tilemode_name(SkTileMode);
  */
 SkColor color_to_565(SkColor color);
 
-void get_text_path(const SkFont&,
-                   const void* text,
-                   size_t      length,
-                   SkTextEncoding,
-                   SkPath*,
-                   const SkPoint* positions = nullptr);
+SkPath get_text_path(const SkFont&,
+                     const void* text,
+                     size_t      length,
+                     SkTextEncoding,
+                     const SkPoint* positions = nullptr);
 
 /**
  *  Returns true iff the configs and all of the pixels between the two are identical.

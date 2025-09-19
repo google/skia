@@ -12,16 +12,17 @@
 #include "include/core/SkColor.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/pathops/SkPathOps.h"
 #include "src/core/SkStroke.h"
 #include "tools/ToolUtils.h"
 
 static SkPath cross() {
-    SkPath path;
-    path.addRect(15, 0, 35, 50);
-    path.addRect(0, 15, 50, 35);
-    return path;
+    SkPathBuilder builder;
+    builder.addRect({15, 0, 35, 50});
+    builder.addRect({0, 15, 50, 35});
+    return builder.detach();
 }
 
 static SkPath circle() { return SkPath::Circle(25, 25, 20); }

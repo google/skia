@@ -138,8 +138,8 @@ DEF_SIMPLE_GM(fancyblobunderline, canvas, 1480, 1380) {
 
             const SkScalar start = blob->bounds().left();
             const SkScalar end = blob->bounds().right();
-            SkPath underline = create_underline(intercepts, start, end, uPos, uWidth, textSize);
-            underline.offset(blobOffset.x(), blobOffset.y());
+            SkPath underline = create_underline(intercepts, start, end, uPos, uWidth, textSize)
+                               .makeOffset(blobOffset.x(), blobOffset.y());
             paint.setStyle(SkPaint::kStroke_Style);
             canvas->drawPath(underline, paint);
 

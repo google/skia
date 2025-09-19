@@ -213,8 +213,7 @@ static void drawTextPath(SkCanvas* canvas, bool doStroke) {
         SkPathDirection::kCW, SkPathDirection::kCCW,
     };
     for (auto d : dirs) {
-        path.reset();
-        path.addOval(SkRect::MakeXYWH(160, 160, 540, 540), d);
+        path = SkPath::Oval(SkRect::MakeXYWH(160, 160, 540, 540), d);
         draw_text_on_path(canvas, text0, N, pos, path, font, paint, baseline_offset);
     }
 

@@ -215,15 +215,15 @@ class ConvexPathsGM : public skiagm::GM {
         fPaths.push_back(b.cubicTo(0, 0, 0, 0, 100, 100).detach());
 
         // skbug.com/40040207
+        SkMatrix m;
+        m.setAll(0.1f, 0, -1, 0, 0.115207f, -2.64977f, 0, 0, 1);
         fPaths.push_back(b.moveTo(16.875f, 192.594f)
                           .cubicTo(45.625f, 192.594f, 74.375f, 192.594f, 103.125f, 192.594f)
                           .cubicTo(88.75f, 167.708f, 74.375f, 142.823f, 60, 117.938f)
                           .cubicTo(45.625f, 142.823f, 31.25f, 167.708f, 16.875f, 192.594f)
                           .close()
+                          .transform(m)
                           .detach());
-        SkMatrix m;
-        m.setAll(0.1f, 0, -1, 0, 0.115207f, -2.64977f, 0, 0, 1);
-        fPaths.back().transform(m);
 
         // small circle. This is listed last so that it has device coords far
         // from the origin (small area relative to x,y values).

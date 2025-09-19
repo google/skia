@@ -70,11 +70,10 @@ private:
         SkPath clip = SkPathBuilder().moveTo(-50, 20)
                                      .cubicTo(-50, -20, 50, -20, 50, 40)
                                      .cubicTo(20, 0, -20, 0, -50, 20)
+                                     .transform(SkMatrix::Translate(64, 70))
                                      .detach();
-        clip.transform(SkMatrix::Translate(64, 70));
         for (int i = 0; i < 4; ++i) {
-            SkPath rotatedClip = clip;
-            rotatedClip.transform(SkMatrix::RotateDeg(30 * i + 128, {64, 70}));
+            SkPath rotatedClip = clip.makeTransform(SkMatrix::RotateDeg(30 * i + 128, {64, 70}));
             rotatedClip.setIsVolatile(true);
             canvas->clipPath(rotatedClip, SkClipOp::kDifference, true);
         }

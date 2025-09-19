@@ -143,7 +143,6 @@ protected:
         }
         canvas->restore();
 
-        path.reset();
         SkRect r = { 0, 0, 250, 120 };
         path = SkPathBuilder().addOval(r, SkPathDirection::kCW)
                               .addRect(r.makeInset(50, 50), SkPathDirection::kCCW)
