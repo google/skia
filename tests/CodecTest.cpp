@@ -54,6 +54,10 @@
 #include "tools/Resources.h"
 #include "tools/ToolUtils.h"
 
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST)
+#include "include/codec/SkPngRustDecoder.h"
+#endif
+
 #ifdef SK_ENABLE_ANDROID_UTILS
 #include "client_utils/android/FrontBufferedStream.h"
 #endif
@@ -2629,6 +2633,31 @@ DEF_TEST(PngHdrMetadataRoundTrip, r) {
 
     SkCodec::Result result;
     auto codec = SkPngDecoder::Decode(wstream.detachAsData(), &result);
+
+    REPORTER_ASSERT(r, options.fHdrMetadata == codec->getHdrMetadata());
+}
+#endif
+
+#if defined(SK_CODEC_DECODES_PNG_WITH_RUST) && \
+    defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG) && \
+    !defined(SK_PNG_DISABLE_TESTS)
+DEF_TEST(PngRustHdrMetadataRoundTrip, r) {
+    SkBitmap bm;
+    bm.allocPixels(SkImageInfo::MakeN32Premul(10, 10));
+
+    // The SkPngRustEncoder doesn't support writing HDR metadata, so this uses the libpng encoder.
+    SkPngEncoder::Options options;
+    options.fHdrMetadata.setMasteringDisplayColorVolume(
+        skhdr::MasteringDisplayColorVolume({SkNamedPrimaries::kRec2020, 500.f, 0.0005f}));
+    options.fHdrMetadata.setContentLightLevelInformation(
+        skhdr::ContentLightLevelInformation({1000.f, 150.f}));
+
+    SkDynamicMemoryWStream wstream;
+    SkPngEncoder::Encode(&wstream, bm.pixmap(), options);
+
+    SkCodec::Result result;
+    auto codec = SkPngRustDecoder::Decode(
+        std::make_unique<SkMemoryStream>(wstream.detachAsData()), &result);
 
     REPORTER_ASSERT(r, options.fHdrMetadata == codec->getHdrMetadata());
 }

@@ -1,1 +1,2 @@
-Add HDR metadata support to `SkPngCodec` and `SkPngEncoder`.
+Add HDR metadata support to `SkPngDecoder`, `SkPngRustDecoder`, and
+`SkPngEncoder`.

@@ -91,6 +91,31 @@ mod ffi {
         LimitsExceededError,
     }
 
+    /// FFI/layering-friendly equivalent of `SkColorSpacePrimaries from C/C++.
+    struct ColorSpacePrimaries {
+        fRX: f32,
+        fRY: f32,
+        fGX: f32,
+        fGY: f32,
+        fBX: f32,
+        fBY: f32,
+        fWX: f32,
+        fWY: f32,
+    }
+
+    /// FFI/layering-friendly equivalent of `skhdr::MasteringDisplayColorVolume` from C/C++.
+    struct MasteringDisplayColorVolume {
+        fDisplayPrimaries: ColorSpacePrimaries,
+        fMaximumDisplayMasteringLuminance: f32,
+        fMinimumDisplayMasteringLuminance: f32,
+    }
+
+    /// FFI/layering-friendly equivalent of `skhdr::ContentLightLevelInformation` from C/C++.
+    struct ContentLightLevelInfo {
+        fMaxCLL: f32,
+        fMaxFALL : f32,
+    }
+
     unsafe extern "C++" {
         include!("rust/png/FFI.h");
 
@@ -136,14 +161,7 @@ mod ffi {
         fn is_srgb(self: &Reader) -> bool;
         fn try_get_chrm(
             self: &Reader,
-            wx: &mut f32,
-            wy: &mut f32,
-            rx: &mut f32,
-            ry: &mut f32,
-            gx: &mut f32,
-            gy: &mut f32,
-            bx: &mut f32,
-            by: &mut f32,
+            chrm: &mut ColorSpacePrimaries,
         ) -> bool;
         fn try_get_cicp_chunk(
             self: &Reader,
@@ -151,6 +169,14 @@ mod ffi {
             transfer_id: &mut u8,
             matrix_id: &mut u8,
             is_full_range: &mut bool,
+        ) -> bool;
+        fn try_get_mdcv_chunk(
+            self: &Reader,
+            mdcv: &mut MasteringDisplayColorVolume,
+        ) -> bool;
+        fn try_get_clli_chunk(
+            self: &Reader,
+            clli: &mut ContentLightLevelInfo,
         ) -> bool;
         fn try_get_gama(self: &Reader, gamma: &mut f32) -> bool;
         fn has_exif_chunk(self: &Reader) -> bool;
@@ -475,14 +501,7 @@ impl Reader {
     /// etc.).  Otherwise, returns `false`.
     fn try_get_chrm(
         &self,
-        wx: &mut f32,
-        wy: &mut f32,
-        rx: &mut f32,
-        ry: &mut f32,
-        gx: &mut f32,
-        gy: &mut f32,
-        bx: &mut f32,
-        by: &mut f32,
+        chrm: &mut ffi::ColorSpacePrimaries,
     ) -> bool {
         fn copy_channel(channel: &(png::ScaledFloat, png::ScaledFloat), x: &mut f32, y: &mut f32) {
             *x = png_u32_into_f32(channel.0);
@@ -491,11 +510,11 @@ impl Reader {
 
         match self.reader.info().chrm_chunk.as_ref() {
             None => false,
-            Some(chrm) => {
-                copy_channel(&chrm.white, wx, wy);
-                copy_channel(&chrm.red, rx, ry);
-                copy_channel(&chrm.green, gx, gy);
-                copy_channel(&chrm.blue, bx, by);
+            Some(png_chrm) => {
+                copy_channel(&png_chrm.white, &mut chrm.fWX, &mut chrm.fWY);
+                copy_channel(&png_chrm.red, &mut chrm.fRX, &mut chrm.fRY);
+                copy_channel(&png_chrm.green, &mut chrm.fGX, &mut chrm.fGY);
+                copy_channel(&png_chrm.blue, &mut chrm.fBX, &mut chrm.fBY);
                 true
             }
         }
@@ -518,6 +537,60 @@ impl Reader {
                 *transfer_id = cicp.transfer_function;
                 *matrix_id = cicp.matrix_coefficients;
                 *is_full_range = cicp.is_video_full_range_image;
+                true
+            }
+        }
+    }
+
+    /// If the decoded PNG image contained a `mDCV` chunk then
+    /// `try_get_mdcv_chunk` returns `true` and populates the out parameters
+    /// as values that are CIE 1931 xy coordinates or values in cd/m^2.
+    /// Otherwise, returns `false`.
+    fn try_get_mdcv_chunk(
+        self: &Reader,
+        mdcv: &mut ffi::MasteringDisplayColorVolume,
+    ) -> bool {
+        match self.reader.info().mastering_display_color_volume.as_ref() {
+            None => false,
+            Some(png_mdcv) => {
+                *mdcv = ffi::MasteringDisplayColorVolume {
+                    fDisplayPrimaries: ffi::ColorSpacePrimaries {
+                        fRX: png_mdcv.chromaticities.red.0.into_value(),
+                        fRY: png_mdcv.chromaticities.red.1.into_value(),
+                        fGX: png_mdcv.chromaticities.green.0.into_value(),
+                        fGY: png_mdcv.chromaticities.green.1.into_value(),
+                        fBX: png_mdcv.chromaticities.blue.0.into_value(),
+                        fBY: png_mdcv.chromaticities.blue.1.into_value(),
+                        fWX: png_mdcv.chromaticities.white.0.into_value(),
+                        fWY: png_mdcv.chromaticities.white.1.into_value(),
+                    },
+                    fMaximumDisplayMasteringLuminance:
+                        png_mdcv.max_luminance as f32 / 10_000.0,
+                    fMinimumDisplayMasteringLuminance:
+                        png_mdcv.min_luminance as f32 / 10_000.0,
+                };
+                true
+            }
+        }
+    }
+
+    /// If the decoded PNG image contained a `cLLI` chunk then
+    /// `try_get_clli_chunk` returns `true` and populates the out
+    /// parameters as values in cd/m^2.  Otherwise, returns `false`.
+    fn try_get_clli_chunk(
+        &self,
+        clli: &mut ffi::ContentLightLevelInfo,
+    ) -> bool {
+        match self.reader.info().content_light_level.as_ref() {
+            None => false,
+            Some(png_clli) => {
+                *clli = ffi::ContentLightLevelInfo {
+                    fMaxCLL:
+                        png_clli.max_content_light_level as f32 / 10_000.0,
+                    fMaxFALL:
+                        png_clli.max_frame_average_light_level as f32 /
+                        10_000.0,
+                };
                 true
             }
         }
