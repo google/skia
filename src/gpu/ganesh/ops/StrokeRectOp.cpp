@@ -431,19 +431,6 @@ GrGeometryProcessor* create_aa_stroke_rect_gp(SkArenaAlloc* arena,
     return MakeForDeviceSpace(arena, colorType, coverageType, localCoordsType, viewMatrix);
 }
 
-SkRect aa_stroke_rect_bounds(const SkRect& devOuter, const SkVector& devHalfStrokeSize) {
-    // This matches the inset/outset calculation performed for the actual outset vertices that
-    // produce an AA ramp. It ensures there's always at least a 1px wide stroke, but for subpixel
-    // strokes, the amount of outset can exceed the assumed 1/2px outset for an AA'ed Op's bounds,
-    // so we have to manually include it.
-    float inset = std::min(0.5f, std::min(devHalfStrokeSize.fX, devHalfStrokeSize.fY));
-
-    // Remove 1/2 of the outset since that's assumed in bounds tracking. This amounts to 0 extra
-    // outset for regularly stroked rect ops.
-    float outset = (1.f - inset) - 0.5f;
-    return devOuter.makeOutset(outset, outset);
-}
-
 class AAStrokeRectOp final : public GrMeshDrawOp {
 private:
     using Helper = GrSimpleMeshDrawOpHelper;
@@ -488,8 +475,7 @@ public:
         SkASSERT(!devInside.isEmpty());
 
         fRects.emplace_back(RectInfo{color, devOutside, devOutside, devInside, devHalfStrokeSize, false});
-        this->setBounds(aa_stroke_rect_bounds(devOutside, devHalfStrokeSize),
-                        HasAABloat::kYes, IsHairline::kNo);
+        this->setBounds(devOutside, HasAABloat::kYes, IsHairline::kNo);
         fMiterStroke = true;
     }
 
@@ -534,16 +520,15 @@ public:
         fMiterStroke = isMiter;
         RectInfo& info = fRects.push_back(infoExceptColor);
         info.fColor = color;
-
-        SkRect bounds = info.fDevOutside;
-        if (!isMiter) {
+        if (isMiter) {
+            this->setBounds(info.fDevOutside, HasAABloat::kYes, IsHairline::kNo);
+        } else {
             // The outer polygon of the bevel stroke is an octagon specified by the points of a
             // pair of overlapping rectangles where one is wide and the other is narrow.
+            SkRect bounds = info.fDevOutside;
             bounds.joinPossiblyEmptyRect(info.fDevOutsideAssist);
+            this->setBounds(bounds, HasAABloat::kYes, IsHairline::kNo);
         }
-
-        this->setBounds(aa_stroke_rect_bounds(bounds, info.fDevHalfStrokeSize),
-                        HasAABloat::kYes, IsHairline::kNo);
     }
 
     const char* name() const override { return "AAStrokeRect"; }
