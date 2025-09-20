@@ -8,6 +8,7 @@
 #include "gm/gm.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "src/base/SkRandom.h"
 
@@ -51,23 +52,23 @@ static void draw_test(SkCanvas* canvas) {
     canvas->translate(60, 60);
 
     draw_strokes(canvas, &rand,
-            SkPath().lineTo(10,0).lineTo(10,10),
-            SkPath().cubicTo(10,0, 10,0, 10,10));
+            SkPathBuilder().lineTo(10,0).lineTo(10,10).detach(),
+            SkPathBuilder().cubicTo(10,0, 10,0, 10,10).detach());
     canvas->translate(0, 120);
 
     draw_strokes(canvas, &rand,
-            SkPath().lineTo(0,-10).lineTo(0,10),
-            SkPath().cubicTo(0,-10, 0,-10, 0,10));
+            SkPathBuilder().lineTo(0,-10).lineTo(0,10).detach(),
+            SkPathBuilder().cubicTo(0,-10, 0,-10, 0,10).detach());
     canvas->translate(0, 120);
 
     draw_strokes(canvas, &rand,
-            SkPath().lineTo(0,-10).lineTo(10,-10).lineTo(10,10).lineTo(0,10),
-            SkPath().cubicTo(0,-10, 10,10, 0,10));
+            SkPathBuilder().lineTo(0,-10).lineTo(10,-10).lineTo(10,10).lineTo(0,10).detach(),
+            SkPathBuilder().cubicTo(0,-10, 10,10, 0,10).detach());
     canvas->translate(0, 140);
 
     draw_strokes(canvas, &rand,
-            SkPath().lineTo(0,-10).lineTo(10,-10).lineTo(10,0).lineTo(0,0),
-            SkPath().cubicTo(0,-10, 10,0, 0,0));
+            SkPathBuilder().lineTo(0,-10).lineTo(10,-10).lineTo(10,0).lineTo(0,0).detach(),
+            SkPathBuilder().cubicTo(0,-10, 10,0, 0,0).detach());
     canvas->translate(0, 120);
 }
 

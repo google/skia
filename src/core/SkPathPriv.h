@@ -412,6 +412,12 @@ public:
         builder->privateReversePathTo(reverseMe);
     }
 
+    static SkPath ReversePath(const SkPath& reverseMe) {
+        SkPathBuilder bu;
+        bu.privateReverseAddPath(reverseMe);
+        return bu.detach();
+    }
+
     static std::optional<SkPoint> GetPoint(const SkPathBuilder& builder, int index) {
         if ((unsigned)index < (unsigned)builder.fPts.size()) {
             return builder.fPts.at(index);

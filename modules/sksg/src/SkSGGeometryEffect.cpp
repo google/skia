@@ -101,10 +101,7 @@ SkPath GeometryTransform::onRevalidateEffect(const sk_sp<GeometryNode>& child, c
     fTransform->revalidate(nullptr, SkMatrix::I());
     const auto m = TransformPriv::As<SkMatrix>(fTransform);
 
-    SkPath path = child->asPath();
-    path.transform(m);
-
-    return path;
+    return child->asPath().makeTransform(m);
 }
 
 SkPath FillTypeOverride::onRevalidateEffect(const sk_sp<GeometryNode>& child, const SkMatrix&) {

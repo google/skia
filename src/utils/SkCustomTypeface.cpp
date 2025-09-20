@@ -179,7 +179,7 @@ void SkCustomTypefaceBuilder::setGlyph(SkGlyphID index, float advance,
     rec.fAdvance  = advance;
     rec.fDrawable = std::move(drawable);
     rec.fBounds   = bounds;
-    rec.fPath.reset();
+    rec.fPath     = SkPath();
 }
 
 sk_sp<SkTypeface> SkCustomTypefaceBuilder::detach() {

@@ -21,6 +21,7 @@
 #include "include/core/SkString.h"
 #include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "src/core/SkCanvasPriv.h"
+#include "src/core/SkPathPriv.h"
 #include "src/gpu/ganesh/GrCanvas.h"
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrPaint.h"
@@ -51,18 +52,16 @@ protected:
     SkISize getISize() override { return SkISize::Make(720, 550); }
 
     void onOnceBeforeDraw() override {
-        SkPath tri = SkPathBuilder()
-                     .moveTo(5.f, 5.f)
-                     .lineTo(100.f, 20.f)
-                     .lineTo(15.f, 100.f)
-                     .detach();
+        SkPathBuilder tri;
+        tri.moveTo(5.f, 5.f)
+           .lineTo(100.f, 20.f)
+           .lineTo(15.f, 100.f);
 
-        fPaths.push_back(tri);
-        fPaths.emplace_back();
-        fPaths.back().reverseAddPath(tri);
+        fPaths.push_back(tri.snapshot());
+        fPaths.push_back(SkPathPriv::ReversePath(fPaths.back()));
 
         tri.close();
-        fPaths.push_back(tri);
+        fPaths.push_back(tri.detach());
 
         SkPathBuilder ngon;
         constexpr SkScalar kRadius = 50.f;
@@ -102,8 +101,7 @@ protected:
 
             for (int et = 0; et < kGrClipEdgeTypeCnt; ++et) {
                 const SkMatrix m = SkMatrix::Translate(x, y);
-                SkPath p;
-                path.transform(m, &p);
+                SkPath p = path.makeTransform(m);
 
                 GrClipEdgeType edgeType = (GrClipEdgeType) et;
                 auto [success, fp] = GrConvexPolyEffect::Make(/*inputFP=*/nullptr, edgeType, p);

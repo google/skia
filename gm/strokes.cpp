@@ -122,11 +122,15 @@ protected:
         fQuadPath = parse_assert_result("M 0 0 Q 0 0 0 0");
         fLinePath = parse_assert_result("M 0 0 L 0 0");
 
+        SkPathBuilder builders[4];
         for (int i = 0; i < 3; ++i) {
-            fRefPath[0].addCircle(i * 10.f, 0, 5);
-            fRefPath[1].addCircle(i * 10.f, 0, 10);
-            fRefPath[2].addRect(i * 10.f - 4, -2, i * 10.f + 4, 6);
-            fRefPath[3].addRect(i * 10.f - 10, -10, i * 10.f + 10, 10);
+            builders[0].addCircle(i * 10.f, 0, 5);
+            builders[1].addCircle(i * 10.f, 0, 10);
+            builders[2].addRect({i * 10.f - 4, -2, i * 10.f + 4, 6});
+            builders[3].addRect({i * 10.f - 10, -10, i * 10.f + 10, 10});
+        }
+        for (int i = 0; i < 4; ++i) {
+            fRefPath[i] = builders[i].detach();
         }
     }
 
@@ -341,44 +345,58 @@ static SkRect inset(const SkRect& r) {
 }
 
 class Strokes3GM : public skiagm::GM {
-    static void make0(SkPath* path, const SkRect& bounds, SkString* title) {
-        path->addRect(bounds, SkPathDirection::kCW);
-        path->addRect(inset(bounds), SkPathDirection::kCW);
+    static SkPath make0(const SkRect& bounds, SkString* title) {
         title->set("CW CW");
+        return SkPathBuilder()
+               .addRect(bounds, SkPathDirection::kCW)
+               .addRect(inset(bounds), SkPathDirection::kCW)
+               .detach();
     }
 
-    static void make1(SkPath* path, const SkRect& bounds, SkString* title) {
-        path->addRect(bounds, SkPathDirection::kCW);
-        path->addRect(inset(bounds), SkPathDirection::kCCW);
+    static SkPath make1(const SkRect& bounds, SkString* title) {
         title->set("CW CCW");
+        return SkPathBuilder()
+               .addRect(bounds, SkPathDirection::kCW)
+               .addRect(inset(bounds), SkPathDirection::kCCW)
+               .detach();
     }
 
-    static void make2(SkPath* path, const SkRect& bounds, SkString* title) {
-        path->addOval(bounds, SkPathDirection::kCW);
-        path->addOval(inset(bounds), SkPathDirection::kCW);
+    static SkPath make2(const SkRect& bounds, SkString* title) {
         title->set("CW CW");
+        return SkPathBuilder()
+               .addOval(bounds, SkPathDirection::kCW)
+               .addOval(inset(bounds), SkPathDirection::kCW)
+               .detach();
     }
 
-    static void make3(SkPath* path, const SkRect& bounds, SkString* title) {
-        path->addOval(bounds, SkPathDirection::kCW);
-        path->addOval(inset(bounds), SkPathDirection::kCCW);
+    static SkPath make3(const SkRect& bounds, SkString* title) {
         title->set("CW CCW");
+        return SkPathBuilder()
+               .addOval(bounds, SkPathDirection::kCW)
+               .addOval(inset(bounds), SkPathDirection::kCCW)
+               .detach();
     }
 
-    static void make4(SkPath* path, const SkRect& bounds, SkString* title) {
-        path->addRect(bounds, SkPathDirection::kCW);
+    static SkPath make4(const SkRect& bounds, SkString* title) {
+        title->set("CW CW");
+
         SkRect r = bounds;
         r.inset(bounds.width() / 10, -bounds.height() / 10);
-        path->addOval(r, SkPathDirection::kCW);
-        title->set("CW CW");
+        return SkPathBuilder()
+               .addRect(bounds, SkPathDirection::kCW)
+               .addOval(r, SkPathDirection::kCW)
+               .detach();
     }
 
-    static void make5(SkPath* path, const SkRect& bounds, SkString* title) {
-        path->addRect(bounds, SkPathDirection::kCW);
+    static SkPath make5(const SkRect& bounds, SkString* title) {
+        title->set("CW CCW");
+
         SkRect r = bounds;
         r.inset(bounds.width() / 10, -bounds.height() / 10);
-        path->addOval(r, SkPathDirection::kCCW);
-        title->set("CW CCW");
+        return SkPathBuilder()
+               .addRect(bounds, SkPathDirection::kCW)
+               .addOval(r, SkPathDirection::kCCW)
+               .detach();
     }
 
 public:
@@ -398,7 +416,7 @@ protected:
         SkPaint strokePaint(origPaint);
         strokePaint.setColor(ToolUtils::color_to_565(0xFF4444FF));
 
-        void (*procs[])(SkPath*, const SkRect&, SkString*) = {
+        SkPath (*procs[])(const SkRect&, SkString*) = {
             make0, make1, make2, make3, make4, make5
         };
 
@@ -409,9 +427,8 @@ protected:
         SkScalar dy = bounds.height() * 5;
 
         for (size_t i = 0; i < std::size(procs); ++i) {
-            SkPath orig;
             SkString str;
-            procs[i](&orig, bounds, &str);
+            SkPath orig = procs[i](bounds, &str);
 
             canvas->save();
             for (int j = 0; j < 13; ++j) {
