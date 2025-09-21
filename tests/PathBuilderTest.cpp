@@ -477,6 +477,7 @@ static void test_addPath_convexity(skiatest::Reporter* reporter) {
     auto circle = SkPath::Circle(10, 10, 10);
     REPORTER_ASSERT(reporter, circle.isConvex());
 
+#ifndef SK_HIDE_PATH_EDIT_METHODS
     auto path_add = [&](bool startWithMove, SkPath::AddPathMode mode) {
         SkPath path;
         if (startWithMove) {
@@ -485,6 +486,7 @@ static void test_addPath_convexity(skiatest::Reporter* reporter) {
         path.addPath(circle, mode);
         return path;
     };
+#endif
 
     auto builder_add = [&](bool startWithMove, SkPath::AddPathMode mode) {
         SkPathBuilder builder;
@@ -507,8 +509,10 @@ static void test_addPath_convexity(skiatest::Reporter* reporter) {
     };
 
     for (auto e : expectations) {
+#ifndef SK_HIDE_PATH_EDIT_METHODS
         auto path = path_add(e.fStartWithMove, e.fMode);
         REPORTER_ASSERT(reporter, path.isConvex() == e.fShouldBeConvex);
+#endif
 
         path = builder_add(e.fStartWithMove, e.fMode);
         REPORTER_ASSERT(reporter, path.isConvex() == e.fShouldBeConvex);
@@ -516,14 +520,15 @@ static void test_addPath_convexity(skiatest::Reporter* reporter) {
 }
 
 DEF_TEST(pathbuilder_addPath, reporter) {
-    const auto p = SkPath()
-        .moveTo(10, 10)
-        .lineTo(100, 10)
-        .quadTo(200, 100, 100, 200)
-        .close()
-        .moveTo(200, 200)
-        .cubicTo(210, 200, 210, 300, 200, 300)
-        .conicTo(150, 250, 100, 200, 1.4f);
+    const auto p = SkPathBuilder()
+                   .moveTo(10, 10)
+                   .lineTo(100, 10)
+                   .quadTo(200, 100, 100, 200)
+                   .close()
+                   .moveTo(200, 200)
+                   .cubicTo(210, 200, 210, 300, 200, 300)
+                   .conicTo(150, 250, 100, 200, 1.4f)
+                   .detach();
 
     REPORTER_ASSERT(reporter, p == SkPathBuilder().addPath(p).detach());
 

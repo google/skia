@@ -76,10 +76,11 @@ static void test_add_rrect(skiatest::Reporter* reporter, const SkRect& bounds,
 }
 
 static void test_skbug_3469(skiatest::Reporter* reporter) {
-    SkPath path;
-    path.moveTo(20, 20);
-    path.quadTo(20, 50, 80, 50);
-    path.quadTo(20, 50, 20, 80);
+    SkPath path = SkPathBuilder()
+                  .moveTo(20, 20)
+                  .quadTo(20, 50, 80, 50)
+                  .quadTo(20, 50, 20, 80)
+                  .detach();
     REPORTER_ASSERT(reporter, !path.isConvex());
 }
 
@@ -101,44 +102,47 @@ static void test_skbug_3239(skiatest::Reporter* reporter) {
     }
 }
 
-static void make_path_crbug364224(SkPath* path) {
-    path->reset();
-    path->moveTo(3.747501373f, 2.724499941f);
-    path->lineTo(3.747501373f, 3.75f);
-    path->cubicTo(3.747501373f, 3.88774991f, 3.635501385f, 4.0f, 3.497501373f, 4.0f);
-    path->lineTo(0.7475013733f, 4.0f);
-    path->cubicTo(0.6095013618f, 4.0f, 0.4975013733f, 3.88774991f, 0.4975013733f, 3.75f);
-    path->lineTo(0.4975013733f, 1.0f);
-    path->cubicTo(0.4975013733f, 0.8622499704f, 0.6095013618f, 0.75f, 0.7475013733f,0.75f);
-    path->lineTo(3.497501373f, 0.75f);
-    path->cubicTo(3.50275135f, 0.75f, 3.5070014f, 0.7527500391f, 3.513001442f, 0.753000021f);
-    path->lineTo(3.715001345f, 0.5512499809f);
-    path->cubicTo(3.648251295f, 0.5194999576f, 3.575501442f, 0.4999999702f, 3.497501373f, 0.4999999702f);
-    path->lineTo(0.7475013733f, 0.4999999702f);
-    path->cubicTo(0.4715013802f, 0.4999999702f, 0.2475013733f, 0.7239999771f, 0.2475013733f, 1.0f);
-    path->lineTo(0.2475013733f, 3.75f);
-    path->cubicTo(0.2475013733f, 4.026000023f, 0.4715013504f, 4.25f, 0.7475013733f, 4.25f);
-    path->lineTo(3.497501373f, 4.25f);
-    path->cubicTo(3.773501396f, 4.25f, 3.997501373f, 4.026000023f, 3.997501373f, 3.75f);
-    path->lineTo(3.997501373f, 2.474750042f);
-    path->lineTo(3.747501373f, 2.724499941f);
-    path->close();
+static SkPath make_path_crbug364224() {
+    return SkPathBuilder()
+           .moveTo(3.747501373f, 2.724499941f)
+           .lineTo(3.747501373f, 3.75f)
+           .cubicTo(3.747501373f, 3.88774991f, 3.635501385f, 4.0f, 3.497501373f, 4.0f)
+           .lineTo(0.7475013733f, 4.0f)
+           .cubicTo(0.6095013618f, 4.0f, 0.4975013733f, 3.88774991f, 0.4975013733f, 3.75f)
+           .lineTo(0.4975013733f, 1.0f)
+           .cubicTo(0.4975013733f, 0.8622499704f, 0.6095013618f, 0.75f, 0.7475013733f,0.75f)
+           .lineTo(3.497501373f, 0.75f)
+           .cubicTo(3.50275135f, 0.75f, 3.5070014f, 0.7527500391f, 3.513001442f, 0.753000021f)
+           .lineTo(3.715001345f, 0.5512499809f)
+           .cubicTo(3.648251295f, 0.5194999576f, 3.575501442f, 0.4999999702f, 3.497501373f, 0.4999999702f)
+           .lineTo(0.7475013733f, 0.4999999702f)
+           .cubicTo(0.4715013802f, 0.4999999702f, 0.2475013733f, 0.7239999771f, 0.2475013733f, 1.0f)
+           .lineTo(0.2475013733f, 3.75f)
+           .cubicTo(0.2475013733f, 4.026000023f, 0.4715013504f, 4.25f, 0.7475013733f, 4.25f)
+           .lineTo(3.497501373f, 4.25f)
+           .cubicTo(3.773501396f, 4.25f, 3.997501373f, 4.026000023f, 3.997501373f, 3.75f)
+           .lineTo(3.997501373f, 2.474750042f)
+           .lineTo(3.747501373f, 2.724499941f)
+           .close()
+           .detach();
 }
 
-static void make_path_crbug364224_simplified(SkPath* path) {
-    path->moveTo(3.747501373f, 2.724499941f);
-    path->cubicTo(3.648251295f, 0.5194999576f, 3.575501442f, 0.4999999702f, 3.497501373f, 0.4999999702f);
-    path->close();
+static SkPath make_path_crbug364224_simplified() {
+    return SkPathBuilder()
+           .moveTo(3.747501373f, 2.724499941f)
+           .cubicTo(3.648251295f, 0.5194999576f, 3.575501442f, 0.4999999702f, 3.497501373f, 0.4999999702f)
+           .close()
+           .detach();
 }
 
 static void test_sect_with_horizontal_needs_pinning() {
     // Test that sect_with_horizontal in SkLineClipper.cpp needs to pin after computing the
     // intersection.
-    SkPath path;
-    path.reset();
-    path.moveTo(-540000, -720000);
-    path.lineTo(-9.10000017e-05f, 9.99999996e-13f);
-    path.lineTo(1, 1);
+    SkPath path = SkPathBuilder()
+                  .moveTo(-540000, -720000)
+                  .lineTo(-9.10000017e-05f, 9.99999996e-13f)
+                  .lineTo(1, 1)
+                  .detach();
 
     // Without the pinning code in sect_with_horizontal(), this would assert in the lineclipper
     SkPaint paint;
@@ -152,11 +156,12 @@ static void test_iterative_intersect_line() {
     // endpoints. With that version, this draw would trigger an assert.
     // With the fix (iteratively clipping the intermediate results after the first operation),
     // this shouldn't assert:
-    SkPath path;
-    path.moveTo(-478.805145f, 153.862549f);
-    path.lineTo(6.27216804e+19f, 6.27216804e+19f);
-    path.lineTo(-666.754272f, 155.086304f);
-    path.close();
+    SkPath path = SkPathBuilder()
+                  .moveTo(-478.805145f, 153.862549f)
+                  .lineTo(6.27216804e+19f, 6.27216804e+19f)
+                  .lineTo(-666.754272f, 155.086304f)
+                  .close()
+                  .detach();
 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
@@ -164,15 +169,14 @@ static void test_iterative_intersect_line() {
 }
 
 static void test_path_crbug364224() {
-    SkPath path;
     SkPaint paint;
     auto surface(SkSurfaces::Raster(SkImageInfo::MakeN32Premul(84, 88)));
     SkCanvas* canvas = surface->getCanvas();
 
-    make_path_crbug364224_simplified(&path);
+    SkPath path = make_path_crbug364224_simplified();
     canvas->drawPath(path, paint);
 
-    make_path_crbug364224(&path);
+    path = make_path_crbug364224();
     canvas->drawPath(path, paint);
 }
 
@@ -186,35 +190,39 @@ static void test_draw_AA_path(int width, int height, const SkPath& path) {
 
 // this is a unit test instead of a GM because it doesn't draw anything
 static void test_fuzz_crbug_638223() {
-    SkPath path;
-    path.moveTo(SkBits2Float(0x47452a00), SkBits2Float(0x43211d01));  // 50474, 161.113f
-    path.conicTo(SkBits2Float(0x401c0000), SkBits2Float(0x40680000),
-        SkBits2Float(0x02c25a81), SkBits2Float(0x981a1fa0),
-        SkBits2Float(0x6bf9abea));  // 2.4375f, 3.625f, 2.85577e-37f, -1.992e-24f, 6.03669e+26f
+    SkPath path = SkPathBuilder()
+                  .moveTo(SkBits2Float(0x47452a00), SkBits2Float(0x43211d01))  // 50474, 161.113f
+                  .conicTo(SkBits2Float(0x401c0000), SkBits2Float(0x40680000),
+                           SkBits2Float(0x02c25a81), SkBits2Float(0x981a1fa0),
+                           SkBits2Float(0x6bf9abea))  // 2.4375f, 3.625f, 2.85577e-37f, -1.992e-24f, 6.03669e+26f
+                  .detach();
     test_draw_AA_path(250, 250, path);
 }
 
 static void test_fuzz_crbug_643933() {
-    SkPath path;
-    path.moveTo(0, 0);
-    path.conicTo(SkBits2Float(0x002001f2), SkBits2Float(0x4161ffff),  // 2.93943e-39f, 14.125f
-            SkBits2Float(0x49f7224d), SkBits2Float(0x45eec8df), // 2.02452e+06f, 7641.11f
-            SkBits2Float(0x721aee0c));  // 3.0687e+30f
+    SkPath path = SkPathBuilder()
+                  .moveTo(0, 0)
+                  .conicTo(SkBits2Float(0x002001f2), SkBits2Float(0x4161ffff),  // 2.93943e-39f, 14.125f
+                           SkBits2Float(0x49f7224d), SkBits2Float(0x45eec8df), // 2.02452e+06f, 7641.11f
+                           SkBits2Float(0x721aee0c))  // 3.0687e+30f
+                  .detach();
     test_draw_AA_path(250, 250, path);
-    path.reset();
-    path.moveTo(0, 0);
-    path.conicTo(SkBits2Float(0x00007ff2), SkBits2Float(0x4169ffff),  // 4.58981e-41f, 14.625f
-        SkBits2Float(0x43ff2261), SkBits2Float(0x41eeea04),  // 510.269f, 29.8643f
-        SkBits2Float(0x5d06eff8));  // 6.07704e+17f
+    path = SkPathBuilder()
+           .moveTo(0, 0)
+           .conicTo(SkBits2Float(0x00007ff2), SkBits2Float(0x4169ffff),  // 4.58981e-41f, 14.625f
+                    SkBits2Float(0x43ff2261), SkBits2Float(0x41eeea04),  // 510.269f, 29.8643f
+                    SkBits2Float(0x5d06eff8))  // 6.07704e+17f
+           .detach();
     test_draw_AA_path(250, 250, path);
 }
 
 static void test_fuzz_crbug_647922() {
-    SkPath path;
-    path.moveTo(0, 0);
-    path.conicTo(SkBits2Float(0x00003939), SkBits2Float(0x42487fff),  // 2.05276e-41f, 50.125f
-            SkBits2Float(0x48082361), SkBits2Float(0x4408e8e9),  // 139406, 547.639f
-            SkBits2Float(0x4d1ade0f));  // 1.6239e+08f
+    SkPath path = SkPathBuilder()
+                  .moveTo(0, 0)
+                  .conicTo(SkBits2Float(0x00003939), SkBits2Float(0x42487fff),  // 2.05276e-41f, 50.125f
+                           SkBits2Float(0x48082361), SkBits2Float(0x4408e8e9),  // 139406, 547.639f
+                           SkBits2Float(0x4d1ade0f))  // 1.6239e+08f
+                  .detach();
     test_draw_AA_path(250, 250, path);
 }
 
@@ -223,50 +231,53 @@ static void test_fuzz_crbug_662780() {
     SkCanvas* canvas = surface->getCanvas();
     SkPaint paint;
     paint.setAntiAlias(true);
-    SkPath path;
-    path.moveTo(SkBits2Float(0x41000000), SkBits2Float(0x431e0000));  // 8, 158
-    path.lineTo(SkBits2Float(0x41000000), SkBits2Float(0x42f00000));  // 8, 120
-    // 8, 8, 8.00002f, 8, 0.707107f
-    path.conicTo(SkBits2Float(0x41000000), SkBits2Float(0x41000000),
-            SkBits2Float(0x41000010), SkBits2Float(0x41000000), SkBits2Float(0x3f3504f3));
-    path.lineTo(SkBits2Float(0x439a0000), SkBits2Float(0x41000000));  // 308, 8
-    // 308, 8, 308, 8, 0.707107f
-    path.conicTo(SkBits2Float(0x439a0000), SkBits2Float(0x41000000),
-            SkBits2Float(0x439a0000), SkBits2Float(0x41000000), SkBits2Float(0x3f3504f3));
-    path.lineTo(SkBits2Float(0x439a0000), SkBits2Float(0x431e0000));  // 308, 158
-    // 308, 158, 308, 158, 0.707107f
-    path.conicTo(SkBits2Float(0x439a0000), SkBits2Float(0x431e0000),
-            SkBits2Float(0x439a0000), SkBits2Float(0x431e0000), SkBits2Float(0x3f3504f3));
-    path.lineTo(SkBits2Float(0x41000000), SkBits2Float(0x431e0000));  // 8, 158
-    // 8, 158, 8, 158, 0.707107f
-    path.conicTo(SkBits2Float(0x41000000), SkBits2Float(0x431e0000),
-            SkBits2Float(0x41000000), SkBits2Float(0x431e0000), SkBits2Float(0x3f3504f3));
-    path.close();
+    SkPath path = SkPathBuilder()
+                  .moveTo(SkBits2Float(0x41000000), SkBits2Float(0x431e0000))  // 8, 158
+                  .lineTo(SkBits2Float(0x41000000), SkBits2Float(0x42f00000))  // 8, 120
+                    // 8, 8, 8.00002f, 8, 0.707107f
+                  .conicTo(SkBits2Float(0x41000000), SkBits2Float(0x41000000),
+                           SkBits2Float(0x41000010), SkBits2Float(0x41000000), SkBits2Float(0x3f3504f3))
+                  .lineTo(SkBits2Float(0x439a0000), SkBits2Float(0x41000000))  // 308, 8
+                    // 308, 8, 308, 8, 0.707107f
+                  .conicTo(SkBits2Float(0x439a0000), SkBits2Float(0x41000000),
+                           SkBits2Float(0x439a0000), SkBits2Float(0x41000000), SkBits2Float(0x3f3504f3))
+                  .lineTo(SkBits2Float(0x439a0000), SkBits2Float(0x431e0000))  // 308, 158
+                    // 308, 158, 308, 158, 0.707107f
+                  .conicTo(SkBits2Float(0x439a0000), SkBits2Float(0x431e0000),
+                           SkBits2Float(0x439a0000), SkBits2Float(0x431e0000), SkBits2Float(0x3f3504f3))
+                  .lineTo(SkBits2Float(0x41000000), SkBits2Float(0x431e0000))  // 8, 158
+                    // 8, 158, 8, 158, 0.707107f
+                  .conicTo(SkBits2Float(0x41000000), SkBits2Float(0x431e0000),
+                           SkBits2Float(0x41000000), SkBits2Float(0x431e0000), SkBits2Float(0x3f3504f3))
+                  .close()
+                  .detach();
     canvas->clipPath(path, true);
     canvas->drawRect(SkRect::MakeWH(250, 250), paint);
 }
 
 static void test_mask_overflow() {
-    SkPath path;
-    path.moveTo(SkBits2Float(0x43e28000), SkBits2Float(0x43aa8000));  // 453, 341
-    path.lineTo(SkBits2Float(0x43de6000), SkBits2Float(0x43aa8000));  // 444.75f, 341
-    // 440.47f, 341, 437, 344.47f, 437, 348.75f
-    path.cubicTo(SkBits2Float(0x43dc3c29), SkBits2Float(0x43aa8000),
-            SkBits2Float(0x43da8000), SkBits2Float(0x43ac3c29),
-            SkBits2Float(0x43da8000), SkBits2Float(0x43ae6000));
-    path.lineTo(SkBits2Float(0x43da8000), SkBits2Float(0x43b18000));  // 437, 355
-    path.lineTo(SkBits2Float(0x43e28000), SkBits2Float(0x43b18000));  // 453, 355
-    path.lineTo(SkBits2Float(0x43e28000), SkBits2Float(0x43aa8000));  // 453, 341
+    SkPath path = SkPathBuilder()
+                  .moveTo(SkBits2Float(0x43e28000), SkBits2Float(0x43aa8000))  // 453, 341
+                  .lineTo(SkBits2Float(0x43de6000), SkBits2Float(0x43aa8000))  // 444.75f, 341
+                    // 440.47f, 341, 437, 344.47f, 437, 348.75f
+                  .cubicTo(SkBits2Float(0x43dc3c29), SkBits2Float(0x43aa8000),
+                           SkBits2Float(0x43da8000), SkBits2Float(0x43ac3c29),
+                           SkBits2Float(0x43da8000), SkBits2Float(0x43ae6000))
+                  .lineTo(SkBits2Float(0x43da8000), SkBits2Float(0x43b18000))  // 437, 355
+                  .lineTo(SkBits2Float(0x43e28000), SkBits2Float(0x43b18000))  // 453, 355
+                  .lineTo(SkBits2Float(0x43e28000), SkBits2Float(0x43aa8000))  // 453, 341
+                  .detach();
     test_draw_AA_path(500, 500, path);
 }
 
 static void test_fuzz_crbug_668907() {
-    SkPath path;
-    path.moveTo(SkBits2Float(0x46313741), SkBits2Float(0x3b00e540));  // 11341.8f, 0.00196679f
-    path.quadTo(SkBits2Float(0x41410041), SkBits2Float(0xc1414141), SkBits2Float(0x41414141),
-            SkBits2Float(0x414100ff));  // 12.0626f, -12.0784f, 12.0784f, 12.0627f
-    path.lineTo(SkBits2Float(0x46313741), SkBits2Float(0x3b00e540));  // 11341.8f, 0.00196679f
-    path.close();
+    SkPath path = SkPathBuilder()
+                  .moveTo(SkBits2Float(0x46313741), SkBits2Float(0x3b00e540))  // 11341.8f, 0.00196679f
+                  .quadTo(SkBits2Float(0x41410041), SkBits2Float(0xc1414141), SkBits2Float(0x41414141),
+                          SkBits2Float(0x414100ff))  // 12.0626f, -12.0784f, 12.0784f, 12.0627f
+                  .lineTo(SkBits2Float(0x46313741), SkBits2Float(0x3b00e540))  // 11341.8f, 0.00196679f
+                  .close()
+                  .detach();
     test_draw_AA_path(400, 500, path);
 }
 
@@ -274,22 +285,22 @@ static void test_fuzz_crbug_668907() {
  * In debug mode, this path was causing an assertion to fail in
  * SkPathStroker::preJoinTo() and, in Release, the use of an unitialized value.
  */
-static void make_path_crbugskia2820(SkPath* path, skiatest::Reporter* reporter) {
+static SkPath make_path_crbugskia2820() {
     SkPoint orig, p1, p2, p3;
     orig = SkPoint::Make(1.f, 1.f);
     p1 = SkPoint::Make(1.f - SK_ScalarNearlyZero, 1.f);
     p2 = SkPoint::Make(1.f, 1.f + SK_ScalarNearlyZero);
     p3 = SkPoint::Make(2.f, 2.f);
 
-    path->reset();
-    path->moveTo(orig);
-    path->cubicTo(p1, p2, p3);
-    path->close();
+    return SkPathBuilder()
+           .moveTo(orig)
+           .cubicTo(p1, p2, p3)
+           .close()
+           .detach();
 }
 
 static void test_path_crbugskia2820(skiatest::Reporter* reporter) {
-    SkPath path;
-    make_path_crbugskia2820(&path, reporter);
+    SkPath path = make_path_crbugskia2820();
 
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
     stroke.setStrokeStyle(2 * SK_Scalar1);
@@ -299,30 +310,33 @@ static void test_path_crbugskia2820(skiatest::Reporter* reporter) {
 }
 
 static void test_path_crbugskia5995() {
-    SkPath path;
-    path.moveTo(SkBits2Float(0x40303030), SkBits2Float(0x3e303030));  // 2.75294f, 0.172059f
-    path.quadTo(SkBits2Float(0x41d63030), SkBits2Float(0x30303030), SkBits2Float(0x41013030),
-            SkBits2Float(0x00000000));  // 26.7735f, 6.40969e-10f, 8.07426f, 0
-    path.moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000));  // 0, 0
+    SkPath path = SkPathBuilder()
+                  .moveTo(SkBits2Float(0x40303030), SkBits2Float(0x3e303030))  // 2.75294f, 0.172059f
+                  .quadTo(SkBits2Float(0x41d63030), SkBits2Float(0x30303030), SkBits2Float(0x41013030),
+                          SkBits2Float(0x00000000))  // 26.7735f, 6.40969e-10f, 8.07426f, 0
+                  .moveTo(SkBits2Float(0x00000000), SkBits2Float(0x00000000))  // 0, 0
+                  .detach();
     test_draw_AA_path(500, 500, path);
 }
 
-static void make_path0(SkPath* path) {
+static SkPath make_path0() {
     // from  *  https://code.google.com/p/skia/issues/detail?id=1706
 
-    path->moveTo(146.939f, 1012.84f);
-    path->lineTo(181.747f, 1009.18f);
-    path->lineTo(182.165f, 1013.16f);
-    path->lineTo(147.357f, 1016.82f);
-    path->lineTo(146.939f, 1012.84f);
-    path->close();
+    return SkPathBuilder()
+           .moveTo(146.939f, 1012.84f)
+           .lineTo(181.747f, 1009.18f)
+           .lineTo(182.165f, 1013.16f)
+           .lineTo(147.357f, 1016.82f)
+           .lineTo(146.939f, 1012.84f)
+           .close()
+           .detach();
 }
 
-static void make_path1(SkPath* path) {
-    path->addRect(SkRect::MakeXYWH(10, 10, 10, 1));
+static SkPath make_path1() {
+    return SkPath::Rect(SkRect::MakeXYWH(10, 10, 10, 1));
 }
 
-typedef void (*PathProc)(SkPath*);
+typedef SkPath (*PathProc)();
 
 /*
  *  Regression test: we used to crash (overwrite internal storage) during
@@ -341,8 +355,7 @@ static void test_path_to_region(skiatest::Reporter* reporter) {
     clip.setRect({0, 0, 1255, 1925});
 
     for (size_t i = 0; i < std::size(procs); ++i) {
-        SkPath path;
-        procs[i](&path);
+        SkPath path = procs[i]();
 
         SkRegion rgn;
         rgn.setPath(path, clip);
@@ -408,6 +421,7 @@ static void test_path_close_issue1474(skiatest::Reporter* reporter) {
 }
 
 static void test_gen_id(skiatest::Reporter* reporter) {
+#ifndef SK_HIDE_PATH_EDIT_METHODS
     SkPath a, b;
     REPORTER_ASSERT(reporter, a.getGenerationID() == b.getGenerationID());
 
@@ -453,15 +467,17 @@ static void test_gen_id(skiatest::Reporter* reporter) {
 
     c.rewind();
     REPORTER_ASSERT(reporter, v != c.getGenerationID());
+#endif
 }
 
 // This used to assert in the debug build, as the edges did not all line-up.
 static void test_bad_cubic_crbug234190() {
-    SkPath path;
-    path.moveTo(13.8509f, 3.16858f);
-    path.cubicTo(-2.35893e+08f, -4.21044e+08f,
-                 -2.38991e+08f, -4.26573e+08f,
-                 -2.41016e+08f, -4.30188e+08f);
+    SkPath path = SkPathBuilder()
+                  .moveTo(13.8509f, 3.16858f)
+                  .cubicTo(-2.35893e+08f, -4.21044e+08f,
+                           -2.38991e+08f, -4.26573e+08f,
+                           -2.41016e+08f, -4.30188e+08f)
+                  .detach();
     test_draw_AA_path(84, 88, path);
 }
 
@@ -473,9 +489,10 @@ static void test_bad_cubic_crbug229478() {
         { 4599.83008f,    -11593.8496f },
     };
 
-    SkPath path;
-    path.moveTo(pts[0]);
-    path.cubicTo(pts[1], pts[2], pts[3]);
+    SkPath path = SkPathBuilder()
+                  .moveTo(pts[0])
+                  .cubicTo(pts[1], pts[2], pts[3])
+                  .detach();
 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
@@ -486,100 +503,104 @@ static void test_bad_cubic_crbug229478() {
     (void)skpathutils::FillPathWithPaint(path, paint);
 }
 
-static void build_path_170666(SkPath& path) {
-    path.moveTo(17.9459f, 21.6344f);
-    path.lineTo(139.545f, -47.8105f);
-    path.lineTo(139.545f, -47.8105f);
-    path.lineTo(131.07f, -47.3888f);
-    path.lineTo(131.07f, -47.3888f);
-    path.lineTo(122.586f, -46.9532f);
-    path.lineTo(122.586f, -46.9532f);
-    path.lineTo(18076.6f, 31390.9f);
-    path.lineTo(18076.6f, 31390.9f);
-    path.lineTo(18085.1f, 31390.5f);
-    path.lineTo(18085.1f, 31390.5f);
-    path.lineTo(18076.6f, 31390.9f);
-    path.lineTo(18076.6f, 31390.9f);
-    path.lineTo(17955, 31460.3f);
-    path.lineTo(17955, 31460.3f);
-    path.lineTo(17963.5f, 31459.9f);
-    path.lineTo(17963.5f, 31459.9f);
-    path.lineTo(17971.9f, 31459.5f);
-    path.lineTo(17971.9f, 31459.5f);
-    path.lineTo(17.9551f, 21.6205f);
-    path.lineTo(17.9551f, 21.6205f);
-    path.lineTo(9.47091f, 22.0561f);
-    path.lineTo(9.47091f, 22.0561f);
-    path.lineTo(17.9459f, 21.6344f);
-    path.lineTo(17.9459f, 21.6344f);
-    path.close();path.moveTo(0.995934f, 22.4779f);
-    path.lineTo(0.986725f, 22.4918f);
-    path.lineTo(0.986725f, 22.4918f);
-    path.lineTo(17955, 31460.4f);
-    path.lineTo(17955, 31460.4f);
-    path.lineTo(17971.9f, 31459.5f);
-    path.lineTo(17971.9f, 31459.5f);
-    path.lineTo(18093.6f, 31390.1f);
-    path.lineTo(18093.6f, 31390.1f);
-    path.lineTo(18093.6f, 31390);
-    path.lineTo(18093.6f, 31390);
-    path.lineTo(139.555f, -47.8244f);
-    path.lineTo(139.555f, -47.8244f);
-    path.lineTo(122.595f, -46.9671f);
-    path.lineTo(122.595f, -46.9671f);
-    path.lineTo(0.995934f, 22.4779f);
-    path.lineTo(0.995934f, 22.4779f);
-    path.close();
-    path.moveTo(5.43941f, 25.5223f);
-    path.lineTo(798267, -28871.1f);
-    path.lineTo(798267, -28871.1f);
-    path.lineTo(3.12512e+06f, -113102);
-    path.lineTo(3.12512e+06f, -113102);
-    path.cubicTo(5.16324e+06f, -186882, 8.15247e+06f, -295092, 1.1957e+07f, -432813);
-    path.cubicTo(1.95659e+07f, -708257, 3.04359e+07f, -1.10175e+06f, 4.34798e+07f, -1.57394e+06f);
-    path.cubicTo(6.95677e+07f, -2.51831e+06f, 1.04352e+08f, -3.77748e+06f, 1.39135e+08f, -5.03666e+06f);
-    path.cubicTo(1.73919e+08f, -6.29583e+06f, 2.08703e+08f, -7.555e+06f, 2.34791e+08f, -8.49938e+06f);
-    path.cubicTo(2.47835e+08f, -8.97157e+06f, 2.58705e+08f, -9.36506e+06f, 2.66314e+08f, -9.6405e+06f);
-    path.cubicTo(2.70118e+08f, -9.77823e+06f, 2.73108e+08f, -9.88644e+06f, 2.75146e+08f, -9.96022e+06f);
-    path.cubicTo(2.76165e+08f, -9.99711e+06f, 2.76946e+08f, -1.00254e+07f, 2.77473e+08f, -1.00444e+07f);
-    path.lineTo(2.78271e+08f, -1.00733e+07f);
-    path.lineTo(2.78271e+08f, -1.00733e+07f);
-    path.cubicTo(2.78271e+08f, -1.00733e+07f, 2.08703e+08f, -7.555e+06f, 135.238f, 23.3517f);
-    path.cubicTo(131.191f, 23.4981f, 125.995f, 23.7976f, 123.631f, 24.0206f);
-    path.cubicTo(121.267f, 24.2436f, 122.631f, 24.3056f, 126.677f, 24.1591f);
-    path.cubicTo(2.08703e+08f, -7.555e+06f, 2.78271e+08f, -1.00733e+07f, 2.78271e+08f, -1.00733e+07f);
-    path.lineTo(2.77473e+08f, -1.00444e+07f);
-    path.lineTo(2.77473e+08f, -1.00444e+07f);
-    path.cubicTo(2.76946e+08f, -1.00254e+07f, 2.76165e+08f, -9.99711e+06f, 2.75146e+08f, -9.96022e+06f);
-    path.cubicTo(2.73108e+08f, -9.88644e+06f, 2.70118e+08f, -9.77823e+06f, 2.66314e+08f, -9.6405e+06f);
-    path.cubicTo(2.58705e+08f, -9.36506e+06f, 2.47835e+08f, -8.97157e+06f, 2.34791e+08f, -8.49938e+06f);
-    path.cubicTo(2.08703e+08f, -7.555e+06f, 1.73919e+08f, -6.29583e+06f, 1.39135e+08f, -5.03666e+06f);
-    path.cubicTo(1.04352e+08f, -3.77749e+06f, 6.95677e+07f, -2.51831e+06f, 4.34798e+07f, -1.57394e+06f);
-    path.cubicTo(3.04359e+07f, -1.10175e+06f, 1.95659e+07f, -708258, 1.1957e+07f, -432814);
-    path.cubicTo(8.15248e+06f, -295092, 5.16324e+06f, -186883, 3.12513e+06f, -113103);
-    path.lineTo(798284, -28872);
-    path.lineTo(798284, -28872);
-    path.lineTo(22.4044f, 24.6677f);
-    path.lineTo(22.4044f, 24.6677f);
-    path.cubicTo(22.5186f, 24.5432f, 18.8134f, 24.6337f, 14.1287f, 24.8697f);
-    path.cubicTo(9.4439f, 25.1057f, 5.55359f, 25.3978f, 5.43941f, 25.5223f);
-    path.close();
+static SkPath build_path_170666() {
+    return SkPathBuilder()
+           .moveTo(17.9459f, 21.6344f)
+           .lineTo(139.545f, -47.8105f)
+           .lineTo(139.545f, -47.8105f)
+           .lineTo(131.07f, -47.3888f)
+           .lineTo(131.07f, -47.3888f)
+           .lineTo(122.586f, -46.9532f)
+           .lineTo(122.586f, -46.9532f)
+           .lineTo(18076.6f, 31390.9f)
+           .lineTo(18076.6f, 31390.9f)
+           .lineTo(18085.1f, 31390.5f)
+           .lineTo(18085.1f, 31390.5f)
+           .lineTo(18076.6f, 31390.9f)
+           .lineTo(18076.6f, 31390.9f)
+           .lineTo(17955, 31460.3f)
+           .lineTo(17955, 31460.3f)
+           .lineTo(17963.5f, 31459.9f)
+           .lineTo(17963.5f, 31459.9f)
+           .lineTo(17971.9f, 31459.5f)
+           .lineTo(17971.9f, 31459.5f)
+           .lineTo(17.9551f, 21.6205f)
+           .lineTo(17.9551f, 21.6205f)
+           .lineTo(9.47091f, 22.0561f)
+           .lineTo(9.47091f, 22.0561f)
+           .lineTo(17.9459f, 21.6344f)
+           .lineTo(17.9459f, 21.6344f)
+           .close()
+           .moveTo(0.995934f, 22.4779f)
+           .lineTo(0.986725f, 22.4918f)
+           .lineTo(0.986725f, 22.4918f)
+           .lineTo(17955, 31460.4f)
+           .lineTo(17955, 31460.4f)
+           .lineTo(17971.9f, 31459.5f)
+           .lineTo(17971.9f, 31459.5f)
+           .lineTo(18093.6f, 31390.1f)
+           .lineTo(18093.6f, 31390.1f)
+           .lineTo(18093.6f, 31390)
+           .lineTo(18093.6f, 31390)
+           .lineTo(139.555f, -47.8244f)
+           .lineTo(139.555f, -47.8244f)
+           .lineTo(122.595f, -46.9671f)
+           .lineTo(122.595f, -46.9671f)
+           .lineTo(0.995934f, 22.4779f)
+           .lineTo(0.995934f, 22.4779f)
+           .close()
+           .moveTo(5.43941f, 25.5223f)
+           .lineTo(798267, -28871.1f)
+           .lineTo(798267, -28871.1f)
+           .lineTo(3.12512e+06f, -113102)
+           .lineTo(3.12512e+06f, -113102)
+           .cubicTo(5.16324e+06f, -186882, 8.15247e+06f, -295092, 1.1957e+07f, -432813)
+           .cubicTo(1.95659e+07f, -708257, 3.04359e+07f, -1.10175e+06f, 4.34798e+07f, -1.57394e+06f)
+           .cubicTo(6.95677e+07f, -2.51831e+06f, 1.04352e+08f, -3.77748e+06f, 1.39135e+08f, -5.03666e+06f)
+           .cubicTo(1.73919e+08f, -6.29583e+06f, 2.08703e+08f, -7.555e+06f, 2.34791e+08f, -8.49938e+06f)
+           .cubicTo(2.47835e+08f, -8.97157e+06f, 2.58705e+08f, -9.36506e+06f, 2.66314e+08f, -9.6405e+06f)
+           .cubicTo(2.70118e+08f, -9.77823e+06f, 2.73108e+08f, -9.88644e+06f, 2.75146e+08f, -9.96022e+06f)
+           .cubicTo(2.76165e+08f, -9.99711e+06f, 2.76946e+08f, -1.00254e+07f, 2.77473e+08f, -1.00444e+07f)
+           .lineTo(2.78271e+08f, -1.00733e+07f)
+           .lineTo(2.78271e+08f, -1.00733e+07f)
+           .cubicTo(2.78271e+08f, -1.00733e+07f, 2.08703e+08f, -7.555e+06f, 135.238f, 23.3517f)
+           .cubicTo(131.191f, 23.4981f, 125.995f, 23.7976f, 123.631f, 24.0206f)
+           .cubicTo(121.267f, 24.2436f, 122.631f, 24.3056f, 126.677f, 24.1591f)
+           .cubicTo(2.08703e+08f, -7.555e+06f, 2.78271e+08f, -1.00733e+07f, 2.78271e+08f, -1.00733e+07f)
+           .lineTo(2.77473e+08f, -1.00444e+07f)
+           .lineTo(2.77473e+08f, -1.00444e+07f)
+           .cubicTo(2.76946e+08f, -1.00254e+07f, 2.76165e+08f, -9.99711e+06f, 2.75146e+08f, -9.96022e+06f)
+           .cubicTo(2.73108e+08f, -9.88644e+06f, 2.70118e+08f, -9.77823e+06f, 2.66314e+08f, -9.6405e+06f)
+           .cubicTo(2.58705e+08f, -9.36506e+06f, 2.47835e+08f, -8.97157e+06f, 2.34791e+08f, -8.49938e+06f)
+           .cubicTo(2.08703e+08f, -7.555e+06f, 1.73919e+08f, -6.29583e+06f, 1.39135e+08f, -5.03666e+06f)
+           .cubicTo(1.04352e+08f, -3.77749e+06f, 6.95677e+07f, -2.51831e+06f, 4.34798e+07f, -1.57394e+06f)
+           .cubicTo(3.04359e+07f, -1.10175e+06f, 1.95659e+07f, -708258, 1.1957e+07f, -432814)
+           .cubicTo(8.15248e+06f, -295092, 5.16324e+06f, -186883, 3.12513e+06f, -113103)
+           .lineTo(798284, -28872)
+           .lineTo(798284, -28872)
+           .lineTo(22.4044f, 24.6677f)
+           .lineTo(22.4044f, 24.6677f)
+           .cubicTo(22.5186f, 24.5432f, 18.8134f, 24.6337f, 14.1287f, 24.8697f)
+           .cubicTo(9.4439f, 25.1057f, 5.55359f, 25.3978f, 5.43941f, 25.5223f)
+           .close()
+           .detach();
 }
 
-static void build_path_simple_170666(SkPath& path) {
-    path.moveTo(126.677f, 24.1591f);
-    path.cubicTo(2.08703e+08f, -7.555e+06f, 2.78271e+08f, -1.00733e+07f, 2.78271e+08f, -1.00733e+07f);
+static SkPath build_path_simple_170666() {
+    return SkPathBuilder()
+           .moveTo(126.677f, 24.1591f)
+           .cubicTo(2.08703e+08f, -7.555e+06f, 2.78271e+08f, -1.00733e+07f, 2.78271e+08f, -1.00733e+07f)
+           .detach();
 }
 
 // This used to assert in the SK_DEBUG build, as the clip step would fail with
 // too-few interations in our cubic-line intersection code. That code now runs
 // 24 interations (instead of 16).
 static void test_crbug_170666() {
-    SkPath path;
-    build_path_simple_170666(path);
+    SkPath path = build_path_simple_170666();
     test_draw_AA_path(1000, 1000, path);
 
-    build_path_170666(path);
+    path = build_path_170666();
     test_draw_AA_path(1000, 1000, path);
 }
 
@@ -685,44 +706,51 @@ static void test_addrect(skiatest::Reporter* reporter) {
 
 // Make sure we stay non-finite once we get there (unless we reset or rewind).
 static void test_addrect_isfinite(skiatest::Reporter* reporter) {
-    SkPath path;
+    SkPathBuilder builder;
+    builder.addRect(SkRect::MakeWH(50, 100));
 
-    path.addRect(SkRect::MakeWH(50, 100));
+    SkPath path = builder.snapshot();
     REPORTER_ASSERT(reporter, path.isFinite());
 
-    path.moveTo(0, 0);
-    path.lineTo(SK_ScalarInfinity, 42);
+    builder.moveTo(0, 0);
+    builder.lineTo(SK_ScalarInfinity, 42);
+    path = builder.snapshot();
     REPORTER_ASSERT(reporter, !path.isFinite());
 
-    path.addRect(SkRect::MakeWH(50, 100));
+    builder.addRect(SkRect::MakeWH(50, 100));
+    path = builder.snapshot();
     REPORTER_ASSERT(reporter, !path.isFinite());
 
-    path.reset();
+    builder.reset();
+    path = builder.snapshot();
     REPORTER_ASSERT(reporter, path.isFinite());
 
-    path.addRect(SkRect::MakeWH(50, 100));
+    builder.addRect(SkRect::MakeWH(50, 100));
+    path = builder.snapshot();
     REPORTER_ASSERT(reporter, path.isFinite());
 }
 
-static void build_big_path(SkPath* path, bool reducedCase) {
+static SkPath build_big_path(bool reducedCase) {
+    SkPathBuilder builder;
     if (reducedCase) {
-        path->moveTo(577330, 1971.72f);
-        path->cubicTo(10.7082f, -116.596f, 262.057f, 45.6468f, 294.694f, 1.96237f);
+        builder.moveTo(577330, 1971.72f);
+        builder.cubicTo(10.7082f, -116.596f, 262.057f, 45.6468f, 294.694f, 1.96237f);
     } else {
-        path->moveTo(60.1631f, 7.70567f);
-        path->quadTo(60.1631f, 7.70567f, 0.99474f, 0.901199f);
-        path->lineTo(577379, 1977.77f);
-        path->quadTo(577364, 1979.57f, 577325, 1980.26f);
-        path->quadTo(577286, 1980.95f, 577245, 1980.13f);
-        path->quadTo(577205, 1979.3f, 577187, 1977.45f);
-        path->quadTo(577168, 1975.6f, 577183, 1973.8f);
-        path->quadTo(577198, 1972, 577238, 1971.31f);
-        path->quadTo(577277, 1970.62f, 577317, 1971.45f);
-        path->quadTo(577330, 1971.72f, 577341, 1972.11f);
-        path->cubicTo(10.7082f, -116.596f, 262.057f, 45.6468f, 294.694f, 1.96237f);
-        path->moveTo(306.718f, -32.912f);
-        path->cubicTo(30.531f, 10.0005f, 1502.47f, 13.2804f, 84.3088f, 9.99601f);
+        builder.moveTo(60.1631f, 7.70567f);
+        builder.quadTo(60.1631f, 7.70567f, 0.99474f, 0.901199f);
+        builder.lineTo(577379, 1977.77f);
+        builder.quadTo(577364, 1979.57f, 577325, 1980.26f);
+        builder.quadTo(577286, 1980.95f, 577245, 1980.13f);
+        builder.quadTo(577205, 1979.3f, 577187, 1977.45f);
+        builder.quadTo(577168, 1975.6f, 577183, 1973.8f);
+        builder.quadTo(577198, 1972, 577238, 1971.31f);
+        builder.quadTo(577277, 1970.62f, 577317, 1971.45f);
+        builder.quadTo(577330, 1971.72f, 577341, 1972.11f);
+        builder.cubicTo(10.7082f, -116.596f, 262.057f, 45.6468f, 294.694f, 1.96237f);
+        builder.moveTo(306.718f, -32.912f);
+        builder.cubicTo(30.531f, 10.0005f, 1502.47f, 13.2804f, 84.3088f, 9.99601f);
     }
+    return builder.detach();
 }
 
 static void test_clipped_cubic() {
@@ -731,9 +759,9 @@ static void test_clipped_cubic() {
     // This path used to assert, because our cubic-chopping code incorrectly
     // moved control points after the chop. This test should be run in SK_DEBUG
     // mode to ensure that we no long assert.
-    SkPath path;
+
     for (int doReducedCase = 0; doReducedCase <= 1; ++doReducedCase) {
-        build_big_path(&path, SkToBool(doReducedCase));
+        SkPath path = build_big_path(SkToBool(doReducedCase));
 
         SkPaint paint;
         for (int doAA = 0; doAA <= 1; ++doAA) {
@@ -753,37 +781,27 @@ static void dump_if_ne(skiatest::Reporter* reporter, const SkRect& expected, con
 
 static void test_bounds_crbug_513799(skiatest::Reporter* reporter) {
     SkPath path;
-#if 0
-    // As written these tests were failing on LLVM 4.2 MacMini Release mysteriously, so we've
-    // rewritten them to avoid this (compiler-bug?).
-    REPORTER_ASSERT(reporter, SkRect::MakeLTRB(0, 0, 0, 0) == path.getBounds());
-
-    path.moveTo(-5, -8);
-    REPORTER_ASSERT(reporter, SkRect::MakeLTRB(-5, -8, -5, -8) == path.getBounds());
-
-    path.addRect(SkRect::MakeLTRB(1, 2, 3, 4));
-    REPORTER_ASSERT(reporter, SkRect::MakeLTRB(-5, -8, 3, 4) == path.getBounds());
-
-    path.moveTo(1, 2);
-    REPORTER_ASSERT(reporter, SkRect::MakeLTRB(-5, -8, 3, 4) == path.getBounds());
-#else
     dump_if_ne(reporter, SkRect::MakeLTRB(0, 0, 0, 0), path.getBounds());
 
-    path.moveTo(-5, -8);    // should set the bounds
+    SkPathBuilder builder;
+    builder.moveTo(-5, -8);    // should generate bounds
+    path = builder.snapshot();
     dump_if_ne(reporter, SkRect::MakeLTRB(-5, -8, -5, -8), path.getBounds());
 
-    path.addRect(SkRect::MakeLTRB(1, 2, 3, 4)); // should extend the bounds
+    builder.addRect(SkRect::MakeLTRB(1, 2, 3, 4)); // should extend the bounds
+    path = builder.snapshot();
     dump_if_ne(reporter, SkRect::MakeLTRB(1, 2, 3, 4), path.getBounds());
 
-    path.moveTo(2, 3);  // don't expect this to have changed the bounds
+    builder.moveTo(2, 3);  // don't expect this to have changed the bounds
+    path = builder.snapshot();
     dump_if_ne(reporter, SkRect::MakeLTRB(1, 2, 3, 4), path.getBounds());
-#endif
 }
 
 static void test_fuzz_crbug_627414(skiatest::Reporter* reporter) {
-    SkPath path;
-    path.moveTo(0, 0);
-    path.conicTo(3.58732e-43f, 2.72084f, 3.00392f, 3.00392f, 8.46e+37f);
+    SkPath path = SkPathBuilder()
+                  .moveTo(0, 0)
+                  .conicTo(3.58732e-43f, 2.72084f, 3.00392f, 3.00392f, 8.46e+37f)
+                  .detach();
     test_draw_AA_path(100, 100, path);
 }
 
@@ -799,9 +817,10 @@ static void test_tricky_cubic() {
         { SkDoubleToScalar(18.5030727),    SkDoubleToScalar(129.13121)  },
     };
 
-    SkPath path;
-    path.moveTo(pts[0]);
-    path.cubicTo(pts[1], pts[2], pts[3]);
+    SkPath path = SkPathBuilder()
+                  .moveTo(pts[0])
+                  .cubicTo(pts[1], pts[2], pts[3])
+                  .detach();
     test_draw_AA_path(19, 130, path);
 }
 
@@ -971,19 +990,13 @@ static void test_path_isfinite(skiatest::Reporter* reporter) {
     SkPath path;
     REPORTER_ASSERT(reporter, path.isFinite());
 
-    path.reset();
+    path = SkPathBuilder().moveTo(1, 0).detach();
     REPORTER_ASSERT(reporter, path.isFinite());
 
-    path.reset();
-    path.moveTo(SK_Scalar1, 0);
-    REPORTER_ASSERT(reporter, path.isFinite());
-
-    path.reset();
-    path.moveTo(inf, negInf);
+    path = SkPathBuilder().moveTo(inf, negInf).detach();
     REPORTER_ASSERT(reporter, !path.isFinite());
 
-    path.reset();
-    path.moveTo(nan, 0);
+    path = SkPathBuilder().moveTo(nan, 0).detach();
     REPORTER_ASSERT(reporter, !path.isFinite());
 }
 
@@ -993,6 +1006,7 @@ static void test_isfinite(skiatest::Reporter* reporter) {
 }
 
 static void test_islastcontourclosed(skiatest::Reporter* reporter) {
+#ifndef SK_HIDE_PATH_EDIT_METHODS
     SkPath path;
     REPORTER_ASSERT(reporter, !path.isLastContourClosed());
     path.moveTo(0, 0);
@@ -1007,6 +1021,7 @@ static void test_islastcontourclosed(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, path.isLastContourClosed());
     path.moveTo(0, 0);
     REPORTER_ASSERT(reporter, !path.isLastContourClosed());
+#endif
 }
 
 // assert that we always
@@ -1161,43 +1176,48 @@ static void test_direction(skiatest::Reporter* reporter) {
 
     // Test two donuts, each wound a different direction. Only the outer contour
     // determines the cheap direction
-    SkPath path;
-    path.addCircle(0, 0, SkIntToScalar(2), SkPathDirection::kCW);
-    path.addCircle(0, 0, SkIntToScalar(1), SkPathDirection::kCCW);
+    SkPath path = SkPathBuilder()
+                  .addCircle(0, 0, 2, SkPathDirection::kCW)
+                  .addCircle(0, 0, 1, SkPathDirection::kCCW)
+                  .detach();
     check_direction(reporter, path, SkPathFirstDirection::kCW);
 
-    path.reset();
-    path.addCircle(0, 0, SkIntToScalar(1), SkPathDirection::kCW);
-    path.addCircle(0, 0, SkIntToScalar(2), SkPathDirection::kCCW);
+    path = SkPathBuilder()
+           .addCircle(0, 0, 1, SkPathDirection::kCW)
+           .addCircle(0, 0, 2, SkPathDirection::kCCW)
+           .detach();
     check_direction(reporter, path, SkPathFirstDirection::kCCW);
 
     // triangle with one point really far from the origin.
-    path.reset();
     // the first point is roughly 1.05e10, 1.05e10
-    path.moveTo(SkBits2Float(0x501c7652), SkBits2Float(0x501c7652));
-    path.lineTo(110 * SK_Scalar1, -10 * SK_Scalar1);
-    path.lineTo(-10 * SK_Scalar1, 60 * SK_Scalar1);
+    path = SkPathBuilder()
+           .moveTo(SkBits2Float(0x501c7652), SkBits2Float(0x501c7652))
+           .lineTo(110, -10)
+           .lineTo(-10, 60)
+           .detach();
     check_direction(reporter, path, SkPathFirstDirection::kCCW);
 
-    path.reset();
-    path.conicTo(20, 0, 20, 20, 0.5f);
-    path.close();
+    path = SkPathBuilder()
+           .conicTo(20, 0, 20, 20, 0.5f)
+           .close()
+           .detach();
     check_direction(reporter, path, SkPathFirstDirection::kCW);
 
-    path.reset();
-    path.lineTo(1, 1e7f);
-    path.lineTo(1e7f, 2e7f);
-    path.close();
+    path = SkPathBuilder()
+           .lineTo(1, 1e7f)
+           .lineTo(1e7f, 2e7f)
+           .close()
+           .detach();
     REPORTER_ASSERT(reporter, path.isConvex());
     check_direction(reporter, path, SkPathFirstDirection::kCCW);
 }
 
-static void add_rect(SkPath* path, const SkRect& r) {
-    path->moveTo(r.fLeft, r.fTop);
-    path->lineTo(r.fRight, r.fTop);
-    path->lineTo(r.fRight, r.fBottom);
-    path->lineTo(r.fLeft, r.fBottom);
-    path->close();
+static void add_rect(SkPathBuilder* builder, const SkRect& r) {
+    builder->moveTo(r.fLeft, r.fTop);
+    builder->lineTo(r.fRight, r.fTop);
+    builder->lineTo(r.fRight, r.fBottom);
+    builder->lineTo(r.fLeft, r.fBottom);
+    builder->close();
 }
 
 static void test_bounds(skiatest::Reporter* reporter) {
@@ -1208,23 +1228,26 @@ static void test_bounds(skiatest::Reporter* reporter) {
         { SkIntToScalar(10), SkIntToScalar(160), SkIntToScalar(10), SkIntToScalar(199) },
     };
 
-    SkPath path0, path1;
+    SkPathBuilder builder0, builder1;
     for (size_t i = 0; i < std::size(rects); ++i) {
-        path0.addRect(rects[i]);
-        add_rect(&path1, rects[i]);
+        builder0.addRect(rects[i]);
+        add_rect(&builder1, rects[i]);
     }
 
+    SkPath path0 = builder0.detach(),
+           path1 = builder1.detach();
     REPORTER_ASSERT(reporter, path0.getBounds() == path1.getBounds());
 }
 
 static void stroke_cubic(const SkPoint pts[4]) {
-    SkPath path;
-    path.moveTo(pts[0]);
-    path.cubicTo(pts[1], pts[2], pts[3]);
+    SkPath path = SkPathBuilder()
+                  .moveTo(pts[0])
+                  .cubicTo(pts[1], pts[2], pts[3])
+                  .detach();
 
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
-    paint.setStrokeWidth(SK_Scalar1 * 2);
+    paint.setStrokeWidth(2);
 
     (void)skpathutils::FillPathWithPaint(path, paint);
 }
@@ -1282,68 +1305,58 @@ static void check_close(skiatest::Reporter* reporter, const SkPath& path) {
 }
 
 static void test_close(skiatest::Reporter* reporter) {
-    SkPath closePt;
-    closePt.moveTo(0, 0);
-    closePt.close();
+    SkPath closePt = SkPathBuilder().moveTo(0, 0).close().detach();
     check_close(reporter, closePt);
 
-    SkPath openPt;
-    openPt.moveTo(0, 0);
+    SkPath openPt = SkPathBuilder().moveTo(0, 0).detach();
     check_close(reporter, openPt);
 
     SkPath empty;
     check_close(reporter, empty);
-    empty.close();
+    empty = SkPathBuilder().close().detach();
     check_close(reporter, empty);
 
-    SkPath rect;
-    rect.addRect(SK_Scalar1, SK_Scalar1, 10 * SK_Scalar1, 10*SK_Scalar1);
-    check_close(reporter, rect);
-    rect.close();
-    check_close(reporter, rect);
+    SkPathBuilder builder;
+    builder.addRect({1, 1, 10, 10});
+    check_close(reporter, builder.snapshot());
+    builder.close();
+    check_close(reporter, builder.detach());
 
-    SkPath quad;
-    quad.quadTo(SK_Scalar1, SK_Scalar1, 10 * SK_Scalar1, 10*SK_Scalar1);
-    check_close(reporter, quad);
-    quad.close();
-    check_close(reporter, quad);
+    builder.quadTo(1, 1, 10, 10);
+    check_close(reporter, builder.snapshot());
+    builder.close();
+    check_close(reporter, builder.detach());
 
-    SkPath cubic;
-    quad.cubicTo(SK_Scalar1, SK_Scalar1, 10 * SK_Scalar1,
-                 10*SK_Scalar1, 20 * SK_Scalar1, 20*SK_Scalar1);
-    check_close(reporter, cubic);
-    cubic.close();
-    check_close(reporter, cubic);
+    builder.cubicTo(1, 1, 10, 10, 20, 20);
+    check_close(reporter, builder.snapshot());
+    builder.close();
+    check_close(reporter, builder.detach());
 
-    SkPath line;
-    line.moveTo(SK_Scalar1, SK_Scalar1);
-    line.lineTo(10 * SK_Scalar1, 10*SK_Scalar1);
-    check_close(reporter, line);
-    line.close();
-    check_close(reporter, line);
+    builder.moveTo(1, 1);
+    builder.lineTo(10, 10);
+    check_close(reporter, builder.snapshot());
+    builder.close();
+    check_close(reporter, builder.detach());
 
-    SkPath rect2;
-    rect2.addRect(SK_Scalar1, SK_Scalar1, 10 * SK_Scalar1, 10*SK_Scalar1);
-    rect2.close();
-    rect2.addRect(SK_Scalar1, SK_Scalar1, 10 * SK_Scalar1, 10*SK_Scalar1);
-    check_close(reporter, rect2);
-    rect2.close();
-    check_close(reporter, rect2);
+    builder.addRect({1, 1, 10, 10});
+    builder.close();
+    builder.addRect({1, 1, 10, 10});
+    check_close(reporter, builder.snapshot());
+    builder.close();
+    check_close(reporter, builder.detach());
 
-    SkPath oval3;
-    oval3.addOval(SkRect::MakeWH(SK_Scalar1*100,SK_Scalar1*100));
-    oval3.close();
-    oval3.addOval(SkRect::MakeWH(SK_Scalar1*200,SK_Scalar1*200));
-    check_close(reporter, oval3);
-    oval3.close();
-    check_close(reporter, oval3);
+    builder.addOval(SkRect::MakeWH(100, 100));
+    builder.close();
+    builder.addOval(SkRect::MakeWH(200, 200));
+    check_close(reporter, builder.snapshot());
+    builder.close();
+    check_close(reporter, builder.detach());
 
-    SkPath moves;
-    moves.moveTo(SK_Scalar1, SK_Scalar1);
-    moves.moveTo(5 * SK_Scalar1, SK_Scalar1);
-    moves.moveTo(SK_Scalar1, 10 * SK_Scalar1);
-    moves.moveTo(10 *SK_Scalar1, SK_Scalar1);
-    check_close(reporter, moves);
+    builder.moveTo(1, 1);
+    builder.moveTo(5, 1);
+    builder.moveTo(1, 10);
+    builder.moveTo(10, 1);
+    check_close(reporter, builder.detach());
 
     stroke_tiny_cubic();
 }
@@ -1357,129 +1370,134 @@ static void check_convexity(skiatest::Reporter* reporter, const SkPath& path,
 }
 
 static void test_path_crbug389050(skiatest::Reporter* reporter) {
-    SkPath  tinyConvexPolygon;
+    SkPathBuilder tinyConvexPolygon;
     tinyConvexPolygon.moveTo(600.131559f, 800.112512f);
     tinyConvexPolygon.lineTo(600.161735f, 800.118627f);
     tinyConvexPolygon.lineTo(600.148962f, 800.142338f);
     tinyConvexPolygon.lineTo(600.134891f, 800.137724f);
     tinyConvexPolygon.close();
-    tinyConvexPolygon.isConvex();
-    check_direction(reporter, tinyConvexPolygon, SkPathFirstDirection::kCW);
+    check_direction(reporter, tinyConvexPolygon.detach(), SkPathFirstDirection::kCW);
 
-    SkPath  platTriangle;
+    SkPathBuilder platTriangle;
     platTriangle.moveTo(0, 0);
     platTriangle.lineTo(200, 0);
     platTriangle.lineTo(100, 0.04f);
     platTriangle.close();
-    platTriangle.isConvex();
-    check_direction(reporter, platTriangle, SkPathFirstDirection::kCW);
+    check_direction(reporter, platTriangle.detach(), SkPathFirstDirection::kCW);
 
-    platTriangle.reset();
     platTriangle.moveTo(0, 0);
     platTriangle.lineTo(200, 0);
     platTriangle.lineTo(100, 0.03f);
     platTriangle.close();
-    platTriangle.isConvex();
-    check_direction(reporter, platTriangle, SkPathFirstDirection::kCW);
+    check_direction(reporter, platTriangle.detach(), SkPathFirstDirection::kCW);
 }
 
 static void test_convexity2(skiatest::Reporter* reporter) {
-    SkPath pt;
-    pt.moveTo(0, 0);
-    pt.close();
+    SkPath pt = SkPathBuilder()
+                .moveTo(0, 0)
+                .close()
+                .detach();
     check_convexity(reporter, pt, true);
     check_direction(reporter, pt, SkPathFirstDirection::kUnknown);
 
-    SkPath line;
-    line.moveTo(12*SK_Scalar1, 20*SK_Scalar1);
-    line.lineTo(-12*SK_Scalar1, -20*SK_Scalar1);
-    line.close();
+    SkPath line = SkPathBuilder()
+                  .moveTo(12, 20)
+                  .lineTo(-12, -20)
+                  .close()
+                  .detach();
     check_convexity(reporter, line, true);
     check_direction(reporter, line, SkPathFirstDirection::kUnknown);
 
-    SkPath triLeft;
-    triLeft.moveTo(0, 0);
-    triLeft.lineTo(SK_Scalar1, 0);
-    triLeft.lineTo(SK_Scalar1, SK_Scalar1);
-    triLeft.close();
+    SkPath triLeft = SkPathBuilder()
+                     .moveTo(0, 0)
+                     .lineTo(1, 0)
+                     .lineTo(1, 1)
+                     .close()
+                     .detach();
     check_convexity(reporter, triLeft, true);
     check_direction(reporter, triLeft, SkPathFirstDirection::kCW);
 
-    SkPath triRight;
-    triRight.moveTo(0, 0);
-    triRight.lineTo(-SK_Scalar1, 0);
-    triRight.lineTo(SK_Scalar1, SK_Scalar1);
-    triRight.close();
+    SkPath triRight = SkPathBuilder()
+                      .moveTo(0, 0)
+                      .lineTo(-1, 0)
+                      .lineTo(1, 1)
+                      .close()
+                      .detach();
     check_convexity(reporter, triRight, true);
     check_direction(reporter, triRight, SkPathFirstDirection::kCCW);
 
-    SkPath square;
-    square.moveTo(0, 0);
-    square.lineTo(SK_Scalar1, 0);
-    square.lineTo(SK_Scalar1, SK_Scalar1);
-    square.lineTo(0, SK_Scalar1);
-    square.close();
+    SkPath square = SkPathBuilder()
+                    .moveTo(0, 0)
+                    .lineTo(1, 0)
+                    .lineTo(1, 1)
+                    .lineTo(0, 1)
+                    .close()
+                    .detach();
     check_convexity(reporter, square, true);
     check_direction(reporter, square, SkPathFirstDirection::kCW);
 
-    SkPath redundantSquare;
-    redundantSquare.moveTo(0, 0);
-    redundantSquare.lineTo(0, 0);
-    redundantSquare.lineTo(0, 0);
-    redundantSquare.lineTo(SK_Scalar1, 0);
-    redundantSquare.lineTo(SK_Scalar1, 0);
-    redundantSquare.lineTo(SK_Scalar1, 0);
-    redundantSquare.lineTo(SK_Scalar1, SK_Scalar1);
-    redundantSquare.lineTo(SK_Scalar1, SK_Scalar1);
-    redundantSquare.lineTo(SK_Scalar1, SK_Scalar1);
-    redundantSquare.lineTo(0, SK_Scalar1);
-    redundantSquare.lineTo(0, SK_Scalar1);
-    redundantSquare.lineTo(0, SK_Scalar1);
-    redundantSquare.close();
+    SkPath redundantSquare = SkPathBuilder()
+                             .moveTo(0, 0)
+                             .lineTo(0, 0)
+                             .lineTo(0, 0)
+                             .lineTo(1, 0)
+                             .lineTo(1, 0)
+                             .lineTo(1, 0)
+                             .lineTo(1, 1)
+                             .lineTo(1, 1)
+                             .lineTo(1, 1)
+                             .lineTo(0, 1)
+                             .lineTo(0, 1)
+                             .lineTo(0, 1)
+                             .close()
+                             .detach();
     check_convexity(reporter, redundantSquare, true);
     check_direction(reporter, redundantSquare, SkPathFirstDirection::kCW);
 
-    SkPath bowTie;
-    bowTie.moveTo(0, 0);
-    bowTie.lineTo(0, 0);
-    bowTie.lineTo(0, 0);
-    bowTie.lineTo(SK_Scalar1, SK_Scalar1);
-    bowTie.lineTo(SK_Scalar1, SK_Scalar1);
-    bowTie.lineTo(SK_Scalar1, SK_Scalar1);
-    bowTie.lineTo(SK_Scalar1, 0);
-    bowTie.lineTo(SK_Scalar1, 0);
-    bowTie.lineTo(SK_Scalar1, 0);
-    bowTie.lineTo(0, SK_Scalar1);
-    bowTie.lineTo(0, SK_Scalar1);
-    bowTie.lineTo(0, SK_Scalar1);
-    bowTie.close();
+    SkPath bowTie = SkPathBuilder()
+                    .moveTo(0, 0)
+                    .lineTo(0, 0)
+                    .lineTo(0, 0)
+                    .lineTo(1, 1)
+                    .lineTo(1, 1)
+                    .lineTo(1, 1)
+                    .lineTo(1, 0)
+                    .lineTo(1, 0)
+                    .lineTo(1, 0)
+                    .lineTo(0, 1)
+                    .lineTo(0, 1)
+                    .lineTo(0, 1)
+                    .close()
+                    .detach();
     check_convexity(reporter, bowTie, false);
     check_direction(reporter, bowTie, kDontCheckDir);
 
-    SkPath spiral;
-    spiral.moveTo(0, 0);
-    spiral.lineTo(100*SK_Scalar1, 0);
-    spiral.lineTo(100*SK_Scalar1, 100*SK_Scalar1);
-    spiral.lineTo(0, 100*SK_Scalar1);
-    spiral.lineTo(0, 50*SK_Scalar1);
-    spiral.lineTo(50*SK_Scalar1, 50*SK_Scalar1);
-    spiral.lineTo(50*SK_Scalar1, 75*SK_Scalar1);
-    spiral.close();
+    SkPath spiral = SkPathBuilder()
+                    .moveTo(0, 0)
+                    .lineTo(100, 0)
+                    .lineTo(100, 100)
+                    .lineTo(0, 100)
+                    .lineTo(0, 50)
+                    .lineTo(50, 50)
+                    .lineTo(50, 75)
+                    .close()
+                    .detach();
     check_convexity(reporter, spiral, false);
     check_direction(reporter, spiral, kDontCheckDir);
 
-    SkPath dent;
-    dent.moveTo(0, 0);
-    dent.lineTo(100*SK_Scalar1, 100*SK_Scalar1);
-    dent.lineTo(0, 100*SK_Scalar1);
-    dent.lineTo(-50*SK_Scalar1, 200*SK_Scalar1);
-    dent.lineTo(-200*SK_Scalar1, 100*SK_Scalar1);
-    dent.close();
+    SkPath dent = SkPathBuilder()
+                  .moveTo(0, 0)
+                  .lineTo(100, 100)
+                  .lineTo(0, 100)
+                  .lineTo(-50, 200)
+                  .lineTo(-200, 100)
+                  .close()
+                  .detach();
     check_convexity(reporter, dent, false);
     check_direction(reporter, dent, SkPathFirstDirection::kCW);
 
     // skbug.com/40033336
-    SkPath strokedSin;
+    SkPathBuilder strokedSin;
     for (int i = 0; i < 2000; i++) {
         SkScalar x = SkIntToScalar(i) / 2;
         SkScalar y = 500 - (x + SkScalarSin(x / 100) * 40) / 3;
@@ -1490,92 +1508,92 @@ static void test_convexity2(skiatest::Reporter* reporter) {
         }
     }
     SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
-    stroke.setStrokeStyle(2 * SK_Scalar1);
+    stroke.setStrokeStyle(2);
     SkPathBuilder builder;
-    stroke.applyToPath(&builder, strokedSin);
+    stroke.applyToPath(&builder, strokedSin.detach());
     SkPath newpath = builder.detach();
     check_convexity(reporter, newpath, false);
     check_direction(reporter, newpath, kDontCheckDir);
 
     // http://crbug.com/412640
-    SkPath degenerateConcave;
-    degenerateConcave.moveTo(148.67912f, 191.875f);
-    degenerateConcave.lineTo(470.37695f, 7.5f);
-    degenerateConcave.lineTo(148.67912f, 191.875f);
-    degenerateConcave.lineTo(41.446522f, 376.25f);
-    degenerateConcave.lineTo(-55.971577f, 460.0f);
-    degenerateConcave.lineTo(41.446522f, 376.25f);
+    SkPath degenerateConcave = SkPathBuilder()
+                               .moveTo(148.67912f, 191.875f)
+                               .lineTo(470.37695f, 7.5f)
+                               .lineTo(148.67912f, 191.875f)
+                               .lineTo(41.446522f, 376.25f)
+                               .lineTo(-55.971577f, 460.0f)
+                               .lineTo(41.446522f, 376.25f)
+                               .detach();
     check_convexity(reporter, degenerateConcave, false);
     check_direction(reporter, degenerateConcave, SkPathFirstDirection::kUnknown);
 
     // http://crbug.com/433683
-    SkPath badFirstVector;
-    badFirstVector.moveTo(501.087708f, 319.610352f);
-    badFirstVector.lineTo(501.087708f, 319.610352f);
-    badFirstVector.cubicTo(501.087677f, 319.610321f, 449.271606f, 258.078674f, 395.084564f, 198.711182f);
-    badFirstVector.cubicTo(358.967072f, 159.140717f, 321.910553f, 120.650436f, 298.442322f, 101.955399f);
-    badFirstVector.lineTo(301.557678f, 98.044601f);
-    badFirstVector.cubicTo(325.283844f, 116.945084f, 362.615204f, 155.720825f, 398.777557f, 195.340454f);
-    badFirstVector.cubicTo(453.031860f, 254.781662f, 504.912262f, 316.389618f, 504.912292f, 316.389648f);
-    badFirstVector.lineTo(504.912292f, 316.389648f);
-    badFirstVector.lineTo(501.087708f, 319.610352f);
-    badFirstVector.close();
+    SkPath badFirstVector = SkPathBuilder()
+                            .moveTo(501.087708f, 319.610352f)
+                            .lineTo(501.087708f, 319.610352f)
+                            .cubicTo(501.087677f, 319.610321f, 449.271606f, 258.078674f, 395.084564f, 198.711182f)
+                            .cubicTo(358.967072f, 159.140717f, 321.910553f, 120.650436f, 298.442322f, 101.955399f)
+                            .lineTo(301.557678f, 98.044601f)
+                            .cubicTo(325.283844f, 116.945084f, 362.615204f, 155.720825f, 398.777557f, 195.340454f)
+                            .cubicTo(453.031860f, 254.781662f, 504.912262f, 316.389618f, 504.912292f, 316.389648f)
+                            .lineTo(504.912292f, 316.389648f)
+                            .lineTo(501.087708f, 319.610352f)
+                            .close()
+                            .detach();
     check_convexity(reporter, badFirstVector, false);
 
     // http://crbug.com/993330
-    SkPath falseBackEdge;
-    falseBackEdge.moveTo(-217.83430557928145f,      -382.14948768484857f);
-    falseBackEdge.lineTo(-227.73867866614847f,      -399.52485512718323f);
-    falseBackEdge.cubicTo(-158.3541047666846f,      -439.0757140459542f,
-                          -79.8654464485281f,       -459.875f,
-                          -1.1368683772161603e-13f, -459.875f);
-    falseBackEdge.lineTo(-8.08037266162413e-14f,    -439.875f);
-    falseBackEdge.lineTo(-8.526512829121202e-14f,   -439.87499999999994f);
-    falseBackEdge.cubicTo(-76.39209188702645f,      -439.87499999999994f,
-                          -151.46727226799754f,     -419.98027663161537f,
-                          -217.83430557928145f,     -382.14948768484857f);
-    falseBackEdge.close();
+    SkPath falseBackEdge = SkPathBuilder()
+                           .moveTo(-217.83430557928145f,      -382.14948768484857f)
+                           .lineTo(-227.73867866614847f,      -399.52485512718323f)
+                           .cubicTo(-158.3541047666846f,      -439.0757140459542f,
+                                     -79.8654464485281f,      -459.875f,
+                                      -1.1368683772161603e-13f, -459.875f)
+                           .lineTo(-8.08037266162413e-14f,    -439.875f)
+                           .lineTo(-8.526512829121202e-14f,   -439.87499999999994f)
+                           .cubicTo( -76.39209188702645f,     -439.87499999999994f,
+                                    -151.46727226799754f,     -419.98027663161537f,
+                                    -217.83430557928145f,     -382.14948768484857f)
+                           .close()
+                           .detach();
     check_convexity(reporter, falseBackEdge, false);
 }
 
 static void test_convexity_doubleback(skiatest::Reporter* reporter) {
-    SkPath doubleback;
+    SkPathBuilder doubleback;
     doubleback.lineTo(1, 1);
-    check_convexity(reporter, doubleback, true);
+    check_convexity(reporter, doubleback.snapshot(), true);
     doubleback.lineTo(2, 2);
-    check_convexity(reporter, doubleback, true);
-    doubleback.reset();
+    check_convexity(reporter, doubleback.detach(), true);
+
     doubleback.lineTo(1, 0);
-    check_convexity(reporter, doubleback, true);
+    check_convexity(reporter, doubleback.snapshot(), true);
     doubleback.lineTo(2, 0);
-    check_convexity(reporter, doubleback, true);
+    check_convexity(reporter, doubleback.snapshot(), true);
     doubleback.lineTo(1, 0);
-    check_convexity(reporter, doubleback, true);
-    doubleback.reset();
+    check_convexity(reporter, doubleback.detach(), true);
+
     doubleback.quadTo(1, 1, 2, 2);
-    check_convexity(reporter, doubleback, true);
-    doubleback.reset();
+    check_convexity(reporter, doubleback.detach(), true);
+
     doubleback.quadTo(1, 0, 2, 0);
-    check_convexity(reporter, doubleback, true);
+    check_convexity(reporter, doubleback.snapshot(), true);
     doubleback.quadTo(1, 0, 0, 0);
-    check_convexity(reporter, doubleback, true);
+    check_convexity(reporter, doubleback.detach(), true);
 
-    doubleback.reset();
     doubleback.lineTo(1, 0);
     doubleback.lineTo(1, 0);
     doubleback.lineTo(1, 1);
     doubleback.lineTo(1, 1);
     doubleback.lineTo(1, 0);
-    check_convexity(reporter, doubleback, false);
+    check_convexity(reporter, doubleback.detach(), false);
 
-    doubleback.reset();
     doubleback.lineTo(-1, 0);
     doubleback.lineTo(-1, 1);
     doubleback.lineTo(-1, 0);
-    check_convexity(reporter, doubleback, false);
+    check_convexity(reporter, doubleback.detach(), false);
 
     for (int i = 0; i < 4; ++i) {
-        doubleback.reset();
         doubleback.moveTo(0, 0);
         if (i == 0) {
             doubleback.lineTo(-1, -1);
@@ -1596,7 +1614,7 @@ static void test_convexity_doubleback(skiatest::Reporter* reporter) {
             doubleback.lineTo(-1, -1);
             doubleback.lineTo(0, 0);
         }
-        check_convexity(reporter, doubleback, false);
+        check_convexity(reporter, doubleback.detach(), false);
     }
 }
 
@@ -1615,7 +1633,8 @@ static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
     REPORTER_ASSERT(reporter, other.getBounds() == bounds);
 }
 
-static void setFromString(SkPath* path, const char str[]) {
+static SkPath setFromString(const char str[]) {
+    SkPathBuilder builder;
     bool first = true;
     while (str) {
         SkScalar x, y;
@@ -1626,35 +1645,35 @@ static void setFromString(SkPath* path, const char str[]) {
         str = SkParse::FindScalar(str, &y);
         SkASSERT(str);
         if (first) {
-            path->moveTo(x, y);
+            builder.moveTo(x, y);
             first = false;
         } else {
-            path->lineTo(x, y);
+            builder.lineTo(x, y);
         }
     }
+    return builder.detach();
 }
 
 static void test_convexity(skiatest::Reporter* reporter) {
-    SkPath path;
+    SkPathBuilder bulider;
 
-    check_convexity(reporter, path, true);
-    path.addCircle(0, 0, SkIntToScalar(10));
-    check_convexity(reporter, path, true);
-    path.addCircle(0, 0, SkIntToScalar(10));   // 2nd circle
-    check_convexity(reporter, path, false);
+    check_convexity(reporter, bulider.snapshot(), true);
+    bulider.addCircle(0, 0, SkIntToScalar(10));
+    check_convexity(reporter, bulider.snapshot(), true);
+    bulider.addCircle(0, 0, SkIntToScalar(10));   // 2nd circle
+    check_convexity(reporter, bulider.detach(), false);
 
-    path.reset();
-    path.addRect(0, 0, SkIntToScalar(10), SkIntToScalar(10), SkPathDirection::kCCW);
+    SkPath path = SkPath::Rect({0, 0, 10, 10}, SkPathDirection::kCCW);
     check_convexity(reporter, path, true);
     REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(path) == SkPathFirstDirection::kCCW);
 
-    path.reset();
-    path.addRect(0, 0, SkIntToScalar(10), SkIntToScalar(10), SkPathDirection::kCW);
+    path = SkPath::Rect({0, 0, 10, 10}, SkPathDirection::kCW);
     check_convexity(reporter, path, true);
     REPORTER_ASSERT(reporter, SkPathPriv::ComputeFirstDirection(path) == SkPathFirstDirection::kCW);
 
-    path.reset();
-    path.quadTo(100, 100, 50, 50); // This from GM:convexpaths
+    path = SkPathBuilder()
+           .quadTo(100, 100, 50, 50) // This from GM:convexpaths
+           .detach();
     check_convexity(reporter, path, true);
 
     static const struct {
@@ -1673,8 +1692,7 @@ static void test_convexity(skiatest::Reporter* reporter) {
     };
 
     for (size_t i = 0; i < std::size(gRec); ++i) {
-        path.reset();
-        setFromString(&path, gRec[i].fPathStr);
+        path = setFromString(gRec[i].fPathStr);
         check_convexity(reporter, path, gRec[i].fExpectedIsConvex);
         check_direction(reporter, path, gRec[i].fExpectedDirection);
         // check after setting the initial convex and direction
@@ -1721,22 +1739,24 @@ static void test_convexity(skiatest::Reporter* reporter) {
         int i = (int) (index % nonFinitePtsCount);
         int f = (int) (index % axisAlignedPtsCount);
         int g = (int) ((f + 1) % axisAlignedPtsCount);
-        path.reset();
+
+        SkPathBuilder builder;
         switch (index % 13) {
-            case 0: path.lineTo(nonFinitePts[i]); break;
-            case 1: path.quadTo(nonFinitePts[i], nonFinitePts[i]); break;
-            case 2: path.quadTo(nonFinitePts[i], axisAlignedPts[f]); break;
-            case 3: path.quadTo(axisAlignedPts[f], nonFinitePts[i]); break;
-            case 4: path.cubicTo(nonFinitePts[i], axisAlignedPts[f], axisAlignedPts[f]); break;
-            case 5: path.cubicTo(axisAlignedPts[f], nonFinitePts[i], axisAlignedPts[f]); break;
-            case 6: path.cubicTo(axisAlignedPts[f], axisAlignedPts[f], nonFinitePts[i]); break;
-            case 7: path.cubicTo(nonFinitePts[i], nonFinitePts[i], axisAlignedPts[f]); break;
-            case 8: path.cubicTo(nonFinitePts[i], axisAlignedPts[f], nonFinitePts[i]); break;
-            case 9: path.cubicTo(axisAlignedPts[f], nonFinitePts[i], nonFinitePts[i]); break;
-            case 10: path.cubicTo(nonFinitePts[i], nonFinitePts[i], nonFinitePts[i]); break;
-            case 11: path.cubicTo(nonFinitePts[i], axisAlignedPts[f], axisAlignedPts[g]); break;
-            case 12: path.moveTo(nonFinitePts[i]); break;
+            case 0: builder.lineTo(nonFinitePts[i]); break;
+            case 1: builder.quadTo(nonFinitePts[i], nonFinitePts[i]); break;
+            case 2: builder.quadTo(nonFinitePts[i], axisAlignedPts[f]); break;
+            case 3: builder.quadTo(axisAlignedPts[f], nonFinitePts[i]); break;
+            case 4: builder.cubicTo(nonFinitePts[i], axisAlignedPts[f], axisAlignedPts[f]); break;
+            case 5: builder.cubicTo(axisAlignedPts[f], nonFinitePts[i], axisAlignedPts[f]); break;
+            case 6: builder.cubicTo(axisAlignedPts[f], axisAlignedPts[f], nonFinitePts[i]); break;
+            case 7: builder.cubicTo(nonFinitePts[i], nonFinitePts[i], axisAlignedPts[f]); break;
+            case 8: builder.cubicTo(nonFinitePts[i], axisAlignedPts[f], nonFinitePts[i]); break;
+            case 9: builder.cubicTo(axisAlignedPts[f], nonFinitePts[i], nonFinitePts[i]); break;
+            case 10: builder.cubicTo(nonFinitePts[i], nonFinitePts[i], nonFinitePts[i]); break;
+            case 11: builder.cubicTo(nonFinitePts[i], axisAlignedPts[f], axisAlignedPts[g]); break;
+            case 12: builder.moveTo(nonFinitePts[i]); break;
         }
+        path = builder.detach();
         REPORTER_ASSERT(reporter,
                     SkPathPriv::GetConvexityOrUnknown(path) == SkPathConvexity::kUnknown);
     }
@@ -1744,21 +1764,23 @@ static void test_convexity(skiatest::Reporter* reporter) {
     for (int index = 0; index < (int) (11 * axisAlignedPtsCount); ++index) {
         int f = (int) (index % axisAlignedPtsCount);
         int g = (int) ((f + 1) % axisAlignedPtsCount);
-        path.reset();
+
+        SkPathBuilder builder;
         int curveSelect = index % 11;
         switch (curveSelect) {
-            case 0: path.moveTo(axisAlignedPts[f]); break;
-            case 1: path.lineTo(axisAlignedPts[f]); break;
-            case 2: path.quadTo(axisAlignedPts[f], axisAlignedPts[f]); break;
-            case 3: path.quadTo(axisAlignedPts[f], axisAlignedPts[g]); break;
-            case 4: path.quadTo(axisAlignedPts[g], axisAlignedPts[f]); break;
-            case 5: path.cubicTo(axisAlignedPts[f], axisAlignedPts[f], axisAlignedPts[f]); break;
-            case 6: path.cubicTo(axisAlignedPts[f], axisAlignedPts[f], axisAlignedPts[g]); break;
-            case 7: path.cubicTo(axisAlignedPts[f], axisAlignedPts[g], axisAlignedPts[f]); break;
-            case 8: path.cubicTo(axisAlignedPts[f], axisAlignedPts[g], axisAlignedPts[g]); break;
-            case 9: path.cubicTo(axisAlignedPts[g], axisAlignedPts[f], axisAlignedPts[f]); break;
-            case 10: path.cubicTo(axisAlignedPts[g], axisAlignedPts[f], axisAlignedPts[g]); break;
+            case 0: builder.moveTo(axisAlignedPts[f]); break;
+            case 1: builder.lineTo(axisAlignedPts[f]); break;
+            case 2: builder.quadTo(axisAlignedPts[f], axisAlignedPts[f]); break;
+            case 3: builder.quadTo(axisAlignedPts[f], axisAlignedPts[g]); break;
+            case 4: builder.quadTo(axisAlignedPts[g], axisAlignedPts[f]); break;
+            case 5: builder.cubicTo(axisAlignedPts[f], axisAlignedPts[f], axisAlignedPts[f]); break;
+            case 6: builder.cubicTo(axisAlignedPts[f], axisAlignedPts[f], axisAlignedPts[g]); break;
+            case 7: builder.cubicTo(axisAlignedPts[f], axisAlignedPts[g], axisAlignedPts[f]); break;
+            case 8: builder.cubicTo(axisAlignedPts[f], axisAlignedPts[g], axisAlignedPts[g]); break;
+            case 9: builder.cubicTo(axisAlignedPts[g], axisAlignedPts[f], axisAlignedPts[f]); break;
+            case 10: builder.cubicTo(axisAlignedPts[g], axisAlignedPts[f], axisAlignedPts[g]); break;
         }
+        path = builder.detach();
         if (curveSelect == 0 || curveSelect == 1 || curveSelect == 2 || curveSelect == 5) {
             check_convexity(reporter, path, true);
         } else {
@@ -1778,21 +1800,22 @@ static void test_convexity(skiatest::Reporter* reporter) {
     for (int index = 0; index < (int) (7 * diagonalPtsCount); ++index) {
         int f = (int) (index % diagonalPtsCount);
         int g = (int) ((f + 1) % diagonalPtsCount);
-        path.reset();
+        SkPathBuilder builder;
         int curveSelect = index % 11;
         switch (curveSelect) {
-            case 0: path.moveTo(diagonalPts[f]); break;
-            case 1: path.lineTo(diagonalPts[f]); break;
-            case 2: path.quadTo(diagonalPts[f], diagonalPts[f]); break;
-            case 3: path.quadTo(axisAlignedPts[f], diagonalPts[g]); break;
-            case 4: path.quadTo(diagonalPts[g], axisAlignedPts[f]); break;
-            case 5: path.cubicTo(diagonalPts[f], diagonalPts[f], diagonalPts[f]); break;
-            case 6: path.cubicTo(diagonalPts[f], diagonalPts[f], axisAlignedPts[g]); break;
-            case 7: path.cubicTo(diagonalPts[f], axisAlignedPts[g], diagonalPts[f]); break;
-            case 8: path.cubicTo(axisAlignedPts[f], diagonalPts[g], diagonalPts[g]); break;
-            case 9: path.cubicTo(diagonalPts[g], diagonalPts[f], axisAlignedPts[f]); break;
-            case 10: path.cubicTo(diagonalPts[g], axisAlignedPts[f], diagonalPts[g]); break;
+            case 0: builder.moveTo(diagonalPts[f]); break;
+            case 1: builder.lineTo(diagonalPts[f]); break;
+            case 2: builder.quadTo(diagonalPts[f], diagonalPts[f]); break;
+            case 3: builder.quadTo(axisAlignedPts[f], diagonalPts[g]); break;
+            case 4: builder.quadTo(diagonalPts[g], axisAlignedPts[f]); break;
+            case 5: builder.cubicTo(diagonalPts[f], diagonalPts[f], diagonalPts[f]); break;
+            case 6: builder.cubicTo(diagonalPts[f], diagonalPts[f], axisAlignedPts[g]); break;
+            case 7: builder.cubicTo(diagonalPts[f], axisAlignedPts[g], diagonalPts[f]); break;
+            case 8: builder.cubicTo(axisAlignedPts[f], diagonalPts[g], diagonalPts[g]); break;
+            case 9: builder.cubicTo(diagonalPts[g], diagonalPts[f], axisAlignedPts[f]); break;
+            case 10: builder.cubicTo(diagonalPts[g], axisAlignedPts[f], diagonalPts[g]); break;
         }
+        path = builder.detach();
         if (curveSelect == 0) {
             check_convexity(reporter, path, true);
         } else {
@@ -1803,14 +1826,15 @@ static void test_convexity(skiatest::Reporter* reporter) {
     }
 
 
-    path.reset();
-    path.moveTo(SkBits2Float(0xbe9171db), SkBits2Float(0xbd7eeb5d));  // -0.284072f, -0.0622362f
-    path.lineTo(SkBits2Float(0xbe9171db), SkBits2Float(0xbd7eea38));  // -0.284072f, -0.0622351f
-    path.lineTo(SkBits2Float(0xbe9171a0), SkBits2Float(0xbd7ee5a7));  // -0.28407f, -0.0622307f
-    path.lineTo(SkBits2Float(0xbe917147), SkBits2Float(0xbd7ed886));  // -0.284067f, -0.0622182f
-    path.lineTo(SkBits2Float(0xbe917378), SkBits2Float(0xbd7ee1a9));  // -0.284084f, -0.0622269f
-    path.lineTo(SkBits2Float(0xbe9171db), SkBits2Float(0xbd7eeb5d));  // -0.284072f, -0.0622362f
-    path.close();
+    path = SkPathBuilder()
+           .moveTo(SkBits2Float(0xbe9171db), SkBits2Float(0xbd7eeb5d))  // -0.284072f, -0.0622362f
+           .lineTo(SkBits2Float(0xbe9171db), SkBits2Float(0xbd7eea38))  // -0.284072f, -0.0622351f
+           .lineTo(SkBits2Float(0xbe9171a0), SkBits2Float(0xbd7ee5a7))  // -0.28407f, -0.0622307f
+           .lineTo(SkBits2Float(0xbe917147), SkBits2Float(0xbd7ed886))  // -0.284067f, -0.0622182f
+           .lineTo(SkBits2Float(0xbe917378), SkBits2Float(0xbd7ee1a9))  // -0.284084f, -0.0622269f
+           .lineTo(SkBits2Float(0xbe9171db), SkBits2Float(0xbd7eeb5d))  // -0.284072f, -0.0622362f
+           .close()
+           .detach();
     check_convexity(reporter, path, false);
 
 }

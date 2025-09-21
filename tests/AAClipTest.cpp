@@ -14,6 +14,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRegion.h"
@@ -179,38 +180,26 @@ DEF_TEST(AAClip_setPath_RandomRegion_MatchesSkRegion, reporter) {
 
     {
         SkRegion rgn;
-        SkPath path;
-        path.addCircle(0, 0, SkIntToScalar(30));
-        setRgnToPath(&rgn, path);
+        setRgnToPath(&rgn, SkPath::Circle(0, 0, 30));
         REPORTER_ASSERT(reporter, equalsAAClip(rgn));
 
-        path.reset();
-        path.moveTo(0, 0);
-        path.lineTo(SkIntToScalar(100), 0);
-        path.lineTo(SkIntToScalar(100 - 20), SkIntToScalar(20));
-        path.lineTo(SkIntToScalar(20), SkIntToScalar(20));
+        SkPath path = SkPathBuilder()
+                      .moveTo(0, 0)
+                      .lineTo(100, 0)
+                      .lineTo(100 - 20, 20)
+                      .lineTo(20, 20)
+                      .detach();
         setRgnToPath(&rgn, path);
         REPORTER_ASSERT(reporter, equalsAAClip(rgn));
     }
 }
 
-static void imoveTo(SkPath& path, int x, int y) {
-    path.moveTo(SkIntToScalar(x), SkIntToScalar(y));
-}
-
-static void icubicTo(SkPath& path, int x0, int y0, int x1, int y1, int x2, int y2) {
-    path.cubicTo(SkIntToScalar(x0), SkIntToScalar(y0),
-                 SkIntToScalar(x1), SkIntToScalar(y1),
-                 SkIntToScalar(x2), SkIntToScalar(y2));
-}
-
 DEF_TEST(AAClip_setPath_ClipBoundsMatchExpectations, reporter) {
-    SkPath path;
     SkAAClip clip;
     const int height = 40;
     const SkScalar sheight = SkIntToScalar(height);
 
-    path.addOval(SkRect::MakeWH(sheight, sheight));
+    SkPath path = SkPath::Oval(SkRect::MakeWH(sheight, sheight));
     REPORTER_ASSERT(reporter, sheight == path.getBounds().height());
     clip.setPath(path, path.getBounds().roundOut(), true);
     REPORTER_ASSERT(reporter, height == clip.getBounds().height());
@@ -222,9 +211,10 @@ DEF_TEST(AAClip_setPath_ClipBoundsMatchExpectations, reporter) {
     // This used to fail until we tracked the MinY in the BuilderBlitter.
     //
     const int teardrop_height = 12;
-    path.reset();
-    imoveTo(path, 0, 20);
-    icubicTo(path, 40, 40, 40, 0, 0, 20);
+    path = SkPathBuilder()
+           .moveTo(0, 20)
+           .cubicTo(40, 40, 40, 0, 0, 20)
+           .detach();
     REPORTER_ASSERT(reporter, sheight == path.getBounds().height());
     clip.setPath(path, path.getBounds().roundOut(), true);
     REPORTER_ASSERT(reporter, teardrop_height == clip.getBounds().height());

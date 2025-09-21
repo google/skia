@@ -1991,9 +1991,7 @@ DEF_TEST(GrStyledShape_stroked_lines, r) {
         roundCap.setPathEffect(pe);
 
         // vertical
-        SkPath linePath;
-        linePath.moveTo(4, 4);
-        linePath.lineTo(4, 5);
+        SkPath linePath = SkPath::Line({4, 4}, {4, 5});
 
         SkPaint fill;
 
@@ -2010,9 +2008,7 @@ DEF_TEST(GrStyledShape_stroked_lines, r) {
                 TestCase::kAllSame_ComparisonExpecation);
 
         // horizontal
-        linePath.reset();
-        linePath.moveTo(4, 4);
-        linePath.lineTo(5, 4);
+        linePath = SkPath::Line({4, 4}, {5, 4});
 
         make_TestCase(r, linePath, buttCap)->compare(
                 r, TestCase(r, SkRect::MakeLTRB(4, 2, 5, 6), fill),
@@ -2025,9 +2021,7 @@ DEF_TEST(GrStyledShape_stroked_lines, r) {
                 TestCase::kAllSame_ComparisonExpecation);
 
         // point
-        linePath.reset();
-        linePath.moveTo(4, 4);
-        linePath.lineTo(4, 4);
+        linePath = SkPath::Line({4, 4}, {4, 4});
 
         make_TestCase(r, linePath, buttCap)->compare(
                 r, TestCase(r, SkRect::MakeEmpty(), fill),
@@ -2146,11 +2140,12 @@ DEF_TEST(GrStyledShape, reporter) {
             new ArcGeo(SkArc::Make(SkRect::MakeWH(200, 100), 12.f, 110.f, SkArc::Type::kWedge)));
 
     {
-        SkPath openRectPath;
-        openRectPath.moveTo(0, 0);
-        openRectPath.lineTo(10, 0);
-        openRectPath.lineTo(10, 10);
-        openRectPath.lineTo(0, 10);
+        SkPath openRectPath = SkPathBuilder()
+                              .moveTo(0, 0)
+                              .lineTo(10, 0)
+                              .lineTo(10, 10)
+                              .lineTo(0, 10)
+                              .detach();
         geos.emplace_back(new RRectPathGeo(
                     openRectPath, SkRect::MakeWH(10, 10),
                     RRectPathGeo::RRectForStroke::kNo, PathGeo::Invert::kNo));
@@ -2163,30 +2158,26 @@ DEF_TEST(GrStyledShape, reporter) {
     }
 
     {
-        SkPath quadPath;
-        quadPath.quadTo(10, 10, 5, 8);
+        SkPath quadPath = SkPathBuilder().quadTo(10, 10, 5, 8).detach();
         geos.emplace_back(new PathGeo(quadPath, PathGeo::Invert::kNo));
         geos.emplace_back(new PathGeo(quadPath, PathGeo::Invert::kYes));
     }
 
     {
-        SkPath linePath;
-        linePath.lineTo(10, 10);
+        SkPath linePath = SkPathBuilder().lineTo(10, 10).detach();
         geos.emplace_back(new PathGeo(linePath, PathGeo::Invert::kNo));
         geos.emplace_back(new PathGeo(linePath, PathGeo::Invert::kYes));
     }
 
     // Horizontal and vertical paths become rrects when stroked.
     {
-        SkPath vLinePath;
-        vLinePath.lineTo(0, 10);
+        SkPath vLinePath = SkPathBuilder().lineTo(0, 10).detach();
         geos.emplace_back(new PathGeo(vLinePath, PathGeo::Invert::kNo));
         geos.emplace_back(new PathGeo(vLinePath, PathGeo::Invert::kYes));
     }
 
     {
-        SkPath hLinePath;
-        hLinePath.lineTo(10, 0);
+        SkPath hLinePath = SkPathBuilder().lineTo(10, 0).detach();
         geos.emplace_back(new PathGeo(hLinePath, PathGeo::Invert::kNo));
         geos.emplace_back(new PathGeo(hLinePath, PathGeo::Invert::kYes));
     }

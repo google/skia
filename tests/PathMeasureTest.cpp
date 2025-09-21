@@ -99,37 +99,35 @@ static void test_small_segment() {
 }
 
 DEF_TEST(PathMeasure, reporter) {
-    SkPath  path;
-
-    path.moveTo(0, 0);
-    path.lineTo(SK_Scalar1, 0);
-    path.lineTo(SK_Scalar1, SK_Scalar1);
-    path.lineTo(0, SK_Scalar1);
+    SkPath path = SkPathBuilder()
+                  .moveTo(0, 0)
+                  .lineTo(1, 0)
+                  .lineTo(1, 1)
+                  .lineTo(0, 1)
+                  .detach();
 
     SkPathMeasure   meas(path, true);
     SkScalar        length = meas.getLength();
-    SkASSERT(length == SK_Scalar1*4);
+    SkASSERT(length == 4);
 
-    path.reset();
-    path.moveTo(0, 0);
-    path.lineTo(SK_Scalar1*3, SK_Scalar1*4);
+    path = SkPath::Line({0, 0}, {3, 4});
     meas.setPath(&path, false);
     length = meas.getLength();
-    REPORTER_ASSERT(reporter, length == SK_Scalar1*5);
+    REPORTER_ASSERT(reporter, length == 5);
 
-    path.reset();
-    path.addCircle(0, 0, SK_Scalar1);
+    path = SkPath::Circle(0, 0, 1);
     meas.setPath(&path, true);
     length = meas.getLength();
 //    SkDebugf("circle arc-length = %g\n", length);
 
     // Test the behavior following a close not followed by a move.
-    path.reset();
-    path.lineTo(SK_Scalar1, 0);
-    path.lineTo(SK_Scalar1, SK_Scalar1);
-    path.lineTo(0, SK_Scalar1);
-    path.close();
-    path.lineTo(-SK_Scalar1, 0);
+    path = SkPathBuilder()
+           .lineTo(1, 0)
+           .lineTo(1, 1)
+           .lineTo(0, 1)
+           .close()
+           .lineTo(-1, 0)
+           .detach();
     meas.setPath(&path, false);
     length = meas.getLength();
     REPORTER_ASSERT(reporter, length == SK_Scalar1 * 4);
@@ -148,18 +146,15 @@ DEF_TEST(PathMeasure, reporter) {
     REPORTER_ASSERT(reporter, tangent.fY == 0);
 
     // Test degenerate paths
-    path.reset();
-    path.moveTo(0, 0);
-    path.lineTo(0, 0);
-    path.lineTo(SK_Scalar1, 0);
-    path.quadTo(SK_Scalar1, 0, SK_Scalar1, 0);
-    path.quadTo(SK_Scalar1, SK_Scalar1, SK_Scalar1, SK_Scalar1 * 2);
-    path.cubicTo(SK_Scalar1, SK_Scalar1 * 2,
-                 SK_Scalar1, SK_Scalar1 * 2,
-                 SK_Scalar1, SK_Scalar1 * 2);
-    path.cubicTo(SK_Scalar1*2, SK_Scalar1 * 2,
-                 SK_Scalar1*3, SK_Scalar1 * 2,
-                 SK_Scalar1*4, SK_Scalar1 * 2);
+    path = SkPathBuilder()
+           .moveTo(0, 0)
+           .lineTo(0, 0)
+           .lineTo(1, 0)
+           .quadTo(1, 0, 1, 0)
+           .quadTo(1, 1, 1, 2)
+           .cubicTo(1, 2, 1, 2, 1, 2)
+           .cubicTo(2, 2, 3, 2, 4, 2)
+           .detach();
     meas.setPath(&path, false);
     length = meas.getLength();
     REPORTER_ASSERT(reporter, length == SK_Scalar1 * 6);
@@ -190,27 +185,28 @@ DEF_TEST(PathMeasure, reporter) {
     REPORTER_ASSERT(reporter, tangent.fX == SK_Scalar1);
     REPORTER_ASSERT(reporter, tangent.fY == 0);
 
-    path.reset();
-    path.moveTo(0, 0);
-    path.lineTo(SK_Scalar1, 0);
-    path.moveTo(SK_Scalar1, SK_Scalar1);
-    path.moveTo(SK_Scalar1 * 2, SK_Scalar1 * 2);
-    path.lineTo(SK_Scalar1, SK_Scalar1 * 2);
+    path = SkPathBuilder()
+           .moveTo(0, 0)
+           .lineTo(1, 0)
+           .moveTo(1, 1)
+           .moveTo(2, 2)
+           .lineTo(1, 2)
+           .detach();
     meas.setPath(&path, false);
     length = meas.getLength();
-    REPORTER_ASSERT(reporter, length == SK_Scalar1);
-    REPORTER_ASSERT(reporter, meas.getPosTan(SK_ScalarHalf, &position, &tangent));
+    REPORTER_ASSERT(reporter, length == 1);
+    REPORTER_ASSERT(reporter, meas.getPosTan(0.5f, &position, &tangent));
     REPORTER_ASSERT(reporter,
         SkScalarNearlyEqual(position.fX,
-                            SK_ScalarHalf,
+                            0.5f,
                             0.0001f));
     REPORTER_ASSERT(reporter, position.fY == 0);
-    REPORTER_ASSERT(reporter, tangent.fX == SK_Scalar1);
+    REPORTER_ASSERT(reporter, tangent.fX == 1);
     REPORTER_ASSERT(reporter, tangent.fY == 0);
     meas.nextContour();
     length = meas.getLength();
-    REPORTER_ASSERT(reporter, length == SK_Scalar1);
-    REPORTER_ASSERT(reporter, meas.getPosTan(SK_ScalarHalf, &position, &tangent));
+    REPORTER_ASSERT(reporter, length == 1);
+    REPORTER_ASSERT(reporter, meas.getPosTan(0.5f, &position, &tangent));
     REPORTER_ASSERT(reporter,
         SkScalarNearlyEqual(position.fX,
                             1.5f,
@@ -219,7 +215,7 @@ DEF_TEST(PathMeasure, reporter) {
         SkScalarNearlyEqual(position.fY,
                             2.0f,
                             0.0001f));
-    REPORTER_ASSERT(reporter, tangent.fX == -SK_Scalar1);
+    REPORTER_ASSERT(reporter, tangent.fX == -1);
     REPORTER_ASSERT(reporter, tangent.fY == 0);
 
     test_small_segment();
@@ -233,14 +229,16 @@ DEF_TEST(PathMeasure, reporter) {
 
 DEF_TEST(PathMeasureConic, reporter) {
     SkPoint stdP, hiP, pts[] = {{0,0}, {100,0}, {100,0}};
-    SkPath p;
-    p.moveTo(0, 0);
-    p.conicTo(pts[1], pts[2], 1);
+    SkPath p = SkPathBuilder()
+               .moveTo(0, 0)
+               .conicTo(pts[1], pts[2], 1)
+               .detach();
     SkPathMeasure stdm(p, false);
     REPORTER_ASSERT(reporter, stdm.getPosTan(20, &stdP, nullptr));
-    p.reset();
-    p.moveTo(0, 0);
-    p.conicTo(pts[1], pts[2], 10);
+    p = SkPathBuilder()
+        .moveTo(0, 0)
+        .conicTo(pts[1], pts[2], 10)
+        .detach();
     stdm.setPath(&p, false);
     REPORTER_ASSERT(reporter, stdm.getPosTan(20, &hiP, nullptr));
     REPORTER_ASSERT(reporter, 19.5f < stdP.fX && stdP.fX < 20.5f);
@@ -249,8 +247,7 @@ DEF_TEST(PathMeasureConic, reporter) {
 
 // Regression test for b/26425223
 DEF_TEST(PathMeasure_nextctr, reporter) {
-    SkPath path;
-    path.moveTo(0, 0); path.lineTo(100, 0);
+    SkPath path = SkPath::Line({0, 0}, {100, 0});
 
     SkPathMeasure meas(path, false);
     // only expect 1 contour, even if we didn't explicitly call getLength() ourselves
@@ -272,16 +269,16 @@ static void test_90_degrees(const sk_sp<SkContourMeasure>& cm, SkScalar radius,
 }
 
 static void test_empty_contours(skiatest::Reporter* reporter) {
-    SkPath path;
-
-    path.moveTo(0, 0).lineTo(100, 100).lineTo(200, 100);
-    path.moveTo(2, 2).moveTo(3, 3);                 // zero-length(s)
-    path.moveTo(4, 4).close().close().close();      // zero-length
-    path.moveTo(5, 5).lineTo(5, 5);                 // zero-length
-    path.moveTo(5, 5).lineTo(5, 5).close();         // zero-length
-    path.moveTo(5, 5).lineTo(5, 5).close().close(); // zero-length
-    path.moveTo(6, 6).lineTo(7, 7);
-    path.moveTo(10, 10);                            // zero-length
+    SkPath path = SkPathBuilder()
+                  .moveTo(0, 0).lineTo(100, 100).lineTo(200, 100)
+                  .moveTo(2, 2).moveTo(3, 3)                  // zero-length(s)
+                  .moveTo(4, 4).close().close().close()       // zero-length
+                  .moveTo(5, 5).lineTo(5, 5)                  // zero-length
+                  .moveTo(5, 5).lineTo(5, 5).close()          // zero-length
+                  .moveTo(5, 5).lineTo(5, 5).close().close()  // zero-length
+                  .moveTo(6, 6).lineTo(7, 7)
+                  .moveTo(10, 10)                             // zero-length
+                  .detach();
 
     SkContourMeasureIter fact(path, false);
 
@@ -293,11 +290,9 @@ static void test_empty_contours(skiatest::Reporter* reporter) {
 }
 
 static void test_MLM_contours(skiatest::Reporter* reporter) {
-    SkPath path;
-
     // This odd sequence (with a trailing moveTo) used to return a 2nd contour, which is
     // wrong, since the contract for a measure is to only return non-zero length contours.
-    path.moveTo(10, 10).lineTo(20, 20).moveTo(30, 30);
+    SkPath path = SkPathBuilder().moveTo(10, 10).lineTo(20, 20).moveTo(30, 30).detach();
 
     for (bool forceClosed : {false, true}) {
         SkContourMeasureIter fact(path, forceClosed);
@@ -307,6 +302,7 @@ static void test_MLM_contours(skiatest::Reporter* reporter) {
 }
 
 static void test_shrink(skiatest::Reporter* reporter) {
+#ifndef SK_HIDE_PATH_EDIT_METHODS
     SkPath path;
     path.addRect({1, 2, 3, 4});
     path.incReserve(100);   // give shrinkToFit() something to do
@@ -322,15 +318,16 @@ static void test_shrink(skiatest::Reporter* reporter) {
     // using an internal iterator of the passed-in path, not our copy.
     while (iter.next())
         ;
+#endif
 }
 
 DEF_TEST(contour_measure, reporter) {
-    SkPath path;
-    path.addCircle(0, 0, 100);
-    path.addCircle(0, 0, 10);
+    SkPath path = SkPathBuilder()
+                  .addCircle(0, 0, 100)
+                  .addCircle(0, 0, 10)
+                  .detach();
 
     SkContourMeasureIter fact(path, false);
-    path.reset();   // we should not need the path avert we created the factory
 
     auto cm0 = fact.next();
     auto cm1 = fact.next();
@@ -355,13 +352,14 @@ DEF_TEST(contour_measure, reporter) {
 }
 
 DEF_TEST(contour_measure_verbs, reporter) {
-    SkPath path;
-    path.moveTo(10, 10);
-    path.lineTo(10, 30);
-    path.lineTo(30, 30);
-    path.quadTo({40, 30}, {40, 40});
-    path.cubicTo({50, 40}, {50, 50}, {40, 50});
-    path.conicTo({50, 50}, {50, 60}, 1.2f);
+    SkPath path = SkPathBuilder()
+                  .moveTo(10, 10)
+                  .lineTo(10, 30)
+                  .lineTo(30, 30)
+                  .quadTo({40, 30}, {40, 40})
+                  .cubicTo({50, 40}, {50, 50}, {40, 50})
+                  .conicTo({50, 50}, {50, 60}, 1.2f)
+                  .detach();
 
     SkContourMeasureIter measure(path, false);
 
