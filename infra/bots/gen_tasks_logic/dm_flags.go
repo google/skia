@@ -326,6 +326,8 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "test", ALL, "MultisampleRetainTest")
 			skip(ALL, "test", ALL, "MultisampleClearThenLoad")
 			skip(ALL, "test", ALL, "MutableImagesTest")
+			skip(ALL, "test", ALL, "NotifyInUseTestBlend")
+			skip(ALL, "test", ALL, "NotifyInUseTestSnapshot")
 			skip(ALL, "test", ALL, "OpsTaskFlushCount")
 			skip(ALL, "test", ALL, "OverdrawSurface_Gpu")
 			skip(ALL, "test", ALL, "PinnedImageTest")
