@@ -21,7 +21,6 @@ class SkRuntimeEffect;
 namespace skgpu::graphite {
 
 class Caps;
-class DrawContext;
 enum class DstReadStrategy : uint8_t;
 class FloatStorageManager;
 class PaintParamsKeyBuilder;
@@ -63,7 +62,6 @@ public:
 
     // Constructor for the ExtractPaintData code path (i.e., with a Recorder)
     KeyContext(Recorder*,
-               DrawContext*,
                FloatStorageManager*,
                PaintParamsKeyBuilder*,
                PipelineDataGatherer*,
@@ -76,7 +74,6 @@ public:
     ~KeyContext();
 
     Recorder* recorder() const { return fRecorder; }
-    DrawContext* drawContext() const { return fDC; }
 
     const Caps* caps() const { return fCaps; }
 
@@ -98,7 +95,6 @@ public:
 
 protected:
     Recorder* fRecorder = nullptr;
-    DrawContext* fDC = nullptr;
     FloatStorageManager* fFloatStorageManager;
     PaintParamsKeyBuilder* fPaintParamsKeyBuilder;
     PipelineDataGatherer* fPipelineDataGatherer;

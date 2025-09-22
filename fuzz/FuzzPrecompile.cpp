@@ -25,7 +25,6 @@
 #include "src/core/SkBlenderBase.h"
 #include "src/gpu/graphite/ContextPriv.h"
 #include "src/gpu/graphite/ContextUtils.h"
-#include "src/gpu/graphite/DrawContext.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/PaintParams.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
@@ -301,34 +300,7 @@ void check_draw(Context* context,
     SkASSERT_RELEASE(before == after);
 }
 
-sk_sp<DrawContext> get_precompile_draw_context(
-            const skgpu::graphite::Caps* caps, Context* context) {
-    std::unique_ptr<Recorder> drawRecorder = context->makeRecorder();
-    ResourceProvider* resourceProvider = drawRecorder->priv().resourceProvider();
-    constexpr SkISize drawSize = {128, 128};
-    const SkColorInfo colorInfo = SkColorInfo(kRGBA_8888_SkColorType,
-                                              kPremul_SkAlphaType,
-                                              SkColorSpace::MakeSRGB());
-    TextureInfo texInfo = caps->getDefaultSampledTextureInfo(colorInfo.colorType(),
-                                                             skgpu::Mipmapped::kNo,
-                                                             skgpu::Protected::kNo,
-                                                             skgpu::Renderable::kYes);
-    sk_sp<TextureProxy> target = TextureProxy::Make(caps,
-                                                    resourceProvider,
-                                                    drawSize,
-                                                    texInfo,
-                                                    "PrecompileTarget",
-                                                    skgpu::Budgeted::kYes);
-    sk_sp<DrawContext> precompileDrawContext = DrawContext::Make(caps,
-                                                                 std::move(target),
-                                                                 drawSize,
-                                                                 colorInfo,
-                                                                 {});
-    return precompileDrawContext;
-}
-
 void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
-    const skgpu::graphite::Caps* caps = context->priv().caps();
     std::unique_ptr<PrecompileContext> precompileContext = context->makePrecompileContext();
     std::unique_ptr<Recorder> recorder = context->makeRecorder();
     ShaderCodeDictionary* dict = context->priv().shaderCodeDictionary();
@@ -338,15 +310,12 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
     Layout layout = context->backend() == skgpu::BackendApi::kMetal ? Layout::kMetal
                                                                     : Layout::kStd140;
 
-    // Currently, we just use this as a valid parameter for keyContext (will hit asserts otherwise)
-    sk_sp<DrawContext> drawContext = get_precompile_draw_context(caps, context);
-
     FloatStorageManager floatStorageManager;
     PaintParamsKeyBuilder builder(dict);
     PipelineDataGatherer gatherer(layout);
     sk_sp<RuntimeEffectDictionary> rtDict = sk_make_sp<RuntimeEffectDictionary>();
-    KeyContext precompileKeyContext(caps, &floatStorageManager, &builder, &gatherer, dict, rtDict,
-                                    ci);
+    KeyContext precompileKeyContext(recorder->priv().caps(), &floatStorageManager,
+                                    &builder, &gatherer, dict, rtDict, ci);
 
     DrawTypeFlags kDrawType = DrawTypeFlags::kSimpleShape;
     SkPath path = make_path();
@@ -359,8 +328,7 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
     fuzz->next(&temp);
     Coverage coverage = coverageOptions[temp % 3];
 
-    PaintParams paintParams = PaintParams(recorder->priv().caps(),
-                                          paint,
+    PaintParams paintParams = PaintParams(paint,
                                           /* primitiveBlender= */ nullptr,
                                           /* nonMSAAClip= */ {},
                                           /* clipShader= */ nullptr,
@@ -370,7 +338,6 @@ void fuzz_graphite(Fuzz* fuzz, Context* context, int depth = 9) {
     SkDEBUGCODE(builder.checkReset());
     SkDEBUGCODE(gatherer.checkReset());
     KeyContext keyContext(recorder.get(),
-                          drawContext.get(),
                           &floatStorageManager,
                           &builder,
                           &gatherer,
