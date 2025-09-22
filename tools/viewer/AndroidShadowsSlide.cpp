@@ -225,10 +225,9 @@ public:
                                kAmbientAlpha, lightPos, kLightWidth, kSpotAlpha);
 
         // circular reveal
-        SkPath tmpPath;
         SkPath tmpClipPath;
         tmpClipPath.addCircle(fAnimTranslate, 0, 60);
-        Op(fSquareRRectPath, tmpClipPath, kIntersect_SkPathOp, &tmpPath);
+        SkPath tmpPath = Op(fSquareRRectPath, tmpClipPath, kIntersect_SkPathOp).value_or(SkPath());
 
         paint.setColor(SK_ColorMAGENTA);
         canvas->translate(-725, 240);
@@ -239,7 +238,9 @@ public:
         // path ops bug
         SkPath tmpClipPathBug;
         tmpClipPathBug.addCircle(88.0344925f, 0, 60);
-        Op(fSquareRRectPath, tmpClipPathBug, kIntersect_SkPathOp, &tmpPath);
+        if (auto res = Op(fSquareRRectPath, tmpClipPathBug, kIntersect_SkPathOp)) {
+            tmpPath = *res;
+        }
 
         canvas->translate(250, 0);
         zPlaneParams.fZ = std::max(1.0f, 32 + fZDelta);

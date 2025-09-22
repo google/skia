@@ -377,16 +377,20 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     return true;
 }
 
-bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
+std::optional<SkPath> Op(const SkPath& one, const SkPath& two, SkPathOp op) {
+    SkPath result;
 #if DEBUG_DUMP_VERIFY
     if (SkPathOpsDebug::gVerifyOp) {
-        if (!OpDebug(one, two, op, result  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr))) {
+        if (!OpDebug(one, two, op, &result  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr))) {
             ReportOpFail(one, two, op);
             return false;
         }
-        VerifyOp(one, two, op, *result);
+        VerifyOp(one, two, op, &result);
         return true;
     }
 #endif
-    return OpDebug(one, two, op, result  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr));
+    if (OpDebug(one, two, op, &result  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr))) {
+        return result;
+    }
+    return {};
 }

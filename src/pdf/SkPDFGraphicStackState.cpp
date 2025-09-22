@@ -85,7 +85,9 @@ static void apply_clip(const SkClipStack& stack, const SkRect& outerBounds, F fn
             operand.isInverseFillType() ||
             !kHuge.contains(operand.getBounds()))
         {
-            Op(SkPath::Rect(bounds), operand, op, &operand);
+            if (auto result = Op(SkPath::Rect(bounds), operand, op)) {
+                operand = *result;
+            }
         }
         SkASSERT(!operand.isInverseFillType());
         fn(operand);
@@ -123,9 +125,9 @@ static void append_clip(const SkClipStack& clipStack,
     }
 
     if (is_complex_clip(clipStack)) {
-        SkPath clipPath = SkClipStack_AsPath(clipStack);
-        if (Op(clipPath, SkPath::Rect(outsetBounds), kIntersect_SkPathOp, &clipPath)) {
-            append_clip_path(clipPath, wStream);
+        if (auto clipPath = Op(SkClipStack_AsPath(clipStack), SkPath::Rect(outsetBounds),
+                               kIntersect_SkPathOp)) {
+            append_clip_path(*clipPath, wStream);
         }
         // If Op() fails (pathological case; e.g. input values are
         // extremely large or NaN), emit no clip at all.

@@ -131,8 +131,8 @@ SkPath GetInteriorPath(
     left_path.lineTo(right, 0);
     left_path.close();
 
-    SkPath complete_path;
-    Op(left_path, right_path, SkPathOp::kIntersect_SkPathOp, &complete_path);
+    SkPath complete_path = Op(left_path, right_path, SkPathOp::kIntersect_SkPathOp)
+                           .value_or(SkPath());
     return complete_path;
 }
 

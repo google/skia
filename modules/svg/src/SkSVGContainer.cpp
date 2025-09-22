@@ -37,7 +37,9 @@ SkPath SkSVGContainer::onAsPath(const SkSVGRenderContext& ctx) const {
     for (int i = 0; i < fChildren.size(); ++i) {
         const SkPath childPath = fChildren[i]->asPath(ctx);
 
-        Op(path, childPath, kUnion_SkPathOp, &path);
+        if (auto result = Op(path, childPath, kUnion_SkPathOp)) {
+            path = *result;
+        }
     }
 
     return this->mapToParent(path);

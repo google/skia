@@ -124,15 +124,13 @@ void bug12040_1(skiatest::Reporter* reporter) {
     path2.cubicTo(-84.8599f, 194.886f, -83.5464f, 191.715f, -83.5464f, 188);
     path2.close();
 
-    SkPath opResult;
-    Op(path, path2, kDifference_SkPathOp, &opResult);
+    SkPath opResult = Op(path, path2, kDifference_SkPathOp).value_or(SkPath());
 
     auto winding = AsWinding(opResult);
     REPORTER_ASSERT(reporter, winding.has_value());
     REPORTER_ASSERT(reporter, winding->getFillType() == SkPathFillType::kWinding);
 
-    SkPath difference;
-    Op(*winding, opResult, kXOR_SkPathOp, &difference);
+    SkPath difference = Op(*winding, opResult, kXOR_SkPathOp).value_or(SkPath());
     REPORTER_ASSERT(reporter, difference.isEmpty());
 }
 
@@ -201,8 +199,7 @@ void bug12040_2(skiatest::Reporter* reporter) {
     path2.cubicTo(267.82f, 78.2255f, 269.134f, 75.0543f, 269.134f, 71.3392f);
     path2.close();
 
-    SkPath opResult;
-    Op(path, path2, kDifference_SkPathOp, &opResult);
+    SkPath opResult = Op(path, path2, kDifference_SkPathOp).value_or(SkPath());
 
     // This produces the correct result in all the cases I've tried.
     // So it appears to be a winding issue.
@@ -213,8 +210,7 @@ void bug12040_2(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, winding.has_value());
     REPORTER_ASSERT(reporter, winding->getFillType() == SkPathFillType::kWinding);
 
-    SkPath difference;
-    Op(*winding, opResult, kXOR_SkPathOp, &difference);
+    SkPath difference = Op(*winding, opResult, kXOR_SkPathOp).value_or(SkPath());
     REPORTER_ASSERT(reporter, difference.isEmpty());
 }
 
@@ -283,16 +279,14 @@ void bug12040_3(skiatest::Reporter* reporter) {
     path2.cubicTo(490.727f, 532.226f, 492.041f, 529.054f, 492.041f, 525.339f);
     path2.close();
 
-    SkPath opResult;
-    Op(path, path2, kDifference_SkPathOp, &opResult);
+    SkPath opResult = Op(path, path2, kDifference_SkPathOp).value_or(SkPath());
 
     auto winding = AsWinding(opResult);
     path2.setFillType(SkPathFillType::kWinding);
     REPORTER_ASSERT(reporter, winding.has_value());
     REPORTER_ASSERT(reporter, winding->getFillType() == SkPathFillType::kWinding);
 
-    SkPath difference;
-    Op(*winding, opResult, kXOR_SkPathOp, &difference);
+    SkPath difference = Op(*winding, opResult, kXOR_SkPathOp).value_or(SkPath());
     REPORTER_ASSERT(reporter, difference.isEmpty());
 }
 
@@ -312,15 +306,13 @@ void bug12040_4(skiatest::Reporter* reporter) {
                     path2.lineTo(300, 300);
                     path2.close();
 
-                    SkPath opResult;
-                    Op(path, path2, kDifference_SkPathOp, &opResult);
+                    SkPath opResult = Op(path, path2, kDifference_SkPathOp).value_or(SkPath());
 
                     auto winding = AsWinding(opResult);
                     REPORTER_ASSERT(reporter, winding.has_value());
                     REPORTER_ASSERT(reporter, winding->getFillType() == SkPathFillType::kWinding);
 
-                    SkPath difference;
-                    Op(*winding, opResult, kXOR_SkPathOp, &difference);
+                    SkPath difference = Op(*winding, opResult, kXOR_SkPathOp).value_or(SkPath());
                     REPORTER_ASSERT(reporter, difference.isEmpty());
                 }
             }
@@ -344,15 +336,13 @@ void bug12040_5(skiatest::Reporter* reporter) {
                     path2.lineTo(300, 300);
                     path2.close();
 
-                    SkPath opResult;
-                    Op(path, path2, kDifference_SkPathOp, &opResult);
+                    SkPath opResult = Op(path, path2, kDifference_SkPathOp).value_or(SkPath());
 
                     auto winding = AsWinding(opResult);
                     REPORTER_ASSERT(reporter, winding.has_value());
                     REPORTER_ASSERT(reporter, winding->getFillType() == SkPathFillType::kWinding);
 
-                    SkPath difference;
-                    Op(*winding, opResult, kXOR_SkPathOp, &difference);
+                    SkPath difference = Op(*winding, opResult, kXOR_SkPathOp).value_or(SkPath());
                     REPORTER_ASSERT(reporter, difference.isEmpty());
                 }
             }
@@ -377,8 +367,7 @@ void bug13496_1(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, windingPath.has_value());
     REPORTER_ASSERT(reporter, windingPath->getFillType() == SkPathFillType::kWinding);
 
-    SkPath difference;
-    Op(*windingPath, simplifiedPath, kXOR_SkPathOp, &difference);
+    SkPath difference = Op(*windingPath, simplifiedPath, kXOR_SkPathOp).value_or(SkPath());
     REPORTER_ASSERT(reporter, difference.isEmpty());
 }
 
@@ -404,8 +393,7 @@ void bug13496_2(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, windingPath.has_value());
     REPORTER_ASSERT(reporter, windingPath->getFillType() == SkPathFillType::kWinding);
 
-    SkPath difference;
-    Op(*windingPath, simplifiedPath, kXOR_SkPathOp, &difference);
+    SkPath difference = Op(*windingPath, simplifiedPath, kXOR_SkPathOp).value_or(SkPath());
     REPORTER_ASSERT(reporter, difference.isEmpty());
 }
 
@@ -431,8 +419,7 @@ void bug13496_3(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, windingPath.has_value());
     REPORTER_ASSERT(reporter, windingPath->getFillType() == SkPathFillType::kWinding);
 
-    SkPath difference;
-    Op(*windingPath, simplifiedPath, kXOR_SkPathOp, &difference);
+    SkPath difference = Op(*windingPath, simplifiedPath, kXOR_SkPathOp).value_or(SkPath());
     REPORTER_ASSERT(reporter, difference.isEmpty());
 }
 

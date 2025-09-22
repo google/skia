@@ -77,9 +77,8 @@ static bool make_key(Key* key, const GrStyledShape& shape) {
 }
 
 static bool paths_fill_same(const SkPath& a, const SkPath& b) {
-    SkPath pathXor;
-    Op(a, b, SkPathOp::kXOR_SkPathOp, &pathXor);
-    return pathXor.isEmpty();
+    auto pathXor = Op(a, b, SkPathOp::kXOR_SkPathOp);
+    return !pathXor.has_value() || pathXor->isEmpty();
 }
 
 static bool test_bounds_by_rasterizing(const SkPath& path, const SkRect& bounds) {

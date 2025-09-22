@@ -44,7 +44,16 @@ enum SkPathOp {
                   inputs.
     @return True if the operation succeeded.
   */
-bool SK_API Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result);
+std::optional<SkPath> SK_API Op(const SkPath& one, const SkPath& two, SkPathOp op);
+
+// DEPRECATED
+static inline bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result) {
+    if (auto res = Op(one, two, op)) {
+        *result = *res;
+        return true;
+    }
+    return false;
+}
 
 /** Set this path to a set of non-overlapping contours that describe the
     same area as the original path.

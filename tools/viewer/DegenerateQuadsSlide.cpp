@@ -69,16 +69,16 @@ static SkScalar get_area_coverage(SkSpan<const bool> edgeAA, SkSpan<const SkPoin
     SkPath pixel;
     pixel.addRect(SkRect::MakeXYWH(point.fX - 0.5f, point.fY - 0.5f, 1.f, 1.f));
 
-    SkPath intersection;
-    if (!Op(shape, pixel, kIntersect_SkPathOp, &intersection) || intersection.isEmpty()) {
+    auto intersection = Op(shape, pixel, kIntersect_SkPathOp);
+    if (!intersection.has_value() || intersection->isEmpty()) {
         return 0.f;
     }
 
     // Calculate area of the convex polygon
     SkScalar area = 0.f;
-    for (int i = 0; i < intersection.countPoints(); ++i) {
-        SkPoint p0 = intersection.getPoint(i);
-        SkPoint p1 = intersection.getPoint((i + 1) % intersection.countPoints());
+    for (int i = 0; i < intersection->countPoints(); ++i) {
+        SkPoint p0 = intersection->getPoint(i);
+        SkPoint p1 = intersection->getPoint((i + 1) % intersection->countPoints());
         SkScalar det = p0.fX * p1.fY - p1.fX * p0.fY;
         area += det;
     }

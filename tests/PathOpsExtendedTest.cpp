@@ -634,15 +634,11 @@ bool testPathOpFuzz(skiatest::Reporter* reporter, const SkPath& a, const SkPath&
 
 bool testPathOpFail(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
                  const SkPathOp shapeOp, const char* testName) {
-    SkPath orig;
-    orig.lineTo(54, 43);
-    SkPath out = orig;
-    if (Op(a, b, shapeOp, &out) ) {
+    if (Op(a, b, shapeOp).has_value()) {
         SkDebugf("%s test is expected to fail\n", __FUNCTION__);
         REPORTER_ASSERT(reporter, 0);
         return false;
     }
-    SkASSERT(out == orig);
     return true;
 }
 

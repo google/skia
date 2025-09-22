@@ -38,8 +38,7 @@ protected:
     void onDraw(int loops, SkCanvas* canvas) override {
         for (int i = 0; i < loops; i++) {
             for (int j = 0; j < 1000; ++j) {
-                SkPath result;
-                Op(fPath1, fPath2, fOp, &result);
+                std::ignore = Op(fPath1, fPath2, fOp);
             }
         }
     }

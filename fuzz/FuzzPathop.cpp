@@ -80,7 +80,9 @@ DEF_FUZZ(Pathop, fuzz) {
             } else if (pickOutput == 2) {
                 result = path2;
             }
-            Op(path, path2, op, &result);
+            if (auto res = Op(path, path2, op)) {
+                result = *res;
+            }
             break;
         }
         case 3: {

@@ -81,8 +81,7 @@ protected:
                 canvas->restore();
                 int xPos = 150;
                 for (int op = kDifference_SkPathOp; op <= kReverseDifference_SkPathOp; ++op) {
-                    SkPath result;
-                    Op(one, two, (SkPathOp) op, &result);
+                    SkPath result = Op(one, two, (SkPathOp) op).value_or(SkPath());
                     canvas->save();
                     canvas->translate(SkIntToScalar(xPos), SkIntToScalar(yPos));
                     canvas->clipRect(SkRect::MakeWH(110, 110), true);

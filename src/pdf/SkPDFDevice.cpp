@@ -291,7 +291,11 @@ static void set_style(SkTCopyOnFirstWrite<SkPaint>* paint, SkPaint::Style style)
 static bool calculate_inverse_path(const SkRect& bounds, const SkPath& invPath,
                                    SkPath* outPath) {
     SkASSERT(invPath.isInverseFillType());
-    return Op(SkPath::Rect(bounds), invPath, kIntersect_SkPathOp, outPath);
+    if (auto result = Op(SkPath::Rect(bounds), invPath, kIntersect_SkPathOp)) {
+        *outPath = *result;
+        return true;
+    }
+    return false;
 }
 
 sk_sp<SkDevice> SkPDFDevice::createDevice(const CreateInfo& cinfo, const SkPaint* layerPaint) {
@@ -439,7 +443,9 @@ void SkPDFDevice::drawAnnotation(const SkRect& rect, const char key[], SkData* v
     // Convert to path to handle non-90-degree rotations.
     SkPath path = SkPath::Rect(rect).makeTransform(this->localToDevice());
     SkPath clip = SkClipStack_AsPath(this->cs());
-    Op(clip, path, kIntersect_SkPathOp, &path);
+    if (auto result = Op(clip, path, kIntersect_SkPathOp)) {
+        path = *result;
+    }
     // PDF wants a rectangle only.
     SkRect transformedRect = pageXform.mapRect(path.getBounds());
     if (transformedRect.isEmpty()) {

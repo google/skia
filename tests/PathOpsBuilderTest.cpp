@@ -77,9 +77,10 @@ DEF_TEST(PathOpsBuilder, reporter) {
     circle1.addCircle(5, 6, 4, SkPathDirection::kCW);
     circle2.addCircle(7, 4, 8, SkPathDirection::kCCW);
     circle3.addCircle(6, 5, 6, SkPathDirection::kCW);
-    SkPath opCompare;
-    Op(circle1, circle2, kUnion_SkPathOp, &opCompare);
-    Op(opCompare, circle3, kDifference_SkPathOp, &opCompare);
+    SkPath opCompare = Op(circle1, circle2, kUnion_SkPathOp).value_or(SkPath());
+    if (auto res = Op(opCompare, circle3, kDifference_SkPathOp)) {
+        opCompare = *res;
+    }
     builder.add(circle1, kUnion_SkPathOp);
     builder.add(circle2, kUnion_SkPathOp);
     builder.add(circle3, kDifference_SkPathOp);

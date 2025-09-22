@@ -176,7 +176,9 @@ std::optional<SkPath> SkOpBuilder::resolve() {
     if (!allUnion) {
         SkPath result = fPathRefs[0];
         for (int index = 1; index < count; ++index) {
-            if (!Op(result, fPathRefs[index], fOps[index], &result)) {
+            if (auto res = Op(result, fPathRefs[index], fOps[index])) {
+                result = *res;
+            } else {
                 reset();
                 return {};
             }
