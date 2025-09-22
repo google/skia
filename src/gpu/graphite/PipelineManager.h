@@ -40,7 +40,8 @@ public:
             const RenderPassDesc&,
             SkEnumBitMask<PipelineCreationFlags>);
 
-    void startPipelineCreationTask(ResourceProvider*,
+    void startPipelineCreationTask(SharedContext*,
+                                   ResourceProvider*,
                                    sk_sp<const RuntimeEffectDictionary>,
                                    const GraphicsPipelineHandle&);
 

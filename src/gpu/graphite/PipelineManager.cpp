@@ -66,7 +66,8 @@ GraphicsPipelineHandle PipelineManager::createHandle(
     return GraphicsPipelineHandle(std::move(task));
 }
 
-void PipelineManager::startPipelineCreationTask(ResourceProvider* resourceProvider,
+void PipelineManager::startPipelineCreationTask(SharedContext* sharedContext,
+                                                ResourceProvider* resourceProvider,
                                                 sk_sp<const RuntimeEffectDictionary> runtimeDict,
                                                 const GraphicsPipelineHandle& handle) {
     if (std::holds_alternative<sk_sp<GraphicsPipeline>>(handle.fTaskOrPipeline)) {
@@ -76,7 +77,8 @@ void PipelineManager::startPipelineCreationTask(ResourceProvider* resourceProvid
     sk_sp<PipelineCreationTask> task =
             std::get<sk_sp<PipelineCreationTask>>(handle.fTaskOrPipeline);
 
-    sk_sp<GraphicsPipeline> pipeline = resourceProvider->findOrCreateGraphicsPipeline(
+    sk_sp<GraphicsPipeline> pipeline = sharedContext->findOrCreateGraphicsPipeline(
+            resourceProvider,
             runtimeDict.get(),
             task->fPipelineKey,
             task->fGraphicsPipelineDesc,

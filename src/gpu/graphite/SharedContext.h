@@ -61,6 +61,16 @@ public:
                                                                    uint32_t recorderID,
                                                                    size_t resourceBudget) = 0;
 
+    // The runtime effect dictionary provides a link between SkCodeSnippetIds referenced in the
+    // paint key and the current SkRuntimeEffect that provides the SkSL for that id.
+    sk_sp<GraphicsPipeline> findOrCreateGraphicsPipeline(
+            ResourceProvider*,
+            const RuntimeEffectDictionary*,
+            const UniqueKey& pipelineKey,
+            const GraphicsPipelineDesc&,
+            const RenderPassDesc&,
+            SkEnumBitMask<PipelineCreationFlags>);
+
     // Called by Context::isContextLost(). Returns true if the backend-specific SharedContext has
     // gotten into an unrecoverable, lost state.
     virtual bool isDeviceLost() const { return false; }

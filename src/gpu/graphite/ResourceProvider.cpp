@@ -10,7 +10,6 @@
 #include "include/core/SkSamplingOptions.h"
 #include "include/core/SkTileMode.h"
 #include "include/gpu/graphite/BackendTexture.h"
-#include "src/core/SkTraceEvent.h"
 #include "src/gpu/graphite/Buffer.h"
 #include "src/gpu/graphite/Caps.h"
 #include "src/gpu/graphite/CommandBuffer.h"
@@ -19,7 +18,6 @@
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/GlobalCache.h"
 #include "src/gpu/graphite/GraphicsPipeline.h"
-#include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/GraphicsPipelineHandle.h"
 #include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PipelineCreationTask.h"
@@ -34,15 +32,6 @@
 #include "src/sksl/SkSLCompiler.h"
 
 namespace skgpu::graphite {
-
-// This is only used when tracing is enabled at compile time.
-[[maybe_unused]] static std::string to_str(const SharedContext* ctx,
-                                           const GraphicsPipelineDesc& gpDesc,
-                                           const RenderPassDesc& rpDesc) {
-    const ShaderCodeDictionary* dict = ctx->shaderCodeDictionary();
-    const RenderStep* step = ctx->rendererProvider()->lookup(gpDesc.renderStepID());
-    return GetPipelineLabel(dict, rpDesc, step, gpDesc.paintParamsID());
-}
 
 ResourceProvider::ResourceProvider(SharedContext* sharedContext,\
                                    SingleOwner* singleOwner,
@@ -72,63 +61,16 @@ void ResourceProvider::startPipelineCreationTask(sk_sp<const RuntimeEffectDictio
                                                  const GraphicsPipelineHandle& handle) {
     PipelineManager* pipelineManager = fSharedContext->pipelineManager();
 
-    pipelineManager->startPipelineCreationTask(this, std::move(runtimeDict), handle);
+    pipelineManager->startPipelineCreationTask(fSharedContext,
+                                               this,
+                                               std::move(runtimeDict),
+                                               handle);
 }
 
 sk_sp<GraphicsPipeline> ResourceProvider::resolveHandle(const GraphicsPipelineHandle& handle) {
     PipelineManager* pipelineManager = fSharedContext->pipelineManager();
 
     return pipelineManager->resolveHandle(handle);
-}
-
-sk_sp<GraphicsPipeline> ResourceProvider::findOrCreateGraphicsPipeline(
-        const RuntimeEffectDictionary* runtimeDict,
-        const UniqueKey& pipelineKey,
-        const GraphicsPipelineDesc& pipelineDesc,
-        const RenderPassDesc& renderPassDesc,
-        SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags) {
-    auto globalCache = fSharedContext->globalCache();
-
-    uint32_t compilationID = 0;
-    sk_sp<GraphicsPipeline> pipeline = globalCache->findGraphicsPipeline(pipelineKey,
-                                                                         pipelineCreationFlags,
-                                                                         &compilationID);
-    if (!pipeline) {
-        // Haven't encountered this pipeline, so create a new one. Since pipelines are shared
-        // across Recorders, we could theoretically create equivalent pipelines on different
-        // threads. If this happens, GlobalCache returns the first-through-gate pipeline and we
-        // discard the redundant pipeline. While this is wasted effort in the rare event of a race,
-        // it allows pipeline creation to be performed without locking the global cache.
-        // NOTE: The parameters to TRACE_EVENT are only evaluated inside an if-block when the
-        // category is enabled.
-        TRACE_EVENT1_ALWAYS(
-                "skia.shaders", "createGraphicsPipeline", "desc",
-                TRACE_STR_COPY(to_str(fSharedContext, pipelineDesc, renderPassDesc).c_str()));
-
-#if defined(SK_PIPELINE_LIFETIME_LOGGING)
-        bool forPrecompile =
-                SkToBool(pipelineCreationFlags & PipelineCreationFlags::kForPrecompilation);
-
-        static const char* kNames[2] = { "BeginBuildN", "BeginBuildP" };
-        TRACE_EVENT_INSTANT2("skia.gpu",
-                             TRACE_STR_STATIC(kNames[forPrecompile]),
-                             TRACE_EVENT_SCOPE_THREAD,
-                             "key", pipelineKey.hash(),
-                             "compilationID", compilationID);
-#endif
-
-        pipeline = this->createGraphicsPipeline(runtimeDict, pipelineKey,
-                                                pipelineDesc, renderPassDesc,
-                                                pipelineCreationFlags,
-                                                compilationID);
-        if (pipeline) {
-            globalCache->invokePipelineCallback(fSharedContext, pipelineDesc, renderPassDesc);
-            // TODO: Should we store a null pipeline if we failed to create one so that subsequent
-            // usage immediately sees that the pipeline cannot be created, vs. retrying every time?
-            pipeline = globalCache->addGraphicsPipeline(pipelineKey, std::move(pipeline));
-        }
-    }
-    return pipeline;
 }
 
 sk_sp<ComputePipeline> ResourceProvider::findOrCreateComputePipeline(

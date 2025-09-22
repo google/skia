@@ -60,15 +60,6 @@ public:
                                    const GraphicsPipelineHandle&);
     sk_sp<GraphicsPipeline> resolveHandle(const GraphicsPipelineHandle&);
 
-    // The runtime effect dictionary provides a link between SkCodeSnippetIds referenced in the
-    // paint key and the current SkRuntimeEffect that provides the SkSL for that id.
-    sk_sp<GraphicsPipeline> findOrCreateGraphicsPipeline(
-            const RuntimeEffectDictionary*,
-            const UniqueKey& pipelineKey,
-            const GraphicsPipelineDesc&,
-            const RenderPassDesc&,
-            SkEnumBitMask<PipelineCreationFlags>);
-
     sk_sp<ComputePipeline> findOrCreateComputePipeline(const ComputePipelineDesc&);
 
     sk_sp<Texture> findOrCreateShareableTexture(SkISize,
@@ -142,6 +133,8 @@ protected:
     sk_sp<ResourceCache> fResourceCache;
 
 private:
+    friend class SharedContext; // for createGraphicsPipeline
+
     virtual sk_sp<GraphicsPipeline> createGraphicsPipeline(
             const RuntimeEffectDictionary*,
             const UniqueKey&,
