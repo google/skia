@@ -44,18 +44,20 @@ SkEncodedInfo::Color ToColor(rust_png::ColorType colorType, const rust_png::Read
         case rust_png::ColorType::Rgb:
             if (reader.has_sbit_chunk()) {
                 SkSpan<const uint8_t> sBit = ToSkSpan(reader.get_sbit_chunk());
-                SkASSERT_RELEASE(sBit.size() == 3); // Verified in `png` crate in `fn parse_sbit`.
-                if (sBit[0] == 5 && sBit[1] == 6 && sBit[2] == 5) {
-                    return SkEncodedInfo::k565_Color;
+                if (sBit.size() == 3) {
+                  if (sBit[0] == 5 && sBit[1] == 6 && sBit[2] == 5) {
+                      return SkEncodedInfo::k565_Color;
+                  }
                 }
             }
             return SkEncodedInfo::kRGB_Color;
         case rust_png::ColorType::GrayscaleAlpha:
             if (reader.has_sbit_chunk()) {
                 SkSpan<const uint8_t> sBit = ToSkSpan(reader.get_sbit_chunk());
-                SkASSERT_RELEASE(sBit.size() == 2); // Verified in `png` crate in `fn parse_sbit`.
-                if (sBit[0] == kGraySigBit_GrayAlphaIsJustAlpha && sBit[1] == 8) {
-                    return SkEncodedInfo::kXAlpha_Color;
+                if (sBit.size() == 2) {
+                    if (sBit[0] == kGraySigBit_GrayAlphaIsJustAlpha && sBit[1] == 8) {
+                        return SkEncodedInfo::kXAlpha_Color;
+                    }
                 }
             }
             return SkEncodedInfo::kGrayAlpha_Color;
