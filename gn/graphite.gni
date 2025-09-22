@@ -93,6 +93,7 @@ skia_graphite_sources = [
   "$_src/gpu/graphite/ContextPriv.h",
   "$_src/gpu/graphite/ContextUtils.cpp",
   "$_src/gpu/graphite/ContextUtils.h",
+  "$_src/gpu/graphite/DebugUtils.h",
   "$_src/gpu/graphite/DescriptorData.h",
   "$_src/gpu/graphite/Device.cpp",
   "$_src/gpu/graphite/Device.h",
