@@ -188,10 +188,12 @@ std::optional<SkPath> SkOpBuilder::resolve() {
     }
     SkPath sum;
     for (int index = 0; index < count; ++index) {
-        if (!Simplify(fPathRefs[index], &fPathRefs[index])) {
+        auto result = Simplify(fPathRefs[index]);
+        if (!result.has_value()) {
             reset();
             return {};
         }
+        fPathRefs[index] = *result;
         if (!fPathRefs[index].isEmpty()) {
             // convert the even odd result back to winding form before accumulating it
             if (!FixWinding(&fPathRefs[index])) {
@@ -202,9 +204,5 @@ std::optional<SkPath> SkOpBuilder::resolve() {
     }
     reset();
 
-    SkPath result;
-    if (Simplify(sum, &result)) {
-        return result;
-    }
-    return {};
+    return Simplify(sum);
 }

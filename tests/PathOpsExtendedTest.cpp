@@ -372,7 +372,9 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& st
     SkPathFillType fillType = useXor ? SkPathFillType::kEvenOdd : SkPathFillType::kWinding;
     path.setFillType(fillType);
     state.fReporter->bumpTestCount();
-    if (!Simplify(path, &out)) {
+    if (auto result = Simplify(path)) {
+        out = *result;
+    } else {
         SkDebugf("%s did not expect failure\n", __FUNCTION__);
         REPORTER_ASSERT(state.fReporter, 0);
         return false;

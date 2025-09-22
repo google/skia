@@ -270,20 +270,16 @@ std::optional<SkPath> SimplifyDebug(const SkPath& path SkDEBUGPARAMS(bool skipAs
     return wrapper.nativePath();
 }
 
-bool Simplify(const SkPath& path, SkPath* result) {
-    auto res = SimplifyDebug(path  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr));
+std::optional<SkPath> Simplify(const SkPath& path) {
+    auto result = SimplifyDebug(path  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr));
 #if DEBUG_DUMP_VERIFY
     if (SkPathOpsDebug::gVerifyOp) {
-        if (!res.has_value()) {
-            ReportSimplifyFail(path);
+        if (result.has_value()) {
+            VerifySimplify(path, *result);
         } else {
-            VerifySimplify(path, res.value());
+            ReportSimplifyFail(path);
         }
     }
 #endif
-    if (res.has_value()) {
-        *result = res.value();
-        return true;
-    }
-    return false;
+    return result;
 }

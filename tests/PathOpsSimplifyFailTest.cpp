@@ -63,12 +63,8 @@ static void failOne(skiatest::Reporter* reporter, int index) {
         case 11: path.cubicTo(nonFinitePts[i], finitePts[f], finitePts[g]); break;
         case 12: path.moveTo(nonFinitePts[i]); break;
     }
-    SkPath result;
-    result.setFillType(SkPathFillType::kWinding);
-    bool success = Simplify(path, &result);
-    REPORTER_ASSERT(reporter, !success);
-    REPORTER_ASSERT(reporter, result.isEmpty());
-    REPORTER_ASSERT(reporter, result.getFillType() == SkPathFillType::kWinding);
+    auto result = Simplify(path);
+    REPORTER_ASSERT(reporter, !result.has_value());
     reporter->bumpTestCount();
 }
 
@@ -89,11 +85,9 @@ static void dontFailOne(skiatest::Reporter* reporter, int index) {
         case 9: path.cubicTo(finitePts[g], finitePts[f], finitePts[g]); break;
         case 10: path.moveTo(finitePts[f]); break;
     }
-    SkPath result;
-    result.setFillType(SkPathFillType::kWinding);
-    bool success = Simplify(path, &result);
-    REPORTER_ASSERT(reporter, success);
-    REPORTER_ASSERT(reporter, result.getFillType() != SkPathFillType::kWinding);
+    auto result = Simplify(path);
+    REPORTER_ASSERT(reporter, result.has_value());
+    REPORTER_ASSERT(reporter, result->getFillType() != SkPathFillType::kWinding);
     reporter->bumpTestCount();
 }
 

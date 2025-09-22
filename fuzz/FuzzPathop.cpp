@@ -46,15 +46,7 @@ DEF_FUZZ(Pathop, fuzz) {
             FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
             SkPathFillType ft;
             fuzz->nextRange(&ft, 0, (int)SkPathFillType::kInverseEvenOdd);
-            path.setFillType(ft);
-
-            SkPath result;
-            bool isSame;
-            fuzz->next(&isSame);
-            if (isSame) {
-                result = path;
-            }
-            Simplify(path, &result);
+            std::ignore = Simplify(path.makeFillType(ft));
             break;
         }
         case 2: {

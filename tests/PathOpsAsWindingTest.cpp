@@ -358,8 +358,7 @@ void bug13496_1(skiatest::Reporter* reporter) {
 
     SkPath path = SkParsePath::FromSVGString(originalPathStr.c_str()).value_or(SkPath());
 
-    SkPath simplifiedPath;
-    Simplify(path, &simplifiedPath);
+    SkPath simplifiedPath = Simplify(path).value_or(SkPath());
 
     auto windingPath = AsWinding(simplifiedPath);
     REPORTER_ASSERT(reporter, windingPath.has_value());
@@ -384,8 +383,7 @@ void bug13496_2(skiatest::Reporter* reporter) {
 
     SkPath path = SkParsePath::FromSVGString(originalPathStr.c_str()).value_or(SkPath());
 
-    SkPath simplifiedPath;
-    Simplify(path, &simplifiedPath);
+    SkPath simplifiedPath = Simplify(path).value_or(SkPath());
 
     auto windingPath = AsWinding(simplifiedPath);
     REPORTER_ASSERT(reporter, windingPath.has_value());
@@ -410,8 +408,7 @@ void bug13496_3(skiatest::Reporter* reporter) {
 
     SkPath path = SkParsePath::FromSVGString(originalPathStr.c_str()).value_or(SkPath());
 
-    SkPath simplifiedPath;
-    Simplify(path, &simplifiedPath);
+    SkPath simplifiedPath = Simplify(path).value_or(SkPath());
 
     auto windingPath = AsWinding(simplifiedPath);
     REPORTER_ASSERT(reporter, windingPath.has_value());

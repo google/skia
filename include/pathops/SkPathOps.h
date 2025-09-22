@@ -55,19 +55,24 @@ static inline bool Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath*
     return false;
 }
 
-/** Set this path to a set of non-overlapping contours that describe the
+/** Return a path with a set of non-overlapping contours that describe the
     same area as the original path.
     The curve order is reduced where possible so that cubics may
     be turned into quadratics, and quadratics maybe turned into lines.
 
-    Returns true if operation was able to produce a result;
-    otherwise, result is unmodified.
-
     @param path The path to simplify.
-    @param result The simplified path. The result may be the input.
-    @return True if simplification succeeded.
+    @return The simplified path, or {} on failure.
   */
-bool SK_API Simplify(const SkPath& path, SkPath* result);
+std::optional<SkPath> SK_API Simplify(const SkPath& path);
+
+// DEPRECATED
+static inline bool Simplify(const SkPath& path, SkPath* result) {
+    if (auto res = Simplify(path)) {
+        *result = *res;
+        return true;
+    }
+    return false;
+}
 
 /** Set the resulting rectangle to the tight bounds of the path.
 

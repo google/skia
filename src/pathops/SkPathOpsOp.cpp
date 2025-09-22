@@ -294,11 +294,7 @@ std::optional<SkPath> OpDebug(const SkPath& one, const SkPath& two, SkPathOp op
         if (inverseFill != work.isInverseFillType()) {
             work.toggleInverseFillType();
         }
-        SkPath result;
-        if (Simplify(work, &result)) {
-            return result;
-        }
-        return {};
+        return Simplify(work);
     }
     SkSTArenaAlloc<4096> allocator;  // FIXME: add a constant expression here, tune
     SkOpContour contour;

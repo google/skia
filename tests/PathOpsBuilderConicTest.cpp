@@ -636,7 +636,7 @@ const char ovalsAsQuads[] = "M 146.4187316894531 136.5"
 DEF_TEST(PathOpsOvalsAsQuads, reporter) {
     if ((false)) { // don't execute this for now
         SkPath path = SkParsePath::FromSVGString(ovalsAsQuads).value_or(SkPath());
-        Simplify(path, &path);
+        std::ignore = Simplify(path);
     }
 }
 
