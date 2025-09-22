@@ -94,6 +94,7 @@ static void gen_geomproc_key(const GrGeometryProcessor& geomProc,
     add_geomproc_sampler_keys(b, geomProc, caps);
 }
 
+// This corresponds to GrGLSLProgramBuilder::emitAndInstallXferProc
 static void gen_xp_key(const GrXferProcessor& xp,
                        const GrCaps& caps,
                        const GrPipeline& pipeline,
@@ -101,22 +102,7 @@ static void gen_xp_key(const GrXferProcessor& xp,
     b->appendComment(xp.name());
     b->addBits(kClassIDBits, xp.classID(), "xpClassID");
 
-    const GrSurfaceOrigin* originIfDstTexture = nullptr;
-    GrSurfaceOrigin origin;
-    const GrSurfaceProxyView& dstView = pipeline.dstProxyView();
-    if (dstView.proxy()) {
-        origin = dstView.origin();
-        originIfDstTexture = &origin;
-
-        uint32_t samplerKey = sampler_key(dstView.proxy()->backendFormat().textureType(),
-                                          dstView.swizzle(), caps);
-        b->add32(samplerKey);
-    }
-
-    xp.addToKey(*caps.shaderCaps(),
-                b,
-                originIfDstTexture,
-                pipeline.dstSampleFlags() & GrDstSampleFlags::kAsInputAttachment);
+    xp.addToKey(*caps.shaderCaps(), b);
 }
 
 static void gen_fp_key(const GrFragmentProcessor& fp,
@@ -148,12 +134,32 @@ static void gen_fp_key(const GrFragmentProcessor& fp,
     }
 }
 
+// This corresponds to GrGLSLProgramBuilder::emitAndInstallDstTexture
+static void gen_dstTexture_key(const GrCaps& caps,
+                               const GrPipeline& pipeline,
+                               skgpu::KeyBuilder* b) {
+
+    const GrSurfaceProxyView& dstView = pipeline.dstProxyView();
+    if (dstView.proxy()) {
+        uint32_t samplerKey = sampler_key(dstView.proxy()->backendFormat().textureType(),
+                                          dstView.swizzle(), caps);
+        b->add32(samplerKey);
+
+        b->addBool(kTopLeft_GrSurfaceOrigin == dstView.origin(), "surfaceOrigin");
+        b->addBool(pipeline.usesDstInputAttachment(), "usesDstInputAttachment");
+    }
+}
+
 static void gen_key(skgpu::KeyBuilder* b,
                     const GrProgramInfo& programInfo,
                     const GrCaps& caps) {
     gen_geomproc_key(programInfo.geomProc(), caps, b);
 
     const GrPipeline& pipeline = programInfo.pipeline();
+
+    gen_dstTexture_key(caps, pipeline, b);
+
+    // This corresponds to GrGLSLProgramBuilder::emitAndInstallFragProcs
     b->addBits(2, pipeline.numFragmentProcessors(),      "numFPs");
     b->addBits(1, pipeline.numColorFragmentProcessors(), "numColorFPs");
     for (int i = 0; i < pipeline.numFragmentProcessors(); ++i) {

@@ -80,10 +80,7 @@ public:
     /**
      * Adds a key on the skgpu::KeyBuilder calls onAddToKey(...) to get the specific subclass's key.
      */
-    void addToKey(const GrShaderCaps&,
-                  skgpu::KeyBuilder*,
-                  const GrSurfaceOrigin* originIfDstTexture,
-                  bool usesInputAttachmentForDstRead) const;
+    void addToKey(const GrShaderCaps&, skgpu::KeyBuilder*) const;
 
     /** Returns a new instance of the appropriate *GL* implementation class
         for the given GrXferProcessor; caller is responsible for deleting
