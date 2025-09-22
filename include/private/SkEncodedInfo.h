@@ -21,6 +21,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <tuple>
 #include <utility>
 
 struct SkEncodedInfo {
@@ -131,49 +132,7 @@ public:
                  4 == bitsPerComponent ||
                  8 == bitsPerComponent ||
                  16 == bitsPerComponent);
-
-        switch (color) {
-            case kGray_Color:
-                SkASSERT(kOpaque_Alpha == alpha);
-                break;
-            case kGrayAlpha_Color:
-                SkASSERT(kOpaque_Alpha != alpha);
-                break;
-            case kPalette_Color:
-                SkASSERT(16 != bitsPerComponent);
-                break;
-            case kRGB_Color:
-            case kBGR_Color:
-            case kBGRX_Color:
-                SkASSERT(kOpaque_Alpha == alpha);
-                SkASSERT(bitsPerComponent >= 8);
-                break;
-            case kYUV_Color:
-            case kInvertedCMYK_Color:
-            case kYCCK_Color:
-                SkASSERT(kOpaque_Alpha == alpha);
-                SkASSERT(8 == bitsPerComponent);
-                break;
-            case kRGBA_Color:
-                SkASSERT(bitsPerComponent >= 8);
-                break;
-            case kBGRA_Color:
-            case kYUVA_Color:
-                SkASSERT(8 == bitsPerComponent);
-                break;
-            case kXAlpha_Color:
-                SkASSERT(kUnpremul_Alpha == alpha);
-                SkASSERT(8 == bitsPerComponent);
-                break;
-            case k565_Color:
-                SkASSERT(kOpaque_Alpha == alpha);
-                SkASSERT(8 == bitsPerComponent);
-                break;
-            default:
-                SkASSERT(false);
-                break;
-        }
-
+        VerifyColor(color, alpha, bitsPerComponent);
         return SkEncodedInfo(width,
                              height,
                              color,
@@ -241,10 +200,9 @@ public:
             case kInvertedCMYK_Color:
             case kYCCK_Color:
                 return 4 * fBitsPerComponent;
-            default:
-                SkASSERT(false);
-                return 0;
         }
+        SkASSERT(false);
+        return 0;
     }
 
     SkEncodedInfo(const SkEncodedInfo& orig) = delete;
@@ -284,6 +242,52 @@ private:
         , fProfile(std::move(profile))
         , fHdrMetadata(hdrMetadata)
     {}
+
+    static void VerifyColor(Color color, Alpha alpha, uint8_t bitsPerComponent) {
+        // Avoid `-Wunused-parameter` warnings on non-debug builds.
+        std::ignore = alpha;
+        std::ignore = bitsPerComponent;
+
+        switch (color) {
+            case kGray_Color:
+                SkASSERT(kOpaque_Alpha == alpha);
+                return;
+            case kGrayAlpha_Color:
+                SkASSERT(kOpaque_Alpha != alpha);
+                return;
+            case kPalette_Color:
+                SkASSERT(16 != bitsPerComponent);
+                return;
+            case kRGB_Color:
+            case kBGR_Color:
+            case kBGRX_Color:
+                SkASSERT(kOpaque_Alpha == alpha);
+                SkASSERT(bitsPerComponent >= 8);
+                return;
+            case kYUV_Color:
+            case kInvertedCMYK_Color:
+            case kYCCK_Color:
+                SkASSERT(kOpaque_Alpha == alpha);
+                SkASSERT(8 == bitsPerComponent);
+                return;
+            case kRGBA_Color:
+                SkASSERT(bitsPerComponent >= 8);
+                return;
+            case kBGRA_Color:
+            case kYUVA_Color:
+                SkASSERT(8 == bitsPerComponent);
+                return;
+            case kXAlpha_Color:
+                SkASSERT(kUnpremul_Alpha == alpha);
+                SkASSERT(8 == bitsPerComponent);
+                return;
+            case k565_Color:
+                SkASSERT(kOpaque_Alpha == alpha);
+                SkASSERT(8 == bitsPerComponent);
+                return;
+        }
+        SkASSERT(false);  // Unrecognized `color` enum value.
+    }
 
     int                         fWidth;
     int                         fHeight;
