@@ -1,3 +1,16 @@
+if (is_win) {
+  # On Windows, the toolchain provides clang-cl.exe, which is what CMake
+  # expects. The normal cc/cxx variables are just "clang" and "clang++"
+  # which are not found in the path. CMake needs the full path.
+  _cc = "$clang_win/bin/clang-cl.exe"
+  _cxx = "$clang_win/bin/clang-cl.exe"
+  _tint_lib_name = "tint_combined.lib"
+} else {
+  _cc = cc
+  _cxx = cxx
+  _tint_lib_name = "libtint_combined.a"
+}
+
 config("tint_api_config") {
   include_dirs = [
     "../externals/dawn",
@@ -9,32 +22,41 @@ config("tint_api_config") {
     "TINT_BUILD_WGSL_WRITER=1",
   ]
 
-  # The build script produces libtint_combined.a in the root output directory.
-  lib_dirs = [ "$root_out_dir" ]
-  libs = [ "tint_combined" ]
+  # The build script produces a static library for tint in the root output directory.
+  lib_dirs = [ root_out_dir ]
+  if (is_win) {
+    libs = [ "tint_combined.lib" ]
+  } else {
+    libs = [ "tint_combined" ]
+  }
 }
 
-# This action invokes a python script to build Tint using CMake. We use
-# CMake instead of the GN rules because Dawn/Tint's GN rules require Chromium's
-# toolchain, which we, Skia, do not want to have a dependency on.
-# The result is a single static library that can be linked into Skia.
+# This version of tint is used by skslc, which is used to compile our sksl tests.
+# Thus, we do *not* want to pass in the sanitizer args to this target. When
+# we build the dawn target below, that will build a new version of tint which
+# does use the passed in sanitizer flags.
 action("tint_cmake") {
   script = "build_tint.py"
 
-  sources = [ "build_tint.py" ]
+  sources = [
+    "build_tint.py",
+    "cmake_utils.py",
+  ]
 
   # The script will place the final library in this location.
-  outputs = [ "$root_out_dir/libtint_combined.a" ]
+  outputs = [ "$root_out_dir/${_tint_lib_name}" ]
 
   # The script also generates a depfile that lists all of Tint's sources. This
   # allows Ninja to know when to re-run the build script.
-  depfile = "$target_gen_dir/tint_combined.a.d"
+  depfile = "$target_gen_dir/${_tint_lib_name}.d"
 
-  # Pass the output path and depfile path to the script so it knows where to
-  # place the library and the dependency file.
   args = [
-    rebase_path(outputs[0], root_build_dir),
-    rebase_path(depfile, root_build_dir),
+    "--cc=" + _cc,
+    "--cxx=" + _cxx,
+    "--output_path=" + rebase_path(outputs[0], root_build_dir),
+    "--depfile_path=" + rebase_path(depfile, root_build_dir),
+    "--target_os=" + host_os,
+    "--target_cpu=" + host_cpu,
   ]
 }
 
