@@ -243,7 +243,7 @@ private:
         , fHdrMetadata(hdrMetadata)
     {}
 
-    static void VerifyColor(Color color, Alpha alpha, uint8_t bitsPerComponent) {
+    static void VerifyColor(Color color, Alpha alpha, int bitsPerComponent) {
         // Avoid `-Wunused-parameter` warnings on non-debug builds.
         std::ignore = alpha;
         std::ignore = bitsPerComponent;
