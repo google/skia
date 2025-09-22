@@ -18,12 +18,9 @@
 #include "src/gpu/graphite/ContextUtils.h"
 #include "src/gpu/graphite/KeyContext.h"
 #include "src/gpu/graphite/KeyHelpers.h"
-#include "src/gpu/graphite/Log.h"
 #include "src/gpu/graphite/PaintParamsKey.h"
 #include "src/gpu/graphite/PipelineData.h"
 #include "src/gpu/graphite/RecorderPriv.h"
-#include "src/gpu/graphite/Uniform.h"
-#include "src/shaders/SkShaderBase.h"
 
 namespace skgpu::graphite {
 
@@ -64,9 +61,35 @@ bool blendmode_depends_on_dst(SkBlendMode blendMode, bool srcIsOpaque) {
     return true;
 }
 
+std::optional<SkBlendMode> get_final_blendmode(SkBlender* blender) {
+    return blender ? as_BB(blender)->asBlendMode() : SkBlendMode::kSrcOver;
+}
+
+Coverage get_renderer_coverage(Coverage coverage,
+                               SkShader* clipShader,
+                               const NonMSAAClip& nonMSAAClip) {
+    return (clipShader || !nonMSAAClip.isEmpty()) && coverage == Coverage::kNone ?
+            Coverage::kSingleChannel : coverage;
+}
+
+SkEnumBitMask<DstUsage> get_dst_usage(const Caps* caps,
+                                      TextureFormat targetFormat,
+                                      std::optional<SkBlendMode> finalBlendMode,
+                                      Coverage rendererCoverage) {
+    SkEnumBitMask<DstUsage> dstUsage =
+            CanUseHardwareBlending(caps, targetFormat, finalBlendMode, rendererCoverage)
+                            ? DstUsage::kNone
+                            : DstUsage::kDstReadRequired;
+    if (finalBlendMode.has_value() && finalBlendMode.value() > SkBlendMode::kLastCoeffMode) {
+        dstUsage |= DstUsage::kAdvancedBlend;
+    }
+    return dstUsage;
+}
+
 } // anonymous namespace
 
-PaintParams::PaintParams(const SkPaint& paint,
+PaintParams::PaintParams(const Caps* caps,
+                         const SkPaint& paint,
                          sk_sp<SkBlender> primitiveBlender,
                          const NonMSAAClip& nonMSAAClip,
                          sk_sp<SkShader> clipShader,
@@ -75,15 +98,17 @@ PaintParams::PaintParams(const SkPaint& paint,
                          bool skipColorXform)
         : fColor(paint.getColor4f())
         , fFinalBlender(paint.refBlender())
+        , fFinalBlendMode(get_final_blendmode(fFinalBlender.get()))
         , fShader(paint.refShader())
         , fColorFilter(paint.refColorFilter())
         , fPrimitiveBlender(std::move(primitiveBlender))
         , fNonMSAAClip(nonMSAAClip)
         , fClipShader(std::move(clipShader))
-        , fRendererCoverage(coverage)
+        , fRendererCoverage(get_renderer_coverage(coverage, fClipShader.get(), fNonMSAAClip))
         , fTargetFormat(targetFormat)
         , fSkipColorXform(skipColorXform)
-        , fDither(paint.isDither()) {
+        , fDither(paint.isDither())
+        , fDstUsage(get_dst_usage(caps, fTargetFormat, fFinalBlendMode, fRendererCoverage)) {
     if (!fPrimitiveBlender) {
         SkColor4f constantColor;   // if filled in, will be un-premul sRGB
         // fColor is un-premul sRGB
@@ -105,11 +130,6 @@ PaintParams::PaintParams(const SkPaint& paint,
 PaintParams::PaintParams(const PaintParams& other) = default;
 PaintParams::~PaintParams() = default;
 PaintParams& PaintParams::operator=(const PaintParams& other) = default;
-
-std::optional<SkBlendMode> PaintParams::asFinalBlendMode() const {
-    return fFinalBlender ? as_BB(fFinalBlender)->asBlendMode()
-                         : SkBlendMode::kSrcOver;
-}
 
 sk_sp<SkBlender> PaintParams::refFinalBlender() const { return fFinalBlender; }
 
@@ -356,36 +376,22 @@ std::optional<PaintParams::Result> PaintParams::toKey(const KeyContext& keyConte
     bool isOpaque = this->handleDithering(keyContext);
 
     // Root Node 1 is the final blender
-    std::optional<SkBlendMode> finalBlendMode = this->asFinalBlendMode();
-    bool usesAdvancedBlend = finalBlendMode.has_value() &&
-                             (int)finalBlendMode.value() > (int)SkBlendMode::kLastCoeffMode;
-
-    Coverage finalCoverage = fRendererCoverage;
-    if ((fClipShader || !fNonMSAAClip.isEmpty()) && fRendererCoverage == Coverage::kNone) {
-        finalCoverage = Coverage::kSingleChannel;
-    }
-
-    bool dependsOnDst = fClipShader || !fNonMSAAClip.isEmpty();
-    bool dstReadReq = !CanUseHardwareBlending(keyContext.recorder()->priv().caps(),
-                                              fTargetFormat,
-                                              finalBlendMode,
-                                              finalCoverage);
-
-    if (finalBlendMode.has_value()) {
-        if (!dstReadReq) {
+    bool dependsOnDst = fRendererCoverage != Coverage::kNone;
+    if (fFinalBlendMode.has_value()) {
+        if (!(fDstUsage & DstUsage::kDstReadRequired)) {
             // With no shader blending, be as explicit as possible about the final blend
-            AddFixedBlendMode(keyContext, finalBlendMode.value());
+            AddFixedBlendMode(keyContext, fFinalBlendMode.value());
         } else {
             // With shader blending, use AddBlendMode() to select the more universal blend functions
             // when possible. Technically we could always use a fixed blend mode but would then
             // over-generate when encountering certain classes of blends. This is most problematic
             // on devices that wouldn't support dual-source blending, so help them out by at least
             // not requiring lots of pipelines.
-            AddBlendMode(keyContext, finalBlendMode.value());
+            AddBlendMode(keyContext, fFinalBlendMode.value());
         }
 
         // Blend modes can be analyzed to determine if specific src colors still depend on the dst.
-        dependsOnDst |= blendmode_depends_on_dst(finalBlendMode.value(), isOpaque);
+        dependsOnDst |= blendmode_depends_on_dst(fFinalBlendMode.value(), isOpaque);
     } else {
         AddToKey(keyContext, fFinalBlender.get());
         // Cannot inspect runtime blenders to pessimistically assume they will always use the dst.
@@ -395,26 +401,15 @@ std::optional<PaintParams::Result> PaintParams::toKey(const KeyContext& keyConte
     // Optional Root Node 2 is the clip
     this->handleClipping(keyContext);
 
-    return Result{dependsOnDst, dstReadReq, usesAdvancedBlend};
-}
+    UniquePaintParamsID paintID =
+            keyContext.recorder()->priv().shaderCodeDictionary()->findOrCreate(
+                    keyContext.paintParamsKeyBuilder());
 
-// TODO(b/330864257): Can be deleted once keys are determined by the Device draw.
-void PaintParams::notifyImagesInUse(Recorder* recorder,
-                                    DrawContext* drawContext) const {
-    if (fShader) {
-        NotifyImagesInUse(recorder, drawContext, fShader.get());
-    }
-    if (fPrimitiveBlender) {
-        NotifyImagesInUse(recorder, drawContext, fPrimitiveBlender.get());
-    }
-    if (fColorFilter) {
-        NotifyImagesInUse(recorder, drawContext, fColorFilter.get());
-    }
-    if (fFinalBlender) {
-        NotifyImagesInUse(recorder, drawContext, fFinalBlender.get());
-    }
-    if (fClipShader) {
-        NotifyImagesInUse(recorder, drawContext, fClipShader.get());
+    if (!paintID.isValid()) {
+        return {};
+    } else {
+        return Result{paintID,
+                      fDstUsage | (dependsOnDst ? DstUsage::kDependsOnDst : DstUsage::kNone)};
     }
 }
 
