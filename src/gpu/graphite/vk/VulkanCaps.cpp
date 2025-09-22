@@ -207,6 +207,7 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
 
     fSupportsYcbcrConversion = enabledFeatures.fSamplerYcbcrConversion;
     fSupportsDeviceFaultInfo = enabledFeatures.fDeviceFault;
+    fSupportsFrameBoundary = enabledFeatures.fFrameBoundary;
 
     if (enabledFeatures.fAdvancedBlendModes) {
         fBlendEqSupport = enabledFeatures.fCoherentAdvancedBlendModes
@@ -251,6 +252,9 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     fUsePipelineLibraries =
             enabledFeatures.fGraphicsPipelineLibrary &&
             (deviceProperties.fGpl.graphicsPipelineLibraryFastLinking || vendorID == kARM_VkVendor);
+
+
+    fSupportsFrameBoundary = enabledFeatures.fFrameBoundary;
 
     // Multisampled render to single-sampled usage depends on the mandatory feature of
     // VK_EXT_multisampled_render_to_single_sampled.  Per format queries are needed to determine if
@@ -384,6 +388,13 @@ VulkanCaps::EnabledFeatures VulkanCaps::getEnabledFeatures(
                     const auto* feature =
                             reinterpret_cast<const VkPhysicalDeviceHostImageCopyFeatures*>(pNext);
                     enabled.fHostImageCopy = feature->hostImageCopy;
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT: {
+                    const auto *feature = reinterpret_cast<
+                            const VkPhysicalDeviceFrameBoundaryFeaturesEXT*>(
+                            pNext);
+                    enabled.fFrameBoundary = feature->frameBoundary;
                     break;
                 }
                 default:

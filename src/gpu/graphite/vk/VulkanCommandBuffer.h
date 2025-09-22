@@ -32,7 +32,7 @@ public:
 
     bool setNewCommandBufferResources() override;
 
-    bool submit(VkQueue);
+    bool submit(VkQueue, const SubmitInfo&);
 
     bool isFinished();
 

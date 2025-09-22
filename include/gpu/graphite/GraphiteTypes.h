@@ -170,6 +170,29 @@ enum class SyncToCpu : bool {
     kNo = false
 };
 
+enum class MarkFrameBoundary : bool {
+    kYes = true,
+    kNo = false
+};
+
+struct SubmitInfo {
+    SyncToCpu fSync = SyncToCpu::kNo;
+    MarkFrameBoundary fMarkBoundary = MarkFrameBoundary::kNo;
+    uint64_t fFrameID = 0;
+
+    constexpr SubmitInfo() = default;
+
+    constexpr SubmitInfo(SyncToCpu sync)
+        : fSync(sync)
+        , fMarkBoundary(MarkFrameBoundary::kNo)
+        , fFrameID(0) {}
+
+    constexpr SubmitInfo(SyncToCpu sync, uint64_t frameID)
+        : fSync(sync)
+        , fMarkBoundary(MarkFrameBoundary::kYes)
+        , fFrameID(frameID) {}
+};
+
 /*
  * For Promise Images - should the Promise Image be fulfilled every time a Recording that references
  * it is inserted into the Context.

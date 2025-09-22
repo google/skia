@@ -49,11 +49,11 @@ private:
     }
 };
 
-QueueManager::OutstandingSubmission VulkanQueueManager::onSubmitToGpu() {
+QueueManager::OutstandingSubmission VulkanQueueManager::onSubmitToGpu(const SubmitInfo& submitInfo) {
     SkASSERT(fCurrentCommandBuffer);
     VulkanCommandBuffer* vkCmdBuffer =
             static_cast<VulkanCommandBuffer*>(fCurrentCommandBuffer.get());
-    if (!vkCmdBuffer->submit(fQueue)) {
+    if (!vkCmdBuffer->submit(fQueue, submitInfo)) {
         fCurrentCommandBuffer->callFinishedProcs(/*success=*/false);
         return nullptr;
     }

@@ -189,6 +189,9 @@ private:
     // Feature of VK_EXT_pipeline_creation_cache_control or Vulkan 1.3
     VkPhysicalDevicePipelineCreationCacheControlFeatures fPipelineCreationCacheControl = {};
 
+    // Feature of VK_EXT_frame_boundary
+    VkPhysicalDeviceFrameBoundaryFeaturesEXT fFrameBoundary = {};
+
     // Extensions that don't have a feature:
     // VK_KHR_driver_properties or Vulkan 1.2
     const char* fDriverPropertiesExtension = nullptr;
