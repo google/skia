@@ -284,14 +284,12 @@ void SkA8_Blitter::blitMask(const SkMask& mask, const SkIRect& clip) {
 
 //////////////////
 
-SkBlitter* SkA8Blitter_Choose(const SkPixmap& dst,
-                              const SkMatrix& ctm,
-                              const SkPaint& paint,
-                              SkArenaAlloc* alloc,
-                              SkDrawCoverage drawCoverage,
-                              sk_sp<SkShader> clipShader,
-                              const SkSurfaceProps&,
-                              const SkRect&) {
+SkBlitter* SkChooseA8Blitter(const SkPixmap& dst,
+                             const SkMatrix& ctm,
+                             const SkPaint& paint,
+                             SkArenaAlloc* alloc,
+                             SkDrawCoverage drawCoverage,
+                             sk_sp<SkShader> clipShader) {
     if (dst.colorType() != SkColorType::kAlpha_8_SkColorType) {
         return nullptr;
     }
@@ -312,4 +310,15 @@ SkBlitter* SkA8Blitter_Choose(const SkPixmap& dst,
         }
     }
     return nullptr;
+}
+
+SkBlitter* SkA8Blitter_Choose(const SkPixmap& dst,
+                              const SkMatrix& ctm,
+                              const SkPaint& paint,
+                              SkArenaAlloc* alloc,
+                              SkDrawCoverage coverage,
+                              sk_sp<SkShader> clipShader,
+                              const SkSurfaceProps&,
+                              const SkRect&) {
+    return SkChooseA8Blitter(dst, ctm, paint, alloc, coverage, clipShader);
 }

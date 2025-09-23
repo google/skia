@@ -45,6 +45,7 @@
 #include "src/core/SkGeometry.h"
 #include "src/core/SkImagePriv.h"
 #include "src/core/SkMaskFilterBase.h"
+#include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
 #include "src/core/SkStrikeCache.h"
 #include "src/image/SkImage_Base.h"
@@ -1570,7 +1571,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
                                             : SkStrokeRec::kHairline_InitStyle;
         //[Pixel-path -> Mask]
         SkMaskBuilder rasteredMask;
-        if (skcpu::DrawToMask(*pixelPath,
+        if (skcpu::DrawToMask(SkPathPriv::Raw(*pixelPath),
                               clipIRect,
                               filter,  //just to compute how much to draw.
                               &matrix,

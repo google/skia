@@ -203,11 +203,15 @@ static void draw_nine(const SkMask& mask, const SkIRect& outerR, const SkIPoint&
     }
 }
 
-static int countNestedRects(const SkPath& path, SkRect rects[2]) {
-    if (SkPathPriv::IsNestedFillRects(path, rects)) {
+static int countNestedRects(const SkPathRaw& raw, SkRect rects[2]) {
+    if (SkPathPriv::IsNestedFillRects(raw, rects)) {
         return 2;
     }
-    return path.isRect(&rects[0]);
+    if (auto r = raw.isRect()) {
+        rects[0] = *r;
+        return 1;
+    }
+    return 0;
 }
 
 bool SkMaskFilterBase::filterRRect(const SkRRect& devRRect,
@@ -255,7 +259,7 @@ SkMaskFilterBase::FilterReturn SkMaskFilterBase::filterRects(SkSpan<const SkRect
     return filterReturn;
 }
 
-bool SkMaskFilterBase::filterPath(const SkPath& devPath,
+bool SkMaskFilterBase::filterPath(const SkPathRaw& devRaw,
                                   const SkMatrix& matrix,
                                   const SkRasterClip& clip,
                                   SkBlitter* blitter,
@@ -264,7 +268,7 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath,
     SkRect rects[2];
     int rectCount = 0;
     if (SkStrokeRec::kFill_InitStyle == style) {
-        rectCount = countNestedRects(devPath, rects);
+        rectCount = countNestedRects(devRaw, rects);
     }
     if (rectCount > 0) {
         switch (this->filterRects(SkSpan(rects, rectCount), matrix, clip, blitter, cache)) {
@@ -284,7 +288,7 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath,
         return false;
     }
 #endif
-    if (!skcpu::DrawToMask(devPath,
+    if (!skcpu::DrawToMask(devRaw,
                            clip.getBounds(),
                            this,
                            &matrix,

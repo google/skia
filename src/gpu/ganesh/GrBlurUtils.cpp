@@ -192,7 +192,7 @@ static GrSurfaceProxyView sw_create_filtered_mask(GrRecordingContext* rContext,
         SkPath devPath = shape.asPath().makeTransform(viewMatrix);
 
         SkMaskBuilder srcM, dstM;
-        if (!skcpu::DrawToMask(devPath,
+        if (!skcpu::DrawToMask(SkPathPriv::Raw(devPath),
                                clipBounds,
                                filter,
                                &viewMatrix,

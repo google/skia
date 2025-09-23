@@ -30,6 +30,7 @@ class SkGlyph;
 class SkMaskFilter;
 class SkMatrix;
 class SkPath;
+struct SkPathRaw;
 class SkRRect;
 class SkRasterClip;
 class SkShader;
@@ -55,7 +56,7 @@ class ContextImpl;
     that must be done afterwards (by calling filterMask). The maskfilter is provided
     solelely to assist in computing the mask's bounds (if the mode requests that).
 */
-bool DrawToMask(const SkPath& devPath,
+bool DrawToMask(const SkPathRaw& devRaw,
                 const SkIRect& clipBounds,
                 const SkMaskFilter*,
                 const SkMatrix* filterMatrix,
@@ -219,7 +220,7 @@ private:
 
     void drawLine(const SkPoint[2], const SkPaint&) const;
 
-    void drawDevPath(const SkPath& devPath,
+    void drawDevPath(const SkPathRaw&,
                      const SkPaint& paint,
                      SkDrawCoverage drawCoverage,
                      SkBlitter* customBlitter,
