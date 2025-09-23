@@ -593,6 +593,46 @@ DEF_TEST(zero_blur, reporter) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
+// b/444805331 : Fuzzer created a view matrix that did not preserveRightAngles but could still
+// result in a rect, resulting in a rect in a rrect only path.
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(BlurDegenerateAffineFuzzer,
+                                       reporter,
+                                       ctxInfo,
+                                       CtsEnforcement::kNever) {
+    auto context = ctxInfo.directContext();
+    SkImageInfo ii = SkImageInfo::Make(128, 128, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface(SkSurfaces::RenderTarget(context, skgpu::Budgeted::kNo, ii));
+    if (!surface) {
+        ERRORF(reporter, "Could not create surface.");
+        return;
+    }
+    SkCanvas* canvas = surface->getCanvas();
+    canvas->clear(SK_ColorBLACK);
+
+    SkPaint paint;
+    paint.setColor(SK_ColorRED);
+    // Set respectCTM to false to get past the skgpu::BlurIsEffectivelyIdentity check
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 128.0f, /*respectCTM=*/false));
+
+    // Create a degenerate affine matrix [0 tiny 0][tiny 0 0][0 0 1]. This fails
+    // preservesRightAngles() because it's degenerate, but its 90-degree rotational structure still
+    // passes rectStaysRect().
+    const float tiny = .000001f;
+    SkMatrix matrix = SkMatrix::MakeAll(0.f,  tiny, 0.f,
+                                        tiny, 0.f,  0.f,
+                                        0.f,  0.f,  1.f);
+
+    // Verify our matrix has the magic properties
+    REPORTER_ASSERT(reporter, !matrix.preservesRightAngles());
+    REPORTER_ASSERT(reporter, matrix.rectStaysRect());
+
+    canvas->concat(matrix);
+    canvas->drawRect(SkRect::MakeWH(100.f, 100.f), paint);
+    context->flushAndSubmit();  // The test passes if no assertions are hit
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+
 #if defined(SK_GRAPHITE)
 
 // Reproducing integer overflow in https://g-issues.skia.org/issues/413427423

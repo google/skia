@@ -13,6 +13,7 @@
 #include "src/gpu/SkBackingFit.h"
 
 #include <memory>
+#include <optional>
 
 class GrClip;
 class GrFragmentProcessor;
@@ -124,6 +125,7 @@ std::unique_ptr<GrFragmentProcessor> MakeCircleBlur(GrRecordingContext* context,
 std::unique_ptr<GrFragmentProcessor> MakeRectBlur(GrRecordingContext* context,
                                                   const GrShaderCaps& caps,
                                                   const SkRect& srcRect,
+                                                  const std::optional<SkRect>& devRect,
                                                   const SkMatrix& viewMatrix,
                                                   float transformedSigma);
 

@@ -730,16 +730,22 @@ bool Device::drawBlurredRRect(const SkRRect& rrect, const SkPaint& paint, float 
 
     auto devRRect = rrect.transform(localToDevice);
 
+    bool devRRectIsRect = devRRect.has_value() && (*devRRect).isRect();
     bool devRRectIsCircle = devRRect.has_value() && SkRRectPriv::IsCircle(*devRRect);
 
-    bool canBeRect = rrect.isRect() && localToDevice.preservesRightAngles();
+    bool canBeRect = (rrect.isRect() && localToDevice.preservesRightAngles()) || devRRectIsRect;
     bool canBeCircle = (SkRRectPriv::IsCircle(rrect) && localToDevice.isSimilarity()) ||
                        devRRectIsCircle;
 
     if (canBeRect || canBeCircle) {
         if (canBeRect) {
-            fp = GrBlurUtils::MakeRectBlur(context, *context->priv().caps()->shaderCaps(),
-                                rrect.rect(), localToDevice, deviceSigma);
+            fp = GrBlurUtils::MakeRectBlur(
+                    context,
+                    *context->priv().caps()->shaderCaps(),
+                    rrect.rect(),
+                    devRRectIsRect ? std::optional((*devRRect).rect()) : std::nullopt,
+                    localToDevice,
+                    deviceSigma);
         } else {
             SkRect devBounds;
             if (devRRectIsCircle) {
