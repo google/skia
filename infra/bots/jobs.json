@@ -1176,34 +1176,7 @@
     "name": "Perf-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-ASAN_Vulkan"
   },
   {
-    "name": "Perf-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-SkottieTracing"
-  },
-  {
     "name": "Perf-Ubuntu24.04-Clang-NUC5PPYH-GPU-IntelHD405-x86_64-Release-All-Vulkan"
-  },
-  {
-    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_CanvasPerf_WebGL1"
-  },
-  {
-    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_CanvasPerf_WebGL2"
-  },
-  {
-    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_RenderSKP_WebGL1"
-  },
-  {
-    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_RenderSKP_WebGL2"
-  },
-  {
-    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_SkottieFrames_WebGL1"
-  },
-  {
-    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-Puppeteer_SkottieFrames_WebGL2"
-  },
-  {
-    "name": "Perf-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-SkottieWASM"
-  },
-  {
-    "name": "Perf-Ubuntu24.04-none-Golo-GPU-QuadroP400-x86_64-Release-All-LottieWeb"
   },
   {
     "name": "Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All"
@@ -1991,9 +1964,6 @@
         "modules/canvaskit/.*"
       ]
     }
-  },
-  {
-    "name": "Test-Ubuntu24.04-EMCC-Golo-GPU-QuadroP400-wasm-Release-All-WasmGMTests_WebGL2"
   },
   {
     "name": "Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All"
