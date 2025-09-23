@@ -372,7 +372,7 @@ bool VkYcbcrSamplerHelper::createGrBackendTexture(uint32_t width, uint32_t heigh
 }
 
 GrVkGpu* VkYcbcrSamplerHelper::vkGpu() {
-    return (GrVkGpu*) fDContext->priv().getGpu();
+    return fDContext ? (GrVkGpu*) fDContext->priv().getGpu() : nullptr;
 }
 
 VkYcbcrSamplerHelper::VkYcbcrSamplerHelper(GrDirectContext* dContext) : fDContext(dContext) {
