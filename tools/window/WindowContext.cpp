@@ -7,7 +7,10 @@
 
 #include "tools/window/WindowContext.h"
 
+#if defined(SK_GANESH)
 #include "include/gpu/ganesh/GrDirectContext.h"
+#endif
+
 #if defined(SK_GRAPHITE)
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Recorder.h"
@@ -25,17 +28,22 @@ void WindowContext::swapBuffers() {
 }
 
 bool WindowContext::supportsGpuTimer() const {
+#if defined(SK_GRAPHITE) || defined(SK_GANESH)
     auto flags = skgpu::GpuStatsFlags::kNone;
 #if defined(SK_GRAPHITE)
     if (fGraphiteContext) {
         flags = fGraphiteContext->supportedGpuStats();
-    } else
+    }
 #endif
+#if defined(SK_GANESH)
     if (fContext) {
         flags = fContext->supportedGpuStats();
     }
+#endif
     using T = std::underlying_type_t<skgpu::GpuStatsFlags>;
     return static_cast<T>(flags) & static_cast<T>(skgpu::GpuStatsFlags::kElapsedTime);
+#endif
+    return false;
 }
 
 void WindowContext::submitToGpu(GpuTimerCallback statsCallback) {
@@ -64,6 +72,7 @@ void WindowContext::submitToGpu(GpuTimerCallback statsCallback) {
         return;
     }
 #endif
+#if defined(SK_GANESH)
     if (auto dc = this->directContext()) {
         GrFlushInfo info;
         if (statsCallback) {
@@ -80,9 +89,12 @@ void WindowContext::submitToGpu(GpuTimerCallback statsCallback) {
         dc->submit();
         return;
     }
+#endif
+#if defined(SK_GANESH) || defined(SK_GRAPHITE)
     if (statsCallback) {
         statsCallback(0);
     }
+#endif
 }
 
 }  // namespace skwindow

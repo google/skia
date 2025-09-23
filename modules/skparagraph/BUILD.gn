@@ -57,7 +57,6 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_enable_skunicode &&
         sources = [ "gm/simple_gm.cpp" ]
         deps = [
           ":skparagraph",
-          "../..:gpu_tool_utils",
           "../..:skia",
           "../skshaper",
           "../skunicode",
@@ -67,21 +66,23 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_enable_skunicode &&
       }
     }
 
-    skia_source_set("tests") {
-      if (paragraph_tests_enabled &&
-          (skia_use_icu || skia_use_libgrapheme || skia_use_icu4x)) {
-        testonly = true
-        sources = skparagraph_tests
-        deps = [
-          ":skparagraph",
-          ":utils",
-          "../..:skia",
-          "../..:test",
-          "../skshaper",
-          "../skunicode",
-        ]
-      } else {
-        sources = []
+    if (skia_enable_tools_that_might_need_ganesh) {
+      skia_source_set("tests") {
+        if (paragraph_tests_enabled &&
+            (skia_use_icu || skia_use_libgrapheme || skia_use_icu4x)) {
+          testonly = true
+          sources = skparagraph_tests
+          deps = [
+            ":skparagraph",
+            ":utils",
+            "../..:skia",
+            "../..:test",
+            "../skshaper",
+            "../skunicode",
+          ]
+        } else {
+          sources = []
+        }
       }
     }
 

@@ -235,6 +235,16 @@ sk_sp<SkImage> LazyYUVImage::refImage(GrRecordingContext* rContext, Type type) {
     }
 }
 
+sk_sp<SkImage> LazyYUVImage::refImage(GrDirectContext* dContext, Type type) {
+#if defined(SK_GANESH)
+    return this->refImage(static_cast<GrRecordingContext *>(dContext), type);
+#else
+    SkASSERT(!dContext);
+    return this->refImage(static_cast<GrRecordingContext *>(nullptr), type);
+#endif
+}
+
+
 #if defined(SK_GRAPHITE)
 sk_sp<SkImage> LazyYUVImage::refImage(skgpu::graphite::Recorder* recorder, Type type) {
     if (this->ensureYUVImage(recorder, type)) {

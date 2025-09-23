@@ -810,7 +810,6 @@ public:
             "images/flutter_logo.jpg",
         };
 
-        auto rContext = canvas->recordingContext();
 #if defined(SK_GRAPHITE)
         skgpu::graphite::Recorder* recorder = nullptr;
         recorder = canvas->recorder();
@@ -823,12 +822,14 @@ public:
             if (recorder) {
                 fImages[i] = lazyYUV->refImage(recorder,
                                                sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
-            } else
+            }
 #endif
-            {
+#if defined(SK_GANESH)
+            if (auto rContext = canvas->recordingContext()) {
                 fImages[i] = lazyYUV->refImage(rContext,
                                                sk_gpu_test::LazyYUVImage::Type::kFromPixmaps);
             }
+#endif
         }
     }
 

@@ -108,10 +108,12 @@ skia_component("window") {
   }
 
   if (skia_use_vulkan) {
-    sources += [
-      "VulkanWindowContext.cpp",
-      "VulkanWindowContext.h",
-    ]
+    if (skia_enable_ganesh) {
+      sources += [
+        "VulkanWindowContext.cpp",
+        "VulkanWindowContext.h",
+      ]
+    }
     if (skia_enable_graphite) {
       sources += [
         "GraphiteNativeVulkanWindowContext.cpp",
@@ -144,10 +146,12 @@ skia_component("window") {
   }
 
   if (skia_use_metal) {
-    sources += [
-      "MetalWindowContext.h",
-      "MetalWindowContext.mm",
-    ]
+    if (skia_enable_ganesh) {
+      sources += [
+        "MetalWindowContext.h",
+        "MetalWindowContext.mm",
+      ]
+    }
     if (skia_enable_graphite) {
       sources += [
         "GraphiteNativeMetalWindowContext.h",
@@ -155,10 +159,12 @@ skia_component("window") {
       ]
     }
     if (is_mac) {
-      sources += [
-        "mac/GaneshMetalWindowContext_mac.h",
-        "mac/GaneshMetalWindowContext_mac.mm",
-      ]
+      if (skia_enable_ganesh) {
+        sources += [
+          "mac/GaneshMetalWindowContext_mac.h",
+          "mac/GaneshMetalWindowContext_mac.mm",
+        ]
+      }
       if (skia_enable_graphite) {
         sources += [
           "mac/GraphiteNativeMetalWindowContext_mac.h",
@@ -166,7 +172,9 @@ skia_component("window") {
         ]
       }
     } else if (is_ios) {
-      sources += [ "ios/MetalWindowContext_ios.mm" ]
+      if (skia_enable_ganesh) {
+        sources += [ "ios/MetalWindowContext_ios.mm" ]
+      }
       if (skia_enable_graphite) {
         sources += [ "ios/GraphiteMetalWindowContext_ios.mm" ]
       }
@@ -216,10 +224,11 @@ skia_component("window") {
   }
 
   configs = [ "../../:skia_private" ]
-  deps = [
-    "../..:gpu_tool_utils",
-    "../..:skia",
-  ]
+  deps = [ "../..:skia" ]
+
+  if (skia_enable_ganesh || skia_enable_graphite) {
+    deps += [ "../..:gpu_tool_utils" ]
+  }
 
   if (skia_use_gl && skia_use_angle) {
     deps += [ "//third_party/angle2" ]

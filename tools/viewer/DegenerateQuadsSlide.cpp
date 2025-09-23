@@ -5,6 +5,9 @@
  * found in the LICENSE file.
  */
 
+#include "include/core/SkTypes.h"
+
+#if defined(SK_GANESH)
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPathEffect.h"
@@ -536,3 +539,5 @@ bool DegenerateQuadSlide::onChar(SkUnichar code) {
 }
 
 DEF_SLIDE(return new DegenerateQuadSlide(SkRect::MakeWH(4.f, 4.f));)
+
+#endif  // SK_GANESH

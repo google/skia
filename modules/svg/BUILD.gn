@@ -46,21 +46,23 @@ if (skia_enable_svg && skia_use_expat) {
       }
     }
 
-    skia_source_set("tests") {
-      testonly = true
+    if (skia_enable_tools_that_might_need_ganesh) {
+      skia_source_set("tests") {
+        testonly = true
 
-      configs = [ "../..:skia_private" ]
-      sources = [
-        "tests/Filters.cpp",
-        "tests/Text.cpp",
-      ]
+        configs = [ "../..:skia_private" ]
+        sources = [
+          "tests/Filters.cpp",
+          "tests/Text.cpp",
+        ]
 
-      deps = [
-        ":svg",
-        "../..:skia",
-        "../..:test",
-        "../skshaper",
-      ]
+        deps = [
+          ":svg",
+          "../..:skia",
+          "../..:test",
+          "../skshaper",
+        ]
+      }
     }
   }
 } else {

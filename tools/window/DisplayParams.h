@@ -10,10 +10,13 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/gpu/ganesh/GrContextOptions.h"
 #include "src/base/SkMathPriv.h"
 
 #include <memory>
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrContextOptions.h"
+#endif
 
 namespace skwindow {
 
@@ -37,7 +40,9 @@ public:
         fColorType = other->fColorType;
         fColorSpace = other->fColorSpace;
         fMSAASampleCount = other->fMSAASampleCount;
+#if defined(SK_GANESH)
         fGrContextOptions = other->fGrContextOptions;
+#endif
         fSurfaceProps = other->fSurfaceProps;
         fDisableVsync = other->fDisableVsync;
         fDelayDrawableAcquisition = other->fDelayDrawableAcquisition;
@@ -54,7 +59,9 @@ public:
     SkColorType colorType() const { return fColorType; }
     sk_sp<SkColorSpace> colorSpace() const { return fColorSpace; }
     int msaaSampleCount() const { return fMSAASampleCount; }
+#if defined(SK_GANESH)
     const GrContextOptions& grContextOptions() const { return fGrContextOptions; }
+#endif
     const SkSurfaceProps& surfaceProps() const { return fSurfaceProps; }
     bool disableVsync() const { return fDisableVsync; }
     bool delayDrawableAcquisition() const { return fDelayDrawableAcquisition; }
@@ -67,7 +74,9 @@ private:
     SkColorType            fColorType;
     sk_sp<SkColorSpace>    fColorSpace;
     int                    fMSAASampleCount;
+#if defined(SK_GANESH)
     GrContextOptions fGrContextOptions;
+#endif
     SkSurfaceProps         fSurfaceProps;
     bool                   fDisableVsync;
     bool                   fDelayDrawableAcquisition;
@@ -106,10 +115,12 @@ public:
         return *this;
     }
 
+#if defined(SK_GANESH)
     DisplayParamsBuilder& grContextOptions(const GrContextOptions& grContextOptions) {
         fDisplayParams->fGrContextOptions = grContextOptions;
         return *this;
     }
+#endif
 
     DisplayParamsBuilder& surfaceProps(const SkSurfaceProps& surfaceProps) {
         fDisplayParams->fSurfaceProps = surfaceProps;

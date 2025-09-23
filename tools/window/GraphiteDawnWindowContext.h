@@ -31,7 +31,6 @@ protected:
 
     virtual bool onInitializeContext() = 0;
     virtual void onDestroyContext() = 0;
-    virtual GrSurfaceOrigin getRTOrigin() const { return kTopLeft_GrSurfaceOrigin; }
 
     void onSwapBuffers() override;
 

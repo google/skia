@@ -39,7 +39,9 @@ GraphiteDawnWindowContext::GraphiteDawnWindowContext(std::unique_ptr<const Displ
 }
 
 void GraphiteDawnWindowContext::initializeContext(int width, int height) {
+#if defined(SK_GANESH)
     SkASSERT(!fContext);
+#endif
 
     fWidth = width;
     fHeight = height;

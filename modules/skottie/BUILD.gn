@@ -56,31 +56,33 @@ if (skia_enable_skottie) {
     }
 
     if (skia_enable_tools) {
-      skia_source_set("tests") {
-        testonly = true
+      if (skia_enable_tools_that_might_need_ganesh) {
+        skia_source_set("tests") {
+          testonly = true
 
-        configs = [
-          "../..:skia_private",
-          "../..:tests_config",
-        ]
-        sources = [
-          "src/SkottieTest.cpp",
-          "tests/AudioLayer.cpp",
-          "tests/Expression.cpp",
-          "tests/Image.cpp",
-          "tests/Keyframe.cpp",
-          "tests/PropertyObserver.cpp",
-          "tests/Shaper.cpp",
-          "tests/Text.cpp",
-        ]
+          configs = [
+            "../..:skia_private",
+            "../..:tests_config",
+          ]
+          sources = [
+            "src/SkottieTest.cpp",
+            "tests/AudioLayer.cpp",
+            "tests/Expression.cpp",
+            "tests/Image.cpp",
+            "tests/Keyframe.cpp",
+            "tests/PropertyObserver.cpp",
+            "tests/Shaper.cpp",
+            "tests/Text.cpp",
+          ]
 
-        deps = [
-          ":skottie",
-          "../..:skia",
-          "../..:test",
-          "../skshaper",
-          "../skunicode",
-        ]
+          deps = [
+            ":skottie",
+            "../..:skia",
+            "../..:test",
+            "../skshaper",
+            "../skunicode",
+          ]
+        }
       }
 
       skia_source_set("fuzz") {
@@ -118,11 +120,13 @@ if (skia_enable_skottie) {
 
         deps = [
           "../..:flags",
-          "../..:gpu_tool_utils",
           "../..:skia",
           "../../experimental/ffmpeg:video_encoder",
           "../skshaper",
         ]
+        if (skia_enable_ganesh) {
+          deps += [ "../..:gpu_tool_utils" ]
+        }
 
         public_deps = [
           ":skottie",
@@ -141,7 +145,6 @@ if (skia_enable_skottie) {
 
         deps = [
           "../..:flags",
-          "../..:gpu_tool_utils",
           "../..:skia",
           "../../experimental/ffmpeg:video_encoder",
           "../skshaper",
@@ -153,26 +156,28 @@ if (skia_enable_skottie) {
         ]
       }
 
-      skia_source_set("tool_gpu") {
-        check_includes = false
-        testonly = true
+      if (skia_enable_ganesh) {
+        skia_source_set("tool_gpu") {
+          check_includes = false
+          testonly = true
 
-        configs = [ "../..:skia_private" ]
-        sources = [ "src/SkottieTool.cpp" ]
-        defines = [ "GPU_ONLY" ]
+          configs = [ "../..:skia_private" ]
+          sources = [ "src/SkottieTool.cpp" ]
+          defines = [ "GPU_ONLY" ]
 
-        deps = [
-          "../..:flags",
-          "../..:gpu_tool_utils",
-          "../..:skia",
-          "../../experimental/ffmpeg:video_encoder",
-          "../skshaper",
-        ]
+          deps = [
+            "../..:flags",
+            "../..:gpu_tool_utils",
+            "../..:skia",
+            "../../experimental/ffmpeg:video_encoder",
+            "../skshaper",
+          ]
 
-        public_deps = [
-          ":skottie",
-          ":utils",
-        ]
+          public_deps = [
+            ":skottie",
+            ":utils",
+          ]
+        }
       }
 
       skia_source_set("preshape_tool") {
@@ -208,7 +213,6 @@ if (skia_enable_skottie) {
         deps = [
           ":skottie",
           ":utils",
-          "../..:gpu_tool_utils",
           "../..:skia",
           "../..:tool_utils",
           "../skshaper",

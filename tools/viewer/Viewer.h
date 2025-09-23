@@ -11,13 +11,10 @@
 #include "include/core/SkColorSpace.h"
 #include "include/core/SkData.h"
 #include "include/core/SkFont.h"
-#include "include/gpu/ganesh/GrContextOptions.h"
 #include "include/private/base/SkTArray.h"
-#include "include/private/gpu/ganesh/GrTypesPriv.h"
 #include "modules/skcms/skcms.h"
 #include "src/sksl/codegen/SkSLNativeShader.h"
 #include "src/sksl/ir/SkSLProgram.h"
-#include "tools/ganesh/MemoryCache.h"
 #include "tools/sk_app/Application.h"
 #include "tools/sk_app/CommandSet.h"
 #include "tools/sk_app/Window.h"
@@ -26,6 +23,12 @@
 #include "tools/viewer/StatsLayer.h"
 #include "tools/viewer/TouchGesture.h"
 #include "tools/window/DisplayParams.h"
+
+#if defined(SK_GANESH)
+#include "include/gpu/ganesh/GrContextOptions.h"
+#include "include/private/gpu/ganesh/GrTypesPriv.h"
+#include "tools/ganesh/MemoryCache.h"
+#endif
 
 #include <atomic>
 #include <cstdint>
@@ -60,7 +63,9 @@ public:
     bool onPinch(skui::InputState state, float scale, float x, float y) override;
     bool onFling(skui::InputState state) override;
 
+#if defined(SK_GANESH)
     static GrContextOptions::ShaderErrorHandler* ShaderErrorHandler();
+#endif
 
     struct SkFontFields {
         bool overridesSomething() const {
@@ -267,11 +272,18 @@ private:
         SkString            fKeyDescription;
 
         SkFourByteTag       fShaderType;
-        SkSL::NativeShader  fShader[kGrShaderTypeCount];
-        SkSL::Program::Interface fInterfaces[kGrShaderTypeCount];
+
+        static constexpr int kVertexIndex = 0;
+        static constexpr int kFragmentIndex = 1;
+        static constexpr int kShaderTypeCount = 2;
+
+        SkSL::NativeShader fShader[kShaderTypeCount];
+        SkSL::Program::Interface fInterfaces[kShaderTypeCount];
     };
 
+#if defined(SK_GANESH)
     sk_gpu_test::MemoryCache fPersistentCache;
+#endif
     skia_private::TArray<CachedShader>   fCachedShaders;
 
     enum ShaderOptLevel : int {

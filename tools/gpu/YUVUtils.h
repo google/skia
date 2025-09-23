@@ -58,6 +58,8 @@ public:
 
     sk_sp<SkImage> refImage(GrRecordingContext* rContext, Type);
 
+    sk_sp<SkImage> refImage(GrDirectContext* dContext, Type);
+
 #if defined(SK_GRAPHITE)
     sk_sp<SkImage> refImage(skgpu::graphite::Recorder* recorder, Type);
 #endif

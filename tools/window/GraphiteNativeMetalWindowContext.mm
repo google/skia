@@ -33,7 +33,9 @@ GraphiteMetalWindowContext::GraphiteMetalWindowContext(std::unique_ptr<const Dis
         , fDrawableHandle(nil) {}
 
 void GraphiteMetalWindowContext::initializeContext() {
+#if defined(SK_GANESH)
     SkASSERT(!fContext);
+#endif
     SkASSERT(!fGraphiteContext);
 
     fDevice.reset(MTLCreateSystemDefaultDevice());
