@@ -79,16 +79,6 @@ struct Options {
      */
     const SkData* xmpMetadata = nullptr;
 
-    /**
-     *  An optional ICC profile to override the default behavior.
-     *
-     *  The default behavior is to generate an ICC profile using a primary matrix and
-     *  analytic transfer function. If the color space of |src| cannot be represented
-     *  in this way (e.g, it is HLG or PQ), then no profile will be embedded.
-     */
-    const skcms_ICCProfile* fICCProfile = nullptr;
-    const char* fICCProfileDescription = nullptr;
-
     std::optional<SkEncodedOrigin> fOrigin;
 };
 

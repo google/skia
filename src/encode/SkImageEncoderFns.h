@@ -34,18 +34,10 @@ static inline void transform_scanline_A8_to_GrayAlpha(char* dst, const char* src
     }
 }
 
-static inline sk_sp<SkData> icc_from_color_space(const SkColorSpace* cs,
-                                                 const skcms_ICCProfile* profile,
-                                                 const char* profile_description) {
-    // TODO(ccameron): Remove this check.
+static inline sk_sp<SkData> icc_from_color_space(const SkColorSpace* cs) {
     if (!cs) {
         return nullptr;
     }
-
-    if (profile) {
-        return SkWriteICCProfile(profile, profile_description);
-    }
-
     skcms_Matrix3x3 toXYZD50;
     if (cs->toXYZD50(&toXYZD50)) {
         skcms_TransferFunction fn;
@@ -55,10 +47,8 @@ static inline sk_sp<SkData> icc_from_color_space(const SkColorSpace* cs,
     return nullptr;
 }
 
-static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info,
-                                                 const skcms_ICCProfile* profile,
-                                                 const char* profile_description) {
-    return icc_from_color_space(info.colorSpace(), profile, profile_description);
+static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info) {
+    return icc_from_color_space(info.colorSpace());
 }
 
 static inline sk_sp<SkData> exif_from_origin(const SkEncodedOrigin origin) {

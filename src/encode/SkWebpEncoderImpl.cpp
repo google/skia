@@ -150,8 +150,7 @@ bool Encode(SkWStream* stream, const SkPixmap& pixmap, const Options& opts) {
     // If there is no need to embed an ICC profile, we write directly to the input stream.
     // Otherwise, we will first encode to |tmp| and use a mux to add the ICC chunk.  libwebp
     // forces us to have an encoded image before we can add a profile.
-    sk_sp<SkData> icc =
-            icc_from_color_space(pixmap.info(), opts.fICCProfile, opts.fICCProfileDescription);
+    sk_sp<SkData> icc = icc_from_color_space(pixmap.info());
     SkDynamicMemoryWStream tmp;
     pic.custom_ptr = icc ? (void*)&tmp : (void*)stream;
     pic.writer = stream_writer;

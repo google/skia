@@ -74,16 +74,6 @@ struct Options {
     sk_sp<SkDataTable> fComments;
 
     /**
-     * An optional ICC profile to override the default behavior.
-     *
-     * The default behavior is to generate an ICC profile using a primary matrix and
-     * analytic transfer function. If the color space of |src| cannot be represented
-     * in this way (e.g, it is HLG or PQ), then no profile will be embedded.
-     */
-    const skcms_ICCProfile* fICCProfile = nullptr;
-    const char* fICCProfileDescription = nullptr;
-
-    /**
      * Container for any HDR metadata to include in the encoded image.
      */
     skhdr::Metadata fHdrMetadata;

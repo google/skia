@@ -275,12 +275,8 @@ bool SkPngEncoderMgr::setHeader(const SkPngEncoderBase::TargetInfo& targetInfo,
     return true;
 }
 
-static void set_icc(png_structp png_ptr,
-                    png_infop info_ptr,
-                    const SkImageInfo& info,
-                    const skcms_ICCProfile* profile,
-                    const char* profile_description) {
-    sk_sp<SkData> icc = icc_from_color_space(info, profile, profile_description);
+static void set_icc(png_structp png_ptr, png_infop info_ptr, const SkImageInfo& info) {
+    sk_sp<SkData> icc = icc_from_color_space(info);
     if (!icc) {
         return;
     }
@@ -304,7 +300,7 @@ bool SkPngEncoderMgr::setColorSpace(const SkImageInfo& info, const SkPngEncoder:
     if (info.colorSpace() && info.colorSpace()->isSRGB()) {
         png_set_sRGB(fPngPtr, fInfoPtr, PNG_sRGB_INTENT_PERCEPTUAL);
     } else {
-        set_icc(fPngPtr, fInfoPtr, info, options.fICCProfile, options.fICCProfileDescription);
+        set_icc(fPngPtr, fInfoPtr, info);
     }
 
     return true;
