@@ -24,6 +24,12 @@
 #include "tests/Test.h"
 #include "tools/RuntimeBlendUtils.h"
 
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/Context.h"
+#include "include/gpu/graphite/Surface.h"
+#include "tools/graphite/GraphiteToolUtils.h"
+#endif
+
 #include <cmath>
 #include <initializer_list>
 #include <vector>
@@ -106,7 +112,7 @@ DEF_TEST(SkRuntimeBlender_CPU, r) {
     test_blend(r, surface.get());
 }
 
-DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeBlender_GPU,
+DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeBlender_Ganesh,
                                        r,
                                        ctxInfo,
                                        CtsEnforcement::kApiLevel_T) {
@@ -115,3 +121,18 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeBlender_GPU,
             SkSurfaces::RenderTarget(ctxInfo.directContext(), skgpu::Budgeted::kNo, info));
     test_blend(r, surface.get());
 }
+
+#if defined(SK_GRAPHITE)
+DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(SkRuntimeBlender_Graphite,
+                                         r,
+                                         context,
+                                         CtsEnforcement::kNextRelease) {
+    std::unique_ptr<skgpu::graphite::Recorder> recorder =
+            context->makeRecorder(ToolUtils::CreateTestingRecorderOptions());
+
+    const SkImageInfo info = SkImageInfo::MakeN32Premul(/*width=*/1, /*height=*/1);
+
+    sk_sp<SkSurface> surface = SkSurfaces::RenderTarget(recorder.get(), info);
+    test_blend(r, surface.get());
+}
+#endif
