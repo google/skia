@@ -754,7 +754,8 @@ std::unique_ptr<Run> TextLine::shapeEllipsis(const SkString& ellipsis, const Clu
         auto typeface = fOwner->fontCollection()->defaultFallback(
                                             unicode,
                                             textStyle.getFontStyle(),
-                                            textStyle.getLocale());
+                                            textStyle.getLocale(),
+                                            textStyle.getFontArguments());
         if (typeface) {
             ellipsisRun = shaped(typeface, fOwner->fontCollection()->getFallbackManager());
             if (ellipsisRun->isResolved()) {
