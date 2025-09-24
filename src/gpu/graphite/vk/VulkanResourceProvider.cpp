@@ -95,12 +95,6 @@ VulkanResourceProvider::VulkanResourceProvider(SharedContext* sharedContext,
         , fUniformBufferDescSetCache(kMaxNumberOfCachedBufferDescSets) {}
 
 VulkanResourceProvider::~VulkanResourceProvider() {
-    if (fPipelineCache != VK_NULL_HANDLE) {
-        VULKAN_CALL(this->vulkanSharedContext()->interface(),
-                    DestroyPipelineCache(this->vulkanSharedContext()->device(),
-                                         fPipelineCache,
-                                         nullptr));
-    }
     if (fMockPipelineLayout) {
         VULKAN_CALL(this->vulkanSharedContext()->interface(),
                     DestroyPipelineLayout(this->vulkanSharedContext()->device(),
@@ -453,26 +447,6 @@ sk_sp<VulkanRenderPass> VulkanResourceProvider::findOrCreateRenderPass(
     fResourceCache->insertResource(renderPass.get(), key, kBudgeted, kShareable);
 
     return renderPass;
-}
-
-VkPipelineCache VulkanResourceProvider::pipelineCache() {
-    if (fPipelineCache == VK_NULL_HANDLE) {
-        VkPipelineCacheCreateInfo createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-        createInfo.initialDataSize = 0;
-        createInfo.pInitialData = nullptr;
-        VkResult result;
-        VULKAN_CALL_RESULT(this->vulkanSharedContext(),
-                           result,
-                           CreatePipelineCache(this->vulkanSharedContext()->device(),
-                                               &createInfo,
-                                               nullptr,
-                                               &fPipelineCache));
-        if (VK_SUCCESS != result) {
-            fPipelineCache = VK_NULL_HANDLE;
-        }
-    }
-    return fPipelineCache;
 }
 
 namespace {

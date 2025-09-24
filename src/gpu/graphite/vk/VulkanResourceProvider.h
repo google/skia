@@ -70,8 +70,6 @@ public:
     // full (needed when beginning a render pass from the command buffer) RenderPass.
     sk_sp<VulkanRenderPass> findOrCreateRenderPass(const RenderPassDesc&, bool compatibleOnly);
 
-    VkPipelineCache pipelineCache();
-
     VkPipelineLayout mockPipelineLayout() const { return fMockPipelineLayout; }
 
     sk_sp<VulkanFramebuffer> findOrCreateFramebuffer(const VulkanSharedContext*,
@@ -108,8 +106,6 @@ private:
                                           bool fromAndroidWindow) const override;
 #endif
     void onDeleteBackendTexture(const BackendTexture&) override;
-
-    VkPipelineCache fPipelineCache = VK_NULL_HANDLE;
 
     // Certain operations only need to occur once per renderpass (updating push constants and, if
     // necessary, binding the dst texture as an input attachment). It is useful to have a

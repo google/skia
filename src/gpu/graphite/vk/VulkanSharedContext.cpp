@@ -120,11 +120,40 @@ VulkanSharedContext::VulkanSharedContext(
         , fDevice(backendContext.fDevice)
         , fQueueIndex(backendContext.fGraphicsQueueIndex)
         , fDeviceLostContext(backendContext.fDeviceLostContext)
-        , fDeviceLostProc(backendContext.fDeviceLostProc) {}
+        , fDeviceLostProc(backendContext.fDeviceLostProc) {
+    fPipelineCache = this->createPipelineCache();
+}
 
 VulkanSharedContext::~VulkanSharedContext() {
+    if (fPipelineCache != VK_NULL_HANDLE) {
+        VULKAN_CALL(this->interface(),
+                    DestroyPipelineCache(this->device(),
+                                         fPipelineCache,
+                                         nullptr));
+        fPipelineCache = VK_NULL_HANDLE;
+    }
     // need to clear out resources before the allocator is removed
     this->globalCache()->deleteResources();
+}
+
+VkPipelineCache VulkanSharedContext::createPipelineCache() {
+    VkPipelineCacheCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+    createInfo.initialDataSize = 0;
+    createInfo.pInitialData = nullptr;
+    VkResult result;
+    VkPipelineCache pipelineCache = VK_NULL_HANDLE;
+    VULKAN_CALL_RESULT(this,
+                       result,
+                       CreatePipelineCache(this->device(),
+                                           &createInfo,
+                                           nullptr,
+                                           &pipelineCache));
+    if (VK_SUCCESS != result) {
+        return VK_NULL_HANDLE;
+    }
+
+    return pipelineCache;
 }
 
 std::unique_ptr<ResourceProvider> VulkanSharedContext::makeResourceProvider(

@@ -656,7 +656,6 @@ static VkPipelineLayout setup_pipeline_layout(const VulkanSharedContext* sharedC
 }
 
 static VkResult create_shaders_pipeline(const VulkanSharedContext* sharedContext,
-                                        VkPipelineCache pipelineCache,
                                         VkGraphicsPipelineCreateInfo& completePipelineInfo,
                                         VkPipelineLibraryCreateInfoKHR& shadersLibraryInfo,
                                         VkGraphicsPipelineLibraryCreateInfoEXT& libraryInfo,
@@ -689,7 +688,7 @@ static VkResult create_shaders_pipeline(const VulkanSharedContext* sharedContext
         VULKAN_CALL_RESULT(sharedContext,
                            result,
                            CreateGraphicsPipelines(sharedContext->device(),
-                                                   pipelineCache,
+                                                   sharedContext->getPipelineCache(),
                                                    /*createInfoCount=*/1,
                                                    &shadersPipelineCreateInfo,
                                                    /*pAllocator=*/nullptr,
@@ -1108,7 +1107,6 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(
         // This can be further optimized by the front-end creating fewer shaders pipelines, and only
         // create multiple full pipelines out of them as needed.
         VkResult result = create_shaders_pipeline(sharedContext,
-                                                  rsrcProvider->pipelineCache(),
                                                   pipelineCreateInfo,
                                                   shadersLibraryInfo,
                                                   libraryInfo,
@@ -1126,7 +1124,7 @@ VkPipeline VulkanGraphicsPipeline::MakePipeline(
         VULKAN_CALL_RESULT(sharedContext,
                            result,
                            CreateGraphicsPipelines(sharedContext->device(),
-                                                   rsrcProvider->pipelineCache(),
+                                                   sharedContext->getPipelineCache(),
                                                    /*createInfoCount=*/1,
                                                    &pipelineCreateInfo,
                                                    /*pAllocator=*/nullptr,

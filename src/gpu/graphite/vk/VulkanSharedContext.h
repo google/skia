@@ -51,6 +51,8 @@ public:
         return fDeviceIsLost;
     }
 
+    VkPipelineCache getPipelineCache() const { return fPipelineCache; }
+
 private:
     VulkanSharedContext(const VulkanBackendContext&,
                         sk_sp<const skgpu::VulkanInterface>,
@@ -58,6 +60,8 @@ private:
                         std::unique_ptr<const VulkanCaps>,
                         SkExecutor*,
                         SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
+
+    VkPipelineCache createPipelineCache();
 
     sk_sp<const skgpu::VulkanInterface> fInterface;
     sk_sp<skgpu::VulkanMemoryAllocator> fMemoryAllocator;
@@ -71,6 +75,8 @@ private:
     mutable bool fDeviceIsLost SK_GUARDED_BY(fDeviceIsLostMutex) = false;
     skgpu::VulkanDeviceLostContext fDeviceLostContext;
     skgpu::VulkanDeviceLostProc fDeviceLostProc;
+
+    VkPipelineCache fPipelineCache = VK_NULL_HANDLE;
 };
 
 } // namespace skgpu::graphite
