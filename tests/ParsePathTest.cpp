@@ -6,6 +6,7 @@
  */
 
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
@@ -59,13 +60,13 @@ DEF_TEST(ParsePath, reporter) {
 
     SkRect r;
     r.setLTRB(0, 0, 10, 10.5f);
-    SkPath p;
+    SkPathBuilder p;
     p.addRect(r);
-    test_to_from(reporter, p);
+    test_to_from(reporter, p.snapshot());
     p.addOval(r);
-    test_to_from(reporter, p);
-    p.addRoundRect(r, 4, 4.5f);
-    test_to_from(reporter, p);
+    test_to_from(reporter, p.snapshot());
+    p.addRRect(SkRRect::MakeRectXY(r, 4, 4.5f));
+    test_to_from(reporter, p.snapshot());
 }
 
 static void testInvalidPath(skiatest::Reporter* reporter, const std::string& name,

@@ -131,8 +131,7 @@ DEF_TEST(DashCrazy_crbug_875494, r) {
     SkScalar vals[] = { 98, 94, 2888458849.f, 227, 0, 197 };
 
     SkRect cull = SkRect::MakeXYWH(43,236,57,149);
-    SkPath path;
-    path.addRect(cull);
+    SkPath path = SkPath::Rect(cull);
 
     SkPathBuilder builder;
     SkPaint paint;

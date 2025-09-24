@@ -13,6 +13,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkRefCnt.h"
@@ -55,9 +56,10 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(crbug_1271431,
     }
 
     auto drawWithStencilClip = [&](SkSurface& surf, SkColor color) {
-        SkPath clip;
-        clip.addCircle(50, 50, 50);
-        clip.addCircle(50, 50, 10, SkPathDirection::kCCW);
+        SkPath clip = SkPathBuilder()
+                      .addCircle(50, 50, 50)
+                      .addCircle(50, 50, 10, SkPathDirection::kCCW)
+                      .detach();
         SkPaint paint;
         paint.setColor(color);
         surf.getCanvas()->clipPath(clip, false);
