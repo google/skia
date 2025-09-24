@@ -3,5 +3,9 @@
 # found in the LICENSE file.
 
 
+from . import api as _api
+
 DEPS = [
 ]
+
+API = _api.BuilderNameSchemaApi

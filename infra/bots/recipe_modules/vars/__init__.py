@@ -3,6 +3,8 @@
 # found in the LICENSE file.
 
 
+from . import api as _api
+
 DEPS = [
   'builder_name_schema',
   'depot_tools/bot_update',
@@ -13,3 +15,5 @@ DEPS = [
   'recipe_engine/raw_io',
   'recipe_engine/step',
 ]
+
+API = _api.SkiaVarsApi

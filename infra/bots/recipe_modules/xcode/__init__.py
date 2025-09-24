@@ -4,6 +4,8 @@
 # found in the LICENSE file.
 
 
+from . import api as _api
+
 DEPS = [
   'recipe_engine/cipd',
   'recipe_engine/file',
@@ -11,3 +13,5 @@ DEPS = [
   'recipe_engine/step',
   'vars',
 ]
+
+API = _api.SkiaXCodeApi
