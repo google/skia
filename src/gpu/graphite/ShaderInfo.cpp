@@ -793,6 +793,9 @@ std::unique_ptr<ShaderInfo> ShaderInfo::Make(const Caps* caps,
                                      outDescs,
                                      shaderNodeAlloc,
                                      &rootNodes);
+    } else {
+        // Disable color write if there is no fragment shader
+        result->fBlendInfo.fWritesColor = false;
     }
 
     result->generateVertexSkSL(caps, step, useStorageBuffers, rootNodes);
