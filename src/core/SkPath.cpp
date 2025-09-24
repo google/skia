@@ -507,20 +507,13 @@ size_t SkPath::approximateBytesUsed() const {
     return size;
 }
 
-bool SkPath::getLastPt(SkPoint* lastPt) const {
+std::optional<SkPoint> SkPath::getLastPt() const {
     SkDEBUGCODE(this->validate();)
 
-    int count = fPathRef->countPoints();
-    if (count > 0) {
-        if (lastPt) {
-            *lastPt = fPathRef->atPoint(count - 1);
-        }
-        return true;
+    if (const int count = fPathRef->countPoints()) {
+        return fPathRef->atPoint(count - 1);
     }
-    if (lastPt) {
-        lastPt->set(0, 0);
-    }
-    return false;
+    return {};
 }
 
 void SkPath::setPt(int index, SkScalar x, SkScalar y) {
@@ -665,8 +658,7 @@ SkPath& SkPath::lineTo(SkScalar x, SkScalar y) {
 
 SkPath& SkPath::rLineTo(SkScalar x, SkScalar y) {
     this->injectMoveToIfNeeded();  // This can change the result of this->getLastPt().
-    SkPoint pt;
-    this->getLastPt(&pt);
+    SkPoint pt = this->getLastPt().value_or(SkPoint{0, 0});
     return this->lineTo(pt.fX + x, pt.fY + y);
 }
 
@@ -685,8 +677,7 @@ SkPath& SkPath::quadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
 
 SkPath& SkPath::rQuadTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2) {
     this->injectMoveToIfNeeded();  // This can change the result of this->getLastPt().
-    SkPoint pt;
-    this->getLastPt(&pt);
+    SkPoint pt = this->getLastPt().value_or(SkPoint{0, 0});
     return this->quadTo(pt.fX + x1, pt.fY + y1, pt.fX + x2, pt.fY + y2);
 }
 
@@ -718,8 +709,7 @@ SkPath& SkPath::conicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
 SkPath& SkPath::rConicTo(SkScalar dx1, SkScalar dy1, SkScalar dx2, SkScalar dy2,
                          SkScalar w) {
     this->injectMoveToIfNeeded();  // This can change the result of this->getLastPt().
-    SkPoint pt;
-    this->getLastPt(&pt);
+    SkPoint pt = this->getLastPt().value_or(SkPoint{0, 0});
     return this->conicTo(pt.fX + dx1, pt.fY + dy1, pt.fX + dx2, pt.fY + dy2, w);
 }
 
@@ -741,8 +731,7 @@ SkPath& SkPath::cubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
 SkPath& SkPath::rCubicTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2,
                          SkScalar x3, SkScalar y3) {
     this->injectMoveToIfNeeded();  // This can change the result of this->getLastPt().
-    SkPoint pt;
-    this->getLastPt(&pt);
+    SkPoint pt = this->getLastPt().value_or(SkPoint{0, 0});
     return this->cubicTo(pt.fX + x1, pt.fY + y1, pt.fX + x2, pt.fY + y2,
                          pt.fX + x3, pt.fY + y3);
 }
@@ -1049,13 +1038,15 @@ SkPath& SkPath::arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAng
     // close to 'pt' currently. This prevents spurious lineTos when adding a series of contiguous
     // arcs from the same oval.
     auto addPt = [&forceMoveTo, this](const SkPoint& pt) {
-        SkPoint lastPt;
         if (forceMoveTo) {
             this->moveTo(pt);
-        } else if (!this->getLastPt(&lastPt) ||
-                   !SkScalarNearlyEqual(lastPt.fX, pt.fX) ||
-                   !SkScalarNearlyEqual(lastPt.fY, pt.fY)) {
-            this->lineTo(pt);
+        } else {
+            auto lastPt = this->getLastPt();
+            if (!lastPt ||
+                !SkScalarNearlyEqual(lastPt->fX, pt.fX) ||
+                !SkScalarNearlyEqual(lastPt->fY, pt.fY)) {
+                this->lineTo(pt);
+            }
         }
     };
 
@@ -1101,7 +1092,7 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
                       SkPathDirection arcSweep, SkScalar x, SkScalar y) {
     this->injectMoveToIfNeeded();
     SkPoint srcPts[2];
-    this->getLastPt(&srcPts[0]);
+    srcPts[0] = *this->getLastPt();
     // If rx = 0 or ry = 0 then this arc is treated as a straight line segment (a "lineto")
     // joining the endpoints.
     // http://www.w3.org/TR/SVG/implnote.html#ArcOutOfRangeParameters
@@ -1227,8 +1218,7 @@ SkPath& SkPath::arcTo(SkScalar rx, SkScalar ry, SkScalar angle, SkPath::ArcSize 
 
 SkPath& SkPath::rArcTo(SkScalar rx, SkScalar ry, SkScalar xAxisRotate, SkPath::ArcSize largeArc,
                        SkPathDirection sweep, SkScalar dx, SkScalar dy) {
-    SkPoint currentPoint;
-    this->getLastPt(&currentPoint);
+    SkPoint currentPoint = this->getLastPt().value_or(SkPoint{0, 0});
     return this->arcTo(rx, ry, xAxisRotate, largeArc, sweep,
                        currentPoint.fX + dx, currentPoint.fY + dy);
 }
@@ -1269,8 +1259,7 @@ SkPath& SkPath::arcTo(SkScalar x1, SkScalar y1, SkScalar x2, SkScalar y2, SkScal
     }
 
     // need to know our prev pt so we can construct tangent vectors
-    SkPoint start;
-    this->getLastPt(&start);
+    SkPoint start = this->getLastPt().value_or(SkPoint{0, 0});
 
     // need double precision for these calcs.
     skvx::double2 befored = normalize(skvx::double2{x1 - start.fX, y1 - start.fY});
@@ -1355,9 +1344,9 @@ SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMo
                 mapPtsProc(matrix, mappedPts, &pts[0], 1);
                 if (firstVerb && mode == kExtend_AddPathMode && !isEmpty()) {
                     injectMoveToIfNeeded(); // In case last contour is closed
-                    SkPoint lastPt;
+                    auto lastPt = this->getLastPt();
                     // don't add lineTo if it is degenerate
-                    if (!this->getLastPt(&lastPt) || lastPt != mappedPts[0]) {
+                    if (!lastPt.has_value() || *lastPt != mappedPts[0]) {
                         this->lineTo(mappedPts[0]);
                     }
                 } else {

@@ -41,13 +41,13 @@ static bool one_contour(const SkPath& path) {
 }
 
 void SkOpBuilder::ReversePath(SkPath* path) {
-    SkPath temp;
-    SkPoint lastPt;
-    SkAssertResult(path->getLastPt(&lastPt));
-    temp.moveTo(lastPt);
-    temp.reversePathTo(*path);
+    auto lastPt = path->getLastPt();
+    SkASSERT(lastPt.has_value());
+    SkPathBuilder temp;
+    temp.moveTo(*lastPt);
+    SkPathPriv::ReversePathTo(&temp, *path);
     temp.close();
-    *path = temp;
+    *path = temp.detach();
 }
 
 bool SkOpBuilder::FixWinding(SkPath* path) {

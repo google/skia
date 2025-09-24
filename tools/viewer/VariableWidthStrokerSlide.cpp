@@ -382,7 +382,7 @@ void PathVerbMeasure::nextVerb() {
             break;
     }
 
-    fCurrVerb.getLastPt(&fPreviousPoint);
+    fPreviousPoint = fCurrVerb.getLastPt().value_or(SkPoint{0, 0});
     fMeas.setPath(&fCurrVerb, false);
 }
 
@@ -748,8 +748,7 @@ void SkVarWidthStroker::endcap(CapLocation loc) {
             fOuter.close();
         } else {
             // Inner last pt == first pt when appending in reverse
-            SkPoint innerLastPt;
-            fInner.getLastPt(&innerLastPt);
+            SkPoint innerLastPt = fInner.getLastPt().value_or(SkPoint{0, 0});
             fOuter.lineTo(innerLastPt);
         }
     };

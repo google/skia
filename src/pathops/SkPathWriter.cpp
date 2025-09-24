@@ -361,7 +361,9 @@ void SkPathWriter::assemble() {
                 if (forward) {
                     next = contour.getPoint(0);
                 } else {
-                    SkAssertResult(contour.getLastPt(&next));
+                    auto lastPt = contour.getLastPt();
+                    SkASSERT(lastPt.has_value());
+                    next = *lastPt;
                 }
                 if (*prior != next) {
                     /* TODO: if there is a gap between open path written so far and path to come,
