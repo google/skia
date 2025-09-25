@@ -51,7 +51,7 @@ void Decorations::paint(ParagraphPainter* painter, const TextStyle& textStyle, c
         switch (textStyle.getDecorationStyle()) {
           case TextDecorationStyle::kWavy: {
               calculateWaves(textStyle, context.clip);
-              fPath = fPath.makeOffset(x, y);
+              fPath.offset(x, y);
               painter->drawPath(fPath, fDecorStyle);
               break;
           }

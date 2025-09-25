@@ -74,15 +74,15 @@ static void drawBG(SkCanvas* canvas) {
 
 
 struct BlurTest {
-    SkPath (*addPath)();
+    void (*addPath)(SkPath*);
     int viewLen;
     SkIRect views[9];
 };
 
 //Path Draw Procs
 //Beware that paths themselves my draw differently depending on the clip.
-static SkPath draw50x50Rect() {
-    return SkPath::Rect({0, 0, 50, 50});
+static void draw50x50Rect(SkPath* path) {
+    path->addRect(0, 0, SkIntToScalar(50), SkIntToScalar(50));
 }
 
 //Tests
@@ -143,7 +143,8 @@ DEF_TEST(BlurDrawing, reporter) {
             paint.setMaskFilter(SkMaskFilter::MakeBlur(blurStyle, sigma, respectCTM));
 
             for (size_t test = 0; test < std::size(tests); ++test) {
-                SkPath path = tests[test].addPath();
+                SkPath path;
+                tests[test].addPath(&path);
                 SkPath strokedPath = skpathutils::FillPathWithPaint(path, paint);
                 SkRect refBound = strokedPath.getBounds();
                 SkIRect iref;
@@ -319,7 +320,8 @@ DEF_TEST(BlurSigmaRange, reporter) {
 
     // The geometry is offset a smidge to trigger:
     // https://code.google.com/p/chromium/issues/detail?id=282418
-    SkPath rectPath = SkPath::Rect({0.3f, 0.3f, 100.3f, 100.3f});
+    SkPath rectPath;
+    rectPath.addRect(0.3f, 0.3f, 100.3f, 100.3f);
 
     SkPoint polyPts[] = {
         { 0.3f, 0.3f },

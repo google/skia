@@ -3,7 +3,6 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkMatrix.h"
 #include "include/core/SkPath.h"
-#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkSpan.h"
 #include "include/core/SkTypeface.h"
@@ -1446,7 +1445,6 @@ void ParagraphImpl::extendedVisit(const ExtendedVisitor& visitor) {
 }
 
 int ParagraphImpl::getPath(int lineNumber, SkPath* dest) {
-    SkPathBuilder builder;
     int notConverted = 0;
     auto& line = fLines[lineNumber];
     line.iterateThroughVisualRuns(
@@ -1472,12 +1470,13 @@ int ParagraphImpl::getPath(int lineNumber, SkPath* dest) {
                                 line.offset().fY + correctedBaseline);
               SkRect rect = context.clip.makeOffset(offset);
               struct Rec {
-                  SkPathBuilder* fBuilder;
+                  SkPath* fPath;
                   SkPoint fOffset;
                   const SkPoint* fPos;
                   int fNotConverted;
               } rec =
-                  {&builder, SkPoint::Make(rect.left(), rect.top()), &run->positions()[context.pos], 0};
+                  {dest, SkPoint::Make(rect.left(), rect.top()),
+                   &run->positions()[context.pos], 0};
               font.getPaths({&run->glyphs()[context.pos], context.size},
                     [](const SkPath* path, const SkMatrix& mx, void* ctx) {
                         Rec* rec = reinterpret_cast<Rec*>(ctx);
@@ -1485,7 +1484,7 @@ int ParagraphImpl::getPath(int lineNumber, SkPath* dest) {
                             SkMatrix total = mx;
                             total.postTranslate(rec->fPos->fX + rec->fOffset.fX,
                                                 rec->fPos->fY + rec->fOffset.fY);
-                            rec->fBuilder->addPath(*path, total);
+                            rec->fPath->addPath(*path, total);
                         } else {
                             rec->fNotConverted++;
                         }
@@ -1493,7 +1492,6 @@ int ParagraphImpl::getPath(int lineNumber, SkPath* dest) {
                     }, &rec);
               notConverted += rec.fNotConverted;
           });
-        *dest = builder.detach();
         return true;
     });
 
@@ -1501,12 +1499,12 @@ int ParagraphImpl::getPath(int lineNumber, SkPath* dest) {
 }
 
 SkPath Paragraph::GetPath(SkTextBlob* textBlob) {
-    SkPathBuilder builder;
+    SkPath path;
     SkTextBlobRunIterator iter(textBlob);
     while (!iter.done()) {
         SkFont font = iter.font();
-        struct Rec { SkPathBuilder* fBuilder; SkPoint fOffset; const SkPoint* fPos; } rec =
-            {&builder, {textBlob->bounds().left(), textBlob->bounds().top()},
+        struct Rec { SkPath* fDst; SkPoint fOffset; const SkPoint* fPos; } rec =
+            {&path, {textBlob->bounds().left(), textBlob->bounds().top()},
              iter.points()};
         font.getPaths({iter.glyphs(), iter.glyphCount()},
             [](const SkPath* src, const SkMatrix& mx, void* ctx) {
@@ -1515,14 +1513,14 @@ SkPath Paragraph::GetPath(SkTextBlob* textBlob) {
                     SkMatrix tmp(mx);
                     tmp.postTranslate(rec->fPos->fX - rec->fOffset.fX,
                                       rec->fPos->fY - rec->fOffset.fY);
-                    rec->fBuilder->addPath(*src, tmp);
+                    rec->fDst->addPath(*src, tmp);
                 }
                 rec->fPos += 1;
             },
             &rec);
         iter.next();
     }
-    return builder.detach();
+    return path;
 }
 
 bool ParagraphImpl::containsEmoji(SkTextBlob* textBlob) {
