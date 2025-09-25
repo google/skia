@@ -346,7 +346,8 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "test", ALL, "SkipOpsTaskTest")
 			skip(ALL, "test", ALL, "SkColorSpaceXform_Ganesh")
 			skip(ALL, "test", ALL, "SkColorSpaceXform_Graphite")
-			skip(ALL, "test", ALL, "SkRuntimeBlender_GPU")
+			skip(ALL, "test", ALL, "SkRuntimeBlender_Ganesh")
+			skip(ALL, "test", ALL, "SkRuntimeBlender_Graphite")
 			skip(ALL, "test", ALL, "SkRuntimeEffect") // knocks out a bunch
 			skip(ALL, "test", ALL, "SkRuntimeShaderImageFilter_GPU")
 			skip(ALL, "test", ALL, "SkRuntimeShader_TransformedCoords_Ganesh")
