@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <limits>
 #include <string>
+#include <vector>
 
 static bool nearly_equal(const SkPoint& a, const SkPoint& b) {
     return SkScalarNearlyEqual(a.fX, b.fX) && SkScalarNearlyEqual(a.fY, b.fY);
@@ -971,4 +972,54 @@ DEF_TEST(GeometryChopMonoCubicAtX_OutOfRangeReturnFalse, reporter) {
     REPORTER_ASSERT(reporter, !SkChopMonoCubicAtX(inputs, -10, outputs));
     // Too high
     REPORTER_ASSERT(reporter, !SkChopMonoCubicAtX(inputs, 20, outputs));
+}
+
+DEF_TEST(ConicsWithCrazyW, reporter) {
+    constexpr float max = std::numeric_limits<float>::max();
+    constexpr float inf = std::numeric_limits<float>::infinity();
+    constexpr float nanq = std::numeric_limits<float>::quiet_NaN();
+    constexpr float nans = std::numeric_limits<float>::signaling_NaN();
+
+    constexpr float weights[] = {
+        0, 1.0f/65535, 1, 65535, max/4, max/2, max, inf, nanq, nans,
+    };
+
+    constexpr float length = 100;
+    SkConic conic = {{0, length}, {0, 0}, {length, 0}, 1};
+
+    // any points on the conic must lie within the convex-hull of the conic's control-points
+    auto is_in_convex_hull = [](SkPoint p) {
+        const float sum = p.fX + p.fY;
+        const float tinySlop = 1.0f/32768;
+        return p.fX >= 0 && p.fY >= 0 && (sum <= length + tinySlop);
+    };
+
+    constexpr float tol = 0;
+    for (float sign : {+1, -1}) {
+        for (auto w : weights) {
+            conic.fW = w * sign;
+
+            constexpr int kExtremePOW2 = 30;    // any larger, and 1 << that would overflow
+            const int pow2 = conic.computeQuadPOW2(tol);
+
+            REPORTER_ASSERT(reporter, pow2 >= 0 && pow2 <= kExtremePOW2);
+            const int numQuads = 1 << pow2;
+            REPORTER_ASSERT(reporter, numQuads > 0);
+            const int numPoints = numQuads * 2 + 1;
+            REPORTER_ASSERT(reporter, numPoints >= 3);
+
+            std::vector<SkPoint> pts(numPoints);
+            const int numQuads2 = conic.chopIntoQuadsPOW2(pts.data(), pow2);
+
+            REPORTER_ASSERT(reporter, numQuads2 <= numQuads);
+            const int numPoints2 = numQuads2 * 2 + 1;
+            REPORTER_ASSERT(reporter, numPoints2 <= numPoints);
+
+            for (int i = 0; i < numPoints2; ++i) {
+                SkPoint p = pts[i];
+                REPORTER_ASSERT(reporter, SkIsFinite(p.fX, p.fY));
+                REPORTER_ASSERT(reporter, is_in_convex_hull(p));
+            }
+        }
+    }
 }
