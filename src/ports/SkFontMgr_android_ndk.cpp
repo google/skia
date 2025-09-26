@@ -34,6 +34,7 @@
 #include <android/api-level.h>
 #else
 #define __ANDROID_API__ 0
+#define __ANDROID_API_Q__ 29
 #define __ANDROID_API_R__ 30
 #define __ANDROID_API_S__ 31
 int android_get_device_api_level() { return __ANDROID_API__; };
@@ -64,9 +65,10 @@ using namespace skia_private;
  * As a result, there is no correct way to use locale information from the Android 10 NDK. So this
  * font manager only works with Android 11 (R, API 30) and above.
  */
-#define SK_FONTMGR_ANDROID_NDK_API_LEVEL __ANDROID_API_R__
+#define SK_ANDROID_NDK_FONT_API_EXISTS __ANDROID_API_Q__
+#define SK_ANDROID_NDK_FONT_API_LOCALE_WORKS __ANDROID_API_R__
 
-#if __ANDROID_API__ >= SK_FONTMGR_ANDROID_NDK_API_LEVEL
+#if __ANDROID_API__ >= SK_ANDROID_NDK_FONT_API_EXISTS
 #include <android/font.h>
 #include <android/font_matcher.h>
 #include <android/system_fonts.h>
@@ -152,7 +154,7 @@ struct AndroidFontAPI {
     uint32_t (*AFont_getAxisTag)(const AFont*, uint32_t axisIndex);
     float (*AFont_getAxisValue)(const AFont*, uint32_t axisIndex);
 
-#if __ANDROID_API__ >= SK_FONTMGR_ANDROID_NDK_API_LEVEL
+#if __ANDROID_API__ >= SK_ANDROID_NDK_FONT_API_EXISTS
 
     static std::optional<AndroidFontAPI> Make() {
         static AndroidFontAPI api {
@@ -170,6 +172,9 @@ struct AndroidFontAPI {
             ::AFont_getAxisTag,
             ::AFont_getAxisValue,
         };
+        if (android_get_device_api_level() < SK_ANDROID_NDK_FONT_API_LOCALE_WORKS) {
+            return std::nullopt;
+        }
         if constexpr (kSkFontMgrVerbose) { SkDebugf("SKIA: GetAndroidFontAPI direct\n"); }
         return api;
     }
@@ -186,7 +191,7 @@ public:
     AndroidFontAPI& operator=(AndroidFontAPI&&) = default;
 
     static std::optional<AndroidFontAPI> Make() {
-        if (android_get_device_api_level() < SK_FONTMGR_ANDROID_NDK_API_LEVEL) {
+        if (android_get_device_api_level() < SK_ANDROID_NDK_FONT_API_LOCALE_WORKS) {
             return std::nullopt;
         }
 
