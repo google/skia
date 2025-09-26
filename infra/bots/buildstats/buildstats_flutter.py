@@ -26,7 +26,7 @@ def main():
   config = sys.argv[7]
   total_size_bytes_key = sys.argv[8]
   lib_name = sys.argv[9]
-  magic_seperator = sys.argv[10]
+  magic_separator = sys.argv[10]
 
   results = {
     'key': { },
@@ -42,7 +42,7 @@ def main():
     results['key'][keys[i]] = keys[i+1]
 
   # Human "readable" reports as an FYI.
-  print(magic_seperator)
+  print(magic_separator)
   print('Report by file, then by symbol with ellided/combined templates')
   lines = subprocess.check_output([bloaty_path, stripped_file,
                                    '-d', 'compileunits,symbols', '-s', 'file',
@@ -50,7 +50,7 @@ def main():
                                    '--debug-file=%s' % symbols_file],
                                   encoding='utf-8')
   grand_total = print_skia_lines_file_symbol(lines)
-  print(magic_seperator)
+  print(magic_separator)
   print('Report by file, then by symbol with full templates')
   lines = subprocess.check_output([bloaty_path, stripped_file,
                                    '-d', 'compileunits,symbols', '-s', 'file',
@@ -58,7 +58,7 @@ def main():
                                    '--debug-file=%s' % symbols_file],
                                   encoding='utf-8')
   print_skia_lines_file_symbol(lines)
-  print(magic_seperator)
+  print(magic_separator)
 
   print('Report by symbol, then by file with ellided/combined templates')
   lines = subprocess.check_output([bloaty_path, stripped_file,
@@ -67,7 +67,7 @@ def main():
                                    '--debug-file=%s' % symbols_file],
                                   encoding='utf-8')
   print_skia_lines_symbol_file(lines)
-  print(magic_seperator)
+  print(magic_separator)
 
   print('Report by symbol, then by file with full templates')
   lines = subprocess.check_output([bloaty_path, stripped_file,
@@ -76,7 +76,7 @@ def main():
                                    '--debug-file=%s' % symbols_file],
                                   encoding='utf-8')
   print_skia_lines_symbol_file(lines)
-  print(magic_seperator)
+  print(magic_separator)
 
   r = {
     # Use the default config as stats about the whole binary
