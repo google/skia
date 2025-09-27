@@ -351,7 +351,6 @@ bool SkPngEncoderMgr::setHdrMetadata(const SkPngEncoder::Options& options) {
 
     if (options.fGainmapInfo && options.fGainmap) {
         sk_sp<SkData> gainmapVersion = SkGainmapInfo::SerializeVersion();
-        SkDynamicMemoryWStream gainmapStream;
 
         // When we encode the gainmap, we need to remove the gainmap from its
         // own encoding options, so that we don't recurse.
@@ -376,12 +375,10 @@ bool SkPngEncoderMgr::setHdrMetadata(const SkPngEncoder::Options& options) {
             modifiedOptions.fGainmapInfo = &gainmapInfo;
         }
 
-        bool result = SkPngEncoder::Encode(&gainmapStream, gainmapPixels, modifiedOptions);
-        if (!result) {
+        sk_sp<SkData> gainmapData = SkPngEncoder::Encode(gainmapPixels, modifiedOptions);
+        if (!gainmapData) {
             return false;
         }
-
-        sk_sp<SkData> gainmapData = gainmapStream.detachAsData();
 
         // The base image contains chunks for both the gainmap versioning (for possible
         // forward-compat, and as a cheap way to check a gainmap might exist) as
@@ -512,6 +509,11 @@ bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options) {
     return encoder.get() && encoder->encodeRows(src.height());
 }
 
+sk_sp<SkData> Encode(const SkPixmap& src, const Options& options) {
+    SkDynamicMemoryWStream stream;
+    return Encode(&stream, src, options) ? stream.detachAsData() : nullptr;
+}
+
 sk_sp<SkData> Encode(GrDirectContext* ctx, const SkImage* img, const Options& options) {
     if (!img) {
         return nullptr;
@@ -520,11 +522,7 @@ sk_sp<SkData> Encode(GrDirectContext* ctx, const SkImage* img, const Options& op
     if (!as_IB(img)->getROPixels(ctx, &bm)) {
         return nullptr;
     }
-    SkDynamicMemoryWStream stream;
-    if (Encode(&stream, bm.pixmap(), options)) {
-        return stream.detachAsData();
-    }
-    return nullptr;
+    return Encode(bm.pixmap(), options);
 }
 
 }  // namespace SkPngEncoder

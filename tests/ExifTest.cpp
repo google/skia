@@ -245,15 +245,14 @@ DEF_TEST(ExifWriteOrientation, r) {
                     kRightTop_SkEncodedOrigin,
                     kRightBottom_SkEncodedOrigin,
                     kLeftBottom_SkEncodedOrigin }) {
-        SkDynamicMemoryWStream stream;
         SkJpegEncoder::Options options;
         options.fOrigin = o;
-        if (!SkJpegEncoder::Encode(&stream, pm, options)) {
+        auto data = SkJpegEncoder::Encode(pm, options);
+        if (!data) {
             ERRORF(r, "Failed to encode with orientation %i", o);
             return;
         }
 
-        auto data = stream.detachAsData();
         auto codec = SkCodec::MakeFromData(std::move(data));
         if (!codec) {
             ERRORF(r, "Failed to create a codec with orientation %i", o);

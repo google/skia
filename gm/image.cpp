@@ -392,15 +392,15 @@ DEF_SIMPLE_GM_CAN_FAIL(new_texture_image, canvas, errorMsg, 280, 115) {
             [&] { return bmp.asImage(); },
             // Create encoded image.
             [&] {
-                SkDynamicMemoryWStream stream;
-                SkASSERT_RELEASE(SkPngEncoder::Encode(&stream, bmp.pixmap(), {}));
-                return SkImages::DeferredFromEncodedData(stream.detachAsData());
+                sk_sp<SkData> data = SkPngEncoder::Encode(bmp.pixmap(), {});
+                SkASSERT_RELEASE(data);
+                return SkImages::DeferredFromEncodedData(data);
             },
             // Create YUV encoded image.
             [&] {
-                SkDynamicMemoryWStream stream;
-                SkASSERT_RELEASE(SkJpegEncoder::Encode(&stream, bmp.pixmap(), {}));
-                return SkImages::DeferredFromEncodedData(stream.detachAsData());
+                sk_sp<SkData> data = SkJpegEncoder::Encode(bmp.pixmap(), {});
+                SkASSERT_RELEASE(data);
+                return SkImages::DeferredFromEncodedData(data);
             },
             // Create a picture image.
             [&] {

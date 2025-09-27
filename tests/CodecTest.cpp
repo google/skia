@@ -1269,10 +1269,10 @@ static void check_round_trip(skiatest::Reporter* r, SkCodec* origCodec, const Sk
     REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 
     // Encode the image to png.
-    SkDynamicMemoryWStream stream;
-    SkASSERT_RELEASE(SkPngEncoder::Encode(&stream, bm1.pixmap(), {}));
+    sk_sp<SkData> data = SkPngEncoder::Encode(bm1.pixmap(), {});
+    SkASSERT_RELEASE(data != nullptr);
 
-    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(stream.detachAsData()));
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
     REPORTER_ASSERT(r, color_type_match(info.colorType(), codec->getInfo().colorType()));
     REPORTER_ASSERT(r, alpha_type_match(info.alphaType(), codec->getInfo().alphaType()));
 
@@ -1779,21 +1779,17 @@ DEF_TEST(Codec_InvalidAnimated, r) {
     }
 }
 
-static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap,
-                          SkEncodedImageFormat format) {
+static sk_sp<SkData> encode_format(const SkPixmap& pixmap, SkEncodedImageFormat format) {
     switch (format) {
         case SkEncodedImageFormat::kPNG:
-            SkPngEncoder::Encode(stream, pixmap, SkPngEncoder::Options());
-            break;
+            return SkPngEncoder::Encode(pixmap, SkPngEncoder::Options());
         case SkEncodedImageFormat::kJPEG:
-            SkJpegEncoder::Encode(stream, pixmap, SkJpegEncoder::Options());
-            break;
+            return SkJpegEncoder::Encode(pixmap, SkJpegEncoder::Options());
         case SkEncodedImageFormat::kWEBP:
-            SkWebpEncoder::Encode(stream, pixmap, SkWebpEncoder::Options());
-            break;
+            return SkWebpEncoder::Encode(pixmap, SkWebpEncoder::Options());
         default:
             SkASSERT(false);
-            break;
+            return nullptr;
     }
 }
 
@@ -1805,18 +1801,14 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format) 
     *srgbBitmap.getAddr32(0, 0) = 0;
     SkPixmap pixmap;
     srgbBitmap.peekPixels(&pixmap);
-    SkDynamicMemoryWStream srgbBuf;
-    encode_format(&srgbBuf, pixmap, format);
-    sk_sp<SkData> srgbData = srgbBuf.detachAsData();
+    sk_sp<SkData> srgbData = encode_format(pixmap, format);
     std::unique_ptr<SkCodec> srgbCodec(SkCodec::MakeFromData(srgbData));
     REPORTER_ASSERT(r, srgbCodec->getInfo().colorSpace() == sk_srgb_singleton());
 
     // Test with P3 color space.
-    SkDynamicMemoryWStream p3Buf;
     sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkNamedTransferFn::kSRGB, SkNamedGamut::kDisplayP3);
     pixmap.setColorSpace(p3);
-    encode_format(&p3Buf, pixmap, format);
-    sk_sp<SkData> p3Data = p3Buf.detachAsData();
+    sk_sp<SkData> p3Data = encode_format(pixmap, format);
     std::unique_ptr<SkCodec> p3Codec(SkCodec::MakeFromData(p3Data));
     REPORTER_ASSERT(r, p3Codec->getInfo().colorSpace()->gammaCloseToSRGB());
     skcms_Matrix3x3 mat0, mat1;
@@ -2052,9 +2044,9 @@ DEF_TEST(Codec_kBGR_101010x_XR_SkColorType_supported, r) {
             .makeAlphaType(kOpaque_SkAlphaType);
     SkImageInfo dstInfo = srcInfo.makeColorType(kBGR_101010x_XR_SkColorType);
     srcBm.allocPixels(srcInfo);
-    SkDynamicMemoryWStream stream;
-    SkASSERT_RELEASE(SkPngEncoder::Encode(&stream, srcBm.pixmap(), {}));
-    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(stream.detachAsData()));
+    sk_sp<SkData> data = SkPngEncoder::Encode(srcBm.pixmap(), {});
+    SkASSERT_RELEASE(data != nullptr);
+    std::unique_ptr<SkCodec> codec(SkCodec::MakeFromData(data));
     SkBitmap dstBm;
     dstBm.allocPixels(dstInfo);
     bool success = codec->getPixels(dstInfo, dstBm.getPixels(), dstBm.rowBytes());
@@ -2628,11 +2620,10 @@ DEF_TEST(PngHdrMetadataRoundTrip, r) {
     options.fHdrMetadata.setContentLightLevelInformation(
         skhdr::ContentLightLevelInformation({1000.f, 150.f}));
 
-    SkDynamicMemoryWStream wstream;
-    SkPngEncoder::Encode(&wstream, bm.pixmap(), options);
+    sk_sp<SkData> data = SkPngEncoder::Encode(bm.pixmap(), options);
 
     SkCodec::Result result;
-    auto codec = SkPngDecoder::Decode(wstream.detachAsData(), &result);
+    auto codec = SkPngDecoder::Decode(data, &result);
 
     REPORTER_ASSERT(r, options.fHdrMetadata == codec->getHdrMetadata());
 }

@@ -179,9 +179,8 @@ static sk_sp<SkData> serialize_image(const SkImage* image, SkSerialProcs procs) 
     if (!ib->getROPixels(ib->directContext(), &bm)) {
         return nullptr;
     }
-    SkDynamicMemoryWStream stream;
-    if (SkPngEncoder::Encode(&stream, bm.pixmap(), SkPngEncoder::Options())) {
-        return stream.detachAsData();
+    if (auto result = SkPngEncoder::Encode(bm.pixmap(), SkPngEncoder::Options())) {
+        return result;
     }
 #endif
     return nullptr;

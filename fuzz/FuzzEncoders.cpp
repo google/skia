@@ -10,7 +10,6 @@
 #include "include/core/SkImage.h"
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPixmap.h"
-#include "include/core/SkStream.h"
 #include "include/encode/SkJpegEncoder.h"
 #include "include/encode/SkPngEncoder.h"
 #include "include/encode/SkWebpEncoder.h"
@@ -43,8 +42,7 @@ DEF_FUZZ(PNGEncoder, fuzz) {
     auto opts = SkPngEncoder::Options{};
     fuzz->nextRange(&opts.fZLibLevel, 0, 9);
 
-    SkDynamicMemoryWStream dest;
-    SkPngEncoder::Encode(&dest, bm.pixmap(), opts);
+    std::ignore = SkPngEncoder::Encode(bm.pixmap(), opts);
 }
 
 DEF_FUZZ(JPEGEncoder, fuzz) {
@@ -53,8 +51,7 @@ DEF_FUZZ(JPEGEncoder, fuzz) {
     auto opts = SkJpegEncoder::Options{};
     fuzz->nextRange(&opts.fQuality, 0, 100);
 
-    SkDynamicMemoryWStream dest;
-    (void)SkJpegEncoder::Encode(&dest, bm.pixmap(), opts);
+    std::ignore = SkJpegEncoder::Encode(bm.pixmap(), opts);
 }
 
 DEF_FUZZ(WEBPEncoder, fuzz) {
@@ -70,8 +67,7 @@ DEF_FUZZ(WEBPEncoder, fuzz) {
         opts.fCompression = SkWebpEncoder::Compression::kLossless;
     }
 
-    SkDynamicMemoryWStream dest;
-    (void)SkWebpEncoder::Encode(&dest, bm.pixmap(), opts);
+    std::ignore = SkWebpEncoder::Encode(bm.pixmap(), opts);
 }
 
 // Not a real fuzz endpoint, but a helper to take in real, good images

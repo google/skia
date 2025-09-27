@@ -46,23 +46,18 @@ static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitm
     if (!bitmap.peekPixels(&src)) {
         return nullptr;
     }
-    SkDynamicMemoryWStream buf;
     switch (type) {
-        case SkEncodedImageFormat::kPNG: {
-            bool success = SkPngEncoder::Encode(&buf, src, {});
-            return success ? buf.detachAsData() : nullptr;
-        }
+        case SkEncodedImageFormat::kPNG:
+            return SkPngEncoder::Encode(src, {});
         case SkEncodedImageFormat::kJPEG: {
             SkJpegEncoder::Options opts;
             opts.fQuality = quality;
-            bool success = SkJpegEncoder::Encode(&buf, src, opts);
-            return success ? buf.detachAsData() : nullptr;
+            return SkJpegEncoder::Encode(src, opts);
         }
         case SkEncodedImageFormat::kWEBP: {
             SkWebpEncoder::Options opts;
             opts.fQuality = quality;
-            bool success = SkWebpEncoder::Encode(&buf, src, opts);
-            return success ? buf.detachAsData() : nullptr;
+            return SkWebpEncoder::Encode(src, opts);
         }
         default:
             SkUNREACHABLE;

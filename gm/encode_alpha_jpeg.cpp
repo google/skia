@@ -34,11 +34,10 @@ static inline void read_into_pixmap(SkPixmap* dst, SkImageInfo dstInfo, void* ds
 
 static inline sk_sp<SkImage> encode_pixmap_and_make_image(const SkPixmap& src,
         SkJpegEncoder::AlphaOption alphaOption) {
-    SkDynamicMemoryWStream dst;
     SkJpegEncoder::Options options;
     options.fAlphaOption = alphaOption;
-    SkJpegEncoder::Encode(&dst, src, options);
-    return SkImages::DeferredFromEncodedData(dst.detachAsData());
+    sk_sp<SkData> data = SkJpegEncoder::Encode(src, options);
+    return SkImages::DeferredFromEncodedData(data);
 }
 
 class EncodeJpegAlphaOptsGM : public GM {
