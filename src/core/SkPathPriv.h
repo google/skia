@@ -48,7 +48,7 @@ struct SkPathVerbAnalysis {
 class SkPathPriv {
 public:
     static SkPathConvexity ComputeConvexity(SkSpan<const SkPoint> pts,
-                                            SkSpan<const SkPathVerb> points,
+                                            SkSpan<const SkPathVerb> verbs,
                                             SkSpan<const float> conicWeights);
 
     static uint8_t ComputeSegmentMask(SkSpan<const SkPathVerb>);
@@ -453,13 +453,30 @@ public:
     }
 
     static SkPathRaw Raw(const SkPathBuilder& builder) {
+        SkRect bounds;
+        bool isConvex;
+        if (auto r = builder.computeFiniteBounds()) {
+            bounds = *r;
+
+            SkPathConvexity convexity = builder.fConvexity;
+            if (convexity == SkPathConvexity::kUnknown) {
+                convexity = SkPathPriv::ComputeConvexity(builder.fPts,
+                                                         builder.fVerbs,
+                                                         builder.fConicWeights);
+            }
+            isConvex = SkPathConvexity_IsConvex(convexity);
+        } else {
+            bounds = {SK_ScalarInfinity, SK_ScalarInfinity, SK_ScalarInfinity, SK_ScalarInfinity};
+            isConvex = false;
+        }
+
         return {
             builder.points(),
             builder.verbs(),
             builder.conicWeights(),
-            builder.computeBounds(),
+            bounds,
             builder.fillType(),
-            SkPathConvexity_IsConvex(builder.fConvexity),
+            isConvex,
             SkTo<uint8_t>(builder.fSegmentMask),
         };
     }

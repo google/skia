@@ -994,7 +994,7 @@ static std::optional<SkPaint> modifyPaintForHairlines(const SkPaint& origPaint,
 void Draw::drawPath(const SkPath& origSrcPath,
                     const SkPaint& origPaint,
                     const SkMatrix* prePathMatrix,
-                    bool pathIsMutable,
+                    bool /*pathIsMutable*/,
                     SkDrawCoverage drawCoverage,
                     SkBlitter* customBlitter) const {
     SkDEBUGCODE(this->validate();)
@@ -1004,60 +1004,61 @@ void Draw::drawPath(const SkPath& origSrcPath,
         return;
     }
 
-    SkPath* pathPtr = const_cast<SkPath*>(&origSrcPath);
-    bool doFill = true;
-    SkPath tmpPathStorage;
-    SkPath* tmpPath = &tmpPathStorage;
-    SkTCopyOnFirstWrite<SkMatrix> matrix(fCTM);
-    tmpPath->setIsVolatile(true);
-
-    if (prePathMatrix) {
-        if (origPaint.getPathEffect() || origPaint.getStyle() != SkPaint::kFill_Style) {
-            SkPath* result = pathPtr;
-
-            if (!pathIsMutable) {
-                result = tmpPath;
-                pathIsMutable = true;
-            }
-            pathPtr->transform(*prePathMatrix, result);
-            pathPtr = result;
-        } else {
-            matrix.writable()->preConcat(*prePathMatrix);
-        }
-    }
-
-    std::optional<SkPaint> newPaint = modifyPaintForHairlines(origPaint, *matrix);
+    std::optional<SkPaint> newPaint = modifyPaintForHairlines(origPaint, *fCTM);
     const SkPaint* paint = newPaint.has_value() ? &newPaint.value()
                                                 : &origPaint;
 
-    if (paint->getPathEffect() || paint->getStyle() != SkPaint::kFill_Style) {
+    const bool needsFillPath = paint->getPathEffect() || paint->getStyle() != SkPaint::kFill_Style;
+
+    SkPathBuilder builder;
+    SkPathRaw     raw;      // will point to either origSrcPath or builder
+    bool          doFill = true;
+
+    SkPath scratchPath;
+
+    if (needsFillPath) {
         SkRect cullRect;
         const SkRect* cullRectPtr = nullptr;
         if (this->computeConservativeLocalClipBounds(&cullRect)) {
             cullRectPtr = &cullRect;
         }
-        SkPathBuilder builder;
+
+        SkPath prePathStorage;
+        const SkPath* pathPtr = &origSrcPath;
+        if (prePathMatrix) {
+            prePathStorage = pathPtr->makeTransform(*prePathMatrix);
+            pathPtr = &prePathStorage;
+        }
         doFill = skpathutils::FillPathWithPaint(*pathPtr, *paint, &builder, cullRectPtr, *fCTM);
-        *tmpPath = builder.detach();
-        pathPtr = tmpPath;
+        builder.transform(*fCTM);
+        raw = SkPathPriv::Raw(builder);
+    } else {
+        SkMatrix matrix = *fCTM;
+        if (prePathMatrix) {
+            matrix.preConcat(*prePathMatrix);
+        }
+
+        if (matrix.isIdentity()) {
+            // special case, to avoid copying the origSrcPath into the builder
+            raw = SkPathPriv::Raw(origSrcPath);
+            SkASSERT(origSrcPath.isFinite() == raw.bounds().isFinite());
+        } else {
+            builder = origSrcPath;
+            builder.transform(matrix);
+            raw = SkPathPriv::Raw(builder);
+        }
     }
 
-    // avoid possibly allocating a new path in transform if we can
-    SkPath* devPathPtr = pathIsMutable ? pathPtr : tmpPath;
-
-    // transform the path into device space
-    pathPtr->transform(*matrix, devPathPtr);
-    if (!devPathPtr->isFinite()) {
+    if (!raw.bounds().isFinite()) {
         return;
     }
 
 #if defined(SK_BUILD_FOR_FUZZER)
-    if (devPathPtr->countPoints() > 1000) {
+    if (raw.points().size() > 1000) {
         return;
     }
 #endif
 
-    SkPathRaw raw = SkPathPriv::Raw(*devPathPtr);
     this->drawDevPath(raw, *paint, drawCoverage, customBlitter, doFill);
 }
 

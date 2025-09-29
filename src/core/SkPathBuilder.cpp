@@ -133,10 +133,6 @@ std::tuple<SkPoint*, SkScalar*> SkPathBuilder::growForVerbsInPath(const SkPathRe
     return {pts, weights};
 }
 
-SkRect SkPathBuilder::computeBounds() const {
-    return SkRect::BoundsOrEmpty(fPts);
-}
-
 /*
  *  Some old behavior in SkPath -- should we keep it?
  *

@@ -73,15 +73,26 @@ public:
     SkPathFillType fillType() const { return fFillType; }
 
     /** Returns minimum and maximum axes values of SkPoint array.
-        Returns (0, 0, 0, 0) if SkPathBuilder contains no points. Returned bounds width and height
-        may be larger or smaller than area affected when SkPath is drawn.
+        Returns (0, 0, 0, 0) if SkPathBuilder contains no points.
 
         SkRect returned includes all SkPoint added to SkPathBuilder, including SkPoint associated
         with kMove_Verb that define empty contours.
 
-        @return  bounds of all SkPoint in SkPoint array
+        If any of the points are non-finite, returns {}.
+
+        @return  bounds of all SkPoint in SkPoint array, or {}.
     */
-    SkRect computeBounds() const;
+    std::optional<SkRect> computeFiniteBounds() const {
+        return SkRect::Bounds(fPts);
+    }
+
+    // DEPRECATED -- returns "empty" if the bounds are non-finite
+    SkRect computeBounds() const {
+        if (auto bounds = this->computeFiniteBounds()) {
+            return *bounds;
+        }
+        return SkRect::MakeEmpty();
+    }
 
     /** Returns an SkPath representing the current state of the SkPathBuilder. The builder is
         unchanged after returning the path.
