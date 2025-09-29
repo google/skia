@@ -41,6 +41,7 @@
 #include "modules/sksg/include/SkSGTransform.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
 #include "modules/skshaper/include/SkShaper_factory.h"
+#include "src/core/SkPathPriv.h"
 
 #include <algorithm>
 #include <cmath>
@@ -211,9 +212,7 @@ struct TextAdapter::PathInfo {
             // reinitialize cached contour data
             auto path = static_cast<SkPath>(fPath);
             if (reverse) {
-                SkPath reversed;
-                reversed.reverseAddPath(path);
-                path = reversed;
+                path = SkPathPriv::ReversePath(path);
             }
 
             SkContourMeasureIter iter(path, /*forceClosed = */false);

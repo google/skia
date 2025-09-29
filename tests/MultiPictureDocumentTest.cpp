@@ -16,6 +16,7 @@
 #include "include/core/SkImageInfo.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPicture.h"
 #include "include/core/SkPictureRecorder.h"
 #include "include/core/SkRRect.h"
@@ -64,8 +65,9 @@ static void draw_basic(SkCanvas* canvas, int seed, sk_sp<SkImage> image) {
     paint.setColor(SK_ColorYELLOW);
     canvas->drawRoundRect(rect, 10, 10, paint);
 
-    SkPath path;
-    path.cubicTo(768, 0, -512, 256, 256, 256);
+    SkPath path = SkPathBuilder()
+                  .cubicTo(768, 0, -512, 256, 256, 256)
+                  .detach();
     paint.setColor(SK_ColorGREEN);
     canvas->drawPath(path, paint);
 

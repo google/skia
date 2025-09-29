@@ -71,23 +71,23 @@ SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
     SkOpBuilder builder;
+    SkPathBuilder merger;
 
-    fMerged.reset();
     bool in_builder = false;
 
     auto append = [&](const SkPath& path) {
         if (in_builder) {
             if (auto result = builder.resolve()) {
-                fMerged = *result;
+                merger = *result;
             }
             in_builder = false;
         }
 
-        if (fMerged.isEmpty()) {
+        if (merger.isEmpty()) {
             // First merge path determines the fill type.
-            fMerged = path;
+            merger = path;
         } else {
-            fMerged.addPath(path);
+            merger.addPath(path);
         }
     };
 
@@ -101,7 +101,7 @@ SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
         }
 
         if (!in_builder) {
-            builder.add(fMerged, kUnion_SkPathOp);
+            builder.add(merger.snapshot(), kUnion_SkPathOp);
             in_builder = true;
         }
 
@@ -110,10 +110,11 @@ SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
 
     if (in_builder) {
         if (auto result = builder.resolve()) {
-            fMerged = *result;
+            merger = *result;
         }
     }
 
+    fMerged = merger.detach();
     SkPathPriv::ShrinkToFit(&fMerged);
 
     return fMerged.computeTightBounds();
