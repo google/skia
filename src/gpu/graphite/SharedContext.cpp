@@ -17,6 +17,7 @@
 #include "src/gpu/graphite/GraphicsPipelineDesc.h"
 #include "src/gpu/graphite/RendererProvider.h"
 #include "src/gpu/graphite/ResourceProvider.h"
+#include "src/gpu/graphite/ThreadSafeResourceProvider.h"
 
 namespace skgpu::graphite {
 
@@ -114,6 +115,31 @@ sk_sp<GraphicsPipeline> SharedContext::findOrCreateGraphicsPipeline(
         }
     }
     return pipeline;
+}
+
+#if defined(SK_DEBUG)
+size_t SharedContext::getResourceCacheLimit() const {
+    return fThreadSafeResourceProvider->getResourceCacheLimit();
+}
+size_t SharedContext::getResourceCacheCurrentBudgetedBytes() const {
+    return fThreadSafeResourceProvider->getResourceCacheCurrentBudgetedBytes();
+}
+size_t SharedContext::getResourceCacheCurrentPurgeableBytes() const {
+    return fThreadSafeResourceProvider->getResourceCacheCurrentPurgeableBytes();
+}
+#endif
+
+void SharedContext::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+    fThreadSafeResourceProvider->dumpMemoryStatistics(traceMemoryDump);
+}
+void SharedContext::freeGpuResources() {
+    fThreadSafeResourceProvider->freeGpuResources();
+}
+void SharedContext::purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime) {
+    fThreadSafeResourceProvider->purgeResourcesNotUsedSince(purgeTime);
+}
+void SharedContext::forceProcessReturnedResources() {
+    fThreadSafeResourceProvider->forceProcessReturnedResources();
 }
 
 } // namespace skgpu::graphite

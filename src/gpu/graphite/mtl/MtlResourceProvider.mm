@@ -119,4 +119,8 @@ void MtlResourceProvider::onDeleteBackendTexture(const BackendTexture& texture) 
     SkCFSafeRelease(texHandle);
 }
 
+MtlThreadSafeResourceProvider::MtlThreadSafeResourceProvider(
+        std::unique_ptr<ResourceProvider> resourceProvider)
+    : ThreadSafeResourceProvider(std::move(resourceProvider)) {}
+
 } // namespace skgpu::graphite

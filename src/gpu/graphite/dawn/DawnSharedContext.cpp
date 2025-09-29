@@ -71,13 +71,24 @@ DawnSharedContext::DawnSharedContext(const DawnBackendContext& backendContext,
         , fQueue(backendContext.fQueue)
         , fTick(backendContext.fTick)
         , fNoopFragment(std::move(noopFragment)) {
+    fThreadSafeResourceProvider = std::make_unique<DawnThreadSafeResourceProvider>(
+        this->makeResourceProvider(&fSingleOwner,
+                                   SK_InvalidGenID,
+                                   kThreadedSafeResourceBudget));
+
     this->createUniformBuffersBindGroupLayout();
     this->createSingleTextureSamplerBindGroupLayout();
 }
 
 DawnSharedContext::~DawnSharedContext() {
+    fThreadSafeResourceProvider.reset();
+
     // need to clear out resources before any allocator is removed
     this->globalCache()->deleteResources();
+}
+
+DawnThreadSafeResourceProvider* DawnSharedContext::threadSafeResourceProvider() const {
+    return static_cast<DawnThreadSafeResourceProvider*>(fThreadSafeResourceProvider.get());
 }
 
 std::unique_ptr<ResourceProvider> DawnSharedContext::makeResourceProvider(

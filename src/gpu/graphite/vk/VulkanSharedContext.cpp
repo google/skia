@@ -122,6 +122,10 @@ VulkanSharedContext::VulkanSharedContext(
         , fDeviceLostContext(backendContext.fDeviceLostContext)
         , fDeviceLostProc(backendContext.fDeviceLostProc) {
     fPipelineCache = this->createPipelineCache();
+    fThreadSafeResourceProvider = std::make_unique<VulkanThreadSafeResourceProvider>(
+        this->makeResourceProvider(&fSingleOwner,
+                                   SK_InvalidGenID,
+                                   kThreadedSafeResourceBudget));
 }
 
 VulkanSharedContext::~VulkanSharedContext() {
@@ -132,6 +136,8 @@ VulkanSharedContext::~VulkanSharedContext() {
                                          nullptr));
         fPipelineCache = VK_NULL_HANDLE;
     }
+    fThreadSafeResourceProvider.reset();
+
     // need to clear out resources before the allocator is removed
     this->globalCache()->deleteResources();
 }
@@ -154,6 +160,10 @@ VkPipelineCache VulkanSharedContext::createPipelineCache() {
     }
 
     return pipelineCache;
+}
+
+VulkanThreadSafeResourceProvider* VulkanSharedContext::threadSafeResourceProvider() const {
+    return static_cast<VulkanThreadSafeResourceProvider*>(fThreadSafeResourceProvider.get());
 }
 
 std::unique_ptr<ResourceProvider> VulkanSharedContext::makeResourceProvider(

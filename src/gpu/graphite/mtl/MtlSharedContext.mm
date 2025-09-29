@@ -64,6 +64,11 @@ MtlSharedContext::MtlSharedContext(sk_cfp<id<MTLDevice>> device,
                         userDefinedKnownRuntimeEffects)
         , fMemoryAllocator(std::move(memoryAllocator))
         , fDevice(std::move(device)) {
+    fThreadSafeResourceProvider = std::make_unique<MtlThreadSafeResourceProvider>(
+        this->makeResourceProvider(&fSingleOwner,
+                                   SK_InvalidGenID,
+                                   kThreadedSafeResourceBudget));
+
     static constexpr DepthStencilSettings kIgnoreDSS;
 
     for (const DepthStencilSettings& dss : { kDirectDepthLessPass,
@@ -78,8 +83,14 @@ MtlSharedContext::MtlSharedContext(sk_cfp<id<MTLDevice>> device,
 }
 
 MtlSharedContext::~MtlSharedContext() {
+    fThreadSafeResourceProvider.reset();
+
     // need to clear out resources before the allocator (if any) is removed
     this->globalCache()->deleteResources();
+}
+
+MtlThreadSafeResourceProvider* MtlSharedContext::threadSafeResourceProvider() const {
+    return static_cast<MtlThreadSafeResourceProvider*>(fThreadSafeResourceProvider.get());
 }
 
 std::unique_ptr<ResourceProvider> MtlSharedContext::makeResourceProvider(

@@ -751,4 +751,8 @@ BindBufferInfo DawnResourceProvider::findOrCreateIntrinsicBindBufferInfo(
     return fIntrinsicConstantsManager->add(cb, intrinsicValues);
 }
 
+DawnThreadSafeResourceProvider::DawnThreadSafeResourceProvider(
+        std::unique_ptr<ResourceProvider> resourceProvider)
+    : ThreadSafeResourceProvider(std::move(resourceProvider)) {}
+
 } // namespace skgpu::graphite

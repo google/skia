@@ -621,6 +621,25 @@ sk_sp<VulkanGraphicsPipeline> VulkanResourceProvider::findOrCreateLoadMSAAPipeli
     return pipeline;
 }
 
+VulkanThreadSafeResourceProvider::VulkanThreadSafeResourceProvider(
+        std::unique_ptr<ResourceProvider> resourceProvider)
+    : ThreadSafeResourceProvider(std::move(resourceProvider)) {}
+
+sk_sp<VulkanRenderPass> VulkanThreadSafeResourceProvider::findOrCreateRenderPass(
+        const RenderPassDesc& renderPassDesc,
+        bool compatibleOnly) {
+    SkAutoSpinlock lock{fSpinLock};
+
+    VulkanResourceProvider* vkResourceProvider =
+        static_cast<VulkanResourceProvider*>(fWrappedProvider.get());
+
+    sk_sp<VulkanRenderPass> renderPass =
+        vkResourceProvider->findOrCreateRenderPass(renderPassDesc, compatibleOnly);
+    SkAssertResult(renderPass->gpuMemorySize() == 0);
+
+    return renderPass;
+}
+
 #ifdef SK_BUILD_FOR_ANDROID
 
 BackendTexture VulkanResourceProvider::onCreateBackendTexture(AHardwareBuffer* hardwareBuffer,

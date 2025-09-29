@@ -8,21 +8,30 @@
 #ifndef skgpu_graphite_DawnSharedContext_DEFINED
 #define skgpu_graphite_DawnSharedContext_DEFINED
 
+#include "src/gpu/graphite/SharedContext.h"
+
 #include "webgpu/webgpu_cpp.h"  // NO_G3_REWRITE
 
 #include "include/gpu/graphite/dawn/DawnBackendContext.h"
-#include "src/gpu/graphite/SharedContext.h"
+#include "src/gpu/graphite/ThreadSafeResourceProvider.h"
 #include "src/gpu/graphite/dawn/DawnCaps.h"
 
 namespace skgpu::graphite {
 
-struct DawnBackendContext;
 struct ContextOptions;
+struct DawnBackendContext;
+
+class DawnThreadSafeResourceProvider final : public ThreadSafeResourceProvider {
+public:
+    DawnThreadSafeResourceProvider(std::unique_ptr<ResourceProvider>);
+};
 
 class DawnSharedContext final : public SharedContext {
 public:
     static sk_sp<SharedContext> Make(const DawnBackendContext&, const ContextOptions&);
     ~DawnSharedContext() override;
+
+    DawnThreadSafeResourceProvider* threadSafeResourceProvider() const;
 
     std::unique_ptr<ResourceProvider> makeResourceProvider(SingleOwner*,
                                                            uint32_t recorderID,

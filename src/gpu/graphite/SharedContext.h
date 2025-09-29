@@ -11,6 +11,7 @@
 #include <memory>
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkSize.h"
+#include "include/private/base/SingleOwner.h"
 
 #include "include/gpu/graphite/GraphiteTypes.h"
 #include "src/capture/SkCaptureManager.h"
@@ -34,6 +35,7 @@ class Context;
 class RendererProvider;
 class ResourceProvider;
 class TextureInfo;
+class ThreadSafeResourceProvider;
 
 class SharedContext : public SkRefCnt {
 public:
@@ -79,11 +81,31 @@ public:
 
     SkCaptureManager* captureManager() { return fCaptureManager.get(); }
 
+#if defined(SK_DEBUG)
+    size_t getResourceCacheLimit() const;
+    size_t getResourceCacheCurrentBudgetedBytes() const;
+    size_t getResourceCacheCurrentPurgeableBytes() const;
+#endif
+
+    void dumpMemoryStatistics(SkTraceMemoryDump*) const;
+    void freeGpuResources();
+    void purgeResourcesNotUsedSince(StdSteadyClock::time_point purgeTime);
+    void forceProcessReturnedResources();
+
 protected:
     SharedContext(std::unique_ptr<const Caps>,
                   BackendApi,
                   SkExecutor* executor,
                   SkSpan<sk_sp<SkRuntimeEffect>> userDefinedKnownRuntimeEffects);
+
+    // All the resources in the ThreadSafeResourceProvider should be 0-sized.
+    static constexpr size_t kThreadedSafeResourceBudget = 256;
+
+    // This SingleOwner is for ResourceProvider wrapped by the fThreadSafeResourceProvider.
+    // It can't be in that class bc each backend-specific ShareContext must make its own
+    // backend-specific wrapped ResourceProvider in its constructor.
+    mutable SingleOwner fSingleOwner;
+    std::unique_ptr<ThreadSafeResourceProvider> fThreadSafeResourceProvider;
 
 private:
     friend class Context; // for setRendererProvider() and setCaptureManager()

@@ -200,6 +200,8 @@ skia_graphite_sources = [
   "$_src/gpu/graphite/TextureProxyView.h",
   "$_src/gpu/graphite/TextureUtils.cpp",
   "$_src/gpu/graphite/TextureUtils.h",
+  "$_src/gpu/graphite/ThreadSafeResourceProvider.cpp",
+  "$_src/gpu/graphite/ThreadSafeResourceProvider.h",
   "$_src/gpu/graphite/Uniform.h",
   "$_src/gpu/graphite/UniformManager.cpp",
   "$_src/gpu/graphite/UniformManager.h",
