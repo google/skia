@@ -70,6 +70,11 @@ bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options) {
     return write_image_to_stream(dst, src, ANDROID_BITMAP_COMPRESS_FORMAT_PNG, 100);
 }
 
+sk_sp<SkData> Encode(const SkPixmap& src, const Options& options) {
+    SkDynamicMemoryWStream stream;
+    return Encode(&stream, src, options) ? stream.detachAsData() : nullptr;
+}
+
 sk_sp<SkData> Encode(GrDirectContext* ctx, const SkImage* img, const Options& options) {
     if (!img) {
         return nullptr;
@@ -78,11 +83,7 @@ sk_sp<SkData> Encode(GrDirectContext* ctx, const SkImage* img, const Options& op
     if (!as_IB(img)->getROPixels(ctx, &bm)) {
         return nullptr;
     }
-    SkDynamicMemoryWStream stream;
-    if (Encode(&stream, bm.pixmap(), options)) {
-        return stream.detachAsData();
-    }
-    return nullptr;
+    return Encode(bm.pixmap(), options);
 }
 }  // namespace SkPngEncoder
 
@@ -90,6 +91,11 @@ namespace SkJpegEncoder {
 
 bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options) {
     return write_image_to_stream(dst, src, ANDROID_BITMAP_COMPRESS_FORMAT_JPEG, options.fQuality);
+}
+
+sk_sp<SkData> Encode(const SkPixmap& src, const Options& options) {
+    SkDynamicMemoryWStream stream;
+    return Encode(&stream, src, options) ? stream.detachAsData() : nullptr;
 }
 
 bool Encode(SkWStream*, const SkYUVAPixmaps&, const SkColorSpace*, const Options&) {
@@ -105,11 +111,7 @@ sk_sp<SkData> Encode(GrDirectContext* ctx, const SkImage* img, const Options& op
     if (!as_IB(img)->getROPixels(ctx, &bm)) {
         return nullptr;
     }
-    SkDynamicMemoryWStream stream;
-    if (Encode(&stream, bm.pixmap(), options)) {
-        return stream.detachAsData();
-    }
-    return nullptr;
+    return Encode(bm.pixmap(), options);
 }
 
 std::unique_ptr<SkEncoder> Make(SkWStream*, const SkPixmap&, const Options&) {
@@ -138,6 +140,11 @@ bool Encode(SkWStream* dst, const SkPixmap& src, const Options& options) {
             dst, src, ANDROID_BITMAP_COMPRESS_FORMAT_WEBP_LOSSY, options.fQuality);
 }
 
+sk_sp<SkData> Encode(const SkPixmap& src, const Options& options) {
+    SkDynamicMemoryWStream stream;
+    return Encode(&stream, src, options) ? stream.detachAsData() : nullptr;
+}
+
 sk_sp<SkData> Encode(GrDirectContext* ctx, const SkImage* img, const Options& options) {
     if (!img) {
         return nullptr;
@@ -146,11 +153,7 @@ sk_sp<SkData> Encode(GrDirectContext* ctx, const SkImage* img, const Options& op
     if (!as_IB(img)->getROPixels(ctx, &bm)) {
         return nullptr;
     }
-    SkDynamicMemoryWStream stream;
-    if (Encode(&stream, bm.pixmap(), options)) {
-        return stream.detachAsData();
-    }
-    return nullptr;
+    return Encode(bm.pixmap(), options);
 }
 
 bool EncodeAnimated(SkWStream*, SkSpan<const SkEncoder::Frame>, const Options&) {
