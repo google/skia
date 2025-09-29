@@ -69,6 +69,13 @@ private:
     void createUniformBuffersBindGroupLayout();
     void createSingleTextureSamplerBindGroupLayout();
 
+    sk_sp<GraphicsPipeline> createGraphicsPipeline(const RuntimeEffectDictionary*,
+                                                   const UniqueKey&,
+                                                   const GraphicsPipelineDesc&,
+                                                   const RenderPassDesc&,
+                                                   SkEnumBitMask<PipelineCreationFlags>,
+                                                   uint32_t compilationID) override;
+
     wgpu::Instance     fInstance;
     wgpu::Device       fDevice;
     wgpu::Queue        fQueue;

@@ -112,7 +112,6 @@ public:
             PipelineStageFlags::kFragmentShader};
 
     static sk_sp<VulkanGraphicsPipeline> Make(const VulkanSharedContext*,
-                                              VulkanResourceProvider*,
                                               const RuntimeEffectDictionary*,
                                               const UniqueKey&,
                                               const GraphicsPipelineDesc&,
@@ -126,7 +125,6 @@ public:
 
     static sk_sp<VulkanGraphicsPipeline> MakeLoadMSAAPipeline(
             const VulkanSharedContext*,
-            VulkanResourceProvider*,
             const VulkanProgramInfo& loadMSAAProgram,
             const RenderPassDesc&);
 
@@ -177,7 +175,6 @@ private:
     // The fragment shader can be null if no shading is performed by the pipeline.
     // This function does not cleanup any of the VulkanProgramInfo's objects on success or failure.
     static VkPipeline MakePipeline(const VulkanSharedContext*,
-                                   VulkanResourceProvider*,
                                    const VulkanProgramInfo&,
                                    int subpassIndex,
                                    PrimitiveType,

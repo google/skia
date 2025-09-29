@@ -177,6 +177,22 @@ std::unique_ptr<ResourceProvider> VulkanSharedContext::makeResourceProvider(
                                        resourceBudget));
 }
 
+sk_sp<GraphicsPipeline> VulkanSharedContext::createGraphicsPipeline(
+        const RuntimeEffectDictionary* runtimeDict,
+        const UniqueKey& pipelineKey,
+        const GraphicsPipelineDesc& pipelineDesc,
+        const RenderPassDesc& renderPassDesc,
+        SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags,
+        uint32_t compilationID) {
+    return VulkanGraphicsPipeline::Make(this,
+                                        runtimeDict,
+                                        pipelineKey,
+                                        pipelineDesc,
+                                        renderPassDesc,
+                                        pipelineCreationFlags,
+                                        compilationID);
+}
+
 bool VulkanSharedContext::checkVkResult(VkResult result) const {
     switch (result) {
     case VK_SUCCESS:

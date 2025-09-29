@@ -133,15 +133,6 @@ protected:
     sk_sp<ResourceCache> fResourceCache;
 
 private:
-    friend class SharedContext; // for createGraphicsPipeline
-
-    virtual sk_sp<GraphicsPipeline> createGraphicsPipeline(
-            const RuntimeEffectDictionary*,
-            const UniqueKey&,
-            const GraphicsPipelineDesc&,
-            const RenderPassDesc&,
-            SkEnumBitMask<PipelineCreationFlags>,
-            uint32_t compilationID) = 0;
     virtual sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) = 0;
     virtual sk_sp<Texture> createTexture(SkISize, const TextureInfo&) = 0;
     virtual sk_sp<Buffer> createBuffer(size_t size, BufferType type, AccessPattern) = 0;

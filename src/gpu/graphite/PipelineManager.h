@@ -25,7 +25,6 @@ class GraphicsPipelineHandle;
 enum class PipelineCreationFlags : uint8_t;
 class PipelineCreationTask;
 struct RenderPassDesc;
-class ResourceProvider;
 class RuntimeEffectDictionary;
 class SharedContext;
 
@@ -41,7 +40,6 @@ public:
             SkEnumBitMask<PipelineCreationFlags>);
 
     void startPipelineCreationTask(SharedContext*,
-                                   ResourceProvider*,
                                    sk_sp<const RuntimeEffectDictionary>,
                                    const GraphicsPipelineHandle&);
 

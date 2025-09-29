@@ -66,7 +66,6 @@ public:
     // The runtime effect dictionary provides a link between SkCodeSnippetIds referenced in the
     // paint key and the current SkRuntimeEffect that provides the SkSL for that id.
     sk_sp<GraphicsPipeline> findOrCreateGraphicsPipeline(
-            ResourceProvider*,
             const RuntimeEffectDictionary*,
             const UniqueKey& pipelineKey,
             const GraphicsPipelineDesc&,
@@ -109,6 +108,14 @@ protected:
 
 private:
     friend class Context; // for setRendererProvider() and setCaptureManager()
+
+    virtual sk_sp<GraphicsPipeline> createGraphicsPipeline(
+            const RuntimeEffectDictionary*,
+            const UniqueKey&,
+            const GraphicsPipelineDesc&,
+            const RenderPassDesc&,
+            SkEnumBitMask<PipelineCreationFlags>,
+            uint32_t compilationID) = 0;
 
     // Must be created out-of-band to allow RenderSteps to use a QueueManager.
     void setRendererProvider(std::unique_ptr<RendererProvider> rendererProvider);

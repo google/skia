@@ -62,6 +62,14 @@ private:
 
     void createCompatibleDepthStencilState(const DepthStencilSettings&);
 
+    sk_sp<GraphicsPipeline> createGraphicsPipeline(
+            const RuntimeEffectDictionary*,
+            const UniqueKey&,
+            const GraphicsPipelineDesc&,
+            const RenderPassDesc&,
+            SkEnumBitMask<PipelineCreationFlags>,
+            uint32_t compilationID) override;
+
     sk_sp<skgpu::MtlMemoryAllocator> fMemoryAllocator;
 
     sk_cfp<id<MTLDevice>> fDevice;

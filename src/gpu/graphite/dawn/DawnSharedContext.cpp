@@ -180,4 +180,20 @@ void DawnSharedContext::createSingleTextureSamplerBindGroupLayout() {
     fSingleTextureSamplerBindGroupLayout = this->device().CreateBindGroupLayout(&groupLayoutDesc);
 }
 
+sk_sp<GraphicsPipeline> DawnSharedContext::createGraphicsPipeline(
+        const RuntimeEffectDictionary* runtimeDict,
+        const UniqueKey& pipelineKey,
+        const GraphicsPipelineDesc& pipelineDesc,
+        const RenderPassDesc& renderPassDesc,
+        SkEnumBitMask<PipelineCreationFlags> pipelineCreationFlags,
+        uint32_t compilationID) {
+    return DawnGraphicsPipeline::Make(this,
+                                      runtimeDict,
+                                      pipelineKey,
+                                      pipelineDesc,
+                                      renderPassDesc,
+                                      pipelineCreationFlags,
+                                      compilationID);
+}
+
 } // namespace skgpu::graphite

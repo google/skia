@@ -73,6 +73,13 @@ private:
 
     VkPipelineCache createPipelineCache();
 
+    sk_sp<GraphicsPipeline> createGraphicsPipeline(const RuntimeEffectDictionary*,
+                                                   const UniqueKey&,
+                                                   const GraphicsPipelineDesc&,
+                                                   const RenderPassDesc&,
+                                                   SkEnumBitMask<PipelineCreationFlags>,
+                                                   uint32_t compilationID) override;
+
     sk_sp<const skgpu::VulkanInterface> fInterface;
     sk_sp<skgpu::VulkanMemoryAllocator> fMemoryAllocator;
 

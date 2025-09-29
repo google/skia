@@ -62,7 +62,6 @@ void ResourceProvider::startPipelineCreationTask(sk_sp<const RuntimeEffectDictio
     PipelineManager* pipelineManager = fSharedContext->pipelineManager();
 
     pipelineManager->startPipelineCreationTask(fSharedContext,
-                                               this,
                                                std::move(runtimeDict),
                                                handle);
 }
