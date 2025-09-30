@@ -44,18 +44,22 @@ struct ShaderCaps {
         return fGLSLGeneration > SkSL::GLSLGeneration::k110;
     }
 
-    // Returns the string of an extension that must be enabled in the shader to support
-    // derivatives. If nullptr is returned then no extension needs to be enabled. Before calling
-    // this function, the caller should check that shaderDerivativeSupport exists.
+    /**
+     * Returns the string of an extension that must be enabled in the shader to support derivatives.
+     * If nullptr is returned then no extension needs to be enabled. Before calling this function,
+     * the caller should check that shaderDerivativeSupport exists.
+     */
     const char* shaderDerivativeExtensionString() const {
         SkASSERT(this->fShaderDerivativeSupport);
         return fShaderDerivativeExtensionString;
     }
 
-    // This returns the name of an extension that must be enabled in the shader to support external
-    // textures. In some cases, two extensions must be enabled - the second extension is returned
-    // by secondExternalTextureExtensionString(). If that function returns nullptr, then only one
-    // extension is required.
+    /**
+     * This returns the name of an extension that must be enabled in the shader to support external
+     * textures. In some cases, two extensions must be enabled - the second extension is returned
+     * by secondExternalTextureExtensionString(). If that function returns nullptr, then only one
+     * extension is required.
+     */
     const char* externalTextureExtensionString() const {
         SkASSERT(this->fExternalTextureSupport);
         return fExternalTextureExtensionString;
@@ -79,7 +83,25 @@ struct ShaderCaps {
 
     bool supportsDistanceFieldText() const { return fShaderDerivativeSupport; }
 
+    /**
+     * The following group of attributes are only needed for Ganesh/GL. However, we keep there here
+     * as opposed to demoting them to being defined in Ganesh's GrShaderCaps for 2 reasons.
+     *
+     * 1) Some backend-agnostic SkSL utilies reference these capabilities.
+     *
+     * 2) Even though we do not anticipate Dawn relying upon Skia's GLSL generation for GL support,
+     *    sometimes SkSL compilation itself can be impacted by some of these capabilities. Such
+     *    attributes will be kept here in case Dawn/GL eventually needs to leverage them.
+     */
+    bool fFloatIs32Bits = true; /* Queried by SkSLSetting + impacts SkSL generation */
+    /**
+     * TODO: Modify SkSLGLSLCodeGenerator to use GrShaderCaps rather than this struct since GL
+     * should only be used with Ganesh. Once that is complete, the following attribute could be
+     * downgraded to GrShaderCaps.
+     */
     SkSL::GLSLGeneration fGLSLGeneration = SkSL::GLSLGeneration::k330;
+    bool fFlatInterpolationSupport = false; /* Supported by all backends except for some GL impls */
+    bool fUsesPrecisionModifiers = false; /* GLSL is the only shading language that uses these */
 
     bool fDualSourceBlendingSupport = false;
     bool fShaderDerivativeSupport = false;
@@ -92,73 +114,91 @@ struct ShaderCaps {
     bool fInverseHyperbolicSupport = false;
     bool fFBFetchSupport = false;
     bool fFBFetchNeedsCustomOutput = false;
-    bool fUsesPrecisionModifiers = false;
-    bool fFlatInterpolationSupport = false;
     bool fNoPerspectiveInterpolationSupport = false;
     bool fSampleMaskSupport = false;
     bool fExternalTextureSupport = false;
-    bool fFloatIs32Bits = true;
 
-    // isinf() is defined, and floating point infinities are handled according to IEEE standards.
+    /** isinf() is defined + floating point infinities are handled according to IEEE standards. */
     bool fInfinitySupport = false;
 
-    // Used by SkSL to know when to generate polyfills.
+    /** Used by SkSL to know when to generate polyfills. */
     bool fBuiltinFMASupport = true;
     bool fBuiltinDeterminantSupport = true;
 
-    // Used for specific driver bug work arounds
+    /** Used for specific driver bug work arounds */
     bool fCanUseVoidInSequenceExpressions = true;
     bool fCanUseMinAndAbsTogether = true;
     bool fCanUseFractForNegativeValues = true;
     bool fMustForceNegatedAtanParamToFloat = false;
     bool fMustForceNegatedLdexpParamToMultiply = false;  // skbug.com/40043167
-    // Returns whether a device incorrectly implements atan(y,x) as atan(y/x)
+    /** Returns whether a device incorrectly implements atan(y,x) as atan(y/x) */
     bool fAtan2ImplementedAsAtanYOverX = false;
-    // If this returns true some operation (could be a no op) must be called between floor and abs
-    // to make sure the driver compiler doesn't inline them together which can cause a driver bug in
-    // the shader.
+    /**
+     * If this returns true some operation (could be a no op) must be called between floor and abs
+     * to make sure the driver compiler doesn't inline them together which can cause a driver bug in
+     * the shader.
+     */
     bool fMustDoOpBetweenFloorAndAbs = false;
-    // The D3D shader compiler, when targeting PS 3.0 (ie within ANGLE) fails to compile certain
-    // constructs. See detailed comments in GrGLCaps.cpp.
+    /**
+     * The D3D shader compiler, when targeting PS 3.0 (ie within ANGLE) fails to compile certain
+     * constructs. See detailed comments in GrGLCaps.cpp.
+     */
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck = false;
-    // If false, SkSL uses a workaround so that sk_FragCoord doesn't actually query gl_FragCoord
+    /** If false, SkSL uses a workaround so that sk_FragCoord doesn't actually query gl_FragCoord */
     bool fCanUseFragCoord = true;
-    // If true, then conditions in for loops need "&& true" to work around driver bugs.
+    /** If true, then conditions in for loops need "&& true" to work around driver bugs. */
     bool fAddAndTrueToLoopCondition = false;
-    // If true, then expressions such as "x && y" or "x || y" are rewritten as ternary to work
-    // around driver bugs.
+    /**
+     * If true, then expressions such as "x && y" or "x || y" are rewritten as ternary to work
+     * around driver bugs.
+     */
     bool fUnfoldShortCircuitAsTernary = false;
     bool fEmulateAbsIntFunction = false;
     bool fRewriteDoWhileLoops = false;
     bool fRewriteSwitchStatements = false;
     bool fRemovePowWithConstantExponent = false;
-    // The Android emulator claims samplerExternalOES is an unknown type if a default precision
-    // statement is made for the type.
+    /**
+     * The Android emulator claims samplerExternalOES is an unknown type if a default precision
+     * statement is made for the type.
+     */
     bool fNoDefaultPrecisionForExternalSamplers = false;
-    // ARM GPUs calculate `matrix * vector` in SPIR-V at full precision, even when the inputs are
-    // RelaxedPrecision. Rewriting the multiply as a sum of vector*scalar fixes this. (skbug.com/40042841)
+    /**
+     * ARM GPUs calculate `matrix * vector` in SPIR-V at full precision, even when the inputs are
+     * RelaxedPrecision. Rewriting the multiply as a sum of vector*scalar fixes this.
+     * (skbug.com/40042841)
+     */
     bool fRewriteMatrixVectorMultiply = false;
-    // Rewrites matrix equality comparisons to avoid an Adreno driver bug. (skbug.com/40042682)
+    /** Rewrites matrix equality comparisons to avoid an Adreno driver bug. (skbug.com/40042682) */
     bool fRewriteMatrixComparisons = false;
-    // Strips const from function parameters in the GLSL code generator. (skbug.com/40044949)
+    /** Strips const from function parameters in the GLSL code generator. (skbug.com/40044949) */
     bool fRemoveConstFromFunctionParameters = false;
-    // On some Android devices colors aren't accurate enough for the double lookup in the
-    // Perlin noise shader. This workaround aggressively snaps colors to multiples of 1/255.
+    /**
+     * On some Android devices colors aren't accurate enough for the double lookup in the
+     * Perlin noise shader. This workaround aggressively snaps colors to multiples of 1/255.
+     */
     bool fPerlinNoiseRoundingFix = false;
-    // Vulkan requires certain builtin variables be present, even if they're unused. At one time,
-    // validation errors would result if sk_Clockwise was missing. Now, it's just (Adreno) driver
-    // bugs that drop or corrupt draws if they're missing.
+    /**
+     * Vulkan requires certain builtin variables be present, even if they're unused. At one time,
+     * validation errors would result if sk_Clockwise was missing. Now, it's just (Adreno) driver
+     * bugs that drop or corrupt draws if they're missing.
+     */
     bool fMustDeclareFragmentFrontFacing = false;
-    // SPIR-V currently doesn't handle different array strides being passed in to a fixed sized
-    // array function parameter, so fForceStd430ArrayLayout will make all array strides conform
-    // to std430 stride alignment rules.
+    /**
+     * SPIR-V currently doesn't handle different array strides being passed in to a fixed sized
+     * array function parameter, so fForceStd430ArrayLayout will make all array strides conform
+     * to std430 stride alignment rules.
+     */
     bool fForceStd430ArrayLayout = false;
-    // Some NVIDIA drivers fail to create a pipeline if RelaxedPrecision is applied to
-    // OpImageSampleImplicitLod when sampling from a YCbCr image. This workaround simply disables
-    // RelaxedPrecision for that op regardless of image kind. (skbug.com/421927604)
+    /**
+     * Some NVIDIA drivers fail to create a pipeline if RelaxedPrecision is applied to
+     * OpImageSampleImplicitLod when sampling from a YCbCr image. This workaround simply disables
+     * RelaxedPrecision for that op regardless of image kind. (skbug.com/421927604)
+     */
     bool fCannotUseRelaxedPrecisionOnImageSample = false;
-    // Clamp, Min, Max, intrinsics all appear to be broken on Intel UHD630, so shaders for these
-    // devices will break these intrinsics into individual scalar commands.
+    /**
+     * Clamp, Min, Max, intrinsics all appear to be broken on Intel UHD630, so shaders for these
+     * devices will break these intrinsics into individual scalar commands.
+     */
     bool fVectorClampMinMaxSupport = true;
 
     const char* fVersionDeclString = "";

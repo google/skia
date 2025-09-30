@@ -532,9 +532,6 @@ int GrMtlCaps::getRenderTargetSampleCount(int requestedCount, MTLPixelFormat for
 void GrMtlCaps::initShaderCaps() {
     GrShaderCaps* shaderCaps = fShaderCaps.get();
 
-    // Setting this true with the assumption that this cap will eventually mean we support varying
-    // precisions and not just via modifiers.
-    shaderCaps->fUsesPrecisionModifiers = true;
     shaderCaps->fFlatInterpolationSupport = true;
     // We haven't yet tested that using flat attributes perform well.
     shaderCaps->fPreferFlatInterpolation = true;

@@ -233,9 +233,7 @@ void GrD3DCaps::initShaderCaps(int vendorID, const D3D12_FEATURE_DATA_D3D12_OPTI
     GrShaderCaps* shaderCaps = fShaderCaps.get();
     shaderCaps->fVersionDeclString = "#version 330\n";
 
-    // Shader Model 5 supports all of the following:
-    shaderCaps->fUsesPrecisionModifiers = true;
-    shaderCaps->fFlatInterpolationSupport = true;
+    shaderCaps->fFlatInterpolationSupport = true; // Supported by Shader Model 5
     // Flat interpolation appears to be slow on Qualcomm GPUs. This was tested in GL and is assumed
     // to be true with D3D as well.
     shaderCaps->fPreferFlatInterpolation = kQualcomm_D3DVendor != vendorID;
