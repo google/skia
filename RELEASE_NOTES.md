@@ -2,6 +2,38 @@ Skia Graphics Release Notes
 
 This file includes a list of high level updates for each milestone release.
 
+Milestone 142
+-------------
+  * Add enum class `skgpu::graphite::MarkFrameBoundary` to be used to specify whether a submission is the last logical submission for a frame.
+
+    Add struct `skgpu::graphite::SubmitInfo` to hold metadata used for submitting workloads for execution. Allow specifying through `skgpu::graphite::SubmitInfo` whether submission is a frame boundary (last logical submission for a frame) and frameID (uint64_t) with default values to match prior behavior.
+
+    Use struct `skgpu::graphite::SubmitInfo` in `skgpu::graphite::QueueManager::submitToGpu`, `skgpu::graphite::QueueManager::onSubmitToGpu` and all derived classes.
+  * Change `SkNamedTransferFn::kRec709` to match the pure gamma 2.4 definition from
+    ITU-R BT.1886.
+
+    Apply this to transfer characteristics values 1, 6, 11, 14, and 16, since they
+    use the same definition.
+
+    Add reference text to the comments to clarify that this comes from the EOTF
+    definition, and that the ITU-T H.273 table 3 function definitions are not
+    necessarily inverse EOTFs, but are sometimes OETFs (as is the case for
+    `kRec709`).
+  * `SkPngRustDecoder` and `SkPngRustEncoder` APIs are now part of the official,
+    non-experimental public API surface of Skia.
+  * Remove the members `fICCProfile` and `fICCProfileDescription` from
+    `SkPngEncoder::Options`, `SkJpegEncoder::Options`, and
+    `SkWebpEncoder::Options`.
+  * Add HDR metadata support to `SkPngDecoder`, `SkPngRustDecoder`, and
+    `SkPngEncoder`.
+  * Add the `skhdr::Metadata` structure that contains all HDR metadata that can be
+    attached to an image.
+
+    Add `skhdr::ContentLightLevelInfo` and `skhdr::MasteringDisplayColorVolume`
+    structures.
+
+* * *
+
 Milestone 141
 -------------
   * `GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat` is replaced by
