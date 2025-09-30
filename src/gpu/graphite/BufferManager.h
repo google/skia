@@ -99,31 +99,24 @@ private:
 */
 class DrawBufferManager {
 public:
-    struct DrawBufferManagerOptions {
-        DrawBufferManagerOptions() {
-            fVertexBufferMinSize  = 16 << 10; // 16 KB
-            fVertexBufferMaxSize  = 1 << 20;  // 1  MB
-            fIndexBufferSize      = 2 << 10;  // 2  KB
-            fUniformBufferSize    = 2 << 10;  // 2  KB
-            fStorageBufferMinSize = 2 << 10;  // 2  KB
-            fStorageBufferMaxSize = 1 << 20;  // 1  MB
-            fUseExactBuffSizes    = false;    // Use sufficient_block_size ?
-            fAllowCopyingGpuOnly  = false;    // Override kGpuOnly -> kGpuOnlyCopySrc
-        }
+    struct Options {
+        Options() = default;
 
-        uint32_t fVertexBufferMinSize;
-        uint32_t fVertexBufferMaxSize;
-        uint32_t fIndexBufferSize;
-        uint32_t fUniformBufferSize;
-        uint32_t fStorageBufferMinSize;
-        uint32_t fStorageBufferMaxSize;
-        bool     fUseExactBuffSizes;
-        bool     fAllowCopyingGpuOnly;
+        uint32_t fVertexBufferMinSize  = 16 << 10; // 16 KB;
+        uint32_t fVertexBufferMaxSize  = 1 << 20;  // 1  MB
+        uint32_t fIndexBufferSize      = 2 << 10;  // 2  KB
+        uint32_t fStorageBufferMinSize = 2 << 10;  // 2  KB;
+        uint32_t fStorageBufferMaxSize = 1 << 20;  // 1  MB;
+
+#if defined(GPU_TEST_UTILS)
+        bool     fUseExactBuffSizes    = false; // Disables automatic buffer growth
+        bool     fAllowCopyingGpuOnly  = false; // Adds kCopySrc to GPU-only buffer usage
+#endif
     };
 
     DrawBufferManager(ResourceProvider* resourceProvider, const Caps* caps,
                       UploadBufferManager* uploadManager,
-                      DrawBufferManagerOptions dbmOpts = {});
+                      Options dbmOpts);
     ~DrawBufferManager();
 
     // Let possible users check if the manager is already in a bad mapping state and skip any extra
@@ -192,14 +185,16 @@ public:
 private:
     friend class ScratchBuffer;
 
-    struct BufferInfo {
-        BufferInfo(BufferType type, uint32_t minBlockSize, uint32_t maxBlockSize, const Caps* caps);
+    struct BufferState {
+        const BufferType    fType;
+        const AccessPattern fAccessPattern;
+        const bool          fUseTransferBuffer;
+        const char*         fLabel;
 
-        const BufferType fType;
-        // Note, this alignment is guaranteed to be a power of two.
-        const uint32_t fMinimumAlignment;
+        const uint32_t fMinAlignment; // guaranteed power of two, required for binding
         const uint32_t fMinBlockSize;
         const uint32_t fMaxBlockSize;
+
         sk_sp<Buffer> fBuffer;
         // The fTransferBuffer can be null, if draw buffer cannot be mapped,
         // see Caps::drawBufferCanBeMapped() for detail.
@@ -211,19 +206,20 @@ private:
         uint32_t fCurBlockSize = 0;
         // How many bytes have been used for for this buffer type since the last Recording snap.
         uint32_t fUsedSize = 0;
+
+        BufferState(BufferType, const char* label, bool isGpuOnly,
+                    const Options&, const Caps* caps);
     };
 
-    AccessPattern getGpuAccessPattern(bool isGpuOnlyAccess) const;
     std::pair<void* /*mappedPtr*/, BindBufferInfo> prepareMappedBindBuffer(
-            BufferInfo* info,
+            BufferState* info,
             std::string_view label,
             uint32_t requiredBytes,
             uint32_t requiredAlignment = 0);
-    BindBufferInfo prepareBindBuffer(BufferInfo* info,
+    BindBufferInfo prepareBindBuffer(BufferState* info,
                                      std::string_view label,
                                      uint32_t requiredBytes,
                                      uint32_t requiredAlignment = 0,
-                                     bool supportCpuUpload = false,
                                      ClearBuffer cleared = ClearBuffer::kNo);
 
     // Helper method for public getSsboWriter methods.
@@ -248,7 +244,7 @@ private:
     static constexpr size_t kVertexStorageBufferIndex   = 5;
     static constexpr size_t kIndexStorageBufferIndex    = 6;
     static constexpr size_t kIndirectStorageBufferIndex = 7;
-    std::array<BufferInfo, 8> fCurrentBuffers;
+    std::array<BufferState, 8> fCurrentBuffers;
 
     // Vector of buffer and transfer buffer pairs.
     skia_private::TArray<std::pair<sk_sp<Buffer>, BindBufferInfo>> fUsedBuffers;
@@ -267,11 +263,6 @@ private:
     // If mapping failed on Buffers created/managed by this DrawBufferManager or by the mapped
     // transfer buffers from the UploadManager, remember so that the next Recording will fail.
     bool fMappingFailed = false;
-
-#if defined(GPU_TEST_UTILS)
-    const bool fUseExactBuffSizes;
-    const bool fAllowCopyingGpuOnly;
-#endif
 };
 
 /**
@@ -320,8 +311,8 @@ private:
         uint32_t        fUnalignedSize;     // The requested size without count-4 alignment
 #endif
     };
-    struct BufferInfo {
-        BufferInfo(BufferType type, const Caps* caps);
+    struct BufferState {
+        BufferState(BufferType type, const Caps* caps);
 
         bool createAndUpdateBindings(ResourceProvider*, Context*, QueueManager*, GlobalCache*,
                                      std::string_view label) const;
@@ -339,7 +330,7 @@ private:
         uint32_t fTotalRequiredBytes;
     };
 
-    void* prepareStaticData(BufferInfo* info,
+    void* prepareStaticData(BufferState* info,
                             size_t requiredBytes,
                             size_t requiredAlignment,
                             BindBufferInfo* target);
@@ -349,8 +340,8 @@ private:
     const uint32_t fRequiredTransferAlignment;
 
     // The source data that's copied into a final GPU-private buffer
-    BufferInfo fVertexBufferInfo;
-    BufferInfo fIndexBufferInfo;
+    BufferState fVertexBufferState;
+    BufferState fIndexBufferState;
 
     // If mapping failed on Buffers created/managed by this StaticBufferManager or by the mapped
     // transfer buffers from the UploadManager, remember so that finalize() will fail.

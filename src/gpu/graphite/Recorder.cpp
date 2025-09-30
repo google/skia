@@ -145,7 +145,7 @@ Recorder::Recorder(sk_sp<SharedContext> sharedContext,
     fUploadBufferManager = std::make_unique<UploadBufferManager>(fResourceProvider,
                                                                  fSharedContext->caps());
 
-    DrawBufferManager::DrawBufferManagerOptions dbmOpts = {};
+    DrawBufferManager::Options dbmOpts = {};
 #if defined(GPU_TEST_UTILS)
     if (options.fRecorderOptionsPriv && options.fRecorderOptionsPriv->fDbmOptions.has_value()) {
         dbmOpts = *options.fRecorderOptionsPriv->fDbmOptions;

@@ -220,7 +220,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(DynamicVerticesPaddingTest,
     constexpr uint32_t kVertBuffSize = 32; // I.e. blocks of 8 verts (vertBuffSize / stride = 8)
     constexpr uint32_t kReadbackSize = kVertBuffSize / kStride;
 
-    auto buffOpts = DrawBufferManager::DrawBufferManagerOptions();
+    auto buffOpts = DrawBufferManager::Options();
     buffOpts.fVertexBufferMinSize = kVertBuffSize;
     buffOpts.fVertexBufferMaxSize = kVertBuffSize;
     buffOpts.fUseExactBuffSizes = true;
