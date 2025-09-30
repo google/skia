@@ -196,7 +196,7 @@ public:
     void drawRRect(const SkRRect& rr, const SkPaint&) override;
     void drawArc(const SkArc& arc, const SkPaint&) override;
     void drawPoints(SkCanvas::PointMode, SkSpan<const SkPoint>, const SkPaint&) override;
-    void drawPath(const SkPath& path, const SkPaint&, bool pathIsMutable = false) override;
+    void drawPath(const SkPath& path, const SkPaint&) override;
     void drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint&) override;
 
     // No need to specialize drawRegion or drawPatch as the default impls all route to drawPath,

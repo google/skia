@@ -588,8 +588,8 @@ void SkPDFDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
     this->internalDrawPath(this->cs(), this->localToDevice(), SkPath::Oval(oval), paint, true);
 }
 
-void SkPDFDevice::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
-    this->internalDrawPath(this->cs(), this->localToDevice(), path, paint, pathIsMutable);
+void SkPDFDevice::drawPath(const SkPath& path, const SkPaint& paint) {
+    this->internalDrawPath(this->cs(), this->localToDevice(), path, paint, false);
 }
 
 void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,

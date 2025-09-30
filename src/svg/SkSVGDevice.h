@@ -55,8 +55,7 @@ public:
     void drawOval(const SkRect& oval, const SkPaint& paint) override;
     void drawRRect(const SkRRect& rr, const SkPaint& paint) override;
     void drawPath(const SkPath& path,
-                  const SkPaint& paint,
-                  bool pathIsMutable = false) override;
+                  const SkPaint& paint) override;
 
     void drawVertices(const SkVertices*, sk_sp<SkBlender>, const SkPaint&, bool) override;
     void drawMesh(const SkMesh&, sk_sp<SkBlender>, const SkPaint&) override;

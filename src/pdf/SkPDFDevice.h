@@ -90,7 +90,7 @@ public:
     void drawRect(const SkRect& r, const SkPaint& paint) override;
     void drawOval(const SkRect& oval, const SkPaint& paint) override;
     void drawRRect(const SkRRect& rr, const SkPaint& paint) override;
-    void drawPath(const SkPath& origpath, const SkPaint& paint, bool pathIsMutable) override;
+    void drawPath(const SkPath& origpath, const SkPaint& paint) override;
 
     void drawImageRect(const SkImage*,
                        const SkRect* src,

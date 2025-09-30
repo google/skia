@@ -101,7 +101,7 @@ void RasterMaskHelper::drawClip(const Shape& shape,
         SkASSERT(0xFF == paint.getAlpha());
         fDraw.drawPathCoverage(path, paint);
     } else {
-        fDraw.drawPath(path, paint, nullptr, true);
+        fDraw.drawPath(path, paint, nullptr);
     }
 }
 
