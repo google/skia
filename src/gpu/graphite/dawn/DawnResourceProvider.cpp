@@ -30,7 +30,7 @@ namespace skgpu::graphite {
 
 namespace {
 
-constexpr int kBufferBindingSizeAlignment = 16;
+constexpr uint32_t kBufferBindingSizeAlignment = 16;
 constexpr int kMaxNumberOfCachedBufferBindGroups = 1024;
 constexpr int kMaxNumberOfCachedTextureBindGroups = 4096;
 

@@ -151,8 +151,8 @@ public:
     // can optionally provide a list of memory sizes and binding indices.
     struct WorkgroupBufferDesc {
         // The buffer size in bytes.
-        size_t size;
-        size_t index;
+        uint32_t size;
+        uint32_t index;
     };
 
     virtual ~ComputeStep() = default;

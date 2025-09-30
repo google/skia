@@ -322,7 +322,8 @@ void run_large_increment_test(skiatest::Reporter* reporter) {
     largeIncrement.reserve(10);
     size_t scratchSize = TBlockListTestAccess::ScratchBlockSize(largeIncrement);
     // SkBlockAllocator aligns large blocks to 4k
-    size_t expected = SkAlignTo(kIncrementMax * TBlockListTestAccess::kAddressAlign, (1 << 12));
+    size_t expected = SkAlignTo(kIncrementMax * TBlockListTestAccess::kAddressAlign,
+                                (size_t) (1 << 12));
     REPORTER_ASSERT(reporter, scratchSize == expected);
 }
 

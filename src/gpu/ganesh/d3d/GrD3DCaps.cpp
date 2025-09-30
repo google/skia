@@ -927,7 +927,7 @@ GrCaps::SupportedWrite GrD3DCaps::supportedWritePixelsColorType(
 
     // Any buffer data needs to be aligned to 512 bytes and that of a single texel.
     size_t offsetAlignment = SkAlignTo(GrDxgiFormatBytesPerBlock(dxgiFormat),
-                                       D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT);
+                                       (size_t) D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT);
 
     const auto& info = this->getFormatInfo(dxgiFormat);
     for (int i = 0; i < info.fColorTypeInfoCount; ++i) {

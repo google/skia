@@ -179,7 +179,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(StaticVerticesPaddingTest,
         if (cr.fOffset % cr.fRequiredAlignment) {
             ERRORF(reporter,
                    "Offset was not safely aligned to a count 4 stride: "
-                   "Count four stride: %zu Offset: %u Expected: %zu\n",
+                   "Count four stride: %u Offset: %u Expected: %u\n",
                    cr.fRequiredAlignment,
                    cr.fOffset,
                    SkAlignNonPow2(cr.fOffset, cr.fRequiredAlignment));
@@ -189,7 +189,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(StaticVerticesPaddingTest,
         if (regionEndOffset % cr.fRequiredAlignment) {
             ERRORF(reporter,
                    "End was not safely aligned to a count 4 stride: "
-                   "Count four stride: %zu End: %u Expected: %zu\n",
+                   "Count four stride: %u End: %u Expected: %u\n",
                    cr.fRequiredAlignment,
                    regionEndOffset,
                    SkAlignNonPow2(regionEndOffset, cr.fRequiredAlignment));

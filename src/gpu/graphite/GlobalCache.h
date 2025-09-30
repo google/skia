@@ -133,9 +133,9 @@ public:
 #if defined(GPU_TEST_UTILS)
     struct StaticVertexCopyRanges {
         uint32_t fOffset;
-        size_t fUnalignedSize;
-        size_t fSize;
-        size_t fRequiredAlignment;
+        uint32_t fUnalignedSize;
+        uint32_t fSize;
+        uint32_t fRequiredAlignment;
     };
     void testingOnly_SetStaticVertexInfo(skia_private::TArray<StaticVertexCopyRanges>,
                                          const Buffer*) SK_EXCLUDES(fSpinLock);

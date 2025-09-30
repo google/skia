@@ -741,11 +741,15 @@ void* StaticBufferManager::prepareStaticData(BufferInfo* info,
         return nullptr;
     }
 
+    info->fData.push_back(
+            {transferBindInfo,
+             target,
+             SkTo<uint32_t>(requiredAlignment),
 #if defined(GPU_TEST_UTILS)
-    info->fData.push_back({transferBindInfo, target, requiredAlignment, requiredBytes});
-#else
-    info->fData.push_back({transferBindInfo, target, requiredAlignment});
+             SkTo<uint32_t>(requiredBytes)
 #endif
+            });
+
     info->fTotalRequiredBytes =
         align_to_req_min_lcm(info->fTotalRequiredBytes,
                              requiredAlignment,

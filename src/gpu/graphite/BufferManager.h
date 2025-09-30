@@ -315,9 +315,9 @@ private:
     struct CopyRange {
         BindBufferInfo  fSource;            // The CPU-to-GPU buffer and offset for the source of the copy
         BindBufferInfo* fTarget;            // The late-assigned destination of the copy
-        size_t          fRequiredAlignment; // The requested stride of the data.
+        uint32_t        fRequiredAlignment; // The requested stride of the data.
 #if defined(GPU_TEST_UTILS)
-        size_t          fUnalignedSize;     // The requested size without count-4 alignment
+        uint32_t        fUnalignedSize;     // The requested size without count-4 alignment
 #endif
     };
     struct BufferInfo {

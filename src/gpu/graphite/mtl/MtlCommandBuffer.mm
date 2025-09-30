@@ -207,7 +207,7 @@ bool MtlCommandBuffer::onAddComputePass(DispatchGroupSpan groups) {
             SkASSERT(fActiveComputeCommandEncoder);
             for (const ComputeStep::WorkgroupBufferDesc& wgBuf : dispatch.fWorkgroupBuffers) {
                 fActiveComputeCommandEncoder->setThreadgroupMemoryLength(
-                        SkAlignTo(wgBuf.size, 16),
+                        SkAlignTo(wgBuf.size, 16u),
                         wgBuf.index);
             }
             if (const WorkgroupSize* globalSize =
