@@ -179,7 +179,10 @@ VulkanBuffer::VulkanBuffer(const VulkanSharedContext* sharedContext,
                            const skgpu::VulkanAlloc& alloc,
                            const VkBufferUsageFlags usageFlags,
                            Protected isProtected)
-        : Buffer(sharedContext, size, isProtected)
+        : Buffer(sharedContext,
+                 size,
+                 isProtected,
+                 /*reusableRequiresPurgeable=*/alloc.fFlags & skgpu::VulkanAlloc::kMappable_Flag)
         , fBuffer(std::move(buffer))
         , fAlloc(alloc)
         , fBufferUsageFlags(usageFlags)
