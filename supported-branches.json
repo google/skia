@@ -5,10 +5,6 @@
       "owner": "skiabot@google.com"
     },
     {
-      "ref": "refs/heads/chrome/m138",
-      "owner": "sharaks@google.com"
-    },
-    {
       "ref": "refs/heads/chrome/m139",
       "owner": "sharaks@google.com"
     },
@@ -18,6 +14,10 @@
     },
     {
       "ref": "refs/heads/chrome/m141",
+      "owner": "sharaks@google.com"
+    },
+    {
+      "ref": "refs/heads/chrome/m142",
       "owner": "sharaks@google.com"
     }
   ]
