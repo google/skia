@@ -285,6 +285,7 @@ protected:
         }
 #else
         constexpr void* dContext = nullptr;
+        (void)dContext;
 #endif
 
         // These need to be GPU-backed when on the GPU to ensure that the image filters use the GPU
