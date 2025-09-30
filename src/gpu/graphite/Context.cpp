@@ -751,7 +751,7 @@ Context::PixelTransferResult Context::transferPixels(Recorder* recorder,
     int bpp = isRGB888Format ? 3 : SkColorTypeBytesPerPixel(supportedColorType);
     size_t rowBytes = caps->getAlignedTextureDataRowBytes(bpp * srcRect.width());
     size_t size = SkAlignTo(rowBytes * srcRect.height(), caps->requiredTransferBufferAlignment());
-    sk_sp<Buffer> buffer = fResourceProvider->findOrCreateBuffer(
+    sk_sp<Buffer> buffer = fResourceProvider->findOrCreateNonShareableBuffer(
             size, BufferType::kXferGpuToCpu, AccessPattern::kHostVisible, "TransferToCpu");
     if (!buffer) {
         return {};

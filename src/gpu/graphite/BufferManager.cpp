@@ -377,7 +377,7 @@ ScratchBuffer DrawBufferManager::getScratchStorage(size_t requiredBytes) {
 
     sk_sp<Buffer> buffer = this->findReusableSbo(bufferSize);
     if (!buffer) {
-        buffer = fResourceProvider->findOrCreateBuffer(
+        buffer = fResourceProvider->findOrCreateNonShareableBuffer(
                 bufferSize, BufferType::kStorage, AccessPattern::kGpuOnly, "ScratchStorageBuffer");
 
         if (!buffer) {
@@ -582,7 +582,7 @@ BindBufferInfo DrawBufferManager::prepareBindBuffer(BufferInfo* info,
         // This buffer can be GPU-only if
         //     a) the caller does not intend to ever upload CPU data to the buffer; or
         //     b) CPU data will get uploaded to fBuffer only via a transfer buffer
-        info->fBuffer = fResourceProvider->findOrCreateBuffer(
+        info->fBuffer = fResourceProvider->findOrCreateNonShareableBuffer(
                 bufferSize,
                 info->fType,
                 this->getGpuAccessPattern(useTransferBuffer || !supportCpuUpload),
@@ -741,7 +741,7 @@ bool StaticBufferManager::BufferInfo::createAndUpdateBindings(
         AccessPattern::kGpuOnly;
 #endif
 
-    sk_sp<Buffer> staticBuffer = resourceProvider->findOrCreateBuffer(
+    sk_sp<Buffer> staticBuffer = resourceProvider->findOrCreateNonShareableBuffer(
             fTotalRequiredBytes,
             fBufferType,
             gpuAccessPattern,
