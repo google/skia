@@ -697,7 +697,7 @@ SkPathBuilder& SkPathBuilder::addRaw(const SkPathRaw& raw) {
 }
 
 SkPathBuilder& SkPathBuilder::addRect(const SkRect& rect, SkPathDirection dir, unsigned index) {
-    const bool wasEmpty = this->isEmpty();
+    const bool wasEmpty = (fSegmentMask == 0);
 
     this->addRaw(SkPathRawShapes::Rect(rect, dir, index));
 
@@ -709,7 +709,7 @@ SkPathBuilder& SkPathBuilder::addRect(const SkRect& rect, SkPathDirection dir, u
 }
 
 SkPathBuilder& SkPathBuilder::addOval(const SkRect& oval, SkPathDirection dir, unsigned index) {
-    const bool wasEmpty = this->isEmpty();
+    const bool wasEmpty = (fSegmentMask == 0);
 
     this->addRaw(SkPathRawShapes::Oval(oval, dir, index));
 
@@ -735,7 +735,7 @@ SkPathBuilder& SkPathBuilder::addRRect(const SkRRect& rrect, SkPathDirection dir
         return this->addOval(bounds, dir, index / 2);
     }
 
-    const bool wasEmpty = this->isEmpty();
+    const bool wasEmpty = (fSegmentMask == 0);
 
     this->addRaw(SkPathRawShapes::RRect(rrect, dir, index));
 
@@ -972,6 +972,7 @@ void SkPathBuilder::setLastPt(SkScalar x, SkScalar y) {
         this->moveTo(x, y);
     } else {
         fPts.at(count-1).set(x, y);
+        fType = SkPathIsAType::kGeneral;
     }
 }
 
