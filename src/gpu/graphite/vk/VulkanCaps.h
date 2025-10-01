@@ -121,6 +121,10 @@ public:
 
     bool supportsFrameBoundary() const { return fSupportsFrameBoundary; }
 
+    bool supportsPipelineCreationCacheControl() const {
+        return fSupportsPipelineCreationCacheControl;
+    }
+
 private:
     void init(const ContextOptions&,
               const skgpu::VulkanInterface*,
@@ -156,6 +160,9 @@ private:
         bool fHostImageCopy = false;
         // From VkPhysicalDeviceFrameBoundaryFeaturesEXT:
         bool fFrameBoundary = false;
+        // From VkPhysicalDevicePipelineCreationCacheControlFeatures or
+        // VkPhysicalDeviceVulkan13Features
+        bool fPipelineCreationCacheControl = false;
     };
     EnabledFeatures getEnabledFeatures(const VkPhysicalDeviceFeatures2*,
                                        uint32_t physicalDeviceVersion);
@@ -327,6 +334,7 @@ private:
     bool fSupportsRasterizationOrderColorAttachmentAccess = false;
     bool fIsInputAttachmentReadCoherent = false;
     bool fSupportsFrameBoundary = false;
+    bool fSupportsPipelineCreationCacheControl = false;
 
     // Flags to enable workarounds for driver bugs
     bool fMustLoadFullImageForMSAA = false;

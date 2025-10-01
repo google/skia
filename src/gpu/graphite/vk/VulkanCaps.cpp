@@ -209,6 +209,8 @@ void VulkanCaps::init(const ContextOptions& contextOptions,
     fSupportsDeviceFaultInfo = enabledFeatures.fDeviceFault;
     fSupportsFrameBoundary = enabledFeatures.fFrameBoundary;
 
+    fSupportsPipelineCreationCacheControl = enabledFeatures.fPipelineCreationCacheControl;
+
     if (enabledFeatures.fAdvancedBlendModes) {
         fBlendEqSupport = enabledFeatures.fCoherentAdvancedBlendModes
                 ? BlendEquationSupport::kAdvancedCoherent
@@ -314,10 +316,23 @@ VulkanCaps::EnabledFeatures VulkanCaps::getEnabledFeatures(
                     enabled.fSamplerYcbcrConversion = feature->samplerYcbcrConversion;
                     break;
                 }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES: {
+                    const auto* feature =
+                            reinterpret_cast<const VkPhysicalDeviceVulkan13Features*>(pNext);
+                    enabled.fPipelineCreationCacheControl = feature->pipelineCreationCacheControl;
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES: {
                     const auto* feature =
                             reinterpret_cast<const VkPhysicalDeviceVulkan14Features*>(pNext);
                     enabled.fHostImageCopy = feature->hostImageCopy;
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PIPELINE_CREATION_CACHE_CONTROL_FEATURES: {
+                    const auto* feature =
+                            reinterpret_cast<
+                                const VkPhysicalDevicePipelineCreationCacheControlFeatures*>(pNext);
+                    enabled.fPipelineCreationCacheControl = feature->pipelineCreationCacheControl;
                     break;
                 }
                 case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES: {
