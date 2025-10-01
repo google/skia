@@ -441,14 +441,18 @@ public:
 
     static SkPathRaw Raw(const SkPath& path) {
         const SkPathRef* ref = path.fPathRef.get();
+        SkASSERT(ref);
+        const SkRect bounds = ref->isFinite()
+                                      ? ref->getBounds()
+                                      : SkRect{SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
         return {
-            ref->pointSpan(),
-            ref->verbs(),
-            ref->conicSpan(),
-            ref->getBounds(),
-            path.getFillType(),
-            path.isConvex(),
-            SkTo<uint8_t>(ref->getSegmentMasks()),
+                ref->pointSpan(),
+                ref->verbs(),
+                ref->conicSpan(),
+                bounds,
+                path.getFillType(),
+                path.isConvex(),
+                SkTo<uint8_t>(ref->getSegmentMasks()),
         };
     }
 
@@ -466,7 +470,7 @@ public:
             }
             isConvex = SkPathConvexity_IsConvex(convexity);
         } else {
-            bounds = {SK_ScalarInfinity, SK_ScalarInfinity, SK_ScalarInfinity, SK_ScalarInfinity};
+            bounds = {SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
             isConvex = false;
         }
 
