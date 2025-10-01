@@ -63,6 +63,8 @@ public:
 
     VkPipelineCache getPipelineCache() const { return fPipelineCache; }
 
+    void pipelineCompileWasRequired() { fHasNewVkPipelineCacheData = true; }
+
 private:
     VulkanSharedContext(const VulkanBackendContext&,
                         sk_sp<const skgpu::VulkanInterface>,
@@ -94,6 +96,7 @@ private:
     skgpu::VulkanDeviceLostProc fDeviceLostProc;
 
     VkPipelineCache fPipelineCache = VK_NULL_HANDLE;
+    bool fHasNewVkPipelineCacheData = false;
 };
 
 } // namespace skgpu::graphite

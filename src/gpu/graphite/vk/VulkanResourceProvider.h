@@ -83,6 +83,10 @@ public:
 
 private:
     const VulkanSharedContext* vulkanSharedContext() const;
+    // VulkanSharedContext::pipelineCompileWasRequired() - which drives PipelineCache persistence
+    // - modifies the SharedContext so, when creating Pipelines, the ResourceProvider must
+    // provide a non-const SharedContext.
+    VulkanSharedContext* nonConstVulkanSharedContext();
 
     sk_sp<ComputePipeline> createComputePipeline(const ComputePipelineDesc&) override;
 
