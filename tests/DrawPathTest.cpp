@@ -363,8 +363,7 @@ static void test_giantaa() {
 
     SkPaint paint;
     paint.setAntiAlias(true);
-    SkPath path;
-    path.addOval(SkRect::MakeXYWH(-10, -10, 20 + W, 20 + H));
+    SkPath path = SkPath::Oval(SkRect::MakeXYWH(-10, -10, 20 + W, 20 + H));
     surface->getCanvas()->drawPath(path, paint);
 }
 
