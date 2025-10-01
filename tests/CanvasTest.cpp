@@ -244,7 +244,9 @@ DEF_TEST(CanvasNewRasterTest, reporter) {
 }
 
 static SkPath make_path_from_rect(SkRect r) {
-    return SkPath::Rect(r);
+    SkPath path;
+    path.addRect(r);
+    return path;
 }
 
 static SkRegion make_region_from_irect(SkIRect r) {

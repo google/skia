@@ -308,10 +308,11 @@ DEF_TEST(AAClip_setPath_PathHasHole_MaskIsCorrect, reporter) {
     };
     SkMask expected(gExpectedImage, SkIRect::MakeWH(4, 6), 4, SkMask::kA8_Format);
 
-    SkPath path = SkPathBuilder()
-                  .addRect(SkRect::MakeXYWH(0, 0, 4, 2))
-                  .addRect(SkRect::MakeXYWH(0, 4, 4, 2))
-                  .detach();
+    SkPath path;
+    path.addRect(SkRect::MakeXYWH(0, 0,
+                                  SkIntToScalar(4), SkIntToScalar(2)));
+    path.addRect(SkRect::MakeXYWH(0, SkIntToScalar(4),
+                                  SkIntToScalar(4), SkIntToScalar(2)));
 
     {
         skiatest::ReporterContext context(reporter, "noAA");
@@ -341,7 +342,8 @@ DEF_TEST(AAClip_RRectIsReallyARect_ClipIsRect, reporter) {
     SkRRect rrect;
     rrect.setRectXY(SkRect::MakeWH(100, 100), 5, 5);
 
-    SkPath path = SkPath::RRect(rrect);
+    SkPath path;
+    path.addRRect(rrect);
 
     SkAAClip clip;
     clip.setPath(path, path.getBounds().roundOut(), true);
@@ -418,7 +420,8 @@ DEF_TEST(AAClip_setPath_AvoidAssertion, reporter) {
 //
 DEF_TEST(AAClip_crbug_422693_AvoidOverflow, reporter) {
     SkRasterClip rc(SkIRect::MakeLTRB(-25000, -25000, 25000, 25000));
-    SkPath path = SkPath::Circle(50, 50, 50);
+    SkPath path;
+    path.addCircle(50, 50, 50);
     REPORTER_ASSERT(reporter, rc.op(path, SkMatrix::I(), SkClipOp::kIntersect, true));
 }
 
