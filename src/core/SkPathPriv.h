@@ -441,26 +441,38 @@ public:
 
     static SkPathRaw Raw(const SkPath& path) {
         const SkPathRef* ref = path.fPathRef.get();
+        SkASSERT(ref);
+        const SkRect bounds = ref->isFinite()
+                                      ? ref->getBounds()
+                                      : SkRect{SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
         return {
-            ref->pointSpan(),
-            ref->verbs(),
-            ref->conicSpan(),
-            ref->getBounds(),
-            path.getFillType(),
-            path.isConvex(),
-            SkTo<uint8_t>(ref->getSegmentMasks()),
+                ref->pointSpan(),
+                ref->verbs(),
+                ref->conicSpan(),
+                bounds,
+                path.getFillType(),
+                path.isConvex(),
+                SkTo<uint8_t>(ref->getSegmentMasks()),
         };
     }
 
     static SkPathRaw Raw(const SkPathBuilder& builder) {
+        const SkRect bounds = builder.isFinite()
+                                      ? builder.computeBounds()
+                                      : SkRect{SK_FloatNaN, SK_FloatNaN, SK_FloatNaN, SK_FloatNaN};
+        SkPathConvexity convexity = builder.fConvexity;
+        if (convexity == SkPathConvexity::kUnknown) {
+            convexity = SkPathPriv::ComputeConvexity(
+                    builder.fPts, builder.fVerbs, builder.fConicWeights);
+        }
         return {
-            builder.points(),
-            builder.verbs(),
-            builder.conicWeights(),
-            builder.computeBounds(),
-            builder.fillType(),
-            SkPathConvexity_IsConvex(builder.fConvexity),
-            SkTo<uint8_t>(builder.fSegmentMask),
+                builder.points(),
+                builder.verbs(),
+                builder.conicWeights(),
+                bounds,
+                builder.fillType(),
+                SkPathConvexity_IsConvex(convexity),
+                SkTo<uint8_t>(builder.fSegmentMask),
         };
     }
 };
