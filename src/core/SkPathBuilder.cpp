@@ -812,6 +812,9 @@ SkPathBuilder& SkPathBuilder::addPath(const SkPath& src, const SkMatrix& matrix,
         return *this;
     }
 
+    // We're about to append - clear convexity.
+    fConvexity = SkPathConvexity::kUnknown;
+
     if (SkPath::AddPathMode::kAppend_AddPathMode == mode && !matrix.hasPerspective()) {
         if (src.fLastMoveToIndex >= 0) {
             fLastMoveIndex = src.fLastMoveToIndex + this->countPoints();
@@ -828,7 +831,7 @@ SkPathBuilder& SkPathBuilder::addPath(const SkPath& src, const SkMatrix& matrix,
             memcpy(newWeights, src.fPathRef->conicWeights(), numWeights * sizeof(newWeights[0]));
         }
         fLastMovePoint = fPts.at(fLastMoveIndex);
-        return *this;  // TODO(borenet): dirtyAfterEdit sets convexity and firstDirection.
+        return *this;
     }
 
     SkMatrixPriv::MapPtsProc mapPtsProc = SkMatrixPriv::GetMapPtsProc(matrix);

@@ -512,6 +512,15 @@ static void test_addPath_convexity(skiatest::Reporter* reporter) {
         path = builder_add(e.fStartWithMove, e.fMode);
         REPORTER_ASSERT(reporter, path.isConvex() == e.fShouldBeConvex);
     }
+
+    SkPathBuilder pb;
+    REPORTER_ASSERT(reporter, pb.snapshot().isConvex());
+    // Appending to empty preserves convexity.
+    pb.addPath(circle);
+    REPORTER_ASSERT(reporter, pb.snapshot().isConvex());
+    // Appending to non-empty should clear convexity.
+    pb.addPath(circle);
+    REPORTER_ASSERT(reporter, !pb.snapshot().isConvex());
 }
 
 DEF_TEST(pathbuilder_addPath, reporter) {

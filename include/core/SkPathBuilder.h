@@ -816,9 +816,7 @@ public:
     */
     SkPathBuilder& addPath(const SkPath& src,
                            SkPath::AddPathMode mode = SkPath::kAppend_AddPathMode) {
-        SkMatrix m;
-        m.reset();
-        return this->addPath(src, m, mode);
+        return this->addPath(src, SkMatrix::I(), mode);
     }
 
     /** Appends src to SkPathBuilder, transformed by matrix. Transformed curves may have different
