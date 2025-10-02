@@ -112,6 +112,8 @@ static inline bool SkColorTypeIsValid(unsigned value) {
 }
 
 static inline size_t SkColorTypeComputeOffset(SkColorType ct, int x, int y, size_t rowBytes) {
+    SkASSERT(x >= 0);
+    SkASSERT(y >= 0);
     if (kUnknown_SkColorType == ct) {
         return 0;
     }

@@ -37,6 +37,7 @@ void SkPixmap::reset() {
 
 void SkPixmap::reset(const SkImageInfo& info, const void* addr, size_t rowBytes) {
     if (addr) {
+        SkDEBUGCODE(info.validate());
         SkASSERT(info.validRowBytes(rowBytes));
     }
     fPixels = addr;
