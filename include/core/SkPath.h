@@ -2025,7 +2025,6 @@ private:
     friend class SkOpBuilder;
     friend class SkBench_AddPathTest; // perf test reversePathTo
     friend class PathTest_Private; // unit test reversePathTo
-    friend class ForceIsRRect_Private; // unit test isRRect
     friend class FuzzPath; // for legacy access to validateRef
 };
 
