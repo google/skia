@@ -154,7 +154,7 @@ var deps = deps_parser.DepsEntries{
 	},
 	"dawn.googlesource.com/dawn": {
 		Id:      "dawn.googlesource.com/dawn",
-		Version: "cd3a5de0811f5f5c230e850864f583b8f086cf3e",
+		Version: "603a5155599af6b335e4e22454cb973e229ca24c",
 		Path:    "third_party/externals/dawn",
 	},
 	"infra/3pp/tools/ninja": {
