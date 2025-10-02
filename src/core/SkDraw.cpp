@@ -1010,7 +1010,7 @@ void Draw::drawPath(const SkPath& origSrcPath,
     const bool needsFillPath = paint->getPathEffect() || paint->getStyle() != SkPaint::kFill_Style;
 
     SkPathBuilder builder;
-    SkPathRaw     raw;      // will point to either origSrcPath or builder
+    std::optional<SkPathRaw> raw;      // will point to either origSrcPath or builder
     bool          doFill = true;
 
     SkPath scratchPath;
@@ -1040,7 +1040,6 @@ void Draw::drawPath(const SkPath& origSrcPath,
         if (matrix.isIdentity()) {
             // special case, to avoid copying the origSrcPath into the builder
             raw = SkPathPriv::Raw(origSrcPath);
-            SkASSERT(origSrcPath.isFinite() == raw.bounds().isFinite());
         } else {
             builder = origSrcPath;
             builder.transform(matrix);
@@ -1048,7 +1047,7 @@ void Draw::drawPath(const SkPath& origSrcPath,
         }
     }
 
-    if (!raw.bounds().isFinite()) {
+    if (!raw) {
         return;
     }
 
@@ -1058,7 +1057,7 @@ void Draw::drawPath(const SkPath& origSrcPath,
     }
 #endif
 
-    this->drawDevPath(raw, *paint, drawCoverage, customBlitter, doFill);
+    this->drawDevPath(*raw, *paint, drawCoverage, customBlitter, doFill);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////

@@ -36,11 +36,12 @@ template <typename T> bool span_eq(SkSpan<T> a, SkSpan<T> b) {
 static void check_path_is_raw(skiatest::Reporter* reporter,
                               const SkPath& path, const SkPathRaw& raw) {
     auto praw = SkPathPriv::Raw(path);
+    REPORTER_ASSERT(reporter, praw.has_value());
 
-    REPORTER_ASSERT(reporter, span_eq(praw.fPoints, raw.fPoints));
-    REPORTER_ASSERT(reporter, span_eq(praw.fVerbs,  raw.fVerbs));
-    REPORTER_ASSERT(reporter, span_eq(praw.fConics, raw.fConics));
-    REPORTER_ASSERT(reporter, praw.fBounds == raw.fBounds);
+    REPORTER_ASSERT(reporter, span_eq(praw->fPoints, raw.fPoints));
+    REPORTER_ASSERT(reporter, span_eq(praw->fVerbs,  raw.fVerbs));
+    REPORTER_ASSERT(reporter, span_eq(praw->fConics, raw.fConics));
+    REPORTER_ASSERT(reporter, praw->fBounds == raw.fBounds);
 }
 
 DEF_TEST(pathrawshapes_rect, reporter) {

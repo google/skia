@@ -1561,6 +1561,10 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
         //[Fillable-path -> Pixel-path]
         SkPath* pixelPath = pathIsMutable ? fillablePath : &modifiedPath;
         fillablePath->transform(matrix, pixelPath);
+        auto pixelRaw = SkPathPriv::Raw(*pixelPath);
+        if (!pixelRaw) {
+            return;
+        }
 
         SkMask* mask = nullptr;
 
@@ -1571,7 +1575,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
                                             : SkStrokeRec::kHairline_InitStyle;
         //[Pixel-path -> Mask]
         SkMaskBuilder rasteredMask;
-        if (skcpu::DrawToMask(SkPathPriv::Raw(*pixelPath),
+        if (skcpu::DrawToMask(*pixelRaw,
                               clipIRect,
                               filter,  //just to compute how much to draw.
                               &matrix,

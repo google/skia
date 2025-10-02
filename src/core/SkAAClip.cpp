@@ -837,13 +837,12 @@ bool SkAAClip::Builder::blitPath(SkAAClip* target, const SkPath& path, bool doAA
     Blitter blitter(this);
     SkRegion clip(fBounds);
 
-    const auto raw = SkPathPriv::Raw(path);
+    SkPathRaw raw = SkPathPriv::Raw(path).value_or(SkPathRaw::Empty(path.getFillType()));
     if (doAA) {
         SkScan::AntiFillPath(raw, clip, &blitter, true);
     } else {
         SkScan::FillPath(raw, clip, &blitter);
     }
-
     blitter.finish();
     return this->finish(target);
 }

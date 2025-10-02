@@ -50,6 +50,12 @@ struct SkPathRaw {
     std::optional<SkRect> isRect() const;
 
     SkPathIter iter() const { return {fPoints, fVerbs, fConics}; }
+
+    static SkPathRaw Empty(SkPathFillType ft = SkPathFillType::kDefault) {
+        return {
+            {}, {}, {}, SkRect::MakeEmpty(), ft, false, 0,
+        };
+    }
 };
 
 #endif

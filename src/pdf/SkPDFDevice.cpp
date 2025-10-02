@@ -604,11 +604,14 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
                                      ? SkStrokeRec::kFill_InitStyle
                                      : SkStrokeRec::kHairline_InitStyle;
     builder.transform(ctm);
-    SkPathRaw pathRaw = SkPathPriv::Raw(builder);
+    const auto pathRaw = SkPathPriv::Raw(builder);
+    if (!pathRaw) {
+        return;
+    }
 
     SkIRect bounds = clipStack.bounds(this->bounds()).roundOut();
     SkMaskBuilder sourceMask;
-    if (!skcpu::DrawToMask(pathRaw,
+    if (!skcpu::DrawToMask(*pathRaw,
                            bounds,
                            paint->getMaskFilter(),
                            &SkMatrix::I(),
@@ -643,7 +646,7 @@ void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
             maskDevice->makeFormXObjectFromDevice(dstMaskBounds, true), false,
             SkPDFGraphicState::kLuminosity_SMaskMode, fDocument), content.stream());
     SkPDFUtils::AppendRectangle(SkRect::Make(dstMaskBounds), content.stream());
-    SkPDFUtils::PaintPath(SkPaint::kFill_Style, pathRaw.fillType(), content.stream());
+    SkPDFUtils::PaintPath(SkPaint::kFill_Style, pathRaw->fillType(), content.stream());
     this->clearMaskOnGraphicState(content.stream());
 }
 

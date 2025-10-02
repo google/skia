@@ -364,5 +364,8 @@ int SkEdgeBuilder::buildEdges(const SkPathRaw& raw,
 }
 
 int SkEdgeBuilder::buildEdges(const SkPath& path, const SkIRect* shiftedClip) {
-    return buildEdges(SkPathPriv::Raw(path), shiftedClip);
+    if (auto raw = SkPathPriv::Raw(path)) {
+        return buildEdges(*raw, shiftedClip);
+    }
+    return 0;   // no edges were built
 }

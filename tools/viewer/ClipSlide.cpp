@@ -232,7 +232,7 @@ static SkPath clip(const SkPath& path, SkPoint p0, SkPoint p1) {
         SkPoint         fPrev = {0, 0};
     } rec;
 
-    SkEdgeClipper::ClipPath(SkPathPriv::Raw(rotated), clip, false,
+    SkEdgeClipper::ClipPath(SkPathPriv::Raw(rotated).value(), clip, false,
                             [](SkEdgeClipper* clipper, bool newCtr, void* ctx) {
         Rec* rec = (Rec*)ctx;
 

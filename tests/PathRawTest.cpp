@@ -222,7 +222,7 @@ DEF_TEST(pathraw_iter, reporter) {
     pb.conicTo(p[9], p[10], 2);
 
     auto path = pb.detach();
-    raw = SkPathPriv::Raw(path);
+    raw = SkPathPriv::Raw(path).value();
 
     check_iter(reporter, raw, p, verbs, cns);
 }
