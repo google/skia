@@ -378,13 +378,9 @@ static void test_clip_bound_opt(skiatest::Reporter* reporter) {
     SkRect rect3 = SkRect::MakeXYWH(SkIntToScalar(6), SkIntToScalar(6),
                                     SkIntToScalar(1), SkIntToScalar(1));
 
-    SkPath invPath;
-    invPath.addOval(rect1);
-    invPath.setFillType(SkPathFillType::kInverseEvenOdd);
-    SkPath path;
-    path.addOval(rect2);
-    SkPath path2;
-    path2.addOval(rect3);
+    SkPath invPath = SkPath::Oval(rect1).makeFillType(SkPathFillType::kInverseEvenOdd);
+    SkPath path = SkPath::Oval(rect2);
+    SkPath path2 = SkPath::Oval(rect3);
     SkIRect clipBounds;
     SkPictureRecorder recorder;
 

@@ -934,15 +934,12 @@ DEF_TEST(ClipStack_InverseFilledPath, r) {
     using ClipState = skgpu::ganesh::ClipStack::ClipState;
 
     SkRect rect = {0.f, 0.f, 16.f, 17.f};
-    SkPath rectPath;
-    rectPath.addRect(rect);
+    SkPath rectPath = SkPath::Rect(rect);
 
-    SkPath inverseRectPath = rectPath;
-    inverseRectPath.toggleInverseFillType();
+    SkPath inverseRectPath = rectPath.makeToggleInverseFillType();
 
     SkPath complexPath = make_octagon(rect);
-    SkPath inverseComplexPath = complexPath;
-    inverseComplexPath.toggleInverseFillType();
+    SkPath inverseComplexPath = complexPath.makeToggleInverseFillType();
 
     // Inverse filled rect + intersect -> diff rect
     run_test_case(r, TestCase::Build("inverse-rect-intersect", kDeviceBounds)
@@ -2105,10 +2102,10 @@ DEF_GANESH_TEST_FOR_CONTEXTS(ClipStack_SWMask,
     std::unique_ptr<ClipStack> cs(new ClipStack(kDeviceBounds, &SkMatrix::I(), false));
 
     auto addMaskRequiringClip = [&](SkScalar x, SkScalar y, SkScalar radius) {
-        SkPath path;
-        path.addCircle(x, y, radius);
-        path.addCircle(x + radius / 2.f, y + radius / 2.f, radius);
-        path.setFillType(SkPathFillType::kEvenOdd);
+        SkPath path = SkPathBuilder(SkPathFillType::kEvenOdd)
+                      .addCircle(x, y, radius)
+                      .addCircle(x + radius / 2.f, y + radius / 2.f, radius)
+                      .detach();
 
         // Use AA so that clip application does not route through the stencil buffer
         cs->clipPath(SkMatrix::I(), path, GrAA::kYes, SkClipOp::kIntersect);

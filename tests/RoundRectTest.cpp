@@ -1386,20 +1386,16 @@ namespace {
         REPORTER_ASSERT(reporter, actual.rect() == expectedBounds);
 
         // Use PathOps to confirm that the explicit round rect is correct.
-        SkPath aPath, bPath, expectedPath;
-        aPath.addRRect(a);
-        bPath.addRRect(b);
+        SkPath aPath = SkPath::RRect(a),
+               bPath = SkPath::RRect(b);
         auto result = Op(aPath, bPath, kIntersect_SkPathOp);
         SkAssertResult(result.has_value());
-        if (result.has_value()) {
-            expectedPath = *result;
-        }
+        SkPath expectedPath = result.value_or(SkPath());
 
         // The isRRect() heuristics in SkPath are based on having called addRRect(), so a path from
         // path ops that is a rounded rectangle will return false. However, if test XOR expected is
         // empty, then we know that the shapes were the same.
-        SkPath testPath;
-        testPath.addRRect(actual);
+        SkPath testPath = SkPath::RRect(actual);
 
         result = Op(testPath, expectedPath, kXOR_SkPathOp);
         SkAssertResult(result.has_value());

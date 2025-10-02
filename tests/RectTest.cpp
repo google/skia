@@ -112,10 +112,8 @@ DEF_TEST(Rect_grow, reporter) {
 
 DEF_TEST(Rect_path_nan, reporter) {
     SkRect r = { 0, 0, SK_ScalarNaN, 100 };
-    SkPath p;
-    p.addRect(r);
     // path normally just jams its bounds to be r, but it must notice that r is non-finite
-    REPORTER_ASSERT(reporter, !p.isFinite());
+    REPORTER_ASSERT(reporter, !SkPath::Rect(r).isFinite());
 }
 
 DEF_TEST(Rect_largest, reporter) {

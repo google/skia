@@ -27,8 +27,7 @@
 static SkPathRRectInfo path_contains_rrect(skiatest::Reporter* reporter, const SkPath& path) {
     std::optional<SkPathRRectInfo> info = SkPathPriv::IsRRect(path);
     REPORTER_ASSERT(reporter, info.has_value());
-    SkPath recreatedPath;
-    recreatedPath.addRRect(info->fRRect, info->fDirection, info->fStartIndex);
+    SkPath recreatedPath = SkPath::RRect(info->fRRect, info->fDirection, info->fStartIndex);
     REPORTER_ASSERT(reporter, path == recreatedPath);
     // Test that rotations/mirrors of the rrect path are still rrect paths and the returned
     // parameters for the transformed paths are correct.
@@ -42,8 +41,7 @@ static SkPathRRectInfo path_contains_rrect(skiatest::Reporter* reporter, const S
         SkPath xformed = path.makeTransform(m);
         std::optional<SkPathRRectInfo> xinfo = SkPathPriv::IsRRect(xformed);
         REPORTER_ASSERT(reporter, xinfo.has_value());
-        recreatedPath.reset();
-        recreatedPath.addRRect(xinfo->fRRect, xinfo->fDirection, xinfo->fStartIndex);
+        recreatedPath = SkPath::RRect(xinfo->fRRect, xinfo->fDirection, xinfo->fStartIndex);
         REPORTER_ASSERT(reporter, recreatedPath == xformed);
     }
     return *info;
@@ -59,8 +57,7 @@ static SkRRect inner_path_contains_rrect(skiatest::Reporter* reporter, const SkR
         default:
             break;
     }
-    SkPath path;
-    path.addRRect(in, dir, start);
+    SkPath path = SkPath::RRect(in, dir, start);
     SkPathRRectInfo rrect = path_contains_rrect(reporter, path);
     REPORTER_ASSERT(reporter, rrect.fDirection == dir && rrect.fStartIndex == start);
     return rrect.fRRect;
