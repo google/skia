@@ -10,6 +10,7 @@
 
 #include "include/core/SkRefCnt.h"
 #include "src/gpu/graphite/ScratchResourceManager.h"
+#include "src/gpu/graphite/TextureProxy.h"
 #include "src/gpu/graphite/task/Task.h"
 #include "src/gpu/graphite/task/TaskList.h"
 
@@ -32,6 +33,7 @@ class RuntimeEffectDictionary;
 class DrawTask final : public Task, private ScratchResourceManager::PendingUseListener {
 public:
     explicit DrawTask(sk_sp<TextureProxy> target);
+
     ~DrawTask() override;
 
     Status prepareResources(ResourceProvider*,
@@ -70,14 +72,24 @@ private:
 
 #if defined(SK_DUMP_TASKS)
     void dump(int index, const char* prefix) const override {
-        if (index >= 0) {
-            SkDebugf("%s%d: Draw Task (target=%p)\n", prefix, index, fTarget.get());
+        if (fTarget) {
+            if (index >= 0) {
+                SkDebugf("%s%d: Draw Task=%p (Target=%p) (Label=%s)\n", prefix, index, this,
+                         fTarget.get(), fTarget->label());
+            } else {
+                SkDebugf("%sDraw Task=%p (Target=%p) (Label=%s)\n", prefix, this, fTarget.get(),
+                         fTarget->label());
+            }
         } else {
-            SkDebugf("%sDraw Task (target=%p)\n", prefix, fTarget.get());
+            if (index >= 0) {
+                SkDebugf("%s%d: Draw Task=%p (Target=%p)\n", prefix, index, this,
+                         fTarget.get());
+            } else {
+                SkDebugf("%sDraw Task=%p (Target=%p)\n", prefix, this, fTarget.get());
+            }
         }
 
         std::string childPrefix = prefix;
-        SkASSERT((strlen(prefix) & 3) == 0);
         static constexpr uint32_t kPrefixIncrement = 4;
         if (strlen(prefix) >= kPrefixIncrement) {
             const char* lastBranch = prefix + strlen(prefix) - kPrefixIncrement;
