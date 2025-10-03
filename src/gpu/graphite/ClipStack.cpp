@@ -1604,14 +1604,18 @@ void ClipStack::clipShape(const Transform& localToDevice,
 // rrects are supported. We assume these have been pre-transformed by the RawElement
 // constructor, so only identity transforms are allowed.
 namespace {
-AnalyticClip can_apply_analytic_clip(const Shape& shape,
-                                     const Transform& localToDevice) {
+
+AnalyticClip can_apply_analytic_clip(const Shape& shape, const Transform& localToDevice) {
     if (localToDevice.type() != Transform::Type::kIdentity) {
         return {};
     }
 
-    // The circular rrect clip only handles rrect radii >= kRadiusMin.
-    static constexpr SkScalar kRadiusMin = SK_ScalarHalf;
+    // The circular rrect clip only handles rrect radii >= kRadiusMin, circular radii less than
+    // this are coerced to be rectangular.
+    static constexpr float kRadiusMin = SK_ScalarHalf;
+    // Given that these rrects are defined in device space, a fairly high tolerance can be used for
+    // comparing the X and Y radii to each other.
+    static constexpr float kRadiiTolerance = 0.04f;
 
     // Can handle Rect directly.
     if (shape.isRect()) {
@@ -1631,61 +1635,63 @@ AnalyticClip can_apply_analytic_clip(const Shape& shape,
             // clip to a rectangular clip.
             return {rrect.rect(), kRadiusMin, AnalyticClip::kNone_EdgeFlag, shape.inverted()};
         }
-        if (SkScalarNearlyEqual(radii.fX, radii.fY)) {
+        if (SkScalarNearlyEqual(radii.fX, radii.fY, kRadiiTolerance)) {
             return {rrect.rect(), radii.fX, AnalyticClip::kAll_EdgeFlag, shape.inverted()};
         } else {
             return {};
         }
     }
 
-    if (rrect.isComplex() || rrect.isNinePatch()) {
-        // Check for the "tab" cases - two adjacent circular corners and two square corners.
-        constexpr uint32_t kCornerFlags[4] = {
-            AnalyticClip::kTop_EdgeFlag | AnalyticClip::kLeft_EdgeFlag,
-            AnalyticClip::kTop_EdgeFlag | AnalyticClip::kRight_EdgeFlag,
-            AnalyticClip::kBottom_EdgeFlag | AnalyticClip::kRight_EdgeFlag,
-            AnalyticClip::kBottom_EdgeFlag | AnalyticClip::kLeft_EdgeFlag,
-        };
-        SkScalar circularRadius = 0;
-        uint32_t edgeFlags = 0;
-        for (int corner = 0; corner < 4; ++corner) {
-            SkVector radii = rrect.radii((SkRRect::Corner)corner);
-            // Can only handle circular radii.
-            // Also applies to corners with both zero and non-zero radii.
-            if (!SkScalarNearlyEqual(radii.fX, radii.fY)) {
-                return {};
-            }
-            if (radii.fX < kRadiusMin || radii.fY < kRadiusMin) {
-                // The corner is square, so no need to flag as circular.
-                continue;
-            }
-            // First circular corner seen
-            if (!edgeFlags) {
-                circularRadius = radii.fX;
-            } else if (!SkScalarNearlyEqual(radii.fX, circularRadius)) {
-                // Radius doesn't match previously seen circular radius
-                return {};
-            }
-            edgeFlags |= kCornerFlags[corner];
+    // If rrect is not an oval or simple, it's either empty, rect, 9-patch, or complex. However,
+    // empty should have been handled by the clip stack, and rect ought to have been simplified
+    // into an explicit Rect shape (already handled above). That leaves 9-patch and complex,
+    // so we check for the "tab" cases - two adjacent circular corners and two square corners.
+    // It just so happens that if a rect RRect slipped through the cracks, we detect it here too.
+    constexpr uint32_t kCornerFlags[4] = {
+        AnalyticClip::kTop_EdgeFlag | AnalyticClip::kLeft_EdgeFlag,
+        AnalyticClip::kTop_EdgeFlag | AnalyticClip::kRight_EdgeFlag,
+        AnalyticClip::kBottom_EdgeFlag | AnalyticClip::kRight_EdgeFlag,
+        AnalyticClip::kBottom_EdgeFlag | AnalyticClip::kLeft_EdgeFlag,
+    };
+    SkScalar circularRadius = 0;
+    uint32_t edgeFlags = 0;
+    int squareCount = 0;
+    for (int corner = 0; corner < 4; ++corner) {
+        SkVector radii = rrect.radii((SkRRect::Corner)corner);
+        // Can only handle circular radii.
+        // Also applies to corners with both zero and non-zero radii.
+        if (!SkScalarNearlyEqual(radii.fX, radii.fY, kRadiiTolerance)) {
+            return {};
         }
-
-        if (edgeFlags == AnalyticClip::kNone_EdgeFlag) {
-            // It's a rect
-            return {rrect.rect(), kRadiusMin, edgeFlags, shape.inverted()};
-        } else {
-            // If any rounded corner pairs are non-adjacent or if there are three rounded
-            // corners all edge flags will be set, which is not valid.
-            if (edgeFlags == AnalyticClip::kAll_EdgeFlag) {
-                return {};
-            // At least one corner is rounded, or two adjacent corners are rounded.
-            } else {
-                return {rrect.rect(), circularRadius, edgeFlags, shape.inverted()};
-            }
+        if (radii.fX < kRadiusMin || radii.fY < kRadiusMin) {
+            // The corner is square, so no need to flag as circular.
+            squareCount++;
+            continue;
         }
+        // First circular corner seen
+        if (!edgeFlags) {
+            circularRadius = radii.fX;
+        } else if (!SkScalarNearlyEqual(radii.fX, circularRadius, kRadiiTolerance)) {
+            // Radius doesn't match previously seen circular radius
+            return {};
+        }
+        edgeFlags |= kCornerFlags[corner];
     }
 
-    return {};
+    if (edgeFlags == AnalyticClip::kNone_EdgeFlag) {
+        // It's a rect (or coerced to a rect)
+        return {rrect.rect(), kRadiusMin, edgeFlags, shape.inverted()};
+    } else if (edgeFlags == AnalyticClip::kAll_EdgeFlag && squareCount != 0) {
+        // If any rounded corner pairs are non-adjacent or if there are three rounded corners all
+        // edge flags will be set, which is not valid.
+        return {};
+    } else {
+        // At least one corner is rounded, or two adjacent corners are rounded, or all corners
+        // are approximately the same (but not classified as simple due to inexactness).
+        return {rrect.rect(), circularRadius, edgeFlags, shape.inverted()};
+    }
 }
+
 }  // anonymous namespace
 
 Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
