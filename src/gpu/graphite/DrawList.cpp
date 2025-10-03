@@ -46,7 +46,7 @@ public:
         // buffers. This will result in more data uploaded, but the tradeoff seems worthwhile.
         if (!uniformData.fBufferBinding.fBuffer ||
             (fUseStorageBuffers && uniformData.fBufferBinding.fBuffer != fLastBinding.fBuffer)) {
-            UniformWriter writer;
+            BufferWriter writer;
             std::tie(writer, uniformData.fBufferBinding) =
                     fUseStorageBuffers ? bufferMgr->getAlignedSsboWriter(1, uniformDataSize)
                                        : bufferMgr->getUniformWriter(1, uniformDataSize);

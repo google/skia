@@ -64,7 +64,7 @@ DEF_GRAPHITE_TEST_FOR_RENDERING_CONTEXTS(BufferManagerGpuOnlyBufferTest, reporte
     REPORTER_ASSERT(reporter, !recording->priv().hasTasks());
 
     // Request a mapped ssbo followed by an unmapped one. The two buffers should be distinct.
-    auto [ssboPtr, mappedSsbo] = mgr->getStoragePointer(10);
+    auto [ssboWriter, mappedSsbo] = mgr->getSsboWriter(/*count=*/10, /*stride=*/1);
     ssbo = mgr->getStorage(10);
     REPORTER_ASSERT(reporter, !ssbo.fBuffer->isMapped());
     REPORTER_ASSERT(reporter, ssbo.fBuffer != mappedSsbo.fBuffer);

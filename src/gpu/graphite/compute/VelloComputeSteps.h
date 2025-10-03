@@ -281,11 +281,10 @@ public:
 
     void prepareStorageBuffer(int resourceIndex,
                               const ComputeStep::ResourceDesc&,
-                              void* buffer,
-                              size_t bufferSize) const override {
+                              BufferWriter&& writer) const override {
         SkASSERT(resourceIndex == 5);
         SkASSERT(fMaskLut.size() == bufferSize);
-        memcpy(buffer, fMaskLut.data(), fMaskLut.size());
+        writer.write(fMaskLut.data(), fMaskLut.size());
     }
 
 protected:

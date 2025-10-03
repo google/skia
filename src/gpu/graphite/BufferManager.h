@@ -139,19 +139,19 @@ public:
     std::pair<VertexWriter, BindBufferInfo> getVertexWriter(size_t count, size_t dataStride,
                                                             size_t alignStride);
     std::pair<IndexWriter, BindBufferInfo> getIndexWriter(size_t count, size_t stride);
-    std::pair<UniformWriter, BindBufferInfo> getUniformWriter(size_t count, size_t stride);
+    std::pair<BufferWriter, BindBufferInfo> getUniformWriter(size_t count, size_t stride);
 
     // Return an SSBO writer that is aligned for binding, per the requirements in fCurrentBuffers.
-    std::pair<UniformWriter, BindBufferInfo> getSsboWriter(size_t count, size_t stride);
+    std::pair<BufferWriter, BindBufferInfo> getSsboWriter(size_t count, size_t stride) {
+        return this->getSsboWriter(count, stride, /*alignment=*/0);
+    }
     // Return an SSBO writer that is aligned for indexing from the shader, per the provided stride.
-    std::pair<UniformWriter, BindBufferInfo> getAlignedSsboWriter(size_t count, size_t stride);
+    std::pair<BufferWriter, BindBufferInfo> getAlignedSsboWriter(size_t count, size_t stride) {
+        return this->getSsboWriter(count, stride, stride);
+    }
 
     // The remaining writers and buffer allocator functions assume that byte counts are safely
-    // calculated by the caller (e.g. Vello or ).
-
-    // Return a pointer to a mapped storage buffer suballocation without a specific data writer.
-    std::pair<void* /* mappedPtr */, BindBufferInfo> getUniformPointer(size_t requiredBytes);
-    std::pair<void* /* mappedPtr */, BindBufferInfo> getStoragePointer(size_t requiredBytes);
+    // calculated by the caller (e.g. Vello).
 
     // Utilities that return an unmapped buffer suballocation for a particular usage. These buffers
     // are intended to be only accessed by the GPU and are not intended for CPU data uploads.
@@ -227,9 +227,9 @@ private:
                                      ClearBuffer cleared = ClearBuffer::kNo);
 
     // Helper method for public getSsboWriter methods.
-    std::pair<UniformWriter, BindBufferInfo> getSsboWriter(size_t count,
-                                                           size_t stride,
-                                                           size_t alignment);
+    std::pair<BufferWriter, BindBufferInfo> getSsboWriter(size_t count,
+                                                          size_t stride,
+                                                          size_t alignment);
 
     sk_sp<Buffer> findReusableSbo(size_t bufferSize);
 

@@ -284,8 +284,8 @@ std::pair<IndexWriter, BindBufferInfo> DrawBufferManager::getIndexWriter(size_t 
     return {IndexWriter(ptr, requiredBytes), bindInfo};
 }
 
-std::pair<UniformWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(size_t count,
-                                                                             size_t stride) {
+std::pair<BufferWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(size_t count,
+                                                                            size_t stride) {
     uint32_t requiredBytes = validate_count_and_stride(count, stride);
     if (!requiredBytes) {
         return {};
@@ -293,12 +293,12 @@ std::pair<UniformWriter, BindBufferInfo> DrawBufferManager::getUniformWriter(siz
 
     auto& info = fCurrentBuffers[kUniformBufferIndex];
     auto [ptr, bindInfo] = this->prepareMappedBindBuffer(&info, "UniformBuffer", requiredBytes);
-    return {UniformWriter(ptr, requiredBytes), bindInfo};
+    return {BufferWriter(ptr, requiredBytes), bindInfo};
 }
 
-std::pair<UniformWriter, BindBufferInfo> DrawBufferManager::getSsboWriter(size_t count,
-                                                                          size_t stride,
-                                                                          size_t alignment) {
+std::pair<BufferWriter, BindBufferInfo> DrawBufferManager::getSsboWriter(size_t count,
+                                                                         size_t stride,
+                                                                         size_t alignment) {
     uint32_t requiredBytes = validate_count_and_stride(count, stride);
     if (!requiredBytes) {
         return {};
@@ -307,41 +307,7 @@ std::pair<UniformWriter, BindBufferInfo> DrawBufferManager::getSsboWriter(size_t
     auto& info = fCurrentBuffers[kStorageBufferIndex];
     auto [ptr, bindInfo] =
             this->prepareMappedBindBuffer(&info, "StorageBuffer", requiredBytes, alignment);
-    return {UniformWriter(ptr, requiredBytes), bindInfo};
-}
-
-std::pair<UniformWriter, BindBufferInfo> DrawBufferManager::getSsboWriter(size_t count,
-                                                                          size_t stride) {
-    // By setting alignment=0, use the default buffer alignment requirement for storage buffers.
-    return this->getSsboWriter(count, stride, /*alignment=*/0);
-}
-
-std::pair<UniformWriter, BindBufferInfo> DrawBufferManager::getAlignedSsboWriter(size_t count,
-                                                                                 size_t stride) {
-    // Align to the provided element stride.
-    return this->getSsboWriter(count, stride, stride);
-}
-
-std::pair<void* /*mappedPtr*/, BindBufferInfo> DrawBufferManager::getUniformPointer(
-            size_t requiredBytes) {
-    uint32_t requiredBytes32 = validate_size(requiredBytes);
-    if (!requiredBytes32) {
-        return {};
-    }
-
-    auto& info = fCurrentBuffers[kUniformBufferIndex];
-    return this->prepareMappedBindBuffer(&info, "UniformBuffer", requiredBytes32);
-}
-
-std::pair<void* /*mappedPtr*/, BindBufferInfo> DrawBufferManager::getStoragePointer(
-        size_t requiredBytes) {
-    uint32_t requiredBytes32 = validate_size(requiredBytes);
-    if (!requiredBytes32) {
-        return {};
-    }
-
-    auto& info = fCurrentBuffers[kStorageBufferIndex];
-    return this->prepareMappedBindBuffer(&info, "StorageBuffer", requiredBytes32);
+    return {BufferWriter(ptr, requiredBytes), bindInfo};
 }
 
 BindBufferInfo DrawBufferManager::getStorage(size_t requiredBytes, ClearBuffer cleared) {

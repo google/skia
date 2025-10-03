@@ -54,7 +54,7 @@ ComputeStep::ComputeStep(std::string_view name,
 #endif  // SK_DEBUG
 }
 
-void ComputeStep::prepareStorageBuffer(int, const ResourceDesc&, void*, size_t) const {
+void ComputeStep::prepareStorageBuffer(int, const ResourceDesc&, BufferWriter&&) const {
     SK_ABORT("ComputeSteps that initialize a mapped storage buffer must override "
              "prepareStorageBuffer()");
 }

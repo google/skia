@@ -39,8 +39,8 @@ BindBufferInfo new_indirect_slice(DrawBufferManager* mgr, size_t size) {
    return  mgr->getIndirectStorage(size, ClearBuffer::kYes);
 }
 
-::rust::Slice<uint8_t> to_slice(void* ptr, size_t size) {
-    return {static_cast<uint8_t*>(ptr), size};
+::rust::Slice<uint8_t> to_slice(SkSpan<uint8_t> slice) {
+    return {slice.data(), slice.size_bytes()};
 }
 
 vello_cpp::Affine to_vello_affine(const SkMatrix& m) {
@@ -297,14 +297,14 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     DrawBufferManager* bufMgr = recorder->priv().drawBufferManager();
 
     size_t uboSize = config->config_uniform_buffer_size();
-    auto [uboPtr, configBuf] = bufMgr->getUniformPointer(uboSize);
-    if (!uboPtr || !config->write_config_uniform_buffer(to_slice(uboPtr, uboSize))) {
+    auto [uboWriter, configBuf] = bufMgr->getUniformWriter(uboSize, /*stride=*/1);
+    if (!uboWriter || !config->write_config_uniform_buffer(to_slice(uboWriter.slice(uboSize)))) {
         return nullptr;
     }
 
     size_t sceneSize = config->scene_buffer_size();
-    auto [scenePtr, sceneBuf] = bufMgr->getStoragePointer(sceneSize);
-    if (!scenePtr || !config->write_scene_buffer(to_slice(scenePtr, sceneSize))) {
+    auto [sceneWriter, sceneBuf] = bufMgr->getSsboWriter(sceneSize, /*stride=*/1);
+    if (!sceneWriter || !config->write_scene_buffer(to_slice(sceneWriter.slice(sceneSize)))) {
         return nullptr;
     }
 
