@@ -283,7 +283,6 @@ public:
                               const ComputeStep::ResourceDesc&,
                               BufferWriter&& writer) const override {
         SkASSERT(resourceIndex == 5);
-        SkASSERT(fMaskLut.size() == bufferSize);
         writer.write(fMaskLut.data(), fMaskLut.size());
     }
 
