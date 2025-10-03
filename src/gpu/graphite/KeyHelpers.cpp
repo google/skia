@@ -1503,26 +1503,6 @@ void add_to_key(const KeyContext& keyContext, const SkRuntimeBlender* blender) {
     keyContext.paintParamsKeyBuilder()->endBlock();
 }
 
-void notify_in_use(Recorder* recorder,
-                   DrawContext* drawContext,
-                   SkSpan<const SkRuntimeEffect::ChildPtr> children) {
-    for (const auto& child : children) {
-        if (child.type().has_value()) {
-            switch (*child.type()) {
-                case SkRuntimeEffect::ChildType::kShader:
-                    NotifyImagesInUse(recorder, drawContext, child.shader());
-                    break;
-                case SkRuntimeEffect::ChildType::kColorFilter:
-                    NotifyImagesInUse(recorder, drawContext, child.colorFilter());
-                    break;
-                case SkRuntimeEffect::ChildType::kBlender:
-                    NotifyImagesInUse(recorder, drawContext, child.blender());
-                    break;
-            }
-        } // else a null child is a no-op, so cannot sample an image
-    }
-}
-
 } // anonymous namespace
 
 void AddToKey(const KeyContext& keyContext, const SkBlender* blender) {
@@ -1544,16 +1524,6 @@ void AddToKey(const KeyContext& keyContext, const SkBlender* blender) {
 #undef M
     }
     SkUNREACHABLE;
-}
-
-void NotifyImagesInUse(Recorder* recorder, DrawContext* drawContext, const SkBlender* blender) {
-    if (!blender) {
-        return;
-    }
-    if (as_BB(blender)->type() == SkBlenderBase::BlenderType::kRuntime) {
-        const auto* rbb = static_cast<const SkRuntimeBlender*>(blender);
-        notify_in_use(recorder, drawContext, rbb->children());
-    } // else blend mode doesn't reference images
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1713,26 +1683,6 @@ void AddToKey(const KeyContext& keyContext, const SkColorFilter* filter) {
     SkUNREACHABLE;
 }
 
-void NotifyImagesInUse(Recorder* recorder, DrawContext* drawContext, const SkColorFilter* filter) {
-    if (!filter) {
-        return;
-    }
-    if (as_CFB(filter)->type() == SkColorFilterBase::Type::kCompose) {
-        // Recurse to two children
-        const auto* cf = static_cast<const SkComposeColorFilter*>(filter);
-        NotifyImagesInUse(recorder, drawContext, cf->inner().get());
-        NotifyImagesInUse(recorder, drawContext, cf->outer().get());
-    } else if (as_CFB(filter)->type() == SkColorFilterBase::Type::kWorkingFormat) {
-        // Recurse to one child
-        const auto* wfcf = static_cast<const SkWorkingFormatColorFilter*>(filter);
-        NotifyImagesInUse(recorder, drawContext, wfcf->child().get());
-    } else if (as_CFB(filter)->type() == SkColorFilterBase::Type::kRuntime) {
-        // Recurse to all children
-        const auto* rcf = static_cast<const SkRuntimeColorFilter*>(filter);
-        notify_in_use(recorder, drawContext, rcf->children());
-    } // else other color filters do not rely on SkImages
-}
-
 // ==================================================================
 
 static void add_to_key(const KeyContext& keyContext, const SkBlendShader* shader) {
@@ -1748,13 +1698,6 @@ static void add_to_key(const KeyContext& keyContext, const SkBlendShader* shader
             /* addDstToKey= */ [&]() -> void {
                 AddToKey(keyContext, shader->dst().get());
             });
-}
-static void notify_in_use(Recorder* recorder,
-                          DrawContext* drawContext,
-                          const SkBlendShader* shader) {
-    // SkBlendShader uses a fixed blend mode, so there's no blender to recurse through
-    NotifyImagesInUse(recorder, drawContext, shader->src().get());
-    NotifyImagesInUse(recorder, drawContext, shader->dst().get());
 }
 
 static SkMatrix matrix_invert_or_identity(const SkMatrix& matrix) {
@@ -1781,9 +1724,6 @@ static void add_to_key(const KeyContext& keyContext, const SkCTMShader* shader) 
 
     keyContext.paintParamsKeyBuilder()->endBlock();
 }
-static void notify_in_use(Recorder* recorder, DrawContext* drawContext, const SkCTMShader* shader) {
-    NotifyImagesInUse(recorder, drawContext, shader->proxyShader().get());
-}
 
 static void add_to_key(const KeyContext& keyContext, const SkColorShader* shader) {
     SkASSERT(shader);
@@ -1793,9 +1733,6 @@ static void add_to_key(const KeyContext& keyContext, const SkColorShader* shader
                                   keyContext.dstColorInfo().alphaType());
 
     SolidColorShaderBlock::AddBlock(keyContext, color);
-}
-static void notify_in_use(Recorder*, DrawContext*, const SkColorShader*) {
-    // No-op
 }
 
 static void add_to_key(const KeyContext& keyContext, const SkColorFilterShader* shader) {
@@ -1809,12 +1746,6 @@ static void add_to_key(const KeyContext& keyContext, const SkColorFilterShader* 
                 AddToKey(keyContext, shader->filter().get());
             });
 }
-static void notify_in_use(Recorder* recorder,
-                          DrawContext* drawContext,
-                          const SkColorFilterShader* shader) {
-    NotifyImagesInUse(recorder, drawContext, shader->shader().get());
-    NotifyImagesInUse(recorder, drawContext, shader->filter().get());
-}
 
 static void add_to_key(const KeyContext& keyContext, const SkCoordClampShader* shader) {
     SkASSERT(shader);
@@ -1826,17 +1757,9 @@ static void add_to_key(const KeyContext& keyContext, const SkCoordClampShader* s
     AddToKey(childContext, shader->shader().get());
     keyContext.paintParamsKeyBuilder()->endBlock();
 }
-static void notify_in_use(Recorder* recorder,
-                          DrawContext* drawContext,
-                          const SkCoordClampShader* shader) {
-    NotifyImagesInUse(recorder, drawContext, shader->shader().get());
-}
 
 static void add_to_key(const KeyContext& keyContext, const SkEmptyShader*) {
     keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kPriorOutput);
-}
-static void notify_in_use(Recorder*, DrawContext*, const SkEmptyShader*) {
-    // No-op
 }
 
 static void add_yuv_image_to_key(const KeyContext& keyContext,
@@ -2000,23 +1923,20 @@ static void add_to_key(const KeyContext& keyContext,
         keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
         return;
     }
-    if (!as_IB(shader->image())->isGraphiteBacked()) {
-        // GetGraphiteBacked() created a new image (or fetched a cached image) from the client
-        // image provider. This image was not available when NotifyInUse() visited the shader tree,
-        // so call notify again. These images shouldn't really be producing new tasks since it's
-        // unlikely that a client will be fulfilling with a dynamic image that wraps a long-lived
-        // SkSurface. However, the images can be linked to a surface that rendered the initial
-        // content and not calling notifyInUse() prevents unlinking the image from the Device.
-        // If the client image provider then holds on to many of these images, the leaked Device and
-        // DrawContext memory can be surprisingly high. b/338453542.
-        // TODO (b/330864257): Once paint keys are extracted at draw time, AddToKey() will be
-        // fully responsible for notifyInUse() calls and then we can simply always call this on
-        // `imageToDraw`. The DrawContext that samples the image will also be available to AddToKey
-        // so we won't have to pass in nullptr.
-        SkASSERT(as_IB(imageToDraw)->isGraphiteBacked());
-        static_cast<Image_Base*>(imageToDraw.get())->notifyInUse(keyContext.recorder(),
-                                                                 /*drawContext=*/nullptr);
-    }
+
+    // We must call notifyInUse() here to link the final, Graphite-backed 'imageToDraw'
+    // to the DrawContext that will sample it.
+    //
+    // This is necessary for two primary cases:
+    // 1. The original image was not Graphite-backed.
+    // 2. The original image was already Graphite-backed, but produced through Image::Copy, possibly
+    //    from a different DrawContext.
+    //
+    // Failing to call this can lead to leaked Device and DrawContext memory (b/338453542).
+    SkASSERT(as_IB(imageToDraw)->isGraphiteBacked());
+    SkASSERT(keyContext.drawContext());
+    static_cast<Image_Base*>(imageToDraw.get())->notifyInUse(keyContext.recorder(),
+                                                             keyContext.drawContext());
     if (as_IB(imageToDraw)->isYUVA()) {
         return add_yuv_image_to_key(keyContext,
                                     shader,
@@ -2102,17 +2022,6 @@ static void add_to_key(const KeyContext& keyContext,
                 ColorSpaceTransformBlock::AddBlock(keyContext, colorXformData);
             });
 }
-static void notify_in_use(Recorder* recorder,
-                          DrawContext* drawContext,
-                          const SkImageShader* shader) {
-    auto image = as_IB(shader->image());
-    if (!image->isGraphiteBacked()) {
-        // If it's not graphite-backed, there's no pending graphite work.
-        return;
-    }
-
-    static_cast<Image_Base*>(image)->notifyInUse(recorder, drawContext);
-}
 
 static void add_to_key(const KeyContext& keyContext, const SkLocalMatrixShader* shader) {
     SkASSERT(shader);
@@ -2187,12 +2096,6 @@ static void add_to_key(const KeyContext& keyContext, const SkLocalMatrixShader* 
     keyContext.paintParamsKeyBuilder()->endBlock();
 }
 
-static void notify_in_use(Recorder* recorder,
-                          DrawContext* drawContext,
-                          const SkLocalMatrixShader* shader) {
-    NotifyImagesInUse(recorder, drawContext, shader->wrappedShader().get());
-}
-
 // If either of these change then the corresponding change must also be made in the SkSL
 // perlin_noise_shader function.
 static_assert((int)SkPerlinNoiseShaderType::kFractalNoise ==
@@ -2232,9 +2135,6 @@ static void add_to_key(const KeyContext& keyContext, const SkPerlinNoiseShader* 
     perlinData.fNoiseProxy = std::move(noise);
 
     PerlinNoiseShaderBlock::AddBlock(keyContext, perlinData);
-}
-static void notify_in_use(Recorder*, DrawContext*, const SkPerlinNoiseShader*) {
-    // No-op, perlin noise has no children.
 }
 
 static void add_to_key(const KeyContext& keyContext,
@@ -2309,10 +2209,6 @@ static void add_to_key(const KeyContext& keyContext,
 
     AddToKey(keyContext, imgShader.get());
 }
-static void notify_in_use(Recorder*, DrawContext*, const SkPictureShader*) {
-    // While the SkPicture the shader points to, may have Graphite-backed shaders that need to be
-    // notified, that will happen when the picture is rendered into an image in add_to_key
-}
 
 static void add_to_key(const KeyContext& keyContext,
                        const SkRuntimeShader* shader) {
@@ -2333,28 +2229,17 @@ static void add_to_key(const KeyContext& keyContext,
 
     keyContext.paintParamsKeyBuilder()->endBlock();
 }
-static void notify_in_use(Recorder* recorder,
-                          DrawContext* drawContext,
-                          const SkRuntimeShader* shader) {
-    notify_in_use(recorder, drawContext, shader->children());
-}
 
 static void add_to_key(const KeyContext& keyContext,
                        const SkTransformShader* shader) {
     SKGPU_LOG_W("Raster-only SkShader (SkTransformShader) encountered");
     keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
 }
-static void notify_in_use(Recorder*, DrawContext*, const SkTransformShader*) {
-    // no-op
-}
 
 static void add_to_key(const KeyContext& keyContext,
                        const SkTriColorShader* shader) {
     SKGPU_LOG_W("Raster-only SkShader (SkTriColorShader) encountered");
     keyContext.paintParamsKeyBuilder()->addBlock(BuiltInCodeSnippetID::kError);
-}
-static void notify_in_use(Recorder*, DrawContext*, const SkTriColorShader*) {
-    // no-op
 }
 
 static void add_to_key(const KeyContext& keyContext,
@@ -2387,11 +2272,6 @@ static void add_to_key(const KeyContext& keyContext,
                     outputCS.get(), workingAT, dstCS.get(), dstAT);
             ColorSpaceTransformBlock::AddBlock(keyContext, data);
         });
-}
-static void notify_in_use(Recorder* recorder,
-                          DrawContext* drawContext,
-                          const SkWorkingColorSpaceShader* shader) {
-    NotifyImagesInUse(recorder, drawContext, shader->shader().get());
 }
 
 static SkBitmap create_color_and_offset_bitmap(int numStops,
@@ -2622,9 +2502,6 @@ static void add_to_key(const KeyContext& keyContext,
     }
     SkUNREACHABLE;
 }
-static void notify_in_use(Recorder*, DrawContext*, const SkGradientBaseShader*) {
-    // Gradients do not have children, so no images to notify
-}
 
 void AddToKey(const KeyContext& keyContext, const SkShader* shader) {
     if (!shader) {
@@ -2646,25 +2523,5 @@ void AddToKey(const KeyContext& keyContext, const SkShader* shader) {
     }
     SkUNREACHABLE;
 }
-
-void NotifyImagesInUse(Recorder* recorder,
-                       DrawContext* drawContext,
-                       const SkShader* shader) {
-    if (!shader) {
-        return;
-    }
-    switch (as_SB(shader)->type()) {
-#define M(type)                                                      \
-    case SkShaderBase::ShaderType::k##type:                          \
-        notify_in_use(recorder,                                      \
-                      drawContext,                                   \
-                      static_cast<const Sk##type##Shader*>(shader)); \
-        return;
-        SK_ALL_SHADERS(M)
-#undef M
-    }
-    SkUNREACHABLE;
-}
-
 
 } // namespace skgpu::graphite

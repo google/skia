@@ -92,8 +92,8 @@ void DrawWriter::flushInternal() {
 
     // Before any draw commands are added, check if the DrawWriter has an assigned barrier type
     // to issue prior to draw calls.
-    if (fBarrierToIssueBeforeDraws.has_value()) {
-        fCommandList->addBarrier(fBarrierToIssueBeforeDraws.value());
+    if (fBarrierToIssueBeforeDraws != BarrierType::kNone) {
+        fCommandList->addBarrier(fBarrierToIssueBeforeDraws);
     }
 
     // Issue the appropriate draw call (instanced vs. non-instanced) based on the current

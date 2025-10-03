@@ -86,6 +86,9 @@ DrawContext::DrawContext(const Caps* caps,
         , fImageInfo(ii)
         , fSurfaceProps(props)
         , fDstReadStrategy(caps->getDstReadStrategy())
+        , fSupportsHardwareAdvancedBlend(caps->supportsHardwareAdvancedBlending())
+        , fAdvancedBlendsRequireBarrier(caps->blendEquationSupport() ==
+                                            Caps::BlendEquationSupport::kAdvancedNoncoherent)
         , fCurrentDrawTask(sk_make_sp<DrawTask>(fTarget))
         , fPendingDraws(std::make_unique<DrawList>())
         , fPendingUploads(std::make_unique<UploadList>()) {
@@ -105,37 +108,28 @@ DrawContext::DrawContext(const Caps* caps,
 DrawContext::~DrawContext() = default;
 
 void DrawContext::clear(const SkColor4f& clearColor) {
-    this->discard();
-
-    fPendingLoadOp = LoadOp::kClear;
-    SkPMColor4f pmColor = clearColor.premul();
-    fPendingClearColor = pmColor.array();
+    this->resetForClearOrDiscard();
+    fPendingDraws->reset(LoadOp::kClear, clearColor);
 }
 
 void DrawContext::discard() {
+    this->resetForClearOrDiscard();
+    fPendingDraws->reset(LoadOp::kDiscard);
+}
+
+void DrawContext::resetForClearOrDiscard() {
     // Non-loading operations on a fully lazy target can corrupt data beyond the DrawContext's
     // region so should be avoided.
     SkASSERT(!fTarget->isFullyLazy());
 
-    // A fullscreen clear or discard will overwrite anything that came before, so clear the DrawList
     // NOTE: Eventually the current DrawTask should be reset, once there are no longer implicit
     // dependencies on atlas tasks between DrawContexts. When that's resolved, the only tasks in the
     // current DrawTask are those that directly impact the target, which becomes irrelevant with the
     // clear op overwriting it. For now, preserve the previous tasks that might include atlas
     // uploads that are not explicitly shared between DrawContexts.
-    if (fPendingDraws->renderStepCount() > 0) {
-        fPendingDraws = std::make_unique<DrawList>();
-    }
     if (fComputePathAtlas) {
         fComputePathAtlas->reset();
     }
-
-    // NOTE: Historically, we would switch to a clear load op on floating point render targets
-    // because analytic coverage would turn on blending for kSrc draws that filled the target. When
-    // this happened, the discard could introduce NaNs into the dst color values that would cause
-    // pixels to drop. Now we should only be calling discard() in situations that won't trigger
-    // analytic coverage, so we can still benefit from the kDiscard performance.
-    fPendingLoadOp = LoadOp::kDiscard;
 }
 
 void DrawContext::recordDraw(const Renderer* renderer,
@@ -143,17 +137,31 @@ void DrawContext::recordDraw(const Renderer* renderer,
                              const Geometry& geometry,
                              const Clip& clip,
                              DrawOrder ordering,
-                             const PaintParams* paint,
-                             const StrokeStyle* stroke,
-                             bool dependsOnDst,
-                             bool dstReadReq) {
+                             UniquePaintParamsID paintID,
+                             SkEnumBitMask<DstUsage> dstUsage,
+                             PipelineDataGatherer* gatherer,
+                             const StrokeStyle* stroke) {
     SkASSERTF(SkIRect::MakeSize(this->imageInfo().dimensions()).contains(clip.scissor()),
               "Image %dx%d, scissor %d,%d,%d,%d",
               this->imageInfo().width(), this->imageInfo().height(),
               clip.scissor().left(), clip.scissor().top(),
               clip.scissor().right(), clip.scissor().bottom());
-    fPendingDraws->recordDraw(renderer, localToDevice, geometry, clip, ordering, paint, stroke,
-                              dependsOnDst, dstReadReq);
+
+    // Determine whether a draw requies a barrier
+    BarrierType barrierBeforeDraws = BarrierType::kNone;
+    if (fDstReadStrategy == DstReadStrategy::kReadFromInput &&
+        (dstUsage & DstUsage::kDstReadRequired)) {
+        barrierBeforeDraws = BarrierType::kReadDstFromInput;
+    }
+    if ((dstUsage & DstUsage::kAdvancedBlend) &&
+        fSupportsHardwareAdvancedBlend && fAdvancedBlendsRequireBarrier) {
+        // A draw should only read from the dst OR use hardware for advanced blend modes.
+        SkASSERT(!(dstUsage & DstUsage::kDstReadRequired));
+        barrierBeforeDraws = BarrierType::kAdvancedNoncoherentBlend;
+    }
+
+    fPendingDraws->recordDraw(renderer, localToDevice, geometry, clip, ordering, paintID, dstUsage,
+                              barrierBeforeDraws, gatherer, stroke);
 }
 
 bool DrawContext::recordUpload(Recorder* recorder,
@@ -217,7 +225,7 @@ void DrawContext::flush(Recorder* recorder) {
         fComputePathAtlas->reset();
     } // else platform doesn't support compute or atlas was never initialized.
 
-    if (fPendingDraws->renderStepCount() == 0 && fPendingLoadOp != LoadOp::kClear) {
+    if (!fPendingDraws->modifiesTarget()) {
         // Nothing will be rasterized to the target that warrants a RenderPassTask, but we preserve
         // any added uploads or compute tasks since those could also affect the target w/o
         // rasterizing anything directly.
@@ -239,18 +247,11 @@ void DrawContext::flush(Recorder* recorder) {
     // TODO: At this point, there's only ever one DrawPass in a RenderPassTask to a target. When
     // subpasses are implemented, they will either be collected alongside fPendingDraws or added
     // to the RenderPassTask separately.
-    std::unique_ptr<DrawPass> pass = DrawPass::Make(recorder,
-                                                    std::move(fPendingDraws),
-                                                    fTarget,
-                                                    this->imageInfo(),
-                                                    std::make_pair(fPendingLoadOp, fPendingStoreOp),
-                                                    fPendingClearColor,
-                                                    drawPassDstReadStrategy);
-    fPendingDraws = std::make_unique<DrawList>();
-    // Now that there is content drawn to the target, that content must be loaded on any subsequent
-    // render pass.
-    fPendingLoadOp = LoadOp::kLoad;
-    fPendingStoreOp = StoreOp::kStore;
+    std::unique_ptr<DrawPass> pass = fPendingDraws->snapDrawPass(recorder,
+                                                                 fTarget,
+                                                                 this->imageInfo(),
+                                                                 drawPassDstReadStrategy);
+    SkASSERT(!fPendingDraws->modifiesTarget()); // Should be drained into `pass`.
 
     if (pass) {
         SkASSERT(fTarget.get() == pass->target());
@@ -308,11 +309,7 @@ void DrawContext::flush(Recorder* recorder) {
     // DrawContexts now implicitly depend on.
 }
 
-sk_sp<Task> DrawContext::snapDrawTask(Recorder* recorder) {
-    // If flush() was explicitly called earlier and no new work was recorded, this call to flush()
-    // is a no-op and shouldn't hurt performance.
-    this->flush(recorder);
-
+sk_sp<Task> DrawContext::snapDrawTask() {
     if (!fCurrentDrawTask->hasTasks()) {
         return nullptr;
     }

@@ -418,14 +418,6 @@ void AddToKey(const KeyContext& keyContext, const SkColorFilter* filter);
  */
 void AddToKey(const KeyContext& keyContext, const SkShader* shader);
 
-// TODO(b/330864257) These visitation functions are redundant with AddToKey, except that they are
-// executed in the Device::drawGeometry() stack frame, whereas the keys are currently deferred until
-// DrawPass::Make. Image use needs to be detected in the draw frame to split tasks to match client
-// actions. Once paint keys are extracted in the draw frame, this can go away entirely.
-void NotifyImagesInUse(Recorder*, DrawContext*, const SkBlender*);
-void NotifyImagesInUse(Recorder*, DrawContext*, const SkColorFilter*);
-void NotifyImagesInUse(Recorder*, DrawContext*, const SkShader*);
-
 template <typename AddBlendToKeyT, typename AddSrcToKeyT, typename AddDstToKeyT>
 void Blend(const KeyContext& keyContext,
            AddBlendToKeyT addBlendToKey,

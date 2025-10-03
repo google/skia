@@ -248,7 +248,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_VULKAN_CONTEXTS(DynamicVerticesPaddingTest,
 
     auto vertsNewPipeline = [&]() {
         dw->newPipelineState(/*type=*/{}, kStride, kStride, RenderStateFlags::kAppendVertices,
-                             std::nullopt);
+                             BarrierType::kNone);
         return;
     };
 

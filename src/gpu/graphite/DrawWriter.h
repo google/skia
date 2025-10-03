@@ -99,7 +99,7 @@ public:
                           size_t staticStride,
                           size_t appendStride,
                           SkEnumBitMask<RenderStateFlags> newRenderState,
-                          std::optional<BarrierType> barrierType) {
+                          BarrierType barrierType) {
         this->flush();
 
         // Once flushed, any pending data must have been drawn.
@@ -114,7 +114,7 @@ public:
         // aligned, regardless of the previous render state.
         fShouldAlign4 = SkToBool(newRenderState & RenderStateFlags::kAppendVertices);
 
-        // Assign the (optional) barrier type. If a valid value, then the DrawWriter will append
+        // Assign the barrier type. If a valid value, then the DrawWriter will append
         // AddBarrier commands of the indicated type prior to appending any draw commands used with
         // this pipeline.
         fBarrierToIssueBeforeDraws = barrierType;
@@ -271,7 +271,7 @@ private:
     // to let the next reserve() call know that we need a 4 count aligned offset.
     bool fShouldAlign4;
 
-    std::optional<BarrierType> fBarrierToIssueBeforeDraws = std::nullopt;
+    BarrierType fBarrierToIssueBeforeDraws = BarrierType::kNone;
 
     void flushInternal();
 
