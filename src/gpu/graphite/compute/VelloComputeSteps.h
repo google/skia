@@ -12,6 +12,7 @@
 #include "include/core/SkSize.h"
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkTArray.h"
+#include "src/gpu/BufferWriter.h"
 #include "src/gpu/graphite/ComputeTypes.h"
 #include "src/gpu/graphite/compute/ComputeStep.h"
 
