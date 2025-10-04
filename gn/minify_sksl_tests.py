@@ -19,7 +19,7 @@ public_module = sys.argv[3]
 rt_shader_module = sys.argv[4]
 input_root_dir = sys.argv[5]
 output_root_dir = sys.argv[6]
-# The last arg is a file containing a space seperated list of filenames
+# The last arg is a file containing a space separated list of filenames
 input_file = sys.argv[7]
 with open(input_file, 'r') as reader:
     all_inputs = shlex.split(reader.read())
