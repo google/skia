@@ -170,6 +170,7 @@ public:
      */
     struct Iterate {
     public:
+        Iterate(SkPath&&) = delete;
         Iterate(const SkPath& path)
                 : Iterate(path.fPathRef->verbsBegin(),
                           // Don't allow iteration through non-finite points.

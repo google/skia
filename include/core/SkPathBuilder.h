@@ -63,8 +63,10 @@ public:
         @return      SkPathBuilder
     */
     SkPathBuilder& operator=(const SkPath&);
-
     SkPathBuilder& operator=(const SkPathBuilder&) = default;
+
+    bool operator==(const SkPathBuilder&) const;
+    bool operator!=(const SkPathBuilder& o) const { return !(*this == o); }
 
     /** Returns SkPathFillType, the rule used to fill SkPath.
 

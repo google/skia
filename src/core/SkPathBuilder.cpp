@@ -105,6 +105,19 @@ SkPathBuilder& SkPathBuilder::operator=(const SkPath& src) {
     return *this;
 }
 
+bool SkPathBuilder::operator==(const SkPathBuilder& o) const {
+    // quick-accept
+    if (this == &o) {
+        return true;
+    }
+    // quick-reject
+    if (fSegmentMask != o.fSegmentMask || fFillType != o.fFillType) {
+        return false;
+    }
+    // deep compare
+    return fVerbs == o.fVerbs && fPts == o.fPts && fConicWeights == o.fConicWeights;
+}
+
 void SkPathBuilder::incReserve(int extraPtCount, int extraVbCount, int extraCnCount) {
     fPts.reserve_exact(Sk32_sat_add(fPts.size(), extraPtCount));
     fVerbs.reserve_exact(Sk32_sat_add(fVerbs.size(), extraVbCount));

@@ -740,16 +740,6 @@ public:
         fFillType ^= 2;
     }
 
-#ifdef SK_HIDE_PATH_EDIT_METHODS
-private:
-#endif
-    /** Returns a copy of this path in the current state, and resets the path to empty. */
-    SkPath detach() {
-        SkPath result = *this;
-        this->reset();
-        return result;
-    }
-
     /** Sets SkPath to its initial state.
         Removes verb array, SkPoint array, and weights, and sets FillType to kWinding.
         Internal storage associated with SkPath is released.
@@ -759,6 +749,16 @@ private:
         example: https://fiddle.skia.org/c/@Path_reset
     */
     SkPath& reset();
+
+#ifdef SK_HIDE_PATH_EDIT_METHODS
+private:
+#endif
+    /** Returns a copy of this path in the current state, and resets the path to empty. */
+    SkPath detach() {
+        SkPath result = *this;
+        this->reset();
+        return result;
+    }
 
     /** Sets SkPath to its initial state, preserving internal storage.
         Removes verb array, SkPoint array, and weights, and sets FillType to kWinding.

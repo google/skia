@@ -2367,65 +2367,81 @@ static void test_is_closed_rect(skiatest::Reporter* reporter) {
     const SkRect emptyRect = SkRect::MakeEmpty();
     for (int start = 0; start < 4; ++start) {
         for (auto dir : {SkPathDirection::kCCW, SkPathDirection::kCW}) {
-            SkPath path;
-            path.addRect(testRect, dir, start);
-            check_simple_rect(reporter, path, true, testRect, dir, start);
-            path.close();
-            check_simple_rect(reporter, path, true, testRect, dir, start);
-            SkPath path2 = path;
-            path2.lineTo(10, 10);
+            SkPathBuilder builder;
+            builder.addRect(testRect, dir, start);
+            check_simple_rect(reporter, builder.snapshot(), true, testRect, dir, start);
+            builder.close();
+            check_simple_rect(reporter, builder.snapshot(), true, testRect, dir, start);
+
+            SkPathBuilder builder2 = builder;
+            builder2.lineTo(10, 10);
+            SkPath path2 = builder2.detach();
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false));
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true));
-            path2 = path;
-            path2.moveTo(10, 10);
+
+            builder2 = builder;
+            builder2.moveTo(10, 10);
+            path2 = builder2.detach();
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false));
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true));
-            path2 = path;
-            path2.addRect(testRect, dir, start);
+
+            builder2 = builder;
+            builder2.addRect(testRect, dir, start);
+            path2 = builder2.detach();
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false));
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true));
+
             // Make the path by hand, manually closing it.
-            path2.reset();
+            builder2.reset();
+            path2 = builder.detach();
             SkPoint firstPt = {0.f, 0.f};
-            for (auto [v, verbPts, w] : SkPathPriv::Iterate(path)) {
+            for (auto [v, verbPts, w] : SkPathPriv::Iterate(path2)) {
                 switch(v) {
                     case SkPathVerb::kMove:
                         firstPt = verbPts[0];
-                        path2.moveTo(verbPts[0]);
+                        builder2.moveTo(verbPts[0]);
                         break;
                     case SkPathVerb::kLine:
-                        path2.lineTo(verbPts[1]);
+                        builder2.lineTo(verbPts[1]);
                         break;
                     default:
                         break;
                 }
             }
+            path2 = builder2.snapshot();
             // We haven't closed it yet...
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false));
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true));
             // ... now we do and test again.
-            path2.lineTo(firstPt);
-            check_simple_rect(reporter, path2, false, testRect, dir, start);
+            builder2.lineTo(firstPt);
+            check_simple_rect(reporter, builder2.snapshot(), false, testRect, dir, start);
             // A redundant close shouldn't cause a failure.
-            path2.close();
-            check_simple_rect(reporter, path2, true, testRect, dir, start);
+            builder2.close();
+            check_simple_rect(reporter, builder2.snapshot(), true, testRect, dir, start);
+
             // Degenerate point and line rects are not allowed
-            path2.reset();
-            path2.addRect(emptyRect, dir, start);
+            builder2.reset();
+            builder2.addRect(emptyRect, dir, start);
+            path2 = builder2.snapshot();
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false));
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true));
             SkRect degenRect = testRect;
             degenRect.fLeft = degenRect.fRight;
-            path2.reset();
-            path2.addRect(degenRect, dir, start);
+
+            builder2.reset();
+            builder2.addRect(degenRect, dir, start);
+            path2 = builder2.snapshot();
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false));
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true));
             degenRect = testRect;
             degenRect.fTop = degenRect.fBottom;
-            path2.reset();
-            path2.addRect(degenRect, dir, start);
+
+            builder2.reset();
+            builder2.addRect(degenRect, dir, start);
+            path2 = builder2.snapshot();
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, false));
             REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path2, true));
+
             // An inverted rect makes a rect path, but changes the winding dir and start point.
             SkPathDirection swapDir = (dir == SkPathDirection::kCW)
                                             ? SkPathDirection::kCCW
@@ -2434,50 +2450,57 @@ static void test_is_closed_rect(skiatest::Reporter* reporter) {
             static constexpr unsigned kYSwapStarts[] = { 3, 2, 1, 0 };
             SkRect swapRect = testRect;
             swap(swapRect.fLeft, swapRect.fRight);
-            path2.reset();
-            path2.addRect(swapRect, dir, start);
+            builder2.reset();
+            builder2.addRect(swapRect, dir, start);
+            path2 = builder2.snapshot();
             check_simple_rect(reporter, path2, true, testRect, swapDir, kXSwapStarts[start]);
             swapRect = testRect;
             swap(swapRect.fTop, swapRect.fBottom);
-            path2.reset();
-            path2.addRect(swapRect, dir, start);
+
+            builder2.reset();
+            builder2.addRect(swapRect, dir, start);
+            path2 = builder2.snapshot();
             check_simple_rect(reporter, path2, true, testRect, swapDir, kYSwapStarts[start]);
         }
     }
     // down, up, left, close
-    SkPath path;
-    path.moveTo(1, 1);
-    path.lineTo(1, 2);
-    path.lineTo(1, 1);
-    path.lineTo(0, 1);
-    path.close();
+    SkPath path = SkPathBuilder()
+                  .moveTo(1, 1)
+                  .lineTo(1, 2)
+                  .lineTo(1, 1)
+                  .lineTo(0, 1)
+                  .close()
+                  .detach();
     REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, false));
     REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, true));
     // right, left, up, close
-    path.reset();
-    path.moveTo(1, 1);
-    path.lineTo(2, 1);
-    path.lineTo(1, 1);
-    path.lineTo(1, 0);
-    path.close();
+    path = SkPathBuilder()
+           .moveTo(1, 1)
+           .lineTo(2, 1)
+           .lineTo(1, 1)
+           .lineTo(1, 0)
+           .close()
+           .detach();
     REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, false));
     REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, true));
     // parallelogram with horizontal edges
-    path.reset();
-    path.moveTo(1, 0);
-    path.lineTo(3, 0);
-    path.lineTo(2, 1);
-    path.lineTo(0, 1);
-    path.close();
+    path = SkPathBuilder()
+           .moveTo(1, 0)
+           .lineTo(3, 0)
+           .lineTo(2, 1)
+           .lineTo(0, 1)
+           .close()
+           .detach();
     REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, false));
     REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, true));
     // parallelogram with vertical edges
-    path.reset();
-    path.moveTo(0, 1);
-    path.lineTo(0, 3);
-    path.lineTo(1, 2);
-    path.lineTo(1, 0);
-    path.close();
+    path = SkPathBuilder()
+           .moveTo(0, 1)
+           .lineTo(0, 3)
+           .lineTo(1, 2)
+           .lineTo(1, 0)
+           .close()
+           .detach();
     REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, false));
     REPORTER_ASSERT(reporter, !SkPathPriv::IsSimpleRect(path, true));
 
@@ -3098,18 +3121,16 @@ static void test_iter(skiatest::Reporter* reporter) {
     p.reset();
     iter.setPath(p, false);
     REPORTER_ASSERT(reporter, !iter.isClosedContour());
-    p.lineTo(1, 1);
-    p.close();
+    p = SkPathBuilder().lineTo(1, 1).close().detach();
     iter.setPath(p, false);
     REPORTER_ASSERT(reporter, iter.isClosedContour());
     p.reset();
     iter.setPath(p, true);
     REPORTER_ASSERT(reporter, !iter.isClosedContour());
-    p.lineTo(1, 1);
+    p = SkPathBuilder().lineTo(1, 1).detach();
     iter.setPath(p, true);
     REPORTER_ASSERT(reporter, iter.isClosedContour());
-    p.moveTo(0, 0);
-    p.lineTo(2, 2);
+    p = SkPathBuilder().lineTo(1, 1).moveTo(0, 0).lineTo(2, 2).detach();
     iter.setPath(p, false);
     REPORTER_ASSERT(reporter, !iter.isClosedContour());
 
@@ -4016,7 +4037,7 @@ static void test_addPath(skiatest::Reporter* reporter) {
 }
 
 static void test_addPathMode(skiatest::Reporter* reporter, bool explicitMoveTo, bool extend) {
-    SkPath p, q;
+    SkPathBuilder p, q;
     if (explicitMoveTo) {
         p.moveTo(1, 1);
     }
@@ -4025,52 +4046,56 @@ static void test_addPathMode(skiatest::Reporter* reporter, bool explicitMoveTo, 
         q.moveTo(2, 1);
     }
     q.lineTo(2, 2);
-    p.addPath(q, extend ? SkPath::kExtend_AddPathMode : SkPath::kAppend_AddPathMode);
-    uint8_t verbs[4];
-    int verbcount = p.getVerbs(verbs);
-    REPORTER_ASSERT(reporter, verbcount == 4);
-    REPORTER_ASSERT(reporter, verbs[0] == SkPath::kMove_Verb);
-    REPORTER_ASSERT(reporter, verbs[1] == SkPath::kLine_Verb);
-    REPORTER_ASSERT(reporter, verbs[2] == (extend ? SkPath::kLine_Verb : SkPath::kMove_Verb));
-    REPORTER_ASSERT(reporter, verbs[3] == SkPath::kLine_Verb);
+    p.addPath(q.detach(), extend ? SkPath::kExtend_AddPathMode : SkPath::kAppend_AddPathMode);
+
+    SkSpan<const SkPathVerb> verbs = p.verbs();
+    REPORTER_ASSERT(reporter, verbs.size() == 4);
+    REPORTER_ASSERT(reporter, verbs[0] == SkPathVerb::kMove);
+    REPORTER_ASSERT(reporter, verbs[1] == SkPathVerb::kLine);
+    REPORTER_ASSERT(reporter, verbs[2] == (extend ? SkPathVerb::kLine : SkPathVerb::kMove));
+    REPORTER_ASSERT(reporter, verbs[3] == SkPathVerb::kLine);
 }
 
 static void test_extendClosedPath(skiatest::Reporter* reporter) {
-    SkPath p, q;
-    p.moveTo(1, 1);
-    p.lineTo(1, 2);
-    p.lineTo(2, 2);
-    p.close();
-    q.moveTo(2, 1);
-    q.lineTo(2, 3);
-    p.addPath(q, SkPath::kExtend_AddPathMode);
-    uint8_t verbs[7];
-    int verbcount = p.getVerbs(verbs);
-    REPORTER_ASSERT(reporter, verbcount == 7);
-    REPORTER_ASSERT(reporter, verbs[0] == SkPath::kMove_Verb);
-    REPORTER_ASSERT(reporter, verbs[1] == SkPath::kLine_Verb);
-    REPORTER_ASSERT(reporter, verbs[2] == SkPath::kLine_Verb);
-    REPORTER_ASSERT(reporter, verbs[3] == SkPath::kClose_Verb);
-    REPORTER_ASSERT(reporter, verbs[4] == SkPath::kMove_Verb);
-    REPORTER_ASSERT(reporter, verbs[5] == SkPath::kLine_Verb);
-    REPORTER_ASSERT(reporter, verbs[6] == SkPath::kLine_Verb);
+    SkPath q = SkPathBuilder().moveTo(2, 1).lineTo(2, 3).detach();
 
-    SkPoint pt;
-    REPORTER_ASSERT(reporter, p.getLastPt(&pt));
-    REPORTER_ASSERT(reporter, pt == SkPoint::Make(2, 3));
-    REPORTER_ASSERT(reporter, p.getPoint(3) == SkPoint::Make(1, 1));
+    SkPathBuilder p;
+    p.moveTo(1, 1)
+     .lineTo(1, 2)
+     .lineTo(2, 2)
+     .close()
+     .addPath(q, SkPath::kExtend_AddPathMode);
+
+    SkSpan<const SkPathVerb> verbs = p.verbs();
+    REPORTER_ASSERT(reporter, verbs.size() == 7);
+    REPORTER_ASSERT(reporter, verbs[0] == SkPathVerb::kMove);
+    REPORTER_ASSERT(reporter, verbs[1] == SkPathVerb::kLine);
+    REPORTER_ASSERT(reporter, verbs[2] == SkPathVerb::kLine);
+    REPORTER_ASSERT(reporter, verbs[3] == SkPathVerb::kClose);
+    REPORTER_ASSERT(reporter, verbs[4] == SkPathVerb::kMove);
+    REPORTER_ASSERT(reporter, verbs[5] == SkPathVerb::kLine);
+    REPORTER_ASSERT(reporter, verbs[6] == SkPathVerb::kLine);
+
+    auto pt = p.getLastPt();
+    REPORTER_ASSERT(reporter, pt.has_value());
+    REPORTER_ASSERT(reporter, pt.value() == SkPoint::Make(2, 3));
+    REPORTER_ASSERT(reporter, p.points()[3] == SkPoint::Make(1, 1));
 }
 
 static void test_addEmptyPath(skiatest::Reporter* reporter, SkPath::AddPathMode mode) {
-    SkPath p, q, r;
     // case 1: dst is empty
+    SkPathBuilder p;
     p.moveTo(2, 1);
     p.lineTo(2, 3);
-    q.addPath(p, mode);
+    SkPathBuilder q;
+    q.addPath(p.snapshot(), mode);
     REPORTER_ASSERT(reporter, q == p);
+
     // case 2: src is empty
+    SkPath r;   // empty
     p.addPath(r, mode);
     REPORTER_ASSERT(reporter, q == p);
+
     // case 3: src and dst are empty
     q.reset();
     q.addPath(r, mode);
