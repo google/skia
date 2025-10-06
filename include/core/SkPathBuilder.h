@@ -840,10 +840,11 @@ public:
         May improve performance and use less memory by
         reducing the number and size of allocations when creating SkPathBuilder.
 
-        @param extraPtCount    number of additional SkPoint to allocate
-        @param extraVerbCount  number of additional verbs
+        @param extraPtCount     number of additional SkPoint to allocate
+        @param extraVerbCount   number of additional verbs
+        @param extraConicCount  number of additional conic weights
     */
-    void incReserve(int extraPtCount, int extraVerbCount);
+    void incReserve(int extraPtCount, int extraVerbCount, int extraConicCount);
 
     /** Grows SkPathBuilder verb array and SkPoint array to contain additional space.
         May improve performance and use less memory by
@@ -852,7 +853,7 @@ public:
         @param extraPtCount    number of additional SkPoints and verbs to allocate
     */
     void incReserve(int extraPtCount) {
-        this->incReserve(extraPtCount, extraPtCount);
+        this->incReserve(extraPtCount, extraPtCount, 0);
     }
 
     /** Offsets SkPoint array by (dx, dy).
