@@ -37,6 +37,7 @@ skia_graphite_public = [
   "$_include/gpu/graphite/Image.h",
   "$_include/gpu/graphite/ImageProvider.h",
   "$_include/gpu/graphite/LogPriority.h",
+  "$_include/gpu/graphite/PersistentPipelineStorage.h",
   "$_include/gpu/graphite/PrecompileContext.h",
   "$_include/gpu/graphite/Recorder.h",
   "$_include/gpu/graphite/Recording.h",

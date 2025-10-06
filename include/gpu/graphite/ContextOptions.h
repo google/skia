@@ -24,6 +24,7 @@ namespace skgpu { class ShaderErrorHandler; }
 namespace skgpu::graphite {
 
 struct ContextOptionsPriv;
+class PersistentPipelineStorage;
 
 struct SK_API ContextOptions {
     ContextOptions() {}
@@ -188,6 +189,13 @@ struct SK_API ContextOptions {
      * the lifetime of the Context.
      */
     SkExecutor* fExecutor = nullptr;
+
+    /**
+     * Allows Graphite to store Pipeline data across Context lifetimes. It is up to the
+     * client to ensure the PersistentPipelineStorage object remains valid throughout the lifetime
+     * of the Context(s).
+     */
+    PersistentPipelineStorage* fPersistentPipelineStorage = nullptr;
 
     /**
      * An experimental flag in development. Behavior and performance is subject to change.

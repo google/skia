@@ -54,6 +54,7 @@ class Buffer;
 class ClientMappedBufferManager;
 class ContextPriv;
 struct ContextOptions;
+class PersistentPipelineStorage;
 class PrecompileContext;
 class QueueManager;
 class ResourceProvider;
@@ -277,6 +278,16 @@ public:
      */
     GpuStatsFlags supportedGpuStats() const;
 
+    /**
+     * If supported by the backend, stores the current pipeline cache data into the
+     * PersistentPipelineStorage-derived object passed into Graphite via
+     * ContextOptions::fPersistentPipelineStorage. The amount stored is limited to 'maxSize'.
+     *
+     * Skia attempts to only call store() on the PersistentPipelineStorage object when the data
+     * is likely to be different from what was last sync'ed.
+     */
+    void syncPipelineData(size_t maxSize = SIZE_MAX);
+
     /*
      * TODO (b/412351769): Do not use startCapture() or endCapture() as the feature is still under
      * development.
@@ -394,6 +405,8 @@ private:
     std::unique_ptr<QueueManager> fQueueManager;
     std::unique_ptr<ClientMappedBufferManager> fMappedBufferManager;
     std::unique_ptr<const skcpu::ContextImpl> fCPUContext;
+
+    PersistentPipelineStorage* fPersistentPipelineStorage;
 
     // In debug builds we guard against improper thread handling. This guard is passed to the
     // ResourceCache for the Context.
