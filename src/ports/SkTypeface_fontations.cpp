@@ -583,9 +583,7 @@ protected:
                         clipBox.x_min, -clipBox.y_max, clipBox.x_max, -clipBox.y_min);
 
                 if (!fRemainingMatrix.isIdentity()) {
-                    SkPath boundsPath = SkPath::Rect(boundsRect);
-                    boundsPath.transform(fRemainingMatrix);
-                    boundsRect = boundsPath.getBounds();
+                    boundsRect = fRemainingMatrix.mapRect(boundsRect);
                 }
 
                 boundsRect.roundOut(&mx.bounds);
@@ -1671,10 +1669,8 @@ void BoundsPainter::push_clip_glyph(uint16_t glyph_id) {
 }
 
 void BoundsPainter::push_clip_rectangle(float x_min, float y_min, float x_max, float y_max) {
-    SkRect clipRect = SkRect::MakeLTRB(x_min, -y_min, x_max, -y_max);
-    SkPath rectPath = SkPath::Rect(clipRect);
-    rectPath.transform(fMatrixStack.back());
-    fBounds.join(rectPath.getBounds());
+    const SkRect clipRect = SkRect::MakeLTRB(x_min, -y_min, x_max, -y_max);
+    fBounds.join(fMatrixStack.back().mapRect(clipRect));
 }
 
 void BoundsPainter::fill_glyph_solid(uint16_t glyph_id, uint16_t, float) {
