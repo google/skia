@@ -1,6 +1,19 @@
 [
   {
     "cmd": [
+      "vpython3",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]\\resources\\fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "rmtree",
+      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug"
+    ],
+    "infra_step": true,
+    "name": "delete old caches [START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug"
+  },
+  {
+    "cmd": [
       "python3",
       "[START_DIR]\\skia\\bin\\fetch-gn"
     ],
@@ -47,7 +60,7 @@
     "cmd": [
       "[START_DIR]\\skia\\bin\\gn",
       "gen",
-      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug\\Debug",
+      "[START_DIR]\\cache\\work\\skia\\out\\905d3a",
       "--args=cc=\"clang\" clang_win=\"[START_DIR]\\clang_win\" cxx=\"clang++\" extra_cflags=[\"-O1\", \"-DPLACEHOLDER_clang_win_version=42\"] is_trivial_abi=true link_pool_depth=2 skia_use_client_icu=true skia_use_libgrapheme=true target_cpu=\"x86\" werror=true win_sdk=\"[START_DIR]\\win_toolchain/win_sdk\" win_vc=\"[START_DIR]\\win_toolchain/VC\""
     ],
     "cwd": "[START_DIR]\\skia",
@@ -61,7 +74,7 @@
     "cmd": [
       "[START_DIR]\\skia\\third_party\\ninja\\ninja",
       "-C",
-      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug\\Debug"
+      "[START_DIR]\\cache\\work\\skia\\out\\905d3a"
     ],
     "cwd": "[START_DIR]\\skia",
     "env": {
@@ -74,7 +87,7 @@
     "cmd": [
       "python3",
       "RECIPE_MODULE[skia::build]\\resources\\copy_build_products.py",
-      "[START_DIR]\\cache\\work\\skia\\out\\Build-Win-Clang-x86-Debug\\Debug",
+      "[START_DIR]\\cache\\work\\skia\\out\\905d3a",
       "[START_DIR]\\[SWARM_OUT_DIR]",
       "dm,dm.exe,dm.app,nanobench.app,get_images_from_skps,get_images_from_skps.exe,nanobench,nanobench.exe,*.so,*.dll,*.dylib,skottie_tool,lib/*.so,run_testlab"
     ],

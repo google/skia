@@ -21,13 +21,27 @@ DEPS = [
   'vars',
 ]
 
+import hashlib
 
 def RunSteps(api):
   api.vars.setup()
 
   checkout_root = api.path.start_dir
+
+  # We changed the names of these paths. To reduce disk space from the old
+  # paths, we'll try to delete them as we go.
+  old_path = api.vars.cache_dir.joinpath(
+      'work', 'skia', 'out', api.vars.builder_name)
+  # If the folder does not exist, this returns without error.
+  # //skia/infra/bots/.recipe_deps/recipe_engine/recipe_modules/file/api.py
+  api.file.rmtree('delete old caches %s' % old_path, old_path)
+
+  # Use a shortened output directory path to avoid hitting path length
+  # limits on Windows (250 chars)
+  long_name = api.vars.builder_name + api.vars.configuration
+  short_name = hashlib.md5(long_name.encode('utf-8')).hexdigest()[:6]
   out_dir = api.vars.cache_dir.joinpath(
-      'work', 'skia', 'out', api.vars.builder_name, api.vars.configuration)
+      'work', 'skia', 'out', short_name)
 
   try:
     api.build(checkout_root=checkout_root, out_dir=out_dir)
