@@ -1156,9 +1156,7 @@ void SkXPSDevice::drawRect(const SkRect& r,
 
 void SkXPSDevice::drawRRect(const SkRRect& rr,
                             const SkPaint& paint) {
-    SkPath path;
-    path.addRRect(rr);
-    this->drawPath(path, paint);
+    this->drawPath(SkPath::RRect(rr), paint);
 }
 
 void SkXPSDevice::internalDrawRect(const SkRect& r,
@@ -1171,10 +1169,7 @@ void SkXPSDevice::internalDrawRect(const SkRect& r,
 
     //Path the rect if we can't optimize it.
     if (rect_must_be_pathed(paint, this->localToDevice())) {
-        SkPath tmp;
-        tmp.addRect(r);
-        tmp.setFillType(SkPathFillType::kWinding);
-        this->drawPath(tmp, paint);
+        this->drawPath(SkPath::Rect(r), paint);
         return;
     }
 
