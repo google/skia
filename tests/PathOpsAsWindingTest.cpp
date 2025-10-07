@@ -419,69 +419,68 @@ void bug13496_3(skiatest::Reporter* reporter) {
 }
 
 DEF_TEST(PathOpsAsWinding, reporter) {
-    SkPath test;
-    test.addRect({1, 2, 3, 4});
+    SkPath test = SkPath::Rect({1, 2, 3, 4});
     // if test is winding
     auto result = AsWinding(test);
     REPORTER_ASSERT(reporter, result.has_value());
     REPORTER_ASSERT(reporter, test == *result);
     // if test is empty
-    test.reset();
-    test.setFillType(SkPathFillType::kEvenOdd);
+    test = SkPath().makeFillType(SkPathFillType::kEvenOdd);
     result = AsWinding(test);
     REPORTER_ASSERT(reporter, result.has_value());
     REPORTER_ASSERT(reporter, result->isEmpty());
     REPORTER_ASSERT(reporter, result->getFillType() == SkPathFillType::kWinding);
     // if test is convex
-    test.addCircle(5, 5, 10);
+    test = SkPath::Circle(5, 5, 10).makeFillType(SkPathFillType::kEvenOdd);
     result = AsWinding(test);
     REPORTER_ASSERT(reporter, result.has_value());
     REPORTER_ASSERT(reporter, result->isConvex());
-    test.setFillType(SkPathFillType::kWinding);
+    test = test.makeFillType(SkPathFillType::kWinding);
     REPORTER_ASSERT(reporter, test == *result);
     // if test has infinity
-    test.reset();
-    test.addRect({1, 2, 3, SK_ScalarInfinity});
-    test.setFillType(SkPathFillType::kEvenOdd);
+    test = SkPath::Rect({1, 2, 3, SK_ScalarInfinity})
+           .makeFillType(SkPathFillType::kEvenOdd);
     result = AsWinding(test);
     REPORTER_ASSERT(reporter, !result.has_value());
+
     // if test has only one contour
-    test.reset();
-    SkPoint ell[] = {{0, 0}, {4, 0}, {4, 1}, {1, 1}, {1, 4}, {0, 4}};
-    test.addPoly(ell, true);
-    test.setFillType(SkPathFillType::kEvenOdd);
+    const SkPoint ell[] = {{0, 0}, {4, 0}, {4, 1}, {1, 1}, {1, 4}, {0, 4}};
+    SkPathBuilder builder(SkPathFillType::kEvenOdd);
+    builder.addPolygon(ell, true);
+    test = builder.snapshot();
     result = AsWinding(test);
     REPORTER_ASSERT(reporter, result.has_value());
     REPORTER_ASSERT(reporter, !result->isConvex());
-    test.setFillType(SkPathFillType::kWinding);
+    test = test.makeFillType(SkPathFillType::kWinding);
     REPORTER_ASSERT(reporter, test == *result);
     // test two contours that do not overlap or share bounds
-    test.addRect({5, 2, 6, 3});
-    test.setFillType(SkPathFillType::kEvenOdd);
+    builder.addRect({5, 2, 6, 3});
+    test = builder.detach();
     result = AsWinding(test);
     REPORTER_ASSERT(reporter, result.has_value());
     REPORTER_ASSERT(reporter, !result->isConvex());
-    test.setFillType(SkPathFillType::kWinding);
+    test = test.makeFillType(SkPathFillType::kWinding);
     REPORTER_ASSERT(reporter, test == *result);
+
     // test two contours that do not overlap but share bounds
-    test.reset();
-    test.addPoly(ell, true);
-    test.addRect({2, 2, 3, 3});
-    test.setFillType(SkPathFillType::kEvenOdd);
+    test = SkPathBuilder(SkPathFillType::kEvenOdd)
+           .addPolygon(ell, true)
+           .addRect({2, 2, 3, 3})
+           .detach();
     result = AsWinding(test);
     REPORTER_ASSERT(reporter, result.has_value());
     REPORTER_ASSERT(reporter, !result->isConvex());
-    test.setFillType(SkPathFillType::kWinding);
+    test = test.makeFillType(SkPathFillType::kWinding);
     REPORTER_ASSERT(reporter, test == *result);
     // test two contours that partially overlap
-    test.reset();
-    test.addRect({0, 0, 3, 3});
-    test.addRect({1, 1, 4, 4});
-    test.setFillType(SkPathFillType::kEvenOdd);
+    test = SkPathBuilder(SkPathFillType::kEvenOdd)
+           .addRect({0, 0, 3, 3})
+           .addRect({1, 1, 4, 4})
+           .detach();
     result = AsWinding(test);
     REPORTER_ASSERT(reporter, result.has_value());
     REPORTER_ASSERT(reporter, !result->isConvex());
-    test.setFillType(SkPathFillType::kWinding);
+    test = test.makeFillType(SkPathFillType::kWinding);
     REPORTER_ASSERT(reporter, test == *result);
 
     // test a in b, b in a, cw/ccw
@@ -492,31 +491,32 @@ DEF_TEST(PathOpsAsWinding, reporter) {
     for (bool aFirst : {false, true}) {
         for (auto dirA : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
             for (auto dirB : {SkPathDirection::kCW, SkPathDirection::kCCW}) {
-                test.reset();
-                test.setFillType(SkPathFillType::kEvenOdd);
+                builder.reset().setFillType(SkPathFillType::kEvenOdd);
                 if (aFirst) {
-                    test.addRect(rectA, dirA);
-                    test.addRect(rectB, dirB);
+                    builder.addRect(rectA, dirA);
+                    builder.addRect(rectB, dirB);
                 } else {
-                    test.addRect(rectB, dirB);
-                    test.addRect(rectA, dirA);
+                    builder.addRect(rectB, dirB);
+                    builder.addRect(rectA, dirA);
                 }
+                test = builder.detach();
                 SkPath original = test;
                 result = AsWinding(test);
                 REPORTER_ASSERT(reporter, result.has_value());
                 REPORTER_ASSERT(reporter, result->getFillType() == SkPathFillType::kWinding);
-                test.reset();
+
                 if (aFirst) {
-                    test.addRect(rectA, dirA);
+                    builder.addRect(rectA, dirA);
                 }
                 if (dirA != dirB) {
-                    test.addRect(rectB, dirB);
+                    builder.addRect(rectB, dirB);
                 } else {
-                    test.addPoly(SkPathDirection::kCW == dirA ? revBccw : revBcw, true);
+                    builder.addPolygon(SkPathDirection::kCW == dirA ? revBccw : revBcw, true);
                 }
                 if (!aFirst) {
-                    test.addRect(rectA, dirA);
+                    builder.addRect(rectA, dirA);
                 }
+                test = builder.detach();
                 REPORTER_ASSERT(reporter, test == *result);
             }
         }
@@ -531,12 +531,16 @@ DEF_TEST(PathOpsAsWinding, reporter) {
                     SkPath pathA = build_squircle(curveA, rectA, dirA);
                     for (auto curveB : { SkPath::kLine_Verb, SkPath::kQuad_Verb,
                                      SkPath::kConic_Verb, SkPath::kCubic_Verb } ) {
-                        test = aFirst ? pathA : SkPath();
-                        test.addPath(build_squircle(curveB, rectB, dirB));
-                        if (!aFirst) {
-                            test.addPath(pathA);
+                        builder.reset();
+                        if (aFirst) {
+                            builder = pathA;
                         }
-                        test.setFillType(SkPathFillType::kEvenOdd);
+                        builder.addPath(build_squircle(curveB, rectB, dirB));
+                        if (!aFirst) {
+                            builder.addPath(pathA);
+                        }
+                        builder.setFillType(SkPathFillType::kEvenOdd);
+                        test = builder.detach();
                         result = AsWinding(test);
                         REPORTER_ASSERT(reporter, result.has_value());
                         REPORTER_ASSERT(reporter, result->getFillType() == SkPathFillType::kWinding);

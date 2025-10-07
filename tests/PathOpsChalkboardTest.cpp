@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "include/private/base/SkTDArray.h"
@@ -24,7 +25,7 @@
 static std::atomic<int> gTestNo{0};
 
 static void chalkboard(skiatest::Reporter* reporter, uint64_t testlines) {
-    SkPath path;
+    SkPathBuilder path;
 uint64_t i = 0;
 path.moveTo(SkBits2Float(0x4470eed9), SkBits2Float(0x439c1ac1));  // 963.732f, 312.209f
 if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x4470dde3), SkBits2Float(0x439c63d8));  // 963.467f, 312.78f
@@ -95,7 +96,7 @@ SkASSERT(64 == i);
 path.close();
 SkString testName;
 testName.printf("chalkboard%d", ++gTestNo);
-testSimplify(reporter, path, testName.c_str());
+testSimplify(reporter, path.detach(), testName.c_str());
 }
 
 static void testChalkboard(PathOpsThreadState* data) {
