@@ -1297,6 +1297,7 @@ func (b *jobBuilder) compile() string {
 			if b.ExtraConfig("Dawn") {
 				// https://dawn.googlesource.com/dawn/+/516701da8184655a47c92a573cc84da7db5e69d4/generator/dawn_version_generator.py#21
 				b.usesGit()
+				b.usesCMake()
 			}
 
 			// Android bots require a toolchain.
