@@ -13,9 +13,13 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPicture.h"
 #include "include/docs/SkMultiPictureDocument.h"
-#include "include/gpu/graphite/PrecompileContext.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/ganesh/MemoryCache.h"
+
+#if defined(SK_GRAPHITE)
+#include "include/gpu/graphite/PrecompileContext.h"
+#include "tools/graphite/GraphiteMemoryPipelineStorage.h"
+#endif
 
 #include <functional>
 
@@ -593,6 +597,22 @@ protected:
     SkColorType fColorType;
     SkAlphaType fAlphaType;
     sk_sp<SkColorSpace> fColorSpace;
+};
+
+class GraphitePersistentPipelineStorageTestingSink : public GraphiteSink {
+public:
+    GraphitePersistentPipelineStorageTestingSink(const SkCommandLineConfigGraphite*,
+                                                 const skiatest::graphite::TestOptions&);
+
+    Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+    const char* fileExtension() const override {
+        // Suppress writing out results from this config - we just want to do our matching test
+        return nullptr;
+    }
+
+private:
+    mutable sk_gpu_test::GraphiteMemoryPipelineStorage fMemoryPipelineStorage;
 };
 
 #if defined(SK_ENABLE_PRECOMPILE)

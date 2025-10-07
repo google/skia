@@ -2261,6 +2261,8 @@ if (skia_enable_tools) {
         sources += [
           "tools/graphite/ContextFactory.cpp",
           "tools/graphite/ContextFactory.h",
+          "tools/graphite/GraphiteMemoryPipelineStorage.cpp",
+          "tools/graphite/GraphiteMemoryPipelineStorage.h",
           "tools/graphite/GraphiteTestContext.cpp",
           "tools/graphite/GraphiteTestContext.h",
           "tools/graphite/GraphiteToolUtils.cpp",

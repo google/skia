@@ -12,6 +12,8 @@ skia_cc_library(
     srcs = [
         "ContextFactory.cpp",
         "ContextFactory.h",
+        "GraphiteMemoryPipelineStorage.cpp",
+        "GraphiteMemoryPipelineStorage.h",
         "GraphiteTestContext.cpp",
         "GraphiteTestContext.h",
         "GraphiteToolUtils.cpp",

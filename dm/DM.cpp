@@ -1002,6 +1002,10 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions,
 #if defined(SK_GRAPHITE)
     if (FLAGS_graphite) {
         if (const SkCommandLineConfigGraphite *graphiteConfig = config->asConfigGraphite()) {
+            if (graphiteConfig->getTestPersistentStorage()) {
+                return new GraphitePersistentPipelineStorageTestingSink(graphiteConfig,
+                                                                        graphiteOptions);
+            } else
 #if defined(SK_ENABLE_PRECOMPILE)
             if (graphiteConfig->getTestPrecompileGraphite()) {
                 return new GraphitePrecompileTestingSink(graphiteConfig, graphiteOptions);
