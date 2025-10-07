@@ -1068,3 +1068,30 @@ DEF_TEST(SkPathBuilder_equality, reporter) {
     REPORTER_ASSERT(reporter, a != b);
     check_filltype_eq(a);
 }
+
+DEF_TEST(SkPathBuilder_dump, reporter) {
+    SkPathBuilder builder;
+    builder.moveTo(1, 2)
+            .lineTo(3, 4)
+            .quadTo(5, 6, 7, 8)
+            .conicTo(9, 10, 11, 12, 0.5f)
+            .cubicTo(13, 14, 15, 16, 17, 18)
+            .close()
+            .moveTo(1, 2)
+            .lineTo(3, 4);
+
+    SkString str = builder.dumpToString();
+
+    const char expected[] =
+        "SkPathBuilder(SkPathFillType::kWinding)\n"
+        ".moveTo(1, 2)\n"
+        ".lineTo(3, 4)\n"
+        ".quadTo(5, 6, 7, 8)\n"
+        ".conicTo(9, 10, 11, 12, 0.5f)\n"
+        ".cubicTo(13, 14, 15, 16, 17, 18)\n"
+        ".close()\n"
+        ".moveTo(1, 2)\n"
+        ".lineTo(3, 4)\n";
+
+    REPORTER_ASSERT(reporter, str.equals(expected));
+}
