@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
@@ -56,13 +57,17 @@ static void testOpLoopsMain(PathOpsThreadState* data) {
                           midA.fY + v.fX * state.fC / 3 };
         SkPoint endD = { midB.fX - v.fY * state.fD / 3,
                           midB.fY + v.fX * state.fD / 3 };
-        SkPath pathA, pathB;
-        pathA.moveTo(SkIntToScalar(a), SkIntToScalar(b));
-        pathA.cubicTo(SkIntToScalar(c), SkIntToScalar(d), endC.fX, endC.fY, endD.fX, endD.fY);
-        pathA.close();
-        pathB.moveTo(SkIntToScalar(c), SkIntToScalar(d));
-        pathB.cubicTo(endC.fX, endC.fY, endD.fX, endD.fY, SkIntToScalar(a), SkIntToScalar(b));
-        pathB.close();
+
+        SkPath pathA = SkPathBuilder()
+                       .moveTo(SkIntToScalar(a), SkIntToScalar(b))
+                       .cubicTo({SkIntToScalar(c), SkIntToScalar(d)}, endC, endD)
+                       .close()
+                       .detach();
+        SkPath pathB = SkPathBuilder()
+                       .moveTo(SkIntToScalar(c), SkIntToScalar(d))
+                       .cubicTo(endC, endD, {SkIntToScalar(a), SkIntToScalar(b)})
+                       .close()
+                       .detach();
 //        SkDebugf("%s\n", pathStr);
         if (state.fReporter->verbose()) {
             pathStr.printf("static void loop%d(skiatest::Reporter* reporter,"

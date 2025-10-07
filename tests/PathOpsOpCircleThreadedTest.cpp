@@ -34,13 +34,10 @@ static void testOpCirclesMain(PathOpsThreadState* data) {
                 for (int d = c + 1 ; d < 7; ++d) {
                     for (auto e : fts) {
     for (auto f : fts) {
-        SkPath pathA, pathB;
-        pathA.setFillType(e);
-        pathA.addCircle(SkIntToScalar(state.fA), SkIntToScalar(state.fB), SkIntToScalar(state.fC),
-                state.fD ? SkPathDirection::kCW : SkPathDirection::kCCW);
-        pathB.setFillType(f);
-        pathB.addCircle(SkIntToScalar(a), SkIntToScalar(b), SkIntToScalar(c),
-                d ? SkPathDirection::kCW : SkPathDirection::kCCW);
+        SkPath pathA = SkPath::Circle(SkIntToScalar(state.fA), SkIntToScalar(state.fB), SkIntToScalar(state.fC),
+                       state.fD ? SkPathDirection::kCW : SkPathDirection::kCCW).makeFillType(e),
+               pathB = SkPath::Circle(SkIntToScalar(a), SkIntToScalar(b), SkIntToScalar(c),
+                       d ? SkPathDirection::kCW : SkPathDirection::kCCW).makeFillType(f);
         for (int op = 0 ; op <= kXOR_SkPathOp; ++op)    {
             if (state.fReporter->verbose()) {
                 pathStr.printf("static void circlesOp%d(skiatest::Reporter* reporter,"

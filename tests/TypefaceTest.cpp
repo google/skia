@@ -782,8 +782,7 @@ DEF_TEST(LegacyMakeTypeface, reporter) {
 }
 
 DEF_TEST(CustomTypeface_invalid_glyphid, reporter) {
-    SkPath glyph_path;
-    glyph_path.addRect({10, 20, 30, 40});
+    SkPath glyph_path = SkPath::Rect({10, 20, 30, 40});
 
     SkCustomTypefaceBuilder builder;
     builder.setGlyph(0, 42, glyph_path);
