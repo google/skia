@@ -7,6 +7,9 @@
 
 #include "tests/Test.h"
 
+// Disabled due to b/450087777 (PersistentPipelineStorageTest failing on Android's virtual gpu)
+#if 0
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurfaceProps.h"
@@ -111,3 +114,5 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(PersistentPipelineStorageTest,
 }  // namespace skgpu::graphite
 
 #endif // SK_BUILD_FOR_ANDROID
+
+#endif
