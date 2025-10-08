@@ -12,6 +12,7 @@
 #include "include/core/SkPathBuilder.h"
 #include "include/core/SkRect.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkString.h"
 #include "include/core/SkTypeface.h"
 #include "include/private/base/SkTFitsIn.h"
 #include "include/private/base/SkTo.h"
@@ -167,7 +168,8 @@ CustomFont::Builder::ParseGlyphComp(const AnimationBuilder* abuilder,
     //       "ks": <transform info>
     //   }
 
-    AnimationBuilder::LayerInfo linfo{
+    LayerInfo linfo{
+        ParseDefault<SkString>(jdata["nm"], SkString()),
         {0,0},
         ParseDefault<float>(jdata["ip"], 0.0f),
         ParseDefault<float>(jdata["op"], 0.0f)

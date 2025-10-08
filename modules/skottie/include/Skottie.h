@@ -11,6 +11,7 @@
 #include "include/core/SkRefCnt.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkSize.h"
+#include "include/core/SkSpan.h"
 #include "include/core/SkString.h"
 #include "include/core/SkTypes.h"
 #include "modules/skresources/include/SkResources.h"
@@ -44,6 +45,13 @@ namespace internal { class Animator; }
 
 using ImageAsset = skresources::ImageAsset;
 using ResourceProvider = skresources::ResourceProvider;
+
+struct LayerInfo {
+    SkString    fName;
+    SkSize      fSize;
+    const float fInPoint,
+                fOutPoint;
+};
 
 /**
  * A Logger subclass can be used to receive Animation::Builder parsing errors and warnings.
@@ -181,6 +189,8 @@ public:
          */
         const sk_sp<SlotManager>& getSlotManager() const {return fSlotManager;}
 
+        SkSpan<const LayerInfo> getLayerInfo() const {return SkSpan(fLayerInfo);}
+
     private:
         const uint32_t          fFlags;
 
@@ -194,6 +204,7 @@ public:
         sk_sp<SkShapers::Factory> fShapingFactory;
         sk_sp<SlotManager>        fSlotManager;
         Stats                     fStats;
+        std::vector<LayerInfo>    fLayerInfo;
     };
 
     /**
