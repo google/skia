@@ -100,6 +100,7 @@
 #include <optional>
 #include <utility>
 
+class GrRenderTargetProxy;
 class SkBitmap;
 enum class SkTileMode;
 
@@ -763,8 +764,11 @@ static std::unique_ptr<GrFragmentProcessor> make_shader_fp(const SkPictureShader
         if (!image) {
             return nullptr;
         }
-
-        auto [v, ct] = skgpu::ganesh::AsView(ctx, image, skgpu::Mipmapped::kNo);
+        // Images from a picture shader shouldn't ever be drawn into a surface backed by the same
+        // texture so there will never be need to make a copy of the image. So just pass in nullptr
+        // for targetSurface of the view.
+        constexpr GrRenderTargetProxy* targetSurface = nullptr;
+        auto [v, ct] = skgpu::ganesh::AsView(ctx, image, skgpu::Mipmapped::kNo, targetSurface);
         view = std::move(v);
         provider->assignUniqueKeyToProxy(key, view.asTextureProxy());
     }

@@ -1008,7 +1008,10 @@ void Device::drawImageLattice(const SkImage* image,
     ASSERT_SINGLE_OWNER
     auto iter = std::make_unique<SkLatticeIter>(lattice, dst);
 
-    auto [view, ct] = skgpu::ganesh::AsView(this->recordingContext(), image, skgpu::Mipmapped::kNo);
+    auto [view, ct] = skgpu::ganesh::AsView(this->recordingContext(),
+                                            image,
+                                            skgpu::Mipmapped::kNo,
+                                            this->targetProxy());
     if (view) {
         GrColorInfo colorInfo(ct, image->alphaType(), image->refColorSpace());
         this->drawViewLattice(

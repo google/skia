@@ -182,14 +182,14 @@ DEF_GANESH_TEST_FOR_RENDERING_CONTEXTS(PinnedImageTest_AsGaneshView,
     {
         skiatest::ReporterContext subtest(reporter, "cached path");
         auto [view, colortype] = skgpu::ganesh::AsView(rContext, img, skgpu::Mipmapped::kNo,
-                   GrImageTexGenPolicy::kDraw);
+                   /*targetSurface=*/nullptr, GrImageTexGenPolicy::kDraw);
         REPORTER_ASSERT(reporter, view, "AsView returned falsey view");
     }
 
     {
         skiatest::ReporterContext subtest(reporter, "unncached path");
         auto [view, colortype] = skgpu::ganesh::AsView(rContext, img, skgpu::Mipmapped::kNo,
-                   GrImageTexGenPolicy::kNew_Uncached_Unbudgeted);
+                    /*targetSurface=*/nullptr, GrImageTexGenPolicy::kNew_Uncached_Unbudgeted);
         REPORTER_ASSERT(reporter, view, "AsView returned falsey view");
     }
 }

@@ -271,7 +271,10 @@ void Device::drawEdgeAAImage(const SkImage* image,
     if (tm == SkTileMode::kClamp && !ib->isYUVA() && can_use_draw_texture(paint, sampling)) {
         // We've done enough checks above to allow us to pass ClampNearest() and not check for
         // scaling adjustments.
-        auto [view, ct] = skgpu::ganesh::AsView(rContext, image, skgpu::Mipmapped::kNo);
+        auto [view, ct] = skgpu::ganesh::AsView(rContext,
+                                                image,
+                                                skgpu::Mipmapped::kNo,
+                                                this->targetProxy());
         if (!view) {
             return;
         }
@@ -651,7 +654,10 @@ void Device::drawEdgeAAImageSet(const SkCanvas::ImageSetEntry set[], int count,
         // drawImageQuad and the proper effect to dynamically sample their planes.
         if (!image->isYUVA()) {
             std::tie(view, std::ignore) =
-                    skgpu::ganesh::AsView(this->recordingContext(), image, skgpu::Mipmapped::kNo);
+                    skgpu::ganesh::AsView(this->recordingContext(),
+                                          image,
+                                          skgpu::Mipmapped::kNo,
+                                          this->targetProxy());
             if (image->isAlphaOnly()) {
                 skgpu::Swizzle swizzle = skgpu::Swizzle::Concat(view.swizzle(),
                                                                 skgpu::Swizzle("aaaa"));

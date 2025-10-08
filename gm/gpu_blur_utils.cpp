@@ -179,7 +179,10 @@ GrSurfaceProxyView make_src_image(GrRecordingContext* rContext,
     surf->getCanvas()->drawLine({7.f*w/8.f, 0.f}, {7.f*h/8.f, h}, paint);
 
     auto img = surf->makeImageSnapshot();
-    auto [src, ct] = skgpu::ganesh::AsView(rContext, img, skgpu::Mipmapped::kNo);
+    // We throw away the surface immediately so we know the image won't be drawn into itself. Thus
+    // we pass nullptr for targetSurface.
+    auto [src, ct] = skgpu::ganesh::AsView(rContext, img, skgpu::Mipmapped::kNo,
+                                           /*targetSurface=*/nullptr);
     return src;
 }
 

@@ -185,7 +185,8 @@ sk_sp<SkImage> SkImage_GaneshYUVA::onReinterpretColorSpace(sk_sp<SkColorSpace> n
 
 std::tuple<GrSurfaceProxyView, GrColorType> SkImage_GaneshYUVA::asView(GrRecordingContext* rContext,
                                                                        skgpu::Mipmapped mipmapped,
-                                                                       GrImageTexGenPolicy) const {
+                                                                       GrImageTexGenPolicy,
+                                                                       GrRenderTargetProxy*) const {
     if (!fContext->priv().matches(rContext)) {
         return {};
     }

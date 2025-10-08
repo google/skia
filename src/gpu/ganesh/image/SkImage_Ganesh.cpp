@@ -29,6 +29,7 @@
 #include "src/gpu/ganesh/GrFragmentProcessor.h"
 #include "src/gpu/ganesh/GrImageContextPriv.h"
 #include "src/gpu/ganesh/GrImageInfo.h"
+#include "src/gpu/ganesh/GrRenderTargetProxy.h"
 #include "src/gpu/ganesh/GrRenderTask.h"
 #include "src/gpu/ganesh/GrSurfaceProxy.h"
 #include "src/gpu/ganesh/GrTexture.h"
@@ -75,7 +76,8 @@ inline SkImage_Ganesh::ProxyChooser::~ProxyChooser() {
 }
 
 inline sk_sp<GrSurfaceProxy> SkImage_Ganesh::ProxyChooser::chooseProxy(
-        GrRecordingContext* context) {
+        GrRecordingContext* context,
+        GrRenderTargetProxy* targetProxy) {
     SkAutoSpinlock hold(fLock);
     if (fVolatileProxy) {
         SkASSERT(fVolatileProxyTargetCount <= fVolatileProxy->getTaskTargetCount());
@@ -84,7 +86,11 @@ inline sk_sp<GrSurfaceProxy> SkImage_Ganesh::ProxyChooser::chooseProxy(
         // actions until the recording context's DAG is imported into the direct context.
         if (context->asDirectContext() &&
             fVolatileProxyTargetCount == fVolatileProxy->getTaskTargetCount()) {
-            return fVolatileProxy;
+            // We cannot draw the volatile proxy into itself.
+            if (!targetProxy ||
+                targetProxy->underlyingUniqueID() != fVolatileProxy->underlyingUniqueID()) {
+                return fVolatileProxy;
+            }
         }
         fVolatileProxy.reset();
         fVolatileToStableCopyTask.reset();
@@ -259,7 +265,7 @@ GrSemaphoresSubmitted SkImage_Ganesh::flush(GrDirectContext* dContext,
         return GrSemaphoresSubmitted::kNo;
     }
 
-    sk_sp<GrSurfaceProxy> proxy = fChooser.chooseProxy(dContext);
+    sk_sp<GrSurfaceProxy> proxy = fChooser.chooseProxy(dContext, nullptr);
     return dContext->priv().flushSurface(
             proxy.get(), SkSurfaces::BackendSurfaceAccess::kNoAccess, info);
 }
@@ -314,7 +320,7 @@ sk_sp<SkImage> SkImage_Ganesh::onMakeColorTypeAndColorSpace(GrDirectContext* dCo
         return nullptr;
     }
 
-    sk_sp<GrSurfaceProxy> proxy = fChooser.chooseProxy(dContext);
+    sk_sp<GrSurfaceProxy> proxy = fChooser.chooseProxy(dContext, nullptr);
 
     auto sfc = dContext->priv().makeSFCWithFallback(GrImageInfo(info, this->dimensions()),
                                                     SkBackingFit::kExact,
@@ -329,7 +335,8 @@ sk_sp<SkImage> SkImage_Ganesh::onMakeColorTypeAndColorSpace(GrDirectContext* dCo
     info = info.makeColorType(ct);
 
     // Draw this image's texture into the SFC.
-    auto [view, _] = skgpu::ganesh::AsView(dContext, this, skgpu::Mipmapped(this->hasMipmaps()));
+    auto [view, _] = skgpu::ganesh::AsView(dContext, this, skgpu::Mipmapped(this->hasMipmaps()),
+                                           sfc->asRenderTargetProxy());
     auto texFP = GrTextureEffect::Make(std::move(view), this->alphaType());
     auto colorFP =
             GrColorSpaceXformEffect::Make(std::move(texFP), this->imageInfo().colorInfo(), info);
@@ -362,7 +369,8 @@ void SkImage_Ganesh::onAsyncRescaleAndReadPixels(const SkImageInfo& info,
         callback(context, nullptr);
         return;
     }
-    auto ctx = dContext->priv().makeSC(this->makeView(dContext), this->imageInfo().colorInfo());
+    auto ctx = dContext->priv().makeSC(this->makeView(dContext, nullptr),
+                                       this->imageInfo().colorInfo());
     if (!ctx) {
         callback(context, nullptr);
         return;
@@ -386,7 +394,8 @@ void SkImage_Ganesh::onAsyncRescaleAndReadPixelsYUV420(SkYUVColorSpace yuvColorS
         callback(context, nullptr);
         return;
     }
-    auto ctx = dContext->priv().makeSC(this->makeView(dContext), this->imageInfo().colorInfo());
+    auto ctx = dContext->priv().makeSC(this->makeView(dContext, nullptr),
+                                       this->imageInfo().colorInfo());
     if (!ctx) {
         callback(context, nullptr);
         return;
@@ -408,19 +417,20 @@ void SkImage_Ganesh::generatingSurfaceIsDeleted() { fChooser.makeVolatileProxySt
 std::tuple<GrSurfaceProxyView, GrColorType> SkImage_Ganesh::asView(
         GrRecordingContext* recordingContext,
         skgpu::Mipmapped mipmapped,
-        GrImageTexGenPolicy policy) const {
+        GrImageTexGenPolicy policy,
+        GrRenderTargetProxy* targetProxy) const {
     if (!fContext->priv().matches(recordingContext)) {
         return {};
     }
     if (policy != GrImageTexGenPolicy::kDraw) {
         return {skgpu::ganesh::CopyView(recordingContext,
-                                        this->makeView(recordingContext),
+                                        this->makeView(recordingContext, targetProxy),
                                         mipmapped,
                                         policy,
                                         /*label=*/"SkImageGpu_AsView"),
                 SkColorTypeToGrColorType(this->colorType())};
     }
-    GrSurfaceProxyView view = this->makeView(recordingContext);
+    GrSurfaceProxyView view = this->makeView(recordingContext, targetProxy);
     GrColorType ct = SkColorTypeToGrColorType(this->colorType());
     if (mipmapped == skgpu::Mipmapped::kYes) {
         view = skgpu::ganesh::FindOrMakeCachedMipmappedView(recordingContext, std::move(view),
@@ -444,7 +454,7 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Ganesh::asFragmentProcessor(
             sampling.mipmap == SkMipmapMode::kNone ? skgpu::Mipmapped::kNo : skgpu::Mipmapped::kYes;
     return skgpu::ganesh::MakeFragmentProcessorFromView(
             rContext,
-            std::get<0>(skgpu::ganesh::AsView(rContext, this, mm)),
+            std::get<0>(skgpu::ganesh::AsView(rContext, this, mm, sdc->asRenderTargetProxy())),
             this->alphaType(),
             sampling,
             tileModes,
@@ -453,6 +463,7 @@ std::unique_ptr<GrFragmentProcessor> SkImage_Ganesh::asFragmentProcessor(
             domain);
 }
 
-GrSurfaceProxyView SkImage_Ganesh::makeView(GrRecordingContext* rContext) const {
-    return {fChooser.chooseProxy(rContext), fOrigin, fSwizzle};
+GrSurfaceProxyView SkImage_Ganesh::makeView(GrRecordingContext* rContext,
+                                            GrRenderTargetProxy* targetProxy) const {
+    return {fChooser.chooseProxy(rContext, targetProxy), fOrigin, fSwizzle};
 }

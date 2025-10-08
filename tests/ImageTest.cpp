@@ -1102,19 +1102,22 @@ static void test_cross_context_image(
             // Any context should be able to borrow the texture at this point
 
             std::tie(view, std::ignore) =
-                    skgpu::ganesh::AsView(dContext, refImg, skgpu::Mipmapped::kNo);
+                    skgpu::ganesh::AsView(dContext, refImg, skgpu::Mipmapped::kNo,
+                                          /*targetSurface=*/nullptr);
             REPORTER_ASSERT(reporter, view);
 
             // But once it's borrowed, no other context should be able to borrow
             otherTestContext->makeCurrent();
             std::tie(otherView, std::ignore) =
-                    skgpu::ganesh::AsView(otherCtx, refImg, skgpu::Mipmapped::kNo);
+                    skgpu::ganesh::AsView(otherCtx, refImg, skgpu::Mipmapped::kNo,
+                                          /*targetSurface=*/nullptr);
             REPORTER_ASSERT(reporter, !otherView);
 
             // Original context (that's already borrowing) should be okay
             testContext->makeCurrent();
             std::tie(viewSecondRef, std::ignore) =
-                    skgpu::ganesh::AsView(dContext, refImg, skgpu::Mipmapped::kNo);
+                    skgpu::ganesh::AsView(dContext, refImg, skgpu::Mipmapped::kNo,
+                                          /*targetSurface=*/nullptr);
             REPORTER_ASSERT(reporter, viewSecondRef);
 
             // Release first ref from the original context
@@ -1124,7 +1127,8 @@ static void test_cross_context_image(
             // a new context is still not able to borrow the texture.
             otherTestContext->makeCurrent();
             std::tie(otherView, std::ignore) =
-                    skgpu::ganesh::AsView(otherCtx, refImg, skgpu::Mipmapped::kNo);
+                    skgpu::ganesh::AsView(otherCtx, refImg, skgpu::Mipmapped::kNo,
+                                          /*targetSurface=*/nullptr);
             REPORTER_ASSERT(reporter, !otherView);
 
             // Release second ref from the original context
@@ -1134,7 +1138,8 @@ static void test_cross_context_image(
             // Now we should be able to borrow the texture from the other context
             otherTestContext->makeCurrent();
             std::tie(otherView, std::ignore) =
-                    skgpu::ganesh::AsView(otherCtx, refImg, skgpu::Mipmapped::kNo);
+                    skgpu::ganesh::AsView(otherCtx, refImg, skgpu::Mipmapped::kNo,
+                                          /*targetSurface=*/nullptr);
             REPORTER_ASSERT(reporter, otherView);
 
             // Release everything
@@ -1184,7 +1189,8 @@ DEF_GANESH_TEST(SkImage_CrossContextGrayAlphaConfigs,
             sk_sp<SkImage> image = SkImages::CrossContextTextureFromPixmap(dContext, pixmap, false);
             REPORTER_ASSERT(reporter, image);
 
-            auto [view, viewCT] = skgpu::ganesh::AsView(dContext, image, skgpu::Mipmapped::kNo);
+            auto [view, viewCT] = skgpu::ganesh::AsView(dContext, image, skgpu::Mipmapped::kNo,
+                                                        /*targetSurface=*/nullptr);
             REPORTER_ASSERT(reporter, view);
             REPORTER_ASSERT(reporter, GrColorTypeToSkColorType(viewCT) == ct);
 

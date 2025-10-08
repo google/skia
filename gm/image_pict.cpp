@@ -211,7 +211,9 @@ protected:
         SkASSERT(rContext);
         SkASSERT(rContext->priv().matches(fRContext.get()));
 
-        auto [view, _] = skgpu::ganesh::AsView(rContext, fImage, skgpu::Mipmapped::kNo);
+        // We are immediately copying the view so no need to pass in targetSurface
+        auto [view, _] = skgpu::ganesh::AsView(rContext, fImage, skgpu::Mipmapped::kNo,
+                                               /*targetSurface=*/nullptr);
         if (!view) {
             return {};
         }
@@ -360,8 +362,11 @@ protected:
         if (as_IB(image)->isGaneshBacked()) {
             // The gpu-backed images are drawn in this manner bc the generator backed images
             // aren't considered texture-backed
+            // We know for this test the targetSurface proxy is different from the image so we can
+            // just pass in nullptr.
             auto [view, ct] =
-                    skgpu::ganesh::AsView(canvas->recordingContext(), image, skgpu::Mipmapped::kNo);
+                    skgpu::ganesh::AsView(canvas->recordingContext(), image, skgpu::Mipmapped::kNo,
+                                          /*targetSurface=*/nullptr);
             if (!view) {
                 // show placeholder if we have no texture
                 draw_placeholder(canvas, x, y, image->width(), image->height());

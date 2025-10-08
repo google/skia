@@ -81,7 +81,7 @@ sk_sp<SkSpecialImage> MakeFromTextureImage(GrRecordingContext* rContext,
     SkASSERT(image->bounds().contains(subset));
 
     // This will work even if the image is a raster-backed image.
-    auto [view, ct] = skgpu::ganesh::AsView(rContext, image, skgpu::Mipmapped::kNo);
+    auto [view, ct] = skgpu::ganesh::AsView(rContext, image, skgpu::Mipmapped::kNo, nullptr);
     return MakeDeferredFromGpu(rContext,
                                subset,
                                image->uniqueID(),

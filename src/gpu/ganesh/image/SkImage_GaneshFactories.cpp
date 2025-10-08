@@ -78,7 +78,8 @@ bool MakeBackendTextureFromImage(GrDirectContext* direct,
         return false;
     }
 
-    auto [view, ct] = skgpu::ganesh::AsView(direct, image, skgpu::Mipmapped::kNo);
+    auto [view, ct] = skgpu::ganesh::AsView(direct, image, skgpu::Mipmapped::kNo,
+                                            /*targetSurface=*/nullptr);
     if (!view) {
         return false;
     }
@@ -457,7 +458,8 @@ sk_sp<SkImage> TextureFromImage(GrDirectContext* dContext,
                                          ? GrImageTexGenPolicy::kNew_Uncached_Budgeted
                                          : GrImageTexGenPolicy::kNew_Uncached_Unbudgeted;
     // TODO: Don't flatten YUVA images here. Add mips to the planes instead.
-    auto [view, ct] = skgpu::ganesh::AsView(dContext, ib, mipmapped, policy);
+    auto [view, ct] = skgpu::ganesh::AsView(dContext, ib, mipmapped, /*targetSurface=*/nullptr,
+                                            policy);
     if (!view) {
         return nullptr;
     }
