@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkString.h"
@@ -41,17 +42,19 @@ static void testSimplifyQuadralateralsMain(PathOpsThreadState* data)
                 for (int h = g ; h < 16; ++h) {
                     int hx = h & 0x03;
                     int hy = h >> 2;
-                    SkPath path, out;
-                    path.moveTo(SkIntToScalar(ax), SkIntToScalar(ay));
-                    path.lineTo(SkIntToScalar(bx), SkIntToScalar(by));
-                    path.lineTo(SkIntToScalar(cx), SkIntToScalar(cy));
-                    path.lineTo(SkIntToScalar(dx), SkIntToScalar(dy));
-                    path.close();
-                    path.moveTo(SkIntToScalar(ex), SkIntToScalar(ey));
-                    path.lineTo(SkIntToScalar(fx), SkIntToScalar(fy));
-                    path.lineTo(SkIntToScalar(gx), SkIntToScalar(gy));
-                    path.lineTo(SkIntToScalar(hx), SkIntToScalar(hy));
-                    path.close();
+                    SkPath out;
+                    SkPath path = SkPathBuilder()
+                                  .moveTo(SkIntToScalar(ax), SkIntToScalar(ay))
+                                  .lineTo(SkIntToScalar(bx), SkIntToScalar(by))
+                                  .lineTo(SkIntToScalar(cx), SkIntToScalar(cy))
+                                  .lineTo(SkIntToScalar(dx), SkIntToScalar(dy))
+                                  .close()
+                                  .moveTo(SkIntToScalar(ex), SkIntToScalar(ey))
+                                  .lineTo(SkIntToScalar(fx), SkIntToScalar(fy))
+                                  .lineTo(SkIntToScalar(gx), SkIntToScalar(gy))
+                                  .lineTo(SkIntToScalar(hx), SkIntToScalar(hy))
+                                  .close()
+                                  .detach();
                     if (state.fReporter->verbose()) {
                         pathStr.printf("static void quadralateralSimplify%d(skiatest::Reporter*"
                                 "reporter, const char* filename) {\n", loopNo);

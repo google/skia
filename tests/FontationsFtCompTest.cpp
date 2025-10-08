@@ -77,14 +77,11 @@ bool textBlobsAllPathsEqual(sk_sp<const SkTextBlob> blobA,
     SkTextBlob::Iter iterB(*blobB);
     SkTextBlob::Iter::ExperimentalRun runAInfo;
     SkTextBlob::Iter::ExperimentalRun runBInfo;
-    SkPath pathA, pathB;
     while (iterA.experimentalNext(&runAInfo)) {
-        pathA.reset();
-        pathB.reset();
         SkASSERT(iterB.experimentalNext(&runBInfo));
         for (int i = 0; i < runAInfo.count; ++i) {
-            runAInfo.font.getPath(runAInfo.glyphs[i], &pathA);
-            runBInfo.font.getPath(runBInfo.glyphs[i], &pathB);
+            SkPath pathA = runAInfo.font.getPath(runAInfo.glyphs[i]).value_or(SkPath()),
+                   pathB = runBInfo.font.getPath(runBInfo.glyphs[i]).value_or(SkPath());
             // Use a fuzzy cmparison to canonicalize the output and account for
             // differences between FreeType (inserting a lineTo() to original moveTo() coordinate)
             // or Fontations (which saves the extra lineTo() before close()).

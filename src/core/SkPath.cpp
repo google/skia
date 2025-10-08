@@ -98,18 +98,20 @@ private:
 // ending with close, so countVerbs needs to be checked against 0.
 #define INITIAL_LASTMOVETOINDEX_VALUE   ~0
 
-SkPath::SkPath()
-    : fPathRef(SkPathRef::CreateEmpty()) {
-    this->resetFields();
-    fIsVolatile = false;
-}
-
 SkPath::SkPath(sk_sp<SkPathRef> pr, SkPathFillType ft, bool isVolatile, SkPathConvexity ct)
     : fPathRef(std::move(pr))
     , fLastMoveToIndex(INITIAL_LASTMOVETOINDEX_VALUE)
     , fConvexity((uint8_t)ct)
     , fFillType((unsigned)ft)
     , fIsVolatile(isVolatile)
+{}
+
+SkPath::SkPath(SkPathFillType ft)
+    : fPathRef(SkPathRef::CreateEmpty())
+    , fLastMoveToIndex(INITIAL_LASTMOVETOINDEX_VALUE)
+    , fConvexity((uint8_t)SkPathConvexity::kUnknown)
+    , fFillType((unsigned)ft)
+    , fIsVolatile(false)
 {}
 
 void SkPath::resetFields() {
@@ -3382,8 +3384,8 @@ SkPath SkPath::Raw(SkSpan<const SkPoint> pts, SkSpan<const SkPathVerb> vbs,
     return MakeInternal(info, pts.data(), vbs, ws.data(), ft, isVolatile);
 }
 
-SkPath SkPath::Rect(const SkRect& r, SkPathDirection dir, unsigned startIndex) {
-    return SkPathBuilder().addRect(r, dir, startIndex).detach();
+SkPath SkPath::Rect(const SkRect& r, SkPathFillType ft, SkPathDirection dir, unsigned startIndex) {
+    return SkPathBuilder(ft).addRect(r, dir, startIndex).detach();
 }
 
 SkPath SkPath::Oval(const SkRect& r, SkPathDirection dir) {
