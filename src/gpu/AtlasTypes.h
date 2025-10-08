@@ -267,7 +267,7 @@ public:
     }
 
 private:
-    PlotLocator fPlotLocator{AtlasGenerationCounter::kInvalidGeneration, 0, 0};
+    PlotLocator fPlotLocator{0, 0, AtlasGenerationCounter::kInvalidGeneration};
 
     // The inset padded bounds in the atlas in the lower 13 bits, and page index in bits 13 &
     // 14 of the Us.
