@@ -2098,6 +2098,12 @@
     "name": "Test-Win11-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN_BonusConfigs"
   },
   {
+    "name": "Test-Win11-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts"
+  },
+  {
+    "name": "Test-Win11-Clang-GCE-CPU-AVX2-x86_64-Debug-All-NativeFonts_DWriteCore"
+  },
+  {
     "name": "Test-Win11-Clang-GCE-CPU-AVX2-x86_64-Release-All",
     "cq_config": {}
   },
@@ -2118,12 +2124,6 @@
   },
   {
     "name": "Test-Win11-Clang-NUC11TZi5-GPU-IntelIrisXe-x86_64-Release-All-Vulkan"
-  },
-  {
-    "name": "Test-Win11-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts"
-  },
-  {
-    "name": "Test-Win11-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts_DWriteCore"
   },
   {
     "name": "Test-Win11-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-All"
