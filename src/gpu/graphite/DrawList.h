@@ -105,6 +105,10 @@ public:
         return this->renderStepCount() > 0 || fLoadOp == LoadOp::kClear;
     }
 
+    bool samplesTexture(const TextureProxy* texture) const {
+        return fTextureDataCache.hasTexture(texture);
+    }
+
     // Discard all previously recorded draws and set to the requested load op (with optional clear
     // color).
     void reset(LoadOp op, SkColor4f clearColor = {0.f, 0.f, 0.f, 0.f});

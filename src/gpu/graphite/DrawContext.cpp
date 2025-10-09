@@ -132,6 +132,23 @@ void DrawContext::resetForClearOrDiscard() {
     }
 }
 
+bool DrawContext::readsTexture(const TextureProxy* texture) const {
+    if (fPendingDraws->samplesTexture(texture)) {
+        return true;
+    }
+
+    // visitProxies() before calling prepareResources() can revisit tasks in the general case
+    // (e.g. processing everything in the root task list). In this case, the only tasks being
+    // visited are pending tasks so their graph complexity should be minimal.
+    bool notFound = fCurrentDrawTask->visitProxies(
+        [texture](const TextureProxy* other) {
+            // Return true to continue visiting, i.e. when we haven't found `texture` yet.
+            return texture != other;
+        }, /*readsOnly=*/true);
+
+    return !notFound; // double negation means its found in a pending child task
+}
+
 void DrawContext::recordDraw(const Renderer* renderer,
                              const Transform& localToDevice,
                              const Geometry& geometry,

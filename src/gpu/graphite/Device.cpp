@@ -536,6 +536,10 @@ void Device::setImmutable() {
     }
 }
 
+bool Device::hasPendingReads(const TextureProxy* texture) const {
+    return fRecorder && fDC->readsTexture(texture);
+}
+
 const Transform& Device::localToDeviceTransform() {
     if (this->checkLocalToDeviceDirty()) {
         fCachedLocalToDevice = Transform{this->localToDevice44()};

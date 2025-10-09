@@ -186,6 +186,8 @@ public:
         return *index;
     }
 
+    bool contains(K data) const { return SkToBool(fDataToIndex.find(data)); }
+
     const V& lookup(Index index) const { return fIndexToData[index]; }
 
     V& lookup(Index index) { return fIndexToData[index]; }
@@ -319,6 +321,14 @@ public:
     Index insert(TextureDataBlock dataBlock) { return fTextures.insert(dataBlock); }
 
     TextureDataBlock lookup(Index index) const { return fTextures.lookup(index); }
+
+    bool hasTexture(const TextureProxy* texture) const {
+        // The template for TextureProxyCache uses `TextureProxy*` because `sk_sp` does not
+        // take a const pointer; this contains() check just uses the address and doesn't do
+        // anything that actually requires it to be non-const.
+        return fTextures.storage().fUniqueTextures.contains(
+                const_cast<TextureProxy*>(texture));
+    }
 
     skia_private::TArray<sk_sp<TextureProxy>> detachTextures() {
         return fTextures.storage().fUniqueTextures.detach();

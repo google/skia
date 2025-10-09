@@ -163,6 +163,9 @@ public:
     // Only used for scratch devices.
     sk_sp<Task> lastDrawTask() const;
 
+    // Returns true if the Device has pending reads to the given texture
+    bool hasPendingReads(const TextureProxy* texture) const;
+
     bool useDrawCoverageMaskForMaskFilters() const override { return true; }
 
     // Clipping
