@@ -58,66 +58,11 @@ void Image_Base::notifyInUse(Recorder* recorder, DrawContext* drawContext) const
     if (!fLinkedDevices.empty()) {
         int emptyCount = 0;
         for (sk_sp<Device>& device : fLinkedDevices) {
-            if (!device) {
-                emptyCount++; // Already unlinked but array isn't empty yet
-            } else {
-                if (device->isScratchDevice()) {
-                    sk_sp<Task> deviceDrawTask = device->lastDrawTask();
-                    if (deviceDrawTask) {
-                        // Increment the pending read count for the device's target
-                        recorder->priv().addPendingRead(device->target());
-                        if (drawContext) {
-                            // Add a reference to the device's drawTask to `drawContext` if that's
-                            // provided.
-                            drawContext->recordDependency(std::move(deviceDrawTask));
-                        } else {
-                            // If there's no `drawContext` this notify represents a copy, so for
-                            // now append the task to the root task list since that is where the
-                            // subsequent copy task will go as well.
-                            recorder->priv().add(std::move(deviceDrawTask));
-                        }
-                    } else {
-                        // If there's no draw task yet, there are two possible scenarios:
-                        //
-                        // 1) the device is being drawn into a child scratch device (backdrop filter
-                        //    or init-from-prev layer), and the child will later on be drawn back
-                        //    into the device's `drawContext`. In this case `device` should already
-                        //    have performed an internal flush and have no pending work, and not yet
-                        //    be marked immutable. The correct action at this point in time is to do
-                        //    nothing: the final task order in the device's DrawTask will be
-                        //    pre-notified tasks into the device's target, then the child's DrawTask
-                        //    when it's drawn back into `device`, and then any post tasks that
-                        //    further modify the `device`'s target.
-                        // 2) the scratch device was flushed to a drawContext's local task list,
-                        //    resulting in no pending work but also no lastTask. The correct action
-                        //    is again to do nothing. In this case, it is also possible that the
-                        //    device was not registered with the recorder.
-                        SkASSERT(!device->recorder() || device->recorder() == recorder);
-                    }
-
-                    // Scratch devices are often already marked immutable, but they are also the
-                    // way in which Image finds the last snapped DrawTask so we don't unlink
-                    // scratch devices. The scratch image view will be short-lived as well, or the
-                    // device will transition to a non-scratch device in a future Recording and then
-                    // it will be unlinked then.
-                } else {
-                    // Automatic flushing of image views only happens when mixing reads and writes
-                    // on the originating Recorder. Draws of the view on another Recorder will
-                    // always see the texture content dependent on how Recordings are inserted.
-                    if (device->recorder() == recorder) {
-                        // Non-scratch devices push their tasks to the root task list to maintain
-                        // an order consistent with the client-triggering actions. Because of this,
-                        // there's no need to add references to the `drawContext` that the device
-                        // is being drawn into.
-                        device->flushPendingWork(/*drawContext=*/nullptr);
-                    }
-                    if (!device->recorder() || device->unique()) {
-                        // The device will not record any more commands that modify the texture, so
-                        // the image doesn't need to be linked
-                        device.reset();
-                        emptyCount++;
-                    }
-                }
+            if (!device || device->notifyInUse(recorder, drawContext)) {
+                // Already unlinked or notifyInUse() signals the device doesn't need to be linked
+                // anymore. reset() is a no-op if device is already holding null.
+                device.reset();
+                emptyCount++;
             }
         }
 
