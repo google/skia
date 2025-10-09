@@ -7,15 +7,22 @@
 
 #include "tests/Test.h"
 
+// Disabled due to b/450087777 (PersistentPipelineStorageTest failing on Android's virtual gpu)
+#if 0
+
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
 #include "include/core/SkSurfaceProps.h"
-#include "include/effects/SkGradientShader.h"
 #include "include/gpu/graphite/Context.h"
 #include "include/gpu/graphite/Surface.h"
 #include "tools/graphite/ContextFactory.h"
 #include "tools/graphite/GraphiteMemoryPipelineStorage.h"
 #include "tools/graphite/TestOptions.h"
+
+// VMs (i.e., SwiftShader-backed rendering) often claim to support the Vulkan pipeline cache
+// control feature but do not actually do so. This leads to pointless assertion failures so
+// we only run this test on Android
+#if defined(SK_BUILD_FOR_ANDROID)
 
 using namespace skiatest::graphite;
 
@@ -23,8 +30,7 @@ namespace {
 
 bool draw(GraphiteTestContext* origTestContext,
           const TestOptions& origOptions,
-          sk_gpu_test::GraphiteMemoryPipelineStorage* memoryPipelineStorage,
-          bool withGradient) {
+          sk_gpu_test::GraphiteMemoryPipelineStorage* memoryPipelineStorage) {
 
     // Rebuild the Context with a PersistentCache
     TestOptions newOptions(origOptions);
@@ -52,15 +58,6 @@ bool draw(GraphiteTestContext* origTestContext,
         }
 
         SkPaint paint;
-        if (withGradient) {
-            const SkPoint pts[] = {{0, 0}, {64, 64}};
-            const SkColor colors[] = {SK_ColorWHITE, SK_ColorBLACK};
-            paint.setShader(SkGradientShader::MakeLinear(pts,
-                                                         colors,
-                                                         nullptr,
-                                                         /* count= */ 2,
-                                                         SkTileMode::kClamp));
-        }
         surface->getCanvas()->drawRect({16, 16, 48, 48 }, paint);
     }
 
@@ -97,22 +94,25 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(PersistentPipelineStorageTest,
 
     sk_gpu_test::GraphiteMemoryPipelineStorage memoryPipelineStorage;
 
-    REPORTER_ASSERT(reporter, draw(origTestContext, origOptions, &memoryPipelineStorage,
-                                   /* withGradient= */ false));
+    // Draw twice, once with a cold start, and again with a warm start.
+    REPORTER_ASSERT(reporter, draw(origTestContext, origOptions, &memoryPipelineStorage));
 
-    // On the first draw there shouldn't be anything to load but we should store the new pipelines.
+    // With the cold start there shouldn't anything to load but we should store the new pipelines.
     REPORTER_ASSERT(reporter, memoryPipelineStorage.numLoads() == 0);
     REPORTER_ASSERT(reporter, memoryPipelineStorage.numStores() == 1);
 
     memoryPipelineStorage.resetCacheStats();
 
-    REPORTER_ASSERT(reporter, draw(origTestContext, origOptions, &memoryPipelineStorage,
-                                   /* withGradient= */ true));
+    REPORTER_ASSERT(reporter, draw(origTestContext, origOptions, &memoryPipelineStorage));
 
-    // On the second draw we should be able to load the prior pipelines but still need to store
-    // the new ones.
+    // With the warm start we should be able to load the prior pipelines and, thus, not need
+    // to store any new ones.
     REPORTER_ASSERT(reporter, memoryPipelineStorage.numLoads() == 1);
-    REPORTER_ASSERT(reporter, memoryPipelineStorage.numStores() == 1);
+    REPORTER_ASSERT(reporter, memoryPipelineStorage.numStores() == 0);
 }
 
 }  // namespace skgpu::graphite
+
+#endif // SK_BUILD_FOR_ANDROID
+
+#endif
