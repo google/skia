@@ -42,9 +42,9 @@ class ResourceProvider;
  * When a BufferSubAllocator goes out of scope, its underlying Buffer is returned to the manager. By
  * default, any remaining space can be returned by subsequent allocation requests but written bytes
  * will not be able to be overwritten by later BufferSubAllocators. The exception is with the
- * ScratchBuffer subclass that allows the entire Buffer's contents to be overwritten after it is
- * returned (scope of the ScratchBuffer object is assumed to mirror the read/write scope of the GPU
- * work).
+ * BufferSubAllocator instances returned by BufferManager::getScratchStorage(), whose Buffers will
+ * be Shareable::kScratch resources, and can be fully reused by other Recorders or once the
+ * BufferSubAllocator goes out of scope.
  *
  * Buffers created by the DrawBufferManager for an allocator are automatically transferred to the
  * Recording and CommandBuffers when snapped or inserted.
@@ -244,8 +244,8 @@ public:
     }
 
     // Returns an entire storage buffer object that is large enough to fit `requiredBytes`. The
-    // returned ScratchBuffer can be used to sub-allocate one or more storage buffer bindings that
-    // reference the same buffer object.
+    // returned BufferSubAllocator can be used to sub-allocate one or more storage buffer bindings
+    // that reference the same buffer object.
     //
     // When the BufferSubAllocator goes out of scope, the buffer object gets added to an internal
     // pool and is available for immediate reuse. getScratchStorage() returns buffers from this pool

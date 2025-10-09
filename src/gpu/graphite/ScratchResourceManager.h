@@ -90,11 +90,12 @@ public:
     // stop being available for reuse for later tasks in a Recording.
     sk_sp<Texture> getScratchTexture(SkISize, const TextureInfo&, std::string_view label);
 
-    // TODO: Eventually update ScratchBuffer and DrawBufferManager to leverage the
-    // ScratchResourceManager. There are a few open issues to address first:
-    //  - ScratchBuffer uses RAII to return the resource; ScratchResourceManager could adopt this
-    //    for buffers but that may only make sense if textures could also operate that way.
-    //    Alternatively, ScratchBuffer remains an RAII abstraction on top of ScratchResourceManager.
+    // TODO: Eventually update BufferSubAllocator and DrawBufferManager to leverage the
+    // BufferSubAllocator. There are a few open issues to address first:
+    //  - BufferSubAllocator uses RAII to return the resource; ScratchResourceManager could adopt
+    //    this for buffers but that may only make sense if textures could also operate that way.
+    //    Alternatively, BufferSubAllocator remains an RAII abstraction on top of
+    //    ScratchResourceManager.
     //  - ScratchResourceManager is currently only available in snap(), but DrawBufferManager needs
     //    to be available at all times because a DrawPass could be created whenever. b/335644795
     //    considers moving all DrawPass creation into snap() so that would avoid this issue.
