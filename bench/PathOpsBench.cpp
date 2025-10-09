@@ -7,6 +7,7 @@
 
 #include "bench/Benchmark.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkString.h"
 #include "include/pathops/SkPathOps.h"
@@ -22,8 +23,8 @@ public:
     PathOpsBench(const char suffix[], SkPathOp op) : fOp(op) {
         fName.printf("pathops_%s", suffix);
 
-        fPath1.addOval({-10, -20, 10, 20});
-        fPath2.addOval({-20, -10, 20, 10});
+        fPath1 = SkPath::Oval({-10, -20, 10, 20});
+        fPath2 = SkPath::Oval({-20, -10, 20, 10});
     }
 
     bool isSuitableFor(Backend backend) override {
@@ -81,14 +82,14 @@ DEF_BENCH( return new PathOpsBench("join", kUnion_SkPathOp); )
 
 static SkPath makerects() {
     SkRandom rand;
-    SkPath path;
+    SkPathBuilder builder;
     SkScalar scale = 100;
     for (int i = 0; i < 20; ++i) {
         SkScalar x = rand.nextUScalar1() * scale;
         SkScalar y = rand.nextUScalar1() * scale;
-        path.addRect({x, y, x + scale, y + scale});
+        builder.addRect({x, y, x + scale, y + scale});
     }
-    return path;
+    return builder.detach();
 }
 DEF_BENCH( return new PathOpsSimplifyBench("rects", makerects()); )
 
@@ -136,7 +137,9 @@ template <typename T> void run_builder(T& b, bool useReserve, int N) {
 }
 
 enum class MakeType {
+#ifndef SK_HIDE_PATH_EDIT_METHODS
     kPath,
+#endif
     kSnapshot,
     kDetach,
     kArray,
@@ -178,11 +181,13 @@ protected:
                 run_builder(b, fUseReserve, N);
                 return MakeType::kSnapshot == fMakeType ? b.snapshot() : b.detach();
             }
+#ifndef SK_HIDE_PATH_EDIT_METHODS
             case MakeType::kPath: {
                 SkPath p;
                 run_builder(p, fUseReserve, N);
                 return p;
             }
+#endif
             case MakeType::kArray: {
             //    ArrayPath<N*12> arrays;
             //    run_builder(arrays, false, N);
@@ -210,10 +215,12 @@ protected:
 private:
     using INHERITED = Benchmark;
 };
+#ifndef SK_HIDE_PATH_EDIT_METHODS
 DEF_BENCH( return new PathBuilderBench(MakeType::kPath, false); )
+DEF_BENCH( return new PathBuilderBench(MakeType::kPath, true); )
+#endif
 DEF_BENCH( return new PathBuilderBench(MakeType::kSnapshot, false); )
 DEF_BENCH( return new PathBuilderBench(MakeType::kDetach, false); )
-DEF_BENCH( return new PathBuilderBench(MakeType::kPath, true); )
 DEF_BENCH( return new PathBuilderBench(MakeType::kSnapshot, true); )
 DEF_BENCH( return new PathBuilderBench(MakeType::kDetach, true); )
 

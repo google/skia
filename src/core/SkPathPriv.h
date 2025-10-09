@@ -153,6 +153,12 @@ public:
         path->shrinkToFit();
     }
 
+    static void ShrinkToFit(SkPathBuilder* builder) {
+        builder->fPts.shrink_to_fit();
+        builder->fVerbs.shrink_to_fit();
+        builder->fConicWeights.shrink_to_fit();
+    }
+
     /**
       * Iterates through a raw range of path verbs, points, and conics. All values are returned
       * unaltered.

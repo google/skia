@@ -4,6 +4,7 @@
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkGraphics.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRegion.h"
 #include "include/core/SkShader.h"
 #include "include/core/SkStream.h"
@@ -4077,21 +4078,20 @@ public:
         paragraph->layout(this->size().width());
 
         auto impl = static_cast<ParagraphImpl*>(paragraph.get());
-        SkPath fullPath;
+        SkPathBuilder fullPath;
         SkScalar height = 0;
         for (auto& line : impl->lines()) {
             line.ensureTextBlobCachePopulated();
             for (auto& rec : line.fTextBlobCache) {
                 auto paths = Paragraph::GetPath(rec.fBlob.get());
-                paths.offset(0, height);
-                fullPath.addPath(paths);
+                fullPath.addPath(paths, 0, height);
                 height += line.height();
             }
         }
         SkRect rect = SkRect::MakeXYWH(100, 100 + paragraph->getHeight(), this->size().width(), paragraph->getHeight());
         SkPaint paint;
         paint.setShader(setgrad(rect, SK_ColorBLUE, SK_ColorLTGRAY));
-        canvas->drawPath(fullPath, paint);
+        canvas->drawPath(fullPath.detach(), paint);
     }
 };
 

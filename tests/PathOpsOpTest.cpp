@@ -3323,9 +3323,8 @@ static void cubicOp114asQuad(skiatest::Reporter* reporter, const char* filename)
     pathB.moveTo(1, 3);
     pathB.cubicTo(-1, 2, 3.5f, 1.33333337f, 0, 1);
     pathB.close();
-    SkPath qPath, qPathB;
-    CubicPathToQuads(path.detach(), &qPath);
-    CubicPathToQuads(pathB.detach(), &qPathB);
+    SkPath qPath  = CubicPathToQuads(path.detach()),
+           qPathB = CubicPathToQuads(pathB.detach());
     testPathOp(reporter, qPath, qPathB, kIntersect_SkPathOp, filename);
 }
 
@@ -4729,9 +4728,8 @@ static void loops33iAsQuads(skiatest::Reporter* reporter, const char* filename) 
     pathB.moveTo(1, 2);
     pathB.cubicTo(7.16666698f, 6.66666698f, -4.66666651f, 7.66666651f, 2, 6);
     pathB.close();
-    SkPath qPath, qPathB;
-    CubicPathToQuads(path.detach(), &qPath);
-    CubicPathToQuads(pathB.detach(), &qPathB);
+    SkPath qPath  = CubicPathToQuads(path.detach()),
+           qPathB = CubicPathToQuads(pathB.detach());
     testPathOp(reporter, qPath, qPathB, kIntersect_SkPathOp, filename);
 }
 
@@ -4836,9 +4834,8 @@ static void loops40iAsQuads(skiatest::Reporter* reporter, const char* filename) 
     pathB.moveTo(0, 5);
     pathB.cubicTo(2.5f, 5, 3, 11, 3, 5);
     pathB.close();
-    SkPath qPath, qPathB;
-    CubicPathToQuads(path.detach(), &qPath);
-    CubicPathToQuads(pathB.detach(), &qPathB);
+    SkPath qPath  = CubicPathToQuads(path.detach()),
+           qPathB = CubicPathToQuads(pathB.detach());
     testPathOp(reporter, qPath, qPathB, kIntersect_SkPathOp, filename);
 }
 
@@ -5049,9 +5046,8 @@ static void loops58iAsQuads(skiatest::Reporter* reporter, const char* filename) 
     pathB.moveTo(3, 5);
     pathB.cubicTo(2, 4, 3.66666651f, 3, 2, 3);
     pathB.close();
-    SkPath qPath, qPathB;
-    CubicPathToQuads(path.detach(), &qPath);
-    CubicPathToQuads(pathB.detach(), &qPathB);
+    SkPath qPath  = CubicPathToQuads(path.detach()),
+           qPathB = CubicPathToQuads(pathB.detach());
 //    SkPoint from = {2.61714339f,1.90228665f};
 //    SkPoint to = {2.617045833359139f,1.9013528935803314f};
 //    path_edit(from, to, &qPathB);
@@ -5081,9 +5077,8 @@ static void loops59iasQuads(skiatest::Reporter* reporter, const char* filename) 
     pathB.moveTo(1, 2);
     pathB.cubicTo(7.33333302f, 1.66666663f, -7.5f, 2, 0, 6);
     pathB.close();
-    SkPath qPath, qPathB;
-    CubicPathToQuads(path.detach(), &qPath);
-    CubicPathToQuads(pathB.detach(), &qPathB);
+    SkPath qPath  = CubicPathToQuads(path.detach()),
+           qPathB = CubicPathToQuads(pathB.detach());
     SkPoint from = {2.61714339f,1.90228665f};
     SkPoint to = {2.617045833359139f,1.9013528935803314f};
     path_edit(from, to, &qPathB);

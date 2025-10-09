@@ -1627,6 +1627,7 @@ static void test_convexity_doubleback(skiatest::Reporter* reporter) {
     }
 }
 
+#ifndef SK_HIDE_PATH_EDIT_METHODS
 static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
                                 const SkRect& bounds) {
     REPORTER_ASSERT(reporter, p.isConvex());
@@ -1641,6 +1642,7 @@ static void check_convex_bounds(skiatest::Reporter* reporter, const SkPath& p,
     REPORTER_ASSERT(reporter, other.isConvex());
     REPORTER_ASSERT(reporter, other.getBounds() == bounds);
 }
+#endif
 
 static SkPath setFromString(const char str[]) {
     SkPathBuilder builder;
