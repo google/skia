@@ -11,8 +11,6 @@
 
 #undef GetGlyphIndices
 
-#include "include/codec/SkCodec.h"
-#include "include/codec/SkPngDecoder.h"
 #include "include/core/SkBBHFactory.h"
 #include "include/core/SkBitmap.h"
 #include "include/core/SkData.h"
@@ -1737,12 +1735,12 @@ bool SkScalerContext_DW::generatePngMetrics(const SkGlyph& glyph, SkRect* bounds
                                               &ReleaseProc,
                                               context);
 
-    std::unique_ptr<SkCodec> codec = SkPngDecoder::Decode(std::move(data), nullptr);
-    if (!codec) {
+    sk_sp<SkImage> image = SkImages::DeferredFromEncodedData(std::move(data));
+    if (!image) {
         return false;
     }
 
-    SkImageInfo info = codec->getInfo();
+    SkImageInfo info = image->imageInfo();
     *bounds = SkRect::Make(info.bounds());
 
     SkMatrix matrix = fSkXform;
