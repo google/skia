@@ -50,11 +50,23 @@ void DrawWriter::setTemplate(BindBufferInfo staticData, BindBufferInfo indices,
     }
 }
 
-void DrawWriter::flushInternal() {
+void DrawWriter::flush() {
     // Skip flush if no items appended, or dynamic instances resolved to zero count.
     if (fPendingCount == 0 ||
         ((fRenderState & RenderStateFlags::kAppendDynamicInstances) && fTemplateCount == 0)) {
         return;
+    }
+
+    // ARM hardware (b/399631317): Unreferenced vertices in sequential indexes of 4 will be
+    // speculatively executed. To work around this, we pad the buffer by requesting additional
+    // space, and then ensure valid, minimally deleterious data by memsetting the padding to zero.
+    if (fRenderState & RenderStateFlags::kAppendVertices) {
+        const uint32_t byteDiff = (SkAlign4(fPendingCount) - fPendingCount) * fAppendStride;
+        if (byteDiff) {
+            auto [zWriter, _] = fCurrentBuffer.getMappedSubrange(byteDiff, /*stride=*/1);
+            SkASSERT(zWriter); // The buffer should have been sized to hold an aligned total
+            zWriter.zeroBytes(byteDiff);
+        }
     }
 
     // Calculate base offsets from buffer info for the draw commands.

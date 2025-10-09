@@ -340,50 +340,6 @@ DrawBufferManager::~DrawBufferManager() {
     }
 }
 
-// TODO(michaelludwig): Remove this function once DrawWriter holds its own BufferSubAllocator
-bool DrawBufferManager::willVertexOverflow(size_t count, size_t dataStride,
-                                           size_t alignStride) const {
-    const uint32_t align32 = lcm_alignment((uint32_t) dataStride, (uint32_t) alignStride);
-    uint32_t requiredBytes = validate_count_and_stride(count, dataStride, align32);
-
-    const BufferState& vertBuff = fCurrentBuffers[kVertexBufferIndex];
-    if (!requiredBytes || !vertBuff.fAvailableBuffer) {
-        return false;
-    }
-
-    // Matches BufferSubAllocator::reserve() without updating fOffset
-    const uint32_t bufferSize = SkTo<uint32_t>(vertBuff.fAvailableBuffer.fBuffer->size());
-
-    uint32_t offset = SkAlignNonPow2(vertBuff.fAvailableBuffer.fOffset, align32);
-    return bufferSize < offset || requiredBytes > bufferSize - offset;
-}
-
-std::pair<BufferWriter, BindBufferInfo> DrawBufferManager::getWriter(int stateIndex,
-                                                                     size_t count,
-                                                                     size_t stride,
-                                                                     size_t alignment) {
-    auto& state = fCurrentBuffers[stateIndex];
-    state.fAvailableBuffer.resetForNewBinding(alignment);
-    auto [writer, binding] = state.fAvailableBuffer.getMappedSubrange(count, stride);
-    if (!writer) {
-        state.fAvailableBuffer = this->getBuffer(stateIndex, count, stride, alignment,
-                                                 ClearBuffer::kNo, Shareable::kNo);
-        std::tie(writer, binding) = state.fAvailableBuffer.getMappedSubrange(count, stride);
-    }
-    return {std::move(writer), binding};
-}
-
-// TODO(michaelludwig): Remove this function once DrawWriter holds its own BufferSubAllocator
-void DrawBufferManager::returnVertexBytes(size_t unusedBytes) {
-    if (fMappingFailed) {
-        // The caller can be unaware that the written data went to no-where and will still call
-        // this function.
-        return;
-    }
-    SkASSERT(fCurrentBuffers[kVertexBufferIndex].fAvailableBuffer.fOffset >= unusedBytes);
-    fCurrentBuffers[kVertexBufferIndex].fAvailableBuffer.fOffset -= unusedBytes;
-}
-
 void DrawBufferManager::onFailedBuffer() {
     fMappingFailed = true;
 

@@ -196,23 +196,6 @@ public:
     // work that will be wasted because the next Recording snap will fail.
     bool hasMappingFailed() const { return fMappingFailed; }
 
-    // Return true if the next call to getVertexWriter() with the same values would require a new
-    // buffer. This is only called by render steps that are appending verts.
-    bool willVertexOverflow(size_t count, size_t dataStride, size_t alignStride) const;
-
-    // These writers automatically calculate the required bytes based on count and stride. If a
-    // valid writer is returned, the byte count will fit in a uint32_t.
-    std::pair<VertexWriter, BindBufferInfo> getVertexWriter(size_t count, size_t dataStride,
-                                                            size_t alignStride) {
-        auto [writer, binding] =
-                this->getWriter(kVertexBufferIndex, count, dataStride, alignStride);
-        return {VertexWriter(std::move(writer)), binding};
-    }
-    std::pair<IndexWriter, BindBufferInfo> getIndexWriter(size_t count, size_t stride) {
-        auto [writer, binding] = this->getWriter(kIndexBufferIndex, count, stride, /*alignment=*/1);
-        return {IndexWriter(std::move(writer)), binding};
-    }
-
     // Return a BufferWriter to write to the count*dataStride bytes of the GPU buffer subrange
     // represented by the returned BindBufferInfo. The returned BufferSubAllocator represents the
     // entire GPU buffer that the mapped subrange belongs to; it can be used to get additional
@@ -220,19 +203,28 @@ public:
     // allows callers to more easily manage when buffers must be bound.
     //
     // The returned {BufferWriter, BindBufferInfo} are effectively an automatic call to
-    // BufferSubAllocator.getMappedSubrange(count, stride). The offset of this first allocation will
-    // be aligned to the LCM of `stride` and the minimum required alignment for the buffer type.
-    // Subsequent suballocations from the returned allocator will only be aligned to their requested
-    // stride unless resetForNewBinding() was called.
+    // BufferSubAllocator.getMappedSubrange(count, stride, reservedCount). The offset of this first
+    // allocation will be aligned to the LCM of `stride` and the minimum required alignment for the
+    // buffer type. For function variants that take an extra `alignment`, the initial suballocation
+    // will also be aligned to that, equivalent to if resetForNewBinding(alignment) had been called
+    // before. Subsequent suballocations from the returned allocator will only be aligned to their
+    // requested stride unless resetForNewBinding() was called.
     //
     // When the returned BufferSubAllocator goes out of scope, any remaining bytes that were never
     // returned from either this function or later calls to getMappedSubrange() can be used to
     // satisfy a future call to getMapped[X]Buffer.
+    std::tuple<BufferWriter, BindBufferInfo, BufferSubAllocator> getMappedVertexBuffer(
+            size_t count, size_t stride, size_t reservedCount=0, size_t alignment=1) {
+        return this->getMappedBuffer(kVertexBufferIndex, count, stride, reservedCount, alignment);
+    }
+    std::tuple<BufferWriter, BindBufferInfo, BufferSubAllocator> getMappedIndexBuffer(
+            size_t count) {
+        return this->getMappedBuffer(kIndexBufferIndex, count, sizeof(uint16_t));
+    }
     std::tuple<BufferWriter, BindBufferInfo, BufferSubAllocator> getMappedUniformBuffer(
             size_t count, size_t stride) {
         return this->getMappedBuffer(kUniformBufferIndex, count, stride);
     }
-
     std::tuple<BufferWriter, BindBufferInfo, BufferSubAllocator> getMappedStorageBuffer(
             size_t count, size_t stride) {
         return this->getMappedBuffer(kStorageBufferIndex, count, stride);
@@ -275,10 +267,6 @@ public:
                                /*stride=*/1, /*xtraAlignment=*/1,
                                ClearBuffer::kNo, Shareable::kScratch);
     }
-
-    // Returns the last 'unusedBytes' from the last call to getVertexWriter(). Assumes that
-    // 'unusedBytes' is less than the 'count*stride' to the original allocation.
-    void returnVertexBytes(size_t unusedBytes);
 
     // Finalizes all buffers and transfers ownership of them to a Recording. Returns true on success
     // and false if a mapping had previously failed.
@@ -350,12 +338,6 @@ private:
         }
     }
 
-    // Helper method for public get[X]Writer methods.
-    // TODO(michaelludwig): Remove this function once all public methods use getMappedBuffer()
-    std::pair<BufferWriter, BindBufferInfo> getWriter(int stateIndex,
-                                                      size_t count,
-                                                      size_t stride,
-                                                      size_t alignment);
     // Helper method for the public GPU-only BufferBindInfo methods
     BindBufferInfo getBinding(int stateIndex, size_t requiredBytes, ClearBuffer cleared) {
         auto alloc = this->getBuffer(stateIndex, requiredBytes,
