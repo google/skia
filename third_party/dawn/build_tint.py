@@ -9,7 +9,7 @@
 
 This script configures and builds Tint using CMake and Ninja. It then
 discovers all object files for the specified libraries and combines them
-into static archives (.a files) using `ar`.
+into a static archive (.a [Linux/Mac] or .lib [Windows]).
 """
 
 import argparse
@@ -18,42 +18,26 @@ import shutil
 import subprocess
 import sys
 
-from cmake_utils import (copy_if_changed, discover_dependencies,
-                         quote_if_needed, write_depfile)
+from cmake_utils import (
+    add_common_cmake_args, combine_into_library, discover_dependencies,
+    get_cmake_os_cpu, get_windows_settings, quote_if_needed, write_depfile)
+
 
 def main():
   parser = argparse.ArgumentParser(description="Build Tint using CMake.")
-  parser.add_argument("--cc", required=True, help="Path to the C compiler.")
-  parser.add_argument("--cxx", required=True, help="Path to the C++ compiler.")
-  parser.add_argument(
-      "--cxx_flags",
-      default=[],
-      action="append",
-      help="C++ compiler flags. Can be specified multiple times.")
-  parser.add_argument(
-      "--ld_flags",
-      default=[],
-      action="append",
-      help="Linker flags. Can be specified multiple times.")
-  parser.add_argument(
-      "--output_path", required=True, help="Path to the output library.")
-  parser.add_argument(
-      "--depfile_path", required=True, help="Path to the depfile to generate.")
-  parser.add_argument(
-      "--target_os", default="", help="Target OS for host compilation.")
-  parser.add_argument(
-      "--target_cpu", default="", help="Target CPU for host compilation.")
+  add_common_cmake_args(parser)
   args = parser.parse_args()
+
+  target_os, target_cpu = get_cmake_os_cpu(args.target_os, args.target_cpu)
 
   output_path = args.output_path
   depfile_path = args.depfile_path
   script_dir = os.path.dirname(os.path.realpath(__file__))
   dawn_dir = os.path.join(script_dir, "..", "externals", "dawn")
 
-  # We will build everything in a temporary directory (under out/SomeBuildDirectory).
   # The build can be invoked in parallel for different toolchains, so we use
-  # part of the output path to create a unique build directory.
-  build_dir = os.path.join("cmake", os.path.dirname(output_path), "dawn_for_tint")
+  # a short, unique build directory.
+  build_dir = args.build_dir
 
   cmake_exe = shutil.which("cmake")
   if not cmake_exe:
@@ -75,10 +59,12 @@ def main():
       build_dir,
       f"-DCMAKE_C_COMPILER={quote_if_needed(args.cc)}",
       f"-DCMAKE_CXX_COMPILER={quote_if_needed(args.cxx)}",
+      f"-DCMAKE_SYSTEM_NAME={target_os}",
+      f"-DCMAKE_SYSTEM_PROCESSOR={target_cpu}",
       # Fetch dependencies using DEPS, which is required for stand-alone builds.
       "-DDAWN_FETCH_DEPENDENCIES=ON",
-      "-DDAWN_ENABLE_INSTALL=ON",
-      "-DCMAKE_BUILD_TYPE=Release",
+      "-DDAWN_ENABLE_INSTALL=OFF",
+      f"-DCMAKE_BUILD_TYPE={args.build_type}",
       "-DDAWN_USE_X11=OFF",
       # Samples and tests are not needed and may have extra dependencies.
       "-DDAWN_BUILD_SAMPLES=OFF",
@@ -91,29 +77,46 @@ def main():
       "-G",
       "Ninja",
       f"-DCMAKE_MAKE_PROGRAM={ninja_exe}",
+      "-DDAWN_ENABLE_D3D11=OFF",
+      "-DDAWN_ENABLE_D3D12=OFF",
+      "-DDAWN_ENABLE_METAL=OFF",
+      "-DDAWN_ENABLE_NULL=OFF",
+      "-DDAWN_ENABLE_DESKTOP_GL=OFF",
+      "-DDAWN_ENABLE_OPENGLES=OFF",
+      "-DDAWN_ENABLE_VULKAN=OFF",
   ]
-  cxx_flags_to_add = []
-  if args.cxx_flags:
-    cxx_flags_to_add.extend(args.cxx_flags)
+  cxx_flags = args.cxx_flags or []
+  ld_flags = args.ld_flags or []
 
-  if cxx_flags_to_add:
-    cxx_flags = " ".join(cxx_flags_to_add)
-    configure_cmd.append(f"-DCMAKE_CXX_FLAGS={cxx_flags}")
+  if target_os == "Windows":
+    win_cfgs, win_cxx, win_ld = get_windows_settings(args)
+    configure_cmd += win_cfgs
+    cxx_flags += win_cxx
+    ld_flags += win_ld
 
-  ld_flags = args.ld_flags
+  if cxx_flags:
+    c_cxx_flags_str = " ".join(cxx_flags)
+    configure_cmd.append(f"-DCMAKE_CXX_FLAGS={c_cxx_flags_str}")
 
   if ld_flags:
     ld_flags_str = " ".join(ld_flags)
     configure_cmd.append(f"-DCMAKE_EXE_LINKER_FLAGS={ld_flags_str}")
     configure_cmd.append(f"-DCMAKE_SHARED_LINKER_FLAGS={ld_flags_str}")
     configure_cmd.append(f"-DCMAKE_MODULE_LINKER_FLAGS={ld_flags_str}")
-  subprocess.run(configure_cmd, check=True)
+
+  # Set PYTHONPATH to include Dawn's third_party directory. This is needed
+  # for the generator scripts to find jinja2 and markupsafe as packages.
+  third_party_dir = os.path.abspath(os.path.join(dawn_dir, "third_party"))
+  env = os.environ.copy()
+  env["PYTHONPATH"] = third_party_dir
+
+  subprocess.run(configure_cmd, check=True, env=env)
 
   # These tint targets (and their deps) are what Skia needs to build
   tint_targets = ["tint_api", "tint_lang_wgsl_reader", "tint_lang_wgsl_writer"]
 
   build_cmd = [ninja_exe, "-C", build_dir, "-dkeepdepfile"] + tint_targets
-  subprocess.run(build_cmd, check=True)
+  subprocess.run(build_cmd, check=True, env=env)
 
   dependencies, object_files = discover_dependencies(build_dir, tint_targets)
   # Generate the depfile. This lists all source files that the Tint library
@@ -122,20 +125,7 @@ def main():
 
   # After building, Tint consists of many small object files. For easier
   # consumption by GN, we combine them into a single archive using ar.
-  lib_name = os.path.basename(output_path)
-  gen_library_path = os.path.join(build_dir, lib_name)
-  # ar can fail if the archive already exists, e.g. "archive is malformed"
-  if os.path.exists(gen_library_path):
-    os.remove(gen_library_path)
-
-  assert len(object_files) > 0
-  combine_obj_cmd = ["ar", "rcs", lib_name] + object_files
-  subprocess.run(combine_obj_cmd, cwd=build_dir, check=True)
-
-  # Copy the final archive to the location expected by GN.
-  # We check hashes to avoid unnecessary updates to the "last modified" datum
-  # of the file, which can cause GN to unnecessarily rebuild downstream dependencies.
-  copy_if_changed(gen_library_path, os.path.join(os.getcwd(), output_path))
+  combine_into_library(args, output_path, build_dir, target_os, object_files)
 
 
 if __name__ == "__main__":

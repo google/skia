@@ -1,9 +1,26 @@
+# Copyright 2025 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# These rules invoke Python scripts to build Tint and Dawn using CMake. We use
+# CMake instead of the GN rules because Dawn/Tint's GN rules require Chromium's
+# toolchain, which we, Skia, do not want to have a dependency on.
+# The result is a single static library that can be linked into Skia.
+
+import("args.gni")
+
 if (is_win) {
-  # On Windows, the toolchain provides clang-cl.exe, which is what CMake
-  # expects. The normal cc/cxx variables are just "clang" and "clang++"
+  # On Windows, the normal cc/cxx variables are just "clang" and "clang++"
   # which are not found in the path. CMake needs the full path.
-  _cc = "$clang_win/bin/clang-cl.exe"
-  _cxx = "$clang_win/bin/clang-cl.exe"
+  if (is_clang) {
+    assert(clang_win != "",
+           "clang_win must be set when is_clang is true on Windows")
+    _cc = "$clang_win/bin/clang-cl.exe"
+    _cxx = "$clang_win/bin/clang-cl.exe"
+  } else {
+    _cc = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu/cl.exe"
+    _cxx = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu/cl.exe"
+  }
   _tint_lib_name = "tint_combined.lib"
 } else {
   _cc = cc
@@ -50,6 +67,11 @@ action("tint_cmake") {
   # allows Ninja to know when to re-run the build script.
   depfile = "$target_gen_dir/${_tint_lib_name}.d"
 
+  if (get_label_info(current_toolchain, "name") == host_toolchain) {
+    _tint_build_dir = "cmake_tint_host"
+  } else {
+    _tint_build_dir = "cmake_tint"
+  }
   args = [
     "--cc=" + _cc,
     "--cxx=" + _cxx,
@@ -57,7 +79,38 @@ action("tint_cmake") {
     "--depfile_path=" + rebase_path(depfile, root_build_dir),
     "--target_os=" + host_os,
     "--target_cpu=" + host_cpu,
+    "--build_dir=" + _tint_build_dir,
   ]
+  if (is_clang) {
+    args += [ "--is_clang" ]
+  }
+
+  if (is_debug && !is_win) {
+    # Skia's GN toolchain for Windows doesn't set build_type to be Debug
+    # and if Dawn does, that is a mismatch of _ITERATOR_DEBUG_LEVEL
+    args += [ "--build_type=Debug" ]
+  } else {
+    args += [ "--build_type=Release" ]
+  }
+  if (is_win) {
+    args += [
+      "--win_sdk=" + win_sdk,
+      "--win_sdk_version=" + win_sdk_version,
+      "--win_vc=" + win_vc,
+      "--win_toolchain_version=" + win_toolchain_version,
+    ]
+  }
+
+  # While we don't need to build tint with our sanitizers, we do need to adjust our target version
+  # of tint to be built with libc++ if we have set the rest of Skia to be using that.
+  if (get_label_info(current_toolchain, "name") != host_toolchain) {
+    if (is_linux && sanitize != "") {
+      args += [
+        "--cxx_flags=-stdlib=libc++",
+        "--ld_flags=-stdlib=libc++",
+      ]
+    }
+  }
 }
 
 group("tint") {
