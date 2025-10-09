@@ -67,9 +67,10 @@ bool TaskList::visitPipelines(const std::function<bool(const GraphicsPipeline*)>
     return status != Status::kFail;
 }
 
-bool TaskList::visitProxies(const std::function<bool(const TextureProxy*)>& visitor) {
+bool TaskList::visitProxies(const std::function<bool(const TextureProxy*)>& visitor,
+                            bool readsOnly) {
     Status status = this->visitTasks([&](Task* task) {
-        return task->visitProxies(visitor) ? Status::kSuccess : Status::kFail;
+        return task->visitProxies(visitor, readsOnly) ? Status::kSuccess : Status::kFail;
     });
     // Map back to simple bool (treat kDiscard as true too, no pipelines to visit means all
     // pipelines were visited).

@@ -73,7 +73,8 @@ public:
         return true;
     }
 
-    virtual bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) {
+    virtual bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor,
+                                                       bool readsOnly) {
         return true;
     }
 

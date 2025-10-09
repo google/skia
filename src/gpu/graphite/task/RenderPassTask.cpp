@@ -278,7 +278,8 @@ bool RenderPassTask::visitPipelines(const std::function<bool(const GraphicsPipel
     return true;
 }
 
-bool RenderPassTask::visitProxies(const std::function<bool(const TextureProxy*)>& visitor) {
+bool RenderPassTask::visitProxies(const std::function<bool(const TextureProxy*)>& visitor,
+                                                           bool readsOnly) {
     for (const std::unique_ptr<DrawPass>& pass : fDrawPasses) {
         for (const sk_sp<TextureProxy>& proxy : pass->sampledTextures()) {
             if (!visitor(proxy.get())) {
@@ -286,7 +287,12 @@ bool RenderPassTask::visitProxies(const std::function<bool(const TextureProxy*)>
             }
         }
 
-        if ((fTarget && !visitor(fTarget.get())) || (fDstCopy && !visitor(fDstCopy.get()))) {
+        if (fDstCopy && !visitor(fDstCopy.get())) {
+            return false;
+        }
+
+        // Skip visiting the target if we're only visiting read textures
+        if (!readsOnly && fTarget && !visitor(fTarget.get())) {
             return false;
         }
     }

@@ -217,10 +217,15 @@ public:
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
-    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override {
-        for (int32_t i = 0; i < fInstances.size(); ++i) {
-            if (fInstances[i].isValid() && !visitor(fInstances[i].fTextureProxy.get())) {
-                return false;
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor,
+                      bool readsOnly) override {
+        // Textures being uploaded to are never read from, so skip all visiting unless readsOnly
+        // is false.
+        if (!readsOnly) {
+            for (int32_t i = 0; i < fInstances.size(); ++i) {
+                if (fInstances[i].isValid() && !visitor(fInstances[i].fTextureProxy.get())) {
+                    return false;
+                }
             }
         }
         return true;

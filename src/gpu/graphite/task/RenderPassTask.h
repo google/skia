@@ -59,7 +59,8 @@ public:
 
     bool visitPipelines(const std::function<bool(const GraphicsPipeline*)>& visitor) override;
 
-    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override;
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor,
+                      bool readsOnly) override;
 
     SK_DUMP_TASKS_CODE(const char* getTaskName() const override { return "RenderPass Task"; })
 

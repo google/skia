@@ -86,7 +86,9 @@ public:
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
-    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override {
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor,
+                      bool readsOnly) override {
+        // The texture is the source of the copy, so it's always read
         return visitor(fTextureProxy.get());
     }
 
@@ -132,8 +134,10 @@ public:
 
     Status addCommands(Context*, CommandBuffer*, ReplayTargetData) override;
 
-    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override {
-        return visitor(fSrcProxy.get()) && visitor(fDstProxy.get());
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor,
+                      bool readsOnly) override {
+        // Only visit fDstProxy if readsOnly is false; fSrcProxy is the only texture being read.
+        return visitor(fSrcProxy.get()) && (readsOnly || visitor(fDstProxy.get()));
     }
 
 #if defined(SK_DUMP_TASKS)

@@ -214,7 +214,7 @@ bool RecordingPriv::prepareResources(ResourceProvider* resourceProvider,
                 }
             }
             return true;
-        });
+        }, /*readsOnly=*/false);
     }
 
     return status != Task::Status::kFail;

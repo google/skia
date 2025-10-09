@@ -46,8 +46,9 @@ public:
         return fChildTasks.visitPipelines(visitor);
     }
 
-    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor) override {
-        return fChildTasks.visitProxies(visitor);
+    bool visitProxies(const std::function<bool(const TextureProxy*)>& visitor,
+                      bool readsOnly) override {
+        return fChildTasks.visitProxies(visitor, readsOnly);
     }
 
 private:
