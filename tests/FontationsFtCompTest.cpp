@@ -144,6 +144,7 @@ public:
             configureFont(fontationsFont);
             configureFont(freetypeFont);
 
+            REPORTER_ASSERT(reporter, testSet.langSamples.size(), "Error: no samples.");
             for (const auto& sampleLang : testSet.langSamples) {
                 sk_sp<const SkTextBlob> fontationsTextBlob =
                         makeTextBlobWithFontAndText(fontationsFont, sampleLang.sampleLong);

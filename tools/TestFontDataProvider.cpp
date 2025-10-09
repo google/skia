@@ -32,10 +32,8 @@ void SetFontTestDataDirectory() {
 }
 }  // namespace skiatest
 
-#if defined(SK_DEBUG)
 // Change size when rolling / changing googlefonts_testdata CIPD, see bin/fetch-fonts-testdata.
 constexpr size_t kExpectNumFonts = 51;
-#endif
 
 namespace {
 SkString prefixWithTestDataPath(SkString suffix) {
@@ -54,24 +52,33 @@ TestFontDataProvider::TestFontDataProvider(const std::string& fontFilterRegexp,
         : fFontFilter(fontFilterRegexp), fLangFilter(langFilterRegexp) {
     SkString testDataLocation = prefixWithTestDataPath(SkString(kTestDataJsonFilename));
     sk_sp<SkData> jsonTestData = SkData::MakeFromFileName(testDataLocation.c_str());
-    SkASSERTF(jsonTestData && jsonTestData->size(),
-              "Unable to access font test metadata at location %s, check bin/fetch-fonts-testdata.",
-              testDataLocation.c_str());
+    if (!jsonTestData || !jsonTestData->size()) {
+        SkDebugf("Unable to access font test data at %s, check bin/fetch-fonts-testdata.\n",
+                 testDataLocation.c_str());
+        return;
+    }
     fJsonDom = std::make_unique<skjson::DOM>(reinterpret_cast<const char*>(jsonTestData->bytes()),
                                              jsonTestData->size());
     const skjson::ObjectValue& root = fJsonDom->root().as<skjson::ObjectValue>();
     fFonts = root["fonts"];
-    SkASSERT(fFonts);
-    SkASSERTF(fFonts->size() == kExpectNumFonts,
-              "Unable to access all %zu test fonts (only got %zu), check bin/fetch-fonts-testdata.",
-              kExpectNumFonts,
-              fFonts->size());
+    if (!fFonts) {
+        SkDebugf("Unable to read font test data.\n");
+        return;
+    }
+    if (fFonts->size() != kExpectNumFonts) {
+        SkDebugf("Unable to access all %zu test fonts (got %zu), check bin/fetch-fonts-testdata.\n",
+                 kExpectNumFonts, fFonts->size());
+        return;
+    }
     fSamples = root["samples"];
-    SkASSERT(fSamples);
+    if (!fSamples || !fSamples->size()) {
+        SkDebugf("Unable to read font test data samples.\n");
+        return;
+    }
 }
 
 bool TestFontDataProvider::next(TestSet* testSet) {
-    while (testSet && fFontsIndex < fFonts->size()) {
+    while (testSet && fFonts && fFontsIndex < fFonts->size()) {
         const skjson::ObjectValue* fontsEntry = (*fFonts)[fFontsIndex++];
         SkASSERT(fontsEntry);
         const skjson::StringValue* fontName = (*fontsEntry)["name"];
