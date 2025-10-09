@@ -2053,7 +2053,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrderingScratchBuffer
     // First group.
     {
         auto scratch = recorder->priv().drawBufferManager()->getScratchStorage(kBufferSize);
-        auto input = scratch.suballocate(kBufferSize);
+        auto input = scratch.getSubrange(kElementCount, sizeof(uint32_t));
         builder.assignSharedBuffer(input, 0);
 
         // `scratch` returns to the scratch buffer pool when it goes out of scope
@@ -2065,7 +2065,7 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrderingScratchBuffer
     builder.reset();
     {
         auto scratch = recorder->priv().drawBufferManager()->getScratchStorage(kBufferSize);
-        auto input = scratch.suballocate(kBufferSize);
+        auto input = scratch.getSubrange(kElementCount, sizeof(uint32_t));
         builder.assignSharedBuffer(input, 0, ClearBuffer::kYes);
     }
     builder.assignSharedBuffer(output, 1);
