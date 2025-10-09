@@ -373,21 +373,6 @@ std::pair<BufferWriter, BindBufferInfo> DrawBufferManager::getWriter(int stateIn
     return {std::move(writer), binding};
 }
 
-BindBufferInfo DrawBufferManager::getBinding(int stateIndex,
-                                             size_t requiredBytes,
-                                             ClearBuffer clearBuffer) {
-    auto& state = fCurrentBuffers[stateIndex];
-    state.fAvailableBuffer.resetForNewBinding();
-    auto binding = state.fAvailableBuffer.getSubrange(requiredBytes, /*stride=*/1);
-    if (!binding) {
-        state.fAvailableBuffer = this->getBuffer(stateIndex, requiredBytes,
-                                                 /*stride=*/1, /*xtraAlignment=*/1,
-                                                 clearBuffer, Shareable::kNo);
-        binding = state.fAvailableBuffer.getSubrange(requiredBytes, /*stride=*/1);
-    }
-    return binding;
-}
-
 // TODO(michaelludwig): Remove this function once DrawWriter holds its own BufferSubAllocator
 void DrawBufferManager::returnVertexBytes(size_t unusedBytes) {
     if (fMappingFailed) {

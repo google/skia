@@ -715,12 +715,13 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ExternallyAssignedBuffer,
 
     // We allocate a buffer and directly assign it to the DispatchGroup::Builder. The ComputeStep
     // will not participate in the creation of this buffer.
-    auto [_, outputInfo] =
-            recorder->priv().drawBufferManager()->getSsboWriter(kProblemSize, sizeof(float));
+    auto [_, outputInfo, alloc] = recorder->priv().drawBufferManager()->getMappedStorageBuffer(
+            kProblemSize, sizeof(float));
     REPORTER_ASSERT(reporter, outputInfo, "Failed to allocate output buffer");
 
     DispatchGroup::Builder builder(recorder.get());
     builder.assignSharedBuffer(outputInfo, 0);
+    alloc.reset();
 
     // Initialize the step with a pre-determined global size
     if (!builder.appendStep(&step, {WorkgroupSize(1, 1, 1)})) {
@@ -1934,8 +1935,9 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrdering,
     constexpr size_t kElementCount = 4 * kWorkgroupSize;
     constexpr size_t kBufferSize = sizeof(uint32_t) * kElementCount;
     auto input = recorder->priv().drawBufferManager()->getStorage(kBufferSize);
-    auto [_, output] = recorder->priv().drawBufferManager()->getSsboWriter(kElementCount,
-                                                                           sizeof(uint32_t));
+    auto [_, output, alloc] = recorder->priv().drawBufferManager()->getMappedStorageBuffer(
+            kElementCount, sizeof(uint32_t));
+    alloc.reset();
 
     ComputeTask::DispatchGroupList groups;
 
@@ -2045,8 +2047,9 @@ DEF_GRAPHITE_TEST_FOR_DAWN_AND_METAL_CONTEXTS(Compute_ClearOrderingScratchBuffer
 
     constexpr size_t kElementCount = 4 * kWorkgroupSize;
     constexpr size_t kBufferSize = sizeof(uint32_t) * kElementCount;
-    auto [_, output] = recorder->priv().drawBufferManager()->getSsboWriter(kElementCount,
-                                                                           sizeof(uint32_t));
+    auto [_, output, alloc] = recorder->priv().drawBufferManager()->getMappedStorageBuffer(
+            kElementCount, sizeof(uint32_t));
+    alloc.reset();
 
     ComputeTask::DispatchGroupList groups;
 

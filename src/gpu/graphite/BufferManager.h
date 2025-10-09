@@ -212,17 +212,30 @@ public:
         auto [writer, binding] = this->getWriter(kIndexBufferIndex, count, stride, /*alignment=*/1);
         return {IndexWriter(std::move(writer)), binding};
     }
-    std::pair<BufferWriter, BindBufferInfo> getUniformWriter(size_t count, size_t stride) {
-        return this->getWriter(kUniformBufferIndex, count, stride, /*alignment=*/1);
+
+    // Return a BufferWriter to write to the count*dataStride bytes of the GPU buffer subrange
+    // represented by the returned BindBufferInfo. The returned BufferSubAllocator represents the
+    // entire GPU buffer that the mapped subrange belongs to; it can be used to get additional
+    // mapped suballocations, which when successful are guaranteed to be in the same buffer. This
+    // allows callers to more easily manage when buffers must be bound.
+    //
+    // The returned {BufferWriter, BindBufferInfo} are effectively an automatic call to
+    // BufferSubAllocator.getMappedSubrange(count, stride). The offset of this first allocation will
+    // be aligned to the LCM of `stride` and the minimum required alignment for the buffer type.
+    // Subsequent suballocations from the returned allocator will only be aligned to their requested
+    // stride unless resetForNewBinding() was called.
+    //
+    // When the returned BufferSubAllocator goes out of scope, any remaining bytes that were never
+    // returned from either this function or later calls to getMappedSubrange() can be used to
+    // satisfy a future call to getMapped[X]Buffer.
+    std::tuple<BufferWriter, BindBufferInfo, BufferSubAllocator> getMappedUniformBuffer(
+            size_t count, size_t stride) {
+        return this->getMappedBuffer(kUniformBufferIndex, count, stride);
     }
 
-    // Return an SSBO writer that is aligned for binding, per the requirements in fCurrentBuffers.
-    std::pair<BufferWriter, BindBufferInfo> getSsboWriter(size_t count, size_t stride) {
-        return this->getWriter(kStorageBufferIndex, count, stride, /*alignment=*/1);
-    }
-    // Return an SSBO writer that is aligned for indexing from the shader, per the provided stride.
-    std::pair<BufferWriter, BindBufferInfo> getAlignedSsboWriter(size_t count, size_t stride) {
-        return this->getWriter(kStorageBufferIndex, count, stride, /*alignment=*/stride);
+    std::tuple<BufferWriter, BindBufferInfo, BufferSubAllocator> getMappedStorageBuffer(
+            size_t count, size_t stride) {
+        return this->getMappedBuffer(kStorageBufferIndex, count, stride);
     }
 
     // The remaining writers and buffer allocator functions assume that byte counts are safely
@@ -310,13 +323,48 @@ private:
                                  ClearBuffer cleared,
                                  Shareable shareable);
 
+    std::tuple<BufferWriter, BindBufferInfo, BufferSubAllocator> getMappedBuffer(
+            int stateIndex, size_t count, size_t stride,
+            size_t reservedCount=0, size_t xtraAlignment=1) {
+        BufferSubAllocator buffer = this->getBuffer(stateIndex,
+                                                    std::max(count, reservedCount),
+                                                    stride,
+                                                    xtraAlignment,
+                                                    ClearBuffer::kNo,
+                                                    Shareable::kNo);
+        if (buffer) {
+            // This is a shortcut since we know that buffer has enough space for `count*stride`
+            // bytes at the right alignment if getBuffer() succeeded.
+            const uint32_t byteCount = SkTo<uint32_t>(count * stride);
+
+            SkASSERT(buffer.fOffset % xtraAlignment == 0);
+            SkASSERT(buffer.fOffset + byteCount <= buffer.fBuffer->size());
+
+            BindBufferInfo binding = buffer.binding(buffer.fOffset, byteCount);
+            buffer.fOffset += byteCount;
+            buffer.fAlignment = 1;
+            return {buffer.getWriter(binding), binding, std::move(buffer)};
+        } else {
+            // Failed to allocate a new buffer
+            return {BufferWriter(), BindBufferInfo(), std::move(buffer)};
+        }
+    }
+
     // Helper method for public get[X]Writer methods.
+    // TODO(michaelludwig): Remove this function once all public methods use getMappedBuffer()
     std::pair<BufferWriter, BindBufferInfo> getWriter(int stateIndex,
                                                       size_t count,
                                                       size_t stride,
                                                       size_t alignment);
     // Helper method for the public GPU-only BufferBindInfo methods
-    BindBufferInfo getBinding(int stateIndex, size_t requiredBytes, ClearBuffer);
+    BindBufferInfo getBinding(int stateIndex, size_t requiredBytes, ClearBuffer cleared) {
+        auto alloc = this->getBuffer(stateIndex, requiredBytes,
+                                     /*stride=*/1, /*xtraAlignment=*/1,
+                                     cleared, Shareable::kNo);
+        // `alloc` goes out of scope when this returns, but that is okay because it is only used
+        // for GPU-only, non-shareable buffers. The returned BindBufferInfo will be unique still.
+        return alloc.getSubrange(requiredBytes, /*stride=*/1);
+    }
 
     // Marks manager in a failed state, unmaps any previously collected buffers.
     void onFailedBuffer();

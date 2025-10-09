@@ -296,18 +296,6 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
     // directly to the builder here instead of delegating the logic to the ComputeSteps.
     DrawBufferManager* bufMgr = recorder->priv().drawBufferManager();
 
-    size_t uboSize = config->config_uniform_buffer_size();
-    auto [uboWriter, configBuf] = bufMgr->getUniformWriter(uboSize, /*stride=*/1);
-    if (!uboWriter || !config->write_config_uniform_buffer(to_slice(uboWriter.slice(uboSize)))) {
-        return nullptr;
-    }
-
-    size_t sceneSize = config->scene_buffer_size();
-    auto [sceneWriter, sceneBuf] = bufMgr->getSsboWriter(sceneSize, /*stride=*/1);
-    if (!sceneWriter || !config->write_scene_buffer(to_slice(sceneWriter.slice(sceneSize)))) {
-        return nullptr;
-    }
-
     // TODO(b/285189802): The default sizes for the bump buffers (~97MB) exceed Graphite's resource
     // budget if multiple passes are necessary per frame (250MB, see ResouceCache.h). We apply a
     // crude size reduction here which seems to be enough for a 4k x 4k atlas render for the GMs
@@ -329,8 +317,24 @@ std::unique_ptr<DispatchGroup> VelloRenderer::renderScene(const RenderParams& pa
 
     // See the comments in VelloComputeSteps.h for an explanation of the logic here.
 
-    builder.assignSharedBuffer(configBuf, kVelloSlot_ConfigUniform);
-    builder.assignSharedBuffer(sceneBuf, kVelloSlot_Scene);
+    {
+        size_t uboSize = config->config_uniform_buffer_size();
+        auto [uboWriter, configBuf, _] = bufMgr->getMappedUniformBuffer(uboSize, /*stride=*/1);
+        if (!uboWriter ||
+            !config->write_config_uniform_buffer(to_slice(uboWriter.slice(uboSize)))) {
+            return nullptr;
+        }
+        builder.assignSharedBuffer(configBuf, kVelloSlot_ConfigUniform);
+    }
+
+    {
+        size_t sceneSize = config->scene_buffer_size();
+        auto [sceneWriter, sceneBuf, _] = bufMgr->getMappedStorageBuffer(sceneSize, /*stride=*/1);
+        if (!sceneWriter || !config->write_scene_buffer(to_slice(sceneWriter.slice(sceneSize)))) {
+            return nullptr;
+        }
+        builder.assignSharedBuffer(sceneBuf, kVelloSlot_Scene);
+    }
 
     // Buffers get cleared ahead of the entire DispatchGroup. Allocate the bump buffer early to
     // avoid a potentially recycled (and prematurely cleared) scratch buffer.
