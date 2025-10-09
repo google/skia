@@ -15,8 +15,7 @@
 
 DEF_FUZZ(Triangulation, fuzz) {
 #if !defined(SK_ENABLE_OPTIMIZE_SIZE)
-    SkPath path;
-    FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
+    SkPath path = FuzzEvilPath(fuzz, SkPath::Verb::kDone_Verb);
 
     SkScalar tol = GrPathUtils::scaleToleranceToSrc(GrPathUtils::kDefaultTolerance,
                                                     SkMatrix::I(), path.getBounds());

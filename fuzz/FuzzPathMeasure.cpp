@@ -19,8 +19,7 @@ DEF_FUZZ(PathMeasure, fuzz) {
     for (auto index = 0; index < 6; ++index) {
         fuzz->next(&distance[index]);
     }
-    SkPath path;
-    FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
+    SkPath path = FuzzEvilPath(fuzz, SkPath::Verb::kDone_Verb);
     SkRect bounds = path.getBounds();
     SkScalar maxDim = std::max(bounds.width(), bounds.height());
     if (maxDim > 1000000) {

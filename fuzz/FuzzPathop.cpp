@@ -26,8 +26,7 @@ DEF_FUZZ(Pathop, fuzz) {
             fuzz->nextRange(&ops, 0, MAX_OPS);
             SkOpBuilder builder;
             for (uint8_t i = 0; i < ops && !fuzz->exhausted(); i++) {
-                SkPath path;
-                FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
+                SkPath path = FuzzEvilPath(fuzz, SkPath::Verb::kDone_Verb);
                 SkPathFillType ft;
                 fuzz->nextRange(&ft, 0, (int)SkPathFillType::kInverseEvenOdd);
                 path.setFillType(ft);
@@ -42,22 +41,19 @@ DEF_FUZZ(Pathop, fuzz) {
             break;
         }
         case 1: {
-            SkPath path;
-            FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
+            SkPath path = FuzzEvilPath(fuzz, SkPath::Verb::kDone_Verb);
             SkPathFillType ft;
             fuzz->nextRange(&ft, 0, (int)SkPathFillType::kInverseEvenOdd);
             std::ignore = Simplify(path.makeFillType(ft));
             break;
         }
         case 2: {
-            SkPath path;
-            FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
+            SkPath path = FuzzEvilPath(fuzz, SkPath::Verb::kDone_Verb);
             SkPathFillType ft;
             fuzz->nextRange(&ft, 0, SkPathFillType::kInverseEvenOdd);
             path.setFillType(ft);
 
-            SkPath path2;
-            FuzzEvilPath(fuzz, &path2, SkPath::Verb::kDone_Verb);
+            SkPath path2 = FuzzEvilPath(fuzz, SkPath::Verb::kDone_Verb);
             fuzz->nextRange(&ft, 0, SkPathFillType::kInverseEvenOdd);
             path.setFillType(ft);
 
@@ -78,8 +74,7 @@ DEF_FUZZ(Pathop, fuzz) {
             break;
         }
         case 3: {
-            SkPath path;
-            FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
+            SkPath path = FuzzEvilPath(fuzz, SkPath::Verb::kDone_Verb);
             SkPathFillType ft;
             fuzz->nextRange(&ft, 0, SkPathFillType::kInverseEvenOdd);
             path.setFillType(ft);
@@ -94,8 +89,7 @@ DEF_FUZZ(Pathop, fuzz) {
             break;
         }
         case 4: {
-            SkPath path;
-            FuzzEvilPath(fuzz, &path, SkPath::Verb::kDone_Verb);
+            SkPath path = FuzzEvilPath(fuzz, SkPath::Verb::kDone_Verb);
             SkPathFillType ft;
             fuzz->nextRange(&ft, 0, SkPathFillType::kInverseEvenOdd);
             path.setFillType(ft);
@@ -114,7 +108,8 @@ DEF_FUZZ(Pathop, fuzz) {
 
 const int kLastOp = SkPathOp::kReverseDifference_SkPathOp;
 
-void BuildPath(Fuzz* fuzz, SkPath* path) {
+SkPath BuildPath(Fuzz* fuzz) {
+    SkPathBuilder builder;
     while (!fuzz->exhausted()) {
     // Use a uint8_t to conserve bytes.  This makes our "fuzzed bytes footprint"
     // smaller, which leads to more efficient fuzzing.
@@ -126,71 +121,71 @@ void BuildPath(Fuzz* fuzz, SkPath* path) {
       case SkPath::Verb::kMove_Verb:
         if (fuzz->remainingSize() < (2*sizeof(SkScalar))) {
             fuzz->deplete();
-            return;
+            return builder.detach();
         }
         fuzz->next(&a, &b);
-        path->moveTo(a, b);
+        builder.moveTo(a, b);
         break;
 
       case SkPath::Verb::kLine_Verb:
         if (fuzz->remainingSize() < (2*sizeof(SkScalar))) {
             fuzz->deplete();
-            return;
+            return builder.detach();
         }
         fuzz->next(&a, &b);
-        path->lineTo(a, b);
+        builder.lineTo(a, b);
         break;
 
       case SkPath::Verb::kQuad_Verb:
         if (fuzz->remainingSize() < (4*sizeof(SkScalar))) {
             fuzz->deplete();
-            return;
+            return builder.detach();
         }
         fuzz->next(&a, &b, &c, &d);
-        path->quadTo(a, b, c, d);
+        builder.quadTo(a, b, c, d);
         break;
 
       case SkPath::Verb::kConic_Verb:
         if (fuzz->remainingSize() < (5*sizeof(SkScalar))) {
             fuzz->deplete();
-            return;
+            return builder.detach();
         }
         fuzz->next(&a, &b, &c, &d, &e);
-        path->conicTo(a, b, c, d, e);
+        builder.conicTo(a, b, c, d, e);
         break;
 
       case SkPath::Verb::kCubic_Verb:
         if (fuzz->remainingSize() < (6*sizeof(SkScalar))) {
             fuzz->deplete();
-            return;
+            return builder.detach();
         }
         fuzz->next(&a, &b, &c, &d, &e, &f);
-        path->cubicTo(a, b, c, d, e, f);
+        builder.cubicTo(a, b, c, d, e, f);
         break;
 
       case SkPath::Verb::kClose_Verb:
-        path->close();
+        builder.close();
         break;
 
       case SkPath::Verb::kDone_Verb:
         // In this case, simply exit.
-        return;
+        return builder.detach();
     }
   }
+  return builder.detach();
 }
 
 DEF_FUZZ(LegacyChromiumPathop, fuzz) {
     // See https://cs.chromium.org/chromium/src/testing/libfuzzer/fuzzers/skia_pathop_fuzzer.cc
     SkOpBuilder builder;
     while (!fuzz->exhausted()) {
-        SkPath path;
         uint8_t op;
         fuzz->next(&op);
         if (fuzz->exhausted()) {
             break;
         }
 
-        BuildPath(fuzz, &path);
+        SkPath path = BuildPath(fuzz);
         builder.add(path, static_cast<SkPathOp>(op % (kLastOp + 1)));
     }
 

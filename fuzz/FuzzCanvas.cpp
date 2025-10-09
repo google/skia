@@ -372,8 +372,7 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
             return SkPathEffect::MakeCompose(std::move(first), std::move(second));
         }
         case 3: {
-            SkPath path;
-            FuzzNicePath(fuzz, &path, 20);
+            SkPath path = FuzzNicePath(fuzz, 20);
             SkScalar advance, phase;
             fuzz->next(&advance, &phase);
             SkPath1DPathEffect::Style style;
@@ -388,8 +387,7 @@ static sk_sp<SkPathEffect> make_fuzz_patheffect(Fuzz* fuzz, int depth) {
             return SkLine2DPathEffect::Make(width, matrix);
         }
         case 5: {
-            SkPath path;
-            FuzzNicePath(fuzz, &path, 20);
+            SkPath path = FuzzNicePath(fuzz, 20);
             SkMatrix matrix;
             FuzzNiceMatrix(fuzz, &matrix);
             return SkPath2DPathEffect::Make(matrix, path);
@@ -1149,8 +1147,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 break;
             }
             case 21: {
-                SkPath path;
-                FuzzNicePath(fuzz, &path, 30);
+                SkPath path = FuzzNicePath(fuzz, 30);
                 int op;
                 bool doAntiAlias;
                 fuzz->next(&doAntiAlias);
@@ -1239,8 +1236,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
             }
             case 32: {
                 fuzz_paint(fuzz, &paint, depth - 1);
-                SkPath path;
-                FuzzNicePath(fuzz, &path, 60);
+                SkPath path = FuzzNicePath(fuzz, 60);
                 canvas->drawPath(path, paint);
                 break;
             }
