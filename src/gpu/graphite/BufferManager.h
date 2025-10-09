@@ -293,10 +293,9 @@ private:
         // with Shareable::kScratch. This is compatible with ResourceCache::ScratchResourceSet.
         skia_private::THashSet<const Resource*> fUnavailableScratchBuffers;
 
-        // Block size to use when creating new buffers; between fMinBlockSize and fMaxBlockSize.
-        uint32_t fCurBlockSize = 0;
-        // How many bytes have been used for for this buffer type since the last Recording snap.
-        uint32_t fUsedSize = 0;
+        // The size of the last allocated Buffer, pinned to min/max block size, for amortizing the
+        // number of buffer allocations for large Recordings.
+        uint32_t fLastBufferSize = 0;
 
         BufferState(BufferType, const char* label, bool isGpuOnly,
                     const Options&, const Caps* caps);

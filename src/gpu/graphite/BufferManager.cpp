@@ -252,11 +252,10 @@ void BufferSubAllocator::reset() {
                    this->remainingBytes() < state.fMinAlignment) { // basically empty
             // Transfer ownership of the buffer (and any transfer buffer) back to the manager, using
             // the current offset as a more restricted limit for copying.
-            const uint32_t alignedSize = SkAlignTo(fOffset, state.fMinAlignment);
             if (fTransferBuffer) {
-                fTransferBuffer.fSize = alignedSize;
+                // This alignment ensures we are copying a subset that still respects xfer alignment
+                fTransferBuffer.fSize = SkAlignTo(fOffset, state.fMinAlignment);
             }
-            state.fUsedSize += alignedSize;
             fOwner->fUsedBuffers.emplace_back(std::move(fBuffer), fTransferBuffer);
         } else {
             // Save this buffer for later, which leaves this instance empty and resets the prior
@@ -292,8 +291,7 @@ DrawBufferManager::BufferState::BufferState(BufferType type,
         , fLabel(label)
         , fMinAlignment(minimum_alignment(type, fUseTransferBuffer, caps))
         , fMinBlockSize(min_block_size(type, fMinAlignment, opts))
-        , fMaxBlockSize(max_block_size(type, fMinAlignment, opts))
-        , fCurBlockSize(fMinBlockSize) {
+        , fMaxBlockSize(max_block_size(type, fMinAlignment, opts)) {
     SkASSERT(SkIsPow2(fMinAlignment));
     SkASSERT(fMinBlockSize <= fMaxBlockSize);
 }
@@ -411,7 +409,7 @@ void DrawBufferManager::onFailedBuffer() {
          // We aren't allocating anything anymore so don't maintain this list. Their outstanding
          // BufferSubAllocators will have a no-op when they get reset.
         state.fUnavailableScratchBuffers.reset();
-        state.fUsedSize = 0;
+        state.fLastBufferSize = 0;
     }
 
     for (auto& [buffer, _] : fUsedBuffers) {
@@ -444,11 +442,18 @@ bool DrawBufferManager::transferToRecording(Recording* recording) {
         // BufferSubAllocators should have gone out of scope well before Recorder::snap() is called.
         SkASSERT(state.fUnavailableScratchBuffers.empty());
 
-        // For each buffer type, update the block size to use for new buffers, based on the total
-        // storage used since the last flush.
-        const uint32_t reqSize = SkAlignTo(state.fUsedSize, state.fMinBlockSize);
-        state.fCurBlockSize = std::clamp(reqSize, state.fMinBlockSize, state.fMaxBlockSize);
-        state.fUsedSize = 0;
+        // We reset the last buffer size back to 0 to keep the buffer growth behavior the same
+        // across calls to snap(). If we knew every snap() would be approximately the same workload,
+        // we could choose to keep the last alloc size as-is so that subsequent frames create
+        // fewer buffers. We choose *not* to do this because:
+        //  - Chrome often snaps Recordings with disparate workloads within a frame (e.g. tile vs
+        //    canvas2d) and we don't want to overallocate on a small recording.
+        //  - It obfuscates the performance cost of the first frame if we reach a steady state that
+        //    requires no additional buffer allocations.
+        // We could choose to reduce fLastBufferSize (e.g. halve it) to get a head start and reduce
+        // the potential for over-allocation, but in performance measurements on buffer-heavy scenes
+        // this did not lead to measurable improvements. Thus, we reset so every frame is the same.
+        state.fLastBufferSize = 0;
     }
 
     if (!fClearList.empty()) {
@@ -523,15 +528,21 @@ BufferSubAllocator DrawBufferManager::getBuffer(
         state.fAvailableBuffer.reset();
     }
 
-    // Create the first buffer with the full fCurBlockSize, but create subsequent buffers with a
-    // smaller size if fCurBlockSize has increased from the minimum. This way if we use just a
-    // little more than fCurBlockSize total storage this frame, we won't necessarily double our
-    // total storage allocation.
-    const bool overflowedBuffer = state.fUsedSize > 0;
-    const uint32_t blockSize = overflowedBuffer
-                                       ? std::max(state.fCurBlockSize / 4, state.fMinBlockSize)
-                                       : state.fCurBlockSize;
-    const uint32_t bufferSize = SkAlignNonPow2(requiredBytes32, blockSize);
+    // Create the next buffer by doubling the size of the previous buffer and clamping to be within
+    // the min and max block sizes if `requiredBytes` is less than the max. Otherwise, create a
+    // buffer large enough to satisfy `requiredBytes` but align it to minBlockSize.
+    uint32_t bufferSize = SkAlignTo(requiredBytes32, state.fMinBlockSize);
+    if (bufferSize < state.fMaxBlockSize) {
+        // fMaxBlockSize should be sufficiently small that there's no risk of overflowing here.
+        SkASSERT(std::numeric_limits<uint32_t>::max() /2 > state.fLastBufferSize);
+        bufferSize = std::max(bufferSize, std::min(state.fLastBufferSize * 2, state.fMaxBlockSize));
+        state.fLastBufferSize = bufferSize;
+        SkASSERT(bufferSize <= state.fMaxBlockSize);
+    } else {
+        // Jump to the max block size for subsequent amortized allocations if we get a really big
+        // buffer request.
+        state.fLastBufferSize = state.fMaxBlockSize;
+    }
     SkASSERT(bufferSize >= requiredBytes32 && bufferSize >= state.fMinBlockSize);
 
     sk_sp<Buffer> buffer = state.findOrCreateBuffer(fResourceProvider, shareable, bufferSize);
