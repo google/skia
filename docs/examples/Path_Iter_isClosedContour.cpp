@@ -4,13 +4,12 @@
 REG_FIDDLE(Path_Iter_isClosedContour, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
    for (bool forceClose : { false, true } ) {
-       SkPath path;
-       path.conicTo(1, 2, 3, 4, .5f);
-       SkPath::Iter iter(path, forceClose);
+       SkPathBuilder path = SkPathBuilder().conicTo(1, 2, 3, 4, .5f);
+       SkPath::Iter iter(path.snapshot(), forceClose);
        SkDebugf("without close(), forceClose is %s: isClosedContour returns %s\n",
            forceClose ? "true " : "false", iter.isClosedContour() ? "true" : "false");
        path.close();
-       iter.setPath(path, forceClose);
+       iter.setPath(path.detach(), forceClose);
        SkDebugf("with close(),    forceClose is %s: isClosedContour returns %s\n",
            forceClose ? "true " : "false", iter.isClosedContour() ? "true" : "false");
     }

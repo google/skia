@@ -18,8 +18,7 @@ void draw(SkCanvas* canvas) {
         }
         SkDebugf("\n");
     };
-    SkPath path;
-    path.quadTo(10, 20, 30, 40);
+    SkPath path = SkPathBuilder().quadTo(10, 20, 30, 40).detach();
     SkPath::Iter openIter(path, false);
     debugster("open", openIter);
     SkPath::Iter closedIter(path, true);

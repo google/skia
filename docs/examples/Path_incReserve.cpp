@@ -3,7 +3,7 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Path_incReserve, 256, 192, false, 0) {
 void draw(SkCanvas* canvas) {
-    auto addPoly = [](int sides, SkScalar size, SkPath* path) -> void {
+    auto addPoly = [](int sides, SkScalar size, SkPathBuilder* path) -> void {
         path->moveTo(size, 0);
         for (int i = 1; i < sides; i++) {
             SkScalar rad = SK_ScalarPI * 2 * i / sides;
@@ -11,7 +11,7 @@ void draw(SkCanvas* canvas) {
         }
         path->close();
     };
-    SkPath path;
+    SkPathBuilder path;
     path.incReserve(3 + 4 + 5 + 6 + 7 + 8 + 9);
     for (int sides = 3; sides < 10; ++sides) {
        addPoly(sides, sides, &path);
@@ -21,6 +21,6 @@ void draw(SkCanvas* canvas) {
     path.transform(matrix);
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
 }
 }  // END FIDDLE

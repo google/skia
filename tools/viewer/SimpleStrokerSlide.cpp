@@ -412,8 +412,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFEEEEEE);
 
-        SkPath path;
-        this->makePath(&path);
+        SkPath path = this->makePath();
 
         fStrokePaint.setStrokeWidth(fWidth);
 
@@ -468,11 +467,8 @@ protected:
 private:
     void toggle(bool& value) { value = !value; }
 
-    void makePath(SkPath* path) {
-        path->moveTo(fPts[0]);
-        for (int i = 1; i < kN; ++i) {
-            path->lineTo(fPts[i]);
-        }
+    SkPath makePath() {
+        return SkPath::Polygon({&fPts[0], (size_t)kN}, false);
     }
 
 };

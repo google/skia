@@ -18,15 +18,15 @@ void draw(SkCanvas* canvas) {
     const auto randOpaqueColor = [&rng]() -> SkColor {
         return std::uniform_int_distribution<uint32_t>(0, 0xFFFFFF)(rng) | 0xFF000000;
     };
-    SkPath path;
 
     for (int i = 0; i < 100; ++i) {
         SkScalar x = randScalar(0, 200);
         SkScalar y = randScalar(0, 200);
 
-        path.rewind();
-        path.addArc(SkRect::MakeXYWH(x, y, 70, 70), randScalar(0, 360),
-                    randScalar(0, 360));
+        SkPath path = SkPathBuilder()
+                      .addArc(SkRect::MakeXYWH(x, y, 70, 70), randScalar(0, 360),
+                              randScalar(0, 360))
+                      .detach();
         paint.setColor(randOpaqueColor());
         canvas->drawPath(path, paint);
     }

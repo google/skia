@@ -3,12 +3,13 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Canvas_drawPath, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
-    SkPath path;
-    path.moveTo(20, 20);
-    path.quadTo(60, 20, 60, 60);
-    path.close();
-    path.moveTo(60, 20);
-    path.quadTo(60, 60, 20, 60);
+    SkPath path = SkPathBuilder()
+                  .moveTo(20, 20)
+                  .quadTo(60, 20, 60, 60)
+                  .close()
+                  .moveTo(60, 20)
+                  .quadTo(60, 60, 20, 60)
+                  .detach();
     SkPaint paint;
     paint.setStrokeWidth(10);
     paint.setAntiAlias(true);

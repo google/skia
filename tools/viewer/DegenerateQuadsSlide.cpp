@@ -67,10 +67,8 @@ static SkScalar get_area_coverage(SkSpan<const bool> edgeAA, SkSpan<const SkPoin
     SkASSERT(corners.size() == 4);
     SkASSERT(edgeAA.size() == 4);
 
-    SkPath shape;
-    shape.addPoly(corners, true);
-    SkPath pixel;
-    pixel.addRect(SkRect::MakeXYWH(point.fX - 0.5f, point.fY - 0.5f, 1.f, 1.f));
+    SkPath shape = SkPath::Polygon(corners, true);
+    SkPath pixel = SkPath::Rect(SkRect::MakeXYWH(point.fX - 0.5f, point.fY - 0.5f, 1.f, 1.f));
 
     auto intersection = Op(shape, pixel, kIntersect_SkPathOp);
     if (!intersection.has_value() || intersection->isEmpty()) {
@@ -359,13 +357,11 @@ public:
             linePaint.setPathEffect(nullptr);
             // What is tessellated using GrQuadPerEdgeAA
             if (fCoverageMode == CoverageMode::kGPUMesh) {
-                SkPath outsetPath;
-                outsetPath.addPoly({gpuOutset, 4}, true);
+                SkPath outsetPath = SkPath::Polygon({gpuOutset, 4}, true);
                 linePaint.setColor(SK_ColorBLUE);
                 canvas->drawPath(outsetPath, linePaint);
 
-                SkPath insetPath;
-                insetPath.addPoly({gpuInset, 4}, true);
+                SkPath insetPath = SkPath::Polygon({gpuInset, 4}, true);
                 linePaint.setColor(SK_ColorGREEN);
                 canvas->drawPath(insetPath, linePaint);
 

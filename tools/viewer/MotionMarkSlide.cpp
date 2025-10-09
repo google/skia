@@ -8,6 +8,7 @@
 
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/effects/SkGradientShader.h"
 #include "src/base/SkRandom.h"
 #include "tools/Resources.h"
@@ -471,7 +472,7 @@ public:
 
     ~CanvasLinePoint() override = default;
 
-    virtual void append(SkPath* path) {
+    virtual void append(SkPathBuilder* path) {
         path->lineTo(fPoint);
     }
 
@@ -507,7 +508,7 @@ public:
         this->setEndPoint(random, size, prev);
     }
 
-    void append(SkPath* path) override {
+    void append(SkPathBuilder* path) override {
         path->quadTo(fPoint2, this->getPoint());
     }
 
@@ -532,7 +533,7 @@ public:
         this->setEndPoint(random, size, prev);
     }
 
-    void append(SkPath* path) override {
+    void append(SkPathBuilder* path) override {
         path->cubicTo(fPoint2, fPoint3, this->getPoint());
     }
 
@@ -571,7 +572,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->clear(SK_ColorWHITE);
 
-        SkPath currentPath;
+        SkPathBuilder currentPath;
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -585,11 +586,10 @@ public:
                 object->append(&currentPath);
 
                 if (object->isSplit()) {
-                    canvas->drawPath(currentPath, paint);
+                    canvas->drawPath(currentPath.detach(), paint);
 
                     paint.setStrokeWidth(object->getWidth());
                     paint.setColor(object->getColor());
-                    currentPath.reset();
                     currentPath.moveTo(object->getPoint());
                 }
 
@@ -598,7 +598,7 @@ public:
                 }
             }
         }
-        canvas->drawPath(currentPath, paint);
+        canvas->drawPath(currentPath.detach(), paint);
     }
 
     bool animate(double /*nanos*/) override {

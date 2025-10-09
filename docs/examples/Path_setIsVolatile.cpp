@@ -7,11 +7,9 @@ void draw(SkCanvas* canvas) {
     paint.setStyle(SkPaint::kStroke_Style);
     SkPath path;
     path.setIsVolatile(true);
-    path.lineTo(40, 40);
+    path = SkPathBuilder().lineTo(40, 40).detach();
     canvas->drawPath(path, paint);
-    path.rewind();
-    path.moveTo(0, 40);
-    path.lineTo(40, 0);
+    path = SkPath::Line({0, 40}, {40, 0});
     canvas->drawPath(path, paint);
 }
 }  // END FIDDLE

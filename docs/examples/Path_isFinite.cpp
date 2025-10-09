@@ -8,11 +8,11 @@ void draw(SkCanvas* canvas) {
     };
     SkPath path;
     debugster("initial", path);
-    path.lineTo(SK_ScalarMax, SK_ScalarMax);
+    path = SkPathBuilder().lineTo(SK_ScalarMax, SK_ScalarMax).detach();
     debugster("after line", path);
     SkMatrix matrix;
     matrix.setScale(2, 2);
-    path.transform(matrix);
+    path = path.makeTransform(matrix);
     debugster("after scale", path);
 }
 }  // END FIDDLE

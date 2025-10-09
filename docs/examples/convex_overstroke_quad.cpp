@@ -14,11 +14,12 @@ void draw(SkCanvas* canvas) {
 
     SkPoint p3 = SkPoint::Make(65, 30);
 
-    SkPath path;
-    path.moveTo(p1);
-    path.lineTo(p2);
-    path.quadTo(p3, p1);
-    // path.close();
+    SkPath path = SkPathBuilder()
+                  .moveTo(p1)
+                  .lineTo(p2)
+                  .quadTo(p3, p1)
+                //.close();
+                  .detach();
 
     SkPaint p;
     p.setColor(SK_ColorRED);

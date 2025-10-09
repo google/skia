@@ -7,11 +7,12 @@ void draw(SkCanvas* canvas) {
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
     for (auto sweep: { SkPathDirection::kCW, SkPathDirection::kCCW } ) {
-        for (auto arcSize : { SkPath::kSmall_ArcSize, SkPath::kLarge_ArcSize } ) {
-            SkPath path;
-            path.moveTo({120, 50});
-            path.arcTo(70, 40, 30, arcSize, sweep, 120.1f, 50);
-            if (SkPathDirection::kCCW == sweep && SkPath::kLarge_ArcSize == arcSize) {
+        for (auto arcSize : { SkPathBuilder::kSmall_ArcSize, SkPathBuilder::kLarge_ArcSize } ) {
+            SkPath path = SkPathBuilder()
+                          .moveTo({120, 50})
+                          .arcTo({70, 40}, 30, arcSize, sweep, {120.1f, 50})
+                          .detach();
+            if (SkPathDirection::kCCW == sweep && SkPathBuilder::kLarge_ArcSize == arcSize) {
                 paint.setColor(SK_ColorBLUE);
                 paint.setStrokeWidth(3);
             }

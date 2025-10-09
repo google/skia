@@ -3,7 +3,8 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Path_isRect, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
-    auto debugster = [](const char* prefix, const SkPath& path) -> void {
+    auto debugster = [](const char* prefix, const SkPathBuilder& builder) -> void {
+        SkPath path = builder.snapshot();
         SkRect rect;
         SkPathDirection direction;
         bool isClosed;
@@ -13,7 +14,7 @@ void draw(SkCanvas* canvas) {
                          SkPathDirection::kCW == direction ? "CW" : "CCW") :
                 SkDebugf("%s is not rect\n", prefix);
     };
-    SkPath path;
+    SkPathBuilder path;
     debugster("empty", path);
     path.addRect({10, 20, 30, 40});
     debugster("addRect", path);
@@ -23,7 +24,7 @@ void draw(SkCanvas* canvas) {
     debugster("lineTo", path);
     path.reset();
     const SkPoint pts[] = { {0, 0}, {0, 80}, {80, 80}, {80, 0}, {40, 0}, {20, 0} };
-    path.addPoly(pts, false);
+    path.addPolygon(pts, false);
     debugster("addPoly", path);
 }
 }  // END FIDDLE

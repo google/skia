@@ -9,16 +9,16 @@ void draw(SkCanvas* canvas) {
     float startAngle = -0.5235985, endAngle = -2.439e-4, radius = 120;
 
     canvas->translate(radius, radius);
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(0, 0);
     path.lineTo(radius * cos(startAngle), radius * sin(startAngle));
     SkRect oval = {-radius, -radius, radius, radius};
     path.arcTo(oval, startAngle * 180 / 3.14159265359,
                (endAngle - startAngle) * 180 / 3.14159265359, false);
-    canvas->drawPath(path, p);
+    canvas->drawPath(path.snapshot(), p);
 
     p.setStyle(SkPaint::kStroke_Style);
     p.setColor(SK_ColorGREEN);
-    canvas->drawPath(path, p);
+    canvas->drawPath(path.snapshot(), p);
 }
 }  // END FIDDLE

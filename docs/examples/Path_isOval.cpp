@@ -4,8 +4,7 @@
 REG_FIDDLE(Path_isOval, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkPath path;
-    path.addOval({20, 20, 220, 220});
+    SkPath path = SkPath::Oval({20, 20, 220, 220});
     SkRect bounds;
     if (path.isOval(&bounds)) {
         paint.setColor(0xFF9FBFFF);

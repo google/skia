@@ -12,9 +12,10 @@ void draw(SkCanvas* canvas) {
          }
          SkDebugf("\n");
     };
-    SkPath path;
-    path.lineTo(20, 20);
-    path.lineTo(-10, -10);
+    SkPath path = SkPathBuilder()
+                  .lineTo(20, 20)
+                  .lineTo(-10, -10)
+                  .detach();
     uint8_t verbs[3];
     debugster("no verbs",  path, nullptr, 0);
     debugster("zero max",  path, verbs, 0);

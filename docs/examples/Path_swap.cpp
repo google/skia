@@ -4,7 +4,7 @@
 REG_FIDDLE(Path_swap, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
     SkPath path1, path2;
-    path1.addRect({10, 20, 30, 40});
+    path1 = SkPath::Rect({10, 20, 30, 40});
     path1.swap(path2);
     const SkRect& b1 = path1.getBounds();
     SkDebugf("path1 bounds = %g, %g, %g, %g\n", b1.fLeft, b1.fTop, b1.fRight, b1.fBottom);

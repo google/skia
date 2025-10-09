@@ -7,6 +7,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPaint.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkVertices.h"
 #include "include/effects/SkGradientShader.h"
 #include "src/core/SkBlurMask.h"
@@ -64,20 +65,15 @@ static const int gXY[] = {
 4, 0, 0, -4, 8, -4, 12, 0, 8, 4, 0, 4
 };
 
-static void scale(SkPath* path, SkScalar scale) {
-    SkMatrix m;
-    m.setScale(scale, scale);
-    path->transform(m);
-}
-
 static void one_d_pe(SkPaint* paint) {
-    SkPath  path;
-    path.moveTo(SkIntToScalar(gXY[0]), SkIntToScalar(gXY[1]));
+    SkPathBuilder builder;
+    builder.moveTo(SkIntToScalar(gXY[0]), SkIntToScalar(gXY[1]));
     for (unsigned i = 2; i < std::size(gXY); i += 2)
-        path.lineTo(SkIntToScalar(gXY[i]), SkIntToScalar(gXY[i+1]));
-    path.close();
-    path.offset(SkIntToScalar(-6), 0);
-    scale(&path, 1.5f);
+        builder.lineTo(SkIntToScalar(gXY[i]), SkIntToScalar(gXY[i+1]));
+    builder.close();
+    builder.offset(SkIntToScalar(-6), 0);
+    builder.transform(SkMatrix::Scale(1.5f, 1.5f));
+    SkPath path = builder.detach();
 
     paint->setPathEffect(SkPath1DPathEffect::Make(path, SkIntToScalar(21), 0,
                                                   SkPath1DPathEffect::kRotate_Style));
@@ -100,8 +96,7 @@ static sk_sp<SkPathEffect> MakeTileEffect() {
     SkMatrix m;
     m.setScale(SkIntToScalar(12), SkIntToScalar(12));
 
-    SkPath path;
-    path.addCircle(0, 0, SkIntToScalar(5));
+    SkPath path = SkPath::Circle(0, 0, 5);
 
     return SkPath2DPathEffect::Make(m, path);
 }
@@ -117,12 +112,13 @@ static void patheffect_slide(SkCanvas* canvas) {
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
 
-    SkPath path;
-    path.moveTo(20, 20);
-    path.lineTo(70, 120);
-    path.lineTo(120, 30);
-    path.lineTo(170, 80);
-    path.lineTo(240, 50);
+    SkPath path = SkPathBuilder()
+                  .moveTo(20, 20)
+                  .lineTo(70, 120)
+                  .lineTo(120, 30)
+                  .lineTo(170, 80)
+                  .lineTo(240, 50)
+                  .detach();
 
     size_t i;
     canvas->save();
@@ -133,11 +129,11 @@ static void patheffect_slide(SkCanvas* canvas) {
     }
     canvas->restore();
 
-    path.reset();
     SkRect r = { 0, 0, 250, 120 };
-    path.addOval(r, SkPathDirection::kCW);
-    r.inset(50, 50);
-    path.addRect(r, SkPathDirection::kCCW);
+    path = SkPathBuilder()
+           .addOval(r, SkPathDirection::kCW)
+           .addRect(r.makeInset(50, 50), SkPathDirection::kCCW)
+           .detach();
 
     canvas->translate(320, 20);
     for (i = 0; i < std::size(gPE2); i++) {

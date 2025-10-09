@@ -17,13 +17,13 @@ SkPath GetInteriorPath(
     // and right halves of the tab.  Compared to computing the full path at once,
     // this makes it easier to avoid overdraw in the top center near minimum
     // width, and to implement cases where |horizontal_inset| != 0.
-    SkPath right_path;
+    SkPathBuilder right_path;
 
     right_path.moveTo(right, bottom);
     // right_path.moveTo(right - 1 - scaled_horizontal_inset, bottom);
 
-    right_path.arcTo(endcap_radius, endcap_radius, 90, SkPath::kSmall_ArcSize,
-                     SkPathDirection::kCW, right - endcap_radius, bottom - endcap_radius);
+    right_path.arcTo({endcap_radius, endcap_radius}, 90, SkPathBuilder::kSmall_ArcSize,
+                     SkPathDirection::kCW, {right - endcap_radius, bottom - endcap_radius});
     // right_path.rCubicTo(-0.75 * scale, 0, -1.625 * scale, -0.5 * scale,
     // -2 * scale, -1.5 * scale);
 
@@ -32,8 +32,8 @@ SkPath GetInteriorPath(
     //    right - 1 - scaled_horizontal_inset - (endcap_width - 2) * scale,
     //    2.5 * scale);
 
-    right_path.arcTo(endcap_radius, endcap_radius, 90, SkPath::kSmall_ArcSize,
-                     SkPathDirection::kCCW, right - endcap_width, 0);
+    right_path.arcTo({endcap_radius, endcap_radius}, 90, SkPathBuilder::kSmall_ArcSize,
+                     SkPathDirection::kCCW, {right - endcap_width, 0});
     // right_path.rCubicTo(-0.375 * scale, -1 * scale, -1.25 * scale, -1.5 * scale,
     //                    -2 * scale, -1.5 * scale);
 
@@ -41,13 +41,13 @@ SkPath GetInteriorPath(
     right_path.lineTo(0, bottom);
     right_path.close();
 
-    SkPath left_path;
+    SkPathBuilder left_path;
     // const float scaled_endcap_width = 1 + endcap_width * scale;
     left_path.moveTo(endcap_width, 0);
     // left_path.moveTo(scaled_endcap_width + scaled_horizontal_inset, scale);
 
-    left_path.arcTo(endcap_radius, endcap_radius, 90, SkPath::kSmall_ArcSize,
-                    SkPathDirection::kCCW, endcap_radius, endcap_radius);
+    left_path.arcTo({endcap_radius, endcap_radius}, 90, SkPathBuilder::kSmall_ArcSize,
+                    SkPathDirection::kCCW, {endcap_radius, endcap_radius});
     // left_path.rCubicTo(-0.75 * scale, 0, -1.625 * scale, 0.5 * scale, -2 * scale,
     //                   1.5 * scale);
 
@@ -55,8 +55,8 @@ SkPath GetInteriorPath(
     // left_path.lineTo(1 + scaled_horizontal_inset + 2 * scale,
     //                 bottom - 1.5 * scale);
 
-    left_path.arcTo(endcap_radius, endcap_radius, 90, SkPath::kSmall_ArcSize,
-                    SkPathDirection::kCW, 0, bottom);
+    left_path.arcTo({endcap_radius, endcap_radius}, 90, SkPathBuilder::kSmall_ArcSize,
+                    SkPathDirection::kCW, {0, bottom});
     // left_path.rCubicTo(-0.375 * scale, scale, -1.25 * scale, 1.5 * scale,
     //                   -2 * scale, 1.5 * scale);
 
@@ -64,9 +64,8 @@ SkPath GetInteriorPath(
     left_path.lineTo(right, 0);
     left_path.close();
 
-    SkPath complete_path = Op(left_path, right_path, SkPathOp::kIntersect_SkPathOp)
-                           .value_or(SkPath());
-    return complete_path;
+    return Op(left_path.detach(), right_path.detach(),
+              SkPathOp::kIntersect_SkPathOp).value_or(SkPath());
 }
 
 void draw(SkCanvas* canvas) {

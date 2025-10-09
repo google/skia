@@ -5,12 +5,10 @@ REG_FIDDLE(bug5252, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     canvas->translate(SkIntToScalar(10), SkIntToScalar(20));
 
-    SkPath clip1;
-    clip1.addOval(SkRect::MakeWH(225, 200));
+    SkPath clip1 = SkPath::Oval(SkRect::MakeWH(225, 200));
     canvas->clipPath(clip1);  // bug
 
-    SkPath clip2;
-    clip2.addRect(SkRect::MakeWH(220, 200));
+    SkPath clip2 = SkPath::Rect(SkRect::MakeWH(220, 200));
     // canvas->clipPath(clip2); // ok
 
     SkPaint pa;
@@ -23,11 +21,11 @@ void draw(SkCanvas* canvas) {
 
             canvas->translate(i * 15, j * 20);
             canvas->drawRect(SkRect::MakeXYWH(5, 5, 10, 15), pa);
-            SkPath path;
+            SkPathBuilder path;
             path.moveTo(6, 6);
             path.cubicTo(14, 10, 13, 12, 10, 12);
             path.cubicTo(7, 15, 8, 17, 14, 18);
-            canvas->drawPath(path, pa);
+            canvas->drawPath(path.detach(), pa);
         }
     }
 }

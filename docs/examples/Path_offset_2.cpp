@@ -3,14 +3,14 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Path_offset_2, 256, 60, false, 0) {
 void draw(SkCanvas* canvas) {
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(20, 20);
     path.lineTo(20, 40);
     path.lineTo(40, 20);
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
     for (int i = 0; i < 10; i++) {
-        canvas->drawPath(path, paint);
+        canvas->drawPath(path.snapshot(), paint);
         path.offset(20, 0);
     }
 }

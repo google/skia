@@ -7,13 +7,12 @@ void draw(SkCanvas* canvas) {
     const SkColor background = SK_ColorWHITE;  // SK_ColorTRANSPARENT;
     const SkColor lettering = 0xFF292929;
     const SkColor lineColors[2] = {0x30565656, 0xFF565656};
-    SkPath s, k, a, triangle;
+    SkPathBuilder s, k, a, triangle;
     SkPaint p;
     p.setAntiAlias(true);
 
     canvas->clear(background);
     canvas->scale(0.363f, 0.363f);
-
 
     s.moveTo(34.63, 100.63);
     s.cubicTo(44.38, 88.57, 59.87, 82.86, 74.88, 81.2);
@@ -36,7 +35,7 @@ void draw(SkCanvas* canvas) {
     s.cubicTo(71.96, 182.67, 54.94, 177.66, 41.5, 166.57);
     s.cubicTo(33.19, 159.73, 27.51, 149.8, 26.1, 139.11);
     s.cubicTo(24.09, 125.88, 25.91, 111.25, 34.63, 100.63);
-    canvas->drawPath(s, p);
+    canvas->drawPath(s.detach(), p);
 
     k.moveTo(160.82, 82.85);
     k.lineTo(206.05, 82.85);
@@ -51,7 +50,7 @@ void draw(SkCanvas* canvas) {
     k.lineTo(206.05, 249.42);
     k.lineTo(160.82, 249.42);
     k.lineTo(160.82, 82.85);
-    canvas->drawPath(k, p);
+    canvas->drawPath(k.detach(), p);
 
     a.moveTo(426.45, 218.16);
     a.lineTo(480.705, 218.16);
@@ -64,7 +63,7 @@ void draw(SkCanvas* canvas) {
     a.lineTo(453.75, 109.83);
     a.lineTo(471.77, 181.28);
     a.lineTo(430.5, 181.28);
-    canvas->drawPath(a, p);
+    canvas->drawPath(a.detach(), p);
 
     canvas->save();
 
@@ -88,13 +87,12 @@ void draw(SkCanvas* canvas) {
     //p.setAlpha(cast_alpha(pos));
     canvas->drawCircle(335.355, 45.965, 29.25, p);
 
-    triangle.reset();
     triangle.moveTo(362.64, 257.32);
     triangle.lineTo(335.292, 293.392);
     triangle.lineTo(307.8, 257.48);
     triangle.lineTo(362.64, 257.32);
     p.setColor(lettering);
-    canvas->drawPath(triangle, p);
+    canvas->drawPath(triangle.detach(), p);
 
     canvas->restore();
 
@@ -110,8 +108,7 @@ void draw(SkCanvas* canvas) {
         rrect.setRectXY({138, 291, 341, 300}, 25.0, 5.0);
         canvas->drawRRect(rrect, p);
     } else {
-        SkPath path;
-        path.addRoundRect({138, 291, 341, 299.95}, 25.0, 5.0);
+        SkPath path = SkPath::RRect({138, 291, 341, 299.95}, 25.0, 5.0);
         canvas->drawPath(path, p);
     }
 }

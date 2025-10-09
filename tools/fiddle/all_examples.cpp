@@ -579,8 +579,6 @@
 #include "docs/examples/Path_rQuadTo.cpp"
 #include "docs/examples/Path_readFromMemory.cpp"
 #include "docs/examples/Path_reset.cpp"
-#include "docs/examples/Path_reverseAddPath.cpp"
-#include "docs/examples/Path_rewind.cpp"
 #include "docs/examples/Path_serialize.cpp"
 #include "docs/examples/Path_setFillType.cpp"
 #include "docs/examples/Path_setIsVolatile.cpp"

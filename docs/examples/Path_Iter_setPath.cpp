@@ -18,12 +18,14 @@ void draw(SkCanvas* canvas) {
         }
         SkDebugf("\n");
     };
-    SkPath path;
-    path.quadTo(10, 20, 30, 40);
+    SkPath path = SkPathBuilder()
+                  .quadTo(10, 20, 30, 40)
+                  .detach();
     SkPath::Iter iter(path, false);
     debugster("quad open", iter);
-    SkPath path2;
-    path2.conicTo(1, 2, 3, 4, .5f);
+    SkPath path2 = SkPathBuilder()
+                   .conicTo(1, 2, 3, 4, .5f)
+                   .detach();
     iter.setPath(path2, true);
     debugster("conic closed", iter);
 }

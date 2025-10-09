@@ -10,6 +10,7 @@
 #include "include/core/SkFont.h"
 #include "include/core/SkImage.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkSurface.h"
 #include "include/private/base/SkTArray.h"
 #include "tools/fonts/FontToolUtils.h"
@@ -105,7 +106,7 @@ public:
     }
 
     void draw(SkCanvas* canvas, SkPaint* paint, SkScalar tx, SkScalar ty, SkScalar angle) override {
-        SkPath path;
+        SkPathBuilder path;
         path.moveTo(kTileWidth / 2.f, 2.f);
 
         if (fDepth > 0.f) {
@@ -139,7 +140,7 @@ public:
         paint->setStyle(SkPaint::kStroke_Style);
 
         this->applyLocalTransform(canvas, tx, ty, angle);
-        canvas->drawPath(path, *paint);
+        canvas->drawPath(path.detach(), *paint);
     }
 
 private:

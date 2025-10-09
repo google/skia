@@ -8,6 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRRect.h"
 #include "include/utils/SkCamera.h"
@@ -44,34 +45,40 @@ public:
     }
 
     void load(SkScalar w, SkScalar h) override {
-        fConvexPaths.push_back().addRoundRect(SkRect::MakeWH(50, 50), 10, 10);
+        fConvexPaths.push_back() = SkPath::RRect(SkRect::MakeWH(50, 50), 10, 10);
         SkRRect oddRRect;
         oddRRect.setNinePatch(SkRect::MakeWH(50, 50), 9, 13, 6, 16);
-        fConvexPaths.push_back().addRRect(oddRRect);
-        fConvexPaths.push_back().addRect(SkRect::MakeWH(50, 50));
-        fConvexPaths.push_back().addCircle(25, 25, 25);
-        fConvexPaths.push_back().cubicTo(100, 50, 20, 100, 0, 0);
-        fConvexPaths.push_back().addOval(SkRect::MakeWH(20, 60));
+        fConvexPaths.push_back() = SkPath::RRect(oddRRect);
+        fConvexPaths.push_back() = SkPath::Rect(SkRect::MakeWH(50, 50));
+        fConvexPaths.push_back() = SkPath::Circle(25, 25, 25);
+        fConvexPaths.push_back() = SkPathBuilder()
+                                   .cubicTo(100, 50, 20, 100, 0, 0)
+                                   .detach();
+        fConvexPaths.push_back() = SkPath::Oval(SkRect::MakeWH(20, 60));
 
         // star
-        fConcavePaths.push_back().moveTo(0.0f, -33.3333f);
-        fConcavePaths.back().lineTo(9.62f, -16.6667f);
-        fConcavePaths.back().lineTo(28.867f, -16.6667f);
-        fConcavePaths.back().lineTo(19.24f, 0.0f);
-        fConcavePaths.back().lineTo(28.867f, 16.6667f);
-        fConcavePaths.back().lineTo(9.62f, 16.6667f);
-        fConcavePaths.back().lineTo(0.0f, 33.3333f);
-        fConcavePaths.back().lineTo(-9.62f, 16.6667f);
-        fConcavePaths.back().lineTo(-28.867f, 16.6667f);
-        fConcavePaths.back().lineTo(-19.24f, 0.0f);
-        fConcavePaths.back().lineTo(-28.867f, -16.6667f);
-        fConcavePaths.back().lineTo(-9.62f, -16.6667f);
-        fConcavePaths.back().close();
+        fConcavePaths.push_back() = SkPathBuilder()
+            .moveTo(0.0f, -33.3333f)
+            .lineTo(9.62f, -16.6667f)
+            .lineTo(28.867f, -16.6667f)
+            .lineTo(19.24f, 0.0f)
+            .lineTo(28.867f, 16.6667f)
+            .lineTo(9.62f, 16.6667f)
+            .lineTo(0.0f, 33.3333f)
+            .lineTo(-9.62f, 16.6667f)
+            .lineTo(-28.867f, 16.6667f)
+            .lineTo(-19.24f, 0.0f)
+            .lineTo(-28.867f, -16.6667f)
+            .lineTo(-9.62f, -16.6667f)
+            .close()
+            .detach();
 
         // dumbbell
-        fConcavePaths.push_back().moveTo(50, 0);
-        fConcavePaths.back().cubicTo(100, 25, 60, 50, 50, 0);
-        fConcavePaths.back().cubicTo(0, -25, 40, -50, 50, 0);
+        fConcavePaths.push_back() = SkPathBuilder()
+            .moveTo(50, 0)
+            .cubicTo(100, 25, 60, 50, 50, 0)
+            .cubicTo(0, -25, 40, -50, 50, 0)
+            .detach();
     }
 
     bool onChar(SkUnichar uni) override {

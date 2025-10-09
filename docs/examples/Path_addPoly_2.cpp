@@ -7,8 +7,7 @@ void draw(SkCanvas* canvas) {
     paint.setStrokeWidth(15);
     paint.setStrokeCap(SkPaint::kRound_Cap);
     for (bool close : { false, true } ) {
-        SkPath path;
-        path.addPoly({{20, 20}, {70, 20}, {40, 90}}, close);
+        SkPath path = SkPath::Polygon({{20, 20}, {70, 20}, {40, 90}}, close);
         for (auto style : {SkPaint::kStroke_Style, SkPaint::kFill_Style,
                 SkPaint::kStrokeAndFill_Style} ) {
             paint.setStyle(style);

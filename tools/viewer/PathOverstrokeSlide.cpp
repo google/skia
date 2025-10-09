@@ -6,6 +6,7 @@
  */
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathUtils.h"
 #include "tools/viewer/Slide.h"
 
@@ -62,7 +63,7 @@ public:
     SkPath quadPath(SkPoint p1, SkPoint p2) {
         SkASSERT(p1.y() == p2.y());
 
-        SkPath path;
+        SkPathBuilder path;
         path.moveTo(p1);
         path.lineTo(p2);
 
@@ -70,13 +71,13 @@ public:
 
         path.quadTo(p3, p1);
 
-        return path;
+        return path.detach();
     }
 
     SkPath cubicPath(SkPoint p1, SkPoint p2) {
         SkASSERT(p1.y() == p2.y());
 
-        SkPath path;
+        SkPathBuilder path;
         path.moveTo(p1);
 
         SkPoint p3 = SkPoint::Make((p1.x() + p2.x()) / 3.0f, p1.y() * 0.7f);
@@ -84,13 +85,13 @@ public:
 
         path.cubicTo(p3, p4, p2);
 
-        return path;
+        return path.detach();
     }
 
     SkPath linSemicirclePath(SkPoint p1, SkPoint p2) {
         SkASSERT(p1.y() == p2.y());
 
-        SkPath path;
+        SkPathBuilder path;
         path.moveTo(p1);
         path.lineTo(p2);
 
@@ -105,15 +106,12 @@ public:
         }
         path.lineTo(p1);
 
-        return path;
+        return path.detach();
     }
 
     SkPath rectPath(SkPoint p1) {
         SkRect r = SkRect::MakeXYWH(p1.fX, p1.fY, 20, 20);
-        SkPath path;
-        path.addRect(r);
-
-        return path;
+        return SkPath::Rect(r);
     }
 
     void draw(SkCanvas* canvas) override {
@@ -146,7 +144,7 @@ public:
         }
 
         if (fClosePath) {
-            path.close();
+            path = SkPathBuilder(path).close().detach();
         }
 
         SkPaint p;

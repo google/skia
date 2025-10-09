@@ -97,29 +97,17 @@ public:
 
         const SkScalar V = 85;
 
-        fPath[0].moveTo(40, 70);
-        fPath[0].lineTo(70, 70 + SK_ScalarHalf);
-        fPath[0].lineTo(110, 70);
+        auto make = [](SkPoint a, SkPoint b, SkPoint c) {
+            SkPoint pts[] = {a, b, c};
+            return SkPath::Polygon(pts, false);
+        };
 
-        fPath[1].moveTo(40, 70);
-        fPath[1].lineTo(70, 70 - SK_ScalarHalf);
-        fPath[1].lineTo(110, 70);
-
-        fPath[2].moveTo(V, V);
-        fPath[2].lineTo(50, V);
-        fPath[2].lineTo(50, 50);
-
-        fPath[3].moveTo(50, 50);
-        fPath[3].lineTo(50, V);
-        fPath[3].lineTo(V, V);
-
-        fPath[4].moveTo(50, 50);
-        fPath[4].lineTo(50, V);
-        fPath[4].lineTo(52, 50);
-
-        fPath[5].moveTo(52, 50);
-        fPath[5].lineTo(50, V);
-        fPath[5].lineTo(50, 50);
+        fPath[0] = make({40, 70}, {70, 70 + SK_ScalarHalf}, {110, 70});
+        fPath[1] = make({40, 70}, {70, 70 - SK_ScalarHalf}, {110, 70});
+        fPath[2] = make({V, V}, {50, V}, {50, 50});
+        fPath[3] = make({50, 50}, {50, V}, {V, V});
+        fPath[4] = make({50, 50}, {50, V}, {52, 50});
+        fPath[5] = make({52, 50}, {50, V}, {50, 50});
     }
 
     void drawPath(SkCanvas* canvas, const SkPath& path, SkPaint::Join j) {
@@ -240,8 +228,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->drawPoints(SkCanvas::kPoints_PointMode, fPts, fPtsPaint);
 
-        SkPath path;
-        this->makePath(&path);
+        SkPath path = this->makePath();
 
         if (fDoCorner) {
             canvas->drawPath(path, fCornerPaint);
@@ -268,14 +255,8 @@ protected:
     bool onClick(ClickHandlerSlide::Click *) override { return false; }
 
 private:
-    void makePath(SkPath* path) {
-        path->moveTo(fPts[0]);
-        for (int i = 1; i < N; ++i) {
-            path->lineTo(fPts[i]);
-        }
-        if (!fDoFrame) {
-            path->close();
-        }
+    SkPath makePath() {
+        return SkPath::Polygon({&fPts[0], (size_t)N}, !fDoFrame);
     }
 
     void toggle(bool& value) {
@@ -349,8 +330,7 @@ public:
     void draw(SkCanvas* canvas) override {
         canvas->drawColor(0xFFEEEEEE);
 
-        SkPath path;
-        this->makePath(&path);
+        SkPath path = this->makePath();
 
         fStrokePaint.setStrokeWidth(fWidth);
         fStrokePaint.setStrokeJoin((SkPaint::Join)fJoinType);
@@ -395,21 +375,23 @@ private:
         value = (value + 1) % 3;
     }
 
-    void makePath(SkPath* path) {
-        path->moveTo(fPts[0]);
+    SkPath makePath() {
+        SkPathBuilder builder;
+        builder.moveTo(fPts[0]);
         if (fAsCurves) {
             for (int i = 1; i < N-2; ++i) {
-                path->quadTo(fPts[i], (fPts[i+1] + fPts[i]) * 0.5f);
+                builder.quadTo(fPts[i], (fPts[i+1] + fPts[i]) * 0.5f);
             }
-            path->quadTo(fPts[N-2], fPts[N-1]);
+            builder.quadTo(fPts[N-2], fPts[N-1]);
         } else {
             for (int i = 1; i < N; ++i) {
-                path->lineTo(fPts[i]);
+                builder.lineTo(fPts[i]);
             }
         }
         if (fClosed) {
-            path->close();
+            builder.close();
         }
+        return builder.detach();
     }
 };
 DEF_SLIDE( return new FatStrokeSlide; )
@@ -456,9 +438,10 @@ public:
         paint.setAntiAlias(true);
 
         {
-            SkPath path;
-            path.moveTo(fPts[0]);
-            path.cubicTo(fPts[1], fPts[2], fPts[3]);
+            SkPath path = SkPathBuilder()
+                          .moveTo(fPts[0])
+                          .cubicTo(fPts[1], fPts[2], fPts[3])
+                          .detach();
             paint.setStyle(SkPaint::kStroke_Style);
             canvas->drawPath(path, paint);
         }
@@ -591,11 +574,12 @@ public:
 
         {
             paint.setStyle(SkPaint::kStroke_Style);
-            SkPath path;
-            path.moveTo(fPts[0]);
-            path.cubicTo(fPts[1], fPts[2], fPts[3]);
-            path.moveTo(fQuad[0]);
-            path.quadTo(fQuad[1], fQuad[2]);
+            SkPath path = SkPathBuilder()
+                          .moveTo(fPts[0])
+                          .cubicTo(fPts[1], fPts[2], fPts[3])
+                          .moveTo(fQuad[0])
+                          .quadTo(fQuad[1], fQuad[2])
+                          .detach();
             canvas->drawPath(path, paint);
         }
 

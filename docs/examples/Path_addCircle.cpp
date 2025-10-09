@@ -8,8 +8,7 @@ void draw(SkCanvas* canvas) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setStrokeWidth(10);
     for (int size = 10; size < 300; size += 20) {
-        SkPath path;
-        path.addCircle(128, 128, size, SkPathDirection::kCW);
+        SkPath path = SkPath::Circle(128, 128, size, SkPathDirection::kCW);
         canvas->drawPath(path, paint);
     }
 }

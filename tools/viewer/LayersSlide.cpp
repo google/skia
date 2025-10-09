@@ -184,12 +184,11 @@ protected:
 
         const SkScalar w = 250;
         const SkScalar h = 150;
-        SkPath path;
-        path.addOval(SkRect::MakeXYWH(-w/2, -h/2, w, h));
+        SkPath path = SkPath::Oval(SkRect::MakeXYWH(-w/2, -h/2, w, h));
         SkMatrix m;
         m.setRotate(fAngle);
         m.postTranslate(fCenter.x(), fCenter.y());
-        path.transform(m);
+        path = path.makeTransform(m);
 
         canvas->clipPath(path, SkClipOp::kIntersect, true);
         const SkRect bounds = path.getBounds();

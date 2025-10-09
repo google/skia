@@ -8,6 +8,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkColorFilter.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPoint3.h"
 #include "include/core/SkRRect.h"
 #include "include/pathops/SkPathOps.h"
@@ -52,46 +53,52 @@ public:
     ShadowsSlide() { fName = "AndroidShadows"; }
 
     void load(SkScalar w, SkScalar h) override {
-        fCirclePath.addCircle(0, 0, 50);
-        fRectPath.addRect(SkRect::MakeXYWH(-100, -50, 200, 100));
-        fRRPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-100, -50, 200, 100), 4, 4));
-        fFunkyRRPath.addRoundRect(SkRect::MakeXYWH(-50, -50, SK_Scalar1 * 100, SK_Scalar1 * 100),
-                                  40 * SK_Scalar1, 20 * SK_Scalar1,
-                                  SkPathDirection::kCW);
-        fCubicPath.cubicTo(100 * SK_Scalar1, 50 * SK_Scalar1,
-                           20 * SK_Scalar1, 100 * SK_Scalar1,
-                           0 * SK_Scalar1, 0 * SK_Scalar1);
-        fStarPath.moveTo(0.0f, -50.0f);
-        fStarPath.lineTo(14.43f, -25.0f);
-        fStarPath.lineTo(43.30f, -25.0f);
-        fStarPath.lineTo(28.86f, 0.0f);
-        fStarPath.lineTo(43.30f, 25.0f);
-        fStarPath.lineTo(14.43f, 25.0f);
-        fStarPath.lineTo(0.0f, 50.0f);
-        fStarPath.lineTo(-14.43f, 25.0f);
-        fStarPath.lineTo(-43.30f, 25.0f);
-        fStarPath.lineTo(-28.86f, 0.0f);
-        fStarPath.lineTo(-43.30f, -25.0f);
-        fStarPath.lineTo(-14.43f, -25.0f);
-        fSquareRRectPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-50, -50, 100, 100),
+        fCirclePath = SkPath::Circle(0, 0, 50);
+        fRectPath = SkPath::Rect(SkRect::MakeXYWH(-100, -50, 200, 100));
+        fRRPath = SkPath::RRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-100, -50, 200, 100), 4, 4));
+        fFunkyRRPath = SkPath::RRect(SkRect::MakeXYWH(-50, -50, SK_Scalar1 * 100, SK_Scalar1 * 100),
+                                    40 * SK_Scalar1, 20 * SK_Scalar1,
+                                    SkPathDirection::kCW);
+        fCubicPath = SkPathBuilder()
+                     .cubicTo(100, 50, 20, 100, 0, 0)
+                     .detach();
+        fStarPath = SkPathBuilder()
+                    .moveTo(0.0f, -50.0f)
+                    .lineTo(14.43f, -25.0f)
+                    .lineTo(43.30f, -25.0f)
+                    .lineTo(28.86f, 0.0f)
+                    .lineTo(43.30f, 25.0f)
+                    .lineTo(14.43f, 25.0f)
+                    .lineTo(0.0f, 50.0f)
+                    .lineTo(-14.43f, 25.0f)
+                    .lineTo(-43.30f, 25.0f)
+                    .lineTo(-28.86f, 0.0f)
+                    .lineTo(-43.30f, -25.0f)
+                    .lineTo(-14.43f, -25.0f)
+                    .detach();
+        fSquareRRectPath = SkPath::RRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-50, -50, 100, 100),
                                                       10, 10));
-        fWideRectPath.addRect(SkRect::MakeXYWH(0, 0, 630, 70));
-        fWideOvalPath.addOval(SkRect::MakeXYWH(0, 0, 630, 70));
+        fWideRectPath = SkPath::Rect(SkRect::MakeXYWH(0, 0, 630, 70));
+        fWideOvalPath = SkPath::Oval(SkRect::MakeXYWH(0, 0, 630, 70));
 
-        fNotchPath.moveTo(0, 80);
-        fNotchPath.arcTo(SkRect::MakeLTRB(-20, 80, 20, 120), -90, -90, false);
-        fNotchPath.lineTo(-75, 100);
-        fNotchPath.lineTo(-75, -100);
-        fNotchPath.lineTo(75, -100);
-        fNotchPath.lineTo(75, 100);
-        fNotchPath.arcTo(SkRect::MakeLTRB(-20, 80, 20, 120), 0, -90, false);
+        fNotchPath = SkPathBuilder()
+                     .moveTo(0, 80)
+                     .arcTo(SkRect::MakeLTRB(-20, 80, 20, 120), -90, -90, false)
+                     .lineTo(-75, 100)
+                     .lineTo(-75, -100)
+                     .lineTo(75, -100)
+                     .lineTo(75, 100)
+                     .arcTo(SkRect::MakeLTRB(-20, 80, 20, 120), 0, -90, false)
+                     .detach();
 
-        fTabPath.moveTo(-75, -100);
-        fTabPath.lineTo(75, -100);
-        fTabPath.lineTo(75, 100);
-        fTabPath.arcTo(SkRect::MakeLTRB(-20, 80, 20, 120), 0, 90, false);
-        fTabPath.arcTo(SkRect::MakeLTRB(-20, 80, 20, 120), 90, 90, false);
-        fTabPath.lineTo(-75, 100);
+        fTabPath = SkPathBuilder()
+                   .moveTo(-75, -100)
+                   .lineTo(75, -100)
+                   .lineTo(75, 100)
+                   .arcTo(SkRect::MakeLTRB(-20, 80, 20, 120), 0, 90, false)
+                   .arcTo(SkRect::MakeLTRB(-20, 80, 20, 120), 90, 90, false)
+                   .lineTo(-75, 100)
+                   .detach();
 
         fLightPos = SkPoint3::Make(350, 0, 600);
     }
@@ -225,8 +232,7 @@ public:
                                kAmbientAlpha, lightPos, kLightWidth, kSpotAlpha);
 
         // circular reveal
-        SkPath tmpClipPath;
-        tmpClipPath.addCircle(fAnimTranslate, 0, 60);
+        SkPath tmpClipPath = SkPath::Circle(fAnimTranslate, 0, 60);
         SkPath tmpPath = Op(fSquareRRectPath, tmpClipPath, kIntersect_SkPathOp).value_or(SkPath());
 
         paint.setColor(SK_ColorMAGENTA);
@@ -236,8 +242,7 @@ public:
                                lightPos, kLightWidth, .5f);
 
         // path ops bug
-        SkPath tmpClipPathBug;
-        tmpClipPathBug.addCircle(88.0344925f, 0, 60);
+        SkPath tmpClipPathBug = SkPath::Circle(88.0344925f, 0, 60);
         if (auto res = Op(fSquareRRectPath, tmpClipPathBug, kIntersect_SkPathOp)) {
             tmpPath = *res;
         }

@@ -10,6 +10,7 @@
 #include "include/core/SkFontMetrics.h"
 #include "include/core/SkFontMgr.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkRRect.h"
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypeface.h"
@@ -33,11 +34,12 @@ public:
         fCurrentTypeface = fBaseTypeface;
         fVariationSliders = ToolUtils::VariationSliders(fCurrentTypeface.get(), fVariationPosition);
 
-        fPathDirectionIndicator.reset();
-        fPathDirectionIndicator.moveTo(0, -3);
-        fPathDirectionIndicator.lineTo(3, 0);
-        fPathDirectionIndicator.lineTo(0, 3);
-        fPathDirectionIndicator.close();
+        fPathDirectionIndicator = SkPathBuilder()
+            .moveTo(0, -3)
+            .lineTo(3, 0)
+            .lineTo(0, 3)
+            .close()
+            .detach();
 
         fPathDirectionIndicatorPaint.setColor(SK_ColorRED);
         fPathDirectionIndicatorPaint.setStroke(true);

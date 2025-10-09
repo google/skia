@@ -46,7 +46,7 @@ void print_data(const SkData* data, const char* name) {
 // example function that draws on a SkCanvas.
 void write_page(SkCanvas* canvas, int) {
     const SkScalar R = 115.2f, C = 128.0f;
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(C + R, C);
     for (int i = 1; i < 8; ++i) {
         SkScalar a = 2.6927937f * i;
@@ -54,7 +54,7 @@ void write_page(SkCanvas* canvas, int) {
     }
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
 }
 
 void draw(SkCanvas*) {

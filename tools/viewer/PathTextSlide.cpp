@@ -73,8 +73,8 @@ public:
 
     void draw(SkCanvas* canvas) override {
         if (fDoClip) {
-            SkPath deviceSpaceClipPath = fClipPath;
-            deviceSpaceClipPath.transform(SkMatrix::Scale(fSize.width(), fSize.height()));
+            SkPath deviceSpaceClipPath = fClipPath.makeTransform(
+                    SkMatrix::Scale(fSize.width(), fSize.height()));
             canvas->save();
             canvas->clipPath(deviceSpaceClipPath, SkClipOp::kDifference, true);
             canvas->clear(SK_ColorBLACK);
@@ -293,30 +293,28 @@ public:
                 skvx::float2(backMatrix.getTranslateX(), backMatrix.getTranslateY())
             };
 
-            SkPath* backpath = &fBackPaths[i];
-            backpath->reset();
-            backpath->setFillType(SkPathFillType::kEvenOdd);
+            SkPathBuilder builder(SkPathFillType::kEvenOdd);
 
             for (auto [verb, pts, w] : SkPathPriv::Iterate(glyph.fPath)) {
                 switch (verb) {
                     case SkPathVerb::kMove: {
                         SkPoint pt = fWaves.apply(tsec, matrix, pts[0]);
-                        backpath->moveTo(pt.x(), pt.y());
+                        builder.moveTo(pt.x(), pt.y());
                         break;
                     }
                     case SkPathVerb::kLine: {
                         SkPoint endpt = fWaves.apply(tsec, matrix, pts[1]);
-                        backpath->lineTo(endpt.x(), endpt.y());
+                        builder.lineTo(endpt.x(), endpt.y());
                         break;
                     }
                     case SkPathVerb::kQuad: {
                         SkPoint controlPt = fWaves.apply(tsec, matrix, pts[1]);
                         SkPoint endpt = fWaves.apply(tsec, matrix, pts[2]);
-                        backpath->quadTo(controlPt.x(), controlPt.y(), endpt.x(), endpt.y());
+                        builder.quadTo(controlPt.x(), controlPt.y(), endpt.x(), endpt.y());
                         break;
                     }
                     case SkPathVerb::kClose: {
-                        backpath->close();
+                        builder.close();
                         break;
                     }
                     case SkPathVerb::kCubic:
@@ -325,6 +323,7 @@ public:
                         break;
                 }
             }
+            fBackPaths[i] = builder.detach();
         }
     }
 

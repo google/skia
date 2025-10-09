@@ -221,8 +221,7 @@ static SkPath clip(const SkPath& path, SkPoint p0, SkPoint p1) {
                  0,     0,     1);
     SkAssertResult(mx.invert(&inv));
 
-    SkPath rotated;
-    path.transform(inv, &rotated);
+    SkPath rotated = path.makeTransform(inv);
 
     SkScalar big = 1e28f;
     SkRect clip = {-big, 0, big, big };

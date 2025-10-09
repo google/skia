@@ -6,7 +6,7 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(10, 98);
     SkScalar x = 0, y = 0;
     for (int i = 10; i < 100; i += 5) {
@@ -14,6 +14,6 @@ void draw(SkCanvas* canvas) {
         y += i * (((i + 1) & 2) - 1);
         path.rLineTo(x, y);
     }
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
 }
 }  // END FIDDLE

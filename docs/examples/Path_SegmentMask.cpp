@@ -3,8 +3,7 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Path_SegmentMask, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
-    SkPath path;
-    path.conicTo(10, 10, 20, 30, 1);
+    SkPath path = SkPathBuilder().conicTo(10, 10, 20, 30, 1).detach();
     SkDebugf("Path kConic_SegmentMask is %s\n", path.getSegmentMasks() &
           SkPath::kConic_SegmentMask ? "set" : "clear");
     SkDebugf("Path kQuad_SegmentMask is %s\n", path.getSegmentMasks() &

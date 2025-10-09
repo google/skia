@@ -3,7 +3,7 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Path_lineTo_2, 256, 100, false, 0) {
 void draw(SkCanvas* canvas) {
-    SkPath path;
+    SkPathBuilder path;
     SkVector oxo[] = {{25, 25}, {35, 35}, {25, 35}, {35, 25},
                       {40, 20}, {40, 80}, {60, 20}, {60, 80},
                       {20, 40}, {80, 40}, {20, 60}, {80, 60}};
@@ -13,6 +13,6 @@ void draw(SkCanvas* canvas) {
     }
     SkPaint paint;
     paint.setStyle(SkPaint::kStroke_Style);
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
 }
 }  // END FIDDLE

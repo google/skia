@@ -6,13 +6,13 @@ void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setStyle(SkPaint::kStroke_Style);
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(24, 108);
     for (int i = 0; i < 16; i++) {
         SkScalar sx = SkScalarSin(i * SK_ScalarPI / 8),
                  sy = SkScalarCos(i * SK_ScalarPI / 8);
        path.rCubicTo(40 * sx, 4 * sy, 4 * sx, 40 * sy, 40 * sx, 40 * sy);
     }
-    canvas->drawPath(path, paint);
+    canvas->drawPath(path.detach(), paint);
 }
 }  // END FIDDLE

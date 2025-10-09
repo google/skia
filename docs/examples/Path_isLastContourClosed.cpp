@@ -3,11 +3,12 @@
 #include "tools/fiddle/examples.h"
 REG_FIDDLE(Path_isLastContourClosed, 256, 256, true, 0) {
 void draw(SkCanvas* canvas) {
-    auto debugster = [](const char* prefix, const SkPath& path) -> void {
+    auto debugster = [](const char* prefix, const SkPathBuilder& builder) -> void {
+        SkPath path = builder.snapshot();
         SkDebugf("%s last contour is %s" "closed\n", prefix,
                  path.isLastContourClosed() ? "" : "not ");
     };
-    SkPath path;
+    SkPathBuilder path;
     debugster("initial", path);
     path.close();
     debugster("after close", path);

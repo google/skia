@@ -42,7 +42,7 @@ public:
     }
 
     void load(SkScalar w, SkScalar h) override {
-        fRectPath.addRect(SkRect::MakeXYWH(-50, -50, 100, 100));
+        fRectPath = SkPath::Rect(SkRect::MakeXYWH(-50, -50, 100, 100));
     }
 
     bool onChar(SkUnichar uni) override {

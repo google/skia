@@ -32,10 +32,10 @@ public:
     MaterialShadowsSlide() { fName = "MaterialShadows"; }
 
     void load(SkScalar w, SkScalar h) override {
-        fCirclePath.addCircle(0, 0, 56/2);
-        fCapsulePath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-64, -24, 128, 48), 24, 24));
-        fLargeRRPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-64, -64, 128, 128), 4, 4));
-        fSmallRRPath.addRRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-40, -40, 80, 80), 4, 4));
+        fCirclePath = SkPath::Circle(0, 0, 56/2);
+        fCapsulePath = SkPath::RRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-64, -24, 128, 48), 24, 24));
+        fLargeRRPath = SkPath::RRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-64, -64, 128, 128), 4, 4));
+        fSmallRRPath = SkPath::RRect(SkRRect::MakeRectXY(SkRect::MakeXYWH(-40, -40, 80, 80), 4, 4));
 
         fLightPos = SkPoint3::Make(0, -700, 700);
     }

@@ -4,8 +4,7 @@
 REG_FIDDLE(Path_addOval, 256, 120, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkPath oval;
-    oval.addOval({20, 20, 160, 80});
+    SkPath oval = SkPath::Oval({20, 20, 160, 80});
     canvas->drawPath(oval, paint);
 }
 }  // END FIDDLE
