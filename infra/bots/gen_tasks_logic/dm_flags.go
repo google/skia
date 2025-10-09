@@ -657,21 +657,6 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 			skip(ALL, "test", ALL, "SkSLIntrinsicMixFloatES3_Ganesh")
 		}
 
-		if b.Model("Spin513") {
-			// skbug.com/40042971
-			skip(ALL, "test", ALL, "Programs")
-			// skbug.com/40043570
-			skip(ALL, "test", ALL, "TestMockContext")
-			skip(ALL, "test", ALL, "TestGpuRenderingContexts")
-			skip(ALL, "test", ALL, "TestGpuAllContexts")
-			skip(ALL, "test", ALL, "TextBlobCache")
-			skip(ALL, "test", ALL, "OverdrawSurface_Gpu")
-			skip(ALL, "test", ALL, "ReplaceSurfaceBackendTexture")
-			skip(ALL, "test", ALL, "SurfaceAttachStencil_Gpu")
-			skip(ALL, "test", ALL, "SurfacePartialDraw_Gpu")
-			skip(ALL, "test", ALL, "SurfaceWrappedWithRelease_Gpu")
-		}
-
 		// skbug.com/40040327 - these devices render this test incorrectly
 		// when opList splitting reduction is enabled
 		if b.GPU() && b.ExtraConfig("Vulkan") && (b.GPU("RadeonR9M470X", "RadeonHD7770")) {
@@ -928,10 +913,6 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 
 	// Eventually I'd like these to pass, but for now just skip 'em.
 	if b.ExtraConfig("SK_FORCE_RASTER_PIPELINE_BLITTER") {
-		removeFromArgs("tests")
-	}
-
-	if b.Model("Spin513") {
 		removeFromArgs("tests")
 	}
 

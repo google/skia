@@ -4739,7 +4739,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // GL_RENDERER: "Mali-T880"
     // GL_VERSION : "OpenGL ES 3.2 v1.r22p0-01rel0.f294e54ceb2cb2d81039204fa4b0402e"
     //
-    // This *didn't* reproduce on a Kevin ChromeOS device:
+    // This *didn't* reproduce on a Samsung Chromebook Plus device:
     // GL_VENDOR  : "ARM"
     // GL_RENDERER: "Mali-T860"
     // GL_VERSION : "OpenGL ES 3.2 v1.r26p0-01rel0.217d2597f6bd19b169343737782e56e3"
