@@ -395,13 +395,21 @@ void GrVkCaps::init(const GrContextOptions& contextOptions,
     //
     // On ARM devices we are seeing an average perf win of around 50%-60% across the board.
     if (skgpu::kARM_VkVendor == properties.vendorID) {
-        // We currently don't see any Vulkan devices that expose a memory type that supports
-        // both lazy allocated and protected memory. So for simplicity we just disable the
-        // use of memoryless attachments when using protected memory. In the future, if we ever
-        // do see devices that support both, we can look through the device's memory types here
-        // and see if any support both flags.
-        fPreferDiscardableMSAAAttachment = !fSupportsProtectedContent;
-        fSupportsMemorylessAttachments = !fSupportsProtectedContent;
+        VkMemoryPropertyFlags requiredLazyFlags = VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT;
+        if (fSupportsProtectedContent) {
+            // If we have a protected context we can only use memoryless images if they also support
+            // being protected. With current devices we don't actually expect this combination to be
+            // supported, but this at least covers us for future devices that may allow it.
+            requiredLazyFlags |= VK_MEMORY_PROPERTY_PROTECTED_BIT;
+        }
+        for (uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++) {
+            const uint32_t& supportedFlags = memoryProperties.memoryTypes[i].propertyFlags;
+            if ((supportedFlags & requiredLazyFlags) == requiredLazyFlags) {
+                fPreferDiscardableMSAAAttachment = true;
+                fSupportsMemorylessAttachments = true;
+                break;
+            }
+        }
     }
 
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
