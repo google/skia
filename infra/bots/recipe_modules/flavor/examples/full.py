@@ -256,7 +256,7 @@ def GenTests(api):
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]') +
     api.step_data('get swarming bot id',
-                  stdout=api.raw_io.output('build123-m2--device5')) +
+                  stdout=api.raw_io.output('lin-231-e505--device5')) +
     api.step_data('Scale CPU 4 to 0.600000', retcode=1)+
     api.step_data('Scale CPU 4 to 0.600000 (attempt 2)', retcode=1)+
     api.step_data('Scale CPU 4 to 0.600000 (attempt 3)', retcode=1)

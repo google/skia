@@ -522,13 +522,13 @@
       "/path/to/tmp/json",
       "copy",
       " ",
-      "/home/chrome-bot/build123-m2--device5.force_quarantine"
+      "/home/chrome-bot/lin-231-e505--device5.force_quarantine"
     ],
     "infra_step": true,
     "name": "Quarantining Bot",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@build123-m2--device5.force_quarantine@ @@@",
-      "@@@STEP_LOG_END@build123-m2--device5.force_quarantine@@@"
+      "@@@STEP_LOG_LINE@lin-231-e505--device5.force_quarantine@ @@@",
+      "@@@STEP_LOG_END@lin-231-e505--device5.force_quarantine@@@"
     ]
   },
   {

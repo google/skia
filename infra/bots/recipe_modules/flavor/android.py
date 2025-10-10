@@ -17,12 +17,16 @@ class AndroidFlavor(default.DefaultFlavor):
   def __init__(self, m, app_name):
     super(AndroidFlavor, self).__init__(m, app_name)
     self._ever_ran_adb = False
-    self.ADB_BINARY = '/usr/bin/adb.1.0.35'
-    self.ADB_PUB_KEY = '/home/chrome-bot/.android/adbkey'
-    if 'skia' not in self.m.vars.swarming_bot_id:
+    if 'skia' in self.m.vars.swarming_bot_id:
+      self.ADB_BINARY = '/usr/bin/adb.1.0.35'
+      self.ADB_PUB_KEY = '/home/chrome-bot/.android/adbkey'
+    elif self.m.vars.swarming_bot_id.startswith('lin-'):
       self.ADB_BINARY = '/opt/infra-android/tools/adb'
       self.ADB_PUB_KEY = ('/home/chrome-bot/.android/'
                           'chrome_infrastructure_adbkey')
+    else:
+      self.ADB_BINARY = '/usr/bin/adb'
+      self.ADB_PUB_KEY = ''
 
     # Data should go in android_data_dir, which may be preserved across runs.
     android_data_dir = '/sdcard/revenge_of_the_skiabot/'
