@@ -24,6 +24,15 @@ dpkg_all_installed() {
     return 0
 }
 
+rpm_all_installed() {
+    for arg; do
+        if ! rpm -q "$arg" >/dev/null 2>&1; then
+            return 1
+        fi
+    done
+    return 0
+}
+
 if command -v lsb_release > /dev/null ; then
     case $(lsb_release -i -s) in
         Ubuntu|Debian)
@@ -39,9 +48,9 @@ if command -v lsb_release > /dev/null ; then
 		libjpeg-dev
 		libpng-dev
 		libwebp-dev
-        libx11-xcb-dev
-        libxcb-xkb-dev
-        xcb
+		libx11-xcb-dev
+		libxcb-xkb-dev
+		xcb
 		EOF
             )
            if [ $(lsb_release -r -s) = '14.04' ] ; then
@@ -52,7 +61,62 @@ if command -v lsb_release > /dev/null ; then
            fi
            exit
            ;;
+        Fedora|CentOS|RedHatEnterprise*|Rocky*|AlmaLinux*)
+            PACKAGES=$(cat<<-EOF
+		gcc-c++
+		freeglut-devel
+		fontconfig-devel
+		freetype-devel
+		mesa-libGL-devel
+		mesa-libGLU-devel
+		harfbuzz-devel
+		libicu-devel
+		libjpeg-turbo-devel
+		libpng-devel
+		libwebp-devel
+		libxcb-devel
+		xcb-util-keysyms-devel
+		ninja-build
+		EOF
+        )
+            if ! rpm_all_installed $PACKAGES; then
+                if command -v dnf > /dev/null 2>&1; then
+                    sudo dnf $1 install $PACKAGES
+                else
+                    sudo yum $1 install $PACKAGES
+                fi
+            fi
+            exit
+            ;;
     esac
+fi
+
+if [ -f /etc/redhat-release ]; then
+    PACKAGES=$(cat<<-EOF
+	gcc-c++
+	freeglut-devel
+	fontconfig-devel
+	freetype-devel
+	mesa-libGL-devel
+	mesa-libGLU-devel
+	harfbuzz-devel
+	libicu-devel
+	libjpeg-turbo-devel
+	libpng-devel
+	libwebp-devel
+	libxcb-devel
+	xcb-util-keysyms-devel
+	ninja-build
+	EOF
+    )
+        if ! rpm_all_installed $PACKAGES; then
+            if command -v dnf > /dev/null 2>&1; then
+                sudo dnf install $PACKAGES
+            else
+                sudo yum install $PACKAGES
+            fi
+        fi
+    exit
 fi
 
 echo 'unknown system'
