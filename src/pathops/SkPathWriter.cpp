@@ -30,8 +30,9 @@ void SkPathWriter::close() {
     SkDebugf("path.close();\n");
 #endif
     fCurrent.close();
-    fBuilder.addPath(fCurrent);
-    fCurrent.reset();
+    if (auto raw = SkPathPriv::Raw(fCurrent)) {
+        fBuilder.addRaw(*raw);
+    }
     init();
 }
 
@@ -249,19 +250,19 @@ void SkPathWriter::assemble() {
             *runsPtr = opPtT;
         } while (true);
         partWriter.finishContour();
-        const TArray<SkPath>& partPartials = partWriter.partials();
+        const TArray<SkPathBuilder>& partPartials = partWriter.partials();
         if (partPartials.empty()) {
             continue;
         }
         // if pIndex is even, reverse and prepend to fPartials; otherwise, append
-        SkPath& partial = const_cast<SkPath&>(fPartials[pIndex >> 1]);
-        const SkPath& part = partPartials[0];
+        SkPathBuilder& partial = const_cast<SkPathBuilder&>(fPartials[pIndex >> 1]);
+        const SkPath part = partPartials[0].snapshot();
         if (pIndex & 1) {
             partial.addPath(part, SkPath::kExtend_AddPathMode);
         } else {
-            SkPath reverse;
-            reverse.reverseAddPath(part);
-            reverse.addPath(partial, SkPath::kExtend_AddPathMode);
+            SkPathBuilder reverse;
+            SkPathPriv::ReverseAddPath(&reverse, part);
+            reverse.addPath(partial.detach(), SkPath::kExtend_AddPathMode);
             partial = reverse;
         }
     }
@@ -351,7 +352,7 @@ void SkPathWriter::assemble() {
                     eIndex < 0 ? ~eIndex : eIndex);
 #endif
         do {
-            const SkPath& contour = fPartials[rIndex];
+            SkPath contour = fPartials[rIndex].snapshot();
             if (!first) {
                 auto prior = fBuilder.getLastPt();
                 if (!prior) {

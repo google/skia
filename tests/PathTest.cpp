@@ -4458,6 +4458,7 @@ private:
 
 }  // namespace
 
+#ifndef SK_HIDE_PATH_EDIT_METHODS
 class PathTest_Private {
 public:
     static size_t GetFreeSpace(const SkPath& path) {
@@ -4544,6 +4545,7 @@ public:
         REPORTER_ASSERT(reporter, changed);
     }
 };
+#endif
 
 static void test_crbug_629455(skiatest::Reporter* reporter) {
     SkPath path = SkPathBuilder()
@@ -5087,9 +5089,11 @@ DEF_TEST(Paths, reporter) {
     test_addEmptyPath(reporter, SkPath::kAppend_AddPathMode);
     test_get_point(reporter);
     test_contains(reporter);
+#ifndef SK_HIDE_PATH_EDIT_METHODS
     PathTest_Private::TestPathTo(reporter);
     PathRefTest_Private::TestPathRef(reporter);
     PathTest_Private::TestPathrefListeners(reporter);
+#endif
     test_dump(reporter);
     test_path_crbug389050(reporter);
     test_path_crbugskia2820(reporter);
@@ -6003,10 +6007,14 @@ DEF_TEST(path_filltype_utils, r) {
     const SkPath p2 = p1.makeFillType(SkPathFillType::kEvenOdd);
     REPORTER_ASSERT(r, p2 != p1);
     REPORTER_ASSERT(r, p2.getFillType() == SkPathFillType::kEvenOdd);
+#ifndef SK_HIDE_PATH_EDIT_METHODS
     REPORTER_ASSERT(r, PathTest_Private::GetPathRef(p2) == PathTest_Private::GetPathRef(p1));
+#endif
 
     const SkPath p3 = p2.makeToggleInverseFillType();
     REPORTER_ASSERT(r, p3 != p2);
     REPORTER_ASSERT(r, p3.getFillType() == SkPathFillType::kInverseEvenOdd);
+#ifndef SK_HIDE_PATH_EDIT_METHODS
     REPORTER_ASSERT(r, PathTest_Private::GetPathRef(p3) == PathTest_Private::GetPathRef(p2));
+#endif
 }

@@ -2022,15 +2022,9 @@ private:
                                SkPathFillType fillType,
                                bool isVolatile);
 
-    friend class SkAutoAddSimpleShape;
-    friend class SkAutoDisableOvalCheck;
+    friend class SkAutoAddSimpleShape;  // setConvexity
     friend class SkPathBuilder;
-    friend class SkPathEdgeIter;
-    friend class SkPathWriter;
-    friend class SkOpBuilder;
-    friend class SkBench_AddPathTest; // perf test reversePathTo
     friend class PathTest_Private; // unit test reversePathTo
-    friend class FuzzPath; // for legacy access to validateRef
 };
 
 #endif
