@@ -4,13 +4,13 @@
 REG_FIDDLE(skpaint_discrete_path_effect, 256, 256, false, 0) {
 SkPath star() {
     const SkScalar R = 115.2f, C = 128.0f;
-    SkPath path;
+    SkPathBuilder path;
     path.moveTo(C + R, C);
     for (int i = 1; i < 8; ++i) {
         SkScalar a = 2.6927937f * i;
         path.lineTo(C + R * cos(a), C + R * sin(a));
     }
-    return path;
+    return path.detach();
 }
 void draw(SkCanvas* canvas) {
     SkPaint paint;

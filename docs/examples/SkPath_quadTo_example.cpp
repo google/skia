@@ -14,18 +14,18 @@ void draw(SkCanvas* canvas) {
     SkPoint b{200, 400};
     SkPoint c{300, 100};
 
-    SkPath twoSegments;
+    SkPathBuilder twoSegments;
     twoSegments.moveTo(a);
     twoSegments.lineTo(b);
     twoSegments.lineTo(c);
 
-    canvas->drawPath(twoSegments, paint);
+    canvas->drawPath(twoSegments.detach(), paint);
 
     paint.setColor(SkColorSetARGB(255, 0, 0, 255));
-    SkPath quadraticCurve;
+    SkPathBuilder quadraticCurve;
     quadraticCurve.moveTo(a);
     quadraticCurve.quadTo(b, c);
-    canvas->drawPath(quadraticCurve, paint);
+    canvas->drawPath(quadraticCurve.detach(), paint);
 
     SkFont font(fontMgr->matchFamilyStyle(nullptr, {}), 32);
     SkPaint textPaint;

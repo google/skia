@@ -37,7 +37,6 @@ void draw(SkCanvas* canvas) {
     makePaint(&fOutlinePaint, 0xFF000000);
     fOutlinePaint.setStyle(SkPaint::kStroke_Style);
 
-    SkPath one, two;
     int yPos = 0;
     for (int oneFill = 0; oneFill <= 1; ++oneFill) {
         SkPathFillType oneF =
@@ -45,17 +44,14 @@ void draw(SkCanvas* canvas) {
         for (int twoFill = 0; twoFill <= 1; ++twoFill) {
             SkPathFillType twoF =
                     twoFill ? SkPathFillType::kInverseEvenOdd : SkPathFillType::kEvenOdd;
-            one.reset();
-            one.setFillType(oneF);
+            SkPath one = SkPathBuilder(oneF)
+                         .moveTo(10, 10)
+                         .conicTo(0, 90, 50, 50, 3)
+                         .conicTo(90, 0, 90, 90, 2)
+                         .close()
+                         .detach();
 
-            one.moveTo(10, 10);
-            one.conicTo(0, 90, 50, 50, 3);
-            one.conicTo(90, 0, 90, 90, 2);
-            one.close();
-
-            two.reset();
-            two.setFillType(twoF);
-            two.addRect(40, 40, 100, 100);
+            SkPath two = SkPath::Rect({40, 40, 100, 100}, twoF);
             canvas->save();
             canvas->translate(0, SkIntToScalar(yPos));
             canvas->clipRect(SkRect::MakeWH(110, 110), SkClipOp::kIntersect, true);

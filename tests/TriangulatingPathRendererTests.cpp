@@ -1421,8 +1421,7 @@ DEF_TEST(Triangulator_Crbug337080025, r) {
 // regressions in the fuzzer.
 #ifndef SK_DEBUG
 DEF_TEST(Triangulator_bug421959607, r) {
-    SkPath path;
-    path.setFillType(SkPathFillType::kWinding);
+    SkPathBuilder path(SkPathFillType::kWinding);
     path.moveTo(SkBits2Float(0x529423dc),    // 3.1812839e+11f
                 SkBits2Float(0xd1f322c7));   // -1.30532565e+11f
     path.conicTo(SkBits2Float(0x20777b4a),   // 2.09625067e-19f
@@ -1459,7 +1458,7 @@ DEF_TEST(Triangulator_bug421959607, r) {
     SimplerVertexAllocator alloc;
 
     int vertexCount = GrAATriangulator::PathToAATriangles(
-            path, GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
+            path.detach(), GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
     REPORTER_ASSERT(r, vertexCount);
 }
 #endif

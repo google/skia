@@ -4,8 +4,7 @@
 REG_FIDDLE(skpaint_path_1d_path_effect, 256, 256, false, 0) {
 void draw(SkCanvas* canvas) {
     SkPaint paint;
-    SkPath path;
-    path.addOval(SkRect::MakeWH(16.0f, 6.0f));
+    SkPath path = SkPath::Oval(SkRect::MakeWH(16.0f, 6.0f));
     paint.setPathEffect(
             SkPath1DPathEffect::Make(path, 32.0f, 0.0f, SkPath1DPathEffect::kRotate_Style));
     paint.setAntiAlias(true);

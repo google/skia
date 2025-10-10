@@ -1555,7 +1555,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
 
         //[Fillable-path -> Pixel-path]
         SkPath* pixelPath = pathIsMutable ? fillablePath : &modifiedPath;
-        fillablePath->transform(matrix, pixelPath);
+        *pixelPath = fillablePath->makeTransform(matrix);
         auto pixelRaw = SkPathPriv::Raw(*pixelPath);
         if (!pixelRaw) {
             return;
@@ -1659,7 +1659,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
     if (!xpsTransformsPath) {
         //[Fillable-path -> Device-path]
         devicePath = pathIsMutable ? xpsCompatiblePath : &modifiedPath;
-        xpsCompatiblePath->transform(matrix, devicePath);
+        *devicePath = xpsCompatiblePath->makeTransform(matrix);
     }
     HRV(this->addXpsPathGeometry(shadedFigures.get(),
                                  stroke, fill, *devicePath));
@@ -1975,9 +1975,7 @@ sk_sp<SkDevice> SkXPSDevice::createDevice(const CreateInfo& info, const SkPaint*
 }
 
 void SkXPSDevice::drawOval( const SkRect& o, const SkPaint& p) {
-    SkPath path;
-    path.addOval(o);
-    this->drawPath(path, p);
+    this->drawPath(SkPath::Oval(o), p);
 }
 
 void SkXPSDevice::drawImageRect(const SkImage* image,

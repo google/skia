@@ -544,7 +544,7 @@ void draw_thin_path(skiatest::Reporter* reporter, skiatest::TestType testType) {
     paint.setStyle(SkPaint::kStroke_Style);
     paint.setAntiAlias(true);
     paint.setStrokeWidth(.4f);
-    canvas->drawPath(SkPath().moveTo(4, 4).lineTo(6, 6), paint);
+    canvas->drawPath(SkPath::Line({4, 4}, {6, 6}), paint);
 }
 
 }  // anonymous namespace
