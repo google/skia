@@ -27,6 +27,7 @@
 
 class SkRRect;
 struct SkPathRaw;
+class SkString;
 
 class SK_API SkPathBuilder {
 public:
@@ -952,6 +953,16 @@ public:
     SkPathBuilder& addRaw(const SkPathRaw&);
 
     SkPathIter iter() const;
+
+    enum class DumpFormat {
+        kDecimal,
+        kHex,
+    };
+    SkString dumpToString(DumpFormat = DumpFormat::kDecimal) const;
+    void dump(DumpFormat) const;
+    // can't use default argument easily in debugger, so we name this
+    // helper explicitly.
+    void dump() const { this->dump(DumpFormat::kDecimal); }
 
 private:
     SkPathRef::PointsArray fPts;
