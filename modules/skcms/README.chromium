@@ -1,5 +1,11 @@
 Name: skcms
-URL: https://skia.org/
-Version: unknown
+URL: This is the canonical public repository
+Version: N/A
+Update Mechanism: Autoroll
 Security Critical: yes
-License: BSD
+Shipped: yes
+License: BSD-3-Clause
+License File: LICENSE
+
+Description:
+See https://skia.org/
