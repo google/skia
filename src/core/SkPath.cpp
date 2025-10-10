@@ -2855,25 +2855,6 @@ bool SkPath::contains(SkScalar x, SkScalar y) const {
     return SkToBool(tangents.size()) ^ isInverse;
 }
 
-// Sort of like makeSpace(0) but the the additional requirement that we actively shrink the
-// allocations to just fit the current needs. makeSpace() will only grow, but never shrinks.
-//
-void SkPath::shrinkToFit() {
-    // Since this can relocate the allocated arrays, we have to defensively copy ourselves if
-    // we're not the only owner of the pathref... since relocating the arrays will invalidate
-    // any existing iterators.
-    if (!fPathRef->unique()) {
-        SkPathRef* pr = new SkPathRef;
-        pr->copy(*fPathRef, 0, 0, 0);
-        fPathRef.reset(pr);
-    }
-    fPathRef->fPoints.shrink_to_fit();
-    fPathRef->fVerbs.shrink_to_fit();
-    fPathRef->fConicWeights.shrink_to_fit();
-    SkDEBUGCODE(fPathRef->validate();)
-}
-
-
 int SkPath::ConvertConicToQuads(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
                                 SkScalar w, SkPoint pts[], int pow2) {
     const SkConic conic(p0, p1, p2, w);

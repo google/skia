@@ -149,16 +149,6 @@ public:
      */
     static bool DrawArcIsConvex(SkScalar sweepAngle, SkArc::Type arcType, bool isFillNoPathEffect);
 
-    static void ShrinkToFit(SkPath* path) {
-        path->shrinkToFit();
-    }
-
-    static void ShrinkToFit(SkPathBuilder* builder) {
-        builder->fPts.shrink_to_fit();
-        builder->fVerbs.shrink_to_fit();
-        builder->fConicWeights.shrink_to_fit();
-    }
-
     /**
       * Iterates through a raw range of path verbs, points, and conics. All values are returned
       * unaltered.

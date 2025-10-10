@@ -25,7 +25,6 @@
 #include "include/private/base/SkTArray.h"
 #include "modules/sksg/include/SkSGGeometryNode.h"
 #include "modules/sksg/src/SkSGTransformPriv.h"
-#include "src/core/SkPathPriv.h"
 
 #include <algorithm>
 #include <cmath>
@@ -67,7 +66,6 @@ SkRect GeometryEffect::onRevalidate(InvalidationController* ic, const SkMatrix& 
     fChild->revalidate(ic, ctm);
 
     fPath = this->onRevalidateEffect(fChild, ctm);
-    SkPathPriv::ShrinkToFit(&fPath);
 
     return fPath.computeTightBounds();
 }

@@ -5489,55 +5489,6 @@ DEF_TEST(triangle_big, reporter) {
     draw_triangle(surface->getCanvas(), pts);
 }
 
-static SkPath add_verbs(int count) {
-    SkPathBuilder builder;
-    builder.moveTo(0, 0);
-    for (int i = 0; i < count; ++i) {
-        switch (i & 3) {
-            case 0: builder.lineTo(10, 20); break;
-            case 1: builder.quadTo(5, 6, 7, 8); break;
-            case 2: builder.conicTo(1, 2, 3, 4, 0.5f); break;
-            case 3: builder.cubicTo(2, 4, 6, 8, 10, 12); break;
-        }
-    }
-    return builder.detach();
-}
-
-// Make sure when we call shrinkToFit() that we always shrink (or stay the same)
-// and that if we call twice, we stay the same.
-DEF_TEST(Path_shrinkToFit, reporter) {
-    for (int verbs = 0; verbs < 100; ++verbs) {
-        SkPath unique_path = add_verbs(verbs),
-               shared_path = add_verbs(verbs);
-
-        const SkPath copy = shared_path;
-
-        REPORTER_ASSERT(reporter, shared_path == unique_path);
-        REPORTER_ASSERT(reporter, shared_path == copy);
-
-        uint32_t uID = unique_path.getGenerationID();
-        uint32_t sID = shared_path.getGenerationID();
-        uint32_t cID =        copy.getGenerationID();
-        REPORTER_ASSERT(reporter, sID == cID);
-
-        SkPathPriv::ShrinkToFit(&unique_path);
-        SkPathPriv::ShrinkToFit(&shared_path);
-        REPORTER_ASSERT(reporter, shared_path == unique_path);
-        REPORTER_ASSERT(reporter, shared_path == copy);
-
-        // since the unique_path is "unique", it's genID need not have changed even though
-        // unique_path has changed (been shrunk)
-        REPORTER_ASSERT(reporter, uID == unique_path.getGenerationID());
-        // since the copy has not been changed, its ID should be the same
-        REPORTER_ASSERT(reporter, cID == copy.getGenerationID());
-        // but since shared_path has changed, and was not uniquely owned, it's gen ID needs to have
-        // changed, breaking the "sharing" -- this is done defensively in case there were any
-        // outstanding Iterators active on copy, which could have been invalidated during
-        // shrinkToFit.
-        REPORTER_ASSERT(reporter, sID != shared_path.getGenerationID());
-    }
-}
-
 #ifndef SK_HIDE_PATH_EDIT_METHODS
 DEF_TEST(Path_setLastPt, r) {
     // There was a time where SkPath::setLastPoint() didn't invalidate cached path bounds.

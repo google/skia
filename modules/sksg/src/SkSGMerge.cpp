@@ -14,7 +14,6 @@
 #include "include/pathops/SkPathOps.h"
 #include "include/private/base/SkAssert.h"
 #include "modules/sksg/include/SkSGNode.h"
-#include "src/core/SkPathPriv.h"
 
 class SkMatrix;
 
@@ -112,8 +111,6 @@ SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     fMerged = in_builder
         ? builder.resolve().value_or(SkPath())
         : merger.detach();
-
-    SkPathPriv::ShrinkToFit(&fMerged);
 
     return fMerged.computeTightBounds();
 }

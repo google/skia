@@ -7,6 +7,7 @@
 
 #include "include/core/SkContourMeasure.h"
 #include "include/core/SkPath.h"
+#include "include/core/SkPathBuilder.h"
 #include "include/core/SkPathMeasure.h"
 #include "include/core/SkPathTypes.h"
 #include "include/core/SkPoint.h"
@@ -14,7 +15,6 @@
 #include "include/core/SkScalar.h"
 #include "include/core/SkTypes.h"
 #include "src/core/SkPathMeasurePriv.h"
-#include "src/core/SkPathPriv.h"
 #include "tests/Test.h"
 
 #include <array>
@@ -305,14 +305,11 @@ static void test_shrink(skiatest::Reporter* reporter) {
 #ifndef SK_HIDE_PATH_EDIT_METHODS
     SkPath path;
     path.addRect({1, 2, 3, 4});
-    path.incReserve(100);   // give shrinkToFit() something to do
 
     SkContourMeasureIter iter(path, false);
 
-    // shrinks the allocation, possibly relocating the underlying arrays.
-    // The contouremasureiter needs to have safely copied path, to be unaffected by this
-    // change to "path".
-    SkPathPriv::ShrinkToFit(&path);
+    // try to realloc arrays to be sure that the iterator safely made a copy
+    path.incReserve(100);
 
     // Note, this failed (before the fix) on an ASAN build, which notices that we were
     // using an internal iterator of the passed-in path, not our copy.
