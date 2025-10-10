@@ -54,7 +54,10 @@ class UploadList;
 class RecorderPriv {
 public:
     void add(sk_sp<Task>);
+    // Flush *all* tracked devices created by this Recorder
     void flushTrackedDevices(SK_DUMP_TASKS_CODE(const char* flushSource));
+    // Flush tracked devices that have pending reads from `dependency`.
+    void flushTrackedDevices(const TextureProxy* dependency);
 
     const Caps* caps() const { return fRecorder->fSharedContext->caps(); }
 

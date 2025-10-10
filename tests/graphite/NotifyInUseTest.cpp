@@ -101,7 +101,7 @@ bool layer_test(SkBitmap& bitmap, Context* context, SkBlendMode blendMode) {
 */
 
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(NotifyInUseTestSnapshot, /*filter=*/nullptr, reporter, context,
-                               testContext, CtsEnforcement::kApiLevel_202404) {
+                               testContext, CtsEnforcement::kNextRelease) {
     auto recorder = context->makeRecorder();
     SkImageInfo info = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
 
@@ -134,6 +134,83 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(NotifyInUseTestSnapshot, /*filter=*/nullptr, repo
     SkColor topLeft = bitmap.getColor(0, 0);
     REPORTER_ASSERT(reporter, topLeft == SK_ColorGREEN,
                     "Expected green pixel from surface C, got 0x%08X", topLeft);
+}
+
+/*
+    This test confirms that mixing reads from an image view of a surface (SkSurfaces::AsImage) with
+    writes to that surface's canvas order tasks correctly. At a high level, the flow of draws and
+    flushes should be:
+
+    DrawBlue to A
+    DrawA to left of B (flushes A's tasks)
+    DrawRed to A
+    DrawA to right of B (flushes B's tasks, then A's tasks)
+
+    This should produce the following task graph:
+
+    =========== RECORDING 1 ===========
+    **** FLUSH TOKEN 1 Recorder::Snap ****
+    0: Draw Task=0x600000433e80 (Target=0x600002e04690) (Label=SkSurfaceRenderTarget)
+    └── RenderPass Task (A1)
+    1: Draw Task=0x600000433f00 (Target=0x600002e045a0) (Label=SkSurfaceRenderTarget)
+    └── RenderPass Task (B1)
+    2: Draw Task=0x600000433fc0 (Target=0x600002e04690) (Label=SkSurfaceRenderTarget)
+    └── RenderPass Task (A2)
+    3: Draw Task=0x60000041dd00 (Target=0x600002e045a0) (Label=SkSurfaceRenderTarget)
+    └── RenderPass Task (B2)
+    --------------- END ---------------
+
+    Without tracking the fact that B depends on A's prior contents, when notifyInUse() incorrectly
+    was only flushing A's tasks, the task graph would be the following. This results in the final
+    contents of A being used for both of its draws into B:
+
+    =========== RECORDING 1 ===========
+    **** FLUSH TOKEN 1 Recorder::Snap ****
+    0: Draw Task=0x600001a27bc0 (Target=0x6000030084b0) (Label=SkSurfaceRenderTarget)
+    └── RenderPass Task (A1)
+    1: Draw Task=0x600001a27d00 (Target=0x6000030084b0) (Label=SkSurfaceRenderTarget)
+    └── RenderPass Task (A2)
+    2: Draw Task=0x600001a27c40 (Target=0x6000030083c0) (Label=SkSurfaceRenderTarget)
+    └── RenderPass Task (B1+B2, only samples A2's state)
+    --------------- END ---------------
+
+*/
+DEF_GRAPHITE_TEST_FOR_CONTEXTS(NotifyInUseTestAsImage, /*filter=*/nullptr, reporter, context,
+                               testContext, CtsEnforcement::kNextRelease) {
+    auto recorder = context->makeRecorder();
+    SkImageInfo aInfo = SkImageInfo::Make(10, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    SkImageInfo bInfo = SkImageInfo::Make(20, 10, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    // "A1"
+    sk_sp<SkSurface> surfaceA = SkSurfaces::RenderTarget(recorder.get(), aInfo);
+    surfaceA->getCanvas()->clear(SK_ColorBLUE);
+    sk_sp<SkImage> imageA = SkSurfaces::AsImage(surfaceA);
+    REPORTER_ASSERT(reporter, imageA);
+
+    // "B1"
+    sk_sp<SkSurface> surfaceB = SkSurfaces::RenderTarget(recorder.get(), bInfo);
+    SkCanvas* canvasB = surfaceB->getCanvas();
+    canvasB->clear(SK_ColorBLACK);
+    canvasB->drawImage(imageA, 0, 0); // Should see A's blue clear in left half of B
+
+    // "A2"
+    surfaceA->getCanvas()->clear(SK_ColorRED);
+
+    // "B2"
+    canvasB->drawImage(imageA, 10, 0); // Should see A's now-red clear in right half of B
+
+    // Recorder snaps inside readPixels
+    SkBitmap bitmap;
+    bitmap.allocPixels(bInfo);
+    REPORTER_ASSERT(reporter, surfaceB->readPixels(bitmap, 0, 0));
+
+
+    SkColor leftB = bitmap.getColor(5, 5);
+    REPORTER_ASSERT(reporter, leftB == SK_ColorBLUE,
+                    "Expected blue pixel from surface B's left half, got 0x%08X", leftB);
+    SkColor rightB = bitmap.getColor(15, 5);
+    REPORTER_ASSERT(reporter, rightB == SK_ColorRED,
+                    "Expected red pixel from surface B's right half, got 0x%08X", rightB);
 }
 
 /*
@@ -250,7 +327,7 @@ DEF_GRAPHITE_TEST_FOR_CONTEXTS(NotifyInUseTestSnapshot, /*filter=*/nullptr, repo
 #define DEFINE_LAYER_BLEND_TEST(TestName, BlendMode, ExpectedBlueOnly, ExpectedGreenOnly,        \
                                 ExpectedBlueAndGreen, ExpectedRedOnly, ExpectedAllOverlap)       \
 DEF_GRAPHITE_TEST_FOR_CONTEXTS(NotifyInUseTestLayer ## TestName, /*filter=*/nullptr, reporter,   \
-                               context, testContext, CtsEnforcement::kApiLevel_202404) {         \
+                               context, testContext, CtsEnforcement::kNextRelease) {             \
     SkBitmap bitmap;                                                                             \
     REPORTER_ASSERT(reporter, layer_test(bitmap, context, BlendMode),                            \
                         "Failed to read pixels for BlendMode '%s'",                              \

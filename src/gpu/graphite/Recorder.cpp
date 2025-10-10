@@ -602,6 +602,32 @@ void RecorderPriv::add(sk_sp<Task> task) {
     fRecorder->fRootTaskList->add(std::move(task));
 }
 
+void RecorderPriv::flushTrackedDevices(const TextureProxy* dependency) {
+    // This version of flushTrackedDevices() must be re-entrant because it is entirely possible for
+    // client-owned surfaces to read and write to each other, where this will be called with
+    // different textures for `dependency`. The recursion stops once the encountered surfaces have
+    // snapped remaining pending work from their DrawContext. But because we might recurse, we do
+    // not perform any cleanup of the fTrackedDevices list. That is deferred until snap() time.
+
+    for (int i = 0; i < fRecorder->fTrackedDevices.size(); ++i) {
+        // Entries may be set to null from a call to deregisterDevice(), which will be cleaned up
+        // along with any immutable or uniquely held Devices once everything is snapped.
+        Device* device = fRecorder->fTrackedDevices[i].get();
+        if (device && device->hasPendingReads(dependency)) {
+            device->flushPendingWork(/*drawContext=*/nullptr);
+        }
+    }
+
+    // TODO(michaelludwig): These flushes are currently only triggered for client-owned surfaces
+    // drawn into other surfaces. This function could be used to flush a more targeted set of
+    // devices when an atlas fills up; in that case we could increment the flush token as part of
+    // that work. As-is, we don't increment the flush token because there could be a tracked atlas
+    // that depended on the atlas's texture state that did *not* depend on `dependency` so it still
+    // requires the atlas to be using the old flush token. The surfaces that were flushed here could
+    // advance to a new token but the token tracking isn't that precise. This all may be moot
+    // anyways if we can successfully switch to a rolling atlas page system.
+}
+
 void RecorderPriv::flushTrackedDevices(SK_DUMP_TASKS_CODE(const char* flushSource)) {
     ASSERT_SINGLE_OWNER_PRIV
 

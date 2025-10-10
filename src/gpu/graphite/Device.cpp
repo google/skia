@@ -583,6 +583,13 @@ bool Device::notifyInUse(Recorder* recorder, DrawContext* drawContext) {
             // consistent with the client-triggering actions. Because of this, there's no need to
             // add references to the `drawContext` that the device is being drawn into.
             this->flushPendingWork(/*drawContext=*/nullptr);
+
+            if (drawContext) {
+                // But if we are being drawn into another context, remember that there is an
+                // outstanding dependency on the current state of this device, in which case it's
+                // next flush must also flush those other devices before its new tasks are added.
+                fMustFlushDependencies = true;
+            }
         }
         // Return true (to unlink with the image) if the non-scratch surface is immutable since this
         // Device cannot record any more commands that will modify its texture.
@@ -2075,6 +2082,19 @@ void Device::flushPendingWork(DrawContext* drawContext) {
         return;
     } else {
         fIsFlushing = true;
+    }
+
+    // Ideally we would just check if `drawTask` was non-null and then call flushTrackedDevices()
+    // before we appended `drawTask` afterwards. Unfortunately, internalFlush() is not 100% internal
+    // because it can record atlas uploads to the DrawContext. If those uploads were moved to
+    // `drawTask` before flushTrackedDevices() is called, any other Devices would incorrectly assume
+    // that the uploads would be executed before their tasks, even though that's not the case here.
+    if (fDC->modifiesTarget() && fMustFlushDependencies) {
+        // If this is a client-owned Device that has also been used as an image in the same Recorder
+        // we need flush all tracked devices that have pending reads from this Device, because those
+        // need to be resolved *before* `drawTask` would be executed and modify its texture state.
+        fMustFlushDependencies = false;
+        fRecorder->priv().flushTrackedDevices(this->target());
     }
 
     this->internalFlush();
