@@ -604,18 +604,6 @@ public:
         return this->makeTransform(SkMatrix::Scale(sx, sy));
     }
 
-#ifdef SK_SUPPORT_LEGACY_APPLYPERSPECTIVECLIP
-    void transform(const SkMatrix& matrix, SkPath* dst, SkApplyPerspectiveClip) const {
-        this->transform(matrix, dst);
-    }
-    void transform(const SkMatrix& matrix, SkApplyPerspectiveClip) {
-        this->transform(matrix);
-    }
-    SkPath makeTransform(const SkMatrix& m, SkApplyPerspectiveClip) const {
-        return this->makeTransform(m);
-    }
-#endif
-
     /** Return the last point, or {}
 
         @return The last if the path contains one or more SkPoint, else returns {}
