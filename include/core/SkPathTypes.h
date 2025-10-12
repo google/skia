@@ -59,7 +59,9 @@ enum class SkPathVerb : uint8_t {
     kQuad,   //!< SkPath::RawIter returns 3 points
     kConic,  //!< SkPath::RawIter returns 3 points + 1 weight
     kCubic,  //!< SkPath::RawIter returns 4 points
-    kClose   //!< SkPath::RawIter returns 0 points
+    kClose,  //!< SkPath::RawIter returns 0 points
+
+    kLast_Verb = kClose,
 };
 
 #endif
