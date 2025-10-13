@@ -129,7 +129,11 @@ cc_defaults {
 
     local_include_dirs: [
         $local_includes
-    ]
+    ],
+
+    sanitize: {
+        blocklist: "libskia_blocklist.txt",
+    },
 }
 
 cc_library_static {
