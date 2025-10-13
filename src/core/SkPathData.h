@@ -61,6 +61,8 @@ struct SkPathRaw;
  */
 class SkPathData : public SkNVRefCnt<SkPathData> {
 public:
+    static sk_sp<SkPathData> Empty();
+
     /*
      *  Return SkPathData with a copy of these buffers, or nullptr if they are illegal.
      *  Illegal = non-finite, or non-sensical verb sequences
@@ -69,7 +71,11 @@ public:
                                   SkSpan<const SkPathVerb> verbs,
                                   SkSpan<const float> conics = {});
 
-    static sk_sp<SkPathData> Empty();
+    /*
+     *  Attempt to transform src by the matrix. On success, return a new SkPathData
+     *  with the result, else return {}.
+     */
+    static sk_sp<SkPathData> MakeTransform(const SkPathRaw& src, const SkMatrix&);
 
     /*
      *  When a factory takes a startIndex, this refers to the position of the first point
@@ -187,7 +193,9 @@ private:
     // If we know we're a special shape, call this after the normal initialization
     void setupIsA(SkPathIsAType, SkPathDirection dir, unsigned startIndex);
 
-    SkPathConvexity getConvexity() const;
+    SkPathConvexity getConvexityOrUnknown() const;          // may return kUnknown
+    SkPathConvexity getResolvedConvexity() const;           // never returns kUnknown
+    void setConvexity(SkPathConvexity) const;               // const -- but convexity is mutable
 
     static sk_sp<SkPathData> Alloc(size_t npts, size_t nvbs, size_t ncns);
 
