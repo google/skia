@@ -9,6 +9,7 @@
 #include "include/core/SkRRect.h"
 #include "include/core/SkSpan.h"
 #include "include/private/base/SkFloatingPoint.h"
+#include "include/private/base/SkMalloc.h"
 #include "src/base/SkSafeMath.h"
 #include "src/core/SkPathData.h"
 #include "src/core/SkPathEnums.h"
@@ -56,7 +57,7 @@ template <typename T> bool spaneq(SkSpan<T> a, SkSpan<T> b) {
 
 template <typename T> void spancpy(SkSpan<T> dst, SkSpan<const T> src) {
     SkASSERT(dst.size() == src.size());
-    memcpy(dst.data(), src.data(), src.size_bytes());
+    sk_careful_memcpy(dst.data(), src.data(), src.size_bytes());
 }
 }
 
