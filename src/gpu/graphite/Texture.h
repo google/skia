@@ -19,7 +19,7 @@ namespace skgpu {
 class MutableTextureState;
 class RefCntedCallback;
 enum class Budgeted : bool;
-};
+}
 
 namespace skgpu::graphite {
 

@@ -1015,7 +1015,7 @@ std::optional<SkPoint> SkPathBuilder::getLastPt() const {
         return this->fPts.at(count - 1);
     }
     return std::nullopt;
-};
+}
 
 void SkPathBuilder::setLastPt(SkScalar x, SkScalar y) {
     int count = fPts.size();

@@ -382,8 +382,8 @@ private:
     using INHERITED = Benchmark;
 };
 
-DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::kTranslate_Type));
-DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::kScale_Type));
-DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::k2x3_Type));
-DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::k3x3_Type));
-DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::k4x4_Type));
+DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::kTranslate_Type))
+DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::kScale_Type))
+DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::k2x3_Type))
+DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::k3x3_Type))
+DEF_BENCH(return new CanvasMatrixBench(CanvasMatrixBench::k4x4_Type))

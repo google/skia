@@ -381,7 +381,7 @@ static void draw_banner(SkCanvas* canvas, Config config) {
 
     static const SkFont kFont(ToolUtils::DefaultPortableTypeface(), 12);
     canvas->drawString(banner.c_str(), 20.f, -30.f, kFont, SkPaint());
-};
+}
 
 }  // namespace
 

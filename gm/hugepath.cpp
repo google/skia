@@ -67,7 +67,7 @@ static void draw_huge_path(SkCanvas* canvas, int w, int h, bool manual) {
         canvas->drawImage(surf->makeImageSnapshot(), 64 - w, 0);
     }
     canvas->restore();
-};
+}
 
 DEF_SIMPLE_GM(path_huge_aa, canvas, 200, 200) {
     draw_huge_path(canvas, 100, 60, /* manual= */ false);

@@ -6054,7 +6054,7 @@ UNIX_ONLY_TEST(SkParagraph_MemoryLeak, reporter) {
 		//used to add a delay so I can monitor memory usage
 		//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
-};
+}
 
 UNIX_ONLY_TEST(SkParagraph_FormattingInfinity, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>();
@@ -6090,7 +6090,7 @@ UNIX_ONLY_TEST(SkParagraph_FormattingInfinity, reporter) {
     draw("center", TextAlign::kCenter, TextDirection::kLtr);
     draw("justify LTR", TextAlign::kJustify, TextDirection::kLtr);
     draw("justify RTL", TextAlign::kJustify, TextDirection::kRtl);
-};
+}
 
 UNIX_ONLY_TEST(SkParagraph_Infinity, reporter) {
     SkASSERT(nearlyEqual(1, SK_ScalarInfinity) == false);
@@ -6108,7 +6108,7 @@ UNIX_ONLY_TEST(SkParagraph_Infinity, reporter) {
     SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarInfinity) == false);
     SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarNegativeInfinity) == false);
     SkASSERT(nearlyEqual(SK_ScalarNaN, SK_ScalarNaN) == false);
-};
+}
 
 UNIX_ONLY_TEST(SkParagraph_LineMetrics, reporter) {
 
@@ -6188,7 +6188,7 @@ UNIX_ONLY_TEST(SkParagraph_LineMetrics, reporter) {
         auto y = metric.fBaseline;
         canvas.get()->drawLine(x0, y, x1, y, green);
     }
-};
+}
 
 DEF_TEST_DISABLED(SkParagraph_PlaceholderHeightInf, reporter) {
     TestCanvas canvas("SkParagraph_PlaceholderHeightInf.png");
@@ -7747,7 +7747,7 @@ UNIX_ONLY_TEST(SkParagraph_MultiStyle_FFI, reporter) {
     REPORTER_ASSERT(reporter, fi[0].direction == TextDirection::kLtr);
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(fi[0].rect.fLeft, 34.139999f, EPSILON100));
     REPORTER_ASSERT(reporter, SkScalarNearlyEqual(fi[0].rect.fRight, 51.209999f, EPSILON100));
-};
+}
 
 // Multiple code points/single glyph emoji family should be treated as a single glyph
 UNIX_ONLY_TEST(SkParagraph_MultiStyle_EmojiFamily, reporter) {
@@ -7801,7 +7801,7 @@ UNIX_ONLY_TEST(SkParagraph_MultiStyle_EmojiFamily, reporter) {
 
     auto f4 = paragraph->getRectsForRange(8, 10, RectHeightStyle::kTight, RectWidthStyle::kTight);
     REPORTER_ASSERT(reporter, f4.size() == 0);
-};
+}
 
 // Arabic Ligature case should be painted into multi styles but queried as a single glyph
 UNIX_ONLY_TEST(SkParagraph_MultiStyle_Arabic, reporter) {
@@ -7853,7 +7853,7 @@ UNIX_ONLY_TEST(SkParagraph_MultiStyle_Arabic, reporter) {
 
     auto fi = paragraph->getRectsForRange(2, 3, RectHeightStyle::kTight, RectWidthStyle::kTight);
     REPORTER_ASSERT(reporter, fi.size() == 0);
-};
+}
 
 // Zalgo text should be painted into multi styles but queried as a single glyph
 UNIX_ONLY_TEST(SkParagraph_MultiStyle_Zalgo, reporter) {
@@ -7916,7 +7916,7 @@ UNIX_ONLY_TEST(SkParagraph_MultiStyle_Zalgo, reporter) {
     auto posP = paragraph->getGlyphPositionAtCoordinate(resKP.back().rect.fRight, height/2);
     auto posH = paragraph->getGlyphPositionAtCoordinate(resPh.back().rect.fRight, height/2);
     REPORTER_ASSERT(reporter, posK.position == 148 && posP.position == 264 && posH.position == 572);
-};
+}
 
 // RTL Ellipsis
 UNIX_ONLY_TEST(SkParagraph_RtlEllipsis1, reporter) {
@@ -7954,7 +7954,7 @@ UNIX_ONLY_TEST(SkParagraph_RtlEllipsis1, reporter) {
             first = false;
             return true;
         });
-};
+}
 
 UNIX_ONLY_TEST(SkParagraph_RtlEllipsis2, reporter) {
     sk_sp<ResourceFontCollection> fontCollection = sk_make_sp<ResourceFontCollection>(true);
@@ -7991,7 +7991,7 @@ UNIX_ONLY_TEST(SkParagraph_RtlEllipsis2, reporter) {
             first = false;
             return true;
         });
-};
+}
 
 static bool has_empty_typeface(SkFont f) {
     SkTypeface* face = f.getTypeface();

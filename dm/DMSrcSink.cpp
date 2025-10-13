@@ -146,7 +146,7 @@ using namespace skia_private;
 static DEFINE_bool(RAW_threading, true, "Allow RAW decodes to run on multiple threads?");
 static DEFINE_int(mskpFrame, 0, "Which MSKP frame to draw?");
 
-DECLARE_int(gpuThreads);
+DECLARE_int(gpuThreads)
 
 using sk_gpu_test::GrContextFactory;
 using sk_gpu_test::ContextInfo;

@@ -36,7 +36,7 @@ enum class PipelineStageFlags : uint8_t {
     kFragmentShader = 0b010,
     kCompute = 0b100,
 };
-SK_MAKE_BITMASK_OPS(PipelineStageFlags);
+SK_MAKE_BITMASK_OPS(PipelineStageFlags)
 
 struct DescriptorData {
     DescriptorData(DescriptorType type,
@@ -57,6 +57,6 @@ struct DescriptorData {
     const Sampler* fImmutableSampler;
 };
 
-};  // namespace skgpu::graphite
+}  // namespace skgpu::graphite
 
 #endif // skgpu_graphite_DescriptorTypes_DEFINED

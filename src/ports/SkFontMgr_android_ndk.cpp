@@ -98,11 +98,11 @@ static constexpr SkFourByteTag italTag = SkSetFourByteTag('i','t','a','l');
 
 static bool coordinateLess(const Coordinate& a, const Coordinate& b) {
     return a.axis != b.axis ? a.axis < b.axis : a.value < b.value;
-};
+}
 
 static bool coordinateEqual(const Coordinate& a, const Coordinate& b) {
     return a.axis == b.axis && a.value == b.value;
-};
+}
 
 static SkSpan<Coordinate> Get(const SkTypeface& typeface, Storage& storage) {
     if (storage.size() < Storage::kCount) {

@@ -24,7 +24,7 @@
 
 #include <vector>
 
-static bool is_single_channel(SkColor4f c) { return c.fR == c.fG && c.fG == c.fB; };
+static bool is_single_channel(SkColor4f c) { return c.fR == c.fG && c.fG == c.fB; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // HDRGM encoding

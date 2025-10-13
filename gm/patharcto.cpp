@@ -37,7 +37,7 @@ DEF_SIMPLE_GM(shallow_angle_path_arcto, canvas, 300, 300) {
 
     canvas->translate(-200, -50);
     canvas->drawPath(path.detach(), paint);
-};
+}
 
 #include "include/utils/SkParsePath.h"
 

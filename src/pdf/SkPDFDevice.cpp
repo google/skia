@@ -109,7 +109,7 @@ SkPDFDevice::MarkedContentManager::MarkedContentManager(SkPDFDocument* document,
 SkPDFDevice::MarkedContentManager::~MarkedContentManager() {
     // This does not close the last open mark, that is done in SkPDFDevice::content.
     SkASSERT(fNextMarksElemId == 0);
-};
+}
 
 void SkPDFDevice::MarkedContentManager::setNextMarksElemId(int nextMarksElemId) {
     fNextMarksElemId = nextMarksElemId;

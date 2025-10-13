@@ -93,44 +93,44 @@ static bool encode_png(SkWStream* dst,
 static const char* srcs[2] = {"images/mandrill_512.png", "images/color_wheel.jpg"};
 
 // The Android Photos app uses a quality of 90 on JPEG encodes
-DEF_BENCH(return new EncodeBench(srcs[0], &encode_jpeg, "JPEG", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[1], &encode_jpeg, "JPEG", kRGBA_8888_SkColorType));
+DEF_BENCH(return new EncodeBench(srcs[0], &encode_jpeg, "JPEG", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[1], &encode_jpeg, "JPEG", kRGBA_8888_SkColorType))
 
 // TODO: What is the appropriate quality to use to benchmark WEBP encodes?
-DEF_BENCH(return new EncodeBench(srcs[0], encode_webp_lossy, "WEBP", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[1], encode_webp_lossy, "WEBP", kRGBA_8888_SkColorType));
+DEF_BENCH(return new EncodeBench(srcs[0], encode_webp_lossy, "WEBP", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[1], encode_webp_lossy, "WEBP", kRGBA_8888_SkColorType))
 
-DEF_BENCH(return new EncodeBench(srcs[0], encode_webp_lossless, "WEBP_LL", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[1], encode_webp_lossless, "WEBP_LL", kRGBA_8888_SkColorType));
+DEF_BENCH(return new EncodeBench(srcs[0], encode_webp_lossless, "WEBP_LL", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[1], encode_webp_lossless, "WEBP_LL", kRGBA_8888_SkColorType))
 
-DEF_BENCH(return new EncodeBench(srcs[0], PNG(kAll, 6), "PNG", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[0], PNG(kAll, 3), "PNG_3", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[0], PNG(kAll, 1), "PNG_1", kRGBA_8888_SkColorType));
+DEF_BENCH(return new EncodeBench(srcs[0], PNG(kAll, 6), "PNG", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[0], PNG(kAll, 3), "PNG_3", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[0], PNG(kAll, 1), "PNG_1", kRGBA_8888_SkColorType))
 
-DEF_BENCH(return new EncodeBench(srcs[0], PNG(kSub, 6), "PNG_6s", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[0], PNG(kSub, 3), "PNG_3s", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[0], PNG(kSub, 1), "PNG_1s", kRGBA_8888_SkColorType));
+DEF_BENCH(return new EncodeBench(srcs[0], PNG(kSub, 6), "PNG_6s", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[0], PNG(kSub, 3), "PNG_3s", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[0], PNG(kSub, 1), "PNG_1s", kRGBA_8888_SkColorType))
 
-DEF_BENCH(return new EncodeBench(srcs[0], PNG(kNone, 6), "PNG_6n", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[0], PNG(kNone, 3), "PNG_3n", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[0], PNG(kNone, 1), "PNG_1n", kRGBA_8888_SkColorType));
+DEF_BENCH(return new EncodeBench(srcs[0], PNG(kNone, 6), "PNG_6n", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[0], PNG(kNone, 3), "PNG_3n", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[0], PNG(kNone, 1), "PNG_1n", kRGBA_8888_SkColorType))
 
-DEF_BENCH(return new EncodeBench(srcs[1], PNG(kAll, 6), "PNG", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[1], PNG(kAll, 3), "PNG_3", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[1], PNG(kAll, 1), "PNG_1", kRGBA_8888_SkColorType));
+DEF_BENCH(return new EncodeBench(srcs[1], PNG(kAll, 6), "PNG", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[1], PNG(kAll, 3), "PNG_3", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[1], PNG(kAll, 1), "PNG_1", kRGBA_8888_SkColorType))
 
-DEF_BENCH(return new EncodeBench(srcs[1], PNG(kSub, 6), "PNG_6s", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[1], PNG(kSub, 3), "PNG_3s", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[1], PNG(kSub, 1), "PNG_1s", kRGBA_8888_SkColorType));
+DEF_BENCH(return new EncodeBench(srcs[1], PNG(kSub, 6), "PNG_6s", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[1], PNG(kSub, 3), "PNG_3s", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[1], PNG(kSub, 1), "PNG_1s", kRGBA_8888_SkColorType))
 
-DEF_BENCH(return new EncodeBench(srcs[1], PNG(kNone, 6), "PNG_6n", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[1], PNG(kNone, 3), "PNG_3n", kRGBA_8888_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[1], PNG(kNone, 1), "PNG_1n", kRGBA_8888_SkColorType));
+DEF_BENCH(return new EncodeBench(srcs[1], PNG(kNone, 6), "PNG_6n", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[1], PNG(kNone, 3), "PNG_3n", kRGBA_8888_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[1], PNG(kNone, 1), "PNG_1n", kRGBA_8888_SkColorType))
 
-DEF_BENCH(return new EncodeBench(srcs[0], PNG(kAll, 6), "PNG", kRGBA_F16_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[1], PNG(kAll, 6), "PNG", kRGBA_F16_SkColorType));
+DEF_BENCH(return new EncodeBench(srcs[0], PNG(kAll, 6), "PNG", kRGBA_F16_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[1], PNG(kAll, 6), "PNG", kRGBA_F16_SkColorType))
 
-DEF_BENCH(return new EncodeBench(srcs[0], PNG(kAll, 6), "PNG", kRGB_565_SkColorType));
-DEF_BENCH(return new EncodeBench(srcs[1], PNG(kAll, 6), "PNG", kRGB_565_SkColorType));
+DEF_BENCH(return new EncodeBench(srcs[0], PNG(kAll, 6), "PNG", kRGB_565_SkColorType))
+DEF_BENCH(return new EncodeBench(srcs[1], PNG(kAll, 6), "PNG", kRGB_565_SkColorType))
 
 #undef PNG

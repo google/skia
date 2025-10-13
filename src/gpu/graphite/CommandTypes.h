@@ -39,6 +39,6 @@ private:
     const SkIRect fRect;
 };
 
-};  // namespace skgpu::graphite
+}  // namespace skgpu::graphite
 
 #endif // skgpu_graphite_DrawTypes_DEFINED

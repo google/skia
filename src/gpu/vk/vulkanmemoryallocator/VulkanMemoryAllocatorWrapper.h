@@ -39,7 +39,18 @@
 // VMA outside of Skia, the client should instead tell Skia not to use VMA.
 // Then they should wrap their own instance of VMA into an implementation of
 // Skia's VulkanMemoryAllocator interface, and pass that object into context creation.
+
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
+#endif
+
 #include "vk_mem_alloc.h"  // NO_G3_REWRITE
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
+
 #ifdef GR_NEEDED_TO_DEFINE_VULKAN_H
 #undef VULKAN_H_
 #endif

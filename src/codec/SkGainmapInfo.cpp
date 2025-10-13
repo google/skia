@@ -217,7 +217,7 @@ sk_sp<SkData> SkGainmapInfo::SerializeVersion() {
     return s.detachAsData();
 }
 
-static bool is_single_channel(SkColor4f c) { return c.fR == c.fG && c.fG == c.fB; };
+static bool is_single_channel(SkColor4f c) { return c.fR == c.fG && c.fG == c.fB; }
 
 sk_sp<SkData> SkGainmapInfo::serialize() const {
     SkDynamicMemoryWStream s;

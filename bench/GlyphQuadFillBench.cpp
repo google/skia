@@ -94,4 +94,4 @@ private:
     std::unique_ptr<char[]> fVertices;
 };
 
-DEF_BENCH(return new DirectMaskGlyphVertexFillBenchmark{});
+DEF_BENCH(return new DirectMaskGlyphVertexFillBenchmark{})

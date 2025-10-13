@@ -29,7 +29,7 @@ namespace skiatest {
 namespace skgpu::graphite {
     class Context;
     class Recorder;
-};
+}
 
 #define DECLARE_VK_PROC(name) PFN_vk##name fVk##name
 

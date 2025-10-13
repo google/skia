@@ -18,7 +18,7 @@
 #include "tools/gpu/ContextType.h"
 #endif
 
-DECLARE_string(config);
+DECLARE_string(config)
 
 class SkCommandLineConfigGpu;
 class SkCommandLineConfigGraphite;

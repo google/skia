@@ -62,5 +62,5 @@ private:
 };
 
 
-DEF_BENCH(return new PremulAndUnpremulAlphaOpsBench(kRGBA_8888_SkColorType));
-DEF_BENCH(return new PremulAndUnpremulAlphaOpsBench(kBGRA_8888_SkColorType));
+DEF_BENCH(return new PremulAndUnpremulAlphaOpsBench(kRGBA_8888_SkColorType))
+DEF_BENCH(return new PremulAndUnpremulAlphaOpsBench(kBGRA_8888_SkColorType))

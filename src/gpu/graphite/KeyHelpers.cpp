@@ -227,7 +227,7 @@ void add_linear_gradient_uniform_data(const KeyContext& keyContext,
 
     add_gradient_preamble(gradData, keyContext.pipelineDataGatherer());
     add_gradient_postamble(gradData, bufferOffset, keyContext.pipelineDataGatherer());
-};
+}
 
 void add_radial_gradient_uniform_data(const KeyContext& keyContext,
                                       BuiltInCodeSnippetID codeSnippetID,
@@ -237,7 +237,7 @@ void add_radial_gradient_uniform_data(const KeyContext& keyContext,
 
     add_gradient_preamble(gradData, keyContext.pipelineDataGatherer());
     add_gradient_postamble(gradData, bufferOffset, keyContext.pipelineDataGatherer());
-};
+}
 
 void add_sweep_gradient_uniform_data(const KeyContext& keyContext,
                                      BuiltInCodeSnippetID codeSnippetID,
@@ -249,7 +249,7 @@ void add_sweep_gradient_uniform_data(const KeyContext& keyContext,
     keyContext.pipelineDataGatherer()->write(gradData.fBias);
     keyContext.pipelineDataGatherer()->write(gradData.fScale);
     add_gradient_postamble(gradData, bufferOffset, keyContext.pipelineDataGatherer());
-};
+}
 
 void add_conical_gradient_uniform_data(const KeyContext& keyContext,
                                      BuiltInCodeSnippetID codeSnippetID,
@@ -284,7 +284,7 @@ void add_conical_gradient_uniform_data(const KeyContext& keyContext,
     keyContext.pipelineDataGatherer()->write(a);
     keyContext.pipelineDataGatherer()->write(invA);
     add_gradient_postamble(gradData, bufferOffset, keyContext.pipelineDataGatherer());
-};
+}
 
 } // anonymous namespace
 

@@ -647,7 +647,7 @@ void collect_lifted_expressions(SkSpan<const ShaderNode*> nodes,
 
         collect_lifted_expressions(node->children(), childArgs, lifted);
     }
-};
+}
 
 std::vector<LiftedExpression> collect_lifted_expressions(SkSpan<const ShaderNode*> nodes) {
     std::vector<LiftedExpression> lifted;

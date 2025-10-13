@@ -56,7 +56,7 @@ bool BackendTexture::operator==(const BackendTexture& that) const {
     return fTextureData->equal(that.fTextureData.get());
 }
 
-BackendTextureData::~BackendTextureData(){};
+BackendTextureData::~BackendTextureData() {}
 
 } // namespace skgpu::graphite
 

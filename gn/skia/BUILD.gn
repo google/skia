@@ -575,6 +575,7 @@ config("warnings") {
       "-Wno-c++98-compat",
       "-Wno-c++98-compat-pedantic",
       "-Wno-undefined-func-template",
+      "-Wc++98-compat-extra-semi",
     ]
     cflags_objc += [
       "-Wno-direct-ivar-access",

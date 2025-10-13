@@ -266,6 +266,6 @@ struct DepthStencilSettings {
     bool fDepthWriteEnabled = false;
 };
 
-};  // namespace skgpu::graphite
+}  // namespace skgpu::graphite
 
 #endif // skgpu_graphite_DrawTypes_DEFINED

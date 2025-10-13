@@ -11,8 +11,8 @@
 #include "tools/graphite/TestOptions.h"
 
 // Defined in CommonFlagsConfig
-DECLARE_int(gpuThreads);
-DECLARE_int(internalSamples);
+DECLARE_int(gpuThreads)
+DECLARE_int(internalSamples)
 
 namespace CommonFlags {
 #if defined(SK_DAWN)

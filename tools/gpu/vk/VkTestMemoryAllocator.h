@@ -8,8 +8,18 @@
 #ifndef VkTestMemoryAllocator_DEFINED
 #define VkTestMemoryAllocator_DEFINED
 
-#include <vk_mem_alloc.h>
 #include "include/gpu/vk/VulkanMemoryAllocator.h"
+
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
+#endif
+
+#include <vk_mem_alloc.h>
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 namespace skgpu {
 class VulkanExtensions;

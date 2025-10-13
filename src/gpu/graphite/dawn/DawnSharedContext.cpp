@@ -106,7 +106,7 @@ void DawnSharedContext::deviceTick(Context* context) {
     this->device().Tick();
 #endif
     context->checkAsyncWorkCompletion();
-};
+}
 
 void DawnSharedContext::createUniformBuffersBindGroupLayout() {
     const Caps* caps = this->caps();

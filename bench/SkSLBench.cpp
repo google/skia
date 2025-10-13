@@ -415,7 +415,7 @@ void main()
 		sk_FragColor = output_S1 * outputCoverage_S0;
 	}
 }
-)");
+)")
 
 // This fragment shader is taken from GM_BlurDrawImage.
 COMPILER_BENCH(medium, R"(
@@ -487,7 +487,7 @@ void main()
 		sk_FragColor = output_S1 * output_S2;
 	}
 }
-)");
+)")
 
 // This fragment shader is taken from GM_lcdtext.
 COMPILER_BENCH(small, R"(
@@ -510,9 +510,9 @@ void main()
 		sk_FragColor = outputColor_S0 * outputCoverage_S0;
 	}
 }
-)");
+)")
 
-COMPILER_BENCH(tiny, "void main() { sk_FragColor = half4(1); }");
+COMPILER_BENCH(tiny, "void main() { sk_FragColor = half4(1); }")
 
 #define GRAPHITE_BENCH(name, text)                                                                \
     static constexpr char name##_SRC[] = text;                                                    \
@@ -580,7 +580,7 @@ void main()
 	outputCoverage = analytic_rrect_coverage_fn(sk_FragCoord, jacobian, edgeDistances, xRadii, yRadii, strokeParams, perPixelControl);
 	sk_FragColor = outColor_5 * outputCoverage;
 }
-)");
+)")
 
 // This fragment shader is taken from GM_lcdtext.
 GRAPHITE_BENCH(graphite_small, R"(
@@ -621,7 +621,7 @@ void main()
 	outputCoverage = bitmap_text_coverage_fn(sample_indexed_atlas(textureCoords, int(texIndex), text_atlas_0, text_atlas_1, text_atlas_2, text_atlas_3), int(maskFormat));
 	sk_FragColor = outColor_1 * outputCoverage;
 }
-)");
+)")
 
 #if defined(SK_BUILD_FOR_UNIX)
 

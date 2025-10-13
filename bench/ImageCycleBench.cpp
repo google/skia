@@ -95,4 +95,4 @@ private:
     using INHERITED = Benchmark;
 };
 
-DEF_BENCH(return new ImageCycle(5, 10));
+DEF_BENCH(return new ImageCycle(5, 10))

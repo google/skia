@@ -126,7 +126,7 @@ protected:
         PathTessellateBenchmark_##NAME() : PathTessellateBenchmark(#NAME, (PATH), (MATRIX)) {} \
         void runBench() override; \
     }; \
-    DEF_BENCH( return new PathTessellateBenchmark_##NAME(); ); \
+    DEF_BENCH( return new PathTessellateBenchmark_##NAME(); ) \
     void PathTessellateBenchmark_##NAME::runBench()
 
 static const SkMatrix gAlmostIdentity = SkMatrix::MakeAll(

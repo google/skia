@@ -44,6 +44,6 @@ BackendSemaphore& BackendSemaphore::operator=(const BackendSemaphore& that) {
     return *this;
 }
 
-BackendSemaphoreData::~BackendSemaphoreData(){};
+BackendSemaphoreData::~BackendSemaphoreData() {}
 
 }  // End of namespace skgpu::graphite

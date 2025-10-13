@@ -122,6 +122,6 @@ inline sk_sp<Factory> BestAvailable() {
 #endif
 }
 
-};  // namespace SkShapers
+}  // namespace SkShapers
 
 #endif  // SkShaperFactoryHelpers_DEFINED

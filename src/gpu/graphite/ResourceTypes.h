@@ -307,6 +307,6 @@ private:
     uint32_t fExternalFormatMostSignificantBits = 0;
 };
 
-};  // namespace skgpu::graphite
+}  // namespace skgpu::graphite
 
 #endif // skgpu_graphite_ResourceTypes_DEFINED

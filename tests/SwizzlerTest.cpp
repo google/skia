@@ -229,7 +229,7 @@ uint32_t calcExpected(float alpha, float comp) {
     const float unpremul = normalized * inverseAlpha;
     const float scaledAndPinned = std::min(255.0f, unpremul * 255.0f);
     return SK_OPTS_NS::pixel_round_as_RP(scaledAndPinned);
-};
+}
 
 DEF_TEST(UnpremulSimulatingRP, reporter) {
     for (uint32_t a = 0; a < 256; ++a) {

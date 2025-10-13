@@ -62,7 +62,7 @@ DEF_SIMPLE_GM(savelayer_initfromprev, canvas, 256, 256) {
     paint.setBlendMode(SkBlendMode::kClear);
     canvas->drawCircle(128, 128, 96, paint);
     canvas->restore();
-};
+}
 
 static void draw_cell(SkCanvas* canvas, sk_sp<SkTextBlob> blob, SkColor c, SkScalar w, SkScalar h,
                       bool useDrawBehind) {
