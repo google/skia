@@ -12,6 +12,7 @@
 #include "include/core/SkBitmap.h"
 #include "include/core/SkCanvas.h"
 #include "include/core/SkPicture.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/docs/SkMultiPictureDocument.h"
 #include "tools/flags/CommonFlagsConfig.h"
 #include "tools/ganesh/MemoryCache.h"
@@ -108,6 +109,9 @@ struct Src {
     [[nodiscard]] virtual Result draw(SkCanvas* canvas, GraphiteTestContext*) const = 0;
     virtual SkISize size() const = 0;
     virtual Name name() const = 0;
+    // Called by sinks to modify the default-default surface properties (if applicable).
+    // Sinks may then further update the value based on other criteria.
+    virtual void modifySurfaceProps(SkSurfaceProps*) const {}
     virtual void modifyGrContextOptions(GrContextOptions*) const  {}
     virtual void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions*) const {}
     virtual bool veto(SinkFlags) const { return false; }
@@ -152,6 +156,7 @@ public:
     Result draw(SkCanvas*, GraphiteTestContext*) const override;
     SkISize size() const override;
     Name name() const override;
+    void modifySurfaceProps(SkSurfaceProps*) const override;
     void modifyGrContextOptions(GrContextOptions* options) const override;
 #if defined(SK_GRAPHITE)
     void modifyGraphiteContextOptions(skgpu::graphite::ContextOptions*) const override;
@@ -405,7 +410,7 @@ public:
     }
 
 protected:
-    sk_sp<SkSurface> createDstSurface(GrDirectContext*, SkISize size) const;
+    sk_sp<SkSurface> createDstSurface(GrDirectContext*, const Src&) const;
     bool readBack(SkSurface*, SkBitmap* dst) const;
 
 private:
@@ -590,7 +595,7 @@ public:
     }
 
 protected:
-    sk_sp<SkSurface> makeSurface(skgpu::graphite::Recorder*, SkISize) const;
+    sk_sp<SkSurface> makeSurface(skgpu::graphite::Recorder*, const Src&) const;
 
     skiatest::graphite::TestOptions fOptions;
     skgpu::ContextType fContextType;

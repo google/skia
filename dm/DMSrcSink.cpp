@@ -194,6 +194,11 @@ Name GMSrc::name() const {
     return gm->getName();
 }
 
+void GMSrc::modifySurfaceProps(SkSurfaceProps* props) const {
+    std::unique_ptr<skiagm::GM> gm(fFactory());
+    gm->modifySurfaceProps(props);
+}
+
 void GMSrc::modifyGrContextOptions(GrContextOptions* options) const {
     std::unique_ptr<skiagm::GM> gm(fFactory());
     gm->modifyGrContextOptions(options);
@@ -1551,11 +1556,12 @@ Result GPUSink::draw(const Src& src, SkBitmap* dst, SkWStream* dstStream, SkStri
     return this->onDraw(src, dst, dstStream, log, fBaseContextOptions);
 }
 
-sk_sp<SkSurface> GPUSink::createDstSurface(GrDirectContext* context, SkISize size) const {
+sk_sp<SkSurface> GPUSink::createDstSurface(GrDirectContext* context, const Src& src) const {
     sk_sp<SkSurface> surface;
 
-    SkImageInfo info = SkImageInfo::Make(size, this->colorInfo());
+    SkImageInfo info = SkImageInfo::Make(src.size(), this->colorInfo());
     SkSurfaceProps props(fSurfaceFlags, kRGB_H_SkPixelGeometry);
+    src.modifySurfaceProps(&props);
 
     switch (fSurfType) {
         case SkCommandLineConfigGpu::SurfType::kDefault:
@@ -1617,7 +1623,7 @@ Result GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
         return Result::Skip("Src too large to create a texture.\n");
     }
 
-    sk_sp<SkSurface> surface = this->createDstSurface(direct, src.size());
+    sk_sp<SkSurface> surface = this->createDstSurface(direct, src);
     if (!surface) {
         return Result::Fatal("Could not create a surface.");
     }
@@ -1947,7 +1953,7 @@ Result GPUDDLSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log
     // Make sure 'mainCtx' is current
     mainTestCtx->makeCurrent();
 
-    sk_sp<SkSurface> surface = this->createDstSurface(mainCtx, src.size());
+    sk_sp<SkSurface> surface = this->createDstSurface(mainCtx, src);
     if (!surface) {
         return Result::Fatal("Could not create a surface.");
     }
@@ -2145,6 +2151,7 @@ Result RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) co
                           SkBitmap::kZeroPixels_AllocFlag);
 
     SkSurfaceProps props(/*flags=*/0, kRGB_H_SkPixelGeometry);
+    src.modifySurfaceProps(&props);
     auto surface = SkSurfaces::WrapPixels(dst->pixmap(), &props);
     return src.draw(surface->getCanvas(), /*GraphiteTestContext=*/nullptr);
 }
@@ -2192,7 +2199,7 @@ Result GraphiteSink::draw(const Src& src,
     }
 
     {
-        sk_sp<SkSurface> surface = this->makeSurface(recorder.get(), src.size());
+        sk_sp<SkSurface> surface = this->makeSurface(recorder.get(), src);
         if (!surface) {
             return Result::Fatal("Could not create a surface.");
         }
@@ -2229,9 +2236,10 @@ Result GraphiteSink::draw(const Src& src,
 }
 
 sk_sp<SkSurface> GraphiteSink::makeSurface(skgpu::graphite::Recorder* recorder,
-                                           SkISize dimensions) const {
+                                           const Src& src) const {
     SkSurfaceProps props(0, kRGB_H_SkPixelGeometry);
-    auto ii = SkImageInfo::Make(dimensions, this->colorInfo());
+    src.modifySurfaceProps(&props);
+    auto ii = SkImageInfo::Make(src.size(), this->colorInfo());
 
 #if defined(SK_DAWN)
     if (fOptions.fUseWGPUTextureView) {
@@ -2303,7 +2311,7 @@ Result GraphitePrecompileTestingSink::drawSrc(
         skiatest::graphite::GraphiteTestContext* testContext,
         skgpu::graphite::Recorder* recorder) const {
 
-    sk_sp<SkSurface> surface = this->makeSurface(recorder, src.size());
+    sk_sp<SkSurface> surface = this->makeSurface(recorder, src);
     if (!surface) {
         return Result::Fatal("Could not create a surface.");
     }

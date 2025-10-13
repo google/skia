@@ -802,6 +802,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
 
         uint32_t flags = params->surfaceProps().flags();
         SkPixelGeometry defaultPixelGeometry = fDisplay->surfaceProps().pixelGeometry();
+        SkSurfaceProps defaultSurfaceProps = SkSurfaceProps(flags, defaultPixelGeometry);
+        fSlides[fCurrentSlide]->setSurfaceProps(&defaultSurfaceProps);
         if (!fDisplayOverrides.fSurfaceProps.fPixelGeometry) {
             fDisplayOverrides.fSurfaceProps.fPixelGeometry = true;
             newProps = SkSurfaceProps(flags, kUnknown_SkPixelGeometry);
@@ -820,7 +822,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
                     newProps = SkSurfaceProps(flags, kBGR_V_SkPixelGeometry);
                     break;
                 case kBGR_V_SkPixelGeometry:
-                    newProps = SkSurfaceProps(flags, defaultPixelGeometry);
+                    newProps = defaultSurfaceProps;
                     fDisplayOverrides.fSurfaceProps.fPixelGeometry = false;
                     break;
             }
@@ -1493,6 +1495,25 @@ void Viewer::setupCurrentSlide() {
 
         // Prevent the user from dragging content so far outside the window they can't find it again
         fGesture.setTransLimit(slideBounds, windowRect, this->computePreTouchMatrix());
+
+        if (!fDisplayOverrides.fSurfaceProps.fPixelGeometry) {
+            const skwindow::DisplayParams* params = fWindow->getRequestedDisplayParams();
+            uint32_t flags = params->surfaceProps().flags();
+            SkPixelGeometry defaultPixelGeometry = fDisplay->surfaceProps().pixelGeometry();
+            SkSurfaceProps defaultSurfaceProps = SkSurfaceProps(flags, defaultPixelGeometry);
+            fSlides[fCurrentSlide]->setSurfaceProps(&defaultSurfaceProps);
+            if (defaultSurfaceProps != params->surfaceProps()) {
+                auto paramsBuilder = make_display_params_builder(params);
+                paramsBuilder.surfaceProps(defaultSurfaceProps);
+                const skwindow::DisplayParams* newParams = paramsBuilder.detach().release();
+                // Defer to avoid asserts when the GPU flushes the current draw.
+                fDeferredActions.emplace_back([newParams, this]() {
+                    fWindow->setRequestedDisplayParams(
+                                std::unique_ptr<const skwindow::DisplayParams>(newParams));
+                    fWindow->inval();
+                });
+            }
+        }
 
         this->updateTitle();
         this->updateUIState();

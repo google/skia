@@ -15,6 +15,7 @@
 #include "include/core/SkStream.h"
 #include "include/core/SkString.h"
 #include "include/core/SkSurface.h"
+#include "include/core/SkSurfaceProps.h"
 #include "include/core/SkTypeface.h"
 #include "include/ports/SkTypeface_fontations.h"
 #include "modules/skshaper/include/SkShaper.h"
@@ -72,6 +73,10 @@ void comparePixels(const SkPixmap& pixmapA,
 
 class FontationsFtCompareGM : public GM {
 public:
+    // See https://issues.skia.org/issues/396360753
+    // We would like Fontations anti-aliasing on a surface with unknown pixel geometry
+    // to look like the FreeType backend in order to avoid perceived regressions in
+    // contrast/sharpness. Specify unknown geometry for tests that request it.
     enum SimulatePixelGeometry { kLeaveAsIs, kSimulateUnknown };
 
     FontationsFtCompareGM(std::string testName,
@@ -123,17 +128,10 @@ protected:
                              testSet.langSamples.size() * kFontSize * kLangYIncrementScale + 100);
     }
 
-    bool wrapCanvasUnknownGeometry(SkCanvas* source, sk_sp<SkSurface>& target) {
-        SkPixmap canvasPixmap;
-        if (!source->peekPixels(&canvasPixmap)) {
-            return false;
+    void modifySurfaceProps(SkSurfaceProps* props) const override {
+        if (fSimulatePixelGeometry == kSimulateUnknown) {
+            *props = props->cloneWithPixelGeometry(SkPixelGeometry::kUnknown_SkPixelGeometry);
         }
-
-        SkSurfaceProps canvasSurfaceProps = source->getBaseProps();
-        SkSurfaceProps unknownGeometrySurfaceProps = canvasSurfaceProps.cloneWithPixelGeometry(
-                SkPixelGeometry::kUnknown_SkPixelGeometry);
-        target = SkSurfaces::WrapPixels(canvasPixmap, &unknownGeometrySurfaceProps);
-        return true;
     }
 
     DrawResult onDraw(SkCanvas* canvas, SkString* errorMsg) override {
@@ -169,19 +167,6 @@ protected:
             enum class DrawPhase { Fontations, FreeType, Comparison };
 
             SkCanvas* drawCanvas = canvas;
-
-            // See https://issues.skia.org/issues/396360753
-            // We would like Fontations anti-aliasing on a surface with unknown pixel geometry
-            // to look like the FreeType backend in order to avoid perceived regressions in
-            // contrast/sharpness. Simulate the unknown geometry case for tests that request it.
-            sk_sp<SkSurface> surface = nullptr;
-            if (fSimulatePixelGeometry) {
-                if (!wrapCanvasUnknownGeometry(canvas, surface)) {
-                    return DrawResult::kFail;
-                }
-                drawCanvas = surface->getCanvas();
-            }
-
             SkRect maxBounds = SkRect::MakeEmpty();
             for (auto phase : {DrawPhase::Fontations, DrawPhase::FreeType, DrawPhase::Comparison}) {
                 SkScalar yCoord = kFontSize * 1.5f;
