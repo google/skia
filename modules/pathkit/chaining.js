@@ -195,6 +195,43 @@
       }
       return null;
     };
+
+    PathKit.SkPoint.prototype.set = function(x, y) {
+      this._set(x, y);
+      return this;
+    };
+
+    PathKit.SkPoint.prototype.normalize = function() {
+      this._normalize();
+      return this;
+    }
+
+    PathKit.SkPoint.prototype.scale = function(s) {
+      this._scale(s);
+      return this;
+    }
+
+    PathKit.SkPoint.prototype.offset = function(dx, dy) {
+      this._offset(dx, dy);
+      return this;
+    }
+
+    PathKit.SkPoint.prototype.negate = function() {
+      this._negate();
+      return this;
+    }
+
+    PathKit.SkPathMeasure.prototype.setPath = function(path, forceClosed) {
+      this._setPath(path, !!forceClosed);
+      return this;
+    };
+
+    PathKit.SkPathMeasure.prototype.getPosTan = function(distance, position, tangent) {
+      if(this._getPosTan(distance, position, tangent)){
+        return this;
+      }
+      return null;
+    };
   };
 
 }(Module)); // When this file is loaded in, the high level object is "Module";

@@ -14,6 +14,7 @@
 #include "include/core/SkRect.h"
 #include "include/core/SkString.h"
 #include "include/core/SkStrokeRec.h"
+#include "include/core/SkPathMeasure.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkTrimPathEffect.h"
 #include "include/pathops/SkPathOps.h"
@@ -454,6 +455,41 @@ void ApplyTransform(SkPath& orig,
 }
 
 //========================================================================================
+// SkPoint things
+//========================================================================================
+void ApplySet(SkPoint& p, SkScalar x, SkScalar y) {
+    p.set(x, y);
+}
+
+void ApplyNormalize(SkPoint& p) {
+    p.normalize();
+}
+
+void ApplyScale(SkPoint& p, SkScalar scale) {
+    p.scale(scale);
+}
+
+void ApplyOffset(SkPoint& p, SkScalar dx, SkScalar dy) {
+    p.offset(dx, dy);
+}
+
+void ApplyNegate(SkPoint& p) {
+    p.negate();
+}
+
+//========================================================================================
+// SkPathMeasure things
+//========================================================================================
+
+void ApplySetPath(SkPathMeasure& pm, const SkPath& path, bool forceClosed) {
+    pm.setPath(&path, forceClosed);
+}
+
+bool EMSCRIPTEN_KEEPALIVE GetPosTan(SkPathMeasure& pm, SkScalar distance, SkPoint *position, SkPoint *tangent) {
+    return pm.getPosTan(distance, position, tangent);
+}
+
+//========================================================================================
 // Testing things
 //========================================================================================
 
@@ -630,9 +666,25 @@ EMSCRIPTEN_BINDINGS(skia) {
         .element(&SimpleMatrix::pers1)
         .element(&SimpleMatrix::pers2);
 
-    value_array<SkPoint>("SkPoint")
-        .element(&SkPoint::fX)
-        .element(&SkPoint::fY);
+    class_<SkPoint>("SkPoint")
+        .constructor<>()
+        .function("_set", &ApplySet)
+        .function("_normalize", &ApplyNormalize)
+        .function("_scale", &ApplyScale)
+        .function("_offset", &ApplyOffset)
+        .function("_negate", &ApplyNegate)
+
+        .function("length", &SkPoint::length)
+        .function("dot", &SkPoint::dot)
+        .function("cross", &SkPoint::cross)
+        .property("x", &SkPoint::fX)
+        .property("y", &SkPoint::fY)
+
+        // Static methods
+        .class_function("Distance", &SkPoint::Distance)
+        .class_function("DotProduct", &SkPoint::DotProduct)
+        .class_function("CrossProduct", &SkPoint::CrossProduct);
+
 
     // Not intended for external clients to call directly.
     // See helper.js for the client-facing implementation.
@@ -642,6 +694,24 @@ EMSCRIPTEN_BINDINGS(skia) {
         .function("computeYFromX", &SkCubicMap::computeYFromX)
         .function("computePtFromT", &SkCubicMap::computeFromT);
 
+    class_<SkPathMeasure>("SkPathMeasure")
+        .constructor<>()
+        .constructor<const SkPath&, bool>()
+        .constructor<const SkPath&, bool, SkScalar>()
+
+        .function("_setPath", &ApplySetPath)
+        .function("_getPosTan", &GetPosTan, allow_raw_pointer<arg<3>>(), allow_raw_pointer<arg<4>>())
+
+        .function("getLength", &SkPathMeasure::getLength)
+        .function("getSegment", &SkPathMeasure::getSegment, allow_raw_pointer<arg<3>>())
+        .function("isClosed", &SkPathMeasure::isClosed)
+        .function("nextContour", &SkPathMeasure::nextContour)
+        ;
+
+    enum_<SkPathMeasure::MatrixFlags>("MatrixFlags")
+        .value("GET_POSITION", SkPathMeasure::kGetPosition_MatrixFlag)
+        .value("GET_TANGENT", SkPathMeasure::kGetTangent_MatrixFlag)
+        .value("GET_POS_AND_TAN", SkPathMeasure::kGetPosAndTan_MatrixFlag);
 
     // Test Utils
     function("SkBits2FloatUnsigned", &SkBits2FloatUnsigned);
