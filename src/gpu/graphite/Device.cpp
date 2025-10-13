@@ -293,24 +293,34 @@ SkIRect rect_to_pixelbounds(const Rect& r) {
 bool is_pixel_aligned(const Rect& r, const Transform& t) {
     if (t.type() <= Transform::Type::kRectStaysRect) {
         Rect devRect = t.mapRect(r);
-        return devRect.nearlyEquals(devRect.makeRound());
+        return devRect.nearlyEquals(devRect.makeRound(), Shape::kDefaultPixelTolerance);
     }
 
     return false;
 }
 
-bool is_simple_shape(const Shape& shape, SkStrokeRec::Style type) {
-    // We send regular filled and hairline [round] rectangles, stroked/hairline lines, and stroked
-    // [r]rects with circular corners to a single Renderer that does not trigger MSAA.
-    // Per-edge AA quadrilaterals also use the same Renderer but those are not "Shapes".
-    // These shapes and quads may also be combined with a second non-AA inner fill. This fill step
-    // is also directly used for flooding the clip
-    return shape.isFloodFill() ||
-           (!shape.inverted() && type != SkStrokeRec::kStrokeAndFill_Style &&
-            (shape.isRect() ||
-             (shape.isLine() && type != SkStrokeRec::kFill_Style) ||
-             (shape.isRRect() && (type != SkStrokeRec::kStroke_Style ||
-                                  SkRRectPriv::AllCornersCircular(shape.rrect())))));
+bool is_simple_shape(const Shape& shape, const Transform& localToDevice, SkStrokeRec::Style type) {
+    if (shape.isFloodFill()) {
+        return true; // Always supported
+    } else if (!shape.inverted() && type != SkStrokeRec::kStrokeAndFill_Style) {
+        // A filled line renders nothing but that should be caught earlier, so the actual branches
+        // in this function can be simplified.
+        SkASSERT(!shape.isLine() || type != SkStrokeRec::kFill_Style);
+
+        if (shape.isRRect() && type == SkStrokeRec::kStroke_Style) {
+            // Non-hairline stroked round rects require the corner radii to be circular to be
+            // compatible with the shared Renderer.
+            const float tol =
+                    localToDevice.localAARadius(shape.bounds()) * Shape::kDefaultPixelTolerance;
+            return SkRRectPriv::AllCornersRelativelyCircular(shape.rrect(), tol);
+        } else if (shape.isRRect() || shape.isRect() || shape.isLine()) {
+            // There are no restrictions on filled or hairline [r]rects and lines.
+            return true;
+        } // Fallthrough
+    }
+
+    // Requires path rendering
+    return false;
 }
 
 bool use_compute_atlas_when_available(PathRendererStrategy strategy) {
@@ -1042,7 +1052,8 @@ void Device::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPain
     // This holds the positive insets from `outer` to `inner`
     Rect strokeRect{outer.rect()};
     skvx::float4 gap = Rect(inner.rect()).vals() - strokeRect.vals();
-    const float tolerance = 0.001f * this->localToDeviceTransform().localAARadius(strokeRect);
+    const float tolerance = Shape::kDefaultPixelTolerance *
+                            this->localToDeviceTransform().localAARadius(strokeRect);
     const float strokeWidth = gap[0];
     if (!all((gap > tolerance) & (abs(gap - strokeWidth) <= tolerance))) {
         // Either not approximately equal insets on all sides, or it would create a hairline stroke
@@ -1084,7 +1095,9 @@ void Device::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPain
             SkVector innerCornerRadii = inner.radii((SkRRect::Corner) i);
 
             float strokeCorner;
-            if (!SkScalarNearlyEqual(outerCornerRadii.fX, outerCornerRadii.fY, tolerance)) {
+            if (!SkRRectPriv::IsRelativelyCircular(outerCornerRadii.fX,
+                                                   outerCornerRadii.fY,
+                                                   tolerance)) {
                 // Not circular; a stroked ellipse is not just a larger ellipse
                 break;
             } else if (SkScalarNearlyZero(outerCornerRadii.fX, tolerance)) {
@@ -1113,8 +1126,12 @@ void Device::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPain
             }
 
             float expectedInnerRadius = std::max(0.f, strokeCorner - strokeRadius);
-            if (!SkScalarNearlyEqual(innerCornerRadii.fX, expectedInnerRadius) ||
-                !SkScalarNearlyEqual(innerCornerRadii.fY, expectedInnerRadius)) {
+            if (!SkRRectPriv::IsRelativelyCircular(innerCornerRadii.fX,
+                                                   expectedInnerRadius,
+                                                   tolerance) ||
+                !SkRRectPriv::IsRelativelyCircular(innerCornerRadii.fY,
+                                                   expectedInnerRadius,
+                                                   tolerance)) {
                 // Inner corner doesn't match expectation
                 break;
             }
@@ -1485,7 +1502,7 @@ void Device::drawGeometry(const Transform& localToDevice,
     // transform to device space so we draw something approximately correct (barring local coord
     // issues).
     if (geometry.isShape() && localToDevice.type() == Transform::Type::kPerspective &&
-        !is_simple_shape(geometry.shape(), style.getStyle())) {
+        !is_simple_shape(geometry.shape(), localToDevice, style.getStyle())) {
         SkPath devicePath = geometry.shape().asPath().makeTransform(localToDevice.matrix().asM33());
         devicePath.setIsVolatile(true);
         this->drawGeometry(Transform::Identity(), Geometry(Shape(devicePath)), paint, style, flags,
@@ -1914,7 +1931,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
 
     const Shape& shape = geometry.shape();
     // We can't use this renderer if we require MSAA for an effect (i.e. clipping or stroke+fill).
-    if (!requireMSAA && is_simple_shape(shape, type)) {
+    if (!requireMSAA && is_simple_shape(shape, localToDevice, type)) {
         // For pixel-aligned rects, use the the non-AA bounds renderer to avoid triggering any
         // dst-read requirement due to src blending.
         bool pixelAlignedRect = false;
@@ -1930,12 +1947,15 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
         }
     }
 
-    if (!requireMSAA && shape.isArc() &&
-        SkScalarNearlyEqual(shape.arc().oval().width(), shape.arc().oval().height()) &&
-        SkScalarAbs(shape.arc().sweepAngle()) < 360.f &&
-        localToDevice.type() <= Transform::Type::kAffine) {
-        float maxScale, minScale;
-        std::tie(maxScale, minScale) = localToDevice.scaleFactors({0, 0});
+    if (!requireMSAA &&
+        shape.isArc() &&
+        std::abs(shape.arc().sweepAngle()) < 360.f &&
+        localToDevice.type() <= Transform::Type::kAffine &&
+        SkRRectPriv::IsRelativelyCircular(shape.arc().oval().width(), shape.arc().oval().height(),
+                                          Shape::kDefaultPixelTolerance *
+                                                localToDevice.localAARadius(drawBounds))) {
+        // We aren't perspective, so the point passed to scaleFactors() doesn't matter
+        auto [minScale, maxScale] = localToDevice.scaleFactors({0, 0});
         if (SkScalarNearlyEqual(maxScale, minScale)) {
             // Arc support depends on the style.
             SkStrokeRec::Style recStyle = style.getStyle();

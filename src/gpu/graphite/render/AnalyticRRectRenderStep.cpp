@@ -507,7 +507,8 @@ void AnalyticRRectRenderStep::writeVertices(DrawWriter* writer,
 
         SkASSERT(params.strokeStyle().halfWidth() >= 0.f);
         SkASSERT(shape.isRect() || shape.isLine() || params.strokeStyle().halfWidth() == 0.f ||
-                 (shape.isRRect() && SkRRectPriv::AllCornersCircular(shape.rrect())));
+                 (shape.isRRect() && SkRRectPriv::AllCornersRelativelyCircular(
+                        shape.rrect(), aaRadius * Shape::kDefaultPixelTolerance)));
 
         float strokeRadius = params.strokeStyle().halfWidth();
 

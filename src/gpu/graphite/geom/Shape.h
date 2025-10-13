@@ -37,6 +37,12 @@ public:
     };
     inline static constexpr int kTypeCount = static_cast<int>(Type::kPath) + 1;
 
+    // The default tolerance to use for fuzzy geometric comparisons that are already transformed
+    // into device-space. Distances, containment checks, or equality tests closer than
+    // kDefaultPixelTolerance (< ~0.004) can be considered perceptibly equivalent. This can be
+    // tested in a different coordinate space by scaling this constant with Transform::localAARadius
+    static constexpr float kDefaultPixelTolerance = 0.0039f; // (1.f - 0.001f) / 255.f;
+
     Shape() {}
     Shape(const Shape& shape)               { *this = shape; }
     Shape(Shape&&) = delete;

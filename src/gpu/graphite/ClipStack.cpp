@@ -217,7 +217,8 @@ bool intersect_shape(const Transform& otherToDevice, const Shape& otherShape,
         // If we don't have enough precision, the other shape might not map back to the geometry.
         // Allow up to 1/1000th of a pixel in tolerance when mapping between coordinate spaces,
         // otherwise we'll have to clip the shapes independently.
-        const float otherTol = 0.001f * otherToDevice.localAARadius(localOtherRect);
+        const float otherTol =
+                Shape::kDefaultPixelTolerance * otherToDevice.localAARadius(localOtherRect);
         if (localOtherRect.isEmptyNegativeOrNaN() ||
             !localToOther->mapRect(mapped).nearlyEquals(localOtherRect, otherTol)) {
             return false;
@@ -1613,16 +1614,14 @@ AnalyticClip can_apply_analytic_clip(const Shape& shape, const Transform& localT
     // The circular rrect clip only handles rrect radii >= kRadiusMin, circular radii less than
     // this are coerced to be rectangular.
     static constexpr float kRadiusMin = SK_ScalarHalf;
-    // Given that these rrects are defined in device space, a fairly high tolerance can be used for
-    // comparing the X and Y radii to each other.
-    static constexpr float kRadiiTolerance = 0.04f;
 
     // Can handle Rect directly.
     if (shape.isRect()) {
         return {shape.rect(), kRadiusMin, AnalyticClip::kNone_EdgeFlag, shape.inverted()};
     }
 
-    // Otherwise we only handle certain kinds of RRects.
+    // Otherwise we only handle certain kinds of RRects, specifically only approximately simple
+    // circular rrects (e.g. all 4 corners can be described by a single radius value).
     if (!shape.isRRect()) {
         return {};
     }
@@ -1635,7 +1634,7 @@ AnalyticClip can_apply_analytic_clip(const Shape& shape, const Transform& localT
             // clip to a rectangular clip.
             return {rrect.rect(), kRadiusMin, AnalyticClip::kNone_EdgeFlag, shape.inverted()};
         }
-        if (SkScalarNearlyEqual(radii.fX, radii.fY, kRadiiTolerance)) {
+        if (SkRRectPriv::IsRelativelyCircular(radii.fX, radii.fY, Shape::kDefaultPixelTolerance)) {
             return {rrect.rect(), radii.fX, AnalyticClip::kAll_EdgeFlag, shape.inverted()};
         } else {
             return {};
@@ -1660,7 +1659,7 @@ AnalyticClip can_apply_analytic_clip(const Shape& shape, const Transform& localT
         SkVector radii = rrect.radii((SkRRect::Corner)corner);
         // Can only handle circular radii.
         // Also applies to corners with both zero and non-zero radii.
-        if (!SkScalarNearlyEqual(radii.fX, radii.fY, kRadiiTolerance)) {
+        if (!SkRRectPriv::IsRelativelyCircular(radii.fX, radii.fY, Shape::kDefaultPixelTolerance)) {
             return {};
         }
         if (radii.fX < kRadiusMin || radii.fY < kRadiusMin) {
@@ -1671,7 +1670,9 @@ AnalyticClip can_apply_analytic_clip(const Shape& shape, const Transform& localT
         // First circular corner seen
         if (!edgeFlags) {
             circularRadius = radii.fX;
-        } else if (!SkScalarNearlyEqual(radii.fX, circularRadius, kRadiiTolerance)) {
+        } else if (!SkRRectPriv::IsRelativelyCircular(radii.fX,
+                                                      circularRadius,
+                                                      Shape::kDefaultPixelTolerance)) {
             // Radius doesn't match previously seen circular radius
             return {};
         }
@@ -1790,7 +1791,7 @@ Clip ClipStack::visitClipStackForDraw(const Transform& localToDevice,
                 // analytic clip pipeline variation or triggering MSAA.
                 if (e.clipType() == ClipState::kDeviceRect) {
                     Rect scissor = e.shape().rect().makeRound();
-                    if (e.shape().rect().nearlyEquals(scissor)) {
+                    if (e.shape().rect().nearlyEquals(scissor, Shape::kDefaultPixelTolerance)) {
                         // Pass in `scissor` since these need to be integral values while
                         // nearlyEquals allows the original rect coordinates to be slightly
                         // different (causing problems later with asSkIRect()).
