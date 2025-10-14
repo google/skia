@@ -338,7 +338,7 @@ DEF_GM(return new FontationsFtCompareGM(
         "Latn|sr_Latn|sr_Cyrl|lt_Latn|hr_Latn|sl_Latn|uz_Latn|uz_Cyrl|lv_Latn|"
         "et_Latn|az_Latn|az_Cyrl|la_Latn|tg_Latn|tg_Cyrl|sw_Latn|mn_Cyrl|kk_"
         "Latn|kk_Cyrl|sq_Latn|af_Latn|ha_Latn|ky_Cyrl",
-        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM(
         "NotoSans",
@@ -350,7 +350,7 @@ DEF_GM(return new FontationsFtCompareGM(
         "et_Latn|az_Latn|az_Cyrl|la_Latn|tg_Latn|tg_Cyrl|sw_Latn|mn_Cyrl|kk_"
         "Latn|kk_Cyrl|sq_Latn|af_Latn|ha_Latn|ky_Cyrl",
         FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs,
-        SkFontHinting::kSlight));
+        SkFontHinting::kSlight))
 
 DEF_GM(return new FontationsFtCompareGM(
         "NotoSans",
@@ -362,7 +362,7 @@ DEF_GM(return new FontationsFtCompareGM(
         "et_Latn|az_Latn|az_Cyrl|la_Latn|tg_Latn|tg_Cyrl|sw_Latn|mn_Cyrl|kk_"
         "Latn|kk_Cyrl|sq_Latn|af_Latn|ha_Latn|ky_Cyrl",
         FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs,
-        SkFontHinting::kNormal));
+        SkFontHinting::kNormal))
 
 DEF_GM(return new FontationsFtCompareGM(
         "NotoSans",
@@ -373,19 +373,7 @@ DEF_GM(return new FontationsFtCompareGM(
         "Latn|sr_Latn|sr_Cyrl|lt_Latn|hr_Latn|sl_Latn|uz_Latn|uz_Cyrl|lv_Latn|"
         "et_Latn|az_Latn|az_Cyrl|la_Latn|tg_Latn|tg_Cyrl|sw_Latn|mn_Cyrl|kk_"
         "Latn|kk_Cyrl|sq_Latn|af_Latn|ha_Latn|ky_Cyrl",
-        FontationsFtCompareGM::SimulatePixelGeometry::kSimulateUnknown));
-
-DEF_GM(return new FontationsFtCompareGM(
-        "NotoSans",
-        "Noto Sans",
-        "en_Latn|es_Latn|pt_Latn|id_Latn|ru_Cyrl|fr_Latn|tr_Latn|vi_Latn|de_"
-        "Latn|it_Latn|pl_Latn|nl_Latn|uk_Cyrl|gl_Latn|ro_Latn|cs_Latn|hu_Latn|"
-        "el_Grek|se_Latn|da_Latn|bg_Latn|sk_Latn|fi_Latn|bs_Latn|ca_Latn|no_"
-        "Latn|sr_Latn|sr_Cyrl|lt_Latn|hr_Latn|sl_Latn|uz_Latn|uz_Cyrl|lv_Latn|"
-        "et_Latn|az_Latn|az_Cyrl|la_Latn|tg_Latn|tg_Cyrl|sw_Latn|mn_Cyrl|kk_"
-        "Latn|kk_Cyrl|sq_Latn|af_Latn|ha_Latn|ky_Cyrl",
-        FontationsFtCompareGM::SimulatePixelGeometry::kSimulateUnknown,
-        SkFontHinting::kSlight));
+        FontationsFtCompareGM::SimulatePixelGeometry::kSimulateUnknown))
 
 DEF_GM(return new FontationsFtCompareGM(
         "NotoSans",
@@ -397,155 +385,167 @@ DEF_GM(return new FontationsFtCompareGM(
         "et_Latn|az_Latn|az_Cyrl|la_Latn|tg_Latn|tg_Cyrl|sw_Latn|mn_Cyrl|kk_"
         "Latn|kk_Cyrl|sq_Latn|af_Latn|ha_Latn|ky_Cyrl",
         FontationsFtCompareGM::SimulatePixelGeometry::kSimulateUnknown,
-        SkFontHinting::kNormal));
+        SkFontHinting::kSlight))
+
+DEF_GM(return new FontationsFtCompareGM(
+        "NotoSans",
+        "Noto Sans",
+        "en_Latn|es_Latn|pt_Latn|id_Latn|ru_Cyrl|fr_Latn|tr_Latn|vi_Latn|de_"
+        "Latn|it_Latn|pl_Latn|nl_Latn|uk_Cyrl|gl_Latn|ro_Latn|cs_Latn|hu_Latn|"
+        "el_Grek|se_Latn|da_Latn|bg_Latn|sk_Latn|fi_Latn|bs_Latn|ca_Latn|no_"
+        "Latn|sr_Latn|sr_Cyrl|lt_Latn|hr_Latn|sl_Latn|uz_Latn|uz_Cyrl|lv_Latn|"
+        "et_Latn|az_Latn|az_Cyrl|la_Latn|tg_Latn|tg_Cyrl|sw_Latn|mn_Cyrl|kk_"
+        "Latn|kk_Cyrl|sq_Latn|af_Latn|ha_Latn|ky_Cyrl",
+        FontationsFtCompareGM::SimulatePixelGeometry::kSimulateUnknown,
+        SkFontHinting::kNormal))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Deva",
                                         "Noto Sans Devanagari",
                                         "hi_Deva|mr_Deva",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Deva",
                                         "Noto Sans Devanagari",
                                         "hi_Deva|mr_Deva",
                                         FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs,
-                                        SkFontHinting::kSlight));
+                                        SkFontHinting::kSlight))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Deva",
                                         "Noto Sans Devanagari",
                                         "hi_Deva|mr_Deva",
                                         FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs,
-                                        SkFontHinting::kNormal));
+                                        SkFontHinting::kNormal))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_ar_Arab",
                                         "Noto Sans Arabic",
                                         "ar_Arab|uz_Arab|kk_Arab|ky_Arab",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
-
-DEF_GM(return new FontationsFtCompareGM("NotoSans_ar_Arab",
-                                        "Noto Sans Arabic",
-                                        "ar_Arab|uz_Arab|kk_Arab|ky_Arab",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs,
-                                        SkFontHinting::kSlight));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_ar_Arab",
                                         "Noto Sans Arabic",
                                         "ar_Arab|uz_Arab|kk_Arab|ky_Arab",
                                         FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs,
-                                        SkFontHinting::kNormal));
+                                        SkFontHinting::kSlight))
+
+DEF_GM(return new FontationsFtCompareGM("NotoSans_ar_Arab",
+                                        "Noto Sans Arabic",
+                                        "ar_Arab|uz_Arab|kk_Arab|ky_Arab",
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs,
+                                        SkFontHinting::kNormal))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Beng",
                                         "Noto Sans Bengali",
                                         "bn_Beng",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Jpan",
                                         "Noto Sans JP",
                                         "ja_Jpan",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Thai",
                                         "Noto Sans Thai",
                                         "th_Thai",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Hans",
                                         "Noto Sans SC",
                                         "zh_Hans",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Hant",
                                         "Noto Sans TC",
                                         "zh_Hant",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Kore",
                                         "Noto Sans KR",
                                         "ko_Kore",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Taml",
                                         "Noto Sans Tamil",
                                         "ta_Taml",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Newa",
                                         "Noto Sans Newa",
                                         "new_Newa",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Knda",
                                         "Noto Sans Kannada",
                                         "kn_Knda",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Tglg",
                                         "Noto Sans Tagalog",
                                         "fil_Tglg",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Telu",
                                         "Noto Sans Telugu",
                                         "te_Telu",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Gujr",
                                         "Noto Sans Gujarati",
                                         "gu_Gujr",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Geor",
                                         "Noto Sans Georgian",
                                         "ka_Geor",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Mlym",
                                         "Noto Sans Malayalam",
                                         "ml_Mlym",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Khmr",
                                         "Noto Sans Khmer",
                                         "km_Khmr",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Sinh",
                                         "Noto Sans Sinhala",
                                         "si_Sinh",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Mymr",
                                         "Noto Sans Myanmar",
                                         "my_Mymr",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Java",
                                         "Noto Sans Javanese",
                                         "jv_Java",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Mong",
                                         "Noto Sans Mongolian",
                                         "mn_Mong",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Armn",
                                         "Noto Sans Armenian",
                                         "hy_Armn",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Elba",
                                         "Noto Sans Elbasan",
                                         "sq_Elba",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Vith",
                                         "Noto Sans Vithkuqi",
                                         "sq_Vith",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 DEF_GM(return new FontationsFtCompareGM("NotoSans_Guru",
                                         "Noto Sans Gurmukhi",
                                         "pa_Guru",
-                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs));
+                                        FontationsFtCompareGM::SimulatePixelGeometry::kLeaveAsIs))
 
 }  // namespace skiagm
