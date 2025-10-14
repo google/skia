@@ -28,7 +28,7 @@ using skwindow::internal::GraphiteMetalWindowContext;
 namespace skwindow::internal {
 
 GraphiteMetalWindowContext::GraphiteMetalWindowContext(std::unique_ptr<const DisplayParams> params)
-        : WindowContext(DisplayParamsBuilder(params.get()).roundUpMSAA().build())
+        : WindowContext(DisplayParamsBuilder(params.get()).roundUpMSAA().detach())
         , fValid(false)
         , fDrawableHandle(nil) {}
 
@@ -66,7 +66,7 @@ void GraphiteMetalWindowContext::initializeContext() {
     // Needed to make synchronous readPixels work:
     opts.fPriv.fStoreContextRefInRecorder = true;
     fDisplayParams =
-            GraphiteDisplayParamsBuilder(fDisplayParams.get()).graphiteTestOptions(opts).build();
+            GraphiteDisplayParamsBuilder(fDisplayParams.get()).graphiteTestOptions(opts).detach();
     fGraphiteContext = skgpu::graphite::ContextFactory::MakeMetal(
             backendContext, fDisplayParams->graphiteTestOptions()->fTestOptions.fContextOptions);
     fGraphiteRecorder = fGraphiteContext->makeRecorder(ToolUtils::CreateTestingRecorderOptions());

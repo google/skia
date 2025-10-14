@@ -28,7 +28,7 @@ using skwindow::internal::MetalWindowContext;
 namespace skwindow::internal {
 
 MetalWindowContext::MetalWindowContext(std::unique_ptr<const DisplayParams> params)
-        : WindowContext(DisplayParamsBuilder(params.get()).roundUpMSAA().build())
+        : WindowContext(DisplayParamsBuilder(params.get()).roundUpMSAA().detach())
         , fValid(false)
         , fDrawableHandle(nil) {}
 
@@ -61,7 +61,7 @@ void MetalWindowContext::initializeContext() {
         newParams.msaaSampleCount(fDisplayParams->msaaSampleCount() / 2);
         // Don't call this->setDisplayParams because that also calls
         // destroyContext() and initializeContext().
-        fDisplayParams = newParams.build();
+        fDisplayParams = newParams.detach();
         this->initializeContext();
         return;
     }

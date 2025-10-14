@@ -24,7 +24,7 @@
 namespace skwindow::internal {
 
 GLWindowContext::GLWindowContext(std::unique_ptr<const DisplayParams> params)
-        : WindowContext(DisplayParamsBuilder(params.get()).roundUpMSAA().build())
+        : WindowContext(DisplayParamsBuilder(params.get()).roundUpMSAA().detach())
         , fBackendContext(nullptr)
         , fSurface(nullptr) {}
 
@@ -37,7 +37,7 @@ void GLWindowContext::initializeContext() {
     if (!fContext && fDisplayParams->msaaSampleCount() > 1) {
         int newMSAA = fDisplayParams->msaaSampleCount() / 2;
         fDisplayParams =
-                DisplayParamsBuilder(fDisplayParams.get()).msaaSampleCount(newMSAA).build();
+                DisplayParamsBuilder(fDisplayParams.get()).msaaSampleCount(newMSAA).detach();
         this->initializeContext();
         return;
     }

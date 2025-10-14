@@ -643,8 +643,8 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     }
     paramsBuilder.graphiteTestOptions(gto);
 #endif
-    fWindow->setRequestedDisplayParams(paramsBuilder.build());
-    fDisplay = paramsBuilder.build();
+    fDisplay = paramsBuilder.detach();
+    fWindow->setRequestedDisplayParams(fDisplay->clone());
     fRefresh = FLAGS_redraw;
 
     fImGuiLayer.setScaleFactor(fWindow->scaleFactor());
@@ -695,7 +695,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         auto params = fWindow->getRequestedDisplayParams();
         auto paramsBuilder = make_display_params_builder(params);
         paramsBuilder.disableVsync(!params->disableVsync());
-        fWindow->setRequestedDisplayParams(paramsBuilder.build());
+        fWindow->setRequestedDisplayParams(paramsBuilder.detach());
         this->updateTitle();
         fWindow->inval();
     });
@@ -703,7 +703,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         auto params = fWindow->getRequestedDisplayParams();
         auto paramsBuilder = make_display_params_builder(params);
         paramsBuilder.delayDrawableAcquisition(!params->delayDrawableAcquisition());
-        fWindow->setRequestedDisplayParams(paramsBuilder.build());
+        fWindow->setRequestedDisplayParams(paramsBuilder.detach());
         this->updateTitle();
         fWindow->inval();
     });
@@ -747,7 +747,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         GrContextOptions grOpts = params->grContextOptions();
         grOpts.fWireframeMode = !grOpts.fWireframeMode;
         paramsBuilder.grContextOptions(grOpts);
-        fWindow->setRequestedDisplayParams(paramsBuilder.build());
+        fWindow->setRequestedDisplayParams(paramsBuilder.detach());
         fWindow->inval();
     });
     fCommands.addCommand('w', "Modes", "Toggle reduced shaders", [this]() {
@@ -756,7 +756,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         GrContextOptions grOpts = params->grContextOptions();
         grOpts.fReducedShaderVariations = !grOpts.fReducedShaderVariations;
         paramsBuilder.grContextOptions(grOpts);
-        fWindow->setRequestedDisplayParams(paramsBuilder.build());
+        fWindow->setRequestedDisplayParams(paramsBuilder.detach());
         fWindow->inval();
     });
 #endif
@@ -826,7 +826,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
             }
         }
         paramsBuilder.surfaceProps(newProps);
-        fWindow->setRequestedDisplayParams(paramsBuilder.build());
+        fWindow->setRequestedDisplayParams(paramsBuilder.detach());
         this->updateTitle();
         fWindow->inval();
     });
@@ -862,7 +862,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         SkSurfaceProps newProps = SkSurfaceProps(flags, params->surfaceProps().pixelGeometry());
 
         paramsBuilder.surfaceProps(newProps);
-        fWindow->setRequestedDisplayParams(paramsBuilder.build());
+        fWindow->setRequestedDisplayParams(paramsBuilder.detach());
         this->updateTitle();
         fWindow->inval();
     });
@@ -3147,7 +3147,7 @@ void Viewer::drawImGui() {
         if (displayParamsChanged || uiParamsChanged) {
             // The unique_ptr cannot be captured, so release it and capture the raw pointer value in
             // the lambda. The lambda is responsible for deleting it, which will only be called once
-            skwindow::DisplayParams* newParams = newParamsBuilder.build().release();
+            skwindow::DisplayParams* newParams = newParamsBuilder.detach().release();
             fDeferredActions.emplace_back([displayParamsChanged, newParams, this]() {
                 if (displayParamsChanged) {
                     fWindow->setRequestedDisplayParams(
@@ -3511,7 +3511,7 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
         if (sampleCount != params->msaaSampleCount()) {
             auto newParamsBuilder = make_display_params_builder(params);
             newParamsBuilder.msaaSampleCount(sampleCount);
-            fWindow->setRequestedDisplayParams(newParamsBuilder.build());
+            fWindow->setRequestedDisplayParams(newParamsBuilder.detach());
             fWindow->inval();
             this->updateTitle();
             this->updateUIState();
@@ -3526,7 +3526,7 @@ void Viewer::onUIStateChanged(const SkString& stateName, const SkString& stateVa
                     auto newOpts = params->grContextOptions();
                     newOpts.fGpuPathRenderers = pair.first;
                     newParamsBuilder.grContextOptions(newOpts);
-                    fWindow->setRequestedDisplayParams(newParamsBuilder.build());
+                    fWindow->setRequestedDisplayParams(newParamsBuilder.detach());
                     fWindow->inval();
                     this->updateTitle();
                     this->updateUIState();

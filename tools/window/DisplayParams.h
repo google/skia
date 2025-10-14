@@ -91,21 +91,25 @@ public:
     DisplayParamsBuilder(const DisplayParams* other) : fDisplayParams(other->clone()) {}
 
     DisplayParamsBuilder& colorType(SkColorType colorType) {
+        SkASSERT_RELEASE(fDisplayParams);
         fDisplayParams->fColorType = colorType;
         return *this;
     }
 
     DisplayParamsBuilder& colorSpace(const sk_sp<SkColorSpace>& colorSpace) {
+        SkASSERT_RELEASE(fDisplayParams);
         fDisplayParams->fColorSpace = colorSpace;
         return *this;
     }
 
     DisplayParamsBuilder& msaaSampleCount(int MSAASampleCount) {
+        SkASSERT_RELEASE(fDisplayParams);
         fDisplayParams->fMSAASampleCount = MSAASampleCount;
         return *this;
     }
 
     DisplayParamsBuilder& roundUpMSAA() {
+        SkASSERT_RELEASE(fDisplayParams);
         // SkNextPow2 is undefined for 0, so handle that ourselves.
         if (fDisplayParams->fMSAASampleCount <= 1) {
             fDisplayParams->fMSAASampleCount = 1;
@@ -117,32 +121,40 @@ public:
 
 #if defined(SK_GANESH)
     DisplayParamsBuilder& grContextOptions(const GrContextOptions& grContextOptions) {
+        SkASSERT_RELEASE(fDisplayParams);
         fDisplayParams->fGrContextOptions = grContextOptions;
         return *this;
     }
 #endif
 
     DisplayParamsBuilder& surfaceProps(const SkSurfaceProps& surfaceProps) {
+        SkASSERT_RELEASE(fDisplayParams);
         fDisplayParams->fSurfaceProps = surfaceProps;
         return *this;
     }
 
     DisplayParamsBuilder& disableVsync(bool disableVsync) {
+        SkASSERT_RELEASE(fDisplayParams);
         fDisplayParams->fDisableVsync = disableVsync;
         return *this;
     }
 
     DisplayParamsBuilder& delayDrawableAcquisition(bool delayDrawableAcquisition) {
+        SkASSERT_RELEASE(fDisplayParams);
         fDisplayParams->fDelayDrawableAcquisition = delayDrawableAcquisition;
         return *this;
     }
 
     DisplayParamsBuilder& createProtectedNativeBackend(bool createProtectedNativeBackend) {
+        SkASSERT_RELEASE(fDisplayParams);
         fDisplayParams->fCreateProtectedNativeBackend = createProtectedNativeBackend;
         return *this;
     }
 
-    std::unique_ptr<DisplayParams> build() { return std::move(fDisplayParams); }
+    std::unique_ptr<DisplayParams> detach() {
+        SkASSERT_RELEASE(fDisplayParams);
+        return std::move(fDisplayParams);
+    }
 
 protected:
     DisplayParamsBuilder(std::unique_ptr<DisplayParams> other) : fDisplayParams(std::move(other)) {}
