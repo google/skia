@@ -54,9 +54,12 @@
 #include "tests/Test.h"
 #include "tools/ToolUtils.h"
 
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <initializer_list>
+#include <limits>
 #include <map>
 #include <memory>
 #include <utility>
@@ -1508,6 +1511,37 @@ DEF_TEST(Triangulator_bug424666603, r) {
     int vertexCount = GrAATriangulator::PathToAATriangles(
             path.detach(), GrPathUtils::kDefaultTolerance, clipBounds, &alloc);
     REPORTER_ASSERT(r, vertexCount);
+}
+
+DEF_TEST(GrPathUtils_bug451448218, r) {
+    std::array<SkPoint, 128> pts_storage;
+
+    {
+        SkPoint* pts_ptr = pts_storage.data();
+        auto pts = SkSpan(pts_storage.data(), GrPathUtils::generateQuadraticPoints(
+            {std::numeric_limits<float>::min()  , std::numeric_limits<float>::max()  },
+            {std::numeric_limits<float>::min()/2, std::numeric_limits<float>::max()/4},
+            {std::numeric_limits<float>::min()/4, std::numeric_limits<float>::max()/2},
+            0.25f, &pts_ptr, std::size(pts_storage)));
+        REPORTER_ASSERT(r, !pts.empty());
+        REPORTER_ASSERT(r, std::find_if(pts.begin(),
+                                        pts.end(),
+                                        [](const SkPoint& p) { return !p.isFinite(); }) ==
+                            pts.end());
+    }
+    {
+        SkPoint* pts_ptr = pts_storage.data();
+        auto pts = SkSpan(pts_storage.data(), GrPathUtils::generateQuadraticPoints(
+            {-2622205555521528300272877568.f, -170344960829757120064436701749554708480.f},
+            {-2547580949471791090489098240.f, -170036485662095181808958888004745691136.f},
+            {-2473589583252616182193192960.f, -169626344916294939555481038662865518592.f},
+            0.25f, &pts_ptr, std::size(pts_storage)));
+        REPORTER_ASSERT(r, !pts.empty());
+        REPORTER_ASSERT(r, std::find_if(pts.begin(),
+                                        pts.end(),
+                                        [](const SkPoint& p) { return !p.isFinite(); }) ==
+                            pts.end());
+    }
 }
 
 #endif // SK_ENABLE_OPTIMIZE_SIZE
