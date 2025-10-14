@@ -56,7 +56,6 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
     TextureDataCache::Index tID1;
     {
         PipelineDataGatherer gatherer{Layout::kStd430};
-        gatherer.setRenderStepManagerActive(); // Set active manager for render step data
 
         SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
         gatherer.write(SkV4{1.f, 2.f, 3.f, 4.f});
@@ -79,7 +78,6 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
     // Block B: Add the exact same render step data to test de-duplication
     {
         PipelineDataGatherer gatherer{Layout::kStd430};
-        gatherer.setRenderStepManagerActive();
 
         SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
         gatherer.write(SkV4{1.f, 2.f, 3.f, 4.f}); // Same uniform data
@@ -101,7 +99,6 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
     UniformDataCache::Index uID3;
     {
         PipelineDataGatherer gatherer{Layout::kStd430};
-        gatherer.setRenderStepManagerActive();
 
         SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
         gatherer.write(SkV4{5.f, 6.f, 7.f, 8.f}); // Different uniform data
@@ -122,7 +119,6 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
     // Block D: Add the same render step uniforms but a new unique texture
     {
         PipelineDataGatherer gatherer{Layout::kStd430};
-        gatherer.setRenderStepManagerActive();
 
         SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
         gatherer.write(SkV4{1.f, 2.f, 3.f, 4.f}); // Same uniform data as Block A
@@ -160,7 +156,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
     {
         PipelineDataGatherer gatherer{Layout::kStd430};
         SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
-        gatherer.write(SkV4{10.f, 20.f, 30.f, 40.f}); // Same paint uniform data as Block E
+        gatherer.write(SkV4{10.f, 20.f, 30.f, 40.f});   // Same paint uniform data as Block E
 
         UniformDataBlock udb = gatherer.endPaintData();
         UniformDataCache::Index uID6 = uCache.insert(udb);
@@ -176,7 +172,7 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
         // 1. Add paint data
         {
             SkDEBUGCODE(UniformExpectationsValidator paintUev(&gatherer, kUniforms);)
-            gatherer.write(SkV4{10.f, 20.f, 30.f, 40.f});   // Same paint uniform as Block E
+            gatherer.write(SkV4{10.f, 20.f, 30.f, 40.f}); // Same paint uniform as Block E
             gatherer.add(proxyA, {});
 
             UniformDataBlock paintUdb = gatherer.endPaintData();
@@ -188,7 +184,6 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
 
         // 2. Add render step data
         {
-            gatherer.setRenderStepManagerActive();    // Switch to render step mode
             SkDEBUGCODE(UniformExpectationsValidator rsUev(&gatherer, kUniforms);)
             gatherer.write(SkV4{1.f, 2.f, 3.f, 4.f}); // Same render step uniform as Block A
             gatherer.add(proxyB, {});
@@ -206,6 +201,39 @@ DEF_GRAPHITE_TEST_FOR_ALL_CONTEXTS(PipelineDataCacheTest, reporter, context,
             REPORTER_ASSERT(reporter, combinedTID != tID1);              // New binding
             REPORTER_ASSERT(reporter, tCache.bindingCount() == 3);       // Count increases
             REPORTER_ASSERT(reporter, tCache.uniqueTextureCount() == 2); // Still 2 unique proxies
+        }
+    }
+
+    // Block H: Simulate multiple recordDraw calls for a single geometry without an intervening
+    // resetForDraw().
+    {
+        PipelineDataGatherer gatherer{Layout::kStd430};
+        UniformDataCache::Index firstPaintID;
+        UniformDataCache::Index secondPaintID;
+
+        // A single reset before multiple draws.
+        gatherer.resetForDraw();
+
+        // First paint data recording.
+        {
+            SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
+            gatherer.write(SkV4{11.f, 22.f, 33.f, 44.f}); // First unique paint data
+            UniformDataBlock udb = gatherer.endPaintData();
+            firstPaintID = uCache.insert(udb);
+
+            REPORTER_ASSERT(reporter, uCache.count() == 4); // Count increases
+        }
+
+        // Second paint data recording, with rewindForRenderStep() but without resetForDraw().
+        {
+            gatherer.rewindForRenderStep();
+
+            SkDEBUGCODE(UniformExpectationsValidator uev(&gatherer, kUniforms);)
+            UniformDataBlock udb = gatherer.endPaintData();
+            secondPaintID = uCache.insert(udb);
+
+            REPORTER_ASSERT(reporter, secondPaintID == firstPaintID); // Should be same block
+            REPORTER_ASSERT(reporter, uCache.count() == 4);           // Count remains the same
         }
     }
 }

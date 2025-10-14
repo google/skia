@@ -71,6 +71,7 @@ int UniformOffsetCalculator::advanceStruct(const UniformOffsetCalculator& substr
 void UniformManager::resetWithNewLayout(Layout layout) {
     fStorage.clear();
     fLayout = layout;
+    fStartingOffset = 0;
     fReqAlignment = 0;
     fStructBaseAlignment = 0;
     fWrotePaintColor = false;
@@ -81,6 +82,10 @@ void UniformManager::resetWithNewLayout(Layout layout) {
     fExpectedUniforms = {};
     fExpectedUniformIndex = 0;
 #endif
+}
+
+void UniformManager::rewindToOffset() {
+    fStorage.resize(fStartingOffset);
 }
 
 static std::pair<SkSLType, int> adjust_for_matrix_type(SkSLType type, int count) {
@@ -232,7 +237,8 @@ bool UniformManager::checkExpected(const void* dst, SkSLType type, int count) {
         // If we have 'dst', it's the aligned starting offset of the uniform being checked, so
         // subtracting the address of the first byte in fStorage gives us the offset.
         int offset = static_cast<int>(reinterpret_cast<intptr_t>(dst) -
-                                      reinterpret_cast<intptr_t>(fStorage.data()));
+                                      reinterpret_cast<intptr_t>(fStorage.data())
+                                      - fStartingOffset);
 
         if (fSubstructCalculator.layout() == Layout::kInvalid) {
             // Pass original expected type and count to the offset calculator for validation.

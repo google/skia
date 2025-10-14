@@ -202,10 +202,7 @@ void DrawList::recordDraw(const Renderer* renderer,
 
     fRenderStepCount += renderer->numRenderSteps();
 
-    gatherer->setRenderStepManagerActive();
     for (int stepIndex = 0; stepIndex < draw.renderer()->numRenderSteps(); ++stepIndex) {
-        gatherer->rewindForRenderStep();
-
         const RenderStep* const step = draw.renderer()->steps()[stepIndex];
         const bool performsShading = step->performsShading();
 
@@ -225,8 +222,10 @@ void DrawList::recordDraw(const Renderer* renderer,
                              stepIndex,
                              pipelineIndex,
                              geomUniformIndex,
-                             performsShading ? shadingUniformIndex : UniformDataCache::kInvalidIndex,
+                             performsShading ? shadingUniformIndex :
+                                               UniformDataCache::kInvalidIndex,
                              textureBindingIndex});
+        gatherer->rewindForRenderStep();
     }
 
     fPassBounds.join(clip.drawBounds());
