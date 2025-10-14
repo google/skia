@@ -907,6 +907,14 @@ public:
     */
     std::optional<SkPoint> getLastPt() const;
 
+    /** Change the point at the specified index (see countPoints()).
+     *  If index is out of range, the call does nothing.
+     *
+     *  @param index which point to replace
+     *  @param p the new point value
+     */
+    void setPoint(size_t index, SkPoint p);
+
     /** Sets the last point on the path. If SkPoint array is empty, append kMove_Verb to
         verb array and append p to SkPoint array.
 
