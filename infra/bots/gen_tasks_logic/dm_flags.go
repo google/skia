@@ -578,6 +578,12 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompileTest")
 					skip(ALL, "test", ALL, "ThreadedPipelinePrecompileCompilePurgingTest")
 					skip(ALL, "test", ALL, "ThreadedPipelinePrecompilePurgingTest")
+
+					if b.GPU("QuadroP400") {
+						// The nVidia driver on the P400 doesn't seem to correctly support pipeline caching
+						// control (i.e., it *never* returns VK_PIPELINE_COMPILE_REQUIRED)
+						skip(ALL, "test", ALL, "PersistentPipelineStorageTest")
+					}
 				}
 			}
 		}
