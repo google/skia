@@ -225,58 +225,49 @@ bool SkPathData::finishInit(std::optional<SkRect> bounds, std::optional<uint8_t>
     return true;
 }
 
-sk_sp<SkPathData> SkPathData::MakeTransform(const SkPathRaw& src, const SkMatrix& mx) {
-    if (src.empty()) {
-        return SkPathData::Empty();
+sk_sp<SkPathData> SkPathData::makeTransform(const SkMatrix& mx) const {
+    if (mx.isIdentity() || this->empty()) {
+        return sk_ref_sp(this);
     }
 
     if (mx.hasPerspective()) {
         SkPathBuilder bu;
-        bu.addRaw(src);
+        bu.addRaw(this->raw(SkPathFillType::kDefault));
         bu.transform(mx);
         return bu.detachData();
     }
 
     // Allocate our result, so we can map the new points directly into it
-    auto result = Alloc(src.points().size(), src.verbs().size(), src.conics().size());
-    mx.mapPoints(result->fPoints, src.points());
-    spancpy(result->fConics, src.conics());
-    spancpy(result->fVerbs,  src.verbs());
+    auto result = Alloc(this->points().size(), this->verbs().size(), this->conics().size());
+    mx.mapPoints(result->fPoints, this->points());
+    spancpy(result->fConics, this->conics());
+    spancpy(result->fVerbs,  this->verbs());
 
     std::optional<SkRect> transformedBounds;
     if (mx.rectStaysRect()) {
         // safe us from having to compute our transformed bounds in finishInit()
-        transformedBounds = mx.mapRect(src.bounds());
+        transformedBounds = mx.mapRect(fBounds);
         if (!transformedBounds.value().isFinite()) {
             report_pathdata_make_failure("transform created non-finite bounds");
             return nullptr;
         }
     }
 
-    return result->finishInit(transformedBounds, src.fSegmentMask) ? result : nullptr;
-}
-
-sk_sp<SkPathData> SkPathData::makeTransform(const SkMatrix& mx) const {
-    if (mx.isIdentity()) {
-        return sk_ref_sp(this);
+    if (!result->finishInit(transformedBounds, fSegmentMask)) {
+        return nullptr;
     }
 
-    // not important for transform, just need a value
-    const SkPathFillType ft = SkPathFillType::kDefault;
+    // result is ready to go -- but now we see if we can maintian our IsA status ...
 
-    if (auto result = MakeTransform(this->raw(ft), mx)) {
-        // See if we can maintian our IsA status ...
-        if ((fType == SkPathIsAType::kOval || fType == SkPathIsAType::kRRect) &&
-            mx.rectStaysRect() && SkPathPriv::IsAxisAligned(fPoints))
-        {
-            auto [dir, start] =
-            SkPathPriv::TransformDirAndStart(mx, fType == SkPathIsAType::kRRect,
-                                             fIsA.fDirection, fIsA.fStartIndex);
-            result->setupIsA(fType, dir, start);
-        }
-        return result;
+    if ((fType == SkPathIsAType::kOval || fType == SkPathIsAType::kRRect) &&
+        mx.rectStaysRect() && SkPathPriv::IsAxisAligned(fPoints))
+    {
+        auto [dir, start] =
+        SkPathPriv::TransformDirAndStart(mx, fType == SkPathIsAType::kRRect,
+                                         fIsA.fDirection, fIsA.fStartIndex);
+        result->setupIsA(fType, dir, start);
     }
-    return nullptr;
+    return result;
 }
 
 sk_sp<SkPathData> SkPathData::makeOffset(SkVector v) const {
@@ -388,25 +379,12 @@ sk_sp<SkPathData> SkPathData::Polygon(SkSpan<const SkPoint> pts, bool isClosed) 
 
 /////////////////////////////////////
 
-SkPathConvexity SkPathData::getConvexityOrUnknown() const {
+SkPathConvexity SkPathData::getConvexity() const {
     return static_cast<SkPathConvexity>(fConvexity.load(std::memory_order_relaxed));
 }
 
-SkPathConvexity SkPathData::getResolvedConvexity() const {
-    auto convexity = this->getConvexityOrUnknown();
-    if (convexity == SkPathConvexity::kUnknown) {
-        convexity = SkPathPriv::ComputeConvexity(fPoints, fVerbs, fConics);
-        this->setConvexity(convexity);
-    }
-    return convexity;
-}
-
-void SkPathData::setConvexity(SkPathConvexity convexity) const {
-    fConvexity.store((uint8_t)convexity, std::memory_order_relaxed);
-}
-
 bool SkPathData::isConvex() const {
-    return SkPathConvexity_IsConvex(this->getResolvedConvexity());
+    return SkPathConvexity_IsConvex(this->getConvexity());
 }
 
 SkPathRaw SkPathData::raw(SkPathFillType ft) const {
