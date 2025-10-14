@@ -51,7 +51,7 @@ SkRecorder* SkSurface_Base::onGetBaseRecorder() const { return nullptr; }
 
 void SkSurface_Base::onDraw(SkCanvas* canvas, SkScalar x, SkScalar y,
                             const SkSamplingOptions& sampling, const SkPaint* paint) {
-    auto image = this->makeImageSnapshot();
+    auto image = this->makeTemporaryImage();
     if (image) {
         canvas->drawImage(image.get(), x, y, sampling, paint);
     }
