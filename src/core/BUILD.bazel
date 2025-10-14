@@ -356,7 +356,6 @@ skia_filegroup(
         "SkPaintPriv.cpp",
         "SkPath.cpp",
         "SkPathData.cpp",
-        "SkPath_editing.cpp",
         "SkPathBuilder.cpp",
         "SkPathDump.cpp",
         "SkPathEffect.cpp",

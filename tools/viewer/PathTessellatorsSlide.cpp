@@ -245,9 +245,7 @@ public:
 
     void doClick(SkPath* path) {
         SkPoint pt = path->getPoint(fPtIdx);
-        SkPathBuilder builder(*path);
-        builder.setPoint(fPtIdx, pt + fCurr - fPrev);
-        *path = builder.detach();
+        SkPathPriv::UpdatePathPoint(path, fPtIdx, pt + fCurr - fPrev);
     }
 
 private:

@@ -378,6 +378,13 @@ public:
      */
     static int GenIDChangeListenersCount(const SkPath&);
 
+    static void UpdatePathPoint(SkPath* path, int index, const SkPoint& pt) {
+        SkASSERT(index < path->countPoints());
+        SkPathRef::Editor ed(&path->fPathRef);
+        ed.writablePoints()[index] = pt;
+        path->dirtyAfterEdit();
+    }
+
     static SkPathConvexity GetConvexity(const SkPath& path) {
         return path.getConvexity();
     }
