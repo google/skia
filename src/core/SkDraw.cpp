@@ -48,6 +48,7 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixUtils.h"
+#include "src/core/SkPathData.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
@@ -1015,6 +1016,8 @@ void Draw::drawPath(const SkPath& origSrcPath,
 
     SkPath scratchPath;
 
+    sk_sp<SkPathData> pdata;
+
     if (needsFillPath) {
         SkRect cullRect;
         const SkRect* cullRectPtr = nullptr;
@@ -1037,13 +1040,13 @@ void Draw::drawPath(const SkPath& origSrcPath,
             matrix.preConcat(*prePathMatrix);
         }
 
-        if (matrix.isIdentity()) {
-            // special case, to avoid copying the origSrcPath into the builder
-            raw = SkPathPriv::Raw(origSrcPath);
-        } else {
-            builder = origSrcPath;
-            builder.transform(matrix);
-            raw = SkPathPriv::Raw(builder);
+        raw = SkPathPriv::Raw(origSrcPath);
+        if (raw && !matrix.isIdentity()) {
+            if ((pdata = SkPathData::MakeTransform(*raw, matrix))) {
+                raw = pdata->raw(origSrcPath.getFillType());
+            } else {
+                return; // failed to create pdata
+            }
         }
     }
 
