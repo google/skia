@@ -2012,7 +2012,7 @@ std::pair<const Renderer*, PathAtlas*> Device::chooseRenderer(const Transform& l
 
     // Fall back to CPU rendered paths when multisampling is disabled and the compute atlas is not
     // available.
-    static constexpr int kMaxSmallPathAtlasCount = 8;
+    static constexpr int kMaxSmallPathAtlasCount = 256;
     const float minPathSizeForMSAA = fRecorder->priv().caps()->minPathSizeForMSAA();
     const bool useRasterAtlasByDefault = !fMSAASupported ||
                                          (fAtlasedPathCount < kMaxSmallPathAtlasCount &&
