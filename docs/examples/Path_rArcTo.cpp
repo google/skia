@@ -8,8 +8,8 @@ void draw(SkCanvas* canvas) {
     const SkPoint starts[] = {{20, 20}, {120, 20}, {70, 60}};
     for (auto start : starts) {
         path.moveTo(start.fX, start.fY);
-        path.rArcTo(20, 20, 0, SkPathBuilder::kSmall_ArcSize,
-                    SkPathDirection::kCCW, 60, 0);
+        path.rArcTo({20, 20}, 0, SkPathBuilder::kSmall_ArcSize,
+                    SkPathDirection::kCCW, {60, 0});
     }
     canvas->drawPath(path.detach(), paint);
 }
