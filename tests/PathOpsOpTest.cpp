@@ -29,23 +29,13 @@
 #include <cstddef>
 #include <iterator>
 
-class PathTest_Private {
-public:
-    PathTest_Private(SkPath* path)
-        : fPath(path) {}
-
-    void setPt(int index, SkScalar x, SkScalar y) {
-        fPath->setPt(index, x, y);
-    }
-
-    SkPath* fPath;
-};
-
 static void path_edit(const SkPoint& from, const SkPoint& to, SkPath* path) {
-    PathTest_Private testPath(path);
     for (int index = 0; index < path->countPoints(); ++index) {
         if (SkDPoint::ApproximatelyEqual(path->getPoint(index), from)) {
-            testPath.setPt(index, to.fX, to.fY);
+            // we want setPt()
+            SkPathBuilder builder(*path);
+            builder.setPoint(index, to);
+            *path = builder.detach();
             return;
         }
     }

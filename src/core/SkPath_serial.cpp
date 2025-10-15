@@ -188,8 +188,7 @@ size_t SkPath::readAsRRect(const void* storage, size_t length) {
     if (!buffer.readS32(&start) || start != SkTPin(start, 0, 7)) {
         return 0;
     }
-    this->reset();
-    this->addRRect(rrect, rrectDir, SkToUInt(start));
+    *this = SkPath::RRect(rrect, rrectDir, SkToUInt(start));
     this->setFillType(fillType);
     buffer.skipToAlign4();
     return buffer.pos();

@@ -1025,6 +1025,13 @@ void SkPathBuilder::setLastPt(SkScalar x, SkScalar y) {
     }
 }
 
+void SkPathBuilder::setPoint(size_t index, SkPoint p) {
+    if (index < (size_t)fPts.size()) {
+        fPts[index] = p;
+        fType = SkPathIsAType::kGeneral;
+    }
+}
+
 SkPathBuilder& SkPathBuilder::transform(const SkMatrix& matrix) {
     if (matrix.isIdentity() || this->isEmpty()) {
         return *this;
