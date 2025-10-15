@@ -474,7 +474,6 @@ sk_sp<skgpu::VulkanInterface> MakeInterface(const skgpu::VulkanBackendContext& c
         SK_ABORT("Vulkan 1.1 is required but not available. "
                  "Instance version: %#08X, Device version: %#08X",
                  instanceVersion, physDevVersion);
-        return nullptr;
     }
 
     sk_sp<skgpu::VulkanInterface> interface(new skgpu::VulkanInterface(context.fGetProc,

@@ -152,7 +152,9 @@ protected:
         }
 #endif
 #if defined(SK_GRAPHITE)
-        return fLazyYUVImage->refImage(recorder, type);
+        if (recorder) {
+            return fLazyYUVImage->refImage(recorder, type);
+        }
 #endif
         return nullptr;
     }

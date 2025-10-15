@@ -546,18 +546,13 @@ private:
 std::unique_ptr<CanvasLinePoint> make_line_path(SkRandom* random, SkSize size, SkPoint* prev) {
     int choice = random->nextRangeU(0, 3);
     switch (choice) {
-        case 0:
-            return std::make_unique<CanvasQuadraticSegment>(random, size, prev);
-            break;
-        case 1:
-            return std::make_unique<CanvasBezierSegment>(random, size, prev);
-            break;
-        case 2:
-        case 3:
-        default:
-            return std::make_unique<CanvasLinePoint>(random, size, prev);
-            break;
+        case 0:  return std::make_unique<CanvasQuadraticSegment>(random, size, prev);
+        case 1:  return std::make_unique<CanvasBezierSegment>(random, size, prev);
+        case 2:  [[fallthrough]];
+        case 3:  [[fallthrough]];
+        default: return std::make_unique<CanvasLinePoint>(random, size, prev);
     }
+    SkUNREACHABLE;
 }
 
 class CanvasLinePathStage : public Stage {

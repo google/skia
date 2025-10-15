@@ -194,7 +194,6 @@ sk_sp<SkSurface> MakeBackendTextureViewSurface(skgpu::graphite::Recorder* record
                                           props,
                                           release,
                                           mbet.release());
-    return nullptr;
 }
 #endif // SK_DAWN
 

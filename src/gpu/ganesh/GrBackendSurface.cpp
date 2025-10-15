@@ -204,8 +204,8 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
     }
 
     switch (fBackend) {
-        case GrBackendApi::kOpenGL:
-        case GrBackendApi::kVulkan:
+        case GrBackendApi::kOpenGL:   [[fallthrough]];
+        case GrBackendApi::kVulkan:   [[fallthrough]];
         case GrBackendApi::kMetal:
             return fFormatData->equal(that.fFormatData.get());
         case GrBackendApi::kMock:
@@ -218,7 +218,6 @@ bool GrBackendFormat::operator==(const GrBackendFormat& that) const {
         default:
             SK_ABORT("Unknown GrBackend");
     }
-    return false;
 }
 
 #if defined(SK_DEBUG) || defined(GPU_TEST_UTILS)

@@ -825,10 +825,8 @@ std::string dst_read_strategy_to_str(DstReadStrategy strategy) {
             return "ReadFromInput";
         case DstReadStrategy::kFramebufferFetch:
             return "FramebufferFetch";
-        default:
-            SkUNREACHABLE;
     }
-    return "";
+    SkUNREACHABLE;
 }
 } // anonymous
 

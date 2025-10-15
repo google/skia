@@ -42,8 +42,9 @@ bool WindowContext::supportsGpuTimer() const {
 #endif
     using T = std::underlying_type_t<skgpu::GpuStatsFlags>;
     return static_cast<T>(flags) & static_cast<T>(skgpu::GpuStatsFlags::kElapsedTime);
-#endif
+#else
     return false;
+#endif
 }
 
 void WindowContext::submitToGpu(GpuTimerCallback statsCallback) {

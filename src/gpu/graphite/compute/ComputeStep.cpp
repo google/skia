@@ -65,34 +65,28 @@ void ComputeStep::prepareUniformBuffer(int, const ResourceDesc&, UniformManager*
 
 std::string ComputeStep::computeSkSL() const {
     SK_ABORT("ComputeSteps must override computeSkSL() unless they support native shader source");
-    return "";
 }
 
 ComputeStep::NativeShaderSource ComputeStep::nativeShaderSource(NativeShaderFormat) const {
     SK_ABORT("ComputeSteps that support native shader source must override nativeShaderSource()");
-    return {};
 }
 
 size_t ComputeStep::calculateBufferSize(int, const ResourceDesc&) const {
     SK_ABORT("ComputeSteps that initialize a storage buffer must override calculateBufferSize()");
-    return 0u;
 }
 
 std::tuple<SkISize, SkColorType> ComputeStep::calculateTextureParameters(
         int, const ResourceDesc&) const {
     SK_ABORT("ComputeSteps that initialize a texture must override calculateTextureParameters()");
-    return {SkISize::MakeEmpty(), kUnknown_SkColorType};
 }
 
 SamplerDesc ComputeStep::calculateSamplerParameters(int resourceIndex, const ResourceDesc&) const {
     SK_ABORT("ComputeSteps that initialize a sampler must override calculateSamplerParameters()");
-    return {{}, SkTileMode::kClamp};
 }
 
 WorkgroupSize ComputeStep::calculateGlobalDispatchSize() const {
     SK_ABORT("ComputeSteps must override calculateGlobalDispatchSize() unless "
              "the workgroup count is determined out-of-band");
-    return WorkgroupSize();
 }
 
 }  // namespace skgpu::graphite

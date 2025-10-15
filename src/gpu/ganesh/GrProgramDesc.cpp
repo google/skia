@@ -43,8 +43,6 @@ static inline uint16_t texture_type_key(GrTextureType type) {
             break;
         default:
             SK_ABORT("Unexpected texture type");
-            value = 3;
-            break;
     }
     SkASSERT((value & ((1 << kSamplerOrImageTypeKeyBits) - 1)) == value);
     return SkToU16(value);

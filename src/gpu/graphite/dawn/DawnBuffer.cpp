@@ -77,8 +77,8 @@ void log_map_error(wgpu::MapAsyncStatus status, wgpu::StringView message) {
             statusStr = "Aborted";
             break;
         case wgpu::MapAsyncStatus::Success:
-            SK_ABORT("This status is not an error");
-            break;
+            SkDEBUGFAIL("This status is not an error");
+            return;
     }
     SKGPU_LOG(LogPriority::kError,
               "Buffer async map failed with status %s, message '%.*s'.",

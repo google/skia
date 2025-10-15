@@ -717,7 +717,6 @@ bool GrVkPrimaryCommandBuffer::finished(GrVkGpu* gpu) {
         default:
             SkDebugf("Error getting fence status: %d\n", err);
             SK_ABORT("Got an invalid fence status");
-            return false;
     }
 }
 

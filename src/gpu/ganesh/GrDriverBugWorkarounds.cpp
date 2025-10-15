@@ -22,7 +22,6 @@ GrDriverBugWorkarounds::GrDriverBugWorkarounds(
 #undef GPU_OP
             default:
                 SK_ABORT("Not implemented");
-                break;
         }
     }
 }

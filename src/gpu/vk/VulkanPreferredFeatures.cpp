@@ -1451,7 +1451,6 @@ void VulkanPreferredFeatures::addFeaturesToEnable(std::vector<const char*>& appE
                     chain(newChainEnd, pNext);
                 }
                 break;
-                break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_UNIFORM_BUFFER_STANDARD_LAYOUT_FEATURES: {
                 if (hasVulkan12Features) {
