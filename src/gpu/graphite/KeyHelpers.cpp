@@ -2184,11 +2184,7 @@ static void add_to_key(const KeyContext& keyContext,
         return;
     }
 
-    // NOTE: Don't call CachedImageInfo::makeImage() since that uses the legacy makeImageSnapshot()
-    // API, which results in an extra texture copy on a Graphite Surface.
-    surface->getCanvas()->concat(info.matrixForDraw);
-    surface->getCanvas()->drawPicture(shader->picture().get());
-    sk_sp<SkImage> img = SkSurfaces::AsImage(std::move(surface));
+    sk_sp<SkImage> img = info.makeImage(std::move(surface), shader->picture().get());
     // TODO: 'img' did not exist when notify_in_use() was called, but ideally the DrawTask to render
     // into 'surface' would be a child of the current device. While we push all tasks to the root
     // list this works out okay, but will need to be addressed before we move off that system.

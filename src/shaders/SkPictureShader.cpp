@@ -246,14 +246,16 @@ sk_sp<SkImage> SkPictureShader::CachedImageInfo::makeImage(sk_sp<SkSurface> surf
     if (!surf) {
         return nullptr;
     }
+
     auto canvas = surf->getCanvas();
     canvas->concat(matrixForDraw);
     canvas->drawPicture(pict);
-    return surf->makeImageSnapshot();
+
+    return surf->makeTemporaryImage();
 }
 
-// Returns a cached image shader, which wraps a single picture tile at the given
-// CTM/local matrix.  Also adjusts the local matrix for tile scaling.
+// Returns a cached image shader, which wraps a single picture tile at the given CTM/local matrix.
+// Also adjusts the local matrix for tile scaling.
 sk_sp<SkShader> SkPictureShader::rasterShader(const SkMatrix& totalM,
                                               SkColorType dstColorType,
                                               SkColorSpace* dstColorSpace,
