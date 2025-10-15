@@ -16,6 +16,7 @@
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkPathRawShapes.h"
 
+#include <new>
 #include <optional>
 #include <type_traits>
 
@@ -177,6 +178,10 @@ SkPathData::SkPathData(size_t npts, size_t nvbs, size_t ncns)
     // fBounds is initialized in finishInit()
 }
 
+void SkPathData::operator delete(void* p) {
+    ::operator delete(p);
+}
+
 // NOTE: This only allocates and initializes the span pointers (points, verbs),
 //       it does NOT set the other fields
 sk_sp<SkPathData> SkPathData::Alloc(size_t npts, size_t nvbs, size_t ncns) {
@@ -189,6 +194,7 @@ sk_sp<SkPathData> SkPathData::Alloc(size_t npts, size_t nvbs, size_t ncns) {
     if (auto size = accum.total()) {
         // This trick allows us to just make one allocation, for us and our buffer
         // rather than allocating us and also allocating the buffer (via malloc or new[])
+        // We have the corresponding operator delete() specified as well.
         void* storage = ::operator new (*size);
         sk_sp<SkPathData> path(new (storage) SkPathData(npts, nvbs, ncns));
 

@@ -153,6 +153,7 @@ public:
     sk_sp<SkPathData> makeOffset(SkVector) const;
 
 private:
+    friend class SkNVRefCnt<SkPathData>;
     friend class SkPathBuilder;
 
     SkSpan<SkPoint>    fPoints;
@@ -176,6 +177,9 @@ private:
     //
 
     SkPathData(size_t npts, size_t nvbs, size_t ncns);
+
+    // Ensure the unsized delete is called (since we're manually allocating the storage)
+    void operator delete(void* p);
 
     // internal finisher when building a PathData.
     // If the optional value is not present, it will be computed (else checked in debug mode).
