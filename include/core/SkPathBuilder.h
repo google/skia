@@ -45,7 +45,7 @@ public:
         @param fillType  SkPathFillType to set on the SkPathBuilder.
         @return          empty SkPathBuilder
     */
-    SkPathBuilder(SkPathFillType fillType);
+    explicit SkPathBuilder(SkPathFillType fillType);
 
     /** Constructs an SkPathBuilder that is a copy of an existing SkPath.
         Copies the FillType and replays all of the verbs from the SkPath into the SkPathBuilder.
@@ -53,7 +53,7 @@ public:
         @param path  SkPath to copy
         @return      SkPathBuilder
     */
-    SkPathBuilder(const SkPath& path);
+    explicit SkPathBuilder(const SkPath& path);
 
     SkPathBuilder(const SkPathBuilder&) = default;
     ~SkPathBuilder();

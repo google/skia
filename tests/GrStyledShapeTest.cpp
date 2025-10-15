@@ -183,8 +183,8 @@ static void check_equivalence(skiatest::Reporter* r, const GrStyledShape& a, con
         REPORTER_ASSERT(r, paths_fill_same(pathA, pathB));
         REPORTER_ASSERT(r, ignoreInversenessDifference || invertedA == invertedB);
     } else {
-        SkPathBuilder pA = pathA;
-        SkPathBuilder pB = pathB;
+        SkPathBuilder pA = SkPathBuilder(pathA);
+        SkPathBuilder pB = SkPathBuilder(pathB);
         REPORTER_ASSERT(r, a.inverseFilled() == pA.isInverseFillType());
         REPORTER_ASSERT(r, b.inverseFilled() == pB.isInverseFillType());
         if (ignoreInversenessDifference) {
@@ -1647,8 +1647,12 @@ void test_rrect(skiatest::Reporter* r, const SkRRect& rrect) {
     };
 
     // SkStrokeRec has no default cons., so init with kFill before calling the setters below.
-    SkStrokeRec strokeRecs[4] { SkStrokeRec::kFill_InitStyle, SkStrokeRec::kFill_InitStyle,
-                                SkStrokeRec::kFill_InitStyle, SkStrokeRec::kFill_InitStyle};
+    SkStrokeRec strokeRecs[4]{
+            SkStrokeRec{SkStrokeRec::kFill_InitStyle},
+            SkStrokeRec{SkStrokeRec::kFill_InitStyle},
+            SkStrokeRec{SkStrokeRec::kFill_InitStyle},
+            SkStrokeRec{SkStrokeRec::kFill_InitStyle},
+    };
     strokeRecs[kFill].setFillStyle();
     strokeRecs[kStroke].setStrokeStyle(2.f);
     strokeRecs[kHairline].setHairlineStyle();

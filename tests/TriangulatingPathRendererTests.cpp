@@ -1096,7 +1096,8 @@ DEF_TEST(GrInnerFanTriangulator, r) {
             .moveTo(cosf(0), sinf(0))
             .lineTo(cosf(2*SK_ScalarPI/3), sinf(2*SK_ScalarPI/3))
             .lineTo(cosf(-2*SK_ScalarPI/3), sinf(-2*SK_ScalarPI/3)));
-    verify_simple_inner_polygons(r, "5-point star", ToolUtils::make_star(SkRect::MakeWH(100, 200)));
+    verify_simple_inner_polygons(
+            r, "5-point star", SkPathBuilder(ToolUtils::make_star(SkRect::MakeWH(100, 200))));
     verify_simple_inner_polygons(r, "\"pointy\" intersecting triangles", SkPathBuilder()
             .moveTo(0,-100).lineTo(-1e-6f,100).lineTo(1e-6f,100)
             .moveTo(-100,0).lineTo(100,1e-6f).lineTo(100,-1e-6f));
@@ -1109,8 +1110,7 @@ DEF_TEST(GrInnerFanTriangulator, r) {
     for (int i = 0; i < (int)std::size(kNonEdgeAAPaths); ++i) {
         SkPathBuilder builder;
         kNonEdgeAAPaths[i](builder);
-        verify_simple_inner_polygons(r, SkStringPrintf("kNonEdgeAAPaths[%i]", i).c_str(),
-                                     builder.detach());
+        verify_simple_inner_polygons(r, SkStringPrintf("kNonEdgeAAPaths[%i]", i).c_str(), builder);
     }
     SkRandom rand;
     for (int i = 0; i < 50; ++i) {
