@@ -182,6 +182,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "recover device after failure of 'scale cpu' (attempt 1)"
+  },
+  {
     "cmd": [
       "/opt/infra-android/tools/adb",
       "kill-server"
@@ -191,8 +195,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb kill-server after failure of 'scale cpu' (attempt 1)",
-    "timeout": 30
+    "name": "recover device after failure of 'scale cpu' (attempt 1).adb kill-server",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -204,8 +211,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "wait for device after failure of 'scale cpu' (attempt 1)",
-    "timeout": 180
+    "name": "recover device after failure of 'scale cpu' (attempt 1).wait for device",
+    "timeout": 180,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -218,8 +228,18 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb devices -l after failure of 'scale cpu' (attempt 1)",
-    "timeout": 30
+    "name": "recover device after failure of 'scale cpu' (attempt 1).adb devices -l",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "recover device after failure of 'scale cpu' (attempt 1).reboot device and wait",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -231,8 +251,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb reboot device after failure of 'scale cpu' (attempt 1)",
-    "timeout": 30
+    "name": "recover device after failure of 'scale cpu' (attempt 1).reboot device and wait.reboot device",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
   },
   {
     "cmd": [
@@ -245,8 +268,11 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "wait for device after failure of 'scale cpu' (attempt 1) (2)",
-    "timeout": 180
+    "name": "recover device after failure of 'scale cpu' (attempt 1).reboot device and wait.wait for device",
+    "timeout": 600,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
   },
   {
     "cmd": [
@@ -280,6 +306,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "recover device after failure of 'scale cpu' (attempt 2)"
+  },
+  {
     "cmd": [
       "/opt/infra-android/tools/adb",
       "kill-server"
@@ -289,8 +319,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb kill-server after failure of 'scale cpu' (attempt 2)",
-    "timeout": 30
+    "name": "recover device after failure of 'scale cpu' (attempt 2).adb kill-server",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -302,8 +335,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "wait for device after failure of 'scale cpu' (attempt 2)",
-    "timeout": 180
+    "name": "recover device after failure of 'scale cpu' (attempt 2).wait for device",
+    "timeout": 180,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -316,8 +352,18 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb devices -l after failure of 'scale cpu' (attempt 2)",
-    "timeout": 30
+    "name": "recover device after failure of 'scale cpu' (attempt 2).adb devices -l",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "recover device after failure of 'scale cpu' (attempt 2).reboot device and wait",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -329,8 +375,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb reboot device after failure of 'scale cpu' (attempt 2)",
-    "timeout": 30
+    "name": "recover device after failure of 'scale cpu' (attempt 2).reboot device and wait.reboot device",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
   },
   {
     "cmd": [
@@ -343,8 +392,11 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "wait for device after failure of 'scale cpu' (attempt 2) (2)",
-    "timeout": 180
+    "name": "recover device after failure of 'scale cpu' (attempt 2).reboot device and wait.wait for device",
+    "timeout": 600,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
   },
   {
     "cmd": [
@@ -378,6 +430,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "recover device after failure of 'scale cpu' (attempt 3)"
+  },
+  {
     "cmd": [
       "/opt/infra-android/tools/adb",
       "kill-server"
@@ -387,8 +443,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb kill-server after failure of 'scale cpu' (attempt 3)",
-    "timeout": 30
+    "name": "recover device after failure of 'scale cpu' (attempt 3).adb kill-server",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -400,8 +459,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "wait for device after failure of 'scale cpu' (attempt 3)",
-    "timeout": 180
+    "name": "recover device after failure of 'scale cpu' (attempt 3).wait for device",
+    "timeout": 180,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -414,8 +476,18 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb devices -l after failure of 'scale cpu' (attempt 3)",
-    "timeout": 30
+    "name": "recover device after failure of 'scale cpu' (attempt 3).adb devices -l",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "recover device after failure of 'scale cpu' (attempt 3).reboot device and wait",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -427,8 +499,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb reboot device after failure of 'scale cpu' (attempt 3)",
-    "timeout": 30
+    "name": "recover device after failure of 'scale cpu' (attempt 3).reboot device and wait.reboot device",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
   },
   {
     "cmd": [
@@ -441,8 +516,11 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "wait for device after failure of 'scale cpu' (attempt 3) (2)",
-    "timeout": 180
+    "name": "recover device after failure of 'scale cpu' (attempt 3).reboot device and wait.wait for device",
+    "timeout": 600,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
   },
   {
     "cmd": [
@@ -472,6 +550,10 @@
     "timeout": 300
   },
   {
+    "cmd": [],
+    "name": "reboot device and wait"
+  },
+  {
     "cmd": [
       "/opt/infra-android/tools/adb",
       "reboot"
@@ -481,8 +563,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb reboot device",
-    "timeout": 30
+    "name": "reboot device and wait.reboot device",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -495,8 +580,11 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "wait for device after rebooting",
-    "timeout": 180
+    "name": "reboot device and wait.wait for device",
+    "timeout": 600,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -510,26 +598,8 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "dump reboot log",
+    "name": "dump adb log",
     "timeout": 300
-  },
-  {
-    "cmd": [
-      "vpython3",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      " ",
-      "/home/chrome-bot/lin-231-e505--device5.force_quarantine"
-    ],
-    "infra_step": true,
-    "name": "Quarantining Bot",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@lin-231-e505--device5.force_quarantine@ @@@",
-      "@@@STEP_LOG_END@lin-231-e505--device5.force_quarantine@@@"
-    ]
   },
   {
     "failure": {

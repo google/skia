@@ -158,6 +158,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "recover device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1)"
+  },
+  {
     "cmd": [
       "/usr/bin/adb",
       "kill-server"
@@ -169,8 +173,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb kill-server after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1)",
-    "timeout": 30
+    "name": "recover device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1).adb kill-server",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -184,8 +191,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "wait for device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1)",
-    "timeout": 180
+    "name": "recover device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1).wait for device",
+    "timeout": 180,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -200,8 +210,18 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb devices -l after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1)",
-    "timeout": 30
+    "name": "recover device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1).adb devices -l",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [],
+    "name": "recover device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1).reboot device and wait",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -215,8 +235,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb reboot device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1)",
-    "timeout": 30
+    "name": "recover device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1).reboot device and wait.reboot device",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
   },
   {
     "cmd": [
@@ -231,8 +254,11 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "wait for device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1) (2)",
-    "timeout": 180
+    "name": "recover device after failure of 'mkdir /sdcard/revenge_of_the_skiabot/resources' (attempt 1).reboot device and wait.wait for device",
+    "timeout": 600,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@2@@@"
+    ]
   },
   {
     "cmd": [
@@ -1182,6 +1208,10 @@
     "timeout": 300
   },
   {
+    "cmd": [],
+    "name": "reboot device and wait"
+  },
+  {
     "cmd": [
       "/usr/bin/adb",
       "reboot"
@@ -1191,8 +1221,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb reboot device",
-    "timeout": 30
+    "name": "reboot device and wait.reboot device",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -1205,8 +1238,11 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "wait for device after rebooting",
-    "timeout": 180
+    "name": "reboot device and wait.wait for device",
+    "timeout": 600,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -1220,7 +1256,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "dump reboot log",
+    "name": "dump adb log",
     "timeout": 300
   },
   {

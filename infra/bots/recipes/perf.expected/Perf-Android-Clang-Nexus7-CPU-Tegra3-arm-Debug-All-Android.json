@@ -1008,6 +1008,10 @@
     "timeout": 300
   },
   {
+    "cmd": [],
+    "name": "reboot device and wait"
+  },
+  {
     "cmd": [
       "/usr/bin/adb.1.0.35",
       "reboot"
@@ -1017,8 +1021,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb reboot device",
-    "timeout": 30
+    "name": "reboot device and wait.reboot device",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -1031,8 +1038,11 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "wait for device after rebooting",
-    "timeout": 180
+    "name": "reboot device and wait.wait for device",
+    "timeout": 600,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -1046,7 +1056,7 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "dump reboot log",
+    "name": "dump adb log",
     "timeout": 300
   },
   {

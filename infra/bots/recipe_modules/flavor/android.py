@@ -114,42 +114,48 @@ class AndroidFlavor(default.DefaultFlavor):
       "Nexus5x": 600000000,
     }
 
-  def _wait_for_device(self, title, attempt):
+  def wait_for_device(self):
     self.m.run(self.m.step,
-                'adb kill-server after failure of \'%s\' (attempt %d)' % (
-                    title, attempt),
-                cmd=[self.ADB_BINARY, 'kill-server'],
-                infra_step=True, timeout=30, abort_on_failure=False,
-                fail_build_on_failure=False)
-    self.m.run(self.m.step,
-                'wait for device after failure of \'%s\' (attempt %d)' % (
-                    title, attempt),
-                cmd=[self.ADB_BINARY, 'wait-for-device'], infra_step=True,
-                timeout=180, abort_on_failure=False,
-                fail_build_on_failure=False)
-    self.m.run(self.m.step,
-                'adb devices -l after failure of \'%s\' (attempt %d)' % (
-                    title, attempt),
-                cmd=[self.ADB_BINARY, 'devices', '-l'],
-                infra_step=True, timeout=30, abort_on_failure=False,
-                fail_build_on_failure=False)
-    self.m.run(self.m.step,
-                'adb reboot device after failure of \'%s\' (attempt %d)' % (
-                    title, attempt),
-                cmd=[self.ADB_BINARY, 'reboot'],
-                infra_step=True, timeout=30, abort_on_failure=False,
-                fail_build_on_failure=False)
-    self.m.run(self.m.step,
-                'wait for device after failure of \'%s\' (attempt %d)' % (
-                    title, attempt),
-                cmd=[
-                    self.ADB_BINARY, 'wait-for-device', 'shell',
-                    # Wait until the boot is actually complete.
-                    # https://android.stackexchange.com/a/164050
-                    'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done',
-                ],
-                timeout=180, abort_on_failure=False,
-                fail_build_on_failure=False)
+               'wait for device',
+               cmd=[
+                   self.ADB_BINARY, 'wait-for-device', 'shell',
+                   # Wait until the boot is actually complete.
+                   # https://android.stackexchange.com/a/164050
+                   'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done',
+               ],
+               timeout=600, abort_on_failure=False,
+               fail_build_on_failure=False)
+
+  def reboot_device_and_wait(self):
+    with self.m.step.nest('reboot device and wait'):
+      self.m.run(self.m.step,
+                 'reboot device',
+                 cmd=[self.ADB_BINARY, 'reboot'],
+                 infra_step=True, timeout=30, abort_on_failure=False,
+                 fail_build_on_failure=False)
+      self.wait_for_device()
+
+  def recover_device(self, failed_step, attempt):
+    title = 'recover device after failure of \'%s\' (attempt %d)' % (
+        failed_step, attempt)
+    with self.m.step.nest(title):
+      self.m.run(self.m.step,
+                 'adb kill-server',
+                 cmd=[self.ADB_BINARY, 'kill-server'],
+                 infra_step=True, timeout=30, abort_on_failure=False,
+                 fail_build_on_failure=False)
+      self.m.run(self.m.step,
+                 'wait for device',
+                 cmd=[self.ADB_BINARY, 'wait-for-device'], infra_step=True,
+                 timeout=180, abort_on_failure=False,
+                 fail_build_on_failure=False)
+      self.m.run(self.m.step,
+                 'adb devices -l',
+                 cmd=[self.ADB_BINARY, 'devices', '-l'],
+                 infra_step=True, timeout=30, abort_on_failure=False,
+                 fail_build_on_failure=False)
+      self.reboot_device_and_wait()
+
     device = self.m.vars.builder_cfg.get('model')
     if (device in self.cant_root): # pragma: nocover
       return
@@ -161,6 +167,11 @@ class AndroidFlavor(default.DefaultFlavor):
                 timeout=180, abort_on_failure=False,
                 fail_build_on_failure=False)
 
+  def recover_device_after(self, title):
+    def rec(attempt):
+      self.recover_device(title, attempt)
+    return rec
+
   def _adb(self, title, *cmd, **kwargs):
     # The only non-infra adb steps (dm / nanobench) happen to not use _adb().
     if 'infra_step' not in kwargs:
@@ -170,9 +181,6 @@ class AndroidFlavor(default.DefaultFlavor):
     # ADB seems to be occasionally flaky on every device, so always retry.
     attempts = kwargs.pop('attempts', 3)
 
-    def wait_for_device(attempt):
-      return self._wait_for_device(title, attempt)
-
     with self.m.context(cwd=self.m.path.start_dir.joinpath('skia')):
       with self.m.env({'ADB_VENDOR_KEYS': self.ADB_PUB_KEY}):
         if attempts == 1:
@@ -181,7 +189,7 @@ class AndroidFlavor(default.DefaultFlavor):
         else:
           return self.m.run.with_retry(self.m.step, title, attempts,
                                        cmd=[self.ADB_BINARY]+list(cmd),
-                                       between_attempts_fn=wait_for_device,
+                                       between_attempts_fn=self.recover_device_after(title),
                                        **kwargs)
 
   def _scale_for_dm(self):
@@ -260,24 +268,18 @@ class AndroidFlavor(default.DefaultFlavor):
     if value:
       msg = 'Enabling'
 
-    def wait_for_device(attempt):
-      return self._wait_for_device("set cpu online", attempt) # pragma: nocover
-
     script = self.module.resource('set_cpu_online.py')
     self.m.run.with_retry(self.m.step,
         '%s CPU %d' % (msg, cpu),
         3, # attempts
         cmd=['python3', script, self.ADB_BINARY, cpu, value],
         infra_step=True,
-        between_attempts_fn=wait_for_device,
+        between_attempts_fn=self.recover_device_after("set cpu online"),
         timeout=30)
 
 
   def _scale_cpu(self, cpu, target_percent):
     self._ever_ran_adb = True
-
-    def wait_for_device(attempt):
-      return self._wait_for_device("scale cpu", attempt)
 
     script = self.module.resource('scale_cpu.py')
     self.m.run.with_retry(self.m.step,
@@ -285,7 +287,7 @@ class AndroidFlavor(default.DefaultFlavor):
         3, # attempts
         cmd=['python3', script, self.ADB_BINARY, str(target_percent), cpu],
         infra_step=True,
-        between_attempts_fn=wait_for_device,
+        between_attempts_fn=self.recover_device_after("scale cpu"),
         timeout=30)
 
 
@@ -334,21 +336,7 @@ class AndroidFlavor(default.DefaultFlavor):
         timeout=300,
         abort_on_failure=False)
 
-    self.m.run(self.m.step,
-                'adb reboot device',
-                cmd=[self.ADB_BINARY, 'reboot'],
-                infra_step=True, timeout=30, abort_on_failure=False,
-                fail_build_on_failure=False)
-    self.m.run(self.m.step,
-                'wait for device after rebooting',
-                cmd=[
-                    self.ADB_BINARY, 'wait-for-device', 'shell',
-                    # Wait until the boot is actually complete.
-                    # https://android.stackexchange.com/a/164050
-                    'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done',
-                ],
-                timeout=180, abort_on_failure=False,
-                fail_build_on_failure=False)
+    self.reboot_device_and_wait()
 
     if 'ASAN' in self.m.vars.extra_tokens:
       self._ever_ran_adb = True
@@ -369,24 +357,11 @@ class AndroidFlavor(default.DefaultFlavor):
 
     if self._ever_ran_adb:
       script = self.module.resource('dump_adb_log.py')
-      self.m.run(self.m.step, 'dump reboot log',
+      self.m.run(self.m.step, 'dump adb log',
           cmd=['python3', script, self.host_dirs.bin_dir, self.ADB_BINARY],
           infra_step=True,
           timeout=300,
           abort_on_failure=False)
-
-    # Only quarantine the bot if the first failed step
-    # is an infra step. If, instead, we did this for any infra failures, we
-    # would do this too much. For example, if a Nexus 10 died during dm
-    # and the following pull step would also fail "device not found" - causing
-    # us to run the shutdown command when the device was probably not in a
-    # broken state; it was just rebooting.
-    if (self.m.run.failed_steps and
-        isinstance(self.m.run.failed_steps[0], recipe_api.InfraFailure)):
-      bot_id = self.m.vars.swarming_bot_id
-      self.m.file.write_text('Quarantining Bot',
-                             '/home/chrome-bot/%s.force_quarantine' % bot_id,
-                             ' ')
 
     # if self._ever_ran_adb:
     #   self._adb('kill adb server', 'kill-server')

@@ -1066,6 +1066,10 @@
     ]
   },
   {
+    "cmd": [],
+    "name": "reboot device and wait"
+  },
+  {
     "cmd": [
       "/usr/bin/adb",
       "reboot"
@@ -1075,8 +1079,11 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "adb reboot device",
-    "timeout": 30
+    "name": "reboot device and wait.reboot device",
+    "timeout": 30,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -1089,8 +1096,11 @@
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
-    "name": "wait for device after rebooting",
-    "timeout": 180
+    "name": "reboot device and wait.wait for device",
+    "timeout": 600,
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
   },
   {
     "cmd": [
@@ -1104,26 +1114,8 @@
       "PATH": "<PATH>:RECIPE_REPO[depot_tools]"
     },
     "infra_step": true,
-    "name": "dump reboot log",
+    "name": "dump adb log",
     "timeout": 300
-  },
-  {
-    "cmd": [
-      "vpython3",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
-      " ",
-      "/home/chrome-bot/build123-m2--device5.force_quarantine"
-    ],
-    "infra_step": true,
-    "name": "Quarantining Bot",
-    "~followup_annotations": [
-      "@@@STEP_LOG_LINE@build123-m2--device5.force_quarantine@ @@@",
-      "@@@STEP_LOG_END@build123-m2--device5.force_quarantine@@@"
-    ]
   },
   {
     "failure": {
