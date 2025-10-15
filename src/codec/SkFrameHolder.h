@@ -23,14 +23,13 @@
  */
 class SkFrame : public SkNoncopyable {
 public:
-    SkFrame(int id)
-        : fId(id)
-        , fHasAlpha(false)
-        , fRequiredFrame(kUninitialized)
-        , fDisposalMethod(SkCodecAnimation::DisposalMethod::kKeep)
-        , fDuration(0)
-        , fBlend(SkCodecAnimation::Blend::kSrcOver)
-    {
+    explicit SkFrame(int id)
+            : fId(id)
+            , fHasAlpha(false)
+            , fRequiredFrame(kUninitialized)
+            , fDisposalMethod(SkCodecAnimation::DisposalMethod::kKeep)
+            , fDuration(0)
+            , fBlend(SkCodecAnimation::Blend::kSrcOver) {
         fRect.setEmpty();
     }
 

@@ -21,7 +21,7 @@ class SkImage;
 
 class SkAnimCodecPlayer {
 public:
-    SkAnimCodecPlayer(std::unique_ptr<SkCodec> codec);
+    explicit SkAnimCodecPlayer(std::unique_ptr<SkCodec> codec);
     ~SkAnimCodecPlayer();
 
     /**

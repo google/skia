@@ -288,7 +288,7 @@ public:
             SkScalar width,
             SkScalar height);
 
-    Cluster(TextRange textRange) : fTextRange(textRange), fGraphemeRange(EMPTY_RANGE) { }
+    explicit Cluster(TextRange textRange) : fTextRange(textRange), fGraphemeRange(EMPTY_RANGE) {}
 
     Cluster(const Cluster&) = default;
     ~Cluster() = default;
@@ -372,7 +372,7 @@ public:
         fForceStrut = false;
     }
 
-    InternalLineMetrics(bool forceStrut) {
+    explicit InternalLineMetrics(bool forceStrut) {
         clean();
         fForceStrut = forceStrut;
     }

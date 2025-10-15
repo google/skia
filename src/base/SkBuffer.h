@@ -89,7 +89,7 @@ private:
 class SkWBuffer : SkNoncopyable {
 public:
     SkWBuffer() : fData(nullptr), fPos(nullptr), fStop(nullptr) {}
-    SkWBuffer(void* data) { reset(data); }
+    explicit SkWBuffer(void* data) { reset(data); }
     SkWBuffer(void* data, size_t size) { reset(data, size); }
 
     void reset(void* data) {

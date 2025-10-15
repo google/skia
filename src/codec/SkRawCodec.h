@@ -59,7 +59,7 @@ private:
      * Creates an instance of the decoder
      * Called only by NewFromStream, takes ownership of dngImage.
      */
-    SkRawCodec(SkDngImage* dngImage);
+    explicit SkRawCodec(SkDngImage* dngImage);
 
     std::unique_ptr<SkDngImage> fDngImage;
 

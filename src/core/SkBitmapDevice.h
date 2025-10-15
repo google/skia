@@ -50,7 +50,7 @@ public:
      *  valid for the bitmap to have no pixels associated with it. In that case,
      *  any drawing to this device will have no effect.
      */
-    SkBitmapDevice(const SkBitmap& bitmap);
+    explicit SkBitmapDevice(const SkBitmap& bitmap);
 
     /**
      *  Construct a new device with the specified bitmap as its backend. It is

@@ -50,7 +50,7 @@ class DebugCanvas : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:
     DebugCanvas(int width, int height);
 
-    DebugCanvas(SkIRect bounds);
+    explicit DebugCanvas(SkIRect bounds);
 
     ~DebugCanvas() override;
 

@@ -32,7 +32,7 @@ struct Message {
     WindowSurface** fWindowSurface = nullptr;
 
     Message() {}
-    Message(MessageType t) : fType(t) {}
+    explicit Message(MessageType t) : fType(t) {}
 };
 
 class SurfaceThread {
