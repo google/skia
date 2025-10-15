@@ -11,9 +11,11 @@
 
 #ifdef SK_VULKAN
 
+#include "include/core/SkSurface.h"
 #include "include/private/base/SkTemplates.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 #include "tools/window/WindowContext.h"
+
 namespace skgpu {
 struct VulkanInterface;
 }

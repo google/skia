@@ -9,6 +9,7 @@
 
 #include "include/core/SkTypes.h"
 
+#include "include/core/SkSurface.h"
 #include "include/gpu/vk/VulkanBackendContext.h"
 #include "tools/gpu/vk/VkTestUtils.h"
 #include "tools/window/WindowContext.h"
