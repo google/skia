@@ -34,7 +34,7 @@ public:
     bool fFramebufferOnly = false;
 
     MtlTextureInfo() = default;
-    MtlTextureInfo(CFTypeRef mtlTexture);
+    explicit MtlTextureInfo(CFTypeRef mtlTexture);
     MtlTextureInfo(uint32_t sampleCount,
                    skgpu::Mipmapped mipmapped,
                    MTLPixelFormat format,

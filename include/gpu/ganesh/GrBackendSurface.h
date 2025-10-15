@@ -120,7 +120,7 @@ private:
     }
 
 #ifdef SK_DIRECT3D
-    GrBackendFormat(DXGI_FORMAT dxgiFormat);
+    explicit GrBackendFormat(DXGI_FORMAT dxgiFormat);
 #endif
 
     GrBackendFormat(GrColorType, SkTextureCompressionType, bool isStencilFormat);

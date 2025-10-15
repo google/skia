@@ -54,7 +54,7 @@ protected:
     bool parseAndSetAttribute(const char*, const char*) override;
 
 private:
-    SkSVGFeFunc(SkSVGTag tag) : INHERITED(tag) {}
+    explicit SkSVGFeFunc(SkSVGTag tag) : SkSVGHiddenContainer(tag) {}
 
     using INHERITED = SkSVGHiddenContainer;
 };

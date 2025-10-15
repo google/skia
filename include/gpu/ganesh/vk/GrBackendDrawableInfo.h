@@ -19,10 +19,8 @@ public:
     // Creates an invalid backend drawable info.
     GrBackendDrawableInfo() : fIsValid(false) {}
 
-    GrBackendDrawableInfo(const GrVkDrawableInfo& info)
-            : fIsValid(true)
-            , fBackend(GrBackendApi::kVulkan)
-            , fVkInfo(info) {}
+    explicit GrBackendDrawableInfo(const GrVkDrawableInfo& info)
+            : fIsValid(true), fBackend(GrBackendApi::kVulkan), fVkInfo(info) {}
 
     // Returns true if the backend texture has been initialized.
     bool isValid() const { return fIsValid; }

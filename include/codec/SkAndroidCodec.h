@@ -285,7 +285,7 @@ public:
                            std::unique_ptr<SkStream>* outGainmapImageStream);
 
 protected:
-    SkAndroidCodec(SkCodec*);
+    explicit SkAndroidCodec(SkCodec*);
 
     virtual SkISize onGetSampledDimensions(int sampleSize) const = 0;
 

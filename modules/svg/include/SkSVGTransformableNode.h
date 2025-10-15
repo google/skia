@@ -24,7 +24,7 @@ public:
     void setTransform(const SkSVGTransformType& t) { fTransform = t; }
 
 protected:
-    SkSVGTransformableNode(SkSVGTag);
+    explicit SkSVGTransformableNode(SkSVGTag);
 
     bool onPrepareToRender(SkSVGRenderContext*) const override;
 

@@ -368,13 +368,13 @@ public:
     SkMemoryStream();
 
     /** We allocate (and free) the memory. Write to it via getMemoryBase() */
-    SkMemoryStream(size_t length);
+    explicit SkMemoryStream(size_t length);
 
     /** If copyData is true, the stream makes a private copy of the data. */
     SkMemoryStream(const void* data, size_t length, bool copyData = false);
 
     /** Creates the stream to read from the specified data */
-    SkMemoryStream(sk_sp<SkData> data);
+    explicit SkMemoryStream(sk_sp<SkData> data);
 
     /** Returns a stream with a copy of the input data. */
     static std::unique_ptr<SkMemoryStream> MakeCopy(const void* data, size_t length);
@@ -439,7 +439,7 @@ private:
 
 class SK_API SkFILEWStream : public SkWStream {
 public:
-    SkFILEWStream(const char path[]);
+    explicit SkFILEWStream(const char path[]);
     ~SkFILEWStream() override;
 
     /** Returns true if the current path could be opened.

@@ -46,7 +46,7 @@ public:
 
     DawnTextureInfo() = default;
 
-    DawnTextureInfo(WGPUTexture texture);
+    explicit DawnTextureInfo(WGPUTexture texture);
 
     DawnTextureInfo(uint32_t sampleCount,
                     Mipmapped mipmapped,
