@@ -977,6 +977,18 @@
     "name": "Perf-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android_Vulkan"
   },
   {
+    "name": "Perf-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Release-All-Android"
+  },
+  {
+    "name": "Perf-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Release-All-Android_Graphite_Dawn_Vulkan"
+  },
+  {
+    "name": "Perf-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Release-All-Android_Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Perf-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Release-All-Android_Vulkan"
+  },
+  {
     "name": "Perf-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Release-All-Android"
   },
   {
@@ -1381,6 +1393,24 @@
   },
   {
     "name": "Test-Android-Clang-P30-GPU-MaliG76-arm64-Release-All-Android_Vulkan"
+  },
+  {
+    "name": "Test-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Debug-All-Android"
+  },
+  {
+    "name": "Test-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Debug-All-Android_Graphite_Native_Vulkan_Protected"
+  },
+  {
+    "name": "Test-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Release-All-Android"
+  },
+  {
+    "name": "Test-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Release-All-Android_Graphite_Dawn_Vulkan"
+  },
+  {
+    "name": "Test-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Release-All-Android_Graphite_Native_Vulkan"
+  },
+  {
+    "name": "Test-Android-Clang-Pixel10-GPU-IMG_DXT_48_1536-arm64-Release-All-Android_Vulkan"
   },
   {
     "name": "Test-Android-Clang-Pixel3a-GPU-Adreno615-arm64-Debug-All-Android"

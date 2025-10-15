@@ -69,6 +69,7 @@ class AndroidFlavor(default.DefaultFlavor):
       'Pixel7',
       'Pixel7Pro',
       'Pixel9',
+      'Pixel10',
     ]
 
     self.use_powersave_governor_for_nanobench = [
@@ -76,6 +77,7 @@ class AndroidFlavor(default.DefaultFlavor):
       'Pixel7',
       'Pixel7Pro',
       'Pixel9',
+      'Pixel10',
     ]
 
     # Maps device type -> CPU ids that should be scaled for nanobench.
@@ -104,6 +106,7 @@ class AndroidFlavor(default.DefaultFlavor):
       'Pixel6': range(4,8), # Only use the 4 small cores.
       'Pixel7': range(4,8),
       'Pixel9': range(4,8),
+      # 'Pixel10': range(1, 8), # TODO(borenet): Which cores should we disable?
     }
 
     self.gpu_scaling = {
