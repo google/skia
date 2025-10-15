@@ -213,20 +213,19 @@ public:
     // When the returned BufferSubAllocator goes out of scope, any remaining bytes that were never
     // returned from either this function or later calls to getMappedSubrange() can be used to
     // satisfy a future call to getMapped[X]Buffer.
-    std::tuple<BufferWriter, BindBufferInfo, BufferSubAllocator> getMappedVertexBuffer(
-            size_t count, size_t stride, size_t reservedCount=0, size_t alignment=1) {
+    using MappedAllocationInfo = std::tuple<BufferWriter, BindBufferInfo, BufferSubAllocator>;
+
+    MappedAllocationInfo getMappedVertexBuffer(size_t count, size_t stride,
+                                               size_t reservedCount=0, size_t alignment=1) {
         return this->getMappedBuffer(kVertexBufferIndex, count, stride, reservedCount, alignment);
     }
-    std::tuple<BufferWriter, BindBufferInfo, BufferSubAllocator> getMappedIndexBuffer(
-            size_t count) {
+    MappedAllocationInfo getMappedIndexBuffer(size_t count) {
         return this->getMappedBuffer(kIndexBufferIndex, count, sizeof(uint16_t));
     }
-    std::tuple<BufferWriter, BindBufferInfo, BufferSubAllocator> getMappedUniformBuffer(
-            size_t count, size_t stride) {
+    MappedAllocationInfo getMappedUniformBuffer(size_t count, size_t stride) {
         return this->getMappedBuffer(kUniformBufferIndex, count, stride);
     }
-    std::tuple<BufferWriter, BindBufferInfo, BufferSubAllocator> getMappedStorageBuffer(
-            size_t count, size_t stride) {
+    MappedAllocationInfo getMappedStorageBuffer(size_t count, size_t stride) {
         return this->getMappedBuffer(kStorageBufferIndex, count, stride);
     }
 
@@ -311,9 +310,8 @@ private:
                                  ClearBuffer cleared,
                                  Shareable shareable);
 
-    std::tuple<BufferWriter, BindBufferInfo, BufferSubAllocator> getMappedBuffer(
-            int stateIndex, size_t count, size_t stride,
-            size_t reservedCount=0, size_t xtraAlignment=1) {
+    MappedAllocationInfo getMappedBuffer(int stateIndex, size_t count, size_t stride,
+                                         size_t reservedCount=0, size_t xtraAlignment=1) {
         BufferSubAllocator buffer = this->getBuffer(stateIndex,
                                                     std::max(count, reservedCount),
                                                     stride,
