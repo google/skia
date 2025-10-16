@@ -29,10 +29,6 @@
 #include "tools/DecodeUtils.h"
 #include "tools/ToolUtils.h"
 
-#if defined(SK_GANESH)
-#include "include/gpu/ganesh/GrRecordingContext.h"
-#endif
-
 static sk_sp<SkImage> make_image(SkCanvas* origCanvas, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
     auto        surface(ToolUtils::makeSurface(origCanvas, info));
@@ -153,13 +149,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-#if defined(SK_GANESH)
-        if (fImage && !fImage->isValid(canvas->recordingContext()->asRecorder())) {
-            fImage = nullptr;
-        }
-#endif
-
-        if (!fImage) {
+        if (!fImage || !fImage->isValid(canvas->baseRecorder())) {
             fImage = make_image(canvas, kCellSize, kCellSize);
         }
 

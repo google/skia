@@ -19,10 +19,6 @@
 #include "include/core/SkSurface.h"
 #include "tools/ToolUtils.h"
 
-#if defined(SK_GANESH)
-#include "include/gpu/ganesh/GrRecordingContext.h"
-#endif
-
 static sk_sp<SkSurface> make_surface(SkCanvas* root, int N) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(N, N);
     return ToolUtils::makeSurface(root, info);
@@ -70,13 +66,7 @@ protected:
     SkISize getISize() override { return SkISize::Make(760, 800); }
 
     void onDraw(SkCanvas* canvas) override {
-        bool makeImage = !fImage;
-#if defined(SK_GANESH)
-        if (fImage && !fImage->isValid(canvas->recordingContext()->asRecorder())) {
-            makeImage = true;
-        }
-#endif
-        if (makeImage) {
+        if (!fImage || !fImage->isValid(canvas->baseRecorder())) {
             fImage = make_image(canvas, &fCenter);
         }
 
