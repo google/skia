@@ -232,6 +232,12 @@ func (b *TaskBuilder) dmFlags(internalHardwareLabel string) {
 			if b.Model("Pixel3a", "Pixel5") {
 				sampleCount = 0
 			}
+
+			// Disable failing OpenGLES SkSL test for Pixel 10 devices (b/452352214).
+			// Also see b/370739986; could be an issue on all IMG GPUs.
+			if b.Model("Pixel10") {
+				skip(ALL, "test", ALL, "SkSLIntrinsicModf_Ganesh")
+			}
 		} else if b.MatchGpu("Intel") {
 			// MSAA doesn't work well on Intel GPUs chromium:527565, chromium:983926
 			if b.GPU("IntelIrisXe") && b.MatchOs("Win") && b.ExtraConfig("ANGLE") {
