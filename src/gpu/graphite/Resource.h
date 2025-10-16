@@ -192,6 +192,7 @@ public:
     }
 
     Ownership ownership() const { return fOwnership; }
+    bool requiresPrepareForReturnToCache() const { return fRequiresPrepareForReturnToCache; }
 
     Budgeted budgeted() const { return fBudgeted; }
     Shareable shareable() const { return fShareable; }
@@ -265,7 +266,8 @@ protected:
     Resource(const SharedContext*,
              Ownership,
              size_t gpuMemorySize,
-             bool reusableRequiresPurgeable = false);
+             bool reusableRequiresPurgeable = false,
+             bool requiresPrepareForReturnToCache = false);
     virtual ~Resource();
 
     const SharedContext* sharedContext() const { return fSharedContext; }
@@ -632,8 +634,9 @@ private:
     // That call will set this to nullptr.
     const SharedContext* fSharedContext;
 
-    const Ownership fOwnership;
     const UniqueID fUniqueID;
+    const Ownership fOwnership;
+    const bool fRequiresPrepareForReturnToCache;
 
     // The resource key and return cache are both set at most once, during registerWithCache().
     /*const*/ GraphiteResourceKey  fKey;

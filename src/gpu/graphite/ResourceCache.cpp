@@ -263,7 +263,7 @@ bool ResourceCache::returnResource(Resource* resource) {
     // itself to be reused. On Dawn/WebGPU we use this to remap kXferCpuToGpu buffers asynchronously
     // so that they are already mapped before they come out of the cache again.
     if (resource->shouldDeleteASAP() == Resource::DeleteASAP::kNo &&
-        resource->shareable() == Shareable::kNo) {
+        resource->requiresPrepareForReturnToCache()) {
         // If we get here, we know the usage ref count is 0, so the only way for that to increase
         // again is if the Resource triggers the initial usage ref in the callback.
         SkDEBUGCODE(bool takeRefActuallyCalled = false;)

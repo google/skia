@@ -46,11 +46,13 @@ protected:
     Buffer(const SharedContext* sharedContext,
            size_t size,
            Protected isProtected,
-           bool reusableRequiresPurgeable = false)
+           bool reusableRequiresPurgeable = false,
+           bool requiresPrepareForReturnToCache = false)
             : Resource(sharedContext,
                        Ownership::kOwned,
                        size,
-                       reusableRequiresPurgeable)
+                       reusableRequiresPurgeable,
+                       requiresPrepareForReturnToCache)
             , fSize(size)
             , fIsProtected(isProtected) {}
 
