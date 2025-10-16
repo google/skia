@@ -20,6 +20,8 @@
 #include <cstring>
 #include <memory>
 #include <utility>
+#include <vector>
+
 class SkStreamAsset;
 
 /**
@@ -488,6 +490,9 @@ public:
 
     /** Return the contents as SkData, and then reset the stream. */
     sk_sp<SkData> detachAsData();
+
+    /** Return the contents as vector, and then reset the stream. */
+    std::vector<uint8_t> detachAsVector();
 
     /** Reset, returning a reader stream with the current content. */
     std::unique_ptr<SkStreamAsset> detachAsStream();

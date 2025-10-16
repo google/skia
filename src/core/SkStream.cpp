@@ -718,6 +718,19 @@ sk_sp<SkData> SkDynamicMemoryWStream::detachAsData() {
     return data;
 }
 
+std::vector<uint8_t> SkDynamicMemoryWStream::detachAsVector() {
+    std::vector<uint8_t> result;
+
+    const size_t size = this->bytesWritten();
+    if (0 == size) {
+        return result;
+    }
+
+    result.resize(size);
+    this->copyToAndReset(result.data());
+    return result;
+}
+
 #ifdef SK_DEBUG
 void SkDynamicMemoryWStream::validate() const {
     if (!fHead) {
