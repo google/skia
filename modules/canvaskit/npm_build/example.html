@@ -163,9 +163,6 @@
 
     function drawFrame(canvas) {
       const path = starPath(CanvasKit, X, Y);
-      // Some animations see performance improvements by marking their
-      // paths as volatile.
-      path.setIsVolatile(true);
       const dpe = CanvasKit.PathEffect.MakeDash([15, 5, 5, 10], i/5);
       i++;
 
@@ -328,18 +325,20 @@
       paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
       paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-      const path = new CanvasKit.Path();
-      path.moveTo(10, 10);
-      path.lineTo(100, 10);
-      path.moveTo(10, 10);
-      path.lineTo(10, 200);
-      path.moveTo(10, 100);
-      path.lineTo(100,100);
-      path.moveTo(10, 200);
-      path.lineTo(100, 200);
+      const pb = new CanvasKit.PathBuilder();
+      pb.moveTo(10, 10);
+      pb.lineTo(100, 10);
+      pb.moveTo(10, 10);
+      pb.lineTo(10, 200);
+      pb.moveTo(10, 100);
+      pb.lineTo(100,100);
+      pb.moveTo(10, 200);
+      pb.lineTo(100, 200);
 
+      const path = pb.detach();
       canvas.drawPath(path, paint);
       path.delete();
+      pb.delete();
       paint.delete();
     }
     // Intentionally just draw frame once
@@ -360,37 +359,42 @@
       paint.setColor(CanvasKit.Color(0, 0, 0, 1.0));
       paint.setStyle(CanvasKit.PaintStyle.Stroke);
 
-      const path = new CanvasKit.Path();
-      path.moveTo(20, 5);
-      path.lineTo(30, 20);
-      path.lineTo(40, 10);
-      path.lineTo(50, 20);
-      path.lineTo(60, 0);
-      path.lineTo(20, 5);
+      const pb = new CanvasKit.PathBuilder();
+      pb.moveTo(20, 5);
+      pb.lineTo(30, 20);
+      pb.lineTo(40, 10);
+      pb.lineTo(50, 20);
+      pb.lineTo(60, 0);
+      pb.lineTo(20, 5);
 
-      path.moveTo(20, 80);
-      path.cubicTo(90, 10, 160, 150, 190, 10);
+      pb.moveTo(20, 80);
+      pb.cubicTo(90, 10, 160, 150, 190, 10);
 
-      path.moveTo(36, 148);
-      path.quadTo(66, 188, 120, 136);
-      path.lineTo(36, 148);
+      pb.moveTo(36, 148);
+      pb.quadTo(66, 188, 120, 136);
+      pb.lineTo(36, 148);
 
-      path.moveTo(150, 180);
-      path.arcToTangent(150, 100, 50, 200, 20);
-      path.lineTo(160, 160);
+      pb.moveTo(150, 180);
+      pb.arcToTangent(150, 100, 50, 200, 20);
+      pb.lineTo(160, 160);
 
-      path.moveTo(20, 120);
-      path.lineTo(20, 120);
+      pb.moveTo(20, 120);
+      pb.lineTo(20, 120);
 
+      const path = pb.detach();
       canvas.drawPath(path, paint);
 
       const rrect = CanvasKit.RRectXY([100, 10, 140, 62], 10, 4);
 
-      const rrectPath = new CanvasKit.Path().addRRect(rrect, true);
+      const rrectPB = new CanvasKit.PathBuilder();
+      rrectPB.addRRect(rrect, true);
+      const rrectPath = rrectPB.detach();
 
       canvas.drawPath(rrectPath, paint);
 
       rrectPath.delete();
+      rrectPB.delete();
+      pb.delete();
       path.delete();
       paint.delete();
     }
@@ -421,22 +425,22 @@
     paint.setPathEffect(CanvasKit.PathEffect.MakeCorner(50));
 
     // Draw I N K
-    let path = new CanvasKit.Path();
-    path.moveTo(80, 30);
-    path.lineTo(80, 80);
+    let pb = new CanvasKit.PathBuilder();
+    pb.moveTo(80, 30);
+    pb.lineTo(80, 80);
 
-    path.moveTo(100, 80);
-    path.lineTo(100, 15);
-    path.lineTo(130, 95);
-    path.lineTo(130, 30);
+    pb.moveTo(100, 80);
+    pb.lineTo(100, 15);
+    pb.lineTo(130, 95);
+    pb.lineTo(130, 30);
 
-    path.moveTo(150, 30);
-    path.lineTo(150, 80);
-    path.moveTo(170, 30);
-    path.lineTo(150, 55);
-    path.lineTo(170, 80);
+    pb.moveTo(150, 30);
+    pb.lineTo(150, 80);
+    pb.moveTo(170, 30);
+    pb.lineTo(150, 55);
+    pb.lineTo(170, 80);
 
-    let paths = [path];
+    let paths = [pb.detach()];
     let paints = [paint];
 
     function drawFrame(canvas) {
@@ -457,14 +461,18 @@
         return;
       }
       if (hold) {
-        path.lineTo(e.offsetX, e.offsetY);
+        pb.lineTo(e.offsetX, e.offsetY);
+        paths[paths.length-1].delete();
+        // Snapshot gets us the work-in-progress path but we can still
+        // add to the path builder if we want.
+        paths[paths.length-1] = pb.snapshot();
       } else {
         paint = paint.copy();
         paint.setColor(CanvasKit.Color(Math.random() * 255, Math.random() * 255, Math.random() * 255, Math.random() + .2));
         paints.push(paint);
-        path = new CanvasKit.Path();
-        paths.push(path);
-        path.moveTo(e.offsetX, e.offsetY);
+        paths.push(new CanvasKit.Path());
+        pb.reset();
+        pb.moveTo(e.offsetX, e.offsetY);
       }
       hold = true;
     };
@@ -477,13 +485,13 @@
   }
 
   function starPath(CanvasKit, X=128, Y=128, R=116) {
-    let p = new CanvasKit.Path();
+    let p = new CanvasKit.PathBuilder();
     p.moveTo(X + R, Y);
     for (let i = 1; i < 8; i++) {
       let a = 2.6927937 * i;
       p.lineTo(X + R * Math.cos(a), Y + R * Math.sin(a));
     }
-    return p;
+    return p.detachAndDelete();
   }
 
   function CanvasAPI1(CanvasKit) {
@@ -1104,15 +1112,16 @@
     fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
     fontPaint.setAntiAlias(true);
 
-    const arc = new CanvasKit.Path();
+    const arc = new CanvasKit.PathBuilder();
     arc.arcToOval(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
     arc.lineTo(210, 140);
     arc.arcToOval(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
 
     const str = 'This téxt should follow the curve across contours...';
-    const textBlob = CanvasKit.TextBlob.MakeOnPath(str, arc, font);
+    const path = arc.detach();
+    const textBlob = CanvasKit.TextBlob.MakeOnPath(str, path, font);
 
-    canvas.drawPath(arc, paint);
+    canvas.drawPath(path, paint);
     canvas.drawTextBlob(textBlob, 0, 0, fontPaint);
 
     surface.flush();
@@ -1120,6 +1129,7 @@
     surface.delete();
     textBlob.delete();
     arc.delete();
+    path.delete();
     paint.delete();
     font.delete();
     fontPaint.delete();

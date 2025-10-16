@@ -51,11 +51,11 @@ describe('Font Behavior', () => {
         fontPaint.setAntiAlias(true);
         fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
 
-
-        const arc = new CanvasKit.Path();
-        arc.arcToOval(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
-        arc.lineTo(210, 140);
-        arc.arcToOval(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
+        const arc = new CanvasKit.PathBuilder()
+            .arcToOval(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true)
+            .lineTo(210, 140)
+            .arcToOval(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true)
+            .detachAndDelete();
 
         // Only 1 dot should show up in the image, because we run out of path.
         const str = 'This téxt should follow the curve across contours...';
@@ -83,10 +83,11 @@ describe('Font Behavior', () => {
         fontPaint.setAntiAlias(true);
         fontPaint.setStyle(CanvasKit.PaintStyle.Fill);
 
-        const arc = new CanvasKit.Path();
-        arc.arcToOval(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true);
-        arc.lineTo(210, 140);
-        arc.arcToOval(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true);
+        const arc = new CanvasKit.PathBuilder()
+            .arcToOval(CanvasKit.LTRBRect(20, 40, 280, 300), -160, 140, true)
+            .lineTo(210, 140)
+            .arcToOval(CanvasKit.LTRBRect(20, 0, 280, 260), 160, -140, true)
+            .detachAndDelete();
 
         const str = 'This téxt should follow the curve across contours...';
         const textBlob = CanvasKit.TextBlob.MakeOnPath(str, arc, font, 60.5);
