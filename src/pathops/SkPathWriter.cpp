@@ -30,7 +30,7 @@ void SkPathWriter::close() {
     SkDebugf("path.close();\n");
 #endif
     fCurrent.close();
-    if (auto raw = SkPathPriv::Raw(fCurrent)) {
+    if (auto raw = SkPathPriv::Raw(fCurrent, SkResolveConvexity::kNo)) {
         fBuilder.addRaw(*raw);
     }
     init();

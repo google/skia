@@ -5666,7 +5666,7 @@ template <typename T> bool span_eq(SkSpan<const T> a, SkSpan<const T> b) {
 
 static void assert_points(skiatest::Reporter* reporter,
                           const SkPath& path, const std::initializer_list<SkPoint>& list) {
-    auto praw = SkPathPriv::Raw(path);
+    auto praw = SkPathPriv::Raw(path, SkResolveConvexity::kNo);
     REPORTER_ASSERT(reporter, praw.has_value());
     REPORTER_ASSERT(reporter, span_eq<SkPoint>(praw->fPoints, list));
 }

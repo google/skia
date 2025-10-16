@@ -346,7 +346,7 @@ int SkEdgeBuilder::build(const SkPathRaw& raw, const SkIRect* iclip, bool canCul
 int SkEdgeBuilder::buildEdges(const SkPathRaw& raw,
                               const SkIRect* shiftedClip) {
     // If we're convex, then we need both edges, even if the right edge is past the clip.
-    const bool canCullToTheRight = !raw.isConvex();
+    const bool canCullToTheRight = !raw.isKnownToBeConvex();
 
     // We can use our buildPoly() optimization if all the segments are lines.
     // (Edges are homogeneous and stored contiguously in memory, no need for indirection.)
@@ -364,7 +364,7 @@ int SkEdgeBuilder::buildEdges(const SkPathRaw& raw,
 }
 
 int SkEdgeBuilder::buildEdges(const SkPath& path, const SkIRect* shiftedClip) {
-    if (auto raw = SkPathPriv::Raw(path)) {
+    if (auto raw = SkPathPriv::Raw(path, SkResolveConvexity::kYes)) {
         return buildEdges(*raw, shiftedClip);
     }
     return 0;   // no edges were built

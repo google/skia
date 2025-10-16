@@ -28,7 +28,7 @@
 #include <cstdint>
 
 static bool one_contour(const SkPath& path) {
-    const auto raw = SkPathPriv::Raw(path);
+    const auto raw = SkPathPriv::Raw(path, SkResolveConvexity::kNo);
     if (!raw) {
         return false;
     }

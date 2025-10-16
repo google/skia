@@ -1015,6 +1015,8 @@ void Draw::drawPath(const SkPath& origSrcPath,
 
     SkPath scratchPath;
 
+    const auto resolveConvexity = SkResolveConvexity::kYes;
+
     if (needsFillPath) {
         SkRect cullRect;
         const SkRect* cullRectPtr = nullptr;
@@ -1030,7 +1032,7 @@ void Draw::drawPath(const SkPath& origSrcPath,
         }
         doFill = skpathutils::FillPathWithPaint(*pathPtr, *paint, &builder, cullRectPtr, *fCTM);
         builder.transform(*fCTM);
-        raw = SkPathPriv::Raw(builder);
+        raw = SkPathPriv::Raw(builder, resolveConvexity);
     } else {
         SkMatrix matrix = *fCTM;
         if (prePathMatrix) {
@@ -1039,11 +1041,11 @@ void Draw::drawPath(const SkPath& origSrcPath,
 
         if (matrix.isIdentity()) {
             // special case, to avoid copying the origSrcPath into the builder
-            raw = SkPathPriv::Raw(origSrcPath);
+            raw = SkPathPriv::Raw(origSrcPath, resolveConvexity);
         } else {
             builder = origSrcPath;
             builder.transform(matrix);
-            raw = SkPathPriv::Raw(builder);
+            raw = SkPathPriv::Raw(builder, resolveConvexity);
         }
     }
 

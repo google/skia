@@ -328,7 +328,7 @@ public:
 
     static bool IsNestedFillRects(const SkPath& path, SkRect rect[2],
                                   SkPathDirection dirs[2] = nullptr) {
-        auto raw = Raw(path);
+        auto raw = Raw(path, SkResolveConvexity::kNo);
         return raw.has_value() && IsNestedFillRects(*raw, rect, dirs);
     }
 
@@ -430,7 +430,7 @@ public:
         return SkPath::MakeInternal(analysis, points, verbs, conics, fillType, isVolatile);
     }
 
-    static std::optional<SkPathRaw> Raw(const SkPath& path) {
+    static std::optional<SkPathRaw> Raw(const SkPath& path, SkResolveConvexity rc) {
         const SkPathRef* ref = path.fPathRef.get();
         SkASSERT(ref);
         if (!ref->isFinite()) {
@@ -443,24 +443,23 @@ public:
             ref->conicSpan(),
             ref->getBounds(),
             path.getFillType(),
-            path.isConvex(),
+            rc == SkResolveConvexity::kYes ? path.getConvexity() : path.getConvexityOrUnknown(),
             SkTo<uint8_t>(ref->getSegmentMasks()),
         };
     }
 
-    static std::optional<SkPathRaw> Raw(const SkPathBuilder& builder) {
+    static std::optional<SkPathRaw> Raw(const SkPathBuilder& builder, SkResolveConvexity rc) {
         const auto bounds = builder.computeFiniteBounds();
         if (!bounds) {
             return {};
         }
 
         SkPathConvexity convexity = builder.fConvexity;
-        if (convexity == SkPathConvexity::kUnknown) {
+        if (convexity == SkPathConvexity::kUnknown && rc == SkResolveConvexity::kYes) {
             convexity = SkPathPriv::ComputeConvexity(builder.fPts,
                                                      builder.fVerbs,
                                                      builder.fConicWeights);
         }
-        const bool isConvex = SkPathConvexity_IsConvex(convexity);
 
         return SkPathRaw{
             builder.points(),
@@ -468,7 +467,7 @@ public:
             builder.conicWeights(),
             *bounds,
             builder.fillType(),
-            isConvex,
+            convexity,
             SkTo<uint8_t>(builder.fSegmentMask),
         };
     }

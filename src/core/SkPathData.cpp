@@ -238,7 +238,7 @@ sk_sp<SkPathData> SkPathData::makeTransform(const SkMatrix& mx) const {
 
     if (mx.hasPerspective()) {
         SkPathBuilder bu;
-        bu.addRaw(this->raw(SkPathFillType::kDefault));
+        bu.addRaw(this->raw(SkPathFillType::kDefault, SkResolveConvexity::kNo));
         bu.transform(mx);
         return bu.detachData();
     }
@@ -319,8 +319,7 @@ sk_sp<SkPathData> SkPathData::Empty() {
 }
 
 void SkPathData::setupIsA(SkPathIsAType type, SkPathDirection dir, unsigned index) {
-    fConvexity.store((uint8_t)SkPathDirection_ToConvexity(dir),
-                     std::memory_order_relaxed);
+    this->setConvexity(SkPathDirection_ToConvexity(dir));
 
     SkASSERT(type == SkPathIsAType::kOval || type == SkPathIsAType::kRRect);
     fType = type;
@@ -385,22 +384,36 @@ sk_sp<SkPathData> SkPathData::Polygon(SkSpan<const SkPoint> pts, bool isClosed) 
 
 /////////////////////////////////////
 
-SkPathConvexity SkPathData::getConvexity() const {
+SkPathConvexity SkPathData::getConvexityOrUnknown() const {
     return static_cast<SkPathConvexity>(fConvexity.load(std::memory_order_relaxed));
 }
 
-bool SkPathData::isConvex() const {
-    return SkPathConvexity_IsConvex(this->getConvexity());
+SkPathConvexity SkPathData::getResolvedConvexity() const {
+    auto convexity = this->getConvexityOrUnknown();
+    if (convexity == SkPathConvexity::kUnknown) {
+        convexity = SkPathPriv::ComputeConvexity(fPoints, fVerbs, fConics);
+        this->setConvexity(convexity);
+    }
+    return convexity;
 }
 
-SkPathRaw SkPathData::raw(SkPathFillType ft) const {
+void SkPathData::setConvexity(SkPathConvexity convexity) const {
+    fConvexity.store((uint8_t)convexity, std::memory_order_relaxed);
+}
+
+bool SkPathData::isConvex() const {
+    return SkPathConvexity_IsConvex(this->getResolvedConvexity());
+}
+
+SkPathRaw SkPathData::raw(SkPathFillType ft, SkResolveConvexity rc) const {
     return {
         fPoints,
         fVerbs,
         fConics,
         fBounds,
         ft,
-        this->isConvex(),
+        rc == SkResolveConvexity::kYes ? this->getResolvedConvexity()
+                                       : this->getConvexityOrUnknown(),
         fSegmentMask,
     };
 }

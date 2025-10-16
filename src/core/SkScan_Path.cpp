@@ -455,7 +455,7 @@ static void sk_fill_path(const SkPathRaw& raw, const SkIRect& clipRect, SkBlitte
     }
 
     // count >= 2 is required as the convex walker does not handle missing right edges
-    if (raw.isConvex() && (nullptr == proc) && count >= 2) {
+    if (raw.isKnownToBeConvex() && (nullptr == proc) && count >= 2) {
         walk_simple_edges(&headEdge, blitter, start_y, stop_y);
     } else {
         walk_edges(&headEdge, raw.fillType(), blitter, start_y, stop_y, proc,

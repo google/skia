@@ -105,7 +105,7 @@ public:
     SkRect bounds() const { return fBounds; }
     uint8_t segmentMask() const { return fSegmentMask; }
 
-    SkPathRaw raw(SkPathFillType) const;
+    SkPathRaw raw(SkPathFillType, SkResolveConvexity) const;
 
     /**
      * Return true if the path contains no points or verbs
@@ -113,7 +113,8 @@ public:
     bool empty() const { return fVerbs.empty(); }
 
     /**
-     * Returns true if the pathdata is convex. If necessary, it will first compute the convexity.
+     * Returns true if the pathdata is convex.
+     * Note: if necessary, it will first compute the convexity (and cache it).
      */
     bool isConvex() const;
 
@@ -191,7 +192,9 @@ private:
     // If we know we're a special shape, call this after the normal initialization
     void setupIsA(SkPathIsAType, SkPathDirection dir, unsigned startIndex);
 
-    SkPathConvexity getConvexity() const;
+    SkPathConvexity getConvexityOrUnknown() const;          // may return kUnknown
+    SkPathConvexity getResolvedConvexity() const;           // never returns kUnknown
+    void setConvexity(SkPathConvexity) const;               // const -- but convexity is mutable
 
     static sk_sp<SkPathData> Alloc(size_t npts, size_t nvbs, size_t ncns);
 

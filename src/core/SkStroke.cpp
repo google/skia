@@ -1436,7 +1436,7 @@ void SkStroke::strokePath(const SkPath& src, SkPathBuilder* dst) const {
         return;
     }
 
-    const auto raw = SkPathPriv::Raw(src);
+    const auto raw = SkPathPriv::Raw(src, SkResolveConvexity::kNo);
     if (!raw) {
         return;
     }

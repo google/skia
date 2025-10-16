@@ -340,7 +340,7 @@ static bool check_inverse_on_empty_return(SkRegion* dst, const SkPath& path, con
 bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
     SkDEBUGCODE(SkRegionPriv::Validate(*this));
 
-    const auto raw = SkPathPriv::Raw(path);
+    const auto raw = SkPathPriv::Raw(path, SkResolveConvexity::kYes);
 
     if (clip.isEmpty() || !raw.has_value() || path.isEmpty()) {
         // This treats non-finite paths (no raw) as empty as well, so this returns empty or 'clip'

@@ -35,7 +35,7 @@ public:
     void cubicTo(SkPoint, SkPoint, SkPoint);
     void close();
 
-    SkPathRaw raw(SkPathFillType, bool isConvex = false) const;
+    SkPathRaw raw(SkPathFillType, SkPathConvexity) const;
 
 private:
     SkSpan<SkPoint>    fPtStorage;
@@ -102,7 +102,7 @@ void SkSPathRawBuilder::close() {
     fVbStorage[fVbs++] = SkPathVerb::kClose;
 }
 
-SkPathRaw SkSPathRawBuilder::raw(SkPathFillType ft, bool isConvex) const {
+SkPathRaw SkSPathRawBuilder::raw(SkPathFillType ft, SkPathConvexity convexity) const {
     const auto ptSpan = fPtStorage.first(fPts);
     return {
             ptSpan,
@@ -110,7 +110,7 @@ SkPathRaw SkSPathRawBuilder::raw(SkPathFillType ft, bool isConvex) const {
             fCnStorage.first(fCns),
             SkRect::BoundsOrEmpty(ptSpan),
             ft,
-            isConvex,
+            convexity,
             SkPathPriv::ComputeSegmentMask(fVbStorage.first(fVbs)),
     };
 }
@@ -200,7 +200,7 @@ DEF_TEST(pathraw_iter, reporter) {
     bu.lineTo(p[8]);
     bu.conicTo(p[9], p[10], 2);
 
-    auto raw = bu.raw(SkPathFillType::kWinding);
+    auto raw = bu.raw(SkPathFillType::kWinding, SkPathConvexity::kUnknown);
 
     REPORTER_ASSERT(reporter, raw.fPoints.size() == N);
     REPORTER_ASSERT(reporter, raw.fVerbs.size() == 8);
@@ -222,7 +222,7 @@ DEF_TEST(pathraw_iter, reporter) {
     pb.conicTo(p[9], p[10], 2);
 
     auto path = pb.detach();
-    raw = SkPathPriv::Raw(path).value();
+    raw = SkPathPriv::Raw(path, SkResolveConvexity::kNo).value();
 
     check_iter(reporter, raw, p, verbs, cns);
 }
@@ -238,7 +238,7 @@ DEF_TEST(pathraw_segmentmask, reporter) {
         float cns[10];
         SkSPathRawBuilder bu(pts, vbs, cns);
         build(bu);
-        auto raw = bu.raw(SkPathFillType::kWinding);
+        auto raw = bu.raw(SkPathFillType::kWinding, SkPathConvexity::kUnknown);
         REPORTER_ASSERT(reporter, raw.fSegmentMask == expectedMask);
     };
 

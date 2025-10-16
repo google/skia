@@ -35,7 +35,7 @@ template <typename T> bool span_eq(SkSpan<T> a, SkSpan<T> b) {
 
 static void check_path_is_raw(skiatest::Reporter* reporter,
                               const SkPath& path, const SkPathRaw& raw) {
-    auto praw = SkPathPriv::Raw(path);
+    auto praw = SkPathPriv::Raw(path, SkResolveConvexity::kNo);
     REPORTER_ASSERT(reporter, praw.has_value());
 
     REPORTER_ASSERT(reporter, span_eq(praw->fPoints, raw.fPoints));
@@ -51,7 +51,7 @@ DEF_TEST(pathrawshapes_rect, reporter) {
         SkPathRawShapes::Rect shape(r, dir);
 
         REPORTER_ASSERT(reporter, shape.bounds() == r);
-        REPORTER_ASSERT(reporter, shape.isConvex());
+        REPORTER_ASSERT(reporter, shape.isKnownToBeConvex());
         REPORTER_ASSERT(reporter, shape.segmentMasks() == kLine_SkPathSegmentMask);
 
         const SkPath path = path_from_raw(shape);
@@ -67,7 +67,7 @@ DEF_TEST(pathrawshapes_oval, reporter) {
         SkPathRawShapes::Oval shape(r, dir);
 
         REPORTER_ASSERT(reporter, shape.bounds() == r);
-        REPORTER_ASSERT(reporter, shape.isConvex());
+        REPORTER_ASSERT(reporter, shape.isKnownToBeConvex());
         REPORTER_ASSERT(reporter, shape.segmentMasks() == kConic_SkPathSegmentMask);
 
         const SkPath path = SkPath::Oval(r, dir);
@@ -84,7 +84,7 @@ DEF_TEST(pathrawshapes_rrect, reporter) {
         SkPathRawShapes::RRect shape(rr, dir);
 
         REPORTER_ASSERT(reporter, shape.bounds() == r);
-        REPORTER_ASSERT(reporter, shape.isConvex());
+        REPORTER_ASSERT(reporter, shape.isKnownToBeConvex());
         REPORTER_ASSERT(reporter, shape.segmentMasks() == (kLine_SkPathSegmentMask |
                                                            kConic_SkPathSegmentMask));
 

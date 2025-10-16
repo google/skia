@@ -1556,7 +1556,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
         //[Fillable-path -> Pixel-path]
         SkPath* pixelPath = pathIsMutable ? fillablePath : &modifiedPath;
         *pixelPath = fillablePath->makeTransform(matrix);
-        auto pixelRaw = SkPathPriv::Raw(*pixelPath);
+        auto pixelRaw = SkPathPriv::Raw(*pixelPath, SkResolveConvexity::kYes);
         if (!pixelRaw) {
             return;
         }
