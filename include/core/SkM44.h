@@ -166,7 +166,7 @@ public:
     enum Uninitialized_Constructor {
         kUninitialized_Constructor
     };
-    SkM44(Uninitialized_Constructor) {}
+    explicit SkM44(Uninitialized_Constructor) {}
 
     enum NaN_Constructor {
         kNaN_Constructor

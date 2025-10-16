@@ -19,7 +19,7 @@
 
 class UrlDataManager {
 public:
-    UrlDataManager(SkString rootUrl);
+    explicit UrlDataManager(SkString rootUrl);
     ~UrlDataManager() { this->reset(); }
 
     /*

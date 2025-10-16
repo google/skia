@@ -475,7 +475,7 @@ private:
 
     class ProgramCache : public GrThreadSafePipelineBuilder {
     public:
-        ProgramCache(int runtimeProgramCacheSize);
+        explicit ProgramCache(int runtimeProgramCacheSize);
         ~ProgramCache() override;
 
         void abandon();

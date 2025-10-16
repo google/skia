@@ -44,6 +44,7 @@ namespace DM {
 
 // This is just convenience.  It lets you use either return "foo" or return SkStringPrintf(...).
 struct ImplicitString : public SkString {
+    // This constructor is intentionally not explicit to allow for convenient implicit conversions.
     template <typename T>
     ImplicitString(const T& s) : SkString(s) {}
     ImplicitString() : SkString("") {}
@@ -569,7 +570,7 @@ public:
 
 class SVGSink : public Sink {
 public:
-    SVGSink(int pageIndex = 0);
+    explicit SVGSink(int pageIndex = 0);
 
     Result draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "svg"; }

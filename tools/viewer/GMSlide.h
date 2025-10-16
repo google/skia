@@ -21,7 +21,7 @@ class SkSurfaceProps;
 
 class GMSlide : public Slide {
 public:
-    GMSlide(std::unique_ptr<skiagm::GM> gm);
+    explicit GMSlide(std::unique_ptr<skiagm::GM> gm);
     ~GMSlide() override;
 
     SkISize getDimensions() const override { return fGM->getISize(); }

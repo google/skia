@@ -49,7 +49,7 @@ public:
     virtual skgpu::graphite::Context* context() { return nullptr; }
 
 protected:
-    VkTestHelper(bool isProtected) : fIsProtected(isProtected) {}
+    explicit VkTestHelper(bool isProtected) : fIsProtected(isProtected) {}
 
     bool setupBackendContext();
     virtual bool init() = 0;

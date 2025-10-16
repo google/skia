@@ -78,7 +78,7 @@ private:
     friend class PrecompileContextPriv;
     friend class Context; // for ctor
 
-    PrecompileContext(sk_sp<SharedContext>);
+    explicit PrecompileContext(sk_sp<SharedContext>);
 
     mutable SingleOwner fSingleOwner;
     sk_sp<SharedContext> fSharedContext;

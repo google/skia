@@ -54,7 +54,7 @@ public:
                 const SkMatrix& matrix) const;
     SkScalar maxSize() const { return fMaxDistanceFieldFontSize; }
 #else
-    SubRunControl(bool forcePathAA=false) : fForcePathAA(forcePathAA) {}
+    explicit SubRunControl(bool forcePathAA = false) : fForcePathAA(forcePathAA) {}
 #endif
     bool isDirect(SkScalar approximateDeviceTextSize, const SkPaint& paint,
                   const SkMatrix& matrix) const;

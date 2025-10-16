@@ -57,7 +57,7 @@ namespace GrTest {
  */
 class GrCaps : public SkCapabilities {
 public:
-    GrCaps(const GrContextOptions&);
+    explicit GrCaps(const GrContextOptions&);
 
     void dumpJSON(SkJSONWriter*) const;
 

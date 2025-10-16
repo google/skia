@@ -69,7 +69,7 @@ struct GrTimerQuery {
 
 class GrGpu {
 public:
-    GrGpu(GrDirectContext* direct);
+    explicit GrGpu(GrDirectContext* direct);
     virtual ~GrGpu();
 
     GrDirectContext* getContext() { return fContext; }

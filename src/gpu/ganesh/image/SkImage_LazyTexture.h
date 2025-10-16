@@ -29,7 +29,7 @@ struct SkIRect;
  */
 class SkImage_LazyTexture final : public SkImage_Lazy {
 public:
-    SkImage_LazyTexture(SkImage_Lazy::Validator *validator) : SkImage_Lazy(validator) {}
+    explicit SkImage_LazyTexture(SkImage_Lazy::Validator* validator) : SkImage_Lazy(validator) {}
 
     bool readPixelsProxy(GrDirectContext*, const SkPixmap&) const override;
 

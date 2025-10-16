@@ -43,7 +43,7 @@ public:
     void draw(SkCanvas* canvas) override;
 
 private:
-    BisectSlide(const char filepath[]);
+    explicit BisectSlide(const char filepath[]);
 
     struct FoundPath {
         SkPath fPath;

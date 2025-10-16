@@ -36,10 +36,10 @@ public:
     }
 
 #if defined(SK_GANESH)
-    FlushFinishTracker(GrDirectContext* context) : fContext(context) {}
+    explicit FlushFinishTracker(GrDirectContext* context) : fContext(context) {}
 #endif
 #if defined(SK_GRAPHITE)
-    FlushFinishTracker(skgpu::graphite::Context* context) : fGraphiteContext(context) {}
+    explicit FlushFinishTracker(skgpu::graphite::Context* context) : fGraphiteContext(context) {}
 #endif
 
     void setFinished() { fIsFinished = true; }

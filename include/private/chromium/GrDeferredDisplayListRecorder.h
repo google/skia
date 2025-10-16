@@ -32,7 +32,7 @@ class SkSurface;
  */
 class SK_API GrDeferredDisplayListRecorder {
 public:
-    GrDeferredDisplayListRecorder(const GrSurfaceCharacterization&);
+    explicit GrDeferredDisplayListRecorder(const GrSurfaceCharacterization&);
     ~GrDeferredDisplayListRecorder();
 
     const GrSurfaceCharacterization& characterization() const {

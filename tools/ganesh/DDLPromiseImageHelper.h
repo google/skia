@@ -106,7 +106,8 @@ private:
 // all the replaying is complete. This will pin the GrBackendTextures in VRAM.
 class DDLPromiseImageHelper {
 public:
-    DDLPromiseImageHelper(const SkYUVAPixmapInfo::SupportedDataTypes& supportedYUVADataTypes)
+    explicit DDLPromiseImageHelper(
+            const SkYUVAPixmapInfo::SupportedDataTypes& supportedYUVADataTypes)
             : fSupportedYUVADataTypes(supportedYUVADataTypes) {}
     ~DDLPromiseImageHelper() = default;
 

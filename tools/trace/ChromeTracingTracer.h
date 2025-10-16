@@ -21,7 +21,7 @@ class SkJSONWriter;
  */
 class ChromeTracingTracer : public SkEventTracer {
 public:
-    ChromeTracingTracer(const char* filename);
+    explicit ChromeTracingTracer(const char* filename);
     ~ChromeTracingTracer() override;
 
     SkEventTracer::Handle addTraceEvent(char            phase,

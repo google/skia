@@ -2601,7 +2601,8 @@ private:
 
 protected:
     // For use by SkNoDrawCanvas (via SkCanvasVirtualEnforcer, which can't be a friend)
-    SkCanvas(const SkIRect& bounds);
+    explicit SkCanvas(const SkIRect& bounds);
+
 private:
     SkCanvas(const SkBitmap&, std::unique_ptr<SkRasterHandleAllocator>,
              SkRasterHandleAllocator::Handle, const SkSurfaceProps* props);

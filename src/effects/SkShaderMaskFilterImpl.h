@@ -26,7 +26,7 @@ struct SkIPoint;
 
 class SkShaderMaskFilterImpl : public SkMaskFilterBase {
 public:
-    SkShaderMaskFilterImpl(sk_sp<SkShader> shader) : fShader(std::move(shader)) {}
+    explicit SkShaderMaskFilterImpl(sk_sp<SkShader> shader) : fShader(std::move(shader)) {}
 
     SkMask::Format getFormat() const override { return SkMask::kA8_Format; }
     SkMaskFilterBase::Type type() const override { return SkMaskFilterBase::Type::kShader; }

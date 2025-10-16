@@ -114,7 +114,7 @@ namespace skiagm {
         using DrawResult = skiagm::DrawResult;
         using GraphiteTestContext = skiatest::graphite::GraphiteTestContext;
 
-        GM(SkColor backgroundColor = SK_ColorWHITE);
+        explicit GM(SkColor backgroundColor = SK_ColorWHITE);
         virtual ~GM();
 
         enum Mode {
