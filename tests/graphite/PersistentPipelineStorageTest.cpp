@@ -102,8 +102,10 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(PersistentPipelineStorageTest,
                                    /* withGradient= */ false));
 
     // On the first draw there shouldn't be anything to load but we should store the new pipelines.
-    REPORTER_ASSERT(reporter, memoryPipelineStorage.numLoads() == 0);
-    REPORTER_ASSERT(reporter, memoryPipelineStorage.numStores() == 1);
+    REPORTER_ASSERT(reporter, memoryPipelineStorage.numLoads() == 0,
+                    "actual: %d", memoryPipelineStorage.numLoads());
+    REPORTER_ASSERT(reporter, memoryPipelineStorage.numStores() == 1,
+                    "actual: %d", memoryPipelineStorage.numStores());
 
     memoryPipelineStorage.resetCacheStats();
 
@@ -112,8 +114,10 @@ DEF_CONDITIONAL_GRAPHITE_TEST_FOR_CONTEXTS(PersistentPipelineStorageTest,
 
     // On the second draw we should be able to load the prior pipelines but still need to store
     // the new ones.
-    REPORTER_ASSERT(reporter, memoryPipelineStorage.numLoads() == 1);
-    REPORTER_ASSERT(reporter, memoryPipelineStorage.numStores() == 1);
+    REPORTER_ASSERT(reporter, memoryPipelineStorage.numLoads() == 1,
+                    "actual: %d", memoryPipelineStorage.numLoads());
+    REPORTER_ASSERT(reporter, memoryPipelineStorage.numStores() == 1,
+                    "actual: %d", memoryPipelineStorage.numStores());
 }
 
 }  // namespace skgpu::graphite
