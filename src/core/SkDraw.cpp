@@ -48,6 +48,7 @@
 #include "src/core/SkMask.h"
 #include "src/core/SkMaskFilterBase.h"
 #include "src/core/SkMatrixUtils.h"
+#include "src/core/SkPathData.h"
 #include "src/core/SkPathEffectBase.h"
 #include "src/core/SkPathPriv.h"
 #include "src/core/SkRasterClip.h"
@@ -1013,9 +1014,7 @@ void Draw::drawPath(const SkPath& origSrcPath,
     std::optional<SkPathRaw> raw;      // will point to either origSrcPath or builder
     bool          doFill = true;
 
-    SkPath scratchPath;
-
-    const auto resolveConvexity = SkResolveConvexity::kYes;
+    sk_sp<SkPathData> pdata;
 
     if (needsFillPath) {
         SkRect cullRect;
@@ -1032,7 +1031,7 @@ void Draw::drawPath(const SkPath& origSrcPath,
         }
         doFill = skpathutils::FillPathWithPaint(*pathPtr, *paint, &builder, cullRectPtr, *fCTM);
         builder.transform(*fCTM);
-        raw = SkPathPriv::Raw(builder, resolveConvexity);
+        raw = SkPathPriv::Raw(builder, SkResolveConvexity::kYes);
     } else {
         SkMatrix matrix = *fCTM;
         if (prePathMatrix) {
@@ -1040,12 +1039,14 @@ void Draw::drawPath(const SkPath& origSrcPath,
         }
 
         if (matrix.isIdentity()) {
-            // special case, to avoid copying the origSrcPath into the builder
-            raw = SkPathPriv::Raw(origSrcPath, resolveConvexity);
+            raw = SkPathPriv::Raw(origSrcPath, SkResolveConvexity::kYes);
         } else {
-            builder = origSrcPath;
-            builder.transform(matrix);
-            raw = SkPathPriv::Raw(builder, resolveConvexity);
+            raw = SkPathPriv::Raw(origSrcPath, SkResolveConvexity::kNo);
+            if (raw && (pdata = SkPathData::MakeTransform(*raw, matrix))) {
+                raw = pdata->raw(origSrcPath.getFillType(), SkResolveConvexity::kYes);
+            } else {
+                return; // failed to create pdata
+            }
         }
     }
 
