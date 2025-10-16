@@ -162,6 +162,9 @@ def main():
   # To prevent contamination from the build environment, we explicitly set
   # PYTHONPATH to only contain the path to Dawn's third_party libraries.
   env["PYTHONPATH"] = third_party_dir
+  # Don't write .pyc files, which can cause race conditions when building
+  # tint and dawn in parallel.
+  env["PYTHONDONTWRITEBYTECODE"] = "1"
   # Some environments, e.g. vpython, set PYTHONUSERBASE, which can interfere
   # with the hermetic third_party libraries.
   if "PYTHONUSERBASE" in env:

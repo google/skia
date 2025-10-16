@@ -15,6 +15,8 @@ import sys
 
 def add_common_cmake_args(parser):
   """Adds common arguments used for building with CMake."""
+  print(f"Running with Python executable: {sys.executable}")
+
   parser.add_argument("--cc", required=True, help="Path to the C compiler.")
   parser.add_argument("--cxx", required=True, help="Path to the C++ compiler.")
   parser.add_argument(

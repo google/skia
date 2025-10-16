@@ -112,6 +112,9 @@ def main():
   third_party_dir = os.path.abspath(os.path.join(dawn_dir, "third_party"))
   env = os.environ.copy()
   env["PYTHONPATH"] = third_party_dir
+  # Don't write .pyc files, which can cause race conditions when building
+  # tint and dawn in parallel.
+  env["PYTHONDONTWRITEBYTECODE"] = "1"
 
   subprocess.run(configure_cmd, check=True, env=env)
 
