@@ -4,10 +4,7 @@
 # found in the LICENSE file.
 
 import("../../gn/skia.gni")
-
-if (skia_use_dawn) {
-  import("//third_party/externals/dawn/scripts/dawn_features.gni")
-}
+import("../../third_party/dawn/args.gni")
 
 config("public_config") {
   defines = []

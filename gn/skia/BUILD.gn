@@ -679,7 +679,9 @@ config("debug_symbols") {
 }
 
 config("no_rtti") {
-  if (sanitize != "ASAN") {  # -fsanitize=vptr requires RTTI
+  # -fsanitize=vptr requires RTTI which is enabled as a part of
+  # -fsanitize=undefined
+  if (sanitize != "ASAN") {
     if (is_win) {
       cflags_cc = [ "/GR-" ]
     } else {

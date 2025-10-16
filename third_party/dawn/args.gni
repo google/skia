@@ -1,0 +1,15 @@
+# Copyright 2025 Google LLC.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+declare_args() {
+  # All of these are the same as Dawn's versions for backwards compatibility.
+  dawn_enable_d3d11 = false
+  dawn_enable_d3d12 = is_win
+  dawn_enable_opengles = false
+  dawn_enable_metal = is_mac || is_ios
+  dawn_enable_vulkan = is_linux || is_android
+
+  # This flag does nothing, but is around for backwards compatibility in case people still set it.
+  dawn_enable_desktop_gl = false
+}

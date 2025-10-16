@@ -21,10 +21,12 @@ if (is_win) {
     _cc = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu/cl.exe"
     _cxx = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu/cl.exe"
   }
+  _dawn_lib_name = "dawn_combined.lib"
   _tint_lib_name = "tint_combined.lib"
 } else {
   _cc = cc
   _cxx = cxx
+  _dawn_lib_name = "libdawn_combined.a"
   _tint_lib_name = "libtint_combined.a"
 }
 
@@ -88,7 +90,12 @@ action("tint_cmake") {
   if (is_debug && !is_win) {
     # Skia's GN toolchain for Windows doesn't set build_type to be Debug
     # and if Dawn does, that is a mismatch of _ITERATOR_DEBUG_LEVEL
-    args += [ "--build_type=Debug" ]
+    args += [
+      "--build_type=Debug",
+
+      # For performance, set O1 optimization.
+      "--cxx_flags=-O1",
+    ]
   } else {
     args += [ "--build_type=Release" ]
   }
@@ -110,6 +117,10 @@ action("tint_cmake") {
         "--ld_flags=-stdlib=libc++",
       ]
     }
+    if (sanitize == "ASAN") {
+      # See Skia's GN config("no_rtti")
+      args += [ "--enable_rtti" ]
+    }
   }
 }
 
@@ -117,4 +128,165 @@ group("tint") {
   deps = [ ":tint_cmake" ]
 
   public_configs = [ ":tint_api_config" ]
+}
+
+config("dawn_api_config") {
+  include_dirs = [
+    "../externals/dawn",
+    "../externals/dawn/include",
+    "$target_gen_dir/include",
+  ]
+  lib_dirs = [ root_out_dir ]
+  if (is_win) {
+    ldflags = [ "/WHOLEARCHIVE:dawn_combined.lib" ]
+    libs = [
+      "dawn_combined.lib",
+      "onecore.lib",
+      "user32.lib",
+      "delayimp.lib",
+      "dxguid.lib",
+      "libcpmt.lib",
+    ]
+  } else {
+    libs = [ "dawn_combined" ]
+  }
+
+  # https://dawn.googlesource.com/dawn/+/647c352f57aa8a4c2666258455158a36c0c385af/src/dawn/native/BUILD.gn#645
+  if (is_mac || is_ios) {
+    frameworks = [
+      "Foundation.framework",
+      "IOSurface.framework",
+      "IOKit.framework",
+      "Metal.framework",
+      "QuartzCore.framework",
+      "Cocoa.framework",
+    ]
+  }
+}
+
+sanitizer_args = []
+if (sanitize != "") {
+  assert(is_clang, "Need to update GN rules to handle non-Clang Sanitizer")
+  sanitizers = ""
+  if (sanitize == "ASAN") {
+    sanitizers = "undefined,address,float-divide-by-zero"
+    if (is_android) {
+      sanitizers = "address"
+    }
+    if (!is_win) {
+      # See Skia's GN config("no_rtti")
+      sanitizer_args += [ "--enable_rtti" ]
+    }
+  } else if (sanitize == "TSAN") {
+    sanitizers = "thread"
+  } else {
+    assert(false, "Unsupported sanitizer option")
+  }
+
+  _suppressions = rebase_path("../../tools/xsan.supp")
+
+  cxx_flags = [
+    "-fsanitize=$sanitizers",
+    "-fno-sanitize-recover=$sanitizers",
+    "-fsanitize-blacklist=$_suppressions",
+    "-fno-omit-frame-pointer",
+  ]
+  ld_flags = [ "-fsanitize=$sanitizers" ]
+
+  if (is_linux) {
+    cxx_flags += [ "-stdlib=libc++" ]
+    ld_flags += [ "-stdlib=libc++" ]
+  }
+
+  foreach(flag, cxx_flags) {
+    sanitizer_args += [ "--cxx_flags=" + flag ]
+  }
+  foreach(flag, ld_flags) {
+    sanitizer_args += [ "--ld_flags=" + flag ]
+  }
+}
+
+action("dawn_cmake") {
+  script = "build_dawn.py"
+
+  sources = [
+    "build_dawn.py",
+    "cmake_utils.py",
+  ]
+
+  outputs = [ "$root_out_dir/${_dawn_lib_name}" ]
+
+  depfile = "$target_gen_dir/${_dawn_lib_name}.d"
+
+  args = [
+    "--cc=" + _cc,
+    "--cxx=" + _cxx,
+    "--output_path=" + rebase_path(outputs[0], root_build_dir),
+    "--depfile_path=" + rebase_path(depfile, root_build_dir),
+    "--gen_dir=" + rebase_path(target_gen_dir, root_build_dir),
+    "--target_os=" + target_os,
+    "--target_cpu=" + target_cpu,
+    "--build_dir=cmake_dawn",
+  ]
+  if (is_clang) {
+    args += [ "--is_clang" ]
+  }
+  if (is_debug && !is_win) {
+    args += [
+      "--build_type=Debug",
+
+      # For performance, set O1 optimization.
+      "--cxx_flags=-O1",
+    ]
+  } else {
+    args += [ "--build_type=Release" ]
+  }
+  if (is_win) {
+    args += [
+      "--win_sdk=" + win_sdk,
+      "--win_sdk_version=" + win_sdk_version,
+      "--win_vc=" + win_vc,
+      "--win_toolchain_version=" + win_toolchain_version,
+    ]
+  }
+  if (is_android) {
+    args += [
+      "--android_ndk_path=" + ndk,
+      "--android_platform=android-" + ndk_api,
+    ]
+  }
+
+  if (dawn_enable_d3d11) {
+    args += [ "--dawn_enable_d3d11=true" ]
+  } else {
+    args += [ "--dawn_enable_d3d11=false" ]
+  }
+  if (dawn_enable_d3d12) {
+    args += [ "--dawn_enable_d3d12=true" ]
+  } else {
+    args += [ "--dawn_enable_d3d12=false" ]
+  }
+  if (dawn_enable_opengles) {
+    args += [ "--dawn_enable_opengles=true" ]
+  } else {
+    args += [ "--dawn_enable_opengles=false" ]
+  }
+  if (dawn_enable_metal) {
+    args += [ "--dawn_enable_metal=true" ]
+  } else {
+    args += [ "--dawn_enable_metal=false" ]
+  }
+  if (dawn_enable_vulkan) {
+    args += [ "--dawn_enable_vulkan=true" ]
+  } else {
+    args += [ "--dawn_enable_vulkan=false" ]
+  }
+
+  args += sanitizer_args
+}
+
+group("dawn") {
+  public_deps = [ ":dawn_cmake" ]
+
+  public_configs = [ ":dawn_api_config" ]
 }

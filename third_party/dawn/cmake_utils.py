@@ -52,7 +52,8 @@ def add_common_cmake_args(parser):
       required=True,
       help="A short name for the build directory.")
   parser.add_argument("--is_clang", action=argparse.BooleanOptionalAction)
-
+  parser.add_argument(
+      "--enable_rtti", action=argparse.BooleanOptionalAction, help="Enable RTTI.")
 
 def discover_dependencies(build_dir, targets):
   """Runs ninja -tinputs recursively to discover all targets, then uses

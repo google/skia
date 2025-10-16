@@ -85,6 +85,9 @@ def main():
       "-DDAWN_ENABLE_OPENGLES=OFF",
       "-DDAWN_ENABLE_VULKAN=OFF",
   ]
+  if args.enable_rtti:
+    configure_cmd.append("-DDAWN_ENABLE_RTTI=ON")
+
   cxx_flags = args.cxx_flags or []
   ld_flags = args.ld_flags or []
 

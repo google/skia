@@ -118,7 +118,8 @@ declare_args() {
 
   skia_use_vulkan = false
 
-  skia_build_fuzzers = is_clang && is_linux && target_cpu == "x64"
+  skia_build_fuzzers =
+      is_clang && is_linux && target_cpu == "x64" && !skia_use_dawn
   skia_use_libfuzzer_defaults = true
 }
 
