@@ -871,3 +871,34 @@ bool SkPathPriv::IsAxisAligned(SkSpan<const SkPoint> pts) {
     }
     return true;
 }
+
+SkPathConvexity SkPathPriv::TransformConvexity(const SkMatrix& matrix, SkSpan<const SkPoint> pts,
+                                               SkPathConvexity convexity) {
+    if (matrix.isIdentity() || pts.empty()) {
+        return convexity;
+    }
+
+    // Due to finite/fragile float numerics, we can't assume that a convex path remains
+    // convex after a transformation, so mark it as unknown here.
+    // However, some transformations are thought to be safe:
+    //    axis-aligned values under scale/translate.
+    //
+    if (SkPathConvexity_IsConvex(convexity)) {
+        if (!matrix.isScaleTranslate() || !SkPathPriv::IsAxisAligned(pts)) {
+            // Not safe to still assume we're convex...
+            convexity = SkPathConvexity::kUnknown;
+        } else {
+            SkScalar det2x2 =
+                matrix.get(SkMatrix::kMScaleX) * matrix.get(SkMatrix::kMScaleY) -
+                matrix.get(SkMatrix::kMSkewX)  * matrix.get(SkMatrix::kMSkewY);
+            if (det2x2 < 0) {
+                convexity = SkPathConvexity_OppositeConvexDirection(convexity);
+            } else if (det2x2 > 0) {
+                // we keep our direction
+            } else /* det2x == 0 */ {
+                convexity = SkPathConvexity::kConvex_Degenerate;
+            }
+        }
+    }
+    return convexity;
+}

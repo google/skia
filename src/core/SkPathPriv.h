@@ -21,6 +21,7 @@
 #include "include/private/SkIDChangeListener.h"
 #include "include/private/SkPathRef.h"
 #include "include/private/base/SkDebug.h"
+#include "src/core/SkPathData.h"
 #include "src/core/SkPathEnums.h"
 #include "src/core/SkPathRaw.h"
 
@@ -50,6 +51,9 @@ public:
     static SkPathConvexity ComputeConvexity(SkSpan<const SkPoint> pts,
                                             SkSpan<const SkPathVerb> verbs,
                                             SkSpan<const float> conicWeights);
+
+    static SkPathConvexity TransformConvexity(const SkMatrix&, SkSpan<const SkPoint>,
+                                              SkPathConvexity);
 
     static uint8_t ComputeSegmentMask(SkSpan<const SkPathVerb>);
 
@@ -390,6 +394,10 @@ public:
     static void ForceComputeConvexity(const SkPath& path) {
         path.setConvexity(SkPathConvexity::kUnknown);
         (void)path.isConvex();
+    }
+
+    static SkPathConvexity GetConvexityOrUnknown(const SkPathData& pdata) {
+        return pdata.getConvexityOrUnknown();
     }
 
     static void ReverseAddPath(SkPathBuilder* builder, const SkPath& reverseMe) {

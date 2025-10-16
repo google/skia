@@ -62,6 +62,13 @@ struct SkPathRaw;
 class SkPathData : public SkNVRefCnt<SkPathData> {
 public:
     /*
+     *  Returns an empty pathdata.
+     *
+     *  Since this is immutable, it may return the same object each time it is called.
+     */
+    static sk_sp<SkPathData> Empty();
+
+    /*
      *  Return SkPathData with a copy of these buffers, or nullptr if they are illegal.
      *  Illegal = non-finite, or non-sensical verb sequences
      */
@@ -69,7 +76,11 @@ public:
                                   SkSpan<const SkPathVerb> verbs,
                                   SkSpan<const float> conics = {});
 
-    static sk_sp<SkPathData> Empty();
+    /*
+     *  Attempt to transform src by the matrix. On success, return a new SkPathData
+     *  with the result, else return {}.
+     */
+    static sk_sp<SkPathData> MakeTransform(const SkPathRaw& src, const SkMatrix&);
 
     /*
      *  When a factory takes a startIndex, this refers to the position of the first point
@@ -155,17 +166,21 @@ public:
 
 private:
     friend class SkNVRefCnt<SkPathData>;
-    friend class SkPathBuilder;
+    friend class SkPathPriv;
 
     SkSpan<SkPoint>    fPoints;
     SkSpan<float>      fConics;
     SkSpan<SkPathVerb> fVerbs;
     SkRect             fBounds;
 
-    uint8_t                      fSegmentMask;  // SkPathSegmentMask
-    // Decide if we will lazily set this, as we do in SkPath. Need to see some runtime
-    // stats to see if defering the calculation is worth it.
+    /*
+     *  Convexity can be slow to compute, and (in theory) it can't always survive a matrix
+     *  transform (due to numeric instability). Therefore we will lazily compute it as
+     *  requested. Since we are technically always immutable, we have to store this field
+     *  in an atomic.
+     */
     mutable std::atomic<uint8_t> fConvexity;    // SkPathConvexity
+    uint8_t                      fSegmentMask;  // SkPathSegmentMask
     SkPathIsAType                fType;
     SkPathIsAData                fIsA {};
 
