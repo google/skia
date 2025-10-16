@@ -138,6 +138,16 @@
     #include "tests/TestUtils.h"
 #endif
 
+#if defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG)
+#include "include/docs/SkXPSLibpngHelpers.h"
+#include "include/encode/SkPngEncoder.h"
+#endif
+
+#if defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+#include "include/docs/SkXPSRustPngHelpers.h"
+#include "include/encode/SkPngRustEncoder.h"
+#endif
+
 #include <cmath>
 #include <functional>
 
@@ -2055,7 +2065,15 @@ Result XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const
     if (!factory) {
         return Result::Fatal("Failed to create XPS Factory.");
     }
-    auto doc = SkXPS::MakeDocument(dst, factory.get());
+    SkXPS::Options xpsOpts;
+#if defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG)
+    xpsOpts.pngEncoder = SkXPS::EncodePngUsingLibpng;
+#elif defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+    xpsOpts.pngEncoder = SkXPS::EncodePngUsingRust;
+#else
+#error "PNG encoder is required"
+#endif
+    auto doc = SkXPS::MakeDocument(dst, factory.get(), xpsOpts);
     if (!doc) {
         return Result::Fatal("SkXPS::MakeDocument() returned nullptr");
     }
@@ -2070,7 +2088,13 @@ Result XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const
 static SkSerialProcs serial_procs_using_png() {
     static SkSerialProcs procs;
     procs.fImageProc = [](SkImage* img, void*) -> sk_sp<SkData> {
-        return SkPngEncoder::Encode(as_IB(img)->directContext(), img, SkPngEncoder::Options{});
+#if defined(SK_CODEC_ENCODES_PNG_WITH_LIBPNG)
+        return SkPngEncoder::Encode(as_IB(img)->directContext(), img, {});
+#elif defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
+        return SkPngRustEncoder::Encode(as_IB(img)->directContext(), img, {});
+#else
+#error "PNG encoder is required"
+#endif
     };
     return procs;
 }

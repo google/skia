@@ -38,9 +38,11 @@ skia_filegroup(
     visibility = ["//src/encode:__pkg__"],
 )
 
+RUST_PNG_HDRS = ["SkPngRustEncoder.h"]
+
 skia_filegroup(
     name = "rust_png_public_hdrs",
-    srcs = ["SkPngRustEncoder.h"],
+    srcs = RUST_PNG_HDRS,
     visibility = ["//src/encode:__pkg__"],
 )
 
@@ -58,5 +60,6 @@ generate_cpp_files_for_headers(
               ICC_HDRS +
               JPEG_HDRS +
               PNG_HDRS +
+              RUST_PNG_HDRS +
               WEBP_HDRS,
 )
