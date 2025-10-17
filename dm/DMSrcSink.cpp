@@ -2093,7 +2093,8 @@ static SkSerialProcs serial_procs_using_png() {
 #elif defined(SK_CODEC_ENCODES_PNG_WITH_RUST)
         return SkPngRustEncoder::Encode(as_IB(img)->directContext(), img, {});
 #else
-#error "PNG encoder is required"
+        // TODO: This catches SkImageEncoder_NDK (or other).
+        return SkPngEncoder::Encode(as_IB(img)->directContext(), img, {});
 #endif
     };
     return procs;
