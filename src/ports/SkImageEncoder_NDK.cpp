@@ -24,24 +24,10 @@ static AndroidBitmapInfo info_for_pixmap(const SkPixmap& pmap) {
         .width  = SkTFitsIn<uint32_t>(pmap.width())    ? SkToU32(pmap.width())    : 0,
         .height = SkTFitsIn<uint32_t>(pmap.height())   ? SkToU32(pmap.height())   : 0,
         .stride = SkTFitsIn<uint32_t>(pmap.rowBytes()) ? SkToU32(pmap.rowBytes()) : 0,
-        .format = SkNDKConversions::toAndroidBitmapFormat(pmap.colorType())
+        .format = SkNDKConversions::toAndroidBitmapFormat(pmap.colorType()),
+        .flags = SkNDKConversions::toAndroidBitmapAlphaFlags(pmap.alphaType())
     };
 
-    switch (pmap.alphaType()) {
-        case kPremul_SkAlphaType:
-            info.flags = ANDROID_BITMAP_FLAGS_ALPHA_PREMUL;
-            break;
-        case kOpaque_SkAlphaType:
-            info.flags = ANDROID_BITMAP_FLAGS_ALPHA_OPAQUE;
-            break;
-        case kUnpremul_SkAlphaType:
-            info.flags = ANDROID_BITMAP_FLAGS_ALPHA_UNPREMUL;
-            break;
-        default:
-            SkDEBUGFAIL("unspecified alphaType");
-            info.flags = ANDROID_BITMAP_FLAGS_ALPHA_OPAQUE;
-            break;
-    }
     return info;
 }
 
