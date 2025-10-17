@@ -1042,7 +1042,6 @@ void Device::drawRRect(const SkRRect& rr, const SkPaint& paint) {
 }
 
 void Device::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
-#if !defined(SK_DISABLE_CLIP_DRAW_GEOMETRIC_INTERSECTION)
     // If there's a path effect or inverse fill, fall back to path rendering
     if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style) {
         this->SkDevice::drawDRRect(outer, inner, paint);
@@ -1167,9 +1166,6 @@ void Device::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPain
         this->drawRRect(outer, paint);
     }
     fClip.restore();
-#else
-    this->SkDevice::drawDRRect(outer, inner, paint);
-#endif
 }
 
 void Device::drawPath(const SkPath& path, const SkPaint& paint) {
@@ -1201,7 +1197,6 @@ void Device::drawPath(const SkPath& path, const SkPaint& paint) {
             this->drawRect(rect, paint);
             return;
         }
-#if !defined(SK_DISABLE_CLIP_DRAW_GEOMETRIC_INTERSECTION)
         // Detect filled nested rect contours
         SkRect rects[2];
         SkPathDirection dirs[2];
@@ -1217,7 +1212,6 @@ void Device::drawPath(const SkPath& path, const SkPaint& paint) {
                 return;
             }
         }
-#endif
     }
     this->drawGeometry(this->localToDeviceTransform(), Geometry(Shape(path)),
                        paint, SkStrokeRec(paint));
